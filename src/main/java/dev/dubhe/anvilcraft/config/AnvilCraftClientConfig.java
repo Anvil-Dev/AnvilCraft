@@ -68,8 +68,10 @@ public class AnvilCraftClientConfig {
     @Comment("Render the shared orbital rings in the overworld-like dimension")
     public boolean renderOverworldLikeSky = true;
 
-    @Comment("Lunar lighting: Potato uses directional light and glare; Standard balances shadows and ambient occlusion; "
-        + "Ultra currently uses the same effects as Standard. Shadow range is limited by render distance.")
+    @Comment("Lunar lighting: Potato uses Standard lighting and ambient occlusion without custom shadows, "
+        + "retaining vanilla entity shadows; "
+        + "Standard adds terrain, animated entity, and colored translucent shadows; Off uses vanilla lighting, ambient occlusion, "
+        + "and entity shadows. Shadow range is limited by render distance.")
     public MunLightingQuality munLightingQuality = MunLightingQuality.STANDARD;
 
     @CollapsibleObject
@@ -151,8 +153,8 @@ public class AnvilCraftClientConfig {
         POTATO,
         @SerializedName("Standard")
         STANDARD,
-        @SerializedName("Ultra")
-        ULTRA
+        @SerializedName("Off")
+        OFF
     }
 
     public enum GoggleMode implements TranslatableEnum {

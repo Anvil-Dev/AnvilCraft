@@ -309,6 +309,38 @@ public class RedstoneWireBlock extends Block implements IHammerRemovable {
             && !isManuallyHidden(level, pos, state, index);
     }
 
+    /** 导线首次求值完成后会重新通知粉线，初始化期间不能把缓存零值写入粉线功率。 */
+    public static boolean areDustInputsReady(Level level, BlockPos dustPos) {
+        if (level.isClientSide()) return true;
+        for (Direction direction : Direction.values()) {
+            BlockPos wirePos = dustPos.relative(direction);
+            if (!isDustInputReady(level, dustPos, wirePos, direction.getOpposite())) {
+                return false;
+            }
+            if (direction.getAxis().isHorizontal()
+                && !isDustInputReady(level, dustPos, wirePos.below(), Direction.UP)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private static boolean isDustInputReady(Level level, BlockPos dustPos, BlockPos wirePos, Direction tangent) {
+        BlockState state = level.getBlockState(wirePos);
+        if (!(state.getBlock() instanceof RedstoneWireBlock wire)) {
+            return true;
+        }
+        int index = getLocalIndex(state.getValue(ATTACHMENT), tangent);
+        if (index < 0
+            || !state.getValue(CONNECTION_PROPERTIES.get(index)).isConnected()
+            || !wire.isOpenTerminal(level, wirePos, state, index)
+            || !wirePos.relative(tangent).equals(dustPos)
+                && !terminalTarget(level, wirePos, state, tangent).equals(dustPos)) {
+            return true;
+        }
+        return RedstoneWireNetworkManager.isPowerReady(level, wirePos);
+    }
+
     /** 供原版红石粉采样斜下方导线的非粉线信号，避免该特殊连接只改变外观。 */
     public static int getUpwardDustSignal(BlockGetter level, BlockPos dustPos) {
         int power = 0;

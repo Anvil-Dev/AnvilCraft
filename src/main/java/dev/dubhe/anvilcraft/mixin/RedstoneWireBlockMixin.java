@@ -14,6 +14,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.ArrayList;
@@ -31,6 +32,13 @@ public abstract class RedstoneWireBlockMixin implements ITooltipProviderExtensio
         lines.add(Component.translatable("tooltip.anvilcraft.redstone.title").withStyle(ChatFormatting.BLUE));
         lines.add(Component.translatable("tooltip.anvilcraft.redstone.power", state.getValue(POWER)).withStyle(ChatFormatting.GRAY));
         return lines;
+    }
+
+    @Inject(method = "updatePowerStrength", at = @At("HEAD"), cancellable = true)
+    private void anvilcraft$waitForWireInputs(Level level, BlockPos pos, BlockState state, CallbackInfo callback) {
+        if (!RedstoneWireBlock.areDustInputsReady(level, pos)) {
+            callback.cancel();
+        }
     }
 
     @Inject(method = "calculateTargetStrength", at = @At("RETURN"), cancellable = true)

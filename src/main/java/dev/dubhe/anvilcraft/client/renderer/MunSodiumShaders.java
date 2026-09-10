@@ -83,10 +83,10 @@ public final class MunSodiumShaders {
                 }
                 anvilcraft_originalMain();
                 if (MunEnabled == 0) return;
-                vec2 light = surfaceLight(mun_Position, normal, mun_SkyAccess);
+                vec4 light = surfaceLight(mun_Position, normal, mun_SkyAccess);
                 float alpha = mun_Texel.a;
                 %s
-                vec4 color = vec4(surfaceColor(mun_Texel.rgb * mun_Tint, mun_BlockLight, light.x, normal, mun_SkyAccess, light.y), alpha);
+                vec4 color = vec4(surfaceColor(mun_Texel.rgb * mun_Tint, mun_BlockLight, light.rgb, normal, mun_SkyAccess, light.a), alpha);
                 fragColor = _linearFog(color, v_FragDistance, u_FogColor, u_FogStart, u_FogEnd);
             }
             """.formatted(embeddium ? """

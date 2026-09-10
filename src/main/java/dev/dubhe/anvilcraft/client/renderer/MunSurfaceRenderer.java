@@ -23,6 +23,7 @@ import javax.annotation.Nullable;
 
 /** 世界位置相关的面向光照和阴影；保留原版 AO、透明度以及光影包接管。 */
 public final class MunSurfaceRenderer {
+    private static final int[] TRANSLUCENT_TEXTURE_UNITS = {7, 11, 2};
     private static final MunShadowMap SHADOW_MAP = new MunShadowMap();
     private static final MunSolarLighting SOLAR = new MunSolarLighting();
     private static final MunSolarLighting SHADOW_SOLAR = new MunSolarLighting();
@@ -31,6 +32,7 @@ public final class MunSurfaceRenderer {
     private static long historyGeometryRevision;
     private static @Nullable ShaderInstance terrainShader;
     private static @Nullable ShaderInstance shadowShader;
+    private static @Nullable ShaderInstance translucentShadowShader;
     private static boolean terrainPass;
     private static boolean worldPass;
     private static boolean postProcessed;
@@ -52,11 +54,20 @@ public final class MunSurfaceRenderer {
             new ShaderInstance(event.getResourceProvider(), AnvilCraft.of("mun_shadow"), DefaultVertexFormat.POSITION_TEX_COLOR),
             instance -> shadowShader = instance
         );
+        event.registerShader(
+            new ShaderInstance(event.getResourceProvider(), AnvilCraft.of("mun_translucent_shadow"),
+                DefaultVertexFormat.POSITION_TEX_COLOR),
+            instance -> translucentShadowShader = instance
+        );
         MunPostProcessing.registerShaders(event);
     }
 
+    public static boolean isLightingEnabled() {
+        return AnvilCraft.CLIENT_CONFIG.munLightingQuality != MunLightingQuality.OFF;
+    }
+
     public static boolean usesTerrainShader() {
-        return terrainShader != null && shadowShader != null
+        return isLightingEnabled() && terrainShader != null && shadowShader != null && translucentShadowShader != null
             && MunClientSky.isMun() && !IrisState.isShaderEnabled();
     }
 
@@ -67,6 +78,11 @@ public final class MunSurfaceRenderer {
         if (enabled < 0) return;
         boolean active = usesTerrainShader();
         GL20C.glUniform1i(enabled, active ? 1 : 0);
+        // 关闭月球分支时，整数采样器仍不能与原版的浮点采样器共用纹理单元。
+        GL20C.glUniform1i(GL20C.glGetUniformLocation(program, "ShadowHistory"), 6);
+        for (int index = 0; index < 3; index++) {
+            GL20C.glUniform1i(GL20C.glGetUniformLocation(program, "TranslucentShadowMap" + index), TRANSLUCENT_TEXTURE_UNITS[index]);
+        }
         if (!active) return;
         Vec3 position = relativeCamera();
         GL20C.glUniform3f(GL20C.glGetUniformLocation(program, "CameraPosition"),
@@ -75,6 +91,7 @@ public final class MunSurfaceRenderer {
         SHADOW_SOLAR.applyShadow(program);
         SHADOW_HISTORY.apply(program, BlockPos.containing(renderOrigin));
         GL20C.glUniform1i(GL20C.glGetUniformLocation(program, "ShadowCount"), shadowCount());
+        GL20C.glUniform1i(GL20C.glGetUniformLocation(program, "TranslucentShadows"), profile.translucentShadows() ? 1 : 0);
         GL20C.glUniform1f(GL20C.glGetUniformLocation(program, "AmbientFloor"), profile.ambientFloor());
         Vec3 localAnchor = anchor.subtract(renderOrigin);
         GL20C.glUniform3f(GL20C.glGetUniformLocation(program, "ShadowAnchor"),
@@ -85,13 +102,18 @@ public final class MunSurfaceRenderer {
                 GL20C.glUniformMatrix4fv(GL20C.glGetUniformLocation(program, "ShadowMatrix" + index), false,
                     SHADOW_MAP.matrix(index).get(stack.mallocFloat(16)));
                 GL20C.glUniform4f(GL20C.glGetUniformLocation(program, "ShadowInfo" + index),
-                    profile.radius(index), SHADOW_MAP.span(index) / MunShadowProjection.DEPTH, 0, 0);
+                    SHADOW_MAP.span(index) / 2, SHADOW_MAP.span(index) / MunShadowProjection.DEPTH, 0, 0);
                 GL20C.glUniform1i(GL20C.glGetUniformLocation(program, "ShadowMap" + index), index + 8);
                 GlStateManager._activeTexture(GL20C.GL_TEXTURE8 + index);
                 GlStateManager._bindTexture(SHADOW_MAP.textureId(index));
                 GL20C.glUniform1i(GL20C.glGetUniformLocation(program, "ShadowStaticMap" + index), index + 3);
                 GlStateManager._activeTexture(GL20C.GL_TEXTURE3 + index);
                 GlStateManager._bindTexture(SHADOW_MAP.staticTextureId(index));
+            }
+            for (int index = 0; index < 3; index++) {
+                int unit = TRANSLUCENT_TEXTURE_UNITS[index];
+                GlStateManager._activeTexture(GL20C.GL_TEXTURE0 + unit);
+                GlStateManager._bindTexture(SHADOW_MAP.translucentTextureId(index));
             }
         } finally {
             GlStateManager._activeTexture(oldTexture);
@@ -108,6 +130,8 @@ public final class MunSurfaceRenderer {
         Vec3 position = relativeCamera();
         shader.safeGetUniform("CameraPosition").set((float) position.x, (float) position.y, (float) position.z);
         shader.safeGetUniform("ShadowCount").set(shadowCount());
+        shader.safeGetUniform("TranslucentShadows").set(profile.translucentShadows() ? 1 : 0);
+        for (int index = 0; index < 3; index++) shader.setSampler("TranslucentShadowMap" + index, SHADOW_MAP.translucentTextureId(index));
         shader.safeGetUniform("AmbientFloor").set(profile.ambientFloor());
         Vec3 localAnchor = anchor.subtract(renderOrigin);
         shader.safeGetUniform("ShadowAnchor").set((float) localAnchor.x, (float) localAnchor.y, (float) localAnchor.z);
@@ -116,7 +140,7 @@ public final class MunSurfaceRenderer {
             shader.setSampler("ShadowMap" + index, SHADOW_MAP.textureId(index));
             shader.setSampler("ShadowStaticMap" + index, SHADOW_MAP.staticTextureId(index));
             shader.safeGetUniform("ShadowInfo" + index).set(
-                profile.radius(index), SHADOW_MAP.span(index) / MunShadowProjection.DEPTH, 0, 0
+                SHADOW_MAP.span(index) / 2, SHADOW_MAP.span(index) / MunShadowProjection.DEPTH, 0, 0
             );
         }
         shader.safeGetUniform("AlphaCutoff").set(alphaCutoff);
@@ -132,19 +156,13 @@ public final class MunSurfaceRenderer {
         Minecraft minecraft = Minecraft.getInstance();
         ClientLevel level = minecraft.level;
         ShaderInstance shader = shadowShader;
-        if (level == null || shader == null || !usesTerrainShader()) {
+        ShaderInstance translucentShader = translucentShadowShader;
+        if (level == null || shader == null || translucentShader == null || !usesTerrainShader()) {
             SHADOW_MAP.close();
             SHADOW_HISTORY.close();
             SHADOW_CLOCK.clear();
+            MunPostProcessing.clear();
             return;
-        }
-        MunLightingQuality configured = AnvilCraft.CLIENT_CONFIG.munLightingQuality;
-        if (configured != quality) {
-            quality = configured;
-            profile = MunLightingProfile.of(configured);
-            SHADOW_MAP.close();
-            SHADOW_HISTORY.close();
-            SHADOW_CLOCK.clear();
         }
         var camera = minecraft.gameRenderer.getMainCamera();
         float tick = minecraft.getTimer().getGameTimeDeltaPartialTick(true);
@@ -163,7 +181,7 @@ public final class MunSurfaceRenderer {
         int oldBinding = GL11C.glGetInteger(GL11C.GL_TEXTURE_BINDING_2D);
         int oldProgram = GL11C.glGetInteger(GL20C.GL_CURRENT_PROGRAM);
         try {
-            SHADOW_MAP.prepare(level, anchor, renderOrigin, SHADOW_SOLAR, tick, shader, profile);
+            SHADOW_MAP.prepare(level, anchor, renderOrigin, SHADOW_SOLAR, tick, shader, translucentShader, profile);
             if (historyGeometryRevision != SHADOW_MAP.geometryRevision()) {
                 historyGeometryRevision = SHADOW_MAP.geometryRevision();
                 SHADOW_HISTORY.invalidate();
@@ -205,8 +223,26 @@ public final class MunSurfaceRenderer {
     }
 
     public static void beginWorld() {
+        updateQuality();
         worldPass = true;
         postProcessed = false;
+    }
+
+    private static void updateQuality() {
+        MunLightingQuality configured = AnvilCraft.CLIENT_CONFIG.munLightingQuality;
+        if (configured == quality) return;
+        final boolean rebuild = (configured == MunLightingQuality.OFF) != (quality == MunLightingQuality.OFF);
+        quality = configured;
+        profile = MunLightingProfile.of(configured);
+        SHADOW_MAP.close();
+        SHADOW_HISTORY.close();
+        SHADOW_CLOCK.clear();
+        MunPostProcessing.clear();
+        if (rebuild && MunClientSky.isMun()) {
+            Minecraft minecraft = Minecraft.getInstance();
+            minecraft.levelRenderer.allChanged();
+            minecraft.gameRenderer.lightTexture().tick();
+        }
     }
 
     public static void endWorld() {

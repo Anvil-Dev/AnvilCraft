@@ -7,12 +7,15 @@ import com.mojang.blaze3d.vertex.ByteBufferBuilder;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexBuffer;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import dev.anvilcraft.lib.v2.cube.client.SelectionPart;
 import dev.anvilcraft.lib.v2.cube.geometry.ConvexShape;
 import dev.anvilcraft.lib.v2.cube.geometry.SelectionGeometry;
 import dev.anvilcraft.lib.v2.cube.mixin.client.WeightedModelAccessor;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.ItemBlockRenderTypes;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
@@ -21,6 +24,7 @@ import net.minecraft.client.resources.model.SimpleBakedModel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.HalfTransparentBlock;
 import net.minecraft.world.level.block.RenderShape;
@@ -96,6 +100,11 @@ final class MunShadowMesh implements AutoCloseable {
         boolean full = unitCube(Minecraft.getInstance().getBlockRenderer().getBlockModel(state), state, 0);
         FULL_CUBES.put(state, full);
         return full;
+    }
+
+    static boolean translucent(BlockState state, BlockGetter level, BlockPos pos) {
+        return state.getRenderShape() == RenderShape.MODEL && state.getLightBlock(level, pos) < level.getMaxLightLevel()
+            && (!castsShadow(state, level, pos) || ItemBlockRenderTypes.getChunkRenderType(state) == RenderType.translucent());
     }
 
     private static boolean unitCube(BakedModel model, BlockState state, int depth) {
@@ -190,7 +199,15 @@ final class MunShadowMesh implements AutoCloseable {
             return this.count + 36 > this.limit;
         }
 
+        int remainingVertices() {
+            return this.limit - this.count;
+        }
+
         void model(BakedModel model, BlockState state, BlockPos pos, Vec3 offset, boolean opaque) {
+            this.model(model, state, pos, offset, opaque, null);
+        }
+
+        void model(BakedModel model, BlockState state, BlockPos pos, Vec3 offset, boolean opaque, @Nullable BlockAndTintGetter level) {
             List<BakedQuad> quads = model instanceof SimpleBakedModel ? MODELS.getIfPresent(state) : null;
             if (quads == null) {
                 quads = new ArrayList<>();
@@ -219,13 +236,27 @@ final class MunShadowMesh implements AutoCloseable {
                 }
                 for (int vertex : TRIANGLE_INDICES) {
                     int index = vertex * stride;
-                    this.vertex((float) offset.x + Float.intBitsToFloat(data[index]),
+                    int packed = data[index + 3];
+                    int color = (packed & 0xFF000000) | (solid ? 0xFF0000 : 0);
+                    if (level != null) {
+                        int tint = quad.isTinted()
+                            ? Minecraft.getInstance().getBlockColors().getColor(state, level, pos, quad.getTintIndex()) : -1;
+                        color = (packed & 0xFF000000) | ((packed & 255) * (tint >> 16 & 255) / 255) << 16
+                            | ((packed >> 8 & 255) * (tint >> 8 & 255) / 255) << 8 | (packed >> 16 & 255) * (tint & 255) / 255;
+                    }
+                    this.coloredVertex((float) offset.x + Float.intBitsToFloat(data[index]),
                         (float) offset.y + Float.intBitsToFloat(data[index + 1]),
                         (float) offset.z + Float.intBitsToFloat(data[index + 2]),
                         Float.intBitsToFloat(data[index + 4]), Float.intBitsToFloat(data[index + 5]),
-                        solid, data[index + 3] >>> 24);
+                        color);
                 }
             }
+        }
+
+        void fluid(BlockAndTintGetter level, BlockState state, BlockPos pos, int originY) {
+            FluidVertices consumer = new FluidVertices((pos.getY() & ~15) - originY);
+            Minecraft.getInstance().getBlockRenderer().renderLiquid(pos, level, consumer, state, state.getFluidState());
+            consumer.flush();
         }
 
         void part(SelectionPart part, Vec3 offset) {
@@ -318,7 +349,11 @@ final class MunShadowMesh implements AutoCloseable {
         }
 
         private void vertex(float x, float y, float z, float u, float v, boolean opaque, int alpha) {
-            this.vertices.addVertex(x, y, z).setUv(u, v).setColor(opaque ? 255 : 0, 0, 0, alpha);
+            this.coloredVertex(x, y, z, u, v, alpha << 24 | (opaque ? 0xFF0000 : 0));
+        }
+
+        private void coloredVertex(float x, float y, float z, float u, float v, int color) {
+            this.vertices.addVertex(x, y, z).setUv(u, v).setColor(color);
             this.count++;
             this.minX = Math.min(this.minX, x);
             this.minY = Math.min(this.minY, y);
@@ -341,6 +376,66 @@ final class MunShadowMesh implements AutoCloseable {
         @Override
         public void close() {
             this.storage.close();
+        }
+
+        private final class FluidVertices implements VertexConsumer {
+            private final float[] quad = new float[20];
+            private final int[] colors = new int[4];
+            private final int heightOffset;
+            private int size;
+
+            private FluidVertices(int heightOffset) {
+                this.heightOffset = heightOffset;
+            }
+
+            @Override
+            public VertexConsumer addVertex(float x, float y, float z) {
+                if (this.size == 4) this.flush();
+                int index = this.size++ * 5;
+                this.quad[index] = x;
+                this.quad[index + 1] = y + this.heightOffset;
+                this.quad[index + 2] = z;
+                return this;
+            }
+
+            @Override
+            public VertexConsumer setColor(int red, int green, int blue, int alpha) {
+                this.colors[this.size - 1] = alpha << 24 | red << 16 | green << 8 | blue;
+                return this;
+            }
+
+            @Override
+            public VertexConsumer setUv(float u, float v) {
+                this.quad[(this.size - 1) * 5 + 3] = u;
+                this.quad[(this.size - 1) * 5 + 4] = v;
+                return this;
+            }
+
+            @Override
+            public VertexConsumer setUv1(int u, int v) {
+                return this;
+            }
+
+            @Override
+            public VertexConsumer setUv2(int u, int v) {
+                return this;
+            }
+
+            @Override
+            public VertexConsumer setNormal(float x, float y, float z) {
+                return this;
+            }
+
+            private void flush() {
+                if (this.size == 4 && count + 6 <= limit) {
+                    for (int vertex : TRIANGLE_INDICES) {
+                        int index = vertex * 5;
+                        coloredVertex(this.quad[index], this.quad[index + 1], this.quad[index + 2],
+                            this.quad[index + 3], this.quad[index + 4], this.colors[vertex]);
+                    }
+                }
+                this.size = 0;
+            }
         }
     }
 

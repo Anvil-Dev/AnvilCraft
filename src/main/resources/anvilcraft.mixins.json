@@ -109,6 +109,7 @@
       "BlockStateBaseMixin",
     "ClientLevelMixin",
     "MunShadowChunkMixin",
+    "MunEntityShadowMixin",
       "ClientPacketListenerMixin",
       "CreativeModeInventoryScreenMixin",
       "GameRendererMixin",

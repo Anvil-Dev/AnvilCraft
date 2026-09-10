@@ -66,6 +66,7 @@ public final class MunDimensionEffects extends DimensionSpecialEffects {
         ClientLevel level, float partialTicks, float skyDarken, float blockLightRedFlicker,
         float skyLight, int pixelX, int pixelY, Vector3f colors
     ) {
+        if (!MunSurfaceRenderer.isLightingEnabled()) return;
         float block = LightTexture.getBrightness(level.dimensionType(), pixelX) * blockLightRedFlicker;
         colors.set(block, block * ((block * 0.6F + 0.4F) * 0.6F + 0.4F), block * (block * block * 0.6F + 0.4F));
         // 以接近末地的基础亮度保证背光面可读，天空仍然保持真空背景。

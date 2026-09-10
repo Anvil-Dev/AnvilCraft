@@ -7,6 +7,7 @@ uniform vec3 ShadowScale;
 uniform vec3 ChunkOffset;
 out vec2 texCoord;
 out vec2 opacity;
+out vec4 shadowColor;
 void main() {
     // Resolve model-local world rays before introducing the movable map window.
     vec3 projected = solarProject(Position);
@@ -15,4 +16,5 @@ void main() {
         -subpixel.y * ShadowScale.x + ChunkOffset.y, projected.y * ShadowScale.y + ChunkOffset.z, 1.0);
     texCoord = UV0;
     opacity = Color.ra;
+    shadowColor = Color;
 }

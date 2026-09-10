@@ -14,9 +14,13 @@
     { "name": "ShadowStaticMap0" },
     { "name": "ShadowStaticMap1" },
     { "name": "ShadowStaticMap2" },
-    { "name": "ShadowHistory" }
+    { "name": "ShadowHistory" },
+    { "name": "TranslucentShadowMap0" },
+    { "name": "TranslucentShadowMap1" },
+    { "name": "TranslucentShadowMap2" }
   ],
   "uniforms": [
+    { "name": "TranslucentShadows", "type": "int", "count": 1, "values": [0] },
     { "name": "ShadowHistoryFrame", "type": "int", "count": 1, "values": [0] },
     { "name": "ShadowHistoryPrevious", "type": "int", "count": 1, "values": [-1] },
     { "name": "ShadowHistoryOrigin", "type": "int", "count": 3, "values": [0, 0, 0] },

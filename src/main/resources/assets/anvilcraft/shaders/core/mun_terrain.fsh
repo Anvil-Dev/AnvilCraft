@@ -28,9 +28,9 @@ void main() {
     if (!gl_FrontFacing) normal = -normal;
     vec4 texel = texture(Sampler0, texCoord0);
     if (texel.a < AlphaCutoff) discard;
-    vec2 light = surfaceLight(worldPosition, normal, skyAccess);
+    vec4 light = surfaceLight(worldPosition, normal, skyAccess);
     vec3 albedo = texel.rgb * vertexColor.rgb * ColorModulator.rgb;
     float alpha = texel.a * vertexColor.a * ColorModulator.a;
-    vec4 color = vec4(surfaceColor(albedo, blockLight, light.x, normal, skyAccess, light.y), alpha);
+    vec4 color = vec4(surfaceColor(albedo, blockLight, light.rgb, normal, skyAccess, light.a), alpha);
     fragColor = linear_fog(color, vertexDistance, FogStart, FogEnd, FogColor);
 }

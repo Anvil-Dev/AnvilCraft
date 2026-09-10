@@ -47,6 +47,7 @@ public final class MunShadowMap implements AutoCloseable {
     private final Set<Long> denied = new HashSet<>();
     private List<ChunkPos> updateOrder = List.of();
     private final List<BlockEntity> dynamicCandidates = new ArrayList<>();
+    private final MunEntityShadows entities = new MunEntityShadows();
     private final Cascade[] cascades = {new Cascade(), new Cascade(), new Cascade()};
     private @Nullable ClientLevel level;
     private @Nullable MunLightingProfile profile;
@@ -60,6 +61,8 @@ public final class MunShadowMap implements AutoCloseable {
     private int originY;
     private int originZ = Integer.MIN_VALUE;
     private int cacheVertices;
+    private int cacheRadius;
+    private int farRadius;
     private int readyCascades;
     private long geometryRevision;
     private boolean meshesPending = true;
@@ -67,7 +70,7 @@ public final class MunShadowMap implements AutoCloseable {
     private long lastDynamicScan = Long.MIN_VALUE;
 
     void prepare(ClientLevel level, Vec3 anchor, Vec3 renderOrigin, MunSolarLighting solar,
-                 float partialTick, ShaderInstance shader, MunLightingProfile profile) {
+                 float partialTick, ShaderInstance shader, ShaderInstance translucentShader, MunLightingProfile profile) {
         if (this.level != level || this.profile != profile) {
             this.close();
             this.level = level;
@@ -76,18 +79,25 @@ public final class MunShadowMap implements AutoCloseable {
         }
         this.anchor = anchor;
         this.renderOrigin = renderOrigin;
-        int x = (((int) Math.floor(anchor.x)) & ~15) - profile.cacheRadius();
-        int z = (((int) Math.floor(anchor.z)) & ~15) - profile.cacheRadius();
-        if (x != this.originX || z != this.originZ) this.moveWindow(x, z, profile);
+        this.farRadius = Math.max(profile.distance(), Minecraft.getInstance().options.getEffectiveRenderDistance() * 16);
+        int radius = this.farRadius + profile.cacheRadius() - profile.distance();
+        int x = (((int) Math.floor(anchor.x)) & ~15) - radius;
+        int z = (((int) Math.floor(anchor.z)) & ~15) - radius;
+        if (x != this.originX || z != this.originZ || radius != this.cacheRadius) {
+            this.cacheRadius = radius;
+            this.moveWindow(x, z);
+        }
         this.updateMeshes(level, profile);
         this.refreshDynamic(level, partialTick, profile);
+        this.entities.refresh(level, anchor, renderOrigin, partialTick, profile);
         int ground = level.getHeight(Heightmap.Types.WORLD_SURFACE, (int) Math.floor(anchor.x), (int) Math.floor(anchor.z));
-        Vec3 center = Math.abs(ground - anchor.y) <= 16 ? new Vec3(anchor.x, ground, anchor.z) : anchor;
-        this.render(solar, center, shader, profile);
+        // 高空时仍以地面为投影中心，避免太阳斜射把窗口从脚下的地形移走。
+        Vec3 center = new Vec3(anchor.x, ground, anchor.z);
+        this.render(solar, center, shader, translucentShader, profile, level.getGameTime());
         this.readyCascades = profile.cascades();
     }
 
-    private void moveWindow(int x, int z, MunLightingProfile profile) {
+    private void moveWindow(int x, int z) {
         this.meshesPending = true;
         this.lastDynamicScan = Long.MIN_VALUE;
         this.originX = x;
@@ -106,7 +116,7 @@ public final class MunShadowMap implements AutoCloseable {
         this.invalidated.removeIf(key -> !this.contains(new ChunkPos(key)));
         this.denied.clear();
         List<ChunkPos> order = new ArrayList<>();
-        int side = profile.cacheRadius() / 8;
+        int side = this.cacheRadius / 8;
         for (int dz = 0; dz < side; dz++) {
             for (int dx = 0; dx < side; dx++) order.add(new ChunkPos((x >> 4) + dx, (z >> 4) + dz));
         }
@@ -139,7 +149,7 @@ public final class MunShadowMap implements AutoCloseable {
                 LevelChunk chunk = level.getChunkSource().getChunk(next.x, next.z, ChunkStatus.FULL, false);
                 if (chunk == null) return;
                 this.invalidated.remove(next.toLong());
-                this.building = new BuildJob(chunk, level.getHeight(), profile.chunkVertices());
+                this.building = new BuildJob(chunk, level.getHeight(), profile.chunkVertices(), profile.translucentShadows());
             }
             if (this.building.step(level, this.originY)) {
                 this.admit(this.building.finish(), profile);
@@ -261,20 +271,22 @@ public final class MunShadowMap implements AutoCloseable {
         }
     }
 
-    private void render(MunSolarLighting solar, Vec3 center, ShaderInstance shader, MunLightingProfile profile) {
+    private void render(MunSolarLighting solar, Vec3 center, ShaderInstance shader, ShaderInstance translucentShader,
+                        MunLightingProfile profile, long gameTime) {
         Vec3 projectedCenter = solar.project(center);
         boolean dirty = false;
         for (int index = 0; index < profile.cascades(); index++) {
             Cascade cascade = this.cascades[index];
-            cascade.span = profile.radius(index) * 2;
-            int resolution = cascade.target == null
-                ? Math.min(profile.resolution(), RenderSystem.maxSupportedTextureSize()) : cascade.target.size();
-            boolean moved = cascade.projection.update(projectedCenter, this.renderOrigin, cascade.span, resolution);
+            cascade.span = (index == 2 ? this.farRadius : profile.radius(index)) * 2;
+            cascade.resolution = Math.min(profile.resolution(index), RenderSystem.maxSupportedTextureSize());
+            boolean moved = cascade.projection.update(projectedCenter, this.renderOrigin, cascade.span, cascade.resolution);
             cascade.dirty = cascade.target == null || moved || cascade.geometryRevision != this.geometryRevision
                 || cascade.solarRevision != solar.shadowRevision();
-            cascade.dynamicDirty = this.dynamic != null && (cascade.dirty || cascade.dynamicTarget == null
-                || cascade.dynamicFingerprint != this.dynamicFingerprint);
-            dirty |= cascade.dirty || cascade.dynamicDirty;
+            cascade.dynamicDirty = this.hasDynamic() && (cascade.dirty || cascade.dynamicTarget == null
+                || cascade.dynamicFingerprint != this.dynamicFingerprint || profile.entityShadows());
+            cascade.translucentDirty = profile.translucentShadows() && (cascade.dirty || cascade.translucentTarget == null
+                || cascade.translucentTick != gameTime);
+            dirty |= cascade.dirty || cascade.dynamicDirty || cascade.translucentDirty;
         }
         if (!dirty) return;
         try (MemoryStack stack = MemoryStack.stackPush()) {
@@ -304,10 +316,10 @@ public final class MunShadowMap implements AutoCloseable {
                 if (offset == null) throw new IllegalStateException("Missing lunar shadow draw uniforms");
                 for (int index = 0; index < profile.cascades(); index++) {
                     Cascade cascade = this.cascades[index];
-                    if (!cascade.dirty && !cascade.dynamicDirty) continue;
-                    if (cascade.target == null) cascade.target = new MunShadowTarget(profile.resolution());
+                    if (!cascade.dirty && !cascade.dynamicDirty && !cascade.translucentDirty) continue;
+                    if (cascade.target == null) cascade.target = new MunShadowTarget(cascade.resolution);
                     if (cascade.dynamicDirty && cascade.dynamicTarget == null) {
-                        cascade.dynamicTarget = new MunShadowTarget(profile.resolution());
+                        cascade.dynamicTarget = new MunShadowTarget(cascade.resolution);
                     }
                     shader.setDefaultUniforms(VertexFormat.Mode.TRIANGLES, cascade.projection.matrix(), new Matrix4f(),
                         Minecraft.getInstance().getWindow());
@@ -322,18 +334,32 @@ public final class MunShadowMap implements AutoCloseable {
                             Vec3 origin = new Vec3(chunk.chunk.getPos().getMinBlockX(), this.originY, chunk.chunk.getPos().getMinBlockZ());
                             this.draw(chunk.mesh, origin, cascade, solar, shader, offset);
                         }
+                        if (profile.translucentShadows()) {
+                            shader.clear();
+                            this.drawTranslucent(cascade, solar, translucentShader, true);
+                            shader.apply();
+                        }
                         cascade.geometryRevision = this.geometryRevision;
                         cascade.solarRevision = solar.shadowRevision();
                     }
-                    if (cascade.dynamicDirty && this.dynamic != null && cascade.dynamicTarget != null) {
+                    if (cascade.dynamicDirty && cascade.dynamicTarget != null) {
                         cascade.dynamicTarget.copyDepthFrom(cascade.target);
-                        this.draw(this.dynamic, this.dynamicOrigin, cascade, solar, shader, offset);
+                        if (this.dynamic != null) this.draw(this.dynamic, this.dynamicOrigin, cascade, solar, shader, offset);
+                        solar.origin(shader, this.renderOrigin);
+                        offset.set(cascade.projection.offset(this.renderOrigin));
+                        offset.upload();
+                        this.entities.draw(shader);
                         cascade.dynamicFingerprint = this.dynamicFingerprint;
                     }
                     shader.clear();
+                    if (cascade.translucentDirty) {
+                        this.drawTranslucent(cascade, solar, translucentShader, false);
+                        cascade.translucentTick = gameTime;
+                    }
                 }
             } finally {
                 shader.clear();
+                translucentShader.clear();
                 VertexBuffer.unbind();
                 RenderSystem.setShaderTexture(0, texture);
                 GlStateManager._glBindFramebuffer(GL30C.GL_DRAW_FRAMEBUFFER, framebuffer);
@@ -353,12 +379,38 @@ public final class MunShadowMap implements AutoCloseable {
         }
     }
 
+    private void drawTranslucent(Cascade cascade, MunSolarLighting solar, ShaderInstance shader, boolean opaque) {
+        if (!opaque) {
+            if (cascade.translucentTarget == null) cascade.translucentTarget = new MunShadowTarget(cascade.resolution, true);
+            cascade.translucentTarget.bind();
+        }
+        shader.setDefaultUniforms(VertexFormat.Mode.TRIANGLES, cascade.projection.matrix(), new Matrix4f(),
+            Minecraft.getInstance().getWindow());
+        solar.apply(shader);
+        shader.safeGetUniform("OpaquePass").set(opaque ? 1 : 0);
+        shader.safeGetUniform("ShadowScale").set(2 / cascade.span, -2 / MunShadowProjection.DEPTH,
+            cascade.resolution / cascade.span);
+        Uniform offset = shader.getUniform("ChunkOffset");
+        if (offset == null) throw new IllegalStateException("Missing lunar translucent shadow uniforms");
+        shader.apply();
+        for (ChunkMesh chunk : this.chunks.values()) {
+            if (chunk.translucent == null) continue;
+            Vec3 origin = new Vec3(chunk.chunk.getPos().getMinBlockX(), this.originY, chunk.chunk.getPos().getMinBlockZ());
+            this.draw(chunk.translucent, origin, cascade, solar, shader, offset);
+        }
+        shader.clear();
+    }
+
     private void draw(MunShadowMesh mesh, Vec3 origin, Cascade cascade, MunSolarLighting solar,
                       ShaderInstance shader, Uniform offset) {
         solar.origin(shader, origin);
         offset.set(cascade.projection.offset(origin));
         offset.upload();
         mesh.draw();
+    }
+
+    private boolean hasDynamic() {
+        return this.dynamic != null || !this.entities.isEmpty();
     }
 
     public void blockChanged(ClientLevel level, BlockPos pos, BlockState previous, BlockState state) {
@@ -380,7 +432,7 @@ public final class MunShadowMap implements AutoCloseable {
     private boolean contains(ChunkPos pos) {
         int x = pos.getMinBlockX() - this.originX;
         int z = pos.getMinBlockZ() - this.originZ;
-        return this.profile != null && x >= 0 && x < this.profile.cacheRadius() * 2 && z >= 0 && z < this.profile.cacheRadius() * 2;
+        return this.profile != null && x >= 0 && x < this.cacheRadius * 2 && z >= 0 && z < this.cacheRadius * 2;
     }
 
     public int count() {
@@ -398,8 +450,13 @@ public final class MunShadowMap implements AutoCloseable {
 
     public int textureId(int index) {
         Cascade cascade = this.cascades[index];
-        MunShadowTarget target = this.dynamic == null ? cascade.target : cascade.dynamicTarget;
+        MunShadowTarget target = this.hasDynamic() ? cascade.dynamicTarget : cascade.target;
         return index < this.readyCascades && target != null ? target.texture() : 0;
+    }
+
+    int translucentTextureId(int index) {
+        MunShadowTarget target = this.cascades[index].translucentTarget;
+        return index < this.readyCascades && target != null ? target.transmission() : 0;
     }
 
     public Matrix4f matrix(int index) {
@@ -423,13 +480,16 @@ public final class MunShadowMap implements AutoCloseable {
         for (Cascade cascade : this.cascades) {
             if (cascade.target != null) cascade.target.close();
             if (cascade.dynamicTarget != null) cascade.dynamicTarget.close();
+            if (cascade.translucentTarget != null) cascade.translucentTarget.close();
             cascade.target = null;
             cascade.dynamicTarget = null;
+            cascade.translucentTarget = null;
         }
         if (this.building != null) this.building.close();
         this.building = null;
         if (this.dynamic != null) this.dynamic.close();
         this.dynamic = null;
+        this.entities.close();
         this.dynamicFingerprint = 0;
         this.chunks.values().forEach(ChunkMesh::close);
         this.chunks.clear();
@@ -441,6 +501,8 @@ public final class MunShadowMap implements AutoCloseable {
         this.originX = Integer.MIN_VALUE;
         this.originZ = Integer.MIN_VALUE;
         this.cacheVertices = 0;
+        this.cacheRadius = 0;
+        this.farRadius = 0;
         this.readyCascades = 0;
         this.meshesPending = true;
         this.lastChunkCheck = Long.MIN_VALUE;
@@ -453,25 +515,30 @@ public final class MunShadowMap implements AutoCloseable {
         private final MunShadowProjection projection = new MunShadowProjection();
         private @Nullable MunShadowTarget target;
         private @Nullable MunShadowTarget dynamicTarget;
+        private @Nullable MunShadowTarget translucentTarget;
         private float span;
+        private int resolution;
         private long geometryRevision;
         private long solarRevision;
         private boolean dirty;
         private boolean dynamicDirty;
+        private boolean translucentDirty;
+        private long translucentTick;
         private long dynamicFingerprint;
     }
 
     private record PlacedPart(BlockPos position, SelectionPart part) {
     }
 
-    private record ChunkMesh(LevelChunk chunk, @Nullable MunShadowMesh mesh) implements AutoCloseable {
+    private record ChunkMesh(LevelChunk chunk, @Nullable MunShadowMesh mesh, @Nullable MunShadowMesh translucent) implements AutoCloseable {
         int vertices() {
-            return this.mesh == null ? 0 : this.mesh.vertexCount();
+            return (this.mesh == null ? 0 : this.mesh.vertexCount()) + (this.translucent == null ? 0 : this.translucent.vertexCount());
         }
 
         @Override
         public void close() {
             if (this.mesh != null) this.mesh.close();
+            if (this.translucent != null) this.translucent.close();
         }
     }
 
@@ -479,17 +546,24 @@ public final class MunShadowMap implements AutoCloseable {
         private final LevelChunk chunk;
         private final int height;
         private final int limit;
+        private final boolean translucentShadows;
         private final int[] columns;
         private final List<BlockPos> models = new ArrayList<>();
+        private final List<BlockPos> translucentModels = new ArrayList<>();
+        private final List<BlockPos> fluids = new ArrayList<>();
         private int section;
         private int meshSlice;
         private int model;
+        private int translucentModel;
+        private int fluid;
         private @Nullable MunShadowMesh.Builder builder;
+        private @Nullable MunShadowMesh.Builder translucentBuilder;
 
-        private BuildJob(LevelChunk chunk, int height, int limit) {
+        private BuildJob(LevelChunk chunk, int height, int limit, boolean translucentShadows) {
             this.chunk = chunk;
             this.height = height;
             this.limit = limit;
+            this.translucentShadows = translucentShadows;
             this.columns = new int[((height + 31) / 32) * 256];
         }
 
@@ -504,12 +578,28 @@ public final class MunShadowMap implements AutoCloseable {
             if (!this.builder.columns(this.columns, this.height, this.meshSlice++)) {
                 return false;
             }
-            if (this.model >= this.models.size() || this.builder.full()) return true;
-            BlockPos pos = this.models.get(this.model++);
+            if (this.model < this.models.size() && !this.builder.full()) {
+                BlockPos pos = this.models.get(this.model++);
+                BlockState state = level.getBlockState(pos);
+                Vec3 offset = state.getOffset(level, pos).add(pos.getX() & 15, pos.getY() - originY, pos.getZ() & 15);
+                this.builder.model(Minecraft.getInstance().getBlockRenderer().getBlockModel(state), state, pos, offset,
+                    state.getLightBlock(level, pos) >= level.getMaxLightLevel());
+                return false;
+            }
+            if (!this.translucentShadows || this.builder.full()) return true;
+            if (this.translucentBuilder == null) this.translucentBuilder = new MunShadowMesh.Builder(this.builder.remainingVertices());
+            if (this.translucentBuilder.full()) return true;
+            if (this.translucentModel >= this.translucentModels.size()) {
+                if (this.fluid >= this.fluids.size()) return true;
+                BlockPos pos = this.fluids.get(this.fluid++);
+                this.translucentBuilder.fluid(level, level.getBlockState(pos), pos, originY);
+                return false;
+            }
+            BlockPos pos = this.translucentModels.get(this.translucentModel++);
             BlockState state = level.getBlockState(pos);
             Vec3 offset = state.getOffset(level, pos).add(pos.getX() & 15, pos.getY() - originY, pos.getZ() & 15);
-            this.builder.model(Minecraft.getInstance().getBlockRenderer().getBlockModel(state), state, pos, offset,
-                state.getLightBlock(level, pos) >= level.getMaxLightLevel());
+            this.translucentBuilder.model(Minecraft.getInstance().getBlockRenderer().getBlockModel(state),
+                state, pos, offset, false, level);
             return false;
         }
 
@@ -529,6 +619,13 @@ public final class MunShadowMap implements AutoCloseable {
                         BlockState state = section.getBlockState(x, y, z);
                         if (state.isAir()) continue;
                         pos.set(this.chunk.getPos().getMinBlockX() + x, originY + localY, this.chunk.getPos().getMinBlockZ() + z);
+                        if (this.translucentShadows) {
+                            if (!state.getFluidState().isEmpty() && this.fluids.size() < this.limit / 64) this.fluids.add(pos.immutable());
+                            if (MunShadowMesh.translucent(state, level, pos)) {
+                                if (this.translucentModels.size() < this.limit / 64) this.translucentModels.add(pos.immutable());
+                                continue;
+                            }
+                        }
                         if (!MunShadowMesh.castsShadow(state, level, pos)) continue;
                         if (MunShadowMesh.fullCube(state, level, pos)) {
                             this.columns[(localY >> 5) * 256 + z * 16 + x] |= 1 << (localY & 31);
@@ -541,12 +638,14 @@ public final class MunShadowMap implements AutoCloseable {
         }
 
         ChunkMesh finish() {
-            return new ChunkMesh(this.chunk, this.builder == null ? null : this.builder.finish());
+            return new ChunkMesh(this.chunk, this.builder == null ? null : this.builder.finish(),
+                this.translucentBuilder == null ? null : this.translucentBuilder.finish());
         }
 
         @Override
         public void close() {
             if (this.builder != null) this.builder.close();
+            if (this.translucentBuilder != null) this.translucentBuilder.close();
         }
     }
 }

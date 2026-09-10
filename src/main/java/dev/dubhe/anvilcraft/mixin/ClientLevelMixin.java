@@ -27,7 +27,9 @@ abstract class ClientLevelMixin {
     @ModifyReturnValue(method = "getSkyDarken(F)F", at = @At("RETURN"))
     private float anvilcraft$addOverworldLikeEclipseDarken(float original) {
         ClientLevel level = (ClientLevel) (Object) this;
-        if (level.dimension().equals(CelestialTravelManager.MUN_LEVEL)) return MunClientSky.sunlight(level);
+        if (level.dimension().equals(CelestialTravelManager.MUN_LEVEL)) {
+            return MunSurfaceRenderer.isLightingEnabled() ? MunClientSky.sunlight(level) : original;
+        }
         if (!CelestialTravelManager.isOverworldLike(level.dimension())) return original;
         return OverworldLikeClientState.modifySkyDarken(level, original);
     }

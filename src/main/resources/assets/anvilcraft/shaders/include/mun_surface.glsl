@@ -6,6 +6,10 @@ uniform sampler2D ShadowMap2;
 uniform sampler2D ShadowStaticMap0;
 uniform sampler2D ShadowStaticMap1;
 uniform sampler2D ShadowStaticMap2;
+uniform usampler2D TranslucentShadowMap0;
+uniform usampler2D TranslucentShadowMap1;
+uniform usampler2D TranslucentShadowMap2;
+uniform int TranslucentShadows;
 uniform vec3 ShadowSolarReference;
 uniform vec3 ShadowSolarOrigin;
 uniform vec2 ShadowSolarHorizon0;
@@ -151,8 +155,9 @@ float worldShadowVisibility(vec3 position, vec3 normal, float skyAccess) {
     vec3 across;
     vec3 receiver = shadowReceiver(position, normal, along, across);
     float distance = length(receiver - ShadowAnchor);
+    float groundDistance = length(receiver.xz - ShadowAnchor.xz);
     float radius = ShadowCount > 2 ? ShadowInfo2.x : (ShadowCount > 1 ? ShadowInfo1.x : ShadowInfo0.x);
-    if (distance >= radius) return fallback;
+    if ((ShadowCount > 2 ? groundDistance : distance) >= radius) return fallback;
     vec3 biased = receiver + normal * 0.004;
     vec3 sun = shadowSolarDirection(biased);
     vec2 slope = sun.xz / max(sun.y, 0.025);
@@ -182,8 +187,8 @@ float worldShadowVisibility(vec3 position, vec3 normal, float skyAccess) {
         remaining -= weight;
         if (remaining <= 0.0) return stableShadowVisibility(receiver, normal, visibility, animated);
     }
-    if (ShadowCount > 2 && distance < ShadowInfo2.x) {
-        float weight = remaining * cascadeWeight(ShadowMatrix2, ShadowInfo2, projected, distance, 0.85);
+    if (ShadowCount > 2 && groundDistance < ShadowInfo2.x) {
+        float weight = remaining * cascadeWeight(ShadowMatrix2, ShadowInfo2, projected, groundDistance, 0.95);
         if (weight > 0.0) {
             vec2 sampleValue = cascadeVisibility(ShadowMap2, ShadowStaticMap2, ShadowMatrix2, projected, along, across);
             visibility += weight * sampleValue.x;
@@ -195,7 +200,65 @@ float worldShadowVisibility(vec3 position, vec3 normal, float skyAccess) {
     return stableShadowVisibility(receiver, normal, visibility + remaining * fallback, animated);
 }
 
-vec2 surfaceLight(vec3 position, vec3 normal, float skyAccess) {
+vec3 translucentVisibility(usampler2D depths, mat4 matrix, vec3 projected, vec3 along, vec3 across) {
+    vec3 point = (matrix * vec4(projected, 1.0)).xyz * 0.5 + 0.5;
+    vec3 first = (matrix * vec4(along, 0.0)).xyz * 0.5;
+    vec3 second = (matrix * vec4(across, 0.0)).xyz * 0.5;
+    float determinant = first.x * second.y - first.y * second.x;
+    vec2 gradient = abs(determinant) > 1e-14
+        ? vec2(first.z * second.y - first.y * second.z, first.x * second.z - first.z * second.x) / determinant
+        : vec2(0.0);
+    ivec2 size = textureSize(depths, 0);
+    vec2 location = point.xy * vec2(size) - 0.5;
+    ivec2 base = ivec2(floor(location));
+    vec2 fraction = fract(location);
+    vec3 result = vec3(0.0);
+    for (int sampleIndex = 0; sampleIndex < 4; sampleIndex++) {
+        ivec2 offset = ivec2(sampleIndex % 2, sampleIndex / 2);
+        ivec2 pixel = clamp(base + offset, ivec2(0), size - 1);
+        vec2 center = (vec2(pixel) + 0.5) / vec2(size);
+        float receiverDepth = point.z + dot(gradient, center - point.xy) - 0.000004;
+        uvec2 data = texelFetch(depths, pixel, 0).rg;
+        vec3 transmission = vec3(data.x & 255u, (data.x >> 8u) & 255u, (data.x >> 16u) & 255u) / 255.0;
+        vec2 weight = mix(1.0 - fraction, fraction, vec2(offset));
+        result += (receiverDepth <= float(data.y) / 16777215.0 ? vec3(1.0) : transmission) * weight.x * weight.y;
+    }
+    return result;
+}
+
+vec3 worldShadowTransmission(vec3 position, vec3 normal) {
+    if (TranslucentShadows == 0 || ShadowCount == 0) return vec3(1.0);
+    vec3 along;
+    vec3 across;
+    vec3 receiver = shadowReceiver(position, normal, along, across);
+    float distance = length(receiver - ShadowAnchor);
+    float groundDistance = length(receiver.xz - ShadowAnchor.xz);
+    float radius = ShadowCount > 2 ? ShadowInfo2.x : ShadowInfo1.x;
+    if ((ShadowCount > 2 ? groundDistance : distance) >= radius) return vec3(1.0);
+    vec3 biased = receiver + normal * 0.004;
+    vec3 sun = shadowSolarDirection(biased);
+    vec2 slope = sun.xz / max(sun.y, 0.025);
+    vec3 projected = shadowSolarProject(biased, sun);
+    along.xz -= slope * along.y;
+    across.xz -= slope * across.y;
+    float weight = distance < ShadowInfo0.x ? cascadeWeight(ShadowMatrix0, ShadowInfo0, projected, distance, 0.8) : 0.0;
+    vec3 transmission = vec3(0.0);
+    if (weight > 0.0) transmission += weight * translucentVisibility(TranslucentShadowMap0, ShadowMatrix0, projected, along, across);
+    float remaining = 1.0 - weight;
+    if (remaining > 0.0 && distance < ShadowInfo1.x) {
+        weight = remaining * cascadeWeight(ShadowMatrix1, ShadowInfo1, projected, distance, 0.85);
+        if (weight > 0.0) transmission += weight * translucentVisibility(TranslucentShadowMap1, ShadowMatrix1, projected, along, across);
+        remaining -= weight;
+    }
+    if (remaining > 0.0 && ShadowCount > 2) {
+        weight = remaining * cascadeWeight(ShadowMatrix2, ShadowInfo2, projected, groundDistance, 0.95);
+        if (weight > 0.0) transmission += weight * translucentVisibility(TranslucentShadowMap2, ShadowMatrix2, projected, along, across);
+        remaining -= weight;
+    }
+    return transmission + vec3(remaining);
+}
+
+vec4 surfaceLight(vec3 position, vec3 normal, float skyAccess) {
     vec3 sun;
     vec3 latitude;
     solarFrame(position, sun, latitude);
@@ -204,12 +267,14 @@ vec2 surfaceLight(vec3 position, vec3 normal, float skyAccess) {
     if (direct > 0.001 && ShadowCount > 0) {
         direct *= worldShadowVisibility(position, normal, skyAccess);
     }
-    return vec2(direct, daylight);
+    vec3 sunlight = vec3(direct);
+    if (direct > 0.001) sunlight *= worldShadowTransmission(position, normal);
+    return vec4(sunlight, daylight);
 }
 
-vec3 surfaceColor(vec3 albedo, vec3 blockLight, float direct, vec3 normal, float skyAccess, float daylight) {
+vec3 surfaceColor(vec3 albedo, vec3 blockLight, vec3 direct, vec3 normal, float skyAccess, float daylight) {
     vec3 base = max(blockLight, vec3(AmbientFloor) * smoothstep(0.2, 1.0, skyAccess) * daylight);
     float ambient = mix(0.84, 1.0, max(normal.y, 0.0));
     vec3 indirect = mix(base * ambient, base, smoothstep(vec3(0.65), vec3(1.0), base));
-    return pow(clamp(albedo * min(indirect + vec3(direct), vec3(1.0)), 0.0, 1.0), vec3(0.82));
+    return pow(clamp(albedo * min(indirect + direct, vec3(1.0)), 0.0, 1.0), vec3(0.82));
 }

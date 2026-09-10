@@ -7,13 +7,18 @@ import org.lwjgl.opengl.GL30C;
 
 import java.nio.ByteBuffer;
 
-/** 只保存深度，避免为每个阴影像素分配和写入浮点颜色附件。 */
+/** 深度贴图；透光投影额外用整数附件保存压缩颜色与 24 位深度。 */
 final class MunShadowTarget implements AutoCloseable {
     private final int texture;
+    private final int transmission;
     private final int framebuffer;
     private final int size;
 
     MunShadowTarget(int size) {
+        this(size, false);
+    }
+
+    MunShadowTarget(int size, boolean translucent) {
         RenderSystem.assertOnRenderThread();
         this.size = Math.min(size, RenderSystem.maxSupportedTextureSize());
         this.texture = TextureUtil.generateTextureId();
@@ -29,6 +34,19 @@ final class MunShadowTarget implements AutoCloseable {
         GlStateManager._glFramebufferTexture2D(GL30C.GL_FRAMEBUFFER, GL30C.GL_DEPTH_ATTACHMENT, GL30C.GL_TEXTURE_2D, this.texture, 0);
         GL30C.glDrawBuffer(GL30C.GL_NONE);
         GL30C.glReadBuffer(GL30C.GL_NONE);
+        this.transmission = translucent ? TextureUtil.generateTextureId() : 0;
+        if (translucent) {
+            GlStateManager._bindTexture(this.transmission);
+            GL30C.glTexImage2D(GL30C.GL_TEXTURE_2D, 0, GL30C.GL_RG32UI, this.size, this.size, 0,
+                GL30C.GL_RG_INTEGER, GL30C.GL_UNSIGNED_INT, (ByteBuffer) null);
+            GlStateManager._texParameter(GL30C.GL_TEXTURE_2D, GL30C.GL_TEXTURE_MIN_FILTER, GL30C.GL_NEAREST);
+            GlStateManager._texParameter(GL30C.GL_TEXTURE_2D, GL30C.GL_TEXTURE_MAG_FILTER, GL30C.GL_NEAREST);
+            GlStateManager._texParameter(GL30C.GL_TEXTURE_2D, GL30C.GL_TEXTURE_WRAP_S, GL30C.GL_CLAMP_TO_EDGE);
+            GlStateManager._texParameter(GL30C.GL_TEXTURE_2D, GL30C.GL_TEXTURE_WRAP_T, GL30C.GL_CLAMP_TO_EDGE);
+            GlStateManager._glFramebufferTexture2D(GL30C.GL_FRAMEBUFFER, GL30C.GL_COLOR_ATTACHMENT0,
+                GL30C.GL_TEXTURE_2D, this.transmission, 0);
+            GL30C.glDrawBuffer(GL30C.GL_COLOR_ATTACHMENT0);
+        }
         if (GL30C.glCheckFramebufferStatus(GL30C.GL_FRAMEBUFFER) != GL30C.GL_FRAMEBUFFER_COMPLETE) {
             this.close();
             throw new IllegalStateException("Incomplete lunar shadow framebuffer");
@@ -40,6 +58,7 @@ final class MunShadowTarget implements AutoCloseable {
         RenderSystem.viewport(0, 0, this.size, this.size);
         GL30C.glClearDepth(1);
         RenderSystem.clear(GL30C.GL_DEPTH_BUFFER_BIT, false);
+        if (this.transmission != 0) GL30C.glClearBufferuiv(GL30C.GL_COLOR, 0, new int[]{0xFFFFFF, 0xFFFFFF, 0, 0});
     }
 
     void copyDepthFrom(MunShadowTarget source) {
@@ -58,9 +77,14 @@ final class MunShadowTarget implements AutoCloseable {
         return this.texture;
     }
 
+    int transmission() {
+        return this.transmission;
+    }
+
     @Override
     public void close() {
         TextureUtil.releaseTextureId(this.texture);
+        if (this.transmission != 0) TextureUtil.releaseTextureId(this.transmission);
         GlStateManager._glDeleteFramebuffers(this.framebuffer);
     }
 }
