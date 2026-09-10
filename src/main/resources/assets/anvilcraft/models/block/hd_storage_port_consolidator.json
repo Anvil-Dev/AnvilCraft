@@ -3,8 +3,9 @@
 	"credit": "Made by XeKr with Blockbench",
 	"parent": "minecraft:block/block",
 	"textures": {
-		"1": "anvilcraft:block/storage_port",
-		"particle": "anvilcraft:block/storage_port"
+		"1": "anvilcraft:block/hd_storage_port",
+		"2": "anvilcraft:block/hd_storage_port_consolidator",
+		"particle": "anvilcraft:block/hd_storage_port"
 	},
 	"elements": [
 		{
@@ -152,12 +153,12 @@
 			"to": [14, 14, 14],
 			"rotation": {"angle": 0, "axis": "y", "origin": [8, 8, 8]},
 			"faces": {
-				"north": {"uv": [2, 2, 14, 14], "texture": "#1", "cullface": "north"},
-				"east": {"uv": [14, 2, 2, 14], "texture": "#1", "cullface": "east"},
-				"south": {"uv": [2, 2, 14, 14], "texture": "#1", "cullface": "south"},
-				"west": {"uv": [14, 2, 2, 14], "texture": "#1", "cullface": "west"},
-				"up": {"uv": [2, 2, 14, 14], "rotation": 90, "texture": "#1", "cullface": "up"},
-				"down": {"uv": [2, 2, 14, 14], "rotation": 90, "texture": "#1", "cullface": "down"}
+				"north": {"uv": [2, 2, 14, 14], "texture": "#2", "cullface": "north"},
+				"east": {"uv": [14, 2, 2, 14], "texture": "#2", "cullface": "east"},
+				"south": {"uv": [2, 2, 14, 14], "texture": "#2", "cullface": "south"},
+				"west": {"uv": [14, 2, 2, 14], "texture": "#2", "cullface": "west"},
+				"up": {"uv": [2, 2, 14, 14], "rotation": 90, "texture": "#2", "cullface": "up"},
+				"down": {"uv": [2, 2, 14, 14], "rotation": 90, "texture": "#2", "cullface": "down"}
 			}
 		}
 	]

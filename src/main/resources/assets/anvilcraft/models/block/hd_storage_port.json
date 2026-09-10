@@ -3,8 +3,8 @@
 	"credit": "Made by XeKr with Blockbench",
 	"parent": "minecraft:block/block",
 	"textures": {
-		"1": "anvilcraft:block/storage_port",
-		"particle": "anvilcraft:block/storage_port"
+		"1": "anvilcraft:block/hd_storage_port",
+		"particle": "anvilcraft:block/hd_storage_port"
 	},
 	"elements": [
 		{
