@@ -5,6 +5,7 @@ import com.mojang.serialization.Codec;
 import dev.anvilcraft.lib.v2.util.ISerializer;
 import dev.dubhe.anvilcraft.init.registry.ModRegistries;
 import dev.dubhe.anvilcraft.init.registry.ModRegistryKeys;
+import dev.dubhe.anvilcraft.util.BlockStateAndEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -38,7 +39,7 @@ public interface ITargetPointer {
         return true;
     }
 
-    default @Nullable Either<ItemStack, BlockState> getDisplayedBlock() {
+    default @Nullable Either<ItemStack, BlockStateAndEntity> getDisplayedBlock() {
         return null;
     }
 

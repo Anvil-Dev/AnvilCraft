@@ -13,6 +13,7 @@ import dev.dubhe.anvilcraft.init.registry.ModRegistries;
 import dev.dubhe.anvilcraft.init.registry.ModRegistryKeys;
 import dev.dubhe.anvilcraft.util.BlockPlacementUtil;
 import dev.dubhe.anvilcraft.util.BlockPlacementUtil.MultiblockPart;
+import dev.dubhe.anvilcraft.util.BlockStateAndEntity;
 import dev.dubhe.anvilcraft.util.TriggerUtil;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
@@ -33,7 +34,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.phys.AABB;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -41,6 +41,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.Function;
+import javax.annotation.Nullable;
 
 @Getter
 public class BlockPointer implements ITargetPointer {
@@ -56,11 +57,17 @@ public class BlockPointer implements ITargetPointer {
     private final Type type;
     private final BlockPos pos;
     private final BlockState state;
+    private @Nullable BlockEntity be;
 
     public BlockPointer(Type type, BlockPos pos, BlockState state) {
         this.type = type;
         this.pos = pos;
         this.state = state;
+    }
+
+    public BlockPointer(Type type, BlockPos pos, BlockState state, @Nullable BlockEntity be) {
+        this(type, pos, state);
+        this.be = be;
     }
 
     @Override
@@ -77,6 +84,7 @@ public class BlockPointer implements ITargetPointer {
                 return false;
             }
         }
+        this.be = level.getBlockEntity(this.pos);
         return true;
     }
 
@@ -86,15 +94,17 @@ public class BlockPointer implements ITargetPointer {
     }
 
     @Override
-    public Either<ItemStack, BlockState> getDisplayedBlock() {
-        return Either.right(this.state);
+    public Either<ItemStack, BlockStateAndEntity> getDisplayedBlock() {
+        return Either.right(new BlockStateAndEntity(this.state, this.be));
     }
 
     @Override
     public boolean applyToPos(ServerLevel level, BlockPos pos) {
         BlockState targetState = this.state;
-        if (targetState.hasProperty(BlockStateProperties.WATERLOGGED)
-            && targetState.getValue(BlockStateProperties.WATERLOGGED)) {
+        if (
+            targetState.hasProperty(BlockStateProperties.WATERLOGGED)
+            && targetState.getValue(BlockStateProperties.WATERLOGGED)
+        ) {
             targetState = targetState.setValue(BlockStateProperties.WATERLOGGED, Boolean.FALSE);
         }
         return this.moveToPos(level, pos, targetState, false);
@@ -353,7 +363,7 @@ public class BlockPointer implements ITargetPointer {
                     return null;
                 }
             }
-            return new BlockPointer(this, pos, state);
+            return new BlockPointer(this, pos, state, level.getBlockEntity(pos));
         }
     }
 }

@@ -9,12 +9,15 @@ import dev.dubhe.anvilcraft.block.SmartBlockPlacerBlock;
 import dev.dubhe.anvilcraft.block.entity.SmartBlockPlacerBlockEntity;
 import dev.dubhe.anvilcraft.client.selection.ModelSelectionRenderer;
 import dev.dubhe.anvilcraft.init.ModSoundEvents;
+import dev.dubhe.anvilcraft.util.AabbUtil;
 import dev.dubhe.anvilcraft.util.BlockPlacementUtil;
+import dev.dubhe.anvilcraft.util.BlockStateAndEntity;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.color.block.BlockColors;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.BlockRenderDispatcher;
+import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.entity.ItemRenderer;
@@ -34,13 +37,15 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.CandleBlock;
 import net.minecraft.world.level.block.HalfTransparentBlock;
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
-import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.SeaPickleBlock;
 import net.minecraft.world.level.block.StainedGlassPaneBlock;
 import net.minecraft.world.level.block.TurtleEggBlock;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.phys.AABB;
 import net.neoforged.neoforge.client.RenderTypeHelper;
+import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
 import net.neoforged.neoforge.client.model.data.ModelData;
 
 import java.util.List;
@@ -68,12 +73,14 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
     private static final ItemDisplayContext HELD_ITEM_CONTEXT = ItemDisplayContext.THIRD_PERSON_RIGHT_HAND;
 
     private final BlockRenderDispatcher blockRenderer;
+    private final BlockEntityRenderDispatcher blockEntityRenderer;
     private final ItemRenderer itemRenderer;
     private final ModelManager modelManager;
     private final BlockColors blockColors;
 
     public SmartBlockPlacerRenderer(BlockEntityRendererProvider.Context context) {
         this.blockRenderer = context.getBlockRenderDispatcher();
+        this.blockEntityRenderer = context.getBlockEntityRenderDispatcher();
         this.itemRenderer = context.getItemRenderer();
         this.modelManager = Minecraft.getInstance().getModelManager();
         this.blockColors = Minecraft.getInstance().getBlockColors();
@@ -328,7 +335,7 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
             animationProgress,
             isAnimationPlaying
         );
-        renderArm(entity, level, poseStack, buffer, packedLight, packedOverlay, upsideDown, armState);
+        renderArm(entity, level, poseStack, buffer, partialTick, packedLight, packedOverlay, upsideDown, armState);
         poseStack.popPose();
     }
 
@@ -337,16 +344,19 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
         @Nullable Level level,
         PoseStack poseStack,
         MultiBufferSource buffer,
+        float partialTick,
         int packedLight,
         int packedOverlay,
         boolean upsideDown,
         ArmRenderState state
     ) {
-        visitArmModels(poseStack, upsideDown, state,
-            (model, pose) -> renderModel(pose, buffer, model, packedLight, packedOverlay),
-            () -> {
-                if (level != null) renderHeldContent(poseStack, buffer, entity.getCurrentHeldBlock(), level, packedLight, packedOverlay);
-            });
+        this.visitArmModels(
+            poseStack,
+            upsideDown,
+            state,
+            (model, pose) -> this.renderModel(pose, buffer, model, packedLight, packedOverlay),
+            () -> this.renderHeldContent(poseStack, buffer, entity.getCurrentHeldBlock(), level, partialTick, packedLight, packedOverlay)
+        );
     }
 
     private void visitArmModels(
@@ -541,8 +551,9 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
     private void renderHeldContent(
         PoseStack poseStack,
         MultiBufferSource buffer,
-        @Nullable Either<ItemStack, BlockState> heldBlock,
-        Level level,
+        @Nullable Either<ItemStack, BlockStateAndEntity> heldBlock,
+        @Nullable Level level,
+        float partialTick,
         int packedLight,
         int packedOverlay
     ) {
@@ -551,13 +562,32 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
         }
         
         poseStack.pushPose();
-        poseStack.translate(0.5, 0.96, 0.1);
-        poseStack.mulPose(Axis.XP.rotationDegrees(-40));
+        poseStack.translate(0.425 + 11F / 2048, 1.0625, 0.1125);
+        poseStack.mulPose(Axis.XN.rotationDegrees(130));
+        poseStack.mulPose(Axis.YN.rotationDegrees(10.625F));
+        poseStack.mulPose(Axis.ZN.rotationDegrees(44.25F));
         poseStack.scale(0.65f, 0.65f, 0.65f);
         
         heldBlock
             .ifLeft(stack -> this.renderHeldItem(stack, poseStack, buffer, level, packedLight, packedOverlay))
-            .ifRight(state -> this.renderHeldBlockState(state, poseStack, buffer, packedLight, packedOverlay));
+            .ifRight(held -> {
+                if (held.be() != null && !held.be().hasLevel() && level != null) {
+                    held.be().setLevel(level);
+                }
+
+                BlockState state = held.state();
+                boolean applied = false;
+                if (state.getBlock().asItem() instanceof BlockItem item) {
+                    this.itemRenderer.getModel(item.getDefaultInstance(), level, null, 0)
+                        .applyTransform(HELD_ITEM_CONTEXT, poseStack, false);
+                    applied = true;
+                }
+                BakedModel model = this.blockRenderer.getBlockModel(state);
+                if (!applied) {
+                    model.applyTransform(HELD_ITEM_CONTEXT, poseStack, false);
+                }
+                this.renderHeldBlockState(held, model, poseStack, buffer, partialTick, packedLight, packedOverlay);
+            });
         
         poseStack.popPose();
     }
@@ -566,7 +596,7 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
         ItemStack stack,
         PoseStack poseStack,
         MultiBufferSource buffer,
-        Level level,
+        @Nullable Level level,
         int packedLight,
         int packedOverlay
     ) {
@@ -583,60 +613,79 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
     }
 
     private void renderHeldBlockState(
-        BlockState state, PoseStack poseStack, MultiBufferSource buffer, int packedLight, int packedOverlay
+        BlockStateAndEntity bsae,
+        BakedModel model,
+        PoseStack poseStack,
+        MultiBufferSource buffer,
+        float partialTick,
+        int packedLight,
+        int packedOverlay
     ) {
-        BakedModel model = this.blockRenderer.getBlockModel(state)
-            .applyTransform(HELD_ITEM_CONTEXT, poseStack, false);
         poseStack.translate(-0.5F, -0.5F, -0.5F);
 
-        if (state.getRenderShape() != RenderShape.MODEL) {
-            this.blockRenderer.renderSingleBlock(
-                state,
-                poseStack,
-                buffer,
-                packedLight,
-                packedOverlay,
-                ModelData.EMPTY,
-                RenderType.cutout()
-            );
-            return;
-        }
+        BlockState state = bsae.state();
+        BlockEntity entity = bsae.be();
+        switch (state.getRenderShape()) {
+            case MODEL -> {
+                int color = this.blockColors.getColor(state, null, null, 0);
+                float red = (float) (color >> 16 & 0xFF) / 255.0F;
+                float green = (float) (color >> 8 & 0xFF) / 255.0F;
+                float blue = (float) (color & 0xFF) / 255.0F;
+                ModelData modelData = ModelData.EMPTY;
+                boolean cull = !(state.getBlock() instanceof HalfTransparentBlock) && !(state.getBlock() instanceof StainedGlassPaneBlock);
 
-        int color = this.blockColors.getColor(state, null, null, 0);
-        float red = (float) (color >> 16 & 0xFF) / 255.0F;
-        float green = (float) (color >> 8 & 0xFF) / 255.0F;
-        float blue = (float) (color & 0xFF) / 255.0F;
-        ModelData modelData = ModelData.EMPTY;
-        boolean cull = !(state.getBlock() instanceof HalfTransparentBlock)
-            && !(state.getBlock() instanceof StainedGlassPaneBlock);
+                for (RenderType blockRenderType : model.getRenderTypes(state, RandomSource.create(42L), modelData)) {
+                    VertexConsumer vertexConsumer = buffer.getBuffer(
+                        RenderTypeHelper.getEntityRenderType(blockRenderType, cull)
+                    );
+                    this.blockRenderer.getModelRenderer().renderModel(
+                        poseStack.last(),
+                        vertexConsumer,
+                        state,
+                        model,
+                        red,
+                        green,
+                        blue,
+                        packedLight,
+                        packedOverlay,
+                        modelData,
+                        blockRenderType
+                    );
+                }
 
-        for (RenderType blockRenderType : model.getRenderTypes(state, RandomSource.create(42L), modelData)) {
-            VertexConsumer vertexConsumer = buffer.getBuffer(
-                RenderTypeHelper.getEntityRenderType(blockRenderType, cull)
-            );
-            this.blockRenderer.getModelRenderer().renderModel(
-                poseStack.last(),
-                vertexConsumer,
-                state,
-                model,
-                red,
-                green,
-                blue,
-                packedLight,
-                packedOverlay,
-                modelData,
-                blockRenderType
-            );
+                if (entity == null) return;
+                BlockEntityRenderer<BlockEntity> renderer = this.blockEntityRenderer.getRenderer(entity);
+                if (renderer == null) return;
+                renderer.render(entity, partialTick, poseStack, buffer, packedLight, packedOverlay);
+            }
+            case ENTITYBLOCK_ANIMATED -> {
+                ItemStack stack = new ItemStack(state.getBlock());
+                IClientItemExtensions.of(stack).getCustomRenderer().renderByItem(
+                    stack,
+                    ItemDisplayContext.NONE,
+                    poseStack,
+                    buffer,
+                    packedLight,
+                    packedOverlay
+                );
+            }
+            default -> {}
         }
     }
 
-    private static @Nullable Block getDisplayedBlock(@Nullable Either<ItemStack, BlockState> displayedBlock) {
+    private static @Nullable Block getDisplayedBlock(@Nullable Either<ItemStack, BlockStateAndEntity> displayedBlock) {
         if (displayedBlock == null) {
             return null;
         }
         return displayedBlock.map(
             stack -> stack.getItem() instanceof BlockItem blockItem ? blockItem.getBlock() : null,
-            BlockState::getBlock
+            held -> held.state().getBlock()
         );
+    }
+
+    @Override
+    public AABB getRenderBoundingBox(SmartBlockPlacerBlockEntity be) {
+        BlockPos pos = be.getBlockPos();
+        return AabbUtil.createInclusive(pos.north().west(), pos.above().south().east());
     }
 }

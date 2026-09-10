@@ -11,6 +11,7 @@ import dev.dubhe.anvilcraft.api.itemhandler.ItemHandlerUtil;
 import dev.dubhe.anvilcraft.init.registry.ModRegistries;
 import dev.dubhe.anvilcraft.init.registry.ModRegistryKeys;
 import dev.dubhe.anvilcraft.util.BlockPlacementUtil;
+import dev.dubhe.anvilcraft.util.BlockStateAndEntity;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -82,7 +83,7 @@ public class BlockItemHandlerPointer implements ITargetPointer {
     }
 
     @Override
-    public Either<ItemStack, BlockState> getDisplayedBlock() {
+    public Either<ItemStack, BlockStateAndEntity> getDisplayedBlock() {
         return Either.left(this.stack.copyWithCount(1));
     }
 
