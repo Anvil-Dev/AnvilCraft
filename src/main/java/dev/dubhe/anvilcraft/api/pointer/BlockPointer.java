@@ -47,7 +47,9 @@ public class BlockPointer implements ITargetPointer {
     /**
      * 搬运方块时使用的更新标志位：<br>
      * {@code UPDATE_ALL} 补上缺失的邻居更新，并让方块自身完成形状与存活自检；<br>
-     * {@code UPDATE_MOVE_BY_PISTON} 使箱子、溜槽等方块在搬运时不被视为破坏而掉落内容物。
+     * {@code UPDATE_MOVE_BY_PISTON} 把本次写入标记为活塞式移动，
+     * 使 {@code onPlace}/{@code onRemove} 收到 {@code movedByPiston = true}
+     * （如鱼缸、加工台据此在搬运时保留内容物）。
      */
     private static final int MOVE_UPDATE_FLAGS = Block.UPDATE_ALL | Block.UPDATE_MOVE_BY_PISTON;
 
