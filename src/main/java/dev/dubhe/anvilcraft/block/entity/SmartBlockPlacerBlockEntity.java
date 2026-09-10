@@ -18,6 +18,7 @@ import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.inventory.SmartBlockPlacerMenu;
 import dev.dubhe.anvilcraft.item.property.component.StructureDiskData;
 import dev.dubhe.anvilcraft.util.BlockPlacementUtil;
+import dev.dubhe.anvilcraft.util.BlockStateAndEntity;
 import dev.dubhe.anvilcraft.util.StructureLoadUtil;
 import dev.dubhe.anvilcraft.util.TriggerUtil;
 import lombok.Getter;
@@ -86,7 +87,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
     private final boolean[] layerPositions = new boolean[POSITION_COUNT];
     private StructureBlueprint blueprint = StructureBlueprint.empty();
     private @Nullable Either<ItemStack, BlockState> missingBlock;
-    private @Nullable Either<ItemStack, BlockState> currentHeldBlock;
+    private @Nullable Either<ItemStack, BlockStateAndEntity> currentHeldBlock;
     private boolean loadingBlueprintInventory;
     /**
      * 穿梭（乒乓效应）进度：记录邻居放置器预期把方块搬回的位置，搬回时触发进度。<br>
@@ -188,7 +189,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
      */
     public @Nullable ITargetPointer refreshPointer(ServerLevel level) {
         int previousPlacementIndex = this.currentPlacementIndex;
-        Either<ItemStack, BlockState> previousHeldBlock = this.currentHeldBlock;
+        Either<ItemStack, BlockStateAndEntity> previousHeldBlock = this.currentHeldBlock;
         ITargetPointer found = this.findPointer(level);
         boolean changed = found != this.pointer || previousPlacementIndex != this.currentPlacementIndex;
         this.pointer = found;
@@ -197,7 +198,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         } else if (this.target == TargetMode.POSITION) {
             this.currentHeldBlock = found.getDisplayedBlock();
         }
-        changed |= !displayedBlocksMatch(previousHeldBlock, this.currentHeldBlock);
+        changed |= !heldBlocksMatch(previousHeldBlock, this.currentHeldBlock);
         if (changed) {
             this.setChanged();
             level.sendBlockUpdated(this.getBlockPos(), this.getBlockState(), this.getBlockState(), 3);
@@ -226,7 +227,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             ITargetPointer found = this.findPointer(level, blueprintTarget.state());
             if (found != null) {
                 this.updateMissingBlock(level, null);
-                this.currentHeldBlock = this.createDisplayedBlock(level, blueprintTarget.state());
+                this.currentHeldBlock = this.createHeldBlock(level, blueprintTarget.state());
                 return found;
             }
             this.updateMissingBlock(level, this.createDisplayedBlock(level, blueprintTarget.state()));
@@ -560,6 +561,24 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         return Either.right(state);
     }
 
+    /**
+     * 蓝图模式的持有方块取自蓝图要求的状态，方块实体则取自取料位置；<br>
+     * 显示状态与源方块种类不一致时不附带方块实体
+     */
+    private Either<ItemStack, BlockStateAndEntity> createHeldBlock(Level level, BlockState state) {
+        return this.createDisplayedBlock(level, state).mapRight(displayed ->
+            new BlockStateAndEntity(displayed, this.getSourceBlockEntity(level, displayed))
+        );
+    }
+
+    private @Nullable BlockEntity getSourceBlockEntity(Level level, BlockState displayedState) {
+        BlockPos sourcePos = this.getSourcePos();
+        if (!level.getBlockState(sourcePos).is(displayedState.getBlock())) {
+            return null;
+        }
+        return level.getBlockEntity(sourcePos);
+    }
+
     private void updateMissingBlock(ServerLevel level, @Nullable Either<ItemStack, BlockState> missingBlock) {
         if (this.placement == BlueprintPlacementMode.SKIP) {
             missingBlock = null;
@@ -582,6 +601,19 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         return Boolean.TRUE.equals(first.map(
             stack -> second.left().map(other -> ItemStack.matches(stack, other)).orElse(false),
             state -> second.right().map(state::equals).orElse(false)
+        ));
+    }
+
+    private static boolean heldBlocksMatch(
+        @Nullable Either<ItemStack, BlockStateAndEntity> first,
+        @Nullable Either<ItemStack, BlockStateAndEntity> second
+    ) {
+        if (first == null || second == null) {
+            return first == second;
+        }
+        return Boolean.TRUE.equals(first.map(
+            stack -> second.left().map(other -> ItemStack.matches(stack, other)).orElse(false),
+            held -> second.right().map(other -> held.state().equals(other.state()) && held.be() == other.be()).orElse(false)
         ));
     }
     // endregion
@@ -854,7 +886,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         tag.putString("loadedStructureName", this.blueprint.name());
         tag.putBoolean("invalidStructure", this.blueprint.invalid());
         saveDisplayedBlock(tag, "missingBlock", this.missingBlock, registries);
-        saveDisplayedBlock(tag, "currentHeldBlock", this.currentHeldBlock, registries);
+        saveHeldBlock(tag, "currentHeldBlock", this.currentHeldBlock, registries);
     }
 
     private void loadBlueprintData(CompoundTag tag, HolderLookup.Provider registries) {
@@ -884,11 +916,12 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         if (this.placement == BlueprintPlacementMode.SKIP) {
             this.missingBlock = null;
         }
-        this.currentHeldBlock = loadDisplayedBlock(tag, "currentHeldBlock", registries);
+        this.currentHeldBlock = loadHeldBlock(tag, "currentHeldBlock", this.getBlockPos(), registries);
     }
 
     private static void saveDisplayedBlock(
         CompoundTag tag,
+        @SuppressWarnings("SameParameterValue")
         String key,
         @Nullable Either<ItemStack, BlockState> displayedBlock,
         HolderLookup.Provider registries
@@ -901,6 +934,32 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             .ifLeft(stack -> displayedBlockTag.put("item", stack.save(registries)))
             .ifRight(state -> displayedBlockTag.put("state", NbtUtils.writeBlockState(state)));
         tag.put(key, displayedBlockTag);
+    }
+
+    /**
+     * 方块形式的持有方块连同方块实体数据一起保存，物品形式仍只保存物品
+     */
+    private static void saveHeldBlock(
+        CompoundTag tag,
+        @SuppressWarnings("SameParameterValue")
+        String key,
+        @Nullable Either<ItemStack, BlockStateAndEntity> heldBlock,
+        HolderLookup.Provider registries
+    ) {
+        if (heldBlock == null) {
+            return;
+        }
+        CompoundTag heldBlockTag = new CompoundTag();
+        heldBlock
+            .ifLeft(stack -> heldBlockTag.put("item", stack.save(registries)))
+            .ifRight(held -> {
+                heldBlockTag.put("state", NbtUtils.writeBlockState(held.state()));
+                BlockEntity be = held.be();
+                if (be != null) {
+                    heldBlockTag.put("blockEntity", be.saveWithId(registries));
+                }
+            });
+        tag.put(key, heldBlockTag);
     }
 
     private static @Nullable Either<ItemStack, BlockState> loadDisplayedBlock(
@@ -931,6 +990,30 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         }
         ItemStack stack = ItemStack.parseOptional(registries, tag.getCompound("missingBlockItem"));
         return stack.isEmpty() ? null : Either.left(stack);
+    }
+
+    /**
+     * 读取持有方块并在 {@code blockEntityPos} 处重建方块实体；旧数据没有方块实体数据时方块实体为空
+     */
+    private static @Nullable Either<ItemStack, BlockStateAndEntity> loadHeldBlock(
+        CompoundTag tag,
+        @SuppressWarnings("SameParameterValue")
+        String key,
+        BlockPos blockEntityPos,
+        HolderLookup.Provider registries
+    ) {
+        Either<ItemStack, BlockState> displayedBlock = loadDisplayedBlock(tag, key, registries);
+        if (displayedBlock == null) {
+            return null;
+        }
+        CompoundTag heldBlockTag = tag.getCompound(key);
+        if (!heldBlockTag.contains("blockEntity", Tag.TAG_COMPOUND)) {
+            return displayedBlock.mapRight(BlockStateAndEntity::new);
+        }
+        return displayedBlock.mapRight(state -> new BlockStateAndEntity(
+            state,
+            BlockEntity.loadStatic(blockEntityPos, state, heldBlockTag.getCompound("blockEntity"), registries)
+        ));
     }
     // endregion
 
