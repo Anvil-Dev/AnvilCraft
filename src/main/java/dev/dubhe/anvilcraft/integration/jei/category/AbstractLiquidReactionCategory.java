@@ -2,13 +2,12 @@ package dev.dubhe.anvilcraft.integration.jei.category;
 
 import dev.anvilcraft.lib.v2.util.predicate.ChanceItemStack;
 import dev.anvilcraft.lib.v2.util.predicate.ItemIngredientPredicate;
-import dev.dubhe.anvilcraft.block.GiantAnvilBlock;
 import dev.dubhe.anvilcraft.block.LargeCauldronBlock;
 import dev.dubhe.anvilcraft.block.state.Cube3x3PartHalf;
-import dev.dubhe.anvilcraft.block.state.GiantAnvilCube;
 import dev.dubhe.anvilcraft.client.support.RenderSupport;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.integration.jei.recipe.ComplexFluidJeiRecipe;
+import dev.dubhe.anvilcraft.integration.jei.util.JeiBlockIngredientUtil;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiFluidUtil;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiItemUtil;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiRenderHelper;
@@ -62,9 +61,7 @@ public abstract class AbstractLiquidReactionCategory implements IRecipeCategory<
         this.timer = helper.createTickTimer(30, 60, true);
         this.largeCauldron = ModBlocks.LARGE_CAULDRON.getDefaultState()
             .setValue(LargeCauldronBlock.HALF, Cube3x3PartHalf.MID_CENTER);
-        this.giantAnvil = ModBlocks.GIANT_ANVIL.getDefaultState()
-            .setValue(GiantAnvilBlock.HALF, Cube3x3PartHalf.MID_CENTER)
-            .setValue(GiantAnvilBlock.CUBE, GiantAnvilCube.CENTER);
+        this.giantAnvil = JeiBlockIngredientUtil.getRenderablePreviewState(ModBlocks.GIANT_ANVIL.getDefaultState());
     }
 
     @Override

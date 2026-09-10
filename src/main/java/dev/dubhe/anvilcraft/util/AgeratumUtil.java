@@ -10,6 +10,7 @@ import dev.anvilcraft.lib.v2.util.predicate.WeightedChanceBlockStates;
 import dev.anvilcraft.resource.ageratum.Ageratum;
 import dev.anvilcraft.resource.ageratum.client.feat.markdown.MDRenderContext;
 import dev.anvilcraft.resource.ageratum.util.RecipeUtil;
+import dev.dubhe.anvilcraft.block.multipart.IMultiPartBlockModelHolder;
 import dev.dubhe.anvilcraft.client.support.RenderSupport;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import net.minecraft.client.Minecraft;
@@ -23,7 +24,6 @@ import net.minecraft.world.level.storage.loot.providers.number.BinomialDistribut
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 
 import java.util.List;
-import java.util.Optional;
 
 public class AgeratumUtil {
     public static final int SLOT_SIZE = 19;
@@ -105,9 +105,16 @@ public class AgeratumUtil {
         renderBlock(context, chanceBlockState.state(), mouseX, mouseY, x, y, z);
     }
 
+    /**
+     * 手册渲染方块模型的统一入口。
+     *
+     * <p>渲染前先取模型承载状态：多方块方块（巨型铁砧等）的模型只由其中一个部件承载，
+     * 配方里存的往往是默认 / 任意部件状态，直接渲染会落在空模型上而什么都看不到。</p>
+     */
     public static void renderBlock(MDRenderContext context, BlockState blockState, float mouseX, float mouseY, int x, int y, int z) {
-        RenderSupport.renderBlock(context.graphics(), blockState, x, y, z, BLOCK_SIZE, RenderSupport.SINGLE_BLOCK);
-        AgeratumUtil.renderTooltip(context, blockState, mouseX, mouseY, x, y);
+        BlockState modelState = IMultiPartBlockModelHolder.modelHolderState(blockState);
+        RenderSupport.renderBlock(context.graphics(), modelState, x, y, z, BLOCK_SIZE, RenderSupport.SINGLE_BLOCK);
+        AgeratumUtil.renderTooltip(context, modelState, mouseX, mouseY, x, y);
     }
 
     public static <T> void renderItems(

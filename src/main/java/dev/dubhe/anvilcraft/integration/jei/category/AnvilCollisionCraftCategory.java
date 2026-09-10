@@ -2,9 +2,6 @@ package dev.dubhe.anvilcraft.integration.jei.category;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import dev.anvilcraft.lib.v2.util.predicate.ChanceItemStack;
-import dev.dubhe.anvilcraft.block.GiantAnvilBlock;
-import dev.dubhe.anvilcraft.block.state.Cube3x3PartHalf;
-import dev.dubhe.anvilcraft.block.state.GiantAnvilCube;
 import dev.dubhe.anvilcraft.client.support.RenderSupport;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
@@ -194,16 +191,12 @@ public class AnvilCollisionCraftCategory implements IRecipeCategory<RecipeHolder
             BlockState renderedState = JeiBlockIngredientUtil
                 .getDisplayedState(recipeSlotsView, HIT_BLOCK, hitBlockStates)
                 .orElse(hitBlockStates.getFirst());
-            // 特判: 如果是大铁砧 则将BlockState改为cube=center,half=mid_center 并修改scale使其大小合理
-            // 建议下次写类似大铁砧的方块的时候 把registerDefaultState注册成有材质的中心位置
-            // 当然也可以不RenderHelper.renderBlock 直接加进setRecipe的输入输出槽当物品看
+            // 特判: 大铁砧需要较小的渲染 scale；部件状态映射统一交给模型承载状态接口
             int scale = 12;
             if (renderedState.is(ModBlocks.GIANT_ANVIL)) {
                 scale = 5;
-                renderedState = ModBlocks.GIANT_ANVIL.getDefaultState()
-                    .trySetValue(GiantAnvilBlock.HALF, Cube3x3PartHalf.MID_CENTER)
-                    .trySetValue(GiantAnvilBlock.CUBE, GiantAnvilCube.CENTER);
             }
+            renderedState = JeiBlockIngredientUtil.getRenderablePreviewState(renderedState);
 
             RenderSupport.renderBlock(
                 guiGraphics,

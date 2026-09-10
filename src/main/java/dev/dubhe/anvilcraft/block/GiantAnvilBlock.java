@@ -8,6 +8,7 @@ import dev.dubhe.anvilcraft.api.event.AnvilEvent;
 import dev.dubhe.anvilcraft.api.event.GiantAnvilEvent;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.api.power.IPowerComponent;
+import dev.dubhe.anvilcraft.block.multipart.IMultiPartBlockModelHolder;
 import dev.dubhe.anvilcraft.block.multipart.SimpleMultiPartBlock;
 import dev.dubhe.anvilcraft.block.state.Cube3x3PartHalf;
 import dev.dubhe.anvilcraft.block.state.DirectionCube3x3PartHalf;
@@ -223,6 +224,20 @@ public class GiantAnvilBlock extends SimpleMultiPartBlock<Cube3x3PartHalf> imple
     public BlockState placedState(Cube3x3PartHalf part, BlockState state) {
         return super.placedState(part, state)
             .setValue(CUBE, part == Cube3x3PartHalf.MID_CENTER ? GiantAnvilCube.CENTER : GiantAnvilCube.CORNER);
+    }
+
+    /**
+     * 巨型铁砧的完整模型只由 MID_CENTER 部件承载（其余部件的 {@code giant_anvil_part}
+     * 为空模型），因此任意部件状态都要先映射到这里再渲染。
+     *
+     * <p>调用方（铁砧锤预览、JEI 配方渲染等）统一按 {@link IMultiPartBlockModelHolder}
+     * 查询即可，无需各自硬编码 {@code half=mid_center, cube=center}。</p>
+     */
+    @Override
+    public BlockState getModelHolderState(BlockState original) {
+        return original
+            .setValue(HALF, Cube3x3PartHalf.MID_CENTER)
+            .setValue(CUBE, GiantAnvilCube.CENTER);
     }
 
     @Override

@@ -1,14 +1,12 @@
 package dev.dubhe.anvilcraft.integration.jei.category.multiblock;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import dev.dubhe.anvilcraft.block.GiantAnvilBlock;
-import dev.dubhe.anvilcraft.block.state.Cube3x3PartHalf;
-import dev.dubhe.anvilcraft.block.state.GiantAnvilCube;
 import dev.dubhe.anvilcraft.client.support.RenderSupport;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.integration.jei.AnvilCraftJeiPlugin;
 import dev.dubhe.anvilcraft.integration.jei.drawable.JeiButton;
+import dev.dubhe.anvilcraft.integration.jei.util.JeiBlockIngredientUtil;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiRecipeUtil;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiRenderHelper;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiTextureConstants;
@@ -206,9 +204,7 @@ public class MultiBlockCraftingCategory implements IRecipeCategory<RecipeHolder<
         float anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(timer) / 3;
         RenderSupport.renderBlock(
             guiGraphics,
-            ModBlocks.GIANT_ANVIL.getDefaultState()
-                .trySetValue(GiantAnvilBlock.HALF, Cube3x3PartHalf.MID_CENTER)
-                .trySetValue(GiantAnvilBlock.CUBE, GiantAnvilCube.CENTER),
+            JeiBlockIngredientUtil.getRenderablePreviewState(ModBlocks.GIANT_ANVIL.getDefaultState()),
             138,
             44.8f + anvilYOffset,
             20,
