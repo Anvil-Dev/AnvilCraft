@@ -326,7 +326,7 @@ public class LargeBlockPlacePreviewEventListener {
         }
         // 方块实体模型（如智能方块放置器的机械臂）不属于方块模型，按各自位姿单独渲染
         RenderEntry base = renderEntries.getFirst();
-        for (ModelBlockSelection.ModelPlacement placement : ModelBlockSelection.previewBerModels(base.state())) {
+        for (ModelBlockSelection.ModelPlacement placement : ModelBlockSelection.previewBerModels(base.state(), base.pos())) {
             poseStack.pushPose();
             poseStack.translate(
                 base.pos().getX() - camera.x - 0.0005,
@@ -465,7 +465,8 @@ public class LargeBlockPlacePreviewEventListener {
         RenderEntry base = renderEntries.getFirst();
         List<SelectionPart> outline = new ArrayList<>(ModelBlockSelection.multipartOutline(base.state()));
         // 方块实体模型是独立模型，不在方块模型描边表里，需单独并入（如智能方块放置器的机械臂）
-        outline.addAll(ModelBlockSelection.previewBerParts(base.state()));
+        // 传入真实放置位：渲染器读自身坐标处的世界状态（如比较器读 POWER）时才有正确姿态
+        outline.addAll(ModelBlockSelection.previewBerParts(base.state(), base.pos()));
         if (outline.isEmpty()) {
             return false;
         }
