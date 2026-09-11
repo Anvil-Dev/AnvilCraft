@@ -3,11 +3,13 @@ package dev.dubhe.anvilcraft.block.entity;
 import dev.dubhe.anvilcraft.api.fluid.FluidHandlerWrapper;
 import dev.dubhe.anvilcraft.api.fluid.IFluidHandlerHolder;
 import dev.dubhe.anvilcraft.api.fluid.network.FluidNetworkManager;
+import dev.dubhe.anvilcraft.api.fluid.network.FluidNetworkScanner;
 import dev.dubhe.anvilcraft.block.entity.storage.StorageBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.storage.StorageFluidRegistry;
 import dev.dubhe.anvilcraft.rpc.StorageServerStub;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
@@ -18,6 +20,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -153,6 +156,12 @@ public class StorageFluidPortBlockEntity extends BlockEntity implements IFluidHa
      * 穿越网络中其它容器，使端口在「吸入」与「排出」之间反复切换。</p>
      */
     private void adjustHeightBias() {
+        // 规格前置条件：仅在「通过管道连接了其他流体储存方块」时才调整。
+        // 没有相邻管道时本端口不属于任何管网，偏置不会被读取（见 FluidNetworkScanner#heightBiasAt），
+        // 调整纯属空转；且偏置每次变化都会 markDirty，触发整世界的管网重建。
+        if (!this.hasAdjacentPipe()) {
+            return;
+        }
         int previous = this.heightBias;
         this.heightBias = this.computeNextHeightBias();
         if (this.heightBias != previous) {
@@ -161,6 +170,22 @@ public class StorageFluidPortBlockEntity extends BlockEntity implements IFluidHa
                 FluidNetworkManager.INSTANCE.markDirty(this.level);
             }
         }
+    }
+
+    /** 是否至少有一面相邻管道部件（即已接入管网，等效高度调整才有意义）。 */
+    private boolean hasAdjacentPipe() {
+        Level level = this.level;
+        if (level == null) {
+            return false;
+        }
+        BlockPos pos = this.getBlockPos();
+        for (Direction direction : Direction.values()) {
+            BlockPos neighbor = pos.relative(direction);
+            if (level.isLoaded(neighbor) && FluidNetworkScanner.isPipePart(level.getBlockState(neighbor))) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private int computeNextHeightBias() {
