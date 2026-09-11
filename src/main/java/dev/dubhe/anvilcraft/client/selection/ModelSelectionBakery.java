@@ -67,8 +67,8 @@ final class ModelSelectionBakery {
                 if (model == null) continue;
                 try {
                     ModelSelection selection = this.resolve(model, state);
-                    if (selection instanceof ModelSelection.Fixed fixed) {
-                        standalone.put(BlockModelShaper.stateToModelLocation(state), fixed.part());
+                    if (selection instanceof ModelSelection.Fixed(SelectionPart part)) {
+                        standalone.put(BlockModelShaper.stateToModelLocation(state), part);
                     }
                     boolean rendered = state.getRenderShape() == RenderShape.MODEL;
                     states.put(state, rendered ? selection : EMPTY);
@@ -94,7 +94,7 @@ final class ModelSelectionBakery {
             if (!(entry.getValue() instanceof BlockModel model)) continue;
             try {
                 ModelSelection selection = this.blockModel(model, BlockModelRotation.X0_Y0);
-                if (selection instanceof ModelSelection.Fixed fixed) standalone.put(entry.getKey(), fixed.part());
+                if (selection instanceof ModelSelection.Fixed(SelectionPart part)) standalone.put(entry.getKey(), part);
             } catch (IllegalArgumentException exception) {
                 AnvilCraft.LOGGER.warn("Unable to prepare selection model {}: {}", entry.getKey(), exception.getMessage());
             }
@@ -160,11 +160,11 @@ final class ModelSelectionBakery {
     }
 
     private static void appendShapes(ModelSelection selection, Matrix4d transform, List<ConvexShape> output) {
-        if (selection instanceof ModelSelection.Fixed fixed) {
+        if (selection instanceof ModelSelection.Fixed(SelectionPart part1)) {
             PoseStack pose = new PoseStack();
-            fixed.part().apply(pose);
+            part1.apply(pose);
             Matrix4d matrix = new Matrix4d(transform).scale(ModelCubeGeometry.SCALE).mul(new Matrix4d(pose.last().pose()));
-            fixed.part().geometry().shapes().forEach(shape -> output.add(shape.transform(matrix)));
+            part1.geometry().shapes().forEach(shape -> output.add(shape.transform(matrix)));
         } else if (selection instanceof ModelSelection.Multipart multipart) {
             for (ModelSelection part : multipart.parts()) appendShapes(part, transform, output);
         } else {
@@ -276,7 +276,7 @@ final class ModelSelectionBakery {
 
     static List<SelectionPart> collect(@Nullable ModelSelection selection, long seed) {
         if (selection == null) return List.of();
-        if (selection instanceof ModelSelection.Fixed fixed) return List.of(fixed.part());
+        if (selection instanceof ModelSelection.Fixed(SelectionPart part)) return List.of(part);
         List<SelectionPart> result = new ArrayList<>();
         selection.collect(RandomSource.create(seed), result);
         return result;

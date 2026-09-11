@@ -22,7 +22,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.EntityBlock;
-import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
@@ -180,6 +179,8 @@ public final class ModelBlockSelection {
     }
 
     /**
+     * 返回 BER 实际使用的 cube 和姿态，{@code preview} 决定模型收集路径。
+     *
      * @param preview 为 true 时走 {@link ModelSelectionRenderer#collectPreviewModels}，
      *                让依赖服务端同步状态的渲染器能给出放置预览用的静止姿态
      */
@@ -293,7 +294,7 @@ public final class ModelBlockSelection {
             segments += CubeSelection.outlines().get(part.geometry()).segmentCount();
             bounds = bounds == null ? part.bounds() : bounds.minmax(part.bounds());
         }
-        if (segments > SelectionGeometry.MAX_OUTLINE_SEGMENTS && bounds != null) {
+        if (segments > SelectionGeometry.MAX_OUTLINE_SEGMENTS) {
             LevelRenderer.renderLineBox(pose, event.getMultiBufferSource().getBuffer(RenderType.lines()), bounds, 0, 0, 0, 0.4F);
             return;
         }
