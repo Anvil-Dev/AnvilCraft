@@ -7,6 +7,7 @@ import dev.dubhe.anvilcraft.init.registry.ModRegistryKeys;
 import dev.dubhe.anvilcraft.saved.storage.category.BlockCategory;
 import dev.dubhe.anvilcraft.saved.storage.category.CraftingBookCategoryCategory;
 import dev.dubhe.anvilcraft.saved.storage.category.CreativeModeTabCategory;
+import dev.dubhe.anvilcraft.saved.storage.category.FluidCategory;
 import dev.dubhe.anvilcraft.saved.storage.category.HasComponentCategory;
 import dev.dubhe.anvilcraft.saved.storage.category.ICategory;
 import dev.dubhe.anvilcraft.saved.storage.category.NamespaceCategory;
@@ -29,6 +30,7 @@ public class ModCategories {
     public static final ResourceKey<ICategory> ANVILCRAFT = ModCategories.key("anvilcraft");
     public static final ResourceKey<ICategory> REDSTONE = ModCategories.key("redstone");
     public static final ResourceKey<ICategory> ENCHANTED = ModCategories.key("enchanted");
+    public static final ResourceKey<ICategory> FLUID = ModCategories.key("fluid");
 
     public static void bootstrap(BootstrapContext<ICategory> ctx) {
         ctx.register(
@@ -37,6 +39,7 @@ public class ModCategories {
         );
         ctx.register(ModCategories.BLOCK, BlockCategory.INSTANCE);
         ctx.register(ModCategories.UNSTACKABLE, UnstackableCategory.INSTANCE);
+        ctx.register(ModCategories.FLUID, FluidCategory.INSTANCE);
         ctx.register(
             ModCategories.FOOD_AND_DRINK,
             HasComponentCategory.or(

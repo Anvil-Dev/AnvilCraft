@@ -226,7 +226,9 @@ public final class StorageServerStub {
         ItemStack carried = player.containerMenu.getCarried();
         boolean changed = false;
         if (action == StorageInput.QUICK_MOVE_TO_STORAGE) {
-            changed = StorageServerStub.moveInventoryStackToStorage(player, view, slot) > 0;
+            // 同一条动作左键与右键都会用到（Shift+左键 / Shift+右键），
+            // 故按实际鼠标键决定是否倾倒：左键倒液体，右键存流体桶物品
+            changed = StorageServerStub.moveInventoryStackToStorage(player, view, slot, button == 0) > 0;
         } else if (action == StorageInput.CLONE) {
             if (
                 player.hasInfiniteMaterials()
@@ -249,8 +251,11 @@ public final class StorageServerStub {
                       : StorageServerStub.moveStorageStackToInventory(player, view, slot);
         } else if (!carried.isEmpty()) {
             int amount = button == 0 ? carried.getCount() : 1;
-            // 桶装流体优先自动倾倒进能接收它的端口；倾倒了就不占物品存储
-            int poured = StorageServerStub.pourIntoFluidPort(player, view, carried, amount);
+            // 桶装流体只在左键时自动倾倒；右键保持原有物品行为，
+            // 让流体桶能作为普通物品存入（否则桶装流体永远无法入库）
+            int poured = button == 0
+                         ? StorageServerStub.pourIntoFluidPort(player, view, carried, amount)
+                         : 0;
             if (poured > 0) {
                 if (carried.isEmpty()) {
                     player.containerMenu.setCarried(ItemStack.EMPTY);
@@ -408,7 +413,8 @@ public final class StorageServerStub {
                 continue;
             }
             ItemStack key = stack.copyWithCount(1);
-            int inserted = StorageServerStub.moveInventoryStackToStorage(player, view, slot);
+            // 由 Shift+左键（空指针拖拽）触发，左键为流体行为，故允许倾倒
+            int inserted = StorageServerStub.moveInventoryStackToStorage(player, view, slot, true);
             if (inserted > 0) {
                 moved.merge(key, inserted, Integer::sum);
                 changed = true;
@@ -423,7 +429,7 @@ public final class StorageServerStub {
     }
 
     @RemoteCallable(validator = StorageAccessValidator.class)
-    public static boolean moveSameToStorage(UUID playerId, long sourcePos, int slot) {
+    public static boolean moveSameToStorage(UUID playerId, long sourcePos, int slot, boolean pour) {
         StorageView view = StorageServerStub.getView(StorageServerStub.getAndClear(), playerId, sourcePos);
         ServerPlayer player = StorageServerStub.getServerPlayer(playerId);
         final StorageServerStub stub = StorageServerStub.get(playerId, view.primary().getId());
@@ -442,8 +448,11 @@ public final class StorageServerStub {
             if (stack.isEmpty() || !ItemStack.isSameItemSameComponents(stack, sample)) {
                 continue;
             }
-            // 桶装流体优先自动倾倒：属于存储动作而非入库，故不记入 moved
-            int poured = StorageServerStub.pourIntoFluidPort(player, view, stack, stack.getCount());
+            // 桶装流体优先自动倾倒：属于存储动作而非入库，故不记入 moved。
+            // 仅左键倾倒，右键保持物品行为，让流体桶能作为普通物品存入
+            int poured = pour
+                         ? StorageServerStub.pourIntoFluidPort(player, view, stack, stack.getCount())
+                         : 0;
             if (poured > 0) {
                 if (stack.isEmpty()) {
                     inventory.setItem(index, ItemStack.EMPTY);
@@ -467,7 +476,7 @@ public final class StorageServerStub {
     }
 
     @RemoteCallable(validator = StorageAccessValidator.class)
-    public static DepositResult deposit(UUID playerId, long sourcePos, boolean all) {
+    public static DepositResult deposit(UUID playerId, long sourcePos, boolean all, boolean pour) {
         StorageView view = StorageServerStub.getView(StorageServerStub.getAndClear(), playerId, sourcePos);
         ServerPlayer player = StorageServerStub.getServerPlayer(playerId);
         final StorageServerStub stub = StorageServerStub.get(playerId, view.primary().getId());
@@ -478,8 +487,11 @@ public final class StorageServerStub {
             if (stack.isEmpty()) {
                 continue;
             }
-            // 桶装流体优先自动倾倒：这是存储动作而非物品入库，故不记入 moved
-            int poured = StorageServerStub.pourIntoFluidPort(player, view, stack, stack.getCount());
+            // 桶装流体优先自动倾倒：这是存储动作而非物品入库，故不记入 moved。
+            // 仅左键倾倒，右键保持物品行为，让流体桶能作为普通物品存入
+            int poured = pour
+                         ? StorageServerStub.pourIntoFluidPort(player, view, stack, stack.getCount())
+                         : 0;
             if (poured > 0) {
                 if (stack.isEmpty()) {
                     player.getInventory().setItem(slot, ItemStack.EMPTY);
@@ -3464,7 +3476,8 @@ public final class StorageServerStub {
     private static int moveInventoryStackToStorage(
         ServerPlayer player,
         StorageView view,
-        int slot
+        int slot,
+        boolean pour
     ) {
         Inventory inventory = player.getInventory();
         if (slot < 0 || slot >= Inventory.INVENTORY_SIZE) {
@@ -3474,8 +3487,11 @@ public final class StorageServerStub {
         if (stack.isEmpty()) {
             return 0;
         }
-        // 桶装流体优先自动倾倒，空容器留在背包
-        int poured = StorageServerStub.pourIntoFluidPort(player, view, stack, stack.getCount());
+        // 桶装流体优先自动倾倒，空容器留在背包。仅左键倾倒，
+        // 右键保持物品行为，让流体桶能作为普通物品存入
+        int poured = pour
+                     ? StorageServerStub.pourIntoFluidPort(player, view, stack, stack.getCount())
+                     : 0;
         if (poured > 0) {
             if (stack.isEmpty()) {
                 inventory.setItem(slot, ItemStack.EMPTY);
@@ -4572,11 +4588,9 @@ public final class StorageServerStub {
         }
 
         Comparator<OrderEntry> comparator = StorageServerStub.getComparator(options);
-        // 流体按 1 B = 1 个物品折算成等量物品数参与排序。
-        // 流体不占类别，故存在类别限制时不纳入（类别筛选只针对物品）。
-        if (categories.stream().noneMatch(entry -> entry.getMode() != CategoryMode.UNLIMITED)) {
-            StorageServerStub.addFluidEntries(entries, view, search, requiresName);
-        }
+        // 流体按 1 B = 1 个物品折算成等量物品数参与排序，并按分类逐条过滤
+        // （流体分类判定流体、命名空间分类按流体命名空间判定，其余分类默认不匹配流体）
+        StorageServerStub.addFluidEntries(entries, view, search, requiresName, categories);
         entries.sort(comparator);
 
         IntArrayList order = new IntArrayList(entries.size());
@@ -4596,12 +4610,14 @@ public final class StorageServerStub {
      * @param view         当前存储视图
      * @param search       搜索词
      * @param requiresName 是否需要名称（名称排序或普通文本搜索）
+     * @param categories   玩家列出的分类（含模式，UNLIMITED 不过滤）
      */
     private static void addFluidEntries(
         List<OrderEntry> entries,
         StorageView view,
         String search,
-        boolean requiresName
+        boolean requiresName,
+        List<CategoryEntry> categories
     ) {
         List<FluidEntry> fluids = StorageFluidRegistry.collect(view.primary().getId());
         for (int index = 0; index < fluids.size(); index++) {
@@ -4610,6 +4626,9 @@ public final class StorageServerStub {
             // 因此重新排序（例如松开 Shift）后取空的流体就不再显示；
             // 按住 Shift 时由客户端保留的顺序显示 0
             if (entry.amount() <= 0) {
+                continue;
+            }
+            if (!StorageServerStub.matchesFluidCategoryFilters(entry.icon(), categories)) {
                 continue;
             }
             ResourceLocation id = BuiltInRegistries.FLUID.getKey(entry.icon().getFluid());
@@ -4630,10 +4649,10 @@ public final class StorageServerStub {
     }
 
     /**
-     * 点击流体格：指针上拿着流体容器时倒进去，否则用空桶装出一桶该流体。
+     * 左键点击流体格：指针上拿着流体容器时倒进去，否则用空桶装出一桶该流体。
      *
      * <p>流体格是双向的：空桶装、满桶倒。指针被非空容器物品占用且倒不进去时不做任何改动，
-     * 避免无谓消耗背包 / 存储里的空桶。</p>
+     * 避免无谓消耗背包 / 存储里的空桶。右键不走这里，而走原有物品行为。</p>
      *
      * @param player 玩家
      * @param view   当前存储视图
@@ -4852,7 +4871,7 @@ public final class StorageServerStub {
             if (!result.isSuccess()) {
                 break;
             }
-            StorageServerStub.giveEmptiedContainer(player, result.getResult());
+            StorageServerStub.giveEmptiedContainerToStorage(view, player, result.getResult());
             stack.shrink(1);
             poured++;
         }
@@ -4890,11 +4909,47 @@ public final class StorageServerStub {
 
     /**
      * 把倾倒后剩下的空容器交还玩家；背包放不下时掉落在脚下。
+     *
+     * <p>用于取出失败等需要把容器退回原主人的场景。倒入后的空容器走
+     * {@link #giveEmptiedContainerToStorage}，优先入仓储。</p>
      */
     private static void giveEmptiedContainer(ServerPlayer player, ItemStack emptied) {
         if (!player.addItem(emptied)) {
             Block.popResource(player.level(), player.blockPosition(), emptied);
         }
+    }
+
+    /**
+     * 倾倒后交还空容器：优先存入仓储，仓储放不下再回退玩家背包，最后掉落在脚下。
+     *
+     * <p>倒入的流体已进仓储，空桶留在背包会占格子；直接入库可与仓储里的流体配套
+     * （空桶就位后即可再次盛装）。仓储装满时不强塞，回退到玩家背包。</p>
+     *
+     * @param view    当前存储视图；为 null 时直接走玩家背包
+     * @param player  玩家
+     * @param emptied 倒空后的容器
+     */
+    private static void giveEmptiedContainerToStorage(
+        @Nullable StorageView view,
+        ServerPlayer player,
+        ItemStack emptied
+    ) {
+        if (emptied.isEmpty()) {
+            return;
+        }
+        if (view != null) {
+            int inserted = view.insert(emptied.copyWithCount(1), emptied.getCount());
+            if (inserted >= emptied.getCount()) {
+                return;
+            }
+            if (inserted > 0) {
+                ItemStack rest = emptied.copy();
+                rest.shrink(inserted);
+                StorageServerStub.giveEmptiedContainer(player, rest);
+                return;
+            }
+        }
+        StorageServerStub.giveEmptiedContainer(player, emptied);
     }
 
     private static boolean matchesFilters(
@@ -4919,6 +4974,23 @@ public final class StorageServerStub {
         for (CategoryEntry entry : categories) {
             if (entry.getMode() == CategoryMode.UNLIMITED) continue;
             if (entry.getMode() == CategoryMode.ALLOWLIST != entry.getCategory().test(stack)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * 流体条目是否通过分类过滤，判定方式与 {@link #matchesFilters} 对物品的一致。
+     *
+     * @param fluid      待判定的流体
+     * @param categories 玩家列出的分类
+     * @return 通过时返回 true
+     */
+    private static boolean matchesFluidCategoryFilters(FluidStack fluid, List<CategoryEntry> categories) {
+        for (CategoryEntry entry : categories) {
+            if (entry.getMode() == CategoryMode.UNLIMITED) continue;
+            if (entry.getMode() == CategoryMode.ALLOWLIST != entry.getCategory().testFluid(fluid)) {
                 return false;
             }
         }

@@ -68,7 +68,8 @@ public record PlayerSetting(List<CategoryEntry> listed, List<ICategory> custom, 
         return Lists.newArrayList(
             new CategoryEntry(lookup.getOrThrow(ModCategories.MINECRAFT).value()),
             new CategoryEntry(lookup.getOrThrow(ModCategories.BLOCK).value()),
-            new CategoryEntry(lookup.getOrThrow(ModCategories.UNSTACKABLE).value())
+            new CategoryEntry(lookup.getOrThrow(ModCategories.UNSTACKABLE).value()),
+            new CategoryEntry(lookup.getOrThrow(ModCategories.FLUID).value())
         );
     }
 

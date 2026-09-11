@@ -54,6 +54,7 @@ public class CategoryLang {
 
         provider.add("category.anvilcraft.block", "Block Items");
         provider.add("category.anvilcraft.unstackable", "Unstackable Items");
+        provider.add("category.anvilcraft.fluid", "Fluids");
         provider.add("category.anvilcraft.food_and_drink", "Foods and Drinks");
         provider.add("category.anvilcraft.namespace", "%s Items");
         provider.add("category.anvilcraft.redstone", "Redstone Items");

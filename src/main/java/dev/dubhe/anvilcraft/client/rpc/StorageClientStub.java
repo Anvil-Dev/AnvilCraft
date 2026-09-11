@@ -119,13 +119,14 @@ public final class StorageClientStub {
         );
     }
 
-    public static CompletableFuture<Boolean> moveSameToStorage(BlockPos sourcePos, int slot) {
+    public static CompletableFuture<Boolean> moveSameToStorage(BlockPos sourcePos, int slot, boolean pour) {
         return RPC.invoke(
             RpcTarget.server(),
             StorageServerStub::moveSameToStorage,
             StorageClientStub.playerId(),
             sourcePos.asLong(),
-            slot
+            slot,
+            pour
         );
     }
 
@@ -174,13 +175,14 @@ public final class StorageClientStub {
         );
     }
 
-    public static CompletableFuture<StorageServerStub.DepositResult> deposit(BlockPos sourcePos, boolean all) {
+    public static CompletableFuture<StorageServerStub.DepositResult> deposit(BlockPos sourcePos, boolean all, boolean pour) {
         return RPC.invoke(
             RpcTarget.server(),
             StorageServerStub::deposit,
             StorageClientStub.playerId(),
             sourcePos.asLong(),
-            all
+            all,
+            pour
         );
     }
 

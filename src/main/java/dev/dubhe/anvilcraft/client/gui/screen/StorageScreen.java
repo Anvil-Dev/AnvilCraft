@@ -464,7 +464,24 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
             20,
             18,
             40,
-            button -> StorageClientStub.deposit(StorageScreen.this.sourcePos, Screen.hasShiftDown()).thenAcceptAsync(
+            button -> StorageClientStub.deposit(
+                StorageScreen.this.sourcePos,
+                Screen.hasShiftDown(),
+                true
+            ).thenAcceptAsync(
+                result -> {
+                    if (result.changed()) {
+                        StorageScreen.this.reorder(false);
+                    }
+                },
+                StorageScreen.this.screenExecutor
+            ),
+            // 右键：把流体桶当普通物品存入，不倒进液体
+            button -> StorageClientStub.deposit(
+                StorageScreen.this.sourcePos,
+                Screen.hasShiftDown(),
+                false
+            ).thenAcceptAsync(
                 result -> {
                     if (result.changed()) {
                         StorageScreen.this.reorder(false);
@@ -1619,9 +1636,18 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
         }
 
         if (button == 0 || button == 1) {
-            // 流体格：空桶取自指针/背包/仓储，装出一桶后按 Shift 直接进背包、否则落在指针上
+            // 流体格：左键为流体行为（倒入 / 取出），右键保持原有物品行为
+            // （把指针上的流体桶当作普通物品存入，否则流体桶将永远无法入库）
             Integer fluidSlot = this.getFluidSlotAt(mouseX, mouseY);
             if (fluidSlot != null && this.minecraft.gameMode != null) {
+                if (button == 1) {
+                    // 流体格内没有物品可取，右键空指针不做任何事
+                    if (this.carried.isEmpty()) {
+                        return true;
+                    }
+                    this.interactWithStorage(fluidSlot, button, StorageInput.PICKUP);
+                    return true;
+                }
                 StorageInput action = Screen.hasShiftDown()
                                       ? StorageInput.QUICK_MOVE_FROM_STORAGE
                                       : StorageInput.FLUID_BUCKET;
@@ -1668,7 +1694,8 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
             this.lastClickedInventorySlot = slot;
 
             if (Screen.hasAltDown()) {
-                this.moveSameToStorage(slot);
+                // 左键：桶装流体自动倾倒；右键：保持物品行为存入流体桶
+                this.moveSameToStorage(slot, button == 0);
                 return true;
             }
 
@@ -2128,8 +2155,8 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
         this.quickMoveMovedBySlot.clear();
     }
 
-    private void moveSameToStorage(int slot) {
-        StorageClientStub.moveSameToStorage(this.sourcePos, slot).whenCompleteAsync(
+    private void moveSameToStorage(int slot, boolean pour) {
+        StorageClientStub.moveSameToStorage(this.sourcePos, slot, pour).whenCompleteAsync(
             (changed, error) -> {
                 if (error != null || !changed) {
                     return;
@@ -3555,6 +3582,10 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
      *
      * <p>折叠显示会按物品重组列表并丢弃流体，故折叠路径需要重新追加；
      * 非折叠路径的流体位置由服务端排序决定，不走这里。</p>
+     *
+     * <p>只追加服务端 {@link #order} 中出现的流体槽位：分类过滤、搜索过滤与
+     * 0 数量的取舍都由服务端排序统一决定，这里照搬可避免在折叠模式下漏掉它们
+     * （例如把「流体」分类设为黑名单后，折叠模式仍把流体显示出来）。</p>
      */
     private IntList appendFluidSlots(IntList itemsOnly) {
         if (this.fluids.isEmpty()) {
@@ -3563,11 +3594,10 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
         IntArrayList result = new IntArrayList(itemsOnly.size() + this.fluids.size());
         result.addAll(itemsOnly);
         for (int index = 0; index < this.fluids.size(); index++) {
-            // 与物品一致：0 数量的条目只在按住 Shift 保持排序时显示（松开后重新排序即消失）
-            if (this.fluids.get(index).amount() <= 0 && !this.preservingOrder) {
-                continue;
+            int slot = StorageScreen.FLUID_SLOT_BASE + index;
+            if (this.order.contains(slot)) {
+                result.add(slot);
             }
-            result.add(StorageScreen.FLUID_SLOT_BASE + index);
         }
         return result;
     }
