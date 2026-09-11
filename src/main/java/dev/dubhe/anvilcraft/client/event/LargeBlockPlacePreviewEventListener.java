@@ -253,7 +253,8 @@ public class LargeBlockPlacePreviewEventListener {
         }
         Minecraft mc = Minecraft.getInstance();
         LocalPlayer player = mc.player;
-        if (player == null || player.isSpectator() || mc.level == null) {
+        if (player == null || player.isSpectator() || mc.level == null
+            || AnvilCraftClient.CONFIG.multiPartPreviewMode == AnvilCraftClientConfig.MultiPartPreviewMode.OFF) {
             renderEntries.clear();
             missingAmplifierAnvilPositions.clear();
             return;

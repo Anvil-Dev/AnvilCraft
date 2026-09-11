@@ -190,6 +190,8 @@ public class AnvilCraftClientConfig {
         @SerializedName("Ghost")
         GHOST,
         @SerializedName("Outline")
-        OUTLINE
+        OUTLINE,
+        @SerializedName("Off")
+        OFF
     }
 }

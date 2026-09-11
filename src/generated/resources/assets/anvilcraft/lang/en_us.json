@@ -373,6 +373,7 @@
   "anvillib.configuration.enum.dev.dubhe.anvilcraft.config.anvil_craft_client_config.goggle_mode.wearing_hammer": "When Wearing Hammer",
   "anvillib.configuration.enum.dev.dubhe.anvilcraft.config.anvil_craft_client_config.goggle_mode.wearing_or_holding_hammer": "When Wearing or Holding Hammer",
   "anvillib.configuration.enum.dev.dubhe.anvilcraft.config.anvil_craft_client_config.multi_part_preview_mode.ghost": "Ghost",
+  "anvillib.configuration.enum.dev.dubhe.anvilcraft.config.anvil_craft_client_config.multi_part_preview_mode.off": "Off",
   "anvillib.configuration.enum.dev.dubhe.anvilcraft.config.anvil_craft_client_config.multi_part_preview_mode.outline": "Outline",
   "anvillib.configuration.enum.dev.dubhe.anvilcraft.config.anvil_craft_client_config.mun_lighting_quality.off": "Vanilla",
   "anvillib.configuration.enum.dev.dubhe.anvilcraft.config.anvil_craft_client_config.mun_lighting_quality.potato": "Potato",
