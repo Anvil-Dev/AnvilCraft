@@ -7,6 +7,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
+import net.minecraft.core.Direction;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 
@@ -31,52 +32,27 @@ public class StoragePortBlockEntityRenderer implements BlockEntityRenderer<Stora
             return;
         }
 
-        poseStack.pushPose();
-        poseStack.translate(0.5, 0.5, 0.9);
-        poseStack.scale(0.8f, 0.8f, 0.8f);
-        Minecraft.getInstance()
-            .getItemRenderer()
-            .renderStatic(markedItem, ItemDisplayContext.FIXED, light, overlay, poseStack, vertexConsumers, port.getLevel(), 0);
-        poseStack.popPose();
-        poseStack.pushPose();
-        poseStack.translate(0.5, 0.5, 0.1);
-        poseStack.scale(0.8f, 0.8f, 0.8f);
-        Minecraft.getInstance()
-            .getItemRenderer()
-            .renderStatic(markedItem, ItemDisplayContext.FIXED, light, overlay, poseStack, vertexConsumers, port.getLevel(), 0);
-        poseStack.popPose();
-        poseStack.pushPose();
-        poseStack.translate(0.9, 0.5, 0.5);
-        poseStack.scale(0.8f, 0.8f, 0.8f);
-        poseStack.mulPose(Axis.YP.rotationDegrees(90));
-        Minecraft.getInstance()
-            .getItemRenderer()
-            .renderStatic(markedItem, ItemDisplayContext.FIXED, light, overlay, poseStack, vertexConsumers, port.getLevel(), 0);
-        poseStack.popPose();
-        poseStack.pushPose();
-        poseStack.translate(0.1, 0.5, 0.5);
-        poseStack.scale(0.8f, 0.8f, 0.8f);
-        poseStack.mulPose(Axis.YP.rotationDegrees(90));
-        Minecraft.getInstance()
-            .getItemRenderer()
-            .renderStatic(markedItem, ItemDisplayContext.FIXED, light, overlay, poseStack, vertexConsumers, port.getLevel(), 0);
-        poseStack.popPose();
-        poseStack.pushPose();
-        poseStack.translate(0.5, 0.1, 0.5);
-        poseStack.scale(0.8f, 0.8f, 0.8f);
-        poseStack.mulPose(Axis.XP.rotationDegrees(90));
-        Minecraft.getInstance()
-            .getItemRenderer()
-            .renderStatic(markedItem, ItemDisplayContext.FIXED, light, overlay, poseStack, vertexConsumers, port.getLevel(), 0);
-        poseStack.popPose();
-        poseStack.pushPose();
-        poseStack.translate(0.5, 0.9, 0.5);
-        poseStack.scale(0.8f, 0.8f, 0.8f);
-        poseStack.mulPose(Axis.XP.rotationDegrees(90));
-        poseStack.mulPose(Axis.ZP.rotationDegrees(180));
-        Minecraft.getInstance()
-            .getItemRenderer()
-            .renderStatic(markedItem, ItemDisplayContext.FIXED, light, overlay, poseStack, vertexConsumers, port.getLevel(), 0);
-        poseStack.popPose();
+        for (Direction direction : Direction.values()) {
+            if (!port.isMarkedFaceVisible(direction)) continue;
+            poseStack.pushPose();
+            poseStack.translate(
+                0.5 + direction.getStepX() * 0.4,
+                0.5 + direction.getStepY() * 0.4,
+                0.5 + direction.getStepZ() * 0.4
+            );
+            poseStack.scale(0.8f, 0.8f, 0.8f);
+            if (direction.getAxis() == Direction.Axis.X) {
+                poseStack.mulPose(Axis.YP.rotationDegrees(90));
+            } else if (direction.getAxis() == Direction.Axis.Y) {
+                poseStack.mulPose(Axis.XP.rotationDegrees(90));
+                if (direction == Direction.UP) {
+                    poseStack.mulPose(Axis.ZP.rotationDegrees(180));
+                }
+            }
+            Minecraft.getInstance().getItemRenderer().renderStatic(
+                markedItem, ItemDisplayContext.FIXED, light, overlay, poseStack, vertexConsumers, port.getLevel(), 0
+            );
+            poseStack.popPose();
+        }
     }
 }

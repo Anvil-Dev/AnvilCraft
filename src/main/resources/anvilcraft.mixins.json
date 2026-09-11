@@ -42,6 +42,7 @@
       "ItemEntityMixin",
       "ItemMixin",
       "ItemStackMixin",
+      "JeiSmithingTransferMixin",
       "LevelChunkMixin",
       "LightningBoltMixin",
       "LevelMixin",

@@ -68,12 +68,20 @@ public class AnvilCraftClientConfig {
     @Comment("Render the shared orbital rings in the overworld-like dimension")
     public boolean renderOverworldLikeSky = true;
 
-    @Comment("Lunar lighting: Potato uses Standard lighting and ambient occlusion without custom shadows, "
-        + "retaining vanilla entity shadows; "
-        + "Standard adds terrain, animated entity, and colored translucent shadows; Off uses the vanilla rendering pipeline "
-        + "without lunar shaders, retaining the cloudless lunar sky, Earth and moving stars. "
-        + "Rendering failures switch this setting to Off. Shadow range is limited by render distance.")
+    @Comment("Mun lighting: Potato uses Standard lighting and ambient occlusion without custom shadows, retaining vanilla entity shadows; "
+        + "Standard adds terrain, animated entity, and colored translucent shadows; "
+        + "Vanilla uses the vanilla rendering pipeline without Mun shaders, retaining the cloudless Mun sky, Overworld and moving stars. "
+        + "Rendering failures switch this setting to Vanilla. Shadow range is limited by render distance.")
     public MunLightingQuality munLightingQuality = MunLightingQuality.STANDARD;
+
+    @Comment("Vanilla restores the original stellar surface and layered halos; "
+        + "Standard enables temperature-based emission and smooth halos. "
+        + "Rendering failures fall back to Vanilla until resources reload. Changes take effect immediately.")
+    public CelestialRenderingMode stellarRenderingMode = CelestialRenderingMode.STANDARD;
+
+    @Comment("Vanilla restores the original translucent atmosphere shell; Standard enables a thicker volume atmosphere. "
+        + "Rendering failures fall back to Vanilla until resources reload. Changes take effect immediately.")
+    public CelestialRenderingMode planetAtmosphereRenderingMode = CelestialRenderingMode.STANDARD;
 
     @CollapsibleObject
     public GravitationalLens gravitationalLens = new GravitationalLens();
@@ -147,6 +155,13 @@ public class AnvilCraftClientConfig {
         @SerializedName("HUD Y Position")
         @Comment("The gui hud y position")
         public int hudY = 8;
+    }
+
+    public enum CelestialRenderingMode implements TranslatableEnum {
+        @SerializedName("Vanilla")
+        VANILLA,
+        @SerializedName("Standard")
+        STANDARD
     }
 
     public enum MunLightingQuality implements TranslatableEnum {

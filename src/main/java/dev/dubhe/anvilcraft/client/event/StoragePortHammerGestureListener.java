@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.client.event;
 
 import dev.anvilcraft.lib.v2.wheel.api.WheelMenuBuilder;
 import dev.anvilcraft.lib.v2.wheel.api.WheelMenuModel;
+import dev.anvilcraft.lib.v2.wheel.api.WheelSelectionEffect;
 import dev.anvilcraft.lib.v2.wheel.client.input.WheelScreenController;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.StoragePortBlock;
@@ -122,6 +123,7 @@ public class StoragePortHammerGestureListener {
      */
     private static WheelMenuModel buildClearMarkWheel(BlockPos pos) {
         return WheelMenuBuilder.create()
+            .selectionEffect(WheelSelectionEffect.ANNULAR_SECTOR)
             .slotsPerPage(1)
             .action(
                 "clear_mark",

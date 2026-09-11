@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.client.event;
 
 import dev.anvilcraft.lib.v2.wheel.api.WheelMenuBuilder;
 import dev.anvilcraft.lib.v2.wheel.api.WheelMenuModel;
+import dev.anvilcraft.lib.v2.wheel.api.WheelSelectionEffect;
 import dev.anvilcraft.lib.v2.wheel.client.input.WheelScreenController;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.client.init.ModKeyMappings;
@@ -257,7 +258,8 @@ public class WheelLifecycleEventListener {
 
     private static WheelMenuModel getMultiphaseWheel(InteractionHand hand, ItemStack holding, Multiphase multiphase) {
         int phaseCount = multiphase.phases().size();
-        WheelMenuBuilder builder = WheelMenuBuilder.create().slotsPerPage(phaseCount);
+        WheelMenuBuilder builder = WheelMenuBuilder.create()
+            .selectionEffect(WheelSelectionEffect.ANNULAR_SECTOR).slotsPerPage(phaseCount);
         for (int i = 0; i < phaseCount; i++) {
             addMultiphaseWheelEntry(builder, hand, holding, multiphase, i);
         }
@@ -287,6 +289,7 @@ public class WheelLifecycleEventListener {
 
     private static WheelMenuModel getResonatorWheel(InteractionHand hand, ItemStack holding) {
         return WheelMenuBuilder.create()
+            .selectionEffect(WheelSelectionEffect.ANNULAR_SECTOR)
             .slotsPerPage(5)
             .action(
                 "auto",
@@ -353,6 +356,7 @@ public class WheelLifecycleEventListener {
 
     private static WheelMenuModel getHeavyHalberdWheel(InteractionHand hand, ItemStack holding) {
         return WheelMenuBuilder.create()
+            .selectionEffect(WheelSelectionEffect.ANNULAR_SECTOR)
             .slotsPerPage(4)
             .action(
                 "trident",
@@ -407,6 +411,7 @@ public class WheelLifecycleEventListener {
 
     private static WheelMenuModel getMultitoolWheel(InteractionHand hand, ItemStack holding) {
         return WheelMenuBuilder.create()
+            .selectionEffect(WheelSelectionEffect.ANNULAR_SECTOR)
             .slotsPerPage(9)
             .action(
                 "all",
@@ -521,6 +526,7 @@ public class WheelLifecycleEventListener {
 
     private static WheelMenuModel getDragonRodWheel(InteractionHand hand, ItemStack holding) {
         return WheelMenuBuilder.create()
+            .selectionEffect(WheelSelectionEffect.ANNULAR_SECTOR)
             .slotsPerPage(2)
             .action(
                 "protect",
@@ -569,6 +575,7 @@ public class WheelLifecycleEventListener {
 
     private static WheelMenuModel getBalanceWheel() {
         return WheelMenuBuilder.create()
+            .selectionEffect(WheelSelectionEffect.ANNULAR_SECTOR)
             .slotsPerPage(4)
             .action(
                 "smart",

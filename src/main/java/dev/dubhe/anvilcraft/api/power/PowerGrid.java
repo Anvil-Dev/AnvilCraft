@@ -5,7 +5,6 @@ import dev.dubhe.anvilcraft.network.PowerGridRemovePacket;
 import dev.dubhe.anvilcraft.network.PowerGridSyncChunkPacket;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
@@ -186,7 +185,7 @@ public class PowerGrid {
         for (DynamicPowerComponent dynamicComponent : new ArrayList<>(this.dynamicComponents)) {
             Entity owner = dynamicComponent.getOwner();
             if (owner.level() != this.level || !this.collideFast(dynamicComponent.boundingBox())) {
-                notifyLeaving(dynamicComponent);
+                dynamicComponent.switchTo(null);
                 continue;
             }
             int power = dynamicComponent.getPowerConsumption();

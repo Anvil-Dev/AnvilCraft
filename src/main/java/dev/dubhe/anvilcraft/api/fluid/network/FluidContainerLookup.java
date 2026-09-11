@@ -84,8 +84,7 @@ public final class FluidContainerLookup {
     /**
      * 使用指定的方块实体查找任意方向的流体能力。
      *
-     * <p>方块实体加载事件在实体写入区块映射前触发，因此必须使用事件提供的实体，
-     * 不能再次按位置查找。</p>
+     * <p>复用调用方已取得的方块实体，避免重复按位置查找。</p>
      */
     public static @Nullable Result findAny(
         Level level,

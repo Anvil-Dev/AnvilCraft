@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.item.weapon;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.entity.WeaponBeamEntity;
 import dev.dubhe.anvilcraft.init.entity.ModDamageTypes;
+import dev.dubhe.anvilcraft.network.WeaponChargeProgressPacket;
 import dev.dubhe.anvilcraft.util.BreakBlockUtil;
 import dev.dubhe.anvilcraft.util.WeaponRaycastUtil;
 import net.minecraft.core.BlockPos;
@@ -43,7 +44,7 @@ public class LaserGunItem extends EnergyWeaponItem {
     private static final int[] VISUAL_LEVEL = {1, 2, 4, 8, 16};
 
     public LaserGunItem(Properties properties) {
-        super(properties);
+        super(properties, ENERGY[0]);
     }
 
     @Override
@@ -56,6 +57,7 @@ public class LaserGunItem extends EnergyWeaponItem {
 
     @Override
     public void onUseTick(Level level, LivingEntity user, ItemStack stack, int remaining) {
+        if (!(user instanceof Player usingPlayer) || !canContinueUsing(usingPlayer, stack)) return;
         if (!(user instanceof ServerPlayer player) || !(level instanceof ServerLevel serverLevel)) return;
         LaserState state = STATES.computeIfAbsent(player.getUUID(), ignored -> new LaserState());
         WeaponRaycastUtil.Ray fullRay = WeaponRaycastUtil.ray(player, 48.0);
@@ -74,10 +76,13 @@ public class LaserGunItem extends EnergyWeaponItem {
         if (!targets.isEmpty()) {
             state.resetMining();
             hurtTargets(serverLevel, player, stack, targets, state);
+            WeaponChargeProgressPacket.sync(
+                player, stack, state.targetTicks >= 400 ? 100 : state.targetTicks, 100, state.targetTicks < 400);
             return;
         }
         state.resetTarget();
         mine(serverLevel, player, stack, blockHit, state);
+        WeaponChargeProgressPacket.sync(player, stack, state.miningTicks, state.vein.isEmpty() ? 0 : miningPeriod(level, stack), true);
     }
 
     private static void hurtTargets(
@@ -179,12 +184,18 @@ public class LaserGunItem extends EnergyWeaponItem {
 
     @Override
     public void releaseUsing(ItemStack stack, Level level, LivingEntity entity, int timeLeft) {
-        STATES.remove(entity.getUUID());
+        if (!level.isClientSide()) STATES.remove(entity.getUUID());
+    }
+
+    @Override
+    public void onStopUsing(ItemStack stack, LivingEntity entity, int count) {
+        if (!entity.level().isClientSide()) STATES.remove(entity.getUUID());
+        super.onStopUsing(stack, entity, count);
     }
 
     @Override
     protected void stopForInsufficientPower(Player player, ItemStack weapon) {
-        STATES.remove(player.getUUID());
+        if (!player.level().isClientSide()) STATES.remove(player.getUUID());
         super.stopForInsufficientPower(player, weapon);
     }
 

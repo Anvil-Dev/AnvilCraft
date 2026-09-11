@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "redstone",
+  "key": {
+    "H": {
+      "item": "anvilcraft:hardend_resin"
+    },
+    "I": {
+      "item": "minecraft:iron_ingot"
+    },
+    "R": {
+      "item": "minecraft:redstone"
+    }
+  },
+  "pattern": [
+    " R ",
+    "RHR",
+    "III"
+  ],
+  "result": {
+    "count": 4,
+    "id": "anvilcraft:big_red_button"
+  }
+}

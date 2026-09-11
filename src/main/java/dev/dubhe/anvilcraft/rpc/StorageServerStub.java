@@ -20,7 +20,6 @@ import dev.dubhe.anvilcraft.block.entity.storage.TerminalBlockRegistry;
 import dev.dubhe.anvilcraft.block.item.ShulkerContainerBlockItem;
 import dev.dubhe.anvilcraft.block.multipart.AbstractMultiPartBlock;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
-import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.init.storage.ModStorageTypes;
 import dev.dubhe.anvilcraft.item.property.component.StorageRef;
@@ -74,7 +73,6 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.phys.AABB;
-import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 import net.neoforged.neoforge.server.ServerLifecycleHooks;
 
@@ -603,25 +601,17 @@ public final class StorageServerStub {
         return virtualPos;
     }
 
-    /** 仓储合成模式是否可用：主存储中同时存在工作台与切石机（按物品标签判定）。 */
+    /** 查询主存储是否已解锁合成模式，不消耗材料。 */
     @RemoteCallable(validator = StorageAccessValidator.class)
     public static boolean craftingAvailable(UUID playerId, long sourcePos) {
         StorageView view = StorageServerStub.getView(StorageServerStub.getAndClear(), playerId, sourcePos);
-        UnlimitedItemStacksResourceHandler items = view.primary().getItems();
-        boolean hasWorkbench = false;
-        boolean hasStonecutter = false;
-        for (int i = 0; i < items.size() && (!hasWorkbench || !hasStonecutter); i++) {
-            if (items.getAmountAsLong(i) <= 0) {
-                continue;
-            }
-            ItemStack stack = items.getUnlimitedStackInSlot(i).toStack();
-            if (stack.is(Tags.Items.PLAYER_WORKSTATIONS_CRAFTING_TABLES)) {
-                hasWorkbench = true;
-            } else if (stack.is(ModItemTags.PLAYER_WORKSTATIONS_STONECUTTERS)) {
-                hasStonecutter = true;
-            }
-        }
-        return hasWorkbench && hasStonecutter;
+        return view.primary().isCraftingUnlocked();
+    }
+
+    @RemoteCallable(validator = StorageAccessValidator.class)
+    public static boolean craftingUnlock(UUID playerId, long sourcePos) {
+        StorageView view = StorageServerStub.getView(StorageServerStub.getAndClear(), playerId, sourcePos);
+        return view.primary().unlockCrafting();
     }
 
     /**

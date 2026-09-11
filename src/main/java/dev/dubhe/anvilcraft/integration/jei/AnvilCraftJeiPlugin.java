@@ -10,7 +10,6 @@ import dev.dubhe.anvilcraft.client.gui.screen.ItemCollectorScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.ItemDetectorScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.JewelCraftingScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.StorageScreen;
-import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.integration.jei.category.AnvilCollisionCraftCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.BeaconConversionCategory;
@@ -19,6 +18,7 @@ import dev.dubhe.anvilcraft.integration.jei.category.ContainerUpgradeCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.DecayCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.EnergyWeaponCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.FluidReactionCategory;
+import dev.dubhe.anvilcraft.integration.jei.category.FrostSmithingCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.JewelCraftingCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.MineralFountainCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.MobTransformCategory;
@@ -55,7 +55,7 @@ import dev.dubhe.anvilcraft.integration.jei.recipe.MeshRecipeGroup;
 import dev.dubhe.anvilcraft.integration.jei.recipe.MineralFountainJeiRecipe;
 import dev.dubhe.anvilcraft.integration.jei.recipe.MobTransformJeiRecipe;
 import dev.dubhe.anvilcraft.integration.jei.recipe.UseItemOnBlockRecipe;
-import dev.dubhe.anvilcraft.inventory.RoyalSmithingMenu;
+import dev.dubhe.anvilcraft.integration.jei.transfer.SmithingRecipeTransferHandler;
 import dev.dubhe.anvilcraft.recipe.CanningFoodRecipe;
 import dev.dubhe.anvilcraft.recipe.ChargerChargingRecipe;
 import dev.dubhe.anvilcraft.recipe.EnergyWeaponMakeRecipe;
@@ -175,6 +175,8 @@ public class AnvilCraftJeiPlugin implements IModPlugin {
         createRecipeHolderType("charger_charging");
     public static final RecipeType<RecipeHolder<BaseMultipleToOneSmithingRecipe>> MULTIPLE_TO_ONE_SMITHING =
         createRecipeHolderType("multiple_to_one_smithing");
+    public static final RecipeType<FrostSmithingCategory.Display> FROST_SMITHING =
+        createRecipeType("frost_smithing", FrostSmithingCategory.Display.class);
     public static final RecipeType<RecipeHolder<PortalConversionRecipe>> PORTAL_CONVERSION =
         createRecipeHolderType("portal_conversion");
 
@@ -232,6 +234,7 @@ public class AnvilCraftJeiPlugin implements IModPlugin {
         DecayCategory.registerRecipes(registration);
         ChargerChargingCategory.registerRecipes(registration);
         MultipleToOneSmithingCategory.registerRecipes(registration);
+        FrostSmithingCategory.registerRecipes(registration);
         MobTransformCategory.registerRecipes(registration);
         AnvilCollisionCraftCategory.registerRecipes(registration);
         ProceduralProcessCategory.registerRecipes(registration);
@@ -269,6 +272,7 @@ public class AnvilCraftJeiPlugin implements IModPlugin {
         DecayCategory.registerRecipeCatalysts(registration);
         ChargerChargingCategory.registerRecipeCatalysts(registration);
         MultipleToOneSmithingCategory.registerRecipeCatalysts(registration);
+        FrostSmithingCategory.registerRecipeCatalysts(registration);
         MobTransformCategory.registerRecipeCatalysts(registration);
         AnvilCollisionCraftCategory.registerRecipeCatalysts(registration);
         ProceduralProcessCategory.registerRecipeCatalysts(registration);
@@ -320,6 +324,7 @@ public class AnvilCraftJeiPlugin implements IModPlugin {
         registration.addRecipeCategories(new DecayCategory(guiHelper));
         registration.addRecipeCategories(new ChargerChargingCategory(guiHelper));
         registration.addRecipeCategories(new MultipleToOneSmithingCategory(guiHelper));
+        registration.addRecipeCategories(new FrostSmithingCategory(guiHelper));
         registration.addRecipeCategories(new MobTransformCategory(guiHelper));
         registration.addRecipeCategories(new AnvilCollisionCraftCategory(guiHelper));
         registration.addRecipeCategories(new ProceduralProcessCategory(guiHelper));
@@ -331,13 +336,7 @@ public class AnvilCraftJeiPlugin implements IModPlugin {
 
     @Override
     public void registerRecipeTransferHandlers(IRecipeTransferRegistration registration) {
-        // 终端存储站补库由 JeiBasicRecipeTransferHandlerMixin 统一注入 JEI 转移流程处理
-        registration.addRecipeTransferHandler(
-            RoyalSmithingMenu.class,
-            ModMenuTypes.ROYAL_SMITHING.get(),
-            RecipeTypes.SMITHING,
-            0, 3, 4, 36
-        );
+        SmithingRecipeTransferHandler.register(registration);
         // 仓储界面（StorageScreen）：③/④ 结果槽区域的 JEI 配方打开与合成/切石机转移
         StorageJeiSupport.registerRecipeTransferHandlers(registration);
     }

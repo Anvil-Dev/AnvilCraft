@@ -79,7 +79,7 @@ public class FrostSmithingMenu extends AdjacentSmithingMenu {
                 62,
                 48,
                 stack -> !this.inputSlots.getItem(0).isEmpty()
-                         && !this.inputSlots.getItem(1).isEmpty()
+                         && this.hasMaterialForPlacement()
                          && this.recipes.stream().anyMatch(recipe -> recipe.value().isInput(stack))
             ).withResultSlot(3, 106, 48)
             .build();
@@ -113,6 +113,7 @@ public class FrostSmithingMenu extends AdjacentSmithingMenu {
 
     @Override
     public void slotsChanged(Container inventory) {
+        if (this.isRecipeTransferInProgress()) return;
         super.slotsChanged(inventory);
         if (inventory != this.inputSlots) return;
         this.selectedRecipe = null;

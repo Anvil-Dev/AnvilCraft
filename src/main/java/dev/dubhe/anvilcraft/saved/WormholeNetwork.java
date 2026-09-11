@@ -133,6 +133,8 @@ public class WormholeNetwork extends BetterSavedData {
             synchronizeOverworldLikeGeneration(manifest);
             if (manifest.resetPending() || serverLevel.getServer().getLevel(dim) != level) return;
         }
+        UUID previous = reverseIndex.getOrDefault(dim, Map.of()).get(pos);
+        if (previous != null && !previous.equals(bodyUuid)) unregister(level, pos);
         List<Entry> entries = network.computeIfAbsent(bodyUuid, k -> new ArrayList<>());
         entries.removeIf(e -> e.dimension.equals(dim) && e.pos.equals(pos));
         entries.add(new Entry(dim, pos));
@@ -206,6 +208,10 @@ public class WormholeNetwork extends BetterSavedData {
     }
 
     // ==================== Queries ====================
+
+    public boolean isRegistered(UUID bodyUuid, ResourceKey<Level> dimension, BlockPos pos) {
+        return bodyUuid.equals(reverseIndex.getOrDefault(dimension, Map.of()).get(pos));
+    }
 
     /**
      * Get all connected CFA entries (excluding self) for a given body UUID.

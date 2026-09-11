@@ -197,6 +197,8 @@ public class FunctionalBlocksSections extends DisplayItemsGenerator {
                 .tooltip(Component.translatable("anvilcraft.creative.section.functional_blocks.redstone"))
                 .build(),
             content -> {
+                content.accept(ModBlocks.REDSTONE_DICE);
+                content.accept(ModBlocks.BIG_RED_BUTTON);
                 content.accept(ModBlocks.PULSE_GENERATOR);
                 content.accept(ModBlocks.ADVANCED_COMPARATOR);
                 content.accept(ModBlocks.BLOCK_COMPARATOR);

@@ -1,0 +1,17 @@
+{
+    "vertex": "anvilcraft:planet_atmosphere",
+    "fragment": "anvilcraft:planet_atmosphere",
+    "samplers": [],
+    "uniforms": [
+        { "name": "ModelViewMat", "type": "matrix4x4", "count": 16, "values": [ 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1 ] },
+        { "name": "ProjMat", "type": "matrix4x4", "count": 16, "values": [ 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1 ] },
+        { "name": "PlanetPose", "type": "matrix4x4", "count": 16, "values": [ 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1 ] },
+        { "name": "CameraLocal", "type": "float", "count": 3, "values": [ 0, 0, 3 ] },
+        { "name": "LightLocal", "type": "float", "count": 3, "values": [ 0, 0, 1 ] },
+        { "name": "AtmosphereColor", "type": "float", "count": 3, "values": [ 0.2, 0.5, 0.95 ] },
+        { "name": "Thickness", "type": "float", "count": 1, "values": [ 0.1875 ] },
+        { "name": "ColorModulator", "type": "float", "count": 4, "values": [ 1, 1, 1, 1 ] },
+        { "name": "FogStart", "type": "float", "count": 1, "values": [ 0 ] },
+        { "name": "FogEnd", "type": "float", "count": 1, "values": [ 1 ] }
+    ]
+}

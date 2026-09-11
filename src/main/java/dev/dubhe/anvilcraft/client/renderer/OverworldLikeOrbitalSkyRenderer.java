@@ -1,6 +1,8 @@
 package dev.dubhe.anvilcraft.client.renderer;
 
+import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 import dev.dubhe.anvilcraft.block.entity.celestial.CelestialTravelManager;
@@ -12,7 +14,6 @@ import dev.dubhe.anvilcraft.saved.OverworldLikeWorldState;
 import dev.dubhe.anvilcraft.worldgen.OverworldLikeOrbitMath;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.LightTexture;
-import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.block.ModelBlockRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.resources.model.BakedModel;
@@ -41,25 +42,31 @@ public final class OverworldLikeOrbitalSkyRenderer {
             return;
         }
         Minecraft minecraft = Minecraft.getInstance();
-        if (minecraft.level == null || !CelestialTravelManager.isOverworldLike(minecraft.level.dimension())) return;
-        if (!OverworldLikeClientState.isInitialized()) return;
-        if (OverworldLikeClientState.phase() == OverworldLikeWorldState.Phase.RESET_PENDING) return;
+        if (minecraft.level == null) return;
+        boolean overworldLike = CelestialTravelManager.isOverworldLike(minecraft.level.dimension());
+        if (!overworldLike && !CelestialTravelManager.VOID_PLANET_LEVEL.equals(minecraft.level.dimension())) return;
+        if (overworldLike && (!OverworldLikeClientState.isInitialized()
+            || OverworldLikeClientState.phase() == OverworldLikeWorldState.Phase.RESET_PENDING)) {
+            return;
+        }
         if (ring4 == null || ring5 == null) return;
 
         float partialTick = event.getPartialTick().getGameTimeDeltaPartialTick(minecraft.isPaused());
         long gameTime = minecraft.level.getGameTime();
-        long orbitEpoch = OverworldLikeClientState.orbitEpochGameTime();
-        long visualSeed = OverworldLikeClientState.visualSeed();
-        float eclipse = OverworldLikeClientState.eclipseFactor(minecraft.level);
-        float collapse = OverworldLikeClientState.collapseProgress();
+        long orbitEpoch = overworldLike ? OverworldLikeClientState.orbitEpochGameTime() : 0L;
+        long visualSeed = overworldLike ? OverworldLikeClientState.visualSeed() : 0L;
+        float eclipse = overworldLike ? OverworldLikeClientState.eclipseFactor(minecraft.level) : 0.0F;
+        float collapse = overworldLike ? OverworldLikeClientState.collapseProgress() : 0.0F;
         float brightness = 0.34F + eclipse * 0.22F + collapse * 0.44F;
 
         PoseStack poseStack = new PoseStack();
         // AFTER_SKY supplies an empty pose stack, so sky geometry must include the camera rotation explicitly.
         poseStack.mulPose(event.getModelViewMatrix());
-        MultiBufferSource.BufferSource buffers = minecraft.renderBuffers().bufferSource();
         ModelBlockRenderer renderer = minecraft.getBlockRenderer().getModelRenderer();
-        VertexConsumer consumer = buffers.getBuffer(ModRenderTypes.OVERWORLD_LIKE_SKY_RING);
+        // Iris defers the shared entity buffer even after endBatch(RenderType); sky geometry must draw in this stage.
+        BufferBuilder consumer = Tesselator.getInstance().begin(
+            ModRenderTypes.OVERWORLD_LIKE_SKY_RING.mode(), ModRenderTypes.OVERWORLD_LIKE_SKY_RING.format()
+        );
 
         poseStack.pushPose();
         poseStack.scale(SKY_SCALE, SKY_SCALE, SKY_SCALE);
@@ -95,7 +102,7 @@ public final class OverworldLikeOrbitalSkyRenderer {
         poseStack.mulPose(Axis.ZP.rotationDegrees((float) inner.innerRotation()));
         renderModel(renderer, poseStack, consumer, ring4, brightness * 0.86F);
         poseStack.popPose();
-        buffers.endBatch(ModRenderTypes.OVERWORLD_LIKE_SKY_RING);
+        ModRenderTypes.OVERWORLD_LIKE_SKY_RING.draw(consumer.buildOrThrow());
     }
 
     private static void renderModel(

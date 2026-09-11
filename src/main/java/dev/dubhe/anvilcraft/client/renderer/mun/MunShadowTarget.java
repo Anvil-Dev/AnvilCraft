@@ -64,7 +64,7 @@ final class MunShadowTarget implements AutoCloseable {
             GL30C.glDrawBuffer(GL30C.GL_COLOR_ATTACHMENT0);
         }
         if (GL30C.glCheckFramebufferStatus(GL30C.GL_FRAMEBUFFER) != GL30C.GL_FRAMEBUFFER_COMPLETE) {
-            throw new IllegalStateException("Incomplete lunar shadow framebuffer");
+            throw new IllegalStateException("Incomplete Mun shadow framebuffer");
         }
     }
 

@@ -287,7 +287,7 @@ public final class MunShadowMap implements AutoCloseable {
                 RenderSystem.colorMask(true, true, true, true);
                 RenderSystem.setShaderTexture(0, TextureAtlas.LOCATION_BLOCKS);
                 Uniform offset = shader.getUniform("ChunkOffset");
-                if (offset == null) throw new IllegalStateException("Missing lunar shadow draw uniforms");
+                if (offset == null) throw new IllegalStateException("Missing Mun shadow draw uniforms");
                 for (int index = 0; index < profile.cascades(); index++) {
                     Cascade cascade = this.cascades[index];
                     if (!cascade.dirty && !cascade.dynamicDirty && !cascade.translucentDirty) continue;
@@ -385,7 +385,7 @@ public final class MunShadowMap implements AutoCloseable {
         shader.safeGetUniform("ShadowScale").set(2 / cascade.span, -2 / MunShadowProjection.DEPTH,
             cascade.resolution / cascade.span);
         Uniform offset = shader.getUniform("ChunkOffset");
-        if (offset == null) throw new IllegalStateException("Missing lunar translucent shadow uniforms");
+        if (offset == null) throw new IllegalStateException("Missing Mun translucent shadow uniforms");
         shader.apply();
         for (ChunkMesh chunk : cascade.translucentMeshes) {
             if (chunk.translucent == null) continue;

@@ -25,7 +25,7 @@ final class MunShaderRegistration implements AutoCloseable {
         ShaderInstance shader = new ShaderInstance(this.resources, ResourceLocation.fromNamespaceAndPath(AnvilCraft.MOD_ID, name), format);
         this.shaders.add(new PendingShader(shader, loaded));
         if (GL20C.glGetProgrami(shader.getId(), GL20C.GL_LINK_STATUS) == GL20C.GL_FALSE) {
-            throw new IOException("Lunar shader did not link");
+            throw new IOException("Mun shader did not link");
         }
     }
 

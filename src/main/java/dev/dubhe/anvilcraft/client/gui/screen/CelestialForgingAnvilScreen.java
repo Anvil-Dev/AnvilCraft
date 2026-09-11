@@ -280,14 +280,9 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
             }
             previousAnvilCounts[i] = cur;
         }
-        /// 缺少增幅器阻塞状态下同步渲染四角增幅器虚影
-        if (missingAmplifierBlocked) {
-            if (be.isAmplifierPresent()) {
-                missingAmplifierBlocked = false;
-                LargeBlockPlacePreviewEventListener.removeMissingAmplifierAnvil(be.getBlockPos());
-            } else {
-                LargeBlockPlacePreviewEventListener.offerMissingAmplifierAnvil(be.getBlockPos());
-            }
+        if (missingAmplifierBlocked && be.isAmplifierPresent()) {
+            missingAmplifierBlocked = false;
+            LargeBlockPlacePreviewEventListener.removeMissingAmplifierAnvil(be.getBlockPos());
         }
         /// 开始新搜索时重置指南触发状态
         if (searchState == SearchState.LOADING) {
@@ -1921,6 +1916,7 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
                 );
                 if (amplifiedPreCheck instanceof StarData star && !star.specialRedDwarf()) {
                     missingAmplifierBlocked = true;
+                    LargeBlockPlacePreviewEventListener.offerMissingAmplifierAnvil(be.getBlockPos());
                     return;
                 }
             }

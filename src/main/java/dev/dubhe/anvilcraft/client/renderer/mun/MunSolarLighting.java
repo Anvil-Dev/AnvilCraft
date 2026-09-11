@@ -112,7 +112,7 @@ final class MunSolarLighting {
 
     void origin(ShaderInstance shader, Vec3 origin) {
         var uniform = shader.getUniform("SolarOrigin");
-        if (uniform == null) throw new IllegalStateException("Missing lunar solar origin uniform");
+        if (uniform == null) throw new IllegalStateException("Missing Mun solar origin uniform");
         uniform.set((float) (origin.x / MunSkyMath.NEAR_SIDE_HALF_SIZE), (float) (origin.y - REFERENCE_HEIGHT),
             (float) (origin.z / MunSkyMath.NEAR_SIDE_HALF_SIZE));
         uniform.upload();

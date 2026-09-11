@@ -17,10 +17,10 @@ import dev.dubhe.anvilcraft.data.AnvilCraftDatagen;
 import dev.dubhe.anvilcraft.dfu.AnvilCraftDfu;
 import dev.dubhe.anvilcraft.init.ModAttachments;
 import dev.dubhe.anvilcraft.init.ModBiomeSources;
-import dev.dubhe.anvilcraft.init.ModDensityFunctionTypes;
 import dev.dubhe.anvilcraft.init.ModBlockPlacementFallbacks;
 import dev.dubhe.anvilcraft.init.ModCriterionTriggers;
 import dev.dubhe.anvilcraft.init.ModDataAttachments;
+import dev.dubhe.anvilcraft.init.ModDensityFunctionTypes;
 import dev.dubhe.anvilcraft.init.ModDispenserBehavior;
 import dev.dubhe.anvilcraft.init.ModInspections;
 import dev.dubhe.anvilcraft.init.ModMegastructures;
@@ -56,6 +56,7 @@ import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.init.recipe.ModResultModifierTypes;
 import dev.dubhe.anvilcraft.init.storage.ModCategoryTypes;
 import dev.dubhe.anvilcraft.init.storage.ModStorageTypes;
+import dev.dubhe.anvilcraft.integration.curios.CuriosCommon;
 import dev.dubhe.anvilcraft.item.DiskItem;
 import dev.dubhe.anvilcraft.recipe.anvil.cache.RecipeCaches;
 import dev.dubhe.anvilcraft.util.ModInteractionMap;
@@ -147,6 +148,10 @@ public class AnvilCraft {
         IntegrationHook.setModContainer(modContainer);
         INTEGRATION_MANAGER.compileContent();
         INTEGRATION_MANAGER.loadAllIntegrations();
+        // Register common Curios hooks independently of AnvilLib's side-filtered integration iteration.
+        if (Util.isLoaded("curios")) {
+            new CuriosCommon().apply(modEventBus);
+        }
         StartupNotificationManager.addModMessage("[AnvilCraft] Ciallo~");
         AnvilCraftDfu.constructAndOptimize();
         LOGGER.info("Ciallo～(∠・ω< )⌒★");
