@@ -10,6 +10,7 @@
     "anvilcraft:glass_pipe_node",
     "anvilcraft:chute",
     "anvilcraft:magnetic_chute",
+    "anvilcraft:overflow_chute",
     "anvilcraft:simple_chute",
     "anvilcraft:simple_magnetic_chute"
   ]

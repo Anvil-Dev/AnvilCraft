@@ -42,14 +42,10 @@ public abstract class BaseChuteBlockEntity
     extends BaseMachineBlockEntity
     implements IFilterBlockEntity, IDiskCloneable, IItemHandlerHolder {
 
-    private final FilteredItemStackHandler itemHandler = new FilteredItemStackHandler(9) {
-        @Override
-        public void onContentsChanged(int slot) {
-            assert level != null;
-            if (level.isClientSide) return;
-            setChanged();
-        }
-    };
+    /** 普通溜槽的槽位数 */
+    protected static final int DEFAULT_SLOT_COUNT = 9;
+
+    private final FilteredItemStackHandler itemHandler;
     @Setter
     private int cooldown = 0;
     private long tickedGameTime;
@@ -69,7 +65,24 @@ public abstract class BaseChuteBlockEntity
     }
 
     protected BaseChuteBlockEntity(BlockEntityType<? extends BlockEntity> type, BlockPos pos, BlockState blockState) {
+        this(type, pos, blockState, DEFAULT_SLOT_COUNT);
+    }
+
+    protected BaseChuteBlockEntity(
+        BlockEntityType<? extends BlockEntity> type,
+        BlockPos pos,
+        BlockState blockState,
+        int slotCount
+    ) {
         super(type, pos, blockState);
+        this.itemHandler = new FilteredItemStackHandler(slotCount) {
+            @Override
+            public void onContentsChanged(int slot) {
+                assert level != null;
+                if (level.isClientSide) return;
+                setChanged();
+            }
+        };
     }
 
     @Override
@@ -210,7 +223,10 @@ public abstract class BaseChuteBlockEntity
                     }
 
                 }
-                // 尝试从上方容器输入
+            }
+            if (!resetCD) resetCD = this.tryOverflowOutput();
+            // 尝试从上方容器输入
+            if (this.isInputEnabled()) {
                 if (!this.inventoryFull()) {
                     IItemHandler source = ItemHandlerUtil.getSourceItemHandler(
                         getBlockPos().relative(getInputDirection()),
@@ -244,7 +260,27 @@ public abstract class BaseChuteBlockEntity
         if (resetCD) cooldown = AnvilCraft.CONFIG.chuteMaxCooldown;
     }
 
-    private boolean isTargetEmpty(BlockEntity blockEntity) {
+    /**
+     * 是否允许从输入方向吸取物品，默认跟随 {@link #isEnabled()}。
+     *
+     * <p>红石只关闭主输出、仍然需要继续吸取物品的溜槽可以单独覆写。</p>
+     */
+    protected boolean isInputEnabled() {
+        return this.isEnabled();
+    }
+
+    /**
+     * 输出方向无法输出时的兜底输出，默认无兜底。
+     *
+     * <p>不受 {@link #isEnabled()} 影响，因此红石无法关闭兜底输出。</p>
+     *
+     * @return 是否成功输出（成功则重置冷却）
+     */
+    protected boolean tryOverflowOutput() {
+        return false;
+    }
+
+    protected boolean isTargetEmpty(BlockEntity blockEntity) {
         if (blockEntity instanceof SimpleChuteBlockEntity chute) {
             return chute.isEmpty();
         }
@@ -254,7 +290,7 @@ public abstract class BaseChuteBlockEntity
         return false;
     }
 
-    private void setChuteCD(BlockEntity targetBE) {
+    protected void setChuteCD(BlockEntity targetBE) {
         if (targetBE instanceof BaseChuteBlockEntity chute) {
             int k = 0;
             if (chute.getTickedGameTime() >= this.tickedGameTime) k++;

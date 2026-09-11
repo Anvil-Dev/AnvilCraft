@@ -119,6 +119,7 @@ import dev.dubhe.anvilcraft.block.NeoforgeBlock;
 import dev.dubhe.anvilcraft.block.NeutronIrradiatorBlock;
 import dev.dubhe.anvilcraft.block.ObsidianCauldron;
 import dev.dubhe.anvilcraft.block.OilCauldronBlock;
+import dev.dubhe.anvilcraft.block.OverflowChuteBlock;
 import dev.dubhe.anvilcraft.block.OverseerBlock;
 import dev.dubhe.anvilcraft.block.PiezoelectricCrystalBlock;
 import dev.dubhe.anvilcraft.block.PlasmaJetsBlock;
@@ -1812,6 +1813,19 @@ public class ModBlocks {
         .build()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.ENCHANTMENT_POWER_TRANSMITTER)
         .recipe(RegistrumBlockRecipeLoader::magneticChute)
+        .register();
+
+    public static final BlockEntry<OverflowChuteBlock> OVERFLOW_CHUTE = REGISTRUM.block(
+            "overflow_chute",
+            OverflowChuteBlock::new
+        )
+        .initialProperties(ModBlocks.MAGNETIC_CHUTE)
+        .properties(properties -> properties.noOcclusion().isValidSpawn(Blocks::never))
+        .blockstate(DataGenUtil::noExtraModelOrState)
+        .item(ChuteBlockItem::new)
+        .build()
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.ENCHANTMENT_POWER_TRANSMITTER)
+        .recipe(RegistrumBlockRecipeLoader::overflowChute)
         .register();
 
     public static final BlockEntry<SimpleChuteBlock> SIMPLE_CHUTE = REGISTRUM.block("simple_chute", SimpleChuteBlock::new)

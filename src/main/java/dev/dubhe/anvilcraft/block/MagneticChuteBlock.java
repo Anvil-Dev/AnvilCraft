@@ -159,11 +159,16 @@ public class MagneticChuteBlock extends BetterBaseEntityBlock implements HammerR
             && ChuteBlock.getFacing(behindState) == clickedFace) {
             facing = clickedFace;
         }
+        // 前方溜槽朝自己输出时顺延其方向，与普通溜槽的放置行为一致，避免嘴对嘴
+        BlockState frontState = level.getBlockState(pos.relative(facing));
+        if (ChuteBlock.outputsToward(frontState, facing.getOpposite())) {
+            facing = facing.getOpposite();
+        }
         // 嘴对嘴：输入侧与输出侧两端都有溜槽输出对着自己（夹心），禁止放置
         BlockState inputState = level.getBlockState(pos.relative(facing.getOpposite()));
         BlockState outputState = level.getBlockState(pos.relative(facing));
-        if (ChuteBlock.isChuteBlock(inputState) && ChuteBlock.getFacing(inputState) == facing
-            && ChuteBlock.isChuteBlock(outputState) && ChuteBlock.getFacing(outputState) == facing.getOpposite()) {
+        if (ChuteBlock.isChuteBlock(inputState) && ChuteBlock.outputsToward(inputState, facing)
+            && ChuteBlock.isChuteBlock(outputState) && ChuteBlock.outputsToward(outputState, facing.getOpposite())) {
             if (player != null) player.displayClientMessage(Component.translatable("message.anvilcraft.chute.cannot_place"), true);
             return null;
         }
@@ -190,7 +195,7 @@ public class MagneticChuteBlock extends BetterBaseEntityBlock implements HammerR
             default -> oldFacing.getClockWise();
         };
         BlockState facingState = level.getBlockState(pos.relative(newFacing));
-        if (ChuteBlock.isChuteBlock(facingState) && ChuteBlock.getFacing(facingState) == newFacing.getOpposite()) {
+        if (ChuteBlock.isChuteBlock(facingState) && ChuteBlock.outputsToward(facingState, newFacing.getOpposite())) {
             level.setBlock(pos, Blocks.AIR.defaultBlockState(), 3);
             level.levelEvent(2001, pos, Block.getId(oldState));
             Block.dropResources(oldState, level, pos);

@@ -1018,6 +1018,18 @@ public class RegistrumBlockRecipeLoader {
             .save(provider);
     }
 
+    public static <T extends Block> void overflowChute(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
+        ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get(), 1)
+            .requires(ModBlocks.MAGNETIC_CHUTE)
+            .requires(ModBlocks.CHUTE)
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(ModBlocks.MAGNETIC_CHUTE.asItem()),
+                AnvilCraftDatagen.has(ModBlocks.MAGNETIC_CHUTE)
+            )
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.CHUTE.asItem()), AnvilCraftDatagen.has(ModBlocks.CHUTE))
+            .save(provider);
+    }
+
     public static <T extends Block> void slidingRail(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
         ShapedRecipeBuilder.shaped(RecipeCategory.REDSTONE, ctx.get(), 16)
             .pattern("A A")

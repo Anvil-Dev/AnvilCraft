@@ -52,6 +52,7 @@ import dev.dubhe.anvilcraft.block.entity.MineralFountainBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.MobAmberBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.MonolithCoreBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.NeutronIrradiatorBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.OverflowChuteBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.OverseerBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.PlasmaJetsBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.PowerConverterBlockEntity;
@@ -179,6 +180,11 @@ public class ModBlockEntities {
         "magnetic_chute",
         MagneticChuteBlockEntity::new
     ).validBlock(ModBlocks.MAGNETIC_CHUTE).register();
+
+    public static final BlockEntityEntry<OverflowChuteBlockEntity> OVERFLOW_CHUTE = REGISTRUM.blockEntity(
+        "overflow_chute",
+        OverflowChuteBlockEntity::new
+    ).validBlock(ModBlocks.OVERFLOW_CHUTE).register();
 
     public static final BlockEntityEntry<SimpleChuteBlockEntity> SIMPLE_CHUTE = REGISTRUM.blockEntity(
         "simple_chute",

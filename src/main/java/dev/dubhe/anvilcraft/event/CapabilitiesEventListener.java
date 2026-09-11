@@ -54,6 +54,7 @@ public class CapabilitiesEventListener {
             ModBlockEntities.SIMPLE_MAGNETIC_CHUTE.get(),
             ModBlockEntities.ITEM_COLLECTOR.get(),
             ModBlockEntities.MAGNETIC_CHUTE.get(),
+            ModBlockEntities.OVERFLOW_CHUTE.get(),
             ModBlockEntities.CONFINEMENT_CHAMBER.get(),
             ModBlockEntities.FISH_TANK.get(),
             ModBlockEntities.STRUCTURE_SCANNER.get(),
