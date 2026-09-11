@@ -1,9 +1,8 @@
 package dev.dubhe.anvilcraft.block.entity;
 
-import dev.dubhe.anvilcraft.api.fluid.IFluidHandlerHolder;
 import dev.dubhe.anvilcraft.api.fluid.FluidHandlerWrapper;
+import dev.dubhe.anvilcraft.api.fluid.IFluidHandlerHolder;
 import dev.dubhe.anvilcraft.api.fluid.network.FluidNetworkManager;
-import dev.dubhe.anvilcraft.block.StorageFluidPortBlock;
 import dev.dubhe.anvilcraft.block.entity.storage.StorageBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.storage.StorageFluidRegistry;
 import dev.dubhe.anvilcraft.rpc.StorageServerStub;
@@ -19,7 +18,6 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -29,8 +27,8 @@ import net.neoforged.neoforge.fluids.FluidUtil;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.neoforged.neoforge.fluids.capability.templates.FluidTank;
 
-import javax.annotation.Nullable;
 import java.util.UUID;
+import javax.annotation.Nullable;
 
 /**
  * 仓储流体端口方块实体。
@@ -162,7 +160,9 @@ public class StorageFluidPortBlockEntity extends BlockEntity implements IFluidHa
         this.heightBias = this.computeNextHeightBias();
         if (this.heightBias != previous) {
             // 偏置变化需让管道网络重扫才能生效
-            FluidNetworkManager.INSTANCE.markDirty(this.level);
+            if (this.level != null) {
+                FluidNetworkManager.INSTANCE.markDirty(this.level);
+            }
         }
     }
 
@@ -314,5 +314,10 @@ public class StorageFluidPortBlockEntity extends BlockEntity implements IFluidHa
     @Override
     public Packet<ClientGamePacketListener> getUpdatePacket() {
         return ClientboundBlockEntityDataPacket.create(this);
+    }
+
+    @Nullable
+    public BlockPos getCoreMainPos() {
+        return coreMainPos;
     }
 }

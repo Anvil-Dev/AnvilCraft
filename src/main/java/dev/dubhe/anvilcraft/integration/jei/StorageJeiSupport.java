@@ -214,7 +214,7 @@ public final class StorageJeiSupport {
         if (content.isEmpty()) {
             return false;
         }
-        if (!StorageJeiSupport.hasFluidFor(screen.getFluids(), variant)) {
+        if (StorageJeiSupport.hasFluidFor(screen.getFluids(), variant)) {
             return false;
         }
         ItemStack emptyContainer = StorageJeiSupport.emptyContainerOf(variant);
@@ -435,7 +435,7 @@ public final class StorageJeiSupport {
                 if (emptyContainer.isEmpty()) {
                     continue;
                 }
-                if (!StorageJeiSupport.hasFluidFor(fluids, variant)) {
+                if (StorageJeiSupport.hasFluidFor(fluids, variant)) {
                     continue;
                 }
                 long containers = StorageJeiSupport.countInPool(availableItemStacks, emptyContainer)
@@ -456,15 +456,15 @@ public final class StorageJeiSupport {
     private static boolean hasFluidFor(List<StorageServerStub.FluidEntry> fluids, ItemStack variant) {
         FluidStack content = StorageJeiSupport.contentOf(variant);
         if (content.isEmpty()) {
-            return false;
+            return true;
         }
         for (StorageServerStub.FluidEntry entry : fluids) {
             if (entry.amount() >= content.getAmount()
                 && FluidStack.isSameFluidSameComponents(entry.icon(), content)) {
-                return true;
+                return false;
             }
         }
-        return false;
+        return true;
     }
 
     /** 装有流体的容器对应的内容物；非流体容器或空容器返回空。 */

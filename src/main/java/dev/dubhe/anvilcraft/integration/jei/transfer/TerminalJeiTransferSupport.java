@@ -281,7 +281,7 @@ public final class TerminalJeiTransferSupport {
             int required = entry.getValue();
             int have = containerByUid.getOrDefault(uid, 0);
             int deficit = Math.max(0, required - have);
-            if (deficit <= 0) {
+            if (deficit == 0) {
                 continue;
             }
             // 选一个代表物品：取槽内首个该 uid 变体（同 uid 变体在背包/存储层面是同一物品），
@@ -316,7 +316,6 @@ public final class TerminalJeiTransferSupport {
         return ItemStack.EMPTY;
     }
 
-    /** 该槽各变体 uid 的需求量：槽内同一 uid 取最大数量（与 JEI {@code calculateRequiredCountsByUid} 一致）。 */
     /**
      * 判断该槽的需求能否由「空容器 + 存储中的流体」现场盛装。
      *
@@ -354,6 +353,7 @@ public final class TerminalJeiTransferSupport {
         return false;
     }
 
+    /** 该槽各变体 uid 的需求量：槽内同一 uid 取最大数量（与 JEI {@code calculateRequiredCountsByUid} 一致）。 */
     private static Map<Object, Integer> requiredCountsByUid(IRecipeSlotView slotView, IStackHelper stackHelper) {
         Map<Object, Integer> required = new HashMap<>();
         for (ItemStack variant : TerminalJeiTransferSupport.variantsOf(slotView)) {

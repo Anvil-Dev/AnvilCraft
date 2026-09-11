@@ -3146,6 +3146,10 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
         return null;
     }
 
+    private @Nullable Integer getStorageSlot() {
+        return this.getStorageSlot(this.getMouseScaledX(), this.getMouseScaledY());
+    }
+
     /**
      * 命中流体伪槽位时返回其逻辑槽位号，便于单独处理桶交互。
      *
@@ -3168,10 +3172,6 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
             }
         }
         return null;
-    }
-
-    private @Nullable Integer getStorageSlot() {
-        return this.getStorageSlot(this.getMouseScaledX(), this.getMouseScaledY());
     }
 
     private double getMouseScaledX() {
