@@ -1805,7 +1805,8 @@ public final class StorageServerStub {
         }
         Inventory inventory = player.getInventory();
         int emptySlot = -1;
-        for (int i = 0; i < inventory.getContainerSize(); i++) {
+        // 只遍历主背包：getContainerSize() 含盔甲槽与副手槽，会把产物放进盔甲格
+        for (int i = 0; i < Inventory.INVENTORY_SIZE; i++) {
             ItemStack stack = inventory.getItem(i);
             if (ItemStack.isSameItemSameComponents(stack, remaining)
                 && stack.getCount() < stack.getMaxStackSize()) {
@@ -1852,7 +1853,8 @@ public final class StorageServerStub {
     ) {
         Inventory inventory = player.getInventory();
         int emptySlot = -1;
-        for (int i = 0; i < inventory.getContainerSize(); i++) {
+        // 只遍历主背包：getContainerSize() 含盔甲槽与副手槽，会把产物放进盔甲格
+        for (int i = 0; i < Inventory.INVENTORY_SIZE; i++) {
             ItemStack stack = inventory.getItem(i);
             // 先补满已有同种堆叠（与 CraftingMenu.quickMoveStack 一致），避免新产物总是落到空槽
             // 而把背包排布拆成 60 60 60 之类的碎片
@@ -2386,7 +2388,8 @@ public final class StorageServerStub {
         for (int k = 0; k < neededKeys.size(); k++) {
             ItemStack wanted = neededKeys.get(k);
             long available = 0;
-            for (int index = 0; index < inventory.getContainerSize(); index++) {
+            // 只统计主背包：与 transferMaterialExact 的取用范围一致，否则「够用」判定会与实际扣料不符
+            for (int index = 0; index < Inventory.INVENTORY_SIZE; index++) {
                 ItemStack stack = inventory.getItem(index);
                 if (ItemStack.isSameItemSameComponents(stack, wanted)) {
                     available += stack.getCount();
@@ -2437,7 +2440,8 @@ public final class StorageServerStub {
         int moved = 0;
         int fromStorage = 0;
         int fromFluid = 0;
-        for (int i = 0; i < inventory.getContainerSize(); i++) {
+        // 只从主背包取料：getContainerSize() 含盔甲槽，会把身上装备当材料扣掉
+        for (int i = 0; i < Inventory.INVENTORY_SIZE; i++) {
             ItemStack stack = inventory.getItem(i);
             if (stack.isEmpty() || !ItemStack.isSameItemSameComponents(stack, wanted)) {
                 continue;
@@ -2686,7 +2690,7 @@ public final class StorageServerStub {
         ItemStack resource
     ) {
         if (inventory != null) {
-            for (int i = 0; i < inventory.getContainerSize(); i++) {
+            for (int i = 0; i < Inventory.INVENTORY_SIZE; i++) {
                 ItemStack stack = inventory.getItem(i);
                 if (stack.isEmpty() || !ItemStack.isSameItemSameComponents(stack, resource)) {
                     continue;
@@ -2736,7 +2740,10 @@ public final class StorageServerStub {
         }
         ItemStack toReturn = wanted.copy();
         toReturn.setCount(count);
-        for (int i = 0; i < inventory.getContainerSize() && !toReturn.isEmpty(); i++) {
+        // 只遍历主背包（含快捷栏）：getContainerSize() 还含 4 个盔甲槽与副手槽，
+        // 原版 Inventory#add 也只走 items（见 getFreeSlot / getSlotWithRemainingSpace），
+        // 否则物品会被塞进盔甲槽或与身上装备堆叠
+        for (int i = 0; i < Inventory.INVENTORY_SIZE && !toReturn.isEmpty(); i++) {
             ItemStack stack = inventory.getItem(i);
             if (stack.isEmpty()) {
                 int chunk = Math.min(toReturn.getCount(), wanted.getMaxStackSize());
@@ -2812,7 +2819,7 @@ public final class StorageServerStub {
         if (ItemStack.EMPTY.isEmpty()) {
             // 空槽：从背包转移所有同种物品（受 maxCount 上限约束），不只放一个
             int moved = 0;
-            for (int i = 0; i < inventory.getContainerSize(); i++) {
+            for (int i = 0; i < Inventory.INVENTORY_SIZE; i++) {
                 ItemStack stack = inventory.getItem(i);
                 if (stack.isEmpty() || !ItemStack.isSameItemSameComponents(stack, wanted)) {
                     continue;
@@ -2836,7 +2843,7 @@ public final class StorageServerStub {
         if (space <= 0) {
             return 0;
         }
-        for (int i = 0; i < inventory.getContainerSize(); i++) {
+        for (int i = 0; i < Inventory.INVENTORY_SIZE; i++) {
             ItemStack stack = inventory.getItem(i);
             if (stack.isEmpty() || !ItemStack.isSameItemSameComponents(stack, wanted)) {
                 continue;
@@ -3411,7 +3418,7 @@ public final class StorageServerStub {
 
     private static int countInInventory(Inventory inventory, ItemStack resource) {
         int count = 0;
-        for (int i = 0; i < inventory.getContainerSize(); i++) {
+        for (int i = 0; i < Inventory.INVENTORY_SIZE; i++) {
             ItemStack stack = inventory.getItem(i);
             if (!stack.isEmpty() && ItemStack.isSameItemSameComponents(stack, resource)) {
                 count += stack.getCount();
@@ -5010,7 +5017,7 @@ public final class StorageServerStub {
             return true;
         }
         Inventory inventory = player.getInventory();
-        for (int i = 0; i < inventory.getContainerSize(); i++) {
+        for (int i = 0; i < Inventory.INVENTORY_SIZE; i++) {
             ItemStack stack = inventory.getItem(i);
             if (stack.isEmpty() || !ItemStack.isSameItemSameComponents(stack, emptyContainer)) {
                 continue;
