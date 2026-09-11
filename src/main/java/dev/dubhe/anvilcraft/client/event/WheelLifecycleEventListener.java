@@ -121,7 +121,7 @@ public class WheelLifecycleEventListener {
 
     private static void openResonatorWheel(long gameTime) {
         if (
-            WheelLifecycleEventListener.resonatorKeyTime > 0
+            WheelLifecycleEventListener.resonatorKeyTime >= 0
             && gameTime - WheelLifecycleEventListener.resonatorKeyTime > 4
         ) {
             if (WheelLifecycleEventListener.resonatorWheelCache == null) {
@@ -146,7 +146,7 @@ public class WheelLifecycleEventListener {
 
     private static void openMultitoolWheel(long gameTime) {
         if (
-            WheelLifecycleEventListener.multitoolKeyTime > 0
+            WheelLifecycleEventListener.multitoolKeyTime >= 0
             && gameTime - WheelLifecycleEventListener.multitoolKeyTime > 4
         ) {
             if (WheelLifecycleEventListener.multitoolWheelCache == null) {
@@ -171,7 +171,7 @@ public class WheelLifecycleEventListener {
 
     private static void openHeavyHalberdWheel(long gameTime) {
         if (
-            WheelLifecycleEventListener.heavyHalberdKeyTime > 0
+            WheelLifecycleEventListener.heavyHalberdKeyTime >= 0
             && gameTime - WheelLifecycleEventListener.heavyHalberdKeyTime > 4
         ) {
             if (WheelLifecycleEventListener.heavyHalberdWheelCache == null) {
@@ -683,6 +683,18 @@ public class WheelLifecycleEventListener {
         if (action == GLFW.GLFW_RELEASE) {
             if (WheelLifecycleEventListener.resonatorKeyWasDown) {
                 CONTROLLER.onHoldKeyReleased();
+            } else if (
+                WheelLifecycleEventListener.resonatorKeyTime >= 0
+                && client.level.getGameTime() - WheelLifecycleEventListener.resonatorKeyTime <= 4
+                && client.screen == null
+                && client.player != null
+            ) {
+                for (InteractionHand hand : InteractionHand.values()) {
+                    if (client.player.getItemInHand(hand).getItem() instanceof ResonatorItem) {
+                        PacketDistributor.sendToServer(new SwitchResonateModePacket(hand));
+                        break;
+                    }
+                }
             }
             WheelLifecycleEventListener.resonatorKeyWasDown = false;
             WheelLifecycleEventListener.resonatorKeyTime = -1L;
@@ -702,6 +714,18 @@ public class WheelLifecycleEventListener {
         if (action == GLFW.GLFW_RELEASE) {
             if (WheelLifecycleEventListener.multitoolKeyWasDown) {
                 CONTROLLER.onHoldKeyReleased();
+            } else if (
+                WheelLifecycleEventListener.multitoolKeyTime >= 0
+                && client.level.getGameTime() - WheelLifecycleEventListener.multitoolKeyTime <= 4
+                && client.screen == null
+                && client.player != null
+            ) {
+                for (InteractionHand hand : InteractionHand.values()) {
+                    if (client.player.getItemInHand(hand).getItem() instanceof MultitoolItem) {
+                        PacketDistributor.sendToServer(new SwitchMultitoolModePacket(hand));
+                        break;
+                    }
+                }
             }
             WheelLifecycleEventListener.multitoolKeyWasDown = false;
             WheelLifecycleEventListener.multitoolKeyTime = -1L;
@@ -721,6 +745,18 @@ public class WheelLifecycleEventListener {
         if (action == GLFW.GLFW_RELEASE) {
             if (WheelLifecycleEventListener.heavyHalberdKeyWasDown) {
                 CONTROLLER.onHoldKeyReleased();
+            } else if (
+                WheelLifecycleEventListener.heavyHalberdKeyTime >= 0
+                && client.level.getGameTime() - WheelLifecycleEventListener.heavyHalberdKeyTime <= 4
+                && client.screen == null
+                && client.player != null
+            ) {
+                for (InteractionHand hand : InteractionHand.values()) {
+                    if (client.player.getItemInHand(hand).getItem() instanceof HeavyHalberdItem) {
+                        PacketDistributor.sendToServer(new SwitchHeavyHalberdModePacket(hand));
+                        break;
+                    }
+                }
             }
             WheelLifecycleEventListener.heavyHalberdKeyWasDown = false;
             WheelLifecycleEventListener.heavyHalberdKeyTime = -1L;

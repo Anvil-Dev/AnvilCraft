@@ -283,7 +283,7 @@ public abstract class HeavyHalberdItem extends TieredItem implements ProjectileI
         int i = this.getUseDuration(stack, entityLiving) - timeLeft;
         if (i < 10) return;
         float spinStrength = EnchantmentHelper.getTridentSpinAttackStrength(stack, player);
-        if (spinStrength > 0.0F && !player.isInWaterOrRain()) return;
+        if (spinStrength > 0.0F && !(this instanceof TranscendenceHeavyHalberdItem) && !player.isInWaterOrRain()) return;
         if (isTooDamagedToUse(stack)) return;
         Holder<SoundEvent> soundEvent = EnchantmentHelper.pickHighestLevel(stack, EnchantmentEffectComponents.TRIDENT_SOUND)
             .orElse(SoundEvents.TRIDENT_THROW);
@@ -338,7 +338,10 @@ public abstract class HeavyHalberdItem extends TieredItem implements ProjectileI
         if (getMode(itemstack) != TRIDENT_MODE) {
             return InteractionResultHolder.pass(itemstack);
         }
-        if (EnchantmentHelper.getTridentSpinAttackStrength(itemstack, player) > 0.0F && !player.isInWaterOrRain()) {
+        if (EnchantmentHelper.getTridentSpinAttackStrength(itemstack, player) > 0.0F
+            && !(this instanceof TranscendenceHeavyHalberdItem)
+            && !player.isInWaterOrRain()
+        ) {
             return InteractionResultHolder.fail(itemstack);
         }
         player.startUsingItem(hand);

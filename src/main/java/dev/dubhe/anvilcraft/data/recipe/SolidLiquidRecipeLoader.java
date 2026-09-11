@@ -22,6 +22,7 @@ import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.material.Fluids;
 import net.neoforged.neoforge.common.NeoForgeMod;
 import net.neoforged.neoforge.fluids.FluidStack;
 
@@ -39,6 +40,17 @@ public class SolidLiquidRecipeLoader {
         SolidLiquidRecipeLoader.solidLiquid(provider, ModItems.SPONGE_GEMMULE, Items.WET_SPONGE, 250);
         SolidLiquidRecipeLoader.solidLiquid(provider, ModItemTags.FLOUR, ModFoodItems.DOUGH);
         SolidLiquidRecipeLoader.solidLiquid(provider, Items.DRIED_KELP, Items.KELP);
+
+        SolidLiquidRecipe.builder()
+            .cauldron(FluidStackPredicate.builder().fluid(Fluids.WATER).min(1000).build())
+            .requires(Items.AZALEA_LEAVES)
+            .result(Items.FLOWERING_AZALEA_LEAVES)
+            .save(provider);
+        SolidLiquidRecipe.builder()
+            .cauldron(FluidStackPredicate.builder().fluid(Fluids.WATER).min(1000).build())
+            .requires(Items.AZALEA)
+            .result(Items.FLOWERING_AZALEA)
+            .save(provider);
 
         VanillaConstants.CONCRETE_POWDERS.forEach(block -> solidLiquid(provider, block, block.concrete));
 

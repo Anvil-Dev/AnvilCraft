@@ -12,6 +12,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
 
 public record SwitchMultitoolModePacket(InteractionHand hand, int mode) implements IServerboundPacket {
+    private static final int CYCLE_MODE = -1;
     public static final Type<SwitchMultitoolModePacket> TYPE = IPacket.type(AnvilCraft.of("switch_multitool_mode"));
     public static final StreamCodec<ByteBuf, SwitchMultitoolModePacket> STREAM_CODEC = StreamCodec.composite(
         StreamCodecUtil.enumStreamCodec(InteractionHand.class),
@@ -21,6 +22,10 @@ public record SwitchMultitoolModePacket(InteractionHand hand, int mode) implemen
         SwitchMultitoolModePacket::new
     );
 
+    public SwitchMultitoolModePacket(InteractionHand hand) {
+        this(hand, CYCLE_MODE);
+    }
+
     @Override
     public Type<SwitchMultitoolModePacket> type() {
         return TYPE;
@@ -28,6 +33,12 @@ public record SwitchMultitoolModePacket(InteractionHand hand, int mode) implemen
 
     @Override
     public void handleOnServer(Player player) {
-        MultitoolItem.setMode(player, this.hand, this.mode);
+        int targetMode = this.mode;
+        if (targetMode == CYCLE_MODE) {
+            int currentMode = MultitoolItem.getMode(player.getItemInHand(this.hand));
+            // 轮盘槽位按逆时针排列，顺时针切换需要递减模式编号。
+            targetMode = currentMode <= MultitoolItem.SHEARS_MODE ? MultitoolItem.WARPED_FUNGUS_ON_A_STICK_MODE : currentMode - 1;
+        }
+        MultitoolItem.setMode(player, this.hand, targetMode);
     }
 }

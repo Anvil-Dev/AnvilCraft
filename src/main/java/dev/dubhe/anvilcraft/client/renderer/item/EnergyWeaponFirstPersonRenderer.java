@@ -38,6 +38,9 @@ public final class EnergyWeaponFirstPersonRenderer {
     private static final Vector3f BEAM_END = new Vector3f();
     private static final Vector3f[] HOLD_START = {new Vector3f(), new Vector3f()};
     private static final Vector3f HOLD_END = new Vector3f();
+    private static final EnergyWeaponDrawAnimation[] DRAW_ANIMATIONS = {
+        new EnergyWeaponDrawAnimation(), new EnergyWeaponDrawAnimation()
+    };
     private static boolean holdingProjectionReady;
     private static float beamFrame = -1;
     private static InteractionHand beamHand = InteractionHand.MAIN_HAND;
@@ -108,6 +111,7 @@ public final class EnergyWeaponFirstPersonRenderer {
         reloadCapacitor = ItemStack.EMPTY;
         beamFrame = -1;
         holdingProjectionReady = false;
+        for (EnergyWeaponDrawAnimation animation : DRAW_ANIMATIONS) animation.reset();
     }
 
     public static boolean hasHoldingAnimation(ItemStack stack) {
@@ -120,12 +124,17 @@ public final class EnergyWeaponFirstPersonRenderer {
         Minecraft minecraft = Minecraft.getInstance();
         AbstractClientPlayer player = minecraft.player;
         if (player == null || !player.isAlive() || player.isScoping()) return;
+        DRAW_ANIMATIONS[InteractionHand.MAIN_HAND.ordinal()].observe(player.getMainHandItem(), player.getInventory().selected);
+        DRAW_ANIMATIONS[InteractionHand.OFF_HAND.ordinal()].observe(player.getOffhandItem(), Inventory.SLOT_OFFHAND);
+        final float lowered = DRAW_ANIMATIONS[event.getHand().ordinal()]
+            .render(event.getItemStack(), event.getEquipProgress(), Util.getMillis(), minecraft.isPaused());
         if (!reloadWeapon.isEmpty() && !isReloadStillHeld(player)) {
             reloadWeapon = ItemStack.EMPTY;
             reloadCapacitor = ItemStack.EMPTY;
             player.getPersistentData().remove(EnergyWeaponReload.CLIENT_SLOT);
         }
-        if (!reloadWeapon.isEmpty()) {
+        InteractionHand reloadHand = reloadSlot == Inventory.SLOT_OFFHAND ? InteractionHand.OFF_HAND : InteractionHand.MAIN_HAND;
+        if (!reloadWeapon.isEmpty() && DRAW_ANIMATIONS[reloadHand.ordinal()].isReady(reloadWeapon)) {
             event.setCanceled(true);
             InteractionHand visibleHand = player.isUsingItem() ? player.getUsedItemHand() : InteractionHand.MAIN_HAND;
             if (event.getHand() == visibleHand) renderReload(event, player);
@@ -138,6 +147,7 @@ public final class EnergyWeaponFirstPersonRenderer {
         PoseStack pose = event.getPoseStack();
         pose.pushPose();
         cameraSpace(pose);
+        pose.mulPose(EnergyWeaponReloadPose.drawing(lowered, arm == HumanoidArm.RIGHT ? 1 : -1));
         renderWeapon(event, player, stack, holdingPose(player, stack, event.getHand(), arm, event.getPartialTick()), arm);
         pose.popPose();
     }
@@ -201,13 +211,14 @@ public final class EnergyWeaponFirstPersonRenderer {
         HumanoidArm arm = hand == InteractionHand.MAIN_HAND ? player.getMainArm() : player.getMainArm().getOpposite();
         float side = arm == HumanoidArm.RIGHT ? 1 : -1;
         ItemStack heldWeapon = player.getItemInHand(hand);
-        Matrix4f holding = holdingPose(player, heldWeapon, hand, arm, event.getPartialTick());
-        Matrix4f attacking = holdingPose(player, heldWeapon, hand, arm, event.getPartialTick(),
+        final Matrix4f holding = holdingPose(player, heldWeapon, hand, arm, event.getPartialTick());
+        final Matrix4f attacking = holdingPose(player, heldWeapon, hand, arm, event.getPartialTick(),
             EnergyWeaponReloadPose.attackMuzzleDepth(elapsed));
-        Matrix4f weaponPose = EnergyWeaponReloadPose.weapon(holding, attacking, elapsed, side, reloadAttackBlend);
         PoseStack pose = event.getPoseStack();
         pose.pushPose();
         cameraSpace(pose);
+        pose.mulPose(EnergyWeaponReloadPose.drawing(DRAW_ANIMATIONS[hand.ordinal()].lowered(), side));
+        Matrix4f weaponPose = EnergyWeaponReloadPose.weapon(holding, attacking, elapsed, side, reloadAttackBlend);
         renderWeapon(event, player, heldWeapon, weaponPose, arm);
         if (EnergyWeaponReloadPose.showsCapacitor(elapsed)) {
             boolean regular = reloadCapacitor.is(ModItems.CAPACITOR) || reloadCapacitor.is(ModItems.CAPACITOR_EMPTY);

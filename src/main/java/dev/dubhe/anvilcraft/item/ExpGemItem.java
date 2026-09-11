@@ -44,11 +44,7 @@ public class ExpGemItem extends Item {
         if (!(target instanceof Villager villager)) return InteractionResult.PASS;
         if (villager.level().isClientSide()) return InteractionResult.PASS;
         if (villager.getAge() >= 0) {
-            // 只对有职业且不满级的村民生效
-            VillagerData villagerData = villager.getVillagerData();
-            int villagerLevel = villagerData.getLevel();
-            if (villagerData.getProfession() == VillagerProfession.NONE) return InteractionResult.PASS;
-            if (!VillagerData.canLevelUp(villagerLevel)) return InteractionResult.PASS;
+            if (!canLevelUp(villager)) return InteractionResult.PASS;
 
             updateVillager(villager);
             stack.consume(1, player);
@@ -58,6 +54,13 @@ public class ExpGemItem extends Item {
             stack.consume(1, player);
             return InteractionResult.SUCCESS;
         }
+    }
+
+    public static boolean canLevelUp(Villager villager) {
+        VillagerData data = villager.getVillagerData();
+        return villager.getAge() >= 0
+            && data.getProfession() != VillagerProfession.NONE
+            && VillagerData.canLevelUp(data.getLevel());
     }
 
     public static void updateVillager(Villager villager) {

@@ -14,6 +14,13 @@ public final class EnergyWeaponReloadPose {
     private EnergyWeaponReloadPose() {
     }
 
+    public static Matrix4f drawing(float lowered, float side) {
+        float amount = smooth(lowered);
+        return new Matrix4f().translation(side * 0.16F * amount, -1.25F * amount, 0)
+            .rotateZ(radians(side * 12 * amount))
+            .rotateX(radians(-10 * amount));
+    }
+
     public static Matrix4f holding(Vector3f muzzle, Vector3f target, float muzzleZ, float roll) {
         return new Matrix4f().translation(muzzle)
             .rotate(new Quaternionf().rotationTo(new Vector3f(0, 0, -1), new Vector3f(target).sub(muzzle).normalize()))

@@ -117,6 +117,7 @@
       "GameRendererMixin",
       "mun.MunTerrainShadeMixin",
       "GuiGraphicsMixin",
+      "HumanoidModelMixin",
       "ItemFrameRendererMixin",
       "ItemInHandRendererMixin",
       "ItemOverridesMixin",

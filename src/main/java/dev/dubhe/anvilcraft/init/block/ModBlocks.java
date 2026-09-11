@@ -289,6 +289,7 @@ import net.minecraft.util.ColorRGBA;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.Rarity;
 import net.minecraft.world.item.component.CustomData;
@@ -2034,6 +2035,15 @@ public class ModBlocks {
         .tag((BlockTags.MINEABLE_WITH_PICKAXE), BlockTags.WITHER_IMMUNE, BlockTags.DRAGON_IMMUNE, ModBlockTags.COLLISION_IMMUNE)
         .item(CelestialForgingAnvilBlockItem::new)
         .properties(properties -> properties.stacksTo(1).rarity(Rarity.EPIC))
+        .tag(ItemTags.HEAD_ARMOR_ENCHANTABLE, ItemTags.EQUIPPABLE_ENCHANTABLE, ItemTags.VANISHING_ENCHANTABLE)
+        .model((ctx, provider) -> provider.withExistingParent(ctx.getName(), AnvilCraft.of("block/celestial_forging_anvil"))
+            .transforms()
+            .transform(ItemDisplayContext.THIRD_PERSON_RIGHT_HAND).rotation(0, 45, 0).translation(0, 1.6f, 0).scale(0.2f).end()
+            .transform(ItemDisplayContext.THIRD_PERSON_LEFT_HAND).rotation(0, 45, 0).translation(0, 1.6f, 0).scale(0.2f).end()
+            .transform(ItemDisplayContext.FIRST_PERSON_RIGHT_HAND).rotation(0, 45, 0).translation(0, 1.6f, 0).scale(0.2f).end()
+            .transform(ItemDisplayContext.FIRST_PERSON_LEFT_HAND).rotation(0, 45, 0).translation(0, 1.6f, 0).scale(0.2f).end()
+            .transform(ItemDisplayContext.HEAD).translation(0, 8.8f, 0).scale(0.3f).end()
+            .end())
         .build()
         .blockstate(DataGenUtil::noExtraModelOrState)
         .register();
