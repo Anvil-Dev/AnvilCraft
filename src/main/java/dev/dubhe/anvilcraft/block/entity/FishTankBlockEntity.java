@@ -276,22 +276,8 @@ public class FishTankBlockEntity extends BlockEntity implements IItemResourceHan
 
         @Override
         public boolean isValid(int index, ItemResource resource) {
-            boolean hasSame = false;
-            int sameIndex = -1;
-            for (int i = 0; i < this.size(); i++) {
-                if (!this.getResource(i).equals(resource)) {
-                    continue;
-                }
-
-                if (hasSame) {
-                    return false;
-                } else {
-                    hasSame = true;
-                    sameIndex = i;
-                }
-            }
-            if (!hasSame) return this.getResource(index).isEmpty();
-            return sameIndex == index;
+            ItemResource stackInSlot = this.getResource(index);
+            return stackInSlot.isEmpty() || stackInSlot.equals(resource);
         }
 
         @Override
@@ -602,10 +588,10 @@ public class FishTankBlockEntity extends BlockEntity implements IItemResourceHan
         if (!this.isValidInsertPos(hitLoc)) return false;
         if (inHand.is(ModItemTags.DISALLOW_HAND_INSERT_INTO_TANK)) return false;
         if (level.isClientSide()) return true;
-        ItemStack inserted = FishTankBlockEntity.insertItemToTank(this.input, inHand.copy());
+        ItemStack remaining = FishTankBlockEntity.insertItemToTank(this.input, inHand.copy());
         int count = inHand.getCount();
-        inHand.setCount(count - inserted.getCount());
-        return inserted.getCount() != count;
+        inHand.setCount(remaining.getCount());
+        return remaining.getCount() != count;
     }
 
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
@@ -657,20 +643,20 @@ public class FishTankBlockEntity extends BlockEntity implements IItemResourceHan
             return;
         }
         ItemStack stack = entity.getItem();
-        ItemStack inserted = FishTankBlockEntity.insertItemToTank(handler, stack.copy());
-        if (inserted.getCount() == stack.getCount()) {
+        ItemStack remaining = FishTankBlockEntity.insertItemToTank(handler, stack.copy());
+        if (remaining.isEmpty()) {
             entity.discard();
         } else {
-            entity.setItem(inserted);
+            entity.setItem(remaining);
         }
     }
 
-    /// 向鱼缸中放入物品
+    /// 向鱼缸中放入物品堆
     ///
     /// @param handler 鱼缸物品处理器
-    /// @param stack   要放入的物品
+    /// @param stack   要放入的物品堆
     ///
-    /// @return 插入的物品
+    /// @return 放入后剩余的物品堆
     public static ItemStack insertItemToTank(@Nullable ResourceHandler<ItemResource> handler, ItemStack stack) {
         if (handler == null) {
             return stack;
