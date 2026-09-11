@@ -4819,10 +4819,15 @@ public final class StorageServerStub {
                 continue;
             }
             ResourceLocation id = BuiltInRegistries.FLUID.getKey(entry.icon().getFluid());
-            // 普通文本搜索由客户端按本地化名称过滤；服务端只处理 @ 前缀
+            // 与 matchesFilters 的搜索判定保持一致：普通文本不在服务端过滤（服务端没有客户端
+            // 语言环境），先一律放行，再由客户端 StorageScreen.applySearchFilter 按本地化名称
+            // 与 id path 过滤。缺少最后一个放行分支时 matches 恒为 false，一输入普通文本
+            // 流体就会整体从服务端 order 里消失，客户端那道过滤根本没机会执行。
+            // '#' 前缀是物品标签搜索，流体无对应语义，故不放行（客户端在 '#' 时也不做二次过滤）。
             boolean matches = search.isEmpty()
                 || search.charAt(0) == '@'
-                   && id.getNamespace().toLowerCase(Locale.ROOT).contains(search.substring(1));
+                   && id.getNamespace().toLowerCase(Locale.ROOT).contains(search.substring(1))
+                || search.charAt(0) != '@' && search.charAt(0) != '#';
             if (!matches) {
                 continue;
             }
