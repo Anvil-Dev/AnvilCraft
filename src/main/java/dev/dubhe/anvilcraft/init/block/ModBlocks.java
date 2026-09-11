@@ -156,6 +156,7 @@ import dev.dubhe.anvilcraft.block.StampingPlatformBlock;
 import dev.dubhe.anvilcraft.block.StepEffectBlock;
 import dev.dubhe.anvilcraft.block.StepEffectSlabBlock;
 import dev.dubhe.anvilcraft.block.StepEffectStairBlock;
+import dev.dubhe.anvilcraft.block.StorageFluidPortBlock;
 import dev.dubhe.anvilcraft.block.StoragePortBlock;
 import dev.dubhe.anvilcraft.block.StructureScannerBlock;
 import dev.dubhe.anvilcraft.block.SugarBlock;
@@ -1795,6 +1796,19 @@ public class ModBlocks {
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .register();
 
+    public static final BlockEntry<StorageFluidPortBlock> STORAGE_FLUID_PORT = REGISTRUM
+        .block("storage_fluid_port", StorageFluidPortBlock::new)
+        .initialProperties(() -> Blocks.SHULKER_BOX)
+        .properties(properties -> properties
+            .noOcclusion()
+            .isValidSpawn(ModBlocks::never)
+            .requiresCorrectToolForDrops())
+        .item()
+        .build()
+        .blockstate(DataGenUtil::simpleAllStates)
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .register();
+
     public static final BlockEntry<? extends Block> CHUTE = REGISTRUM.block("chute", ChuteBlock::new)
         .initialProperties(() -> Blocks.IRON_BLOCK)
         .properties(properties -> properties.noOcclusion().isValidSpawn(Blocks::never))
@@ -1851,7 +1865,7 @@ public class ModBlocks {
     public static final BlockEntry<ItemSplitterBlock> ITEM_SPLITTER = REGISTRUM.block("item_splitter", ItemSplitterBlock::new)
         .initialProperties(() -> Blocks.IRON_BLOCK)
         .blockstate(DataGenUtil::noExtraModelOrState)
-        .item()
+        .item(ChuteBlockItem::new)
         .build()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .recipe(RegistrumBlockRecipeLoader::itemSplitter)

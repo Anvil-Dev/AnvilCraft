@@ -53,8 +53,8 @@ public class ItemSplitterBlock extends BetterBaseEntityBlock implements IHammerR
 
     @Override
     public @Nullable BlockState getStateForPlacement(BlockPlaceContext context) {
-        Direction facing = context.getHorizontalDirection().getOpposite();
-        // 潜行时反转向，便于朝着自己或背着容器摆放
+        // 默认背面朝向玩家，潜行时反过来
+        Direction facing = context.getHorizontalDirection();
         if (context.getPlayer() != null && context.getPlayer().isShiftKeyDown()) {
             facing = facing.getOpposite();
         }

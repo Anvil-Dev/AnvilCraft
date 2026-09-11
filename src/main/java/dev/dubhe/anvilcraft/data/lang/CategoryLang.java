@@ -26,6 +26,9 @@ public class CategoryLang {
         provider.add("screen.anvilcraft.storage.capacity.types", "Types: %1$s/%2$s");
         provider.add("screen.anvilcraft.storage.capacity.infinity", "Infinity Storage");
         provider.add("screen.anvilcraft.storage.count", "Count: %s");
+        provider.add("screen.anvilcraft.storage.fluid_amount", "Storage: %s");
+        provider.add("screen.anvilcraft.storage.fluid.bucket_missing", "Need an empty bucket");
+        provider.add("screen.anvilcraft.storage.fluid.not_enough", "Not enough fluid for a bucket");
         provider.add("screen.anvilcraft.storage.crafting.auto_fill", "Auto Refill: %s");
         provider.add("screen.anvilcraft.storage.crafting.auto_fill.enabled", "Enabled");
         provider.add("screen.anvilcraft.storage.crafting.auto_fill.disabled", "Disabled");

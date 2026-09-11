@@ -70,6 +70,7 @@ import dev.dubhe.anvilcraft.block.entity.SmartBlockPlacerBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.SpaceOvercompressorBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.SpacetimeSupercomputerBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.StampingPlatformBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.StorageFluidPortBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.StoragePortBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.StructureScannerBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.TeslaTowerBlockEntity;
@@ -135,6 +136,7 @@ import dev.dubhe.anvilcraft.client.renderer.blockentity.SiftingTableBlockEntityR
 import dev.dubhe.anvilcraft.client.renderer.blockentity.SmartBlockPlacerRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.SpacetimeSupercomputerBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.StampingPlatformBlockEntityRenderer;
+import dev.dubhe.anvilcraft.client.renderer.blockentity.StorageFluidPortBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.StoragePortBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.TeslaTowerRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.TradingStationBlockEntityRenderer;
@@ -476,6 +478,12 @@ public class ModBlockEntities {
         .blockEntity("storage_port", StoragePortBlockEntity::new)
         .validBlocks(ModBlocks.STORAGE_PORT)
         .renderer(() -> StoragePortBlockEntityRenderer::new)
+        .register();
+
+    public static final BlockEntityEntry<StorageFluidPortBlockEntity> STORAGE_FLUID_PORT = REGISTRUM
+        .blockEntity("storage_fluid_port", StorageFluidPortBlockEntity::new)
+        .validBlocks(ModBlocks.STORAGE_FLUID_PORT)
+        .renderer(() -> StorageFluidPortBlockEntityRenderer::new)
         .register();
 
     public static final BlockEntityEntry<FluidTankBlockEntity> FLUID_TANK = REGISTRUM
