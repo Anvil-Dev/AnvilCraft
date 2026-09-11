@@ -6,12 +6,13 @@
 	"render_type": "minecraft:cutout",
 	"textures": {
 		"0": "anvilcraft:block/redstone_dice",
-		"particle": "anvilcraft:block/big_red_button_bottom"
+		"1": "anvilcraft:block/redstone_dice_dice",
+		"particle": "anvilcraft:block/redstone_dice_dice"
 	},
 	"elements": [
 		{
-			"from": [-1.5, -1.5, -1.5],
-			"to": [1.5, 1.5, 1.5],
+			"from": [-1.475, -1.475, -1.475],
+			"to": [1.475, 1.475, 1.475],
 			"faces": {
 				"north": {"uv": [13, 0, 16, 3], "texture": "#0"},
 				"east": {"uv": [13, 3, 16, 6], "texture": "#0"},
@@ -19,6 +20,18 @@
 				"west": {"uv": [10, 3, 13, 6], "texture": "#0"},
 				"up": {"uv": [10, 0, 13, 3], "texture": "#0"},
 				"down": {"uv": [13, 6, 16, 9], "texture": "#0"}
+			}
+		},
+		{
+			"from": [-1.5, -1.5, -1.5],
+			"to": [1.5, 1.5, 1.5],
+			"faces": {
+				"north": {"uv": [0, 0, 16, 16], "texture": "#1"},
+				"east": {"uv": [0, 0, 16, 16], "texture": "#1"},
+				"south": {"uv": [0, 0, 16, 16], "texture": "#1"},
+				"west": {"uv": [0, 0, 16, 16], "texture": "#1"},
+				"up": {"uv": [0, 0, 16, 16], "texture": "#1"},
+				"down": {"uv": [0, 0, 16, 16], "texture": "#1"}
 			}
 		}
 	],
