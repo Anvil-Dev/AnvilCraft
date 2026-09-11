@@ -602,10 +602,10 @@ public class FishTankBlockEntity extends BlockEntity implements IItemResourceHan
         if (!this.isValidInsertPos(hitLoc)) return false;
         if (inHand.is(ModItemTags.DISALLOW_HAND_INSERT_INTO_TANK)) return false;
         if (level.isClientSide()) return true;
-        ItemStack inserted = FishTankBlockEntity.insertItemToTank(this.input, inHand.copy());
+        ItemStack remaining = FishTankBlockEntity.insertItemToTank(this.input, inHand.copy());
         int count = inHand.getCount();
-        inHand.setCount(count - inserted.getCount());
-        return inserted.getCount() != count;
+        inHand.setCount(remaining.getCount());
+        return remaining.getCount() != count;
     }
 
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
@@ -657,11 +657,11 @@ public class FishTankBlockEntity extends BlockEntity implements IItemResourceHan
             return;
         }
         ItemStack stack = entity.getItem();
-        ItemStack inserted = FishTankBlockEntity.insertItemToTank(handler, stack.copy());
-        if (inserted.getCount() == stack.getCount()) {
+        ItemStack remaining = FishTankBlockEntity.insertItemToTank(handler, stack.copy());
+        if (remaining.isEmpty()) {
             entity.discard();
         } else {
-            entity.setItem(inserted);
+            entity.setItem(remaining);
         }
     }
 
