@@ -1692,6 +1692,12 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
                 return false;
             }
             this.lastClickedInventorySlot = slot;
+            // 在移动之前记下本次点击的物品（对应原版在 slotClicked 之前记 lastQuickMoved）。
+            // 槽已空时不覆盖，否则首次点击移走整叠后，第二次点击会把记录清空、批量失效
+            ItemStack clickedItem = this.player.getInventory().getItem(slot);
+            if (!clickedItem.isEmpty()) {
+                this.lastQuickMoved = clickedItem.copy();
+            }
 
             if (Screen.hasAltDown()) {
                 // 左键：桶装流体自动倾倒；右键：保持物品行为存入流体桶
@@ -1700,6 +1706,17 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
             }
 
             if (Screen.hasShiftDown()) {
+                // Shift+双击左键：与原版一致，把上一个被点击物品的同种物品整批移入仓储。
+                // 首次 Shift+左键仍是单组快速移动，第二次落在 250ms 内才触发批量，节奏与原版相同
+                if (button == 0 && this.isDoubleClick(slot, button)) {
+                    // 首次点击已把被点槽整叠移走，改从仍持有该物品的槽位发起：
+                    // 服务端 moveSameToStorage 会把该物品的所有槽位一并移入
+                    int target = this.findInventorySlotWith(this.lastQuickMoved);
+                    if (target != -1) {
+                        this.moveSameToStorage(target, true);
+                    }
+                    return true;
+                }
                 if (button == 1) {
                     // Shift+右键：把该背包槽物品直接放入仓储（不经过指针）
                     this.interactWithStorage(slot, button, StorageInput.QUICK_MOVE_TO_STORAGE);
@@ -1812,6 +1829,13 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
     private int lastClickSlot = -1;
     private int lastClickButton = -1;
     private boolean doubleclick;
+    /**
+     * 上一次点击到的物品，供 Shift+双击批量使用（对应原版的 {@code lastQuickMoved}）。
+     *
+     * <p>首次 Shift+左键会把该槽整叠移入仓储、槽随之变空，若批量时再读该槽就取不到物品，
+     * 故必须在移动之前记下它。</p>
+     */
+    private ItemStack lastQuickMoved = ItemStack.EMPTY;
     /** 双击目标为 ①/② 槽时的槽号（0 为①，1~9 为②），否则 -1。 */
     private int doubleClickCraftingSlot = -1;
     /** 输入槽单击（空指针）延迟到鼠标释放时执行的槽号 / 按钮，-1 表示无。 */
@@ -3234,6 +3258,28 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
 
     private int getInventorySlot() {
         return this.getInventorySlot(this.getMouseScaledX(), this.getMouseScaledY());
+    }
+
+    /**
+     * 在当前玩家背包中找一个仍持有该物品的槽位（槽号语义与 {@link #getInventorySlot} 一致）。
+     *
+     * <p>供 Shift+双击批量使用：首次点击后原槽可能已空，需要换一个仍持有该物品的槽位
+     * 作为批量入口，服务端会据此把同种物品的所有槽位一并移入仓储。</p>
+     *
+     * @param wanted 目标物品；为空时返回 -1
+     * @return 槽号；没有匹配时返回 -1
+     */
+    private int findInventorySlotWith(ItemStack wanted) {
+        if (wanted.isEmpty()) {
+            return -1;
+        }
+        int size = Math.min(this.player.getInventory().getContainerSize(), Inventory.INVENTORY_SIZE);
+        for (int slot = 0; slot < size; slot++) {
+            if (ItemStack.isSameItemSameComponents(this.player.getInventory().getItem(slot), wanted)) {
+                return slot;
+            }
+        }
+        return -1;
     }
 
     private int getScreenSlot(int invSlot) {
