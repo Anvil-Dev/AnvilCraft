@@ -90,8 +90,13 @@ public abstract class FlexibleMultiPartBlock<
     }
 
     @Override
-    public BlockState mapRealModelHolderBlock(Level level, BlockPos blockPos, BlockState original) {
+    public BlockState getModelHolderState(BlockState original) {
         return original.setValue(this.getPart(), this.mainPart);
+    }
+
+    @Override
+    public BlockState mapRealModelHolderBlock(Level level, BlockPos blockPos, BlockState original) {
+        return this.getModelHolderState(original);
     }
 
     @Override

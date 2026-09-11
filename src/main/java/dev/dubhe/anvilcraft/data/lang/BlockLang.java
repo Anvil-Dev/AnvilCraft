@@ -9,6 +9,8 @@ public class BlockLang {
         provider.add("block.anvilcraft.check_valve", "Check Valve");
         // 板条箱相邻虚空物质时的溢出销毁模式名称
         provider.add("block.anvilcraft.overflow_disposal_crate", "Overflow Disposal Crate");
+        // 流体储罐相邻门格海绵时的溢出销毁模式名称
+        provider.add("block.anvilcraft.overflow_disposal_fluid_tank", "Overflow Disposal Fluid Tank");
         provider.add("block.anvilcraft.spacetime_supercomputer.insufficient_energy", "Insufficient energy to execute the command");
         provider.add("block.anvilcraft.spacetime_supercomputer.no_supported_command", "This command is not supported for execution");
         provider.add(

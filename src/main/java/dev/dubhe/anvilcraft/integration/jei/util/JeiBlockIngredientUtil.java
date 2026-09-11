@@ -3,9 +3,7 @@ package dev.dubhe.anvilcraft.integration.jei.util;
 import dev.anvilcraft.lib.v2.util.predicate.BlockStatePredicate;
 import dev.dubhe.anvilcraft.block.GiantAnvilBlock;
 import dev.dubhe.anvilcraft.block.cfa.CelestialForgingAnvilAmplifierBlock;
-import dev.dubhe.anvilcraft.block.state.Cube3x3PartHalf;
-import dev.dubhe.anvilcraft.block.state.DirectionCube232PartHalf;
-import dev.dubhe.anvilcraft.block.state.GiantAnvilCube;
+import dev.dubhe.anvilcraft.block.multipart.IMultiPartBlockModelHolder;
 import mezz.jei.api.constants.VanillaTypes;
 import mezz.jei.api.gui.builder.IIngredientConsumer;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
@@ -121,23 +119,15 @@ public final class JeiBlockIngredientUtil {
             .map(JeiBlockIngredientUtil::getRenderablePreviewState);
     }
 
+    /**
+     * 把任意部件状态映射到承载渲染模型的状态。
+     *
+     * <p>具体映射由方块自己通过 {@link IMultiPartBlockModelHolder#getModelHolderState} 声明
+     * （巨型铁砧映射到 MID_CENTER、锻星砧增幅器映射到朝向前方的中部），本工具只做统一查询，
+     * 不再逐方块特判。</p>
+     */
     public static BlockState getRenderablePreviewState(BlockState state) {
-        if (state.getBlock() instanceof GiantAnvilBlock) {
-            return state
-                .setValue(GiantAnvilBlock.HALF, Cube3x3PartHalf.MID_CENTER)
-                .setValue(GiantAnvilBlock.CUBE, GiantAnvilCube.CENTER);
-        }
-        if (state.getBlock() instanceof CelestialForgingAnvilAmplifierBlock) {
-            DirectionCube232PartHalf modelPart = switch (state.getValue(CelestialForgingAnvilAmplifierBlock.FACING)) {
-                case NORTH -> DirectionCube232PartHalf.MID_PART;
-                case EAST -> DirectionCube232PartHalf.MID_W;
-                case SOUTH -> DirectionCube232PartHalf.MID_WS;
-                case WEST -> DirectionCube232PartHalf.MID_S;
-                default -> DirectionCube232PartHalf.MID_PART;
-            };
-            return state.setValue(CelestialForgingAnvilAmplifierBlock.HALF, modelPart);
-        }
-        return state;
+        return IMultiPartBlockModelHolder.modelHolderState(state);
     }
 
     public static int getRenderablePreviewScale(BlockState state, int defaultScale) {

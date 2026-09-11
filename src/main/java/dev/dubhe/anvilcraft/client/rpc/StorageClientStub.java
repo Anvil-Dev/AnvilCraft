@@ -365,6 +365,33 @@ public final class StorageClientStub {
         );
     }
 
+    /** ①/② 输入槽按 Q / Ctrl+Q：把槽内物品直接丢到地上。stack=true 丢出整堆。 */
+    public static CompletableFuture<StorageServerStub.InteractionResult> craftingThrowSlot(
+        BlockPos sourcePos, int slot, boolean stack
+    ) {
+        return RPC.invoke(
+            RpcTarget.server(),
+            StorageServerStub::craftingThrowSlot,
+            StorageClientStub.playerId(),
+            sourcePos.asLong(),
+            slot,
+            stack
+        );
+    }
+
+    /** ①/② 输入槽中键：创造模式下把槽内物品复制一整组到指针（槽内保留）。 */
+    public static CompletableFuture<StorageServerStub.InteractionResult> craftingCloneSlot(
+        BlockPos sourcePos, int slot
+    ) {
+        return RPC.invoke(
+            RpcTarget.server(),
+            StorageServerStub::craftingCloneSlot,
+            StorageClientStub.playerId(),
+            sourcePos.asLong(),
+            slot
+        );
+    }
+
     /** 取③/④ 配方结果：消耗输入并放到指针。 */
     public static CompletableFuture<StorageServerStub.InteractionResult> craftingTakeResult(
         BlockPos sourcePos, boolean stonecutter, boolean shift
@@ -376,6 +403,20 @@ public final class StorageClientStub {
             sourcePos.asLong(),
             stonecutter,
             shift
+        );
+    }
+
+    /** 在③/④ 结果槽按 Q / Ctrl+Q：合成并把产物直接丢到地上。stack=true 为约一组。 */
+    public static CompletableFuture<StorageServerStub.InteractionResult> craftingThrowResult(
+        BlockPos sourcePos, boolean stonecutter, boolean stack
+    ) {
+        return RPC.invoke(
+            RpcTarget.server(),
+            StorageServerStub::craftingThrowResult,
+            StorageClientStub.playerId(),
+            sourcePos.asLong(),
+            stonecutter,
+            stack
         );
     }
 

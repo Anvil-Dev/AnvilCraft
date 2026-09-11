@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.api.itemhandler.unlimited;
 
+import dev.dubhe.anvilcraft.init.item.ModComponents;
 import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.world.item.ItemStack;
@@ -11,6 +12,9 @@ import net.minecraft.world.item.ItemStack;
  * <p>未超上限或 dispose=false 时行为与 {@link SpaceSizeItemStacksResourceHandler}
  * 一致。dispose=true 时模拟插入（simulate=true）同样按「可存放多少、销毁多少」
  * 回答，因此管道 / 仓储 GUI 的容量判断会认为所有输入都能被接收。</p>
+ *
+ * <p>带永恒词条的物品免疫虚空，不受 dispose 语义影响：按普通容量规则处理，
+ * 箱子装满时原样退回而不销毁。</p>
  */
 public class OverflowDisposalItemStacksResourceHandler extends SpaceSizeItemStacksResourceHandler {
 
@@ -24,7 +28,7 @@ public class OverflowDisposalItemStacksResourceHandler extends SpaceSizeItemStac
 
     @Override
     public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
-        if (!this.dispose) {
+        if (!this.dispose || OverflowDisposalItemStacksResourceHandler.isEternal(stack)) {
             return super.insertItem(slot, stack, simulate);
         }
         if (stack.isEmpty()) {
@@ -51,11 +55,17 @@ public class OverflowDisposalItemStacksResourceHandler extends SpaceSizeItemStac
 
     @Override
     public ItemStack insertItem(ItemStack stack, boolean simulate) {
-        if (this.dispose) {
+        // 永恒物品免疫虚空：不适用溢出销毁语义，按普通容量规则处理
+        if (this.dispose && !OverflowDisposalItemStacksResourceHandler.isEternal(stack)) {
             // 无论放得下多少，剩余部分都视为已销毁，调用方始终收到空手
             super.insertItem(stack, simulate);
             return ItemStack.EMPTY;
         }
         return super.insertItem(stack, simulate);
+    }
+
+    /** 是否带有永恒词条。 */
+    public static boolean isEternal(ItemStack stack) {
+        return stack.has(ModComponents.ETERNAL);
     }
 }
