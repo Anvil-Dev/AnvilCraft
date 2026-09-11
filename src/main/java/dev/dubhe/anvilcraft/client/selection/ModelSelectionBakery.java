@@ -18,6 +18,7 @@ import net.minecraft.client.resources.model.BlockModelRotation;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.client.resources.model.ModelState;
 import net.minecraft.client.resources.model.UnbakedModel;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
@@ -69,7 +70,14 @@ final class ModelSelectionBakery {
                     if (selection instanceof ModelSelection.Fixed fixed) {
                         standalone.put(BlockModelShaper.stateToModelLocation(state), fixed.part());
                     }
-                    states.put(state, state.getRenderShape() == RenderShape.MODEL ? selection : EMPTY);
+                    boolean rendered = state.getRenderShape() == RenderShape.MODEL;
+                    states.put(state, rendered ? selection : EMPTY);
+                    if (rendered
+                        && !(block instanceof AbstractMultiPartBlock<?>)
+                        && !ModelSelectionBlacklist.usesOriginalOutline(block)) {
+                        List<SelectionPart> own = ModelSelectionBakery.collect(selection, state.getSeed(BlockPos.ZERO));
+                        if (!own.isEmpty()) outlines.put(state, own);
+                    }
                 } catch (IllegalArgumentException exception) {
                     failures++;
                 }

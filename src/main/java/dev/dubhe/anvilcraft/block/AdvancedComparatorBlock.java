@@ -121,7 +121,12 @@ public class AdvancedComparatorBlock extends HorizontalDirectionalBlock implemen
 
     @Override
     public BlockState getStateForPlacement(BlockPlaceContext context) {
-        return this.defaultBlockState().setValue(FACING, context.getHorizontalDirection().getOpposite());
+        Direction facing = context.getHorizontalDirection().getOpposite();
+        // 潜行时反转向，便于朝着自己或背着红石元件摆放
+        if (context.getPlayer() != null && context.getPlayer().isShiftKeyDown()) {
+            facing = facing.getOpposite();
+        }
+        return this.defaultBlockState().setValue(FACING, facing);
     }
 
     @Override

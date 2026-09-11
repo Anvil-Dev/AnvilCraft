@@ -1,0 +1,24 @@
+{
+  "values": [
+    "anvilcraft:chute",
+    "anvilcraft:magnetic_chute",
+    "anvilcraft:overflow_chute",
+    "anvilcraft:item_splitter",
+    "anvilcraft:sliding_rail",
+    "anvilcraft:powered_sliding_rail",
+    "anvilcraft:activator_sliding_rail",
+    "anvilcraft:detector_sliding_rail",
+    "anvilcraft:pulse_generator",
+    "anvilcraft:advanced_comparator",
+    "anvilcraft:block_comparator",
+    "anvilcraft:item_detector",
+    "anvilcraft:pump",
+    "anvilcraft:block_placer",
+    "anvilcraft:block_devourer",
+    "anvilcraft:smart_block_placer",
+    "anvilcraft:structure_scanner",
+    "anvilcraft:ruby_laser",
+    "anvilcraft:ruby_prism",
+    "anvilcraft:laser_receiver"
+  ]
+}

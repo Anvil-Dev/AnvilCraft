@@ -17,6 +17,7 @@ import dev.dubhe.anvilcraft.client.AnvilCraftClient;
 import dev.dubhe.anvilcraft.client.init.ModRenderTypes;
 import dev.dubhe.anvilcraft.client.selection.ModelBlockSelection;
 import dev.dubhe.anvilcraft.config.AnvilCraftClientConfig;
+import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.util.BlockPlacementPicking;
 import dev.dubhe.anvilcraft.util.SegmentedActuator;
@@ -40,6 +41,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
@@ -51,7 +53,9 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
 import net.neoforged.neoforge.client.model.data.ModelData;
 
+import java.util.ArrayList;
 import java.util.List;
+import javax.annotation.Nullable;
 
 @EventBusSubscriber(Dist.CLIENT)
 public class LargeBlockPlacePreviewEventListener {
@@ -128,7 +132,9 @@ public class LargeBlockPlacePreviewEventListener {
         if (!(item.getItem() instanceof BlockItem blockItem)) {
             return;
         }
-        if (!(blockItem.getBlock() instanceof AbstractMultiPartBlock<?> block)) {
+        // 多方块方块自成一体；标签内的单方块（红石类 / 物流类）走单方块预览
+        boolean multiPart = blockItem.getBlock() instanceof AbstractMultiPartBlock<?>;
+        if (!multiPart && !blockItem.getBlock().defaultBlockState().is(ModBlockTags.PLACEMENT_PREVIEW)) {
             return;
         }
         if (!(mc.hitResult instanceof BlockHitResult target)) {
@@ -145,7 +151,12 @@ public class LargeBlockPlacePreviewEventListener {
         if (useContext instanceof BlockPlacementPicking.PlayerClick click && !click.anvilcraft$hasBlockHit()) {
             return;
         }
+        if (!multiPart) {
+            updateSingleBlockPreview(mc, blockItem, useContext);
+            return;
+        }
         final Direction direction = useContext.getClickedFace();
+        AbstractMultiPartBlock<?> block = (AbstractMultiPartBlock<?>) blockItem.getBlock();
         BlockPlaceContext context = snapPlacementContext(block, new BlockPlaceContext(useContext));
         BlockPos pos = context.getClickedPos();
         validateCanRender(item, blockItem, pos);
@@ -177,6 +188,27 @@ public class LargeBlockPlacePreviewEventListener {
         }
     }
 
+    /**
+     * 单方块放置预览：按放置状态在落点渲染一个鬼影。
+     *
+     * <p>红石类与物流类的朝向 / 贴面由点击位置决定（溜槽会自动背对玩家、红石导线贴在
+     * 被点击的面、滑轨沿视线轴向），先看一眼朝向能避免放错。渲染复用多方块的鬼影与
+     * 描边（{@link #renderGhost}），故这里只负责算出落点与放置状态。</p>
+     */
+    private static void updateSingleBlockPreview(Minecraft mc, BlockItem blockItem, UseOnContext useContext) {
+        Block block = blockItem.getBlock();
+        BlockPlaceContext context = new BlockPlaceContext(useContext);
+        BlockPos pos = context.getClickedPos();
+        // 放不下（如压力板缺少支撑）时不显示鬼影，避免给出错误预期
+        BlockState state = block.getStateForPlacement(context);
+        if (mc.level != null && (state == null || !mc.level.getBlockState(pos).canBeReplaced(context))) {
+            return;
+        }
+        if (state != null) {
+            renderEntries.add(new RenderEntry(pos, state));
+        }
+    }
+
     private static BlockPlaceContext snapPlacementContext(AbstractMultiPartBlock<?> block, BlockPlaceContext context) {
         if (!(block instanceof CelestialForgingAnvilAmplifierBlock amplifier)) return context;
         BlockPos pos = context.getClickedPos();
@@ -190,6 +222,12 @@ public class LargeBlockPlacePreviewEventListener {
                 false
             )
         );
+    }
+
+    /** 该方块是否参与放置预览：多方块方块，或 {@link ModBlockTags#PLACEMENT_PREVIEW} 内的单方块。 */
+    private static boolean isPreviewable(Block block) {
+        return block instanceof AbstractMultiPartBlock<?>
+               || block.defaultBlockState().is(ModBlockTags.PLACEMENT_PREVIEW);
     }
 
     private static void expandRenderEntriesForGhost() {
@@ -256,8 +294,7 @@ public class LargeBlockPlacePreviewEventListener {
         if (!(item.getItem() instanceof BlockItem)) {
             item = player.getItemInHand(InteractionHand.OFF_HAND);
         }
-        if (!(item.getItem() instanceof BlockItem blockItem)
-            || !(blockItem.getBlock() instanceof AbstractMultiPartBlock<?>)) {
+        if (!(item.getItem() instanceof BlockItem blockItem) || !isPreviewable(blockItem.getBlock())) {
             renderEntries.clear();
             return;
         }
@@ -287,6 +324,31 @@ public class LargeBlockPlacePreviewEventListener {
             renderPart(poseStack, bufferSource, renderType, entry.state(), alpha, red, green, blue);
             poseStack.popPose();
         }
+        // 方块实体模型（如智能方块放置器的机械臂）不属于方块模型，按各自位姿单独渲染
+        RenderEntry base = renderEntries.getFirst();
+        for (ModelBlockSelection.ModelPlacement placement : ModelBlockSelection.previewBerModels(base.state())) {
+            poseStack.pushPose();
+            poseStack.translate(
+                base.pos().getX() - camera.x - 0.0005,
+                base.pos().getY() - camera.y - 0.0005,
+                base.pos().getZ() - camera.z - 0.0005
+            );
+            poseStack.scale(1.001f, 1.001f, 1.001f);
+            poseStack.last().pose().mul(placement.pose());
+            // 与 BER 一致地传 null 状态，避免对独立模型套用方块着色
+            renderModel(
+                poseStack,
+                bufferSource,
+                renderType,
+                mc.getModelManager().getModel(placement.model()),
+                null,
+                alpha,
+                red,
+                green,
+                blue
+            );
+            poseStack.popPose();
+        }
         renderErrorBound(poseStack, bufferSource, event.getCamera());
         bufferSource.endBatch(renderType);
         RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
@@ -308,9 +370,13 @@ public class LargeBlockPlacePreviewEventListener {
         RenderType renderType = outlineMode ? RenderType.lines() : ModRenderTypes.BEACON_GLASS;
         VertexConsumer vertexConsumer = bufferSource.getBuffer(renderType);
         if (outlineMode) {
-            renderMissingAmplifierOutlines(poseStack, vertexConsumer, cameraPos, amplifier, level);
+            if (level != null) {
+                renderMissingAmplifierOutlines(poseStack, vertexConsumer, cameraPos, amplifier, level);
+            }
         } else {
-            renderMissingAmplifierGlass(poseStack, bufferSource, renderType, cameraPos, amplifier, level);
+            if (level != null) {
+                renderMissingAmplifierGlass(poseStack, bufferSource, renderType, cameraPos, amplifier, level);
+            }
         }
         bufferSource.endBatch(renderType);
         RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
@@ -397,7 +463,9 @@ public class LargeBlockPlacePreviewEventListener {
             return false;
         }
         RenderEntry base = renderEntries.getFirst();
-        List<SelectionPart> outline = ModelBlockSelection.multipartOutline(base.state());
+        List<SelectionPart> outline = new ArrayList<>(ModelBlockSelection.multipartOutline(base.state()));
+        // 方块实体模型是独立模型，不在方块模型描边表里，需单独并入（如智能方块放置器的机械臂）
+        outline.addAll(ModelBlockSelection.previewBerParts(base.state()));
         if (outline.isEmpty()) {
             return false;
         }
@@ -461,9 +529,31 @@ public class LargeBlockPlacePreviewEventListener {
         float green,
         float blue
     ) {
-        Minecraft mc = Minecraft.getInstance();
-        BlockRenderDispatcher dispatcher = mc.getBlockRenderer();
-        BakedModel model = dispatcher.getBlockModel(state);
+        renderModel(
+            poseStack,
+            bufferSource,
+            renderType,
+            Minecraft.getInstance().getBlockRenderer().getBlockModel(state),
+            state,
+            alpha,
+            red,
+            green,
+            blue
+        );
+    }
+
+    private static void renderModel(
+        PoseStack poseStack,
+        MultiBufferSource.BufferSource bufferSource,
+        RenderType renderType,
+        BakedModel model,
+        @Nullable BlockState state,
+        float alpha,
+        float red,
+        float green,
+        float blue
+    ) {
+        BlockRenderDispatcher dispatcher = Minecraft.getInstance().getBlockRenderer();
         VertexConsumer vertexConsumer = bufferSource.getBuffer(renderType);
         RenderSystem.setShaderColor(red, green, blue, alpha);
         dispatcher.getModelRenderer().renderModel(

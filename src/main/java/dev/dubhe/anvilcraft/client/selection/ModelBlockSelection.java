@@ -22,6 +22,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.EntityBlock;
+import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
@@ -39,18 +40,27 @@ import org.joml.Matrix4f;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
+import javax.annotation.Nullable;
 
 @EventBusSubscriber(modid = AnvilCraft.MOD_ID, value = Dist.CLIENT)
 public final class ModelBlockSelection {
     private static long frame;
     private static Snapshot snapshot = new Snapshot(Map.of(), Map.of(), Map.of());
     private static final Map<BlockPos, List<SelectionPart>> DYNAMIC = new HashMap<>();
+    /** 放置预览用的方块实体模型（按状态缓存，预览位置上还没有真实实体）。 */
+    private static final Map<BlockState, List<SelectionPart>> PREVIEW_BER_PARTS = new IdentityHashMap<>();
+    private static final Map<BlockState, List<ModelPlacement>> PREVIEW_BER_MODELS = new IdentityHashMap<>();
     private static final Cache<VoxelShape, SelectionPart> FALLBACK = CacheBuilder.newBuilder().weakKeys()
         .maximumWeight(4 * 1024 * 1024)
         .weigher((VoxelShape key, SelectionPart value) -> (int) value.geometry().estimatedBytes() + 512)
         .build();
+
+    /** 一个离散模型及其在方块内的位姿，供预览按贴图渲染（GHOST 模式）。 */
+    public record ModelPlacement(ModelResourceLocation model, Matrix4f pose) {
+    }
 
     private ModelBlockSelection() {
     }
@@ -60,6 +70,8 @@ public final class ModelBlockSelection {
         ModelBakeryAccessor bakery = (ModelBakeryAccessor) event.getModelBakery();
         snapshot = new ModelSelectionBakery(bakery.getUnbakedCache()).bake(bakery.getTopLevelModels());
         DYNAMIC.clear();
+        PREVIEW_BER_PARTS.clear();
+        PREVIEW_BER_MODELS.clear();
         FALLBACK.invalidateAll();
         for (Block block : BuiltInRegistries.BLOCK) {
             if (!AnvilCraft.MOD_ID.equals(BuiltInRegistries.BLOCK.getKey(block).getNamespace())) continue;
@@ -93,6 +105,59 @@ public final class ModelBlockSelection {
         return outline == null ? List.of() : outline;
     }
 
+    /**
+     * 放置预览用的方块实体模型几何（描边模式）。
+     *
+     * <p>方块模型与实体模型是两套模型（如智能方块放置器 = 底座方块模型 + 机械臂实体模型），
+     * 实体部分不在 {@code snapshot.outlines()} 中。预览位置上还没有方块实体，故按放置状态
+     * 临时构造一个（与 {@code RenderSupport} 的做法一致）取其静止姿态。</p>
+     */
+    public static List<SelectionPart> previewBerParts(BlockState state) {
+        return ModelBlockSelection.PREVIEW_BER_PARTS.computeIfAbsent(state, key -> {
+            BlockEntity entity = ModelBlockSelection.previewEntity(key);
+            return entity == null ? List.of() : ModelBlockSelection.rendererParts(entity, 0.0F, true);
+        });
+    }
+
+    /**
+     * 放置预览用的方块实体模型与位姿（虚影模式，按贴图渲染）。
+     *
+     * @see #previewBerParts(BlockState)
+     */
+    public static List<ModelPlacement> previewBerModels(BlockState state) {
+        return ModelBlockSelection.PREVIEW_BER_MODELS.computeIfAbsent(state, key -> {
+            BlockEntity entity = ModelBlockSelection.previewEntity(key);
+            if (entity == null) return List.of();
+            BlockEntityRenderer<?> renderer = Minecraft.getInstance()
+                .getBlockEntityRenderDispatcher()
+                .getRenderer(entity);
+            if (!(renderer instanceof ModelSelectionRenderer<?> selectionRenderer)) return List.of();
+            List<ModelPlacement> result = new ArrayList<>();
+            ModelBlockSelection.collectPreviewModels(selectionRenderer, entity, result);
+            return List.copyOf(result);
+        });
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <T extends BlockEntity> void collectPreviewModels(
+        ModelSelectionRenderer<T> renderer,
+        BlockEntity entity,
+        List<ModelPlacement> output
+    ) {
+        renderer.collectPreviewModels((T) entity, 0.0F, new PoseStack(), (model, pose) ->
+            output.add(new ModelPlacement(model, new Matrix4f(pose.last().pose()))));
+    }
+
+    /** 按放置状态临时构造方块实体；该方块没有方块实体时返回 null。 */
+    private static @Nullable BlockEntity previewEntity(BlockState state) {
+        if (!state.hasBlockEntity() || !(state.getBlock() instanceof EntityBlock entityBlock)) return null;
+        BlockEntity entity = entityBlock.newBlockEntity(BlockPos.ZERO, state);
+        if (entity == null) return null;
+        ClientLevel level = Minecraft.getInstance().level;
+        if (level != null) entity.setLevel(level);
+        return entity;
+    }
+
     private static List<SelectionPart> parts(ClientLevel level, BlockPos pos, BlockState state, float partialTick) {
         ModelSelection model = snapshot.states().get(state);
         List<SelectionPart> parts = new ArrayList<>(ModelSelectionBakery.collect(model, state.getSeed(pos)));
@@ -111,12 +176,24 @@ public final class ModelBlockSelection {
 
     /** 返回 BER 实际使用的 cube 和姿态，不混入用于交互的碰撞箱回退。 */
     public static <T extends BlockEntity> List<SelectionPart> rendererParts(T entity, float partialTick) {
+        return ModelBlockSelection.rendererParts(entity, partialTick, false);
+    }
+
+    /**
+     * @param preview 为 true 时走 {@link ModelSelectionRenderer#collectPreviewModels}，
+     *                让依赖服务端同步状态的渲染器能给出放置预览用的静止姿态
+     */
+    private static <T extends BlockEntity> List<SelectionPart> rendererParts(
+        T entity,
+        float partialTick,
+        boolean preview
+    ) {
         BlockEntityRenderer<T> renderer = Minecraft.getInstance().getBlockEntityRenderDispatcher().getRenderer(entity);
         if (!(renderer instanceof ModelSelectionRenderer<?>)) return List.of();
         @SuppressWarnings("unchecked")
         ModelSelectionRenderer<T> selectionRenderer = (ModelSelectionRenderer<T>) renderer;
         List<SelectionPart> result = new ArrayList<>();
-        selectionRenderer.collectSelectionModels(entity, partialTick, new PoseStack(), (model, pose) -> {
+        ModelSelectionRenderer.ModelConsumer consumer = (model, pose) -> {
             SelectionPart source = snapshot.standalone().get(model);
             if (source == null) return;
             pose.pushPose();
@@ -126,7 +203,12 @@ public final class ModelBlockSelection {
                 result.add(new SelectionPart(source.geometry(), transform));
             }
             pose.popPose();
-        });
+        };
+        if (preview) {
+            selectionRenderer.collectPreviewModels(entity, partialTick, new PoseStack(), consumer);
+        } else {
+            selectionRenderer.collectSelectionModels(entity, partialTick, new PoseStack(), consumer);
+        }
         selectionRenderer.collectSelectionParts(entity, partialTick, result);
         return List.copyOf(result);
     }

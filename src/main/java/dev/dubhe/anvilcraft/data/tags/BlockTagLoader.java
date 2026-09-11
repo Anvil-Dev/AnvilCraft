@@ -410,5 +410,28 @@ public class BlockTagLoader {
             .addTag(ModBlockTags.NEEDS_TRANSCENDIUM_TOOL);
 
         provider.addTag(ModBlockTags.INCORRECT_FOR_TRANSCENDIUM_TOOL);
+
+        provider.addTag(ModBlockTags.PLACEMENT_PREVIEW)
+            .add(ModBlocks.CHUTE.getKey())
+            .add(ModBlocks.MAGNETIC_CHUTE.getKey())
+            .add(ModBlocks.OVERFLOW_CHUTE.getKey())
+            .add(ModBlocks.ITEM_SPLITTER.getKey())
+            .add(ModBlocks.SLIDING_RAIL.getKey())
+            .add(ModBlocks.POWERED_SLIDING_RAIL.getKey())
+            .add(ModBlocks.ACTIVATOR_SLIDING_RAIL.getKey())
+            .add(ModBlocks.DETECTOR_SLIDING_RAIL.getKey())
+            .add(ModBlocks.PULSE_GENERATOR.getKey())
+            .add(ModBlocks.ADVANCED_COMPARATOR.getKey())
+            .add(ModBlocks.BLOCK_COMPARATOR.getKey())
+            .add(ModBlocks.ITEM_DETECTOR.getKey())
+            .add(ModBlocks.PUMP.getKey())
+            .add(ModBlocks.BLOCK_PLACER.getKey())
+            .add(ModBlocks.BLOCK_DEVOURER.getKey())
+            .add(ModBlocks.SMART_BLOCK_PLACER.getKey())
+            .add(ModBlocks.STRUCTURE_SCANNER.getKey())
+            .add(ModBlocks.RUBY_LASER.getKey())
+            .add(ModBlocks.RUBY_PRISM.getKey())
+            .add(ModBlocks.LASER_RECEIVER.getKey());
+
     }
 }

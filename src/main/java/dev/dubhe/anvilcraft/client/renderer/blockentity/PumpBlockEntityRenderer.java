@@ -69,7 +69,25 @@ public class PumpBlockEntityRenderer implements BlockEntityRenderer<PumpBlockEnt
         float speed = 1.0f;
         long gameTime = blockEntity.getLevel().getGameTime();
         float cycle = ((gameTime + partialTick) * speed) % 20.0f / 20.0f;
+        this.emitPistons(state, cycle, poseStack, consumer);
+    }
 
+    /**
+     * 放置预览：活塞依赖 {@link PumpBlockEntity#isWorking()}（服务端同步的启用状态 + 电网），
+     * 而预览落点上没有实体、临时实体也从未被同步，直接沿用上例会一个活塞都不产出。
+     * 故按静止姿态（cycle = 0）给出活塞，与「已通电工作」时的外观一致。
+     */
+    @Override
+    public void collectPreviewModels(
+        PumpBlockEntity blockEntity, float partialTick, PoseStack poseStack, ModelConsumer consumer
+    ) {
+        BlockState state = blockEntity.getBlockState();
+        if (!(state.getBlock() instanceof PumpBlock)) return;
+        this.emitPistons(state, 0.0f, poseStack, consumer);
+    }
+
+    /** 按给定动画进度产出活塞模型（两个模型各含 2 个活塞，合计 4 个）。 */
+    private void emitPistons(BlockState state, float cycle, PoseStack poseStack, ModelConsumer consumer) {
         Orientation orientation = state.getValue(PumpBlock.ORIENTATION);
         // 应用与 blockstate 相同的旋转，使活塞坐标系与模型对齐
         poseStack.pushPose();
