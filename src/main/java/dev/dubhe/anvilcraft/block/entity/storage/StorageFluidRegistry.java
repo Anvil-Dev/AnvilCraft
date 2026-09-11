@@ -198,16 +198,40 @@ public final class StorageFluidRegistry {
     }
 
     /**
-     * 找一个能接收该流体的端口处理器，用于把桶装流体自动倾倒进仓储。
+     * 找一个<b>已在存放同种流体</b>的端口处理器，用于把桶装流体自动倾倒进仓储。
      *
-     * <p>优先返回已在存放同种流体的端口；否则退回任意空端口。</p>
+     * <p>按 #4792：只倾倒入「有相同流体」的端口；没有对应端口时返回 {@code null}，
+     * 由调用方把桶作为普通物品存入。因此本方法<b>不</b>回退到空端口——否则空端口会把
+     * 桶装流体直接吃掉，桶再也无法以物品形式入库。</p>
      *
      * @param storageId 存储 ID
      * @param fluid     待倾入的流体
-     * @return 可接收的流体处理器；没有合适端口时返回 {@code null}
+     * @return 可接收的流体处理器；没有存放同种流体的端口时返回 {@code null}
      */
     @Nullable
     public static IFluidHandler findAcceptor(UUID storageId, FluidStack fluid) {
+        for (StorageFluidPortBlockEntity port : StorageFluidRegistry.livePorts(storageId)) {
+            FluidStack stored = port.getFluid();
+            if (!stored.isEmpty() && FluidStack.isSameFluidSameComponents(stored, fluid)) {
+                return port.getFluidHandler();
+            }
+        }
+        return null;
+    }
+
+    /**
+     * 回滚专用：找一个能装下该流体的端口（同种流体优先，否则任意空端口）。
+     *
+     * <p>与 {@link #findAcceptor} 的区别在于允许空端口：这里灌回的是先前从端口抽出、
+     * 因后续步骤失败而必须归还的流体，其原端口可能已被抽空，若同样只认同种流体，
+     * 归还就会失败并凭空丢失流体。</p>
+     *
+     * @param storageId 存储 ID
+     * @param fluid     待灌回的流体
+     * @return 可接收的流体处理器；没有合适端口时返回 {@code null}
+     */
+    @Nullable
+    public static IFluidHandler findRefillTarget(UUID storageId, FluidStack fluid) {
         IFluidHandler emptyAcceptor = null;
         for (StorageFluidPortBlockEntity port : StorageFluidRegistry.livePorts(storageId)) {
             FluidStack stored = port.getFluid();

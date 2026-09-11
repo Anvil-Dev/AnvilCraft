@@ -2620,11 +2620,16 @@ public final class StorageServerStub {
         StorageServerStub.returnItems(player, view, resource.copyWithCount(Math.max(0, count)), false);
     }
 
-    /** 把流体灌回该存储的端口；端口装不下时按实际容量尽力而为。 */
+    /**
+     * 把流体灌回该存储的端口；端口装不下时按实际容量尽力而为。
+     *
+     * <p>灌回的是先前抽出、因后续步骤失败而必须归还的流体，其原端口可能已空，
+     * 故用允许空端口的 {@link StorageFluidRegistry#findRefillTarget}。</p>
+     */
     private static void refillFluid(UUID storageId, FluidStack fluid, int amountMb) {
         int remaining = amountMb;
         while (remaining > 0) {
-            IFluidHandler acceptor = StorageFluidRegistry.findAcceptor(storageId, fluid);
+            IFluidHandler acceptor = StorageFluidRegistry.findRefillTarget(storageId, fluid);
             if (acceptor == null) {
                 return;
             }
