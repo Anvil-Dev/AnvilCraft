@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.integration.iris;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import dev.dubhe.anvilcraft.client.renderer.MunRenderPipeline;
 import dev.dubhe.anvilcraft.client.renderer.MunSkyRenderer;
 import dev.dubhe.anvilcraft.client.support.MunClientSky;
 import dev.dubhe.anvilcraft.worldgen.MunSkyMath;
@@ -16,6 +17,10 @@ import java.util.Objects;
 /** 向光影包提供月球的天体方向与阴影视角，并在最终合成后绘制真空天空。 */
 public final class MunIrisCompat {
     private MunIrisCompat() {
+    }
+
+    public static boolean isEnabled() {
+        return MunRenderPipeline.enabled() && MunClientSky.isMun();
     }
 
     public static Vector4f celestialPosition(boolean sun, boolean cameraSpace) {

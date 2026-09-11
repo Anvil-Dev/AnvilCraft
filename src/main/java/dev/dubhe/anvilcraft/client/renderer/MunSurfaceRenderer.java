@@ -11,9 +11,9 @@ import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.client.event.RegisterShadersEvent;
 import org.lwjgl.opengl.GL11C;
 import org.lwjgl.opengl.GL20C;
 import org.lwjgl.system.MemoryStack;
@@ -30,6 +30,11 @@ public final class MunSurfaceRenderer {
     private static final MunShadowClock SHADOW_CLOCK = new MunShadowClock();
     private static final MunShadowHistory SHADOW_HISTORY = new MunShadowHistory();
     private static long historyGeometryRevision;
+    private static @Nullable ShaderInstance entityShader;
+    private static boolean shadowCapture;
+    private static long frame;
+    private static long terrainUniformFrame = -1;
+    private static long entityUniformFrame = -1;
     private static @Nullable ShaderInstance terrainShader;
     private static @Nullable ShaderInstance shadowShader;
     private static @Nullable ShaderInstance translucentShadowShader;
@@ -44,26 +49,25 @@ public final class MunSurfaceRenderer {
     private MunSurfaceRenderer() {
     }
 
-    public static void registerShaders(RegisterShadersEvent event) throws IOException {
+    static void registerShaders(MunShaderRegistration shaders) throws IOException {
+        shaders.add("mun_terrain", DefaultVertexFormat.BLOCK, instance -> terrainShader = instance);
+        shaders.add("mun_shadow", DefaultVertexFormat.POSITION_TEX_COLOR, instance -> shadowShader = instance);
+        shaders.add("mun_translucent_shadow", DefaultVertexFormat.POSITION_TEX_COLOR, instance -> translucentShadowShader = instance);
+        shaders.add("mun_entity", DefaultVertexFormat.NEW_ENTITY, instance -> entityShader = instance);
+        MunPostProcessing.registerShaders(shaders);
+    }
+
+    static void resetShaders() {
+        terrainShader = null;
+        shadowShader = null;
+        translucentShadowShader = null;
+        entityShader = null;
+        MunPostProcessing.resetShader();
         clear();
-        event.registerShader(
-            new ShaderInstance(event.getResourceProvider(), AnvilCraft.of("mun_terrain"), DefaultVertexFormat.BLOCK),
-            instance -> terrainShader = instance
-        );
-        event.registerShader(
-            new ShaderInstance(event.getResourceProvider(), AnvilCraft.of("mun_shadow"), DefaultVertexFormat.POSITION_TEX_COLOR),
-            instance -> shadowShader = instance
-        );
-        event.registerShader(
-            new ShaderInstance(event.getResourceProvider(), AnvilCraft.of("mun_translucent_shadow"),
-                DefaultVertexFormat.POSITION_TEX_COLOR),
-            instance -> translucentShadowShader = instance
-        );
-        MunPostProcessing.registerShaders(event);
     }
 
     public static boolean isLightingEnabled() {
-        return AnvilCraft.CLIENT_CONFIG.munLightingQuality != MunLightingQuality.OFF;
+        return MunRenderPipeline.enabled();
     }
 
     public static boolean usesTerrainShader() {
@@ -72,6 +76,17 @@ public final class MunSurfaceRenderer {
     }
 
     public static void setupSodiumUniforms() {
+        if (!MunRenderPipeline.requested()) return;
+        try {
+            applySodiumUniforms();
+        } catch (RuntimeException exception) {
+            MunRenderPipeline.fail();
+            int program = GL20C.glGetInteger(GL20C.GL_CURRENT_PROGRAM);
+            if (program != 0) GL20C.glUniform1i(GL20C.glGetUniformLocation(program, "MunEnabled"), 0);
+        }
+    }
+
+    private static void applySodiumUniforms() {
         int program = GL20C.glGetInteger(GL20C.GL_CURRENT_PROGRAM);
         if (program == 0) return;
         int enabled = GL20C.glGetUniformLocation(program, "MunEnabled");
@@ -122,8 +137,39 @@ public final class MunSurfaceRenderer {
 
     public static @Nullable ShaderInstance terrain(@Nullable ShaderInstance original, float alphaCutoff) {
         ShaderInstance shader = terrainShader;
-        if (shader == null || !worldPass || !usesTerrainShader()) return original;
-        if (!terrainPass) shader.safeGetUniform("ChunkOffset").set(0.0F, 0.0F, 0.0F);
+        if (shader == null || !worldPass || shadowCapture || !usesTerrainShader()) return original;
+        try {
+            if (!terrainPass) shader.safeGetUniform("ChunkOffset").set(0.0F, 0.0F, 0.0F);
+            if (terrainUniformFrame != frame) {
+                applySurfaceUniforms(shader);
+                terrainUniformFrame = frame;
+            }
+            shader.safeGetUniform("AlphaCutoff").set(alphaCutoff);
+            return shader;
+        } catch (RuntimeException exception) {
+            MunRenderPipeline.fail();
+            return original;
+        }
+    }
+
+    public static @Nullable ShaderInstance entity(@Nullable ShaderInstance original, float alphaCutoff, int overlayMode) {
+        ShaderInstance shader = entityShader;
+        if (shader == null || !worldPass || shadowCapture || !usesTerrainShader()) return original;
+        try {
+            if (entityUniformFrame != frame) {
+                applySurfaceUniforms(shader);
+                entityUniformFrame = frame;
+            }
+            shader.safeGetUniform("AlphaCutoff").set(alphaCutoff);
+            shader.safeGetUniform("OverlayMode").set(overlayMode);
+            return shader;
+        } catch (RuntimeException exception) {
+            MunRenderPipeline.fail();
+            return original;
+        }
+    }
+
+    private static void applySurfaceUniforms(ShaderInstance shader) {
         SOLAR.apply(shader);
         SHADOW_SOLAR.applyShadow(shader);
         SHADOW_HISTORY.apply(shader, BlockPos.containing(renderOrigin));
@@ -143,8 +189,14 @@ public final class MunSurfaceRenderer {
                 SHADOW_MAP.span(index) / 2, SHADOW_MAP.span(index) / MunShadowProjection.DEPTH, 0, 0
             );
         }
-        shader.safeGetUniform("AlphaCutoff").set(alphaCutoff);
-        return shader;
+    }
+
+    static void beginShadowCapture() {
+        shadowCapture = true;
+    }
+
+    static void endShadowCapture() {
+        shadowCapture = false;
     }
 
     private static Vec3 relativeCamera() {
@@ -153,6 +205,16 @@ public final class MunSurfaceRenderer {
     }
 
     public static void prepareShadows() {
+        if (!isLightingEnabled()) return;
+        try {
+            prepareShadowResources();
+        } catch (RuntimeException exception) {
+            MunRenderPipeline.fail();
+            MunRenderPipeline.release(MunSurfaceRenderer::clear);
+        }
+    }
+
+    private static void prepareShadowResources() {
         Minecraft minecraft = Minecraft.getInstance();
         ClientLevel level = minecraft.level;
         ShaderInstance shader = shadowShader;
@@ -201,29 +263,52 @@ public final class MunSurfaceRenderer {
     public static void postProcess(org.joml.Matrix4f projection) {
         if (!postProcessed && usesTerrainShader()) {
             postProcessed = true;
-            MunPostProcessing.render(projection, profile, 1);
+            try {
+                MunPostProcessing.render(projection, profile, 1);
+            } catch (RuntimeException exception) {
+                MunRenderPipeline.fail();
+                MunRenderPipeline.release(MunSurfaceRenderer::clear);
+            }
         }
     }
 
     public static void onBlockChanged(ClientLevel level, BlockPos pos, BlockState previous, BlockState state) {
+        if (!isLightingEnabled()) return;
         SHADOW_MAP.blockChanged(level, pos, previous, state);
     }
 
+    public static void onModelDataChanged(BlockEntity entity) {
+        if (!isLightingEnabled()) return;
+        if (entity.getLevel() != Minecraft.getInstance().level || !MunClientSky.isMun()) return;
+        BlockPos pos = entity.getBlockPos();
+        for (int z = (pos.getZ() - 1) >> 4; z <= (pos.getZ() + 1) >> 4; z++) {
+            for (int x = (pos.getX() - 1) >> 4; x <= (pos.getX() + 1) >> 4; x++) {
+                SHADOW_MAP.chunkChanged(new ChunkPos(x, z));
+            }
+        }
+    }
+
     public static void onChunkChanged(ChunkPos pos) {
+        if (!isLightingEnabled()) return;
         SHADOW_MAP.chunkChanged(pos);
     }
 
     public static void clear() {
-        SHADOW_HISTORY.close();
+        MunRenderPipeline.release(SHADOW_HISTORY::close);
         SHADOW_CLOCK.clear();
-        SHADOW_MAP.close();
-        MunPostProcessing.clear();
+        MunRenderPipeline.release(SHADOW_MAP::close);
+        MunRenderPipeline.release(MunPostProcessing::clear);
         terrainPass = false;
         worldPass = false;
+        shadowCapture = false;
+        terrainUniformFrame = -1;
+        entityUniformFrame = -1;
     }
 
     public static void beginWorld() {
         updateQuality();
+        if (!isLightingEnabled()) return;
+        frame++;
         worldPass = true;
         postProcessed = false;
     }
@@ -231,28 +316,24 @@ public final class MunSurfaceRenderer {
     private static void updateQuality() {
         MunLightingQuality configured = AnvilCraft.CLIENT_CONFIG.munLightingQuality;
         if (configured == quality) return;
-        final boolean rebuild = (configured == MunLightingQuality.OFF) != (quality == MunLightingQuality.OFF);
         quality = configured;
         profile = MunLightingProfile.of(configured);
-        SHADOW_MAP.close();
-        SHADOW_HISTORY.close();
-        SHADOW_CLOCK.clear();
-        MunPostProcessing.clear();
-        if (rebuild && MunClientSky.isMun()) {
-            Minecraft minecraft = Minecraft.getInstance();
-            minecraft.levelRenderer.allChanged();
-            minecraft.gameRenderer.lightTexture().tick();
-        }
+        clear();
     }
 
     public static void endWorld() {
-        SHADOW_HISTORY.end();
+        if (!worldPass) return;
+        try {
+            SHADOW_HISTORY.end();
+        } catch (RuntimeException exception) {
+            MunRenderPipeline.fail();
+        }
         worldPass = false;
         terrainPass = false;
     }
 
     public static void beginTerrain() {
-        terrainPass = true;
+        terrainPass = isLightingEnabled();
     }
 
     public static void endTerrain() {

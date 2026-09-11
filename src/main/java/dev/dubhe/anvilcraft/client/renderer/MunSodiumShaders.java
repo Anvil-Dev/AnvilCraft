@@ -14,6 +14,7 @@ public final class MunSodiumShaders {
     }
 
     public static String patch(String source, ResourceLocation name) {
+        if (!MunRenderPipeline.requested()) return source;
         if (!name.getPath().startsWith("blocks/block_layer_opaque.")) return source;
         return patch(source, name.getNamespace(), name.getPath(), name.getPath().endsWith(".fsh") ? surfaceSource() : "");
     }

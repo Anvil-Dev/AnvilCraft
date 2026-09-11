@@ -2,7 +2,7 @@ package dev.dubhe.anvilcraft.client.event;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.client.renderer.MunDimensionEffects;
-import dev.dubhe.anvilcraft.client.renderer.MunSkyRenderer;
+import dev.dubhe.anvilcraft.client.renderer.MunRenderPipeline;
 import dev.dubhe.anvilcraft.client.renderer.MunSurfaceRenderer;
 import dev.dubhe.anvilcraft.client.support.MunClientSky;
 import net.minecraft.client.Minecraft;
@@ -19,8 +19,6 @@ import net.neoforged.neoforge.client.event.RegisterShadersEvent;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
 import net.neoforged.neoforge.client.event.ViewportEvent;
 
-import java.io.IOException;
-
 @EventBusSubscriber(modid = AnvilCraft.MOD_ID, value = Dist.CLIENT)
 public final class MunSkyEventListener {
     private MunSkyEventListener() {
@@ -32,9 +30,8 @@ public final class MunSkyEventListener {
     }
 
     @SubscribeEvent
-    public static void registerShaders(RegisterShadersEvent event) throws IOException {
-        MunSkyRenderer.registerShaders(event);
-        MunSurfaceRenderer.registerShaders(event);
+    public static void registerShaders(RegisterShadersEvent event) {
+        MunRenderPipeline.registerShaders(event);
     }
 
     @SubscribeEvent
@@ -44,6 +41,7 @@ public final class MunSkyEventListener {
 
     @SubscribeEvent
     public static void fogColor(ViewportEvent.ComputeFogColor event) {
+        if (!MunRenderPipeline.enabled()) return;
         if (!MunClientSky.isMun() || event.getCamera().getFluidInCamera() != FogType.NONE) return;
         event.setRed(0);
         event.setGreen(0);
@@ -52,6 +50,7 @@ public final class MunSkyEventListener {
 
     @SubscribeEvent
     public static void fogDistance(ViewportEvent.RenderFog event) {
+        if (!MunRenderPipeline.enabled()) return;
         if (!MunClientSky.isMun() || event.getType() != FogType.NONE) return;
         if (event.getCamera().getEntity() instanceof LivingEntity living
             && (living.hasEffect(MobEffects.BLINDNESS) || living.hasEffect(MobEffects.DARKNESS))) return;
@@ -64,6 +63,7 @@ public final class MunSkyEventListener {
 
     @SubscribeEvent
     public static void tick(ClientTickEvent.Post event) {
+        MunRenderPipeline.tick();
         if (!MunClientSky.isMun()) {
             MunSurfaceRenderer.clear();
             MunClientSky.clear();

@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.client.renderer;
 
 import dev.dubhe.anvilcraft.worldgen.MunSkyMath;
 import net.minecraft.client.renderer.ShaderInstance;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.lwjgl.opengl.GL20C;
 
@@ -17,12 +18,14 @@ final class MunSolarLighting {
     private float eclipseCoverage;
     private Vec3 origin = Vec3.ZERO;
     private long shadowRevision;
+    private double directionGradient = 4 / MunSkyMath.NEAR_SIDE_HALF_SIZE;
 
     void update(long dayTime, double partialTick, Vec3 origin) {
         this.origin = origin;
         MunSkyMath.Vector reference = MunSkyMath.referenceSun(dayTime, partialTick);
         boolean changed = !this.reference.equals(reference);
         this.reference = reference;
+        double horizonLength = 0;
         for (int index = 0; index < 8; index++) {
             MunSkyMath.Vector corner = MunSkyMath.atmosphereCorner(index, dayTime, partialTick);
             double x = corner.x() / corner.y();
@@ -30,7 +33,10 @@ final class MunSolarLighting {
             changed |= this.horizon[index * 2] != x || this.horizon[index * 2 + 1] != z;
             this.horizon[index * 2] = x;
             this.horizon[index * 2 + 1] = z;
+            horizonLength = Math.max(horizonLength, Math.hypot(x, z));
         }
+        this.directionGradient = 4 * (Math.sqrt(1 + horizonLength * horizonLength) + 2 * horizonLength)
+            / MunSkyMath.NEAR_SIDE_HALF_SIZE;
         if (changed) this.shadowRevision++;
         this.eclipse = MunSkyMath.solarOcclusion(dayTime, partialTick);
         double area = 0;
@@ -68,6 +74,40 @@ final class MunSolarLighting {
         MunSkyMath.Vector sun = this.direction(position.x, position.z);
         double height = (position.y - REFERENCE_HEIGHT) / Math.max(sun.y(), MIN_SOLAR_HEIGHT);
         return position.add(-sun.x() * height, 0, -sun.z() * height);
+    }
+
+    AABB projectBounds(AABB bounds) {
+        Vec3 center = bounds.getCenter();
+        MunSkyMath.Vector sun = this.direction(center.x, center.z);
+        double coordinate = Math.max(Math.abs(center.x), Math.abs(center.z));
+        double radius = Math.hypot(bounds.getXsize(), bounds.getZsize()) / 2 + 4 * Math.ulp((float) coordinate);
+        // H 为最大 horizon 长度，F = sqrt(1 + H²) + H；立体投影参数梯度不超过 2(F + H)/2048。
+        // 旋转后的单位光线变化不超过参数变化的两倍。
+        // 加入浮点余量；不能只投影角点，因为区块内部的太阳方向也在变化。
+        double error = Math.min(2, this.directionGradient * radius) + 1.0E-5;
+        double minDenominator = Math.max(MIN_SOLAR_HEIGHT, sun.y() - error);
+        double maxDenominator = Math.max(MIN_SOLAR_HEIGHT, sun.y() + error);
+        double low = bounds.minY - REFERENCE_HEIGHT;
+        double high = bounds.maxY - REFERENCE_HEIGHT;
+        double minHeight = Math.min(low / minDenominator, low / maxDenominator);
+        double maxHeight = Math.max(high / minDenominator, high / maxDenominator);
+        AABB projected = new AABB(
+            bounds.minX - maxProduct(sun.x() - error, sun.x() + error, minHeight, maxHeight), bounds.minY,
+            bounds.minZ - maxProduct(sun.z() - error, sun.z() + error, minHeight, maxHeight),
+            bounds.maxX - minProduct(sun.x() - error, sun.x() + error, minHeight, maxHeight), bounds.maxY,
+            bounds.maxZ - minProduct(sun.z() - error, sun.z() + error, minHeight, maxHeight)
+        );
+        double extent = Math.max(Math.max(Math.abs(projected.minX), Math.abs(projected.maxX)),
+            Math.max(Math.abs(projected.minZ), Math.abs(projected.maxZ)));
+        return projected.inflate(0.01 + 8 * Math.ulp((float) extent));
+    }
+
+    private static double minProduct(double minA, double maxA, double minB, double maxB) {
+        return Math.min(Math.min(minA * minB, minA * maxB), Math.min(maxA * minB, maxA * maxB));
+    }
+
+    private static double maxProduct(double minA, double maxA, double minB, double maxB) {
+        return Math.max(Math.max(minA * minB, minA * maxB), Math.max(maxA * minB, maxA * maxB));
     }
 
     void origin(ShaderInstance shader, Vec3 origin) {

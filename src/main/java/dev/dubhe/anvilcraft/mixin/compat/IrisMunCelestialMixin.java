@@ -13,32 +13,32 @@ import org.spongepowered.asm.mixin.injection.At;
 abstract class IrisMunCelestialMixin {
     @ModifyReturnValue(method = "getSunAngle", at = @At("RETURN"))
     private static float anvilcraft$localSunAngle(float original) {
-        return MunClientSky.isMun() ? MunIrisCompat.sunAngle() : original;
+        return MunIrisCompat.isEnabled() ? MunIrisCompat.sunAngle() : original;
     }
 
     @ModifyReturnValue(method = "isDay", at = @At("RETURN"))
     private static boolean anvilcraft$localDaylight(boolean original) {
         var level = Minecraft.getInstance().level;
-        return level != null && MunClientSky.isMun() ? MunClientSky.sunlight(level) > 0 : original;
+        return level != null && MunIrisCompat.isEnabled() ? MunClientSky.sunlight(level) > 0 : original;
     }
 
     @ModifyReturnValue(method = "getCelestialPosition", at = @At("RETURN"))
     private Vector4f anvilcraft$localCelestialPosition(Vector4f original, float y) {
-        return MunClientSky.isMun() ? MunIrisCompat.celestialPosition(y > 0, true) : original;
+        return MunIrisCompat.isEnabled() ? MunIrisCompat.celestialPosition(y > 0, true) : original;
     }
 
     @ModifyReturnValue(method = "getCelestialPositionInWorldSpace", at = @At("RETURN"))
     private Vector4f anvilcraft$worldCelestialPosition(Vector4f original, float y) {
-        return MunClientSky.isMun() ? MunIrisCompat.celestialPosition(y > 0, false) : original;
+        return MunIrisCompat.isEnabled() ? MunIrisCompat.celestialPosition(y > 0, false) : original;
     }
 
     @ModifyReturnValue(method = "getShadowLightPosition", at = @At("RETURN"))
     private Vector4f anvilcraft$shadowLightPosition(Vector4f original) {
-        return MunClientSky.isMun() ? MunIrisCompat.celestialPosition(true, true) : original;
+        return MunIrisCompat.isEnabled() ? MunIrisCompat.celestialPosition(true, true) : original;
     }
 
     @ModifyReturnValue(method = "getShadowLightPositionInWorldSpace", at = @At("RETURN"))
     private Vector4f anvilcraft$worldShadowLightPosition(Vector4f original) {
-        return MunClientSky.isMun() ? MunIrisCompat.celestialPosition(true, false) : original;
+        return MunIrisCompat.isEnabled() ? MunIrisCompat.celestialPosition(true, false) : original;
     }
 }

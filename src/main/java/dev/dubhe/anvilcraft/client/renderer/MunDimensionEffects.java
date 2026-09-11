@@ -69,7 +69,6 @@ public final class MunDimensionEffects extends DimensionSpecialEffects {
         if (!MunSurfaceRenderer.isLightingEnabled()) return;
         float block = LightTexture.getBrightness(level.dimensionType(), pixelX) * blockLightRedFlicker;
         colors.set(block, block * ((block * 0.6F + 0.4F) * 0.6F + 0.4F), block * (block * block * 0.6F + 0.4F));
-        // 以接近末地的基础亮度保证背光面可读，天空仍然保持真空背景。
         colors.add(0.26F, 0.28F, 0.30F);
         if (pixelY == 15) colors.add(MunClientSky.sunlight(level), MunClientSky.sunlight(level), MunClientSky.sunlight(level));
     }

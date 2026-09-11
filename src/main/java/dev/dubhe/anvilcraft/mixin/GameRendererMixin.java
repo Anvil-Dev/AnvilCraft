@@ -44,6 +44,38 @@ abstract class GameRendererMixin {
         return MunSurfaceRenderer.terrain(original, 0.1F);
     }
 
+    @ModifyReturnValue(method = "getRendertypeEntitySolidShader", at = @At("RETURN"))
+    private static @Nullable ShaderInstance anvilcraft$munEntitySolid(@Nullable ShaderInstance original) {
+        return MunSurfaceRenderer.entity(original, 0, 1);
+    }
+
+    @ModifyReturnValue(method = {
+        "getRendertypeEntityCutoutShader", "getRendertypeEntityCutoutNoCullShader",
+        "getRendertypeEntityCutoutNoCullZOffsetShader", "getRendertypeEntityTranslucentShader",
+        "getRendertypeEntitySmoothCutoutShader"
+    }, at = @At("RETURN"))
+    private static @Nullable ShaderInstance anvilcraft$munEntityCutout(@Nullable ShaderInstance original) {
+        return MunSurfaceRenderer.entity(original, 0.1F, 1);
+    }
+
+    @ModifyReturnValue(method = {
+        "getRendertypeArmorCutoutNoCullShader", "getRendertypeItemEntityTranslucentCullShader",
+        "getRendertypeEntityTranslucentCullShader"
+    }, at = @At("RETURN"))
+    private static @Nullable ShaderInstance anvilcraft$munEquipment(@Nullable ShaderInstance original) {
+        return MunSurfaceRenderer.entity(original, 0.1F, 0);
+    }
+
+    @ModifyReturnValue(method = "getRendertypeEntityNoOutlineShader", at = @At("RETURN"))
+    private static @Nullable ShaderInstance anvilcraft$munEntityNoOutline(@Nullable ShaderInstance original) {
+        return MunSurfaceRenderer.entity(original, 0, 0);
+    }
+
+    @ModifyReturnValue(method = "getRendertypeEntityDecalShader", at = @At("RETURN"))
+    private static @Nullable ShaderInstance anvilcraft$munEntityDecal(@Nullable ShaderInstance original) {
+        return MunSurfaceRenderer.entity(original, 0.1F, 2);
+    }
+
     @Inject(
         method = "reloadShaders",
         at = @At(

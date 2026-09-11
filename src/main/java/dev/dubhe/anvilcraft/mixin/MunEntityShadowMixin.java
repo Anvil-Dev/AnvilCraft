@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.mixin;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.client.renderer.MunSurfaceRenderer;
 import dev.dubhe.anvilcraft.client.support.MunClientSky;
 import dev.dubhe.anvilcraft.config.AnvilCraftClientConfig.MunLightingQuality;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
@@ -13,6 +14,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 abstract class MunEntityShadowMixin {
     @Inject(method = "renderShadow", at = @At("HEAD"), cancellable = true)
     private static void anvilcraft$hideMunShadow(CallbackInfo ci) {
-        if (MunClientSky.isMun() && AnvilCraft.CLIENT_CONFIG.munLightingQuality == MunLightingQuality.STANDARD) ci.cancel();
+        if (MunClientSky.isMun() && MunSurfaceRenderer.usesTerrainShader()
+            && AnvilCraft.CLIENT_CONFIG.munLightingQuality == MunLightingQuality.STANDARD) ci.cancel();
     }
 }

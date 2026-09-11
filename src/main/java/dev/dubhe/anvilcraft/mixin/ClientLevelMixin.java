@@ -37,7 +37,9 @@ abstract class ClientLevelMixin {
     @ModifyReturnValue(method = "getSkyColor", at = @At("RETURN"))
     private Vec3 anvilcraft$darkenOverworldLikeSkyColor(Vec3 original) {
         ClientLevel level = (ClientLevel) (Object) this;
-        if (level.dimension().equals(CelestialTravelManager.MUN_LEVEL)) return Vec3.ZERO;
+        if (level.dimension().equals(CelestialTravelManager.MUN_LEVEL)) {
+            return MunSurfaceRenderer.isLightingEnabled() ? Vec3.ZERO : original;
+        }
         if (!CelestialTravelManager.isOverworldLike(level.dimension())) return original;
         return original.scale(OverworldLikeClientState.environmentColorMultiplier(level));
     }

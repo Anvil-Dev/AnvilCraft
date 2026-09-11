@@ -2,7 +2,6 @@ package dev.dubhe.anvilcraft.client.renderer;
 
 import dev.dubhe.anvilcraft.config.AnvilCraftClientConfig.MunLightingQuality;
 
-/** 额外帧耗时的设计目标分配到网格构建、阴影和后处理，不把毫秒数当作跨硬件保证。 */
 record MunLightingProfile(
     int cascades, int resolution, int distance, int cacheRadius, int chunkVertices, int cacheVertices,
     int dynamicVertices, int dynamicEntities, int dynamicDistance, long buildBudgetNanos,

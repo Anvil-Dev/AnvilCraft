@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.client.renderer;
 
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
@@ -13,9 +14,11 @@ final class MunShadowProjection {
     private double centerX;
     private double centerZ;
     private float span;
+    private double texel;
 
     boolean update(Vec3 anchor, Vec3 origin, float span, int resolution) {
         double texel = span / resolution;
+        this.texel = texel;
         // 固定亚像素相位，避免锁链等 45 度薄面的边线恰好穿过整行采样中心。
         double x = Math.rint(anchor.x / texel) * texel + texel / 256;
         double z = Math.rint(anchor.z / texel) * texel + texel / 128;
@@ -38,6 +41,14 @@ final class MunShadowProjection {
         return new Vector3f((float) ((origin.x - this.centerX) * 2 / this.span),
             (float) ((this.centerZ - origin.z) * 2 / this.span),
             (float) ((MunSolarLighting.REFERENCE_HEIGHT - origin.y) * 2 / DEPTH));
+    }
+
+    boolean intersects(AABB projectedBounds) {
+        double halfSpan = this.span / 2 + this.texel;
+        return projectedBounds.maxX >= this.centerX - halfSpan && projectedBounds.minX <= this.centerX + halfSpan
+            && projectedBounds.maxZ >= this.centerZ - halfSpan && projectedBounds.minZ <= this.centerZ + halfSpan
+            && projectedBounds.maxY >= MunSolarLighting.REFERENCE_HEIGHT - DEPTH / 2
+            && projectedBounds.minY <= MunSolarLighting.REFERENCE_HEIGHT + DEPTH / 2;
     }
 
     Matrix4f matrix() {

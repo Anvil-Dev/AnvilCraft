@@ -9,9 +9,9 @@ import java.nio.ByteBuffer;
 
 /** 深度贴图；透光投影额外用整数附件保存压缩颜色与 24 位深度。 */
 final class MunShadowTarget implements AutoCloseable {
-    private final int texture;
-    private final int transmission;
-    private final int framebuffer;
+    private int texture;
+    private int transmission;
+    private int framebuffer;
     private final int size;
 
     MunShadowTarget(int size) {
@@ -21,6 +21,22 @@ final class MunShadowTarget implements AutoCloseable {
     MunShadowTarget(int size, boolean translucent) {
         RenderSystem.assertOnRenderThread();
         this.size = Math.min(size, RenderSystem.maxSupportedTextureSize());
+        int drawFramebuffer = GL30C.glGetInteger(GL30C.GL_DRAW_FRAMEBUFFER_BINDING);
+        int readFramebuffer = GL30C.glGetInteger(GL30C.GL_READ_FRAMEBUFFER_BINDING);
+        int binding = GL30C.glGetInteger(GL30C.GL_TEXTURE_BINDING_2D);
+        try {
+            this.allocate(translucent);
+        } catch (RuntimeException exception) {
+            this.close();
+            throw exception;
+        } finally {
+            GlStateManager._glBindFramebuffer(GL30C.GL_DRAW_FRAMEBUFFER, drawFramebuffer);
+            GlStateManager._glBindFramebuffer(GL30C.GL_READ_FRAMEBUFFER, readFramebuffer);
+            GlStateManager._bindTexture(binding);
+        }
+    }
+
+    private void allocate(boolean translucent) {
         this.texture = TextureUtil.generateTextureId();
         this.framebuffer = GlStateManager.glGenFramebuffers();
         GlStateManager._bindTexture(this.texture);
@@ -48,7 +64,6 @@ final class MunShadowTarget implements AutoCloseable {
             GL30C.glDrawBuffer(GL30C.GL_COLOR_ATTACHMENT0);
         }
         if (GL30C.glCheckFramebufferStatus(GL30C.GL_FRAMEBUFFER) != GL30C.GL_FRAMEBUFFER_COMPLETE) {
-            this.close();
             throw new IllegalStateException("Incomplete lunar shadow framebuffer");
         }
     }
@@ -83,8 +98,11 @@ final class MunShadowTarget implements AutoCloseable {
 
     @Override
     public void close() {
-        TextureUtil.releaseTextureId(this.texture);
+        if (this.texture != 0) TextureUtil.releaseTextureId(this.texture);
         if (this.transmission != 0) TextureUtil.releaseTextureId(this.transmission);
-        GlStateManager._glDeleteFramebuffers(this.framebuffer);
+        if (this.framebuffer != 0) GlStateManager._glDeleteFramebuffers(this.framebuffer);
+        this.texture = 0;
+        this.transmission = 0;
+        this.framebuffer = 0;
     }
 }

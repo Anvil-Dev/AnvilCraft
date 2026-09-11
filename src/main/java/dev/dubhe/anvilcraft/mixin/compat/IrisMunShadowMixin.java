@@ -1,7 +1,6 @@
 package dev.dubhe.anvilcraft.mixin.compat;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import dev.dubhe.anvilcraft.client.support.MunClientSky;
 import dev.dubhe.anvilcraft.integration.iris.MunIrisCompat;
 import net.irisshaders.iris.shadows.ShadowMatrices;
 import org.spongepowered.asm.mixin.Mixin;
@@ -15,7 +14,7 @@ abstract class IrisMunShadowMixin {
     private static void anvilcraft$localShadowView(
         PoseStack target, float shadowAngle, float sunPathRotation, float nearPlane, float farPlane, CallbackInfo ci
     ) {
-        if (!MunClientSky.isMun()) return;
+        if (!MunIrisCompat.isEnabled()) return;
         MunIrisCompat.shadowView(target);
         ci.cancel();
     }

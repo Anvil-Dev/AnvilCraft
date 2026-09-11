@@ -70,8 +70,9 @@ public class AnvilCraftClientConfig {
 
     @Comment("Lunar lighting: Potato uses Standard lighting and ambient occlusion without custom shadows, "
         + "retaining vanilla entity shadows; "
-        + "Standard adds terrain, animated entity, and colored translucent shadows; Off uses vanilla lighting, ambient occlusion, "
-        + "and entity shadows. Shadow range is limited by render distance.")
+        + "Standard adds terrain, animated entity, and colored translucent shadows; Off uses the vanilla rendering pipeline "
+        + "without lunar shaders, retaining the cloudless lunar sky, Earth and moving stars. "
+        + "Rendering failures switch this setting to Off. Shadow range is limited by render distance.")
     public MunLightingQuality munLightingQuality = MunLightingQuality.STANDARD;
 
     @CollapsibleObject

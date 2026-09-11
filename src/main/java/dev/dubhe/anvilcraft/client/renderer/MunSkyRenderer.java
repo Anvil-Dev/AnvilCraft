@@ -17,7 +17,6 @@ import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.material.FogType;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.client.event.RegisterShadersEvent;
 import org.joml.Matrix4f;
 import org.lwjgl.opengl.GL11;
 
@@ -32,28 +31,46 @@ public final class MunSkyRenderer {
     private MunSkyRenderer() {
     }
 
-    public static void registerShaders(RegisterShadersEvent event) throws IOException {
-        event.registerShader(
-            new ShaderInstance(event.getResourceProvider(), AnvilCraft.of("mun_sky"), DefaultVertexFormat.POSITION),
-            instance -> shader = instance
-        );
+    static void registerShaders(MunShaderRegistration shaders) throws IOException {
+        shaders.add("mun_sky", DefaultVertexFormat.POSITION, instance -> shader = instance);
+    }
+
+    static void resetShader() {
+        shader = null;
     }
 
     public static void render(ClientLevel level, float partialTick, Matrix4f view, Camera camera, Matrix4f projection) {
-        drawSky(level, partialTick, view, camera, projection, false);
+        renderSafely(level, partialTick, view, camera, projection, false);
     }
 
     public static void renderBackground(ClientLevel level, float partialTick, Matrix4f view, Camera camera, Matrix4f projection) {
-        drawSky(level, partialTick, view, camera, projection, true);
+        renderSafely(level, partialTick, view, camera, projection, true);
+    }
+
+    private static void renderSafely(
+        ClientLevel level, float partialTick, Matrix4f view, Camera camera, Matrix4f projection, boolean backgroundOnly
+    ) {
+        if (camera.getFluidInCamera() != FogType.NONE) return;
+        if (camera.getEntity() instanceof LivingEntity living
+            && (living.hasEffect(MobEffects.BLINDNESS) || living.hasEffect(MobEffects.DARKNESS))) return;
+        if (MunRenderPipeline.enabled() && shader != null) {
+            try {
+                drawSky(level, partialTick, view, camera, projection, backgroundOnly);
+                return;
+            } catch (RuntimeException exception) {
+                MunRenderPipeline.fail();
+            }
+        }
+        Vec3 position = camera.getPosition();
+        MunVanillaSkyRenderer.render(position.x, position.z, level.getDayTime(), MunClientSky.partialDayTime(level, partialTick),
+            MunClientSky.sunlight(level), view, projection);
     }
 
     private static void drawSky(
         ClientLevel level, float partialTick, Matrix4f view, Camera camera, Matrix4f projection, boolean backgroundOnly
     ) {
         ShaderInstance skyShader = shader;
-        if (skyShader == null || camera.getFluidInCamera() != FogType.NONE) return;
-        if (camera.getEntity() instanceof LivingEntity living
-            && (living.hasEffect(MobEffects.BLINDNESS) || living.hasEffect(MobEffects.DARKNESS))) return;
+        if (skyShader == null) return;
         Vec3 position = camera.getPosition();
         long dayTime = level.getDayTime();
         double partialTime = MunClientSky.partialDayTime(level, partialTick);
@@ -70,22 +87,36 @@ public final class MunSkyRenderer {
         skyShader.safeGetUniform("AtmosphereThickness").set((float) MunSkyMath.EARTH_ATMOSPHERE_THICKNESS);
         skyShader.safeGetUniform("SunHalfSize").set((float) MunSkyMath.SUN_HALF_SIZE);
         skyShader.safeGetUniform("Daylight").set(MunClientSky.sunlight(level));
-        RenderSystem.setShaderTexture(0, EARTH_TEXTURE);
-        RenderSystem.setShaderTexture(1, SUN_TEXTURE);
-        RenderSystem.setShader(() -> skyShader);
-        RenderSystem.disableBlend();
-        RenderSystem.depthMask(false);
-        if (backgroundOnly) {
-            RenderSystem.enableDepthTest();
-            RenderSystem.depthFunc(GL11.GL_LEQUAL);
-        } else {
-            RenderSystem.disableDepthTest();
-        }
+        ShaderInstance previous = RenderSystem.getShader();
+        int texture0 = RenderSystem.getShaderTexture(0);
+        int texture1 = RenderSystem.getShaderTexture(1);
+        boolean blend = GL11.glIsEnabled(GL11.GL_BLEND);
+        boolean depthTest = GL11.glIsEnabled(GL11.GL_DEPTH_TEST);
+        boolean depthMask = GL11.glGetBoolean(GL11.GL_DEPTH_WRITEMASK);
+        int depthFunction = GL11.glGetInteger(GL11.GL_DEPTH_FUNC);
         try {
+            RenderSystem.setShaderTexture(0, EARTH_TEXTURE);
+            RenderSystem.setShaderTexture(1, SUN_TEXTURE);
+            RenderSystem.setShader(() -> skyShader);
+            RenderSystem.disableBlend();
+            RenderSystem.depthMask(false);
+            if (backgroundOnly) {
+                RenderSystem.enableDepthTest();
+                RenderSystem.depthFunc(GL11.GL_LEQUAL);
+            } else {
+                RenderSystem.disableDepthTest();
+            }
             drawScreenQuad();
         } finally {
-            RenderSystem.enableDepthTest();
-            RenderSystem.depthMask(true);
+            RenderSystem.setShader(() -> previous);
+            RenderSystem.setShaderTexture(0, texture0);
+            RenderSystem.setShaderTexture(1, texture1);
+            if (blend) RenderSystem.enableBlend();
+            else RenderSystem.disableBlend();
+            if (depthTest) RenderSystem.enableDepthTest();
+            else RenderSystem.disableDepthTest();
+            RenderSystem.depthMask(depthMask);
+            RenderSystem.depthFunc(depthFunction);
         }
     }
 

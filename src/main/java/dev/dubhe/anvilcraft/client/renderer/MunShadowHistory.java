@@ -54,15 +54,13 @@ final class MunShadowHistory implements AutoCloseable {
                     for (int texture : this.textures) {
                         GlStateManager._glFramebufferTexture2D(GL30C.GL_DRAW_FRAMEBUFFER, GL30C.GL_COLOR_ATTACHMENT0,
                             GL30C.GL_TEXTURE_2D, texture, 0);
+                        this.checkFramebuffer();
                         GL30C.glClearBufferiv(GL30C.GL_COLOR, 0, new int[4]);
                     }
                     GlStateManager._glFramebufferTexture2D(GL30C.GL_DRAW_FRAMEBUFFER, GL30C.GL_COLOR_ATTACHMENT0,
                         GL30C.GL_TEXTURE_2D, this.claims, 0);
                     GL30C.glDrawBuffer(GL30C.GL_COLOR_ATTACHMENT0);
-                    if (GL30C.glCheckFramebufferStatus(GL30C.GL_DRAW_FRAMEBUFFER) != GL30C.GL_FRAMEBUFFER_COMPLETE) {
-                        this.close();
-                        throw new IllegalStateException("Incomplete lunar shadow history framebuffer");
-                    }
+                    this.checkFramebuffer();
                 }
                 GlStateManager._disableScissorTest();
                 GlStateManager._glBindFramebuffer(GL30C.GL_DRAW_FRAMEBUFFER, this.framebuffer);
@@ -101,6 +99,12 @@ final class MunShadowHistory implements AutoCloseable {
         GlStateManager._texParameter(GL30C.GL_TEXTURE_2D, GL30C.GL_TEXTURE_MIN_FILTER, GL30C.GL_NEAREST);
         GlStateManager._texParameter(GL30C.GL_TEXTURE_2D, GL30C.GL_TEXTURE_MAG_FILTER, GL30C.GL_NEAREST);
         return texture;
+    }
+
+    private void checkFramebuffer() {
+        if (GL30C.glCheckFramebufferStatus(GL30C.GL_DRAW_FRAMEBUFFER) != GL30C.GL_FRAMEBUFFER_COMPLETE) {
+            throw new IllegalStateException("Incomplete lunar shadow history framebuffer");
+        }
     }
 
     void apply(ShaderInstance shader, BlockPos origin) {

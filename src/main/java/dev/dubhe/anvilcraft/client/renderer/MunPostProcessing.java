@@ -1,14 +1,11 @@
 package dev.dubhe.anvilcraft.client.renderer;
 
 import com.mojang.blaze3d.pipeline.RenderTarget;
-import com.mojang.blaze3d.pipeline.TextureTarget;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
-import dev.dubhe.anvilcraft.AnvilCraft;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.ShaderInstance;
-import net.neoforged.neoforge.client.event.RegisterShadersEvent;
 import org.joml.Matrix4f;
 import org.lwjgl.opengl.GL11C;
 import org.lwjgl.opengl.GL14C;
@@ -24,16 +21,18 @@ import javax.annotation.Nullable;
 /** 在不透明物体之后合成 AO 和炫光，保留主缓冲深度及 alpha，透明物体随后正常绘制。 */
 final class MunPostProcessing {
     private static @Nullable ShaderInstance shader;
-    private static @Nullable TextureTarget first;
-    private static @Nullable TextureTarget second;
+    private static @Nullable RenderTarget first;
+    private static @Nullable RenderTarget second;
 
     private MunPostProcessing() {
     }
 
-    static void registerShaders(RegisterShadersEvent event) throws IOException {
-        clear();
-        event.registerShader(new ShaderInstance(event.getResourceProvider(), AnvilCraft.of("mun_post"), DefaultVertexFormat.POSITION),
-            instance -> shader = instance);
+    static void registerShaders(MunShaderRegistration shaders) throws IOException {
+        shaders.add("mun_post", DefaultVertexFormat.POSITION, instance -> shader = instance);
+    }
+
+    static void resetShader() {
+        shader = null;
     }
 
     static void render(Matrix4f projection, MunLightingProfile profile, float sunlight) {
@@ -68,8 +67,8 @@ final class MunPostProcessing {
             try {
                 if (first == null || second == null || first.width != width || first.height != height) {
                     clear();
-                    first = new TextureTarget(width, height, false, Minecraft.ON_OSX);
-                    second = new TextureTarget(width, height, false, Minecraft.ON_OSX);
+                    first = new EffectTarget(width, height);
+                    second = new EffectTarget(width, height);
                     first.setFilterMode(GL11C.GL_LINEAR);
                     second.setFilterMode(GL11C.GL_LINEAR);
                 }
@@ -140,5 +139,17 @@ final class MunPostProcessing {
         if (second != null) second.destroyBuffers();
         first = null;
         second = null;
+    }
+
+    private static final class EffectTarget extends RenderTarget {
+        private EffectTarget(int width, int height) {
+            super(false);
+            try {
+                this.resize(width, height, Minecraft.ON_OSX);
+            } catch (RuntimeException exception) {
+                this.destroyBuffers();
+                throw exception;
+            }
+        }
     }
 }

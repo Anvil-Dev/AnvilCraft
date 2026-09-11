@@ -116,7 +116,7 @@ final class MunShadowMesh implements AutoCloseable {
             }
             return true;
         }
-        if (!(model instanceof SimpleBakedModel)) return false;
+        if (model.getClass() != SimpleBakedModel.class) return false;
         int faces = 0;
         RandomSource random = RandomSource.create(0);
         for (int side = 0; side <= 6; side++) {
@@ -203,27 +203,25 @@ final class MunShadowMesh implements AutoCloseable {
             return this.limit - this.count;
         }
 
-        void model(BakedModel model, BlockState state, BlockPos pos, Vec3 offset, boolean opaque) {
-            this.model(model, state, pos, offset, opaque, null);
-        }
-
-        void model(BakedModel model, BlockState state, BlockPos pos, Vec3 offset, boolean opaque, @Nullable BlockAndTintGetter level) {
-            List<BakedQuad> quads = model instanceof SimpleBakedModel ? MODELS.getIfPresent(state) : null;
+        void model(BakedModel model, BlockState state, BlockPos pos, Vec3 offset, boolean opaque,
+                   BlockAndTintGetter level, boolean transmission) {
+            ModelData modelData = model.getModelData(level, pos, state, level.getModelData(pos));
+            boolean cacheable = model.getClass() == SimpleBakedModel.class && modelData == ModelData.EMPTY;
+            List<BakedQuad> quads = cacheable ? MODELS.getIfPresent(state) : null;
             if (quads == null) {
                 quads = new ArrayList<>();
-                RandomSource random = RandomSource.create();
-                for (int side = 0; side <= 6; side++) {
-                    random.setSeed(state.getSeed(pos));
-                    List<BakedQuad> faces = model.getQuads(
-                        state, side == 6 ? null : Direction.from3DDataValue(side), random, ModelData.EMPTY, null
-                    );
-                    if (quads.size() + faces.size() > MAX_MODEL_QUADS) {
-                        if (model instanceof SimpleBakedModel) MODELS.put(state, List.of());
-                        return;
+                RandomSource random = RandomSource.create(state.getSeed(pos));
+                for (RenderType layer : model.getRenderTypes(state, random, modelData)) {
+                    for (int side = 0; side <= 6; side++) {
+                        random.setSeed(state.getSeed(pos));
+                        List<BakedQuad> faces = model.getQuads(
+                            state, side == 6 ? null : Direction.from3DDataValue(side), random, modelData, layer
+                        );
+                        if (quads.size() + faces.size() > MAX_MODEL_QUADS) return;
+                        quads.addAll(faces);
                     }
-                    quads.addAll(faces);
                 }
-                if (model instanceof SimpleBakedModel) MODELS.put(state, List.copyOf(quads));
+                if (cacheable) MODELS.put(state, List.copyOf(quads));
             }
             if (quads.isEmpty() || this.count + quads.size() * 6 > this.limit) return;
             for (BakedQuad quad : quads) {
@@ -238,7 +236,7 @@ final class MunShadowMesh implements AutoCloseable {
                     int index = vertex * stride;
                     int packed = data[index + 3];
                     int color = (packed & 0xFF000000) | (solid ? 0xFF0000 : 0);
-                    if (level != null) {
+                    if (transmission) {
                         int tint = quad.isTinted()
                             ? Minecraft.getInstance().getBlockColors().getColor(state, level, pos, quad.getTintIndex()) : -1;
                         color = (packed & 0xFF000000) | ((packed & 255) * (tint >> 16 & 255) / 255) << 16
