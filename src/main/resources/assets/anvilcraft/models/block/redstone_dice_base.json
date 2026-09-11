@@ -1,0 +1,58 @@
+{
+	"format_version": "1.9.0",
+	"credit": "Made by XeKr with Blockbench",
+	"parent": "minecraft:block/block",
+	"ambientocclusion": false,
+	"render_type": "minecraft:cutout",
+	"textures": {
+		"0": "anvilcraft:block/redstone_dice",
+		"1": "anvilcraft:block/big_red_button_bottom",
+		"particle": "anvilcraft:block/big_red_button_bottom"
+	},
+	"elements": [
+		{
+			"from": [2, 0, 2],
+			"to": [14, 4, 14],
+			"rotation": {"angle": 0, "axis": "y", "origin": [2, 0, 2]},
+			"faces": {
+				"north": {"uv": [2, 12, 14, 16], "texture": "#1"},
+				"east": {"uv": [2, 12, 14, 16], "texture": "#1"},
+				"south": {"uv": [2, 12, 14, 16], "texture": "#1"},
+				"west": {"uv": [2, 12, 14, 16], "texture": "#1"},
+				"up": {"uv": [2, 0, 14, 12], "texture": "#1"},
+				"down": {"uv": [2, 0, 14, 12], "texture": "#1"}
+			}
+		},
+		{
+			"from": [3, 4, 3],
+			"to": [13, 10, 13],
+			"rotation": {"angle": 0, "axis": "y", "origin": [2, 4, 2]},
+			"faces": {
+				"north": {"uv": [0, 10, 10, 16], "texture": "#0"},
+				"east": {"uv": [0, 10, 10, 16], "texture": "#0"},
+				"south": {"uv": [0, 10, 10, 16], "texture": "#0"},
+				"west": {"uv": [0, 10, 10, 16], "texture": "#0"},
+				"up": {"uv": [0, 0, 10, 10], "texture": "#0"}
+			}
+		},
+		{
+			"name": "cube inverted",
+			"from": [13, 10, 13],
+			"to": [3, 4, 3],
+			"rotation": {"angle": 0, "axis": "y", "origin": [2, 4, 2]},
+			"faces": {
+				"north": {"uv": [0, 16, 10, 10], "texture": "#0"},
+				"east": {"uv": [0, 16, 10, 10], "texture": "#0"},
+				"south": {"uv": [0, 16, 10, 10], "texture": "#0"},
+				"west": {"uv": [0, 16, 10, 10], "texture": "#0"},
+				"down": {"uv": [10, 0, 0, 10], "texture": "#0"}
+			}
+		}
+	],
+	"display": {
+		"head": {
+			"translation": [0, 6, 0],
+			"scale": [1.5, 1.5, 1.5]
+		}
+	}
+}
