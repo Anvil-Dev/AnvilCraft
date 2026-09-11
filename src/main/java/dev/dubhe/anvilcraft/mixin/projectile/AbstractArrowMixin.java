@@ -3,7 +3,7 @@ package dev.dubhe.anvilcraft.mixin.projectile;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import dev.dubhe.anvilcraft.block.entity.DeflectionRingBlockEntity;
-import dev.dubhe.anvilcraft.util.AirResistanceManager;
+import dev.dubhe.anvilcraft.util.AtmosphereManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.projectile.AbstractArrow;
@@ -74,9 +74,9 @@ public abstract class AbstractArrowMixin extends Projectile {
         return ring == null ? end : ring.getCenter();
     }
 
-    /** Air resistance only; the water inertia branch overwrites this value afterwards. */
+    /** 仅调整空气阻力，水中分支会随后用水中惯性系数覆盖此值。 */
     @ModifyConstant(method = "tick", constant = @Constant(floatValue = 0.99f))
     private float anvilcraft$scaleAirDrag(float vanillaDrag) {
-        return AirResistanceManager.drag(this.level(), vanillaDrag);
+        return AtmosphereManager.drag(this.level(), vanillaDrag);
     }
 }

@@ -10,7 +10,6 @@ import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.ItemInteractionResult;
@@ -31,10 +30,14 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.pathfinder.PathComputationType;
+import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class LensBlock extends BaseLaserBlock implements IHammerRemovable, IMoveableEntityBlock {
 
@@ -214,18 +217,13 @@ public class LensBlock extends BaseLaserBlock implements IHammerRemovable, IMove
     }
 
     @Override
-    public void spawnAfterBreak(
-        BlockState state,
-        ServerLevel level,
-        BlockPos pos,
-        ItemStack tool,
-        boolean dropExperience
-    ) {
-        super.spawnAfterBreak(state, level, pos, tool, dropExperience);
+    protected List<ItemStack> getDrops(BlockState state, LootParams.Builder params) {
+        List<ItemStack> drops = new ArrayList<>(super.getDrops(state, params));
         LensType type = state.getValue(TYPE);
         if (type != LensType.NONE) {
-            popResource(level, pos, getGlassItem(type));
+            drops.add(getGlassItem(type));
         }
+        return drops;
     }
 
     /**

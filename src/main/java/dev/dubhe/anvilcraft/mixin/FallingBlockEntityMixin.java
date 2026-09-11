@@ -8,7 +8,7 @@ import dev.dubhe.anvilcraft.api.event.AnvilEvent;
 import dev.dubhe.anvilcraft.api.injection.entity.IFallingBlockEntityExtension;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.util.AccelerateManager;
-import dev.dubhe.anvilcraft.util.AirResistanceManager;
+import dev.dubhe.anvilcraft.util.AtmosphereManager;
 import dev.dubhe.anvilcraft.util.GravityManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -562,6 +562,6 @@ abstract class FallingBlockEntityMixin extends Entity implements IFallingBlockEn
 
     @ModifyConstant(method = "tick", constant = @Constant(doubleValue = 0.98))
     private double anvilcraft$scaleAirDrag(double vanillaDrag) {
-        return AirResistanceManager.drag(this.level(), vanillaDrag);
+        return AtmosphereManager.drag(this.level(), vanillaDrag);
     }
 }

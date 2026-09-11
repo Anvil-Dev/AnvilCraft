@@ -1,15 +1,15 @@
 package dev.dubhe.anvilcraft.mixin.projectile;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
-import dev.dubhe.anvilcraft.util.AirResistanceManager;
+import dev.dubhe.anvilcraft.util.AtmosphereManager;
 import net.minecraft.world.entity.projectile.AbstractHurtingProjectile;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
-/** Applies the dimension air resistance to fireball-like projectiles. */
+/** 为火球类投射物应用所在维度的空气阻力。 */
 @Mixin(AbstractHurtingProjectile.class)
 public abstract class AbstractHurtingProjectileMixin {
-    /** Only the airborne inertia goes through this method; the water branch uses the liquid inertia. */
+    /** 此处只调整空气中的惯性系数，水中分支使用液体惯性系数。 */
     @ModifyExpressionValue(
         method = "tick",
         at = @At(
@@ -18,6 +18,6 @@ public abstract class AbstractHurtingProjectileMixin {
         )
     )
     private float anvilcraft$scaleAirDrag(float vanillaDrag) {
-        return AirResistanceManager.drag((AbstractHurtingProjectile) (Object) this, vanillaDrag);
+        return AtmosphereManager.drag((AbstractHurtingProjectile) (Object) this, vanillaDrag);
     }
 }

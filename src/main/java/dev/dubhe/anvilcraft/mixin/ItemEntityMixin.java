@@ -18,7 +18,7 @@ import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.init.item.ModItems;
-import dev.dubhe.anvilcraft.util.AirResistanceManager;
+import dev.dubhe.anvilcraft.util.AtmosphereManager;
 import dev.dubhe.anvilcraft.util.FireReforgingUtil;
 import dev.dubhe.anvilcraft.util.GravityManager;
 import net.minecraft.core.BlockPos;
@@ -573,15 +573,15 @@ abstract class ItemEntityMixin extends Entity implements IItemEntityExtension {
         return GravityManager.hasCustomSurfaceFriction(this) ? 1.0F : friction;
     }
 
-    /** Horizontal air resistance, also the airborne share of the ground friction product. */
+    /** 水平空气阻力，同时也是地面摩擦乘积中的空气阻力部分。 */
     @ModifyConstant(method = "tick", constant = @Constant(floatValue = 0.98f))
     private float anvilcraft$scaleHorizontalAirDrag(float vanillaDrag) {
-        return AirResistanceManager.drag(this.level(), vanillaDrag);
+        return AtmosphereManager.drag(this.level(), vanillaDrag);
     }
 
-    /** Vertical air resistance. */
+    /** 竖直空气阻力。 */
     @ModifyConstant(method = "tick", constant = @Constant(doubleValue = 0.98))
     private double anvilcraft$scaleVerticalAirDrag(double vanillaDrag) {
-        return AirResistanceManager.drag(this.level(), vanillaDrag);
+        return AtmosphereManager.drag(this.level(), vanillaDrag);
     }
 }
