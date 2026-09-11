@@ -14,7 +14,7 @@ import net.neoforged.neoforge.fluids.FluidStack;
  */
 public class StorageFluidPortBlockEntityRenderer implements BlockEntityRenderer<StorageFluidPortBlockEntity> {
     /** 中央玻璃窗口是 2..14，比储罐更小，故在默认内缩基础上再收 1.5 像素 */
-    private static final float WINDOW_INSET_PIXELS = 1.5f;
+    public static final float WINDOW_INSET_PIXELS = 1.5f;
 
     public StorageFluidPortBlockEntityRenderer(BlockEntityRendererProvider.Context ignore) {
     }

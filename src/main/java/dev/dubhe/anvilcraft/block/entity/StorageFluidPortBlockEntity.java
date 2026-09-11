@@ -35,7 +35,10 @@ import javax.annotation.Nullable;
  *
  * <p>作为潜影集装箱 / 超维存储站的外部流体存储，有 {@value #CAPACITY_MB} mB（128 B）容积，
  * 只能存储单一流体（{@link FluidTank} 本身即锁定首个流体）。与仓储端口一样沿端口链延伸，
- * 两者可互相延伸连接关系；整个连通组件必须恰好接触一个核心才工作。</p>
+ * 两者可互相延伸连接关系。</p>
+ *
+ * <p>水箱独立工作：不接任何核心时仍可被桶 / 管道直接读写，也照常参与管道网络的高度偏置。
+ * 与核心的连接关系只决定它归属哪个存储——即流体出现在哪个存储的界面里。</p>
  *
  * <p>拆除时流体随掉落物保留，手持门格海绵右键可清除内部流体。</p>
  */
@@ -103,12 +106,6 @@ public class StorageFluidPortBlockEntity extends BlockEntity implements IFluidHa
         return this.tank.getFluid().isEmpty() ? this.rememberedFluid : this.tank.getFluid();
     }
 
-    /** 组件解析出的核心主方块坐标；null 表示组件无效 */
-    @Nullable
-    private BlockPos coreMainPos = null;
-    /** 当前是否工作（连通组件恰好接触一个有效核心） */
-    @Getter
-    private boolean working;
     /**
      * 自身等效高度的调整量（格）：负值降低高度以便进液，正值提高高度以便排液。
      *
@@ -199,33 +196,36 @@ public class StorageFluidPortBlockEntity extends BlockEntity implements IFluidHa
     public void setRemoved() {
         if (this.level != null && !this.level.isClientSide) {
             FluidNetworkManager.INSTANCE.removeContainer(this.level, this.getBlockPos());
-            StorageFluidRegistry.unregister(this.getBlockPos());
+            StorageFluidRegistry.unregister(this.storageId, this.level.dimension(), this.getBlockPos());
         }
         super.setRemoved();
     }
 
     /**
      * 重新解析连通组件，解析规则与仓储端口一致（两者可互相延伸）。
+     *
+     * <p>只有当连通组件恰好接触一个有效核心时，才把本端口登记到该存储名下；登记只影响
+     * 「归属哪个存储的 UI」，端口自身的水箱始终独立可用（可被桶、管道直接读写）。</p>
      */
     private void validateLink() {
-        this.working = false;
-        this.coreMainPos = null;
-        if (this.level == null) {
+        if (!(this.level instanceof ServerLevel serverLevel)) {
             return;
         }
+        // 先清掉旧存储名下的登记再重新登记：端口可能从 A 存储改挂到 B 存储（链路重排），
+        // 若不清旧条目，A 的 UI 仍会显示本端口的流体、drain(A) 还会抽走属于 B 的流体
+        StorageFluidRegistry.unregister(this.storageId, serverLevel.dimension(), this.worldPosition);
+        this.storageId = null;
+
         BlockPos core = StoragePortBlockEntity.findSoleCore(this.level, this.worldPosition);
-        if (core == null || !(this.level.getBlockEntity(core) instanceof StorageBlockEntity storage)
+        if (core == null
+            || !(this.level.getBlockEntity(core) instanceof StorageBlockEntity storage)
             || storage.getId() == null) {
-            StorageFluidRegistry.unregister(this.worldPosition);
             return;
         }
-        this.coreMainPos = core;
-        this.working = true;
+        UUID id = storage.getId();
+        this.storageId = id;
         // 自报给注册表，供仓储 UI 反查该存储可显示的流体
-        if (this.level instanceof ServerLevel serverLevel) {
-            StorageFluidRegistry.register(storage.getId(), serverLevel, this.worldPosition);
-            this.storageId = storage.getId();
-        }
+        StorageFluidRegistry.register(id, serverLevel, this.worldPosition);
     }
 
     /**
@@ -314,10 +314,5 @@ public class StorageFluidPortBlockEntity extends BlockEntity implements IFluidHa
     @Override
     public Packet<ClientGamePacketListener> getUpdatePacket() {
         return ClientboundBlockEntityDataPacket.create(this);
-    }
-
-    @Nullable
-    public BlockPos getCoreMainPos() {
-        return coreMainPos;
     }
 }

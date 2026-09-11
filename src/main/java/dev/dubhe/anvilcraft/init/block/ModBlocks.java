@@ -231,6 +231,7 @@ import dev.dubhe.anvilcraft.block.item.RedstoneWireBlockItem;
 import dev.dubhe.anvilcraft.block.item.ResinBlockItem;
 import dev.dubhe.anvilcraft.block.item.ShulkerContainerBlockItem;
 import dev.dubhe.anvilcraft.block.item.SimpleMultiPartBlockItem;
+import dev.dubhe.anvilcraft.block.item.StorageFluidPortBlockItem;
 import dev.dubhe.anvilcraft.block.item.StoragePortBlockItem;
 import dev.dubhe.anvilcraft.block.item.SuperHeavyBlockItem;
 import dev.dubhe.anvilcraft.block.item.TradingStationBlockItem;
@@ -1803,7 +1804,7 @@ public class ModBlocks {
             .noOcclusion()
             .isValidSpawn(ModBlocks::never)
             .requiresCorrectToolForDrops())
-        .item()
+        .item(StorageFluidPortBlockItem::new)
         .build()
         .blockstate(DataGenUtil::simpleAllStates)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)

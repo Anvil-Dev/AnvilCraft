@@ -81,6 +81,7 @@ import net.neoforged.neoforge.client.event.ContainerScreenEvent;
 import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.FluidType;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -2254,7 +2255,16 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
         int serverSlot = action == StorageInput.QUICK_MOVE_TO_STORAGE || slot >= StorageScreen.FLUID_SLOT_BASE
                          ? slot
                          : this.serverSlots.get(slot);
-        StorageClientStub.interact(this.sourcePos, serverSlot, button, action).whenCompleteAsync(
+        // 流体格同时上报流体身份：点击与处理之间列表可能变化（端口被拆 / 区块卸载 / 新流体接入），
+        // 服务端按下标会取到另一种流体，故改按身份匹配
+        FluidStack fluidIdentity = FluidStack.EMPTY;
+        if (slot >= StorageScreen.FLUID_SLOT_BASE) {
+            StorageServerStub.FluidEntry entry = this.getFluidSlot(slot);
+            if (entry != null) {
+                fluidIdentity = entry.icon().copyWithAmount(FluidType.BUCKET_VOLUME);
+            }
+        }
+        StorageClientStub.interact(this.sourcePos, serverSlot, button, action, fluidIdentity).whenCompleteAsync(
             (result, error) -> {
                 if (request != this.interactionRequest || error != null) {
                     this.interactionPending = false;

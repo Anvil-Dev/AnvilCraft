@@ -21,6 +21,7 @@ public class WrappingItemCustomRenderedModels {
     public static final ResourceLocation CREATIVE_FLUID_TANK = AnvilCraft.of("creative_fluid_tank");
     public static final ResourceLocation CREATIVE_CRATE = AnvilCraft.of("creative_crate");
     public static final ResourceLocation STORAGE_PORT = AnvilCraft.of("storage_port");
+    public static final ResourceLocation STORAGE_FLUID_PORT = AnvilCraft.of("storage_fluid_port");
     public static final ResourceLocation SPECTRAL_WEAPON_LAUNCHER = AnvilCraft.of("spectral_weapon_launcher");
     public static final ResourceLocation SPECTRAL_WEAPON_LAUNCHER_EXHAUSTED = AnvilCraft.of("spectral_weapon_launcher_exhausted");
 
@@ -32,6 +33,7 @@ public class WrappingItemCustomRenderedModels {
         swapModels(modelRegistry, ModelResourceLocation.inventory(CREATIVE_FLUID_TANK));
         swapModels(modelRegistry, ModelResourceLocation.inventory(CREATIVE_CRATE));
         swapModels(modelRegistry, ModelResourceLocation.inventory(STORAGE_PORT));
+        swapModels(modelRegistry, ModelResourceLocation.inventory(STORAGE_FLUID_PORT));
         swapModels(modelRegistry, ModelResourceLocation.inventory(AnvilCraft.of("spectral_slingshot")));
         swapModels(modelRegistry, ModelResourceLocation.inventory(SPECTRAL_WEAPON_LAUNCHER));
         swapModels(modelRegistry, ModelResourceLocation.inventory(SPECTRAL_WEAPON_LAUNCHER_EXHAUSTED));

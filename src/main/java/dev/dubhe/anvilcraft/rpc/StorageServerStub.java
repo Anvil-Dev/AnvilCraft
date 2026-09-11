@@ -215,7 +215,14 @@ public final class StorageServerStub {
     }
 
     @RemoteCallable(validator = StorageAccessValidator.class)
-    public static InteractionResult interact(UUID playerId, long sourcePos, int slot, int button, StorageInput action) {
+    public static InteractionResult interact(
+        UUID playerId,
+        long sourcePos,
+        int slot,
+        int button,
+        StorageInput action,
+        @CallableParam(clazz = FluidStack.class, field = "OPTIONAL_STREAM_CODEC") FluidStack fluid
+    ) {
         if (!action.isValid(button)) {
             StorageServerStub.REGISTRIES.remove();
             throw new IllegalArgumentException("Invalid storage interaction button: " + button);
@@ -244,10 +251,10 @@ public final class StorageServerStub {
         } else if (action == StorageInput.THROW) {
             changed = StorageServerStub.throwStorageStack(player, view, slot, button);
         } else if (action == StorageInput.FLUID_BUCKET) {
-            changed = StorageServerStub.takeFluidBucket(player, view, slot, button);
+            changed = StorageServerStub.takeFluidBucket(player, view, fluid, button);
         } else if (action == StorageInput.QUICK_MOVE_FROM_STORAGE) {
             changed = slot >= StorageFluidRegistry.FLUID_SLOT_BASE
-                      ? StorageServerStub.takeFluidBucketIntoInventory(player, view, slot)
+                      ? StorageServerStub.takeFluidBucketIntoInventory(player, view, fluid)
                       : StorageServerStub.moveStorageStackToInventory(player, view, slot);
         } else if (!carried.isEmpty()) {
             int amount = button == 0 ? carried.getCount() : 1;
@@ -2461,7 +2468,9 @@ public final class StorageServerStub {
             }
             // 现场盛装出的部分退回存储为物品（等量于消耗的空容器 + 流体，不会凭空增减）
             if (fromFluid > 0) {
-                view.insert(wanted.copyWithCount(fromFluid), fromFluid);
+                if (view != null) {
+                    view.insert(wanted.copyWithCount(fromFluid), fromFluid);
+                }
             }
             return 0;
         }
@@ -2502,23 +2511,89 @@ public final class StorageServerStub {
         if (count <= 0) {
             return 0;
         }
-        // 先抽流体再扣空容器；空容器扣不够时把流体灌回，保持原子性
-        int drained = StorageFluidRegistry.drain(view.primary().getId(), content, perUnit * count);
-        if (drained < perUnit * count) {
+        UUID storageId = view.primary().getId();
+        // 两步都先模拟确认可行，再动手：流体抽得出、空容器扣得到。
+        // 不先模拟就 EXECUTE，任何一步中途失败都只能回滚，回滚疏漏就会凭空增减物品
+        if (StorageFluidRegistry.drain(storageId, content, perUnit * count, true) < perUnit * count) {
             return 0;
         }
+        if (!StorageServerStub.hasEnoughContainers(inventory, view, emptyContainer, count)) {
+            return 0;
+        }
+        // 先扣空容器再抽流体：容器扣取失败时流体尚未改动，只需把已扣的容器还回去；
+        // 反过来先抽流体的话，失败回滚就得处理「流体灌回」，复杂度与风险都更高
         int removed = 0;
         while (removed < count && StorageServerStub.consumeOne(inventory, view, emptyContainer)) {
             removed++;
         }
         if (removed < count) {
-            IFluidHandler acceptor = StorageFluidRegistry.findAcceptor(view.primary().getId(), content);
-            if (acceptor != null) {
-                acceptor.fill(content.copyWithAmount(perUnit * removed), IFluidHandler.FluidAction.EXECUTE);
-            }
+            StorageServerStub.giveBackContainers(inventory, view, emptyContainer, removed);
+            return 0;
+        }
+        int drained = StorageFluidRegistry.drain(storageId, content, perUnit * count);
+        if (drained < perUnit * count) {
+            // 模拟通过后实际抽取仍不足（并发改动）：容器全数还回，已抽出的流体灌回
+            StorageServerStub.giveBackContainers(inventory, view, emptyContainer, count);
+            StorageServerStub.refillFluid(storageId, content, drained);
             return 0;
         }
         return count;
+    }
+
+    /**
+     * 判断玩家背包 + 该存储中合计是否有足够数量的某种空容器。
+     *
+     * <p>与 {@link #consumeOne} 的取用范围一致，只在两者都统计到的前提下才允许实际扣取。</p>
+     */
+    private static boolean hasEnoughContainers(
+        @Nullable Inventory inventory,
+        @Nullable StorageView view,
+        ItemStack resource,
+        int count
+    ) {
+        long available = 0;
+        if (inventory != null) {
+            available += StorageServerStub.countInInventory(inventory, resource);
+        }
+        if (view != null) {
+            available += StorageServerStub.countInView(view, resource);
+        }
+        return available >= count;
+    }
+
+    /** 把 count 个容器还回玩家背包，放不下的再放回该存储。 */
+    private static void giveBackContainers(
+        @Nullable Inventory inventory,
+        @Nullable StorageView view,
+        ItemStack resource,
+        int count
+    ) {
+        if (count <= 0) {
+            return;
+        }
+        int remaining = count;
+        if (inventory != null) {
+            remaining = StorageServerStub.giveBackToInventory(inventory, resource, count);
+        }
+        if (remaining > 0 && view != null) {
+            view.insert(resource.copyWithCount(remaining), remaining);
+        }
+    }
+
+    /** 把流体灌回该存储的端口；端口装不下时按实际容量尽力而为。 */
+    private static void refillFluid(UUID storageId, FluidStack fluid, int amountMb) {
+        int remaining = amountMb;
+        while (remaining > 0) {
+            IFluidHandler acceptor = StorageFluidRegistry.findAcceptor(storageId, fluid);
+            if (acceptor == null) {
+                return;
+            }
+            int filled = acceptor.fill(fluid.copyWithAmount(remaining), IFluidHandler.FluidAction.EXECUTE);
+            if (filled <= 0) {
+                return;
+            }
+            remaining -= filled;
+        }
     }
 
     /**
@@ -4588,7 +4663,7 @@ public final class StorageServerStub {
         }
 
         Comparator<OrderEntry> comparator = StorageServerStub.getComparator(options);
-        // 流体按 1 B = 1 个物品折算成等量物品数参与排序，并按分类逐条过滤
+        // 流体按 1 mB = 1 个物品折算成等量物品数参与排序，并按分类逐条过滤
         // （流体分类判定流体、命名空间分类按流体命名空间判定，其余分类默认不匹配流体）
         StorageServerStub.addFluidEntries(entries, view, search, requiresName, categories);
         entries.sort(comparator);
@@ -4603,8 +4678,8 @@ public final class StorageServerStub {
     /**
      * 把已连接端口的流体折算为排序条目追加进列表。
      *
-     * <p>折算规则：1 B（{@link FluidType#BUCKET_VOLUME} mB）相当于 1 个物品，
-     * 因此数量排序时流体与物品按等量物品数比较。</p>
+     * <p>折算规则（见 #4792）：按数量排序时 <b>1 mB 相当于 1 个物品</b>，
+     * 故直接以 mB 数值参与比较。</p>
      *
      * @param entries      物品排序条目（会被就地追加）
      * @param view         当前存储视图
@@ -4641,7 +4716,8 @@ public final class StorageServerStub {
             }
             entries.add(new OrderEntry(
                 StorageFluidRegistry.FLUID_SLOT_BASE + index,
-                entry.amount() / FluidType.BUCKET_VOLUME,
+                // 按 #4792：数量排序时 1 mB 相当于 1 个物品
+                entry.amount(),
                 id,
                 requiresName ? entry.icon().getHoverName().getString() : ""
             ));
@@ -4656,11 +4732,11 @@ public final class StorageServerStub {
      *
      * @param player 玩家
      * @param view   当前存储视图
-     * @param slot   流体伪槽位号
+     * @param fluid  被点击的流体（客户端随点击上报，按身份匹配而非下标）
      * @param button 鼠标键（0 左键整叠，1 右键 1 个），与物品格的放入语义一致
      * @return 是否发生了改动
      */
-    private static boolean takeFluidBucket(ServerPlayer player, StorageView view, int slot, int button) {
+    private static boolean takeFluidBucket(ServerPlayer player, StorageView view, FluidStack fluid, int button) {
         // 指针上拿着装有流体的容器：这一下是「倒进去」。倒不进去（如仓储没有可接收的
         // 端口）时继续往下走，由取出的分支判断指针是否可接收产物
         ItemStack carried = player.containerMenu.getCarried();
@@ -4673,7 +4749,7 @@ public final class StorageServerStub {
                 return true;
             }
         }
-        ItemStack filled = StorageServerStub.fillBucketFromStorage(player, view, slot, false);
+        ItemStack filled = StorageServerStub.fillBucketFromStorage(player, view, fluid, false);
         if (filled.isEmpty()) {
             return false;
         }
@@ -4692,11 +4768,11 @@ public final class StorageServerStub {
      *
      * @param player 玩家
      * @param view   当前存储视图
-     * @param slot   流体伪槽位号
+     * @param fluid  被点击的流体（客户端随点击上报）
      * @return 是否发生了改动
      */
-    private static boolean takeFluidBucketIntoInventory(ServerPlayer player, StorageView view, int slot) {
-        ItemStack filled = StorageServerStub.fillBucketFromStorage(player, view, slot, true);
+    private static boolean takeFluidBucketIntoInventory(ServerPlayer player, StorageView view, FluidStack fluid) {
+        ItemStack filled = StorageServerStub.fillBucketFromStorage(player, view, fluid, true);
         if (filled.isEmpty()) {
             return false;
         }
@@ -4711,9 +4787,12 @@ public final class StorageServerStub {
      *
      * <p>只负责消耗空桶与抽取流体；成品桶的去向由调用方决定。</p>
      *
+     * <p>按流体身份而非槽位下标定位：客户端点击与服务端处理之间列表可能变化
+     * （端口被拆、区块卸载、新流体接入），按下标会取到另一种流体。</p>
+     *
      * @param player        玩家
      * @param view          当前存储视图
-     * @param slot          流体伪槽位号
+     * @param fluid         被点击的流体；为空表示客户端未上报流体身份
      * @param intoInventory 产物是否进背包（Shift 路径）。为 {@code false} 时产物要落在指针上，
      *                      因此指针必须为空或正拿着所需空桶
      * @return 装出的一桶流体；失败时返回空（并按需给出提示）
@@ -4721,17 +4800,15 @@ public final class StorageServerStub {
     private static ItemStack fillBucketFromStorage(
         ServerPlayer player,
         StorageView view,
-        int slot,
+        FluidStack fluid,
         boolean intoInventory
     ) {
-        int index = slot - StorageFluidRegistry.FLUID_SLOT_BASE;
-        List<FluidEntry> fluids = StorageFluidRegistry.collect(view.primary().getId());
-        if (index < 0 || index >= fluids.size()) {
+        FluidEntry entry = StorageFluidRegistry.find(view.primary().getId(), fluid);
+        if (entry == null) {
             return ItemStack.EMPTY;
         }
-        FluidEntry entry = fluids.get(index);
-        FluidStack fluid = entry.icon().copyWithAmount(FluidType.BUCKET_VOLUME);
-        ItemStack filled = FluidUtil.getFilledBucket(fluid);
+        FluidStack target = entry.icon().copyWithAmount(FluidType.BUCKET_VOLUME);
+        ItemStack filled = FluidUtil.getFilledBucket(target);
         if (filled.isEmpty()) {
             return ItemStack.EMPTY;
         }
@@ -4764,13 +4841,13 @@ public final class StorageServerStub {
             return ItemStack.EMPTY;
         }
         // 确认能真正抽出，否则把空容器还回去，避免凭空吞桶
-        if (StorageFluidRegistry.drain(view.primary().getId(), fluid, FluidType.BUCKET_VOLUME)
+        if (StorageFluidRegistry.drain(view.primary().getId(), target, FluidType.BUCKET_VOLUME)
             < FluidType.BUCKET_VOLUME) {
             StorageServerStub.giveEmptiedContainer(player, emptyContainer);
             return ItemStack.EMPTY;
         }
         // 取水音效：倾倒由 FluidUtil 自行播放，取出的这条路径需自行补上
-        StorageServerStub.playBucketSound(player, fluid, SoundActions.BUCKET_FILL);
+        StorageServerStub.playBucketSound(player, target, SoundActions.BUCKET_FILL);
         return filled;
     }
 

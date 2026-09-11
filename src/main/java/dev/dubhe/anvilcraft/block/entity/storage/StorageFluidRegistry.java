@@ -13,6 +13,7 @@ import net.neoforged.neoforge.server.ServerLifecycleHooks;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -25,6 +26,9 @@ import javax.annotation.Nullable;
  * <p>流体存放在端口自身（拆除随掉落物保留），因此仓储本体只存物品；UI 需要显示流体时
  * 由本表反查端口并汇总。端口每 {@code VALIDATE_INTERVAL} 重校验连通关系时重新登记，
  * 因此失效条目会被自然修正。</p>
+ *
+ * <p>表按「维度 → 存储 ID → 端口位置」分层，与 {@link StorageBlockRegistry} 一致：
+ * 维度先分层才能避免不同维度的同坐标互相干扰（注册与注销都必须带上维度）。</p>
  */
 public final class StorageFluidRegistry {
     /**
@@ -35,8 +39,8 @@ public final class StorageFluidRegistry {
      */
     public static final int FLUID_SLOT_BASE = 1 << 24;
 
-    /** 存储 ID → （端口位置 → 维度） */
-    private static final Map<UUID, Map<BlockPos, ResourceKey<Level>>> PORTS = new HashMap<>();
+    /** 维度 → （存储 ID → 端口位置集合） */
+    private static final Map<ResourceKey<Level>, Map<UUID, Set<BlockPos>>> PORTS = new HashMap<>();
 
     private StorageFluidRegistry() {
     }
@@ -50,20 +54,46 @@ public final class StorageFluidRegistry {
      */
     public static void register(UUID storageId, ServerLevel level, BlockPos pos) {
         StorageFluidRegistry.PORTS
-            .computeIfAbsent(storageId, ignored -> new HashMap<>())
-            .put(pos.immutable(), level.dimension());
+            .computeIfAbsent(level.dimension(), ignored -> new HashMap<>())
+            .computeIfAbsent(storageId, ignored -> new HashSet<>())
+            .add(pos.immutable());
     }
 
     /**
-     * 注销某位置在所有存储下的登记（端口失效、被拆除或断开连接时调用）。
+     * 注销某端口在「指定存储 × 指定维度」下的登记。
      *
-     * @param pos 端口位置
+     * <p>只清这一个存储名下的条目：端口从 A 存储改挂到 B 存储时，必须先把 A 的旧条目清掉，
+     * 否则 A 的 UI 仍会显示该端口的流体、{@code drain(A)} 还会从属于 B 的端口抽走流体。
+     * 只清这一个维度：不同维度的同坐标是两个不同的端口。</p>
+     *
+     * @param storageId 存储 ID；为 null 时无操作
+     * @param dimension 端口所在维度
+     * @param pos       端口位置
      */
-    public static void unregister(BlockPos pos) {
-        for (Map<BlockPos, ResourceKey<Level>> ports : StorageFluidRegistry.PORTS.values()) {
-            ports.remove(pos);
+    public static void unregister(@Nullable UUID storageId, ResourceKey<Level> dimension, BlockPos pos) {
+        if (storageId == null) {
+            return;
         }
-        StorageFluidRegistry.PORTS.entrySet().removeIf(entry -> entry.getValue().isEmpty());
+        Map<UUID, Set<BlockPos>> byId = StorageFluidRegistry.PORTS.get(dimension);
+        if (byId == null) {
+            return;
+        }
+        Set<BlockPos> positions = byId.get(storageId);
+        if (positions == null) {
+            return;
+        }
+        positions.remove(pos);
+        if (positions.isEmpty()) {
+            byId.remove(storageId);
+        }
+        if (byId.isEmpty()) {
+            StorageFluidRegistry.PORTS.remove(dimension);
+        }
+    }
+
+    /** 服务端停止时清表，避免静态表在下次进入世界时残留上次的登记。 */
+    public static void clear() {
+        StorageFluidRegistry.PORTS.clear();
     }
 
     /**
@@ -97,6 +127,26 @@ public final class StorageFluidRegistry {
         return result;
     }
 
+    /**
+     * 按流体身份查找该存储中的条目。
+     *
+     * <p>供交互使用：客户端与点击之间列表可能变化（端口被拆 / 区块卸载 / 新流体接入），
+     * 按下标定位会取到别的流体，故改按 {@link FluidStack#isSameFluidSameComponents} 匹配。</p>
+     *
+     * @param storageId 存储 ID
+     * @param fluid     目标流体
+     * @return 匹配的条目；不存在时返回 null
+     */
+    @Nullable
+    public static StorageServerStub.FluidEntry find(UUID storageId, FluidStack fluid) {
+        for (StorageServerStub.FluidEntry entry : StorageFluidRegistry.collect(storageId)) {
+            if (FluidStack.isSameFluidSameComponents(entry.icon(), fluid)) {
+                return entry;
+            }
+        }
+        return null;
+    }
+
     /** 在条目列表中查找同一流体的下标；不存在时返回 -1。 */
     private static int indexOfSame(List<StorageServerStub.FluidEntry> entries, FluidStack fluid) {
         for (int i = 0; i < entries.size(); i++) {
@@ -116,6 +166,22 @@ public final class StorageFluidRegistry {
      * @return 实际抽取量（mB）
      */
     public static int drain(UUID storageId, FluidStack fluid, int amountMb) {
+        return StorageFluidRegistry.drain(storageId, fluid, amountMb, false);
+    }
+
+    /**
+     * {@link #drain(UUID, FluidStack, int)} 的模拟重载：{@code simulate} 为 true 时只统计
+     * 可抽取量、不改动任何端口。
+     *
+     * <p>供「先模拟确认够量、再实际抽取」的调用方使用，避免抽到一半失败留下已抽走的流体。</p>
+     *
+     * @param simulate 是否只模拟
+     * @return 可抽取量 / 实际抽取量（mB）
+     */
+    public static int drain(UUID storageId, FluidStack fluid, int amountMb, boolean simulate) {
+        IFluidHandler.FluidAction action = simulate
+            ? IFluidHandler.FluidAction.SIMULATE
+            : IFluidHandler.FluidAction.EXECUTE;
         int remaining = amountMb;
         for (StorageFluidPortBlockEntity port : StorageFluidRegistry.livePorts(storageId)) {
             if (remaining <= 0) {
@@ -125,7 +191,7 @@ public final class StorageFluidRegistry {
             if (stored.isEmpty() || !FluidStack.isSameFluidSameComponents(stored, fluid)) {
                 continue;
             }
-            FluidStack drained = port.getFluidHandler().drain(remaining, IFluidHandler.FluidAction.EXECUTE);
+            FluidStack drained = port.getFluidHandler().drain(remaining, action);
             remaining -= drained.getAmount();
         }
         return amountMb - remaining;
@@ -160,28 +226,32 @@ public final class StorageFluidRegistry {
 
     /**
      * 取出该存储名下当前已加载的端口方块实体。
+     *
+     * <p>存储可跨维度（超维存储站），故遍历所有维度查找该存储 ID 的登记。</p>
      */
     private static List<StorageFluidPortBlockEntity> livePorts(UUID storageId) {
-        Map<BlockPos, ResourceKey<Level>> ports = StorageFluidRegistry.PORTS.get(storageId);
-        if (ports == null || ports.isEmpty()) {
-            return List.of();
-        }
         MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
-        if (server == null) {
+        if (server == null || StorageFluidRegistry.PORTS.isEmpty()) {
             return List.of();
         }
         List<StorageFluidPortBlockEntity> result = new ArrayList<>();
-        for (Map.Entry<BlockPos, ResourceKey<Level>> entry : Map.copyOf(ports).entrySet()) {
-            ServerLevel level = server.getLevel(entry.getValue());
+        for (Map.Entry<ResourceKey<Level>, Map<UUID, Set<BlockPos>>> byDimension
+            : StorageFluidRegistry.PORTS.entrySet()) {
+            Set<BlockPos> positions = byDimension.getValue().get(storageId);
+            if (positions == null || positions.isEmpty()) {
+                continue;
+            }
+            ServerLevel level = server.getLevel(byDimension.getKey());
             if (level == null) {
                 continue;
             }
-            BlockPos pos = entry.getKey();
-            if (!level.isLoaded(pos)) {
-                continue;
-            }
-            if (level.getBlockEntity(pos) instanceof StorageFluidPortBlockEntity port) {
-                result.add(port);
+            for (BlockPos pos : Set.copyOf(positions)) {
+                if (!level.isLoaded(pos)) {
+                    continue;
+                }
+                if (level.getBlockEntity(pos) instanceof StorageFluidPortBlockEntity port) {
+                    result.add(port);
+                }
             }
         }
         return result;
@@ -191,10 +261,16 @@ public final class StorageFluidRegistry {
      * 某存储当前登记的全部端口位置，供测试与调试使用。
      *
      * @param storageId 存储 ID
-     * @return 端口位置集合
+     * @return 端口位置集合（跨维度取并集）
      */
     public static Set<BlockPos> positions(UUID storageId) {
-        Map<BlockPos, ResourceKey<Level>> ports = StorageFluidRegistry.PORTS.get(storageId);
-        return ports == null ? Set.of() : Set.copyOf(ports.keySet());
+        Set<BlockPos> result = new HashSet<>();
+        for (Map<UUID, Set<BlockPos>> byId : StorageFluidRegistry.PORTS.values()) {
+            Set<BlockPos> positions = byId.get(storageId);
+            if (positions != null) {
+                result.addAll(positions);
+            }
+        }
+        return Set.copyOf(result);
     }
 }
