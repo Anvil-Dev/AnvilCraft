@@ -1990,7 +1990,7 @@ public final class StorageServerStub {
                 // 槽内还剩同类原料（如水桶还有 2 个）而剩余物不同种：原版此时把剩余物
                 // 放进玩家背包，这里保留原料、剩余物交还玩家或存储
                 next = leftover;
-                StorageServerStub.returnCraftingRemainder(crafting, inventory, view, remainder);
+                StorageServerStub.returnCraftingRemainder(target.player(), crafting, view, remainder);
             }
             grid.set(i, next);
             // 内容或数量发生变化才算消耗。催化剂类配方净变化为 0 时返回 false，
@@ -2012,8 +2012,8 @@ public final class StorageServerStub {
      * 否则优先回背包；首选处放不下的再放另一处。</p>
      */
     private static void returnCraftingRemainder(
+        ServerPlayer player,
         CraftingStorage crafting,
-        Inventory inventory,
         @Nullable StorageView view,
         ItemStack remainder
     ) {
@@ -2021,7 +2021,7 @@ public final class StorageServerStub {
             return;
         }
         if (!crafting.toStorage() || view == null) {
-            StorageServerStub.returnToInventoryOrStorage(inventory, view, remainder);
+            StorageServerStub.returnItems(player, view, remainder, false);
             return;
         }
         int inserted = view.insert(remainder.copyWithCount(1), remainder.getCount());
@@ -2030,7 +2030,7 @@ public final class StorageServerStub {
         }
         ItemStack rest = remainder.copy();
         rest.shrink(inserted);
-        StorageServerStub.returnToInventoryOrStorage(inventory, view, rest);
+        StorageServerStub.returnItems(player, view, rest, false);
     }
 
     /**
@@ -2118,7 +2118,7 @@ public final class StorageServerStub {
             // 槽内，但槽位被它占着会补不进料，连续合成随即中断，故补料前先转交玩家 / 存储
             if (!currentStack.isEmpty()
                 && !ItemStack.isSameItemSameComponents(currentStack, templateStack)) {
-                StorageServerStub.returnToInventoryOrStorage(inventory, target.view(), currentStack);
+                StorageServerStub.returnItems(player, target.view(), currentStack, false);
                 current = current.withCraftingSlot(i, ItemStack.EMPTY);
                 currentStack = ItemStack.EMPTY;
                 changed = true;
@@ -2152,8 +2152,7 @@ public final class StorageServerStub {
      */
     private static CraftingStorage clearCrafting(
         StorageServerStub.CraftingTarget target,
-        CraftingStorage crafting,
-        Inventory inventory
+        CraftingStorage crafting
     ) {
         ItemStack stonecutterInput = crafting.stonecutterInput();
         List<ItemStack> grid = crafting.craftingInput();
@@ -2163,12 +2162,13 @@ public final class StorageServerStub {
             return crafting;
         }
         StorageView view = target.view();
+        ServerPlayer player = target.player();
         if (!stonecutterInput.isEmpty()) {
-            StorageServerStub.returnToStorageOrInventory(inventory, view, stonecutterInput);
+            StorageServerStub.returnItems(player, view, stonecutterInput, true);
         }
         for (ItemStack stack : grid) {
             if (!stack.isEmpty()) {
-                StorageServerStub.returnToStorageOrInventory(inventory, view, stack);
+                StorageServerStub.returnItems(player, view, stack, true);
             }
         }
         List<ItemStack> emptyGrid = java.util.Collections.nCopies(CraftingStorage.CRAFTING_GRID_SIZE, ItemStack.EMPTY);
@@ -2179,36 +2179,36 @@ public final class StorageServerStub {
         return cleared;
     }
 
-    /** 把物品送入存储站，存储放不下时回退到玩家背包。 */
-    private static void returnToStorageOrInventory(
-        Inventory inventory,
+    /**
+     * 归还物品的三级去向：主去处 → 次去处 → 掉落世界。
+     *
+     * <p>最后一级是必需的兜底：两处都放不下时若直接丢弃余量，物品就被凭空吞掉。
+     * 主去处由 {@code storageFirst} 决定，次去处为另一处。</p>
+     *
+     * @param storageFirst 主去处是否为存储站；{@code false} 表示背包优先
+     */
+    private static void returnItems(
+        ServerPlayer player,
         @Nullable StorageView view,
-        ItemStack stack
+        ItemStack stack,
+        boolean storageFirst
     ) {
         if (stack.isEmpty()) {
             return;
         }
+        Inventory inventory = player.getInventory();
         int remaining = stack.getCount();
-        if (view != null) {
+        if (storageFirst && view != null) {
             remaining -= view.insert(stack.copyWithCount(remaining), remaining);
         }
         if (remaining > 0) {
-            StorageServerStub.giveBackToInventory(inventory, stack, remaining);
+            remaining = StorageServerStub.giveBackToInventory(inventory, stack, remaining);
         }
-    }
-
-    /** 把物品放回玩家背包，背包放不下时放回存储站。 */
-    private static void returnToInventoryOrStorage(
-        Inventory inventory,
-        @Nullable StorageView view,
-        ItemStack stack
-    ) {
-        if (stack.isEmpty()) {
-            return;
+        if (remaining > 0 && !storageFirst && view != null) {
+            remaining -= view.insert(stack.copyWithCount(remaining), remaining);
         }
-        int remaining = StorageServerStub.giveBackToInventory(inventory, stack, stack.getCount());
-        if (remaining > 0 && view != null) {
-            view.insert(stack.copyWithCount(remaining), remaining);
+        if (remaining > 0) {
+            Block.popResource(player.level(), player.blockPosition(), stack.copyWithCount(remaining));
         }
     }
 
@@ -2232,7 +2232,7 @@ public final class StorageServerStub {
         StorageServerStub.CraftingTarget target = StorageServerStub.resolveCraftingTarget(player, sourcePos);
         CraftingStorage crafting = target.read();
         Inventory inventory = player.getInventory();
-        crafting = StorageServerStub.clearCrafting(target, crafting, inventory);
+        crafting = StorageServerStub.clearCrafting(target, crafting);
         if (stonecutter) {
             // ①：默认只放 1 个（够出一次产物）；maxTransfer（Shift 点击）才把背包 + 存储中
             // 的同种材料全部转进①（受物品上限约束）。与 ② 合成格的 JEI 转移语义一致：
@@ -2476,7 +2476,9 @@ public final class StorageServerStub {
         if (moved < needed) {
             // 现成物品取完仍不足时，才用空容器 + 端口流体现场盛装；
             // 盛装量从 needed 扣减后一并计入，保证与真实物品合计仍可凑满一组
-            int produced = StorageServerStub.produceFilledContainer(target.view(), inventory, wanted, needed - moved);
+            int produced = StorageServerStub.produceFilledContainer(
+                target.player(), target.view(), wanted, needed - moved
+            );
             if (produced > 0) {
                 moved += produced;
                 fromFluid += produced;
@@ -2486,18 +2488,19 @@ public final class StorageServerStub {
             // 材料不足一组：回滚已取物品（背包部分放回背包，存储部分放回存储）
             int inventoryPart = moved - fromStorage - fromFluid;
             if (inventoryPart > 0) {
-                StorageServerStub.giveBackToInventory(inventory, wanted, inventoryPart);
+                // 背包放不下的余量转入存储，最终仍放不下则掉落世界，避免回滚途中吞物品
+                StorageServerStub.returnItems(
+                    target.player(), view, wanted.copyWithCount(inventoryPart), false
+                );
             }
             // 不变式：fromStorage 只在上方 view != null 的取存储分支内累加，
             // 故 fromStorage > 0 蕴含 view 非空，此处无需再判空。
             if (fromStorage > 0) {
-                view.insert(wanted.copyWithCount(fromStorage), fromStorage);
+                StorageServerStub.returnItems(target.player(), view, wanted.copyWithCount(fromStorage), true);
             }
             // 现场盛装出的部分退回存储为物品（等量于消耗的空容器 + 流体，不会凭空增减）
             if (fromFluid > 0) {
-                if (view != null) {
-                    view.insert(wanted.copyWithCount(fromFluid), fromFluid);
-                }
+                StorageServerStub.returnItems(target.player(), view, wanted.copyWithCount(fromFluid), true);
             }
             return 0;
         }
@@ -2510,15 +2513,15 @@ public final class StorageServerStub {
      * <p>用于 JEI 填充合成：配方要求流体桶时，只要有空桶并连着存有该流体的端口，
      * 就现场装桶，而不必预先存有成品桶。空桶可来自玩家背包或存储。</p>
      *
+     * @param player    玩家（用于取空容器与兜底归还）
      * @param view      当前存储视图
-     * @param inventory 玩家背包（用于取空容器）；可为 null
      * @param wanted    目标物品（需为装有流体的容器）
      * @param needed    需要数量
      * @return 实际盛装出的数量
      */
     private static int produceFilledContainer(
+        ServerPlayer player,
         @Nullable StorageView view,
-        @Nullable Inventory inventory,
         ItemStack wanted,
         int needed
     ) {
@@ -2533,6 +2536,7 @@ public final class StorageServerStub {
         if (emptyContainer.isEmpty()) {
             return 0;
         }
+        Inventory inventory = player.getInventory();
         int perUnit = content.getAmount();
         int count = Math.min(needed, StorageServerStub.countProducibleContainers(view, inventory, wanted));
         if (count <= 0) {
@@ -2554,13 +2558,13 @@ public final class StorageServerStub {
             removed++;
         }
         if (removed < count) {
-            StorageServerStub.giveBackContainers(inventory, view, emptyContainer, removed);
+            StorageServerStub.giveBackContainers(player, view, emptyContainer, removed);
             return 0;
         }
         int drained = StorageFluidRegistry.drain(storageId, content, perUnit * count);
         if (drained < perUnit * count) {
             // 模拟通过后实际抽取仍不足（并发改动）：容器全数还回，已抽出的流体灌回
-            StorageServerStub.giveBackContainers(inventory, view, emptyContainer, count);
+            StorageServerStub.giveBackContainers(player, view, emptyContainer, count);
             StorageServerStub.refillFluid(storageId, content, drained);
             return 0;
         }
@@ -2602,23 +2606,14 @@ public final class StorageServerStub {
         return StorageServerStub.hasEnoughContainers(player.getInventory(), view, emptyContainer, 1);
     }
 
-    /** 把 count 个容器还回玩家背包，放不下的再放回该存储。 */
+    /** 把 count 个容器还回玩家背包，放不下的再放回该存储，最终仍放不下则掉落世界。 */
     private static void giveBackContainers(
-        @Nullable Inventory inventory,
+        ServerPlayer player,
         @Nullable StorageView view,
         ItemStack resource,
         int count
     ) {
-        if (count <= 0) {
-            return;
-        }
-        int remaining = count;
-        if (inventory != null) {
-            remaining = StorageServerStub.giveBackToInventory(inventory, resource, count);
-        }
-        if (remaining > 0 && view != null) {
-            view.insert(resource.copyWithCount(remaining), remaining);
-        }
+        StorageServerStub.returnItems(player, view, resource.copyWithCount(Math.max(0, count)), false);
     }
 
     /** 把流体灌回该存储的端口；端口装不下时按实际容量尽力而为。 */
@@ -2800,7 +2795,7 @@ public final class StorageServerStub {
         }
         // 现成物品取完仍不足时，才用空容器 + 端口流体现场盛装
         if (moved < maxCount) {
-            moved += StorageServerStub.produceFilledContainer(view, inventory, wanted, maxCount - moved);
+            moved += StorageServerStub.produceFilledContainer(target.player(), view, wanted, maxCount - moved);
         }
         return moved;
     }
@@ -3225,8 +3220,8 @@ public final class StorageServerStub {
             }
             // 桶装流体：JEI 填充合成按桶识别配方时，用存储中的空桶 + 端口流体现场盛装
             int produced = StorageServerStub.produceFilledContainer(
+                player,
                 new StorageServerStub.StorageView(storages, List.of()),
-                player.getInventory(),
                 resource,
                 required
             );
