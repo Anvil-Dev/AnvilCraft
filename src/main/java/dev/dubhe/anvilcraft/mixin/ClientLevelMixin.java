@@ -2,8 +2,8 @@ package dev.dubhe.anvilcraft.mixin;
 
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import dev.dubhe.anvilcraft.block.entity.celestial.CelestialTravelManager;
-import dev.dubhe.anvilcraft.client.renderer.MunSurfaceRenderer;
-import dev.dubhe.anvilcraft.client.support.MunClientSky;
+import dev.dubhe.anvilcraft.client.renderer.mun.MunClientSky;
+import dev.dubhe.anvilcraft.client.renderer.mun.MunSurfaceRenderer;
 import dev.dubhe.anvilcraft.client.support.OverworldLikeClientState;
 import dev.dubhe.anvilcraft.client.support.PowerGridSupport;
 import dev.dubhe.anvilcraft.util.EnchantedGoldBlockPositions;

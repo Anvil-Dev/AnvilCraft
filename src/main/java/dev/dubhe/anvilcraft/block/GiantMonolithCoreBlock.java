@@ -32,6 +32,8 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityTicker;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -106,6 +108,16 @@ public class GiantMonolithCoreBlock extends SimpleMultiPartBlock<Cube3x3PartHalf
     }
 
     @Override
+    public <T extends BlockEntity> @Nullable BlockEntityTicker<T> getTicker(
+        Level level, BlockState state, BlockEntityType<T> type
+    ) {
+        if (level.isClientSide || type != ModBlockEntities.MONOLITH_CORE.get()) return null;
+        return (tickLevel, pos, tickState, blockEntity) -> {
+            if (blockEntity instanceof MonolithCoreBlockEntity core) core.tick();
+        };
+    }
+
+    @Override
     public InteractionResult use(
         BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit
     ) {
@@ -121,9 +133,8 @@ public class GiantMonolithCoreBlock extends SimpleMultiPartBlock<Cube3x3PartHalf
         if (recipes.isEmpty()) return InteractionResult.FAIL;
         SpecialCelestialBodyRecipe recipe = recipes.get(level.random.nextInt(recipes.size())).value();
         ItemStack book = createKnowledgeBook(recipe, serverLevel.getSeed());
-        if (!core.beginOffering(stack)) return InteractionResult.CONSUME;
+        if (!core.beginOffering(stack, player, book)) return InteractionResult.CONSUME;
         stack.consume(1, player);
-        if (!player.addItem(book)) player.drop(book, false);
         return InteractionResult.CONSUME;
     }
 

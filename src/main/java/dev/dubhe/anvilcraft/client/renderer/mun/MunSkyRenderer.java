@@ -1,0 +1,135 @@
+package dev.dubhe.anvilcraft.client.renderer.mun;
+
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.BufferUploader;
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
+import com.mojang.blaze3d.vertex.Tesselator;
+import com.mojang.blaze3d.vertex.VertexFormat;
+import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.worldgen.MunSkyMath;
+import net.minecraft.client.Camera;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.renderer.ShaderInstance;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.level.material.FogType;
+import net.minecraft.world.phys.Vec3;
+import org.joml.Matrix4f;
+import org.lwjgl.opengl.GL11;
+
+import java.io.IOException;
+import javax.annotation.Nullable;
+
+public final class MunSkyRenderer {
+    private static final ResourceLocation EARTH_TEXTURE = AnvilCraft.of("textures/block/celestial_body/planet_overworld.png");
+    private static final ResourceLocation SUN_TEXTURE = ResourceLocation.withDefaultNamespace("textures/environment/sun.png");
+    private static @Nullable ShaderInstance shader;
+
+    private MunSkyRenderer() {
+    }
+
+    static void registerShaders(MunShaderRegistration shaders) throws IOException {
+        shaders.add("mun/mun_sky", DefaultVertexFormat.POSITION, instance -> shader = instance);
+    }
+
+    static void resetShader() {
+        shader = null;
+    }
+
+    public static void render(ClientLevel level, float partialTick, Matrix4f view, Camera camera, Matrix4f projection) {
+        renderSafely(level, partialTick, view, camera, projection, false);
+    }
+
+    public static void renderBackground(ClientLevel level, float partialTick, Matrix4f view, Camera camera, Matrix4f projection) {
+        renderSafely(level, partialTick, view, camera, projection, true);
+    }
+
+    private static void renderSafely(
+        ClientLevel level, float partialTick, Matrix4f view, Camera camera, Matrix4f projection, boolean backgroundOnly
+    ) {
+        if (camera.getFluidInCamera() != FogType.NONE) return;
+        if (camera.getEntity() instanceof LivingEntity living
+            && (living.hasEffect(MobEffects.BLINDNESS) || living.hasEffect(MobEffects.DARKNESS))) return;
+        if (MunRenderPipeline.enabled() && shader != null) {
+            try {
+                drawSky(level, partialTick, view, camera, projection, backgroundOnly);
+                return;
+            } catch (RuntimeException exception) {
+                MunRenderPipeline.fail();
+            }
+        }
+        Vec3 position = camera.getPosition();
+        MunVanillaSkyRenderer.render(position.x, position.z, level.getDayTime(), MunClientSky.partialDayTime(level, partialTick),
+            MunClientSky.sunlight(level), view, projection);
+    }
+
+    private static void drawSky(
+        ClientLevel level, float partialTick, Matrix4f view, Camera camera, Matrix4f projection, boolean backgroundOnly
+    ) {
+        ShaderInstance skyShader = shader;
+        if (skyShader == null) return;
+        Vec3 position = camera.getPosition();
+        long dayTime = level.getDayTime();
+        double partialTime = MunClientSky.partialDayTime(level, partialTick);
+        MunSkyMath.Rotation rotation = MunSkyMath.skyRotation(position.x, position.z, dayTime, partialTime);
+        MunSkyMath.Vector sun = MunSkyMath.referenceSun(dayTime, partialTime);
+        skyShader.safeGetUniform("InverseProjection").set(new Matrix4f(projection).invert());
+        skyShader.safeGetUniform("InverseView").set(new Matrix4f(view).invert());
+        skyShader.safeGetUniform("SkyRotation").set(rotationMatrix(rotation));
+        skyShader.safeGetUniform("EarthRotation").set(
+            rotationMatrix(MunSkyMath.EARTH_ROTATION).mul(rotationMatrix(MunSkyMath.earthSpin(dayTime, partialTime)))
+        );
+        skyShader.safeGetUniform("SunDirection").set((float) sun.x(), (float) sun.y(), (float) sun.z());
+        skyShader.safeGetUniform("EarthHalfSize").set((float) MunSkyMath.EARTH_HALF_SIZE);
+        skyShader.safeGetUniform("AtmosphereThickness").set((float) MunSkyMath.EARTH_ATMOSPHERE_THICKNESS);
+        skyShader.safeGetUniform("SunHalfSize").set((float) MunSkyMath.SUN_HALF_SIZE);
+        skyShader.safeGetUniform("Daylight").set(MunClientSky.sunlight(level));
+        ShaderInstance previous = RenderSystem.getShader();
+        int texture0 = RenderSystem.getShaderTexture(0);
+        int texture1 = RenderSystem.getShaderTexture(1);
+        boolean blend = GL11.glIsEnabled(GL11.GL_BLEND);
+        boolean depthTest = GL11.glIsEnabled(GL11.GL_DEPTH_TEST);
+        boolean depthMask = GL11.glGetBoolean(GL11.GL_DEPTH_WRITEMASK);
+        int depthFunction = GL11.glGetInteger(GL11.GL_DEPTH_FUNC);
+        try {
+            RenderSystem.setShaderTexture(0, EARTH_TEXTURE);
+            RenderSystem.setShaderTexture(1, SUN_TEXTURE);
+            RenderSystem.setShader(() -> skyShader);
+            RenderSystem.disableBlend();
+            RenderSystem.depthMask(false);
+            if (backgroundOnly) {
+                RenderSystem.enableDepthTest();
+                RenderSystem.depthFunc(GL11.GL_LEQUAL);
+            } else {
+                RenderSystem.disableDepthTest();
+            }
+            drawScreenQuad();
+        } finally {
+            RenderSystem.setShader(() -> previous);
+            RenderSystem.setShaderTexture(0, texture0);
+            RenderSystem.setShaderTexture(1, texture1);
+            if (blend) RenderSystem.enableBlend();
+            else RenderSystem.disableBlend();
+            if (depthTest) RenderSystem.enableDepthTest();
+            else RenderSystem.disableDepthTest();
+            RenderSystem.depthMask(depthMask);
+            RenderSystem.depthFunc(depthFunction);
+        }
+    }
+
+    public static Matrix4f rotationMatrix(MunSkyMath.Rotation rotation) {
+        MunSkyMath.Vector axis = rotation.axis();
+        return new Matrix4f().rotation((float) rotation.angle(), (float) axis.x(), (float) axis.y(), (float) axis.z());
+    }
+
+    public static void drawScreenQuad() {
+        BufferBuilder buffer = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION);
+        buffer.addVertex(-1, -1, 0);
+        buffer.addVertex(1, -1, 0);
+        buffer.addVertex(1, 1, 0);
+        buffer.addVertex(-1, 1, 0);
+        BufferUploader.drawWithShader(buffer.buildOrThrow());
+    }
+}

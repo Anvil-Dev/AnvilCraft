@@ -3,7 +3,7 @@ package dev.dubhe.anvilcraft.mixin;
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import dev.dubhe.anvilcraft.client.init.ModRenderTargets;
 import dev.dubhe.anvilcraft.client.init.ModShaders;
-import dev.dubhe.anvilcraft.client.renderer.MunSurfaceRenderer;
+import dev.dubhe.anvilcraft.client.renderer.mun.MunSurfaceRenderer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.ShaderInstance;

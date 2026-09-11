@@ -216,16 +216,16 @@ public class BuildingBlocksSections extends DisplayItemsGenerator {
                 content.accept(ModBlocks.EMBER_DECO_OUTLINE);
                 content.accept(ModBlocks.TRANSCENDENCE_DECO_BLOCK);
                 content.accept(ModBlocks.TRANSCENDENCE_DECO_OUTLINE);
-                content.accept(ModBlocks.MONOLITH);
-                content.accept(ModBlocks.MONOLITH_CORE);
-                content.accept(ModBlocks.MONOLITH_LINE);
-                content.accept(ModBlocks.GIANT_MONOLITH_CORE);
-                content.accept(ModBlocks.GIANT_MONOLITH_LINE);
                 content.accept(ModBlocks.ARROW);
                 content.accept(ModBlocks.CHECK_MARK);
                 content.accept(ModBlocks.CROSS_MARK);
                 content.accept(ModBlocks.EXCLAMATION_MARK);
                 content.accept(ModBlocks.QUESTION_MARK);
+                content.accept(ModBlocks.MONOLITH_CORE);
+                content.accept(ModBlocks.MONOLITH_LINE);
+                content.accept(ModBlocks.GIANT_MONOLITH_CORE);
+                content.accept(ModBlocks.GIANT_MONOLITH_LINE);
+                content.accept(ModBlocks.MONOLITH);
             }
         );
     }
