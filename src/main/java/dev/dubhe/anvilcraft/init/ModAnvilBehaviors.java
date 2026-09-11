@@ -9,6 +9,7 @@ import dev.dubhe.anvilcraft.anvil.HitBeeNestBehavior;
 import dev.dubhe.anvilcraft.anvil.HitCrabTrapBehavior;
 import dev.dubhe.anvilcraft.anvil.HitSpawnerBehavior;
 import dev.dubhe.anvilcraft.anvil.ImpactPileBehavior;
+import dev.dubhe.anvilcraft.anvil.ItemSplitterBehavior;
 import dev.dubhe.anvilcraft.anvil.ItemStampingBehavior;
 import dev.dubhe.anvilcraft.anvil.MagnetBlockBehavior;
 import dev.dubhe.anvilcraft.anvil.MassInjectBehavior;
@@ -53,6 +54,7 @@ public class ModAnvilBehaviors {
         event.registerBehavior(state -> state.getBlock() instanceof BlockPlacerBlock, new BlockPlacerBehavior());
         event.registerBehavior(state -> state.getBlock() instanceof GunpowderBlock, new GunpowderBlockBehavior());
         event.registerBehavior(state -> state.is(ModBlocks.IMPACT_PILE), new ImpactPileBehavior());
+        event.registerBehavior(state -> state.is(ModBlocks.ITEM_SPLITTER), new ItemSplitterBehavior());
         event.registerBehavior(state -> state.getBlock() instanceof SugarBlock, new SugarBlockBehavior());
         event.registerBehavior(state -> state.is(BlockTags.CAULDRONS), new TimeWarpPlayerBehavior());
         event.registerBehavior(Blocks.BEACON, new BeaconConversionBehavior());

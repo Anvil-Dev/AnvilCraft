@@ -40,6 +40,7 @@ import dev.dubhe.anvilcraft.block.entity.InductionLightBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.InfiniteCollectorBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.ItemCollectorBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.ItemDetectorBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.ItemSplitterBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.LargeCauldronBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.LargeFluidTankBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.LargeLaserBlockEntity;
@@ -163,6 +164,11 @@ public class ModBlockEntities {
         "item_detector",
         ItemDetectorBlockEntity::createBlockEntity
     ).validBlock(ModBlocks.ITEM_DETECTOR).register();
+
+    public static final BlockEntityEntry<ItemSplitterBlockEntity> ITEM_SPLITTER = REGISTRUM.blockEntity(
+        "item_splitter",
+        ItemSplitterBlockEntity::new
+    ).validBlock(ModBlocks.ITEM_SPLITTER).register();
 
     public static final BlockEntityEntry<AutoEnchantingTableBlockEntity> AUTO_ENCHANTING_TABLE = REGISTRUM.blockEntity(
         "auto_enchanting_table",

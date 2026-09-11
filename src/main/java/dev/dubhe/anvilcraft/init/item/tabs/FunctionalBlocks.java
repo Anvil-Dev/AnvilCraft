@@ -120,6 +120,7 @@ public class FunctionalBlocks extends DisplayItemsGenerator {
         this.plain(ModBlocks.CHUTE); // 溜槽
         this.plain(ModBlocks.MAGNETIC_CHUTE); // 磁性溜槽
         this.plain(ModBlocks.OVERFLOW_CHUTE); // 溢流溜槽
+        this.plain(ModBlocks.ITEM_SPLITTER); // 物品分配器
         this.plain(ModBlocks.SLIDING_RAIL); // 滑轨
         this.plain(ModBlocks.POWERED_SLIDING_RAIL); // 动力滑轨
         this.plain(ModBlocks.ACTIVATOR_SLIDING_RAIL); // 激活滑轨

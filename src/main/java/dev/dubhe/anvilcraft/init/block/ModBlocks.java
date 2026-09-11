@@ -91,6 +91,7 @@ import dev.dubhe.anvilcraft.block.InfiniteCollectorBlock;
 import dev.dubhe.anvilcraft.block.InstructBlock;
 import dev.dubhe.anvilcraft.block.ItemCollectorBlock;
 import dev.dubhe.anvilcraft.block.ItemDetectorBlock;
+import dev.dubhe.anvilcraft.block.ItemSplitterBlock;
 import dev.dubhe.anvilcraft.block.JewelCraftingTable;
 import dev.dubhe.anvilcraft.block.LargeCakeBlock;
 import dev.dubhe.anvilcraft.block.LargeCauldronBlock;
@@ -1845,6 +1846,15 @@ public class ModBlocks {
         .blockstate(DataGenUtil::noExtraModelOrState)
         .loot((tables, block) -> tables.dropOther(block, ModBlocks.MAGNETIC_CHUTE))
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.ENCHANTMENT_POWER_TRANSMITTER)
+        .register();
+
+    public static final BlockEntry<ItemSplitterBlock> ITEM_SPLITTER = REGISTRUM.block("item_splitter", ItemSplitterBlock::new)
+        .initialProperties(() -> Blocks.IRON_BLOCK)
+        .blockstate(DataGenUtil::noExtraModelOrState)
+        .item()
+        .build()
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .recipe(RegistrumBlockRecipeLoader::itemSplitter)
         .register();
 
     public static final BlockEntry<ImpactPileBlock> IMPACT_PILE = REGISTRUM.block("impact_pile", ImpactPileBlock::new)

@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "A": {
+      "item": "minecraft:iron_ingot"
+    },
+    "B": {
+      "item": "minecraft:dropper"
+    },
+    "C": {
+      "item": "anvilcraft:chute"
+    }
+  },
+  "pattern": [
+    "AAA",
+    "BBC",
+    "AAA"
+  ],
+  "result": {
+    "count": 1,
+    "id": "anvilcraft:item_splitter"
+  }
+}
