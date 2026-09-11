@@ -276,22 +276,8 @@ public class FishTankBlockEntity extends BlockEntity implements IItemResourceHan
 
         @Override
         public boolean isValid(int index, ItemResource resource) {
-            boolean hasSame = false;
-            int sameIndex = -1;
-            for (int i = 0; i < this.size(); i++) {
-                if (!this.getResource(i).equals(resource)) {
-                    continue;
-                }
-
-                if (hasSame) {
-                    return false;
-                } else {
-                    hasSame = true;
-                    sameIndex = i;
-                }
-            }
-            if (!hasSame) return this.getResource(index).isEmpty();
-            return sameIndex == index;
+            ItemResource stackInSlot = this.getResource(index);
+            return stackInSlot.isEmpty() || ItemStack.isSameItemSameComponents(stackInSlot.toStack(), resource.toStack());
         }
 
         @Override
