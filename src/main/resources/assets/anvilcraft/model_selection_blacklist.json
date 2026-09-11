@@ -1,7 +1,9 @@
 {
   "disable_precise_picking": [
     "anvilcraft:trading_station",
-    "anvilcraft:heavy_iron_column"
+    "anvilcraft:heavy_iron_column",
+    "anvilcraft:overflow_chute",
+    "anvilcraft:fish_tank"
   ],
   "disable_model_outline": [
     "anvilcraft:large_cauldron",

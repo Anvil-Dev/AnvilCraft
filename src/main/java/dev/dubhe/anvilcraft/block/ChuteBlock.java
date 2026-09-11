@@ -113,6 +113,7 @@ public class ChuteBlock extends BetterBaseEntityBlock implements HammerRotateBeh
                 || state.is(ModBlocks.SIMPLE_CHUTE.get())
                 || state.is(ModBlocks.MAGNETIC_CHUTE.get())
                 || state.is(ModBlocks.SIMPLE_MAGNETIC_CHUTE.get())
+                || state.is(ModBlocks.OVERFLOW_CHUTE.get())
                 || (state.is(ModBlocks.CELESTIAL_FORGING_ANVIL_LOGISTICS_INTERFACE.get())
                     && state.hasProperty(dev.dubhe.anvilcraft.block.cfa.interfaces.CelestialForgingAnvilInterfaceBlock.ACTIVE)
                     && state.getValue(dev.dubhe.anvilcraft.block.cfa.interfaces.CelestialForgingAnvilInterfaceBlock.ACTIVE));
@@ -122,9 +123,25 @@ public class ChuteBlock extends BetterBaseEntityBlock implements HammerRotateBeh
                 || block == ModBlocks.SIMPLE_CHUTE.get()
                 || block == ModBlocks.MAGNETIC_CHUTE.get()
                 || block == ModBlocks.SIMPLE_MAGNETIC_CHUTE.get()
+                || block == ModBlocks.OVERFLOW_CHUTE.get()
                 || block == ModBlocks.CELESTIAL_FORGING_ANVIL_LOGISTICS_INTERFACE.get();
         }
         return false;
+    }
+
+    /**
+     * 判断方块是否朝指定方向输出物品。
+     *
+     * <p>普通 / 简易 / 磁性溜槽以 {@code FACING} 为准；溢流溜槽除此之外还包括任一开启的溢流口。</p>
+     *
+     * @param state     待判断的方块状态
+     * @param direction 输出方向
+     * @return 若该方块朝此方向输出则返回 {@code true}
+     */
+    public static boolean outputsToward(BlockState state, Direction direction) {
+        if (!isChuteBlock(state)) return false;
+        if (getFacing(state) == direction) return true;
+        return OverflowChuteBlock.hasOverflowPort(state, direction);
     }
 
     @Nullable
@@ -175,7 +192,7 @@ public class ChuteBlock extends BetterBaseEntityBlock implements HammerRotateBeh
             default -> oldFacing.getClockWise();
         };
         BlockState facingState = level.getBlockState(pos.relative(newFacing));
-        if (isChuteBlock(facingState) && getFacing(facingState) == newFacing.getOpposite()) {
+        if (outputsToward(facingState, newFacing.getOpposite())) {
             level.setBlock(pos, Blocks.AIR.defaultBlockState(), 3);
             level.levelEvent(2001, pos, Block.getId(oldState));
             Block.dropResources(oldState, level, pos);
@@ -392,7 +409,7 @@ public class ChuteBlock extends BetterBaseEntityBlock implements HammerRotateBeh
             BlockPos neighborPos = pos.relative(dir);
             BlockState neighborState = level.getBlockState(neighborPos);
             if (isChuteBlock(neighborState)) {
-                if (getFacing(neighborState) == dir.getOpposite()) {
+                if (outputsToward(neighborState, dir.getOpposite())) {
                     success = true;
                     if (dir == Direction.UP) {
                         tall = !neighborState.is(ModBlocks.MAGNETIC_CHUTE.get());
@@ -401,11 +418,11 @@ public class ChuteBlock extends BetterBaseEntityBlock implements HammerRotateBeh
                             return null;
                         }
                     } else {
-                        if (facing.getOpposite() == getFacing(neighborState)) {
-                            facing = facing.getOpposite();
+                        if (facing == dir) {
+                            facing = dir.getOpposite();
                         }
                         BlockState backState = level.getBlockState(pos.relative(facing));
-                        if (isChuteBlock(backState) && getFacing(backState) == facing.getOpposite()) {
+                        if (isChuteBlock(backState) && outputsToward(backState, facing.getOpposite())) {
                             return null;
                         }
 

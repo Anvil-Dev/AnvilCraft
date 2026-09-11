@@ -40,6 +40,7 @@ import dev.dubhe.anvilcraft.block.entity.InductionLightBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.InfiniteCollectorBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.ItemCollectorBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.ItemDetectorBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.ItemSplitterBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.LargeCauldronBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.LargeFluidTankBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.LargeLaserBlockEntity;
@@ -52,6 +53,7 @@ import dev.dubhe.anvilcraft.block.entity.MineralFountainBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.MobAmberBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.MonolithCoreBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.NeutronIrradiatorBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.OverflowChuteBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.OverseerBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.PlasmaJetsBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.PowerConverterBlockEntity;
@@ -163,6 +165,11 @@ public class ModBlockEntities {
         ItemDetectorBlockEntity::createBlockEntity
     ).validBlock(ModBlocks.ITEM_DETECTOR).register();
 
+    public static final BlockEntityEntry<ItemSplitterBlockEntity> ITEM_SPLITTER = REGISTRUM.blockEntity(
+        "item_splitter",
+        ItemSplitterBlockEntity::new
+    ).validBlock(ModBlocks.ITEM_SPLITTER).register();
+
     public static final BlockEntityEntry<AutoEnchantingTableBlockEntity> AUTO_ENCHANTING_TABLE = REGISTRUM.blockEntity(
         "auto_enchanting_table",
         AutoEnchantingTableBlockEntity::createBlockEntity
@@ -179,6 +186,11 @@ public class ModBlockEntities {
         "magnetic_chute",
         MagneticChuteBlockEntity::new
     ).validBlock(ModBlocks.MAGNETIC_CHUTE).register();
+
+    public static final BlockEntityEntry<OverflowChuteBlockEntity> OVERFLOW_CHUTE = REGISTRUM.blockEntity(
+        "overflow_chute",
+        OverflowChuteBlockEntity::new
+    ).validBlock(ModBlocks.OVERFLOW_CHUTE).register();
 
     public static final BlockEntityEntry<SimpleChuteBlockEntity> SIMPLE_CHUTE = REGISTRUM.blockEntity(
         "simple_chute",

@@ -91,6 +91,7 @@ import dev.dubhe.anvilcraft.block.InfiniteCollectorBlock;
 import dev.dubhe.anvilcraft.block.InstructBlock;
 import dev.dubhe.anvilcraft.block.ItemCollectorBlock;
 import dev.dubhe.anvilcraft.block.ItemDetectorBlock;
+import dev.dubhe.anvilcraft.block.ItemSplitterBlock;
 import dev.dubhe.anvilcraft.block.JewelCraftingTable;
 import dev.dubhe.anvilcraft.block.LargeCakeBlock;
 import dev.dubhe.anvilcraft.block.LargeCauldronBlock;
@@ -119,6 +120,7 @@ import dev.dubhe.anvilcraft.block.NeoforgeBlock;
 import dev.dubhe.anvilcraft.block.NeutronIrradiatorBlock;
 import dev.dubhe.anvilcraft.block.ObsidianCauldron;
 import dev.dubhe.anvilcraft.block.OilCauldronBlock;
+import dev.dubhe.anvilcraft.block.OverflowChuteBlock;
 import dev.dubhe.anvilcraft.block.OverseerBlock;
 import dev.dubhe.anvilcraft.block.PiezoelectricCrystalBlock;
 import dev.dubhe.anvilcraft.block.PlasmaJetsBlock;
@@ -1814,6 +1816,19 @@ public class ModBlocks {
         .recipe(RegistrumBlockRecipeLoader::magneticChute)
         .register();
 
+    public static final BlockEntry<OverflowChuteBlock> OVERFLOW_CHUTE = REGISTRUM.block(
+            "overflow_chute",
+            OverflowChuteBlock::new
+        )
+        .initialProperties(ModBlocks.MAGNETIC_CHUTE)
+        .properties(properties -> properties.noOcclusion().isValidSpawn(Blocks::never))
+        .blockstate(DataGenUtil::noExtraModelOrState)
+        .item(ChuteBlockItem::new)
+        .build()
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.ENCHANTMENT_POWER_TRANSMITTER)
+        .recipe(RegistrumBlockRecipeLoader::overflowChute)
+        .register();
+
     public static final BlockEntry<SimpleChuteBlock> SIMPLE_CHUTE = REGISTRUM.block("simple_chute", SimpleChuteBlock::new)
         .initialProperties(() -> Blocks.IRON_BLOCK)
         .properties(properties -> properties.noOcclusion().isValidSpawn(Blocks::never))
@@ -1831,6 +1846,15 @@ public class ModBlocks {
         .blockstate(DataGenUtil::noExtraModelOrState)
         .loot((tables, block) -> tables.dropOther(block, ModBlocks.MAGNETIC_CHUTE))
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.ENCHANTMENT_POWER_TRANSMITTER)
+        .register();
+
+    public static final BlockEntry<ItemSplitterBlock> ITEM_SPLITTER = REGISTRUM.block("item_splitter", ItemSplitterBlock::new)
+        .initialProperties(() -> Blocks.IRON_BLOCK)
+        .blockstate(DataGenUtil::noExtraModelOrState)
+        .item()
+        .build()
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .recipe(RegistrumBlockRecipeLoader::itemSplitter)
         .register();
 
     public static final BlockEntry<ImpactPileBlock> IMPACT_PILE = REGISTRUM.block("impact_pile", ImpactPileBlock::new)

@@ -28,8 +28,14 @@ import static dev.dubhe.anvilcraft.api.itemhandler.ItemHandlerUtil.getTargetItem
 @Getter
 public class SimpleChuteBlockEntity extends BlockEntity implements IItemHandlerHolder {
     private final ItemStackHandler itemHandler = new ItemStackHandler(9) {
+        /**
+         * 简易溜槽内部不合并物品：槽内已有物品时拒绝输入，等它先传递出去。
+         *
+         * <p>否则后续输入会与槽内同类物品合并成一组，使简易溜槽变成合流缓冲。</p>
+         */
         @Override
         public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
+            if (!this.getStackInSlot(0).isEmpty()) return stack;
             return super.insertItem(0, stack, simulate);
         }
 

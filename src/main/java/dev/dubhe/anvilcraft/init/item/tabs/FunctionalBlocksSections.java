@@ -91,6 +91,8 @@ public class FunctionalBlocksSections extends DisplayItemsGenerator {
                 content.accept(ModBlocks.HYPERCUBE);
                 content.accept(ModBlocks.CHUTE);
                 content.accept(ModBlocks.MAGNETIC_CHUTE);
+                content.accept(ModBlocks.OVERFLOW_CHUTE);
+                content.accept(ModBlocks.ITEM_SPLITTER);
                 content.accept(ModBlocks.SLIDING_RAIL);
                 content.accept(ModBlocks.POWERED_SLIDING_RAIL);
                 content.accept(ModBlocks.ACTIVATOR_SLIDING_RAIL);
