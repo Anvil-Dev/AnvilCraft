@@ -31,7 +31,6 @@ public class FluidTankRenderUtil {
         float inset = FluidTankRenderUtil.TANK_W + insetPixels / 16f;
         float height = 1 - 2 * inset;
 
-        float minY = inset;
         float maxY = 1 - inset;
 
         FluidType attributes = fluid.getFluid().getFluidType();
@@ -39,7 +38,7 @@ public class FluidTankRenderUtil {
             // Gas always fills the whole tank; the amount is conveyed by opacity.
             FluidRenderHelper.INSTANCE.renderFluidBox(
                 fluid,
-                inset, minY, inset,
+                inset, inset, inset,
                 1 - inset, maxY, 1 - inset,
                 mbs, ps, light,
                 true, fill
@@ -47,11 +46,11 @@ public class FluidTankRenderUtil {
             return;
         }
 
-        maxY = minY + fill * height;
+        maxY = inset + fill * height;
 
         FluidRenderHelper.INSTANCE.renderFluidBox(
             fluid,
-            inset, minY, inset,
+            inset, inset, inset,
             1 - inset, maxY, 1 - inset,
             mbs, ps, light,
             true, false
