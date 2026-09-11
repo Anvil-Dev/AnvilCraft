@@ -346,7 +346,7 @@ public final class StorageJeiSupport {
                 StorageJeiSupport.addAvailable(item, availableItemStacks);
             }
             // 合成格内已有物品也算作可转移材料：转移前服务端会先清空合成格，
-            // 这些物品回到背包/存储后参与新配方的填充。
+            // 这些物品回到存储/背包后参与新配方的填充。
             CraftingStorage crafting = screen.getCrafting();
             StorageJeiSupport.addAvailable(crafting.stonecutterInput(), availableItemStacks);
             for (ItemStack stack : crafting.craftingInput()) {

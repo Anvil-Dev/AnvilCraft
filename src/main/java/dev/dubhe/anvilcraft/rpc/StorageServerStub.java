@@ -2147,8 +2147,8 @@ public final class StorageServerStub {
     }
 
     /**
-     * 清空合成格（① 切石机输入 + ② 合成 9 宫格）：物品先放回玩家背包，
-     * 背包放不下时放回存储站，返回清空后的合成数据。
+     * 清空合成格（① 切石机输入 + ② 合成 9 宫格）：物品先送入存储站，
+     * 存储放不下时回退到玩家背包，返回清空后的合成数据。
      */
     private static CraftingStorage clearCrafting(
         StorageServerStub.CraftingTarget target,
@@ -2164,11 +2164,11 @@ public final class StorageServerStub {
         }
         StorageView view = target.view();
         if (!stonecutterInput.isEmpty()) {
-            StorageServerStub.returnToInventoryOrStorage(inventory, view, stonecutterInput);
+            StorageServerStub.returnToStorageOrInventory(inventory, view, stonecutterInput);
         }
         for (ItemStack stack : grid) {
             if (!stack.isEmpty()) {
-                StorageServerStub.returnToInventoryOrStorage(inventory, view, stack);
+                StorageServerStub.returnToStorageOrInventory(inventory, view, stack);
             }
         }
         List<ItemStack> emptyGrid = java.util.Collections.nCopies(CraftingStorage.CRAFTING_GRID_SIZE, ItemStack.EMPTY);
@@ -2177,6 +2177,24 @@ public final class StorageServerStub {
             .withCraftingInput(emptyGrid);
         target.write(cleared);
         return cleared;
+    }
+
+    /** 把物品送入存储站，存储放不下时回退到玩家背包。 */
+    private static void returnToStorageOrInventory(
+        Inventory inventory,
+        @Nullable StorageView view,
+        ItemStack stack
+    ) {
+        if (stack.isEmpty()) {
+            return;
+        }
+        int remaining = stack.getCount();
+        if (view != null) {
+            remaining -= view.insert(stack.copyWithCount(remaining), remaining);
+        }
+        if (remaining > 0) {
+            StorageServerStub.giveBackToInventory(inventory, stack, remaining);
+        }
     }
 
     /** 把物品放回玩家背包，背包放不下时放回存储站。 */
@@ -3133,7 +3151,8 @@ public final class StorageServerStub {
         PlayerSetting setting = PlayerSettings.getSetting(registries, playerId);
         StorageSetting storage = setting.storage();
         SortOptions options = new SortOptions(storage.getSort(), storage.getOrder());
-        IntList order = StorageServerStub.createOrder(view, options, "", setting.listed());
+        // 取物路径只遍历真实物品槽位：流体伪槽位拿去索引 StorageView 会越界
+        IntList order = StorageServerStub.createItemOrder(view, options, setting.listed());
         ItemStack extracted = ItemStack.EMPTY;
         for (int i = 0; i < order.size() && extracted.isEmpty(); i++) {
             int index = order.getInt(i);
@@ -4033,7 +4052,8 @@ public final class StorageServerStub {
         PlayerSetting setting = PlayerSettings.getSetting(registries, player.getGameProfile().getId());
         StorageSetting storage = setting.storage();
         SortOptions options = new SortOptions(storage.getSort(), storage.getOrder());
-        IntList order = StorageServerStub.createOrder(view, options, "", setting.listed());
+        // 取物路径只遍历真实物品槽位：流体伪槽位拿去索引 StorageView 会越界
+        IntList order = StorageServerStub.createItemOrder(view, options, setting.listed());
         for (int i = 0; i < order.size(); i++) {
             int index = order.getInt(i);
             long stackAmount = view.amount(index);
@@ -4695,11 +4715,27 @@ public final class StorageServerStub {
         return this.orders.computeIfAbsent(options, ignored -> StorageServerStub.createOrder(view, options, "", categories));
     }
 
+    /** 含流体伪槽位的排序结果，供仓储 / 终端界面渲染使用。 */
     private static IntList createOrder(
         StorageView view,
         SortOptions options,
         String search,
         List<CategoryEntry> categories
+    ) {
+        return StorageServerStub.createOrder(view, options, search, categories, true);
+    }
+
+    /**
+     * 汇总排序结果；是否并入流体伪槽位由调用方决定。
+     *
+     * @param includeFluids 是否并入流体伪槽位；仅供界面渲染传 {@code true}，取物路径传 {@code false}
+     */
+    private static IntList createOrder(
+        StorageView view,
+        SortOptions options,
+        String search,
+        List<CategoryEntry> categories,
+        boolean includeFluids
     ) {
         List<OrderEntry> entries = new ArrayList<>(view.size());
         boolean requiresName = options.sort() == SortMode.NAME
@@ -4720,17 +4756,33 @@ public final class StorageServerStub {
             entries.add(new OrderEntry(index, amount, id, name));
         }
 
-        Comparator<OrderEntry> comparator = StorageServerStub.getComparator(options);
         // 流体按 1 mB = 1 个物品折算成等量物品数参与排序，并按分类逐条过滤
         // （流体分类判定流体、命名空间分类按流体命名空间判定，其余分类默认不匹配流体）
-        StorageServerStub.addFluidEntries(entries, view, search, requiresName, categories);
-        entries.sort(comparator);
+        if (includeFluids) {
+            StorageServerStub.addFluidEntries(entries, view, search, requiresName, categories);
+        }
+        entries.sort(StorageServerStub.getComparator(options));
 
         IntArrayList order = new IntArrayList(entries.size());
         for (OrderEntry entry : entries) {
             order.add(entry.index());
         }
         return order;
+    }
+
+    /**
+     * 只含真实物品槽位的排序结果，供服务端取出路径使用。
+     *
+     * <p>流体伪槽位编号自 {@link StorageFluidRegistry#FLUID_SLOT_BASE} 起，远大于真实槽位数，
+     * 而取出路径会拿排序结果直接索引 {@link StorageView}，混入伪槽位必然越界。需要取物的
+     * 调用方一律用本方法，从源头避免「每个消费者都得记得过滤」这一隐患。</p>
+     */
+    private static IntList createItemOrder(
+        StorageView view,
+        SortOptions options,
+        List<CategoryEntry> categories
+    ) {
+        return StorageServerStub.createOrder(view, options, "", categories, false);
     }
 
     /**
