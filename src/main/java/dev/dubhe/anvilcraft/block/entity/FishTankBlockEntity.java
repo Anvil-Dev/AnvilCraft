@@ -665,12 +665,12 @@ public class FishTankBlockEntity extends BlockEntity implements IItemResourceHan
         }
     }
 
-    /// 向鱼缸中放入物品
+    /// 向鱼缸中放入物品堆
     ///
     /// @param handler 鱼缸物品处理器
-    /// @param stack   要放入的物品
+    /// @param stack   要放入的物品堆
     ///
-    /// @return 插入的物品
+    /// @return 放入后剩余的物品堆
     public static ItemStack insertItemToTank(@Nullable ResourceHandler<ItemResource> handler, ItemStack stack) {
         if (handler == null) {
             return stack;

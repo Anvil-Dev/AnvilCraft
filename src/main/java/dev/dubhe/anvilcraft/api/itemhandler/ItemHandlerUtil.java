@@ -225,6 +225,11 @@ public class ItemHandlerUtil {
         return null;
     }
 
+    /// 往一个物品处理器内放入一个物品堆。
+    /// @param dest 要放入物品堆的物品处理器。
+    /// @param stack 要放入的物品堆。
+    /// @param simulate 是否为模拟放入。
+    /// @return 放入后剩余的物品堆。
     public static ItemStack insertItem(@Nullable ResourceHandler<ItemResource> dest, ItemStack stack, boolean simulate) {
         if (dest == null || stack.isEmpty()) return stack;
 
