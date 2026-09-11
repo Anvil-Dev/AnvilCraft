@@ -253,13 +253,16 @@ public class LargeBlockPlacePreviewEventListener {
         }
         Minecraft mc = Minecraft.getInstance();
         LocalPlayer player = mc.player;
-        if (player == null || player.isSpectator() || mc.level == null
-            || AnvilCraftClient.CONFIG.multiPartPreviewMode == AnvilCraftClientConfig.MultiPartPreviewMode.OFF) {
+        if (player == null || player.isSpectator() || mc.level == null) {
             renderEntries.clear();
             missingAmplifierAnvilPositions.clear();
             return;
         }
         renderMissingAmplifierGhosts(event);
+        if (AnvilCraftClient.CONFIG.multiPartPreviewMode == AnvilCraftClientConfig.MultiPartPreviewMode.OFF) {
+            renderEntries.clear();
+            return;
+        }
         updatePreview();
         if (renderEntries.isEmpty()) {
             return;
@@ -324,7 +327,7 @@ public class LargeBlockPlacePreviewEventListener {
         Vec3 cameraPos = camera.getPosition();
         CelestialForgingAnvilAmplifierBlock amplifier = ModBlocks.CELESTIAL_FORGING_ANVIL_AMPLIFIER.get();
         boolean outlineMode = AnvilCraftClient.CONFIG.multiPartPreviewMode
-            == AnvilCraftClientConfig.MultiPartPreviewMode.OUTLINE;
+            != AnvilCraftClientConfig.MultiPartPreviewMode.GHOST;
         RenderType renderType = outlineMode ? RenderType.lines() : ModRenderTypes.BEACON_GLASS;
         VertexConsumer vertexConsumer = bufferSource.getBuffer(renderType);
         if (outlineMode) {
