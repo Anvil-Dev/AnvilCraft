@@ -10,11 +10,9 @@ public record StellarTrackDefinition(
     int version, int massAnvils, Map<String, String> startingNodes,
     StellarTerminal terminal, StellarMetallicity metallicity
 ) {
-    public static final StellarTrackDefinition LEGACY = new StellarTrackDefinition(
-        1, 0, Map.of(), StellarTerminal.LEGACY, StellarMetallicity.DEFAULT);
     public static final Codec<StellarTrackDefinition> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-        Codec.intRange(1, 3).fieldOf("version").forGetter(StellarTrackDefinition::version),
-        Codec.intRange(0, 64).fieldOf("massAnvils").forGetter(StellarTrackDefinition::massAnvils),
+        Codec.intRange(3, 3).fieldOf("version").forGetter(StellarTrackDefinition::version),
+        Codec.intRange(41, 64).fieldOf("massAnvils").forGetter(StellarTrackDefinition::massAnvils),
         Codec.unboundedMap(Codec.STRING, Codec.STRING).fieldOf("startingNodes")
             .forGetter(StellarTrackDefinition::startingNodes),
         StellarTerminal.CODEC.fieldOf("terminal").forGetter(StellarTrackDefinition::terminal),

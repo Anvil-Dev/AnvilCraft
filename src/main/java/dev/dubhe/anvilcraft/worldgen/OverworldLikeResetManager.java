@@ -8,6 +8,7 @@ import dev.dubhe.anvilcraft.init.entity.ModDamageTypes;
 import dev.dubhe.anvilcraft.network.OverworldLikeCollapsePacket;
 import dev.dubhe.anvilcraft.network.OverworldLikeSkyStatePacket;
 import dev.dubhe.anvilcraft.saved.OverworldLikeWorldState;
+import dev.dubhe.anvilcraft.saved.WormholeNetwork;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
@@ -49,6 +50,7 @@ public final class OverworldLikeResetManager {
         if (!OverworldLikeGenerationBootstrap.requestReset(server, nextSeed)) return false;
         if (!state.beginCollapse(sourceLevel.getGameTime(), nextSeed)) return false;
 
+        WormholeNetwork.get().unregisterDimension(CelestialTravelManager.OVERWORLD_LIKE_LEVEL);
         state.enqueueKnownPlayersForForcedRespawn();
 
         for (ServerPlayer player : server.getPlayerList().getPlayers()) {

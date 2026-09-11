@@ -47,22 +47,10 @@ public enum StellarEvolutionPhase implements StringRepresentable {
     SUBGIANT("subgiant"),
     RGB("rgb"),
     HELIUM_FLASH("helium_flash"),
-    HORIZONTAL_BRANCH("horizontal_branch"),
     RED_CLUMP("red_clump"),
     BLUE_LOOP("blue_loop"),
-    AGB("agb"),
-    POST_AGB("post_agb"),
-    PPN("ppn"),
-    BLUE_SUPERGIANT("blue_supergiant"),
     RED_SUPERGIANT("red_supergiant"),
-    LBV("lbv"),
-    WOLF_RAYET("wolf_rayet"),
-    PRE_COLLAPSE("pre_collapse"),
-    EVENT_PRELUDE("event_prelude"),
-    EVENT_COLLAPSE("event_collapse"),
-    EVENT_EJECTA("event_ejecta"),
-    REMNANT_SETTLE("remnant_settle"),
-    WHITE_DWARF_COOLING("white_dwarf_cooling");
+    WOLF_RAYET("wolf_rayet");
 
     /** 稳定的资源/存档 ID。 */
     private final String id;
@@ -107,57 +95,12 @@ public enum StellarEvolutionPhase implements StringRepresentable {
         return phase == null ? MAIN_SEQUENCE : phase;
     }
 
-    /** 映射到旧版 1--4 粗阶段，仅供旧 UI 和玩法判断使用。 */
-    public int legacyStage() {
+    /** 巨构资格判断使用的粗阶段：主序、膨胀、终局事件。 */
+    public int acceleratorStage() {
         return switch (this) {
             case MAIN_SEQUENCE, FULLY_CONVECTIVE_MAIN_SEQUENCE, RADIATIVE_CORE_MAIN_SEQUENCE -> 1;
-            case EVENT_PRELUDE, EVENT_COLLAPSE, EVENT_EJECTA, REMNANT_SETTLE, SUPERNOVA, DIRECT_COLLAPSE, PPISN, PISN -> 3;
-            case WHITE_DWARF_COOLING -> 4;
+            case SUPERNOVA, DIRECT_COLLAPSE, PPISN, PISN -> 3;
             default -> 2;
-        };
-    }
-
-    /** 将旧版粗阶段映射为最接近的新阶段，仅用于旧存档 UI 回退。 */
-    public static StellarEvolutionPhase fromLegacyStage(int stage) {
-        return switch (Math.clamp(stage, 1, 4)) {
-            case 1 -> MAIN_SEQUENCE;
-            case 2 -> RGB;
-            case 3 -> EVENT_COLLAPSE;
-            default -> WHITE_DWARF_COOLING;
-        };
-    }
-
-    /** 是否属于爆发/坍缩视觉窗口。 */
-    public boolean isEventPhase() {
-        return this == EVENT_PRELUDE || this == EVENT_COLLAPSE || this == EVENT_EJECTA
-            || this == REMNANT_SETTLE || this == SUPERNOVA || this == DIRECT_COLLAPSE || this == PPISN || this == PISN;
-    }
-
-    /** 是否是非爆发的残骸冷却阶段。 */
-    public boolean isRemnantPhase() {
-        return this == WHITE_DWARF_COOLING || this == REMNANT_SETTLE;
-    }
-
-    /** 旧接口的近似顺序；新轨道仅以节点数组与稳定节点 ID 定位。 */
-    public int order() {
-        return switch (this) {
-            case MAIN_SEQUENCE -> 10;
-            case SUBGIANT -> 20;
-            case RGB -> 30;
-            case HELIUM_FLASH -> 40;
-            case RED_CLUMP, HORIZONTAL_BRANCH, BLUE_LOOP -> 50;
-            case RED_SUPERGIANT, BLUE_SUPERGIANT -> 55;
-            case AGB -> 60;
-            case POST_AGB -> 70;
-            case PPN -> 75;
-            case LBV -> 80;
-            case WOLF_RAYET -> 85;
-            case PRE_COLLAPSE -> 90;
-            case EVENT_PRELUDE -> 100;
-            case EVENT_COLLAPSE -> 110;
-            case EVENT_EJECTA -> 120;
-            case REMNANT_SETTLE, WHITE_DWARF_COOLING -> 130;
-            default -> 0;
         };
     }
 }

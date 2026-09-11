@@ -125,7 +125,6 @@ runs/
 **/skills/
 .claude/
 ref/
-/AGENT.md
 .port-ref/
 /.vscode
 /src/test/

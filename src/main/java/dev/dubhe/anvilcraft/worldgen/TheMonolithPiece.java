@@ -36,9 +36,9 @@ public class TheMonolithPiece extends StructurePiece {
     }
 
     /** 以地表位置为碑体中心创建结构片。 */
-    public static TheMonolithPiece at(StructureTemplateManager templates, BlockPos surfacePos, RandomSource random) {
+    public static TheMonolithPiece at(StructureTemplateManager templates, BlockPos surfacePos) {
         StructureTemplate template = templates.getOrCreate(TheMonolith.TEMPLATE);
-        TheMonolith.Placement placement = TheMonolith.placement(template, surfacePos, random);
+        TheMonolith.Placement placement = TheMonolith.placement(template, surfacePos);
         return new TheMonolithPiece(placement.corner(), placement.rotation(), placement.boundingBox());
     }
 

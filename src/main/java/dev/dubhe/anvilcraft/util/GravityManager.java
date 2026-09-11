@@ -176,7 +176,7 @@ public final class GravityManager {
 
     /** Includes dimension gravity and the entity's effective vertical gravity, not just local sources. */
     public static Vec3 getNetGravityVector(Entity entity) {
-        if (entity.isNoGravity() || AirResistanceManager.isCreativeFlying(entity)
+        if (entity.isNoGravity() || AtmosphereManager.isCreativeFlying(entity)
             || AccelerateManager.isControlledByRing(entity)) {
             return Vec3.ZERO;
         }
@@ -187,7 +187,7 @@ public final class GravityManager {
     /** Ordinary downward gravity keeps vanilla friction and other mods' changes to it. */
     public static boolean hasCustomSurfaceFriction(Entity entity) {
         if (entity.noPhysics || entity.isSpectator() || entity.isPassenger()
-            || AirResistanceManager.isCreativeFlying(entity) || AccelerateManager.isControlledByRing(entity)
+            || AtmosphereManager.isCreativeFlying(entity) || AccelerateManager.isControlledByRing(entity)
             || entity.isInWater() || entity.isInLava() || entity.isInFluidType()) {
             return false;
         }

@@ -2,7 +2,6 @@ package dev.dubhe.anvilcraft.event;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.entity.celestial.CelestialTravelManager;
-import dev.dubhe.anvilcraft.worldgen.TheMonolith;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceKey;
@@ -73,7 +72,6 @@ public class MunTravelEventListener {
         if (!player.isAlive() || player.isSleeping() || player.level() != level || !player.connection.isAcceptingMessages()) return;
         ServerLevel destination = level.getServer().getLevel(returning ? Level.OVERWORLD : CelestialTravelManager.MUN_LEVEL);
         if (destination == null) return;
-        if (!returning) TheMonolith.ensureGenerated(destination);
         RandomSource random = destination.getRandom();
         double angle = random.nextDouble() * Mth.TWO_PI;
         double distance = ARRIVAL_MIN_DISTANCE + random.nextDouble() * (ARRIVAL_MAX_DISTANCE - ARRIVAL_MIN_DISTANCE);

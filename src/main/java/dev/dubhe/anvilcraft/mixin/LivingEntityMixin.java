@@ -19,7 +19,7 @@ import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.init.loot.ModLootTables;
 import dev.dubhe.anvilcraft.item.property.component.BoxContents;
-import dev.dubhe.anvilcraft.util.AirResistanceManager;
+import dev.dubhe.anvilcraft.util.AtmosphereManager;
 import dev.dubhe.anvilcraft.util.GravityManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
@@ -290,29 +290,29 @@ public abstract class LivingEntityMixin extends Entity {
         }
     }
 
-    /** Horizontal air resistance, also the airborne share of the ground friction product. */
+    /** 水平空气阻力，同时也是地面摩擦乘积中的空气阻力部分。 */
     @ModifyExpressionValue(method = "travel", at = @At(value = "CONSTANT", args = "floatValue=0.91"))
     private float anvilcraft$scaleHorizontalAirDrag(float vanillaDrag) {
         if (GravityManager.hasFloorSupport(this)) return vanillaDrag;
-        return AirResistanceManager.drag(this, vanillaDrag);
+        return AtmosphereManager.drag(this, vanillaDrag);
     }
 
     /// 竖直空气阻力和鞘翅飞行阻力 —— 原版把这两个 {@code float} 字面量直接乘到 {@code double} 上，
     /// 编译期就已折叠成 {@code double} 常量，因此这里必须按加宽后的值匹配。
     @ModifyExpressionValue(method = "travel", at = @At(value = "CONSTANT", args = "doubleValue=0.9800000190734863"))
     private double anvilcraft$scaleVerticalAirDrag(double vanillaDrag) {
-        return AirResistanceManager.drag(this, vanillaDrag);
+        return AtmosphereManager.drag(this, vanillaDrag);
     }
 
-    /** Horizontal elytra drag. */
+    /** 鞘翅的水平空气阻力。 */
     @ModifyExpressionValue(method = "travel", at = @At(value = "CONSTANT", args = "doubleValue=0.9900000095367432"))
     private double anvilcraft$scaleElytraAirDrag(double vanillaDrag) {
-        return AirResistanceManager.drag(this, vanillaDrag);
+        return AtmosphereManager.drag(this, vanillaDrag);
     }
 
     @ModifyConstant(method = "travel", constant = @Constant(doubleValue = 0.75))
     private double anvilcraft$scaleElytraLift(double vanillaLift) {
-        return AirResistanceManager.elytraLift(this, vanillaLift);
+        return AtmosphereManager.elytraLift(this, vanillaLift);
     }
 
     @ModifyConstant(
@@ -325,7 +325,7 @@ public abstract class LivingEntityMixin extends Entity {
         ))
     )
     private double anvilcraft$scaleElytraResponse(double vanillaResponse) {
-        return AirResistanceManager.elytraResponse(this, vanillaResponse);
+        return AtmosphereManager.elytraResponse(this, vanillaResponse);
     }
 
     @ModifyExpressionValue(

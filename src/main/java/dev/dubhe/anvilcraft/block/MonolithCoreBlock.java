@@ -11,8 +11,12 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityTicker;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
+
+import javax.annotation.Nullable;
 
 public class MonolithCoreBlock extends MonolithBlock implements EntityBlock {
     public MonolithCoreBlock(Properties properties) {
@@ -22,6 +26,16 @@ public class MonolithCoreBlock extends MonolithBlock implements EntityBlock {
     @Override
     public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
         return ModBlockEntities.MONOLITH_CORE.create(pos, state);
+    }
+
+    @Override
+    public <T extends BlockEntity> @Nullable BlockEntityTicker<T> getTicker(
+        Level level, BlockState state, BlockEntityType<T> type
+    ) {
+        if (level.isClientSide || type != ModBlockEntities.MONOLITH_CORE.get()) return null;
+        return (tickLevel, pos, tickState, blockEntity) -> {
+            if (blockEntity instanceof MonolithCoreBlockEntity core) core.tick();
+        };
     }
 
     @Override
@@ -36,12 +50,11 @@ public class MonolithCoreBlock extends MonolithBlock implements EntityBlock {
     ) {
         if (!MonolithCoreBlockEntity.acceptsOffering(stack, false)) return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
         if (!level.isClientSide) {
-            if (!(level.getBlockEntity(pos) instanceof MonolithCoreBlockEntity core) || !core.beginOffering(stack)) {
+            if (!(level.getBlockEntity(pos) instanceof MonolithCoreBlockEntity core)
+                || !core.beginOffering(stack, player, ModItems.GUIDE_BOOK.asStack())) {
                 return ItemInteractionResult.CONSUME;
             }
             stack.consume(1, player);
-            ItemStack book = ModItems.GUIDE_BOOK.asStack();
-            if (!player.addItem(book)) player.drop(book, false);
         }
         return ItemInteractionResult.sidedSuccess(level.isClientSide);
     }

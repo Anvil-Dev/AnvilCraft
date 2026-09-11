@@ -6,7 +6,6 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 /** 终局与视觉事件分别配置；质量坐标与太阳质量必须指向同一基准值。 */
 public record StellarTerminal(Kind kind, int massAnvils, double solarMass, int size) {
-    public static final StellarTerminal LEGACY = new StellarTerminal(Kind.KEEP, 0, 0, 1);
     public static final Codec<StellarTerminal> CODEC = RecordCodecBuilder.create(instance -> instance.group(
         Kind.CODEC.fieldOf("kind").forGetter(StellarTerminal::kind),
         Codec.intRange(0, 64).fieldOf("massAnvils").forGetter(StellarTerminal::massAnvils),

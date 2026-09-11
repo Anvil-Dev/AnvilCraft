@@ -47,7 +47,7 @@ items:
 - <color=#999922>未收到红石信号</color>时，与<ref item="anvilcraft:sliding_rail_stop"/>表现一致
 - <color=#999922>收到红石信号</color>时，
   - 令上方的*实体*和*方块*沿朝向滑动
-  - 当<ref item="anvilcraft:powered_sliding_rail"/>背后是<ref item="anvilcraft:sliding_rail_stop"/>时，<ref item="anvilcraft:sliding_rail_stop"/>上的*实体*和*方块*会被转移至<ref item="anvilcraft:powered_sliding_rail"/>，并向前移动
+  - 当<ref item="anvilcraft:powered_sliding_rail"/>背后是<ref item="anvilcraft:sliding_rail_stop"/>及部分加工站时，<ref item="anvilcraft:sliding_rail_stop"/>及加工站上的*实体*和*方块*会被转移至<ref item="anvilcraft:powered_sliding_rail"/>，并向前移动
 ## 特性
 
 - 将物品转变为滑动状态的逻辑与<ref item="minecraft:piston"/>相同：

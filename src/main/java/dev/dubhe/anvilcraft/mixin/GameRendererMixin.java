@@ -3,7 +3,7 @@ package dev.dubhe.anvilcraft.mixin;
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import dev.dubhe.anvilcraft.client.init.ModRenderTargets;
 import dev.dubhe.anvilcraft.client.init.ModShaders;
-import dev.dubhe.anvilcraft.client.renderer.MunSurfaceRenderer;
+import dev.dubhe.anvilcraft.client.renderer.mun.MunSurfaceRenderer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.ShaderInstance;
@@ -32,6 +32,48 @@ abstract class GameRendererMixin {
     @ModifyReturnValue(method = "getRendertypeCutoutShader", at = @At("RETURN"))
     private static @Nullable ShaderInstance anvilcraft$munCutout(@Nullable ShaderInstance original) {
         return MunSurfaceRenderer.terrain(original, 0.1F);
+    }
+
+    @ModifyReturnValue(method = "getRendertypeTranslucentShader", at = @At("RETURN"))
+    private static @Nullable ShaderInstance anvilcraft$munTranslucent(@Nullable ShaderInstance original) {
+        return MunSurfaceRenderer.terrain(original, 0);
+    }
+
+    @ModifyReturnValue(method = "getRendertypeTripwireShader", at = @At("RETURN"))
+    private static @Nullable ShaderInstance anvilcraft$munTripwire(@Nullable ShaderInstance original) {
+        return MunSurfaceRenderer.terrain(original, 0.1F);
+    }
+
+    @ModifyReturnValue(method = "getRendertypeEntitySolidShader", at = @At("RETURN"))
+    private static @Nullable ShaderInstance anvilcraft$munEntitySolid(@Nullable ShaderInstance original) {
+        return MunSurfaceRenderer.entity(original, 0, 1);
+    }
+
+    @ModifyReturnValue(method = {
+        "getRendertypeEntityCutoutShader", "getRendertypeEntityCutoutNoCullShader",
+        "getRendertypeEntityCutoutNoCullZOffsetShader", "getRendertypeEntityTranslucentShader",
+        "getRendertypeEntitySmoothCutoutShader"
+    }, at = @At("RETURN"))
+    private static @Nullable ShaderInstance anvilcraft$munEntityCutout(@Nullable ShaderInstance original) {
+        return MunSurfaceRenderer.entity(original, 0.1F, 1);
+    }
+
+    @ModifyReturnValue(method = {
+        "getRendertypeArmorCutoutNoCullShader", "getRendertypeItemEntityTranslucentCullShader",
+        "getRendertypeEntityTranslucentCullShader"
+    }, at = @At("RETURN"))
+    private static @Nullable ShaderInstance anvilcraft$munEquipment(@Nullable ShaderInstance original) {
+        return MunSurfaceRenderer.entity(original, 0.1F, 0);
+    }
+
+    @ModifyReturnValue(method = "getRendertypeEntityNoOutlineShader", at = @At("RETURN"))
+    private static @Nullable ShaderInstance anvilcraft$munEntityNoOutline(@Nullable ShaderInstance original) {
+        return MunSurfaceRenderer.entity(original, 0, 0);
+    }
+
+    @ModifyReturnValue(method = "getRendertypeEntityDecalShader", at = @At("RETURN"))
+    private static @Nullable ShaderInstance anvilcraft$munEntityDecal(@Nullable ShaderInstance original) {
+        return MunSurfaceRenderer.entity(original, 0.1F, 2);
     }
 
     @Inject(

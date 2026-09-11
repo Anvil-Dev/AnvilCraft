@@ -30,6 +30,11 @@
     "anvilcraft:confined_mass_anvilon",
     "anvilcraft:confined_energy_anvilon",
     "anvilcraft:confined_neutronium_ingot",
-    "anvilcraft:confinement_chamber"
+    "anvilcraft:confinement_chamber",
+    "anvilcraft:monolith",
+    "anvilcraft:monolith_core",
+    "anvilcraft:monolith_line",
+    "anvilcraft:giant_monolith_core",
+    "anvilcraft:giant_monolith_line"
   ]
 }

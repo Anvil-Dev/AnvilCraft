@@ -1,6 +1,8 @@
 package dev.dubhe.anvilcraft.saved;
 
+import dev.dubhe.anvilcraft.block.entity.celestial.CelestialTravelManager;
 import dev.dubhe.anvilcraft.block.state.Cube323PartHalf;
+import dev.dubhe.anvilcraft.worldgen.OverworldLikeGenerationBootstrap;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import net.minecraft.core.BlockPos;
@@ -10,7 +12,10 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
+import net.neoforged.neoforge.server.ServerLifecycleHooks;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -92,10 +97,28 @@ public class WormholeNetwork extends BetterSavedData {
      */
     private final Map<ResourceKey<Level>, Map<BlockPos, UUID>> reverseIndex = new HashMap<>();
 
+    private int overworldLikeGeneration = -1;
+
     // ==================== Static accessors ====================
 
     public static WormholeNetwork get() {
-        return BetterSavedData.get("wormhole_network", WormholeNetwork::new);
+        WormholeNetwork network = BetterSavedData.get("wormhole_network", WormholeNetwork::new);
+        MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
+        if (server != null) {
+            network.synchronizeOverworldLikeGeneration(OverworldLikeGenerationBootstrap.getManifest(server));
+        }
+        return network;
+    }
+
+    private void synchronizeOverworldLikeGeneration(OverworldLikeResetManifest manifest) {
+        // Legacy saves have no generation marker; live anvils register again when their chunks load.
+        if (overworldLikeGeneration != manifest.generation() || manifest.resetPending()) {
+            unregisterDimension(CelestialTravelManager.OVERWORLD_LIKE_LEVEL);
+        }
+        if (overworldLikeGeneration != manifest.generation()) {
+            overworldLikeGeneration = manifest.generation();
+            setDirty();
+        }
     }
 
     // ==================== Registration ====================
@@ -105,6 +128,11 @@ public class WormholeNetwork extends BetterSavedData {
      */
     public void register(UUID bodyUuid, Level level, BlockPos pos) {
         ResourceKey<Level> dim = level.dimension();
+        if (CelestialTravelManager.isOverworldLike(dim) && level instanceof ServerLevel serverLevel) {
+            OverworldLikeResetManifest manifest = OverworldLikeGenerationBootstrap.getManifest(serverLevel.getServer());
+            synchronizeOverworldLikeGeneration(manifest);
+            if (manifest.resetPending() || serverLevel.getServer().getLevel(dim) != level) return;
+        }
         List<Entry> entries = network.computeIfAbsent(bodyUuid, k -> new ArrayList<>());
         entries.removeIf(e -> e.dimension.equals(dim) && e.pos.equals(pos));
         entries.add(new Entry(dim, pos));
@@ -131,6 +159,16 @@ public class WormholeNetwork extends BetterSavedData {
             }
             setDirty();
         }
+    }
+
+    /** Removes even unloaded nodes when their dimension is destroyed. */
+    public void unregisterDimension(ResourceKey<Level> dimension) {
+        if (reverseIndex.remove(dimension) == null) return;
+        for (List<Entry> entries : network.values()) {
+            entries.removeIf(entry -> entry.dimension.equals(dimension));
+        }
+        network.values().removeIf(List::isEmpty);
+        setDirty();
     }
 
     // ==================== Portal side management ====================
@@ -187,6 +225,7 @@ public class WormholeNetwork extends BetterSavedData {
 
     @Override
     public void read(CompoundTag nbt, HolderLookup.Provider registries) {
+        overworldLikeGeneration = nbt.contains("overworldLikeGeneration") ? nbt.getInt("overworldLikeGeneration") : -1;
         network.clear();
         reverseIndex.clear();
         for (String key : nbt.getAllKeys()) {
@@ -210,6 +249,7 @@ public class WormholeNetwork extends BetterSavedData {
 
     @Override
     public CompoundTag save(CompoundTag nbt, HolderLookup.Provider registries) {
+        nbt.putInt("overworldLikeGeneration", overworldLikeGeneration);
         for (Map.Entry<UUID, List<Entry>> entry : network.entrySet()) {
             ListTag list = new ListTag();
             for (Entry e : entry.getValue()) {

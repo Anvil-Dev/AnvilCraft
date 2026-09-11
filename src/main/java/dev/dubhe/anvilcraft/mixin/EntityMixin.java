@@ -10,9 +10,11 @@ import dev.dubhe.anvilcraft.api.portal.PortalType;
 import dev.dubhe.anvilcraft.block.entity.DeflectionRingBlockEntity;
 import dev.dubhe.anvilcraft.mixin.accessor.PortalProcessorAccessor;
 import dev.dubhe.anvilcraft.util.AccelerateManager;
+import dev.dubhe.anvilcraft.util.AtmosphereManager;
 import dev.dubhe.anvilcraft.util.GravityManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.PortalProcessor;
 import net.minecraft.world.entity.Pose;
@@ -39,6 +41,15 @@ import javax.annotation.Nullable;
 
 @Mixin(Entity.class)
 public abstract class EntityMixin implements IEntityExtension {
+    @Inject(method = "setAirSupply", at = @At("HEAD"), cancellable = true)
+    private void anvilcraft$preventBreathingWithoutOxygen(int airSupply, CallbackInfo ci) {
+        if ((Object) this instanceof LivingEntity living && airSupply > living.getAirSupply()
+            && airSupply > 0 && AtmosphereManager.isSuffocating(living)) {
+            // 保留窒息伤害后将气息重置为零的行为，阻止水生生物在真空中自行补满气息。
+            ci.cancel();
+        }
+    }
+
     @Unique
     private final GravityManager.OrbitalMotion anvilcraft$orbitalMotion = new GravityManager.OrbitalMotion();
 

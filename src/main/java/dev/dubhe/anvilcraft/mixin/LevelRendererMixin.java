@@ -14,8 +14,8 @@ import dev.dubhe.anvilcraft.api.rendering.CacheableBERenderingPipeline;
 import dev.dubhe.anvilcraft.client.AnvilCraftClient;
 import dev.dubhe.anvilcraft.client.init.ModRenderTargets;
 import dev.dubhe.anvilcraft.client.init.ModShaders;
-import dev.dubhe.anvilcraft.client.renderer.MunSurfaceRenderer;
 import dev.dubhe.anvilcraft.client.renderer.RenderState;
+import dev.dubhe.anvilcraft.client.renderer.mun.MunSurfaceRenderer;
 import dev.dubhe.anvilcraft.client.support.GravitationalLensManager;
 import dev.dubhe.anvilcraft.client.support.PowerGridSupport;
 import dev.dubhe.anvilcraft.client.support.RenderSupport;
@@ -45,6 +45,26 @@ public abstract class LevelRendererMixin {
     @Shadow
     @Final
     private Minecraft minecraft;
+
+    @Inject(method = "renderLevel", at = @At("HEAD"))
+    private void anvilcraft$beginMunWorld(CallbackInfo ci) {
+        MunSurfaceRenderer.beginWorld();
+    }
+
+    @Inject(method = "renderLevel", at = @At("RETURN"))
+    private void anvilcraft$endMunWorld(CallbackInfo ci) {
+        MunSurfaceRenderer.endWorld();
+    }
+
+    @Inject(method = "renderLevel", at = @At(
+        value = "INVOKE", target = "Lnet/minecraft/client/renderer/RenderType;translucent()Lnet/minecraft/client/renderer/RenderType;"
+    ))
+    private void anvilcraft$moonSurfaceEffects(
+        DeltaTracker deltaTracker, boolean renderBlockOutline, Camera camera, GameRenderer gameRenderer,
+        LightTexture lightTexture, Matrix4f frustumMatrix, Matrix4f projectionMatrix, CallbackInfo ci
+    ) {
+        MunSurfaceRenderer.postProcess(projectionMatrix);
+    }
 
     @Inject(method = "renderSectionLayer", at = @At("HEAD"))
     private void anvilcraft$beginMunTerrain(

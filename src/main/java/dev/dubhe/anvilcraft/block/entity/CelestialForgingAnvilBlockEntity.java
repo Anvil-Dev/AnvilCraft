@@ -473,7 +473,7 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
     private float supernovaScale = 1.0f;
     /** 闪光触发时锁定的 profile，避免残骸写回后渲染退回通用模板。 */
     @Getter
-    private String supernovaProfileId = "CORE_COLLAPSE_II_P";
+    private String supernovaProfileId = "SUPERNOVA";
     @Getter
     private long supernovaEventSeed = 0L;
     /// 超新星闪光总时长（刻）。8 帧 × 每帧 3 刻 = 24 刻（约 1.2 秒）。
@@ -482,7 +482,7 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
     /// 在服务端触发超新星闪光，并同步到客户端。由 AcceleratorHandler 在超新星阶段调用。
     /// 必须在生成残骸（替换天体数据）之前调用，以便捕获爆炸恒星的中心与缩放。
     public void startSupernovaFlash() {
-        startSupernovaFlash("CORE_COLLAPSE_II_P", 0L);
+        startSupernovaFlash("SUPERNOVA", 0L);
     }
 
     /** 以事件 profile 触发闪光；profile ID 和种子会随客户端快照同步。 */
@@ -490,7 +490,7 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
         this.supernovaFlashTicks = SUPERNOVA_FLASH_TICKS;
         this.supernovaCenterY = getBodyCenterWorldY();
         this.supernovaProfileId = profileId == null || profileId.isBlank()
-            ? "CORE_COLLAPSE_II_P"
+            ? "SUPERNOVA"
             : profileId;
         this.supernovaEventSeed = eventSeed;
         /// 缩放比 = 当前天体缩放 / 基础（无红石）天体缩放：无红石时为 1（基准 16×16 格），
@@ -787,13 +787,6 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
         /// 但客户端独立递减以保证流畅；二者都到 0 即结束。
         if (supernovaFlashTicks > 0) {
             supernovaFlashTicks--;
-        }
-        /// 坍缩动画——在加速器阶段 3 期间，服务器每 tick 同步一次，
-        /// 因此客户端不应独立递减以避免不同步。
-        /// 在阶段 3 之外，客户端独立递减作为后备。
-        var accel = megastructureManager.getAcceleratorHandler();
-        if (accel.getCollapseAnimTicks() > 0 && accel.getStage() != 3) {
-            accel.setCollapseAnimTicks(accel.getCollapseAnimTicks() - 1);
         }
     }
 
@@ -1111,7 +1104,7 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
             this.supernovaCenterY = tag.getDouble("supernovaCenterY");
             this.supernovaScale = tag.contains("supernovaScale") ? tag.getFloat("supernovaScale") : 1.0f;
             this.supernovaProfileId = tag.contains("supernovaProfileId")
-                ? tag.getString("supernovaProfileId") : "CORE_COLLAPSE_II_P";
+                ? tag.getString("supernovaProfileId") : "SUPERNOVA";
             this.supernovaEventSeed = tag.getLong("supernovaEventSeed");
         }
         /// 将巨构建造 NBT 委托给管理器（必须放在最后，以便管理器覆盖 BE 字段）
@@ -1271,7 +1264,7 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
         this.supernovaCenterY = tag.getDouble("supernovaCenterY");
         this.supernovaScale = tag.contains("supernovaScale") ? tag.getFloat("supernovaScale") : 1.0f;
         this.supernovaProfileId = tag.contains("supernovaProfileId")
-            ? tag.getString("supernovaProfileId") : "CORE_COLLAPSE_II_P";
+            ? tag.getString("supernovaProfileId") : "SUPERNOVA";
         this.supernovaEventSeed = tag.getLong("supernovaEventSeed");
         /// 将巨构建造 NBT 委托给管理器
         megastructureManager.readUpdateTag(tag, lookupProvider);

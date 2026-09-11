@@ -1535,7 +1535,7 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
         int light = LightTexture.FULL_BRIGHT;
 
         /// 水平四边形（朝上）。NO_CULL 使上下双面可见。
-        /// 颜色取自事件 profile：II-P 偏红橙、剥离型偏蓝白、直接坍缩偏暗，
+        /// 闪光颜色取自触发时锁定的事件 profile，
         /// 几何仍是以前的单个平面粒子。
         int flashColor = profile == null ? 0xFFFFFF : profile.color(t);
         emitFlatQuad(

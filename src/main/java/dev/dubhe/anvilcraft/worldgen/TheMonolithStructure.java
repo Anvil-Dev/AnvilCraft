@@ -14,7 +14,7 @@ import java.util.Optional;
 
 /**
  * 石碑结构：不参与自然生成（无 structure_set）；
- * 碑体在玩家首次登月时由代码放置，亦可通过 /place structure 手动放置。
+ * 碑体在新世界初始化时由代码放置，亦可通过 /place structure 手动放置。
  */
 public class TheMonolithStructure extends Structure {
     public static final MapCodec<TheMonolithStructure> CODEC = simpleCodec(TheMonolithStructure::new);
@@ -39,7 +39,7 @@ public class TheMonolithStructure extends Structure {
             new GenerationStub(
                 surfacePos,
                 builder -> builder.addPiece(
-                    TheMonolithPiece.at(context.structureTemplateManager(), surfacePos, context.random())
+                    TheMonolithPiece.at(context.structureTemplateManager(), surfacePos)
                 )
             )
         );

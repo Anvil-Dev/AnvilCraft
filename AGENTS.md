@@ -10,6 +10,7 @@
 ## Scope and Existing Work
 
 - Make the smallest change that fully satisfies the request.
+- Do not write manuals.
 - Follow nearby project patterns and existing APIs before introducing new abstractions.
 - Preserve unrelated working-tree changes. Do not revert, clean up, or reformat files outside the requested scope.
 - Do not broaden a file-specific request into a repository-wide refactor unless explicitly asked.
