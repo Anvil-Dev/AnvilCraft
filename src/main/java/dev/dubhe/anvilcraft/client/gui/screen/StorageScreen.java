@@ -56,7 +56,6 @@ import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.FastColor;
@@ -165,6 +164,21 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
     private static final int FLYOUT_FADE_IN_TICKS = 5;
     private static final int FLYOUT_HOLD_TICKS = 25;
     private static final int FLYOUT_FADE_OUT_TICKS = 5;
+    /**
+     * 浮层的 z。界面内各层的 z：物品图标 150、耐久条与数量数字 200、本浮层 300、
+     * 原版工具提示 400（{@code GuiGraphics#renderTooltipInternal}）。取 300 才不会
+     * 被数量数字压住，同时仍在工具提示之下。
+     */
+    private static final int FLYOUT_Z = 300;
+    /**
+     * 工具提示顶边相对鼠标的上移量（像素）。
+     *
+     * <p>见 {@code DefaultTooltipPositioner}：提示起点为 {@code (mouseX + 12, mouseY - 12)}，
+     * 并自该点向下延伸。浮层若落进这段区间就会被提示盖住。</p>
+     */
+    private static final int TOOLTIP_TOP_OFFSET = 12;
+    /** 浮层与工具提示顶边之间额外留出的间距（像素）。 */
+    private static final int FLYOUT_GAP = 6;
     private final Minecraft minecraft;
     @Getter
     private final BlockPos sourcePos;
@@ -300,6 +314,12 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
     };
     private int flyoutTimer;
     private boolean flyoutVisible;
+    /** 浮窗文本；由「缺失工作台」提示与流体交互失败提示共用同一套淡入淡出。 */
+    private Component flyoutMessage = Component.empty();
+    /** 浮窗是否锚定在点击处（流体提示）而非指向合成区（缺失工作台提示）。 */
+    private boolean flyoutAtClick;
+    private int flyoutClickX;
+    private int flyoutClickY;
 
     public StorageScreen(BlockPos sourcePos) {
         this(
@@ -749,6 +769,23 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
 
     /** 显示「仓储内缺失工作台或切石机」浮窗（淡入 + 停留 + 淡出）。 */
     private void showFlyout() {
+        this.flyoutMessage = Component.translatable("tooltip.anvilcraft.storage.missing_workbench");
+        this.flyoutAtClick = false;
+        this.flyoutTimer = 0;
+        this.flyoutVisible = true;
+    }
+
+    /**
+     * 在点击处显示一条提示浮窗（如流体格交互失败的原因）。
+     *
+     * <p>这类提示不能走动作栏：仓储界面开着时动作栏被界面盖住，玩家看不到任何反馈。</p>
+     */
+    private void showNotice(Component message) {
+        if (message.getString().isEmpty()) {
+            return;
+        }
+        this.flyoutMessage = message;
+        this.flyoutAtClick = true;
         this.flyoutTimer = 0;
         this.flyoutVisible = true;
     }
@@ -1298,23 +1335,58 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
         return recipes.getFirst().value().assemble(input, this.minecraft.level.registryAccess());
     }
 
-    /** 渲染「仓储内缺失工作台或切石机」浮窗（flat 九宫格底 + pointer 箭头）。 */
+    /** 渲染浮窗（flat 九宫格底，缺失工作台提示另带指向合成区的 pointer 箭头）。 */
     private void renderFlyout(GuiGraphics graphics) {
         float alpha = this.getFlyoutAlpha();
         if (alpha <= 0.0F) {
             return;
         }
-        MutableComponent message = Component.translatable("tooltip.anvilcraft.storage.missing_workbench");
-        int textWidth = this.font.width(message);
+        // 先落地滞留的批量文本：数量数字经 drawString 进入共享缓冲，而 GuiGraphics#flush 是
+        // 「关闭深度测试 + endBatch」——等它自己被刷新时会无视 z 直接画到浮层之上，
+        // 因此必须先把它们刷出来，浮层才能真正盖在最上层。
+        graphics.flush();
+        int textWidth = this.font.width(this.flyoutMessage);
         int textHeight = this.font.lineHeight;
         int flyoutWidth = textWidth + 5;
         int flyoutHeight = textHeight + 6;
-        int flyoutX = this.leftPos + 296 - flyoutWidth;
-        int flyoutY = this.topPos + 219;
+        int flyoutX;
+        int flyoutY;
+        if (this.flyoutAtClick) {
+            // 点击处提示：贴近点击位置上方居中，并夹在窗口内
+            flyoutX = Mth.clamp(
+                this.flyoutClickX - flyoutWidth / 2,
+                4,
+                Math.max(4, this.width - flyoutWidth - 4)
+            );
+            // 整体让开工具提示的顶边（鼠标上方 TOOLTIP_TOP_OFFSET），否则底边会落进提示矩形内被盖住
+            flyoutY = Math.max(
+                4,
+                this.flyoutClickY - StorageScreen.TOOLTIP_TOP_OFFSET - StorageScreen.FLYOUT_GAP - flyoutHeight
+            );
+        } else {
+            flyoutX = this.leftPos + 296 - flyoutWidth;
+            flyoutY = this.topPos + 219;
+        }
         int color = (int) (alpha * 255.0F) << 24 | 0xFFFFFF;
-        GuiRenderSupport.blitSprite(graphics, StorageScreen.FLYOUT_BACK, flyoutX, flyoutY, flyoutWidth, flyoutHeight, color);
-        GuiRenderSupport.blitSprite(graphics, StorageScreen.FLYOUT_POINTER, this.leftPos + 284, this.topPos + 216, 6, 5, color);
-        graphics.drawString(this.font, message.withColor(0xEE0000), flyoutX + 3, flyoutY + 3, color, false);
+        // 底图走 blitOffset 参数（绝对顶点 z，不受 pose 影响），文字走 pose 平移，两者要分别设置。
+        // 若不抬 z，浮层会与物品图标（z=150）、数量数字（z=200）同层而被打平压住。
+        GuiRenderSupport.blitSprite(
+            graphics, StorageScreen.FLYOUT_BACK, flyoutX, flyoutY,
+            StorageScreen.FLYOUT_Z, flyoutWidth, flyoutHeight, color
+        );
+        if (!this.flyoutAtClick) {
+            GuiRenderSupport.blitSprite(
+                graphics, StorageScreen.FLYOUT_POINTER, this.leftPos + 284, this.topPos + 216,
+                StorageScreen.FLYOUT_Z, 6, 5, color
+            );
+        }
+        PoseStack pose = graphics.pose();
+        pose.pushPose();
+        pose.translate(0.0F, 0.0F, StorageScreen.FLYOUT_Z);
+        graphics.drawString(this.font, this.flyoutMessage.copy().withColor(0xEE0000), flyoutX + 3, flyoutY + 3, color, false);
+        pose.popPose();
+        // 立即定型本次浮层，使其先于工具提示（z=400）绘制，避免浮层文字盖住工具提示底框
+        graphics.flush();
     }
 
     private void renderPlayerInventory(GuiGraphics graphics, int mouseX, int mouseY) {
@@ -1652,6 +1724,9 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
                 StorageInput action = Screen.hasShiftDown()
                                       ? StorageInput.QUICK_MOVE_FROM_STORAGE
                                       : StorageInput.FLUID_BUCKET;
+                // 失败提示要显示在点击处，故先记下点击位置
+                this.flyoutClickX = (int) mouseX;
+                this.flyoutClickY = (int) mouseY;
                 this.interactWithStorage(fluidSlot, button, action);
                 return true;
             }
@@ -2277,6 +2352,10 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
 
                     this.returnCarriedToInventory();
                     return;
+                }
+                if (result.notice() != StorageServerStub.FluidNotice.NONE) {
+                    // 交互失败原因由界面自己渲染，不走动作栏（会被界面盖住）
+                    this.showNotice(result.notice().text());
                 }
                 if (result.changed()) {
                     if (this.preservingOrder) {

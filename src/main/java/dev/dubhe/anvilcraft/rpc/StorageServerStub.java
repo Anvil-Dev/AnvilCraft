@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.rpc;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
+import dev.anvilcraft.lib.v2.codec.StreamCodecUtil;
 import dev.anvilcraft.lib.v2.rpc.CallableParam;
 import dev.anvilcraft.lib.v2.rpc.IRemoteCallableValidator;
 import dev.anvilcraft.lib.v2.rpc.RemoteCallable;
@@ -232,6 +233,7 @@ public final class StorageServerStub {
         ServerPlayer player = StorageServerStub.getServerPlayer(playerId);
         ItemStack carried = player.containerMenu.getCarried();
         boolean changed = false;
+        FluidNotice notice = FluidNotice.NONE;
         if (action == StorageInput.QUICK_MOVE_TO_STORAGE) {
             // 同一条动作左键与右键都会用到（Shift+左键 / Shift+右键），
             // 故按实际鼠标键决定是否倾倒：左键倒液体，右键存流体桶物品
@@ -251,11 +253,18 @@ public final class StorageServerStub {
         } else if (action == StorageInput.THROW) {
             changed = StorageServerStub.throwStorageStack(player, view, slot, button);
         } else if (action == StorageInput.FLUID_BUCKET) {
-            changed = StorageServerStub.takeFluidBucket(player, view, fluid, button);
+            StorageServerStub.FluidOutcome outcome = StorageServerStub.takeFluidBucket(player, view, fluid, button);
+            changed = outcome.changed();
+            notice = outcome.notice();
         } else if (action == StorageInput.QUICK_MOVE_FROM_STORAGE) {
-            changed = slot >= StorageFluidRegistry.FLUID_SLOT_BASE
-                      ? StorageServerStub.takeFluidBucketIntoInventory(player, view, fluid)
-                      : StorageServerStub.moveStorageStackToInventory(player, view, slot);
+            if (slot >= StorageFluidRegistry.FLUID_SLOT_BASE) {
+                StorageServerStub.FluidOutcome outcome =
+                    StorageServerStub.takeFluidBucketIntoInventory(player, view, fluid);
+                changed = outcome.changed();
+                notice = outcome.notice();
+            } else {
+                changed = StorageServerStub.moveStorageStackToInventory(player, view, slot);
+            }
         } else if (!carried.isEmpty()) {
             int amount = button == 0 ? carried.getCount() : 1;
             // 桶装流体只在左键时自动倾倒；右键保持原有物品行为，
@@ -293,7 +302,7 @@ public final class StorageServerStub {
         // 分支可能改动了指针物品（例如取桶时用掉了指针上的空桶），
         // 必须重新读取，否则会把动作前的旧数量回传给客户端。
         carried = player.containerMenu.getCarried();
-        return new InteractionResult(carried, changed);
+        return new InteractionResult(carried, changed, 0, notice);
     }
 
     @RemoteCallable(validator = StorageAccessValidator.class)
@@ -2561,6 +2570,20 @@ public final class StorageServerStub {
         return available >= count;
     }
 
+    /**
+     * 非破坏性判断是否存在可用空容器（鼠标指针 / 背包 / 存储本体）。
+     *
+     * <p>取用范围与 {@link #consumeEmptyContainer} 保持一致；提示优先级需要在不消耗容器的
+     * 前提下先判定「有没有桶」，故单独提供。</p>
+     */
+    private static boolean hasEmptyContainer(ServerPlayer player, StorageView view, ItemStack emptyContainer) {
+        ItemStack carried = player.containerMenu.getCarried();
+        if (!carried.isEmpty() && ItemStack.isSameItemSameComponents(carried, emptyContainer)) {
+            return true;
+        }
+        return StorageServerStub.hasEnoughContainers(player.getInventory(), view, emptyContainer, 1);
+    }
+
     /** 把 count 个容器还回玩家背包，放不下的再放回该存储。 */
     private static void giveBackContainers(
         @Nullable Inventory inventory,
@@ -4540,9 +4563,42 @@ public final class StorageServerStub {
         );
     }
 
-    public record InteractionResult(ItemStack carried, boolean changed, int refilledSlots) {
+    /**
+     * 流体交互失败的原因，随 {@link InteractionResult} 回传由仓储界面渲染成浮层提示。
+     *
+     * <p>不用 {@code displayClientMessage}：那是动作栏消息，会被打开的仓储界面盖住，
+     * 玩家看不到任何反馈。</p>
+     */
+    public enum FluidNotice {
+        /** 无提示。 */
+        NONE(""),
+        /** 缺少空容器。 */
+        BUCKET_MISSING("screen.anvilcraft.storage.fluid.bucket_missing"),
+        /** 储量不足一桶。 */
+        NOT_ENOUGH("screen.anvilcraft.storage.fluid.not_enough");
+
+        public static final StreamCodec<ByteBuf, FluidNotice> STREAM_CODEC =
+            StreamCodecUtil.enumStreamCodec(FluidNotice.class);
+
+        private final String translationKey;
+
+        FluidNotice(String translationKey) {
+            this.translationKey = translationKey;
+        }
+
+        /** 提示文本；{@link #NONE} 返回空组件。 */
+        public Component text() {
+            return this.translationKey.isEmpty() ? Component.empty() : Component.translatable(this.translationKey);
+        }
+    }
+
+    public record InteractionResult(ItemStack carried, boolean changed, int refilledSlots, FluidNotice notice) {
         public InteractionResult(ItemStack carried, boolean changed) {
-            this(carried, changed, 0);
+            this(carried, changed, 0, FluidNotice.NONE);
+        }
+
+        public InteractionResult(ItemStack carried, boolean changed, int refilledSlots) {
+            this(carried, changed, refilledSlots, FluidNotice.NONE);
         }
 
         public static final StreamCodec<RegistryFriendlyByteBuf, InteractionResult> STREAM_CODEC = StreamCodec.composite(
@@ -4552,6 +4608,8 @@ public final class StorageServerStub {
             InteractionResult::changed,
             ByteBufCodecs.VAR_INT,
             InteractionResult::refilledSlots,
+            FluidNotice.STREAM_CODEC,
+            InteractionResult::notice,
             InteractionResult::new
         );
     }
@@ -4734,9 +4792,9 @@ public final class StorageServerStub {
      * @param view   当前存储视图
      * @param fluid  被点击的流体（客户端随点击上报，按身份匹配而非下标）
      * @param button 鼠标键（0 左键整叠，1 右键 1 个），与物品格的放入语义一致
-     * @return 是否发生了改动
+     * @return 是否发生改动，以及失败原因（供界面提示）
      */
-    private static boolean takeFluidBucket(ServerPlayer player, StorageView view, FluidStack fluid, int button) {
+    private static FluidOutcome takeFluidBucket(ServerPlayer player, StorageView view, FluidStack fluid, int button) {
         // 指针上拿着装有流体的容器：这一下是「倒进去」。倒不进去（如仓储没有可接收的
         // 端口）时继续往下走，由取出的分支判断指针是否可接收产物
         ItemStack carried = player.containerMenu.getCarried();
@@ -4746,21 +4804,22 @@ public final class StorageServerStub {
                 if (carried.isEmpty()) {
                     player.containerMenu.setCarried(ItemStack.EMPTY);
                 }
-                return true;
+                return FluidOutcome.CHANGED;
             }
         }
-        ItemStack filled = StorageServerStub.fillBucketFromStorage(player, view, fluid, false);
-        if (filled.isEmpty()) {
-            return false;
+        FilledBucket filled = StorageServerStub.fillBucketFromStorage(player, view, fluid, false);
+        if (filled.stack().isEmpty()) {
+            return FluidOutcome.failed(filled.notice());
         }
         // 取出的一桶流体落在鼠标指针上，与点击物品格取物一致；
         // 指针被其它物品占用（例如还剩几个空桶）时才退回背包
         if (player.containerMenu.getCarried().isEmpty()) {
-            player.containerMenu.setCarried(filled);
-        } else if (!player.addItem(filled) && view.insert(filled.copyWithCount(1), 1) <= 0) {
-            Block.popResource(player.level(), player.blockPosition(), filled);
+            player.containerMenu.setCarried(filled.stack());
+        } else if (!player.addItem(filled.stack())
+            && view.insert(filled.stack().copyWithCount(1), 1) <= 0) {
+            Block.popResource(player.level(), player.blockPosition(), filled.stack());
         }
-        return true;
+        return FluidOutcome.CHANGED;
     }
 
     /**
@@ -4769,17 +4828,37 @@ public final class StorageServerStub {
      * @param player 玩家
      * @param view   当前存储视图
      * @param fluid  被点击的流体（客户端随点击上报）
-     * @return 是否发生了改动
+     * @return 是否发生改动，以及失败原因（供界面提示）
      */
-    private static boolean takeFluidBucketIntoInventory(ServerPlayer player, StorageView view, FluidStack fluid) {
-        ItemStack filled = StorageServerStub.fillBucketFromStorage(player, view, fluid, true);
-        if (filled.isEmpty()) {
-            return false;
+    private static FluidOutcome takeFluidBucketIntoInventory(
+        ServerPlayer player,
+        StorageView view,
+        FluidStack fluid
+    ) {
+        FilledBucket filled = StorageServerStub.fillBucketFromStorage(player, view, fluid, true);
+        if (filled.stack().isEmpty()) {
+            return FluidOutcome.failed(filled.notice());
         }
-        if (!player.addItem(filled) && view.insert(filled.copyWithCount(1), 1) <= 0) {
-            Block.popResource(player.level(), player.blockPosition(), filled);
+        if (!player.addItem(filled.stack()) && view.insert(filled.stack().copyWithCount(1), 1) <= 0) {
+            Block.popResource(player.level(), player.blockPosition(), filled.stack());
         }
-        return true;
+        return FluidOutcome.CHANGED;
+    }
+
+    /** 一次流体交互的结果：是否改动 + 失败原因（由界面渲染成浮层提示）。 */
+    private record FluidOutcome(boolean changed, FluidNotice notice) {
+        private static final FluidOutcome CHANGED = new FluidOutcome(true, FluidNotice.NONE);
+
+        private static FluidOutcome failed(FluidNotice notice) {
+            return new FluidOutcome(false, notice);
+        }
+    }
+
+    /** 装桶结果：成功时给出成品桶，失败时给出原因。 */
+    private record FilledBucket(ItemStack stack, FluidNotice notice) {
+        private static FilledBucket failed(FluidNotice notice) {
+            return new FilledBucket(ItemStack.EMPTY, notice);
+        }
     }
 
     /**
@@ -4797,7 +4876,7 @@ public final class StorageServerStub {
      *                      因此指针必须为空或正拿着所需空桶
      * @return 装出的一桶流体；失败时返回空（并按需给出提示）
      */
-    private static ItemStack fillBucketFromStorage(
+    private static FilledBucket fillBucketFromStorage(
         ServerPlayer player,
         StorageView view,
         FluidStack fluid,
@@ -4805,50 +4884,49 @@ public final class StorageServerStub {
     ) {
         FluidEntry entry = StorageFluidRegistry.find(view.primary().getId(), fluid);
         if (entry == null) {
-            return ItemStack.EMPTY;
+            return FilledBucket.failed(FluidNotice.NONE);
         }
         FluidStack target = entry.icon().copyWithAmount(FluidType.BUCKET_VOLUME);
         ItemStack filled = FluidUtil.getFilledBucket(target);
         if (filled.isEmpty()) {
-            return ItemStack.EMPTY;
+            return FilledBucket.failed(FluidNotice.NONE);
         }
         ItemStack emptyContainer = StorageServerStub.emptyContainerOf(filled);
         if (emptyContainer.isEmpty()) {
-            return ItemStack.EMPTY;
+            return FilledBucket.failed(FluidNotice.NONE);
         }
         // 指针路径：产物要落在指针上，指针被别的物品占着（例如已拿着一桶水）就无处安置，
         // 此时不执行取水，避免无谓消耗背包/存储里的空桶。此判断先于下面的提示，
-        // 否则指针被占用时还会弹出与本意无关的「储量不足」提示
+        // 否则指针被占用时还会给出与本意无关的「储量不足」提示
         if (!intoInventory) {
             ItemStack cursor = player.containerMenu.getCarried();
             if (!cursor.isEmpty() && !ItemStack.isSameItemSameComponents(cursor, emptyContainer)) {
-                return ItemStack.EMPTY;
+                return FilledBucket.failed(FluidNotice.NONE);
             }
         }
+        // 提示优先级：先判「有没有空桶」，再判「储量够不够」。
+        // 例如只剩 250 mB 且身上没桶时，玩家更该看到「需要空桶」而非「流体不足一桶」。
+        // 这里用非破坏性判定，避免为了报错而先把容器消耗掉再回滚
+        if (!StorageServerStub.hasEmptyContainer(player, view, emptyContainer)) {
+            return FilledBucket.failed(FluidNotice.BUCKET_MISSING);
+        }
         if (entry.amount() < FluidType.BUCKET_VOLUME) {
-            player.displayClientMessage(
-                Component.translatable("screen.anvilcraft.storage.fluid.not_enough"),
-                true
-            );
-            return ItemStack.EMPTY;
+            return FilledBucket.failed(FluidNotice.NOT_ENOUGH);
         }
         // 空容器可以来自鼠标指针、玩家背包或存储本体：仓储界面里三者都应可用
         if (!StorageServerStub.consumeEmptyContainer(player, view, emptyContainer)) {
-            player.displayClientMessage(
-                Component.translatable("screen.anvilcraft.storage.fluid.bucket_missing"),
-                true
-            );
-            return ItemStack.EMPTY;
+            // 判定与实际取用之间容器被消耗（并发）：仍按缺桶提示
+            return FilledBucket.failed(FluidNotice.BUCKET_MISSING);
         }
         // 确认能真正抽出，否则把空容器还回去，避免凭空吞桶
         if (StorageFluidRegistry.drain(view.primary().getId(), target, FluidType.BUCKET_VOLUME)
             < FluidType.BUCKET_VOLUME) {
             StorageServerStub.giveEmptiedContainer(player, emptyContainer);
-            return ItemStack.EMPTY;
+            return FilledBucket.failed(FluidNotice.NOT_ENOUGH);
         }
         // 取水音效：倾倒由 FluidUtil 自行播放，取出的这条路径需自行补上
         StorageServerStub.playBucketSound(player, target, SoundActions.BUCKET_FILL);
-        return filled;
+        return new FilledBucket(filled, FluidNotice.NONE);
     }
 
     /**
