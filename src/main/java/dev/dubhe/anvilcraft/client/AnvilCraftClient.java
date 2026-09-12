@@ -13,6 +13,7 @@ import dev.dubhe.anvilcraft.client.particle.IonocraftBackpackExhaustParticle;
 import dev.dubhe.anvilcraft.client.particle.OverseerTrailParticle;
 import dev.dubhe.anvilcraft.client.particle.PlasmaJetsParticle;
 import dev.dubhe.anvilcraft.client.renderer.OverworldLikeOrbitalSkyRenderer;
+import dev.dubhe.anvilcraft.client.renderer.item.CelestialForgingAnvilItemRenderer;
 import dev.dubhe.anvilcraft.client.renderer.item.ItemSlotClipping;
 import dev.dubhe.anvilcraft.client.renderer.item.decoration.IonocraftBackpackDecoration;
 import dev.dubhe.anvilcraft.client.renderer.item.decoration.TerminalInsertionDecoration;
@@ -22,6 +23,7 @@ import dev.dubhe.anvilcraft.client.support.InspectionSupport;
 import dev.dubhe.anvilcraft.client.support.PillSelectorSupport;
 import dev.dubhe.anvilcraft.config.AnvilCraftClientConfig;
 import dev.dubhe.anvilcraft.init.ModParticles;
+import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.block.ModFluids;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.item.weapon.AnvilRailgunItem;
@@ -93,6 +95,7 @@ public class AnvilCraftClient {
 
     public static void registerClientExtensions(RegisterClientExtensionsEvent e) {
         ModFluids.onRegisterFluidType(e);
+        e.registerItem(new CelestialForgingAnvilItemRenderer.ItemExtensions(), ModBlocks.CELESTIAL_FORGING_ANVIL.asItem());
         ItemExtensionImpl itemExtensionInstance = new ItemExtensionImpl();
         e.registerItem(itemExtensionInstance, ModItems.IONOCRAFT_BACKPACK);
         e.registerItem(

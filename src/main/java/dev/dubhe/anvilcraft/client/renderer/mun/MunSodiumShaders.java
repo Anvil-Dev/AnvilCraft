@@ -106,7 +106,7 @@ public final class MunSodiumShaders {
                     new String(solar.readAllBytes(), StandardCharsets.UTF_8));
             }
         } catch (IOException exception) {
-            throw new UncheckedIOException("Cannot load lunar surface shader", exception);
+            throw new UncheckedIOException("Cannot load Mun surface shader", exception);
         }
     }
 }

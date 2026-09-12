@@ -8,6 +8,7 @@ import dev.anvilcraft.lib.v2.cube.client.OutlineRenderer;
 import dev.anvilcraft.lib.v2.cube.client.SelectionPart;
 import dev.dubhe.anvilcraft.api.tooltip.TooltipRenderHelper;
 import dev.dubhe.anvilcraft.block.cfa.CelestialForgingAnvilAmplifierBlock;
+import dev.dubhe.anvilcraft.block.entity.CelestialForgingAnvilBlockEntity;
 import dev.dubhe.anvilcraft.block.item.FlexibleMultiPartBlockItem;
 import dev.dubhe.anvilcraft.block.item.SimpleMultiPartBlockItem;
 import dev.dubhe.anvilcraft.block.multipart.AbstractMultiPartBlock;
@@ -21,6 +22,7 @@ import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.util.BlockPlacementPicking;
 import dev.dubhe.anvilcraft.util.SegmentedActuator;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import net.minecraft.Util;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
@@ -50,8 +52,11 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
 import net.neoforged.neoforge.client.model.data.ModelData;
+import net.neoforged.neoforge.event.level.LevelEvent;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @EventBusSubscriber(Dist.CLIENT)
 public class LargeBlockPlacePreviewEventListener {
@@ -76,7 +81,8 @@ public class LargeBlockPlacePreviewEventListener {
 
     private static final ObjectArrayList<RenderEntry> renderEntries = new ObjectArrayList<>();
 
-    private static final ObjectArrayList<BlockPos> missingAmplifierAnvilPositions = new ObjectArrayList<>();
+    private static final long MISSING_AMPLIFIER_PREVIEW_DURATION_MS = 10_000L;
+    private static final Map<BlockPos, Long> missingAmplifierAnvilPositions = new HashMap<>();
     private static final BlockPos[] AMPLIFIER_CORNER_OFFSETS = {
         new BlockPos(-2, 0, -2),
         new BlockPos(3, 0, -2),
@@ -94,13 +100,18 @@ public class LargeBlockPlacePreviewEventListener {
     }
 
     public static void offerMissingAmplifierAnvil(BlockPos anvilPos) {
-        if (!missingAmplifierAnvilPositions.contains(anvilPos)) {
-            missingAmplifierAnvilPositions.add(anvilPos);
-        }
+        missingAmplifierAnvilPositions.put(anvilPos.immutable(), Util.getMillis() + MISSING_AMPLIFIER_PREVIEW_DURATION_MS);
     }
 
     public static void removeMissingAmplifierAnvil(BlockPos anvilPos) {
         missingAmplifierAnvilPositions.remove(anvilPos);
+    }
+
+    @SubscribeEvent
+    public static void onLevelUnload(LevelEvent.Unload event) {
+        if (event.getLevel().isClientSide()) {
+            missingAmplifierAnvilPositions.clear();
+        }
     }
 
     private static void updatePreview() {
@@ -248,6 +259,10 @@ public class LargeBlockPlacePreviewEventListener {
             return;
         }
         renderMissingAmplifierGhosts(event);
+        if (AnvilCraftClient.CONFIG.multiPartPreviewMode == AnvilCraftClientConfig.MultiPartPreviewMode.OFF) {
+            renderEntries.clear();
+            return;
+        }
         updatePreview();
         if (renderEntries.isEmpty()) {
             return;
@@ -293,18 +308,26 @@ public class LargeBlockPlacePreviewEventListener {
     }
 
     private static void renderMissingAmplifierGhosts(RenderLevelStageEvent event) {
+        Minecraft mc = Minecraft.getInstance();
+        Level level = mc.level;
+        if (level == null) {
+            missingAmplifierAnvilPositions.clear();
+            return;
+        }
+        long now = Util.getMillis();
+        missingAmplifierAnvilPositions.entrySet().removeIf(entry -> now >= entry.getValue()
+            || !(level.getBlockEntity(entry.getKey()) instanceof CelestialForgingAnvilBlockEntity anvil)
+            || anvil.isRemoved() || anvil.isAmplifierPresent());
         if (missingAmplifierAnvilPositions.isEmpty()) {
             return;
         }
         PoseStack poseStack = event.getPoseStack();
-        Minecraft mc = Minecraft.getInstance();
         MultiBufferSource.BufferSource bufferSource = mc.renderBuffers().bufferSource();
         Camera camera = event.getCamera();
         Vec3 cameraPos = camera.getPosition();
         CelestialForgingAnvilAmplifierBlock amplifier = ModBlocks.CELESTIAL_FORGING_ANVIL_AMPLIFIER.get();
-        Level level = mc.level;
         boolean outlineMode = AnvilCraftClient.CONFIG.multiPartPreviewMode
-            == AnvilCraftClientConfig.MultiPartPreviewMode.OUTLINE;
+            != AnvilCraftClientConfig.MultiPartPreviewMode.GHOST;
         RenderType renderType = outlineMode ? RenderType.lines() : ModRenderTypes.BEACON_GLASS;
         VertexConsumer vertexConsumer = bufferSource.getBuffer(renderType);
         if (outlineMode) {
@@ -323,7 +346,7 @@ public class LargeBlockPlacePreviewEventListener {
         CelestialForgingAnvilAmplifierBlock amplifier,
         Level level
     ) {
-        for (BlockPos anvilPos : missingAmplifierAnvilPositions) {
+        for (BlockPos anvilPos : missingAmplifierAnvilPositions.keySet()) {
             for (int i = 0; i < AMPLIFIER_CORNER_OFFSETS.length; i++) {
                 BlockPos mainPos = anvilPos.offset(AMPLIFIER_CORNER_OFFSETS[i]);
                 if (level.getBlockState(mainPos).is(amplifier)) {
@@ -362,7 +385,7 @@ public class LargeBlockPlacePreviewEventListener {
         CelestialForgingAnvilAmplifierBlock amplifier,
         Level level
     ) {
-        for (BlockPos anvilPos : missingAmplifierAnvilPositions) {
+        for (BlockPos anvilPos : missingAmplifierAnvilPositions.keySet()) {
             for (int i = 0; i < AMPLIFIER_CORNER_OFFSETS.length; i++) {
                 BlockPos mainPos = anvilPos.offset(AMPLIFIER_CORNER_OFFSETS[i]);
                 if (level.getBlockState(mainPos).is(amplifier)) {

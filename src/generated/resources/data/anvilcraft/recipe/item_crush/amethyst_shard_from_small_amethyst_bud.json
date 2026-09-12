@@ -1,0 +1,13 @@
+{
+  "type": "anvilcraft:item_crush",
+  "ingredients": [
+    {
+      "items": "minecraft:small_amethyst_bud"
+    }
+  ],
+  "results": [
+    {
+      "id": "minecraft:amethyst_shard"
+    }
+  ]
+}

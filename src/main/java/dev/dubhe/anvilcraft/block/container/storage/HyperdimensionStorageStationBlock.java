@@ -122,7 +122,7 @@ public class HyperdimensionStorageStationBlock
             BlockState mainState = level.getBlockState(mainPos);
             BlockEntity blockEntity = level.getBlockEntity(mainPos);
             if (mainState.is(this) && blockEntity instanceof HyperdimensionStorageStationBlockEntity storage) {
-                boolean empty = storage.getTotalCount() == 0;
+                boolean empty = storage.getTotalCount() == 0 && !storage.isCraftingUnlocked();
                 if (empty) {
                     // 空容器：清除 id 并移除孤儿存储条目，避免存档膨胀
                     UUID id = storage.getId();

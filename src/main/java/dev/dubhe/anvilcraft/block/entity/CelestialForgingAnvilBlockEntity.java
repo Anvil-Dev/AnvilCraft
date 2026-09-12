@@ -594,6 +594,7 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
     @Getter
     @Setter
     private boolean amplifierPresent = false;
+    private boolean clientMissingAmplifier = false;
 
     /// 材料槽过滤器（选择重构选项时设置）
     @Getter
@@ -762,12 +763,15 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
 
     public void tick() {
         if (level != null && level.isClientSide()) {
-            if (celestialBodyData instanceof StarData star
-                && !star.specialRedDwarf()
-                && !amplifierPresent) {
-                LargeBlockPlacePreviewEventListener.offerMissingAmplifierAnvil(worldPosition);
-            } else if (amplifierPresent) {
-                LargeBlockPlacePreviewEventListener.removeMissingAmplifierAnvil(worldPosition);
+            boolean missingAmplifier = celestialBodyData instanceof StarData star
+                && !star.specialRedDwarf() && !amplifierPresent;
+            if (missingAmplifier != this.clientMissingAmplifier) {
+                this.clientMissingAmplifier = missingAmplifier;
+                if (missingAmplifier) {
+                    LargeBlockPlacePreviewEventListener.offerMissingAmplifierAnvil(worldPosition);
+                } else {
+                    LargeBlockPlacePreviewEventListener.removeMissingAmplifierAnvil(worldPosition);
+                }
             }
         }
         if (this.rotation >= 360.0f) this.rotation -= 360.0f;
@@ -829,6 +833,10 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
     @Override
     public void setRemoved() {
         super.setRemoved();
+        if (level != null && level.isClientSide()) {
+            this.clientMissingAmplifier = false;
+            LargeBlockPlacePreviewEventListener.removeMissingAmplifierAnvil(worldPosition);
+        }
         if (level != null && !level.isClientSide() && !PowerGrid.isServerClosing) {
             this.removeGravitySource();
             this.megastructureManager.unload(this);

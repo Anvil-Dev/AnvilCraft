@@ -28,16 +28,14 @@ public abstract class LevelChunkMixin {
     @Shadow
     public abstract Level getLevel();
 
-    @Inject(
-        method = "setBlockEntity",
-        at =
-        @At(
-            value = "INVOKE",
-            target = "Ljava/util/Map;put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;"
-        )
-    )
+    @Shadow
+    public abstract Map<BlockPos, BlockEntity> getBlockEntities();
+
+    @Inject(method = "setBlockEntity", at = @At("TAIL"))
     private void onLoadBlockEntity(BlockEntity entity, CallbackInfo ci) {
         if (this.getLevel().isClientSide) return;
+        // 能力提供者可能再次查询世界，必须等实体注册和旧实体卸载完成后再通知。
+        if (this.getBlockEntities().get(entity.getBlockPos()) != entity) return;
         NeoForge.EVENT_BUS.post(new BlockEntityEvent.ServerLoad(this.getLevel(), entity));
     }
 

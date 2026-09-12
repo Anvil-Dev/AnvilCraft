@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.item.weapon;
 import dev.dubhe.anvilcraft.entity.RailgunAnvilEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
+import dev.dubhe.anvilcraft.network.WeaponChargeProgressPacket;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
@@ -40,7 +41,7 @@ public class AnvilRailgunItem extends EnergyWeaponItem {
     private static final float MIN_FIRE_CHARGE_PROGRESS = 0.2F;
 
     public AnvilRailgunItem(Properties properties) {
-        super(properties.component(ModComponents.RAILGUN_AMMO, ChargedProjectiles.EMPTY));
+        super(properties.component(ModComponents.RAILGUN_AMMO, ChargedProjectiles.EMPTY), MIN_SHOT_ENERGY);
     }
 
     @Override
@@ -56,9 +57,15 @@ public class AnvilRailgunItem extends EnergyWeaponItem {
 
     @Override
     public void onUseTick(Level level, LivingEntity user, ItemStack weapon, int remaining) {
-        if (!(user instanceof ServerPlayer player) || isLoading(player, weapon, player.getUsedItemHand())) return;
+        if (!(user instanceof Player usingPlayer) || !canContinueUsing(usingPlayer, weapon)) return;
+        if (!(user instanceof ServerPlayer player)) return;
+        if (isLoading(player, weapon, player.getUsedItemHand())) {
+            WeaponChargeProgressPacket.sync(player, weapon, 0, 0, false);
+            return;
+        }
         int elapsed = getUseDuration(weapon, user) - remaining;
         int fullTicks = fullChargeTicks(level, weapon);
+        WeaponChargeProgressPacket.sync(player, weapon, elapsed, fullTicks, true);
         if (elapsed > 0 && elapsed % fullTicks == 0) {
             fire((ServerLevel) level, player, weapon, 1.0F);
             if (ammo(weapon).isEmpty()) player.releaseUsingItem();

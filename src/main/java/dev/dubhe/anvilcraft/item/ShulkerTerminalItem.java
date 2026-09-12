@@ -6,13 +6,9 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvents;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
-import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
 
 /**
  * 潜影终端：不可绑定储存方块，使用时按优先级自动连接
@@ -35,26 +31,22 @@ public class ShulkerTerminalItem extends TerminalItem {
     }
 
     @Override
-    public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand usedHand) {
-        ItemStack stack = player.getItemInHand(usedHand);
-        if (level.isClientSide()) {
-            StorageTerminalClientStub.openRemote(StorageTerminalClientStub.shulkerTerminalId())
-                .exceptionally(ignored -> -1L)
-                .thenAccept(virtualPos -> Minecraft.getInstance().execute(() -> {
-                    if (virtualPos == -1L) {
-                        player.displayClientMessage(
-                            Component.translatable("message.anvilcraft.shulker_terminal.not_found"),
-                            true
-                        );
-                        return;
-                    }
-                    StorageScreen.openScreen(
-                        BlockPos.of(virtualPos),
-                        Component.translatable("block.anvilcraft.shulker_container")
+    public void openStorage(Player player, ItemStack stack) {
+        if (!player.level().isClientSide()) return;
+        StorageTerminalClientStub.openRemote(StorageTerminalClientStub.shulkerTerminalId())
+            .exceptionally(ignored -> -1L)
+            .thenAccept(virtualPos -> Minecraft.getInstance().execute(() -> {
+                if (virtualPos == -1L) {
+                    player.displayClientMessage(
+                        Component.translatable("message.anvilcraft.shulker_terminal.not_found"),
+                        true
                     );
-                }));
-            return new InteractionResultHolder<>(InteractionResult.SUCCESS, stack);
-        }
-        return new InteractionResultHolder<>(InteractionResult.PASS, stack);
+                    return;
+                }
+                StorageScreen.openScreen(
+                    BlockPos.of(virtualPos),
+                    Component.translatable("block.anvilcraft.shulker_container")
+                );
+            }));
     }
 }

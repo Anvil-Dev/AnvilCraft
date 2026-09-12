@@ -3,6 +3,9 @@ package dev.dubhe.anvilcraft.mixin;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import dev.dubhe.anvilcraft.api.rendering.CacheableBERenderingPipeline;
+import dev.dubhe.anvilcraft.block.cfa.CelestialForgingAnvilBlock;
+import dev.dubhe.anvilcraft.block.cfa.item.CelestialForgingAnvilBlockItem;
+import dev.dubhe.anvilcraft.block.entity.CelestialForgingAnvilBlockEntity;
 import dev.dubhe.anvilcraft.client.rpc.StorageTerminalClientStub;
 import dev.dubhe.anvilcraft.client.rpc.TerminalJeiStorageCache;
 import dev.dubhe.anvilcraft.entity.FluidTankMinecartEntity;
@@ -10,10 +13,14 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.multiplayer.MultiPlayerGameMode;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.thread.ReentrantBlockableEventLoop;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.HitResult;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -24,6 +31,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.List;
 import java.util.UUID;
+import javax.annotation.Nullable;
 
 @Mixin(Minecraft.class)
 abstract class MinecraftClientMixin extends ReentrantBlockableEventLoop<Runnable> {
@@ -36,6 +44,36 @@ abstract class MinecraftClientMixin extends ReentrantBlockableEventLoop<Runnable
 
     public MinecraftClientMixin(String name) {
         super(name);
+    }
+
+    @WrapOperation(
+        method = "pickBlock",
+        at = @At(value = "INVOKE", target = "Lnet/minecraft/client/multiplayer/ClientLevel;"
+            + "getBlockEntity(Lnet/minecraft/core/BlockPos;)Lnet/minecraft/world/level/block/entity/BlockEntity;")
+    )
+    private @Nullable BlockEntity anvilcraft$pickAnvilController(
+        ClientLevel level, BlockPos pos, Operation<BlockEntity> original
+    ) {
+        var state = level.getBlockState(pos);
+        if (state.getBlock() instanceof CelestialForgingAnvilBlock block) {
+            return block.getPickBlockEntity(level, pos, state);
+        }
+        return original.call(level, pos);
+    }
+
+    @WrapOperation(
+        method = "addCustomNbtData",
+        at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/block/entity/BlockEntity;"
+            + "saveCustomAndMetadata(Lnet/minecraft/core/HolderLookup$Provider;)Lnet/minecraft/nbt/CompoundTag;")
+    )
+    private CompoundTag anvilcraft$copyAnvilAppearance(
+        BlockEntity blockEntity, HolderLookup.Provider registries, Operation<CompoundTag> original
+    ) {
+        CompoundTag tag = original.call(blockEntity, registries);
+        if (blockEntity instanceof CelestialForgingAnvilBlockEntity && blockEntity.getLevel() != null) {
+            CelestialForgingAnvilBlockItem.saveRenderData(tag, blockEntity.getLevel().getGameTime());
+        }
+        return tag;
     }
 
     @Inject(

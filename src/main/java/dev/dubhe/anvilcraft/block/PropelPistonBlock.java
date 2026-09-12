@@ -183,6 +183,10 @@ public class PropelPistonBlock extends DirectionalBlock implements IMoveableEnti
     protected boolean triggerEvent(BlockState state, Level level, BlockPos pos, int id, int param) {
         Direction direction = state.getValue(PropelPistonBlock.FACING);
         if (id == 0) {
+            if (level.getBlockEntity(pos) instanceof PropelPistonBlockEntity piston && piston.isSideLaserPowered()) {
+                level.setBlockAndUpdate(pos, state.setValue(MOVING, false));
+                return false;
+            }
             if (net.neoforged.neoforge.event.EventHooks.onPistonMovePre(level, pos, direction, true)) {
                 level.setBlockAndUpdate(pos, state.setValue(MOVING, false));
                 return false;

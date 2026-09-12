@@ -37,7 +37,7 @@ public class TeslaGunItem extends EnergyWeaponItem {
     private static final double COS_15_DEGREES = Math.cos(Math.toRadians(15.0));
 
     public TeslaGunItem(Properties properties) {
-        super(properties);
+        super(properties, SHOT_ENERGY);
     }
 
     @Override
@@ -50,6 +50,7 @@ public class TeslaGunItem extends EnergyWeaponItem {
 
     @Override
     public void onUseTick(Level level, LivingEntity user, ItemStack stack, int remaining) {
+        if (!(user instanceof Player usingPlayer) || !canContinueUsing(usingPlayer, stack)) return;
         if (!(user instanceof ServerPlayer player) || !(level instanceof ServerLevel serverLevel)) return;
         if (player.getCooldowns().isOnCooldown(this)) return;
         Target target = findTarget(level, player);

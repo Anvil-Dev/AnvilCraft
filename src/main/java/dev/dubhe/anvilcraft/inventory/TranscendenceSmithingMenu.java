@@ -16,6 +16,7 @@ import dev.dubhe.anvilcraft.recipe.frost.IFrostSmithingRecipe;
 import dev.dubhe.anvilcraft.recipe.frost.PermutationRecipe;
 import dev.dubhe.anvilcraft.recipe.multiple.BaseMultipleToOneSmithingRecipe;
 import dev.dubhe.anvilcraft.recipe.multiple.MultipleToOneSmithingRecipeInput;
+import lombok.Getter;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
@@ -87,8 +88,11 @@ public class TranscendenceSmithingMenu extends AbstractContainerMenu {
     private final List<RecipeHolder<BaseMultipleToOneSmithingRecipe>> emberRecipes;
     private final List<RecipeHolder<? extends IFrostSmithingRecipe>> frostRecipes;
 
+    @Getter
     private List<ItemStack> templates = List.of();
+    @Getter
     private List<ResourceLocation> favoriteTemplates = List.of();
+    @Getter
     private ItemStack selectedTemplate = ItemStack.EMPTY;
     private boolean templateDataDirty = true;
 
@@ -101,7 +105,9 @@ public class TranscendenceSmithingMenu extends AbstractContainerMenu {
     @Nullable
     private RecipeHolder<? extends IFrostSmithingRecipe> selectedFrostRecipe;
 
+    @Getter
     private List<RecipeResult> frostResults = List.of();
+    @Getter
     private int selectedFrostResult = -1;
 
     public TranscendenceSmithingMenu(
@@ -237,18 +243,6 @@ public class TranscendenceSmithingMenu extends AbstractContainerMenu {
         }
     }
 
-    public List<ItemStack> getTemplates() {
-        return this.templates;
-    }
-
-    public List<ResourceLocation> getFavoriteTemplates() {
-        return this.favoriteTemplates;
-    }
-
-    public ItemStack getSelectedTemplate() {
-        return this.selectedTemplate;
-    }
-
     public Mode getMode() {
         if (this.selectedTemplate.getItem() instanceof BaseMultipleToOneTemplateItem) return Mode.EMBER;
         if (this.selectedTemplate.getItem() instanceof PermutationTemplateItem
@@ -297,14 +291,6 @@ public class TranscendenceSmithingMenu extends AbstractContainerMenu {
         return this.getMode() == Mode.EMBER ? this.emberResult.getItem(0) : this.royalFrostResult.getItem(0);
     }
 
-    public List<RecipeResult> getFrostResults() {
-        return this.frostResults;
-    }
-
-    public int getSelectedFrostResult() {
-        return this.selectedFrostResult;
-    }
-
     /** 接收服务端同步的模板目录、置顶顺序与当前虚拟模板。 */
     public void handleTemplateSync(
         List<ItemStack> syncedTemplates,
@@ -318,6 +304,15 @@ public class TranscendenceSmithingMenu extends AbstractContainerMenu {
         if (templateChanged) {
             this.createResult();
         }
+    }
+
+    /** 为配方转移选用内置模板，重复请求保留当前选择。 */
+    public boolean selectTemplateForTransfer(ServerPlayer player, ItemStack template) {
+        if (player != this.menuPlayer || !this.stillValid(player)) return false;
+        if (!ItemStack.isSameItemSameComponents(this.selectedTemplate, template)) {
+            this.handleTemplateAction(player, itemId(template), false);
+        }
+        return ItemStack.isSameItemSameComponents(this.selectedTemplate, template);
     }
 
     /** 处理模板选择或置顶请求。 */

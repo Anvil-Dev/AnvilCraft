@@ -29,6 +29,7 @@ public class WrappingItemCustomRenderedModels {
         Map<ModelResourceLocation, BakedModel> modelRegistry = event.getModels();
         swapModels(modelRegistry, ModelResourceLocation.inventory(FLUID_TANK));
         swapModels(modelRegistry, ModelResourceLocation.inventory(LARGE_FLUID_TANK));
+        swapModels(modelRegistry, ModelResourceLocation.inventory(AnvilCraft.of("celestial_forging_anvil")));
         swapModels(modelRegistry, ModelResourceLocation.inventory(CREATIVE_FLUID_TANK));
         swapModels(modelRegistry, ModelResourceLocation.inventory(CREATIVE_CRATE));
         swapModels(modelRegistry, ModelResourceLocation.inventory(STORAGE_PORT));

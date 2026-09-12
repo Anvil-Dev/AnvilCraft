@@ -1,6 +1,5 @@
 package dev.dubhe.anvilcraft.client.renderer.mun;
 
-import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.config.AnvilCraftClientConfig.MunLightingQuality;
@@ -13,16 +12,12 @@ import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
-import org.lwjgl.opengl.GL11C;
-import org.lwjgl.opengl.GL20C;
-import org.lwjgl.system.MemoryStack;
 
 import java.io.IOException;
 import javax.annotation.Nullable;
 
 /** 世界位置相关的面向光照和阴影；保留原版 AO、透明度以及光影包接管。 */
 public final class MunSurfaceRenderer {
-    private static final int[] TRANSLUCENT_TEXTURE_UNITS = {7, 11, 2};
     private static final MunShadowMap SHADOW_MAP = new MunShadowMap();
     private static final MunSolarLighting SOLAR = new MunSolarLighting();
     private static final MunSolarLighting SHADOW_SOLAR = new MunSolarLighting();
@@ -77,60 +72,13 @@ public final class MunSurfaceRenderer {
     public static void setupSodiumUniforms() {
         if (!MunRenderPipeline.requested()) return;
         try {
-            applySodiumUniforms();
+            MunSodiumShaderBindings bindings = MunSodiumShaderBindings.begin(usesTerrainShader());
+            if (bindings != null) {
+                bindings.apply(SOLAR, SHADOW_SOLAR, SHADOW_HISTORY, SHADOW_MAP, profile, relativeCamera(), renderOrigin, anchor);
+            }
         } catch (RuntimeException exception) {
             MunRenderPipeline.fail();
-            int program = GL20C.glGetInteger(GL20C.GL_CURRENT_PROGRAM);
-            if (program != 0) GL20C.glUniform1i(GL20C.glGetUniformLocation(program, "MunEnabled"), 0);
-        }
-    }
-
-    private static void applySodiumUniforms() {
-        int program = GL20C.glGetInteger(GL20C.GL_CURRENT_PROGRAM);
-        if (program == 0) return;
-        int enabled = GL20C.glGetUniformLocation(program, "MunEnabled");
-        if (enabled < 0) return;
-        boolean active = usesTerrainShader();
-        GL20C.glUniform1i(enabled, active ? 1 : 0);
-        // 关闭月球分支时，整数采样器仍不能与原版的浮点采样器共用纹理单元。
-        GL20C.glUniform1i(GL20C.glGetUniformLocation(program, "ShadowHistory"), 6);
-        for (int index = 0; index < 3; index++) {
-            GL20C.glUniform1i(GL20C.glGetUniformLocation(program, "TranslucentShadowMap" + index), TRANSLUCENT_TEXTURE_UNITS[index]);
-        }
-        if (!active) return;
-        Vec3 position = relativeCamera();
-        GL20C.glUniform3f(GL20C.glGetUniformLocation(program, "CameraPosition"),
-            (float) position.x, (float) position.y, (float) position.z);
-        SOLAR.apply(program);
-        SHADOW_SOLAR.applyShadow(program);
-        SHADOW_HISTORY.apply(program, BlockPos.containing(renderOrigin));
-        GL20C.glUniform1i(GL20C.glGetUniformLocation(program, "ShadowCount"), shadowCount());
-        GL20C.glUniform1i(GL20C.glGetUniformLocation(program, "TranslucentShadows"), profile.translucentShadows() ? 1 : 0);
-        GL20C.glUniform1f(GL20C.glGetUniformLocation(program, "AmbientFloor"), profile.ambientFloor());
-        Vec3 localAnchor = anchor.subtract(renderOrigin);
-        GL20C.glUniform3f(GL20C.glGetUniformLocation(program, "ShadowAnchor"),
-            (float) localAnchor.x, (float) localAnchor.y, (float) localAnchor.z);
-        int oldTexture = GlStateManager._getActiveTexture();
-        try (MemoryStack stack = MemoryStack.stackPush()) {
-            for (int index = 0; index < 3; index++) {
-                GL20C.glUniformMatrix4fv(GL20C.glGetUniformLocation(program, "ShadowMatrix" + index), false,
-                    SHADOW_MAP.matrix(index).get(stack.mallocFloat(16)));
-                GL20C.glUniform4f(GL20C.glGetUniformLocation(program, "ShadowInfo" + index),
-                    SHADOW_MAP.span(index) / 2, SHADOW_MAP.span(index) / MunShadowProjection.DEPTH, 0, 0);
-                GL20C.glUniform1i(GL20C.glGetUniformLocation(program, "ShadowMap" + index), index + 8);
-                GlStateManager._activeTexture(GL20C.GL_TEXTURE8 + index);
-                GlStateManager._bindTexture(SHADOW_MAP.textureId(index));
-                GL20C.glUniform1i(GL20C.glGetUniformLocation(program, "ShadowStaticMap" + index), index + 3);
-                GlStateManager._activeTexture(GL20C.GL_TEXTURE3 + index);
-                GlStateManager._bindTexture(SHADOW_MAP.staticTextureId(index));
-            }
-            for (int index = 0; index < 3; index++) {
-                int unit = TRANSLUCENT_TEXTURE_UNITS[index];
-                GlStateManager._activeTexture(GL20C.GL_TEXTURE0 + unit);
-                GlStateManager._bindTexture(SHADOW_MAP.translucentTextureId(index));
-            }
-        } finally {
-            GlStateManager._activeTexture(oldTexture);
+            MunSodiumShaderBindings.disable();
         }
     }
 
@@ -238,20 +186,13 @@ public final class MunSurfaceRenderer {
         if (profile.cascades() == 0) return;
         if (SHADOW_CLOCK.update(level.getDayTime(), time, SOLAR.direction(anchor.x, anchor.z).y())) SHADOW_HISTORY.invalidate();
         SHADOW_SOLAR.update(SHADOW_CLOCK.dayTime(), SHADOW_CLOCK.partialTick(), renderOrigin);
-        int oldActiveTexture = GlStateManager._getActiveTexture();
-        int oldBinding = GL11C.glGetInteger(GL11C.GL_TEXTURE_BINDING_2D);
-        int oldProgram = GL11C.glGetInteger(GL20C.GL_CURRENT_PROGRAM);
-        try {
+        try (MunRenderScope ignored = MunRenderScope.resources()) {
             SHADOW_MAP.prepare(level, anchor, renderOrigin, SHADOW_SOLAR, tick, shader, translucentShader, profile);
             if (historyGeometryRevision != SHADOW_MAP.geometryRevision()) {
                 historyGeometryRevision = SHADOW_MAP.geometryRevision();
                 SHADOW_HISTORY.invalidate();
             }
             SHADOW_HISTORY.begin();
-        } finally {
-            GlStateManager._glUseProgram(oldProgram);
-            GlStateManager._activeTexture(oldActiveTexture);
-            GlStateManager._bindTexture(oldBinding);
         }
     }
 

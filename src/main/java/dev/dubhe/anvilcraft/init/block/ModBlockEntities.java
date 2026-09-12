@@ -6,6 +6,7 @@ import dev.dubhe.anvilcraft.block.entity.ActivatorSlidingRailBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.ActiveSilencerBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.AdvancedComparatorBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.AutoEnchantingTableBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.BigRedButtonBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.BlackHoleBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.BurningHeaterBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.CelestialBackGateBlockEntity;
@@ -59,6 +60,7 @@ import dev.dubhe.anvilcraft.block.entity.PlasmaJetsBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.PowerConverterBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.PropelPistonBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.PulseGeneratorBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.RedstoneDiceBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.RemoteTransmissionPoleBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.ResentfulAmberBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.RubyLaserBlockEntity;
@@ -99,6 +101,7 @@ import dev.dubhe.anvilcraft.block.entity.storage.ShulkerContainerBlockEntity;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.AdvancedComparatorBlockEntityRender;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.AutoEnchantingTableBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.BatchCraftingBERenderer;
+import dev.dubhe.anvilcraft.client.renderer.blockentity.BigRedButtonBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.CelestialForgingAnvilBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.CelestialForgingAnvilFluidInterfaceBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.ChargeCollectorRenderer;
@@ -131,6 +134,7 @@ import dev.dubhe.anvilcraft.client.renderer.blockentity.PipeCheckValveBERenderer
 import dev.dubhe.anvilcraft.client.renderer.blockentity.PlasmaJetsRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.PulseGeneratorBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.PumpBlockEntityRenderer;
+import dev.dubhe.anvilcraft.client.renderer.blockentity.RedstoneDiceBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.SiftingTableBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.SmartBlockPlacerRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.SpacetimeSupercomputerBlockEntityRenderer;
@@ -385,6 +389,14 @@ public class ModBlockEntities {
         "void_energy_collector",
         VoidEnergyCollectorBlockEntity::createBlockEntity
     ).validBlocks(ModBlocks.VOID_ENERGY_COLLECTOR).renderer(() -> VoidEnergyCollectorRenderer::new).register();
+
+    public static final BlockEntityEntry<RedstoneDiceBlockEntity> REDSTONE_DICE = REGISTRUM.<RedstoneDiceBlockEntity>blockEntity(
+        "redstone_dice", (type, pos, state) -> new RedstoneDiceBlockEntity(pos, state)
+    ).validBlocks(ModBlocks.REDSTONE_DICE).renderer(() -> RedstoneDiceBlockEntityRenderer::new).register();
+
+    public static final BlockEntityEntry<BigRedButtonBlockEntity> BIG_RED_BUTTON = REGISTRUM.<BigRedButtonBlockEntity>blockEntity(
+        "big_red_button", (type, pos, state) -> new BigRedButtonBlockEntity(pos, state)
+    ).validBlocks(ModBlocks.BIG_RED_BUTTON).renderer(() -> BigRedButtonBlockEntityRenderer::new).register();
 
     public static final BlockEntityEntry<PulseGeneratorBlockEntity> PULSE_GENERATOR = REGISTRUM.blockEntity(
         "pulse_generator",

@@ -72,6 +72,12 @@ public class ModSoundDefinitionsProvider extends SoundDefinitionsProvider {
             .subtitle("subtitles.anvilcraft.auto_enchanting_table.use")
             .with(sound(ResourceLocation.withDefaultNamespace("block.enchantment_table.use"), SoundDefinition.SoundType.EVENT)));
 
+        add(ModSoundEvents.ABOVE_THE_MOON_DUST, definition()
+            .with(sound(AnvilCraft.of("music/mun/above_the_moon_dust_loop")).stream()));
+
+        add(ModSoundEvents.FAR_SIDE_GLOW, definition()
+            .with(sound(AnvilCraft.of("music/mun/far_side_glow_loop")).stream()));
+
         add(ModSoundEvents.QUENCHED_OUT, definition()
             .subtitle("subtitles.anvilcraft.quenched_out")
             .with(sound(AnvilCraft.of("quenched_out"))));

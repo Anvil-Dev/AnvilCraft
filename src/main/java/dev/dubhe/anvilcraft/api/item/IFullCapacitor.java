@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.api.item;
 
 import dev.anvilcraft.lib.v2.util.InventoryUtil;
+import dev.dubhe.anvilcraft.item.weapon.EnergyWeaponReload;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.ClickAction;
@@ -23,6 +24,10 @@ public interface IFullCapacitor {
         if (clickAction != ClickAction.SECONDARY || !slot.allowModification(player)) return false;
         ItemStack target = slot.getItem();
         if (!(target.getItem() instanceof ICapacitorChargeable chargeable)) return false;
+
+        if (EnergyWeaponReload.isWeapon(target)) {
+            return EnergyWeaponReload.start(player, target, capacitor, capacitorStack, true, slot);
+        }
 
         if (!chargeable.chargeForce(target, capacitor, capacitorStack.copy())) return false;
 
@@ -54,6 +59,10 @@ public interface IFullCapacitor {
                 continue;
             }
 
+            if (EnergyWeaponReload.isWeapon(chargeableStack)) {
+                if (EnergyWeaponReload.start(player, chargeableStack, this, stack, false, null)) break;
+                continue;
+            }
             if (!chargeable.charge(chargeableStack, this, stack.copy())) {
                 continue;
             }

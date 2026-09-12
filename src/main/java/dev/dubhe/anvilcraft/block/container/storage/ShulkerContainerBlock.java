@@ -287,7 +287,7 @@ public class ShulkerContainerBlock
             BlockState mainState = level.getBlockState(mainPos);
             BlockEntity blockEntity = level.getBlockEntity(mainPos);
             if (mainState.is(this) && blockEntity instanceof ShulkerContainerBlockEntity storage) {
-                boolean empty = storage.isEmpty();
+                boolean empty = storage.isEmpty() && !storage.isCraftingUnlocked();
                 if (empty) {
                     // 空容器：清除 id 并移除孤儿存储条目，避免存档膨胀
                     UUID id = storage.getId();

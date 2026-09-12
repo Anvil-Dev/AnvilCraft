@@ -23,7 +23,7 @@ public class CorruptedBeaconActivatorItem extends EnergyWeaponItem {
     private static final int ENERGY_PER_PULSE = 200_000;
 
     public CorruptedBeaconActivatorItem(Properties properties) {
-        super(properties);
+        super(properties, ENERGY_PER_PULSE);
     }
 
     @Override
@@ -36,6 +36,7 @@ public class CorruptedBeaconActivatorItem extends EnergyWeaponItem {
 
     @Override
     public void onUseTick(Level level, LivingEntity user, ItemStack stack, int remaining) {
+        if (!(user instanceof Player usingPlayer) || !canContinueUsing(usingPlayer, stack)) return;
         if (!(user instanceof Player player) || !(level instanceof ServerLevel serverLevel)) return;
         int elapsed = getUseDuration(stack, user) - remaining;
         int quickCharge = stack.getEnchantmentLevel(

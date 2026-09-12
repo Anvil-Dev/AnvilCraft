@@ -7,9 +7,9 @@ import dev.dubhe.anvilcraft.api.itemhandler.FilteredItemStackHandler;
 import dev.dubhe.anvilcraft.block.cfa.CelestialForgingAnvilBlock;
 import dev.dubhe.anvilcraft.block.cfa.interfaces.CelestialForgingAnvilInterfaceBlock;
 import dev.dubhe.anvilcraft.block.state.Cube323PartHalf;
+import dev.dubhe.anvilcraft.saved.WormholeInterfaceStates;
 import io.netty.buffer.ByteBuf;
 import lombok.Getter;
-import lombok.Setter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
@@ -20,6 +20,7 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.PacketFlow;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -32,6 +33,7 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.items.IItemHandler;
+import net.neoforged.neoforge.items.IItemHandlerModifiable;
 import net.neoforged.neoforge.items.ItemHandlerHelper;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
@@ -52,8 +54,12 @@ public class CelestialForgingAnvilLogisticsInterfaceBlockEntity extends BlockEnt
     private static final int TOOLTIP_REQUEST_EXPIRY = 200;
     private static final StreamCodec<ByteBuf, BlockPos> POS_STREAM_CODEC = ByteBufCodecs.VAR_LONG
         .map(BlockPos::of, BlockPos::asLong);
-    @Setter
     private boolean syncing = false; /// 重入保护
+    @Getter
+    private @Nullable UUID wormholeInventory;
+    @Getter
+    private boolean legacyWormholeInventory;
+    private @Nullable CompoundTag legacyWormholeInventoryBackup;
     // Tooltip state is fetched on demand; coalesce changes made in one game tick.
     private boolean tooltipDataDirty = false;
     private long tooltipDataVersion = 1;
@@ -78,11 +84,99 @@ public class CelestialForgingAnvilLogisticsInterfaceBlockEntity extends BlockEnt
         @Override
         protected void onContentsChanged(int slot) {
             CelestialForgingAnvilLogisticsInterfaceBlockEntity.this.setChanged();
-            if (!syncing) {
-                CelestialForgingAnvilLogisticsInterfaceBlockEntity.this.triggerWormholeSync(slot);
-            }
         }
     };
+
+    private final IItemHandlerModifiable exposedItemHandler = new IItemHandlerModifiable() {
+        @Override
+        public int getSlots() {
+            return TYPE_COUNT;
+        }
+
+        @Override
+        public ItemStack getStackInSlot(int slot) {
+            return isRemoved() ? ItemStack.EMPTY : resolveItemHandler().getStackInSlot(slot);
+        }
+
+        @Override
+        public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
+            if (isRemoved()) return stack;
+            ItemStack remainder = resolveItemHandler().insertItem(slot, stack, simulate);
+            if (!simulate && remainder.getCount() != stack.getCount()) inventoryChanged(slot);
+            return remainder;
+        }
+
+        @Override
+        public ItemStack extractItem(int slot, int amount, boolean simulate) {
+            if (isRemoved() || amount <= 0) return ItemStack.EMPTY;
+            ItemStack extracted = resolveItemHandler().extractItem(slot, amount, simulate);
+            if (!simulate && !extracted.isEmpty()) inventoryChanged(slot);
+            return extracted;
+        }
+
+        @Override
+        public int getSlotLimit(int slot) {
+            return itemHandler.getSlotLimit(slot);
+        }
+
+        @Override
+        public boolean isItemValid(int slot, ItemStack stack) {
+            return !isRemoved() && resolveItemHandler().isItemValid(slot, stack);
+        }
+
+        @Override
+        public void setStackInSlot(int slot, ItemStack stack) {
+            if (isRemoved()) return;
+            resolveItemHandler().setStackInSlot(slot, stack);
+            inventoryChanged(slot);
+        }
+    };
+
+    private IItemHandlerModifiable resolveItemHandler() {
+        if (level instanceof ServerLevel serverLevel && serverLevel.getServer().getLevel(level.dimension()) != level) {
+            return itemHandler;
+        }
+        if (level != null && !level.isClientSide()) {
+            this.prepareWormholeInventory();
+            if (wormholeInventory != null) return WormholeInterfaceStates.get().getItemHandler(wormholeInventory, TYPE_COUNT);
+        }
+        return itemHandler;
+    }
+
+    public void prepareWormholeInventory() {
+        if (syncing || level == null || level.isClientSide() || isRemoved()) return;
+        BlockPos parent = findParentCfa();
+        if (parent == null || !(level.getBlockEntity(parent) instanceof CelestialForgingAnvilBlockEntity cfa)) return;
+        syncing = true;
+        try {
+            cfa.getMegastructureManager().getWormholeHandler().prepareLogisticsInterface(this, cfa);
+        } finally {
+            syncing = false;
+        }
+    }
+
+    /** Local contents are independent only while the interface has no shared inventory binding. */
+    public FilteredItemStackHandler getLocalItemHandler() {
+        return itemHandler;
+    }
+
+    public void setWormholeInventory(@Nullable UUID inventory) {
+        this.wormholeInventory = inventory;
+        this.legacyWormholeInventory = false;
+        this.setChanged();
+    }
+
+    public void backupLegacyWormholeInventory() {
+        if (legacyWormholeInventoryBackup != null || level == null) return;
+        // Old saves cannot distinguish every offline insertion from a stale mirror. Keep the original evidence.
+        legacyWormholeInventoryBackup = itemHandler.serializeNBT(level.registryAccess());
+        this.setChanged();
+    }
+
+    private void inventoryChanged(int slot) {
+        this.setChanged();
+        if (!syncing) this.triggerWormholeSync(slot);
+    }
 
     public CelestialForgingAnvilLogisticsInterfaceBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState);
@@ -105,7 +199,7 @@ public class CelestialForgingAnvilLogisticsInterfaceBlockEntity extends BlockEnt
 
     @SuppressWarnings("unused")
     public IItemHandler getItemHandler() {
-        return itemHandler;
+        return exposedItemHandler;
     }
 
     /// 当玩家放入或取出物品时从 onContentsChanged 调用。立即触发父 CFA 对此特定接口的虫洞同步，在同一 tick 内将更改推送到规范存储和其它 CFA。
@@ -170,12 +264,13 @@ public class CelestialForgingAnvilLogisticsInterfaceBlockEntity extends BlockEnt
                 if (!level.noCollision(ejectArea)) return;
             }
             boolean ejected = false;
-            int totalSlots = itemHandler.getSlots();
+            IItemHandler handler = getItemHandler();
+            int totalSlots = handler.getSlots();
 
             /// 轮询：从 lastEjectSlot 开始，遍历所有槽位
             for (int offset = 0; offset < totalSlots; offset++) {
                 int slot = (lastEjectSlot + offset) % totalSlots;
-                ItemStack stack = itemHandler.getStackInSlot(slot);
+                ItemStack stack = handler.getStackInSlot(slot);
                 if (stack.isEmpty()) continue;
                 int toExtract = Math.min(stack.getCount(), MAX_EJECT_PER_OP);
                 if (targetHandler == null) {
@@ -188,14 +283,14 @@ public class CelestialForgingAnvilLogisticsInterfaceBlockEntity extends BlockEnt
                     toExtract = Math.min(toExtract, stack.getMaxStackSize() - existingCount);
                     if (toExtract <= 0) continue;
                 }
-                ItemStack extracted = itemHandler.extractItem(slot, toExtract, false);
+                ItemStack extracted = handler.extractItem(slot, toExtract, false);
                 if (extracted.isEmpty()) continue;
 
                 /// 尝试插入到目标容器中
                 if (targetHandler != null) {
                     ItemStack remainder = ItemHandlerHelper.insertItem(targetHandler, extracted, false);
                     if (!remainder.isEmpty()) {
-                        itemHandler.insertItem(slot, remainder, false);
+                        handler.insertItem(slot, remainder, false);
                     }
                     if (remainder.getCount() < extracted.getCount()) {
                         ejected = true;
@@ -342,8 +437,9 @@ public class CelestialForgingAnvilLogisticsInterfaceBlockEntity extends BlockEnt
 
     private TooltipData createTooltipData() {
         List<ItemStack> storedItems = new ArrayList<>(TYPE_COUNT);
-        for (int slot = 0; slot < this.itemHandler.getSlots(); slot++) {
-            ItemStack stack = this.itemHandler.getStackInSlot(slot);
+        IItemHandler handler = this.getItemHandler();
+        for (int slot = 0; slot < handler.getSlots(); slot++) {
+            ItemStack stack = handler.getStackInSlot(slot);
             if (!stack.isEmpty()) storedItems.add(stack.copy());
         }
 
@@ -371,6 +467,11 @@ public class CelestialForgingAnvilLogisticsInterfaceBlockEntity extends BlockEnt
     protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.saveAdditional(tag, registries);
         tag.putInt("ejectCooldown", ejectCooldown);
+        tag.putBoolean("wormholeInventoryVersion", !legacyWormholeInventory);
+        if (wormholeInventory != null) tag.putUUID("wormholeInventory", wormholeInventory);
+        if (legacyWormholeInventoryBackup != null) {
+            tag.put("legacyWormholeInventoryBackup", legacyWormholeInventoryBackup.copy());
+        }
         tag.put("inventory", itemHandler.serializeNBT(registries));
         if (!templeDemandItem.isEmpty()) {
             tag.put("templeDemandItem", templeDemandItem.save(registries));
@@ -395,8 +496,15 @@ public class CelestialForgingAnvilLogisticsInterfaceBlockEntity extends BlockEnt
     protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.loadAdditional(tag, registries);
         this.ejectCooldown = tag.getInt("ejectCooldown");
+        this.wormholeInventory = tag.hasUUID("wormholeInventory") ? tag.getUUID("wormholeInventory") : null;
+        this.legacyWormholeInventory = !tag.getBoolean("wormholeInventoryVersion");
+        this.legacyWormholeInventoryBackup = tag.contains("legacyWormholeInventoryBackup")
+            ? tag.getCompound("legacyWormholeInventoryBackup").copy() : null;
         if (tag.contains("inventory")) {
             itemHandler.deserializeNBT(registries, tag.getCompound("inventory"));
+        }
+        if (wormholeInventory != null) {
+            for (int slot = 0; slot < itemHandler.getSlots(); slot++) itemHandler.setStackInSlot(slot, ItemStack.EMPTY);
         }
         if (tag.contains("templeDemandItem")) {
             this.templeDemandItem = ItemStack.parse(registries, tag.getCompound("templeDemandItem"))

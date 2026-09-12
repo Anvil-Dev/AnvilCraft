@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.mixin;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.mojang.blaze3d.vertex.PoseStack;
+import dev.dubhe.anvilcraft.client.event.BigRedButtonInputListener;
 import dev.dubhe.anvilcraft.client.renderer.item.ItemInHandRendererManager;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import net.minecraft.client.Minecraft;
@@ -20,6 +21,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ItemInHandRenderer.class)
@@ -47,6 +49,14 @@ abstract class ItemInHandRendererMixin {
     @Inject(method = "<init>", at = @At("RETURN"))
     private void init(Minecraft minecraft, EntityRenderDispatcher entityRenderDispatcher, ItemRenderer itemRenderer, CallbackInfo ci) {
         anvilcraft$manager = new ItemInHandRendererManager(itemRenderer, this::renderItem);
+    }
+
+    @ModifyVariable(method = "renderArmWithItem", at = @At("HEAD"), argsOnly = true, ordinal = 2)
+    private float anvilcraft$holdButtonHand(
+        float original, AbstractClientPlayer player, float partialTicks, float pitch, InteractionHand hand,
+        float swingProgress, ItemStack stack, float equippedProgress, PoseStack poseStack, MultiBufferSource buffer, int combinedLight
+    ) {
+        return BigRedButtonInputListener.getHandSwingProgress(hand, partialTicks, original);
     }
 
     @WrapOperation(

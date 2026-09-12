@@ -224,7 +224,9 @@ public class IonocraftBackpackItem extends ArmorItem implements ICapacitorCharge
                         playerCount.incrementAndGet();
                     }
                 });
-                int remaining = powerGrid.getRemaining() / playerCount.get();
+                int count = playerCount.get();
+                if (count == 0) return;
+                int remaining = powerGrid.getRemaining() / count;
                 if (remaining >= 512) {
                     powerComponent.getPowerConsumptions().add(CONSUMPTION_512);
                 } else if (remaining >= 256) {

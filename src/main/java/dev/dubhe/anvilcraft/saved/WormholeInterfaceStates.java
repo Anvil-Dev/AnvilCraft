@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.saved;
 
 import dev.anvilcraft.lib.v2.util.stack.UnlimitedItemStack;
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.api.itemhandler.FilteredItemStackHandler;
 import dev.dubhe.anvilcraft.saved.datafixers.DataFixers;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
@@ -11,7 +12,9 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.items.ItemStackHandler;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -45,6 +48,7 @@ public class WormholeInterfaceStates extends BetterSavedData {
      * Each list position corresponds to a slot index. Empty slots are UnlimitedItemStack.EMPTY.
      */
     private final Map<UUID, List<UnlimitedItemStack>> itemStates = new HashMap<>();
+    private final Map<UUID, ItemStackHandler> itemHandlers = new HashMap<>();
 
     /**
      * UUID → tank list for fluid interfaces.
@@ -79,6 +83,10 @@ public class WormholeInterfaceStates extends BetterSavedData {
 
     // ==================== Item state access ====================
 
+    public boolean hasItemState(UUID uuid) {
+        return itemStates.containsKey(uuid);
+    }
+
     /**
      * Get or create the canonical item state for a UUID.
      * The returned list is mutable; modifications are reflected in the saved data.
@@ -99,6 +107,34 @@ public class WormholeInterfaceStates extends BetterSavedData {
             setDirty();
         }
         return state;
+    }
+
+    /** All connected capabilities operate on this inventory, including within the same server tick. */
+    public ItemStackHandler getItemHandler(UUID uuid, int slotCount) {
+        return itemHandlers.computeIfAbsent(uuid, key -> {
+            List<UnlimitedItemStack> state = getOrCreateItemState(key, slotCount);
+            ItemStackHandler handler = new FilteredItemStackHandler(state.size()) {
+                @Override
+                public boolean isItemValid(int slot, ItemStack stack) {
+                    ItemStack current = getStackInSlot(slot);
+                    if (!current.isEmpty()) return ItemStack.isSameItemSameComponents(current, stack);
+                    for (int index = 0; index < getSlots(); index++) {
+                        if (index != slot && ItemStack.isSameItemSameComponents(getStackInSlot(index), stack)) return false;
+                    }
+                    return true;
+                }
+
+                @Override
+                protected void onContentsChanged(int slot) {
+                    state.set(slot, new UnlimitedItemStack(getStackInSlot(slot)));
+                    WormholeInterfaceStates.this.setDirty();
+                }
+            };
+            for (int slot = 0; slot < state.size(); slot++) {
+                handler.setStackInSlot(slot, state.get(slot).toStack());
+            }
+            return handler;
+        });
     }
 
     // ==================== Fluid state access ====================
@@ -136,6 +172,7 @@ public class WormholeInterfaceStates extends BetterSavedData {
      * 之后必须移除这里的残留，避免未来同一黑洞身份重建虫洞时旧内容被当作权威而复活。</p>
      */
     public void clearItemState(UUID uuid) {
+        itemHandlers.remove(uuid);
         if (itemStates.remove(uuid) != null) {
             setDirty();
         }
@@ -162,6 +199,7 @@ public class WormholeInterfaceStates extends BetterSavedData {
     @Override
     public void read(CompoundTag nbt, HolderLookup.Provider registries) {
         itemStates.clear();
+        itemHandlers.clear();
         fluidStates.clear();
 
         if (nbt.contains(ITEM_STATES_KEY)) {

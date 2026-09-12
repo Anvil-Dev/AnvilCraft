@@ -4,7 +4,6 @@ import dev.dubhe.anvilcraft.worldgen.MunSkyMath;
 import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import org.lwjgl.opengl.GL20C;
 
 import java.util.List;
 
@@ -112,64 +111,42 @@ final class MunSolarLighting {
 
     void origin(ShaderInstance shader, Vec3 origin) {
         var uniform = shader.getUniform("SolarOrigin");
-        if (uniform == null) throw new IllegalStateException("Missing lunar solar origin uniform");
+        if (uniform == null) throw new IllegalStateException("Missing Mun solar origin uniform");
         uniform.set((float) (origin.x / MunSkyMath.NEAR_SIDE_HALF_SIZE), (float) (origin.y - REFERENCE_HEIGHT),
             (float) (origin.z / MunSkyMath.NEAR_SIDE_HALF_SIZE));
         uniform.upload();
     }
 
     void applyShadow(ShaderInstance shader) {
-        shader.safeGetUniform("ShadowSolarReference").set(
-            (float) this.reference.x(), (float) this.reference.y(), (float) this.reference.z());
-        shader.safeGetUniform("ShadowSolarOrigin").set((float) (this.origin.x / MunSkyMath.NEAR_SIDE_HALF_SIZE),
-            (float) (this.origin.y - REFERENCE_HEIGHT), (float) (this.origin.z / MunSkyMath.NEAR_SIDE_HALF_SIZE));
-        for (int index = 0; index < 8; index++) {
-            shader.safeGetUniform("ShadowSolarHorizon" + index).set((float) this.horizon[index * 2], (float) this.horizon[index * 2 + 1]);
-        }
+        this.applyShadow(new MunShaderUniforms.Vanilla(shader));
     }
 
-    void applyShadow(int program) {
-        GL20C.glUniform3f(GL20C.glGetUniformLocation(program, "ShadowSolarReference"),
+    void applyShadow(MunShaderUniforms uniforms) {
+        uniforms.set("ShadowSolarReference",
             (float) this.reference.x(), (float) this.reference.y(), (float) this.reference.z());
-        GL20C.glUniform3f(GL20C.glGetUniformLocation(program, "ShadowSolarOrigin"),
-            (float) (this.origin.x / MunSkyMath.NEAR_SIDE_HALF_SIZE), (float) (this.origin.y - REFERENCE_HEIGHT),
-            (float) (this.origin.z / MunSkyMath.NEAR_SIDE_HALF_SIZE));
+        uniforms.set("ShadowSolarOrigin", (float) (this.origin.x / MunSkyMath.NEAR_SIDE_HALF_SIZE),
+            (float) (this.origin.y - REFERENCE_HEIGHT), (float) (this.origin.z / MunSkyMath.NEAR_SIDE_HALF_SIZE));
         for (int index = 0; index < 8; index++) {
-            GL20C.glUniform2f(GL20C.glGetUniformLocation(program, "ShadowSolarHorizon" + index),
-                (float) this.horizon[index * 2], (float) this.horizon[index * 2 + 1]);
+            uniforms.set("ShadowSolarHorizon" + index, (float) this.horizon[index * 2], (float) this.horizon[index * 2 + 1]);
         }
     }
 
     void apply(ShaderInstance shader) {
-        shader.safeGetUniform("SolarReference").set((float) this.reference.x(), (float) this.reference.y(), (float) this.reference.z());
-        shader.safeGetUniform("SolarOrigin").set((float) (this.origin.x / MunSkyMath.NEAR_SIDE_HALF_SIZE),
-            (float) (this.origin.y - REFERENCE_HEIGHT), (float) (this.origin.z / MunSkyMath.NEAR_SIDE_HALF_SIZE));
-        shader.safeGetUniform("SolarEclipseCount").set(this.eclipse.size());
-        shader.safeGetUniform("SolarEclipseCoverage").set(this.eclipseCoverage);
-        for (int index = 0; index < 8; index++) {
-            shader.safeGetUniform("SolarHorizon" + index).set((float) this.horizon[index * 2], (float) this.horizon[index * 2 + 1]);
-        }
-        for (int index = 0; index < 12; index++) {
-            MunSkyMath.Vector point = index < this.eclipse.size() ? this.eclipse.get(index) : MunSkyMath.UP;
-            shader.safeGetUniform("SolarEclipse" + index).set((float) point.x(), (float) point.y());
-        }
+        this.apply(new MunShaderUniforms.Vanilla(shader));
     }
 
-    void apply(int program) {
-        GL20C.glUniform3f(GL20C.glGetUniformLocation(program, "SolarReference"),
-            (float) this.reference.x(), (float) this.reference.y(), (float) this.reference.z());
-        GL20C.glUniform3f(GL20C.glGetUniformLocation(program, "SolarOrigin"),
-            (float) (this.origin.x / MunSkyMath.NEAR_SIDE_HALF_SIZE), (float) (this.origin.y - REFERENCE_HEIGHT),
-            (float) (this.origin.z / MunSkyMath.NEAR_SIDE_HALF_SIZE));
-        GL20C.glUniform1i(GL20C.glGetUniformLocation(program, "SolarEclipseCount"), this.eclipse.size());
-        GL20C.glUniform1f(GL20C.glGetUniformLocation(program, "SolarEclipseCoverage"), this.eclipseCoverage);
+    void apply(MunShaderUniforms uniforms) {
+        uniforms.set("SolarReference", (float) this.reference.x(), (float) this.reference.y(), (float) this.reference.z());
+        uniforms.set("SolarOrigin", (float) (this.origin.x / MunSkyMath.NEAR_SIDE_HALF_SIZE),
+            (float) (this.origin.y - REFERENCE_HEIGHT), (float) (this.origin.z / MunSkyMath.NEAR_SIDE_HALF_SIZE));
+        uniforms.set("SolarEclipseCount", this.eclipse.size());
+        uniforms.set("SolarEclipseCoverage", this.eclipseCoverage);
         for (int index = 0; index < 8; index++) {
-            GL20C.glUniform2f(GL20C.glGetUniformLocation(program, "SolarHorizon" + index),
-                (float) this.horizon[index * 2], (float) this.horizon[index * 2 + 1]);
+            uniforms.set("SolarHorizon" + index, (float) this.horizon[index * 2], (float) this.horizon[index * 2 + 1]);
         }
         for (int index = 0; index < 12; index++) {
             MunSkyMath.Vector point = index < this.eclipse.size() ? this.eclipse.get(index) : MunSkyMath.UP;
-            GL20C.glUniform2f(GL20C.glGetUniformLocation(program, "SolarEclipse" + index), (float) point.x(), (float) point.y());
+            uniforms.set("SolarEclipse" + index, (float) point.x(), (float) point.y());
         }
     }
 }
