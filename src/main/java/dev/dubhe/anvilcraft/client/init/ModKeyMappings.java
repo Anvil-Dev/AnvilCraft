@@ -32,6 +32,12 @@ public class ModKeyMappings {
         Type.KEYSYM,
         GLFW.GLFW_KEY_V
     );
+    public static final Lazy<KeyMapping> OPEN_TERMINAL = register(
+        "open_terminal",
+        KeyConflictContext.UNIVERSAL,
+        Type.KEYSYM,
+        GLFW.GLFW_KEY_UNKNOWN
+    );
     public static final Lazy<KeyMapping> THOUGHT = register(
         "thought",
         KeyConflictContext.GUI,
@@ -49,5 +55,6 @@ public class ModKeyMappings {
         event.register(TOGGLE_GOGGLE.get());
         event.register(SWITCH_TOOL_MODE.get());
         event.register(USE_PILL_BOX.get());
+        event.register(OPEN_TERMINAL.get());
     }
 }

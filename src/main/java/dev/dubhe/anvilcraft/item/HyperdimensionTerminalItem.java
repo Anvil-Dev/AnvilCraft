@@ -10,14 +10,10 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
-import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
-import net.minecraft.world.level.Level;
 
 import java.util.List;
 import java.util.Optional;
@@ -39,13 +35,9 @@ public class HyperdimensionTerminalItem extends TerminalItem {
     }
 
     @Override
-    public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand usedHand) {
-        ItemStack stack = player.getItemInHand(usedHand);
-        if (level.isClientSide()) {
-            HyperdimensionTerminalItem.openBoundStorage(player, stack);
-            return new InteractionResultHolder<>(InteractionResult.SUCCESS, stack);
-        }
-        return new InteractionResultHolder<>(InteractionResult.PASS, stack);
+    public void openStorage(Player player, ItemStack stack) {
+        if (!player.level().isClientSide()) return;
+        HyperdimensionTerminalItem.openBoundStorage(player, stack);
     }
 
     @Override

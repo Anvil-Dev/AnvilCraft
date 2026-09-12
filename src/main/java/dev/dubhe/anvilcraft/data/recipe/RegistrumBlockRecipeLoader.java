@@ -35,6 +35,30 @@ import net.neoforged.neoforge.common.Tags;
 import static dev.dubhe.anvilcraft.AnvilCraft.of;
 
 public class RegistrumBlockRecipeLoader {
+    public static <T extends Block> void redstoneDice(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
+        ShapedRecipeBuilder.shaped(RecipeCategory.REDSTONE, ctx.get())
+            .pattern(" G ")
+            .pattern("BBB")
+            .pattern("III")
+            .define('G', Items.GLASS)
+            .define('B', ItemTags.WOODEN_BUTTONS)
+            .define('I', Items.IRON_INGOT)
+            .unlockedBy(AnvilCraftDatagen.hasItem(Items.IRON_INGOT), AnvilCraftDatagen.has(Items.IRON_INGOT))
+            .save(provider);
+    }
+
+    public static <T extends Block> void bigRedButton(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
+        ShapedRecipeBuilder.shaped(RecipeCategory.REDSTONE, ctx.get(), 4)
+            .pattern(" R ")
+            .pattern("RHR")
+            .pattern("III")
+            .define('R', Items.REDSTONE)
+            .define('H', ModItems.HARDEND_RESIN)
+            .define('I', Items.IRON_INGOT)
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.HARDEND_RESIN), AnvilCraftDatagen.has(ModItems.HARDEND_RESIN))
+            .save(provider);
+    }
+
     public static <T extends Block> void recipe(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
     }
 

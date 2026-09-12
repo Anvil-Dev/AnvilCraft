@@ -21,8 +21,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 public class PropelPistonBlockEntity extends BaseLaserBlockEntity {
@@ -71,6 +69,20 @@ public class PropelPistonBlockEntity extends BaseLaserBlockEntity {
         return 0;
     }
 
+    @Override
+    protected int calculateLaserLevel() {
+        return this.irradiateSelfLaserBlockSet.stream()
+            .filter(source -> source.getFacing() == this.getFacing())
+            .mapToInt(BaseLaserBlockEntity::calculateLaserLevel)
+            .sum();
+    }
+
+    public boolean isSideLaserPowered() {
+        return this.irradiateSelfLaserBlockSet.stream()
+            .anyMatch(source -> source.getFacing().getAxis() != this.getFacing().getAxis()
+                                && source.calculateLaserLevel() > 0);
+    }
+
     public void tick(Level level, BlockPos pos, BlockState state) {
         updateLaserLevel(calculateLaserLevel());
         if (changed) {
@@ -86,6 +98,9 @@ public class PropelPistonBlockEntity extends BaseLaserBlockEntity {
                 }
             }
         }
+        if (this.isSideLaserPowered()) {
+            state = state.setValue(PropelPistonBlock.MOVING, false);
+        }
         if (getStoredEnergy() > 0) {
             level.setBlockAndUpdate(pos, state.setValue(PropelPistonBlock.EXHAUSTED, false));
             if (!level.getBlockTicks().hasScheduledTick(pos, state.getBlock())) {
@@ -100,9 +115,7 @@ public class PropelPistonBlockEntity extends BaseLaserBlockEntity {
 
     @Override
     public Set<Direction> getIgnoreFace() {
-        Set<Direction> directions = new HashSet<>(List.of(Direction.values()));
-        directions.remove(getBlockState().getValue(PropelPistonBlock.FACING));
-        return directions;
+        return Set.of(this.getFacing().getOpposite());
     }
 
     private void checkCanMove(Level level, BlockPos pos, BlockState state) {

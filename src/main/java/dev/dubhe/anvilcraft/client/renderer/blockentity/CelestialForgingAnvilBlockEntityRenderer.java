@@ -1,5 +1,7 @@
 package dev.dubhe.anvilcraft.client.renderer.blockentity;
 
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
@@ -19,10 +21,12 @@ import dev.dubhe.anvilcraft.block.entity.celestial.StellarEvolutionState;
 import dev.dubhe.anvilcraft.block.entity.celestial.StellarTrack;
 import dev.dubhe.anvilcraft.block.entity.celestial.StellarVisualState;
 import dev.dubhe.anvilcraft.block.entity.celestial.Temperature;
-import dev.dubhe.anvilcraft.client.event.LargeBlockPlacePreviewEventListener;
 import dev.dubhe.anvilcraft.client.init.ModRenderTypes;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.celestial.CelestialBodyRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.celestial.CelestialBodyTextureBakery;
+import dev.dubhe.anvilcraft.client.renderer.blockentity.celestial.PlanetAtmosphereRenderer;
+import dev.dubhe.anvilcraft.client.renderer.blockentity.celestial.StellarEmissionRenderer;
+import dev.dubhe.anvilcraft.client.renderer.blockentity.celestial.StellarRadiance;
 import dev.dubhe.anvilcraft.init.ModMegastructures;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.LightTexture;
@@ -44,7 +48,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.client.model.data.ModelData;
-import org.joml.Vector3f;
 
 import javax.annotation.Nullable;
 
@@ -140,6 +143,11 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
 
     private final BlockRenderDispatcher blockRenderer;
     private final BlockState whiteConcrete = Blocks.WHITE_CONCRETE.defaultBlockState();
+    private final Cache<BakedModel, AABB> itemBodyBounds = CacheBuilder.newBuilder().weakKeys().maximumSize(64).build();
+    private static final AABB UNIT_BODY_BOUNDS = new AABB(0, 0, 0, 1, 1, 1);
+    private static final AABB HEAD_BODY_BOUNDS = new AABB(0.234375, 0.234375, 0.234375, 0.765625, 0.765625, 0.765625);
+    private static final float ITEM_BODY_SIZE = 0.75f;
+    private static final float ITEM_BODY_CENTER_Y = 29.0f / 16.0f;
 
     public CelestialForgingAnvilBlockEntityRenderer(BlockEntityRendererProvider.Context context) {
         this.blockRenderer = context.getBlockRenderDispatcher();
@@ -194,19 +202,117 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
         int packedLight,
         int packedOverlay
     ) {
+        this.renderContents(blockEntity, partialTick, poseStack, multiBufferSource, packedOverlay, false);
+    }
+
+    public void renderHeadItem(
+        CelestialForgingAnvilBlockEntity blockEntity,
+        PoseStack poseStack,
+        MultiBufferSource multiBufferSource,
+        int packedOverlay
+    ) {
+        this.renderContents(blockEntity, 0.0f, poseStack, multiBufferSource, packedOverlay, true);
+    }
+
+    public void renderItemBody(
+        CelestialForgingAnvilBlockEntity blockEntity,
+        PoseStack poseStack,
+        MultiBufferSource buffer,
+        int packedOverlay
+    ) {
+        CelestialBodyData body = blockEntity.getCelestialBodyData();
+        if (body == null) return;
+        @Nullable BakedModel model = null;
+        if (body instanceof StarData star) {
+            model = Minecraft.getInstance().getModelManager().getModel(getStarModel(star));
+        } else if (body instanceof SpecialCelestialBodyData special && special.needsCustomModel() && !special.isPlayerHead()) {
+            model = Minecraft.getInstance().getModelManager().getModel(ModelResourceLocation.standalone(special.getModelLocation()));
+        }
+        AABB bounds = isPlayerHead(body) ? HEAD_BODY_BOUNDS : model == null ? UNIT_BODY_BOUNDS : this.getItemBodyBounds(model);
+        float scale = ITEM_BODY_SIZE / (float) Math.max(bounds.getXsize(), Math.max(bounds.getYsize(), bounds.getZsize()));
+        Vec3 center = bounds.getCenter();
+        poseStack.pushPose();
+        poseStack.translate(0.5, ITEM_BODY_CENTER_Y, 0.5);
+        poseStack.scale(scale, scale, scale);
+        poseStack.mulPose(Axis.XP.rotationDegrees(body.axialTilt()));
+        poseStack.translate(-center.x, -center.y, -center.z);
+        if (body instanceof SpecialCelestialBodyData special && special.needsCustomModel()) {
+            if (special.isPlayerHead()) {
+                this.renderPlayerHeadBody(special, poseStack, buffer, packedOverlay);
+            } else {
+                this.renderComplexModelBody(special, poseStack, buffer, packedOverlay);
+            }
+        } else if (body instanceof StarData star && model != null) {
+            if (star.bodyClass() == CelestialBodyClass.BLACK_HOLE) {
+                this.renderBakedModel(getStarModel(star), poseStack, buffer, packedOverlay, RenderType.translucent());
+            } else {
+                StellarEmissionRenderer.render(star, model, poseStack, buffer, packedOverlay,
+                    blockEntity.getStellarVisualState(0.0f), null, 0.0f);
+            }
+        } else {
+            this.renderPlanetBody(body, poseStack, buffer, packedOverlay, blockEntity.getBodySeed());
+        }
+        poseStack.popPose();
+    }
+
+    private AABB getItemBodyBounds(BakedModel model) {
+        AABB cached = this.itemBodyBounds.getIfPresent(model);
+        if (cached != null) return cached;
+        double minX = Double.POSITIVE_INFINITY;
+        double minY = Double.POSITIVE_INFINITY;
+        double minZ = Double.POSITIVE_INFINITY;
+        double maxX = Double.NEGATIVE_INFINITY;
+        double maxY = Double.NEGATIVE_INFINITY;
+        double maxZ = Double.NEGATIVE_INFINITY;
+        RandomSource random = RandomSource.create(42);
+        Direction[] directions = Direction.values();
+        for (int face = 0; face <= directions.length; face++) {
+            @Nullable Direction direction = face == directions.length ? null : directions[face];
+            random.setSeed(42);
+            for (BakedQuad quad : model.getQuads(null, direction, random, ModelData.EMPTY, null)) {
+                int[] vertices = quad.getVertices();
+                int stride = vertices.length / 4;
+                for (int vertex = 0; vertex < 4; vertex++) {
+                    int offset = vertex * stride;
+                    float x = Float.intBitsToFloat(vertices[offset]);
+                    float y = Float.intBitsToFloat(vertices[offset + 1]);
+                    float z = Float.intBitsToFloat(vertices[offset + 2]);
+                    minX = Math.min(minX, x);
+                    minY = Math.min(minY, y);
+                    minZ = Math.min(minZ, z);
+                    maxX = Math.max(maxX, x);
+                    maxY = Math.max(maxY, y);
+                    maxZ = Math.max(maxZ, z);
+                }
+            }
+        }
+        AABB bounds = Double.isFinite(minX + minY + minZ + maxX + maxY + maxZ)
+            && Math.max(maxX - minX, Math.max(maxY - minY, maxZ - minZ)) > 0.0001
+            ? new AABB(minX, minY, minZ, maxX, maxY, maxZ) : UNIT_BODY_BOUNDS;
+        this.itemBodyBounds.put(model, bounds);
+        return bounds;
+    }
+
+    private void renderContents(
+        CelestialForgingAnvilBlockEntity blockEntity,
+        float partialTick,
+        PoseStack poseStack,
+        MultiBufferSource multiBufferSource,
+        int packedOverlay,
+        boolean itemDisplay
+    ) {
         ModelBlockRenderer modelRenderer = Minecraft.getInstance().getBlockRenderer().getModelRenderer();
         float rot = blockEntity.getRotation() + (blockEntity.getRotation() - blockEntity.getPreRotation()) * partialTick;
         CelestialBodyData bodyData = blockEntity.getCelestialBodyData();
-        if (bodyData instanceof StarData star
-            && !star.specialRedDwarf()
-            && !blockEntity.isAmplifierPresent()) {
-            LargeBlockPlacePreviewEventListener.offerMissingAmplifierAnvil(blockEntity.getBlockPos());
-        } else if (blockEntity.isAmplifierPresent()) {
-            LargeBlockPlacePreviewEventListener.removeMissingAmplifierAnvil(blockEntity.getBlockPos());
-        }
         boolean isAmplify = blockEntity.isAmplify();
         float rotationBoost = blockEntity.getAnimationRotationBoost(partialTick);
         float bodyRotation = (blockEntity.getBodyRotation() + partialTick) * rotationBoost;
+        if (itemDisplay && Minecraft.getInstance().level != null) {
+            float renderTime = Minecraft.getInstance().level.getGameTime() % 1_200_000L
+                + Minecraft.getInstance().getTimer().getGameTimeDeltaPartialTick(true);
+            rot = renderTime * 3.0f / (1.0f + blockEntity.getRedstoneSignal() * 0.4f);
+            bodyRotation = renderTime;
+        }
         int outerRing = isAmplify ? 6 : 3;
         int middleRing = isAmplify ? 5 : 2;
         int innerRing = isAmplify ? 4 : 1;
@@ -216,7 +322,7 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
 
         @Nullable StellarEvolutionState evolutionState = blockEntity.getStellarEvolutionState();
         @Nullable StellarTrack evolutionTrack = blockEntity.getMegastructureManager().getAcceleratorHandler().getEvolutionTrack();
-        /// 只有演化中的恒星使用浮点快照和程序化光球；静态恒星继续使用旧的动画光晕。
+        /// 演化中的恒星使用实时快照；静态恒星的自发光由发现时的温度和颜色决定。
         @Nullable StellarVisualState stellarVisual = bodyData instanceof StarData && evolutionState != null
             ? blockEntity.getStellarVisualState(partialTick)
             : null;
@@ -270,11 +376,16 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
         /// 让红石信号引起的尺寸/高度变化丝滑过渡（数百帧），而非每 tick 瞬间跳变。
         /// 光束高度 = 2 格 + 每级红石信号 0.5 格。
         float beamHeightTarget = 2.0f + 0.5f * blockEntity.getRedstoneSignal();
-        blockEntity.updateRenderSmoothing(ringScale, centerY, bodyScaleMultiplier, beamHeightTarget);
-        ringScale = blockEntity.getSmoothRingScale();
-        centerY = blockEntity.getSmoothCenterY();
-        bodyScaleMultiplier = blockEntity.getSmoothBodyScale();
-        float beamHeight = blockEntity.getSmoothBeamHeight();
+        float beamHeight;
+        if (itemDisplay) {
+            beamHeight = beamHeightTarget;
+        } else {
+            blockEntity.updateRenderSmoothing(ringScale, centerY, bodyScaleMultiplier, beamHeightTarget);
+            ringScale = blockEntity.getSmoothRingScale();
+            centerY = blockEntity.getSmoothCenterY();
+            bodyScaleMultiplier = blockEntity.getSmoothBodyScale();
+            beamHeight = blockEntity.getSmoothBeamHeight();
+        }
 
         poseStack.pushPose();
         poseStack.translate(0.5, centerY, 0.5);
@@ -531,7 +642,7 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
         /// 使用有效天体数据（考虑 celestialBodyData 已置为 null 的逆向动画情形）
         CelestialBodyData effectiveBodyData = blockEntity.getEffectiveBodyDataForRendering();
         boolean canRender = effectiveBodyData != null
-            && (!(effectiveBodyData instanceof StarData) || blockEntity.isAmplifierPresent());
+            && (itemDisplay || !(effectiveBodyData instanceof StarData) || blockEntity.isAmplifierPresent());
         if (canRender) {
             renderTractorBeam(beamHeight, animProgress, poseStack, multiBufferSource);
             float eventProgress = blockEntity.getStellarEventProgress(partialTick);
@@ -1088,23 +1199,8 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
                 /// 具有大气层的复杂模型天体的大气渲染（血肉、智慧）
                 @Nullable ColorRGBA atmosphereColor = s.atmosphereColor();
                 if (atmosphereColor != null) {
-                    poseStack.pushPose();
-                    poseStack.translate(0.5, 0.5, 0.5);
-                    poseStack.scale(1.125f, 1.125f, 1.125f);
-                    poseStack.translate(-0.5, -0.5, -0.5);
-                    float[] atmosRgb = CelestialBodyRenderer.getAtmosphereColor(atmosphereColor);
-                    renderAtmosphereCube(
-                        poseStack,
-                        bufferSource,
-                        atmosRgb[0],
-                        atmosRgb[1],
-                        atmosRgb[2],
-                        0.2f,
-                        LightTexture.FULL_BRIGHT,
-                        packedOverlay,
-                        seed
-                    );
-                    poseStack.popPose();
+                    PlanetAtmosphereRenderer.render(poseStack, bufferSource,
+                        CelestialBodyRenderer.getAtmosphereColor(atmosphereColor), packedOverlay);
                 }
             }
         } else if (bodyData instanceof StarData star) {
@@ -1188,9 +1284,8 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
         poseStack.popPose();
     }
 
-    /// 渲染恒星：动画基础模型 + 颜色叠加 + 光晕。
-    /// 方块模型通过 .mcmeta 提供动画，半透明叠加立方体提供由能量砧子
-    /// 数量决定的天体专属颜色。中子星和黑洞使用专用模型特殊处理。
+    /// 渲染恒星：温度驱动的自发光表面和加法光晕。
+    /// 方块图集保留 .mcmeta 动画，中子星喷流和黑洞仍使用专用模型。
     private void renderStarModel(
         StarData star,
         float bodyRotation,
@@ -1202,13 +1297,15 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
         @Nullable StellarEventProfile eventProfile,
         float eventProgress
     ) {
-        /// 恒星残骸使用专用模型，无颜色叠加和光晕
+        /// 黑洞不发出恒星表面光；中子星保留自发光和专用喷流。
         if (star.bodyClass() == CelestialBodyClass.BLACK_HOLE) {
             renderBakedModel(getStarModel(star), poseStack, bufferSource, packedOverlay, RenderType.translucent());
             return;
         }
         if (star.bodyClass() == CelestialBodyClass.NEUTRON_STAR) {
-            renderBakedModelCutout(getStarModel(star), poseStack, bufferSource, packedOverlay);
+            BakedModel model = Minecraft.getInstance().getModelManager().getModel(getStarModel(star));
+            StellarEmissionRenderer.render(star, model, poseStack, bufferSource, packedOverlay,
+                stellarVisual, eventProfile, eventProgress);
 
             /// 沿磁轴渲染相对论喷流 —— 仅限超快脉冲星。
             /// 旋转速度 5+ = 超快（≥100倍视觉倍率），产生可观测相对论喷流所需的极端磁场。
@@ -1228,54 +1325,10 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
             return;
         }
 
-        /// 动画灰度恒星模型（方块图集，支持 .mcmeta）
         BakedModel model = Minecraft.getInstance().getModelManager().getModel(getStarModel(star));
         if (model != Minecraft.getInstance().getModelManager().getMissingModel()) {
-            VertexConsumer consumer = bufferSource.getBuffer(RenderType.cutout());
-            Minecraft.getInstance()
-                .getBlockRenderer()
-                .getModelRenderer()
-                .renderModel(poseStack.last(), consumer, null, model, 1.0f, 1.0f, 1.0f, LightTexture.FULL_BRIGHT, packedOverlay);
-        }
-
-        /// 颜色叠加 —— 演化期间来自温度快照，空闲时回退到旧颜色字段。
-        float[] rgb = stellarVisual == null
-            ? CelestialBodyTextureBakery.starColor(star)
-            : new float[] {stellarVisual.red(), stellarVisual.green(), stellarVisual.blue()};
-        float emission = stellarVisual == null
-            ? 1.0f
-            : Math.clamp(0.85f + 0.15f * (float) Math.log10(1.0f + stellarVisual.luminosity()), 0.85f, 1.25f);
-        poseStack.pushPose();
-        poseStack.translate(0.5, 0.5, 0.5);
-        poseStack.scale(1.005f, 1.005f, 1.005f);
-        poseStack.translate(-0.5, -0.5, -0.5);
-        renderColorOverlay(poseStack, bufferSource, rgb[0], rgb[1], rgb[2], packedOverlay);
-        poseStack.popPose();
-
-        /// 恒星光晕：演化中和静态恒星共用同一套层数和透明度衰减，只有颜色来自快照。
-        /// 演化快照的 emission 是光度的平方根（巨星能到几十），直接当透明度用会让光晕
-        /// 又深又短、和进入演化前完全不连贯，所以先压到 1 附近的窄区间。
-        int haloIterations = 10;
-        for (int i = 0; i < haloIterations; i++) {
-            float progress = (float) i / haloIterations;
-            float haloScale = 1.0f + progress * 0.6f;
-            float alpha = emission * (1.2f - 1.125f * progress) / haloIterations;
-            poseStack.pushPose();
-            poseStack.translate(0.5, 0.5, 0.5);
-            poseStack.scale(haloScale, haloScale, haloScale);
-            poseStack.translate(-0.5, -0.5, -0.5);
-            renderTranslucentCube(
-                poseStack,
-                bufferSource,
-                rgb[0],
-                rgb[1],
-                rgb[2],
-                alpha,
-                LightTexture.FULL_BRIGHT,
-                packedOverlay,
-                seed
-            );
-            poseStack.popPose();
+            StellarEmissionRenderer.render(star, model, poseStack, bufferSource, packedOverlay,
+                stellarVisual, eventProfile, eventProgress);
         }
 
         if (stellarVisual != null) renderStellarWind(poseStack, bufferSource, packedOverlay, seed, stellarVisual);
@@ -1698,65 +1751,11 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
             }
         }
         if (atmosRgb != null) {
-            poseStack.pushPose();
-            poseStack.translate(0.5, 0.5, 0.5);
-            poseStack.scale(1.125f, 1.125f, 1.125f);
-            poseStack.translate(-0.5, -0.5, -0.5);
-            renderAtmosphereCube(
-                poseStack,
-                bufferSource,
-                atmosRgb[0],
-                atmosRgb[1],
-                atmosRgb[2],
-                0.2f,
-                LightTexture.FULL_BRIGHT,
-                packedOverlay,
-                seed
-            );
-            poseStack.popPose();
+            PlanetAtmosphereRenderer.render(poseStack, bufferSource, atmosRgb, packedOverlay);
         }
 
-        /// 褐矮星：微弱的类恒星光晕
         if (bodyData instanceof GiantPlanetData gp && gp.brownDwarf()) {
-            float[] rgb = getAtmosphereColor(Temperature.SCORCHED);
-            int haloIterations = 3;
-            for (int i = 0; i < haloIterations; i++) {
-                float progress = (float) i / haloIterations;
-                float haloScale = 1.15f + progress * 0.25f;
-                float alpha = (0.45f - 0.38f * progress) / haloIterations;
-                poseStack.pushPose();
-                poseStack.translate(0.5, 0.5, 0.5);
-                poseStack.scale(haloScale, haloScale, haloScale);
-                poseStack.translate(-0.5, -0.5, -0.5);
-                renderTranslucentCube(
-                    poseStack,
-                    bufferSource,
-                    rgb[0],
-                    rgb[1],
-                    rgb[2],
-                    alpha,
-                    LightTexture.FULL_BRIGHT,
-                    packedOverlay,
-                    seed
-                );
-                poseStack.popPose();
-            }
-        }
-    }
-
-    /// 以乘法混合（DST_COLOR * SRC_COLOR）渲染立方体，
-    /// 用于恒星颜色叠加以实现精确调色板着色。
-    private void renderColorOverlay(PoseStack poseStack, MultiBufferSource bufferSource, float r, float g, float b, int packedOverlay) {
-        BakedModel cubeModel = blockRenderer.getBlockModel(whiteConcrete);
-        VertexConsumer consumer = bufferSource.getBuffer(ModRenderTypes.STAR_COLOR_OVERLAY);
-        RandomSource random = RandomSource.create(42L);
-        for (Direction dir : Direction.values()) {
-            for (BakedQuad quad : cubeModel.getQuads(null, dir, random, ModelData.EMPTY, null)) {
-                consumer.putBulkData(poseStack.last(), quad, r, g, b, 1.0f, LightTexture.FULL_BRIGHT, packedOverlay);
-            }
-        }
-        for (BakedQuad quad : cubeModel.getQuads(null, null, random, ModelData.EMPTY, null)) {
-            consumer.putBulkData(poseStack.last(), quad, r, g, b, 1.0f, LightTexture.FULL_BRIGHT, packedOverlay);
+            StellarEmissionRenderer.renderBrownDwarfGlow(poseStack, bufferSource, packedOverlay);
         }
     }
 
@@ -1781,58 +1780,6 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
         }
         for (BakedQuad quad : cubeModel.getQuads(null, null, random, ModelData.EMPTY, null)) {
             consumer.putBulkData(poseStack.last(), quad, r, g, b, a, light, overlay);
-        }
-    }
-
-    /// 类似 renderTranslucentCube，但每面的透明度根据方向变化：
-    /// 背向光源的面散射更多，与相机视线相切的面（行星边缘）发光最亮
-    /// —— 在暗半球周围营造出大气边缘效果。
-    private void renderAtmosphereCube(
-        PoseStack poseStack,
-        MultiBufferSource bufferSource,
-        float r,
-        float g,
-        float b,
-        float baseAlpha,
-        int light,
-        int overlay,
-        long seed
-    ) {
-        BakedModel cubeModel = blockRenderer.getBlockModel(whiteConcrete);
-        VertexConsumer consumer = bufferSource.getBuffer(ModRenderTypes.CELESTIAL_ATMOSPHERE);
-        RandomSource random = RandomSource.create(seed);
-        PoseStack.Pose pose = poseStack.last();
-
-        /// 在眼空间中计算从天体中心指向相机的视线方向
-        Vector3f bodyCenter = new Vector3f(0.5f, 0.5f, 0.5f);
-        bodyCenter.mulPosition(pose.pose());
-        float vx = -bodyCenter.x;
-        float vy = -bodyCenter.y;
-        float vz = -bodyCenter.z;
-        float vlen = (float) Math.sqrt(vx * vx + vy * vy + vz * vz);
-        if (vlen > 1e-6f) {
-            vx /= vlen;
-            vy /= vlen;
-            vz /= vlen;
-        }
-
-        for (Direction dir : Direction.values()) {
-            float alpha = CelestialBodyRenderer.computeAtmosphereAlpha(
-                pose,
-                dir.getStepX(),
-                dir.getStepY(),
-                dir.getStepZ(),
-                baseAlpha,
-                vx,
-                vy,
-                vz
-            );
-            for (BakedQuad quad : cubeModel.getQuads(null, dir, random, ModelData.EMPTY, null)) {
-                consumer.putBulkData(pose, quad, r, g, b, alpha, light, overlay);
-            }
-        }
-        for (BakedQuad quad : cubeModel.getQuads(null, null, random, ModelData.EMPTY, null)) {
-            consumer.putBulkData(pose, quad, r, g, b, baseAlpha, light, overlay);
         }
     }
 
@@ -1874,11 +1821,11 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
                     fullBodyScale * visual.ejectaRadius() / Math.max(visual.radius(), 0.01f));
             }
         }
-        float bs = fullBodyScale;
+        float bs = body instanceof StarData ? fullBodyScale * StellarRadiance.MAX_HALO_SCALE : fullBodyScale;
         if (visual != null) {
             float pulseReach = 1.0f + visual.pulsationAmplitude();
             float haloReach = Math.max(1.6f, 1.55f + visual.windStrength());
-            bs *= Math.max(pulseReach, haloReach);
+            bs = Math.max(bs, fullBodyScale * Math.max(pulseReach, haloReach));
             StellarEventProfile eventProfile = blockEntity.getStellarEventProfile();
             if (eventProfile != null) {
                 float eventReach = Math.max(eventProfile.maxCoreRadius(), eventProfile.maxEjectaRadius());
@@ -1898,7 +1845,8 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
         // 环和外包层在过渡窗口被视锥裁掉。
         float maxVisualScale = Math.max(bs, ringScale);
         maxVisualScale = Math.max(maxVisualScale, blockEntity.getSmoothRingScale());
-        maxVisualScale = Math.max(maxVisualScale, blockEntity.getSmoothBodyScale());
+        maxVisualScale = Math.max(maxVisualScale,
+            blockEntity.getSmoothBodyScale() * (body instanceof StarData ? StellarRadiance.MAX_HALO_SCALE : 1.0f));
         float maxHeight = Math.max(
             centerY + maxVisualScale * 1.5f,
             blockEntity.isAmplify() ? 18.0f : 12.0f

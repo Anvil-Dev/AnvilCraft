@@ -100,6 +100,25 @@ public class PermutationRecipeLoader {
 
         PermutationRecipeLoader.register(
             provider,
+            List.of("anvil_hammer", "dragon_rod"),
+            ModItems.MULTIPHASE_MATTER,
+            AnvilCraft.of("frost"),
+            AnvilCraft.of("ember"),
+            (frost, ember) -> PermutationRecipe.builder().input(
+                RecipeResult.builder()
+                    .result(frost)
+                    .removeData(ModComponents.FIRE_REFORGING)
+            ).input(
+                RecipeResult.builder()
+                    .result(ember)
+                    .removeData(ModComponents.MERCILESS)
+                    .changeDataType(RecipeInputSlot.input(0), ModComponents.MERCILESS_ENCHANTMENTS, ItemEnchantmentsData.enchantments(0))
+                    .removeAttribute(Merciless.MERCILESS_ID)
+            )
+        );
+
+        PermutationRecipeLoader.register(
+            provider,
             PermutationRecipeLoader.WORKSTATIONS,
             ModBlocks.MULTIPHASE_MATTER_BLOCK,
             AnvilCraft.of("frost"),

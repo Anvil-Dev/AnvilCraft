@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.client.renderer.mun;
 
+import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import net.minecraft.client.renderer.ShaderInstance;
@@ -24,8 +25,8 @@ final class MunShaderRegistration implements AutoCloseable {
     void add(String name, VertexFormat format, Consumer<ShaderInstance> loaded) throws IOException {
         ShaderInstance shader = new ShaderInstance(this.resources, ResourceLocation.fromNamespaceAndPath(AnvilCraft.MOD_ID, name), format);
         this.shaders.add(new PendingShader(shader, loaded));
-        if (GL20C.glGetProgrami(shader.getId(), GL20C.GL_LINK_STATUS) == GL20C.GL_FALSE) {
-            throw new IOException("Lunar shader did not link");
+        if (GlStateManager.glGetProgrami(shader.getId(), GL20C.GL_LINK_STATUS) == GL20C.GL_FALSE) {
+            throw new IOException("Mun shader did not link");
         }
     }
 

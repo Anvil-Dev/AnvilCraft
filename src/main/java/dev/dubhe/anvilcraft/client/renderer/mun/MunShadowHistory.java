@@ -103,7 +103,7 @@ final class MunShadowHistory implements AutoCloseable {
 
     private void checkFramebuffer() {
         if (GL30C.glCheckFramebufferStatus(GL30C.GL_DRAW_FRAMEBUFFER) != GL30C.GL_FRAMEBUFFER_COMPLETE) {
-            throw new IllegalStateException("Incomplete lunar shadow history framebuffer");
+            throw new IllegalStateException("Incomplete Mun shadow history framebuffer");
         }
     }
 

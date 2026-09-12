@@ -6,6 +6,7 @@ import dev.dubhe.anvilcraft.block.item.HasMobBlockItem;
 import dev.dubhe.anvilcraft.block.item.ResinBlockItem;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModItems;
+import dev.dubhe.anvilcraft.item.ExpGemItem;
 import dev.dubhe.anvilcraft.util.EntityUtil;
 import dev.dubhe.anvilcraft.util.PlayerUtil;
 import net.minecraft.core.BlockPos;
@@ -26,6 +27,7 @@ import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.animal.IronGolem;
 import net.minecraft.world.entity.animal.MushroomCow;
 import net.minecraft.world.entity.monster.ZombieVillager;
+import net.minecraft.world.entity.npc.Villager;
 import net.minecraft.world.item.BucketItem;
 import net.minecraft.world.item.DispensibleContainerItem;
 import net.minecraft.world.item.Item;
@@ -111,6 +113,9 @@ public class ModDispenserBehavior {
         DispenserBlock.registerBehavior(Items.BOWL, ModDispenserBehavior::bowl);
         DispenserBlock.registerBehavior(Items.GOLDEN_APPLE, ModDispenserBehavior::goldenApple);
         DispenserBlock.registerBehavior(ModItems.TOPAZ, ModDispenserBehavior::topaz);
+        DispenserBlock.registerBehavior(ModItems.RUBY, ModDispenserBehavior::ruby);
+        DispenserBlock.registerBehavior(ModItems.SAPPHIRE, ModDispenserBehavior::sapphire);
+        DispenserBlock.registerBehavior(ModItems.EXP_GEM, ModDispenserBehavior::expGem);
         DispenserBlock.registerBehavior(ModBlocks.RESIN_BLOCK, ModDispenserBehavior::resinBlock);
         DispenserBlock.registerBehavior(ModBlocks.MENGER_SPONGE, ModDispenserBehavior::mengerSponge);
 
@@ -173,6 +178,36 @@ public class ModDispenserBehavior {
         ItemStack stack1 = stack.copy();
         stack1.shrink(1);
         return stack1;
+    }
+
+    private static ItemStack ruby(BlockSource source, ItemStack stack) {
+        BlockPos pos = source.pos().relative(source.state().getValue(DispenserBlock.FACING));
+        if (!ModItems.RUBY.get().applyEffect(source.level(), pos)) {
+            return DEFAULT_BEHAVIOUR.dispense(source, stack);
+        }
+        stack.shrink(1);
+        return stack;
+    }
+
+    private static ItemStack sapphire(BlockSource source, ItemStack stack) {
+        BlockPos pos = source.pos().relative(source.state().getValue(DispenserBlock.FACING));
+        if (!ModItems.SAPPHIRE.get().applyEffect(source.level(), pos)) {
+            return DEFAULT_BEHAVIOUR.dispense(source, stack);
+        }
+        stack.shrink(1);
+        return stack;
+    }
+
+    private static ItemStack expGem(BlockSource source, ItemStack stack) {
+        BlockPos pos = source.pos().relative(source.state().getValue(DispenserBlock.FACING));
+        Villager villager = EntityUtil.getAnyEntityOfClass(
+            source.level(), Villager.class, new AABB(pos),
+            entity -> entity.isAlive() && ExpGemItem.canLevelUp(entity)
+        );
+        if (villager == null) return DEFAULT_BEHAVIOUR.dispense(source, stack);
+        ExpGemItem.updateVillager(villager);
+        stack.shrink(1);
+        return stack;
     }
 
     private static ItemStack mengerSponge(BlockSource source, ItemStack stack) {

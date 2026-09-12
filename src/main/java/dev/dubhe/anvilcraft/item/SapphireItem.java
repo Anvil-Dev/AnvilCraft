@@ -38,34 +38,28 @@ public class SapphireItem extends Item {
             (int) Math.floor(player.getY()),
             (int) Math.floor(player.getZ())
         );
-        BlockState playerState = level.getBlockState(playerPos);
-        FluidState playerFluidState = playerState.getFluidState();
-
-        if (playerState.is(Blocks.WATER) && playerFluidState.isSource() && playerFluidState.is(Fluids.WATER)) {
-            if (!level.isClientSide && player instanceof ServerPlayer serverPlayer) {
-                ModCriterionTriggers.USE_ITEM.get().trigger(serverPlayer, this);
-            }
-            processWaterArea(level, playerPos);
-            if (player.getAbilities().instabuild) return InteractionResultHolder.success(itemInHand);
-            this.breakItem(player, itemInHand);
-            itemInHand.shrink(1);
-            return InteractionResultHolder.success(itemInHand);
+        if (!this.applyEffect(level, playerPos)) return InteractionResultHolder.fail(itemInHand);
+        if (!level.isClientSide && player instanceof ServerPlayer serverPlayer) {
+            ModCriterionTriggers.USE_ITEM.get().trigger(serverPlayer, this);
         }
+        if (player.getAbilities().instabuild) return InteractionResultHolder.success(itemInHand);
+        this.breakItem(player, itemInHand);
+        itemInHand.shrink(1);
+        return InteractionResultHolder.success(itemInHand);
+    }
 
-        if (playerState.isAir()) {
-            if (!canSupportSnowLayer(level, playerPos)) {
-                return InteractionResultHolder.fail(itemInHand);
-            }
-            if (!level.isClientSide && player instanceof ServerPlayer serverPlayer) {
-                ModCriterionTriggers.USE_ITEM.get().trigger(serverPlayer, this);
-            }
-            processSnowArea(level, playerPos);
-            if (player.getAbilities().instabuild) return InteractionResultHolder.success(itemInHand);
-            this.breakItem(player, itemInHand);
-            itemInHand.shrink(1);
-            return InteractionResultHolder.success(itemInHand);
+    public boolean applyEffect(Level level, BlockPos pos) {
+        BlockState state = level.getBlockState(pos);
+        FluidState fluidState = state.getFluidState();
+        if (state.is(Blocks.WATER) && fluidState.isSource() && fluidState.is(Fluids.WATER)) {
+            this.processWaterArea(level, pos);
+            return true;
         }
-        return InteractionResultHolder.fail(itemInHand);
+        if (state.isAir() && this.canSupportSnowLayer(level, pos)) {
+            this.processSnowArea(level, pos);
+            return true;
+        }
+        return false;
     }
 
     private boolean canSupportSnowLayer(Level level, BlockPos pos) {

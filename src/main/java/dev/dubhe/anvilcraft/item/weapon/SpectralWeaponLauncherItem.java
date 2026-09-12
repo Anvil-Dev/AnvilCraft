@@ -7,6 +7,7 @@ import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.item.SpectralSlingshotItem;
 import dev.dubhe.anvilcraft.util.ColorUtil;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.InteractionHand;
@@ -15,6 +16,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.ChargedProjectiles;
 import net.minecraft.world.item.component.CustomModelData;
 import net.minecraft.world.level.Level;
 import net.neoforged.api.distmarker.Dist;
@@ -72,6 +74,13 @@ public class SpectralWeaponLauncherItem extends SpectralSlingshotItem implements
         float inaccuracy,
         @Nullable LivingEntity target
     ) {
+        if (!(level instanceof ServerLevel)) return;
+        if (unableToUse(weapon)) {
+            updateExhaustedModel(weapon);
+            if (shooter instanceof Player player) EnergyWeaponItem.showInsufficientPower(player);
+            return;
+        }
+        if (weapon.getOrDefault(DataComponents.CHARGED_PROJECTILES, ChargedProjectiles.EMPTY).isEmpty()) return;
         super.performShooting(level, shooter, hand, weapon, velocity, inaccuracy, target);
         if (shooter.hasInfiniteMaterials()) return;
         int newEnergy = weapon.getOrDefault(ModComponents.STORED_ENERGY, 0) - SpectralWeaponLauncherItem.SHOOT_CONSUME;
@@ -123,7 +132,7 @@ public class SpectralWeaponLauncherItem extends SpectralSlingshotItem implements
     @Override
     public int getBarWidth(ItemStack stack) {
         int energy = stack.getOrDefault(ModComponents.STORED_ENERGY, 0);
-        return Math.round(Math.clamp((float) energy / SpectralWeaponLauncherItem.MAX_ENERGY, 0, 1) * 13);
+        return energy <= 0 ? 0 : Math.max(1, Math.round(Math.clamp((float) energy / MAX_ENERGY, 0, 1) * 13));
     }
 
     @Override
@@ -137,8 +146,4 @@ public class SpectralWeaponLauncherItem extends SpectralSlingshotItem implements
         stack.set(DataComponents.CUSTOM_MODEL_DATA, CustomModelData.DEFAULT);
     }
 
-    @Override
-    public boolean canAccept(ItemStack stack, IFullCapacitor capacitor, ItemStack capacitorStack, boolean force) {
-        return force || capacitor.getEnergyStored(capacitorStack) >= SpectralWeaponLauncherItem.MAX_ENERGY / 8;
-    }
 }

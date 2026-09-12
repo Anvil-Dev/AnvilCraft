@@ -1,3 +1,85 @@
 {
-  "parent": "anvilcraft:block/celestial_forging_anvil"
+  "parent": "anvilcraft:block/celestial_forging_anvil",
+  "display": {
+    "firstperson_lefthand": {
+      "rotation": [
+        0,
+        45,
+        0
+      ],
+      "scale": [
+        0.2,
+        0.2,
+        0.2
+      ],
+      "translation": [
+        0,
+        1.6,
+        0
+      ]
+    },
+    "firstperson_righthand": {
+      "rotation": [
+        0,
+        45,
+        0
+      ],
+      "scale": [
+        0.2,
+        0.2,
+        0.2
+      ],
+      "translation": [
+        0,
+        1.6,
+        0
+      ]
+    },
+    "head": {
+      "scale": [
+        0.3,
+        0.3,
+        0.3
+      ],
+      "translation": [
+        0,
+        8.8,
+        0
+      ]
+    },
+    "thirdperson_lefthand": {
+      "rotation": [
+        0,
+        45,
+        0
+      ],
+      "scale": [
+        0.2,
+        0.2,
+        0.2
+      ],
+      "translation": [
+        0,
+        1.6,
+        0
+      ]
+    },
+    "thirdperson_righthand": {
+      "rotation": [
+        0,
+        45,
+        0
+      ],
+      "scale": [
+        0.2,
+        0.2,
+        0.2
+      ],
+      "translation": [
+        0,
+        1.6,
+        0
+      ]
+    }
+  }
 }

@@ -1,6 +1,5 @@
 package dev.dubhe.anvilcraft.client.renderer.mun;
 
-import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.shaders.Uniform;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.VertexBuffer;
@@ -23,11 +22,7 @@ import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.lwjgl.opengl.GL11C;
-import org.lwjgl.opengl.GL30C;
-import org.lwjgl.system.MemoryStack;
 
-import java.nio.ByteBuffer;
-import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -263,31 +258,18 @@ public final class MunShadowMap implements AutoCloseable {
             dirty |= cascade.dirty || cascade.dynamicDirty || cascade.translucentDirty;
         }
         if (!dirty) return;
-        try (MemoryStack stack = MemoryStack.stackPush()) {
-            IntBuffer viewport = stack.mallocInt(4);
-            ByteBuffer colorMask = stack.malloc(4);
-            GL11C.glGetIntegerv(GL11C.GL_VIEWPORT, viewport);
-            GL11C.glGetBooleanv(GL11C.GL_COLOR_WRITEMASK, colorMask);
-            int framebuffer = GL11C.glGetInteger(GL30C.GL_DRAW_FRAMEBUFFER_BINDING);
-            int readFramebuffer = GL11C.glGetInteger(GL30C.GL_READ_FRAMEBUFFER_BINDING);
-            int depthFunction = GL11C.glGetInteger(GL11C.GL_DEPTH_FUNC);
-            boolean depthMask = GL11C.glGetBoolean(GL11C.GL_DEPTH_WRITEMASK);
-            boolean depthTest = GL11C.glIsEnabled(GL11C.GL_DEPTH_TEST);
-            boolean blend = GL11C.glIsEnabled(GL11C.GL_BLEND);
-            boolean cull = GL11C.glIsEnabled(GL11C.GL_CULL_FACE);
-            boolean scissor = GL11C.glIsEnabled(GL11C.GL_SCISSOR_TEST);
-            int texture = RenderSystem.getShaderTexture(0);
+        try (MunRenderScope ignored = MunRenderScope.shadows()) {
             try {
                 RenderSystem.enableDepthTest();
                 RenderSystem.depthFunc(GL11C.GL_LEQUAL);
                 RenderSystem.depthMask(true);
                 RenderSystem.disableBlend();
                 RenderSystem.disableCull();
-                GlStateManager._disableScissorTest();
+                RenderSystem.disableScissor();
                 RenderSystem.colorMask(true, true, true, true);
                 RenderSystem.setShaderTexture(0, TextureAtlas.LOCATION_BLOCKS);
                 Uniform offset = shader.getUniform("ChunkOffset");
-                if (offset == null) throw new IllegalStateException("Missing lunar shadow draw uniforms");
+                if (offset == null) throw new IllegalStateException("Missing Mun shadow draw uniforms");
                 for (int index = 0; index < profile.cascades(); index++) {
                     Cascade cascade = this.cascades[index];
                     if (!cascade.dirty && !cascade.dynamicDirty && !cascade.translucentDirty) continue;
@@ -334,20 +316,6 @@ public final class MunShadowMap implements AutoCloseable {
                 shader.clear();
                 translucentShader.clear();
                 VertexBuffer.unbind();
-                RenderSystem.setShaderTexture(0, texture);
-                GlStateManager._glBindFramebuffer(GL30C.GL_DRAW_FRAMEBUFFER, framebuffer);
-                GlStateManager._glBindFramebuffer(GL30C.GL_READ_FRAMEBUFFER, readFramebuffer);
-                RenderSystem.viewport(viewport.get(0), viewport.get(1), viewport.get(2), viewport.get(3));
-                RenderSystem.colorMask(colorMask.get(0) != 0, colorMask.get(1) != 0, colorMask.get(2) != 0, colorMask.get(3) != 0);
-                RenderSystem.depthFunc(depthFunction);
-                RenderSystem.depthMask(depthMask);
-                if (depthTest) RenderSystem.enableDepthTest();
-                else RenderSystem.disableDepthTest();
-                if (blend) RenderSystem.enableBlend();
-                else RenderSystem.disableBlend();
-                if (cull) RenderSystem.enableCull();
-                else RenderSystem.disableCull();
-                if (scissor) GlStateManager._enableScissorTest();
             }
         }
     }
@@ -385,7 +353,7 @@ public final class MunShadowMap implements AutoCloseable {
         shader.safeGetUniform("ShadowScale").set(2 / cascade.span, -2 / MunShadowProjection.DEPTH,
             cascade.resolution / cascade.span);
         Uniform offset = shader.getUniform("ChunkOffset");
-        if (offset == null) throw new IllegalStateException("Missing lunar translucent shadow uniforms");
+        if (offset == null) throw new IllegalStateException("Missing Mun translucent shadow uniforms");
         shader.apply();
         for (ChunkMesh chunk : cascade.translucentMeshes) {
             if (chunk.translucent == null) continue;

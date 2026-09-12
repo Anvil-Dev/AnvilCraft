@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.client.event;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.item.weapon.CorruptedBeaconActivatorItem;
+import dev.dubhe.anvilcraft.item.weapon.EnergyWeaponItem;
 import dev.dubhe.anvilcraft.item.weapon.LaserGunItem;
 import dev.dubhe.anvilcraft.item.weapon.TeslaGunItem;
 import net.minecraft.client.Minecraft;
@@ -60,10 +61,14 @@ public final class EnergyWeaponSoundHandler {
     @Nullable
     private static WeaponSound getRequiredSound(Player player) {
         if (!player.isAlive() || player.isSilent() || !player.isUsingItem()) return null;
-        if (player.getUseItem().getItem() instanceof LaserGunItem) return WeaponSound.LASER;
-        if (player.getUseItem().getItem() instanceof CorruptedBeaconActivatorItem) return WeaponSound.CORRUPTED_BEACON;
-        if (player.getUseItem().getItem() instanceof TeslaGunItem) return WeaponSound.TESLA_CHARGE;
-        return null;
+        if (!(player.getUseItem().getItem() instanceof EnergyWeaponItem weapon)
+            || !weapon.canFire(player, player.getUseItem())) return null;
+        return switch (player.getUseItem().getItem()) {
+            case LaserGunItem laserGunItem -> WeaponSound.LASER;
+            case CorruptedBeaconActivatorItem corruptedBeaconActivatorItem -> WeaponSound.CORRUPTED_BEACON;
+            case TeslaGunItem teslaGunItem -> WeaponSound.TESLA_CHARGE;
+            default -> null;
+        };
     }
 
     private enum WeaponSound {

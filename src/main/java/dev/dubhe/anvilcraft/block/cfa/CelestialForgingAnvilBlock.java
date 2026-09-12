@@ -5,6 +5,7 @@ import dev.anvilcraft.lib.v2.multiblock.dynamic.controller.IController;
 import dev.anvilcraft.lib.v2.util.ShapeUtil;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.block.PropelPistonBlock;
+import dev.dubhe.anvilcraft.block.cfa.item.CelestialForgingAnvilBlockItem;
 import dev.dubhe.anvilcraft.block.entity.CelestialForgingAnvilBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.celestial.StarData;
 import dev.dubhe.anvilcraft.block.multipart.MultiPartBlockEntity;
@@ -214,6 +215,11 @@ public class CelestialForgingAnvilBlock
         return ModBlockEntities.CELESTIAL_FORGING_ANVIL.create(pos, state);
     }
 
+    public @Nullable CelestialForgingAnvilBlockEntity getPickBlockEntity(BlockGetter level, BlockPos pos, BlockState state) {
+        BlockEntity blockEntity = level.getBlockEntity(this.getMainPartPos(pos, state));
+        return blockEntity instanceof CelestialForgingAnvilBlockEntity anvil ? anvil : null;
+    }
+
     @Override
     public Block getBlock() {
         return this;
@@ -301,6 +307,7 @@ public class CelestialForgingAnvilBlock
         LootParams.Builder params
     ) {
         CompoundTag blockEntityTag = blockEntity.saveForDrop(params.getLevel().registryAccess());
+        CelestialForgingAnvilBlockItem.saveRenderData(blockEntityTag, params.getLevel().getGameTime());
         blockEntityTag.remove("anvils");
         blockEntityTag.remove("materialFilter");
         blockEntityTag.remove("materialLimit");

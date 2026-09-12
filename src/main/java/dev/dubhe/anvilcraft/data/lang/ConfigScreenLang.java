@@ -25,7 +25,14 @@ public class ConfigScreenLang {
             "anvilcraft.configuration.anvil_collision_craft_speed.tooltip",
             "Minimum collision speed at which anvils explode instead of merely stopping (blocks/tick)"
         );
-        addOverride(provider, "anvilcraft.configuration.mun_lighting_quality", "Moon Lighting Quality");
+        addOverride(provider, "anvilcraft.configuration.mun_lighting_quality", "Mun Lighting Quality");
+        addOverride(provider, "anvilcraft.configuration.stellar_rendering_mode", "Stellar Emission Rendering");
+        addOverride(provider, "anvilcraft.configuration.planet_atmosphere_rendering_mode", "Planet Atmosphere Rendering");
+        addOverride(
+            provider,
+            "anvillib.configuration.enum.dev.dubhe.anvilcraft.config.anvil_craft_client_config.mun_lighting_quality.off",
+            "Vanilla"
+        );
         addOverride(provider, "anvilcraft.configuration.render_bloom_effect", "Render Power Transmission Line Bloom");
         addOverride(provider, "anvilcraft.configuration.ground_heave_particles_enabled", "Show Ground Heave Particles");
         addOverride(provider, "anvilcraft.configuration.ground_heave_particle_chance", "Ground Heave Particle Spawn Chance");

@@ -71,34 +71,34 @@ public class EmberSmithingMenu extends AdjacentSmithingMenu {
                     .anyMatch(recipe -> recipe.value().isTemplateIngredient(this.inputSlots.getItem(0))
                                         && recipe.value().isMaterialIngredient(itemStack)))
             .withSlot(2, 80, 18, itemStack ->
-                !this.inputSlots.getItem(0).isEmpty() && !this.inputSlots.getItem(1).isEmpty() && this.recipes.stream()
+                !this.inputSlots.getItem(0).isEmpty() && this.hasMaterialForPlacement() && this.recipes.stream()
                     .anyMatch(smithingRecipe -> smithingRecipe.value().isInputIngredient(0, itemStack)))
             .withSlot(3, 80, 54, itemStack ->
-                !this.inputSlots.getItem(0).isEmpty() && !this.inputSlots.getItem(1).isEmpty() && this.recipes.stream()
+                !this.inputSlots.getItem(0).isEmpty() && this.hasMaterialForPlacement() && this.recipes.stream()
                     .anyMatch(smithingRecipe -> smithingRecipe.value().isInputIngredient(1, itemStack)))
             .withSlot(4, 62, 36, itemStack ->
                 !this.inputSlots.getItem(0).is(ModItems.TWO_TO_ONE_SMITHING_TEMPLATE)
-                    && !this.inputSlots.getItem(1).isEmpty() && this.recipes.stream()
+                    && this.hasMaterialForPlacement() && this.recipes.stream()
                     .anyMatch(smithingRecipe -> smithingRecipe.value().isInputIngredient(2, itemStack)))
             .withSlot(5, 98, 36, itemStack ->
                 !this.inputSlots.getItem(0).is(ModItems.TWO_TO_ONE_SMITHING_TEMPLATE)
-                    && !this.inputSlots.getItem(1).isEmpty() && this.recipes.stream()
+                    && this.hasMaterialForPlacement() && this.recipes.stream()
                     .anyMatch(smithingRecipe -> smithingRecipe.value().isInputIngredient(3, itemStack)))
             .withSlot(6, 62, 18, itemStack ->
                 this.inputSlots.getItem(0).is(ModItems.EIGHT_TO_ONE_SMITHING_TEMPLATE)
-                    && !this.inputSlots.getItem(1).isEmpty() && this.recipes.stream()
+                    && this.hasMaterialForPlacement() && this.recipes.stream()
                     .anyMatch(smithingRecipe -> smithingRecipe.value().isInputIngredient(4, itemStack)))
             .withSlot(7, 98, 18, itemStack ->
                 this.inputSlots.getItem(0).is(ModItems.EIGHT_TO_ONE_SMITHING_TEMPLATE)
-                    && !this.inputSlots.getItem(1).isEmpty() && this.recipes.stream()
+                    && this.hasMaterialForPlacement() && this.recipes.stream()
                     .anyMatch(smithingRecipe -> smithingRecipe.value().isInputIngredient(5, itemStack)))
             .withSlot(8, 62, 54, itemStack ->
                 this.inputSlots.getItem(0).is(ModItems.EIGHT_TO_ONE_SMITHING_TEMPLATE)
-                    && !this.inputSlots.getItem(1).isEmpty() && this.recipes.stream()
+                    && this.hasMaterialForPlacement() && this.recipes.stream()
                     .anyMatch(smithingRecipe -> smithingRecipe.value().isInputIngredient(6, itemStack)))
             .withSlot(9, 98, 54, itemStack ->
                 this.inputSlots.getItem(0).is(ModItems.EIGHT_TO_ONE_SMITHING_TEMPLATE)
-                    && !this.inputSlots.getItem(1).isEmpty() && this.recipes.stream()
+                    && this.hasMaterialForPlacement() && this.recipes.stream()
                     .anyMatch(smithingRecipe -> smithingRecipe.value().isInputIngredient(7, itemStack)))
             .withResultSlot(10, 151, 48)
             .build();
@@ -121,6 +121,7 @@ public class EmberSmithingMenu extends AdjacentSmithingMenu {
 
     @Override
     public void slotsChanged(Container inventory) {
+        if (this.isRecipeTransferInProgress()) return;
         super.slotsChanged(inventory);
         if (inventory == this.inputSlots) {
             if (this.inputSlots.getItem(0).isEmpty()) {

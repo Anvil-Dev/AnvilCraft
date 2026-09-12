@@ -4,9 +4,11 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import dev.dubhe.anvilcraft.client.init.ModRenderTypes;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.CorruptedBeaconRenderer;
+import dev.dubhe.anvilcraft.client.renderer.item.EnergyWeaponFirstPersonRenderer;
 import dev.dubhe.anvilcraft.client.renderer.laser.LaserCompiler;
 import dev.dubhe.anvilcraft.entity.WeaponBeamEntity;
 import dev.dubhe.anvilcraft.item.weapon.CorruptedBeaconActivatorItem;
+import dev.dubhe.anvilcraft.item.weapon.EnergyWeaponItem;
 import dev.dubhe.anvilcraft.item.weapon.LaserGunItem;
 import dev.dubhe.anvilcraft.util.WeaponRaycastUtil;
 import net.minecraft.client.Minecraft;
@@ -62,6 +64,10 @@ public class WeaponBeamRenderer extends EntityRenderer<WeaponBeamEntity> {
             counterViewBob(poseStack, player, partialTick);
         }
         poseStack.translate(originOffset.x, originOffset.y, originOffset.z);
+        if (owner == minecraft.player && minecraft.options.getCameraType().isFirstPerson()
+            && (entity.getStyle() == WeaponBeamEntity.LASER || entity.getStyle() == WeaponBeamEntity.CORRUPTED)) {
+            EnergyWeaponFirstPersonRenderer.captureBeam(poseStack, end, partialTick);
+        }
         switch (entity.getStyle()) {
             case WeaponBeamEntity.CORRUPTED -> renderCorruptedBeam(end, poseStack, buffers);
             case WeaponBeamEntity.LASER -> renderLaserBeam(end, entity.getStrength(), poseStack, buffers);
@@ -89,12 +95,14 @@ public class WeaponBeamRenderer extends EntityRenderer<WeaponBeamEntity> {
         if (beam.getStyle() != WeaponBeamEntity.CORRUPTED && beam.getStyle() != WeaponBeamEntity.LASER) return true;
         Entity owner = beam.getOwner();
         if (!(owner instanceof Player player) || !player.isUsingItem()) return false;
+        if (!(player.getUseItem().getItem() instanceof EnergyWeaponItem weapon)
+            || !weapon.canFire(player, player.getUseItem())) return false;
         return beam.getStyle() == WeaponBeamEntity.LASER
             ? player.getUseItem().getItem() instanceof LaserGunItem
             : player.getUseItem().getItem() instanceof CorruptedBeaconActivatorItem;
     }
 
-    private static void counterViewBob(PoseStack poseStack, Player player, float partialTick) {
+    public static void counterViewBob(PoseStack poseStack, Player player, float partialTick) {
         ViewBobCompensation compensation = createViewBobCompensation(player, partialTick);
         poseStack.last().pose().set(compensation.pose.mul(poseStack.last().pose(), new Matrix4f()));
         poseStack.last().normal().set(compensation.normal.mul(poseStack.last().normal(), new Matrix3f()));

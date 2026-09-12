@@ -13,6 +13,7 @@ import dev.dubhe.anvilcraft.block.ArrowBlock;
 import dev.dubhe.anvilcraft.block.AutoEnchantingTableBlock;
 import dev.dubhe.anvilcraft.block.BerryCakeBlock;
 import dev.dubhe.anvilcraft.block.BerryCreamBlock;
+import dev.dubhe.anvilcraft.block.BigRedButtonBlock;
 import dev.dubhe.anvilcraft.block.BlackHoleBlock;
 import dev.dubhe.anvilcraft.block.BlockComparatorBlock;
 import dev.dubhe.anvilcraft.block.BlockDevourerBlock;
@@ -132,6 +133,7 @@ import dev.dubhe.anvilcraft.block.PowerConverterSuperBigBlock;
 import dev.dubhe.anvilcraft.block.PropelPistonBlock;
 import dev.dubhe.anvilcraft.block.PulseGeneratorBlock;
 import dev.dubhe.anvilcraft.block.RadioactiveBlock;
+import dev.dubhe.anvilcraft.block.RedstoneDiceBlock;
 import dev.dubhe.anvilcraft.block.RedstoneWireBlock;
 import dev.dubhe.anvilcraft.block.ReinforcedConcreteBlock;
 import dev.dubhe.anvilcraft.block.RemoteTransmissionPoleBlock;
@@ -287,6 +289,7 @@ import net.minecraft.util.ColorRGBA;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.Rarity;
 import net.minecraft.world.item.component.CustomData;
@@ -1503,6 +1506,33 @@ public class ModBlocks {
         .simpleItem()
         .register();
 
+    public static final BlockEntry<RedstoneDiceBlock> REDSTONE_DICE = REGISTRUM.block("redstone_dice", RedstoneDiceBlock::new)
+        .properties(properties -> properties.strength(0.5f).sound(SoundType.METAL).noOcclusion())
+        .blockstate((ctx, provider) -> provider.simpleBlock(ctx.get(),
+            provider.models().getExistingFile(ctx.getId().withPrefix("block/").withSuffix("_base"))))
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .item()
+        .model((ctx, provider) -> provider.withExistingParent(ctx.getName(), AnvilCraft.of("block/redstone_dice")))
+        .build()
+        .recipe(RegistrumBlockRecipeLoader::redstoneDice)
+        .register();
+
+    public static final BlockEntry<BigRedButtonBlock> BIG_RED_BUTTON = REGISTRUM.block("big_red_button", BigRedButtonBlock::new)
+        .properties(properties -> properties.strength(0.5f).sound(SoundType.METAL).noOcclusion())
+        .blockstate((ctx, provider) -> {
+            ModelFile base = provider.models().getExistingFile(ctx.getId().withPrefix("block/").withSuffix("_base"));
+            provider.getVariantBuilder(ctx.get()).forAllStatesExcept(state -> {
+                Direction facing = state.getValue(BigRedButtonBlock.FACING);
+                int x = facing == Direction.UP ? 0 : facing == Direction.DOWN ? 180 : 90;
+                int y = facing.getAxis().isVertical() ? 0 : (int) facing.toYRot() + 180;
+                return ConfiguredModel.builder().modelFile(base).rotationX(x).rotationY(y % 360).build();
+            }, BigRedButtonBlock.PRESSED);
+        })
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE, ModBlockTags.ANVIL_HAMMER_BLACKLIST)
+        .simpleItem()
+        .recipe(RegistrumBlockRecipeLoader::bigRedButton)
+        .register();
+
     public static final BlockEntry<PulseGeneratorBlock> PULSE_GENERATOR = REGISTRUM.block("pulse_generator", PulseGeneratorBlock::new)
         .properties(properties -> properties.strength(3.0F, 3.5F).sound(SoundType.STONE).noOcclusion())
         .blockstate((ctx, provider) -> {
@@ -2005,6 +2035,15 @@ public class ModBlocks {
         .tag((BlockTags.MINEABLE_WITH_PICKAXE), BlockTags.WITHER_IMMUNE, BlockTags.DRAGON_IMMUNE, ModBlockTags.COLLISION_IMMUNE)
         .item(CelestialForgingAnvilBlockItem::new)
         .properties(properties -> properties.stacksTo(1).rarity(Rarity.EPIC))
+        .tag(ItemTags.HEAD_ARMOR_ENCHANTABLE, ItemTags.EQUIPPABLE_ENCHANTABLE, ItemTags.VANISHING_ENCHANTABLE)
+        .model((ctx, provider) -> provider.withExistingParent(ctx.getName(), AnvilCraft.of("block/celestial_forging_anvil"))
+            .transforms()
+            .transform(ItemDisplayContext.THIRD_PERSON_RIGHT_HAND).rotation(0, 45, 0).translation(0, 1.6f, 0).scale(0.2f).end()
+            .transform(ItemDisplayContext.THIRD_PERSON_LEFT_HAND).rotation(0, 45, 0).translation(0, 1.6f, 0).scale(0.2f).end()
+            .transform(ItemDisplayContext.FIRST_PERSON_RIGHT_HAND).rotation(0, 45, 0).translation(0, 1.6f, 0).scale(0.2f).end()
+            .transform(ItemDisplayContext.FIRST_PERSON_LEFT_HAND).rotation(0, 45, 0).translation(0, 1.6f, 0).scale(0.2f).end()
+            .transform(ItemDisplayContext.HEAD).translation(0, 8.8f, 0).scale(0.3f).end()
+            .end())
         .build()
         .blockstate(DataGenUtil::noExtraModelOrState)
         .register();
@@ -4942,7 +4981,7 @@ public class ModBlocks {
 
     public static final BlockEntry<? extends Block> LUNAR_ROCK = REGISTRUM.block("lunar_rock", Block::new)
         .initialProperties(() -> Blocks.STONE)
-        .lang("Lunar Rock")
+        .lang("Mun Rock")
         // 随机纹理变种的 blockstate 与模型为手写资源（assets/anvilcraft/blockstates/lunar_rock.json），
         // 与原版草方块同机制：4 个纹理变种按方块位置随机显示
         .blockstate(DataGenUtil::noExtraModelOrState)
@@ -4954,7 +4993,7 @@ public class ModBlocks {
 
     public static final BlockEntry<? extends Block> LUNAR_SOIL = REGISTRUM.block("lunar_soil", Block::new)
         .initialProperties(() -> Blocks.DIRT)
-        .lang("Lunar Soil")
+        .lang("Mun Soil")
         .blockstate(DataGenUtil::noExtraModelOrState)
         .item()
         .model((ctx, provider) -> provider.withExistingParent(ctx.getName(), AnvilCraft.of("block/lunar_soil")))

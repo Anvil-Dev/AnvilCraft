@@ -265,12 +265,14 @@ public class CrateBlock extends Block implements EntityBlock, IHammerRemovable {
 
         Set<UUID> sourceIds = new HashSet<>();
         List<UnlimitedItemStack> toTransfer = new ArrayList<>();
+        boolean craftingUnlocked = target.isCraftingUnlocked();
         for (CrateBlockEntity crate : crates) {
             UUID sourceId = crate.getId();
             if (sourceId == null || !sourceIds.add(sourceId)) continue;
             Optional<BaseStorage<?>> sourceOp = Storages.get().get(sourceId);
             if (sourceOp.isEmpty()) continue;
             BaseStorage<?> source = sourceOp.get();
+            craftingUnlocked |= source.isCraftingUnlocked();
             UnlimitedItemStacksResourceHandler items = source.getItems();
             for (int i = 0; i < items.size(); i++) {
                 UnlimitedItemStack stack = items.getUnlimitedStackInSlot(i);
@@ -286,6 +288,7 @@ public class CrateBlock extends Block implements EntityBlock, IHammerRemovable {
         }
         targetItems.insertItem(ModBlocks.CRATE.asStack(27), false);
 
+        target.setCraftingUnlocked(craftingUnlocked);
         Storages.get().put(target);
         for (UUID sourceId : sourceIds) {
             Storages.get().remove(sourceId);

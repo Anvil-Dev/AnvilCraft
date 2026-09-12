@@ -15,6 +15,7 @@ import dev.dubhe.anvilcraft.api.taslatower.IsPlayerIdFilter;
 import dev.dubhe.anvilcraft.api.taslatower.TeslaFilter;
 import dev.dubhe.anvilcraft.block.TeslaTowerBlock;
 import dev.dubhe.anvilcraft.block.state.Vertical4PartHalf;
+import dev.dubhe.anvilcraft.entity.WeaponBeamEntity;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.init.ModSoundEvents;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
@@ -51,13 +52,17 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.EventHooks;
 
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import javax.annotation.Nullable;
 
@@ -248,22 +253,7 @@ public class TeslaTowerBlockEntity extends BlockEntity
             this.lastStrikeTime = this.level.getGameTime();
             this.level.sendBlockUpdated(this.getBlockPos(), state, state, 2);
             if (this.level instanceof ServerLevel serverLevel) {
-                LightningBolt lightningBolt = EntityType.LIGHTNING_BOLT.create(serverLevel);
-                if (lightningBolt != null) {
-                    lightningBolt.moveTo(targetEntity.position());
-                    lightningBolt.setDamage(lightningBolt.getDamage() * 2);
-                    if (!EventHooks.onEntityStruckByLightning(targetEntity, lightningBolt)) {
-                        targetEntity.thunderHit(serverLevel, lightningBolt);
-                    }
-                    if (!targetEntity.isAlive() || targetEntity.isRemoved()) {
-                        AABB area = new AABB(targetEntity.blockPosition()).inflate(1.0);
-                        LivingEntity converted = this.level.getEntitiesOfClass(LivingEntity.class, area,
-                            e -> e != targetEntity && e.isAlive()).stream().findFirst().orElse(targetEntity);
-                        this.targetEntity = converted;
-                        this.targetEntityUUID = converted.getUUID();
-                        this.level.sendBlockUpdated(this.getBlockPos(), state, state, 2);
-                    }
-                }
+                this.strikeChain(serverLevel, state, targetEntity);
             }
             this.flashTimer = 5;
             this.level.playSound(null, getBlockPos(), ModSoundEvents.TESLA_TOWER_STRIKE.get(), SoundSource.BLOCKS, 1.0f, 1.0f);
@@ -293,6 +283,55 @@ public class TeslaTowerBlockEntity extends BlockEntity
             this.flashTimer = 5;
             this.level.playSound(null, getBlockPos(), ModSoundEvents.TESLA_TOWER_STRIKE.get(), SoundSource.BLOCKS, 1.0f, 1.0f);
         }
+    }
+
+    private void strikeChain(ServerLevel level, BlockState state, LivingEntity first) {
+        Set<Integer> struck = new HashSet<>();
+        LivingEntity target = first;
+        Vec3 start = first.getEyePosition();
+        for (int jump = 0; jump < 4 && target != null; jump++) {
+            if (jump > 0 && NeoForge.EVENT_BUS.post(new TeslaStrikeEvent.TargetEntity(level, this, target)).isCanceled()) {
+                break;
+            }
+            struck.add(target.getId());
+            Vec3 hitPos = target.getEyePosition();
+            LivingEntity origin = this.thunderHit(level, target, 40.0F - jump * 10.0F);
+            if (origin == null) break;
+            struck.add(origin.getId());
+            if (jump == 0) {
+                this.targetEntity = origin;
+                this.targetEntityUUID = origin.getUUID();
+                level.sendBlockUpdated(this.getBlockPos(), state, state, 2);
+            } else {
+                level.addFreshEntity(WeaponBeamEntity.create(level, start, hitPos, WeaponBeamEntity.TESLA));
+            }
+            if (jump == 3) break;
+            start = origin.getEyePosition();
+            target = level.getEntitiesOfClass(LivingEntity.class, origin.getBoundingBox().inflate(4.0), candidate ->
+                candidate.isAlive() && !struck.contains(candidate.getId())
+                    && this.whiteList.stream().noneMatch(filter -> filter.left().match(candidate, filter.right()))
+            ).stream().min(Comparator.comparingDouble(candidate -> candidate.distanceToSqr(origin))).orElse(null);
+        }
+    }
+
+    @Nullable
+    private LivingEntity thunderHit(ServerLevel level, LivingEntity target, float damage) {
+        LightningBolt bolt = EntityType.LIGHTNING_BOLT.create(level);
+        if (bolt == null) return null;
+        bolt.moveTo(target.position());
+        bolt.setDamage(0.0F);
+        if (EventHooks.onEntityStruckByLightning(target, bolt)) return null;
+        AABB area = new AABB(target.position(), target.position()).inflate(1.5);
+        List<LivingEntity> nearby = level.getEntitiesOfClass(LivingEntity.class, area);
+        target.thunderHit(level, bolt);
+        LivingEntity result = target;
+        if (target.isRemoved()) {
+            result = level.getEntitiesOfClass(LivingEntity.class, area, candidate ->
+                candidate.isAlive() && !nearby.contains(candidate)
+            ).stream().min(Comparator.comparingDouble(candidate -> candidate.distanceToSqr(target))).orElse(target);
+        }
+        result.hurt(level.damageSources().lightningBolt(), damage);
+        return result;
     }
 
     private void clearTargetEntity(BlockState state) {
