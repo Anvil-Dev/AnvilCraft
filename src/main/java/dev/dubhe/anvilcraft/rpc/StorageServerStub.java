@@ -24,6 +24,7 @@ import dev.dubhe.anvilcraft.block.multipart.AbstractMultiPartBlock;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.init.storage.ModStorageTypes;
+import dev.dubhe.anvilcraft.item.TerminalItem;
 import dev.dubhe.anvilcraft.item.property.component.StorageRef;
 import dev.dubhe.anvilcraft.item.property.component.TerminalBinding;
 import dev.dubhe.anvilcraft.saved.setting.PlayerSetting;
@@ -2906,7 +2907,7 @@ public final class StorageServerStub {
         return new CraftingTarget(null, view.primary(), view, player);
     }
 
-    /** 在玩家身上查找指定终端类型的物品栈（手持优先，其次物品栏）。 */
+    /** 在玩家身上查找指定终端类型的物品栈（手持优先，其次物品栏和饰品）。 */
     @Nullable
     private static ItemStack findTerminalStack(ServerPlayer player, int kind) {
         Item item = switch (kind) {
@@ -2924,7 +2925,7 @@ public final class StorageServerStub {
         if (player.getOffhandItem().is(item)) {
             return player.getOffhandItem();
         }
-        for (ItemStack stack : player.getInventory().items) {
+        for (ItemStack stack : TerminalItem.getAll(player)) {
             if (stack.is(item)) {
                 return stack;
             }
@@ -3446,7 +3447,7 @@ public final class StorageServerStub {
         // 创造模式指针物品由客户端本地管理（ItemPickerMenu 纯客户端，不进服务端背包），
         // 终端捏在指针上时服务端背包里没有它，需额外检查指针。
         if (StorageServerStub.isBoundTerminal(player.containerMenu.getCarried(), storageId, playerId)) return true;
-        for (ItemStack stack : player.getInventory().items) {
+        for (ItemStack stack : TerminalItem.getAll(player)) {
             if (StorageServerStub.isBoundTerminal(stack, storageId, playerId)) return true;
             if (stack.is(ModItems.LOCAL_TERMINAL)) holdsLocal = true;
             if (stack.is(ModItems.SHULKER_TERMINAL)) holdsShulker = true;
@@ -3725,18 +3726,12 @@ public final class StorageServerStub {
     }
 
     /**
-     * 扫描玩家背包与主/副手中的已绑定终端，收集其指向的存储（超维存储站 / 大型板条箱 / 潜影目标）。
+     * 扫描玩家物品栏与饰品中的已绑定终端，收集其指向的存储（超维存储站 / 大型板条箱 / 潜影目标）。
      * 返回去重后的存储列表。本地与潜影终端仅在玩家实际持有对应终端时参与连接。
      */
     private static List<BaseStorage<?>> boundStorages(ServerPlayer player) {
         List<BaseStorage<?>> storages = new ArrayList<>();
-        for (ItemStack stack : player.getInventory().items) {
-            StorageServerStub.collectBoundStorage(stack, storages);
-        }
-        for (ItemStack stack : player.getInventory().armor) {
-            StorageServerStub.collectBoundStorage(stack, storages);
-        }
-        for (ItemStack stack : player.getInventory().offhand) {
+        for (ItemStack stack : TerminalItem.getAll(player)) {
             StorageServerStub.collectBoundStorage(stack, storages);
         }
         if (StorageServerStub.holdsItem(player, ModItems.LOCAL_TERMINAL.asItem())) {
@@ -3770,12 +3765,12 @@ public final class StorageServerStub {
         storages.add(Storages.get().getOrCreate(id, HyperdimensionStorage.class));
     }
 
-    /** 玩家主物品栏 / 盔甲 / 副手是否持有指定物品。 */
+    /** 玩家物品栏或饰品中是否持有指定终端。 */
     private static boolean holdsItem(ServerPlayer player, Item item) {
         if (player.getMainHandItem().is(item) || player.getOffhandItem().is(item)) {
             return true;
         }
-        for (ItemStack stack : player.getInventory().items) {
+        for (ItemStack stack : TerminalItem.getAll(player)) {
             if (stack.is(item)) {
                 return true;
             }

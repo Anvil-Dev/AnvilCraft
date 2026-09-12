@@ -1,6 +1,8 @@
 package dev.dubhe.anvilcraft.block.item;
 
 import dev.dubhe.anvilcraft.api.itemhandler.IItemHandlerHolder;
+import dev.dubhe.anvilcraft.block.entity.CreativeCrateBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.StoragePortBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.item.BlockItem;
@@ -8,6 +10,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.neoforged.neoforge.capabilities.Capabilities;
 
 public class ChuteBlockItem extends BlockItem {
@@ -19,7 +22,11 @@ public class ChuteBlockItem extends BlockItem {
     public InteractionResult onItemUseFirst(ItemStack stack, UseOnContext context) {
         Level level = context.getLevel();
         BlockPos pos = context.getClickedPos();
-        return level.getBlockEntity(pos) instanceof IItemHandlerHolder || level.getCapability(
+        BlockEntity blockEntity = level.getBlockEntity(pos);
+        if (blockEntity instanceof CreativeCrateBlockEntity || blockEntity instanceof StoragePortBlockEntity) {
+            return InteractionResult.PASS;
+        }
+        return blockEntity instanceof IItemHandlerHolder || level.getCapability(
             Capabilities.ItemHandler.BLOCK, context.getClickedPos(), context.getClickedFace()
         ) != null ? this.useOn(context) : super.onItemUseFirst(stack, context);
     }

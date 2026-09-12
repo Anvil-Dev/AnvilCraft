@@ -1,0 +1,16 @@
+{
+  "type": "anvilcraft:laser_hit",
+  "heat_duration": 40,
+  "hit_time": 20,
+  "input": {
+    "blocks": [
+      "anvilcraft:heated_netherite_block",
+      "anvilcraft:redhot_netherite_block"
+    ]
+  },
+  "laser_strength": 4,
+  "priority": -50,
+  "result_block": {
+    "Name": "anvilcraft:redhot_netherite_block"
+  }
+}

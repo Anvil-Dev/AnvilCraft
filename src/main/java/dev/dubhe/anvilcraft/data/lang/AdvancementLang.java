@@ -177,6 +177,9 @@ public class AdvancementLang {
         provider.add("advancements.anvilcraft.saikou_scrubber.title", "Saikou scrubber");
         provider.add("advancements.anvilcraft.saikou_scrubber.description", "Obtain menger sponge");
 
+        provider.add("advancements.anvilcraft.understand_fractals.title", "Understand Fractals");
+        provider.add("advancements.anvilcraft.understand_fractals.description", "400 = 1 ?");
+
         provider.add("advancements.anvilcraft.infinity_capacity.title", "Infinity capacity");
         provider.add("advancements.anvilcraft.infinity_capacity.description", "Construct infinity capacity fluid tank with large fluid tank and menger sponge");
 

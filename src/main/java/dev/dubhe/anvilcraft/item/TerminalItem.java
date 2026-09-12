@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.item;
 
+import dev.anvilcraft.lib.v2.util.InventoryUtil;
 import dev.dubhe.anvilcraft.rpc.StorageServerStub;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
@@ -9,6 +10,8 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -32,6 +35,23 @@ public abstract class TerminalItem extends BundleLikeItem {
     }
 
     public abstract void openStorage(Player player, ItemStack stack);
+
+    /** 按物品栏槽位顺序查找终端，再补充饰品等兼容槽中的原始物品栈。 */
+    public static List<ItemStack> getAll(Player player) {
+        List<ItemStack> terminals = new ArrayList<>();
+        for (int slot = 0; slot < player.getInventory().getContainerSize(); slot++) {
+            ItemStack stack = player.getInventory().getItem(slot);
+            if (stack.getItem() instanceof TerminalItem) {
+                terminals.add(stack);
+            }
+        }
+        for (ItemStack stack : InventoryUtil.getCompatItems(player)) {
+            if (stack.getItem() instanceof TerminalItem) {
+                terminals.add(stack);
+            }
+        }
+        return terminals;
+    }
 
     @Override
     protected boolean canRemoveOne(BundleLikeItem.TransferState state) {

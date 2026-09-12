@@ -537,9 +537,9 @@ public final class StorageJeiSupport {
                 if (changed != null && changed) {
                     // 优先通过 JEI 父屏幕刷新；书签等直接在仓储屏幕上触发的转移用当前屏幕
                     if (StorageJeiSupport.parentScreen() instanceof StorageScreen current) {
-                        current.loadCrafting(stonecutter);
+                        current.showCraftingAfterTransfer(stonecutter);
                     } else if (Minecraft.getInstance().screen instanceof StorageScreen current) {
-                        current.loadCrafting(stonecutter);
+                        current.showCraftingAfterTransfer(stonecutter);
                     }
                 }
             },

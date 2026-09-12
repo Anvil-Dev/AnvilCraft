@@ -700,6 +700,14 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
         );
     }
 
+    public void showCraftingAfterTransfer(boolean refreshRecipes) {
+        if (this.mode == ScreenMode.NORMAL) {
+            this.toggleCraftingMode();
+        } else {
+            this.loadCrafting(refreshRecipes);
+        }
+    }
+
     /** 切换合成/普通模式并同步分类列表布局。 */
     private void setMode(ScreenMode mode) {
         if (this.mode == mode) {

@@ -9,7 +9,6 @@ import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
-import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.EventPriority;
@@ -72,9 +71,7 @@ public class TerminalKeyMappingEventListener {
             || !minecraft.player.containerMenu.getCarried().isEmpty()) {
             return false;
         }
-        Inventory inventory = minecraft.player.getInventory();
-        for (int slot = 0; slot < inventory.getContainerSize(); slot++) {
-            ItemStack stack = inventory.getItem(slot);
+        for (ItemStack stack : TerminalItem.getAll(minecraft.player)) {
             if (stack.getItem() instanceof TerminalItem terminal) {
                 terminal.openStorage(minecraft.player, stack);
                 return true;

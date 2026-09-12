@@ -187,7 +187,8 @@ public class ItemTagLoader {
             .addTag(ModItemTags.ANVIL_HAMMER);
         provider.addTag(ModItemTags.CURIOS_CHARM)
             .replace(false)
-            .addTag(ModItemTags.AMULET);
+            .addTag(ModItemTags.AMULET)
+            .add(ModItems.LOCAL_TERMINAL.getKey(), ModItems.SHULKER_TERMINAL.getKey(), ModItems.HYPERDIMENSION_TERMINAL.getKey());
         provider.addTag(ModItemTags.CURIOS_IONOCRAFT_BACKPACK)
             .replace(false)
             .add(ModItems.IONOCRAFT_BACKPACK.getKey());

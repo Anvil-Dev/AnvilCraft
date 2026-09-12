@@ -5,6 +5,7 @@ import dev.anvilcraft.lib.v2.rpc.RpcTarget;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.item.IonocraftBackpackItem;
+import dev.dubhe.anvilcraft.item.TerminalItem;
 import dev.dubhe.anvilcraft.item.property.component.TerminalBinding;
 import dev.dubhe.anvilcraft.rpc.StorageServerStub;
 import net.minecraft.client.Minecraft;
@@ -64,11 +65,7 @@ public final class TerminalJeiStorageCache {
     /** 玩家身上全部终端（超维绑定 / 本地 / 潜影）的存储标识，去重；无终端返回空列表。 */
     public static List<UUID> boundStorages(Player player) {
         List<UUID> ids = new ArrayList<>();
-        // 常规位置：主物品栏 + 副手
-        for (ItemStack stack : player.getInventory().items) {
-            TerminalJeiStorageCache.collect(TerminalJeiStorageCache.storageOf(stack), ids);
-        }
-        for (ItemStack stack : player.getInventory().offhand) {
+        for (ItemStack stack : TerminalItem.getAll(player)) {
             TerminalJeiStorageCache.collect(TerminalJeiStorageCache.storageOf(stack), ids);
         }
         // 注册的提供者（如背包/容器内的终端）

@@ -1,0 +1,30 @@
+{
+  "parent": "anvilcraft:anvilcraft/saikou_scrubber",
+  "criteria": {
+    "menger_sponge_2": {
+      "conditions": {
+        "id": "anvilcraft:multiblock/menger_sponge_2"
+      },
+      "trigger": "anvilcraft:in_world_recipe"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.anvilcraft.understand_fractals.description"
+    },
+    "hidden": true,
+    "icon": {
+      "count": 1,
+      "id": "anvilcraft:menger_sponge"
+    },
+    "title": {
+      "translate": "advancements.anvilcraft.understand_fractals.title"
+    }
+  },
+  "requirements": [
+    [
+      "menger_sponge_2"
+    ]
+  ],
+  "sends_telemetry_event": true
+}
