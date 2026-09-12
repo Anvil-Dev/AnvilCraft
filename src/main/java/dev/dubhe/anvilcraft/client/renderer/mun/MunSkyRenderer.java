@@ -86,14 +86,7 @@ public final class MunSkyRenderer {
         skyShader.safeGetUniform("AtmosphereThickness").set((float) MunSkyMath.EARTH_ATMOSPHERE_THICKNESS);
         skyShader.safeGetUniform("SunHalfSize").set((float) MunSkyMath.SUN_HALF_SIZE);
         skyShader.safeGetUniform("Daylight").set(MunClientSky.sunlight(level));
-        ShaderInstance previous = RenderSystem.getShader();
-        int texture0 = RenderSystem.getShaderTexture(0);
-        int texture1 = RenderSystem.getShaderTexture(1);
-        boolean blend = GL11.glIsEnabled(GL11.GL_BLEND);
-        boolean depthTest = GL11.glIsEnabled(GL11.GL_DEPTH_TEST);
-        boolean depthMask = GL11.glGetBoolean(GL11.GL_DEPTH_WRITEMASK);
-        int depthFunction = GL11.glGetInteger(GL11.GL_DEPTH_FUNC);
-        try {
+        try (MunRenderScope ignored = MunRenderScope.sky()) {
             RenderSystem.setShaderTexture(0, EARTH_TEXTURE);
             RenderSystem.setShaderTexture(1, SUN_TEXTURE);
             RenderSystem.setShader(() -> skyShader);
@@ -106,16 +99,6 @@ public final class MunSkyRenderer {
                 RenderSystem.disableDepthTest();
             }
             drawScreenQuad();
-        } finally {
-            RenderSystem.setShader(() -> previous);
-            RenderSystem.setShaderTexture(0, texture0);
-            RenderSystem.setShaderTexture(1, texture1);
-            if (blend) RenderSystem.enableBlend();
-            else RenderSystem.disableBlend();
-            if (depthTest) RenderSystem.enableDepthTest();
-            else RenderSystem.disableDepthTest();
-            RenderSystem.depthMask(depthMask);
-            RenderSystem.depthFunc(depthFunction);
         }
     }
 

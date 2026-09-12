@@ -71,6 +71,14 @@ public class ModSoundEvents {
         "quenched_out", () -> SoundEvent.createFixedRangeEvent(AnvilCraft.of("quenched_out"), 64.0f)
     );
 
+    public static final Supplier<SoundEvent> ABOVE_THE_MOON_DUST = REGISTER.register(
+        "music.mun.above_the_moon_dust", () -> SoundEvent.createVariableRangeEvent(AnvilCraft.of("music.mun.above_the_moon_dust"))
+    );
+
+    public static final Supplier<SoundEvent> FAR_SIDE_GLOW = REGISTER.register(
+        "music.mun.far_side_glow", () -> SoundEvent.createVariableRangeEvent(AnvilCraft.of("music.mun.far_side_glow"))
+    );
+
     public static void register(IEventBus modBus) {
         REGISTER.register(modBus);
     }

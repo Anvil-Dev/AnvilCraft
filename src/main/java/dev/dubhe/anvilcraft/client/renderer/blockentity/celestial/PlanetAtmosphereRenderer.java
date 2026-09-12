@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.client.renderer.blockentity.celestial;
 
+import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
@@ -61,7 +62,7 @@ public final class PlanetAtmosphereRenderer {
         try {
             ShaderInstance shader = new ShaderInstance(event.getResourceProvider(), AnvilCraft.of("planet_atmosphere"),
                 DefaultVertexFormat.POSITION);
-            if (GL20C.glGetProgrami(shader.getId(), GL20C.GL_LINK_STATUS) == GL20C.GL_FALSE) {
+            if (GlStateManager.glGetProgrami(shader.getId(), GL20C.GL_LINK_STATUS) == GL20C.GL_FALSE) {
                 shader.close();
                 STATE.fail();
                 return;

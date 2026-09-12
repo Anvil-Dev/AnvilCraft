@@ -116,7 +116,7 @@ public final class StellarEmissionRenderer {
         try {
             ShaderInstance shader = new ShaderInstance(event.getResourceProvider(), AnvilCraft.of("stellar_surface"),
                 DefaultVertexFormat.NEW_ENTITY);
-            if (GL20C.glGetProgrami(shader.getId(), GL20C.GL_LINK_STATUS) == GL20C.GL_FALSE) {
+            if (GlStateManager.glGetProgrami(shader.getId(), GL20C.GL_LINK_STATUS) == GL20C.GL_FALSE) {
                 shader.close();
                 STATE.fail();
                 return;
