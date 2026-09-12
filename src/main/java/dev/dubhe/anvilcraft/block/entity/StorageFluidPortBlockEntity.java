@@ -30,6 +30,7 @@ import net.neoforged.neoforge.fluids.FluidUtil;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.neoforged.neoforge.fluids.capability.templates.FluidTank;
 
+import java.util.Objects;
 import java.util.UUID;
 import javax.annotation.Nullable;
 
@@ -221,7 +222,12 @@ public class StorageFluidPortBlockEntity extends BlockEntity implements IFluidHa
     public void setRemoved() {
         if (this.level != null && !this.level.isClientSide) {
             FluidNetworkManager.INSTANCE.removeContainer(this.level, this.getBlockPos());
-            StorageFluidRegistry.unregister(this.storageId, this.level.dimension(), this.getBlockPos());
+            UUID id = this.storageId;
+            StorageFluidRegistry.unregister(id, this.level.dimension(), this.getBlockPos());
+            // 端口消失同样改变归属：不清缓存的话，其伪槽位会以空格子形式残留在界面上
+            if (id != null) {
+                StorageServerStub.onContentsChanged(id);
+            }
         }
         super.setRemoved();
     }
@@ -236,21 +242,35 @@ public class StorageFluidPortBlockEntity extends BlockEntity implements IFluidHa
         if (!(this.level instanceof ServerLevel serverLevel)) {
             return;
         }
+        UUID previousId = this.storageId;
         // 先清掉旧存储名下的登记再重新登记：端口可能从 A 存储改挂到 B 存储（链路重排），
         // 若不清旧条目，A 的 UI 仍会显示本端口的流体、drain(A) 还会抽走属于 B 的流体
-        StorageFluidRegistry.unregister(this.storageId, serverLevel.dimension(), this.worldPosition);
+        StorageFluidRegistry.unregister(previousId, serverLevel.dimension(), this.worldPosition);
         this.storageId = null;
 
         BlockPos core = StoragePortBlockEntity.findSoleCore(this.level, this.worldPosition);
-        if (core == null
-            || !(this.level.getBlockEntity(core) instanceof StorageBlockEntity storage)
-            || storage.getId() == null) {
-            return;
+        UUID id = null;
+        if (core != null
+            && this.level.getBlockEntity(core) instanceof StorageBlockEntity storage) {
+            id = storage.getId();
         }
-        UUID id = storage.getId();
         this.storageId = id;
-        // 自报给注册表，供仓储 UI 反查该存储可显示的流体
-        StorageFluidRegistry.register(id, serverLevel, this.worldPosition);
+        if (id != null) {
+            // 自报给注册表，供仓储 UI 反查该存储可显示的流体
+            StorageFluidRegistry.register(id, serverLevel, this.worldPosition);
+        }
+        // 归属变化要清掉相关存储的排序缓存：伪槽位编号取自 collect() 的下标，缓存里仍留着
+        // 旧归属时的流体条目，新接上的端口流体要等到下次内容变化才出现，拆掉的端口
+        // 还会残留成空格子（点击后发出空流体，服务端静默不动）。
+        // 旧归属与新归属都要通知：由 A 改挂到 B 时 A 的界面也要移除本端口的流体。
+        if (!Objects.equals(previousId, id)) {
+            if (previousId != null) {
+                StorageServerStub.onContentsChanged(previousId);
+            }
+            if (id != null) {
+                StorageServerStub.onContentsChanged(id);
+            }
+        }
     }
 
     /**

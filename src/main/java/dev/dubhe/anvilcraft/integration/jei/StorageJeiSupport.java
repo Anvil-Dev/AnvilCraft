@@ -214,7 +214,7 @@ public final class StorageJeiSupport {
         if (content.isEmpty()) {
             return false;
         }
-        if (StorageJeiSupport.hasFluidFor(screen.getFluids(), variant)) {
+        if (StorageJeiSupport.lacksFluidFor(screen.getFluids(), variant)) {
             return false;
         }
         ItemStack emptyContainer = StorageJeiSupport.emptyContainerOf(variant);
@@ -435,7 +435,7 @@ public final class StorageJeiSupport {
                 if (emptyContainer.isEmpty()) {
                     continue;
                 }
-                if (StorageJeiSupport.hasFluidFor(fluids, variant)) {
+                if (StorageJeiSupport.lacksFluidFor(fluids, variant)) {
                     continue;
                 }
                 long containers = StorageJeiSupport.countInPool(availableItemStacks, emptyContainer)
@@ -451,9 +451,19 @@ public final class StorageJeiSupport {
     }
 
     /**
-     * 该物品是否为装有流体的容器，且仓储中存在足量（至少一桶）的同种流体。
+     * 该物品是否为装有流体的容器，<b>且仓储中没有足量</b>（不足一桶）的同种流体，
+     * 即需要现场用「空容器 + 仓储流体」盛装。
+     *
+     * <p>返回 {@code true} 的三种情形：</p>
+     * <ul>
+     *   <li>不是装有流体的容器（无法盛装）</li>
+     *   <li>是流体容器，但仓储中该流体不足量（需要补盛装）</li>
+     *   <li>是流体容器，但仓储中根本没有该流体</li>
+     * </ul>
+     *
+     * <p>仅当仓储中已有足量同种流体（可直接取用）时返回 {@code false}。</p>
      */
-    private static boolean hasFluidFor(List<StorageServerStub.FluidEntry> fluids, ItemStack variant) {
+    private static boolean lacksFluidFor(List<StorageServerStub.FluidEntry> fluids, ItemStack variant) {
         FluidStack content = StorageJeiSupport.contentOf(variant);
         if (content.isEmpty()) {
             return true;
