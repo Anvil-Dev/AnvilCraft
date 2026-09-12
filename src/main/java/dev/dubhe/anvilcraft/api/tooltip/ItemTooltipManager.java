@@ -519,6 +519,11 @@ public class ItemTooltipManager {
         NORMAL.put(ModBlocks.LOAD_MONITOR.asItem(), "Monitor the grid load condition, can output a signal by redstone comparator");
         NORMAL.put(ModBlocks.CHUTE.asItem(), "An advanced Hopper, can transfer a full stack of items at a time");
         NORMAL.put(ModBlocks.MAGNETIC_CHUTE.asItem(), "An advanced Chute, with the ability to transport items vertically");
+        NORMAL.put(
+            ModBlocks.OVERFLOW_CHUTE.asItem(),
+            "An advanced Magnetic Chute, throws items out of the overflow port when the output is blocked"
+        );
+        NORMAL.put(ModBlocks.ITEM_SPLITTER.asItem(), "Evenly splits the stored items among the containers in front");
         NORMAL.put(ModBlocks.EXP_COLLECTOR.asItem(), "Collect nearby EXP orbs and convert them into EXP Fluid");
         NORMAL.put(ModBlocks.GIANT_ANVIL.asItem(), "An extremely huge anvil");
         NORMAL.put(ModBlocks.LARGE_CAULDRON.asItem(), "An extremely huge cauldron");
@@ -826,6 +831,20 @@ public class ItemTooltipManager {
                 Use scroll wheel to set slot stack limit
                 Multiple Magnetic Chutes connected turn into a Simple Magnetic Chute
                 Simple Magnetic Chute has only one slot and cannot be locked by redstone"""
+        );
+        SHIFT.put(
+            ModBlocks.OVERFLOW_CHUTE.asItem(), """
+                The output items will be launched with speed
+                Right‑click a side face with an Anvil Hammer to open or close it as an overflow port
+                Items leave through the output while it can accept them, and are thrown out of the overflow ports once it is blocked
+                The input and output faces can never become overflow ports"""
+        );
+        SHIFT.put(
+            ModBlocks.ITEM_SPLITTER.asItem(), """
+                Holds 16 slots, but accepts only one item type at a time
+                Every 8 game ticks, evenly splits its contents among the containers lined up in front
+                With no container in front, let a falling anvil strike it: the fall height decides how many shares are made, thrown past obstacles up to 16 blocks ahead
+                Always divides strictly, the remainder stays inside"""
         );
         SHIFT.put(
             ModBlocks.GIANT_ANVIL.asItem(), """
