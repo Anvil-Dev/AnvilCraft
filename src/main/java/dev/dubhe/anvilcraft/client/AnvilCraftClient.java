@@ -15,21 +15,23 @@ import dev.dubhe.anvilcraft.client.particle.PlasmaJetsParticle;
 import dev.dubhe.anvilcraft.client.renderer.OverworldLikeOrbitalSkyRenderer;
 import dev.dubhe.anvilcraft.client.renderer.item.CelestialForgingAnvilItemRenderer;
 import dev.dubhe.anvilcraft.client.renderer.item.ItemSlotClipping;
-import dev.dubhe.anvilcraft.client.renderer.item.decoration.IonocraftBackpackDecoration;
 import dev.dubhe.anvilcraft.client.renderer.item.decoration.TerminalInsertionDecoration;
 import dev.dubhe.anvilcraft.client.selection.ModelBlockSelection;
 import dev.dubhe.anvilcraft.client.selection.ModelSelectionBlacklist;
 import dev.dubhe.anvilcraft.client.support.InspectionSupport;
 import dev.dubhe.anvilcraft.client.support.PillSelectorSupport;
 import dev.dubhe.anvilcraft.config.AnvilCraftClientConfig;
+import dev.dubhe.anvilcraft.init.ModDataAttachments;
 import dev.dubhe.anvilcraft.init.ModParticles;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.block.ModFluids;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.item.weapon.AnvilRailgunItem;
 import dev.dubhe.anvilcraft.item.weapon.LaserGunItem;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.particle.FlyTowardsPositionParticle;
+import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
@@ -81,6 +83,13 @@ public class AnvilCraftClient {
     }
 
     public static void clientSetup(FMLClientSetupEvent event) {
+        event.enqueueWork(() -> ItemProperties.register(
+            ModItems.IONOCRAFT_BACKPACK.get(), AnvilCraft.of("in_power_grid"),
+            (stack, level, entity, seed) -> {
+                LivingEntity holder = entity != null ? entity : Minecraft.getInstance().player;
+                return holder != null && holder.getData(ModDataAttachments.IN_POWER_GRID) ? 1 : 0;
+            }
+        ));
         IntegrationHook.setModEventBus(Objects.requireNonNull(modEventBus));
         IntegrationHook.setModContainer(Objects.requireNonNull(modContainer));
         AnvilCraft.getINTEGRATION_MANAGER().loadAllClientIntegrations();
@@ -108,7 +117,6 @@ public class AnvilCraftClient {
     }
 
     public static void registerCustomItemDecorations(RegisterItemDecorationsEvent e) {
-        e.register(ModItems.IONOCRAFT_BACKPACK, new IonocraftBackpackDecoration());
         e.register(ModItems.HYPERDIMENSION_TERMINAL, new TerminalInsertionDecoration());
         e.register(ModItems.LOCAL_TERMINAL, new TerminalInsertionDecoration());
         e.register(ModItems.SHULKER_TERMINAL, new TerminalInsertionDecoration());

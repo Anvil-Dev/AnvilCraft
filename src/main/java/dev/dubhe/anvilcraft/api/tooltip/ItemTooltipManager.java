@@ -374,8 +374,9 @@ public class ItemTooltipManager {
         NORMAL.put(ModBlocks.HELIOSTATS.asItem(), "Heats targeted blocks during the day");
         NORMAL.put(
             ModItems.IONOCRAFT_BACKPACK.asItem(), """
-            Allows creative flight while equipped
-            Requires power from the energy grid or capacitors in the inventory"""
+            Allows creative flight while equipped in a powered grid
+            Leaving the grid while flying grants slow falling until landing or reentry
+            Double-tap Jump to toggle slow falling during this descent"""
         );
         NORMAL.put(ModBlocks.BLOCK_COMPARATOR.asItem(), "Outputs signal when side blocks are the same, right-click to switch to precise state detection mode");
         NORMAL.put(ModBlocks.ITEM_DETECTOR.asItem(), "Detects specific items behind (drops/containers) to output redstone signal");

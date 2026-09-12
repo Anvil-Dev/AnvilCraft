@@ -102,7 +102,7 @@ public class ItemsSections extends DisplayItemsGenerator {
                 .build(),
             content -> {
                 content.accept(ModItems.IONOCRAFT);
-                this.ionoCraftBackpack(ModItems.IONOCRAFT_BACKPACK);
+                this.plain(ModItems.IONOCRAFT_BACKPACK);
                 content.accept(ModItems.CAPACITOR);
                 content.accept(ModItems.CAPACITOR_EMPTY);
                 content.accept(ModItems.SUPER_CAPACITOR);

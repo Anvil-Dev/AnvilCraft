@@ -41,6 +41,11 @@ public class PlayerTickEventHandler {
     }
 
     @SubscribeEvent
+    public static void onPlayerTickPre(PlayerTickEvent.Pre event) {
+        IonocraftBackpackItem.applySlowFalling(event.getEntity());
+    }
+
+    @SubscribeEvent
     public static void onPlayerTick(PlayerTickEvent.Post event) {
         CrabClawItem.holdingCrabClawIncreasesRange(event.getEntity());
         if (event.getEntity() instanceof ServerPlayer serverPlayer) {
@@ -60,6 +65,7 @@ public class PlayerTickEventHandler {
                 holder.anvilcraft$getPowerSupplyingBoundingBox()
             ).orElse(null);
             holder.anvilcraft$getPowerComponent().switchTo(powerGrid);
+            holder.anvilcraft$gridTick();
         }
     }
 }

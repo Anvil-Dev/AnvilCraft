@@ -3,8 +3,6 @@ package dev.dubhe.anvilcraft.init.item.tabs;
 import dev.anvilcraft.lib.v2.registrum.util.CreativeVariantPickerRegistry;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.constant.SharedTextures;
-import dev.dubhe.anvilcraft.init.item.ModComponents;
-import dev.dubhe.anvilcraft.item.IonocraftBackpackItem;
 import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -44,15 +42,6 @@ public abstract class DisplayItemsGenerator implements CreativeModeTab.DisplayIt
             return;
         }
         this.output.accept(item);
-    }
-
-    public void ionoCraftBackpack(ItemLike item) {
-        if (this.output == null) {
-            return;
-        }
-        ItemStack full = item.asItem().getDefaultInstance();
-        full.set(ModComponents.STORED_ENERGY, IonocraftBackpackItem.MAX_ENERGY);
-        this.output.accept(full);
     }
 
     public void enchanting(ItemLike item, ResourceKey<Enchantment> enchKey, int level) {

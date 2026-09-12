@@ -77,11 +77,6 @@ public class ModComponents {
         b -> b.persistent(SignedPlayers.CODEC).networkSynchronized(SignedPlayers.STREAM_CODEC)
     );
 
-    public static final DataComponentType<Integer> FLIGHT_TIME = register(
-        "flight_time",
-        it -> it.persistent(Codec.INT).networkSynchronized(ByteBufCodecs.INT)
-    );
-
     public static final DataComponentType<Integer> STORED_ENERGY = register(
         "stored_energy",
         (builder) -> builder.persistent(Codec.INT).networkSynchronized(ByteBufCodecs.INT)

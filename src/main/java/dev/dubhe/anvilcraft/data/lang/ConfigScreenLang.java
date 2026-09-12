@@ -97,39 +97,6 @@ public class ConfigScreenLang {
             "anvilcraft.configuration.ionocraft_backpack_exhaust_particles_enabled",
             "Show Ionocraft Backpack Exhaust Particles"
         );
-        addOverride(provider, "anvilcraft.configuration.ionocraft_backpack_hud", "Ionocraft Backpack HUD");
-        addOverride(provider, "anvilcraft.configuration.ionocraft_backpack_hud.button", "Expand Submenu");
-        addOverride(
-            provider,
-            "anvilcraft.configuration.ionocraft_backpack_hud.tooltip",
-            "HUD shown while the Ionocraft Backpack is equipped, including its remaining power"
-        );
-        addOverride(provider, "anvilcraft.configuration.ionocraft_backpack_hud.enabled", "Enable Ionocraft Backpack HUD");
-        addOverride(
-            provider,
-            "anvilcraft.configuration.ionocraft_backpack_hud.enabled.tooltip",
-            "Shows the Ionocraft Backpack's current power on the HUD when enabled"
-        );
-        addOverride(provider, "anvilcraft.configuration.ionocraft_backpack_hud.hud_scale", "HUD Scale");
-        addOverride(provider, "anvilcraft.configuration.ionocraft_backpack_hud.hud_scale.tooltip", "HUD scale multiplier");
-        addOverride(provider, "anvilcraft.configuration.ionocraft_backpack_hud.hud_x", "HUD X Coordinate");
-        addOverride(
-            provider,
-            "anvilcraft.configuration.ionocraft_backpack_hud.hud_x.tooltip",
-            "HUD X coordinate (0 at the top-left of the game window; the window width at the bottom-right)"
-        );
-        addOverride(provider, "anvilcraft.configuration.ionocraft_backpack_hud.hud_y", "HUD Y Coordinate");
-        addOverride(
-            provider,
-            "anvilcraft.configuration.ionocraft_backpack_hud.hud_y.tooltip",
-            "HUD Y coordinate (0 at the top-left of the game window; the window height at the bottom-right)"
-        );
-        addOverride(provider, "anvilcraft.configuration.ionocraft_backpack_hud.capacitor_count_enabled", "Show Capacitor Count");
-        addOverride(
-            provider,
-            "anvilcraft.configuration.ionocraft_backpack_hud.capacitor_count_enabled.tooltip",
-            "Shows the current number of Capacitors and Super Capacitors in the inventory on the HUD when enabled"
-        );
         addOverride(
             provider,
             "anvilcraft.configuration.sifting_unpacking_block_render_enabled",

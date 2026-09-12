@@ -46,4 +46,4 @@ items:
 
 # 充能物品
 
-在背包中拿起*电容器*并右击可充能物品（例如<ref item="anvilcraft:ionocraft_backpack"/>），即可为其充电。
+在背包中拿起*电容器*并右击可充能物品（例如<ref item="anvilcraft:tesla_gun"/>），即可为其充电。

@@ -4,7 +4,7 @@
     {
       "model": "anvilcraft:item/ionocraft_backpack_on",
       "predicate": {
-        "anvilcraft:flight_time": 1.0
+        "anvilcraft:in_power_grid": 1.0
       }
     }
   ],

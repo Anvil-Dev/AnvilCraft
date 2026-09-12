@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.init;
 import com.mojang.serialization.Codec;
 import dev.dubhe.anvilcraft.api.amulet.AmuletRaffleProbability;
 import dev.dubhe.anvilcraft.inventory.SmithingTemplateFavorites;
+import net.minecraft.network.codec.ByteBufCodecs;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.attachment.AttachmentType;
 import net.neoforged.neoforge.registries.DeferredRegister;
@@ -15,6 +16,16 @@ import static dev.dubhe.anvilcraft.AnvilCraft.MOD_ID;
 public class ModDataAttachments {
     private static final DeferredRegister<AttachmentType<?>> ATTACHMENT_TYPES =
         DeferredRegister.create(NeoForgeRegistries.ATTACHMENT_TYPES, MOD_ID);
+
+    public static final Supplier<AttachmentType<Boolean>> IN_POWER_GRID = ATTACHMENT_TYPES.register(
+        "in_power_grid", () -> AttachmentType.builder(() -> false).sync(ByteBufCodecs.BOOL).build());
+
+    public static final Supplier<AttachmentType<Boolean>> POWER_GRID_OVERLOADED = ATTACHMENT_TYPES.register(
+        "power_grid_overloaded", () -> AttachmentType.builder(() -> false).sync(ByteBufCodecs.BOOL).build());
+
+    public static final Supplier<AttachmentType<Boolean>> IONOCRAFT_DESCENT_AVAILABLE = ATTACHMENT_TYPES.register(
+        "ionocraft_descent_available", () -> AttachmentType.builder(() -> false)
+            .sync((holder, player) -> holder == player, ByteBufCodecs.BOOL).build());
 
     public static final Supplier<AttachmentType<Float>> DISCOUNT_RATE = ATTACHMENT_TYPES.register(
         "discount_rate", () -> AttachmentType.builder(() -> 0f).build());
