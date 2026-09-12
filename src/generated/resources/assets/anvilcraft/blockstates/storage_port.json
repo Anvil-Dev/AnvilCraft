@@ -1,9 +1,15 @@
 {
   "variants": {
-    "marked=false": {
+    "marked=false,type=hd": {
+      "model": "anvilcraft:block/hd_storage_port"
+    },
+    "marked=false,type=sc": {
       "model": "anvilcraft:block/storage_port"
     },
-    "marked=true": {
+    "marked=true,type=hd": {
+      "model": "anvilcraft:block/hd_storage_port"
+    },
+    "marked=true,type=sc": {
       "model": "anvilcraft:block/storage_port"
     }
   }

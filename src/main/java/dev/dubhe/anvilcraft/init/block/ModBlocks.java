@@ -1824,7 +1824,7 @@ public class ModBlocks {
             .requiresCorrectToolForDrops())
         .item(StoragePortBlockItem::new)
         .build()
-        .blockstate(DataGenUtil::simpleAllStates)
+        .blockstate(DataGenUtil::storagePort)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .register();
 
@@ -1837,7 +1837,7 @@ public class ModBlocks {
             .requiresCorrectToolForDrops())
         .item(StorageFluidPortBlockItem::new)
         .build()
-        .blockstate(DataGenUtil::simpleAllStates)
+        .blockstate(DataGenUtil::storagePort)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .register();
 
@@ -1850,7 +1850,7 @@ public class ModBlocks {
             .requiresCorrectToolForDrops())
         .item()
         .build()
-        .blockstate(DataGenUtil::simpleAllStates)
+        .blockstate(DataGenUtil::storagePort)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .register();
 

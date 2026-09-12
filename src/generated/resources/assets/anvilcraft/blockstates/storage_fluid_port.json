@@ -1,6 +1,9 @@
 {
   "variants": {
-    "": {
+    "type=hd": {
+      "model": "anvilcraft:block/hd_storage_fluid_port"
+    },
+    "type=sc": {
       "model": "anvilcraft:block/storage_fluid_port"
     }
   }

@@ -43,11 +43,12 @@ public class StoragePortBlock extends AbstractStoragePortBlock {
 
     public StoragePortBlock(Properties properties) {
         super(properties);
-        this.registerDefaultState(this.stateDefinition.any().setValue(StoragePortBlock.MARKED, false));
+        this.registerDefaultState(this.defaultBlockState().setValue(StoragePortBlock.MARKED, false));
     }
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
+        super.createBlockStateDefinition(builder);
         builder.add(StoragePortBlock.MARKED);
     }
 

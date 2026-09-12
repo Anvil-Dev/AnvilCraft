@@ -5,6 +5,7 @@ import dev.dubhe.anvilcraft.api.IStoragePort;
 import dev.dubhe.anvilcraft.api.StoragePortManager;
 import dev.dubhe.anvilcraft.api.itemhandler.IItemHandlerHolder;
 import dev.dubhe.anvilcraft.api.itemhandler.ItemHandlerUtil;
+import dev.dubhe.anvilcraft.block.AbstractStoragePortBlock;
 import dev.dubhe.anvilcraft.block.StoragePortBlock;
 import dev.dubhe.anvilcraft.block.entity.storage.CrateBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.storage.StorageBlockEntity;
@@ -461,6 +462,7 @@ public class StoragePortBlockEntity extends BlockEntity implements IItemHandlerH
         StoragePortManager.unregister(this.storageId, this.level.dimension(), this.worldPosition);
         this.storageId = null;
         BlockPos core = StoragePortManager.findSoleCore(this.level, this.worldPosition);
+        AbstractStoragePortBlock.refreshType(this.level, this.worldPosition, core);
         if (core == null) {
             return;
         }

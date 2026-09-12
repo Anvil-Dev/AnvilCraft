@@ -4,6 +4,7 @@ import dev.dubhe.anvilcraft.api.IStoragePort;
 import dev.dubhe.anvilcraft.api.StoragePortManager;
 import dev.dubhe.anvilcraft.api.fluid.IFluidHandlerHolder;
 import dev.dubhe.anvilcraft.api.itemhandler.IItemHandlerHolder;
+import dev.dubhe.anvilcraft.block.AbstractStoragePortBlock;
 import dev.dubhe.anvilcraft.block.entity.storage.StorageBlockEntity;
 import dev.dubhe.anvilcraft.item.AnvilHammerItem;
 import it.unimi.dsi.fastutil.objects.Object2LongMap;
@@ -217,6 +218,7 @@ public class StoragePortConsolidatorBlockEntity extends BlockEntity
             return;
         }
         StoragePortManager.LinkedPorts linked = StoragePortManager.scan(this.level, this.worldPosition);
+        AbstractStoragePortBlock.refreshType(this.level, this.worldPosition, linked.core());
         for (IStoragePort port : linked.ports()) {
             if (port instanceof StoragePortBlockEntity itemPort) {
                 this.ports.add(itemPort.getBlockPos());

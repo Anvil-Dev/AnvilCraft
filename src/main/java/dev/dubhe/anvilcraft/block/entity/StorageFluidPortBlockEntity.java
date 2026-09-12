@@ -6,6 +6,7 @@ import dev.dubhe.anvilcraft.api.fluid.FluidHandlerWrapper;
 import dev.dubhe.anvilcraft.api.fluid.IFluidHandlerHolder;
 import dev.dubhe.anvilcraft.api.fluid.network.FluidNetworkManager;
 import dev.dubhe.anvilcraft.api.fluid.network.FluidNetworkScanner;
+import dev.dubhe.anvilcraft.block.AbstractStoragePortBlock;
 import dev.dubhe.anvilcraft.block.entity.storage.StorageBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.rpc.StorageServerStub;
@@ -252,6 +253,7 @@ public class StorageFluidPortBlockEntity extends BlockEntity implements IFluidHa
         this.storageId = null;
 
         BlockPos core = StoragePortManager.findSoleCore(this.level, this.worldPosition);
+        AbstractStoragePortBlock.refreshType(this.level, this.worldPosition, core);
         UUID id = null;
         if (core != null
             && this.level.getBlockEntity(core) instanceof StorageBlockEntity storage) {

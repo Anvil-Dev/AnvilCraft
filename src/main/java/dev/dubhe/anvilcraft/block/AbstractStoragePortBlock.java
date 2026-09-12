@@ -3,6 +3,8 @@ package dev.dubhe.anvilcraft.block;
 import dev.dubhe.anvilcraft.api.IStoragePort;
 import dev.dubhe.anvilcraft.api.StoragePortManager;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
+import dev.dubhe.anvilcraft.block.container.storage.HyperdimensionStorageStationBlock;
+import dev.dubhe.anvilcraft.block.state.StoragePortType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.ItemInteractionResult;
@@ -11,8 +13,11 @@ import net.minecraft.world.inventory.ClickAction;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseEntityBlock;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.phys.BlockHitResult;
 
 import java.util.List;
@@ -25,11 +30,50 @@ import javax.annotation.Nullable;
  * （挖掘在网络层被事件拦截），因此由 {@link #interceptsLeftClick} 判定是否拦截挖掘、
  * {@link #onLeftClick} 执行服务端行为，两者分别由左键事件与取出请求包调用。</p>
  *
- * <p>三个端口都没有容积以外的特殊交互，渲染形状统一为模型，故一并放在父类里。</p>
+ * <p>三个端口都没有容积以外的特殊交互，渲染形状统一为模型，故一并放在父类里。
+ * 外观由 {@link #TYPE} 决定：连接的核心是潜影集装箱还是超维存储站，
+ * 由各端口方块实体在重校验相连关系时用 {@link #refreshType} 刷新。</p>
  */
 public abstract class AbstractStoragePortBlock extends BaseEntityBlock implements IHammerRemovable {
+    /** 端口外观类型：连接的核心是潜影集装箱（sc）还是超维存储站（hd） */
+    public static final EnumProperty<StoragePortType> TYPE = EnumProperty.create("type", StoragePortType.class);
+
     protected AbstractStoragePortBlock(Properties properties) {
         super(properties);
+        this.registerDefaultState(
+            this.stateDefinition.any().setValue(AbstractStoragePortBlock.TYPE, StoragePortType.SHULKER_CONTAINER)
+        );
+    }
+
+    @Override
+    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
+        builder.add(AbstractStoragePortBlock.TYPE);
+    }
+
+    /**
+     * 按连通组件的核心刷新端口外观：唯一核心是超维存储站时显示 hd，其余情况显示 sc。
+     *
+     * <p>未连接核心、连接多个核心（连通组件接触多个核心时不工作）以及核心仍是潜影集装箱时
+     * 都回到 sc。外观在服务端推导，经方块状态同步给客户端。</p>
+     *
+     * @param level 世界
+     * @param pos   端口位置
+     * @param core  连通组件接触到的唯一核心主方块坐标；没有核心或连接多个核心时为 null
+     */
+    public static void refreshType(Level level, BlockPos pos, @Nullable BlockPos core) {
+        if (level.isClientSide) {
+            return;
+        }
+        BlockState state = level.getBlockState(pos);
+        if (!state.hasProperty(AbstractStoragePortBlock.TYPE)) {
+            return;
+        }
+        StoragePortType type = core != null && level.getBlockState(core).getBlock() instanceof HyperdimensionStorageStationBlock
+            ? StoragePortType.HYPERDIMENSION
+            : StoragePortType.SHULKER_CONTAINER;
+        if (state.getValue(AbstractStoragePortBlock.TYPE) != type) {
+            level.setBlock(pos, state.setValue(AbstractStoragePortBlock.TYPE, type), Block.UPDATE_ALL);
+        }
     }
 
     @Override
