@@ -51,7 +51,7 @@ public record LaserEmitPacket(int level, BlockPos laserPos, @Nullable BlockPos i
         laser.clientUpdateComponents(this.level, this.gamma);
         switch (laser) {
             case CelestialForgingAnvilLaserInterfaceBlockEntity cfaLaser when this.gamma ->
-                cfaLaser.clientUpdateGamma(this.irradiatePos, this.level);
+            cfaLaser.clientUpdateGamma(this.irradiatePos, this.level);
             case CelestialForgingAnvilPortalBlockEntity portal when this.gamma -> portal.clientUpdateGamma(this.irradiatePos, this.level);
             case CreativeLaserBlockEntity creativeLaser when this.gamma -> creativeLaser.clientUpdateGamma(this.irradiatePos, this.level);
             default -> laser.clientUpdate(this.irradiatePos, this.level);
