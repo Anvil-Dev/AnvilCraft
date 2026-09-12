@@ -198,11 +198,20 @@ public final class StorageClientStub {
         );
     }
 
-    /** 仓储合成模式是否可用（主存储中同时存在工作台与切石机）。 */
+    /** 主存储是否已解锁合成模式。 */
     public static CompletableFuture<Boolean> craftingAvailable(BlockPos sourcePos) {
         return RPC.invoke(
             RpcTarget.server(),
             StorageServerStub::craftingAvailable,
+            StorageClientStub.playerId(),
+            sourcePos.asLong()
+        );
+    }
+
+    public static CompletableFuture<Boolean> craftingUnlock(BlockPos sourcePos) {
+        return RPC.invoke(
+            RpcTarget.server(),
+            StorageServerStub::craftingUnlock,
             StorageClientStub.playerId(),
             sourcePos.asLong()
         );

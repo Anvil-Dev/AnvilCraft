@@ -4,6 +4,7 @@ import com.mojang.datafixers.util.Pair;
 import dev.anvilcraft.lib.v2.util.Util;
 import dev.anvilcraft.lib.v2.util.stack.UnlimitedItemStack;
 import dev.dubhe.anvilcraft.api.itemhandler.unlimited.UnlimitedItemStacksResourceHandler;
+import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.rpc.StorageServerStub;
 import lombok.Getter;
 import lombok.Setter;
@@ -12,6 +13,8 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
+import net.minecraft.world.item.ItemStack;
+import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.common.util.INBTSerializable;
 
 import java.util.HashMap;
@@ -28,9 +31,36 @@ public abstract class BaseStorage<T extends UnlimitedItemStacksResourceHandler> 
     private final UUID id;
     private final T items = this.constructItemHandler(this::onContentsChanged);
     private CraftingStorage crafting = CraftingStorage.EMPTY;
+    private boolean craftingUnlocked;
 
     protected BaseStorage(UUID id) {
         this.id = id;
+    }
+
+    public boolean unlockCrafting() {
+        if (this.craftingUnlocked) {
+            return true;
+        }
+        int workbench = -1;
+        int stonecutter = -1;
+        for (int i = 0; i < this.items.size(); i++) {
+            ItemStack stack = this.items.getStackInSlot(i);
+            if (stack.isEmpty()) continue;
+            if (stack.is(Tags.Items.PLAYER_WORKSTATIONS_CRAFTING_TABLES)) {
+                workbench = i;
+            } else if (stack.is(ModItemTags.PLAYER_WORKSTATIONS_STONECUTTERS)) {
+                stonecutter = i;
+            }
+            if (workbench >= 0 && stonecutter >= 0) break;
+        }
+        if (workbench < 0 || stonecutter < 0) {
+            return false;
+        }
+        this.items.extractItem(workbench, 1, false);
+        this.items.extractItem(stonecutter, 1, false);
+        this.craftingUnlocked = true;
+        Storages.get().setDirty();
+        return true;
     }
 
     protected abstract T constructItemHandler(
@@ -54,6 +84,7 @@ public abstract class BaseStorage<T extends UnlimitedItemStacksResourceHandler> 
         IStorageType.CODEC.encodeStart(registries.createSerializationContext(NbtOps.INSTANCE), this.getType())
             .ifSuccess(type -> tag.put(BaseStorage.TYPE_KEY, type));
         tag.put("items", this.items.serializeNBT(registries));
+        tag.putBoolean("crafting_unlocked", this.craftingUnlocked);
         CraftingStorage.CODEC.codec()
             .encodeStart(registries.createSerializationContext(NbtOps.INSTANCE), this.crafting)
             .ifSuccess(tagValue -> tag.put(BaseStorage.CRAFTING_KEY, tagValue));
@@ -62,6 +93,7 @@ public abstract class BaseStorage<T extends UnlimitedItemStacksResourceHandler> 
 
     @Override
     public void deserializeNBT(HolderLookup.Provider provider, CompoundTag tag) {
+        this.craftingUnlocked = tag.getBoolean("crafting_unlocked");
         if (tag.contains("items", Tag.TAG_COMPOUND)) {
             this.items.deserializeNBT(provider, tag.getCompound("items"));
         }

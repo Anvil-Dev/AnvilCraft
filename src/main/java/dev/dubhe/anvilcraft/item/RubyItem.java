@@ -28,19 +28,23 @@ public class RubyItem extends Item {
         ItemStack itemInHand = context.getItemInHand();
         Level level = context.getLevel();
         BlockPos clickedPos = context.getClickedPos();
-        BlockState state = level.getBlockState(clickedPos);
-        if (state.is(Blocks.STONE)) {
+        if (this.applyEffect(level, clickedPos)) {
             Player player = context.getPlayer();
             if (!level.isClientSide && player instanceof ServerPlayer serverPlayer) {
                 ModCriterionTriggers.USE_ITEM.get().trigger(serverPlayer, this);
             }
-            processStoneArea(level, clickedPos);
             if (player != null && player.getAbilities().instabuild) return InteractionResult.SUCCESS;
             if (player != null) this.breakItem(player, itemInHand);
             itemInHand.shrink(1);
             return InteractionResult.SUCCESS;
         }
         return InteractionResult.FAIL;
+    }
+
+    public boolean applyEffect(Level level, BlockPos pos) {
+        if (!level.getBlockState(pos).is(Blocks.STONE)) return false;
+        this.processStoneArea(level, pos);
+        return true;
     }
 
     private void processStoneArea(Level level, BlockPos centerPos) {

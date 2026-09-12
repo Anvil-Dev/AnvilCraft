@@ -16,6 +16,7 @@ import net.minecraft.util.ColorRGBA;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.Blocks;
 import net.neoforged.neoforge.client.model.data.ModelData;
+import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
 import javax.annotation.Nullable;
@@ -27,6 +28,10 @@ import javax.annotation.Nullable;
 public class CelestialBodyRenderer {
 
     private static final Vector3f LIGHT_DIR = new Vector3f(0.7f, 0.5f, 0.5f).normalize();
+
+    static Vector3f localLightDirection(Matrix4f inversePose) {
+        return inversePose.transformDirection(LIGHT_DIR, new Vector3f()).normalize();
+    }
 
     private static int computeLambertColor(PoseStack.Pose pose, float nx, float ny, float nz, Vector3f lightDir) {
         Vector3f normal = new Vector3f(nx, ny, nz);
@@ -170,7 +175,7 @@ public class CelestialBodyRenderer {
         renderAtmosphere(ps, bufferSource, getAtmosphereColor(color), light, overlay, seed);
     }
 
-    private static void renderAtmosphere(PoseStack ps, MultiBufferSource bufferSource, float[] rgb, int light, int overlay, long seed) {
+    static void renderAtmosphere(PoseStack ps, MultiBufferSource bufferSource, float[] rgb, int light, int overlay, long seed) {
         BakedModel cubeModel = Minecraft.getInstance().getBlockRenderer().getBlockModel(Blocks.WHITE_CONCRETE.defaultBlockState());
         VertexConsumer consumer = bufferSource.getBuffer(ModRenderTypes.CELESTIAL_ATMOSPHERE);
         RandomSource random = RandomSource.create(seed);

@@ -49,6 +49,13 @@ public class ModBlockTags {
     public static final TagKey<Block> SLIDING_RAIL_STOP_LIKE = bind("sliding_rail_stop_like");
     public static final TagKey<Block> RESIN_SHOCK_COMPATIBLE = bind("resin_shock_compatible");
     public static final TagKey<Block> LANDING_NO_RECIPE = bind("landing_no_recipe");
+    /**
+     * 需要放置预览的方块。
+     *
+     * <p>用于红石类与物流类这类朝向 / 贴面依赖点击位置的单方块：放置前以鬼影显示落点与
+     * 实际朝向。多方块方块自成一体（{@code AbstractMultiPartBlock}），不经此标签。</p>
+     */
+    public static final TagKey<Block> PLACEMENT_PREVIEW = bind("placement_preview");
 
     // common tags
     public static final TagKey<Block> ORES_TUNGSTEN = bindC("ores/tungsten");

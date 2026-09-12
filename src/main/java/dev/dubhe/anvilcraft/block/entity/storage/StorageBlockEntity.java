@@ -19,6 +19,7 @@ import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
@@ -163,6 +164,10 @@ public class StorageBlockEntity extends BlockEntity {
         this.level.updateNeighbourForOutputSignal(this.getBlockPos(), state.getBlock());
     }
 
+    public boolean isCraftingUnlocked() {
+        return this.id != null && Storages.get().get(this.id).map(BaseStorage::isCraftingUnlocked).orElse(false);
+    }
+
     public long getTotalCount() {
         if (this.id == null) {
             return 0;
@@ -180,6 +185,7 @@ public class StorageBlockEntity extends BlockEntity {
     }
 
     public void dropContents(Level level, BlockPos pos) {
+        if (level.isClientSide()) return;
         if (this.id != null) {
             Storages.get().get(this.id).ifPresent(storage -> {
                 UnlimitedItemStacksResourceHandler items = storage.getItems();
@@ -189,6 +195,10 @@ public class StorageBlockEntity extends BlockEntity {
                     while (!stack.isEmpty()) {
                         Block.popResource(level, pos, stack.split(Math.min(64, stack.getCount())));
                     }
+                }
+                if (storage.isCraftingUnlocked()) {
+                    Block.popResource(level, pos, new ItemStack(Items.CRAFTING_TABLE));
+                    Block.popResource(level, pos, new ItemStack(Items.STONECUTTER));
                 }
                 Storages.get().remove(this.id);
             });

@@ -61,6 +61,22 @@ public class ItemCrushRecipeLoader {
             .result(ModItems.SAPPHIRE.get(), 0.25f)
             .result(ModItems.RUBY.get(), 0.25f)
             .save(provider, AnvilCraft.of("item_crush/geode_gems"));
+        ItemCrushRecipe.builder()
+            .requires(Items.AMETHYST_CLUSTER)
+            .result(Items.AMETHYST_SHARD, 8)
+            .save(provider, AnvilCraft.of("item_crush/amethyst_shard_from_amethyst_cluster"));
+        ItemCrushRecipe.builder()
+            .requires(Items.LARGE_AMETHYST_BUD)
+            .result(Items.AMETHYST_SHARD, 4)
+            .save(provider, AnvilCraft.of("item_crush/amethyst_shard_from_large_amethyst_bud"));
+        ItemCrushRecipe.builder()
+            .requires(Items.MEDIUM_AMETHYST_BUD)
+            .result(Items.AMETHYST_SHARD, 2)
+            .save(provider, AnvilCraft.of("item_crush/amethyst_shard_from_medium_amethyst_bud"));
+        ItemCrushRecipe.builder()
+            .requires(Items.SMALL_AMETHYST_BUD)
+            .result(Items.AMETHYST_SHARD)
+            .save(provider, AnvilCraft.of("item_crush/amethyst_shard_from_small_amethyst_bud"));
 
         ExtendInWorldRecipeBuilder.extendCompatible(ModRecipeTriggers.ON_ANVIL_FALL_ON)
             .group("item_crush")

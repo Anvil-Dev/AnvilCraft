@@ -8,6 +8,7 @@ import dev.dubhe.anvilcraft.init.enchantment.ModEnchantmentTags;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.network.ResonanceMiningEffectPacket;
+import dev.dubhe.anvilcraft.network.WeaponChargeProgressPacket;
 import net.minecraft.ChatFormatting;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.client.player.LocalPlayer;
@@ -386,6 +387,9 @@ public abstract class ResonatorItem extends TieredItem {
         }
 
         int elapsedTicks = getUseDuration(stack, livingEntity) - remainingUseDuration;
+        if (livingEntity instanceof ServerPlayer player) {
+            WeaponChargeProgressPacket.sync(player, stack, elapsedTicks, resonanceMiningTicks(), false);
+        }
         if (!level.isClientSide && elapsedTicks % 3 == 0) {
             float pitch = 0.75f + 0.04f * elapsedTicks;
             level.playSound(null, target.hitPos(), SoundEvents.AMETHYST_BLOCK_RESONATE, SoundSource.BLOCKS, 0.8f, pitch);

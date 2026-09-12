@@ -11,6 +11,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
 
 public record SwitchResonateModePacket(InteractionHand hand, int mode) implements IServerboundPacket {
+    private static final int CYCLE_MODE = -1;
     public static final Type<SwitchResonateModePacket> TYPE = new Type<>(AnvilCraft.of("switch_resonate_mode"));
     public static final StreamCodec<RegistryFriendlyByteBuf, SwitchResonateModePacket> STREAM_CODEC = StreamCodec.composite(
         StreamCodecUtil.enumStreamCodec(InteractionHand.class),
@@ -20,6 +21,10 @@ public record SwitchResonateModePacket(InteractionHand hand, int mode) implement
         SwitchResonateModePacket::new
     );
 
+    public SwitchResonateModePacket(InteractionHand hand) {
+        this(hand, CYCLE_MODE);
+    }
+
     @Override
     public Type<SwitchResonateModePacket> type() {
         return TYPE;
@@ -27,6 +32,12 @@ public record SwitchResonateModePacket(InteractionHand hand, int mode) implement
 
     @Override
     public void handleOnServer(Player player) {
-        ResonatorItem.setMode(player, this.hand, this.mode);
+        int targetMode = this.mode;
+        if (targetMode == CYCLE_MODE) {
+            int currentMode = ResonatorItem.getMode(player.getItemInHand(this.hand));
+            // 轮盘槽位按逆时针排列，顺时针切换需要递减模式编号。
+            targetMode = currentMode <= ResonatorItem.AUTO_MODE ? ResonatorItem.PICKAXE_MODE : currentMode - 1;
+        }
+        ResonatorItem.setMode(player, this.hand, targetMode);
     }
 }

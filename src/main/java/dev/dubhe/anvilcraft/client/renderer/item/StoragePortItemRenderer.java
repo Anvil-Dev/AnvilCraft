@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.client.renderer.item;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
+import dev.dubhe.anvilcraft.block.entity.StoragePortBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.geom.EntityModelSet;
@@ -144,7 +145,9 @@ public class StoragePortItemRenderer extends BlockEntityWithoutLevelRenderer {
         } else {
             return ItemStack.EMPTY;
         }
-        return ItemStack.parseOptional(registries, tag.getCompound(StoragePortItemRenderer.TAG_MARKED));
+        return StoragePortBlockEntity.createMarker(
+            ItemStack.parseOptional(registries, tag.getCompound(StoragePortItemRenderer.TAG_MARKED))
+        );
     }
 
     private static void renderModel(

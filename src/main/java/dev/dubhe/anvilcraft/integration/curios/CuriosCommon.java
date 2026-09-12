@@ -1,7 +1,5 @@
 package dev.dubhe.anvilcraft.integration.curios;
 
-import dev.anvilcraft.lib.v2.integration.Integration;
-import dev.anvilcraft.lib.v2.integration.IntegrationHook;
 import dev.anvilcraft.lib.v2.util.InventoryUtil;
 import dev.dubhe.anvilcraft.api.event.AmuletEvent;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
@@ -27,10 +25,8 @@ import top.theillusivec4.curios.api.type.capability.ICuriosItemHandler;
 import java.util.List;
 import java.util.Optional;
 
-@Integration("curios")
 public class CuriosCommon {
-    public void apply() {
-        IEventBus modEventBus = IntegrationHook.getModEventBus();
+    public void apply(IEventBus modEventBus) {
         modEventBus.addListener(this::setup);
         modEventBus.addListener(this::registerCapabilities);
         NeoForge.EVENT_BUS.addListener(this::onPlayerWearAnvilHammerInCurioSlot);

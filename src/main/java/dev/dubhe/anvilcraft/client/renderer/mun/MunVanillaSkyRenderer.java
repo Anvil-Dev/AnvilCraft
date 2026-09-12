@@ -12,11 +12,9 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.worldgen.MunSkyMath;
 import dev.dubhe.anvilcraft.worldgen.MunSkyMath.Vector;
 import net.minecraft.client.renderer.GameRenderer;
-import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.resources.ResourceLocation;
 import org.joml.Matrix4f;
 import org.lwjgl.opengl.GL11C;
-import org.lwjgl.opengl.GL14C;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,59 +38,36 @@ final class MunVanillaSkyRenderer {
     }
 
     static void render(double x, double z, long time, double partialTick, float daylight, Matrix4f view, Matrix4f projection) {
-        ShaderInstance previousShader = RenderSystem.getShader();
         Matrix4f previousProjection = new Matrix4f(RenderSystem.getProjectionMatrix());
         VertexSorting previousSorting = RenderSystem.getVertexSorting();
         float[] color = RenderSystem.getShaderColor().clone();
-        int texture = RenderSystem.getShaderTexture(0);
-        boolean blend = GL11C.glIsEnabled(GL11C.GL_BLEND);
-        boolean cull = GL11C.glIsEnabled(GL11C.GL_CULL_FACE);
-        boolean depth = GL11C.glIsEnabled(GL11C.GL_DEPTH_TEST);
-        boolean depthMask = GL11C.glGetBoolean(GL11C.GL_DEPTH_WRITEMASK);
-        int depthFunction = GL11C.glGetInteger(GL11C.GL_DEPTH_FUNC);
-        int sourceRgb = GL11C.glGetInteger(GL14C.GL_BLEND_SRC_RGB);
-        int destinationRgb = GL11C.glGetInteger(GL14C.GL_BLEND_DST_RGB);
-        int sourceAlpha = GL11C.glGetInteger(GL14C.GL_BLEND_SRC_ALPHA);
-        int destinationAlpha = GL11C.glGetInteger(GL14C.GL_BLEND_DST_ALPHA);
-        double[] depthRange = new double[2];
-        GL11C.glGetDoublev(GL11C.GL_DEPTH_RANGE, depthRange);
-        RenderSystem.getModelViewStack().pushMatrix();
-        try {
-            RenderSystem.getModelViewStack().identity();
-            RenderSystem.applyModelViewMatrix();
-            RenderSystem.setProjectionMatrix(new Matrix4f(), VertexSorting.DISTANCE_TO_ORIGIN);
-            RenderSystem.enableDepthTest();
-            RenderSystem.depthFunc(GL11C.GL_LEQUAL);
-            GL11C.glDepthRange(1, 1);
-            RenderSystem.depthMask(false);
-            RenderSystem.disableCull();
-            RenderSystem.disableBlend();
-            RenderSystem.setShaderColor(1, 1, 1, 1);
-            drawBackground();
-            RenderSystem.getModelViewStack().set(view);
-            RenderSystem.applyModelViewMatrix();
-            RenderSystem.setProjectionMatrix(projection, VertexSorting.DISTANCE_TO_ORIGIN);
-            MunSkyMath.Rotation rotation = MunSkyMath.skyRotation(x, z, time, partialTick);
-            drawStars(rotation, time, partialTick, daylight);
-            drawSun(rotation, time, partialTick);
-            drawEarth(rotation, time, partialTick);
-        } finally {
-            RenderSystem.getModelViewStack().popMatrix();
-            RenderSystem.applyModelViewMatrix();
-            RenderSystem.setProjectionMatrix(previousProjection, previousSorting);
-            RenderSystem.setShader(() -> previousShader);
-            RenderSystem.setShaderColor(color[0], color[1], color[2], color[3]);
-            RenderSystem.setShaderTexture(0, texture);
-            RenderSystem.blendFuncSeparate(sourceRgb, destinationRgb, sourceAlpha, destinationAlpha);
-            if (blend) RenderSystem.enableBlend();
-            else RenderSystem.disableBlend();
-            if (cull) RenderSystem.enableCull();
-            else RenderSystem.disableCull();
-            if (depth) RenderSystem.enableDepthTest();
-            else RenderSystem.disableDepthTest();
-            RenderSystem.depthMask(depthMask);
-            RenderSystem.depthFunc(depthFunction);
-            GL11C.glDepthRange(depthRange[0], depthRange[1]);
+        try (MunRenderScope scope = MunRenderScope.vanillaSky()) {
+            RenderSystem.getModelViewStack().pushMatrix();
+            try {
+                RenderSystem.getModelViewStack().identity();
+                RenderSystem.applyModelViewMatrix();
+                RenderSystem.setProjectionMatrix(new Matrix4f(), VertexSorting.DISTANCE_TO_ORIGIN);
+                RenderSystem.enableDepthTest();
+                RenderSystem.depthFunc(GL11C.GL_LEQUAL);
+                scope.useFarDepth();
+                RenderSystem.depthMask(false);
+                RenderSystem.disableCull();
+                RenderSystem.disableBlend();
+                RenderSystem.setShaderColor(1, 1, 1, 1);
+                drawBackground();
+                RenderSystem.getModelViewStack().set(view);
+                RenderSystem.applyModelViewMatrix();
+                RenderSystem.setProjectionMatrix(projection, VertexSorting.DISTANCE_TO_ORIGIN);
+                MunSkyMath.Rotation rotation = MunSkyMath.skyRotation(x, z, time, partialTick);
+                drawStars(rotation, time, partialTick, daylight);
+                drawSun(rotation, time, partialTick);
+                drawEarth(rotation, time, partialTick);
+            } finally {
+                RenderSystem.getModelViewStack().popMatrix();
+                RenderSystem.applyModelViewMatrix();
+                RenderSystem.setProjectionMatrix(previousProjection, previousSorting);
+                RenderSystem.setShaderColor(color[0], color[1], color[2], color[3]);
+            }
         }
     }
 

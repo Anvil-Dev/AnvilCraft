@@ -18,11 +18,23 @@ public abstract class EnergyWeaponItem extends Item implements ICapacitorChargea
     private static final int BAR_COLOR = 0x7087FFFF;
     private static final Component INSUFFICIENT_POWER = Component.translatable("screen.anvilcraft.cfa.power_fail")
         .withStyle(ChatFormatting.RED);
+    private final int minimumEnergy;
 
-    protected EnergyWeaponItem(Properties properties) {
+    protected EnergyWeaponItem(Properties properties, int minimumEnergy) {
         super(properties
             .component(ModComponents.STORED_ENERGY, MAX_ENERGY)
             .component(DataComponents.CUSTOM_MODEL_DATA, CustomModelData.DEFAULT));
+        this.minimumEnergy = minimumEnergy;
+    }
+
+    public boolean canFire(Player player, ItemStack weapon) {
+        return hasEnergyAvailable(weapon, this.minimumEnergy);
+    }
+
+    protected boolean canContinueUsing(Player player, ItemStack weapon) {
+        if (hasEnergyAvailable(weapon, this.minimumEnergy)) return true;
+        stopForInsufficientPower(player, weapon);
+        return false;
     }
 
     protected boolean consumeEnergy(Player player, ItemStack weapon, int amount) {
@@ -85,7 +97,7 @@ public abstract class EnergyWeaponItem extends Item implements ICapacitorChargea
     @Override
     public int getBarWidth(ItemStack stack) {
         int energy = stack.getOrDefault(ModComponents.STORED_ENERGY, 0);
-        return Math.round(Math.clamp((float) energy / MAX_ENERGY, 0, 1) * 13);
+        return energy <= 0 ? 0 : Math.max(1, Math.round(Math.clamp((float) energy / MAX_ENERGY, 0, 1) * 13));
     }
 
     @Override
@@ -99,8 +111,4 @@ public abstract class EnergyWeaponItem extends Item implements ICapacitorChargea
         stack.set(DataComponents.CUSTOM_MODEL_DATA, CustomModelData.DEFAULT);
     }
 
-    @Override
-    public boolean canAccept(ItemStack stack, IFullCapacitor capacitor, ItemStack capacitorStack, boolean force) {
-        return force || capacitor.getEnergyStored(capacitorStack) >= EnergyWeaponItem.MAX_ENERGY / 8;
-    }
 }

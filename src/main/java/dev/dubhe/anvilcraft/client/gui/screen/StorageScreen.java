@@ -646,17 +646,18 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
      * 为 {@code true} 则运行一次合成模式切换（含可用性检查）。
      */
     private void restoreCraftingMode() {
-        StorageClientStub.craftingGet(this.sourcePos).whenCompleteAsync(
-            (data, error) -> {
-                if (error == null && data.lastOpened() && this.mode == ScreenMode.NORMAL) {
-                    this.toggleCraftingMode();
+        StorageClientStub.craftingAvailable(this.sourcePos)
+            .thenCombine(StorageClientStub.craftingGet(this.sourcePos), (available, data) -> available && data.lastOpened())
+            .thenAcceptAsync(opened -> {
+                if (opened && this.mode == ScreenMode.NORMAL) {
+                    this.craftingAvailable = true;
+                    this.setMode(ScreenMode.CRAFTING);
+                    this.loadCrafting(true);
                 }
-            },
-            this.screenExecutor
-        );
+            }, this.screenExecutor);
     }
 
-    /** 异步检查仓储内是否同时存在工作台与切石机（决定合成模式是否可用）。 */
+    /** 异步检查仓储是否已解锁合成模式。 */
     private void checkCraftingAvailable() {
         StorageClientStub.craftingAvailable(this.sourcePos).whenCompleteAsync(
             (available, error) -> {
@@ -681,7 +682,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
             this.setMode(ScreenMode.NORMAL);
             return;
         }
-        StorageClientStub.craftingAvailable(this.sourcePos).whenCompleteAsync(
+        StorageClientStub.craftingUnlock(this.sourcePos).whenCompleteAsync(
             (available, error) -> {
                 if (error != null) {
                     this.showFlyout();

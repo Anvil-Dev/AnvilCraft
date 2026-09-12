@@ -1,0 +1,14 @@
+{
+  "type": "anvilcraft:item_crush",
+  "ingredients": [
+    {
+      "items": "minecraft:amethyst_cluster"
+    }
+  ],
+  "results": [
+    {
+      "count": 8,
+      "id": "minecraft:amethyst_shard"
+    }
+  ]
+}

@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.client.event;
 
 import dev.anvilcraft.lib.v2.wheel.api.WheelMenuBuilder;
 import dev.anvilcraft.lib.v2.wheel.api.WheelMenuModel;
+import dev.anvilcraft.lib.v2.wheel.api.WheelSelectionEffect;
 import dev.anvilcraft.lib.v2.wheel.client.input.WheelScreenController;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.client.init.ModKeyMappings;
@@ -120,7 +121,7 @@ public class WheelLifecycleEventListener {
 
     private static void openResonatorWheel(long gameTime) {
         if (
-            WheelLifecycleEventListener.resonatorKeyTime > 0
+            WheelLifecycleEventListener.resonatorKeyTime >= 0
             && gameTime - WheelLifecycleEventListener.resonatorKeyTime > 4
         ) {
             if (WheelLifecycleEventListener.resonatorWheelCache == null) {
@@ -145,7 +146,7 @@ public class WheelLifecycleEventListener {
 
     private static void openMultitoolWheel(long gameTime) {
         if (
-            WheelLifecycleEventListener.multitoolKeyTime > 0
+            WheelLifecycleEventListener.multitoolKeyTime >= 0
             && gameTime - WheelLifecycleEventListener.multitoolKeyTime > 4
         ) {
             if (WheelLifecycleEventListener.multitoolWheelCache == null) {
@@ -170,7 +171,7 @@ public class WheelLifecycleEventListener {
 
     private static void openHeavyHalberdWheel(long gameTime) {
         if (
-            WheelLifecycleEventListener.heavyHalberdKeyTime > 0
+            WheelLifecycleEventListener.heavyHalberdKeyTime >= 0
             && gameTime - WheelLifecycleEventListener.heavyHalberdKeyTime > 4
         ) {
             if (WheelLifecycleEventListener.heavyHalberdWheelCache == null) {
@@ -257,7 +258,8 @@ public class WheelLifecycleEventListener {
 
     private static WheelMenuModel getMultiphaseWheel(InteractionHand hand, ItemStack holding, Multiphase multiphase) {
         int phaseCount = multiphase.phases().size();
-        WheelMenuBuilder builder = WheelMenuBuilder.create().slotsPerPage(phaseCount);
+        WheelMenuBuilder builder = WheelMenuBuilder.create()
+            .selectionEffect(WheelSelectionEffect.ANNULAR_SECTOR).slotsPerPage(phaseCount);
         for (int i = 0; i < phaseCount; i++) {
             addMultiphaseWheelEntry(builder, hand, holding, multiphase, i);
         }
@@ -287,6 +289,7 @@ public class WheelLifecycleEventListener {
 
     private static WheelMenuModel getResonatorWheel(InteractionHand hand, ItemStack holding) {
         return WheelMenuBuilder.create()
+            .selectionEffect(WheelSelectionEffect.ANNULAR_SECTOR)
             .slotsPerPage(5)
             .action(
                 "auto",
@@ -353,6 +356,7 @@ public class WheelLifecycleEventListener {
 
     private static WheelMenuModel getHeavyHalberdWheel(InteractionHand hand, ItemStack holding) {
         return WheelMenuBuilder.create()
+            .selectionEffect(WheelSelectionEffect.ANNULAR_SECTOR)
             .slotsPerPage(4)
             .action(
                 "trident",
@@ -407,6 +411,7 @@ public class WheelLifecycleEventListener {
 
     private static WheelMenuModel getMultitoolWheel(InteractionHand hand, ItemStack holding) {
         return WheelMenuBuilder.create()
+            .selectionEffect(WheelSelectionEffect.ANNULAR_SECTOR)
             .slotsPerPage(9)
             .action(
                 "all",
@@ -521,6 +526,7 @@ public class WheelLifecycleEventListener {
 
     private static WheelMenuModel getDragonRodWheel(InteractionHand hand, ItemStack holding) {
         return WheelMenuBuilder.create()
+            .selectionEffect(WheelSelectionEffect.ANNULAR_SECTOR)
             .slotsPerPage(2)
             .action(
                 "protect",
@@ -569,6 +575,7 @@ public class WheelLifecycleEventListener {
 
     private static WheelMenuModel getBalanceWheel() {
         return WheelMenuBuilder.create()
+            .selectionEffect(WheelSelectionEffect.ANNULAR_SECTOR)
             .slotsPerPage(4)
             .action(
                 "smart",
@@ -676,6 +683,18 @@ public class WheelLifecycleEventListener {
         if (action == GLFW.GLFW_RELEASE) {
             if (WheelLifecycleEventListener.resonatorKeyWasDown) {
                 CONTROLLER.onHoldKeyReleased();
+            } else if (
+                WheelLifecycleEventListener.resonatorKeyTime >= 0
+                && client.level.getGameTime() - WheelLifecycleEventListener.resonatorKeyTime <= 4
+                && client.screen == null
+                && client.player != null
+            ) {
+                for (InteractionHand hand : InteractionHand.values()) {
+                    if (client.player.getItemInHand(hand).getItem() instanceof ResonatorItem) {
+                        PacketDistributor.sendToServer(new SwitchResonateModePacket(hand));
+                        break;
+                    }
+                }
             }
             WheelLifecycleEventListener.resonatorKeyWasDown = false;
             WheelLifecycleEventListener.resonatorKeyTime = -1L;
@@ -695,6 +714,18 @@ public class WheelLifecycleEventListener {
         if (action == GLFW.GLFW_RELEASE) {
             if (WheelLifecycleEventListener.multitoolKeyWasDown) {
                 CONTROLLER.onHoldKeyReleased();
+            } else if (
+                WheelLifecycleEventListener.multitoolKeyTime >= 0
+                && client.level.getGameTime() - WheelLifecycleEventListener.multitoolKeyTime <= 4
+                && client.screen == null
+                && client.player != null
+            ) {
+                for (InteractionHand hand : InteractionHand.values()) {
+                    if (client.player.getItemInHand(hand).getItem() instanceof MultitoolItem) {
+                        PacketDistributor.sendToServer(new SwitchMultitoolModePacket(hand));
+                        break;
+                    }
+                }
             }
             WheelLifecycleEventListener.multitoolKeyWasDown = false;
             WheelLifecycleEventListener.multitoolKeyTime = -1L;
@@ -714,6 +745,18 @@ public class WheelLifecycleEventListener {
         if (action == GLFW.GLFW_RELEASE) {
             if (WheelLifecycleEventListener.heavyHalberdKeyWasDown) {
                 CONTROLLER.onHoldKeyReleased();
+            } else if (
+                WheelLifecycleEventListener.heavyHalberdKeyTime >= 0
+                && client.level.getGameTime() - WheelLifecycleEventListener.heavyHalberdKeyTime <= 4
+                && client.screen == null
+                && client.player != null
+            ) {
+                for (InteractionHand hand : InteractionHand.values()) {
+                    if (client.player.getItemInHand(hand).getItem() instanceof HeavyHalberdItem) {
+                        PacketDistributor.sendToServer(new SwitchHeavyHalberdModePacket(hand));
+                        break;
+                    }
+                }
             }
             WheelLifecycleEventListener.heavyHalberdKeyWasDown = false;
             WheelLifecycleEventListener.heavyHalberdKeyTime = -1L;

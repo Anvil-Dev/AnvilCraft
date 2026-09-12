@@ -57,7 +57,7 @@ public final class FluidNetworkScanner {
         return isContainer(level, pos, level.getBlockEntity(pos));
     }
 
-    /** 使用指定的方块实体判断容器，供实体加载事件在写入区块映射前使用。 */
+    /** 使用指定的方块实体判断容器，避免在实体加载事件中重复查找。 */
     public static boolean isContainer(Level level, BlockPos pos, @Nullable BlockEntity blockEntity) {
         BlockState state = blockEntity == null ? level.getBlockState(pos) : blockEntity.getBlockState();
         if (isPipePart(state)) {

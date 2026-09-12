@@ -9,6 +9,7 @@ import dev.dubhe.anvilcraft.block.container.storage.HyperdimensionStorageStation
 import dev.dubhe.anvilcraft.block.container.storage.ShulkerContainerBlock;
 import dev.dubhe.anvilcraft.block.entity.storage.CrateBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.storage.StorageBlockEntity;
+import dev.dubhe.anvilcraft.block.item.StoragePortBlockItem;
 import dev.dubhe.anvilcraft.config.AnvilCraftServerConfig;
 import dev.dubhe.anvilcraft.saved.storage.Storages;
 import it.unimi.dsi.fastutil.objects.Object2LongMap;
@@ -142,11 +143,25 @@ public class StoragePortBlockEntity extends BlockEntity implements IItemHandlerH
         return last != 0 && now - last <= StoragePortBlockEntity.DOUBLE_CLICK_INTERVAL;
     }
 
+    public static ItemStack createMarker(ItemStack stack) {
+        if (stack.isEmpty()) return ItemStack.EMPTY;
+        return stack.getItem() instanceof StoragePortBlockItem ? new ItemStack(stack.getItem()) : stack.copyWithCount(1);
+    }
+
+    public boolean isMarkedFaceVisible(Direction direction) {
+        if (this.level == null) return false;
+        BlockPos neighborPos = this.worldPosition.relative(direction);
+        BlockState neighbor = this.level.getBlockState(neighborPos);
+        return !(neighbor.getBlock() instanceof StoragePortBlock)
+            && !(neighbor.canOcclude()
+                && Block.isFaceFull(neighbor.getOcclusionShape(this.level, neighborPos), direction.getOpposite()));
+    }
+
     /**
      * 设置标记物品；标记变化时把缓存中旧内容尽力存入核心，并同步方块状态的 MARKED 属性。
      */
     public void setMarkedItem(ItemStack stack) {
-        ItemStack mark = stack.isEmpty() ? ItemStack.EMPTY : stack.copyWithCount(1);
+        ItemStack mark = StoragePortBlockEntity.createMarker(stack);
         if (ItemStack.isSameItemSameComponents(this.markedItem, mark)) {
             return;
         }
@@ -554,7 +569,7 @@ public class StoragePortBlockEntity extends BlockEntity implements IItemHandlerH
         super.loadAdditional(tag, registries);
         // 标签不含 marked_item 时视为已清除标记，避免客户端残留旧标记
         this.markedItem = tag.contains("marked_item")
-            ? ItemStack.parseOptional(registries, tag.getCompound("marked_item"))
+            ? StoragePortBlockEntity.createMarker(ItemStack.parseOptional(registries, tag.getCompound("marked_item")))
             : ItemStack.EMPTY;
         if (tag.contains("buffer")) {
             this.buffer.deserializeNBT(registries, tag.getCompound("buffer"));

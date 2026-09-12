@@ -99,6 +99,8 @@ public class FunctionalBlocks extends DisplayItemsGenerator {
         this.plain(ModBlocks.LENS); // 透镜
         this.plain(ModBlocks.LASER_RECEIVER); // 激光接收器
 
+        this.plain(ModBlocks.REDSTONE_DICE); // 红石骰子
+        this.plain(ModBlocks.BIG_RED_BUTTON); // 大红按钮
         this.plain(ModBlocks.PULSE_GENERATOR); // 脉冲发生器
         this.plain(ModBlocks.ADVANCED_COMPARATOR); // 高级比较器
         this.plain(ModBlocks.BLOCK_COMPARATOR); // 方块比较器
