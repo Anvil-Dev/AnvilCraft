@@ -126,14 +126,15 @@ public class BlockEventListener {
         }
         // 取消事件，阻止挖掘（客户端与服务端都会触发本事件）
         event.setCanceled(true);
-        if (!level.isClientSide() || port.isBufferEmpty()
-            || player.getMainHandItem().getItem() instanceof AnvilHammerItem) {
+        if (!level.isClientSide() || player.getMainHandItem().getItem() instanceof AnvilHammerItem) {
             return;
         }
         // 客户端只发送取出请求，实际取出由服务端在收到请求包后执行
         PlayerInteractEvent.LeftClickBlock.Action action = event.getAction();
-        if (action != PlayerInteractEvent.LeftClickBlock.Action.START
-            && action != PlayerInteractEvent.LeftClickBlock.Action.CLIENT_HOLD) {
+        if (
+            action != PlayerInteractEvent.LeftClickBlock.Action.START
+            && action != PlayerInteractEvent.LeftClickBlock.Action.CLIENT_HOLD
+        ) {
             return;
         }
         if (!(level.getBlockEntity(pos) instanceof IStoragePort port) || port.isLeftClickOnCooldown(player)) {
