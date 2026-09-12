@@ -25,6 +25,7 @@
       "DispenseItemEmptyBucketBehaviorMixin",
       "DispenseItemWaterBottleBehaviorMixin",
       "DispenserBlockMixin",
+      "EnchantCommandMixin",
       "EnchantmentHelperMixin",
       "EnchantmentPredicateMixin",
       "EntityMixin",

@@ -30,13 +30,13 @@ public class SuperHeatingRecipeLoader {
 
         SuperHeatingRecipe.builder()
             .fluid(Blocks.LAVA_CAULDRON)
-            .consume(1000)
+            .consume(250)
             .requires(ModBlocks.TUNGSTEN_BLOCK)
             .result(ModBlocks.HEATED_TUNGSTEN_BLOCK)
             .save(provider);
         SuperHeatingRecipe.builder()
             .fluid(Blocks.LAVA_CAULDRON)
-            .consume(1000)
+            .consume(250)
             .requires(Blocks.NETHERITE_BLOCK)
             .result(ModBlocks.HEATED_NETHERITE_BLOCK)
             .save(provider);
