@@ -1,18 +1,27 @@
-package dev.dubhe.anvilcraft.block.entity.storage;
+package dev.dubhe.anvilcraft.api;
 
+import com.google.common.collect.HashBasedTable;
+import com.google.common.collect.Table;
+import dev.dubhe.anvilcraft.block.container.storage.HyperdimensionStorageStationBlock;
+import dev.dubhe.anvilcraft.block.container.storage.ShulkerContainerBlock;
 import dev.dubhe.anvilcraft.block.entity.StorageFluidPortBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.storage.StorageBlockEntity;
 import dev.dubhe.anvilcraft.rpc.StorageServerStub;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.neoforged.neoforge.server.ServerLifecycleHooks;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Deque;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -21,16 +30,17 @@ import java.util.UUID;
 import javax.annotation.Nullable;
 
 /**
- * 记录各存储连接到的仓储流体端口，供仓储 UI 查询该存储可显示的流体。
+ * 仓储端口管理器：登记各存储名下的端口，并提供端口相连关系的扫描与流体读写。
  *
- * <p>流体存放在端口自身（拆除随掉落物保留），因此仓储本体只存物品；UI 需要显示流体时
- * 由本表反查端口并汇总。端口每 {@code VALIDATE_INTERVAL} 重校验连通关系时重新登记，
- * 因此失效条目会被自然修正。</p>
- *
- * <p>表按「维度 → 存储 ID → 端口位置」分层，与 {@link StorageBlockRegistry} 一致：
+ * <p>三种端口（仓储端口、仓储流体端口、仓储端口整合器）在连通关系重校验时都会重新登记，
+ * 表按「维度 × 存储 ID → 端口位置」记录；流体相关的查询只取其中的流体端口。
  * 维度先分层才能避免不同维度的同坐标互相干扰（注册与注销都必须带上维度）。</p>
+ *
+ * <p>相连关系由端口自身决定：面相邻的端口可互相延伸，遇到集装箱 / 存储站不穿过，
+ * 因此集装箱两侧未直接相连的端口阵列不会互通。端口周期性重校验并重新登记，
+ * 失效条目会被自然修正。</p>
  */
-public final class StorageFluidRegistry {
+public final class StoragePortManager {
     /**
      * 流体伪槽位的逻辑编号起点。
      *
@@ -39,31 +49,106 @@ public final class StorageFluidRegistry {
      */
     public static final int FLUID_SLOT_BASE = 1 << 24;
 
-    /** 维度 → （存储 ID → 端口位置集合） */
-    private static final Map<ResourceKey<Level>, Map<UUID, Set<BlockPos>>> PORTS = new HashMap<>();
+    /** 相连关系扫描的端口访问上限，防止极端链式摆放造成性能问题 */
+    private static final int CONNECTIVITY_LIMIT = 512;
 
-    private StorageFluidRegistry() {
+    /** （维度 × 存储 ID）→ 端口位置集合 */
+    private static final Table<ResourceKey<Level>, UUID, Set<BlockPos>> PORTS = HashBasedTable.create();
+
+    private StoragePortManager() {
     }
 
     /**
-     * 登记一个已连接到某存储的流体端口。
+     * 端口相连关系的扫描结果。
+     *
+     * @param core  连通组件接触到的唯一核心主方块坐标；没有核心或接触多个核心时为 null
+     * @param ports 该组件中除起点以外的所有端口
+     */
+    public record LinkedPorts(@Nullable BlockPos core, List<IStoragePort> ports) {
+    }
+
+    /**
+     * 从起点沿面相邻的端口扫描相连关系，一次遍历同时得到核心与端口。
+     *
+     * @param level 世界
+     * @param start 起点（任意端口方块位置）
+     * @return 连通组件的核心与端口；未加载的相邻方块不参与扫描
+     */
+    public static LinkedPorts scan(Level level, BlockPos start) {
+        Set<BlockPos> cores = new HashSet<>();
+        List<IStoragePort> ports = new ArrayList<>();
+        Set<BlockPos> visited = new HashSet<>();
+        Deque<BlockPos> queue = new ArrayDeque<>();
+        queue.addLast(start);
+        visited.add(start);
+        int visitedPorts = 0;
+        while (!queue.isEmpty() && visitedPorts < StoragePortManager.CONNECTIVITY_LIMIT) {
+            BlockPos pos = queue.removeFirst();
+            visitedPorts++;
+            for (Direction direction : Direction.values()) {
+                BlockPos neighbor = pos.relative(direction);
+                if (visited.contains(neighbor) || !level.isLoaded(neighbor)) {
+                    continue;
+                }
+                BlockState state = level.getBlockState(neighbor);
+                Block block = state.getBlock();
+                BlockPos coreMain = null;
+                if (block instanceof ShulkerContainerBlock shulker) {
+                    coreMain = shulker.getMainPartPos(neighbor, state);
+                } else if (block instanceof HyperdimensionStorageStationBlock station) {
+                    coreMain = station.getMainPartPos(neighbor, state);
+                }
+                if (coreMain != null) {
+                    if (level.getBlockEntity(coreMain) instanceof StorageBlockEntity storage
+                        && storage.getId() != null) {
+                        cores.add(coreMain);
+                    }
+                    continue;
+                }
+                if (level.getBlockEntity(neighbor) instanceof IStoragePort port) {
+                    visited.add(neighbor);
+                    queue.addLast(neighbor);
+                    ports.add(port);
+                }
+            }
+        }
+        // 连通组件必须恰好接触一个核心（紧贴两个核心则整条链不工作）
+        return new LinkedPorts(cores.size() == 1 ? cores.iterator().next() : null, List.copyOf(ports));
+    }
+
+    /**
+     * 从起点扫描相连关系，解析连通组件接触到的那个唯一核心。
+     *
+     * @param level 世界
+     * @param start 起点（任意端口方块位置）
+     * @return 唯一有效核心的主方块坐标；没有核心或接触多个核心时返回 {@code null}
+     */
+    @Nullable
+    public static BlockPos findSoleCore(Level level, BlockPos start) {
+        return StoragePortManager.scan(level, start).core();
+    }
+
+    /**
+     * 登记一个已连接到某存储的端口。
      *
      * @param storageId 存储 ID
      * @param level     端口所在维度
      * @param pos       端口位置
      */
-    public static void register(UUID storageId, ServerLevel level, BlockPos pos) {
-        StorageFluidRegistry.PORTS
-            .computeIfAbsent(level.dimension(), ignored -> new HashMap<>())
-            .computeIfAbsent(storageId, ignored -> new HashSet<>())
-            .add(pos.immutable());
+    public static void register(UUID storageId, Level level, BlockPos pos) {
+        Set<BlockPos> positions = StoragePortManager.PORTS.get(level.dimension(), storageId);
+        if (positions == null) {
+            positions = new HashSet<>();
+            StoragePortManager.PORTS.put(level.dimension(), storageId, positions);
+        }
+        positions.add(pos.immutable());
     }
 
     /**
      * 注销某端口在「指定存储 × 指定维度」下的登记。
      *
      * <p>只清这一个存储名下的条目：端口从 A 存储改挂到 B 存储时，必须先把 A 的旧条目清掉，
-     * 否则 A 的 UI 仍会显示该端口的流体、{@code drain(A)} 还会从属于 B 的端口抽走流体。
+     * 否则 A 的界面仍会显示该端口的流体、{@code drain(A)} 还会从属于 B 的端口抽走流体。
      * 只清这一个维度：不同维度的同坐标是两个不同的端口。</p>
      *
      * @param storageId 存储 ID；为 null 时无操作
@@ -74,26 +159,19 @@ public final class StorageFluidRegistry {
         if (storageId == null) {
             return;
         }
-        Map<UUID, Set<BlockPos>> byId = StorageFluidRegistry.PORTS.get(dimension);
-        if (byId == null) {
-            return;
-        }
-        Set<BlockPos> positions = byId.get(storageId);
+        Set<BlockPos> positions = StoragePortManager.PORTS.get(dimension, storageId);
         if (positions == null) {
             return;
         }
         positions.remove(pos);
         if (positions.isEmpty()) {
-            byId.remove(storageId);
-        }
-        if (byId.isEmpty()) {
-            StorageFluidRegistry.PORTS.remove(dimension);
+            StoragePortManager.PORTS.remove(dimension, storageId);
         }
     }
 
     /** 服务端停止时清表，避免静态表在下次进入世界时残留上次的登记。 */
     public static void clear() {
-        StorageFluidRegistry.PORTS.clear();
+        StoragePortManager.PORTS.clear();
     }
 
     /**
@@ -106,7 +184,7 @@ public final class StorageFluidRegistry {
         // 用「首次出现」顺序累计：取空的端口以 0 数量占位，
         // 这样流体槽位编号不会因某个流体被取空而整体前移（否则点击会指到别的流体）
         List<StorageServerStub.FluidEntry> result = new ArrayList<>();
-        for (StorageFluidPortBlockEntity port : StorageFluidRegistry.livePorts(storageId)) {
+        for (StorageFluidPortBlockEntity port : StoragePortManager.liveFluidPorts(storageId)) {
             FluidStack fluid = port.getFluid();
             boolean drained = fluid.isEmpty();
             if (drained) {
@@ -116,7 +194,7 @@ public final class StorageFluidRegistry {
                     continue;
                 }
             }
-            int index = StorageFluidRegistry.indexOfSame(result, fluid);
+            int index = StoragePortManager.indexOfSame(result, fluid);
             if (index < 0) {
                 result.add(new StorageServerStub.FluidEntry(fluid.copy(), drained ? 0 : fluid.getAmount()));
             } else if (!drained) {
@@ -139,7 +217,7 @@ public final class StorageFluidRegistry {
      */
     @Nullable
     public static StorageServerStub.FluidEntry find(UUID storageId, FluidStack fluid) {
-        for (StorageServerStub.FluidEntry entry : StorageFluidRegistry.collect(storageId)) {
+        for (StorageServerStub.FluidEntry entry : StoragePortManager.collect(storageId)) {
             if (FluidStack.isSameFluidSameComponents(entry.icon(), fluid)) {
                 return entry;
             }
@@ -166,7 +244,7 @@ public final class StorageFluidRegistry {
      * @return 实际抽取量（mB）
      */
     public static int drain(UUID storageId, FluidStack fluid, int amountMb) {
-        return StorageFluidRegistry.drain(storageId, fluid, amountMb, false);
+        return StoragePortManager.drain(storageId, fluid, amountMb, false);
     }
 
     /**
@@ -183,7 +261,7 @@ public final class StorageFluidRegistry {
             ? IFluidHandler.FluidAction.SIMULATE
             : IFluidHandler.FluidAction.EXECUTE;
         int remaining = amountMb;
-        for (StorageFluidPortBlockEntity port : StorageFluidRegistry.livePorts(storageId)) {
+        for (StorageFluidPortBlockEntity port : StoragePortManager.liveFluidPorts(storageId)) {
             if (remaining <= 0) {
                 break;
             }
@@ -210,7 +288,7 @@ public final class StorageFluidRegistry {
      */
     @Nullable
     public static IFluidHandler findAcceptor(UUID storageId, FluidStack fluid) {
-        for (StorageFluidPortBlockEntity port : StorageFluidRegistry.livePorts(storageId)) {
+        for (StorageFluidPortBlockEntity port : StoragePortManager.liveFluidPorts(storageId)) {
             FluidStack stored = port.getFluid();
             if (!stored.isEmpty() && FluidStack.isSameFluidSameComponents(stored, fluid)) {
                 return port.getFluidHandler();
@@ -233,7 +311,7 @@ public final class StorageFluidRegistry {
     @Nullable
     public static IFluidHandler findRefillTarget(UUID storageId, FluidStack fluid) {
         IFluidHandler emptyAcceptor = null;
-        for (StorageFluidPortBlockEntity port : StorageFluidRegistry.livePorts(storageId)) {
+        for (StorageFluidPortBlockEntity port : StoragePortManager.liveFluidPorts(storageId)) {
             FluidStack stored = port.getFluid();
             if (stored.isEmpty()) {
                 if (emptyAcceptor == null) {
@@ -249,27 +327,23 @@ public final class StorageFluidRegistry {
     }
 
     /**
-     * 取出该存储名下当前已加载的端口方块实体。
+     * 取出该存储名下当前已加载的流体端口方块实体。
      *
-     * <p>存储可跨维度（超维存储站），故遍历所有维度查找该存储 ID 的登记。</p>
+     * <p>存储可跨维度（超维存储站），故按列取该存储在所有维度下的登记。</p>
      */
-    private static List<StorageFluidPortBlockEntity> livePorts(UUID storageId) {
+    private static List<StorageFluidPortBlockEntity> liveFluidPorts(UUID storageId) {
         MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
-        if (server == null || StorageFluidRegistry.PORTS.isEmpty()) {
+        if (server == null || StoragePortManager.PORTS.isEmpty()) {
             return List.of();
         }
         List<StorageFluidPortBlockEntity> result = new ArrayList<>();
-        for (Map.Entry<ResourceKey<Level>, Map<UUID, Set<BlockPos>>> byDimension
-            : StorageFluidRegistry.PORTS.entrySet()) {
-            Set<BlockPos> positions = byDimension.getValue().get(storageId);
-            if (positions == null || positions.isEmpty()) {
-                continue;
-            }
-            ServerLevel level = server.getLevel(byDimension.getKey());
+        for (Map.Entry<ResourceKey<Level>, Set<BlockPos>> entry
+            : StoragePortManager.PORTS.column(storageId).entrySet()) {
+            ServerLevel level = server.getLevel(entry.getKey());
             if (level == null) {
                 continue;
             }
-            for (BlockPos pos : Set.copyOf(positions)) {
+            for (BlockPos pos : Set.copyOf(entry.getValue())) {
                 if (!level.isLoaded(pos)) {
                     continue;
                 }
@@ -282,18 +356,15 @@ public final class StorageFluidRegistry {
     }
 
     /**
-     * 某存储当前登记的全部端口位置，供测试与调试使用。
+     * 某存储当前登记的全部端口位置（仓储端口 / 流体端口 / 整合器都算），供测试与调试使用。
      *
      * @param storageId 存储 ID
      * @return 端口位置集合（跨维度取并集）
      */
     public static Set<BlockPos> positions(UUID storageId) {
         Set<BlockPos> result = new HashSet<>();
-        for (Map<UUID, Set<BlockPos>> byId : StorageFluidRegistry.PORTS.values()) {
-            Set<BlockPos> positions = byId.get(storageId);
-            if (positions != null) {
-                result.addAll(positions);
-            }
+        for (Set<BlockPos> positions : StoragePortManager.PORTS.column(storageId).values()) {
+            result.addAll(positions);
         }
         return Set.copyOf(result);
     }

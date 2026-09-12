@@ -1,10 +1,11 @@
 package dev.dubhe.anvilcraft.event;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.api.IStoragePort;
 import dev.dubhe.anvilcraft.api.hammer.IHammerChangeable;
+import dev.dubhe.anvilcraft.block.AbstractStoragePortBlock;
 import dev.dubhe.anvilcraft.block.batch.BaseBatchCraftingBlock;
 import dev.dubhe.anvilcraft.block.entity.CreativeCrateBlockEntity;
-import dev.dubhe.anvilcraft.block.entity.StoragePortBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.item.AnvilHammerItem;
@@ -103,24 +104,24 @@ public class BlockEventListener {
     }
 
     /**
-     * 左键仓储端口取出物品：左键取 1 个，shift 左键取一组；手持铁砧锤时不触发。
-     * 仅点击各面外边缘一像素（1/16）框架时走正常挖掘，缓存为空时也保护中心区域。
+     * 左键端口的取出行为：左键取 1 个，shift 左键取一组；手持铁砧锤时不触发。
+     * 是否拦截由端口自身决定（{@link AbstractStoragePortBlock#interceptsLeftClick}）：
+     * 点击模型外边缘一像素（1/16）等非交互区域时不取消事件，让玩家可以挖掘方块。
      *
      * <p>取出全部在服务端执行：客户端只取消事件（阻止挖掘）并发送取出请求包，
-     * 不在本地改动任何物品，避免幻影物品与快速点击刷物品。按住左键时（取消事件后客户端
-     * 不会进入挖掘状态）{@code START} 事件会每 tick 重触发，用节流限制发包频率。</p>
+     * 不在本地改动任何物品，避免幻影物品与快速点击刷物品。按住左键时客户端会持续重触发
+     * {@code START} 事件（生存模式每 tick、创造模式约每 6 tick），用节流限制发包频率。</p>
      */
     @SubscribeEvent
     public static void clickStoragePortEvent(PlayerInteractEvent.LeftClickBlock event) {
         Level level = event.getLevel();
         Player player = event.getEntity();
         BlockPos pos = event.getPos();
-        if (!(level.getBlockEntity(pos) instanceof StoragePortBlockEntity port)) {
+        if (!(level.getBlockState(pos).getBlock() instanceof AbstractStoragePortBlock portBlock)) {
             return;
         }
-        // 外边缘一像素框架：敲掉逻辑，不取出
-        BlockHitResult aim = BlockEventListener.aimHit(player);
-        if (aim != null && aim.getBlockPos().equals(pos) && StoragePortBlockEntity.isEdgeHit(aim)) {
+        // 交互区域之外（例如模型外边缘一像素框架）：敲掉逻辑，不拦截
+        if (!portBlock.interceptsLeftClick(level, pos, player, BlockEventListener.aimHit(player))) {
             return;
         }
         // 取消事件，阻止挖掘（客户端与服务端都会触发本事件）
@@ -135,10 +136,10 @@ public class BlockEventListener {
             && action != PlayerInteractEvent.LeftClickBlock.Action.CLIENT_HOLD) {
             return;
         }
-        if (port.onTakeOutHoldCooldown(player)) {
+        if (!(level.getBlockEntity(pos) instanceof IStoragePort port) || port.isLeftClickOnCooldown(player)) {
             return;
         }
-        PacketDistributor.sendToServer(new StoragePortTakeOutPacket(pos, player.isShiftKeyDown()));
+        PacketDistributor.sendToServer(new StoragePortTakeOutPacket(pos));
     }
 
     /**

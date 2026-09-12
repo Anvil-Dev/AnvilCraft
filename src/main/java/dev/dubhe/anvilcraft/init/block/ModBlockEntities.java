@@ -74,6 +74,7 @@ import dev.dubhe.anvilcraft.block.entity.SpacetimeSupercomputerBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.StampingPlatformBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.StorageFluidPortBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.StoragePortBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.StoragePortConsolidatorBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.StructureScannerBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.TeslaTowerBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.TradingStationBlockEntity;
@@ -490,6 +491,11 @@ public class ModBlockEntities {
         .blockEntity("storage_port", StoragePortBlockEntity::new)
         .validBlocks(ModBlocks.STORAGE_PORT)
         .renderer(() -> StoragePortBlockEntityRenderer::new)
+        .register();
+
+    public static final BlockEntityEntry<StoragePortConsolidatorBlockEntity> STORAGE_PORT_CONSOLIDATOR = REGISTRUM
+        .blockEntity("storage_port_consolidator", StoragePortConsolidatorBlockEntity::new)
+        .validBlocks(ModBlocks.STORAGE_PORT_CONSOLIDATOR)
         .register();
 
     public static final BlockEntityEntry<StorageFluidPortBlockEntity> STORAGE_FLUID_PORT = REGISTRUM

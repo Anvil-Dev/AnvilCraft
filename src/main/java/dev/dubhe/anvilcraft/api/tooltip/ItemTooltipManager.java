@@ -420,6 +420,10 @@ public class ItemTooltipManager {
             Right-click it with another bound Hyperdimension Terminal to rebind""");
         NORMAL.put(ModBlocks.STORAGE_PORT.asItem(), "External input/output ports of the Shulker Container or the Hyperdimension Storage Station.");
         NORMAL.put(ModBlocks.STORAGE_FLUID_PORT.asItem(), "External fluid storage of the Shulker Container or the Hyperdimension Storage Station.");
+        NORMAL.put(
+            ModBlocks.STORAGE_PORT_CONSOLIDATOR.asItem(),
+            "Exposes the contents of the connected Storage Ports and Fluid Ports to external logistics"
+        );
         NORMAL.put(ModItems.LOCAL_TERMINAL.asItem(), "Link to nearest Large Crate (32-block range)");
         NORMAL.put(ModItems.SHULKER_TERMINAL.asItem(), "Link to Shulker-like storages in world or inventory");
         NORMAL.put(ModItems.HYPERDIMENSION_TERMINAL.asItem(), "A portable port of the binding Hyperdimension Storage Station");
@@ -729,6 +733,16 @@ public class ItemTooltipManager {
                 Right‑click with an item in hand to mark a port. A marked port will always keep one stack of items inside
                 Left‑click to take items out, right‑click to put items in
                 Hold right-click on a marked port with Anvil Hammer can remove the mark""");
+        SHIFT.put(ModBlocks.STORAGE_PORT_CONSOLIDATOR.asItem(), """
+                Exposes all connected Storage Ports as a single inventory to hoppers, chutes and storage buses
+                Each connected Storage Fluid Port is exposed as one tank, readable and writable by pipes
+                Only the ports' own buffers are exposed: an unmarked port sends items straight into its core
+                Connections follow Storage Ports only, never across a Container or a Storage Station
+                Counts as a Storage Port for connections: a chain touching two Containers or Storage Stations stops working
+                Input items go straight into the ports, preferring a port marked with that item
+                Right‑click to put items in, double right‑click to store all matching items from your inventory
+                Right-click with a bucket or a bottle to pour it into a connected fluid port storing the same fluid
+                Worn armor is left alone, and it keeps working even without a connected Container or Storage Station""");
 
         SHIFT.put(
             ModBlocks.STORAGE_FLUID_PORT.asItem(), """

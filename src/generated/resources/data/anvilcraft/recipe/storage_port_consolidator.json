@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "key": {
+    "P": {
+      "item": "anvilcraft:processor"
+    },
+    "S": {
+      "item": "anvilcraft:storage_port"
+    }
+  },
+  "pattern": [
+    " P ",
+    "PSP",
+    " P "
+  ],
+  "result": {
+    "count": 1,
+    "id": "anvilcraft:storage_port_consolidator"
+  }
+}

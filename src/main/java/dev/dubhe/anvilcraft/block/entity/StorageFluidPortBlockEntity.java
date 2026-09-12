@@ -1,11 +1,13 @@
 package dev.dubhe.anvilcraft.block.entity;
 
+import dev.dubhe.anvilcraft.api.IStoragePort;
+import dev.dubhe.anvilcraft.api.StoragePortManager;
 import dev.dubhe.anvilcraft.api.fluid.FluidHandlerWrapper;
 import dev.dubhe.anvilcraft.api.fluid.IFluidHandlerHolder;
 import dev.dubhe.anvilcraft.api.fluid.network.FluidNetworkManager;
 import dev.dubhe.anvilcraft.api.fluid.network.FluidNetworkScanner;
 import dev.dubhe.anvilcraft.block.entity.storage.StorageBlockEntity;
-import dev.dubhe.anvilcraft.block.entity.storage.StorageFluidRegistry;
+import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.rpc.StorageServerStub;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
@@ -30,6 +32,7 @@ import net.neoforged.neoforge.fluids.FluidUtil;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.neoforged.neoforge.fluids.capability.templates.FluidTank;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 import javax.annotation.Nullable;
@@ -46,7 +49,7 @@ import javax.annotation.Nullable;
  *
  * <p>拆除时流体随掉落物保留，手持门格海绵右键可清除内部流体。</p>
  */
-public class StorageFluidPortBlockEntity extends BlockEntity implements IFluidHandlerHolder {
+public class StorageFluidPortBlockEntity extends BlockEntity implements IFluidHandlerHolder, IStoragePort {
     /** 流体容积（mB）：128 B */
     public static final int CAPACITY_MB = 128 * 1000;
     /** 等效高度调整上限（格），即 20 米 */
@@ -223,7 +226,7 @@ public class StorageFluidPortBlockEntity extends BlockEntity implements IFluidHa
         if (this.level != null && !this.level.isClientSide) {
             FluidNetworkManager.INSTANCE.removeContainer(this.level, this.getBlockPos());
             UUID id = this.storageId;
-            StorageFluidRegistry.unregister(id, this.level.dimension(), this.getBlockPos());
+            StoragePortManager.unregister(id, this.level.dimension(), this.getBlockPos());
             // 端口消失同样改变归属：不清缓存的话，其伪槽位会以空格子形式残留在界面上
             if (id != null) {
                 StorageServerStub.onContentsChanged(id);
@@ -245,10 +248,10 @@ public class StorageFluidPortBlockEntity extends BlockEntity implements IFluidHa
         UUID previousId = this.storageId;
         // 先清掉旧存储名下的登记再重新登记：端口可能从 A 存储改挂到 B 存储（链路重排），
         // 若不清旧条目，A 的 UI 仍会显示本端口的流体、drain(A) 还会抽走属于 B 的流体
-        StorageFluidRegistry.unregister(previousId, serverLevel.dimension(), this.worldPosition);
+        StoragePortManager.unregister(previousId, serverLevel.dimension(), this.worldPosition);
         this.storageId = null;
 
-        BlockPos core = StoragePortBlockEntity.findSoleCore(this.level, this.worldPosition);
+        BlockPos core = StoragePortManager.findSoleCore(this.level, this.worldPosition);
         UUID id = null;
         if (core != null
             && this.level.getBlockEntity(core) instanceof StorageBlockEntity storage) {
@@ -257,7 +260,7 @@ public class StorageFluidPortBlockEntity extends BlockEntity implements IFluidHa
         this.storageId = id;
         if (id != null) {
             // 自报给注册表，供仓储 UI 反查该存储可显示的流体
-            StorageFluidRegistry.register(id, serverLevel, this.worldPosition);
+            StoragePortManager.register(id, serverLevel, this.worldPosition);
         }
         // 归属变化要清掉相关存储的排序缓存：伪槽位编号取自 collect() 的下标，缓存里仍留着
         // 旧归属时的流体条目，新接上的端口流体要等到下次内容变化才出现，拆掉的端口
@@ -302,6 +305,22 @@ public class StorageFluidPortBlockEntity extends BlockEntity implements IFluidHa
     }
 
     /**
+     * 右键：手持门格海绵清除内部流体，其余手持容器先瓶子后桶，与储罐一致。
+     */
+    @Override
+    public boolean onRightClick(Player player, InteractionHand hand, List<IStoragePort> ports) {
+        ItemStack stack = player.getItemInHand(hand);
+        if (stack.is(ModBlocks.MENGER_SPONGE.asItem())) {
+            if (this.clearFluid() && this.level != null && !this.level.isClientSide()) {
+                BlockState state = this.getBlockState();
+                this.level.sendBlockUpdated(this.worldPosition, state, state, Block.UPDATE_ALL);
+            }
+            return true;
+        }
+        return this.onPlayerUse(player, hand);
+    }
+
+    /**
      * 内部流体，供仓储 UI 等手段读取。
      *
      * @return 当前流体，可能为空
@@ -337,7 +356,7 @@ public class StorageFluidPortBlockEntity extends BlockEntity implements IFluidHa
     @Override
     public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
         CompoundTag tag = super.getUpdateTag(registries);
-        // 同步流体，保证客户端渲染与 UI 读取一致
+        // 同步流体，保证客户端渲染与 UI 读取一致；为空也要写，否则客户端会残留旧流体
         tag.put(StorageFluidPortBlockEntity.TAG_TANK, this.tank.writeToNBT(registries, new CompoundTag()));
         return tag;
     }
@@ -345,7 +364,16 @@ public class StorageFluidPortBlockEntity extends BlockEntity implements IFluidHa
     @Override
     protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.saveAdditional(tag, registries);
-        tag.put(StorageFluidPortBlockEntity.TAG_TANK, this.tank.writeToNBT(registries, new CompoundTag()));
+        // 空槽时不写流体数据：空端口被存成物品不该多出一个空 tank 组件，否则会与未放置过的端口无法堆叠
+        if (!this.tank.isEmpty()) {
+            tag.put(StorageFluidPortBlockEntity.TAG_TANK, this.tank.writeToNBT(registries, new CompoundTag()));
+        }
+    }
+
+    @Override
+    public void saveToItem(ItemStack stack, HolderLookup.Provider registries) {
+        // 通用的方块实体打包成物品入口同样走带守卫的掉落逻辑
+        this.saveToDrop(stack, registries);
     }
 
     @Override

@@ -1,7 +1,10 @@
-package dev.dubhe.anvilcraft.block.entity.storage;
+package dev.dubhe.anvilcraft.api;
 
+import com.google.common.collect.HashBasedTable;
+import com.google.common.collect.Table;
 import dev.dubhe.anvilcraft.block.container.storage.CrateBlock;
 import dev.dubhe.anvilcraft.block.container.storage.LargeCrateBlock;
+import dev.dubhe.anvilcraft.block.entity.storage.StorageBlockEntity;
 import dev.dubhe.anvilcraft.block.multipart.AbstractMultiPartBlock;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceKey;
@@ -11,7 +14,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.server.ServerLifecycleHooks;
 
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -21,13 +23,14 @@ import java.util.UUID;
  * 记录世界中与已加载存储关联的板条箱方块，供内容变化时刷新相邻比较器信号。
  *
  * <p>板条箱的物品存放在全局 {@code Storages} 中，方块内容变化不会像原版容器那样
- * 自动触发方块更新，因此需要一张 存储 ID → 世界内方块 的注册表，在
+ * 自动触发方块更新，因此需要一张 存储 ID → 世界内方块 的表，在
  * {@code StorageServerStub.onContentsChanged} 时主动通知比较器重新读取。</p>
  */
-public final class StorageBlockRegistry {
-    private static final Map<ResourceKey<Level>, Map<UUID, Set<BlockPos>>> STORAGE_BLOCKS = new HashMap<>();
+public final class StorageComparatorManager {
+    /** （维度 × 存储 ID）→ 方块位置集合 */
+    private static final Table<ResourceKey<Level>, UUID, Set<BlockPos>> STORAGE_BLOCKS = HashBasedTable.create();
 
-    private StorageBlockRegistry() {
+    private StorageComparatorManager() {
     }
 
     /**
@@ -46,10 +49,12 @@ public final class StorageBlockRegistry {
         if (id == null) {
             return;
         }
-        StorageBlockRegistry.STORAGE_BLOCKS
-            .computeIfAbsent(level.dimension(), ignored -> new HashMap<>())
-            .computeIfAbsent(id, ignored -> new HashSet<>())
-            .add(StorageBlockRegistry.mainPos(be));
+        Set<BlockPos> positions = StorageComparatorManager.STORAGE_BLOCKS.get(level.dimension(), id);
+        if (positions == null) {
+            positions = new HashSet<>();
+            StorageComparatorManager.STORAGE_BLOCKS.put(level.dimension(), id, positions);
+        }
+        positions.add(StorageComparatorManager.mainPos(be));
     }
 
     /**
@@ -61,19 +66,16 @@ public final class StorageBlockRegistry {
             return;
         }
         UUID id = be.getId();
-        Map<UUID, Set<BlockPos>> byId = StorageBlockRegistry.STORAGE_BLOCKS.get(level.dimension());
-        if (id == null || byId == null) {
+        if (id == null) {
             return;
         }
-        Set<BlockPos> positions = byId.get(id);
-        if (positions != null) {
-            positions.remove(StorageBlockRegistry.mainPos(be));
-            if (positions.isEmpty()) {
-                byId.remove(id);
-            }
+        Set<BlockPos> positions = StorageComparatorManager.STORAGE_BLOCKS.get(level.dimension(), id);
+        if (positions == null) {
+            return;
         }
-        if (byId.isEmpty()) {
-            StorageBlockRegistry.STORAGE_BLOCKS.remove(level.dimension());
+        positions.remove(StorageComparatorManager.mainPos(be));
+        if (positions.isEmpty()) {
+            StorageComparatorManager.STORAGE_BLOCKS.remove(level.dimension(), id);
         }
     }
 
@@ -87,10 +89,10 @@ public final class StorageBlockRegistry {
         if (server == null) {
             return;
         }
-        for (Map.Entry<ResourceKey<Level>, Map<UUID, Set<BlockPos>>> entry
-            : StorageBlockRegistry.STORAGE_BLOCKS.entrySet()) {
-            Set<BlockPos> positions = entry.getValue().get(storageId);
-            if (positions == null || positions.isEmpty()) {
+        for (Map.Entry<ResourceKey<Level>, Set<BlockPos>> entry
+            : StorageComparatorManager.STORAGE_BLOCKS.column(storageId).entrySet()) {
+            Set<BlockPos> positions = entry.getValue();
+            if (positions.isEmpty()) {
                 continue;
             }
             ServerLevel level = server.getLevel(entry.getKey());

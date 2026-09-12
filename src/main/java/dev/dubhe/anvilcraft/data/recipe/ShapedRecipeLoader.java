@@ -31,6 +31,7 @@ public class ShapedRecipeLoader {
         this.crate(provider);
         this.storagePort(provider);
         this.storageFluidPort(provider);
+        this.storagePortConsolidator(provider);
     }
 
     public void nineToOne(RegistrumRecipeProvider provider) {
@@ -122,6 +123,21 @@ public class ShapedRecipeLoader {
             .define('B', ModBlocks.FLUID_TANK)
             .unlockedBy(AnvilCraftDatagen.hasItem(Items.SHULKER_SHELL), AnvilCraftDatagen.has(Items.SHULKER_SHELL))
             .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.FLUID_TANK), AnvilCraftDatagen.has(ModBlocks.FLUID_TANK))
+            .save(provider);
+    }
+
+    private void storagePortConsolidator(RegistrumRecipeProvider provider) {
+        ShapedRecipeBuilder.shaped(RecipeCategory.BUILDING_BLOCKS, ModBlocks.STORAGE_PORT_CONSOLIDATOR)
+            .pattern(" P ")
+            .pattern("PSP")
+            .pattern(" P ")
+            .define('P', ModItems.PROCESSOR)
+            .define('S', ModBlocks.STORAGE_PORT)
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.PROCESSOR), AnvilCraftDatagen.has(ModItems.PROCESSOR))
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(ModBlocks.STORAGE_PORT),
+                AnvilCraftDatagen.has(ModBlocks.STORAGE_PORT)
+            )
             .save(provider);
     }
 

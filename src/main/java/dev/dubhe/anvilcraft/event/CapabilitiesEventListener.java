@@ -65,6 +65,7 @@ public class CapabilitiesEventListener {
             ModBlockEntities.BURNING_HEATER.get(),
             ModBlockEntities.CREATIVE_CRATE.get(),
             ModBlockEntities.STORAGE_PORT.get(),
+            ModBlockEntities.STORAGE_PORT_CONSOLIDATOR.get(),
             ModBlockEntities.HYPERDIMENSION_UPLOADER.get()
         ).forEach(type -> event.registerBlockEntity(
                 Capabilities.ItemHandler.BLOCK,
@@ -179,6 +180,7 @@ public class CapabilitiesEventListener {
             ModBlockEntities.LARGE_FLUID_TANK.get(),
             ModBlockEntities.CREATIVE_FLUID_TANK.get(),
             ModBlockEntities.STORAGE_FLUID_PORT.get(),
+            ModBlockEntities.STORAGE_PORT_CONSOLIDATOR.get(),
             ModBlockEntities.DRAIN.get()
         ).forEach(type -> event.registerBlockEntity(
             Capabilities.FluidHandler.BLOCK,

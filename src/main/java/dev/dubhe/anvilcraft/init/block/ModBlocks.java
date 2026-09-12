@@ -160,6 +160,7 @@ import dev.dubhe.anvilcraft.block.StepEffectSlabBlock;
 import dev.dubhe.anvilcraft.block.StepEffectStairBlock;
 import dev.dubhe.anvilcraft.block.StorageFluidPortBlock;
 import dev.dubhe.anvilcraft.block.StoragePortBlock;
+import dev.dubhe.anvilcraft.block.StoragePortConsolidatorBlock;
 import dev.dubhe.anvilcraft.block.StructureScannerBlock;
 import dev.dubhe.anvilcraft.block.SugarBlock;
 import dev.dubhe.anvilcraft.block.TeslaTowerBlock;
@@ -1835,6 +1836,19 @@ public class ModBlocks {
             .isValidSpawn(ModBlocks::never)
             .requiresCorrectToolForDrops())
         .item(StorageFluidPortBlockItem::new)
+        .build()
+        .blockstate(DataGenUtil::simpleAllStates)
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .register();
+
+    public static final BlockEntry<StoragePortConsolidatorBlock> STORAGE_PORT_CONSOLIDATOR = REGISTRUM
+        .block("storage_port_consolidator", StoragePortConsolidatorBlock::new)
+        .initialProperties(() -> Blocks.SHULKER_BOX)
+        .properties(properties -> properties
+            .noOcclusion()
+            .isValidSpawn(ModBlocks::never)
+            .requiresCorrectToolForDrops())
+        .item()
         .build()
         .blockstate(DataGenUtil::simpleAllStates)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
