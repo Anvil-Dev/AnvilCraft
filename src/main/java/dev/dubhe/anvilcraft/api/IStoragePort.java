@@ -47,7 +47,7 @@ public interface IStoragePort {
      *
      * @param player 玩家
      * @param hit    左键命中点；无法取得时为 null
-     * @return 命中点不在端口的交互区域（例如模型外边缘的半像素框架）时返回 false
+     * @return 命中点不在端口的交互区域（例如模型外边缘的一像素框架）时返回 false
      */
     default boolean interceptsLeftClick(Player player, @Nullable BlockHitResult hit) {
         return false;

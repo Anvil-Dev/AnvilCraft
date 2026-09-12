@@ -328,10 +328,12 @@ public class StoragePortBlockEntity extends BlockEntity implements IItemHandlerH
             // 空端口且该玩家没有正在进行的取出：不拦截，允许正常挖掘
             return false;
         }
-        if (hit != null
+        if (
+            hit != null
             && hit.getBlockPos().equals(this.worldPosition)
-            && StoragePortBlockEntity.isEdgeHit(hit)) {
-            // 命中模型外边缘的半像素框架：走挖掘，不取出
+            && StoragePortBlockEntity.isEdgeHit(hit)
+        ) {
+            // 命中模型外边缘的一像素框架：走挖掘，不取出
             return false;
         }
         this.armLeftClickHold(player);
