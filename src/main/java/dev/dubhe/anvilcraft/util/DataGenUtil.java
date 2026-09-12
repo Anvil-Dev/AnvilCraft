@@ -5,7 +5,9 @@ import dev.anvilcraft.lib.v2.registrum.providers.RegistrumBlockstateProvider;
 import dev.anvilcraft.lib.v2.registrum.providers.RegistrumProvider;
 import dev.anvilcraft.lib.v2.registrum.providers.loot.RegistrumBlockLootTables;
 import dev.anvilcraft.lib.v2.registrum.util.CreativeModeTabModifier;
+import dev.dubhe.anvilcraft.block.AbstractStoragePortBlock;
 import dev.dubhe.anvilcraft.block.plate.PowerLevelPressurePlateBlock;
+import dev.dubhe.anvilcraft.block.state.StoragePortType;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
@@ -141,6 +143,28 @@ public class DataGenUtil {
         );
         provider.getVariantBuilder(context.get())
             .forAllStates(state -> ConfiguredModel.builder().modelFile(model).build());
+    }
+
+    /**
+     * 仓储端口方块状态生成：按 {@link AbstractStoragePortBlock#TYPE} 选择外观模型，
+     * 其余属性（如 marked）不影响外观。
+     */
+    public static void storagePort(DataGenContext<Block, ?> context, RegistrumBlockstateProvider provider) {
+        ResourceLocation id = context.getId();
+        ModelFile shulkerContainerModel = new ModelFile.ExistingModelFile(
+            id.withPrefix("block/"),
+            provider.models().existingFileHelper
+        );
+        ModelFile hyperdimensionModel = new ModelFile.ExistingModelFile(
+            ResourceLocation.fromNamespaceAndPath(id.getNamespace(), "block/hd_" + id.getPath()),
+            provider.models().existingFileHelper
+        );
+        provider.getVariantBuilder(context.get()).forAllStates(state ->
+            ConfiguredModel.builder()
+                .modelFile(state.getValue(AbstractStoragePortBlock.TYPE) == StoragePortType.HYPERDIMENSION
+                    ? hyperdimensionModel : shulkerContainerModel)
+                .build()
+        );
     }
 
     public static LootItemCondition.Builder hasSilkTouch(HolderLookup.Provider registries) {

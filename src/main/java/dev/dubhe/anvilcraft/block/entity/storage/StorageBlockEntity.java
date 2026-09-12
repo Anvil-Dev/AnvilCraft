@@ -1,5 +1,7 @@
 package dev.dubhe.anvilcraft.block.entity.storage;
 
+import dev.dubhe.anvilcraft.api.StorageComparatorManager;
+import dev.dubhe.anvilcraft.api.TerminalSourceManager;
 import dev.dubhe.anvilcraft.api.itemhandler.unlimited.SpaceSizeItemStacksResourceHandler;
 import dev.dubhe.anvilcraft.api.itemhandler.unlimited.UnlimitedItemStacksResourceHandler;
 import dev.dubhe.anvilcraft.block.multipart.AbstractMultiPartBlock;
@@ -46,8 +48,8 @@ public class StorageBlockEntity extends BlockEntity {
         }
         this.id = id;
         this.setChanged();
-        TerminalBlockRegistry.registerIfApplicable(this);
-        StorageBlockRegistry.registerIfApplicable(this);
+        TerminalSourceManager.registerIfApplicable(this);
+        StorageComparatorManager.registerIfApplicable(this);
         if (this.level != null) {
             BlockState state = this.getBlockState();
             this.level.sendBlockUpdated(this.getBlockPos(), state, state, Block.UPDATE_ALL);
@@ -79,13 +81,13 @@ public class StorageBlockEntity extends BlockEntity {
         if (tag.contains("storage_id")) {
             this.id = tag.getUUID("storage_id");
         }
-        TerminalBlockRegistry.registerIfApplicable(this);
+        TerminalSourceManager.registerIfApplicable(this);
     }
 
     @Override
     public void onLoad() {
         super.onLoad();
-        StorageBlockRegistry.registerIfApplicable(this);
+        StorageComparatorManager.registerIfApplicable(this);
     }
 
     @Override
@@ -105,15 +107,15 @@ public class StorageBlockEntity extends BlockEntity {
     @Override
     public void onChunkUnloaded() {
         super.onChunkUnloaded();
-        TerminalBlockRegistry.unregisterIfApplicable(this);
-        StorageBlockRegistry.unregisterIfApplicable(this);
+        TerminalSourceManager.unregisterIfApplicable(this);
+        StorageComparatorManager.unregisterIfApplicable(this);
     }
 
     @Override
     public void setRemoved() {
         super.setRemoved();
-        TerminalBlockRegistry.unregisterIfApplicable(this);
-        StorageBlockRegistry.unregisterIfApplicable(this);
+        TerminalSourceManager.unregisterIfApplicable(this);
+        StorageComparatorManager.unregisterIfApplicable(this);
     }
 
     @Override
@@ -164,6 +166,7 @@ public class StorageBlockEntity extends BlockEntity {
         this.level.updateNeighbourForOutputSignal(this.getBlockPos(), state.getBlock());
     }
 
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     public boolean isCraftingUnlocked() {
         return this.id != null && Storages.get().get(this.id).map(BaseStorage::isCraftingUnlocked).orElse(false);
     }

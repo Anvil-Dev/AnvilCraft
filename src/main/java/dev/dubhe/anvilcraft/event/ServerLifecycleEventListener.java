@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.event;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.api.StoragePortManager;
 import dev.dubhe.anvilcraft.api.fluid.network.FluidNetworkManager;
 import dev.dubhe.anvilcraft.api.hammer.HammerManager;
 import dev.dubhe.anvilcraft.api.heat.HeaterManager;
@@ -10,7 +11,6 @@ import dev.dubhe.anvilcraft.api.sound.SoundHelper;
 import dev.dubhe.anvilcraft.api.world.load.LevelLoadManager;
 import dev.dubhe.anvilcraft.api.world.load.RandomChuckTickLoadManager;
 import dev.dubhe.anvilcraft.block.RedstoneWireNetworkManager;
-import dev.dubhe.anvilcraft.block.entity.storage.StorageFluidRegistry;
 import dev.dubhe.anvilcraft.init.ModHammerInits;
 import dev.dubhe.anvilcraft.recipe.anvil.cache.RecipeCaches;
 import dev.dubhe.anvilcraft.rpc.StorageServerStub;
@@ -54,7 +54,7 @@ public class ServerLifecycleEventListener {
         RecipeCaches.unload();
         SoundHelper.INSTANCE.clear();
         StorageServerStub.clear();
-        StorageFluidRegistry.clear();
+        StoragePortManager.clear();
     }
 
     @SubscribeEvent

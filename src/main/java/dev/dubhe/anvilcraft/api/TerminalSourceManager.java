@@ -1,7 +1,10 @@
-package dev.dubhe.anvilcraft.block.entity.storage;
+package dev.dubhe.anvilcraft.api;
 
 import dev.dubhe.anvilcraft.block.container.storage.LargeCrateBlock;
 import dev.dubhe.anvilcraft.block.container.storage.ShulkerContainerBlock;
+import dev.dubhe.anvilcraft.block.entity.storage.LargeCrateBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.storage.ShulkerContainerBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.storage.StorageBlockEntity;
 import dev.dubhe.anvilcraft.block.multipart.AbstractMultiPartBlock;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceKey;
@@ -17,17 +20,17 @@ import java.util.Set;
 import javax.annotation.Nullable;
 
 /**
- * 世界中可被本地终端 / 潜影终端连接的大型板条箱与潜影集装箱注册表。
+ * 世界中可被本地终端 / 潜影终端连接的仓储源（大型板条箱与潜影集装箱）管理器。
  *
  * <p>仓储方块在世界中放置（获得存储 ID 或从存档载入）时注册主方块位置，
  * 终端打开 / 刷新时直接按表检索最近的候选，避免每帧全量扫描区块；
  * 表内条目可能因方块被破坏而过期，查询方需用方块实体做最终校验。</p>
  */
-public final class TerminalBlockRegistry {
+public final class TerminalSourceManager {
     private static final Map<ResourceKey<Level>, Set<BlockPos>> LARGE_CRATES = new HashMap<>();
     private static final Map<ResourceKey<Level>, Set<BlockPos>> SHULKER_CONTAINERS = new HashMap<>();
 
-    private TerminalBlockRegistry() {
+    private TerminalSourceManager() {
     }
 
     /** 仓储方块获得存储 ID 或载入时调用；仅登记大型板条箱 / 潜影集装箱的主方块。 */
@@ -38,13 +41,13 @@ public final class TerminalBlockRegistry {
         }
         BlockState state = be.getBlockState();
         if (state.getBlock() instanceof LargeCrateBlock) {
-            TerminalBlockRegistry.LARGE_CRATES
+            TerminalSourceManager.LARGE_CRATES
                 .computeIfAbsent(level.dimension(), ignored -> new HashSet<>())
-                .add(TerminalBlockRegistry.mainPos(be));
+                .add(TerminalSourceManager.mainPos(be));
         } else if (state.getBlock() instanceof ShulkerContainerBlock) {
-            TerminalBlockRegistry.SHULKER_CONTAINERS
+            TerminalSourceManager.SHULKER_CONTAINERS
                 .computeIfAbsent(level.dimension(), ignored -> new HashSet<>())
-                .add(TerminalBlockRegistry.mainPos(be));
+                .add(TerminalSourceManager.mainPos(be));
         }
     }
 
@@ -56,22 +59,22 @@ public final class TerminalBlockRegistry {
         }
         Set<BlockPos> entries;
         if (be instanceof LargeCrateBlockEntity) {
-            entries = TerminalBlockRegistry.LARGE_CRATES.get(level.dimension());
+            entries = TerminalSourceManager.LARGE_CRATES.get(level.dimension());
         } else if (be instanceof ShulkerContainerBlockEntity) {
-            entries = TerminalBlockRegistry.SHULKER_CONTAINERS.get(level.dimension());
+            entries = TerminalSourceManager.SHULKER_CONTAINERS.get(level.dimension());
         } else {
             return;
         }
         if (entries != null) {
-            entries.remove(TerminalBlockRegistry.mainPos(be));
+            entries.remove(TerminalSourceManager.mainPos(be));
         }
     }
 
     /** 返回范围内最近的大型板条箱主方块坐标；没有则返回 null。 */
     public static @Nullable BlockPos nearestLargeCrate(ServerLevel level, double x, double y, double z, int range) {
-        return TerminalBlockRegistry.nearest(
+        return TerminalSourceManager.nearest(
             level,
-            TerminalBlockRegistry.LARGE_CRATES.get(level.dimension()),
+            TerminalSourceManager.LARGE_CRATES.get(level.dimension()),
             x,
             y,
             z,
@@ -88,9 +91,9 @@ public final class TerminalBlockRegistry {
         double z,
         int range
     ) {
-        return TerminalBlockRegistry.nearest(
+        return TerminalSourceManager.nearest(
             level,
-            TerminalBlockRegistry.SHULKER_CONTAINERS.get(level.dimension()),
+            TerminalSourceManager.SHULKER_CONTAINERS.get(level.dimension()),
             x,
             y,
             z,

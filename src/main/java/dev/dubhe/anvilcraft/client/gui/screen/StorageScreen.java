@@ -8,10 +8,10 @@ import dev.anvilcraft.lib.v2.util.MathUtil;
 import dev.anvilcraft.lib.v2.util.Scrollable;
 import dev.anvilcraft.lib.v2.util.stack.UnlimitedItemStack;
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.api.StoragePortManager;
 import dev.dubhe.anvilcraft.api.itemhandler.unlimited.UnlimitedItemStacksResourceHandler;
 import dev.dubhe.anvilcraft.block.container.storage.CrateBlock;
 import dev.dubhe.anvilcraft.block.container.storage.ShulkerContainerBlock;
-import dev.dubhe.anvilcraft.block.entity.storage.StorageFluidRegistry;
 import dev.dubhe.anvilcraft.client.gui.component.SwitchableButton;
 import dev.dubhe.anvilcraft.client.gui.component.TexturedButton;
 import dev.dubhe.anvilcraft.client.gui.component.category.CategoryList;
@@ -210,7 +210,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
     @Getter
     private List<StorageServerStub.FluidEntry> fluids = List.of();
     /** 流体伪槽位的逻辑编号起点 */
-    private static final int FLUID_SLOT_BASE = StorageFluidRegistry.FLUID_SLOT_BASE;
+    private static final int FLUID_SLOT_BASE = StoragePortManager.FLUID_SLOT_BASE;
     private double fullness;
     private @Nullable StorageServerStub.Capacity capacity;
     private long version = -1;

@@ -7,6 +7,9 @@ import dev.anvilcraft.lib.v2.rpc.CallableParam;
 import dev.anvilcraft.lib.v2.rpc.IRemoteCallableValidator;
 import dev.anvilcraft.lib.v2.rpc.RemoteCallable;
 import dev.anvilcraft.lib.v2.util.stack.UnlimitedItemStack;
+import dev.dubhe.anvilcraft.api.StorageComparatorManager;
+import dev.dubhe.anvilcraft.api.StoragePortManager;
+import dev.dubhe.anvilcraft.api.TerminalSourceManager;
 import dev.dubhe.anvilcraft.api.itemhandler.unlimited.SpaceSizeItemStacksResourceHandler;
 import dev.dubhe.anvilcraft.api.itemhandler.unlimited.TypeLimitItemStacksResourceHandler;
 import dev.dubhe.anvilcraft.api.itemhandler.unlimited.UnlimitedItemStacksResourceHandler;
@@ -16,9 +19,6 @@ import dev.dubhe.anvilcraft.block.entity.storage.CrateBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.storage.LargeCrateBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.storage.ShulkerContainerBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.storage.StorageBlockEntity;
-import dev.dubhe.anvilcraft.block.entity.storage.StorageBlockRegistry;
-import dev.dubhe.anvilcraft.block.entity.storage.StorageFluidRegistry;
-import dev.dubhe.anvilcraft.block.entity.storage.TerminalBlockRegistry;
 import dev.dubhe.anvilcraft.block.item.ShulkerContainerBlockItem;
 import dev.dubhe.anvilcraft.block.multipart.AbstractMultiPartBlock;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
@@ -210,7 +210,7 @@ public final class StorageServerStub {
             stub.version,
             view.fullness(),
             updates,
-            StorageFluidRegistry.collect(view.primary().getId())
+            StoragePortManager.collect(view.primary().getId())
         );
     }
 
@@ -256,7 +256,7 @@ public final class StorageServerStub {
             changed = outcome.changed();
             notice = outcome.notice();
         } else if (action == StorageInput.QUICK_MOVE_FROM_STORAGE) {
-            if (slot >= StorageFluidRegistry.FLUID_SLOT_BASE) {
+            if (slot >= StoragePortManager.FLUID_SLOT_BASE) {
                 StorageServerStub.FluidOutcome outcome =
                     StorageServerStub.takeFluidBucketIntoInventory(player, view, fluid);
                 changed = outcome.changed();
@@ -2540,7 +2540,7 @@ public final class StorageServerStub {
         UUID storageId = view.primary().getId();
         // 两步都先模拟确认可行，再动手：流体抽得出、空容器扣得到。
         // 不先模拟就 EXECUTE，任何一步中途失败都只能回滚，回滚疏漏就会凭空增减物品
-        if (StorageFluidRegistry.drain(storageId, content, perUnit * count, true) < perUnit * count) {
+        if (StoragePortManager.drain(storageId, content, perUnit * count, true) < perUnit * count) {
             return 0;
         }
         if (!StorageServerStub.hasEnoughContainers(inventory, view, emptyContainer, count)) {
@@ -2556,7 +2556,7 @@ public final class StorageServerStub {
             StorageServerStub.giveBackContainers(player, view, emptyContainer, removed);
             return 0;
         }
-        int drained = StorageFluidRegistry.drain(storageId, content, perUnit * count);
+        int drained = StoragePortManager.drain(storageId, content, perUnit * count);
         if (drained < perUnit * count) {
             // 模拟通过后实际抽取仍不足（并发改动）：容器全数还回，已抽出的流体灌回
             StorageServerStub.giveBackContainers(player, view, emptyContainer, count);
@@ -2615,12 +2615,12 @@ public final class StorageServerStub {
      * 把流体灌回该存储的端口；端口装不下时按实际容量尽力而为。
      *
      * <p>灌回的是先前抽出、因后续步骤失败而必须归还的流体，其原端口可能已空，
-     * 故用允许空端口的 {@link StorageFluidRegistry#findRefillTarget}。</p>
+     * 故用允许空端口的 {@link StoragePortManager#findRefillTarget}。</p>
      */
     private static void refillFluid(UUID storageId, FluidStack fluid, int amountMb) {
         int remaining = amountMb;
         while (remaining > 0) {
-            IFluidHandler acceptor = StorageFluidRegistry.findRefillTarget(storageId, fluid);
+            IFluidHandler acceptor = StoragePortManager.findRefillTarget(storageId, fluid);
             if (acceptor == null) {
                 return;
             }
@@ -2671,7 +2671,7 @@ public final class StorageServerStub {
 
     /** 该储存在端口中存放的指定流体总量（mB）。 */
     private static int countFluidInStorage(StorageView view, FluidStack fluid) {
-        for (FluidEntry entry : StorageFluidRegistry.collect(view.primary().getId())) {
+        for (FluidEntry entry : StoragePortManager.collect(view.primary().getId())) {
             if (entry.amount() > 0 && FluidStack.isSameFluidSameComponents(entry.icon(), fluid)) {
                 return entry.amount();
             }
@@ -3703,7 +3703,7 @@ public final class StorageServerStub {
     }
 
     public static void onContentsChanged(UUID storageId) {
-        StorageBlockRegistry.notifyContentsChanged(storageId);
+        StorageComparatorManager.notifyContentsChanged(storageId);
         for (StorageServerStub stub : StorageServerStub.STUBS.values()) {
             if (stub.storageId.equals(storageId)) {
                 stub.version++;
@@ -4167,7 +4167,7 @@ public final class StorageServerStub {
     /** 查找玩家 32 格内最近的大型板条箱主方块及其存储 ID（注册表优先，回退扫描补录）。 */
     private static Optional<UUID> findNearbyLargeCrate(ServerPlayer player) {
         ServerLevel level = player.serverLevel();
-        BlockPos mainPos = TerminalBlockRegistry.nearestLargeCrate(
+        BlockPos mainPos = TerminalSourceManager.nearestLargeCrate(
             level,
             player.getX(),
             player.getY(),
@@ -4183,7 +4183,7 @@ public final class StorageServerStub {
                 if (!(level.getBlockEntity(pos) instanceof LargeCrateBlockEntity crate)) {
                     return Optional.empty();
                 }
-                TerminalBlockRegistry.registerIfApplicable(crate);
+                TerminalSourceManager.registerIfApplicable(crate);
                 return Optional.of(StorageServerStub.ensureStorageId(crate));
             });
     }
@@ -4245,7 +4245,7 @@ public final class StorageServerStub {
     /** 查找玩家 64 格内最近的世界潜影集装箱主方块及其存储 ID（注册表优先，回退扫描补录）。 */
     private static Optional<UUID> findNearbyShulkerContainer(ServerPlayer player) {
         ServerLevel level = player.serverLevel();
-        BlockPos mainPos = TerminalBlockRegistry.nearestShulkerContainer(
+        BlockPos mainPos = TerminalSourceManager.nearestShulkerContainer(
             level,
             player.getX(),
             player.getY(),
@@ -4261,7 +4261,7 @@ public final class StorageServerStub {
                 if (!(level.getBlockEntity(pos) instanceof ShulkerContainerBlockEntity shulker)) {
                     return Optional.empty();
                 }
-                TerminalBlockRegistry.registerIfApplicable(shulker);
+                TerminalSourceManager.registerIfApplicable(shulker);
                 return Optional.of(StorageServerStub.ensureStorageId(shulker));
             });
     }
@@ -4765,7 +4765,7 @@ public final class StorageServerStub {
     /**
      * 只含真实物品槽位的排序结果，供服务端取出路径使用。
      *
-     * <p>流体伪槽位编号自 {@link StorageFluidRegistry#FLUID_SLOT_BASE} 起，远大于真实槽位数，
+     * <p>流体伪槽位编号自 {@link StoragePortManager#FLUID_SLOT_BASE} 起，远大于真实槽位数，
      * 而取出路径会拿排序结果直接索引 {@link StorageView}，混入伪槽位必然越界。需要取物的
      * 调用方一律用本方法，从源头避免「每个消费者都得记得过滤」这一隐患。</p>
      */
@@ -4796,7 +4796,7 @@ public final class StorageServerStub {
         boolean requiresName,
         List<CategoryEntry> categories
     ) {
-        List<FluidEntry> fluids = StorageFluidRegistry.collect(view.primary().getId());
+        List<FluidEntry> fluids = StoragePortManager.collect(view.primary().getId());
         for (int index = 0; index < fluids.size(); index++) {
             FluidEntry entry = fluids.get(index);
             // 与物品的 createOrder 一致：0 数量的条目不进入排序结果，
@@ -4822,7 +4822,7 @@ public final class StorageServerStub {
                 continue;
             }
             entries.add(new OrderEntry(
-                StorageFluidRegistry.FLUID_SLOT_BASE + index,
+                StoragePortManager.FLUID_SLOT_BASE + index,
                 // 按 #4792：数量排序时 1 mB 相当于 1 个物品
                 entry.amount(),
                 id,
@@ -4931,7 +4931,7 @@ public final class StorageServerStub {
         FluidStack fluid,
         boolean intoInventory
     ) {
-        FluidEntry entry = StorageFluidRegistry.find(view.primary().getId(), fluid);
+        FluidEntry entry = StoragePortManager.find(view.primary().getId(), fluid);
         if (entry == null) {
             return FilledBucket.failed(FluidNotice.NONE);
         }
@@ -4968,7 +4968,7 @@ public final class StorageServerStub {
             return FilledBucket.failed(FluidNotice.BUCKET_MISSING);
         }
         // 确认能真正抽出，否则把空容器还回去，避免凭空吞桶
-        if (StorageFluidRegistry.drain(view.primary().getId(), target, FluidType.BUCKET_VOLUME)
+        if (StoragePortManager.drain(view.primary().getId(), target, FluidType.BUCKET_VOLUME)
             < FluidType.BUCKET_VOLUME) {
             StorageServerStub.giveEmptiedContainer(player, emptyContainer);
             return FilledBucket.failed(FluidNotice.NOT_ENOUGH);
@@ -5059,7 +5059,7 @@ public final class StorageServerStub {
         if (content.isEmpty()) {
             return 0;
         }
-        IFluidHandler acceptor = StorageFluidRegistry.findAcceptor(view.primary().getId(), content);
+        IFluidHandler acceptor = StoragePortManager.findAcceptor(view.primary().getId(), content);
         if (acceptor == null) {
             return 0;
         }

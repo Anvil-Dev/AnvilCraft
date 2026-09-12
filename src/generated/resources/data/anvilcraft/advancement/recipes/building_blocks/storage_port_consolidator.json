@@ -1,0 +1,43 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_processor": {
+      "conditions": {
+        "items": [
+          {
+            "items": "anvilcraft:processor"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_storage_port": {
+      "conditions": {
+        "items": [
+          {
+            "items": "anvilcraft:storage_port"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "anvilcraft:storage_port_consolidator"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_processor",
+      "has_storage_port"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "anvilcraft:storage_port_consolidator"
+    ]
+  }
+}

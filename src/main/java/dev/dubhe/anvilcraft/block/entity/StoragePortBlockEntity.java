@@ -1,16 +1,17 @@
 package dev.dubhe.anvilcraft.block.entity;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.api.IStoragePort;
+import dev.dubhe.anvilcraft.api.StoragePortManager;
 import dev.dubhe.anvilcraft.api.itemhandler.IItemHandlerHolder;
 import dev.dubhe.anvilcraft.api.itemhandler.ItemHandlerUtil;
-import dev.dubhe.anvilcraft.block.StorageFluidPortBlock;
+import dev.dubhe.anvilcraft.block.AbstractStoragePortBlock;
 import dev.dubhe.anvilcraft.block.StoragePortBlock;
-import dev.dubhe.anvilcraft.block.container.storage.HyperdimensionStorageStationBlock;
-import dev.dubhe.anvilcraft.block.container.storage.ShulkerContainerBlock;
 import dev.dubhe.anvilcraft.block.entity.storage.CrateBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.storage.StorageBlockEntity;
 import dev.dubhe.anvilcraft.block.item.StoragePortBlockItem;
 import dev.dubhe.anvilcraft.config.AnvilCraftServerConfig;
+import dev.dubhe.anvilcraft.item.AnvilHammerItem;
 import dev.dubhe.anvilcraft.saved.storage.Storages;
 import it.unimi.dsi.fastutil.objects.Object2LongMap;
 import it.unimi.dsi.fastutil.objects.Object2LongOpenHashMap;
@@ -22,6 +23,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
@@ -37,10 +39,7 @@ import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.ItemHandlerHelper;
 import net.neoforged.neoforge.items.ItemStackHandler;
 
-import java.util.ArrayDeque;
-import java.util.Deque;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.List;
 import java.util.UUID;
 import javax.annotation.Nullable;
 
@@ -57,19 +56,24 @@ import javax.annotation.Nullable;
  *       超出时把多余部分存入核心，同样受性能墙限速。</li>
  * </ul>
  */
-public class StoragePortBlockEntity extends BlockEntity implements IItemHandlerHolder {
+public class StoragePortBlockEntity extends BlockEntity implements IItemHandlerHolder, IStoragePort {
     /** 缓存格数 */
     public static final int BUFFER_SLOTS = 32;
     /** 视为「外边缘」的一像素宽度：此区域左键走正常挖掘而非取出物品 */
     public static final double EDGE_SIZE = 1.0 / 16.0;
     /** 端口贴附关系重校验间隔（tick） */
     private static final int VALIDATE_INTERVAL = 20;
-    /** 连通性扫描的端口访问上限，防止极端链式摆放造成性能问题 */
-    private static final int CONNECTIVITY_LIMIT = 512;
     /** 双击判定的最大间隔（tick） */
     private static final long DOUBLE_CLICK_INTERVAL = 5;
     /** 长按左键时客户端取出请求的节流间隔（tick）：间隔大于该值时才会发包 */
     private static final long TAKE_OUT_HOLD_INTERVAL = 1;
+    /**
+     * 左键拦截的续期窗口（tick）。
+     *
+     * <p>按住左键期间客户端会不断重触发开始破坏事件并照发包给服务端（创造模式约每 6 tick 一次），
+     * 因此窗口必须大于该间隔：只要仍在窗口内就继续拦截，取空后同一次按住不会变成挖掘。</p>
+     */
+    private static final long INTERCEPT_HOLD_WINDOW = 10;
 
     @Getter
     private final ItemStackHandler buffer = new ItemStackHandler(StoragePortBlockEntity.BUFFER_SLOTS) {
@@ -95,11 +99,16 @@ public class StoragePortBlockEntity extends BlockEntity implements IItemHandlerH
     /** 组件解析出的核心（潜影集装箱 / 超维存储站）主方块坐标；null 表示组件无效 */
     @Nullable
     private BlockPos coreMainPos = null;
+    /** 组件归属的存储 ID（登记进 {@link StoragePortManager} 用）；null 表示未接上核心 */
+    @Nullable
+    private UUID storageId = null;
     /** 当前是否工作（连通组件恰好接触一个有效核心） */
     @Getter
     private boolean working;
     private final Object2LongMap<UUID> lastRightClickTicks = new Object2LongOpenHashMap<>();
     private final Object2LongMap<UUID> lastTakeOutTicks = new Object2LongOpenHashMap<>();
+    /** 各玩家最近一次左键取出/拦截的 tick：按住期间持续续期，松手后窗口过期即恢复挖掘 */
+    private final Object2LongMap<UUID> leftClickHoldTicks = new Object2LongOpenHashMap<>();
     private int validateCountdown = 0;
     private int workCountdown = 0;
 
@@ -255,6 +264,107 @@ public class StoragePortBlockEntity extends BlockEntity implements IItemHandlerH
     }
 
     /**
+     * 左键取出缓存内物品：shift 取一组，否则只取 1 个。
+     */
+    @Override
+    public boolean onLeftClick(Player player, List<IStoragePort> ports) {
+        this.giveToPlayer(player, player.isShiftKeyDown());
+        // 取出即说明玩家正在左键该端口：立刻续期拦截窗口。客户端是先发取出包、后发开始破坏包
+        // （事件在发送包的预测 lambda 内触发），服务端处理紧随其后的开始破坏包时缓存已空，
+        // 没有这一步的话创造模式下同一次点击就会把端口打掉。
+        this.armLeftClickHold(player);
+        return true;
+    }
+
+    /**
+     * 右键：未标记时把手中物品标记并塞入，已标记时按标记塞入，双击塞入身上全部。
+     */
+    @Override
+    public boolean onRightClick(Player player, InteractionHand hand, List<IStoragePort> ports) {
+        ItemStack stack = player.getItemInHand(hand);
+        // 铁砧锤：普通右键不调整任何状态（去标记需长按右键并滑动，见客户端手势）
+        if (stack.getItem() instanceof AnvilHammerItem) {
+            return false;
+        }
+        boolean doubleClick = this.isDoubleClick(player);
+        ItemStack mark = this.markedItem;
+        if (mark.isEmpty()) {
+            // 未标记：手持物品右键 → 标记并塞入最多一组
+            if (!stack.isEmpty()) {
+                this.setMarkedItem(stack);
+                this.stuffFromHand(stack, stack.getMaxStackSize());
+            }
+            return true;
+        }
+        if (stack.isEmpty()) {
+            // 已标记 + 空手：单击不做任何事（取出走左键）；双击塞入身上全部
+            // （第一次点击已把手上的物品塞入并完成标记，故第二次点击时手可能已空）
+            if (doubleClick) {
+                this.stuffAllFromPlayer(player);
+            }
+            return true;
+        }
+        if (ItemStack.isSameItemSameComponents(mark, stack)) {
+            // 对应物品：单击塞入最多一组，双击塞入身上全部
+            if (doubleClick) {
+                this.stuffAllFromPlayer(player);
+            } else {
+                this.stuffFromHand(stack, stack.getMaxStackSize());
+            }
+            return true;
+        }
+        // 不对应物品：不替换标记
+        return true;
+    }
+
+    /**
+     * 是否拦截左键：缓存非空时取出物品；一旦开始取出，该玩家按住左键期间持续拦截，
+     * 避免取空后同一次按住被判定成挖掘（创造模式下会直接打掉方块）。
+     * 命中模型外边缘的半像素框架、或空端口且该玩家未在按住取出时不拦截，允许正常挖掘。
+     */
+    @Override
+    public boolean interceptsLeftClick(Player player, @Nullable BlockHitResult hit) {
+        if (!this.isLeftClickHeld(player) && this.isBufferEmpty()) {
+            // 空端口且该玩家没有正在进行的取出：不拦截，允许正常挖掘
+            return false;
+        }
+        if (
+            hit != null
+            && hit.getBlockPos().equals(this.worldPosition)
+            && StoragePortBlockEntity.isEdgeHit(hit)
+        ) {
+            // 命中模型外边缘的一像素框架：走挖掘，不取出
+            return false;
+        }
+        this.armLeftClickHold(player);
+        return true;
+    }
+
+    /**
+     * 标记该玩家正在按住左键取出：续期拦截窗口，见 {@link StoragePortBlockEntity#INTERCEPT_HOLD_WINDOW}。
+     */
+    private void armLeftClickHold(Player player) {
+        if (this.level != null) {
+            this.leftClickHoldTicks.put(player.getUUID(), this.level.getGameTime());
+        }
+    }
+
+    /**
+     * 该玩家上一次左键拦截是否仍在续期窗口内。
+     *
+     * <p>按住左键时客户端会不断重触发事件，每次判定为拦截都会续期，
+     * 因此只要手没松就一直拦截；松手后事件停止，窗口过期即恢复挖掘。</p>
+     */
+    private boolean isLeftClickHeld(Player player) {
+        if (this.level == null) {
+            return false;
+        }
+        long last = this.leftClickHoldTicks.getLong(player.getUUID());
+        return last != 0
+            && this.level.getGameTime() - last <= StoragePortBlockEntity.INTERCEPT_HOLD_WINDOW;
+    }
+
+    /**
      * 判断左键点击点是否落在方块外边缘的一像素（1/16）框上。
      *
      * <p>模型外侧是一圈细边框，点击该区域应走正常挖掘逻辑而非取出物品。</p>
@@ -294,10 +404,12 @@ public class StoragePortBlockEntity extends BlockEntity implements IItemHandlerH
     }
 
     /**
-     * 长按左键取出的客户端发包节流：按住左键时 {@code START} 事件会每 tick 重触发，
-     * 节流保证不会每 tick 都发包。只有实际发包时才会记录时间；仅在客户端使用。
+     * 长按左键取出的客户端发包节流：按住左键时客户端会持续重触发 {@code START} 事件
+     * （生存模式每 tick、创造模式约每 6 tick），节流保证不会每次都发包。
+     * 判定通过时记录时间；仅在客户端使用。
      */
-    public boolean onTakeOutHoldCooldown(Player player) {
+    @Override
+    public boolean isLeftClickOnCooldown(Player player) {
         if (this.level == null) {
             return false;
         }
@@ -312,7 +424,7 @@ public class StoragePortBlockEntity extends BlockEntity implements IItemHandlerH
     }
 
     /**
-     * 缓存是否为空（缓存空时左键不拦截，允许正常挖掘）。
+     * 缓存是否为空（缓存空且未在按住取出时，左键不拦截，允许正常挖掘）。
      */
     public boolean isBufferEmpty() {
         for (int slot = 0; slot < this.buffer.getSlots(); slot++) {
@@ -348,75 +460,23 @@ public class StoragePortBlockEntity extends BlockEntity implements IItemHandlerH
         if (this.level == null) {
             return;
         }
-        BlockPos core = findSoleCore(this.level, this.worldPosition);
+        // 先清掉旧存储名下的登记再重新登记：端口可能从 A 存储改挂到 B 存储
+        StoragePortManager.unregister(this.storageId, this.level.dimension(), this.worldPosition);
+        this.storageId = null;
+        BlockPos core = StoragePortManager.findSoleCore(this.level, this.worldPosition);
+        AbstractStoragePortBlock.refreshType(this.level, this.worldPosition, core);
         if (core == null) {
             return;
         }
         this.coreMainPos = core;
         this.working = true;
-    }
-
-    /**
-     * 从起点沿面相邻的端口链延伸，解析组件接触到的那个唯一核心。
-     *
-     * <p>仓储端口与仓储流体端口可互相延伸连接关系，因此两者共用本扫描。</p>
-     *
-     * @param level 世界
-     * @param start 起点（任意端口方块位置）
-     * @return 唯一有效核心的主方块坐标；没有核心或接触多个核心时返回 {@code null}
-     */
-    @Nullable
-    public static BlockPos findSoleCore(Level level, BlockPos start) {
-        Set<BlockPos> cores = new HashSet<>();
-        Set<BlockPos> visited = new HashSet<>();
-        Deque<BlockPos> queue = new ArrayDeque<>();
-        queue.addLast(start);
-        visited.add(start);
-        int visitedPorts = 0;
-        while (!queue.isEmpty() && visitedPorts < CONNECTIVITY_LIMIT) {
-            BlockPos pos = queue.removeFirst();
-            visitedPorts++;
-            for (Direction direction : Direction.values()) {
-                BlockPos neighbor = pos.relative(direction);
-                if (visited.contains(neighbor)) {
-                    continue;
-                }
-                BlockState state = level.getBlockState(neighbor);
-                Block block = state.getBlock();
-                BlockPos coreMain = null;
-                if (block instanceof ShulkerContainerBlock shulker) {
-                    coreMain = shulker.getMainPartPos(neighbor, state);
-                } else if (block instanceof HyperdimensionStorageStationBlock station) {
-                    coreMain = station.getMainPartPos(neighbor, state);
-                }
-                if (coreMain != null) {
-                    if (level.getBlockEntity(coreMain) instanceof StorageBlockEntity storage
-                        && storage.getId() != null) {
-                        cores.add(coreMain);
-                    }
-                    continue;
-                }
-                if (isPort(level, block, neighbor)) {
-                    visited.add(neighbor);
-                    queue.addLast(neighbor);
-                }
+        if (this.level.getBlockEntity(core) instanceof StorageBlockEntity storage) {
+            UUID id = storage.getId();
+            if (id != null) {
+                this.storageId = id;
+                StoragePortManager.register(id, this.level, this.worldPosition);
             }
         }
-        // 连通组件必须恰好接触一个核心（紧贴两个核心则整条链不工作）
-        return cores.size() == 1 ? cores.iterator().next() : null;
-    }
-
-    /**
-     * 判断某格是否为可延伸连接关系的端口（仓储端口或仓储流体端口）。
-     */
-    private static boolean isPort(Level level, Block block, BlockPos pos) {
-        if (block instanceof StoragePortBlock) {
-            return level.getBlockEntity(pos) instanceof StoragePortBlockEntity;
-        }
-        if (block instanceof StorageFluidPortBlock) {
-            return level.getBlockEntity(pos) instanceof StorageFluidPortBlockEntity;
-        }
-        return false;
     }
 
     /**
@@ -547,7 +607,7 @@ public class StoragePortBlockEntity extends BlockEntity implements IItemHandlerH
     @Override
     public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
         CompoundTag tag = super.getUpdateTag(registries);
-        // 同步缓存内容，保证客户端左键取出与物流输出等操作显示一致，避免幽灵物品
+        // 同步缓存内容，保证客户端左键取出与物流输出等操作显示一致，避免幽灵物品；为空也要写，否则客户端会残留旧内容
         tag.put("buffer", this.buffer.serializeNBT(registries));
         if (!this.markedItem.isEmpty()) {
             tag.put("marked_item", this.markedItem.save(registries));
@@ -561,7 +621,17 @@ public class StoragePortBlockEntity extends BlockEntity implements IItemHandlerH
         if (!this.markedItem.isEmpty()) {
             tag.put("marked_item", this.markedItem.save(registries));
         }
-        tag.put("buffer", this.buffer.serializeNBT(registries));
+        // 缓存为空时不写 handler 数据：空端口被存成物品（掉落、存档数据打包等）不该多出
+        // 内容为 {buffer: {Size: 32}} 的组件，否则会与未放置过的端口无法堆叠
+        if (!this.isBufferEmpty()) {
+            tag.put("buffer", this.buffer.serializeNBT(registries));
+        }
+    }
+
+    @Override
+    public void saveToItem(ItemStack stack, HolderLookup.Provider registries) {
+        // 通用的方块实体打包成物品入口同样走带守卫的掉落逻辑
+        this.saveToDrop(stack, registries);
     }
 
     @Override
@@ -574,6 +644,15 @@ public class StoragePortBlockEntity extends BlockEntity implements IItemHandlerH
         if (tag.contains("buffer")) {
             this.buffer.deserializeNBT(registries, tag.getCompound("buffer"));
         }
+    }
+
+    @Override
+    public void setRemoved() {
+        super.setRemoved();
+        if (this.level != null) {
+            StoragePortManager.unregister(this.storageId, this.level.dimension(), this.worldPosition);
+        }
+        this.storageId = null;
     }
 
     @Override
