@@ -431,7 +431,8 @@ public class BlockTagLoader {
             .add(ModBlocks.STRUCTURE_SCANNER.getKey())
             .add(ModBlocks.RUBY_LASER.getKey())
             .add(ModBlocks.RUBY_PRISM.getKey())
-            .add(ModBlocks.LASER_RECEIVER.getKey());
+            .add(ModBlocks.LASER_RECEIVER.getKey())
+            .add(ModBlocks.CRAB_TRAP.getKey());
 
     }
 }

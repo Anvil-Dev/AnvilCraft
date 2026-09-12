@@ -9,6 +9,7 @@ import dev.anvilcraft.lib.v2.cube.client.SelectionPart;
 import dev.dubhe.anvilcraft.api.tooltip.TooltipRenderHelper;
 import dev.dubhe.anvilcraft.block.cfa.CelestialForgingAnvilAmplifierBlock;
 import dev.dubhe.anvilcraft.block.item.FlexibleMultiPartBlockItem;
+import dev.dubhe.anvilcraft.block.item.PlaceInWaterBlockItem;
 import dev.dubhe.anvilcraft.block.item.SimpleMultiPartBlockItem;
 import dev.dubhe.anvilcraft.block.multipart.AbstractMultiPartBlock;
 import dev.dubhe.anvilcraft.block.multipart.FlexibleMultiPartBlock;
@@ -37,9 +38,11 @@ import net.minecraft.util.FastColor;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.item.context.UseOnContext;
+import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
@@ -137,16 +140,28 @@ public class LargeBlockPlacePreviewEventListener {
         if (!multiPart && !blockItem.getBlock().defaultBlockState().is(ModBlockTags.PLACEMENT_PREVIEW)) {
             return;
         }
-        if (!(mc.hitResult instanceof BlockHitResult target)) {
-            return;
-        }
         UseOnContext useContext;
-        if (target.getType() == HitResult.Type.MISS) {
-            BlockHitResult hit = BlockPlacementPicking.findAirPlacementHit(item, mc.level, player);
-            if (hit == null) return;
-            useContext = new UseOnContext(mc.level, player, hand, item, hit);
+        if (item.getItem() instanceof PlaceInWaterBlockItem) {
+            // 这类物品只在水面放置：useOn() 返回 PASS，实际落点由 use() 用流体射线
+            // （Fluid.SOURCE_ONLY）取得。而准星拾取用的是 Fluid.NONE，且水方块 getShape()
+            // 为空，水面根本不会出现在 mc.hitResult 里（还可能被前方实体挡成 EntityHitResult），
+            // 故这里不依赖 mc.hitResult，按放置逻辑同样的流体射线重算落点。
+            BlockHitResult fluidHit = Item.getPlayerPOVHitResult(mc.level, player, ClipContext.Fluid.SOURCE_ONLY);
+            if (fluidHit.getType() == HitResult.Type.MISS) {
+                return;
+            }
+            useContext = new UseOnContext(mc.level, player, hand, item, fluidHit.withPosition(fluidHit.getBlockPos()));
         } else {
-            useContext = BlockPlacementPicking.forPlacement(new UseOnContext(player, hand, target));
+            if (!(mc.hitResult instanceof BlockHitResult target)) {
+                return;
+            }
+            if (target.getType() == HitResult.Type.MISS) {
+                BlockHitResult hit = BlockPlacementPicking.findAirPlacementHit(item, mc.level, player);
+                if (hit == null) return;
+                useContext = new UseOnContext(mc.level, player, hand, item, hit);
+            } else {
+                useContext = BlockPlacementPicking.forPlacement(new UseOnContext(player, hand, target));
+            }
         }
         if (useContext instanceof BlockPlacementPicking.PlayerClick click && !click.anvilcraft$hasBlockHit()) {
             return;

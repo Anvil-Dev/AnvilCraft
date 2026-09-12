@@ -7,6 +7,7 @@ import dev.anvilcraft.lib.v2.cube.geometry.ConvexShape;
 import dev.anvilcraft.lib.v2.cube.geometry.SelectionGeometry;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.GiantAnvilBlock;
+import dev.dubhe.anvilcraft.block.GiantMonolithCoreBlock;
 import dev.dubhe.anvilcraft.block.multipart.AbstractMultiPartBlock;
 import net.minecraft.client.renderer.block.BlockModelShaper;
 import net.minecraft.client.renderer.block.model.BlockModel;
@@ -187,7 +188,14 @@ final class ModelSelectionBakery {
                 List<ConvexShape> joined = new ArrayList<>();
                 for (P part : block.getParts()) {
                     BlockState source = base.setValue(block.getPart(), part);
-                    if (block instanceof GiantAnvilBlock) source = block.placedState(part, source);
+                    // 完整模型只由承载部件提供，其余部件是空模型（giant_anvil_part 与
+                    // giant_monolith_core_part 都没有 elements）。这类方块的 placedState() 会按部件
+                    // 重算决定模型的属性（CUBE），必须按映射后的状态解析：否则每个部件都解析到
+                    // 空模型，joined 为空 → 不写 outlines（这些方块 RenderShape=MODEL）→
+                    // 框线模式完全没有描边，只能退回鬼影。
+                    if (block instanceof GiantAnvilBlock || block instanceof GiantMonolithCoreBlock) {
+                        source = block.placedState(part, source);
+                    }
                     ModelSelection selection = original.get(source);
                     if (selection == EMPTY) continue;
                     if (selection == null) throw new IllegalArgumentException("Missing multipart model");
@@ -204,7 +212,17 @@ final class ModelSelectionBakery {
                     }
                     continue;
                 }
-                SelectionGeometry whole = this.geometry(joined);
+                // 整体几何仅用于生成描边。anvillib 的 SelectionGeometry 有 MAX_SHAPES 上限，
+                // 超过会抛 IllegalArgumentException，被本方法的 catch 吞掉后整个多方块拿不到描边，
+                // 框线模式只能退回鬼影。大型多方块（如 3×3×3 的巨型独石核心：27 部件合计上千个凸体）
+                // 会触发该上限；此时按库自身对超预算描边的做法（见 SelectionGeometry 构造器）
+                // 退化为整体包围盒。逐部件的裁剪几何仍用完整的 joined，交互与拾取精度不受影响。
+                SelectionGeometry whole;
+                if (joined.size() > SelectionGeometry.MAX_SHAPES) {
+                    whole = this.geometry(List.of(ConvexShape.box(ModelSelectionBakery.unionBounds(joined))));
+                } else {
+                    whole = this.geometry(joined);
+                }
                 AABB occupied = new AABB(0, 0, 0, ModelCubeGeometry.SCALE, ModelCubeGeometry.SCALE, ModelCubeGeometry.SCALE);
                 for (P part : block.getParts()) {
                     Vec3i offset = block.offsetFrom(base, part);
@@ -285,6 +303,13 @@ final class ModelSelectionBakery {
     private static AABB bounds(List<ModelSelection> selections) {
         AABB bounds = selections.isEmpty() ? new AABB(0, 0, 0, 0, 0, 0) : selections.getFirst().bounds();
         for (ModelSelection selection : selections) bounds = bounds.minmax(selection.bounds());
+        return bounds;
+    }
+
+    /** 一组凸体的整体包围盒。 */
+    private static AABB unionBounds(List<ConvexShape> shapes) {
+        AABB bounds = shapes.getFirst().bounds();
+        for (int i = 1; i < shapes.size(); i++) bounds = bounds.minmax(shapes.get(i).bounds());
         return bounds;
     }
 }
