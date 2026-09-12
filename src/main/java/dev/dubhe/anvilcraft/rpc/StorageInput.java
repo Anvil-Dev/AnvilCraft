@@ -12,6 +12,8 @@ public enum StorageInput {
     QUICK_MOVE_TO_STORAGE,
     CLONE,
     THROW(new int[] {0, 1, 2}),
+    /** 点击流体格：用背包中的空桶装一桶取出 */
+    FLUID_BUCKET,
     ;
 
     public static final StreamCodec<ByteBuf, StorageInput> STREAM_CODEC = StreamCodecUtil.enumStreamCodec(StorageInput.class);

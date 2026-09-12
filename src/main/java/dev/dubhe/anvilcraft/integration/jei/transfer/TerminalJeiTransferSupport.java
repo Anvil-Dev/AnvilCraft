@@ -16,6 +16,10 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
+import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.FluidUtil;
+import net.neoforged.neoforge.fluids.capability.IFluidHandler;
+import net.neoforged.neoforge.fluids.capability.IFluidHandlerItem;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -216,6 +220,10 @@ public final class TerminalJeiTransferSupport {
             boolean satisfied = requiredByUid.entrySet().stream()
                 .anyMatch(e -> availableByUid.getOrDefault(e.getKey(), 0) >= e.getValue());
             if (!satisfied) {
+                // 桶装流体：存储里有对应空容器时视为可现场盛装，交由服务端实际盛装
+                satisfied = TerminalJeiTransferSupport.producibleFromFluid(slotView, availableByUid, stackHelper);
+            }
+            if (!satisfied) {
                 missingSlots.add(slotView);
             }
         }
@@ -273,7 +281,7 @@ public final class TerminalJeiTransferSupport {
             int required = entry.getValue();
             int have = containerByUid.getOrDefault(uid, 0);
             int deficit = Math.max(0, required - have);
-            if (deficit <= 0) {
+            if (deficit == 0) {
                 continue;
             }
             // 选一个代表物品：取槽内首个该 uid 变体（同 uid 变体在背包/存储层面是同一物品），
@@ -306,6 +314,43 @@ public final class TerminalJeiTransferSupport {
             }
         }
         return ItemStack.EMPTY;
+    }
+
+    /**
+     * 判断该槽的需求能否由「空容器 + 存储中的流体」现场盛装。
+     *
+     * <p>只做可行性判断（存储里是否有对应的空容器）；是否真的存有该流体由服务端
+     * {@code produceFilledContainer} 决定，取不到时传输阶段会给出真实结果。</p>
+     */
+    private static boolean producibleFromFluid(
+        IRecipeSlotView slotView,
+        Map<Object, Integer> availableByUid,
+        IStackHelper stackHelper
+    ) {
+        for (ItemStack variant : TerminalJeiTransferSupport.variantsOf(slotView)) {
+            if (variant.isEmpty()) {
+                continue;
+            }
+            IFluidHandlerItem handler = FluidUtil.getFluidHandler(variant.copyWithCount(1)).orElse(null);
+            if (handler == null) {
+                continue;
+            }
+            FluidStack content = handler.drain(Integer.MAX_VALUE, IFluidHandler.FluidAction.SIMULATE);
+            if (content.isEmpty()) {
+                continue;
+            }
+            // 空容器 = 把该容器模拟倒空后剩下的物品
+            handler.drain(Integer.MAX_VALUE, IFluidHandler.FluidAction.EXECUTE);
+            ItemStack emptyContainer = handler.getContainer();
+            if (emptyContainer.isEmpty()) {
+                continue;
+            }
+            Object emptyUid = stackHelper.getUidForStack(emptyContainer, UidContext.Recipe);
+            if (availableByUid.getOrDefault(emptyUid, 0) > 0) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /** 该槽各变体 uid 的需求量：槽内同一 uid 取最大数量（与 JEI {@code calculateRequiredCountsByUid} 一致）。 */

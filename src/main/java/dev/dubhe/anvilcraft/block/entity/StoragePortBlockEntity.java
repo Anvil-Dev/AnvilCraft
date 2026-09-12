@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.block.entity;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.itemhandler.IItemHandlerHolder;
 import dev.dubhe.anvilcraft.api.itemhandler.ItemHandlerUtil;
+import dev.dubhe.anvilcraft.block.StorageFluidPortBlock;
 import dev.dubhe.anvilcraft.block.StoragePortBlock;
 import dev.dubhe.anvilcraft.block.container.storage.HyperdimensionStorageStationBlock;
 import dev.dubhe.anvilcraft.block.container.storage.ShulkerContainerBlock;
@@ -347,13 +348,32 @@ public class StoragePortBlockEntity extends BlockEntity implements IItemHandlerH
         if (this.level == null) {
             return;
         }
+        BlockPos core = findSoleCore(this.level, this.worldPosition);
+        if (core == null) {
+            return;
+        }
+        this.coreMainPos = core;
+        this.working = true;
+    }
+
+    /**
+     * 从起点沿面相邻的端口链延伸，解析组件接触到的那个唯一核心。
+     *
+     * <p>仓储端口与仓储流体端口可互相延伸连接关系，因此两者共用本扫描。</p>
+     *
+     * @param level 世界
+     * @param start 起点（任意端口方块位置）
+     * @return 唯一有效核心的主方块坐标；没有核心或接触多个核心时返回 {@code null}
+     */
+    @Nullable
+    public static BlockPos findSoleCore(Level level, BlockPos start) {
         Set<BlockPos> cores = new HashSet<>();
         Set<BlockPos> visited = new HashSet<>();
         Deque<BlockPos> queue = new ArrayDeque<>();
-        queue.addLast(this.worldPosition);
-        visited.add(this.worldPosition);
+        queue.addLast(start);
+        visited.add(start);
         int visitedPorts = 0;
-        while (!queue.isEmpty() && visitedPorts < StoragePortBlockEntity.CONNECTIVITY_LIMIT) {
+        while (!queue.isEmpty() && visitedPorts < CONNECTIVITY_LIMIT) {
             BlockPos pos = queue.removeFirst();
             visitedPorts++;
             for (Direction direction : Direction.values()) {
@@ -361,7 +381,7 @@ public class StoragePortBlockEntity extends BlockEntity implements IItemHandlerH
                 if (visited.contains(neighbor)) {
                     continue;
                 }
-                BlockState state = this.level.getBlockState(neighbor);
+                BlockState state = level.getBlockState(neighbor);
                 Block block = state.getBlock();
                 BlockPos coreMain = null;
                 if (block instanceof ShulkerContainerBlock shulker) {
@@ -370,25 +390,33 @@ public class StoragePortBlockEntity extends BlockEntity implements IItemHandlerH
                     coreMain = station.getMainPartPos(neighbor, state);
                 }
                 if (coreMain != null) {
-                    if (this.level.getBlockEntity(coreMain) instanceof StorageBlockEntity storage
+                    if (level.getBlockEntity(coreMain) instanceof StorageBlockEntity storage
                         && storage.getId() != null) {
                         cores.add(coreMain);
                     }
                     continue;
                 }
-                if (block instanceof StoragePortBlock
-                    && this.level.getBlockEntity(neighbor) instanceof StoragePortBlockEntity) {
+                if (isPort(level, block, neighbor)) {
                     visited.add(neighbor);
                     queue.addLast(neighbor);
                 }
             }
         }
         // 连通组件必须恰好接触一个核心（紧贴两个核心则整条链不工作）
-        if (cores.size() != 1) {
-            return;
+        return cores.size() == 1 ? cores.iterator().next() : null;
+    }
+
+    /**
+     * 判断某格是否为可延伸连接关系的端口（仓储端口或仓储流体端口）。
+     */
+    private static boolean isPort(Level level, Block block, BlockPos pos) {
+        if (block instanceof StoragePortBlock) {
+            return level.getBlockEntity(pos) instanceof StoragePortBlockEntity;
         }
-        this.coreMainPos = cores.iterator().next();
-        this.working = true;
+        if (block instanceof StorageFluidPortBlock) {
+            return level.getBlockEntity(pos) instanceof StorageFluidPortBlockEntity;
+        }
+        return false;
     }
 
     /**

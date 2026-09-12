@@ -12,6 +12,7 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ItemLike;
+import net.neoforged.neoforge.fluids.FluidStack;
 
 import java.util.List;
 import java.util.Objects;
@@ -25,6 +26,16 @@ public record AndCategory(ItemStack icon, Component name, List<ICategory> catego
     public boolean test(UnlimitedItemStack stack) {
         for (ICategory category : this.categories) {
             if (!category.test(stack)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    @Override
+    public boolean testFluid(FluidStack fluid) {
+        for (ICategory category : this.categories) {
+            if (!category.testFluid(fluid)) {
                 return false;
             }
         }

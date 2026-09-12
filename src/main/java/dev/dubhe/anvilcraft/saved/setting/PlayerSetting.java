@@ -6,14 +6,12 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.dubhe.anvilcraft.init.registry.ModRegistryKeys;
 import dev.dubhe.anvilcraft.init.storage.ModCategories;
 import dev.dubhe.anvilcraft.saved.setting.mode.BalanceMode;
-import dev.dubhe.anvilcraft.saved.storage.category.FilterCategory;
 import dev.dubhe.anvilcraft.saved.storage.category.ICategory;
 import dev.dubhe.anvilcraft.saved.storage.category.store.CategoryEntry;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.world.item.ItemStack;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -68,7 +66,8 @@ public record PlayerSetting(List<CategoryEntry> listed, List<ICategory> custom, 
         return Lists.newArrayList(
             new CategoryEntry(lookup.getOrThrow(ModCategories.MINECRAFT).value()),
             new CategoryEntry(lookup.getOrThrow(ModCategories.BLOCK).value()),
-            new CategoryEntry(lookup.getOrThrow(ModCategories.UNSTACKABLE).value())
+            new CategoryEntry(lookup.getOrThrow(ModCategories.UNSTACKABLE).value()),
+            new CategoryEntry(lookup.getOrThrow(ModCategories.FLUID).value())
         );
     }
 
@@ -88,7 +87,4 @@ public record PlayerSetting(List<CategoryEntry> listed, List<ICategory> custom, 
         this.custom.add(category);
     }
 
-    public void addCustom(ItemStack filter) {
-        this.custom.add(FilterCategory.from(filter));
-    }
 }

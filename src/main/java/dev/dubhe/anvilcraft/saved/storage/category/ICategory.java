@@ -21,6 +21,7 @@ import net.minecraft.resources.RegistryFileCodec;
 import net.minecraft.resources.RegistryOps;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
+import net.neoforged.neoforge.fluids.FluidStack;
 
 import java.util.List;
 import java.util.Optional;
@@ -67,6 +68,19 @@ public interface ICategory extends Predicate<UnlimitedItemStack> {
 
     @Override
     boolean test(UnlimitedItemStack stack);
+
+    /**
+     * 判定仓储中的流体伪条目是否属于本分类。
+     *
+     * <p>分类本身是物品谓词，而流体不是物品，因此默认不匹配任何流体；
+     * 只有流体分类（以及命名空间这类对流体质地成立的分类）才覆写它。</p>
+     *
+     * @param fluid 待判定的流体
+     * @return 属于本分类时返回 true
+     */
+    default boolean testFluid(FluidStack fluid) {
+        return false;
+    }
 
     Type<? extends ICategory> getType();
 

@@ -419,6 +419,7 @@ public class ItemTooltipManager {
             Buffered items are uploaded into the bound storage station, rate-limited by the server config
             Right-click it with another bound Hyperdimension Terminal to rebind""");
         NORMAL.put(ModBlocks.STORAGE_PORT.asItem(), "External input/output ports of the Shulker Container or the Hyperdimension Storage Station.");
+        NORMAL.put(ModBlocks.STORAGE_FLUID_PORT.asItem(), "External fluid storage of the Shulker Container or the Hyperdimension Storage Station.");
         NORMAL.put(ModItems.LOCAL_TERMINAL.asItem(), "Link to nearest Large Crate (32-block range)");
         NORMAL.put(ModItems.SHULKER_TERMINAL.asItem(), "Link to Shulker-like storages in world or inventory");
         NORMAL.put(ModItems.HYPERDIMENSION_TERMINAL.asItem(), "A portable port of the binding Hyperdimension Storage Station");
@@ -728,6 +729,15 @@ public class ItemTooltipManager {
                 Right‑click with an item in hand to mark a port. A marked port will always keep one stack of items inside
                 Left‑click to take items out, right‑click to put items in
                 Hold right-click on a marked port with Anvil Hammer can remove the mark""");
+
+        SHIFT.put(
+            ModBlocks.STORAGE_FLUID_PORT.asItem(), """
+                Stores 128 B of a single fluid and can never hold two fluids at once
+                Connects to adjacent Storage Ports and Storage Fluid Ports, either can extend the chain
+                Works even when linked to no storage: buckets and pipes read and write it directly
+                The link only decides which storage lists its fluid
+                Right-click with a bucket or a bottle to fill or drain it, right-click with a Menger Sponge to clear it
+                Keeps its fluid when broken""");
 
         SHIFT.put(ModBlocks.PUMP.asItem(), """
                 Provides 10 blocks of headlift on both input and output sides (including the pump itself)

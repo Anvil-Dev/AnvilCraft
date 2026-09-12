@@ -6,6 +6,7 @@ import dev.anvilcraft.lib.v2.codec.CodecUtil;
 import dev.anvilcraft.lib.v2.util.stack.UnlimitedItemStack;
 import dev.dubhe.anvilcraft.api.component.ModNameContents;
 import dev.dubhe.anvilcraft.init.storage.ModCategoryTypes;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentSerialization;
@@ -14,6 +15,7 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ItemLike;
+import net.neoforged.neoforge.fluids.FluidStack;
 
 import java.util.Objects;
 
@@ -39,6 +41,12 @@ public record NamespaceCategory(ItemStack icon, Component name, String namespace
             .unwrapKey()
             .map(key -> key.location().getNamespace().equals(this.namespace))
             .orElse(false);
+    }
+
+    @Override
+    public boolean testFluid(FluidStack fluid) {
+        // 命名空间对流体质地同样成立：minecraft 分类应涵盖水 / 岩浆等原版流体
+        return BuiltInRegistries.FLUID.getKey(fluid.getFluid()).getNamespace().equals(this.namespace);
     }
 
     @Override

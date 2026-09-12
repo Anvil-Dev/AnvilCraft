@@ -26,6 +26,9 @@ public class CategoryLang {
         provider.add("screen.anvilcraft.storage.capacity.types", "Types: %1$s/%2$s");
         provider.add("screen.anvilcraft.storage.capacity.infinity", "Infinity Storage");
         provider.add("screen.anvilcraft.storage.count", "Count: %s");
+        provider.add("screen.anvilcraft.storage.fluid_amount", "Storage: %s");
+        provider.add("screen.anvilcraft.storage.fluid.bucket_missing", "Need an empty bucket");
+        provider.add("screen.anvilcraft.storage.fluid.not_enough", "Not enough fluid for a bucket");
         provider.add("screen.anvilcraft.storage.crafting.auto_fill", "Auto Refill: %s");
         provider.add("screen.anvilcraft.storage.crafting.auto_fill.enabled", "Enabled");
         provider.add("screen.anvilcraft.storage.crafting.auto_fill.disabled", "Disabled");
@@ -51,6 +54,7 @@ public class CategoryLang {
 
         provider.add("category.anvilcraft.block", "Block Items");
         provider.add("category.anvilcraft.unstackable", "Unstackable Items");
+        provider.add("category.anvilcraft.fluid", "Fluids");
         provider.add("category.anvilcraft.food_and_drink", "Foods and Drinks");
         provider.add("category.anvilcraft.namespace", "%s Items");
         provider.add("category.anvilcraft.redstone", "Redstone Items");

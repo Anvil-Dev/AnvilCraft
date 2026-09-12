@@ -10,6 +10,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.neoforged.neoforge.fluids.FluidStack;
 
 import java.util.List;
 import java.util.UUID;
@@ -65,7 +66,8 @@ public final class StorageClientStub {
         BlockPos sourcePos,
         int slot,
         int button,
-        StorageInput action
+        StorageInput action,
+        FluidStack fluid
     ) {
         return RPC.invoke(
             RpcTarget.server(),
@@ -74,7 +76,8 @@ public final class StorageClientStub {
             sourcePos.asLong(),
             slot,
             button,
-            action
+            action,
+            fluid
         );
     }
 
@@ -119,13 +122,14 @@ public final class StorageClientStub {
         );
     }
 
-    public static CompletableFuture<Boolean> moveSameToStorage(BlockPos sourcePos, int slot) {
+    public static CompletableFuture<Boolean> moveSameToStorage(BlockPos sourcePos, int slot, boolean pour) {
         return RPC.invoke(
             RpcTarget.server(),
             StorageServerStub::moveSameToStorage,
             StorageClientStub.playerId(),
             sourcePos.asLong(),
-            slot
+            slot,
+            pour
         );
     }
 
@@ -174,13 +178,14 @@ public final class StorageClientStub {
         );
     }
 
-    public static CompletableFuture<StorageServerStub.DepositResult> deposit(BlockPos sourcePos, boolean all) {
+    public static CompletableFuture<StorageServerStub.DepositResult> deposit(BlockPos sourcePos, boolean all, boolean pour) {
         return RPC.invoke(
             RpcTarget.server(),
             StorageServerStub::deposit,
             StorageClientStub.playerId(),
             sourcePos.asLong(),
-            all
+            all,
+            pour
         );
     }
 

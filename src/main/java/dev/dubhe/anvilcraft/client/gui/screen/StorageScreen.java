@@ -11,6 +11,7 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.itemhandler.unlimited.UnlimitedItemStacksResourceHandler;
 import dev.dubhe.anvilcraft.block.container.storage.CrateBlock;
 import dev.dubhe.anvilcraft.block.container.storage.ShulkerContainerBlock;
+import dev.dubhe.anvilcraft.block.entity.storage.StorageFluidRegistry;
 import dev.dubhe.anvilcraft.client.gui.component.SwitchableButton;
 import dev.dubhe.anvilcraft.client.gui.component.TexturedButton;
 import dev.dubhe.anvilcraft.client.gui.component.category.CategoryList;
@@ -28,6 +29,7 @@ import dev.dubhe.anvilcraft.saved.setting.mode.OrderMode;
 import dev.dubhe.anvilcraft.saved.setting.mode.SearchMode;
 import dev.dubhe.anvilcraft.saved.setting.mode.SortMode;
 import dev.dubhe.anvilcraft.saved.storage.CraftingStorage;
+import dev.dubhe.anvilcraft.util.FluidAmountUtil;
 import dev.dubhe.anvilcraft.util.FormattingUtil;
 import it.unimi.dsi.fastutil.ints.Int2IntMap;
 import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
@@ -49,18 +51,20 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.Rect2i;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.util.FastColor;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ClickType;
+import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -73,7 +77,10 @@ import net.minecraft.world.item.crafting.SingleRecipeInput;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.client.ItemDecoratorHandler;
 import net.neoforged.neoforge.client.event.ContainerScreenEvent;
+import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions;
 import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.FluidType;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -157,6 +164,21 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
     private static final int FLYOUT_FADE_IN_TICKS = 5;
     private static final int FLYOUT_HOLD_TICKS = 25;
     private static final int FLYOUT_FADE_OUT_TICKS = 5;
+    /**
+     * 浮层的 z。界面内各层的 z：物品图标 150、耐久条与数量数字 200、本浮层 300、
+     * 原版工具提示 400（{@code GuiGraphics#renderTooltipInternal}）。取 300 才不会
+     * 被数量数字压住，同时仍在工具提示之下。
+     */
+    private static final int FLYOUT_Z = 300;
+    /**
+     * 工具提示顶边相对鼠标的上移量（像素）。
+     *
+     * <p>见 {@code DefaultTooltipPositioner}：提示起点为 {@code (mouseX + 12, mouseY - 12)}，
+     * 并自该点向下延伸。浮层若落进这段区间就会被提示盖住。</p>
+     */
+    private static final int TOOLTIP_TOP_OFFSET = 12;
+    /** 浮层与工具提示顶边之间额外留出的间距（像素）。 */
+    private static final int FLYOUT_GAP = 6;
     private final Minecraft minecraft;
     @Getter
     private final BlockPos sourcePos;
@@ -179,6 +201,16 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
     private final Int2IntMap serverSlots = new Int2IntOpenHashMap();
     private final IntSet emptySlots = new IntOpenHashSet();
     private List<IntList> foldedGroups = List.of();
+    /**
+     * 已连接端口中的流体，作为伪条目接在物品列表尾部。
+     *
+     * <p>流体不占存储类别，故用 {@link #FLUID_SLOT_BASE} 起的独立逻辑槽位号，
+     * 与真实物品槽位不会冲突。</p>
+     */
+    @Getter
+    private List<StorageServerStub.FluidEntry> fluids = List.of();
+    /** 流体伪槽位的逻辑编号起点 */
+    private static final int FLUID_SLOT_BASE = StorageFluidRegistry.FLUID_SLOT_BASE;
     private double fullness;
     private @Nullable StorageServerStub.Capacity capacity;
     private long version = -1;
@@ -282,6 +314,12 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
     };
     private int flyoutTimer;
     private boolean flyoutVisible;
+    /** 浮窗文本；由「缺失工作台」提示与流体交互失败提示共用同一套淡入淡出。 */
+    private Component flyoutMessage = Component.empty();
+    /** 浮窗是否锚定在点击处（流体提示）而非指向合成区（缺失工作台提示）。 */
+    private boolean flyoutAtClick;
+    private int flyoutClickX;
+    private int flyoutClickY;
 
     public StorageScreen(BlockPos sourcePos) {
         this(
@@ -447,7 +485,24 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
             20,
             18,
             40,
-            button -> StorageClientStub.deposit(StorageScreen.this.sourcePos, Screen.hasShiftDown()).thenAcceptAsync(
+            button -> StorageClientStub.deposit(
+                StorageScreen.this.sourcePos,
+                Screen.hasShiftDown(),
+                true
+            ).thenAcceptAsync(
+                result -> {
+                    if (result.changed()) {
+                        StorageScreen.this.reorder(false);
+                    }
+                },
+                StorageScreen.this.screenExecutor
+            ),
+            // 右键：把流体桶当普通物品存入，不倒进液体
+            button -> StorageClientStub.deposit(
+                StorageScreen.this.sourcePos,
+                Screen.hasShiftDown(),
+                false
+            ).thenAcceptAsync(
                 result -> {
                     if (result.changed()) {
                         StorageScreen.this.reorder(false);
@@ -715,6 +770,23 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
 
     /** 显示「仓储内缺失工作台或切石机」浮窗（淡入 + 停留 + 淡出）。 */
     private void showFlyout() {
+        this.flyoutMessage = Component.translatable("tooltip.anvilcraft.storage.missing_workbench");
+        this.flyoutAtClick = false;
+        this.flyoutTimer = 0;
+        this.flyoutVisible = true;
+    }
+
+    /**
+     * 在点击处显示一条提示浮窗（如流体格交互失败的原因）。
+     *
+     * <p>这类提示不能走动作栏：仓储界面开着时动作栏被界面盖住，玩家看不到任何反馈。</p>
+     */
+    private void showNotice(Component message) {
+        if (message.getString().isEmpty()) {
+            return;
+        }
+        this.flyoutMessage = message;
+        this.flyoutAtClick = true;
         this.flyoutTimer = 0;
         this.flyoutVisible = true;
     }
@@ -864,6 +936,28 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
             boolean hovered = MathUtil.isInRange(mouseX, mouseY, x - 2, y - 2, x + 17, y + 17);
 
             int slot = this.displayOrder.getInt(orderIndex);
+            // 流体伪槽位：渲染流体图标与数量，物品相关逻辑一律跳过
+            if (slot >= StorageScreen.FLUID_SLOT_BASE) {
+                StorageServerStub.FluidEntry entry = this.getFluidSlot(slot);
+                if (entry != null) {
+                    StorageScreen.renderFluidIcon(graphics, this.minecraft.font, entry, x, y);
+                }
+                if (hovered) {
+                    AbstractContainerScreen.renderSlotHighlight(graphics, x, y, 0);
+                    if (entry != null) {
+                        // 与物品一致：交给 renderStorageTooltip 统一渲染，
+                        // 在循环内直接 renderTooltip 会与延迟渲染路径叠加成两个 tooltip
+                        this.renderingTooltips = List.of(
+                            entry.icon().getHoverName(),
+                            Component.translatable(
+                                "screen.anvilcraft.storage.fluid_amount",
+                                FluidAmountUtil.formatExactAmount(entry.amount())
+                            )
+                        );
+                    }
+                }
+                continue;
+            }
             UnlimitedItemStack stack = this.getDisplayedStack(slot);
 
             if (!stack.isEmpty()) {
@@ -1242,23 +1336,58 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
         return recipes.getFirst().value().assemble(input, this.minecraft.level.registryAccess());
     }
 
-    /** 渲染「仓储内缺失工作台或切石机」浮窗（flat 九宫格底 + pointer 箭头）。 */
+    /** 渲染浮窗（flat 九宫格底，缺失工作台提示另带指向合成区的 pointer 箭头）。 */
     private void renderFlyout(GuiGraphics graphics) {
         float alpha = this.getFlyoutAlpha();
         if (alpha <= 0.0F) {
             return;
         }
-        MutableComponent message = Component.translatable("tooltip.anvilcraft.storage.missing_workbench");
-        int textWidth = this.font.width(message);
+        // 先落地滞留的批量文本：数量数字经 drawString 进入共享缓冲，而 GuiGraphics#flush 是
+        // 「关闭深度测试 + endBatch」——等它自己被刷新时会无视 z 直接画到浮层之上，
+        // 因此必须先把它们刷出来，浮层才能真正盖在最上层。
+        graphics.flush();
+        int textWidth = this.font.width(this.flyoutMessage);
         int textHeight = this.font.lineHeight;
         int flyoutWidth = textWidth + 5;
         int flyoutHeight = textHeight + 6;
-        int flyoutX = this.leftPos + 296 - flyoutWidth;
-        int flyoutY = this.topPos + 219;
+        int flyoutX;
+        int flyoutY;
+        if (this.flyoutAtClick) {
+            // 点击处提示：贴近点击位置上方居中，并夹在窗口内
+            flyoutX = Mth.clamp(
+                this.flyoutClickX - flyoutWidth / 2,
+                4,
+                Math.max(4, this.width - flyoutWidth - 4)
+            );
+            // 整体让开工具提示的顶边（鼠标上方 TOOLTIP_TOP_OFFSET），否则底边会落进提示矩形内被盖住
+            flyoutY = Math.max(
+                4,
+                this.flyoutClickY - StorageScreen.TOOLTIP_TOP_OFFSET - StorageScreen.FLYOUT_GAP - flyoutHeight
+            );
+        } else {
+            flyoutX = this.leftPos + 296 - flyoutWidth;
+            flyoutY = this.topPos + 219;
+        }
         int color = (int) (alpha * 255.0F) << 24 | 0xFFFFFF;
-        GuiRenderSupport.blitSprite(graphics, StorageScreen.FLYOUT_BACK, flyoutX, flyoutY, flyoutWidth, flyoutHeight, color);
-        GuiRenderSupport.blitSprite(graphics, StorageScreen.FLYOUT_POINTER, this.leftPos + 284, this.topPos + 216, 6, 5, color);
-        graphics.drawString(this.font, message.withColor(0xEE0000), flyoutX + 3, flyoutY + 3, color, false);
+        // 底图走 blitOffset 参数（绝对顶点 z，不受 pose 影响），文字走 pose 平移，两者要分别设置。
+        // 若不抬 z，浮层会与物品图标（z=150）、数量数字（z=200）同层而被打平压住。
+        GuiRenderSupport.blitSprite(
+            graphics, StorageScreen.FLYOUT_BACK, flyoutX, flyoutY,
+            StorageScreen.FLYOUT_Z, flyoutWidth, flyoutHeight, color
+        );
+        if (!this.flyoutAtClick) {
+            GuiRenderSupport.blitSprite(
+                graphics, StorageScreen.FLYOUT_POINTER, this.leftPos + 284, this.topPos + 216,
+                StorageScreen.FLYOUT_Z, 6, 5, color
+            );
+        }
+        PoseStack pose = graphics.pose();
+        pose.pushPose();
+        pose.translate(0.0F, 0.0F, StorageScreen.FLYOUT_Z);
+        graphics.drawString(this.font, this.flyoutMessage.copy().withColor(0xEE0000), flyoutX + 3, flyoutY + 3, color, false);
+        pose.popPose();
+        // 立即定型本次浮层，使其先于工具提示（z=400）绘制，避免浮层文字盖住工具提示底框
+        graphics.flush();
     }
 
     private void renderPlayerInventory(GuiGraphics graphics, int mouseX, int mouseY) {
@@ -1581,6 +1710,27 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
         }
 
         if (button == 0 || button == 1) {
+            // 流体格：左键为流体行为（倒入 / 取出），右键保持原有物品行为
+            // （把指针上的流体桶当作普通物品存入，否则流体桶将永远无法入库）
+            Integer fluidSlot = this.getFluidSlotAt(mouseX, mouseY);
+            if (fluidSlot != null && this.minecraft.gameMode != null) {
+                if (button == 1) {
+                    // 流体格内没有物品可取，右键空指针不做任何事
+                    if (this.carried.isEmpty()) {
+                        return true;
+                    }
+                    this.interactWithStorage(fluidSlot, button, StorageInput.PICKUP);
+                    return true;
+                }
+                StorageInput action = Screen.hasShiftDown()
+                                      ? StorageInput.QUICK_MOVE_FROM_STORAGE
+                                      : StorageInput.FLUID_BUCKET;
+                // 失败提示要显示在点击处，故先记下点击位置
+                this.flyoutClickX = (int) mouseX;
+                this.flyoutClickY = (int) mouseY;
+                this.interactWithStorage(fluidSlot, button, action);
+                return true;
+            }
             Integer storageSlot = this.getStorageSlot(mouseX, mouseY);
             if (storageSlot != null && this.minecraft.gameMode != null) {
                 StorageInput action = Screen.hasShiftDown()
@@ -1619,13 +1769,31 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
                 return false;
             }
             this.lastClickedInventorySlot = slot;
+            // 在移动之前记下本次点击的物品（对应原版在 slotClicked 之前记 lastQuickMoved）。
+            // 槽已空时不覆盖，否则首次点击移走整叠后，第二次点击会把记录清空、批量失效
+            ItemStack clickedItem = this.player.getInventory().getItem(slot);
+            if (!clickedItem.isEmpty()) {
+                this.lastQuickMoved = clickedItem.copy();
+            }
 
             if (Screen.hasAltDown()) {
-                this.moveSameToStorage(slot);
+                // 左键：桶装流体自动倾倒；右键：保持物品行为存入流体桶
+                this.moveSameToStorage(slot, button == 0);
                 return true;
             }
 
             if (Screen.hasShiftDown()) {
+                // Shift+双击左键：与原版一致，把上一个被点击物品的同种物品整批移入仓储。
+                // 首次 Shift+左键仍是单组快速移动，第二次落在 250ms 内才触发批量，节奏与原版相同
+                if (button == 0 && this.isDoubleClick(slot, button)) {
+                    // 首次点击已把被点槽整叠移走，改从仍持有该物品的槽位发起：
+                    // 服务端 moveSameToStorage 会把该物品的所有槽位一并移入
+                    int target = this.findInventorySlotWith(this.lastQuickMoved);
+                    if (target != -1) {
+                        this.moveSameToStorage(target, true);
+                    }
+                    return true;
+                }
                 if (button == 1) {
                     // Shift+右键：把该背包槽物品直接放入仓储（不经过指针）
                     this.interactWithStorage(slot, button, StorageInput.QUICK_MOVE_TO_STORAGE);
@@ -1738,6 +1906,13 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
     private int lastClickSlot = -1;
     private int lastClickButton = -1;
     private boolean doubleclick;
+    /**
+     * 上一次点击到的物品，供 Shift+双击批量使用（对应原版的 {@code lastQuickMoved}）。
+     *
+     * <p>首次 Shift+左键会把该槽整叠移入仓储、槽随之变空，若批量时再读该槽就取不到物品，
+     * 故必须在移动之前记下它。</p>
+     */
+    private ItemStack lastQuickMoved = ItemStack.EMPTY;
     /** 双击目标为 ①/② 槽时的槽号（0 为①，1~9 为②），否则 -1。 */
     private int doubleClickCraftingSlot = -1;
     /** 输入槽单击（空指针）延迟到鼠标释放时执行的槽号 / 按钮，-1 表示无。 */
@@ -2081,8 +2256,8 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
         this.quickMoveMovedBySlot.clear();
     }
 
-    private void moveSameToStorage(int slot) {
-        StorageClientStub.moveSameToStorage(this.sourcePos, slot).whenCompleteAsync(
+    private void moveSameToStorage(int slot, boolean pour) {
+        StorageClientStub.moveSameToStorage(this.sourcePos, slot, pour).whenCompleteAsync(
             (changed, error) -> {
                 if (error != null || !changed) {
                     return;
@@ -2153,8 +2328,19 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
         this.interactionPending = true;
         this.player.inventoryMenu.setCarried(this.carried);
         int request = ++this.interactionRequest;
-        int serverSlot = action == StorageInput.QUICK_MOVE_TO_STORAGE ? slot : this.serverSlots.get(slot);
-        StorageClientStub.interact(this.sourcePos, serverSlot, button, action).whenCompleteAsync(
+        int serverSlot = action == StorageInput.QUICK_MOVE_TO_STORAGE || slot >= StorageScreen.FLUID_SLOT_BASE
+                         ? slot
+                         : this.serverSlots.get(slot);
+        // 流体格同时上报流体身份：点击与处理之间列表可能变化（端口被拆 / 区块卸载 / 新流体接入），
+        // 服务端按下标会取到另一种流体，故改按身份匹配
+        FluidStack fluidIdentity = FluidStack.EMPTY;
+        if (slot >= StorageScreen.FLUID_SLOT_BASE) {
+            StorageServerStub.FluidEntry entry = this.getFluidSlot(slot);
+            if (entry != null) {
+                fluidIdentity = entry.icon().copyWithAmount(FluidType.BUCKET_VOLUME);
+            }
+        }
+        StorageClientStub.interact(this.sourcePos, serverSlot, button, action, fluidIdentity).whenCompleteAsync(
             (result, error) -> {
                 if (request != this.interactionRequest || error != null) {
                     this.interactionPending = false;
@@ -2167,6 +2353,10 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
 
                     this.returnCarriedToInventory();
                     return;
+                }
+                if (result.notice() != StorageServerStub.FluidNotice.NONE) {
+                    // 交互失败原因由界面自己渲染，不走动作栏（会被界面盖住）
+                    this.showNotice(result.notice().text());
                 }
                 if (result.changed()) {
                     if (this.preservingOrder) {
@@ -3087,7 +3277,9 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
                 + displayIndex / StorageScreen.STORAGE_COLUMNS * StorageScreen.SLOT_SIZE;
             if (MathUtil.isInRange(mouseX, mouseY, x - 2, y - 2, x + 17, y + 17)) {
                 if (orderIndex < this.displayOrder.size()) {
-                    return this.displayOrder.getInt(orderIndex);
+                    int slot = this.displayOrder.getInt(orderIndex);
+                    // 流体伪槽位暂不参与物品交互，避免把伪索引发给服务端
+                    return slot >= StorageScreen.FLUID_SLOT_BASE ? null : slot;
                 }
                 return this.carried.isEmpty() ? null : -1;
             }
@@ -3097,6 +3289,30 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
 
     private @Nullable Integer getStorageSlot() {
         return this.getStorageSlot(this.getMouseScaledX(), this.getMouseScaledY());
+    }
+
+    /**
+     * 命中流体伪槽位时返回其逻辑槽位号，便于单独处理桶交互。
+     *
+     * @return 流体槽位号；未命中流体格时返回 {@code null}
+     */
+    private @Nullable Integer getFluidSlotAt(double mouseX, double mouseY) {
+        int firstOrderIndex = this.scrollRow * StorageScreen.STORAGE_COLUMNS;
+        for (int displayIndex = 0; displayIndex < StorageScreen.VISIBLE_STORAGE_SLOTS; displayIndex++) {
+            int orderIndex = firstOrderIndex + displayIndex;
+            if (orderIndex >= this.displayOrder.size()) {
+                break;
+            }
+            int x = this.leftPos + StorageScreen.STORAGE_X
+                + displayIndex % StorageScreen.STORAGE_COLUMNS * StorageScreen.SLOT_SIZE;
+            int y = this.topPos + StorageScreen.STORAGE_Y
+                + displayIndex / StorageScreen.STORAGE_COLUMNS * StorageScreen.SLOT_SIZE;
+            if (MathUtil.isInRange(mouseX, mouseY, x - 2, y - 2, x + 17, y + 17)) {
+                int slot = this.displayOrder.getInt(orderIndex);
+                return slot >= StorageScreen.FLUID_SLOT_BASE ? slot : null;
+            }
+        }
+        return null;
     }
 
     private double getMouseScaledX() {
@@ -3132,6 +3348,28 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
 
     private int getInventorySlot() {
         return this.getInventorySlot(this.getMouseScaledX(), this.getMouseScaledY());
+    }
+
+    /**
+     * 在当前玩家背包中找一个仍持有该物品的槽位（槽号语义与 {@link #getInventorySlot} 一致）。
+     *
+     * <p>供 Shift+双击批量使用：首次点击后原槽可能已空，需要换一个仍持有该物品的槽位
+     * 作为批量入口，服务端会据此把同种物品的所有槽位一并移入仓储。</p>
+     *
+     * @param wanted 目标物品；为空时返回 -1
+     * @return 槽号；没有匹配时返回 -1
+     */
+    private int findInventorySlotWith(ItemStack wanted) {
+        if (wanted.isEmpty()) {
+            return -1;
+        }
+        int size = Math.min(this.player.getInventory().getContainerSize(), Inventory.INVENTORY_SIZE);
+        for (int slot = 0; slot < size; slot++) {
+            if (ItemStack.isSameItemSameComponents(this.player.getInventory().getItem(slot), wanted)) {
+                return slot;
+            }
+        }
+        return -1;
     }
 
     private int getScreenSlot(int invSlot) {
@@ -3323,6 +3561,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
     private void applySyncResult(StorageServerStub.SyncResult result) {
         this.version = result.version();
         this.fullness = result.fullness();
+        this.fluids = result.fluids();
         for (StorageServerStub.StackUpdate update : result.updates()) {
             if (update.stack().isEmpty()) {
                 if (this.contents.containsKey(update.index())) {
@@ -3365,6 +3604,10 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
         // 避免同物品的不同组件堆相互覆盖：数量、渲染与 serverSlots 各自保持独立。
         Map<UnlimitedItemStacksResourceHandler.ResourceKey, Integer> logicalSlots = new HashMap<>();
         for (int logicalSlot : this.order) {
+            // 流体伪槽位没有物品内容，跳过以免取到 null
+            if (logicalSlot >= StorageScreen.FLUID_SLOT_BASE) {
+                continue;
+            }
             UnlimitedItemStack stack = this.contents.get(logicalSlot);
             logicalSlots.put(
                 UnlimitedItemStacksResourceHandler.ResourceKey.of(stack.toStack()),
@@ -3377,6 +3620,9 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
         for (StorageServerStub.SyncResult result : results) {
             this.version = result.version();
             this.fullness = result.fullness();
+            // 与 applySyncResult 一致：保持排序的同步路径同样要刷新流体列表，
+            // 否则按住 Shift 取液后界面上的储量会停留在旧值
+            this.fluids = result.fluids();
             for (StorageServerStub.StackUpdate update : result.updates()) {
                 if (update.stack().isEmpty()) {
                     continue;
@@ -3424,6 +3670,10 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
         this.nextLogicalSlot = 0;
         this.remappedOrder = false;
         for (int slot : slots) {
+            // 流体伪槽位不参与服务端槽位映射，也不应撑大逻辑槽位计数
+            if (slot >= StorageScreen.FLUID_SLOT_BASE) {
+                continue;
+            }
             this.serverSlots.put(slot, slot);
             this.nextLogicalSlot = Math.max(this.nextLogicalSlot, slot + 1);
         }
@@ -3431,6 +3681,10 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
 
     private boolean hasContents(IntList slots) {
         for (int slot : slots) {
+            // 流体由 fluids 提供内容，不在 contents 中
+            if (slot >= StorageScreen.FLUID_SLOT_BASE) {
+                continue;
+            }
             if (!this.contents.containsKey(slot)) {
                 return false;
             }
@@ -3451,11 +3705,37 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
         this.foldedCounts.clear();
         if (!foldNbt) {
             this.foldedGroups = List.of();
+            // 流体已由服务端排入 order，此处不能再追加，否则会重复
             this.displayOrder = this.applySearchFilter(new IntArrayList(this.order));
             return;
         }
 
         this.rebuildFoldedGroups(false);
+    }
+
+    /**
+     * 把流体伪槽位追加到物品列表末尾。
+     *
+     * <p>折叠显示会按物品重组列表并丢弃流体，故折叠路径需要重新追加；
+     * 非折叠路径的流体位置由服务端排序决定，不走这里。</p>
+     *
+     * <p>只追加服务端 {@link #order} 中出现的流体槽位：分类过滤、搜索过滤与
+     * 0 数量的取舍都由服务端排序统一决定，这里照搬可避免在折叠模式下漏掉它们
+     * （例如把「流体」分类设为黑名单后，折叠模式仍把流体显示出来）。</p>
+     */
+    private IntList appendFluidSlots(IntList itemsOnly) {
+        if (this.fluids.isEmpty()) {
+            return itemsOnly;
+        }
+        IntArrayList result = new IntArrayList(itemsOnly.size() + this.fluids.size());
+        result.addAll(itemsOnly);
+        for (int index = 0; index < this.fluids.size(); index++) {
+            int slot = StorageScreen.FLUID_SLOT_BASE + index;
+            if (this.order.contains(slot)) {
+                result.add(slot);
+            }
+        }
+        return result;
     }
 
     /**
@@ -3469,6 +3749,20 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
         }
         IntArrayList filtered = new IntArrayList(order.size());
         for (int slot : order) {
+            // 流体伪槽位按流体名称与 id path 过滤，不能当作空物品丢弃
+            if (slot >= StorageScreen.FLUID_SLOT_BASE) {
+                StorageServerStub.FluidEntry entry = this.getFluidSlot(slot);
+                if (entry == null) {
+                    continue;
+                }
+                FluidStack icon = entry.icon();
+                String fluidName = icon.getHoverName().getString().toLowerCase(Locale.ROOT);
+                String fluidIdPath = BuiltInRegistries.FLUID.getKey(icon.getFluid()).getPath();
+                if (fluidName.contains(search) || fluidIdPath.contains(search)) {
+                    filtered.add(slot);
+                }
+                continue;
+            }
             UnlimitedItemStack stack = this.getDisplayedStack(slot);
             if (stack.isEmpty()) {
                 continue;
@@ -3544,12 +3838,55 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
             this.foldedContents.put(representative, folded);
             this.foldedCounts.put(representative, count);
         }
-        this.displayOrder = foldedOrder;
+        this.displayOrder = this.appendFluidSlots(foldedOrder);
     }
 
     private UnlimitedItemStack getDisplayedStack(int slot) {
         Int2ObjectMap<UnlimitedItemStack> displayedContents = this.nbtFolded ? this.foldedContents : this.contents;
         return displayedContents.getOrDefault(slot, UnlimitedItemStack.EMPTY);
+    }
+
+    /**
+     * 取得流体伪槽位对应的流体。
+     *
+     * @param slot 逻辑槽位号
+     * @return 对应流体，越界时为空
+     */
+    private @Nullable StorageServerStub.FluidEntry getFluidSlot(int slot) {
+        int index = slot - StorageScreen.FLUID_SLOT_BASE;
+        return index >= 0 && index < this.fluids.size() ? this.fluids.get(index) : null;
+    }
+
+    /**
+     * 在槽位内绘制流体图标与数量。
+     *
+     * <p>数量按 {@link FluidAmountUtil} 规则显示：不足 1 B 用 mB，达到 1 B 用 B，
+     * 有小数时保留三位有效数字。取空后条目仍以 0 保留，与物品一致。</p>
+     */
+    private static void renderFluidIcon(
+        GuiGraphics graphics,
+        Font font,
+        StorageServerStub.FluidEntry entry,
+        int x,
+        int y
+    ) {
+        FluidStack fluid = entry.icon();
+        IClientFluidTypeExtensions ext = IClientFluidTypeExtensions.of(fluid.getFluid());
+        TextureAtlasSprite sprite = Minecraft.getInstance()
+            .getTextureAtlas(InventoryMenu.BLOCK_ATLAS)
+            .apply(ext.getStillTexture(fluid));
+        int tint = ext.getTintColor(fluid);
+        graphics.blit(
+            x, y, 0, 16, 16, sprite,
+            FastColor.ARGB32.red(tint) / 255f,
+            FastColor.ARGB32.green(tint) / 255f,
+            FastColor.ARGB32.blue(tint) / 255f,
+            1.0f
+        );
+        Component text = Component.literal(FluidAmountUtil.formatAmount(entry.amount()))
+            .withStyle(style -> style.withFont(StorageScreen.SMALL_FONT));
+        // 与物品一致：0 数量用橙色，便于与正常数量区分
+        StorageScreen.renderSlotCount(graphics, font, text, entry.amount() == 0 ? 0xFFFFAA00 : -1, x, y);
     }
 
     private long getDisplayedCount(int slot) {
@@ -3629,22 +3966,45 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
             graphics.fill(RenderType.guiOverlay(), left, top, left + stack.getBarWidth(), top + 1, stack.getBarColor() | 0xFF000000);
         }
 
+        pose.popPose();
+
         // 数量（使用缩写格式，可超过 999）
-        pose.translate(x + 17, y + 9, 0);
         Component amount = Component.literal(FormattingUtil.toAbbrNum(count))
             .withStyle(style -> style.withFont(StorageScreen.SMALL_FONT));
-        int color = count == 0 ? 0xFFFFAA00 : -1;
-        int width = font.width(amount);
+        StorageScreen.renderSlotCount(graphics, font, amount, count == 0 ? 0xFFFFAA00 : -1, x, y);
+
+        // noinspection UnstableApiUsage
+        ItemDecoratorHandler.of(stack).render(graphics, font, stack, x, y);
+    }
+
+    /**
+     * 在槽位右下角绘制数量文本，物品数量与流体数量共用，保证两者字号与位置一致。
+     *
+     * <p>使用小字体；文本宽于 16 像素时整段缩放到 0.75 并微调基线，避免溢出槽位。</p>
+     *
+     * @param text  已带字体样式的数量文本
+     * @param color 文本颜色
+     */
+    private static void renderSlotCount(
+        GuiGraphics graphics,
+        Font font,
+        Component text,
+        int color,
+        int x,
+        int y
+    ) {
+        PoseStack pose = graphics.pose();
+        pose.pushPose();
+        // 抬高 z 使其绘制在图标之上
+        pose.translate(0, 0, 200);
+        pose.translate(x + 17, y + 9, 0);
+        int width = font.width(text);
         if (width > 16) {
             pose.scale(0.75F, 0.75F, 1);
             pose.translate(-1F, font.lineHeight * 0.25F - 0.25F, 0);
         }
-        graphics.drawString(font, amount, -width, 0, color, true);
-
+        graphics.drawString(font, text, -width, 0, color, true);
         pose.popPose();
-
-        // noinspection UnstableApiUsage
-        ItemDecoratorHandler.of(stack).render(graphics, font, stack, x, y);
     }
     
     public static ResourceLocation texture(String path) {

@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.api.fluid.network;
 
+import dev.dubhe.anvilcraft.block.entity.StorageFluidPortBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.fluid.AbstractPipeCheckValveBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.fluid.ControlValveBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.fluid.PumpBlockEntity;
@@ -316,6 +317,19 @@ public final class FluidNetworkScanner {
         queue.add(pumpPos.immutable());
     }
 
+    /**
+     * 容器自身的等效高度偏置（格）；只有仓储流体端口会给出非 0 值。
+     *
+     * @param level        世界
+     * @param containerPos 容器位置
+     * @return 偏置格数
+     */
+    private static int heightBiasAt(Level level, BlockPos containerPos) {
+        return level.getBlockEntity(containerPos) instanceof StorageFluidPortBlockEntity port
+            ? port.getHeightBias()
+            : 0;
+    }
+
     private static void addEndpointIfContainer(
         Level level, BlockPos containerPos, Direction sideToPipe, int phi, BlockPos attachPipePos,
         Map<BlockPos, FluidEndpoint> endpoints, Set<IFluidHandler> seenHandlers
@@ -323,7 +337,9 @@ public final class FluidNetworkScanner {
         if (!level.isLoaded(containerPos)) {
             return;
         }
-        int effectiveHeight = containerPos.getY() + phi;
+        // 仓储流体端口会自行调整等效高度以把水位维持在目标区间；
+        // 该偏置同时驱动气体（网络用 effectiveHeight - Y 推导气压）
+        int effectiveHeight = containerPos.getY() + phi + heightBiasAt(level, containerPos);
         BlockPos immutablePos = containerPos.immutable();
         FluidEndpoint existing = endpoints.get(immutablePos);
         if (existing != null) {

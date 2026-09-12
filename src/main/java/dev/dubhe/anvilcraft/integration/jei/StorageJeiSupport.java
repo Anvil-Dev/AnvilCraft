@@ -6,6 +6,7 @@ import dev.dubhe.anvilcraft.client.gui.screen.StorageMenu;
 import dev.dubhe.anvilcraft.client.gui.screen.StorageScreen;
 import dev.dubhe.anvilcraft.client.rpc.StorageClientStub;
 import dev.dubhe.anvilcraft.integration.StorageJeiBridge;
+import dev.dubhe.anvilcraft.rpc.StorageServerStub;
 import dev.dubhe.anvilcraft.saved.storage.CraftingStorage;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
@@ -35,6 +36,10 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.CraftingRecipe;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.StonecutterRecipe;
+import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.FluidUtil;
+import net.neoforged.neoforge.fluids.capability.IFluidHandler;
+import net.neoforged.neoforge.fluids.capability.IFluidHandlerItem;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -170,6 +175,12 @@ public final class StorageJeiSupport {
                     hasAny = true;
                     break;
                 }
+                // 桶装流体：仓储里有对应空容器时视为可现场盛装（服务端 produceFilledContainer 实际盛装）
+                if (StorageJeiSupport.producibleFromFluid(player, screen, allocatedKeys, allocatedCounts, variant)) {
+                    StorageJeiSupport.allocate(allocatedKeys, allocatedCounts, variant);
+                    hasAny = true;
+                    break;
+                }
             }
             if (!hasAny) {
                 missing.add(slotView);
@@ -180,6 +191,52 @@ public final class StorageJeiSupport {
         }
         Component message = Component.translatable("jei.tooltip.error.recipe.transfer.missing");
         return helper.createUserErrorForMissingSlots(message, missing);
+    }
+
+    /**
+     * 判断该配方物品能否由「空容器 + 仓储中的流体」现场盛装。
+     *
+     * <p>只做可行性判断：仓储里需有该流体的储量，且对应的空容器在背包或仓储中、
+     * 且尚未被前面的槽位占用完。是否真的能盛装由服务端
+     * {@code produceFilledContainer} 决定，取不到时传输阶段会给出真实结果。</p>
+     */
+    private static boolean producibleFromFluid(
+        Player player,
+        @Nullable StorageScreen screen,
+        List<ItemStack> allocatedKeys,
+        List<Integer> allocatedCounts,
+        ItemStack variant
+    ) {
+        if (screen == null) {
+            return false;
+        }
+        FluidStack content = StorageJeiSupport.contentOf(variant);
+        if (content.isEmpty()) {
+            return false;
+        }
+        if (StorageJeiSupport.lacksFluidFor(screen.getFluids(), variant)) {
+            return false;
+        }
+        ItemStack emptyContainer = StorageJeiSupport.emptyContainerOf(variant);
+        if (emptyContainer.isEmpty()) {
+            return false;
+        }
+        // 空容器本身也按槽位分配，避免同一批空桶被多个槽位重复计算
+        long availableContainers = StorageJeiSupport.availableCount(player, screen, emptyContainer)
+            - StorageJeiSupport.allocatedCount(allocatedKeys, allocatedCounts, emptyContainer);
+        if (availableContainers <= 0) {
+            return false;
+        }
+        // 稀有到极致的流体可能不够再盛一桶
+        int availableFluid = 0;
+        for (StorageServerStub.FluidEntry entry : screen.getFluids()) {
+            if (FluidStack.isSameFluidSameComponents(entry.icon(), content)) {
+                availableFluid = entry.amount();
+                break;
+            }
+        }
+        return availableFluid / content.getAmount()
+            > StorageJeiSupport.allocatedCount(allocatedKeys, allocatedCounts, variant);
     }
 
     /**
@@ -289,12 +346,14 @@ public final class StorageJeiSupport {
                 StorageJeiSupport.addAvailable(item, availableItemStacks);
             }
             // 合成格内已有物品也算作可转移材料：转移前服务端会先清空合成格，
-            // 这些物品回到背包/存储后参与新配方的填充。
+            // 这些物品回到存储/背包后参与新配方的填充。
             CraftingStorage crafting = screen.getCrafting();
             StorageJeiSupport.addAvailable(crafting.stonecutterInput(), availableItemStacks);
             for (ItemStack stack : crafting.craftingInput()) {
                 StorageJeiSupport.addAvailable(stack, availableItemStacks);
             }
+            // 桶装流体：仓储里有空容器与对应流体时，可现场盛装出成品桶参与配方
+            StorageJeiSupport.addProducibleFluidContainers(screen, recipeSlots, availableItemStacks);
         }
         IStackHelper stackHelper = StorageJeiSupport.runtime == null
             ? null
@@ -350,6 +409,105 @@ public final class StorageJeiSupport {
             availableItemStacks.put(new VirtualSlot(1000 + availableItemStacks.size(), virtual), virtual.copy());
             remaining -= chunk;
         }
+    }
+
+    /**
+     * 把「空容器 + 仓储流体」可现场盛装出的桶装流体加入 JEI 可用池。
+     *
+     * <p>不加这一步，JEI 的分配算法（{@link RecipeTransferUtil#getRecipeTransferOperations}）
+     * 会因池中没有成品桶而把该槽判为缺料，转移直接失败——检查阶段放行也没用。
+     * 每个能盛装的输入槽补一份，并同步占住对应的空容器，避免同一批空桶被重复认领。</p>
+     */
+    private static void addProducibleFluidContainers(
+        StorageScreen screen,
+        IRecipeSlotsView recipeSlots,
+        Map<Slot, ItemStack> availableItemStacks
+    ) {
+        List<StorageServerStub.FluidEntry> fluids = screen.getFluids();
+        if (fluids.isEmpty()) {
+            return;
+        }
+        List<ItemStack> reservedKeys = new ArrayList<>();
+        List<Integer> reservedCounts = new ArrayList<>();
+        for (IRecipeSlotView slotView : recipeSlots.getSlotViews(RecipeIngredientRole.INPUT)) {
+            for (ItemStack variant : slotView.getItemStacks().toList()) {
+                ItemStack emptyContainer = StorageJeiSupport.emptyContainerOf(variant);
+                if (emptyContainer.isEmpty()) {
+                    continue;
+                }
+                if (StorageJeiSupport.lacksFluidFor(fluids, variant)) {
+                    continue;
+                }
+                long containers = StorageJeiSupport.countInPool(availableItemStacks, emptyContainer)
+                    - StorageJeiSupport.allocatedCount(reservedKeys, reservedCounts, emptyContainer);
+                if (containers <= 0) {
+                    continue;
+                }
+                StorageJeiSupport.allocate(reservedKeys, reservedCounts, emptyContainer);
+                StorageJeiSupport.addAvailable(variant.copyWithCount(1), availableItemStacks);
+                break;
+            }
+        }
+    }
+
+    /**
+     * 该物品是否为装有流体的容器，<b>且仓储中没有足量</b>（不足一桶）的同种流体，
+     * 即需要现场用「空容器 + 仓储流体」盛装。
+     *
+     * <p>返回 {@code true} 的三种情形：</p>
+     * <ul>
+     *   <li>不是装有流体的容器（无法盛装）</li>
+     *   <li>是流体容器，但仓储中该流体不足量（需要补盛装）</li>
+     *   <li>是流体容器，但仓储中根本没有该流体</li>
+     * </ul>
+     *
+     * <p>仅当仓储中已有足量同种流体（可直接取用）时返回 {@code false}。</p>
+     */
+    private static boolean lacksFluidFor(List<StorageServerStub.FluidEntry> fluids, ItemStack variant) {
+        FluidStack content = StorageJeiSupport.contentOf(variant);
+        if (content.isEmpty()) {
+            return true;
+        }
+        for (StorageServerStub.FluidEntry entry : fluids) {
+            if (entry.amount() >= content.getAmount()
+                && FluidStack.isSameFluidSameComponents(entry.icon(), content)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /** 装有流体的容器对应的内容物；非流体容器或空容器返回空。 */
+    private static FluidStack contentOf(ItemStack variant) {
+        if (variant.isEmpty()) {
+            return FluidStack.EMPTY;
+        }
+        IFluidHandlerItem handler = FluidUtil.getFluidHandler(variant.copyWithCount(1)).orElse(null);
+        return handler == null ? FluidStack.EMPTY : handler.drain(Integer.MAX_VALUE, IFluidHandler.FluidAction.SIMULATE);
+    }
+
+    /** 装有流体的容器对应的空容器（模拟倒空后剩下的物品）；无法推导时返回空。 */
+    private static ItemStack emptyContainerOf(ItemStack variant) {
+        if (variant.isEmpty()) {
+            return ItemStack.EMPTY;
+        }
+        IFluidHandlerItem handler = FluidUtil.getFluidHandler(variant.copyWithCount(1)).orElse(null);
+        if (handler == null) {
+            return ItemStack.EMPTY;
+        }
+        handler.drain(Integer.MAX_VALUE, IFluidHandler.FluidAction.EXECUTE);
+        return handler.getContainer();
+    }
+
+    /** JEI 可用池中与 target 同种同组件的总数量。 */
+    private static long countInPool(Map<Slot, ItemStack> availableItemStacks, ItemStack target) {
+        long count = 0;
+        for (ItemStack stack : availableItemStacks.values()) {
+            if (ItemStack.isSameItemSameComponents(stack, target)) {
+                count += stack.getCount();
+            }
+        }
+        return count;
     }
 
     /** 把配方输入放入终端输入槽（异步 RPC，成功后刷新合成面板）。

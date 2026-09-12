@@ -30,6 +30,7 @@ public class ShapedRecipeLoader {
         this.controlValve(provider);
         this.crate(provider);
         this.storagePort(provider);
+        this.storageFluidPort(provider);
     }
 
     public void nineToOne(RegistrumRecipeProvider provider) {
@@ -109,6 +110,18 @@ public class ShapedRecipeLoader {
             .define('B', ModBlocks.CRATE)
             .unlockedBy(AnvilCraftDatagen.hasItem(Items.SHULKER_SHELL), AnvilCraftDatagen.has(Items.SHULKER_SHELL))
             .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.CRATE), AnvilCraftDatagen.has(ModBlocks.CRATE))
+            .save(provider);
+    }
+
+    private void storageFluidPort(RegistrumRecipeProvider provider) {
+        ShapedRecipeBuilder.shaped(RecipeCategory.BUILDING_BLOCKS, ModBlocks.STORAGE_FLUID_PORT, 1)
+            .pattern(" A ")
+            .pattern("BBB")
+            .pattern(" A ")
+            .define('A', Items.SHULKER_SHELL)
+            .define('B', ModBlocks.FLUID_TANK)
+            .unlockedBy(AnvilCraftDatagen.hasItem(Items.SHULKER_SHELL), AnvilCraftDatagen.has(Items.SHULKER_SHELL))
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.FLUID_TANK), AnvilCraftDatagen.has(ModBlocks.FLUID_TANK))
             .save(provider);
     }
 
