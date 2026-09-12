@@ -4,6 +4,7 @@ uniform sampler2D Sampler0;
 uniform sampler2D Sampler1;
 uniform mat4 SkyRotation;
 uniform mat4 EarthRotation;
+uniform vec3 EarthCenter;
 uniform vec3 SunDirection;
 uniform float EarthHalfSize;
 uniform float AtmosphereThickness;
@@ -90,7 +91,8 @@ void main() {
     if (localDirection.y <= 0.0) return;
     vec3 ray = transpose(mat3(SkyRotation)) * localDirection;
     mat3 inverseEarth = transpose(mat3(EarthRotation));
-    vec3 origin = inverseEarth * vec3(0.0, -1.0, 0.0);
+    // 天平动把地球中心搬离 (0,1,0)，观察者相对地球中心的位置须由 uniform 给出。
+    vec3 origin = inverseEarth * -EarthCenter;
     vec3 direction = inverseEarth * ray;
     vec3 color;
     float surfaceDistance;

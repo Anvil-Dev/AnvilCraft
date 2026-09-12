@@ -75,12 +75,12 @@ public final class MunSkyRenderer {
         double partialTime = MunClientSky.partialDayTime(level, partialTick);
         MunSkyMath.Rotation rotation = MunSkyMath.skyRotation(position.x, position.z, dayTime, partialTime);
         MunSkyMath.Vector sun = MunSkyMath.referenceSun(dayTime, partialTime);
+        MunSkyMath.Vector center = MunSkyMath.earthCenter(dayTime, partialTime);
         skyShader.safeGetUniform("InverseProjection").set(new Matrix4f(projection).invert());
         skyShader.safeGetUniform("InverseView").set(new Matrix4f(view).invert());
         skyShader.safeGetUniform("SkyRotation").set(rotationMatrix(rotation));
-        skyShader.safeGetUniform("EarthRotation").set(
-            rotationMatrix(MunSkyMath.EARTH_ROTATION).mul(rotationMatrix(MunSkyMath.earthSpin(dayTime, partialTime)))
-        );
+        skyShader.safeGetUniform("EarthRotation").set(earthMatrix(dayTime, partialTime));
+        skyShader.safeGetUniform("EarthCenter").set((float) center.x(), (float) center.y(), (float) center.z());
         skyShader.safeGetUniform("SunDirection").set((float) sun.x(), (float) sun.y(), (float) sun.z());
         skyShader.safeGetUniform("EarthHalfSize").set((float) MunSkyMath.EARTH_HALF_SIZE);
         skyShader.safeGetUniform("AtmosphereThickness").set((float) MunSkyMath.EARTH_ATMOSPHERE_THICKNESS);
@@ -100,6 +100,19 @@ public final class MunSkyRenderer {
             }
             drawScreenQuad();
         }
+    }
+
+    /**
+     * 地球本地坐标系到月球本体坐标系的完整变换矩阵：自转 ∘ 地轴朝向 ∘ 天平动。
+     *
+     * <p>次序与 {@link MunSkyMath#earthNormal} 一致，务必保持同步。</p>
+     */
+    public static Matrix4f earthMatrix(long dayTime, double partialTick) {
+        MunSkyMath.Libration libration = MunSkyMath.libration(dayTime, partialTick);
+        return rotationMatrix(libration.longitude())
+            .mul(rotationMatrix(libration.latitude()))
+            .mul(rotationMatrix(MunSkyMath.EARTH_ROTATION))
+            .mul(rotationMatrix(MunSkyMath.earthSpin(dayTime, partialTick)));
     }
 
     public static Matrix4f rotationMatrix(MunSkyMath.Rotation rotation) {
