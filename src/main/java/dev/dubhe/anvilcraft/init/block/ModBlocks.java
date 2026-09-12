@@ -5018,7 +5018,7 @@ public class ModBlocks {
 
     public static final BlockEntry<? extends Block> MONOLITH = REGISTRUM.block("monolith", Block::new)
         .initialProperties(() -> Blocks.BEDROCK)
-        .properties(properties -> properties.destroyTime(55.0F))
+        .properties(properties -> properties.destroyTime(55.0F).pushReaction(PushReaction.BLOCK))
         .tag(BlockTags.WITHER_IMMUNE, BlockTags.DRAGON_IMMUNE)
         .lang("Monolith")
         .blockstate(DataGenUtil::noExtraModelOrState)
@@ -5029,7 +5029,7 @@ public class ModBlocks {
 
     public static final BlockEntry<MonolithCoreBlock> MONOLITH_CORE = REGISTRUM.block("monolith_core", MonolithCoreBlock::new)
         .initialProperties(() -> Blocks.BEDROCK)
-        .properties(properties -> properties.destroyTime(55.0F))
+        .properties(properties -> properties.destroyTime(55.0F).pushReaction(PushReaction.BLOCK))
         .tag(BlockTags.WITHER_IMMUNE, BlockTags.DRAGON_IMMUNE)
         .loot((tables, block) -> DataGenUtil.dropOtherAndSelfWhenSilkTouch(tables, block, MONOLITH))
         .properties(properties -> properties.lightLevel(state -> 10).noOcclusion())
@@ -5042,7 +5042,7 @@ public class ModBlocks {
 
     public static final BlockEntry<MonolithBlock> MONOLITH_LINE = REGISTRUM.block("monolith_line", MonolithBlock::new)
         .initialProperties(() -> Blocks.BEDROCK)
-        .properties(properties -> properties.destroyTime(55.0F))
+        .properties(properties -> properties.destroyTime(55.0F).pushReaction(PushReaction.BLOCK))
         .tag(BlockTags.WITHER_IMMUNE, BlockTags.DRAGON_IMMUNE)
         .loot((tables, block) -> DataGenUtil.dropOtherAndSelfWhenSilkTouch(tables, block, MONOLITH))
         .properties(properties -> properties.lightLevel(state -> 10).noOcclusion())
@@ -5058,7 +5058,7 @@ public class ModBlocks {
             GiantMonolithCoreBlock::new
         )
         .initialProperties(() -> Blocks.BEDROCK)
-        .properties(properties -> properties.destroyTime(55.0F))
+        .properties(properties -> properties.destroyTime(55.0F).pushReaction(PushReaction.BLOCK))
         .tag(BlockTags.WITHER_IMMUNE, BlockTags.DRAGON_IMMUNE)
         .loot(GiantMonolithCoreBlock::loot)
         .properties(properties -> properties.lightLevel(state -> 10).noOcclusion().noCollission())
@@ -5071,7 +5071,7 @@ public class ModBlocks {
 
     public static final BlockEntry<MonolithBlock> GIANT_MONOLITH_LINE = REGISTRUM.block("giant_monolith_line", MonolithBlock::new)
         .initialProperties(() -> Blocks.BEDROCK)
-        .properties(properties -> properties.destroyTime(55.0F))
+        .properties(properties -> properties.destroyTime(55.0F).pushReaction(PushReaction.BLOCK))
         .tag(BlockTags.WITHER_IMMUNE, BlockTags.DRAGON_IMMUNE)
         .loot((tables, block) -> DataGenUtil.dropOtherAndSelfWhenSilkTouch(tables, block, MONOLITH))
         .properties(properties -> properties.lightLevel(state -> 10).noOcclusion().noCollission())
