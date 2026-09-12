@@ -1,12 +1,15 @@
 {
   "vertex": "anvilcraft:mun/mun_sky",
-  "fragment": "anvilcraft:mun/mun_sky",
+  "fragment": "anvilcraft:overworld_sky",
   "samplers": [
     {
       "name": "Sampler0"
     },
     {
       "name": "Sampler1"
+    },
+    {
+      "name": "Sampler2"
     }
   ],
   "uniforms": [
@@ -57,7 +60,7 @@
       ]
     },
     {
-      "name": "SkyRotation",
+      "name": "MoonRotation",
       "type": "matrix4x4",
       "count": 16,
       "values": [
@@ -80,30 +83,7 @@
       ]
     },
     {
-      "name": "EarthRotation",
-      "type": "matrix4x4",
-      "count": 16,
-      "values": [
-        1,
-        0,
-        0,
-        0,
-        0,
-        1,
-        0,
-        0,
-        0,
-        0,
-        1,
-        0,
-        0,
-        0,
-        0,
-        1
-      ]
-    },
-    {
-      "name": "EarthCenter",
+      "name": "MoonCenter",
       "type": "float",
       "count": 3,
       "values": [
@@ -123,30 +103,6 @@
       ]
     },
     {
-      "name": "EarthHalfSize",
-      "type": "float",
-      "count": 1,
-      "values": [
-        0.09
-      ]
-    },
-    {
-      "name": "EarthPerspective",
-      "type": "float",
-      "count": 1,
-      "values": [
-        0.25
-      ]
-    },
-    {
-      "name": "AtmosphereThickness",
-      "type": "float",
-      "count": 1,
-      "values": [
-        0.0182
-      ]
-    },
-    {
       "name": "SunUvBounds",
       "type": "float",
       "count": 4,
@@ -158,11 +114,11 @@
       ]
     },
     {
-      "name": "Daylight",
+      "name": "Visibility",
       "type": "float",
       "count": 1,
       "values": [
-        0
+        1
       ]
     }
   ]

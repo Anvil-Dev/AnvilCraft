@@ -123,6 +123,7 @@
       "ItemOverridesMixin",
       "JeiBasicRecipeTransferHandlerMixin",
       "LevelRendererMixin",
+      "OverworldSkyMixin",
       "LocalPlayerMixin",
       "MinecraftClientMixin",
       "MouseHandlerMixin",

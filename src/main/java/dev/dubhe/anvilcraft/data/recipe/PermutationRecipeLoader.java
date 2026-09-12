@@ -101,7 +101,7 @@ public class PermutationRecipeLoader {
         PermutationRecipeLoader.register(
             provider,
             List.of("anvil_hammer", "dragon_rod"),
-            ModItems.MULTIPHASE_MATTER,
+            ModBlocks.MULTIPHASE_MATTER_BLOCK,
             AnvilCraft.of("frost"),
             AnvilCraft.of("ember"),
             (frost, ember) -> PermutationRecipe.builder().input(

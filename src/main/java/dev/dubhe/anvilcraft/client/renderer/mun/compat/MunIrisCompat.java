@@ -27,8 +27,11 @@ public final class MunIrisCompat {
         ClientLevel level = Objects.requireNonNull(Minecraft.getInstance().level);
         Vec3 camera = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
         double partialTime = MunClientSky.partialDayTime(level, CapturedRenderingState.INSTANCE.getTickDelta());
-        MunSkyMath.Rotation rotation = MunSkyMath.skyRotation(camera.x, camera.z, level.getDayTime(), partialTime);
-        MunSkyMath.Vector direction = rotation.apply(sun ? MunSkyMath.referenceSun(level.getDayTime(), partialTime) : MunSkyMath.UP);
+        long dayTime = level.getDayTime();
+        MunSkyMath.Rotation rotation = MunSkyMath.skyRotation(camera.x, camera.z, dayTime, partialTime);
+        MunSkyMath.Vector direction = rotation.apply(
+            sun ? MunSkyMath.referenceSun(dayTime, partialTime) : MunSkyMath.earthCenter(dayTime, partialTime)
+        );
         Vector4f position = new Vector4f((float) direction.x() * 100, (float) direction.y() * 100, (float) direction.z() * 100, 0);
         if (cameraSpace) CapturedRenderingState.INSTANCE.getGbufferModelView().transform(position);
         return position;

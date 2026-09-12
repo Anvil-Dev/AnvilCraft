@@ -10,11 +10,17 @@ public final class MunSkyMath {
     public static final long DAY_LENGTH = 24000L * 8;
     public static final long EARTH_ROTATION_PERIOD = 24000L;
     public static final double EARTH_HALF_SIZE = 0.09;
-    public static final double EARTH_ATMOSPHERE_THICKNESS = 0.014;
-    public static final double SUN_HALF_SIZE = 0.27;
-    // 原版太阳贴图的中央 8 × 8 像素为日面，其余 32 × 32 区域为光晕。
-    public static final double SUN_DISC_HALF_SIZE = SUN_HALF_SIZE / 4;
+    public static final double EARTH_ATMOSPHERE_THICKNESS = 0.0182;
+    /** 仅压缩沿视线的深度差，保持横向尺寸，模拟拉远后放大的弱透视。 */
+    public static final double EARTH_PERSPECTIVE = 0.25;
     public static final Vector UP = new Vector(0, 1, 0);
+    public static final double SUN_BODY_HALF_SIZE = 0.05;
+    public static final double SUN_PERSPECTIVE = 0.25;
+    public static final Rotation SUN_ROTATION = new Rotation(new Vector(Math.sqrt(0.5), 0, Math.sqrt(0.5)), Math.toRadians(35));
+    private static final List<Point> SUN_SILHOUETTE = sunSilhouette();
+    public static final double SUN_DISC_HALF_SIZE = SUN_SILHOUETTE.stream()
+        .mapToDouble(point -> Math.max(Math.abs(point.x), Math.abs(point.y))).max().orElseThrow();
+    public static final double SUN_DISC_AREA = area(SUN_SILHOUETTE);
     /**
      * 地轴朝向：黄赤交角 23.4393°（真实地球值）。
      *
@@ -135,16 +141,16 @@ public final class MunSkyMath {
      */
     public static Vector observerInEarthFrame(long dayTime, double partialTick) {
         Rotation spin = earthSpin(dayTime, partialTick);
-        return spin.inverse(EARTH_ROTATION.inverse(UP.scale(-1)));
+        return spin.inverse(EARTH_ROTATION.inverse(UP.scale(-1 / EARTH_PERSPECTIVE)));
     }
 
     private static Vector cubeCorner(int corner, double halfSize, Rotation spin) {
-        return EARTH_ROTATION.apply(spin.apply(cornerOffset(corner, halfSize))).add(UP);
+        Vector offset = EARTH_ROTATION.apply(spin.apply(cornerOffset(corner, halfSize)));
+        return new Vector(offset.x, 1 + offset.y * EARTH_PERSPECTIVE, offset.z);
     }
 
     private static Vector cubeCorner(int corner, double halfSize, Rotation spin, Libration libration) {
-        return libration.apply(EARTH_ROTATION.apply(spin.apply(cornerOffset(corner, halfSize))))
-            .add(libration.apply(UP));
+        return libration.apply(cubeCorner(corner, halfSize, spin));
     }
 
     private static Vector cornerOffset(int corner, double halfSize) {
@@ -170,6 +176,20 @@ public final class MunSkyMath {
         return new Vector(Math.sin(angle), Math.cos(angle), 0);
     }
 
+    public static Vector sunCorner(int corner, double scale) {
+        Vector offset = SUN_ROTATION.apply(cornerOffset(corner, SUN_BODY_HALF_SIZE * scale));
+        return new Vector(offset.x, 1 + offset.y * SUN_PERSPECTIVE, offset.z);
+    }
+
+    private static List<Point> sunSilhouette() {
+        List<Point> points = new ArrayList<>(8);
+        for (int corner = 0; corner < 8; corner++) {
+            Vector point = sunCorner(corner, 1);
+            points.add(new Point(point.x / point.y, point.z / point.y));
+        }
+        return List.copyOf(convexHull(points));
+    }
+
     public static Vector sunDirection(double x, double z, long dayTime, double partialTick) {
         return skyRotation(x, z, dayTime, partialTick).apply(referenceSun(dayTime, partialTick));
     }
@@ -186,10 +206,7 @@ public final class MunSkyMath {
         if (height + extent <= 0) return 0;
         boolean possibleEclipse = sun.y >= ECLIPSE_COSINE;
         if (height - extent >= 0 && !possibleEclipse) return 1;
-        List<Point> visible = clip(List.of(
-            new Point(-SUN_DISC_HALF_SIZE, -SUN_DISC_HALF_SIZE), new Point(SUN_DISC_HALF_SIZE, -SUN_DISC_HALF_SIZE),
-            new Point(SUN_DISC_HALF_SIZE, SUN_DISC_HALF_SIZE), new Point(-SUN_DISC_HALF_SIZE, SUN_DISC_HALF_SIZE)
-        ), horizontal, vertical, height);
+        List<Point> visible = clip(SUN_SILHOUETTE, horizontal, vertical, height);
         double area = area(visible);
         if (possibleEclipse) {
             List<Point> silhouette = earthSilhouette(sun, tangent, spin, libration(dayTime, partialTick));
@@ -203,7 +220,7 @@ public final class MunSkyMath {
             }
             area -= area(covered);
         }
-        double fraction = area / (4 * SUN_DISC_HALF_SIZE * SUN_DISC_HALF_SIZE);
+        double fraction = area / SUN_DISC_AREA;
         return fraction < 1.0e-10 ? 0 : Math.min(fraction, 1);
     }
 
@@ -213,10 +230,7 @@ public final class MunSkyMath {
         if (sun.y < ECLIPSE_COSINE) return List.of();
         Vector tangent = new Vector(sun.y, -sun.x, 0);
         List<Point> silhouette = earthSilhouette(sun, tangent, earthSpin(dayTime, partialTick), libration(dayTime, partialTick));
-        List<Point> covered = List.of(
-            new Point(-SUN_DISC_HALF_SIZE, -SUN_DISC_HALF_SIZE), new Point(SUN_DISC_HALF_SIZE, -SUN_DISC_HALF_SIZE),
-            new Point(SUN_DISC_HALF_SIZE, SUN_DISC_HALF_SIZE), new Point(-SUN_DISC_HALF_SIZE, SUN_DISC_HALF_SIZE)
-        );
+        List<Point> covered = SUN_SILHOUETTE;
         for (int i = 0; i < silhouette.size(); i++) {
             Point first = silhouette.get(i);
             Point second = silhouette.get((i + 1) % silhouette.size());
@@ -234,6 +248,10 @@ public final class MunSkyMath {
             double depth = point.dot(sun);
             points.add(new Point(point.dot(tangent) / depth, point.z / depth));
         }
+        return convexHull(points);
+    }
+
+    private static List<Point> convexHull(List<Point> points) {
         points.sort(Comparator.comparingDouble(Point::x).thenComparingDouble(Point::y));
         List<Point> hull = new ArrayList<>(8);
         for (Point point : points) {
@@ -299,7 +317,10 @@ public final class MunSkyMath {
     public static boolean intersectsEarth(Vector ray, long dayTime, double partialTick) {
         Rotation spin = earthSpin(dayTime, partialTick);
         Vector origin = observerInEarthFrame(dayTime, partialTick);
-        Vector direction = spin.inverse(EARTH_ROTATION.inverse(libration(dayTime, partialTick).inverse(ray)));
+        Vector unshifted = libration(dayTime, partialTick).inverse(ray);
+        Vector direction = spin.inverse(EARTH_ROTATION.inverse(
+            new Vector(unshifted.x, unshifted.y / EARTH_PERSPECTIVE, unshifted.z)
+        ));
         double near = 0;
         double far = Double.POSITIVE_INFINITY;
         for (int axis = 0; axis < 3; axis++) {

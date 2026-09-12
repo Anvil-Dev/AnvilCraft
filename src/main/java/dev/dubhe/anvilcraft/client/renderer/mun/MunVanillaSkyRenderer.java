@@ -11,7 +11,10 @@ import com.mojang.blaze3d.vertex.VertexSorting;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.worldgen.MunSkyMath;
 import dev.dubhe.anvilcraft.worldgen.MunSkyMath.Vector;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.client.renderer.texture.TextureAtlas;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.resources.ResourceLocation;
 import org.joml.Matrix4f;
 import org.lwjgl.opengl.GL11C;
@@ -25,7 +28,7 @@ final class MunVanillaSkyRenderer {
     private static final ResourceLocation EARTH = ResourceLocation.fromNamespaceAndPath(
         AnvilCraft.MOD_ID, "textures/block/celestial_body/planet_overworld.png"
     );
-    private static final ResourceLocation SUN = ResourceLocation.withDefaultNamespace("textures/environment/sun.png");
+    private static final ResourceLocation SUN = ResourceLocation.fromNamespaceAndPath(AnvilCraft.MOD_ID, "block/celestial_body/star");
     private static final int[][] FACES = {{1, 3, 7, 5}, {0, 4, 6, 2}, {2, 6, 7, 3}, {0, 1, 5, 4}, {4, 5, 7, 6}, {0, 2, 3, 1}};
     private static final Vector[] NORMALS = {
         new Vector(1, 0, 0), new Vector(-1, 0, 0), new Vector(0, 1, 0),
@@ -60,7 +63,7 @@ final class MunVanillaSkyRenderer {
                 RenderSystem.setProjectionMatrix(projection, VertexSorting.DISTANCE_TO_ORIGIN);
                 MunSkyMath.Rotation rotation = MunSkyMath.skyRotation(x, z, time, partialTick);
                 drawStars(rotation, time, partialTick, daylight);
-                drawSun(rotation, time, partialTick);
+                drawSun(rotation, time, partialTick, daylight);
                 drawEarth(rotation, time, partialTick);
             } finally {
                 RenderSystem.getModelViewStack().popMatrix();
@@ -101,23 +104,69 @@ final class MunVanillaSkyRenderer {
             -sun.x() * vector.x() + sun.y() * vector.y(), vector.z());
     }
 
-    private static void drawSun(MunSkyMath.Rotation rotation, long time, double partialTick) {
-        double size = MunSkyMath.SUN_HALF_SIZE;
-        List<SkyVertex> vertices = new ArrayList<>(4);
-        for (int corner = 0; corner < 4; corner++) {
-            float u = corner == 0 || corner == 3 ? 0 : 1;
-            float v = corner < 2 ? 0 : 1;
-            Vector point = new Vector((u * 2 - 1) * size, 1, (v * 2 - 1) * size);
-            vertices.add(new SkyVertex(rotation.apply(solarDirection(point, time, partialTick)), u, v));
-        }
-        RenderSystem.setShader(GameRenderer::getPositionTexColorShader);
-        RenderSystem.setShaderTexture(0, SUN);
+    private static void drawSun(MunSkyMath.Rotation rotation, long time, double partialTick, float daylight) {
+        RenderSystem.setShader(GameRenderer::getPositionColorShader);
         RenderSystem.enableBlend();
         RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE);
-        BufferBuilder buffer = Tesselator.getInstance().begin(VertexFormat.Mode.TRIANGLES, DefaultVertexFormat.POSITION_TEX_COLOR);
-        emit(buffer, clipHorizon(vertices), 1, true);
-        draw(buffer);
+        BufferBuilder halo = Tesselator.getInstance().begin(VertexFormat.Mode.TRIANGLES, DefaultVertexFormat.POSITION_COLOR);
+        for (int layer = 32; layer > 0; layer--) {
+            double inner = 0.30 * Math.pow((layer - 1) / 32.0, 2);
+            double outer = 0.30 * Math.pow(layer / 32.0, 2);
+            double scale = 1 + outer / MunSkyMath.SUN_DISC_HALF_SIZE;
+            float alpha = daylight * (sunGlow(inner) - sunGlow(outer));
+            for (int face = 0; face < FACES.length; face++) {
+                if (!sunFaceVisible(face, scale)) continue;
+                emit(halo, sunFace(face, scale, rotation, time, partialTick), 1, 0.92F, 0.74F, alpha, false);
+            }
+        }
+        draw(halo);
         RenderSystem.disableBlend();
+        RenderSystem.setShader(GameRenderer::getPositionTexColorShader);
+        RenderSystem.setShaderTexture(0, TextureAtlas.LOCATION_BLOCKS);
+        TextureAtlasSprite sprite = Minecraft.getInstance().getTextureAtlas(TextureAtlas.LOCATION_BLOCKS).apply(SUN);
+        BufferBuilder buffer = Tesselator.getInstance().begin(VertexFormat.Mode.TRIANGLES, DefaultVertexFormat.POSITION_TEX_COLOR);
+        for (int face = 0; face < FACES.length; face++) {
+            if (!sunFaceVisible(face, 1)) continue;
+            float brightness = face == 3 ? 1 : face == 1 ? 0.97F : 0.94F;
+            List<SkyVertex> vertices = sunFace(face, 1, rotation, time, partialTick).stream()
+                .map(vertex -> new SkyVertex(vertex.position(), sprite.getU(vertex.u()), sprite.getV(vertex.v()))).toList();
+            emit(buffer, vertices, brightness, brightness * 0.985F, brightness * 0.94F, 1, true);
+        }
+        draw(buffer);
+        RenderSystem.setShader(GameRenderer::getPositionColorShader);
+        RenderSystem.enableBlend();
+        RenderSystem.defaultBlendFunc();
+        BufferBuilder core = Tesselator.getInstance().begin(VertexFormat.Mode.TRIANGLES, DefaultVertexFormat.POSITION_COLOR);
+        for (int face = 0; face < FACES.length; face++) {
+            if (!sunFaceVisible(face, 1)) continue;
+            float brightness = face == 3 ? 1 : face == 1 ? 0.97F : 0.94F;
+            emit(core, sunFace(face, 1, rotation, time, partialTick), brightness, brightness * 0.985F, brightness * 0.94F, 0.9F, false);
+        }
+        draw(core);
+        RenderSystem.disableBlend();
+    }
+
+    private static float sunGlow(double distance) {
+        return (float) (0.8 * Math.exp(-distance / 0.009) + 0.35 * Math.exp(-distance / 0.035) + 0.1 * Math.exp(-distance / 0.09));
+    }
+
+    private static boolean sunFaceVisible(int face, double scale) {
+        return MunSkyMath.SUN_ROTATION.apply(NORMALS[face]).y() / MunSkyMath.SUN_PERSPECTIVE
+            + MunSkyMath.SUN_BODY_HALF_SIZE * scale < 0;
+    }
+
+    static List<SkyVertex> sunFace(int face, double scale, MunSkyMath.Rotation rotation, long time, double partialTick) {
+        List<SkyVertex> vertices = new ArrayList<>(4);
+        for (int corner : FACES[face]) {
+            float x = corner & 1;
+            float y = (corner >> 1) & 1;
+            float z = (corner >> 2) & 1;
+            float u = face == 0 ? 1 - z : face == 1 ? z : face == 2 || face == 5 ? 1 - x : x;
+            float v = face == 2 || face == 3 ? 1 - z : 1 - y;
+            Vector point = rotation.apply(solarDirection(MunSkyMath.sunCorner(corner, scale), time, partialTick));
+            vertices.add(new SkyVertex(point, 0.001F + u * 0.998F, 0.001F + v * 0.998F));
+        }
+        return clipHorizon(vertices);
     }
 
     private static void drawEarth(MunSkyMath.Rotation rotation, long time, double partialTick) {
@@ -128,9 +177,9 @@ final class MunVanillaSkyRenderer {
         Vector center = MunSkyMath.earthCenter(time, partialTick);
         for (int face = 0; face < FACES.length; face++) {
             Vector normal = MunSkyMath.earthNormal(NORMALS[face], time, partialTick);
-            // 背向观察者的面直接跳过：中心到观察者的方向是 -center。
-            if (normal.dot(center) + MunSkyMath.EARTH_HALF_SIZE >= 0) continue;
-            float light = (float) (0.36 + 0.64 * Math.sqrt(Math.max(0, normal.dot(sun))));
+            // 弱透视等效于沿地球中心方向拉远观察者，剔除也须使用相同距离。
+            if (normal.dot(center) / MunSkyMath.EARTH_PERSPECTIVE + MunSkyMath.EARTH_HALF_SIZE >= 0) continue;
+            float light = (float) (0.18 + 0.82 * Math.sqrt(Math.max(0, normal.dot(sun))));
             emit(buffer, earthFace(face, rotation, time, partialTick), light, true);
         }
         draw(buffer);
@@ -176,12 +225,18 @@ final class MunVanillaSkyRenderer {
     }
 
     private static void emit(BufferBuilder buffer, List<SkyVertex> vertices, float light, boolean textured) {
+        emit(buffer, vertices, light, light, light, 1, textured);
+    }
+
+    private static void emit(
+        BufferBuilder buffer, List<SkyVertex> vertices, float red, float green, float blue, float alpha, boolean textured
+    ) {
         for (int index = 1; index < vertices.size() - 1; index++) {
             for (SkyVertex vertex : List.of(vertices.getFirst(), vertices.get(index), vertices.get(index + 1))) {
                 Vector point = vertex.position();
                 buffer.addVertex((float) (point.x() * 100), (float) (point.y() * 100), (float) (point.z() * 100));
                 if (textured) buffer.setUv(vertex.u(), vertex.v());
-                buffer.setColor(light, light, light, 1);
+                buffer.setColor(red, green, blue, alpha);
             }
         }
     }

@@ -101,9 +101,11 @@ public final class MunSodiumShaders {
         try (var stream = Minecraft.getInstance().getResourceManager()
             .open(AnvilCraft.of("shaders/include/mun/mun_surface.glsl"))) {
             String surface = new String(stream.readAllBytes(), StandardCharsets.UTF_8);
-            try (var solar = Minecraft.getInstance().getResourceManager().open(AnvilCraft.of("shaders/include/mun/mun_solar.glsl"))) {
+            try (var solar = Minecraft.getInstance().getResourceManager().open(AnvilCraft.of("shaders/include/mun/mun_solar.glsl"));
+                 var sun = Minecraft.getInstance().getResourceManager().open(AnvilCraft.of("shaders/include/mun/mun_sun.glsl"))) {
                 return surface.replace("#moj_import <anvilcraft:mun/mun_solar.glsl>",
-                    new String(solar.readAllBytes(), StandardCharsets.UTF_8));
+                    new String(solar.readAllBytes(), StandardCharsets.UTF_8).replace("#moj_import <anvilcraft:mun/mun_sun.glsl>",
+                        new String(sun.readAllBytes(), StandardCharsets.UTF_8)));
             }
         } catch (IOException exception) {
             throw new UncheckedIOException("Cannot load Mun surface shader", exception);

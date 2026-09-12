@@ -68,6 +68,10 @@ public class AnvilCraftClientConfig {
     @Comment("Render the shared orbital rings in the overworld-like dimension")
     public boolean renderOverworldLikeSky = true;
 
+    @Comment("Vanilla keeps the original Overworld sky. Special replaces only the sun and moon with models, "
+        + "including libration and a continuous eight-day lunar phase cycle. World lighting is unchanged.")
+    public OverworldSkyMode overworldSkyMode = OverworldSkyMode.VANILLA;
+
     @Comment("Mun lighting: Potato uses Standard lighting and ambient occlusion without custom shadows, retaining vanilla entity shadows; "
         + "Standard adds terrain, animated entity, and colored translucent shadows; "
         + "Vanilla uses the vanilla rendering pipeline without Mun shaders, retaining the cloudless Mun sky, Overworld and moving stars. "
@@ -162,6 +166,13 @@ public class AnvilCraftClientConfig {
         VANILLA,
         @SerializedName("Standard")
         STANDARD
+    }
+
+    public enum OverworldSkyMode implements TranslatableEnum {
+        @SerializedName("Vanilla")
+        VANILLA,
+        @SerializedName("Special")
+        SPECIAL
     }
 
     public enum MunLightingQuality implements TranslatableEnum {

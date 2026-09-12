@@ -1,26 +1,17 @@
 #version 150
+#moj_import <anvilcraft:mun/mun_sun_render.glsl>
 
 uniform sampler2D Sampler0;
-uniform sampler2D Sampler1;
 uniform mat4 SkyRotation;
 uniform mat4 EarthRotation;
 uniform vec3 EarthCenter;
 uniform vec3 SunDirection;
 uniform float EarthHalfSize;
+uniform float EarthPerspective;
 uniform float AtmosphereThickness;
-uniform float SunHalfSize;
 uniform float Daylight;
 in vec3 localRay;
 out vec4 fragColor;
-
-vec2 cubeInterval(vec3 origin, vec3 direction, float halfSize) {
-    vec3 inverseRay = sign(direction + vec3(1e-12)) / max(abs(direction), vec3(1e-9));
-    vec3 first = (-vec3(halfSize) - origin) * inverseRay;
-    vec3 second = (vec3(halfSize) - origin) * inverseRay;
-    vec3 near = min(first, second);
-    vec3 far = max(first, second);
-    return vec2(max(max(near.x, near.y), near.z), min(min(far.x, far.y), far.z));
-}
 
 bool earth(vec3 origin, vec3 direction, out vec3 color, out float surfaceDistance) {
     surfaceDistance = 10000.0;
@@ -48,7 +39,7 @@ bool earth(vec3 origin, vec3 direction, out vec3 color, out float surfaceDistanc
     }
     float light = max(dot(mat3(EarthRotation) * normal, SunDirection), 0.0);
     vec3 albedo = texture(Sampler0, (tile + clamp(uv, 0.001, 0.999)) / 4.0).rgb;
-    color = pow(albedo, vec3(0.86)) * (0.36 + 0.64 * sqrt(light));
+    color = pow(albedo, vec3(0.86)) * (0.1 + 0.9 * sqrt(light));
     return true;
 }
 
@@ -91,9 +82,10 @@ void main() {
     if (localDirection.y <= 0.0) return;
     vec3 ray = transpose(mat3(SkyRotation)) * localDirection;
     mat3 inverseEarth = transpose(mat3(EarthRotation));
-    // 天平动把地球中心搬离 (0,1,0)，观察者相对地球中心的位置须由 uniform 给出。
-    vec3 origin = inverseEarth * -EarthCenter;
-    vec3 direction = inverseEarth * ray;
+    // 逆变换弱透视的深度压缩；归一化后仍按地球本地距离积分大气散射。
+    vec3 origin = inverseEarth * (-EarthCenter / EarthPerspective);
+    vec3 earthRay = ray + EarthCenter * dot(ray, EarthCenter) * (1.0 / EarthPerspective - 1.0);
+    vec3 direction = normalize(inverseEarth * earthRay);
     vec3 color;
     float surfaceDistance;
     if (!earth(origin, direction, color, surfaceDistance)) {
@@ -101,14 +93,9 @@ void main() {
         float forward = dot(ray, SunDirection);
         vec3 starRay = vec3(dot(ray, tangent), forward, ray.z);
         color = vec3(stars(starRay) * mix(0.85, 0.3, Daylight));
-        if (forward > 0.0) {
-            vec2 uv = vec2(dot(ray, tangent), ray.z) / (forward * SunHalfSize);
-            float radius = max(abs(uv.x), abs(uv.y));
-            if (radius <= 1.0) {
-                vec4 sun = texture(Sampler1, uv * 0.5 + 0.5);
-                // 日食遮住日面后，同步淡出贴图的镜头光晕。
-                color += sun.rgb * sun.a * (radius <= 0.25 ? 1.0 : Daylight);
-            }
+        if (forward > 0.0 && max(abs(starRay.x), abs(starRay.z)) < forward * 0.4) {
+            vec4 solar = modelSun(starRay, Daylight);
+            color = solar.rgb + color * (1.0 - solar.a);
         }
     }
     vec4 haze = atmosphere(origin, direction, surfaceDistance);
