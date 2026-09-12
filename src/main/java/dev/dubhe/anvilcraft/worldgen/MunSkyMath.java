@@ -15,9 +15,31 @@ public final class MunSkyMath {
     // 原版太阳贴图的中央 8 × 8 像素为日面，其余 32 × 32 区域为光晕。
     public static final double SUN_DISC_HALF_SIZE = SUN_HALF_SIZE / 4;
     public static final Vector UP = new Vector(0, 1, 0);
-    public static final Rotation EARTH_ROTATION = new Rotation(new Vector(Math.sqrt(0.5), 0, Math.sqrt(0.5)), Math.toRadians(30));
+    /**
+     * 地轴朝向：黄赤交角 23.4393°（真实地球值）。
+     *
+     * <p>本帧中太阳沿 XY 平面运行（{@link #referenceSun} 的 z 恒为 0），故黄道极是 Z；
+     * 地球中心在 {@code (0, 1, 0)}，观察者在原点，看向地球的视线为 +Y。地轴须与黄道极成
+     * 黄赤交角、且不偏向观察者，因此取 {@code (sin ε, 0, cos ε)}：既有 23.44° 的倾角，
+     * 又因 Y 分量为 0 而不会让任意一极正对玩家（否则自转会看起来在绕视线打转）。</p>
+     *
+     * <p>该目标与 {@link #UP} 正交，故旋转角恰为 90°，轴取 {@code UP × 目标}。此处为平均朝向，
+     * 天平动在 {@link #earthNormal} 中于此之上再叠加一次摆动。</p>
+     */
+    public static final Rotation EARTH_ROTATION = new Rotation(
+        new Vector(Math.cos(Math.toRadians(23.4393)), 0, -Math.sin(Math.toRadians(23.4393))),
+        Math.PI / 2
+    );
+    /** 纬天平动振幅（度）：月球赤道与轨道面有交角，使地球在天空中南北摆动，真实值约 6.69°。 */
+    public static final double LIBRATION_LATITUDE_AMPLITUDE = 6.69;
+    /** 经天平动振幅（度）：轨道偏心率使地球在天空中东西摆动，真实值约 7.90°。 */
+    public static final double LIBRATION_LONGITUDE_AMPLITUDE = 7.90;
+    /** 天平动使地球中心偏离平均方向的角度上界：两分量按平方和合成，实际最大约 7.9°。 */
+    private static final double LIBRATION_MAX_OFFSET = Math.hypot(
+        Math.toRadians(LIBRATION_LATITUDE_AMPLITUDE), Math.toRadians(LIBRATION_LONGITUDE_AMPLITUDE)
+    );
     private static final double ECLIPSE_COSINE = Math.cos(
-        Math.asin(Math.sqrt(3) * EARTH_HALF_SIZE) + Math.atan(Math.sqrt(2) * SUN_DISC_HALF_SIZE)
+        Math.asin(Math.sqrt(3) * EARTH_HALF_SIZE) + Math.atan(Math.sqrt(2) * SUN_DISC_HALF_SIZE) + LIBRATION_MAX_OFFSET
     );
 
     private MunSkyMath() {
@@ -57,24 +79,80 @@ public final class MunSkyMath {
     }
 
     public static Vector earthCorner(int corner, long dayTime, double partialTick) {
-        return cubeCorner(corner, EARTH_HALF_SIZE, earthSpin(dayTime, partialTick));
+        return cubeCorner(corner, EARTH_HALF_SIZE, earthSpin(dayTime, partialTick), libration(dayTime, partialTick));
     }
 
     public static Vector atmosphereCorner(int corner) {
         return atmosphereCorner(corner, 0, 0);
     }
 
+    /**
+     * 大气层外轮廓顶点，用于地平线与日影计算。
+     *
+     * <p>取平均朝向：地平线由观测几何决定，不随地球天平动摆动，否则天体投影会跟着一起晃。</p>
+     */
     public static Vector atmosphereCorner(int corner, long dayTime, double partialTick) {
         return cubeCorner(corner, EARTH_HALF_SIZE + EARTH_ATMOSPHERE_THICKNESS, earthSpin(dayTime, partialTick));
     }
 
+    /**
+     * 天平动：月球公转使地球在月面天空中偏离平均位置的摆动。
+     *
+     * <p>纬天平动绕黄道面内的 X 轴，让地球朝黄道极方向摆动；经天平动绕黄道极 Z 轴，让地球沿黄道摆动。
+     * 两者相差四分之一周期，地球在一个公转周期内画出一条椭圆轨迹，即通常所称的天平动图形。</p>
+     */
+    public static Libration libration(long dayTime, double partialTick) {
+        double phase = (Math.floorMod(dayTime, DAY_LENGTH) + partialTick) / DAY_LENGTH * (Math.PI * 2);
+        return new Libration(
+            new Rotation(new Vector(1, 0, 0), Math.toRadians(LIBRATION_LATITUDE_AMPLITUDE) * Math.sin(phase)),
+            new Rotation(new Vector(0, 0, 1), Math.toRadians(LIBRATION_LONGITUDE_AMPLITUDE) * Math.cos(phase))
+        );
+    }
+
+    /**
+     * 地球中心在月球本体坐标系中的位置。
+     *
+     * <p>无天平动时为 {@link #UP}；天平动让地球整体摆动，该点随之偏移，这是地球上看到的地球摆动。</p>
+     */
+    public static Vector earthCenter(long dayTime, double partialTick) {
+        return libration(dayTime, partialTick).apply(UP);
+    }
+
+    /**
+     * 地球本地法线到月球本体坐标系的完整变换，含地球自转、地轴朝向与天平动。
+     *
+     * <p>天平动对地球整体施加同一个刚体转动，故地轴朝向随之改变。</p>
+     */
+    public static Vector earthNormal(Vector local, long dayTime, double partialTick) {
+        Rotation spin = earthSpin(dayTime, partialTick);
+        return libration(dayTime, partialTick).apply(EARTH_ROTATION.apply(spin.apply(local)));
+    }
+
+    /**
+     * 观察者在地球本地坐标系中的位置，供着色器把视线变换到地球本地坐标系。
+     *
+     * <p>观察者位于天平动的转轴上，是其不动点，故该位置与天平动无关，无需随时间重算。</p>
+     */
+    public static Vector observerInEarthFrame(long dayTime, double partialTick) {
+        Rotation spin = earthSpin(dayTime, partialTick);
+        return spin.inverse(EARTH_ROTATION.inverse(UP.scale(-1)));
+    }
+
     private static Vector cubeCorner(int corner, double halfSize, Rotation spin) {
-        Vector point = new Vector(
+        return EARTH_ROTATION.apply(spin.apply(cornerOffset(corner, halfSize))).add(UP);
+    }
+
+    private static Vector cubeCorner(int corner, double halfSize, Rotation spin, Libration libration) {
+        return libration.apply(EARTH_ROTATION.apply(spin.apply(cornerOffset(corner, halfSize))))
+            .add(libration.apply(UP));
+    }
+
+    private static Vector cornerOffset(int corner, double halfSize) {
+        return new Vector(
             (corner & 1) == 0 ? -halfSize : halfSize,
             (corner & 2) == 0 ? -halfSize : halfSize,
             (corner & 4) == 0 ? -halfSize : halfSize
         );
-        return EARTH_ROTATION.apply(spin.apply(point)).add(UP);
     }
 
     public static Rotation earthSpin(long dayTime, double partialTick) {
@@ -114,7 +192,7 @@ public final class MunSkyMath {
         ), horizontal, vertical, height);
         double area = area(visible);
         if (possibleEclipse) {
-            List<Point> silhouette = earthSilhouette(sun, tangent, spin);
+            List<Point> silhouette = earthSilhouette(sun, tangent, spin, libration(dayTime, partialTick));
             List<Point> covered = visible;
             for (int i = 0; i < silhouette.size(); i++) {
                 Point first = silhouette.get(i);
@@ -134,7 +212,7 @@ public final class MunSkyMath {
         Vector sun = referenceSun(dayTime, partialTick);
         if (sun.y < ECLIPSE_COSINE) return List.of();
         Vector tangent = new Vector(sun.y, -sun.x, 0);
-        List<Point> silhouette = earthSilhouette(sun, tangent, earthSpin(dayTime, partialTick));
+        List<Point> silhouette = earthSilhouette(sun, tangent, earthSpin(dayTime, partialTick), libration(dayTime, partialTick));
         List<Point> covered = List.of(
             new Point(-SUN_DISC_HALF_SIZE, -SUN_DISC_HALF_SIZE), new Point(SUN_DISC_HALF_SIZE, -SUN_DISC_HALF_SIZE),
             new Point(SUN_DISC_HALF_SIZE, SUN_DISC_HALF_SIZE), new Point(-SUN_DISC_HALF_SIZE, SUN_DISC_HALF_SIZE)
@@ -149,10 +227,10 @@ public final class MunSkyMath {
         return covered.stream().map(point -> new Vector(point.x, point.y, 0)).toList();
     }
 
-    private static List<Point> earthSilhouette(Vector sun, Vector tangent, Rotation spin) {
+    private static List<Point> earthSilhouette(Vector sun, Vector tangent, Rotation spin, Libration libration) {
         List<Point> points = new ArrayList<>(8);
         for (int corner = 0; corner < 8; corner++) {
-            Vector point = cubeCorner(corner, EARTH_HALF_SIZE, spin);
+            Vector point = cubeCorner(corner, EARTH_HALF_SIZE, spin, libration);
             double depth = point.dot(sun);
             points.add(new Point(point.dot(tangent) / depth, point.z / depth));
         }
@@ -220,8 +298,8 @@ public final class MunSkyMath {
 
     public static boolean intersectsEarth(Vector ray, long dayTime, double partialTick) {
         Rotation spin = earthSpin(dayTime, partialTick);
-        Vector origin = spin.inverse(EARTH_ROTATION.inverse(UP.scale(-1)));
-        Vector direction = spin.inverse(EARTH_ROTATION.inverse(ray));
+        Vector origin = observerInEarthFrame(dayTime, partialTick);
+        Vector direction = spin.inverse(EARTH_ROTATION.inverse(libration(dayTime, partialTick).inverse(ray)));
         double near = 0;
         double far = Double.POSITIVE_INFINITY;
         for (int axis = 0; axis < 3; axis++) {
@@ -280,6 +358,21 @@ public final class MunSkyMath {
 
         public Vector inverse(Vector vector) {
             return new Rotation(this.axis, -this.angle).apply(vector);
+        }
+    }
+
+    /**
+     * 天平动，由两次绕正交轴的转动复合而成：{@code latitude} 负责南北摆动，{@code longitude} 负责东西摆动。
+     *
+     * <p>施加顺序固定为先生纬度后经度，与 {@link #libration} 的构造顺序一致。</p>
+     */
+    public record Libration(Rotation latitude, Rotation longitude) {
+        public Vector apply(Vector vector) {
+            return this.longitude.apply(this.latitude.apply(vector));
+        }
+
+        public Vector inverse(Vector vector) {
+            return this.latitude.inverse(this.longitude.inverse(vector));
         }
     }
 }

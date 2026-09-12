@@ -150,9 +150,11 @@ final class MunVanillaSkyRenderer {
         RenderSystem.setShaderTexture(0, EARTH);
         BufferBuilder buffer = Tesselator.getInstance().begin(VertexFormat.Mode.TRIANGLES, DefaultVertexFormat.POSITION_TEX_COLOR);
         Vector sun = MunSkyMath.referenceSun(time, partialTick);
+        Vector center = MunSkyMath.earthCenter(time, partialTick);
         for (int face = 0; face < FACES.length; face++) {
-            Vector normal = MunSkyMath.EARTH_ROTATION.apply(MunSkyMath.earthSpin(time, partialTick).apply(NORMALS[face]));
-            if (normal.dot(MunSkyMath.UP) + MunSkyMath.EARTH_HALF_SIZE >= 0) continue;
+            Vector normal = MunSkyMath.earthNormal(NORMALS[face], time, partialTick);
+            // 背向观察者的面直接跳过：中心到观察者的方向是 -center。
+            if (normal.dot(center) + MunSkyMath.EARTH_HALF_SIZE >= 0) continue;
             float light = (float) (0.36 + 0.64 * Math.sqrt(Math.max(0, normal.dot(sun))));
             emit(buffer, earthFace(face, rotation, time, partialTick), light, true);
         }
