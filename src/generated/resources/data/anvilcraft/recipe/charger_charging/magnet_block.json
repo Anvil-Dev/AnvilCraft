@@ -1,0 +1,12 @@
+{
+  "type": "anvilcraft:charger_charging",
+  "ingredient": {
+    "item": "minecraft:iron_block"
+  },
+  "power": -20,
+  "result": {
+    "count": 1,
+    "id": "anvilcraft:magnet_block"
+  },
+  "time": 80
+}

@@ -67,8 +67,42 @@ public record SpecialCelestialBodyRecipe(
     List<WeightedEntry> offerings,
     List<DemandEntry> templeBlessings,
     List<DemandEntry> templePunishments,
-    Optional<CelestialTravelData> landing
+    Optional<CelestialTravelData> landing,
+    boolean excludeFromMonolith
 ) implements Recipe<SpecialCelestialBodyInput> {
+
+    /** 兼容石碑知识排除选项加入前编译的集成，默认参与石碑赠书。 */
+    public SpecialCelestialBodyRecipe(
+        String name,
+        String model,
+        boolean needsCustomModel,
+        boolean canBeShattered,
+        int time,
+        int space,
+        int mass,
+        int energy,
+        Optional<ColorRGBA> atmosphere,
+        Optional<LiquidCoverage> liquidCoverage,
+        int magneticFieldStrength,
+        int rotationSpeed,
+        float axialTilt,
+        List<ResourceLocation> seedItems,
+        List<WeightedEntry> minerals,
+        List<WeightedEntry> fluids,
+        List<WeightedEntry> biologicalItems,
+        List<WeightedEntry> biologicalFluids,
+        List<WeightedEntry> offerings,
+        List<DemandEntry> templeBlessings,
+        List<DemandEntry> templePunishments,
+        Optional<CelestialTravelData> landing
+    ) {
+        this(
+            name, model, needsCustomModel, canBeShattered, time, space, mass, energy,
+            atmosphere, liquidCoverage, magneticFieldStrength, rotationSpeed, axialTilt,
+            seedItems, minerals, fluids, biologicalItems, biologicalFluids, offerings,
+            templeBlessings, templePunishments, landing, false
+        );
+    }
 
     /**
      * 兼容着陆规则加入前编译的集成。
@@ -277,11 +311,14 @@ public record SpecialCelestialBodyRecipe(
         ).apply(ins, ResourceFields::new));
     }
 
-    private record RenderingFields(boolean needsCustomModel, Optional<Boolean> canBeShattered) {
-        static final MapCodec<RenderingFields> CODEC = RecordCodecBuilder.mapCodec(ins -> ins.group(
-            Codec.BOOL.optionalFieldOf("needs_custom_model", false).forGetter(RenderingFields::needsCustomModel),
-            Codec.BOOL.optionalFieldOf("can_be_shattered").forGetter(RenderingFields::canBeShattered)
-        ).apply(ins, RenderingFields::new));
+    private record BehaviorFields(
+        boolean needsCustomModel, Optional<Boolean> canBeShattered, boolean excludeFromMonolith
+    ) {
+        static final MapCodec<BehaviorFields> CODEC = RecordCodecBuilder.mapCodec(ins -> ins.group(
+            Codec.BOOL.optionalFieldOf("needs_custom_model", false).forGetter(BehaviorFields::needsCustomModel),
+            Codec.BOOL.optionalFieldOf("can_be_shattered").forGetter(BehaviorFields::canBeShattered),
+            Codec.BOOL.optionalFieldOf("exclude_from_monolith", false).forGetter(BehaviorFields::excludeFromMonolith)
+        ).apply(ins, BehaviorFields::new));
     }
 
     private record AtmosphereFields(Optional<ColorRGBA> atmosphere, Optional<Boolean> hasAtmosphere) {
@@ -306,9 +343,10 @@ public record SpecialCelestialBodyRecipe(
         Codec.INT.fieldOf("rotation_speed").forGetter(SpecialCelestialBodyRecipe::rotationSpeed),
         Codec.FLOAT.fieldOf("axial_tilt").forGetter(SpecialCelestialBodyRecipe::axialTilt),
         RESOURCE_LOCATION_CODEC.listOf().fieldOf("seed_items").forGetter(SpecialCelestialBodyRecipe::seedItems),
-        RenderingFields.CODEC.forGetter(recipe -> new RenderingFields(
+        BehaviorFields.CODEC.forGetter(recipe -> new BehaviorFields(
             recipe.needsCustomModel(),
-            Optional.of(recipe.canBeShattered())
+            Optional.of(recipe.canBeShattered()),
+            recipe.excludeFromMonolith()
         )),
         ResourceFields.CODEC.fieldOf("resources").forGetter(
             r -> new ResourceFields(r.minerals, r.fluids, r.biologicalItems, r.biologicalFluids,
@@ -323,7 +361,7 @@ public record SpecialCelestialBodyRecipe(
         String name, int time, int space, int mass, int energy,
         String texture, AtmosphereFields atmosphereFields,
         Optional<LiquidCoverage> liquidCoverage, int magneticField, int rotationSpeed, float axialTilt,
-        List<ResourceLocation> seedItems, RenderingFields rendering,
+        List<ResourceLocation> seedItems, BehaviorFields behavior,
         ResourceFields res, Optional<CelestialTravelData> landing, Optional<CelestialTravelData> travel
     ) {
         Optional<CelestialTravelData> resolvedLanding = landing.isPresent() ? landing : travel;
@@ -331,18 +369,18 @@ public record SpecialCelestialBodyRecipe(
         if (atmosphere.isEmpty() && atmosphereFields.hasAtmosphere().orElse(false)) {
             atmosphere = legacyAtmosphere(energy, true);
         }
-        boolean canBeShattered = rendering.canBeShattered().orElseGet(
+        boolean canBeShattered = behavior.canBeShattered().orElseGet(
             () -> legacyCanBeShattered(resolvedLanding)
         );
         return new SpecialCelestialBodyRecipe(
-            name, texture, rendering.needsCustomModel(), canBeShattered,
+            name, texture, behavior.needsCustomModel(), canBeShattered,
             time, space, mass, energy,
             atmosphere, liquidCoverage,
             magneticField, rotationSpeed, axialTilt,
             seedItems,
             res.minerals, res.fluids, res.biologicalItems, res.biologicalFluids,
             res.offerings, res.templeBlessings, res.templePunishments,
-            resolvedLanding
+            resolvedLanding, behavior.excludeFromMonolith()
         );
     }
 
@@ -407,7 +445,7 @@ public record SpecialCelestialBodyRecipe(
                 seedItems,
                 minerals, fluids, biologicalItems, biologicalFluids,
                 offerings, templeBlessings, templePunishments,
-                landing
+                landing, buf.readBoolean()
             );
         }
 
@@ -435,6 +473,7 @@ public record SpecialCelestialBodyRecipe(
             DemandEntry.STREAM_CODEC.apply(ByteBufCodecs.list()).encode(buf, r.templeBlessings());
             DemandEntry.STREAM_CODEC.apply(ByteBufCodecs.list()).encode(buf, r.templePunishments());
             ByteBufCodecs.optional(CelestialTravelData.STREAM_CODEC).encode(buf, r.landing());
+            buf.writeBoolean(r.excludeFromMonolith());
         }
     };
 
