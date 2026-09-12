@@ -61,7 +61,10 @@ public class CuriosCommon {
             ModItems.FROST_ANVIL_HAMMER,
             ModItems.EMBER_ANVIL_HAMMER,
             ModItems.TRANSCENDENCE_ANVIL_HAMMER,
-            ModItems.IONOCRAFT_BACKPACK
+            ModItems.IONOCRAFT_BACKPACK,
+            ModItems.LOCAL_TERMINAL,
+            ModItems.SHULKER_TERMINAL,
+            ModItems.HYPERDIMENSION_TERMINAL
         );
     }
 

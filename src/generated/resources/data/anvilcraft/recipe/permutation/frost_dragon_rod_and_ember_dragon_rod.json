@@ -41,6 +41,6 @@
     }
   ],
   "material": {
-    "items": "anvilcraft:multiphase_matter"
+    "items": "anvilcraft:multiphase_matter_block"
   }
 }

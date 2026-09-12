@@ -9,6 +9,7 @@ import dev.dubhe.anvilcraft.recipe.ChargerChargingRecipe;
 import dev.dubhe.anvilcraft.recipe.EnergyWeaponMakeRecipe;
 import dev.dubhe.anvilcraft.recipe.FluidMixingRecipe;
 import dev.dubhe.anvilcraft.recipe.JewelCraftingRecipe;
+import dev.dubhe.anvilcraft.recipe.LaserHitRecipe;
 import dev.dubhe.anvilcraft.recipe.NeutroniumChargingRecipe;
 import dev.dubhe.anvilcraft.recipe.PillRecipe;
 import dev.dubhe.anvilcraft.recipe.PortalConversionRecipe;
@@ -63,6 +64,11 @@ public class ModRecipeTypes {
 
     public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<NeutroniumChargingRecipe>> NEUTRONIUM_CHARGING_SERIALIZER =
         RECIPE_SERIALIZERS.register("neutronium_charging", NeutroniumChargingRecipe.Serializer::new);
+
+    public static final DeferredHolder<RecipeType<?>, RecipeType<LaserHitRecipe>> LASER_HIT_TYPE =
+        registerType("laser_hit");
+    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<LaserHitRecipe>> LASER_HIT_SERIALIZER =
+        RECIPE_SERIALIZERS.register("laser_hit", LaserHitRecipe.Serializer::new);
 
     public static final DeferredHolder<RecipeType<?>, RecipeType<BlockCrushRecipe>> BLOCK_CRUSH_TYPE =
         registerType("block_crush");

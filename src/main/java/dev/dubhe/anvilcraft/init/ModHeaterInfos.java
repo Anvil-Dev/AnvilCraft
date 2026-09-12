@@ -1,13 +1,11 @@
 package dev.dubhe.anvilcraft.init;
 
-import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.api.heat.HeatRecorder;
 import dev.dubhe.anvilcraft.api.heat.HeatTier;
 import dev.dubhe.anvilcraft.api.heat.HeatTierLine;
 import dev.dubhe.anvilcraft.api.heat.HeaterInfo;
 import dev.dubhe.anvilcraft.block.BurningHeaterBlock;
 import dev.dubhe.anvilcraft.block.HeaterBlock;
-import dev.dubhe.anvilcraft.block.entity.BaseLaserBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.HeliostatsBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.MineralFountainBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.PlasmaJetsBlockEntity;
@@ -60,25 +58,6 @@ public class ModHeaterInfos {
             },
             mineralFountain -> Set.of(mineralFountain.getBlockPos().above()),
             HeatTierLine.always(HeatTier.REDHOT, 20)
-        )
-    );
-    public static final HeaterInfo<BaseLaserBlockEntity> LASER_EMITTER = HeatRecorder.registerProducerInfo(
-        HeaterInfo.blockEntity(
-            (level, pos) -> {
-                if (!level.isLoaded(pos)) return Optional.empty();
-                return Util.castSafely(level.getBlockEntity(pos), BaseLaserBlockEntity.class);
-            },
-            laserEmitter -> Optional.ofNullable(laserEmitter.getIrradiateBlockPos())
-                .map(Set::of)
-                .orElse(Set.of()),
-            HeatTierLine.builder()
-                .addPoint(1, HeatTier.NORMAL)
-                .addPoint(4, HeatTier.HEATED, 2)
-                .addPoint(16, HeatTier.REDHOT, 2)
-                .addPoint(64, HeatTier.GLOWING, 2)
-                .addPoint(HeatTier.INCANDESCENT, 2)
-                .build(),
-            BaseLaserBlockEntity::getLaserLevel
         )
     );
     public static final HeaterInfo<PlasmaJetsBlockEntity> NO_MAGNET_PLASMA_JETS = HeatRecorder.registerProducerInfo(

@@ -1,0 +1,16 @@
+{
+  "type": "anvilcraft:laser_hit",
+  "hit_time": 120,
+  "input": {
+    "blocks": "#c:ores_in_ground/deepslate"
+  },
+  "laser_strength": 8,
+  "priority": -90,
+  "result_block": {
+    "Name": "minecraft:deepslate",
+    "Properties": {
+      "axis": "y"
+    }
+  },
+  "use_block_loot": true
+}

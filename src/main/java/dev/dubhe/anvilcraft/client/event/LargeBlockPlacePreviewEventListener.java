@@ -9,6 +9,7 @@ import dev.anvilcraft.lib.v2.cube.client.SelectionPart;
 import dev.dubhe.anvilcraft.api.tooltip.TooltipRenderHelper;
 import dev.dubhe.anvilcraft.block.cfa.CelestialForgingAnvilAmplifierBlock;
 import dev.dubhe.anvilcraft.block.entity.CelestialForgingAnvilBlockEntity;
+import dev.dubhe.anvilcraft.block.item.ChuteBlockItem;
 import dev.dubhe.anvilcraft.block.item.FlexibleMultiPartBlockItem;
 import dev.dubhe.anvilcraft.block.item.PlaceInWaterBlockItem;
 import dev.dubhe.anvilcraft.block.item.SimpleMultiPartBlockItem;
@@ -171,7 +172,11 @@ public class LargeBlockPlacePreviewEventListener {
                 if (hit == null) return;
                 useContext = new UseOnContext(mc.level, player, hand, item, hit);
             } else {
-                useContext = BlockPlacementPicking.forPlacement(new UseOnContext(player, hand, target));
+                useContext = new UseOnContext(player, hand, target);
+                if (blockItem instanceof ChuteBlockItem && ChuteBlockItem.isStorageInteraction(useContext)) {
+                    return;
+                }
+                useContext = BlockPlacementPicking.forPlacement(useContext);
             }
         }
         if (useContext instanceof BlockPlacementPicking.PlayerClick click && !click.anvilcraft$hasBlockHit()) {

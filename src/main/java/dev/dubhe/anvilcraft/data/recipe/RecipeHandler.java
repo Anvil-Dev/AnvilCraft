@@ -30,13 +30,13 @@ public class RecipeHandler {
         MobTransformWithItemRecipeLoader.init(provider);
         ConcreteRecipeLoader.init(provider);
         MineralFountainRecipeLoader.init(provider);
+        LaserHitRecipeLoader.init(provider);
         VanillaRecipesLoader.init(provider);
         JewelCraftingRecipeLoader.init(provider);
         SpecialCraftingRecipeLoader.init(provider);
         ChargerChargingRecipeLoader.init(provider);
         AnvilCollisionCraftRecipeLoader.init(provider);
         MultipleToOneSmithingRecipeLoader.init(provider);
-        CoolingRecipeLoader.init(provider);
         PermutationRecipeLoader.init(provider);
         DeformationRecipeLoader.init(provider);
         EnergyWeaponMakeRecipeLoader.init(provider);

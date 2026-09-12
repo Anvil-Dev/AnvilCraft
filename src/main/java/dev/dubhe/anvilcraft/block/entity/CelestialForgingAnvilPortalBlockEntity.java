@@ -1,6 +1,5 @@
 package dev.dubhe.anvilcraft.block.entity;
 
-import dev.dubhe.anvilcraft.api.heat.HeaterManager;
 import dev.dubhe.anvilcraft.api.rendering.CacheableBERenderingPipeline;
 import dev.dubhe.anvilcraft.block.cfa.CelestialForgingAnvilBlock;
 import dev.dubhe.anvilcraft.block.cfa.CelestialForgingAnvilPortalBlock;
@@ -9,12 +8,8 @@ import dev.dubhe.anvilcraft.block.entity.celestial.CelestialTravelManager;
 import dev.dubhe.anvilcraft.block.entity.celestial.SpecialCelestialBodyData;
 import dev.dubhe.anvilcraft.block.state.Cube323PartHalf;
 import dev.dubhe.anvilcraft.block.state.DirectionGate331PartHalf;
-import dev.dubhe.anvilcraft.init.ModHeaterInfos;
-import dev.dubhe.anvilcraft.init.block.ModBlockTags;
-import dev.dubhe.anvilcraft.init.entity.ModDamageTypes;
 import dev.dubhe.anvilcraft.network.LaserEmitPacket;
 import dev.dubhe.anvilcraft.saved.WormholeNetwork;
-import dev.dubhe.anvilcraft.util.BreakBlockUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
@@ -24,24 +19,19 @@ import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.tags.BlockTags;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.minecraft.world.level.entity.EntityTypeTest;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.portal.DimensionTransition;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.network.PacketDistributor;
 
 import java.util.EnumSet;
@@ -81,7 +71,7 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
     public void syncTo(ServerPlayer player) {
         PacketDistributor.sendToPlayer(
             player,
-            new LaserEmitPacket(getLaserLevel(), getBlockPos(), this.irradiateBlockPos, this.emittingGamma)
+            new LaserEmitPacket(getLaserLevel(), getBlockPos(), this.irradiateBlockPos, isEmittingGamma())
         );
     }
 
@@ -112,88 +102,13 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
         return Direction.NORTH;
     }
 
-    /// 覆写普通激光发射：传送门虽是柔性多方块，但其发光面就在本格正面，
     @Override
-    public void emitLaser(Direction direction) {
-        if (this.level == null) return;
-        BlockPos tempIrradiateBlockPos =
-            getIrradiateBlockPosCompat(this.maxTransmissionDistance, direction, this.getBlockPos());
-        if (!tempIrradiateBlockPos.equals(this.irradiateBlockPos)) {
-            if (this.irradiateBlockPos != null) {
-                BlockEntity oldBe = this.level.getBlockEntity(this.irradiateBlockPos);
-                if (oldBe instanceof BaseLaserBlockEntity last) {
-                    last.onCancelingIrradiation(this);
-                }
-            }
-        }
-        if (this.level.getBlockEntity(tempIrradiateBlockPos) instanceof BaseLaserBlockEntity irradiated
-            && !this.isInIrradiateSelfLaserBlockSet(irradiated)
-            && !irradiated.getIgnoreFace().contains(direction)) {
-            this.level.updateNeighborsAt(tempIrradiateBlockPos, getBlockState().getBlock());
-            irradiated.onIrradiated(this);
-        }
-        this.updateIrradiateBlockPos(tempIrradiateBlockPos);
-
-        if (!(this.level instanceof ServerLevel serverLevel)) return;
-        this.updateLaserLevel(this.calculateLaserLevel());
-        int hurt = Math.min(16, this.laserLevel - 4);
-        if (hurt > 0) {
-            Vec3 startPos = this.getBlockPos().relative(direction).getCenter()
-                .add(-0.0625, -0.0625, -0.0625);
-            AABB trackBoundingBox = new AABB(
-                startPos,
-                this.irradiateBlockPos.relative(direction.getOpposite()).getCenter()
-                    .add(0.0625, 0.0625, 0.0625)
-            );
-            serverLevel.getEntities(
-                EntityTypeTest.forClass(LivingEntity.class),
-                trackBoundingBox,
-                Entity::isAlive
-            ).forEach(le -> le.hurt(ModDamageTypes.laser(this.level), hurt));
-        }
-        BlockState irradiateBlock = this.level.getBlockState(this.irradiateBlockPos);
-        int cooldown = COOLDOWNS[Math.clamp(this.laserLevel / 4, 0, 4)];
-        if (this.tickCount >= cooldown) {
-            this.tickCount = 0;
-            if (irradiateBlock.is(Tags.Blocks.ORES)) {
-                List<ItemStack> drops = BreakBlockUtil.dropForLaser(
-                    serverLevel,
-                    this.irradiateBlockPos,
-                    getMiningEffect()
-                );
-                this.deliverItem(drops, direction, this.irradiateBlockPos);
-            }
-        }
-    }
-
-    /// 与 BaseLaserBlockEntity 私有的 getIrradiateBlockPos 等价：从起点沿方向逐格判断是否可穿过。
-    private BlockPos getIrradiateBlockPosCompat(int expectedLength, Direction direction, BlockPos originPos) {
-        for (int length = 1; length <= expectedLength; length++) {
-            BlockPos checkPos = originPos.relative(direction, length);
-            if (!laserCanPassThroughCompat(direction, checkPos)) return checkPos;
-        }
-        return originPos.relative(direction, expectedLength);
-    }
-
-    private boolean laserCanPassThroughCompat(Direction direction, BlockPos blockPos) {
+    protected boolean canPassThrough(Direction direction, BlockPos blockPos) {
         if (this.level == null) return false;
         BlockState blockState = level.getBlockState(blockPos);
         /// 传送门方块（含开口格）始终视为非穿透——外部激光必须停在此处方能触发 onIrradiated 实现接收，不能因为碰撞箱变化导致激光穿透传送门。
         if (blockState.getBlock() instanceof CelestialForgingAnvilPortalBlock) return false;
-        if (blockState.is(ModBlockTags.LASER_CAN_PASS_THROUGH)
-            || blockState.is(Tags.Blocks.GLASS_BLOCKS)
-            || blockState.is(Tags.Blocks.GLASS_PANES)
-            || blockState.is(BlockTags.REPLACEABLE)) {
-            return true;
-        }
-        if (!dev.dubhe.anvilcraft.AnvilCraft.CONFIG.isLaserDoImpactChecking) return false;
-        AABB laseBoundingBox = switch (direction.getAxis()) {
-            case X -> Block.box(0, 7, 7, 16, 9, 9).bounds();
-            case Y -> Block.box(7, 0, 7, 9, 16, 9).bounds();
-            case Z -> Block.box(7, 7, 0, 9, 9, 16).bounds();
-        };
-        return blockState.getCollisionShape(this.level, blockPos).toAabbs().stream()
-            .noneMatch(laseBoundingBox::intersects);
+        return super.canPassThrough(direction, blockPos);
     }
 
     @Override
@@ -242,7 +157,7 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
     }
 
     @Override
-    public boolean isEmittingGamma() {
+    protected boolean isGammaLaserConfigured() {
         return this.emittingGamma;
     }
 
@@ -340,8 +255,7 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
                 wormholeLaserLevel = 0;
                 wormholeLaserGamma = false;
                 setGammaOutputState(false, 0);
-                this.gammaIrradiatingPos = null;
-                this.gammaExposureTicks = 0;
+                this.resetLaserComponentState();
                 this.setChanged();
                 sendLaserPackets();
             }
@@ -486,8 +400,7 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
             }
             clearIrradiateSelfLaserBlockSet();
             updateLaserLevel(0);
-            this.gammaIrradiatingPos = null;
-            this.gammaExposureTicks = 0;
+            this.resetLaserComponentState();
         }
 
         /// 递增 tickCount 用于矿石提取冷却
@@ -495,13 +408,6 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
 
         /// 发送激光渲染数据包
         sendLaserPackets();
-
-        /// 如果激光正在照射可加热方块，注册为热量产生者
-        if (level instanceof ServerLevel serverLevel
-            && irradiateBlockPos != null
-            && serverLevel.getBlockState(irradiateBlockPos).is(ModBlockTags.HEATABLE_BLOCKS)) {
-            HeaterManager.addProducer(getBlockPos(), serverLevel, ModHeaterInfos.LASER_EMITTER);
-        }
 
         /// 传送由方块的 entityInside（每移动步触发，能可靠命中快速投掷物）负责。
         /// 这里在核心控制器上进行两层处理：
@@ -657,8 +563,7 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
         }
         clearIrradiateSelfLaserBlockSet();
         updateLaserLevel(0);
-        this.gammaIrradiatingPos = null;
-        this.gammaExposureTicks = 0;
+        this.resetLaserComponentState();
         if (isAnchor()) {
             AABB portalSpace = new AABB(worldPosition).expandTowards(0, 1, 0);
             for (Entity entity : level.getEntitiesOfClass(Entity.class, portalSpace)) {
@@ -734,7 +639,7 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
             PacketDistributor.sendToPlayersTrackingChunk(
                 serverLevel,
                 level.getChunkAt(getBlockPos()).getPos(),
-                new LaserEmitPacket(getLaserLevel(), getBlockPos(), this.irradiateBlockPos, this.emittingGamma)
+                new LaserEmitPacket(getLaserLevel(), getBlockPos(), this.irradiateBlockPos, isEmittingGamma())
             );
             resetState();
         }

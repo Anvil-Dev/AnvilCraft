@@ -48,14 +48,13 @@ public record LaserEmitPacket(int level, BlockPos laserPos, @Nullable BlockPos i
     @Override
     public void handleOnClient(Player player) {
         if (!(player.level().getBlockEntity(this.laserPos) instanceof BaseLaserBlockEntity laser)) return;
-        if (this.gamma && laser instanceof CelestialForgingAnvilLaserInterfaceBlockEntity cfaLaser) {
+        laser.clientUpdateComponents(this.level, this.gamma);
+        switch (laser) {
+            case CelestialForgingAnvilLaserInterfaceBlockEntity cfaLaser when this.gamma ->
             cfaLaser.clientUpdateGamma(this.irradiatePos, this.level);
-        } else if (this.gamma && laser instanceof CelestialForgingAnvilPortalBlockEntity portal) {
-            portal.clientUpdateGamma(this.irradiatePos, this.level);
-        } else if (this.gamma && laser instanceof CreativeLaserBlockEntity creativeLaser) {
-            creativeLaser.clientUpdateGamma(this.irradiatePos, this.level);
-        } else {
-            laser.clientUpdate(this.irradiatePos, this.level); // 此处不可听信idea的谗言用if(this.irradiatePos != null)包围，不然激光会不消失
+            case CelestialForgingAnvilPortalBlockEntity portal when this.gamma -> portal.clientUpdateGamma(this.irradiatePos, this.level);
+            case CreativeLaserBlockEntity creativeLaser when this.gamma -> creativeLaser.clientUpdateGamma(this.irradiatePos, this.level);
+            default -> laser.clientUpdate(this.irradiatePos, this.level);
         }
         Minecraft.getInstance().levelRenderer.setBlockDirty(this.laserPos, false);
     }

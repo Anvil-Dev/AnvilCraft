@@ -26,6 +26,7 @@ public class ConfigScreenLang {
             "Minimum collision speed at which anvils explode instead of merely stopping (blocks/tick)"
         );
         addOverride(provider, "anvilcraft.configuration.mun_lighting_quality", "Mun Lighting Quality");
+        addOverride(provider, "anvilcraft.configuration.overworld_sky_mode", "Overworld Celestial Bodies");
         addOverride(provider, "anvilcraft.configuration.stellar_rendering_mode", "Stellar Emission Rendering");
         addOverride(provider, "anvilcraft.configuration.planet_atmosphere_rendering_mode", "Planet Atmosphere Rendering");
         addOverride(

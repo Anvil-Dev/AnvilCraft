@@ -60,8 +60,8 @@ import javax.annotation.Nullable;
 public class StoragePortBlockEntity extends BlockEntity implements IItemHandlerHolder {
     /** 缓存格数 */
     public static final int BUFFER_SLOTS = 32;
-    /** 视为「外边缘」的半像素宽度：此区域左键走正常挖掘而非取出物品 */
-    public static final double EDGE_SIZE = 1.0 / 32.0;
+    /** 视为「外边缘」的一像素宽度：此区域左键走正常挖掘而非取出物品 */
+    public static final double EDGE_SIZE = 1.0 / 16.0;
     /** 端口贴附关系重校验间隔（tick） */
     private static final int VALIDATE_INTERVAL = 20;
     /** 连通性扫描的端口访问上限，防止极端链式摆放造成性能问题 */
@@ -255,7 +255,7 @@ public class StoragePortBlockEntity extends BlockEntity implements IItemHandlerH
     }
 
     /**
-     * 判断左键点击点是否落在方块外边缘的半像素（1/32）框上。
+     * 判断左键点击点是否落在方块外边缘的一像素（1/16）框上。
      *
      * <p>模型外侧是一圈细边框，点击该区域应走正常挖掘逻辑而非取出物品。</p>
      */

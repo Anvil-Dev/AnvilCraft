@@ -6,7 +6,9 @@ import dev.dubhe.anvilcraft.api.event.GiantAnvilEvent;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.recipe.multiblock.IMultiblockRecipe;
 import dev.dubhe.anvilcraft.recipe.multiblock.MultiblockInput;
+import dev.dubhe.anvilcraft.util.TriggerUtil;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
@@ -79,7 +81,10 @@ public class GiantAnvilLandingEventListener {
         }
         level.getRecipeManager()
             .getRecipeFor(type, input, level)
-            .ifPresent(holder -> holder.value().assemble(level, landPos, inputCorner, input));
+            .ifPresent(holder -> {
+                holder.value().assemble(level, landPos, inputCorner, input);
+                TriggerUtil.inWorldRecipe(level, landPos, BuiltInRegistries.RECIPE_TYPE.getKey(type), holder.id());
+            });
     }
 
     private static boolean isValidCenter(

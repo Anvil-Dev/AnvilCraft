@@ -1,10 +1,7 @@
 package dev.dubhe.anvilcraft.block.entity;
 
-import dev.dubhe.anvilcraft.api.heat.HeaterManager;
 import dev.dubhe.anvilcraft.api.rendering.CacheableBERenderingPipeline;
 import dev.dubhe.anvilcraft.block.cfa.interfaces.CelestialForgingAnvilInterfaceBlock;
-import dev.dubhe.anvilcraft.init.ModHeaterInfos;
-import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import dev.dubhe.anvilcraft.network.LaserEmitPacket;
 import dev.dubhe.anvilcraft.util.BlockMiningEffect;
 import lombok.Getter;
@@ -88,7 +85,7 @@ public class CelestialForgingAnvilLaserInterfaceBlockEntity extends BaseLaserBlo
     public void syncTo(ServerPlayer player) {
         PacketDistributor.sendToPlayer(
             player,
-            new LaserEmitPacket(getLaserLevel(), getBlockPos(), this.irradiateBlockPos, this.emittingGamma)
+            new LaserEmitPacket(getLaserLevel(), getBlockPos(), this.irradiateBlockPos, isEmittingGamma())
         );
     }
 
@@ -106,7 +103,7 @@ public class CelestialForgingAnvilLaserInterfaceBlockEntity extends BaseLaserBlo
     }
 
     @Override
-    public boolean isEmittingGamma() {
+    protected boolean isGammaLaserConfigured() {
         return this.emittingGamma;
     }
 
@@ -269,12 +266,6 @@ public class CelestialForgingAnvilLaserInterfaceBlockEntity extends BaseLaserBlo
         this.gammaEmissionRequested = false;
         this.gammaEmissionRequestLevel = 0;
 
-        /// 如果正在照射可加热方块，注册为热量生产者。BaseLaserBlockEntity.tick() 通常会处理此操作，但我们覆写了 tick() 且仅在客户端委托给 super，因此必须在服务器端手动处理。
-        if (level instanceof ServerLevel serverLevel
-            && irradiateBlockPos != null
-            && serverLevel.getBlockState(irradiateBlockPos).is(ModBlockTags.HEATABLE_BLOCKS)) {
-            HeaterManager.addProducer(getBlockPos(), serverLevel, ModHeaterInfos.LASER_EMITTER);
-        }
     }
 
     /// 覆写 tick 以在网络数据包中发送伽马标志。
@@ -293,7 +284,7 @@ public class CelestialForgingAnvilLaserInterfaceBlockEntity extends BaseLaserBlo
                 PacketDistributor.sendToPlayersTrackingChunk(
                     serverLevel,
                     level.getChunkAt(getBlockPos()).getPos(),
-                    new LaserEmitPacket(getLaserLevel(), getBlockPos(), this.irradiateBlockPos, this.emittingGamma)
+                    new LaserEmitPacket(getLaserLevel(), getBlockPos(), this.irradiateBlockPos, isEmittingGamma())
                 );
             }
         }

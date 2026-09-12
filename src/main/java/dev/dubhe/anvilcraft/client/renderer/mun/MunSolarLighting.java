@@ -44,7 +44,7 @@ final class MunSolarLighting {
             MunSkyMath.Vector b = this.eclipse.get((index + 1) % this.eclipse.size());
             area += a.x() * b.y() - a.y() * b.x();
         }
-        this.eclipseCoverage = (float) (Math.abs(area) / (8 * MunSkyMath.SUN_DISC_HALF_SIZE * MunSkyMath.SUN_DISC_HALF_SIZE));
+        this.eclipseCoverage = (float) (Math.abs(area) / (2 * MunSkyMath.SUN_DISC_AREA));
     }
 
     long shadowRevision() {

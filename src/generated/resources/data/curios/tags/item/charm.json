@@ -1,5 +1,8 @@
 {
   "values": [
-    "#anvilcraft:amulet"
+    "#anvilcraft:amulet",
+    "anvilcraft:local_terminal",
+    "anvilcraft:shulker_terminal",
+    "anvilcraft:hyperdimension_terminal"
   ]
 }

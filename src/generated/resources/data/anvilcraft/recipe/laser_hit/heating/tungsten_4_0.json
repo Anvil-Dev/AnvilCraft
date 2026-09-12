@@ -1,0 +1,13 @@
+{
+  "type": "anvilcraft:laser_hit",
+  "heat_duration": 40,
+  "hit_time": 20,
+  "input": {
+    "blocks": "#c:storage_blocks/tungsten"
+  },
+  "laser_strength": 4,
+  "priority": -50,
+  "result_block": {
+    "Name": "anvilcraft:redhot_tungsten_block"
+  }
+}

@@ -1,25 +1,16 @@
 package dev.dubhe.anvilcraft.block.entity;
 
+import dev.dubhe.anvilcraft.api.laser.LaserComponentMap;
+import dev.dubhe.anvilcraft.api.laser.LaserComponentTypes;
+import dev.dubhe.anvilcraft.api.laser.LaserMiningComponent;
 import dev.dubhe.anvilcraft.block.LensBlock;
 import dev.dubhe.anvilcraft.block.state.LensType;
-import dev.dubhe.anvilcraft.init.block.ModBlocks;
-import dev.dubhe.anvilcraft.init.entity.ModDamageTypes;
-import dev.dubhe.anvilcraft.util.BlockMiningEffect;
-import dev.dubhe.anvilcraft.util.BreakBlockUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.entity.EntityTypeTest;
-import net.minecraft.world.phys.AABB;
-import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.common.Tags;
 
 import java.util.List;
 
@@ -57,8 +48,9 @@ public class LensBlockEntity extends BaseLaserBlockEntity {
     }
 
     @Override
-    public BlockMiningEffect getMiningEffect() {
-        return getBlockState().getValue(LensBlock.TYPE).getMiningEffect();
+    protected void configureLaserComponents(LaserComponentMap components) {
+        LensType type = getBlockState().getValue(LensBlock.TYPE);
+        components.put(LaserComponentTypes.MINING, new LaserMiningComponent(type.getMiningEffect(), type != LensType.NONE));
     }
 
     @Override
@@ -125,97 +117,4 @@ public class LensBlockEntity extends BaseLaserBlockEntity {
         super.deliverItem(drops, direction, sourceBlockPos);
     }
 
-    private BlockPos scanIrradiateBlockPos(int expectedLength, Direction direction, BlockPos originPos) {
-        for (int length = 1; length <= expectedLength; length++) {
-            if (!this.canPassThrough(direction, originPos.relative(direction, length))) {
-                return originPos.relative(direction, length);
-            }
-        }
-        return originPos.relative(direction, expectedLength);
-    }
-
-    @Override
-    public void emitLaser(Direction direction) {
-        if (this.level == null) return;
-        BlockPos tempIrradiateBlockPos = this.scanIrradiateBlockPos(
-            this.maxTransmissionDistance, direction, this.getBlockPos()
-        );
-        BaseLaserBlockEntity newLaserTarget =
-            this.level.getBlockEntity(tempIrradiateBlockPos) instanceof BaseLaserBlockEntity target ? target : null;
-        boolean targetChanged = !tempIrradiateBlockPos.equals(this.irradiateBlockPos);
-        boolean targetEntityChanged = newLaserTarget != this.irradiatedLaserTarget;
-        boolean targetRevisionChanged = newLaserTarget != null
-                                        && newLaserTarget.laserLinkRevision != this.irradiatedLaserTargetRevision;
-        if (targetChanged || targetEntityChanged || targetRevisionChanged) {
-            if (this.irradiatedLaserTarget != null) {
-                this.irradiatedLaserTarget.onCancelingIrradiation(this);
-            } else if (targetChanged && this.irradiateBlockPos != null) {
-                BlockEntity oldBe = this.level.getBlockEntity(this.irradiateBlockPos);
-                if (oldBe instanceof BaseLaserBlockEntity lastIrradiatedLaserBlockEntity) {
-                    lastIrradiatedLaserBlockEntity.onCancelingIrradiation(this);
-                }
-            }
-        }
-        int newLaserLevel = this.calculateLaserLevel();
-        boolean laserLevelChanged = this.laserLevel != newLaserLevel;
-        this.updateLaserLevel(newLaserLevel);
-        if (
-            newLaserTarget != null
-            && !this.isInIrradiateSelfLaserBlockSet(newLaserTarget)
-        ) {
-            boolean needsIrradiationUpdate = targetChanged
-                                             || targetEntityChanged
-                                             || targetRevisionChanged
-                                             || laserLevelChanged;
-            if (needsIrradiationUpdate && !newLaserTarget.getIgnoreFace().contains(direction)) {
-                this.level.updateNeighborsAt(tempIrradiateBlockPos, getBlockState().getBlock());
-                newLaserTarget.onIrradiated(this);
-                this.irradiatedLaserTarget = newLaserTarget;
-                this.irradiatedLaserTargetRevision = newLaserTarget.laserLinkRevision;
-            }
-        }
-        this.updateIrradiateBlockPos(tempIrradiateBlockPos);
-
-        if (!(this.level instanceof ServerLevel serverLevel)) return;
-        int hurt = Math.min(16, this.laserLevel - 4);
-        if (hurt > 0) {
-            Vec3 startPos = this.getBlockPos()
-                .relative(direction)
-                .getCenter()
-                .add(-0.0625, -0.0625, -0.0625);
-            AABB trackBoundingBox = new AABB(
-                startPos,
-                this.irradiateBlockPos.relative(direction.getOpposite())
-                    .getCenter()
-                    .add(0.0625, 0.0625, 0.0625)
-            );
-            this.level.getEntities(
-                EntityTypeTest.forClass(LivingEntity.class),
-                trackBoundingBox,
-                Entity::isAlive
-            ).forEach(livingEntity ->
-                livingEntity.hurt(
-                    ModDamageTypes.laser(this.level),
-                    hurt
-                )
-            );
-        }
-        BlockState irradiateBlock = this.level.getBlockState(this.irradiateBlockPos);
-        int cooldown = COOLDOWNS[Math.clamp(this.laserLevel / 4, 0, 4)];
-        if (this.tickCount >= cooldown) {
-            this.tickCount = 0;
-            LensType lensType = getBlockState().getValue(LensBlock.TYPE);
-            boolean isOreTarget = irradiateBlock.is(Tags.Blocks.ORES);
-            boolean isLensSpecialTarget = lensType != LensType.NONE
-                && (irradiateBlock.is(ModBlocks.VOID_STONE) || irradiateBlock.is(ModBlocks.EARTH_CORE_SHARD_ORE));
-            if (isOreTarget || isLensSpecialTarget) {
-                List<ItemStack> drops = BreakBlockUtil.dropForLaser(
-                    serverLevel,
-                    this.irradiateBlockPos,
-                    lensType.getMiningEffect()
-                );
-                this.deliverItem(drops, direction, this.irradiateBlockPos);
-            }
-        }
-    }
 }

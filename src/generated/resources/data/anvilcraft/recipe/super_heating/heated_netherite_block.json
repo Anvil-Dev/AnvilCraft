@@ -1,6 +1,6 @@
 {
   "type": "anvilcraft:super_heating",
-  "consume": 1000,
+  "consume": 250,
   "fluid": "minecraft:lava",
   "ingredients": [
     {

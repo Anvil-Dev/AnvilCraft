@@ -1,4 +1,4 @@
-package dev.dubhe.anvilcraft.block.entity;
+package dev.dubhe.anvilcraft.api.laser;
 
 import dev.dubhe.anvilcraft.block.RubyPrismBlock;
 import dev.dubhe.anvilcraft.block.entity.heatable.HeatableBlockEntity;
@@ -7,7 +7,6 @@ import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.entity.ModDamageTypes;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.tags.BlockTags;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
@@ -16,21 +15,12 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.entity.EntityTypeTest;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import org.jetbrains.annotations.Nullable;
 
-/** Shared world effects for the CFA gamma beam emitters. */
-final class CfaGammaLaserEffects {
-    private static final int MAX_DISTANCE = 16;
+import javax.annotation.Nullable;
 
-    private CfaGammaLaserEffects() {
-    }
-
-    static BlockPos findTarget(Level level, BlockPos origin, Direction direction) {
-        for (int distance = 1; distance <= MAX_DISTANCE; distance++) {
-            BlockPos candidate = origin.relative(direction, distance);
-            if (!level.getBlockState(candidate).is(BlockTags.REPLACEABLE)) return candidate;
-        }
-        return origin.relative(direction, MAX_DISTANCE);
+/** 伽马激光组件使用的世界效果。 */
+final class GammaLaserEffects {
+    private GammaLaserEffects() {
     }
 
     static void destroyPrisms(Level level, BlockPos origin, Direction direction, BlockPos target) {

@@ -24,9 +24,7 @@ public class OtherLang {
         provider.add("entity.minecraft.villager.anvilcraft.jeweler", "Jeweler");
 
         provider.add("pack.anvilcraft.builtin_pack", "AnvilCraft Builtin ResourcePack");
-        provider.add("pack.anvilcraft.builtin_data_pack", "AnvilCraft Builtin DataPack");
         provider.add("pack.anvilcraft.transparent_cauldron.description", "Transparent Cauldron");
-        provider.add("pack.anvilcraft.first_ancient_debris.description", "First Ancient Debris");
         provider.add("pack.anvilcraft.old_resonator_heavy_halberd.description", "Old Resonator & Heavy Halberd");
 
         provider.add("message.anvilcraft.copied_to_clipboard", "Copied to clipboard");

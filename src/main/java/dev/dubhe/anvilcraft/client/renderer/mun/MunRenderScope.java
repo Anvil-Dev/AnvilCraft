@@ -29,11 +29,13 @@ final class MunRenderScope implements AutoCloseable {
     private static final int SHADER = 1024;
     private static final int SECOND_SAMPLER = 2048;
     private static final int DEPTH_RANGE = 4096;
+    private static final int THIRD_SAMPLER = 8192;
     private final int flags;
     private final GlStateBackup state = new GlStateBackup();
     private final @Nullable ShaderInstance shader;
     private final int texture0;
     private final int texture1;
+    private final int texture2;
     private int drawFramebuffer;
     private int readFramebuffer;
     private int viewportX;
@@ -52,6 +54,7 @@ final class MunRenderScope implements AutoCloseable {
         this.shader = RenderSystem.getShader();
         this.texture0 = RenderSystem.getShaderTexture(0);
         this.texture1 = this.has(SECOND_SAMPLER) ? RenderSystem.getShaderTexture(1) : 0;
+        this.texture2 = this.has(THIRD_SAMPLER) ? RenderSystem.getShaderTexture(2) : 0;
         // 第三方渲染器可能直接修改 GL，不能用原版缓存替代进入边界时的真实状态。
         if (this.has(BLEND)) this.state.blendEnabled = GL11C.glIsEnabled(GL11C.GL_BLEND);
         if (this.has(BLEND_FACTORS)) {
@@ -110,6 +113,10 @@ final class MunRenderScope implements AutoCloseable {
         return new MunRenderScope(BLEND | DEPTH | SHADER | SECOND_SAMPLER);
     }
 
+    static MunRenderScope celestialSky() {
+        return new MunRenderScope(BLEND | BLEND_FACTORS | DEPTH | CULL | SHADER | SECOND_SAMPLER | THIRD_SAMPLER);
+    }
+
     static MunRenderScope vanillaSky() {
         return new MunRenderScope(BLEND | BLEND_FACTORS | DEPTH | CULL | SHADER | DEPTH_RANGE);
     }
@@ -145,6 +152,7 @@ final class MunRenderScope implements AutoCloseable {
             RenderSystem.setShader(() -> this.shader);
             RenderSystem.setShaderTexture(0, this.texture0);
             if (this.has(SECOND_SAMPLER)) RenderSystem.setShaderTexture(1, this.texture1);
+            if (this.has(THIRD_SAMPLER)) RenderSystem.setShaderTexture(2, this.texture2);
         }
         if (this.has(PROGRAM)) GlStateManager._glUseProgram(this.program);
         if (this.has(TEXTURE)) {

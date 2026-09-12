@@ -104,7 +104,7 @@ public class BlockEventListener {
 
     /**
      * 左键仓储端口取出物品：左键取 1 个，shift 左键取一组；手持铁砧锤时不触发。
-     * 点击外边缘半像素（1/32）框架时走正常挖掘；缓存为空时也不取消事件，让玩家可以挖掘方块。
+     * 仅点击各面外边缘一像素（1/16）框架时走正常挖掘，缓存为空时也保护中心区域。
      *
      * <p>取出全部在服务端执行：客户端只取消事件（阻止挖掘）并发送取出请求包，
      * 不在本地改动任何物品，避免幻影物品与快速点击刷物品。按住左键时（取消事件后客户端
@@ -118,21 +118,15 @@ public class BlockEventListener {
         if (!(level.getBlockEntity(pos) instanceof StoragePortBlockEntity port)) {
             return;
         }
-        if (player.getMainHandItem().getItem() instanceof AnvilHammerItem) {
-            return;
-        }
-        // 外边缘半像素框架：敲掉逻辑，不取出
+        // 外边缘一像素框架：敲掉逻辑，不取出
         BlockHitResult aim = BlockEventListener.aimHit(player);
         if (aim != null && aim.getBlockPos().equals(pos) && StoragePortBlockEntity.isEdgeHit(aim)) {
             return;
         }
-        // 缓存空：不拦截，允许挖掘
-        if (port.isBufferEmpty()) {
-            return;
-        }
         // 取消事件，阻止挖掘（客户端与服务端都会触发本事件）
         event.setCanceled(true);
-        if (!level.isClientSide()) {
+        if (!level.isClientSide() || port.isBufferEmpty()
+            || player.getMainHandItem().getItem() instanceof AnvilHammerItem) {
             return;
         }
         // 客户端只发送取出请求，实际取出由服务端在收到请求包后执行

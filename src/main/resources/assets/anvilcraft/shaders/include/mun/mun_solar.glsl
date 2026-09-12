@@ -1,5 +1,6 @@
 #ifndef ANVILCRAFT_MUN_SOLAR
 #define ANVILCRAFT_MUN_SOLAR
+#moj_import <anvilcraft:mun/mun_sun.glsl>
 uniform vec3 SolarReference;
 uniform vec3 SolarOrigin;
 uniform int SolarEclipseCount;
@@ -71,11 +72,9 @@ void solarAreaVertex(vec2 point, inout bool started, inout vec2 first, inout vec
 }
 
 float solarClippedArea(vec3 plane, bool eclipse) {
-    const float radius = 0.0675;
-    vec2 square[4] = vec2[4](vec2(-radius), vec2(radius, -radius), vec2(radius), vec2(-radius, radius));
     vec2 polygon[12] = vec2[12](SolarEclipse0, SolarEclipse1, SolarEclipse2, SolarEclipse3, SolarEclipse4, SolarEclipse5, SolarEclipse6, SolarEclipse7, SolarEclipse8, SolarEclipse9, SolarEclipse10, SolarEclipse11);
-    int count = eclipse ? SolarEclipseCount : 4;
-    vec2 previous = eclipse ? polygon[count - 1] : square[3];
+    int count = eclipse ? SolarEclipseCount : 6;
+    vec2 previous = eclipse ? polygon[count - 1] : sunOutline(5);
     float previousDistance = dot(plane, vec3(previous, 1.0));
     bool started = false;
     vec2 first = vec2(0.0);
@@ -83,7 +82,7 @@ float solarClippedArea(vec3 plane, bool eclipse) {
     float area = 0.0;
     for (int index = 0; index < 12; index++) {
         if (index >= count) break;
-        vec2 current = eclipse ? polygon[index] : square[index];
+        vec2 current = eclipse ? polygon[index] : sunOutline(index);
         float distance = dot(plane, vec3(current, 1.0));
         if ((previousDistance >= 0.0) != (distance >= 0.0)) {
             vec2 intersection = mix(previous, current, previousDistance / (previousDistance - distance));
@@ -98,12 +97,12 @@ float solarClippedArea(vec3 plane, bool eclipse) {
 
 float solarDaylight(vec3 sun, vec3 latitude) {
     vec2 slope = vec2(dot(latitude, vec3(SolarReference.y, -SolarReference.x, 0.0)), latitude.z);
-    float extent = 0.0675 * (abs(slope.x) + abs(slope.y));
+    float extent = SUN_DISC_HALF_SIZE * (abs(slope.x) + abs(slope.y));
     if (sun.y <= -extent) return 0.0;
     if (sun.y >= extent) return 1.0 - SolarEclipseCoverage;
     vec3 plane = vec3(slope, sun.y);
     float area = solarClippedArea(plane, false);
     if (SolarEclipseCount >= 3) area -= solarClippedArea(plane, true);
-    return clamp(area / (4.0 * 0.0675 * 0.0675), 0.0, 1.0);
+    return clamp(area / SUN_DISC_AREA, 0.0, 1.0);
 }
 #endif

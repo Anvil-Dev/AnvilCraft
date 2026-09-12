@@ -321,6 +321,10 @@ public class AnvilCraftAdvancement {
             .task(ModBlocks.MENGER_SPONGE, "saikou_scrubber")
             .hasItems("has_menger_sponge", ModBlocks.MENGER_SPONGE)
             .save("saikou_scrubber");
+        spongeLine.createBranch().next()
+            .task(ModBlocks.MENGER_SPONGE, "understand_fractals", true)
+            .inWorldRecipeAnc("menger_sponge_2", "multiblock/menger_sponge_2")
+            .save("understand_fractals");
         spongeLine.next()
             .challenge(ModBlocks.LARGE_FLUID_TANK, "infinity_capacity")
             .multiBlockForm("multi_block_form")

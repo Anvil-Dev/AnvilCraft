@@ -34,14 +34,6 @@ public class ModBuiltinPacks {
             false,
             Pack.Position.TOP
         );
-        event.addPackFinders(
-            AnvilCraft.of("resourcepacks/first_ancient_debris"),
-            PackType.SERVER_DATA,
-            Component.translatable("pack.anvilcraft.builtin_data_pack"),
-            ModBuiltinPacks.BUILT_IN,
-            false,
-            Pack.Position.TOP
-        );
     }
 
     @SuppressWarnings("SameParameterValue")

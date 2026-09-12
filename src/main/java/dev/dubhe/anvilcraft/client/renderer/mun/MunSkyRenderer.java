@@ -9,8 +9,11 @@ import com.mojang.blaze3d.vertex.VertexFormat;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.worldgen.MunSkyMath;
 import net.minecraft.client.Camera;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.ShaderInstance;
+import net.minecraft.client.renderer.texture.TextureAtlas;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
@@ -24,7 +27,7 @@ import javax.annotation.Nullable;
 
 public final class MunSkyRenderer {
     private static final ResourceLocation EARTH_TEXTURE = AnvilCraft.of("textures/block/celestial_body/planet_overworld.png");
-    private static final ResourceLocation SUN_TEXTURE = ResourceLocation.withDefaultNamespace("textures/environment/sun.png");
+    private static final ResourceLocation SUN_TEXTURE = AnvilCraft.of("block/celestial_body/star");
     private static @Nullable ShaderInstance shader;
 
     private MunSkyRenderer() {
@@ -83,12 +86,14 @@ public final class MunSkyRenderer {
         skyShader.safeGetUniform("EarthCenter").set((float) center.x(), (float) center.y(), (float) center.z());
         skyShader.safeGetUniform("SunDirection").set((float) sun.x(), (float) sun.y(), (float) sun.z());
         skyShader.safeGetUniform("EarthHalfSize").set((float) MunSkyMath.EARTH_HALF_SIZE);
+        skyShader.safeGetUniform("EarthPerspective").set((float) MunSkyMath.EARTH_PERSPECTIVE);
         skyShader.safeGetUniform("AtmosphereThickness").set((float) MunSkyMath.EARTH_ATMOSPHERE_THICKNESS);
-        skyShader.safeGetUniform("SunHalfSize").set((float) MunSkyMath.SUN_HALF_SIZE);
+        TextureAtlasSprite sunSprite = Minecraft.getInstance().getTextureAtlas(TextureAtlas.LOCATION_BLOCKS).apply(SUN_TEXTURE);
+        skyShader.safeGetUniform("SunUvBounds").set(sunSprite.getU0(), sunSprite.getV0(), sunSprite.getU1(), sunSprite.getV1());
         skyShader.safeGetUniform("Daylight").set(MunClientSky.sunlight(level));
         try (MunRenderScope ignored = MunRenderScope.sky()) {
             RenderSystem.setShaderTexture(0, EARTH_TEXTURE);
-            RenderSystem.setShaderTexture(1, SUN_TEXTURE);
+            RenderSystem.setShaderTexture(1, TextureAtlas.LOCATION_BLOCKS);
             RenderSystem.setShader(() -> skyShader);
             RenderSystem.disableBlend();
             RenderSystem.depthMask(false);

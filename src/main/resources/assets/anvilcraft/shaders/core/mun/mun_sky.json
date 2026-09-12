@@ -131,19 +131,30 @@
       ]
     },
     {
+      "name": "EarthPerspective",
+      "type": "float",
+      "count": 1,
+      "values": [
+        0.25
+      ]
+    },
+    {
       "name": "AtmosphereThickness",
       "type": "float",
       "count": 1,
       "values": [
-        0.012
+        0.0182
       ]
     },
     {
-      "name": "SunHalfSize",
+      "name": "SunUvBounds",
       "type": "float",
-      "count": 1,
+      "count": 4,
       "values": [
-        0.27
+        0,
+        0,
+        1,
+        1
       ]
     },
     {

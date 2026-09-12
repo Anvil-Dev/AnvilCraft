@@ -1,15 +1,14 @@
 package dev.dubhe.anvilcraft.block.entity;
 
-import dev.dubhe.anvilcraft.api.heat.HeaterManager;
+import dev.dubhe.anvilcraft.api.laser.LaserComponentMap;
+import dev.dubhe.anvilcraft.api.laser.LaserComponentTypes;
+import dev.dubhe.anvilcraft.api.laser.LaserMiningComponent;
 import dev.dubhe.anvilcraft.api.rendering.CacheableBERenderingPipeline;
 import dev.dubhe.anvilcraft.block.CreativeLaserBlock;
 import dev.dubhe.anvilcraft.block.state.LensType;
-import dev.dubhe.anvilcraft.init.ModHeaterInfos;
-import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.inventory.CreativeLaserMenu;
 import dev.dubhe.anvilcraft.network.LaserEmitPacket;
-import dev.dubhe.anvilcraft.util.BlockMiningEffect;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -67,7 +66,7 @@ public class CreativeLaserBlockEntity extends BaseLaserBlockEntity implements Me
     }
 
     @Override
-    public boolean isEmittingGamma() {
+    protected boolean isGammaLaserConfigured() {
         return this.gamma;
     }
 
@@ -77,8 +76,8 @@ public class CreativeLaserBlockEntity extends BaseLaserBlockEntity implements Me
     }
 
     @Override
-    public BlockMiningEffect getMiningEffect() {
-        return this.lensType.getMiningEffect();
+    protected void configureLaserComponents(LaserComponentMap components) {
+        components.put(LaserComponentTypes.MINING, new LaserMiningComponent(this.lensType.getMiningEffect(), false));
     }
 
     @Override
@@ -113,16 +112,10 @@ public class CreativeLaserBlockEntity extends BaseLaserBlockEntity implements Me
             PacketDistributor.sendToPlayersTrackingChunk(
                 serverLevel,
                 level.getChunkAt(getBlockPos()).getPos(),
-                new LaserEmitPacket(getLaserLevel(), getBlockPos(), this.irradiateBlockPos, this.gamma)
+                new LaserEmitPacket(getLaserLevel(), getBlockPos(), this.irradiateBlockPos, isEmittingGamma())
             );
         }
         this.tickCount++;
-        if (level instanceof ServerLevel serverLevel
-            && this.irradiateBlockPos != null
-            && serverLevel.getBlockState(this.irradiateBlockPos).is(ModBlockTags.HEATABLE_BLOCKS)
-        ) {
-            HeaterManager.addProducer(this.getBlockPos(), serverLevel, ModHeaterInfos.LASER_EMITTER);
-        }
     }
 
     private boolean isRedstoneOff() {
@@ -139,8 +132,7 @@ public class CreativeLaserBlockEntity extends BaseLaserBlockEntity implements Me
         this.updateIrradiateBlockPos(null);
         this.clearIrradiateSelfLaserBlockSet();
         this.updateLaserLevel(0);
-        this.gammaIrradiatingPos = null;
-        this.gammaExposureTicks = 0;
+        this.resetLaserComponentState();
     }
 
     @Override
@@ -185,7 +177,7 @@ public class CreativeLaserBlockEntity extends BaseLaserBlockEntity implements Me
     public void syncTo(ServerPlayer player) {
         PacketDistributor.sendToPlayer(
             player,
-            new LaserEmitPacket(getLaserLevel(), getBlockPos(), this.irradiateBlockPos, this.gamma)
+            new LaserEmitPacket(getLaserLevel(), getBlockPos(), this.irradiateBlockPos, isEmittingGamma())
         );
     }
 
