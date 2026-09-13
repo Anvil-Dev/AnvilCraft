@@ -111,6 +111,11 @@ public final class StorageClientStub {
         RPC.call(RpcTarget.server(), StorageServerStub::beginUndoGroup, StorageClientStub.playerId(), sourcePos.asLong());
     }
 
+    public static CompletableFuture<Boolean> moveSameToStorage(BlockPos sourcePos, int slot, boolean pour) {
+        return RPC.invoke(RpcTarget.server(), StorageServerStub::moveSameToStorage,
+            StorageClientStub.playerId(), sourcePos.asLong(), slot, pour);
+    }
+
     public static void endUndoGroup(BlockPos sourcePos) {
         RPC.call(RpcTarget.server(), StorageServerStub::endUndoGroup, StorageClientStub.playerId(), sourcePos.asLong());
     }

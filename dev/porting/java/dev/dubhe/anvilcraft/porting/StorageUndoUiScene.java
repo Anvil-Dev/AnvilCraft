@@ -108,7 +108,65 @@ public final class StorageUndoUiScene {
                 }
             }
             case 8 -> {
-                AnvilCraft.LOGGER.info("PORT_STORAGE_UNDO_UI_PASSED: grouped Shift drag and deposit Ctrl+Z");
+                giveSameItems(client);
+                advance(9);
+            }
+            case 9 -> {
+                if (client.player.getInventory().getItem(10).getCount() == 5) {
+                    screen.mouseClicked(event(left + 122, top + 148, GLFW.GLFW_MOD_ALT), false);
+                    screen.mouseReleased(event(left + 122, top + 148, GLFW.GLFW_MOD_ALT));
+                    advance(10);
+                }
+            }
+            case 10 -> {
+                if (count(client, ItemResource.of(Items.DIAMOND)) == 0 && stored(screen, ItemResource.of(Items.DIAMOND)) == 12) {
+                    screen.keyPressed(new KeyEvent(GLFW.GLFW_KEY_Z, 0, GLFW.GLFW_MOD_CONTROL));
+                    advance(11);
+                }
+            }
+            case 11 -> {
+                if (count(client, ItemResource.of(Items.DIAMOND)) == 12 && stored(screen, ItemResource.of(Items.DIAMOND)) == 0) {
+                    giveSameItems(client);
+                    advance(12);
+                }
+            }
+            case 12 -> {
+                if (client.player.getInventory().getItem(9).getCount() == 3
+                    && client.player.getInventory().getItem(10).getCount() == 5
+                    && System.currentTimeMillis() - (long) field(screen, "lastInventoryClickTime") >= 250) {
+                    screen.keyPressed(new KeyEvent(GLFW.GLFW_KEY_LEFT_SHIFT, 0, GLFW.GLFW_MOD_SHIFT));
+                    screen.mouseClicked(event(left + 122, top + 148, GLFW.GLFW_MOD_SHIFT), false);
+                    screen.mouseReleased(event(left + 122, top + 148, GLFW.GLFW_MOD_SHIFT));
+                    advance(13);
+                }
+            }
+            case 13 -> {
+                if (client.player.getInventory().getItem(9).isEmpty()) {
+                    screen.mouseClicked(event(left + 122, top + 148, GLFW.GLFW_MOD_SHIFT), false);
+                    screen.mouseReleased(event(left + 122, top + 148, GLFW.GLFW_MOD_SHIFT));
+                    advance(14);
+                }
+            }
+            case 14 -> {
+                if (count(client, ItemResource.of(Items.DIAMOND)) == 0 && stored(screen, ItemResource.of(Items.DIAMOND)) == 20) {
+                    screen.keyReleased(new KeyEvent(GLFW.GLFW_KEY_LEFT_SHIFT, 0, 0));
+                    screen.keyPressed(new KeyEvent(GLFW.GLFW_KEY_Z, 0, GLFW.GLFW_MOD_CONTROL));
+                    advance(15);
+                }
+            }
+            case 15 -> {
+                if (count(client, ItemResource.of(Items.DIAMOND)) == 17 && stored(screen, ItemResource.of(Items.DIAMOND)) == 3) {
+                    screen.keyPressed(new KeyEvent(GLFW.GLFW_KEY_Z, 0, GLFW.GLFW_MOD_CONTROL));
+                    advance(16);
+                }
+            }
+            case 16 -> {
+                if (count(client, ItemResource.of(Items.DIAMOND)) == 20 && stored(screen, ItemResource.of(Items.DIAMOND)) == 0) {
+                    capture(client, "same", 17);
+                }
+            }
+            case 17 -> {
+                AnvilCraft.LOGGER.info("PORT_STORAGE_UNDO_UI_PASSED: grouped drag, Alt same-type and Shift double-click with Ctrl+Z");
                 client.stop();
             }
             default -> throw new IllegalStateException("未知仓储撤销测试阶段");
@@ -122,6 +180,15 @@ public final class StorageUndoUiScene {
             if (!stack.isEmpty() && ItemResource.of(stack).equals(resource)) count += stack.getCount();
         }
         return count;
+    }
+
+    private static void giveSameItems(Minecraft client) {
+        client.getSingleplayerServer().execute(() -> {
+            var player = client.getSingleplayerServer().getPlayerList().getPlayers().getFirst();
+            player.getInventory().setItem(9, ItemResource.of(Items.DIAMOND).toStack(3));
+            player.getInventory().setItem(10, ItemResource.of(Items.DIAMOND).toStack(5));
+            player.inventoryMenu.broadcastChanges();
+        });
     }
 
     private static int stored(StorageScreen screen, ItemResource resource) {

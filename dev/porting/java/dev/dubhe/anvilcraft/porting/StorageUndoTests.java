@@ -36,7 +36,9 @@ public final class StorageUndoTests {
         "port_storage_undo_components", StorageUndoTests::components,
         "port_storage_undo_group", StorageUndoTests::group,
         "port_storage_undo_fluid", StorageUndoTests::fluid,
-        "port_storage_undo_scope", StorageUndoTests::scope
+        "port_storage_undo_scope", StorageUndoTests::scope,
+        "port_storage_same_components", StorageUndoTests::sameComponents,
+        "port_storage_same_fluids", StorageUndoTests::sameFluids
     );
 
     @SubscribeEvent
@@ -186,6 +188,53 @@ public final class StorageUndoTests {
             helper.assertTrue(undo(fixture) && carriedInInventory(fixture, diamond) == 3 && fixture.count(diamond) == 0,
                 "自动化取走物品后撤销只能返回实际剩余量");
             helper.assertTrue(!undo(fixture), "已消费记录不能再次产生物品");
+        }
+        helper.succeed();
+    }
+
+    private static boolean moveSame(StorageFluidRpcTests.Fixture fixture, int slot, boolean pour) {
+        fixture.authorize();
+        return StorageServerStub.moveSameToStorage(fixture.playerId(), fixture.core().asLong(), slot, pour);
+    }
+
+    private static void sameComponents(GameTestHelper helper) {
+        try (var fixture = new StorageFluidRpcTests.Fixture(helper)) {
+            final ItemStack sample = new ItemStack(Items.DIAMOND);
+            sample.set(DataComponents.CUSTOM_NAME, Component.literal("same"));
+            final ItemResource resource = ItemResource.of(sample);
+            fixture.player().getInventory().setItem(0, sample.copyWithCount(2));
+            fixture.player().getInventory().setItem(9, sample.copyWithCount(3));
+            fixture.player().getInventory().setItem(10, new ItemStack(Items.DIAMOND, 4));
+            fixture.player().setItemInHand(net.minecraft.world.InteractionHand.OFF_HAND, sample.copy());
+            helper.assertTrue(moveSame(fixture, 9, false) && fixture.count(resource) == 5,
+                "同类批量存入应覆盖快捷栏与主背包，并按完整组件匹配");
+            helper.assertTrue(fixture.player().getInventory().getItem(10).getCount() == 4
+                && fixture.player().getOffhandItem().getCount() == 1, "不同组件和副手不得被同类操作移走");
+            helper.assertTrue(undo(fixture)
+                && carriedInInventory(fixture, resource) + fixture.player().getOffhandItem().getCount() == 6,
+                "同类批量操作应作为一条记录撤销");
+            helper.assertTrue(!moveSame(fixture, -1, false) && !moveSame(fixture, 9999, false)
+                && !moveSame(fixture, 12, false), "空样本及越界槽位不得改变仓储");
+        }
+        helper.succeed();
+    }
+
+    private static void sameFluids(GameTestHelper helper) {
+        try (var fixture = new StorageFluidRpcTests.Fixture(helper)) {
+            final var port = fixture.fluid(FluidResource.of(Fluids.WATER), 1000);
+            fixture.player().getInventory().setItem(0, new ItemStack(Items.WATER_BUCKET));
+            fixture.player().getInventory().setItem(9, new ItemStack(Items.WATER_BUCKET));
+            fixture.player().getInventory().setItem(10, new ItemStack(Items.LAVA_BUCKET));
+            helper.assertTrue(moveSame(fixture, 9, true) && port.getFluid().getAmount() == 3000,
+                "同类左键应倾倒所有匹配流体桶");
+            helper.assertTrue(fixture.player().getInventory().getItem(10).is(Items.LAVA_BUCKET) && !undo(fixture),
+                "其他流体桶不受影响，纯倒液不产生物品撤销记录");
+            fixture.player().getInventory().setItem(0, new ItemStack(Items.WATER_BUCKET));
+            fixture.player().getInventory().setItem(9, new ItemStack(Items.WATER_BUCKET));
+            helper.assertTrue(moveSame(fixture, 9, false) && port.getFluid().getAmount() == 3000
+                && fixture.count(ItemResource.of(Items.WATER_BUCKET)) == 2, "同类右键应存入桶物品而不倒液");
+            helper.assertTrue(undo(fixture) && carriedInInventory(fixture, ItemResource.of(Items.WATER_BUCKET)) == 2,
+                "右键存入的满桶可以按物品撤销");
         }
         helper.succeed();
     }

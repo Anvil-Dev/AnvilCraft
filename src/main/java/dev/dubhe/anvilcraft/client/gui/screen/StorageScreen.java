@@ -159,6 +159,9 @@ public class StorageScreen extends Screen {
     private final IntSet pendingQuickMoveSlots = new IntOpenHashSet();
     private int quickCraftingButton;
     private int lastClickedInventorySlot = -1;
+    private long lastInventoryClickTime;
+    private int lastInventoryClickSlot = -1;
+    private ItemStack lastQuickMoved = ItemStack.EMPTY;
     private int pickupAllSlot = -1;
     private int left;
     private int top;
@@ -669,8 +672,20 @@ public class StorageScreen extends Screen {
                 return false;
             }
             this.lastClickedInventorySlot = slot;
+            ItemStack clickedItem = this.player.getInventory().getItem(slot);
+            if (!clickedItem.isEmpty()) this.lastQuickMoved = clickedItem.copy();
+            if (event.hasAltDown()) {
+                this.moveSameToStorage(slot, event.button() == 0);
+                return true;
+            }
+            boolean inventoryDoubleClick = event.button() == 0 && this.isInventoryDoubleClick(slot);
 
             if (event.hasShiftDown()) {
+                if (inventoryDoubleClick) {
+                    int target = this.findInventorySlotWith(this.lastQuickMoved);
+                    if (target >= 0) this.moveSameToStorage(target, true);
+                    return true;
+                }
                 if (event.button() == 0 && this.carried.isEmpty()) {
                     this.quickMoveDragging = true;
                     StorageClientStub.beginUndoGroup(this.sourcePos);
@@ -682,7 +697,7 @@ public class StorageScreen extends Screen {
             }
 
             if (!this.carried.isEmpty()) {
-                if (event.button() == 0 && doubleClick && slot == lastClickedInventorySlot) {
+                if (inventoryDoubleClick && slot == lastClickedInventorySlot) {
                     this.pickupAllSlot = this.getScreenSlot(slot);
                     return true;
                 }
@@ -815,6 +830,28 @@ public class StorageScreen extends Screen {
 
     private void queueQuickMove(int slot) {
         if (slot >= 0 && this.quickMoveSlots.add(slot)) this.pendingQuickMoveSlots.add(slot);
+    }
+
+    private boolean isInventoryDoubleClick(int slot) {
+        long now = System.currentTimeMillis();
+        boolean quick = slot == this.lastInventoryClickSlot && now - this.lastInventoryClickTime < 250L;
+        this.lastInventoryClickSlot = slot;
+        this.lastInventoryClickTime = now;
+        return quick;
+    }
+
+    private int findInventorySlotWith(ItemStack sample) {
+        if (sample.isEmpty()) return -1;
+        for (int slot = 0; slot < Inventory.INVENTORY_SIZE; slot++) {
+            if (ItemStack.isSameItemSameComponents(this.player.getInventory().getItem(slot), sample)) return slot;
+        }
+        return -1;
+    }
+
+    private void moveSameToStorage(int slot, boolean pour) {
+        StorageClientStub.moveSameToStorage(this.sourcePos, slot, pour).thenAcceptAsync(changed -> {
+            if (changed) this.refreshAfterQuickMove();
+        }, this.screenExecutor);
     }
 
     private void flushQuickMoves() {

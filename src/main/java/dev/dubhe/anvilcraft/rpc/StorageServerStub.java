@@ -302,6 +302,29 @@ public final class StorageServerStub {
     }
 
     @RemoteCallable(validator = StorageAccessValidator.class)
+    public static boolean moveSameToStorage(UUID playerId, long sourcePos, int slot, boolean pour) {
+        StorageView view = StorageServerStub.getView(StorageServerStub.getAndClear(), playerId, sourcePos);
+        ServerPlayer player = StorageServerStub.getServerPlayer(playerId);
+        if (slot < 0 || slot >= Inventory.INVENTORY_SIZE) return false;
+        ItemResource sample = ItemResource.of(player.getInventory().getItem(slot));
+        if (sample.isEmpty()) return false;
+        StorageServerStub stub = StorageServerStub.get(playerId, view.primary().getId());
+        Map<ItemResource, Integer> moved = new HashMap<>();
+        boolean changed = false;
+        for (int index = 0; index < Inventory.INVENTORY_SIZE; index++) {
+            ItemStack stack = player.getInventory().getItem(index);
+            if (stack.isEmpty() || !ItemResource.of(stack).equals(sample)) continue;
+            changed |= StorageServerStub.moveInventoryStackToStorage(player, view, index, pour, moved) > 0;
+        }
+        if (changed) {
+            StorageServerStub.recordUndo(stub, moved);
+            player.getInventory().setChanged();
+            player.inventoryMenu.broadcastChanges();
+        }
+        return changed;
+    }
+
+    @RemoteCallable(validator = StorageAccessValidator.class)
     public static DepositResult undo(UUID playerId, long sourcePos) {
         StorageView view = StorageServerStub.getView(StorageServerStub.getAndClear(), playerId, sourcePos);
         ServerPlayer player = StorageServerStub.getServerPlayer(playerId);
