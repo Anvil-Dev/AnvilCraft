@@ -36,7 +36,7 @@ public class AnvilCraftServerConfig {
     public int plasmaJetsFishTankConsumeAmount = 1;
 
     @Comment("Extended duration of a single consumption of Plasma Jets based on Fish Tanks (in ticks)")
-    @BoundedDiscrete(min = 5 * 20, max = 12 * 60 * 60 * 20)
+    @BoundedDiscrete(min = 1, max = 12 * 60 * 60 * 20)
     public int plasmaJetsFishTankExtraDuration = 24;
 
     @Comment("Effective speed of light in blocks per tick for orbital precession; larger values weaken the effect")
