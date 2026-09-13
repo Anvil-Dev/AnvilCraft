@@ -875,6 +875,7 @@
   "config.jade.plugin_anvilcraft.large_laser": "Large Laser",
   "config.jade.plugin_anvilcraft.load_monitor": "Load Monitor",
   "config.jade.plugin_anvilcraft.menger_sponge": "Menger Sponge",
+  "config.jade.plugin_anvilcraft.overflow_disposal_fluid_tank": "Overflow Disposal Fluid Tank",
   "config.jade.plugin_anvilcraft.power_provider": "Anvil Craft Power",
   "config.jade.plugin_anvilcraft.pulse_generator": "Pulse Generator",
   "config.jade.plugin_anvilcraft.redstone_wire": "Redstone Wire",
