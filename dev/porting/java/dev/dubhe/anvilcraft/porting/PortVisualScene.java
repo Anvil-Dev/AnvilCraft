@@ -18,6 +18,7 @@ import dev.dubhe.anvilcraft.init.block.ModFluids;
 import dev.dubhe.anvilcraft.util.BlockStateAndEntity;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.Screenshot;
+import net.minecraft.client.TextureFilteringMethod;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -65,6 +66,10 @@ public final class PortVisualScene {
         client.options.pauseOnLostFocus = false;
         if (!creating) {
             if (client.screen == null || client.getOverlay() != null) return;
+            if (Boolean.getBoolean("anvilcraft.portConsolidatorScene")) {
+                // 匹配源版不启用额外纹理过滤的对照条件。
+                client.options.textureFiltering().set(TextureFilteringMethod.NONE);
+            }
             creating = true;
             String name = "anvilcraft-port-visual-" + System.currentTimeMillis();
             client.createWorldOpenFlows().createFreshLevel(
@@ -105,6 +110,11 @@ public final class PortVisualScene {
             BlockState candles = Blocks.CANDLE.defaultBlockState().setValue(BlockStateProperties.CANDLES, 3);
             int count = BlockPlacementRules.getPlacementItemCount(client.level.registryAccess(), candles, new ItemStack(Items.CANDLE));
             if (count != 3) throw new IllegalStateException("客户端未正确加载同步后的放置规则");
+            if (Boolean.getBoolean("anvilcraft.portConsolidatorScene")
+                && client.level.getBlockState(new BlockPos(2, 81, 9)).getValue(AbstractStoragePortBlock.TYPE)
+                    != StoragePortType.HYPERDIMENSION) {
+                throw new IllegalStateException("整合器未从实际核心同步超维外观");
+            }
             validatedPlacementRules = true;
             AnvilCraft.LOGGER.info("PORT_PLACEMENT_CLIENT_SYNC_PASSED");
         }
@@ -116,6 +126,7 @@ public final class PortVisualScene {
         if (Boolean.getBoolean("anvilcraft.portOverflowScene")) imageName = "overflow-scene-26.1.png";
         if (Boolean.getBoolean("anvilcraft.portStoragePortScene")) imageName = "storage-port-scene-26.1.png";
         if (Boolean.getBoolean("anvilcraft.portStorageFluidScene")) imageName = "storage-fluid-scene-26.1.png";
+        if (Boolean.getBoolean("anvilcraft.portConsolidatorScene")) imageName = "consolidator-scene-26.1.png";
         Screenshot.grab(client.gameDirectory, imageName, client.getMainRenderTarget(), 1, message -> {
             AnvilCraft.LOGGER.info("PORT_VISUAL_SCENE_CAPTURED: {}", message.getString());
             client.execute(client::stop);
@@ -215,6 +226,26 @@ public final class PortVisualScene {
                     index % 2 == 0 ? StoragePortType.SHULKER_CONTAINER : StoragePortType.HYPERDIMENSION), Block.UPDATE_ALL);
                 var port = (StorageFluidPortBlockEntity) level.getBlockEntity(pos);
                 port.getTank().set(0, net.neoforged.neoforge.transfer.fluid.FluidResource.of(ModFluids.HONEY.get()), amounts[index]);
+            }
+        }
+        if (Boolean.getBoolean("anvilcraft.portConsolidatorScene")) {
+            for (int index = 0; index < 2; index++) {
+                BlockPos pos = new BlockPos(-1 + index * 3, 81, 9);
+                if (index == 1) {
+                    var station = ModBlocks.HYPERDIMENSION_STORAGE_STATION.get();
+                    BlockPos corePos = pos.below(5);
+                    var coreState = station.defaultBlockState();
+                    for (var part : station.getParts()) {
+                        level.setBlock(corePos.offset(station.offsetFrom(coreState, part)), station.placedState(part, coreState),
+                            Block.UPDATE_CLIENTS | Block.UPDATE_KNOWN_SHAPE);
+                    }
+                    var core = (dev.dubhe.anvilcraft.block.entity.storage.StorageBlockEntity) level.getBlockEntity(corePos);
+                    core.setId(java.util.UUID.randomUUID());
+                    level.setBlock(pos.below(2), ModBlocks.STORAGE_PORT.getDefaultState(), Block.UPDATE_ALL);
+                    level.setBlock(pos.below(), ModBlocks.STORAGE_PORT.getDefaultState(), Block.UPDATE_ALL);
+                }
+                level.setBlock(pos, ModBlocks.STORAGE_PORT_CONSOLIDATOR.getDefaultState().setValue(AbstractStoragePortBlock.TYPE,
+                    index == 0 ? StoragePortType.SHULKER_CONTAINER : StoragePortType.HYPERDIMENSION), Block.UPDATE_ALL);
             }
         }
         prepared = true;

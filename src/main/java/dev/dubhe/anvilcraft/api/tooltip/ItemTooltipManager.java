@@ -522,6 +522,16 @@ public class ItemTooltipManager {
                 Creative players left-click to clear the configuration
                 Survival players left-click to take out items"""
         );
+        ItemTooltipManager.NORMAL.put(
+            ModBlocks.STORAGE_PORT_CONSOLIDATOR.asItem(),
+            "Exposes the contents of the connected Storage Ports and Fluid Ports to external logistics"
+        );
+        ItemTooltipManager.SHIFT.put(ModBlocks.STORAGE_PORT_CONSOLIDATOR.asItem(), """
+                Exposes the contents of connected storage ports to storage buses
+                Can only connect to directly adjacent ports on the same side of the same Container/Storage Station.
+                Inputs are prioritized into ports with matching filters
+                Right-click with a fluid bucket to pour fluid into the corresponding fluid port.""");
+
         ItemTooltipManager.NORMAL.put(ModBlocks.STORAGE_PORT.asItem(), "External input/output ports of the Shulker Container or the Hyperdimension Storage Station.");
         ItemTooltipManager.SHIFT.put(ModBlocks.STORAGE_PORT.asItem(), """
                 Right‑click with an item in hand to mark a port

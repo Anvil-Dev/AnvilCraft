@@ -111,6 +111,7 @@ public class FunctionalBlocks extends DisplayItemsGenerator {
         this.plain(ModBlocks.CHUTE);
         this.plain(ModBlocks.MAGNETIC_CHUTE);
         this.plain(ModBlocks.STORAGE_PORT);
+        this.plain(ModBlocks.STORAGE_PORT_CONSOLIDATOR);
         this.plain(ModBlocks.STORAGE_FLUID_PORT);
         this.plain(ModBlocks.OVERFLOW_CHUTE);
         this.plain(ModBlocks.ITEM_SPLITTER);

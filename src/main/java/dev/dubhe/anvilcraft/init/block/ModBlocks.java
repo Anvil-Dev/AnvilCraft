@@ -105,6 +105,7 @@ import dev.dubhe.anvilcraft.block.logistics.sliding.SlidingRailBlock;
 import dev.dubhe.anvilcraft.block.logistics.sliding.SlidingRailStopBlock;
 import dev.dubhe.anvilcraft.block.logistics.storage.StorageFluidPortBlock;
 import dev.dubhe.anvilcraft.block.logistics.storage.StoragePortBlock;
+import dev.dubhe.anvilcraft.block.logistics.storage.StoragePortConsolidatorBlock;
 import dev.dubhe.anvilcraft.block.multipart.FlexibleMultiPartBlock;
 import dev.dubhe.anvilcraft.block.multipart.SimpleMultiPartBlock;
 import dev.dubhe.anvilcraft.block.plate.EntityCountPressurePlateBlock;
@@ -4272,6 +4273,20 @@ public class ModBlocks {
         .blockstate(DataGenUtil::noExtraModelOrState)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .recipe(RegistrumBlockRecipeLoader::storageFluidPort)
+        .register();
+
+    public static final BlockEntry<StoragePortConsolidatorBlock> STORAGE_PORT_CONSOLIDATOR = REGISTRUM
+        .block("storage_port_consolidator", StoragePortConsolidatorBlock::new)
+        .initialProperties(() -> Blocks.SHULKER_BOX)
+        .properties(properties -> properties
+            .noOcclusion()
+            .isValidSpawn(ModBlocks::never)
+            .requiresCorrectToolForDrops())
+        .item()
+        .build()
+        .blockstate(DataGenUtil::noExtraModelOrState)
+        .recipe(RegistrumBlockRecipeLoader::storagePortConsolidator)
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .register();
 
     public static final BlockEntry<StoragePortBlock> STORAGE_PORT = REGISTRUM

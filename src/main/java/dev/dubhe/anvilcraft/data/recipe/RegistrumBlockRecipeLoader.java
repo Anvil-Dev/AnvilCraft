@@ -50,6 +50,21 @@ public class RegistrumBlockRecipeLoader {
             .save(provider);
     }
 
+    public static <T extends Block> void storagePortConsolidator(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
+        ShapedRecipeBuilder.shaped(provider.getItems(), RecipeCategory.BUILDING_BLOCKS, ModBlocks.STORAGE_PORT_CONSOLIDATOR)
+            .pattern(" P ")
+            .pattern("PSP")
+            .pattern(" P ")
+            .define('P', ModItems.PROCESSOR)
+            .define('S', ModBlocks.STORAGE_PORT)
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.PROCESSOR), AnvilCraftDatagen.has(provider.getItems(), ModItems.PROCESSOR))
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(ModBlocks.STORAGE_PORT),
+                AnvilCraftDatagen.has(provider.getItems(), ModBlocks.STORAGE_PORT)
+            )
+            .save(provider);
+    }
+
     public static <T extends Block> void storagePort(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
         ShapedRecipeBuilder.shaped(provider.getItems(), RecipeCategory.BUILDING_BLOCKS, ModBlocks.STORAGE_PORT, 4)
             .pattern("A")

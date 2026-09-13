@@ -37,7 +37,8 @@ public final class RedstonePortClientSmoke {
         checkModel(models.getStandaloneModel(BigRedButtonBlockEntityRenderer.CAP));
         checkModel(models.getStandaloneModel(RedstoneDiceBlockEntityRenderer.DICE));
         for (Block block : List.of(ModBlocks.BIG_RED_BUTTON.get(), ModBlocks.REDSTONE_DICE.get(), ModBlocks.ITEM_SPLITTER.get(),
-            ModBlocks.OVERFLOW_CHUTE.get(), ModBlocks.STORAGE_PORT.get(), ModBlocks.STORAGE_FLUID_PORT.get())) {
+            ModBlocks.OVERFLOW_CHUTE.get(), ModBlocks.STORAGE_PORT.get(), ModBlocks.STORAGE_FLUID_PORT.get(),
+            ModBlocks.STORAGE_PORT_CONSOLIDATOR.get())) {
             for (BlockState state : block.getStateDefinition().getPossibleStates()) {
                 checkModel(models.getBlockStateModelSet().get(state));
             }
@@ -46,7 +47,7 @@ public final class RedstonePortClientSmoke {
         DynamicSelectionChecks.run();
         completed = true;
         AnvilCraft.LOGGER.info(
-            "PORT_CLIENT_STARTUP_PASSED: 793 block and standalone models baked; visual parity still requires in-world review"
+            "PORT_CLIENT_STARTUP_PASSED: 795 block and standalone models baked; visual parity still requires in-world review"
         );
         client.stop();
     }
