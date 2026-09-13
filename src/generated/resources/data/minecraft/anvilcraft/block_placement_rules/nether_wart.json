@@ -1,0 +1,8 @@
+{
+  "rules": [
+    {
+      "item": "minecraft:nether_wart",
+      "properties": "age=0"
+    }
+  ]
+}

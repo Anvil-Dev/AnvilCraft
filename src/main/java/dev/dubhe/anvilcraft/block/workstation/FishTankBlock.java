@@ -5,8 +5,8 @@ import dev.anvilcraft.lib.v2.piston.IMoveableEntityBlock;
 import dev.anvilcraft.lib.v2.recipe.cache.BlockCache;
 import dev.anvilcraft.lib.v2.util.ShapeUtil;
 import dev.anvilcraft.lib.v2.util.Util;
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.block.IIgnitableCauldron;
-import dev.dubhe.anvilcraft.api.fluid.FluidStackResourceHandler;
 import dev.dubhe.anvilcraft.api.hammer.HammerRotateBehavior;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.block.entity.FishTankBlockEntity;
@@ -15,6 +15,7 @@ import dev.dubhe.anvilcraft.block.power.consumer.HeaterBlock;
 import dev.dubhe.anvilcraft.block.special.PlasmaJetsBlock;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
+import dev.dubhe.anvilcraft.init.block.ModFluidTags;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.util.ModInteractionMap;
 import net.minecraft.core.BlockPos;
@@ -53,10 +54,11 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.common.world.AuxiliaryLightManager;
 import net.neoforged.neoforge.transfer.ResourceHandler;
-import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import net.neoforged.neoforge.transfer.transaction.Transaction;
 import org.jspecify.annotations.Nullable;
+
+import java.util.OptionalInt;
 
 public class FishTankBlock extends Block implements IMoveableEntityBlock, HammerRotateBehavior, IHammerRemovable, IIgnitableCauldron {
     public static final BooleanProperty TROPICAL = BooleanProperty.create("tropical");
@@ -343,27 +345,23 @@ public class FishTankBlock extends Block implements IMoveableEntityBlock, Hammer
     }
 
     @Override
-    public boolean consumeOnce(BlockCache cache, BlockPos pos) {
-        return this.consumeContinuousPlasmaJetFuel(cache, pos, 250);
+    public int getFluidAmount(BlockCache cache, BlockPos pos) {
+        return cache.getBlockEntity(pos) instanceof FishTankBlockEntity tank ? tank.getFluidHandler().getAmountAsInt(0) : 0;
     }
 
     @Override
-    public boolean usesContinuousPlasmaJetFuel(BlockCache cache, BlockPos pos) {
-        return true;
-    }
-
-    @Override
-    public boolean consumeContinuousPlasmaJetFuel(BlockCache cache, BlockPos pos, int amount) {
-        if (amount <= 0) return false;
-        if (!(cache.getBlockEntity(pos) instanceof FishTankBlockEntity be)) return false;
-        try (Transaction transaction = Transaction.openRoot()) {
-            FluidStackResourceHandler handler = be.getFluidHandler();
-            FluidResource resource = handler.getResource(0);
-            if (resource.isEmpty()) return false;
-            int extracted = handler.extract(resource, amount, transaction);
-            if (extracted < amount) return false;
-            transaction.commit();
-            return true;
+    public OptionalInt consumeOnce(BlockCache cache, BlockPos pos, boolean simulate) {
+        int amount = AnvilCraft.CONFIG.plasmaJetsFishTankConsumeAmount;
+        if (!(cache.getBlockEntity(pos) instanceof FishTankBlockEntity tank)) return OptionalInt.empty();
+        var handler = tank.getFluidHandler();
+        var fluid = handler.getResource(0);
+        if (fluid.isEmpty() || !fluid.getFluid().is(ModFluidTags.OIL)) {
+            return OptionalInt.empty();
         }
+        try (Transaction transaction = Transaction.openRoot()) {
+            if (handler.extract(fluid, amount, transaction) != amount) return OptionalInt.empty();
+            if (!simulate) transaction.commit();
+        }
+        return OptionalInt.of(AnvilCraft.CONFIG.plasmaJetsFishTankExtraDuration);
     }
 }

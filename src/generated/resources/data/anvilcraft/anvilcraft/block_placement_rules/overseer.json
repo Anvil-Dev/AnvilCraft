@@ -1,0 +1,12 @@
+{
+  "rules": [
+    {
+      "item": "anvilcraft:overseer",
+      "properties": "half=bottom"
+    },
+    {
+      "item": {},
+      "properties": "!half=bottom"
+    }
+  ]
+}

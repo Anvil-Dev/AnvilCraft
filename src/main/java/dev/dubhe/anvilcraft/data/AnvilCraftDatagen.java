@@ -7,6 +7,7 @@ import dev.anvilcraft.lib.v2.registrum.providers.generators.RegistrumRecipeProvi
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.data.advancement.ModAdvancementsHandler;
 import dev.dubhe.anvilcraft.data.lang.LangHandler;
+import dev.dubhe.anvilcraft.data.provider.ModBlockPlacementRuleProvider;
 import dev.dubhe.anvilcraft.data.provider.ModFurnaceFuelProvider;
 import dev.dubhe.anvilcraft.data.provider.ModLootModifierProvider;
 import dev.dubhe.anvilcraft.data.provider.ModLootTableProvider;
@@ -54,6 +55,7 @@ public class AnvilCraftDatagen {
         generator.addProvider(true, new ModLootTableProvider(packOutput, event.getLookupProvider()));
         generator.addProvider(true, new ModFurnaceFuelProvider(packOutput, event.getLookupProvider()));
         generator.addProvider(true, new ModLootModifierProvider(packOutput, event.getLookupProvider()));
+        generator.addProvider(true, new ModBlockPlacementRuleProvider(packOutput));
 
         IntegrationHook.setEvent(event);
         AnvilCraft.getINTEGRATION_MANAGER().loadAllClientDataIntegrations();
@@ -68,6 +70,7 @@ public class AnvilCraftDatagen {
         generator.addProvider(true, new ModLootTableProvider(packOutput, lookupProvider));
         generator.addProvider(true, new ModFurnaceFuelProvider(packOutput, lookupProvider));
         generator.addProvider(true, new ModLootModifierProvider(packOutput, lookupProvider));
+        generator.addProvider(true, new ModBlockPlacementRuleProvider(packOutput));
 
         IntegrationHook.setEvent(event);
         AnvilCraft.getINTEGRATION_MANAGER().loadAllServerDataIntegrations();

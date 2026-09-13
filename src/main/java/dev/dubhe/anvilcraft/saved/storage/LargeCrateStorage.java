@@ -12,21 +12,22 @@ import net.minecraft.network.codec.StreamCodec;
 import java.util.UUID;
 
 public class LargeCrateStorage extends BaseStorage<SpaceSizeItemStacksResourceHandler> {
-    public static final MapCodec<LargeCrateStorage> CODEC = CodecUtil.mapCodec(
+    public static final MapCodec<LargeCrateStorage> CODEC = BaseStorage.withCrafting(CodecUtil.mapCodec(
         UUIDUtil.CODEC
             .fieldOf("storage_id")
             .forGetter(LargeCrateStorage::getId),
         SpaceSizeItemStacksResourceHandler.CODEC
             .forGetter(LargeCrateStorage::getItems),
         LargeCrateStorage::of
-    );
-    public static final StreamCodec<RegistryFriendlyByteBuf, LargeCrateStorage> STREAM_CODEC = StreamCodec.composite(
+    ));
+    public static final StreamCodec<RegistryFriendlyByteBuf, LargeCrateStorage> STREAM_CODEC =
+        BaseStorage.withCrafting(StreamCodec.composite(
         UUIDUtil.STREAM_CODEC,
         LargeCrateStorage::getId,
         SpaceSizeItemStacksResourceHandler.STREAM_CODEC,
         LargeCrateStorage::getItems,
         LargeCrateStorage::of
-    );
+    ));
 
     public LargeCrateStorage(UUID id) {
         super(id);

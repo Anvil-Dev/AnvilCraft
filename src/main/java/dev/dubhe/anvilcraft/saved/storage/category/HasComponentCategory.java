@@ -215,7 +215,7 @@ public record HasComponentCategory(
             ItemStackTemplate.CODEC
                 .fieldOf("icon")
                 .forGetter(HasComponentCategory::icon),
-            ComponentSerialization.flatRestrictedCodec(Integer.MAX_VALUE)
+            ICategory.NAME_CODEC
                 .fieldOf("name")
                 .forGetter(HasComponentCategory::name),
             DataComponentPredicate.CODEC

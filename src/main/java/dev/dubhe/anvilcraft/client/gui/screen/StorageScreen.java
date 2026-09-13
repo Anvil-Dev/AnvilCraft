@@ -6,12 +6,15 @@ import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.platform.Window;
 import dev.anvilcraft.lib.v2.util.MathUtil;
 import dev.anvilcraft.lib.v2.util.UnlimitedItemStack;
+import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.api.StoragePortManager;
 import dev.dubhe.anvilcraft.block.container.storage.ShulkerContainerBlock;
 import dev.dubhe.anvilcraft.client.gui.component.SwitchableButton;
 import dev.dubhe.anvilcraft.client.gui.component.TexturedButton;
 import dev.dubhe.anvilcraft.client.gui.component.category.CategoryList;
 import dev.dubhe.anvilcraft.client.rpc.SettingClientStub;
 import dev.dubhe.anvilcraft.client.rpc.StorageClientStub;
+import dev.dubhe.anvilcraft.client.support.FluidRenderHelper;
 import dev.dubhe.anvilcraft.constant.Constant;
 import dev.dubhe.anvilcraft.constant.SharedTextures;
 import dev.dubhe.anvilcraft.rpc.StorageInput;
@@ -21,9 +24,12 @@ import dev.dubhe.anvilcraft.saved.setting.mode.NbtDisplayMode;
 import dev.dubhe.anvilcraft.saved.setting.mode.OrderMode;
 import dev.dubhe.anvilcraft.saved.setting.mode.SearchMode;
 import dev.dubhe.anvilcraft.saved.setting.mode.SortMode;
+import dev.dubhe.anvilcraft.util.FluidAmountUtil;
 import dev.dubhe.anvilcraft.util.FormattingUtil;
 import it.unimi.dsi.fastutil.ints.Int2IntMap;
 import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
+import it.unimi.dsi.fastutil.ints.Int2LongMap;
+import it.unimi.dsi.fastutil.ints.Int2LongOpenHashMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
@@ -32,6 +38,7 @@ import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.MouseHandler;
+import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
@@ -41,6 +48,8 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.Rect2i;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.FontDescription;
 import net.minecraft.resources.Identifier;
@@ -53,13 +62,17 @@ import net.minecraft.world.inventory.ContainerInput;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
 import net.neoforged.neoforge.client.ItemDecoratorHandler;
+import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.FluidType;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
@@ -99,6 +112,12 @@ public class StorageScreen extends Screen {
     private static final int SLIDER_TRACK_HEIGHT = 106;
     private static final int METADATA_REFRESH_INTERVAL = 10;
     private static final int MAX_PRESERVED_SYNC_ATTEMPTS = 3;
+    private static final int FLUID_SLOT_BASE = StoragePortManager.FLUID_SLOT_BASE;
+    private static final int FLYOUT_FADE_IN_TICKS = 5;
+    private static final int FLYOUT_HOLD_TICKS = 25;
+    private static final int FLYOUT_FADE_OUT_TICKS = 5;
+    private static final int FLYOUT_TOTAL_TICKS = FLYOUT_FADE_IN_TICKS + FLYOUT_HOLD_TICKS + FLYOUT_FADE_OUT_TICKS;
+    private static final Identifier FLYOUT_BACK = AnvilCraft.of("flex_button/shaded_1px");
     private final BlockPos sourcePos;
     private final Player player;
     private final boolean tracksOpenState;
@@ -111,10 +130,16 @@ public class StorageScreen extends Screen {
     private IntList displayOrder = new IntArrayList();
     private final Int2ObjectMap<UnlimitedItemStack> contents = new Int2ObjectOpenHashMap<>();
     private final Int2ObjectMap<UnlimitedItemStack> foldedContents = new Int2ObjectOpenHashMap<>();
-    private final Int2IntMap foldedCounts = new Int2IntOpenHashMap();
+    private final Int2LongMap counts = new Int2LongOpenHashMap();
+    private final Int2LongMap foldedCounts = new Int2LongOpenHashMap();
     private final Int2IntMap serverSlots = new Int2IntOpenHashMap();
     private final IntSet emptySlots = new IntOpenHashSet();
     private List<IntList> foldedGroups = List.of();
+    private List<StorageServerStub.FluidEntry> fluids = List.of();
+    private Component flyoutMessage = Component.empty();
+    private int flyoutTimer = FLYOUT_TOTAL_TICKS;
+    private int flyoutClickX;
+    private int flyoutClickY;
     private double fullness;
     private StorageServerStub.@Nullable Capacity capacity;
     private long version = -1;
@@ -134,8 +159,15 @@ public class StorageScreen extends Screen {
     private int nextLogicalSlot;
     private final IntSet quickCraftSlots = new IntOpenHashSet();
     private boolean quickCrafting;
+    private boolean quickMoveDragging;
+    private final IntSet quickMoveSlots = new IntOpenHashSet();
+    private final IntSet pendingQuickMoveSlots = new IntOpenHashSet();
+    private final IntSet storageQuickMoveSlots = new IntOpenHashSet();
     private int quickCraftingButton;
     private int lastClickedInventorySlot = -1;
+    private long lastInventoryClickTime;
+    private int lastInventoryClickSlot = -1;
+    private ItemStack lastQuickMoved = ItemStack.EMPTY;
     private int pickupAllSlot = -1;
     private int left;
     private int top;
@@ -272,14 +304,7 @@ public class StorageScreen extends Screen {
             20,
             18,
             40,
-            _ -> StorageClientStub.deposit(StorageScreen.this.sourcePos, this.minecraft.hasShiftDown()).thenAcceptAsync(
-                result -> {
-                    if (result.changed()) {
-                        StorageScreen.this.reorder(false);
-                    }
-                },
-                StorageScreen.this.screenExecutor
-            )
+            _ -> this.deposit(true, this.minecraft.hasShiftDown())
         ));
         this.addRenderableWidget(new TexturedButton(
             this.left + 278,
@@ -328,6 +353,8 @@ public class StorageScreen extends Screen {
     @Override
     public void tick() {
         super.tick();
+        this.flushQuickMoves();
+        if (this.flyoutTimer < StorageScreen.FLYOUT_TOTAL_TICKS) this.flyoutTimer++;
         if (this.metadataCooldown > 0) {
             this.metadataCooldown--;
         } else {
@@ -375,6 +402,7 @@ public class StorageScreen extends Screen {
         this.extractPlayerInventory(graphics, mouseX, mouseY);
         super.extractRenderState(graphics, mouseX, mouseY, a);
         this.extractCarriedItem(graphics, mouseX, mouseY);
+        this.extractFlyout(graphics);
         this.extractTooltip(graphics, mouseX, mouseY);
     }
 
@@ -396,6 +424,22 @@ public class StorageScreen extends Screen {
             }
 
             int slot = this.displayOrder.getInt(orderIndex);
+            if (slot >= StorageScreen.FLUID_SLOT_BASE) {
+                var entry = this.getFluidSlot(slot);
+                if (entry != null) {
+                    this.extractFluidIcon(graphics, entry, x, y);
+                    if (hovered) {
+                        graphics.setTooltipForNextFrame(this.font, List.of(entry.icon().getHoverName().getVisualOrderText(),
+                            Component.translatable("screen.anvilcraft.storage.fluid_amount",
+                                FluidAmountUtil.formatExactAmount(entry.amount())).getVisualOrderText()), mouseX, mouseY);
+                    }
+                }
+                if (hovered) {
+                    graphics.blitSprite(RenderPipelines.GUI_TEXTURED, StorageScreen.SLOT_HIGHLIGHT_FRONT_SPRITE,
+                        x - 4, y - 4, 24, 24);
+                }
+                continue;
+            }
             UnlimitedItemStack stack = this.getDisplayedStack(slot);
             if (!stack.isEmpty()) {
                 ItemStack itemStack = stack.toStack();
@@ -409,7 +453,17 @@ public class StorageScreen extends Screen {
                     y
                 );
                 if (hovered && this.carried.isEmpty()) {
-                    graphics.setTooltipForNextFrame(this.font, itemStack, mouseX, mouseY);
+                    long count = this.getDisplayedCount(slot, stack);
+                    if (count >= 1000) {
+                        List<Component> lines = new ArrayList<>(itemStack.getTooltipLines(Item.TooltipContext.of(this.minecraft.level),
+                            this.player, this.minecraft.options.advancedItemTooltips
+                                ? TooltipFlag.Default.ADVANCED : TooltipFlag.Default.NORMAL));
+                        lines.add(Component.translatable("screen.anvilcraft.storage.count", count));
+                        graphics.setTooltipForNextFrame(this.font, lines, itemStack.getTooltipImage(), itemStack,
+                            mouseX, mouseY, itemStack.get(DataComponents.TOOLTIP_STYLE));
+                    } else {
+                        graphics.setTooltipForNextFrame(this.font, itemStack, mouseX, mouseY);
+                    }
                 }
             }
 
@@ -598,11 +652,28 @@ public class StorageScreen extends Screen {
             this.setFocused(hovered ? this.search : null);
         }
 
+        if (event.button() == 1 && MathUtil.isInRange(event.x(), event.y(),
+            this.left + 278, this.top + 139, this.left + 296, this.top + 159)) {
+            this.deposit(false, event.hasShiftDown());
+            return true;
+        }
         if (super.mouseClicked(event, doubleClick)) {
             return true;
         }
 
         if (event.button() == 0 || event.button() == 1) {
+            Integer fluidSlot = this.getFluidSlotAt(event.x(), event.y());
+            if (fluidSlot != null && this.minecraft.gameMode != null) {
+                if (event.button() == 1) {
+                    if (!this.carried.isEmpty()) this.interactWithStorage(fluidSlot, event.button(), StorageInput.PICKUP);
+                    return true;
+                }
+                this.flyoutClickX = (int) event.x();
+                this.flyoutClickY = (int) event.y();
+                this.interactWithStorage(fluidSlot, event.button(), event.hasShiftDown()
+                    ? StorageInput.QUICK_MOVE_FROM_STORAGE : StorageInput.FLUID_BUCKET);
+                return true;
+            }
             Integer storageSlot = this.getStorageSlot(event.x(), event.y());
             if (storageSlot != null && this.minecraft.gameMode != null) {
                 StorageInput action = event.hasShiftDown()
@@ -617,14 +688,32 @@ public class StorageScreen extends Screen {
                 return false;
             }
             this.lastClickedInventorySlot = slot;
+            ItemStack clickedItem = this.player.getInventory().getItem(slot);
+            if (!clickedItem.isEmpty()) this.lastQuickMoved = clickedItem.copy();
+            if (event.hasAltDown()) {
+                this.moveSameToStorage(slot, event.button() == 0);
+                return true;
+            }
+            boolean inventoryDoubleClick = event.button() == 0 && this.isInventoryDoubleClick(slot);
 
             if (event.hasShiftDown()) {
-                this.interactWithStorage(slot, event.button(), StorageInput.QUICK_MOVE_TO_STORAGE);
+                if (inventoryDoubleClick) {
+                    int target = this.findInventorySlotWith(this.lastQuickMoved);
+                    if (target >= 0) this.moveSameToStorage(target, true);
+                    return true;
+                }
+                if (event.button() == 0 && this.carried.isEmpty()) {
+                    this.quickMoveDragging = true;
+                    StorageClientStub.beginUndoGroup(this.sourcePos);
+                    this.queueQuickMove(slot);
+                } else {
+                    this.interactWithStorage(slot, event.button(), StorageInput.QUICK_MOVE_TO_STORAGE);
+                }
                 return true;
             }
 
             if (!this.carried.isEmpty()) {
-                if (event.button() == 0 && doubleClick && slot == lastClickedInventorySlot) {
+                if (inventoryDoubleClick && slot == lastClickedInventorySlot) {
                     this.pickupAllSlot = this.getScreenSlot(slot);
                     return true;
                 }
@@ -681,6 +770,10 @@ public class StorageScreen extends Screen {
 
     @Override
     public boolean mouseDragged(MouseButtonEvent event, double dragX, double dragY) {
+        if (this.quickMoveDragging) {
+            if (event.button() == 0 && event.hasShiftDown()) this.quickMoveDrag(event.x(), event.y());
+            return true;
+        }
         if (!this.quickCrafting || event.button() != this.quickCraftingButton || this.carried.isEmpty()) {
             return super.mouseDragged(event, dragX, dragY);
         }
@@ -704,6 +797,10 @@ public class StorageScreen extends Screen {
     @Override
     public boolean mouseReleased(MouseButtonEvent event) {
         super.mouseReleased(event);
+        if (this.quickMoveDragging) {
+            this.finishQuickMove();
+            return true;
+        }
         if (this.pickupAllSlot != -1) {
             if (event.button() == 0 && this.minecraft.gameMode != null) {
                 this.player.inventoryMenu.setCarried(this.carried);
@@ -747,6 +844,85 @@ public class StorageScreen extends Screen {
         return true;
     }
 
+    private void queueQuickMove(int slot) {
+        if (slot >= 0 && this.quickMoveSlots.add(slot)) this.pendingQuickMoveSlots.add(slot);
+    }
+
+    public void quickMoveDrag(double mouseX, double mouseY) {
+        Integer storageSlot = this.getStorageSlot(mouseX, mouseY);
+        if (storageSlot != null && storageSlot >= 0) {
+            int key = -1 - storageSlot;
+            if (this.quickMoveSlots.add(key)) {
+                this.storageQuickMoveSlots.add(storageSlot.intValue());
+            } else {
+                this.quickMoveSlots.remove(key);
+                this.storageQuickMoveSlots.remove(storageSlot.intValue());
+            }
+            return;
+        }
+        this.queueQuickMove(this.getInventorySlot(mouseX, mouseY));
+    }
+
+    private boolean isInventoryDoubleClick(int slot) {
+        long now = System.currentTimeMillis();
+        boolean quick = slot == this.lastInventoryClickSlot && now - this.lastInventoryClickTime < 250L;
+        this.lastInventoryClickSlot = slot;
+        this.lastInventoryClickTime = now;
+        return quick;
+    }
+
+    private int findInventorySlotWith(ItemStack sample) {
+        if (sample.isEmpty()) return -1;
+        for (int slot = 0; slot < Inventory.INVENTORY_SIZE; slot++) {
+            if (ItemStack.isSameItemSameComponents(this.player.getInventory().getItem(slot), sample)) return slot;
+        }
+        return -1;
+    }
+
+    private void moveSameToStorage(int slot, boolean pour) {
+        StorageClientStub.moveSameToStorage(this.sourcePos, slot, pour).thenAcceptAsync(changed -> {
+            if (changed) this.refreshAfterQuickMove();
+        }, this.screenExecutor);
+    }
+
+    private void flushQuickMoves() {
+        if (!this.pendingQuickMoveSlots.isEmpty()) {
+            IntList slots = new IntArrayList(this.pendingQuickMoveSlots);
+            this.pendingQuickMoveSlots.clear();
+            StorageClientStub.quickMoveToStorage(this.sourcePos, slots).thenAcceptAsync(changed -> {
+                if (changed) this.refreshAfterQuickMove();
+            }, this.screenExecutor);
+        }
+        if (!this.storageQuickMoveSlots.isEmpty()) {
+            IntList slots = new IntArrayList(this.storageQuickMoveSlots.size());
+            for (int logicalSlot : this.storageQuickMoveSlots) {
+                int serverSlot = this.serverSlots.get(logicalSlot);
+                if (serverSlot >= 0 && serverSlot < StorageScreen.FLUID_SLOT_BASE) slots.add(serverSlot);
+            }
+            this.storageQuickMoveSlots.clear();
+            if (slots.isEmpty()) return;
+            StorageClientStub.quickMoveFromStorage(this.sourcePos, slots).thenAcceptAsync(changed -> {
+                if (changed) this.refreshAfterQuickMove();
+            }, this.screenExecutor);
+        }
+    }
+
+    private void finishQuickMove() {
+        this.quickMoveDragging = false;
+        this.flushQuickMoves();
+        StorageClientStub.endUndoGroup(this.sourcePos);
+        this.quickMoveSlots.clear();
+    }
+
+    private void refreshAfterQuickMove() {
+        if (this.preservingOrder) {
+            this.interactionSyncPending = true;
+            this.syncPreservedOrder();
+        } else {
+            this.reorder(false);
+        }
+    }
+
     private void quickCraftToSlots(int button) {
         if (this.minecraft.gameMode == null) {
             return;
@@ -783,13 +959,17 @@ public class StorageScreen extends Screen {
         this.interactionPending = true;
         this.player.inventoryMenu.setCarried(this.carried);
         int request = ++this.interactionRequest;
-        int serverSlot = action == StorageInput.QUICK_MOVE_TO_STORAGE ? slot : this.serverSlots.get(slot);
-        StorageClientStub.interact(this.sourcePos, serverSlot, button, action).whenCompleteAsync(
+        int serverSlot = action == StorageInput.QUICK_MOVE_TO_STORAGE || slot >= StorageScreen.FLUID_SLOT_BASE
+            ? slot : this.serverSlots.get(slot);
+        var fluidEntry = slot >= StorageScreen.FLUID_SLOT_BASE ? this.getFluidSlot(slot) : null;
+        FluidStack fluidIdentity = fluidEntry == null ? FluidStack.EMPTY : fluidEntry.icon().copyWithAmount(FluidType.BUCKET_VOLUME);
+        StorageClientStub.interact(this.sourcePos, serverSlot, button, action, fluidIdentity).whenCompleteAsync(
             (result, error) -> {
                 if (request != this.interactionRequest || error != null) {
                     this.interactionPending = false;
                     return;
                 }
+                if (result.notice() != StorageServerStub.FluidNotice.NONE) this.showNotice(result.notice().text());
                 this.carried = result.carried();
                 this.player.inventoryMenu.setCarried(this.carried);
                 if (result.changed()) {
@@ -852,6 +1032,12 @@ public class StorageScreen extends Screen {
             return true;
         }
 
+        if (event.hasControlDown() && event.key() == InputConstants.KEY_Z) {
+            StorageClientStub.undo(this.sourcePos).thenAcceptAsync(result -> {
+                if (result.changed()) this.refreshAfterQuickMove();
+            }, this.screenExecutor);
+            return true;
+        }
         InputConstants.Key key = InputConstants.getKey(event);
         if (super.keyPressed(event)) {
             return true;
@@ -949,6 +1135,7 @@ public class StorageScreen extends Screen {
 
     @Override
     public void removed() {
+        if (this.quickMoveDragging && this.minecraft.player != null) this.finishQuickMove();
         this.reorderRequest++;
         this.syncRequest++;
         this.metadataPending = false;
@@ -1072,7 +1259,8 @@ public class StorageScreen extends Screen {
                 + displayIndex / StorageScreen.STORAGE_COLUMNS * StorageScreen.SLOT_SIZE;
             if (MathUtil.isInRange(mouseX, mouseY, x - 2, y - 2, x + 17, y + 17)) {
                 if (orderIndex < this.displayOrder.size()) {
-                    return this.displayOrder.getInt(orderIndex);
+                    int slot = this.displayOrder.getInt(orderIndex);
+                    return slot >= StorageScreen.FLUID_SLOT_BASE ? null : slot;
                 }
                 return this.carried.isEmpty() ? null : -1;
             }
@@ -1084,6 +1272,130 @@ public class StorageScreen extends Screen {
         Window window = this.minecraft.getWindow();
         MouseHandler handler = this.minecraft.mouseHandler;
         return this.getStorageSlot(handler.getScaledXPos(window), handler.getScaledYPos(window));
+    }
+
+    private @Nullable Integer getFluidSlotAt(double mouseX, double mouseY) {
+        int firstOrderIndex = this.scrollRow * StorageScreen.STORAGE_COLUMNS;
+        for (int displayIndex = 0; displayIndex < StorageScreen.VISIBLE_STORAGE_SLOTS; displayIndex++) {
+            int orderIndex = firstOrderIndex + displayIndex;
+            if (orderIndex >= this.displayOrder.size()) {
+                break;
+            }
+            int x = this.left + StorageScreen.STORAGE_X
+                + displayIndex % StorageScreen.STORAGE_COLUMNS * StorageScreen.SLOT_SIZE;
+            int y = this.top + StorageScreen.STORAGE_Y
+                + displayIndex / StorageScreen.STORAGE_COLUMNS * StorageScreen.SLOT_SIZE;
+            if (MathUtil.isInRange(mouseX, mouseY, x - 2, y - 2, x + 17, y + 17)) {
+                int slot = this.displayOrder.getInt(orderIndex);
+                return slot >= StorageScreen.FLUID_SLOT_BASE ? slot : null;
+            }
+        }
+        return null;
+    }
+
+    private StorageServerStub.@Nullable FluidEntry getFluidSlot(int slot) {
+        int index = slot - StorageScreen.FLUID_SLOT_BASE;
+        return index >= 0 && index < this.fluids.size() ? this.fluids.get(index) : null;
+    }
+
+    private IntList appendFluidSlots(IntList itemsOnly) {
+        if (this.fluids.isEmpty()) {
+            return itemsOnly;
+        }
+        IntArrayList result = new IntArrayList(itemsOnly.size() + this.fluids.size());
+        result.addAll(itemsOnly);
+        for (int index = 0; index < this.fluids.size(); index++) {
+            int slot = StorageScreen.FLUID_SLOT_BASE + index;
+            if (this.order.contains(slot)) {
+                result.add(slot);
+            }
+        }
+        return result;
+    }
+
+    private IntList applySearchFilter(IntList order) {
+        String search = SettingClientStub.setting().storage().getSearchContent().strip().toLowerCase(Locale.ROOT);
+        if (search.isEmpty() || search.charAt(0) == '@' || search.charAt(0) == '#') {
+            return order;
+        }
+        IntArrayList filtered = new IntArrayList(order.size());
+        for (int slot : order) {
+            // 流体伪槽位按流体名称与 id path 过滤，不能当作空物品丢弃
+            if (slot >= StorageScreen.FLUID_SLOT_BASE) {
+                StorageServerStub.FluidEntry entry = this.getFluidSlot(slot);
+                if (entry == null) {
+                    continue;
+                }
+                FluidStack icon = entry.icon();
+                String fluidName = icon.getHoverName().getString().toLowerCase(Locale.ROOT);
+                String fluidIdPath = BuiltInRegistries.FLUID.getKey(icon.getFluid()).getPath();
+                if (fluidName.contains(search) || fluidIdPath.contains(search)) {
+                    filtered.add(slot);
+                }
+                continue;
+            }
+            UnlimitedItemStack stack = this.getDisplayedStack(slot);
+            if (stack.isEmpty()) {
+                continue;
+            }
+            String name = stack.toStack().getHoverName().getString().toLowerCase(Locale.ROOT);
+            String idPath = BuiltInRegistries.ITEM.getKey(stack.getItem()).getPath();
+            if (name.contains(search) || idPath.contains(search)) {
+                filtered.add(slot);
+            }
+        }
+        return filtered;
+    }
+
+    private void extractFluidIcon(GuiGraphicsExtractor graphics, StorageServerStub.FluidEntry entry, int x, int y) {
+        var model = FluidRenderHelper.getModel(this.minecraft.getModelManager().getFluidStateModelSet(), entry.icon().getFluid());
+        var tint = model.fluidTintSource();
+        int color = tint == null ? -1 : tint.colorAsStack(entry.icon());
+        graphics.blitSprite(RenderPipelines.GUI_TEXTURED, model.stillMaterial().sprite(), x, y, 16, 16, ARGB.opaque(color));
+        Component amount = Component.literal(FluidAmountUtil.formatAmount(entry.amount()))
+            .withStyle(style -> style.withFont(new FontDescription.Resource(StorageScreen.SMALL_FONT)));
+        StorageScreen.renderSlotCount(graphics, this.font, amount, entry.amount() == 0 ? 0xFFFFAA00 : -1, x, y);
+    }
+
+    private void showNotice(Component message) {
+        if (message.getString().isEmpty()) return;
+        this.flyoutMessage = message;
+        this.flyoutTimer = 0;
+    }
+
+    private static void renderSlotCount(GuiGraphicsExtractor graphics, Font font, Component text, int color, int x, int y) {
+        graphics.pose().pushMatrix();
+        graphics.pose().translate(x + 17, y + 9);
+        int width = font.width(text);
+        if (width > 16) {
+            graphics.pose().scale(0.75F, 0.75F);
+            graphics.pose().translate(-1.0F, font.lineHeight * 0.25F - 0.25F);
+        }
+        graphics.text(font, text, -width, 0, color, true);
+        graphics.pose().popMatrix();
+    }
+
+    private void extractFlyout(GuiGraphicsExtractor graphics) {
+        int elapsed = this.flyoutTimer - StorageScreen.FLYOUT_FADE_IN_TICKS;
+        float alpha = this.flyoutTimer < StorageScreen.FLYOUT_FADE_IN_TICKS
+            ? this.flyoutTimer / (float) StorageScreen.FLYOUT_FADE_IN_TICKS
+            : elapsed < StorageScreen.FLYOUT_HOLD_TICKS ? 1.0F
+            : 1.0F - (elapsed - StorageScreen.FLYOUT_HOLD_TICKS) / (float) StorageScreen.FLYOUT_FADE_OUT_TICKS;
+        if (alpha <= 0) return;
+        int width = this.font.width(this.flyoutMessage) + 5;
+        int height = this.font.lineHeight + 6;
+        int x = Mth.clamp(this.flyoutClickX - width / 2, 4, Math.max(4, this.width - width - 4));
+        int y = Math.max(4, this.flyoutClickY - 18 - height);
+        int color = (int) (alpha * 255.0F) << 24 | 0xFFFFFF;
+        graphics.nextStratum();
+        graphics.blitSprite(RenderPipelines.GUI_TEXTURED, StorageScreen.FLYOUT_BACK, x, y, width, height, color);
+        graphics.text(this.font, this.flyoutMessage.copy().withColor(0xEE0000), x + 3, y + 3, color, false);
+    }
+
+    private void deposit(boolean pour, boolean all) {
+        StorageClientStub.deposit(this.sourcePos, all, pour).thenAcceptAsync(result -> {
+            if (result.changed()) this.reorder(false);
+        }, this.screenExecutor);
     }
 
     private int getInventorySlot(double mouseX, double mouseY) {
@@ -1300,6 +1612,7 @@ public class StorageScreen extends Screen {
     private void applySyncResult(StorageServerStub.SyncResult result) {
         this.version = result.version();
         this.fullness = result.fullness();
+        this.fluids = result.fluids();
         for (StorageServerStub.StackUpdate update : result.updates()) {
             if (update.stack().isEmpty()) {
                 if (this.contents.containsKey(update.index())) {
@@ -1308,6 +1621,7 @@ public class StorageScreen extends Screen {
                 }
             } else {
                 this.contents.put(update.index(), update.stack());
+                this.counts.put(update.index(), update.count());
                 this.emptySlots.remove(update.index());
             }
         }
@@ -1326,6 +1640,7 @@ public class StorageScreen extends Screen {
             return false;
         }
         this.contents.clear();
+        this.counts.clear();
         this.emptySlots.clear();
         results.forEach(this::applySyncResult);
         return true;
@@ -1338,6 +1653,7 @@ public class StorageScreen extends Screen {
 
         Map<ItemResource, Integer> logicalSlots = new HashMap<>();
         for (int logicalSlot : this.order) {
+            if (logicalSlot >= StorageScreen.FLUID_SLOT_BASE) continue;
             UnlimitedItemStack stack = this.contents.get(logicalSlot);
             logicalSlots.put(ItemResource.of(stack.toStack()), logicalSlot);
             this.emptySlots.add(logicalSlot);
@@ -1347,6 +1663,7 @@ public class StorageScreen extends Screen {
         for (StorageServerStub.SyncResult result : results) {
             this.version = result.version();
             this.fullness = result.fullness();
+            this.fluids = result.fluids();
             for (StorageServerStub.StackUpdate update : result.updates()) {
                 if (update.stack().isEmpty()) {
                     continue;
@@ -1359,6 +1676,7 @@ public class StorageScreen extends Screen {
                     this.order.add(logicalSlot.intValue());
                 }
                 this.contents.put(logicalSlot.intValue(), update.stack());
+                this.counts.put(logicalSlot.intValue(), update.count());
                 this.emptySlots.remove(logicalSlot.intValue());
                 this.serverSlots.put(logicalSlot.intValue(), update.index());
             }
@@ -1367,7 +1685,7 @@ public class StorageScreen extends Screen {
         if (this.nbtFolded) {
             this.rebuildFoldedGroups(true);
         } else {
-            this.displayOrder = new IntArrayList(this.order);
+            this.displayOrder = this.applySearchFilter(new IntArrayList(this.order));
         }
         this.remappedOrder = true;
         return true;
@@ -1384,6 +1702,7 @@ public class StorageScreen extends Screen {
         this.nextLogicalSlot = 0;
         this.remappedOrder = false;
         for (int slot : slots) {
+            if (slot >= StorageScreen.FLUID_SLOT_BASE) continue;
             this.serverSlots.put(slot, slot);
             this.nextLogicalSlot = Math.max(this.nextLogicalSlot, slot + 1);
         }
@@ -1391,7 +1710,7 @@ public class StorageScreen extends Screen {
 
     private boolean hasContents(IntList slots) {
         for (int slot : slots) {
-            if (!this.contents.containsKey(slot)) {
+            if (slot < StorageScreen.FLUID_SLOT_BASE && !this.contents.containsKey(slot)) {
                 return false;
             }
         }
@@ -1411,7 +1730,7 @@ public class StorageScreen extends Screen {
         this.foldedCounts.clear();
         if (!foldNbt) {
             this.foldedGroups = List.of();
-            this.displayOrder = new IntArrayList(this.order);
+            this.displayOrder = this.applySearchFilter(new IntArrayList(this.order));
             return;
         }
 
@@ -1455,8 +1774,8 @@ public class StorageScreen extends Screen {
             long count = 0;
             boolean foundNonEmpty = preserveRepresentatives && this.getStoredCount(representative) > 0;
             for (int slot : group) {
-                int slotCount = this.getStoredCount(slot);
-                count = Math.min(count + slotCount, Integer.MAX_VALUE);
+                long slotCount = this.getStoredCount(slot);
+                count += slotCount;
                 if (!foundNonEmpty && slotCount > 0) {
                     representative = slot;
                     foundNonEmpty = true;
@@ -1465,13 +1784,12 @@ public class StorageScreen extends Screen {
 
             UnlimitedItemStack stack = Objects.requireNonNull(this.contents.get(representative));
             UnlimitedItemStack folded = stack.copy();
-            int foldedCount = (int) count;
-            folded.setCount(Math.max(foldedCount, 1));
+            folded.setCount((int) Math.max(Math.min(count, Integer.MAX_VALUE), 1));
             foldedOrder.add(representative);
             this.foldedContents.put(representative, folded);
-            this.foldedCounts.put(representative, foldedCount);
+            this.foldedCounts.put(representative, count);
         }
-        this.displayOrder = foldedOrder;
+        this.displayOrder = this.applySearchFilter(this.appendFluidSlots(foldedOrder));
     }
 
     private UnlimitedItemStack getDisplayedStack(int slot) {
@@ -1479,13 +1797,12 @@ public class StorageScreen extends Screen {
         return displayedContents.getOrDefault(slot, UnlimitedItemStack.EMPTY);
     }
 
-    private int getDisplayedCount(int slot, UnlimitedItemStack stack) {
-        return this.nbtFolded ? this.foldedCounts.get(slot) : this.emptySlots.contains(slot) ? 0 : stack.getCount();
+    private long getDisplayedCount(int slot, UnlimitedItemStack stack) {
+        return this.nbtFolded ? this.foldedCounts.get(slot) : this.getStoredCount(slot);
     }
 
-    private int getStoredCount(int slot) {
-        UnlimitedItemStack stack = this.contents.getOrDefault(slot, UnlimitedItemStack.EMPTY);
-        return this.emptySlots.contains(slot) ? 0 : stack.getCount();
+    private long getStoredCount(int slot) {
+        return this.emptySlots.contains(slot) ? 0 : this.counts.get(slot);
     }
 
     private void refreshMetadata() {
@@ -1533,7 +1850,7 @@ public class StorageScreen extends Screen {
         GuiGraphicsExtractor graphic,
         Minecraft minecraft,
         ItemStack stack,
-        int count,
+        long count,
         int x,
         int y
     ) {
@@ -1565,7 +1882,7 @@ public class StorageScreen extends Screen {
         Component amount = Component.literal(FormattingUtil.toAbbrNum(count))
             .withStyle(style -> style.withFont(new FontDescription.Resource(StorageScreen.SMALL_FONT)));
         int color = count == 0 ? 0xFFFFAA00 : -1;
-        graphic.text(minecraft.font, amount, x + 17 - minecraft.font.width(amount), y + 9, color, true);
+        StorageScreen.renderSlotCount(graphic, minecraft.font, amount, color, x, y);
         // endregion
         graphic.pose().popMatrix();
         ItemDecoratorHandler.of(stack).render(graphic, minecraft.font, stack, x, y);

@@ -1,0 +1,110 @@
+{
+  "rules": [
+    {
+      "item": "minecraft:sculk_vein",
+      "properties": [
+        "down=false,east=false,north=false,south=false,up=false,west=true",
+        "down=false,east=false,north=false,south=false,up=true,west=false",
+        "down=false,east=false,north=false,south=true,up=false,west=false",
+        "down=false,east=false,north=true,south=false,up=false,west=false",
+        "down=false,east=true,north=false,south=false,up=false,west=false",
+        "down=true,east=false,north=false,south=false,up=false,west=false"
+      ]
+    },
+    {
+      "item": {
+        "count": 2,
+        "id": "minecraft:sculk_vein"
+      },
+      "properties": [
+        "down=false,east=false,north=false,south=false,up=true,west=true",
+        "down=false,east=false,north=false,south=true,up=false,west=true",
+        "down=false,east=false,north=false,south=true,up=true,west=false",
+        "down=false,east=false,north=true,south=false,up=false,west=true",
+        "down=false,east=false,north=true,south=false,up=true,west=false",
+        "down=false,east=false,north=true,south=true,up=false,west=false",
+        "down=false,east=true,north=false,south=false,up=false,west=true",
+        "down=false,east=true,north=false,south=false,up=true,west=false",
+        "down=false,east=true,north=false,south=true,up=false,west=false",
+        "down=false,east=true,north=true,south=false,up=false,west=false",
+        "down=true,east=false,north=false,south=false,up=false,west=true",
+        "down=true,east=false,north=false,south=false,up=true,west=false",
+        "down=true,east=false,north=false,south=true,up=false,west=false",
+        "down=true,east=false,north=true,south=false,up=false,west=false",
+        "down=true,east=true,north=false,south=false,up=false,west=false"
+      ]
+    },
+    {
+      "item": {
+        "count": 3,
+        "id": "minecraft:sculk_vein"
+      },
+      "properties": [
+        "down=false,east=false,north=false,south=true,up=true,west=true",
+        "down=false,east=false,north=true,south=false,up=true,west=true",
+        "down=false,east=false,north=true,south=true,up=false,west=true",
+        "down=false,east=false,north=true,south=true,up=true,west=false",
+        "down=false,east=true,north=false,south=false,up=true,west=true",
+        "down=false,east=true,north=false,south=true,up=false,west=true",
+        "down=false,east=true,north=false,south=true,up=true,west=false",
+        "down=false,east=true,north=true,south=false,up=false,west=true",
+        "down=false,east=true,north=true,south=false,up=true,west=false",
+        "down=false,east=true,north=true,south=true,up=false,west=false",
+        "down=true,east=false,north=false,south=false,up=true,west=true",
+        "down=true,east=false,north=false,south=true,up=false,west=true",
+        "down=true,east=false,north=false,south=true,up=true,west=false",
+        "down=true,east=false,north=true,south=false,up=false,west=true",
+        "down=true,east=false,north=true,south=false,up=true,west=false",
+        "down=true,east=false,north=true,south=true,up=false,west=false",
+        "down=true,east=true,north=false,south=false,up=false,west=true",
+        "down=true,east=true,north=false,south=false,up=true,west=false",
+        "down=true,east=true,north=false,south=true,up=false,west=false",
+        "down=true,east=true,north=true,south=false,up=false,west=false"
+      ]
+    },
+    {
+      "item": {
+        "count": 4,
+        "id": "minecraft:sculk_vein"
+      },
+      "properties": [
+        "down=false,east=false,north=true,south=true,up=true,west=true",
+        "down=false,east=true,north=false,south=true,up=true,west=true",
+        "down=false,east=true,north=true,south=false,up=true,west=true",
+        "down=false,east=true,north=true,south=true,up=false,west=true",
+        "down=false,east=true,north=true,south=true,up=true,west=false",
+        "down=true,east=false,north=false,south=true,up=true,west=true",
+        "down=true,east=false,north=true,south=false,up=true,west=true",
+        "down=true,east=false,north=true,south=true,up=false,west=true",
+        "down=true,east=false,north=true,south=true,up=true,west=false",
+        "down=true,east=true,north=false,south=false,up=true,west=true",
+        "down=true,east=true,north=false,south=true,up=false,west=true",
+        "down=true,east=true,north=false,south=true,up=true,west=false",
+        "down=true,east=true,north=true,south=false,up=false,west=true",
+        "down=true,east=true,north=true,south=false,up=true,west=false",
+        "down=true,east=true,north=true,south=true,up=false,west=false"
+      ]
+    },
+    {
+      "item": {
+        "count": 5,
+        "id": "minecraft:sculk_vein"
+      },
+      "properties": [
+        "down=false,east=true,north=true,south=true,up=true,west=true",
+        "down=true,east=false,north=true,south=true,up=true,west=true",
+        "down=true,east=true,north=false,south=true,up=true,west=true",
+        "down=true,east=true,north=true,south=false,up=true,west=true",
+        "down=true,east=true,north=true,south=true,up=false,west=true",
+        "down=true,east=true,north=true,south=true,up=true,west=false"
+      ]
+    },
+    {
+      "item": {
+        "count": 6,
+        "id": "minecraft:sculk_vein"
+      },
+      "properties": "down=true,east=true,north=true,south=true,up=true,west=true"
+    }
+  ]
+}

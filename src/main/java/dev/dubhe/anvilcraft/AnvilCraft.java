@@ -14,6 +14,7 @@ import dev.dubhe.anvilcraft.config.AnvilCraftServerConfig;
 import dev.dubhe.anvilcraft.data.AnvilCraftDatagen;
 import dev.dubhe.anvilcraft.dfu.AnvilCraftDfu;
 import dev.dubhe.anvilcraft.init.ModAttachments;
+import dev.dubhe.anvilcraft.init.ModBlockPlacementFallbacks;
 import dev.dubhe.anvilcraft.init.ModCriterionTriggers;
 import dev.dubhe.anvilcraft.init.ModDataAttachments;
 import dev.dubhe.anvilcraft.init.ModDispenserBehavior;
@@ -24,6 +25,7 @@ import dev.dubhe.anvilcraft.init.ModMobEffects;
 import dev.dubhe.anvilcraft.init.ModParticles;
 import dev.dubhe.anvilcraft.init.ModSoundEvents;
 import dev.dubhe.anvilcraft.init.ModStats;
+import dev.dubhe.anvilcraft.init.ModTargetPointers;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.block.ModFluids;
@@ -99,6 +101,7 @@ public class AnvilCraft {
         ModBlockEntities.register();
         ModMenuTypes.register();
         ModMegastructures.register(modEventBus);
+        ModTargetPointers.register(modEventBus);
         ModComponents.register(modEventBus);
         ModVillagers.register(modEventBus);
         ModRecipeSerializers.register(modEventBus);
@@ -178,6 +181,7 @@ public class AnvilCraft {
     public static void loadComplete(FMLLoadCompleteEvent event) {
         event.enqueueWork(() -> {
             ModDispenserBehavior.register();
+            ModBlockPlacementFallbacks.register();
             if (Util.isLoaded("apothic_enchanting")) {
                 AnvilCraft.LOGGER.info(
                     "Apothic Enchanting found. Set royalAnvilBeyondMaxLevel, "

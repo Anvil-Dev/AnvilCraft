@@ -1,32 +1,32 @@
 {
   "type": "anvilcraft:multiblock",
   "pattern": {
-    "layers": [
+    "grid": [
       [
-        "AAA",
-        "AAA",
-        "AAA"
+        "000",
+        "000",
+        "000"
       ],
       [
-        " B ",
-        "BBB",
-        " B "
+        " A ",
+        "AAA",
+        " A "
       ],
       [
         "   ",
-        " C ",
+        " B ",
         "   "
       ]
     ],
-    "symbols": {
+    "mapping": {
+      "0": {
+        "blocks": "anvilcraft:cake_block"
+      },
       "A": {
-        "block": "anvilcraft:cake_block"
+        "blocks": "anvilcraft:berry_cake_block"
       },
       "B": {
-        "block": "anvilcraft:berry_cake_block"
-      },
-      "C": {
-        "block": "anvilcraft:chocolate_cake_block"
+        "blocks": "anvilcraft:chocolate_cake_block"
       }
     }
   },

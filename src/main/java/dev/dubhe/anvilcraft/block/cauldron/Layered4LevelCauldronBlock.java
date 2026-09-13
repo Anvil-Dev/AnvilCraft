@@ -59,6 +59,11 @@ public class Layered4LevelCauldronBlock extends BaseCauldronBlock {
         return state.getValue(Layered4LevelCauldronBlock.LEVEL) == Layered4LevelCauldronBlock.MAX_LEVEL;
     }
 
+    protected boolean isEntityInsideContent(BlockState state, BlockPos pos, Entity entity) {
+        return entity.getY() < pos.getY() + this.getContentHeight(state)
+            && entity.getBoundingBox().maxY > pos.getY() + 0.25;
+    }
+
     @Override
     protected double getContentHeight(BlockState state) {
         return (6.0 + state.getValue(Layered4LevelCauldronBlock.LEVEL) * 2.0) / 16.0;

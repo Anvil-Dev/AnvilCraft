@@ -9,6 +9,8 @@ import dev.anvilcraft.lib.v2.util.nullness.NonNullConsumer;
 import dev.dubhe.anvilcraft.block.item.CheckValveItem;
 import dev.dubhe.anvilcraft.block.state.Color;
 import dev.dubhe.anvilcraft.client.init.ModEquipmentAssets;
+import dev.dubhe.anvilcraft.client.renderer.item.DiskItemRenderer;
+import dev.dubhe.anvilcraft.client.renderer.item.FilterItemRenderer;
 import dev.dubhe.anvilcraft.client.renderer.item.SpectralSlingshotRenderer;
 import dev.dubhe.anvilcraft.client.renderer.item.SpectralWeaponLauncherRenderer;
 import dev.dubhe.anvilcraft.data.recipe.RegistrumItemRecipeLoader;
@@ -112,6 +114,7 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.client.data.models.model.ItemModelUtils;
 import net.minecraft.client.data.models.model.ModelLocationUtils;
+import net.minecraft.client.data.models.model.ModelTemplates;
 import net.minecraft.client.data.models.model.ModelTemplate;
 import net.minecraft.client.data.models.model.TextureMapping;
 import net.minecraft.client.renderer.item.properties.conditional.ComponentMatches;
@@ -753,16 +756,40 @@ public class ModItems {
 
     public static final ItemEntry<DiskItem> DISK = REGISTRUM.item("disk", DiskItem::new)
         .properties(p -> p.stacksTo(1))
+        .model(() -> new NonNullBiConsumer<>() {
+            @Override
+            public void accept(DataGenContext<Item, DiskItem> ctx, RegistrumItemModelGenerator generator) {
+                var model = ModelTemplates.FLAT_ITEM.create(ctx.get(), TextureMapping.layer0(ctx.get()), generator.modelOutput);
+                generator.itemModelOutput.accept(ctx.get(), ItemModelUtils.composite(
+                    ItemModelUtils.plainModel(model), ItemModelUtils.specialModel(model, DiskItemRenderer.Unbaked.INSTANCE)));
+            }
+        })
         .recipe(RegistrumItemRecipeLoader::disk)
         .register();
 
     public static final ItemEntry<StructureDiskItem> STRUCTURE_DISK = REGISTRUM
         .item("structure_disk", StructureDiskItem::new)
         .properties(p -> p.stacksTo(1))
+        .model(() -> new NonNullBiConsumer<>() {
+            @Override
+            public void accept(DataGenContext<Item, StructureDiskItem> ctx, RegistrumItemModelGenerator generator) {
+                var model = ModelTemplates.FLAT_ITEM.create(ctx.get(), TextureMapping.layer0(ctx.get()), generator.modelOutput);
+                generator.itemModelOutput.accept(ctx.get(), ItemModelUtils.composite(
+                    ItemModelUtils.plainModel(model), ItemModelUtils.specialModel(model, DiskItemRenderer.Unbaked.INSTANCE)));
+            }
+        })
         .recipe(RegistrumItemRecipeLoader::structureDisk)
         .register();
 
     public static final ItemEntry<FilterItem> FILTER = REGISTRUM.item("filter", FilterItem::new)
+        .model(() -> new NonNullBiConsumer<>() {
+            @Override
+            public void accept(DataGenContext<Item, FilterItem> ctx, RegistrumItemModelGenerator generator) {
+                var model = ModelTemplates.FLAT_ITEM.create(ctx.get(), TextureMapping.layer0(ctx.get()), generator.modelOutput);
+                generator.itemModelOutput.accept(ctx.get(), ItemModelUtils.composite(
+                    ItemModelUtils.plainModel(model), ItemModelUtils.specialModel(model, FilterItemRenderer.Unbaked.INSTANCE)));
+            }
+        })
         .recipe(RegistrumItemRecipeLoader::filter)
         .properties(properties -> properties.stacksTo(16))
         .register();

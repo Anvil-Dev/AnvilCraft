@@ -1,0 +1,43 @@
+{
+  "branch": "dev/1.21/1.6",
+  "baseline": "eb2dadbc4d7fb3a0476765f6313e1667a758ed66",
+  "latest_observed": "5e55d32a1047214caa6139452a68fe7cb2203cc9",
+  "updates": [
+    {
+      "commit": "6c7b3f5b87705c5626a17143064064a0b855b187",
+      "status": "ported",
+      "scope": "新增装备及建筑杖素材",
+      "integration": "Assets synchronized; baseline equipment and building rod gameplay remains in the full port backlog."
+    },
+    {
+      "commit": "e0a37995d98af31ca8a7268a918f1c23347eab0f",
+      "status": "ported",
+      "scope": "空炼药锅与等离子喷流存续"
+    },
+    {
+      "commit": "21368aa28593e2d508c356e78a7262cef9038b74",
+      "status": "ported",
+      "scope": "红石元件取消潜行反转朝向"
+    },
+    {
+      "commit": "cd39077686cb6c97cc1e4f956ebbf0aa032fe74f",
+      "status": "ported",
+      "scope": "燃烧炼药锅使用原始轮廓"
+    },
+    {
+      "commit": "0ea18ca7781f63da237af71f74aee1809722ded4",
+      "status": "ported",
+      "scope": "超级电容粉碎配方"
+    },
+    {
+      "commit": "d3a4454089fde0262c655100c9180122d71da28b",
+      "status": "ported",
+      "scope": "鱼缸喷流续燃时长配置下限"
+    },
+    {
+      "commit": "5e55d32a1047214caa6139452a68fe7cb2203cc9",
+      "status": "ported",
+      "scope": "过滤器、磁盘和结构磁盘内容额外渲染"
+    }
+  ]
+}

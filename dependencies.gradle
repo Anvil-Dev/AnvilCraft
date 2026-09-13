@@ -1,6 +1,8 @@
 dependencies {
     // AnvilLib
     api(libs.anvillib)
+    api(libs.anvillib.cube)
+    api(libs.anvillib.multiblock) { transitive = false }
     interfaceInjectionData(libs.anvillib.recipe)
     interfaceInjectionData(libs.anvillib.moveableEntityBlock)
     // jarJar(libs.anvillib)

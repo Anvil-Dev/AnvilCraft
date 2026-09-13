@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.init.item;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.saved.storage.CraftingStorage;
 import dev.dubhe.anvilcraft.item.property.component.BoxContents;
 import dev.dubhe.anvilcraft.item.property.component.CanTakeOutAmmo;
 import dev.dubhe.anvilcraft.item.property.component.DevourRange;
@@ -45,6 +46,10 @@ import java.util.function.Consumer;
 public class ModComponents {
     public static final DeferredRegister<DataComponentType<?>> DR = DeferredRegister.create(
         Registries.DATA_COMPONENT_TYPE, AnvilCraft.MOD_ID
+    );
+
+    public static final DataComponentType<CraftingStorage> CRAFTING = ModComponents.register(
+        "crafting", b -> b.persistent(CraftingStorage.CODEC.codec()).networkSynchronized(CraftingStorage.STREAM_CODEC)
     );
 
     public static final DataComponentType<DiskData> DISK_DATA = ModComponents.register(

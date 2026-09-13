@@ -1,12 +1,15 @@
 package dev.dubhe.anvilcraft.api.tooltip;
 
+import dev.dubhe.anvilcraft.inventory.tooltip.FluidTankTooltip;
 import dev.dubhe.anvilcraft.util.UnitUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.inventory.tooltip.TooltipComponent;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.TypedEntityData;
@@ -15,6 +18,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Consumer;
 
 /// 为储罐类物品渲染「已存流体 / 容量」提示行
@@ -83,6 +87,21 @@ public final class FluidTankItemTooltip {
         FluidStack fluid = FluidTankItemTooltip.readFluid(tankTag);
         if (fluid.isEmpty()) return null;
         return new SingleTankData(fluid, tankTag.getBooleanOr(FluidTankItemTooltip.TAG_ENHANCED, false));
+    }
+
+    public static @Nullable SingleTankData readSingleTank(ItemStack stack, HolderLookup.@Nullable Provider registries) {
+        if (registries == null) return null;
+        CompoundTag tank = getTankTag(stack);
+        FluidStack fluid = FluidStack.OPTIONAL_CODEC.parse(registries.createSerializationContext(NbtOps.INSTANCE),
+            tank.getCompoundOrEmpty(TAG_FLUID)).result().orElse(FluidStack.EMPTY);
+        return fluid.isEmpty() ? null : new SingleTankData(fluid, tank.getBooleanOr(TAG_ENHANCED, false));
+    }
+
+    public static Optional<TooltipComponent> singleFluidTooltipImage(ItemStack stack, int baseCapacity, int enhancedCapacity) {
+        CompoundTag tank = getTankTag(stack);
+        boolean enhanced = tank.getBooleanOr(TAG_ENHANCED, false);
+        return Optional.of(new FluidTankTooltip(tank, false, enhanced ? enhancedCapacity : baseCapacity,
+            enhanced && tank.getBooleanOr(TAG_INFINITE, false)));
     }
 
     /// 读出大型储罐物品中的所有流体，供物品渲染复用

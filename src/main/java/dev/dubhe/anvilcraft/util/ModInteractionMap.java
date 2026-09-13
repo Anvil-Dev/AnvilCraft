@@ -54,7 +54,7 @@ public class ModInteractionMap {
         event.register(AnvilCraft.of("fish_tank"), ModInteractionMap.FISH_TANK);
         event.register(AnvilCraft.of("obsidian"), ModInteractionMap.OBSIDIAN);
     }
-    
+
     @SubscribeEvent
     public static void registerInteractions(RegisterCauldronInteractionEvent.Interaction event) {
         Identifier lava = AnvilCraft.of("lava");
@@ -143,9 +143,9 @@ public class ModInteractionMap {
         event.register(
             oil,
             Items.FLINT_AND_STEEL,
-            (_, level, pos, player, hand, stack) -> {
-                OilCauldronBlock.ignite(level, pos);
-                stack.hurtAndBreak(2, player, hand.asEquipmentSlot());
+            (state, level, pos, player, hand, stack) -> {
+                OilCauldronBlock.ignite(level, pos, state);
+                stack.hurtAndBreak(1, player, hand.asEquipmentSlot());
                 level.playSound(null, pos, SoundEvents.FLINTANDSTEEL_USE, SoundSource.BLOCKS);
                 return dev.dubhe.anvilcraft.util.Util.sidedSuccess(level);
             }
@@ -153,8 +153,8 @@ public class ModInteractionMap {
         event.register(
             oil,
             Items.FIRE_CHARGE,
-            (_, level, pos, _, _, stack) -> {
-                OilCauldronBlock.ignite(level, pos);
+            (state, level, pos, _, _, stack) -> {
+                OilCauldronBlock.ignite(level, pos, state);
                 stack.shrink(1);
                 level.playSound(null, pos, SoundEvents.FIRECHARGE_USE, SoundSource.BLOCKS);
                 return dev.dubhe.anvilcraft.util.Util.sidedSuccess(level);
@@ -163,10 +163,10 @@ public class ModInteractionMap {
         event.register(
             oil,
             ModItems.MULTITOOL_ITEM.asItem(),
-            (_, level, pos, player, hand, stack) -> {
+            (state, level, pos, player, hand, stack) -> {
                 if (!MultitoolItem.isActingAs(stack, MultitoolMode.FLINT_AND_STEEL)) return InteractionResult.SUCCESS;
-                OilCauldronBlock.ignite(level, pos);
-                stack.hurtAndBreak(2, player, hand.asEquipmentSlot());
+                OilCauldronBlock.ignite(level, pos, state);
+                stack.hurtAndBreak(1, player, hand.asEquipmentSlot());
                 level.playSound(null, pos, SoundEvents.FLINTANDSTEEL_USE, SoundSource.BLOCKS);
                 return dev.dubhe.anvilcraft.util.Util.sidedSuccess(level);
             }
@@ -192,7 +192,7 @@ public class ModInteractionMap {
                 );
             }
         );
-        
+
         Identifier honey = AnvilCraft.of("honey");
         event.register(
             honey,
@@ -224,7 +224,7 @@ public class ModInteractionMap {
                 return InteractionResult.SUCCESS_SERVER;
             }
         );
-        
+
         Identifier meltGem = AnvilCraft.of("melt_gem");
         event.register(
             meltGem,
@@ -258,7 +258,7 @@ public class ModInteractionMap {
                 SoundEvents.BUCKET_FILL
             )
         );
-        
+
         Identifier fishTank = AnvilCraft.of("fish_tank");
         event.register(
             fishTank,
@@ -291,7 +291,7 @@ public class ModInteractionMap {
                 return dev.dubhe.anvilcraft.util.Util.sidedSuccess(level);
             }
         );
-        
+
         Identifier empty = Identifier.withDefaultNamespace("empty");
         ModItems.CEMENT_BUCKETS.forEach((k, v) -> event.register(
             empty,
@@ -345,8 +345,11 @@ public class ModInteractionMap {
                     player,
                     hand,
                     stack,
-                    ModBlocks.OIL_CAULDRON.get().fullFilled().setValue(OilCauldronBlock.IGNITED, it.getValue(OilCauldronBlock.IGNITED)),
+                    ModBlocks.OIL_CAULDRON.get().fullFilled(),
                     SoundEvents.BUCKET_EMPTY
+                );
+                case BlockState it when it.is(ModBlocks.FIRE_CAULDRON) -> CauldronInteractions.emptyBucket(
+                    level, pos, player, hand, stack, ModBlocks.FIRE_CAULDRON.get().fullFilled(), SoundEvents.BUCKET_EMPTY
                 );
                 case BlockState it when it.is(Blocks.CAULDRON) -> {
                     for (int i = 0; i < 6; i++) {
@@ -357,7 +360,7 @@ public class ModInteractionMap {
                                 player,
                                 hand,
                                 stack,
-                                ModBlocks.OIL_CAULDRON.get().fullFilled().setValue(OilCauldronBlock.IGNITED, true),
+                                ModBlocks.FIRE_CAULDRON.get().fullFilled(),
                                 SoundEvents.BUCKET_EMPTY
                             );
                         }

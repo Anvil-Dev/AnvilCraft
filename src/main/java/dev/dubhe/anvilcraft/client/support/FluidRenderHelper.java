@@ -25,6 +25,7 @@ import net.minecraft.client.renderer.block.FluidStateModelSet;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
+import net.minecraft.util.ARGB;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.material.Fluid;
 import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions;
@@ -55,6 +56,14 @@ public final class FluidRenderHelper {
         boolean renderBottom,
         boolean invertGasses
     ) {
+        this.renderFluidBox(sprite, fluid, minX, minY, minZ, maxX, maxY, maxZ, color, builder, pose, light, renderBottom, invertGasses, 1);
+    }
+
+    public void renderFluidBox(
+        TextureAtlasSprite sprite, FluidResource fluid,
+        float minX, float minY, float minZ, float maxX, float maxY, float maxZ,
+        int color, VertexConsumer builder, PoseStack.Pose pose, int light, boolean renderBottom, boolean invertGasses, float opacity
+    ) {
         int blockLightIn = (light >> 4) & 0xF;
         int luminosity = Math.max(blockLightIn, fluid.getFluidType().getLightLevel());
         light = (light & 0xF00000) | luminosity << 4;
@@ -71,6 +80,7 @@ public final class FluidRenderHelper {
             ? liquidEnchantment.getLayerColors(fluid.toStack(1))
             : new int[]{color};
         for (int layerColor : colors) {
+            layerColor = ARGB.color((int) (ARGB.alpha(layerColor) * opacity), layerColor);
             for (Direction side : Direction.values()) {
                 if (side == Direction.DOWN && !renderBottom) continue;
 

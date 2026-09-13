@@ -1,29 +1,29 @@
 {
   "type": "anvilcraft:multiblock",
   "pattern": {
-    "layers": [
+    "grid": [
       [
-        "ABA",
-        "BAB",
-        "ABA"
+        "0A0",
+        "A0A",
+        "0A0"
       ],
       [
-        "BAB",
-        "ABA",
-        "BAB"
+        "A0A",
+        "0A0",
+        "A0A"
       ],
       [
-        "ABA",
-        "BAB",
-        "ABA"
+        "0A0",
+        "A0A",
+        "0A0"
       ]
     ],
-    "symbols": {
-      "A": {
-        "block": "anvilcraft:confined_neutronium_ingot"
+    "mapping": {
+      "0": {
+        "blocks": "anvilcraft:confined_neutronium_ingot"
       },
-      "B": {
-        "block": "anvilcraft:negative_matter_block"
+      "A": {
+        "blocks": "anvilcraft:negative_matter_block"
       }
     }
   },

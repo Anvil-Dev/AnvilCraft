@@ -12,6 +12,7 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.level.ItemLike;
+import net.neoforged.neoforge.fluids.FluidStack;
 
 import java.util.List;
 
@@ -31,6 +32,16 @@ public record AndCategory(ItemStackTemplate icon, Component name, List<ICategory
     }
 
     @Override
+    public boolean testFluid(FluidStack fluid) {
+        for (ICategory category : this.categories) {
+            if (!category.testFluid(fluid)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    @Override
     public Type getType() {
         return ModCategoryTypes.AND.get();
     }
@@ -40,7 +51,7 @@ public record AndCategory(ItemStackTemplate icon, Component name, List<ICategory
             ItemStackTemplate.CODEC
                 .fieldOf("icon")
                 .forGetter(AndCategory::icon),
-            ComponentSerialization.flatRestrictedCodec(Integer.MAX_VALUE)
+            ICategory.NAME_CODEC
                 .fieldOf("name")
                 .forGetter(AndCategory::name),
             ICategory.CODEC

@@ -16,6 +16,10 @@ public class ItemTagLoader {
     ///
     /// @param provider 提供器
     public static void init(RegistrumTagsProvider<Item> provider) {
+        provider.rawBuilder(ModItemTags.PLAYER_WORKSTATIONS_STONECUTTERS)
+            .addElement(ItemTagLoader.findId(Items.STONECUTTER))
+            .addElement(ModBlocks.BATCH_CUTTER.getId());
+
         provider.rawBuilder(ModItemTags.PLATES)
             .addElement(ItemTagLoader.findId(Items.HEAVY_WEIGHTED_PRESSURE_PLATE))
             .addElement(ItemTagLoader.findId(Items.LIGHT_WEIGHTED_PRESSURE_PLATE));
