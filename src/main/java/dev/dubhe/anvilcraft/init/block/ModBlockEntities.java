@@ -65,6 +65,7 @@ import dev.dubhe.anvilcraft.block.entity.RemoteTransmissionPoleBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.ResentfulAmberBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.RubyLaserBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.RubyPrismBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.RuinsBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.SiftingTableBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.SimpleChuteBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.SimpleMagneticChuteBlockEntity;
@@ -136,6 +137,7 @@ import dev.dubhe.anvilcraft.client.renderer.blockentity.PlasmaJetsRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.PulseGeneratorBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.PumpBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.RedstoneDiceBlockEntityRenderer;
+import dev.dubhe.anvilcraft.client.renderer.blockentity.RuinsBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.SiftingTableBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.SmartBlockPlacerRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.SpacetimeSupercomputerBlockEntityRenderer;
@@ -659,6 +661,12 @@ public class ModBlockEntities {
         .blockEntity("drain", DrainBlockEntity::new)
         .validBlock(ModBlocks.DRAIN)
         .renderer(() -> DrainBlockEntityRenderer::new)
+        .register();
+
+    public static final BlockEntityEntry<RuinsBlockEntity> RUINS_BLOCK = REGISTRUM
+        .blockEntity("ruins_block", RuinsBlockEntity::new)
+        .validBlock(ModBlocks.RUINS_BLOCK)
+        .renderer(() -> RuinsBlockEntityRenderer::new)
         .register();
 
     public static final BlockEntityEntry<WipBlockEntity> WIP_BLOCK = REGISTRUM

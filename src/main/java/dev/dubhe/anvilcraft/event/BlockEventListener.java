@@ -177,6 +177,13 @@ public class BlockEventListener {
         event.setUseBlock(TriState.TRUE);
     }
 
+    @SubscribeEvent
+    public static void useRuinsBlock(PlayerInteractEvent.RightClickBlock event) {
+        if (event.getLevel().getBlockState(event.getPos()).is(ModBlocks.RUINS_BLOCK)) {
+            event.setUseBlock(TriState.TRUE);
+        }
+    }
+
     /**
      * 侦听右键方块事件
      *

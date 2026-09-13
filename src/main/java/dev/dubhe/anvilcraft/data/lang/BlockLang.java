@@ -6,6 +6,10 @@ import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 public class BlockLang {
     @SuppressWarnings("checkstyle:LineLength")
     public static void init(RegistrumLangProvider provider) {
+        provider.add("screen.anvilcraft.ruins.title", "Ruins Block");
+        provider.add("screen.anvilcraft.ruins.inert", "Interaction: No response");
+        provider.add("screen.anvilcraft.ruins.fragile", "Interaction: Break instantly");
+        provider.add("screen.anvilcraft.ruins.loot_table", "Loot table");
         provider.add("block.anvilcraft.check_valve", "Check Valve");
         // 板条箱相邻虚空物质时的溢出销毁模式名称
         provider.add("block.anvilcraft.overflow_disposal_crate", "Overflow Disposal Crate");

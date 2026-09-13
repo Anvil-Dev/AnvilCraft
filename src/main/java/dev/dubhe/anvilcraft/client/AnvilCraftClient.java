@@ -15,6 +15,7 @@ import dev.dubhe.anvilcraft.client.particle.PlasmaJetsParticle;
 import dev.dubhe.anvilcraft.client.renderer.OverworldLikeOrbitalSkyRenderer;
 import dev.dubhe.anvilcraft.client.renderer.item.CelestialForgingAnvilItemRenderer;
 import dev.dubhe.anvilcraft.client.renderer.item.ItemSlotClipping;
+import dev.dubhe.anvilcraft.client.renderer.item.RuinsBlockItemRenderer;
 import dev.dubhe.anvilcraft.client.renderer.item.decoration.TerminalInsertionDecoration;
 import dev.dubhe.anvilcraft.client.selection.ModelBlockSelection;
 import dev.dubhe.anvilcraft.client.selection.ModelSelectionBlacklist;
@@ -104,6 +105,7 @@ public class AnvilCraftClient {
 
     public static void registerClientExtensions(RegisterClientExtensionsEvent e) {
         ModFluids.onRegisterFluidType(e);
+        e.registerItem(new RuinsBlockItemRenderer.ItemExtensions(), ModBlocks.RUINS_BLOCK.asItem());
         e.registerItem(new CelestialForgingAnvilItemRenderer.ItemExtensions(), ModBlocks.CELESTIAL_FORGING_ANVIL.asItem());
         ItemExtensionImpl itemExtensionInstance = new ItemExtensionImpl();
         e.registerItem(itemExtensionInstance, ModItems.IONOCRAFT_BACKPACK);

@@ -11,7 +11,10 @@
   "priority": -60,
   "requires_lens": true,
   "result_block": {
-    "Name": "minecraft:stone"
+    "Name": "minecraft:deepslate",
+    "Properties": {
+      "axis": "y"
+    }
   },
   "use_block_loot": true
 }
