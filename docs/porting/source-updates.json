@@ -5,8 +5,9 @@
   "updates": [
     {
       "commit": "6c7b3f5b87705c5626a17143064064a0b855b187",
-      "status": "pending",
-      "scope": "新增装备及建筑杖素材"
+      "status": "ported",
+      "scope": "新增装备及建筑杖素材",
+      "integration": "Assets synchronized; baseline equipment and building rod gameplay remains in the full port backlog."
     },
     {
       "commit": "e0a37995d98af31ca8a7268a918f1c23347eab0f",
