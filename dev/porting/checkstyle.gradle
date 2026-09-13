@@ -37,6 +37,7 @@ allprojects {
             include '**/FluidAmountUtil.java'
             include '**/FormattingUtil.java'
             include '**/unlimited/UnlimitedItemStacksResourceHandler.java'
+            include '**/saved/storage/*Storage.java'
         } + fileTree('dev/porting/java')
         classpath = files()
         maxWarnings = 0

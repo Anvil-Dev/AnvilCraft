@@ -4,6 +4,7 @@ import dev.anvilcraft.lib.v2.rpc.RPC;
 import dev.anvilcraft.lib.v2.rpc.RpcTarget;
 import dev.dubhe.anvilcraft.rpc.StorageInput;
 import dev.dubhe.anvilcraft.rpc.StorageServerStub;
+import dev.dubhe.anvilcraft.saved.storage.CraftingStorage;
 import it.unimi.dsi.fastutil.ints.IntList;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
@@ -14,6 +15,31 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 public final class StorageClientStub {
+    public static CompletableFuture<Boolean> craftingAvailable(BlockPos sourcePos) {
+        return RPC.invoke(RpcTarget.server(), StorageServerStub::craftingAvailable, StorageClientStub.playerId(), sourcePos.asLong());
+    }
+
+    public static CompletableFuture<Boolean> craftingUnlock(BlockPos sourcePos) {
+        return RPC.invoke(RpcTarget.server(), StorageServerStub::craftingUnlock, StorageClientStub.playerId(), sourcePos.asLong());
+    }
+
+    public static CompletableFuture<CraftingStorage> craftingGet(BlockPos sourcePos) {
+        return RPC.invoke(RpcTarget.server(), StorageServerStub::craftingGet, StorageClientStub.playerId(), sourcePos.asLong());
+    }
+
+    public static void craftingSelect(BlockPos sourcePos, int index) {
+        RPC.call(RpcTarget.server(), StorageServerStub::craftingSelect, StorageClientStub.playerId(), sourcePos.asLong(), index);
+    }
+
+    public static void craftingSetOptions(BlockPos sourcePos, boolean autoFill, boolean toStorage) {
+        RPC.call(RpcTarget.server(), StorageServerStub::craftingSetOptions,
+            StorageClientStub.playerId(), sourcePos.asLong(), autoFill, toStorage);
+    }
+
+    public static void craftingSetLastOpened(BlockPos sourcePos, boolean opened) {
+        RPC.call(RpcTarget.server(), StorageServerStub::craftingSetLastOpened, StorageClientStub.playerId(), sourcePos.asLong(), opened);
+    }
+
     public static CompletableFuture<Double> load(BlockPos sourcePos) {
         return StorageClientStub.loadMetadata(sourcePos).thenApply(StorageServerStub.Metadata::fullness);
     }

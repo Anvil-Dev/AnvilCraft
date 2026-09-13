@@ -102,8 +102,10 @@ public final class StorageLongUiScene {
             case 5 -> {
                 screen.keyReleased(new KeyEvent(GLFW.GLFW_KEY_LEFT_SHIFT, 0, 0));
                 AnvilCraft.LOGGER.info("PORT_STORAGE_LONG_UI_PASSED: long count, folded total and preserved updates");
-                client.stop();
+                if (Boolean.getBoolean("anvilcraft.portCraftingStateScene")) stage = 6;
+                else client.stop();
             }
+            case 6 -> StorageCraftingClientChecks.frame(client, CORE);
             default -> throw new IllegalStateException("未知大数量界面测试阶段");
         }
     }

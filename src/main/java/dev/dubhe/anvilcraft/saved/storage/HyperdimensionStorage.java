@@ -12,21 +12,22 @@ import net.minecraft.network.codec.StreamCodec;
 import java.util.UUID;
 
 public class HyperdimensionStorage extends BaseStorage<UnlimitedItemStacksResourceHandler> {
-    public static final MapCodec<HyperdimensionStorage> CODEC = CodecUtil.mapCodec(
+    public static final MapCodec<HyperdimensionStorage> CODEC = BaseStorage.withCrafting(CodecUtil.mapCodec(
         UUIDUtil.CODEC
             .fieldOf("storage_id")
             .forGetter(HyperdimensionStorage::getId),
         UnlimitedItemStacksResourceHandler.CODEC
             .forGetter(HyperdimensionStorage::getItems),
         HyperdimensionStorage::of
-    );
-    public static final StreamCodec<RegistryFriendlyByteBuf, HyperdimensionStorage> STREAM_CODEC = StreamCodec.composite(
+    ));
+    public static final StreamCodec<RegistryFriendlyByteBuf, HyperdimensionStorage> STREAM_CODEC =
+        BaseStorage.withCrafting(StreamCodec.composite(
         UUIDUtil.STREAM_CODEC,
         HyperdimensionStorage::getId,
         UnlimitedItemStacksResourceHandler.STREAM_CODEC,
         HyperdimensionStorage::getItems,
         HyperdimensionStorage::of
-    );
+    ));
 
     public HyperdimensionStorage(UUID id) {
         super(id);

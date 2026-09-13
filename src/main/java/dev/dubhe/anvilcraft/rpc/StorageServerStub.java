@@ -21,6 +21,7 @@ import dev.dubhe.anvilcraft.saved.setting.StorageSetting;
 import dev.dubhe.anvilcraft.saved.setting.mode.OrderMode;
 import dev.dubhe.anvilcraft.saved.setting.mode.SortMode;
 import dev.dubhe.anvilcraft.saved.storage.BaseStorage;
+import dev.dubhe.anvilcraft.saved.storage.CraftingStorage;
 import dev.dubhe.anvilcraft.saved.storage.Storages;
 import dev.dubhe.anvilcraft.saved.storage.category.store.CategoryEntry;
 import dev.dubhe.anvilcraft.saved.storage.category.store.CategoryMode;
@@ -298,6 +299,39 @@ public final class StorageServerStub {
             player.inventoryMenu.broadcastChanges();
         }
         return changed;
+    }
+
+    @RemoteCallable(validator = StorageAccessValidator.class)
+    public static boolean craftingAvailable(UUID playerId, long sourcePos) {
+        return StorageServerStub.getView(StorageServerStub.getAndClear(), playerId, sourcePos).primary().isCraftingUnlocked();
+    }
+
+    @RemoteCallable(validator = StorageAccessValidator.class)
+    public static boolean craftingUnlock(UUID playerId, long sourcePos) {
+        return StorageServerStub.getView(StorageServerStub.getAndClear(), playerId, sourcePos).primary().unlockCrafting();
+    }
+
+    @RemoteCallable(validator = StorageAccessValidator.class)
+    public static CraftingStorage craftingGet(UUID playerId, long sourcePos) {
+        return StorageServerStub.getView(StorageServerStub.getAndClear(), playerId, sourcePos).primary().getCrafting();
+    }
+
+    @RemoteCallable(validator = StorageAccessValidator.class)
+    public static void craftingSelect(UUID playerId, long sourcePos, int index) {
+        BaseStorage<?> storage = StorageServerStub.getView(StorageServerStub.getAndClear(), playerId, sourcePos).primary();
+        storage.setCrafting(storage.getCrafting().withStonecutterSelected(index));
+    }
+
+    @RemoteCallable(validator = StorageAccessValidator.class)
+    public static void craftingSetOptions(UUID playerId, long sourcePos, boolean autoFill, boolean toStorage) {
+        BaseStorage<?> storage = StorageServerStub.getView(StorageServerStub.getAndClear(), playerId, sourcePos).primary();
+        storage.setCrafting(storage.getCrafting().withAutoFill(autoFill).withToStorage(toStorage));
+    }
+
+    @RemoteCallable(validator = StorageAccessValidator.class)
+    public static void craftingSetLastOpened(UUID playerId, long sourcePos, boolean opened) {
+        BaseStorage<?> storage = StorageServerStub.getView(StorageServerStub.getAndClear(), playerId, sourcePos).primary();
+        storage.setCrafting(storage.getCrafting().withLastOpened(opened));
     }
 
     @RemoteCallable(validator = StorageAccessValidator.class)
