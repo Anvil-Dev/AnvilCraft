@@ -26,6 +26,7 @@ allprojects {
             include '**/ClientStoragePortTooltip.java'
             include '**/ScaledGuiItem*.java'
             include '**/StorageFluidPort*.java', '**/FluidBottleInteraction.java'
+            include '**/FluidTankTooltip.java', '**/ClientFluidTankTooltip.java'
         } + fileTree('dev/porting/java')
         classpath = files()
         maxWarnings = 0

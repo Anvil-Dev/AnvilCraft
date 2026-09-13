@@ -82,6 +82,11 @@ if (providers.gradleProperty('portValidation').isPresent()) {
         neoForge.runs.client.systemProperty 'anvilcraft.portStorageFluidScene', 'true'
         neoForge.runs.client.programArguments.addAll '--width', '1280', '--height', '720'
     }
+    if (providers.gradleProperty('portStorageFluidItemScene').isPresent()) {
+        neoForge.runs.client.systemProperty 'anvilcraft.portVisualScene', 'true'
+        neoForge.runs.client.systemProperty 'anvilcraft.portStorageFluidItemScene', 'true'
+        neoForge.runs.client.programArguments.addAll '--width', '1280', '--height', '720'
+    }
     if (providers.gradleProperty('portSmartPlacerScene').isPresent()) {
         neoForge.runs.client.systemProperty 'anvilcraft.portVisualScene', 'true'
         neoForge.runs.client.systemProperty 'anvilcraft.portSmartPlacerScene', 'true'

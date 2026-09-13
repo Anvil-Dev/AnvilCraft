@@ -10,6 +10,11 @@ public class ScreenLang {
      */
     @SuppressWarnings("checkstyle:LineLength")
     public static void init(RegistrumLangProvider provider) {
+        provider.add("tooltip.anvilcraft.fluid_tank.capacity", "Capacity:");
+        provider.add("tooltip.anvilcraft.fluid_tank.capacity.value", "  %s / %s");
+        provider.add("tooltip.anvilcraft.fluid_tank.capacity.value.infinity", "  %s / ∞");
+        provider.add("tooltip.anvilcraft.fluid_tank.fluid", "Fluid:");
+        provider.add("tooltip.anvilcraft.fluid_tank.more", "and %s more...");
         provider.add("screen.anvilcraft.storage_port.clear_mark", "Clear Mark");
         provider.add("tooltip.anvilcraft.storage_port.item", "Item:");
         provider.add("screen.anvilcraft.redstone_dice.uniform", "Uniform Mode");

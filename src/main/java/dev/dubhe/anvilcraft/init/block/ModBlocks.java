@@ -216,6 +216,7 @@ import dev.dubhe.anvilcraft.block.workstation.royal.RoyalGrindstoneBlock;
 import dev.dubhe.anvilcraft.block.workstation.royal.RoyalSmithingTableBlock;
 import dev.dubhe.anvilcraft.client.renderer.item.FluidTankItemRenderer;
 import dev.dubhe.anvilcraft.client.renderer.item.LargeFluidTankItemRenderer;
+import dev.dubhe.anvilcraft.client.renderer.item.StorageFluidPortItemRenderer;
 import dev.dubhe.anvilcraft.client.renderer.item.StoragePortItemRenderer;
 import dev.dubhe.anvilcraft.data.generator.RedstoneWireBlockStateGenerator;
 import dev.dubhe.anvilcraft.data.recipe.RegistrumBlockRecipeLoader;
@@ -245,6 +246,7 @@ import dev.dubhe.anvilcraft.item.block.RadiationBlockItem;
 import dev.dubhe.anvilcraft.item.block.ResinBlockItem;
 import dev.dubhe.anvilcraft.item.block.ShulkerContainerBlockItem;
 import dev.dubhe.anvilcraft.item.block.SimpleMultiPartBlockItem;
+import dev.dubhe.anvilcraft.item.block.StorageFluidPortBlockItem;
 import dev.dubhe.anvilcraft.item.block.StoragePortBlockItem;
 import dev.dubhe.anvilcraft.item.block.SuperHeavyBlockItem;
 import dev.dubhe.anvilcraft.item.block.TeslaTowerItem;
@@ -4257,7 +4259,16 @@ public class ModBlocks {
             .noOcclusion()
             .isValidSpawn(ModBlocks::never)
             .requiresCorrectToolForDrops())
-        .simpleItem()
+        .item(StorageFluidPortBlockItem::new)
+        .model(() -> new NonNullBiConsumer<>() {
+            @Override
+            public void accept(DataGenContext<Item, StorageFluidPortBlockItem> ctx, RegistrumItemModelGenerator generator) {
+                var model = ctx.getId().withPrefix("block/");
+                generator.itemModelOutput.accept(ctx.get(), ItemModelUtils.composite(ItemModelUtils.plainModel(model),
+                    ItemModelUtils.specialModel(model, StorageFluidPortItemRenderer.Unbaked.INSTANCE)));
+            }
+        })
+        .build()
         .blockstate(DataGenUtil::noExtraModelOrState)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .recipe(RegistrumBlockRecipeLoader::storageFluidPort)

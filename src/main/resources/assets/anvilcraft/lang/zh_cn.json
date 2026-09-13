@@ -2540,5 +2540,10 @@
   "tooltip.anvilcraft.item.storage_port.shift": "手持物品右击标记，标记物品的端口会保持一组对应物品\n左键取出物品，右键放入物品\n持铁砧锤长按右键打开轮盘，移除标记物品",
   "block.anvilcraft.storage_fluid_port": "仓储流体端口",
   "tooltip.anvilcraft.item.storage_fluid_port": "潜影集装箱或超维存储站的外置流体存储",
-  "tooltip.anvilcraft.item.storage_fluid_port.shift": "可存储 128 B 流体，只能存放单一流体，永远不会混装\n与相邻的仓储端口 / 仓储流体端口相连，两者可互相延伸连接关系\n不连接任何存储也能独立工作：桶与管道可直接交互\n连接关系只决定它的流体显示在哪个存储的界面里\n手持桶或瓶右键可装入或抽出流体，手持门格海绵右键可清空\n拆除时保留流体"
+  "tooltip.anvilcraft.item.storage_fluid_port.shift": "可存储 128 B 流体，只能存放单一流体，永远不会混装\n与相邻的仓储端口 / 仓储流体端口相连，两者可互相延伸连接关系\n不连接任何存储也能独立工作：桶与管道可直接交互\n连接关系只决定它的流体显示在哪个存储的界面里\n手持桶或瓶右键可装入或抽出流体，手持门格海绵右键可清空\n拆除时保留流体",
+  "tooltip.anvilcraft.fluid_tank.capacity.value": "  %s / %s",
+  "tooltip.anvilcraft.fluid_tank.capacity": "容量：",
+  "tooltip.anvilcraft.fluid_tank.capacity.value.infinity": "  %s / ∞",
+  "tooltip.anvilcraft.fluid_tank.fluid": "流体：",
+  "tooltip.anvilcraft.fluid_tank.more": "还有 %s 项未显示..."
 }
