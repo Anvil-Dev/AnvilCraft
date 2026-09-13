@@ -27,6 +27,7 @@ allprojects {
             include '**/ScaledGuiItem*.java'
             include '**/StorageFluidPort*.java', '**/FluidBottleInteraction.java'
             include '**/FluidTankTooltip.java', '**/ClientFluidTankTooltip.java'
+            include '**/api/plasma/*.java', '**/PlasmaJetsBlock*.java', '**/IEmptyCauldron.java', '**/EmptyCauldronMixin.java'
         } + fileTree('dev/porting/java')
         classpath = files()
         maxWarnings = 0

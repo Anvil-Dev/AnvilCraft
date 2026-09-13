@@ -11,6 +11,8 @@ current = subprocess.check_output(["git", "rev-parse", tracking["branch"]], cwd=
 observed = tracking["latest_observed"]
 ancestor = subprocess.run(["git", "merge-base", "--is-ancestor", observed, current], cwd=root, check=False).returncode == 0
 new = subprocess.check_output(["git", "log", "--reverse", "--format=%H%x09%s", f"{observed}..{current}"], cwd=root).decode("utf-8")
+changed = subprocess.check_output(["git", "diff", "--name-only", observed, current], cwd=root).decode("utf-8").splitlines()
 print(json.dumps({"branch": tracking["branch"], "current": current, "observed": observed, "fast_forward": ancestor,
-                  "new_commits": new.splitlines(), "pending": [entry for entry in tracking["updates"] if entry["status"] != "ported"]},
+                  "new_commits": new.splitlines(), "changed_files": changed,
+                  "pending": [entry for entry in tracking["updates"] if entry["status"] != "ported"]},
                  ensure_ascii=False, indent=2))

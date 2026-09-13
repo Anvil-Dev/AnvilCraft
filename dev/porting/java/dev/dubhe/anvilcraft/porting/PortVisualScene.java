@@ -101,6 +101,7 @@ public final class PortVisualScene {
         if (Math.abs(client.player.getY() - 86) > 0.1) return;
         if (!validatedPlacementRules) {
             RedstonePortClientSmoke.checkBackpackAssets(client);
+            PlasmaJetClientChecks.run(client);
             BlockState candles = Blocks.CANDLE.defaultBlockState().setValue(BlockStateProperties.CANDLES, 3);
             int count = BlockPlacementRules.getPlacementItemCount(client.level.registryAccess(), candles, new ItemStack(Items.CANDLE));
             if (count != 3) throw new IllegalStateException("客户端未正确加载同步后的放置规则");

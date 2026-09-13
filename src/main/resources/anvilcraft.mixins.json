@@ -30,6 +30,7 @@
     "DispenserBlockMixin",
     "DistanceManagerMixin",
     "EnchantmentHelperMixin",
+    "EmptyCauldronMixin",
     "EnchantmentPredicateMixin",
     "EnchantmentsPredicateMixin",
     "EntityMixin",

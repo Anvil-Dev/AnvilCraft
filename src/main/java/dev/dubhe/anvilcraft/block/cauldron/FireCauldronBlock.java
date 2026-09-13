@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.block.cauldron;
 
 import dev.anvilcraft.lib.v2.recipe.cache.BlockCache;
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.block.IIgnitableCauldron;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.block.power.consumer.HeaterBlock;
@@ -24,6 +25,8 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.redstone.Orientation;
 import org.jspecify.annotations.Nullable;
+
+import java.util.OptionalInt;
 
 public class FireCauldronBlock extends Layered4LevelCauldronBlock implements IHammerRemovable, IIgnitableCauldron {
     public FireCauldronBlock(Properties properties) {
@@ -99,14 +102,19 @@ public class FireCauldronBlock extends Layered4LevelCauldronBlock implements IHa
     }
 
     @Override
-    public boolean consumeOnce(BlockCache cache, BlockPos pos) {
+    public OptionalInt consumeOnce(BlockCache cache, BlockPos pos, boolean simulate) {
         BlockState state = cache.getBlockState(pos);
-        int remaining = state.getValue(FireCauldronBlock.LEVEL) - 1;
-        if (remaining <= 0) {
-            cache.setBlock(pos, Blocks.CAULDRON.defaultBlockState());
-            return true;
+        int remaining = state.getValue(FireCauldronBlock.LEVEL) - AnvilCraft.CONFIG.plasmaJetsCauldronConsumeAmount;
+        if (remaining < 0) {
+            return OptionalInt.empty();
         }
-        cache.setBlock(pos, state.setValue(FireCauldronBlock.LEVEL, remaining));
-        return true;
+        if (!simulate) {
+            if (remaining == 0) {
+                cache.setBlock(pos, Blocks.CAULDRON.defaultBlockState());
+            } else {
+                cache.setBlock(pos, state.setValue(FireCauldronBlock.LEVEL, remaining));
+            }
+        }
+        return OptionalInt.of(AnvilCraft.CONFIG.plasmaJetsCauldronExtraDuration);
     }
 }

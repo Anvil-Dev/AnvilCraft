@@ -241,7 +241,8 @@ public final class PlacementPortGameTests {
             BlockCache cache = new BlockCache(helper.getLevel());
             helper.assertTrue(ModBlocks.FIRE_CAULDRON.get().getFluidAmount(cache, helper.absolutePos(SOURCE)) == fill * 250,
                 "火锅必须按层保留燃料量");
-            helper.assertTrue(ModBlocks.FIRE_CAULDRON.get().consumeOnce(cache, helper.absolutePos(SOURCE)), "火锅燃料消耗失败");
+            helper.assertTrue(ModBlocks.FIRE_CAULDRON.get().consumeOnce(cache, helper.absolutePos(SOURCE), false).isPresent(),
+                "火锅燃料消耗失败");
             BlockState remaining = cache.getBlockState(helper.absolutePos(SOURCE));
             helper.assertTrue(fill == 1 ? remaining.is(Blocks.CAULDRON) : remaining.getValue(FireCauldronBlock.LEVEL) == fill - 1,
                 "火锅必须每次消耗一层并在用尽时返回空锅");
