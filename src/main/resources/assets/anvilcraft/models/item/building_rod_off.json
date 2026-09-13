@@ -1,0 +1,9 @@
+{
+	"format_version": "1.9.0",
+	"credit": "Made by XeKr with Blockbench",
+	"parent": "anvilcraft:item/building_rod",
+	"textures": {
+		"0": "anvilcraft:item/building_rod_off",
+		"particle": "anvilcraft:item/building_rod_off"
+	}
+}
