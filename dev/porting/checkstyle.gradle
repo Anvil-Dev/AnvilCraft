@@ -28,6 +28,11 @@ allprojects {
             include '**/StorageFluidPort*.java', '**/FluidBottleInteraction.java'
             include '**/FluidTankTooltip.java', '**/ClientFluidTankTooltip.java'
             include '**/api/plasma/*.java', '**/PlasmaJetsBlock*.java', '**/IEmptyCauldron.java', '**/EmptyCauldronMixin.java'
+            include '**/saved/storage/category/FluidCategory.java', '**/saved/storage/category/ICategory.java'
+            include '**/saved/storage/category/AndCategory.java', '**/saved/storage/category/OrCategory.java'
+            include '**/saved/storage/category/NamespaceCategory.java'
+            include '**/saved/storage/category/HasComponentCategory.java', '**/saved/storage/category/FilterCategory.java'
+            include '**/saved/storage/category/CreativeModeTabCategory.java', '**/saved/storage/category/RecipeBookCategoryCategory.java'
         } + fileTree('dev/porting/java')
         classpath = files()
         maxWarnings = 0

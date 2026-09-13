@@ -70,7 +70,7 @@ public record RecipeBookCategoryCategory(
             ItemStackTemplate.CODEC
                 .fieldOf("icon")
                 .forGetter(RecipeBookCategoryCategory::icon),
-            ComponentSerialization.flatRestrictedCodec(Integer.MAX_VALUE)
+            ICategory.NAME_CODEC
                 .fieldOf("name")
                 .forGetter(RecipeBookCategoryCategory::name),
             ResourceKey.codec(Registries.RECIPE_BOOK_CATEGORY)
