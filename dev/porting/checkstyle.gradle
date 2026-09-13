@@ -37,6 +37,7 @@ allprojects {
             include '**/FluidAmountUtil.java'
             include '**/StructureLoadUtil.java', '**/StructureDisk*Packet.java', '**/StructureDiskPreviewSupport.java'
             include '**/item/utility/DiskItem.java'
+            include '**/FittedItemRenderer.java', '**/FilterItemRenderer.java', '**/DiskItemRenderer.java', '**/DiskDisplaySupport.java'
             include '**/FormattingUtil.java'
             include '**/unlimited/UnlimitedItemStacksResourceHandler.java'
             include '**/saved/storage/*Storage.java'

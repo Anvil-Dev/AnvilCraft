@@ -89,6 +89,10 @@ public final class PortVisualScene {
             if (prepared) StructureDiskDataClientChecks.frame(client);
             return;
         }
+        if (Boolean.getBoolean("anvilcraft.portFittedItemScene")) {
+            if (prepared) FittedItemScene.frame(client);
+            return;
+        }
         if (Boolean.getBoolean("anvilcraft.portStorageItemScene")) {
             if (prepared) StoragePortItemScene.frame(client);
             return;

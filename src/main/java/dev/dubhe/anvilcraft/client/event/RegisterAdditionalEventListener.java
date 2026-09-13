@@ -24,6 +24,8 @@ import dev.dubhe.anvilcraft.client.renderer.blockentity.SmartBlockPlacerRenderer
 import dev.dubhe.anvilcraft.client.renderer.blockentity.VoidEnergyCollectorRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.WipBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.item.CrabClawItemInHandRenderer;
+import dev.dubhe.anvilcraft.client.renderer.item.DiskItemRenderer;
+import dev.dubhe.anvilcraft.client.renderer.item.FilterItemRenderer;
 import dev.dubhe.anvilcraft.client.renderer.item.FluidTankItemRenderer;
 import dev.dubhe.anvilcraft.client.renderer.item.LargeFluidTankItemRenderer;
 import dev.dubhe.anvilcraft.client.renderer.item.StorageFluidPortItemRenderer;
@@ -361,6 +363,8 @@ public class RegisterAdditionalEventListener {
 
     @SubscribeEvent
     public static void registerSpecialRenderers(RegisterSpecialModelRendererEvent event) {
+        event.register(AnvilCraft.of("filter"), FilterItemRenderer.Unbaked.CODEC);
+        event.register(AnvilCraft.of("disk"), DiskItemRenderer.Unbaked.CODEC);
         event.register(AnvilCraft.of("spectral_slingshot"), SpectralSlingshotRenderer.Unbaked.CODEC);
         event.register(AnvilCraft.of("spectral_weapon_launcher"), SpectralWeaponLauncherRenderer.Unbaked.CODEC);
         event.register(AnvilCraft.of("fluid_tank"), FluidTankItemRenderer.Unbaked.CODEC);

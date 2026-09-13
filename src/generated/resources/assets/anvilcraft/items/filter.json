@@ -1,6 +1,18 @@
 {
   "model": {
-    "type": "minecraft:model",
-    "model": "anvilcraft:item/filter"
+    "type": "minecraft:composite",
+    "models": [
+      {
+        "type": "minecraft:model",
+        "model": "anvilcraft:item/filter"
+      },
+      {
+        "type": "minecraft:special",
+        "base": "anvilcraft:item/filter",
+        "model": {
+          "type": "anvilcraft:filter"
+        }
+      }
+    ]
   }
 }

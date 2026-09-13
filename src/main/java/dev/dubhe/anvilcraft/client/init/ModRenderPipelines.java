@@ -22,6 +22,16 @@ import net.neoforged.neoforge.client.event.RegisterRenderPipelinesEvent;
 @EventBusSubscriber(value = Dist.CLIENT, modid = AnvilCraft.MOD_ID)
 public class ModRenderPipelines {
 
+    public static final RenderPipeline FITTED_ITEM = RenderPipeline.builder(RenderPipelines.ENTITY_SNIPPET)
+        .withSampler("Sampler1")
+        .withColorTargetState(new ColorTargetState(new BlendFunction(
+            SourceFactor.ONE, DestFactor.ONE_MINUS_SRC_ALPHA, SourceFactor.ONE, DestFactor.ONE_MINUS_SRC_ALPHA)))
+        .withDepthStencilState(DepthStencilState.DEFAULT)
+        .withShaderDefine("ALPHA_CUTOUT", 0.001F)
+        .withCull(false)
+        .withLocation(AnvilCraft.of("pipeline/fitted_item"))
+        .build();
+
     public static final RenderPipeline PLACEMENT_GHOST = RenderPipeline.builder(RenderPipelines.BLOCK_SNIPPET)
         .withColorTargetState(new ColorTargetState(BlendFunction.TRANSLUCENT))
         .withDepthStencilState(new DepthStencilState(CompareOp.LESS_THAN_OR_EQUAL, false))
@@ -157,6 +167,7 @@ public class ModRenderPipelines {
 
     @SubscribeEvent
     public static void on(RegisterRenderPipelinesEvent event) {
+        event.registerPipeline(ModRenderPipelines.FITTED_ITEM);
         event.registerPipeline(ModRenderPipelines.PLACEMENT_GHOST);
         event.registerPipeline(ModRenderPipelines.LASER_TRANSLUCENT);
         event.registerPipeline(ModRenderPipelines.LIGHTNING);
