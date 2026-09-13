@@ -1,4 +1,7 @@
 {
+  "screen.anvilcraft.storage.fluid_amount": "储量：%s",
+  "screen.anvilcraft.storage.fluid.bucket_missing": "需要一个空桶",
+  "screen.anvilcraft.storage.fluid.not_enough": "流体不足以装满一通",
   "block.anvilcraft.fire_cauldron": "燃烧的炼药锅",
   "block.anvilcraft.big_red_button": "大红按钮",
   "block.anvilcraft.redstone_dice": "红石骰子",

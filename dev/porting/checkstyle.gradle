@@ -33,6 +33,8 @@ allprojects {
             include '**/saved/storage/category/NamespaceCategory.java'
             include '**/saved/storage/category/HasComponentCategory.java', '**/saved/storage/category/FilterCategory.java'
             include '**/saved/storage/category/CreativeModeTabCategory.java', '**/saved/storage/category/RecipeBookCategoryCategory.java'
+            include '**/StorageServerStub.java', '**/StorageClientStub.java', '**/StorageInput.java', '**/StorageScreen.java'
+            include '**/FluidAmountUtil.java'
         } + fileTree('dev/porting/java')
         classpath = files()
         maxWarnings = 0

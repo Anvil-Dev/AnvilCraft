@@ -8,6 +8,7 @@ import it.unimi.dsi.fastutil.ints.IntList;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Player;
+import net.neoforged.neoforge.fluids.FluidStack;
 
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -64,6 +65,16 @@ public final class StorageClientStub {
         int button,
         StorageInput action
     ) {
+        return StorageClientStub.interact(sourcePos, slot, button, action, FluidStack.EMPTY);
+    }
+
+    public static CompletableFuture<StorageServerStub.InteractionResult> interact(
+        BlockPos sourcePos,
+        int slot,
+        int button,
+        StorageInput action,
+        FluidStack fluid
+    ) {
         return RPC.invoke(
             RpcTarget.server(),
             StorageServerStub::interact,
@@ -71,17 +82,19 @@ public final class StorageClientStub {
             sourcePos.asLong(),
             slot,
             button,
-            action
+            action,
+            fluid
         );
     }
 
-    public static CompletableFuture<StorageServerStub.DepositResult> deposit(BlockPos sourcePos, boolean all) {
+    public static CompletableFuture<StorageServerStub.DepositResult> deposit(BlockPos sourcePos, boolean all, boolean pour) {
         return RPC.invoke(
             RpcTarget.server(),
             StorageServerStub::deposit,
             StorageClientStub.playerId(),
             sourcePos.asLong(),
-            all
+            all,
+            pour
         );
     }
 

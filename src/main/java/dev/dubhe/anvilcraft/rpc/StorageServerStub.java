@@ -2,10 +2,12 @@ package dev.dubhe.anvilcraft.rpc;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
+import dev.anvilcraft.lib.v2.codec.StreamCodecUtil;
 import dev.anvilcraft.lib.v2.rpc.CallableParam;
 import dev.anvilcraft.lib.v2.rpc.IRemoteCallableValidator;
 import dev.anvilcraft.lib.v2.rpc.RemoteCallable;
 import dev.anvilcraft.lib.v2.util.UnlimitedItemStack;
+import dev.dubhe.anvilcraft.api.StoragePortManager;
 import dev.dubhe.anvilcraft.api.itemhandler.unlimited.SpaceSizeItemStacksResourceHandler;
 import dev.dubhe.anvilcraft.api.itemhandler.unlimited.TypeLimitItemStacksResourceHandler;
 import dev.dubhe.anvilcraft.api.itemhandler.unlimited.UnlimitedItemStacksResourceHandler;
@@ -31,21 +33,36 @@ import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.common.SoundAction;
+import net.neoforged.neoforge.common.SoundActions;
 import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.FluidType;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 import net.neoforged.neoforge.server.ServerLifecycleHooks;
+import net.neoforged.neoforge.transfer.ResourceHandlerUtil;
+import net.neoforged.neoforge.transfer.access.ItemAccess;
+import net.neoforged.neoforge.transfer.fluid.FluidResource;
+import net.neoforged.neoforge.transfer.fluid.FluidUtil;
+import net.neoforged.neoforge.transfer.item.CarriedSlotWrapper;
 import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
+import net.neoforged.neoforge.transfer.item.PlayerInventoryWrapper;
 import net.neoforged.neoforge.transfer.transaction.Transaction;
 import org.jspecify.annotations.Nullable;
 
@@ -127,16 +144,19 @@ public final class StorageServerStub {
         List<StackUpdate> updates = new ArrayList<>();
         IntOpenHashSet visited = new IntOpenHashSet(slots.size());
         for (int index : slots) {
-            if (index < 0 || !visited.add(index)) {
+            if (index < 0 || index >= StoragePortManager.FLUID_SLOT_BASE || !visited.add(index)) {
                 continue;
             }
             updates.add(new StackUpdate(index, StorageServerStub.getStack(view, index)));
         }
-        return new SyncResult(stub.version, view.fullness(), updates);
+        return new SyncResult(stub.version, view.fullness(), updates, StoragePortManager.collect(view.primary().getId()));
     }
 
     @RemoteCallable(validator = StorageAccessValidator.class)
-    public static InteractionResult interact(UUID playerId, long sourcePos, int slot, int button, StorageInput action) {
+    public static InteractionResult interact(
+        UUID playerId, long sourcePos, int slot, int button, StorageInput action,
+        @CallableParam(clazz = FluidStack.class, field = "OPTIONAL_STREAM_CODEC") FluidStack fluid
+    ) {
         if (!action.isValid(button)) {
             StorageServerStub.REGISTRIES.remove();
             throw new IllegalArgumentException("Invalid storage interaction button: " + button);
@@ -146,8 +166,9 @@ public final class StorageServerStub {
         ServerPlayer player = StorageServerStub.getServerPlayer(playerId);
         ItemStack carried = player.inventoryMenu.getCarried();
         boolean changed = false;
+        FluidNotice notice = FluidNotice.NONE;
         if (action == StorageInput.QUICK_MOVE_TO_STORAGE) {
-            changed = StorageServerStub.moveInventoryStackToStorage(player, view, slot);
+            changed = StorageServerStub.moveInventoryStackToStorage(player, view, slot, button == 0);
         } else if (action == StorageInput.CLONE) {
             if (
                 player.hasInfiniteMaterials()
@@ -162,16 +183,32 @@ public final class StorageServerStub {
             }
         } else if (action == StorageInput.THROW) {
             changed = StorageServerStub.throwStorageStack(player, view, slot, button);
+        } else if (action == StorageInput.FLUID_BUCKET) {
+            FluidOutcome outcome = StorageServerStub.takeFluidBucket(player, view, fluid, button);
+            changed = outcome.changed();
+            notice = outcome.notice();
         } else if (action == StorageInput.QUICK_MOVE_FROM_STORAGE) {
-            changed = StorageServerStub.moveStorageStackToInventory(player, view, slot);
+            if (slot >= StoragePortManager.FLUID_SLOT_BASE) {
+                FluidOutcome outcome = StorageServerStub.takeFluidBucketIntoInventory(player, view, fluid);
+                changed = outcome.changed();
+                notice = outcome.notice();
+            } else {
+                changed = StorageServerStub.moveStorageStackToInventory(player, view, slot);
+            }
         } else if (!carried.isEmpty()) {
             int amount = button == 0 ? carried.getCount() : 1;
-            try (Transaction transaction = Transaction.openRoot()) {
-                int inserted = view.insert(ItemResource.of(carried), amount, transaction);
-                if (inserted > 0) {
-                    transaction.commit();
-                    carried.shrink(inserted);
-                    changed = true;
+            int poured = button == 0 ? StorageServerStub.pourIntoFluidPort(player, view, carried, amount) : 0;
+            if (poured > 0) {
+                if (carried.isEmpty()) player.inventoryMenu.setCarried(ItemStack.EMPTY);
+                changed = true;
+            } else {
+                try (Transaction transaction = Transaction.openRoot()) {
+                    int inserted = view.insert(ItemResource.of(carried), amount, transaction);
+                    if (inserted > 0) {
+                        transaction.commit();
+                        carried.shrink(inserted);
+                        changed = true;
+                    }
                 }
             }
         } else if (slot >= 0 && slot < view.size() && view.amount(slot) > 0) {
@@ -194,19 +231,23 @@ public final class StorageServerStub {
             player.getInventory().setChanged();
             player.inventoryMenu.broadcastChanges();
         }
-        return new InteractionResult(carried, changed);
+        return new InteractionResult(player.inventoryMenu.getCarried(), changed, 0, notice);
     }
 
     @RemoteCallable(validator = StorageAccessValidator.class)
-    public static DepositResult deposit(UUID playerId, long sourcePos, boolean all) {
+    public static DepositResult deposit(UUID playerId, long sourcePos, boolean all, boolean pour) {
         StorageView view = StorageServerStub.getView(StorageServerStub.getAndClear(), playerId, sourcePos);
         ServerPlayer player = StorageServerStub.getServerPlayer(playerId);
         boolean changed = false;
         for (int slot = Inventory.SELECTION_SIZE; slot < Inventory.INVENTORY_SIZE; slot++) {
             ItemStack stack = player.getInventory().getItem(slot);
-            if (stack.isEmpty() || !all && !StorageServerStub.matchesStorageItem(view, stack)) {
+            if (stack.isEmpty()) continue;
+            if (pour && StorageServerStub.pourIntoFluidPort(player, view, stack, stack.getCount()) > 0) {
+                if (stack.isEmpty()) player.getInventory().setItem(slot, ItemStack.EMPTY);
+                changed = true;
                 continue;
             }
+            if (!all && !StorageServerStub.matchesStorageItem(view, stack)) continue;
             try (Transaction transaction = Transaction.openRoot()) {
                 int inserted = view.insert(ItemResource.of(stack), stack.getCount(), transaction);
                 if (inserted > 0) {
@@ -276,7 +317,8 @@ public final class StorageServerStub {
     private static boolean moveInventoryStackToStorage(
         ServerPlayer player,
         StorageView view,
-        int slot
+        int slot,
+        boolean pour
     ) {
         Inventory inventory = player.getInventory();
         if (slot < 0 || slot >= Inventory.INVENTORY_SIZE) {
@@ -285,6 +327,10 @@ public final class StorageServerStub {
         ItemStack stack = inventory.getItem(slot);
         if (stack.isEmpty()) {
             return false;
+        }
+        if (pour && StorageServerStub.pourIntoFluidPort(player, view, stack, stack.getCount()) > 0) {
+            if (stack.isEmpty()) inventory.setItem(slot, ItemStack.EMPTY);
+            return true;
         }
         try (Transaction transaction = Transaction.openRoot()) {
             int inserted = view.insert(ItemResource.of(stack), stack.getCount(), transaction);
@@ -507,7 +553,7 @@ public final class StorageServerStub {
         );
     }
 
-    public record SyncResult(long version, double fullness, List<StackUpdate> updates) {
+    public record SyncResult(long version, double fullness, List<StackUpdate> updates, List<FluidEntry> fluids) {
         public static final StreamCodec<RegistryFriendlyByteBuf, SyncResult> STREAM_CODEC = StreamCodec.composite(
             ByteBufCodecs.VAR_LONG,
             SyncResult::version,
@@ -515,16 +561,53 @@ public final class StorageServerStub {
             SyncResult::fullness,
             StackUpdate.STREAM_CODEC.apply(ByteBufCodecs.list()),
             SyncResult::updates,
+            FluidEntry.STREAM_CODEC.apply(ByteBufCodecs.list()),
+            SyncResult::fluids,
             SyncResult::new
         );
     }
 
-    public record InteractionResult(ItemStack carried, boolean changed) {
+    public enum FluidNotice {
+        /** 无提示。 */
+        NONE(""),
+        /** 缺少空容器。 */
+        BUCKET_MISSING("screen.anvilcraft.storage.fluid.bucket_missing"),
+        /** 储量不足一桶。 */
+        NOT_ENOUGH("screen.anvilcraft.storage.fluid.not_enough");
+
+        public static final StreamCodec<ByteBuf, FluidNotice> STREAM_CODEC =
+            StreamCodecUtil.enumStreamCodec(FluidNotice.class);
+
+        private final String translationKey;
+
+        FluidNotice(String translationKey) {
+            this.translationKey = translationKey;
+        }
+
+        /** 提示文本；{@link #NONE} 返回空组件。 */
+        public Component text() {
+            return this.translationKey.isEmpty() ? Component.empty() : Component.translatable(this.translationKey);
+        }
+    }
+
+    public record InteractionResult(ItemStack carried, boolean changed, int refilledSlots, FluidNotice notice) {
+        public InteractionResult(ItemStack carried, boolean changed) {
+            this(carried, changed, 0, FluidNotice.NONE);
+        }
+
+        public InteractionResult(ItemStack carried, boolean changed, int refilledSlots) {
+            this(carried, changed, refilledSlots, FluidNotice.NONE);
+        }
+
         public static final StreamCodec<RegistryFriendlyByteBuf, InteractionResult> STREAM_CODEC = StreamCodec.composite(
             ItemStack.OPTIONAL_STREAM_CODEC,
             InteractionResult::carried,
             ByteBufCodecs.BOOL,
             InteractionResult::changed,
+            ByteBufCodecs.VAR_INT,
+            InteractionResult::refilledSlots,
+            FluidNotice.STREAM_CODEC,
+            InteractionResult::notice,
             InteractionResult::new
         );
     }
@@ -609,6 +692,7 @@ public final class StorageServerStub {
             entries.add(new OrderEntry(index, amount, id, name));
         }
 
+        StorageServerStub.addFluidEntries(entries, view, search, requiresName, categories);
         Comparator<OrderEntry> comparator = StorageServerStub.getComparator(options);
         entries.sort(comparator);
 
@@ -617,6 +701,257 @@ public final class StorageServerStub {
             order.add(entry.index());
         }
         return order;
+    }
+
+    private static void addFluidEntries(
+        List<OrderEntry> entries,
+        StorageView view,
+        String search,
+        boolean requiresName,
+        List<CategoryEntry> categories
+    ) {
+        List<FluidEntry> fluids = StoragePortManager.collect(view.primary().getId());
+        for (int index = 0; index < fluids.size(); index++) {
+            FluidEntry entry = fluids.get(index);
+            // 与物品的 createOrder 一致：0 数量的条目不进入排序结果，
+            // 因此重新排序（例如松开 Shift）后取空的流体就不再显示；
+            // 按住 Shift 时由客户端保留的顺序显示 0
+            if (entry.amount() <= 0) {
+                continue;
+            }
+            if (!StorageServerStub.matchesFluidCategoryFilters(entry.icon(), categories)) {
+                continue;
+            }
+            Identifier id = BuiltInRegistries.FLUID.getKey(entry.icon().getFluid());
+            // 与 matchesFilters 的搜索判定保持一致：普通文本不在服务端过滤（服务端没有客户端
+            // 语言环境），先一律放行，再由客户端 StorageScreen.applySearchFilter 按本地化名称
+            // 与 id path 过滤。缺少最后一个放行分支时 matches 恒为 false，一输入普通文本
+            // 流体就会整体从服务端 order 里消失，客户端那道过滤根本没机会执行。
+            // '#' 前缀是物品标签搜索，流体无对应语义，故不放行（客户端在 '#' 时也不做二次过滤）。
+            boolean matches = search.isEmpty()
+                || search.charAt(0) == '@'
+                   && id.getNamespace().toLowerCase(Locale.ROOT).contains(search.substring(1))
+                || search.charAt(0) != '@' && search.charAt(0) != '#';
+            if (!matches) {
+                continue;
+            }
+            entries.add(new OrderEntry(
+                StoragePortManager.FLUID_SLOT_BASE + index,
+                // 按 #4792：数量排序时 1 mB 相当于 1 个物品
+                entry.amount(),
+                id,
+                requiresName ? entry.icon().getHoverName().getString() : ""
+            ));
+        }
+    }
+
+    private static FluidOutcome takeFluidBucket(ServerPlayer player, StorageView view, FluidStack fluid, int button) {
+        // 指针上拿着装有流体的容器：这一下是「倒进去」。倒不进去（如仓储没有可接收的
+        // 端口）时继续往下走，由取出的分支判断指针是否可接收产物
+        ItemStack carried = player.inventoryMenu.getCarried();
+        if (!carried.isEmpty()) {
+            int amount = button == 0 ? carried.getCount() : 1;
+            if (StorageServerStub.pourIntoFluidPort(player, view, carried, amount) > 0) {
+                if (carried.isEmpty()) {
+                    player.inventoryMenu.setCarried(ItemStack.EMPTY);
+                }
+                return FluidOutcome.CHANGED;
+            }
+        }
+        FilledBucket filled = StorageServerStub.fillBucketFromStorage(player, view, fluid, false);
+        if (filled.stack().isEmpty()) {
+            return FluidOutcome.failed(filled.notice());
+        }
+        // 取出的一桶流体落在鼠标指针上，与点击物品格取物一致；
+        // 指针被其它物品占用（例如还剩几个空桶）时才退回背包
+        if (player.inventoryMenu.getCarried().isEmpty()) {
+            player.inventoryMenu.setCarried(filled.stack());
+        } else if (!player.addItem(filled.stack())
+            && view.insert(filled.stack().copyWithCount(1), 1) <= 0) {
+            Block.popResource(player.level(), player.blockPosition(), filled.stack());
+        }
+        return FluidOutcome.CHANGED;
+    }
+
+    private static FluidOutcome takeFluidBucketIntoInventory(
+        ServerPlayer player,
+        StorageView view,
+        FluidStack fluid
+    ) {
+        FilledBucket filled = StorageServerStub.fillBucketFromStorage(player, view, fluid, true);
+        if (filled.stack().isEmpty()) {
+            return FluidOutcome.failed(filled.notice());
+        }
+        if (!player.addItem(filled.stack()) && view.insert(filled.stack().copyWithCount(1), 1) <= 0) {
+            Block.popResource(player.level(), player.blockPosition(), filled.stack());
+        }
+        return FluidOutcome.CHANGED;
+    }
+
+    private static void playBucketSound(ServerPlayer player, FluidStack fluid, SoundAction action) {
+        SoundEvent sound = fluid.getFluidType().getSound(fluid, action);
+        if (sound == null) {
+            return;
+        }
+        player.level().playSound(
+            null,
+            player.getX(),
+            player.getY() + 0.5,
+            player.getZ(),
+            sound,
+            SoundSource.BLOCKS,
+            1.0F,
+            1.0F
+        );
+    }
+
+    private static void giveEmptiedContainer(ServerPlayer player, ItemStack emptied) {
+        if (!player.addItem(emptied)) {
+            Block.popResource(player.level(), player.blockPosition(), emptied);
+        }
+    }
+
+    private static void giveEmptiedContainerToStorage(
+        @Nullable StorageView view,
+        ServerPlayer player,
+        ItemStack emptied
+    ) {
+        if (emptied.isEmpty()) {
+            return;
+        }
+        if (view != null) {
+            int inserted = view.insert(emptied.copyWithCount(1), emptied.getCount());
+            if (inserted >= emptied.getCount()) {
+                return;
+            }
+            if (inserted > 0) {
+                ItemStack rest = emptied.copy();
+                rest.shrink(inserted);
+                StorageServerStub.giveEmptiedContainer(player, rest);
+                return;
+            }
+        }
+        StorageServerStub.giveEmptiedContainer(player, emptied);
+    }
+
+    private static boolean matchesFluidCategoryFilters(FluidStack fluid, List<CategoryEntry> categories) {
+        for (CategoryEntry entry : categories) {
+            if (entry.getMode() == CategoryMode.UNLIMITED) continue;
+            if (entry.getMode() == CategoryMode.ALLOWLIST != entry.getCategory().testFluid(fluid)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private record FluidOutcome(boolean changed, FluidNotice notice) {
+        private static final FluidOutcome CHANGED = new FluidOutcome(true, FluidNotice.NONE);
+
+        private static FluidOutcome failed(FluidNotice notice) {
+            return new FluidOutcome(false, notice);
+        }
+    }
+
+    private record FilledBucket(ItemStack stack, FluidNotice notice) {
+        private static FilledBucket failed(FluidNotice notice) {
+            return new FilledBucket(ItemStack.EMPTY, notice);
+        }
+    }
+
+    private static FilledBucket fillBucketFromStorage(ServerPlayer player, StorageView view, FluidStack fluid, boolean intoInventory) {
+        FluidEntry entry = StoragePortManager.find(view.primary().getId(), fluid);
+        if (entry == null) return FilledBucket.failed(FluidNotice.NONE);
+        FluidStack target = entry.icon().copyWithAmount(FluidType.BUCKET_VOLUME);
+        ItemStack filled = target.getFluidType().getBucket(target);
+        if (filled.isEmpty()) return FilledBucket.failed(FluidNotice.NONE);
+        ItemStack empty = StorageServerStub.emptyContainerOf(filled);
+        if (empty.isEmpty()) return FilledBucket.failed(FluidNotice.NONE);
+        ItemStack cursor = player.inventoryMenu.getCarried();
+        if (!intoInventory && !cursor.isEmpty() && !ItemStack.isSameItemSameComponents(cursor, empty)) {
+            return FilledBucket.failed(FluidNotice.NONE);
+        }
+        if (!StorageServerStub.hasEmptyContainer(player, view, empty)) return FilledBucket.failed(FluidNotice.BUCKET_MISSING);
+        if (entry.amount() < FluidType.BUCKET_VOLUME) return FilledBucket.failed(FluidNotice.NOT_ENOUGH);
+        try (Transaction transaction = Transaction.openRoot()) {
+            if (!StorageServerStub.consumeEmptyContainer(player, view, empty, transaction)) {
+                return FilledBucket.failed(FluidNotice.BUCKET_MISSING);
+            }
+            if (StoragePortManager.drain(view.primary().getId(), target, FluidType.BUCKET_VOLUME, transaction) < FluidType.BUCKET_VOLUME) {
+                return FilledBucket.failed(FluidNotice.NOT_ENOUGH);
+            }
+            transaction.commit();
+        }
+        StorageServerStub.playBucketSound(player, target, SoundActions.BUCKET_FILL);
+        return new FilledBucket(filled, FluidNotice.NONE);
+    }
+
+    private static ItemStack emptyContainerOf(ItemStack filled) {
+        ItemStacksResourceHandler single = new ItemStacksResourceHandler(1);
+        single.set(0, ItemResource.of(filled), 1);
+        var handler = ItemAccess.forHandlerIndexStrict(single, 0).getCapability(Capabilities.Fluid.ITEM);
+        if (handler == null) return ItemStack.EMPTY;
+        try (Transaction transaction = Transaction.openRoot()) {
+            for (int index = 0; index < handler.size(); index++) {
+                FluidResource resource = handler.getResource(index);
+                if (resource.isEmpty()) continue;
+                handler.extract(resource, Integer.MAX_VALUE, transaction);
+                break;
+            }
+            transaction.commit();
+        }
+        return single.getResource(0).toStack(single.getAmountAsInt(0));
+    }
+
+    private static boolean hasEmptyContainer(ServerPlayer player, StorageView view, ItemStack empty) {
+        ItemStack carried = player.inventoryMenu.getCarried();
+        if (!carried.isEmpty() && ItemStack.isSameItemSameComponents(carried, empty)) return true;
+        for (int index = 0; index < Inventory.INVENTORY_SIZE; index++) {
+            ItemStack stack = player.getInventory().getItem(index);
+            if (!stack.isEmpty() && ItemStack.isSameItemSameComponents(stack, empty)) return true;
+        }
+        ItemResource resource = ItemResource.of(empty);
+        for (int index = 0; index < view.size(); index++) {
+            if (view.amount(index) > 0 && view.resource(index).equals(resource)) return true;
+        }
+        return false;
+    }
+
+    private static boolean consumeEmptyContainer(ServerPlayer player, StorageView view, ItemStack empty, Transaction transaction) {
+        ItemResource resource = ItemResource.of(empty);
+        if (CarriedSlotWrapper.of(player.inventoryMenu).extract(resource, 1, transaction) > 0) return true;
+        var inventory = PlayerInventoryWrapper.of(player);
+        for (int index = 0; index < Inventory.INVENTORY_SIZE; index++) {
+            if (inventory.extract(index, resource, 1, transaction) > 0) return true;
+        }
+        for (int index = 0; index < view.size(); index++) {
+            if (view.amount(index) > 0 && view.resource(index).equals(resource)
+                && view.extract(index, resource, 1, transaction) > 0) return true;
+        }
+        return false;
+    }
+
+    private static int pourIntoFluidPort(ServerPlayer player, StorageView view, ItemStack stack, int maxAmount) {
+        if (stack.isEmpty() || maxAmount <= 0) return 0;
+        FluidStack content = FluidUtil.getFirstStackContained(stack);
+        if (content.isEmpty()) return 0;
+        var acceptor = StoragePortManager.findAcceptor(view.primary().getId(), content);
+        if (acceptor == null) return 0;
+        int poured = 0;
+        while (poured < maxAmount && !stack.isEmpty()) {
+            ItemStacksResourceHandler single = new ItemStacksResourceHandler(1);
+            single.set(0, ItemResource.of(stack), 1);
+            var handler = ItemAccess.forHandlerIndexStrict(single, 0).getCapability(Capabilities.Fluid.ITEM);
+            if (handler == null) break;
+            try (Transaction transaction = Transaction.openRoot()) {
+                if (ResourceHandlerUtil.moveFirst(handler, acceptor, fluid -> true, Integer.MAX_VALUE, transaction) == null) break;
+                transaction.commit();
+            }
+            StorageServerStub.giveEmptiedContainerToStorage(view, player, single.getResource(0).toStack(single.getAmountAsInt(0)));
+            stack.shrink(1);
+            poured++;
+        }
+        if (poured > 0) StorageServerStub.playBucketSound(player, content, SoundActions.BUCKET_EMPTY);
+        return poured;
     }
 
     private static boolean matchesFilters(
@@ -631,11 +966,7 @@ public final class StorageServerStub {
             || search.charAt(0) == '@' && id.getNamespace().toLowerCase(Locale.ROOT).contains(search.substring(1))
             || search.charAt(0) == '#'
                && item.tags().anyMatch(tag -> StorageServerStub.matchesTag(tag.location(), search.substring(1)))
-            || search.charAt(0) != '@' && search.charAt(0) != '#'
-               && (
-                   name.toLowerCase(Locale.ROOT).contains(search)
-                   || id.getPath().toLowerCase(Locale.ROOT).contains(search)
-               );
+            || search.charAt(0) != '@' && search.charAt(0) != '#';
         if (!matchesSearch) {
             return false;
         }
@@ -771,6 +1102,15 @@ public final class StorageServerStub {
                 spaceSize = typeHandler.getSpaceSize();
             }
             return new Capacity(space, spaceSize, items.getTypeCount(), items.getTypeLimit());
+        }
+
+        int insert(ItemStack stack, int amount) {
+            if (stack.isEmpty() || amount <= 0) return 0;
+            try (Transaction transaction = Transaction.openRoot()) {
+                int inserted = this.insert(ItemResource.of(stack), amount, transaction);
+                transaction.commit();
+                return inserted;
+            }
         }
 
         int insert(ItemResource resource, int amount, Transaction tx) {
