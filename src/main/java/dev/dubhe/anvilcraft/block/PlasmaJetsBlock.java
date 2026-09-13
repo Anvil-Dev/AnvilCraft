@@ -22,6 +22,8 @@ import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.OptionalInt;
+
 public class PlasmaJetsBlock extends BaseEntityBlock {
     public PlasmaJetsBlock(Properties properties) {
         super(properties);
@@ -106,31 +108,13 @@ public class PlasmaJetsBlock extends BaseEntityBlock {
         return cauldron.isEmpty(cache, pos) || cauldron.getFluid(cache, pos).is(ModFluidTags.OIL);
     }
 
-    public static boolean tryConsumeOnce(Level level, BlockPos pos) {
-        Boolean override = PlasmaJetHooks.tryConsumeOnceOverride(level, pos);
-        if (override != null) return override;
+    public static OptionalInt tryConsumeOnce(Level level, BlockPos pos, boolean simulate) {
+        OptionalInt override = PlasmaJetHooks.tryConsumeOnceOverride(level, pos, simulate);
+        if (override.isPresent()) return override;
         BlockCache cache = new BlockCache(level);
-        if (!(cache.getBlockState(pos).getBlock() instanceof IIgnitableCauldron cauldron)) return false;
-        if (!cauldron.consumeOnce(cache, pos)) return false;
-        cache.accept();
-        return true;
-    }
-
-    public static boolean usesContinuousFuel(Level level, BlockPos pos) {
-        Boolean override = PlasmaJetHooks.usesContinuousFuelOverride(level, pos);
-        if (override != null) return override;
-        BlockCache cache = new BlockCache(level);
-        if (!(cache.getBlockState(pos).getBlock() instanceof IIgnitableCauldron cauldron)) return false;
-        return cauldron.usesContinuousPlasmaJetFuel(cache, pos);
-    }
-
-    public static boolean tryConsumeContinuousFuel(Level level, BlockPos pos, int amount) {
-        Boolean override = PlasmaJetHooks.tryConsumeContinuousFuelOverride(level, pos, amount);
-        if (override != null) return override;
-        BlockCache cache = new BlockCache(level);
-        if (!(cache.getBlockState(pos).getBlock() instanceof IIgnitableCauldron cauldron)) return false;
-        if (!cauldron.consumeContinuousPlasmaJetFuel(cache, pos, amount)) return false;
-        cache.accept();
-        return true;
+        if (!(cache.getBlockState(pos).getBlock() instanceof IIgnitableCauldron cauldron)) return OptionalInt.empty();
+        OptionalInt extraDuration = cauldron.consumeOnce(cache, pos, simulate);
+        if (!simulate) cache.accept();
+        return extraDuration;
     }
 }

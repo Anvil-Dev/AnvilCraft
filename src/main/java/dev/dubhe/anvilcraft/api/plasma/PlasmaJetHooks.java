@@ -14,6 +14,7 @@ import net.neoforged.neoforge.common.util.TriState;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.util.OptionalInt;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Predicate;
 
@@ -65,31 +66,12 @@ public final class PlasmaJetHooks {
         return null;
     }
 
-    public static @Nullable Boolean tryConsumeOnceOverride(Level level, BlockPos pos) {
+    public static OptionalInt tryConsumeOnceOverride(Level level, BlockPos pos, boolean simulate) {
         for (PlasmaJetFuelHandler handler : FUELS) {
-            TriState state = handler.tryConsumeOnce(level, pos);
-            if (state.isTrue()) return true;
-            if (state.isFalse()) return false;
+            OptionalInt extraDuration = handler.tryConsumeOnce(level, pos, simulate);
+            if (extraDuration.isPresent()) return extraDuration;
         }
-        return null;
-    }
-
-    public static @Nullable Boolean usesContinuousFuelOverride(Level level, BlockPos pos) {
-        for (PlasmaJetFuelHandler handler : FUELS) {
-            TriState state = handler.usesContinuousFuel(level, pos);
-            if (state.isTrue()) return true;
-            if (state.isFalse()) return false;
-        }
-        return null;
-    }
-
-    public static @Nullable Boolean tryConsumeContinuousFuelOverride(Level level, BlockPos pos, int amount) {
-        for (PlasmaJetFuelHandler handler : FUELS) {
-            TriState state = handler.tryConsumeContinuousFuel(level, pos, amount);
-            if (state.isTrue()) return true;
-            if (state.isFalse()) return false;
-        }
-        return null;
+        return OptionalInt.empty();
     }
 
     public static @Nullable Integer fuelAmount(Level level, BlockPos pos) {

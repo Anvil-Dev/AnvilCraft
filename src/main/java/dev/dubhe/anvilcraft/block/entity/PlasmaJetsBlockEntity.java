@@ -4,6 +4,7 @@ import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.anvilcraft.lib.v2.recipe.cache.BlockCache;
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.block.IIgnitableCauldron;
 import dev.dubhe.anvilcraft.api.chargecollector.ChargeCollectorManager;
 import dev.dubhe.anvilcraft.api.heat.HeaterManager;
@@ -18,6 +19,8 @@ import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.block.ModFluidTags;
 import dev.dubhe.anvilcraft.init.entity.ModDamageTypes;
+import lombok.Getter;
+import lombok.Setter;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -46,41 +49,40 @@ import net.minecraft.world.phys.Vec3;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.neoforge.common.util.TriState;
+import net.neoforged.neoforge.fluids.FluidType;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.OptionalInt;
 import java.util.Set;
 import java.util.function.BiConsumer;
 import javax.annotation.Nullable;
 
 public class PlasmaJetsBlockEntity extends BlockEntity {
-    private static final int MAX_DURATION = 10 * 60 * 20;
-    private static final int CONTINUOUS_FUEL_INTERVAL = 12;
-    private static final int CONTINUOUS_FUEL_AMOUNT = 1;
+    public static final int MAX_DURATION = 10 * 60 * 20;
+    public static final int CONTINUOUS_FUEL_AMOUNT = 1;
+    public static final int CONTINUOUS_FUEL_DURATION = PlasmaJetsBlockEntity.MAX_DURATION / FluidType.BUCKET_VOLUME * 2;
+    @Getter
     private final Set<TubeWallLayer> tubeWalls = new HashSet<>();
     private @Nullable BlockPos cauldronPos = null;
+    @Getter
+    @Setter
     private int duration = 0;
-    private int continuousFuelTimer = 0;
+    @Getter
     private CompoundTag addonData = new CompoundTag();
 
     public PlasmaJetsBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState);
     }
 
-    public PlasmaJetsBlockEntity(BlockPos pos, BlockState blockState, int duration, Set<TubeWallLayer> tubeWalls) {
-        this(pos, blockState, duration, 0, tubeWalls);
-    }
-
     private PlasmaJetsBlockEntity(
         BlockPos pos,
         BlockState blockState,
         int duration,
-        int continuousFuelTimer,
         Set<TubeWallLayer> tubeWalls
     ) {
         super(ModBlockEntities.PLASMA_JETS.get(), pos, blockState);
         this.duration = duration;
-        this.continuousFuelTimer = continuousFuelTimer;
         this.tubeWalls.addAll(tubeWalls);
         this.cauldronPos = this.getBlockPos().below(this.tubeWalls.size() + 1);
     }
@@ -115,7 +117,6 @@ public class PlasmaJetsBlockEntity extends BlockEntity {
             pos.above(),
             this.getBlockState(),
             this.duration,
-            this.continuousFuelTimer,
             this.tubeWalls
         );
         raised.addonData = this.addonData.copy();
@@ -271,27 +272,12 @@ public class PlasmaJetsBlockEntity extends BlockEntity {
         if (PlasmaJetHooks.refreshDuration(this, level)) {
             return;
         }
-        if (this.cauldronPos != null && PlasmaJetsBlock.usesContinuousFuel(level, this.cauldronPos)) {
-            if (--this.continuousFuelTimer <= 0) {
-                if (!PlasmaJetsBlock.tryConsumeContinuousFuel(
-                    level,
-                    this.cauldronPos,
-                    CONTINUOUS_FUEL_AMOUNT
-                )) {
-                    level.removeBlock(this.getBlockPos(), false);
-                    return;
-                }
-                this.continuousFuelTimer = CONTINUOUS_FUEL_INTERVAL;
-            }
-            return;
-        }
         this.duration--;
-        if (
-            this.duration + MAX_DURATION / 2 < MAX_DURATION
-            && this.cauldronPos != null
-            && PlasmaJetsBlock.tryConsumeOnce(level, this.cauldronPos)
-        ) {
-            this.duration += MAX_DURATION / 2;
+        if (this.cauldronPos != null) {
+            OptionalInt extra = PlasmaJetsBlock.tryConsumeOnce(level, this.cauldronPos, true);
+            if (extra.isPresent() && this.duration + extra.getAsInt() < AnvilCraft.CONFIG.plasmaJetsMaxDuration) {
+                this.duration += PlasmaJetsBlock.tryConsumeOnce(level, this.cauldronPos, false).orElse(0);
+            }
         }
         if (this.duration < 0) {
             level.removeBlock(this.getBlockPos(), false);
@@ -402,7 +388,6 @@ public class PlasmaJetsBlockEntity extends BlockEntity {
     protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.saveAdditional(tag, registries);
         tag.putInt("duration", this.duration);
-        tag.putInt("continuous_fuel_timer", this.continuousFuelTimer);
         ListTag tubeWalls = new ListTag();
         for (TubeWallLayer layer : this.tubeWalls) {
             tubeWalls.add(TubeWallLayer.CODEC.encode(layer, NbtOps.INSTANCE, new CompoundTag()).getOrThrow());
@@ -418,7 +403,6 @@ public class PlasmaJetsBlockEntity extends BlockEntity {
     protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.loadAdditional(tag, registries);
         this.duration = tag.getInt("duration");
-        this.continuousFuelTimer = tag.getInt("continuous_fuel_timer");
         ListTag tubeWalls = tag.getList("tube_walls", Tag.TAG_COMPOUND);
         for (Tag tubeWallTag1 : tubeWalls) {
             if (!(tubeWallTag1 instanceof CompoundTag tubeWallTag)) {
@@ -433,24 +417,8 @@ public class PlasmaJetsBlockEntity extends BlockEntity {
         PlasmaJetHooks.load(this, this.addonData, registries);
     }
 
-    public CompoundTag getAddonData() {
-        return this.addonData;
-    }
-
-    public int getDuration() {
-        return this.duration;
-    }
-
-    public void setDuration(int duration) {
-        this.duration = duration;
-    }
-
     public @Nullable BlockPos getCauldronPos() {
         return this.cauldronPos;
-    }
-
-    public Set<TubeWallLayer> getTubeWalls() {
-        return this.tubeWalls;
     }
 
     public void syncToClient() {
