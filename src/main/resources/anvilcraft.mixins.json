@@ -15,6 +15,7 @@
     "BlockMixin",
     "BlockPlaceContextMixin",
     "BlockStateMixin",
+    "BlockStatePredicateMixin",
     "BucketResourceHandlerMixin",
     "BuddingAmethystBlockMixin",
     "CandleCakeBlockMixin",

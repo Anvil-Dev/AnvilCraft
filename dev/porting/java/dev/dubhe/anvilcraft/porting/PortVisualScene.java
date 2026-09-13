@@ -93,6 +93,10 @@ public final class PortVisualScene {
             if (prepared) FittedItemScene.frame(client);
             return;
         }
+        if (Boolean.getBoolean("anvilcraft.portMultiblockScene")) {
+            if (prepared) MultiblockClientScene.frame(client);
+            return;
+        }
         if (Boolean.getBoolean("anvilcraft.portStorageItemScene")) {
             if (prepared) StoragePortItemScene.frame(client);
             return;

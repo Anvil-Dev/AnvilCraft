@@ -2,54 +2,26 @@ package dev.dubhe.anvilcraft.event.giantanvil;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.event.AnvilEvent;
-import dev.dubhe.anvilcraft.block.entity.HasMobBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
-import dev.dubhe.anvilcraft.recipe.multiblock.BlockPattern;
-import dev.dubhe.anvilcraft.recipe.multiblock.ModifySpawnerAction;
-import dev.dubhe.anvilcraft.recipe.multiblock.MultiblockConversionRecipe;
 import dev.dubhe.anvilcraft.recipe.multiblock.MultiblockInput;
-import dev.dubhe.anvilcraft.util.AnvilUtil;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.Spawner;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.shapes.BitSetDiscreteVoxelShape;
-import net.minecraft.world.phys.shapes.DiscreteVoxelShape;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.common.Tags;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @EventBusSubscriber(modid = AnvilCraft.MOD_ID)
 public class GiantAnvilLandingEventListener {
     private static final int MIN_MULTIBLOCK_SIZE = 3;
     private static final int MAX_MULTIBLOCK_SIZE = 15;
-
-    /// 在一个边长为 `size` 的立方体区域中，绕着中心将 `pos` 旋转到对应位置。
-    ///
-    /// @param pos      被旋转的方块坐标（从 `(0, 0, 0)` 到 `(size - 1, size - 1, size - 1)`）
-    /// @param size     立方体区域的边长
-    /// @param rotation 旋转操作
-    /// @return 旋转后的相对坐标
-    private static BlockPos rotatePos(BlockPos pos, int size, Rotation rotation) {
-        return switch (rotation) {
-            case COUNTERCLOCKWISE_90 -> new BlockPos(pos.getZ(), pos.getY(), size - 1 - pos.getX());
-            case CLOCKWISE_180 -> new BlockPos(size - 1 - pos.getX(), pos.getY(), size - 1 - pos.getZ());
-            case CLOCKWISE_90 -> new BlockPos(size - 1 - pos.getZ(), pos.getY(), pos.getX());
-            default -> pos;
-        };
-    }
 
     @SubscribeEvent
     public static void handleMultiblock(AnvilEvent.GiantOnLand event) {
@@ -81,115 +53,14 @@ public class GiantAnvilLandingEventListener {
             }
             blocks.add(blocksY);
         }
-        MultiblockInput input = new MultiblockInput(blocks, size);
+        MultiblockInput input = new MultiblockInput(blocks, size, landPos);
         if (overCompressorDetected) {
-            level.getServer().getRecipeManager()
-                .getRecipeFor(ModRecipeTypes.MULTIBLOCK.get(), input, level)
-                .ifPresent(recipe -> {
-                    ItemStack result = recipe.value().getResult().create();
-                    for (int y = 0; y < size; y++) {
-                        for (int z = 0; z < size; z++) {
-                            for (int x = 0; x < size; x++) {
-                                level.setBlockAndUpdate(
-                                    inputCorner.offset(x, y, z),
-                                    Blocks.AIR.defaultBlockState());
-                            }
-                        }
-                    }
-                    AnvilUtil.dropItems(
-                        List.of(result),
-                        level,
-                        landPos.relative(Direction.Axis.Y, -size / 2).getCenter());
-                });
-            return;
+            level.getServer().getRecipeManager().getRecipeFor(ModRecipeTypes.MULTIBLOCK.get(), input, level)
+                .ifPresent(recipe -> recipe.value().assemble(level, landPos, inputCorner, input));
+        } else {
+            level.getServer().getRecipeManager().getRecipeFor(ModRecipeTypes.MULTIBLOCK_CONVERSION.get(), input, level)
+                .ifPresent(recipe -> recipe.value().assemble(level, landPos, inputCorner, input));
         }
-        level.getServer().getRecipeManager()
-            .getRecipeFor(ModRecipeTypes.MULTIBLOCK_CONVERSION.get(), input, level)
-            .ifPresent(recipe -> {
-                MultiblockConversionRecipe value = recipe.value();
-                Rotation rotation = value.getMatchedRotation();
-                BlockPattern outputPattern = value.getOutputPattern();
-                BlockPos.MutableBlockPos mpos = new BlockPos.MutableBlockPos();
-                final Optional<EntityType<?>> entity = value.getModifySpawnerAction()
-                    .map(ModifySpawnerAction::fromPos)
-                    .map(pos -> GiantAnvilLandingEventListener.rotatePos(pos, size, rotation))
-                    .map(inputCorner::offset)
-                    .map(level::getBlockEntity)
-                    .filter(be -> be instanceof HasMobBlockEntity)
-                    .map(be -> ((HasMobBlockEntity) be).getOrCreateDisplayEntity(level))
-                    .map(Entity::getType);
-                for (int y = 0; y < size; y++) {
-                    for (int z = 0; z < size; z++) {
-                        for (int x = 0; x < size; x++) {
-                            switch (rotation) {
-                                case COUNTERCLOCKWISE_90 -> mpos.setWithOffset(inputCorner, z, y, size - 1 - x);
-                                case CLOCKWISE_180 -> mpos.setWithOffset(inputCorner, size - 1 - x, y, size - 1 - z);
-                                case CLOCKWISE_90 -> mpos.setWithOffset(inputCorner, size - 1 - z, y, x);
-                                default -> mpos.setWithOffset(inputCorner, x, y, z);
-                            }
-                            BlockState newState = outputPattern.getPredicate(x, y, z)
-                                .getDefaultState()
-                                .rotate(level, mpos, rotation);
-                            level.setBlock(mpos, newState, 18);
-                        }
-                    }
-                }
-                // NC update (Block#neighborChanged) after structure converted
-                for (int y = 0; y < size; y++) {
-                    for (int z = 0; z < size; z++) {
-                        for (int x = 0; x < size; x++) {
-                            if (x > 0 && x < size - 1 && y > 0 && y < size - 1 && z > 0 && z < size - 1) continue;
-                            mpos.setWithOffset(inputCorner, x, y, z);
-                            level.sendBlockUpdated(mpos, input.getBlockState(x, y, z), level.getBlockState(mpos), Block.UPDATE_ALL);
-                            BlockState newState = level.getBlockState(mpos);
-                            if (newState.hasAnalogOutputSignal()) {
-                                level.updateNeighbourForOutputSignal(mpos, newState.getBlock());
-                            }
-                        }
-                    }
-                }
-                // PP update (Block#updateShape) after structure converted
-                // copy and modified from StructureTemplate#updateShapeAtEdge
-                DiscreteVoxelShape shape = BitSetDiscreteVoxelShape.withFilledBounds(
-                    size, size, size,
-                    0, 0, 0,
-                    size, size, size
-                );
-                BlockPos.MutableBlockPos mpos2 = new BlockPos.MutableBlockPos();
-                shape.forAllFaces(
-                    (direction, x, y, z) -> {
-                        BlockPos innerPos = mpos.setWithOffset(inputCorner, x, y, z);
-                        BlockPos outerPos = mpos2.setWithOffset(innerPos, direction);
-                        BlockState innerState = level.getBlockState(innerPos);
-                        if (innerState != input.getBlockState(x, y, z)) {
-                            level.neighborShapeChanged(
-                                direction.getOpposite(),
-                                outerPos,
-                                innerPos,
-                                level.getBlockState(innerPos),
-                                3,
-                                512
-                            );
-                        }
-                        level.neighborShapeChanged(
-                            direction,
-                            innerPos,
-                            outerPos,
-                            level.getBlockState(outerPos),
-                            3,
-                            512
-                        );
-                    }
-                );
-                entity.ifPresent(entityType -> {
-                    BlockPos offset = GiantAnvilLandingEventListener.rotatePos(
-                        value.getModifySpawnerAction().get().toPos(), size, rotation
-                    );
-                    Optional.ofNullable(level.getBlockEntity(inputCorner.offset(offset)))
-                        .filter(be -> be instanceof Spawner)
-                        .ifPresent(be -> ((Spawner) be).setEntityId(entityType, level.getRandom()));
-                });
-            });
     }
 
     private static int findCraftingTableSize(BlockPos centerPos, Level level) {
