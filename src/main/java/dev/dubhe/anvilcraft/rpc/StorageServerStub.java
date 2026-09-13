@@ -47,6 +47,7 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.SingleRecipeInput;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.neoforged.neoforge.capabilities.Capabilities;
@@ -83,6 +84,8 @@ import java.util.UUID;
 import java.util.function.Function;
 
 public final class StorageServerStub {
+    public static final StreamCodec<RegistryFriendlyByteBuf, List<ItemStack>> ITEM_STACK_LIST_STREAM_CODEC =
+        ItemStack.OPTIONAL_STREAM_CODEC.apply(ByteBufCodecs.list());
     private static final int MAX_PLAYER_STUBS = 5;
     private static final int MAX_UNDO_RECORDS = 4;
     private static final int MAX_SYNC_SLOTS = 256;
@@ -299,6 +302,200 @@ public final class StorageServerStub {
             player.inventoryMenu.broadcastChanges();
         }
         return changed;
+    }
+
+    private record CraftingTarget(StorageView view, ServerPlayer player) {
+        CraftingStorage read() {
+            return this.view.primary().getCrafting();
+        }
+
+        void write(CraftingStorage crafting) {
+            this.view.primary().setCrafting(crafting);
+            this.player.inventoryMenu.broadcastChanges();
+        }
+    }
+
+    private static CraftingTarget resolveCraftingTarget(ServerPlayer player, long sourcePos) {
+        StorageView view = StorageServerStub.getView(StorageServerStub.getAndClear(), player.getGameProfile().id(), sourcePos);
+        return new CraftingTarget(view, player);
+    }
+
+    @RemoteCallable(validator = StorageAccessValidator.class)
+    public static InteractionResult craftingPutStonecutterInput(
+        UUID playerId,
+        long sourcePos,
+        int button,
+        @CallableParam(clazz = ItemStack.class, field = "OPTIONAL_STREAM_CODEC") ItemStack clientCarried
+    ) {
+        ServerPlayer player = StorageServerStub.getServerPlayer(playerId);
+        StorageServerStub.CraftingTarget target = StorageServerStub.resolveCraftingTarget(player, sourcePos);
+        CraftingStorage crafting = target.read();
+        // 指针物品以客户端上报为准（与服务端 getCarried 一致；创造模式下服务端指针可能已过期）
+        ItemStack carried = player.hasInfiniteMaterials() ? clientCarried : player.inventoryMenu.getCarried();
+        ItemStack current = crafting.stonecutterInput();
+        // 指针为空：取出①（左键整堆 / 右键半堆）
+        if (carried.isEmpty()) {
+            if (current.isEmpty()) {
+                return new InteractionResult(ItemStack.EMPTY, false);
+            }
+            int amount = button == 0 ? current.getCount() : Math.ceilDiv(current.getCount(), 2);
+            ItemStack taken = current.copyWithCount(amount);
+            ItemStack rest = current.copy();
+            rest.shrink(amount);
+            target.write(crafting.withStonecutterInput(rest.isEmpty() ? ItemStack.EMPTY : rest));
+            player.inventoryMenu.setCarried(taken);
+            player.inventoryMenu.broadcastChanges();
+            return new InteractionResult(taken, true);
+        }
+        // 指针有物品：仅接受能匹配切石机配方的输入
+        var recipes = player.level().recipeAccess().stonecutterRecipes().selectByInput(carried);
+        if (recipes.isEmpty()) {
+            return new InteractionResult(carried, false);
+        }
+        // 空槽 / 同种：堆叠（左键放全部、右键放 1 个，不超过最大堆叠）
+        if (current.isEmpty() || ItemStack.isSameItemSameComponents(current, carried)) {
+            int space = current.isEmpty() ? carried.getCount()
+                : Math.min(carried.getCount(), current.getMaxStackSize() - current.getCount());
+            int place = button == 0 ? space : Math.min(1, space);
+            if (place <= 0) {
+                return new InteractionResult(carried, false);
+            }
+            ItemStack newCurrent = current.copy();
+            if (current.isEmpty()) {
+                newCurrent = carried.copyWithCount(place);
+            } else {
+                newCurrent.grow(place);
+            }
+            target.write(crafting.withStonecutterInput(newCurrent));
+            ItemStack newCarried = carried.copy();
+            newCarried.shrink(place);
+            player.inventoryMenu.setCarried(newCarried);
+            player.inventoryMenu.broadcastChanges();
+            return new InteractionResult(newCarried, true);
+        }
+        // 异种：整个交换（输入变化后重置选中配方）
+        target.write(crafting.withStonecutterInput(carried.copy()).withStonecutterSelected(0));
+        player.inventoryMenu.setCarried(current);
+        player.inventoryMenu.broadcastChanges();
+        return new InteractionResult(current, true);
+    }
+
+    @RemoteCallable(validator = StorageAccessValidator.class)
+    public static InteractionResult craftingPutCraftingSlot(
+        UUID playerId,
+        long sourcePos,
+        int slot,
+        int button,
+        @CallableParam(clazz = ItemStack.class, field = "OPTIONAL_STREAM_CODEC") ItemStack clientCarried
+    ) {
+        if (slot < 0 || slot >= CraftingStorage.CRAFTING_GRID_SIZE) {
+            StorageServerStub.REGISTRIES.remove();
+            throw new IllegalArgumentException("Invalid crafting grid slot: " + slot);
+        }
+        ServerPlayer player = StorageServerStub.getServerPlayer(playerId);
+        StorageServerStub.CraftingTarget target = StorageServerStub.resolveCraftingTarget(player, sourcePos);
+        CraftingStorage crafting = target.read();
+        ItemStack carried = player.hasInfiniteMaterials() ? clientCarried : player.inventoryMenu.getCarried();
+        ItemStack current = crafting.craftingInput().get(slot);
+        // 指针为空：取出②槽（左键整堆 / 右键半堆）
+        if (carried.isEmpty()) {
+            if (current.isEmpty()) {
+                return new InteractionResult(ItemStack.EMPTY, false);
+            }
+            int amount = button == 0 ? current.getCount() : Math.ceilDiv(current.getCount(), 2);
+            ItemStack taken = current.copyWithCount(amount);
+            ItemStack rest = current.copy();
+            rest.shrink(amount);
+            target.write(crafting.withCraftingSlot(slot, rest.isEmpty() ? ItemStack.EMPTY : rest));
+            player.inventoryMenu.setCarried(taken);
+            player.inventoryMenu.broadcastChanges();
+            return new InteractionResult(taken, true);
+        }
+        // 空槽 / 同种：堆叠（左键放全部、右键放 1 个，不超过最大堆叠）
+        if (current.isEmpty() || ItemStack.isSameItemSameComponents(current, carried)) {
+            int space = current.isEmpty() ? carried.getCount()
+                : Math.min(carried.getCount(), current.getMaxStackSize() - current.getCount());
+            int place = button == 0 ? space : Math.min(1, space);
+            if (place <= 0) {
+                return new InteractionResult(carried, false);
+            }
+            ItemStack newCurrent = current.copy();
+            if (current.isEmpty()) {
+                newCurrent = carried.copyWithCount(place);
+            } else {
+                newCurrent.grow(place);
+            }
+            target.write(crafting.withCraftingSlot(slot, newCurrent));
+            ItemStack newCarried = carried.copy();
+            newCarried.shrink(place);
+            player.inventoryMenu.setCarried(newCarried);
+            player.inventoryMenu.broadcastChanges();
+            return new InteractionResult(newCarried, true);
+        }
+        // 异种：整个交换
+        target.write(crafting.withCraftingSlot(slot, carried.copy()));
+        player.inventoryMenu.setCarried(current);
+        player.inventoryMenu.broadcastChanges();
+        return new InteractionResult(current, true);
+    }
+
+    @CallableParam(clazz = StorageServerStub.class, field = "ITEM_STACK_LIST_STREAM_CODEC")
+    @RemoteCallable(validator = StorageAccessValidator.class)
+    public static List<ItemStack> craftingStonecutterRecipes(UUID playerId, long sourcePos) {
+        ServerPlayer player = StorageServerStub.getServerPlayer(playerId);
+        ItemStack input = StorageServerStub.resolveCraftingTarget(player, sourcePos).read().stonecutterInput();
+        if (input.isEmpty()) {
+            return List.of();
+        }
+        return player.level().recipeAccess().stonecutterRecipes().selectByInput(input).entries().stream()
+            .flatMap(entry -> entry.recipe().recipe().stream())
+            .map(holder -> holder.value().assemble(new SingleRecipeInput(input)))
+            .toList();
+    }
+
+    @RemoteCallable(validator = StorageAccessValidator.class)
+    public static boolean craftingClearToStorage(UUID playerId, long sourcePos) {
+        ServerPlayer player = StorageServerStub.getServerPlayer(playerId);
+        StorageServerStub.CraftingTarget target = StorageServerStub.resolveCraftingTarget(player, sourcePos);
+        CraftingStorage crafting = target.read();
+        StorageView view = target.view();
+        if (view == null) {
+            return false;
+        }
+        ItemStack stonecutterInput = crafting.stonecutterInput();
+        List<ItemStack> grid = crafting.craftingInput();
+        boolean hasAny = !stonecutterInput.isEmpty() || grid.stream().anyMatch(stack -> !stack.isEmpty());
+        if (!hasAny) {
+            return false;
+        }
+        if (!stonecutterInput.isEmpty()) {
+            int inserted = view.insert(stonecutterInput.copyWithCount(1), stonecutterInput.getCount());
+            if (inserted < stonecutterInput.getCount()) {
+                // 输入槽仅被部分放入仓储：剩余部分保留在槽内，避免丢物品。
+                int rest = stonecutterInput.getCount() - inserted;
+                target.write(crafting.withStonecutterInput(stonecutterInput.copyWithCount(rest)));
+                return true;
+            }
+        }
+        for (int i = 0; i < grid.size(); i++) {
+            ItemStack stack = grid.get(i);
+            if (stack.isEmpty()) {
+                continue;
+            }
+            int inserted = view.insert(stack.copyWithCount(1), stack.getCount());
+            if (inserted < stack.getCount()) {
+                List<ItemStack> newGrid = new ArrayList<>(grid);
+                for (int j = 0; j < i; j++) {
+                    newGrid.set(j, ItemStack.EMPTY);
+                }
+                newGrid.set(i, stack.copyWithCount(stack.getCount() - inserted));
+                target.write(crafting.withStonecutterInput(ItemStack.EMPTY).withCraftingInput(newGrid));
+                return true;
+            }
+        }
+        List<ItemStack> emptyGrid = java.util.Collections.nCopies(CraftingStorage.CRAFTING_GRID_SIZE, ItemStack.EMPTY);
+        target.write(crafting.withStonecutterInput(ItemStack.EMPTY).withCraftingInput(emptyGrid));
+        return true;
     }
 
     @RemoteCallable(validator = StorageAccessValidator.class)

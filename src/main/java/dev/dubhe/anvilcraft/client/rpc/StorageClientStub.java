@@ -9,12 +9,64 @@ import it.unimi.dsi.fastutil.ints.IntList;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.fluids.FluidStack;
 
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 public final class StorageClientStub {
+    public static CompletableFuture<StorageServerStub.InteractionResult> craftingPutStonecutterInput(
+        BlockPos sourcePos,
+        int button,
+        ItemStack clientCarried
+    ) {
+        return RPC.invoke(
+            RpcTarget.server(),
+            StorageServerStub::craftingPutStonecutterInput,
+            StorageClientStub.playerId(),
+            sourcePos.asLong(),
+            button,
+            clientCarried
+        );
+    }
+
+    public static CompletableFuture<StorageServerStub.InteractionResult> craftingPutCraftingSlot(
+        BlockPos sourcePos,
+        int slot,
+        int button,
+        ItemStack clientCarried
+    ) {
+        return RPC.invoke(
+            RpcTarget.server(),
+            StorageServerStub::craftingPutCraftingSlot,
+            StorageClientStub.playerId(),
+            sourcePos.asLong(),
+            slot,
+            button,
+            clientCarried
+        );
+    }
+
+    public static CompletableFuture<List<ItemStack>> craftingStonecutterRecipes(BlockPos sourcePos) {
+        return RPC.invoke(
+            RpcTarget.server(),
+            StorageServerStub::craftingStonecutterRecipes,
+            StorageClientStub.playerId(),
+            sourcePos.asLong()
+        );
+    }
+
+    public static CompletableFuture<Boolean> craftingClearToStorage(BlockPos sourcePos) {
+        return RPC.invoke(
+            RpcTarget.server(),
+            StorageServerStub::craftingClearToStorage,
+            StorageClientStub.playerId(),
+            sourcePos.asLong()
+        );
+    }
+
     public static CompletableFuture<Boolean> craftingAvailable(BlockPos sourcePos) {
         return RPC.invoke(RpcTarget.server(), StorageServerStub::craftingAvailable, StorageClientStub.playerId(), sourcePos.asLong());
     }

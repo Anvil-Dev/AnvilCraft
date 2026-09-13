@@ -20,8 +20,13 @@ public final class StorageCraftingClientChecks {
     private static boolean checking;
     private static boolean done;
     private static Throwable failure;
+    private static boolean inputsStarted;
 
     public static void frame(Minecraft client, BlockPos corePos) {
+        if (inputsStarted) {
+            StorageCraftingInputClientChecks.frame(client, corePos);
+            return;
+        }
         if (!requested) {
             requested = true;
             client.getSingleplayerServer().execute(() -> {
@@ -73,7 +78,8 @@ public final class StorageCraftingClientChecks {
                 throw new IllegalStateException("物品合成数据未独立同步");
             }
             AnvilCraft.LOGGER.info("PORT_CRAFTING_STATE_CLIENT_PASSED: unlock, options, grid and independent item component");
-            client.stop();
+            if (Boolean.getBoolean("anvilcraft.portCraftingInputsScene")) inputsStarted = true;
+            else client.stop();
         }
     }
 }
