@@ -212,6 +212,12 @@ public class ItemCrushRecipeLoader {
         flower(provider, Items.INK_SAC, Items.BLACK_DYE);
         flower(provider, Items.COCOA_BEANS, Items.BROWN_DYE);
         flower(provider, Items.LAPIS_LAZULI, Items.BLUE_DYE);
+
+        ItemCrushRecipe.builder()
+            .requires(ModItems.SUPER_CAPACITOR)
+            .result(ModItems.CAPACITOR, 8)
+            .result(Items.GUNPOWDER)
+            .save(provider);
     }
 
     private static void tool(RegistrumRecipeProvider provider, ItemLike tool, ItemLike result) {
