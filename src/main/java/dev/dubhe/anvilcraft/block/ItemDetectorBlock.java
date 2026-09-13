@@ -84,11 +84,7 @@ public class ItemDetectorBlock extends BetterBaseEntityBlock implements EntityBl
 
     @Override
     public BlockState getStateForPlacement(BlockPlaceContext context) {
-        Direction direction = context.getHorizontalDirection();
-        // 潜行时反转向，便于朝着自己或背着红石元件摆放
-        if (context.getPlayer() != null && context.getPlayer().isShiftKeyDown()) {
-            direction = direction.getOpposite();
-        }
+        Direction direction = context.getHorizontalDirection().getOpposite();
         return this.defaultBlockState().setValue(FACING, direction.getOpposite());
     }
 

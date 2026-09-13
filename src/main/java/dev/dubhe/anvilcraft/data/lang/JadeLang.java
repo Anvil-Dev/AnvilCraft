@@ -27,6 +27,7 @@ public class JadeLang {
         provider.add("config.jade.plugin_anvilcraft.control_valve", "Control Valve");
         provider.add("config.jade.plugin_anvilcraft.cursed_gold_enchant_power", "Enchant Power");
         provider.add("config.jade.plugin_anvilcraft.fluid_tank", "Fluid Tank");
+        provider.add("config.jade.plugin_anvilcraft.overflow_disposal_fluid_tank", "Overflow Disposal Fluid Tank");
         provider.add("config.jade.plugin_anvilcraft.pulse_generator", "Pulse Generator");
 
         provider.add("tooltip.anvilcraft.jade.power_information", "Power Grid: %s");
