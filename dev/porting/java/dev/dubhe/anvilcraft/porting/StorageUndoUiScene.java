@@ -6,6 +6,7 @@ import dev.dubhe.anvilcraft.block.entity.storage.StorageBlockEntity;
 import dev.dubhe.anvilcraft.client.gui.screen.StorageScreen;
 import dev.dubhe.anvilcraft.saved.storage.ShulkerContainerStorage;
 import dev.dubhe.anvilcraft.saved.storage.Storages;
+import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.Screenshot;
@@ -166,7 +167,57 @@ public final class StorageUndoUiScene {
                 }
             }
             case 17 -> {
-                AnvilCraft.LOGGER.info("PORT_STORAGE_UNDO_UI_PASSED: grouped drag, Alt same-type and Shift double-click with Ctrl+Z");
+                client.getSingleplayerServer().execute(() -> {
+                    var level = client.getSingleplayerServer().overworld();
+                    var core = (StorageBlockEntity) level.getBlockEntity(corePos);
+                    var items = Storages.get().getOrCreate(core.getId(), ShulkerContainerStorage.class).getItems();
+                    try (Transaction transaction = Transaction.openRoot()) {
+                        items.insert(ItemResource.of(Items.DIAMOND), 128, transaction);
+                        items.insert(ItemResource.of(Items.IRON_INGOT), 96, transaction);
+                        transaction.commit();
+                    }
+                    var player = client.getSingleplayerServer().getPlayerList().getPlayers().getFirst();
+                    player.getInventory().setItem(9, ItemResource.of(Items.GOLD_INGOT).toStack(2));
+                    player.inventoryMenu.broadcastChanges();
+                });
+                advance(18);
+            }
+            case 18 -> {
+                if (stored(screen, ItemResource.of(Items.DIAMOND)) == 128 && stored(screen, ItemResource.of(Items.IRON_INGOT)) == 96
+                    && client.player.getInventory().getItem(9).getCount() == 2
+                    && System.currentTimeMillis() - (long) field(screen, "lastInventoryClickTime") >= 250) {
+                    var diamond = storagePoint(screen, ItemResource.of(Items.DIAMOND));
+                    var iron = storagePoint(screen, ItemResource.of(Items.IRON_INGOT));
+                    screen.keyPressed(new KeyEvent(GLFW.GLFW_KEY_LEFT_SHIFT, 0, GLFW.GLFW_MOD_SHIFT));
+                    screen.mouseClicked(event(left + 122, top + 148, GLFW.GLFW_MOD_SHIFT), false);
+                    screen.mouseDragged(event(diamond[0], diamond[1], GLFW.GLFW_MOD_SHIFT), 0, -60);
+                    screen.mouseDragged(event(diamond[0], diamond[1], GLFW.GLFW_MOD_SHIFT), 1, 0);
+                    screen.mouseDragged(event(iron[0], iron[1], GLFW.GLFW_MOD_SHIFT), -18, 0);
+                    advance(19);
+                }
+            }
+            case 19 -> {
+                if (client.player.getInventory().getItem(9).isEmpty() && count(client, ItemResource.of(Items.IRON_INGOT)) == 70
+                    && stored(screen, ItemResource.of(Items.IRON_INGOT)) == 32) {
+                    if (count(client, ItemResource.of(Items.DIAMOND)) != 20 || stored(screen, ItemResource.of(Items.DIAMOND)) != 128) {
+                        throw new IllegalStateException("取消选择的仓储槽被错误取出");
+                    }
+                    screen.mouseReleased(event(left + 122, top + 26, GLFW.GLFW_MOD_SHIFT));
+                    screen.keyReleased(new KeyEvent(GLFW.GLFW_KEY_LEFT_SHIFT, 0, 0));
+                    capture(client, "cross-drag", 20);
+                }
+            }
+            case 20 -> {
+                screen.keyPressed(new KeyEvent(GLFW.GLFW_KEY_Z, 0, GLFW.GLFW_MOD_CONTROL));
+                advance(21);
+            }
+            case 21 -> {
+                if (count(client, ItemResource.of(Items.GOLD_INGOT)) == 10 && stored(screen, ItemResource.of(Items.GOLD_INGOT)) == 1) {
+                    AnvilCraft.LOGGER.info("PORT_STORAGE_UNDO_UI_PASSED: same-type, undo and cross-area Shift drag");
+                    advance(22);
+                }
+            }
+            case 22 -> {
                 client.stop();
             }
             default -> throw new IllegalStateException("未知仓储撤销测试阶段");
@@ -201,6 +252,19 @@ public final class StorageUndoUiScene {
             }
         }
         return count;
+    }
+
+    private static int[] storagePoint(StorageScreen screen, ItemResource resource) {
+        var order = (IntList) field(screen, "displayOrder");
+        var contents = (Map<?, ?>) field(screen, (boolean) field(screen, "nbtFolded") ? "foldedContents" : "contents");
+        for (int index = 0; index < order.size(); index++) {
+            var stack = (UnlimitedItemStack) contents.get(order.getInt(index));
+            if (stack != null && ItemResource.of(stack.toStack()).equals(resource)) {
+                return new int[]{(int) field(screen, "left") + 122 + index % 9 * 18,
+                    (int) field(screen, "top") + 26 + index / 9 * 18};
+            }
+        }
+        throw new IllegalStateException("仓储测试条目未显示");
     }
 
     private static MouseButtonEvent event(int x, int y, int modifiers) {

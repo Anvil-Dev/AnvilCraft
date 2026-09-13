@@ -157,6 +157,7 @@ public class StorageScreen extends Screen {
     private boolean quickMoveDragging;
     private final IntSet quickMoveSlots = new IntOpenHashSet();
     private final IntSet pendingQuickMoveSlots = new IntOpenHashSet();
+    private final IntSet storageQuickMoveSlots = new IntOpenHashSet();
     private int quickCraftingButton;
     private int lastClickedInventorySlot = -1;
     private long lastInventoryClickTime;
@@ -755,7 +756,7 @@ public class StorageScreen extends Screen {
     @Override
     public boolean mouseDragged(MouseButtonEvent event, double dragX, double dragY) {
         if (this.quickMoveDragging) {
-            if (event.button() == 0 && event.hasShiftDown()) this.queueQuickMove(this.getInventorySlot(event.x(), event.y()));
+            if (event.button() == 0 && event.hasShiftDown()) this.quickMoveDrag(event.x(), event.y());
             return true;
         }
         if (!this.quickCrafting || event.button() != this.quickCraftingButton || this.carried.isEmpty()) {
@@ -832,6 +833,21 @@ public class StorageScreen extends Screen {
         if (slot >= 0 && this.quickMoveSlots.add(slot)) this.pendingQuickMoveSlots.add(slot);
     }
 
+    public void quickMoveDrag(double mouseX, double mouseY) {
+        Integer storageSlot = this.getStorageSlot(mouseX, mouseY);
+        if (storageSlot != null && storageSlot >= 0) {
+            int key = -1 - storageSlot;
+            if (this.quickMoveSlots.add(key)) {
+                this.storageQuickMoveSlots.add(storageSlot.intValue());
+            } else {
+                this.quickMoveSlots.remove(key);
+                this.storageQuickMoveSlots.remove(storageSlot.intValue());
+            }
+            return;
+        }
+        this.queueQuickMove(this.getInventorySlot(mouseX, mouseY));
+    }
+
     private boolean isInventoryDoubleClick(int slot) {
         long now = System.currentTimeMillis();
         boolean quick = slot == this.lastInventoryClickSlot && now - this.lastInventoryClickTime < 250L;
@@ -855,12 +871,25 @@ public class StorageScreen extends Screen {
     }
 
     private void flushQuickMoves() {
-        if (this.pendingQuickMoveSlots.isEmpty()) return;
-        IntList slots = new IntArrayList(this.pendingQuickMoveSlots);
-        this.pendingQuickMoveSlots.clear();
-        StorageClientStub.quickMoveToStorage(this.sourcePos, slots).thenAcceptAsync(changed -> {
-            if (changed) this.refreshAfterQuickMove();
-        }, this.screenExecutor);
+        if (!this.pendingQuickMoveSlots.isEmpty()) {
+            IntList slots = new IntArrayList(this.pendingQuickMoveSlots);
+            this.pendingQuickMoveSlots.clear();
+            StorageClientStub.quickMoveToStorage(this.sourcePos, slots).thenAcceptAsync(changed -> {
+                if (changed) this.refreshAfterQuickMove();
+            }, this.screenExecutor);
+        }
+        if (!this.storageQuickMoveSlots.isEmpty()) {
+            IntList slots = new IntArrayList(this.storageQuickMoveSlots.size());
+            for (int logicalSlot : this.storageQuickMoveSlots) {
+                int serverSlot = this.serverSlots.get(logicalSlot);
+                if (serverSlot >= 0 && serverSlot < StorageScreen.FLUID_SLOT_BASE) slots.add(serverSlot);
+            }
+            this.storageQuickMoveSlots.clear();
+            if (slots.isEmpty()) return;
+            StorageClientStub.quickMoveFromStorage(this.sourcePos, slots).thenAcceptAsync(changed -> {
+                if (changed) this.refreshAfterQuickMove();
+            }, this.screenExecutor);
+        }
     }
 
     private void finishQuickMove() {

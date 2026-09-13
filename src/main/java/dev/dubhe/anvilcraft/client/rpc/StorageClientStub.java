@@ -107,6 +107,11 @@ public final class StorageClientStub {
             StorageClientStub.playerId(), sourcePos.asLong(), slots);
     }
 
+    public static CompletableFuture<Boolean> quickMoveFromStorage(BlockPos sourcePos, IntList slots) {
+        return RPC.invoke(RpcTarget.server(), StorageServerStub::quickMoveFromStorage,
+            StorageClientStub.playerId(), sourcePos.asLong(), slots);
+    }
+
     public static void beginUndoGroup(BlockPos sourcePos) {
         RPC.call(RpcTarget.server(), StorageServerStub::beginUndoGroup, StorageClientStub.playerId(), sourcePos.asLong());
     }

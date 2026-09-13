@@ -302,6 +302,30 @@ public final class StorageServerStub {
     }
 
     @RemoteCallable(validator = StorageAccessValidator.class)
+    public static boolean quickMoveFromStorage(
+        UUID playerId, long sourcePos,
+        @CallableParam(clazz = StorageServerStub.class, field = "ORDER_STREAM_CODEC") IntList slots
+    ) {
+        if (slots.isEmpty() || slots.size() > StorageServerStub.MAX_SYNC_SLOTS) {
+            StorageServerStub.REGISTRIES.remove();
+            throw new IllegalArgumentException("Invalid quick move slots");
+        }
+        StorageView view = StorageServerStub.getView(StorageServerStub.getAndClear(), playerId, sourcePos);
+        ServerPlayer player = StorageServerStub.getServerPlayer(playerId);
+        IntOpenHashSet visited = new IntOpenHashSet(slots.size());
+        boolean changed = false;
+        for (int slot : slots) {
+            if (slot < 0 || !visited.add(slot)) continue;
+            changed |= StorageServerStub.moveStorageStackToInventory(player, view, slot);
+        }
+        if (changed) {
+            player.getInventory().setChanged();
+            player.inventoryMenu.broadcastChanges();
+        }
+        return changed;
+    }
+
+    @RemoteCallable(validator = StorageAccessValidator.class)
     public static boolean moveSameToStorage(UUID playerId, long sourcePos, int slot, boolean pour) {
         StorageView view = StorageServerStub.getView(StorageServerStub.getAndClear(), playerId, sourcePos);
         ServerPlayer player = StorageServerStub.getServerPlayer(playerId);
@@ -488,11 +512,10 @@ public final class StorageServerStub {
         }
         try (Transaction transaction = Transaction.openRoot()) {
             int extracted = view.extract(slot, resource, amount, transaction);
-            if (extracted <= 0) {
+            if (extracted <= 0 || PlayerInventoryWrapper.of(player).insert(resource, extracted, transaction) != extracted) {
                 return false;
             }
             transaction.commit();
-            player.getInventory().add(stack.copyWithCount(extracted));
             return true;
         }
     }

@@ -38,7 +38,9 @@ public final class StorageUndoTests {
         "port_storage_undo_fluid", StorageUndoTests::fluid,
         "port_storage_undo_scope", StorageUndoTests::scope,
         "port_storage_same_components", StorageUndoTests::sameComponents,
-        "port_storage_same_fluids", StorageUndoTests::sameFluids
+        "port_storage_same_fluids", StorageUndoTests::sameFluids,
+        "port_storage_drag_take", StorageUndoTests::dragTake,
+        "port_storage_drag_capacity", StorageUndoTests::dragCapacity
     );
 
     @SubscribeEvent
@@ -235,6 +237,45 @@ public final class StorageUndoTests {
                 && fixture.count(ItemResource.of(Items.WATER_BUCKET)) == 2, "同类右键应存入桶物品而不倒液");
             helper.assertTrue(undo(fixture) && carriedInInventory(fixture, ItemResource.of(Items.WATER_BUCKET)) == 2,
                 "右键存入的满桶可以按物品撤销");
+        }
+        helper.succeed();
+    }
+
+    private static boolean takeBatch(StorageFluidRpcTests.Fixture fixture, int... slots) {
+        fixture.authorize();
+        return StorageServerStub.quickMoveFromStorage(fixture.playerId(), fixture.core().asLong(), new IntArrayList(slots));
+    }
+
+    private static void dragTake(GameTestHelper helper) {
+        try (var fixture = new StorageFluidRpcTests.Fixture(helper)) {
+            final var diamond = ItemResource.of(Items.DIAMOND);
+            final var iron = ItemResource.of(Items.IRON_INGOT);
+            fixture.stock(diamond, 128);
+            fixture.stock(iron, 96);
+            helper.assertTrue(takeBatch(fixture, 0, 0, 1, -1, 999, 1 << 24), "有效槽位应能批量取出");
+            helper.assertTrue(carriedInInventory(fixture, diamond) == 64 && carriedInInventory(fixture, iron) == 64
+                && fixture.count(diamond) == 64 && fixture.count(iron) == 32, "每槽最多一组，重复索引和越界不得额外取物");
+            helper.assertTrue(takeBatch(fixture, 0, 1) && fixture.count(diamond) == 0 && fixture.count(iron) == 0,
+                "一批中取空前一条目不能影响后续条目");
+            helper.assertTrue(carriedInInventory(fixture, diamond) == 128 && carriedInInventory(fixture, iron) == 96,
+                "批量取出必须保持物品守恒");
+        }
+        helper.succeed();
+    }
+
+    private static void dragCapacity(GameTestHelper helper) {
+        try (var fixture = new StorageFluidRpcTests.Fixture(helper)) {
+            fixture.stock(ItemResource.of(Items.DIAMOND), 8);
+            fixture.stock(ItemResource.of(Items.IRON_INGOT), 4);
+            for (int slot = 0; slot < Inventory.INVENTORY_SIZE; slot++) {
+                fixture.player().getInventory().setItem(slot, new ItemStack(Items.COBBLESTONE, 64));
+            }
+            fixture.player().getInventory().setItem(0, new ItemStack(Items.DIAMOND, 60));
+            helper.assertTrue(takeBatch(fixture, 0, 1) && fixture.player().getInventory().getItem(0).getCount() == 64,
+                "取出只填满可合并的余量");
+            helper.assertTrue(fixture.count(ItemResource.of(Items.DIAMOND)) == 4
+                && fixture.count(ItemResource.of(Items.IRON_INGOT)) == 4, "背包已满时其余物品必须保留在仓储");
+            helper.assertTrue(!takeBatch(fixture, 0, 1), "没有容量时整批不得取走物品");
         }
         helper.succeed();
     }
