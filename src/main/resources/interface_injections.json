@@ -31,5 +31,8 @@
   ],
   "net/minecraft/world/level/block/BuddingAmethystBlock": [
     "dev/dubhe/anvilcraft/api/injection/block/IBuddingAmethystBlockExtension"
+  ],
+  "net/minecraft/world/level/block/CauldronBlock": [
+    "dev/dubhe/anvilcraft/api/block/IEmptyCauldron"
   ]
 }

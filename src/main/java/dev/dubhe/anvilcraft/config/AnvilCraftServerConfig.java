@@ -6,7 +6,9 @@ import dev.anvilcraft.lib.v2.config.CollapsibleObject;
 import dev.anvilcraft.lib.v2.config.Comment;
 import dev.anvilcraft.lib.v2.config.Config;
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.block.FireCauldronBlock;
 import net.neoforged.fml.config.ModConfig;
+import net.neoforged.neoforge.fluids.FluidType;
 
 @Config(name = AnvilCraft.MOD_ID, type = ModConfig.Type.SERVER)
 public class AnvilCraftServerConfig {
@@ -16,6 +18,26 @@ public class AnvilCraftServerConfig {
 
     @Comment("Enable weak Schwarzschild periapsis advance around attractive gravity sources of strength at least 10")
     public boolean relativisticPrecession = true;
+
+    @Comment("Maximum duration of Plasma Jets (in ticks)")
+    @BoundedDiscrete(min = 10 * 20, max = 24 * 60 * 60 * 20)
+    public int plasmaJetsMaxDuration = 10 * 60 * 20;
+
+    @Comment("Amount of fuel consumed per cycle by Plasma Jets based on Cauldrons (in Layer)")
+    @BoundedDiscrete(min = 1, max = FireCauldronBlock.MAX_LEVEL)
+    public int plasmaJetsCauldronConsumeAmount = 1;
+
+    @Comment("Extended duration of a single consumption of Plasma Jets based on Cauldrons (in ticks)")
+    @BoundedDiscrete(min = 5 * 20, max = 12 * 60 * 60 * 20)
+    public int plasmaJetsCauldronExtraDuration = 5 * 60 * 20;
+
+    @Comment("Amount of fuel consumed per cycle by Plasma Jets based on Fish Tanks (in mB)")
+    @BoundedDiscrete(min = 1, max = FluidType.BUCKET_VOLUME)
+    public int plasmaJetsFishTankConsumeAmount = 1;
+
+    @Comment("Extended duration of a single consumption of Plasma Jets based on Fish Tanks (in ticks)")
+    @BoundedDiscrete(min = 5 * 20, max = 12 * 60 * 60 * 20)
+    public int plasmaJetsFishTankExtraDuration = 24;
 
     @Comment("Effective speed of light in blocks per tick for orbital precession; larger values weaken the effect")
     @BoundedDiscrete(min = 16, max = 4096)

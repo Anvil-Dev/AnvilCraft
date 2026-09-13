@@ -5,6 +5,7 @@ import dev.anvilcraft.lib.v2.piston.IMoveableEntityBlock;
 import dev.anvilcraft.lib.v2.recipe.cache.BlockCache;
 import dev.anvilcraft.lib.v2.util.ShapeUtil;
 import dev.anvilcraft.lib.v2.util.Util;
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.block.IIgnitableCauldron;
 import dev.dubhe.anvilcraft.api.event.FishTankEvent;
 import dev.dubhe.anvilcraft.api.hammer.HammerRotateBehavior;
@@ -57,6 +58,7 @@ import net.neoforged.neoforge.items.IItemHandler;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
+import java.util.OptionalInt;
 
 import static dev.dubhe.anvilcraft.block.PropelPistonBlock.createTickerHelper;
 
@@ -372,24 +374,16 @@ public class FishTankBlock extends Block implements IMoveableEntityBlock, Hammer
     }
 
     @Override
-    public boolean consumeOnce(BlockCache cache, BlockPos pos) {
-        return this.consumeContinuousPlasmaJetFuel(cache, pos, 250);
-    }
-
-    @Override
-    public boolean usesContinuousPlasmaJetFuel(BlockCache cache, BlockPos pos) {
-        return true;
-    }
-
-    @Override
-    public boolean consumeContinuousPlasmaJetFuel(BlockCache cache, BlockPos pos, int amount) {
-        if (amount <= 0) return false;
+    public OptionalInt consumeOnce(BlockCache cache, BlockPos pos, boolean simulate) {
+        int amount = AnvilCraft.CONFIG.plasmaJetsFishTankConsumeAmount;
         Optional<FishTankBlockEntity> beOp = Util.castSafely(cache.getBlockEntity(pos), FishTankBlockEntity.class);
-        if (beOp.isEmpty()) return false;
+        if (beOp.isEmpty()) return OptionalInt.empty();
         FishTankBlockEntity be = beOp.get();
         FluidStack drained = be.getFluidHandler().drain(amount, IFluidHandler.FluidAction.SIMULATE);
-        if (!drained.is(ModFluidTags.OIL) || drained.getAmount() != amount) return false;
-        be.getFluidHandler().drain(amount, IFluidHandler.FluidAction.EXECUTE);
-        return true;
+        if (!drained.is(ModFluidTags.OIL) || drained.getAmount() != amount) return OptionalInt.empty();
+        if (!simulate) {
+            be.getFluidHandler().drain(amount, IFluidHandler.FluidAction.EXECUTE);
+        }
+        return OptionalInt.of(AnvilCraft.CONFIG.plasmaJetsFishTankExtraDuration);
     }
 }
