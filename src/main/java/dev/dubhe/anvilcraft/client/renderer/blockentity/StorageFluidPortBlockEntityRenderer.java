@@ -13,8 +13,8 @@ import net.neoforged.neoforge.fluids.FluidStack;
  * 仓储流体端口渲染器：在中央玻璃窗口内渲染内部流体，液体按液面高度、气体按不透明度表示余量。
  */
 public class StorageFluidPortBlockEntityRenderer implements BlockEntityRenderer<StorageFluidPortBlockEntity> {
-    /** 中央玻璃窗口是 2..14，比储罐更小，故在默认内缩基础上再收 1.5 像素 */
-    public static final float WINDOW_INSET_PIXELS = 1.5f;
+    /** 中央玻璃窗口是 2..14，比储罐更小，故在默认内缩基础上再收 2.0 像素 */
+    public static final float WINDOW_INSET_PIXELS = 2.0f;
 
     public StorageFluidPortBlockEntityRenderer(BlockEntityRendererProvider.Context ignore) {
     }

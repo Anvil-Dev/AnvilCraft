@@ -731,27 +731,22 @@ public class ItemTooltipManager {
                Inventory Shulker Container at first, then all Shulker Boxes, nearest Shulker Container within 64 blocks at last"""
         );
         SHIFT.put(ModBlocks.STORAGE_PORT.asItem(), """
-                Right‑click with an item in hand to mark a port. A marked port will always keep one stack of items inside
+                Right‑click with an item in hand to mark a port
+                A marked port will always keep one stack of items inside
                 Left‑click to take items out, right‑click to put items in
                 Hold right-click on a marked port with Anvil Hammer can remove the mark""");
         SHIFT.put(ModBlocks.STORAGE_PORT_CONSOLIDATOR.asItem(), """
-                Exposes all connected Storage Ports as a single inventory to hoppers, chutes and storage buses
-                Each connected Storage Fluid Port is exposed as one tank, readable and writable by pipes
-                Only the ports' own buffers are exposed: an unmarked port sends items straight into its core
-                Connections follow Storage Ports only, never across a Container or a Storage Station
-                Counts as a Storage Port for connections: a chain touching two Containers or Storage Stations stops working
-                Input items go straight into the ports, preferring a port marked with that item
-                Right‑click to put items in, double right‑click to store all matching items from your inventory
-                Right-click with a bucket or a bottle to pour it into a connected fluid port storing the same fluid
-                Worn armor is left alone, and it keeps working even without a connected Container or Storage Station""");
+                Exposes the contents of connected storage ports to storage buses
+                Can only connect to directly adjacent ports on the same side of the same Container/Storage Station.
+                Inputs are prioritized into ports with matching filters
+                Right-click with a fluid bucket to pour fluid into the corresponding fluid port.""");
 
         SHIFT.put(
             ModBlocks.STORAGE_FLUID_PORT.asItem(), """
-                Stores 128 B of a single fluid and can never hold two fluids at once
-                Connects to adjacent Storage Ports and Storage Fluid Ports, either can extend the chain
-                Works even when linked to no storage: buckets and pipes read and write it directly
-                The link only decides which storage lists its fluid
-                Right-click with a bucket or a bottle to fill or drain it, right-click with a Menger Sponge to clear it
+                Stores 128 B of a single fluid
+                Works even when linked to no storage
+                Right-click with a bucket or a bottle to fill or drain it
+                Right-click with a Menger Sponge to clear it
                 Keeps its fluid when broken""");
 
         SHIFT.put(ModBlocks.PUMP.asItem(), """
