@@ -15,17 +15,17 @@
     },
     {
       "commit": "21368aa28593e2d508c356e78a7262cef9038b74",
-      "status": "pending",
+      "status": "ported",
       "scope": "红石元件取消潜行反转朝向"
     },
     {
       "commit": "cd39077686cb6c97cc1e4f956ebbf0aa032fe74f",
-      "status": "pending",
+      "status": "ported",
       "scope": "燃烧炼药锅使用原始轮廓"
     },
     {
       "commit": "0ea18ca7781f63da237af71f74aee1809722ded4",
-      "status": "pending",
+      "status": "ported",
       "scope": "超级电容粉碎配方"
     }
   ]

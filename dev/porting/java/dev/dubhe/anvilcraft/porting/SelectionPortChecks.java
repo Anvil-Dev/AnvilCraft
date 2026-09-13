@@ -35,6 +35,7 @@ public final class SelectionPortChecks {
     public static void run() {
         checkGeometry();
         check(ModelSelectionBlacklist.usesOriginalOutline(ModBlocks.LARGE_CAULDRON.get()), "坩埚必须保留原有描边");
+        check(ModelSelectionBlacklist.usesOriginalOutline(ModBlocks.FIRE_CAULDRON.get()), "燃烧炼药锅必须按最新源版保留原轮廓");
         for (Direction facing : Direction.values()) {
             BlockState state = ModBlocks.BIG_RED_BUTTON.getDefaultState().setValue(BigRedButtonBlock.FACING, facing);
             check(!ModelBlockSelection.multipartOutline(state).isEmpty(), "按钮底座选择几何缺失");

@@ -40,7 +40,8 @@
     "anvilcraft:cut_flint_stairs",
     "anvilcraft:plywood_stairs",
     "anvilcraft:cut_bronze_stairs",
-    "anvilcraft:cut_brass_stairs"
+    "anvilcraft:cut_brass_stairs",
+    "anvilcraft:fire_cauldron"
   ],
   "disable_ber_selection": [
     "anvilcraft:pulse_generator"
