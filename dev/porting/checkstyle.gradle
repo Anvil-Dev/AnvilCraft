@@ -36,7 +36,7 @@ allprojects {
             include '**/StorageServerStub.java', '**/StorageClientStub.java', '**/StorageInput.java', '**/StorageScreen.java'
             include '**/FluidAmountUtil.java'
             include '**/StructureLoadUtil.java', '**/StructureDisk*Packet.java', '**/StructureDiskPreviewSupport.java'
-            include '**/item/utility/DiskItem.java'
+            include '**/item/utility/DiskItem.java', '**/StructureDiskData.java'
             include '**/recipe/multiblock/Multiblock*.java', '**/IMultiblockRecipe.java', '**/LevelLikeDisplaySupport.java'
             include '**/GiantAnvilLandingEventListener.java'
             include '**/BlockStatePredicateMixin.java'

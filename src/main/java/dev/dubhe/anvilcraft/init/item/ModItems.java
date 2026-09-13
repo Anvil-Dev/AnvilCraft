@@ -770,6 +770,14 @@ public class ModItems {
     public static final ItemEntry<StructureDiskItem> STRUCTURE_DISK = REGISTRUM
         .item("structure_disk", StructureDiskItem::new)
         .properties(p -> p.stacksTo(1))
+        .model(() -> new NonNullBiConsumer<>() {
+            @Override
+            public void accept(DataGenContext<Item, StructureDiskItem> ctx, RegistrumItemModelGenerator generator) {
+                var model = ModelTemplates.FLAT_ITEM.create(ctx.get(), TextureMapping.layer0(ctx.get()), generator.modelOutput);
+                generator.itemModelOutput.accept(ctx.get(), ItemModelUtils.composite(
+                    ItemModelUtils.plainModel(model), ItemModelUtils.specialModel(model, DiskItemRenderer.Unbaked.INSTANCE)));
+            }
+        })
         .recipe(RegistrumItemRecipeLoader::structureDisk)
         .register();
 

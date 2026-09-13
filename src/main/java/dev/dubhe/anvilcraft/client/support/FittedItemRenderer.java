@@ -25,6 +25,7 @@ import net.minecraft.client.renderer.item.TrackingItemStackRenderState;
 import net.minecraft.client.renderer.rendertype.RenderSetup;
 import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
+import net.minecraft.client.renderer.rendertype.TextureTransform;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.component.DataComponents;
@@ -38,6 +39,7 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
 import net.neoforged.neoforge.client.event.ModelEvent;
 import net.neoforged.neoforge.client.event.RenderFrameEvent;
+import org.joml.Matrix4f;
 import org.jspecify.annotations.Nullable;
 
 import java.util.HashSet;
@@ -59,6 +61,9 @@ public final class FittedItemRenderer {
     private static int captureDepth;
     private static int generation;
     private static long nextTexture;
+    // 专用材质从纹理矩阵的平移量读取扫描时钟，物品 UV 不应用该矩阵。
+    private static final TextureTransform SCAN_CLOCK = new TextureTransform("anvilcraft_scan_clock",
+        () -> new Matrix4f().translation((System.currentTimeMillis() % 100000) / 1000F, 0, 0));
 
     private FittedItemRenderer() {
     }
@@ -162,6 +167,11 @@ public final class FittedItemRenderer {
         }
     }
 
+    public static void submitBlueprint(Icon icon, float size, PoseStack pose, SubmitNodeCollector collector, int light, int overlay) {
+        collector.submitCustomGeometry(pose, icon.blueprintRenderType,
+            (matrix, vertices) -> quad(icon, size, matrix, vertices, light, overlay));
+    }
+
     private static void quad(Icon icon, float size, PoseStack.Pose pose, VertexConsumer vertices, int light, int overlay) {
         float scale = size / Math.max(icon.width, icon.height);
         float x = icon.width * scale / 2;
@@ -210,7 +220,9 @@ public final class FittedItemRenderer {
         Minecraft.getInstance().getTextureManager().register(texture, new DynamicTexture(texture::toString, cropped));
         var renderType = RenderType.create("anvilcraft_fitted_icon", RenderSetup.builder(ModRenderPipelines.FITTED_ITEM)
             .useLightmap().useOverlay().withTexture("Sampler0", texture).createRenderSetup());
-        Icon old = ICONS.put(key, new Icon(texture, renderType, width, height, request.state.getModelIdentity(),
+        var blueprint = RenderType.create("anvilcraft_scan_icon", RenderSetup.builder(ModRenderPipelines.SCAN_PREVIEW_ITEM)
+            .useLightmap().useOverlay().withTexture("Sampler0", texture).setTextureTransform(SCAN_CLOCK).createRenderSetup());
+        Icon old = ICONS.put(key, new Icon(texture, renderType, blueprint, width, height, request.state.getModelIdentity(),
             request.animated, request.createdAt));
         if (old != null) Minecraft.getInstance().getTextureManager().release(old.texture);
         while (ICONS.size() > MAX_ICONS) {
@@ -222,7 +234,8 @@ public final class FittedItemRenderer {
     }
 
     public record Icon(
-        Identifier texture, RenderType renderType, int width, int height, Object modelIdentity, boolean animated, long createdAt
+        Identifier texture, RenderType renderType, RenderType blueprintRenderType,
+        int width, int height, Object modelIdentity, boolean animated, long createdAt
     ) {
     }
 
