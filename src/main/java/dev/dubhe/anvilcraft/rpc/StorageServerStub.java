@@ -67,9 +67,11 @@ import net.neoforged.neoforge.transfer.transaction.Transaction;
 import org.jspecify.annotations.Nullable;
 
 import java.lang.reflect.Method;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.Deque;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -81,6 +83,7 @@ import java.util.function.Function;
 
 public final class StorageServerStub {
     private static final int MAX_PLAYER_STUBS = 5;
+    private static final int MAX_UNDO_RECORDS = 4;
     private static final int MAX_SYNC_SLOTS = 256;
     private static final ThreadLocal<HolderLookup.@Nullable Provider> REGISTRIES = new ThreadLocal<>();
     @SuppressWarnings("unused")
@@ -90,6 +93,9 @@ public final class StorageServerStub {
     @SuppressWarnings("NullableProblems") // IDEA issue, will be unnecessary in sometime
     private static final Multimap<UUID, StorageServerStub> STUBS = ArrayListMultimap.create();
 
+    private final Deque<Map<ItemResource, Integer>> undoRecords = new ArrayDeque<>();
+    private final Map<ItemResource, Integer> undoGroup = new HashMap<>();
+    private boolean undoingGroup;
     private final UUID storageId;
     private long version;
     private long orderVersion;
@@ -238,6 +244,8 @@ public final class StorageServerStub {
     public static DepositResult deposit(UUID playerId, long sourcePos, boolean all, boolean pour) {
         StorageView view = StorageServerStub.getView(StorageServerStub.getAndClear(), playerId, sourcePos);
         ServerPlayer player = StorageServerStub.getServerPlayer(playerId);
+        StorageServerStub stub = StorageServerStub.get(playerId, view.primary().getId());
+        Map<ItemResource, Integer> moved = new HashMap<>();
         boolean changed = false;
         for (int slot = Inventory.SELECTION_SIZE; slot < Inventory.INVENTORY_SIZE; slot++) {
             ItemStack stack = player.getInventory().getItem(slot);
@@ -252,9 +260,69 @@ public final class StorageServerStub {
                 int inserted = view.insert(ItemResource.of(stack), stack.getCount(), transaction);
                 if (inserted > 0) {
                     transaction.commit();
+                    moved.merge(ItemResource.of(stack), inserted, Integer::sum);
                     stack.shrink(inserted);
                     changed = true;
                 }
+            }
+        }
+        if (changed) {
+            StorageServerStub.recordUndo(stub, moved);
+            player.getInventory().setChanged();
+            player.inventoryMenu.broadcastChanges();
+        }
+        return new DepositResult(changed);
+    }
+
+    @RemoteCallable(validator = StorageAccessValidator.class)
+    public static boolean quickMoveToStorage(
+        UUID playerId, long sourcePos,
+        @CallableParam(clazz = StorageServerStub.class, field = "ORDER_STREAM_CODEC") IntList slots
+    ) {
+        if (slots.isEmpty() || slots.size() > StorageServerStub.MAX_SYNC_SLOTS) {
+            StorageServerStub.REGISTRIES.remove();
+            throw new IllegalArgumentException("Invalid quick move slots");
+        }
+        StorageView view = StorageServerStub.getView(StorageServerStub.getAndClear(), playerId, sourcePos);
+        ServerPlayer player = StorageServerStub.getServerPlayer(playerId);
+        StorageServerStub stub = StorageServerStub.get(playerId, view.primary().getId());
+        Map<ItemResource, Integer> moved = new HashMap<>();
+        IntOpenHashSet visited = new IntOpenHashSet(slots.size());
+        boolean changed = false;
+        for (int slot : slots) {
+            if (slot < 0 || slot >= Inventory.INVENTORY_SIZE || !visited.add(slot)) continue;
+            changed |= StorageServerStub.moveInventoryStackToStorage(player, view, slot, true, moved) > 0;
+        }
+        if (changed) {
+            StorageServerStub.recordUndo(stub, moved);
+            player.getInventory().setChanged();
+            player.inventoryMenu.broadcastChanges();
+        }
+        return changed;
+    }
+
+    @RemoteCallable(validator = StorageAccessValidator.class)
+    public static DepositResult undo(UUID playerId, long sourcePos) {
+        StorageView view = StorageServerStub.getView(StorageServerStub.getAndClear(), playerId, sourcePos);
+        ServerPlayer player = StorageServerStub.getServerPlayer(playerId);
+        var record = StorageServerStub.get(playerId, view.primary().getId()).undoRecords.pollFirst();
+        if (record == null) return new DepositResult(false);
+        var inventory = PlayerInventoryWrapper.of(player);
+        boolean changed = false;
+        for (var entry : record.entrySet()) {
+            ItemResource resource = entry.getKey();
+            int limit = Math.min(entry.getValue(), StorageServerStub.getInventorySpace(player.getInventory(), resource.toStack()));
+            if (limit <= 0) continue;
+            try (Transaction transaction = Transaction.openRoot()) {
+                int fit;
+                try (Transaction simulation = Transaction.open(transaction)) {
+                    fit = inventory.insert(resource, limit, simulation);
+                }
+                if (fit <= 0) continue;
+                int extracted = view.extractByResource(resource, fit, transaction);
+                if (extracted <= 0 || inventory.insert(resource, extracted, transaction) != extracted) continue;
+                transaction.commit();
+                changed = true;
             }
         }
         if (changed) {
@@ -262,6 +330,38 @@ public final class StorageServerStub {
             player.inventoryMenu.broadcastChanges();
         }
         return new DepositResult(changed);
+    }
+
+    @RemoteCallable(validator = StorageAccessValidator.class)
+    public static void beginUndoGroup(UUID playerId, long sourcePos) {
+        StorageView view = StorageServerStub.getView(StorageServerStub.getAndClear(), playerId, sourcePos);
+        StorageServerStub stub = StorageServerStub.get(playerId, view.primary().getId());
+        stub.undoGroup.clear();
+        stub.undoingGroup = true;
+    }
+
+    @RemoteCallable(validator = StorageAccessValidator.class)
+    public static void endUndoGroup(UUID playerId, long sourcePos) {
+        StorageView view = StorageServerStub.getView(StorageServerStub.getAndClear(), playerId, sourcePos);
+        StorageServerStub stub = StorageServerStub.get(playerId, view.primary().getId());
+        if (!stub.undoingGroup) return;
+        stub.undoingGroup = false;
+        StorageServerStub.pushUndo(stub, stub.undoGroup);
+        stub.undoGroup.clear();
+    }
+
+    private static void recordUndo(StorageServerStub stub, Map<ItemResource, Integer> moved) {
+        if (stub.undoingGroup) {
+            moved.forEach((resource, amount) -> stub.undoGroup.merge(resource, amount, Integer::sum));
+        } else {
+            StorageServerStub.pushUndo(stub, moved);
+        }
+    }
+
+    private static void pushUndo(StorageServerStub stub, Map<ItemResource, Integer> moved) {
+        if (moved.isEmpty()) return;
+        stub.undoRecords.addFirst(new HashMap<>(moved));
+        while (stub.undoRecords.size() > StorageServerStub.MAX_UNDO_RECORDS) stub.undoRecords.removeLast();
     }
 
     @RemoteCallable(validator = StorageAccessValidator.class)
@@ -314,32 +414,35 @@ public final class StorageServerStub {
         return false;
     }
 
-    private static boolean moveInventoryStackToStorage(
-        ServerPlayer player,
-        StorageView view,
-        int slot,
-        boolean pour
+    private static boolean moveInventoryStackToStorage(ServerPlayer player, StorageView view, int slot, boolean pour) {
+        return StorageServerStub.moveInventoryStackToStorage(player, view, slot, pour, null) > 0;
+    }
+
+    private static int moveInventoryStackToStorage(
+        ServerPlayer player, StorageView view, int slot, boolean pour, @Nullable Map<ItemResource, Integer> moved
     ) {
         Inventory inventory = player.getInventory();
         if (slot < 0 || slot >= Inventory.INVENTORY_SIZE) {
-            return false;
+            return 0;
         }
         ItemStack stack = inventory.getItem(slot);
         if (stack.isEmpty()) {
-            return false;
+            return 0;
         }
-        if (pour && StorageServerStub.pourIntoFluidPort(player, view, stack, stack.getCount()) > 0) {
+        int poured = pour ? StorageServerStub.pourIntoFluidPort(player, view, stack, stack.getCount()) : 0;
+        if (poured > 0) {
             if (stack.isEmpty()) inventory.setItem(slot, ItemStack.EMPTY);
-            return true;
+            return poured;
         }
         try (Transaction transaction = Transaction.openRoot()) {
             int inserted = view.insert(ItemResource.of(stack), stack.getCount(), transaction);
             if (inserted <= 0) {
-                return false;
+                return 0;
             }
             transaction.commit();
+            if (moved != null) moved.merge(ItemResource.of(stack), inserted, Integer::sum);
             stack.shrink(inserted);
-            return true;
+            return inserted;
         }
     }
 
@@ -1136,6 +1239,15 @@ public final class StorageServerStub {
                 if (items.getAmountAsLong(i) > 0 && items.getResource(i).equals(resource)) return true;
             }
             return false;
+        }
+
+        int extractByResource(ItemResource resource, int amount, Transaction transaction) {
+            int extracted = 0;
+            for (BaseStorage<?> storage : this.storages) {
+                extracted += storage.getItems().extract(resource, amount - extracted, transaction);
+                if (extracted == amount) break;
+            }
+            return extracted;
         }
 
         int extract(int index, ItemResource resource, int amount, Transaction tx) {

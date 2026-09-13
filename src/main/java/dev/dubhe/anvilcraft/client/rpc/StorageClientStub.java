@@ -98,6 +98,23 @@ public final class StorageClientStub {
         );
     }
 
+    public static CompletableFuture<StorageServerStub.DepositResult> undo(BlockPos sourcePos) {
+        return RPC.invoke(RpcTarget.server(), StorageServerStub::undo, StorageClientStub.playerId(), sourcePos.asLong());
+    }
+
+    public static CompletableFuture<Boolean> quickMoveToStorage(BlockPos sourcePos, IntList slots) {
+        return RPC.invoke(RpcTarget.server(), StorageServerStub::quickMoveToStorage,
+            StorageClientStub.playerId(), sourcePos.asLong(), slots);
+    }
+
+    public static void beginUndoGroup(BlockPos sourcePos) {
+        RPC.call(RpcTarget.server(), StorageServerStub::beginUndoGroup, StorageClientStub.playerId(), sourcePos.asLong());
+    }
+
+    public static void endUndoGroup(BlockPos sourcePos) {
+        RPC.call(RpcTarget.server(), StorageServerStub::endUndoGroup, StorageClientStub.playerId(), sourcePos.asLong());
+    }
+
     public static CompletableFuture<StorageServerStub.DepositResult> take(BlockPos sourcePos) {
         return RPC.invoke(
             RpcTarget.server(),

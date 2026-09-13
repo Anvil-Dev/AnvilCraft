@@ -167,9 +167,11 @@ public final class StorageFluidUiScene {
                 if (waterSlot() < 0 && order().size() == 1 && !pending()) {
                     AnvilCraft.LOGGER.info("PORT_STORAGE_FLUID_UI_PASSED: notices, cursor buckets, right click, folding, "
                         + "categories, search and held order");
-                    client.stop();
+                    if (Boolean.getBoolean("anvilcraft.portStorageUndoScene")) advance(21);
+                    else client.stop();
                 }
             }
+            case 21 -> StorageUndoUiScene.frame(client, screen, CORE);
             default -> throw new IllegalStateException("未知流体界面测试阶段");
         }
     }

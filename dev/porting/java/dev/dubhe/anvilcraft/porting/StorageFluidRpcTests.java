@@ -80,7 +80,7 @@ public final class StorageFluidRpcTests {
         )));
     }
 
-    private static final class Fixture implements AutoCloseable {
+    static final class Fixture implements AutoCloseable {
         private final GameTestHelper helper;
         private final UUID id = UUID.randomUUID();
         private final BlockPos core;
@@ -88,7 +88,7 @@ public final class StorageFluidRpcTests {
         private final ResourceHandler<ItemResource> items;
         private final List<BlockPos> ports = new ArrayList<>();
 
-        private Fixture(GameTestHelper helper) {
+        Fixture(GameTestHelper helper) {
             this.helper = helper;
             this.core = helper.absolutePos(CORE);
             final var block = ModBlocks.SHULKER_CONTAINER.get();
@@ -104,7 +104,7 @@ public final class StorageFluidRpcTests {
             this.player.setPos(this.core.getX() + 0.5, this.core.getY() + 1, this.core.getZ() + 0.5);
         }
 
-        private StorageFluidPortBlockEntity fluid(FluidResource resource, int amount) {
+        StorageFluidPortBlockEntity fluid(FluidResource resource, int amount) {
             BlockPos pos = this.core.west(2 + this.ports.size());
             this.helper.getLevel().setBlock(pos, ModBlocks.STORAGE_FLUID_PORT.getDefaultState(), Block.UPDATE_ALL);
             final var port = (StorageFluidPortBlockEntity) this.helper.getLevel().getBlockEntity(pos);
@@ -115,7 +115,7 @@ public final class StorageFluidRpcTests {
             return port;
         }
 
-        private void authorize() {
+        void authorize() {
             IPayloadContext context = (IPayloadContext) Proxy.newProxyInstance(IPayloadContext.class.getClassLoader(),
                 new Class<?>[]{IPayloadContext.class}, (proxy, method, args) -> {
                     if (method.getName().equals("player")) return this.player;
@@ -130,7 +130,7 @@ public final class StorageFluidRpcTests {
             }
         }
 
-        private UUID playerId() {
+        UUID playerId() {
             return this.player.getGameProfile().id();
         }
 
@@ -163,14 +163,14 @@ public final class StorageFluidRpcTests {
                 button, action, fluid);
         }
 
-        private void stock(ItemResource resource, int amount) {
+        void stock(ItemResource resource, int amount) {
             try (Transaction transaction = Transaction.openRoot()) {
                 this.helper.assertTrue(this.items.insert(resource, amount, transaction) == amount, "仓储测试存入必须足量");
                 transaction.commit();
             }
         }
 
-        private int count(ItemResource resource) {
+        int count(ItemResource resource) {
             int count = 0;
             for (int index = 0; index < this.items.size(); index++) {
                 if (this.items.getResource(index).equals(resource)) count += this.items.getAmountAsInt(index);
@@ -185,6 +185,19 @@ public final class StorageFluidRpcTests {
             PlayerSettings.get().getSettings().remove(this.playerId());
             this.playerLookup().remove(this.playerId(), this.player);
         }
+
+        ServerPlayer player() {
+            return this.player;
+        }
+
+        BlockPos core() {
+            return this.core;
+        }
+
+        ResourceHandler<ItemResource> items() {
+            return this.items;
+        }
+
     }
 
     private static FluidStack water() {

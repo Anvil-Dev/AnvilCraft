@@ -154,6 +154,9 @@ public class StorageScreen extends Screen {
     private int nextLogicalSlot;
     private final IntSet quickCraftSlots = new IntOpenHashSet();
     private boolean quickCrafting;
+    private boolean quickMoveDragging;
+    private final IntSet quickMoveSlots = new IntOpenHashSet();
+    private final IntSet pendingQuickMoveSlots = new IntOpenHashSet();
     private int quickCraftingButton;
     private int lastClickedInventorySlot = -1;
     private int pickupAllSlot = -1;
@@ -341,6 +344,7 @@ public class StorageScreen extends Screen {
     @Override
     public void tick() {
         super.tick();
+        this.flushQuickMoves();
         if (this.flyoutTimer < StorageScreen.FLYOUT_TOTAL_TICKS) this.flyoutTimer++;
         if (this.metadataCooldown > 0) {
             this.metadataCooldown--;
@@ -667,7 +671,13 @@ public class StorageScreen extends Screen {
             this.lastClickedInventorySlot = slot;
 
             if (event.hasShiftDown()) {
-                this.interactWithStorage(slot, event.button(), StorageInput.QUICK_MOVE_TO_STORAGE);
+                if (event.button() == 0 && this.carried.isEmpty()) {
+                    this.quickMoveDragging = true;
+                    StorageClientStub.beginUndoGroup(this.sourcePos);
+                    this.queueQuickMove(slot);
+                } else {
+                    this.interactWithStorage(slot, event.button(), StorageInput.QUICK_MOVE_TO_STORAGE);
+                }
                 return true;
             }
 
@@ -729,6 +739,10 @@ public class StorageScreen extends Screen {
 
     @Override
     public boolean mouseDragged(MouseButtonEvent event, double dragX, double dragY) {
+        if (this.quickMoveDragging) {
+            if (event.button() == 0 && event.hasShiftDown()) this.queueQuickMove(this.getInventorySlot(event.x(), event.y()));
+            return true;
+        }
         if (!this.quickCrafting || event.button() != this.quickCraftingButton || this.carried.isEmpty()) {
             return super.mouseDragged(event, dragX, dragY);
         }
@@ -752,6 +766,10 @@ public class StorageScreen extends Screen {
     @Override
     public boolean mouseReleased(MouseButtonEvent event) {
         super.mouseReleased(event);
+        if (this.quickMoveDragging) {
+            this.finishQuickMove();
+            return true;
+        }
         if (this.pickupAllSlot != -1) {
             if (event.button() == 0 && this.minecraft.gameMode != null) {
                 this.player.inventoryMenu.setCarried(this.carried);
@@ -793,6 +811,35 @@ public class StorageScreen extends Screen {
         this.quickCrafting = false;
         this.quickCraftSlots.clear();
         return true;
+    }
+
+    private void queueQuickMove(int slot) {
+        if (slot >= 0 && this.quickMoveSlots.add(slot)) this.pendingQuickMoveSlots.add(slot);
+    }
+
+    private void flushQuickMoves() {
+        if (this.pendingQuickMoveSlots.isEmpty()) return;
+        IntList slots = new IntArrayList(this.pendingQuickMoveSlots);
+        this.pendingQuickMoveSlots.clear();
+        StorageClientStub.quickMoveToStorage(this.sourcePos, slots).thenAcceptAsync(changed -> {
+            if (changed) this.refreshAfterQuickMove();
+        }, this.screenExecutor);
+    }
+
+    private void finishQuickMove() {
+        this.quickMoveDragging = false;
+        this.flushQuickMoves();
+        StorageClientStub.endUndoGroup(this.sourcePos);
+        this.quickMoveSlots.clear();
+    }
+
+    private void refreshAfterQuickMove() {
+        if (this.preservingOrder) {
+            this.interactionSyncPending = true;
+            this.syncPreservedOrder();
+        } else {
+            this.reorder(false);
+        }
     }
 
     private void quickCraftToSlots(int button) {
@@ -904,6 +951,12 @@ public class StorageScreen extends Screen {
             return true;
         }
 
+        if (event.hasControlDown() && event.key() == InputConstants.KEY_Z) {
+            StorageClientStub.undo(this.sourcePos).thenAcceptAsync(result -> {
+                if (result.changed()) this.refreshAfterQuickMove();
+            }, this.screenExecutor);
+            return true;
+        }
         InputConstants.Key key = InputConstants.getKey(event);
         if (super.keyPressed(event)) {
             return true;
@@ -1001,6 +1054,7 @@ public class StorageScreen extends Screen {
 
     @Override
     public void removed() {
+        if (this.quickMoveDragging && this.minecraft.player != null) this.finishQuickMove();
         this.reorderRequest++;
         this.syncRequest++;
         this.metadataPending = false;
