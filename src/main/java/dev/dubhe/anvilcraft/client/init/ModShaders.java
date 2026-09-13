@@ -38,6 +38,8 @@ public class ModShaders {
     @Getter
     static ShaderInstance scanPreviewShader;
     @Getter
+    static ShaderInstance scanPreviewItemShader;
+    @Getter
     static Matrix4f orthoMatrix = new Matrix4f();
 
     public static void register(RegisterShadersEvent event) {
@@ -97,6 +99,14 @@ public class ModShaders {
                     DefaultVertexFormat.POSITION
                 ),
                 it -> scanPreviewShader = it
+            );
+            event.registerShader(
+                new ShaderInstance(
+                    event.getResourceProvider(),
+                    AnvilCraft.of("scan_preview_item"),
+                    DefaultVertexFormat.NEW_ENTITY
+                ),
+                it -> scanPreviewItemShader = it
             );
         } catch (Exception e) {
             AnvilCraft.LOGGER.error("Shader loading has failed.", e);

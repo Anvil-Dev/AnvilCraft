@@ -32,6 +32,7 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Pattern;
@@ -132,6 +133,21 @@ public class StructureLoadUtil {
     public static void removeCachedStructureNbt(String fileName) {
         STRUCTURE_NBT_CACHE.remove(fileName);
         MISSING_STRUCTURE_FILES.remove(fileName);
+    }
+
+    /** 只读访问预览 NBT；未到达的数据沿用现有请求节流，调用方不可修改返回的标签。 */
+    public static Optional<CompoundTag> getStructureNbtForPreview(Level level, StructureDiskData data) {
+        if (data.file().isEmpty() || isStructureMissing(data.file())) return Optional.empty();
+        CompoundTag tag = STRUCTURE_NBT_CACHE.get(data.file());
+        if (tag != null) return Optional.of(tag);
+        requestStructureFile(level, data);
+        return Optional.empty();
+    }
+
+    public static void clearClientStructureCache() {
+        STRUCTURE_NBT_CACHE.clear();
+        MISSING_STRUCTURE_FILES.clear();
+        LAST_REQUEST_TIME.clear();
     }
 
     /** 纯服务器环境下客户端本地没有结构文件，向服务器发起请求（带冷却，避免每帧重复发包）。 */

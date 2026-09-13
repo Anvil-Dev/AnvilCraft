@@ -1,6 +1,8 @@
 package dev.dubhe.anvilcraft.item;
 
 import dev.dubhe.anvilcraft.api.item.IDiskCloneable;
+import dev.dubhe.anvilcraft.client.renderer.item.CustomRenderItemClientExtension;
+import dev.dubhe.anvilcraft.client.renderer.item.DiskItemRenderer;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.item.property.component.DiskData;
 import net.minecraft.ChatFormatting;
@@ -20,10 +22,14 @@ import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
 import net.neoforged.neoforge.event.level.BlockEvent;
 
 import java.util.List;
+import java.util.function.Consumer;
 
 public class DiskItem extends Item {
 
@@ -38,6 +44,13 @@ public class DiskItem extends Item {
 
     public DiskItem(Properties properties) {
         super(properties);
+    }
+
+    @Override
+    @OnlyIn(Dist.CLIENT)
+    @SuppressWarnings("removal")
+    public void initializeClient(Consumer<IClientItemExtensions> consumer) {
+        consumer.accept(CustomRenderItemClientExtension.of(DiskItemRenderer.getInstance()));
     }
 
     /**
@@ -118,6 +131,7 @@ public class DiskItem extends Item {
             );
             saveCompatibleGroups(tag, diskCloneable.getDiskCompatibleGroups());
             diskCloneable.storeDiskData(tag);
+            tag.putString("StoredBlock", BuiltInRegistries.BLOCK.getKey(level.getBlockState(clickedPos).getBlock()).toString());
             player.displayClientMessage(MESSAGE_STORED, true);
         }
         return InteractionResult.SUCCESS;
