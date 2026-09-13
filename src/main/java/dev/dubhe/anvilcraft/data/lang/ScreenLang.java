@@ -215,7 +215,6 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.tesla_tower.filter.is_baby_friendly", "Baby Friendly Entity Filter");
         provider.add("screen.anvilcraft.tesla_tower.filter.has_custom_name", "Custom Named Entity Filter");
 
-        provider.add("hud.anvilcraft.ionocraft_backpack_power", "Ionocraft Backpack Power Remaining: %d%%");
 
         provider.add("screen.anvilcraft.frost_metal_upgrade_smithing_template", "Frost Metal Upgrade");
         provider.add(

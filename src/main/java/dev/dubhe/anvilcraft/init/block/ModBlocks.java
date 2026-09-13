@@ -145,6 +145,7 @@ import dev.dubhe.anvilcraft.block.RoyalGrindstoneBlock;
 import dev.dubhe.anvilcraft.block.RoyalSmithingTableBlock;
 import dev.dubhe.anvilcraft.block.RubyLaserBlock;
 import dev.dubhe.anvilcraft.block.RubyPrismBlock;
+import dev.dubhe.anvilcraft.block.RuinsBlock;
 import dev.dubhe.anvilcraft.block.SiftingTableBlock;
 import dev.dubhe.anvilcraft.block.SimpleChuteBlock;
 import dev.dubhe.anvilcraft.block.SimpleConfinementAnvilonBlock;
@@ -232,6 +233,7 @@ import dev.dubhe.anvilcraft.block.item.PlaceInWaterBlockItem;
 import dev.dubhe.anvilcraft.block.item.RadiationBlockItem;
 import dev.dubhe.anvilcraft.block.item.RedstoneWireBlockItem;
 import dev.dubhe.anvilcraft.block.item.ResinBlockItem;
+import dev.dubhe.anvilcraft.block.item.RuinsBlockItem;
 import dev.dubhe.anvilcraft.block.item.ShulkerContainerBlockItem;
 import dev.dubhe.anvilcraft.block.item.SimpleMultiPartBlockItem;
 import dev.dubhe.anvilcraft.block.item.StorageFluidPortBlockItem;
@@ -3336,6 +3338,29 @@ public class ModBlocks {
         .blockstate(DataGenUtil::noExtraModelOrState)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .simpleItem()
+        .register();
+
+    public static final BlockEntry<RuinsBlock> RUINS_BLOCK = REGISTRUM.block("ruins_block", RuinsBlock::new)
+        .properties(properties -> properties.noOcclusion().dynamicShape()
+            .isValidSpawn(ModBlocks::never)
+            .isRedstoneConductor(ModBlocks::never)
+            .isSuffocating(ModBlocks::never)
+            .isViewBlocking(ModBlocks::never))
+        .blockstate((context, provider) -> provider.simpleBlock(context.get(),
+            provider.models().cubeAll("ruins_block", ResourceLocation.withDefaultNamespace("block/chiseled_stone_bricks"))))
+        .loot((tables, block) -> tables.add(block, LootTable.lootTable()))
+        .item(RuinsBlockItem::new)
+        .model((context, provider) -> provider.getBuilder(context.getName())
+            .parent(new ModelFile.UncheckedModelFile("minecraft:builtin/entity"))
+            .transforms()
+            .transform(ItemDisplayContext.GUI).rotation(30, 225, 0).scale(0.625f).end()
+            .transform(ItemDisplayContext.GROUND).translation(0, 3, 0).scale(0.25f).end()
+            .transform(ItemDisplayContext.FIXED).scale(0.5f).end()
+            .transform(ItemDisplayContext.THIRD_PERSON_RIGHT_HAND).rotation(75, 45, 0).translation(0, 2.5f, 0).scale(0.375f).end()
+            .transform(ItemDisplayContext.FIRST_PERSON_RIGHT_HAND).rotation(0, 45, 0).scale(0.4f).end()
+            .transform(ItemDisplayContext.FIRST_PERSON_LEFT_HAND).rotation(0, 225, 0).scale(0.4f).end()
+            .end())
+        .build()
         .register();
 
     public static final BlockEntry<WipBlock> WIP_BLOCK = REGISTRUM.block("wip_block", WipBlock::new)

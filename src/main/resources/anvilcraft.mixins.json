@@ -4,6 +4,7 @@
   "package": "dev.dubhe.anvilcraft.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
+      "accessor.RedStoneWireBlockAccessor",
       "AnvilBlockMixin",
       "AnvilMenuMixin",
       "AvoidEntityGoalMixin",
@@ -107,6 +108,10 @@
       "tsmm.SetBlockCommandMixin"
   ],
   "client": [
+      "RuinsRenderLevelMixin",
+      "RuinsParticleEngineMixin",
+      "RuinsCubeSelectionMixin",
+      "RuinsRenderFaceMixin",
       "AbstractContainerScreenMixin",
       "BlockStateBaseMixin",
     "ClientLevelMixin",

@@ -6,7 +6,7 @@ import dev.dubhe.anvilcraft.api.tooltip.HudTooltipManager;
 import dev.dubhe.anvilcraft.block.multipart.AbstractMultiPartBlock;
 import dev.dubhe.anvilcraft.client.hud.AnvilHammerUseHUD;
 import dev.dubhe.anvilcraft.client.hud.EnergyWeaponUseHUD;
-import dev.dubhe.anvilcraft.client.hud.IonocraftBackpackHUD;
+import dev.dubhe.anvilcraft.client.hud.PowerGridHUD;
 import dev.dubhe.anvilcraft.client.hud.TradingStationHUD;
 import dev.dubhe.anvilcraft.client.support.OverworldLikeCollapseOverlay;
 import dev.dubhe.anvilcraft.item.AnvilHammerItem;
@@ -22,10 +22,12 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
+import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
 
 public class GuiLayerRegistrationEventListener {
 
     public static void onRegister(RegisterGuiLayersEvent event) {
+        event.registerAbove(VanillaGuiLayers.EXPERIENCE_BAR, AnvilCraft.of("power_grid_indicator"), PowerGridHUD::render);
         event.registerAboveAll(AnvilCraft.of("overworld_like_collapse"), (guiGraphics, deltaTracker) ->
             OverworldLikeCollapseOverlay.render(guiGraphics));
         event.registerAboveAll(AnvilCraft.of("power"), (guiGraphics, deltaTracker) -> {
@@ -78,7 +80,6 @@ public class GuiLayerRegistrationEventListener {
         event.registerAboveAll(AnvilCraft.of("test"), GuiLayerRegistrationEventListener::render);
         event.registerAboveAll(AnvilCraft.of("anvil_hammer_use"), AnvilHammerUseHUD::render);
         event.registerAboveAll(AnvilCraft.of("energy_weapon_use"), EnergyWeaponUseHUD::render);
-        event.registerAboveAll(AnvilCraft.of("ionocraft_backpack"), IonocraftBackpackHUD::render);
         event.registerAboveAll(AnvilCraft.of("trading_station"), TradingStationHUD::render);
         // 注意：结构磁盘预览不在这里注册，因为它需要在Screen的tooltip之后渲染
         // 改用Screen的事件监听器来实现

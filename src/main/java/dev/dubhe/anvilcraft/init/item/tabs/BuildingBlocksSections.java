@@ -221,6 +221,7 @@ public class BuildingBlocksSections extends DisplayItemsGenerator {
                 content.accept(ModBlocks.CROSS_MARK);
                 content.accept(ModBlocks.EXCLAMATION_MARK);
                 content.accept(ModBlocks.QUESTION_MARK);
+                content.accept(ModBlocks.RUINS_BLOCK);
                 content.accept(ModBlocks.MONOLITH_CORE);
                 content.accept(ModBlocks.MONOLITH_LINE);
                 content.accept(ModBlocks.GIANT_MONOLITH_CORE);

@@ -129,7 +129,9 @@ public class GiantMonolithCoreBlock extends SimpleMultiPartBlock<Cube3x3PartHalf
             return InteractionResult.CONSUME;
         }
         List<RecipeHolder<SpecialCelestialBodyRecipe>> recipes = serverLevel.getRecipeManager()
-            .getAllRecipesFor(ModRecipeTypes.SPECIAL_CELESTIAL_BODY_TYPE.get());
+            .getAllRecipesFor(ModRecipeTypes.SPECIAL_CELESTIAL_BODY_TYPE.get()).stream()
+            .filter(holder -> !holder.value().excludeFromMonolith())
+            .toList();
         if (recipes.isEmpty()) return InteractionResult.FAIL;
         SpecialCelestialBodyRecipe recipe = recipes.get(level.random.nextInt(recipes.size())).value();
         ItemStack book = createKnowledgeBook(recipe, serverLevel.getSeed());

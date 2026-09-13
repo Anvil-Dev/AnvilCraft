@@ -111,15 +111,13 @@ void main() {
         solar = modelSun(sunRay, 0.0);
     }
     vec3 solarLight = solarTransmission(solarAltitude);
-    vec3 halo = nearSun && solar.a == 0.0 ? solarHalo(sunRay, solarAltitude, haloRadius) * solarLight : vec3(0.0);
-    // 月球仍遮挡太阳和背景星点，大气底色始终位于日月前方。
+    // 月球遮挡太阳、太阳光晕和背景星点，大气底色始终位于日月前方。
     if (moonSurface) {
         vec3 reflected = vec3(1.0) - exp(-light);
-        // 太阳光晕来自前景大气，也要覆盖月球暗面，避免光晕内出现方形缺口。
-        reflected += halo * (vec3(1.0) - reflected);
         fragColor = vec4(sky + (vec3(1.0) - sky) * reflected, 1.0) * Visibility;
         return;
     }
+    vec3 halo = nearSun && solar.a == 0.0 ? solarHalo(sunRay, solarAltitude, haloRadius) * solarLight : vec3(0.0);
     if (solar.a > 0.0) {
         vec3 emission = (vec3(1.0) - exp(-solar.rgb * 4.0)) * solarLight;
         fragColor = vec4(sky + (vec3(1.0) - sky) * emission, 1.0) * Visibility;

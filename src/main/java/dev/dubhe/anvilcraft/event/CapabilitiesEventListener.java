@@ -21,7 +21,6 @@ import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.entity.ModEntities;
 import dev.dubhe.anvilcraft.init.item.ModItems;
-import dev.dubhe.anvilcraft.item.IonocraftBackpackItem;
 import dev.dubhe.anvilcraft.item.weapon.AnvilRailgunItem;
 import dev.dubhe.anvilcraft.item.weapon.CorruptedBeaconActivatorItem;
 import dev.dubhe.anvilcraft.item.weapon.LaserGunItem;
@@ -285,12 +284,6 @@ public class CapabilitiesEventListener {
             ModItems.ENERGY_WEAPON_PLATFORM.get()
         );
 
-        // 飘升机背包 FE capability
-        event.registerItem(
-            Capabilities.EnergyStorage.ITEM,
-            (stack, ctx) -> new ItemFEStorage(stack, IonocraftBackpackItem.MAX_ENERGY),
-            ModItems.IONOCRAFT_BACKPACK.get()
-        );
     }
 
     /// 存储容器方块实体的物品能力：直接暴露全局存储中的无限物品处理器

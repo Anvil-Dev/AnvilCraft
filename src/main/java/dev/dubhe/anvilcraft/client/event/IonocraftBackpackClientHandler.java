@@ -2,8 +2,10 @@ package dev.dubhe.anvilcraft.client.event;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.client.AnvilCraftClient;
+import dev.dubhe.anvilcraft.init.ModDataAttachments;
 import dev.dubhe.anvilcraft.init.ModParticles;
 import dev.dubhe.anvilcraft.item.IonocraftBackpackItem;
+import dev.dubhe.anvilcraft.network.IonocraftBackpackToggleDescentPacket;
 import net.minecraft.client.CameraType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -15,17 +17,24 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
+import net.neoforged.neoforge.client.event.MovementInputUpdateEvent;
+import net.neoforged.neoforge.network.PacketDistributor;
 
 import java.util.Collections;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import javax.annotation.Nullable;
 
 /**
- * 飘升机背包客户端处理器 — 负责飞行时的排气粒子效果。
+ * 飘升机背包客户端处理器 — 负责缓降切换和飞行时的排气粒子效果。
  * 粒子位置跟随玩家身体模型（yBodyRot）旋转，与背包引擎模型实际位置一致。
  */
 @EventBusSubscriber(modid = AnvilCraft.MOD_ID, value = Dist.CLIENT)
 public class IonocraftBackpackClientHandler {
+    private static @Nullable Player inputPlayer;
+    private static boolean jumpWasDown;
+    private static int lastJumpTick = -1;
+
     private static final double SIDE_OFFSET = 0.3;
     private static final double BACK_OFFSET = 0.45;
     private static final double Y_OFFSET = 1.1;
@@ -45,9 +54,40 @@ public class IonocraftBackpackClientHandler {
     }
 
     @SubscribeEvent
+    public static void onMovementInput(MovementInputUpdateEvent event) {
+        Player player = event.getEntity();
+        boolean jumpDown = event.getInput().jumping;
+        if (inputPlayer != player) {
+            inputPlayer = player;
+            jumpWasDown = jumpDown;
+            lastJumpTick = -1;
+        }
+        boolean pressed = jumpDown && !jumpWasDown;
+        jumpWasDown = jumpDown;
+        if (Minecraft.getInstance().screen != null || player.onGround() || !player.isAlive()
+            || player.getData(ModDataAttachments.IN_POWER_GRID) || player.isCreative() || player.isSpectator()
+            || !player.getData(ModDataAttachments.IONOCRAFT_DESCENT_AVAILABLE)) {
+            lastJumpTick = -1;
+            return;
+        }
+        if (!pressed) return;
+        if (lastJumpTick >= 0 && player.tickCount - lastJumpTick < 7) {
+            lastJumpTick = -1;
+            PacketDistributor.sendToServer(new IonocraftBackpackToggleDescentPacket());
+        } else {
+            lastJumpTick = player.tickCount;
+        }
+    }
+
+    @SubscribeEvent
     public static void onClientTick(ClientTickEvent.Post event) {
         Minecraft minecraft = Minecraft.getInstance();
-        if (minecraft.level == null) return;
+        if (minecraft.level == null) {
+            inputPlayer = null;
+            lastJumpTick = -1;
+            jumpWasDown = false;
+            return;
+        }
         if (minecraft.isPaused()) return;
         if (!AnvilCraftClient.CONFIG.ionocraftBackpackExhaustParticlesEnabled) return;
 

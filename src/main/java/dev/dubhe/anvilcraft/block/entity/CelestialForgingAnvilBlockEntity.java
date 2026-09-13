@@ -774,6 +774,10 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
                 }
             }
         }
+        this.tickRuinsVisuals();
+    }
+
+    public void tickRuinsVisuals() {
         if (this.rotation >= 360.0f) this.rotation -= 360.0f;
         this.preRotation = this.rotation;
         float rotationSpeed = 3.0f / (1.0f + this.getRedstoneSignal() * 0.4f);

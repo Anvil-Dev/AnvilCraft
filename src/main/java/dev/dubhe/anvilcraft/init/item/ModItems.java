@@ -521,19 +521,15 @@ public class ModItems {
     public static final ItemEntry<? extends IonocraftBackpackItem> IONOCRAFT_BACKPACK = REGISTRUM
         .item("ionocraft_backpack", IonocraftBackpackItem::new)
         .properties(properties -> properties.durability(ArmorItem.Type.CHESTPLATE.getDurability(15)))
-        .model((ctx, prov) -> {
-            prov.getBuilder(prov.name(ctx.lazy()))
+        .model((ctx, prov) -> prov.getBuilder(prov.name(ctx.lazy()))
+            .parent(new ModelFile.UncheckedModelFile("item/generated"))
+            .texture("layer0", "item/ionocraft_backpack_off")
+            .override()
+            .predicate(AnvilCraft.of("in_power_grid"), 1)
+            .model(prov.getBuilder("item/ionocraft_backpack_on")
                 .parent(new ModelFile.UncheckedModelFile("item/generated"))
-                .texture("layer0", "item/ionocraft_backpack_off")
-                .override()
-                .predicate(AnvilCraft.of("flight_time"), 1)
-                .model(new ModelFile.UncheckedModelFile(
-                    prov.getBuilder("item/ionocraft_backpack_on")
-                        .parent(new ModelFile.UncheckedModelFile("item/generated"))
-                        .texture("layer0", "item/ionocraft_backpack")
-                        .getUncheckedLocation()))
-                .end();
-        })
+                .texture("layer0", "item/ionocraft_backpack"))
+            .end())
         .tag(ItemTags.CHEST_ARMOR_ENCHANTABLE, ItemTags.DURABILITY_ENCHANTABLE)
         .recipe(RegistrumItemRecipeLoader::ionocraftBackpack)
         .register();

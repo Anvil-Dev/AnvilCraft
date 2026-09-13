@@ -36,7 +36,7 @@ public final class LaserHitRecipeLoader {
             Blocks.NETHERRACK, false, -70);
         tiers(output, "lens_targets", BlockStatePredicate.builder()
                 .of(ModBlocks.VOID_STONE.get(), ModBlocks.EARTH_CORE_SHARD_ORE.get()).build(),
-            Blocks.STONE, true, -60);
+            Blocks.DEEPSLATE, true, -60);
     }
 
     private static void heating(RecipeOutput output, String material, TagKey<Block> normal, List<Block> heated) {

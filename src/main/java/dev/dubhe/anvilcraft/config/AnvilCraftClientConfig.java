@@ -134,33 +134,6 @@ public class AnvilCraftClientConfig {
     @BoundedDiscrete(min = 0.0, max = 1.0)
     public double multiPartPreviewOutlineOpacity = 0.5;
 
-    @SerializedName("Ionocraft Backpack HUD")
-    @CollapsibleObject
-    public IonocraftBackpackHud ionocraftBackpackHud = new IonocraftBackpackHud();
-
-    public static class IonocraftBackpackHud {
-        @SerializedName("Enabled")
-        @Comment("If true, will show Ionocraft Backpack current power in hud")
-        public boolean enabled = true;
-
-        @SerializedName("Capacitor Count Enabled")
-        @Comment("If true, will show charged capacitor counts in hud")
-        public boolean capacitorCountEnabled = true;
-
-        @SerializedName("HUD Scale")
-        @Comment("The Gui Hud Scale")
-        @BoundedDiscrete(min = 0, max = 8)
-        public float hudScale = 0.75f;
-
-        @SerializedName("HUD X Position")
-        @Comment("The gui hud x position")
-        public int hudX = 8;
-
-        @SerializedName("HUD Y Position")
-        @Comment("The gui hud y position")
-        public int hudY = 8;
-    }
-
     public enum CelestialRenderingMode implements TranslatableEnum {
         @SerializedName("Vanilla")
         VANILLA,

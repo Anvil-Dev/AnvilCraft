@@ -69,7 +69,7 @@ public class ToolsAndUtilities extends DisplayItemsGenerator {
         this.plain(ModItems.TESLA_GUN);
         this.plain(ModItems.LASER_GUN);
         this.plain(ModItems.IONOCRAFT);
-        this.ionoCraftBackpack(ModItems.IONOCRAFT_BACKPACK);
+        this.plain(ModItems.IONOCRAFT_BACKPACK);
 
         // Storage terminals.
         this.plain(ModItems.LOCAL_TERMINAL); // 本地终端

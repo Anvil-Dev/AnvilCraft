@@ -1,18 +1,13 @@
 package dev.dubhe.anvilcraft.item;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.api.item.ICapacitorChargeable;
 import dev.dubhe.anvilcraft.api.power.DynamicPowerComponent;
 import dev.dubhe.anvilcraft.api.power.IDynamicPowerComponentHolder;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
-import dev.dubhe.anvilcraft.init.item.ModComponents;
-import dev.dubhe.anvilcraft.init.item.ModItemProperties;
+import dev.dubhe.anvilcraft.init.ModDataAttachments;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.network.IonocraftBackpackFlyingPacket;
-import net.minecraft.ChatFormatting;
-import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.core.Holder;
-import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
@@ -22,36 +17,29 @@ import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.ArmorMaterial;
 import net.minecraft.world.item.ArmorMaterials;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.block.DispenserBlock;
-import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
 import net.neoforged.neoforge.common.NeoForgeMod;
 import net.neoforged.neoforge.network.PacketDistributor;
-import org.jetbrains.annotations.Nullable;
 
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Consumer;
+import java.util.WeakHashMap;
 import java.util.function.Function;
+import javax.annotation.Nullable;
 
-public class IonocraftBackpackItem extends ArmorItem implements ICapacitorChargeable, IInventoryCarriedAware {
-    public static final int MAX_ENERGY = 16_000_000;
-    public static final int FLIGHT_CONSUMPTION = 5000;
-
-    public static final DynamicPowerComponent.PowerConsumption CONSUMPTION_64 = new DynamicPowerComponent.PowerConsumption(64);
-    public static final DynamicPowerComponent.PowerConsumption CONSUMPTION_128 = new DynamicPowerComponent.PowerConsumption(128);
-    public static final DynamicPowerComponent.PowerConsumption CONSUMPTION_256 = new DynamicPowerComponent.PowerConsumption(256);
-    public static final DynamicPowerComponent.PowerConsumption CONSUMPTION_512 = new DynamicPowerComponent.PowerConsumption(512);
+public class IonocraftBackpackItem extends ArmorItem implements IInventoryCarriedAware {
+    public static final DynamicPowerComponent.PowerConsumption FLIGHT_POWER = new DynamicPowerComponent.PowerConsumption(8);
+    private static final ResourceLocation SLOW_FALLING_ID = AnvilCraft.of("ionocraft_backpack_slow_falling");
+    private static final AttributeModifier SLOW_FALLING = new AttributeModifier(
+        SLOW_FALLING_ID, -0.875, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL
+    );
 
     public static final ResourceLocation TEXTURE = AnvilCraft.of("textures/entity/equipment/ionocraft_backpack.png");
     public static final ResourceLocation TEXTURE_OFF = AnvilCraft.of("textures/entity/equipment/ionocraft_backpack_off.png");
@@ -65,14 +53,10 @@ public class IonocraftBackpackItem extends ArmorItem implements ICapacitorCharge
 
     private static final Set<Function<Player, ItemStack>> STACK_PROVIDERS = new HashSet<>();
     /** 追踪玩家背包飞行状态，用于在状态变化时同步到其他客户端 */
-    private static final Map<UUID, Boolean> FLYING_TRACKER = new HashMap<>();
+    private static final Map<ServerPlayer, Boolean> FLYING_TRACKER = new WeakHashMap<>();
 
     public IonocraftBackpackItem(Properties properties) {
-        super(
-            ArmorMaterials.IRON,
-            Type.CHESTPLATE,
-            properties.component(ModComponents.STORED_ENERGY, 0)
-        );
+        super(ArmorMaterials.IRON, Type.CHESTPLATE, properties);
         DispenserBlock.registerBehavior(this, ArmorItem.DISPENSE_ITEM_BEHAVIOR);
         addStackProvider(player -> player.getItemBySlot(EquipmentSlot.CHEST));
     }
@@ -93,16 +77,6 @@ public class IonocraftBackpackItem extends ArmorItem implements ICapacitorCharge
     }
 
     @Override
-    @SuppressWarnings({"removal"})
-    public void initializeClient(Consumer<IClientItemExtensions> consumer) {
-        ItemProperties.register(
-            this,
-            AnvilCraft.of("flight_time"),
-            ModItemProperties.FLIGHT_TIME
-        );
-    }
-
-    @Override
     public Holder<SoundEvent> getEquipSound() {
         return SoundEvents.ARMOR_EQUIP_IRON;
     }
@@ -120,53 +94,25 @@ public class IonocraftBackpackItem extends ArmorItem implements ICapacitorCharge
     @Override
     public @Nullable ResourceLocation getArmorTexture(
         ItemStack stack, Entity entity, EquipmentSlot slot, ArmorMaterial.Layer layer, boolean innerModel) {
-        if (getFlightTime(stack) > 0) {
-            return TEXTURE;
+        return entity instanceof LivingEntity living && hasGridFlight(living) ? TEXTURE : TEXTURE_OFF;
+    }
+
+    public static boolean hasGridFlight(LivingEntity entity) {
+        AttributeInstance instance = entity.getAttribute(NeoForgeMod.CREATIVE_FLIGHT);
+        return instance != null && instance.hasModifier(CREATIVE_FLIGHT_ID);
+    }
+
+    public static boolean isSlowFalling(Player player) {
+        AttributeInstance gravity = player.getAttribute(Attributes.GRAVITY);
+        return gravity != null && gravity.hasModifier(SLOW_FALLING_ID);
+    }
+
+    public static void applySlowFalling(Player player) {
+        if (!isSlowFalling(player) || player.onGround() || player.isCreative() || player.isSpectator()) return;
+        player.fallDistance = 0;
+        if (player.getDeltaMovement().y < -0.5) {
+            player.setDeltaMovement(player.getDeltaMovement().multiply(1, 0, 1).add(0, -0.5, 0));
         }
-        return TEXTURE_OFF;
-    }
-
-    @Override
-    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltipComponents, TooltipFlag tooltipFlag) {
-        super.appendHoverText(stack, context, tooltipComponents, tooltipFlag);
-        int energy = getEnergyStored(stack);
-        int totalSeconds = energy / FLIGHT_CONSUMPTION / 20;
-        int minutes = totalSeconds / 60;
-        int seconds = totalSeconds % 60;
-        tooltipComponents.add(Component.translatable(
-            "item.anvilcraft.ionocraft_backpack.flight_time",
-            Component.literal(String.valueOf(minutes)).withStyle(ChatFormatting.GOLD),
-            Component.literal(String.valueOf(seconds)).withStyle(ChatFormatting.GOLD)
-        ).withStyle(ChatFormatting.GRAY));
-    }
-
-    public static int getEnergyStored(ItemStack stack) {
-        return Math.min(stack.getOrDefault(ModComponents.STORED_ENERGY, 0), MAX_ENERGY);
-    }
-
-    /**
-     * 将旧存档中超出当前容量上限的电力写回钳制到最大值，防止电力溢出。
-     */
-    public static void preventEnergyOverflow(ItemStack stack) {
-        int energy = stack.getOrDefault(ModComponents.STORED_ENERGY, 0);
-        if (energy > MAX_ENERGY) {
-            stack.set(ModComponents.STORED_ENERGY, MAX_ENERGY);
-        }
-    }
-
-    public static void addEnergy(ItemStack stack, int amount) {
-        int current = getEnergyStored(stack);
-        stack.set(ModComponents.STORED_ENERGY, Math.clamp(current + amount, 0, MAX_ENERGY));
-    }
-
-    public static int getFlightTime(ItemStack stack) {
-        return getEnergyStored(stack) / FLIGHT_CONSUMPTION;
-    }
-
-    public static boolean canModify(ItemStack stack, DynamicPowerComponent component) {
-        return stack.is(ModItems.IONOCRAFT_BACKPACK)
-            && component.getPowerGrid() != null
-            && component.getPowerGrid().isWorking();
     }
 
     public static void addStackProvider(Function<Player, ItemStack> provider) {
@@ -184,86 +130,74 @@ public class IonocraftBackpackItem extends ArmorItem implements ICapacitorCharge
     }
 
     public static void refreshPower(ServerPlayer player) {
-        IDynamicPowerComponentHolder holder = IDynamicPowerComponentHolder.of(player);
-
-        AttributeInstance instance = player.getAttributes().getInstance(NeoForgeMod.CREATIVE_FLIGHT);
-        if (instance == null) return;
-
-        DynamicPowerComponent powerComponent = holder.anvilcraft$getPowerComponent();
-        ItemStack equipped = getByPlayer(player);
-        if (equipped.isEmpty()) {
-            powerComponent.getPowerConsumptions().remove(CONSUMPTION_64);
-            powerComponent.getPowerConsumptions().remove(CONSUMPTION_128);
-            powerComponent.getPowerConsumptions().remove(CONSUMPTION_256);
-            powerComponent.getPowerConsumptions().remove(CONSUMPTION_512);
-            if (instance.hasModifier(CREATIVE_FLIGHT_ID)) {
-                instance.removeModifier(CREATIVE_FLIGHT);
-            }
-            return;
-        } else if (getEnergyStored(equipped) >= MAX_ENERGY && !player.getAbilities().flying) {
-            powerComponent.getPowerConsumptions().remove(CONSUMPTION_64);
-            powerComponent.getPowerConsumptions().remove(CONSUMPTION_128);
-            powerComponent.getPowerConsumptions().remove(CONSUMPTION_256);
-            powerComponent.getPowerConsumptions().remove(CONSUMPTION_512);
-            return;
-        }
-
-        if (powerComponent.getPowerGrid() == null) return;
-
-        PowerGrid powerGrid = powerComponent.getPowerGrid();
-        if (powerGrid.isWorking()) {
-            boolean hasConsumption = powerComponent.getPowerConsumptions().contains(CONSUMPTION_64)
-                                  || powerComponent.getPowerConsumptions().contains(CONSUMPTION_128)
-                                  || powerComponent.getPowerConsumptions().contains(CONSUMPTION_256)
-                                  || powerComponent.getPowerConsumptions().contains(CONSUMPTION_512);
-
-            if (!hasConsumption) {
-                AtomicInteger playerCount = new AtomicInteger(0);
-                powerGrid.getDynamicComponents().forEach(component -> {
-                    if (component.getOwner() instanceof ServerPlayer) {
-                        playerCount.incrementAndGet();
-                    }
-                });
-                int count = playerCount.get();
-                if (count == 0) return;
-                int remaining = powerGrid.getRemaining() / count;
-                if (remaining >= 512) {
-                    powerComponent.getPowerConsumptions().add(CONSUMPTION_512);
-                } else if (remaining >= 256) {
-                    powerComponent.getPowerConsumptions().add(CONSUMPTION_256);
-                } else if (remaining >= 128) {
-                    powerComponent.getPowerConsumptions().add(CONSUMPTION_128);
-                } else if (remaining >= 64) {
-                    powerComponent.getPowerConsumptions().add(CONSUMPTION_64);
-                }
-            }
+        DynamicPowerComponent component = IDynamicPowerComponentHolder.of(player).anvilcraft$getPowerComponent();
+        if (!getByPlayer(player).isEmpty() && player.isAlive() && !player.isCreative() && !player.isSpectator()
+            && component.getPowerGrid() != null) {
+            component.getPowerConsumptions().add(FLIGHT_POWER);
         } else {
-            powerComponent.getPowerConsumptions().remove(CONSUMPTION_64);
-            powerComponent.getPowerConsumptions().remove(CONSUMPTION_128);
-            powerComponent.getPowerConsumptions().remove(CONSUMPTION_256);
-            powerComponent.getPowerConsumptions().remove(CONSUMPTION_512);
+            component.getPowerConsumptions().remove(FLIGHT_POWER);
         }
     }
 
     public static void refreshFlight(ServerPlayer player) {
-        ItemStack equipped = getByPlayer(player);
-        AttributeInstance instance = player.getAttributes().getInstance(NeoForgeMod.CREATIVE_FLIGHT);
-        if (instance == null) return;
-        int energy = getEnergyStored(equipped);
-        if (energy > 0) {
-            if (!instance.hasModifier(CREATIVE_FLIGHT_ID)) {
-                instance.addTransientModifier(CREATIVE_FLIGHT);
+        AttributeInstance flight = player.getAttribute(NeoForgeMod.CREATIVE_FLIGHT);
+        AttributeInstance gravity = player.getAttribute(Attributes.GRAVITY);
+        if (flight == null || gravity == null) return;
+
+        boolean equipped = !getByPlayer(player).isEmpty() && player.isAlive() && !player.isCreative() && !player.isSpectator();
+        DynamicPowerComponent component = IDynamicPowerComponentHolder.of(player).anvilcraft$getPowerComponent();
+        PowerGrid grid = component.getPowerGrid();
+        boolean powered = equipped && grid != null && grid.isWorking() && grid.getGenerate() >= FLIGHT_POWER.amount()
+            && component.getPowerConsumptions().contains(FLIGHT_POWER);
+        boolean hadFlight = flight.hasModifier(CREATIVE_FLIGHT_ID);
+        boolean wasFalling = gravity.hasModifier(SLOW_FALLING_ID);
+        boolean hadDescent = player.getData(ModDataAttachments.IONOCRAFT_DESCENT_AVAILABLE);
+        boolean startDescent = hadFlight && player.getAbilities().flying && grid == null;
+        boolean descentAvailable = equipped && !player.onGround() && grid == null && (hadDescent || startDescent);
+        if (hadDescent != descentAvailable) {
+            player.setData(ModDataAttachments.IONOCRAFT_DESCENT_AVAILABLE, descentAvailable);
+        }
+        boolean falling = descentAvailable && (startDescent || wasFalling);
+
+        if (powered && !hadFlight) {
+            flight.addTransientModifier(CREATIVE_FLIGHT);
+        } else if (!powered && hadFlight) {
+            flight.removeModifier(CREATIVE_FLIGHT_ID);
+        }
+        if (falling && !wasFalling) {
+            gravity.addTransientModifier(SLOW_FALLING);
+        } else if (!falling && wasFalling) {
+            gravity.removeModifier(SLOW_FALLING_ID);
+        }
+
+        // 触地优先结束本次缓降，避免同一刻重新入网时自动起飞。
+        boolean resumeFlight = powered && hadDescent && !player.onGround();
+        if ((hadFlight || powered || hadDescent) && !player.isCreative() && !player.isSpectator()) {
+            boolean mayFly = flight.getValue() > 0;
+            boolean flying = mayFly && (player.getAbilities().flying || resumeFlight);
+            if (player.getAbilities().mayfly != mayFly || player.getAbilities().flying != flying) {
+                player.getAbilities().mayfly = mayFly;
+                player.getAbilities().flying = flying;
+                player.onUpdateAbilities();
             }
+        }
+        applySlowFalling(player);
+    }
+
+    public static void toggleSlowFalling(ServerPlayer player) {
+        refreshFlight(player);
+        if (!player.getData(ModDataAttachments.IONOCRAFT_DESCENT_AVAILABLE)) return;
+        AttributeInstance gravity = player.getAttribute(Attributes.GRAVITY);
+        if (gravity == null) return;
+        if (gravity.hasModifier(SLOW_FALLING_ID)) {
+            gravity.removeModifier(SLOW_FALLING_ID);
         } else {
-            if (instance.hasModifier(CREATIVE_FLIGHT_ID)) {
-                instance.removeModifier(CREATIVE_FLIGHT);
-            }
+            gravity.addTransientModifier(SLOW_FALLING);
+            applySlowFalling(player);
         }
     }
 
     public static void playerTick(ServerPlayer player) {
-        ItemStack equipped = getByPlayer(player);
-        preventEnergyOverflow(equipped);
         refreshPower(player);
         refreshFlight(player);
 
@@ -274,26 +208,18 @@ public class IonocraftBackpackItem extends ArmorItem implements ICapacitorCharge
             && !player.isSpectator();
 
         // 飞行状态变化时同步到周边客户端
-        Boolean prevFlying = FLYING_TRACKER.put(player.getUUID(), nowFlying);
+        Boolean prevFlying = FLYING_TRACKER.put(player, nowFlying);
         if (prevFlying == null || prevFlying != nowFlying) {
             PacketDistributor.sendToPlayersTrackingEntity(
                 player,
                 new IonocraftBackpackFlyingPacket(player.getId(), nowFlying)
             );
         }
-
-        if (backpack.isEmpty()) return;
-
-        if (player.getAbilities().flying && !player.isCreative() && !player.isSpectator()) {
-            addEnergy(backpack, -FLIGHT_CONSUMPTION);
-        }
     }
 
     @Override
     public void onCarriedUpdate(ItemStack itemStack, ServerPlayer serverPlayer) {
-        AttributeInstance instance = serverPlayer.getAttributes().getInstance(NeoForgeMod.CREATIVE_FLIGHT);
-        if (instance != null && instance.hasModifier(CREATIVE_FLIGHT_ID)) {
-            instance.removeModifier(CREATIVE_FLIGHT);
-        }
+        refreshPower(serverPlayer);
+        refreshFlight(serverPlayer);
     }
 }

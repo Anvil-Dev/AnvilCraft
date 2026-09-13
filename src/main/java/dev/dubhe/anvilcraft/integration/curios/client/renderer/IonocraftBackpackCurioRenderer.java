@@ -17,7 +17,7 @@ import top.theillusivec4.curios.api.client.ICurioRenderer;
 
 import static dev.dubhe.anvilcraft.item.IonocraftBackpackItem.TEXTURE;
 import static dev.dubhe.anvilcraft.item.IonocraftBackpackItem.TEXTURE_OFF;
-import static dev.dubhe.anvilcraft.item.IonocraftBackpackItem.getFlightTime;
+import static dev.dubhe.anvilcraft.item.IonocraftBackpackItem.hasGridFlight;
 
 public class IonocraftBackpackCurioRenderer implements ICurioRenderer {
     @Override
@@ -39,7 +39,7 @@ public class IonocraftBackpackCurioRenderer implements ICurioRenderer {
         ICurioRenderer.translateIfSneaking(matrixStack, slotContext.entity());
         IonocraftBackpackModel model = ModModelLayers.getIonocraftBackpackModel();
         ICurioRenderer.followBodyRotations(slotContext.entity(), model);
-        VertexConsumer buffer = renderTypeBuffer.getBuffer(RenderType.entityCutoutNoCull(texture(stack)));
+        VertexConsumer buffer = renderTypeBuffer.getBuffer(RenderType.entityCutoutNoCull(texture(slotContext.entity())));
         model.renderToBuffer(
             matrixStack,
             buffer,
@@ -49,8 +49,8 @@ public class IonocraftBackpackCurioRenderer implements ICurioRenderer {
         matrixStack.popPose();
     }
 
-    private ResourceLocation texture(ItemStack itemStack) {
-        if (getFlightTime(itemStack) > 0) {
+    private ResourceLocation texture(LivingEntity entity) {
+        if (hasGridFlight(entity)) {
             return TEXTURE;
         }
         return TEXTURE_OFF;
