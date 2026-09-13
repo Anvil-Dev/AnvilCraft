@@ -42,6 +42,7 @@ import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 import net.neoforged.neoforge.server.ServerLifecycleHooks;
 import net.neoforged.neoforge.transfer.item.ItemResource;
@@ -484,6 +485,25 @@ public final class StorageServerStub {
             UnlimitedItemStack.OPTIONAL_STREAM_CODEC,
             StackUpdate::stack,
             StackUpdate::new
+        );
+    }
+
+    /**
+     * 仓储界面中的一个流体条目。
+     *
+     * <p>取空后条目仍需留在列表里显示 0（与物品一致），但数量为 0 的 {@link FluidStack}
+     * 连流体类型都会丢失、无法在网络上传输，因此图标与数量分开携带。</p>
+     *
+     * @param icon   流体类型与组件（用于渲染图标、匹配与显示名），一定非空
+     * @param amount 数量（mB），取空后的占位条目为 0
+     */
+    public record FluidEntry(FluidStack icon, int amount) {
+        public static final StreamCodec<RegistryFriendlyByteBuf, FluidEntry> STREAM_CODEC = StreamCodec.composite(
+            FluidStack.OPTIONAL_STREAM_CODEC,
+            FluidEntry::icon,
+            ByteBufCodecs.VAR_INT,
+            FluidEntry::amount,
+            FluidEntry::new
         );
     }
 

@@ -4,13 +4,23 @@ import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
 import dev.dubhe.anvilcraft.block.container.storage.HyperdimensionStorageStationBlock;
 import dev.dubhe.anvilcraft.block.container.storage.ShulkerContainerBlock;
+import dev.dubhe.anvilcraft.block.entity.StorageFluidPortBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.storage.StorageBlockEntity;
+import dev.dubhe.anvilcraft.rpc.StorageServerStub;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
+import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.server.ServerLifecycleHooks;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.fluid.FluidResource;
+import net.neoforged.neoforge.transfer.transaction.Transaction;
+import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayDeque;
@@ -18,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Deque;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -164,6 +175,188 @@ public final class StoragePortManager {
     /** 服务端停止时清表，避免静态表在下次进入世界时残留上次的登记。 */
     public static void clear() {
         StoragePortManager.PORTS.clear();
+    }
+
+    /**
+     * 汇总某存储连接到的所有流体端口中的流体，同种流体合并数量。
+     *
+     * @param storageId 存储 ID
+     * @return 流体列表；没有流体时为空列表
+     */
+    public static List<StorageServerStub.FluidEntry> collect(UUID storageId) {
+        // 用「首次出现」顺序累计：取空的端口以 0 数量占位，
+        // 这样流体槽位编号不会因某个流体被取空而整体前移（否则点击会指到别的流体）
+        List<StorageServerStub.FluidEntry> result = new ArrayList<>();
+        for (StorageFluidPortBlockEntity port : StoragePortManager.liveFluidPorts(storageId)) {
+            FluidStack fluid = port.getFluid();
+            boolean drained = fluid.isEmpty();
+            if (drained) {
+                // 取空：用记忆的流体类型占位，数量记 0
+                fluid = port.getRememberedFluid();
+                if (fluid.isEmpty()) {
+                    continue;
+                }
+            }
+            int index = StoragePortManager.indexOfSame(result, fluid);
+            if (index < 0) {
+                result.add(new StorageServerStub.FluidEntry(fluid.copy(), drained ? 0 : fluid.getAmount()));
+            } else if (!drained) {
+                StorageServerStub.FluidEntry old = result.get(index);
+                result.set(index, new StorageServerStub.FluidEntry(old.icon(), old.amount() + fluid.getAmount()));
+            }
+        }
+        return result;
+    }
+
+    /**
+     * 按流体身份查找该存储中的条目。
+     *
+     * <p>供交互使用：客户端与点击之间列表可能变化（端口被拆 / 区块卸载 / 新流体接入），
+     * 按下标定位会取到别的流体，故改按 {@link FluidStack#isSameFluidSameComponents} 匹配。</p>
+     *
+     * @param storageId 存储 ID
+     * @param fluid     目标流体
+     * @return 匹配的条目；不存在时返回 null
+     */
+    public static StorageServerStub.@Nullable FluidEntry find(UUID storageId, FluidStack fluid) {
+        for (StorageServerStub.FluidEntry entry : StoragePortManager.collect(storageId)) {
+            if (FluidStack.isSameFluidSameComponents(entry.icon(), fluid)) {
+                return entry;
+            }
+        }
+        return null;
+    }
+
+    /** 在条目列表中查找同一流体的下标；不存在时返回 -1。 */
+    private static int indexOfSame(List<StorageServerStub.FluidEntry> entries, FluidStack fluid) {
+        for (int i = 0; i < entries.size(); i++) {
+            if (FluidStack.isSameFluidSameComponents(entries.get(i).icon(), fluid)) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    /**
+     * 从该存储名下持有该流体的端口中抽取指定量，可跨多个端口凑足。
+     *
+     * @param storageId 存储 ID
+     * @param fluid     目标流体（按流体与组件匹配）
+     * @param amountMb  期望抽取量（mB）
+     * @return 实际抽取量（mB）
+     */
+    public static int drain(UUID storageId, FluidStack fluid, int amountMb) {
+        return StoragePortManager.drain(storageId, fluid, amountMb, false);
+    }
+
+    /**
+     * {@link #drain(UUID, FluidStack, int)} 的模拟重载：{@code simulate} 为 true 时只统计
+     * 可抽取量、不改动任何端口。
+     *
+     * <p>供「先模拟确认够量、再实际抽取」的调用方使用，避免抽到一半失败留下已抽走的流体。</p>
+     *
+     * @param simulate 是否只模拟
+     * @return 可抽取量 / 实际抽取量（mB）
+     */
+    public static int drain(UUID storageId, FluidStack fluid, int amountMb, boolean simulate) {
+        try (Transaction transaction = Transaction.openRoot()) {
+            int drained = StoragePortManager.drain(storageId, fluid, amountMb, transaction);
+            if (!simulate) transaction.commit();
+            return drained;
+        }
+    }
+
+    /** 由调用方控制提交，使跨端口抽取与容器交互共同回滚。 */
+    public static int drain(UUID storageId, FluidStack fluid, int amountMb, TransactionContext transaction) {
+        int remaining = amountMb;
+        FluidResource resource = FluidResource.of(fluid);
+        for (StorageFluidPortBlockEntity port : StoragePortManager.liveFluidPorts(storageId)) {
+            if (remaining <= 0) break;
+            FluidStack stored = port.getFluid();
+            if (stored.isEmpty() || !FluidStack.isSameFluidSameComponents(stored, fluid)) continue;
+            remaining -= port.getFluidHandler().extract(resource, remaining, transaction);
+        }
+        return amountMb - remaining;
+    }
+
+    /**
+     * 找一个<b>已在存放同种流体</b>的端口处理器，用于把桶装流体自动倾倒进仓储。
+     *
+     * <p>按 #4792：只倾倒入「有相同流体」的端口；没有对应端口时返回 {@code null}，
+     * 由调用方把桶作为普通物品存入。因此本方法<b>不</b>回退到空端口——否则空端口会把
+     * 桶装流体直接吃掉，桶再也无法以物品形式入库。</p>
+     *
+     * @param storageId 存储 ID
+     * @param fluid     待倾入的流体
+     * @return 可接收的流体处理器；没有存放同种流体的端口时返回 {@code null}
+     */
+    @Nullable
+    public static ResourceHandler<FluidResource> findAcceptor(UUID storageId, FluidStack fluid) {
+        for (StorageFluidPortBlockEntity port : StoragePortManager.liveFluidPorts(storageId)) {
+            FluidStack stored = port.getFluid();
+            if (!stored.isEmpty() && FluidStack.isSameFluidSameComponents(stored, fluid)) {
+                return port.getFluidHandler();
+            }
+        }
+        return null;
+    }
+
+    /**
+     * 回滚专用：找一个能装下该流体的端口（同种流体优先，否则任意空端口）。
+     *
+     * <p>与 {@link #findAcceptor} 的区别在于允许空端口：这里灌回的是先前从端口抽出、
+     * 因后续步骤失败而必须归还的流体，其原端口可能已被抽空，若同样只认同种流体，
+     * 归还就会失败并凭空丢失流体。</p>
+     *
+     * @param storageId 存储 ID
+     * @param fluid     待灌回的流体
+     * @return 可接收的流体处理器；没有合适端口时返回 {@code null}
+     */
+    @Nullable
+    public static ResourceHandler<FluidResource> findRefillTarget(UUID storageId, FluidStack fluid) {
+        ResourceHandler<FluidResource> emptyAcceptor = null;
+        for (StorageFluidPortBlockEntity port : StoragePortManager.liveFluidPorts(storageId)) {
+            FluidStack stored = port.getFluid();
+            if (stored.isEmpty()) {
+                if (emptyAcceptor == null) {
+                    emptyAcceptor = port.getFluidHandler();
+                }
+                continue;
+            }
+            if (FluidStack.isSameFluidSameComponents(stored, fluid)) {
+                return port.getFluidHandler();
+            }
+        }
+        return emptyAcceptor;
+    }
+
+    /**
+     * 取出该存储名下当前已加载的流体端口方块实体。
+     *
+     * <p>存储可跨维度（超维存储站），故按列取该存储在所有维度下的登记。</p>
+     */
+    private static List<StorageFluidPortBlockEntity> liveFluidPorts(UUID storageId) {
+        MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
+        if (server == null || StoragePortManager.PORTS.isEmpty()) {
+            return List.of();
+        }
+        List<StorageFluidPortBlockEntity> result = new ArrayList<>();
+        for (Map.Entry<ResourceKey<Level>, Set<BlockPos>> entry
+            : StoragePortManager.PORTS.column(storageId).entrySet()) {
+            ServerLevel level = server.getLevel(entry.getKey());
+            if (level == null) {
+                continue;
+            }
+            for (BlockPos pos : Set.copyOf(entry.getValue())) {
+                if (!level.isLoaded(pos)) {
+                    continue;
+                }
+                if (level.getBlockEntity(pos) instanceof StorageFluidPortBlockEntity port) {
+                    result.add(port);
+                }
+            }
+        }
+        return result;
     }
 
     /**
