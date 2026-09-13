@@ -18,7 +18,6 @@ import dev.dubhe.anvilcraft.init.block.ModFluids;
 import dev.dubhe.anvilcraft.util.BlockStateAndEntity;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.Screenshot;
-import net.minecraft.client.TextureFilteringMethod;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -66,10 +65,6 @@ public final class PortVisualScene {
         client.options.pauseOnLostFocus = false;
         if (!creating) {
             if (client.screen == null || client.getOverlay() != null) return;
-            if (Boolean.getBoolean("anvilcraft.portConsolidatorScene")) {
-                // 匹配源版不启用额外纹理过滤的对照条件。
-                client.options.textureFiltering().set(TextureFilteringMethod.NONE);
-            }
             creating = true;
             String name = "anvilcraft-port-visual-" + System.currentTimeMillis();
             client.createWorldOpenFlows().createFreshLevel(
