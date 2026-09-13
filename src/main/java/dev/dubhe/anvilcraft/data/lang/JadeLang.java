@@ -53,7 +53,7 @@ public class JadeLang {
         provider.add("tooltip.anvilcraft.smart_block_placer.jade.placement.pickup", "Pickup");
         provider.add("tooltip.anvilcraft.smart_block_placer.jade.placement.move", "Move");
         provider.add("tooltip.anvilcraft.smart_block_placer.jade.blueprint_name", "Blueprint: %s");
-        provider.add("tooltip.anvilcraft.smart_block_placer.jade.missing_mode", "Missing Block: %s");
+        provider.add("tooltip.anvilcraft.smart_block_placer.jade.missing_mode", "Missing Mode: %s");
         provider.add("tooltip.anvilcraft.smart_block_placer.jade.missing.skip", "Skip");
         provider.add("tooltip.anvilcraft.smart_block_placer.jade.missing.stop", "Stop");
 

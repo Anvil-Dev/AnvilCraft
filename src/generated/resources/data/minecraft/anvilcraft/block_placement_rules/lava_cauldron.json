@@ -1,0 +1,9 @@
+{
+  "rules": [
+    {
+      "item": "minecraft:lava_bucket",
+      "properties": "",
+      "return_item": "minecraft:bucket"
+    }
+  ]
+}

@@ -14,6 +14,15 @@ import java.util.function.Function;
 
 public class ModRenderTypes {
 
+    public static final RenderType PLACEMENT_GHOST = RenderType.create(
+        "anvilcraft:placement_ghost",
+        RenderSetup.builder(ModRenderPipelines.PLACEMENT_GHOST)
+            .useLightmap()
+            .sortOnUpload()
+            .withTexture("Sampler0", Sheets.BLOCKS_MAPPER.sheet())
+            .createRenderSetup()
+    );
+
     public static final RenderType LINE_BLOOM = ALRRenderTypeExtension.copyWithBloom(RenderTypes.LINES);
 
     public static final RenderType LASER_TRANSLUCENT = RenderType.create(

@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.event;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.api.StoragePortManager;
 import dev.dubhe.anvilcraft.api.fluid.network.FluidNetworkManager;
 import dev.dubhe.anvilcraft.api.hammer.HammerManager;
 import dev.dubhe.anvilcraft.api.heat.HeaterManager;
@@ -52,6 +53,7 @@ public class ServerLifecycleEventListener {
 
     @SubscribeEvent
     public static void onServerStopped(ServerStoppedEvent event) {
+        StoragePortManager.clear();
         PowerGrid.isServerClosing = false;
         PowerGrid.clear();
         HeatCollectorManager.clear();

@@ -38,6 +38,82 @@ import net.minecraft.world.level.block.Blocks;
 import net.neoforged.neoforge.common.Tags;
 
 public class RegistrumBlockRecipeLoader {
+    public static <T extends Block> void storageFluidPort(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
+        ShapedRecipeBuilder.shaped(provider.getItems(), RecipeCategory.BUILDING_BLOCKS, ModBlocks.STORAGE_FLUID_PORT, 1)
+            .pattern(" A ")
+            .pattern("BBB")
+            .pattern(" A ")
+            .define('A', Items.SHULKER_SHELL)
+            .define('B', ModBlocks.FLUID_TANK)
+            .unlockedBy(AnvilCraftDatagen.hasItem(Items.SHULKER_SHELL), AnvilCraftDatagen.has(provider.getItems(), Items.SHULKER_SHELL))
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.FLUID_TANK), AnvilCraftDatagen.has(provider.getItems(), ModBlocks.FLUID_TANK))
+            .save(provider);
+    }
+
+    public static <T extends Block> void storagePort(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
+        ShapedRecipeBuilder.shaped(provider.getItems(), RecipeCategory.BUILDING_BLOCKS, ModBlocks.STORAGE_PORT, 4)
+            .pattern("A")
+            .pattern("B")
+            .pattern("A")
+            .define('A', Items.SHULKER_SHELL)
+            .define('B', ModBlocks.CRATE)
+            .unlockedBy(AnvilCraftDatagen.hasItem(Items.SHULKER_SHELL), AnvilCraftDatagen.has(provider.getItems(), Items.SHULKER_SHELL))
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.CRATE), AnvilCraftDatagen.has(provider.getItems(), ModBlocks.CRATE))
+            .save(provider);
+    }
+
+    public static <T extends Block> void overflowChute(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
+        ShapelessRecipeBuilder.shapeless(provider.getItems(), RecipeCategory.MISC, ctx.get(), 1)
+            .requires(ModBlocks.MAGNETIC_CHUTE)
+            .requires(ModBlocks.CHUTE)
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(ModBlocks.MAGNETIC_CHUTE.asItem()),
+                AnvilCraftDatagen.has(provider.getItems(), ModBlocks.MAGNETIC_CHUTE)
+            )
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.CHUTE.asItem()), AnvilCraftDatagen.has(provider.getItems(), ModBlocks.CHUTE))
+            .save(provider);
+    }
+
+    public static <T extends Block> void itemSplitter(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
+        ShapedRecipeBuilder.shaped(provider.getItems(), RecipeCategory.MISC, ctx.get(), 1)
+            .pattern("AAA")
+            .pattern("BBC")
+            .pattern("AAA")
+            .define('A', Items.IRON_INGOT)
+            .define('B', Items.DROPPER)
+            .define('C', ModBlocks.CHUTE)
+            .unlockedBy(AnvilCraftDatagen.hasItem(Items.IRON_INGOT), AnvilCraftDatagen.has(provider.getItems(), Items.IRON_INGOT))
+            .unlockedBy(AnvilCraftDatagen.hasItem(Items.DROPPER), AnvilCraftDatagen.has(provider.getItems(), Items.DROPPER))
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.CHUTE.asItem()), AnvilCraftDatagen.has(provider.getItems(), ModBlocks.CHUTE))
+            .save(provider);
+    }
+
+    public static <T extends Block> void redstoneDice(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
+        ShapedRecipeBuilder.shaped(provider.getItems(), RecipeCategory.REDSTONE, ctx.get())
+            .pattern(" G ")
+            .pattern("BBB")
+            .pattern("III")
+            .define('G', Items.GLASS)
+            .define('B', ItemTags.WOODEN_BUTTONS)
+            .define('I', Items.IRON_INGOT)
+            .unlockedBy(AnvilCraftDatagen.hasItem(Items.IRON_INGOT), AnvilCraftDatagen.has(provider.getItems(), Items.IRON_INGOT))
+            .save(provider);
+    }
+
+    public static <T extends Block> void bigRedButton(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
+        ShapedRecipeBuilder.shaped(provider.getItems(), RecipeCategory.REDSTONE, ctx.get(), 4)
+            .pattern(" R ")
+            .pattern("RHR")
+            .pattern("III")
+            .define('R', Items.REDSTONE)
+            .define('H', ModItems.HARDEND_RESIN)
+            .define('I', Items.IRON_INGOT)
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(ModItems.HARDEND_RESIN), AnvilCraftDatagen.has(provider.getItems(), ModItems.HARDEND_RESIN)
+            )
+            .save(provider);
+    }
+
     @SuppressWarnings("unused")
     public static <T extends Block> void recipe(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
         HolderGetter<Item> lookup = provider.getItems();

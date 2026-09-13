@@ -1,0 +1,12 @@
+{
+  "rules": [
+    {
+      "item": "anvilcraft:celestial_forging_anvil",
+      "properties": "half=bottom_center"
+    },
+    {
+      "item": {},
+      "properties": "!half=bottom_center"
+    }
+  ]
+}

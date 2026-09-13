@@ -1,0 +1,37 @@
+allprojects {
+    apply plugin: 'checkstyle'
+    checkstyle {
+        toolVersion = '13.4.2'
+        configFile = file('style.xml')
+    }
+    tasks.register('checkPortJava', Checkstyle) {
+        source = fileTree('src/main/java') {
+            include '**/*BigRedButton*.java', '**/*RedstoneDice*.java'
+            include '**/client/selection/*.java', '**/mixin/client/*SelectionMixin.java', '**/mixin/client/CubeHighlightEventsMixin.java'
+            include '**/PowerProducerRenderer.java', '**/AdvancedComparatorRenderer.java', '**/HeliostatsRenderer.java'
+            include '**/ControlValveBlockEntityRenderer.java', '**/PipeCheckValveBERenderer.java', '**/PumpBlockEntityRenderer.java'
+            include '**/OverseerBlockEntityRenderer.java', '**/WipBlockEntityRenderer.java', '**/PulseGeneratorBlockEntityRenderer.java'
+            include '**/block/placement/*.java', '**/api/pointer/*.java', '**/api/block/BlockPlacementRules.java'
+            include '**/api/block/IBlockPlacementRule.java', '**/api/block/ICauldron.java', '**/api/item/IBlockItem.java'
+            include '**/BlockPlacementUtil.java', '**/BlockStateAndEntity.java', '**/ModBlockPlacementFallbacks.java'
+            include '**/ModBlockPlacementRuleProvider.java', '**/ModTargetPointers.java', '**/FireCauldronBlock.java', '**/OilCauldronBlock.java'
+            include '**/SmartBlockPlacer*.java', '**/SmartPlacer*.java', '**/StructureBookUtil.java'
+            include '**/mixin/client/ItemLayerTransformInvoker.java', '**/mixin/client/ItemStackRenderStateAccessor.java'
+            include '**/BlockPlacementPicking.java', '**/BlockPlaceContextMixin.java', '**/UseOnContextMixin.java', '**/ItemStackMixin.java'
+            include '**/LargeBlockPlacePreviewEventListener.java', '**/ChuteBlockItem.java', '**/CelestialForgingAnvilAmplifierBlockItem.java'
+            include '**/ItemSplitter*.java'
+            include '**/OverflowChute*.java', '**/BaseChuteBlockEntity.java'
+            include '**/IStoragePort.java', '**/StoragePortManager.java', '**/StoragePortType.java', '**/AbstractStoragePortBlock.java'
+            include '**/StoragePort*.java', '**/BlockEntityItemUtil.java'
+            include '**/ClientStoragePortTooltip.java'
+            include '**/ScaledGuiItem*.java'
+            include '**/StorageFluidPort*.java', '**/FluidBottleInteraction.java'
+        } + fileTree('dev/porting/java')
+        classpath = files()
+        maxWarnings = 0
+        reports {
+            xml.required = true
+            html.required = true
+        }
+    }
+}

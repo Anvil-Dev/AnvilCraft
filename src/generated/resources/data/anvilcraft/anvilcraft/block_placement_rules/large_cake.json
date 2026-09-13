@@ -1,0 +1,12 @@
+{
+  "rules": [
+    {
+      "item": "anvilcraft:large_cake",
+      "properties": "half=bottom_center"
+    },
+    {
+      "item": {},
+      "properties": "!half=bottom_center"
+    }
+  ]
+}

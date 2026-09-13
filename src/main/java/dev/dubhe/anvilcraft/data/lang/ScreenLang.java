@@ -10,6 +10,10 @@ public class ScreenLang {
      */
     @SuppressWarnings("checkstyle:LineLength")
     public static void init(RegistrumLangProvider provider) {
+        provider.add("screen.anvilcraft.storage_port.clear_mark", "Clear Mark");
+        provider.add("tooltip.anvilcraft.storage_port.item", "Item:");
+        provider.add("screen.anvilcraft.redstone_dice.uniform", "Uniform Mode");
+        provider.add("screen.anvilcraft.redstone_dice.realistic", "Realistic Mode");
         provider.add("screen.anvilcraft.trading_station.not_owner", "You are not the owner of this Trading Station!");
         provider.add("screen.anvilcraft.trading_station.provide", "Mark as providing items");
         provider.add("screen.anvilcraft.trading_station.request", "Mark as requesting items");

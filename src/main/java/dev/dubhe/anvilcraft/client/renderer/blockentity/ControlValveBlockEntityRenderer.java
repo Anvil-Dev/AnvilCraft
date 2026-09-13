@@ -6,6 +6,7 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.entity.fluid.ControlValveBlockEntity;
 import dev.dubhe.anvilcraft.block.fluid.ControlValveBlock;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.state.ControlValveRenderState;
+import dev.dubhe.anvilcraft.client.selection.ModelSelectionRenderer;
 import dev.dubhe.anvilcraft.client.support.FeatureRendererSupport;
 import dev.dubhe.anvilcraft.client.support.FluidRenderHelper;
 import net.minecraft.client.Minecraft;
@@ -36,7 +37,8 @@ import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import org.jspecify.annotations.Nullable;
 
-public class ControlValveBlockEntityRenderer implements BlockEntityRenderer<ControlValveBlockEntity, ControlValveRenderState> {
+public class ControlValveBlockEntityRenderer
+    implements BlockEntityRenderer<ControlValveBlockEntity, ControlValveRenderState>, ModelSelectionRenderer<ControlValveBlockEntity> {
     public static final StandaloneModelKey<BlockStateModel> HANDWHEEL =
         new StandaloneModelKey<>(() -> "AnvilCraft: Control Valve Handwheel Model");
 
@@ -107,19 +109,8 @@ public class ControlValveBlockEntityRenderer implements BlockEntityRenderer<Cont
         BlockModelRenderState handwheel = state.getHandwheel();
         if (handwheel == null) return;
 
-        float ratio = (ControlValveBlockEntity.MAX_RATE - state.getMaxRate()) / (float) ControlValveBlockEntity.MAX_RATE;
-        float spinDeg = ControlValveBlockEntityRenderer.BASE_ANGLE_DEG - 90.0f * ratio;
-        Direction facing = state.getFacing();
-        Direction.Axis axis = state.getAxis();
-        if (axis == Direction.Axis.Z || (axis == Direction.Axis.Y && facing.getAxis() == Direction.Axis.Z)) {
-            spinDeg += 90.0f;
-        }
-
         poseStack.pushPose();
-        poseStack.translate(0.5, 0.5, 0.5);
-        ControlValveBlockEntityRenderer.applyUpToFacing(poseStack, facing);
-        poseStack.mulPose(Axis.YP.rotationDegrees(spinDeg));
-        poseStack.translate(-0.5, -0.5, -0.5);
+        applyHandwheelPose(poseStack, state.getFacing(), state.getAxis(), state.getMaxRate());
         handwheel.submit(
             poseStack,
             submitNodeCollector,
@@ -128,6 +119,27 @@ public class ControlValveBlockEntityRenderer implements BlockEntityRenderer<Cont
             0
         );
         poseStack.popPose();
+    }
+
+    @Override
+    public void collectSelectionModels(ControlValveBlockEntity be, float partialTick, PoseStack pose, ModelConsumer consumer) {
+        pose.pushPose();
+        applyHandwheelPose(pose, be.getFacing(), be.getBlockState().getValue(ControlValveBlock.AXIS), be.getMaxRate());
+        consumer.accept(HANDWHEEL, pose);
+        pose.popPose();
+    }
+
+    private static void applyHandwheelPose(PoseStack poseStack, Direction facing, Direction.Axis axis, int maxRate) {
+        float ratio = (ControlValveBlockEntity.MAX_RATE - maxRate) / (float) ControlValveBlockEntity.MAX_RATE;
+        float spinDeg = ControlValveBlockEntityRenderer.BASE_ANGLE_DEG - 90.0f * ratio;
+        if (axis == Direction.Axis.Z || (axis == Direction.Axis.Y && facing.getAxis() == Direction.Axis.Z)) {
+            spinDeg += 90.0f;
+        }
+
+        poseStack.translate(0.5, 0.5, 0.5);
+        ControlValveBlockEntityRenderer.applyUpToFacing(poseStack, facing);
+        poseStack.mulPose(Axis.YP.rotationDegrees(spinDeg));
+        poseStack.translate(-0.5, -0.5, -0.5);
     }
 
     private void submitFluidIndicators(

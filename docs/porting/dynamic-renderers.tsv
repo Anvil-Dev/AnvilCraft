@@ -1,0 +1,20 @@
+source	target	status
+src/main/java/dev/dubhe/anvilcraft/client/renderer/blockentity/AdvancedComparatorBlockEntityRender.java	src/main/java/dev/dubhe/anvilcraft/client/renderer/blockentity/AdvancedComparatorRenderer.java	selection-connected; visual-acceptance-pending
+src/main/java/dev/dubhe/anvilcraft/client/renderer/blockentity/AutoEnchantingTableBlockEntityRenderer.java		missing-feature
+src/main/java/dev/dubhe/anvilcraft/client/renderer/blockentity/BigRedButtonBlockEntityRenderer.java	src/main/java/dev/dubhe/anvilcraft/client/renderer/blockentity/BigRedButtonBlockEntityRenderer.java	selection-connected; visual-acceptance-pending
+src/main/java/dev/dubhe/anvilcraft/client/renderer/blockentity/ControlValveBlockEntityRenderer.java	src/main/java/dev/dubhe/anvilcraft/client/renderer/blockentity/ControlValveBlockEntityRenderer.java	selection-connected; visual-acceptance-pending
+src/main/java/dev/dubhe/anvilcraft/client/renderer/blockentity/CrushingTableBlockEntityRenderer.java		missing-feature
+src/main/java/dev/dubhe/anvilcraft/client/renderer/blockentity/FeCollectorRenderer.java	src/main/java/dev/dubhe/anvilcraft/client/renderer/blockentity/FeCollectorRenderer.java	selection-connected; visual-acceptance-pending
+src/main/java/dev/dubhe/anvilcraft/client/renderer/blockentity/GlassPipeBlockEntityRenderer.java		missing-feature
+src/main/java/dev/dubhe/anvilcraft/client/renderer/blockentity/HeliostatsRenderer.java	src/main/java/dev/dubhe/anvilcraft/client/renderer/blockentity/HeliostatsRenderer.java	selection-connected; visual-acceptance-pending
+src/main/java/dev/dubhe/anvilcraft/client/renderer/blockentity/HypercubeBERenderer.java		missing-feature
+src/main/java/dev/dubhe/anvilcraft/client/renderer/blockentity/OverseerBlockEntityRenderer.java	src/main/java/dev/dubhe/anvilcraft/client/renderer/blockentity/OverseerBlockEntityRenderer.java	selection-connected; visual-acceptance-pending
+src/main/java/dev/dubhe/anvilcraft/client/renderer/blockentity/PipeCheckValveBERenderer.java	src/main/java/dev/dubhe/anvilcraft/client/renderer/blockentity/PipeCheckValveBERenderer.java	selection-connected; visual-acceptance-pending
+src/main/java/dev/dubhe/anvilcraft/client/renderer/blockentity/PowerProducerRenderer.java	src/main/java/dev/dubhe/anvilcraft/client/renderer/blockentity/PowerProducerRenderer.java	selection-connected; visual-acceptance-pending
+src/main/java/dev/dubhe/anvilcraft/client/renderer/blockentity/PulseGeneratorBlockEntityRenderer.java	src/main/java/dev/dubhe/anvilcraft/client/renderer/blockentity/PulseGeneratorBlockEntityRenderer.java	selection-connected; visual-acceptance-pending
+src/main/java/dev/dubhe/anvilcraft/client/renderer/blockentity/PumpBlockEntityRenderer.java	src/main/java/dev/dubhe/anvilcraft/client/renderer/blockentity/PumpBlockEntityRenderer.java	selection-connected; visual-acceptance-pending
+src/main/java/dev/dubhe/anvilcraft/client/renderer/blockentity/RedstoneDiceBlockEntityRenderer.java	src/main/java/dev/dubhe/anvilcraft/client/renderer/blockentity/RedstoneDiceBlockEntityRenderer.java	selection-connected; visual-acceptance-pending
+src/main/java/dev/dubhe/anvilcraft/client/renderer/blockentity/RuinsBlockEntityRenderer.java		missing-feature
+src/main/java/dev/dubhe/anvilcraft/client/renderer/blockentity/SmartBlockPlacerRenderer.java	src/main/java/dev/dubhe/anvilcraft/client/renderer/blockentity/SmartBlockPlacerRenderer.java	state-menu-rendering-connected; full-visual-audit-pending
+src/main/java/dev/dubhe/anvilcraft/client/renderer/blockentity/StampingPlatformBlockEntityRenderer.java		missing-feature
+src/main/java/dev/dubhe/anvilcraft/client/renderer/blockentity/WipBlockEntityRenderer.java	src/main/java/dev/dubhe/anvilcraft/client/renderer/blockentity/WipBlockEntityRenderer.java	selection-connected; visual-acceptance-pending

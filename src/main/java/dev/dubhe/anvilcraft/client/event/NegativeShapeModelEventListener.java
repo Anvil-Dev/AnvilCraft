@@ -78,6 +78,11 @@ public class NegativeShapeModelEventListener {
         return true;
     }
 
+    /** 选择几何使用原始模型；绘制时仍保留负形面的剔除包装。 */
+    public static BlockStateModel modelForSelection(BlockStateModel model) {
+        return model instanceof NegativeShapeBlockStateModel wrapper ? wrapper.originalModel() : model;
+    }
+
     private static Map<Direction, List<FaceRectangle>> collectEdgeRectangles(BlockStateModel model) {
         EnumMap<Direction, List<FaceRectangle>> result = new EnumMap<>(Direction.class);
         List<BlockStateModelPart> parts = new ArrayList<>();

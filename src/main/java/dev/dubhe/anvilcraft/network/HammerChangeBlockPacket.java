@@ -78,7 +78,7 @@ public record HammerChangeBlockPacket(BlockPos pos, BlockState state) implements
         if (facingProp != null) {
             Direction facing = this.state.getValue(facingProp);
             BlockState frontState = level.getBlockState(this.pos.relative(facing));
-            if (ChuteBlock.isChuteBlock(frontState) && ChuteBlock.getFacing(frontState) == facing.getOpposite()) {
+            if (ChuteBlock.isChuteBlock(frontState) && ChuteBlock.outputsToward(frontState, facing.getOpposite())) {
                 BlockState oldState = level.getBlockState(this.pos);
                 level.levelEvent(2001, this.pos, Block.getId(oldState));
                 level.setBlock(this.pos, Blocks.AIR.defaultBlockState(), 3);

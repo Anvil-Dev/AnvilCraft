@@ -426,5 +426,28 @@ public class BlockTagLoader {
             .addElement(ModBlocks.CELESTIAL_FORGING_ANVIL_LASER_INTERFACE.getId())
             .addElement(ModBlocks.CELESTIAL_FORGING_ANVIL_FLUID_INTERFACE.getId())
             .addElement(ModBlocks.CELESTIAL_FORGING_ANVIL_PORTAL.getId());
+
+        provider.rawBuilder(ModBlockTags.PLACEMENT_PREVIEW)
+            .addElement(ModBlocks.OVERFLOW_CHUTE.getId())
+            .addElement(ModBlocks.ITEM_SPLITTER.getId())
+            .addElement(ModBlocks.CHUTE.getId())
+            .addElement(ModBlocks.MAGNETIC_CHUTE.getId())
+            .addElement(ModBlocks.SLIDING_RAIL.getId())
+            .addElement(ModBlocks.POWERED_SLIDING_RAIL.getId())
+            .addElement(ModBlocks.ACTIVATOR_SLIDING_RAIL.getId())
+            .addElement(ModBlocks.DETECTOR_SLIDING_RAIL.getId())
+            .addElement(ModBlocks.PULSE_GENERATOR.getId())
+            .addElement(ModBlocks.ADVANCED_COMPARATOR.getId())
+            .addElement(ModBlocks.BLOCK_COMPARATOR.getId())
+            .addElement(ModBlocks.ITEM_DETECTOR.getId())
+            .addElement(ModBlocks.PUMP.getId())
+            .addElement(ModBlocks.BLOCK_PLACER.getId())
+            .addElement(ModBlocks.BLOCK_DEVOURER.getId())
+            .addElement(ModBlocks.SMART_BLOCK_PLACER.getId())
+            .addElement(ModBlocks.STRUCTURE_SCANNER.getId())
+            .addElement(ModBlocks.RUBY_LASER.getId())
+            .addElement(ModBlocks.RUBY_PRISM.getId())
+            .addElement(ModBlocks.LASER_RECEIVER.getId())
+            .addElement(ModBlocks.CRAB_TRAP.getId());
     }
 }

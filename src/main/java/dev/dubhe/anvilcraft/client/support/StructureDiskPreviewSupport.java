@@ -1,6 +1,5 @@
 package dev.dubhe.anvilcraft.client.support;
 
-import dev.dubhe.anvilcraft.block.entity.SmartBlockPlacerBlockEntity;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.item.property.component.StructureDiskData;
 import dev.dubhe.anvilcraft.network.StructurePreviewRequestPacket;
@@ -10,13 +9,16 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtUtils;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import org.jspecify.annotations.Nullable;
 
@@ -265,6 +267,59 @@ public class StructureDiskPreviewSupport {
     /**
      * 构建LevelLike用于渲染
      */
+    private static StructureLoadUtil.StructureData rotateStructureDataForPreview(
+        StructureLoadUtil.StructureData originalData
+    ) {
+        Direction scannerFacing = originalData.diskData.direction();
+
+        if (scannerFacing == Direction.NORTH) {
+            return originalData;
+        }
+
+        StructureLoadUtil.StructureData result = new StructureLoadUtil.StructureData(originalData.diskData);
+        for (var bp : originalData.blocks) {
+            BlockState rotatedState = StructureDiskPreviewSupport.rotateBlockStateForPreview(bp.state(), scannerFacing);
+            result.blocks.add(new StructureLoadUtil.BlockPosition(bp.x(), bp.y(), bp.z(), rotatedState));
+        }
+
+        return result;
+    }
+
+    /**
+     * 根据 Scanner 朝向旋转方块状态（与 StructureScannerScreen 保持一致）
+     */
+    private static BlockState rotateBlockStateForPreview(BlockState state, Direction scannerFacing) {
+        if (state.hasProperty(BlockStateProperties.HORIZONTAL_FACING)) {
+            Direction blockFacing = state.getValue(BlockStateProperties.HORIZONTAL_FACING);
+            Direction rotatedFacing = StructureDiskPreviewSupport.rotateDirectionForPreview(blockFacing, scannerFacing);
+            return state.setValue(BlockStateProperties.HORIZONTAL_FACING, rotatedFacing);
+        }
+
+        if (state.hasProperty(HorizontalDirectionalBlock.FACING)) {
+            Direction blockFacing = state.getValue(HorizontalDirectionalBlock.FACING);
+            Direction rotatedFacing = StructureDiskPreviewSupport.rotateDirectionForPreview(blockFacing, scannerFacing);
+            return state.setValue(HorizontalDirectionalBlock.FACING, rotatedFacing);
+        }
+
+        if (state.hasProperty(BlockStateProperties.FACING)) {
+            Direction blockFacing = state.getValue(BlockStateProperties.FACING);
+            if (blockFacing == Direction.UP || blockFacing == Direction.DOWN) return state;
+            Direction rotatedFacing = StructureDiskPreviewSupport.rotateDirectionForPreview(blockFacing, scannerFacing);
+            return state.setValue(BlockStateProperties.FACING, rotatedFacing);
+        }
+
+        return state;
+    }
+
+    private static Direction rotateDirectionForPreview(Direction blockFacing, Direction scannerFacing) {
+        return switch (scannerFacing) {
+            case SOUTH -> blockFacing.getOpposite();
+            case WEST -> blockFacing.getClockWise();
+            case EAST -> blockFacing.getCounterClockWise();
+            default -> blockFacing;
+        };
+    }
+
     @Nullable
     private static LevelLike buildLevelLike(StructureLoadUtil.StructureData data) {
         if (data.isEmpty()) return null;
@@ -275,7 +330,7 @@ public class StructureDiskPreviewSupport {
         LevelLike levelLike = new LevelLike(minecraft.level);
 
         StructureLoadUtil.StructureData rotatedData =
-            SmartBlockPlacerBlockEntity.rotateStructureDataStatic(data);
+            StructureDiskPreviewSupport.rotateStructureDataForPreview(data);
 
         int sizeX = data.diskData.sizeX();
         int sizeY = data.diskData.sizeY();
