@@ -40,6 +40,8 @@ public class WrappingItemCustomRenderedModels {
         swapModels(modelRegistry, ModelResourceLocation.inventory(SPECTRAL_WEAPON_LAUNCHER));
         swapModels(modelRegistry, ModelResourceLocation.inventory(SPECTRAL_WEAPON_LAUNCHER_EXHAUSTED));
         swapModels(modelRegistry, ModelResourceLocation.inventory(FILTER));
+        swapModels(modelRegistry, ModelResourceLocation.inventory(AnvilCraft.of("disk")));
+        swapModels(modelRegistry, ModelResourceLocation.inventory(AnvilCraft.of("structure_disk")));
     }
 
     public static void swapModels(Map<ModelResourceLocation, BakedModel> modelRegistry, ModelResourceLocation modelLocation) {

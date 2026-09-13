@@ -2,10 +2,12 @@ package dev.dubhe.anvilcraft.client.renderer.item;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import dev.dubhe.anvilcraft.client.support.FittedItemRenderer;
 import dev.dubhe.anvilcraft.client.support.RenderModelSupport;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.item.property.component.FilterContent;
+import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.geom.EntityModelSet;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
@@ -22,6 +24,9 @@ import javax.annotation.Nullable;
 
 public class FilterItemRenderer extends BlockEntityWithoutLevelRenderer {
     private static final ItemStack BARRIER = Items.BARRIER.getDefaultInstance();
+    private static final long DISPLAY_INTERVAL_MILLIS = 1000;
+
+    private boolean renderingDisplay;
 
     @Nullable
     private static FilterItemRenderer instance;
@@ -61,6 +66,8 @@ public class FilterItemRenderer extends BlockEntityWithoutLevelRenderer {
         BakedModel model = itemRenderer.getItemModelShaper().getItemModel(stack);
         FilterItemRenderer.renderModel(itemRenderer, stack, poseStack, buffer, packedLight, packedOverlay, model);
 
+        if (this.renderingDisplay || FittedItemRenderer.isRenderingPreview()) return;
+
         Displaying displaying = FilterItemRenderer.readDisplaying(stack);
         ItemStack displayed = displaying.stack();
         if (displayed.isEmpty()) {
@@ -68,45 +75,21 @@ public class FilterItemRenderer extends BlockEntityWithoutLevelRenderer {
         }
 
         final double z = RenderModelSupport.getSize(model).maxZ;
-        model = itemRenderer.getItemModelShaper().getItemModel(displayed);
         poseStack.pushPose();
-        poseStack.translate(0, 0, z + 0.0005F);
-        poseStack.scale(0.5F, 0.5F, 0.0005F);
-        poseStack.translate(1, 1, 0);
-        displayContext = ItemDisplayContext.FIXED;
-        if (model.isGui3d()) {
-            displayContext = ItemDisplayContext.GUI;
-        } else {
-            poseStack.scale(-1, 1, -1);
-        }
-        itemRenderer.renderStatic(
-            displayed,
-            displayContext,
-            packedLight,
-            packedOverlay,
-            poseStack,
-            buffer,
-            null,
-            0
-        );
-        poseStack.popPose();
-
-        if (displaying.blackList()) {
-            poseStack.pushPose();
-            poseStack.translate(0, 0, z + 0.001F);
-            poseStack.scale(0.35F, 0.35F, 0.0005F);
-            poseStack.translate(0.8, 2.05, 0);
-            poseStack.scale(-1, 1, -1);
-            itemRenderer.renderStatic(
-                FilterItemRenderer.BARRIER,
-                ItemDisplayContext.FIXED,
-                packedLight,
-                packedOverlay,
-                poseStack,
-                buffer,
-                null,
-                0
+        this.renderingDisplay = true;
+        try {
+            poseStack.translate(0.5, 0.5, z + 0.01F);
+            FittedItemRenderer.render(
+                displayed, 8.0F / 16, poseStack, buffer, packedLight, packedOverlay
             );
+            if (displaying.blackList()) {
+                poseStack.translate(0, 0, 0.02F);
+                FittedItemRenderer.render(
+                    BARRIER, 4.0F / 16, poseStack, buffer, packedLight, packedOverlay
+                );
+            }
+        } finally {
+            this.renderingDisplay = false;
             poseStack.popPose();
         }
     }
@@ -114,12 +97,20 @@ public class FilterItemRenderer extends BlockEntityWithoutLevelRenderer {
     private static Displaying readDisplaying(ItemStack stack) {
         FilterContent content = stack.get(ModComponents.FILTER_CONTENT);
         if (content == null) return new Displaying();
+        return new Displaying(selectDisplayed(content, Util.getMillis()), content.blackList());
+    }
+
+    static ItemStack selectDisplayed(FilterContent content, long timeMillis) {
+        int count = 0;
         for (ItemStack filter : content.list()) {
-            if (!filter.isEmpty()) {
-                return new Displaying(filter, content.blackList());
-            }
+            if (!filter.isEmpty()) count++;
         }
-        return new Displaying();
+        if (count == 0) return ItemStack.EMPTY;
+        int selected = (int) Math.floorMod(timeMillis / DISPLAY_INTERVAL_MILLIS, count);
+        for (ItemStack filter : content.list()) {
+            if (!filter.isEmpty() && selected-- == 0) return filter;
+        }
+        return ItemStack.EMPTY;
     }
 
     record Displaying(ItemStack stack, boolean blackList) {
@@ -128,7 +119,7 @@ public class FilterItemRenderer extends BlockEntityWithoutLevelRenderer {
         }
     }
 
-    private static void renderModel(
+    static void renderModel(
         ItemRenderer itemRenderer,
         ItemStack stack,
         PoseStack poseStack,
