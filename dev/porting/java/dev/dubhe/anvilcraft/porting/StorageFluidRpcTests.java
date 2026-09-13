@@ -5,12 +5,14 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.StoragePortManager;
 import dev.dubhe.anvilcraft.block.entity.StorageFluidPortBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.storage.StorageBlockEntity;
+import dev.dubhe.anvilcraft.block.multipart.AbstractMultiPartBlock;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.block.ModFluids;
 import dev.dubhe.anvilcraft.rpc.StorageInput;
 import dev.dubhe.anvilcraft.rpc.StorageServerStub;
 import dev.dubhe.anvilcraft.saved.setting.PlayerSettings;
+import dev.dubhe.anvilcraft.saved.storage.HyperdimensionStorage;
 import dev.dubhe.anvilcraft.saved.storage.ShulkerContainerStorage;
 import dev.dubhe.anvilcraft.saved.storage.Storages;
 import dev.dubhe.anvilcraft.saved.storage.category.FluidCategory;
@@ -89,16 +91,17 @@ public final class StorageFluidRpcTests {
         private final List<BlockPos> ports = new ArrayList<>();
 
         Fixture(GameTestHelper helper) {
+            this(helper, false);
+        }
+
+        Fixture(GameTestHelper helper, boolean hyperdimension) {
             this.helper = helper;
             this.core = helper.absolutePos(CORE);
-            final var block = ModBlocks.SHULKER_CONTAINER.get();
-            final var state = block.defaultBlockState();
-            for (var part : block.getParts()) {
-                helper.getLevel().setBlock(this.core.offset(block.offsetFrom(state, part)), block.placedState(part, state),
-                    Block.UPDATE_CLIENTS | Block.UPDATE_KNOWN_SHAPE);
-            }
+            if (hyperdimension) this.placeCore(helper, ModBlocks.HYPERDIMENSION_STORAGE_STATION.get());
+            else this.placeCore(helper, ModBlocks.SHULKER_CONTAINER.get());
             ((StorageBlockEntity) helper.getLevel().getBlockEntity(this.core)).setId(this.id);
-            this.items = Storages.get().getOrCreate(this.id, ShulkerContainerStorage.class).getItems();
+            this.items = hyperdimension ? Storages.get().getOrCreate(this.id, HyperdimensionStorage.class).getItems()
+                : Storages.get().getOrCreate(this.id, ShulkerContainerStorage.class).getItems();
             this.player = FakePlayerFactory.get(helper.getLevel(), new GameProfile(UUID.randomUUID(), "port-fluid-test"));
             this.playerLookup().put(this.playerId(), this.player);
             this.player.setPos(this.core.getX() + 0.5, this.core.getY() + 1, this.core.getZ() + 0.5);
@@ -113,6 +116,14 @@ public final class StorageFluidRpcTests {
             this.ports.add(pos);
             this.helper.assertTrue(StoragePortManager.positions(this.id).contains(pos), "流体端口必须真实连接核心");
             return port;
+        }
+
+        private <P extends Enum<P>> void placeCore(GameTestHelper helper, AbstractMultiPartBlock<P> block) {
+            var state = block.defaultBlockState();
+            for (P part : block.getParts()) {
+                helper.getLevel().setBlock(this.core.offset(block.offsetFrom(state, part)), block.placedState(part, state),
+                    Block.UPDATE_CLIENTS | Block.UPDATE_KNOWN_SHAPE);
+            }
         }
 
         void authorize() {
@@ -147,12 +158,12 @@ public final class StorageFluidRpcTests {
             }
         }
 
-        private IntList order() {
+        IntList order() {
             this.authorize();
             return StorageServerStub.reorder(this.playerId(), this.core.asLong());
         }
 
-        private StorageServerStub.SyncResult sync(IntList slots) {
+        StorageServerStub.SyncResult sync(IntList slots) {
             this.authorize();
             return StorageServerStub.sync(this.playerId(), this.core.asLong(), slots);
         }

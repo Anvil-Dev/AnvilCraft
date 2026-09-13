@@ -4,6 +4,7 @@ import dev.anvilcraft.lib.v2.registrum.providers.RegistrumLangProvider;
 
 public class CategoryLang {
     public static void init(RegistrumLangProvider provider) {
+        provider.add("screen.anvilcraft.storage.count", "Count: %s");
         provider.add("screen.anvilcraft.storage.fluid_amount", "Storage: %s");
         provider.add("screen.anvilcraft.storage.fluid.bucket_missing", "Need an empty bucket");
         provider.add("screen.anvilcraft.storage.fluid.not_enough", "Not enough fluid for a bucket");

@@ -89,14 +89,8 @@ public class UnlimitedItemStacksResourceHandler extends StacksResourceHandler<Un
     }
 
     public double getFullness() {
-        double fullness = 0.0;
-        for (UnlimitedItemStack stack : this.stacks) {
-            if (stack.isEmpty()) {
-                continue;
-            }
-            fullness += (double) stack.getCount() / stack.getMaxStackSize();
-        }
-        return fullness;
+        int typeLimit = this.getTypeLimit();
+        return typeLimit == Integer.MAX_VALUE ? 0.0 : (double) this.getTypeCount() / typeLimit;
     }
 
     public void sync(UnlimitedItemStacksResourceHandler items) {

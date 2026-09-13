@@ -1,4 +1,5 @@
 {
+  "screen.anvilcraft.storage.count": "数量：%s",
   "screen.anvilcraft.storage.fluid_amount": "储量：%s",
   "screen.anvilcraft.storage.fluid.bucket_missing": "需要一个空桶",
   "screen.anvilcraft.storage.fluid.not_enough": "流体不足以装满一通",

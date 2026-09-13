@@ -93,6 +93,10 @@ public final class PortVisualScene {
             if (prepared) StorageFluidUiScene.frame(client);
             return;
         }
+        if (Boolean.getBoolean("anvilcraft.portStorageLongScene")) {
+            if (prepared) StorageLongUiScene.frame(client);
+            return;
+        }
         if (Boolean.getBoolean("anvilcraft.portStorageFluidItemScene")) {
             if (prepared) StorageFluidPortItemScene.frame(client);
             return;

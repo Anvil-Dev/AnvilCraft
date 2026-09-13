@@ -153,7 +153,7 @@ public final class StorageServerStub {
             if (index < 0 || index >= StoragePortManager.FLUID_SLOT_BASE || !visited.add(index)) {
                 continue;
             }
-            updates.add(new StackUpdate(index, StorageServerStub.getStack(view, index)));
+            updates.add(new StackUpdate(index, StorageServerStub.getStack(view, index), index < view.size() ? view.amount(index) : 0));
         }
         return new SyncResult(stub.version, view.fullness(), updates, StoragePortManager.collect(view.primary().getId()));
     }
@@ -220,8 +220,7 @@ public final class StorageServerStub {
         } else if (slot >= 0 && slot < view.size() && view.amount(slot) > 0) {
             ItemResource resource = view.resource(slot);
             ItemStack itemStack = resource.toStack();
-            int count = view.amount(slot);
-            int maxPickup = Math.min(itemStack.getMaxStackSize(), count);
+            int maxPickup = (int) Math.min(itemStack.getMaxStackSize(), view.amount(slot));
             int amount = button == 0 ? maxPickup : Math.ceilDiv(maxPickup, 2);
             try (Transaction transaction = Transaction.openRoot()) {
                 int extracted = view.extract(slot, resource, amount, transaction);
@@ -503,7 +502,7 @@ public final class StorageServerStub {
         }
         ItemResource resource = view.resource(slot);
         ItemStack stack = resource.toStack();
-        int amount = Math.min(
+        int amount = (int) Math.min(
             Math.min(view.amount(slot), stack.getMaxStackSize()),
             StorageServerStub.getInventorySpace(player.getInventory(), stack)
         );
@@ -552,7 +551,7 @@ public final class StorageServerStub {
         ItemStack stack = resource.toStack();
         int stackCount = stack.getMaxStackSize();
         long requested = button == 0 ? 1 : (long) stackCount * (button == 1 ? 1 : 9);
-        int amount = Math.min(view.amount(slot), Math.toIntExact(requested));
+        int amount = (int) Math.min(view.amount(slot), requested);
         try (Transaction transaction = Transaction.openRoot()) {
             int extracted = view.extract(slot, resource, amount, transaction);
             if (extracted <= 0) {
@@ -673,12 +672,14 @@ public final class StorageServerStub {
         );
     }
 
-    public record StackUpdate(int index, UnlimitedItemStack stack) {
+    public record StackUpdate(int index, UnlimitedItemStack stack, long count) {
         public static final StreamCodec<RegistryFriendlyByteBuf, StackUpdate> STREAM_CODEC = StreamCodec.composite(
             ByteBufCodecs.VAR_INT,
             StackUpdate::index,
             UnlimitedItemStack.OPTIONAL_STREAM_CODEC,
             StackUpdate::stack,
+            ByteBufCodecs.VAR_LONG,
+            StackUpdate::count,
             StackUpdate::new
         );
     }
@@ -799,7 +800,7 @@ public final class StorageServerStub {
         if (index >= view.size() || view.amount(index) <= 0) {
             return UnlimitedItemStack.EMPTY;
         }
-        return new UnlimitedItemStack(view.resource(index), view.amount(index));
+        return new UnlimitedItemStack(view.resource(index), (int) Math.min(view.amount(index), Integer.MAX_VALUE));
     }
 
     private IntList getOrder(StorageView view, PlayerSetting setting) {
@@ -834,7 +835,7 @@ public final class StorageServerStub {
             ItemStack stack = resource.toStack();
             Identifier id = BuiltInRegistries.ITEM.getKey(stack.getItem());
             String name = requiresName ? stack.getHoverName().getString() : "";
-            UnlimitedItemStack unlimitedStack = new UnlimitedItemStack(resource, Math.toIntExact(amount));
+            UnlimitedItemStack unlimitedStack = new UnlimitedItemStack(resource, (int) Math.min(amount, Integer.MAX_VALUE));
             if (!StorageServerStub.matchesFilters(resource.typeHolder(), unlimitedStack, id, name, search, categories)) {
                 continue;
             }
@@ -1215,7 +1216,7 @@ public final class StorageServerStub {
                         merged.put(resource, entry);
                         this.entries.add(entry);
                     }
-                    entry.amount += Math.toIntExact(items.getAmountAsLong(slot));
+                    entry.amount += items.getAmountAsLong(slot);
                 }
             }
         }
@@ -1228,7 +1229,7 @@ public final class StorageServerStub {
             return this.entries.size();
         }
 
-        int amount(int index) {
+        long amount(int index) {
             return this.entries.get(index).amount;
         }
 
@@ -1303,11 +1304,11 @@ public final class StorageServerStub {
 
         private static final class Entry {
             final ItemResource resource;
-            int amount;
+            long amount;
             final int storageIndex;
             final int slot;
 
-            Entry(ItemResource resource, int amount, int storageIndex, int slot) {
+            Entry(ItemResource resource, long amount, int storageIndex, int slot) {
                 this.resource = resource;
                 this.amount = amount;
                 this.storageIndex = storageIndex;
