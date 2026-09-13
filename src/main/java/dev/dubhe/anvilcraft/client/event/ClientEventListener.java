@@ -102,6 +102,7 @@ public class ClientEventListener {
     public static void onClientPlayerDisconnect(ClientPlayerNetworkEvent.LoggingOut event) {
         SoundHelper.INSTANCE.clear();
         RecipesRecord.CLIENTSIDE = null;
+        StructureDiskPreviewSupport.clearCache();
         ItemCollectorBlockEntity.clearPoachingCollectors();
     }
 

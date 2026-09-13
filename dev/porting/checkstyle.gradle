@@ -35,6 +35,8 @@ allprojects {
             include '**/saved/storage/category/CreativeModeTabCategory.java', '**/saved/storage/category/RecipeBookCategoryCategory.java'
             include '**/StorageServerStub.java', '**/StorageClientStub.java', '**/StorageInput.java', '**/StorageScreen.java'
             include '**/FluidAmountUtil.java'
+            include '**/StructureLoadUtil.java', '**/StructureDisk*Packet.java', '**/StructureDiskPreviewSupport.java'
+            include '**/item/utility/DiskItem.java'
             include '**/FormattingUtil.java'
             include '**/unlimited/UnlimitedItemStacksResourceHandler.java'
             include '**/saved/storage/*Storage.java'
