@@ -1,5 +1,7 @@
 package dev.dubhe.anvilcraft.item;
 
+import dev.dubhe.anvilcraft.client.renderer.item.CustomRenderItemClientExtension;
+import dev.dubhe.anvilcraft.client.renderer.item.FilterItemRenderer;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItems;
@@ -20,8 +22,12 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
 
 import java.util.List;
+import java.util.function.Consumer;
 
 public class FilterItem extends Item {
     public FilterItem(Properties properties) {
@@ -36,6 +42,13 @@ public class FilterItem extends Item {
                    : ItemStack.isSameItem(filter, stack)
                )
                || FilterContent.filter(filter, stack, false);
+    }
+
+    @Override
+    @OnlyIn(Dist.CLIENT)
+    @SuppressWarnings("removal")
+    public void initializeClient(Consumer<IClientItemExtensions> consumer) {
+        consumer.accept(CustomRenderItemClientExtension.of(FilterItemRenderer.getInstance()));
     }
 
     @Override

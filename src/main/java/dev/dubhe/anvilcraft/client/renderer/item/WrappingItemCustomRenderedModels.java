@@ -24,6 +24,7 @@ public class WrappingItemCustomRenderedModels {
     public static final ResourceLocation STORAGE_FLUID_PORT = AnvilCraft.of("storage_fluid_port");
     public static final ResourceLocation SPECTRAL_WEAPON_LAUNCHER = AnvilCraft.of("spectral_weapon_launcher");
     public static final ResourceLocation SPECTRAL_WEAPON_LAUNCHER_EXHAUSTED = AnvilCraft.of("spectral_weapon_launcher_exhausted");
+    public static final ResourceLocation FILTER = AnvilCraft.of("filter");
 
     @SubscribeEvent
     public static void onModelBake(ModelEvent.ModifyBakingResult event) {
@@ -38,6 +39,7 @@ public class WrappingItemCustomRenderedModels {
         swapModels(modelRegistry, ModelResourceLocation.inventory(AnvilCraft.of("spectral_slingshot")));
         swapModels(modelRegistry, ModelResourceLocation.inventory(SPECTRAL_WEAPON_LAUNCHER));
         swapModels(modelRegistry, ModelResourceLocation.inventory(SPECTRAL_WEAPON_LAUNCHER_EXHAUSTED));
+        swapModels(modelRegistry, ModelResourceLocation.inventory(FILTER));
     }
 
     public static void swapModels(Map<ModelResourceLocation, BakedModel> modelRegistry, ModelResourceLocation modelLocation) {
