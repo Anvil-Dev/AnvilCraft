@@ -4051,6 +4051,30 @@ public final class StorageServerStub {
      * 按玩家绑定的存储界面排序（SortMode + OrderMode）取第一个可取槽位。
      * 目标不可达或存储为空时返回空栈。
      */
+    public static List<UnlimitedItemStacksResourceHandler> buildingMaterialSources(ServerPlayer player) {
+        List<UnlimitedItemStacksResourceHandler> result = new ArrayList<>();
+        for (ItemStack terminal : TerminalItem.getAll(player)) {
+            UUID target = terminalTargetId(player, terminal);
+            if (target == null || !ownsBoundTerminal(player, target) || !terminalTargetReachable(player, target)) continue;
+            for (BaseStorage<?> storage : terminalStorages(player, target)) {
+                if (!result.contains(storage.getItems())) result.add(storage.getItems());
+            }
+        }
+        return result;
+    }
+
+    public static List<UUID> buildingFluidSources(ServerPlayer player) {
+        List<UUID> result = new ArrayList<>();
+        for (ItemStack terminal : TerminalItem.getAll(player)) {
+            UUID target = terminalTargetId(player, terminal);
+            if (target == null || !ownsBoundTerminal(player, target) || !terminalTargetReachable(player, target)) continue;
+            for (BaseStorage<?> storage : terminalStorages(player, target)) {
+                if (!result.contains(storage.getId())) result.add(storage.getId());
+            }
+        }
+        return result;
+    }
+
     public static ItemStack extractFromTerminal(ServerPlayer player, UUID targetId, int amount) {
         HolderLookup.Provider registries = player.level().registryAccess();
         StorageView view = new StorageView(StorageServerStub.terminalStorages(player, targetId), List.of());

@@ -26,6 +26,7 @@ import dev.dubhe.anvilcraft.init.ModDataAttachments;
 import dev.dubhe.anvilcraft.init.ModParticles;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.block.ModFluids;
+import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.item.weapon.AnvilRailgunItem;
 import dev.dubhe.anvilcraft.item.weapon.LaserGunItem;
@@ -84,6 +85,10 @@ public class AnvilCraftClient {
     }
 
     public static void clientSetup(FMLClientSetupEvent event) {
+        event.enqueueWork(() -> ItemProperties.register(
+            ModItems.BUILDING_ROD.get(), AnvilCraft.of("empty"),
+            (stack, level, entity, seed) -> stack.getOrDefault(ModComponents.STORED_ENERGY, 0) == 0 ? 1 : 0
+        ));
         event.enqueueWork(() -> ItemProperties.register(
             ModItems.IONOCRAFT_BACKPACK.get(), AnvilCraft.of("in_power_grid"),
             (stack, level, entity, seed) -> {

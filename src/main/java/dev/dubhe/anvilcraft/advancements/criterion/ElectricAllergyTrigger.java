@@ -35,7 +35,7 @@ public class ElectricAllergyTrigger extends SimpleCriterionTrigger<ElectricAller
         }
 
         public boolean matches(ServerPlayer player, ItemStack changed) {
-            return changed.is(ModBlocks.TRANSCENDENCE_ANVIL.asItem())
+            return changed.is(ModBlocks.CELESTIAL_FORGING_ANVIL.asItem())
                    && player.getStats().getValue(Stats.CUSTOM, ModStats.PLACE_POWER_COMPONENT) == 0
                    && player.getStats().getValue(Stats.CUSTOM, ModStats.ENTER_POWER_GRID) == 0;
         }

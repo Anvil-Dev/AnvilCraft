@@ -12,7 +12,6 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseEntityBlock;
@@ -25,8 +24,6 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
-import javax.annotation.Nullable;
-
 public class RedstoneDiceBlock extends BaseEntityBlock {
     public static final MapCodec<RedstoneDiceBlock> CODEC = simpleCodec(RedstoneDiceBlock::new);
     private static final VoxelShape SHAPE = Shapes.or(box(2, 0, 2, 14, 4, 14), box(3, 4, 3, 13, 10, 13));
@@ -38,12 +35,6 @@ public class RedstoneDiceBlock extends BaseEntityBlock {
     @Override
     protected MapCodec<? extends BaseEntityBlock> codec() {
         return CODEC;
-    }
-
-    @Override
-    @Nullable
-    public BlockState getStateForPlacement(BlockPlaceContext context) {
-        return context.getClickedFace() == Direction.UP ? this.defaultBlockState() : null;
     }
 
     @Override

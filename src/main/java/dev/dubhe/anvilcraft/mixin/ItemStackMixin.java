@@ -1,18 +1,24 @@
 package dev.dubhe.anvilcraft.mixin;
 
+import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
 import dev.anvilcraft.lib.v2.util.Util;
+import dev.dubhe.anvilcraft.block.item.ChuteBlockItem;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
+import dev.dubhe.anvilcraft.init.item.ModItems;
+import dev.dubhe.anvilcraft.item.BuildingRodItem;
 import dev.dubhe.anvilcraft.item.HeavyHalberdItem;
 import dev.dubhe.anvilcraft.item.MultitoolItem;
 import dev.dubhe.anvilcraft.item.ResonatorItem;
+import dev.dubhe.anvilcraft.network.BuildingRodResultPacket;
 import dev.dubhe.anvilcraft.util.BlockPlacementPicking;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.component.DataComponentHolder;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -25,16 +31,52 @@ import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.item.enchantment.ItemEnchantments;
 import net.minecraft.world.level.Level;
+import net.neoforged.neoforge.network.PacketDistributor;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.List;
+import javax.annotation.Nullable;
 
 @Mixin(ItemStack.class)
 public abstract class ItemStackMixin implements DataComponentHolder {
+    @WrapMethod(method = "useOn")
+    private InteractionResult anvilcraft$animateOffhandRodPlacement(UseOnContext context, Operation<InteractionResult> original) {
+        ItemStack stack = context.getItemInHand();
+        boolean animate = anvilcraft$shouldAnimateRod(context.getPlayer(), context.getHand(), stack)
+            && !(stack.getItem() instanceof ChuteBlockItem && ChuteBlockItem.isStorageInteraction(context));
+        ItemStack placed = animate ? stack.copyWithCount(1) : ItemStack.EMPTY;
+        InteractionResult result = original.call(context);
+        if (animate && result.consumesAction() && context.getPlayer() instanceof ServerPlayer player) {
+            PacketDistributor.sendToPlayer(player, new BuildingRodResultPacket(false, placed));
+        }
+        return result;
+    }
+
+    @WrapMethod(method = "use")
+    private InteractionResultHolder<ItemStack> anvilcraft$animateOffhandRodBucket(
+        Level level, Player player, InteractionHand hand, Operation<InteractionResultHolder<ItemStack>> original
+    ) {
+        ItemStack stack = Util.cast(this);
+        boolean animate = !(stack.getItem() instanceof BlockItem) && anvilcraft$shouldAnimateRod(player, hand, stack);
+        ItemStack placed = animate ? stack.copyWithCount(1) : ItemStack.EMPTY;
+        InteractionResultHolder<ItemStack> result = original.call(level, player, hand);
+        if (animate && result.getResult().consumesAction() && player instanceof ServerPlayer serverPlayer) {
+            PacketDistributor.sendToPlayer(serverPlayer, new BuildingRodResultPacket(false, placed));
+        }
+        return result;
+    }
+
+    @Unique
+    private static boolean anvilcraft$shouldAnimateRod(@Nullable Player player, InteractionHand hand, ItemStack stack) {
+        return player instanceof ServerPlayer && hand == InteractionHand.MAIN_HAND
+            && player.getOffhandItem().is(ModItems.BUILDING_ROD) && BuildingRodItem.isPlacementMaterial(stack);
+    }
+
     @ModifyVariable(method = "useOn", at = @At("HEAD"), argsOnly = true)
     private UseOnContext useOriginalBlockItemTarget(UseOnContext context) {
         return context.getItemInHand().getItem() instanceof BlockItem ? BlockPlacementPicking.forPlacement(context) : context;

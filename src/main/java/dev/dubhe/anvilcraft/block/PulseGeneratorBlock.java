@@ -153,7 +153,7 @@ public class PulseGeneratorBlock extends HorizontalDirectionalBlock implements I
         boolean canStart = switch (generator.getStartMode()) {
             case RISING_EDGE -> !lastInputting && nowInputting;
             case FALLING_EDGE -> lastInputting && !nowInputting;
-            case LOOP -> allowLoopStart
+            case LOOP -> (allowLoopStart || lastInputting && !nowInputting)
                          && !nowInputting
                          && !generator.isDeadlock()
                          && generator.getState() == PulseGeneratorBlockEntity.State.DEFAULT;

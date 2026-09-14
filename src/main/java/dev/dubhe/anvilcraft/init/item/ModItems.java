@@ -21,6 +21,7 @@ import dev.dubhe.anvilcraft.item.AmethystPickaxeItem;
 import dev.dubhe.anvilcraft.item.AmethystShovelItem;
 import dev.dubhe.anvilcraft.item.AmethystSwordItem;
 import dev.dubhe.anvilcraft.item.AnvilHammerItem;
+import dev.dubhe.anvilcraft.item.BuildingRodItem;
 import dev.dubhe.anvilcraft.item.CapacitorItem;
 import dev.dubhe.anvilcraft.item.CrabClawItem;
 import dev.dubhe.anvilcraft.item.DiskItem;
@@ -587,6 +588,12 @@ public class ModItems {
     public static final ItemEntry<FilterItem> FILTER = REGISTRUM.item("filter", FilterItem::new)
         .recipe(RegistrumItemRecipeLoader::filter)
         .properties(properties -> properties.stacksTo(16))
+        .register();
+
+    public static final ItemEntry<BuildingRodItem> BUILDING_ROD = REGISTRUM.item("building_rod", BuildingRodItem::new)
+        .lang("Building Rod")
+        .model(DataGenUtil::noExtraModelOrState)
+        .recipe(RegistrumItemRecipeLoader::buildingRod)
         .register();
 
     public static final ItemEntry<CrabClawItem> CRAB_CLAW = REGISTRUM.item("crab_claw", CrabClawItem::new)

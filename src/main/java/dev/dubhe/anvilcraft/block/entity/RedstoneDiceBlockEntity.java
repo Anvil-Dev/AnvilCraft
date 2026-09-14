@@ -18,7 +18,6 @@ public class RedstoneDiceBlockEntity extends BlockEntity {
     };
     @Getter
     private boolean uniform = true;
-    private boolean powered;
     private boolean rolling;
     private int previousFaces = 111;
     private int faces = 111;
@@ -51,12 +50,8 @@ public class RedstoneDiceBlockEntity extends BlockEntity {
     }
 
     public void checkInput() {
-        if (this.level == null || this.level.isClientSide) return;
-        boolean input = this.level.hasNeighborSignal(this.worldPosition);
-        if (input == this.powered) return;
-        this.powered = input;
-        this.setChanged();
-        if (input) this.roll();
+        if (this.level == null || this.level.isClientSide || this.rolling) return;
+        if (this.level.hasNeighborSignal(this.worldPosition)) this.roll();
     }
 
     public void roll() {
@@ -82,9 +77,8 @@ public class RedstoneDiceBlockEntity extends BlockEntity {
             return;
         }
         this.output = this.getScenario(false);
-        // Keep the roll locked while output notifications propagate back through adjacent wires.
+        // 输出更新传播完成前保持投掷锁定，避免相邻红石粉的回馈更新再次触发。
         this.level.updateNeighborsAt(this.worldPosition, this.getBlockState().getBlock());
-        this.checkInput();
         this.rolling = false;
         this.sync();
     }
@@ -111,7 +105,6 @@ public class RedstoneDiceBlockEntity extends BlockEntity {
     protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.saveAdditional(tag, registries);
         tag.putBoolean("Uniform", this.uniform);
-        tag.putBoolean("Powered", this.powered);
         tag.putBoolean("Rolling", this.rolling);
         tag.putInt("PreviousFaces", this.previousFaces);
         tag.putInt("Faces", this.faces);
@@ -123,7 +116,6 @@ public class RedstoneDiceBlockEntity extends BlockEntity {
     protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.loadAdditional(tag, registries);
         this.uniform = !tag.contains("Uniform") || tag.getBoolean("Uniform");
-        this.powered = tag.getBoolean("Powered");
         this.rolling = tag.getBoolean("Rolling");
         this.previousFaces = validFaces(tag.getInt("PreviousFaces"));
         this.faces = validFaces(tag.getInt("Faces"));

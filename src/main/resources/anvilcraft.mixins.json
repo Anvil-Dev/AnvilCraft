@@ -108,6 +108,7 @@
       "tsmm.SetBlockCommandMixin"
   ],
   "client": [
+      "BuildingRodKeyboardMixin",
       "RuinsRenderLevelMixin",
       "RuinsParticleEngineMixin",
       "RuinsCubeSelectionMixin",
