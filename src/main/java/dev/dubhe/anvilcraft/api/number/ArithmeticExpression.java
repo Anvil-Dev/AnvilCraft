@@ -45,7 +45,7 @@ public record ArithmeticExpression(
     }
 
     @Override
-    public double evaluate(double... inputs) {
+    public double evaluate(NumberArguments inputs) {
         return this.operator.apply(this.left.evaluate(inputs), this.right.evaluate(inputs));
     }
 

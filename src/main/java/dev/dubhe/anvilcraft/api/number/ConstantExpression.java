@@ -33,7 +33,7 @@ public record ConstantExpression(double value) implements INumberExpression {
     }
 
     @Override
-    public double evaluate(double... inputs) {
+    public double evaluate(NumberArguments inputs) {
         return this.value;
     }
 

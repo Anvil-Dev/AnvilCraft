@@ -10,7 +10,7 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.util.ExtraCodecs;
 
 /**
- * 传入值表达式，按下标引用 {@link INumberExpression#evaluate(double...)} 的传入值。
+ * 传入值表达式，按下标引用 {@link NumberArguments} 中的传入值。
  */
 public record InputExpression(int index) implements INumberExpression {
     public static final MapCodec<InputExpression> CODEC = RecordCodecBuilder.mapCodec(ins -> ins.group(
@@ -29,8 +29,8 @@ public record InputExpression(int index) implements INumberExpression {
     }
 
     @Override
-    public double evaluate(double... inputs) {
-        return this.index < inputs.length ? inputs[this.index] : 0;
+    public double evaluate(NumberArguments inputs) {
+        return inputs.value(this.index);
     }
 
     @Override

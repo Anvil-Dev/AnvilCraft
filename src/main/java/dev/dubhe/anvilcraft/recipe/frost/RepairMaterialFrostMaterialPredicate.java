@@ -3,10 +3,9 @@ package dev.dubhe.anvilcraft.recipe.frost;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import dev.dubhe.anvilcraft.api.number.ArithmeticExpression;
-import dev.dubhe.anvilcraft.api.number.ConstantExpression;
+import dev.dubhe.anvilcraft.api.number.FlatExpressionParser;
 import dev.dubhe.anvilcraft.api.number.INumberExpression;
-import dev.dubhe.anvilcraft.api.number.InputExpression;
+import dev.dubhe.anvilcraft.api.number.NumberArguments;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.init.recipe.ModFrostMaterialPredicateTypes;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -21,7 +20,8 @@ import java.util.Optional;
  *
  * @param cost          维修材料的消耗数量
  * @param universalCost 通用维修材料的消耗数量，未指定时默认为维修材料消耗的两倍，
- *                      求解时以 {@code cost} 作为第 0 个传入值
+ *                      求解时以维修材料消耗作为第 0 个传入值 {@code x} 和具名传入值 {@code $(cost)} 传入，
+ *                      因此可以写成 flat 表达式，例如 {@code "x*2"}、{@code "$(cost)*3"}
  */
 public record RepairMaterialFrostMaterialPredicate(
     int cost,
@@ -30,11 +30,7 @@ public record RepairMaterialFrostMaterialPredicate(
     /**
      * 未指定通用维修材料消耗时使用的表达式：传入的维修材料消耗翻倍。
      */
-    public static final INumberExpression DEFAULT_UNIVERSAL_COST = new ArithmeticExpression(
-        ArithmeticExpression.Operator.MULTIPLY,
-        InputExpression.of(0),
-        ConstantExpression.of(2)
-    );
+    public static final INumberExpression DEFAULT_UNIVERSAL_COST = FlatExpressionParser.parse("x*2");
     public static final MapCodec<RepairMaterialFrostMaterialPredicate> CODEC = RecordCodecBuilder.mapCodec(ins -> ins.group(
         Codec.INT
             .fieldOf("cost")
@@ -60,7 +56,8 @@ public record RepairMaterialFrostMaterialPredicate(
      * 通用维修材料的实际消耗数量，未指定时为维修材料消耗的两倍。
      */
     public int universalCostAmount() {
-        return this.universalCost.orElse(DEFAULT_UNIVERSAL_COST).evaluateInt(this.cost);
+        NumberArguments inputs = NumberArguments.of(this.cost).with("cost", this.cost);
+        return this.universalCost.orElse(DEFAULT_UNIVERSAL_COST).evaluateInt(inputs);
     }
 
     @Override

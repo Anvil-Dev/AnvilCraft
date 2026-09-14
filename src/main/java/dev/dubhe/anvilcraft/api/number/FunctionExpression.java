@@ -43,7 +43,7 @@ public record FunctionExpression(Function function, List<INumberExpression> argu
     }
 
     @Override
-    public double evaluate(double... inputs) {
+    public double evaluate(NumberArguments inputs) {
         return this.function.apply(this.arguments, inputs);
     }
 
@@ -86,7 +86,7 @@ public record FunctionExpression(Function function, List<INumberExpression> argu
             }
         }
 
-        public double apply(List<INumberExpression> arguments, double... inputs) {
+        public double apply(List<INumberExpression> arguments, NumberArguments inputs) {
             return switch (this) {
                 case ABS -> Math.abs(arguments.getFirst().evaluate(inputs));
                 case FLOOR -> Math.floor(arguments.getFirst().evaluate(inputs));
