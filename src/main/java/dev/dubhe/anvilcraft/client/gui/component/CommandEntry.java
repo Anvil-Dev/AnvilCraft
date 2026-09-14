@@ -1,8 +1,8 @@
 package dev.dubhe.anvilcraft.client.gui.component;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.util.RenderUtil;
 import lombok.Getter;
+import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
@@ -10,6 +10,7 @@ import net.minecraft.client.sounds.SoundManager;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
+import net.minecraft.util.Mth;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 
@@ -25,12 +26,6 @@ public class CommandEntry extends TexturedButton {
         Style style = this.text.getStyle();
         style.withBold(false);
         this.text.setStyle(style);
-    }
-
-    public CommandEntry(int x, int y, int width, int height, Component text, OnPress onPress, Component message) {
-        super(x, y, width, height, AnvilCraft.of(""), 0, 0, 0, (btn) -> {}, message);
-        this.onPress = onPress;
-        this.text = text.copy();
     }
 
     @Override
@@ -51,13 +46,7 @@ public class CommandEntry extends TexturedButton {
         int width = font.width(this.text);
         if (width > this.width - 4) {
             if (this.isHovered()) {
-                RenderUtil.drawScrollingShadowlessString(
-                    graphics,
-                    font,
-                    this.text,
-                    this.getX() + 3, this.getX() + this.width - 3,
-                    this.getY() + 2, -1
-                );
+                this.drawScrollingText(graphics, font);
             } else {
                 Style style = this.text.getStyle();
                 String string = this.text.getString();
@@ -69,6 +58,27 @@ public class CommandEntry extends TexturedButton {
         } else {
             graphics.drawString(font, this.text, this.getX() + 3, this.getY() + 3, -1, false);
         }
+    }
+
+    /**
+     * 悬停时在条目内往复滚动显示过长的命令文本。
+     *
+     * <p>调用前已确保文本宽度大于条目宽度，故滚动必然发生。
+     */
+    private void drawScrollingText(GuiGraphics graphics, Font font) {
+        int minX = this.getX() + 3;
+        int maxX = this.getX() + this.width - 3;
+        int minY = this.getY() + 2;
+        int maxY = minY + font.lineHeight;
+        int overWidth = font.width(this.text) - (maxX - minX);
+        int textY = (minY + maxY - 9) / 2 + 1;
+        double period = Math.max((double) overWidth * 0.5, 3.0);
+        double phase = Math.sin(
+            (Math.PI / 2) * Math.cos((Math.PI * 2) * ((double) Util.getMillis() / 1000.0) / period)
+        ) / 2.0 + 0.5;
+        graphics.enableScissor(minX, minY, maxX, maxY);
+        graphics.drawString(font, this.text, minX - (int) Mth.lerp(phase, 0.0, overWidth), textY, -1, false);
+        graphics.disableScissor();
     }
 
     @Override
