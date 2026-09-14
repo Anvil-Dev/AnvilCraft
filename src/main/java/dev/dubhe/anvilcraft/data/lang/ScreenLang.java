@@ -797,5 +797,9 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.auto_enchanting_table.enchant_power_bonus", "Enchant Power Bonus: %s");
         provider.add("screen.anvilcraft.auto_enchanting_table.liquid_enchantment.0", "Scroll on the Enchanted Book");
         provider.add("screen.anvilcraft.auto_enchanting_table.liquid_enchantment.1", "above can tweak the levels");
+
+        // Spacetime Supercomputer 时空超算
+        provider.add("screen.anvilcraft.spacetime_supercomputer.available_commands", "Available Commands"); // 可用命令
+        provider.add("screen.anvilcraft.spacetime_supercomputer.history_commands", "History Commands"); // 历史命令
     }
 }
