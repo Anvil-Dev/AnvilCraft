@@ -1,0 +1,59 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:mod_loaded",
+      "modid": "twilightforest"
+    }
+  ],
+  "type": "anvilcraft:permutation",
+  "input": {
+    "items": [
+      "twilightforest:triple_bow",
+      "twilightforest:seeker_bow",
+      "twilightforest:ice_bow",
+      "twilightforest:ender_bow"
+    ]
+  },
+  "options": [
+    {
+      "material": {
+        "type": "anvilcraft:custom",
+        "predicate": {
+          "items": "anvilcraft:multiphase_matter",
+          "count": 1
+        }
+      },
+      "result": "twilightforest:triple_bow"
+    },
+    {
+      "material": {
+        "type": "anvilcraft:custom",
+        "predicate": {
+          "items": "anvilcraft:multiphase_matter",
+          "count": 1
+        }
+      },
+      "result": "twilightforest:seeker_bow"
+    },
+    {
+      "material": {
+        "type": "anvilcraft:custom",
+        "predicate": {
+          "items": "anvilcraft:multiphase_matter",
+          "count": 1
+        }
+      },
+      "result": "twilightforest:ice_bow"
+    },
+    {
+      "material": {
+        "type": "anvilcraft:custom",
+        "predicate": {
+          "items": "anvilcraft:multiphase_matter",
+          "count": 1
+        }
+      },
+      "result": "twilightforest:ender_bow"
+    }
+  ]
+}

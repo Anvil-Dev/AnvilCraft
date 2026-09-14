@@ -6,5 +6,9 @@
     "anvilcraft:ember_metal_pickaxe",
     "anvilcraft:ember_metal_shovel",
     "anvilcraft:ember_metal_hoe"
-  ]
+  ],
+  "material": {
+    "type": "anvilcraft:repair_material",
+    "cost": 1
+  }
 }

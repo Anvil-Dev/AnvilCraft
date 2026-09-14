@@ -6,5 +6,9 @@
     "anvilcraft:royal_steel_pickaxe",
     "anvilcraft:royal_steel_shovel",
     "anvilcraft:royal_steel_hoe"
-  ]
+  ],
+  "material": {
+    "type": "anvilcraft:repair_material",
+    "cost": 1
+  }
 }

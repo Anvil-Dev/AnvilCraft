@@ -1,0 +1,59 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:mod_loaded",
+      "modid": "twilightforest"
+    }
+  ],
+  "type": "anvilcraft:permutation",
+  "input": {
+    "items": [
+      "twilightforest:twilight_scepter",
+      "twilightforest:lifedrain_scepter",
+      "twilightforest:zombie_scepter",
+      "twilightforest:fortification_scepter"
+    ]
+  },
+  "options": [
+    {
+      "material": {
+        "type": "anvilcraft:custom",
+        "predicate": {
+          "items": "anvilcraft:multiphase_matter",
+          "count": 1
+        }
+      },
+      "result": "twilightforest:twilight_scepter"
+    },
+    {
+      "material": {
+        "type": "anvilcraft:custom",
+        "predicate": {
+          "items": "anvilcraft:multiphase_matter",
+          "count": 1
+        }
+      },
+      "result": "twilightforest:lifedrain_scepter"
+    },
+    {
+      "material": {
+        "type": "anvilcraft:custom",
+        "predicate": {
+          "items": "anvilcraft:multiphase_matter",
+          "count": 1
+        }
+      },
+      "result": "twilightforest:zombie_scepter"
+    },
+    {
+      "material": {
+        "type": "anvilcraft:custom",
+        "predicate": {
+          "items": "anvilcraft:multiphase_matter",
+          "count": 1
+        }
+      },
+      "result": "twilightforest:fortification_scepter"
+    }
+  ]
+}

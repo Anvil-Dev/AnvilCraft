@@ -1,0 +1,17 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:mod_loaded",
+      "modid": "twilightforest"
+    }
+  ],
+  "type": "anvilcraft:deformation",
+  "material": {
+    "type": "anvilcraft:repair_material",
+    "cost": 2
+  },
+  "inputs": [
+    "twilightforest:phantom_helmet",
+    "twilightforest:phantom_chestplate"
+  ]
+}

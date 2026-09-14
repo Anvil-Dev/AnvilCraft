@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.recipe.frost;
 
+import com.google.common.collect.ImmutableList;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.anvilcraft.lib.v2.util.predicate.ItemIngredientPredicate;
@@ -9,19 +10,28 @@ import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraft.world.level.ItemLike;
+import org.jetbrains.annotations.Unmodifiable;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
+/**
+ * 形变配方：同组装备之间互相转化，材料由该组装备自身的维修材料决定。
+ */
 public record DeformationRecipe(
     ItemIngredientPredicate template,
-    ItemIngredientPredicate material,
-    List<RecipeResult> inputs
+    IFrostMaterialPredicate material,
+    @Unmodifiable List<RecipeResult> inputs
 ) implements IFrostSmithingRecipe {
-    public static final ItemIngredientPredicate DEFAULT_TEMPLATE = ItemIngredientPredicate.of(ModItems.DEFORMATION_TEMPLATE_ITEM).build();
-    public static final ItemIngredientPredicate DEFAULT_MATERIAL = ItemIngredientPredicate.of(ModItems.FROST_METAL_INGOT).build();
+    public static final ItemIngredientPredicate DEFAULT_TEMPLATE =
+        ItemIngredientPredicate.of(ModItems.DEFORMATION_TEMPLATE_ITEM).build();
 
     public static Builder builder() {
         return new Builder();
@@ -33,8 +43,42 @@ public record DeformationRecipe(
     }
 
     @Override
-    public boolean isMaterial(ItemStack material) {
-        return material.is(ModItems.FROST_METAL_INGOT);
+    public boolean isInput(ItemStack input) {
+        for (RecipeResult result : this.inputs) {
+            if (input.is(result.result())) return true;
+        }
+        return false;
+    }
+
+    @Override
+    public @Unmodifiable List<FrostSmithingOption> options(ItemStack input) {
+        // 装备槽为空时无法确定结果，列出全部结果以便判断材料能否放入
+        if (input.isEmpty()) {
+            return this.inputs.stream()
+                .map(result -> new FrostSmithingOption(this.material, result))
+                .toList();
+        }
+        int head;
+        for (head = 0; head < this.inputs.size(); head++) {
+            if (input.is(this.inputs.get(head).result())) break;
+        }
+        if (head >= this.inputs.size()) return List.of();
+
+        ImmutableList.Builder<FrostSmithingOption> options = ImmutableList.builder();
+        for (int i = 1; i < this.inputs.size(); i++) {
+            options.add(new FrostSmithingOption(this.material, this.inputs.get((head + i) % this.inputs.size())));
+        }
+        return options.build();
+    }
+
+    @Override
+    public @Unmodifiable List<RecipeResult> results() {
+        return this.inputs;
+    }
+
+    @Override
+    public @Unmodifiable List<ItemStack> possibleInputs() {
+        return this.inputs.stream().map(result -> result.result().getDefaultInstance()).toList();
     }
 
     @Override
@@ -52,8 +96,8 @@ public record DeformationRecipe(
             ItemIngredientPredicate.CODEC
                 .optionalFieldOf("template", DeformationRecipe.DEFAULT_TEMPLATE)
                 .forGetter(DeformationRecipe::template),
-            ItemIngredientPredicate.CODEC
-                .optionalFieldOf("material", DeformationRecipe.DEFAULT_MATERIAL)
+            IFrostMaterialPredicate.CODEC
+                .fieldOf("material")
                 .forGetter(DeformationRecipe::material),
             RecipeResult.LIST_CODEC
                 .fieldOf("inputs")
@@ -63,7 +107,7 @@ public record DeformationRecipe(
         public static final StreamCodec<RegistryFriendlyByteBuf, DeformationRecipe> STREAM_CODEC = StreamCodec.composite(
             ItemIngredientPredicate.STREAM_CODEC,
             DeformationRecipe::template,
-            ItemIngredientPredicate.STREAM_CODEC,
+            IFrostMaterialPredicate.STREAM_CODEC,
             DeformationRecipe::material,
             RecipeResult.STREAM_CODEC.apply(ByteBufCodecs.list()),
             DeformationRecipe::inputs,
@@ -82,8 +126,11 @@ public record DeformationRecipe(
     }
 
     public static class Builder extends BaseBuilder<Builder, DeformationRecipe> {
+        private IFrostMaterialPredicate material = new EmptyFrostMaterialPredicate();
+        private final List<RecipeResult> inputs = new ArrayList<>();
+
         public Builder() {
-            this.template(DeformationRecipe.DEFAULT_TEMPLATE).material(DeformationRecipe.DEFAULT_MATERIAL);
+            this.template(DeformationRecipe.DEFAULT_TEMPLATE);
         }
 
         @Override
@@ -91,9 +138,42 @@ public record DeformationRecipe(
             return this;
         }
 
+        public Builder material(IFrostMaterialPredicate material) {
+            this.material = material;
+            return this;
+        }
+
+        public Builder input(RecipeResult.Builder input) {
+            this.inputs.add(input.build());
+            return this;
+        }
+
+        public Builder input(RecipeResult input) {
+            this.inputs.add(input);
+            return this;
+        }
+
+        public Builder input(ItemLike input) {
+            return this.input(RecipeResult.simple(input));
+        }
+
         @Override
-        public DeformationRecipe build(ItemIngredientPredicate template, ItemIngredientPredicate material, List<RecipeResult> inputs) {
-            return new DeformationRecipe(template, material, inputs);
+        public void validate(ResourceLocation id) {
+            if (this.inputs.size() < 2) {
+                throw new IllegalArgumentException(
+                    "The inputs of " + this.getType() + " recipe must not be less than 2, RecipeId: " + id
+                );
+            }
+        }
+
+        @Override
+        public DeformationRecipe buildRecipe() {
+            return new DeformationRecipe(Objects.requireNonNull(this.template), this.material, ImmutableList.copyOf(this.inputs));
+        }
+
+        @Override
+        public Item getResult() {
+            return this.inputs.getFirst().result();
         }
 
         @Override
