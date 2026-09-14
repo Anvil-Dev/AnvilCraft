@@ -8,6 +8,7 @@ public class LangHandler {
         StatLang.init(provider);
         ConfigScreenLang.init(provider);
         ItemTooltipLang.init(provider);
+        BuildingRodLang.init(provider);
         JadeLang.init(provider);
         WthitLang.init(provider);
         OtherLang.init(provider);

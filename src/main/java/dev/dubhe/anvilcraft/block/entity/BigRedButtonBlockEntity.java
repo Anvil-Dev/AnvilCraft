@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.block.entity;
 
 import dev.dubhe.anvilcraft.block.BigRedButtonBlock;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
+import dev.dubhe.anvilcraft.init.item.ModItems;
 import net.minecraft.core.BlockPos;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -37,7 +38,8 @@ public class BigRedButtonBlockEntity extends BlockEntity {
     }
 
     public void press(Player player) {
-        if (this.level == null || this.level.isClientSide || !player.isAlive() || player.isSpectator()) return;
+        if (this.level == null || this.level.isClientSide || !player.isAlive() || player.isSpectator()
+            || player.getMainHandItem().is(ModItems.BUILDING_ROD)) return;
         this.holders.put(player.getUUID(), this.level.getGameTime());
         this.setPressed(true);
         this.level.scheduleTick(this.worldPosition, this.getBlockState().getBlock(), 1);
@@ -54,6 +56,7 @@ public class BigRedButtonBlockEntity extends BlockEntity {
         this.holders.entrySet().removeIf(entry -> {
             Player player = this.level.getPlayerByUUID(entry.getKey());
             return player == null || !player.isAlive() || player.isSpectator()
+                || player.getMainHandItem().is(ModItems.BUILDING_ROD)
                 || !player.canInteractWithBlock(this.worldPosition, 1.0)
                 || this.level.getGameTime() - entry.getValue() > HOLD_TIMEOUT;
         });

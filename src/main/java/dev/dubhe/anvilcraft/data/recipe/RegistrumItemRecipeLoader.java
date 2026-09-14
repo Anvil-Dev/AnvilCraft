@@ -8,6 +8,7 @@ import dev.anvilcraft.lib.v2.util.nullness.NonNullConsumer;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.data.AnvilCraftDatagen;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
+import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModFoodItems;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.init.item.ModItems;
@@ -28,6 +29,23 @@ import net.minecraft.world.level.block.Blocks;
 import net.neoforged.neoforge.common.Tags;
 
 public class RegistrumItemRecipeLoader {
+    public static <T extends Item> void buildingRod(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
+        for (boolean charged : new boolean[]{false, true}) {
+            ItemStack result = new ItemStack(ctx.get());
+            result.set(ModComponents.STORED_ENERGY, charged ? 8_000_000 : 0);
+            ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, result)
+                .pattern("ABA")
+                .pattern("ACA")
+                .pattern(" D ")
+                .define('A', ModBlocks.SMART_BLOCK_PLACER)
+                .define('B', ModBlocks.MAGNETO_ELECTRIC_CORE_BLOCK)
+                .define('C', ModItems.ANVIL_HAMMER)
+                .define('D', charged ? ModItems.CAPACITOR.get() : ModItems.CAPACITOR_EMPTY.get())
+                .unlockedBy("hasitem", RegistrumRecipeProvider.has(ModItems.ANVIL_HAMMER))
+                .save(provider, AnvilCraft.of(charged ? "building_rod_charged" : "building_rod"));
+        }
+    }
+
     public static <T extends Item> void fluidTankMinecart(
         DataGenContext<Item, T> ctx,
         RegistrumRecipeProvider provider

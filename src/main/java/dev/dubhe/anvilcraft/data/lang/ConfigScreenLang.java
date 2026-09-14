@@ -19,6 +19,22 @@ public class ConfigScreenLang {
 
     @SuppressWarnings("checkstyle:LineLength")
     private static void addOverrides(RegistrumLangProvider provider) {
+        addOverride(
+            provider,
+            "anvilcraft.configuration.building_rod_controls",
+            "Building Rod Blueprint Controls"
+        );
+        addOverride(
+            provider,
+            "anvillib.configuration.enum.dev.dubhe.anvilcraft.config.anvil_craft_client_config.building_rod_controls.traditional",
+            "Traditional"
+        );
+        addOverride(
+            provider,
+            "anvillib.configuration.enum.dev.dubhe.anvilcraft.config.anvil_craft_client_config.building_rod_controls.optimized",
+            "Optimized"
+        );
+
         addOverride(provider, "anvilcraft.configuration.anvil_collision_craft_speed", "Anvil Collision Explosion Speed Threshold");
         addOverride(
             provider,

@@ -1,6 +1,7 @@
 {
 	"format_version": "1.9.0",
 	"credit": "Made by XeKr with Blockbench",
+	"overrides": [{"predicate": {"anvilcraft:empty": 1}, "model": "anvilcraft:item/building_rod_off"}],
 	"textures": {
 		"0": "anvilcraft:item/building_rod",
 		"particle": "anvilcraft:item/building_rod"

@@ -251,6 +251,12 @@ public class CapabilitiesEventListener {
             PowerConverterBlockEntity::getEnergyStorage
         );
 
+        event.registerItem(
+            Capabilities.EnergyStorage.ITEM,
+            (stack, ctx) -> new ItemFEStorage(stack, 8_000_000),
+            ModItems.BUILDING_ROD.get()
+        );
+
         // 武器物品注册 FE ITEM capability（电容器保留原有系统）
         event.registerItem(
             Capabilities.EnergyStorage.ITEM,

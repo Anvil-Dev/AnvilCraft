@@ -923,7 +923,7 @@ public class ItemTooltipManager {
     public static void addTooltip(ItemStack stack, List<Component> tooltip) {
         final Item item = stack.getItem();
         final int initialTooltipSize = tooltip.size();
-        if (stack.has(ModComponents.STORED_ENERGY)) {
+        if (stack.has(ModComponents.STORED_ENERGY) && (!stack.is(ModItems.BUILDING_ROD) || Screen.hasShiftDown())) {
             propertyTooltip(
                 "stored_energy",
                 tooltip,
