@@ -33,6 +33,11 @@ public class AmuletBoxItem extends BundleLikeItem {
     }
 
     @Override
+    protected boolean storesContentsLocally() {
+        return true;
+    }
+
+    @Override
     protected void removeOne(TransferState state) {
         ItemStack stack = state.getStack();
         BoxContents.Mutable mutable = stack.getOrDefault(ModComponents.BOX_CONTENTS, BoxContents.EMPTY).mutable();
