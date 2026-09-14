@@ -485,8 +485,8 @@ public class SpacetimeSupercomputerScreen extends Screen {
      *
      * <p>文本宽度超出列表宽度时按宽度截断。
      */
-    private void drawCenteredListTitle(GuiGraphics guiGraphics, String title, int minX, int y) {
-        String text = this.font.plainSubstrByWidth(title, LIST_WIDTH);
+    private void drawCenteredListTitle(GuiGraphics guiGraphics, Component title, int minX, int y) {
+        String text = this.font.plainSubstrByWidth(title.getString(), LIST_WIDTH);
         guiGraphics.drawString(
             this.font, text,
             minX + (LIST_WIDTH - this.font.width(text)) / 2, y,
@@ -503,8 +503,16 @@ public class SpacetimeSupercomputerScreen extends Screen {
         guiGraphics.drawString(this.font, this.title, x + (256 - this.font.width(this.title)) / 2, y + 2, 4210752, false);
 
         // 渲染命令列表标题
-        this.drawCenteredListTitle(guiGraphics, "Available Commands", x + LIST_LEFT_X, y + LIST_TITLE_Y);
-        this.drawCenteredListTitle(guiGraphics, "History Commands", x + LIST_RIGHT_X, y + LIST_TITLE_Y);
+        this.drawCenteredListTitle(
+            guiGraphics,
+            Component.translatable("screen.anvilcraft.spacetime_supercomputer.available_commands"),
+            x + LIST_LEFT_X, y + LIST_TITLE_Y
+        );
+        this.drawCenteredListTitle(
+            guiGraphics,
+            Component.translatable("screen.anvilcraft.spacetime_supercomputer.history_commands"),
+            x + LIST_RIGHT_X, y + LIST_TITLE_Y
+        );
 
         // 渲染充能进度条（自下而上：贴图底边锚定在进度条底部，随充能向上展开）
         int chargingBarHeight = getChangingProgress();
