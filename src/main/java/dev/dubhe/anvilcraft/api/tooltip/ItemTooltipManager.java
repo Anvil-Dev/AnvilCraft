@@ -891,16 +891,6 @@ public class ItemTooltipManager {
                 Can store multiple fluids, each type of fluid that reaches 12800B will be converted to infinite
                 Can interact with Dispensers for fluid transfer"""
         );
-        SHIFT.put(
-            ModItems.CAPACITOR.asItem(), """
-                Can be consumed automatically
-                or can be taken with a left-click in the inventory and then used by right-clicking on an electrical appliance to actively charge it"""
-        );
-        SHIFT.put(
-            ModItems.SUPER_CAPACITOR.asItem(), """
-                Can be consumed automatically
-                or can be taken with a left-click in the inventory and then used by right-clicking on an electrical appliance to actively charge it"""
-        );
         SHIFT.put(ModBlocks.CREATIVE_LASER.asItem(), "Adjustable laser level, lens and gamma mode, can be turned off by redstone");
         SHIFT.put(ModBlocks.SINGULARITY_CRYSTAL.asItem(), """
             Stores extreme celestial data from the Celestial Forging Anvil
