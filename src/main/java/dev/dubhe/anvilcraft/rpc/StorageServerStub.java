@@ -141,6 +141,11 @@ public final class StorageServerStub {
      * 避免几百次合成一次性阻塞服务端线程（分帧/进度由客户端循环天然实现）。
      */
     private static final int CRAFTING_TAKE_ALL_CHUNK = 64;
+    /**
+     * 合成宫格的边长。宫格为正方形，故宽高同为该值；步长必须用它，
+     * 不能用 {@link CraftingStorage#CRAFTING_GRID_SIZE}（那是总槽位数 9）。
+     */
+    private static final int CRAFTING_GRID_EDGE = 3;
 
     private final UUID storageId;
     private long version;
@@ -1952,44 +1957,55 @@ public final class StorageServerStub {
             target.write(crafting.withStonecutterInput(shrunk.isEmpty() ? ItemStack.EMPTY : shrunk));
             return true;
         }
-        // 每次合成每槽只消耗 1 个，剩余物按原版 ResultSlot.onTake 的规则安置
-        CraftingInput input = CraftingInput.of(3, 3, crafting.craftingInput());
+        // 每次合成每槽只消耗 1 个，剩余物按原版 ResultSlot.onTake 的规则安置。
+        // CraftingInput.ofPositioned 会把网格裁剪到非空物品的包围盒，剩余物列表按裁剪后的坐标
+        // 排列；必须用 left/top 换算回原始槽位，否则只有落在左上角的桶能返还，其余会被吞掉。
+        CraftingInput.Positioned positioned = CraftingInput.ofPositioned(
+            StorageServerStub.CRAFTING_GRID_EDGE, StorageServerStub.CRAFTING_GRID_EDGE, crafting.craftingInput()
+        );
+        CraftingInput input = positioned.input();
         List<ItemStack> remaining = target.player().level().getRecipeManager()
             .getRemainingItemsFor(RecipeType.CRAFTING, input, target.player().level());
         List<ItemStack> grid = new ArrayList<>(crafting.craftingInput());
-        Inventory inventory = target.player().getInventory();
         StorageView view = target.view();
         boolean changed = false;
-        for (int i = 0; i < grid.size(); i++) {
-            ItemStack current = grid.get(i);
-            if (current.isEmpty()) {
-                continue;
-            }
-            ItemStack remainder = i < remaining.size() ? remaining.get(i) : ItemStack.EMPTY;
-            ItemStack leftover = current.copy();
-            leftover.shrink(1);
-            ItemStack next;
-            if (remainder.isEmpty()) {
-                next = leftover.isEmpty() ? ItemStack.EMPTY : leftover;
-            } else if (leftover.isEmpty()) {
-                // 桶 / 碗等剩余物放回原槽位（与原版一致：槽位刚好清空时剩余物落在这里）
-                next = remainder.copy();
-            } else if (ItemStack.isSameItemSameComponents(leftover, remainder)) {
-                // 剩余物与原料同种（催化剂 / 模具等不消耗型配方）：并入剩余量后放回，
-                // 网格净变化为 0，调用方据此判定消耗未发生，避免无限产出
-                next = remainder.copy();
-                next.grow(leftover.getCount());
-            } else {
-                // 槽内还剩同类原料（如水桶还有 2 个）而剩余物不同种：原版此时把剩余物
-                // 放进玩家背包，这里保留原料、剩余物交还玩家或存储
-                next = leftover;
-                StorageServerStub.returnCraftingRemainder(target.player(), crafting, view, remainder);
-            }
-            grid.set(i, next);
-            // 内容或数量发生变化才算消耗。催化剂类配方净变化为 0 时返回 false，
-            // 供调用方终止循环，避免无限产出
-            if (!ItemStack.isSameItemSameComponents(next, current) || next.getCount() != current.getCount()) {
-                changed = true;
+        for (int row = 0; row < input.height(); row++) {
+            for (int column = 0; column < input.width(); column++) {
+                int i = column + positioned.left()
+                    + (row + positioned.top()) * StorageServerStub.CRAFTING_GRID_EDGE;
+                ItemStack current = grid.get(i);
+                if (current.isEmpty()) {
+                    continue;
+                }
+                int remainderIndex = column + row * input.width();
+                ItemStack remainder = remainderIndex < remaining.size()
+                    ? remaining.get(remainderIndex)
+                    : ItemStack.EMPTY;
+                ItemStack leftover = current.copy();
+                leftover.shrink(1);
+                ItemStack next;
+                if (remainder.isEmpty()) {
+                    next = leftover.isEmpty() ? ItemStack.EMPTY : leftover;
+                } else if (leftover.isEmpty()) {
+                    // 桶 / 碗等剩余物放回原槽位（与原版一致：槽位刚好清空时剩余物落在这里）
+                    next = remainder.copy();
+                } else if (ItemStack.isSameItemSameComponents(leftover, remainder)) {
+                    // 剩余物与原料同种（催化剂 / 模具等不消耗型配方）：并入剩余量后放回，
+                    // 网格净变化为 0，调用方据此判定消耗未发生，避免无限产出
+                    next = remainder.copy();
+                    next.grow(leftover.getCount());
+                } else {
+                    // 槽内还剩同类原料（如水桶还有 2 个）而剩余物不同种：原版此时把剩余物
+                    // 放进玩家背包，这里保留原料、剩余物交还玩家或存储
+                    next = leftover;
+                    StorageServerStub.returnCraftingRemainder(target.player(), crafting, view, remainder);
+                }
+                grid.set(i, next);
+                // 内容或数量发生变化才算消耗。催化剂类配方净变化为 0 时返回 false，
+                // 供调用方终止循环，避免无限产出
+                if (!ItemStack.isSameItemSameComponents(next, current) || next.getCount() != current.getCount()) {
+                    changed = true;
+                }
             }
         }
         if (changed) {
