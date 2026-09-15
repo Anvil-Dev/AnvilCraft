@@ -316,6 +316,21 @@ public class ScreenLang {
         provider.add("book.anvilcraft.material_list.missing_header", "Missing:");
 
         // Structure Scanner
+        provider.add("screen.anvilcraft.structure_scanner.scan", "Click to scan structure");
+        provider.add("screen.anvilcraft.structure_scanner.scanning", "Scanning");
+        provider.add("screen.anvilcraft.structure_scanner.import_file", "Import file");
+        provider.add("screen.anvilcraft.structure_scanner.export_file", "Export file");
+        provider.add("screen.anvilcraft.structure_scanner.import", "Import structure");
+        provider.add("screen.anvilcraft.structure_scanner.export", "Export structure");
+        provider.add("screen.anvilcraft.structure_scanner.name", "Structure name");
+        provider.add("screen.anvilcraft.structure_scanner.confirm", "Record structure to disk");
+        provider.add("screen.anvilcraft.structure_scanner.auto_rotate_on", "Auto rotation: on");
+        provider.add("screen.anvilcraft.structure_scanner.auto_rotate_off", "Auto rotation: off");
+        provider.add("screen.anvilcraft.structure_scanner.marker", "Display item (JEI drag supported; right-click to clear)");
+        provider.add("screen.anvilcraft.structure_scanner.no_files", "No matching files");
+        provider.add("screen.anvilcraft.structure_scanner.file_failed", "File operation failed: %s");
+        provider.add("screen.anvilcraft.structure_scanner.imported", "Preview loaded; confirm to record the structure to a disk");
+        provider.add("screen.anvilcraft.structure_scanner.exported", "Structure exported: %s");
         provider.add("screen.anvilcraft.structure_scanner.info_title", "Structure Info");
         provider.add("screen.anvilcraft.structure_scanner.ready", "Structure scan ready");
         provider.add("screen.anvilcraft.structure_scanner.tooltip.large_structure", "This structure is large and cannot be placed by the Smart Block Placer, but can still be saved");

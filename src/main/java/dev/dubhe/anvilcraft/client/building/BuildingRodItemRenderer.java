@@ -21,6 +21,7 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
@@ -96,13 +97,13 @@ public final class BuildingRodItemRenderer {
     static void preparePlacement() {
         var player = Minecraft.getInstance().player;
         if (player == null) return;
-        pendingPayload = player.getOffhandItem().copyWithCount(1);
+        pendingPayload = BuildingRodItem.material(player).copyWithCount(1);
         pendingUntil = time() + 5;
     }
 
     public static void placed() {
         var player = Minecraft.getInstance().player;
-        if (player == null || !player.getMainHandItem().is(ModItems.BUILDING_ROD)
+        if (player == null || !BuildingRodItem.isHeld(player)
             || pendingPayload.isEmpty() || time() > pendingUntil) return;
         pushedPayload = pendingPayload;
         pendingPayload = ItemStack.EMPTY;
@@ -182,7 +183,7 @@ public final class BuildingRodItemRenderer {
 
     private static ItemStack payload(LivingEntity entity, InteractionHand hand) {
         ItemStack stack = entity.getItemInHand(hand == InteractionHand.MAIN_HAND ? InteractionHand.OFF_HAND : InteractionHand.MAIN_HAND);
-        boolean supported = hand == InteractionHand.MAIN_HAND ? isPayload(stack) : BuildingRodItem.isPlacementMaterial(stack);
+        boolean supported = isPayload(stack);
         return supported ? stack : ItemStack.EMPTY;
     }
 
@@ -194,8 +195,9 @@ public final class BuildingRodItemRenderer {
     }
 
     public static boolean usesToolClaw(LivingEntity entity) {
-        return rodHand(entity) == InteractionHand.OFF_HAND && !entity.getMainHandItem().isEmpty()
-            && !BuildingRodItem.isPlacementMaterial(entity.getMainHandItem());
+        return entity instanceof Player player
+            && rodHand(entity) == null && BuildingRodItem.isCarried(player)
+            && !entity.getMainHandItem().is(ModItems.CRAB_CLAW) && !entity.getOffhandItem().is(ModItems.CRAB_CLAW);
     }
 
     private static boolean isPayload(ItemStack stack) {
@@ -236,7 +238,7 @@ public final class BuildingRodItemRenderer {
         boolean attacking = localRod && mc.player != null && mc.player.isCreative()
             && attackTarget != null && time() < attackUntil && mc.screen == null;
         boolean charging = localRod && mc.screen == null && mc.options.keyUse.isDown()
-            && (mainHand ? BuildingRodClient.first != null : carriesPayload(entity));
+            && BuildingRodClient.first != null;
         BuildingRodMotion.Pose visual = localRod ? motion.sample(time(), powered, charging, attacking)
             : new BuildingRodMotion.Pose(powered ? (float) (time() * 90 % 360) : 0, 0, 0, 0);
         pose.pushPose();
@@ -265,7 +267,7 @@ public final class BuildingRodItemRenderer {
             pose.mulPose(new Quaternionf().slerp(rotation, visual.aim()));
             pose.translate(-0.5, -2.0 / 16, -0.5);
         }
-        boolean green = localRod && mainHand && BuildingRodClient.locked && BuildingRodClient.hasMatchingDisk();
+        boolean green = localRod && BuildingRodClient.locked && BuildingRodClient.hasMatchingDisk();
         BuildingRodModelParts.render(model, stack, pose, buffers, light, OverlayTexture.NO_OVERLAY,
             visual.angle(), green, powered);
         if (hand == rodHand(entity)) {

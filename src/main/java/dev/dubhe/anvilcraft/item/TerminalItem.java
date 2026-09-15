@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.item;
 
 import dev.anvilcraft.lib.v2.util.InventoryUtil;
+import dev.dubhe.anvilcraft.inventory.PocketInventory;
 import dev.dubhe.anvilcraft.rpc.StorageServerStub;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
@@ -39,8 +40,7 @@ public abstract class TerminalItem extends BundleLikeItem {
     /** 按物品栏槽位顺序查找终端，再补充饰品等兼容槽中的原始物品栈。 */
     public static List<ItemStack> getAll(Player player) {
         List<ItemStack> terminals = new ArrayList<>();
-        for (int slot = 0; slot < player.getInventory().getContainerSize(); slot++) {
-            ItemStack stack = player.getInventory().getItem(slot);
+        for (ItemStack stack : PocketInventory.carriedItems(player)) {
             if (stack.getItem() instanceof TerminalItem) {
                 terminals.add(stack);
             }

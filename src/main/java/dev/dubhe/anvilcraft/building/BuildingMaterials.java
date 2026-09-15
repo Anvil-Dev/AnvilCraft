@@ -2,7 +2,10 @@ package dev.dubhe.anvilcraft.building;
 
 import dev.dubhe.anvilcraft.api.StoragePortManager;
 import dev.dubhe.anvilcraft.api.itemhandler.unlimited.UnlimitedItemStacksResourceHandler;
+import dev.dubhe.anvilcraft.inventory.PocketInventory;
+import dev.dubhe.anvilcraft.item.BuildingRodItem;
 import dev.dubhe.anvilcraft.rpc.StorageServerStub;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.capabilities.Capabilities;
@@ -52,11 +55,10 @@ public final class BuildingMaterials {
     public BuildingMaterials(ServerPlayer player) {
         this.creative = player.isCreative();
         this.player = player;
-        ItemStack held = player.getOffhandItem();
+        ItemStack held = BuildingRodItem.material(player);
         this.offhand = new Source(held, held.getCount(), held::shrink);
         this.fluidStorages = StorageServerStub.buildingFluidSources(player);
-        for (int slot = 0; slot < player.getInventory().getContainerSize(); slot++) {
-            ItemStack stack = player.getInventory().getItem(slot);
+        for (ItemStack stack : PocketInventory.carriedItems(player)) {
             if (!stack.isEmpty() && stack != held) this.sources.add(new Source(stack, stack.getCount(), stack::shrink));
         }
         for (UnlimitedItemStacksResourceHandler handler : StorageServerStub.buildingMaterialSources(player)) {
@@ -77,14 +79,7 @@ public final class BuildingMaterials {
         if (this.creative) return true;
         int[] before = this.sources.stream().mapToInt(source -> source.reserved).toArray();
         for (ItemStack material : materials) {
-            int remaining = material.getCount();
-            for (Source source : this.sources) {
-                if (!ItemStack.isSameItemSameComponents(source.resource, material)) continue;
-                int take = (int) Math.min(remaining, source.available - source.reserved);
-                source.reserved += take;
-                remaining -= take;
-                if (remaining == 0) break;
-            }
+            int remaining = this.reserveItem(material);
             if (remaining > 0) {
                 for (int i = 0; i < before.length; i++) this.sources.get(i).reserved = before[i];
                 return false;
@@ -100,26 +95,7 @@ public final class BuildingMaterials {
         int[] fluidsBefore = this.storedFluids.stream().mapToInt(source -> source.reserved).toArray();
         if (!this.reserve(materials)) return false;
         for (FluidStack fluid : fluids) {
-            int remaining = fluid.getAmount();
-            for (Source source : this.sources) {
-                if (source == this.offhand) continue;
-                remaining = this.reserveContainer(source, fluid, remaining);
-                if (remaining <= 0) break;
-            }
-            for (UUID storage : this.fluidStorages) {
-                if (remaining <= 0) break;
-                StoredFluid source = this.storedFluids.stream().filter(value -> value.storage.equals(storage)
-                    && FluidStack.isSameFluidSameComponents(value.fluid, fluid)).findFirst().orElse(null);
-                if (source == null) {
-                    source = new StoredFluid(storage, fluid);
-                    this.storedFluids.add(source);
-                }
-                int available = StoragePortManager.drain(storage, fluid, source.reserved + remaining, true);
-                int take = Math.min(remaining, Math.max(0, available - source.reserved));
-                source.reserved += take;
-                remaining -= take;
-            }
-            remaining = this.reserveContainer(this.offhand, fluid, remaining);
+            int remaining = this.reserveFluid(fluid);
             if (remaining > 0) {
                 for (int i = 0; i < before.length; i++) this.sources.get(i).reserved = before[i];
                 for (int i = 0; i < this.storedFluids.size(); i++) {
@@ -130,6 +106,71 @@ public final class BuildingMaterials {
             }
         }
         return true;
+    }
+
+    private int reserveItem(ItemStack material) {
+        int remaining = material.getCount();
+        for (Source source : this.sources) {
+            if (!ItemStack.isSameItemSameComponents(source.resource, material)) continue;
+            int take = (int) Math.min(remaining, source.available - source.reserved);
+            source.reserved += take;
+            remaining -= take;
+            if (remaining == 0) break;
+        }
+        return remaining;
+    }
+
+    private int reserveFluid(FluidStack fluid) {
+        int remaining = fluid.getAmount();
+        for (Source source : this.sources) {
+            if (source == this.offhand) continue;
+            remaining = this.reserveContainer(source, fluid, remaining);
+            if (remaining <= 0) break;
+        }
+        for (UUID storage : this.fluidStorages) {
+            if (remaining <= 0) break;
+            StoredFluid source = this.storedFluids.stream().filter(value -> value.storage.equals(storage)
+                && FluidStack.isSameFluidSameComponents(value.fluid, fluid)).findFirst().orElse(null);
+            if (source == null) {
+                source = new StoredFluid(storage, fluid);
+                this.storedFluids.add(source);
+            }
+            int available = StoragePortManager.drain(storage, fluid, source.reserved + remaining, true);
+            int take = Math.min(remaining, Math.max(0, available - source.reserved));
+            source.reserved += take;
+            remaining -= take;
+        }
+        remaining = this.reserveContainer(this.offhand, fluid, remaining);
+        return Math.max(0, remaining);
+    }
+
+    List<Component> missing(List<BuildingRodService.Group> groups) {
+        List<ItemStack> items = new ArrayList<>();
+        List<FluidStack> fluids = new ArrayList<>();
+        for (var group : groups) {
+            for (ItemStack material : group.materials) {
+                ItemStack combined = items.stream().filter(stack -> ItemStack.isSameItemSameComponents(stack, material))
+                    .findFirst().orElse(null);
+                if (combined == null) items.add(material.copy());
+                else combined.grow(material.getCount());
+            }
+            for (FluidStack fluid : group.fluids) {
+                FluidStack combined = fluids.stream().filter(stack -> FluidStack.isSameFluidSameComponents(stack, fluid))
+                    .findFirst().orElse(null);
+                if (combined == null) fluids.add(fluid.copy());
+                else combined.grow(fluid.getAmount());
+            }
+        }
+        List<Component> lines = new ArrayList<>();
+        for (ItemStack material : items) {
+            int missing = this.reserveItem(material);
+            if (missing > 0) lines.add(material.getHoverName().copy().append(" ×" + missing));
+        }
+        for (FluidStack fluid : fluids) {
+            int missing = this.reserveFluid(fluid);
+            if (missing > 0) lines.add(fluid.getHoverName().copy().append(" ×" + missing + " mB"));
+        }
+        return lines;
     }
 
     private int reserveContainer(Source source, FluidStack fluid, int remaining) {

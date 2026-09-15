@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.mixin.mun.compat;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import dev.dubhe.anvilcraft.client.renderer.mun.MunRenderPipeline;
+import dev.dubhe.anvilcraft.client.renderer.mun.MunSodiumShaders;
 import dev.dubhe.anvilcraft.client.renderer.mun.MunSurfaceRenderer;
 import net.caffeinemc.mods.sodium.client.gl.shader.GlProgram;
 import net.caffeinemc.mods.sodium.client.render.chunk.ShaderChunkRenderer;
@@ -31,7 +32,7 @@ abstract class SodiumMunShaderRendererMixin {
     private GlProgram<ChunkShaderInterface> anvilcraft$recoverMunProgram(
         ChunkShaderOptions options, Operation<GlProgram<ChunkShaderInterface>> original
     ) {
-        boolean lunar = MunRenderPipeline.requested();
+        boolean lunar = MunSodiumShaders.requested();
         if (this.anvilcraft$munPrograms != lunar) {
             this.programs.values().forEach(GlProgram::delete);
             this.programs.clear();

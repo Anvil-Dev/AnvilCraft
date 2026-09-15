@@ -11,6 +11,8 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
@@ -649,6 +651,11 @@ public final class CelestialTravelManager {
         return new Vec3(velocity.x, velocity.y, -velocity.z);
     }
 
+    public static void playPortalTravelSound(Entity entity) {
+        entity.level().playSound(null, entity.getX(), entity.getY(), entity.getZ(),
+            SoundEvents.ENDERMAN_TELEPORT, SoundSource.BLOCKS, 1.0f, 1.0f);
+    }
+
     @Nullable
     private static Entity move(
         Entity entity,
@@ -662,12 +669,14 @@ public final class CelestialTravelManager {
             player.teleportTo(destination, position.x, position.y, position.z, targetYRot, entity.getXRot());
             player.setDeltaMovement(momentum);
             player.hasImpulse = true;
+            playPortalTravelSound(player);
             return player;
         }
         if (source == destination) {
             entity.teleportTo(destination, position.x, position.y, position.z, Set.of(), targetYRot, entity.getXRot());
             entity.setDeltaMovement(momentum);
             entity.hasImpulse = true;
+            playPortalTravelSound(entity);
             return entity;
         }
         Entity moved = entity.changeDimension(new DimensionTransition(
@@ -681,6 +690,7 @@ public final class CelestialTravelManager {
         if (moved != null) {
             moved.setDeltaMovement(momentum);
             moved.hasImpulse = true;
+            playPortalTravelSound(moved);
         }
         return moved;
     }

@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.block.entity;
 
 import dev.dubhe.anvilcraft.block.StructureScannerBlock;
+import dev.dubhe.anvilcraft.building.BlueprintMultiblocks;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.inventory.StructureScannerMenu;
@@ -193,7 +194,7 @@ public class StructureScannerBlockEntity extends BaseMachineBlockEntity implemen
      * 是否完成所有扫描
      */
     public boolean isScanComplete() {
-        return !this.isScanning && !this.scannedBlocks.isEmpty();
+        return !this.isScanning && this.currentScanLayer >= this.rangeY.get() && !this.scannedBlocks.isEmpty();
     }
     
     /**
@@ -292,6 +293,18 @@ public class StructureScannerBlockEntity extends BaseMachineBlockEntity implemen
         }
     }
     
+    public void clearScan() {
+        this.isScanning = false;
+        this.currentScanLayer = 0;
+        this.scannedBlocks.clear();
+        this.pendingAutoSave = false;
+        this.autoSaveStructureName = "";
+        this.setChanged();
+        if (this.level != null && !this.level.isClientSide) {
+            this.level.sendBlockUpdated(this.getBlockPos(), this.getBlockState(), this.getBlockState(), 3);
+        }
+    }
+
     /**
      * 调度自动保存（在扫描完成后执行）
      */
@@ -349,7 +362,7 @@ public class StructureScannerBlockEntity extends BaseMachineBlockEntity implemen
                 BlockPos worldPos = calculateWorldPos(x, this.currentScanLayer, z - 1, halfRangeX);
                 net.minecraft.world.level.block.state.BlockState blockState = this.level.getBlockState(worldPos);
                 
-                if (!blockState.isAir()) {
+                if (!blockState.isAir() && BlueprintMultiblocks.shouldRecord(blockState)) {
                     // 与原版结构 fillFromWorld 一致，方块实体使用 saveWithId 保留完整数据
                     net.minecraft.world.level.block.entity.BlockEntity worldBlockEntity =
                         this.level.getBlockEntity(worldPos);
@@ -366,20 +379,15 @@ public class StructureScannerBlockEntity extends BaseMachineBlockEntity implemen
         this.lastScanTick = this.level.getGameTime();
         this.setChanged();
         
+        this.currentScanLayer++;
+        if (this.currentScanLayer >= rangeY) this.isScanning = false;
+
         // 每扫描一层就同步到客户端
         if (this.level != null && !this.level.isClientSide) {
             this.level.sendBlockUpdated(this.getBlockPos(), this.getBlockState(), this.getBlockState(), 3);
         }
-        
-        // 移动到下一层
-        this.currentScanLayer++;
-        
-        // 检查是否完成所有层
-        if (this.currentScanLayer >= rangeY) {
-            this.isScanning = false;
-        }
     }
-    
+
     /**
      * 保存时刻按原版结构 fillEntityList 语义捕获扫描区域内的实体（排除玩家），
      * 坐标转换到与方块缓存相同的结构预览坐标系

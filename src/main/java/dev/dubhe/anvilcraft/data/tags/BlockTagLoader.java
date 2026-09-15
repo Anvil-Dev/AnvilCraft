@@ -412,6 +412,7 @@ public class BlockTagLoader {
         provider.addTag(ModBlockTags.INCORRECT_FOR_TRANSCENDIUM_TOOL);
 
         provider.addTag(ModBlockTags.PLACEMENT_PREVIEW)
+            .add(ModBlocks.LARGE_CAKE.getKey())
             .add(ModBlocks.CHUTE.getKey())
             .add(ModBlocks.MAGNETIC_CHUTE.getKey())
             .add(ModBlocks.OVERFLOW_CHUTE.getKey())

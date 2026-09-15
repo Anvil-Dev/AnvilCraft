@@ -24,6 +24,7 @@ public final class BuildingCommit {
         if (previous == state) {
             return;
         }
+        BuildingRodUndo.replaced(level, pos, previous, state);
         LevelChunk chunk = level.getChunkAt(pos);
         if (previous.getBlock() instanceof RedstoneWireBlock && !(state.getBlock() instanceof RedstoneWireBlock)) {
             RedstoneWireNetworkManager.wireRemoved(level, pos);

@@ -189,9 +189,6 @@ public class ItemTagLoader {
             .replace(false)
             .addTag(ModItemTags.AMULET)
             .add(ModItems.LOCAL_TERMINAL.getKey(), ModItems.SHULKER_TERMINAL.getKey(), ModItems.HYPERDIMENSION_TERMINAL.getKey());
-        provider.addTag(ModItemTags.CURIOS_IONOCRAFT_BACKPACK)
-            .replace(false)
-            .add(ModItems.IONOCRAFT_BACKPACK.getKey());
 
         provider.addTag(ModItemTags.TOTEM)
             .add(findResourceKey(Items.TOTEM_OF_UNDYING));
