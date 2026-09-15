@@ -236,7 +236,10 @@ public class SmartBlockPlacerMenu extends AbstractContainerMenu {
     public void removed(Player player) {
         super.removed(player);
         if (!player.level().isClientSide()) {
-            this.clearContainer(player, this.outputBookInventory);
+            // 产物在输入书放入时就已经生成，无需玩家取走。
+            // 若连同产物一起返还，输入书并未被消耗，玩家等于凭空多得一本，可以反复刷。
+            // 产物属于「未成交」，直接丢弃；输入书必须返还，否则关一次界面就损失一本书。
+            this.outputBookInventory.setItem(0, ItemStack.EMPTY);
             this.clearContainer(player, this.bookInventory);
         }
     }
