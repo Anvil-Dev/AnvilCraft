@@ -21,11 +21,6 @@ public class WrittenBookOnlySlot extends Slot {
     private final @Nullable Container consumeSource;
     private final int consumeSlot;
 
-    public WrittenBookOnlySlot(Container container, int slot, int x, int y,
-                              @Nullable BooleanSupplier visibilityCondition) {
-        this(container, slot, x, y, visibilityCondition, null, 0);
-    }
-
     public WrittenBookOnlySlot(
         Container container,
         int slot,
