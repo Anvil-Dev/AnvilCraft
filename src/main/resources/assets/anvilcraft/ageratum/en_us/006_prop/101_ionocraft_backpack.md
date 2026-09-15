@@ -11,11 +11,7 @@ items:
 
 <recipe id="anvilcraft:ionocraft"/>
 
-## Functions
-
-- Right-click to place on the ground, spawning an Ionocraft entity
-- Within a power grid range, it consumes 16kW to ascend rapidly
-- Outside a power grid range, it descends slowly
+- Ascends in a power grid (consumes 16kW); descends slowly outside a power grid
 - Entities can stand on it
 
 # Ionocraft Backpack
@@ -24,15 +20,7 @@ items:
 
 ## Functions
 
-- Can be worn in the chestplate slot
-- While equipped within a working power grid, grants creative flight ability and consumes 64kW
-
-<info>
-When a curio/accessory mod is installed, it can be placed in the curio slot
-</info>
-
-- Leaving the grid while creatively flying grants slow falling until landing or reentry
-- Double-tap Jump to pause or resume slow falling before landing
-- Reentering the grid during this descent immediately resumes creative flight
-- After landing, entering a grid grants flight ability without automatically taking off
-- The backpack does not store energy and cannot be charged with capacitors
+- Can be worn as a chestplate
+- Consumes 8kW to operate while within a power grid
+- While operating, grants the player flight and immunity to fall damage
+- Leaving the power grid while flying causes the player to descend slowly
