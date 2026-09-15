@@ -107,6 +107,12 @@ public class SettingServerStub {
     }
 
     @RemoteCallable(validator = OwnSettingValidator.class)
+    public static void update(UUID playerId, boolean flipped) {
+        PlayerSettings.getSetting(SettingServerStub.getAndClear(), playerId).storage().setFlipped(flipped);
+        PlayerSettings.get().setDirty();
+    }
+
+    @RemoteCallable(validator = OwnSettingValidator.class)
     public static void update(UUID playerId, BalanceMode mode) {
         HolderLookup.Provider registries = SettingServerStub.getAndClear();
         PlayerSetting setting = PlayerSettings.getSetting(registries, playerId);
