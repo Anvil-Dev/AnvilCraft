@@ -1,25 +1,24 @@
 {
   "type": "minecraft:crafting_shaped",
-  "category": "misc",
-  "group": "anvilcraft:ionocraft_backpack",
+  "category": "equipment",
   "key": {
     "A": {
       "item": "anvilcraft:ionocraft"
     },
     "B": {
-      "item": "anvilcraft:capacitor_empty"
+      "item": "anvilcraft:magnetoelectric_core"
     },
     "C": {
       "tag": "c:plates/tin"
     },
     "D": {
-      "item": "minecraft:leather_chestplate"
+      "item": "minecraft:iron_chestplate"
     }
   },
   "pattern": [
     "ABA",
-    "ABA",
-    "CDC"
+    "ADA",
+    "C C"
   ],
   "result": {
     "count": 1,

@@ -31,7 +31,7 @@ import java.util.Optional;
 import static net.minecraft.world.entity.vehicle.Boat.canVehicleCollide;
 
 public class IonocraftEntity extends VehicleEntity {
-    public static final DynamicPowerComponent.PowerConsumption CONSUMPTION = new DynamicPowerComponent.PowerConsumption(16);
+    public static final DynamicPowerComponent.PowerConsumption CONSUMPTION = new DynamicPowerComponent.PowerConsumption(2);
     private final DynamicPowerComponent component;
 
     public IonocraftEntity(Level level, Vec3 pos) {

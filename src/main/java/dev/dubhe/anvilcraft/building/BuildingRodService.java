@@ -1,10 +1,12 @@
 package dev.dubhe.anvilcraft.building;
 
+import dev.dubhe.anvilcraft.block.LargeCakeBlock;
 import dev.dubhe.anvilcraft.block.RedstoneWireBlock;
 import dev.dubhe.anvilcraft.block.RedstoneWireNetworkManager;
 import dev.dubhe.anvilcraft.block.cfa.CelestialForgingAnvilAmplifierBlock;
 import dev.dubhe.anvilcraft.block.entity.PulseGeneratorBlockEntity;
 import dev.dubhe.anvilcraft.block.item.FlexibleMultiPartBlockItem;
+import dev.dubhe.anvilcraft.block.item.LargeCakeBlockItem;
 import dev.dubhe.anvilcraft.block.item.SimpleMultiPartBlockItem;
 import dev.dubhe.anvilcraft.block.multipart.AbstractMultiPartBlock;
 import dev.dubhe.anvilcraft.block.multipart.SimpleMultiPartBlock;
@@ -17,8 +19,8 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.player.Player;
@@ -27,6 +29,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.item.context.UseOnContext;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BedBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.DoorBlock;
@@ -54,10 +57,32 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.WeakHashMap;
 import javax.annotation.Nullable;
 
 public final class BuildingRodService {
     public static final int MAX_BLOCKS = 4000;
+    private static final Map<ServerPlayer, Selection> SELECTIONS = new WeakHashMap<>();
+
+    private record Selection(BlockPos first, Direction face, @Nullable BlockHitResult hit,
+                             ResourceKey<Level> dimension, ItemStack material, long seed) {
+    }
+
+    public static void start(ServerPlayer player, BlockPos first, Direction face, @Nullable BlockHitResult hit) {
+        start(player, first, face, hit, 0);
+    }
+
+    public static void start(ServerPlayer player, BlockPos first, Direction face, @Nullable BlockHitResult hit, long seed) {
+        SELECTIONS.remove(player);
+        if (!BuildingRodItem.isHeld(player) || !withinReach(player, first, 0) || !canModify(player, first)) return;
+        if (hit != null && (!withinReach(player, hit.getBlockPos(), 1)
+            || !Double.isFinite(hit.getLocation().lengthSqr())
+            || player.getEyePosition().distanceToSqr(hit.getLocation()) > Math.pow(player.blockInteractionRange() + 1, 2))) {
+            return;
+        }
+        SELECTIONS.put(player, new Selection(first.immutable(), face, hit, player.level().dimension(),
+            BuildingRodItem.material(player).copyWithCount(1), seed));
+    }
 
     private BuildingRodService() {
     }
@@ -83,23 +108,38 @@ public final class BuildingRodService {
     }
 
     public static void box(ServerPlayer player, BlockPos first, BlockPos last, Direction face, @Nullable BlockHitResult hit) {
-        ItemStack held = player.getOffhandItem();
-        if (!player.getMainHandItem().is(ModItems.BUILDING_ROD) || !BuildingRodItem.isPlacementMaterial(held)) return;
-        if (!withinReach(player, first, 0) || !withinReach(player, last, 0)) return;
-        if (hit != null && (!withinReach(player, hit.getBlockPos(), 1)
-            || !Double.isFinite(hit.getLocation().lengthSqr())
-            || player.getEyePosition().distanceToSqr(hit.getLocation()) > Math.pow(player.blockInteractionRange() + 1, 2))) {
-            return;
+        box(player, first, last, face, hit, 0);
+    }
+
+    public static void box(ServerPlayer player, BlockPos first, BlockPos last, Direction face, @Nullable BlockHitResult hit, long seed) {
+        ItemStack held = BuildingRodItem.material(player);
+        if (!BuildingRodItem.isHeld(player) || !BuildingRodItem.isPlacementMaterial(held)) return;
+        Selection selection = SELECTIONS.remove(player);
+        if (!withinReach(player, last, 0)) return;
+        if (selection != null) {
+            if (!selection.first().equals(first) || selection.dimension() != player.level().dimension()
+                || !ItemStack.isSameItemSameComponents(selection.material(), held)) return;
+            face = selection.face();
+            hit = selection.hit();
+            seed = selection.seed();
+        } else {
+            if (!withinReach(player, first, 0)) return;
+            if (hit != null && (!withinReach(player, hit.getBlockPos(), 1)
+                || !Double.isFinite(hit.getLocation().lengthSqr())
+                || player.getEyePosition().distanceToSqr(hit.getLocation()) > Math.pow(player.blockInteractionRange() + 1, 2))) {
+                return;
+            }
         }
         if (volume(first, last) > MAX_BLOCKS) {
             message(player, "too_many");
             return;
         }
-        if (!(held.getItem() instanceof BlockItem)) {
+        if (!(held.getItem() instanceof BlockItem) && !held.is(ModItems.FILTER)) {
             BuildingRodFluids.place(player, first, last);
             return;
         }
-        List<Group> groups = planBlocks(player, held, first, last, face, hit);
+        List<Group> groups = held.is(ModItems.FILTER) ? BuildingRodPattern.plan(player, held, first, last, face, seed)
+            : planBlocks(player, held, first, last, face, hit);
         if (groups == null) {
             message(player, "blocked");
             return;
@@ -108,20 +148,33 @@ public final class BuildingRodService {
     }
 
     public static List<Cell> preview(Player player, BlockPos first, BlockPos last, Direction face, @Nullable BlockHitResult hit) {
-        ItemStack held = player.getOffhandItem();
+        return preview(player, first, last, face, hit, 0);
+    }
+
+    public static List<Cell> preview(Player player, BlockPos first, BlockPos last, Direction face,
+                                     @Nullable BlockHitResult hit, long seed) {
+        ItemStack held = BuildingRodItem.material(player);
         if (!BuildingRodItem.isPlacementMaterial(held) || volume(first, last) > MAX_BLOCKS) return List.of();
-        if (!(held.getItem() instanceof BlockItem)) return BuildingRodFluids.preview(player, first, last);
-        List<Group> groups = planBlocks(player, held, first, last, face, hit);
+        if (!(held.getItem() instanceof BlockItem) && !held.is(ModItems.FILTER)) {
+            return BuildingRodFluids.preview(player, first, last);
+        }
+        List<Group> groups = held.is(ModItems.FILTER) ? BuildingRodPattern.plan(player, held, first, last, face, seed)
+            : planBlocks(player, held, first, last, face, hit);
         return groups == null ? List.of() : groups.stream().flatMap(group -> group.cells.stream()).toList();
     }
 
     @Nullable
-    private static List<Group> planBlocks(Player player, ItemStack held, BlockPos first, BlockPos last,
+    static List<Group> planBlocks(Player player, ItemStack held, BlockPos first, BlockPos last,
                                          Direction face, @Nullable BlockHitResult hit) {
+        for (BlockPos pos : BlockPos.betweenClosed(first, last)) {
+            if (!canModify(player, pos)) return null;
+        }
+        if (hit != null && !player.level().hasChunkAt(hit.getBlockPos())) return null;
         BlockItem item = (BlockItem) held.getItem();
-        if (first.equals(last)) {
+        if (first.equals(last) && !(item.getBlock() instanceof AbstractMultiPartBlock<?>)
+            && !(item.getBlock() instanceof LargeCakeBlock)) {
             BlockHitResult click = hit == null ? new BlockHitResult(Vec3.atCenterOf(first), face, first, false) : hit;
-            List<Cell> cells = singlePlacement(new UseOnContext(player.level(), player, InteractionHand.OFF_HAND, held, click));
+            List<Cell> cells = singlePlacement(new UseOnContext(player.level(), player, BuildingRodItem.materialHand(player), held, click));
             if (cells.isEmpty()) return null;
             Group group = new Group();
             group.cells.addAll(cells);
@@ -129,7 +182,7 @@ public final class BuildingRodService {
             return List.of(group);
         }
         Block block = item.getBlock();
-        if (block instanceof AbstractMultiPartBlock<?> || block instanceof DoorBlock
+        if (block instanceof AbstractMultiPartBlock<?> || block instanceof LargeCakeBlock || block instanceof DoorBlock
             || block instanceof DoublePlantBlock || block instanceof BedBlock) {
             return tile(player, held, block, first, last, face);
         }
@@ -141,7 +194,7 @@ public final class BuildingRodService {
             if (!canModify(player, pos)) {
                 return null;
             }
-            BlockPlaceContext context = new BlockPlaceContext(player, InteractionHand.OFF_HAND, held,
+            BlockPlaceContext context = new BlockPlaceContext(player, BuildingRodItem.materialHand(player), held,
                 new BlockHitResult(Vec3.atCenterOf(pos), face, pos, false));
             BlockState state = item.getBlock().getStateForPlacement(context);
             if (state == null) {
@@ -173,7 +226,7 @@ public final class BuildingRodService {
 
     @Nullable
     private static List<Group> tile(Player player, ItemStack held, Block block, BlockPos first, BlockPos last, Direction face) {
-        BlockPlaceContext context = new BlockPlaceContext(player, InteractionHand.OFF_HAND, held,
+        BlockPlaceContext context = new BlockPlaceContext(player, BuildingRodItem.materialHand(player), held,
             new BlockHitResult(Vec3.atCenterOf(first), face, first, false));
         BlockState state = block instanceof SimpleMultiPartBlock<?> multipart
             ? multipart.getPlacementState(context) : block.getStateForPlacement(context);
@@ -189,9 +242,13 @@ public final class BuildingRodService {
         int width = maxX - minX + 1;
         int height = maxY - minY + 1;
         int depth = maxZ - minZ + 1;
-        int countX = (Math.abs(last.getX() - first.getX()) + 1) / width;
-        int countY = (Math.abs(last.getY() - first.getY()) + 1) / height;
-        int countZ = (Math.abs(last.getZ() - first.getZ()) + 1) / depth;
+        int countX = Math.abs(last.getX() - first.getX()) / width + 1;
+        int countY = Math.abs(last.getY() - first.getY()) / height + 1;
+        int countZ = Math.abs(last.getZ() - first.getZ()) / depth + 1;
+        if ((long) countX * countY * countZ * template.cells.size() > MAX_BLOCKS) return null;
+        int anchorX = face == Direction.EAST ? minX : face == Direction.WEST ? maxX : (minX + maxX) / 2;
+        int anchorY = face == Direction.DOWN ? maxY : minY;
+        int anchorZ = face == Direction.SOUTH ? minZ : face == Direction.NORTH ? maxZ : (minZ + maxZ) / 2;
         int signX = last.getX() >= first.getX() ? 1 : -1;
         int signY = last.getY() >= first.getY() ? 1 : -1;
         int signZ = last.getZ() >= first.getZ() ? 1 : -1;
@@ -199,8 +256,8 @@ public final class BuildingRodService {
         for (int x = 0; x < countX; x++) {
             for (int y = 0; y < countY; y++) {
                 for (int z = 0; z < countZ; z++) {
-                    BlockPos origin = first.offset(x * width * signX - (signX > 0 ? minX : maxX),
-                        y * height * signY - (signY > 0 ? minY : maxY), z * depth * signZ - (signZ > 0 ? minZ : maxZ));
+                    BlockPos origin = first.offset(x * width * signX - anchorX,
+                        y * height * signY - anchorY, z * depth * signZ - anchorZ);
                     Group group = new Group();
                     for (Cell cell : template.cells) {
                         BlockPos pos = origin.offset(cell.pos());
@@ -261,6 +318,11 @@ public final class BuildingRodService {
     }
 
     private static void addBoxCells(Group group, BlockPos pos, BlockState state) {
+        if (state.getBlock() instanceof LargeCakeBlock) {
+            LargeCakeBlockItem.forEachPlacedBlock(pos, state,
+                (partPos, partState) -> group.cells.add(new Cell(partPos, partState, new CompoundTag(), List.of())));
+            return;
+        }
         group.cells.add(new Cell(pos, state, new CompoundTag(), List.of()));
         if (state.getBlock() instanceof AbstractMultiPartBlock<?> multipart) {
             addMultipart(group, pos, state, multipart);
@@ -284,8 +346,8 @@ public final class BuildingRodService {
     }
 
     public static void blueprint(ServerPlayer player, BlockPos anchor, Rotation rotation, Mirror mirror, boolean partial) {
-        if (!player.getMainHandItem().is(ModItems.BUILDING_ROD) || !player.getOffhandItem().is(ModItems.STRUCTURE_DISK)) return;
-        var disk = player.getOffhandItem().get(ModComponents.STRUCTURE_DISK_DATA);
+        if (!BuildingRodItem.isHeld(player) || !BuildingRodItem.material(player).is(ModItems.STRUCTURE_DISK)) return;
+        var disk = BuildingRodItem.material(player).get(ModComponents.STRUCTURE_DISK_DATA);
         if (disk == null || !withinReach(player, anchor, 26)) return;
         CompoundTag tag = StructureLoadUtil.readStructureFileOnServer(player.serverLevel(), disk.file());
         if (tag == null) return;
@@ -295,10 +357,10 @@ public final class BuildingRodService {
                 disk.direction(), disk.upsideDown());
             BlueprintPlacement placement = new BlueprintPlacement(anchor, rotation, mirror);
             Map<BlockPos, Group> groups = new LinkedHashMap<>();
-            for (StructureSnapshot.BlockEntry entry : snapshot.blocks()) {
-                BlockState state = placement.stateOf(snapshot.stateOf(entry));
+            for (BlueprintMultiblocks.PlacedBlock entry : BlueprintMultiblocks.expand(snapshot, placement, -1)) {
+                BlockState state = entry.state();
                 if (OrdinaryBlockAdapter.mapping(state) == OrdinaryBlockAdapter.Mapping.AIR) continue;
-                BlockPos pos = placement.worldOf(entry.pos());
+                BlockPos pos = entry.pos();
                 if (!canModify(player, pos)) {
                     message(player, "blocked");
                     return;
@@ -383,7 +445,7 @@ public final class BuildingRodService {
             }
             boolean complete = commit(player, allGroups, partial, true);
             if (complete) PacketDistributor.sendToPlayer(player, new BuildingRodResultPacket(true));
-        } catch (ConstructionBlueprintException exception) {
+        } catch (ConstructionBlueprintException | IllegalArgumentException exception) {
             message(player, "invalid_structure");
         }
     }
@@ -416,24 +478,35 @@ public final class BuildingRodService {
     }
 
     static boolean commit(ServerPlayer player, List<Group> groups, boolean partial, boolean quiet) {
+        if (!quiet && groups.stream().mapToInt(group -> group.cells.size()).sum() > MAX_BLOCKS) {
+            message(player, "too_many");
+            return false;
+        }
         BuildingMaterials materials = new BuildingMaterials(player);
         List<Cell> cells = new ArrayList<>();
         List<EntityBuildAdapter.Planned> entities = new ArrayList<>();
         boolean missing = false;
+        List<Group> placedGroups = new ArrayList<>();
         for (Group group : groups) {
             if (!materials.reserve(group.materials, group.fluids)) {
                 missing = true;
                 if (!partial) {
                     message(player, "missing_blocks");
+                    if (quiet) BuildingRodMaterialBook.give(player, new BuildingMaterials(player).missing(groups));
                     return false;
                 }
                 continue;
             }
+            placedGroups.add(group);
             cells.addAll(group.cells);
             entities.addAll(group.entities);
         }
+        List<Component> shortages = missing && quiet ? new BuildingMaterials(player).missing(groups) : List.of();
         if (missing) message(player, "missing_blocks");
-        if (cells.isEmpty() && entities.isEmpty()) return !missing;
+        if (cells.isEmpty() && entities.isEmpty()) {
+            BuildingRodMaterialBook.give(player, shortages);
+            return !missing;
+        }
         for (Cell cell : cells) {
             if (EventHooks.onBlockPlace(player, BlockSnapshot.create(player.level().dimension(), player.level(), cell.pos()),
                 Direction.UP)) {
@@ -441,12 +514,14 @@ public final class BuildingRodService {
                 return false;
             }
         }
-        ItemStack rod = player.getMainHandItem();
+        ItemStack rod = BuildingRodItem.heldRod(player);
         if (!BuildingRodItem.ready(player, rod)) return false;
         if (!materials.consume()) {
             message(player, "missing_blocks");
+            if (quiet) BuildingRodMaterialBook.give(player, new BuildingMaterials(player).missing(groups));
             return false;
         }
+        final BuildingRodUndo undo = new BuildingRodUndo(player, placedGroups);
         for (Cell cell : cells) BuildingCommit.set(player.level(), cell.pos(), cell.state());
         for (Cell cell : cells) {
             BlockEntity blockEntity = player.level().getBlockEntity(cell.pos());
@@ -479,12 +554,14 @@ public final class BuildingRodService {
             if (entity != null) EntityBuildAdapters.insertContents(entity, plan.contents(), player.registryAccess());
             if (!player.isCreative() && !plan.returned().isEmpty()) player.getInventory().placeItemBackInInventory(plan.returned().copy());
         }
+        undo.finish(player);
+        BuildingRodMaterialBook.give(player, shortages);
         finishPlacement(player, cells.size());
         return !missing;
     }
 
     static void finishPlacement(ServerPlayer player, int blocks) {
-        BuildingRodItem.consume(player, player.getMainHandItem(), blocks);
+        BuildingRodItem.consume(player, BuildingRodItem.heldRod(player), blocks);
         player.getInventory().setChanged();
         player.containerMenu.broadcastChanges();
         PacketDistributor.sendToPlayer(player, new BuildingRodResultPacket(false));

@@ -129,3 +129,4 @@ ref/
 /.vscode
 /src/test/
 /src/*Test/
+/tests

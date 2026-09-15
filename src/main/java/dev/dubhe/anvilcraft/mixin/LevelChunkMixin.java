@@ -6,6 +6,7 @@ import com.llamalad7.mixinextras.sugar.Local;
 import dev.dubhe.anvilcraft.api.event.BlockEntityEvent;
 import dev.dubhe.anvilcraft.api.rendering.CacheableBERenderingPipeline;
 import dev.dubhe.anvilcraft.block.entity.BaseLaserBlockEntity;
+import dev.dubhe.anvilcraft.building.BuildingRodUndo;
 import dev.dubhe.anvilcraft.util.EnchantedGoldBlockPositions;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
@@ -30,6 +31,13 @@ public abstract class LevelChunkMixin {
 
     @Shadow
     public abstract Map<BlockPos, BlockEntity> getBlockEntities();
+
+    @Inject(method = "setBlockState", at = @At("RETURN"))
+    private void trackBuildingRodReplacement(BlockPos pos, BlockState state, boolean moving,
+                                             CallbackInfoReturnable<BlockState> cir) {
+        BlockState previous = cir.getReturnValue();
+        if (previous != null) BuildingRodUndo.replaced(this.getLevel(), pos, previous, state);
+    }
 
     @Inject(method = "setBlockEntity", at = @At("TAIL"))
     private void onLoadBlockEntity(BlockEntity entity, CallbackInfo ci) {

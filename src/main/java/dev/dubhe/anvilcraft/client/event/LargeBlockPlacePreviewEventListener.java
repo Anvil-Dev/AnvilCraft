@@ -20,7 +20,7 @@ import dev.dubhe.anvilcraft.client.selection.ModelBlockSelection;
 import dev.dubhe.anvilcraft.config.AnvilCraftClientConfig;
 import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
-import dev.dubhe.anvilcraft.init.item.ModItems;
+import dev.dubhe.anvilcraft.item.BuildingRodItem;
 import dev.dubhe.anvilcraft.util.BlockPlacementPicking;
 import dev.dubhe.anvilcraft.util.PlacementInteractions;
 import dev.dubhe.anvilcraft.util.SegmentedActuator;
@@ -221,7 +221,7 @@ public class LargeBlockPlacePreviewEventListener {
             return;
         }
         renderMissingAmplifierGhosts(event);
-        if (player.getMainHandItem().is(ModItems.BUILDING_ROD)) {
+        if (BuildingRodItem.isHeld(player)) {
             renderEntries.clear();
             return;
         }

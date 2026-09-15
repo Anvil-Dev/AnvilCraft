@@ -14,7 +14,6 @@ import net.minecraft.world.entity.EquipmentSlotGroup;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.ArmorMaterials;
 import net.minecraft.world.item.Equipable;
 import net.minecraft.world.item.ItemStack;
@@ -29,14 +28,16 @@ public class CelestialForgingAnvilBlockItem extends SimpleMultiPartBlockItem<Cub
         SimpleMultiPartBlock<Cube323PartHalf> block, Properties properties
     ) {
         super(block, properties);
-        var material = ArmorMaterials.NETHERITE.value();
         var modifierId = AnvilCraft.of("celestial_forging_anvil_helmet");
         this.armorModifiers = ItemAttributeModifiers.builder()
             .add(Attributes.ARMOR,
-                new AttributeModifier(modifierId, material.getDefense(ArmorItem.Type.HELMET), AttributeModifier.Operation.ADD_VALUE),
+                new AttributeModifier(modifierId, 5, AttributeModifier.Operation.ADD_VALUE),
                 EquipmentSlotGroup.HEAD)
             .add(Attributes.ARMOR_TOUGHNESS,
-                new AttributeModifier(modifierId, material.toughness(), AttributeModifier.Operation.ADD_VALUE),
+                new AttributeModifier(modifierId, 4, AttributeModifier.Operation.ADD_VALUE),
+                EquipmentSlotGroup.HEAD)
+            .add(Attributes.KNOCKBACK_RESISTANCE,
+                new AttributeModifier(modifierId, 0.1, AttributeModifier.Operation.ADD_VALUE),
                 EquipmentSlotGroup.HEAD)
             .build();
     }

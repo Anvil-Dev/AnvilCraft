@@ -7,6 +7,9 @@ public final class BuildingRodLang {
     }
 
     public static void init(RegistrumLangProvider provider) {
+        provider.add("message.anvilcraft.building_rod.missing_book", "Missing materials; carry a book to receive a material list");
+        provider.add("message.anvilcraft.building_rod.nothing_to_undo", "No unchanged placement to undo");
+        provider.add("message.anvilcraft.building_rod.undone", "Last placement undone");
         provider.add("item.anvilcraft.building_rod.fluids",
             "Buckets can fill areas and waterlog blocks; renewable fluids cost 2 B per fill, supplied by inventory or linked storage");
         provider.add("screen.anvilcraft.building_rod.traditional.hint",
@@ -19,8 +22,6 @@ public final class BuildingRodLang {
         provider.add("screen.anvilcraft.building_rod.tool.cancel", "Cancel placement");
         provider.add("screen.anvilcraft.building_rod.distance",
             "Hold [Ctrl] to keep the projection distance; use Up/Down to adjust | %s Lock blueprint");
-        provider.add("screen.anvilcraft.blueprint_import.rotation.auto", "Import rotation: Follow view");
-        provider.add("screen.anvilcraft.blueprint_import.rotation.manual", "Import rotation: Manual only");
         provider.add("item.anvilcraft.building_rod.summary", "Place blocks and blueprints in bulk.");
         provider.add("message.anvilcraft.building_rod.placed", "Blueprint placed");
         provider.add("screen.anvilcraft.building_rod.left_click", "Left Click");
@@ -30,7 +31,7 @@ public final class BuildingRodLang {
         );
         provider.add(
             "item.anvilcraft.building_rod.desc",
-            "Extend reach in the offhand; build with blocks, fluid buckets or a structure disk in the offhand"
+            "Grants crab claw reach while carried, including in pockets; hold in either hand to build with +15 block reach"
         );
         provider.add(
             "item.anvilcraft.building_rod.energy",
@@ -42,7 +43,7 @@ public final class BuildingRodLang {
         );
         provider.add(
             "item.anvilcraft.building_rod.import",
-            "Use the Import Blueprint key with a structure disk in the offhand (16×16×16 maximum)"
+            "Import blueprint files through the Structure Scanner (16×16×16 maximum)"
         );
         provider.add(
             "message.anvilcraft.building_rod.no_energy",
@@ -69,32 +70,12 @@ public final class BuildingRodLang {
             "Invalid blueprint or larger than 16×16×16"
         );
         provider.add(
-            "message.anvilcraft.building_rod.imported",
-            "Blueprint imported into the structure disk"
-        );
-        provider.add(
             "screen.anvilcraft.building_rod.optimized",
             "%s Place | %s Cancel | %s %s %s %s %s %s Move | %s %s Rotate | %s Mirror"
         );
         provider.add(
             "screen.anvilcraft.building_rod.traditional",
             "%s + Scroll: select tool | %s + Scroll: adjust | %s + Scroll: layers | Use: execute · %s | %s Cancel"
-        );
-        provider.add(
-            "screen.anvilcraft.blueprint_import.title",
-            "Import Blueprint (up to 16×16×16)"
-        );
-        provider.add(
-            "screen.anvilcraft.blueprint_import.refresh",
-            "Refresh"
-        );
-        provider.add(
-            "screen.anvilcraft.blueprint_import.open_folder",
-            "Open Folder"
-        );
-        provider.add(
-            "screen.anvilcraft.blueprint_import.empty",
-            "Put .nbt or .litematic files in anvilcraft/structures"
         );
         provider.add(
             "screen.anvilcraft.building_rod.tool.move",
@@ -155,10 +136,6 @@ public final class BuildingRodLang {
         provider.add(
             "key.anvilcraft.building_rod_mirror",
             "Building Rod: Mirror"
-        );
-        provider.add(
-            "key.anvilcraft.building_rod_import",
-            "Building Rod: Import blueprint"
         );
         provider.add(
             "key.anvilcraft.building_rod_tool",

@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "B": {
+      "item": "anvilcraft:resin_block"
+    },
+    "I": {
+      "item": "minecraft:iron_boots"
+    },
+    "R": {
+      "item": "anvilcraft:hardend_resin"
+    }
+  },
+  "pattern": [
+    "R R",
+    "RIR",
+    "B B"
+  ],
+  "result": {
+    "count": 1,
+    "id": "anvilcraft:buffer_boots"
+  }
+}

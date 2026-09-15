@@ -24,6 +24,7 @@ import dev.dubhe.anvilcraft.block.multipart.AbstractMultiPartBlock;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.init.storage.ModStorageTypes;
+import dev.dubhe.anvilcraft.inventory.PocketInventory;
 import dev.dubhe.anvilcraft.item.TerminalItem;
 import dev.dubhe.anvilcraft.item.property.component.StorageRef;
 import dev.dubhe.anvilcraft.item.property.component.TerminalBinding;
@@ -4235,9 +4236,7 @@ public final class StorageServerStub {
      * 时意外写回物品组件；空（无 UUID）集装箱需先经 {@link #openRemote} 右键打开授予。</p>
      */
     private static Optional<UUID> findBoundPlayerShulkerContainer(ServerPlayer player) {
-        Inventory inventory = player.getInventory();
-        for (int slot = 0; slot < inventory.getContainerSize(); slot++) {
-            ItemStack stack = inventory.getItem(slot);
+        for (ItemStack stack : PocketInventory.carriedItems(player)) {
             if (!(stack.getItem() instanceof ShulkerContainerBlockItem)) {
                 continue;
             }
@@ -4259,9 +4258,7 @@ public final class StorageServerStub {
      * 无可连接的集装箱时返回空。</p>
      */
     private static Optional<UUID> findOrGrantFrontmostShulkerContainer(ServerPlayer player) {
-        Inventory inventory = player.getInventory();
-        for (int slot = 0; slot < inventory.getContainerSize(); slot++) {
-            ItemStack stack = inventory.getItem(slot);
+        for (ItemStack stack : PocketInventory.carriedItems(player)) {
             if (!(stack.getItem() instanceof ShulkerContainerBlockItem)) {
                 continue;
             }

@@ -19,7 +19,7 @@ public final class RuinsStructure {
     }
 
     public static boolean isMultipart(BlockState state) {
-        return state.getBlock() instanceof AbstractMultiPartBlock<?> && !(state.getBlock() instanceof LargeCakeBlock);
+        return state.getBlock() instanceof AbstractMultiPartBlock<?>;
     }
 
     public static boolean isMainPart(RuinsBlockEntity ruins) {

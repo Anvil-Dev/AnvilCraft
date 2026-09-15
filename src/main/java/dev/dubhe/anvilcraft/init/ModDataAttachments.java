@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.init;
 
 import com.mojang.serialization.Codec;
 import dev.dubhe.anvilcraft.api.amulet.AmuletRaffleProbability;
+import dev.dubhe.anvilcraft.inventory.PocketInventory;
 import dev.dubhe.anvilcraft.inventory.SmithingTemplateFavorites;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.neoforged.bus.api.IEventBus;
@@ -16,6 +17,10 @@ import static dev.dubhe.anvilcraft.AnvilCraft.MOD_ID;
 public class ModDataAttachments {
     private static final DeferredRegister<AttachmentType<?>> ATTACHMENT_TYPES =
         DeferredRegister.create(NeoForgeRegistries.ATTACHMENT_TYPES, MOD_ID);
+
+    public static final Supplier<AttachmentType<PocketInventory>> POCKETS = ATTACHMENT_TYPES.register(
+        "pockets", () -> AttachmentType.builder(PocketInventory::new).serialize(PocketInventory.CODEC)
+            .copyOnDeath().sync((holder, player) -> holder == player, PocketInventory.STREAM_CODEC).build());
 
     public static final Supplier<AttachmentType<Boolean>> IN_POWER_GRID = ATTACHMENT_TYPES.register(
         "in_power_grid", () -> AttachmentType.builder(() -> false).sync(ByteBufCodecs.BOOL).build());

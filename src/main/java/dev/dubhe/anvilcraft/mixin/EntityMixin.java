@@ -8,6 +8,7 @@ import dev.dubhe.anvilcraft.api.event.EntityThroughPortalEvent;
 import dev.dubhe.anvilcraft.api.injection.entity.IEntityExtension;
 import dev.dubhe.anvilcraft.api.portal.PortalType;
 import dev.dubhe.anvilcraft.block.entity.DeflectionRingBlockEntity;
+import dev.dubhe.anvilcraft.item.EquipmentAbilities;
 import dev.dubhe.anvilcraft.mixin.accessor.PortalProcessorAccessor;
 import dev.dubhe.anvilcraft.util.AccelerateManager;
 import dev.dubhe.anvilcraft.util.AtmosphereManager;
@@ -43,6 +44,11 @@ import javax.annotation.Nullable;
 public abstract class EntityMixin implements IEntityExtension {
     @Inject(method = "setAirSupply", at = @At("HEAD"), cancellable = true)
     private void anvilcraft$preventBreathingWithoutOxygen(int airSupply, CallbackInfo ci) {
+        if ((Object) this instanceof LivingEntity living && EquipmentAbilities.canBreathe(living)
+            && airSupply < living.getAirSupply()) {
+            ci.cancel();
+            return;
+        }
         if ((Object) this instanceof LivingEntity living && airSupply > living.getAirSupply()
             && airSupply > 0 && AtmosphereManager.isSuffocating(living)) {
             // 保留窒息伤害后将气息重置为零的行为，阻止水生生物在真空中自行补满气息。

@@ -53,6 +53,19 @@ public class ItemTooltipManager {
     private static final long STORAGE_USAGE_REFRESH_INTERVAL = 2000L;
 
     static {
+        NORMAL.put(ModItems.BUILDING_ROD.get(),
+            "Place blocks and blueprints in bulk; grants crab claw reach while carried, including in pockets");
+        SHIFT.put(ModItems.BUILDING_ROD.get(), """
+            Hold in either hand, with blocks, a filter, a fluid bucket or a structure disk in the other hand; building reach +15
+            Hold use and drag to fill a box (up to 4,000 blocks); the starting face determines large-block anchors
+            Filters ignore black/whitelists: without component matching, block slots give random weights
+            With component matching, repeat the occupied rectangle of slots, keeping holes; the first point anchors the texture
+            Hold Shift to place the available part of a blueprint; Ctrl+Z undoes the last placement
+            Carry a book to receive a missing-material list when blueprint materials run short
+            Buckets fill areas and waterlog blocks; renewable fluids cost 2 B per fill
+            Import blueprint files through the Structure Scanner (16×16×16 maximum)
+            Consumes 100 FE per block; automatically recharges from carried capacitors
+            """);
         NORMAL.put(ModItems.MAGNET.get(), "Attract surrounding items when use");
         NORMAL.put(ModItems.GEODE.get(), "Find the surrounding Amethyst Geode when using it");
         NORMAL.put(ModItems.ANVIL_HAMMER.get(), "It's a hammer, an anvil, a wrench, goggles, and a mace");
@@ -913,7 +926,7 @@ public class ItemTooltipManager {
     public static void addTooltip(ItemStack stack, List<Component> tooltip) {
         final Item item = stack.getItem();
         final int initialTooltipSize = tooltip.size();
-        if (stack.has(ModComponents.STORED_ENERGY) && (!stack.is(ModItems.BUILDING_ROD) || Screen.hasShiftDown())) {
+        if (stack.has(ModComponents.STORED_ENERGY) && !stack.is(ModItems.BUILDING_ROD)) {
             propertyTooltip(
                 "stored_energy",
                 tooltip,
@@ -998,6 +1011,11 @@ public class ItemTooltipManager {
             }
         } else if (NORMAL.containsKey(item)) {
             addNormalTooltip(tooltip, item);
+        }
+        if (stack.is(ModItems.BUILDING_ROD)) {
+            tooltip.add(1, Component.translatable("tooltip.anvilcraft.property.stored_energy",
+                UnitUtil.energyUnit(stack.getOrDefault(ModComponents.STORED_ENERGY, 0), Screen.hasShiftDown()))
+                .withStyle(ChatFormatting.GRAY));
         }
         if (stack.is(ModBlocks.POWER_CONVERTER_SMALL.asItem())) {
             tooltip.add(

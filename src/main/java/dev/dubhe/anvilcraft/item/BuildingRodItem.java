@@ -5,8 +5,7 @@ import dev.dubhe.anvilcraft.api.item.ICapacitorChargeable;
 import dev.dubhe.anvilcraft.api.item.IFullCapacitor;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItems;
-import net.minecraft.ChatFormatting;
-import net.minecraft.client.gui.screens.Screen;
+import dev.dubhe.anvilcraft.inventory.PocketInventory;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -21,13 +20,11 @@ import net.minecraft.world.item.BucketItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.MobBucketItem;
-import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.energy.IEnergyStorage;
 import net.neoforged.neoforge.fluids.FluidUtil;
 
-import java.util.List;
 import javax.annotation.Nullable;
 
 public class BuildingRodItem extends Item implements ICapacitorChargeable {
@@ -44,21 +41,41 @@ public class BuildingRodItem extends Item implements ICapacitorChargeable {
     }
 
     public static boolean isPlacementMaterial(ItemStack stack) {
-        return stack.getItem() instanceof BlockItem
+        return stack.is(ModItems.FILTER) || stack.getItem() instanceof BlockItem
             || stack.getItem() instanceof BucketItem && !(stack.getItem() instanceof MobBucketItem)
             && FluidUtil.getFluidContained(stack).isPresent();
     }
 
-    public static void updateReach(Player player) {
-        boolean offhand = player.getOffhandItem().is(ModItems.BUILDING_ROD);
-        ItemStack other = player.getOffhandItem();
-        int blocks = offhand ? 5 : player.getMainHandItem().is(ModItems.BUILDING_ROD)
-            ? other.is(ModItems.STRUCTURE_DISK) ? 15 : isPlacementMaterial(other) ? 9 : 0 : 0;
-        setReach(player.getAttribute(Attributes.BLOCK_INTERACTION_RANGE), blocks);
-        setReach(player.getAttribute(Attributes.ENTITY_INTERACTION_RANGE), offhand ? 3 : 0);
+    public static boolean isHeld(Player player) {
+        return player.getMainHandItem().is(ModItems.BUILDING_ROD) || player.getOffhandItem().is(ModItems.BUILDING_ROD);
     }
 
-    private static void setReach(@Nullable AttributeInstance attribute, int amount) {
+    public static ItemStack heldRod(Player player) {
+        return player.getMainHandItem().is(ModItems.BUILDING_ROD) ? player.getMainHandItem() : player.getOffhandItem();
+    }
+
+    public static InteractionHand materialHand(Player player) {
+        return player.getMainHandItem().is(ModItems.BUILDING_ROD) ? InteractionHand.OFF_HAND : InteractionHand.MAIN_HAND;
+    }
+
+    public static ItemStack material(Player player) {
+        return player.getItemInHand(materialHand(player));
+    }
+
+    public static boolean isCarried(Player player) {
+        if (isHeld(player)) return true;
+        return PocketInventory.carriedItems(player).stream().anyMatch(stack -> stack.is(ModItems.BUILDING_ROD));
+    }
+
+    public static void updateReach(Player player) {
+        ItemStack other = material(player);
+        boolean building = isHeld(player) && (isPlacementMaterial(other) || other.is(ModItems.STRUCTURE_DISK));
+        setReach(player.getAttribute(Attributes.BLOCK_INTERACTION_RANGE),
+            building ? 15 - CrabClawItem.RANGE_ATTRIBUTE_MODIFIER.amount() : 0);
+        setReach(player.getAttribute(Attributes.ENTITY_INTERACTION_RANGE), 0);
+    }
+
+    private static void setReach(@Nullable AttributeInstance attribute, double amount) {
         if (attribute == null) return;
         var id = AnvilCraft.of("building_rod_reach");
         AttributeModifier previous = attribute.getModifier(id);
@@ -82,8 +99,7 @@ public class BuildingRodItem extends Item implements ICapacitorChargeable {
 
     private static void recharge(Player player, ItemStack rod) {
         if (rod.getOrDefault(ModComponents.STORED_ENERGY, 0) != 0) return;
-        for (int slot = 0; slot < player.getInventory().getContainerSize(); slot++) {
-            ItemStack stack = player.getInventory().getItem(slot);
+        for (ItemStack stack : PocketInventory.carriedItems(player)) {
             if (!(stack.getItem() instanceof IFullCapacitor capacitor)) continue;
             if (!((BuildingRodItem) rod.getItem()).charge(rod, capacitor, stack)) continue;
             ItemStack empty = capacitor.getEmpty(stack);
@@ -110,13 +126,12 @@ public class BuildingRodItem extends Item implements ICapacitorChargeable {
 
     @Override
     public InteractionResult useOn(UseOnContext context) {
-        return context.getHand() == InteractionHand.MAIN_HAND ? InteractionResult.SUCCESS : InteractionResult.PASS;
+        return InteractionResult.SUCCESS;
     }
 
     @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
-        return hand == InteractionHand.MAIN_HAND
-            ? InteractionResultHolder.success(player.getItemInHand(hand)) : InteractionResultHolder.pass(player.getItemInHand(hand));
+        return InteractionResultHolder.success(player.getItemInHand(hand));
     }
 
     @Override
@@ -132,20 +147,5 @@ public class BuildingRodItem extends Item implements ICapacitorChargeable {
     @Override
     public int getBarColor(ItemStack stack) {
         return 0x7087FF;
-    }
-
-    @Override
-    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> lines, TooltipFlag flag) {
-        if (!Screen.hasShiftDown()) {
-            lines.add(Component.translatable("item.anvilcraft.building_rod.summary"));
-            lines.add(Component.translatable("tooltip.anvilcraft.press_key",
-                Component.literal("[Shift]").withStyle(ChatFormatting.WHITE)).withStyle(ChatFormatting.DARK_GRAY));
-            return;
-        }
-        lines.add(Component.translatable("item.anvilcraft.building_rod.desc"));
-        lines.add(Component.translatable("item.anvilcraft.building_rod.controls"));
-        lines.add(Component.translatable("item.anvilcraft.building_rod.fluids"));
-        lines.add(Component.translatable("item.anvilcraft.building_rod.import"));
-        lines.add(Component.translatable("item.anvilcraft.building_rod.energy", stack.getOrDefault(ModComponents.STORED_ENERGY, 0)));
     }
 }

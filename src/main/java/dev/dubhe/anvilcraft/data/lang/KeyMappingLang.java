@@ -4,6 +4,7 @@ import dev.anvilcraft.lib.v2.registrum.providers.RegistrumLangProvider;
 
 public class KeyMappingLang {
     public static void init(RegistrumLangProvider provider) {
+        provider.add("key.anvilcraft.pockets", "Swap pocket with offhand");
         provider.add("key.categories.anvilcraft", "AnvilCraft");
         provider.add("key.anvilcraft.switch_phase", "Switch Phase");
         provider.add("key.anvilcraft.toggle_goggle", "Toggle Goggle Mode");
