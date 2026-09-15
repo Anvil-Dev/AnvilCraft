@@ -1013,6 +1013,8 @@
   "gui.anvilcraft.category.portal_conversion": "ꞁɐʇɹoԀ oʇuI sꞁꞁɐℲ ʞɔoꞁᗺ",
   "gui.anvilcraft.category.portal_conversion.fall_through": "%s ɥᵷnoɹɥʇ ꞁꞁɐɟ uǝɥʍ pǝʇɹǝʌuoƆ",
   "gui.anvilcraft.category.procedural_process": "ᵷuᴉssǝɔoɹԀ ǝɔuǝnbǝS ʞɔoꞁᗺ",
+  "gui.anvilcraft.category.procedural_process.materials": ":sꞁɐᴉɹǝʇɐW",
+  "gui.anvilcraft.category.procedural_process.materials.overflow": "ǝɹoɯ %s+",
   "gui.anvilcraft.category.solid_liquid": "uoᴉʇɔɐǝᴚ pᴉnꞁℲ-pᴉꞁoS",
   "gui.anvilcraft.category.solid_liquid.consume_fluid": "%2$s ɟo ᗺɯ %1$d :ǝɯnsuoƆ",
   "gui.anvilcraft.category.solid_liquid.produce_fluid": "%2$s ɟo ᗺɯ %1$d :ǝɔnpoɹԀ",

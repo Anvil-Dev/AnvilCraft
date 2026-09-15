@@ -338,7 +338,8 @@ public class ItemTagLoader {
 
         // 有多个合成途径的物品：不能被拆解
         uncraftables.add(findResourceKey(ModBlocks.HELIOSTATS.asItem()))
-            .add(findResourceKey(ModBlocks.ACTIVE_SILENCER.asItem()));
+            .add(findResourceKey(ModBlocks.ACTIVE_SILENCER.asItem()))
+            .add(findResourceKey(ModBlocks.EXP_COLLECTOR.asItem()));
 
         // 电容器类物品：不能通过拆解获得
         uncraftingIngredients.add(ModItems.CAPACITOR.getKey())

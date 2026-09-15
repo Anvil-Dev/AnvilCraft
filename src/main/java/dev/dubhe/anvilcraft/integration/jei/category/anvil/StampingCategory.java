@@ -111,11 +111,12 @@ public class StampingCategory extends AbstractProgressCategory<StampingRecipe> {
             JeiSlotUtil.drawDefaultInputSlots(guiGraphics, slotDefault, recipe.getInputItems().size());
         }
 
-        if (JeiRecipeUtil.isChance(recipe.getResultItems())) {
-            JeiSlotUtil.drawDefaultOutputSlots(guiGraphics, slotProbability, recipe.getResultItems().size());
-        } else {
-            JeiSlotUtil.drawDefaultOutputSlots(guiGraphics, slotDefault, recipe.getResultItems().size());
-        }
+        List<ChanceItemStack> results = recipe.getResultItems();
+        JeiSlotUtil.drawDefaultOutputSlots(
+            guiGraphics,
+            JeiRecipeUtil.outputSlotFor(results, slotDefault, slotProbability),
+            results.size()
+        );
     }
 
     public static void registerRecipes(IRecipeRegistration registration) {

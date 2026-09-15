@@ -90,6 +90,21 @@ public class RegistrumBlockRecipeLoader {
             .unlockedBy(AnvilCraftDatagen.hasItem(Blocks.SCULK_CATALYST), AnvilCraftDatagen.has(Blocks.SCULK_CATALYST))
             .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.FLUID_TANK), AnvilCraftDatagen.has(ModBlocks.FLUID_TANK))
             .save(provider);
+
+        // 备用配方：以泵和物品收集器替代磁电核心与幽匿催发体
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
+            .pattern("ABA")
+            .pattern("BCB")
+            .pattern("ADA")
+            .define('A', ModItems.ROYAL_STEEL_INGOT)
+            .define('B', ModBlocks.PUMP)
+            .define('C', ModBlocks.ITEM_COLLECTOR)
+            .define('D', ModBlocks.FLUID_TANK)
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.ROYAL_STEEL_INGOT), AnvilCraftDatagen.has(ModItems.ROYAL_STEEL_INGOT))
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.PUMP), AnvilCraftDatagen.has(ModBlocks.PUMP))
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.ITEM_COLLECTOR), AnvilCraftDatagen.has(ModBlocks.ITEM_COLLECTOR))
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.FLUID_TANK), AnvilCraftDatagen.has(ModBlocks.FLUID_TANK))
+            .save(provider, AnvilCraft.of("exp_collector_alt"));
     }
 
     public static <T extends Block> void neoforge(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
@@ -1143,7 +1158,7 @@ public class RegistrumBlockRecipeLoader {
             .pattern("BCB")
             .pattern("ABA")
             .define('A', Tags.Items.INGOTS_COPPER)
-            .define('B', Tags.Items.GLASS_BLOCKS)
+            .define('B', Blocks.GLASS)
             .define('C', ModBlocks.HOLLOW_MAGNET_BLOCK)
             .unlockedBy("hasitem", AnvilCraftDatagen.has(ModBlocks.HOLLOW_MAGNET_BLOCK))
             .save(provider);
