@@ -108,6 +108,7 @@ public class ScreenLang {
         provider.add("tooltip.anvilcraft.storage.types.value", "  %s / %s");
         provider.add("tooltip.anvilcraft.storage.types.value.infinite", "  %s / ∞");
         provider.add("tooltip.anvilcraft.storage.missing_workbench", "Need Crafting Table and Stonecutter in the storage");
+        provider.add("screen.anvilcraft.storage.flip", "Flip Layout");
         provider.add("tooltip.anvilcraft.fluid_tank.more", "and %s more...");
         provider.add("tooltip.anvilcraft.creative_crate.item", "Item:");
         provider.add("tooltip.anvilcraft.storage_port.item", "Item:");

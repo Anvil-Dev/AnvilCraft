@@ -45,6 +45,7 @@ import lombok.Getter;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.screens.Screen;
@@ -116,11 +117,43 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
     private static final ResourceLocation NBT_UNFOLD = StorageScreen.texture("nbt_unfold");
     private static final ResourceLocation NBT_FOLD = StorageScreen.texture("nbt_fold");
     private static final ResourceLocation SLIDER = StorageScreen.texture("slider_big");
+    private static final ResourceLocation FLIP = StorageScreen.texture("flip");
     private static final ResourceLocation FLYOUT_BACK = AnvilCraft.of("flex_button/shaded_1px");
     private static final ResourceLocation FLYOUT_POINTER = AnvilCraft.of("flex_button/pointer");
     private static final ResourceLocation SMALL_FONT = ResourceLocation.fromNamespaceAndPath("anvilcraft", "small");
     private static final int BG_WIDTH = 300;
     private static final int BG_HEIGHT = 222;
+    /**
+     * 翻转模式图标按钮。
+     *
+     * <p>位置按未翻转坐标给出，与其他控件一同经 {@link #mirrorWidgets()} 换算，
+     * 因而两种模式下都保持在标题栏的右端，不会跳到另一端。
+     *
+     * <p>{@code flip.png} 为 11x16，纵向两帧各 8 行（上帧常态、下帧悬停），
+     * 每帧即一个完整图标，故按钮取 11x8、仅按 {@link #FLIP_TEX_Y_DIFF} 上下选帧。
+     * 帧内字形上下各有 1px 透明留白，正好与标题栏边框隔开。
+     */
+    private static final int FLIP_Y = 2;
+    private static final int FLIP_WIDTH = 11;
+    private static final int FLIP_HEIGHT = 8;
+    /** 按钮横向占位与标题栏亮边框之间保留的空白。 */
+    private static final int FLIP_EDGE_INSET = 9;
+    /** 标题栏右端位置（未翻转坐标），翻转时由镜像换算保持同一相对位置。 */
+    private static final int FLIP_X = BG_WIDTH - FLIP_WIDTH - FLIP_EDGE_INSET;
+    /** 常态帧与悬停帧在贴图内的纵向偏移差。 */
+    private static final int FLIP_TEX_Y_DIFF = 8;
+    private static final int FLIP_TEXTURE_WIDTH = 11;
+    private static final int FLIP_TEXTURE_HEIGHT = 16;
+    /**
+     * 翻转时两个功能区整体换位：左侧窄块 {@code [0, FLIP_SPLIT)} 右移
+     * {@link #FLIP_OFFSET}，右侧宽块 {@code [FLIP_SPLIT, BG_WIDTH)} 左移 {@code FLIP_SPLIT}。
+     *
+     * <p>数值经翻转版背景图逐像素比对确定：该区块换位对全部 222 行精确吻合，
+     * 而逐元素镜像仅 12/222。块内相对位置不变，与 issue 所述
+     * 「功能区内的各功能排列不变」一致。
+     */
+    private static final int FLIP_SPLIT = 106;
+    private static final int FLIP_OFFSET = BG_WIDTH - FLIP_SPLIT;
     private static final int STORAGE_COLUMNS = 9;
     private static final int STORAGE_ROWS = 6;
     private static final int VISIBLE_STORAGE_SLOTS = STORAGE_COLUMNS * STORAGE_ROWS;
@@ -189,6 +222,13 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
     private @Nullable CategoryList categories;
 
     private ScreenMode mode = ScreenMode.NORMAL;
+    /**
+     * 翻转模式：左右两个功能区互换位置。
+     *
+     * <p>对应背景图中以 {@link #BG_WIDTH} 为轴的整屏水平镜像，
+     * 所有横向坐标与横向命中判定都必须换算。
+     */
+    private boolean flipped;
     private ItemStack carried = ItemStack.EMPTY;
     private IntList order = new IntArrayList();
     private IntList displayOrder = new IntArrayList();
@@ -288,6 +328,8 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
     private @Nullable SwitchableButton craftingAutoFillButton;
     private @Nullable SwitchableButton craftingToStorageButton;
     private @Nullable TexturedButton craftingClearButton;
+    /** 翻转模式开关；tooltip 命中判定用其实际位置（翻转后会被 mirrorWidgets 换算）。 */
+    private @Nullable TexturedButton flipButton;
     private List<ItemStack> stonecutterRecipes = List.of();
     /** 切石机配方列表当前页首项索引（3 列 × 2 行，超出可滚动）。 */
     private int recipeHead;
@@ -369,7 +411,9 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
         }
         this.leftPos = (this.width - StorageScreen.BG_WIDTH) / 2;
         this.topPos = (this.height - StorageScreen.BG_HEIGHT) / 2;
-        this.titleLabelX = (StorageScreen.BG_WIDTH - 106 - this.font.width(this.title)) / 2 + 106;
+        // 已缓存的设置立即可用；首次加载时随后由异步回调再同步一次
+        this.flipped = SettingClientStub.setting().storage().isFlipped();
+        this.remapTitleLabel();
 
         this.search = this.addRenderableWidget(new EditBox(
             this.font,
@@ -609,12 +653,37 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
             this.craftingClearButton.visible = craftingMode;
         }
 
+        // 翻转模式开关：位置按未翻转坐标给出，与其他控件一同经 mirrorWidgets() 换算，
+        // 因而两种模式下都保持在标题栏的右端。
+        this.flipButton = this.addRenderableWidget(new TexturedButton(
+            this.leftPos + StorageScreen.FLIP_X,
+            this.topPos + StorageScreen.FLIP_Y,
+            StorageScreen.FLIP_WIDTH,
+            StorageScreen.FLIP_HEIGHT,
+            StorageScreen.FLIP,
+            StorageScreen.FLIP_TEX_Y_DIFF,
+            StorageScreen.FLIP_TEXTURE_WIDTH,
+            StorageScreen.FLIP_TEXTURE_HEIGHT,
+            button -> this.toggleFlipped()
+        ));
+
+        // 统一镜像所有控件的横向位置，避免逐个手写镜像数字
+        this.mirrorWidgets();
+
         SettingClientStub.load().thenAcceptAsync(
             setting -> {
                 if (this.categories != null) {
                     this.categories.rebuild(setting);
                 }
                 StorageSetting storage = setting.storage();
+                // 翻转状态在 init() 开头已同步，这里无需重建控件；
+                // 若两者不一致（异步加载晚于首帧），更新字段并重建一次，
+                // 随后的读取全部走 this.xxx 而非局部引用，避免操作已销毁的旧控件。
+                if (this.flipped != storage.isFlipped()) {
+                    this.flipped = storage.isFlipped();
+                    this.init(StorageScreen.this.minecraft, StorageScreen.this.width, StorageScreen.this.height);
+                    return;
+                }
                 Objects.requireNonNull(this.search).setValue(storage.getSearchContent());
                 searchMode.setCurrent(storage.getSearch().ordinal());
                 sortMode.setCurrent(storage.getSort().ordinal());
@@ -639,6 +708,85 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
     @Override
     public void resize(Minecraft minecraft, int width, int height) {
         this.init(minecraft, width, height);
+    }
+
+    /**
+     * 把未翻转时的界面内横向坐标换算为当前模式下的屏幕坐标。
+     *
+     * <p>翻转是「两个功能区整体换位」，不是逐元素镜像：经翻转版背景图逐像素比对确认，
+     * 区块换位与贴图 100% 吻合，而逐元素镜像仅约 87%。
+     * 因此这里按 {@link #FLIP_SPLIT} 把界面切成左右两块互相交换，
+     * 每块内部的相对位置保持不变（与 issue 所述「功能区内的各功能排列不变」一致）。
+     */
+    private int fx(int x) {
+        if (!this.flipped) return x;
+        return x < StorageScreen.FLIP_SPLIT ? x + StorageScreen.FLIP_OFFSET : x - StorageScreen.FLIP_SPLIT;
+    }
+
+    /**
+     * 把界面内横向坐标换算为屏幕绝对坐标。
+     *
+     * <p>自绘内容（槽位、滑条、进度条等）与命中判定都应经此换算，
+     * 使同一套「未翻转坐标」在两种模式下都成立。区块换位是刚性平移，
+     * 因此宽度无需参与换算。
+     */
+    private int sx(int localX) {
+        return this.leftPos + this.fx(localX);
+    }
+
+    /**
+     * 切换翻转模式并持久化。
+     *
+     * <p>切换后需重建控件坐标（{@link #init}），因为所有 widget 的位置在创建时就已确定。
+     */
+    private void toggleFlipped() {
+        this.flipped = !this.flipped;
+        SettingClientStub.updateFlipped(this.flipped);
+        this.init(this.minecraft, this.width, this.height);
+        this.remapTitleLabel();
+    }
+
+    /** 按当前翻转状态重新计算标题横向位置。 */
+    private void remapTitleLabel() {
+        int left = this.fx(106);
+        int right = this.fx(StorageScreen.BG_WIDTH);
+        this.titleLabelX = (Math.abs(right - left) - this.font.width(this.title)) / 2 + Math.min(left, right);
+    }
+
+    /**
+     * 鼠标是否悬停在翻转按钮上。
+     *
+     * <p>用控件自身的位置判定，避免在翻转后再重复一次镜像换算；
+     * 该区域与容量条提示条重叠，故在 {@link #renderStorageTooltip} 中优先判定本方法。
+     */
+    private boolean isOverFlipButton(double mouseX, double mouseY) {
+        TexturedButton button = this.flipButton;
+        return button != null && button.visible && button.isMouseOver(mouseX, mouseY);
+    }
+
+    /**
+     * 翻转模式下把所有已注册控件的横向位置镜像到界面另一侧。
+     *
+     * <p>集中在此处换算，控件的创建代码仍按未翻转坐标书写，避免逐处手写镜像数字。
+     * 控件均已在 {@link #init} 中按未翻转坐标创建，故直接对其当前 x 做镜像即可。
+     */
+    private void mirrorWidgets() {
+        if (!this.flipped) return;
+        for (Renderable renderable : this.renderables) {
+            if (!(renderable instanceof AbstractWidget widget)) continue;
+            widget.setX(this.leftPos + this.fx(widget.getX() - this.leftPos));
+        }
+    }
+
+    /**
+     * 镜像一段横向区间的命中判定（{@code [x1, x2)} 形式）。
+     *
+     * <p>区块换位后左右端点可能互换，故这里自动取小值为左端。
+     */
+    private boolean isInMirroredRange(double mouseX, double mouseY, int x1, int y1, int x2, int y2) {
+        int a = this.leftPos + this.fx(x1);
+        int b = this.leftPos + this.fx(x2);
+        return MathUtil.isInRange(mouseX, mouseY, Math.min(a, b), this.topPos + y1, Math.max(a, b), this.topPos + y2);
     }
 
     /**
@@ -859,7 +1007,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
             return;
         }
         this.title = displayName;
-        this.titleLabelX = (StorageScreen.BG_WIDTH - 106 - this.font.width(this.title)) / 2 + 106;
+        this.remapTitleLabel();
     }
 
     @Override
@@ -867,7 +1015,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
         // 仅画透明渐暗背景，跳过默认的高斯模糊（renderBlurredBackground），避免仓储界面背景模糊
         this.renderTransparentBackground(graphics);
         graphics.blit(
-            this.mode.getBackground(),
+            this.mode.getBackground(this.flipped),
             this.leftPos,
             this.topPos,
             0,
@@ -896,7 +1044,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
         NeoForge.EVENT_BUS.post(new ContainerScreenEvent.Render.Background(this, graphics, mouseX, mouseY));
         graphics.blit(
             StorageScreen.CAPACITY,
-            this.leftPos + 106,
+            this.sx(106),
             this.topPos,
             0,
             0,
@@ -937,7 +1085,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
                 break;
             }
 
-            int x = this.leftPos + StorageScreen.STORAGE_X
+            int x = this.sx(StorageScreen.STORAGE_X)
                 + displayIndex % StorageScreen.STORAGE_COLUMNS * StorageScreen.SLOT_SIZE;
             int y = this.topPos + StorageScreen.STORAGE_Y
                 + displayIndex / StorageScreen.STORAGE_COLUMNS * StorageScreen.SLOT_SIZE;
@@ -1008,7 +1156,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
         );
         graphics.blit(
             StorageScreen.SLIDER,
-            this.leftPos + StorageScreen.SLIDER_X,
+            this.sx(StorageScreen.SLIDER_X),
             this.topPos + StorageScreen.SLIDER_Y + sliderOffset,
             0,
             0,
@@ -1026,9 +1174,9 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
                && MathUtil.isInRange(
                    mouseX,
                    mouseY,
-                   this.leftPos + StorageScreen.SLIDER_X - 2,
+                   this.sx(StorageScreen.SLIDER_X - 2),
                    this.topPos + StorageScreen.SLIDER_Y,
-                   this.leftPos + StorageScreen.SLIDER_X + StorageScreen.SLIDER_WIDTH + 2,
+                   this.sx(StorageScreen.SLIDER_X + StorageScreen.SLIDER_WIDTH + 2),
                    this.topPos + StorageScreen.SLIDER_Y + StorageScreen.SLIDER_TRACK_HEIGHT
                );
     }
@@ -1038,7 +1186,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
         if (!this.recipeScrollable.canScroll()) {
             return false;
         }
-        int left = this.leftPos + StorageScreen.CRAFTING_RECIPE_X
+        int left = this.sx(StorageScreen.CRAFTING_RECIPE_X)
             + StorageScreen.CRAFTING_RECIPE_COLUMNS * StorageScreen.CRAFTING_SLOT_SIZE + 2;
         int top = this.topPos + StorageScreen.CRAFTING_RECIPE_Y;
         return MathUtil.isInRange(
@@ -1064,7 +1212,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
     /** 渲染合成面板：① 切石机输入、② 合成 9 宫格、③④ 结果槽、切石机配方选择。 */
     private void renderCraftingPanel(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
         // ① 切石机输入（单槽）
-        int stonecutterX = this.leftPos + StorageScreen.CRAFTING_STONECUTTER_X;
+        int stonecutterX = this.sx(StorageScreen.CRAFTING_STONECUTTER_X);
         int stonecutterY = this.topPos + StorageScreen.CRAFTING_STONECUTTER_Y;
         this.renderCraftingSlot(
             graphics,
@@ -1079,7 +1227,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
 
         // ② 合成输入 9 宫格
         for (int i = 0; i < this.crafting.craftingInput().size(); i++) {
-            int x = this.leftPos + StorageScreen.CRAFTING_GRID_X + i % 3 * StorageScreen.CRAFTING_SLOT_SIZE;
+            int x = this.sx(StorageScreen.CRAFTING_GRID_X + i % 3 * StorageScreen.CRAFTING_SLOT_SIZE);
             int y = this.topPos + StorageScreen.CRAFTING_GRID_Y + i / 3 * StorageScreen.CRAFTING_SLOT_SIZE;
             this.renderCraftingSlot(
                 graphics,
@@ -1097,7 +1245,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
         this.renderCraftingSlot(
             graphics,
             this.getStonecutterResult(),
-            this.leftPos + StorageScreen.CRAFTING_RESULT_STONECUTTER_X,
+            this.sx(StorageScreen.CRAFTING_RESULT_STONECUTTER_X),
             this.topPos + StorageScreen.CRAFTING_RESULT_STONECUTTER_Y,
             mouseX,
             mouseY,
@@ -1107,7 +1255,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
         this.renderCraftingSlot(
             graphics,
             this.getCraftingResult(),
-            this.leftPos + StorageScreen.CRAFTING_RESULT_CRAFTING_X,
+            this.sx(StorageScreen.CRAFTING_RESULT_CRAFTING_X),
             this.topPos + StorageScreen.CRAFTING_RESULT_CRAFTING_Y,
             mouseX,
             mouseY,
@@ -1151,7 +1299,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
         }
         // 配方区右侧滚动条（可滚动时显示）
         if (this.recipeScrollable.canScroll()) {
-            int left = this.leftPos + StorageScreen.CRAFTING_RECIPE_X
+            int left = this.sx(StorageScreen.CRAFTING_RECIPE_X)
                 + maxSize / StorageScreen.CRAFTING_RECIPE_ROWS * StorageScreen.CRAFTING_SLOT_SIZE + 2;
             int top = this.topPos + StorageScreen.CRAFTING_RECIPE_Y;
             int down = top + StorageScreen.CRAFTING_RECIPE_ROWS * StorageScreen.CRAFTING_SLOT_SIZE;
@@ -1373,7 +1521,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
                 this.flyoutClickY - StorageScreen.TOOLTIP_TOP_OFFSET - StorageScreen.FLYOUT_GAP - flyoutHeight
             );
         } else {
-            flyoutX = this.leftPos + 296 - flyoutWidth;
+            flyoutX = this.sx(296) - flyoutWidth;
             flyoutY = this.topPos + 219;
         }
         int color = (int) (alpha * 255.0F) << 24 | 0xFFFFFF;
@@ -1385,7 +1533,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
         );
         if (!this.flyoutAtClick) {
             GuiRenderSupport.blitSprite(
-                graphics, StorageScreen.FLYOUT_POINTER, this.leftPos + 284, this.topPos + 216,
+                graphics, StorageScreen.FLYOUT_POINTER, this.sx(284), this.topPos + 216,
                 StorageScreen.FLYOUT_Z, 6, 5, color
             );
         }
@@ -1403,7 +1551,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
 
         int y = this.topPos + 140 + 58;
         for (int column = 0; column < 9; column++) {
-            int x = this.leftPos + 114 + 18 * column;
+            int x = this.sx(114 + 18 * column);
             this.renderInventorySlot(graphics, inv, column, x, y, mouseX, mouseY);
         }
 
@@ -1411,7 +1559,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
             y = this.topPos + 140 + 18 * row;
             int slot = 9 + row * 9;
             for (int column = 0; column < 9; column++) {
-                int x = this.leftPos + 114 + 18 * column;
+                int x = this.sx(114 + 18 * column);
                 this.renderInventorySlot(graphics, inv, slot++, x, y, mouseX, mouseY);
             }
         }
@@ -1447,12 +1595,19 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
     private void renderStorageTooltip(GuiGraphics graphics, int mouseX, int mouseY) {
         if (this.renderingTooltips != null) {
             graphics.renderTooltip(this.font, this.renderingTooltips, Optional.empty(), mouseX, mouseY);
-        } else if (MathUtil.isInRange(mouseX, mouseY, this.leftPos + 106, this.topPos, this.leftPos + 300, this.topPos + 13)) {
+        } else if (this.isOverFlipButton(mouseX, mouseY)) {
+            graphics.renderTooltip(
+                this.font,
+                Component.translatable("screen.anvilcraft.storage.flip"),
+                mouseX,
+                mouseY
+            );
+        } else if (this.isInMirroredRange(mouseX, mouseY, 106, 0, 300, 13)) {
             Component tooltip = this.getCapacityTooltip();
             if (tooltip != null) {
                 graphics.renderTooltip(this.font, tooltip, mouseX, mouseY);
             }
-        } else if (MathUtil.isInRange(mouseX, mouseY, this.leftPos + 2, this.topPos + 23, this.leftPos + 26, this.topPos + 43)) {
+        } else if (this.isInMirroredRange(mouseX, mouseY, 2, 23, 26, 43)) {
             graphics.renderTooltip(
                 this.font,
                 Component.translatable(
@@ -1462,7 +1617,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
                 mouseX,
                 mouseY
             );
-        } else if (MathUtil.isInRange(mouseX, mouseY, this.leftPos + 28, this.topPos + 23, this.leftPos + 52, this.topPos + 43)) {
+        } else if (this.isInMirroredRange(mouseX, mouseY, 28, 23, 52, 43)) {
             graphics.renderTooltip(
                 this.font,
                 Component.translatable(
@@ -1472,7 +1627,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
                 mouseX,
                 mouseY
             );
-        } else if (MathUtil.isInRange(mouseX, mouseY, this.leftPos + 54, this.topPos + 23, this.leftPos + 78, this.topPos + 43)) {
+        } else if (this.isInMirroredRange(mouseX, mouseY, 54, 23, 78, 43)) {
             graphics.renderTooltip(
                 this.font,
                 Component.translatable(
@@ -1482,7 +1637,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
                 mouseX,
                 mouseY
             );
-        } else if (MathUtil.isInRange(mouseX, mouseY, this.leftPos + 80, this.topPos + 23, this.leftPos + 104, this.topPos + 43)) {
+        } else if (this.isInMirroredRange(mouseX, mouseY, 80, 23, 104, 43)) {
             graphics.renderTooltip(
                 this.font,
                 Component.translatable(
@@ -1496,7 +1651,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
             this.mode == ScreenMode.CRAFTING
             && this.craftingClearButton != null
             && this.craftingClearButton.visible
-            && MathUtil.isInRange(mouseX, mouseY, this.leftPos + 62, this.topPos + 182, this.leftPos + 74, this.topPos + 194)
+            && this.isInMirroredRange(mouseX, mouseY, 62, 182, 74, 194)
         ) {
             graphics.renderTooltip(
                 this.font,
@@ -1508,7 +1663,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
             this.mode == ScreenMode.CRAFTING
             && this.craftingAutoFillButton != null
             && this.craftingAutoFillButton.visible
-            && MathUtil.isInRange(mouseX, mouseY, this.leftPos + 75, this.topPos + 182, this.leftPos + 87, this.topPos + 194)
+            && this.isInMirroredRange(mouseX, mouseY, 75, 182, 87, 194)
         ) {
             graphics.renderTooltip(
                 this.font,
@@ -1526,7 +1681,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
             );
         } else if (
             this.mode == ScreenMode.CRAFTING
-            && MathUtil.isInRange(mouseX, mouseY, this.leftPos + 88, this.topPos + 182, this.leftPos + 100, this.topPos + 194)
+            && this.isInMirroredRange(mouseX, mouseY, 88, 182, 100, 194)
         ) {
             if (this.craftingToStorageButton != null) {
                 graphics.renderTooltip(
@@ -1640,7 +1795,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
         int lastClickedInventorySlot = this.lastClickedInventorySlot;
         this.lastClickedInventorySlot = -1;
         if (this.search != null && (button == 0 || button == 1)) {
-            boolean hovered = MathUtil.isInRange(mouseX, mouseY, this.leftPos + 6, this.topPos + 6, this.leftPos + 100, this.topPos + 16);
+            boolean hovered = this.isInMirroredRange(mouseX, mouseY, 6, 6, 100, 16);
             if (hovered && button == 1) {
                 // 右键搜索框：清空搜索内容并聚焦输入。
                 // setValue 触发 responder → 同步服务端设置并重新排序（与手动删除文本一致）
@@ -1756,7 +1911,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
                     mouseY,
                     this.leftPos,
                     this.topPos,
-                    this.leftPos + StorageScreen.BG_WIDTH,
+                    this.sx(StorageScreen.BG_WIDTH),
                     this.topPos + StorageScreen.BG_HEIGHT
                 );
                 if (!insideGui && this.minecraft.gameMode != null && !this.carried.isEmpty()) {
@@ -2389,9 +2544,9 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
             MathUtil.isInRange(
                 mouseX,
                 mouseY,
-                this.leftPos + 24,
+                this.sx(24),
                 this.topPos + 132,
-                this.leftPos + 24 + 14,
+                this.sx(24 + 14),
                 this.topPos + 132 + 15
             )
         ) {
@@ -2402,9 +2557,9 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
             MathUtil.isInRange(
                 mouseX,
                 mouseY,
-                this.leftPos + 65,
+                this.sx(65),
                 this.topPos + 200,
-                this.leftPos + 65 + 14,
+                this.sx(65 + 14),
                 this.topPos + 200 + 15
             )
         ) {
@@ -2434,7 +2589,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
 
     /** 切石机配方按钮第 i 个的 X 坐标（与批量切割机一致）。 */
     private int getCraftingRecipeX(int i) {
-        return this.leftPos + StorageScreen.CRAFTING_RECIPE_X
+        return this.sx(StorageScreen.CRAFTING_RECIPE_X)
             + i % StorageScreen.CRAFTING_RECIPE_COLUMNS * StorageScreen.CRAFTING_SLOT_SIZE;
     }
 
@@ -2449,13 +2604,13 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
      * 返回 -1 表示未命中；0 表示①；1~9 表示②的 9 个槽。
      */
     private @Nullable Integer getCraftingSlot(double mouseX, double mouseY) {
-        int stonecutterX = this.leftPos + StorageScreen.CRAFTING_STONECUTTER_X;
+        int stonecutterX = this.sx(StorageScreen.CRAFTING_STONECUTTER_X);
         int stonecutterY = this.topPos + StorageScreen.CRAFTING_STONECUTTER_Y;
         if (MathUtil.isInRange(mouseX, mouseY, stonecutterX - 2, stonecutterY - 2, stonecutterX + 17, stonecutterY + 17)) {
             return 0;
         }
         for (int i = 0; i < this.crafting.craftingInput().size(); i++) {
-            int x = this.leftPos + StorageScreen.CRAFTING_GRID_X + i % 3 * StorageScreen.CRAFTING_SLOT_SIZE;
+            int x = this.sx(StorageScreen.CRAFTING_GRID_X + i % 3 * StorageScreen.CRAFTING_SLOT_SIZE);
             int y = this.topPos + StorageScreen.CRAFTING_GRID_Y + i / 3 * StorageScreen.CRAFTING_SLOT_SIZE;
             if (MathUtil.isInRange(mouseX, mouseY, x - 2, y - 2, x + 17, y + 17)) {
                 return i + 1;
@@ -2717,14 +2872,14 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
         }
         double mouseX = this.getMouseScaledX();
         double mouseY = this.getMouseScaledY();
-        int stonecutterX = this.leftPos + StorageScreen.CRAFTING_RESULT_STONECUTTER_X;
+        int stonecutterX = this.sx(StorageScreen.CRAFTING_RESULT_STONECUTTER_X);
         int stonecutterY = this.topPos + StorageScreen.CRAFTING_RESULT_STONECUTTER_Y;
         if (MathUtil.isInRange(
             mouseX, mouseY, stonecutterX - 2, stonecutterY - 2, stonecutterX + 17, stonecutterY + 17
         )) {
             return true;
         }
-        int craftingX = this.leftPos + StorageScreen.CRAFTING_RESULT_CRAFTING_X;
+        int craftingX = this.sx(StorageScreen.CRAFTING_RESULT_CRAFTING_X);
         int craftingY = this.topPos + StorageScreen.CRAFTING_RESULT_CRAFTING_Y;
         if (MathUtil.isInRange(
             mouseX, mouseY, craftingX - 2, craftingY - 2, craftingX + 17, craftingY + 17
@@ -2779,8 +2934,8 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
      */
     private boolean clickCraftingResult(double mouseX, double mouseY, boolean stonecutter) {
         int x = stonecutter
-                ? this.leftPos + StorageScreen.CRAFTING_RESULT_STONECUTTER_X
-                : this.leftPos + StorageScreen.CRAFTING_RESULT_CRAFTING_X;
+                ? this.sx(StorageScreen.CRAFTING_RESULT_STONECUTTER_X)
+                : this.sx(StorageScreen.CRAFTING_RESULT_CRAFTING_X);
         int y = stonecutter
                 ? this.topPos + StorageScreen.CRAFTING_RESULT_STONECUTTER_Y
                 : this.topPos + StorageScreen.CRAFTING_RESULT_CRAFTING_Y;
@@ -2895,14 +3050,14 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
         }
         // 悬停在切石机配方选择区：滚动配方列表
         if (this.mode == ScreenMode.CRAFTING && !this.stonecutterRecipes.isEmpty()) {
-            int recipeRight = this.leftPos + StorageScreen.CRAFTING_RECIPE_X
+            int recipeRight = this.sx(StorageScreen.CRAFTING_RECIPE_X)
                 + StorageScreen.CRAFTING_RECIPE_COLUMNS * StorageScreen.CRAFTING_SLOT_SIZE + 6;
             int recipeBottom = this.topPos + StorageScreen.CRAFTING_RECIPE_Y
                 + StorageScreen.CRAFTING_RECIPE_ROWS * StorageScreen.CRAFTING_SLOT_SIZE;
             if (MathUtil.isInRange(
                 mouseX,
                 mouseY,
-                this.leftPos + StorageScreen.CRAFTING_RECIPE_X,
+                this.sx(StorageScreen.CRAFTING_RECIPE_X),
                 this.topPos + StorageScreen.CRAFTING_RECIPE_Y,
                 recipeRight,
                 recipeBottom
@@ -2917,9 +3072,9 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
             !MathUtil.isInRange(
                 mouseX,
                 mouseY,
-                this.leftPos + StorageScreen.STORAGE_X - 2,
+                this.sx(StorageScreen.STORAGE_X - 2),
                 this.topPos + StorageScreen.SLIDER_Y,
-                this.leftPos + StorageScreen.SLIDER_X + StorageScreen.SLIDER_WIDTH,
+                this.sx(StorageScreen.SLIDER_X + StorageScreen.SLIDER_WIDTH),
                 this.topPos + StorageScreen.STORAGE_Y + StorageScreen.STORAGE_ROWS * StorageScreen.SLOT_SIZE
             )
         ) {
@@ -3231,11 +3386,11 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
                 int x;
                 int y;
                 if (craftingSlot == 0) {
-                    x = this.leftPos + StorageScreen.CRAFTING_STONECUTTER_X;
+                    x = this.sx(StorageScreen.CRAFTING_STONECUTTER_X);
                     y = this.topPos + StorageScreen.CRAFTING_STONECUTTER_Y;
                 } else {
                     int index = craftingSlot - 1;
-                    x = this.leftPos + StorageScreen.CRAFTING_GRID_X + index % 3 * StorageScreen.CRAFTING_SLOT_SIZE;
+                    x = this.sx(StorageScreen.CRAFTING_GRID_X + index % 3 * StorageScreen.CRAFTING_SLOT_SIZE);
                     y = this.topPos + StorageScreen.CRAFTING_GRID_Y + index / 3 * StorageScreen.CRAFTING_SLOT_SIZE;
                 }
                 return new ItemArea(stack, x, y);
@@ -3244,7 +3399,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
         int firstOrderIndex = this.scrollRow * StorageScreen.STORAGE_COLUMNS;
         for (int displayIndex = 0; displayIndex < StorageScreen.VISIBLE_STORAGE_SLOTS; displayIndex++) {
             int orderIndex = firstOrderIndex + displayIndex;
-            int x = this.leftPos + StorageScreen.STORAGE_X
+            int x = this.sx(StorageScreen.STORAGE_X)
                     + displayIndex % StorageScreen.STORAGE_COLUMNS * StorageScreen.SLOT_SIZE;
             int y = this.topPos + StorageScreen.STORAGE_Y
                     + displayIndex / StorageScreen.STORAGE_COLUMNS * StorageScreen.SLOT_SIZE;
@@ -3265,7 +3420,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
         if (stack.isEmpty()) {
             return null;
         }
-        int x = this.leftPos + 114 + 18 * (inventorySlot % 9);
+        int x = this.sx(114 + 18 * (inventorySlot % 9));
         int y = inventorySlot < 9
                 ? this.topPos + 140 + 58
                 : this.topPos + 140 + 18 * ((inventorySlot - 9) / 9);
@@ -3279,7 +3434,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
         int firstOrderIndex = this.scrollRow * StorageScreen.STORAGE_COLUMNS;
         for (int displayIndex = 0; displayIndex < StorageScreen.VISIBLE_STORAGE_SLOTS; displayIndex++) {
             int orderIndex = firstOrderIndex + displayIndex;
-            int x = this.leftPos + StorageScreen.STORAGE_X
+            int x = this.sx(StorageScreen.STORAGE_X)
                 + displayIndex % StorageScreen.STORAGE_COLUMNS * StorageScreen.SLOT_SIZE;
             int y = this.topPos + StorageScreen.STORAGE_Y
                 + displayIndex / StorageScreen.STORAGE_COLUMNS * StorageScreen.SLOT_SIZE;
@@ -3311,7 +3466,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
             if (orderIndex >= this.displayOrder.size()) {
                 break;
             }
-            int x = this.leftPos + StorageScreen.STORAGE_X
+            int x = this.sx(StorageScreen.STORAGE_X)
                 + displayIndex % StorageScreen.STORAGE_COLUMNS * StorageScreen.SLOT_SIZE;
             int y = this.topPos + StorageScreen.STORAGE_Y
                 + displayIndex / StorageScreen.STORAGE_COLUMNS * StorageScreen.SLOT_SIZE;
@@ -3334,7 +3489,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
     private int getInventorySlot(double mouseX, double mouseY) {
         int y = this.topPos + 140 + 58;
         for (int column = 0; column < 9; column++) {
-            int x = this.leftPos + 114 + 18 * column;
+            int x = this.sx(114 + 18 * column);
             if (MathUtil.isInRange(mouseX, mouseY, x - 2, y - 2, x + 17, y + 17)) {
                 return column;
             }
@@ -3344,7 +3499,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
             y = this.topPos + 140 + 18 * row;
             int slot = 9 + row * 9;
             for (int column = 0; column < 9; column++) {
-                int x = this.leftPos + 114 + 18 * column;
+                int x = this.sx(114 + 18 * column);
                 if (MathUtil.isInRange(mouseX, mouseY, x - 2, y - 2, x + 17, y + 17)) {
                     return slot;
                 }
@@ -4019,7 +4174,6 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
         return SharedTextures.textureGui("misc/storage_station/" + path);
     }
 
-    @Getter
     protected enum ScreenMode {
         NORMAL(SharedTextures.bg("misc", "storage_station")),
         CRAFTING(SharedTextures.bg("misc", "storage_station_crafting")),
@@ -4029,6 +4183,15 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
 
         ScreenMode(ResourceLocation background) {
             this.background = background;
+        }
+
+        /** 按是否翻转取用对应背景图；翻转版由资源提供，命名加 {@code _flip} 后缀。 */
+        public ResourceLocation getBackground(boolean flipped) {
+            if (!flipped) return this.background;
+            return ResourceLocation.fromNamespaceAndPath(
+                this.background.getNamespace(),
+                this.background.getPath().replace(".png", "_flip.png")
+            );
         }
 
         public ScreenMode next() {
