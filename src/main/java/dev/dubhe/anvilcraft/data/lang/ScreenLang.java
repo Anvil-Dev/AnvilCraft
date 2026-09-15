@@ -312,6 +312,7 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.smart_block_placer.no_structure_record", "Record a structure with the Structure Scanner first");
 
         // Structure Material Book
+        provider.add("book.anvilcraft.material_list.title", "Material List");
         provider.add("book.anvilcraft.material_list.missing_header", "Missing:");
 
         // Structure Scanner

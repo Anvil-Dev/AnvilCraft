@@ -832,6 +832,7 @@
   "block.anvilcraft.zinc_block": "Block of Zinc",
   "block.anvilcraft.zinc_pressure_plate": "Zinc Pressure Plate",
   "book.anvilcraft.material_list.missing_header": "Missing:",
+  "book.anvilcraft.material_list.title": "Material List",
   "book.anvilcraft.monolith.page": "[%1$s]\nTime Anvils: %2$s\nSpace Anvils: %3$s\nMass Anvils: %4$s\nEnergy Anvils: %5$s\nSeed Item: %6$s",
   "book.anvilcraft.monolith.title": "Celestial Knowledge",
   "category.anvilcraft.block": "Block Items",
