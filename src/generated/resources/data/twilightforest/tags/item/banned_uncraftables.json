@@ -28,6 +28,7 @@
     "anvilcraft:brass_pressure_plate",
     "anvilcraft:bronze_pressure_plate",
     "anvilcraft:heliostats",
-    "anvilcraft:active_silencer"
+    "anvilcraft:active_silencer",
+    "anvilcraft:exp_collector"
   ]
 }

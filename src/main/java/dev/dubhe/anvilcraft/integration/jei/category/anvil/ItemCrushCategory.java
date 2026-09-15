@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.integration.jei.category.anvil;
 
+import dev.anvilcraft.lib.v2.util.predicate.ChanceItemStack;
 import dev.dubhe.anvilcraft.client.support.RenderSupport;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
@@ -19,6 +20,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.block.Blocks;
+
+import java.util.List;
 
 public class ItemCrushCategory extends AbstractProgressCategory<ItemCrushRecipe> {
     public ItemCrushCategory(IGuiHelper helper) {
@@ -64,11 +67,12 @@ public class ItemCrushCategory extends AbstractProgressCategory<ItemCrushRecipe>
         arrowOutputFromBelow.draw(guiGraphics, 92, 29);
 
         JeiSlotUtil.drawDefaultInputSlots(guiGraphics, slotDefault, recipe.getInputItems().size());
-        if (JeiRecipeUtil.isChance(recipe.getResultItems())) {
-            JeiSlotUtil.drawDefaultOutputSlots(guiGraphics, slotProbability, recipe.getResultItems().size());
-        } else {
-            JeiSlotUtil.drawDefaultOutputSlots(guiGraphics, slotDefault, recipe.getResultItems().size());
-        }
+        List<ChanceItemStack> results = recipe.getResultItems();
+        JeiSlotUtil.drawDefaultOutputSlots(
+            guiGraphics,
+            JeiRecipeUtil.outputSlotFor(results, slotDefault, slotProbability),
+            results.size()
+        );
     }
 
     public static void registerRecipes(IRecipeRegistration registration) {

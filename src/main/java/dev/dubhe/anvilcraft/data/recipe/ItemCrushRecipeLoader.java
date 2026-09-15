@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.data.recipe;
 
 import dev.anvilcraft.lib.v2.recipe.outcome.SpawnItem;
 import dev.anvilcraft.lib.v2.registrum.providers.RegistrumRecipeProvider;
+import dev.anvilcraft.lib.v2.util.predicate.ItemIngredientPredicate;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModFoodItems;
@@ -9,8 +10,11 @@ import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTriggers;
 import dev.dubhe.anvilcraft.recipe.anvil.builder.ExtendInWorldRecipeBuilder;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.ItemCrushRecipe;
+import net.minecraft.core.component.DataComponentPredicate;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.component.ItemContainerContents;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.storage.loot.providers.number.UniformGenerator;
 import net.neoforged.neoforge.common.Tags;
@@ -218,6 +222,19 @@ public class ItemCrushRecipeLoader {
             .result(ModItems.CAPACITOR, 8)
             .result(Items.GUNPOWDER)
             .save(provider);
+
+        // 空潜影盒粉碎为潜影壳：仅在盒内无物品时成立，避免把装满的潜影盒当材料
+        ItemCrushRecipe.builder()
+            .requires(ItemIngredientPredicate.Builder.item()
+                .of(Items.SHULKER_BOX)
+                .hasComponents(DataComponentPredicate.builder()
+                    .expect(DataComponents.CONTAINER, ItemContainerContents.EMPTY)
+                    .build())
+                .build()
+            )
+            .result(Items.SHULKER_SHELL)
+            .result(Items.SHULKER_SHELL, 0.5f)
+            .save(provider, AnvilCraft.of("item_crush/shulker_shell_from_shulker_box"));
     }
 
     private static void tool(RegistrumRecipeProvider provider, ItemLike tool, ItemLike result) {

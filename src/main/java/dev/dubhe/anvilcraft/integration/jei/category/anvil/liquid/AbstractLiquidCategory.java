@@ -24,6 +24,8 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.function.IntFunction;
+
 /**
  * 固液混合加工配方展示的抽象基类，提供铁砧+炼药锅+处理方块的统一布局。
  */
@@ -161,7 +163,11 @@ public abstract class AbstractLiquidCategory<T extends AbstractProcessRecipe<?>>
             }
         }
         // 输出物品（子类可重写）
-        IDrawable slot = JeiRecipeUtil.isChance(recipe.getResultItems()) ? slotProbability : slotDefault;
+        IntFunction<IDrawable> slot = JeiRecipeUtil.outputSlotFor(
+            recipe.getResultItems(),
+            slotDefault,
+            slotProbability
+        );
         if (hasOutputItems) {
             if (outputMixed) {
                 JeiSlotUtil.drawItemOutputSlots(guiGraphics, slot, recipe.getResultItems().size());

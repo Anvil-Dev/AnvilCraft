@@ -1,0 +1,27 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "A": {
+      "item": "anvilcraft:royal_steel_ingot"
+    },
+    "B": {
+      "item": "anvilcraft:pump"
+    },
+    "C": {
+      "item": "anvilcraft:item_collector"
+    },
+    "D": {
+      "item": "anvilcraft:fluid_tank"
+    }
+  },
+  "pattern": [
+    "ABA",
+    "BCB",
+    "ADA"
+  ],
+  "result": {
+    "count": 1,
+    "id": "anvilcraft:exp_collector"
+  }
+}

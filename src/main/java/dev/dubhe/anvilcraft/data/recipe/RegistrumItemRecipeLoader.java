@@ -941,12 +941,12 @@ public class RegistrumItemRecipeLoader {
 
     public static <T extends Item> void processor(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
-            .pattern("   ")
-            .pattern("CAC")
+            .pattern("CDC")
+            .pattern("DCD")
             .pattern("BBB")
-            .define('A', Items.COMPARATOR)
             .define('B', ModItems.HARDEND_RESIN)
             .define('C', ModItemTags.COPPER_NUGGETS)
+            .define('D', Tags.Items.GEMS_QUARTZ)
             .group(ctx.getId().toString())
             .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.HARDEND_RESIN), AnvilCraftDatagen.has(ModItems.HARDEND_RESIN))
             .save(provider);
