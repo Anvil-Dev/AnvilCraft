@@ -147,12 +147,18 @@ public class StructureBookUtil {
         final ItemStack writtenBook = new ItemStack(Items.WRITTEN_BOOK);
         var bookContent = new net.minecraft.world.item.component.WrittenBookContent(
             new net.minecraft.server.network.Filterable<>("Material List", java.util.Optional.empty()),  // resolved title
-            "Smart Block Placer",  // owner
+            "",  // owner：留空以隐藏原版的“作者”提示行（其内容无法本地化）
             0,  // generation
             pages,  // pages
             false  // filtered
         );
         writtenBook.set(DataComponents.WRITTEN_BOOK_CONTENT, bookContent);
+        // 书的显示名取自 ITEM_NAME；WrittenBookContent 的标题是纯字符串、无法本地化，
+        // 故用可翻译组件覆盖，使名称随语言变化（与锻星知识之书做法一致）。
+        writtenBook.set(
+            DataComponents.ITEM_NAME,
+            Component.translatable("book.anvilcraft.material_list.title")
+        );
 
         LOGGER.info(
             "Generated material list book for structure: {} (needed: {}/{} blocks, placed: {})",

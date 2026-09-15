@@ -87,6 +87,7 @@ public class SmartBlockPlacerMenu extends AbstractContainerMenu {
         ));
         
         // 添加蓝图模式输出书物品栏槽位（输出，1个槽位，只在蓝图模式下显示）
+        // 取出成书时消耗输入书，否则同一本书可反复生成材料清单
         int outputBookSlotX = 84;
         int outputBookSlotY = 86;
         this.addSlot(new dev.dubhe.anvilcraft.inventory.component.WrittenBookOnlySlot(
@@ -95,7 +96,9 @@ public class SmartBlockPlacerMenu extends AbstractContainerMenu {
             outputBookSlotX,
             outputBookSlotY,
             // 可见性条件：只有当结构磁盘槽位有物品时才可见
-            () -> !this.blockEntity.getBlueprintItemHandler().getStackInSlot(0).isEmpty()
+            () -> !this.blockEntity.getBlueprintItemHandler().getStackInSlot(0).isEmpty(),
+            this.bookInventory,
+            0
         ));
 
         // 添加玩家物品栏（主物品栏3行9列）
