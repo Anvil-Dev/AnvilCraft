@@ -61,6 +61,7 @@ import net.neoforged.neoforge.event.level.LevelEvent;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.Nullable;
@@ -414,34 +415,34 @@ public class LargeBlockPlacePreviewEventListener {
             return false;
         }
         RenderEntry base = renderEntries.getFirst();
-        List<SelectionPart> outline = new ArrayList<>(ModelBlockSelection.multipartOutline(base.state()));
-        // 方块实体模型是独立模型，不在方块模型描边表里，需单独并入（如智能方块放置器的机械臂）
-        // 传入真实放置位：渲染器读自身坐标处的世界状态（如比较器读 POWER）时才有正确姿态
-        outline.addAll(ModelBlockSelection.previewBerParts(base.state(), base.pos()));
-        if (outline.isEmpty()) {
-            return false;
+        List<RenderEntry> entries = base.state().getBlock() instanceof AbstractMultiPartBlock<?> ? List.of(base) : renderEntries;
+        Map<RenderEntry, List<SelectionPart>> outlines = new LinkedHashMap<>();
+        for (RenderEntry entry : entries) {
+            List<SelectionPart> outline = new ArrayList<>(ModelBlockSelection.multipartOutline(entry.state()));
+            outline.addAll(ModelBlockSelection.previewBerParts(entry.state(), entry.pos()));
+            if (outline.isEmpty()) return false;
+            outlines.put(entry, outline);
         }
         Vec3 cameraPos = camera.getPosition();
         VertexConsumer vertexConsumer = bufferSource.getBuffer(RenderType.lines());
-        poseStack.pushPose();
-        poseStack.translate(
-            base.pos().getX() - cameraPos.x,
-            base.pos().getY() - cameraPos.y,
-            base.pos().getZ() - cameraPos.z
-        );
         int color = boundColor;
         float red = FastColor.ARGB32.red(color) / 255f;
         float green = FastColor.ARGB32.green(color) / 255f;
         float blue = FastColor.ARGB32.blue(color) / 255f;
-        for (SelectionPart part : outline) {
+        for (var entry : outlines.entrySet()) {
+            BlockPos pos = entry.getKey().pos();
             poseStack.pushPose();
-            part.apply(poseStack);
-            OutlineRenderer.render(poseStack, vertexConsumer,
-                CubeSelection.outlines().get(part.geometry()), red, green, blue,
-                (float) AnvilCraftClient.CONFIG.multiPartPreviewOutlineOpacity);
+            poseStack.translate(pos.getX() - cameraPos.x, pos.getY() - cameraPos.y, pos.getZ() - cameraPos.z);
+            for (SelectionPart part : entry.getValue()) {
+                poseStack.pushPose();
+                part.apply(poseStack);
+                OutlineRenderer.render(poseStack, vertexConsumer,
+                    CubeSelection.outlines().get(part.geometry()), red, green, blue,
+                    (float) AnvilCraftClient.CONFIG.multiPartPreviewOutlineOpacity);
+                poseStack.popPose();
+            }
             poseStack.popPose();
         }
-        poseStack.popPose();
         renderErrorBound(poseStack, bufferSource, camera);
         bufferSource.endBatch(RenderType.lines());
         return true;

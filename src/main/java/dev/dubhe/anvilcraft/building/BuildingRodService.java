@@ -305,7 +305,8 @@ public final class BuildingRodService {
                         context.getClickedFace(), snapped, false)));
             }
         }
-        BlockState state = item.getBlock().getStateForPlacement(context);
+        BlockState state = item instanceof LargeCakeBlockItem cake
+            ? cake.getPlacementState(context) : item.getBlock().getStateForPlacement(context);
         if (state == null || !item.canPlace(context, state)) return List.of();
         Group group = new Group();
         addBoxCells(group, context.getClickedPos(), state);

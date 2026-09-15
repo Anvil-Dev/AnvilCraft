@@ -10,7 +10,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import java.util.function.BiConsumer;
 import javax.annotation.Nullable;
 
-/** 物品一次摆出蛋糕，放置后的各格不再联动。 */
+/** 物品一次摆出蛋糕，各格仅依赖自身下方的支撑。 */
 public class LargeCakeBlockItem extends BlockItem {
     public LargeCakeBlockItem(LargeCakeBlock block, Properties properties) {
         super(block, properties);
@@ -24,13 +24,14 @@ public class LargeCakeBlockItem extends BlockItem {
 
     @Override
     @Nullable
-    protected BlockState getPlacementState(BlockPlaceContext context) {
+    public BlockState getPlacementState(BlockPlaceContext context) {
         var level = context.getLevel();
         var player = context.getPlayer();
         for (Cube3x3PartHalf part : Cube3x3PartHalf.values()) {
             BlockPos pos = context.getClickedPos().offset(part.getOffset());
             if (!level.isInWorldBounds(pos) || !level.hasChunkAt(pos) || !level.getWorldBorder().isWithinBounds(pos)
                 || !level.getBlockState(pos).canBeReplaced()
+                || part.getOffsetY() == 0 && !this.getBlock().defaultBlockState().canSurvive(level, pos)
                 || player != null && (!level.mayInteract(player, pos)
                 || !player.mayUseItemAt(pos, context.getClickedFace(), context.getItemInHand()))) {
                 return null;
