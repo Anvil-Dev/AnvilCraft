@@ -1,0 +1,32 @@
+{
+  "type": "anvilcraft:permutation",
+  "input": {
+    "items": "anvilcraft:royal_steel_axe"
+  },
+  "options": [
+    {
+      "material": {
+        "type": "anvilcraft:empty"
+      },
+      "result": "minecraft:diamond_axe"
+    },
+    {
+      "material": {
+        "type": "anvilcraft:empty"
+      },
+      "result": "minecraft:iron_axe"
+    },
+    {
+      "material": {
+        "type": "anvilcraft:empty"
+      },
+      "result": "minecraft:golden_axe"
+    },
+    {
+      "material": {
+        "type": "anvilcraft:empty"
+      },
+      "result": "anvilcraft:amethyst_axe"
+    }
+  ]
+}

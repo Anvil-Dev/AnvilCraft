@@ -5,5 +5,9 @@
     "minecraft:chainmail_chestplate",
     "minecraft:chainmail_leggings",
     "minecraft:chainmail_boots"
-  ]
+  ],
+  "material": {
+    "type": "anvilcraft:repair_material",
+    "cost": 2
+  }
 }

@@ -7,5 +7,7 @@ public class ModRecipeInits {
         ModRecipeTriggers.TRIGGER.register(modEventBus);
         ModRecipePredicateTypes.PREDICATE_TYPE.register(modEventBus);
         ModRecipeOutcomeTypes.OUTCOME_TYPE.register(modEventBus);
+        ModNumberExpressionTypes.register(modEventBus);
+        ModFrostMaterialPredicateTypes.register(modEventBus);
     }
 }

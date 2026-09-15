@@ -2,7 +2,6 @@ package dev.dubhe.anvilcraft.client.gui.screen;
 
 import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.api.item.IPermutationMaterial;
 import dev.dubhe.anvilcraft.client.gui.component.TexturedButton;
 import dev.dubhe.anvilcraft.constant.Constant;
 import dev.dubhe.anvilcraft.constant.SharedTextures;
@@ -10,6 +9,7 @@ import dev.dubhe.anvilcraft.inventory.FrostSmithingMenu;
 import dev.dubhe.anvilcraft.item.template.frost.DeformationTemplateItem;
 import dev.dubhe.anvilcraft.item.template.frost.PermutationTemplateItem;
 import dev.dubhe.anvilcraft.network.multiple.FrostSmithingPackets;
+import dev.dubhe.anvilcraft.recipe.frost.IFrostSmithingRecipe;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.CyclingSlotBackground;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
@@ -23,12 +23,12 @@ import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.network.PacketDistributor;
-import org.jetbrains.annotations.Nullable;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
 import java.util.List;
 import java.util.Optional;
+import javax.annotation.Nullable;
 
 public class FrostSmithingScreen extends AdjacentSmithingScreen<FrostSmithingMenu> {
     private static final ResourceLocation BACKGROUND = SharedTextures.bg("crafting", "frost_smithing_table");
@@ -60,11 +60,11 @@ public class FrostSmithingScreen extends AdjacentSmithingScreen<FrostSmithingMen
     public static final Quaternionf ARMOR_STAND_ANGLE = new Quaternionf().rotationXYZ(0.43633232f, 0.0f, (float) Math.PI);
 
     private final CyclingSlotBackground templateIcon = new CyclingSlotBackground(0);
-    private final CyclingSlotBackground materialIcon = new CyclingSlotBackground(1);
-    private final CyclingSlotBackground inputIcon = new CyclingSlotBackground(2);
+    private final CyclingSlotBackground materialIcon = new CyclingSlotBackground(2);
+    private final CyclingSlotBackground inputIcon = new CyclingSlotBackground(1);
 
-    private TexturedButton left;
-    private TexturedButton right;
+    private @Nullable TexturedButton left;
+    private @Nullable TexturedButton right;
 
     @Nullable
     private ArmorStand armorStandPreview;
@@ -145,13 +145,13 @@ public class FrostSmithingScreen extends AdjacentSmithingScreen<FrostSmithingMen
         var permut = this.getPermutTemplateItem();
         if (permut.isPresent()) {
             this.materialIcon.tick(permut.get().getEmptySlotTextures());
-            this.inputIcon.tick(this.getMaterialItem().map(IPermutationMaterial::getEmptySlotTextures).orElse(List.of()));
+            this.inputIcon.tick(permut.get().getInputSlotTextures());
             return;
         }
         var deform = this.getDeformTemplateItem();
         if (deform.isPresent()) {
-            this.materialIcon.tick(EMPTY_SLOT_DEFORM_MATERIAL);
             this.inputIcon.tick(deform.get().getEmptySlotTextures());
+            this.materialIcon.tick(EMPTY_SLOT_DEFORM_MATERIAL);
         } else {
             this.materialIcon.tick(List.of());
             this.inputIcon.tick(List.of());
@@ -159,19 +159,13 @@ public class FrostSmithingScreen extends AdjacentSmithingScreen<FrostSmithingMen
     }
 
     private Optional<PermutationTemplateItem> getPermutTemplateItem() {
-        ItemStack stack = this.menu.getSlot(0).getItem();
+        ItemStack stack = this.menu.getSlot(IFrostSmithingRecipe.TEMPLATE_SLOT).getItem();
         if (stack.isEmpty()) return Optional.empty();
         return Util.castSafely(stack.getItem(), PermutationTemplateItem.class);
     }
 
-    private Optional<IPermutationMaterial> getMaterialItem() {
-        ItemStack stack = this.menu.getSlot(1).getItem();
-        if (stack.isEmpty()) return Optional.empty();
-        return Util.castSafely(stack.getItem(), IPermutationMaterial.class);
-    }
-
     private Optional<DeformationTemplateItem> getDeformTemplateItem() {
-        ItemStack stack = this.menu.getSlot(0).getItem();
+        ItemStack stack = this.menu.getSlot(IFrostSmithingRecipe.TEMPLATE_SLOT).getItem();
         if (stack.isEmpty()) return Optional.empty();
         return Util.castSafely(stack.getItem(), DeformationTemplateItem.class);
     }
@@ -190,7 +184,7 @@ public class FrostSmithingScreen extends AdjacentSmithingScreen<FrostSmithingMen
         this.inputIcon.render(this.menu, guiGraphics, partialTick, this.leftPos, this.topPos);
 
         if (!this.menu.getSlot(0).getItem().isEmpty()) {
-            this.modifyButtons(this.menu.selected != -1 && this.menu.results.size() != 1);
+            this.modifyButtons(this.menu.selected != -1 && this.menu.results != null && this.menu.results.size() != 1);
         } else {
             this.modifyButtons(false);
         }
@@ -209,10 +203,14 @@ public class FrostSmithingScreen extends AdjacentSmithingScreen<FrostSmithingMen
     }
 
     private void modifyButtons(boolean enabled) {
-        this.left.active = enabled;
-        this.left.visible = enabled;
-        this.right.active = enabled;
-        this.right.visible = enabled;
+        if (this.left != null) {
+            this.left.active = enabled;
+            this.left.visible = enabled;
+        }
+        if (this.right != null) {
+            this.right.active = enabled;
+            this.right.visible = enabled;
+        }
     }
 
     @Override
@@ -239,7 +237,8 @@ public class FrostSmithingScreen extends AdjacentSmithingScreen<FrostSmithingMen
     @Override
     protected void renderErrorIcon(GuiGraphics guiGraphics, int x, int y) {
         if (
-            (this.menu.getSlot(0).hasItem() && this.menu.getSlot(2).hasItem())
+            (this.menu.getSlot(IFrostSmithingRecipe.TEMPLATE_SLOT).hasItem()
+             && this.menu.getSlot(IFrostSmithingRecipe.INPUT_SLOT).hasItem())
             && !this.menu.getSlot(this.menu.getResultSlot()).hasItem()
         ) {
             guiGraphics.blit(SharedTextures.ERROR_SPRITE, x + 83, y + 48, 0, 0, 16, 16, 16, 16);
@@ -248,7 +247,8 @@ public class FrostSmithingScreen extends AdjacentSmithingScreen<FrostSmithingMen
 
     private void renderOnboardingTooltips(GuiGraphics graphics, int mouseX, int mouseY) {
         if (
-            (this.menu.getSlot(0).hasItem() && this.menu.getSlot(2).hasItem())
+            (this.menu.getSlot(IFrostSmithingRecipe.TEMPLATE_SLOT).hasItem()
+             && this.menu.getSlot(IFrostSmithingRecipe.INPUT_SLOT).hasItem())
             && !this.menu.getSlot(this.menu.getResultSlot()).hasItem()
             && this.isHovering(83, 48, 16, 16, mouseX, mouseY)
         ) {
@@ -258,9 +258,9 @@ public class FrostSmithingScreen extends AdjacentSmithingScreen<FrostSmithingMen
 
         if (this.hoveredSlot == null) return;
 
-        ItemStack template = this.menu.getSlot(0).getItem();
+        ItemStack template = this.menu.getSlot(IFrostSmithingRecipe.TEMPLATE_SLOT).getItem();
         if (template.isEmpty()) {
-            if (this.hoveredSlot.index == 0) {
+            if (this.hoveredSlot.index == IFrostSmithingRecipe.TEMPLATE_SLOT) {
                 graphics.renderTooltip(this.font, this.font.split(MISSING_TEMPLATE_TOOLTIP, 115), mouseX, mouseY);
             }
             return;
@@ -271,18 +271,13 @@ public class FrostSmithingScreen extends AdjacentSmithingScreen<FrostSmithingMen
 
         Item item = template.getItem();
         if (item instanceof PermutationTemplateItem permutation) {
-            if (this.hoveredSlot.index == 1) {
+            if (this.hoveredSlot.index == IFrostSmithingRecipe.INPUT_SLOT) {
+                graphics.renderTooltip(this.font, this.font.split(permutation.getInputTooltip(), 115), mouseX, mouseY);
+            } else if (this.hoveredSlot.index == IFrostSmithingRecipe.MATERIAL_SLOT) {
                 graphics.renderTooltip(this.font, this.font.split(permutation.getMaterialTooltip(), 115), mouseX, mouseY);
-            } else if (this.hoveredSlot.index == 2 && this.menu.getSlot(1).getItem().getItem() instanceof IPermutationMaterial material) {
-                graphics.renderTooltip(
-                    this.font,
-                    this.font.split(material.getInputTooltip(this.menu.getSlot(1).getItem()), 115),
-                    mouseX,
-                    mouseY
-                );
             }
         } else if (item instanceof DeformationTemplateItem deformation) {
-            if (this.hoveredSlot.index == 2) {
+            if (this.hoveredSlot.index == IFrostSmithingRecipe.INPUT_SLOT) {
                 graphics.renderTooltip(this.font, this.font.split(deformation.getInputTooltip(), 115), mouseX, mouseY);
             }
         }

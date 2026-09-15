@@ -281,12 +281,9 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.filter.scroll_wheel_to_change_stack_limit", "Scroll mouse wheel to change stack limit");
 
         provider.add("screen.anvilcraft.frost_smithing.tooltip.missing_template", "Add Permutation Template or Deformation Template");
-        provider.add("screen.anvilcraft.frost_smithing.permutation.missing", "Add Royal Steel Ingot, Ember Metal Ingot, Multiphase Matter or Multiphase Matter Block");
+        provider.add("screen.anvilcraft.frost_smithing.permutation.missing_tools", "Add weapons, tools, armors or heavy items");
+        provider.add("screen.anvilcraft.frost_smithing.permutation.missing", "Add Frost Metal, Ember Metal, Transcendium, Multiphase Matter and other materials, or leave it empty");
         provider.add("screen.anvilcraft.frost_smithing.deformation.missing_tools", "Add any type of Swords, tools, armors or bow-likes");
-        provider.add("screen.anvilcraft.frost_smithing.royal_steel_ingot.missing_tools", "Add Diamond weapons or tools or Royal Steel weapons or tools");
-        provider.add("screen.anvilcraft.frost_smithing.ember_metal_ingot.missing_tools", "Add Netherite weapons or tools or Ember Metal weapons or tools");
-        provider.add("screen.anvilcraft.frost_smithing.multiphase_matter.missing_tools", "Add Frost Metal weapons or tools or Ember Metal weapons or tools");
-        provider.add("screen.anvilcraft.frost_smithing.multiphase_matter_block.missing_tools", "Add Frost workstations or Ember workstations");
 
         provider.add("screen.anvilcraft.exp_collector.tooltip", "Exp: %s/%smB");
 

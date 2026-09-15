@@ -5,5 +5,9 @@
     "minecraft:iron_chestplate",
     "minecraft:iron_leggings",
     "minecraft:iron_boots"
-  ]
+  ],
+  "material": {
+    "type": "anvilcraft:repair_material",
+    "cost": 2
+  }
 }
