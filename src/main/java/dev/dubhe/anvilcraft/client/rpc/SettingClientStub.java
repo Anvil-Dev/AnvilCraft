@@ -95,7 +95,7 @@ public final class SettingClientStub {
         return new PlayerSetting(
             new ArrayList<>(listed),
             new ArrayList<>(setting.custom()),
-            new StorageSetting("", storage.getSearch(), storage.getSort(), storage.getOrder(), storage.getNbtDisplay())
+            new StorageSetting("", storage.getSearch(), storage.getSort(), storage.getOrder(), storage.getNbtDisplay(), storage.isFlipped())
         );
     }
 
@@ -144,6 +144,11 @@ public final class SettingClientStub {
     public static void update(NbtDisplayMode mode) {
         SettingClientStub.setting().storage().setNbtDisplay(mode);
         RPC.call(RpcTarget.server(), SettingServerStub::update, SettingClientStub.playerId(), mode);
+    }
+
+    public static void updateFlipped(boolean flipped) {
+        SettingClientStub.storage().setFlipped(flipped);
+        RPC.call(RpcTarget.server(), SettingServerStub::updateFlipped, SettingClientStub.playerId(), flipped);
     }
 
     private static UUID playerId() {

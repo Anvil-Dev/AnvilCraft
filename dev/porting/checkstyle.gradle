@@ -34,6 +34,7 @@ allprojects {
             include '**/saved/storage/category/HasComponentCategory.java', '**/saved/storage/category/FilterCategory.java'
             include '**/saved/storage/category/CreativeModeTabCategory.java', '**/saved/storage/category/RecipeBookCategoryCategory.java'
             include '**/client/gui/component/category/CategoryButton.java', '**/client/gui/component/category/CategoryList.java'
+            include '**/StorageSetting.java', '**/SettingClientStub.java', '**/SettingServerStub.java', '**/CategorySettingsScreen.java'
             include '**/StorageServerStub.java', '**/StorageClientStub.java', '**/StorageInput.java', '**/StorageScreen.java'
             include '**/FluidAmountUtil.java'
             include '**/StructureLoadUtil.java', '**/StructureDisk*Packet.java', '**/StructureDiskPreviewSupport.java'

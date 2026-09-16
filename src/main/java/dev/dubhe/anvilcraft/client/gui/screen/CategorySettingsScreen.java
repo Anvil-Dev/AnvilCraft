@@ -41,6 +41,7 @@ import java.util.Objects;
 import java.util.TreeSet;
 
 public class CategorySettingsScreen extends Screen {
+    private static final Identifier FLIPPED_BACKGROUND = SharedTextures.bg("misc", "storage_station_category_setting_flip");
     private static final Identifier BACKGROUND = SharedTextures.bg("misc", "storage_station_category_setting");
     private static final Identifier CATEGORY_ADD = SharedTextures.textureGui("misc/storage_station/category_add");
     private static final Identifier CONFIRM = SharedTextures.textureGui("misc/storage_station/confirm");
@@ -55,6 +56,7 @@ public class CategorySettingsScreen extends Screen {
     private final Player player;
     private final Registry<ICategory> registry;
     private PlayerSetting draftSetting;
+    private boolean flipped;
     private final TreeSet<ICategory> alternates = new TreeSet<>(this::compareCategories);
     private @Nullable TexturedButton addCategory;
     private int selected = -1;
@@ -119,19 +121,28 @@ public class CategorySettingsScreen extends Screen {
         this.draftSetting = SettingClientStub.copy();
     }
 
+    private int sx(int localX) {
+        return this.left + (this.flipped ? localX < 106 ? localX + 194 : localX - 106 : localX);
+    }
+
     @Override
     protected void init() {
+        this.flipped = SettingClientStub.storage().isFlipped();
         this.left = (this.width - CategorySettingsScreen.BG_WIDTH) / 2;
         this.top = (this.height - CategorySettingsScreen.BG_HEIGHT) / 2;
         SettingClientStub.load().thenAcceptAsync(
             _ -> {
+                if (this.flipped != SettingClientStub.storage().isFlipped()) {
+                    this.rebuildWidgets();
+                    return;
+                }
                 this.draftSetting = SettingClientStub.copy();
                 this.rebuild();
             },
             this.screenExecutor
         );
         this.addCategory = this.addRenderableWidget(new TexturedButton(
-            this.left + 113,
+            this.sx(113),
             this.top + 7,
             86,
             20,
@@ -150,7 +161,7 @@ public class CategorySettingsScreen extends Screen {
             }
         ));
         this.addRenderableWidget(new TexturedButton(
-            this.left + 278,
+            this.sx(278),
             this.top + 139,
             18,
             20,
@@ -161,7 +172,7 @@ public class CategorySettingsScreen extends Screen {
             _ -> this.whenConfirm()
         ));
         this.addRenderableWidget(new TexturedButton(
-            this.left + 278,
+            this.sx(278),
             this.top + 161,
             18,
             20,
@@ -206,7 +217,7 @@ public class CategorySettingsScreen extends Screen {
     public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
         graphics.blit(
             RenderPipelines.GUI_TEXTURED,
-            CategorySettingsScreen.BACKGROUND,
+            this.flipped ? FLIPPED_BACKGROUND : CategorySettingsScreen.BACKGROUND,
             this.left,
             this.top,
             0,
@@ -230,7 +241,7 @@ public class CategorySettingsScreen extends Screen {
         for (int i = this.listedHead; i < this.listedHead + Math.min(this.draftSetting.listed().size() - this.listedHead, 10); i++) {
             final CategoryEntry entry = this.draftSetting.listed().get(i);
 
-            int left = this.left + 7;
+            int left = this.sx(7);
             int top = this.top + 7 + (i - this.listedHead) * 20;
 
             graphics.blit(
@@ -262,9 +273,9 @@ public class CategorySettingsScreen extends Screen {
             pose.popMatrix();
 
             Component name = category.name();
-            left = left + 17;
+            int labelX = left + 17;
             top = top + 5;
-            GuiRenderSupport.centeredEllipsisText(graphics, this.minecraft.font, name, left, top, 65);
+            GuiRenderSupport.centeredEllipsisText(graphics, this.minecraft.font, name, labelX, top, 65);
         }
 
         if (this.listed.canScroll()) {
@@ -273,7 +284,7 @@ public class CategorySettingsScreen extends Screen {
             graphics.blit(
                 RenderPipelines.GUI_TEXTURED,
                 CategoryList.SMALL_SLIDER,
-                this.left + 95,
+                this.sx(95),
                 top + (int) ((float) (bottom - top - 10) * this.listed.getScrollOffs()),
                 0,
                 0,
@@ -296,7 +307,7 @@ public class CategorySettingsScreen extends Screen {
             final ICategory category = CollectionUtil.get(this.alternates, i - 1);
             if (category == null) continue;
 
-            int left = this.left + 113 + (i % 2) * 88;
+            int left = this.sx(113) + (i % 2) * 88;
             int top = this.top + 7 + (i - this.alternateHead) / 2 * 20;
 
             graphics.blit(
@@ -326,9 +337,9 @@ public class CategorySettingsScreen extends Screen {
             pose.popMatrix();
 
             Component name = category.name();
-            left = left + 17;
+            int labelX = left + 17;
             top = top + 5;
-            GuiRenderSupport.centeredEllipsisText(graphics, this.minecraft.font, name, left, top, 65);
+            GuiRenderSupport.centeredEllipsisText(graphics, this.minecraft.font, name, labelX, top, 65);
         }
 
         if (this.alternate.canScroll()) {
@@ -337,7 +348,7 @@ public class CategorySettingsScreen extends Screen {
             graphics.blit(
                 RenderPipelines.GUI_TEXTURED,
                 CategoryList.SMALL_SLIDER,
-                this.left + 289,
+                this.sx(289),
                 top + (int) ((float) (bottom - top - 10) * this.alternate.getScrollOffs()),
                 0,
                 0,
@@ -354,7 +365,7 @@ public class CategorySettingsScreen extends Screen {
 
         int y = this.top + 140 + 58;
         for (int column = 0; column < 9; column++) {
-            int x = this.left + 114 + 18 * column;
+            int x = this.sx(114) + 18 * column;
             this.extractInventorySlot(graphics, inv, column, x, y, mouseX, mouseY);
         }
 
@@ -362,7 +373,7 @@ public class CategorySettingsScreen extends Screen {
             y = this.top + 140 + 18 * row;
             int slot = 9 + row * 9;
             for (int column = 0; column < 9; column++) {
-                int x = this.left + 114 + 18 * column;
+                int x = this.sx(114) + 18 * column;
                 this.extractInventorySlot(graphics, inv, slot++, x, y, mouseX, mouseY);
             }
         }
@@ -542,7 +553,7 @@ public class CategorySettingsScreen extends Screen {
     private boolean clickPlayerInventory(double mouseX, double mouseY) {
         int y = this.top + 140 + 58;
         for (int column = 0; column < 9; column++) {
-            int x = this.left + 114 + 18 * column;
+            int x = this.sx(114) + 18 * column;
 
             if (MathUtil.isInRange(mouseX, mouseY, x - 2, y - 2, x + 17, y + 17)) {
                 if (this.selected == column) {
@@ -558,7 +569,7 @@ public class CategorySettingsScreen extends Screen {
             y = this.top + 140 + 18 * row;
             int slot = 9 + row * 9;
             for (int column = 0; column < 9; column++) {
-                int x = this.left + 114 + 18 * column;
+                int x = this.sx(114) + 18 * column;
 
                 if (MathUtil.isInRange(mouseX, mouseY, x - 2, y - 2, x + 17, y + 17)) {
                     if (this.selected == slot) {
@@ -610,7 +621,7 @@ public class CategorySettingsScreen extends Screen {
     }
 
     protected int insideListeds(double mouseX, double mouseY) {
-        int left = this.left + 7;
+        int left = this.sx(7);
         int right = left + 86;
         for (int i = 0; i < 10; i++) {
             int index = i + this.listedHead;
@@ -625,7 +636,7 @@ public class CategorySettingsScreen extends Screen {
     }
 
     protected boolean insideEnabled(double mouseX, double mouseY) {
-        int left = this.left + 7;
+        int left = this.sx(7);
         int top = this.top + 7;
         int right = left + 86;
         int bottom = top + Math.min(this.draftSetting.listed().size() - this.listedHead, 10) * 20;
@@ -634,7 +645,7 @@ public class CategorySettingsScreen extends Screen {
 
     protected boolean insideAddCategoryButton(double mouseX, double mouseY) {
         if (this.addCategory == null || !this.addCategory.active) return false;
-        int left = this.left + 113;
+        int left = this.sx(113);
         int top = this.top + 7;
         int right = left + 86;
         int bottom = top + 20;
@@ -645,7 +656,7 @@ public class CategorySettingsScreen extends Screen {
         for (int i = 0; i < 12; i++) {
             int index = i + this.alternateHead - 1;
             if (index >= this.alternates.size()) return -1;
-            int left = this.left + 113 + (i % 2) * 88;
+            int left = this.sx(113) + (i % 2) * 88;
             int right = left + 86;
             int top = this.top + 7 + i / 2 * 20;
             int bottom = top + 20;
@@ -657,7 +668,7 @@ public class CategorySettingsScreen extends Screen {
     }
 
     protected boolean insideAlternate(double mouseX, double mouseY) {
-        int left = this.left + 113;
+        int left = this.sx(113);
         int top = this.top + 7;
         int right = left + 174;
         int bottom = top + Math.min(this.alternates.size() - this.alternateHead, 10) * 20;
@@ -666,7 +677,7 @@ public class CategorySettingsScreen extends Screen {
 
     protected boolean insideListedScrollbar(double mouseX, double mouseY) {
         if (!this.listed.canScroll()) return false;
-        int left = this.left + 95;
+        int left = this.sx(95);
         int top = this.top + 7;
         int right = left + 4;
         int bottom = top + 200;
@@ -675,7 +686,7 @@ public class CategorySettingsScreen extends Screen {
 
     protected boolean insideAlternateScrollbar(double mouseX, double mouseY) {
         if (!this.alternate.canScroll()) return false;
-        int left = this.left + 289;
+        int left = this.sx(289);
         int top = this.top + 7;
         int right = left + 4;
         int bottom = top + 120;

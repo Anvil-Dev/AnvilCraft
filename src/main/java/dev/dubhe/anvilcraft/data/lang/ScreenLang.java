@@ -10,6 +10,7 @@ public class ScreenLang {
      */
     @SuppressWarnings("checkstyle:LineLength")
     public static void init(RegistrumLangProvider provider) {
+        provider.add("screen.anvilcraft.storage.flip", "Flip Layout");
         provider.add("tooltip.anvilcraft.fluid_tank.capacity", "Capacity:");
         provider.add("tooltip.anvilcraft.fluid_tank.capacity.value", "  %s / %s");
         provider.add("tooltip.anvilcraft.fluid_tank.capacity.value.infinity", "  %s / ∞");

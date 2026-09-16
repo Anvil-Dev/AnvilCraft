@@ -18,6 +18,7 @@ import net.minecraft.world.item.Items;
 public final class StorageCraftingPickupScene {
     private static StorageScreen screen;
     private static boolean started;
+    private static boolean flipTesting;
     private static volatile boolean prepared;
     private static volatile Throwable failure;
     private static int stage;
@@ -25,6 +26,10 @@ public final class StorageCraftingPickupScene {
     private static boolean capturing;
 
     public static void frame(Minecraft client, BlockPos corePos, StorageScreen current) {
+        if (flipTesting) {
+            StorageFlipScene.frame(client, corePos);
+            return;
+        }
         screen = current;
         if (!started) {
             started = true;
@@ -88,7 +93,8 @@ public final class StorageCraftingPickupScene {
                     throw new IllegalStateException("关闭后物品未完整返还背包：" + count);
                 }
                 AnvilCraft.LOGGER.info("PORT_CRAFTING_PICKUP_SCENE_PASSED: queued double-click, inventory supplement, close conservation");
-                client.stop();
+                if (Boolean.getBoolean("anvilcraft.portStorageFlipScene")) flipTesting = true;
+                else client.stop();
             }
             default -> throw new IllegalStateException("Unknown pickup stage " + stage);
         }

@@ -2558,5 +2558,6 @@
   "screen.anvilcraft.storage.crafting.auto_fill.enabled": "已启用",
   "screen.anvilcraft.storage.crafting.auto_fill.disabled": "已禁用",
   "screen.anvilcraft.storage.crafting.auto_fill": "自动填充：%s",
-  "tooltip.anvilcraft.storage.missing_workbench": "此存储中需要有工作台和切石机"
+  "tooltip.anvilcraft.storage.missing_workbench": "此存储中需要有工作台和切石机",
+  "screen.anvilcraft.storage.flip": "翻转布局"
 }

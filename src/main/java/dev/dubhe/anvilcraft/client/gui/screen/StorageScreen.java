@@ -103,6 +103,11 @@ public class StorageScreen extends Screen {
     private SwitchableButton craftingToStorage;
     private TexturedButton craftingClear;
 
+    private static final Identifier FLIPPED_BACKGROUND = SharedTextures.bg("misc", "storage_station_flip");
+    private static final Identifier FLIPPED_CRAFTING_BACKGROUND = SharedTextures.bg("misc", "storage_station_crafting_flip");
+    private boolean flipped;
+    private TexturedButton flipButton;
+
     private static final Identifier CAPACITY = SharedTextures.textureGui("misc/storage_station/capacity");
     private static final Identifier SEARCH_CLEAR = SharedTextures.textureGui("misc/storage_station/search_clear");
     private static final Identifier PUT = SharedTextures.textureGui("misc/storage_station/put");
@@ -223,13 +228,14 @@ public class StorageScreen extends Screen {
         if (this.tracksOpenState) {
             StorageClientStub.setOpen(this.sourcePos, true);
         }
+        this.flipped = SettingClientStub.storage().isFlipped();
         this.left = (this.width - StorageScreen.BG_WIDTH) / 2;
         this.top = (this.height - StorageScreen.BG_HEIGHT) / 2;
-        this.titleLabelX = (StorageScreen.BG_WIDTH - 106 - this.font.width(this.title)) / 2 + 106;
+        this.titleLabelX = (StorageScreen.BG_WIDTH - 106 - this.font.width(this.title)) / 2 + (this.flipped ? 0 : 106);
 
         this.search = this.addRenderableWidget(new EditBox(
             this.font,
-            this.left + 6,
+            this.sx(6),
             this.top + 7,
             94,
             9,
@@ -242,7 +248,7 @@ public class StorageScreen extends Screen {
             this.reorder(false);
         });
         final SwitchableButton searchMode = this.addRenderableWidget(new SwitchableButton(
-            this.left + 2,
+            this.sx(2),
             this.top + 23,
             24,
             20,
@@ -264,7 +270,7 @@ public class StorageScreen extends Screen {
             StorageScreen.SORT_NAME
         );
         final SwitchableButton sortMode = this.addRenderableWidget(new SwitchableButton(
-            this.left + 28,
+            this.sx(28),
             this.top + 23,
             24,
             20,
@@ -278,7 +284,7 @@ public class StorageScreen extends Screen {
             }
         ));
         final SwitchableButton orderMode = this.addRenderableWidget(new SwitchableButton(
-            this.left + 54,
+            this.sx(54),
             this.top + 23,
             24,
             20,
@@ -303,7 +309,7 @@ public class StorageScreen extends Screen {
             }
         ));
         final SwitchableButton nbtMode = this.addRenderableWidget(new SwitchableButton(
-            this.left + 80,
+            this.sx(80),
             this.top + 23,
             24,
             20,
@@ -320,7 +326,7 @@ public class StorageScreen extends Screen {
             }
         ));
         this.categories = this.addRenderableWidget(new CategoryList(
-            this.left + 7,
+            this.sx(7),
             this.top + 49,
             SettingClientStub.setting(),
             _ -> SettingClientStub.update(SettingClientStub.listed().stream().toList())
@@ -328,7 +334,7 @@ public class StorageScreen extends Screen {
             _ -> this.minecraft.setScreenAndShow(new CategorySettingsScreen(this.sourcePos))
         ));
         this.addRenderableWidget(new TexturedButton(
-            this.left + 278,
+            this.sx(278),
             this.top + 139,
             18,
             20,
@@ -339,7 +345,7 @@ public class StorageScreen extends Screen {
             _ -> this.deposit(true, this.minecraft.hasShiftDown())
         ));
         this.addRenderableWidget(new TexturedButton(
-            this.left + 278,
+            this.sx(278),
             this.top + 161,
             18,
             20,
@@ -363,6 +369,10 @@ public class StorageScreen extends Screen {
                     this.categories.rebuild(setting);
                 }
                 StorageSetting storage = setting.storage();
+                if (this.flipped != storage.isFlipped()) {
+                    this.rebuildWidgets();
+                    return;
+                }
                 Objects.requireNonNull(this.search).setValue(storage.getSearchContent());
                 searchMode.setCurrent(storage.getSearch().ordinal());
                 sortMode.setCurrent(storage.getSort().ordinal());
@@ -380,6 +390,12 @@ public class StorageScreen extends Screen {
             this.screenExecutor
         );
         this.initCraftingPanel();
+        this.flipButton = this.addRenderableWidget(new TexturedButton(this.sx(280), this.top + 2, 11, 8,
+            craftingTexture("flip"), 8, 11, 16, button -> {
+                if (this.interactionPending || this.quickCrafting || this.quickMoveDragging) return;
+                SettingClientStub.updateFlipped(!this.flipped);
+                this.rebuildWidgets();
+            }));
         this.refreshMetadata();
     }
 
@@ -401,26 +417,31 @@ public class StorageScreen extends Screen {
         }
     }
 
+    // 两个功能区整体换位，区块内部的控件与槽位顺序保持不变。
+    private int sx(int localX) {
+        return this.left + (this.flipped ? localX < 106 ? localX + 194 : localX - 106 : localX);
+    }
+
     private static Identifier craftingTexture(String name) {
         return SharedTextures.textureGui("misc/storage_station/" + name);
     }
 
     private void initCraftingPanel() {
-        this.addRenderableWidget(new TexturedButton(this.left + 278, this.top + 195, 18, 20,
+        this.addRenderableWidget(new TexturedButton(this.sx(278), this.top + 195, 18, 20,
             craftingTexture("crafting"), 20, 18, 40, button -> this.toggleCrafting()));
-        this.craftingAutoFill = this.addRenderableWidget(new SwitchableButton(this.left + 75, this.top + 182, 12, 12,
+        this.craftingAutoFill = this.addRenderableWidget(new SwitchableButton(this.sx(75), this.top + 182, 12, 12,
             List.of(craftingTexture("crafting_auto_fill_off"), craftingTexture("crafting_auto_fill_on")), 12, 12, 24,
             (button, index) -> {
                 this.crafting = this.crafting.withAutoFill(index == 1);
                 StorageClientStub.craftingSetOptions(this.sourcePos, this.crafting.autoFill(), this.crafting.toStorage());
             }));
-        this.craftingToStorage = this.addRenderableWidget(new SwitchableButton(this.left + 88, this.top + 182, 12, 12,
+        this.craftingToStorage = this.addRenderableWidget(new SwitchableButton(this.sx(88), this.top + 182, 12, 12,
             List.of(craftingTexture("crafting_to_player"), craftingTexture("crafting_to_storage")), 12, 12, 24,
             (button, index) -> {
                 this.crafting = this.crafting.withToStorage(index == 1);
                 StorageClientStub.craftingSetOptions(this.sourcePos, this.crafting.autoFill(), this.crafting.toStorage());
             }));
-        this.craftingClear = this.addRenderableWidget(new TexturedButton(this.left + 62, this.top + 182, 12, 12,
+        this.craftingClear = this.addRenderableWidget(new TexturedButton(this.sx(62), this.top + 182, 12, 12,
             craftingTexture("crafting_clear"), 12, 12, 24, button -> {
                 if (this.interactionPending) return;
                 this.interactionPending = true;
@@ -458,7 +479,7 @@ public class StorageScreen extends Screen {
         StorageClientStub.craftingUnlock(this.sourcePos).whenCompleteAsync((available, error) -> {
             this.interactionPending = false;
             if (error != null || !available) {
-                this.flyoutClickX = this.left + 100;
+                this.flyoutClickX = this.sx(100);
                 this.flyoutClickY = this.top + 114;
                 this.showNotice(Component.translatable("tooltip.anvilcraft.storage.missing_workbench"));
                 return;
@@ -548,9 +569,9 @@ public class StorageScreen extends Screen {
     }
 
     private int craftingSlotAt(double x, double y) {
-        if (MathUtil.isInRange(x, y, this.left + 5, this.top + 128, this.left + 24, this.top + 147)) return 0;
+        if (MathUtil.isInRange(x, y, this.sx(5), this.top + 128, this.sx(24), this.top + 147)) return 0;
         for (int slot = 0; slot < 9; slot++) {
-            int sx = this.left + 7 + slot % 3 * 18;
+            int sx = this.sx(7) + slot % 3 * 18;
             int sy = this.top + 162 + slot / 3 * 18;
             if (MathUtil.isInRange(x, y, sx - 2, sy - 2, sx + 17, sy + 17)) return slot + 1;
         }
@@ -558,8 +579,8 @@ public class StorageScreen extends Screen {
     }
 
     private int craftingResultAt(double x, double y) {
-        if (MathUtil.isInRange(x, y, this.left + 81, this.top + 160, this.left + 100, this.top + 179)) return 0;
-        if (MathUtil.isInRange(x, y, this.left + 81, this.top + 196, this.left + 100, this.top + 215)) return 1;
+        if (MathUtil.isInRange(x, y, this.sx(81), this.top + 160, this.sx(100), this.top + 179)) return 0;
+        if (MathUtil.isInRange(x, y, this.sx(81), this.top + 196, this.sx(100), this.top + 215)) return 1;
         return -1;
     }
 
@@ -570,7 +591,7 @@ public class StorageScreen extends Screen {
 
     private boolean clickCraftingPanel(MouseButtonEvent event) {
         if (event.button() == 0 && this.stonecutterRecipes.size() > 6
-            && MathUtil.isInRange(event.x(), event.y(), this.left + 95, this.top + 120, this.left + 99, this.top + 156)) {
+            && MathUtil.isInRange(event.x(), event.y(), this.sx(95), this.top + 120, this.sx(99), this.top + 156)) {
             this.recipeDragging = true;
             this.scrollCraftingRecipes(event.y());
             return true;
@@ -617,7 +638,7 @@ public class StorageScreen extends Screen {
             return true;
         }
         for (int i = 0; i < 6 && i + this.recipeHead < this.stonecutterRecipes.size(); i++) {
-            int x = this.left + 39 + i % 3 * 18;
+            int x = this.sx(39) + i % 3 * 18;
             int y = this.top + 120 + i / 3 * 18;
             if (MathUtil.isInRange(event.x(), event.y(), x, y, x + 18, y + 18)) {
                 if (!this.interactionPending && event.button() == 0) {
@@ -644,7 +665,7 @@ public class StorageScreen extends Screen {
         this.extractCraftingSlot(graphics, stoneResult, 83, 162, -1, mouseX, mouseY, partialTick);
         this.extractCraftingSlot(graphics, this.craftingResult, 83, 198, -1, mouseX, mouseY, partialTick);
         for (int i = 0; i < 6 && i + this.recipeHead < this.stonecutterRecipes.size(); i++) {
-            int x = this.left + 39 + i % 3 * 18;
+            int x = this.sx(39) + i % 3 * 18;
             int y = this.top + 120 + i / 3 * 18;
             boolean chosen = i + this.recipeHead == selected;
             boolean hover = MathUtil.isInRange(mouseX, mouseY, x, y, x + 18, y + 18);
@@ -657,7 +678,7 @@ public class StorageScreen extends Screen {
         if (this.stonecutterRecipes.size() > 6) {
             int rows = (this.stonecutterRecipes.size() + 2) / 3 - 2;
             int y = this.top + 120 + Math.round(24F * (this.recipeHead / 3) / rows);
-            graphics.blit(RenderPipelines.GUI_TEXTURED, SharedTextures.SWITCH_TABLE_SLIDER, this.left + 95, y, 0, 0, 4, 12, 8, 12);
+            graphics.blit(RenderPipelines.GUI_TEXTURED, SharedTextures.SWITCH_TABLE_SLIDER, this.sx(95), y, 0, 0, 4, 12, 8, 12);
         }
         if (this.craftingClear.isHovered()) {
             graphics.setTooltipForNextFrame(Component.translatable("screen.anvilcraft.storage.crafting.clear"), mouseX, mouseY);
@@ -676,7 +697,7 @@ public class StorageScreen extends Screen {
 
     private void extractCraftingSlot(GuiGraphicsExtractor graphics, ItemStack stack, int x, int y, int slot,
                                     int mouseX, int mouseY, float partialTick) {
-        x += this.left;
+        x = this.sx(x);
         y += this.top;
         if (this.quickCrafting && this.quickCraftInputs.contains(slot)) {
             int placed = AbstractContainerMenu.getQuickCraftPlaceCount(
@@ -706,7 +727,8 @@ public class StorageScreen extends Screen {
     public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
         graphics.blit(
             RenderPipelines.GUI_TEXTURED,
-            this.craftingMode ? CRAFTING_BACKGROUND : StorageScreen.BACKGROUND,
+            this.flipped ? (this.craftingMode ? FLIPPED_CRAFTING_BACKGROUND : FLIPPED_BACKGROUND)
+                : (this.craftingMode ? CRAFTING_BACKGROUND : BACKGROUND),
             this.left,
             this.top,
             0,
@@ -720,7 +742,7 @@ public class StorageScreen extends Screen {
         graphics.blit(
             RenderPipelines.GUI_TEXTURED,
             StorageScreen.CAPACITY,
-            this.left + 106,
+            this.sx(106),
             this.top,
             0,
             0,
@@ -754,7 +776,7 @@ public class StorageScreen extends Screen {
                 break;
             }
 
-            int x = this.left + StorageScreen.STORAGE_X
+            int x = this.sx(StorageScreen.STORAGE_X)
                 + displayIndex % StorageScreen.STORAGE_COLUMNS * StorageScreen.SLOT_SIZE;
             int y = this.top + StorageScreen.STORAGE_Y
                 + displayIndex / StorageScreen.STORAGE_COLUMNS * StorageScreen.SLOT_SIZE;
@@ -825,7 +847,7 @@ public class StorageScreen extends Screen {
         graphics.blit(
             RenderPipelines.GUI_TEXTURED,
             StorageScreen.SLIDER,
-            this.left + StorageScreen.SLIDER_X,
+            this.sx(StorageScreen.SLIDER_X),
             this.top + StorageScreen.SLIDER_Y + sliderOffset,
             0,
             0,
@@ -841,7 +863,7 @@ public class StorageScreen extends Screen {
 
         int y = this.top + 140 + 58;
         for (int column = 0; column < 9; column++) {
-            int x = this.left + 114 + 18 * column;
+            int x = this.sx(114) + 18 * column;
             this.extractInventorySlot(graphics, inv, column, x, y, mouseX, mouseY);
         }
 
@@ -849,7 +871,7 @@ public class StorageScreen extends Screen {
             y = this.top + 140 + 18 * row;
             int slot = 9 + row * 9;
             for (int column = 0; column < 9; column++) {
-                int x = this.left + 114 + 18 * column;
+                int x = this.sx(114) + 18 * column;
                 this.extractInventorySlot(graphics, inv, slot++, x, y, mouseX, mouseY);
             }
         }
@@ -881,12 +903,16 @@ public class StorageScreen extends Screen {
     }
 
     private void extractTooltip(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
-        if (MathUtil.isInRange(mouseX, mouseY, this.left + 106, this.top, this.left + 300, this.top + 13)) {
+        if (this.flipButton != null && this.flipButton.isMouseOver(mouseX, mouseY)) {
+            graphics.setTooltipForNextFrame(Component.translatable("screen.anvilcraft.storage.flip"), mouseX, mouseY);
+            return;
+        }
+        if (MathUtil.isInRange(mouseX, mouseY, this.sx(106), this.top, this.sx(300), this.top + 13)) {
             Component tooltip = this.getCapacityTooltip();
             if (tooltip != null) {
                 graphics.setTooltipForNextFrame(tooltip, mouseX, mouseY);
             }
-        } else if (MathUtil.isInRange(mouseX, mouseY, this.left + 2, this.top + 23, this.left + 26, this.top + 43)) {
+        } else if (MathUtil.isInRange(mouseX, mouseY, this.sx(2), this.top + 23, this.sx(26), this.top + 43)) {
             graphics.setTooltipForNextFrame(
                 Component.translatable(
                     "screen.anvilcraft.storage.search",
@@ -895,7 +921,7 @@ public class StorageScreen extends Screen {
                 mouseX,
                 mouseY
             );
-        } else if (MathUtil.isInRange(mouseX, mouseY, this.left + 28, this.top + 23, this.left + 52, this.top + 43)) {
+        } else if (MathUtil.isInRange(mouseX, mouseY, this.sx(28), this.top + 23, this.sx(52), this.top + 43)) {
             graphics.setTooltipForNextFrame(
                 Component.translatable(
                     "screen.anvilcraft.storage.sort",
@@ -904,7 +930,7 @@ public class StorageScreen extends Screen {
                 mouseX,
                 mouseY
             );
-        } else if (MathUtil.isInRange(mouseX, mouseY, this.left + 54, this.top + 23, this.left + 78, this.top + 43)) {
+        } else if (MathUtil.isInRange(mouseX, mouseY, this.sx(54), this.top + 23, this.sx(78), this.top + 43)) {
             graphics.setTooltipForNextFrame(
                 Component.translatable(
                     "screen.anvilcraft.storage.order",
@@ -913,7 +939,7 @@ public class StorageScreen extends Screen {
                 mouseX,
                 mouseY
             );
-        } else if (MathUtil.isInRange(mouseX, mouseY, this.left + 80, this.top + 23, this.left + 104, this.top + 43)) {
+        } else if (MathUtil.isInRange(mouseX, mouseY, this.sx(80), this.top + 23, this.sx(104), this.top + 43)) {
             graphics.setTooltipForNextFrame(
                 Component.translatable(
                     "screen.anvilcraft.storage.nbt",
@@ -994,7 +1020,7 @@ public class StorageScreen extends Screen {
         int lastClickedInventorySlot = this.lastClickedInventorySlot;
         this.lastClickedInventorySlot = -1;
         if (this.search != null && (event.button() == 0 || event.button() == 1)) {
-            boolean hovered = MathUtil.isInRange(event.x(), event.y(), this.left + 6, this.top + 6, this.left + 100, this.top + 16);
+            boolean hovered = MathUtil.isInRange(event.x(), event.y(), this.sx(6), this.top + 6, this.sx(100), this.top + 16);
             this.search.setFocused(hovered);
             this.setFocused(hovered ? this.search : null);
         }
@@ -1002,7 +1028,7 @@ public class StorageScreen extends Screen {
         if (this.craftingMode && this.clickCraftingPanel(event)) return true;
         this.lastCraftingClickSlot = -1;
         if (event.button() == 1 && MathUtil.isInRange(event.x(), event.y(),
-            this.left + 278, this.top + 139, this.left + 296, this.top + 159)) {
+            this.sx(278), this.top + 139, this.sx(296), this.top + 159)) {
             this.deposit(false, event.hasShiftDown());
             return true;
         }
@@ -1444,7 +1470,7 @@ public class StorageScreen extends Screen {
 
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
-        if (this.craftingMode && MathUtil.isInRange(mouseX, mouseY, this.left + 39, this.top + 120, this.left + 101, this.top + 156)) {
+        if (this.craftingMode && MathUtil.isInRange(mouseX, mouseY, this.sx(39), this.top + 120, this.sx(101), this.top + 156)) {
             int rows = Math.max(0, (this.stonecutterRecipes.size() + 2) / 3 - 2);
             this.recipeHead = Mth.clamp(this.recipeHead / 3 - (int) Math.signum(scrollY), 0, rows) * 3;
             return true;
@@ -1454,9 +1480,9 @@ public class StorageScreen extends Screen {
             || !MathUtil.isInRange(
                 mouseX,
                 mouseY,
-                this.left + StorageScreen.STORAGE_X - 2,
+                this.sx(StorageScreen.STORAGE_X) - 2,
                 this.top + StorageScreen.SLIDER_Y,
-                this.left + StorageScreen.SLIDER_X + StorageScreen.SLIDER_WIDTH,
+                this.sx(StorageScreen.SLIDER_X) + StorageScreen.SLIDER_WIDTH,
                 this.top + StorageScreen.STORAGE_Y + StorageScreen.STORAGE_ROWS * StorageScreen.SLOT_SIZE
             )
         ) {
@@ -1709,7 +1735,7 @@ public class StorageScreen extends Screen {
         int firstOrderIndex = this.scrollRow * StorageScreen.STORAGE_COLUMNS;
         for (int displayIndex = 0; displayIndex < StorageScreen.VISIBLE_STORAGE_SLOTS; displayIndex++) {
             int orderIndex = firstOrderIndex + displayIndex;
-            int x = this.left + StorageScreen.STORAGE_X
+            int x = this.sx(StorageScreen.STORAGE_X)
                     + displayIndex % StorageScreen.STORAGE_COLUMNS * StorageScreen.SLOT_SIZE;
             int y = this.top + StorageScreen.STORAGE_Y
                     + displayIndex / StorageScreen.STORAGE_COLUMNS * StorageScreen.SLOT_SIZE;
@@ -1730,7 +1756,7 @@ public class StorageScreen extends Screen {
         if (stack.isEmpty()) {
             return null;
         }
-        int x = this.left + 114 + 18 * (inventorySlot % 9);
+        int x = this.sx(114) + 18 * (inventorySlot % 9);
         int y = inventorySlot < 9
                 ? this.top + 140 + 58
                 : this.top + 140 + 18 * ((inventorySlot - 9) / 9);
@@ -1744,7 +1770,7 @@ public class StorageScreen extends Screen {
         int firstOrderIndex = this.scrollRow * StorageScreen.STORAGE_COLUMNS;
         for (int displayIndex = 0; displayIndex < StorageScreen.VISIBLE_STORAGE_SLOTS; displayIndex++) {
             int orderIndex = firstOrderIndex + displayIndex;
-            int x = this.left + StorageScreen.STORAGE_X
+            int x = this.sx(StorageScreen.STORAGE_X)
                 + displayIndex % StorageScreen.STORAGE_COLUMNS * StorageScreen.SLOT_SIZE;
             int y = this.top + StorageScreen.STORAGE_Y
                 + displayIndex / StorageScreen.STORAGE_COLUMNS * StorageScreen.SLOT_SIZE;
@@ -1772,7 +1798,7 @@ public class StorageScreen extends Screen {
             if (orderIndex >= this.displayOrder.size()) {
                 break;
             }
-            int x = this.left + StorageScreen.STORAGE_X
+            int x = this.sx(StorageScreen.STORAGE_X)
                 + displayIndex % StorageScreen.STORAGE_COLUMNS * StorageScreen.SLOT_SIZE;
             int y = this.top + StorageScreen.STORAGE_Y
                 + displayIndex / StorageScreen.STORAGE_COLUMNS * StorageScreen.SLOT_SIZE;
@@ -1892,7 +1918,7 @@ public class StorageScreen extends Screen {
     private int getInventorySlot(double mouseX, double mouseY) {
         int y = this.top + 140 + 58;
         for (int column = 0; column < 9; column++) {
-            int x = this.left + 114 + 18 * column;
+            int x = this.sx(114) + 18 * column;
             if (MathUtil.isInRange(mouseX, mouseY, x - 2, y - 2, x + 17, y + 17)) {
                 return column;
             }
@@ -1902,7 +1928,7 @@ public class StorageScreen extends Screen {
             y = this.top + 140 + 18 * row;
             int slot = 9 + row * 9;
             for (int column = 0; column < 9; column++) {
-                int x = this.left + 114 + 18 * column;
+                int x = this.sx(114) + 18 * column;
                 if (MathUtil.isInRange(mouseX, mouseY, x - 2, y - 2, x + 17, y + 17)) {
                     return slot;
                 }

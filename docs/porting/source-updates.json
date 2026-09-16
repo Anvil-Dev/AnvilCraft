@@ -83,7 +83,8 @@
     {
       "commit": "d52d844e2eebeaaeec411e001d72309f76c258c5",
       "status": "pending",
-      "scope": "Added a warehouse GUI flip mode, fixed laser effects, and fixed the selection box for oil cauldron. 添加了仓储gui翻转模式，修复了激光特效，修正了油锅等的选择框 (#4865)"
+      "scope": "Added a warehouse GUI flip mode, fixed laser effects, and fixed the selection box for oil cauldron. 添加了仓储gui翻转模式，修复了激光特效，修正了油锅等的选择框 (#4865)",
+      "integration": "Warehouse pane swapping, normal/crafting/category backgrounds, button and persistent per-player setting integrated. Laser effects and oil-cauldron selection remain pending."
     },
     {
       "commit": "cd11f829fbaf75147a8cebf3a3b689f33c80d6ef",
