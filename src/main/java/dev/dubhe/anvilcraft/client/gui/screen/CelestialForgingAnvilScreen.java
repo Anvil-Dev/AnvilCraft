@@ -11,6 +11,7 @@ import dev.dubhe.anvilcraft.block.entity.celestial.CelestialRefactorRegistry;
 import dev.dubhe.anvilcraft.block.entity.celestial.PlanetaryResourceSet;
 import dev.dubhe.anvilcraft.block.entity.celestial.SpecialCelestialBodyData;
 import dev.dubhe.anvilcraft.block.entity.celestial.StarData;
+import dev.dubhe.anvilcraft.client.event.LargeBlockPlacePreviewEventListener;
 import dev.dubhe.anvilcraft.client.gui.screen.cfa.CelestialBodyInfoFormatter;
 import dev.dubhe.anvilcraft.client.gui.screen.cfa.CelestialBodyPreviewRenderer;
 import dev.dubhe.anvilcraft.constant.SharedTextures;
@@ -143,6 +144,7 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
     private SearchState searchState = SearchState.IDLE;
     @Nullable
     private CelestialBodyData preSearchBody = null;
+    private boolean missingAmplifierBlocked;
 
     // 锁定状态由方块实体持久化。
     private boolean isLocked() {
@@ -224,8 +226,14 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
             int cur = be.getAnvilCount(i);
             if (cur != this.previousAnvilCounts[i]) {
                 this.guideTriggered = true;
+                this.missingAmplifierBlocked = false;
+                LargeBlockPlacePreviewEventListener.removeMissingAmplifierAnvil(be.getBlockPos());
             }
             this.previousAnvilCounts[i] = cur;
+        }
+        if (this.missingAmplifierBlocked && be.isAmplifierPresent()) {
+            this.missingAmplifierBlocked = false;
+            LargeBlockPlacePreviewEventListener.removeMissingAmplifierAnvil(be.getBlockPos());
         }
         if (this.searchState == SearchState.LOADING) {
             this.guideTriggered = false;
@@ -316,7 +324,7 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
     private void renderPreviewAreaContents(GuiGraphicsExtractor graphics, int guiLeft, int guiTop) {
         // 增幅天体缺少增幅器时不显示预览内容。
         CelestialBodyData body = getMenu().getBlockEntity().getCelestialBodyData();
-        boolean missingAmplifier = body instanceof StarData && !getMenu().getBlockEntity().isAmplifierPresent();
+        boolean missingAmplifier = this.missingAmplifierBlocked || body instanceof StarData && !getMenu().getBlockEntity().isAmplifierPresent();
         if (missingAmplifier) {
             Component line1 = Component.translatable("screen.anvilcraft.cfa.missing_amplifier.line1");
             Component line2 = Component.translatable("screen.anvilcraft.cfa.missing_amplifier.line2");
@@ -1319,7 +1327,17 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
         if (this.searchState == SearchState.LOADING) return;
         var be = getMenu().getBlockEntity();
         boolean hasSeedItem = !be.getAnvilInventory().getItem(4).isEmpty();
+        this.missingAmplifierBlocked = false;
         if (!hasSeedItem && this.minecraft.level != null) {
+            if (!be.isAmplifierPresent()) {
+                var amplified = CelestialBodyMatcher.match(be.getAnvilCount(0), be.getAnvilCount(1), be.getAnvilCount(2),
+                    be.getAnvilCount(3), true, this.minecraft.level.getRandom());
+                if (amplified instanceof StarData) {
+                    this.missingAmplifierBlocked = true;
+                    LargeBlockPlacePreviewEventListener.offerMissingAmplifierAnvil(be.getBlockPos());
+                    return;
+                }
+            }
             var preCheck = CelestialBodyMatcher.match(
                 be.getAnvilCount(0),
                 be.getAnvilCount(1),

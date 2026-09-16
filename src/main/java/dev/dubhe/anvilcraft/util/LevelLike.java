@@ -31,6 +31,7 @@ public class LevelLike implements BlockAndTintGetter {
     private final Map<BlockPos, BlockState> blocks = new HashMap<>();
     private final Map<BlockPos, BlockEntity> blockEntities = new HashMap<>();
     private final ClientLevel parent;
+    private final java.util.Set<BlockPos> alwaysRendered = new java.util.HashSet<>();
 
     @Getter
     private int currentVisibleLayer = 0;
@@ -126,8 +127,17 @@ public class LevelLike implements BlockAndTintGetter {
         }
     }
 
+    public void setCurrentVisibleLayer(int layer) {
+        this.currentVisibleLayer = layer;
+    }
+
+    public void setBlockStateAlwaysRender(BlockPos pos, BlockState state) {
+        this.setBlockState(pos, state);
+        this.alwaysRendered.add(pos.immutable());
+    }
+
     public BlockState getBlockState(BlockPos pos) {
-        if (!this.allLayersVisible && pos.getY() != this.currentVisibleLayer) return Blocks.AIR.defaultBlockState();
+        if (!this.allLayersVisible && !this.alwaysRendered.contains(pos) && pos.getY() != this.currentVisibleLayer) return Blocks.AIR.defaultBlockState();
         return this.blocks.getOrDefault(pos, Blocks.AIR.defaultBlockState());
     }
 

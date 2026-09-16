@@ -9,6 +9,8 @@ import dev.anvilcraft.lib.v2.util.nullness.NonNullConsumer;
 import dev.dubhe.anvilcraft.block.item.CheckValveItem;
 import dev.dubhe.anvilcraft.block.state.Color;
 import dev.dubhe.anvilcraft.client.init.ModEquipmentAssets;
+import dev.dubhe.anvilcraft.client.renderer.item.DiskItemRenderer;
+import dev.dubhe.anvilcraft.client.renderer.item.FilterItemRenderer;
 import dev.dubhe.anvilcraft.client.renderer.item.SpectralSlingshotRenderer;
 import dev.dubhe.anvilcraft.client.renderer.item.SpectralWeaponLauncherRenderer;
 import dev.dubhe.anvilcraft.data.recipe.RegistrumItemRecipeLoader;
@@ -16,8 +18,11 @@ import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.block.ModFluids;
 import dev.dubhe.anvilcraft.init.enchantment.ModEnchantments;
 import dev.dubhe.anvilcraft.item.FluidTankMinecartItem;
+import dev.dubhe.anvilcraft.item.HyperdimensionTerminalItem;
+import dev.dubhe.anvilcraft.item.LocalTerminalItem;
 import dev.dubhe.anvilcraft.item.RubyItem;
 import dev.dubhe.anvilcraft.item.SapphireItem;
+import dev.dubhe.anvilcraft.item.ShulkerTerminalItem;
 import dev.dubhe.anvilcraft.item.StructureDiskItem;
 import dev.dubhe.anvilcraft.item.abnormal.CursedItem;
 import dev.dubhe.anvilcraft.item.abnormal.LevitationItem;
@@ -42,6 +47,7 @@ import dev.dubhe.anvilcraft.item.property.component.DevourRange;
 import dev.dubhe.anvilcraft.item.property.component.Eternal;
 import dev.dubhe.anvilcraft.item.property.component.Merciless;
 import dev.dubhe.anvilcraft.item.property.component.Multiphase;
+import dev.dubhe.anvilcraft.item.property.component.TerminalBinding;
 import dev.dubhe.anvilcraft.item.property.component.amulet.IAmulet;
 import dev.dubhe.anvilcraft.item.property.component.amulet.WrappedOthersAmulet;
 import dev.dubhe.anvilcraft.item.property.predicate.IntegerComponentPredicate;
@@ -104,6 +110,8 @@ import dev.dubhe.anvilcraft.item.weapon.LaserGunItem;
 import dev.dubhe.anvilcraft.item.weapon.SpectralWeaponLauncherItem;
 import dev.dubhe.anvilcraft.item.weapon.TeslaGunItem;
 import dev.dubhe.anvilcraft.recipe.JewelCraftingRecipe;
+import dev.dubhe.anvilcraft.saved.setting.mode.BalanceMode;
+import dev.dubhe.anvilcraft.saved.storage.CraftingStorage;
 import dev.dubhe.anvilcraft.util.BlockMiningEffect;
 import dev.dubhe.anvilcraft.util.dummy.DummyHolder;
 import dev.dubhe.anvilcraft.util.registrater.DataGenUtil;
@@ -113,6 +121,7 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.client.data.models.model.ItemModelUtils;
 import net.minecraft.client.data.models.model.ModelLocationUtils;
 import net.minecraft.client.data.models.model.ModelTemplate;
+import net.minecraft.client.data.models.model.ModelTemplates;
 import net.minecraft.client.data.models.model.TextureMapping;
 import net.minecraft.client.renderer.item.properties.conditional.ComponentMatches;
 import net.minecraft.core.HolderLookup;
@@ -753,16 +762,40 @@ public class ModItems {
 
     public static final ItemEntry<DiskItem> DISK = REGISTRUM.item("disk", DiskItem::new)
         .properties(p -> p.stacksTo(1))
+        .model(() -> new NonNullBiConsumer<>() {
+            @Override
+            public void accept(DataGenContext<Item, DiskItem> ctx, RegistrumItemModelGenerator generator) {
+                var model = ModelTemplates.FLAT_ITEM.create(ctx.get(), TextureMapping.layer0(ctx.get()), generator.modelOutput);
+                generator.itemModelOutput.accept(ctx.get(), ItemModelUtils.composite(
+                    ItemModelUtils.plainModel(model), ItemModelUtils.specialModel(model, DiskItemRenderer.Unbaked.INSTANCE)));
+            }
+        })
         .recipe(RegistrumItemRecipeLoader::disk)
         .register();
 
     public static final ItemEntry<StructureDiskItem> STRUCTURE_DISK = REGISTRUM
         .item("structure_disk", StructureDiskItem::new)
         .properties(p -> p.stacksTo(1))
+        .model(() -> new NonNullBiConsumer<>() {
+            @Override
+            public void accept(DataGenContext<Item, StructureDiskItem> ctx, RegistrumItemModelGenerator generator) {
+                var model = ModelTemplates.FLAT_ITEM.create(ctx.get(), TextureMapping.layer0(ctx.get()), generator.modelOutput);
+                generator.itemModelOutput.accept(ctx.get(), ItemModelUtils.composite(
+                    ItemModelUtils.plainModel(model), ItemModelUtils.specialModel(model, DiskItemRenderer.Unbaked.INSTANCE)));
+            }
+        })
         .recipe(RegistrumItemRecipeLoader::structureDisk)
         .register();
 
     public static final ItemEntry<FilterItem> FILTER = REGISTRUM.item("filter", FilterItem::new)
+        .model(() -> new NonNullBiConsumer<>() {
+            @Override
+            public void accept(DataGenContext<Item, FilterItem> ctx, RegistrumItemModelGenerator generator) {
+                var model = ModelTemplates.FLAT_ITEM.create(ctx.get(), TextureMapping.layer0(ctx.get()), generator.modelOutput);
+                generator.itemModelOutput.accept(ctx.get(), ItemModelUtils.composite(
+                    ItemModelUtils.plainModel(model), ItemModelUtils.specialModel(model, FilterItemRenderer.Unbaked.INSTANCE)));
+            }
+        })
         .recipe(RegistrumItemRecipeLoader::filter)
         .properties(properties -> properties.stacksTo(16))
         .register();
@@ -947,6 +980,27 @@ public class ModItems {
             }
         })
         .properties(properties -> properties.stacksTo(1).component(DataComponents.ENCHANTMENT_GLINT_OVERRIDE, true))
+        .register();
+
+    public static final ItemEntry<LocalTerminalItem> LOCAL_TERMINAL = REGISTRUM.item("local_terminal", LocalTerminalItem::new)
+        .properties(properties -> properties.stacksTo(1).component(ModComponents.CRAFTING, CraftingStorage.EMPTY)
+            .component(ModComponents.TERMINAL_BALANCE_MODE, BalanceMode.RESTOCK))
+        .recipe(RegistrumItemRecipeLoader::localTerminal)
+        .register();
+
+    public static final ItemEntry<ShulkerTerminalItem> SHULKER_TERMINAL = REGISTRUM.item("shulker_terminal", ShulkerTerminalItem::new)
+        .properties(properties -> properties.stacksTo(1).component(ModComponents.CRAFTING, CraftingStorage.EMPTY)
+            .component(ModComponents.TERMINAL_BALANCE_MODE, BalanceMode.RESTOCK))
+        .recipe(RegistrumItemRecipeLoader::shulkerTerminal)
+        .register();
+
+    public static final ItemEntry<HyperdimensionTerminalItem> HYPERDIMENSION_TERMINAL = REGISTRUM
+        .item("hyperdimension_terminal", HyperdimensionTerminalItem::new)
+        .properties(properties -> properties.stacksTo(1).fireResistant().rarity(Rarity.EPIC)
+            .component(ModComponents.ETERNAL, Eternal.DEFAULT).component(DataComponents.UNBREAKABLE, Unit.INSTANCE)
+            .component(ModComponents.TERMINAL_BINDING, TerminalBinding.EMPTY).component(ModComponents.CRAFTING, CraftingStorage.EMPTY)
+            .component(ModComponents.TERMINAL_BALANCE_MODE, BalanceMode.RESTOCK))
+        .recipe(RegistrumItemRecipeLoader::hyperdimensionTerminalUnbind)
         .register();
 
     public static final ItemEntry<PillBoxItem> PILL_BOX = REGISTRUM

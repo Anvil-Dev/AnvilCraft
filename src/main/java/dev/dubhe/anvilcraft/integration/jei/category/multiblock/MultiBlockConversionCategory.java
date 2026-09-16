@@ -13,6 +13,7 @@ import dev.dubhe.anvilcraft.integration.jei.util.JeiRecipeUtil;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiRenderHelper;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiTextures;
 import dev.dubhe.anvilcraft.recipe.multiblock.MultiblockConversionRecipe;
+import dev.dubhe.anvilcraft.recipe.multiblock.MultiblockUtil;
 import dev.dubhe.anvilcraft.util.LevelLike;
 import mezz.jei.api.gui.ITickTimer;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
@@ -175,20 +176,30 @@ public class MultiBlockConversionCategory implements IRecipeCategory<RecipeHolde
             it -> LevelLikeDisplaySupport.asLevelLike(it.value().getOutputPattern())
         );
 
-        List<ItemStack> inputItems = recipe.value().getInputPattern().toIngredientList();
+        List<ItemStack> inputItems = MultiblockUtil.ingredientList(recipe.value().getInputPattern(), Minecraft.getInstance().level.registryAccess());
         inputItems.sort(MultiBlockConversionCategory.BY_COUNT_DECREASING);
 
         for (int i = 0; i < inputItems.size(); i++) {
             ItemStack stack = inputItems.get(i);
             builder.addSlot(RecipeIngredientRole.INPUT, this.inputSlotPosX(i) + 1, this.slotPosY(i) + 1).add(stack);
         }
+        int inputIndex = inputItems.size();
+        for (var choices : LevelLikeDisplaySupport.tagIngredients(recipe.value().getInputPattern())) {
+            var slot = builder.addSlot(RecipeIngredientRole.INPUT, this.inputSlotPosX(inputIndex) + 1, this.slotPosY(inputIndex++) + 1);
+            choices.forEach(slot::add);
+        }
 
-        List<ItemStack> outputItems = recipe.value().getOutputPattern().toIngredientList();
+        List<ItemStack> outputItems = MultiblockUtil.ingredientList(recipe.value().getOutputPattern(), Minecraft.getInstance().level.registryAccess());
         outputItems.sort(MultiBlockConversionCategory.BY_COUNT_DECREASING);
 
         for (int i = 0; i < outputItems.size(); i++) {
             ItemStack stack = outputItems.get(i);
             builder.addSlot(RecipeIngredientRole.OUTPUT, this.outputSlotPosX(i) + 1, this.slotPosY(i) + 1).add(stack);
+        }
+        int outputIndex = outputItems.size();
+        for (var choices : LevelLikeDisplaySupport.tagIngredients(recipe.value().getOutputPattern())) {
+            var slot = builder.addSlot(RecipeIngredientRole.OUTPUT, this.outputSlotPosX(outputIndex) + 1, this.slotPosY(outputIndex++) + 1);
+            choices.forEach(slot::add);
         }
     }
 
@@ -222,6 +233,8 @@ public class MultiBlockConversionCategory implements IRecipeCategory<RecipeHolde
             recipe,
             it -> LevelLikeDisplaySupport.asLevelLike(it.value().getOutputPattern())
         );
+        LevelLikeDisplaySupport.cycleTags(input);
+        LevelLikeDisplaySupport.cycleTags(output);
         LevelLike rendered = input;
         switch (this.displayMode) {
             case OVERVIEW:

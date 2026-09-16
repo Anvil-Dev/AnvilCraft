@@ -15,16 +15,33 @@ public class PillSelectorSupport {
     public static final Identifier BACKGROUND = SharedTextures.bg("misc", "pill_box");
 
     private ItemStack pillBox = ItemStack.EMPTY;
+    private BoxSelectionTarget target = BoxSelectionTarget.NONE;
     @Nullable
     private PillBoxContents contents = null;
 
     private PillSelectorSupport() {}
 
-    public void setPillBox(ItemStack pillBox) {
+    public void setPillBox(ItemStack pillBox, BoxSelectionTarget target) {
+        boolean changed = this.pillBox != pillBox || !this.target.equals(target);
+        if (changed) this.resetIndex();
         this.pillBox = pillBox;
-        this.contents = pillBox.isEmpty()
-            ? null
-            : pillBox.getOrDefault(ModComponents.PILL_BOX_CONTENTS, PillBoxContents.EMPTY);
+        this.target = target;
+        this.contents = pillBox.isEmpty() ? null : pillBox.getOrDefault(ModComponents.PILL_BOX_CONTENTS, PillBoxContents.EMPTY);
+        if (changed && this.contents != null) this.target.send(this.pillBox, this.contents.index());
+    }
+
+    private void resetIndex() {
+        if (this.pillBox.isEmpty()) return;
+        var contents = this.pillBox.getOrDefault(ModComponents.PILL_BOX_CONTENTS, PillBoxContents.EMPTY);
+        if (contents.index() == -1) return;
+        var mutable = contents.mutable();
+        mutable.setDefaultIndex();
+        this.pillBox.set(ModComponents.PILL_BOX_CONTENTS, mutable.immutable());
+        this.target.send(this.pillBox, -1);
+    }
+
+    public void clearHoveredSlot() {
+        this.target = BoxSelectionTarget.NONE;
     }
 
     public boolean hasItem() {
@@ -32,20 +49,12 @@ public class PillSelectorSupport {
     }
 
     public void mouseScrolled(int amount) {
-        if (this.contents == null) return;
-        if (amount > 0) {
-            PillBoxContents.Mutable mutable = this.contents.mutable();
-            int index = mutable.getIndex() + 1;
-            mutable.setIndex(index);
-            this.contents = mutable.immutable();
-            this.pillBox.set(ModComponents.PILL_BOX_CONTENTS, this.contents);
-        } else {
-            PillBoxContents.Mutable mutable = this.contents.mutable();
-            int index = mutable.getIndex() - 1;
-            mutable.setIndex(index);
-            this.contents = mutable.immutable();
-            this.pillBox.set(ModComponents.PILL_BOX_CONTENTS, this.contents);
-        }
+        if (this.contents == null || amount == 0) return;
+        var mutable = this.contents.mutable();
+        mutable.setIndex(mutable.getIndex() + Integer.signum(amount));
+        this.contents = mutable.immutable();
+        this.pillBox.set(ModComponents.PILL_BOX_CONTENTS, this.contents);
+        this.target.send(this.pillBox, this.contents.index());
     }
 
     public void render(GuiGraphicsExtractor graphics, int x, int y) {

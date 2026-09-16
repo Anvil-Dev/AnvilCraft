@@ -1,0 +1,12 @@
+{
+  "rules": [
+    {
+      "item": "minecraft:cake",
+      "properties": ""
+    },
+    {
+      "item": "minecraft:yellow_candle",
+      "properties": ""
+    }
+  ]
+}

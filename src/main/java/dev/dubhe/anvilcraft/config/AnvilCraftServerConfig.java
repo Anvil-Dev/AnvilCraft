@@ -10,6 +10,26 @@ import net.neoforged.fml.config.ModConfig;
 
 @Config(name = AnvilCraft.MOD_ID, type = ModConfig.Type.SERVER)
 public class AnvilCraftServerConfig {
+    @Comment("Maximum duration of Plasma Jets (in ticks)")
+    @BoundedDiscrete(min = 10 * 20, max = 24 * 60 * 60 * 20)
+    public int plasmaJetsMaxDuration = 10 * 60 * 20;
+
+    @Comment("Amount of fuel consumed per cycle by Plasma Jets based on Cauldrons (in Layer)")
+    @BoundedDiscrete(min = 1, max = dev.dubhe.anvilcraft.block.cauldron.FireCauldronBlock.MAX_LEVEL)
+    public int plasmaJetsCauldronConsumeAmount = 1;
+
+    @Comment("Extended duration of a single consumption of Plasma Jets based on Cauldrons (in ticks)")
+    @BoundedDiscrete(min = 5 * 20, max = 12 * 60 * 60 * 20)
+    public int plasmaJetsCauldronExtraDuration = 5 * 60 * 20;
+
+    @Comment("Amount of fuel consumed per cycle by Plasma Jets based on Fish Tanks (in mB)")
+    @BoundedDiscrete(min = 1, max = net.neoforged.neoforge.fluids.FluidType.BUCKET_VOLUME)
+    public int plasmaJetsFishTankConsumeAmount = 1;
+
+    @Comment("Extended duration of a single consumption of Plasma Jets based on Fish Tanks (in ticks)")
+    @BoundedDiscrete(min = 1, max = 12 * 60 * 60 * 20)
+    public int plasmaJetsFishTankExtraDuration = 24;
+
     @Comment("Maximum radius of giant anvil's shock behavior")
     @BoundedDiscrete(max = 16, min = 4)
     public int giantAnvilMaxShockRadius = 16;
@@ -197,4 +217,19 @@ public class AnvilCraftServerConfig {
 
     @Comment("The max size of the entries in storages' recover station")
     public int storageRecoverMaxSize = 20;
+
+    @CollapsibleObject
+    public StoragePort storagePort = new StoragePort();
+
+    public static class StoragePort {
+        @Comment("Working interval of the storage port (in ticks): the performance wall that limits how often it scans and moves items")
+        @BoundedDiscrete(min = 1, max = 1200)
+        public int workInterval = 5;
+
+        @Comment("Maximum items the storage port moves per scan")
+        @BoundedDiscrete(min = 1, max = 1024)
+        public int maxItemsPerScan = 64;
+    }
+
+
 }

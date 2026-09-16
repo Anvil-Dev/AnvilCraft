@@ -1,0 +1,9 @@
+{
+  "rules": [
+    {
+      "item": "minecraft:powder_snow_bucket",
+      "properties": "level=3",
+      "return_item": "minecraft:bucket"
+    }
+  ]
+}

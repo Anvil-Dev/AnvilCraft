@@ -24,10 +24,17 @@ import org.joml.Matrix3x2fStack;
 @Setter
 public class CategoryButton extends Button {
     public static final Identifier BACKGROUND = SharedTextures.textureGui("misc/storage_station/category");
+    private static final Identifier SMALL_BACKGROUND = SharedTextures.textureGui("misc/storage_station/category_small");
     private final Font font = Minecraft.getInstance().font;
     private final PlayerSetting setting;
     private final int index;
     private CategoryMode mode;
+    private boolean compact;
+
+    public void setCompact(boolean compact) {
+        this.compact = compact;
+        this.setWidth(compact ? 20 : 86);
+    }
 
     public CategoryButton(int x, PlayerSetting setting, int index, CategoryMode mode, OnPress onPress) {
         super(
@@ -62,14 +69,14 @@ public class CategoryButton extends Button {
 
         graphics.blit(
             RenderPipelines.GUI_TEXTURED,
-            CategoryButton.BACKGROUND,
+            this.compact ? SMALL_BACKGROUND : CategoryButton.BACKGROUND,
             this.getX(),
             this.getY(),
             0,
             offsetV,
             this.width,
             this.height,
-            86,
+            this.compact ? 20 : 86,
             80
         );
 
@@ -81,7 +88,7 @@ public class CategoryButton extends Button {
         ICategory category = this.entry().getCategory();
 
         ItemStack icon = category.icon().create();
-        int x = 4;
+        int x = this.compact ? 5 : 4;
         int y = 4;
         graphics.fakeItem(icon, x, y);
         graphics.itemDecorations(this.font, icon, x, y);
@@ -98,6 +105,6 @@ public class CategoryButton extends Button {
 
         int left = this.getX() + 17;
         int top = this.getY() + 5;
-        GuiRenderSupport.centeredEllipsisText(graphics, this.font, name, left, top, 65);
+        if (!this.compact) GuiRenderSupport.centeredEllipsisText(graphics, this.font, name, left, top, 65);
     }
 }

@@ -54,6 +54,8 @@ public class ModBlockTags {
     public static final TagKey<Block> GIANT_ANVIL = ModBlockTags.bind("giant_anvil");
     public static final TagKey<Block> SLIDING_RAIL_STOP_LIKE = ModBlockTags.bind("sliding_rail_stop_like");
 
+    public static final TagKey<Block> PLACEMENT_PREVIEW = ModBlockTags.bind("placement_preview");
+
     // common tags
     public static final TagKey<Block> ORES_TUNGSTEN = ModBlockTags.bindC("ores/tungsten");
     public static final TagKey<Block> ORES_TITANIUM = ModBlockTags.bindC("ores/titanium");

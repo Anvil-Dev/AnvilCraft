@@ -1,14 +1,19 @@
 package dev.dubhe.anvilcraft.config;
 
+import com.google.gson.annotations.SerializedName;
 import dev.anvilcraft.lib.v2.config.BoundedDiscrete;
 import dev.anvilcraft.lib.v2.config.CollapsibleObject;
 import dev.anvilcraft.lib.v2.config.Comment;
 import dev.anvilcraft.lib.v2.config.Config;
+import dev.anvilcraft.lib.v2.config.util.TranslatableEnum;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import net.neoforged.fml.config.ModConfig;
 
 @Config(name = AnvilCraft.MOD_ID, type = ModConfig.Type.CLIENT)
 public class AnvilCraftClientConfig {
+    @Comment("Swap insert/collect to left-click and keep extract/place on right-click (Left Collect, Right Place)")
+    public boolean invertOverrideAction = false;
+
     @Comment("The mode of the anvil hammer goggle info")
     public GoggleMode goggleMode = GoggleMode.WEARING_OR_HOLDING_HAMMER;
 
@@ -98,6 +103,26 @@ public class AnvilCraftClientConfig {
 
         @Comment("The gui hud y position")
         public int hudY = 8;
+    }
+
+    @Comment("Preview mode when placing multipart blocks (large crate, hyperdimension storage station...)")
+    public MultiPartPreviewMode multiPartPreviewMode = MultiPartPreviewMode.OUTLINE;
+
+    @Comment("Opacity of the ghost (solid) preview when placing multipart blocks")
+    @BoundedDiscrete(min = 0.0, max = 1.0)
+    public double multiPartPreviewGhostOpacity = 0.3;
+
+    @Comment("Opacity of the outline preview when placing multipart blocks")
+    @BoundedDiscrete(min = 0.0, max = 1.0)
+    public double multiPartPreviewOutlineOpacity = 0.5;
+
+    public enum MultiPartPreviewMode implements TranslatableEnum {
+        @SerializedName("Ghost")
+        GHOST,
+        @SerializedName("Outline")
+        OUTLINE,
+        @SerializedName("Off")
+        OFF
     }
 
     public enum GoggleMode {

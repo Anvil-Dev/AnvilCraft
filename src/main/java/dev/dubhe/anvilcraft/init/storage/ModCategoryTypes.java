@@ -6,6 +6,7 @@ import dev.dubhe.anvilcraft.saved.storage.category.AndCategory;
 import dev.dubhe.anvilcraft.saved.storage.category.BlockCategory;
 import dev.dubhe.anvilcraft.saved.storage.category.CreativeModeTabCategory;
 import dev.dubhe.anvilcraft.saved.storage.category.FilterCategory;
+import dev.dubhe.anvilcraft.saved.storage.category.FluidCategory;
 import dev.dubhe.anvilcraft.saved.storage.category.HasComponentCategory;
 import dev.dubhe.anvilcraft.saved.storage.category.ICategory;
 import dev.dubhe.anvilcraft.saved.storage.category.NamespaceCategory;
@@ -40,6 +41,9 @@ public class ModCategoryTypes {
         .register("recipe_book_category", RecipeBookCategoryCategory.Type::new);
     public static final DeferredHolder<ICategory.Type<?>, FilterCategory.Type> FILTER = ModCategoryTypes.REGISTER
         .register("filter", FilterCategory.Type::new);
+
+    public static final DeferredHolder<ICategory.Type<?>, FluidCategory.Type> FLUID = ModCategoryTypes.REGISTER
+        .register("fluid", FluidCategory.Type::new);
 
     public static void register(IEventBus modEventBus) {
         ModCategoryTypes.REGISTER.register(modEventBus);

@@ -6,6 +6,7 @@ import dev.dubhe.anvilcraft.block.multipart.AbstractMultiPartBlock;
 import dev.dubhe.anvilcraft.block.multipart.MultiPartBlockEntity;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.item.property.component.StructureDiskData;
+import dev.dubhe.anvilcraft.network.StructureDiskRequestPacket;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.Registries;
@@ -14,6 +15,7 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtAccounter;
 import net.minecraft.nbt.NbtIo;
 import net.minecraft.nbt.NbtUtils;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BedBlock;
@@ -35,7 +37,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Pattern;
 
@@ -49,6 +54,83 @@ public class StructureLoadUtil {
     private static final Pattern VALID_STRUCTURE_FILE = Pattern.compile("^[a-zA-Z0-9_\\-]+_[a-f0-9\\-]+\\.nbt$");
     private static final int MAX_STRUCTURE_FILE_LENGTH = 128;
     private static final int MAX_PREVIEW_BLOCKS = 4096;
+    private static final long REQUEST_COOLDOWN_MS = 2000;
+    public static final long MAX_STRUCTURE_NBT_BYTES = 128L * 1024 * 1024;
+    private static final Map<String, CompoundTag> STRUCTURE_NBT_CACHE = new LinkedHashMap<>();
+    private static final Map<String, Boolean> MISSING_STRUCTURE_FILES = new LinkedHashMap<>();
+    private static final Map<String, Long> LAST_REQUEST_TIME = new LinkedHashMap<>();
+
+    /** 只读访问完整预览 NBT；返回的标签不可修改，缓存未命中时向服务端请求。 */
+    public static Optional<CompoundTag> getStructureNbtForPreview(Level level, StructureDiskData data) {
+        String file = data.file();
+        if (isInvalidStructureFile(file) || MISSING_STRUCTURE_FILES.containsKey(file)) return Optional.empty();
+        CompoundTag cached = STRUCTURE_NBT_CACHE.get(file);
+        if (cached != null) return Optional.of(cached);
+        if (level.isClientSide()) {
+            requestStructureFile(file);
+        }
+        return Optional.empty();
+    }
+
+    private static void requestStructureFile(String file) {
+        var client = Minecraft.getInstance();
+        var connection = client.getConnection();
+        if (client.player == null || connection == null) return;
+        long now = System.currentTimeMillis();
+        Long last = LAST_REQUEST_TIME.get(file);
+        if (last != null && now - last < REQUEST_COOLDOWN_MS) return;
+        LAST_REQUEST_TIME.put(file, now);
+        trimCache(LAST_REQUEST_TIME, 1000);
+        connection.send(new StructureDiskRequestPacket(file));
+    }
+
+    /** null 表示服务端确认文件不存在或读取失败。 */
+    public static void cacheStructureNbt(String file, @Nullable CompoundTag tag) {
+        if (isInvalidStructureFile(file)) return;
+        LAST_REQUEST_TIME.remove(file);
+        if (tag == null) {
+            STRUCTURE_NBT_CACHE.remove(file);
+            MISSING_STRUCTURE_FILES.put(file, true);
+            trimCache(MISSING_STRUCTURE_FILES, 1000);
+        } else {
+            STRUCTURE_NBT_CACHE.put(file, tag.copy());
+            trimCache(STRUCTURE_NBT_CACHE, 100);
+            MISSING_STRUCTURE_FILES.remove(file);
+        }
+    }
+
+    private static void trimCache(Map<String, ?> cache, int limit) {
+        while (cache.size() > limit) {
+            var iterator = cache.keySet().iterator();
+            iterator.next();
+            iterator.remove();
+        }
+    }
+
+    public static void removeCachedStructureNbt(String file) {
+        STRUCTURE_NBT_CACHE.remove(file);
+        MISSING_STRUCTURE_FILES.remove(file);
+    }
+
+    public static void clearClientStructureCache() {
+        STRUCTURE_NBT_CACHE.clear();
+        MISSING_STRUCTURE_FILES.clear();
+        LAST_REQUEST_TIME.clear();
+    }
+
+    @Nullable
+    public static CompoundTag readStructureFileOnServer(ServerLevel level, String file) {
+        if (isInvalidStructureFile(file)) return null;
+        try {
+            Path base = getStructureDirectory(level);
+            Path path = base.resolve(file);
+            if (isPathOutsideBaseDirectory(path, base) || !Files.isRegularFile(path)) return null;
+            return NbtIo.readCompressed(path, NbtAccounter.create(MAX_STRUCTURE_NBT_BYTES));
+        } catch (IOException | RuntimeException exception) {
+            LOGGER.warn("Failed to read structure file {}", file, exception);
+            return null;
+        }
+    }
 
     /**
      * 从结构磁盘读取结构数据（不过滤多方块方块，用于预览）
@@ -59,7 +141,20 @@ public class StructureLoadUtil {
      */
     @Nullable
     public static StructureData loadStructureFromDiskForPreview(Level level, ItemStack diskStack) {
-        return StructureLoadUtil.loadStructureFromDisk(level, diskStack);
+        if (!level.isClientSide()) return loadStructureFromDisk(level, diskStack);
+        StructureDiskData diskData = diskStack.get(ModComponents.STRUCTURE_DISK_DATA);
+        if (diskData == null) return null;
+        var cached = getStructureNbtForPreview(level, diskData);
+        if (cached.isEmpty()) return null;
+        try {
+            var data = new StructureData(diskData);
+            parseStructureNBT(data, cached.orElseThrow(), level.registryAccess());
+            return data;
+        } catch (RuntimeException exception) {
+            LOGGER.warn("Failed to parse cached structure {}", diskData.file(), exception);
+            removeCachedStructureNbt(diskData.file());
+            return null;
+        }
     }
 
     /**

@@ -1,0 +1,8 @@
+{
+  "rules": [
+    {
+      "item": "minecraft:melon_seeds",
+      "properties": "age=0"
+    }
+  ]
+}

@@ -98,6 +98,7 @@ import mezz.jei.api.registration.IRecipeRegistration;
 import mezz.jei.api.registration.IRecipeTransferRegistration;
 import mezz.jei.api.registration.IVanillaCategoryExtensionRegistration;
 import mezz.jei.api.runtime.IClickableIngredient;
+import mezz.jei.api.runtime.IJeiRuntime;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.Rect2i;
@@ -293,7 +294,18 @@ public class AnvilCraftJeiPlugin implements IModPlugin {
     }
 
     @Override
+    public void onRuntimeAvailable(IJeiRuntime jeiRuntime) {
+        StorageJeiSupport.onRuntimeAvailable(jeiRuntime);
+    }
+
+    @Override
+    public void onRuntimeUnavailable() {
+        StorageJeiSupport.onRuntimeUnavailable();
+    }
+
+    @Override
     public void registerRecipeTransferHandlers(IRecipeTransferRegistration registration) {
+        StorageJeiSupport.registerRecipeTransferHandlers(registration);
         registration.addRecipeTransferHandler(
             RoyalSmithingMenu.class,
             ModMenuTypes.ROYAL_SMITHING.get(),

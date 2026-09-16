@@ -1,0 +1,12 @@
+{
+  "rules": [
+    {
+      "item": "minecraft:waxed_exposed_copper_door",
+      "properties": "half=lower"
+    },
+    {
+      "item": {},
+      "properties": "half=upper"
+    }
+  ]
+}

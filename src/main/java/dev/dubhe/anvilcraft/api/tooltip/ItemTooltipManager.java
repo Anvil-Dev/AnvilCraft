@@ -489,6 +489,63 @@ public class ItemTooltipManager {
         ItemTooltipManager.NORMAL.put(ModBlocks.LOAD_MONITOR.asItem(), "Monitor the grid load condition, can output a signal by redstone comparator");
         ItemTooltipManager.NORMAL.put(ModBlocks.CHUTE.asItem(), "An advanced Hopper, can transfer a full stack of items at a time");
         ItemTooltipManager.NORMAL.put(ModBlocks.MAGNETIC_CHUTE.asItem(), "An advanced Chute, with the ability to transport items vertically");
+        ItemTooltipManager.NORMAL.put(
+            ModBlocks.OVERFLOW_CHUTE.asItem(),
+            "An advanced Magnetic Chute, throws items out of the overflow port when the output is blocked"
+        );
+        ItemTooltipManager.SHIFT.put(
+            ModBlocks.OVERFLOW_CHUTE.asItem(), """
+                The output items will be launched with speed
+                Right‑click a side face with an Anvil Hammer to open or close it as an overflow port
+                Items leave through the output while it can accept them, and are thrown out of the overflow ports once it is blocked
+                The input and output faces can never become overflow ports"""
+        );
+        ItemTooltipManager.NORMAL.put(ModBlocks.STORAGE_FLUID_PORT.asItem(), "External fluid storage of the Shulker Container or the Hyperdimension Storage Station.");
+        ItemTooltipManager.SHIFT.put(
+            ModBlocks.STORAGE_FLUID_PORT.asItem(), """
+                Stores 128 B of a single fluid
+                Works even when linked to no storage
+                Right-click with a bucket or a bottle to fill or drain it
+                Right-click with a Menger Sponge to clear it
+                Keeps its fluid when broken""");
+
+        ItemTooltipManager.SHIFT.put(ModBlocks.PUMP.asItem(), """
+                Provides 10 blocks of headlift on both input and output sides (including the pump itself)
+                Also functions as check valve, allowing liquid to flow through only in the pump's direction
+                A redstone signal disables the pump""");
+
+        ItemTooltipManager.SHIFT.put(
+            ModBlocks.CREATIVE_CRATE.asItem(), """
+                Provides infinite items of a set type: place items inside to configure
+                Items will not be consumed when taken out
+                Destroys all input items when no item is configured
+                Creative players left-click to clear the configuration
+                Survival players left-click to take out items"""
+        );
+        ItemTooltipManager.NORMAL.put(
+            ModBlocks.STORAGE_PORT_CONSOLIDATOR.asItem(),
+            "Exposes the contents of the connected Storage Ports and Fluid Ports to external logistics"
+        );
+        ItemTooltipManager.SHIFT.put(ModBlocks.STORAGE_PORT_CONSOLIDATOR.asItem(), """
+                Exposes the contents of connected storage ports to storage buses
+                Can only connect to directly adjacent ports on the same side of the same Container/Storage Station.
+                Inputs are prioritized into ports with matching filters
+                Right-click with a fluid bucket to pour fluid into the corresponding fluid port.""");
+
+        ItemTooltipManager.NORMAL.put(ModBlocks.STORAGE_PORT.asItem(), "External input/output ports of the Shulker Container or the Hyperdimension Storage Station.");
+        ItemTooltipManager.SHIFT.put(ModBlocks.STORAGE_PORT.asItem(), """
+                Right‑click with an item in hand to mark a port
+                A marked port will always keep one stack of items inside
+                Left‑click to take items out, right‑click to put items in
+                Hold right-click on a marked port with Anvil Hammer can remove the mark""");
+        ItemTooltipManager.NORMAL.put(ModBlocks.ITEM_SPLITTER.asItem(), "Evenly splits the stored items among the containers in front");
+        ItemTooltipManager.SHIFT.put(
+            ModBlocks.ITEM_SPLITTER.asItem(), """
+                Holds 16 slots, but accepts only one item type at a time
+                Every 8 game ticks, evenly splits its contents among the containers lined up in front
+                With no container in front, let a falling anvil strike it: the fall height decides how many shares are made, thrown past obstacles up to 16 blocks ahead
+                Always divides strictly, the remainder stays inside"""
+        );
 
         ItemTooltipManager.SHIFT.put(
             ModItems.LASER_GUN.get(), """

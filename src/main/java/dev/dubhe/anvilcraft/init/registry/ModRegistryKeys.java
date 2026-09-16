@@ -2,10 +2,12 @@ package dev.dubhe.anvilcraft.init.registry;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.amulet.def.IAmuletDefinition;
+import dev.dubhe.anvilcraft.api.pointer.ITargetPointer;
 import dev.dubhe.anvilcraft.api.recipe.data.ICustomDataComponent;
 import dev.dubhe.anvilcraft.api.recipe.number.INumberProvider;
 import dev.dubhe.anvilcraft.api.recipe.result.modifier.IResultModifier;
 import dev.dubhe.anvilcraft.block.entity.celestial.Megastructure;
+import dev.dubhe.anvilcraft.block.placement.BlockPlacementRuleSet;
 import dev.dubhe.anvilcraft.item.property.component.amulet.IAmulet;
 import dev.dubhe.anvilcraft.saved.storage.category.ICategory;
 import net.minecraft.core.Registry;
@@ -26,8 +28,12 @@ public class ModRegistryKeys {
     public static final ResourceKey<Registry<ICategory>> CATEGORY = ModRegistryKeys.key("category");
     public static final ResourceKey<Registry<Megastructure>> MEGASTRUCTURE = ModRegistryKeys.key("megastructure");
 
+    public static final ResourceKey<Registry<ITargetPointer.Type<?>>> TARGET_POINTER_TYPE = ModRegistryKeys.key("target_pointer");
+    public static final ResourceKey<Registry<BlockPlacementRuleSet>> BLOCK_PLACEMENT_RULES = ModRegistryKeys.key("block_placement_rules");
+
     @SubscribeEvent
     public static void registerRegistries(DataPackRegistryEvent.NewRegistry event) {
+        event.dataPackRegistry(ModRegistryKeys.BLOCK_PLACEMENT_RULES, BlockPlacementRuleSet.CODEC, BlockPlacementRuleSet.CODEC);
         event.dataPackRegistry(ModRegistryKeys.AMULET_DEF, IAmuletDefinition.DIRECT_CODEC, IAmuletDefinition.DIRECT_CODEC);
         event.dataPackRegistry(ModRegistryKeys.CATEGORY, ICategory.DIRECT_CODEC, ICategory.DIRECT_CODEC);
     }

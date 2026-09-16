@@ -1,0 +1,69 @@
+allprojects {
+    apply plugin: 'checkstyle'
+    checkstyle {
+        toolVersion = '13.4.2'
+        configFile = file('style.xml')
+    }
+    tasks.register('checkPortJava', Checkstyle) {
+        source = fileTree('src/main/java') {
+            include '**/*BigRedButton*.java', '**/*RedstoneDice*.java'
+            include '**/client/selection/*.java', '**/mixin/client/*SelectionMixin.java', '**/mixin/client/CubeHighlightEventsMixin.java'
+            include '**/PowerProducerRenderer.java', '**/AdvancedComparatorRenderer.java', '**/HeliostatsRenderer.java'
+            include '**/ControlValveBlockEntityRenderer.java', '**/PipeCheckValveBERenderer.java', '**/PumpBlockEntityRenderer.java'
+            include '**/OverseerBlockEntityRenderer.java', '**/WipBlockEntityRenderer.java', '**/PulseGeneratorBlockEntityRenderer.java'
+            include '**/block/placement/*.java', '**/api/pointer/*.java', '**/api/block/BlockPlacementRules.java'
+            include '**/api/block/IBlockPlacementRule.java', '**/api/block/ICauldron.java', '**/api/item/IBlockItem.java'
+            include '**/BlockPlacementUtil.java', '**/BlockStateAndEntity.java', '**/ModBlockPlacementFallbacks.java'
+            include '**/ModBlockPlacementRuleProvider.java', '**/ModTargetPointers.java', '**/FireCauldronBlock.java', '**/OilCauldronBlock.java'
+            include '**/SmartBlockPlacer*.java', '**/SmartPlacer*.java', '**/StructureBookUtil.java'
+            include '**/mixin/client/ItemLayerTransformInvoker.java', '**/mixin/client/ItemStackRenderStateAccessor.java'
+            include '**/BlockPlacementPicking.java', '**/BlockPlaceContextMixin.java', '**/UseOnContextMixin.java', '**/ItemStackMixin.java'
+            include '**/LargeBlockPlacePreviewEventListener.java', '**/ChuteBlockItem.java', '**/CelestialForgingAnvilAmplifierBlockItem.java'
+            include '**/ItemSplitter*.java'
+            include '**/OverflowChute*.java', '**/BaseChuteBlockEntity.java'
+            include '**/IStoragePort.java', '**/StoragePortManager.java', '**/StoragePortType.java', '**/AbstractStoragePortBlock.java'
+            include '**/StoragePort*.java', '**/BlockEntityItemUtil.java'
+            include '**/ClientStoragePortTooltip.java'
+            include '**/ScaledGuiItem*.java'
+            include '**/StorageFluidPort*.java', '**/FluidBottleInteraction.java'
+            include '**/FluidTankTooltip.java', '**/ClientFluidTankTooltip.java'
+            include '**/api/plasma/*.java', '**/PlasmaJetsBlock*.java', '**/IEmptyCauldron.java', '**/EmptyCauldronMixin.java'
+            include '**/saved/storage/category/FluidCategory.java', '**/saved/storage/category/ICategory.java'
+            include '**/saved/storage/category/AndCategory.java', '**/saved/storage/category/OrCategory.java'
+            include '**/saved/storage/category/NamespaceCategory.java'
+            include '**/saved/storage/category/HasComponentCategory.java', '**/saved/storage/category/FilterCategory.java'
+            include '**/saved/storage/category/CreativeModeTabCategory.java', '**/saved/storage/category/RecipeBookCategoryCategory.java'
+            include '**/client/gui/component/category/CategoryButton.java', '**/client/gui/component/category/CategoryList.java'
+            include '**/BoxSelection*.java', '**/PillSelectorSupport.java', '**/AmuletSelectorSupport.java'
+            include '**/client/event/ClientEventListener.java'
+            include '**/BundleLike*.java', '**/InvertedActionEventListener.java', '**/PillBoxItem.java', '**/AmuletBoxItem.java'
+            include '**/PillBoxContents.java', '**/event/PlayerTickEventHandler.java'
+            include '**/TerminalKeyMappingEventListener.java', '**/ModKeyMappings.java', '**/KeyMappingLang.java'
+            include '**/PlayerBalanceHandler.java', '**/TerminalBalanceModePacket.java'
+            include '**/TerminalUpgradeRecipe.java', '**/TerminalUnbindRecipe.java', '**/data/lang/MessageLang.java'
+            include '**/TerminalSessions.java', '**/TerminalItem.java', '**/*TerminalItem.java', '**/TerminalBinding.java'
+            include '**/StorageTerminal*Stub.java', '**/BalanceMode.java', '**/HyperdimensionStorageStationBlock.java'
+            include '**/TerminalSourceManager.java', '**/block/entity/storage/StorageBlockEntity.java'
+            include '**/event/LevelEventListener.java', '**/event/ServerLifecycleEventListener.java'
+            include '**/StorageRecipeTransferPlan.java', '**/StorageJeiBridge.java', '**/StorageJeiSupport.java'
+            include '**/StorageSetting.java', '**/SettingClientStub.java', '**/SettingServerStub.java', '**/CategorySettingsScreen.java'
+            include '**/StorageServerStub.java', '**/StorageClientStub.java', '**/StorageInput.java', '**/StorageScreen.java', '**/StorageMenu.java'
+            include '**/FluidAmountUtil.java'
+            include '**/StructureLoadUtil.java', '**/StructureDisk*Packet.java', '**/StructureDiskPreviewSupport.java'
+            include '**/item/utility/DiskItem.java', '**/StructureDiskData.java'
+            include '**/recipe/multiblock/Multiblock*.java', '**/IMultiblockRecipe.java', '**/LevelLikeDisplaySupport.java'
+            include '**/GiantAnvilLandingEventListener.java'
+            include '**/BlockStatePredicateMixin.java'
+            include '**/FittedItemRenderer.java', '**/FilterItemRenderer.java', '**/DiskItemRenderer.java', '**/DiskDisplaySupport.java'
+            include '**/FormattingUtil.java'
+            include '**/unlimited/UnlimitedItemStacksResourceHandler.java'
+            include '**/saved/storage/*Storage.java'
+        } + fileTree('dev/porting/java')
+        classpath = files()
+        maxWarnings = 0
+        reports {
+            xml.required = true
+            html.required = true
+        }
+    }
+}

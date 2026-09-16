@@ -79,11 +79,12 @@ public class ItemHandlerUtil {
         try (Transaction root = Transaction.openRoot()) {
             for (int srcIndex = 0; srcIndex < source.size(); srcIndex++) {
                 ItemResource resource = source.getResource(srcIndex);
+                if (resource.isEmpty()) continue;
                 try (Transaction transaction = Transaction.open(root)) {
-                    int extracted = source.extract(srcIndex, resource, Integer.MAX_VALUE, transaction);
-                    if (extracted <= 0 || predicate.test(resource, extracted)) continue;
-                    int inserted = target.insert(resource, extracted, transaction);
-                    if (inserted == 0) continue;
+                    int inserted = target.insert(resource, source.getAmountAsInt(srcIndex), transaction);
+                    if (inserted <= 0) continue;
+                    int extracted = source.extract(srcIndex, resource, inserted, transaction);
+                    if (extracted != inserted || !predicate.test(resource, extracted)) continue;
                     transaction.commit();
                 }
             }

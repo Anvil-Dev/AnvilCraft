@@ -1,0 +1,12 @@
+{
+  "rules": [
+    {
+      "item": "anvilcraft:celestial_forging_anvil_amplifier",
+      "properties": "half=bottom_part"
+    },
+    {
+      "item": {},
+      "properties": "!half=bottom_part"
+    }
+  ]
+}

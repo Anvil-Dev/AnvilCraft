@@ -46,7 +46,7 @@ public record FilterCategory(ItemStackTemplate icon, Component name, FilterConte
             ItemStackTemplate.CODEC
                 .fieldOf("icon")
                 .forGetter(FilterCategory::icon),
-            ComponentSerialization.flatRestrictedCodec(Integer.MAX_VALUE)
+            ICategory.NAME_CODEC
                 .fieldOf("name")
                 .forGetter(FilterCategory::name),
             FilterContent.CODEC

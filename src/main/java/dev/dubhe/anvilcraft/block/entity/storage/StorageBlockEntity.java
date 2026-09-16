@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.block.entity.storage;
 
+import dev.dubhe.anvilcraft.api.TerminalSourceManager;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.item.property.component.StorageRef;
 import dev.dubhe.anvilcraft.saved.storage.StorageType;
@@ -44,6 +45,7 @@ public class StorageBlockEntity extends BlockEntity {
         }
         this.id = id;
         this.setChanged();
+        TerminalSourceManager.registerIfApplicable(this);
         if (this.level != null) {
             BlockState state = this.getBlockState();
             this.level.sendBlockUpdated(this.getBlockPos(), state, state, Block.UPDATE_ALL);
@@ -61,6 +63,25 @@ public class StorageBlockEntity extends BlockEntity {
     protected void loadAdditional(ValueInput input) {
         // 信任加载的数据
         input.read("storage_id", UUIDUtil.CODEC).ifPresent(id -> this.id = id);
+        TerminalSourceManager.registerIfApplicable(this);
+    }
+
+    @Override
+    public void onLoad() {
+        super.onLoad();
+        TerminalSourceManager.registerIfApplicable(this);
+    }
+
+    @Override
+    public void onChunkUnloaded() {
+        TerminalSourceManager.unregisterIfApplicable(this);
+        super.onChunkUnloaded();
+    }
+
+    @Override
+    public void setRemoved() {
+        TerminalSourceManager.unregisterIfApplicable(this);
+        super.setRemoved();
     }
 
     @Override

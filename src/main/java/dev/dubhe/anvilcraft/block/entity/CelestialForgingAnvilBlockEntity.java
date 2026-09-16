@@ -17,6 +17,7 @@ import dev.dubhe.anvilcraft.block.entity.megastructure.ExcavatorHandler;
 import dev.dubhe.anvilcraft.block.entity.megastructure.PenroseSphereHandler;
 import dev.dubhe.anvilcraft.block.entity.megastructure.WormholeStabilizerHandler;
 import dev.dubhe.anvilcraft.block.state.Cube323PartHalf;
+import dev.dubhe.anvilcraft.client.event.LargeBlockPlacePreviewEventListener;
 import dev.dubhe.anvilcraft.init.ModMegastructures;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.init.item.ModItems;
@@ -600,7 +601,17 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity
         }
     };
 
+    private boolean clientMissingAmplifier;
+
     public void tick() {
+        if (this.level != null && this.level.isClientSide()) {
+            boolean missing = this.celestialBodyData instanceof StarData && !this.amplifierPresent;
+            if (missing != this.clientMissingAmplifier) {
+                this.clientMissingAmplifier = missing;
+                if (missing) LargeBlockPlacePreviewEventListener.offerMissingAmplifierAnvil(this.worldPosition);
+                else LargeBlockPlacePreviewEventListener.removeMissingAmplifierAnvil(this.worldPosition);
+            }
+        }
         if (this.rotation >= 360) this.rotation -= 360;
         this.preRotation = this.rotation;
         // 红石信号越大星环越大 → 转速越慢
@@ -651,6 +662,10 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity
             this.cachedDropData = this.saveCustomOnly(this.level.registryAccess());
         }
         super.setRemoved();
+        if (this.level != null && this.level.isClientSide()) {
+            this.clientMissingAmplifier = false;
+            LargeBlockPlacePreviewEventListener.removeMissingAmplifierAnvil(this.worldPosition);
+        }
         if (shouldClear) {
             this.gravityController.remove(this.level, this.worldPosition);
             // 注销虫洞并清理巨构，使连接传送门及时关闭。

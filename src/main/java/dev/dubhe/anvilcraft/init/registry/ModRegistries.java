@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.init.registry;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.amulet.def.IAmuletDefinition;
+import dev.dubhe.anvilcraft.api.pointer.ITargetPointer;
 import dev.dubhe.anvilcraft.api.recipe.data.ICustomDataComponent;
 import dev.dubhe.anvilcraft.api.recipe.number.INumberProvider;
 import dev.dubhe.anvilcraft.api.recipe.result.modifier.IResultModifier;
@@ -39,9 +40,12 @@ public class ModRegistries {
         ModRegistryKeys.MEGASTRUCTURE
     );
 
+    public static final Registry<ITargetPointer.Type<?>> TARGET_POINTER_TYPE = ModRegistries.simple(ModRegistryKeys.TARGET_POINTER_TYPE);
+
     @SubscribeEvent
     public static void registerRegistries(NewRegistryEvent event) {
         event.register(ModRegistries.AMULET_TYPE);
+        event.register(ModRegistries.TARGET_POINTER_TYPE);
         event.register(ModRegistries.AMULET_DEF_TYPE);
         event.register(ModRegistries.MODIFIER_TYPE);
         event.register(ModRegistries.CUSTOM_DATA_TYPE);

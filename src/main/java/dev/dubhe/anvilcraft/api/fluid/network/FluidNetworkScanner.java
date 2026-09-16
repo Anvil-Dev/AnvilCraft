@@ -359,7 +359,9 @@ public final class FluidNetworkScanner {
         if (seenHandlers.putIfAbsent(handler, Boolean.TRUE) != null) {
             return;
         }
-        int effectiveHeight = containerPos.getY() + phi;
+        int heightBias = level.getBlockEntity(containerPos) instanceof
+            dev.dubhe.anvilcraft.block.entity.StorageFluidPortBlockEntity port ? port.getHeightBias() : 0;
+        int effectiveHeight = containerPos.getY() + phi + heightBias;
         endpoints.add(new FluidEndpoint(
             immutablePos,
             attachPipePos.immutable(),

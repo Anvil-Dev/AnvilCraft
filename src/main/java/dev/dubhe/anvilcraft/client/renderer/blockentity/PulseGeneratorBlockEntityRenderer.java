@@ -5,6 +5,7 @@ import com.mojang.math.Axis;
 import dev.dubhe.anvilcraft.block.entity.PulseGeneratorBlockEntity;
 import dev.dubhe.anvilcraft.block.utility.redstone.PulseGeneratorBlock;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.state.PulseGeneratorRenderState;
+import dev.dubhe.anvilcraft.client.selection.ModelSelectionRenderer;
 import dev.dubhe.anvilcraft.client.support.FeatureRendererSupport;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
@@ -13,12 +14,14 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.core.Direction;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.client.model.standalone.StandaloneModelKey;
 import org.jspecify.annotations.Nullable;
 
 public class PulseGeneratorBlockEntityRenderer
-    implements BlockEntityRenderer<PulseGeneratorBlockEntity, PulseGeneratorRenderState> {
+    implements BlockEntityRenderer<PulseGeneratorBlockEntity, PulseGeneratorRenderState>,
+    ModelSelectionRenderer<PulseGeneratorBlockEntity> {
     public static final StandaloneModelKey<BlockStateModel> INDICATOR = new StandaloneModelKey<>(
         () -> "AnvilCraft: Pulse Generator Indicator"
     );
@@ -73,18 +76,32 @@ public class PulseGeneratorBlockEntityRenderer
         CameraRenderState camera
     ) {
         pose.pushPose();
+        applyIndicatorPose(pose, state.getFacing(), state.isOutputting(), state.getPhaseProgress());
+        state.getIndicator().submit(pose, collector, state.lightCoords, OverlayTexture.NO_OVERLAY, 0);
+        pose.popPose();
+    }
+
+    @Override
+    public void collectSelectionModels(PulseGeneratorBlockEntity be, float partialTick, PoseStack pose, ModelConsumer consumer) {
+        pose.pushPose();
+        applyIndicatorPose(pose, be.getBlockState().getValue(PulseGeneratorBlock.FACING),
+            be.getState() == PulseGeneratorBlockEntity.State.OUTPUTTING, be.getPhaseProgress(partialTick));
+        boolean overspeed = be.isProcessing() && be.getWaitingTime() + be.getSignalDuration() <= 3;
+        consumer.accept(overspeed ? INDICATOR_OVERSPEED : INDICATOR, pose);
+        pose.popPose();
+    }
+
+    private static void applyIndicatorPose(PoseStack pose, Direction facing, boolean outputting, float progress) {
         pose.translate(0.5f, 0.0f, 0.5f);
-        pose.mulPose(Axis.YP.rotationDegrees(-state.getFacing().toYRot()));
+        pose.mulPose(Axis.YP.rotationDegrees(-facing.toYRot()));
         pose.translate(-0.5f, 0.0f, -0.5f);
         float phaseStartAngle =
-            state.isOutputting() ? PulseGeneratorBlockEntityRenderer.END_ANGLE : PulseGeneratorBlockEntityRenderer.START_ANGLE;
+            outputting ? PulseGeneratorBlockEntityRenderer.END_ANGLE : PulseGeneratorBlockEntityRenderer.START_ANGLE;
         PulseGeneratorBlockEntityRenderer.translateOnTable(pose);
         PulseGeneratorBlockEntityRenderer.rotateOnTable(
             pose, phaseStartAngle + (PulseGeneratorBlockEntityRenderer.END_ANGLE - PulseGeneratorBlockEntityRenderer.START_ANGLE)
-                                    * state.getPhaseProgress()
+                                    * progress
         );
-        state.getIndicator().submit(pose, collector, state.lightCoords, OverlayTexture.NO_OVERLAY, 0);
-        pose.popPose();
     }
 
     private static void translateOnTable(PoseStack pose) {

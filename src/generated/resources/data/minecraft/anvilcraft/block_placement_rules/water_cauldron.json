@@ -1,0 +1,9 @@
+{
+  "rules": [
+    {
+      "item": "minecraft:water_bucket",
+      "properties": "level=3",
+      "return_item": "minecraft:bucket"
+    }
+  ]
+}

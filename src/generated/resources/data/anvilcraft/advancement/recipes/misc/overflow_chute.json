@@ -1,0 +1,43 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_chute": {
+      "conditions": {
+        "items": [
+          {
+            "items": "anvilcraft:chute"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_magnetic_chute": {
+      "conditions": {
+        "items": [
+          {
+            "items": "anvilcraft:magnetic_chute"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "anvilcraft:overflow_chute"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_magnetic_chute",
+      "has_chute"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "anvilcraft:overflow_chute"
+    ]
+  }
+}

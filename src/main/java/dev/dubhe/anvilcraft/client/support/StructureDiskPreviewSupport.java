@@ -1,32 +1,30 @@
 package dev.dubhe.anvilcraft.client.support;
 
-import dev.dubhe.anvilcraft.block.entity.SmartBlockPlacerBlockEntity;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.item.property.component.StructureDiskData;
-import dev.dubhe.anvilcraft.network.StructurePreviewRequestPacket;
 import dev.dubhe.anvilcraft.util.LevelLike;
 import dev.dubhe.anvilcraft.util.StructureLoadUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtUtils;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.block.state.BlockState;
-import net.neoforged.neoforge.client.network.ClientPacketDistributor;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -39,8 +37,7 @@ import java.util.UUID;
  *       仅在超过 {@link #MAX_CACHE_SIZE} 时淘汰最旧条目</li>
  *   <li>待处理缓存 {@link #PENDING_PREVIEW_DATA} — 服务端返回的原始 NBT，
  *       等待 tooltip 渲染时获取磁盘上下文后完成解析</li>
- *   <li>请求去重 {@link #PENDING_REQUESTS} — 防止同一 UUID 重复请求，
- *       超时 {@link #REQUEST_TIMEOUT_MS} 后允许重试</li>
+ *   <li>完整结构文件请求与缺失状态由 {@link StructureLoadUtil} 统一缓存和节流</li>
  * </ul>
  */
 public class StructureDiskPreviewSupport {
@@ -60,21 +57,6 @@ public class StructureDiskPreviewSupport {
      * 服务端返回的原始NBT预览数据（等待构建LevelLike）
      */
     private static final Map<UUID, CompoundTag> PENDING_PREVIEW_DATA = new HashMap<>();
-
-    /**
-     * 已发送请求的UUID集合（防止重复请求）
-     */
-    private static final Set<UUID> PENDING_REQUESTS = new HashSet<>();
-
-    /**
-     * 请求超时时间（毫秒），超时后可重新请求
-     */
-    private static final long REQUEST_TIMEOUT_MS = 30000;
-
-    /**
-     * 请求时间戳记录
-     */
-    private static final Map<UUID, Long> REQUEST_TIMESTAMPS = new HashMap<>();
 
     private record PreviewCache(
         StructureLoadUtil.StructureData structureData,
@@ -151,8 +133,6 @@ public class StructureDiskPreviewSupport {
      */
     public static void receiveStructureData(UUID structureUuid, CompoundTag structureData) {
         StructureDiskPreviewSupport.PENDING_PREVIEW_DATA.put(structureUuid, structureData);
-        StructureDiskPreviewSupport.PENDING_REQUESTS.remove(structureUuid);
-        StructureDiskPreviewSupport.REQUEST_TIMESTAMPS.remove(structureUuid);
     }
 
     /**
@@ -191,7 +171,7 @@ public class StructureDiskPreviewSupport {
             return null;
         }
 
-        // 3. 回退：尝试从本地文件加载（单人模式有效）
+        // 3. 读取服务端同步的完整结构；首次访问由共享缓存发起请求。
         StructureLoadUtil.StructureData localData = StructureLoadUtil.loadStructureFromDiskForPreview(level, diskStack);
         if (localData != null && !localData.isEmpty()) {
             LevelLike levelLike = StructureDiskPreviewSupport.buildLevelLike(localData);
@@ -203,24 +183,13 @@ public class StructureDiskPreviewSupport {
             }
         }
 
-        // 4. 未缓存且未请求 → 向服务端发送请求
-        if (StructureDiskPreviewSupport.shouldSendRequest(uuid)) {
-            StructureDiskPreviewSupport.PENDING_REQUESTS.add(uuid);
-            StructureDiskPreviewSupport.REQUEST_TIMESTAMPS.put(uuid, System.currentTimeMillis());
-            ClientPacketDistributor.sendToServer(new StructurePreviewRequestPacket(uuid, diskData.file()));
-        }
-
         return null;
     }
 
-    /**
-     * 检查是否应该发送请求（未被请求或已超时）
-     */
-    private static boolean shouldSendRequest(UUID uuid) {
-        if (!StructureDiskPreviewSupport.PENDING_REQUESTS.contains(uuid)) return true;
-        Long timestamp = StructureDiskPreviewSupport.REQUEST_TIMESTAMPS.get(uuid);
-        if (timestamp == null) return true;
-        return System.currentTimeMillis() - timestamp > StructureDiskPreviewSupport.REQUEST_TIMEOUT_MS;
+    public static void clearCache() {
+        PREVIEW_CACHE.clear();
+        PENDING_PREVIEW_DATA.clear();
+        StructureLoadUtil.clearClientStructureCache();
     }
 
     /**
@@ -265,6 +234,59 @@ public class StructureDiskPreviewSupport {
     /**
      * 构建LevelLike用于渲染
      */
+    private static StructureLoadUtil.StructureData rotateStructureDataForPreview(
+        StructureLoadUtil.StructureData originalData
+    ) {
+        Direction scannerFacing = originalData.diskData.direction();
+
+        if (scannerFacing == Direction.NORTH) {
+            return originalData;
+        }
+
+        StructureLoadUtil.StructureData result = new StructureLoadUtil.StructureData(originalData.diskData);
+        for (var bp : originalData.blocks) {
+            BlockState rotatedState = StructureDiskPreviewSupport.rotateBlockStateForPreview(bp.state(), scannerFacing);
+            result.blocks.add(new StructureLoadUtil.BlockPosition(bp.x(), bp.y(), bp.z(), rotatedState));
+        }
+
+        return result;
+    }
+
+    /**
+     * 根据 Scanner 朝向旋转方块状态（与 StructureScannerScreen 保持一致）
+     */
+    private static BlockState rotateBlockStateForPreview(BlockState state, Direction scannerFacing) {
+        if (state.hasProperty(BlockStateProperties.HORIZONTAL_FACING)) {
+            Direction blockFacing = state.getValue(BlockStateProperties.HORIZONTAL_FACING);
+            Direction rotatedFacing = StructureDiskPreviewSupport.rotateDirectionForPreview(blockFacing, scannerFacing);
+            return state.setValue(BlockStateProperties.HORIZONTAL_FACING, rotatedFacing);
+        }
+
+        if (state.hasProperty(HorizontalDirectionalBlock.FACING)) {
+            Direction blockFacing = state.getValue(HorizontalDirectionalBlock.FACING);
+            Direction rotatedFacing = StructureDiskPreviewSupport.rotateDirectionForPreview(blockFacing, scannerFacing);
+            return state.setValue(HorizontalDirectionalBlock.FACING, rotatedFacing);
+        }
+
+        if (state.hasProperty(BlockStateProperties.FACING)) {
+            Direction blockFacing = state.getValue(BlockStateProperties.FACING);
+            if (blockFacing == Direction.UP || blockFacing == Direction.DOWN) return state;
+            Direction rotatedFacing = StructureDiskPreviewSupport.rotateDirectionForPreview(blockFacing, scannerFacing);
+            return state.setValue(BlockStateProperties.FACING, rotatedFacing);
+        }
+
+        return state;
+    }
+
+    private static Direction rotateDirectionForPreview(Direction blockFacing, Direction scannerFacing) {
+        return switch (scannerFacing) {
+            case SOUTH -> blockFacing.getOpposite();
+            case WEST -> blockFacing.getClockWise();
+            case EAST -> blockFacing.getCounterClockWise();
+            default -> blockFacing;
+        };
+    }
+
     @Nullable
     private static LevelLike buildLevelLike(StructureLoadUtil.StructureData data) {
         if (data.isEmpty()) return null;
@@ -275,7 +297,7 @@ public class StructureDiskPreviewSupport {
         LevelLike levelLike = new LevelLike(minecraft.level);
 
         StructureLoadUtil.StructureData rotatedData =
-            SmartBlockPlacerBlockEntity.rotateStructureDataStatic(data);
+            StructureDiskPreviewSupport.rotateStructureDataForPreview(data);
 
         int sizeX = data.diskData.sizeX();
         int sizeY = data.diskData.sizeY();

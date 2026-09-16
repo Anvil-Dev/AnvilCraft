@@ -1,0 +1,29 @@
+{
+  "rules": [
+    {
+      "item": "minecraft:pink_petals",
+      "properties": "flower_amount=1"
+    },
+    {
+      "item": {
+        "count": 2,
+        "id": "minecraft:pink_petals"
+      },
+      "properties": "flower_amount=2"
+    },
+    {
+      "item": {
+        "count": 3,
+        "id": "minecraft:pink_petals"
+      },
+      "properties": "flower_amount=3"
+    },
+    {
+      "item": {
+        "count": 4,
+        "id": "minecraft:pink_petals"
+      },
+      "properties": "flower_amount=4"
+    }
+  ]
+}

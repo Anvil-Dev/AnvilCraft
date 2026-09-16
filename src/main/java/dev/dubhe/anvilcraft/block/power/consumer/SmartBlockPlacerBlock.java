@@ -15,9 +15,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
@@ -33,7 +31,6 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.redstone.Orientation;
 import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jspecify.annotations.Nullable;
@@ -52,23 +49,23 @@ public class SmartBlockPlacerBlock extends BetterBaseEntityBlock implements IHam
     );
 
     // 使用 ShapeUtil.rotate 自动生成其他水平朝向
-    private static final VoxelShape SHAPE_WEST = ShapeUtil.rotate(Direction.Axis.Y, 90, SmartBlockPlacerBlock.SHAPE_NORTH);
-    private static final VoxelShape SHAPE_SOUTH = ShapeUtil.rotate(Direction.Axis.Y, 180, SmartBlockPlacerBlock.SHAPE_NORTH);
-    private static final VoxelShape SHAPE_EAST = ShapeUtil.rotate(Direction.Axis.Y, 270, SmartBlockPlacerBlock.SHAPE_NORTH);
+    private static final VoxelShape SHAPE_WEST = ShapeUtil.rotate(Direction.Axis.Y, 90, SHAPE_NORTH);
+    private static final VoxelShape SHAPE_SOUTH = ShapeUtil.rotate(Direction.Axis.Y, 180, SHAPE_NORTH);
+    private static final VoxelShape SHAPE_EAST = ShapeUtil.rotate(Direction.Axis.Y, 270, SHAPE_NORTH);
 
     // 倒挂状态：使用 Axis.X 旋转 180 度实现 Y 轴翻转
-    private static final VoxelShape SHAPE_NORTH_UPSIDE = ShapeUtil.rotate(Direction.Axis.X, 180, SmartBlockPlacerBlock.SHAPE_SOUTH);
-    private static final VoxelShape SHAPE_WEST_UPSIDE = ShapeUtil.rotate(Direction.Axis.X, 180, SmartBlockPlacerBlock.SHAPE_WEST);
-    private static final VoxelShape SHAPE_SOUTH_UPSIDE = ShapeUtil.rotate(Direction.Axis.X, 180, SmartBlockPlacerBlock.SHAPE_NORTH);
-    private static final VoxelShape SHAPE_EAST_UPSIDE = ShapeUtil.rotate(Direction.Axis.X, 180, SmartBlockPlacerBlock.SHAPE_EAST);
+    private static final VoxelShape SHAPE_NORTH_UPSIDE = ShapeUtil.rotate(Direction.Axis.X, 180, SHAPE_NORTH);
+    private static final VoxelShape SHAPE_WEST_UPSIDE = ShapeUtil.rotate(Direction.Axis.X, 180, SHAPE_WEST);
+    private static final VoxelShape SHAPE_SOUTH_UPSIDE = ShapeUtil.rotate(Direction.Axis.X, 180, SHAPE_SOUTH);
+    private static final VoxelShape SHAPE_EAST_UPSIDE = ShapeUtil.rotate(Direction.Axis.X, 180, SHAPE_EAST);
 
     public SmartBlockPlacerBlock(Properties properties) {
         super(properties);
         this.registerDefaultState(this.stateDefinition.any()
             .setValue(HorizontalDirectionalBlock.FACING, Direction.NORTH)
-            .setValue(SmartBlockPlacerBlock.UPSIDE_DOWN, false)
-            .setValue(SmartBlockPlacerBlock.POWERED, false)
-            .setValue(SmartBlockPlacerBlock.OVERLOAD, true));
+            .setValue(UPSIDE_DOWN, false)
+            .setValue(POWERED, false)
+            .setValue(OVERLOAD, true));
     }
 
     public RenderShape getRenderShape(BlockState state) {
@@ -81,13 +78,8 @@ public class SmartBlockPlacerBlock extends BetterBaseEntityBlock implements IHam
     }
 
     @Override
-    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(
-            HorizontalDirectionalBlock.FACING,
-            SmartBlockPlacerBlock.UPSIDE_DOWN,
-            SmartBlockPlacerBlock.POWERED,
-            SmartBlockPlacerBlock.OVERLOAD
-        );
+    protected void createBlockStateDefinition(StateDefinition.Builder<net.minecraft.world.level.block.Block, BlockState> builder) {
+        builder.add(HorizontalDirectionalBlock.FACING, UPSIDE_DOWN, POWERED, OVERLOAD);
     }
 
     @Override
@@ -106,9 +98,9 @@ public class SmartBlockPlacerBlock extends BetterBaseEntityBlock implements IHam
 
         return this.defaultBlockState()
             .setValue(HorizontalDirectionalBlock.FACING, horizontalFacing)
-            .setValue(SmartBlockPlacerBlock.UPSIDE_DOWN, upsideDown)
-            .setValue(SmartBlockPlacerBlock.POWERED, level.hasNeighborSignal(context.getClickedPos()))
-            .setValue(SmartBlockPlacerBlock.OVERLOAD, true);
+            .setValue(UPSIDE_DOWN, upsideDown)
+            .setValue(POWERED, level.hasNeighborSignal(context.getClickedPos()))
+            .setValue(OVERLOAD, true);
     }
 
     @Override
@@ -119,13 +111,13 @@ public class SmartBlockPlacerBlock extends BetterBaseEntityBlock implements IHam
         CollisionContext context
     ) {
         Direction facing = state.getValue(HorizontalDirectionalBlock.FACING);
-        boolean upsideDown = state.getValue(SmartBlockPlacerBlock.UPSIDE_DOWN);
-        
+        boolean upsideDown = state.getValue(UPSIDE_DOWN);
+
         return switch (facing) {
-            case SOUTH -> upsideDown ? SmartBlockPlacerBlock.SHAPE_SOUTH_UPSIDE : SmartBlockPlacerBlock.SHAPE_SOUTH;
-            case WEST -> upsideDown ? SmartBlockPlacerBlock.SHAPE_WEST_UPSIDE : SmartBlockPlacerBlock.SHAPE_WEST;
-            case EAST -> upsideDown ? SmartBlockPlacerBlock.SHAPE_EAST_UPSIDE : SmartBlockPlacerBlock.SHAPE_EAST;
-            default -> upsideDown ? SmartBlockPlacerBlock.SHAPE_NORTH_UPSIDE : SmartBlockPlacerBlock.SHAPE_NORTH;
+            case SOUTH -> upsideDown ? SHAPE_SOUTH_UPSIDE : SHAPE_SOUTH;
+            case WEST -> upsideDown ? SHAPE_WEST_UPSIDE : SHAPE_WEST;
+            case EAST -> upsideDown ? SHAPE_EAST_UPSIDE : SHAPE_EAST;
+            default -> upsideDown ? SHAPE_NORTH_UPSIDE : SHAPE_NORTH;
         };
     }
 
@@ -138,45 +130,55 @@ public class SmartBlockPlacerBlock extends BetterBaseEntityBlock implements IHam
     @Nullable
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(
-        Level level,
+        Level current,
         BlockState state,
         BlockEntityType<T> type
     ) {
-        if (level.isClientSide()) {
-            return (_, _, _, entity) -> {
+        if (current.isClientSide()) {
+            return (level, pos, state1, entity) -> {
                 if (entity instanceof SmartBlockPlacerBlockEntity be) {
                     be.tickClient();
                 }
             };
         } else {
-            return (level1, pos, _, entity) -> {
+            return (level, pos, state1, entity) -> {
                 if (entity instanceof SmartBlockPlacerBlockEntity be) {
-                    be.tickServer(level1, pos);
+                    be.tickServer(level, pos);
                 }
             };
         }
     }
 
     @Override
-    public InteractionResult use(
-        BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
+    protected InteractionResult useWithoutItem(
+        BlockState state,
+        Level level,
+        BlockPos pos,
+        Player player,
+        BlockHitResult hitResult
+    ) {
         if (level.isClientSide()) {
             return InteractionResult.SUCCESS;
         }
-        BlockEntity blockEntity = level.getBlockEntity(pos);
-        if (blockEntity instanceof SmartBlockPlacerBlockEntity placerEntity) {
-            if (player.getItemInHand(hand).is(ModItems.DISK.get())) {
-                return placerEntity.useDisk(level, player, hand, player.getItemInHand(hand), hitResult);
+        BlockEntity be = level.getBlockEntity(pos);
+        if (be instanceof SmartBlockPlacerBlockEntity placerEntity) {
+            if (player.getMainHandItem().is(ModItems.DISK.get())) {
+                return placerEntity.useDisk(level, player, InteractionHand.MAIN_HAND, player.getMainHandItem(), hitResult);
+            } else if (player.getOffhandItem().is(ModItems.DISK.get())) {
+                return placerEntity.useDisk(level, player, InteractionHand.OFF_HAND, player.getOffhandItem(), hitResult);
             }
             if (player instanceof ServerPlayer serverPlayer) {
-                ModMenuTypes.open(serverPlayer, placerEntity, pos);
+                var provider = state.getMenuProvider(level, pos);
+                if (provider != null) {
+                    ModMenuTypes.open(serverPlayer, provider, pos);
+                }
             }
         }
         return InteractionResult.SUCCESS_SERVER;
     }
 
     @Override
-    protected void neighborChanged(
+    public void neighborChanged(
         BlockState state,
         Level level,
         BlockPos pos,
@@ -187,66 +189,23 @@ public class SmartBlockPlacerBlock extends BetterBaseEntityBlock implements IHam
         if (level.isClientSide()) {
             return;
         }
-        level.setBlock(pos, state.setValue(SmartBlockPlacerBlock.POWERED, level.hasNeighborSignal(pos)), 2);
-    }
-
-    @Override
-    public BlockState playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player) {
-        if (!level.isClientSide()) {
-            BlockEntity blockEntity = level.getBlockEntity(pos);
-            if (blockEntity instanceof SmartBlockPlacerBlockEntity placerEntity) {
-                // 掉落Disk物品栏中的物品
-                for (int i = 0; i < placerEntity.getDiskInventory().getContainerSize(); i++) {
-                    ItemStack stack = placerEntity.getDiskInventory().getItem(i);
-                    if (!stack.isEmpty()) {
-                        Vec3 vec3 = pos.getCenter();
-                        ItemEntity itemEntity = new ItemEntity(
-                            level,
-                            vec3.x,
-                            vec3.y,
-                            vec3.z,
-                            stack
-                        );
-                        itemEntity.setDefaultPickUpDelay();
-                        level.addFreshEntity(itemEntity);
-                    }
-                }
-                
-                // 掉落书物品栏中的物品（输入书，如果有的话）
-                for (int i = 0; i < placerEntity.getBookInventory().getContainerSize(); i++) {
-                    ItemStack stack = placerEntity.getBookInventory().getItem(i);
-                    if (!stack.isEmpty()) {
-                        Vec3 vec3 = pos.getCenter();
-                        ItemEntity itemEntity = new ItemEntity(
-                            level,
-                            vec3.x,
-                            vec3.y,
-                            vec3.z,
-                            stack
-                        );
-                        itemEntity.setDefaultPickUpDelay();
-                        level.addFreshEntity(itemEntity);
-                    }
-                }
-            }
-        }
-        return super.playerWillDestroy(level, pos, state, player);
+        level.setBlock(pos, state.setValue(POWERED, level.hasNeighborSignal(pos)), 2);
     }
 
     @Override
     public void tick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
-        if (state.getValue(SmartBlockPlacerBlock.POWERED) && !level.hasNeighborSignal(pos)) {
-            level.setBlock(pos, state.cycle(SmartBlockPlacerBlock.POWERED), 2);
+        if (state.getValue(POWERED) && !level.hasNeighborSignal(pos)) {
+            level.setBlock(pos, state.cycle(POWERED), 2);
         }
     }
-    
+
     @Override
-    protected boolean hasAnalogOutputSignal(BlockState state) {
+    public boolean hasAnalogOutputSignal(BlockState state) {
         return true;
     }
-    
+
     @Override
-    protected int getAnalogOutputSignal(BlockState state, Level level, BlockPos pos, Direction direction) {
+    public int getAnalogOutputSignal(BlockState state, Level level, BlockPos pos, Direction direction) {
         if (level.isClientSide()) {
             return 0;
         }

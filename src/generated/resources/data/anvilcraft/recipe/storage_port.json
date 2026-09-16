@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "key": {
+    "A": "minecraft:shulker_shell",
+    "B": "anvilcraft:crate"
+  },
+  "pattern": [
+    "A",
+    "B",
+    "A"
+  ],
+  "result": {
+    "count": 4,
+    "id": "anvilcraft:storage_port"
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "rules": [
+    {
+      "item": "anvilcraft:oil_bucket",
+      "properties": "level=4",
+      "return_item": "minecraft:bucket"
+    }
+  ]
+}

@@ -12,21 +12,22 @@ import net.minecraft.network.codec.StreamCodec;
 import java.util.UUID;
 
 public class ShulkerContainerStorage extends BaseStorage<TypeLimitItemStacksResourceHandler> {
-    public static final MapCodec<ShulkerContainerStorage> CODEC = CodecUtil.mapCodec(
+    public static final MapCodec<ShulkerContainerStorage> CODEC = BaseStorage.withCrafting(CodecUtil.mapCodec(
         UUIDUtil.CODEC
             .fieldOf("storage_id")
             .forGetter(ShulkerContainerStorage::getId),
         TypeLimitItemStacksResourceHandler.CODEC
             .forGetter(ShulkerContainerStorage::getItems),
         ShulkerContainerStorage::of
-    );
-    public static final StreamCodec<RegistryFriendlyByteBuf, ShulkerContainerStorage> STREAM_CODEC = StreamCodec.composite(
+    ));
+    public static final StreamCodec<RegistryFriendlyByteBuf, ShulkerContainerStorage> STREAM_CODEC =
+        BaseStorage.withCrafting(StreamCodec.composite(
         UUIDUtil.STREAM_CODEC,
         ShulkerContainerStorage::getId,
         TypeLimitItemStacksResourceHandler.STREAM_CODEC,
         ShulkerContainerStorage::getItems,
         ShulkerContainerStorage::of
-    );
+    ));
 
     public ShulkerContainerStorage(UUID id) {
         super(id);

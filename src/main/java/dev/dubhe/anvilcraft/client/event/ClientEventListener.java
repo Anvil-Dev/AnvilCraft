@@ -12,6 +12,7 @@ import dev.dubhe.anvilcraft.client.init.ModAtlasIds;
 import dev.dubhe.anvilcraft.client.init.ModKeyMappings;
 import dev.dubhe.anvilcraft.client.init.ModTextureAtlases;
 import dev.dubhe.anvilcraft.client.support.AmuletSelectorSupport;
+import dev.dubhe.anvilcraft.client.support.BoxSelectionTarget;
 import dev.dubhe.anvilcraft.client.support.FilterSelectorSupport;
 import dev.dubhe.anvilcraft.client.support.ScreenShakeManager;
 import dev.dubhe.anvilcraft.client.support.SeismicBounceManager;
@@ -102,6 +103,7 @@ public class ClientEventListener {
     public static void onClientPlayerDisconnect(ClientPlayerNetworkEvent.LoggingOut event) {
         SoundHelper.INSTANCE.clear();
         RecipesRecord.CLIENTSIDE = null;
+        StructureDiskPreviewSupport.clearCache();
         ItemCollectorBlockEntity.clearPoachingCollectors();
     }
 
@@ -219,16 +221,31 @@ public class ClientEventListener {
 
     @SubscribeEvent
     public static void renderContainerScreenEvent(ContainerScreenEvent.Render.Foreground event) {
-        AbstractContainerScreen<?> screen = event.getContainerScreen();
-        Slot slot = screen.getHoveredSlot();
-        if (slot != null) {
-            ItemStack item = slot.getItem();
-            if (item.is(ModItems.PILL_BOX)) {
-                AnvilCraftClient.pillSelectorSupport.setPillBox(item);
-                return;
+        Slot slot = event.getContainerScreen().getHoveredSlot();
+        ClientEventListener.updateBoxSelectors(slot == null ? ItemStack.EMPTY : slot.getItem());
+    }
+
+    private static void updateBoxSelectors(ItemStack tooltipStack) {
+        ItemStack stack = tooltipStack;
+        BoxSelectionTarget target = BoxSelectionTarget.NONE;
+        if (Minecraft.getInstance().screen instanceof AbstractContainerScreen<?> screen) {
+            Slot slot = screen.getHoveredSlot();
+            if (slot != null && ItemStack.isSameItemSameComponents(slot.getItem(), stack)) {
+                stack = slot.getItem();
+                target = BoxSelectionTarget.of(screen, slot);
             }
         }
-        AnvilCraftClient.pillSelectorSupport.setPillBox(ItemStack.EMPTY);
+        AnvilCraftClient.pillSelectorSupport.setPillBox(stack.is(ModItems.PILL_BOX) ? stack : ItemStack.EMPTY, target);
+        AmuletSelectorSupport.setHoveredTarget(target);
+        AmuletSelectorSupport.setCurrentHoveringItemStack(stack.is(ModItems.AMULET_BOX) ? stack : ItemStack.EMPTY);
+    }
+
+    @SubscribeEvent
+    public static void onScreenClosing(ScreenEvent.Closing event) {
+        AnvilCraftClient.pillSelectorSupport.clearHoveredSlot();
+        AnvilCraftClient.pillSelectorSupport.setPillBox(ItemStack.EMPTY, BoxSelectionTarget.NONE);
+        AmuletSelectorSupport.setHoveredTarget(BoxSelectionTarget.NONE);
+        AmuletSelectorSupport.setCurrentHoveringItemStack(ItemStack.EMPTY);
     }
 
     @SubscribeEvent
@@ -238,13 +255,12 @@ public class ClientEventListener {
         int y = event.getY();
 
         ItemStack itemStack = event.getItemStack();
+        ClientEventListener.updateBoxSelectors(itemStack);
         if (itemStack.is(ModItems.AMULET_BOX)) {
             event.setY(y + 13);
-            AmuletSelectorSupport.setCurrentHoveringItemStack(itemStack);
             AmuletSelectorSupport.render(graphics, x, y);
         } else if (itemStack.is(ModItems.PILL_BOX)) {
             event.setY(y + 13);
-            AnvilCraftClient.pillSelectorSupport.setPillBox(itemStack);
             AnvilCraftClient.pillSelectorSupport.render(graphics, x, y);
         } else if (itemStack.is(ModItems.FILTER)) {
             event.setY(y + 13);
@@ -253,8 +269,6 @@ public class ClientEventListener {
         } else if (itemStack.is(ModItems.STRUCTURE_DISK)) {
             StructureDiskPreviewSupport.renderPreviewAt(graphics, itemStack, x, y);
         } else {
-            AmuletSelectorSupport.setCurrentHoveringItemStack(ItemStack.EMPTY);
-            AnvilCraftClient.pillSelectorSupport.setPillBox(ItemStack.EMPTY);
             FilterSelectorSupport.setCurrentFilterStack(ItemStack.EMPTY);
         }
     }

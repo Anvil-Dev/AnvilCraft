@@ -13,6 +13,7 @@ import dev.dubhe.anvilcraft.item.tool.DragonRodItem;
 import dev.dubhe.anvilcraft.item.weapon.LaserGunItem;
 import dev.dubhe.anvilcraft.item.weapon.SpectralWeaponLauncherItem;
 import dev.dubhe.anvilcraft.network.PlayerSettingsSyncPacket;
+import dev.dubhe.anvilcraft.rpc.BundleLikeServerStub;
 import dev.dubhe.anvilcraft.rpc.StorageServerStub;
 import dev.dubhe.anvilcraft.saved.setting.PlayerSettings;
 import dev.dubhe.anvilcraft.util.dummy.DummyCat;
@@ -51,6 +52,7 @@ public class PlayerTickEventHandler {
             IonoCraftBackpackItem.onPlayerLoggedOut(serverPlayer.getUUID());
             LaserGunItem.clearState(serverPlayer.getUUID());
             StorageServerStub.remove(serverPlayer.getUUID());
+            BundleLikeServerStub.clear(serverPlayer.getUUID());
         }
     }
 
