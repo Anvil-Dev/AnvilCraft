@@ -47,9 +47,13 @@ public abstract class TerminalItem extends BundleLikeItem {
     @Override
     public InteractionResult use(Level level, Player player, InteractionHand hand) {
         if (!level.isClientSide()) return InteractionResult.PASS;
-        ItemStack stack = player.getItemInHand(hand);
-        DistExecutor.run(Dist.CLIENT, () -> () -> StorageTerminalClientStub.open(player, stack, this.kind));
+        this.openStorage(player, player.getItemInHand(hand));
         return InteractionResult.SUCCESS;
+    }
+
+    public void openStorage(Player player, ItemStack stack) {
+        if (!player.level().isClientSide()) return;
+        DistExecutor.run(Dist.CLIENT, () -> () -> StorageTerminalClientStub.open(player, stack, this.kind));
     }
 
     public static List<ItemStack> carriedItems(Player player) {

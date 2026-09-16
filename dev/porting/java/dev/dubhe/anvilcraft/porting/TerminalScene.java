@@ -31,6 +31,7 @@ public final class TerminalScene {
     private static final BlockPos LOCAL = new BlockPos(25, 81, 0);
     private static final BlockPos SHULKER = new BlockPos(30, 81, 0);
     private static boolean started;
+    private static boolean keyTesting;
     private static volatile boolean prepared;
     private static volatile boolean clientLoaded;
     private static volatile Throwable failure;
@@ -41,6 +42,10 @@ public final class TerminalScene {
     private static boolean capturing;
 
     public static void frame(Minecraft client) {
+        if (keyTesting) {
+            TerminalKeyScene.frame(client);
+            return;
+        }
         if (!started) {
             started = true;
             client.options.guiScale().set(2);
@@ -195,7 +200,8 @@ public final class TerminalScene {
             }
             case 18 -> {
                 AnvilCraft.LOGGER.info("PORT_TERMINAL_SCENE_PASSED: binding, inventory, own crafting, local range, shulker priority");
-                client.stop();
+                if (Boolean.getBoolean("anvilcraft.portTerminalKeyScene")) keyTesting = true;
+                else client.stop();
             }
             default -> throw new IllegalStateException("Unknown terminal stage " + stage);
         }
