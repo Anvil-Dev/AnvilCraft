@@ -153,6 +153,7 @@ public abstract class ItemStackMixin implements DataComponentHolder {
             tooltipFlag
         );
         this.addToTooltip(ModComponents.STORAGE, tooltipContext, list::add, tooltipFlag);
+        this.addToTooltip(ModComponents.COMRADES, tooltipContext, list::add, tooltipFlag);
     }
 
     @Inject(

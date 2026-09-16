@@ -340,9 +340,9 @@ public class AmuletSelectorSupport {
             }
             List<ItemStack> amulets = content.amulets();
             boolean firstBigAmulet = amulets.getFirst().has(ModComponents.AMULET)
-                                     && Objects.requireNonNull(amulets.getFirst().get(ModComponents.AMULET)).getWeight() > 6;
+                                     && amulets.getFirst().getOrDefault(ModComponents.AMULET_WEIGHT, 0) > 6;
             boolean firstSmallAmulet = amulets.getFirst().has(ModComponents.AMULET)
-                                       && Objects.requireNonNull(amulets.getFirst().get(ModComponents.AMULET)).getWeight() <= 6;
+                                       && amulets.getFirst().getOrDefault(ModComponents.AMULET_WEIGHT, 0) <= 6;
             if (firstBigAmulet) {
                 return BIG_AMULET_1;
             }

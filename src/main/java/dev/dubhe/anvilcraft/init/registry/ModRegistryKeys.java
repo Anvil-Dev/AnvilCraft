@@ -21,6 +21,7 @@ import net.neoforged.neoforge.registries.DataPackRegistryEvent;
 @EventBusSubscriber(modid = AnvilCraft.MOD_ID)
 public class ModRegistryKeys {
     public static final ResourceKey<Registry<IAmulet.Type<?>>> AMULET_TYPE = ModRegistryKeys.key("amulet_type");
+    public static final ResourceKey<Registry<IAmulet>> AMULET = ModRegistryKeys.key("amulet");
     public static final ResourceKey<Registry<IAmuletDefinition.Type<?>>> AMULET_DEF_TYPE = ModRegistryKeys.key("amulet_definition_type");
     public static final ResourceKey<Registry<IAmuletDefinition>> AMULET_DEF = ModRegistryKeys.key("amulet_definition");
     public static final ResourceKey<Registry<IResultModifier.Type<?>>> MODIFIER = ModRegistryKeys.key("result_modifier");
