@@ -391,6 +391,73 @@ public final class StorageServerStub {
         return new InteractionResult(remaining, true);
     }
 
+    @RemoteCallable(validator = StorageAccessValidator.class)
+    public static InteractionResult craftingPickupAll(
+        UUID playerId, long sourcePos, int slot,
+        @CallableParam(clazz = ItemStack.class, field = "OPTIONAL_STREAM_CODEC") ItemStack clientCarried
+    ) {
+        ServerPlayer player = getServerPlayer(playerId);
+        CraftingTarget target = resolveCraftingTarget(player, sourcePos);
+        cancelCraftingBatch(playerId, sourcePos);
+        ItemStack carried = player.containerMenu.getCarried();
+        if (slot < 0 || slot > CraftingStorage.CRAFTING_GRID_SIZE) return new InteractionResult(carried, false);
+        ItemStack current = craftingInput(target.read(), slot);
+        if (!carried.isEmpty() && !current.isEmpty() && !ItemStack.isSameItemSameComponents(carried, current)) {
+            return new InteractionResult(carried, false);
+        }
+        return collectCraftingInputs(target, slot, true);
+    }
+
+    @RemoteCallable(validator = StorageAccessValidator.class)
+    public static InteractionResult craftingPickupIntoCarried(
+        UUID playerId, long sourcePos,
+        @CallableParam(clazz = ItemStack.class, field = "OPTIONAL_STREAM_CODEC") ItemStack clientCarried
+    ) {
+        ServerPlayer player = getServerPlayer(playerId);
+        CraftingTarget target = resolveCraftingTarget(player, sourcePos);
+        cancelCraftingBatch(playerId, sourcePos);
+        return collectCraftingInputs(target, -1, false);
+    }
+
+    private static InteractionResult collectCraftingInputs(CraftingTarget target, int first, boolean includeInventory) {
+        CraftingStorage state = target.read();
+        ItemStack carried = target.player.containerMenu.getCarried();
+        // 收集不创建物品，即使是创造玩家也不能用客户端旧快照替换服务端指针。
+        ItemStack sample = !carried.isEmpty() ? carried : first >= 0 ? craftingInput(state, first) : ItemStack.EMPTY;
+        if (sample.isEmpty()) return new InteractionResult(carried, false);
+        int count = carried.getCount();
+        int maximum = sample.getMaxStackSize();
+        IntList order = new IntArrayList();
+        if (first >= 0) order.add(first);
+        for (int slot = 0; slot <= CraftingStorage.CRAFTING_GRID_SIZE; slot++) {
+            if (slot != first) order.add(slot);
+        }
+        for (int slot : order) {
+            if (count >= maximum) break;
+            ItemStack current = craftingInput(state, slot);
+            if (current.isEmpty() || !ItemStack.isSameItemSameComponents(current, sample)) continue;
+            int take = Math.min(current.getCount(), maximum - count);
+            state = withCraftingInput(state, slot, current.copyWithCount(current.getCount() - take));
+            count += take;
+        }
+        if (includeInventory) {
+            for (int slot = 0; slot < Inventory.INVENTORY_SIZE && count < maximum; slot++) {
+                ItemStack current = target.player.getInventory().getItem(slot);
+                if (current.isEmpty() || !ItemStack.isSameItemSameComponents(current, sample)) continue;
+                int take = Math.min(current.getCount(), maximum - count);
+                target.player.getInventory().setItem(slot, current.copyWithCount(current.getCount() - take));
+                count += take;
+            }
+        }
+        if (count == carried.getCount()) return new InteractionResult(carried, false);
+        carried = sample.copyWithCount(count);
+        target.write(state);
+        target.player.getInventory().setChanged();
+        target.player.containerMenu.setCarried(carried);
+        target.player.containerMenu.broadcastChanges();
+        return new InteractionResult(carried, true);
+    }
+
     private static CraftingStorage withCraftingInput(CraftingStorage state, int slot, ItemStack stack) {
         return slot == 0 ? state.withStonecutterInput(stack) : state.withCraftingSlot(slot - 1, stack);
     }

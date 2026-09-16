@@ -128,7 +128,8 @@ if (providers.gradleProperty('portValidation').isPresent()) {
         neoForge.runs.client.systemProperty 'anvilcraft.portCraftingBatchScene', 'true'
         neoForge.runs.client.programArguments.addAll '--width', '1280', '--height', '720'
     }
-    if (providers.gradleProperty('portCraftingPanelScene').isPresent() || providers.gradleProperty('portCraftingDragScene').isPresent()) {
+    if (providers.gradleProperty('portCraftingPanelScene').isPresent() || providers.gradleProperty('portCraftingDragScene').isPresent()
+        || providers.gradleProperty('portCraftingPickupScene').isPresent()) {
         neoForge.runs.client.systemProperty 'anvilcraft.portVisualScene', 'true'
         neoForge.runs.client.systemProperty 'anvilcraft.portStorageLongScene', 'true'
         neoForge.runs.client.systemProperty 'anvilcraft.portCraftingStateScene', 'true'
@@ -136,8 +137,11 @@ if (providers.gradleProperty('portValidation').isPresent()) {
         neoForge.runs.client.systemProperty 'anvilcraft.portCraftingExecutionScene', 'true'
         neoForge.runs.client.systemProperty 'anvilcraft.portCraftingBatchScene', 'true'
         neoForge.runs.client.systemProperty 'anvilcraft.portCraftingPanelScene', 'true'
-        if (providers.gradleProperty('portCraftingDragScene').isPresent()) {
+        if (providers.gradleProperty('portCraftingDragScene').isPresent() || providers.gradleProperty('portCraftingPickupScene').isPresent()) {
             neoForge.runs.client.systemProperty 'anvilcraft.portCraftingDragScene', 'true'
+        }
+        if (providers.gradleProperty('portCraftingPickupScene').isPresent()) {
+            neoForge.runs.client.systemProperty 'anvilcraft.portCraftingPickupScene', 'true'
         }
         neoForge.runs.client.programArguments.addAll '--width', '1280', '--height', '720'
     }

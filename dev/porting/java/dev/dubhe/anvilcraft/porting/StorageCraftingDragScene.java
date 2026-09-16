@@ -21,8 +21,13 @@ public final class StorageCraftingDragScene {
     private static int stage;
     private static int frames;
     private static boolean capturing;
+    private static boolean pickupTesting;
 
     public static void frame(Minecraft client, BlockPos corePos, StorageScreen current) {
+        if (pickupTesting) {
+            StorageCraftingPickupScene.frame(client, corePos, current);
+            return;
+        }
         screen = current;
         if (!started) {
             started = true;
@@ -116,7 +121,8 @@ public final class StorageCraftingDragScene {
             case 9 -> {
                 AnvilCraft.LOGGER.info(
                     "PORT_CRAFTING_DRAG_SCENE_PASSED: mixed preview, release, right drag, creative clone, slot validation");
-                client.stop();
+                if (Boolean.getBoolean("anvilcraft.portCraftingPickupScene")) pickupTesting = true;
+                else client.stop();
             }
             default -> throw new IllegalStateException("Unknown stage " + stage);
         }

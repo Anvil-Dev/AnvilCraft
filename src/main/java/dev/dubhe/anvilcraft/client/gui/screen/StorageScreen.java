@@ -194,6 +194,13 @@ public class StorageScreen extends Screen {
     private int lastInventoryClickSlot = -1;
     private ItemStack lastQuickMoved = ItemStack.EMPTY;
     private int pickupAllSlot = -1;
+    private int lastCraftingClickSlot = -1;
+    private long lastCraftingClickTime;
+    private int pendingCraftingPickup = -1;
+    private int pendingCraftingButton;
+    private int doubleCraftingPickup = -1;
+    private int queuedCraftingPickup = -2;
+    private boolean craftingCloseRequested;
     private int left;
     private int top;
     private int titleLabelX;
@@ -380,6 +387,12 @@ public class StorageScreen extends Screen {
     public void tick() {
         super.tick();
         this.flushQuickMoves();
+        this.flushCraftingPickup();
+        if (this.craftingCloseRequested && !this.interactionPending && this.queuedCraftingPickup == -2) {
+            this.craftingCloseRequested = false;
+            this.onClose();
+            return;
+        }
         if (this.flyoutTimer < StorageScreen.FLYOUT_TOTAL_TICKS) this.flyoutTimer++;
         if (this.metadataCooldown > 0) {
             this.metadataCooldown--;
@@ -565,6 +578,21 @@ public class StorageScreen extends Screen {
         int slot = this.craftingSlotAt(event.x(), event.y());
         int result = this.craftingResultAt(event.x(), event.y());
         if (slot >= 0 || result >= 0) {
+            if (slot >= 0 && event.button() == 0 && !event.hasShiftDown()) {
+                long now = net.minecraft.util.Util.getMillis();
+                boolean doubleClick = slot == this.lastCraftingClickSlot && now - this.lastCraftingClickTime < 250;
+                if (doubleClick) {
+                    this.lastCraftingClickSlot = -1;
+                    this.pendingCraftingPickup = -1;
+                    this.finishCraftingDrag();
+                    this.doubleCraftingPickup = slot;
+                    return true;
+                }
+                if (!this.interactionPending) {
+                    this.lastCraftingClickSlot = slot;
+                    this.lastCraftingClickTime = now;
+                }
+            } else this.lastCraftingClickSlot = -1;
             if (this.interactionPending || !this.craftingLoaded) return true;
             if (slot >= 0 && !this.carried.isEmpty() && !event.hasShiftDown()
                 && (event.button() == 0 || event.button() == 1 || event.button() == 2 && this.player.hasInfiniteMaterials())) {
@@ -578,10 +606,9 @@ public class StorageScreen extends Screen {
                     this.reorder(false);
                 }, this.screenExecutor);
             } else if (event.button() == 0 || event.button() == 1) {
-                if (slot == 0) {
-                    this.performCrafting(StorageClientStub.craftingPutStonecutterInput(this.sourcePos, event.button(), this.carried));
-                } else if (slot > 0) {
-                    this.performCrafting(StorageClientStub.craftingPutCraftingSlot(this.sourcePos, slot - 1, event.button(), this.carried));
+                if (slot >= 0) {
+                    this.pendingCraftingPickup = slot;
+                    this.pendingCraftingButton = event.button();
                 } else if (event.hasShiftDown() || this.craftingSpace) {
                     this.interactionPending = true;
                     this.takeCraftingBatch(result == 0, ++this.batchRequest, 0, event.hasShiftDown() ? 1 : 8);
@@ -973,6 +1000,7 @@ public class StorageScreen extends Screen {
         }
 
         if (this.craftingMode && this.clickCraftingPanel(event)) return true;
+        this.lastCraftingClickSlot = -1;
         if (event.button() == 1 && MathUtil.isInRange(event.x(), event.y(),
             this.left + 278, this.top + 139, this.left + 296, this.top + 159)) {
             this.deposit(false, event.hasShiftDown());
@@ -1134,6 +1162,26 @@ public class StorageScreen extends Screen {
             return true;
         }
         super.mouseReleased(event);
+        if (this.doubleCraftingPickup >= 0) {
+            int input = this.doubleCraftingPickup;
+            this.doubleCraftingPickup = -1;
+            this.pendingCraftingPickup = -1;
+            if (event.button() == 0) {
+                this.queuedCraftingPickup = input;
+                this.flushCraftingPickup();
+            }
+            return true;
+        }
+        if (this.pendingCraftingPickup >= 0) {
+            int input = this.pendingCraftingPickup;
+            this.pendingCraftingPickup = -1;
+            if (event.button() == this.pendingCraftingButton && !this.interactionPending) {
+                this.performCrafting(input == 0
+                    ? StorageClientStub.craftingPutStonecutterInput(this.sourcePos, event.button(), this.carried)
+                    : StorageClientStub.craftingPutCraftingSlot(this.sourcePos, input - 1, event.button(), this.carried));
+            }
+            return true;
+        }
         if (this.quickMoveDragging) {
             this.finishQuickMove();
             return true;
@@ -1149,6 +1197,10 @@ public class StorageScreen extends Screen {
                     this.player
                 );
                 this.carried = this.player.inventoryMenu.getCarried();
+                if (this.craftingMode && !this.carried.isEmpty()) {
+                    this.queuedCraftingPickup = -1;
+                    this.flushCraftingPickup();
+                }
             }
             this.pickupAllSlot = -1;
             return true;
@@ -1275,6 +1327,24 @@ public class StorageScreen extends Screen {
         } else {
             this.reorder(false);
         }
+    }
+
+    private void flushCraftingPickup() {
+        if (!this.craftingMode || this.interactionPending || this.queuedCraftingPickup < -1) return;
+        int slot = this.queuedCraftingPickup;
+        this.queuedCraftingPickup = -2;
+        this.performCrafting(slot >= 0
+            ? StorageClientStub.craftingPickupAll(this.sourcePos, slot, this.carried)
+            : StorageClientStub.craftingPickupIntoCarried(this.sourcePos, this.carried));
+    }
+
+    @Override
+    public void onClose() {
+        if (this.interactionPending || this.queuedCraftingPickup >= -1) {
+            this.craftingCloseRequested = true;
+            return;
+        }
+        super.onClose();
     }
 
     private void startCraftingDrag(int button) {
@@ -1550,6 +1620,9 @@ public class StorageScreen extends Screen {
 
     @Override
     public void removed() {
+        this.pendingCraftingPickup = -1;
+        this.doubleCraftingPickup = -1;
+        this.queuedCraftingPickup = -2;
         this.craftingRequest++;
         this.batchRequest++;
         StorageClientStub.craftingSetLastOpened(this.sourcePos, this.craftingMode);

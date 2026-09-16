@@ -17,6 +17,16 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 public final class StorageClientStub {
+    public static CompletableFuture<StorageServerStub.InteractionResult> craftingPickupAll(
+        BlockPos sourcePos, int slot, ItemStack carried
+    ) {
+        return RPC.invoke(RpcTarget.server(), StorageServerStub::craftingPickupAll, playerId(), sourcePos.asLong(), slot, carried);
+    }
+
+    public static CompletableFuture<StorageServerStub.InteractionResult> craftingPickupIntoCarried(BlockPos sourcePos, ItemStack carried) {
+        return RPC.invoke(RpcTarget.server(), StorageServerStub::craftingPickupIntoCarried, playerId(), sourcePos.asLong(), carried);
+    }
+
     public static CompletableFuture<StorageServerStub.InteractionResult> craftingQuickCraft(
         BlockPos sourcePos, int button, IntList craftingSlots, IntList inventorySlots, ItemStack carried
     ) {
