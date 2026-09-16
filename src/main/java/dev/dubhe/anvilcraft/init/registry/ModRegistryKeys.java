@@ -2,7 +2,6 @@ package dev.dubhe.anvilcraft.init.registry;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.amulet.def.IAmuletDefinition;
-import dev.dubhe.anvilcraft.api.number.INumberExpression;
 import dev.dubhe.anvilcraft.api.pointer.ITargetPointer;
 import dev.dubhe.anvilcraft.api.recipe.data.ICustomDataComponent;
 import dev.dubhe.anvilcraft.api.recipe.number.INumberProvider;
@@ -27,7 +26,6 @@ public class ModRegistryKeys {
     public static final ResourceKey<Registry<IResultModifier.Type<?>>> MODIFIER = ModRegistryKeys.key("result_modifier");
     public static final ResourceKey<Registry<ICustomDataComponent.Type<?>>> CUSTOM_DATA_TYPE = ModRegistryKeys.key("custom_data_component");
     public static final ResourceKey<Registry<INumberProvider.Type<?>>> NUMBER_PROVIDER_TYPE = ModRegistryKeys.key("number_provider");
-    public static final ResourceKey<Registry<INumberExpression.Type<?>>> NUMBER_EXPRESSION_TYPE = ModRegistryKeys.key("number_expression");
     public static final ResourceKey<Registry<IFrostMaterialPredicate.Type<?>>> FROST_MATERIAL_PREDICATE_TYPE = ModRegistryKeys.key(
         "frost_material_predicate"
     );

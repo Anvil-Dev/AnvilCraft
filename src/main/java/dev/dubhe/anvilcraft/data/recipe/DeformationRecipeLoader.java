@@ -82,8 +82,7 @@ public class DeformationRecipeLoader {
      * @param id     配方 id
      */
     private static void register(RegistrumRecipeProvider provider, List<Item> inputs, int cost, String id) {
-        DeformationRecipe.Builder builder = DeformationRecipe.builder()
-            .material(new RepairMaterialFrostMaterialPredicate(cost));
+        DeformationRecipe.Builder builder = DeformationRecipe.builder().material(RepairMaterialFrostMaterialPredicate.allowUniversal(cost));
         inputs.forEach(builder::input);
         builder.save(provider, id);
     }
