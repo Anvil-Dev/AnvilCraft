@@ -8,6 +8,7 @@ import dev.dubhe.anvilcraft.rpc.StorageServerStub;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
@@ -17,6 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.IntConsumer;
+import javax.annotation.Nullable;
 
 /** 同一服务端任务内先分配全部材料，预检完成后再统一扣除。 */
 public final class BuildingMaterials {
@@ -108,6 +110,58 @@ public final class BuildingMaterials {
         return true;
     }
 
+    @Nullable
+    BuildingRodService.Group reserve(BuildingRodService.Group group, boolean allowMismatch) {
+        final int[] before = this.sources.stream().mapToInt(source -> source.reserved).toArray();
+        BuildingRodService.Group allocated = new BuildingRodService.Group();
+        allocated.cells.addAll(group.cells);
+        allocated.entities.addAll(group.entities);
+        allocated.fluids.addAll(group.fluids);
+        allocated.materials.addAll(group.materials);
+        for (var entry : group.blockMaterials.entrySet()) {
+            ItemStack expected = entry.getValue();
+            List<ItemStack> taken = new ArrayList<>();
+            int remaining = this.creative ? 0 : this.reserveBlock(expected, true, expected.getCount(), taken);
+            if (this.creative) taken.add(expected.copy());
+            if (remaining > 0 && allowMismatch) remaining = this.reserveBlock(expected, false, remaining, taken);
+            if (remaining > 0) {
+                for (int i = 0; i < before.length; i++) this.sources.get(i).reserved = before[i];
+                return null;
+            }
+            allocated.blockMaterials.put(entry.getKey(), taken.getFirst());
+            allocated.materials.addAll(taken);
+            allocated.componentMismatch |= taken.stream().anyMatch(stack -> !ItemStack.isSameItemSameComponents(stack, expected));
+        }
+        if (!this.reserve(group.materials, group.fluids)) {
+            for (int i = 0; i < before.length; i++) this.sources.get(i).reserved = before[i];
+            return null;
+        }
+        if (!this.creative) {
+            for (ItemStack stack : allocated.blockMaterials.values()) {
+                if (stack.is(Items.POWDER_SNOW_BUCKET)) {
+                    ItemStack bucket = new ItemStack(Items.BUCKET, stack.getCount());
+                    allocated.returned.add(bucket);
+                    this.returned.add(bucket.copy());
+                }
+            }
+        }
+        return allocated;
+    }
+
+    private int reserveBlock(ItemStack expected, boolean exact, int remaining, List<ItemStack> taken) {
+        for (Source source : this.sources) {
+            if (!ItemStack.isSameItem(source.resource, expected)
+                || ItemStack.isSameItemSameComponents(source.resource, expected) != exact) continue;
+            int take = (int) Math.min(remaining, source.available - source.reserved);
+            if (take == 0) continue;
+            source.reserved += take;
+            remaining -= take;
+            taken.add(source.resource.copyWithCount(take));
+            if (remaining == 0) break;
+        }
+        return remaining;
+    }
+
     private int reserveItem(ItemStack material) {
         int remaining = material.getCount();
         for (Source source : this.sources) {
@@ -148,7 +202,9 @@ public final class BuildingMaterials {
         List<ItemStack> items = new ArrayList<>();
         List<FluidStack> fluids = new ArrayList<>();
         for (var group : groups) {
-            for (ItemStack material : group.materials) {
+            List<ItemStack> required = new ArrayList<>(group.materials);
+            required.addAll(group.blockMaterials.values());
+            for (ItemStack material : required) {
                 ItemStack combined = items.stream().filter(stack -> ItemStack.isSameItemSameComponents(stack, material))
                     .findFirst().orElse(null);
                 if (combined == null) items.add(material.copy());

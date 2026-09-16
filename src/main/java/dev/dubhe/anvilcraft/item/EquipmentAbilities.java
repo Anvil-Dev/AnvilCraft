@@ -17,6 +17,8 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -208,11 +210,35 @@ public final class EquipmentAbilities {
             && !player.isShiftKeyDown() && !SUBMERGING.getOrDefault(player, false) && fluid.isSource();
     }
 
+    public static boolean isVoidProtected(Player player) {
+        return !player.isSpectator() && !player.getAbilities().flying && hasFullSuit(player);
+    }
+
+    public static Vec3 collideWithVoidFloor(Player player, Vec3 movement) {
+        double floor = player.level().getMinBuildHeight();
+        if (movement.y >= 0 || player.getY() < floor || player.getY() + movement.y >= floor
+            || !isVoidProtected(player)) return movement;
+        return new Vec3(movement.x, floor - player.getY(), movement.z);
+    }
+
+    private static boolean hasChargeSupport(Player player) {
+        if (player.onGround()) return true;
+        if (player.getDeltaMovement().y > 0) return false;
+        AABB bounds = player.getBoundingBox();
+        AABB support = new AABB(bounds.minX, bounds.minY - 1.0E-5, bounds.minZ,
+            bounds.maxX, bounds.minY, bounds.maxZ);
+        return !player.level().noCollision(player, support);
+    }
+
     @SubscribeEvent
     public static void beforeTick(PlayerTickEvent.Pre event) {
         Player player = event.getEntity();
         boolean boots = hasBufferBoots(player);
-        tickCharge(player, boots);
+        if (boots && player.isShiftKeyDown() && !player.getAbilities().flying && hasChargeSupport(player)) {
+            CHARGE.put(player, Math.min(CHARGE_TICKS + 1, chargeTicks(player) + 1));
+        } else {
+            CHARGE.remove(player);
+        }
         if (player.getItemBySlot(EquipmentSlot.FEET).is(ModItems.WEATHERPROOF_SPACESUIT_BOOTS)) {
             if (player.isShiftKeyDown()) SUBMERGING.put(player, true);
             else if (!player.isInFluidType() && player.level().getFluidState(player.blockPosition().below()).isEmpty()) {
@@ -227,12 +253,9 @@ public final class EquipmentAbilities {
         if (hasFullSuit(player)) {
             player.clearFire();
             player.setTicksFrozen(0);
-            double floor = player.level().getMinBuildHeight();
-            if (!player.isSpectator() && !player.getAbilities().flying
-                && player.getY() + Math.min(0, player.getDeltaMovement().y) < floor) {
-                player.setPos(player.getX(), floor, player.getZ());
-                player.setDeltaMovement(player.getDeltaMovement().multiply(1, 0, 1));
-                player.setOnGround(true);
+            if (!player.isSpectator() && !player.getAbilities().flying && player.getY() < player.level().getMinBuildHeight()) {
+                Vec3 movement = player.getDeltaMovement();
+                player.setDeltaMovement(movement.x, 0.2, movement.z);
                 player.fallDistance = 0;
             }
         }

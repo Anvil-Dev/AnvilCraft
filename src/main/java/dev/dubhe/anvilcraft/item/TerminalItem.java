@@ -87,7 +87,8 @@ public abstract class TerminalItem extends BundleLikeItem {
         // 直接取出目标存储中排序第一的物品；ITEM_HOVER_BUNDLE（空手点击终端槽）
         // 的选中检查由 canRemoveOne 在调用前完成。
         UUID targetId = StorageServerStub.terminalTargetId(player, state.getStack());
-        ItemStack removed = targetId == null ? null : StorageServerStub.extractFromTerminal(player, targetId, 64);
+        ItemStack removed = targetId == null ? null
+            : StorageServerStub.extractFromTerminal(player, targetId, 64, state.getSlot());
         state.setOutput(removed);
     }
 

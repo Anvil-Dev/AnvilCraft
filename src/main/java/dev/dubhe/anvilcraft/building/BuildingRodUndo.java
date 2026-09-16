@@ -41,6 +41,7 @@ public final class BuildingRodUndo {
         private final List<BlockState> expected = new ArrayList<>();
         private final List<Saved> after = new ArrayList<>();
         private final List<ItemStack> materials = new ArrayList<>();
+        private final List<ItemStack> returned = new ArrayList<>();
         private boolean replaced;
     }
 
@@ -55,6 +56,7 @@ public final class BuildingRodUndo {
                 this.positions.put(cell.pos(), saved);
             }
             if (!player.isCreative()) group.materials.forEach(stack -> saved.materials.add(stack.copy()));
+            group.returned.forEach(stack -> saved.returned.add(stack.copy()));
             this.groups.add(saved);
         }
     }
@@ -87,6 +89,7 @@ public final class BuildingRodUndo {
             return;
         }
         List<PlacedGroup> restore = new ArrayList<>();
+        BuildingMaterials materials = new BuildingMaterials(player);
         for (PlacedGroup group : undo.groups) {
             if (group.replaced || group.after.stream().anyMatch(saved -> !saved.matches(undo.level)
                 || !BuildingRodService.canModify(player, saved.pos()))) {
@@ -96,8 +99,9 @@ public final class BuildingRodUndo {
                 player.gameMode.getGameModeForPlayer(), player, saved.pos(), saved.state()).isCanceled())) {
                 continue;
             }
-            restore.add(group);
+            if (materials.reserve(group.returned)) restore.add(group);
         }
+        if (!materials.consume()) return;
         HISTORY.remove(player);
         for (PlacedGroup group : restore) {
             for (Saved saved : group.before) BuildingCommit.set(undo.level, saved.pos(), saved.state());
@@ -110,6 +114,13 @@ public final class BuildingRodUndo {
                 }
             }
             for (ItemStack material : group.materials) player.getInventory().placeItemBackInInventory(material);
+        }
+        for (PlacedGroup group : restore) {
+            for (int index = 0; index < group.before.size(); index++) {
+                Saved saved = group.before.get(index);
+                undo.level.markAndNotifyBlock(saved.pos(), undo.level.getChunkAt(saved.pos()),
+                    group.after.get(index).state(), saved.state(), Block.UPDATE_ALL, Block.UPDATE_LIMIT);
+            }
         }
         player.getInventory().setChanged();
         player.containerMenu.broadcastChanges();
