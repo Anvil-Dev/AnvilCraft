@@ -183,7 +183,7 @@ public class FrostSmithingScreen extends AdjacentSmithingScreen<FrostSmithingMen
         this.materialIcon.render(this.menu, guiGraphics, partialTick, this.leftPos, this.topPos);
         this.inputIcon.render(this.menu, guiGraphics, partialTick, this.leftPos, this.topPos);
 
-        if (!this.menu.getSlot(0).getItem().isEmpty()) {
+        if (!this.menu.getSlot(IFrostSmithingRecipe.TEMPLATE_SLOT).getItem().isEmpty()) {
             this.modifyButtons(this.menu.selected != -1 && this.menu.results != null && this.menu.results.size() != 1);
         } else {
             this.modifyButtons(false);

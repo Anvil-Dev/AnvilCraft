@@ -21,6 +21,7 @@ import org.jetbrains.annotations.Unmodifiable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import javax.annotation.Nullable;
 
 /**
  * 形变配方：同组装备之间互相转化，材料由该组装备自身的维修材料决定。
@@ -126,7 +127,11 @@ public record DeformationRecipe(
     }
 
     public static class Builder extends BaseBuilder<Builder, DeformationRecipe> {
-        private IFrostMaterialPredicate material = new EmptyFrostMaterialPredicate();
+        /**
+         * 未显式设置时为 {@code null}：{@link EmptyFrostMaterialPredicate} 是「材料槽必须为空」的合法语义，
+         * 不能拿它当缺省值，否则漏写 {@code material(...)} 会静默变成免费形变。
+         */
+        private @Nullable IFrostMaterialPredicate material = null;
         private final List<RecipeResult> inputs = new ArrayList<>();
 
         public Builder() {
@@ -164,11 +169,20 @@ public record DeformationRecipe(
                     "The inputs of " + this.getType() + " recipe must not be less than 2, RecipeId: " + id
                 );
             }
+            if (this.material == null) {
+                throw new IllegalArgumentException(
+                    "The material of " + this.getType() + " recipe must be set, RecipeId: " + id
+                );
+            }
         }
 
         @Override
         public DeformationRecipe buildRecipe() {
-            return new DeformationRecipe(Objects.requireNonNull(this.template), this.material, ImmutableList.copyOf(this.inputs));
+            return new DeformationRecipe(
+                Objects.requireNonNull(this.template),
+                Objects.requireNonNull(this.material),
+                ImmutableList.copyOf(this.inputs)
+            );
         }
 
         @Override

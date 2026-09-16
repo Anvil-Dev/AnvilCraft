@@ -658,6 +658,7 @@ public class TranscendenceSmithingMenu extends AbstractContainerMenu {
     }
 
     @Override
+    @SuppressWarnings("ConstantValue") // else if (index >= PLAYER_INVENTORY_SLOT_START) 会导致 IDEA 警告
     public ItemStack quickMoveStack(Player player, int index) {
         if (index < 0 || index >= this.slots.size()) return ItemStack.EMPTY;
         Slot slot = this.slots.get(index);
@@ -674,7 +675,7 @@ public class TranscendenceSmithingMenu extends AbstractContainerMenu {
             if (!this.moveItemStackTo(stack, PLAYER_INVENTORY_SLOT_START, PLAYER_HOTBAR_SLOT_END, false)) {
                 return ItemStack.EMPTY;
             }
-        } else { // if (index >= PLAYER_INVENTORY_SLOT_START)
+        } else if (index >= PLAYER_INVENTORY_SLOT_START) {
             if (!this.moveIntoActiveInput(stack) && !this.moveWithinPlayerInventory(stack, index)) {
                 return ItemStack.EMPTY;
             }

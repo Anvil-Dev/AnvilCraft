@@ -6,6 +6,9 @@ import dev.anvilcraft.lib.v2.util.predicate.ItemIngredientPredicate;
 import dev.dubhe.anvilcraft.init.recipe.ModFrostMaterialPredicateTypes;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.world.item.ItemStack;
+
+import java.util.List;
 
 /**
  * 自定义材料，直接使用物品原料谓词判断。
@@ -25,6 +28,13 @@ public record CustomFrostMaterialPredicate(ItemIngredientPredicate predicate) im
 
     public static CustomFrostMaterialPredicate of(ItemIngredientPredicate predicate) {
         return new CustomFrostMaterialPredicate(predicate);
+    }
+
+    /**
+     * 材料槽里能放的物品，数量已按 {@link ItemIngredientPredicate#count()} 设好。
+     */
+    public List<ItemStack> items() {
+        return List.of(this.predicate.getItems());
     }
 
     @Override

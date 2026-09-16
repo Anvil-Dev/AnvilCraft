@@ -12,6 +12,7 @@ import dev.dubhe.anvilcraft.client.gui.screen.JewelCraftingScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.StorageScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.StructureScannerScreen;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
+import dev.dubhe.anvilcraft.init.recipe.ModFrostMaterialPredicateTypes;
 import dev.dubhe.anvilcraft.integration.jei.category.AnvilCollisionCraftCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.BeaconConversionCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.ChargerChargingCategory;
@@ -238,6 +239,7 @@ public class AnvilCraftJeiPlugin implements IModPlugin {
         DecayCategory.registerRecipes(registration);
         ChargerChargingCategory.registerRecipes(registration);
         MultipleToOneSmithingCategory.registerRecipes(registration);
+        AnvilCraftJeiPlugin.registerFrostMaterialItems();
         FrostSmithingCategory.registerRecipes(registration);
         MobTransformCategory.registerRecipes(registration);
         AnvilCollisionCraftCategory.registerRecipes(registration);
@@ -246,6 +248,20 @@ public class AnvilCraftJeiPlugin implements IModPlugin {
         MineralFountainCategory.registerRecipes(registration);
         ContainerUpgradeCategory.registerRecipes(registration);
         UseItemOnBlockCategory.registerRecipes(registration);
+    }
+
+    /**
+     * 登记本模组的材料谓词在 JEI 材料槽里展示的物品。
+     *
+     * <p>作为 {@link FrostSmithingCategory#registerMaterialItems} 的用法示例：自定义
+     * {@code IFrostMaterialPredicate.Type} 的模组照这个样子在自己的 {@code IModPlugin} 里登记即可。
+     * 注册表里没登记的类型在 JEI 里材料槽为空。</p>
+     */
+    private static void registerFrostMaterialItems() {
+        FrostSmithingCategory.registerMaterialItems(
+            ModFrostMaterialPredicateTypes.CUSTOM.get(),
+            (recipe, input, material) -> material.items()
+        );
     }
 
     @Override

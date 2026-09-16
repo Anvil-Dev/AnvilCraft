@@ -21,9 +21,8 @@ import java.util.List;
  *
  * @param cost           维修材料的消耗数量
  * @param allowUniversal 是否允许使用通用维修材料
- * @param universalCost  通用维修材料的消耗数量，未指定时默认为维修材料消耗的两倍，
- *                       求解时以维修材料消耗作为第 0 个传入值 {@code x} 和具名传入值 {@code $(cost)} 传入，
- *                       因此可以写成 flat 表达式，例如 {@code "x*2"}、{@code "$(cost)*3"}
+ * @param universalCost  通用维修材料的消耗数量表达式，见 {@link #DEFAULT_UNIVERSAL_COST}。
+ *                       求值时的传入值见 {@link #VAR_NAME}
  */
 public record RepairMaterialFrostMaterialPredicate(
     int cost,
@@ -31,17 +30,22 @@ public record RepairMaterialFrostMaterialPredicate(
     IExpression universalCost
 ) implements IFrostMaterialPredicate {
     /**
-     * {@link DEFAULT_UNIVERSAL_COST} 的形参名。
+     * 求解 {@link #universalCost} 时绑给数据包函数的具名传入值，也就是表达式里能写的 {@code $(cost)}。
+     *
+     * <p>第 0 个传入值是同一个数，所以 {@code "x*2"} 与 {@code "$(cost)*2"} 等价。</p>
+     *
+     * <p>它与 {@link ModMathFunctions#doubleFunction()} 声明的形参名不必相同：{@code CustomFunction}
+     * 先按<b>位置</b>把实参绑到自己的形参上，函数体里的具名引用取的正是那个位置上的实参，
+     * 所以这里的具名引用只要能按名字在调用点的传入值里找到即可。</p>
      */
     public static final String VAR_NAME = "cost";
     /**
-     * 未指定通用维修材料消耗时使用的表达式：调用 {@link ModMathFunctions#DOUBLE} 把传入的维修材料消耗翻倍。
+     * {@code universal_cost} 缺省时使用的表达式：调用 {@link ModMathFunctions#DOUBLE} 把维修材料消耗翻倍。
      *
-     * <p>这里内联的是<b>一次对数据包函数的调用</b>，函数定义本身由 {@code runData} 生成在
-     * {@code anvillib:function/double}，改函数定义就能改掉所有默认消耗，不必碰配方。</p>
-     *
-     * <p>只在手写配方省略了 {@code universal_cost} 时兜底：{@code runData} 生成的配方一律显式带上
-     * （写成对注册表条目的引用 {@code "anvilcraft:double($(cost))"}）。</p>
+     * <p>它是 {@code universal_cost} 字段在 {@code MapCodec} 里的 {@code optionalFieldOf} 默认值，
+     * 而 {@code runData} 生成的形变配方传的正是本值，所以那 15 个配方 JSON 里不带
+     * {@code universal_cost}，运行时按本字段取值——改 {@code data/anvilcraft/anvillib/function/double.json}
+     * 就能改掉所有缺省情形的消耗，不必碰配方。</p>
      */
     public static final IExpression DEFAULT_UNIVERSAL_COST = FunctionExpression.of(
         ModMathFunctions.doubleFunction(),
@@ -69,8 +73,12 @@ public record RepairMaterialFrostMaterialPredicate(
         RepairMaterialFrostMaterialPredicate::new
     );
 
+    /**
+     * 不允许使用通用维修材料。{@code universalCost} 用默认值占位——{@code test} 在
+     * {@code allowUniversal} 为 {@code false} 时直接返回，该字段不参与求值，但流编解码器要求它非空。
+     */
     public static RepairMaterialFrostMaterialPredicate disallowUniversal(int cost) {
-        return new RepairMaterialFrostMaterialPredicate(cost, false, DEFAULT_UNIVERSAL_COST); // 占位
+        return new RepairMaterialFrostMaterialPredicate(cost, false, DEFAULT_UNIVERSAL_COST);
     }
 
     public static RepairMaterialFrostMaterialPredicate allowUniversal(int cost, IExpression expression) {

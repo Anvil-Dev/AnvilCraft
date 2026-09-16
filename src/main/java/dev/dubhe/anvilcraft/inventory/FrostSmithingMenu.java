@@ -238,12 +238,6 @@ public class FrostSmithingMenu extends AdjacentSmithingMenu {
             .anyMatch(Optional::isPresent);
     }
 
-    public void sync(int selected, List<RecipeResult> results) {
-        if (this.selectedRecipe == null) return;
-        this.selected = selected;
-        this.results = results.isEmpty() ? this.results : results;
-    }
-
     public void turn(boolean left) {
         if (this.selected == -1 || this.options == null || this.options.isEmpty() || this.selectedRecipe == null) return;
         this.selected = Math.floorMod(this.selected + (left ? -1 : 1), this.options.size());
