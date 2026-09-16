@@ -58,7 +58,7 @@ public class ItemTooltipManager {
         SHIFT.put(ModItems.BUILDING_ROD.get(), """
             Hold in either hand, with blocks, a filter, a fluid bucket or a structure disk in the other hand; building reach +15
             Hold use and drag to fill a box (up to 4,000 blocks); the starting face determines large-block anchors
-            Filters ignore black/whitelists: without component matching, block slots give random weights
+            Filters ignore deny/allow lists: without component matching, block slots give random weights
             With component matching, repeat the occupied rectangle of slots, keeping holes; the first point anchors the texture
             Hold Shift to place the available part of a blueprint; Ctrl+Z undoes the last placement
             Carry a book to receive a missing-material list when blueprint materials run short

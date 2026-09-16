@@ -259,7 +259,7 @@ public class StructureSaveUtil {
             return null;
         }
 
-        // Validate against whitelist pattern
+        // Validate against allowlist pattern
         if (!VALID_STRUCTURE_NAME.matcher(name).matches()) {
             return null;
         }

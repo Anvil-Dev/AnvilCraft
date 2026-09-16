@@ -237,7 +237,7 @@ public class BlockTagLoader {
             .add(ModBlocks.CELESTIAL_FORGING_ANVIL_AMPLIFIER.getKey())
             .add(ModBlocks.TRADING_STATION.getKey());
 
-        provider.addTag(ModBlockTags.ANVIL_HAMMER_BLACKLIST)
+        provider.addTag(ModBlockTags.ANVIL_HAMMER_DENYLIST)
             .add(findResourceKey(Blocks.NETHER_PORTAL))
             .add(findResourceKey(Blocks.PISTON_HEAD))
             .add(findResourceKey(Blocks.END_PORTAL_FRAME))
@@ -256,7 +256,7 @@ public class BlockTagLoader {
             .addTag(Tags.Blocks.CHESTS_ENDER)
             .addTag(Tags.Blocks.CHESTS_TRAPPED)
             .addTag(Tags.Blocks.CHESTS_WOODEN);
-        provider.addTag(ModBlockTags.DEVOUR_BLACKLIST)
+        provider.addTag(ModBlockTags.DEVOUR_DENYLIST)
             .add(ModBlocks.MINERAL_FOUNTAIN.getKey())
             .add(ModBlocks.STURDY_DEEPSLATE.getKey());
 

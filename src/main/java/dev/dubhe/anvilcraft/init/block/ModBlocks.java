@@ -1534,7 +1534,7 @@ public class ModBlocks {
                 return ConfiguredModel.builder().modelFile(base).rotationX(x).rotationY(y % 360).build();
             }, BigRedButtonBlock.PRESSED);
         })
-        .tag(BlockTags.MINEABLE_WITH_PICKAXE, ModBlockTags.ANVIL_HAMMER_BLACKLIST)
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE, ModBlockTags.ANVIL_HAMMER_DENYLIST)
         .simpleItem()
         .recipe(RegistrumBlockRecipeLoader::bigRedButton)
         .register();

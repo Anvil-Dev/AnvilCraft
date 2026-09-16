@@ -360,7 +360,7 @@ public class StructureLoadUtil {
             return false;
         }
 
-        // Validate against whitelist pattern
+        // Validate against allowlist pattern
         if (!VALID_STRUCTURE_FILE.matcher(fileName).matches()) {
             return false;
         }

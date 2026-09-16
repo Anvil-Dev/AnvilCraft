@@ -44,5 +44,5 @@ You can switch between phases by pressing <key id="key.anvilcraft.switch_phase" 
 # Providence
 
 - Comes from [Transcendium Tools](../002_material/312_transcendium.md)
-- When a tool with **Providence** triggers a whitelisted enchantment, there is a 25% chance to trigger it again, and a 5% chance to trigger it twice more (dropping three heads at once or catching three fish at once is possible)
+- When a tool with **Providence** triggers an allowlisted enchantment, there is a 25% chance to trigger it again, and a 5% chance to trigger it twice more (dropping three heads at once or catching three fish at once is possible)
   - Currently supported enchantments: Fortune, Looting, Beheading, Thorns, Luck of the Sea, Disintegration

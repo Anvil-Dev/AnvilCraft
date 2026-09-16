@@ -112,8 +112,8 @@ public class ModBlockTags {
     public static final TagKey<Block> NEEDS_NETHERITE_TOOL = bind("needs_netherite_tool");
     public static final TagKey<Block> NEEDS_TRANSCENDIUM_TOOL = bind("needs_transcendium_tool");
 
-    public static final TagKey<Block> ANVIL_HAMMER_BLACKLIST = bind("anvil_hammer_blacklist");
-    public static final TagKey<Block> DEVOUR_BLACKLIST = bind("devour_blacklist");
+    public static final TagKey<Block> ANVIL_HAMMER_DENYLIST = bind("anvil_hammer_denylist");
+    public static final TagKey<Block> DEVOUR_DENYLIST = bind("devour_denylist");
 
     public static final TagKey<Block> FELLING_APPLICABLE = bind("felling_applicable");
     public static final TagKey<Block> CLEANING_APPLICABLE = bind("cleaning_applicable");

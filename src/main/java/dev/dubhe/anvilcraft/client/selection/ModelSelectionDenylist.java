@@ -16,12 +16,12 @@ import java.io.Reader;
 import java.util.HashSet;
 import java.util.Set;
 
-public final class ModelSelectionBlacklist {
-    public static final ResourceLocation LOCATION = AnvilCraft.of("model_selection_blacklist.json");
+public final class ModelSelectionDenylist {
+    public static final ResourceLocation LOCATION = AnvilCraft.of("model_selection_denylist.json");
     private static final Rules EMPTY = new Rules(Set.of(), Set.of(), Set.of());
     private static Rules rules = EMPTY;
 
-    private ModelSelectionBlacklist() {
+    private ModelSelectionDenylist() {
     }
 
     public static void reload(ResourceManager resources) {
@@ -35,7 +35,7 @@ public final class ModelSelectionBlacklist {
                     readBlocks(json, "disable_ber_selection")
                 );
             } catch (IOException | RuntimeException exception) {
-                AnvilCraft.LOGGER.warn("Unable to load {} from {}; keeping lower-priority blacklist", LOCATION,
+                AnvilCraft.LOGGER.warn("Unable to load {} from {}; keeping lower-priority denylist", LOCATION,
                     resource.sourcePackId(), exception);
             }
         }
@@ -60,10 +60,10 @@ public final class ModelSelectionBlacklist {
         for (JsonElement entry : GsonHelper.getAsJsonArray(json, name)) {
             ResourceLocation id = ResourceLocation.parse(GsonHelper.convertToString(entry, name));
             if (!AnvilCraft.MOD_ID.equals(id.getNamespace())) {
-                throw new IllegalArgumentException("Model selection blacklist only supports anvilcraft blocks: " + id);
+                throw new IllegalArgumentException("Model selection denylist only supports anvilcraft blocks: " + id);
             }
             blocks.add(BuiltInRegistries.BLOCK.getOptional(id)
-                .orElseThrow(() -> new IllegalArgumentException("Unknown block in model selection blacklist: " + id)));
+                .orElseThrow(() -> new IllegalArgumentException("Unknown block in model selection denylist: " + id)));
         }
         return Set.copyOf(blocks);
     }

@@ -164,7 +164,7 @@ public class AnvilHammerItem extends Item implements Equipable {
     public static boolean ableToUseAnvilHammer(Level level, BlockPos blockPos, Player player) {
         if (player.isShiftKeyDown()) return true;
         BlockState state = level.getBlockState(blockPos);
-        if (state.is(ModBlockTags.ANVIL_HAMMER_BLACKLIST)) return false;
+        if (state.is(ModBlockTags.ANVIL_HAMMER_DENYLIST)) return false;
         if (state.getBlock() instanceof IHammerChangeable hammerChangeable) {
             return hammerChangeable.checkBlockState(state);
         }
@@ -182,7 +182,7 @@ public class AnvilHammerItem extends Item implements Equipable {
         if (offhand.isEmpty() || offhand.is(ModItemTags.ANVIL_HAMMER)) return false;
         if (!(offhand.getItem() instanceof BlockItem)) return false;
         BlockState state = level.getBlockState(hit.getBlockPos());
-        if (state.is(BlockTags.CAULDRONS) || state.is(ModBlockTags.ANVIL_HAMMER_BLACKLIST)) return false;
+        if (state.is(BlockTags.CAULDRONS) || state.is(ModBlockTags.ANVIL_HAMMER_DENYLIST)) return false;
         if (state.is(ModBlockTags.HAMMER_REMOVABLE) || state.getBlock() instanceof IHammerRemovable) return false;
         return findModifyableProperty(state) == null;
     }
