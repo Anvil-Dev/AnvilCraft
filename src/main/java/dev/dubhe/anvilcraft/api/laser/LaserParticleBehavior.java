@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.api.laser;
 
 import dev.dubhe.anvilcraft.block.LaserReceiverBlock;
 import dev.dubhe.anvilcraft.block.LensBlock;
+import dev.dubhe.anvilcraft.block.PropelPistonBlock;
 import dev.dubhe.anvilcraft.block.RubyPrismBlock;
 import dev.dubhe.anvilcraft.block.cfa.interfaces.CelestialForgingAnvilLaserInterfaceBlock;
 import dev.dubhe.anvilcraft.util.BlockMiningEffect;
@@ -110,7 +111,7 @@ public final class LaserParticleBehavior implements ILaserComponent {
         return block instanceof RubyPrismBlock
             || block instanceof LaserReceiverBlock
             || block instanceof CelestialForgingAnvilLaserInterfaceBlock
-            || block instanceof MovingPistonBlock;
+            || block instanceof PropelPistonBlock;
     }
 
     /**
