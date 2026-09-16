@@ -38,6 +38,7 @@ import net.neoforged.neoforge.fluids.FluidType;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.IntFunction;
 
 public class SolidLiquidCategory extends AbstractLiquidReactionCategory {
     public SolidLiquidCategory(IGuiHelper helper) {
@@ -201,7 +202,11 @@ public class SolidLiquidCategory extends AbstractLiquidReactionCategory {
         this.arrowIn.draw(guiGraphics, 54, 22);
         this.arrowOut.draw(guiGraphics, 92, 22);
 
-        final IDrawable outputSlot = JeiRecipeUtil.isChance(itemResults) ? this.slotProbability : this.slot;
+        final IntFunction<IDrawable> outputSlot = JeiRecipeUtil.outputSlotFor(
+            itemResults,
+            this.slot,
+            this.slotProbability
+        );
         final boolean inputMixed = !itemInputs.isEmpty() && hasInputFluid;
         if (!itemInputs.isEmpty()) {
             if (inputMixed) {

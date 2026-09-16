@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.event;
 
 import dev.dubhe.anvilcraft.api.power.IDynamicPowerComponentHolder;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
+import dev.dubhe.anvilcraft.item.BuildingRodItem;
 import dev.dubhe.anvilcraft.item.CrabClawItem;
 import dev.dubhe.anvilcraft.item.DragonRodItem;
 import dev.dubhe.anvilcraft.item.IonocraftBackpackItem;
@@ -48,6 +49,7 @@ public class PlayerTickEventHandler {
     @SubscribeEvent
     public static void onPlayerTick(PlayerTickEvent.Post event) {
         CrabClawItem.holdingCrabClawIncreasesRange(event.getEntity());
+        BuildingRodItem.updateReach(event.getEntity());
         if (event.getEntity() instanceof ServerPlayer serverPlayer) {
             applyPowerGrid(serverPlayer);
             IonocraftBackpackItem.playerTick(serverPlayer);

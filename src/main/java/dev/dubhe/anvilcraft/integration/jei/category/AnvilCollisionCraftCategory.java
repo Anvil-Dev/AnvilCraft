@@ -315,11 +315,12 @@ public class AnvilCollisionCraftCategory implements IRecipeCategory<RecipeHolder
         // 绘制输入输出槽
         JeiSlotUtil.drawDefaultInputSlots(guiGraphics, slotDefault, 1);
         if (!recipe.outputItems().isEmpty()) {
-            if (JeiRecipeUtil.isChance(recipe.outputItems())) {
-                JeiSlotUtil.drawDefaultOutputSlots(guiGraphics, slotProbability, recipe.outputItems().size());
-            } else {
-                JeiSlotUtil.drawDefaultOutputSlots(guiGraphics, slotDefault, recipe.outputItems().size());
-            }
+            List<ChanceItemStack> results = recipe.outputItems();
+            JeiSlotUtil.drawDefaultOutputSlots(
+                guiGraphics,
+                JeiRecipeUtil.outputSlotFor(results, slotDefault, slotProbability),
+                results.size()
+            );
         }
 
         // 添加消耗/速度的信息

@@ -4,6 +4,8 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import dev.dubhe.anvilcraft.api.itemhandler.IItemHandlerHolder;
 import dev.dubhe.anvilcraft.api.itemhandler.ItemHandlerUtil;
+import dev.dubhe.anvilcraft.block.item.CheckValveItem;
+import dev.dubhe.anvilcraft.block.item.PipeBlockItem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
@@ -11,6 +13,7 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
@@ -41,6 +44,17 @@ public abstract class ProcessingItemStackRenderer<T extends BlockEntity & IItemH
      */
     protected boolean isBlockStateRenderEnabled() {
         return true;
+    }
+
+    /**
+     * 是否为按方块渲染的物品：{@link BlockItem}，或管道、止逆阀这类自定义
+     * {@link Item}（{@link PipeBlockItem}、{@link CheckValveItem}，其物品模型直接
+     * parent 到方块模型，但并未继承 {@link BlockItem}）。
+     */
+    private static boolean isBlockItem(ItemStack stack) {
+        return stack.getItem() instanceof BlockItem
+            || stack.getItem() instanceof PipeBlockItem
+            || stack.getItem() instanceof CheckValveItem;
     }
 
     /**
@@ -88,7 +102,10 @@ public abstract class ProcessingItemStackRenderer<T extends BlockEntity & IItemH
         List<Boolean> gui3dFlags = new ArrayList<>(items.size());
         Set<Item> blockKinds = new HashSet<>();
         for (ItemStack stack : items) {
-            boolean gui3d = itemRenderer.getModel(stack, level, null, 0).isGui3d();
+            // 收紧判定：必须是方块物品，且模型为 3D，才走贴槽放大渲染。
+            // 只判 isGui3d 会把立体的非方块物品（如工具、发射器类模型）也当成方块放大。
+            boolean gui3d = ProcessingItemStackRenderer.isBlockItem(stack)
+                && itemRenderer.getModel(stack, level, null, 0).isGui3d();
             gui3dFlags.add(gui3d);
             if (gui3d) blockKinds.add(stack.getItem());
         }

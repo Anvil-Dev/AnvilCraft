@@ -6,7 +6,7 @@
       "tag": "c:ingots/copper"
     },
     "B": {
-      "tag": "c:glass_blocks"
+      "item": "minecraft:glass"
     },
     "C": {
       "item": "anvilcraft:hollow_magnet_block"

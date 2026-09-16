@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.api.item;
 
 import dev.anvilcraft.lib.v2.util.InventoryUtil;
+import dev.dubhe.anvilcraft.inventory.PocketInventory;
 import dev.dubhe.anvilcraft.item.weapon.EnergyWeaponReload;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -48,7 +49,7 @@ public interface IFullCapacitor {
             return;
         }
         Inventory inv = player.getInventory();
-        List<ItemStack> chargeables = InventoryUtil.getItems(inv);
+        List<ItemStack> chargeables = PocketInventory.carriedItems(player);
         chargeables.addAll(InventoryUtil.getCompatItems(player));
 
         for (ItemStack chargeableStack : chargeables) {

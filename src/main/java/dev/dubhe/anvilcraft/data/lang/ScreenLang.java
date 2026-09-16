@@ -108,6 +108,7 @@ public class ScreenLang {
         provider.add("tooltip.anvilcraft.storage.types.value", "  %s / %s");
         provider.add("tooltip.anvilcraft.storage.types.value.infinite", "  %s / ∞");
         provider.add("tooltip.anvilcraft.storage.missing_workbench", "Need Crafting Table and Stonecutter in the storage");
+        provider.add("screen.anvilcraft.storage.flip", "Flip Layout");
         provider.add("tooltip.anvilcraft.fluid_tank.more", "and %s more...");
         provider.add("tooltip.anvilcraft.creative_crate.item", "Item:");
         provider.add("tooltip.anvilcraft.storage_port.item", "Item:");
@@ -273,8 +274,8 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.deflection_ring.state", "Deflection Ring State");
         provider.add("screen.anvilcraft.deflection_ring.speed", "  Last Entity Speed: %d m/tick");
 
-        provider.add("screen.anvilcraft.filter.black_list", "Black List");
-        provider.add("screen.anvilcraft.filter.white_list", "White List");
+        provider.add("screen.anvilcraft.filter.deny_list", "Deny List");
+        provider.add("screen.anvilcraft.filter.allow_list", "Allow List");
         provider.add("screen.anvilcraft.filter.match_component", "Match Component");
         provider.add("screen.anvilcraft.filter.mismatch_component", "Mismatch Component");
 
@@ -308,9 +309,25 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.smart_block_placer.no_structure_record", "Record a structure with the Structure Scanner first");
 
         // Structure Material Book
+        provider.add("book.anvilcraft.material_list.title", "Material List");
         provider.add("book.anvilcraft.material_list.missing_header", "Missing:");
 
         // Structure Scanner
+        provider.add("screen.anvilcraft.structure_scanner.scan", "Click to scan structure");
+        provider.add("screen.anvilcraft.structure_scanner.scanning", "Scanning");
+        provider.add("screen.anvilcraft.structure_scanner.import_file", "Import file");
+        provider.add("screen.anvilcraft.structure_scanner.export_file", "Export file");
+        provider.add("screen.anvilcraft.structure_scanner.import", "Import structure");
+        provider.add("screen.anvilcraft.structure_scanner.export", "Export structure");
+        provider.add("screen.anvilcraft.structure_scanner.name", "Structure name");
+        provider.add("screen.anvilcraft.structure_scanner.confirm", "Record structure to disk");
+        provider.add("screen.anvilcraft.structure_scanner.auto_rotate_on", "Auto rotation: on");
+        provider.add("screen.anvilcraft.structure_scanner.auto_rotate_off", "Auto rotation: off");
+        provider.add("screen.anvilcraft.structure_scanner.marker", "Display item (JEI drag supported; right-click to clear)");
+        provider.add("screen.anvilcraft.structure_scanner.no_files", "No matching files");
+        provider.add("screen.anvilcraft.structure_scanner.file_failed", "File operation failed: %s");
+        provider.add("screen.anvilcraft.structure_scanner.imported", "Preview loaded; confirm to record the structure to a disk");
+        provider.add("screen.anvilcraft.structure_scanner.exported", "Structure exported: %s");
         provider.add("screen.anvilcraft.structure_scanner.info_title", "Structure Info");
         provider.add("screen.anvilcraft.structure_scanner.ready", "Structure scan ready");
         provider.add("screen.anvilcraft.structure_scanner.tooltip.large_structure", "This structure is large and cannot be placed by the Smart Block Placer, but can still be saved");
@@ -794,5 +811,9 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.auto_enchanting_table.enchant_power_bonus", "Enchant Power Bonus: %s");
         provider.add("screen.anvilcraft.auto_enchanting_table.liquid_enchantment.0", "Scroll on the Enchanted Book");
         provider.add("screen.anvilcraft.auto_enchanting_table.liquid_enchantment.1", "above can tweak the levels");
+
+        // Spacetime Supercomputer 时空超算
+        provider.add("screen.anvilcraft.spacetime_supercomputer.available_commands", "Available Commands"); // 可用命令
+        provider.add("screen.anvilcraft.spacetime_supercomputer.history_commands", "History Commands"); // 历史命令
     }
 }

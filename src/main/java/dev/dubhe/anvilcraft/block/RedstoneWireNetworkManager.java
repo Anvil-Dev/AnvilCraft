@@ -69,6 +69,34 @@ public final class RedstoneWireNetworkManager {
         }
     }
 
+    /** 蓝图批量恢复端口和功率缓存，初始化期间不改写外观、不通知红石元件。 */
+    public static void restoreBlueprint(ServerLevel level, Map<BlockPos, BlockState> wires) {
+        if (wires.isEmpty()) return;
+        LevelNetworks networks = state(level);
+        boolean previous = networks.restoringBlueprint;
+        networks.restoringBlueprint = true;
+        try {
+            for (Map.Entry<BlockPos, BlockState> entry : wires.entrySet()) {
+                BlockPos pos = entry.getKey();
+                BlockState blueprint = entry.getValue();
+                if (!(blueprint.getBlock() instanceof RedstoneWireBlock) || !level.getBlockState(pos).equals(blueprint)) continue;
+                long packed = pos.asLong();
+                int visible = 0;
+                for (int index = 0; index < RedstoneWireBlock.CONNECTION_PROPERTIES.size(); index++) {
+                    boolean connected = blueprint.getValue(RedstoneWireBlock.CONNECTION_PROPERTIES.get(index)).isConnected();
+                    if (connected) visible |= 1 << index;
+                    networks.connectionOverrides.setHidden(packed, index, !connected);
+                }
+                networks.connectionOverrides.setForcedMask(packed, visible);
+                networks.rememberAdjacentObservers(pos);
+                networks.topologySeeds.add(packed);
+            }
+            networks.runUpdates();
+        } finally {
+            networks.restoringBlueprint = previous;
+        }
+    }
+
     /** 根据邻居变化的类型，为该位置安排拓扑重建或信号重算。 */
     public static void neighborChanged(Level level, BlockPos pos, Block neighborBlock, BlockPos neighborPos) {
         if (!(level instanceof ServerLevel serverLevel)) {
@@ -373,6 +401,7 @@ public final class RedstoneWireNetworkManager {
         private boolean applyingTopology;
         /** 防止邻居通知重入更新循环；重入请求只加入集合，由外层循环合并处理。 */
         private boolean processingUpdates;
+        private boolean restoringBlueprint;
         private long lastOverflowWarning = Long.MIN_VALUE;
 
         private LevelNetworks(ServerLevel level) {
@@ -946,7 +975,8 @@ public final class RedstoneWireNetworkManager {
                 BlockPos pos = BlockPos.of(entry.getLongKey());
                 BlockState state = this.level.getBlockState(pos);
                 RedstoneWireBlock block = (RedstoneWireBlock) state.getBlock();
-                BlockState connected = block.connectionState(this.level, pos, state, entry.getValue().connections);
+                BlockState connected = this.restoringBlueprint
+                    ? state : block.connectionState(this.level, pos, state, entry.getValue().connections);
                 if (connected != state) {
                     this.level.setBlock(pos, connected, Block.UPDATE_CLIENTS);
                     topologyChanged.add(entry.getLongKey());
@@ -1030,6 +1060,7 @@ public final class RedstoneWireNetworkManager {
          * <p>索引中只保存侦测器位置，因此功率变化的额外成本与侦测器数量相关，而与网络长度无关。</p>
          */
         private void notifyObservers(Network network) {
+            if (this.restoringBlueprint) return;
             LongOpenHashSet observers = network.observers;
             if (observers == null) {
                 return;
@@ -1063,6 +1094,7 @@ public final class RedstoneWireNetworkManager {
 
         /** 合并指向同一外部方块的端点通知，并避开通知来源所在的面。 */
         private void notifyTerminalChanges(Network network) {
+            if (this.restoringBlueprint) return;
             Long2ByteOpenHashMap excludedFaces = new Long2ByteOpenHashMap();
             Long2LongOpenHashMap sources = new Long2LongOpenHashMap();
             for (int index = 0; index < network.terminalWires.size(); index++) {
@@ -1099,6 +1131,7 @@ public final class RedstoneWireNetworkManager {
 
         /** 通知连接外观发生变化的导线周围方块重新检查邻居。 */
         private void notifyTopologyChanges(LongOpenHashSet changed) {
+            if (this.restoringBlueprint) return;
             for (LongIterator iterator = changed.iterator(); iterator.hasNext();) {
                 BlockPos pos = BlockPos.of(iterator.nextLong());
                 this.level.updateNeighborsAt(pos, this.level.getBlockState(pos).getBlock());

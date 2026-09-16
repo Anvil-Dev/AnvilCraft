@@ -116,9 +116,18 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         @Override
         protected void onContentsChanged(int slot) {
             super.onContentsChanged(slot);
-            if (!SmartBlockPlacerBlockEntity.this.loadingBlueprintInventory) {
-                SmartBlockPlacerBlockEntity.this.onBlueprintItemChanged();
+            if (SmartBlockPlacerBlockEntity.this.loadingBlueprintInventory) {
+                return;
             }
+            // 客户端状态一律由服务端的方块更新包同步，本地重算会把刚同步到的
+            // missingBlock 等字段清空：打开界面时 initializeContents 会逐个
+            // slot.set(...)，进而触发本方法。首次放入磁盘后服务端还会再发一次
+            // 更新因而看似正常，重开界面则不会，导致缺失方块提示消失。
+            Level level = SmartBlockPlacerBlockEntity.this.level;
+            if (level != null && level.isClientSide()) {
+                return;
+            }
+            SmartBlockPlacerBlockEntity.this.onBlueprintItemChanged();
         }
     };
 

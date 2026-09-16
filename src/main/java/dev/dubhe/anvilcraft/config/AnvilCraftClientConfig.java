@@ -11,6 +11,14 @@ import net.neoforged.fml.config.ModConfig;
 
 @Config(name = AnvilCraft.MOD_ID, type = ModConfig.Type.CLIENT)
 public class AnvilCraftClientConfig {
+    @Comment("Building rod blueprint controls")
+    public BuildingRodControls buildingRodControls = BuildingRodControls.OPTIMIZED;
+
+    public enum BuildingRodControls implements TranslatableEnum {
+        TRADITIONAL,
+        OPTIMIZED
+    }
+
     @Comment("The mode of the anvil hammer goggle info")
     public GoggleMode goggleMode = GoggleMode.WEARING_OR_HOLDING_HAMMER;
 
@@ -133,6 +141,33 @@ public class AnvilCraftClientConfig {
     @Comment("Opacity of the outline preview when placing multipart blocks")
     @BoundedDiscrete(min = 0.0, max = 1.0)
     public double multiPartPreviewOutlineOpacity = 0.5;
+
+    @SerializedName("Weatherproof Chestplate HUD")
+    @CollapsibleObject
+    public WeatherproofChestplateHud weatherproofChestplateHud = new WeatherproofChestplateHud();
+
+    public static class WeatherproofChestplateHud {
+        @SerializedName("Enabled")
+        @Comment("If true, will show Weatherproof Chestplate current power in hud")
+        public boolean enabled = true;
+
+        @SerializedName("Capacitor Count Enabled")
+        @Comment("If true, will show charged capacitor counts in hud")
+        public boolean capacitorCountEnabled = true;
+
+        @SerializedName("HUD Scale")
+        @Comment("The Gui Hud Scale")
+        @BoundedDiscrete(min = 0, max = 8)
+        public float hudScale = 0.75f;
+
+        @SerializedName("HUD X Position")
+        @Comment("The gui hud x position")
+        public int hudX = 8;
+
+        @SerializedName("HUD Y Position")
+        @Comment("The gui hud y position")
+        public int hudY = 8;
+    }
 
     public enum CelestialRenderingMode implements TranslatableEnum {
         @SerializedName("Vanilla")

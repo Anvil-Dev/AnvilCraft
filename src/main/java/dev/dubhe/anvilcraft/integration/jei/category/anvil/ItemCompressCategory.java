@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.integration.jei.category.anvil;
 
+import dev.anvilcraft.lib.v2.util.predicate.ChanceItemStack;
 import dev.anvilcraft.lib.v2.util.predicate.ItemIngredientPredicate;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.client.support.RenderSupport;
@@ -20,7 +21,6 @@ import dev.dubhe.anvilcraft.item.property.predicate.ItemSavedEntityPredicate;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.ItemCompressRecipe;
 import dev.dubhe.anvilcraft.recipe.transform.NumericTagValuePredicate;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
-import mezz.jei.api.gui.builder.IRecipeSlotBuilder;
 import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
 import mezz.jei.api.helpers.IGuiHelper;
 import mezz.jei.api.recipe.IFocusGroup;
@@ -120,11 +120,12 @@ public class ItemCompressCategory extends AbstractProgressCategory<ItemCompressR
         arrowOut.draw(guiGraphics, 92, 29);
 
         JeiSlotUtil.drawDefaultInputSlots(guiGraphics, slotDefault, recipe.getInputItems().size());
-        if (JeiRecipeUtil.isChance(recipe.getResultItems())) {
-            JeiSlotUtil.drawDefaultOutputSlots(guiGraphics, slotProbability, recipe.getResultItems().size());
-        } else {
-            JeiSlotUtil.drawDefaultOutputSlots(guiGraphics, slotDefault, recipe.getResultItems().size());
-        }
+        List<ChanceItemStack> results = recipe.getResultItems();
+        JeiSlotUtil.drawDefaultOutputSlots(
+            guiGraphics,
+            JeiRecipeUtil.outputSlotFor(results, slotDefault, slotProbability),
+            results.size()
+        );
     }
 
     public static void registerRecipes(IRecipeRegistration registration) {

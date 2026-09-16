@@ -2,6 +2,8 @@ package dev.dubhe.anvilcraft.util;
 
 import dev.dubhe.anvilcraft.block.entity.StructureScannerBlockEntity;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
+import dev.dubhe.anvilcraft.init.item.ModItems;
+import dev.dubhe.anvilcraft.item.property.component.StoredItem;
 import dev.dubhe.anvilcraft.item.property.component.StructureDiskData;
 import net.minecraft.SharedConstants;
 import net.minecraft.core.Direction;
@@ -47,6 +49,14 @@ public class StructureSaveUtil {
      */
     @SuppressWarnings("checkstyle:VariableDeclarationUsageDistance")
     public static void saveStructureToDisk(Level level, StructureScannerBlockEntity blockEntity, String structureName) {
+        saveStructureToDisk(level, blockEntity, structureName, true, ItemStack.EMPTY);
+    }
+
+    public static void saveStructureToDisk(
+        Level level, StructureScannerBlockEntity blockEntity, String structureName, boolean autoRotate, ItemStack marker
+    ) {
+        if (!blockEntity.isScanComplete() || !blockEntity.getOutputInventory().isEmpty()
+            || !blockEntity.getDiskInventory().getItem(0).is(ModItems.STRUCTURE_DISK)) return;
         if (level.isClientSide) {
             LOGGER.error("Failed to save structure: level is null or on client side");
             return;
@@ -60,7 +70,7 @@ public class StructureSaveUtil {
 
         try {
             // 构建结构NBT
-            CompoundTag structureTag = buildStructureNBT(blockEntity, scannedBlocks);
+            final CompoundTag structureTag = buildStructureNBT(blockEntity, scannedBlocks);
 
             // 从输入槽取出磁盘
             ItemStack diskStack = blockEntity.getDiskInventory().getItem(0);
@@ -98,7 +108,7 @@ public class StructureSaveUtil {
             Direction scannerFacing = blockEntity.getDirection();
 
             // 创建磁盘副本并附加结构信息
-            final ItemStack outputDisk = diskStack.copy();
+            final ItemStack outputDisk = diskStack.copyWithCount(1);
             StructureDiskData data = new StructureDiskData(
                 fileName,
                 structureName,
@@ -107,15 +117,17 @@ public class StructureSaveUtil {
                 blockEntity.getRangeX().get(),
                 blockEntity.getRangeY().get(),
                 blockEntity.getRangeZ().get(),
-                blockEntity.isScannerUpsideDown()
+                blockEntity.isScannerUpsideDown(),
+                autoRotate
             );
             outputDisk.set(ModComponents.STRUCTURE_DISK_DATA, data);
+            if (marker.isEmpty()) outputDisk.remove(ModComponents.DISPLAY_ITEM);
+            else outputDisk.set(ModComponents.DISPLAY_ITEM, new StoredItem(marker.copyWithCount(1)));
 
             // 放入输出槽，清空输入槽和扫描结果
             blockEntity.getOutputInventory().setItem(0, outputDisk);
-            blockEntity.getDiskInventory().setItem(0, ItemStack.EMPTY);
-            blockEntity.getScannedBlocks().clear();
-            blockEntity.setChanged();
+            blockEntity.getDiskInventory().removeItem(0, 1);
+            blockEntity.clearScan();
 
             LOGGER.info("Structure saved to disk: {} -> {} ({} blocks)", structureName, fileName, scannedBlocks.size());
 
@@ -127,7 +139,7 @@ public class StructureSaveUtil {
     /**
      * 构建结构NBT数据（手动构建原版格式）
      */
-    private static CompoundTag buildStructureNBT(
+    public static CompoundTag buildStructureNBT(
         StructureScannerBlockEntity blockEntity,
         List<StructureScannerBlockEntity.CachedBlockData> scannedBlocks
     ) {
@@ -247,7 +259,7 @@ public class StructureSaveUtil {
             return null;
         }
 
-        // Validate against whitelist pattern
+        // Validate against allowlist pattern
         if (!VALID_STRUCTURE_NAME.matcher(name).matches()) {
             return null;
         }

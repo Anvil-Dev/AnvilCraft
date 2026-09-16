@@ -79,11 +79,11 @@ public class FilterItem extends Item {
                     content.includeComponents() ? "screen.anvilcraft.filter.match_component" : "screen.anvilcraft.filter.mismatch_component"
                 ).withStyle(ChatFormatting.BOLD)
                     .withStyle(content.includeComponents() ? ChatFormatting.AQUA : ChatFormatting.GRAY);
-                // 白/黑名单：放行（绿加粗）/ 拒绝（红加粗）
+                // 拒绝/允许列表：拒绝（红加粗）/ 放行（绿加粗）
                 Component listMode = Component.translatable(
-                    content.blackList() ? "screen.anvilcraft.filter.black_list" : "screen.anvilcraft.filter.white_list"
+                    content.denyList() ? "screen.anvilcraft.filter.deny_list" : "screen.anvilcraft.filter.allow_list"
                 ).withStyle(ChatFormatting.BOLD)
-                    .withStyle(content.blackList() ? ChatFormatting.RED : ChatFormatting.GREEN);
+                    .withStyle(content.denyList() ? ChatFormatting.RED : ChatFormatting.GREEN);
                 // 拆成两行显示
                 tooltipComponents.add(matchComponent);
                 tooltipComponents.add(listMode);

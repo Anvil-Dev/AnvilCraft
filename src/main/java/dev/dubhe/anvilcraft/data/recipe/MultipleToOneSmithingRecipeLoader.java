@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.data.recipe;
 
 import dev.anvilcraft.lib.v2.registrum.providers.RegistrumRecipeProvider;
+import dev.dubhe.anvilcraft.api.recipe.data.ItemEnchantmentsData;
 import dev.dubhe.anvilcraft.api.recipe.data.MultiphaseData;
 import dev.dubhe.anvilcraft.api.recipe.data.NormalDataComponent;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
@@ -8,6 +9,7 @@ import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.recipe.multiple.EightToOneSmithingRecipe;
 import dev.dubhe.anvilcraft.recipe.multiple.FourToOneSmithingRecipe;
 import dev.dubhe.anvilcraft.recipe.multiple.TwoToOneSmithingRecipe;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.item.Items;
 import net.neoforged.neoforge.common.Tags;
 
@@ -19,6 +21,38 @@ public class MultipleToOneSmithingRecipeLoader {
     }
 
     public static void two(RegistrumRecipeProvider provider) {
+        TwoToOneSmithingRecipe.builder()
+            .material(ModItems.WEATHERPROOF_CORE)
+            .input(ModItems.BREATHING_HELMET)
+            .input(Items.NETHERITE_HELMET)
+            .resultMerge(ModItems.WEATHERPROOF_SPACESUIT_HELMET,
+                NormalDataComponent.of(0, DataComponents.CUSTOM_NAME),
+                ItemEnchantmentsData.enchantments(0), ItemEnchantmentsData.enchantments(1))
+            .save(provider);
+        TwoToOneSmithingRecipe.builder()
+            .material(ModItems.WEATHERPROOF_CORE)
+            .input(ModItems.IONOCRAFT_BACKPACK)
+            .input(Items.NETHERITE_CHESTPLATE)
+            .resultMerge(ModItems.WEATHERPROOF_SPACESUIT_CHESTPLATE,
+                NormalDataComponent.of(0, DataComponents.CUSTOM_NAME),
+                ItemEnchantmentsData.enchantments(0), ItemEnchantmentsData.enchantments(1))
+            .save(provider);
+        TwoToOneSmithingRecipe.builder()
+            .material(ModItems.WEATHERPROOF_CORE)
+            .input(ModItems.POCKETS_LEGGINGS)
+            .input(Items.NETHERITE_LEGGINGS)
+            .resultMerge(ModItems.WEATHERPROOF_SPACESUIT_LEGGINGS,
+                NormalDataComponent.of(0, DataComponents.CUSTOM_NAME),
+                ItemEnchantmentsData.enchantments(0), ItemEnchantmentsData.enchantments(1))
+            .save(provider);
+        TwoToOneSmithingRecipe.builder()
+            .material(ModItems.WEATHERPROOF_CORE)
+            .input(ModItems.BUFFER_BOOTS)
+            .input(Items.NETHERITE_BOOTS)
+            .resultMerge(ModItems.WEATHERPROOF_SPACESUIT_BOOTS,
+                NormalDataComponent.of(0, DataComponents.CUSTOM_NAME),
+                ItemEnchantmentsData.enchantments(0), ItemEnchantmentsData.enchantments(1))
+            .save(provider);
         TwoToOneSmithingRecipe.builder()
             .material(ModItems.MULTIPHASE_TRANSCENDIUM)
             .input(ModItems.EMBER_ANVIL_HAMMER)

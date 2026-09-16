@@ -9,6 +9,7 @@ import dev.dubhe.anvilcraft.api.laser.LaserComponentTypes;
 import dev.dubhe.anvilcraft.api.laser.LaserDamageBehavior;
 import dev.dubhe.anvilcraft.api.laser.LaserHitBehavior;
 import dev.dubhe.anvilcraft.api.laser.LaserMiningComponent;
+import dev.dubhe.anvilcraft.api.laser.LaserParticleBehavior;
 import dev.dubhe.anvilcraft.api.laser.LaserStrengthComponent;
 import dev.dubhe.anvilcraft.api.laser.LaserTypeComponent;
 import dev.dubhe.anvilcraft.api.rendering.CacheableBERenderingPipeline;
@@ -143,6 +144,7 @@ public abstract class BaseLaserBlockEntity extends BlockEntity implements ILaser
             base.put(LaserComponentTypes.LASER_TYPE, new LaserTypeComponent(gamma));
             base.put(LaserComponentTypes.MINING, new LaserMiningComponent(BlockMiningEffect.NORMAL, false));
             base.put(LaserComponentTypes.DAMAGE_BEHAVIOR, new LaserDamageBehavior());
+            base.put(LaserComponentTypes.PARTICLE_BEHAVIOR, new LaserParticleBehavior());
             base.put(LaserComponentTypes.GAMMA_BEHAVIOR, new GammaLaserBehavior());
             base.put(LaserComponentTypes.HIT_BEHAVIOR, new LaserHitBehavior());
             incoming.add(base);

@@ -9,6 +9,7 @@ import dev.dubhe.anvilcraft.api.entity.fakeplayer.AnvilCraftFakePlayers;
 import dev.dubhe.anvilcraft.block.EmberAnvilBlock;
 import dev.dubhe.anvilcraft.block.TranscendenceAnvilBlock;
 import dev.dubhe.anvilcraft.init.item.ModItems;
+import dev.dubhe.anvilcraft.item.EquipmentAbilities;
 import dev.dubhe.anvilcraft.item.IonocraftBackpackItem;
 import dev.dubhe.anvilcraft.item.MultitoolItem;
 import net.minecraft.server.level.ServerLevel;
@@ -32,6 +33,13 @@ abstract class PlayerMixin extends LivingEntity {
         super(entityType, level);
     }
 
+    @ModifyExpressionValue(method = "causeFallDamage", at = @At(value = "INVOKE",
+        target = "Lnet/minecraft/world/entity/player/Player;mayFly()Z"))
+    private boolean anvilcraft$backpackRequiresActiveFlight(boolean original) {
+        Player player = Util.cast(this);
+        return original && IonocraftBackpackItem.protectsFromFalling(player);
+    }
+
     // 飘升机背包飞行时无挖掘惩罚
     @ModifyExpressionValue(
         method = "getDigSpeed",
@@ -43,7 +51,20 @@ abstract class PlayerMixin extends LivingEntity {
     private boolean modifyOnGround(boolean original) {
         Player player = Util.cast(this);
         boolean noDiggingPenalty = !IonocraftBackpackItem.getByPlayer(player).isEmpty() && player.getAbilities().flying;
-        return noDiggingPenalty || original;
+        return noDiggingPenalty || original || (EquipmentAbilities.canBreathe(this) && this.isInWater());
+    }
+
+    @ModifyExpressionValue(method = "getDigSpeed", at = @At(value = "INVOKE",
+        target = "Lnet/minecraft/world/entity/player/Player;isEyeInFluid(Lnet/minecraft/tags/TagKey;)Z"))
+    private boolean anvilcraft$underwaterMining(boolean original) {
+        return original && !EquipmentAbilities.canBreathe(this);
+    }
+
+    @ModifyReturnValue(method = "canFallAtLeast", at = @At("RETURN"))
+    private boolean anvilcraft$voidFloorSupportsSneaking(boolean original, double x, double z, float distance) {
+        Player player = Util.cast(this);
+        return original && !(this.getY() - distance <= this.level().getMinBuildHeight()
+            && EquipmentAbilities.isVoidProtected(player));
     }
 
     @ModifyVariable(method = "die", at = @At("HEAD"), argsOnly = true)

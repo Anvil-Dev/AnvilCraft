@@ -50,7 +50,7 @@ public record StructureScannerActionPacket(String action, int value, String name
 
     @Override
     public void handleOnServer(Player player) {
-        if (!(player.containerMenu instanceof StructureScannerMenu menu)) {
+        if (!(player.containerMenu instanceof StructureScannerMenu menu) || !menu.stillValid(player)) {
             return;
         }
         StructureScannerBlockEntity blockEntity = menu.getBlockEntity();
@@ -60,6 +60,8 @@ public record StructureScannerActionPacket(String action, int value, String name
         
         switch (action) {
             case "start" -> {
+                menu.clearImportedStructure();
+                menu.broadcastChanges();
                 blockEntity.startScanning();
                 // 同步范围到客户端
                 syncRangeToClient(player, blockEntity);
@@ -70,6 +72,7 @@ public record StructureScannerActionPacket(String action, int value, String name
                 syncRangeToClient(player, blockEntity);
             }
             case "rangeChange" -> {
+                if (blockEntity.isScanning() || menu.getImportedStructure() != null) return;
                 // name 格式: "rangeX", "rangeY", "rangeZ"
                 boolean validRange = switch (name) {
                     case "rangeX" -> validateAndApplyRange(blockEntity.getRangeX(), value);
@@ -89,6 +92,7 @@ public record StructureScannerActionPacket(String action, int value, String name
                     return;
                 }
                 
+                blockEntity.clearScan();
                 // 同步范围到客户端
                 syncRangeToClient(player, blockEntity);
             }

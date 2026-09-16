@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.client.event;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
+import dev.dubhe.anvilcraft.item.BuildingRodItem;
 import dev.dubhe.anvilcraft.network.BigRedButtonHoldPacket;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -100,7 +101,8 @@ public class BigRedButtonInputListener {
     @Nullable
     private static BlockPos targetedButton(Minecraft minecraft) {
         if (minecraft.level == null || minecraft.player == null || minecraft.screen != null || !minecraft.isWindowActive()
-            || !minecraft.player.isAlive() || minecraft.player.isSpectator()) return null;
+            || !minecraft.player.isAlive() || minecraft.player.isSpectator()
+            || BuildingRodItem.isHeld(minecraft.player)) return null;
         if (!(minecraft.hitResult instanceof BlockHitResult hit) || hit.getType() != HitResult.Type.BLOCK) return null;
         return minecraft.level.getBlockState(hit.getBlockPos()).is(ModBlocks.BIG_RED_BUTTON) ? hit.getBlockPos() : null;
     }

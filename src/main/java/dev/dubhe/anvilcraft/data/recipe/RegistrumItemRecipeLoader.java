@@ -8,6 +8,7 @@ import dev.anvilcraft.lib.v2.util.nullness.NonNullConsumer;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.data.AnvilCraftDatagen;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
+import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModFoodItems;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.init.item.ModItems;
@@ -28,6 +29,23 @@ import net.minecraft.world.level.block.Blocks;
 import net.neoforged.neoforge.common.Tags;
 
 public class RegistrumItemRecipeLoader {
+    public static <T extends Item> void buildingRod(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
+        for (boolean charged : new boolean[]{false, true}) {
+            ItemStack result = new ItemStack(ctx.get());
+            result.set(ModComponents.STORED_ENERGY, charged ? 8_000_000 : 0);
+            ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, result)
+                .pattern("ABA")
+                .pattern("ACA")
+                .pattern(" D ")
+                .define('A', ModBlocks.SMART_BLOCK_PLACER)
+                .define('B', ModBlocks.MAGNETO_ELECTRIC_CORE_BLOCK)
+                .define('C', ModItems.ANVIL_HAMMER)
+                .define('D', charged ? ModItems.CAPACITOR.get() : ModItems.CAPACITOR_EMPTY.get())
+                .unlockedBy("hasitem", RegistrumRecipeProvider.has(ModItems.ANVIL_HAMMER))
+                .save(provider, AnvilCraft.of(charged ? "building_rod_charged" : "building_rod"));
+        }
+    }
+
     public static <T extends Item> void fluidTankMinecart(
         DataGenContext<Item, T> ctx,
         RegistrumRecipeProvider provider
@@ -405,21 +423,64 @@ public class RegistrumItemRecipeLoader {
     }
 
     public static <T extends Item> void ionocraftBackpack(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
-        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
+        ShapedRecipeBuilder.shaped(RecipeCategory.COMBAT, ctx.get())
             .pattern("ABA")
-            .pattern("ABA")
-            .pattern("CDC")
-            .define('A', ModItems.IONOCRAFT.asItem())
-            .define('B', ModItems.CAPACITOR_EMPTY)
+            .pattern("ADA")
+            .pattern("C C")
+            .define('A', ModItems.IONOCRAFT)
+            .define('B', ModBlocks.MAGNETO_ELECTRIC_CORE_BLOCK)
             .define('C', ModItemTags.TIN_PLATES)
-            .define('D', Items.LEATHER_CHESTPLATE)
-            .group(ctx.getId().toString())
-            .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.IONOCRAFT.asItem()), RegistrumRecipeProvider.has(ModItems.IONOCRAFT.asItem()))
-            .unlockedBy(
-                AnvilCraftDatagen.hasItem(ModItems.CAPACITOR_EMPTY.asItem()),
-                RegistrumRecipeProvider.has(ModItems.CAPACITOR_EMPTY.asItem()))
-            .unlockedBy(AnvilCraftDatagen.hasItem(ModItemTags.TIN_PLATES), RegistrumRecipeProvider.has(ModItemTags.TIN_PLATES))
-            .unlockedBy(AnvilCraftDatagen.hasItem(Items.LEATHER_CHESTPLATE), RegistrumRecipeProvider.has(Items.LEATHER_CHESTPLATE))
+            .define('D', Items.IRON_CHESTPLATE)
+            .unlockedBy("has_material", RegistrumRecipeProvider.has(ModItems.IONOCRAFT))
+            .save(provider);
+    }
+
+    public static <T extends Item> void breathingArmor(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
+        ShapedRecipeBuilder.shaped(RecipeCategory.COMBAT, ctx.get())
+            .pattern(" W ")
+            .pattern("PFP")
+            .pattern("NHN")
+            .define('W', Items.WATER_BUCKET)
+            .define('P', ModItems.PIPE)
+            .define('F', ModBlocks.FISH_TANK)
+            .define('N', Items.NAUTILUS_SHELL)
+            .define('H', Items.HEART_OF_THE_SEA)
+            .unlockedBy("has_material", RegistrumRecipeProvider.has(ModBlocks.FISH_TANK))
+            .save(provider);
+    }
+
+    public static <T extends Item> void pocketsArmor(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
+        ShapedRecipeBuilder.shaped(RecipeCategory.COMBAT, ctx.get())
+            .pattern("S S")
+            .pattern("LIL")
+            .define('S', Items.STRING)
+            .define('L', Items.LEATHER)
+            .define('I', Items.IRON_LEGGINGS)
+            .unlockedBy("has_material", RegistrumRecipeProvider.has(Items.IRON_LEGGINGS))
+            .save(provider);
+    }
+
+    public static <T extends Item> void bufferArmor(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
+        ShapedRecipeBuilder.shaped(RecipeCategory.COMBAT, ctx.get())
+            .pattern("R R")
+            .pattern("RIR")
+            .pattern("B B")
+            .define('R', ModItems.HARDEND_RESIN)
+            .define('I', Items.IRON_BOOTS)
+            .define('B', ModBlocks.RESIN_BLOCK)
+            .unlockedBy("has_material", RegistrumRecipeProvider.has(Items.IRON_BOOTS))
+            .save(provider);
+    }
+
+    public static <T extends Item> void weatherproofCore(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
+        ShapedRecipeBuilder.shaped(RecipeCategory.COMBAT, ctx.get())
+            .pattern("LTL")
+            .pattern("TMT")
+            .pattern("LTL")
+            .define('L', ModItemTags.LEAD_INGOTS)
+            .define('T', ModItemTags.TITANIUM_INGOTS)
+            .define('M', ModItems.MULTIPHASE_MATTER)
+            .unlockedBy("has_material", RegistrumRecipeProvider.has(ModItems.MULTIPHASE_MATTER))
             .save(provider);
     }
 
@@ -923,12 +984,12 @@ public class RegistrumItemRecipeLoader {
 
     public static <T extends Item> void processor(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
-            .pattern("   ")
-            .pattern("CAC")
+            .pattern("CDC")
+            .pattern("DCD")
             .pattern("BBB")
-            .define('A', Items.COMPARATOR)
             .define('B', ModItems.HARDEND_RESIN)
             .define('C', ModItemTags.COPPER_NUGGETS)
+            .define('D', Tags.Items.GEMS_QUARTZ)
             .group(ctx.getId().toString())
             .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.HARDEND_RESIN), AnvilCraftDatagen.has(ModItems.HARDEND_RESIN))
             .save(provider);

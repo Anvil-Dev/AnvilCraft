@@ -15,6 +15,11 @@ public class PillBoxItem extends BundleLikeItem {
     }
 
     @Override
+    protected boolean storesContentsLocally() {
+        return true;
+    }
+
+    @Override
     protected void removeOne(TransferState state) {
         ItemStack stack = state.getStack();
         PillBoxContents.Mutable mutable = stack.getOrDefault(ModComponents.PILL_BOX_CONTENTS, PillBoxContents.EMPTY).mutable();

@@ -21,6 +21,7 @@ import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.entity.ModEntities;
 import dev.dubhe.anvilcraft.init.item.ModItems;
+import dev.dubhe.anvilcraft.item.WeatherproofChestplateItem;
 import dev.dubhe.anvilcraft.item.weapon.AnvilRailgunItem;
 import dev.dubhe.anvilcraft.item.weapon.CorruptedBeaconActivatorItem;
 import dev.dubhe.anvilcraft.item.weapon.LaserGunItem;
@@ -249,6 +250,18 @@ public class CapabilitiesEventListener {
             Capabilities.EnergyStorage.BLOCK,
             ModBlockEntities.POWER_CONVERTER.get(),
             PowerConverterBlockEntity::getEnergyStorage
+        );
+
+        event.registerItem(
+            Capabilities.EnergyStorage.ITEM,
+            (stack, ctx) -> new ItemFEStorage(stack, 8_000_000),
+            ModItems.BUILDING_ROD.get()
+        );
+
+        event.registerItem(
+            Capabilities.EnergyStorage.ITEM,
+            (stack, ctx) -> new ItemFEStorage(stack, WeatherproofChestplateItem.MAX_ENERGY),
+            ModItems.WEATHERPROOF_SPACESUIT_CHESTPLATE.get()
         );
 
         // 武器物品注册 FE ITEM capability（电容器保留原有系统）

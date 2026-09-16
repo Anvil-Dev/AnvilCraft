@@ -97,7 +97,14 @@ public final class SettingClientStub {
         return new PlayerSetting(
             new ArrayList<>(listed),
             new ArrayList<>(setting.custom()),
-            new StorageSetting("", storage.getSearch(), storage.getSort(), storage.getOrder(), storage.getNbtDisplay())
+            new StorageSetting(
+                "",
+                storage.getSearch(),
+                storage.getSort(),
+                storage.getOrder(),
+                storage.getNbtDisplay(),
+                storage.isFlipped()
+            )
         );
     }
 
@@ -150,6 +157,12 @@ public final class SettingClientStub {
 
     public static void update(BalanceMode mode) {
         RPC.call(RpcTarget.server(), SettingServerStub::update, SettingClientStub.playerId(), mode);
+    }
+
+    /** 切换仓储界面翻转模式；对所有仓储界面生效。 */
+    public static void updateFlipped(boolean flipped) {
+        SettingClientStub.setting().storage().setFlipped(flipped);
+        RPC.call(RpcTarget.server(), SettingServerStub::update, SettingClientStub.playerId(), flipped);
     }
 
     private static UUID playerId() {

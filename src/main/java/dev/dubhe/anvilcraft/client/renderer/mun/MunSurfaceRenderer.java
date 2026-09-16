@@ -70,7 +70,7 @@ public final class MunSurfaceRenderer {
     }
 
     public static void setupSodiumUniforms() {
-        if (!MunRenderPipeline.requested()) return;
+        if (!MunSodiumShaders.requested()) return;
         try {
             MunSodiumShaderBindings bindings = MunSodiumShaderBindings.begin(usesTerrainShader());
             if (bindings != null) {

@@ -137,13 +137,13 @@ public final class PlanetResourceGenerator {
         if (md == null) return;
 
         TagKey<Item> sourceTag = TagKey.create(Registries.ITEM, ResourceLocation.parse(md.sourceTag()));
-        TagKey<Item> blacklistTag = TagKey.create(Registries.ITEM, ResourceLocation.parse(md.blacklistTag()));
+        TagKey<Item> denylistTag = TagKey.create(Registries.ITEM, ResourceLocation.parse(md.denylistTag()));
 
-        Set<ResourceLocation> blacklist = new HashSet<>();
+        Set<ResourceLocation> denylist = new HashSet<>();
         registries.lookupOrThrow(Registries.ITEM)
-            .get(blacklistTag)
+            .get(denylistTag)
             .ifPresent(entries -> entries.forEach(
-                holder -> blacklist.add(holder.unwrapKey().orElseThrow().location())
+                holder -> denylist.add(holder.unwrapKey().orElseThrow().location())
             ));
 
         List<ResourceLocation> candidates = new ArrayList<>();
@@ -151,7 +151,7 @@ public final class PlanetResourceGenerator {
             .get(sourceTag)
             .ifPresent(entries -> entries.forEach(holder -> {
                 ResourceLocation id = holder.unwrapKey().orElseThrow().location();
-                if (!blacklist.contains(id)) {
+                if (!denylist.contains(id)) {
                     candidates.add(id);
                 }
             }));
@@ -320,8 +320,8 @@ public final class PlanetResourceGenerator {
 
         boolean isHighCoverage = rocky.liquidCoverage() == LiquidCoverage.HIGH;
 
-        TagKey<Item> blacklistTag = TagKey.create(Registries.ITEM, ResourceLocation.parse(bd.dropBlacklistTag()));
-        Set<ResourceLocation> blacklist = buildItemBlacklist(level.registryAccess(), blacklistTag);
+        TagKey<Item> denylistTag = TagKey.create(Registries.ITEM, ResourceLocation.parse(bd.dropDenylistTag()));
+        Set<ResourceLocation> denylist = buildItemDenylist(level.registryAccess(), denylistTag);
 
         /// 从所有匹配实体中收集物品掉落频率
         Map<ResourceLocation, Integer> dropFrequencies = new HashMap<>();
@@ -336,7 +336,7 @@ public final class PlanetResourceGenerator {
                        || cat == MobCategory.UNDERGROUND_WATER_CREATURE
                     : cat == MobCategory.CREATURE;
                 if (matches) {
-                    collectEntityDropFrequencies(entityType, level, random, dropFrequencies, blacklist);
+                    collectEntityDropFrequencies(entityType, level, random, dropFrequencies, denylist);
                 }
             });
 
@@ -416,7 +416,7 @@ public final class PlanetResourceGenerator {
         Level level,
         RandomSource random,
         Map<ResourceLocation, Integer> dropFrequencies,
-        Set<ResourceLocation> blacklist
+        Set<ResourceLocation> denylist
     ) {
         if (!(level instanceof ServerLevel serverLevel)) return;
 
@@ -458,7 +458,7 @@ public final class PlanetResourceGenerator {
                 ResourceLocation id = BuiltInRegistries.ITEM.getKey(drop.getItem());
                 /// 跳过空气物品（战利品表为空或无效的实体）
                 if ("minecraft:air".equals(id.toString())) continue;
-                if (blacklist.contains(id)) continue;
+                if (denylist.contains(id)) continue;
                 counts.merge(id, drop.getCount(), Integer::sum);
                 totalDrops += drop.getCount();
             }
@@ -499,16 +499,16 @@ public final class PlanetResourceGenerator {
         return knownBlocks.get(random.nextInt(knownBlocks.size()));
     }
 
-    private static Set<ResourceLocation> buildItemBlacklist(
+    private static Set<ResourceLocation> buildItemDenylist(
         HolderLookup.Provider registries,
-        TagKey<Item> blacklistTag
+        TagKey<Item> denylistTag
     ) {
-        Set<ResourceLocation> blacklist = new HashSet<>();
+        Set<ResourceLocation> denylist = new HashSet<>();
         registries.lookupOrThrow(Registries.ITEM)
-            .get(blacklistTag)
+            .get(denylistTag)
             .ifPresent(entries -> entries.forEach(
-                holder -> blacklist.add(holder.unwrapKey().orElseThrow().location())
+                holder -> denylist.add(holder.unwrapKey().orElseThrow().location())
             ));
-        return blacklist;
+        return denylist;
     }
 }

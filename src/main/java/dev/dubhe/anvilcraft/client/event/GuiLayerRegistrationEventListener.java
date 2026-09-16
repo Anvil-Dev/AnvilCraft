@@ -8,6 +8,7 @@ import dev.dubhe.anvilcraft.client.hud.AnvilHammerUseHUD;
 import dev.dubhe.anvilcraft.client.hud.EnergyWeaponUseHUD;
 import dev.dubhe.anvilcraft.client.hud.PowerGridHUD;
 import dev.dubhe.anvilcraft.client.hud.TradingStationHUD;
+import dev.dubhe.anvilcraft.client.hud.WeatherproofChestplateHUD;
 import dev.dubhe.anvilcraft.client.support.OverworldLikeCollapseOverlay;
 import dev.dubhe.anvilcraft.item.AnvilHammerItem;
 import net.minecraft.client.DeltaTracker;
@@ -27,6 +28,7 @@ import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
 public class GuiLayerRegistrationEventListener {
 
     public static void onRegister(RegisterGuiLayersEvent event) {
+        event.registerAboveAll(AnvilCraft.of("weatherproof_chestplate"), WeatherproofChestplateHUD::render);
         event.registerAbove(VanillaGuiLayers.EXPERIENCE_BAR, AnvilCraft.of("power_grid_indicator"), PowerGridHUD::render);
         event.registerAboveAll(AnvilCraft.of("overworld_like_collapse"), (guiGraphics, deltaTracker) ->
             OverworldLikeCollapseOverlay.render(guiGraphics));

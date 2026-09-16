@@ -10,6 +10,8 @@ import com.mojang.blaze3d.vertex.BufferUploader;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexFormat;
+import dev.dubhe.anvilcraft.building.BlueprintMultiblocks;
+import dev.dubhe.anvilcraft.building.BlueprintPlacement;
 import dev.dubhe.anvilcraft.client.init.ModShaders;
 import dev.dubhe.anvilcraft.client.renderer.RenderState;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
@@ -23,8 +25,8 @@ import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
-import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL30;
@@ -330,11 +332,10 @@ public class StructureDiskPreviewSupport {
 
         // 设置旋转后的方块
         for (StructureLoadUtil.BlockPosition blockPos : data.blocks) {
-            // 旋转方块朝向
-            BlockState rotatedState = blockPos.state().rotate(rotation);
-
-            BlockPos pos = new BlockPos(blockPos.x(), blockPos.y(), blockPos.z());
-            levelLike.setBlockState(pos, rotatedState);
+            int y = data.diskData.upsideDown() ? data.diskData.sizeY() - 1 - blockPos.y() : blockPos.y();
+            BlockPos pos = new BlockPos(blockPos.x(), y, blockPos.z());
+            BlueprintMultiblocks.forEachPart(BlockPos.ZERO, blockPos.state(),
+                new BlueprintPlacement(pos, rotation, Mirror.NONE), levelLike::setBlockState);
         }
 
         return levelLike;

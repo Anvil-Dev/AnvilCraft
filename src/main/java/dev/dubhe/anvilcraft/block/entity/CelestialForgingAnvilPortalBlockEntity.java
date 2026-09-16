@@ -516,6 +516,7 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
             }
             entity.setDeltaMovement(momentum);
             entity.hasImpulse = true;
+            CelestialTravelManager.playPortalTravelSound(entity);
         } else {
             DimensionTransition transition =
                 new DimensionTransition(
@@ -527,10 +528,10 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
                     DimensionTransition.DO_NOTHING
                 );
             Entity teleported = entity.changeDimension(transition);
-            if (teleported != null) {
-                teleported.setDeltaMovement(momentum);
-                teleported.hasImpulse = true;
-            }
+            if (teleported == null) return;
+            teleported.setDeltaMovement(momentum);
+            teleported.hasImpulse = true;
+            CelestialTravelManager.playPortalTravelSound(teleported);
         }
 
         touchingEntities.add(uuid);

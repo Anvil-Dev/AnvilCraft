@@ -21,6 +21,7 @@ import dev.dubhe.anvilcraft.item.AmethystPickaxeItem;
 import dev.dubhe.anvilcraft.item.AmethystShovelItem;
 import dev.dubhe.anvilcraft.item.AmethystSwordItem;
 import dev.dubhe.anvilcraft.item.AnvilHammerItem;
+import dev.dubhe.anvilcraft.item.BuildingRodItem;
 import dev.dubhe.anvilcraft.item.CapacitorItem;
 import dev.dubhe.anvilcraft.item.CrabClawItem;
 import dev.dubhe.anvilcraft.item.DiskItem;
@@ -37,6 +38,7 @@ import dev.dubhe.anvilcraft.item.EmberMetalSwordItem;
 import dev.dubhe.anvilcraft.item.EmptyCapacitorItem;
 import dev.dubhe.anvilcraft.item.EmptySuperCapacitorItem;
 import dev.dubhe.anvilcraft.item.EnergyWeaponPlatformItem;
+import dev.dubhe.anvilcraft.item.EquipmentArmorItem;
 import dev.dubhe.anvilcraft.item.ExpGemItem;
 import dev.dubhe.anvilcraft.item.FilterItem;
 import dev.dubhe.anvilcraft.item.FluidTankMinecartItem;
@@ -81,6 +83,7 @@ import dev.dubhe.anvilcraft.item.TopazItem;
 import dev.dubhe.anvilcraft.item.TranscendenceAnvilHammerItem;
 import dev.dubhe.anvilcraft.item.TranscendenceHeavyHalberdItem;
 import dev.dubhe.anvilcraft.item.TranscendenceResonatorItem;
+import dev.dubhe.anvilcraft.item.WeatherproofChestplateItem;
 import dev.dubhe.anvilcraft.item.abnormal.CursedItem;
 import dev.dubhe.anvilcraft.item.abnormal.EnchantedGoldIngotItem;
 import dev.dubhe.anvilcraft.item.abnormal.EnchantedGoldItem;
@@ -530,9 +533,62 @@ public class ModItems {
                 .parent(new ModelFile.UncheckedModelFile("item/generated"))
                 .texture("layer0", "item/ionocraft_backpack"))
             .end())
-        .tag(ItemTags.CHEST_ARMOR_ENCHANTABLE, ItemTags.DURABILITY_ENCHANTABLE)
+        .tag(ItemTags.CHEST_ARMOR, ItemTags.CHEST_ARMOR_ENCHANTABLE, ItemTags.DURABILITY_ENCHANTABLE)
         .recipe(RegistrumItemRecipeLoader::ionocraftBackpack)
         .register();
+    public static final ItemEntry<EquipmentArmorItem> BREATHING_HELMET = REGISTRUM
+        .item("breathing_helmet", p -> new EquipmentArmorItem(p, ArmorItem.Type.HELMET, false, "spacesuit"))
+        .tag(ItemTags.HEAD_ARMOR, ItemTags.HEAD_ARMOR_ENCHANTABLE, ItemTags.DURABILITY_ENCHANTABLE)
+        .recipe(RegistrumItemRecipeLoader::breathingArmor)
+        .register();
+
+    public static final ItemEntry<EquipmentArmorItem> POCKETS_LEGGINGS = REGISTRUM
+        .item("pockets_leggings", p -> new EquipmentArmorItem(p, ArmorItem.Type.LEGGINGS, false, "spacesuit"))
+        .tag(ItemTags.LEG_ARMOR, ItemTags.LEG_ARMOR_ENCHANTABLE, ItemTags.DURABILITY_ENCHANTABLE)
+        .recipe(RegistrumItemRecipeLoader::pocketsArmor)
+        .register();
+
+    public static final ItemEntry<EquipmentArmorItem> BUFFER_BOOTS = REGISTRUM
+        .item("buffer_boots", p -> new EquipmentArmorItem(p, ArmorItem.Type.BOOTS, false, "spacesuit"))
+        .tag(ItemTags.FOOT_ARMOR, ItemTags.FOOT_ARMOR_ENCHANTABLE, ItemTags.DURABILITY_ENCHANTABLE)
+        .recipe(RegistrumItemRecipeLoader::bufferArmor)
+        .register();
+
+    public static final ItemEntry<EquipmentArmorItem> WEATHERPROOF_SPACESUIT_HELMET = REGISTRUM
+        .item("weatherproof_spacesuit_helmet", p -> new EquipmentArmorItem(p, ArmorItem.Type.HELMET, true, "weatherproof_spacesuit"))
+        .properties(Item.Properties::fireResistant)
+        .tag(ItemTags.HEAD_ARMOR, ItemTags.HEAD_ARMOR_ENCHANTABLE, ItemTags.DURABILITY_ENCHANTABLE)
+        .register();
+
+    public static final ItemEntry<WeatherproofChestplateItem> WEATHERPROOF_SPACESUIT_CHESTPLATE = REGISTRUM
+        .item("weatherproof_spacesuit_chestplate", WeatherproofChestplateItem::new)
+        .model((ctx, prov) -> prov.getBuilder(prov.name(ctx.lazy()))
+            .parent(new ModelFile.UncheckedModelFile("item/generated"))
+            .texture("layer0", "item/weatherproof_spacesuit_chestplate_off")
+            .override().predicate(AnvilCraft.of("charged"), 1)
+            .model(prov.getBuilder("item/weatherproof_spacesuit_chestplate_on")
+                .parent(new ModelFile.UncheckedModelFile("item/generated"))
+                .texture("layer0", "item/weatherproof_spacesuit_chestplate"))
+            .end())
+        .properties(Item.Properties::fireResistant)
+        .tag(ItemTags.CHEST_ARMOR, ItemTags.CHEST_ARMOR_ENCHANTABLE, ItemTags.DURABILITY_ENCHANTABLE)
+        .register();
+
+    public static final ItemEntry<EquipmentArmorItem> WEATHERPROOF_SPACESUIT_LEGGINGS = REGISTRUM
+        .item("weatherproof_spacesuit_leggings", p -> new EquipmentArmorItem(p, ArmorItem.Type.LEGGINGS, true, "weatherproof_spacesuit"))
+        .properties(Item.Properties::fireResistant)
+        .tag(ItemTags.LEG_ARMOR, ItemTags.LEG_ARMOR_ENCHANTABLE, ItemTags.DURABILITY_ENCHANTABLE)
+        .register();
+
+    public static final ItemEntry<EquipmentArmorItem> WEATHERPROOF_SPACESUIT_BOOTS = REGISTRUM
+        .item("weatherproof_spacesuit_boots", p -> new EquipmentArmorItem(p, ArmorItem.Type.BOOTS, true, "weatherproof_spacesuit"))
+        .properties(Item.Properties::fireResistant)
+        .tag(ItemTags.FOOT_ARMOR, ItemTags.FOOT_ARMOR_ENCHANTABLE, ItemTags.DURABILITY_ENCHANTABLE)
+        .register();
+
+    public static final ItemEntry<Item> WEATHERPROOF_CORE = REGISTRUM.item("weatherproof_core", Item::new)
+        .recipe(RegistrumItemRecipeLoader::weatherproofCore).register();
+
     // 升级锻造模板
     public static final ItemEntry<RoyalSteelUpgradeTemplateItem> ROYAL_STEEL_UPGRADE_SMITHING_TEMPLATE = REGISTRUM
         .item("royal_steel_upgrade_smithing_template", RoyalSteelUpgradeTemplateItem::new)
@@ -587,6 +643,12 @@ public class ModItems {
     public static final ItemEntry<FilterItem> FILTER = REGISTRUM.item("filter", FilterItem::new)
         .recipe(RegistrumItemRecipeLoader::filter)
         .properties(properties -> properties.stacksTo(16))
+        .register();
+
+    public static final ItemEntry<BuildingRodItem> BUILDING_ROD = REGISTRUM.item("building_rod", BuildingRodItem::new)
+        .lang("Building Rod")
+        .model(DataGenUtil::noExtraModelOrState)
+        .recipe(RegistrumItemRecipeLoader::buildingRod)
         .register();
 
     public static final ItemEntry<CrabClawItem> CRAB_CLAW = REGISTRUM.item("crab_claw", CrabClawItem::new)

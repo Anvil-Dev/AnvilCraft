@@ -477,15 +477,29 @@ public class ClientEventListener {
         return null;
     }
 
+    /**
+     * 取容器界面中鼠标悬停槽位的菜单索引，供选择器把选中索引同步到服务端；
+     * 非容器界面或无悬停槽位时返回 -1（不同步）。
+     * 创造背包排除在外：它用纯客户端的 {@code ItemPickerMenu}，槽位排列与服务端的
+     * {@code inventoryMenu} 不一致，按槽位号发包会改到无关槽位；且创造模式本就有
+     * 槽位监听器把改动同步给服务端，无需此包。
+     */
+    private static int menuSlotIndex(@Nullable AbstractContainerScreen<?> screen) {
+        if (screen == null || screen instanceof CreativeModeInventoryScreen) return -1;
+        Slot slot = screen.getSlotUnderMouse();
+        return slot != null ? screen.getMenu().slots.indexOf(slot) : -1;
+    }
+
     @SubscribeEvent
     public static void renderContainerScreenEvent(ContainerScreenEvent.Render.Background event) {
         AbstractContainerScreen<?> screen = event.getContainerScreen();
         Slot slot = screen.getSlotUnderMouse();
         ItemStack item = slot != null ? slot.getItem() : ItemStack.EMPTY;
+        int slotIndex = ClientEventListener.menuSlotIndex(screen);
         if (item.is(ModItems.PILL_BOX)) {
-            AnvilCraftClient.pillSelectorSupport.setPillBox(item);
+            AnvilCraftClient.pillSelectorSupport.setPillBox(item, slotIndex);
         } else {
-            AnvilCraftClient.pillSelectorSupport.setPillBox(ItemStack.EMPTY);
+            AnvilCraftClient.pillSelectorSupport.setPillBox(ItemStack.EMPTY, -1);
         }
 
         // 创造模式：仅标签栏（非槽位区域）不启用终端收纳袋浮窗，背包槽位内的终端正常触发
@@ -526,6 +540,11 @@ public class ClientEventListener {
         ItemStack itemStack = event.getItemStack();
         if (itemStack.is(ModItems.AMULET_BOX)) {
             event.setY(y + 13);
+            AmuletSelectorSupport.setHoveredSlot(
+                Minecraft.getInstance().screen instanceof AbstractContainerScreen<?> screen
+                    ? ClientEventListener.menuSlotIndex(screen)
+                    : -1
+            );
             AmuletSelectorSupport.setCurrentHoveringItemStack(itemStack);
             AmuletSelectorSupport.render(guiGraphics, x, y);
         } else if (itemStack.is(ModItems.PILL_BOX)) {
@@ -543,6 +562,8 @@ public class ClientEventListener {
     @SubscribeEvent
     public static void onScreenClosing(ScreenEvent.Closing event) {
         TerminalRemoteOverlay.setHovering(ItemStack.EMPTY);
+        AmuletSelectorSupport.setHoveredSlot(-1);
+        AnvilCraftClient.pillSelectorSupport.clearHoveredSlot();
     }
 
     @SubscribeEvent

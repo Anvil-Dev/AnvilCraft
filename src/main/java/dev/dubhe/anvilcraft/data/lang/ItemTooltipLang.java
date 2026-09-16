@@ -6,6 +6,13 @@ import dev.dubhe.anvilcraft.api.tooltip.ItemTooltipManager;
 public class ItemTooltipLang {
     @SuppressWarnings("checkstyle:LineLength")
     public static void init(RegistrumLangProvider provider) {
+        provider.add("tooltip.anvilcraft.equipment.breathing", "Supplies oxygen underwater and in vacuum; removes underwater mining penalties");
+        provider.add("tooltip.anvilcraft.equipment.clear_vision", "Clear vision in all fluids");
+        provider.add("tooltip.anvilcraft.equipment.recharge", "Uses 100 kFE per second; rechargeable from grids or capacitors");
+        provider.add("tooltip.anvilcraft.equipment.pockets", "%s pocket slots\nUse the pocket key to swap with your offhand\nEmpty pockets before removing leggings");
+        provider.add("tooltip.anvilcraft.equipment.buffer_boots", "Immune to fall damage\nHold sneak to charge a jump, up to 4 blocks height");
+        provider.add("tooltip.anvilcraft.equipment.fluid_walking", "Walk on still fluid surfaces; sneak to submerge, hold sneak to descend faster");
+        provider.add("tooltip.anvilcraft.equipment.full_suit", "Full suit: immune to environmental damage except the void; prevents falling into the void");
         ItemTooltipManager.getNormalMap().forEach(
             (item, s) -> provider.add(ItemTooltipManager.getTranslationKey(item), s));
         ItemTooltipManager.getShiftMap().forEach(

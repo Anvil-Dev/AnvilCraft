@@ -16,10 +16,19 @@ import org.spongepowered.asm.mixin.injection.At;
 abstract class EnchantCommandMixin {
     @ModifyExpressionValue(
         method = "enchant",
-        at = @At(
-            value = "INVOKE",
-            target = "Lnet/minecraft/world/item/enchantment/Enchantment;getMaxLevel()I"
-        )
+        at = {
+            @At(
+                value = "INVOKE",
+                target = "Lnet/minecraft/world/item/enchantment/Enchantment;getMaxLevel()I"
+            ),
+            // 神化附魔的 Coremod 会在 Mixin 应用前替换原版等级查询。
+            @At(
+                value = "INVOKE",
+                target = "Ldev/shadowsoffire/apothic_enchanting/asm/EnchHooks;"
+                         + "getMaxLevel(Lnet/minecraft/world/item/enchantment/Enchantment;)I",
+                remap = false
+            )
+        }
     )
     private static int modifyMaxLevel(int original, @Local(argsOnly = true) CommandSourceStack source) {
         return anvilcraft$canBypassRestrictions(source) ? 255 : original;

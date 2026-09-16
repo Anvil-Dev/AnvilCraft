@@ -41,6 +41,20 @@ public abstract class BundleLikeItem extends Item {
         return true;
     }
 
+    /**
+     * 内容是否完全存放在物品自身组件中，因而客户端可独立完成交互。
+     * 药盒、护符盒为 {@code true}；终端类内容在服务端存储中，客户端无法预知能否
+     * 取出/放入，返回 {@code false}。
+     *
+     * <p>影响 {@link #overrideStackedOnOther}：为 {@code true} 时客户端也执行完整交互
+     * （创造模式物品栏的 INVENTORY 标签页只做本地 {@code menu.clicked}、不发点击包，
+     * 若客户端只做预测就完全没有效果）；为 {@code false} 时客户端只做预测，真实处理
+     * 依赖生存模式点击包送达服务端后的 {@code clicked}。
+     */
+    protected boolean storesContentsLocally() {
+        return false;
+    }
+
     protected abstract void removeOne(TransferState state);
 
     protected abstract void insertOne(TransferState state);
@@ -49,26 +63,22 @@ public abstract class BundleLikeItem extends Item {
 
     @Override
     public boolean overrideStackedOnOther(ItemStack stack, Slot slot, ClickAction action, Player player) {
-        if (!(player instanceof ServerPlayer serverPlayer)) {
+        if (!slot.isActive() || !slot.allowModification(player)) return false;
+        if (!(player instanceof ServerPlayer) && !this.storesContentsLocally()) {
             // 客户端预测执行（Render thread）：真实处理在服务端 clicked 中执行。
             // 仅当本次操作确实是 BundleLike 且子类允许（如终端有绑定且存储有物品可取出）
             // 时才放行（返回 true 阻止 vanilla fallback 把终端放回槽、避免点击包携带的
             // carried 变空导致服务端无法执行）；其余按键（放回/交换）交给 vanilla fallback，
             // 无绑定/无物品可取时）返回 false 交给 vanilla fallback，与 BundleItem 语义一致。
             ItemStack other = slot.getItem();
-            TransferState state = new TransferState(TransferType.BUNDLE_HOVER_ITEM, player, other.copy(), stack.copy());
-            boolean result;
+            TransferState state = new TransferState(TransferType.BUNDLE_HOVER_ITEM, player, slot, other.copy(), stack.copy());
             if (other.isEmpty()) {
-                result = action == ClickAction.SECONDARY
-                    && this.canRemoveOne(state);
-            } else {
-                result = action == BundleLikeItem.insertAction(player);
+                return action == ClickAction.SECONDARY && this.canRemoveOne(state);
             }
-            return result;
+            return action == BundleLikeItem.insertAction(player);
         }
-        if (!slot.allowModification(serverPlayer)) return false;
         ItemStack other = slot.getItem();
-        TransferState state = new TransferState(TransferType.BUNDLE_HOVER_ITEM, serverPlayer, other.copy(), stack.copy());
+        TransferState state = new TransferState(TransferType.BUNDLE_HOVER_ITEM, player, slot, other.copy(), stack.copy());
         if (other.isEmpty()) {
             if (!this.canRemoveOne(state)) return false;
             if (action != ClickAction.SECONDARY) return false;
@@ -76,14 +86,14 @@ public abstract class BundleLikeItem extends Item {
             ItemStack removed = state.output;
             if (removed == null || removed.isEmpty()) return false;
             slot.set(removed);
-            this.playRemoveOneSound(serverPlayer);
+            this.playRemoveOneSound(player);
         } else {
-            if (action != BundleLikeItem.insertAction(serverPlayer)) return false;
+            if (action != BundleLikeItem.insertAction(player)) return false;
             this.insertOne(state);
             ItemStack remain = state.output;
             if (remain == null) return false;
             slot.set(remain);
-            this.playInsertSound(serverPlayer);
+            this.playInsertSound(player);
         }
         this.updateStack(stack, state);
         return true;
@@ -99,7 +109,7 @@ public abstract class BundleLikeItem extends Item {
         SlotAccess access
     ) {
         if (!slot.allowModification(player)) return false;
-        TransferState state = new TransferState(TransferType.ITEM_HOVER_BUNDLE, player, other.copy(), stack.copy());
+        TransferState state = new TransferState(TransferType.ITEM_HOVER_BUNDLE, player, slot, other.copy(), stack.copy());
         if (other.isEmpty()) {
             if (!this.canRemoveOne(state)) return false;
             if (action != ClickAction.SECONDARY) return false;
@@ -165,12 +175,13 @@ public abstract class BundleLikeItem extends Item {
     protected static class TransferState {
         private final TransferType type;
         private final Player player;
+        private final Slot slot;
         private final ItemStack other;
         private ItemStack stack;
         private @Nullable ItemStack output;
 
-        public TransferState(TransferType type, Player player, ItemStack other, ItemStack stack) {
-            this(type, player, other);
+        public TransferState(TransferType type, Player player, Slot slot, ItemStack other, ItemStack stack) {
+            this(type, player, slot, other);
             this.stack = stack;
         }
     }

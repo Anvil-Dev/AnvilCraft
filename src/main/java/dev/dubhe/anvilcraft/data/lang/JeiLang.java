@@ -124,6 +124,8 @@ public class JeiLang {
         provider.add("gui.anvilcraft.category.anvil_collision.speed", "Need Speed: %s");
 
         provider.add("gui.anvilcraft.category.procedural_process", "Block Sequence Processing");
+        provider.add("gui.anvilcraft.category.procedural_process.materials", "Materials:");
+        provider.add("gui.anvilcraft.category.procedural_process.materials.overflow", "+%s more");
 
         provider.add("gui.anvilcraft.category.item_compress.supercapacitor.resin", "Resin block containing a lightning-charged Creeper");
         provider.add("gui.anvilcraft.category.item_compress.supercapacitor_empty.resin", "Resin block containing an uncharged Creeper");

@@ -283,10 +283,10 @@ public record PlanetResourceRecipe(
 
     /// 矿物资源配置。
     /// category=mineral：所有岩石行星从来源标签产出矿物。
-    public record MineralData(String sourceTag, String blacklistTag, int step) {
+    public record MineralData(String sourceTag, String denylistTag, int step) {
         public static final Codec<MineralData> CODEC = RecordCodecBuilder.create(ins -> ins.group(
             Codec.STRING.optionalFieldOf("source_tag", "c:raw_materials").forGetter(MineralData::sourceTag),
-            Codec.STRING.optionalFieldOf("blacklist_tag", "anvilcraft:non_planetary_minerals").forGetter(MineralData::blacklistTag),
+            Codec.STRING.optionalFieldOf("denylist_tag", "anvilcraft:non_planetary_minerals").forGetter(MineralData::denylistTag),
             Codec.INT.optionalFieldOf("step", 10).forGetter(MineralData::step)
         ).apply(ins, MineralData::new));
 
@@ -294,7 +294,7 @@ public record PlanetResourceRecipe(
             ByteBufCodecs.STRING_UTF8,
             MineralData::sourceTag,
             ByteBufCodecs.STRING_UTF8,
-            MineralData::blacklistTag,
+            MineralData::denylistTag,
             ByteBufCodecs.INT,
             MineralData::step,
             MineralData::new
@@ -364,15 +364,15 @@ public record PlanetResourceRecipe(
     /// 生物资源配置。
     /// category=biological：定义生命概率、实体标签和温和温度下的额外流体。
     public record BiologicalData(
-        LifeChances lifeChances, String landEntityTag, String aquaticEntityTag, String dropBlacklistTag, List<WeightedEntry> mildExtraFluids
+        LifeChances lifeChances, String landEntityTag, String aquaticEntityTag, String dropDenylistTag, List<WeightedEntry> mildExtraFluids
     ) {
         public static final Codec<BiologicalData> CODEC = RecordCodecBuilder.create(ins -> ins.group(
             LifeChances.CODEC.optionalFieldOf("life_chances", LifeChances.DEFAULT).forGetter(BiologicalData::lifeChances),
             Codec.STRING.optionalFieldOf("land_entity_tag", "anvilcraft:planetary_land_animals").forGetter(BiologicalData::landEntityTag),
             Codec.STRING.optionalFieldOf("aquatic_entity_tag", "anvilcraft:planetary_aquatic_animals")
                 .forGetter(BiologicalData::aquaticEntityTag),
-            Codec.STRING.optionalFieldOf("drop_blacklist_tag", "anvilcraft:non_planetary_mob_drops")
-                .forGetter(BiologicalData::dropBlacklistTag),
+            Codec.STRING.optionalFieldOf("drop_denylist_tag", "anvilcraft:non_planetary_mob_drops")
+                .forGetter(BiologicalData::dropDenylistTag),
             WeightedEntry.CODEC.listOf().optionalFieldOf("mild_extra_fluids", List.of()).forGetter(BiologicalData::mildExtraFluids)
         ).apply(ins, BiologicalData::new));
 
@@ -384,7 +384,7 @@ public record PlanetResourceRecipe(
             ByteBufCodecs.STRING_UTF8,
             BiologicalData::aquaticEntityTag,
             ByteBufCodecs.STRING_UTF8,
-            BiologicalData::dropBlacklistTag,
+            BiologicalData::dropDenylistTag,
             WeightedEntry.STREAM_CODEC.apply(ByteBufCodecs.list()),
             BiologicalData::mildExtraFluids,
             BiologicalData::new

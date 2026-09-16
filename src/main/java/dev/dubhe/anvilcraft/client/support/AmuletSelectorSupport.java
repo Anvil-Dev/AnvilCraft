@@ -5,10 +5,12 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import dev.dubhe.anvilcraft.constant.SharedTextures;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.item.property.component.BoxContents;
+import dev.dubhe.anvilcraft.network.BoxSelectionSyncPacket;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
+import net.neoforged.neoforge.network.PacketDistributor;
 
 import java.util.List;
 import java.util.Objects;
@@ -23,6 +25,12 @@ public class AmuletSelectorSupport {
     private static int maxSelection = -1;
     private static @Nullable Layout layout = null;
     private static @Nullable BoxContents contents = null;
+    /** 悬浮盒所在的容器槽位索引，用于把选中索引同步到服务端；-1 表示不同步。 */
+    private static int hoveredSlot = -1;
+
+    public static void setHoveredSlot(int slotIndex) {
+        AmuletSelectorSupport.hoveredSlot = slotIndex;
+    }
 
     public static void render(GuiGraphics guiGraphics, int x, int y) {
         // noinspection ConstantValue
@@ -52,8 +60,12 @@ public class AmuletSelectorSupport {
     }
 
     public static void setCurrentHoveringItemStack(ItemStack itemStack) {
-        if (ItemStack.isSameItemSameComponents(currentHoveringItemStack, itemStack)) return;
+        // 槽内 ItemStack 可能被服务端广播换成等值的新实例，此时必须重新指向新实例：
+        // 否则后续滚轮会写到已脱离槽位的旧实例上，选中框不更新甚至不渲染。
+        boolean sameComponents = ItemStack.isSameItemSameComponents(currentHoveringItemStack, itemStack);
+        if (sameComponents && currentHoveringItemStack == itemStack) return;
         AmuletSelectorSupport.currentHoveringItemStack = itemStack;
+        if (sameComponents) return;
         if (itemStack.isEmpty()) {
             AmuletSelectorSupport.contents = null;
             AmuletSelectorSupport.layout = null;
@@ -118,6 +130,10 @@ public class AmuletSelectorSupport {
         mutable.select(selection);
         contents = mutable.immutable();
         currentHoveringItemStack.set(ModComponents.BOX_CONTENTS, contents);
+        // 选中索引只改在客户端副本上，同步给服务端，否则取出时服务端按旧索引取物。
+        if (hoveredSlot >= 0) {
+            PacketDistributor.sendToServer(new BoxSelectionSyncPacket(hoveredSlot, selection));
+        }
     }
 
     public enum Layout {

@@ -17,7 +17,7 @@ import com.mojang.math.Axis;
 import dev.dubhe.anvilcraft.api.tooltip.TooltipRenderHelper;
 import dev.dubhe.anvilcraft.block.SmartBlockPlacerBlock;
 import dev.dubhe.anvilcraft.block.entity.SmartBlockPlacerBlockEntity;
-import dev.dubhe.anvilcraft.client.gui.component.ToggleButton;
+import dev.dubhe.anvilcraft.client.gui.component.StructureScannerButtonState;
 import dev.dubhe.anvilcraft.client.gui.component.TriStateButton;
 import dev.dubhe.anvilcraft.client.init.ModShaders;
 import dev.dubhe.anvilcraft.client.renderer.RenderState;
@@ -29,9 +29,13 @@ import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.inventory.SmartBlockPlacerMenu;
 import dev.dubhe.anvilcraft.network.SmartBlockPlacerActionPacket;
 import dev.dubhe.anvilcraft.util.LevelLike;
+import lombok.Getter;
+import lombok.Setter;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.navigation.CommonInputs;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.LightTexture;
@@ -39,6 +43,7 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.client.sounds.SoundManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
@@ -90,10 +95,11 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
 
     private final List<TriStateButton> layerButtons = new ArrayList<>();
     private final TriStateButton[][] positionButtons = new TriStateButton[5][5];
-    private @Nullable ToggleButton layerModeButton;  // 分层显示切换按钮
-    private @Nullable ToggleButton operationModeButton;  // 取物/移动模式切换按钮
-    private @Nullable TriStateButton skipMissingButton;  // 跳过缺少方块按钮
-    private @Nullable TriStateButton stopMissingButton;  // 停止在缺少方块按钮
+    private @Nullable ModeButton layerModeButton;  // 分层显示切换按钮
+    private @Nullable ModeButton operationModeButton;  // 取物/移动模式切换按钮
+    private @Nullable ModeButton skipMissingButton;  // 跳过缺少方块按钮
+    private @Nullable ModeButton stopMissingButton;  // 停止在缺少方块按钮
+    private @Nullable ModeButton pressedModeButton;
     private int currentViewLayer = 0;
     private boolean[] layerPositions = new boolean[SmartBlockPlacerBlockEntity.POSITION_COUNT];
     private boolean showAllLayers = true;
@@ -152,6 +158,7 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
     @SuppressWarnings("checkstyle:LocalVariableName")
     @Override
     protected void init() {
+        this.cancelModeButtonPress();
         super.init();
         this.titleLabelY = Constant.SCREEN_TITLE_Y;
 
@@ -240,14 +247,11 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
         int buttonX = this.leftPos + 232;  // 物品栏最右侧(210) + 18像素间距
         int buttonY = this.topPos + 112;   // 与主物品栏第一行对齐
 
-        ToggleButton button = new ToggleButton(
+        ModeButton button = new ModeButton(
             buttonX,
             buttonY,
-            16,
-            16,
             this.showAllLayers ? LAYER_ALL : LAYER_SINGLE,
-            16,
-            16,
+            3,
             (btn) -> this.onLayerModeButtonClick(),
             List.of(this.getLayerModeTooltip())
         );
@@ -261,14 +265,11 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
         int buttonX = this.leftPos + 232;  // 与layerModeButton对齐
         int buttonY = this.topPos + 130;   // layerModeButton的Y坐标(112) + 18像素间距
 
-        ToggleButton button = new ToggleButton(
+        ModeButton button = new ModeButton(
             buttonX,
             buttonY,
-            16,
-            16,
             this.isPickupMode ? PICKUP_MODE : MOVE_MODE,
-            16,
-            16,
+            3,
             (btn) -> this.onOperationModeButtonClick(),
             List.of(this.getOperationModeTooltip())
         );
@@ -288,14 +289,11 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
         int buttonY = this.topPos + 86;   // operationModeButton的Y坐标(130) + 18像素间距
 
         // 跳过缺少方块按钮
-        TriStateButton skipButton = new TriStateButton(
+        ModeButton skipButton = new ModeButton(
             buttonStartX,
             buttonY,
-            16,
-            16,
             SKIP_MISSING,
-            16,
-            16,
+            5,
             (btn) -> this.onSkipMissingButtonClick(),
             List.of(Component.translatable("screen.anvilcraft.smart_block_placer.missing_mode.skip"))
         );
@@ -303,20 +301,106 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
         this.addRenderableWidget(skipButton);
 
         // 停止在缺少方块按钮
-        TriStateButton stopButton = new TriStateButton(
+        ModeButton stopButton = new ModeButton(
             buttonStartX + 18,
             buttonY,
-            16,
-            16,
             STOP_MISSING,
-            16,
-            16,
+            5,
             (btn) -> this.onStopMissingButtonClick(),
             List.of(Component.translatable("screen.anvilcraft.smart_block_placer.missing_mode.stop"))
         );
         this.stopMissingButton = stopButton;
         this.updateMissingModeButtonState();
         this.addRenderableWidget(stopButton);
+    }
+
+    private void cancelModeButtonPress() {
+        if (this.getFocused() instanceof ModeButton focused) focused.pressState.cancel();
+        if (this.pressedModeButton != null) this.pressedModeButton.pressState.cancel();
+        this.pressedModeButton = null;
+    }
+
+    private class ModeButton extends Button {
+        private ResourceLocation texture;
+        private final int frames;
+        private final StructureScannerButtonState pressState;
+        @Setter
+        private boolean selected;
+        @Getter
+        @Setter
+        private List<Component> tooltips;
+
+        ModeButton(int x, int y, ResourceLocation texture, int frames, OnPress onPress, List<Component> tooltips) {
+            super(x, y, 16, 16, Component.empty(), onPress, DEFAULT_NARRATION);
+            this.texture = texture;
+            this.frames = frames;
+            this.pressState = new StructureScannerButtonState(frames);
+            this.tooltips = tooltips;
+        }
+
+        void setTexture(ResourceLocation texture) {
+            if (this.texture.equals(texture)) return;
+            this.pressState.cancel();
+            this.texture = texture;
+        }
+
+        @Override
+        public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+            if (!this.active || !this.visible) this.pressState.cancel();
+            super.render(graphics, mouseX, mouseY, partialTick);
+        }
+
+        @Override
+        protected void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+            int frame = this.pressState.frame(this.active, this.isHovered(), this.selected);
+            float color = this.active ? 1.0F : 0.45F;
+            RenderSystem.setShaderColor(color, color, color, 1.0F);
+            graphics.blit(this.texture, this.getX(), this.getY(), 0, frame * 16, this.width, this.height, 16, 16 * this.frames);
+            RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+        }
+
+        @Override
+        public void onClick(double mouseX, double mouseY) {
+            SmartBlockPlacerScreen.this.cancelModeButtonPress();
+            if (this.pressState.press(0, this.active && this.visible)) SmartBlockPlacerScreen.this.pressedModeButton = this;
+        }
+
+        @Override
+        public void playDownSound(SoundManager soundManager) {
+            // 音效与动作统一在松开时触发。
+        }
+
+        private void activate() {
+            super.playDownSound(Minecraft.getInstance().getSoundManager());
+            this.onPress();
+        }
+
+        @Override
+        public boolean mouseReleased(double mouseX, double mouseY, int button) {
+            if (button != 0 || !this.pressState.pressedBy(0)) return false;
+            if (this.pressState.release(0, this.active && this.visible, this.isMouseOver(mouseX, mouseY))) this.activate();
+            return true;
+        }
+
+        @Override
+        public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+            if (!this.active || !this.visible || !CommonInputs.selected(keyCode)) return false;
+            this.pressState.press(keyCode, true);
+            return true;
+        }
+
+        @Override
+        public boolean keyReleased(int keyCode, int scanCode, int modifiers) {
+            if (!CommonInputs.selected(keyCode) || !this.pressState.pressedBy(keyCode)) return false;
+            if (this.pressState.release(keyCode, this.active && this.visible, this.isFocused())) this.activate();
+            return true;
+        }
+
+        @Override
+        public void setFocused(boolean focused) {
+            super.setFocused(focused);
+            if (!focused && this.pressState.keyboardPressed()) this.pressState.cancel();
+        }
     }
 
     private Component getLayerModeTooltip() {
@@ -353,11 +437,11 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
     }
 
     private void updateMissingModeButtonState() {
-        TriStateButton skipButton = this.skipMissingButton;
+        ModeButton skipButton = this.skipMissingButton;
         if (skipButton != null) {
             skipButton.setSelected(this.isSkipMissingMode);
         }
-        TriStateButton stopButton = this.stopMissingButton;
+        ModeButton stopButton = this.stopMissingButton;
         if (stopButton != null) {
             stopButton.setSelected(!this.isSkipMissingMode);
         }
@@ -411,12 +495,13 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
      * 移除缺少方块处理按钮
      */
     private void removeMissingModeButtons() {
-        TriStateButton skipButton = this.skipMissingButton;
+        this.cancelModeButtonPress();
+        ModeButton skipButton = this.skipMissingButton;
         if (skipButton != null) {
             this.removeWidget(skipButton);
             this.skipMissingButton = null;
         }
-        TriStateButton stopButton = this.stopMissingButton;
+        ModeButton stopButton = this.stopMissingButton;
         if (stopButton != null) {
             this.removeWidget(stopButton);
             this.stopMissingButton = null;
@@ -531,7 +616,7 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
     }
 
     private void updateLayerModeButtonState() {
-        ToggleButton button = this.layerModeButton;
+        ModeButton button = this.layerModeButton;
         if (button == null) {
             return;
         }
@@ -541,7 +626,7 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
     }
 
     private void updateOperationModeButtonState() {
-        ToggleButton button = this.operationModeButton;
+        ModeButton button = this.operationModeButton;
         if (button == null) {
             return;
         }
@@ -572,6 +657,13 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
     public boolean mouseReleased(double mouseX, double mouseY, int button) {
         this.dragTargetState = null;
         this.isPreviewDragging = false;
+        if (button == 0 && this.pressedModeButton != null) {
+            ModeButton pressed = this.pressedModeButton;
+            this.pressedModeButton = null;
+            this.setDragging(false);
+            pressed.mouseReleased(mouseX, mouseY, button);
+            return true;
+        }
         return super.mouseReleased(mouseX, mouseY, button);
     }
 
@@ -582,6 +674,7 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        if (button == 0) this.cancelModeButtonPress();
         if (this.isMouseInPreviewWindow(mouseX, mouseY)) {
             this.isPreviewDragging = true;
             this.lastMouseX = (int) mouseX;
@@ -653,6 +746,7 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
 
     @Override
     public void removed() {
+        this.cancelModeButtonPress();
         if (this.previewFbo != null) {
             this.previewFbo.destroyBuffers();
             this.previewFbo = null;

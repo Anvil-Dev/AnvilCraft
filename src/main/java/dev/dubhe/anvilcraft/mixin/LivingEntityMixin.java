@@ -18,6 +18,8 @@ import dev.dubhe.anvilcraft.init.ModMobEffects;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.init.loot.ModLootTables;
+import dev.dubhe.anvilcraft.inventory.PocketInventory;
+import dev.dubhe.anvilcraft.item.EquipmentAbilities;
 import dev.dubhe.anvilcraft.item.property.component.BoxContents;
 import dev.dubhe.anvilcraft.util.AtmosphereManager;
 import dev.dubhe.anvilcraft.util.GravityManager;
@@ -57,6 +59,7 @@ import org.spongepowered.asm.mixin.injection.Slice;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -64,6 +67,15 @@ import java.util.Set;
 
 @Mixin(LivingEntity.class)
 public abstract class LivingEntityMixin extends Entity {
+    @ModifyExpressionValue(method = "jumpFromGround", at = @At(value = "INVOKE",
+        target = "Lnet/minecraft/world/entity/LivingEntity;getJumpPower()F"))
+    private float anvilcraft$chargedJump(float original) {
+        if ((Object) this instanceof Player player) {
+            return EquipmentAbilities.consumeChargedJump(player, original);
+        }
+        return original;
+    }
+
     @Unique
     private boolean anvilcraft$raged = false;
 
@@ -180,12 +192,19 @@ public abstract class LivingEntityMixin extends Entity {
     )
     private void checkTotemDeathProtection(DamageSource damageSource, CallbackInfoReturnable<Boolean> cir) {
         LivingEntity self = (LivingEntity) (Object) this;
+        List<ItemStack> candidates = new ArrayList<>();
+        candidates.add(this.getItemInHand(InteractionHand.MAIN_HAND));
+        candidates.add(this.getItemInHand(InteractionHand.OFF_HAND));
+        if (self instanceof Player player) {
+            PocketInventory.items(player).stream().filter(stack -> stack.is(ModItems.AMULET_BOX)).forEach(candidates::add);
+        }
         Map<Item, TotemHandler> totemMap = TotemManager.INSTANCE.getTotemMap();
         ItemStack totemItem = null;
         TotemHandler handler = null;
         handLoop:
-        for (InteractionHand hand : InteractionHand.values()) {
-            ItemStack stack = this.getItemInHand(hand);
+        for (int index = 0; index < candidates.size(); index++) {
+            ItemStack stack = candidates.get(index);
+            InteractionHand hand = index == 0 ? InteractionHand.MAIN_HAND : InteractionHand.OFF_HAND;
             for (Item item : totemMap.keySet()) {
                 if (!stack.is(item)) continue;
                 TotemHandler handler1 = totemMap.get(item);

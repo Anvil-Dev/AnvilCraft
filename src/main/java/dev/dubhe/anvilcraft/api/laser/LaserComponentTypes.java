@@ -38,6 +38,9 @@ public final class LaserComponentTypes {
     public static final ILaserComponentType<LaserHitBehavior, Boolean> HIT_BEHAVIOR = new Type<>(
         ignored -> new LaserHitBehavior(), ignored -> new LaserHitBehavior(), 300
     );
+    public static final ILaserComponentType<LaserParticleBehavior, Boolean> PARTICLE_BEHAVIOR = new Type<>(
+        ignored -> new LaserParticleBehavior(), ignored -> new LaserParticleBehavior(), 350
+    );
 
     private LaserComponentTypes() {
     }

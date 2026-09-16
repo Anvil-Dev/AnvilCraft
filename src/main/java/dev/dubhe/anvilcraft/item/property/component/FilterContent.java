@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.item.property.component;
 
+import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -21,8 +22,21 @@ import java.util.List;
 import java.util.Objects;
 import java.util.regex.Pattern;
 
-public record FilterContent(NonNullList<ItemStack> list, boolean includeComponents, boolean blackList) {
-    public static final MapCodec<FilterContent> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
+public record FilterContent(NonNullList<ItemStack> list, boolean includeComponents, boolean denyList) {
+    private static final MapCodec<FilterContent> BASE_CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
+        ItemStack.OPTIONAL_CODEC
+            .listOf()
+            .fieldOf("list")
+            .forGetter(FilterContent::list),
+        Codec.BOOL
+            .fieldOf("include_components")
+            .forGetter(FilterContent::includeComponents),
+        Codec.BOOL
+            .fieldOf("deny_list")
+            .forGetter(FilterContent::denyList)
+    ).apply(instance, FilterContent::new));
+    // TODO: legacy codec for data written before the denyList rename, remove in a future version
+    private static final MapCodec<FilterContent> LEGACY_CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
         ItemStack.OPTIONAL_CODEC
             .listOf()
             .fieldOf("list")
@@ -32,20 +46,24 @@ public record FilterContent(NonNullList<ItemStack> list, boolean includeComponen
             .forGetter(FilterContent::includeComponents),
         Codec.BOOL
             .fieldOf("black_list")
-            .forGetter(FilterContent::blackList)
+            .forGetter(FilterContent::denyList)
     ).apply(instance, FilterContent::new));
+    public static final MapCodec<FilterContent> CODEC = MapCodec.assumeMapUnsafe(
+        Codec.either(BASE_CODEC.codec(), LEGACY_CODEC.codec())
+            .xmap(either -> either.map(content -> content, content -> content), Either::left)
+    );
     public static final StreamCodec<RegistryFriendlyByteBuf, FilterContent> STREAM_CODEC = StreamCodec.composite(
         ItemStack.OPTIONAL_STREAM_CODEC.apply(ByteBufCodecs.list()),
         FilterContent::list,
         ByteBufCodecs.BOOL,
         FilterContent::includeComponents,
         ByteBufCodecs.BOOL,
-        FilterContent::blackList,
+        FilterContent::denyList,
         FilterContent::new
     );
 
-    private FilterContent(List<ItemStack> list, boolean includeComponents, boolean blackList) {
-        this(NonNullList.of(ItemStack.EMPTY, list.toArray(new ItemStack[0])), includeComponents, blackList);
+    private FilterContent(List<ItemStack> list, boolean includeComponents, boolean denyList) {
+        this(NonNullList.of(ItemStack.EMPTY, list.toArray(new ItemStack[0])), includeComponents, denyList);
     }
 
     public FilterContent() {
@@ -53,15 +71,15 @@ public record FilterContent(NonNullList<ItemStack> list, boolean includeComponen
     }
 
     public FilterContent setList(NonNullList<ItemStack> list) {
-        return new FilterContent(list, this.includeComponents, this.blackList);
+        return new FilterContent(list, this.includeComponents, this.denyList);
     }
 
     public FilterContent setIncludeComponents(boolean includeComponents) {
-        return new FilterContent(this.list, includeComponents, this.blackList);
+        return new FilterContent(this.list, includeComponents, this.denyList);
     }
 
-    public FilterContent setBlackList(boolean blackList) {
-        return new FilterContent(this.list, this.includeComponents, blackList);
+    public FilterContent setDenyList(boolean denyList) {
+        return new FilterContent(this.list, this.includeComponents, denyList);
     }
 
     public int getNestingLevel() {
@@ -122,18 +140,18 @@ public record FilterContent(NonNullList<ItemStack> list, boolean includeComponen
         for (ItemStack itemStack : this.list()) {
             if (itemStack.isEmpty()) continue;
             if (FilterContent.filter(itemStack, stack, this.includeComponents())) {
-                // 如果是白名单模式，找到匹配项则返回true；如果是黑名单模式，找到匹配项则返回false
-                return !this.blackList();
+                // 如果是允许列表模式，找到匹配项则返回true；如果是拒绝列表模式，找到匹配项则返回false
+                return !this.denyList();
             }
         }
 
-        // 如果是黑名单模式且未找到匹配项则返回true，否则返回false
-        return this.blackList();
+        // 如果是拒绝列表模式且未找到匹配项则返回true，否则返回false
+        return this.denyList();
     }
 
     @Override
     public boolean equals(Object o) {
-        if (!(o instanceof FilterContent(NonNullList<ItemStack> list1, boolean includeComponents1, boolean blackList1))) return false;
+        if (!(o instanceof FilterContent(NonNullList<ItemStack> list1, boolean includeComponents1, boolean denyList1))) return false;
         if (this.list().size() != list1.size()) {
             return false;
         }
@@ -145,7 +163,7 @@ public record FilterContent(NonNullList<ItemStack> list, boolean includeComponen
             }
         }
         return Objects.equals(this.includeComponents(), includeComponents1)
-               && Objects.equals(this.blackList(), blackList1);
+               && Objects.equals(this.denyList(), denyList1);
     }
 
     @Override
@@ -155,6 +173,6 @@ public record FilterContent(NonNullList<ItemStack> list, boolean includeComponen
             hash *= 31;
             hash += ItemStack.hashItemAndComponents(stack);
         }
-        return hash * 31 + Objects.hash(this.includeComponents(), this.blackList());
+        return hash * 31 + Objects.hash(this.includeComponents(), this.denyList());
     }
 }

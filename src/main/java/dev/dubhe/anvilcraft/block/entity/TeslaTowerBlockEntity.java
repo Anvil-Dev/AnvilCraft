@@ -70,7 +70,7 @@ import javax.annotation.Nullable;
 public class TeslaTowerBlockEntity extends BlockEntity
     implements IPowerConsumer, MenuProvider, IDiskCloneable {
     private static final int STRIKE_COOLDOWN_TICKS = 4 * 20;
-    private final ArrayList<Pair<TeslaFilter, String>> whiteList = new ArrayList<>();
+    private final ArrayList<Pair<TeslaFilter, String>> allowList = new ArrayList<>();
     private int tickCount = STRIKE_COOLDOWN_TICKS;
     private int flashTimer = 0;
     @Getter
@@ -140,7 +140,7 @@ public class TeslaTowerBlockEntity extends BlockEntity
             );
         }
         int index = 0;
-        for (Pair<TeslaFilter, String> entry : this.whiteList) {
+        for (Pair<TeslaFilter, String> entry : this.allowList) {
             tag.putString(entry.first().getId() + "_-_" + index, entry.second());
             index++;
         }
@@ -161,11 +161,11 @@ public class TeslaTowerBlockEntity extends BlockEntity
         } else {
             this.targetLightningRod = null;
         }
-        this.whiteList.clear();
+        this.allowList.clear();
         for (String key : tag.getAllKeys()) {
             if (key.split("_-_").length != 2) continue;
             String id = key.split("_-_")[0];
-            this.whiteList.add(Pair.of(TeslaFilter.getFilter(id), tag.getString(key)));
+            this.allowList.add(Pair.of(TeslaFilter.getFilter(id), tag.getString(key)));
         }
     }
 
@@ -240,7 +240,7 @@ public class TeslaTowerBlockEntity extends BlockEntity
         Optional<LivingEntity> target = this.level.getEntitiesOfClass(LivingEntity.class, aabb)
             .stream()
             .filter(LivingEntity::isAlive)
-            .filter(it -> this.whiteList.stream().noneMatch(it2 -> it2.left().match(it, it2.right())))
+            .filter(it -> this.allowList.stream().noneMatch(it2 -> it2.left().match(it, it2.right())))
             .min((e1, e2) -> new DistanceComparator(getBlockPos().getCenter()).compare(e1.position(), e2.position()));
         if (target.isPresent()) {
             LivingEntity targetEntity = target.get();
@@ -309,7 +309,7 @@ public class TeslaTowerBlockEntity extends BlockEntity
             start = origin.getEyePosition();
             target = level.getEntitiesOfClass(LivingEntity.class, origin.getBoundingBox().inflate(4.0), candidate ->
                 candidate.isAlive() && !struck.contains(candidate.getId())
-                    && this.whiteList.stream().noneMatch(filter -> filter.left().match(candidate, filter.right()))
+                    && this.allowList.stream().noneMatch(filter -> filter.left().match(candidate, filter.right()))
             ).stream().min(Comparator.comparingDouble(candidate -> candidate.distanceToSqr(origin))).orElse(null);
         }
     }
@@ -340,15 +340,15 @@ public class TeslaTowerBlockEntity extends BlockEntity
         Objects.requireNonNull(this.level).sendBlockUpdated(this.getBlockPos(), state, state, 2);
     }
 
-    public void initWhiteList(Player player) {
-        this.whiteList.add(Pair.of(new IsPlayerFilter(), ""));
-        this.whiteList.add(Pair.of(new IsPlayerIdFilter(), player.getName().getString()));
-        this.whiteList.add(Pair.of(new IsPetFilter(), ""));
-        this.whiteList.add(Pair.of(new HasCustomNameFilter(), ""));
-        this.whiteList.add(Pair.of(new IsEntityIdFilter(), "minecraft:villager"));
-        this.whiteList.add(Pair.of(new IsEntityIdFilter(), "minecraft:wandering_trader"));
-        this.whiteList.add(Pair.of(new IsFriendlyFilter(), ""));
-        this.whiteList.add(Pair.of(new IsOnVehicleFilter(), ""));
+    public void initAllowList(Player player) {
+        this.allowList.add(Pair.of(new IsPlayerFilter(), ""));
+        this.allowList.add(Pair.of(new IsPlayerIdFilter(), player.getName().getString()));
+        this.allowList.add(Pair.of(new IsPetFilter(), ""));
+        this.allowList.add(Pair.of(new HasCustomNameFilter(), ""));
+        this.allowList.add(Pair.of(new IsEntityIdFilter(), "minecraft:villager"));
+        this.allowList.add(Pair.of(new IsEntityIdFilter(), "minecraft:wandering_trader"));
+        this.allowList.add(Pair.of(new IsFriendlyFilter(), ""));
+        this.allowList.add(Pair.of(new IsOnVehicleFilter(), ""));
     }
 
     public void addFilter(String id, String arg) {
@@ -356,7 +356,7 @@ public class TeslaTowerBlockEntity extends BlockEntity
         BlockState blockState = this.level.getBlockState(getBlockPos());
         int offsetY = blockState.getValue(TeslaTowerBlock.HALF).getOffsetY();
         if (this.level.getBlockEntity(getBlockPos().above(-offsetY)) instanceof TeslaTowerBlockEntity teslaTowerBlockEntity) {
-            teslaTowerBlockEntity.whiteList.add(Pair.of(TeslaFilter.getFilter(id), arg));
+            teslaTowerBlockEntity.allowList.add(Pair.of(TeslaFilter.getFilter(id), arg));
         }
     }
 
@@ -365,7 +365,7 @@ public class TeslaTowerBlockEntity extends BlockEntity
         BlockState blockState = this.level.getBlockState(getBlockPos());
         int offsetY = blockState.getValue(TeslaTowerBlock.HALF).getOffsetY();
         if (this.level.getBlockEntity(getBlockPos().above(-offsetY)) instanceof TeslaTowerBlockEntity teslaTowerBlockEntity) {
-            teslaTowerBlockEntity.whiteList.removeIf(pair -> pair.first().getId().equals(id) && pair.second().equals(arg));
+            teslaTowerBlockEntity.allowList.removeIf(pair -> pair.first().getId().equals(id) && pair.second().equals(arg));
         }
     }
 
@@ -374,8 +374,8 @@ public class TeslaTowerBlockEntity extends BlockEntity
         BlockState blockState = this.level.getBlockState(getBlockPos());
         int offsetY = blockState.getValue(TeslaTowerBlock.HALF).getOffsetY();
         if (this.level.getBlockEntity(getBlockPos().above(-offsetY)) instanceof TeslaTowerBlockEntity teslaTowerBlockEntity) {
-            teslaTowerBlockEntity.whiteList.clear();
-            teslaTowerBlockEntity.whiteList.addAll(filters);
+            teslaTowerBlockEntity.allowList.clear();
+            teslaTowerBlockEntity.allowList.addAll(filters);
         }
     }
 
@@ -400,12 +400,12 @@ public class TeslaTowerBlockEntity extends BlockEntity
         buffer.writeBlockPos(this.getBlockPos());
     }
 
-    public List<Pair<TeslaFilter, String>> getWhiteList() {
+    public List<Pair<TeslaFilter, String>> getAllowList() {
         if (this.level == null) return List.of();
         BlockState blockState = this.level.getBlockState(getBlockPos());
         int offsetY = blockState.getValue(TeslaTowerBlock.HALF).getOffsetY();
         if (this.level.getBlockEntity(getBlockPos().above(-offsetY)) instanceof TeslaTowerBlockEntity teslaTowerBlockEntity) {
-            return teslaTowerBlockEntity.whiteList;
+            return teslaTowerBlockEntity.allowList;
         }
         return List.of();
     }
@@ -413,7 +413,7 @@ public class TeslaTowerBlockEntity extends BlockEntity
     @Override
     public void storeDiskData(CompoundTag tag) {
         ListTag filters = new ListTag();
-        for (var entry : this.whiteList) {
+        for (var entry : this.allowList) {
             CompoundTag entryTag = new CompoundTag();
             entryTag.putString("id", entry.first().getId());
             entryTag.putString("arg", entry.right());

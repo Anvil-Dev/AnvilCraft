@@ -38,6 +38,14 @@ import net.neoforged.neoforge.client.model.data.ModelData;
 import javax.annotation.Nullable;
 
 public class CelestialForgingAnvilItemRenderer extends BlockEntityWithoutLevelRenderer {
+    /// 第一人称托举时，手掌相对物品落点的偏移。左右与前后沿用原有数值，
+    /// 只把高度抬起，使掌心从下方托住物品（原值 -0.125f 偏低，手垂在物品下方）。
+    private static final float CRADLE_HAND_SIDE = -0.4f;
+    private static final float CRADLE_HAND_LIFT = 0.07f;
+    private static final float CRADLE_HAND_FORWARD = 0.75f;
+    /// 绕手臂自身长轴（模型 Y 轴）的滚转角，使掌心朝向从朝右翻到朝左。
+    private static final float CRADLE_HAND_ROLL = 180.0f;
+
     private final Cache<CustomData, CelestialForgingAnvilBlockEntity> previews = CacheBuilder.newBuilder()
         .maximumSize(16)
         .build();
@@ -134,14 +142,22 @@ public class CelestialForgingAnvilItemRenderer extends BlockEntityWithoutLevelRe
         ) {
             int side = arm == HumanoidArm.RIGHT ? 1 : -1;
             float swing = Mth.sin(Mth.sqrt(swingProgress) * Mth.PI);
-            poseStack.translate(side * (0.42f - swing * 0.08f), -0.5f - equipProgress * 0.6f, -0.8f - swing * 0.15f);
+            poseStack.translate(
+                side * (0.42f - swing * 0.08f),
+                -0.5f - equipProgress * 0.6f,
+                -0.8f - swing * 0.15f
+            );
             if (!player.isInvisible()) {
                 Minecraft minecraft = Minecraft.getInstance();
-                var entityRenderer = minecraft.getEntityRenderDispatcher().getRenderer(player);
-                if (entityRenderer instanceof PlayerRenderer playerRenderer) {
+                if (minecraft.getEntityRenderDispatcher().getRenderer(player) instanceof PlayerRenderer playerRenderer) {
+                    // 手掌画在物品落点之上（同坐标系、仅抬升），使其从下方托住物品
                     poseStack.pushPose();
-                    poseStack.translate(side * 5.0f / 16.0f, -0.125f, 0.75f);
+                    poseStack.translate(side * CRADLE_HAND_SIDE, CRADLE_HAND_LIFT, CRADLE_HAND_FORWARD);
                     poseStack.mulPose(Axis.XP.rotationDegrees(-90.0f));
+                    // 手臂模型的长轴是模型 Y 轴（rightArm 为 4x12x4，renderHand 置 xRot=0）。
+                    // mulPose 后乘，故此处在已旋转的局部系里绕 Y 转 180°，
+                    // 即绕手臂自身长轴滚转，把掌心从朝右翻到朝左，不改变手臂指向。
+                    poseStack.mulPose(Axis.YP.rotationDegrees(CRADLE_HAND_ROLL));
                     int light = LevelRenderer.getLightColor(player.level(), player.blockPosition());
                     MultiBufferSource buffer = minecraft.renderBuffers().bufferSource();
                     if (arm == HumanoidArm.RIGHT) {
