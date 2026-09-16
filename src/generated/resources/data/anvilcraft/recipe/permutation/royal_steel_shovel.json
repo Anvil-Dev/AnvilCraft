@@ -1,0 +1,32 @@
+{
+  "type": "anvilcraft:permutation",
+  "input": {
+    "items": "anvilcraft:royal_steel_shovel"
+  },
+  "options": [
+    {
+      "material": {
+        "type": "anvilcraft:empty"
+      },
+      "result": "minecraft:diamond_shovel"
+    },
+    {
+      "material": {
+        "type": "anvilcraft:empty"
+      },
+      "result": "minecraft:iron_shovel"
+    },
+    {
+      "material": {
+        "type": "anvilcraft:empty"
+      },
+      "result": "minecraft:golden_shovel"
+    },
+    {
+      "material": {
+        "type": "anvilcraft:empty"
+      },
+      "result": "anvilcraft:amethyst_shovel"
+    }
+  ]
+}

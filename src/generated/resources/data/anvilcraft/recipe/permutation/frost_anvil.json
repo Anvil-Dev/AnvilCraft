@@ -1,0 +1,18 @@
+{
+  "type": "anvilcraft:permutation",
+  "input": {
+    "items": "anvilcraft:frost_anvil"
+  },
+  "options": [
+    {
+      "material": {
+        "type": "anvilcraft:custom",
+        "predicate": {
+          "count": 3,
+          "items": "anvilcraft:ember_metal_ingot"
+        }
+      },
+      "result": "anvilcraft:ember_anvil"
+    }
+  ]
+}

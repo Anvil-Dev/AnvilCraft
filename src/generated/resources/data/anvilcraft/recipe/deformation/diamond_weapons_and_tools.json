@@ -6,5 +6,9 @@
     "minecraft:diamond_pickaxe",
     "minecraft:diamond_shovel",
     "minecraft:diamond_hoe"
-  ]
+  ],
+  "material": {
+    "type": "anvilcraft:repair_material",
+    "cost": 1
+  }
 }

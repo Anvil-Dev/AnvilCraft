@@ -1,0 +1,64 @@
+{
+  "type": "anvilcraft:permutation",
+  "input": {
+    "items": [
+      "anvilcraft:spectral_weapon_launcher",
+      "anvilcraft:anvil_railgun",
+      "anvilcraft:corrupted_beacon_activator",
+      "anvilcraft:tesla_gun",
+      "anvilcraft:laser_gun"
+    ]
+  },
+  "options": [
+    {
+      "material": {
+        "type": "anvilcraft:custom",
+        "predicate": {
+          "count": 2,
+          "items": "anvilcraft:transcendium_ingot"
+        }
+      },
+      "result": "anvilcraft:spectral_weapon_launcher"
+    },
+    {
+      "material": {
+        "type": "anvilcraft:custom",
+        "predicate": {
+          "count": 2,
+          "items": "anvilcraft:transcendium_ingot"
+        }
+      },
+      "result": "anvilcraft:anvil_railgun"
+    },
+    {
+      "material": {
+        "type": "anvilcraft:custom",
+        "predicate": {
+          "count": 2,
+          "items": "anvilcraft:transcendium_ingot"
+        }
+      },
+      "result": "anvilcraft:corrupted_beacon_activator"
+    },
+    {
+      "material": {
+        "type": "anvilcraft:custom",
+        "predicate": {
+          "count": 2,
+          "items": "anvilcraft:transcendium_ingot"
+        }
+      },
+      "result": "anvilcraft:tesla_gun"
+    },
+    {
+      "material": {
+        "type": "anvilcraft:custom",
+        "predicate": {
+          "count": 2,
+          "items": "anvilcraft:transcendium_ingot"
+        }
+      },
+      "result": "anvilcraft:laser_gun"
+    }
+  ]
+}

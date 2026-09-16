@@ -750,9 +750,8 @@ public class ItemTooltipManager {
                 Hold right-click on a marked port with Anvil Hammer can remove the mark""");
         SHIFT.put(ModBlocks.STORAGE_PORT_CONSOLIDATOR.asItem(), """
                 Exposes the contents of connected storage ports to storage buses
-                Can only connect to directly adjacent ports on the same side of the same Container/Storage Station.
                 Inputs are prioritized into ports with matching filters
-                Right-click with a fluid bucket to pour fluid into the corresponding fluid port.""");
+                Right-click with a fluid bucket to pour fluid into the corresponding fluid port""");
 
         SHIFT.put(
             ModBlocks.STORAGE_FLUID_PORT.asItem(), """

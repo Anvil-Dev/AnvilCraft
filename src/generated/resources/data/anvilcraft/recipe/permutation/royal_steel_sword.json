@@ -1,0 +1,32 @@
+{
+  "type": "anvilcraft:permutation",
+  "input": {
+    "items": "anvilcraft:royal_steel_sword"
+  },
+  "options": [
+    {
+      "material": {
+        "type": "anvilcraft:empty"
+      },
+      "result": "minecraft:diamond_sword"
+    },
+    {
+      "material": {
+        "type": "anvilcraft:empty"
+      },
+      "result": "minecraft:iron_sword"
+    },
+    {
+      "material": {
+        "type": "anvilcraft:empty"
+      },
+      "result": "minecraft:golden_sword"
+    },
+    {
+      "material": {
+        "type": "anvilcraft:empty"
+      },
+      "result": "anvilcraft:amethyst_sword"
+    }
+  ]
+}

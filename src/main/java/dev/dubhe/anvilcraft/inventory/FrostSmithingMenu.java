@@ -6,6 +6,7 @@ import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.recipe.frost.DeformationRecipe;
+import dev.dubhe.anvilcraft.recipe.frost.FrostSmithingOption;
 import dev.dubhe.anvilcraft.recipe.frost.FrostSmithingRecipeInput;
 import dev.dubhe.anvilcraft.recipe.frost.IFrostSmithingRecipe;
 import dev.dubhe.anvilcraft.recipe.frost.PermutationRecipe;
@@ -24,15 +25,17 @@ import org.jetbrains.annotations.Unmodifiable;
 
 import java.util.List;
 import java.util.Optional;
+import javax.annotation.Nullable;
 
 public class FrostSmithingMenu extends AdjacentSmithingMenu {
     private final Level level;
 
     private final List<RecipeHolder<? extends IFrostSmithingRecipe>> recipes;
 
-    private RecipeHolder<? extends IFrostSmithingRecipe> selectedRecipe = null;
+    private @Nullable RecipeHolder<? extends IFrostSmithingRecipe> selectedRecipe = null;
     public int selected = -1;
-    public List<RecipeResult> results = null;
+    public @Nullable List<RecipeResult> results = null;
+    private @Nullable List<FrostSmithingOption> options = null;
 
     public FrostSmithingMenu(MenuType<FrostSmithingMenu> type, int containerId, Inventory playerInventory) {
         this(type, containerId, playerInventory, ContainerLevelAccess.NULL);
@@ -64,25 +67,44 @@ public class FrostSmithingMenu extends AdjacentSmithingMenu {
     protected ItemCombinerMenuSlotDefinition createInputSlotDefinitions() {
         return ItemCombinerMenuSlotDefinition.create()
             .withSlot(
-                0,
+                IFrostSmithingRecipe.TEMPLATE_SLOT,
                 8,
                 48,
                 stack -> this.recipes.stream().anyMatch(recipe -> recipe.value().isTemplate(stack))
             ).withSlot(
-                1,
+                IFrostSmithingRecipe.INPUT_SLOT,
                 44,
                 48,
-                stack -> !this.inputSlots.getItem(0).isEmpty()
-                         && this.recipes.stream().anyMatch(recipe -> recipe.value().isMaterial(stack))
+                stack -> this.hasTemplateForPlacement()
+                         && this.recipes.stream()
+                             .anyMatch(recipe -> recipe.value().isTemplate(this.template())
+                                                 && recipe.value().isInput(stack))
             ).withSlot(
-                2,
+                IFrostSmithingRecipe.MATERIAL_SLOT,
                 62,
                 48,
-                stack -> !this.inputSlots.getItem(0).isEmpty()
-                         && this.hasMaterialForPlacement()
-                         && this.recipes.stream().anyMatch(recipe -> recipe.value().isInput(stack))
+                stack -> this.hasTemplateForPlacement()
+                         && this.recipes.stream()
+                             .anyMatch(recipe -> recipe.value().isTemplate(this.template())
+                                                 && recipe.value().acceptsMaterial(this.createRecipeInput(), stack))
             ).withResultSlot(3, 106, 48)
             .build();
+    }
+
+    private ItemStack template() {
+        return this.inputSlots.getItem(IFrostSmithingRecipe.TEMPLATE_SLOT);
+    }
+
+    private ItemStack input() {
+        return this.inputSlots.getItem(IFrostSmithingRecipe.INPUT_SLOT);
+    }
+
+    private ItemStack material() {
+        return this.inputSlots.getItem(IFrostSmithingRecipe.MATERIAL_SLOT);
+    }
+
+    private boolean hasTemplateForPlacement() {
+        return this.isRecipeTransferInProgress() || !this.template().isEmpty();
     }
 
     @Override
@@ -96,11 +118,7 @@ public class FrostSmithingMenu extends AdjacentSmithingMenu {
     }
 
     private FrostSmithingRecipeInput createRecipeInput() {
-        return new FrostSmithingRecipeInput(
-            this.inputSlots.getItem(0),
-            this.inputSlots.getItem(1),
-            this.inputSlots.getItem(2)
-        );
+        return new FrostSmithingRecipeInput(this.template(), this.input(), this.material());
     }
 
     @Override
@@ -122,21 +140,26 @@ public class FrostSmithingMenu extends AdjacentSmithingMenu {
 
     @Override
     protected void onTake(Player player, ItemStack stack) {
+        // 必须在消耗装备前计算，消耗装备会立刻重算结果并清空当前选择
+        final int cost = this.selectedRecipe == null || this.selected < 0 || this.options == null || this.selected >= this.options.size()
+                         ? 0
+                         : this.options.get(this.selected).cost(this.selectedRecipe.value(), this.createRecipeInput());
         stack.onCraftedBy(player.level(), player, stack.getCount());
         this.resultSlots.awardUsedRecipes(player, this.getRelevantItems());
-        this.shrinkStackInSlot(2);
-        this.shrinkStackInSlot(1);
+        this.shrinkStackInSlot(IFrostSmithingRecipe.INPUT_SLOT, 1);
+        this.shrinkStackInSlot(IFrostSmithingRecipe.MATERIAL_SLOT, cost);
         this.access.execute((level, blockPos) -> level.levelEvent(1044, blockPos, 0));
     }
 
     private @Unmodifiable List<ItemStack> getRelevantItems() {
-        return List.of(this.inputSlots.getItem(0), this.inputSlots.getItem(1), this.inputSlots.getItem(2));
+        return List.of(this.template(), this.input(), this.material());
     }
 
-    private void shrinkStackInSlot(int index) {
+    private void shrinkStackInSlot(int index, int count) {
+        if (count <= 0) return;
         ItemStack stack = this.inputSlots.getItem(index);
         if (stack.isEmpty()) return;
-        stack.shrink(1);
+        stack.shrink(count);
         this.inputSlots.setItem(index, stack);
     }
 
@@ -147,65 +170,58 @@ public class FrostSmithingMenu extends AdjacentSmithingMenu {
         List<RecipeHolder<PermutationRecipe>> permuts = this.level.getRecipeManager()
             .getRecipesFor(ModRecipeTypes.PERMUTATION_TYPE.get(), input, this.level);
         if (!permuts.isEmpty()) {
-            RecipeHolder<PermutationRecipe> holder = permuts.getFirst();
-            this.results = holder.value().inputs(input.input());
-            for (RecipeResult result : this.results) {
-                if (!result.result().isEnabled(this.level.enabledFeatures())) {
-                    this.selectedRecipe = null;
-                    this.selected = -1;
-                    this.results = null;
-                    this.resultSlots.setItem(0, ItemStack.EMPTY);
-                    return;
-                }
-            }
-            this.selectedRecipe = holder;
-            this.selected = 0;
-            this.resultSlots.setRecipeUsed(holder);
-            this.resultSlots.setItem(0, this.selectedRecipe.value().assemble(this.selected, this.createRecipeInput(), this.level));
+            this.setupResult(permuts.getFirst(), input);
             return;
         }
 
         List<RecipeHolder<DeformationRecipe>> deforms = this.level.getRecipeManager()
             .getRecipesFor(ModRecipeTypes.DEFORMATION_TYPE.get(), input, this.level);
         if (!deforms.isEmpty()) {
-            RecipeHolder<DeformationRecipe> holder = deforms.getFirst();
-            this.results = holder.value().inputs(input.input());
-            for (RecipeResult result : this.results) {
-                if (!result.result().isEnabled(this.level.enabledFeatures())) {
-                    this.selectedRecipe = null;
-                    this.selected = -1;
-                    this.results = null;
-                    this.resultSlots.setItem(0, ItemStack.EMPTY);
-                    return;
-                }
-            }
-            this.selectedRecipe = holder;
-            this.selected = 0;
-            this.resultSlots.setRecipeUsed(holder);
-            this.resultSlots.setItem(0, this.selectedRecipe.value().assemble(this.selected, this.createRecipeInput(), this.level));
+            this.setupResult(deforms.getFirst(), input);
             return;
         }
 
+        this.clearResult();
+    }
+
+    private void setupResult(RecipeHolder<? extends IFrostSmithingRecipe> holder, FrostSmithingRecipeInput input) {
+        List<FrostSmithingOption> available = holder.value().options(input);
+        for (FrostSmithingOption option : available) {
+            if (!option.result().result().isEnabled(this.level.enabledFeatures())) {
+                this.clearResult();
+                return;
+            }
+        }
+        this.selectedRecipe = holder;
+        this.options = available;
+        this.results = available.stream().map(FrostSmithingOption::result).toList();
+        this.selected = 0;
+        this.resultSlots.setRecipeUsed(holder);
+        this.resultSlots.setItem(0, holder.value().assemble(this.selected, input, this.level));
+    }
+
+    private void clearResult() {
         this.selectedRecipe = null;
         this.selected = -1;
         this.results = null;
+        this.options = null;
         this.resultSlots.setItem(0, ItemStack.EMPTY);
     }
 
     @Override
     public int getSlotToQuickMoveTo(ItemStack stack) {
         return this.recipes.stream()
-            .map(recipe -> FrostSmithingMenu.findSlotMatchingIngredient(recipe.value(), stack))
-            .findFirst()
+            .map(recipe -> this.findSlotMatchingIngredient(recipe.value(), stack))
             .filter(Optional::isPresent)
-            .orElse(Optional.of(0))
-            .get();
+            .findFirst()
+            .orElse(Optional.of(IFrostSmithingRecipe.TEMPLATE_SLOT))
+            .orElseThrow(); // isPresent filter + of construct
     }
 
-    private static Optional<Integer> findSlotMatchingIngredient(IFrostSmithingRecipe recipe, ItemStack stack) {
-        if (recipe.isTemplate(stack)) return Optional.of(0);
-        if (recipe.isMaterial(stack)) return Optional.of(1);
-        if (recipe.isInput(stack)) return Optional.of(2);
+    private Optional<Integer> findSlotMatchingIngredient(IFrostSmithingRecipe recipe, ItemStack stack) {
+        if (recipe.isTemplate(stack)) return Optional.of(IFrostSmithingRecipe.TEMPLATE_SLOT);
+        if (recipe.isInput(stack)) return Optional.of(IFrostSmithingRecipe.INPUT_SLOT);
+        if (recipe.acceptsMaterial(this.createRecipeInput(), stack)) return Optional.of(IFrostSmithingRecipe.MATERIAL_SLOT);
         return Optional.empty();
     }
 
@@ -216,22 +232,15 @@ public class FrostSmithingMenu extends AdjacentSmithingMenu {
 
     @Override
     public boolean canMoveIntoInputSlots(ItemStack stack) {
-        if (this.inputSlots.getItem(0).isEmpty()) return false;
+        if (this.template().isEmpty()) return false;
         return this.recipes.stream()
-            .map(recipe -> FrostSmithingMenu.findSlotMatchingIngredient(recipe.value(), stack))
+            .map(recipe -> this.findSlotMatchingIngredient(recipe.value(), stack))
             .anyMatch(Optional::isPresent);
     }
 
-    public void sync(int selected, List<RecipeResult> results) {
-        if (this.selectedRecipe == null) return;
-        this.selected = selected;
-        this.results = results.isEmpty() ? this.results : results;
-    }
-
     public void turn(boolean left) {
-        if (this.selected == -1 || this.results == null) return;
-        this.selected = (this.selected + (left ? -1 : 1)) % this.results.size();
-        if (this.selected < 0) this.selected += this.results.size();
+        if (this.selected == -1 || this.options == null || this.options.isEmpty() || this.selectedRecipe == null) return;
+        this.selected = Math.floorMod(this.selected + (left ? -1 : 1), this.options.size());
         this.resultSlots.setItem(0, this.selectedRecipe.value().assemble(this.selected, this.createRecipeInput(), this.level));
     }
 }

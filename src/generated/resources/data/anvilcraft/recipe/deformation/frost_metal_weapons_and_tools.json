@@ -6,5 +6,9 @@
     "anvilcraft:frost_metal_pickaxe",
     "anvilcraft:frost_metal_shovel",
     "anvilcraft:frost_metal_hoe"
-  ]
+  ],
+  "material": {
+    "type": "anvilcraft:repair_material",
+    "cost": 1
+  }
 }

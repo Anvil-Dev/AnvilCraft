@@ -171,6 +171,8 @@ public class ItemTagLoader {
             .addTag(ItemTags.TRIM_TEMPLATES)
             .addTag(ModItemTags.MULTIPLE_TO_ONE_SMITHING_TEMPLATES)
             .add(findResourceKey(Items.NETHERITE_UPGRADE_SMITHING_TEMPLATE));
+        provider.addTag(ModItemTags.UNIVERSAL_REPAIR_MATERIALS)
+            .add(ModItems.FROST_METAL_INGOT.getKey());
         provider.addTag(ModItemTags.UNCHARGED_NEUTRONIUM_INGOTS)
             .add(ModItems.NEUTRONIUM_INGOT.getKey())
             .add(ModItems.STABLE_NEUTRONIUM_INGOT.getKey());

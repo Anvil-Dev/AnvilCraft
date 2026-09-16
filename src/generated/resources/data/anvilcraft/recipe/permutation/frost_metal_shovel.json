@@ -1,0 +1,50 @@
+{
+  "type": "anvilcraft:permutation",
+  "input": {
+    "items": "anvilcraft:frost_metal_shovel"
+  },
+  "options": [
+    {
+      "material": {
+        "type": "anvilcraft:empty"
+      },
+      "result": "anvilcraft:royal_steel_shovel"
+    },
+    {
+      "material": {
+        "type": "anvilcraft:custom",
+        "predicate": {
+          "count": 3,
+          "items": "anvilcraft:ember_metal_nugget"
+        }
+      },
+      "result": {
+        "modifiers": [
+          {
+            "type": "anvilcraft:remove_data",
+            "types": [
+              "anvilcraft:merciless"
+            ]
+          },
+          {
+            "type": "anvilcraft:change_data_type",
+            "dest": {
+              "type": "anvilcraft:item_enchantments",
+              "component": "minecraft:enchantments",
+              "input": "input.0"
+            },
+            "input": "input.0",
+            "orig": "anvilcraft:merciless_enchantments"
+          },
+          {
+            "type": "anvilcraft:remove_attribute",
+            "attrs": [
+              "anvilcraft:merciless"
+            ]
+          }
+        ],
+        "result": "anvilcraft:ember_metal_shovel"
+      }
+    }
+  ]
+}

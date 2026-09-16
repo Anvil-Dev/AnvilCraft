@@ -1,0 +1,14 @@
+{
+  "type": "anvilcraft:permutation",
+  "input": {
+    "items": "minecraft:netherite_axe"
+  },
+  "options": [
+    {
+      "material": {
+        "type": "anvilcraft:empty"
+      },
+      "result": "minecraft:diamond_axe"
+    }
+  ]
+}
