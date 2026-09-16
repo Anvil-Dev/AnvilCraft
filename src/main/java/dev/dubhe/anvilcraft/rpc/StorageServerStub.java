@@ -47,10 +47,13 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.CraftingInput;
+import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.item.crafting.SingleRecipeInput;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.common.CommonHooks;
 import net.neoforged.neoforge.common.SoundAction;
 import net.neoforged.neoforge.common.SoundActions;
 import net.neoforged.neoforge.fluids.FluidStack;
@@ -318,6 +321,193 @@ public final class StorageServerStub {
     private static CraftingTarget resolveCraftingTarget(ServerPlayer player, long sourcePos) {
         StorageView view = StorageServerStub.getView(StorageServerStub.getAndClear(), player.getGameProfile().id(), sourcePos);
         return new CraftingTarget(view, player);
+    }
+
+    private record CraftOperation(ItemStack result, CraftingStorage next, List<ItemStack> remainders, boolean consumed) {
+    }
+
+    @RemoteCallable(validator = StorageAccessValidator.class)
+    public static InteractionResult craftingTakeResult(UUID playerId, long sourcePos, boolean stonecutter, boolean shift) {
+        ServerPlayer player = StorageServerStub.getServerPlayer(playerId);
+        CraftingTarget target = StorageServerStub.resolveCraftingTarget(player, sourcePos);
+        CraftingStorage crafting = target.read();
+        ItemStack carried = player.containerMenu.getCarried();
+        CraftOperation operation = StorageServerStub.prepareCraftOperation(player, crafting, stonecutter);
+        if (operation == null || operation.result.isEmpty()) return new InteractionResult(carried, false);
+        ItemStack result = operation.result;
+        int overflow = 0;
+        if (!shift) {
+            if (!carried.isEmpty() && (!ItemStack.isSameItemSameComponents(carried, result)
+                || carried.getCount() + result.getCount() > carried.getMaxStackSize())) {
+                return new InteractionResult(carried, false);
+            }
+            player.containerMenu.setCarried(result.copyWithCount(result.getCount() + carried.getCount()));
+        } else {
+            int inserted = StorageServerStub.placeCraftResult(target, result, crafting.toStorage());
+            if (inserted == 0) return new InteractionResult(carried, false);
+            overflow = result.getCount() - inserted;
+        }
+        // 先准备全部剩余物，再发放产物和写回输入；每个取出路径都只执行一次消耗。
+        if (operation.consumed) target.write(operation.next);
+        for (ItemStack remainder : operation.remainders) {
+            StorageServerStub.returnCraftingStack(target, remainder, crafting.toStorage());
+        }
+        if (overflow > 0) player.drop(result.copyWithCount(overflow), false);
+        int refilled = StorageServerStub.refillCrafting(target, crafting);
+        player.getInventory().setChanged();
+        player.containerMenu.broadcastChanges();
+        return new InteractionResult(player.containerMenu.getCarried(), true, refilled);
+    }
+
+    private static @Nullable CraftOperation prepareCraftOperation(ServerPlayer player, CraftingStorage crafting, boolean stonecutter) {
+        if (stonecutter) {
+            ItemStack input = crafting.stonecutterInput();
+            if (input.isEmpty()) return null;
+            var choices = player.level().recipeAccess().stonecutterRecipes().selectByInput(input).entries().stream()
+                .flatMap(entry -> entry.recipe().recipe().stream()).toList();
+            int selected = crafting.stonecutterSelected();
+            if (selected < 0 || selected >= choices.size()) return null;
+            ItemStack result = choices.get(selected).value().assemble(new SingleRecipeInput(input));
+            return new CraftOperation(result, crafting.withStonecutterInput(input.copyWithCount(input.getCount() - 1)), List.of(), true);
+        }
+        var positioned = CraftingInput.ofPositioned(3, 3, crafting.craftingInput());
+        var input = positioned.input();
+        var recipe = player.level().recipeAccess().getRecipeFor(RecipeType.CRAFTING, input, player.level());
+        if (recipe.isEmpty()) return null;
+        ItemStack result;
+        List<ItemStack> remaining;
+        final var previousPlayer = CommonHooks.getCraftingPlayer();
+        CommonHooks.setCraftingPlayer(player);
+        try {
+            result = recipe.orElseThrow().value().assemble(input);
+            remaining = recipe.orElseThrow().value().getRemainingItems(input);
+        } finally {
+            CommonHooks.setCraftingPlayer(previousPlayer);
+        }
+        if (result.isEmpty()) return null;
+        List<ItemStack> grid = new ArrayList<>(crafting.craftingInput());
+        List<ItemStack> overflow = new ArrayList<>();
+        boolean consumed = false;
+        for (int row = 0; row < input.height(); row++) {
+            for (int column = 0; column < input.width(); column++) {
+                int slot = column + positioned.left() + (row + positioned.top()) * 3;
+                ItemStack current = grid.get(slot);
+                if (current.isEmpty()) continue;
+                ItemStack next = current.copyWithCount(current.getCount() - 1);
+                int index = column + row * input.width();
+                ItemStack remainder = index < remaining.size() ? remaining.get(index).copy() : ItemStack.EMPTY;
+                if (!remainder.isEmpty()) {
+                    if (next.isEmpty()) {
+                        next = remainder;
+                    } else if (ItemStack.isSameItemSameComponents(next, remainder)) {
+                        next.grow(remainder.getCount());
+                    } else {
+                        overflow.add(remainder);
+                    }
+                }
+                grid.set(slot, next);
+                consumed |= !ItemStack.isSameItemSameComponents(current, next) || current.getCount() != next.getCount();
+            }
+        }
+        return new CraftOperation(result, crafting.withCraftingInput(grid), overflow, consumed);
+    }
+
+    private static int placeCraftResult(CraftingTarget target, ItemStack result, boolean storageFirst) {
+        ItemResource resource = ItemResource.of(result);
+        int remaining = result.getCount();
+        try (Transaction transaction = Transaction.openRoot()) {
+            if (storageFirst) remaining -= target.view.insert(resource, remaining, transaction);
+            remaining -= PlayerInventoryWrapper.of(target.player).getMainSlots().insert(resource, remaining, transaction);
+            if (remaining > 0) {
+                ItemStack carried = target.player.containerMenu.getCarried();
+                if (carried.isEmpty() || ItemStack.isSameItemSameComponents(carried, result)) {
+                    int room = result.getMaxStackSize() - carried.getCount();
+                    if (remaining <= room) {
+                        remaining -= CarriedSlotWrapper.of(target.player.containerMenu).insert(resource, remaining, transaction);
+                    }
+                }
+            }
+            if (!storageFirst && remaining > 0) remaining -= target.view.insert(resource, remaining, transaction);
+            if (remaining == result.getCount()) return 0;
+            transaction.commit();
+        }
+        return result.getCount() - remaining;
+    }
+
+    private static void returnCraftingStack(CraftingTarget target, ItemStack stack, boolean storageFirst) {
+        if (stack.isEmpty()) return;
+        ItemResource resource = ItemResource.of(stack);
+        int remaining = stack.getCount();
+        try (Transaction transaction = Transaction.openRoot()) {
+            if (storageFirst) remaining -= target.view.insert(resource, remaining, transaction);
+            remaining -= PlayerInventoryWrapper.of(target.player).getMainSlots().insert(resource, remaining, transaction);
+            if (!storageFirst && remaining > 0) remaining -= target.view.insert(resource, remaining, transaction);
+            transaction.commit();
+        }
+        if (remaining > 0) target.player.drop(stack.copyWithCount(remaining), false);
+    }
+
+    private static int refillCrafting(CraftingTarget target, CraftingStorage template) {
+        if (!template.autoFill()) return 0;
+        final CraftingStorage before = target.read();
+        CraftingStorage current = before;
+        int mask = 0;
+        if (!template.stonecutterInput().isEmpty() && current.stonecutterInput().isEmpty()
+            && StorageServerStub.takeCraftingMaterial(target, template.stonecutterInput())) {
+            current = current.withStonecutterInput(template.stonecutterInput().copyWithCount(1));
+            mask |= 1;
+        }
+        for (int slot = 0; slot < CraftingStorage.CRAFTING_GRID_SIZE; slot++) {
+            ItemStack wanted = template.craftingInput().get(slot);
+            if (wanted.isEmpty()) continue;
+            ItemStack present = current.craftingInput().get(slot);
+            if (!present.isEmpty() && !ItemStack.isSameItemSameComponents(present, wanted)) {
+                StorageServerStub.returnCraftingStack(target, present, false);
+                current = current.withCraftingSlot(slot, ItemStack.EMPTY);
+                present = ItemStack.EMPTY;
+            }
+            if (present.isEmpty() && StorageServerStub.takeCraftingMaterial(target, wanted)) {
+                current = current.withCraftingSlot(slot, wanted.copyWithCount(1));
+                mask |= 1 << (slot + 1);
+            }
+        }
+        if (current != before) target.write(current);
+        return mask;
+    }
+
+    private static boolean takeCraftingMaterial(CraftingTarget target, ItemStack wanted) {
+        var resource = ItemResource.of(wanted);
+        try (Transaction transaction = Transaction.openRoot()) {
+            if (StorageServerStub.extractCraftingMaterial(target, resource, transaction)) {
+                transaction.commit();
+                return true;
+            }
+        }
+        FluidStack fluid = FluidUtil.getFirstStackContained(wanted);
+        ItemStack empty = StorageServerStub.emptyContainerOf(wanted);
+        if (fluid.isEmpty() || empty.isEmpty()) return false;
+        var single = new ItemStacksResourceHandler(1);
+        single.set(0, ItemResource.of(empty), 1);
+        var handler = ItemAccess.forHandlerIndexStrict(single, 0).getCapability(Capabilities.Fluid.ITEM);
+        if (handler == null) return false;
+        try (Transaction transaction = Transaction.openRoot()) {
+            if (handler.insert(FluidResource.of(fluid), fluid.getAmount(), transaction) != fluid.getAmount()
+                || !single.getResource(0).equals(resource)
+                || !StorageServerStub.extractCraftingMaterial(target, ItemResource.of(empty), transaction)
+                || StoragePortManager.drain(target.view.primary().getId(), fluid, fluid.getAmount(), transaction) != fluid.getAmount()) {
+                return false;
+            }
+            transaction.commit();
+            return true;
+        }
+    }
+
+    private static boolean extractCraftingMaterial(CraftingTarget target, ItemResource resource, Transaction transaction) {
+        var inventory = PlayerInventoryWrapper.of(target.player);
+        for (int slot = 0; slot < Inventory.INVENTORY_SIZE; slot++) {
+            if (inventory.extract(slot, resource, 1, transaction) == 1) return true;
+        }
+        return target.view.extractByResource(resource, 1, transaction) == 1;
     }
 
     @RemoteCallable(validator = StorageAccessValidator.class)

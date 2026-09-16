@@ -1,7 +1,7 @@
 {
   "branch": "dev/1.21/1.6",
   "baseline": "eb2dadbc4d7fb3a0476765f6313e1667a758ed66",
-  "latest_observed": "5e55d32a1047214caa6139452a68fe7cb2203cc9",
+  "latest_observed": "aabf0cc0c327583c9278bf26844788c8dc3851a3",
   "updates": [
     {
       "commit": "6c7b3f5b87705c5626a17143064064a0b855b187",
@@ -38,6 +38,112 @@
       "commit": "5e55d32a1047214caa6139452a68fe7cb2203cc9",
       "status": "ported",
       "scope": "过滤器、磁盘和结构磁盘内容额外渲染"
+    },
+    {
+      "commit": "5002741dc7fd8bef26dbb6b483d964be996520fb",
+      "status": "pending",
+      "scope": "Fix crate crafting consuming non-consumable items 修复板条箱合成吞掉不消耗物品的问题 (#4846)",
+      "integration": "单次合成 RPC 已采用偏移剩余物修复；完整合成面板与批量路径仍待接入。26.1 的电容器 Shift 提示及对应生成键已不存在。"
+    },
+    {
+      "commit": "b1a8356cc4707cbd683d98e5d8b31901a7a61496",
+      "status": "pending",
+      "scope": "adjust gui (#4848)"
+    },
+    {
+      "commit": "ac76c438d3c460347d69cda44ce438a01614e684",
+      "status": "pending",
+      "scope": "feat: 添加建筑杖与蓝图建造功能并完善红石行为 (#4854)"
+    },
+    {
+      "commit": "471e3b30c4bacfe4749f9ed6d4dba485f59575bd",
+      "status": "pending",
+      "scope": "Fixed an issue where the game was incorrectly selecting items from the pill or amulet box inventory. 修复了药盒和护符盒选取物品错误的问题 (#4853)"
+    },
+    {
+      "commit": "2b594b888a735c43e859bf1df37b4d7904fc2a3e",
+      "status": "pending",
+      "scope": "add assets of armor (#4857)"
+    },
+    {
+      "commit": "c9fa7ae1f63e2f255735292033ae68d4175f447c",
+      "status": "pending",
+      "scope": "Adjust the GUI of SpacetimeSupercomputer, added VFX of laser. 调整了时空超算的GUI，添加了激光特效 (#4856)"
+    },
+    {
+      "commit": "ad3f2c73f4ad368b106a1b06e9020368ebba6b1a",
+      "status": "pending",
+      "scope": "adjust section textures (#4859)"
+    },
+    {
+      "commit": "bc2f2c8b519fc20a656ffe60f164f82155774e8d",
+      "status": "pending",
+      "scope": "adjust textures of pockets leggings (#4862)"
+    },
+    {
+      "commit": "d52d844e2eebeaaeec411e001d72309f76c258c5",
+      "status": "pending",
+      "scope": "Added a warehouse GUI flip mode, fixed laser effects, and fixed the selection box for oil cauldron. 添加了仓储gui翻转模式，修复了激光特效，修正了油锅等的选择框 (#4865)"
+    },
+    {
+      "commit": "cd11f829fbaf75147a8cebf3a3b689f33c80d6ef",
+      "status": "pending",
+      "scope": "Adjust recipes and fix JEI slot style for chance outputs, add material summary for block sequence processing recipes 完成了配方调整，修改了JEI概率产出物品的物品格类型，添加了序列组装配方的材料汇总 (#4869)"
+    },
+    {
+      "commit": "01f319c7232d32f4533e92d821cfbe3f2f7713f5",
+      "status": "pending",
+      "scope": "Fix material list not consuming the book and broken missing-block display in blueprint mode. 修复了智能方块放置器蓝图模式下，材料清单不消耗书，缺失方块显示不正常的问题 (#4873)"
+    },
+    {
+      "commit": "e501e72b927d6129fc46ddf8278d1a9edca7a028",
+      "status": "pending",
+      "scope": "Add space equipment and inventory pocket system, and improve the building wand and structure scanner, and fixed bugs 添加航天装备与口袋系统并完善建筑杖和结构扫描仪，以及修复bug (#4878)"
+    },
+    {
+      "commit": "36891dc67aed55627bce4f23e4d8e8de0c878baf",
+      "status": "pending",
+      "scope": "refactor: 将 blackList/whiteList 统一重命名为 denyList/allowList (#4887)"
+    },
+    {
+      "commit": "5047091d845378536f71cf803ef4e0860d36528a",
+      "status": "pending",
+      "scope": "fix(inventory): 修复创意模式界面槽位列表长度同步问题 (#4884)"
+    },
+    {
+      "commit": "b85f647860bef4bdf6dbc1728cf2ab75d434bcf7",
+      "status": "pending",
+      "scope": "docs(readme): 修改 README 中的徽标 (#4889)"
+    },
+    {
+      "commit": "6514cf186aa59bf63afb13817c4fe95014506b33",
+      "status": "pending",
+      "scope": "adjust gui textures of structure scanner, adjust model of CFA item (#4893)"
+    },
+    {
+      "commit": "605e8c38540e0cf315dd1423297a0ea5429b2e46",
+      "status": "pending",
+      "scope": "fix(renderer): 调整星辰锻造铁砧的渲染姿态与显示效果 (#4898)"
+    },
+    {
+      "commit": "87b2b4b6d4981a4962faa8f3e116f1f845461eb9",
+      "status": "pending",
+      "scope": "feat(equipment): 实现缓冲靴蓄力停留及衰减机制，改进跳跃逻辑和提示显示 (#4897)"
+    },
+    {
+      "commit": "85099d0dcd7a780c3521aedf87cdbbe746ce9704",
+      "status": "pending",
+      "scope": "Fixed manual not rendering the processing block, added lighting for the processing block, and fixed laser effects. 修复了手册不渲染进程方块的问题，为进程方块添加了光照，修复了激光特效 (#4891)"
+    },
+    {
+      "commit": "11d915f08ae4918f96d937fbb0480cd649e8d444",
+      "status": "pending",
+      "scope": "Fix building wand material handling, equipment abilities and terminal item extraction logic 修复建筑杖材料处理、装备能力与终端取物逻辑 (#4901)"
+    },
+    {
+      "commit": "aabf0cc0c327583c9278bf26844788c8dc3851a3",
+      "status": "pending",
+      "scope": "button (#4903)"
     }
   ]
 }

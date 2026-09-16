@@ -13,6 +13,10 @@ public final class StorageCraftingInputClientChecks {
     private static Throwable failure;
 
     public static void frame(Minecraft client, BlockPos corePos) {
+        if (done && failure == null && Boolean.getBoolean("anvilcraft.portCraftingExecutionScene")) {
+            StorageCraftingExecutionClientChecks.frame(client, corePos);
+            return;
+        }
         if (failure != null) throw new IllegalStateException("合成输入客户端检查失败", failure);
         if (!requested) {
             requested = true;
@@ -54,7 +58,7 @@ public final class StorageCraftingInputClientChecks {
         }
         if (done && failure == null) {
             AnvilCraft.LOGGER.info("PORT_CRAFTING_INPUT_CLIENT_PASSED: slot exchange, recipe list and clear-to-storage");
-            client.stop();
+            if (!Boolean.getBoolean("anvilcraft.portCraftingExecutionScene")) client.stop();
         }
     }
 }

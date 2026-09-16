@@ -17,6 +17,13 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 public final class StorageClientStub {
+    public static CompletableFuture<StorageServerStub.InteractionResult> craftingTakeResult(
+        BlockPos sourcePos, boolean stonecutter, boolean shift
+    ) {
+        return RPC.invoke(RpcTarget.server(), StorageServerStub::craftingTakeResult,
+            StorageClientStub.playerId(), sourcePos.asLong(), stonecutter, shift);
+    }
+
     public static CompletableFuture<StorageServerStub.InteractionResult> craftingPutStonecutterInput(
         BlockPos sourcePos,
         int button,
