@@ -51,7 +51,8 @@ public final class StorageCraftingExecutionTests {
         "port_craft_refill_order", StorageCraftingExecutionTests::refill,
         "port_craft_refill_fluid", StorageCraftingExecutionTests::fluid,
         "port_craft_stonecutter_result", StorageCraftingExecutionTests::stonecutter,
-        "port_craft_catalyst", StorageCraftingExecutionTests::catalyst
+        "port_craft_catalyst", StorageCraftingExecutionTests::catalyst,
+        "port_craft_input_actions", StorageCraftingExecutionTests::inputActions
     );
 
     @SubscribeEvent
@@ -222,6 +223,34 @@ public final class StorageCraftingExecutionTests {
             helper.assertTrue(CommonHooks.getCraftingPlayer() == null, "配方玩家上下文必须恢复");
         } finally {
             manager.recipes = previous;
+        }
+        helper.succeed();
+    }
+
+    private static void inputActions(GameTestHelper helper) {
+        try (var fixture = new StorageFluidRpcTests.Fixture(helper)) {
+            var storage = storage(helper, fixture);
+            storage.setCrafting(CraftingStorage.EMPTY.withCraftingSlot(8, new ItemStack(Items.OAK_LOG, 4)));
+            fixture.authorize();
+            helper.assertTrue(!StorageServerStub.craftingCloneSlot(fixture.playerId(), fixture.core().asLong(), 9).changed(),
+                "生存玩家不能克隆合成输入");
+            fixture.player().containerMenu.setCarried(new ItemStack(Items.DIAMOND));
+            fixture.authorize();
+            helper.assertTrue(!StorageServerStub.craftingThrowSlot(fixture.playerId(), fixture.core().asLong(), 9, true).changed(),
+                "指针非空时不能丢出合成输入");
+            fixture.player().containerMenu.setCarried(ItemStack.EMPTY);
+            fixture.authorize();
+            helper.assertTrue(StorageServerStub.craftingThrowSlot(fixture.playerId(), fixture.core().asLong(), 9, false).changed()
+                && storage.getCrafting().craftingInput().get(8).getCount() == 3, "Q 只能丢出一件输入");
+            fixture.authorize();
+            helper.assertTrue(StorageServerStub.craftingQuickMoveOut(fixture.playerId(), fixture.core().asLong(), 9)
+                && storage.getCrafting().craftingInput().get(8).isEmpty(), "Shift 必须移出指定输入槽");
+            int logs = 0;
+            for (int i = 0; i < 36; i++) {
+                var stack = fixture.player().getInventory().getItem(i);
+                if (stack.is(Items.OAK_LOG)) logs += stack.getCount();
+            }
+            helper.assertTrue(logs == 3 && fixture.player().containerMenu.getCarried().isEmpty(), "移出输入不能占用指针或丢失数量");
         }
         helper.succeed();
     }

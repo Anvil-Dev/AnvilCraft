@@ -57,6 +57,10 @@ public final class StorageLongUiScene {
             };
             client.setScreen(screen);
         }
+        if (stage == 6) {
+            StorageCraftingClientChecks.frame(client, CORE);
+            return;
+        }
         if (client.screen != screen || capturing) return;
         if (System.nanoTime() - started > 120_000_000_000L) throw new IllegalStateException("大数量场景超时，阶段 " + stage);
         frames++;

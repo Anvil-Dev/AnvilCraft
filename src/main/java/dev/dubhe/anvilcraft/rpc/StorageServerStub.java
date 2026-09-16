@@ -330,6 +330,66 @@ public final class StorageServerStub {
         return new CraftingTarget(view, player);
     }
 
+    private static ItemStack craftingInput(CraftingStorage state, int slot) {
+        if (slot < 0 || slot > CraftingStorage.CRAFTING_GRID_SIZE) throw new IllegalArgumentException("Invalid crafting slot: " + slot);
+        return slot == 0 ? state.stonecutterInput() : state.craftingInput().get(slot - 1);
+    }
+
+    private static CraftingStorage withCraftingInput(CraftingStorage state, int slot, ItemStack stack) {
+        return slot == 0 ? state.withStonecutterInput(stack) : state.withCraftingSlot(slot - 1, stack);
+    }
+
+    @RemoteCallable(validator = StorageAccessValidator.class)
+    public static boolean craftingQuickMoveOut(UUID playerId, long sourcePos, int slot) {
+        ServerPlayer player = getServerPlayer(playerId);
+        CraftingTarget target = resolveCraftingTarget(player, sourcePos);
+        cancelCraftingBatch(playerId, sourcePos);
+        CraftingStorage state = target.read();
+        ItemStack stack = craftingInput(state, slot);
+        if (stack.isEmpty()) return false;
+        int remaining = stack.getCount();
+        try (Transaction transaction = Transaction.openRoot()) {
+            ItemResource resource = ItemResource.of(stack);
+            remaining -= PlayerInventoryWrapper.of(player).getMainSlots().insert(resource, remaining, transaction);
+            if (remaining > 0) remaining -= target.view.insert(resource, remaining, transaction);
+            if (remaining == stack.getCount()) return false;
+            transaction.commit();
+        }
+        target.write(withCraftingInput(state, slot, stack.copyWithCount(remaining)));
+        return true;
+    }
+
+    @RemoteCallable(validator = StorageAccessValidator.class)
+    public static InteractionResult craftingThrowSlot(UUID playerId, long sourcePos, int slot, boolean stack) {
+        ServerPlayer player = getServerPlayer(playerId);
+        CraftingTarget target = resolveCraftingTarget(player, sourcePos);
+        cancelCraftingBatch(playerId, sourcePos);
+        ItemStack carried = player.containerMenu.getCarried();
+        if (!carried.isEmpty()) return new InteractionResult(carried, false);
+        CraftingStorage state = target.read();
+        ItemStack item = craftingInput(state, slot);
+        if (item.isEmpty()) return new InteractionResult(carried, false);
+        int amount = stack ? item.getCount() : 1;
+        target.write(withCraftingInput(state, slot, item.copyWithCount(item.getCount() - amount)));
+        player.drop(item.copyWithCount(amount), true);
+        player.swing(InteractionHand.MAIN_HAND, true);
+        return new InteractionResult(carried, true);
+    }
+
+    @RemoteCallable(validator = StorageAccessValidator.class)
+    public static InteractionResult craftingCloneSlot(UUID playerId, long sourcePos, int slot) {
+        ServerPlayer player = getServerPlayer(playerId);
+        CraftingTarget target = resolveCraftingTarget(player, sourcePos);
+        ItemStack carried = player.containerMenu.getCarried();
+        if (!player.isCreative() || !carried.isEmpty()) return new InteractionResult(carried, false);
+        ItemStack item = craftingInput(target.read(), slot);
+        if (item.isEmpty()) return new InteractionResult(carried, false);
+        carried = item.copyWithCount(item.getMaxStackSize());
+        player.containerMenu.setCarried(carried);
+        player.containerMenu.broadcastChanges();
+        return new InteractionResult(carried, true);
+    }
+
     private record CraftOperation(
         Identifier recipeId, ItemStack result, CraftingStorage next, List<ItemStack> remainders, boolean consumed
     ) {

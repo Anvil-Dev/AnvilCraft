@@ -2550,5 +2550,13 @@
   "tooltip.anvilcraft.fluid_tank.capacity": "容量：",
   "tooltip.anvilcraft.fluid_tank.capacity.value.infinity": "  %s / ∞",
   "tooltip.anvilcraft.fluid_tank.fluid": "流体：",
-  "tooltip.anvilcraft.fluid_tank.more": "还有 %s 项未显示..."
+  "tooltip.anvilcraft.fluid_tank.more": "还有 %s 项未显示...",
+  "screen.anvilcraft.storage.crafting.to_storage.storage": "存储",
+  "screen.anvilcraft.storage.crafting.to_storage.player": "玩家物品栏",
+  "screen.anvilcraft.storage.crafting.to_storage": "合成结果目标：%s",
+  "screen.anvilcraft.storage.crafting.clear": "清空合成栏到存储",
+  "screen.anvilcraft.storage.crafting.auto_fill.enabled": "已启用",
+  "screen.anvilcraft.storage.crafting.auto_fill.disabled": "已禁用",
+  "screen.anvilcraft.storage.crafting.auto_fill": "自动填充：%s",
+  "tooltip.anvilcraft.storage.missing_workbench": "此存储中需要有工作台和切石机"
 }

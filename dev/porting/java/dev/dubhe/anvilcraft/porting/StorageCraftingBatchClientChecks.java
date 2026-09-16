@@ -19,8 +19,13 @@ public final class StorageCraftingBatchClientChecks {
     private static boolean started;
     private static volatile boolean done;
     private static volatile Throwable failure;
+    private static boolean panelStarted;
 
     public static void frame(Minecraft client, BlockPos corePos) {
+        if (panelStarted) {
+            StorageCraftingPanelScene.frame(client, corePos);
+            return;
+        }
         if (failure != null) throw new IllegalStateException("批量合成客户端检查失败", failure);
         if (!started) {
             started = true;
@@ -91,7 +96,8 @@ public final class StorageCraftingBatchClientChecks {
         }
         if (done && failure == null) {
             AnvilCraft.LOGGER.info("PORT_CRAFTING_BATCH_CLIENT_PASSED: continuation, budget, refill mask, Q and Ctrl+Q conservation");
-            client.stop();
+            if (Boolean.getBoolean("anvilcraft.portCraftingPanelScene")) panelStarted = true;
+            else client.stop();
         }
     }
 }

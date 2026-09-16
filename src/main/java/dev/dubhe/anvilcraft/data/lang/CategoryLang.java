@@ -4,6 +4,14 @@ import dev.anvilcraft.lib.v2.registrum.providers.RegistrumLangProvider;
 
 public class CategoryLang {
     public static void init(RegistrumLangProvider provider) {
+        provider.add("screen.anvilcraft.storage.crafting.auto_fill", "Auto Refill: %s");
+        provider.add("screen.anvilcraft.storage.crafting.auto_fill.disabled", "Disabled");
+        provider.add("screen.anvilcraft.storage.crafting.auto_fill.enabled", "Enabled");
+        provider.add("screen.anvilcraft.storage.crafting.clear", "Clear crafting slots to storage");
+        provider.add("screen.anvilcraft.storage.crafting.to_storage", "Crafting Result Destination: %s");
+        provider.add("screen.anvilcraft.storage.crafting.to_storage.player", "Player Inventory");
+        provider.add("screen.anvilcraft.storage.crafting.to_storage.storage", "Storage");
+        provider.add("tooltip.anvilcraft.storage.missing_workbench", "Need Crafting Table and Stonecutter in the storage");
         provider.add("screen.anvilcraft.storage.count", "Count: %s");
         provider.add("screen.anvilcraft.storage.fluid_amount", "Storage: %s");
         provider.add("screen.anvilcraft.storage.fluid.bucket_missing", "Need an empty bucket");

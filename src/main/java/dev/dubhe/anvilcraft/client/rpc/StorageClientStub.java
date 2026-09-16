@@ -17,6 +17,18 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 public final class StorageClientStub {
+    public static CompletableFuture<Boolean> craftingQuickMoveOut(BlockPos sourcePos, int slot) {
+        return RPC.invoke(RpcTarget.server(), StorageServerStub::craftingQuickMoveOut, playerId(), sourcePos.asLong(), slot);
+    }
+
+    public static CompletableFuture<StorageServerStub.InteractionResult> craftingThrowSlot(BlockPos sourcePos, int slot, boolean stack) {
+        return RPC.invoke(RpcTarget.server(), StorageServerStub::craftingThrowSlot, playerId(), sourcePos.asLong(), slot, stack);
+    }
+
+    public static CompletableFuture<StorageServerStub.InteractionResult> craftingCloneSlot(BlockPos sourcePos, int slot) {
+        return RPC.invoke(RpcTarget.server(), StorageServerStub::craftingCloneSlot, playerId(), sourcePos.asLong(), slot);
+    }
+
     public static CompletableFuture<StorageServerStub.TakeAllResult> craftingTakeAll(
         BlockPos sourcePos, boolean stonecutter, int multiplier
     ) {

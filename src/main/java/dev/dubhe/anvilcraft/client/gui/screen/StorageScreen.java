@@ -17,6 +17,7 @@ import dev.dubhe.anvilcraft.client.rpc.StorageClientStub;
 import dev.dubhe.anvilcraft.client.support.FluidRenderHelper;
 import dev.dubhe.anvilcraft.constant.Constant;
 import dev.dubhe.anvilcraft.constant.SharedTextures;
+import dev.dubhe.anvilcraft.recipe.sync.RecipesRecord;
 import dev.dubhe.anvilcraft.rpc.StorageInput;
 import dev.dubhe.anvilcraft.rpc.StorageServerStub;
 import dev.dubhe.anvilcraft.saved.setting.StorageSetting;
@@ -24,6 +25,7 @@ import dev.dubhe.anvilcraft.saved.setting.mode.NbtDisplayMode;
 import dev.dubhe.anvilcraft.saved.setting.mode.OrderMode;
 import dev.dubhe.anvilcraft.saved.setting.mode.SearchMode;
 import dev.dubhe.anvilcraft.saved.setting.mode.SortMode;
+import dev.dubhe.anvilcraft.saved.storage.CraftingStorage;
 import dev.dubhe.anvilcraft.util.FluidAmountUtil;
 import dev.dubhe.anvilcraft.util.FormattingUtil;
 import it.unimi.dsi.fastutil.ints.Int2IntMap;
@@ -47,12 +49,14 @@ import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.Rect2i;
 import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.FontDescription;
 import net.minecraft.resources.Identifier;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.ARGB;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Inventory;
@@ -63,6 +67,8 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.crafting.CraftingInput;
+import net.minecraft.world.item.crafting.RecipeType;
 import net.neoforged.neoforge.client.ItemDecoratorHandler;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.FluidType;
@@ -79,6 +85,23 @@ import java.util.concurrent.CompletableFuture;
 
 public class StorageScreen extends Screen {
     private static final Identifier BACKGROUND = SharedTextures.bg("misc", "storage_station");
+    private static final Identifier CRAFTING_BACKGROUND = SharedTextures.bg("misc", "storage_station_crafting");
+    private CraftingStorage crafting = CraftingStorage.EMPTY;
+    private List<ItemStack> stonecutterRecipes = List.of();
+    private ItemStack craftingResult = ItemStack.EMPTY;
+    private boolean craftingMode;
+    private boolean craftingLoaded;
+    private int craftingRequest;
+    private int recipeHead;
+    private boolean recipeDragging;
+    private boolean craftingSpace;
+    private long craftingSoundTick = Long.MIN_VALUE;
+    private int batchRequest;
+    private final long[] craftingPop = new long[10];
+    private SwitchableButton craftingAutoFill;
+    private SwitchableButton craftingToStorage;
+    private TexturedButton craftingClear;
+
     private static final Identifier CAPACITY = SharedTextures.textureGui("misc/storage_station/capacity");
     private static final Identifier SEARCH_CLEAR = SharedTextures.textureGui("misc/storage_station/search_clear");
     private static final Identifier PUT = SharedTextures.textureGui("misc/storage_station/put");
@@ -347,6 +370,7 @@ public class StorageScreen extends Screen {
             },
             this.screenExecutor
         );
+        this.initCraftingPanel();
         this.refreshMetadata();
     }
 
@@ -362,12 +386,289 @@ public class StorageScreen extends Screen {
         }
     }
 
+    private static Identifier craftingTexture(String name) {
+        return SharedTextures.textureGui("misc/storage_station/" + name);
+    }
+
+    private void initCraftingPanel() {
+        this.addRenderableWidget(new TexturedButton(this.left + 278, this.top + 195, 18, 20,
+            craftingTexture("crafting"), 20, 18, 40, button -> this.toggleCrafting()));
+        this.craftingAutoFill = this.addRenderableWidget(new SwitchableButton(this.left + 75, this.top + 182, 12, 12,
+            List.of(craftingTexture("crafting_auto_fill_off"), craftingTexture("crafting_auto_fill_on")), 12, 12, 24,
+            (button, index) -> {
+                this.crafting = this.crafting.withAutoFill(index == 1);
+                StorageClientStub.craftingSetOptions(this.sourcePos, this.crafting.autoFill(), this.crafting.toStorage());
+            }));
+        this.craftingToStorage = this.addRenderableWidget(new SwitchableButton(this.left + 88, this.top + 182, 12, 12,
+            List.of(craftingTexture("crafting_to_player"), craftingTexture("crafting_to_storage")), 12, 12, 24,
+            (button, index) -> {
+                this.crafting = this.crafting.withToStorage(index == 1);
+                StorageClientStub.craftingSetOptions(this.sourcePos, this.crafting.autoFill(), this.crafting.toStorage());
+            }));
+        this.craftingClear = this.addRenderableWidget(new TexturedButton(this.left + 62, this.top + 182, 12, 12,
+            craftingTexture("crafting_clear"), 12, 12, 24, button -> {
+                if (this.interactionPending) return;
+                this.interactionPending = true;
+                StorageClientStub.craftingClearToStorage(this.sourcePos).whenCompleteAsync((changed, error) -> {
+                    this.refreshCrafting().whenCompleteAsync((ignored, failure) -> this.interactionPending = false, this.screenExecutor);
+                    this.reorder(false);
+                }, this.screenExecutor);
+            }));
+        this.setCraftingMode(this.craftingMode);
+        StorageClientStub.craftingAvailable(this.sourcePos).thenCombine(StorageClientStub.craftingGet(this.sourcePos),
+            (available, data) -> available && data.lastOpened()).thenAcceptAsync(opened -> {
+                if (opened) {
+                    this.setCraftingMode(true);
+                    this.refreshCrafting();
+                }
+            }, this.screenExecutor);
+    }
+
+    private void setCraftingMode(boolean enabled) {
+        this.craftingMode = enabled;
+        if (this.categories != null) this.categories.setCompact(enabled, SettingClientStub.setting());
+        this.craftingAutoFill.visible = enabled;
+        this.craftingToStorage.visible = enabled;
+        this.craftingClear.visible = enabled;
+    }
+
+    private void toggleCrafting() {
+        if (this.interactionPending) return;
+        if (this.craftingMode) {
+            this.setCraftingMode(false);
+            StorageClientStub.craftingSetLastOpened(this.sourcePos, false);
+            return;
+        }
+        this.interactionPending = true;
+        StorageClientStub.craftingUnlock(this.sourcePos).whenCompleteAsync((available, error) -> {
+            this.interactionPending = false;
+            if (error != null || !available) {
+                this.flyoutClickX = this.left + 100;
+                this.flyoutClickY = this.top + 114;
+                this.showNotice(Component.translatable("tooltip.anvilcraft.storage.missing_workbench"));
+                return;
+            }
+            this.flyoutTimer = FLYOUT_TOTAL_TICKS;
+            this.setCraftingMode(true);
+            StorageClientStub.craftingSetLastOpened(this.sourcePos, true);
+            this.refreshCrafting();
+            this.reorder(false);
+        }, this.screenExecutor);
+    }
+
+    private CompletableFuture<Void> refreshCrafting() {
+        int request = ++this.craftingRequest;
+        return StorageClientStub.craftingGet(this.sourcePos).thenComposeAsync(data -> {
+            if (request != this.craftingRequest) return CompletableFuture.completedFuture(null);
+            this.crafting = data;
+            this.craftingLoaded = true;
+            this.craftingAutoFill.setCurrent(data.autoFill() ? 1 : 0);
+            this.craftingToStorage.setCurrent(data.toStorage() ? 1 : 0);
+            this.craftingResult = ItemStack.EMPTY;
+            if (RecipesRecord.CLIENTSIDE != null && this.minecraft.level != null) {
+                var input = CraftingInput.of(3, 3, data.craftingInput());
+                if (!input.isEmpty()) {
+                    this.craftingResult = RecipesRecord.CLIENTSIDE.byType(RecipeType.CRAFTING).stream()
+                        .filter(recipe -> recipe.value().matches(input, this.minecraft.level))
+                        .findFirst().map(recipe -> recipe.value().assemble(input)).orElse(ItemStack.EMPTY);
+                }
+            }
+            return StorageClientStub.craftingStonecutterRecipes(this.sourcePos).thenAcceptAsync(recipes -> {
+                if (request != this.craftingRequest) return;
+                this.stonecutterRecipes = recipes;
+                this.recipeHead = Math.min(this.recipeHead, Math.max(0, (recipes.size() + 2) / 3 - 2) * 3);
+            }, this.screenExecutor);
+        }, this.screenExecutor);
+    }
+
+    private void performCrafting(CompletableFuture<StorageServerStub.InteractionResult> operation) {
+        this.performCrafting(operation, false);
+    }
+
+    private void performCrafting(CompletableFuture<StorageServerStub.InteractionResult> operation, boolean stonecutter) {
+        this.interactionPending = true;
+        operation.whenCompleteAsync((result, error) -> {
+            if (error == null) {
+                this.carried = result.carried();
+                this.player.inventoryMenu.setCarried(this.carried);
+                this.markCraftingRefilled(result.refilledSlots());
+                if (result.changed()) {
+                    if (stonecutter) {
+                        this.minecraft.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_STONECUTTER_TAKE_RESULT, 1));
+                    }
+                    this.reorder(false);
+                }
+            }
+            this.refreshCrafting().whenCompleteAsync((ignored, failure) -> this.interactionPending = false, this.screenExecutor);
+        }, this.screenExecutor);
+    }
+
+    private void takeCraftingBatch(boolean stonecutter, int token, int chunk, int multiplier) {
+        StorageClientStub.craftingTakeAll(this.sourcePos, stonecutter, multiplier)
+            .whenCompleteAsync((result, error) -> {
+                if (token != this.batchRequest) return;
+                if (error == null) {
+                    this.carried = result.carried();
+                    this.player.inventoryMenu.setCarried(this.carried);
+                    this.markCraftingRefilled(result.refilledSlots());
+                    if (result.changed()) this.reorder(false);
+                }
+                this.refreshCrafting().whenCompleteAsync((ignored, failure) -> {
+                    if (error == null && failure == null && !result.done() && chunk < 63) {
+                        this.takeCraftingBatch(stonecutter, token, chunk + 1, multiplier);
+                    } else this.interactionPending = false;
+                }, this.screenExecutor);
+            }, this.screenExecutor);
+    }
+
+    private void markCraftingRefilled(int mask) {
+        long now = this.minecraft.level.getGameTime();
+        if (mask != 0 && this.craftingSoundTick != now) {
+            this.craftingSoundTick = now;
+            this.minecraft.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.ITEM_PICKUP, 1));
+        }
+        for (int slot = 0; slot < 10; slot++) {
+            if ((mask & 1 << slot) != 0) this.craftingPop[slot] = now + 5;
+        }
+    }
+
+    private int craftingSlotAt(double x, double y) {
+        if (MathUtil.isInRange(x, y, this.left + 5, this.top + 128, this.left + 24, this.top + 147)) return 0;
+        for (int slot = 0; slot < 9; slot++) {
+            int sx = this.left + 7 + slot % 3 * 18;
+            int sy = this.top + 162 + slot / 3 * 18;
+            if (MathUtil.isInRange(x, y, sx - 2, sy - 2, sx + 17, sy + 17)) return slot + 1;
+        }
+        return -1;
+    }
+
+    private int craftingResultAt(double x, double y) {
+        if (MathUtil.isInRange(x, y, this.left + 81, this.top + 160, this.left + 100, this.top + 179)) return 0;
+        if (MathUtil.isInRange(x, y, this.left + 81, this.top + 196, this.left + 100, this.top + 215)) return 1;
+        return -1;
+    }
+
+    private void scrollCraftingRecipes(double mouseY) {
+        int rows = Math.max(0, (this.stonecutterRecipes.size() + 2) / 3 - 2);
+        this.recipeHead = Math.round(Mth.clamp((float) (mouseY - this.top - 126) / 24, 0, 1) * rows) * 3;
+    }
+
+    private boolean clickCraftingPanel(MouseButtonEvent event) {
+        if (event.button() == 0 && this.stonecutterRecipes.size() > 6
+            && MathUtil.isInRange(event.x(), event.y(), this.left + 95, this.top + 120, this.left + 99, this.top + 156)) {
+            this.recipeDragging = true;
+            this.scrollCraftingRecipes(event.y());
+            return true;
+        }
+        int slot = this.craftingSlotAt(event.x(), event.y());
+        int result = this.craftingResultAt(event.x(), event.y());
+        if (slot >= 0 || result >= 0) {
+            if (this.interactionPending || !this.craftingLoaded) return true;
+            if (slot >= 0 && event.button() == 2) {
+                this.performCrafting(StorageClientStub.craftingCloneSlot(this.sourcePos, slot));
+            } else if (slot >= 0 && event.hasShiftDown()) {
+                this.interactionPending = true;
+                StorageClientStub.craftingQuickMoveOut(this.sourcePos, slot).whenCompleteAsync((changed, error) -> {
+                    this.refreshCrafting().whenCompleteAsync((ignored, failure) -> this.interactionPending = false, this.screenExecutor);
+                    this.reorder(false);
+                }, this.screenExecutor);
+            } else if (event.button() == 0 || event.button() == 1) {
+                if (slot == 0) {
+                    this.performCrafting(StorageClientStub.craftingPutStonecutterInput(this.sourcePos, event.button(), this.carried));
+                } else if (slot > 0) {
+                    this.performCrafting(StorageClientStub.craftingPutCraftingSlot(this.sourcePos, slot - 1, event.button(), this.carried));
+                } else if (event.hasShiftDown() || this.craftingSpace) {
+                    this.interactionPending = true;
+                    this.takeCraftingBatch(result == 0, ++this.batchRequest, 0, event.hasShiftDown() ? 1 : 8);
+                } else this.performCrafting(StorageClientStub.craftingTakeResult(this.sourcePos, result == 0, false), result == 0);
+            }
+            return true;
+        }
+        for (int i = 0; i < 6 && i + this.recipeHead < this.stonecutterRecipes.size(); i++) {
+            int x = this.left + 39 + i % 3 * 18;
+            int y = this.top + 120 + i / 3 * 18;
+            if (MathUtil.isInRange(event.x(), event.y(), x, y, x + 18, y + 18)) {
+                if (!this.interactionPending && event.button() == 0) {
+                    int selected = this.recipeHead + i;
+                    this.crafting = this.crafting.withStonecutterSelected(selected);
+                    StorageClientStub.craftingSelect(this.sourcePos, selected);
+                    this.minecraft.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_STONECUTTER_SELECT_RECIPE, 1));
+                }
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private void extractCraftingPanel(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
+        this.extractCraftingSlot(graphics, this.crafting.stonecutterInput(), 7, 130, 0, mouseX, mouseY, partialTick);
+        for (int slot = 0; slot < 9; slot++) {
+            this.extractCraftingSlot(graphics, this.crafting.craftingInput().get(slot), 7 + slot % 3 * 18,
+                162 + slot / 3 * 18, slot + 1, mouseX, mouseY, partialTick);
+        }
+        int selected = this.crafting.stonecutterSelected();
+        ItemStack stoneResult = selected >= 0 && selected < this.stonecutterRecipes.size()
+            ? this.stonecutterRecipes.get(selected) : ItemStack.EMPTY;
+        this.extractCraftingSlot(graphics, stoneResult, 83, 162, -1, mouseX, mouseY, partialTick);
+        this.extractCraftingSlot(graphics, this.craftingResult, 83, 198, -1, mouseX, mouseY, partialTick);
+        for (int i = 0; i < 6 && i + this.recipeHead < this.stonecutterRecipes.size(); i++) {
+            int x = this.left + 39 + i % 3 * 18;
+            int y = this.top + 120 + i / 3 * 18;
+            boolean chosen = i + this.recipeHead == selected;
+            boolean hover = MathUtil.isInRange(mouseX, mouseY, x, y, x + 18, y + 18);
+            graphics.blit(RenderPipelines.GUI_TEXTURED, SharedTextures.SWITCH_TABLE_BUTTON, x, y,
+                0, chosen ? 18 : hover ? 36 : 0, 18, 18, 18, 54);
+            ItemStack item = this.stonecutterRecipes.get(i + this.recipeHead);
+            graphics.item(item, x + 1, y + (chosen ? 1 : 0));
+            if (hover && this.carried.isEmpty()) graphics.setTooltipForNextFrame(this.font, item, mouseX, mouseY);
+        }
+        if (this.stonecutterRecipes.size() > 6) {
+            int rows = (this.stonecutterRecipes.size() + 2) / 3 - 2;
+            int y = this.top + 120 + Math.round(24F * (this.recipeHead / 3) / rows);
+            graphics.blit(RenderPipelines.GUI_TEXTURED, SharedTextures.SWITCH_TABLE_SLIDER, this.left + 95, y, 0, 0, 4, 12, 8, 12);
+        }
+        if (this.craftingClear.isHovered()) {
+            graphics.setTooltipForNextFrame(Component.translatable("screen.anvilcraft.storage.crafting.clear"), mouseX, mouseY);
+        }
+        if (this.craftingAutoFill.isHovered()) {
+            graphics.setTooltipForNextFrame(Component.translatable(
+            "screen.anvilcraft.storage.crafting.auto_fill", Component.translatable("screen.anvilcraft.storage.crafting.auto_fill."
+                + (this.crafting.autoFill() ? "enabled" : "disabled"))), mouseX, mouseY);
+        }
+        if (this.craftingToStorage.isHovered()) {
+            graphics.setTooltipForNextFrame(Component.translatable(
+            "screen.anvilcraft.storage.crafting.to_storage", Component.translatable("screen.anvilcraft.storage.crafting.to_storage."
+                + (this.crafting.toStorage() ? "storage" : "player"))), mouseX, mouseY);
+        }
+    }
+
+    private void extractCraftingSlot(GuiGraphicsExtractor graphics, ItemStack stack, int x, int y, int slot,
+                                    int mouseX, int mouseY, float partialTick) {
+        x += this.left;
+        y += this.top;
+        if (!stack.isEmpty()) {
+            float remaining = slot < 0 ? 0 : this.craftingPop[slot] - this.minecraft.level.getGameTime() - partialTick;
+            if (remaining > 0) {
+                float f = 1 + remaining / 5;
+                graphics.pose().pushMatrix();
+                graphics.pose().translate(x + 8, y + 12).scale(1 / f, (f + 1) / 2).translate(-x - 8, -y - 12);
+            }
+            graphics.item(stack, x, y);
+            if (remaining > 0) graphics.pose().popMatrix();
+            graphics.itemDecorations(this.font, stack, x, y);
+        }
+        if (MathUtil.isInRange(mouseX, mouseY, x - 2, y - 2, x + 17, y + 17)) {
+            graphics.fill(x, y, x + 16, y + 16, 0x80ffffff);
+            if (!stack.isEmpty() && this.carried.isEmpty()) graphics.setTooltipForNextFrame(this.font, stack, mouseX, mouseY);
+        }
+    }
+
     // region Extract(Render)
     @Override
     public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
         graphics.blit(
             RenderPipelines.GUI_TEXTURED,
-            StorageScreen.BACKGROUND,
+            this.craftingMode ? CRAFTING_BACKGROUND : StorageScreen.BACKGROUND,
             this.left,
             this.top,
             0,
@@ -400,6 +701,7 @@ public class StorageScreen extends Screen {
         );
         this.extractStorageContents(graphics, mouseX, mouseY);
         this.extractPlayerInventory(graphics, mouseX, mouseY);
+        if (this.craftingMode) this.extractCraftingPanel(graphics, mouseX, mouseY, a);
         super.extractRenderState(graphics, mouseX, mouseY, a);
         this.extractCarriedItem(graphics, mouseX, mouseY);
         this.extractFlyout(graphics);
@@ -652,6 +954,7 @@ public class StorageScreen extends Screen {
             this.setFocused(hovered ? this.search : null);
         }
 
+        if (this.craftingMode && this.clickCraftingPanel(event)) return true;
         if (event.button() == 1 && MathUtil.isInRange(event.x(), event.y(),
             this.left + 278, this.top + 139, this.left + 296, this.top + 159)) {
             this.deposit(false, event.hasShiftDown());
@@ -796,6 +1099,10 @@ public class StorageScreen extends Screen {
 
     @Override
     public boolean mouseReleased(MouseButtonEvent event) {
+        if (this.recipeDragging) {
+            this.recipeDragging = false;
+            return true;
+        }
         super.mouseReleased(event);
         if (this.quickMoveDragging) {
             this.finishQuickMove();
@@ -988,6 +1295,11 @@ public class StorageScreen extends Screen {
 
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
+        if (this.craftingMode && MathUtil.isInRange(mouseX, mouseY, this.left + 39, this.top + 120, this.left + 101, this.top + 156)) {
+            int rows = Math.max(0, (this.stonecutterRecipes.size() + 2) / 3 - 2);
+            this.recipeHead = Mth.clamp(this.recipeHead / 3 - (int) Math.signum(scrollY), 0, rows) * 3;
+            return true;
+        }
         if (
             scrollY == 0
             || !MathUtil.isInRange(
@@ -1038,7 +1350,27 @@ public class StorageScreen extends Screen {
             }, this.screenExecutor);
             return true;
         }
+        if (this.craftingMode && event.key() == InputConstants.KEY_SPACE) {
+            this.craftingSpace = true;
+            return true;
+        }
         InputConstants.Key key = InputConstants.getKey(event);
+        if (this.craftingMode && this.minecraft.options.keyDrop.isActiveAndMatches(key)) {
+            if (this.interactionPending) return true;
+            double mx = this.minecraft.mouseHandler.getScaledXPos(this.minecraft.getWindow());
+            double my = this.minecraft.mouseHandler.getScaledYPos(this.minecraft.getWindow());
+            int slot = this.craftingSlotAt(mx, my);
+            if (slot >= 0) {
+                this.performCrafting(StorageClientStub.craftingThrowSlot(this.sourcePos, slot, event.hasControlDown()));
+                return true;
+            }
+            int result = this.craftingResultAt(mx, my);
+            if (result >= 0) {
+                this.performCrafting(
+                    StorageClientStub.craftingThrowResult(this.sourcePos, result == 0, event.hasControlDown()), result == 0);
+                return true;
+            }
+        }
         if (super.keyPressed(event)) {
             return true;
         } else if (this.minecraft.options.keyInventory.isActiveAndMatches(key)) {
@@ -1087,6 +1419,10 @@ public class StorageScreen extends Screen {
 
     @Override
     public boolean keyReleased(KeyEvent event) {
+        if (event.key() == InputConstants.KEY_SPACE) {
+            this.craftingSpace = false;
+            return true;
+        }
         if (
             (event.key() == InputConstants.KEY_LSHIFT || event.key() == InputConstants.KEY_RSHIFT)
             && !event.hasShiftDown()
@@ -1135,6 +1471,9 @@ public class StorageScreen extends Screen {
 
     @Override
     public void removed() {
+        this.craftingRequest++;
+        this.batchRequest++;
+        StorageClientStub.craftingSetLastOpened(this.sourcePos, this.craftingMode);
         if (this.quickMoveDragging && this.minecraft.player != null) this.finishQuickMove();
         this.reorderRequest++;
         this.syncRequest++;
