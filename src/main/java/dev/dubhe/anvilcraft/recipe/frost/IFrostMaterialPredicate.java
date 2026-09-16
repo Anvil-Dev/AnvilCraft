@@ -9,7 +9,7 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 
 /**
- * 霜降锻炉系列配方的材料槽要求。
+ * 浮霜锻造系列配方的材料槽要求。
  *
  * <p>材料是否合法由放入的模板与装备（以及配方本身）决定，因此判断时需要传入配方与输入。</p>
  */

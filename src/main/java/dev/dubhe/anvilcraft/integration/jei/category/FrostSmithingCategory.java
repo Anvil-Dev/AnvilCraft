@@ -84,7 +84,9 @@ public class FrostSmithingCategory implements IRecipeCategory<FrostSmithingCateg
     @FunctionalInterface
     public interface MaterialItems<T extends IFrostMaterialPredicate> {
         /**
-         * @param recipe   该页对应的霜降锻造配方
+         * 获取该材料谓词在 JEI 材料槽里展示的物品
+         *
+         * @param recipe   该页对应的浮霜锻造配方
          * @param input    该页对应的装备
          * @param material 该页对应的材料谓词实例
          * @return 材料槽要展示的物品，空列表表示该页不画材料槽
