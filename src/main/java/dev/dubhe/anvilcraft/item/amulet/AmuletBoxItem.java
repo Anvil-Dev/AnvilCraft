@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.item.amulet;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
+import dev.dubhe.anvilcraft.item.BundleLikeItem;
 import dev.dubhe.anvilcraft.item.property.component.BoxContents;
 import dev.dubhe.anvilcraft.util.ColorUtil;
 import net.minecraft.sounds.SoundEvents;
@@ -12,13 +13,9 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.SlotAccess;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.ClickAction;
-import net.minecraft.world.inventory.Slot;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemUseAnimation;
 import net.minecraft.world.item.ItemUtils;
@@ -26,7 +23,7 @@ import net.minecraft.world.level.Level;
 
 import java.util.Optional;
 
-public class AmuletBoxItem extends Item {
+public class AmuletBoxItem extends BundleLikeItem {
     private static final int FULL_BAR_COLOR = 0xFF5454FF;
     private static final int BAR_COLOR = 0x7087FFFF;
 
@@ -35,52 +32,29 @@ public class AmuletBoxItem extends Item {
     }
 
     @Override
-    public boolean overrideStackedOnOther(ItemStack itemStack, Slot slot, ClickAction clickAction, Player player) {
-        if (clickAction != ClickAction.SECONDARY || !slot.allowModification(player)) return false;
-        BoxContents contents = itemStack.getOrDefault(ModComponents.BOX_CONTENTS, BoxContents.EMPTY);
-        BoxContents.Mutable mutable = contents.mutable();
-        ItemStack other = slot.getItem();
-        if (other.isEmpty()) {
-            ItemStack popped = mutable.pop();
-            if (popped.isEmpty()) return false;
-            slot.set(popped);
-            AmuletBoxItem.playRemoveOneSound(player);
-        } else {
-            Optional<ItemStack> remain = mutable.tryInsert(other);
-            if (remain.isEmpty()) return false;
-            AmuletBoxItem.playInsertSound(player);
-            slot.set(remain.get());
-        }
-        itemStack.set(ModComponents.BOX_CONTENTS, mutable.immutable());
+    protected boolean storesContentsLocally() {
         return true;
     }
 
     @Override
-    public boolean overrideOtherStackedOnMe(
-        ItemStack box,
-        ItemStack other,
-        Slot slot,
-        ClickAction clickAction,
-        Player player,
-        SlotAccess slotAccess
-    ) {
-        if (clickAction != ClickAction.SECONDARY || !slot.allowModification(player)) return false;
-        BoxContents.Mutable contents = box.getOrDefault(ModComponents.BOX_CONTENTS, BoxContents.EMPTY).mutable();
-        if (other.isEmpty()) {
-            ItemStack itemStack = contents.pop();
-            if (itemStack.isEmpty()) return false;
-            slotAccess.set(itemStack);
-            AmuletBoxItem.playRemoveOneSound(player);
-            this.broadcastChangesOnContainerMenu(player);
-        } else {
-            Optional<ItemStack> remain = contents.tryInsert(other);
-            if (remain.isEmpty()) return false;
-            AmuletBoxItem.playInsertSound(player);
-            this.broadcastChangesOnContainerMenu(player);
-            slotAccess.set(remain.get());
-        }
-        box.set(ModComponents.BOX_CONTENTS, contents.immutable());
-        return true;
+    protected void removeOne(TransferState state) {
+        ItemStack stack = state.getStack();
+        var contents = stack.getOrDefault(ModComponents.BOX_CONTENTS, BoxContents.EMPTY).mutable();
+        state.setOutput(contents.pop());
+        stack.set(ModComponents.BOX_CONTENTS, contents.immutable());
+    }
+
+    @Override
+    protected void insertOne(TransferState state) {
+        ItemStack stack = state.getStack();
+        var contents = stack.getOrDefault(ModComponents.BOX_CONTENTS, BoxContents.EMPTY).mutable();
+        state.setOutput(contents.tryInsert(state.getOther()).orElse(null));
+        stack.set(ModComponents.BOX_CONTENTS, contents.immutable());
+    }
+
+    @Override
+    protected void updateStack(ItemStack stack, TransferState state) {
+        stack.set(ModComponents.BOX_CONTENTS, state.getStack().get(ModComponents.BOX_CONTENTS));
     }
 
     @Override
@@ -98,7 +72,7 @@ public class AmuletBoxItem extends Item {
                     if (remain.isEmpty()) continue;
                     inventory.setItem(i, remain.get());
                 }
-                AmuletBoxItem.playInsertSound(player);
+                BundleLikeItem.playSound(player, SoundEvents.BUNDLE_INSERT);
                 box.set(ModComponents.BOX_CONTENTS, mutable.immutable());
             } else if (AnvilCraft.CONFIG.amuletBoxTakeOutAllTotem) {
                 boolean dropped = false;
@@ -151,14 +125,6 @@ public class AmuletBoxItem extends Item {
         }
     }
 
-    private static void playRemoveOneSound(Entity entity) {
-        entity.playSound(SoundEvents.BUNDLE_REMOVE_ONE, 0.8F, 0.8F + entity.level().getRandom().nextFloat() * 0.4F);
-    }
-
-    private static void playInsertSound(Entity entity) {
-        entity.playSound(SoundEvents.BUNDLE_INSERT, 0.8F, 0.8F + entity.level().getRandom().nextFloat() * 0.4F);
-    }
-
     private static void playDropContentsSound(Level level, Entity entity) {
         level.playSound(
             null,
@@ -170,7 +136,4 @@ public class AmuletBoxItem extends Item {
         );
     }
 
-    private void broadcastChangesOnContainerMenu(Player player) {
-        player.containerMenu.slotsChanged(player.getInventory());
-    }
 }

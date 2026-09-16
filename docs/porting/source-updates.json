@@ -58,7 +58,8 @@
     {
       "commit": "471e3b30c4bacfe4749f9ed6d4dba485f59575bd",
       "status": "pending",
-      "scope": "Fixed an issue where the game was incorrectly selecting items from the pill or amulet box inventory. 修复了药盒和护符盒选取物品错误的问题 (#4853)"
+      "scope": "Fixed an issue where the game was incorrectly selecting items from the pill or amulet box inventory. 修复了药盒和护符盒选取物品错误的问题 (#4853)",
+      "integration": "BundleLike local-content prediction and shared box interaction migrated. Selection-index synchronization and processing-renderer restriction remain pending."
     },
     {
       "commit": "2b594b888a735c43e859bf1df37b4d7904fc2a3e",

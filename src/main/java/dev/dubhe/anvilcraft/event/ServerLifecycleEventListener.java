@@ -15,6 +15,7 @@ import dev.dubhe.anvilcraft.block.entity.ExpCollectorBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.ItemCollectorBlockEntity;
 import dev.dubhe.anvilcraft.init.ModHammerInits;
 import dev.dubhe.anvilcraft.item.weapon.LaserGunItem;
+import dev.dubhe.anvilcraft.rpc.BundleLikeServerStub;
 import dev.dubhe.anvilcraft.rpc.StorageServerStub;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -61,6 +62,7 @@ public class ServerLifecycleEventListener {
         FluidNetworkManager.INSTANCE.clear();
         SoundHelper.INSTANCE.clear();
         StorageServerStub.clear();
+        BundleLikeServerStub.clear();
         TerminalSourceManager.clear();
         ExpCollectorBlockEntity.clearPoachingCollectors();
         ItemCollectorBlockEntity.clearPoachingCollectors();

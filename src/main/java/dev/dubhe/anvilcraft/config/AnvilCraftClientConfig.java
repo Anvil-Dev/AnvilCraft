@@ -11,6 +11,9 @@ import net.neoforged.fml.config.ModConfig;
 
 @Config(name = AnvilCraft.MOD_ID, type = ModConfig.Type.CLIENT)
 public class AnvilCraftClientConfig {
+    @Comment("Swap insert/collect to left-click and keep extract/place on right-click (Left Collect, Right Place)")
+    public boolean invertOverrideAction = false;
+
     @Comment("The mode of the anvil hammer goggle info")
     public GoggleMode goggleMode = GoggleMode.WEARING_OR_HOLDING_HAMMER;
 

@@ -81,6 +81,10 @@ public final class PortVisualScene {
             MinecraftServer server = client.getSingleplayerServer();
             server.execute(() -> prepare(server));
         }
+        if (Boolean.getBoolean("anvilcraft.portBundleActionScene")) {
+            if (prepared) BundleActionScene.frame(client);
+            return;
+        }
         if (Boolean.getBoolean("anvilcraft.portSmartPlacerScene")) {
             smartFrame(client);
             return;
