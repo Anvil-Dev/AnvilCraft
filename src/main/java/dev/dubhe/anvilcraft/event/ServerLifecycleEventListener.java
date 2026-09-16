@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.event;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.StoragePortManager;
+import dev.dubhe.anvilcraft.api.TerminalSourceManager;
 import dev.dubhe.anvilcraft.api.fluid.network.FluidNetworkManager;
 import dev.dubhe.anvilcraft.api.hammer.HammerManager;
 import dev.dubhe.anvilcraft.api.heat.HeaterManager;
@@ -60,6 +61,7 @@ public class ServerLifecycleEventListener {
         FluidNetworkManager.INSTANCE.clear();
         SoundHelper.INSTANCE.clear();
         StorageServerStub.clear();
+        TerminalSourceManager.clear();
         ExpCollectorBlockEntity.clearPoachingCollectors();
         ItemCollectorBlockEntity.clearPoachingCollectors();
         LaserGunItem.clearStates();

@@ -34,6 +34,8 @@ allprojects {
             include '**/saved/storage/category/HasComponentCategory.java', '**/saved/storage/category/FilterCategory.java'
             include '**/saved/storage/category/CreativeModeTabCategory.java', '**/saved/storage/category/RecipeBookCategoryCategory.java'
             include '**/client/gui/component/category/CategoryButton.java', '**/client/gui/component/category/CategoryList.java'
+            include '**/TerminalSourceManager.java', '**/block/entity/storage/StorageBlockEntity.java'
+            include '**/event/LevelEventListener.java', '**/event/ServerLifecycleEventListener.java'
             include '**/StorageRecipeTransferPlan.java', '**/StorageJeiBridge.java', '**/StorageJeiSupport.java'
             include '**/StorageSetting.java', '**/SettingClientStub.java', '**/SettingServerStub.java', '**/CategorySettingsScreen.java'
             include '**/StorageServerStub.java', '**/StorageClientStub.java', '**/StorageInput.java', '**/StorageScreen.java', '**/StorageMenu.java'
