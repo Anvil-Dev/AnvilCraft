@@ -43,7 +43,7 @@ import net.minecraft.client.MouseHandler;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.EditBox;
-import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.player.LocalPlayer;
@@ -71,6 +71,8 @@ import net.minecraft.world.item.crafting.CraftingInput;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.item.crafting.SingleRecipeInput;
 import net.neoforged.neoforge.client.ItemDecoratorHandler;
+import net.neoforged.neoforge.client.event.ContainerScreenEvent;
+import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.FluidType;
 import net.neoforged.neoforge.transfer.item.ItemResource;
@@ -84,7 +86,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 
-public class StorageScreen extends Screen {
+public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
     private static final Identifier BACKGROUND = SharedTextures.bg("misc", "storage_station");
     private static final Identifier CRAFTING_BACKGROUND = SharedTextures.bg("misc", "storage_station_crafting");
     private CraftingStorage crafting = CraftingStorage.EMPTY;
@@ -208,10 +210,11 @@ public class StorageScreen extends Screen {
     private boolean craftingCloseRequested;
     private int left;
     private int top;
-    private int titleLabelX;
 
     public StorageScreen(BlockPos sourcePos) {
-        super(Objects.requireNonNull(Minecraft.getInstance().level).getBlockState(sourcePos).getBlock().getName());
+        super(new StorageMenu(Objects.requireNonNull(Minecraft.getInstance().player), sourcePos),
+            Minecraft.getInstance().player.getInventory(),
+            Objects.requireNonNull(Minecraft.getInstance().level).getBlockState(sourcePos).getBlock().getName(), BG_WIDTH, BG_HEIGHT);
         this.sourcePos = sourcePos;
         this.player = Objects.requireNonNull(Minecraft.getInstance().player);
         this.serverSlots.defaultReturnValue(-1);
@@ -229,8 +232,11 @@ public class StorageScreen extends Screen {
             StorageClientStub.setOpen(this.sourcePos, true);
         }
         this.flipped = SettingClientStub.storage().isFlipped();
+        this.menu.setFlipped(this.flipped);
         this.left = (this.width - StorageScreen.BG_WIDTH) / 2;
         this.top = (this.height - StorageScreen.BG_HEIGHT) / 2;
+        this.leftPos = this.left;
+        this.topPos = this.top;
         this.titleLabelX = (StorageScreen.BG_WIDTH - 106 - this.font.width(this.title)) / 2 + (this.flipped ? 0 : 106);
 
         this.search = this.addRenderableWidget(new EditBox(
@@ -400,8 +406,7 @@ public class StorageScreen extends Screen {
     }
 
     @Override
-    public void tick() {
-        super.tick();
+    protected void containerTick() {
         this.flushQuickMoves();
         this.flushCraftingPickup();
         if (this.craftingCloseRequested && !this.interactionPending && this.queuedCraftingPickup == -2) {
@@ -762,7 +767,11 @@ public class StorageScreen extends Screen {
         this.extractStorageContents(graphics, mouseX, mouseY);
         this.extractPlayerInventory(graphics, mouseX, mouseY);
         if (this.craftingMode) this.extractCraftingPanel(graphics, mouseX, mouseY, a);
-        super.extractRenderState(graphics, mouseX, mouseY, a);
+        for (var renderable : this.renderables) renderable.extractRenderState(graphics, mouseX, mouseY, a);
+        graphics.pose().pushMatrix();
+        graphics.pose().translate(this.left, this.top);
+        NeoForge.EVENT_BUS.post(new ContainerScreenEvent.Render.Foreground(this, graphics, mouseX, mouseY));
+        graphics.pose().popMatrix();
         this.extractCarriedItem(graphics, mouseX, mouseY);
         this.extractFlyout(graphics);
         this.extractTooltip(graphics, mouseX, mouseY);
@@ -902,7 +911,8 @@ public class StorageScreen extends Screen {
         }
     }
 
-    private void extractTooltip(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
+    @Override
+    protected void extractTooltip(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
         if (this.flipButton != null && this.flipButton.isMouseOver(mouseX, mouseY)) {
             graphics.setTooltipForNextFrame(Component.translatable("screen.anvilcraft.storage.flip"), mouseX, mouseY);
             return;
@@ -962,7 +972,8 @@ public class StorageScreen extends Screen {
         return Component.translatable("screen.anvilcraft.storage.capacity.space", capacity.space(), capacity.spaceSize());
     }
 
-    private void extractCarriedItem(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
+    @Override
+    public void extractCarriedItem(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
         if (this.carried.isEmpty()) {
             return;
         }
@@ -1032,7 +1043,7 @@ public class StorageScreen extends Screen {
             this.deposit(false, event.hasShiftDown());
             return true;
         }
-        if (super.mouseClicked(event, doubleClick)) {
+        if (this.dispatchMouseClicked(event, doubleClick)) {
             return true;
         }
 
@@ -1157,7 +1168,7 @@ public class StorageScreen extends Screen {
             return true;
         }
         if (!this.quickCrafting || event.button() != this.quickCraftingButton || this.carried.isEmpty()) {
-            return super.mouseDragged(event, dragX, dragY);
+            return this.dispatchMouseDragged(event, dragX, dragY);
         }
 
         int inventorySlot = this.getInventorySlot(event.x(), event.y());
@@ -1187,7 +1198,7 @@ public class StorageScreen extends Screen {
             this.recipeDragging = false;
             return true;
         }
-        super.mouseReleased(event);
+        this.dispatchMouseReleased(event);
         if (this.doubleCraftingPickup >= 0) {
             int input = this.doubleCraftingPickup;
             this.doubleCraftingPickup = -1;
@@ -1370,7 +1381,7 @@ public class StorageScreen extends Screen {
             this.craftingCloseRequested = true;
             return;
         }
-        super.onClose();
+        this.minecraft.popGuiLayer();
     }
 
     private void startCraftingDrag(int button) {
@@ -1486,7 +1497,8 @@ public class StorageScreen extends Screen {
                 this.top + StorageScreen.STORAGE_Y + StorageScreen.STORAGE_ROWS * StorageScreen.SLOT_SIZE
             )
         ) {
-            return super.mouseScrolled(mouseX, mouseY, scrollX, scrollY);
+            return this.getChildAt(mouseX, mouseY)
+                .filter(child -> child.mouseScrolled(mouseX, mouseY, scrollX, scrollY)).isPresent();
         }
 
         int nextScrollRow = Mth.clamp(
@@ -1546,7 +1558,7 @@ public class StorageScreen extends Screen {
                 return true;
             }
         }
-        if (super.keyPressed(event)) {
+        if (!this.minecraft.options.keyDrop.isActiveAndMatches(key) && super.keyPressed(event)) {
             return true;
         } else if (this.minecraft.options.keyInventory.isActiveAndMatches(key)) {
             this.onClose();
@@ -1645,6 +1657,13 @@ public class StorageScreen extends Screen {
     }
 
     @Override
+    public void added() {
+        this.interactionPending = false;
+        this.interactionSyncPending = false;
+        this.carried = this.player.inventoryMenu.getCarried();
+    }
+
+    @Override
     public void removed() {
         this.pendingCraftingPickup = -1;
         this.doubleCraftingPickup = -1;
@@ -1703,6 +1722,35 @@ public class StorageScreen extends Screen {
     @Override
     public boolean isInGameUi() {
         return true;
+    }
+
+    private boolean dispatchMouseClicked(MouseButtonEvent event, boolean doubleClick) {
+        var child = this.getChildAt(event.x(), event.y());
+        if (child.isEmpty()) return false;
+        var widget = child.get();
+        if (widget.mouseClicked(event, doubleClick) && widget.shouldTakeFocusAfterInteraction()) {
+            this.setFocused(widget);
+            if (event.button() == 0) this.setDragging(true);
+        }
+        return true;
+    }
+
+    private void dispatchMouseReleased(MouseButtonEvent event) {
+        if (event.button() == 0 && this.isDragging()) {
+            this.setDragging(false);
+            if (this.getFocused() != null) this.getFocused().mouseReleased(event);
+        }
+    }
+
+    private boolean dispatchMouseDragged(MouseButtonEvent event, double dx, double dy) {
+        return this.getFocused() != null && this.isDragging() && event.button() == 0
+            && this.getFocused().mouseDragged(event, dx, dy);
+    }
+
+    @Override
+    public @Nullable Slot getHoveredSlot() {
+        int index = this.getScreenSlot();
+        return index < 0 ? null : this.menu.getSlot(index);
     }
 
     public int getLeftPos() {

@@ -128,7 +128,8 @@ if (providers.gradleProperty('portValidation').isPresent()) {
         neoForge.runs.client.systemProperty 'anvilcraft.portCraftingBatchScene', 'true'
         neoForge.runs.client.programArguments.addAll '--width', '1280', '--height', '720'
     }
-    def storageTransferScene = providers.gradleProperty('portCraftingTransferScene').isPresent()
+    def storageMenuScene = providers.gradleProperty('portStorageMenuScene').isPresent()
+    def storageTransferScene = storageMenuScene || providers.gradleProperty('portCraftingTransferScene').isPresent()
     def storageFlipScene = storageTransferScene || providers.gradleProperty('portStorageFlipScene').isPresent()
     if (providers.gradleProperty('portCraftingPanelScene').isPresent() || providers.gradleProperty('portCraftingDragScene').isPresent()
         || providers.gradleProperty('portCraftingPickupScene').isPresent() || storageFlipScene) {
@@ -139,6 +140,9 @@ if (providers.gradleProperty('portValidation').isPresent()) {
         neoForge.runs.client.systemProperty 'anvilcraft.portCraftingExecutionScene', 'true'
         neoForge.runs.client.systemProperty 'anvilcraft.portCraftingBatchScene', 'true'
         neoForge.runs.client.systemProperty 'anvilcraft.portCraftingPanelScene', 'true'
+        if (storageMenuScene) {
+            neoForge.runs.client.systemProperty 'anvilcraft.portStorageMenuScene', 'true'
+        }
         if (storageTransferScene) {
             neoForge.runs.client.systemProperty 'anvilcraft.portCraftingTransferScene', 'true'
         }

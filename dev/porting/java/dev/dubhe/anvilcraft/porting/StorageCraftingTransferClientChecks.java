@@ -18,10 +18,15 @@ import java.util.concurrent.CompletableFuture;
 
 public final class StorageCraftingTransferClientChecks {
     private static boolean started;
+    private static boolean menuTesting;
     private static volatile boolean done;
     private static volatile Throwable failure;
 
     public static void frame(Minecraft client, BlockPos corePos) {
+        if (menuTesting) {
+            StorageMenuScene.frame(client, corePos);
+            return;
+        }
         if (failure != null) throw new IllegalStateException("仓储配方填料网络检查失败", failure);
         if (!started) {
             started = true;
@@ -100,7 +105,8 @@ public final class StorageCraftingTransferClientChecks {
         }
         if (done) {
             AnvilCraft.LOGGER.info("PORT_CRAFTING_TRANSFER_CLIENT_PASSED: grid counts, empty cells, stonecutter, returns, cursor");
-            client.stop();
+            if (Boolean.getBoolean("anvilcraft.portStorageMenuScene")) menuTesting = true;
+            else client.stop();
         }
     }
 
