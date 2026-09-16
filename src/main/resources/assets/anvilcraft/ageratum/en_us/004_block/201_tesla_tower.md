@@ -12,7 +12,7 @@ items:
 # Function
 
 - Every 4 seconds, zaps the nearest mob or <ref item="minecraft:lightning_rod"/> within a radius of 8 blocks, dealing 10 damage
-- A whitelist can be set in the GUI
+- An allowlist can be set in the GUI
 
 ---
 

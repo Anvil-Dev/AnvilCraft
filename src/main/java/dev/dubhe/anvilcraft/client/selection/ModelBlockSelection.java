@@ -73,7 +73,7 @@ public final class ModelBlockSelection {
     }
 
     public static void reload(ModelEvent.BakingCompleted event) {
-        ModelSelectionBlacklist.reload(Minecraft.getInstance().getResourceManager());
+        ModelSelectionDenylist.reload(Minecraft.getInstance().getResourceManager());
         ModelBakeryAccessor bakery = (ModelBakeryAccessor) event.getModelBakery();
         snapshot = new ModelSelectionBakery(bakery.getUnbakedCache()).bake(bakery.getTopLevelModels());
         DYNAMIC.clear();
@@ -190,7 +190,7 @@ public final class ModelBlockSelection {
     static List<SelectionPart> dynamic(ClientLevel level, BlockPos pos, float partialTick) {
         return DYNAMIC.computeIfAbsent(pos.immutable(), key -> {
             BlockEntity entity = level.getBlockEntity(key);
-            if (entity == null || ModelSelectionBlacklist.excludesBlockEntity(entity.getBlockState().getBlock())) return List.of();
+            if (entity == null || ModelSelectionDenylist.excludesBlockEntity(entity.getBlockState().getBlock())) return List.of();
             return rendererParts(entity, partialTick);
         });
     }
@@ -264,8 +264,8 @@ public final class ModelBlockSelection {
         BlockState state = level.getBlockState(pos);
         Block block = state.getBlock();
         if (!AnvilCraft.MOD_ID.equals(BuiltInRegistries.BLOCK.getKey(block).getNamespace())) return;
-        if (ModelSelectionBlacklist.usesOriginalOutline(block)) return;
-        boolean originalPicking = ModelSelectionBlacklist.usesOriginalPicking(block);
+        if (ModelSelectionDenylist.usesOriginalOutline(block)) return;
+        boolean originalPicking = ModelSelectionDenylist.usesOriginalPicking(block);
         if (!originalPicking && !CubeSelection.isEnabled(block)) return;
         List<SelectionPart> whole = snapshot.outlines().get(state);
         boolean multipartOutline = whole != null && block instanceof AbstractMultiPartBlock<?>;

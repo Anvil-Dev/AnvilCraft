@@ -89,15 +89,15 @@ public class FilterContainer implements Container {
         return this.getContent().includeComponents();
     }
 
-    public boolean blackList() {
-        return this.getContent().blackList();
+    public boolean denyList() {
+        return this.getContent().denyList();
     }
 
     public void setIncludeComponents(boolean includeComponents) {
         this.setContent(this.getContent().setIncludeComponents(includeComponents));
     }
 
-    public void setBlackList(boolean blackList) {
-        this.setContent(this.getContent().setBlackList(blackList));
+    public void setDenyList(boolean denyList) {
+        this.setContent(this.getContent().setDenyList(denyList));
     }
 }

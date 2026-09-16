@@ -27,10 +27,10 @@ public class FilterScreen extends AbstractContainerScreen<FilterMenu> implements
         SharedTextures.textureGui("misc/filter/include_components_enable");
     private static final ResourceLocation INCLUDE_COMPONENTS_DISABLE =
         SharedTextures.textureGui("misc/filter/include_components_disable");
-    private static final ResourceLocation BLACK_LIST_ENABLE =
-        SharedTextures.textureGui("misc/filter/black_list_enable");
-    private static final ResourceLocation BLACK_LIST_DISABLE =
-        SharedTextures.textureGui("misc/filter/black_list_disable");
+    private static final ResourceLocation DENY_LIST_ENABLE =
+        SharedTextures.textureGui("misc/filter/deny_list_enable");
+    private static final ResourceLocation DENY_LIST_DISABLE =
+        SharedTextures.textureGui("misc/filter/deny_list_disable");
 
     public FilterScreen(FilterMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
@@ -70,19 +70,19 @@ public class FilterScreen extends AbstractContainerScreen<FilterMenu> implements
             this.topPos + 44,
             16,
             16,
-            List.of(BLACK_LIST_ENABLE, BLACK_LIST_DISABLE),
+            List.of(DENY_LIST_ENABLE, DENY_LIST_DISABLE),
             16,
             16,
             32,
             (button, index) -> {
-                container.setBlackList(index == 0);
+                container.setDenyList(index == 0);
                 this.sync();
             },
             List.of(
-                Component.translatable("screen.anvilcraft.filter.black_list"),
-                Component.translatable("screen.anvilcraft.filter.white_list")
+                Component.translatable("screen.anvilcraft.filter.deny_list"),
+                Component.translatable("screen.anvilcraft.filter.allow_list")
             )
-        )).setCurrent(container.blackList() ? 0 : 1);
+        )).setCurrent(container.denyList() ? 0 : 1);
     }
 
     @Override

@@ -124,7 +124,7 @@ public class DragonRodItem extends Item {
         ServerLevel level, Player player, InteractionHand hand,
         BlockPos centerPos, BlockState centerState, Direction clickedSide
     ) {
-        if (centerState.is(ModBlockTags.DEVOUR_BLACKLIST)) return;
+        if (centerState.is(ModBlockTags.DEVOUR_DENYLIST)) return;
         if (centerState.getDestroySpeed(level, centerPos) < 0.0F) return;
         ItemStack dragonRod = player.getItemInHand(hand);
         if (!canDevour(player, dragonRod)) return;

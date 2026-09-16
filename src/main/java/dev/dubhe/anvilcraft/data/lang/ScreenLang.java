@@ -274,8 +274,8 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.deflection_ring.state", "Deflection Ring State");
         provider.add("screen.anvilcraft.deflection_ring.speed", "  Last Entity Speed: %d m/tick");
 
-        provider.add("screen.anvilcraft.filter.black_list", "Black List");
-        provider.add("screen.anvilcraft.filter.white_list", "White List");
+        provider.add("screen.anvilcraft.filter.deny_list", "Deny List");
+        provider.add("screen.anvilcraft.filter.allow_list", "Allow List");
         provider.add("screen.anvilcraft.filter.match_component", "Match Component");
         provider.add("screen.anvilcraft.filter.mismatch_component", "Mismatch Component");
 

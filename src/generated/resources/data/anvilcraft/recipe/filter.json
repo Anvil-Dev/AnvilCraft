@@ -20,7 +20,7 @@
   "result": {
     "components": {
       "anvilcraft:filter_contents": {
-        "black_list": false,
+        "deny_list": false,
         "include_components": false,
         "list": [
           {},

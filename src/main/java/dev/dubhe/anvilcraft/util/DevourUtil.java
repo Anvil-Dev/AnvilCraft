@@ -21,7 +21,7 @@ public class DevourUtil {
      *
      */
     public static boolean canDevour(BlockState devourState) {
-        return !devourState.is(ModBlockTags.DEVOUR_BLACKLIST) && devourState.getBlock().defaultDestroyTime() >= 0;
+        return !devourState.is(ModBlockTags.DEVOUR_DENYLIST) && devourState.getBlock().defaultDestroyTime() >= 0;
     }
 
     /**
