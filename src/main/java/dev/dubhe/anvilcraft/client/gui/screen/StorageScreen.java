@@ -69,6 +69,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.crafting.CraftingInput;
 import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraft.world.item.crafting.SingleRecipeInput;
 import net.neoforged.neoforge.client.ItemDecoratorHandler;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.FluidType;
@@ -181,6 +182,7 @@ public class StorageScreen extends Screen {
     private boolean remappedOrder;
     private int nextLogicalSlot;
     private final IntSet quickCraftSlots = new IntOpenHashSet();
+    private final IntSet quickCraftInputs = new IntOpenHashSet();
     private boolean quickCrafting;
     private boolean quickMoveDragging;
     private final IntSet quickMoveSlots = new IntOpenHashSet();
@@ -564,7 +566,10 @@ public class StorageScreen extends Screen {
         int result = this.craftingResultAt(event.x(), event.y());
         if (slot >= 0 || result >= 0) {
             if (this.interactionPending || !this.craftingLoaded) return true;
-            if (slot >= 0 && event.button() == 2) {
+            if (slot >= 0 && !this.carried.isEmpty() && !event.hasShiftDown()
+                && (event.button() == 0 || event.button() == 1 || event.button() == 2 && this.player.hasInfiniteMaterials())) {
+                this.startCraftingDrag(event.button());
+            } else if (slot >= 0 && event.button() == 2) {
                 this.performCrafting(StorageClientStub.craftingCloneSlot(this.sourcePos, slot));
             } else if (slot >= 0 && event.hasShiftDown()) {
                 this.interactionPending = true;
@@ -646,6 +651,12 @@ public class StorageScreen extends Screen {
                                     int mouseX, int mouseY, float partialTick) {
         x += this.left;
         y += this.top;
+        if (this.quickCrafting && this.quickCraftInputs.contains(slot)) {
+            int placed = AbstractContainerMenu.getQuickCraftPlaceCount(
+                this.quickCraftTargetCount(), this.quickCraftingButton, this.carried);
+            stack = this.carried.copyWithCount(Math.min(stack.getCount() + placed, this.carried.getMaxStackSize()));
+            graphics.fill(x, y, x + 16, y + 16, 0x80ffffff);
+        }
         if (!stack.isEmpty()) {
             float remaining = slot < 0 ? 0 : this.craftingPop[slot] - this.minecraft.level.getGameTime() - partialTick;
             if (remaining > 0) {
@@ -903,7 +914,7 @@ public class StorageScreen extends Screen {
             return;
         }
         ItemStack renderedCarried = this.carried;
-        if (this.quickCrafting && !this.quickCraftSlots.isEmpty()) {
+        if (this.quickCrafting && this.quickCraftTargetCount() > 0) {
             int remaining = this.getQuickCraftRemaining();
             if (remaining == 0) {
                 return;
@@ -920,7 +931,7 @@ public class StorageScreen extends Screen {
         int currentCount = slot.hasItem() ? slot.getItem().getCount() : 0;
         int maxCount = Math.min(this.carried.getMaxStackSize(), slot.getMaxStackSize(this.carried));
         int placedCount = AbstractContainerMenu.getQuickCraftPlaceCount(
-            this.quickCraftSlots.size(),
+            this.quickCraftTargetCount(),
             this.quickCraftingButton,
             this.carried
         );
@@ -928,17 +939,24 @@ public class StorageScreen extends Screen {
     }
 
     private int getQuickCraftRemaining() {
+        if (this.quickCraftingButton == 2) return this.carried.getCount();
         int remaining = this.carried.getCount();
         for (int screenSlot : this.quickCraftSlots) {
             Slot slot = this.player.inventoryMenu.getSlot(screenSlot);
             int currentCount = slot.hasItem() ? slot.getItem().getCount() : 0;
             int maxCount = Math.min(this.carried.getMaxStackSize(), slot.getMaxStackSize(this.carried));
             int placedCount = AbstractContainerMenu.getQuickCraftPlaceCount(
-                this.quickCraftSlots.size(),
+                this.quickCraftTargetCount(),
                 this.quickCraftingButton,
                 this.carried
             );
             remaining -= Math.min(placedCount, maxCount - currentCount);
+        }
+        for (int input : this.quickCraftInputs) {
+            ItemStack current = this.craftingDragInput(input);
+            int placed = AbstractContainerMenu.getQuickCraftPlaceCount(
+                this.quickCraftTargetCount(), this.quickCraftingButton, this.carried);
+            remaining -= Math.min(placed, this.carried.getMaxStackSize() - current.getCount());
         }
         return Math.max(0, remaining);
     }
@@ -1020,9 +1038,7 @@ public class StorageScreen extends Screen {
                     this.pickupAllSlot = this.getScreenSlot(slot);
                     return true;
                 }
-                this.quickCrafting = true;
-                this.quickCraftingButton = event.button();
-                this.quickCraftSlots.clear();
+                this.startCraftingDrag(event.button());
                 return true;
             }
 
@@ -1037,6 +1053,11 @@ public class StorageScreen extends Screen {
             this.carried = this.player.inventoryMenu.getCarried();
             return true;
         } else if (event.button() == 2) {
+            if (this.craftingMode && this.player.hasInfiniteMaterials() && !this.carried.isEmpty()
+                && this.getInventorySlot(event.x(), event.y()) >= 0) {
+                this.startCraftingDrag(2);
+                return true;
+            }
             Integer storageSlot = this.getStorageSlot(event.x(), event.y());
             if (
                 storageSlot != null
@@ -1073,6 +1094,10 @@ public class StorageScreen extends Screen {
 
     @Override
     public boolean mouseDragged(MouseButtonEvent event, double dragX, double dragY) {
+        if (this.recipeDragging) {
+            this.scrollCraftingRecipes(event.y());
+            return true;
+        }
         if (this.quickMoveDragging) {
             if (event.button() == 0 && event.hasShiftDown()) this.quickMoveDrag(event.x(), event.y());
             return true;
@@ -1086,13 +1111,18 @@ public class StorageScreen extends Screen {
             int screenSlot = this.getScreenSlot(inventorySlot);
             Slot slot = this.player.inventoryMenu.getSlot(screenSlot);
             if (
-                this.carried.getCount() > this.quickCraftSlots.size()
+                (this.quickCraftingButton == 2 || this.carried.getCount() > this.quickCraftTargetCount())
                 && AbstractContainerMenu.canItemQuickReplace(slot, this.carried, true)
                 && slot.mayPlace(this.carried)
                 && this.player.inventoryMenu.canDragTo(slot)
             ) {
                 this.quickCraftSlots.add(screenSlot);
             }
+        }
+        if (this.craftingMode) {
+            int input = this.craftingSlotAt(event.x(), event.y());
+            if (input >= 0 && (this.quickCraftingButton == 2 || this.carried.getCount() > this.quickCraftTargetCount())
+                && this.canDragIntoCrafting(input)) this.quickCraftInputs.add(input);
         }
         return true;
     }
@@ -1129,6 +1159,24 @@ public class StorageScreen extends Screen {
 
         if (event.button() == this.quickCraftingButton && this.minecraft.gameMode != null) {
             this.player.inventoryMenu.setCarried(this.carried);
+            if (!this.quickCraftInputs.isEmpty()) {
+                IntList inventory = new IntArrayList();
+                for (int i = 0; i < Inventory.INVENTORY_SIZE; i++) {
+                    if (this.quickCraftSlots.contains(this.getScreenSlot(i))) inventory.add(i);
+                }
+                this.performCrafting(StorageClientStub.craftingQuickCraft(this.sourcePos, event.button(),
+                    new IntArrayList(this.quickCraftInputs), inventory, this.carried));
+                this.finishCraftingDrag();
+                return true;
+            }
+            int input = this.craftingMode ? this.craftingSlotAt(event.x(), event.y()) : -1;
+            if (this.quickCraftSlots.isEmpty() && input >= 0 && event.button() != 2) {
+                this.performCrafting(input == 0
+                    ? StorageClientStub.craftingPutStonecutterInput(this.sourcePos, event.button(), this.carried)
+                    : StorageClientStub.craftingPutCraftingSlot(this.sourcePos, input - 1, event.button(), this.carried));
+                this.finishCraftingDrag();
+                return true;
+            }
             if (this.quickCraftSlots.isEmpty()) {
                 int inventorySlot = this.getInventorySlot(event.x(), event.y());
                 if (inventorySlot != -1) {
@@ -1146,8 +1194,7 @@ public class StorageScreen extends Screen {
             this.carried = this.player.inventoryMenu.getCarried();
         }
 
-        this.quickCrafting = false;
-        this.quickCraftSlots.clear();
+        this.finishCraftingDrag();
         return true;
     }
 
@@ -1228,6 +1275,38 @@ public class StorageScreen extends Screen {
         } else {
             this.reorder(false);
         }
+    }
+
+    private void startCraftingDrag(int button) {
+        this.quickCrafting = true;
+        this.quickCraftingButton = button;
+        this.quickCraftSlots.clear();
+        this.quickCraftInputs.clear();
+    }
+
+    private void finishCraftingDrag() {
+        this.quickCrafting = false;
+        this.quickCraftSlots.clear();
+        this.quickCraftInputs.clear();
+    }
+
+    private int quickCraftTargetCount() {
+        return this.quickCraftSlots.size() + this.quickCraftInputs.size();
+    }
+
+    private ItemStack craftingDragInput(int slot) {
+        return slot == 0 ? this.crafting.stonecutterInput() : this.crafting.craftingInput().get(slot - 1);
+    }
+
+    private boolean canDragIntoCrafting(int slot) {
+        ItemStack current = this.craftingDragInput(slot);
+        if (!current.isEmpty() && !ItemStack.isSameItemSameComponents(current, this.carried)) return false;
+        if (current.getCount() >= this.carried.getMaxStackSize()) return false;
+        if (slot != 0) return true;
+        if (RecipesRecord.CLIENTSIDE == null) return false;
+        var input = new SingleRecipeInput(this.carried);
+        return RecipesRecord.CLIENTSIDE.byType(RecipeType.STONECUTTING).stream()
+            .anyMatch(recipe -> recipe.value().matches(input, this.minecraft.level));
     }
 
     private void quickCraftToSlots(int button) {

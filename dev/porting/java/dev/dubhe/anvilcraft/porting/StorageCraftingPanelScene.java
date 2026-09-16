@@ -28,8 +28,13 @@ public final class StorageCraftingPanelScene {
     private static int frames;
     private static boolean capturing;
     private static boolean supplied;
+    private static boolean dragTesting;
 
     public static void frame(Minecraft client, BlockPos corePos) {
+        if (dragTesting) {
+            StorageCraftingDragScene.frame(client, corePos, screen);
+            return;
+        }
         if (!started) {
             started = true;
             client.getSingleplayerServer().execute(() -> {
@@ -131,6 +136,16 @@ public final class StorageCraftingPanelScene {
             }
             case 11 -> {
                 if (((List<?>) field("stonecutterRecipes")).isEmpty()) return;
+                if (((List<?>) field("stonecutterRecipes")).size() > 6) {
+                    int left = (int) field("left");
+                    int top = (int) field("top");
+                    screen.mouseClicked(new MouseButtonEvent(left + 97, top + 123, new MouseButtonInfo(0, 0)), false);
+                    screen.mouseDragged(new MouseButtonEvent(left + 97, top + 152, new MouseButtonInfo(0, 0)), 0, 29);
+                    if ((int) field("recipeHead") == 0) throw new IllegalStateException("切石滚动条未响应拖动");
+                    screen.mouseReleased(new MouseButtonEvent(left + 97, top + 152, new MouseButtonInfo(0, 0)));
+                    screen.mouseScrolled(left + 45, top + 125, 0, 20);
+                    while ((int) field("recipeHead") != 0) screen.mouseScrolled(left + 45, top + 125, 0, 1);
+                }
                 click(83, 129, 0, 0);
                 advance(12);
             }
@@ -157,7 +172,8 @@ public final class StorageCraftingPanelScene {
                 if (!state().autoFill() || !state().toStorage()) throw new IllegalStateException("关闭重开丢失选项");
                 AnvilCraft.LOGGER.info(
                     "PORT_CRAFTING_PANEL_SCENE_PASSED: unlock, inventory, grid, result, shift, stonecutter, options, reopen");
-                client.stop();
+                if (Boolean.getBoolean("anvilcraft.portCraftingDragScene")) dragTesting = true;
+                else client.stop();
             }
             default -> throw new IllegalStateException("Unknown stage " + stage);
         }

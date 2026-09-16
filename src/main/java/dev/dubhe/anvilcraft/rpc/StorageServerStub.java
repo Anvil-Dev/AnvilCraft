@@ -29,6 +29,7 @@ import io.netty.buffer.ByteBuf;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
+import it.unimi.dsi.fastutil.ints.IntSet;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
@@ -333,6 +334,61 @@ public final class StorageServerStub {
     private static ItemStack craftingInput(CraftingStorage state, int slot) {
         if (slot < 0 || slot > CraftingStorage.CRAFTING_GRID_SIZE) throw new IllegalArgumentException("Invalid crafting slot: " + slot);
         return slot == 0 ? state.stonecutterInput() : state.craftingInput().get(slot - 1);
+    }
+
+    @RemoteCallable(validator = StorageAccessValidator.class)
+    public static InteractionResult craftingQuickCraft(
+        UUID playerId, long sourcePos, int button,
+        @CallableParam(clazz = StorageServerStub.class, field = "ORDER_STREAM_CODEC") IntList craftingSlots,
+        @CallableParam(clazz = StorageServerStub.class, field = "ORDER_STREAM_CODEC") IntList inventorySlots,
+        @CallableParam(clazz = ItemStack.class, field = "OPTIONAL_STREAM_CODEC") ItemStack clientCarried
+    ) {
+        ServerPlayer player = getServerPlayer(playerId);
+        final CraftingTarget target = resolveCraftingTarget(player, sourcePos);
+        cancelCraftingBatch(playerId, sourcePos);
+        ItemStack carried = player.hasInfiniteMaterials() ? clientCarried : player.containerMenu.getCarried();
+        if (button < 0 || button > 2 || carried.isEmpty() || button == 2 && !player.hasInfiniteMaterials()) {
+            return new InteractionResult(carried, false);
+        }
+        if (craftingSlots.size() > MAX_SYNC_SLOTS || inventorySlots.size() > MAX_SYNC_SLOTS) {
+            throw new IllegalArgumentException("Too many crafting drag targets");
+        }
+        IntList targets = new IntArrayList();
+        IntSet visited = new IntOpenHashSet();
+        for (int slot : craftingSlots) {
+            if (slot >= 0 && slot <= CraftingStorage.CRAFTING_GRID_SIZE && visited.add(slot)) targets.add(slot);
+        }
+        for (int slot : inventorySlots) {
+            if (slot >= 0 && slot < Inventory.INVENTORY_SIZE && visited.add(slot + 10)) targets.add(slot + 10);
+        }
+        if (targets.isEmpty()) return new InteractionResult(carried, false);
+        boolean clone = button == 2;
+        int perSlot = button == 0 ? carried.getCount() / targets.size() : clone ? carried.getMaxStackSize() : 1;
+        ItemStack remaining = carried.copy();
+        CraftingStorage crafting = target.read();
+        boolean changed = false;
+        boolean stoneAccepted = !player.level().recipeAccess().stonecutterRecipes().selectByInput(carried).entries().isEmpty();
+        for (int targetSlot : targets) {
+            if (!clone && remaining.isEmpty()) break;
+            if (targetSlot == 0 && !stoneAccepted) continue;
+            ItemStack current = targetSlot < 10 ? craftingInput(crafting, targetSlot)
+                : player.getInventory().getItem(targetSlot - 10);
+            if (!current.isEmpty() && !ItemStack.isSameItemSameComponents(current, carried)) continue;
+            int room = carried.getMaxStackSize() - current.getCount();
+            int placed = Math.min(room, clone ? perSlot : Math.min(perSlot, remaining.getCount()));
+            if (placed <= 0) continue;
+            ItemStack next = carried.copyWithCount(current.getCount() + placed);
+            if (targetSlot < 10) crafting = withCraftingInput(crafting, targetSlot, next);
+            else player.getInventory().setItem(targetSlot - 10, next);
+            if (!clone) remaining.shrink(placed);
+            changed = true;
+        }
+        if (!changed) return new InteractionResult(carried, false);
+        target.write(crafting);
+        player.getInventory().setChanged();
+        player.containerMenu.setCarried(remaining);
+        player.containerMenu.broadcastChanges();
+        return new InteractionResult(remaining, true);
     }
 
     private static CraftingStorage withCraftingInput(CraftingStorage state, int slot, ItemStack stack) {
