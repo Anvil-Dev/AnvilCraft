@@ -8,9 +8,7 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.blaze3d.vertex.VertexMultiConsumer;
 import com.mojang.math.Axis;
 import com.mojang.math.MatrixUtil;
-import dev.dubhe.anvilcraft.block.entity.WipBlockEntity;
-import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
-import dev.dubhe.anvilcraft.init.block.ModBlocks;
+import dev.dubhe.anvilcraft.recipe.anvil.procedural.ProceduralProcessRecipe;
 import dev.dubhe.anvilcraft.util.LevelLike;
 import dev.dubhe.anvilcraft.util.VertexConsumerWithPose;
 import lombok.AccessLevel;
@@ -23,6 +21,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
+import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraft.client.renderer.RenderType;
@@ -152,15 +151,38 @@ public class RenderSupport {
         }
     }
 
-    public static BlockRenderFunction wipEntity(ResourceLocation recipeId, int stepCount) {
+    /**
+     * 手册 / JEI 等展示场景渲染方块序列加工的中间态（WIP）方块。
+     *
+     * <p>{@code wip_block} 的外观不由自身 blockstate 决定，而是按配方的 {@code displayedModels}
+     * 与当前步数解析出一个独立的 {@code block/wip_display} 模型。若走普通的
+     * {@link #SINGLE_BLOCK} 路径，缓存的方块实体没有配方与步数，会退回到初始方块（默认空气）
+     * 的模型，因而什么都渲染不出来。</p>
+     *
+     * <p>展示场景统一点亮，不采样世界光照，与同屏其它方块预览保持一致。</p>
+     *
+     * @param recipe    所属的序列加工配方，用于按步数取中间态模型
+     * @param stepCount 该进程方块已完成的步数；作为第 {@code idx} 步的输入时为 {@code idx}
+     */
+    public static BlockRenderFunction wipDisplay(ProceduralProcessRecipe recipe, int stepCount) {
         return (blockState, poseStack, buffers) -> {
-            if (currentClientLevel == null) return;
-            WipBlockEntity blockEntity = WipBlockEntity.createInstance(ModBlockEntities.WIP_BLOCK.get(),
-                BlockPos.ZERO, ModBlocks.WIP_BLOCK.getDefaultState());
-            blockEntity.setLevel(currentClientLevel);
-            blockEntity.setRecipeId(recipeId);
-            blockEntity.setStepCount(stepCount);
-            renderBlockEntity(blockEntity, poseStack, buffers);
+            ResourceLocation modelId = recipe.getDisplayedModelForStep(stepCount).orElse(null);
+            if (modelId == null) return;
+            BakedModel model = Minecraft.getInstance().getModelManager()
+                .getModel(ModelResourceLocation.standalone(modelId));
+            for (RenderType renderType : model.getRenderTypes(blockState, RANDOM, ModelData.EMPTY)) {
+                Minecraft.getInstance().getBlockRenderer().getModelRenderer().renderModel(
+                    poseStack.last(),
+                    buffers.getBuffer(renderType),
+                    blockState,
+                    model,
+                    0,
+                    0,
+                    0,
+                    LightTexture.FULL_BRIGHT,
+                    OverlayTexture.NO_OVERLAY
+                );
+            }
         };
     }
 
