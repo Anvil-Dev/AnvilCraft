@@ -70,8 +70,8 @@ public abstract class LivingEntityMixin extends Entity {
     @ModifyExpressionValue(method = "jumpFromGround", at = @At(value = "INVOKE",
         target = "Lnet/minecraft/world/entity/LivingEntity;getJumpPower()F"))
     private float anvilcraft$chargedJump(float original) {
-        if ((Object) this instanceof Player player && EquipmentAbilities.consumeJump(player)) {
-            return EquipmentAbilities.tripleJumpVelocity(player, original);
+        if ((Object) this instanceof Player player) {
+            return EquipmentAbilities.consumeChargedJump(player, original);
         }
         return original;
     }

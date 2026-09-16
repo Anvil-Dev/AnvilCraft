@@ -5,7 +5,7 @@ import dev.anvilcraft.lib.v2.registrum.providers.RegistrumLangProvider;
 public class MessageLang {
     @SuppressWarnings("checkstyle:LineLength")
     public static void init(RegistrumLangProvider provider) {
-        provider.add("message.anvilcraft.buffer_boots.charged", "Charged: press %1$s to jump high; release [%2$s] to cancel");
+        provider.add("message.anvilcraft.buffer_boots.charged", "Press %1$s to jump");
         provider.add("hud.anvilcraft.weatherproof_chestplate_power", "%s%%");
         provider.add("screen.anvilcraft.pockets.empty", "Empty pocket");
         provider.add("message.anvilcraft.monolith.return_confirmation", "The monolith can help you return. Touch it again within 3 seconds to travel back.");
