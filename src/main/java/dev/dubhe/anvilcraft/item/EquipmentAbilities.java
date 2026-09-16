@@ -157,13 +157,16 @@ public final class EquipmentAbilities {
      *
      * <p>衰减是否进行由 {@link #CHARGE_RELEASE} 是否在计时决定，而非当前蓄力值：
      * 衰减途中蓄力值会不断下降，若按蓄力值判断阶段会反复被误判成「刚松开」。</p>
+     *
+     * <p>蓄力条件用 {@link #hasChargeSupport} 而非仅 {@code onGround()}，
+     * 使玩家贴在墙边或斜坡上时也能蓄力。</p>
      */
     private static void tickCharge(Player player, boolean boots) {
         if (!boots) {
             clearCharge(player);
             return;
         }
-        boolean charging = player.isShiftKeyDown() && player.onGround() && !player.getAbilities().flying;
+        boolean charging = player.isShiftKeyDown() && !player.getAbilities().flying && hasChargeSupport(player);
         if (charging) {
             // 衰减途中重新蓄力：从当前显示值继续，而不是跳回松开时的起点
             CHARGE_RELEASE.remove(player);
@@ -234,11 +237,7 @@ public final class EquipmentAbilities {
     public static void beforeTick(PlayerTickEvent.Pre event) {
         Player player = event.getEntity();
         boolean boots = hasBufferBoots(player);
-        if (boots && player.isShiftKeyDown() && !player.getAbilities().flying && hasChargeSupport(player)) {
-            CHARGE.put(player, Math.min(CHARGE_TICKS + 1, chargeTicks(player) + 1));
-        } else {
-            CHARGE.remove(player);
-        }
+        tickCharge(player, boots);
         if (player.getItemBySlot(EquipmentSlot.FEET).is(ModItems.WEATHERPROOF_SPACESUIT_BOOTS)) {
             if (player.isShiftKeyDown()) SUBMERGING.put(player, true);
             else if (!player.isInFluidType() && player.level().getFluidState(player.blockPosition().below()).isEmpty()) {
