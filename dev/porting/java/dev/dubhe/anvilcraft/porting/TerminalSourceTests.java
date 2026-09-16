@@ -57,7 +57,7 @@ public final class TerminalSourceTests {
         )));
     }
 
-    private static <P extends Enum<P>> StorageBlockEntity place(
+    static <P extends Enum<P>> StorageBlockEntity place(
         GameTestHelper helper, AbstractMultiPartBlock<P> block, BlockPos relative
     ) {
         var pos = helper.absolutePos(relative);

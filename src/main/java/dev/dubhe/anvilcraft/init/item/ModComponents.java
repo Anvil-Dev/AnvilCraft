@@ -3,7 +3,6 @@ package dev.dubhe.anvilcraft.init.item;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.saved.storage.CraftingStorage;
 import dev.dubhe.anvilcraft.item.property.component.BoxContents;
 import dev.dubhe.anvilcraft.item.property.component.CanTakeOutAmmo;
 import dev.dubhe.anvilcraft.item.property.component.DevourRange;
@@ -24,10 +23,13 @@ import dev.dubhe.anvilcraft.item.property.component.StoredFluids;
 import dev.dubhe.anvilcraft.item.property.component.StoredItem;
 import dev.dubhe.anvilcraft.item.property.component.StructureData;
 import dev.dubhe.anvilcraft.item.property.component.StructureDiskData;
+import dev.dubhe.anvilcraft.item.property.component.TerminalBinding;
 import dev.dubhe.anvilcraft.item.property.component.amulet.IAmulet;
 import dev.dubhe.anvilcraft.item.tool.HeavyHalberdMode;
 import dev.dubhe.anvilcraft.item.tool.MultitoolMode;
 import dev.dubhe.anvilcraft.item.tool.ResonateMode;
+import dev.dubhe.anvilcraft.saved.setting.mode.BalanceMode;
+import dev.dubhe.anvilcraft.saved.storage.CraftingStorage;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.Registries;
@@ -46,6 +48,13 @@ import java.util.function.Consumer;
 public class ModComponents {
     public static final DeferredRegister<DataComponentType<?>> DR = DeferredRegister.create(
         Registries.DATA_COMPONENT_TYPE, AnvilCraft.MOD_ID
+    );
+
+    public static final DataComponentType<TerminalBinding> TERMINAL_BINDING = ModComponents.register(
+        "terminal_binding", b -> b.persistent(TerminalBinding.CODEC.codec()).networkSynchronized(TerminalBinding.STREAM_CODEC)
+    );
+    public static final DataComponentType<BalanceMode> TERMINAL_BALANCE_MODE = ModComponents.register(
+        "terminal_balance_mode", b -> b.persistent(BalanceMode.CODEC).networkSynchronized(BalanceMode.STREAM_CODEC)
     );
 
     public static final DataComponentType<CraftingStorage> CRAFTING = ModComponents.register(

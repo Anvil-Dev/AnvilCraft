@@ -87,6 +87,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
@@ -178,6 +179,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
     private int flyoutClickY;
     private double fullness;
     private StorageServerStub.@Nullable Capacity capacity;
+    private @Nullable UUID storageId;
     private long version = -1;
     private long orderVersion = -1;
     private int scrollRow;
@@ -217,9 +219,12 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
     private int top;
 
     public StorageScreen(BlockPos sourcePos) {
+        this(sourcePos, Objects.requireNonNull(Minecraft.getInstance().level).getBlockState(sourcePos).getBlock().getName());
+    }
+
+    public StorageScreen(BlockPos sourcePos, Component title) {
         super(new StorageMenu(Objects.requireNonNull(Minecraft.getInstance().player), sourcePos),
-            Minecraft.getInstance().player.getInventory(),
-            Objects.requireNonNull(Minecraft.getInstance().level).getBlockState(sourcePos).getBlock().getName(), BG_WIDTH, BG_HEIGHT);
+            Minecraft.getInstance().player.getInventory(), title, BG_WIDTH, BG_HEIGHT);
         this.sourcePos = sourcePos;
         this.player = Objects.requireNonNull(Minecraft.getInstance().player);
         this.serverSlots.defaultReturnValue(-1);
@@ -229,6 +234,10 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
 
     public static void openScreen(BlockPos sourcePos) {
         Minecraft.getInstance().setScreenAndShow(new StorageScreen(sourcePos));
+    }
+
+    public static void openScreen(BlockPos sourcePos, Component title) {
+        Minecraft.getInstance().setScreenAndShow(new StorageScreen(sourcePos, title));
     }
 
     @Override
@@ -2464,6 +2473,20 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
                 this.metadataPending = false;
                 if (error != null) {
                     return;
+                }
+                if (!Objects.equals(this.storageId, metadata.storageId())) {
+                    this.storageId = metadata.storageId();
+                    this.reorderRequest++;
+                    this.syncRequest++;
+                    this.orderLoaded = false;
+                    this.version = -1;
+                    this.order.clear();
+                    this.contents.clear();
+                    this.counts.clear();
+                    this.emptySlots.clear();
+                    this.serverSlots.clear();
+                    this.rebuildDisplayOrder(this.nbtFolded);
+                    this.scrollRow = 0;
                 }
                 this.fullness = metadata.fullness();
                 this.capacity = metadata.capacity();

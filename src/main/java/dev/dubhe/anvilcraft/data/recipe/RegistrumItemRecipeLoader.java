@@ -14,6 +14,7 @@ import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.item.property.component.StoredEnergy;
 import dev.dubhe.anvilcraft.recipe.JewelCraftingRecipe;
+import dev.dubhe.anvilcraft.recipe.TerminalUpgradeRecipe;
 import net.minecraft.core.HolderGetter;
 import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -808,6 +809,68 @@ public class RegistrumItemRecipeLoader {
             .requires(ModItems.TRANSCENDIUM_INGOT)
             .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.TRANSCENDIUM_INGOT), AnvilCraftDatagen.has(lookup, ModItems.TRANSCENDIUM_INGOT))
             .save(provider, AnvilCraft.recipe(ctx.getId().getPath() + "_from_ingot"));
+    }
+
+    public static <T extends Item> void hyperdimensionTerminalUnbind(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
+        ShapelessRecipeBuilder.shapeless(provider.getItems(), RecipeCategory.MISC, ctx.get())
+            .requires(ModItems.HYPERDIMENSION_TERMINAL)
+            .group(ctx.getId().toString())
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.HYPERDIMENSION_TERMINAL),
+                AnvilCraftDatagen.has(provider.getItems(), ModItems.HYPERDIMENSION_TERMINAL))
+            .save(TerminalUpgradeRecipe.output(provider), "anvilcraft:hyperdimension_terminal_unbind");
+    }
+
+    public static <T extends Item> void localTerminal(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
+        ShapedRecipeBuilder.shaped(provider.getItems(), RecipeCategory.MISC, ctx.get())
+            .pattern("ABA")
+            .pattern("CDC")
+            .pattern("AEA")
+            .define('A', ModBlocks.CRATE)
+            .define('B', Items.ENDER_PEARL)
+            .define('C', ModItems.PROCESSOR)
+            .define('D', Items.LAPIS_LAZULI)
+            .define('E', Blocks.REDSTONE_BLOCK)
+            .group(ctx.getId().toString())
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(ModBlocks.CRATE),
+                AnvilCraftDatagen.has(provider.getItems(), ModBlocks.CRATE)
+            )
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(ModItems.PROCESSOR),
+                AnvilCraftDatagen.has(provider.getItems(), ModItems.PROCESSOR)
+            )
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(Items.ENDER_PEARL),
+                AnvilCraftDatagen.has(provider.getItems(), Items.ENDER_PEARL)
+            )
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(Items.LAPIS_LAZULI),
+                AnvilCraftDatagen.has(provider.getItems(), Items.LAPIS_LAZULI)
+            )
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(Blocks.REDSTONE_BLOCK),
+                AnvilCraftDatagen.has(provider.getItems(), Blocks.REDSTONE_BLOCK)
+            )
+            .save(provider);
+    }
+
+    public static <T extends Item> void shulkerTerminal(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
+        ShapedRecipeBuilder.shaped(provider.getItems(), RecipeCategory.MISC, ctx.get())
+            .pattern("A")
+            .pattern("B")
+            .pattern("A")
+            .define('A', Items.SHULKER_SHELL)
+            .define('B', ModItems.LOCAL_TERMINAL)
+            .group(ctx.getId().toString())
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(Items.SHULKER_SHELL),
+                AnvilCraftDatagen.has(provider.getItems(), Items.SHULKER_SHELL)
+            )
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(ModItems.LOCAL_TERMINAL),
+                AnvilCraftDatagen.has(provider.getItems(), ModItems.LOCAL_TERMINAL)
+            )
+            .save(TerminalUpgradeRecipe.output(provider));
     }
 
     public static <T extends Item> void cursedGoldIngot(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {

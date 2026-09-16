@@ -8,13 +8,18 @@ import dev.anvilcraft.lib.v2.rpc.IRemoteCallableValidator;
 import dev.anvilcraft.lib.v2.rpc.RemoteCallable;
 import dev.anvilcraft.lib.v2.util.UnlimitedItemStack;
 import dev.dubhe.anvilcraft.api.StoragePortManager;
+import dev.dubhe.anvilcraft.api.TerminalSessions;
 import dev.dubhe.anvilcraft.api.itemhandler.unlimited.SpaceSizeItemStacksResourceHandler;
 import dev.dubhe.anvilcraft.api.itemhandler.unlimited.TypeLimitItemStacksResourceHandler;
 import dev.dubhe.anvilcraft.api.itemhandler.unlimited.UnlimitedItemStacksResourceHandler;
 import dev.dubhe.anvilcraft.block.container.storage.CrateBlock;
+import dev.dubhe.anvilcraft.block.container.storage.HyperdimensionStorageStationBlock;
+import dev.dubhe.anvilcraft.block.container.storage.ShulkerContainerBlock;
 import dev.dubhe.anvilcraft.block.entity.storage.CrateBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.storage.ShulkerContainerBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.storage.StorageBlockEntity;
+import dev.dubhe.anvilcraft.init.item.ModComponents;
+import dev.dubhe.anvilcraft.item.HyperdimensionTerminalItem;
 import dev.dubhe.anvilcraft.saved.setting.PlayerSetting;
 import dev.dubhe.anvilcraft.saved.setting.PlayerSettings;
 import dev.dubhe.anvilcraft.saved.setting.StorageSetting;
@@ -22,6 +27,8 @@ import dev.dubhe.anvilcraft.saved.setting.mode.OrderMode;
 import dev.dubhe.anvilcraft.saved.setting.mode.SortMode;
 import dev.dubhe.anvilcraft.saved.storage.BaseStorage;
 import dev.dubhe.anvilcraft.saved.storage.CraftingStorage;
+import dev.dubhe.anvilcraft.saved.storage.HyperdimensionStorage;
+import dev.dubhe.anvilcraft.saved.storage.ShulkerContainerStorage;
 import dev.dubhe.anvilcraft.saved.storage.Storages;
 import dev.dubhe.anvilcraft.saved.storage.category.store.CategoryEntry;
 import dev.dubhe.anvilcraft.saved.storage.category.store.CategoryMode;
@@ -33,6 +40,7 @@ import it.unimi.dsi.fastutil.ints.IntSet;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.UUIDUtil;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -49,6 +57,8 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerLevelAccess;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.CraftingInput;
@@ -57,6 +67,7 @@ import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.item.crafting.SingleRecipeInput;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.ShulkerBoxBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.common.CommonHooks;
@@ -126,7 +137,7 @@ public final class StorageServerStub {
     public static Metadata load(UUID playerId, long sourcePos) {
         StorageView view = StorageServerStub.getView(StorageServerStub.getAndClear(), playerId, sourcePos);
         StorageServerStub stub = StorageServerStub.get(playerId, view.primary().getId());
-        return new Metadata(stub.version, stub.orderVersion, view.fullness(), view.capacity());
+        return new Metadata(stub.version, stub.orderVersion, view.fullness(), view.capacity(), view.primary().getId());
     }
 
     @RemoteCallable(validator = StorageOpenStateValidator.class)
@@ -315,20 +326,30 @@ public final class StorageServerStub {
         return changed;
     }
 
-    private record CraftingTarget(StorageView view, ServerPlayer player) {
+    private record CraftingTarget(StorageView view, ServerPlayer player, @Nullable ItemStack terminal) {
         CraftingStorage read() {
-            return this.view.primary().getCrafting();
+            return this.terminal == null ? this.view.primary().getCrafting()
+                : this.terminal.getOrDefault(ModComponents.CRAFTING, CraftingStorage.EMPTY);
         }
 
         void write(CraftingStorage crafting) {
-            this.view.primary().setCrafting(crafting);
+            if (this.terminal == null) this.view.primary().setCrafting(crafting);
+            else {
+                this.terminal.set(ModComponents.CRAFTING, crafting);
+                this.player.getInventory().setChanged();
+            }
             this.player.inventoryMenu.broadcastChanges();
         }
     }
 
     private static CraftingTarget resolveCraftingTarget(ServerPlayer player, long sourcePos) {
         StorageView view = StorageServerStub.getView(StorageServerStub.getAndClear(), player.getGameProfile().id(), sourcePos);
-        return new CraftingTarget(view, player);
+        ItemStack terminal = TerminalSessions.contains(player.getUUID(), sourcePos) ? TerminalSessions.terminal(player, sourcePos) : null;
+        return new CraftingTarget(view, player, terminal);
+    }
+
+    private static boolean carriesCraftingTerminal(CraftingTarget target) {
+        return target.terminal != null && target.player.inventoryMenu.getCarried() == target.terminal;
     }
 
     private static ItemStack craftingInput(CraftingStorage state, int slot) {
@@ -345,6 +366,7 @@ public final class StorageServerStub {
     ) {
         ServerPlayer player = getServerPlayer(playerId);
         final CraftingTarget target = resolveCraftingTarget(player, sourcePos);
+        if (carriesCraftingTerminal(target)) return new InteractionResult(player.inventoryMenu.getCarried(), false);
         cancelCraftingBatch(playerId, sourcePos);
         ItemStack carried = player.hasInfiniteMaterials() ? clientCarried : player.containerMenu.getCarried();
         if (button < 0 || button > 2 || carried.isEmpty() || button == 2 && !player.hasInfiniteMaterials()) {
@@ -857,6 +879,7 @@ public final class StorageServerStub {
     private static boolean extractCraftingMaterial(CraftingTarget target, ItemResource resource, Transaction transaction) {
         var inventory = PlayerInventoryWrapper.of(target.player);
         for (int slot = 0; slot < Inventory.INVENTORY_SIZE; slot++) {
+            if (target.terminal != null && target.player.getInventory().getItem(slot) == target.terminal) continue;
             if (inventory.extract(slot, resource, 1, transaction) == 1) return true;
         }
         return target.view.extractByResource(resource, 1, transaction) == 1;
@@ -951,6 +974,7 @@ public final class StorageServerStub {
     ) {
         ServerPlayer player = StorageServerStub.getServerPlayer(playerId);
         StorageServerStub.CraftingTarget target = StorageServerStub.resolveCraftingTarget(player, sourcePos);
+        if (carriesCraftingTerminal(target)) return new InteractionResult(player.inventoryMenu.getCarried(), false);
         cancelCraftingBatch(playerId, sourcePos);
         CraftingStorage crafting = target.read();
         // 指针物品以客户端上报为准（与服务端 getCarried 一致；创造模式下服务端指针可能已过期）
@@ -1017,6 +1041,7 @@ public final class StorageServerStub {
         }
         ServerPlayer player = StorageServerStub.getServerPlayer(playerId);
         StorageServerStub.CraftingTarget target = StorageServerStub.resolveCraftingTarget(player, sourcePos);
+        if (carriesCraftingTerminal(target)) return new InteractionResult(player.inventoryMenu.getCarried(), false);
         cancelCraftingBatch(playerId, sourcePos);
         CraftingStorage crafting = target.read();
         ItemStack carried = player.hasInfiniteMaterials() ? clientCarried : player.inventoryMenu.getCarried();
@@ -1135,28 +1160,28 @@ public final class StorageServerStub {
 
     @RemoteCallable(validator = StorageAccessValidator.class)
     public static CraftingStorage craftingGet(UUID playerId, long sourcePos) {
-        return StorageServerStub.getView(StorageServerStub.getAndClear(), playerId, sourcePos).primary().getCrafting();
+        return resolveCraftingTarget(getServerPlayer(playerId), sourcePos).read();
     }
 
     @RemoteCallable(validator = StorageAccessValidator.class)
     public static void craftingSelect(UUID playerId, long sourcePos, int index) {
-        BaseStorage<?> storage = StorageServerStub.getView(StorageServerStub.getAndClear(), playerId, sourcePos).primary();
+        CraftingTarget target = resolveCraftingTarget(getServerPlayer(playerId), sourcePos);
         cancelCraftingBatch(playerId, sourcePos);
-        storage.setCrafting(storage.getCrafting().withStonecutterSelected(index));
+        target.write(target.read().withStonecutterSelected(index));
     }
 
     @RemoteCallable(validator = StorageAccessValidator.class)
     public static void craftingSetOptions(UUID playerId, long sourcePos, boolean autoFill, boolean toStorage) {
-        BaseStorage<?> storage = StorageServerStub.getView(StorageServerStub.getAndClear(), playerId, sourcePos).primary();
+        CraftingTarget target = resolveCraftingTarget(getServerPlayer(playerId), sourcePos);
         cancelCraftingBatch(playerId, sourcePos);
-        storage.setCrafting(storage.getCrafting().withAutoFill(autoFill).withToStorage(toStorage));
+        target.write(target.read().withAutoFill(autoFill).withToStorage(toStorage));
     }
 
     @RemoteCallable(validator = StorageAccessValidator.class)
     public static void craftingSetLastOpened(UUID playerId, long sourcePos, boolean opened) {
-        BaseStorage<?> storage = StorageServerStub.getView(StorageServerStub.getAndClear(), playerId, sourcePos).primary();
+        CraftingTarget target = resolveCraftingTarget(getServerPlayer(playerId), sourcePos);
         if (!opened) cancelCraftingBatch(playerId, sourcePos);
-        storage.setCrafting(storage.getCrafting().withLastOpened(opened));
+        target.write(target.read().withLastOpened(opened));
     }
 
     @RemoteCallable(validator = StorageAccessValidator.class)
@@ -1442,11 +1467,13 @@ public final class StorageServerStub {
     public static void remove(UUID playerId) {
         StorageServerStub.STUBS.removeAll(playerId);
         CRAFTING_BATCHES.keySet().removeIf(key -> key.player.equals(playerId));
+        TerminalSessions.clear(playerId);
     }
 
     public static void clear() {
         StorageServerStub.STUBS.clear();
         CRAFTING_BATCHES.clear();
+        TerminalSessions.clear();
     }
 
     public static final class StorageAccessValidator implements IRemoteCallableValidator {
@@ -1469,7 +1496,9 @@ public final class StorageServerStub {
             ) {
                 return false;
             }
+            if (TerminalSessions.contains(playerId, sourcePos)) return !TerminalSessions.terminal(player, sourcePos).isEmpty();
             BlockPos pos = BlockPos.of(sourcePos);
+            if (player.level().isOutsideBuildHeight(pos) || !player.level().hasChunkAt(pos)) return false;
             BlockEntity blockEntity = player.level().getBlockEntity(pos);
             return blockEntity instanceof StorageBlockEntity storage
                    && storage.getId() != null
@@ -1505,7 +1534,7 @@ public final class StorageServerStub {
         }
     }
 
-    public record Metadata(long version, long orderVersion, double fullness, Capacity capacity) {
+    public record Metadata(long version, long orderVersion, double fullness, Capacity capacity, UUID storageId) {
         public static final StreamCodec<ByteBuf, Metadata> STREAM_CODEC = StreamCodec.composite(
             ByteBufCodecs.VAR_LONG,
             Metadata::version,
@@ -1515,6 +1544,8 @@ public final class StorageServerStub {
             Metadata::fullness,
             Capacity.STREAM_CODEC,
             Metadata::capacity,
+            UUIDUtil.STREAM_CODEC,
+            Metadata::storageId,
             Metadata::new
         );
     }
@@ -2043,6 +2074,9 @@ public final class StorageServerStub {
 
     private static StorageView getView(HolderLookup.Provider registries, UUID playerId, long sourcePos) {
         ServerPlayer player = StorageServerStub.getServerPlayer(playerId);
+        if (TerminalSessions.contains(playerId, sourcePos)) {
+            return new StorageView(List.of(TerminalSessions.storage(player, sourcePos)), List.of());
+        }
         BlockPos pos = BlockPos.of(sourcePos);
         BlockEntity blockEntity = player.level().getBlockEntity(pos);
         if (!(blockEntity instanceof StorageBlockEntity storage)) {
@@ -2065,6 +2099,37 @@ public final class StorageServerStub {
             }
         }
         return new StorageView(storages, List.of());
+    }
+
+    public static int insertIntoTerminal(ServerPlayer player, UUID targetId, ItemStack stack, int amount) {
+        ItemStack terminal = TerminalSessions.findTerminal(player, targetId);
+        if (terminal.isEmpty() || stack.isEmpty() || amount <= 0) return 0;
+        BaseStorage<?> storage = TerminalSessions.targetStorage(player, terminal, false);
+        if (storage == null) return 0;
+        return new StorageView(List.of(storage), List.of()).insert(stack, Math.min(amount, stack.getCount()));
+    }
+
+    public static ItemStack extractFromTerminal(ServerPlayer player, UUID targetId, int amount, Slot targetSlot) {
+        ItemStack terminal = TerminalSessions.findTerminal(player, targetId);
+        if (terminal.isEmpty() || amount <= 0 || !targetSlot.isActive() || !targetSlot.allowModification(player)) return ItemStack.EMPTY;
+        BaseStorage<?> storage = TerminalSessions.targetStorage(player, terminal, false);
+        if (storage == null) return ItemStack.EMPTY;
+        var view = new StorageView(List.of(storage), List.of());
+        var setting = PlayerSettings.getSetting(player.registryAccess(), player.getUUID());
+        for (int index : get(player.getUUID(), storage.getId()).getOrder(view, setting)) {
+            if (index < 0 || index >= view.size()) continue;
+            ItemResource resource = view.resource(index);
+            ItemStack stack = resource.toStack();
+            if (!targetSlot.mayPlace(stack)) continue;
+            int limit = Math.min(amount, Math.min(stack.getMaxStackSize(), targetSlot.getMaxStackSize(stack)));
+            try (Transaction transaction = Transaction.openRoot()) {
+                int extracted = view.extractByResource(resource, limit, transaction);
+                if (extracted == 0) continue;
+                transaction.commit();
+                return resource.toStack(extracted);
+            }
+        }
+        return ItemStack.EMPTY;
     }
 
     private record SortOptions(SortMode sort, OrderMode order) {
@@ -2142,18 +2207,28 @@ public final class StorageServerStub {
             int inserted = 0;
             for (int i = 0; i < this.storages.size() - 1; i++) {
                 UnlimitedItemStacksResourceHandler items = this.storages.get(i).getItems();
-                if (!StorageView.contains(items, resource)) continue;
+                if (!canStore(this.storages.get(i), resource) || !StorageView.contains(items, resource)) continue;
                 inserted += items.insert(resource, amount - inserted, tx);
                 if (inserted == amount) return inserted;
             }
             UnlimitedItemStacksResourceHandler primaryItems = this.primary().getItems();
-            inserted += primaryItems.insert(resource, amount - inserted, tx);
+            if (canStore(this.primary(), resource)) inserted += primaryItems.insert(resource, amount - inserted, tx);
             if (inserted == amount) return inserted;
             for (int i = 0; i < this.storages.size() - 1; i++) {
-                inserted += this.storages.get(i).getItems().insert(resource, amount - inserted, tx);
+                if (canStore(this.storages.get(i), resource)) {
+                    inserted += this.storages.get(i).getItems().insert(resource, amount - inserted, tx);
+                }
                 if (inserted == amount) return inserted;
             }
             return inserted;
+        }
+
+        private static boolean canStore(BaseStorage<?> storage, ItemResource resource) {
+            if (!(storage instanceof HyperdimensionStorage || storage instanceof ShulkerContainerStorage)) return true;
+            Item item = resource.toStack().getItem();
+            if (item instanceof HyperdimensionTerminalItem) return false;
+            return !(item instanceof BlockItem block && (block.getBlock() instanceof HyperdimensionStorageStationBlock
+                || block.getBlock() instanceof ShulkerContainerBlock || block.getBlock() instanceof ShulkerBoxBlock));
         }
 
         private static boolean contains(UnlimitedItemStacksResourceHandler items, ItemResource resource) {
