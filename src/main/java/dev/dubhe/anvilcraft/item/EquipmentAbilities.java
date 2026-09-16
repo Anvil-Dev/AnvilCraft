@@ -31,8 +31,18 @@ import java.util.WeakHashMap;
 @EventBusSubscriber(modid = AnvilCraft.MOD_ID)
 public final class EquipmentAbilities {
     public static final int CHARGE_TICKS = 20;
+    /** 停止蓄力后，蓄力条在当前进度上停留的时间（tick）。 */
+    public static final int CHARGE_HOLD_TICKS = 20;
+    /** 停留结束到蓄力条归零的线性衰减时间（tick）。 */
+    public static final int CHARGE_DECAY_TICKS = 10;
+    /** 满蓄力的跳跃高度相对普通跳跃的倍率。 */
+    private static final double MAX_JUMP_HEIGHT_MULTIPLIER = 3.5;
     private static final ResourceLocation FLIGHT_STABILITY = AnvilCraft.of("flight_stability");
     private static final Map<Player, Integer> CHARGE = new WeakHashMap<>();
+    /** 停止蓄力起的经过 tick 数；有记录即表示处于停留 / 衰减阶段。 */
+    private static final Map<Player, Integer> CHARGE_RELEASE = new WeakHashMap<>();
+    /** 停止蓄力那一刻锁定的蓄力值，衰减以此为基础线性下降。 */
+    private static final Map<Player, Integer> CHARGE_RELEASE_START = new WeakHashMap<>();
     private static final Map<Player, Boolean> SUBMERGING = new WeakHashMap<>();
 
     private EquipmentAbilities() {
@@ -77,28 +87,110 @@ public final class EquipmentAbilities {
         if (isImmune(event.getEntity(), event.getSource())) event.setCanceled(true);
     }
 
+    /**
+     * 当前蓄力值，用于 HUD 显示；等于 {@link #CHARGE_TICKS} 表示已蓄满。
+     *
+     * <p>松开潜行后不会立刻归零：先在当前进度停留 {@link #CHARGE_HOLD_TICKS}，
+     * 再线性衰减 {@link #CHARGE_DECAY_TICKS} 归零。停留期内仍可起跳，
+     * 因此构成一段输入缓冲窗口。</p>
+     */
     public static int chargeTicks(Player player) {
         return CHARGE.getOrDefault(player, 0);
     }
 
-    public static boolean consumeJump(Player player) {
-        boolean ready = hasBufferBoots(player) && player.isShiftKeyDown() && chargeTicks(player) > CHARGE_TICKS;
-        CHARGE.remove(player);
-        return ready;
+    /**
+     * 蓄力条当前应有的填充比例（0..1），已含停留与衰减阶段。
+     */
+    public static float chargeProgress(Player player) {
+        return Math.clamp(chargeTicks(player) / (float) CHARGE_TICKS, 0, 1);
     }
 
-    public static float tripleJumpVelocity(Player player, float normal) {
+    /**
+     * 是否处于「停止蓄力后的停留阶段」：蓄力值已定格、尚未开始衰减。
+     *
+     * <p>HUD 据此换色，让玩家看出此刻进度被暂时锁定，仍可起跳。</p>
+     */
+    public static boolean isChargeHeld(Player player) {
+        Integer released = CHARGE_RELEASE.get(player);
+        return released != null && released <= CHARGE_HOLD_TICKS;
+    }
+
+    /**
+     * 消耗当前蓄力并返回本次的跳跃速度：按蓄力进度线性提升跳跃高度，
+     * 进度 0 为普通跳跃，满蓄力为 {@link #MAX_JUMP_HEIGHT_MULTIPLIER} 倍高度。
+     *
+     * <p>读取进度与清空蓄力在同一次调用内完成。若拆成「先清空再算速度」两步，
+     * 调用方很容易在取值前就把进度归零，强化会静默失效。</p>
+     *
+     * <p>不要求按住潜行，因此停留与衰减阶段内仍可起跳。</p>
+     *
+     * @return 强化后的跳跃速度；无蓄力时原样返回 {@code normal}
+     */
+    public static float consumeChargedJump(Player player, float normal) {
+        float progress = hasBufferBoots(player) ? chargeProgress(player) : 0;
+        clearCharge(player);
+        if (progress <= 0) return normal;
         double gravity = Math.max(0.001, player.getAttributeValue(Attributes.GRAVITY));
         double drag = AtmosphereManager.drag(player, 0.9800000190734863);
-        double target = jumpHeight(normal, gravity, drag) * 3;
+        double multiplier = 1 + (MAX_JUMP_HEIGHT_MULTIPLIER - 1) * progress;
+        double target = jumpHeight(normal, gravity, drag) * multiplier;
         double low = normal;
-        double high = normal * 3 + gravity;
+        double high = normal * MAX_JUMP_HEIGHT_MULTIPLIER + gravity;
         for (int iteration = 0; iteration < 32; iteration++) {
             double middle = (low + high) / 2;
             if (jumpHeight(middle, gravity, drag) < target) low = middle;
             else high = middle;
         }
         return (float) high;
+    }
+
+    private static void clearCharge(Player player) {
+        CHARGE.remove(player);
+        CHARGE_RELEASE.remove(player);
+        CHARGE_RELEASE_START.remove(player);
+    }
+
+    /**
+     * 推进蓄力状态机：按住潜行时增长；停止蓄力后先停留当前进度，再线性衰减到 0。
+     *
+     * <p>衰减是否进行由 {@link #CHARGE_RELEASE} 是否在计时决定，而非当前蓄力值：
+     * 衰减途中蓄力值会不断下降，若按蓄力值判断阶段会反复被误判成「刚松开」。</p>
+     */
+    private static void tickCharge(Player player, boolean boots) {
+        if (!boots) {
+            clearCharge(player);
+            return;
+        }
+        boolean charging = player.isShiftKeyDown() && player.onGround() && !player.getAbilities().flying;
+        if (charging) {
+            // 衰减途中重新蓄力：从当前显示值继续，而不是跳回松开时的起点
+            CHARGE_RELEASE.remove(player);
+            CHARGE_RELEASE_START.remove(player);
+            CHARGE.put(player, Math.min(CHARGE_TICKS, chargeTicks(player) + 1));
+            return;
+        }
+        // 停留 / 衰减阶段：按计时推进，与当前蓄力值无关
+        if (CHARGE_RELEASE.containsKey(player)) {
+            int released = CHARGE_RELEASE.merge(player, 1, Integer::sum);
+            if (released <= CHARGE_HOLD_TICKS) return;
+            int start = CHARGE_RELEASE_START.getOrDefault(player, CHARGE_TICKS);
+            int elapsed = released - CHARGE_HOLD_TICKS;
+            int decayed = Math.round(start * (CHARGE_DECAY_TICKS - elapsed) / (float) CHARGE_DECAY_TICKS);
+            if (decayed <= 0) {
+                clearCharge(player);
+                return;
+            }
+            CHARGE.put(player, decayed);
+            return;
+        }
+        // 刚停止蓄力：记录起点并进入停留阶段
+        int current = chargeTicks(player);
+        if (current <= 0) {
+            clearCharge(player);
+            return;
+        }
+        CHARGE_RELEASE.put(player, 1);
+        CHARGE_RELEASE_START.put(player, current);
     }
 
     private static double jumpHeight(double velocity, double gravity, double drag) {
@@ -120,11 +212,7 @@ public final class EquipmentAbilities {
     public static void beforeTick(PlayerTickEvent.Pre event) {
         Player player = event.getEntity();
         boolean boots = hasBufferBoots(player);
-        if (boots && player.isShiftKeyDown() && player.onGround() && !player.getAbilities().flying) {
-            CHARGE.put(player, Math.min(CHARGE_TICKS + 1, chargeTicks(player) + 1));
-        } else {
-            CHARGE.remove(player);
-        }
+        tickCharge(player, boots);
         if (player.getItemBySlot(EquipmentSlot.FEET).is(ModItems.WEATHERPROOF_SPACESUIT_BOOTS)) {
             if (player.isShiftKeyDown()) SUBMERGING.put(player, true);
             else if (!player.isInFluidType() && player.level().getFluidState(player.blockPosition().below()).isEmpty()) {

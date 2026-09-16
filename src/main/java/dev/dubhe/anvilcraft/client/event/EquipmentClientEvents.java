@@ -109,9 +109,15 @@ public final class EquipmentClientEvents {
             chargedMessage = false;
             return;
         }
-        if (EquipmentAbilities.chargeTicks(client.player) > EquipmentAbilities.CHARGE_TICKS) {
-            client.gui.setOverlayMessage(Component.translatable("message.anvilcraft.buffer_boots.charged",
-                client.options.keyJump.getTranslatedKeyMessage(), client.options.keyShift.getTranslatedKeyMessage()), false);
+        // 蓄力条可见期间（蓄力中、蓄满、松开后的停留与衰减）统一给出跳跃提示
+        if (EquipmentAbilities.chargeProgress(client.player) > 0) {
+            client.gui.setOverlayMessage(
+                Component.translatable(
+                    "message.anvilcraft.buffer_boots.charged",
+                    client.options.keyJump.getTranslatedKeyMessage()
+                ),
+                false
+            );
             chargedMessage = true;
         } else if (chargedMessage) {
             client.gui.setOverlayMessage(Component.empty(), false);
@@ -124,10 +130,10 @@ public final class EquipmentClientEvents {
         Minecraft client = Minecraft.getInstance();
         if (!event.getName().equals(VanillaGuiLayers.EXPERIENCE_BAR) || client.player == null
             || client.options.hideGui || client.player.isSpectator()) return;
-        int ticks = EquipmentAbilities.chargeTicks(client.player);
-        if (ticks <= 0) return;
+        float progress = EquipmentAbilities.chargeProgress(client.player);
+        if (progress <= 0) return;
         event.setCanceled(true);
-        BufferBootsChargeHUD.render(event.getGuiGraphics(), ticks / (float) (EquipmentAbilities.CHARGE_TICKS + 1));
+        BufferBootsChargeHUD.render(event.getGuiGraphics(), progress, EquipmentAbilities.isChargeHeld(client.player));
     }
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
