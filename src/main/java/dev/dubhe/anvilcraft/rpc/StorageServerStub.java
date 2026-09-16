@@ -823,22 +823,27 @@ public final class StorageServerStub {
     }
 
     private static boolean takeCraftingMaterial(CraftingTarget target, ItemStack wanted) {
-        var resource = ItemResource.of(wanted);
         try (Transaction transaction = Transaction.openRoot()) {
+            if (!takeCraftingMaterial(target, wanted, transaction)) return false;
+            transaction.commit();
+            return true;
+        }
+    }
+
+    private static boolean takeCraftingMaterial(CraftingTarget target, ItemStack wanted, Transaction parent) {
+        var resource = ItemResource.of(wanted);
+        try (Transaction transaction = Transaction.open(parent)) {
             if (StorageServerStub.extractCraftingMaterial(target, resource, transaction)) {
                 transaction.commit();
                 return true;
             }
-        }
-        FluidStack fluid = FluidUtil.getFirstStackContained(wanted);
-        ItemStack empty = StorageServerStub.emptyContainerOf(wanted);
-        if (fluid.isEmpty() || empty.isEmpty()) return false;
-        var single = new ItemStacksResourceHandler(1);
-        single.set(0, ItemResource.of(empty), 1);
-        var handler = ItemAccess.forHandlerIndexStrict(single, 0).getCapability(Capabilities.Fluid.ITEM);
-        if (handler == null) return false;
-        try (Transaction transaction = Transaction.openRoot()) {
-            if (handler.insert(FluidResource.of(fluid), fluid.getAmount(), transaction) != fluid.getAmount()
+            FluidStack fluid = FluidUtil.getFirstStackContained(wanted);
+            ItemStack empty = StorageServerStub.emptyContainerOf(wanted, transaction);
+            if (fluid.isEmpty() || empty.isEmpty()) return false;
+            var single = new ItemStacksResourceHandler(1);
+            single.set(0, ItemResource.of(empty), 1);
+            var handler = ItemAccess.forHandlerIndexStrict(single, 0).getCapability(Capabilities.Fluid.ITEM);
+            if (handler == null || handler.insert(FluidResource.of(fluid), fluid.getAmount(), transaction) != fluid.getAmount()
                 || !single.getResource(0).equals(resource)
                 || !StorageServerStub.extractCraftingMaterial(target, ItemResource.of(empty), transaction)
                 || StoragePortManager.drain(target.view.primary().getId(), fluid, fluid.getAmount(), transaction) != fluid.getAmount()) {
@@ -855,6 +860,86 @@ public final class StorageServerStub {
             if (inventory.extract(slot, resource, 1, transaction) == 1) return true;
         }
         return target.view.extractByResource(resource, 1, transaction) == 1;
+    }
+
+    @RemoteCallable(validator = StorageAccessValidator.class)
+    public static boolean craftingTransfer(
+        UUID playerId, long sourcePos, boolean stonecutter, boolean maxTransfer,
+        @CallableParam(clazz = StorageServerStub.class, field = "ITEM_STACK_LIST_STREAM_CODEC") List<ItemStack> inputs,
+        @CallableParam(clazz = ItemStack.class, field = "OPTIONAL_STREAM_CODEC") ItemStack stonecutterResult,
+        @CallableParam(clazz = StorageServerStub.class, field = "ORDER_STREAM_CODEC") IntList requestedCounts
+    ) {
+        ServerPlayer player = getServerPlayer(playerId);
+        final CraftingTarget target = resolveCraftingTarget(player, sourcePos);
+        if (inputs.isEmpty() || inputs.size() > CraftingStorage.CRAFTING_GRID_SIZE
+            || requestedCounts.size() > CraftingStorage.CRAFTING_GRID_SIZE) return false;
+        int rounds = 0;
+        int selected = 0;
+        if (stonecutter) {
+            ItemStack wanted = inputs.getFirst();
+            if (wanted.isEmpty()) return false;
+            var recipes = player.level().recipeAccess().stonecutterRecipes().selectByInput(wanted).entries();
+            if (recipes.isEmpty()) return false;
+            for (int i = 0; i < recipes.size(); i++) {
+                var recipe = recipes.get(i).recipe().recipe();
+                if (recipe.isPresent() && ItemStack.isSameItemSameComponents(
+                    recipe.get().value().assemble(new SingleRecipeInput(wanted)), stonecutterResult)) {
+                    selected = i;
+                    break;
+                }
+            }
+            rounds = maxTransfer ? wanted.getMaxStackSize() : 1;
+        } else {
+            for (int i = 0; i < requestedCounts.size(); i++) {
+                int count = requestedCounts.getInt(i);
+                ItemStack wanted = i < inputs.size() ? inputs.get(i) : ItemStack.EMPTY;
+                if (count < 0 || count > (wanted.isEmpty() ? 0 : wanted.getMaxStackSize())) return false;
+                if (count > 0) rounds = Math.max(rounds, maxTransfer ? wanted.getMaxStackSize() / count : 1);
+            }
+            if (rounds == 0) return false;
+        }
+        cancelCraftingBatch(playerId, sourcePos);
+        CraftingStorage before = target.read();
+        final boolean cleared = !before.stonecutterInput().isEmpty() || before.craftingInput().stream().anyMatch(stack -> !stack.isEmpty());
+        returnCraftingStack(target, before.stonecutterInput(), true);
+        for (ItemStack stack : before.craftingInput()) returnCraftingStack(target, stack, true);
+        CraftingStorage current = before.withStonecutterInput(ItemStack.EMPTY)
+            .withCraftingInput(java.util.Collections.nCopies(CraftingStorage.CRAFTING_GRID_SIZE, ItemStack.EMPTY));
+        target.write(current);
+        boolean changed = cleared;
+        for (int round = 0; round < rounds; round++) {
+            CraftingStorage next = transferCraftingRound(target, current, stonecutter, inputs, requestedCounts);
+            if (next == current) break;
+            current = next;
+            changed = true;
+        }
+        if (stonecutter) current = current.withStonecutterSelected(selected);
+        target.write(current);
+        player.getInventory().setChanged();
+        return changed;
+    }
+
+    private static CraftingStorage transferCraftingRound(
+        CraftingTarget target, CraftingStorage current, boolean stonecutter, List<ItemStack> inputs, IntList counts
+    ) {
+        CraftingStorage next = current;
+        // 整轮共用事务，流体与空容器也参与回滚，避免同一批容器被多个输入槽重复预占。
+        try (Transaction transaction = Transaction.openRoot()) {
+            for (int i = 0; i < (stonecutter ? 1 : inputs.size()); i++) {
+                ItemStack wanted = inputs.get(i);
+                int requested = stonecutter ? 1 : i < counts.size() ? counts.getInt(i) : 0;
+                if (wanted.isEmpty() || requested == 0) continue;
+                ItemStack present = stonecutter ? current.stonecutterInput() : current.craftingInput().get(i);
+                if (requested > wanted.getMaxStackSize() - present.getCount()) continue;
+                for (int amount = 0; amount < requested; amount++) {
+                    if (!takeCraftingMaterial(target, wanted, transaction)) return current;
+                }
+                ItemStack placed = wanted.copyWithCount(present.getCount() + requested);
+                next = stonecutter ? next.withStonecutterInput(placed) : next.withCraftingSlot(i, placed);
+            }
+            transaction.commit();
+        }
+        return next;
     }
 
     @RemoteCallable(validator = StorageAccessValidator.class)
@@ -1822,11 +1907,15 @@ public final class StorageServerStub {
     }
 
     private static ItemStack emptyContainerOf(ItemStack filled) {
+        return emptyContainerOf(filled, null);
+    }
+
+    private static ItemStack emptyContainerOf(ItemStack filled, @Nullable Transaction parent) {
         ItemStacksResourceHandler single = new ItemStacksResourceHandler(1);
         single.set(0, ItemResource.of(filled), 1);
         var handler = ItemAccess.forHandlerIndexStrict(single, 0).getCapability(Capabilities.Fluid.ITEM);
         if (handler == null) return ItemStack.EMPTY;
-        try (Transaction transaction = Transaction.openRoot()) {
+        try (Transaction transaction = Transaction.open(parent)) {
             for (int index = 0; index < handler.size(); index++) {
                 FluidResource resource = handler.getResource(index);
                 if (resource.isEmpty()) continue;

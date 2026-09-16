@@ -117,6 +117,14 @@ public final class StorageClientStub {
         );
     }
 
+    public static CompletableFuture<Boolean> craftingTransfer(
+        BlockPos sourcePos, boolean stonecutter, boolean maxTransfer, List<ItemStack> inputs,
+        ItemStack stonecutterResult, IntList requestedCounts
+    ) {
+        return RPC.invoke(RpcTarget.server(), StorageServerStub::craftingTransfer, StorageClientStub.playerId(),
+            sourcePos.asLong(), stonecutter, maxTransfer, inputs, stonecutterResult, requestedCounts);
+    }
+
     public static CompletableFuture<Boolean> craftingAvailable(BlockPos sourcePos) {
         return RPC.invoke(RpcTarget.server(), StorageServerStub::craftingAvailable, StorageClientStub.playerId(), sourcePos.asLong());
     }

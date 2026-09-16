@@ -20,6 +20,7 @@ import net.minecraft.world.item.Items;
 
 public final class StorageFlipScene {
     private static boolean started;
+    private static boolean transferTesting;
     private static boolean executing;
     private static int categories;
     private static volatile boolean prepared;
@@ -29,6 +30,10 @@ public final class StorageFlipScene {
     private static boolean capturing;
 
     public static void frame(Minecraft client, BlockPos corePos) {
+        if (transferTesting) {
+            StorageCraftingTransferClientChecks.frame(client, corePos);
+            return;
+        }
         if (executing) return;
         executing = true;
         try {
@@ -147,7 +152,8 @@ public final class StorageFlipScene {
                 var state = (CraftingStorage) field(screen, "crafting");
                 require(state.craftingInput().get(8).getCount() == 5, "切换布局不能改变合成物品");
                 AnvilCraft.LOGGER.info("PORT_STORAGE_FLIP_SCENE_PASSED: inventory, crafting, categories, persistence, restore");
-                client.stop();
+                if (Boolean.getBoolean("anvilcraft.portCraftingTransferScene")) transferTesting = true;
+                else client.stop();
             }
             default -> throw new IllegalStateException("Unknown flip stage " + stage);
         }
