@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.client.gui.screen;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import com.google.common.math.LongMath;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.platform.Window;
 import dev.anvilcraft.lib.v2.util.MathUtil;
@@ -17,6 +18,8 @@ import dev.dubhe.anvilcraft.client.rpc.StorageClientStub;
 import dev.dubhe.anvilcraft.client.support.FluidRenderHelper;
 import dev.dubhe.anvilcraft.constant.Constant;
 import dev.dubhe.anvilcraft.constant.SharedTextures;
+import dev.dubhe.anvilcraft.integration.StorageJeiBridge;
+import dev.dubhe.anvilcraft.integration.StorageRecipeTransferPlan;
 import dev.dubhe.anvilcraft.recipe.sync.RecipesRecord;
 import dev.dubhe.anvilcraft.rpc.StorageInput;
 import dev.dubhe.anvilcraft.rpc.StorageServerStub;
@@ -94,6 +97,8 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
     private ItemStack craftingResult = ItemStack.EMPTY;
     private boolean craftingMode;
     private boolean craftingLoaded;
+    private boolean recipeTransferPending;
+    private boolean recipeTransferCompleted;
     private int craftingRequest;
     private int recipeHead;
     private boolean recipeDragging;
@@ -457,12 +462,68 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
             }));
         this.setCraftingMode(this.craftingMode);
         StorageClientStub.craftingAvailable(this.sourcePos).thenCombine(StorageClientStub.craftingGet(this.sourcePos),
-            (available, data) -> available && data.lastOpened()).thenAcceptAsync(opened -> {
-                if (opened) {
+            (available, data) -> data.withLastOpened(available && data.lastOpened())).thenAcceptAsync(data -> {
+                this.crafting = data;
+                this.craftingLoaded = true;
+                if (this.recipeTransferCompleted) {
+                    this.showCraftingAfterTransfer();
+                    return;
+                }
+                if (data.lastOpened()) {
                     this.setCraftingMode(true);
                     this.refreshCrafting();
                 }
             }, this.screenExecutor);
+    }
+
+    public boolean canTransferRecipe() {
+        return this.orderLoaded && this.craftingLoaded && !this.interactionPending && !this.recipeTransferPending;
+    }
+
+    public Map<ItemResource, Long> getTransferMaterials() {
+        Map<ItemResource, Long> materials = new HashMap<>();
+        for (var entry : this.contents.int2ObjectEntrySet()) {
+            if (this.emptySlots.contains(entry.getIntKey()) || entry.getValue().isEmpty()) continue;
+            long count = this.counts.getOrDefault(entry.getIntKey(), entry.getValue().getCount());
+            materials.merge(ItemResource.of(entry.getValue().toStack()), count, LongMath::saturatedAdd);
+        }
+        for (int slot = 0; slot < Inventory.INVENTORY_SIZE; slot++) {
+            ItemStack stack = this.player.getInventory().getItem(slot);
+            if (!stack.isEmpty()) materials.merge(ItemResource.of(stack), (long) stack.getCount(), LongMath::saturatedAdd);
+        }
+        List<ItemStack> inputs = new ArrayList<>(this.crafting.craftingInput());
+        inputs.add(this.crafting.stonecutterInput());
+        for (ItemStack stack : inputs) {
+            if (!stack.isEmpty()) materials.merge(ItemResource.of(stack), (long) stack.getCount(), LongMath::saturatedAdd);
+        }
+        return materials;
+    }
+
+    public List<StorageServerStub.FluidEntry> getTransferFluids() {
+        return this.fluids;
+    }
+
+    public void transferRecipe(boolean stonecutter, boolean maximum, StorageRecipeTransferPlan.Result plan, ItemStack result) {
+        if (!this.canTransferRecipe() || !plan.missing().isEmpty()) return;
+        this.recipeTransferPending = true;
+        StorageClientStub.craftingTransfer(this.sourcePos, stonecutter, maximum, plan.inputs(), result, plan.counts())
+            .whenCompleteAsync((changed, error) -> {
+                this.recipeTransferPending = false;
+                if (error != null) {
+                    AnvilCraft.LOGGER.error("Storage recipe transfer failed", error);
+                    return;
+                }
+                if (!Boolean.TRUE.equals(changed)) return;
+                this.recipeTransferCompleted = true;
+                if (this.minecraft.screen == this) this.showCraftingAfterTransfer();
+            }, this.minecraft);
+    }
+
+    private void showCraftingAfterTransfer() {
+        this.recipeTransferCompleted = false;
+        if (!this.craftingMode) this.toggleCrafting();
+        else this.refreshCrafting();
+        this.reorder(false);
     }
 
     private void setCraftingMode(boolean enabled) {
@@ -595,6 +656,12 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
     }
 
     private boolean clickCraftingPanel(MouseButtonEvent event) {
+        if (event.button() == 0 || event.button() == 1) {
+            if (MathUtil.isInRange(event.x(), event.y(), this.sx(24), this.top + 132, this.sx(38), this.top + 147)
+                && StorageJeiBridge.openRecipes(true)) return true;
+            if (MathUtil.isInRange(event.x(), event.y(), this.sx(65), this.top + 200, this.sx(79), this.top + 215)
+                && StorageJeiBridge.openRecipes(false)) return true;
+        }
         if (event.button() == 0 && this.stonecutterRecipes.size() > 6
             && MathUtil.isInRange(event.x(), event.y(), this.sx(95), this.top + 120, this.sx(99), this.top + 156)) {
             this.recipeDragging = true;
@@ -1780,6 +1847,22 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
     }
 
     private @Nullable ItemArea getItemAreaData(double mouseX, double mouseY) {
+        if (this.craftingMode) {
+            int slot = this.craftingSlotAt(mouseX, mouseY);
+            if (slot >= 0) {
+                ItemStack stack = slot == 0 ? this.crafting.stonecutterInput() : this.crafting.craftingInput().get(slot - 1);
+                int x = slot == 0 ? 7 : 7 + (slot - 1) % 3 * 18;
+                int y = slot == 0 ? 130 : 162 + (slot - 1) / 3 * 18;
+                return stack.isEmpty() ? null : new ItemArea(stack, this.sx(x), this.top + y);
+            }
+            int result = this.craftingResultAt(mouseX, mouseY);
+            if (result >= 0) {
+                int selected = this.crafting.stonecutterSelected();
+                ItemStack stack = result == 1 ? this.craftingResult
+                    : selected >= 0 && selected < this.stonecutterRecipes.size() ? this.stonecutterRecipes.get(selected) : ItemStack.EMPTY;
+                return stack.isEmpty() ? null : new ItemArea(stack, this.sx(83), this.top + (result == 0 ? 162 : 198));
+            }
+        }
         int firstOrderIndex = this.scrollRow * StorageScreen.STORAGE_COLUMNS;
         for (int displayIndex = 0; displayIndex < StorageScreen.VISIBLE_STORAGE_SLOTS; displayIndex++) {
             int orderIndex = firstOrderIndex + displayIndex;

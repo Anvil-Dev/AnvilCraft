@@ -26,6 +26,7 @@ import org.lwjgl.glfw.GLFW;
 @EventBusSubscriber(modid = AnvilCraft.MOD_ID, value = Dist.CLIENT)
 public final class StorageMenuScene {
     private static boolean started;
+    private static boolean jeiTesting;
     private static int foregrounds;
     private static volatile boolean prepared;
     private static volatile Throwable failure;
@@ -40,6 +41,10 @@ public final class StorageMenuScene {
     }
 
     public static void frame(Minecraft client, BlockPos corePos) {
+        if (jeiTesting) {
+            StorageJeiScene.frame(client, corePos);
+            return;
+        }
         if (!started) {
             started = true;
             SettingClientStub.updateFlipped(false);
@@ -134,7 +139,8 @@ public final class StorageMenuScene {
                 }
                 require(count == 1, "关闭归还不能复制或丢失物品");
                 AnvilCraft.LOGGER.info("PORT_STORAGE_MENU_SCENE_PASSED: slot bridge, number key, Q, flip, cursor, close");
-                client.stop();
+                if (Boolean.getBoolean("anvilcraft.portStorageJeiScene")) jeiTesting = true;
+                else client.stop();
             }
             default -> throw new IllegalStateException("Unknown menu stage " + stage);
         }
