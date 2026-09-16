@@ -118,9 +118,11 @@ public class AgeratumUtil {
     }
 
     /**
-     * 指定渲染函数的方块渲染重载，供外观不由 blockstate 决定的方块使用（如进程方块）。
+     * 渲染外观由配方决定、但自身仍需绘制的方块（如进程方块）。
      *
-     * <p>悬停提示仍按谓词的代表状态给出，与显示模型无关。</p>
+     * <p>先按 {@code displayFn} 绘制配方指定的中间态模型，再叠加方块自身的模型。
+     * 进程方块自身的模型是一层半透明薄片，用作「尚未成型」的虚影；只画前者会丢掉它。
+     * 悬停提示只添加一次。</p>
      */
     public static void renderBlock(
         MDRenderContext context,
@@ -130,12 +132,15 @@ public class AgeratumUtil {
         int x,
         int y,
         int z,
-        RenderSupport.BlockRenderFunction fn
+        RenderSupport.BlockRenderFunction displayFn
     ) {
         List<BlockState> states = blockStatePredicate.constructStatesForRender();
         if (states.isEmpty()) return;
-        BlockState renderedState = states.get(RecipeUtil.getDisplayIndex(states.size()));
-        RenderSupport.renderBlock(context.graphics(), renderedState, x, y, z, BLOCK_SIZE, fn);
+        BlockState renderedState = IMultiPartBlockModelHolder.modelHolderState(
+            states.get(RecipeUtil.getDisplayIndex(states.size()))
+        );
+        RenderSupport.renderBlock(context.graphics(), renderedState, x, y, z, BLOCK_SIZE, displayFn);
+        RenderSupport.renderBlock(context.graphics(), renderedState, x, y, z, BLOCK_SIZE, RenderSupport.SINGLE_BLOCK);
         AgeratumUtil.renderTooltip(context, renderedState, mouseX, mouseY, x, y);
     }
 
