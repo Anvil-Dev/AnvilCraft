@@ -117,6 +117,28 @@ public class AgeratumUtil {
         AgeratumUtil.renderTooltip(context, modelState, mouseX, mouseY, x, y);
     }
 
+    /**
+     * 指定渲染函数的方块渲染重载，供外观不由 blockstate 决定的方块使用（如进程方块）。
+     *
+     * <p>悬停提示仍按谓词的代表状态给出，与显示模型无关。</p>
+     */
+    public static void renderBlock(
+        MDRenderContext context,
+        BlockStatePredicate blockStatePredicate,
+        float mouseX,
+        float mouseY,
+        int x,
+        int y,
+        int z,
+        RenderSupport.BlockRenderFunction fn
+    ) {
+        List<BlockState> states = blockStatePredicate.constructStatesForRender();
+        if (states.isEmpty()) return;
+        BlockState renderedState = states.get(RecipeUtil.getDisplayIndex(states.size()));
+        RenderSupport.renderBlock(context.graphics(), renderedState, x, y, z, BLOCK_SIZE, fn);
+        AgeratumUtil.renderTooltip(context, renderedState, mouseX, mouseY, x, y);
+    }
+
     public static <T> void renderItems(
         MDRenderContext context,
         List<T> displaying,

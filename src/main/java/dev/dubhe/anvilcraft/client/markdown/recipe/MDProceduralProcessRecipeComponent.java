@@ -6,6 +6,8 @@ import dev.anvilcraft.lib.v2.util.predicate.ItemIngredientPredicate;
 import dev.anvilcraft.resource.ageratum.client.feat.markdown.MDRenderContext;
 import dev.anvilcraft.resource.ageratum.client.feat.markdown.component.extend.MDRecipeComponent;
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.block.WipBlock;
+import dev.dubhe.anvilcraft.client.support.RenderSupport;
 import dev.dubhe.anvilcraft.recipe.anvil.procedural.ProceduralProcessRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.procedural.ProceduralProcessStep;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.AbstractProcessRecipe;
@@ -97,8 +99,17 @@ public class MDProceduralProcessRecipeComponent extends MDRecipeComponent {
             BlockStatePredicate inputBlock = stepRecipe.getInputBlocks().get(i);
             int blockX = this.getStepX(idx, true);
             int blockY = AgeratumUtil.getRenderY(ANVIL_Y, i + 3);
-            AgeratumUtil.renderBlock(context, inputBlock, mouseX, mouseY, blockX, blockY, (blockSize - i) * 10);
-            // TODO: 遇到WIP方式时，需渲染内部displaymodel
+            int z = (blockSize - i) * 10;
+            // WIP 中间态的外观取自配方的 displayedModels，与其自身 blockstate 无关。
+            // 能作为第 idx 步的输入，说明它已完成了前 idx 步，故步数取 idx。
+            if (isWip(inputBlock)) {
+                AgeratumUtil.renderBlock(
+                    context, inputBlock, mouseX, mouseY, blockX, blockY, z,
+                    RenderSupport.wipDisplay(this.recipe, idx)
+                );
+                continue;
+            }
+            AgeratumUtil.renderBlock(context, inputBlock, mouseX, mouseY, blockX, blockY, z);
         }
 
         // Item
@@ -112,5 +123,10 @@ public class MDProceduralProcessRecipeComponent extends MDRecipeComponent {
 
     protected int getStepX(int idx, boolean isBlock) {
         return this.stepX + idx * this.stepDx + (isBlock ? 8 : 0);
+    }
+
+    /** 该方块谓词是否只指向进程方块（WIP 中间态）。 */
+    private static boolean isWip(BlockStatePredicate predicate) {
+        return predicate.getBlocks().stream().allMatch(holder -> holder.value() instanceof WipBlock);
     }
 }
