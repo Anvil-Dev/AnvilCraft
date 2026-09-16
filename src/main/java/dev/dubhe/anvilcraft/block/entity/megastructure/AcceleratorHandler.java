@@ -9,6 +9,7 @@ import dev.dubhe.anvilcraft.block.entity.celestial.StarData;
 import dev.dubhe.anvilcraft.block.entity.celestial.StellarEventProfile;
 import dev.dubhe.anvilcraft.block.entity.celestial.StellarEvolutionPhase;
 import dev.dubhe.anvilcraft.block.entity.celestial.StellarEvolutionState;
+import dev.dubhe.anvilcraft.block.entity.celestial.StellarNodeDynamics;
 import dev.dubhe.anvilcraft.block.entity.celestial.StellarScheduledEvent;
 import dev.dubhe.anvilcraft.block.entity.celestial.StellarTerminal;
 import dev.dubhe.anvilcraft.block.entity.celestial.StellarTrack;
@@ -55,7 +56,7 @@ public class AcceleratorHandler extends BaseMegastructureHandler {
     @Nullable
     private StellarTrack evolutionTrack;
 
-    /** 淬灭序曲播放窗口。 */
+    /** 提前 70.75 秒播放，让约 71.77 秒曲目的最后一秒覆盖爆发起点并自然结束。 */
     private static final int QUENCHED_FULL_PLAY_TICKS = 1440;
     private static final int QUENCHED_EXPLOSION_LEAD_TICKS = 1415;
     private static final float SUPERNOVA_SHAKE_RADIUS = 32.0f;
@@ -68,6 +69,7 @@ public class AcceleratorHandler extends BaseMegastructureHandler {
     /** 视觉缩放上限：膨胀峰值最多是最大可搜索天体的两倍。 */
     private static final float VISUAL_SCALE_CEILING = VISUAL_SCALE_KNEE * 2.0f;
 
+    private String quenchedEventId = "";
     private boolean quenchedScheduled;
     private long quenchedStartTick = -1L;
     private boolean quenchedStarted;
@@ -375,7 +377,7 @@ public class AcceleratorHandler extends BaseMegastructureHandler {
         pausedSinceGameTime = pausedSinceGameTime >= 0 || !be.isAmplifierPresent() ? now : -1;
         quenchedScheduled = false;
         quenchedStarted = false;
-        if (evolutionState.isActive() && !quenchedSupernovaFired) scheduleQuenchedOut(be);
+        if (evolutionState.isActive()) scheduleQuenchedOut(be);
         syncProgress(now);
     }
 
@@ -400,11 +402,11 @@ public class AcceleratorHandler extends BaseMegastructureHandler {
     @Override
     public void serverTick(CelestialForgingAnvilBlockEntity be) {
         if (be.getLevel() == null || be.getLevel().isClientSide()) return;
-        tickQuenchedOutMusic(be);
         if (evolutionState == null || !evolutionState.isActive() || evolutionTrack == null) return;
 
         long gameTime = be.getLevel().getGameTime();
         if (!be.isAmplifierPresent() && !evolutionState.isComplete()) {
+            cancelQuenchedOutMusic(be);
             if (pausedSinceGameTime < 0L) {
                 pausedSinceGameTime = gameTime;
                 syncToClient(be);
@@ -418,6 +420,7 @@ public class AcceleratorHandler extends BaseMegastructureHandler {
             pausedSinceGameTime = -1L;
             syncToClient(be);
         }
+        tickQuenchedOutMusic(be);
         syncProgress(gameTime);
 
         if (isDysonSphereBuilt(be) && !dysonDestroyed && dysonDestroyTick < 0L) {
@@ -431,6 +434,7 @@ public class AcceleratorHandler extends BaseMegastructureHandler {
         boolean phaseChanged = evolutionState.update(gameTime, evolutionTrack);
         for (StellarScheduledEvent event : evolutionState.dueEvents(gameTime)) {
             evolutionState.markEventApplied(event);
+            if (event.instanceId().equals(quenchedEventId)) quenchedSupernovaFired = true;
             if (event.policy().destructive()) triggerDestructiveEvent(be, event.profileId(), event.seed());
         }
         if (evolutionState.isComplete() && !evolutionState.terminalApplied()) {
@@ -478,38 +482,49 @@ public class AcceleratorHandler extends BaseMegastructureHandler {
         return Math.max(20, main + giantTicks + 10);
     }
 
-    /** 只有破坏性终局事件才预定淬灭音乐。 */
+    @Nullable
+    private StellarScheduledEvent nextQuenchedOutEvent() {
+        if (evolutionState == null) return null;
+        var applied = evolutionState.appliedEvents();
+        for (StellarScheduledEvent event : evolutionState.eventPlan()) {
+            if (!applied.contains(event.instanceId())
+                && (event.policy().destructive() || event.policy() == StellarNodeDynamics.EventPolicy.PPISN)) {
+                return event;
+            }
+        }
+        return null;
+    }
+
     private void scheduleQuenchedOut(CelestialForgingAnvilBlockEntity be) {
         quenchedScheduled = false;
         quenchedStartTick = -1L;
         quenchedStarted = false;
         quenchedCanceled = false;
-        if (evolutionState == null || evolutionTrack == null || evolutionTrack.terminalProfile().isBlank()) return;
-        if (evolutionState.eventPlan().stream().noneMatch(event -> event.policy().destructive())) return;
-        StellarEventProfile profile = evolutionState.eventProfile(evolutionTrack.terminalProfile());
-        if (profile == null || profile.totalTicks() <= 0) return;
-        long predicted = Math.max(0L, evolutionState.terminalShockGameTime(evolutionTrack)
-            - be.getLevel().getGameTime());
-        if (predicted < QUENCHED_FULL_PLAY_TICKS) return;
+        quenchedSupernovaFired = false;
+        StellarScheduledEvent event = nextQuenchedOutEvent();
+        quenchedEventId = event == null ? "" : event.instanceId();
+        if (event == null || evolutionState == null || be.getLevel() == null) return;
+        long shockTime = evolutionState.totalStartGameTime() + event.shockOffset();
+        if (shockTime - clockTime(be) < QUENCHED_FULL_PLAY_TICKS) return;
         quenchedScheduled = true;
-        quenchedStartTick = be.getLevel().getGameTime() + predicted - QUENCHED_EXPLOSION_LEAD_TICKS;
+        quenchedStartTick = shockTime - QUENCHED_EXPLOSION_LEAD_TICKS;
+    }
+
+    private void cancelQuenchedOutMusic(CelestialForgingAnvilBlockEntity be) {
+        if (quenchedStarted && !quenchedSupernovaFired) sendQuenchedOutMusic(be, false);
+        quenchedStarted = false;
+        quenchedScheduled = false;
+        quenchedCanceled = true;
     }
 
     private void tickQuenchedOutMusic(CelestialForgingAnvilBlockEntity be) {
-        if (!isActive()) return;
-        if (!be.isAmplifierPresent()) {
-            if (quenchedStarted) {
-                quenchedStarted = false;
-                quenchedCanceled = true;
-                sendQuenchedOutMusic(be, false);
-            } else if (quenchedScheduled) {
-                quenchedScheduled = false;
-                quenchedCanceled = true;
-            }
-            return;
-        }
-        if (!quenchedCanceled && quenchedScheduled && !quenchedStarted
-            && be.getLevel().getGameTime() >= quenchedStartTick) {
+        if (!isActive() || be.getLevel() == null || evolutionState == null) return;
+        StellarScheduledEvent event = nextQuenchedOutEvent();
+        if (event == null) return;
+        if (quenchedCanceled || !event.instanceId().equals(quenchedEventId)) scheduleQuenchedOut(be);
+        long gameTime = be.getLevel().getGameTime();
+        if (quenchedScheduled && !quenchedStarted && gameTime >= quenchedStartTick
+            && gameTime < evolutionState.totalStartGameTime() + event.shockOffset()) {
             quenchedScheduled = false;
             quenchedStarted = true;
             sendQuenchedOutMusic(be, true);
@@ -765,6 +780,7 @@ public class AcceleratorHandler extends BaseMegastructureHandler {
         dysonDestroyTick = tag.getLong("acceleratorDysonDestroyTick");
         pausedSinceGameTime = tag.contains("acceleratorPausedSinceGameTime")
             ? tag.getLong("acceleratorPausedSinceGameTime") : -1L;
+        quenchedEventId = "";
         quenchedScheduled = tag.getBoolean("quenchedScheduled");
         quenchedStartTick = tag.getLong("quenchedStartTick");
         quenchedStarted = tag.getBoolean("quenchedStarted");
@@ -776,6 +792,11 @@ public class AcceleratorHandler extends BaseMegastructureHandler {
             originalMass = evolutionState.initialMass();
             originalEnergy = evolutionState.initialEnergy();
             originalSize = evolutionState.initialSize();
+            StellarScheduledEvent event = nextQuenchedOutEvent();
+            if (quenchedScheduled && !quenchedCanceled && event != null
+                && quenchedStartTick == evolutionState.totalStartGameTime() + event.shockOffset() - QUENCHED_EXPLOSION_LEAD_TICKS) {
+                quenchedEventId = event.instanceId();
+            }
         }
         if (evolutionState == null) {
             stage = 0;

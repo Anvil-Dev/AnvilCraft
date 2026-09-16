@@ -41,36 +41,29 @@ public class ItemsSections extends DisplayItemsGenerator {
                 this.enchanting(ModItems.AMETHYST_AXE, ModEnchantments.FELLING_KEY, 1);
                 this.enchanting(ModItems.AMETHYST_SHOVEL, Enchantments.EFFICIENCY, 3);
                 this.enchanting(ModItems.AMETHYST_HOE, ModEnchantments.HARVEST_KEY, 1);
-                this.enchanting(ModItems.AMETHYST_SWORD, ModEnchantments.BEHEADING_KEY, 1);
                 content.accept(ModItems.ROYAL_ANVIL_HAMMER);
                 content.accept(ModItems.ROYAL_DRAGON_ROD);
                 content.accept(ModItems.ROYAL_STEEL_PICKAXE);
                 content.accept(ModItems.ROYAL_STEEL_AXE);
                 content.accept(ModItems.ROYAL_STEEL_SHOVEL);
                 content.accept(ModItems.ROYAL_STEEL_HOE);
-                content.accept(ModItems.ROYAL_STEEL_SWORD);
                 content.accept(ModItems.FROST_ANVIL_HAMMER);
                 content.accept(ModItems.FROST_DRAGON_ROD);
                 content.accept(ModItems.FROST_METAL_PICKAXE);
                 content.accept(ModItems.FROST_METAL_AXE);
                 content.accept(ModItems.FROST_METAL_SHOVEL);
                 content.accept(ModItems.FROST_METAL_HOE);
-                content.accept(ModItems.FROST_METAL_SWORD);
                 content.accept(ModItems.FROST_METAL_RESONATOR);
-                content.accept(ModItems.FROST_METAL_HEAVY_HALBERD);
                 content.accept(ModItems.EMBER_ANVIL_HAMMER);
                 content.accept(ModItems.EMBER_DRAGON_ROD);
                 content.accept(ModItems.EMBER_METAL_PICKAXE);
                 content.accept(ModItems.EMBER_METAL_AXE);
                 content.accept(ModItems.EMBER_METAL_SHOVEL);
                 content.accept(ModItems.EMBER_METAL_HOE);
-                content.accept(ModItems.EMBER_METAL_SWORD);
                 content.accept(ModItems.EMBER_METAL_RESONATOR);
-                content.accept(ModItems.EMBER_METAL_HEAVY_HALBERD);
                 content.accept(ModItems.TRANSCENDENCE_ANVIL_HAMMER);
                 content.accept(ModItems.TRANSCENDENCE_DRAGON_ROD);
                 content.accept(ModItems.TRANSCENDENCE_RESONATOR);
-                content.accept(ModItems.TRANSCENDENCE_HEAVY_HALBERD);
                 content.accept(ModItems.MULTITOOL_ITEM);
                 content.accept(ModItems.FLUID_TANK_MINECART);
                 content.accept(ModItems.STRUCTURE_TOOL);
@@ -78,13 +71,28 @@ public class ItemsSections extends DisplayItemsGenerator {
             }
         );
         sections.section(
-            CreativeTabSection.builder(ItemsSections.texture("guns"))
+            CreativeTabSection.builder(ItemsSections.texture("combat"))
                 .textAlignment(CreativeTabSection.TextAlignment.RIGHT)
                 .textRange(16, 49)
-                .text(Component.translatable("anvilcraft.creative.section.items.guns"))
-                .tooltip(Component.translatable("anvilcraft.creative.section.items.guns"))
+                .text(Component.translatable("anvilcraft.creative.section.items.combat"))
+                .tooltip(Component.translatable("anvilcraft.creative.section.items.combat"))
                 .build(),
             content -> {
+                this.enchanting(ModItems.AMETHYST_SWORD, ModEnchantments.BEHEADING_KEY, 1);
+                content.accept(ModItems.ROYAL_STEEL_SWORD);
+                content.accept(ModItems.FROST_METAL_SWORD);
+                content.accept(ModItems.EMBER_METAL_SWORD);
+                content.accept(ModItems.FROST_METAL_HEAVY_HALBERD);
+                content.accept(ModItems.EMBER_METAL_HEAVY_HALBERD);
+                content.accept(ModItems.TRANSCENDENCE_HEAVY_HALBERD);
+                content.accept(ModItems.BREATHING_HELMET);
+                content.accept(ModItems.IONOCRAFT_BACKPACK);
+                content.accept(ModItems.POCKETS_LEGGINGS);
+                content.accept(ModItems.BUFFER_BOOTS);
+                content.accept(ModItems.WEATHERPROOF_SPACESUIT_HELMET);
+                content.accept(ModItems.WEATHERPROOF_SPACESUIT_CHESTPLATE.get().creativeStack());
+                content.accept(ModItems.WEATHERPROOF_SPACESUIT_LEGGINGS);
+                content.accept(ModItems.WEATHERPROOF_SPACESUIT_BOOTS);
                 content.accept(ModItems.SPECTRAL_SLINGSHOT);
                 content.accept(ModItems.ENERGY_WEAPON_PLATFORM);
                 content.accept(ModItems.SPECTRAL_WEAPON_LAUNCHER);
@@ -103,7 +111,6 @@ public class ItemsSections extends DisplayItemsGenerator {
                 .build(),
             content -> {
                 content.accept(ModItems.IONOCRAFT);
-                this.plain(ModItems.IONOCRAFT_BACKPACK);
                 content.accept(ModItems.CAPACITOR);
                 content.accept(ModItems.CAPACITOR_EMPTY);
                 content.accept(ModItems.SUPER_CAPACITOR);
@@ -247,6 +254,7 @@ public class ItemsSections extends DisplayItemsGenerator {
                 content.accept(ModItems.PROCESSOR);
                 content.accept(ModItems.HEAVY_HALBERD_CORE);
                 content.accept(ModItems.RESONATOR_CORE);
+                content.accept(ModItems.WEATHERPROOF_CORE);
                 content.accept(ModItems.MULTIPHASE_TRANSCENDIUM);
                 content.accept(ModItems.DYSON_SPHERE_COMPONENT);
                 content.accept(ModItems.PENROSE_SPHERE_COMPONENT);

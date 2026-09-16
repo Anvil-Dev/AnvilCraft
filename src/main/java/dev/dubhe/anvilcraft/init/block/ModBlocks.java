@@ -224,6 +224,7 @@ import dev.dubhe.anvilcraft.block.item.HeatableBlockItem;
 import dev.dubhe.anvilcraft.block.item.HeliostatsItem;
 import dev.dubhe.anvilcraft.block.item.HyperdimensionStorageStationBlockItem;
 import dev.dubhe.anvilcraft.block.item.InfiniteCollectorBlockItem;
+import dev.dubhe.anvilcraft.block.item.LargeCakeBlockItem;
 import dev.dubhe.anvilcraft.block.item.LargeCrateBlockItem;
 import dev.dubhe.anvilcraft.block.item.LargeFluidTankBlockItem;
 import dev.dubhe.anvilcraft.block.item.LevitationBlockItem;
@@ -3452,7 +3453,7 @@ public class ModBlocks {
             LootTable.Builder builder = LootTable.lootTable().setRandomSequence(ResourceLocation.withDefaultNamespace("blocks/large_cake"));
             ctx.add(prov, builder);
         })
-        .item(SimpleMultiPartBlockItem<Cube3x3PartHalf>::new)
+        .item(LargeCakeBlockItem::new)
         .properties(properties -> properties.stacksTo(16))
         .tag(Tags.Items.FOODS, Tags.Items.FOODS_EDIBLE_WHEN_PLACED)
         .build()

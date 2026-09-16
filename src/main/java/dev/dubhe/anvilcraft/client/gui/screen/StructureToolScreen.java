@@ -9,7 +9,6 @@ import dev.anvilcraft.lib.v2.util.predicate.BlockStatePredicate;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.AccelerationRingBlock;
 import dev.dubhe.anvilcraft.block.GiantAnvilBlock;
-import dev.dubhe.anvilcraft.block.LargeCakeBlock;
 import dev.dubhe.anvilcraft.block.OverseerBlock;
 import dev.dubhe.anvilcraft.block.RemoteTransmissionPoleBlock;
 import dev.dubhe.anvilcraft.block.TeslaTowerBlock;
@@ -386,7 +385,6 @@ public class StructureToolScreen extends AbstractContainerScreen<StructureToolMe
         TransmissionPoleBlock.HALF,
         TeslaTowerBlock.HALF,
         OverseerBlock.HALF,
-        LargeCakeBlock.HALF,
         AccelerationRingBlock.HALF
     );
 

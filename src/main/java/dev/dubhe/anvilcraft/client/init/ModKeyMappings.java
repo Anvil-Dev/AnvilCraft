@@ -4,6 +4,7 @@ import com.mojang.blaze3d.platform.InputConstants.Type;
 import net.minecraft.client.KeyMapping;
 import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
 import net.neoforged.neoforge.client.settings.KeyConflictContext;
+import net.neoforged.neoforge.client.settings.KeyModifier;
 import net.neoforged.neoforge.common.util.Lazy;
 import org.lwjgl.glfw.GLFW;
 
@@ -26,14 +27,16 @@ public class ModKeyMappings {
         KeyConflictContext.IN_GAME, Type.KEYSYM, GLFW.GLFW_KEY_MINUS);
     public static final Lazy<KeyMapping> BUILDING_ROD_MIRROR = register("building_rod_mirror", KeyConflictContext.IN_GAME,
         Type.KEYSYM, GLFW.GLFW_KEY_BACKSLASH);
-    public static final Lazy<KeyMapping> BUILDING_ROD_IMPORT = register("building_rod_import", KeyConflictContext.IN_GAME,
-        Type.KEYSYM, GLFW.GLFW_KEY_I);
     public static final Lazy<KeyMapping> BUILDING_ROD_TOOL = register("building_rod_tool", KeyConflictContext.IN_GAME,
         Type.KEYSYM, GLFW.GLFW_KEY_LEFT_CONTROL);
     public static final Lazy<KeyMapping> BUILDING_ROD_ADJUST = register("building_rod_adjust", KeyConflictContext.IN_GAME,
         Type.KEYSYM, GLFW.GLFW_KEY_LEFT_ALT);
     public static final Lazy<KeyMapping> BUILDING_ROD_LAYER = register("building_rod_layer", KeyConflictContext.IN_GAME,
         Type.KEYSYM, GLFW.GLFW_KEY_LEFT_SHIFT);
+
+    public static final Lazy<KeyMapping> POCKETS = Lazy.of(() -> new KeyMapping(
+        "key.anvilcraft.pockets", KeyConflictContext.IN_GAME, KeyModifier.CONTROL,
+        Type.KEYSYM, GLFW.GLFW_KEY_F, "key.categories.anvilcraft"));
 
     public static final Lazy<KeyMapping> SWITCH_PHASE = register(
         "switch_phase",
@@ -87,11 +90,11 @@ public class ModKeyMappings {
         event.register(BUILDING_ROD_CLOCKWISE.get());
         event.register(BUILDING_ROD_COUNTERCLOCKWISE.get());
         event.register(BUILDING_ROD_MIRROR.get());
-        event.register(BUILDING_ROD_IMPORT.get());
         event.register(BUILDING_ROD_TOOL.get());
         event.register(BUILDING_ROD_ADJUST.get());
         event.register(BUILDING_ROD_LAYER.get());
 
+        event.register(POCKETS.get());
         event.register(SWITCH_PHASE.get());
         event.register(TOGGLE_GOGGLE.get());
         event.register(SWITCH_TOOL_MODE.get());

@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.client.renderer.mun;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.integration.iris.IrisState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
 
@@ -13,8 +14,12 @@ public final class MunSodiumShaders {
     private MunSodiumShaders() {
     }
 
+    public static boolean requested() {
+        return MunClientSky.isMun() && MunRenderPipeline.requested() && !IrisState.isShaderEnabled();
+    }
+
     public static String patch(String source, ResourceLocation name) {
-        if (!MunRenderPipeline.requested()) return source;
+        if (!requested()) return source;
         if (!name.getPath().startsWith("blocks/block_layer_opaque.")) return source;
         return patch(source, name.getNamespace(), name.getPath(), name.getPath().endsWith(".fsh") ? surfaceSource() : "");
     }

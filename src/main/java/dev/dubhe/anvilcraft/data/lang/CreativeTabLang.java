@@ -20,7 +20,7 @@ public class CreativeTabLang {
         provider.add("anvilcraft.creative.section.functional_blocks.redstone", "Redstone");
         provider.add("anvilcraft.creative.section.items.fluids", "Fluids");
         provider.add("anvilcraft.creative.section.items.foods", "Foods");
-        provider.add("anvilcraft.creative.section.items.guns", "Guns");
+        provider.add("anvilcraft.creative.section.items.combat", "Combat");
         provider.add("anvilcraft.creative.section.items.magic", "Magic");
         provider.add("anvilcraft.creative.section.items.materials", "Materials");
         provider.add("anvilcraft.creative.section.items.power", "Power");

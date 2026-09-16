@@ -13,10 +13,12 @@ import dev.dubhe.anvilcraft.client.particle.IonocraftBackpackExhaustParticle;
 import dev.dubhe.anvilcraft.client.particle.OverseerTrailParticle;
 import dev.dubhe.anvilcraft.client.particle.PlasmaJetsParticle;
 import dev.dubhe.anvilcraft.client.renderer.OverworldLikeOrbitalSkyRenderer;
+import dev.dubhe.anvilcraft.client.renderer.entity.model.EquipmentModels;
 import dev.dubhe.anvilcraft.client.renderer.item.CelestialForgingAnvilItemRenderer;
 import dev.dubhe.anvilcraft.client.renderer.item.ItemSlotClipping;
 import dev.dubhe.anvilcraft.client.renderer.item.RuinsBlockItemRenderer;
 import dev.dubhe.anvilcraft.client.renderer.item.decoration.TerminalInsertionDecoration;
+import dev.dubhe.anvilcraft.client.renderer.item.decoration.WeatherproofChestplateDecoration;
 import dev.dubhe.anvilcraft.client.selection.ModelBlockSelection;
 import dev.dubhe.anvilcraft.client.selection.ModelSelectionBlacklist;
 import dev.dubhe.anvilcraft.client.support.InspectionSupport;
@@ -28,6 +30,7 @@ import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.block.ModFluids;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItems;
+import dev.dubhe.anvilcraft.item.WeatherproofChestplateItem;
 import dev.dubhe.anvilcraft.item.weapon.AnvilRailgunItem;
 import dev.dubhe.anvilcraft.item.weapon.LaserGunItem;
 import net.minecraft.client.Minecraft;
@@ -86,6 +89,9 @@ public class AnvilCraftClient {
 
     public static void clientSetup(FMLClientSetupEvent event) {
         event.enqueueWork(() -> ItemProperties.register(
+            ModItems.WEATHERPROOF_SPACESUIT_CHESTPLATE.get(), AnvilCraft.of("charged"),
+            (stack, level, entity, seed) -> WeatherproofChestplateItem.canFly(stack) ? 1 : 0));
+        event.enqueueWork(() -> ItemProperties.register(
             ModItems.BUILDING_ROD.get(), AnvilCraft.of("empty"),
             (stack, level, entity, seed) -> stack.getOrDefault(ModComponents.STORED_ENERGY, 0) == 0 ? 1 : 0
         ));
@@ -113,7 +119,10 @@ public class AnvilCraftClient {
         e.registerItem(new RuinsBlockItemRenderer.ItemExtensions(), ModBlocks.RUINS_BLOCK.asItem());
         e.registerItem(new CelestialForgingAnvilItemRenderer.ItemExtensions(), ModBlocks.CELESTIAL_FORGING_ANVIL.asItem());
         ItemExtensionImpl itemExtensionInstance = new ItemExtensionImpl();
-        e.registerItem(itemExtensionInstance, ModItems.IONOCRAFT_BACKPACK);
+        e.registerItem(itemExtensionInstance, ModItems.IONOCRAFT_BACKPACK, ModItems.BREATHING_HELMET,
+            ModItems.POCKETS_LEGGINGS, ModItems.BUFFER_BOOTS, ModItems.WEATHERPROOF_SPACESUIT_HELMET,
+            ModItems.WEATHERPROOF_SPACESUIT_CHESTPLATE, ModItems.WEATHERPROOF_SPACESUIT_LEGGINGS,
+            ModItems.WEATHERPROOF_SPACESUIT_BOOTS);
         e.registerItem(
             new EnergyWeaponExtensionImpl(),
             ModItems.ANVIL_RAILGUN,
@@ -124,6 +133,7 @@ public class AnvilCraftClient {
     }
 
     public static void registerCustomItemDecorations(RegisterItemDecorationsEvent e) {
+        e.register(ModItems.WEATHERPROOF_SPACESUIT_CHESTPLATE, new WeatherproofChestplateDecoration());
         e.register(ModItems.HYPERDIMENSION_TERMINAL, new TerminalInsertionDecoration());
         e.register(ModItems.LOCAL_TERMINAL, new TerminalInsertionDecoration());
         e.register(ModItems.SHULKER_TERMINAL, new TerminalInsertionDecoration());
@@ -147,10 +157,7 @@ public class AnvilCraftClient {
             EquipmentSlot equipmentSlot,
             HumanoidModel<?> original
         ) {
-            if (itemStack.is(ModItems.IONOCRAFT_BACKPACK)) {
-                return ModModelLayers.getIonocraftBackpackModel();
-            }
-            return IClientItemExtensions.super.getHumanoidArmorModel(livingEntity, itemStack, equipmentSlot, original);
+            return EquipmentModels.get(itemStack, original);
         }
     }
 

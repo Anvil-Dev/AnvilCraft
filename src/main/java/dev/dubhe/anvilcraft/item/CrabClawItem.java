@@ -53,7 +53,7 @@ public class CrabClawItem extends Item {
         boolean inOffHand = ModItems.CRAB_CLAW.isIn(player.getOffhandItem());
         boolean inMainHand = ModItems.CRAB_CLAW.isIn(player.getMainHandItem());
         boolean holdingDualCrabClaw = inOffHand && inMainHand;
-        boolean holdingCrabClaw = inOffHand || inMainHand;
+        boolean holdingCrabClaw = inOffHand || inMainHand || BuildingRodItem.isCarried(player);
         boolean wasHoldingCrabClaw = customData.contains(CRAB_CLAW_MARKER);
         boolean wasHoldingDualCrabClaw = customData.contains(DUAL_CRAB_CLAW_MARKER);
         if (!holdingCrabClaw) {

@@ -24,7 +24,7 @@ import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.InteractionHand;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.item.context.UseOnContext;
@@ -69,6 +69,8 @@ public final class BuildingRodClient {
     private static boolean useHeld;
     private static boolean invalidDisk;
     private static Direction face = Direction.UP;
+    private static final RandomSource PATTERN_RANDOM = RandomSource.create();
+    private static long patternSeed = PATTERN_RANDOM.nextLong();
     private static final BuildingRodKeyRepeat KEY_REPEAT = new BuildingRodKeyRepeat();
 
     private BuildingRodClient() {
@@ -77,6 +79,7 @@ public final class BuildingRodClient {
     public static void cancel() {
         BuildingRodTraditionalControls.clear();
         first = null;
+        patternSeed = PATTERN_RANDOM.nextLong();
         locked = false;
         layer = -1;
         yOffset = 0;
@@ -98,13 +101,12 @@ public final class BuildingRodClient {
 
     private static boolean active() {
         var player = Minecraft.getInstance().player;
-        return player != null && player.getMainHandItem().is(ModItems.BUILDING_ROD);
+        return player != null && BuildingRodItem.isHeld(player);
     }
 
     private static boolean holdingRod() {
         var player = Minecraft.getInstance().player;
-        return player != null && (player.getMainHandItem().is(ModItems.BUILDING_ROD)
-            || player.getOffhandItem().is(ModItems.BUILDING_ROD));
+        return player != null && BuildingRodItem.isHeld(player);
     }
 
     static boolean traditional() {
@@ -125,11 +127,9 @@ public final class BuildingRodClient {
         }
         BuildingRodItemRenderer.tick();
         if (traditional() && BuildingRodTraditionalControls.isActive()
-            && (!active() || mc.player == null || !ItemStack.isSameItemSameComponents(selected, mc.player.getOffhandItem()))) {
+            && (!active() || mc.player == null || !ItemStack.isSameItemSameComponents(selected, BuildingRodItem.material(mc.player)))) {
             cancel();
         }
-        if (mc.player != null && mc.screen == null && mc.player.getMainHandItem().is(ModItems.STRUCTURE_DISK)
-            && ModKeyMappings.BUILDING_ROD_IMPORT.get().consumeClick()) mc.setScreen(new BlueprintImportScreen());
         if (!active() || mc.screen != null || mc.level == null || mc.player == null) {
             if (!locked && !(traditional() && BuildingRodTraditionalControls.isActive())) cancel();
             first = null;
@@ -140,7 +140,7 @@ public final class BuildingRodClient {
             discardControlClicks();
             return;
         }
-        ItemStack other = mc.player.getOffhandItem();
+        ItemStack other = BuildingRodItem.material(mc.player);
         // 优化模式的固定蓝图独立于手持物；传统模式的持有条件由工具会话检查。
         if (!locked) {
             if (!ItemStack.isSameItemSameComponents(selected, other)) {
@@ -169,9 +169,6 @@ public final class BuildingRodClient {
         updateTarget();
         if (mc.options.keyUse.isDown() && !useHeld) press();
         if (!mc.options.keyUse.isDown() && useHeld) release();
-        if (ModKeyMappings.BUILDING_ROD_IMPORT.get().consumeClick() && other.is(ModItems.STRUCTURE_DISK)) {
-            mc.setScreen(new BlueprintImportScreen());
-        }
         controls();
     }
 
@@ -198,9 +195,11 @@ public final class BuildingRodClient {
             face = hit.getDirection();
             var hitState = mc.level.getBlockState(hit.getBlockPos());
             boolean waterlogging = hitState.hasProperty(BlockStateProperties.WATERLOGGED)
-                && BuildingRodFluids.isWater(mc.player.getOffhandItem());
-            if (snapshot == null && BuildingRodItem.isPlacementMaterial(mc.player.getOffhandItem()) && !waterlogging) {
-                UseOnContext use = BlockPlacementPicking.forPlacement(new UseOnContext(mc.player, InteractionHand.OFF_HAND, hit));
+                && BuildingRodFluids.isWater(BuildingRodItem.material(mc.player));
+            if (snapshot == null && BuildingRodItem.isPlacementMaterial(BuildingRodItem.material(mc.player))
+                && !BuildingRodItem.material(mc.player).is(ModItems.FILTER) && !waterlogging) {
+                UseOnContext use = BlockPlacementPicking.forPlacement(
+                    new UseOnContext(mc.player, BuildingRodItem.materialHand(mc.player), hit));
                 if (use instanceof BlockPlacementPicking.PlayerClick click && !click.anvilcraft$hasBlockHit()) {
                     target = null;
                     currentHit = null;
@@ -254,22 +253,7 @@ public final class BuildingRodClient {
             event.setSwingHand(false);
             return;
         }
-        if (mc.player != null && mc.screen == null && event.isUseItem()
-            && mc.player.getMainHandItem().is(ModItems.STRUCTURE_DISK)
-            && (mc.player.isShiftKeyDown() || !mc.player.getMainHandItem().has(ModComponents.STRUCTURE_DISK_DATA))) {
-            event.setCanceled(true);
-            event.setSwingHand(false);
-            mc.setScreen(new BlueprintImportScreen());
-            return;
-        }
-        if (!active()) {
-            if (mc.player != null && mc.player.getOffhandItem().is(ModItems.BUILDING_ROD)
-                && BuildingRodItem.isPlacementMaterial(mc.player.getMainHandItem()) && event.isAttack()) {
-                event.setSwingHand(false);
-                BuildingRodItemRenderer.attack();
-            }
-            return;
-        }
+        if (!active()) return;
         if (event.isAttack()) {
             event.setSwingHand(false);
             BuildingRodItemRenderer.attack();
@@ -298,6 +282,8 @@ public final class BuildingRodClient {
         } else if (target != null && BuildingRodItem.isPlacementMaterial(selected)) {
             first = target;
             firstHit = currentHit;
+            PacketDistributor.sendToServer(new BuildingRodPacket(first, first, face, false, Rotation.NONE,
+                Mirror.NONE, false, firstHit, BuildingRodPacket.Action.START, patternSeed));
         }
     }
 
@@ -306,18 +292,22 @@ public final class BuildingRodClient {
         if (first == null) return;
         if (target != null) {
             BuildingRodItemRenderer.preparePlacement();
-            PacketDistributor.sendToServer(new BuildingRodPacket(first, target, face, false, Rotation.NONE, Mirror.NONE, false, firstHit));
+            PacketDistributor.sendToServer(new BuildingRodPacket(first, target, firstHit == null ? face : firstHit.getDirection(),
+                false, Rotation.NONE, Mirror.NONE, false, firstHit, BuildingRodPacket.Action.PLACE, patternSeed));
         }
         first = null;
         firstHit = null;
+        patternSeed = PATTERN_RANDOM.nextLong();
+        placementCells = null;
     }
 
     public static List<BuildingRodService.Cell> placementPreview() {
         var player = Minecraft.getInstance().player;
         if (!active() || player == null || target == null || snapshot != null || Minecraft.getInstance().screen != null) return List.of();
         if (placementCells == null) {
-            placementCells = BuildingRodService.preview(player, first == null ? target : first, target, face,
-                first == null ? currentHit : firstHit);
+            placementCells = BuildingRodService.preview(player, first == null ? target : first, target,
+                firstHit == null ? face : firstHit.getDirection(),
+                first == null ? currentHit : firstHit, patternSeed);
         }
         return placementCells;
     }
@@ -344,6 +334,15 @@ public final class BuildingRodClient {
 
     /** 在 KeyboardHandler 入口处理，避免依赖可能被其他模组取消的 NeoForge 末尾事件。 */
     public static boolean handleKeyboardInput(int key, int scanCode, int action, int modifiers) {
+        Minecraft mc = Minecraft.getInstance();
+        if (key == GLFW.GLFW_KEY_Z && (modifiers & GLFW.GLFW_MOD_CONTROL) != 0
+            && active() && mc.screen == null && mc.getOverlay() == null && mc.isWindowActive()) {
+            if (action == GLFW.GLFW_PRESS) {
+                PacketDistributor.sendToServer(new BuildingRodPacket(BlockPos.ZERO, BlockPos.ZERO, Direction.UP,
+                    false, Rotation.NONE, Mirror.NONE, false, null, BuildingRodPacket.Action.UNDO));
+            }
+            return true;
+        }
         return handleControl(InputConstants.getKey(key, scanCode), scanCode, action, modifiers);
     }
 
@@ -517,8 +516,8 @@ public final class BuildingRodClient {
 
     static boolean hasMatchingDisk() {
         var player = Minecraft.getInstance().player;
-        return active() && player != null && player.getOffhandItem().is(ModItems.STRUCTURE_DISK)
-            && disk != null && disk.equals(player.getOffhandItem().get(ModComponents.STRUCTURE_DISK_DATA));
+        return active() && player != null && BuildingRodItem.material(player).is(ModItems.STRUCTURE_DISK)
+            && disk != null && disk.equals(BuildingRodItem.material(player).get(ModComponents.STRUCTURE_DISK_DATA));
     }
 
     static String blueprintName() {
@@ -551,24 +550,28 @@ public final class BuildingRodClient {
             key(mc.options.keyUse), key(mc.options.keyAttack), key(ModKeyMappings.BUILDING_ROD_LEFT.get()),
             key(ModKeyMappings.BUILDING_ROD_BACK.get()), key(ModKeyMappings.BUILDING_ROD_FORWARD.get()),
             key(ModKeyMappings.BUILDING_ROD_RIGHT.get()), key(ModKeyMappings.BUILDING_ROD_UP.get()),
-            key(ModKeyMappings.BUILDING_ROD_DOWN.get()), key(ModKeyMappings.BUILDING_ROD_CLOCKWISE.get()),
-            key(ModKeyMappings.BUILDING_ROD_COUNTERCLOCKWISE.get()), key(ModKeyMappings.BUILDING_ROD_MIRROR.get()));
+            key(ModKeyMappings.BUILDING_ROD_DOWN.get()), key(ModKeyMappings.BUILDING_ROD_COUNTERCLOCKWISE.get()),
+            key(ModKeyMappings.BUILDING_ROD_CLOCKWISE.get()), key(ModKeyMappings.BUILDING_ROD_MIRROR.get()));
         }
         var lines = mc.font.split(text, event.getGuiGraphics().guiWidth() - 20);
-        int y = event.getGuiGraphics().guiHeight() - 65 - lines.size() * 10;
+        int feedbackOffset = Math.max(Math.max(mc.gui.leftHeight, mc.gui.rightHeight) + 9, 68);
+        int y = event.getGuiGraphics().guiHeight() - feedbackOffset - 7 - lines.size() * 10;
         for (var line : lines) {
+            int left = (event.getGuiGraphics().guiWidth() - mc.font.width(line)) / 2;
+            event.getGuiGraphics().fill(left - 3, y - 1, left + mc.font.width(line) + 3, y + 10, 0x80000000);
             event.getGuiGraphics().drawCenteredString(mc.font, line, event.getGuiGraphics().guiWidth() / 2, y, 0xFFFFFF);
             y += 10;
         }
     }
 
     private static Component key(KeyMapping mapping) {
-        String shortName = switch (mapping.getKey().getValue()) {
-            case GLFW.GLFW_KEY_EQUAL -> "+";
+        String shortName = mapping.getKey().getType() == InputConstants.Type.KEYSYM && mapping.getKeyModifier() == KeyModifier.NONE
+            ? switch (mapping.getKey().getValue()) {
+            case GLFW.GLFW_KEY_EQUAL -> "=";
             case GLFW.GLFW_KEY_PAGE_UP -> "PgUp";
             case GLFW.GLFW_KEY_PAGE_DOWN -> "PgDn";
             default -> "";
-        };
+        } : "";
         Component label = shortName.isEmpty() ? mapping.getTranslatedKeyMessage() : Component.literal(shortName);
         if (mapping.matchesMouse(GLFW.GLFW_MOUSE_BUTTON_LEFT) && mapping.getKeyModifier() == KeyModifier.NONE) {
             label = Component.translatable("screen.anvilcraft.building_rod.left_click");

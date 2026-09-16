@@ -4,7 +4,7 @@ import dev.dubhe.anvilcraft.block.entity.storage.StorageBlockEntity;
 import dev.dubhe.anvilcraft.block.item.ChuteBlockItem;
 import dev.dubhe.anvilcraft.block.multipart.AbstractMultiPartBlock;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
-import dev.dubhe.anvilcraft.init.item.ModItems;
+import dev.dubhe.anvilcraft.item.BuildingRodItem;
 import net.minecraft.core.BlockPos;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.InteractionHand;
@@ -29,7 +29,7 @@ public final class PlacementInteractions {
     public static boolean allowsPlacement(UseOnContext context) {
         var player = context.getPlayer();
         if (player == null || player.isSpectator()) return false;
-        if (player.getMainHandItem().is(ModItems.BUILDING_ROD)) return true;
+        if (BuildingRodItem.isHeld(player)) return true;
         if (context.getHand() == InteractionHand.OFF_HAND && player.getMainHandItem().getUseAnimation() != UseAnim.NONE) return false;
         if (context.getItemInHand().getItem() instanceof ChuteBlockItem && ChuteBlockItem.isStorageInteraction(context)) return false;
         if (player.isSecondaryUseActive()) return true;

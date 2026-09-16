@@ -5,13 +5,9 @@ import dev.dubhe.anvilcraft.api.power.DynamicPowerComponent;
 import dev.dubhe.anvilcraft.api.power.IDynamicPowerComponentHolder;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
 import dev.dubhe.anvilcraft.init.ModDataAttachments;
-import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.network.IonocraftBackpackFlyingPacket;
-import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.sounds.SoundEvent;
-import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
@@ -19,30 +15,23 @@ import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.ArmorMaterial;
-import net.minecraft.world.item.ArmorMaterials;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.DispenserBlock;
 import net.neoforged.neoforge.common.NeoForgeMod;
 import net.neoforged.neoforge.network.PacketDistributor;
 
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 import java.util.WeakHashMap;
-import java.util.function.Function;
-import javax.annotation.Nullable;
 
-public class IonocraftBackpackItem extends ArmorItem implements IInventoryCarriedAware {
+public class IonocraftBackpackItem extends EquipmentArmorItem implements IInventoryCarriedAware {
     public static final DynamicPowerComponent.PowerConsumption FLIGHT_POWER = new DynamicPowerComponent.PowerConsumption(8);
     private static final ResourceLocation SLOW_FALLING_ID = AnvilCraft.of("ionocraft_backpack_slow_falling");
     private static final AttributeModifier SLOW_FALLING = new AttributeModifier(
         SLOW_FALLING_ID, -0.875, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL
     );
 
-    public static final ResourceLocation TEXTURE = AnvilCraft.of("textures/entity/equipment/ionocraft_backpack.png");
-    public static final ResourceLocation TEXTURE_OFF = AnvilCraft.of("textures/entity/equipment/ionocraft_backpack_off.png");
+    public static final ResourceLocation TEXTURE = AnvilCraft.of("textures/entity/equipment/spacesuit.png");
+    public static final ResourceLocation TEXTURE_OFF = AnvilCraft.of("textures/entity/equipment/spacesuit_off.png");
 
     public static final ResourceLocation CREATIVE_FLIGHT_ID = AnvilCraft.of("creative_flight");
     public static final AttributeModifier CREATIVE_FLIGHT = new AttributeModifier(
@@ -51,34 +40,16 @@ public class IonocraftBackpackItem extends ArmorItem implements IInventoryCarrie
         AttributeModifier.Operation.ADD_VALUE
     );
 
-    private static final Set<Function<Player, ItemStack>> STACK_PROVIDERS = new HashSet<>();
     /** 追踪玩家背包飞行状态，用于在状态变化时同步到其他客户端 */
     private static final Map<ServerPlayer, Boolean> FLYING_TRACKER = new WeakHashMap<>();
 
     public IonocraftBackpackItem(Properties properties) {
-        super(ArmorMaterials.IRON, Type.CHESTPLATE, properties);
-        DispenserBlock.registerBehavior(this, ArmorItem.DISPENSE_ITEM_BEHAVIOR);
-        addStackProvider(player -> player.getItemBySlot(EquipmentSlot.CHEST));
+        this(properties, false);
     }
 
-    @Override
-    public boolean isEnchantable(ItemStack stack) {
-        return true;
-    }
-
-    @Override
-    public int getEnchantmentValue(ItemStack stack) {
-        return 15;
-    }
-
-    @Override
-    public boolean isValidRepairItem(ItemStack toRepair, ItemStack repair) {
-        return repair.is(ModItems.TIN_INGOT);
-    }
-
-    @Override
-    public Holder<SoundEvent> getEquipSound() {
-        return SoundEvents.ARMOR_EQUIP_IRON;
+    protected IonocraftBackpackItem(Properties properties, boolean weatherproof) {
+        super(properties, Type.CHESTPLATE, weatherproof,
+            weatherproof ? "weatherproof_spacesuit" : "ionocraft_backpack");
     }
 
     @Override
@@ -92,8 +63,13 @@ public class IonocraftBackpackItem extends ArmorItem implements IInventoryCarrie
     }
 
     @Override
-    public @Nullable ResourceLocation getArmorTexture(
+    public ResourceLocation getArmorTexture(
         ItemStack stack, Entity entity, EquipmentSlot slot, ArmorMaterial.Layer layer, boolean innerModel) {
+        if (this.isWeatherproof()) {
+            return WeatherproofChestplateItem.getEnergyStored(stack) >= WeatherproofChestplateItem.FLIGHT_CONSUMPTION
+                ? AnvilCraft.of("textures/entity/equipment/weatherproof_spacesuit.png")
+                : AnvilCraft.of("textures/entity/equipment/weatherproof_spacesuit_off.png");
+        }
         return entity instanceof LivingEntity living && hasGridFlight(living) ? TEXTURE : TEXTURE_OFF;
     }
 
@@ -107,6 +83,13 @@ public class IonocraftBackpackItem extends ArmorItem implements IInventoryCarrie
         return gravity != null && gravity.hasModifier(SLOW_FALLING_ID);
     }
 
+    public static boolean protectsFromFalling(Player player) {
+        if (player.isCreative() || player.isSpectator() || player.getAbilities().flying) return true;
+        AttributeInstance flight = player.getAttribute(NeoForgeMod.CREATIVE_FLIGHT);
+        return flight == null || !flight.hasModifier(CREATIVE_FLIGHT_ID)
+            || flight.getBaseValue() > 0 || flight.getModifiers().size() > 1;
+    }
+
     public static void applySlowFalling(Player player) {
         if (!isSlowFalling(player) || player.onGround() || player.isCreative() || player.isSpectator()) return;
         player.fallDistance = 0;
@@ -115,23 +98,16 @@ public class IonocraftBackpackItem extends ArmorItem implements IInventoryCarrie
         }
     }
 
-    public static void addStackProvider(Function<Player, ItemStack> provider) {
-        STACK_PROVIDERS.add(provider);
-    }
-
     public static ItemStack getByPlayer(Player player) {
-        for (Function<Player, ItemStack> provider : STACK_PROVIDERS) {
-            ItemStack stack = provider.apply(player);
-            if (stack.is(ModItems.IONOCRAFT_BACKPACK)) {
-                return stack;
-            }
-        }
-        return ItemStack.EMPTY;
+        ItemStack stack = player.getItemBySlot(EquipmentSlot.CHEST);
+        return stack.getItem() instanceof IonocraftBackpackItem ? stack : ItemStack.EMPTY;
     }
 
     public static void refreshPower(ServerPlayer player) {
+        WeatherproofChestplateItem.refreshGridDemand(player);
         DynamicPowerComponent component = IDynamicPowerComponentHolder.of(player).anvilcraft$getPowerComponent();
-        if (!getByPlayer(player).isEmpty() && player.isAlive() && !player.isCreative() && !player.isSpectator()
+        if (!getByPlayer(player).isEmpty() && !(getByPlayer(player).getItem() instanceof WeatherproofChestplateItem)
+            && player.isAlive() && !player.isCreative() && !player.isSpectator()
             && component.getPowerGrid() != null) {
             component.getPowerConsumptions().add(FLIGHT_POWER);
         } else {
@@ -149,11 +125,14 @@ public class IonocraftBackpackItem extends ArmorItem implements IInventoryCarrie
         PowerGrid grid = component.getPowerGrid();
         boolean powered = equipped && grid != null && grid.isWorking() && grid.getGenerate() >= FLIGHT_POWER.amount()
             && component.getPowerConsumptions().contains(FLIGHT_POWER);
+        boolean storedFlight = getByPlayer(player).getItem() instanceof WeatherproofChestplateItem;
+        if (storedFlight) powered = equipped && WeatherproofChestplateItem.canFly(getByPlayer(player));
         boolean hadFlight = flight.hasModifier(CREATIVE_FLIGHT_ID);
         boolean wasFalling = gravity.hasModifier(SLOW_FALLING_ID);
         boolean hadDescent = player.getData(ModDataAttachments.IONOCRAFT_DESCENT_AVAILABLE);
-        boolean startDescent = hadFlight && player.getAbilities().flying && grid == null;
-        boolean descentAvailable = equipped && !player.onGround() && grid == null && (hadDescent || startDescent);
+        boolean startDescent = hadFlight && player.getAbilities().flying && (grid == null || storedFlight) && !powered;
+        boolean descentAvailable = equipped && !player.onGround() && (grid == null || storedFlight)
+            && !powered && (hadDescent || startDescent);
         if (hadDescent != descentAvailable) {
             player.setData(ModDataAttachments.IONOCRAFT_DESCENT_AVAILABLE, descentAvailable);
         }
@@ -198,6 +177,7 @@ public class IonocraftBackpackItem extends ArmorItem implements IInventoryCarrie
     }
 
     public static void playerTick(ServerPlayer player) {
+        WeatherproofChestplateItem.tickEnergy(player);
         refreshPower(player);
         refreshFlight(player);
 
