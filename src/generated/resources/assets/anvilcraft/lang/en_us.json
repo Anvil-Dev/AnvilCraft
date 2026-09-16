@@ -1323,6 +1323,7 @@
   "key.categories.anvilcraft": "AnvilCraft",
   "message.anvilcraft.buffer_boots.charged": "Press %1$s to jump",
   "message.anvilcraft.building_rod.blocked": "Placement area is obstructed or protected",
+  "message.anvilcraft.building_rod.component_mismatch": "Some blocks have mismatched components; right-click again within 3 seconds to confirm placement",
   "message.anvilcraft.building_rod.invalid_structure": "Invalid blueprint or larger than 16×16×16",
   "message.anvilcraft.building_rod.missing_blocks": "Not enough materials or fluid",
   "message.anvilcraft.building_rod.missing_book": "Missing materials; carry a book to receive a material list",

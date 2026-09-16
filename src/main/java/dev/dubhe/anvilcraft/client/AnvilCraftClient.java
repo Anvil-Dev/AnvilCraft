@@ -90,7 +90,7 @@ public class AnvilCraftClient {
     public static void clientSetup(FMLClientSetupEvent event) {
         event.enqueueWork(() -> ItemProperties.register(
             ModItems.WEATHERPROOF_SPACESUIT_CHESTPLATE.get(), AnvilCraft.of("charged"),
-            (stack, level, entity, seed) -> WeatherproofChestplateItem.canFly(stack) ? 1 : 0));
+            (stack, level, entity, seed) -> WeatherproofChestplateItem.getEnergyStored(stack) > 0 ? 1 : 0));
         event.enqueueWork(() -> ItemProperties.register(
             ModItems.BUILDING_ROD.get(), AnvilCraft.of("empty"),
             (stack, level, entity, seed) -> stack.getOrDefault(ModComponents.STORED_ENERGY, 0) == 0 ? 1 : 0

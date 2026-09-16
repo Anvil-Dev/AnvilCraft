@@ -66,6 +66,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerLevelAccess;
+import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -4076,7 +4077,10 @@ public final class StorageServerStub {
         return result;
     }
 
-    public static ItemStack extractFromTerminal(ServerPlayer player, UUID targetId, int amount) {
+    public static ItemStack extractFromTerminal(ServerPlayer player, UUID targetId, int amount, Slot destination) {
+        if (!destination.isActive() || !destination.allowModification(player) || destination.hasItem()) {
+            return ItemStack.EMPTY;
+        }
         HolderLookup.Provider registries = player.level().registryAccess();
         StorageView view = new StorageView(StorageServerStub.terminalStorages(player, targetId), List.of());
         if (view.size() <= 0) {
@@ -4093,10 +4097,18 @@ public final class StorageServerStub {
             if (stackAmount <= 0) {
                 continue;
             }
-            int take = (int) Math.min(Math.min(amount, view.resource(index).getMaxStackSize()), stackAmount);
+            ItemStack resource = view.resource(index);
+            if (!destination.mayPlace(resource)) {
+                return ItemStack.EMPTY;
+            }
+            int limit = Math.min(resource.getMaxStackSize(), destination.getMaxStackSize(resource));
+            int take = (int) Math.min(Math.min(amount, limit), stackAmount);
+            if (take <= 0) {
+                return ItemStack.EMPTY;
+            }
             int got = view.extract(index, take);
             if (got > 0) {
-                ItemStack extracted = view.resource(index).copyWithCount(got);
+                ItemStack extracted = resource.copyWithCount(got);
                 player.getInventory().setChanged();
                 player.containerMenu.broadcastChanges();
                 return extracted;

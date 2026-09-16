@@ -60,6 +60,13 @@ abstract class PlayerMixin extends LivingEntity {
         return original && !EquipmentAbilities.canBreathe(this);
     }
 
+    @ModifyReturnValue(method = "canFallAtLeast", at = @At("RETURN"))
+    private boolean anvilcraft$voidFloorSupportsSneaking(boolean original, double x, double z, float distance) {
+        Player player = Util.cast(this);
+        return original && !(this.getY() - distance <= this.level().getMinBuildHeight()
+            && EquipmentAbilities.isVoidProtected(player));
+    }
+
     @ModifyVariable(method = "die", at = @At("HEAD"), argsOnly = true)
     private DamageSource modifySource(DamageSource value, @Share("killer") LocalRef<ServerPlayer> killerRef) {
         if (value.getEntity() instanceof FallingBlockEntity falling

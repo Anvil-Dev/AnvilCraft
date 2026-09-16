@@ -7,6 +7,8 @@ public final class BuildingRodLang {
     }
 
     public static void init(RegistrumLangProvider provider) {
+        provider.add("message.anvilcraft.building_rod.component_mismatch",
+            "Some blocks have mismatched components; right-click again within 3 seconds to confirm placement");
         provider.add("message.anvilcraft.building_rod.missing_book", "Missing materials; carry a book to receive a material list");
         provider.add("message.anvilcraft.building_rod.nothing_to_undo", "No unchanged placement to undo");
         provider.add("message.anvilcraft.building_rod.undone", "Last placement undone");

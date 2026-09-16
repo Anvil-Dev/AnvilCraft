@@ -66,11 +66,11 @@ public class IonocraftBackpackItem extends EquipmentArmorItem implements IInvent
     public ResourceLocation getArmorTexture(
         ItemStack stack, Entity entity, EquipmentSlot slot, ArmorMaterial.Layer layer, boolean innerModel) {
         if (this.isWeatherproof()) {
-            return WeatherproofChestplateItem.getEnergyStored(stack) >= WeatherproofChestplateItem.FLIGHT_CONSUMPTION
+            return WeatherproofChestplateItem.getEnergyStored(stack) > 0
                 ? AnvilCraft.of("textures/entity/equipment/weatherproof_spacesuit.png")
                 : AnvilCraft.of("textures/entity/equipment/weatherproof_spacesuit_off.png");
         }
-        return entity instanceof LivingEntity living && hasGridFlight(living) ? TEXTURE : TEXTURE_OFF;
+        return entity.getData(ModDataAttachments.IN_POWER_GRID) ? TEXTURE : TEXTURE_OFF;
     }
 
     public static boolean hasGridFlight(LivingEntity entity) {

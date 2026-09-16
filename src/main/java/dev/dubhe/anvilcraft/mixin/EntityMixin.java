@@ -140,6 +140,11 @@ public abstract class EntityMixin implements IEntityExtension {
         return GravityManager.applyMovementEffects((Entity) (Object) this, type, movement);
     }
 
+    @ModifyVariable(method = "collide", at = @At("HEAD"), argsOnly = true)
+    private Vec3 anvilcraft$collideWithVoidFloor(Vec3 movement) {
+        return (Object) this instanceof Player player ? EquipmentAbilities.collideWithVoidFloor(player, movement) : movement;
+    }
+
     @Shadow
     protected abstract double getDefaultGravity();
 
