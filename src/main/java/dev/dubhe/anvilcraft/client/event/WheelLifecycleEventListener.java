@@ -6,14 +6,17 @@ import dev.anvilcraft.lib.v2.rendering.gui.GuiRenderExtras;
 import dev.anvilcraft.lib.v2.util.Util;
 import dev.anvilcraft.lib.v2.wheel.api.WheelMenuBuilder;
 import dev.anvilcraft.lib.v2.wheel.api.WheelMenuModel;
+import dev.anvilcraft.lib.v2.wheel.api.WheelSelectionEffect;
 import dev.anvilcraft.lib.v2.wheel.client.input.WheelScreenController;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.multipart.FlexibleMultiPartBlock;
-import dev.dubhe.anvilcraft.block.multipart.IMultiPartBlockModelHolder;
 import dev.dubhe.anvilcraft.block.multipart.IMultiPartBlockModelHolder.ModelRenderTarget;
+import dev.dubhe.anvilcraft.block.multipart.IMultiPartBlockModelHolder;
 import dev.dubhe.anvilcraft.client.init.ModKeyMappings;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
+import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.item.property.component.Multiphase;
+import dev.dubhe.anvilcraft.item.property.component.TerminalBinding;
 import dev.dubhe.anvilcraft.item.tool.AnvilHammerItem;
 import dev.dubhe.anvilcraft.item.tool.HeavyHalberdItem;
 import dev.dubhe.anvilcraft.item.tool.HeavyHalberdMode;
@@ -27,7 +30,9 @@ import dev.dubhe.anvilcraft.network.HammerUsePacket;
 import dev.dubhe.anvilcraft.network.SwitchHeavyHalberdModePacket;
 import dev.dubhe.anvilcraft.network.SwitchMultitoolModePacket;
 import dev.dubhe.anvilcraft.network.SwitchResonateModePacket;
+import dev.dubhe.anvilcraft.network.TerminalBalanceModePacket;
 import dev.dubhe.anvilcraft.network.multiple.MultiphasePackets;
+import dev.dubhe.anvilcraft.saved.setting.mode.BalanceMode;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -60,6 +65,10 @@ import java.util.function.Supplier;
 @EventBusSubscriber(modid = AnvilCraft.MOD_ID, value = Dist.CLIENT)
 public class WheelLifecycleEventListener {
     private static final WheelScreenController CONTROLLER = new WheelScreenController();
+
+    private static long balanceKeyTime = -1L;
+    private static boolean balanceKeyWasDown;
+    private static @Nullable Optional<WheelMenuModel> balanceWheelCache;
 
     private static long hammerKeyTime = -1L;
     private static boolean hammerKeyWasDown = false;
@@ -105,6 +114,7 @@ public class WheelLifecycleEventListener {
         WheelLifecycleEventListener.openResonatorWheel(gameTime);
         WheelLifecycleEventListener.openHeavyHalberdWheel(gameTime);
         WheelLifecycleEventListener.openMultitoolWheel(gameTime);
+        WheelLifecycleEventListener.openBalanceWheel(gameTime);
     }
 
     public static boolean openHammerWheel(
@@ -574,6 +584,7 @@ public class WheelLifecycleEventListener {
             WheelLifecycleEventListener.processResonatorPress(client, event.getAction());
             WheelLifecycleEventListener.processHeavyHalberdPress(client, event.getAction());
             WheelLifecycleEventListener.processMultitoolPress(client, event.getAction());
+            WheelLifecycleEventListener.processBalancePress(client, event.getAction());
         }
     }
 
@@ -591,6 +602,7 @@ public class WheelLifecycleEventListener {
             WheelLifecycleEventListener.processResonatorPress(client, event.getAction());
             WheelLifecycleEventListener.processHeavyHalberdPress(client, event.getAction());
             WheelLifecycleEventListener.processMultitoolPress(client, event.getAction());
+            WheelLifecycleEventListener.processBalancePress(client, event.getAction());
         }
     }
 
@@ -722,6 +734,128 @@ public class WheelLifecycleEventListener {
         if (action == GLFW.GLFW_PRESS) {
             if (!WheelLifecycleEventListener.heavyHalberdKeyWasDown) {
                 WheelLifecycleEventListener.heavyHalberdKeyTime = client.level.getGameTime();
+            }
+        }
+    }
+
+    private static void openBalanceWheel(long gameTime) {
+        if (
+            WheelLifecycleEventListener.balanceKeyTime > 0
+            && gameTime - WheelLifecycleEventListener.balanceKeyTime > 4
+        ) {
+            if (WheelLifecycleEventListener.balanceWheelCache == null) {
+                LocalPlayer player = Minecraft.getInstance().player;
+                if (player == null) return;
+                if (!WheelLifecycleEventListener.holdsBoundTerminal(player)) return;
+                WheelLifecycleEventListener.balanceWheelCache = Optional.of(
+                    WheelLifecycleEventListener.getBalanceWheel()
+                );
+            }
+            if (WheelLifecycleEventListener.balanceWheelCache.isEmpty()) return;
+            CONTROLLER.onHoldKeyPressed(WheelLifecycleEventListener.balanceWheelCache.get());
+            WheelLifecycleEventListener.balanceKeyWasDown = true;
+        }
+    }
+
+    private static boolean holdsBoundTerminal(LocalPlayer player) {
+        return WheelLifecycleEventListener.isBoundTerminal(player.getMainHandItem())
+               || WheelLifecycleEventListener.isBoundTerminal(player.getOffhandItem());
+    }
+
+    private static boolean isBoundTerminal(ItemStack stack) {
+        if (stack.is(ModItems.LOCAL_TERMINAL) || stack.is(ModItems.SHULKER_TERMINAL)) return true;
+        if (!stack.is(ModItems.HYPERDIMENSION_TERMINAL)) return false;
+        TerminalBinding binding = stack.get(ModComponents.TERMINAL_BINDING);
+        return binding != null && binding.id().isPresent();
+    }
+
+    private static ItemStack heldBalanceTerminal() {
+        Minecraft minecraft = Minecraft.getInstance();
+        if (minecraft.player != null) {
+            ItemStack hand = minecraft.player.getMainHandItem();
+            if (WheelLifecycleEventListener.isTerminal(hand)) {
+                return hand;
+            }
+            hand = minecraft.player.getOffhandItem();
+            if (WheelLifecycleEventListener.isTerminal(hand)) {
+                return hand;
+            }
+        }
+        return ModItems.HYPERDIMENSION_TERMINAL.asStack();
+    }
+
+    private static boolean isTerminal(ItemStack stack) {
+        return stack.is(ModItems.LOCAL_TERMINAL)
+               || stack.is(ModItems.SHULKER_TERMINAL)
+               || stack.is(ModItems.HYPERDIMENSION_TERMINAL);
+    }
+
+    private static WheelMenuModel getBalanceWheel() {
+        return WheelMenuBuilder.create()
+            .selectionEffect(WheelSelectionEffect.ANNULAR_SECTOR)
+            .slotsPerPage(4)
+            .action(
+                "smart",
+                Component.translatable("screen.anvilcraft.balance_mode.smart"),
+                (graphics, pose, width, height) -> graphics.fakeItem(
+                    WheelLifecycleEventListener.heldBalanceTerminal(),
+                    -8,
+                    -8
+                ),
+                ctx -> ClientPacketDistributor.sendToServer(new TerminalBalanceModePacket(BalanceMode.SMART))
+            )
+            .action(
+                "restock",
+                Component.translatable("screen.anvilcraft.balance_mode.restock"),
+                (graphics, pose, width, height) -> graphics.fakeItem(
+                    WheelLifecycleEventListener.heldBalanceTerminal(),
+                    -8,
+                    -8
+                ),
+                ctx -> ClientPacketDistributor.sendToServer(new TerminalBalanceModePacket(BalanceMode.RESTOCK))
+            )
+            .action(
+                "off",
+                Component.translatable("screen.anvilcraft.balance_mode.off"),
+                (graphics, pose, width, height) -> graphics.fakeItem(
+                    WheelLifecycleEventListener.heldBalanceTerminal(),
+                    -8,
+                    -8
+                ),
+                ctx -> ClientPacketDistributor.sendToServer(new TerminalBalanceModePacket(BalanceMode.OFF))
+            )
+            .action(
+                "deposit",
+                Component.translatable("screen.anvilcraft.balance_mode.deposit"),
+                (graphics, pose, width, height) -> graphics.fakeItem(
+                    WheelLifecycleEventListener.heldBalanceTerminal(),
+                    -8,
+                    -8
+                ),
+                ctx -> ClientPacketDistributor.sendToServer(new TerminalBalanceModePacket(BalanceMode.DEPOSIT))
+            )
+            .build();
+    }
+
+    private static void processBalancePress(Minecraft client, int action) {
+        if (client.level == null) return;
+        if (action == GLFW.GLFW_RELEASE) {
+            if (WheelLifecycleEventListener.balanceKeyWasDown) {
+                CONTROLLER.onHoldKeyReleased();
+            }
+            WheelLifecycleEventListener.balanceKeyWasDown = false;
+            WheelLifecycleEventListener.balanceKeyTime = -1L;
+            WheelLifecycleEventListener.balanceWheelCache = null;
+            return;
+        }
+        // 只有手持已绑定终端时才呼出物品均衡轮盘，不干扰工具的 Alt 轮盘
+        if (client.player == null || !WheelLifecycleEventListener.holdsBoundTerminal(client.player)) {
+            return;
+        }
+        if (Minecraft.getInstance().screen != null) return;
+        if (action == GLFW.GLFW_PRESS) {
+            if (!WheelLifecycleEventListener.balanceKeyWasDown) {
+                WheelLifecycleEventListener.balanceKeyTime = client.level.getGameTime();
             }
         }
     }

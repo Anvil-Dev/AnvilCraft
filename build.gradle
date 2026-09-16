@@ -53,6 +53,11 @@ if (providers.gradleProperty('portValidation').isPresent()) {
     if (providers.gradleProperty('portClientSmoke').isPresent()) {
         neoForge.runs.client.systemProperty 'anvilcraft.portClientSmoke', 'true'
     }
+    if (providers.gradleProperty('portTerminalBalanceScene').isPresent()) {
+        neoForge.runs.client.systemProperty 'anvilcraft.portVisualScene', 'true'
+        neoForge.runs.client.systemProperty 'anvilcraft.portTerminalBalanceScene', 'true'
+        neoForge.runs.client.programArguments.addAll '--width', '1280', '--height', '720'
+    }
     if (providers.gradleProperty('portTerminalScene').isPresent()) {
         neoForge.runs.client.systemProperty 'anvilcraft.portVisualScene', 'true'
         neoForge.runs.client.systemProperty 'anvilcraft.portTerminalScene', 'true'

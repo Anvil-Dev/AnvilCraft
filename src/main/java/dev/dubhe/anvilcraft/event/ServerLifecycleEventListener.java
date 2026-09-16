@@ -63,6 +63,7 @@ public class ServerLifecycleEventListener {
         SoundHelper.INSTANCE.clear();
         StorageServerStub.clear();
         BundleLikeServerStub.clear();
+        PlayerBalanceHandler.clear();
         TerminalSourceManager.clear();
         ExpCollectorBlockEntity.clearPoachingCollectors();
         ItemCollectorBlockEntity.clearPoachingCollectors();

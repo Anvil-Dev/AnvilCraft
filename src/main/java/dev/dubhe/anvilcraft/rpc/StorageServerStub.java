@@ -20,6 +20,7 @@ import dev.dubhe.anvilcraft.block.entity.storage.ShulkerContainerBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.storage.StorageBlockEntity;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.item.HyperdimensionTerminalItem;
+import dev.dubhe.anvilcraft.item.TerminalItem;
 import dev.dubhe.anvilcraft.saved.setting.PlayerSetting;
 import dev.dubhe.anvilcraft.saved.setting.PlayerSettings;
 import dev.dubhe.anvilcraft.saved.setting.StorageSetting;
@@ -2099,6 +2100,92 @@ public final class StorageServerStub {
             }
         }
         return new StorageView(storages, List.of());
+    }
+
+    private static List<BaseStorage<?>> boundStorages(ServerPlayer player) {
+        List<BaseStorage<?>> storages = new ArrayList<>();
+        List<ItemStack> terminals = TerminalItem.getAll(player);
+        for (TerminalItem.Kind kind : new TerminalItem.Kind[]{
+            TerminalItem.Kind.HYPERDIMENSION, TerminalItem.Kind.LOCAL, TerminalItem.Kind.SHULKER
+        }) {
+            for (ItemStack stack : terminals) {
+                if (((TerminalItem) stack.getItem()).kind() != kind) continue;
+                BaseStorage<?> storage = TerminalSessions.targetStorage(player, stack, false);
+                if (storage != null && storages.stream().noneMatch(existing -> existing.getId().equals(storage.getId()))) {
+                    storages.add(storage);
+                }
+            }
+        }
+        return storages;
+    }
+
+    public static void depositExcess(ServerPlayer player) {
+        if (player.hasInfiniteMaterials()) return;
+        List<BaseStorage<?>> storages = boundStorages(player);
+        if (storages.isEmpty()) return;
+        Map<ItemResource, Long> totals = new java.util.LinkedHashMap<>();
+        for (int slot = 0; slot < Inventory.INVENTORY_SIZE; slot++) {
+            ItemStack stack = player.getInventory().getItem(slot);
+            if (!stack.isEmpty()) totals.merge(ItemResource.of(stack), (long) stack.getCount(), Long::sum);
+        }
+        boolean changed = false;
+        var inventory = PlayerInventoryWrapper.of(player);
+        int selected = player.getInventory().getSelectedSlot();
+        for (var entry : totals.entrySet()) {
+            ItemResource resource = entry.getKey();
+            int excess = (int) Math.min(Integer.MAX_VALUE, entry.getValue() - resource.toStack().getMaxStackSize());
+            if (excess <= 0) continue;
+            try (Transaction transaction = Transaction.openRoot()) {
+                int remaining = insertBalanceResource(storages, resource, excess, transaction);
+                if (remaining == 0) continue;
+                for (int slot = Inventory.INVENTORY_SIZE - 1; slot >= 0 && remaining > 0; slot--) {
+                    if (slot != selected) remaining -= inventory.extract(slot, resource, remaining, transaction);
+                }
+                if (remaining > 0) remaining -= inventory.extract(selected, resource, remaining, transaction);
+                if (remaining != 0) continue;
+                transaction.commit();
+                changed = true;
+            }
+        }
+        if (changed) {
+            player.getInventory().setChanged();
+            player.containerMenu.broadcastChanges();
+        }
+    }
+
+    private static int insertBalanceResource(List<BaseStorage<?>> storages, ItemResource resource, int amount, Transaction transaction) {
+        int inserted = 0;
+        for (BaseStorage<?> storage : storages) {
+            if (!StorageView.canStore(storage, resource) || !StorageView.contains(storage.getItems(), resource)) continue;
+            inserted += storage.getItems().insert(resource, amount - inserted, transaction);
+            if (inserted == amount) return inserted;
+        }
+        for (BaseStorage<?> storage : storages) {
+            if (!StorageView.canStore(storage, resource)) continue;
+            inserted += storage.getItems().insert(resource, amount - inserted, transaction);
+            if (inserted == amount) return inserted;
+        }
+        return inserted;
+    }
+
+    public static void restockHand(ServerPlayer player, ItemStack usedUpItem, int inventorySlot) {
+        if (usedUpItem.isEmpty() || player.hasInfiniteMaterials() || !player.containerMenu.getCarried().isEmpty()
+            || inventorySlot < 0 || inventorySlot >= Inventory.INVENTORY_SIZE && inventorySlot != 40
+            || !player.getInventory().getItem(inventorySlot).isEmpty()) return;
+        ItemResource resource = ItemResource.of(usedUpItem);
+        int needed = usedUpItem.getMaxStackSize();
+        try (Transaction transaction = Transaction.openRoot()) {
+            int taken = 0;
+            for (BaseStorage<?> storage : boundStorages(player)) {
+                if (!StorageView.canStore(storage, resource)) continue;
+                taken += storage.getItems().extract(resource, needed - taken, transaction);
+                if (taken == needed) break;
+            }
+            if (taken == 0 || PlayerInventoryWrapper.of(player).insert(inventorySlot, resource, taken, transaction) != taken) return;
+            transaction.commit();
+        }
+        player.getInventory().setChanged();
+        player.containerMenu.broadcastChanges();
     }
 
     public static int insertIntoTerminal(ServerPlayer player, UUID targetId, ItemStack stack, int amount) {

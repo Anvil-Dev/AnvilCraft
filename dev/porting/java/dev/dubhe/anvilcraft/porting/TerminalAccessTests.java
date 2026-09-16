@@ -96,7 +96,7 @@ public final class TerminalAccessTests {
         }
     }
 
-    private static ItemStack bound(StorageFluidRpcTests.Fixture fixture) {
+    static ItemStack bound(StorageFluidRpcTests.Fixture fixture) {
         var terminal = new ItemStack(ModItems.HYPERDIMENSION_TERMINAL.get());
         var core = (StorageBlockEntity) fixture.player().level().getBlockEntity(fixture.core());
         HyperdimensionTerminalItem.bindToStation(fixture.player(), terminal, core);
