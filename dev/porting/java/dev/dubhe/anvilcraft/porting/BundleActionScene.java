@@ -34,6 +34,7 @@ import net.neoforged.neoforge.client.event.sound.PlaySoundEvent;
 @EventBusSubscriber(modid = AnvilCraft.MOD_ID, value = Dist.CLIENT)
 public final class BundleActionScene {
     private static boolean started;
+    private static boolean selectionTesting;
     private static int insertSounds;
     private static int removeSounds;
     private static boolean originalInverted;
@@ -53,6 +54,10 @@ public final class BundleActionScene {
     }
 
     public static void frame(Minecraft client) {
+        if (selectionTesting) {
+            BoxSelectionScene.frame(client);
+            return;
+        }
         if (!started) {
             started = true;
             originalInverted = AnvilCraftClient.CONFIG.invertOverrideAction;
@@ -175,7 +180,8 @@ public final class BundleActionScene {
                 require(insertSounds == 4 && removeSounds == 2, "收纳音效缺失或重复：" + insertSounds + "/" + removeSounds);
                 AnvilCraftClient.CONFIG.invertOverrideAction = originalInverted;
                 AnvilCraft.LOGGER.info("PORT_BUNDLE_ACTION_SCENE_PASSED: survival packets, inverted RPC, creative inventory, conservation");
-                client.stop();
+                if (Boolean.getBoolean("anvilcraft.portBoxSelectionScene")) selectionTesting = true;
+                else client.stop();
             }
             default -> throw new IllegalStateException("Unknown bundle stage " + stage);
         }
