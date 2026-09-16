@@ -81,6 +81,9 @@ import javax.annotation.Nullable;
 public class StructureScannerScreen extends AbstractContainerScreen<StructureScannerMenu> implements IGhostIngredientScreen {
     private static final ResourceLocation BACKGROUND = SharedTextures.bg("machine", "structure_scanner");
     private static final ResourceLocation REDO_TEXTURE = scannerTexture("redo");
+    private static final ResourceLocation REDO_HIGHLIGHT_TEXTURE = scannerTexture("redo_highlight");
+    private static final int REDO_HIGHLIGHT_FRAMES = 8;
+    private static final long REDO_HIGHLIGHT_FRAME_MILLIS = 100L;
     private static final ResourceLocation STOP_TEXTURE = scannerTexture("stop");
     private static final ResourceLocation CONFIRM_TEXTURE = scannerTexture("confirm");
     private static final ResourceLocation BLUEPRINT_TEXTURE = scannerTexture("blueprint");
@@ -127,6 +130,8 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
     private ScannerButton modeToggleButton;
     @Nullable private ScannerButton pressedButton;
     private boolean isScanMode = true;  // 默认为 redo 状态
+    private long redoHighlightStartedAt = -1L;
+    private boolean redoHighlightFinished;
 
     // 文本输入框
     private EditBox nameInput;
@@ -285,6 +290,7 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
 
         @Override
         protected void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+            if (this == StructureScannerScreen.this.modeToggleButton && StructureScannerScreen.this.renderRedoHighlight(graphics)) return;
             int frame = this.pressState.frame(this.active, this.isHovered(), this.selected.getAsBoolean());
             float color = this.active ? 1.0F : 0.45F;
             RenderSystem.setShaderColor(color, color, color, 1.0F);
@@ -336,6 +342,30 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
             super.setFocused(focused);
             if (!focused && this.pressState.keyboardPressed()) this.pressState.cancel();
         }
+    }
+
+    private boolean renderRedoHighlight(GuiGraphics graphics) {
+        if (this.redoHighlightFinished) return false;
+        if (this.modeToggleButton.isHovered() || this.modeToggleButton.isFocused() || !this.isScanMode || !this.modeToggleButton.active) {
+            this.redoHighlightFinished = true;
+            return false;
+        }
+        long now = Util.getMillis();
+        if (this.redoHighlightStartedAt < 0L) this.redoHighlightStartedAt = now;
+        long frame = (now - this.redoHighlightStartedAt) / REDO_HIGHLIGHT_FRAME_MILLIS;
+        if (frame >= REDO_HIGHLIGHT_FRAMES) {
+            this.redoHighlightFinished = true;
+            return false;
+        }
+        graphics.blit(REDO_HIGHLIGHT_TEXTURE, this.modeToggleButton.getX(), this.modeToggleButton.getY(),
+            0, (int) frame * 26, 26, 26, 26, 26 * REDO_HIGHLIGHT_FRAMES);
+        return true;
+    }
+
+    @Override
+    public void mouseMoved(double mouseX, double mouseY) {
+        if (this.modeToggleButton.isMouseOver(mouseX, mouseY)) this.redoHighlightFinished = true;
+        super.mouseMoved(mouseX, mouseY);
     }
 
     private class RangeButton extends SimpleIconButton {
