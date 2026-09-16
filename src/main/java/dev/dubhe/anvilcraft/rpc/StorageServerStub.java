@@ -33,21 +33,26 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.CraftingInput;
+import net.minecraft.world.item.crafting.CraftingRecipe;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.item.crafting.SingleRecipeInput;
 import net.minecraft.world.level.block.Block;
@@ -99,6 +104,8 @@ public final class StorageServerStub {
         .map(IntArrayList::new, Function.identity());
     @SuppressWarnings("NullableProblems") // IDEA issue, will be unnecessary in sometime
     private static final Multimap<UUID, StorageServerStub> STUBS = ArrayListMultimap.create();
+    private static final int CRAFTING_TAKE_ALL_CHUNK = 64;
+    private static final Map<TakeAllKey, TakeAllSession> CRAFTING_BATCHES = new HashMap<>();
 
     private final Deque<Map<ItemResource, Integer>> undoRecords = new ArrayDeque<>();
     private final Map<ItemResource, Integer> undoGroup = new HashMap<>();
@@ -323,16 +330,19 @@ public final class StorageServerStub {
         return new CraftingTarget(view, player);
     }
 
-    private record CraftOperation(ItemStack result, CraftingStorage next, List<ItemStack> remainders, boolean consumed) {
+    private record CraftOperation(
+        Identifier recipeId, ItemStack result, CraftingStorage next, List<ItemStack> remainders, boolean consumed
+    ) {
     }
 
     @RemoteCallable(validator = StorageAccessValidator.class)
     public static InteractionResult craftingTakeResult(UUID playerId, long sourcePos, boolean stonecutter, boolean shift) {
         ServerPlayer player = StorageServerStub.getServerPlayer(playerId);
         CraftingTarget target = StorageServerStub.resolveCraftingTarget(player, sourcePos);
+        cancelCraftingBatch(playerId, sourcePos);
         CraftingStorage crafting = target.read();
         ItemStack carried = player.containerMenu.getCarried();
-        CraftOperation operation = StorageServerStub.prepareCraftOperation(player, crafting, stonecutter);
+        CraftOperation operation = StorageServerStub.prepareCraftOperation(player, crafting, stonecutter, null);
         if (operation == null || operation.result.isEmpty()) return new InteractionResult(carried, false);
         ItemStack result = operation.result;
         int overflow = 0;
@@ -348,10 +358,7 @@ public final class StorageServerStub {
             overflow = result.getCount() - inserted;
         }
         // 先准备全部剩余物，再发放产物和写回输入；每个取出路径都只执行一次消耗。
-        if (operation.consumed) target.write(operation.next);
-        for (ItemStack remainder : operation.remainders) {
-            StorageServerStub.returnCraftingStack(target, remainder, crafting.toStorage());
-        }
+        StorageServerStub.applyCraftOperation(target, operation, crafting.toStorage());
         if (overflow > 0) player.drop(result.copyWithCount(overflow), false);
         int refilled = StorageServerStub.refillCrafting(target, crafting);
         player.getInventory().setChanged();
@@ -359,7 +366,9 @@ public final class StorageServerStub {
         return new InteractionResult(player.containerMenu.getCarried(), true, refilled);
     }
 
-    private static @Nullable CraftOperation prepareCraftOperation(ServerPlayer player, CraftingStorage crafting, boolean stonecutter) {
+    private static @Nullable CraftOperation prepareCraftOperation(
+        ServerPlayer player, CraftingStorage crafting, boolean stonecutter, @Nullable Identifier lockedId
+    ) {
         if (stonecutter) {
             ItemStack input = crafting.stonecutterInput();
             if (input.isEmpty()) return null;
@@ -367,20 +376,26 @@ public final class StorageServerStub {
                 .flatMap(entry -> entry.recipe().recipe().stream()).toList();
             int selected = crafting.stonecutterSelected();
             if (selected < 0 || selected >= choices.size()) return null;
+            Identifier recipeId = choices.get(selected).id().identifier();
+            if (lockedId != null && !lockedId.equals(recipeId)) return null;
             ItemStack result = choices.get(selected).value().assemble(new SingleRecipeInput(input));
-            return new CraftOperation(result, crafting.withStonecutterInput(input.copyWithCount(input.getCount() - 1)), List.of(), true);
+            return new CraftOperation(recipeId, result,
+                crafting.withStonecutterInput(input.copyWithCount(input.getCount() - 1)), List.of(), true);
         }
         var positioned = CraftingInput.ofPositioned(3, 3, crafting.craftingInput());
         var input = positioned.input();
-        var recipe = player.level().recipeAccess().getRecipeFor(RecipeType.CRAFTING, input, player.level());
-        if (recipe.isEmpty()) return null;
+        RecipeHolder<?> holder = lockedId == null
+            ? player.level().recipeAccess().getRecipeFor(RecipeType.CRAFTING, input, player.level()).orElse(null)
+            : player.level().getServer().getRecipeManager().recipeMap().byKey(ResourceKey.create(Registries.RECIPE, lockedId));
+        if (holder == null || !(holder.value() instanceof CraftingRecipe recipe)) return null;
+        if (lockedId != null && !recipe.matches(input, player.level())) return null;
         ItemStack result;
         List<ItemStack> remaining;
         final var previousPlayer = CommonHooks.getCraftingPlayer();
         CommonHooks.setCraftingPlayer(player);
         try {
-            result = recipe.orElseThrow().value().assemble(input);
-            remaining = recipe.orElseThrow().value().getRemainingItems(input);
+            result = recipe.assemble(input);
+            remaining = recipe.getRemainingItems(input);
         } finally {
             CommonHooks.setCraftingPlayer(previousPlayer);
         }
@@ -409,7 +424,156 @@ public final class StorageServerStub {
                 consumed |= !ItemStack.isSameItemSameComponents(current, next) || current.getCount() != next.getCount();
             }
         }
-        return new CraftOperation(result, crafting.withCraftingInput(grid), overflow, consumed);
+        return new CraftOperation(holder.id().identifier(), result, crafting.withCraftingInput(grid), overflow, consumed);
+    }
+
+    private static void applyCraftOperation(CraftingTarget target, CraftOperation operation, boolean storageFirst) {
+        if (operation.consumed) target.write(operation.next);
+        for (ItemStack remainder : operation.remainders) {
+            StorageServerStub.returnCraftingStack(target, remainder, storageFirst);
+        }
+    }
+
+    private record TakeAllKey(UUID player, long sourcePos) {
+    }
+
+    private record TakeAllSession(
+        UUID storageId, Identifier dimension, Identifier recipeId, boolean stonecutter,
+        int remaining, CraftingStorage template, CraftingStorage expected
+    ) {
+    }
+
+    private static int craftBudget(ItemStack result, int multiplier) {
+        long batches = Math.max(1, result.getMaxStackSize() / Math.max(1, result.getCount()));
+        return (int) Math.min(Integer.MAX_VALUE, batches * Math.max(1L, multiplier));
+    }
+
+    private static boolean sameCraftingState(CraftingStorage left, CraftingStorage right) {
+        if (left.autoFill() != right.autoFill() || left.toStorage() != right.toStorage()
+            || left.stonecutterSelected() != right.stonecutterSelected()
+            || !ItemStack.matches(left.stonecutterInput(), right.stonecutterInput())) return false;
+        for (int slot = 0; slot < CraftingStorage.CRAFTING_GRID_SIZE; slot++) {
+            if (!ItemStack.matches(left.craftingInput().get(slot), right.craftingInput().get(slot))) return false;
+        }
+        return true;
+    }
+
+    private static CraftingStorage copyCraftingState(CraftingStorage state) {
+        return state.withStonecutterInput(state.stonecutterInput().copy())
+            .withCraftingInput(state.craftingInput().stream().map(ItemStack::copy).toList());
+    }
+
+    private static void cancelCraftingBatch(UUID player, long sourcePos) {
+        CRAFTING_BATCHES.remove(new TakeAllKey(player, sourcePos));
+    }
+
+    @RemoteCallable(validator = StorageAccessValidator.class)
+    public static TakeAllResult craftingTakeAll(UUID playerId, long sourcePos, boolean stonecutter, int multiplier) {
+        ServerPlayer player = StorageServerStub.getServerPlayer(playerId);
+        CraftingTarget target = StorageServerStub.resolveCraftingTarget(player, sourcePos);
+        TakeAllKey key = new TakeAllKey(playerId, sourcePos);
+        TakeAllSession session = CRAFTING_BATCHES.remove(key);
+        CraftingStorage initial = target.read();
+        if (session != null && (session.stonecutter != stonecutter
+            || !session.storageId.equals(target.view.primary().getId())
+            || !session.dimension.equals(player.level().dimension().identifier())
+            || !sameCraftingState(session.expected, initial))) {
+            return new TakeAllResult(player.containerMenu.getCarried(), false, true, 0);
+        }
+        CraftingStorage template = session == null ? copyCraftingState(initial) : session.template;
+        Identifier lockedId = session == null ? null : session.recipeId;
+        int remaining = session == null ? -1 : session.remaining;
+        boolean changed = false;
+        int refilled = 0;
+        for (int iteration = 0; iteration < CRAFTING_TAKE_ALL_CHUNK; iteration++) {
+            CraftingStorage crafting = target.read();
+            CraftOperation operation = prepareCraftOperation(player, crafting, stonecutter, lockedId);
+            if (operation == null || operation.result.isEmpty()) {
+                int filled = refillCrafting(target, template);
+                refilled |= filled;
+                if (filled != 0) continue;
+                return finishCraftingBatch(player, changed, true, refilled);
+            }
+            if (lockedId == null) {
+                lockedId = operation.recipeId;
+                if (template.autoFill()) remaining = craftBudget(operation.result, multiplier);
+            }
+            int inserted = placeBatchCraftResult(target, operation.result, crafting.toStorage());
+            if (inserted == 0) return finishCraftingBatch(player, changed, true, refilled);
+            applyCraftOperation(target, operation, crafting.toStorage());
+            changed = true;
+            if (inserted < operation.result.getCount()) {
+                player.drop(operation.result.copyWithCount(operation.result.getCount() - inserted), false);
+                return finishCraftingBatch(player, true, true, refilled);
+            }
+            if (!operation.consumed) return finishCraftingBatch(player, true, true, refilled);
+            // 预算结束时也恢复已耗尽的模板槽，避免桶、瓶等剩余物覆盖下一次点击的补料模板。
+            refilled |= refillCrafting(target, template);
+            if (remaining > 0 && --remaining == 0) return finishCraftingBatch(player, true, true, refilled);
+            CraftingStorage after = target.read();
+            if (stonecutter ? after.stonecutterInput().isEmpty() : after.craftingInput().stream().allMatch(ItemStack::isEmpty)) {
+                return finishCraftingBatch(player, true, true, refilled);
+            }
+        }
+        if (lockedId != null) {
+            CRAFTING_BATCHES.put(key, new TakeAllSession(target.view.primary().getId(), player.level().dimension().identifier(),
+                lockedId, stonecutter, remaining, template, copyCraftingState(target.read())));
+        }
+        return finishCraftingBatch(player, changed, false, refilled);
+    }
+
+    private static TakeAllResult finishCraftingBatch(ServerPlayer player, boolean changed, boolean done, int refilled) {
+        if (changed) player.getInventory().setChanged();
+        player.containerMenu.broadcastChanges();
+        return new TakeAllResult(player.containerMenu.getCarried(), changed, done, refilled);
+    }
+
+    private static int placeBatchCraftResult(CraftingTarget target, ItemStack result, boolean storageFirst) {
+        if (storageFirst) return placeCraftResult(target, result, true);
+        ItemResource resource = ItemResource.of(result);
+        try (Transaction transaction = Transaction.openRoot()) {
+            int remaining = result.getCount()
+                - PlayerInventoryWrapper.of(target.player).getMainSlots().insert(resource, result.getCount(), transaction);
+            ItemStack carried = target.player.containerMenu.getCarried();
+            if (remaining > 0 && (carried.isEmpty() || ItemStack.isSameItemSameComponents(carried, result))) {
+                remaining -= CarriedSlotWrapper.of(target.player.containerMenu).insert(resource, remaining, transaction);
+            }
+            if (remaining != 0) return 0;
+            transaction.commit();
+        }
+        return result.getCount();
+    }
+
+    @RemoteCallable(validator = StorageAccessValidator.class)
+    public static InteractionResult craftingThrowResult(UUID playerId, long sourcePos, boolean stonecutter, boolean stack) {
+        ServerPlayer player = StorageServerStub.getServerPlayer(playerId);
+        CraftingTarget target = StorageServerStub.resolveCraftingTarget(player, sourcePos);
+        cancelCraftingBatch(playerId, sourcePos);
+        if (!player.containerMenu.getCarried().isEmpty()) return new InteractionResult(player.containerMenu.getCarried(), false);
+        CraftingStorage template = target.read();
+        Identifier lockedId = null;
+        boolean changed = false;
+        int refilled = 0;
+        int limit = 1;
+        for (int performed = 0; performed < limit; performed++) {
+            CraftOperation operation = prepareCraftOperation(player, target.read(), stonecutter, lockedId);
+            if (operation == null || operation.result.isEmpty()) break;
+            if (lockedId == null) {
+                lockedId = operation.recipeId;
+                if (stack) limit = Math.min(CRAFTING_TAKE_ALL_CHUNK, craftBudget(operation.result, 1));
+            }
+            player.drop(operation.result.copy(), true);
+            applyCraftOperation(target, operation, template.toStorage());
+            changed = true;
+            if (!operation.consumed) break;
+            refilled |= refillCrafting(target, template);
+        }
+        if (changed) {
+            player.swing(InteractionHand.MAIN_HAND, true);
+            player.getInventory().setChanged();
+            player.containerMenu.broadcastChanges();
+        }
+        return new InteractionResult(player.containerMenu.getCarried(), changed, refilled);
     }
 
     private static int placeCraftResult(CraftingTarget target, ItemStack result, boolean storageFirst) {
@@ -519,6 +683,7 @@ public final class StorageServerStub {
     ) {
         ServerPlayer player = StorageServerStub.getServerPlayer(playerId);
         StorageServerStub.CraftingTarget target = StorageServerStub.resolveCraftingTarget(player, sourcePos);
+        cancelCraftingBatch(playerId, sourcePos);
         CraftingStorage crafting = target.read();
         // 指针物品以客户端上报为准（与服务端 getCarried 一致；创造模式下服务端指针可能已过期）
         ItemStack carried = player.hasInfiniteMaterials() ? clientCarried : player.inventoryMenu.getCarried();
@@ -584,6 +749,7 @@ public final class StorageServerStub {
         }
         ServerPlayer player = StorageServerStub.getServerPlayer(playerId);
         StorageServerStub.CraftingTarget target = StorageServerStub.resolveCraftingTarget(player, sourcePos);
+        cancelCraftingBatch(playerId, sourcePos);
         CraftingStorage crafting = target.read();
         ItemStack carried = player.hasInfiniteMaterials() ? clientCarried : player.inventoryMenu.getCarried();
         ItemStack current = crafting.craftingInput().get(slot);
@@ -647,6 +813,7 @@ public final class StorageServerStub {
     public static boolean craftingClearToStorage(UUID playerId, long sourcePos) {
         ServerPlayer player = StorageServerStub.getServerPlayer(playerId);
         StorageServerStub.CraftingTarget target = StorageServerStub.resolveCraftingTarget(player, sourcePos);
+        cancelCraftingBatch(playerId, sourcePos);
         CraftingStorage crafting = target.read();
         StorageView view = target.view();
         if (view == null) {
@@ -706,18 +873,21 @@ public final class StorageServerStub {
     @RemoteCallable(validator = StorageAccessValidator.class)
     public static void craftingSelect(UUID playerId, long sourcePos, int index) {
         BaseStorage<?> storage = StorageServerStub.getView(StorageServerStub.getAndClear(), playerId, sourcePos).primary();
+        cancelCraftingBatch(playerId, sourcePos);
         storage.setCrafting(storage.getCrafting().withStonecutterSelected(index));
     }
 
     @RemoteCallable(validator = StorageAccessValidator.class)
     public static void craftingSetOptions(UUID playerId, long sourcePos, boolean autoFill, boolean toStorage) {
         BaseStorage<?> storage = StorageServerStub.getView(StorageServerStub.getAndClear(), playerId, sourcePos).primary();
+        cancelCraftingBatch(playerId, sourcePos);
         storage.setCrafting(storage.getCrafting().withAutoFill(autoFill).withToStorage(toStorage));
     }
 
     @RemoteCallable(validator = StorageAccessValidator.class)
     public static void craftingSetLastOpened(UUID playerId, long sourcePos, boolean opened) {
         BaseStorage<?> storage = StorageServerStub.getView(StorageServerStub.getAndClear(), playerId, sourcePos).primary();
+        if (!opened) cancelCraftingBatch(playerId, sourcePos);
         storage.setCrafting(storage.getCrafting().withLastOpened(opened));
     }
 
@@ -1003,10 +1173,12 @@ public final class StorageServerStub {
 
     public static void remove(UUID playerId) {
         StorageServerStub.STUBS.removeAll(playerId);
+        CRAFTING_BATCHES.keySet().removeIf(key -> key.player.equals(playerId));
     }
 
     public static void clear() {
         StorageServerStub.STUBS.clear();
+        CRAFTING_BATCHES.clear();
     }
 
     public static final class StorageAccessValidator implements IRemoteCallableValidator {
@@ -1180,6 +1352,16 @@ public final class StorageServerStub {
             FluidNotice.STREAM_CODEC,
             InteractionResult::notice,
             InteractionResult::new
+        );
+    }
+
+    public record TakeAllResult(ItemStack carried, boolean changed, boolean done, int refilledSlots) {
+        public static final StreamCodec<RegistryFriendlyByteBuf, TakeAllResult> STREAM_CODEC = StreamCodec.composite(
+            ItemStack.OPTIONAL_STREAM_CODEC, TakeAllResult::carried,
+            ByteBufCodecs.BOOL, TakeAllResult::changed,
+            ByteBufCodecs.BOOL, TakeAllResult::done,
+            ByteBufCodecs.VAR_INT, TakeAllResult::refilledSlots,
+            TakeAllResult::new
         );
     }
 

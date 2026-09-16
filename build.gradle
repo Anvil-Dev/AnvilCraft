@@ -119,6 +119,15 @@ if (providers.gradleProperty('portValidation').isPresent()) {
         neoForge.runs.client.systemProperty 'anvilcraft.portCraftingExecutionScene', 'true'
         neoForge.runs.client.programArguments.addAll '--width', '1280', '--height', '720'
     }
+    if (providers.gradleProperty('portCraftingBatchScene').isPresent()) {
+        neoForge.runs.client.systemProperty 'anvilcraft.portVisualScene', 'true'
+        neoForge.runs.client.systemProperty 'anvilcraft.portStorageLongScene', 'true'
+        neoForge.runs.client.systemProperty 'anvilcraft.portCraftingStateScene', 'true'
+        neoForge.runs.client.systemProperty 'anvilcraft.portCraftingInputsScene', 'true'
+        neoForge.runs.client.systemProperty 'anvilcraft.portCraftingExecutionScene', 'true'
+        neoForge.runs.client.systemProperty 'anvilcraft.portCraftingBatchScene', 'true'
+        neoForge.runs.client.programArguments.addAll '--width', '1280', '--height', '720'
+    }
     if (providers.gradleProperty('portStructureDiskDataScene').isPresent()) {
         neoForge.runs.client.systemProperty 'anvilcraft.portVisualScene', 'true'
         neoForge.runs.client.systemProperty 'anvilcraft.portStructureDiskDataScene', 'true'

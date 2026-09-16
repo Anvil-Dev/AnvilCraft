@@ -17,6 +17,20 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 public final class StorageClientStub {
+    public static CompletableFuture<StorageServerStub.TakeAllResult> craftingTakeAll(
+        BlockPos sourcePos, boolean stonecutter, int multiplier
+    ) {
+        return RPC.invoke(RpcTarget.server(), StorageServerStub::craftingTakeAll,
+            StorageClientStub.playerId(), sourcePos.asLong(), stonecutter, multiplier);
+    }
+
+    public static CompletableFuture<StorageServerStub.InteractionResult> craftingThrowResult(
+        BlockPos sourcePos, boolean stonecutter, boolean stack
+    ) {
+        return RPC.invoke(RpcTarget.server(), StorageServerStub::craftingThrowResult,
+            StorageClientStub.playerId(), sourcePos.asLong(), stonecutter, stack);
+    }
+
     public static CompletableFuture<StorageServerStub.InteractionResult> craftingTakeResult(
         BlockPos sourcePos, boolean stonecutter, boolean shift
     ) {

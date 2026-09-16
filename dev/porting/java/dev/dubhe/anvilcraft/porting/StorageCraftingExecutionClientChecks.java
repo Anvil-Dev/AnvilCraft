@@ -17,8 +17,13 @@ public final class StorageCraftingExecutionClientChecks {
     private static boolean started;
     private static volatile boolean done;
     private static volatile Throwable failure;
+    private static boolean batchesStarted;
 
     public static void frame(Minecraft client, BlockPos corePos) {
+        if (batchesStarted) {
+            StorageCraftingBatchClientChecks.frame(client, corePos);
+            return;
+        }
         if (failure != null) throw new IllegalStateException("仓储合成执行客户端检查失败", failure);
         if (!started) {
             started = true;
@@ -76,7 +81,8 @@ public final class StorageCraftingExecutionClientChecks {
         }
         if (done && failure == null) {
             AnvilCraft.LOGGER.info("PORT_CRAFTING_EXECUTION_CLIENT_PASSED: result, remainder, autofill, shift and no duplicate output");
-            client.stop();
+            if (Boolean.getBoolean("anvilcraft.portCraftingBatchScene")) batchesStarted = true;
+            else client.stop();
         }
     }
 }

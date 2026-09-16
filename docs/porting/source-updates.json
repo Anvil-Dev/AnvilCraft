@@ -43,7 +43,7 @@
       "commit": "5002741dc7fd8bef26dbb6b483d964be996520fb",
       "status": "pending",
       "scope": "Fix crate crafting consuming non-consumable items 修复板条箱合成吞掉不消耗物品的问题 (#4846)",
-      "integration": "单次合成 RPC 已采用偏移剩余物修复；完整合成面板与批量路径仍待接入。26.1 的电容器 Shift 提示及对应生成键已不存在。"
+      "integration": "余料偏移修复已覆盖单次、批量和丢出 RPC；完整合成面板仍待接入。26.1 电容器 Shift 提示及对应生成键已不存在。"
     },
     {
       "commit": "b1a8356cc4707cbd683d98e5d8b31901a7a61496",
