@@ -108,6 +108,13 @@ public class AnvilCraftClientConfig {
     @Comment("Render the shared orbital rings in the overworld-like dimension")
     public boolean renderOverworldLikeSky = true;
 
+    @Comment(
+        "Experimental occlusion culling for the Celestial Forging Anvil render geometry. "
+            + "Geometry fully hidden behind terrain is skipped, but separately drawn parts "
+            + "(tractor beams, bloom) are not culled and may stay visible."
+    )
+    public boolean cfaOcclusionCulling = false;
+
     @CollapsibleObject
     public GravitationalLens gravitationalLens = new GravitationalLens();
 
