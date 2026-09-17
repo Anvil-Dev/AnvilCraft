@@ -222,27 +222,33 @@ public class StorageFluidPortBlockEntity extends BlockEntity implements IFluidHa
         } else if (fill < StorageFluidPortBlockEntity.ADJUST_FILL_START) {
             this.drawing = true;
         }
-        return this.drawing ? -StorageFluidPortBlockEntity.MAX_HEIGHT_BIAS : this.alignmentBias();
+        return this.drawing ? -StorageFluidPortBlockEntity.MAX_HEIGHT_BIAS : this.alignedBias();
     }
 
     /**
-     * 停止抽入时用于止住进液的高度偏置：对齐同网最高容器的等效高度。
+     * 停止抽入时用于止住进液的高度偏置：在现有偏置上叠加「到最高同网容器的等效高度差」，
+     * 使自身等效高度与该容器对齐。
      *
-     * <p>取不到同网容器（未接入管网、或网内只有自己）时退回中性高度 {@code 0}。</p>
+     * <p>按差值增量对齐，而不是由绝对高度回填：端点等效高度含累积扬程 phi，
+     * phi 以扫描种子为零点且种子是任意选的，调用方无法得知自己的 phi。差值相减时
+     * phi 自行抵消，故与种子、与多入口都无关。详见
+     * {@link FluidNetworkManager#heightDeltaToHighestPeer}。</p>
      *
-     * @return 对齐所需的偏置（格），已按 {@link #MAX_HEIGHT_BIAS} 钳制
+     * <p>取不到同网容器（未接入管网、本容器不在网内、或网内只有自己）时保持当前偏置。</p>
+     *
+     * @return 对齐后的偏置（格），已按 {@link #MAX_HEIGHT_BIAS} 钳制
      */
-    private int alignmentBias() {
+    private int alignedBias() {
         Level level = this.level;
         if (level == null) {
-            return 0;
+            return this.heightBias;
         }
-        Integer peerHeight = FluidNetworkManager.INSTANCE.highestPeerHeight(level, this.getBlockPos());
-        if (peerHeight == null) {
-            return 0;
+        Integer delta = FluidNetworkManager.INSTANCE.heightDeltaToHighestPeer(level, this.getBlockPos());
+        if (delta == null) {
+            return this.heightBias;
         }
         return Math.clamp(
-            peerHeight - this.getBlockPos().getY(),
+            this.heightBias + delta,
             -StorageFluidPortBlockEntity.MAX_HEIGHT_BIAS,
             StorageFluidPortBlockEntity.MAX_HEIGHT_BIAS
         );
