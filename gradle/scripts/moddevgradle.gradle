@@ -51,6 +51,16 @@ neoForge {
             systemProperty("neoforge.disableGlValidation", "true")
         }
 
+        clientIrisWorkaroundForProfiling {
+            client()
+            devLogin = true
+            systemProperty("neoforge.disableGlValidation", "true")
+            jvmArgument("-XX:+UseParallelGC")
+            jvmArgument("-XX:+UnlockDiagnosticVMOptions")
+            jvmArgument("-XX:+DebugNonSafepoints")
+            programArgument("--renderDebugLabels")
+        }
+
         clientIrisWorkaroundMSA {
             client()
             systemProperty("neoforge.disableGlValidation", "true")

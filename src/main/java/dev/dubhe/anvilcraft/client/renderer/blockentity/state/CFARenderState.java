@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.client.renderer.blockentity.state;
 
+import dev.anvilcraft.lib.v2.rendering.optimization.occlusion.OcclusionKey;
 import dev.dubhe.anvilcraft.api.rendering.BlockStateModelTessellateState;
 import dev.dubhe.anvilcraft.block.entity.celestial.CelestialBodyData;
 import lombok.Getter;
@@ -7,6 +8,7 @@ import lombok.Setter;
 import net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.component.ResolvableProfile;
+import net.minecraft.world.phys.AABB;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -120,4 +122,11 @@ public class CFARenderState extends BlockEntityRenderState {
     private Identifier supernovaFrameTexture;
     private float supernovaFlashAlpha;
     private float supernovaFlashRadius;
+
+    // 渲染包围盒，供调试绘制与遮挡剔除使用。
+    @Nullable
+    private AABB renderBounds;
+    // 跨帧复用的遮挡剔除键，仅在开启遮挡剔除时由提取阶段写入。
+    @Nullable
+    private OcclusionKey occlusionKey;
 }

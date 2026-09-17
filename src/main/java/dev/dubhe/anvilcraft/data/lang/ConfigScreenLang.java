@@ -137,6 +137,12 @@ public class ConfigScreenLang {
             "anvilcraft.configuration.laser_ore_cluster_max_size.tooltip",
             "Maximum ore vein size searched while mining with a laser gun; ore beyond this limit is not chain-mined (default: 64)"
         );
+        ConfigScreenLang.addOverride(provider, "anvilcraft.configuration.cfa_occlusion_culling", "CFA Occlusion Culling");
+        ConfigScreenLang.addOverride(
+            provider,
+            "anvilcraft.configuration.cfa_occlusion_culling.tooltip",
+            "Experimental occlusion culling for the Celestial Forging Anvil; geometry fully hidden behind terrain is skipped. Separately drawn parts (tractor beams, bloom) are not culled and may stay visible."
+        );
     }
 
     private static void addOverride(RegistrumLangProvider provider, String key, String value) {
