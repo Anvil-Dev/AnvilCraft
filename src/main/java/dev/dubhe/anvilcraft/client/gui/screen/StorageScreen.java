@@ -293,6 +293,18 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
     private boolean metadataPending;
     private boolean interactionPending;
     private boolean interactionSyncPending;
+    /**
+     * 未经过滤的存储内容快照，仅供 JEI 合成转移判定可用材料。
+     *
+     * <p>{@link #contents} 只含通过搜索与分类筛选的条目（服务端 order 已过滤），
+     * 用它判定会把被筛掉的物品当成不存在，JEI 于是拒绝转移。这里单独保留一份不过滤的
+     * 全量快照，与界面筛选互不影响。</p>
+     */
+    private List<ItemStack> unfilteredContents = List.of();
+    /** {@link #unfilteredContents} 对应的存储版本，避免同版本重复请求。 */
+    private long unfilteredVersion = Long.MIN_VALUE;
+    /** 未过滤快照请求是否在途，避免同版本并发重复请求。 */
+    private boolean unfilteredPending;
     /** 上次播放切石机取走音效的游戏 tick（与方块侧一致，同一 tick 只播一次）。 */
     private long lastStonecutterTakeSoundTick = -1;
     /** 上一次播放合成补货拾取音效的游戏 tick（同一 tick 只播一次）。*/
@@ -4072,6 +4084,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
         }
         this.metadataPending = true;
         this.metadataCooldown = StorageScreen.METADATA_REFRESH_INTERVAL;
+        this.refreshUnfilteredContents();
         StorageClientStub.loadMetadata(this.sourcePos).whenCompleteAsync(
             (metadata, error) -> {
                 this.metadataPending = false;
@@ -4093,6 +4106,74 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
             },
             this.screenExecutor
         );
+    }
+
+    /**
+     * 拉取未经过滤的存储内容快照，供 JEI 判定可用材料。
+     *
+     * <p>按存储版本去重：版本未变（无增减）时直接复用，避免每
+     * {@value #METADATA_REFRESH_INTERVAL} tick 重复拉取全量内容。</p>
+     *
+     * <p>内容分页拉取（见 {@code StorageServerStub#CONTENTS_PAGE_SIZE}）：类型上限可达上万，
+     * 一次性返回会超出网络包上限，故逐页请求直到某页不满为止。</p>
+     */
+    private void refreshUnfilteredContents() {
+        if (this.unfilteredPending || this.unfilteredVersion == this.version) {
+            return;
+        }
+        this.unfilteredPending = true;
+        long requested = this.version;
+        this.fetchUnfilteredPage(requested, 0, new ArrayList<>());
+    }
+
+    /**
+     * 拉取未过滤快照的一页；收齐后写入缓存。
+     *
+     * @param requested 发起时的存储版本，回调期间版本前进则整批作废
+     * @param offset    下一页起始偏移（已收条目数）
+     * @param collected 已收条目
+     */
+    private void fetchUnfilteredPage(long requested, int offset, List<ItemStack> collected) {
+        StorageClientStub.craftingStorageContents(this.sourcePos, offset).whenCompleteAsync(
+            (page, error) -> {
+                if (error != null || this.closed) {
+                    this.unfilteredPending = false;
+                    return;
+                }
+                // 版本已前进：丢弃整批，下个刷新周期会针对新版本重新拉取
+                if (this.version != requested) {
+                    this.unfilteredPending = false;
+                    return;
+                }
+                collected.addAll(page);
+                if (page.size() >= StorageServerStub.CONTENTS_PAGE_SIZE) {
+                    this.fetchUnfilteredPage(requested, collected.size(), collected);
+                    return;
+                }
+                this.unfilteredContents = List.copyOf(collected);
+                this.unfilteredVersion = requested;
+                this.unfilteredPending = false;
+            },
+            this.screenExecutor
+        );
+    }
+
+    /**
+     * 未经过滤的存储内容快照；存储内容与当前版本不一致时返回空列表，
+     * 使 JEI 退回“以界面缓存为准”的保守判定，而不是用过期数据放行转移。
+     */
+    public List<ItemStack> getUnfilteredContents() {
+        return this.hasUnfilteredContents() ? this.unfilteredContents : List.of();
+    }
+
+    /**
+     * 未过滤快照是否为当前版本。
+     *
+     * <p>与 {@link #getUnfilteredContents()} 的返回值为空区分开：存储确实为空时快照也是
+     * 空列表，此时不应被当成「快照不可用」而回退。</p>
+     */
+    public boolean hasUnfilteredContents() {
+        return this.unfilteredVersion == this.version;
     }
 
     private int getMaxScrollRow() {

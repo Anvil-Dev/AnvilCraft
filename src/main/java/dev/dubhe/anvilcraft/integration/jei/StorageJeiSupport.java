@@ -256,11 +256,7 @@ public final class StorageJeiSupport {
             }
         }
         if (screen != null) {
-            for (UnlimitedItemStack stack : screen.getContents().values()) {
-                if (!stack.isEmpty() && ItemStack.isSameItemSameComponents(stack.toStack(), target)) {
-                    count += stack.getCount();
-                }
-            }
+            count += StorageJeiSupport.storedCount(screen, target);
             CraftingStorage crafting = screen.getCrafting();
             ItemStack stonecutterInput = crafting.stonecutterInput();
             if (ItemStack.isSameItemSameComponents(stonecutterInput, target)) {
@@ -270,6 +266,32 @@ public final class StorageJeiSupport {
                 if (ItemStack.isSameItemSameComponents(stack, target)) {
                     count += stack.getCount();
                 }
+            }
+        }
+        return count;
+    }
+
+    /**
+     * 存储中与 target 同种同组件的总数量，<b>不受界面搜索与分类筛选影响</b>。
+     *
+     * <p>界面缓存 {@code screen.getContents()} 只含通过筛选的条目，用它判定会把被筛掉的
+     * 物品当成不存在，JEI 便认为缺料而拒绝转移。故优先用未过滤快照；快照不可用时
+     * （尚未拉取到或版本已过期）回退到界面缓存。</p>
+     */
+    private static long storedCount(StorageScreen screen, ItemStack target) {
+        if (!screen.hasUnfilteredContents()) {
+            long count = 0;
+            for (UnlimitedItemStack stack : screen.getContents().values()) {
+                if (!stack.isEmpty() && ItemStack.isSameItemSameComponents(stack.toStack(), target)) {
+                    count += stack.getCount();
+                }
+            }
+            return count;
+        }
+        long count = 0;
+        for (ItemStack stack : screen.getUnfilteredContents()) {
+            if (ItemStack.isSameItemSameComponents(stack, target)) {
+                count += stack.getCount();
             }
         }
         return count;
@@ -335,15 +357,23 @@ public final class StorageJeiSupport {
             }
         }
         if (screen != null) {
-            for (UnlimitedItemStack stack : screen.getContents().values()) {
-                if (stack.isEmpty()) {
-                    continue;
+            if (screen.hasUnfilteredContents()) {
+                // 未过滤快照可用：直接以存储的真实内容作为材料池，
+                // 不受界面搜索与分类筛选影响
+                for (ItemStack item : screen.getUnfilteredContents()) {
+                    StorageJeiSupport.addAvailable(item, availableItemStacks);
                 }
-                ItemStack item = stack.toStack();
-                if (item.isEmpty()) {
-                    continue;
+            } else {
+                for (UnlimitedItemStack stack : screen.getContents().values()) {
+                    if (stack.isEmpty()) {
+                        continue;
+                    }
+                    ItemStack item = stack.toStack();
+                    if (item.isEmpty()) {
+                        continue;
+                    }
+                    StorageJeiSupport.addAvailable(item, availableItemStacks);
                 }
-                StorageJeiSupport.addAvailable(item, availableItemStacks);
             }
             // 合成格内已有物品也算作可转移材料：转移前服务端会先清空合成格，
             // 这些物品回到存储/背包后参与新配方的填充。
