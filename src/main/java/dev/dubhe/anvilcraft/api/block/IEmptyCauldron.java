@@ -12,11 +12,6 @@ public interface IEmptyCauldron extends IIgnitableCauldron {
     }
 
     @Override
-    default boolean isIgnited(BlockCache cache, BlockPos pos) {
-        return true;
-    }
-
-    @Override
     default Fluid getFluid(BlockCache cache, BlockPos pos) {
         return Fluids.EMPTY;
     }
