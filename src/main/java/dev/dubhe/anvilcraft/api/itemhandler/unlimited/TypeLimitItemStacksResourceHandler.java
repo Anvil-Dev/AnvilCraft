@@ -11,6 +11,7 @@ import net.minecraft.world.item.ItemStack;
 
 import java.util.List;
 import java.util.function.IntUnaryOperator;
+import javax.annotation.Nullable;
 
 public class TypeLimitItemStacksResourceHandler extends UnlimitedItemStacksResourceHandler {
     public static final String TYPE_LIMIT_KEY = "type_limit";
@@ -21,6 +22,9 @@ public class TypeLimitItemStacksResourceHandler extends UnlimitedItemStacksResou
     private int typeLimit;
     @Getter
     private int spaceSize;
+    /** 已占用空间；null 表示缓存失效，下次读取时重算 */
+    @Nullable
+    private Integer spaceUsed;
 
     public TypeLimitItemStacksResourceHandler(int spaceSize) {
         this(Integer.MAX_VALUE, spaceSize);
@@ -55,13 +59,14 @@ public class TypeLimitItemStacksResourceHandler extends UnlimitedItemStacksResou
     @Override
     public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
         if (stack.isEmpty()) return ItemStack.EMPTY;
+        // 单种物品的容量上限只与整箱空间有关，两个分支都要用，故算一次
+        long capacity = TypeLimitItemStacksResourceHandler.computeCount(stack, this.spaceSize);
         if (slot >= this.stacks.size()) {
             // 增长槽：仅在未超类型上限且空间允许时扩展，否则原样返回，
             // 避免 ItemHandlerHelper 遍历循环因 getSlots() 增长而无限循环
             if (slot >= this.getSlots() || this.getTypeCount() >= this.typeLimit) {
                 return stack;
             }
-            long capacity = TypeLimitItemStacksResourceHandler.computeCount(stack, this.spaceSize);
             int amount = Math.clamp(capacity, 0, stack.getCount());
             if (amount <= 0) {
                 return stack;
@@ -74,7 +79,7 @@ public class TypeLimitItemStacksResourceHandler extends UnlimitedItemStacksResou
             this.ensureSlot(slot);
         }
         UnlimitedItemStack existing = this.stacks.get(slot);
-        int matchingIndex = this.findMatchingSlot(stack);
+        int matchingIndex = this.findSlot(stack);
         if (existing.isEmpty() && matchingIndex >= 0 && matchingIndex != slot) {
             return stack;
         }
@@ -86,17 +91,10 @@ public class TypeLimitItemStacksResourceHandler extends UnlimitedItemStacksResou
         if (!existing.isEmpty() && !existing.isSameItemSameComponents(stack)) {
             return stack;
         }
-        long capacity = TypeLimitItemStacksResourceHandler.computeCount(stack, this.spaceSize);
         if (capacity < 1) {
             return stack;
         }
-        long currentForType = 0;
-        for (UnlimitedItemStack item : this.stacks) {
-            if (!item.isEmpty() && item.isSameItemSameComponents(stack)) {
-                currentForType += item.getCount();
-            }
-        }
-        int amount = Math.clamp(capacity - currentForType, 0, stack.getCount());
+        int amount = Math.clamp(capacity - this.countOfType(stack), 0, stack.getCount());
         if (amount <= 0) {
             return stack;
         }
@@ -106,6 +104,7 @@ public class TypeLimitItemStacksResourceHandler extends UnlimitedItemStacksResou
             } else {
                 existing.setCount(existing.getCount() + amount);
             }
+            this.invalidateTypeIndex();
             this.onContentsChanged(slot, existing);
         }
         ItemStack leftover = stack.copy();
@@ -116,7 +115,7 @@ public class TypeLimitItemStacksResourceHandler extends UnlimitedItemStacksResou
     @Override
     public ItemStack insertItem(ItemStack stack, boolean simulate) {
         if (stack.isEmpty()) return ItemStack.EMPTY;
-        int matchingIndex = this.findMatchingSlot(stack);
+        int matchingIndex = this.findSlot(stack);
         if (matchingIndex >= 0) {
             return this.insertItem(matchingIndex, stack, simulate);
         }
@@ -160,6 +159,7 @@ public class TypeLimitItemStacksResourceHandler extends UnlimitedItemStacksResou
                 this.stacks.add(accepted);
             }
         }
+        this.invalidateTypeIndex();
         this.onContentsChanged(-1, UnlimitedItemStack.EMPTY);
     }
 
@@ -189,7 +189,17 @@ public class TypeLimitItemStacksResourceHandler extends UnlimitedItemStacksResou
         super.deserializeNBT(provider, tag);
     }
 
+    /**
+     * 已占用空间。
+     *
+     * <p>逐条累加在上千条目下是 O(条目数)，而比较器与界面容量条会随内容变化反复读它，
+     * 故按条目内容缓存，条目变化时经 {@link #invalidateTypeIndex()} 失效。</p>
+     */
     public int getSpace() {
+        Integer cached = this.spaceUsed;
+        if (cached != null) {
+            return cached;
+        }
         int space = 0;
         for (UnlimitedItemStack stack : this.stacks) {
             space = (int) Math.min(
@@ -197,7 +207,14 @@ public class TypeLimitItemStacksResourceHandler extends UnlimitedItemStacksResou
                 (long) space + TypeLimitItemStacksResourceHandler.computeSpace(stack, stack.getCount())
             );
         }
+        this.spaceUsed = space;
         return space;
+    }
+
+    @Override
+    protected void invalidateTypeIndex() {
+        super.invalidateTypeIndex();
+        this.spaceUsed = null;
     }
 
     @Override
@@ -232,15 +249,6 @@ public class TypeLimitItemStacksResourceHandler extends UnlimitedItemStacksResou
             }
         }
         return this.size();
-    }
-
-    private int findMatchingSlot(ItemStack stack) {
-        for (int index = 0; index < this.size(); index++) {
-            if (this.stacks.get(index).isSameItemSameComponents(stack)) {
-                return index;
-            }
-        }
-        return -1;
     }
 
     private static int findMatchingSlot(List<UnlimitedItemStack> stacks, UnlimitedItemStack target) {

@@ -20,10 +20,11 @@ import net.minecraft.world.item.Items;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Function;
 import java.util.regex.Pattern;
 
 public record FilterContent(NonNullList<ItemStack> list, boolean includeComponents, boolean denyList) {
-    private static final MapCodec<FilterContent> BASE_CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
+    public static final MapCodec<FilterContent> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
         ItemStack.OPTIONAL_CODEC
             .listOf()
             .fieldOf("list")
@@ -31,27 +32,10 @@ public record FilterContent(NonNullList<ItemStack> list, boolean includeComponen
         Codec.BOOL
             .fieldOf("include_components")
             .forGetter(FilterContent::includeComponents),
-        Codec.BOOL
-            .fieldOf("deny_list")
+        Codec.mapEither(Codec.BOOL.fieldOf("deny_list"), Codec.BOOL.fieldOf("black_list"))
+            .xmap(either -> either.map(Function.identity(), Function.identity()), Either::left)
             .forGetter(FilterContent::denyList)
     ).apply(instance, FilterContent::new));
-    // TODO: legacy codec for data written before the denyList rename, remove in a future version
-    private static final MapCodec<FilterContent> LEGACY_CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
-        ItemStack.OPTIONAL_CODEC
-            .listOf()
-            .fieldOf("list")
-            .forGetter(FilterContent::list),
-        Codec.BOOL
-            .fieldOf("include_components")
-            .forGetter(FilterContent::includeComponents),
-        Codec.BOOL
-            .fieldOf("black_list")
-            .forGetter(FilterContent::denyList)
-    ).apply(instance, FilterContent::new));
-    public static final MapCodec<FilterContent> CODEC = MapCodec.assumeMapUnsafe(
-        Codec.either(BASE_CODEC.codec(), LEGACY_CODEC.codec())
-            .xmap(either -> either.map(content -> content, content -> content), Either::left)
-    );
     public static final StreamCodec<RegistryFriendlyByteBuf, FilterContent> STREAM_CODEC = StreamCodec.composite(
         ItemStack.OPTIONAL_STREAM_CODEC.apply(ByteBufCodecs.list()),
         FilterContent::list,
