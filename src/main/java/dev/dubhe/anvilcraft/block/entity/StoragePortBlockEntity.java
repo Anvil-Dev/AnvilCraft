@@ -5,6 +5,7 @@ import dev.dubhe.anvilcraft.api.IStoragePort;
 import dev.dubhe.anvilcraft.api.StoragePortManager;
 import dev.dubhe.anvilcraft.api.itemhandler.IItemHandlerHolder;
 import dev.dubhe.anvilcraft.api.itemhandler.ItemHandlerUtil;
+import dev.dubhe.anvilcraft.api.itemhandler.unlimited.UnlimitedItemStacksResourceHandler;
 import dev.dubhe.anvilcraft.block.AbstractStoragePortBlock;
 import dev.dubhe.anvilcraft.block.StoragePortBlock;
 import dev.dubhe.anvilcraft.block.entity.storage.CrateBlockEntity;
@@ -557,12 +558,15 @@ public class StoragePortBlockEntity extends BlockEntity implements IItemHandlerH
         if (movable <= 0) {
             return ItemStack.EMPTY;
         }
-        ItemStack extracted = this.buffer.extractItem(slot, movable, false);
-        return ItemHandlerHelper.insertItem(core, extracted, false);
+        return ItemHandlerHelper.insertItem(core, this.buffer.extractItem(slot, movable, false), false);
     }
 
     /** 核心中存放该标记物品的首个槽位；没有则返回 {@code -1}。 */
     private int findMarkedInCore(IItemHandler core, ItemStack mark) {
+        // 潜影集装箱 / 超维存储站有上千个物品条目，逐条比对无法承受：走 handler 的种类索引
+        if (core instanceof UnlimitedItemStacksResourceHandler indexed) {
+            return indexed.findSlot(mark);
+        }
         for (int slot = 0; slot < core.getSlots(); slot++) {
             ItemStack stack = core.getStackInSlot(slot);
             if (!stack.isEmpty() && ItemStack.isSameItemSameComponents(mark, stack)) {

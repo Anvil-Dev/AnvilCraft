@@ -4,9 +4,6 @@ import dev.anvilcraft.lib.v2.util.stack.UnlimitedItemStack;
 import net.minecraft.core.NonNullList;
 import net.minecraft.world.item.ItemStack;
 
-import java.util.HashSet;
-import java.util.Set;
-
 /**
  * 真正无限容量的物品处理器。
  *
@@ -25,12 +22,7 @@ public class InfiniteItemStacksResourceHandler extends UnlimitedItemStacksResour
      */
     @Override
     public int getTypeCount() {
-        Set<ResourceKey> types = new HashSet<>();
-        for (UnlimitedItemStack stack : this.stacks) {
-            if (stack.isEmpty()) continue;
-            types.add(ResourceKey.of(stack.toStack()));
-        }
-        return types.size();
+        return this.countDistinctTypes();
     }
 
     /**
@@ -74,6 +66,7 @@ public class InfiniteItemStacksResourceHandler extends UnlimitedItemStacksResour
             } else {
                 existing.grow(amount);
             }
+            this.invalidateTypeIndex();
             this.onContentsChanged(slot, existing);
         }
         ItemStack leftover = stack.copy();
@@ -111,6 +104,7 @@ public class InfiniteItemStacksResourceHandler extends UnlimitedItemStacksResour
     protected void setStacks(NonNullList<UnlimitedItemStack> stacks) {
         this.stacks.clear();
         this.stacks.addAll(stacks);
+        this.invalidateTypeIndex();
         this.onContentsChanged(-1, UnlimitedItemStack.EMPTY);
     }
 }

@@ -10,12 +10,16 @@ import net.minecraft.world.item.ItemStack;
 
 import java.util.List;
 import java.util.function.IntUnaryOperator;
+import javax.annotation.Nullable;
 
 public class SpaceSizeItemStacksResourceHandler extends UnlimitedItemStacksResourceHandler {
     public static final String SPACE_SIZE_KEY = "space_size";
 
     @Getter
     private int spaceSize;
+    /** 已占用空间；null 表示缓存失效，下次读取时重算 */
+    @Nullable
+    private Integer spaceUsed;
 
     public SpaceSizeItemStacksResourceHandler(int spaceSize) {
         this(spaceSize, UnlimitedItemStacksResourceHandler.constructStackList(List.of()));
@@ -40,12 +44,13 @@ public class SpaceSizeItemStacksResourceHandler extends UnlimitedItemStacksResou
     @Override
     public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
         if (stack.isEmpty()) return ItemStack.EMPTY;
+        // 剩余空间只算一次：增长槽分支与常规分支都要用它，且两次计算之间不会改动内容
+        int remainingSpace = this.spaceSize - this.getSpace();
         if (slot >= this.stacks.size()) {
             // 增长槽：仅在空间允许时扩展，否则原样返回，避免 ItemHandlerHelper 遍历循环无限增长
             if (slot >= this.getSlots()) {
                 return stack;
             }
-            int remainingSpace = this.spaceSize - this.getSpace();
             long fit = SpaceSizeItemStacksResourceHandler.computeCount(stack, remainingSpace);
             int amount = (int) Math.min(stack.getCount(), fit);
             if (amount <= 0) {
@@ -63,7 +68,6 @@ public class SpaceSizeItemStacksResourceHandler extends UnlimitedItemStacksResou
         if (!existing.isEmpty() && !existing.isSameItemSameComponents(stack)) {
             return stack;
         }
-        int remainingSpace = this.spaceSize - this.getSpace();
         long fit = SpaceSizeItemStacksResourceHandler.computeCount(stack, remainingSpace);
         if (fit < 1) {
             return stack;
@@ -78,6 +82,7 @@ public class SpaceSizeItemStacksResourceHandler extends UnlimitedItemStacksResou
             } else {
                 existing.setCount(existing.getCount() + amount);
             }
+            this.invalidateTypeIndex();
             this.onContentsChanged(slot, existing);
         }
         ItemStack leftover = stack.copy();
@@ -141,7 +146,17 @@ public class SpaceSizeItemStacksResourceHandler extends UnlimitedItemStacksResou
         super.deserializeNBT(provider, tag);
     }
 
+    /**
+     * 已占用空间。
+     *
+     * <p>逐条累加在上千条目下是 O(条目数)，而插入路径一次就要读它两三次、界面与比较器
+     * 还会反复读，故按条目内容缓存，条目变化时经 {@link #invalidateTypeIndex()} 失效。</p>
+     */
     public int getSpace() {
+        Integer cached = this.spaceUsed;
+        if (cached != null) {
+            return cached;
+        }
         int space = 0;
         for (UnlimitedItemStack stack : this.stacks) {
             space = (int) Math.min(
@@ -149,7 +164,14 @@ public class SpaceSizeItemStacksResourceHandler extends UnlimitedItemStacksResou
                 (long) space + SpaceSizeItemStacksResourceHandler.computeSpace(stack, stack.getCount())
             );
         }
+        this.spaceUsed = space;
         return space;
+    }
+
+    @Override
+    protected void invalidateTypeIndex() {
+        super.invalidateTypeIndex();
+        this.spaceUsed = null;
     }
 
     @Override
