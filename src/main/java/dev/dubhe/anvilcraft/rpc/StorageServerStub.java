@@ -221,6 +221,47 @@ public final class StorageServerStub {
         );
     }
 
+    /**
+     * JEI 合成转移用的存储内容快照的单页条数，<b>不做搜索与分类过滤</b>。
+     *
+     * <p>可用材料取决于存储里实际有什么，而不是界面当前筛选出了什么。界面缓存
+     * （{@link #reorder} + {@link #sync}）只含通过筛选的条目，用它判定会让被筛掉的
+     * 物品被判为缺失，JEI 于是拒绝转移。</p>
+     *
+     * <p>分页与 {@link #MAX_SYNC_SLOTS} 同理：类型上限可达
+     * {@code UpgradeShulkerContainerBehavior.MAX_TYPE_LIMIT}，一次性发送全部内容会超出
+     * 网络包上限，故按页返回，由客户端拉齐。</p>
+     */
+    public static final int CONTENTS_PAGE_SIZE = 256;
+
+    /**
+     * 读取存储内容快照的一页（不过滤），供 JEI 判定可用材料。
+     *
+     * @param offset 从第几个非空条目开始，按存储视图顺序
+     * @return 至多 {@link #CONTENTS_PAGE_SIZE} 条；返回条数不足一页即表示已到末尾
+     */
+    @CallableParam(clazz = StorageServerStub.class, field = "ITEM_STACK_LIST_STREAM_CODEC")
+    @RemoteCallable(validator = StorageAccessValidator.class)
+    public static List<ItemStack> craftingStorageContents(UUID playerId, long sourcePos, int offset) {
+        StorageView view = StorageServerStub.getView(StorageServerStub.getAndClear(), playerId, sourcePos);
+        List<ItemStack> page = new ArrayList<>(StorageServerStub.CONTENTS_PAGE_SIZE);
+        int seen = 0;
+        for (int index = 0; index < view.size(); index++) {
+            long amount = view.amount(index);
+            if (amount <= 0) {
+                continue;
+            }
+            if (seen++ < offset) {
+                continue;
+            }
+            if (page.size() >= StorageServerStub.CONTENTS_PAGE_SIZE) {
+                break;
+            }
+            page.add(view.resource(index).copyWithCount((int) Math.min(amount, Integer.MAX_VALUE)));
+        }
+        return page;
+    }
+
     @RemoteCallable(validator = StorageAccessValidator.class)
     public static InteractionResult interact(
         UUID playerId,
