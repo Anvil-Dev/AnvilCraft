@@ -55,14 +55,10 @@ public class StorageFluidPortBlockEntity extends BlockEntity implements IFluidHa
     public static final int CAPACITY_MB = 128 * 1000;
     /** 等效高度调整上限（格），即 20 米 */
     public static final int MAX_HEIGHT_BIAS = 20;
-    /** 目标水位区间下限 */
-    private static final double ADJUST_FILL_LOW = 0.5;
-    /** 目标水位区间上限 */
-    private static final double ADJUST_FILL_HIGH = 0.75;
-    /** 目标水位区间中点：区间外朝它调节 */
-    private static final double ADJUST_FILL_MID = (ADJUST_FILL_LOW + ADJUST_FILL_HIGH) / 2;
-    /** 每格水位偏差对应的单步调整量 */
-    private static final int ADJUST_RATE = 8;
+    /** 水位下限：低于此比例开始抽入 */
+    private static final double ADJUST_FILL_START = 0.5;
+    /** 水位上限：抽到此比例停止抽入 */
+    private static final double ADJUST_FILL_STOP = 0.65;
     /** 端口贴附关系重校验间隔（tick） */
     private static final int VALIDATE_INTERVAL = 20;
     /** 等效高度调整间隔（tick） */
@@ -122,6 +118,14 @@ public class StorageFluidPortBlockEntity extends BlockEntity implements IFluidHa
      */
     @Getter
     private int heightBias;
+    /**
+     * 施密特触发器的锁存位：水位低于 {@link #ADJUST_FILL_START} 时置位并保持，
+     * 直到抽到 {@link #ADJUST_FILL_STOP} 才复位。
+     *
+     * <p>复位后即使水位回落也不再重新抽入，必须再次低于下限才重新置位，
+     * 这样端口只在两端动作，区间内不干预。</p>
+     */
+    private boolean drawing = false;
     /** 连接到的存储 ID；未连接时为 null，用于把流体变化通知给仓储 UI */
     @Nullable
     private UUID storageId = null;
@@ -153,12 +157,10 @@ public class StorageFluidPortBlockEntity extends BlockEntity implements IFluidHa
     }
 
     /**
-     * 按内部水位调整等效高度，把流体维持在容积的 50%~75% 之间。
+     * 按内部水位调整等效高度：水位跌破 {@link #ADJUST_FILL_START} 开始抽入，
+     * 抽到 {@link #ADJUST_FILL_STOP} 停止，其余时间不干预。
      *
-     * <p>低于下限时降低自身等效高度，使自身成为更低的目标、吸引高处流体流入；
-     * 高于上限时提高等效高度，使其成为更高的源而向外排出；偏离中点越远调整越快。
-     * 已处于目标区间时保持偏置不动：若在区间内持续向中点回拉，等效高度会来回
-     * 穿越网络中其它容器，使端口在「吸入」与「排出」之间反复切换。</p>
+     * <p>只在本端口已通过管道接入管网时才调整，调整结果见 {@link #computeNextHeightBias()}。</p>
      */
     private void adjustHeightBias() {
         // 规格前置条件：仅在「通过管道连接了其他流体储存方块」时才调整。
@@ -193,25 +195,63 @@ public class StorageFluidPortBlockEntity extends BlockEntity implements IFluidHa
         return false;
     }
 
+    /**
+     * 按内部水位推进施密特触发器，并把结果换算成等效高度偏置。
+     *
+     * <p>水位低于 {@link #ADJUST_FILL_START} 时置位开始抽入，抽到
+     * {@link #ADJUST_FILL_STOP} 复位停止。置位期间压差恒为 {@code -MAX_HEIGHT_BIAS}，
+     * 区间内不施加中间压差。</p>
+     *
+     * <p>置位与复位用两个不同阈值：停止后端口若回到中性高度，此前抽入的流体会因高度关系
+     * 回落，若共用一个阈值，水位刚跌回阈值以下就会立刻再次抽入，形成反复抽放的循环。
+     * 用滞回后必须一路跌破下限才重新置位。</p>
+     *
+     * <p>停止时把自身高度对齐到同网最高的容器，而不是回到中性高度：网络只在目标高度
+     * <b>严格低于</b>源时才转移，对齐后与最高的供给方等高即互不流动，进液才真正止住；
+     * 回到中性高度则仍低于上方容器，会被继续灌入。</p>
+     *
+     * @return 新的高度偏置（格）
+     */
     private int computeNextHeightBias() {
-        if (this.tank.isEmpty()) {
-            return 0;
-        }
         double fill = (double) this.tank.getFluidAmount() / this.tank.getCapacity();
-        // 已在目标区间内：保持当前偏置，避免反复进出
-        if (fill >= StorageFluidPortBlockEntity.ADJUST_FILL_LOW
-            && fill <= StorageFluidPortBlockEntity.ADJUST_FILL_HIGH) {
+        if (this.drawing) {
+            // 置位期间保持抽入，直到到达停止水位才复位
+            if (fill >= StorageFluidPortBlockEntity.ADJUST_FILL_STOP) {
+                this.drawing = false;
+            }
+        } else if (fill < StorageFluidPortBlockEntity.ADJUST_FILL_START) {
+            this.drawing = true;
+        }
+        return this.drawing ? -StorageFluidPortBlockEntity.MAX_HEIGHT_BIAS : this.alignedBias();
+    }
+
+    /**
+     * 停止抽入时用于止住进液的高度偏置：在现有偏置上叠加「到最高同网容器的等效高度差」，
+     * 使自身等效高度与该容器对齐。
+     *
+     * <p>按差值增量对齐，而不是由绝对高度回填：端点等效高度含累积扬程 phi，
+     * phi 以扫描种子为零点且种子是任意选的，调用方无法得知自己的 phi。差值相减时
+     * phi 自行抵消，故与种子、与多入口都无关。详见
+     * {@link FluidNetworkManager#heightDeltaToHighestPeer}。</p>
+     *
+     * <p>取不到同网容器（未接入管网、本容器不在网内、或网内只有自己）时保持当前偏置。</p>
+     *
+     * @return 对齐后的偏置（格），已按 {@link #MAX_HEIGHT_BIAS} 钳制
+     */
+    private int alignedBias() {
+        Level level = this.level;
+        if (level == null) {
             return this.heightBias;
         }
-        // 朝区间中点调节，靠近边界时步长自然收敛到 0，不会在边界反复横跳
-        double error = StorageFluidPortBlockEntity.ADJUST_FILL_MID - fill;
-        int step = (int) Math.round(Math.abs(error) * StorageFluidPortBlockEntity.ADJUST_RATE);
-        if (step <= 0) {
+        Integer delta = FluidNetworkManager.INSTANCE.heightDeltaToHighestPeer(level, this.getBlockPos());
+        if (delta == null) {
             return this.heightBias;
         }
-        // error > 0 表示需要进液（降低高度），< 0 表示需要排液（提高高度）
-        int next = this.heightBias + (error < 0 ? step : -step);
-        return Math.clamp(next, -StorageFluidPortBlockEntity.MAX_HEIGHT_BIAS, StorageFluidPortBlockEntity.MAX_HEIGHT_BIAS);
+        return Math.clamp(
+            this.heightBias + delta,
+            -StorageFluidPortBlockEntity.MAX_HEIGHT_BIAS,
+            StorageFluidPortBlockEntity.MAX_HEIGHT_BIAS
+        );
     }
 
     @Override

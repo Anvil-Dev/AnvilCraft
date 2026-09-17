@@ -115,14 +115,21 @@ public class ShapedRecipeLoader {
     }
 
     private void storageFluidPort(RegistrumRecipeProvider provider) {
-        ShapedRecipeBuilder.shaped(RecipeCategory.BUILDING_BLOCKS, ModBlocks.STORAGE_FLUID_PORT, 1)
+        ShapedRecipeBuilder.shaped(RecipeCategory.BUILDING_BLOCKS, ModBlocks.STORAGE_FLUID_PORT, 4)
             .pattern(" A ")
-            .pattern("BBB")
+            .pattern("BCD")
             .pattern(" A ")
             .define('A', Items.SHULKER_SHELL)
-            .define('B', ModBlocks.FLUID_TANK)
+            .define('B', ModBlocks.PUMP)
+            .define('C', ModBlocks.FLUID_TANK)
+            .define('D', ModBlocks.ADVANCED_COMPARATOR)
             .unlockedBy(AnvilCraftDatagen.hasItem(Items.SHULKER_SHELL), AnvilCraftDatagen.has(Items.SHULKER_SHELL))
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.PUMP), AnvilCraftDatagen.has(ModBlocks.PUMP))
             .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.FLUID_TANK), AnvilCraftDatagen.has(ModBlocks.FLUID_TANK))
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(ModBlocks.ADVANCED_COMPARATOR),
+                AnvilCraftDatagen.has(ModBlocks.ADVANCED_COMPARATOR)
+            )
             .save(provider);
     }
 

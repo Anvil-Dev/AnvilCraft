@@ -43,6 +43,9 @@ public class IonocraftBackpackItem extends EquipmentArmorItem implements IInvent
     /** 追踪玩家背包飞行状态，用于在状态变化时同步到其他客户端 */
     private static final Map<ServerPlayer, Boolean> FLYING_TRACKER = new WeakHashMap<>();
 
+    /** 追踪上一 tick 是否装备着背包，用于在装备状态变化时重同步物品栏槽位 */
+    private static final Map<ServerPlayer, Boolean> EQUIPPED_TRACKER = new WeakHashMap<>();
+
     public IonocraftBackpackItem(Properties properties) {
         this(properties, false);
     }
@@ -182,7 +185,17 @@ public class IonocraftBackpackItem extends EquipmentArmorItem implements IInvent
         refreshFlight(player);
 
         ItemStack backpack = getByPlayer(player);
-        boolean nowFlying = !backpack.isEmpty()
+        boolean equipped = !backpack.isEmpty();
+
+        // 装备状态变化时整表重同步物品栏。背包的穿戴只走 setItemSlot / onEquipItem，
+        // 不经过 inventoryMenu 的槽位变更广播，客户端本端 Inventory 会残留上一次的槽位内容，
+        // 表现为护腿等槽位出现幻影物品（仅客户端渲染，任意槽位点击后即被服务端校正回传覆盖）。
+        Boolean prevEquipped = EQUIPPED_TRACKER.put(player, equipped);
+        if (prevEquipped != null && prevEquipped != equipped) {
+            player.inventoryMenu.sendAllDataToRemote();
+        }
+
+        boolean nowFlying = equipped
             && player.getAbilities().flying
             && !player.isCreative()
             && !player.isSpectator();
