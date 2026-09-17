@@ -39,7 +39,7 @@ public abstract class PhantomGoalMixin {
             this.this$0.getBoundingBox().inflate(16.0),
             EntitySelector.NO_SPECTATORS.and(
                 entity -> entity instanceof Player player
-                          && AmuletManager.get(player.registryAccess()).hasAmuletInInventory(player, ModAmulets.CAT)
+                          && AmuletManager.get(player.registryAccess()).hasAmuletInInventory(player, ModAmulets.CAT.getKey())
             )
         );
         for (Player player : players) {

@@ -23,6 +23,9 @@ public class ModRegistries {
     public static final Registry<IAmulet.Type<?>> AMULET_TYPE = ModRegistries.simple(
         ModRegistryKeys.AMULET_TYPE
     );
+    public static final Registry<IAmulet> AMULET = ModRegistries.simple(
+        ModRegistryKeys.AMULET
+    );
     public static final Registry<IAmuletDefinition.Type<?>> AMULET_DEF_TYPE = ModRegistries.simple(
         ModRegistryKeys.AMULET_DEF_TYPE
     );
@@ -54,6 +57,7 @@ public class ModRegistries {
     @SubscribeEvent
     public static void registerRegistries(NewRegistryEvent event) {
         event.register(ModRegistries.AMULET_TYPE);
+        event.register(ModRegistries.AMULET);
         event.register(ModRegistries.AMULET_DEF_TYPE);
         event.register(ModRegistries.MODIFIER_TYPE);
         event.register(ModRegistries.CUSTOM_DATA_TYPE);

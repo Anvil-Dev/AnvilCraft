@@ -5,12 +5,12 @@ import dev.dubhe.anvilcraft.api.amulet.def.IAmuletDefinition;
 import dev.dubhe.anvilcraft.api.event.AmuletEvent;
 import dev.dubhe.anvilcraft.init.ModDataAttachments;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
+import dev.dubhe.anvilcraft.init.registry.ModRegistries;
 import dev.dubhe.anvilcraft.init.registry.ModRegistryKeys;
-import dev.dubhe.anvilcraft.item.property.component.amulet.DoNothingAmulet;
 import dev.dubhe.anvilcraft.item.property.component.amulet.IAmulet;
-import dev.dubhe.anvilcraft.item.property.component.amulet.WrappedOthersAmulet;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.damagesource.DamageSource;
@@ -96,7 +96,8 @@ public class AmuletManager {
         shuffled.sort(Comparator.comparingInt(ignored -> random.nextInt()));
         for (Holder.Reference<IAmuletDefinition> def : shuffled) {
             amulet = def.value().create();
-            if (!this.hasAmuletInInventory(player, amulet.getOrDefault(ModComponents.AMULET, DoNothingAmulet.INSTANCE))) {
+            ResourceKey<IAmulet> key = amulet.get(ModComponents.AMULET);
+            if (key == null || !this.hasAmuletInInventory(player, key)) {
                 trying = def;
                 break;
             }
@@ -143,15 +144,32 @@ public class AmuletManager {
         return player.getData(ModDataAttachments.AMULET_RAFFLE_PROBABILITY).getProbability(def);
     }
 
-    public boolean hasAmuletInInventory(Player player, IAmulet amulet) {
+    public boolean hasAmuletInInventory(Player player, ResourceKey<IAmulet> amulet) {
         List<ItemStack> amulets = this.getAmuletsFromInventory(player);
-        return CollectionUtil.anyMatch(amulets, stack -> stack.get(ModComponents.AMULET).canActAs(amulet));
+        return CollectionUtil.anyMatch(amulets, stack -> this.canActLike(amulet, stack));
     }
 
     public boolean hasAmuletInInventory(Player player, Holder<IAmuletDefinition> def) {
         ItemStack target = def.value().create();
         List<ItemStack> amulets = this.getAmuletsFromInventory(player);
         return CollectionUtil.anyMatch(amulets, stack -> ItemStack.isSameItem(stack, target));
+    }
+
+    /// 判断给定物品堆上的护符是否能充当给定护符
+    ///
+    /// @param amulet 给定护符的资源键
+    /// @param stack  给定的护符物品堆
+    /// @return 给定物品堆上的护符是否能充当给定护符
+    private boolean canActLike(ResourceKey<IAmulet> amulet, ItemStack stack) {
+        ResourceKey<IAmulet> key = stack.get(ModComponents.AMULET);
+        if (key == null) {
+            return false;
+        }
+        if (key.equals(amulet)) {
+            return true;
+        }
+        IAmulet found = ModRegistries.AMULET.get(key);
+        return found != null && found.canActLike().contains(amulet);
     }
 
     public void setRaffleProbability(ServerPlayer player, Holder<IAmuletDefinition> def, int probability) {
@@ -164,27 +182,41 @@ public class AmuletManager {
     }
 
     public void inventoryTick(ServerPlayer player) {
-        List<ItemStack> all = new ArrayList<>();
+        List<ItemStack> disabled = new ArrayList<>();
         for (Holder<IAmuletDefinition> def : this.definitions) {
-            all.add(def.value().create());
+            disabled.add(def.value().create());
         }
         List<ItemStack> now = this.getAmuletsFromInventory(player);
         for (ItemStack stack : now) {
-            IAmulet amulet = stack.get(ModComponents.AMULET);
-            all.removeIf(other -> amulet.canActAs(other.get(ModComponents.AMULET)));
-            stack.get(ModComponents.AMULET).inventoryTick(player, stack, true);
+            ResourceKey<IAmulet> key = stack.get(ModComponents.AMULET);
+            IAmulet amulet = this.getAmulet(stack);
+            if (key == null || amulet == null) {
+                continue;
+            }
+            disabled.removeIf(other -> this.canActLike(key, other));
+            amulet.inventoryTick(player, stack, true);
         }
-        for (ItemStack stack : all) {
-            IAmulet amulet = stack.get(ModComponents.AMULET);
-            if (amulet instanceof WrappedOthersAmulet) return;
-            amulet.inventoryTick(player, stack, false);
+        for (ItemStack stack : disabled) {
+            IAmulet amulet = this.getAmulet(stack);
+            if (amulet != null) {
+                amulet.inventoryTick(player, stack, false);
+            }
         }
     }
 
     public boolean shouldImmune(ServerPlayer player, DamageSource source) {
-        return CollectionUtil.anyMatch(
-            this.getAmuletsFromInventory(player),
-            stack -> stack.get(ModComponents.AMULET).shouldImmune(player, source)
-        );
+        return CollectionUtil.anyMatch(this.getAmuletsFromInventory(player), stack -> {
+            IAmulet amulet = this.getAmulet(stack);
+            return amulet != null && amulet.shouldImmune(player, stack, source);
+        });
+    }
+
+    /// 获取给定物品堆上的护符
+    ///
+    /// @param stack 给定的护符物品堆
+    /// @return 给定物品堆上的护符，若物品堆没有护符则为 `null`
+    public @Nullable IAmulet getAmulet(ItemStack stack) {
+        ResourceKey<IAmulet> key = stack.get(ModComponents.AMULET);
+        return key == null ? null : ModRegistries.AMULET.get(key);
     }
 }

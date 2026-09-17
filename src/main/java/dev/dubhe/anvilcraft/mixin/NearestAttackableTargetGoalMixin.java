@@ -5,6 +5,7 @@ import dev.dubhe.anvilcraft.init.item.ModAmulets;
 import dev.dubhe.anvilcraft.item.property.component.amulet.IAmulet;
 import dev.dubhe.anvilcraft.mixin.accessor.TargetingConditionsAccessor;
 import dev.dubhe.anvilcraft.util.mixin.ModifiedSelector;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
@@ -43,10 +44,10 @@ public abstract class NearestAttackableTargetGoalMixin extends TargetGoal {
         index = 0
     )
     private TargetingConditions addAmuletScare(TargetingConditions conditions) {
-        IAmulet amulet;
+        ResourceKey<IAmulet> amulet;
         switch (this.mob.getClass()) {
-            case Class<?> clazz when clazz.isAssignableFrom(AbstractSkeleton.class) -> amulet = ModAmulets.DOG;
-            case Class<?> clazz when clazz.isAssignableFrom(Creeper.class) -> amulet = ModAmulets.CAT;
+            case Class<?> clazz when clazz.isAssignableFrom(AbstractSkeleton.class) -> amulet = ModAmulets.DOG.getKey();
+            case Class<?> clazz when clazz.isAssignableFrom(Creeper.class) -> amulet = ModAmulets.CAT.getKey();
             default -> {
                 return conditions;
             }
