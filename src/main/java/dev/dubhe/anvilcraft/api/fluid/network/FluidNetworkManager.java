@@ -13,6 +13,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import javax.annotation.Nullable;
 
 /**
  * 流体管道网络的全局管理器（每服务器一个）。
@@ -93,6 +94,62 @@ public final class FluidNetworkManager {
             d.containers.remove(pos);
             d.dirty = true;
         }
+    }
+
+    /**
+     * 查询与指定容器同网的其他端点中<b>最高</b>的等效高度。
+     *
+     * <p>仓储流体端口用它在停止抽入时把自身高度对齐到最高的供给方，从而真正止住进液：
+     * 网络只在目标等效高度<b>严格低于</b>源时才转移（见
+     * {@link FluidPipeNetwork} 的可达判定），高度相等即互不流动。</p>
+     *
+     * <p>取最高而非其它端点，是因为要止住的是「从上方进液」；对齐更高的容器同样能挡住
+     * 所有更低的容器。</p>
+     *
+     * @param level        世界
+     * @param containerPos 本容器位置
+     * @return 同网最高端点的等效高度；未接入管网或没有其他端点时为 {@code null}
+     */
+    public @Nullable Integer highestPeerHeight(Level level, BlockPos containerPos) {
+        if (level.isClientSide()) {
+            return null;
+        }
+        LevelData d = byLevel.get(level);
+        if (d == null) {
+            return null;
+        }
+        FluidPipeNetwork network = networkAt(level, containerPos, d);
+        if (network == null) {
+            return null;
+        }
+        Integer highest = null;
+        for (FluidEndpoint endpoint : network.getEndpoints()) {
+            if (endpoint.containerPos().equals(containerPos)) {
+                continue;
+            }
+            int height = endpoint.effectiveHeight();
+            if (highest == null || height > highest) {
+                highest = height;
+            }
+        }
+        return highest;
+    }
+
+    /**
+     * 取与某容器相邻的那张网络。
+     *
+     * <p>容器自身不在 {@code partIndex} 里（该索引只收管道部件），故从其六个相邻方向取
+     * 第一个已建立索引的管道所属网络。</p>
+     */
+    private static @Nullable FluidPipeNetwork networkAt(Level level, BlockPos containerPos, LevelData d) {
+        for (Direction direction : Direction.values()) {
+            BlockPos neighbor = containerPos.relative(direction);
+            FluidPipeNetwork network = d.partIndex.get(neighbor);
+            if (network != null) {
+                return network;
+            }
+        }
+        return null;
     }
 
     /**

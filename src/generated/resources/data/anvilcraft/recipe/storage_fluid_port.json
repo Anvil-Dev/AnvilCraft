@@ -6,16 +6,22 @@
       "item": "minecraft:shulker_shell"
     },
     "B": {
+      "item": "anvilcraft:pump"
+    },
+    "C": {
       "item": "anvilcraft:fluid_tank"
+    },
+    "D": {
+      "item": "anvilcraft:advanced_comparator"
     }
   },
   "pattern": [
     " A ",
-    "BBB",
+    "BCD",
     " A "
   ],
   "result": {
-    "count": 1,
+    "count": 4,
     "id": "anvilcraft:storage_fluid_port"
   }
 }
