@@ -72,6 +72,12 @@ public final class BuildingRodClient {
     private static final RandomSource PATTERN_RANDOM = RandomSource.create();
     private static long patternSeed = PATTERN_RANDOM.nextLong();
     private static final BuildingRodKeyRepeat KEY_REPEAT = new BuildingRodKeyRepeat();
+    private static final int PLACE_COLOR = 0x55FF55;
+    private static final int CANCEL_COLOR = 0xFF5555;
+    private static final int MOVE_COLOR = 0xFFFF55;
+    private static final int ROTATE_COLOR = 0x55FFFF;
+    private static final int MIRROR_COLOR = 0xFF55FF;
+    private static final int SCROLL_COLOR = 0xAAAAAA;
 
     private BuildingRodClient() {
     }
@@ -542,16 +548,26 @@ public final class BuildingRodClient {
         Minecraft mc = Minecraft.getInstance();
         Component text;
         if (!locked && !traditional()) {
-            text = Component.translatable("screen.anvilcraft.building_rod.distance", key(mc.options.keyUse));
+            text = Component.translatable("screen.anvilcraft.building_rod.distance",
+                key(ModKeyMappings.BUILDING_ROD_TOOL.get(), MOVE_COLOR),
+                key(ModKeyMappings.BUILDING_ROD_FORWARD.get(), MOVE_COLOR),
+                key(ModKeyMappings.BUILDING_ROD_BACK.get(), MOVE_COLOR),
+                key(mc.options.keyUse, PLACE_COLOR));
         } else if (locked && !hasMatchingDisk()) {
-            text = Component.translatable("screen.anvilcraft.building_rod.suspended", key(mc.options.keyAttack));
+            text = Component.translatable("screen.anvilcraft.building_rod.suspended",
+                key(mc.options.keyAttack, CANCEL_COLOR));
         } else {
             text = Component.translatable("screen.anvilcraft.building_rod.optimized",
-            key(mc.options.keyUse), key(mc.options.keyAttack), key(ModKeyMappings.BUILDING_ROD_LEFT.get()),
-            key(ModKeyMappings.BUILDING_ROD_BACK.get()), key(ModKeyMappings.BUILDING_ROD_FORWARD.get()),
-            key(ModKeyMappings.BUILDING_ROD_RIGHT.get()), key(ModKeyMappings.BUILDING_ROD_UP.get()),
-            key(ModKeyMappings.BUILDING_ROD_DOWN.get()), key(ModKeyMappings.BUILDING_ROD_COUNTERCLOCKWISE.get()),
-            key(ModKeyMappings.BUILDING_ROD_CLOCKWISE.get()), key(ModKeyMappings.BUILDING_ROD_MIRROR.get()));
+                key(mc.options.keyUse, PLACE_COLOR), key(mc.options.keyAttack, CANCEL_COLOR),
+                key(ModKeyMappings.BUILDING_ROD_LEFT.get(), MOVE_COLOR),
+                key(ModKeyMappings.BUILDING_ROD_BACK.get(), MOVE_COLOR),
+                key(ModKeyMappings.BUILDING_ROD_FORWARD.get(), MOVE_COLOR),
+                key(ModKeyMappings.BUILDING_ROD_RIGHT.get(), MOVE_COLOR),
+                key(ModKeyMappings.BUILDING_ROD_UP.get(), MOVE_COLOR),
+                key(ModKeyMappings.BUILDING_ROD_DOWN.get(), MOVE_COLOR),
+                key(ModKeyMappings.BUILDING_ROD_COUNTERCLOCKWISE.get(), ROTATE_COLOR),
+                key(ModKeyMappings.BUILDING_ROD_CLOCKWISE.get(), ROTATE_COLOR),
+                key(ModKeyMappings.BUILDING_ROD_MIRROR.get(), MIRROR_COLOR));
         }
         var lines = mc.font.split(text, event.getGuiGraphics().guiWidth() - 20);
         int feedbackOffset = Math.max(Math.max(mc.gui.leftHeight, mc.gui.rightHeight) + 9, 68);
@@ -564,6 +580,14 @@ public final class BuildingRodClient {
         }
     }
 
+    static Component traditionalHint() {
+        Component scroll = key(Component.translatable("screen.anvilcraft.building_rod.traditional.scroll"));
+        return Component.translatable("screen.anvilcraft.building_rod.traditional.hint",
+            key(ModKeyMappings.BUILDING_ROD_TOOL.get(), MOVE_COLOR), scroll,
+            key(ModKeyMappings.BUILDING_ROD_ADJUST.get(), ROTATE_COLOR), scroll,
+            key(Minecraft.getInstance().options.keyUse, PLACE_COLOR), scroll);
+    }
+
     private static Component key(KeyMapping mapping) {
         String shortName = mapping.getKey().getType() == InputConstants.Type.KEYSYM && mapping.getKeyModifier() == KeyModifier.NONE
             ? switch (mapping.getKey().getValue()) {
@@ -573,9 +597,14 @@ public final class BuildingRodClient {
             default -> "";
         } : "";
         Component label = shortName.isEmpty() ? mapping.getTranslatedKeyMessage() : Component.literal(shortName);
-        if (mapping.matchesMouse(GLFW.GLFW_MOUSE_BUTTON_LEFT) && mapping.getKeyModifier() == KeyModifier.NONE) {
-            label = Component.translatable("screen.anvilcraft.building_rod.left_click");
-        }
         return Component.literal("[").append(label).append("]");
+    }
+
+    private static Component key(KeyMapping mapping, int color) {
+        return key(mapping).copy().withColor(color);
+    }
+
+    private static Component key(Component label) {
+        return Component.literal("[").append(label).append("]").withColor(BuildingRodClient.SCROLL_COLOR);
     }
 }

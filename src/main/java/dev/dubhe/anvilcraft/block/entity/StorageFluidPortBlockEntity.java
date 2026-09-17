@@ -57,8 +57,10 @@ public class StorageFluidPortBlockEntity extends BlockEntity implements IFluidHa
     public static final int MAX_HEIGHT_BIAS = 20;
     /** 水位下限：低于此比例开始抽入 */
     private static final double ADJUST_FILL_START = 0.5;
-    /** 水位上限：抽到此比例停止抽入 */
-    private static final double ADJUST_FILL_STOP = 0.65;
+    /** 水位上限：高于此比例开始排出 */
+    private static final double ADJUST_DRAIN_START = 0.75;
+    /** 水位目标：抽入与排出都到此比例停止，与两侧起始值构成 50%~75% 的滞回带 */
+    private static final double ADJUST_STOP = 0.65;
     /** 端口贴附关系重校验间隔（tick） */
     private static final int VALIDATE_INTERVAL = 20;
     /** 等效高度调整间隔（tick） */
@@ -119,13 +121,17 @@ public class StorageFluidPortBlockEntity extends BlockEntity implements IFluidHa
     @Getter
     private int heightBias;
     /**
-     * 施密特触发器的锁存位：水位低于 {@link #ADJUST_FILL_START} 时置位并保持，
-     * 直到抽到 {@link #ADJUST_FILL_STOP} 才复位。
-     *
-     * <p>复位后即使水位回落也不再重新抽入，必须再次低于下限才重新置位，
-     * 这样端口只在两端动作，区间内不干预。</p>
+     * 抽入方向的施密特锁存位：水位低于 {@link #ADJUST_FILL_START} 时置位并保持，
+     * 直到水位升到 {@link #ADJUST_STOP} 才复位。
      */
     private boolean drawing = false;
+    /**
+     * 排出方向的施密特锁存位：水位高于 {@link #ADJUST_DRAIN_START} 时置位并保持，
+     * 直到水位降到 {@link #ADJUST_STOP} 才复位。
+     *
+     * <p>与 {@link #drawing} 互斥（同一 if-else 链中判定），故端口任一时刻只会单向动作。</p>
+     */
+    private boolean draining = false;
     /** 连接到的存储 ID；未连接时为 null，用于把流体变化通知给仓储 UI */
     @Nullable
     private UUID storageId = null;
@@ -157,8 +163,8 @@ public class StorageFluidPortBlockEntity extends BlockEntity implements IFluidHa
     }
 
     /**
-     * 按内部水位调整等效高度：水位跌破 {@link #ADJUST_FILL_START} 开始抽入，
-     * 抽到 {@link #ADJUST_FILL_STOP} 停止，其余时间不干预。
+     * 按内部水位调整等效高度：水位跌破 {@link #ADJUST_FILL_START} 开始抽入、
+     * 涨过 {@link #ADJUST_DRAIN_START} 开始排出，两个方向都在 {@link #ADJUST_STOP} 停止。
      *
      * <p>只在本端口已通过管道接入管网时才调整，调整结果见 {@link #computeNextHeightBias()}。</p>
      */
@@ -196,33 +202,48 @@ public class StorageFluidPortBlockEntity extends BlockEntity implements IFluidHa
     }
 
     /**
-     * 按内部水位推进施密特触发器，并把结果换算成等效高度偏置。
+     * 按内部水位推进双向施密特触发器，并把结果换算成等效高度偏置。
      *
-     * <p>水位低于 {@link #ADJUST_FILL_START} 时置位开始抽入，抽到
-     * {@link #ADJUST_FILL_STOP} 复位停止。置位期间压差恒为 {@code -MAX_HEIGHT_BIAS}，
-     * 区间内不施加中间压差。</p>
+     * <p>低于 {@link #ADJUST_FILL_START} 开始抽入，高于 {@link #ADJUST_DRAIN_START}
+     * 开始排出，两个方向都在水位回到 {@link #ADJUST_STOP} 时停止；滞回带内不干预。
+     * 抽入时压差恒为 {@code -MAX_HEIGHT_BIAS}，排出时恒为 {@code +MAX_HEIGHT_BIAS}，
+     * 带内不施加中间压差。</p>
      *
-     * <p>置位与复位用两个不同阈值：停止后端口若回到中性高度，此前抽入的流体会因高度关系
-     * 回落，若共用一个阈值，水位刚跌回阈值以下就会立刻再次抽入，形成反复抽放的循环。
-     * 用滞回后必须一路跌破下限才重新置位。</p>
+     * <p>置位与复位用不同阈值：停止后端口回到与最高供给方对齐的高度，此前抽入的流体会因
+     * 高度关系回落，若共用一个阈值，水位刚跌回阈值以下就会立刻再次抽入，形成反复抽放的
+     * 循环。排出侧同理：排到目标后若继续下探，水位稍涨就会再次排出。</p>
      *
-     * <p>停止时把自身高度对齐到同网最高的容器，而不是回到中性高度：网络只在目标高度
+     * <p>停止时对齐到同网最高的容器，而不是回到中性高度：网络只在目标高度
      * <b>严格低于</b>源时才转移，对齐后与最高的供给方等高即互不流动，进液才真正止住；
-     * 回到中性高度则仍低于上方容器，会被继续灌入。</p>
+     * 回到中性高度则仍低于上方容器，会被继续灌入。排出方向不需要这种对齐——
+     * 抬高到 {@code +MAX_HEIGHT_BIAS} 已使端口高于所有未偏置的容器。</p>
      *
      * @return 新的高度偏置（格）
      */
     private int computeNextHeightBias() {
         double fill = (double) this.tank.getFluidAmount() / this.tank.getCapacity();
         if (this.drawing) {
-            // 置位期间保持抽入，直到到达停止水位才复位
-            if (fill >= StorageFluidPortBlockEntity.ADJUST_FILL_STOP) {
+            // 抽入中：到目标水位即停
+            if (fill >= StorageFluidPortBlockEntity.ADJUST_STOP) {
                 this.drawing = false;
+            }
+        } else if (this.draining) {
+            // 排出中：到目标水位即停
+            if (fill <= StorageFluidPortBlockEntity.ADJUST_STOP) {
+                this.draining = false;
             }
         } else if (fill < StorageFluidPortBlockEntity.ADJUST_FILL_START) {
             this.drawing = true;
+        } else if (fill > StorageFluidPortBlockEntity.ADJUST_DRAIN_START) {
+            this.draining = true;
         }
-        return this.drawing ? -StorageFluidPortBlockEntity.MAX_HEIGHT_BIAS : this.alignedBias();
+        if (this.drawing) {
+            return -StorageFluidPortBlockEntity.MAX_HEIGHT_BIAS;
+        }
+        if (this.draining) {
+            return StorageFluidPortBlockEntity.MAX_HEIGHT_BIAS;
+        }
+        return this.alignedBias();
     }
 
     /**

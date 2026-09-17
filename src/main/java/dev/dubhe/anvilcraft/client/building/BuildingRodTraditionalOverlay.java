@@ -2,9 +2,11 @@ package dev.dubhe.anvilcraft.client.building;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.FormattedCharSequence;
 
 import java.util.EnumMap;
 import java.util.Locale;
@@ -16,6 +18,9 @@ final class BuildingRodTraditionalOverlay {
     private static final int ICON_SPACING = 20;
     private static final int ATLAS_HEIGHT = 64;
     private static final int SELECTED_FRAME_V = 32;
+    private static final int BACKGROUND_COLOR = 0x80000000;
+    private static final int LINE_HEIGHT = 10;
+    private static final int LINE_GAP = 12;
     private static final Map<BuildingRodTraditionalControls.Tool, ResourceLocation> ICONS =
         new EnumMap<>(BuildingRodTraditionalControls.Tool.class);
 
@@ -42,9 +47,24 @@ final class BuildingRodTraditionalOverlay {
                 ICON_SIZE, ICON_SIZE, ICON_SIZE, ATLAS_HEIGHT);
         }
         var font = Minecraft.getInstance().font;
-        graphics.drawCenteredString(font, statusLine(selected), graphics.guiWidth() / 2, top - 12, 0xFFFFFF);
-        graphics.drawCenteredString(font, Component.translatable("screen.anvilcraft.building_rod.traditional.hint"),
-            graphics.guiWidth() / 2, top - 24, 0xA0FFFFFF);
+        int maxWidth = graphics.guiWidth() - 20;
+        var statusLines = font.split(statusLine(selected), maxWidth);
+        var hintLines = font.split(BuildingRodClient.traditionalHint(), maxWidth);
+        int statusTop = top - LINE_GAP - (statusLines.size() - 1) * LINE_HEIGHT;
+        int hintTop = statusTop - LINE_GAP - (hintLines.size() - 1) * LINE_HEIGHT;
+        for (int index = 0; index < hintLines.size(); index++) {
+            drawLine(graphics, font, hintLines.get(index), hintTop + index * LINE_HEIGHT);
+        }
+        for (int index = 0; index < statusLines.size(); index++) {
+            drawLine(graphics, font, statusLines.get(index), statusTop + index * LINE_HEIGHT);
+        }
+    }
+
+    private static void drawLine(GuiGraphics graphics, Font font, FormattedCharSequence text, int y) {
+        int width = font.width(text);
+        int left = (graphics.guiWidth() - width) / 2;
+        graphics.fill(left - 3, y - 1, left + width + 3, y + LINE_HEIGHT, BACKGROUND_COLOR);
+        graphics.drawString(font, text, left, y, 0xFFFFFF, false);
     }
 
     private static Component statusLine(BuildingRodTraditionalControls.Tool selected) {
