@@ -504,25 +504,72 @@ public class StoragePortBlockEntity extends BlockEntity implements IItemHandlerH
         int target = mark.getMaxStackSize();
         if (total < target) {
             int need = Math.min(target - total, maxItemsPerScan);
-            ItemStack pulled = this.extractMarkedFromCore(mark, need);
-            if (pulled.isEmpty()) {
-                return;
-            }
-            ItemStack leftover = this.insertIntoBuffer(pulled);
-            if (!leftover.isEmpty()) {
-                ItemHandlerHelper.insertItem(core, leftover, false);
+            ItemStack pulled = this.pullMarkedFromCore(core, mark, need);
+            if (!pulled.isEmpty()) {
+                // 正常应为空（抽之前已确认缓存收得下）；与预判不一致时原样还回核心
+                ItemHandlerHelper.insertItem(core, this.insertIntoBuffer(pulled, false), false);
             }
         } else if (total > target) {
             int excess = Math.min(total - target, maxItemsPerScan);
-            ItemStack toPush = this.extractMarkedFromBuffer(mark, excess);
-            if (toPush.isEmpty()) {
-                return;
-            }
-            ItemStack remainder = ItemHandlerHelper.insertItem(core, toPush, false);
-            if (!remainder.isEmpty()) {
-                this.insertIntoBuffer(remainder);
+            ItemStack pushed = this.pushMarkedToCore(core, mark, excess);
+            if (!pushed.isEmpty()) {
+                this.insertIntoBuffer(pushed, false);
             }
         }
+    }
+
+    /**
+     * 从核心取出一批标记物品塞进缓存。
+     *
+     * <p>缓存装不下时一律不取：核心的插入异常昂贵——潜影集装箱等核心每次尝试插入都要
+     * 遍历全部类型槽位，而每次取出与放回又各触发一次内容变更（存储脏标记、方块更新、
+     * 终端版本）。缓存里塞满不可堆叠物品、或核心对标记物品已无空间时，取出来只能原样
+     * 放回，这种空转每轮扫描都会重复一次，故先按模拟执行确认缓存收得下。</p>
+     *
+     * @return 没能塞进缓存、需要由调用方放回核心的剩余部分；没有搬动任何物品时为空
+     */
+    private ItemStack pullMarkedFromCore(IItemHandler core, ItemStack mark, int amount) {
+        int slot = this.findMarkedInCore(core, mark);
+        if (slot < 0) {
+            return ItemStack.EMPTY;
+        }
+        ItemStack available = core.extractItem(slot, amount, true);
+        if (available.isEmpty() || !this.insertIntoBuffer(available, true).isEmpty()) {
+            return ItemStack.EMPTY;
+        }
+        return this.insertIntoBuffer(core.extractItem(slot, available.getCount(), false), false);
+    }
+
+    /**
+     * 把缓存里多出的一组标记物品存回核心。
+     *
+     * <p>核心装不下时一律不抽，理由与 {@link #pullMarkedFromCore} 相同。</p>
+     *
+     * @return 没能存进核心、需要由调用方放回缓存的剩余部分；没有搬动任何物品时为空
+     */
+    private ItemStack pushMarkedToCore(IItemHandler core, ItemStack mark, int amount) {
+        int slot = this.findMarkedInBuffer(mark);
+        if (slot < 0) {
+            return ItemStack.EMPTY;
+        }
+        ItemStack available = this.buffer.extractItem(slot, amount, true);
+        int movable = available.getCount() - ItemHandlerHelper.insertItem(core, available, true).getCount();
+        if (movable <= 0) {
+            return ItemStack.EMPTY;
+        }
+        ItemStack extracted = this.buffer.extractItem(slot, movable, false);
+        return ItemHandlerHelper.insertItem(core, extracted, false);
+    }
+
+    /** 核心中存放该标记物品的首个槽位；没有则返回 {@code -1}。 */
+    private int findMarkedInCore(IItemHandler core, ItemStack mark) {
+        for (int slot = 0; slot < core.getSlots(); slot++) {
+            ItemStack stack = core.getStackInSlot(slot);
+            if (!stack.isEmpty() && ItemStack.isSameItemSameComponents(mark, stack)) {
+                return slot;
+            }
+        }
+        return -1;
     }
 
     private int countMarkedItem(ItemStack mark) {
@@ -536,35 +583,24 @@ public class StoragePortBlockEntity extends BlockEntity implements IItemHandlerH
         return total;
     }
 
-    private ItemStack extractMarkedFromCore(ItemStack mark, int amount) {
-        IItemHandler core = this.getCoreHandler();
-        if (core == null) {
-            return ItemStack.EMPTY;
-        }
-        for (int slot = 0; slot < core.getSlots(); slot++) {
-            ItemStack stack = core.getStackInSlot(slot);
-            if (stack.isEmpty() || !ItemStack.isSameItemSameComponents(mark, stack)) {
-                continue;
-            }
-            return core.extractItem(slot, amount, false);
-        }
-        return ItemStack.EMPTY;
-    }
-
-    private ItemStack extractMarkedFromBuffer(ItemStack mark, int amount) {
+    private int findMarkedInBuffer(ItemStack mark) {
         for (int slot = 0; slot < this.buffer.getSlots(); slot++) {
             ItemStack stack = this.buffer.getStackInSlot(slot);
-            if (stack.isEmpty() || !ItemStack.isSameItemSameComponents(mark, stack)) {
-                continue;
+            if (!stack.isEmpty() && ItemStack.isSameItemSameComponents(mark, stack)) {
+                return slot;
             }
-            return this.buffer.extractItem(slot, amount, false);
         }
-        return ItemStack.EMPTY;
+        return -1;
     }
 
-    private ItemStack insertIntoBuffer(ItemStack stack) {
+    /**
+     * 把物品塞进缓存，返回没能塞进去的剩余部分。
+     *
+     * @param simulate true 时只判断缓存收得下多少，不改动缓存
+     */
+    private ItemStack insertIntoBuffer(ItemStack stack, boolean simulate) {
         for (int slot = 0; slot < this.buffer.getSlots() && !stack.isEmpty(); slot++) {
-            stack = this.buffer.insertItem(slot, stack, false);
+            stack = this.buffer.insertItem(slot, stack, simulate);
         }
         return stack;
     }
