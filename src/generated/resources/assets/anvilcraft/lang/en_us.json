@@ -145,6 +145,8 @@
   "anvilcraft.configuration.block_devourer_upward_chain_devouring_distance.tooltip": "Block Devourer upward chain devouring maxCount distance",
   "anvilcraft.configuration.block_placer_recursive_retrieval_distance_max": "Block Placer Recursive Retrieval Distance Max",
   "anvilcraft.configuration.block_placer_recursive_retrieval_distance_max.tooltip": "Block Placer recursive retrieval of container max distance",
+  "anvilcraft.configuration.cfa_occlusion_culling": "CFA Occlusion Culling",
+  "anvilcraft.configuration.cfa_occlusion_culling.tooltip": "Experimental occlusion culling for the Celestial Forging Anvil; geometry fully hidden behind terrain is skipped. Separately drawn parts (tractor beams, bloom) are not culled and may stay visible.",
   "anvilcraft.configuration.chute_max_cooldown": "Chute Max Cooldown",
   "anvilcraft.configuration.chute_max_cooldown.tooltip": "Maximum cooldown time of chute (in ticks)",
   "anvilcraft.configuration.clean_fluid_after_update_menger_sponge": "Clean Fluid After Update Menger Sponge",

@@ -35,6 +35,13 @@ public class AnvilCraftClientConfig {
     @Comment("Scanline post-processing effect on 3D structure previews.")
     public boolean renderScanPreviewEffect = true;
 
+    @Comment(
+        "Experimental occlusion culling for the Celestial Forging Anvil render geometry. "
+            + "Geometry fully hidden behind terrain is skipped, but separately drawn parts "
+            + "(tractor beams, bloom) are not culled and may stay visible."
+    )
+    public boolean cfaOcclusionCulling = false;
+
     @CollapsibleObject
     public GravitationalLens gravitationalLens = new GravitationalLens();
 
