@@ -6,5 +6,9 @@
     "minecraft:golden_pickaxe",
     "minecraft:golden_shovel",
     "minecraft:golden_hoe"
-  ]
+  ],
+  "material": {
+    "type": "anvilcraft:repair_material",
+    "cost": 1
+  }
 }

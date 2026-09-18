@@ -1,0 +1,49 @@
+{
+  "type": "anvilcraft:permutation",
+  "input": {
+    "items": [
+      "anvilcraft:silence_amulet",
+      "anvilcraft:feather_amulet",
+      "anvilcraft:cat_amulet",
+      "anvilcraft:dog_amulet"
+    ]
+  },
+  "options": [
+    {
+      "material": {
+        "type": "anvilcraft:custom",
+        "predicate": {
+          "items": "minecraft:cake"
+        }
+      },
+      "result": "anvilcraft:silence_amulet"
+    },
+    {
+      "material": {
+        "type": "anvilcraft:custom",
+        "predicate": {
+          "items": "minecraft:cake"
+        }
+      },
+      "result": "anvilcraft:feather_amulet"
+    },
+    {
+      "material": {
+        "type": "anvilcraft:custom",
+        "predicate": {
+          "items": "minecraft:cake"
+        }
+      },
+      "result": "anvilcraft:cat_amulet"
+    },
+    {
+      "material": {
+        "type": "anvilcraft:custom",
+        "predicate": {
+          "items": "minecraft:cake"
+        }
+      },
+      "result": "anvilcraft:dog_amulet"
+    }
+  ]
+}

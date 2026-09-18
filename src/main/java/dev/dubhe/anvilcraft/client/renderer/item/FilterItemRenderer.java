@@ -82,7 +82,7 @@ public class FilterItemRenderer extends BlockEntityWithoutLevelRenderer {
             FittedItemRenderer.render(
                 displayed, 8.0F / 16, poseStack, buffer, packedLight, packedOverlay
             );
-            if (displaying.blackList()) {
+            if (displaying.denyList()) {
                 poseStack.translate(0, 0, 0.02F);
                 FittedItemRenderer.render(
                     BARRIER, 4.0F / 16, poseStack, buffer, packedLight, packedOverlay
@@ -97,7 +97,7 @@ public class FilterItemRenderer extends BlockEntityWithoutLevelRenderer {
     private static Displaying readDisplaying(ItemStack stack) {
         FilterContent content = stack.get(ModComponents.FILTER_CONTENT);
         if (content == null) return new Displaying();
-        return new Displaying(selectDisplayed(content, Util.getMillis()), content.blackList());
+        return new Displaying(selectDisplayed(content, Util.getMillis()), content.denyList());
     }
 
     static ItemStack selectDisplayed(FilterContent content, long timeMillis) {
@@ -113,7 +113,7 @@ public class FilterItemRenderer extends BlockEntityWithoutLevelRenderer {
         return ItemStack.EMPTY;
     }
 
-    record Displaying(ItemStack stack, boolean blackList) {
+    record Displaying(ItemStack stack, boolean denyList) {
         public Displaying() {
             this(ItemStack.EMPTY, false);
         }

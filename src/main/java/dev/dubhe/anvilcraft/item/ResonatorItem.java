@@ -3,7 +3,6 @@ package dev.dubhe.anvilcraft.item;
 import com.mojang.blaze3d.vertex.PoseStack;
 import dev.dubhe.anvilcraft.block.multipart.AbstractMultiPartBlock;
 import dev.dubhe.anvilcraft.client.renderer.item.ItemUseAnimationTransform;
-import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.enchantment.ModEnchantmentTags;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
@@ -454,7 +453,6 @@ public abstract class ResonatorItem extends TieredItem {
 
     private static List<BlockPos> getEffectPositions(Level level, BlockPos hitPos) {
         BlockState state = level.getBlockState(hitPos);
-        if (state.is(ModBlocks.LARGE_CAKE)) return List.of(hitPos.immutable());
         if (!(state.getBlock() instanceof AbstractMultiPartBlock<?> multiPartBlock)) {
             return List.of(hitPos.immutable());
         }

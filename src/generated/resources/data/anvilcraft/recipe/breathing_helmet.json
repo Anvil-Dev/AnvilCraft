@@ -1,0 +1,30 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "F": {
+      "item": "anvilcraft:fish_tank"
+    },
+    "H": {
+      "item": "minecraft:heart_of_the_sea"
+    },
+    "N": {
+      "item": "minecraft:nautilus_shell"
+    },
+    "P": {
+      "item": "anvilcraft:pipe"
+    },
+    "W": {
+      "item": "minecraft:water_bucket"
+    }
+  },
+  "pattern": [
+    " W ",
+    "PFP",
+    "NHN"
+  ],
+  "result": {
+    "count": 1,
+    "id": "anvilcraft:breathing_helmet"
+  }
+}

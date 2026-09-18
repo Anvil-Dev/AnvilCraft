@@ -59,6 +59,34 @@ public class CategorySettingsScreen extends Screen {
     private int selected = -1;
     private int left = 0;
     private int top = 0;
+    /** 翻转模式：与 {@link StorageScreen} 共用同一玩家设置与变换。 */
+    private boolean flipped;
+
+    /** 翻转时左右功能区整体换位；见 {@link StorageScreen} 中的同名常量说明。 */
+    private static final int FLIP_SPLIT = 106;
+    private static final int FLIP_OFFSET = BG_WIDTH - FLIP_SPLIT;
+
+    /** 把未翻转时的界面内横向坐标换算为当前模式下的坐标。 */
+    private int fx(int localX) {
+        if (!this.flipped) return localX;
+        return localX < CategorySettingsScreen.FLIP_SPLIT
+            ? localX + CategorySettingsScreen.FLIP_OFFSET
+            : localX - CategorySettingsScreen.FLIP_SPLIT;
+    }
+
+    /** 界面内横向坐标 -> 屏幕绝对坐标。 */
+    private int sx(int localX) {
+        return this.left + this.fx(localX);
+    }
+
+    /** 按翻转状态取用背景图；翻转版由资源提供，命名加 {@code _flip} 后缀。 */
+    private ResourceLocation background() {
+        if (!this.flipped) return CategorySettingsScreen.BACKGROUND;
+        return ResourceLocation.fromNamespaceAndPath(
+            CategorySettingsScreen.BACKGROUND.getNamespace(),
+            CategorySettingsScreen.BACKGROUND.getPath().replace(".png", "_flip.png")
+        );
+    }
 
     private final Scrollable listed = new Scrollable() {
         @Override
@@ -129,6 +157,8 @@ public class CategorySettingsScreen extends Screen {
             .orElseThrow();
         this.left = (this.width - CategorySettingsScreen.BG_WIDTH) / 2;
         this.top = (this.height - CategorySettingsScreen.BG_HEIGHT) / 2;
+        // 与仓储界面共用同一翻转设置
+        this.flipped = SettingClientStub.setting().storage().isFlipped();
         SettingClientStub.load().thenAcceptAsync(
             ignored -> {
                 this.draftSetting = SettingClientStub.copy();
@@ -137,7 +167,7 @@ public class CategorySettingsScreen extends Screen {
             this.screenExecutor
         );
         this.addCategory = this.addRenderableWidget(new TexturedButton(
-            this.left + 113,
+            this.sx(113),
             this.top + 7,
             86,
             20,
@@ -156,7 +186,7 @@ public class CategorySettingsScreen extends Screen {
             }
         ));
         this.addRenderableWidget(new TexturedButton(
-            this.left + 278,
+            this.sx(278),
             this.top + 139,
             18,
             20,
@@ -167,7 +197,7 @@ public class CategorySettingsScreen extends Screen {
             button -> this.whenConfirm()
         ));
         this.addRenderableWidget(new TexturedButton(
-            this.left + 278,
+            this.sx(278),
             this.top + 161,
             18,
             20,
@@ -234,7 +264,7 @@ public class CategorySettingsScreen extends Screen {
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
         this.renderBackground(graphics, mouseX, mouseY, partialTick);
         graphics.blit(
-            CategorySettingsScreen.BACKGROUND,
+            this.background(),
             this.left,
             this.top,
             0,
@@ -266,12 +296,12 @@ public class CategorySettingsScreen extends Screen {
         ) {
             final CategoryEntry entry = this.draftSetting.listed().get(i);
 
-            int left = this.left + 7;
+            int entryLeft = this.sx(7);
             int top = this.top + 7 + (i - this.listedHead) * 20;
 
             graphics.blit(
                 CategoryButton.NORMAL,
-                left,
+                entryLeft,
                 top,
                 0,
                 insideEnabled == i ? 20 : 0,
@@ -283,7 +313,7 @@ public class CategorySettingsScreen extends Screen {
 
             PoseStack pose = graphics.pose();
             pose.pushPose();
-            pose.translate(left, top, 0);
+            pose.translate(entryLeft, top, 0);
             pose.scale(0.75f, 0.75f, 1.0f);
 
             ICategory category = entry.getCategory();
@@ -297,9 +327,9 @@ public class CategorySettingsScreen extends Screen {
             pose.popPose();
 
             Component name = category.name();
-            left = left + 17;
+            entryLeft = entryLeft + 17;
             top = top + 5;
-            GuiRenderSupport.centeredEllipsisText(graphics, this.font, name, left, top, 65);
+            GuiRenderSupport.centeredEllipsisText(graphics, this.font, name, entryLeft, top, 65);
         }
 
         if (this.listed.canScroll()) {
@@ -307,7 +337,7 @@ public class CategorySettingsScreen extends Screen {
             int bottom = top + 200;
             graphics.blit(
                 CategoryList.SLIDER,
-                this.left + 95,
+                this.sx(95),
                 top + (int) ((float) (bottom - top - 10) * this.listed.getScrollOffs()),
                 0,
                 0,
@@ -330,12 +360,12 @@ public class CategorySettingsScreen extends Screen {
             final ICategory category = CollectionUtil.get(this.alternates, i - 1);
             if (category == null) continue;
 
-            int left = this.left + 113 + (i % 2) * 88;
+            int entryLeft = this.sx(113 + (i % 2) * 88);
             int top = this.top + 7 + (i - this.alternateHead) / 2 * 20;
 
             graphics.blit(
                 CategoryButton.NORMAL,
-                left,
+                entryLeft,
                 top,
                 0,
                 insideAlternate == i - 1 ? 20 : 0,
@@ -347,7 +377,7 @@ public class CategorySettingsScreen extends Screen {
 
             PoseStack pose = graphics.pose();
             pose.pushPose();
-            pose.translate(left, top, 0);
+            pose.translate(entryLeft, top, 0);
             pose.scale(0.75f, 0.75f, 1.0f);
 
             ItemStack icon = category.icon().copy();
@@ -359,9 +389,9 @@ public class CategorySettingsScreen extends Screen {
             pose.popPose();
 
             Component name = category.name();
-            left = left + 17;
+            entryLeft = entryLeft + 17;
             top = top + 5;
-            GuiRenderSupport.centeredEllipsisText(graphics, this.font, name, left, top, 65);
+            GuiRenderSupport.centeredEllipsisText(graphics, this.font, name, entryLeft, top, 65);
         }
 
         if (this.alternate.canScroll()) {
@@ -369,7 +399,7 @@ public class CategorySettingsScreen extends Screen {
             int bottom = top + 120;
             graphics.blit(
                 CategoryList.SLIDER,
-                this.left + 289,
+                this.sx(289),
                 top + (int) ((float) (bottom - top - 10) * this.alternate.getScrollOffs()),
                 0,
                 0,
@@ -386,7 +416,7 @@ public class CategorySettingsScreen extends Screen {
 
         int y = this.top + 140 + 58;
         for (int column = 0; column < 9; column++) {
-            int x = this.left + 114 + 18 * column;
+            int x = this.sx(114 + 18 * column);
             this.renderInventorySlot(graphics, inv, column, x, y, mouseX, mouseY);
         }
 
@@ -394,7 +424,7 @@ public class CategorySettingsScreen extends Screen {
             y = this.top + 140 + 18 * row;
             int slot = 9 + row * 9;
             for (int column = 0; column < 9; column++) {
-                int x = this.left + 114 + 18 * column;
+                int x = this.sx(114 + 18 * column);
                 this.renderInventorySlot(graphics, inv, slot++, x, y, mouseX, mouseY);
             }
         }
@@ -580,7 +610,7 @@ public class CategorySettingsScreen extends Screen {
     private boolean clickPlayerInventory(double mouseX, double mouseY) {
         int y = this.top + 140 + 58;
         for (int column = 0; column < 9; column++) {
-            int x = this.left + 114 + 18 * column;
+            int x = this.sx(114 + 18 * column);
 
             if (MathUtil.isInRange(mouseX, mouseY, x - 2, y - 2, x + 17, y + 17)) {
                 this.selected = this.selected == column ? -1 : column;
@@ -592,7 +622,7 @@ public class CategorySettingsScreen extends Screen {
             y = this.top + 140 + 18 * row;
             int slot = 9 + row * 9;
             for (int column = 0; column < 9; column++) {
-                int x = this.left + 114 + 18 * column;
+                int x = this.sx(114 + 18 * column);
 
                 if (MathUtil.isInRange(mouseX, mouseY, x - 2, y - 2, x + 17, y + 17)) {
                     this.selected = this.selected == slot ? -1 : slot;
@@ -639,7 +669,7 @@ public class CategorySettingsScreen extends Screen {
     }
 
     protected int insideListeds(double mouseX, double mouseY) {
-        int left = this.left + 7;
+        int left = this.sx(7);
         int right = left + 86;
         for (int i = 0; i < 10; i++) {
             int index = i + this.listedHead;
@@ -654,7 +684,7 @@ public class CategorySettingsScreen extends Screen {
     }
 
     protected boolean insideEnabled(double mouseX, double mouseY) {
-        int left = this.left + 7;
+        int left = this.sx(7);
         int top = this.top + 7;
         int right = left + 86;
         int bottom = top + Math.min(this.draftSetting.listed().size() - this.listedHead, 10) * 20;
@@ -664,7 +694,7 @@ public class CategorySettingsScreen extends Screen {
     protected boolean insideAddCategoryButton(double mouseX, double mouseY) {
         TexturedButton addCategory = this.addCategory;
         if (addCategory == null || !addCategory.active) return false;
-        int left = this.left + 113;
+        int left = this.sx(113);
         int top = this.top + 7;
         int right = left + 86;
         int bottom = top + 20;
@@ -675,7 +705,7 @@ public class CategorySettingsScreen extends Screen {
         for (int i = 0; i < 12; i++) {
             int index = i + this.alternateHead - 1;
             if (index >= this.alternates.size()) return -1;
-            int left = this.left + 113 + (i % 2) * 88;
+            int left = this.sx(113 + (i % 2) * 88);
             int right = left + 86;
             int top = this.top + 7 + i / 2 * 20;
             int bottom = top + 20;
@@ -687,7 +717,7 @@ public class CategorySettingsScreen extends Screen {
     }
 
     protected boolean insideAlternate(double mouseX, double mouseY) {
-        int left = this.left + 113;
+        int left = this.sx(113);
         int top = this.top + 7;
         int right = left + 174;
         int bottom = top + Math.min(this.alternates.size() - this.alternateHead, 10) * 20;
@@ -696,7 +726,7 @@ public class CategorySettingsScreen extends Screen {
 
     protected boolean insideListedScrollbar(double mouseX, double mouseY) {
         if (!this.listed.canScroll()) return false;
-        int left = this.left + 95;
+        int left = this.sx(95);
         int top = this.top + 7;
         int right = left + 4;
         int bottom = top + 200;
@@ -705,7 +735,7 @@ public class CategorySettingsScreen extends Screen {
 
     protected boolean insideAlternateScrollbar(double mouseX, double mouseY) {
         if (!this.alternate.canScroll()) return false;
-        int left = this.left + 289;
+        int left = this.sx(289);
         int top = this.top + 7;
         int right = left + 4;
         int bottom = top + 120;

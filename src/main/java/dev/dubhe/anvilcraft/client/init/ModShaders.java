@@ -28,6 +28,8 @@ public class ModShaders {
     static ShaderInstance renderTypeLaserShader;
     static ShaderInstance renderTypeColoredOverlayShader;
     @Getter
+    private static ShaderInstance equipmentChargeShader;
+    @Getter
     static ShaderInstance ringShader;
     @Getter
     static ShaderInstance selectionShader;
@@ -44,6 +46,8 @@ public class ModShaders {
 
     public static void register(RegisterShadersEvent event) {
         try {
+            event.registerShader(new ShaderInstance(event.getResourceProvider(), AnvilCraft.of("equipment_charge"),
+                DefaultVertexFormat.POSITION_TEX_COLOR), shader -> equipmentChargeShader = shader);
             event.registerShader(
                 new ShaderInstance(
                     event.getResourceProvider(),

@@ -6,7 +6,6 @@ import dev.dubhe.anvilcraft.api.power.PowerGrid;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.item.AnvilHammerItem;
-import dev.dubhe.anvilcraft.item.IonocraftBackpackItem;
 import dev.dubhe.anvilcraft.util.TriggerUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.LivingEntity;
@@ -39,11 +38,6 @@ public class CuriosCommon {
                 .map(CuriosCommon::isAnvilHammerWearing)
                 .orElse(false)
         );
-        IonocraftBackpackItem.addStackProvider(
-            player -> CuriosApi.getCuriosInventory(player)
-                .map(CuriosCommon::getIonocraftBackpackWearing)
-                .orElse(ItemStack.EMPTY)
-        );
         InventoryUtil.compatConsumer = InventoryUtil.compatConsumer.andThen(
             (items, living) -> CuriosApi.getCuriosInventory(living).ifPresent(
                 handler -> handler.findCurios(stack -> true)
@@ -61,7 +55,6 @@ public class CuriosCommon {
             ModItems.FROST_ANVIL_HAMMER,
             ModItems.EMBER_ANVIL_HAMMER,
             ModItems.TRANSCENDENCE_ANVIL_HAMMER,
-            ModItems.IONOCRAFT_BACKPACK,
             ModItems.LOCAL_TERMINAL,
             ModItems.SHULKER_TERMINAL,
             ModItems.HYPERDIMENSION_TERMINAL
@@ -94,11 +87,4 @@ public class CuriosCommon {
         return !handler.findCurios(it -> it.getItem() instanceof AnvilHammerItem).isEmpty();
     }
 
-    private static ItemStack getIonocraftBackpackWearing(ICuriosItemHandler handler) {
-        List<SlotResult> curios = handler.findCurios(it -> it.getItem() instanceof IonocraftBackpackItem);
-        if (!curios.isEmpty()) {
-            return curios.getFirst().stack();
-        }
-        return ItemStack.EMPTY;
-    }
 }

@@ -31,7 +31,11 @@ public class StorageSetting {
             .forGetter(StorageSetting::getOrder),
         NbtDisplayMode.CODEC
             .fieldOf("nbtDisplay")
-            .forGetter(StorageSetting::getNbtDisplay)
+            .forGetter(StorageSetting::getNbtDisplay),
+        // 旧存档无此字段，缺省为不翻转
+        Codec.BOOL
+            .optionalFieldOf("flipped", false)
+            .forGetter(StorageSetting::isFlipped)
     ).apply(instance, StorageSetting::new));
     public static final StreamCodec<ByteBuf, StorageSetting> STREAM_CODEC = StreamCodec.composite(
         ByteBufCodecs.STRING_UTF8,
@@ -44,6 +48,8 @@ public class StorageSetting {
         StorageSetting::getOrder,
         NbtDisplayMode.STREAM_CODEC,
         StorageSetting::getNbtDisplay,
+        ByteBufCodecs.BOOL,
+        StorageSetting::isFlipped,
         StorageSetting::new
     );
     private String searchContent;
@@ -51,17 +57,27 @@ public class StorageSetting {
     private SortMode sort;
     private OrderMode order;
     private NbtDisplayMode nbtDisplay;
+    /** 仓储界面翻转模式：左右两个功能区互换位置。 */
+    private boolean flipped;
 
     public StorageSetting() {
-        this("", SearchMode.CLEAR, SortMode.COUNT, OrderMode.SEQUENTIAL, NbtDisplayMode.UNFOLD);
+        this("", SearchMode.CLEAR, SortMode.COUNT, OrderMode.SEQUENTIAL, NbtDisplayMode.UNFOLD, false);
     }
 
-    public StorageSetting(String searchContent, SearchMode search, SortMode sort, OrderMode order, NbtDisplayMode nbtDisplay) {
+    public StorageSetting(
+        String searchContent,
+        SearchMode search,
+        SortMode sort,
+        OrderMode order,
+        NbtDisplayMode nbtDisplay,
+        boolean flipped
+    ) {
         this.searchContent = searchContent;
         this.search = search;
         this.sort = sort;
         this.order = order;
         this.nbtDisplay = nbtDisplay;
+        this.flipped = flipped;
     }
 
 }

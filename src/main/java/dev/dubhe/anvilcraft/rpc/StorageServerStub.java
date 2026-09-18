@@ -24,6 +24,7 @@ import dev.dubhe.anvilcraft.block.multipart.AbstractMultiPartBlock;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.init.storage.ModStorageTypes;
+import dev.dubhe.anvilcraft.inventory.PocketInventory;
 import dev.dubhe.anvilcraft.item.TerminalItem;
 import dev.dubhe.anvilcraft.item.property.component.StorageRef;
 import dev.dubhe.anvilcraft.item.property.component.TerminalBinding;
@@ -65,6 +66,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerLevelAccess;
+import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -217,6 +219,47 @@ public final class StorageServerStub {
             updates,
             StoragePortManager.collect(view.primary().getId())
         );
+    }
+
+    /**
+     * JEI 合成转移用的存储内容快照的单页条数，<b>不做搜索与分类过滤</b>。
+     *
+     * <p>可用材料取决于存储里实际有什么，而不是界面当前筛选出了什么。界面缓存
+     * （{@link #reorder} + {@link #sync}）只含通过筛选的条目，用它判定会让被筛掉的
+     * 物品被判为缺失，JEI 于是拒绝转移。</p>
+     *
+     * <p>分页与 {@link #MAX_SYNC_SLOTS} 同理：类型上限可达
+     * {@code UpgradeShulkerContainerBehavior.MAX_TYPE_LIMIT}，一次性发送全部内容会超出
+     * 网络包上限，故按页返回，由客户端拉齐。</p>
+     */
+    public static final int CONTENTS_PAGE_SIZE = 256;
+
+    /**
+     * 读取存储内容快照的一页（不过滤），供 JEI 判定可用材料。
+     *
+     * @param offset 从第几个非空条目开始，按存储视图顺序
+     * @return 至多 {@link #CONTENTS_PAGE_SIZE} 条；返回条数不足一页即表示已到末尾
+     */
+    @CallableParam(clazz = StorageServerStub.class, field = "ITEM_STACK_LIST_STREAM_CODEC")
+    @RemoteCallable(validator = StorageAccessValidator.class)
+    public static List<ItemStack> craftingStorageContents(UUID playerId, long sourcePos, int offset) {
+        StorageView view = StorageServerStub.getView(StorageServerStub.getAndClear(), playerId, sourcePos);
+        List<ItemStack> page = new ArrayList<>(StorageServerStub.CONTENTS_PAGE_SIZE);
+        int seen = 0;
+        for (int index = 0; index < view.size(); index++) {
+            long amount = view.amount(index);
+            if (amount <= 0) {
+                continue;
+            }
+            if (seen++ < offset) {
+                continue;
+            }
+            if (page.size() >= StorageServerStub.CONTENTS_PAGE_SIZE) {
+                break;
+            }
+            page.add(view.resource(index).copyWithCount((int) Math.min(amount, Integer.MAX_VALUE)));
+        }
+        return page;
     }
 
     @RemoteCallable(validator = StorageAccessValidator.class)
@@ -4075,7 +4118,10 @@ public final class StorageServerStub {
         return result;
     }
 
-    public static ItemStack extractFromTerminal(ServerPlayer player, UUID targetId, int amount) {
+    public static ItemStack extractFromTerminal(ServerPlayer player, UUID targetId, int amount, Slot destination) {
+        if (!destination.isActive() || !destination.allowModification(player) || destination.hasItem()) {
+            return ItemStack.EMPTY;
+        }
         HolderLookup.Provider registries = player.level().registryAccess();
         StorageView view = new StorageView(StorageServerStub.terminalStorages(player, targetId), List.of());
         if (view.size() <= 0) {
@@ -4092,10 +4138,18 @@ public final class StorageServerStub {
             if (stackAmount <= 0) {
                 continue;
             }
-            int take = (int) Math.min(Math.min(amount, view.resource(index).getMaxStackSize()), stackAmount);
+            ItemStack resource = view.resource(index);
+            if (!destination.mayPlace(resource)) {
+                return ItemStack.EMPTY;
+            }
+            int limit = Math.min(resource.getMaxStackSize(), destination.getMaxStackSize(resource));
+            int take = (int) Math.min(Math.min(amount, limit), stackAmount);
+            if (take <= 0) {
+                return ItemStack.EMPTY;
+            }
             int got = view.extract(index, take);
             if (got > 0) {
-                ItemStack extracted = view.resource(index).copyWithCount(got);
+                ItemStack extracted = resource.copyWithCount(got);
                 player.getInventory().setChanged();
                 player.containerMenu.broadcastChanges();
                 return extracted;
@@ -4235,9 +4289,7 @@ public final class StorageServerStub {
      * 时意外写回物品组件；空（无 UUID）集装箱需先经 {@link #openRemote} 右键打开授予。</p>
      */
     private static Optional<UUID> findBoundPlayerShulkerContainer(ServerPlayer player) {
-        Inventory inventory = player.getInventory();
-        for (int slot = 0; slot < inventory.getContainerSize(); slot++) {
-            ItemStack stack = inventory.getItem(slot);
+        for (ItemStack stack : PocketInventory.carriedItems(player)) {
             if (!(stack.getItem() instanceof ShulkerContainerBlockItem)) {
                 continue;
             }
@@ -4259,9 +4311,7 @@ public final class StorageServerStub {
      * 无可连接的集装箱时返回空。</p>
      */
     private static Optional<UUID> findOrGrantFrontmostShulkerContainer(ServerPlayer player) {
-        Inventory inventory = player.getInventory();
-        for (int slot = 0; slot < inventory.getContainerSize(); slot++) {
-            ItemStack stack = inventory.getItem(slot);
+        for (ItemStack stack : PocketInventory.carriedItems(player)) {
             if (!(stack.getItem() instanceof ShulkerContainerBlockItem)) {
                 continue;
             }

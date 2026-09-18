@@ -39,7 +39,7 @@ public final class BuildingRodFluids {
                 BuildingRodService.message(player, "missing_blocks");
                 return;
             }
-            if (!BuildingRodItem.ready(player, player.getMainHandItem()) || !materials.consume()) return;
+            if (!BuildingRodItem.ready(player, BuildingRodItem.heldRod(player)) || !materials.consume()) return;
             plan.fluid.getFluidType().onVaporize(null, level, first, plan.fluid);
             level.sendParticles(ParticleTypes.LARGE_SMOKE, first.getX() + 0.5, first.getY() + 0.5, first.getZ() + 0.5,
                 8, 0.4, 0.4, 0.4, 0);
@@ -63,7 +63,10 @@ public final class BuildingRodFluids {
 
     @Nullable
     private static Plan plan(Player player, BlockPos first, BlockPos last) {
-        FluidStack fluid = FluidUtil.getFluidContained(player.getOffhandItem()).orElse(FluidStack.EMPTY);
+        for (BlockPos pos : BlockPos.betweenClosed(first, last)) {
+            if (!BuildingRodService.canModify(player, pos)) return null;
+        }
+        FluidStack fluid = FluidUtil.getFluidContained(BuildingRodItem.material(player)).orElse(FluidStack.EMPTY);
         if (fluid.isEmpty()) return null;
         var level = player.level();
         var type = fluid.getFluidType();

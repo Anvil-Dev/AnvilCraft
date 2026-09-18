@@ -65,7 +65,7 @@ public class IonocraftBackpackClientHandler {
         boolean pressed = jumpDown && !jumpWasDown;
         jumpWasDown = jumpDown;
         if (Minecraft.getInstance().screen != null || player.onGround() || !player.isAlive()
-            || player.getData(ModDataAttachments.IN_POWER_GRID) || player.isCreative() || player.isSpectator()
+            || player.isCreative() || player.isSpectator()
             || !player.getData(ModDataAttachments.IONOCRAFT_DESCENT_AVAILABLE)) {
             lastJumpTick = -1;
             return;

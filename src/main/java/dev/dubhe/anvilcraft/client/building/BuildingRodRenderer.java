@@ -15,6 +15,7 @@ import dev.anvilcraft.lib.v2.cube.client.OutlineRenderer;
 import dev.anvilcraft.lib.v2.cube.client.SelectionPart;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.multipart.AbstractMultiPartBlock;
+import dev.dubhe.anvilcraft.building.BlueprintMultiblocks;
 import dev.dubhe.anvilcraft.building.BlueprintPlacement;
 import dev.dubhe.anvilcraft.building.BuildingEntityTransform;
 import dev.dubhe.anvilcraft.building.BuildingRodService;
@@ -23,6 +24,7 @@ import dev.dubhe.anvilcraft.client.event.LargeBlockPlacePreviewEventListener;
 import dev.dubhe.anvilcraft.client.selection.ModelBlockSelection;
 import dev.dubhe.anvilcraft.config.AnvilCraftClientConfig;
 import dev.dubhe.anvilcraft.init.item.ModItems;
+import dev.dubhe.anvilcraft.item.BuildingRodItem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.LightTexture;
@@ -110,12 +112,15 @@ public final class BuildingRodRenderer {
             buffers.endBatch(RenderType.lines());
         }
         StructureSnapshot snapshot = BuildingRodClient.snapshot;
-        boolean materialPreview = snapshot == null && mc.player.getMainHandItem().is(ModItems.BUILDING_ROD);
+        boolean materialPreview = snapshot == null && BuildingRodItem.isHeld(mc.player);
         if (!materialPreview && BuildingRodClient.traditional() && !BuildingRodTraditionalControls.isActive()) return;
         BlueprintPlacement placement = BuildingRodClient.placement;
         if (materialPreview) {
-            if (!(mc.player.getOffhandItem().getItem() instanceof BlockItem item)
-                || !LargeBlockPlacePreviewEventListener.isPreviewable(item.getBlock())) return;
+            var material = BuildingRodItem.material(mc.player);
+            if (!material.is(ModItems.FILTER) && (!(material.getItem() instanceof BlockItem item)
+                || !LargeBlockPlacePreviewEventListener.isPreviewable(item.getBlock()))) {
+                return;
+            }
             List<BuildingRodService.Cell> cells = BuildingRodClient.placementPreview();
             if (cells.isEmpty() || AnvilCraft.CLIENT_CONFIG.multiPartPreviewMode == AnvilCraftClientConfig.MultiPartPreviewMode.OFF) return;
             if (AnvilCraft.CLIENT_CONFIG.multiPartPreviewMode == AnvilCraftClientConfig.MultiPartPreviewMode.OUTLINE
@@ -236,10 +241,20 @@ public final class BuildingRodRenderer {
         if (mc.level == null) return;
         BlueprintRenderView view = new BlueprintRenderView(mc.level, placement.anchor());
         BlueprintPlacement local = new BlueprintPlacement(BlockPos.ZERO, placement.rotation(), placement.mirror());
-        for (var entry : snapshot.blocks()) {
-            if (BuildingRodClient.layer >= 0 && entry.pos().getY() != BuildingRodClient.layer) continue;
-            BlockPos pos = local.worldOf(entry.pos());
-            var state = local.stateOf(snapshot.stateOf(entry));
+        List<BlueprintMultiblocks.PlacedBlock> blocks;
+        try {
+            blocks = BlueprintMultiblocks.expand(snapshot, local, BuildingRodClient.layer);
+        } catch (IllegalArgumentException exception) {
+            built = snapshot;
+            rotation = placement.rotation();
+            mirror = placement.mirror();
+            layer = BuildingRodClient.layer;
+            meshAlpha = alpha;
+            return;
+        }
+        for (var entry : blocks) {
+            BlockPos pos = entry.pos();
+            var state = entry.state();
             BlockEntity entity = state.getBlock() instanceof EntityBlock block ? block.newBlockEntity(pos, state) : null;
             if (entity != null) {
                 entry.nbt().ifPresent(nbt -> entity.loadWithComponents(nbt, mc.level.registryAccess()));
@@ -256,9 +271,8 @@ public final class BuildingRodRenderer {
             VertexConsumer vertices = new GhostConsumer(buffer, BlockPos.ZERO, alpha);
             PoseStack pose = new PoseStack();
             RandomSource random = RandomSource.create();
-            for (var entry : snapshot.blocks()) {
-                if (BuildingRodClient.layer >= 0 && entry.pos().getY() != BuildingRodClient.layer) continue;
-                BlockPos pos = local.worldOf(entry.pos());
+            for (var entry : blocks) {
+                BlockPos pos = entry.pos();
                 var state = view.realState(pos);
                 if (state.isAir()) continue;
                 pose.pushPose();

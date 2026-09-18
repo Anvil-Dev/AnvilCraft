@@ -5,5 +5,9 @@
     "minecraft:golden_chestplate",
     "minecraft:golden_leggings",
     "minecraft:golden_boots"
-  ]
+  ],
+  "material": {
+    "type": "anvilcraft:repair_material",
+    "cost": 2
+  }
 }

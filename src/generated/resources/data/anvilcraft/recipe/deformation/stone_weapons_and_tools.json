@@ -6,5 +6,9 @@
     "minecraft:stone_pickaxe",
     "minecraft:stone_shovel",
     "minecraft:stone_hoe"
-  ]
+  ],
+  "material": {
+    "type": "anvilcraft:repair_material",
+    "cost": 1
+  }
 }

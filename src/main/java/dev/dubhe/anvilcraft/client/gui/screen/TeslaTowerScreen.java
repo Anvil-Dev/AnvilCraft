@@ -55,7 +55,7 @@ public class TeslaTowerScreen extends AbstractContainerScreen<TeslaTowerMenu> {
     private boolean isDraggingRight;
     private final List<Pair<TeslaFilter, String>> allFilter = new ArrayList<>();
     private final List<Pair<TeslaFilter, String>> filteredFilters = new ArrayList<>();
-    private final List<Pair<TeslaFilter, String>> whiteFilters = new ArrayList<>();
+    private final List<Pair<TeslaFilter, String>> allowFilters = new ArrayList<>();
 
     private void onSearchTextChange(String text) {
         leftScrollOff = 0;
@@ -63,7 +63,7 @@ public class TeslaTowerScreen extends AbstractContainerScreen<TeslaTowerMenu> {
         if (text.isEmpty()) {
             this.filterText = "";
             filteredFilters.addAll(allFilter);
-            filteredFilters.removeIf(it -> whiteFilters.stream()
+            filteredFilters.removeIf(it -> allowFilters.stream()
                 .anyMatch(it2 -> it.left().getId().equals(it2.left().getId()) && it.right().equals(it2.right()))
             );
             return;
@@ -76,7 +76,7 @@ public class TeslaTowerScreen extends AbstractContainerScreen<TeslaTowerMenu> {
             allFilter.stream()
                 .filter(it -> it.left().tooltip(it.right()).contains(search)
                     || it.right().contains(search))
-                .filter(it -> whiteFilters.stream()
+                .filter(it -> allowFilters.stream()
                     .noneMatch(it2 -> it.left().getId().equals(it2.left().getId()) && it.right().equals(it2.right()))
                 )
                 .forEach(filteredFilters::add);
@@ -95,7 +95,7 @@ public class TeslaTowerScreen extends AbstractContainerScreen<TeslaTowerMenu> {
                 .filter(it -> it.left().getTitle(it.right()).getString().contains(filterText)
                     || it.right().contains(filterText))
                 .filter(it ->
-                    whiteFilters.stream().noneMatch(it2 -> it.left().getId().equals(it2.left().getId()) && it.right().equals(it2.right())))
+                    allowFilters.stream().noneMatch(it2 -> it.left().getId().equals(it2.left().getId()) && it.right().equals(it2.right())))
                 .forEach(filteredFilters::add);
         }
     }
@@ -121,30 +121,30 @@ public class TeslaTowerScreen extends AbstractContainerScreen<TeslaTowerMenu> {
         if (filteredFilters.isEmpty() || actualIndex >= filteredFilters.size()) return;
         String id = filteredFilters.get(actualIndex).left().getId();
         String arg = filteredFilters.get(actualIndex).right();
-        addWhiteFilter(id, arg);
+        addAllowFilter(id, arg);
         PacketDistributor.sendToServer(new TeslaAddFilterPacket(id, arg));
         refreshFilterList();
     }
 
-    private void onWhiteListFilterButtonClick(int selectedIndex) {
+    private void onAllowListFilterButtonClick(int selectedIndex) {
         int actualIndex = selectedIndex;
         actualIndex += rightScrollOff;
-        if (whiteFilters.isEmpty() || actualIndex >= whiteFilters.size()) return;
-        String id = whiteFilters.get(actualIndex).left().getId();
-        String arg = whiteFilters.get(actualIndex).right();
-        removeWhiteFilter(id, arg);
+        if (allowFilters.isEmpty() || actualIndex >= allowFilters.size()) return;
+        String id = allowFilters.get(actualIndex).left().getId();
+        String arg = allowFilters.get(actualIndex).right();
+        removeAllowFilter(id, arg);
         PacketDistributor.sendToServer(new TeslaRemoveFilterPacket(id, arg));
         refreshFilterList();
     }
 
-    void addWhiteFilter(String id, String arg) {
+    void addAllowFilter(String id, String arg) {
         this.menu.addFilter(id, arg);
-        this.whiteFilters.add(Pair.of(TeslaFilter.getFilter(id), arg));
+        this.allowFilters.add(Pair.of(TeslaFilter.getFilter(id), arg));
     }
 
-    void removeWhiteFilter(String id, String arg) {
+    void removeAllowFilter(String id, String arg) {
         this.menu.removeFilter(id, arg);
-        this.whiteFilters.removeIf(it -> it.left().getId().equals(id) && it.right().equals(arg));
+        this.allowFilters.removeIf(it -> it.left().getId().equals(id) && it.right().equals(arg));
     }
 
     public Component getFilterTitle(int index, int variant) {
@@ -156,8 +156,8 @@ public class TeslaTowerScreen extends AbstractContainerScreen<TeslaTowerMenu> {
             return filter.left().getTitle(filter.right());
         } else {
             actualIndex += rightScrollOff;
-            if (whiteFilters.isEmpty() || actualIndex >= whiteFilters.size()) return Component.empty();
-            Pair<TeslaFilter, String> filter = whiteFilters.get(actualIndex);
+            if (allowFilters.isEmpty() || actualIndex >= allowFilters.size()) return Component.empty();
+            Pair<TeslaFilter, String> filter = allowFilters.get(actualIndex);
             return filter.left().getTitle(filter.right());
         }
     }
@@ -171,8 +171,8 @@ public class TeslaTowerScreen extends AbstractContainerScreen<TeslaTowerMenu> {
             return filter.left().tooltip(filter.right());
         } else {
             actualIndex += rightScrollOff;
-            if (whiteFilters.isEmpty() || actualIndex >= whiteFilters.size()) return null;
-            Pair<TeslaFilter, String> filter = whiteFilters.get(actualIndex);
+            if (allowFilters.isEmpty() || actualIndex >= allowFilters.size()) return null;
+            Pair<TeslaFilter, String> filter = allowFilters.get(actualIndex);
             return filter.left().tooltip(filter.right());
         }
     }
@@ -220,7 +220,7 @@ public class TeslaTowerScreen extends AbstractContainerScreen<TeslaTowerMenu> {
                 SOUND_MUTED,
                 b -> {
                     if (b instanceof TeslaTowerButton silencerButton) {
-                        onWhiteListFilterButtonClick(silencerButton.getIndex());
+                        onAllowListFilterButtonClick(silencerButton.getIndex());
                     }
                 },
                 this,
@@ -296,9 +296,9 @@ public class TeslaTowerScreen extends AbstractContainerScreen<TeslaTowerMenu> {
             }
         } else {
             if (mouseInRight(mouseX, mouseY, leftPos, topPos)) {
-                if (this.whiteFilters.size() > 8) {
+                if (this.allowFilters.size() > 8) {
                     this.rightScrollOff =
-                        (int) Mth.clamp(this.rightScrollOff - scrollY, 0, this.whiteFilters.size() - 7);
+                        (int) Mth.clamp(this.rightScrollOff - scrollY, 0, this.allowFilters.size() - 7);
                 }
             }
         }
@@ -327,7 +327,7 @@ public class TeslaTowerScreen extends AbstractContainerScreen<TeslaTowerMenu> {
             }
         } else {
             if (mouseInRightSlider(mouseX, mouseY, leftPos, topPos)) {
-                int i = whiteFilters.size();
+                int i = allowFilters.size();
                 if (this.isDraggingRight) {
                     int j = this.topPos + SCROLL_BAR_TOP_POS_Y;
                     int k = j + SCROLL_BAR_HEIGHT;
@@ -361,7 +361,7 @@ public class TeslaTowerScreen extends AbstractContainerScreen<TeslaTowerMenu> {
         if (mouseInLeftSlider(mouseX, mouseY, leftPos, topPos) && filteredFilters.size() > 8) {
             this.isDraggingLeft = true;
         }
-        if (mouseInRightSlider(mouseX, mouseY, leftPos, topPos) && whiteFilters.size() > 8) {
+        if (mouseInRightSlider(mouseX, mouseY, leftPos, topPos) && allowFilters.size() > 8) {
             this.isDraggingRight = true;
         }
         return super.mouseClicked(mouseX, mouseY, button);
@@ -390,7 +390,7 @@ public class TeslaTowerScreen extends AbstractContainerScreen<TeslaTowerMenu> {
         super.render(guiGraphics, mouseX, mouseY, partialTick);
         this.renderScroller(guiGraphics, leftPos + 119, topPos + 35, filteredFilters.size(), leftScrollOff);
 
-        this.renderScroller(guiGraphics, leftPos + 245, topPos + 35, whiteFilters.size(), rightScrollOff);
+        this.renderScroller(guiGraphics, leftPos + 245, topPos + 35, allowFilters.size(), rightScrollOff);
 
         this.renderTooltip(guiGraphics, mouseX, mouseY);
     }
@@ -400,8 +400,8 @@ public class TeslaTowerScreen extends AbstractContainerScreen<TeslaTowerMenu> {
      */
     public void handleSync(List<Pair<TeslaFilter, String>> filters) {
         rightScrollOff = 0;
-        whiteFilters.clear();
-        whiteFilters.addAll(filters);
+        allowFilters.clear();
+        allowFilters.addAll(filters);
         onSearchTextChange("");
         menu.handleSync(filters);
     }

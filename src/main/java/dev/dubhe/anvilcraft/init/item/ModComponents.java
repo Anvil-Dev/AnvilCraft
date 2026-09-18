@@ -3,7 +3,9 @@ package dev.dubhe.anvilcraft.init.item;
 import com.mojang.datafixers.util.Unit;
 import com.mojang.serialization.Codec;
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.init.registry.ModRegistryKeys;
 import dev.dubhe.anvilcraft.item.property.component.BoxContents;
+import dev.dubhe.anvilcraft.item.property.component.Comrades;
 import dev.dubhe.anvilcraft.item.property.component.DiskData;
 import dev.dubhe.anvilcraft.item.property.component.Eternal;
 import dev.dubhe.anvilcraft.item.property.component.Ferocious;
@@ -174,9 +176,20 @@ public class ModComponents {
         b -> b.persistent(OverLimitItemContainerContents.CODEC).networkSynchronized(OverLimitItemContainerContents.STREAM_CODEC)
     );
 
-    public static final DataComponentType<IAmulet> AMULET = register(
+    public static final DataComponentType<ResourceKey<IAmulet>> AMULET = register(
         "amulet",
-        b -> b.persistent(IAmulet.CODEC).networkSynchronized(IAmulet.STREAM_CODEC)
+        b -> b.persistent(ResourceKey.codec(ModRegistryKeys.AMULET))
+            .networkSynchronized(ResourceKey.streamCodec(ModRegistryKeys.AMULET))
+    );
+
+    public static final DataComponentType<Integer> AMULET_WEIGHT = register(
+        "amulet_weight",
+        b -> b.persistent(Codec.INT).networkSynchronized(ByteBufCodecs.VAR_INT)
+    );
+
+    public static final DataComponentType<Comrades> COMRADES = register(
+        "comrades",
+        b -> b.persistent(Comrades.CODEC).networkSynchronized(Comrades.STREAM_CODEC)
     );
 
     public static final DataComponentType<StorageRef> STORAGE = register(

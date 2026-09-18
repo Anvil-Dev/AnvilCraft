@@ -5,5 +5,9 @@
     "minecraft:diamond_chestplate",
     "minecraft:diamond_leggings",
     "minecraft:diamond_boots"
-  ]
+  ],
+  "material": {
+    "type": "anvilcraft:repair_material",
+    "cost": 2
+  }
 }

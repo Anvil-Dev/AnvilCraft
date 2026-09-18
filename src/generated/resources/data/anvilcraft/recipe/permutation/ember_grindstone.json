@@ -1,0 +1,18 @@
+{
+  "type": "anvilcraft:permutation",
+  "input": {
+    "items": "anvilcraft:ember_grindstone"
+  },
+  "options": [
+    {
+      "material": {
+        "type": "anvilcraft:custom",
+        "predicate": {
+          "count": 3,
+          "items": "anvilcraft:frost_metal_ingot"
+        }
+      },
+      "result": "anvilcraft:frost_grindstone"
+    }
+  ]
+}

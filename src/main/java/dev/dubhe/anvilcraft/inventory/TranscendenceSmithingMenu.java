@@ -11,6 +11,7 @@ import dev.dubhe.anvilcraft.item.template.frost.PermutationTemplateItem;
 import dev.dubhe.anvilcraft.item.template.mto.BaseMultipleToOneTemplateItem;
 import dev.dubhe.anvilcraft.network.multiple.TranscendenceSmithingPackets;
 import dev.dubhe.anvilcraft.recipe.frost.DeformationRecipe;
+import dev.dubhe.anvilcraft.recipe.frost.FrostSmithingOption;
 import dev.dubhe.anvilcraft.recipe.frost.FrostSmithingRecipeInput;
 import dev.dubhe.anvilcraft.recipe.frost.IFrostSmithingRecipe;
 import dev.dubhe.anvilcraft.recipe.frost.PermutationRecipe;
@@ -107,6 +108,7 @@ public class TranscendenceSmithingMenu extends AbstractContainerMenu {
 
     @Getter
     private List<RecipeResult> frostResults = List.of();
+    private List<FrostSmithingOption> frostOptions = List.of();
     @Getter
     private int selectedFrostResult = -1;
 
@@ -417,7 +419,7 @@ public class TranscendenceSmithingMenu extends AbstractContainerMenu {
                     && recipe.value().isBaseIngredient(stack));
         }
         return this.frostRecipes.stream().anyMatch(recipe ->
-            recipe.value().isTemplate(this.selectedTemplate) && recipe.value().isMaterial(stack));
+            recipe.value().isTemplate(this.selectedTemplate) && recipe.value().isInput(stack));
     }
 
     private boolean canPlaceRoyalFrostSecondInput(ItemStack stack) {
@@ -426,8 +428,13 @@ public class TranscendenceSmithingMenu extends AbstractContainerMenu {
                 recipe.value().isTemplateIngredient(this.selectedTemplate)
                     && recipe.value().isAdditionIngredient(stack));
         }
+        FrostSmithingRecipeInput input = new FrostSmithingRecipeInput(
+            this.selectedTemplate,
+            this.royalFrostInputs.getItem(0),
+            this.royalFrostInputs.getItem(1)
+        );
         return this.frostRecipes.stream().anyMatch(recipe ->
-            recipe.value().isTemplate(this.selectedTemplate) && recipe.value().isInput(stack));
+            recipe.value().isTemplate(this.selectedTemplate) && recipe.value().acceptsMaterial(input, stack));
     }
 
     private boolean canPlaceEmberMaterial(ItemStack stack) {
@@ -459,6 +466,7 @@ public class TranscendenceSmithingMenu extends AbstractContainerMenu {
         this.selectedEmberRecipe = null;
         this.selectedFrostRecipe = null;
         this.frostResults = List.of();
+        this.frostOptions = List.of();
         this.selectedFrostResult = -1;
         this.royalFrostResult.setItem(0, ItemStack.EMPTY);
         this.emberResult.setItem(0, ItemStack.EMPTY);
@@ -527,11 +535,14 @@ public class TranscendenceSmithingMenu extends AbstractContainerMenu {
         RecipeHolder<? extends IFrostSmithingRecipe> recipe,
         FrostSmithingRecipeInput input
     ) {
-        List<RecipeResult> results = recipe.value().inputs(input.input());
-        if (results.isEmpty()) return;
-        if (results.stream().anyMatch(result -> !result.result().isEnabled(this.level.enabledFeatures()))) return;
+        List<FrostSmithingOption> options = recipe.value().options(input);
+        if (options.isEmpty()) return;
+        if (options.stream().anyMatch(option -> !option.result().result().isEnabled(this.level.enabledFeatures()))) {
+            return;
+        }
         this.selectedFrostRecipe = recipe;
-        this.frostResults = List.copyOf(results);
+        this.frostOptions = List.copyOf(options);
+        this.frostResults = options.stream().map(FrostSmithingOption::result).toList();
         this.selectedFrostResult = 0;
         this.royalFrostResult.setRecipeUsed(recipe);
         this.royalFrostResult.setItem(0, recipe.value().assemble(0, input, this.level));
@@ -577,8 +588,21 @@ public class TranscendenceSmithingMenu extends AbstractContainerMenu {
             this.royalFrostInputs.getItem(0),
             this.royalFrostInputs.getItem(1)
         ));
-        this.consumeItem(this.royalFrostInputs, 0);
-        this.consumeItem(this.royalFrostInputs, 1);
+        if (this.getMode() == Mode.FROST) {
+            FrostSmithingRecipeInput input = new FrostSmithingRecipeInput(
+                this.selectedTemplate,
+                this.royalFrostInputs.getItem(0),
+                this.royalFrostInputs.getItem(1)
+            );
+            int cost = this.selectedFrostRecipe == null
+                ? 0
+                : this.selectedFrostRecipe.value().materialCost(input, this.selectedFrostResult);
+            this.consumeItem(this.royalFrostInputs, 0);
+            this.consumeItems(this.royalFrostInputs, 1, cost);
+        } else {
+            this.consumeItem(this.royalFrostInputs, 0);
+            this.consumeItem(this.royalFrostInputs, 1);
+        }
         this.playSmithingSound();
     }
 
@@ -605,15 +629,23 @@ public class TranscendenceSmithingMenu extends AbstractContainerMenu {
         container.setItem(index, stack);
     }
 
+    private void consumeItems(Container container, @SuppressWarnings("SameParameterValue") int index, int count) {
+        if (count <= 0) return;
+        ItemStack stack = container.getItem(index);
+        if (stack.isEmpty()) return;
+        stack.shrink(count);
+        container.setItem(index, stack);
+    }
+
     private void playSmithingSound() {
         this.access.execute((level, pos) -> level.levelEvent(1044, pos, 0));
     }
 
     /** 切换浮霜锻造结果。 */
     public void turnFrostResult(boolean left) {
-        if (this.getMode() != Mode.FROST || this.selectedFrostRecipe == null || this.frostResults.isEmpty()) return;
+        if (this.getMode() != Mode.FROST || this.selectedFrostRecipe == null || this.frostOptions.isEmpty()) return;
         int offset = left ? -1 : 1;
-        this.selectedFrostResult = Math.floorMod(this.selectedFrostResult + offset, this.frostResults.size());
+        this.selectedFrostResult = Math.floorMod(this.selectedFrostResult + offset, this.frostOptions.size());
         FrostSmithingRecipeInput input = new FrostSmithingRecipeInput(
             this.selectedTemplate,
             this.royalFrostInputs.getItem(0),
@@ -626,6 +658,7 @@ public class TranscendenceSmithingMenu extends AbstractContainerMenu {
     }
 
     @Override
+    @SuppressWarnings("ConstantValue") // else if (index >= PLAYER_INVENTORY_SLOT_START) 会导致 IDEA 警告
     public ItemStack quickMoveStack(Player player, int index) {
         if (index < 0 || index >= this.slots.size()) return ItemStack.EMPTY;
         Slot slot = this.slots.get(index);

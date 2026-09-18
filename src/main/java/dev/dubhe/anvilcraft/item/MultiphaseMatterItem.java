@@ -2,7 +2,6 @@ package dev.dubhe.anvilcraft.item;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.item.IMultipleMaterial;
-import dev.dubhe.anvilcraft.api.item.IPermutationMaterial;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -14,12 +13,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class MultiphaseMatterItem extends Item implements IMultipleMaterial, IPermutationMaterial {
+public class MultiphaseMatterItem extends Item implements IMultipleMaterial {
     private static final Component EMBER_MISSING_TOOLTIP = Component.translatable(
         "screen.anvilcraft.ember_smithing.multiphase_matter.missing_tools"
-    );
-    private static final Component FROST_MISSING_TOOLTIP = Component.translatable(
-        "screen.anvilcraft.frost_smithing.multiphase_matter.missing_tools"
     );
     private static final Map<Item, ResourceLocation> EMBER_EMPTY_SLOT_TEXTURES = Map.of(
         Items.SHEARS, AnvilCraft.of("item/empty_slot_shears"),
@@ -31,15 +27,6 @@ public class MultiphaseMatterItem extends Item implements IMultipleMaterial, IPe
         Items.CARROT_ON_A_STICK, AnvilCraft.of("item/empty_slot_carrot_on_a_stick"),
         Items.WARPED_FUNGUS_ON_A_STICK, AnvilCraft.of("item/empty_slot_warped_fungus_on_a_stick")
     );
-    private static final List<ResourceLocation> FROST_EMPTY_SLOT_TEXTURES = List.of(
-        ResourceLocation.withDefaultNamespace("item/empty_slot_sword"),
-        ResourceLocation.withDefaultNamespace("item/empty_slot_axe"),
-        ResourceLocation.withDefaultNamespace("item/empty_slot_pickaxe"),
-        ResourceLocation.withDefaultNamespace("item/empty_slot_shovel"),
-        ResourceLocation.withDefaultNamespace("item/empty_slot_hoe"),
-        AnvilCraft.of("item/empty_slot_heavy_halberd"),
-        AnvilCraft.of("item/empty_slot_resonator")
-    );
 
     public MultiphaseMatterItem(Properties properties) {
         super(properties);
@@ -48,11 +35,6 @@ public class MultiphaseMatterItem extends Item implements IMultipleMaterial, IPe
     @Override
     public Component getInputTooltip(ItemStack template, List<ItemStack> inputs) {
         return EMBER_MISSING_TOOLTIP;
-    }
-
-    @Override
-    public Component getInputTooltip(ItemStack material) {
-        return FROST_MISSING_TOOLTIP;
     }
 
     @Override
@@ -66,10 +48,5 @@ public class MultiphaseMatterItem extends Item implements IMultipleMaterial, IPe
             result.add(EMBER_EMPTY_SLOT_TEXTURES.get(item));
         }
         return result;
-    }
-
-    @Override
-    public List<ResourceLocation> getEmptySlotTextures() {
-        return FROST_EMPTY_SLOT_TEXTURES;
     }
 }

@@ -1,5 +1,10 @@
 package dev.dubhe.anvilcraft.api.laser;
 
+import dev.dubhe.anvilcraft.block.LaserReceiverBlock;
+import dev.dubhe.anvilcraft.block.LensBlock;
+import dev.dubhe.anvilcraft.block.PropelPistonBlock;
+import dev.dubhe.anvilcraft.block.RubyPrismBlock;
+import dev.dubhe.anvilcraft.block.cfa.interfaces.CelestialForgingAnvilLaserInterfaceBlock;
 import dev.dubhe.anvilcraft.util.BlockMiningEffect;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.BlockParticleOption;
@@ -7,6 +12,8 @@ import net.minecraft.core.particles.DustParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.piston.MovingPistonBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 
@@ -55,11 +62,13 @@ public final class LaserParticleBehavior implements ILaserComponent {
     @Override
     public boolean onHitBlock(ILaserComponentOwner owner, Level level, BlockPos blockPos) {
         if (!(level instanceof ServerLevel serverLevel)) return true;
+        BlockState state = level.getBlockState(blockPos);
+        if (state.isAir()) return true;
+        // 光束中继元件（透镜、棱镜）不是撞击面：光束由它们继续向下游发射。
+        if (isLaserRelay(owner, state)) return true;
         int tick = owner.getLaserTicks();
         if (lastEmitTick >= 0 && tick - lastEmitTick < EMIT_INTERVAL) return true;
         lastEmitTick = tick;
-        BlockState state = level.getBlockState(blockPos);
-        if (state.isAir()) return true;
         // 命中面：从方块中心朝激光来向偏移半个方块，使碎屑贴着被照的那一面
         Vec3 normal = Vec3.atLowerCornerOf(owner.getLaserDirection().getOpposite().getNormal());
         Vec3 center = Vec3.atCenterOf(blockPos).add(normal.scale(0.5 + 0.02));
@@ -81,6 +90,28 @@ public final class LaserParticleBehavior implements ILaserComponent {
             SPEED
         );
         return true;
+    }
+
+    /**
+     * 判断命中点是否为光束中继 / 接收元件，即不会被激光撞击的方块。
+     *
+     * <p>透镜：仅当与光束同轴时透光，此时光束经它折射后由透镜沿同轴继续发射。
+     * 未装玻璃的透镜本就由 {@code canPassThrough} 直接跳过，故这里实际拦下的是装了玻璃的情形。
+     *
+     * <p>棱镜：可接收任意方向的入射光并沿自身 {@code FACING} 转射，故不论方向一律视为中继。
+     *
+     * <p>激光接收器与锻星激光接口：光束被它们吸收转化为能量，属于接收端而非撞击面，
+     * 因此同样不产生方块破坏粒子。
+     */
+    private static boolean isLaserRelay(ILaserComponentOwner owner, BlockState state) {
+        if (state.getBlock() instanceof LensBlock) {
+            return owner.getLaserDirection().getAxis() == state.getValue(LensBlock.AXIS);
+        }
+        Block block = state.getBlock();
+        return block instanceof RubyPrismBlock
+            || block instanceof LaserReceiverBlock
+            || block instanceof CelestialForgingAnvilLaserInterfaceBlock
+            || block instanceof PropelPistonBlock;
     }
 
     /**

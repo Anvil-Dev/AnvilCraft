@@ -24,18 +24,19 @@ public final class BuildingCommit {
         if (previous == state) {
             return;
         }
+        BuildingRodUndo.replaced(level, pos, previous, state);
         LevelChunk chunk = level.getChunkAt(pos);
         if (previous.getBlock() instanceof RedstoneWireBlock && !(state.getBlock() instanceof RedstoneWireBlock)) {
             RedstoneWireNetworkManager.wireRemoved(level, pos);
-        }
-        if (previous.hasBlockEntity() && previous.getBlock() != state.getBlock()) {
-            chunk.removeBlockEntity(pos);
         }
         LevelChunkSection section = chunk.getSection(chunk.getSectionIndex(pos.getY()));
         int localX = pos.getX() & 15;
         int localY = pos.getY() & 15;
         int localZ = pos.getZ() & 15;
         section.setBlockState(localX, localY, localZ, state, false);
+        if (previous.hasBlockEntity() && previous.getBlock() != state.getBlock()) {
+            chunk.removeBlockEntity(pos);
+        }
         chunk.getOrCreateHeightmapUnprimed(Heightmap.Types.MOTION_BLOCKING).update(localX, pos.getY(), localZ, state);
         chunk.getOrCreateHeightmapUnprimed(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES)
             .update(localX, pos.getY(), localZ, state);

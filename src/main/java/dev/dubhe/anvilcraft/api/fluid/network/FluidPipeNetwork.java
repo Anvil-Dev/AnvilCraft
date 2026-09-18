@@ -100,6 +100,8 @@ public class FluidPipeNetwork {
     private final Set<BlockPos> glassPipePositions;
     /** 当前正在玻璃管道中显示流体的位置（用于每 tick 过期检测，仅遍历显示中的管道）。 */
     private final Set<BlockPos> activeGlassPipes = new HashSet<>();
+    /** 网络的全部端点容器，供外部查询同网容器的等效高度。 */
+    @Getter
     private final List<FluidEndpoint> endpoints;
     private final List<FluidEndpoint> cauldronEndpoints;
     private final List<FluidEndpoint> entityEndpoints;

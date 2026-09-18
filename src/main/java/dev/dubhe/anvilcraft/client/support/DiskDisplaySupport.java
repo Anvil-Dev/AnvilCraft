@@ -6,16 +6,26 @@ import dev.anvilcraft.lib.v2.multiblock.dynamic.definition.DefinitionSerializati
 import dev.anvilcraft.lib.v2.multiblock.dynamic.definition.MultiblockDefinition;
 import dev.anvilcraft.lib.v2.util.predicate.BlockStatePredicate;
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.block.entity.StructureScannerBlockEntity;
+import dev.dubhe.anvilcraft.block.multipart.AbstractMultiPartBlock;
+import dev.dubhe.anvilcraft.building.BlueprintMultiblocks;
+import dev.dubhe.anvilcraft.building.BlueprintPlacement;
+import dev.dubhe.anvilcraft.building.StructureSnapshot;
+import dev.dubhe.anvilcraft.building.StructureSnapshotCodec;
+import dev.dubhe.anvilcraft.client.building.BlueprintClientFiles;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.item.property.component.DiskData;
+import dev.dubhe.anvilcraft.item.property.component.StoredItem;
 import dev.dubhe.anvilcraft.item.property.component.StructureDiskData;
 import dev.dubhe.anvilcraft.recipe.multiblock.MultiblockConversionRecipe;
 import dev.dubhe.anvilcraft.recipe.multiblock.MultiblockUtil;
 import dev.dubhe.anvilcraft.util.StructureLoadUtil;
+import dev.dubhe.anvilcraft.util.StructureSaveUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
@@ -30,6 +40,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
@@ -49,6 +60,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 
 @EventBusSubscriber(modid = AnvilCraft.MOD_ID, value = Dist.CLIENT)
 public final class DiskDisplaySupport {
@@ -60,7 +72,32 @@ public final class DiskDisplaySupport {
     private DiskDisplaySupport() {
     }
 
+    public static ItemStack getImportedDisplay(StructureSnapshot snapshot) {
+        var level = Minecraft.getInstance().level;
+        if (level == null) return ItemStack.EMPTY;
+        if (!recipesLoaded) reloadRecipes(level.getRecipeManager());
+        List<Pattern> choices = PATTERNS.get(snapshot.size().getX());
+        if (choices == null) return ItemStack.EMPTY;
+        StructureDiskData data = new StructureDiskData("", "", new UUID(0, 0), Direction.NORTH,
+            snapshot.size().getX(), snapshot.size().getY(), snapshot.size().getZ(), false);
+        return matchStructure(data, StructureSnapshotCodec.write(snapshot), level.registryAccess(), choices);
+    }
+
+    public static ItemStack getScannedDisplay(StructureScannerBlockEntity scanner) {
+        var level = scanner.getLevel();
+        if (level == null || !scanner.isScanComplete()) return ItemStack.EMPTY;
+        if (!recipesLoaded) reloadRecipes(level.getRecipeManager());
+        List<Pattern> choices = PATTERNS.get(scanner.getRangeX().get());
+        if (choices == null) return ItemStack.EMPTY;
+        StructureDiskData data = new StructureDiskData("", "", new UUID(0, 0), scanner.getDirection(),
+            scanner.getRangeX().get(), scanner.getRangeY().get(), scanner.getRangeZ().get(), scanner.isScannerUpsideDown());
+        return matchStructure(data, StructureSaveUtil.buildStructureNBT(scanner, scanner.getScannedBlocks()),
+            level.registryAccess(), choices);
+    }
+
     public static ItemStack getDisplay(ItemStack stack) {
+        StoredItem marker = stack.get(ModComponents.DISPLAY_ITEM);
+        if (stack.is(ModItems.STRUCTURE_DISK) && marker != null) return marker.stored();
         if (stack.is(ModItems.DISK)) return recordedBlock(stack);
         if (!stack.is(ModItems.STRUCTURE_DISK)) return ItemStack.EMPTY;
         var level = Minecraft.getInstance().level;
@@ -117,6 +154,7 @@ public final class DiskDisplaySupport {
         RESULTS.invalidateAll();
         recipesLoaded = false;
         StructureLoadUtil.clearClientStructureCache();
+        BlueprintClientFiles.clear();
     }
 
     static void reloadRecipes(RecipeManager manager) {
@@ -186,7 +224,7 @@ public final class DiskDisplaySupport {
             || dimensions.getInt(0) != size || dimensions.getInt(1) != size || dimensions.getInt(2) != size) return Optional.empty();
         ListTag palette = tag.getList("palette", Tag.TAG_COMPOUND);
         List<BlockState> states = new ArrayList<>();
-        Rotation normalize = switch (data.direction()) {
+        final Rotation normalize = switch (data.direction()) {
             case WEST -> Rotation.CLOCKWISE_90;
             case SOUTH -> Rotation.CLOCKWISE_180;
             case EAST -> Rotation.COUNTERCLOCKWISE_90;
@@ -202,12 +240,13 @@ public final class DiskDisplaySupport {
                 var property = block.getStateDefinition().getProperty(key);
                 if (property == null || property.getValue(properties.getString(key)).isEmpty()) return Optional.empty();
             }
-            states.add(NbtUtils.readBlockState(registries.lookupOrThrow(Registries.BLOCK), entry).rotate(normalize));
+            states.add(NbtUtils.readBlockState(registries.lookupOrThrow(Registries.BLOCK), entry));
         }
         Cell[] cells = new Cell[size * size * size];
         Cell air = new Cell(Blocks.AIR.defaultBlockState(), Optional.empty());
         Arrays.fill(cells, air);
         boolean[] occupied = new boolean[cells.length];
+        Map<BlockPos, Cell> cores = new HashMap<>();
         ListTag blocks = tag.getList("blocks", Tag.TAG_COMPOUND);
         if (blocks.size() > cells.length) return Optional.empty();
         for (int i = 0; i < blocks.size(); i++) {
@@ -226,9 +265,33 @@ public final class DiskDisplaySupport {
             if (occupied[index]) return Optional.empty();
             occupied[index] = true;
             Optional<CompoundTag> nbt = entry.contains("nbt", Tag.TAG_COMPOUND) ? Optional.of(entry.getCompound("nbt")) : Optional.empty();
-            cells[index] = new Cell(states.get(state), nbt);
+            BlockState original = states.get(state);
+            cells[index] = new Cell(original.rotate(normalize), nbt);
+            if (original.getBlock() instanceof AbstractMultiPartBlock<?> block && block.isMainPart(original)) {
+                cores.put(new BlockPos(x, y, z), new Cell(original, nbt));
+            }
         }
-        return Optional.of(cells);
+        boolean[] valid = {true};
+        cores.forEach((origin, cell) -> {
+            AbstractMultiPartBlock<?> block = (AbstractMultiPartBlock<?>) cell.state.getBlock();
+            BlueprintMultiblocks.forEachPart(BlockPos.ZERO, cell.state,
+                new BlueprintPlacement(origin, normalize, Mirror.NONE), (pos, state) -> {
+                if (pos.getX() < 0 || pos.getY() < 0 || pos.getZ() < 0
+                    || pos.getX() >= size || pos.getY() >= size || pos.getZ() >= size) {
+                    valid[0] = false;
+                    return;
+                }
+                int offset = (pos.getY() * size + pos.getZ()) * size + pos.getX();
+                if (!cells[offset].state.isAir() && !cells[offset].state.is(block)) {
+                    valid[0] = false;
+                    return;
+                }
+                if (cells[offset].state.isAir() || pos.equals(origin) || block.isMainPart(state)) {
+                    cells[offset] = new Cell(state, block.isMainPart(state) ? cell.nbt : Optional.empty());
+                }
+            });
+        });
+        return valid[0] ? Optional.of(cells) : Optional.empty();
     }
 
     private static boolean matches(Pattern pattern, Cell[] cells, Rotation rotation) {

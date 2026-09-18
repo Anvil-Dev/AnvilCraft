@@ -224,6 +224,7 @@ import dev.dubhe.anvilcraft.block.item.HeatableBlockItem;
 import dev.dubhe.anvilcraft.block.item.HeliostatsItem;
 import dev.dubhe.anvilcraft.block.item.HyperdimensionStorageStationBlockItem;
 import dev.dubhe.anvilcraft.block.item.InfiniteCollectorBlockItem;
+import dev.dubhe.anvilcraft.block.item.LargeCakeBlockItem;
 import dev.dubhe.anvilcraft.block.item.LargeCrateBlockItem;
 import dev.dubhe.anvilcraft.block.item.LargeFluidTankBlockItem;
 import dev.dubhe.anvilcraft.block.item.LevitationBlockItem;
@@ -1533,7 +1534,7 @@ public class ModBlocks {
                 return ConfiguredModel.builder().modelFile(base).rotationX(x).rotationY(y % 360).build();
             }, BigRedButtonBlock.PRESSED);
         })
-        .tag(BlockTags.MINEABLE_WITH_PICKAXE, ModBlockTags.ANVIL_HAMMER_BLACKLIST)
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE, ModBlockTags.ANVIL_HAMMER_DENYLIST)
         .simpleItem()
         .recipe(RegistrumBlockRecipeLoader::bigRedButton)
         .register();
@@ -2069,10 +2070,10 @@ public class ModBlocks {
         .tag(ItemTags.HEAD_ARMOR_ENCHANTABLE, ItemTags.EQUIPPABLE_ENCHANTABLE, ItemTags.VANISHING_ENCHANTABLE)
         .model((ctx, provider) -> provider.withExistingParent(ctx.getName(), AnvilCraft.of("block/celestial_forging_anvil"))
             .transforms()
-            .transform(ItemDisplayContext.THIRD_PERSON_RIGHT_HAND).rotation(0, 45, 0).translation(0, 1.6f, 0).scale(0.2f).end()
-            .transform(ItemDisplayContext.THIRD_PERSON_LEFT_HAND).rotation(0, 45, 0).translation(0, 1.6f, 0).scale(0.2f).end()
-            .transform(ItemDisplayContext.FIRST_PERSON_RIGHT_HAND).rotation(0, 45, 0).translation(0, 1.6f, 0).scale(0.2f).end()
-            .transform(ItemDisplayContext.FIRST_PERSON_LEFT_HAND).rotation(0, 45, 0).translation(0, 1.6f, 0).scale(0.2f).end()
+            .transform(ItemDisplayContext.THIRD_PERSON_RIGHT_HAND).rotation(0, 45, 0).translation(0, -1.5f, 0).scale(0.2f).end()
+            .transform(ItemDisplayContext.THIRD_PERSON_LEFT_HAND).rotation(0, 45, 0).translation(0, -1.5f, 0).scale(0.2f).end()
+            .transform(ItemDisplayContext.FIRST_PERSON_RIGHT_HAND).rotation(0, 25, 0).translation(0, 1.6f, 0).scale(0.2f).end()
+            .transform(ItemDisplayContext.FIRST_PERSON_LEFT_HAND).rotation(0, 25, 0).translation(0, 1.6f, 0).scale(0.2f).end()
             .transform(ItemDisplayContext.HEAD).translation(0, 8.8f, 0).scale(0.3f).end()
             .end())
         .build()
@@ -3452,7 +3453,7 @@ public class ModBlocks {
             LootTable.Builder builder = LootTable.lootTable().setRandomSequence(ResourceLocation.withDefaultNamespace("blocks/large_cake"));
             ctx.add(prov, builder);
         })
-        .item(SimpleMultiPartBlockItem<Cube3x3PartHalf>::new)
+        .item(LargeCakeBlockItem::new)
         .properties(properties -> properties.stacksTo(16))
         .tag(Tags.Items.FOODS, Tags.Items.FOODS_EDIBLE_WHEN_PLACED)
         .build()

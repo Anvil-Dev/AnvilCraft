@@ -87,6 +87,7 @@ public class SmartBlockPlacerMenu extends AbstractContainerMenu {
         ));
         
         // 添加蓝图模式输出书物品栏槽位（输出，1个槽位，只在蓝图模式下显示）
+        // 取出成书时消耗输入书，否则同一本书可反复生成材料清单
         int outputBookSlotX = 84;
         int outputBookSlotY = 86;
         this.addSlot(new dev.dubhe.anvilcraft.inventory.component.WrittenBookOnlySlot(
@@ -95,7 +96,9 @@ public class SmartBlockPlacerMenu extends AbstractContainerMenu {
             outputBookSlotX,
             outputBookSlotY,
             // 可见性条件：只有当结构磁盘槽位有物品时才可见
-            () -> !this.blockEntity.getBlueprintItemHandler().getStackInSlot(0).isEmpty()
+            () -> !this.blockEntity.getBlueprintItemHandler().getStackInSlot(0).isEmpty(),
+            this.bookInventory,
+            0
         ));
 
         // 添加玩家物品栏（主物品栏3行9列）
@@ -233,7 +236,10 @@ public class SmartBlockPlacerMenu extends AbstractContainerMenu {
     public void removed(Player player) {
         super.removed(player);
         if (!player.level().isClientSide()) {
-            this.clearContainer(player, this.outputBookInventory);
+            // 产物在输入书放入时就已经生成，无需玩家取走。
+            // 若连同产物一起返还，输入书并未被消耗，玩家等于凭空多得一本，可以反复刷。
+            // 产物属于「未成交」，直接丢弃；输入书必须返还，否则关一次界面就损失一本书。
+            this.outputBookInventory.setItem(0, ItemStack.EMPTY);
             this.clearContainer(player, this.bookInventory);
         }
     }

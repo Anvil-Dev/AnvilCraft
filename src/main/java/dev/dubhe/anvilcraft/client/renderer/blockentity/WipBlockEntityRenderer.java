@@ -50,16 +50,22 @@ public class WipBlockEntityRenderer implements BlockEntityRenderer<WipBlockEntit
             ModelData.EMPTY
         );
         for (RenderType renderType : types.asList()) {
-            blockRenderDispatcher.getModelRenderer().renderModel(
-                poseStack.last(),
-                buffer.getBuffer(renderType),
-                state,
+            // 走 tesselateBlock 而非 renderModel：前者按方块所在位置逐面采样光照与方向明暗，
+            // 后者只能整块共用一个 packedLight，模型会平掉、失去立体感。
+            // checkSides 取 false，与原版 FallingBlockRenderer 渲染整体方块模型的做法一致。
+            blockRenderDispatcher.getModelRenderer().tesselateBlock(
+                level,
                 bakedModel,
-                0,
-                0,
-                0,
-                packedLight,
-                packedOverlay
+                state,
+                wipBlockEntity.getBlockPos(),
+                poseStack,
+                buffer.getBuffer(renderType),
+                false,
+                RandomSource.create(),
+                state.getSeed(wipBlockEntity.getBlockPos()),
+                packedOverlay,
+                ModelData.EMPTY,
+                renderType
             );
         }
         poseStack.popPose();

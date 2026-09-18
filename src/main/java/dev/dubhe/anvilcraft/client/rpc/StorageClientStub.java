@@ -217,6 +217,17 @@ public final class StorageClientStub {
         );
     }
 
+    /** 读取存储内容快照的一页（不做搜索与分类过滤），供 JEI 合成转移判定可用材料。 */
+    public static CompletableFuture<List<ItemStack>> craftingStorageContents(BlockPos sourcePos, int offset) {
+        return RPC.invoke(
+            RpcTarget.server(),
+            StorageServerStub::craftingStorageContents,
+            StorageClientStub.playerId(),
+            sourcePos.asLong(),
+            offset
+        );
+    }
+
     /** 读取仓储合成面板数据（① 切石机输入、② 合成 9 宫格、切石机选中配方）。 */
     public static CompletableFuture<CraftingStorage> craftingGet(BlockPos sourcePos) {
         return RPC.invoke(

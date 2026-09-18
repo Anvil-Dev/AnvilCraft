@@ -171,6 +171,8 @@ public class ItemTagLoader {
             .addTag(ItemTags.TRIM_TEMPLATES)
             .addTag(ModItemTags.MULTIPLE_TO_ONE_SMITHING_TEMPLATES)
             .add(findResourceKey(Items.NETHERITE_UPGRADE_SMITHING_TEMPLATE));
+        provider.addTag(ModItemTags.UNIVERSAL_REPAIR_MATERIALS)
+            .add(ModItems.FROST_METAL_INGOT.getKey());
         provider.addTag(ModItemTags.UNCHARGED_NEUTRONIUM_INGOTS)
             .add(ModItems.NEUTRONIUM_INGOT.getKey())
             .add(ModItems.STABLE_NEUTRONIUM_INGOT.getKey());
@@ -189,9 +191,6 @@ public class ItemTagLoader {
             .replace(false)
             .addTag(ModItemTags.AMULET)
             .add(ModItems.LOCAL_TERMINAL.getKey(), ModItems.SHULKER_TERMINAL.getKey(), ModItems.HYPERDIMENSION_TERMINAL.getKey());
-        provider.addTag(ModItemTags.CURIOS_IONOCRAFT_BACKPACK)
-            .replace(false)
-            .add(ModItems.IONOCRAFT_BACKPACK.getKey());
 
         provider.addTag(ModItemTags.TOTEM)
             .add(findResourceKey(Items.TOTEM_OF_UNDYING));
@@ -338,7 +337,8 @@ public class ItemTagLoader {
 
         // 有多个合成途径的物品：不能被拆解
         uncraftables.add(findResourceKey(ModBlocks.HELIOSTATS.asItem()))
-            .add(findResourceKey(ModBlocks.ACTIVE_SILENCER.asItem()));
+            .add(findResourceKey(ModBlocks.ACTIVE_SILENCER.asItem()))
+            .add(findResourceKey(ModBlocks.EXP_COLLECTOR.asItem()));
 
         // 电容器类物品：不能通过拆解获得
         uncraftingIngredients.add(ModItems.CAPACITOR.getKey())

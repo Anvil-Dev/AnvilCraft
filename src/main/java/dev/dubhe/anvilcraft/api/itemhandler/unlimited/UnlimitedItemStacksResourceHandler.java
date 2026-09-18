@@ -11,11 +11,29 @@ import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.common.util.INBTSerializable;
 import net.neoforged.neoforge.items.IItemHandler;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+/**
+ * 稀疏的无限堆叠物品处理器基类。
+ *
+ * <p>存储按「一种物品一个条目」组织：条目数等于种类数，故大型仓储可能有上千个条目。
+ * 按物品种类做的事（找同种物品的条目、统计种类数、判断能否新增种类）若每次遍历全表，
+ * 会在物品搬动路径上被反复调用而退化成条目数的平方级开销，因此这里维护一份
+ * 「物品种类 → 条目下标」的索引，让这类查询回到 O(1)。</p>
+ */
 public class UnlimitedItemStacksResourceHandler implements IItemHandler, INBTSerializable<CompoundTag> {
     public static final String STACKS_KEY = "stacks";
     protected final NonNullList<UnlimitedItemStack> stacks;
+    /** 物品种类（物品 + 数据组件）→ 存放该种类的条目下标；索引无效时为空 */
+    private final Map<ResourceKey, Integer> typeIndex = new HashMap<>();
+    /** 物品种类 → 该种类的现有总量（同一物品可能占多个条目） */
+    private final Map<ResourceKey, Long> typeCounts = new HashMap<>();
+    /** 索引是否与 {@link #stacks} 一致；条目内容变化时置否，下次查询种类时重建 */
+    private boolean indexed;
+    /** 索引中的非空条目数 */
+    private int indexedEntryCount;
 
     public UnlimitedItemStacksResourceHandler(int size) {
         this.stacks = NonNullList.create();
@@ -100,6 +118,7 @@ public class UnlimitedItemStacksResourceHandler implements IItemHandler, INBTSer
             } else {
                 existing.grow(stack.getCount());
             }
+            this.invalidateTypeIndex();
             this.onContentsChanged(slot, existing);
         }
         return ItemStack.EMPTY;
@@ -141,6 +160,7 @@ public class UnlimitedItemStacksResourceHandler implements IItemHandler, INBTSer
             } else {
                 existing.setCount(existing.getCount() - toExtract);
             }
+            this.invalidateTypeIndex();
             this.onContentsChanged(slot, existing);
         }
         return result;
@@ -161,6 +181,7 @@ public class UnlimitedItemStacksResourceHandler implements IItemHandler, INBTSer
             } else {
                 existing.setCount(existing.getCount() - toExtract);
             }
+            this.invalidateTypeIndex();
             this.onContentsChanged(index, existing);
         }
         return result;
@@ -177,13 +198,73 @@ public class UnlimitedItemStacksResourceHandler implements IItemHandler, INBTSer
     }
 
     public int getTypeCount() {
-        int count = 0;
-        for (UnlimitedItemStack stack : this.stacks) {
-            if (!stack.isEmpty()) {
-                count++;
-            }
+        this.ensureTypeIndex();
+        return this.indexedEntryCount;
+    }
+
+    /**
+     * 查找存放指定物品种类的条目下标，没有则返回 {@code -1}。
+     *
+     * <p>供按种类取放物品的调用方使用（如仓储端口按标记物品找核心里的条目）；
+     * 直接遍历全表在上千种类的仓储里代价极高。</p>
+     */
+    public int findSlot(ItemStack stack) {
+        if (stack.isEmpty()) {
+            return -1;
         }
-        return count;
+        this.ensureTypeIndex();
+        Integer slot = this.typeIndex.get(ResourceKey.of(stack));
+        // 键可能与桶里已有的条目（哈希碰撞、或条目已被换成别的种类）不符，届时以条目为准
+        return slot != null && this.stacks.get(slot).isSameItemSameComponents(stack) ? slot : -1;
+    }
+
+    /** 按种类数统计当前种类数；用于同一物品可能占多个条目的子类。 */
+    protected int countDistinctTypes() {
+        this.ensureTypeIndex();
+        return this.typeIndex.size();
+    }
+
+    /**
+     * 存储中该物品种类的现有总量；不存在时为 0。
+     *
+     * <p>按种类算容量上限时要扣掉已有量，而这不值得为此再遍历一遍全表。</p>
+     */
+    protected long countOfType(ItemStack stack) {
+        if (stack.isEmpty()) {
+            return 0;
+        }
+        this.ensureTypeIndex();
+        Long count = this.typeCounts.get(ResourceKey.of(stack));
+        return count == null ? 0 : count;
+    }
+
+    /** 重建种类索引，使其与当前条目内容一致。 */
+    private void ensureTypeIndex() {
+        if (this.indexed) {
+            return;
+        }
+        this.typeIndex.clear();
+        this.typeCounts.clear();
+        int entries = 0;
+        for (int slot = 0; slot < this.stacks.size(); slot++) {
+            UnlimitedItemStack stack = this.stacks.get(slot);
+            if (stack.isEmpty()) {
+                continue;
+            }
+            entries++;
+            ItemStack item = stack.toStack();
+            ResourceKey key = ResourceKey.of(item);
+            this.typeIndex.putIfAbsent(key, slot);
+            this.typeCounts.merge(key, (long) stack.getCount(), Long::sum);
+        }
+        this.indexedEntryCount = entries;
+        this.indexed = true;
+    }
+
+    /** 标记种类索引失效；条目内容被改动后必须调用。 */
+    protected void invalidateTypeIndex() {
+        this.indexed = false;
+        this.indexedEntryCount = 0;
     }
 
     /**
@@ -220,6 +301,7 @@ public class UnlimitedItemStacksResourceHandler implements IItemHandler, INBTSer
         for (int index = 0; index < this.stacks.size(); index++) {
             this.stacks.set(index, index < stacks.size() ? stacks.get(index) : UnlimitedItemStack.EMPTY);
         }
+        this.invalidateTypeIndex();
         this.onContentsChanged(-1, UnlimitedItemStack.EMPTY);
     }
 
@@ -261,6 +343,7 @@ public class UnlimitedItemStacksResourceHandler implements IItemHandler, INBTSer
         }
         this.stacks.clear();
         this.stacks.addAll(loaded);
+        this.invalidateTypeIndex();
         this.onContentsChanged(-1, UnlimitedItemStack.EMPTY);
     }
 

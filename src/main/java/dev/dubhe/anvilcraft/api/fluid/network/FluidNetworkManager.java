@@ -13,6 +13,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import javax.annotation.Nullable;
 
 /**
  * 流体管道网络的全局管理器（每服务器一个）。
@@ -93,6 +94,74 @@ public final class FluidNetworkManager {
             d.containers.remove(pos);
             d.dirty = true;
         }
+    }
+
+    /**
+     * 查询本容器端点与同网最高其他端点之间的<b>等效高度差</b>。
+     *
+     * <p>仓储流体端口用它在停止抽入时把自身高度对齐到最高的供给方，从而真正止住进液：
+     * 网络只在目标等效高度<b>严格低于</b>源时才转移（见 {@link FluidPipeNetwork} 的目标筛选中
+     * 对等效高度的严格比较），高度相等即互不流动。</p>
+     *
+     * <p>取最高而非其它端点，是因为要止住的是「从上方进液」；对齐更高的容器同样能挡住
+     * 所有更低的容器。</p>
+     *
+     * <p>返回<b>差值</b>而不是绝对高度：端点的 {@code effectiveHeight} 含累积扬程 phi，
+     * 而 phi 以扫描种子为零点，种子从 {@code HashSet} 里任意选出——同一套结构换一次重扫，
+     * phi 就可能整体平移一个泵扬程。调用方若拿到绝对高度再减去自身 Y，会漏算自己的
+     * phi，误差恰为 {@code phi_self}，对齐后仍可能低 10 格而继续进液；相减则 phi 自行抵消，
+     * 结果与种子、与多入口都无关。</p>
+     *
+     * @param level        世界
+     * @param containerPos 本容器位置
+     * @return 最高同网端点的等效高度减去本容器端点的等效高度；未接入管网、本容器不在网内
+     *     或网内没有其他端点时为 {@code null}
+     */
+    public @Nullable Integer heightDeltaToHighestPeer(Level level, BlockPos containerPos) {
+        if (level.isClientSide()) {
+            return null;
+        }
+        LevelData d = byLevel.get(level);
+        if (d == null) {
+            return null;
+        }
+        FluidPipeNetwork network = networkAt(level, containerPos, d);
+        if (network == null) {
+            return null;
+        }
+        Integer self = null;
+        Integer highestPeer = null;
+        for (FluidEndpoint endpoint : network.getEndpoints()) {
+            int height = endpoint.effectiveHeight();
+            if (endpoint.containerPos().equals(containerPos)) {
+                self = height;
+                continue;
+            }
+            if (highestPeer == null || height > highestPeer) {
+                highestPeer = height;
+            }
+        }
+        if (self == null || highestPeer == null) {
+            return null;
+        }
+        return highestPeer - self;
+    }
+
+    /**
+     * 取与某容器相邻的那张网络。
+     *
+     * <p>容器自身不在 {@code partIndex} 里（该索引只收管道部件），故从其六个相邻方向取
+     * 第一个已建立索引的管道所属网络。</p>
+     */
+    private static @Nullable FluidPipeNetwork networkAt(Level level, BlockPos containerPos, LevelData d) {
+        for (Direction direction : Direction.values()) {
+            BlockPos neighbor = containerPos.relative(direction);
+            FluidPipeNetwork network = d.partIndex.get(neighbor);
+            if (network != null) {
+                return network;
+            }
+        }
+        return null;
     }
 
     /**

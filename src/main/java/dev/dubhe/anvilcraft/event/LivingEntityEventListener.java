@@ -56,8 +56,8 @@ public class LivingEntityEventListener {
         if (!(event.getNewAboutToBeSetTarget() instanceof Player player)) return;
         AmuletManager manager = AmuletManager.get(player.registryAccess());
         if (
-            entity.getType().is(EntityTypeTags.SKELETONS) && manager.hasAmuletInInventory(player, ModAmulets.DOG)
-            || (entity instanceof Creeper || entity instanceof Phantom) && manager.hasAmuletInInventory(player, ModAmulets.CAT)
+            entity.getType().is(EntityTypeTags.SKELETONS) && manager.hasAmuletInInventory(player, ModAmulets.DOG.getKey())
+            || (entity instanceof Creeper || entity instanceof Phantom) && manager.hasAmuletInInventory(player, ModAmulets.CAT.getKey())
         ) {
             event.setCanceled(true);
         }
@@ -71,8 +71,8 @@ public class LivingEntityEventListener {
         if (!(entity.getTarget() instanceof Player player)) return;
         AmuletManager manager = AmuletManager.get(player.registryAccess());
         if (
-            entity.getType().is(EntityTypeTags.SKELETONS) && manager.hasAmuletInInventory(player, ModAmulets.DOG)
-            || (entity instanceof Creeper || entity instanceof Phantom) && manager.hasAmuletInInventory(player, ModAmulets.CAT)
+            entity.getType().is(EntityTypeTags.SKELETONS) && manager.hasAmuletInInventory(player, ModAmulets.DOG.getKey())
+            || (entity instanceof Creeper || entity instanceof Phantom) && manager.hasAmuletInInventory(player, ModAmulets.CAT.getKey())
         ) {
             entity.setTarget(null);
         }

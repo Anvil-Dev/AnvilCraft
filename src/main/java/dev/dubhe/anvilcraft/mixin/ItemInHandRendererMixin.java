@@ -94,6 +94,8 @@ abstract class ItemInHandRendererMixin {
     )
     private boolean isEmpty(ItemStack instance, Operation<Boolean> original) {
         if (this.offHandItem.is(ModItems.CRAB_CLAW.get())) return false;
+        var player = Minecraft.getInstance().player;
+        if (player != null && BuildingRodItemRenderer.usesToolClaw(player)) return false;
         return original.call(instance);
     }
 

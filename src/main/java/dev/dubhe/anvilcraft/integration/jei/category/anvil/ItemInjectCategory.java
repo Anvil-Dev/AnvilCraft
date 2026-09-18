@@ -43,6 +43,7 @@ import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.IntFunction;
 
 public class ItemInjectCategory implements IRecipeCategory<RecipeHolder<ItemInjectRecipe>> {
     private static final String INPUT_BLOCK = "input_block";
@@ -183,12 +184,13 @@ public class ItemInjectCategory implements IRecipeCategory<RecipeHolder<ItemInje
         if (transcendiumTier >= 0) {
             drawTranscendiumOutputSlots(guiGraphics, transcendiumTier);
         } else if (!recipe.getResultItems().isEmpty()) {
-            IDrawable outputSlot = JeiRecipeUtil.isChance(recipe.getResultItems()) ? slotProbability : slotDefault;
+            List<ChanceItemStack> results = recipe.getResultItems();
+            IntFunction<IDrawable> outputSlot = JeiRecipeUtil.outputSlotFor(results, slotDefault, slotProbability);
             if (recipe.getResultBlocks().isEmpty()) {
-                JeiSlotUtil.drawDefaultOutputSlots(guiGraphics, outputSlot, recipe.getResultItems().size());
+                JeiSlotUtil.drawDefaultOutputSlots(guiGraphics, outputSlot, results.size());
             } else {
-                for (int i = 0; i < recipe.getResultItems().size(); i++) {
-                    outputSlot.draw(guiGraphics, 106 + i * 19, 14);
+                for (int i = 0; i < results.size(); i++) {
+                    outputSlot.apply(i).draw(guiGraphics, 106 + i * 19, 14);
                 }
             }
         }

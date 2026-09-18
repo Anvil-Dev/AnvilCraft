@@ -20,6 +20,7 @@ import dev.dubhe.anvilcraft.init.block.ModMultiblockDefinitions;
 import dev.dubhe.anvilcraft.init.enchantment.ModEnchantments;
 import dev.dubhe.anvilcraft.init.entity.ModDamageTypes;
 import dev.dubhe.anvilcraft.init.item.ModAmuletDefinitions;
+import dev.dubhe.anvilcraft.init.recipe.ModMathFunctions;
 import dev.dubhe.anvilcraft.init.registry.ModRegistryKeys;
 import dev.dubhe.anvilcraft.init.storage.ModCategories;
 import net.minecraft.advancements.Criterion;
@@ -72,6 +73,8 @@ public class AnvilCraftDatagen {
         genInit.add(LibRegistries.DEFINITIONS_KEY, ModMultiblockDefinitions::bootstrap);
         genInit.add(ModRegistryKeys.AMULET_DEF, ModAmuletDefinitions::bootstrap);
         genInit.add(ModRegistryKeys.CATEGORY, ModCategories::bootstrap);
+        // math 的函数注册表与 multiblock 的 LibRegistries 同名，这里用全限定名区分
+        genInit.add(dev.anvilcraft.lib.v2.math.init.LibRegistries.FUNCTION_KEY, ModMathFunctions::bootstrap);
 
         genInit.addDependency(ProviderType.RECIPE, ProviderType.DYNAMIC);
 

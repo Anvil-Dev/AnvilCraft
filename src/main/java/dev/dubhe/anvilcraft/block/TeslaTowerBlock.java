@@ -197,7 +197,7 @@ public class TeslaTowerBlock
             BlockEntity blockEntity = level.getBlockEntity(mainPartPos);
             if (blockEntity instanceof TeslaTowerBlockEntity teslaTowerBlockEntity && player instanceof ServerPlayer sp) {
                 ModMenuTypes.open(sp, teslaTowerBlockEntity, mainPartPos);
-                PacketDistributor.sendToPlayer(sp, TeslaFilterSyncPacket.create(teslaTowerBlockEntity.getWhiteList()));
+                PacketDistributor.sendToPlayer(sp, TeslaFilterSyncPacket.create(teslaTowerBlockEntity.getAllowList()));
                 return InteractionResult.SUCCESS;
             }
         }

@@ -3,5 +3,8 @@
   "inputs": [
     "minecraft:bow",
     "minecraft:crossbow"
-  ]
+  ],
+  "material": {
+    "type": "anvilcraft:empty"
+  }
 }

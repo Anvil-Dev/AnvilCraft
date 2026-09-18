@@ -30,10 +30,11 @@
 
 [![Asset License](https://cdn.jsdelivr.net/npm/@gugle/devins-badges-plus/assets/cozy/license/arr_vector.svg)][Asset License]
 
-[![Development Builds](https://github.com/Anvil-Dev/AnvilCraft/actions/workflows/ci.yml/badge.svg)][GitHub CI]
-[![CurseForge downloads](http://cf.way2muchnoise.eu/full_986251_downloads.svg)][CurseForge]
-[![Modrinth downloads](https://img.shields.io/modrinth/dt/anvilcraft?color=00AF5C&label=Modrinth%20downloads&logo=modrinth)][Modrinth]
-[![GitHub downloads](https://img.shields.io/github/downloads/Anvil-Dev/AnvilCraft/total?label=Github%20downloads&logo=github)][Github Releases]
+[![Modrinth downloads](https://icon.anvilcraft.dev/modrinth/downloads/AnvilCraft)][Modrinth]
+[![CurseForge downloads](https://icon.anvilcraft.dev/curseforge/downloads/AnvilCraft)][CurseForge]
+
+[![Development Builds](https://icon.anvilcraft.dev/github/workflow/Anvil-Dev/AnvilCraft/ci.yml)][GitHub CI]
+[![GitHub downloads](https://icon.anvilcraft.dev/github/downloads/Anvil-Dev/AnvilCraft)][Github Releases]
 
 [AnvilLib]: https://lib.anvilcraft.dev
 

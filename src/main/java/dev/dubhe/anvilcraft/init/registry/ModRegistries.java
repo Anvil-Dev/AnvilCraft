@@ -8,6 +8,7 @@ import dev.dubhe.anvilcraft.api.recipe.number.INumberProvider;
 import dev.dubhe.anvilcraft.api.recipe.result.modifier.IResultModifier;
 import dev.dubhe.anvilcraft.block.entity.celestial.Megastructure;
 import dev.dubhe.anvilcraft.item.property.component.amulet.IAmulet;
+import dev.dubhe.anvilcraft.recipe.frost.IFrostMaterialPredicate;
 import dev.dubhe.anvilcraft.saved.storage.IStorageType;
 import dev.dubhe.anvilcraft.saved.storage.category.ICategory;
 import net.minecraft.core.Registry;
@@ -22,6 +23,9 @@ public class ModRegistries {
     public static final Registry<IAmulet.Type<?>> AMULET_TYPE = ModRegistries.simple(
         ModRegistryKeys.AMULET_TYPE
     );
+    public static final Registry<IAmulet> AMULET = ModRegistries.simple(
+        ModRegistryKeys.AMULET
+    );
     public static final Registry<IAmuletDefinition.Type<?>> AMULET_DEF_TYPE = ModRegistries.simple(
         ModRegistryKeys.AMULET_DEF_TYPE
     );
@@ -33,6 +37,9 @@ public class ModRegistries {
     );
     public static final Registry<INumberProvider.Type<?>> NUMBER_PROVIDER_TYPE = ModRegistries.simple(
         ModRegistryKeys.NUMBER_PROVIDER_TYPE
+    );
+    public static final Registry<IFrostMaterialPredicate.Type<?>> FROST_MATERIAL_PREDICATE_TYPE = ModRegistries.simple(
+        ModRegistryKeys.FROST_MATERIAL_PREDICATE_TYPE
     );
     public static final Registry<ICategory.Type<?>> CATEGORY_TYPE = ModRegistries.simple(
         ModRegistryKeys.CATEGORY_TYPE
@@ -50,10 +57,12 @@ public class ModRegistries {
     @SubscribeEvent
     public static void registerRegistries(NewRegistryEvent event) {
         event.register(ModRegistries.AMULET_TYPE);
+        event.register(ModRegistries.AMULET);
         event.register(ModRegistries.AMULET_DEF_TYPE);
         event.register(ModRegistries.MODIFIER_TYPE);
         event.register(ModRegistries.CUSTOM_DATA_TYPE);
         event.register(ModRegistries.NUMBER_PROVIDER_TYPE);
+        event.register(ModRegistries.FROST_MATERIAL_PREDICATE_TYPE);
         event.register(ModRegistries.CATEGORY_TYPE);
         event.register(ModRegistries.TARGET_POINTER_TYPE);
         event.register(ModRegistries.MEGASTRUCTURE);

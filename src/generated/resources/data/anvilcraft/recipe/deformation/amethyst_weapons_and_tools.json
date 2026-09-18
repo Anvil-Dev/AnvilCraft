@@ -6,5 +6,9 @@
     "anvilcraft:amethyst_pickaxe",
     "anvilcraft:amethyst_shovel",
     "anvilcraft:amethyst_hoe"
-  ]
+  ],
+  "material": {
+    "type": "anvilcraft:repair_material",
+    "cost": 1
+  }
 }

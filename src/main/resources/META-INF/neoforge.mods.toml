@@ -91,6 +91,40 @@ file="META-INF/accesstransformer.cfg"
     ordering="NONE"
     side="CLIENT"
 
+[[dependencies."${mod_id}"]]
+    modId="jade"
+    type="optional"
+    versionRange="[15.10.0,)"
+    ordering="NONE"
+    side="BOTH"
+
+[[dependencies."${mod_id}"]]
+    modId="curios"
+    type="optional"
+    versionRange="[9.2.0,)"
+    ordering="NONE"
+    side="BOTH"
+
+[[dependencies."${mod_id}"]]
+    modId="anvilcraft_patchouli"
+    type="incompatible"
+    reason="We are now using Ageratum to provide guide support"
+
+[[dependencies."${mod_id}"]]
+    modId="anvilcraft_guideme"
+    type="incompatible"
+    reason="We are now using Ageratum to provide guide support"
+
+[[dependencies."${mod_id}"]]
+    modId="anvilcraft_curios"
+    type="incompatible"
+    reason="We are now integrated Curios support"
+
+[[dependencies."${mod_id}"]]
+    modId="anvilcraft_delta"
+    type="incompatible"
+    reason="We are now integrated its function"
+
 [mc-publish]
 loaders = ["neoforge"]
 

@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.util;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.entity.celestial.CelestialTravelManager;
+import dev.dubhe.anvilcraft.item.EquipmentAbilities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.tags.FluidTags;
@@ -88,7 +89,7 @@ public final class AtmosphereManager {
     }
 
     public static boolean isSuffocating(LivingEntity entity) {
-        if (!entity.isAlive() || entity.isSpectator()
+        if (EquipmentAbilities.canBreathe(entity) || !entity.isAlive() || entity.isSpectator()
             || entity instanceof Player player && player.isCreative()) {
             return false;
         }

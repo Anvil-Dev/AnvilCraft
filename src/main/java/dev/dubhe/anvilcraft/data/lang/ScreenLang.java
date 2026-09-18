@@ -108,6 +108,7 @@ public class ScreenLang {
         provider.add("tooltip.anvilcraft.storage.types.value", "  %s / %s");
         provider.add("tooltip.anvilcraft.storage.types.value.infinite", "  %s / ∞");
         provider.add("tooltip.anvilcraft.storage.missing_workbench", "Need Crafting Table and Stonecutter in the storage");
+        provider.add("screen.anvilcraft.storage.flip", "Flip Layout");
         provider.add("tooltip.anvilcraft.fluid_tank.more", "and %s more...");
         provider.add("tooltip.anvilcraft.creative_crate.item", "Item:");
         provider.add("tooltip.anvilcraft.storage_port.item", "Item:");
@@ -273,20 +274,17 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.deflection_ring.state", "Deflection Ring State");
         provider.add("screen.anvilcraft.deflection_ring.speed", "  Last Entity Speed: %d m/tick");
 
-        provider.add("screen.anvilcraft.filter.black_list", "Black List");
-        provider.add("screen.anvilcraft.filter.white_list", "White List");
+        provider.add("screen.anvilcraft.filter.deny_list", "Deny List");
+        provider.add("screen.anvilcraft.filter.allow_list", "Allow List");
         provider.add("screen.anvilcraft.filter.match_component", "Match Component");
         provider.add("screen.anvilcraft.filter.mismatch_component", "Mismatch Component");
 
         provider.add("screen.anvilcraft.filter.scroll_wheel_to_change_stack_limit", "Scroll mouse wheel to change stack limit");
 
         provider.add("screen.anvilcraft.frost_smithing.tooltip.missing_template", "Add Permutation Template or Deformation Template");
-        provider.add("screen.anvilcraft.frost_smithing.permutation.missing", "Add Royal Steel Ingot, Ember Metal Ingot, Multiphase Matter or Multiphase Matter Block");
+        provider.add("screen.anvilcraft.frost_smithing.permutation.missing_tools", "Add weapons, tools, armors or heavy items");
+        provider.add("screen.anvilcraft.frost_smithing.permutation.missing", "Add Frost Metal, Ember Metal, Transcendium, Multiphase Matter and other materials, or leave it empty");
         provider.add("screen.anvilcraft.frost_smithing.deformation.missing_tools", "Add any type of Swords, tools, armors or bow-likes");
-        provider.add("screen.anvilcraft.frost_smithing.royal_steel_ingot.missing_tools", "Add Diamond weapons or tools or Royal Steel weapons or tools");
-        provider.add("screen.anvilcraft.frost_smithing.ember_metal_ingot.missing_tools", "Add Netherite weapons or tools or Ember Metal weapons or tools");
-        provider.add("screen.anvilcraft.frost_smithing.multiphase_matter.missing_tools", "Add Frost Metal weapons or tools or Ember Metal weapons or tools");
-        provider.add("screen.anvilcraft.frost_smithing.multiphase_matter_block.missing_tools", "Add Frost workstations or Ember workstations");
 
         provider.add("screen.anvilcraft.exp_collector.tooltip", "Exp: %s/%smB");
 
@@ -311,9 +309,25 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.smart_block_placer.no_structure_record", "Record a structure with the Structure Scanner first");
 
         // Structure Material Book
+        provider.add("book.anvilcraft.material_list.title", "Material List");
         provider.add("book.anvilcraft.material_list.missing_header", "Missing:");
 
         // Structure Scanner
+        provider.add("screen.anvilcraft.structure_scanner.scan", "Click to scan structure");
+        provider.add("screen.anvilcraft.structure_scanner.scanning", "Scanning");
+        provider.add("screen.anvilcraft.structure_scanner.import_file", "Import file");
+        provider.add("screen.anvilcraft.structure_scanner.export_file", "Export file");
+        provider.add("screen.anvilcraft.structure_scanner.import", "Import structure");
+        provider.add("screen.anvilcraft.structure_scanner.export", "Export structure");
+        provider.add("screen.anvilcraft.structure_scanner.name", "Structure name");
+        provider.add("screen.anvilcraft.structure_scanner.confirm", "Record structure to disk");
+        provider.add("screen.anvilcraft.structure_scanner.auto_rotate_on", "Auto rotation: on");
+        provider.add("screen.anvilcraft.structure_scanner.auto_rotate_off", "Auto rotation: off");
+        provider.add("screen.anvilcraft.structure_scanner.marker", "Display item (JEI drag supported; right-click to clear)");
+        provider.add("screen.anvilcraft.structure_scanner.no_files", "No matching files");
+        provider.add("screen.anvilcraft.structure_scanner.file_failed", "File operation failed: %s");
+        provider.add("screen.anvilcraft.structure_scanner.imported", "Preview loaded; confirm to record the structure to a disk");
+        provider.add("screen.anvilcraft.structure_scanner.exported", "Structure exported: %s");
         provider.add("screen.anvilcraft.structure_scanner.info_title", "Structure Info");
         provider.add("screen.anvilcraft.structure_scanner.ready", "Structure scan ready");
         provider.add("screen.anvilcraft.structure_scanner.tooltip.large_structure", "This structure is large and cannot be placed by the Smart Block Placer, but can still be saved");
