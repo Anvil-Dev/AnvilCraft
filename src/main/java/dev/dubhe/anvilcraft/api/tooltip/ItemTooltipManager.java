@@ -53,18 +53,17 @@ public class ItemTooltipManager {
     private static final long STORAGE_USAGE_REFRESH_INTERVAL = 2000L;
 
     static {
-        NORMAL.put(ModItems.BUILDING_ROD.get(),
-            "Place blocks and blueprints in bulk; grants crab claw reach while carried, including in pockets");
+        NORMAL.put(ModItems.BUILDING_ROD.get(), """
+            Place blocks and blueprints in bulk
+            Grants crab claw reach while carried
+            """);
         SHIFT.put(ModItems.BUILDING_ROD.get(), """
-            Hold in either hand, with blocks, a filter, a fluid bucket or a structure disk in the other hand; building reach +15
-            Hold use and drag to fill a box (up to 4,000 blocks); the starting face determines large-block anchors
-            Filters ignore deny/allow lists: without component matching, block slots give random weights
-            With component matching, repeat the occupied rectangle of slots, keeping holes; the first point anchors the texture
-            Hold Shift to place the available part of a blueprint; Ctrl+Z undoes the last placement
-            Carry a book to receive a missing-material list when blueprint materials run short
-            Buckets fill areas and waterlog blocks; renewable fluids cost 2 B per fill
-            Import blueprint files through the Structure Scanner (16×16×16 maximum)
-            Consumes 100 FE per block; automatically recharges from carried capacitors
+            Hold in either hand alongside blocks, a filter, a fluid bucket or a structure disk
+            Hold use and drag to select a box of blocks, then release to place them
+            Carry a book for a missing-material list , hold Shift to places the available part of a blueprint
+            Ctrl+Z undoes the last placement
+            Buckets fill areas and waterlog blocks, 2 B per fill
+            Consume 100 FE per block, recharged from capacitors
             """);
         NORMAL.put(ModItems.MAGNET.get(), "Attract surrounding items when use");
         NORMAL.put(ModItems.GEODE.get(), "Find the surrounding Amethyst Geode when using it");
@@ -387,9 +386,7 @@ public class ItemTooltipManager {
         NORMAL.put(ModBlocks.HELIOSTATS.asItem(), "Heats targeted blocks during the day");
         NORMAL.put(
             ModItems.IONOCRAFT_BACKPACK.asItem(), """
-            Allows creative flight while equipped in a powered grid
-            Leaving the grid while flying grants slow falling until landing or reentry
-            Double-tap Jump to toggle slow falling during this descent"""
+            Allows creative flight while equipped in a powered grid"""
         );
         NORMAL.put(ModBlocks.BLOCK_COMPARATOR.asItem(), "Outputs signal when side blocks are the same, right-click to switch to precise state detection mode");
         NORMAL.put(ModBlocks.ITEM_DETECTOR.asItem(), "Detects specific items behind (drops/containers) to output redstone signal");
@@ -907,6 +904,10 @@ public class ItemTooltipManager {
         SHIFT.put(ModBlocks.SINGULARITY_CRYSTAL.asItem(), """
             Stores extreme celestial data from the Celestial Forging Anvil
             Right-click it with a bound Hyperdimension Terminal to convert it into an uploader""");
+        SHIFT.put(ModItems.IONOCRAFT_BACKPACK.asItem(), """
+            Leaving the grid while flying grants slow falling until landing or reentry
+            Double-tap Jump to toggle slow falling during this descent"""
+        );
 
         Map<Item, String> allTooltips = Maps.newHashMap();
         allTooltips.putAll(NORMAL);
