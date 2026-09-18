@@ -9,6 +9,7 @@ items:
 # <ref item="anvilcraft:exp_collector"/>
 <row halign="center">
 <recipe id="anvilcraft:exp_collector"/>
+<recipe id="anvilcraft:exp_collector_alt"/>
 </row>
 
 - Similar to <ref item="anvilcraft:item_collector"/>, collects experience orbs over a range

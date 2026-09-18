@@ -31,4 +31,8 @@ items:
 ## 合成窗口
 
 1. 在*存储站*中放入<ref item="minecraft:crafting_table"/>和<ref item="minecraft:stonecutter"/>后，可以选择消耗它们并解锁合成窗口
-2. 按住shift合成1组，按住空格合成8组（别忘了启用自动填充）
+2. 按住 Shift 可一次合成 1 组，按住空格可一次合成 8 组（别忘了启用自动填充）
+
+## 翻转布局
+
+右上角有“翻转布局”按钮，可将左侧栏与右侧栏对调
