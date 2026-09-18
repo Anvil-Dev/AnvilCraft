@@ -102,7 +102,7 @@ navigation:
 
 ## 固液反应
 
-下方是装水<ref item="minecraft:cauldron"/>时，执行**固液反应**操作，原料和产物都在锅中，消耗一层水
+下方为装有液体的<ref item="minecraft:cauldron"/>时，会执行**固液反应**：原料与产物均留在锅中，部分配方不消耗液体
 
 <structure id="../../structures/solid_liquid.snbt"/>
 
@@ -113,6 +113,7 @@ navigation:
 - 蜘蛛眼→发酵蜘蛛眼
 - 珊瑚→对应珊瑚块
 - 干海带→海带
+- 杜鹃花丛 / 杜鹃树叶→对应盛开形态
 
 ## 快速烹饪
 

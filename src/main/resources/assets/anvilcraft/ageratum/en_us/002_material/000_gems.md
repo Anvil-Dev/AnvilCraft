@@ -37,6 +37,10 @@ In addition to <ref item="minecraft:emerald"/>, the mod adds more gems:
 | <ref item="anvilcraft:sapphire"/> representing the water element | Standing in *water* produces <ref item="minecraft:ice"/>; standing in *air* produces <ref item="minecraft:snow"/> |
 | <ref item="anvilcraft:topaz"/> representing the lightning element | Right-click on <ref item="minecraft:lightning_rod"/> to produce *lightning* |
 
+<info>
+Their effects can also be triggered by a <ref item="minecraft:dispenser"/>
+</info>
+
 Together with <ref item="minecraft:emerald"/>, these are collectively referred to as *gems*.
 
 ## First Acquisition

@@ -30,7 +30,7 @@ Enabled when holding a *block* in the offhand
 
 ### Placement Behavior
 
-- Automatically draws items from the player's inventory; a *terminal* such as <ref item="anvilcraft:local_terminal"/> also allows items to be drawn from a *storage station*
+- Automatically draws items from the player's inventory
 - Cancels placement when materials are insufficient instead of placing only part of the selection
 - Places at most 4,000 blocks at a time
 
@@ -42,11 +42,12 @@ When placing a large block, make sure the selected area is larger than the block
 
 Enabled when holding a <ref item="anvilcraft:structure_disk"/> with a saved structure in the offhand
 
-1. Right-click while holding the rod to lock the projection; left-click to cancel
+1. Hold Ctrl to suspend the projection in the air, then right-click to lock it
 2. Adjust the projection with the controls:
   - ↑, ←, ↓, →, PgUp, and PgDn move it
   - + and - rotate it
   - \ mirrors it
+  - Left-click: cancel placement
 3. Right-click again to attempt placement
 
 - Cancels placement when materials are insufficient instead of placing only part of the blueprint; holding Shift builds only the portions for which materials are available

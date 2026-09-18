@@ -37,6 +37,10 @@ items:
 | 代表水元素的<ref item="anvilcraft:sapphire"/> | 站在*水*中使用可以产生<ref item="minecraft:ice"/>；站在*空气*使用可以产生<ref item="minecraft:snow"/> |
 | 代表电元素的<ref item="anvilcraft:topaz"/>    | 对着<ref item="minecraft:lightning_rod"/>使用可以产生*闪电*                                |
 
+<info>
+也可通过<ref item="minecraft:dispenser"/>触发效果
+</info>
+
 它们和<ref item="minecraft:emerald"/>一起，统称为*宝石*
 
 ## 首次获取

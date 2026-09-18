@@ -19,6 +19,7 @@ items:
 - The Multitool can function as any of eight tools: shears, flint and steel, brush, spyglass, hand magnet, fishing rod, carrot on a stick, and warped fungus on a stick
   1. It can accelerate mining of blocks that require these tools
   2. <color=#ff3d00>Ouch!</color>: right-clicking yourself in full-open mode deals 1 damage, with no other reaction
+- Press [Left Alt] to cycle clockwise through the tool mode radial menu, except that it does not switch to **full-open mode** this way
 
 ### Related
 

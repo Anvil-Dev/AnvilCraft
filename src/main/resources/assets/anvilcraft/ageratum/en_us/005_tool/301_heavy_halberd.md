@@ -27,6 +27,7 @@ items:
   - Spear mode: right-click to stab (no function in MC versions without spears)
   - Sword mode: right-click to block, reducing physical damage taken
   - <ref item="minecraft:mace"/> mode: right-click has no function, but attack speed is very fast
+- Press [Left Alt] to cycle clockwise through the tool mode radial menu
 
 ## Crafting
 

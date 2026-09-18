@@ -44,6 +44,10 @@ If it is a charged version, there is a 50% chance of a massive explosion, and a 
 <recipe id="anvilcraft:charger_charging/supercapacitor_empty"/>
 </row>
 
+## Salvaging
+
+<recipe id="anvilcraft:item_crush/capacitor"/>
+
 # Charging Items
 
 Pick up a *capacitor* in the inventory and right-click a chargeable item (such as <ref item="anvilcraft:tesla_gun"/>) to charge it.

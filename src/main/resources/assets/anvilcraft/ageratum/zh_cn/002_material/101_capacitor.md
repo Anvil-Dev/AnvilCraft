@@ -44,6 +44,10 @@ items:
 <recipe id="anvilcraft:charger_charging/supercapacitor_empty"/>
 </row>
 
+## 拆解
+
+<recipe id="anvilcraft:item_crush/capacitor"/>
+
 # 充能物品
 
 在背包中拿起*电容器*并右击可充能物品（例如<ref item="anvilcraft:tesla_gun"/>），即可为其充电。

@@ -64,4 +64,4 @@ items:
 - [铁砧锤](../005_tool/000_anvil_hammer.md)
 - [龙杖](../005_tool/101_dragon_rod.md)
 - [共振器](../005_tool/301_resonator.md)
-- [重戟](../005_tool/301_heavy_halberd.md)
+- [重戟](../005_tool/301_heavy_halberd.md)：<ref item="anvilcraft:transcendence_heavy_halberd"/>不受水或降雨限制，可在任意地点使用**激流**附魔
