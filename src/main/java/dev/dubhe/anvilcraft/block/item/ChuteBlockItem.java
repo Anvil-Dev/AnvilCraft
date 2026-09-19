@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.block.item;
 import dev.dubhe.anvilcraft.api.itemhandler.IItemHandlerHolder;
 import dev.dubhe.anvilcraft.block.entity.CreativeCrateBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.StoragePortBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.StoragePortConsolidatorBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -27,7 +28,8 @@ public class ChuteBlockItem extends BlockItem {
         Level level = context.getLevel();
         BlockPos pos = context.getClickedPos();
         BlockEntity blockEntity = level.getBlockEntity(pos);
-        if (blockEntity instanceof CreativeCrateBlockEntity || blockEntity instanceof StoragePortBlockEntity) {
+        if (blockEntity instanceof CreativeCrateBlockEntity || blockEntity instanceof StoragePortBlockEntity
+            || blockEntity instanceof StoragePortConsolidatorBlockEntity) {
             if (isStorageInteraction(context)) return InteractionResult.PASS;
             InteractionResult result = this.useOn(context);
             return result == InteractionResult.PASS ? InteractionResult.FAIL : result;
@@ -41,7 +43,8 @@ public class ChuteBlockItem extends BlockItem {
         if (context.isSecondaryUseActive()) return false;
         BlockEntity blockEntity = context.getLevel().getBlockEntity(context.getClickedPos());
         if (!(blockEntity instanceof CreativeCrateBlockEntity)
-            && !(blockEntity instanceof StoragePortBlockEntity && context.getHand() == InteractionHand.MAIN_HAND)) {
+            && !((blockEntity instanceof StoragePortBlockEntity || blockEntity instanceof StoragePortConsolidatorBlockEntity)
+                && context.getHand() == InteractionHand.MAIN_HAND)) {
             return false;
         }
         BlockPos pos = context.getClickedPos();

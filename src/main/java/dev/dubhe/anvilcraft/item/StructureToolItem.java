@@ -36,15 +36,6 @@ public class StructureToolItem extends Item implements IHandHeldItemTooltipProvi
         super(properties);
     }
 
-    private static final Component DEVELOPER_TOOLTIP =
-        Component.translatable("tooltip.anvilcraft.item.structure_tool.line_1").withStyle(ChatFormatting.LIGHT_PURPLE);
-    private static final Component SELECT_TOOLTIP =
-        Component.translatable("tooltip.anvilcraft.item.structure_tool.line_2").withStyle(ChatFormatting.GOLD);
-    private static final Component INPUT_TOOLTIP =
-        Component.translatable("tooltip.anvilcraft.item.structure_tool.line_3").withStyle(ChatFormatting.GOLD);
-    private static final Component SHIFT_TO_CLEAR_TOOLTIP =
-        Component.translatable("tooltip.anvilcraft.item.structure_tool.shift_to_clear");
-
     @Override
     public InteractionResult useOn(UseOnContext context) {
         ItemStack itemstack = context.getItemInHand();
@@ -124,11 +115,14 @@ public class StructureToolItem extends Item implements IHandHeldItemTooltipProvi
                 "tooltip.anvilcraft.item.structure_tool.min_pos", data.minX(), data.minY(), data.minZ()));
             tooltipComponents.add(Component.translatable(
                 "tooltip.anvilcraft.item.structure_tool.max_pos", data.maxX(), data.maxY(), data.maxZ()));
-            tooltipComponents.add(SHIFT_TO_CLEAR_TOOLTIP);
+            tooltipComponents.add(Component.translatable("tooltip.anvilcraft.item.structure_tool.shift_to_clear"));
         } else {
-            tooltipComponents.add(DEVELOPER_TOOLTIP);
-            tooltipComponents.add(SELECT_TOOLTIP);
-            tooltipComponents.add(INPUT_TOOLTIP);
+            tooltipComponents.add(Component.translatable("tooltip.anvilcraft.item.structure_tool.line_1")
+                .withStyle(ChatFormatting.LIGHT_PURPLE));
+            tooltipComponents.add(Component.translatable("tooltip.anvilcraft.item.structure_tool.line_2")
+                .withStyle(ChatFormatting.GOLD));
+            tooltipComponents.add(Component.translatable("tooltip.anvilcraft.item.structure_tool.line_3")
+                .withStyle(ChatFormatting.GOLD));
         }
     }
 

@@ -9,7 +9,6 @@ import net.minecraft.core.Holder;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.ColorResolver;
-import net.minecraft.world.level.EmptyBlockGetter;
 import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.Biomes;
@@ -35,7 +34,6 @@ final class BlueprintRenderView implements BlockAndTintGetter {
     private final BlockPos tintPos;
     private final Long2ObjectOpenHashMap<BlockState> blocks = new Long2ObjectOpenHashMap<>();
     private final Long2ObjectOpenHashMap<BlockEntity> blockEntities = new Long2ObjectOpenHashMap<>();
-    private boolean hideNonOccludingNeighbors = true;
 
     BlueprintRenderView(ClientLevel level, BlockPos tintPos) {
         this.level = level;
@@ -50,10 +48,6 @@ final class BlueprintRenderView implements BlockAndTintGetter {
         }
     }
 
-    void hideNonOccludingNeighbors(boolean hide) {
-        this.hideNonOccludingNeighbors = hide;
-    }
-
     BlockState realState(BlockPos pos) {
         BlockState state = this.blocks.get(pos.asLong());
         return state != null ? state : Blocks.AIR.defaultBlockState();
@@ -61,15 +55,7 @@ final class BlueprintRenderView implements BlockAndTintGetter {
 
     @Override
     public BlockState getBlockState(BlockPos pos) {
-        BlockState state = this.realState(pos);
-        // 流体连接高度读邻格 getBlockState().getFluidState();把熔岩/含水方块藏成空气会画出阶梯和内部水面。
-        // 红石粉 canOcclude 为真但不是实心立方体,会切掉下方顶面;邻接查询只把 isSolidRender 立方体当真。
-        if (this.hideNonOccludingNeighbors
-            && state.getFluidState().isEmpty()
-            && !state.isSolidRender(EmptyBlockGetter.INSTANCE, pos)) {
-            return Blocks.AIR.defaultBlockState();
-        }
-        return state;
+        return this.realState(pos);
     }
 
     /** 把查询原点挪到 {@code origin},供 {@code renderLiquid} 在 (0,0,0) 写 0-1 顶点。 */

@@ -13,6 +13,7 @@ import net.minecraft.world.entity.ai.goal.target.TargetGoal;
 import net.minecraft.world.entity.ai.targeting.TargetingConditions;
 import net.minecraft.world.entity.monster.AbstractSkeleton;
 import net.minecraft.world.entity.monster.Creeper;
+import net.minecraft.world.entity.monster.Spider;
 import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
@@ -46,6 +47,7 @@ public abstract class NearestAttackableTargetGoalMixin extends TargetGoal {
     private TargetingConditions addAmuletScare(TargetingConditions conditions) {
         ResourceKey<IAmulet> amulet;
         switch (this.mob.getClass()) {
+            case Class<?> clazz when Spider.class.isAssignableFrom(clazz) -> amulet = ModAmulets.ARMADILLO.getKey();
             case Class<?> clazz when clazz.isAssignableFrom(AbstractSkeleton.class) -> amulet = ModAmulets.DOG.getKey();
             case Class<?> clazz when clazz.isAssignableFrom(Creeper.class) -> amulet = ModAmulets.CAT.getKey();
             default -> {

@@ -9,6 +9,7 @@ import dev.dubhe.anvilcraft.block.AccelerationRingBlock;
 import dev.dubhe.anvilcraft.block.ActiveSilencerBlock;
 import dev.dubhe.anvilcraft.block.AdvancedComparatorBlock;
 import dev.dubhe.anvilcraft.block.AmberBlock;
+import dev.dubhe.anvilcraft.block.AncientSeaReefBlock;
 import dev.dubhe.anvilcraft.block.ArrowBlock;
 import dev.dubhe.anvilcraft.block.AutoEnchantingTableBlock;
 import dev.dubhe.anvilcraft.block.BerryCakeBlock;
@@ -1070,7 +1071,8 @@ public class ModBlocks {
             )
             .blockstate(DataGenUtil::noExtraModelOrState)
             .item(InfiniteCollectorBlockItem::new)
-            .properties(properties -> properties.fireResistant().rarity(Rarity.EPIC))
+            .properties(properties -> properties.fireResistant().rarity(Rarity.EPIC)
+                .component(ModComponents.ETERNAL, Eternal.INSTANCE))
             .tag(ModItemTags.EXPLOSION_PROOF)
             .build()
             .recipe(RegistrumBlockRecipeLoader::infiniteCollector)
@@ -2066,7 +2068,8 @@ public class ModBlocks {
         .loot(SimpleMultiPartBlock::loot)
         .tag((BlockTags.MINEABLE_WITH_PICKAXE), BlockTags.WITHER_IMMUNE, BlockTags.DRAGON_IMMUNE, ModBlockTags.COLLISION_IMMUNE)
         .item(CelestialForgingAnvilBlockItem::new)
-        .properties(properties -> properties.stacksTo(1).rarity(Rarity.EPIC))
+        .properties(properties -> properties.stacksTo(1).rarity(Rarity.EPIC)
+            .component(ModComponents.ETERNAL, Eternal.INSTANCE))
         .tag(ItemTags.HEAD_ARMOR_ENCHANTABLE, ItemTags.EQUIPPABLE_ENCHANTABLE, ItemTags.VANISHING_ENCHANTABLE)
         .model((ctx, provider) -> provider.withExistingParent(ctx.getName(), AnvilCraft.of("block/celestial_forging_anvil"))
             .transforms()
@@ -2093,7 +2096,8 @@ public class ModBlocks {
             .pushReaction(PushReaction.BLOCK)
             .emissiveRendering(ModBlocks::always))
         .item(CelestialForgingAnvilAmplifierBlockItem::new)
-        .properties(properties -> properties.stacksTo(16).rarity(Rarity.EPIC))
+        .properties(properties -> properties.stacksTo(16).rarity(Rarity.EPIC)
+            .component(ModComponents.ETERNAL, Eternal.INSTANCE))
         .build()
         .blockstate(DataGenUtil::noExtraModelOrState)
         .tag((BlockTags.MINEABLE_WITH_PICKAXE), BlockTags.WITHER_IMMUNE, BlockTags.DRAGON_IMMUNE)
@@ -2181,7 +2185,8 @@ public class ModBlocks {
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.WITHER_IMMUNE, BlockTags.DRAGON_IMMUNE, ModBlockTags.COLLISION_IMMUNE)
         .item(CelestialForgingAnvilPortalBlockItem::new)
         .model((ctx, provider) -> provider.withExistingParent(ctx.getName(), AnvilCraft.of("block/celestial_forging_anvil_gate")))
-        .properties(properties -> properties.rarity(Rarity.EPIC))
+        .properties(properties -> properties.rarity(Rarity.EPIC)
+            .component(ModComponents.ETERNAL, Eternal.INSTANCE))
         .build()
         .recipe(RegistrumBlockRecipeLoader::celestialForgingAnvilPortal)
         .register();
@@ -4788,8 +4793,8 @@ public class ModBlocks {
         .loot((tables, block) -> tables.add(block, tables.createSlabItemTable(block)))
         .register();
 
-    public static final BlockEntry<Block> ANCIENT_SEA_REEF = REGISTRUM
-        .block("ancient_sea_reef", Block::new)
+    public static final BlockEntry<AncientSeaReefBlock> ANCIENT_SEA_REEF = REGISTRUM
+        .block("ancient_sea_reef", AncientSeaReefBlock::new)
         .initialProperties(() -> Blocks.STONE)
         .properties(properties -> properties
             .noOcclusion()

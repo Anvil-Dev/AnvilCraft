@@ -396,6 +396,7 @@ public final class BlockPlacementUtil {
         BlockPos placerPos,
         Direction targetFacing,
         Direction scannerFacing,
+        boolean autoRotate,
         boolean upsideDown,
         int gridSize,
         int distance,
@@ -413,19 +414,31 @@ public final class BlockPlacementUtil {
             return this.getPosition(storageIndex, this.targetFacing, this.upsideDown);
         }
 
-        private BlockPos getPosition(int storageIndex, Direction targetFacing, boolean upsideDown) {
+        public BlockPos getPosition(int storageIndex, Direction targetFacing, boolean upsideDown) {
             int positionsPerLayer = this.gridSize * this.gridSize;
             int layer = storageIndex / positionsPerLayer;
             int position = storageIndex % positionsPerLayer;
             int row = position / this.gridSize;
             int column = position % this.gridSize;
-            Direction right = targetFacing.getClockWise();
+            Direction layoutFacing = this.getLayoutFacing(targetFacing);
+            Direction right = layoutFacing.getClockWise();
             int gridRadius = this.gridSize / 2;
             int verticalOffset = upsideDown ? layer - this.gridSize + 1 : layer;
             return this.placerPos.relative(targetFacing, this.distance)
                 .above(verticalOffset)
                 .relative(right, column - gridRadius)
-                .relative(targetFacing, gridRadius - row);
+                .relative(layoutFacing, gridRadius - row);
+        }
+
+        private Direction getLayoutFacing(Direction targetFacing) {
+            if (this.autoRotate) {
+                return targetFacing;
+            }
+            return Direction.from2DDataValue(Math.floorMod(
+                this.scannerFacing.getOpposite().get2DDataValue()
+                    + targetFacing.get2DDataValue() - this.targetFacing.get2DDataValue(),
+                4
+            ));
         }
 
         public BlockState getState(int storageIndex) {
@@ -436,7 +449,7 @@ public final class BlockPlacementUtil {
                 this.states[storageIndex],
                 this.level,
                 this.getPosition(storageIndex),
-                this.targetFacing,
+                this.getLayoutFacing(this.targetFacing),
                 this.scannerFacing,
                 this.upsideDown
             );
@@ -450,7 +463,7 @@ public final class BlockPlacementUtil {
                 this.states[storageIndex],
                 this.level,
                 this.getPosition(storageIndex, targetFacing, upsideDown),
-                targetFacing,
+                this.getLayoutFacing(targetFacing),
                 this.scannerFacing,
                 upsideDown
             );

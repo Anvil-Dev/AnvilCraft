@@ -64,7 +64,7 @@ public class ItemCompressRecipeLoader {
             .save(provider);
 
         ItemCompressRecipe.builder()
-            .requires(ModItemTags.IRON_PLATES, 2)
+            .requires(Items.COPPER_BLOCK, 2)
             .requires(
                 ItemIngredientPredicate
                     .of(ModBlocks.RESIN_BLOCK.asItem())
@@ -91,7 +91,7 @@ public class ItemCompressRecipeLoader {
 
         ExtendInWorldRecipeBuilder.extendCompatible(ModRecipeTriggers.ON_ANVIL_FALL_ON)
             .hasItemIngredient(builder -> builder
-                .of(ModItemTags.IRON_PLATES)
+                .of(Items.COPPER_BLOCK)
                 .count(2)
                 .offset(0.0, -0.375, 0.0)
                 .range(0.75, 0.75, 0.75)

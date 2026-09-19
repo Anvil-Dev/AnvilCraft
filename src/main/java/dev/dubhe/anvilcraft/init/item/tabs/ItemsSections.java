@@ -137,6 +137,7 @@ public class ItemsSections extends DisplayItemsGenerator {
                 content.accept(ModItems.ANVIL_AMULET);
                 content.accept(ModItems.COMRADE_AMULET);
                 content.accept(ModItems.FEATHER_AMULET);
+                content.accept(ModItems.ARMADILLO_AMULET);
                 content.accept(ModItems.CAT_AMULET);
                 content.accept(ModItems.DOG_AMULET);
                 content.accept(ModItems.SILENCE_AMULET);

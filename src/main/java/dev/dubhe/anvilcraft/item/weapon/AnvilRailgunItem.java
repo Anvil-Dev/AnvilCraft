@@ -238,7 +238,7 @@ public class AnvilRailgunItem extends EnergyWeaponItem {
         if (!loaded.isEmpty()) {
             tooltip.add(Component.translatable("item.minecraft.crossbow.projectile")
                 .append(CommonComponents.SPACE).append(loaded.getFirst().getDisplayName())
-                .append(Component.literal(" x" + loaded.size()).withStyle(ChatFormatting.GRAY)));
+                .append(Component.translatable("tooltip.anvilcraft.count", loaded.size()).withStyle(ChatFormatting.GRAY)));
         }
     }
 }

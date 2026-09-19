@@ -43,8 +43,7 @@ public class StructureDiskItem extends Item {
             int sizeX = structureDiskData.sizeX();
             int sizeY = structureDiskData.sizeY();
             int sizeZ = structureDiskData.sizeZ();
-            String sizeText = sizeX + " x " + sizeY + " x " + sizeZ;
-            tooltipComponents.add(Component.translatable("item.anvilcraft.structure_disk.size", sizeText));
+            tooltipComponents.add(Component.translatable("item.anvilcraft.structure_disk.size", sizeX, sizeY, sizeZ));
 
             // 检查结构是否超过5x5x5
             if (sizeX <= 5 && sizeY <= 5 && sizeZ <= 5) {

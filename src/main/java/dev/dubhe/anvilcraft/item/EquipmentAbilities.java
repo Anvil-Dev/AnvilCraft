@@ -9,6 +9,8 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageTypes;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
@@ -213,6 +215,11 @@ public final class EquipmentAbilities {
             && !player.isShiftKeyDown() && !SUBMERGING.getOrDefault(player, false) && fluid.isSource();
     }
 
+    public static boolean shouldSinkInFluid(Player player) {
+        return player.isShiftKeyDown() && !player.isSpectator() && !player.getAbilities().flying
+            && player.getItemBySlot(EquipmentSlot.FEET).is(ModItems.WEATHERPROOF_SPACESUIT_BOOTS);
+    }
+
     public static boolean isVoidProtected(Player player) {
         return !player.isSpectator() && !player.getAbilities().flying && hasFullSuit(player);
     }
@@ -243,7 +250,7 @@ public final class EquipmentAbilities {
             else if (!player.isInFluidType() && player.level().getFluidState(player.blockPosition().below()).isEmpty()) {
                 SUBMERGING.remove(player);
             }
-            if (player.isShiftKeyDown() && player.isInFluidType() && !player.getAbilities().flying) {
+            if (shouldSinkInFluid(player) && player.isInFluidType()) {
                 player.setDeltaMovement(player.getDeltaMovement().add(0, -0.08, 0));
             }
         } else {
@@ -264,6 +271,12 @@ public final class EquipmentAbilities {
     public static void afterTick(PlayerTickEvent.Post event) {
         if (!(event.getEntity() instanceof ServerPlayer player)) return;
         PocketInventory.get(player).tick(player);
+        if (player.getItemBySlot(EquipmentSlot.HEAD).is(ModItems.WEATHERPROOF_SPACESUIT_HELMET)) {
+            MobEffectInstance nightVision = player.getEffect(MobEffects.NIGHT_VISION);
+            if (nightVision == null || nightVision.endsWithin(200)) {
+                player.addEffect(new MobEffectInstance(MobEffects.NIGHT_VISION, 200, 0, false, false, true));
+            }
+        }
         AttributeInstance resistance = player.getAttribute(Attributes.KNOCKBACK_RESISTANCE);
         if (resistance == null) return;
         boolean flying = !IonocraftBackpackItem.getByPlayer(player).isEmpty() && player.getAbilities().flying;

@@ -151,6 +151,13 @@ public class BlockPointer implements ITargetPointer {
                     targetPart.state()
                 )
                 : clearWaterlogged(sourcePart.state());
+            if (applyBlueprintRules && partTargetState.hasProperty(BlockStateProperties.POWERED)) {
+                // 保留原供电状态，使放置后的邻居回调能识别蓝图搬运前后的信号变化。
+                partTargetState = partTargetState.setValue(
+                    BlockStateProperties.POWERED,
+                    sourcePart.state().getValue(BlockStateProperties.POWERED)
+                );
+            }
             // 副部件（门/植物的上半、床尾等）的存活取决于同批搬运的主部件，此处跳过存活校验
             if (!BlockPlacementUtil.isSecondaryMultiblockPart(partTargetState)
                 && !partTargetState.canSurvive(level, targetPart.pos())) {
@@ -212,6 +219,13 @@ public class BlockPointer implements ITargetPointer {
             // 与取物模式的 setBlock(UPDATE_ALL) 一致：有模拟信号输出的方块需要通知比较器更新
             if (part.targetState().hasAnalogOutputSignal()) {
                 level.updateNeighbourForOutputSignal(part.targetPos(), part.targetState().getBlock());
+            }
+        }
+        // 邻居更新不会通知搬运的方块自身；全部部件和方块实体就位后重新检查目标位置的信号。
+        for (MovingPart part : movingParts) {
+            for (Direction direction : Direction.values()) {
+                BlockPos neighborPos = part.targetPos().relative(direction);
+                level.neighborChanged(part.targetPos(), level.getBlockState(neighborPos).getBlock(), neighborPos);
             }
         }
         if (BlockPlacementUtil.getPresentMultiblockParts(level, pos, targetState).size() != targetParts.size()) {

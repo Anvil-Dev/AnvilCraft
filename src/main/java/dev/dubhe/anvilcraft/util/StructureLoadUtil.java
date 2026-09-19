@@ -26,7 +26,6 @@ import org.slf4j.LoggerFactory;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -304,8 +303,6 @@ public class StructureLoadUtil {
 
         // 客户端回退方案：使用 DistExecutor 安全地访问客户端代码
         return StructureLoadUtil.getClientStructureDirectory();
-
-        // 最后的备选方案：使用当前工作目录（确保永远不返回 null）
     }
 
     /**
@@ -324,12 +321,7 @@ public class StructureLoadUtil {
                         if (integratedServer != null) {
                             Path worldDir = integratedServer.getWorldPath(LevelResource.ROOT);
                             result.set(worldDir.toAbsolutePath().normalize().resolve("anvilcraft").resolve("structures"));
-                            return;
                         }
-
-                        // 如果是纯客户端（多人游戏），结构文件应该不存在，返回一个安全的路径
-                        Path gameDir = minecraft.gameDirectory.toPath();
-                        result.set(gameDir.resolve("anvilcraft").resolve("structures"));
                     }
                 } catch (Exception e) {
                     LOGGER.debug("Client-side structure directory fallback failed: {}", e.getMessage());
@@ -342,8 +334,7 @@ public class StructureLoadUtil {
             return clientPath;
         }
 
-        // 最后的备选方案：使用当前工作目录
-        return Paths.get(".").toAbsolutePath().normalize().resolve("anvilcraft").resolve("structures");
+        throw new IllegalStateException("Structure files require a server world");
     }
 
     /**

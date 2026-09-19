@@ -12,6 +12,7 @@ import dev.dubhe.anvilcraft.block.entity.storage.CrateBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.storage.StorageBlockEntity;
 import dev.dubhe.anvilcraft.block.item.StoragePortBlockItem;
 import dev.dubhe.anvilcraft.config.AnvilCraftServerConfig;
+import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.item.AnvilHammerItem;
 import dev.dubhe.anvilcraft.saved.storage.Storages;
 import it.unimi.dsi.fastutil.objects.Object2LongMap;
@@ -80,6 +81,7 @@ public class StoragePortBlockEntity extends BlockEntity implements IItemHandlerH
     private final ItemStackHandler buffer = new ItemStackHandler(StoragePortBlockEntity.BUFFER_SLOTS) {
         @Override
         public boolean isItemValid(int slot, ItemStack stack) {
+            if (stack.is(ModBlocks.SHULKER_CONTAINER.asItem())) return false;
             ItemStack marked = StoragePortBlockEntity.this.markedItem;
             return marked.isEmpty() || ItemStack.isSameItemSameComponents(marked, stack);
         }
@@ -284,7 +286,7 @@ public class StoragePortBlockEntity extends BlockEntity implements IItemHandlerH
     public boolean onRightClick(Player player, InteractionHand hand, List<IStoragePort> ports) {
         ItemStack stack = player.getItemInHand(hand);
         // 铁砧锤：普通右键不调整任何状态（去标记需长按右键并滑动，见客户端手势）
-        if (stack.getItem() instanceof AnvilHammerItem) {
+        if (stack.getItem() instanceof AnvilHammerItem || stack.is(ModBlocks.SHULKER_CONTAINER.asItem())) {
             return false;
         }
         boolean doubleClick = this.isDoubleClick(player);

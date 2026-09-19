@@ -207,7 +207,8 @@ public final class OverworldLikeGenerationBootstrap {
 
     private static void unlinkOverworldLikeBorder(MinecraftServer server, ServerLevel level) {
         WorldBorder overworldBorder = server.overworld().getWorldBorder();
-        for (BorderChangeListener listener : ((WorldBorderAccessor) overworldBorder).invokeGetListeners()) {
+        List<BorderChangeListener> listeners = List.copyOf(((WorldBorderAccessor) overworldBorder).invokeGetListeners());
+        for (BorderChangeListener listener : listeners) {
             if (listener instanceof DelegateBorderChangeListenerAccessor delegate
                 && delegate.getWorldBorder() == level.getWorldBorder()) {
                 overworldBorder.removeListener(listener);

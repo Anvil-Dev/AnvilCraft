@@ -438,19 +438,17 @@ public class SpectralSlingshotItem extends ProjectileWeaponItem {
                 List<Component> list = Lists.newArrayList();
                 Items.FIREWORK_ROCKET.appendHoverText(itemstack, context, list, tooltipFlag);
                 if (!list.isEmpty()) {
-                    list.replaceAll(sibling -> Component.literal("  ").append(sibling).withStyle(ChatFormatting.GRAY));
+                    list.replaceAll(sibling -> Component.translatable("tooltip.anvilcraft.indented", sibling)
+                        .withStyle(ChatFormatting.GRAY));
                     tooltipComponents.addAll(list);
                 }
             }
             tooltipComponents.add(
-                Component
-                    .literal("  ")
-                    .append(
-                        canTakeOutAmmo(stack)
-                            ? Component.translatable("item.anvilcraft.spectral_slingshot.unload_return")
-                            : Component.translatable("item.anvilcraft.spectral_slingshot.unload_vanish")
-                    )
-                    .withStyle(ChatFormatting.GRAY)
+                Component.translatable("tooltip.anvilcraft.indented",
+                    canTakeOutAmmo(stack)
+                        ? Component.translatable("item.anvilcraft.spectral_slingshot.unload_return")
+                        : Component.translatable("item.anvilcraft.spectral_slingshot.unload_vanish")
+                ).withStyle(ChatFormatting.GRAY)
             );
         }
     }

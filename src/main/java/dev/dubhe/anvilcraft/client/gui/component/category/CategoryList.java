@@ -7,6 +7,7 @@ import dev.dubhe.anvilcraft.client.gui.component.TexturedButton;
 import dev.dubhe.anvilcraft.client.gui.screen.StorageScreen;
 import dev.dubhe.anvilcraft.saved.setting.PlayerSetting;
 import dev.dubhe.anvilcraft.saved.storage.category.store.CategoryEntry;
+import dev.dubhe.anvilcraft.saved.storage.category.store.CategoryMode;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
@@ -60,18 +61,31 @@ public class CategoryList extends AbstractWidget {
         this.info = info;
         this.categoryButtons = new ArrayList<>();
         this.categoryOnPress = categoryOnPress;
-        this.settingButton = new TexturedButton(
+        this.settingButton = this.createSettingButton(x, 0, openSetting);
+        this.rebuild(info, setting);
+    }
+
+    private TexturedButton createSettingButton(int x, int y, Button.OnPress openSetting) {
+        return new TexturedButton(
             x,
-            0,
-            info.width(),
-            info.height(),
+            y,
+            this.info.width(),
+            this.info.height(),
             this.info.setting(),
             20,
-            info.width(),
-            info.height() * 2,
-            openSetting
+            this.info.width(),
+            this.info.height() * 2,
+            openSetting,
+            Component.translatable("screen.anvilcraft.storage.category.setting.tooltip"),
+            button -> this.resetFilterModes()
         );
-        this.rebuild(info, setting);
+    }
+
+    private void resetFilterModes() {
+        for (CategoryButton button : this.categoryButtons) {
+            button.setMode(button.entry().changeMode(CategoryMode.UNLIMITED));
+        }
+        this.categoryOnPress.onPress(this.settingButton);
     }
 
     protected static int calculateWidth(ButtonInfo info) {
@@ -84,15 +98,9 @@ public class CategoryList extends AbstractWidget {
 
     public void rebuild(ButtonInfo info, PlayerSetting setting) {
         this.info = info;
-        this.settingButton = new TexturedButton(
+        this.settingButton = this.createSettingButton(
             this.settingButton.getX(),
             this.settingButton.getY(),
-            this.info.width(),
-            this.info.height(),
-            this.info.setting(),
-            20,
-            this.info.width(),
-            this.info.height() * 2,
             this.settingButton.getOnPress()
         );
         this.width = CategoryList.calculateWidth(info);

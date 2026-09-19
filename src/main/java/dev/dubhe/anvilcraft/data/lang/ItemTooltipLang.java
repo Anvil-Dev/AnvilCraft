@@ -6,30 +6,11 @@ import dev.dubhe.anvilcraft.api.tooltip.ItemTooltipManager;
 public class ItemTooltipLang {
     @SuppressWarnings("checkstyle:LineLength")
     public static void init(RegistrumLangProvider provider) {
-        provider.add("tooltip.anvilcraft.equipment.breathing", """
-            Supplies oxygen underwater and in vacuum
-            Removes underwater mining penalties"""
-        );
-        provider.add("tooltip.anvilcraft.equipment.clear_vision", "Clear vision in all fluids");
-        provider.add("tooltip.anvilcraft.equipment.recharge", """
-            Uses 100 kFE per second
-            Rechargeable from grids or capacitors"""
-        );
-        provider.add("tooltip.anvilcraft.equipment.pockets", """
-            %s pocket slots
-            Use the pocket key to swap with your offhand
-            Empty pockets before removing leggings""");
-        provider.add("tooltip.anvilcraft.equipment.buffer_boots", """
-            Immune to fall damage
-            Hold sneak to charge a jump, up to 4 blocks height""");
-        provider.add("tooltip.anvilcraft.equipment.fluid_walking", "Walk on still fluid surfaces; sneak to submerge, hold sneak to descend faster");
-        provider.add("tooltip.anvilcraft.equipment.full_suit", "Full suit: immune to environmental damage except the void; prevents falling into the void");
         ItemTooltipManager.getNormalMap().forEach(
             (item, s) -> provider.add(ItemTooltipManager.getTranslationKey(item), s));
         ItemTooltipManager.getShiftMap().forEach(
             (item, s) -> provider.add(ItemTooltipManager.getTranslationKeyShift(item), s));
         provider.add("tooltip.anvilcraft.item.reinforced_concrete", "Creeper proof");
-        provider.add("tooltip.anvilcraft.item.power_converter", "Convert power into FE, consumes %d kW");
         provider.add("tooltip.anvilcraft.item.recipe.processing.chance", "%1$s%% Chance");
         provider.add("tooltip.anvilcraft.item.resin_block.resentment", "Resentment: %s%%");
 
@@ -72,18 +53,20 @@ public class ItemTooltipLang {
 
 
 
-        provider.add("tooltip.anvilcraft.resonator.desc", "Press [%s] to switch modes. Auto mode supports all tools");
-        provider.add(
-            "tooltip.anvilcraft.resonator.mining_desc",
-            "Press [%s] to change modes. Auto mode supports all tools and can “resonance‑mine” most blocks when holding right‑click"
-        );
-        provider.add("tooltip.anvilcraft.heavy_halberd.desc", "Press [%s] to switch modes");
-
         provider.add("tooltip.anvilcraft.thought", "Press [%s] for more info");
+
+        provider.add("tooltip.anvilcraft.item_count", "%s x%s");
+        provider.add("tooltip.anvilcraft.count", " x%s");
+        provider.add("tooltip.anvilcraft.indented", "  %s");
+        provider.add("tooltip.anvilcraft.fluid_tank.fluid.value", "  %s %s");
+        provider.add("tooltip.anvilcraft.comrade_amulet.player", "· %s");
+        provider.add("tooltip.anvilcraft.resin_block.mob", "- %s");
+        provider.add("tooltip.anvilcraft.thought.progress", "[%s%s]");
+        provider.add("tooltip.anvilcraft.key", "[%s]");
 
         // Structure Disk
         provider.add("item.anvilcraft.structure_disk.structure", "Structure: %s");
-        provider.add("item.anvilcraft.structure_disk.size", "Size: %s");
+        provider.add("item.anvilcraft.structure_disk.size", "Size: %s x %s x %s");
         provider.add("item.anvilcraft.structure_disk.fit_placer", "✓ Can be placed by Smart Block Placer");
         provider.add("item.anvilcraft.structure_disk.too_large_for_placer", "✗ Too large for Smart Block Placer (max 5x5x5)");
 

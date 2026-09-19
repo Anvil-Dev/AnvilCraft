@@ -17,8 +17,7 @@ import dev.dubhe.anvilcraft.init.item.ModFoodItems;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.inventory.tooltip.StorageTooltip;
-import dev.dubhe.anvilcraft.item.amulet.AmuletBoxItem;
-import dev.dubhe.anvilcraft.item.property.component.BoxContents;
+import dev.dubhe.anvilcraft.item.EquipmentArmorItem;
 import dev.dubhe.anvilcraft.item.property.component.StorageRef;
 import dev.dubhe.anvilcraft.rpc.StorageServerStub;
 import dev.dubhe.anvilcraft.util.TooltipUtil;
@@ -47,24 +46,55 @@ public class ItemTooltipManager {
 
     private static final Map<Item, String> NORMAL = Maps.newHashMap();
     private static final Map<Item, String> SHIFT = Maps.newHashMap();
+    private static final Map<Item, Object[]> NORMAL_ARGUMENTS = Maps.newHashMap();
     private static final Map<UUID, StorageServerStub.StorageUsage> STORAGE_USAGE = new ConcurrentHashMap<>();
     private static final Map<UUID, Long> STORAGE_USAGE_TIMES = new ConcurrentHashMap<>();
     private static final Set<UUID> STORAGE_USAGE_PENDING = ConcurrentHashMap.newKeySet();
     private static final long STORAGE_USAGE_REFRESH_INTERVAL = 2000L;
 
     static {
-        NORMAL.put(ModItems.BUILDING_ROD.get(), """
-            Place blocks and blueprints in bulk
-            Grants crab claw reach while carried
-            """);
-        SHIFT.put(ModItems.BUILDING_ROD.get(), """
-            Hold in either hand alongside blocks, a filter, a fluid bucket or a structure disk
-            Hold use and drag to select a box of blocks, then release to place them
-            Carry a book for a missing-material list , hold Shift to places the available part of a blueprint
-            Ctrl+Z undoes the last placement
-            Buckets fill areas and waterlog blocks, 2 B per fill
-            Consume 100 FE per block, recharged from capacitors
-            """);
+        final String breathing = "Supplies oxygen underwater and in vacuum\nRemoves underwater mining penalties";
+        final String pockets = "%s pocket slots\nUse the pocket key to swap with your offhand\nEmpty pockets before removing leggings";
+        final String boots = "Immune to fall damage\nHold sneak to charge a jump, up to 4 blocks height";
+        final String fullSuit = "\nFull suit: immune to environmental damage except the void; prevents falling into the void";
+        NORMAL.put(ModItems.BREATHING_HELMET.get(), breathing);
+        NORMAL.put(ModItems.POCKETS_LEGGINGS.get(), pockets.formatted(6));
+        NORMAL.put(ModItems.BUFFER_BOOTS.get(), boots);
+        NORMAL.put(ModItems.WEATHERPROOF_SPACESUIT_HELMET.get(), breathing + "\nClear vision in all fluids\n%s" + fullSuit);
+        NORMAL_ARGUMENTS.put(ModItems.WEATHERPROOF_SPACESUIT_HELMET.get(),
+            new Object[]{Component.translatable("effect.minecraft.night_vision")});
+        NORMAL.put(ModItems.WEATHERPROOF_SPACESUIT_CHESTPLATE.get(),
+            "Uses 100 kFE per second\nRechargeable from grids or capacitors" + fullSuit);
+        NORMAL.put(ModItems.WEATHERPROOF_SPACESUIT_LEGGINGS.get(), pockets.formatted(12) + fullSuit);
+        NORMAL.put(ModItems.WEATHERPROOF_SPACESUIT_BOOTS.get(), boots
+            + "\nWalk on still fluid surfaces; sneak to submerge, hold sneak to descend faster" + fullSuit);
+        for (Item item : List.of(ModItems.FROST_METAL_HEAVY_HALBERD.get(), ModItems.EMBER_METAL_HEAVY_HALBERD.get(),
+            ModItems.TRANSCENDENCE_HEAVY_HALBERD.get())) {
+            NORMAL.put(item, "Press [%s] to switch modes");
+            NORMAL_ARGUMENTS.put(item, new Object[]{Component.keybind("key.anvilcraft.switch_tool_mode")});
+        }
+        for (Item item : List.of(ModItems.FROST_METAL_RESONATOR.get(), ModItems.EMBER_METAL_RESONATOR.get(),
+            ModItems.TRANSCENDENCE_RESONATOR.get())) {
+            NORMAL.put(item, "Press [%s] to change modes. Auto mode supports all tools"
+                + " and can “resonance‑mine” most blocks when holding right‑click");
+            NORMAL_ARGUMENTS.put(item, new Object[]{Component.keybind("key.anvilcraft.switch_tool_mode")});
+        }
+        NORMAL.put(ModBlocks.POWER_CONVERTER_SMALL.asItem(), "Convert power into FE, consumes %d kW");
+        NORMAL_ARGUMENTS.put(ModBlocks.POWER_CONVERTER_SMALL.asItem(), new Object[]{PowerConverterSmallBlock.INPUT_TIME});
+        NORMAL.put(ModBlocks.POWER_CONVERTER_MIDDLE.asItem(), "Convert power into FE, consumes %d kW");
+        NORMAL_ARGUMENTS.put(ModBlocks.POWER_CONVERTER_MIDDLE.asItem(), new Object[]{PowerConverterMiddleBlock.INPUT_TIME});
+        NORMAL.put(ModBlocks.POWER_CONVERTER_BIG.asItem(), "Convert power into FE, consumes %d kW");
+        NORMAL_ARGUMENTS.put(ModBlocks.POWER_CONVERTER_BIG.asItem(), new Object[]{PowerConverterBigBlock.INPUT_TIME});
+        NORMAL.put(ModBlocks.POWER_CONVERTER_SUPER_BIG.asItem(), "Convert power into FE, consumes %d kW");
+        NORMAL_ARGUMENTS.put(ModBlocks.POWER_CONVERTER_SUPER_BIG.asItem(), new Object[]{PowerConverterSuperBigBlock.INPUT_TIME});
+        NORMAL.put(ModBlocks.POWER_CONVERTER_EXTREMELY_BIG.asItem(), "Convert power into FE, consumes %d kW");
+        NORMAL_ARGUMENTS.put(ModBlocks.POWER_CONVERTER_EXTREMELY_BIG.asItem(), new Object[]{PowerConverterExtremelyBigBlock.INPUT_TIME});
+        SHIFT.put(ModBlocks.LENS.asItem(), """
+            Royal (cyan): drops raw ore blocks instead of raw materials, including Core Shard Ore and Void Stone
+            Frost (light blue): drops Experience Gems instead of ores, 10% chance per mined block; Core Shard Ore and Void Stone also convert to EXP
+            Ember (yellow): drops smelted results directly; Core Shard Ore and Void Stone have no smelted form and remain unchanged""");
+        NORMAL.put(ModItems.BUILDING_ROD.get(),
+            "Place blocks in bulk and build blueprints quickly; increases reach while carried");
         NORMAL.put(ModItems.MAGNET.get(), "Attract surrounding items when use");
         NORMAL.put(ModItems.GEODE.get(), "Find the surrounding Amethyst Geode when using it");
         NORMAL.put(ModItems.ANVIL_HAMMER.get(), "It's a hammer, an anvil, a wrench, goggles, and a mace");
@@ -321,20 +351,27 @@ public class ItemTooltipManager {
         NORMAL.put(ModBlocks.PROPEL_PISTON.asItem(), "Integrated piston worm, requires Capacitor or Laser power");
         NORMAL.put(ModBlocks.PULSE_GENERATOR.asItem(), "Customizes pulse delay and duration");
         NORMAL.put(ModBlocks.ADVANCED_COMPARATOR.asItem(), "Supports Hysteresis and Window comparison modes");
-        NORMAL.put(ModItems.EMERALD_AMULET.get(), "Grants Hero of the Village");
-        NORMAL.put(ModItems.TOPAZ_AMULET.get(), "Grants immunity to lightning damage");
-        NORMAL.put(ModItems.RUBY_AMULET.get(), "Grants Fire Resistance");
-        NORMAL.put(ModItems.SAPPHIRE_AMULET.get(), "Grants Conduit Power");
-        NORMAL.put(ModItems.ANVIL_AMULET.get(), "Grants immunity to anvil damage");
-        NORMAL.put(ModItems.FEATHER_AMULET.get(), "Grants immunity to fall damage");
-        NORMAL.put(ModItems.CAT_AMULET.get(), "Scares away Creepers and Phantoms");
-        NORMAL.put(ModItems.DOG_AMULET.get(), "Scares away Skeletons");
-        NORMAL.put(ModItems.SILENCE_AMULET.get(), "Silences the wearer");
+        NORMAL.put(ModItems.EMERALD_AMULET.get(), "Villagers offer discounts; Iron Golems never become hostile to the wearer");
+        NORMAL.put(ModItems.TOPAZ_AMULET.get(), "Grants immunity to lightning damage and Haste I");
+        NORMAL.put(ModItems.RUBY_AMULET.get(), "Grants Fire Resistance and Strength I; Strength II while on fire");
+        NORMAL.put(
+            ModItems.SAPPHIRE_AMULET.get(),
+            "Grants Conduit Power; Resistance I in water or with a Breathing Helmet or Weatherproof Spacesuit Helmet"
+        );
+        NORMAL.put(
+            ModItems.ANVIL_AMULET.get(),
+            "Grants immunity to anvil damage, knockback, Levitation, and celestial gravity from the Celestial Forging Anvil"
+        );
+        NORMAL.put(ModItems.FEATHER_AMULET.get(), "Grants immunity to fall damage and Slow Falling; holding Shift removes Slow Falling");
+        NORMAL.put(ModItems.ARMADILLO_AMULET.get(), "Scares away Spiders; grants Resistance II while holding Shift");
+        NORMAL.put(ModItems.CAT_AMULET.get(), "Scares away Creepers and Phantoms; tame wild Cats with one empty-hand interaction");
+        NORMAL.put(ModItems.DOG_AMULET.get(), "Scares away Skeletons; tame wild Wolves with one empty-hand interaction");
+        NORMAL.put(ModItems.SILENCE_AMULET.get(), "Silences the wearer and grants immunity to Darkness");
         NORMAL.put(
             ModItems.ABNORMAL_AMULET.get(),
-            "Prevents damage from carrying Uranium, Plutonium, Floating Powder, Cursed Gold items"
+            "Prevents harmful effects from food and from carrying Uranium, Plutonium, Floating Powder, or Cursed Gold items"
         );
-        NORMAL.put(ModItems.NATURE_AMULET.get(), "Combines Silence, Cat, Dog, and Feather Amulet effects");
+        NORMAL.put(ModItems.NATURE_AMULET.get(), "Combines Silence, Cat, Dog, and Armadillo Amulet effects");
         NORMAL.put(ModItems.GEM_AMULET.get(), "Combines effects of all four Gem Amulets");
         NORMAL.put(ModItems.CAPACITOR.asItem(), "8 MFE stored");
         NORMAL.put(ModItems.CAPACITOR_EMPTY.asItem(), "8 MFE capacity");
@@ -987,15 +1024,9 @@ public class ItemTooltipManager {
         if (stack.has(ModComponents.FIRE_REFORGING)) {
             propertyTooltip("fire_reforging", tooltip, ChatFormatting.GOLD);
         }
-        if (SHIFT.containsKey(item) || item == ModBlocks.LENS.asItem()) {
+        if (SHIFT.containsKey(item)) {
             if (Screen.hasShiftDown()) {
-                if (item == ModBlocks.LENS.asItem()) {
-                    tooltip.add(1, Component.literal("Ember (yellow): drops smelted results directly; Core Shard Ore and Void Stone have no smelted form and remain unchanged").withColor(0xFFAA00));
-                    tooltip.add(1, Component.literal("Frost (light blue): drops Experience Gems instead of ores, 10% chance per mined block; Core Shard Ore and Void Stone also convert to EXP").withColor(0xB4F0F6));
-                    tooltip.add(1, Component.literal("Royal (cyan): drops raw ore blocks instead of raw materials, including Core Shard Ore and Void Stone").withColor(0x00FFBF));
-                } else {
-                    addShiftTooltip(tooltip, item);
-                }
+                addShiftTooltip(tooltip, item);
             } else {
                 if (NORMAL.containsKey(item)) {
                     addNormalTooltip(tooltip, item);
@@ -1005,7 +1036,8 @@ public class ItemTooltipManager {
                     1 + anvilCraftLines,
                     Component.translatable(
                         "tooltip.anvilcraft.press_key",
-                        Component.literal("[Shift]").withStyle(ChatFormatting.WHITE)
+                        Component.translatable("tooltip.anvilcraft.key", Component.translatable("key.keyboard.left.shift"))
+                            .withStyle(ChatFormatting.WHITE)
                     ).withStyle(ChatFormatting.DARK_GRAY)
                 );
             }
@@ -1017,54 +1049,12 @@ public class ItemTooltipManager {
                 UnitUtil.energyUnit(stack.getOrDefault(ModComponents.STORED_ENERGY, 0), Screen.hasShiftDown()))
                 .withStyle(ChatFormatting.GRAY));
         }
-        if (stack.is(ModBlocks.POWER_CONVERTER_SMALL.asItem())) {
-            tooltip.add(
-                1,
-                Component.translatable("tooltip.anvilcraft.item.power_converter", PowerConverterSmallBlock.INPUT_TIME)
-                    .withStyle(ChatFormatting.GRAY)
-            );
-        }
-        if (stack.is(ModBlocks.POWER_CONVERTER_MIDDLE.asItem())) {
-            tooltip.add(
-                1,
-                Component.translatable("tooltip.anvilcraft.item.power_converter", PowerConverterMiddleBlock.INPUT_TIME)
-                    .withStyle(ChatFormatting.GRAY)
-            );
-        }
-        if (stack.is(ModBlocks.POWER_CONVERTER_BIG.asItem())) {
-            tooltip.add(
-                1,
-                Component.translatable("tooltip.anvilcraft.item.power_converter", PowerConverterBigBlock.INPUT_TIME)
-                    .withStyle(ChatFormatting.GRAY)
-            );
-        }
-        if (stack.is(ModBlocks.POWER_CONVERTER_SUPER_BIG.asItem())) {
-            tooltip.add(
-                1,
-                Component.translatable("tooltip.anvilcraft.item.power_converter", PowerConverterSuperBigBlock.INPUT_TIME)
-                    .withStyle(ChatFormatting.GRAY)
-            );
-        }
-        if (stack.is(ModBlocks.POWER_CONVERTER_EXTREMELY_BIG.asItem())) {
-            tooltip.add(
-                1,
-                Component.translatable("tooltip.anvilcraft.item.power_converter", PowerConverterExtremelyBigBlock.INPUT_TIME)
-                    .withStyle(ChatFormatting.GRAY)
-            );
-        }
         if (stack.is(ModItemTags.REINFORCED_CONCRETE)) {
             tooltip.add(
                 1,
                 Component.translatable("tooltip.anvilcraft.item.reinforced_concrete")
                     .withStyle(ChatFormatting.GRAY)
             );
-        }
-        if (stack.is(ModItems.AMULET_BOX.asItem())) {
-            BoxContents contents = stack.getOrDefault(ModComponents.BOX_CONTENTS, BoxContents.EMPTY);
-            tooltip.add(Component.empty());
-            tooltip.add(Component.translatable(
-                "tooltip.anvilcraft.item.amulet_box.fullness", contents.usage(), AmuletBoxItem.CAPACITY
-            ).withStyle(ChatFormatting.GRAY));
         }
     }
 
@@ -1108,8 +1098,8 @@ public class ItemTooltipManager {
     /**
      * 添加翻译后的tooltip，自动将 \n 拆分为多行
      */
-    private static void addTranslatedTooltip(List<Component> tooltip, String key) {
-        List<Component> lines = TooltipUtil.translatedLines(key, ChatFormatting.GRAY);
+    private static void addTranslatedTooltip(List<Component> tooltip, String key, Object... args) {
+        List<Component> lines = TooltipUtil.translatedLines(key, ChatFormatting.GRAY, args);
         // 倒序插到下标 1，使多行在 tooltip 开头保持原有顺序
         for (int i = lines.size() - 1; i >= 0; i--) {
             tooltip.add(1, lines.get(i));
@@ -1117,7 +1107,12 @@ public class ItemTooltipManager {
     }
 
     private static void addNormalTooltip(List<Component> tooltip, Item item) {
-        addTranslatedTooltip(tooltip, getTranslationKey(item));
+        final int previousSize = tooltip.size();
+        addTranslatedTooltip(tooltip, getTranslationKey(item), NORMAL_ARGUMENTS.getOrDefault(item, new Object[0]));
+        if (item instanceof EquipmentArmorItem armor && armor.isWeatherproof() && tooltip.size() > previousSize) {
+            int lastLine = tooltip.size() - previousSize;
+            tooltip.set(lastLine, tooltip.get(lastLine).copy().withStyle(ChatFormatting.AQUA));
+        }
     }
 
     private static void addShiftTooltip(List<Component> tooltip, Item item) {
@@ -1129,7 +1124,14 @@ public class ItemTooltipManager {
             ).withStyle(ChatFormatting.GRAY));
             return;
         }
+        final int previousSize = tooltip.size();
         addTranslatedTooltip(tooltip, getTranslationKeyShift(item));
+        if (item == ModBlocks.LENS.asItem()) {
+            int[] colors = {0x00FFBF, 0xB4F0F6, 0xFFAA00};
+            for (int i = 0; i < Math.min(colors.length, tooltip.size() - previousSize); i++) {
+                tooltip.set(i + 1, tooltip.get(i + 1).copy().withColor(colors[i]));
+            }
+        }
     }
 
     public static String getTranslationKey(Item item) {

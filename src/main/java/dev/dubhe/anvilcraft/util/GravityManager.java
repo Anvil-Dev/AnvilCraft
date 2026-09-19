@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.util;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.api.amulet.AmuletManager;
 import dev.dubhe.anvilcraft.api.entity.IAnvilCraftEntityExtension;
 import dev.dubhe.anvilcraft.api.injection.entity.IEntityExtension;
 import dev.dubhe.anvilcraft.block.BlackHoleBlock;
@@ -11,6 +12,7 @@ import dev.dubhe.anvilcraft.entity.LevitatingBlockEntity;
 import dev.dubhe.anvilcraft.entity.StandableFallingBlockEntity;
 import dev.dubhe.anvilcraft.entity.StandableLevitatingBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
+import dev.dubhe.anvilcraft.init.item.ModAmulets;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.network.GravitySourcesSyncPacket;
 import net.minecraft.core.BlockPos;
@@ -156,6 +158,11 @@ public final class GravityManager {
             : GravityType.NORMAL;
     }
 
+    private static boolean ignoresCelestialGravity(Entity entity) {
+        return entity instanceof Player player && (player.isShiftKeyDown()
+            || AmuletManager.get(player.registryAccess()).hasAmuletInInventory(player, ModAmulets.ANVIL.getKey()));
+    }
+
     public static Vec3 getGravityVector(Entity entity) {
         return getGravityVector(entity, GravitySourceManager.getEntityG(entity));
     }
@@ -165,7 +172,7 @@ public final class GravityManager {
             entity.level(),
             entity.getBoundingBox().getCenter(),
             Math.abs(baseGravity),
-            entity instanceof Player player && player.isShiftKeyDown()
+            ignoresCelestialGravity(entity)
         );
         if (entity instanceof IAnvilCraftEntityExtension extension) {
             Vec3 additional = extension.anvilcraft$getAdditionalGravity(Math.abs(baseGravity));
@@ -683,7 +690,7 @@ public final class GravityManager {
             Vec3 movementImpulse = Vec3.ZERO;
             Vec3 velocityImpulse = Vec3.ZERO;
 
-            boolean ignoreCelestialGravity = entity instanceof Player player && player.isShiftKeyDown();
+            boolean ignoreCelestialGravity = ignoresCelestialGravity(entity);
             for (GravitySource source : index.sourcesAlong(start, end)) {
                 if (ignoreCelestialGravity && source.type().bodyRadius() > 0) continue;
                 if (start.distanceToSqr(source.center()) <= source.type().radiusSqr()

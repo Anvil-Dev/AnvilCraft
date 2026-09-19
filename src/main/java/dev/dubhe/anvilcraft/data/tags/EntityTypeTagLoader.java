@@ -23,6 +23,7 @@ public class EntityTypeTagLoader {
             .addOptionalTag(ModEntityTypeTags.EMERALD_AMULET_VALID)
             .addOptionalTag(ModEntityTypeTags.SAPPHIRE_AMULET_VALID)
             .addOptionalTag(ModEntityTypeTags.ANVIL_AMULET_VALID)
+            .addOptionalTag(ModEntityTypeTags.ARMADILLO_AMULET_VALID)
             .addOptionalTag(ModEntityTypeTags.CAT_AMULET_VALID)
             .addOptionalTag(ModEntityTypeTags.DOG_AMULET_VALID)
             .addOptionalTag(ModEntityTypeTags.SILENCE_AMULET_VALID);
@@ -38,6 +39,10 @@ public class EntityTypeTagLoader {
         provider.addTag(ModEntityTypeTags.ANVIL_AMULET_VALID)
             .add(findResourceKey(EntityType.FALLING_BLOCK))
             .add(ModEntities.FALLING_GIANT_ANVIL.getKey());
+
+        provider.addTag(ModEntityTypeTags.ARMADILLO_AMULET_VALID)
+            .add(findResourceKey(EntityType.SPIDER))
+            .add(findResourceKey(EntityType.CAVE_SPIDER));
 
         provider.addTag(ModEntityTypeTags.CAT_AMULET_VALID)
             .add(findResourceKey(EntityType.CREEPER))

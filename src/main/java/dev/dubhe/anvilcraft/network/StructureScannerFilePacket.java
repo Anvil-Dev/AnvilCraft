@@ -4,7 +4,6 @@ import dev.anvilcraft.lib.v2.network.packet.IPacket;
 import dev.anvilcraft.lib.v2.network.packet.IServerboundPacket;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.inventory.StructureScannerMenu;
-import dev.dubhe.anvilcraft.util.StructureFileTransfer;
 import dev.dubhe.anvilcraft.util.StructureScannerFiles;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
@@ -13,20 +12,21 @@ import net.minecraft.world.entity.player.Player;
 
 import java.util.UUID;
 
-public record StructureScannerFilePacket(int containerId, UUID id, String name, int total, int offset, byte[] bytes)
+public record StructureScannerFilePacket(int containerId, UUID id, Action action, String name)
     implements IServerboundPacket {
+    public enum Action {
+        LIST, IMPORT, EXPORT
+    }
+
     public static final Type<StructureScannerFilePacket> TYPE = IPacket.type(AnvilCraft.of("structure_scanner_file"));
     public static final StreamCodec<FriendlyByteBuf, StructureScannerFilePacket> STREAM_CODEC = StreamCodec.of(
         (buffer, packet) -> {
             buffer.writeVarInt(packet.containerId);
             buffer.writeUUID(packet.id);
+            buffer.writeEnum(packet.action);
             buffer.writeUtf(packet.name, 128);
-            buffer.writeVarInt(packet.total);
-            buffer.writeVarInt(packet.offset);
-            buffer.writeByteArray(packet.bytes);
         },
-        buffer -> new StructureScannerFilePacket(buffer.readVarInt(), buffer.readUUID(), buffer.readUtf(128),
-            buffer.readVarInt(), buffer.readVarInt(), buffer.readByteArray(StructureFileTransfer.CHUNK_BYTES))
+        buffer -> new StructureScannerFilePacket(buffer.readVarInt(), buffer.readUUID(), buffer.readEnum(Action.class), buffer.readUtf(128))
     );
 
     @Override

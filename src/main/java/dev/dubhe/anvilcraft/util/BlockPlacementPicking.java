@@ -33,8 +33,11 @@ public final class BlockPlacementPicking {
         Vec3 start = player.getEyePosition();
         // 使用本次点击携带的位置恢复射线，避免服务端依赖另一帧的视角包。
         Vec3 direction = context.getClickLocation().subtract(start);
+        double range = player.blockInteractionRange();
+        // Sable 等模组的命中点可能在子空间存储坐标中，不能与玩家的世界坐标混合重算射线。
+        if (!(direction.lengthSqr() <= range * range + HIT_EPSILON)) return context;
         if (direction.lengthSqr() < 1.0E-10) direction = player.getViewVector(1);
-        Vec3 end = start.add(direction.normalize().scale(player.blockInteractionRange()));
+        Vec3 end = start.add(direction.normalize().scale(range));
         BlockHitResult hit = context.getLevel().clip(new ClipContext(
             start, end, ClipContext.Block.OUTLINE, ClipContext.Fluid.NONE, player));
         // 已在原形状表面的点击保留调用方给出的面和 inside 标记，包括只调整朝向的放置操作。

@@ -6,6 +6,8 @@ import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.item.BundleLikeItem;
 import dev.dubhe.anvilcraft.item.property.component.BoxContents;
 import dev.dubhe.anvilcraft.util.ColorUtil;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
@@ -18,9 +20,11 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemUtils;
+import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.level.Level;
 
+import java.util.List;
 import java.util.Optional;
 
 public class AmuletBoxItem extends BundleLikeItem {
@@ -30,6 +34,15 @@ public class AmuletBoxItem extends BundleLikeItem {
 
     public AmuletBoxItem(Properties properties) {
         super(properties.component(ModComponents.BOX_CONTENTS, BoxContents.EMPTY));
+    }
+
+    @Override
+    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
+        super.appendHoverText(stack, context, tooltip, flag);
+        BoxContents contents = stack.getOrDefault(ModComponents.BOX_CONTENTS, BoxContents.EMPTY);
+        tooltip.add(Component.empty());
+        tooltip.add(Component.translatable("tooltip.anvilcraft.item.amulet_box.fullness", contents.usage(), CAPACITY)
+            .withStyle(ChatFormatting.GRAY));
     }
 
     @Override

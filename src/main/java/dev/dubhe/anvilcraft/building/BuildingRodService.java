@@ -336,7 +336,14 @@ public final class BuildingRodService {
         }
         BlockState state = item instanceof LargeCakeBlockItem cake
             ? cake.getPlacementState(context) : item.getBlock().getStateForPlacement(context);
-        if (state == null || !item.canPlace(context, state)) return List.of();
+        if (state == null) return List.of();
+        if (!item.canPlace(context, state)) {
+            if (use.getPlayer() instanceof ServerPlayer player && BuildingRodItem.isHeld(player)) {
+                BuildingRodObstructions.reject(player,
+                    List.of(new Cell(context.getClickedPos(), state, new CompoundTag(), List.of())));
+            }
+            return List.of();
+        }
         Group group = new Group();
         addBoxCells(group, context.getClickedPos(), state);
         for (Cell cell : group.cells) {
@@ -511,6 +518,7 @@ public final class BuildingRodService {
             message(player, "too_many");
             return false;
         }
+        if (BuildingRodObstructions.reject(player, groups.stream().flatMap(group -> group.cells.stream()).toList())) return false;
         BuildingMaterials exactMaterials = new BuildingMaterials(player);
         boolean allowMismatch = groups.stream().anyMatch(group -> exactMaterials.reserve(group, false) == null);
         BuildingMaterials materials = new BuildingMaterials(player);

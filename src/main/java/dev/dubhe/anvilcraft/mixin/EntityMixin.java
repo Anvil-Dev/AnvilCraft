@@ -42,6 +42,11 @@ import javax.annotation.Nullable;
 
 @Mixin(Entity.class)
 public abstract class EntityMixin implements IEntityExtension {
+    @ModifyVariable(method = {"onInsideBubbleColumn", "onAboveBubbleCol"}, at = @At("HEAD"), argsOnly = true)
+    private boolean anvilcraft$sinkInBubbleColumn(boolean downwards) {
+        return downwards || (Object) this instanceof Player player && EquipmentAbilities.shouldSinkInFluid(player);
+    }
+
     @Inject(method = "setAirSupply", at = @At("HEAD"), cancellable = true)
     private void anvilcraft$preventBreathingWithoutOxygen(int airSupply, CallbackInfo ci) {
         if ((Object) this instanceof LivingEntity living && EquipmentAbilities.canBreathe(living)

@@ -5,8 +5,6 @@ import dev.dubhe.anvilcraft.building.StructureSnapshot;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.inventory.component.StructureDiskOnlySlot;
-import dev.dubhe.anvilcraft.network.StructureScannerFilePacket;
-import dev.dubhe.anvilcraft.util.StructureFileTransfer;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -19,7 +17,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
-import java.io.IOException;
 import java.util.Objects;
 import javax.annotation.Nullable;
 
@@ -27,7 +24,6 @@ public class StructureScannerMenu extends AbstractContainerMenu {
 
     private final StructureScannerBlockEntity blockEntity;
     private final Level level;
-    @Nullable private StructureFileTransfer upload;
     @Nullable private ImportedStructure importedStructure;
 
     public record ImportedStructure(String name, StructureSnapshot snapshot) {
@@ -44,32 +40,12 @@ public class StructureScannerMenu extends AbstractContainerMenu {
 
     public void clearImportedStructure() {
         this.importedStructure = null;
-        this.upload = null;
     }
 
     @Override
     public void removed(Player player) {
         super.removed(player);
         this.clearImportedStructure();
-    }
-
-    @Nullable
-    public byte[] acceptUpload(StructureScannerFilePacket packet) throws IOException {
-        if (packet.offset() == 0) {
-            this.upload = new StructureFileTransfer(packet.id(), packet.name(), packet.total());
-        }
-        try {
-            if (this.upload == null) {
-                throw new IOException("No structure upload is in progress");
-            }
-            if (!this.upload.append(packet.id(), packet.name(), packet.total(), packet.offset(), packet.bytes())) return null;
-            byte[] result = this.upload.finish();
-            this.upload = null;
-            return result;
-        } catch (IOException exception) {
-            this.upload = null;
-            throw exception;
-        }
     }
 
     @SuppressWarnings("resource")

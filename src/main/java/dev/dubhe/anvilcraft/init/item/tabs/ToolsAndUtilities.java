@@ -104,6 +104,7 @@ public class ToolsAndUtilities extends DisplayItemsGenerator {
         this.plain(ModItems.ANVIL_AMULET);
         this.plain(ModItems.COMRADE_AMULET);
         this.plain(ModItems.FEATHER_AMULET);
+        this.plain(ModItems.ARMADILLO_AMULET);
         this.plain(ModItems.CAT_AMULET);
         this.plain(ModItems.DOG_AMULET);
         this.plain(ModItems.SILENCE_AMULET);

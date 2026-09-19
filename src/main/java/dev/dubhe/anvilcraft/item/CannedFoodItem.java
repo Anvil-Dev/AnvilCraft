@@ -73,7 +73,7 @@ public class CannedFoodItem extends Item implements IExtraItemDisplay {
             if (food.getCount() == 1) {
                 tooltipComponents.add(food.getHoverName());
             } else {
-                tooltipComponents.add(food.getHoverName().copy().append(" x").append(String.valueOf(food.getCount())));
+                tooltipComponents.add(Component.translatable("tooltip.anvilcraft.item_count", food.getHoverName(), food.getCount()));
             }
         }
     }

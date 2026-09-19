@@ -319,6 +319,7 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.structure_scanner.export_file", "Export file");
         provider.add("screen.anvilcraft.structure_scanner.import", "Import structure");
         provider.add("screen.anvilcraft.structure_scanner.export", "Export structure");
+        provider.add("screen.anvilcraft.structure_scanner.open_folder", "Open structure folder");
         provider.add("screen.anvilcraft.structure_scanner.name", "Structure name");
         provider.add("screen.anvilcraft.structure_scanner.confirm", "Record structure to disk");
         provider.add("screen.anvilcraft.structure_scanner.auto_rotate_on", "Auto rotation: on");
