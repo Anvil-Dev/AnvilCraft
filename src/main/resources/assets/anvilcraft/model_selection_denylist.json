@@ -29,8 +29,7 @@
     "anvilcraft:stamping_platform",
     "anvilcraft:crushing_table",
     "anvilcraft:sifting_table",
-    "anvilcraft:unpacking_table",
-    "anvilcraft:fish_tank"
+    "anvilcraft:unpacking_table"
   ],
   "disable_model_outline": [
     "anvilcraft:large_cauldron",
