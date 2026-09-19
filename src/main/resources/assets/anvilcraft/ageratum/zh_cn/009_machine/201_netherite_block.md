@@ -12,7 +12,7 @@ navigation:
 
 <structure id="../../structures/machine/ancient_debris.nbt"/>
 
-- <ref item="anvilcraft:pulse_generator"/>设为(循环模式| 15gt | 0gt)
+- <ref item="anvilcraft:pulse_generator"/>设为(循环模式| 16gt | 0gt)
 - 所有 <ref item="minecraft:smooth_stone"/> 可替换为 任意完整不透明方块
 - 配置输出<ref item="minecraft:netherite_scrap"/>的<ref item="anvilcraft:chute"/>单次仅输出一个（使用滚轮调整数量）
 
