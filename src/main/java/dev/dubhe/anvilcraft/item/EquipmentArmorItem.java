@@ -2,6 +2,8 @@ package dev.dubhe.anvilcraft.item;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.init.item.ModItems;
+import dev.dubhe.anvilcraft.util.TooltipUtil;
+import lombok.Getter;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -21,6 +23,7 @@ import net.minecraft.world.item.component.ItemAttributeModifiers;
 import java.util.List;
 
 public class EquipmentArmorItem extends ArmorItem {
+    @Getter
     private final boolean weatherproof;
     private final ResourceLocation texture;
 
@@ -31,38 +34,34 @@ public class EquipmentArmorItem extends ArmorItem {
         this.texture = AnvilCraft.of("textures/entity/equipment/" + texture + ".png");
     }
 
-    public boolean isWeatherproof() {
-        return this.weatherproof;
-    }
-
     @Override
     public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
         super.appendHoverText(stack, context, tooltip, flag);
         switch (this.type) {
             case HELMET -> {
-                tooltip.add(Component.translatable("tooltip.anvilcraft.equipment.breathing").withStyle(ChatFormatting.GRAY));
+                TooltipUtil.addTranslatedLines(tooltip, ChatFormatting.GRAY, "tooltip.anvilcraft.equipment.breathing");
                 if (this.weatherproof) {
-                    tooltip.add(Component.translatable("tooltip.anvilcraft.equipment.clear_vision").withStyle(ChatFormatting.GRAY));
+                    TooltipUtil.addTranslatedLines(tooltip, ChatFormatting.GRAY, "tooltip.anvilcraft.equipment.clear_vision");
                 }
             }
             case CHESTPLATE -> {
                 if (this.weatherproof) {
-                    tooltip.add(Component.translatable("tooltip.anvilcraft.equipment.recharge").withStyle(ChatFormatting.GRAY));
+                    TooltipUtil.addTranslatedLines(tooltip, ChatFormatting.GRAY, "tooltip.anvilcraft.equipment.recharge");
                 }
             }
-            case LEGGINGS -> tooltip.add(Component.translatable("tooltip.anvilcraft.equipment.pockets", this.weatherproof ? 12 : 6)
-                .withStyle(ChatFormatting.GRAY));
+            case LEGGINGS -> TooltipUtil.addTranslatedLines(
+                tooltip, ChatFormatting.GRAY, "tooltip.anvilcraft.equipment.pockets", this.weatherproof ? 12 : 6);
             case BOOTS -> {
-                tooltip.add(Component.translatable("tooltip.anvilcraft.equipment.buffer_boots").withStyle(ChatFormatting.GRAY));
+                TooltipUtil.addTranslatedLines(tooltip, ChatFormatting.GRAY, "tooltip.anvilcraft.equipment.buffer_boots");
                 if (this.weatherproof) {
-                    tooltip.add(Component.translatable("tooltip.anvilcraft.equipment.fluid_walking").withStyle(ChatFormatting.GRAY));
+                    TooltipUtil.addTranslatedLines(tooltip, ChatFormatting.GRAY, "tooltip.anvilcraft.equipment.fluid_walking");
                 }
             }
             default -> {
             }
         }
         if (this.weatherproof) {
-            tooltip.add(Component.translatable("tooltip.anvilcraft.equipment.full_suit").withStyle(ChatFormatting.AQUA));
+            TooltipUtil.addTranslatedLines(tooltip, ChatFormatting.AQUA, "tooltip.anvilcraft.equipment.full_suit");
         }
     }
 
