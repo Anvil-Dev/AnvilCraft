@@ -15,7 +15,7 @@ items:
 - <ref item="anvilcraft:smart_block_placer"/> takes items from the container, entity inventory, or dropped items behind it
 - Can customize block placement within a 5x5x5 area in front
 - Places one block every 1 second
-- Continuously consumes 8kW of power
+- Continuously consumes 16kW of power
 
 <info>
 In normal mode there is no filtering; <ref item="anvilcraft:smart_block_placer"/> will place all items until there are no empty spots in range or no items available
