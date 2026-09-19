@@ -33,7 +33,7 @@ Open the GUI:
 
 1. Click the **right-side** button to start scanning the structure
 2. Insert a <ref item="anvilcraft:structure_disk"/>
-3. Enter a structure name (optional)
+3. Enter a structure name (optional), and place a marker item to the right of the **Confirm** button (optional)
 4. Click **Confirm Record Structure** to save
 
 ## Auto Save

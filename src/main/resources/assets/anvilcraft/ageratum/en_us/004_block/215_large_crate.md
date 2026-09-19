@@ -65,6 +65,11 @@ Container blocks provided by AnvilCraft have similar GUIs with features such as 
 - Similar to a <ref item="anvilcraft:storage_port"/>, but handles fluid interaction
 - Has a capacity of 128 B (128,000 mB), expanding the fluid storage of a *storage station*; its contents can be viewed and used in the *storage station* GUI
 - Adjusts its own head lift to drain or draw in the stored fluid, keeping its fill level between 50% and 75%
+- When a fluid bucket is inserted, the storage system automatically converts it into the fluid plus an empty bucket, and does the reverse when extracting it
+
+<tip>
+Right-click to insert while holding a fluid bucket to keep the fluid intact
+</tip>
 
 ## <ref item="anvilcraft:storage_port_consolidator"/>
 

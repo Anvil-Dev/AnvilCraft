@@ -36,3 +36,7 @@ The <ref item="anvilcraft:crate"/> and several other storage blocks provided by 
 ## Flip Layout
 
 The 'Flip Layout' button in the top-right corner swaps the left and right columns.
+
+## Undo
+
+Press Ctrl+Z to undo the last operation.
