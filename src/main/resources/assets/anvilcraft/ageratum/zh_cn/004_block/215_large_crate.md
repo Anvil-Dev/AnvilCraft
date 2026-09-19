@@ -8,6 +8,8 @@ items:
   - anvilcraft:storage_port
   - anvilcraft:local_terminal
   - anvilcraft:shulker_terminal
+  - anvilcraft:storage_fluid_port
+  - anvilcraft:storage_port_consolidator
 ---
 
 # <ref item="anvilcraft:large_crate"/>
@@ -43,7 +45,9 @@ items:
 铁砧工艺提供的容器方块均拥有类似的GUI，拥有[合成窗口](003_crate.md#合成窗口)等功能
 </tip>
 
-# <ref item="anvilcraft:storage_port"/>
+# 自动化存取
+
+## <ref item="anvilcraft:storage_port"/>
 
 <recipe id="anvilcraft:storage_port"/>
 
@@ -53,12 +57,34 @@ items:
 - 使用物品标记，玩家可以手动左击取出物品或右击塞入物品
 - 使用<ref item="anvilcraft:anvil_hammer"/>长按右键去除物品标记
 
+## <ref item="anvilcraft:storage_fluid_port"/>
+
+<recipe id="anvilcraft:storage_fluid_port"/>
+
+- 与<ref item="anvilcraft:storage_port"/>类似，但用于流体交互
+- 拥有 128 B（128,000 mB）的容量，可为*存储站*扩展流体存储能力，并能在*存储站*的 GUI 中查看和使用
+- 会调整自身扬程以排出或吸入所储存的流体，使内部流体含量保持在 50%～75%
+- 将液体桶放入时，存储系统会自动转存为液体+空桶，取出时相反
+
+<tip>
+手持流体桶右击放入即可不分离液体
+</tip>
+
+## <ref item="anvilcraft:storage_port_consolidator"/>
+
+- 类似*抽屉管理器*，会将所有相连的<ref item="anvilcraft:storage_port"/>和<ref item="anvilcraft:storage_fluid_port"/>中的内容汇总，并将汇总结果提供给外部物流
+- *相连*判定：不能跨过集装箱或*存储站*，只能沿相邻的*仓储端口*（包括*仓储流体端口*）延伸连接
+
 # 终端
 
 <row halign="center">
 <item id="anvilcraft:local_terminal"/>
 <item id="anvilcraft:shulker_terminal"/>
 </row>
+
+## 快捷打开
+
+- 可自定义快捷键，快速打开携带的*终端*
 
 ## 悬浮窗
 
@@ -76,6 +102,10 @@ items:
 - 按住alt选择补货模式：智能（双向），仅补货，仅存入，关
 - 补货：手持的物品使用完毕时会尝试取出相同物品补充满一组
 - 存入：捡起物品（或其他非主动获得物品的方式，例如水桶放置后变桶等；不包括从容器gui中主动拿取）使得某物品超过一组时，只保留一组在身上，多余的物品自动存入*存储站*
+
+<tip>
+手持*终端*使用<ref item="anvilcraft:building_rod"/>时，可自动调用*存储站*中的物品
+</tip>
 
 ## <ref item="anvilcraft:local_terminal"/>
 

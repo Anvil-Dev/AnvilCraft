@@ -7,6 +7,8 @@ items:
   - anvilcraft:pulse_generator
   - anvilcraft:item_detector
   - anvilcraft:advanced_comparator
+  - anvilcraft:redstone_dice
+  - anvilcraft:big_red_button
   - anvilcraft:redstone_wire
 ---
 
@@ -17,6 +19,9 @@ items:
 <item id="anvilcraft:pulse_generator"/>
 <item id="anvilcraft:item_detector"/>
 <item id="anvilcraft:advanced_comparator"/>
+<item id="anvilcraft:redstone_dice"/>
+<item id="anvilcraft:big_red_button"/>
+<item id="anvilcraft:redstone_wire"/>
 </row>
 
 # <ref item="anvilcraft:block_comparator"/>
@@ -51,12 +56,13 @@ In the GUI you can set the **condition**, **delay**, and **duration** of the emi
 
 ## GUI
 
-In the GUI you can set the range and filters, and enable reverse output
+In the GUI you can set the range, filters, and reverse output:
 
 - **Reverse output** is off by default. When enabled, the final redstone signal strength is **15 minus the normal signal strength**: normal signals of 0, 7, and 15 become 15, 8, and 0. This setting can also be copied with a configuration disk
 
 - When <color=#999922>no filter is set</color>, the redstone signal strength varies **linearly** with the number of dropped items. At 64 items, it outputs full signal strength of 15
 - When <color=#999922>a filter is set</color>, if none of the filtered dropped items exist, no signal is output. Otherwise, for **each** filter slot detecting an item, the redstone signal is calculated based on the corresponding item count (full signal strength reached when count = [64 * filter count]). The final output is the **minimum** of all redstone signals
+- <color=#999922>Filter Mode</color> can be set to **All** or **Any**: All requires every filter entry to be satisfied, while Any outputs a redstone signal when any filter entry is satisfied
 
 # <ref item="anvilcraft:advanced_comparator"/>
 
@@ -75,6 +81,27 @@ Supports two modes, switchable via the <color=#999922>first button</color> from 
 
 - The <color=#999922>second button</color> from top to bottom enables inverted mode: outputs signal when it normally wouldn't, and vice versa
 - The <color=#999922>third button</color> from top to bottom enables dynamic thresholds, using the redstone signals received on both sides as thresholds (regardless of left/right, the higher one is the upper threshold)
+
+# <ref item="anvilcraft:big_red_button"/>
+
+<recipe id="anvilcraft:big_red_button"/>
+
+A large, easy-to-press button. Hold right-click to keep it pressed and output a redstone signal; release to stop
+
+<info>
+Even when holding an <ref item="anvilcraft:anvil_hammer"/>, holding right-click still presses the button
+</info>
+
+# <ref item="anvilcraft:redstone_dice"/>
+
+- Randomly outputs a redstone signal whenever it receives one
+- Hold right-click with an <ref item="anvilcraft:anvil_hammer"/> to select a mode:
+  - Uniform Mode: signal strengths from 0 to 15 have equal probability
+  - Realistic Mode: each of the three dice has an equal probability of rolling 1 to 6
+
+<info>
+The output redstone signal strength is the sum of the three dice minus 3
+</info>
 
 # <ref item="anvilcraft:redstone_wire"/>
 

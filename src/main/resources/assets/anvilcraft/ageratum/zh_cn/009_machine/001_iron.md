@@ -22,12 +22,12 @@ navigation:
 左键调整位置；右键调整角度；PgUP/PgDN调整显示高度
 </tip>
 
-- 在*按钮*所在位置安置铁傀儡，*玻璃板*会限制其移动
-- 中继器都调为3档（过高的频率会使得<ref item="minecraft:dispenser"/>发射出的多余铁锭来不及被溜槽收回）
-- <ref item="minecraft:dispenser"/>边上的<ref item="anvilcraft:magnetic_chute"/>设置过滤：铁锭
-- 投掷器边上的<ref item="anvilcraft:magnetic_chute"/>过滤：铁砧
-- 使用**实心**<ref item="minecraft:glass"/>柱子把物品挤上去
-- 做完后记得放入一个铁砧
+1. 在*按钮*所在位置安置铁傀儡，*玻璃板*会限制其移动
+2. 中继器调为3档（过高的频率会使得<ref item="minecraft:dispenser"/>发射出的多余铁锭来不及被溜槽收回）
+3. <ref item="minecraft:dispenser"/>边上的<ref item="anvilcraft:magnetic_chute"/>设置过滤：铁锭
+4. 投掷器边上的<ref item="anvilcraft:magnetic_chute"/>过滤：铁砧
+5. 使用**实心**<ref item="minecraft:glass"/>柱子把物品挤上去
+6. 做完后记得放入一个铁砧
 
 <info>
 - 所有 _钢筋混凝土_ 不必搭建，只是为了方便数格子

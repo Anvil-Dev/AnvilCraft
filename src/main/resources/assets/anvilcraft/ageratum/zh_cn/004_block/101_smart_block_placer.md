@@ -15,7 +15,7 @@ items:
 - <ref item="anvilcraft:smart_block_placer"/>从其背后的容器方块、实体库存、掉落物中取用物品
 - 可以自定义在前面5x5x5的范围内放置方块
 - 每隔 1s 放置一个方块
-- 持续消耗电能 8kW
+- 持续消耗电能 16kW
 
 <info>
 常规模式下没有过滤功能，<ref item="anvilcraft:smart_block_placer"/>会放置所有物品，直到范围内没有空位或者没有物品可以使用

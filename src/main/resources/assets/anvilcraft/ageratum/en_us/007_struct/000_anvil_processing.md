@@ -101,7 +101,7 @@ Meshing produces about half of the material back as byproduct, allowing for recy
 
 ## Solid-Liquid Reaction
 
-When placed on a water-filled <ref item="minecraft:cauldron"/>, the **Solid-Liquid Reaction** operation is performed. Both materials and results are in the cauldron, consuming one layer of water.
+When placed on a liquid-filled <ref item="minecraft:cauldron"/>, the **Solid-Liquid Reaction** operation is performed. Both materials and results remain in the cauldron, and some recipes do not consume the liquid.
 
 <structure id="../../structures/solid_liquid.snbt"/>
 
@@ -112,6 +112,7 @@ When placed on a water-filled <ref item="minecraft:cauldron"/>, the **Solid-Liqu
 - Spider Eye -> Fermented Spider Eye
 - Coral -> Corresponding Coral Block
 - Dried Kelp -> Kelp
+- Azalea / Azalea Leaves -> Corresponding flowering form
 
 ## Fast Cooking
 

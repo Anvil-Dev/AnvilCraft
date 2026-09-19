@@ -8,6 +8,8 @@ items:
   - anvilcraft:storage_port
   - anvilcraft:local_terminal
   - anvilcraft:shulker_terminal
+  - anvilcraft:storage_fluid_port
+  - anvilcraft:storage_port_consolidator
 ---
 
 # <ref item="anvilcraft:large_crate"/>
@@ -44,7 +46,9 @@ Smash 1 <ref item="anvilcraft:space_overcompressor"/> and 6 <ref item="minecraft
 Container blocks provided by AnvilCraft have similar GUIs with features such as a [crafting window](003_crate.md#crafting-window).
 </tip>
 
-# <ref item="anvilcraft:storage_port"/>
+# Automated Storage Access
+
+## <ref item="anvilcraft:storage_port"/>
 
 <recipe id="anvilcraft:storage_port"/>
 
@@ -54,12 +58,34 @@ Container blocks provided by AnvilCraft have similar GUIs with features such as 
 - With an item marked, players can left-click to withdraw it or right-click to insert it.
 - Hold right-click with an <ref item="anvilcraft:anvil_hammer"/> to remove the item mark.
 
+## <ref item="anvilcraft:storage_fluid_port"/>
+
+<recipe id="anvilcraft:storage_fluid_port"/>
+
+- Similar to a <ref item="anvilcraft:storage_port"/>, but handles fluid interaction
+- Has a capacity of 128 B (128,000 mB), expanding the fluid storage of a *storage station*; its contents can be viewed and used in the *storage station* GUI
+- Adjusts its own head lift to drain or draw in the stored fluid, keeping its fill level between 50% and 75%
+- When a fluid bucket is inserted, the storage system automatically converts it into the fluid plus an empty bucket, and does the reverse when extracting it
+
+<tip>
+Right-click to insert while holding a fluid bucket to keep the fluid intact
+</tip>
+
+## <ref item="anvilcraft:storage_port_consolidator"/>
+
+- Similar to a *Drawer Manager*, it combines the contents of all connected <ref item="anvilcraft:storage_port"/>s and <ref item="anvilcraft:storage_fluid_port"/>s and exposes the combined contents to external logistics
+- *Connection* rule: connections cannot pass through a container or *storage station*; they can only extend through adjacent *storage ports* (including *storage fluid ports*)
+
 # Terminals
 
 <row halign="center">
 <item id="anvilcraft:local_terminal"/>
 <item id="anvilcraft:shulker_terminal"/>
 </row>
+
+## Quick Open
+
+- Set a custom keybind to quickly open a carried *terminal*
 
 ## Hover Window
 
@@ -77,6 +103,10 @@ Container blocks provided by AnvilCraft have similar GUIs with features such as 
 - Hold Alt to select a restocking mode: Smart (two-way), Restock Only, Store Only, or Off.
 - Restock: when the held item is used up, attempts to withdraw the same item to replenish a full stack.
 - Store: when picking up items, or by another non-active acquisition method such as an empty bucket after placing water, causes an item to exceed one stack, keeps one stack in the inventory and automatically stores the excess in the *storage station*. This excludes items actively taken from container GUIs.
+
+<tip>
+When using the <ref item="anvilcraft:building_rod"/> while carrying a *terminal*, items can be drawn automatically from a *storage station*
+</tip>
 
 ## <ref item="anvilcraft:local_terminal"/>
 

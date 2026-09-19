@@ -12,7 +12,7 @@ The following two machines implement [Mass Production of Netherite](../008_recip
 
 <structure id="../../structures/machine/ancient_debris.nbt"/>
 
-- Set the <ref item="anvilcraft:pulse_generator"/> to (Loop Mode | 15gt | 0gt)
+- Set the <ref item="anvilcraft:pulse_generator"/> to (Loop Mode | 16gt | 0gt)
 - All <ref item="minecraft:smooth_stone"/> can be replaced with any full opaque block
 - Configure the <ref item="anvilcraft:chute"/> that outputs <ref item="minecraft:netherite_scrap"/> to output only one at a time (use scroll wheel to adjust quantity)
 

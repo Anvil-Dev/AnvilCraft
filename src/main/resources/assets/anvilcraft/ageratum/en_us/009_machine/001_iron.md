@@ -22,12 +22,12 @@ Utilize [Anvil Looting](../001_feature/000_anvil_loot.md) combined with the [Dis
 Left-click to adjust position; right-click to adjust angle; PgUp/PgDn to adjust display height
 </tip>
 
-- Place the Iron Golem at the *button*'s location; the *glass panes* will restrict its movement
-- Set all repeaters to 3 ticks (excessively high frequency will cause surplus iron ingots fired by the <ref item="minecraft:dispenser"/> to not be retrieved by the chute in time)
-- Set the <ref item="anvilcraft:magnetic_chute"/> next to the <ref item="minecraft:dispenser"/> to filter: Iron Ingot
-- Set the <ref item="anvilcraft:magnetic_chute"/> next to the dropper to filter: Anvil
-- Use solid <ref item="minecraft:glass"/> pillars to push items upward
-- Remember to place an anvil after building
+1. Place the Iron Golem at the *button*'s location; the *glass panes* will restrict its movement
+2. Set all repeaters to 3 ticks (excessively high frequency will cause surplus iron ingots fired by the <ref item="minecraft:dispenser"/> to not be retrieved by the chute in time)
+3. Set the <ref item="anvilcraft:magnetic_chute"/> next to the <ref item="minecraft:dispenser"/> to filter: Iron Ingot
+4. Set the <ref item="anvilcraft:magnetic_chute"/> next to the dropper to filter: Anvil
+5. Use solid <ref item="minecraft:glass"/> pillars to push items upward
+6. Remember to place an anvil after building
 
 <info>
 - All _reinforced concrete_ does not need to be built; it is only for counting blocks

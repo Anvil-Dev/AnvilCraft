@@ -25,6 +25,7 @@ items:
 - Hold [Left Alt] to bring up a radial menu with five options
   - Auto is selected by default, accelerating the breaking of any block
   - Selecting a specific tool type only accelerates breaking the corresponding blocks, but enables operations such as *stripping* and *tilling*
+- Press [Left Alt] to cycle clockwise through the tool mode radial menu
 - Resonant Mining: long-press right-click on any block for a short time to instantly mine it, specifically for tough blocks (excluding blocks like <ref item="minecraft:bedrock"/>), but consumes 128 durability
 
 # Crafting

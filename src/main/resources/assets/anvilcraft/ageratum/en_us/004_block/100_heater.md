@@ -9,6 +9,8 @@ items:
 
 # Heater
 
+> Hot underfoot
+
 - Heats the [heatable block](../001_feature/101_heated_block.md) above it
 - Forms a structure with <ref item="minecraft:cauldron"/> to perform **Super-Heating** operations
 
@@ -18,8 +20,9 @@ items:
 
 <recipe id="anvilcraft:block_crush/burning_heater"/>
 
-- Add fuel to increase burn time, up to 1200s
-- When burn time is >= 240 seconds, has enough temperature to work
+- Right-click with fuel in the main hand to insert 1 item, or double-click to insert 1 stack
+- When burn time is below 500s, consumes one fuel item to replenish burn time
+- When burn time reaches 240s, it has enough temperature to work
 - Each batch of **Super-Heating** operations consumes 240s of burn time
 
 ---

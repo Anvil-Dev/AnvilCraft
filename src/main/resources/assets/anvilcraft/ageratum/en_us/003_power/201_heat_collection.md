@@ -43,6 +43,10 @@ The following two methods are practical in the early-to-mid game:
 - Pros: Simple materials, no ongoing investment required
 - Cons: Large footprint, and the light path must not be blocked by any blocks
 
+<tip>
+Because the conversion process first turns light into heat and then heat into electricity, while heated blocks continue to dissipate heat slowly at night, this setup can generate power reliably throughout the day and night
+</tip>
+
 ## Oil Ion Power Generation
 
 - [Burning crude oil for heat](../007_struct/201_plasma_jets.md) requires a lot of meat, but the power output is absolutely worth it

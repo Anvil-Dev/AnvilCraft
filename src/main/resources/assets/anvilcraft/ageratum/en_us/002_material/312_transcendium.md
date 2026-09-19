@@ -64,4 +64,4 @@ Ingots and nuggets are produced as dropped items; blocks are generated at the po
 - [Anvil Hammer](../005_tool/000_anvil_hammer.md)
 - [Dragon Rod](../005_tool/101_dragon_rod.md)
 - [Resonator](../005_tool/301_resonator.md)
-- [Heavy Halberd](../005_tool/301_heavy_halberd.md)
+- [Heavy Halberd](../005_tool/301_heavy_halberd.md): Unlike other heavy halberds, the <ref item="anvilcraft:transcendence_heavy_halberd"/> is not restricted by water or rain and can use the **Riptide** enchantment anywhere
