@@ -12,6 +12,7 @@ import dev.dubhe.anvilcraft.api.StoragePortManager;
 import dev.dubhe.anvilcraft.api.itemhandler.unlimited.UnlimitedItemStacksResourceHandler;
 import dev.dubhe.anvilcraft.block.container.storage.CrateBlock;
 import dev.dubhe.anvilcraft.block.container.storage.ShulkerContainerBlock;
+import dev.dubhe.anvilcraft.client.AnvilCraftClient;
 import dev.dubhe.anvilcraft.client.gui.component.SwitchableButton;
 import dev.dubhe.anvilcraft.client.gui.component.TexturedButton;
 import dev.dubhe.anvilcraft.client.gui.component.category.CategoryList;
@@ -328,6 +329,13 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
     private final Int2LongMap craftingPopTicks = new Int2LongOpenHashMap();
     @Getter
     private boolean quickMoveDragging;
+    /**
+     * 触发本次 Shift 拖拽的鼠标键（0 左键 / 1 右键）。
+     *
+     * <p>拖拽在鼠标松开时才整批发给服务端，按键本身不会随请求传递，故这里记下来，
+     * 供服务端按「倒液还是存桶」配置判定（见 {@code StorageServerStub#shouldPourFluid}）。</p>
+     */
+    private int quickMoveButton;
     private final IntSet quickMoveSlots = new IntOpenHashSet();
     private final IntSet pendingQuickMoveSlots = new IntOpenHashSet();
     private final IntSet storageQuickMoveSlots = new IntOpenHashSet();
@@ -544,7 +552,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
             button -> StorageClientStub.deposit(
                 StorageScreen.this.sourcePos,
                 Screen.hasShiftDown(),
-                true
+                0
             ).thenAcceptAsync(
                 result -> {
                     if (result.changed()) {
@@ -553,11 +561,11 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
                 },
                 StorageScreen.this.screenExecutor
             ),
-            // 右键：把流体桶当普通物品存入，不倒进液体
+            // 第二处理器：右键
             button -> StorageClientStub.deposit(
                 StorageScreen.this.sourcePos,
                 Screen.hasShiftDown(),
-                false
+                1
             ).thenAcceptAsync(
                 result -> {
                     if (result.changed()) {
@@ -1885,12 +1893,15 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
         }
 
         if (button == 0 || button == 1) {
-            // 流体格：左键为流体行为（倒入 / 取出），右键保持原有物品行为
+            // 流体格：一个键是流体行为（倒入 / 取出），另一个键是物品行为
             // （把指针上的流体桶当作普通物品存入，否则流体桶将永远无法入库）
             Integer fluidSlot = this.getFluidSlotAt(mouseX, mouseY);
             if (fluidSlot != null && this.minecraft.gameMode != null) {
-                if (button == 1) {
-                    // 流体格内没有物品可取，右键空指针不做任何事
+                // 手持流体桶时才可能涉及「倒液还是存桶」，此时键位可由配置翻转；
+                // 空手时只有「装出一桶」这一种流体行为，键位固定不动
+                int fluidButton = this.carried.isEmpty() ? 0 : StorageScreen.bucketActionButton();
+                if (button != fluidButton) {
+                    // 物品行为键：流体格内没有物品可取，空指针不做任何事
                     if (this.carried.isEmpty()) {
                         return true;
                     }
@@ -1954,8 +1965,8 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
             }
 
             if (Screen.hasAltDown()) {
-                // 左键：桶装流体自动倾倒；右键：保持物品行为存入流体桶
-                this.moveSameToStorage(slot, button == 0);
+                // 哪一键倾倒流体桶由服务端按客户端配置判定，这里只上报实际按键
+                this.moveSameToStorage(slot, button);
                 return true;
             }
 
@@ -1967,7 +1978,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
                     // 服务端 moveSameToStorage 会把该物品的所有槽位一并移入
                     int target = this.findInventorySlotWith(this.lastQuickMoved);
                     if (target != -1) {
-                        this.moveSameToStorage(target, true);
+                        this.moveSameToStorage(target, 0);
                     }
                     return true;
                 }
@@ -1976,6 +1987,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
                     this.interactWithStorage(slot, button, StorageInput.QUICK_MOVE_TO_STORAGE);
                 } else if (this.carried.isEmpty()) {
                     this.quickMoveDragging = true;
+                    this.quickMoveButton = button;
 
                     StorageClientStub.beginUndoGroup(this.sourcePos);
                     this.queueQuickMove(slot);
@@ -2374,7 +2386,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
         this.pendingQuickMoveSlots.clear();
         if (!slots.isEmpty()) {
 
-            StorageClientStub.quickMoveToStorage(this.sourcePos, slots).whenCompleteAsync(
+            StorageClientStub.quickMoveToStorage(this.sourcePos, slots, this.quickMoveButton).whenCompleteAsync(
                 (moved, error) -> {
                     if (error != null) {
                         return;
@@ -2433,8 +2445,20 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
         this.quickMoveMovedBySlot.clear();
     }
 
-    private void moveSameToStorage(int slot, boolean pour) {
-        StorageClientStub.moveSameToStorage(this.sourcePos, slot, pour).whenCompleteAsync(
+    /**
+     * 把指针上的流体桶「倒进端口」还是「当作普通物品存入」时使用的鼠标键。
+     *
+     * <p>默认倒液在左键、存桶在右键；开启 {@code invertFluidPortBucketAction} 后互换。
+     * 该配置<b>只</b>决定这一个取舍，不改变流体格上「用空桶装出一桶」的键位，
+     * 也不改变各键的数量语义。必须与 {@code StorageServerStub#shouldPourFluid} 一致，
+     * 否则会出现「界面走了存桶分支但服务端按倒液处理」的错配。</p>
+     */
+    private static int bucketActionButton() {
+        return AnvilCraftClient.CONFIG.invertFluidPortBucketAction ? 1 : 0;
+    }
+
+    private void moveSameToStorage(int slot, int button) {
+        StorageClientStub.moveSameToStorage(this.sourcePos, slot, button).whenCompleteAsync(
             (changed, error) -> {
                 if (error != null || !changed) {
                     return;

@@ -223,6 +223,8 @@
   "anvilcraft.configuration.induction_light_block_ripening_cooldown.tooltip": "Induction light block ripening cooldown",
   "anvilcraft.configuration.induction_light_block_ripening_range": "Induction Light Block Ripening Range",
   "anvilcraft.configuration.induction_light_block_ripening_range.tooltip": "Induction light block ripening range",
+  "anvilcraft.configuration.invert_fluid_port_bucket_action": "Invert Fluid Port Bucket Action",
+  "anvilcraft.configuration.invert_fluid_port_bucket_action.tooltip": "In the storage screen, swap the fluid port bucket actions: by default left-click pours the held fluid bucket into a fluid port and right-click stores the bucket as a normal item; enable this to swap them",
   "anvilcraft.configuration.invert_override_action": "Invert Override Action",
   "anvilcraft.configuration.invert_override_action.tooltip": "Swap insert/collect to left-click and keep extract/place on right-click (Left Collect, Right Place)",
   "anvilcraft.configuration.ionocraft_backpack_exhaust_particles_enabled": "Show Ionocraft Backpack Exhaust Particles",

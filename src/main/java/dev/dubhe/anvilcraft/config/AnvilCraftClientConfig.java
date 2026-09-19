@@ -39,6 +39,10 @@ public class AnvilCraftClientConfig {
     @Comment("Swap insert/collect to left-click and keep extract/place on right-click (Left Collect, Right Place)")
     public boolean invertOverrideAction = false;
 
+    @Comment("In the storage screen, swap the fluid port bucket actions: by default left-click pours the held "
+        + "fluid bucket into a fluid port and right-click stores the bucket as a normal item; enable this to swap them")
+    public boolean invertFluidPortBucketAction = false;
+
     @SerializedName("Show Storage Stored ID")
     @Comment("Add a tooltip line that shows storage stored ID")
     public boolean showStorageStoredId = false;
