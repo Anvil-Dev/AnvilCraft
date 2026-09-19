@@ -157,6 +157,42 @@ public final class StorageServerStub {
     private final Map<ItemStack, Integer> undoGroup = new HashMap<>();
     private boolean undoingGroup;
 
+    /**
+     * 玩家是否翻转了流体端口的桶操作（倾倒 vs 存入物品）。
+     *
+     * <p>倾倒必须在服务端执行（要真正取出流体），而决定用哪一键倾倒的是客户端配置，
+     * 服务端读不到，故由客户端在配置变化时上报一份，与
+     * {@link BundleLikeServerStub#updateInverted} 同一思路。</p>
+     */
+    private static final Map<UUID, Boolean> INVERTED_BUCKET_ACTION = new HashMap<>();
+
+    /**
+     * 记录玩家是否翻转流体端口的桶操作，由客户端配置变化时上报。
+     */
+    @RemoteCallable
+    public static void updateInvertedBucketAction(UUID playerId, boolean inverted) {
+        StorageServerStub.INVERTED_BUCKET_ACTION.put(playerId, inverted);
+    }
+
+    /** 玩家退出时清理其翻转状态，避免静态表永久残留。 */
+    public static void clearInvertedBucketAction(UUID playerId) {
+        StorageServerStub.INVERTED_BUCKET_ACTION.remove(playerId);
+    }
+
+    /**
+     * 该玩家此次点击是否应执行「把指针上的流体桶倒进端口」。
+     *
+     * <p>默认（未翻转）左键倾倒、另一键按普通物品存入；翻转后改为右键倾倒。</p>
+     *
+     * @param playerId 玩家
+     * @param button   鼠标键（0 左键，1 右键）
+     * @return 需要倾倒时返回 true
+     */
+    private static boolean shouldPourFluid(UUID playerId, int button) {
+        boolean inverted = Boolean.TRUE.equals(StorageServerStub.INVERTED_BUCKET_ACTION.get(playerId));
+        return inverted ? button == 1 : button == 0;
+    }
+
     private static HolderLookup.Provider getAndClear() {
         HolderLookup.Provider registries = StorageServerStub.REGISTRIES.get();
         StorageServerStub.REGISTRIES.remove();
@@ -283,8 +319,11 @@ public final class StorageServerStub {
         FluidNotice notice = FluidNotice.NONE;
         if (action == StorageInput.QUICK_MOVE_TO_STORAGE) {
             // 同一条动作左键与右键都会用到（Shift+左键 / Shift+右键），
-            // 故按实际鼠标键决定是否倾倒：左键倒液体，右键存流体桶物品
-            changed = StorageServerStub.moveInventoryStackToStorage(player, view, slot, button == 0) > 0;
+            // 故按实际鼠标键决定是否倾倒；「翻转桶操作」只改这一个「倒液还是存桶」的选择，
+            // 不涉及流体格自身的取液键
+            changed = StorageServerStub.moveInventoryStackToStorage(
+                player, view, slot, StorageServerStub.shouldPourFluid(playerId, button)
+            ) > 0;
         } else if (action == StorageInput.CLONE) {
             if (
                 player.hasInfiniteMaterials()
@@ -300,7 +339,7 @@ public final class StorageServerStub {
         } else if (action == StorageInput.THROW) {
             changed = StorageServerStub.throwStorageStack(player, view, slot, button);
         } else if (action == StorageInput.FLUID_BUCKET) {
-            StorageServerStub.FluidOutcome outcome = StorageServerStub.takeFluidBucket(player, view, fluid, button);
+            StorageServerStub.FluidOutcome outcome = StorageServerStub.takeFluidBucket(player, view, fluid);
             changed = outcome.changed();
             notice = outcome.notice();
         } else if (action == StorageInput.QUICK_MOVE_FROM_STORAGE) {
@@ -313,11 +352,15 @@ public final class StorageServerStub {
                 changed = StorageServerStub.moveStorageStackToInventory(player, view, slot);
             }
         } else if (!carried.isEmpty()) {
+            // 流体格上的这一分支只可能是「把流体桶当物品存入」（流体行为键走 FLUID_BUCKET
+            // 分支），故流体格一律不倒液，避免翻转配置把存入又变回倒液。
+            // 其余槽位按配置决定「倒液还是存桶」
+            boolean pour = slot < StoragePortManager.FLUID_SLOT_BASE
+                           && StorageServerStub.shouldPourFluid(playerId, button);
+            // 倒液一律倒出整叠；数量语义（左键整叠 / 右键 1 个）只用于物品存入
             int amount = button == 0 ? carried.getCount() : 1;
-            // 桶装流体只在左键时自动倾倒；右键保持原有物品行为，
-            // 让流体桶能作为普通物品存入（否则桶装流体永远无法入库）
-            int poured = button == 0
-                         ? StorageServerStub.pourIntoFluidPort(player, view, carried, amount)
+            int poured = pour
+                         ? StorageServerStub.pourIntoFluidPort(player, view, carried, carried.getCount())
                          : 0;
             if (poured > 0) {
                 if (carried.isEmpty()) {
@@ -455,7 +498,8 @@ public final class StorageServerStub {
     public static boolean quickMoveToStorage(
         UUID playerId,
         long sourcePos,
-        @CallableParam(clazz = StorageServerStub.class, field = "ORDER_STREAM_CODEC") IntList slots
+        @CallableParam(clazz = StorageServerStub.class, field = "ORDER_STREAM_CODEC") IntList slots,
+        int button
     ) {
         if (slots.isEmpty() || slots.size() > StorageServerStub.MAX_SYNC_SLOTS) {
             StorageServerStub.REGISTRIES.remove();
@@ -466,6 +510,9 @@ public final class StorageServerStub {
         final StorageServerStub stub = StorageServerStub.get(playerId, view.primary().getId());
         Map<ItemStack, Integer> moved = new HashMap<>();
         boolean changed = false;
+        // 由 Shift+空指针拖拽触发（左键拖过多个背包槽），「倒液还是存桶」按实际按键判定：
+        // 翻转配置开启后，Shift+左键拖拽改为存入流体桶物品而非倾倒
+        boolean pour = StorageServerStub.shouldPourFluid(playerId, button);
         IntOpenHashSet visited = new IntOpenHashSet(slots.size());
         for (int slot : slots) {
             if (slot < 0 || !visited.add(slot)) {
@@ -476,8 +523,7 @@ public final class StorageServerStub {
                 continue;
             }
             ItemStack key = stack.copyWithCount(1);
-            // 由 Shift+左键（空指针拖拽）触发，左键为流体行为，故允许倾倒
-            int inserted = StorageServerStub.moveInventoryStackToStorage(player, view, slot, true);
+            int inserted = StorageServerStub.moveInventoryStackToStorage(player, view, slot, pour);
             if (inserted > 0) {
                 moved.merge(key, inserted, Integer::sum);
                 changed = true;
@@ -492,7 +538,7 @@ public final class StorageServerStub {
     }
 
     @RemoteCallable(validator = StorageAccessValidator.class)
-    public static boolean moveSameToStorage(UUID playerId, long sourcePos, int slot, boolean pour) {
+    public static boolean moveSameToStorage(UUID playerId, long sourcePos, int slot, int button) {
         StorageView view = StorageServerStub.getView(StorageServerStub.getAndClear(), playerId, sourcePos);
         ServerPlayer player = StorageServerStub.getServerPlayer(playerId);
         final StorageServerStub stub = StorageServerStub.get(playerId, view.primary().getId());
@@ -504,6 +550,8 @@ public final class StorageServerStub {
         if (sample.isEmpty()) {
             return false;
         }
+        // 桶装流体在倾倒键上自动倒进端口，另一键保持物品行为
+        boolean pour = StorageServerStub.shouldPourFluid(playerId, button);
         Map<ItemStack, Integer> moved = new HashMap<>();
         boolean changed = false;
         for (int index = 0; index < Inventory.INVENTORY_SIZE; index++) {
@@ -512,7 +560,7 @@ public final class StorageServerStub {
                 continue;
             }
             // 桶装流体优先自动倾倒：属于存储动作而非入库，故不记入 moved。
-            // 仅左键倾倒，右键保持物品行为，让流体桶能作为普通物品存入
+            // 只在倾倒键上倾倒，另一键保持物品行为，让流体桶能作为普通物品存入
             int poured = pour
                          ? StorageServerStub.pourIntoFluidPort(player, view, stack, stack.getCount())
                          : 0;
@@ -539,10 +587,12 @@ public final class StorageServerStub {
     }
 
     @RemoteCallable(validator = StorageAccessValidator.class)
-    public static DepositResult deposit(UUID playerId, long sourcePos, boolean all, boolean pour) {
+    public static DepositResult deposit(UUID playerId, long sourcePos, boolean all, int button) {
         StorageView view = StorageServerStub.getView(StorageServerStub.getAndClear(), playerId, sourcePos);
         ServerPlayer player = StorageServerStub.getServerPlayer(playerId);
         final StorageServerStub stub = StorageServerStub.get(playerId, view.primary().getId());
+        // 桶装流体在倾倒键上自动倒进端口，另一键保持物品行为
+        boolean pour = StorageServerStub.shouldPourFluid(playerId, button);
         Map<ItemStack, Integer> moved = new HashMap<>();
         boolean changed = false;
         for (int slot = Inventory.getSelectionSize(); slot < Inventory.INVENTORY_SIZE; slot++) {
@@ -551,7 +601,7 @@ public final class StorageServerStub {
                 continue;
             }
             // 桶装流体优先自动倾倒：这是存储动作而非物品入库，故不记入 moved。
-            // 仅左键倾倒，右键保持物品行为，让流体桶能作为普通物品存入
+            // 只在倾倒键上倾倒，另一键保持物品行为，让流体桶能作为普通物品存入
             int poured = pour
                          ? StorageServerStub.pourIntoFluidPort(player, view, stack, stack.getCount())
                          : 0;
@@ -3661,8 +3711,8 @@ public final class StorageServerStub {
         if (stack.isEmpty()) {
             return 0;
         }
-        // 桶装流体优先自动倾倒，空容器留在背包。仅左键倾倒，
-        // 右键保持物品行为，让流体桶能作为普通物品存入
+        // 桶装流体优先自动倾倒，空容器留在背包。只在倾倒键上倾倒，
+        // 另一键保持物品行为，让流体桶能作为普通物品存入
         int poured = pour
                      ? StorageServerStub.pourIntoFluidPort(player, view, stack, stack.getCount())
                      : 0;
@@ -4922,24 +4972,27 @@ public final class StorageServerStub {
     }
 
     /**
-     * 左键点击流体格：指针上拿着流体容器时倒进去，否则用空桶装出一桶该流体。
+     * 点击流体格：指针上拿着流体容器时倒进去，否则用空桶装出一桶该流体。
      *
      * <p>流体格是双向的：空桶装、满桶倒。指针被非空容器物品占用且倒不进去时不做任何改动，
      * 避免无谓消耗背包 / 存储里的空桶。右键不走这里，而走原有物品行为。</p>
      *
+     * <p>流体格的键位只随「倒液 vs 存桶」翻转：手持流体桶时视配置决定哪个键走本方法；
+     * 空手时本方法只负责装出一桶，键位固定不动。</p>
+     *
      * @param player 玩家
      * @param view   当前存储视图
      * @param fluid  被点击的流体（客户端随点击上报，按身份匹配而非下标）
-     * @param button 鼠标键（0 左键整叠，1 右键 1 个），与物品格的放入语义一致
      * @return 是否发生改动，以及失败原因（供界面提示）
      */
-    private static FluidOutcome takeFluidBucket(ServerPlayer player, StorageView view, FluidStack fluid, int button) {
+    private static FluidOutcome takeFluidBucket(ServerPlayer player, StorageView view, FluidStack fluid) {
         // 指针上拿着装有流体的容器：这一下是「倒进去」。倒不进去（如仓储没有可接收的
         // 端口）时继续往下走，由取出的分支判断指针是否可接收产物
         ItemStack carried = player.containerMenu.getCarried();
         if (!carried.isEmpty()) {
-            int amount = button == 0 ? carried.getCount() : 1;
-            if (StorageServerStub.pourIntoFluidPort(player, view, carried, amount) > 0) {
+            // 走到这里的一定是流体行为键，一律倒出整叠：该键的数量语义就是「全部」，
+            // 原本只有左键能触发，故按鼠标键取值会在翻转后把整叠误减为 1 个
+            if (StorageServerStub.pourIntoFluidPort(player, view, carried, carried.getCount()) > 0) {
                 if (carried.isEmpty()) {
                     player.containerMenu.setCarried(ItemStack.EMPTY);
                 }

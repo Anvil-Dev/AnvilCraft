@@ -25,7 +25,11 @@
     "anvilcraft:blue_cement_cauldron",
     "anvilcraft:purple_cement_cauldron",
     "anvilcraft:magenta_cement_cauldron",
-    "anvilcraft:pink_cement_cauldron"
+    "anvilcraft:pink_cement_cauldron",
+    "anvilcraft:stamping_platform",
+    "anvilcraft:crushing_table",
+    "anvilcraft:sifting_table",
+    "anvilcraft:unpacking_table"
   ],
   "disable_model_outline": [
     "anvilcraft:large_cauldron",

@@ -112,24 +112,35 @@ public final class StorageClientStub {
         );
     }
 
-    public static CompletableFuture<Boolean> quickMoveToStorage(BlockPos sourcePos, IntList slots) {
+    public static CompletableFuture<Boolean> quickMoveToStorage(BlockPos sourcePos, IntList slots, int button) {
         return RPC.invoke(
             RpcTarget.server(),
             StorageServerStub::quickMoveToStorage,
             StorageClientStub.playerId(),
             sourcePos.asLong(),
-            slots
+            slots,
+            button
         );
     }
 
-    public static CompletableFuture<Boolean> moveSameToStorage(BlockPos sourcePos, int slot, boolean pour) {
+    /** 上报本客户端的流体端口桶操作翻转配置（服务端据此决定哪一键倾倒）。 */
+    public static void updateInvertedBucketAction(boolean inverted) {
+        RPC.call(
+            RpcTarget.server(),
+            StorageServerStub::updateInvertedBucketAction,
+            StorageClientStub.playerId(),
+            inverted
+        );
+    }
+
+    public static CompletableFuture<Boolean> moveSameToStorage(BlockPos sourcePos, int slot, int button) {
         return RPC.invoke(
             RpcTarget.server(),
             StorageServerStub::moveSameToStorage,
             StorageClientStub.playerId(),
             sourcePos.asLong(),
             slot,
-            pour
+            button
         );
     }
 
@@ -178,14 +189,14 @@ public final class StorageClientStub {
         );
     }
 
-    public static CompletableFuture<StorageServerStub.DepositResult> deposit(BlockPos sourcePos, boolean all, boolean pour) {
+    public static CompletableFuture<StorageServerStub.DepositResult> deposit(BlockPos sourcePos, boolean all, int button) {
         return RPC.invoke(
             RpcTarget.server(),
             StorageServerStub::deposit,
             StorageClientStub.playerId(),
             sourcePos.asLong(),
             all,
-            pour
+            button
         );
     }
 

@@ -21,11 +21,11 @@ import dev.dubhe.anvilcraft.item.amulet.AmuletBoxItem;
 import dev.dubhe.anvilcraft.item.property.component.BoxContents;
 import dev.dubhe.anvilcraft.item.property.component.StorageRef;
 import dev.dubhe.anvilcraft.rpc.StorageServerStub;
+import dev.dubhe.anvilcraft.util.TooltipUtil;
 import dev.dubhe.anvilcraft.util.UnitUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.resources.language.I18n;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentUtils;
@@ -1109,10 +1109,10 @@ public class ItemTooltipManager {
      * 添加翻译后的tooltip，自动将 \n 拆分为多行
      */
     private static void addTranslatedTooltip(List<Component> tooltip, String key) {
-        String text = I18n.get(key);
-        String[] lines = text.split("\n");
-        for (int i = lines.length - 1; i >= 0; i--) {
-            tooltip.add(1, Component.literal(lines[i]).withStyle(ChatFormatting.GRAY));
+        List<Component> lines = TooltipUtil.translatedLines(key, ChatFormatting.GRAY);
+        // 倒序插到下标 1，使多行在 tooltip 开头保持原有顺序
+        for (int i = lines.size() - 1; i >= 0; i--) {
+            tooltip.add(1, lines.get(i));
         }
     }
 

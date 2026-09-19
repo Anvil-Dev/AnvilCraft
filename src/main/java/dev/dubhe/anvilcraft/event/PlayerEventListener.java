@@ -23,6 +23,7 @@ import dev.dubhe.anvilcraft.item.property.component.Comrades;
 import dev.dubhe.anvilcraft.network.DragonRodDevourPacket;
 import dev.dubhe.anvilcraft.recipe.anvil.cache.RecipeCaches;
 import dev.dubhe.anvilcraft.rpc.BundleLikeServerStub;
+import dev.dubhe.anvilcraft.rpc.StorageServerStub;
 import dev.dubhe.anvilcraft.util.DevourUtil;
 import dev.dubhe.anvilcraft.util.GravityManager;
 import dev.dubhe.anvilcraft.util.InfiniteFluidTankBreakProtection;
@@ -68,6 +69,7 @@ public class PlayerEventListener {
         DummyWolf.clear(player);
         InfiniteFluidTankBreakProtection.clear(player);
         BundleLikeServerStub.clear(player.getUUID());
+        StorageServerStub.clearInvertedBucketAction(player.getUUID());
     }
 
     @SubscribeEvent
