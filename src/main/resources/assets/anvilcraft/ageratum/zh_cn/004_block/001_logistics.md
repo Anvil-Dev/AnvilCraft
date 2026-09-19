@@ -5,6 +5,8 @@ navigation:
 items:
   - anvilcraft:chute
   - anvilcraft:magnetic_chute
+  - anvilcraft:overflow_chute
+  - anvilcraft:item_splitter
 ---
 
 # <ref item="anvilcraft:chute"/>

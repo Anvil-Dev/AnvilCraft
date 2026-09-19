@@ -1,7 +1,7 @@
 ---
 navigation:
   title: "§5耐候盔甲"
-  icon: "anvilcraft:ionocraft_backpack"
+  icon: "anvilcraft:weatherproof_spacesuit_chestplate"
 items:
   - anvilcraft:weatherproof_core
   - anvilcraft:weatherproof_spacesuit_helmet
