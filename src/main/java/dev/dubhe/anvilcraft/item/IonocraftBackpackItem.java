@@ -6,6 +6,7 @@ import dev.dubhe.anvilcraft.api.power.IDynamicPowerComponentHolder;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
 import dev.dubhe.anvilcraft.init.ModDataAttachments;
 import dev.dubhe.anvilcraft.network.IonocraftBackpackFlyingPacket;
+import net.minecraft.network.protocol.game.ClientboundUpdateAttributesPacket;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
@@ -20,6 +21,7 @@ import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.common.NeoForgeMod;
 import net.neoforged.neoforge.network.PacketDistributor;
 
+import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
 
@@ -157,6 +159,8 @@ public class IonocraftBackpackItem extends EquipmentArmorItem implements IInvent
             if (player.getAbilities().mayfly != mayFly || player.getAbilities().flying != flying) {
                 player.getAbilities().mayfly = mayFly;
                 player.getAbilities().flying = flying;
+                // 先同步飞行属性，避免客户端在关闭飞行后仍凭旧属性重新起飞。
+                player.connection.send(new ClientboundUpdateAttributesPacket(player.getId(), List.of(flight)));
                 player.onUpdateAbilities();
             }
         }

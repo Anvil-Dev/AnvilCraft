@@ -254,6 +254,10 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.resonator.hoe", "Hoe");
         provider.add("screen.anvilcraft.resonator.pickaxe", "Pickaxe");
 
+        provider.add("screen.anvilcraft.equipment.night_vision.on", "Enable Night Vision");
+        provider.add("screen.anvilcraft.equipment.night_vision.off", "Disable Night Vision");
+        provider.add("screen.anvilcraft.equipment.charged_jump.on", "Enable Charged Jump");
+        provider.add("screen.anvilcraft.equipment.charged_jump.off", "Disable Charged Jump");
         provider.add("screen.anvilcraft.dragon_rod.protect_containers", "Protect Containers");
         provider.add("screen.anvilcraft.dragon_rod.devour_containers", "Devour Containers");
 

@@ -121,6 +121,16 @@ public class ModComponents {
         b -> b.persistent(Codec.BOOL).networkSynchronized(ByteBufCodecs.BOOL)
     );
 
+    public static final DataComponentType<Boolean> NIGHT_VISION_ENABLED = register(
+        "night_vision_enabled",
+        b -> b.persistent(Codec.BOOL).networkSynchronized(ByteBufCodecs.BOOL)
+    );
+
+    public static final DataComponentType<Boolean> CHARGED_JUMP_ENABLED = register(
+        "charged_jump_enabled",
+        b -> b.persistent(Codec.BOOL).networkSynchronized(ByteBufCodecs.BOOL)
+    );
+
     public static final DataComponentType<BoxContents> BOX_CONTENTS = register(
         "box_contents",
         b -> b.persistent(BoxContents.CODEC).networkSynchronized(BoxContents.STREAM_CODEC)

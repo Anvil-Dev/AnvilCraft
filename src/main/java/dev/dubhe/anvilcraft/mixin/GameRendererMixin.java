@@ -4,12 +4,11 @@ import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import dev.dubhe.anvilcraft.client.init.ModRenderTargets;
 import dev.dubhe.anvilcraft.client.init.ModShaders;
 import dev.dubhe.anvilcraft.client.renderer.mun.MunSurfaceRenderer;
-import dev.dubhe.anvilcraft.init.item.ModItems;
+import dev.dubhe.anvilcraft.item.EquipmentAbilities;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.server.packs.resources.ResourceProvider;
-import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -24,7 +23,7 @@ abstract class GameRendererMixin {
 
     @ModifyReturnValue(method = "getNightVisionScale", at = @At("RETURN"))
     private static float anvilcraft$steadyHelmetNightVision(float original, LivingEntity entity, float partialTick) {
-        return entity.getItemBySlot(EquipmentSlot.HEAD).is(ModItems.WEATHERPROOF_SPACESUIT_HELMET) ? 1 : original;
+        return EquipmentAbilities.hasNightVision(entity) ? 1 : original;
     }
 
     @ModifyReturnValue(method = "getRendertypeSolidShader", at = @At("RETURN"))

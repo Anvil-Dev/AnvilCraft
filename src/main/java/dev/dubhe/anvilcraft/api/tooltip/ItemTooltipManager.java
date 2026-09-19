@@ -979,6 +979,14 @@ public class ItemTooltipManager {
                 ModKeyMappings.SWITCH_PHASE.get().getKey().getDisplayName()
             );
         }
+        var equipmentAbility = EquipmentArmorItem.abilityComponent(stack);
+        if (equipmentAbility != null) {
+            boolean enabled = stack.getOrDefault(equipmentAbility, true);
+            propertyTooltip(equipmentAbility == ModComponents.NIGHT_VISION_ENABLED ? "night_vision" : "charged_jump",
+                tooltip, 0xDD91FA, ModKeyMappings.SWITCH_TOOL_MODE.get().getTranslatedKeyMessage(),
+                Component.translatable(enabled ? "options.on" : "options.off")
+                    .withStyle(enabled ? ChatFormatting.GREEN : ChatFormatting.RED));
+        }
         if (stack.has(ModComponents.DEVOUR_PROTECT_CONTAINERS)) {
             boolean protectContainers = stack.getOrDefault(ModComponents.DEVOUR_PROTECT_CONTAINERS, false);
             propertyTooltip(

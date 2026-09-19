@@ -1,8 +1,10 @@
 package dev.dubhe.anvilcraft.item;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import lombok.Getter;
+import net.minecraft.core.component.DataComponentType;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -16,6 +18,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.ItemAttributeModifiers;
 
+import javax.annotation.Nullable;
+
 public class EquipmentArmorItem extends ArmorItem {
     @Getter
     private final boolean weatherproof;
@@ -26,6 +30,14 @@ public class EquipmentArmorItem extends ArmorItem {
             properties.durability(type.getDurability(weatherproof ? 74 : 15)));
         this.weatherproof = weatherproof;
         this.texture = AnvilCraft.of("textures/entity/equipment/" + texture + ".png");
+    }
+
+    public static @Nullable DataComponentType<Boolean> abilityComponent(ItemStack stack) {
+        if (stack.is(ModItems.WEATHERPROOF_SPACESUIT_HELMET)) return ModComponents.NIGHT_VISION_ENABLED;
+        if (stack.is(ModItems.BUFFER_BOOTS) || stack.is(ModItems.WEATHERPROOF_SPACESUIT_BOOTS)) {
+            return ModComponents.CHARGED_JUMP_ENABLED;
+        }
+        return null;
     }
 
     @Override

@@ -10,12 +10,14 @@ import dev.dubhe.anvilcraft.client.renderer.item.ItemSlotClipping;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.item.DragonRodItem;
+import dev.dubhe.anvilcraft.item.EquipmentArmorItem;
 import dev.dubhe.anvilcraft.item.HeavyHalberdItem;
 import dev.dubhe.anvilcraft.item.MultitoolItem;
 import dev.dubhe.anvilcraft.item.ResonatorItem;
 import dev.dubhe.anvilcraft.item.property.component.Multiphase;
 import dev.dubhe.anvilcraft.item.property.component.TerminalBinding;
 import dev.dubhe.anvilcraft.network.SwitchDragonRodProtectContainersPacket;
+import dev.dubhe.anvilcraft.network.SwitchEquipmentAbilityPacket;
 import dev.dubhe.anvilcraft.network.SwitchHeavyHalberdModePacket;
 import dev.dubhe.anvilcraft.network.SwitchMultitoolModePacket;
 import dev.dubhe.anvilcraft.network.SwitchResonateModePacket;
@@ -29,7 +31,9 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.CustomModelData;
 import net.minecraft.world.level.block.Blocks;
 import net.neoforged.api.distmarker.Dist;
@@ -69,6 +73,10 @@ public class WheelLifecycleEventListener {
     private static boolean dragonRodKeyWasDown = false;
     private static @Nullable Optional<WheelMenuModel> dragonRodWheelCache = null;
 
+    private static long equipmentKeyTime = -1L;
+    private static boolean equipmentKeyWasDown = false;
+    private static @Nullable WheelMenuModel equipmentWheelCache;
+
     private static long balanceKeyTime = -1L;
     private static boolean balanceKeyWasDown = false;
     private static @Nullable Optional<WheelMenuModel> balanceWheelCache = null;
@@ -89,6 +97,7 @@ public class WheelLifecycleEventListener {
         WheelLifecycleEventListener.openMultitoolWheel(gameTime);
         WheelLifecycleEventListener.openDragonRodWheel(gameTime);
         WheelLifecycleEventListener.openBalanceWheel(gameTime);
+        WheelLifecycleEventListener.openEquipmentWheel(gameTime);
     }
 
     private static void openMultiphaseWheel(long gameTime) {
@@ -217,6 +226,23 @@ public class WheelLifecycleEventListener {
             CONTROLLER.onHoldKeyPressed(WheelLifecycleEventListener.dragonRodWheelCache.get());
             WheelLifecycleEventListener.dragonRodKeyWasDown = true;
         }
+    }
+
+    private static void openEquipmentWheel(long gameTime) {
+        Minecraft client = Minecraft.getInstance();
+        if (equipmentKeyTime < 0 || gameTime - equipmentKeyTime <= 4 || client.player == null
+            || client.screen != null && !equipmentKeyWasDown) return;
+        if (equipmentWheelCache == null) {
+            for (InteractionHand hand : InteractionHand.values()) {
+                ItemStack stack = client.player.getItemInHand(hand);
+                if (EquipmentArmorItem.abilityComponent(stack) == null) continue;
+                equipmentWheelCache = getEquipmentWheel(hand, stack);
+                break;
+            }
+        }
+        if (equipmentWheelCache == null) return;
+        CONTROLLER.onHoldKeyPressed(equipmentWheelCache);
+        equipmentKeyWasDown = true;
     }
 
     private static void openBalanceWheel(long gameTime) {
@@ -524,6 +550,21 @@ public class WheelLifecycleEventListener {
             .build();
     }
 
+    private static WheelMenuModel getEquipmentWheel(InteractionHand hand, ItemStack holding) {
+        EquipmentSlot slot = ((EquipmentArmorItem) holding.getItem()).getEquipmentSlot();
+        String ability = slot == EquipmentSlot.HEAD ? "night_vision" : "charged_jump";
+        return WheelMenuBuilder.create()
+            .selectionEffect(WheelSelectionEffect.ANNULAR_SECTOR)
+            .slotsPerPage(2)
+            .action("enable", Component.translatable("screen.anvilcraft.equipment." + ability + ".on"),
+                (graphics, pose, width, height) -> renderWheelItem(graphics, holding),
+                ctx -> PacketDistributor.sendToServer(new SwitchEquipmentAbilityPacket(hand, slot, true)))
+            .action("disable", Component.translatable("screen.anvilcraft.equipment." + ability + ".off"),
+                (graphics, pose, width, height) -> renderWheelItem(graphics, new ItemStack(Items.BARRIER)),
+                ctx -> PacketDistributor.sendToServer(new SwitchEquipmentAbilityPacket(hand, slot, false)))
+            .build();
+    }
+
     private static WheelMenuModel getDragonRodWheel(InteractionHand hand, ItemStack holding) {
         return WheelMenuBuilder.create()
             .selectionEffect(WheelSelectionEffect.ANNULAR_SECTOR)
@@ -633,6 +674,7 @@ public class WheelLifecycleEventListener {
             WheelLifecycleEventListener.processMultitoolPress(client, event.getAction());
             WheelLifecycleEventListener.processDragonRodPress(client, event.getAction());
             WheelLifecycleEventListener.processBalancePress(client, event.getAction());
+            WheelLifecycleEventListener.processEquipmentPress(client, event.getAction());
         }
     }
 
@@ -649,6 +691,7 @@ public class WheelLifecycleEventListener {
             WheelLifecycleEventListener.processMultitoolPress(client, event.getAction());
             WheelLifecycleEventListener.processDragonRodPress(client, event.getAction());
             WheelLifecycleEventListener.processBalancePress(client, event.getAction());
+            WheelLifecycleEventListener.processEquipmentPress(client, event.getAction());
         }
     }
 
@@ -787,6 +830,17 @@ public class WheelLifecycleEventListener {
             if (!WheelLifecycleEventListener.dragonRodKeyWasDown) {
                 WheelLifecycleEventListener.dragonRodKeyTime = client.level.getGameTime();
             }
+        }
+    }
+
+    private static void processEquipmentPress(Minecraft client, int action) {
+        if (action == GLFW.GLFW_RELEASE) {
+            if (equipmentKeyWasDown) CONTROLLER.onHoldKeyReleased();
+            equipmentKeyWasDown = false;
+            equipmentKeyTime = -1L;
+            equipmentWheelCache = null;
+        } else if (action == GLFW.GLFW_PRESS && client.level != null && client.screen == null && !equipmentKeyWasDown) {
+            equipmentKeyTime = client.level.getGameTime();
         }
     }
 
