@@ -81,7 +81,8 @@ public class HasMobBlockItem extends BlockItem {
                 Entity entity = HasMobBlockItem.getMobFromItem(level, stack);
                 if (entity == null) return;
                 tooltipComponents.add(
-                    Component.literal("- ").append(entity.getDisplayName()).withStyle(ChatFormatting.DARK_GRAY));
+                    Component.translatable("tooltip.anvilcraft.resin_block.mob", entity.getDisplayName())
+                        .withStyle(ChatFormatting.DARK_GRAY));
                 int resentment = savedEntity.isMonster() && entity instanceof LivingEntity livingEntity
                     ? ResentmentUtil.getResentment(livingEntity)
                     : 0;

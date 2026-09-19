@@ -76,11 +76,11 @@ public class PermutationRecipeLoader {
             .save(provider, "gem_amulets");
 
         PermutationRecipe.builder()
-            .input(ModItems.SILENCE_AMULET, ModItems.FEATHER_AMULET, ModItems.CAT_AMULET, ModItems.DOG_AMULET)
+            .input(ModItems.SILENCE_AMULET, ModItems.ARMADILLO_AMULET, ModItems.CAT_AMULET, ModItems.DOG_AMULET)
             .options(
                 CustomFrostMaterialPredicate.of(PermutationRecipeLoader.count(Items.CAKE, 1)),
                 ModItems.SILENCE_AMULET,
-                ModItems.FEATHER_AMULET,
+                ModItems.ARMADILLO_AMULET,
                 ModItems.CAT_AMULET,
                 ModItems.DOG_AMULET
             )

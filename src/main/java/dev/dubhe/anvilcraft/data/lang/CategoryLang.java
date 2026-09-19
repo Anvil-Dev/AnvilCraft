@@ -46,6 +46,7 @@ public class CategoryLang {
         provider.add("screen.anvilcraft.storage.category.alternate.removable", "Left click to list, right click to delete this category");
         provider.add("screen.anvilcraft.storage.category.alternate.unremovable", "Left click to list");
         provider.add("screen.anvilcraft.storage.category.setting.title", "Category Setting");
+        provider.add("screen.anvilcraft.storage.category.setting.tooltip", "Left click to configure, right click to reset filters");
 
         provider.add("screen.anvilcraft.balance_mode.smart", "Smart");
         provider.add("screen.anvilcraft.balance_mode.restock", "Restock only");

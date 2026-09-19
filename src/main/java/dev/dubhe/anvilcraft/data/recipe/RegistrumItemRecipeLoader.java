@@ -1375,16 +1375,19 @@ public class RegistrumItemRecipeLoader {
     }
 
     public static <T extends Item> void multiphaseTranscendium(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
-        ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get())
-            .requires(ModItems.MULTIPHASE_MATTER)
-            .requires(ModItems.TRANSCENDIUM_INGOT)
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
+            .pattern("NNN")
+            .pattern("NMN")
+            .pattern("NNN")
+            .define('M', ModItems.MULTIPHASE_MATTER)
+            .define('N', ModItems.TRANSCENDIUM_NUGGET)
             .unlockedBy(
                 AnvilCraftDatagen.hasItem(ModItems.MULTIPHASE_MATTER),
                 AnvilCraftDatagen.has(ModItems.MULTIPHASE_MATTER)
             )
             .unlockedBy(
-                AnvilCraftDatagen.hasItem(ModItems.TRANSCENDIUM_INGOT),
-                AnvilCraftDatagen.has(ModItems.TRANSCENDIUM_INGOT)
+                AnvilCraftDatagen.hasItem(ModItems.TRANSCENDIUM_NUGGET),
+                AnvilCraftDatagen.has(ModItems.TRANSCENDIUM_NUGGET)
             )
             .save(provider);
     }

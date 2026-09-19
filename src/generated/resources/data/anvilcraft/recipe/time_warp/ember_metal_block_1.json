@@ -1,0 +1,21 @@
+{
+  "type": "anvilcraft:time_warp",
+  "consume": 9000,
+  "fluid": "anvilcraft:oil",
+  "ignited": true,
+  "ingredients": [
+    {
+      "count": 9,
+      "items": "#anvilcraft:netherite_block"
+    },
+    {
+      "items": "anvilcraft:earth_core_shard_block"
+    }
+  ],
+  "results": [
+    {
+      "count": 4,
+      "id": "anvilcraft:ember_metal_block"
+    }
+  ]
+}

@@ -41,5 +41,5 @@ items:
 </warning>
 
 <tip>
-推荐配合[强制刷怪](../001_feature/001_spawner.md)使用
+推荐配合[立即尝试刷怪](../001_feature/001_spawner.md)使用
 </tip>

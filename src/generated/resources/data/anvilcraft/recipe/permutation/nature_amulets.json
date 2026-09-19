@@ -3,7 +3,7 @@
   "input": {
     "items": [
       "anvilcraft:silence_amulet",
-      "anvilcraft:feather_amulet",
+      "anvilcraft:armadillo_amulet",
       "anvilcraft:cat_amulet",
       "anvilcraft:dog_amulet"
     ]
@@ -25,7 +25,7 @@
           "items": "minecraft:cake"
         }
       },
-      "result": "anvilcraft:feather_amulet"
+      "result": "anvilcraft:armadillo_amulet"
     },
     {
       "material": {

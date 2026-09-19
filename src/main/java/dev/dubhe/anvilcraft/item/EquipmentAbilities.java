@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.item;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.inventory.PocketInventory;
 import dev.dubhe.anvilcraft.util.AtmosphereManager;
@@ -9,6 +10,8 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageTypes;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
@@ -25,6 +28,7 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.event.entity.living.LivingBreatheEvent;
 import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
+import net.neoforged.neoforge.event.entity.living.MobEffectEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 
 import java.util.Map;
@@ -45,6 +49,7 @@ public final class EquipmentAbilities {
     private static final Map<Player, Integer> CHARGE_RELEASE = new WeakHashMap<>();
     /** 停止蓄力那一刻锁定的蓄力值，衰减以此为基础线性下降。 */
     private static final Map<Player, Integer> CHARGE_RELEASE_START = new WeakHashMap<>();
+    private static final Map<Player, MobEffectInstance> HELMET_NIGHT_VISION = new WeakHashMap<>();
     private static final Map<Player, Boolean> SUBMERGING = new WeakHashMap<>();
 
     private EquipmentAbilities() {
@@ -58,6 +63,15 @@ public final class EquipmentAbilities {
     public static boolean hasBufferBoots(LivingEntity entity) {
         ItemStack boots = entity.getItemBySlot(EquipmentSlot.FEET);
         return boots.is(ModItems.BUFFER_BOOTS) || boots.is(ModItems.WEATHERPROOF_SPACESUIT_BOOTS);
+    }
+
+    public static boolean hasNightVision(LivingEntity entity) {
+        ItemStack helmet = entity.getItemBySlot(EquipmentSlot.HEAD);
+        return helmet.is(ModItems.WEATHERPROOF_SPACESUIT_HELMET) && helmet.getOrDefault(ModComponents.NIGHT_VISION_ENABLED, true);
+    }
+
+    public static boolean canChargeJump(LivingEntity entity) {
+        return hasBufferBoots(entity) && entity.getItemBySlot(EquipmentSlot.FEET).getOrDefault(ModComponents.CHARGED_JUMP_ENABLED, true);
     }
 
     public static boolean hasFullSuit(LivingEntity entity) {
@@ -97,7 +111,7 @@ public final class EquipmentAbilities {
      * 因此构成一段输入缓冲窗口。</p>
      */
     public static int chargeTicks(Player player) {
-        return CHARGE.getOrDefault(player, 0);
+        return canChargeJump(player) ? CHARGE.getOrDefault(player, 0) : 0;
     }
 
     /**
@@ -129,7 +143,7 @@ public final class EquipmentAbilities {
      * @return 强化后的跳跃速度；无蓄力时原样返回 {@code normal}
      */
     public static float consumeChargedJump(Player player, float normal) {
-        float progress = hasBufferBoots(player) ? chargeProgress(player) : 0;
+        float progress = canChargeJump(player) ? chargeProgress(player) : 0;
         clearCharge(player);
         if (progress <= 0) return normal;
         double gravity = Math.max(0.001, player.getAttributeValue(Attributes.GRAVITY));
@@ -213,6 +227,11 @@ public final class EquipmentAbilities {
             && !player.isShiftKeyDown() && !SUBMERGING.getOrDefault(player, false) && fluid.isSource();
     }
 
+    public static boolean shouldSinkInFluid(Player player) {
+        return player.isShiftKeyDown() && !player.isSpectator() && !player.getAbilities().flying
+            && player.getItemBySlot(EquipmentSlot.FEET).is(ModItems.WEATHERPROOF_SPACESUIT_BOOTS);
+    }
+
     public static boolean isVoidProtected(Player player) {
         return !player.isSpectator() && !player.getAbilities().flying && hasFullSuit(player);
     }
@@ -236,14 +255,13 @@ public final class EquipmentAbilities {
     @SubscribeEvent
     public static void beforeTick(PlayerTickEvent.Pre event) {
         Player player = event.getEntity();
-        boolean boots = hasBufferBoots(player);
-        tickCharge(player, boots);
+        tickCharge(player, canChargeJump(player));
         if (player.getItemBySlot(EquipmentSlot.FEET).is(ModItems.WEATHERPROOF_SPACESUIT_BOOTS)) {
             if (player.isShiftKeyDown()) SUBMERGING.put(player, true);
             else if (!player.isInFluidType() && player.level().getFluidState(player.blockPosition().below()).isEmpty()) {
                 SUBMERGING.remove(player);
             }
-            if (player.isShiftKeyDown() && player.isInFluidType() && !player.getAbilities().flying) {
+            if (shouldSinkInFluid(player) && player.isInFluidType()) {
                 player.setDeltaMovement(player.getDeltaMovement().add(0, -0.08, 0));
             }
         } else {
@@ -261,9 +279,39 @@ public final class EquipmentAbilities {
     }
 
     @SubscribeEvent
+    public static void preserveExternalNightVision(MobEffectEvent.Added event) {
+        if (event.getEntity() instanceof Player player && event.getEffectInstance().is(MobEffects.NIGHT_VISION)
+            && event.getEffectInstance() != HELMET_NIGHT_VISION.get(player)) {
+            HELMET_NIGHT_VISION.remove(player);
+        }
+    }
+
+    private static void updateNightVision(ServerPlayer player) {
+        MobEffectInstance current = player.getEffect(MobEffects.NIGHT_VISION);
+        MobEffectInstance provided = HELMET_NIGHT_VISION.get(player);
+        if (!hasNightVision(player)) {
+            if (current != null && current == provided) player.removeEffect(MobEffects.NIGHT_VISION);
+            HELMET_NIGHT_VISION.remove(player);
+            return;
+        }
+        if (current != null && current != provided) {
+            HELMET_NIGHT_VISION.remove(player);
+            return;
+        }
+        if (current != null && !current.endsWithin(200)) return;
+        MobEffectInstance refreshed = new MobEffectInstance(MobEffects.NIGHT_VISION, 200, 0, false, false, true);
+        HELMET_NIGHT_VISION.put(player, refreshed);
+        player.addEffect(refreshed);
+        current = player.getEffect(MobEffects.NIGHT_VISION);
+        if (current == null) HELMET_NIGHT_VISION.remove(player);
+        else HELMET_NIGHT_VISION.put(player, current);
+    }
+
+    @SubscribeEvent
     public static void afterTick(PlayerTickEvent.Post event) {
         if (!(event.getEntity() instanceof ServerPlayer player)) return;
         PocketInventory.get(player).tick(player);
+        updateNightVision(player);
         AttributeInstance resistance = player.getAttribute(Attributes.KNOCKBACK_RESISTANCE);
         if (resistance == null) return;
         boolean flying = !IonocraftBackpackItem.getByPlayer(player).isEmpty() && player.getAbilities().flying;

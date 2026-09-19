@@ -6,6 +6,8 @@ import com.mojang.serialization.MapCodec;
 import dev.anvilcraft.lib.v2.util.InventoryUtil;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
+import dev.dubhe.anvilcraft.item.HeavyHalberdItem;
+import dev.dubhe.anvilcraft.item.ResonatorItem;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
@@ -103,14 +105,14 @@ public record Merciless() {
 
         // 修改属性修饰符
         ItemAttributeModifiers.Builder builder = ItemAttributeModifiers.builder();
-        if (attackDamage != 0) {
+        if (attackDamage != 0 && !(stack.getItem() instanceof ResonatorItem)) {
             builder.add(
                 Attributes.ATTACK_DAMAGE,
                 new AttributeModifier(MERCILESS_ID, attackDamage, AttributeModifier.Operation.ADD_VALUE),
                 EquipmentSlotGroup.MAINHAND
             );
         }
-        if (miningEfficiency != 0) {
+        if (miningEfficiency != 0 && !(stack.getItem() instanceof HeavyHalberdItem)) {
             builder.add(
                 Attributes.MINING_EFFICIENCY,
                 new AttributeModifier(MERCILESS_ID, miningEfficiency, AttributeModifier.Operation.ADD_VALUE),

@@ -1,6 +1,5 @@
 package dev.dubhe.anvilcraft.client.building;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import dev.dubhe.anvilcraft.client.support.RenderSupport;
 import net.minecraft.client.renderer.RenderType;
 
@@ -15,19 +14,6 @@ final class BuildingRodRenderTypes {
 
     static RenderType ghost(RenderType original) {
         if (TYPES.size() >= 128) TYPES.clear();
-        return TYPES.computeIfAbsent(original, type -> new DoubleSided(RenderSupport.useTranslucentIfPossible(type)));
-    }
-
-    private static final class DoubleSided extends RenderType {
-        private DoubleSided(RenderType original) {
-            super("anvilcraft:building_rod_ghost", original.format(), original.mode(), original.bufferSize(),
-                original.affectsCrumbling(), original.sortOnUpload(), () -> {
-                    original.setupRenderState();
-                    RenderSystem.disableCull();
-                }, () -> {
-                    RenderSystem.enableCull();
-                    original.clearRenderState();
-                });
-        }
+        return TYPES.computeIfAbsent(original, RenderSupport::useTranslucentIfPossible);
     }
 }

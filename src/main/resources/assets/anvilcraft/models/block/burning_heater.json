@@ -1,7 +1,7 @@
 {
 	"credit": "Made by XeKr with Blockbench",
 	"parent": "minecraft:block/block",
-	"ambientocclusion": false,
+	"ambientocclusion": true,
 	"textures": {
 		"bottom": "anvilcraft:block/burning_heater_bottom",
 		"particle": "anvilcraft:block/burning_heater_side",

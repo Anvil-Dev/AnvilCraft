@@ -9,7 +9,6 @@ import dev.anvilcraft.lib.v2.cube.client.SelectionPart;
 import dev.dubhe.anvilcraft.api.tooltip.TooltipRenderHelper;
 import dev.dubhe.anvilcraft.block.cfa.CelestialForgingAnvilAmplifierBlock;
 import dev.dubhe.anvilcraft.block.entity.CelestialForgingAnvilBlockEntity;
-import dev.dubhe.anvilcraft.block.item.ChuteBlockItem;
 import dev.dubhe.anvilcraft.block.item.PlaceInWaterBlockItem;
 import dev.dubhe.anvilcraft.block.multipart.AbstractMultiPartBlock;
 import dev.dubhe.anvilcraft.block.state.DirectionCube232PartHalf;
@@ -152,6 +151,8 @@ public class LargeBlockPlacePreviewEventListener {
         if (!multiPart && !blockItem.getBlock().defaultBlockState().is(ModBlockTags.PLACEMENT_PREVIEW)) {
             return;
         }
+        if (mc.hitResult instanceof BlockHitResult hit && hit.getType() == HitResult.Type.BLOCK
+            && !PlacementInteractions.allowsPlacement(new UseOnContext(player, hand, hit))) return;
         UseOnContext useContext;
         if (item.getItem() instanceof PlaceInWaterBlockItem) {
             // 这类物品只在水面放置：useOn() 返回 PASS，实际落点由 use() 用流体射线
@@ -173,10 +174,6 @@ public class LargeBlockPlacePreviewEventListener {
                 useContext = new UseOnContext(mc.level, player, hand, item, hit);
             } else {
                 useContext = new UseOnContext(player, hand, target);
-                if (!PlacementInteractions.allowsPlacement(useContext)) return;
-                if (blockItem instanceof ChuteBlockItem && ChuteBlockItem.isStorageInteraction(useContext)) {
-                    return;
-                }
                 useContext = BlockPlacementPicking.forPlacement(useContext);
             }
         }

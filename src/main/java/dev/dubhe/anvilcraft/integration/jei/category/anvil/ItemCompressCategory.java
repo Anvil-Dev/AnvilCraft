@@ -7,7 +7,6 @@ import dev.dubhe.anvilcraft.client.support.RenderSupport;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItemSubPredicates;
-import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.integration.jei.AnvilCraftJeiPlugin;
@@ -142,7 +141,7 @@ public class ItemCompressCategory extends AbstractProgressCategory<ItemCompressR
 
     private static ItemCompressRecipe specialSupercapacitorRecipe() {
         return ItemCompressRecipe.builder()
-            .requires(ModItemTags.IRON_PLATES, 2)
+            .requires(Blocks.COPPER_BLOCK, 2)
             .requires(ItemIngredientPredicate.Builder.item().of(resinWithCreeper(true)).build())
             // 数据配方中充能超电容是 in_world 配方（铁砧落下 50% 概率爆炸 / 50% 产出），
             // 该 JEI 分类无法直接收集，这里以概率结果表达

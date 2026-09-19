@@ -254,6 +254,10 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.resonator.hoe", "Hoe");
         provider.add("screen.anvilcraft.resonator.pickaxe", "Pickaxe");
 
+        provider.add("screen.anvilcraft.equipment.night_vision.on", "Enable Night Vision");
+        provider.add("screen.anvilcraft.equipment.night_vision.off", "Disable Night Vision");
+        provider.add("screen.anvilcraft.equipment.charged_jump.on", "Enable Charged Jump");
+        provider.add("screen.anvilcraft.equipment.charged_jump.off", "Disable Charged Jump");
         provider.add("screen.anvilcraft.dragon_rod.protect_containers", "Protect Containers");
         provider.add("screen.anvilcraft.dragon_rod.devour_containers", "Devour Containers");
 
@@ -319,6 +323,7 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.structure_scanner.export_file", "Export file");
         provider.add("screen.anvilcraft.structure_scanner.import", "Import structure");
         provider.add("screen.anvilcraft.structure_scanner.export", "Export structure");
+        provider.add("screen.anvilcraft.structure_scanner.open_folder", "Open structure folder");
         provider.add("screen.anvilcraft.structure_scanner.name", "Structure name");
         provider.add("screen.anvilcraft.structure_scanner.confirm", "Record structure to disk");
         provider.add("screen.anvilcraft.structure_scanner.auto_rotate_on", "Auto rotation: on");

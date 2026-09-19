@@ -1,10 +1,12 @@
 package dev.dubhe.anvilcraft.item;
 
-import dev.dubhe.anvilcraft.api.tooltip.FluidTankItemTooltip;
 import dev.dubhe.anvilcraft.entity.FluidTankMinecartEntity;
 import dev.dubhe.anvilcraft.init.entity.ModEntities;
+import dev.dubhe.anvilcraft.util.UnitUtil;
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.dispenser.BlockSource;
 import net.minecraft.core.dispenser.DefaultDispenseItemBehavior;
@@ -26,6 +28,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.RailShape;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.fluids.FluidStack;
 
 import java.util.List;
 
@@ -46,12 +49,21 @@ public class FluidTankMinecartItem extends Item {
         TooltipFlag tooltipFlag
     ) {
         super.appendHoverText(stack, context, tooltipComponents, tooltipFlag);
-        FluidTankItemTooltip.appendFixedTank(
-            stack,
-            context,
-            tooltipComponents,
-            FluidTankMinecartEntity.CAPACITY
-        );
+        CustomData data = stack.getOrDefault(DataComponents.BLOCK_ENTITY_DATA, CustomData.EMPTY);
+        CompoundTag tank = data.copyTag().getCompound("Tank");
+        HolderLookup.Provider registries = context.registries();
+        FluidStack fluid = registries == null ? FluidStack.EMPTY
+            : FluidStack.parseOptional(registries, tank.getCompound("Fluid"));
+        int amount = fluid.isEmpty() ? 0 : Math.min(fluid.getAmount(), FluidTankMinecartEntity.CAPACITY);
+        if (!fluid.isEmpty()) {
+            tooltipComponents.add(Component.translatable("tooltip.anvilcraft.fluid_tank.fluid").withStyle(ChatFormatting.BLUE));
+            tooltipComponents.add(Component.translatable("tooltip.anvilcraft.fluid_tank.fluid.value",
+                fluid.getHoverName(), UnitUtil.fluidUnit(amount, false)).withStyle(ChatFormatting.GRAY));
+        }
+        tooltipComponents.add(Component.translatable("tooltip.anvilcraft.fluid_tank.capacity").withStyle(ChatFormatting.BLUE));
+        tooltipComponents.add(Component.translatable("tooltip.anvilcraft.fluid_tank.capacity.value",
+            UnitUtil.fluidUnit(amount, false), UnitUtil.fluidUnit(FluidTankMinecartEntity.CAPACITY, false))
+            .withStyle(ChatFormatting.GRAY));
     }
 
     private static FluidTankMinecartEntity createMinecart(

@@ -19,6 +19,7 @@ import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.init.loot.ModLootTables;
 import dev.dubhe.anvilcraft.inventory.PocketInventory;
+import dev.dubhe.anvilcraft.item.AmuletAbilities;
 import dev.dubhe.anvilcraft.item.EquipmentAbilities;
 import dev.dubhe.anvilcraft.item.property.component.BoxContents;
 import dev.dubhe.anvilcraft.util.AtmosphereManager;
@@ -35,6 +36,7 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.animal.IronGolem;
 import net.minecraft.world.entity.item.FallingBlockEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
@@ -46,7 +48,6 @@ import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.neoforged.neoforge.common.CommonHooks;
 import net.neoforged.neoforge.common.EffectCure;
-import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -64,6 +65,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import javax.annotation.Nullable;
 
 @Mixin(LivingEntity.class)
 public abstract class LivingEntityMixin extends Entity {
@@ -74,6 +76,11 @@ public abstract class LivingEntityMixin extends Entity {
             return EquipmentAbilities.consumeChargedJump(player, original);
         }
         return original;
+    }
+
+    @Inject(method = "setLastHurtByMob", at = @At("HEAD"), cancellable = true)
+    private void anvilcraft$ignoreProtectedAttacker(@Nullable LivingEntity attacker, CallbackInfo ci) {
+        if ((Object) this instanceof IronGolem && AmuletAbilities.isGolemProtected(attacker)) ci.cancel();
     }
 
     @Unique

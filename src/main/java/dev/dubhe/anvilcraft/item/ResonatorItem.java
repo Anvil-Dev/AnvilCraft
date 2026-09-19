@@ -8,7 +8,6 @@ import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.network.ResonanceMiningEffectPacket;
 import dev.dubhe.anvilcraft.network.WeaponChargeProgressPacket;
-import net.minecraft.ChatFormatting;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
@@ -17,7 +16,6 @@ import net.minecraft.core.Holder;
 import net.minecraft.core.HolderOwner;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.component.DataComponents;
-import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -44,7 +42,6 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.SwordItem;
 import net.minecraft.world.item.Tier;
 import net.minecraft.world.item.TieredItem;
-import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.item.component.CustomModelData;
 import net.minecraft.world.item.component.ItemAttributeModifiers;
@@ -117,17 +114,6 @@ public abstract class ResonatorItem extends TieredItem {
                 );
             }
         });
-    }
-
-    @Override
-    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltipComponents, TooltipFlag tooltipFlag) {
-        super.appendHoverText(stack, context, tooltipComponents, tooltipFlag);
-        tooltipComponents.add(
-            Component.translatable(
-                "tooltip.anvilcraft.resonator.mining_desc",
-                Component.keybind("key.anvilcraft.switch_tool_mode")
-            ).withStyle(ChatFormatting.GRAY)
-        );
     }
 
     public static ItemAttributeModifiers createAttributes(Tier tier, float attackDamage, float attackSpeed) {

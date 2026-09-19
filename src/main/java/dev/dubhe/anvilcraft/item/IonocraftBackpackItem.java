@@ -6,6 +6,7 @@ import dev.dubhe.anvilcraft.api.power.IDynamicPowerComponentHolder;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
 import dev.dubhe.anvilcraft.init.ModDataAttachments;
 import dev.dubhe.anvilcraft.network.IonocraftBackpackFlyingPacket;
+import net.minecraft.network.protocol.game.ClientboundUpdateAttributesPacket;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
@@ -20,6 +21,7 @@ import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.common.NeoForgeMod;
 import net.neoforged.neoforge.network.PacketDistributor;
 
+import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
 
@@ -42,9 +44,6 @@ public class IonocraftBackpackItem extends EquipmentArmorItem implements IInvent
 
     /** 追踪玩家背包飞行状态，用于在状态变化时同步到其他客户端 */
     private static final Map<ServerPlayer, Boolean> FLYING_TRACKER = new WeakHashMap<>();
-
-    /** 追踪上一 tick 是否装备着背包，用于在装备状态变化时重同步物品栏槽位 */
-    private static final Map<ServerPlayer, Boolean> EQUIPPED_TRACKER = new WeakHashMap<>();
 
     public IonocraftBackpackItem(Properties properties) {
         this(properties, false);
@@ -160,6 +159,8 @@ public class IonocraftBackpackItem extends EquipmentArmorItem implements IInvent
             if (player.getAbilities().mayfly != mayFly || player.getAbilities().flying != flying) {
                 player.getAbilities().mayfly = mayFly;
                 player.getAbilities().flying = flying;
+                // 先同步飞行属性，避免客户端在关闭飞行后仍凭旧属性重新起飞。
+                player.connection.send(new ClientboundUpdateAttributesPacket(player.getId(), List.of(flight)));
                 player.onUpdateAbilities();
             }
         }
@@ -186,14 +187,6 @@ public class IonocraftBackpackItem extends EquipmentArmorItem implements IInvent
 
         ItemStack backpack = getByPlayer(player);
         boolean equipped = !backpack.isEmpty();
-
-        // 装备状态变化时整表重同步物品栏。背包的穿戴只走 setItemSlot / onEquipItem，
-        // 不经过 inventoryMenu 的槽位变更广播，客户端本端 Inventory 会残留上一次的槽位内容，
-        // 表现为护腿等槽位出现幻影物品（仅客户端渲染，任意槽位点击后即被服务端校正回传覆盖）。
-        Boolean prevEquipped = EQUIPPED_TRACKER.put(player, equipped);
-        if (prevEquipped != null && prevEquipped != equipped) {
-            player.inventoryMenu.sendAllDataToRemote();
-        }
 
         boolean nowFlying = equipped
             && player.getAbilities().flying

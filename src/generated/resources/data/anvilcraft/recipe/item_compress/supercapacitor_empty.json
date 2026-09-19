@@ -3,7 +3,7 @@
   "ingredients": [
     {
       "count": 2,
-      "items": "#c:plates/iron"
+      "items": "minecraft:copper_block"
     },
     {
       "items": "anvilcraft:resin_block",

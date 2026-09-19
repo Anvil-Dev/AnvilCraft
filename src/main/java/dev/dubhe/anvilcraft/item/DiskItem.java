@@ -33,10 +33,7 @@ import java.util.function.Consumer;
 
 public class DiskItem extends Item {
 
-    private static final String TOOLTIP_PREFIX = "tooltip.anvilcraft.item.disk.";
     private static final String MESSAGE_PREFIX = "message.anvilcraft.disk.";
-    private static final Component TOOLTIP_STORE = tooltip("store");
-    private static final Component TOOLTIP_CLEAR = tooltip("clear");
     private static final Component MESSAGE_STORED = message("data_stored");
     private static final Component MESSAGE_CLEARED = message("data_cleared");
     private static final Component MESSAGE_APPLIED = message("data_applied");
@@ -98,9 +95,9 @@ public class DiskItem extends Item {
                 .getString();
             tooltipComponents.add(Component.translatable("item.anvilcraft.disk.stored_from", name)
                 .withStyle(Style.EMPTY.applyFormat(ChatFormatting.GRAY)));
-            tooltipComponents.add(TOOLTIP_CLEAR);
+            tooltipComponents.add(Component.translatable("tooltip.anvilcraft.item.disk.clear").withStyle(ChatFormatting.GRAY));
         } else {
-            tooltipComponents.add(TOOLTIP_STORE);
+            tooltipComponents.add(Component.translatable("tooltip.anvilcraft.item.disk.store").withStyle(ChatFormatting.GRAY));
         }
     }
 
@@ -210,11 +207,6 @@ public class DiskItem extends Item {
             }
         }
         return super.use(level, player, usedHand);
-    }
-
-    private static Component tooltip(String suffix) {
-        return Component.translatable(TOOLTIP_PREFIX + suffix)
-            .withStyle(ChatFormatting.GRAY);
     }
 
     private static Component message(String suffix) {

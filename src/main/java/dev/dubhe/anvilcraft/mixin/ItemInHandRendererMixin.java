@@ -1,12 +1,15 @@
 package dev.dubhe.anvilcraft.mixin;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
+import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.mojang.blaze3d.vertex.PoseStack;
 import dev.dubhe.anvilcraft.client.building.BuildingRodItemRenderer;
 import dev.dubhe.anvilcraft.client.event.BigRedButtonInputListener;
 import dev.dubhe.anvilcraft.client.renderer.item.ItemInHandRendererManager;
+import dev.dubhe.anvilcraft.client.renderer.item.SmartBlockPlacerItemRenderer;
+import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.AbstractClientPlayer;
@@ -49,6 +52,20 @@ abstract class ItemInHandRendererMixin {
 
     @Unique
     private ItemInHandRendererManager anvilcraft$manager = null;
+
+    @WrapMethod(method = "renderItem")
+    private void anvilcraft$renderSmartPlacerHelmet(
+        LivingEntity entity, ItemStack stack, ItemDisplayContext context, boolean leftHand,
+        PoseStack pose, MultiBufferSource buffers, int light, Operation<Void> original
+    ) {
+        if (context == ItemDisplayContext.HEAD && stack.is(ModBlocks.SMART_BLOCK_PLACER.asItem())) {
+            SmartBlockPlacerItemRenderer.withWearer(
+                entity, () -> original.call(entity, stack, context, leftHand, pose, buffers, light)
+            );
+        } else {
+            original.call(entity, stack, context, leftHand, pose, buffers, light);
+        }
+    }
 
     @ModifyExpressionValue(method = "renderHandsWithItems", at = @At(value = "FIELD",
         target = "Lnet/minecraft/client/renderer/ItemInHandRenderer$HandRenderSelection;renderOffHand:Z"))

@@ -58,6 +58,7 @@ public class ModAmulets {
             .immune(ModDamageTypeTags.FEATHER_AMULET_VALID)
             .build()
     );
+    public static final DeferredHolder<IAmulet, DoNothingAmulet> ARMADILLO = REGISTER.register("armadillo", DoNothingAmulet::new);
     public static final DeferredHolder<IAmulet, DoNothingAmulet> CAT = REGISTER.register("cat", DoNothingAmulet::new);
     public static final DeferredHolder<IAmulet, DoNothingAmulet> DOG = REGISTER.register("dog", DoNothingAmulet::new);
     public static final DeferredHolder<IAmulet, DoNothingAmulet> SILENCE = REGISTER.register("silence", DoNothingAmulet::new);
@@ -74,7 +75,7 @@ public class ModAmulets {
     public static final DeferredHolder<IAmulet, WrappedOthersAmulet> NATURE = REGISTER.register(
         "nature",
         () -> new WrappedOthersAmulet(List.of(
-            ModAmulets.FEATHER.getKey(),
+            ModAmulets.ARMADILLO.getKey(),
             ModAmulets.CAT.getKey(),
             ModAmulets.DOG.getKey(),
             ModAmulets.SILENCE.getKey()

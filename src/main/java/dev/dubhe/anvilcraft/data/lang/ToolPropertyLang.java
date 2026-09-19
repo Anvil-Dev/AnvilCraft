@@ -15,6 +15,8 @@ public class ToolPropertyLang {
         provider.add("tooltip.anvilcraft.property.multiphase.suffix.1", "-β");
         provider.add("tooltip.anvilcraft.property.multiphase.suffix.2", "-γ");
         provider.add("tooltip.anvilcraft.property.multiphase.suffix.3", "-δ");
+        provider.add("tooltip.anvilcraft.property.night_vision", "Night Vision [Hold %1$s]: %2$s");
+        provider.add("tooltip.anvilcraft.property.charged_jump", "Charged Jump [Hold %1$s]: %2$s");
         provider.add("tooltip.anvilcraft.property.protect_containers", "Container Protection [ALT]: %1$s");
         provider.add("tooltip.anvilcraft.property.protect_containers.on", "On");
         provider.add("tooltip.anvilcraft.property.protect_containers.off", "Off");

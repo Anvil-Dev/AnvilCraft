@@ -41,5 +41,5 @@ If you do not have a means of moving <ref item="minecraft:spawner"/>, plan the l
 </warning>
 
 <tip>
-Recommended to use in conjunction with [Forced Mob Spawning](../001_feature/001_spawner.md)
+Recommended to use in conjunction with [Immediate Spawn Attempt](../001_feature/001_spawner.md)
 </tip>

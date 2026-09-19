@@ -17,11 +17,11 @@
       },
       "trigger": "minecraft:recipe_unlocked"
     },
-    "has_transcendium_ingot": {
+    "has_transcendium_nugget": {
       "conditions": {
         "items": [
           {
-            "items": "anvilcraft:transcendium_ingot"
+            "items": "anvilcraft:transcendium_nugget"
           }
         ]
       },
@@ -32,7 +32,7 @@
     [
       "has_the_recipe",
       "has_multiphase_matter",
-      "has_transcendium_ingot"
+      "has_transcendium_nugget"
     ]
   ],
   "rewards": {

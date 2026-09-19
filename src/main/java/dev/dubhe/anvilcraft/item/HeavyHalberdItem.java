@@ -6,7 +6,6 @@ import dev.dubhe.anvilcraft.entity.ThrownHeavyHalberdEntity;
 import dev.dubhe.anvilcraft.init.enchantment.ModEnchantmentTags;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.item.property.component.Merciless;
-import net.minecraft.ChatFormatting;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.core.BlockPos;
@@ -17,7 +16,6 @@ import net.minecraft.core.HolderOwner;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.Position;
 import net.minecraft.core.component.DataComponents;
-import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundSetEntityMotionPacket;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -53,7 +51,6 @@ import net.minecraft.world.item.Rarity;
 import net.minecraft.world.item.SwordItem;
 import net.minecraft.world.item.Tier;
 import net.minecraft.world.item.TieredItem;
-import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.item.component.CustomModelData;
 import net.minecraft.world.item.component.ItemAttributeModifiers;
@@ -72,7 +69,6 @@ import net.neoforged.neoforge.common.ItemAbility;
 import org.jetbrains.annotations.Range;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.function.Consumer;
 import javax.annotation.Nullable;
 
@@ -231,17 +227,6 @@ public abstract class HeavyHalberdItem extends TieredItem implements ProjectileI
                 && getMode(stack) == TRIDENT_MODE
                 && entity.isUsingItem()
                 && entity.getUseItem() == stack ? 1.0F : 0.0F
-        );
-    }
-
-    @Override
-    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltipComponents, TooltipFlag tooltipFlag) {
-        super.appendHoverText(stack, context, tooltipComponents, tooltipFlag);
-        tooltipComponents.add(
-            Component.translatable(
-                "tooltip.anvilcraft.heavy_halberd.desc",
-                Component.keybind("key.anvilcraft.switch_tool_mode")
-            ).withStyle(ChatFormatting.GRAY)
         );
     }
 

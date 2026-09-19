@@ -91,6 +91,7 @@ import dev.dubhe.anvilcraft.item.abnormal.LevitationItem;
 import dev.dubhe.anvilcraft.item.abnormal.RadiationItem;
 import dev.dubhe.anvilcraft.item.abnormal.SuperHeavyItem;
 import dev.dubhe.anvilcraft.item.amulet.AmuletBoxItem;
+import dev.dubhe.anvilcraft.item.amulet.ComradeAmuletItem;
 import dev.dubhe.anvilcraft.item.property.component.Eternal;
 import dev.dubhe.anvilcraft.item.property.component.Merciless;
 import dev.dubhe.anvilcraft.item.property.component.Multiphase;
@@ -549,12 +550,14 @@ public class ModItems {
 
     public static final ItemEntry<EquipmentArmorItem> BUFFER_BOOTS = REGISTRUM
         .item("buffer_boots", p -> new EquipmentArmorItem(p, ArmorItem.Type.BOOTS, false, "spacesuit"))
+        .properties(p -> p.component(ModComponents.CHARGED_JUMP_ENABLED, true))
         .tag(ItemTags.FOOT_ARMOR, ItemTags.FOOT_ARMOR_ENCHANTABLE, ItemTags.DURABILITY_ENCHANTABLE)
         .recipe(RegistrumItemRecipeLoader::bufferArmor)
         .register();
 
     public static final ItemEntry<EquipmentArmorItem> WEATHERPROOF_SPACESUIT_HELMET = REGISTRUM
         .item("weatherproof_spacesuit_helmet", p -> new EquipmentArmorItem(p, ArmorItem.Type.HELMET, true, "weatherproof_spacesuit"))
+        .properties(p -> p.component(ModComponents.NIGHT_VISION_ENABLED, true))
         .properties(Item.Properties::fireResistant)
         .tag(ItemTags.HEAD_ARMOR, ItemTags.HEAD_ARMOR_ENCHANTABLE, ItemTags.DURABILITY_ENCHANTABLE)
         .register();
@@ -581,6 +584,7 @@ public class ModItems {
 
     public static final ItemEntry<EquipmentArmorItem> WEATHERPROOF_SPACESUIT_BOOTS = REGISTRUM
         .item("weatherproof_spacesuit_boots", p -> new EquipmentArmorItem(p, ArmorItem.Type.BOOTS, true, "weatherproof_spacesuit"))
+        .properties(p -> p.component(ModComponents.CHARGED_JUMP_ENABLED, true))
         .properties(Item.Properties::fireResistant)
         .tag(ItemTags.FOOT_ARMOR, ItemTags.FOOT_ARMOR_ENCHANTABLE, ItemTags.DURABILITY_ENCHANTABLE)
         .register();
@@ -749,6 +753,7 @@ public class ModItems {
     );
     public static final ItemEntry<? extends Item> COMRADE_AMULET = createAmuletItem(
         "comrade",
+        ComradeAmuletItem::new,
         ModAmulets.COMRADE.getKey(),
         IAmulet.SMALL_AMULET_WEIGHT,
         builder -> builder.requires(Items.NAME_TAG, 4)
@@ -758,6 +763,12 @@ public class ModItems {
         ModAmulets.FEATHER.getKey(),
         IAmulet.SMALL_AMULET_WEIGHT,
         builder -> builder.requires(Items.FEATHER, 16).requires(Items.PHANTOM_MEMBRANE, 4)
+    );
+    public static final ItemEntry<? extends Item> ARMADILLO_AMULET = createAmuletItem(
+        "armadillo",
+        ModAmulets.ARMADILLO.getKey(),
+        IAmulet.SMALL_AMULET_WEIGHT,
+        builder -> builder.requires(Items.SPIDER_EYE, 16).requires(Items.ARMADILLO_SCUTE, 4)
     );
     public static final ItemEntry<? extends Item> CAT_AMULET = createAmuletItem(
         "cat",

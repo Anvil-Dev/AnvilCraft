@@ -1455,12 +1455,9 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
                         Direction.NORTH,
                         upsideDown
                     );
-                    int row = position / SmartBlockPlacerBlockEntity.POSITION_GRID_SIZE;
-                    int column = position % SmartBlockPlacerBlockEntity.POSITION_GRID_SIZE;
-                    previewLevelLike.setBlockState(
-                        new BlockPos(column, layer, row),
-                        blueprintState
-                    );
+                    BlockPos previewPos = blockEntity.getBlueprintPosition(index, Direction.NORTH, upsideDown)
+                        .subtract(blockEntity.getBlockPos()).offset(placerX, placerY, placerZ);
+                    previewLevelLike.setBlockState(previewPos, blueprintState);
                 }
             }
             return previewLevelLike;

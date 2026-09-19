@@ -1,5 +1,7 @@
 package dev.dubhe.anvilcraft.util;
 
+import dev.dubhe.anvilcraft.block.entity.StoragePortBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.StoragePortConsolidatorBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.storage.StorageBlockEntity;
 import dev.dubhe.anvilcraft.block.item.ChuteBlockItem;
 import dev.dubhe.anvilcraft.block.multipart.AbstractMultiPartBlock;
@@ -38,6 +40,10 @@ public final class PlacementInteractions {
         BlockPos menuPos = block instanceof AbstractMultiPartBlock<?> multipart
             ? multipart.getMainPartPos(context.getClickedPos(), state) : context.getClickedPos();
         var entity = context.getLevel().getBlockEntity(menuPos);
+        if (entity instanceof StoragePortBlockEntity || entity instanceof StoragePortConsolidatorBlockEntity) {
+            if (context.getItemInHand().getItem() instanceof ChuteBlockItem) return !ChuteBlockItem.isStorageInteraction(context);
+            return context.getHand() != InteractionHand.MAIN_HAND;
+        }
         if (state.getMenuProvider(context.getLevel(), menuPos) != null
             || entity instanceof MenuProvider || entity instanceof StorageBlockEntity) return false;
         return !(block instanceof ButtonBlock || block instanceof LeverBlock || block instanceof BedBlock || block instanceof BellBlock

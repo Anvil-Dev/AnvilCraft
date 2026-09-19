@@ -2,8 +2,6 @@ package dev.dubhe.anvilcraft.client.gui.screen;
 
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
-import net.minecraft.world.SimpleContainer;
-import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ClickType;
@@ -40,43 +38,29 @@ public class StorageMenu extends AbstractContainerMenu {
     @Getter
     private final BlockPos sourcePos;
 
-    private StorageMenu(AbstractContainerMenu inventoryMenu, Inventory inventory, BlockPos sourcePos) {
+    private StorageMenu(AbstractContainerMenu inventoryMenu, BlockPos sourcePos) {
         super(null, 0);
         this.inventoryMenu = inventoryMenu;
         this.sourcePos = sourcePos;
-        // 槽位布局与 InventoryMenu 完全一致（46 槽），保证服务端广播
-        // （containerId == 0 的槽位/内容包）按同一 index 写回正确的背包槽。
-        // 0 合成结果、1~4 合成格：服务端是独立容器（不在地图背包），用空容器承接广播
-        SimpleContainer hidden = new SimpleContainer(1);
-        for (int i = 0; i < 5; i++) {
-            this.addSlot(new Slot(hidden, 0, HIDDEN_X, HIDDEN_Y));
-        }
-        // 5~8 盔甲（Inventory 36~39）：与 InventoryMenu 一致
-        for (int i = 0; i < 4; i++) {
-            this.addSlot(new Slot(inventory, 36 + i, HIDDEN_X, HIDDEN_Y));
-        }
-        // 9~35 主物品栏：3 行，与 StorageScreen 渲染位置一致
-        for (int row = 0; row < 3; row++) {
-            for (int column = 0; column < 9; column++) {
-                this.addSlot(new Slot(
-                    inventory,
-                    9 + row * 9 + column,
-                    PLAYER_INVENTORY_X + 18 * column,
-                    PLAYER_INVENTORY_Y + 18 * row
-                ));
+        // 复用原菜单的槽位映射，确保盔甲和附加口袋的同步索引保持一致。
+        for (int index = 0; index < inventoryMenu.slots.size(); index++) {
+            Slot source = inventoryMenu.getSlot(index);
+            int slotX = HIDDEN_X;
+            int slotY = HIDDEN_Y;
+            if (index >= 9 && index < 36) {
+                slotX = PLAYER_INVENTORY_X + 18 * ((index - 9) % 9);
+                slotY = PLAYER_INVENTORY_Y + 18 * ((index - 9) / 9);
+            } else if (index >= 36 && index < 45) {
+                slotX = PLAYER_INVENTORY_X + 18 * (index - 36);
+                slotY = PLAYER_INVENTORY_Y + HOTBAR_Y;
             }
+            this.addSlot(new Slot(source.container, source.getSlotIndex(), slotX, slotY));
         }
-        // 36~44 快捷栏（0~8）
-        for (int i = 0; i < 9; i++) {
-            this.addSlot(new Slot(inventory, i, PLAYER_INVENTORY_X + 18 * i, PLAYER_INVENTORY_Y + HOTBAR_Y));
-        }
-        // 45 副手：隐藏
-        this.addSlot(new Slot(inventory, 40, HIDDEN_X, HIDDEN_Y));
     }
 
     /** 创建包裹玩家 {@code inventoryMenu} 的仓储菜单。 */
     public static StorageMenu create(Player player, BlockPos sourcePos) {
-        return new StorageMenu(player.inventoryMenu, player.getInventory(), sourcePos);
+        return new StorageMenu(player.inventoryMenu, sourcePos);
     }
 
     @Override

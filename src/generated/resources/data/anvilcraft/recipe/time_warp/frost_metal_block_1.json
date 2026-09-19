@@ -1,0 +1,20 @@
+{
+  "type": "anvilcraft:time_warp",
+  "consume": 9000,
+  "fluid": "minecraft:powder_snow",
+  "ingredients": [
+    {
+      "count": 3,
+      "items": "anvilcraft:royal_steel_block"
+    },
+    {
+      "items": "minecraft:iron_block"
+    }
+  ],
+  "results": [
+    {
+      "count": 2,
+      "id": "anvilcraft:frost_metal_block"
+    }
+  ]
+}

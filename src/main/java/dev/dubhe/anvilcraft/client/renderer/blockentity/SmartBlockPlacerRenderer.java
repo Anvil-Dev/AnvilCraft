@@ -17,6 +17,7 @@ import net.minecraft.client.color.block.BlockColors;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.BlockRenderDispatcher;
+import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
@@ -27,6 +28,7 @@ import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemDisplayContext;
@@ -47,6 +49,7 @@ import net.minecraft.world.phys.AABB;
 import net.neoforged.neoforge.client.RenderTypeHelper;
 import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
 import net.neoforged.neoforge.client.model.data.ModelData;
+import org.joml.Vector3f;
 
 import java.util.List;
 import javax.annotation.Nullable;
@@ -77,6 +80,7 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
     private final ItemRenderer itemRenderer;
     private final ModelManager modelManager;
     private final BlockColors blockColors;
+    private final RandomSource random = RandomSource.create();
 
     public SmartBlockPlacerRenderer(BlockEntityRendererProvider.Context context) {
         this.blockRenderer = context.getBlockRenderDispatcher();
@@ -339,6 +343,25 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
         poseStack.popPose();
     }
 
+    public void renderDancingArm(
+        double renderTick, PoseStack pose, MultiBufferSource buffer, int packedLight, int packedOverlay
+    ) {
+        float lowerArmAngle = Mth.lerp((Mth.sin((float) (renderTick / 4 % (2 * Math.PI))) + 1) / 2, -45, 15);
+        float upperArmAngle = Mth.lerp((Mth.sin((float) (renderTick / 8 % (2 * Math.PI))) + 1) / 4, -45, 95);
+        // Create's dancing angles, adjusted for the baked 22.5-degree forearm and claw rest poses.
+        ArmRenderState state = new ArmRenderState(
+            (float) (renderTick * 10 % 360), lowerArmAngle, upperArmAngle + 22.5f, -lowerArmAngle + 22.5f, 0, false
+        );
+        pose.pushPose();
+        applyBaseTransform(pose, Direction.NORTH, false);
+        this.visitArmModels(
+            pose, false, state,
+            (model, modelPose) -> this.renderModel(modelPose, buffer, model, packedLight, packedOverlay),
+            () -> {}
+        );
+        pose.popPose();
+    }
+
     private void renderArm(
         SmartBlockPlacerBlockEntity entity,
         @Nullable Level level,
@@ -354,7 +377,7 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
             poseStack,
             upsideDown,
             state,
-            (model, pose) -> this.renderModel(pose, buffer, model, packedLight, packedOverlay),
+            (model, pose) -> this.renderWorldModel(pose, buffer, model, packedLight, packedOverlay, level),
             () -> this.renderHeldContent(poseStack, buffer, entity.getCurrentHeldBlock(), level, partialTick, packedLight, packedOverlay)
         );
     }
@@ -531,6 +554,42 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
         return null;
     }
     
+    private void renderWorldModel(
+        PoseStack poseStack, MultiBufferSource buffer, ModelResourceLocation model,
+        int packedLight, int packedOverlay, @Nullable Level level
+    ) {
+        if (level == null) {
+            this.renderModel(poseStack, buffer, model, packedLight, packedOverlay);
+            return;
+        }
+        VertexConsumer vertices = buffer.getBuffer(RenderType.cutout());
+        BakedModel bakedModel = this.modelManager.getModel(model);
+        for (Direction cull : Direction.values()) {
+            this.random.setSeed(42L);
+            this.renderWorldQuads(
+                poseStack.last(), vertices, bakedModel.getQuads(null, cull, this.random), packedLight, packedOverlay, level
+            );
+        }
+        this.random.setSeed(42L);
+        this.renderWorldQuads(
+            poseStack.last(), vertices, bakedModel.getQuads(null, null, this.random), packedLight, packedOverlay, level
+        );
+    }
+
+    private void renderWorldQuads(
+        PoseStack.Pose pose, VertexConsumer consumer, List<BakedQuad> quads,
+        int packedLight, int packedOverlay, Level level
+    ) {
+        Vector3f normal = new Vector3f();
+        for (BakedQuad quad : quads) {
+            Direction local = quad.getDirection();
+            normal.set(local.getStepX(), local.getStepY(), local.getStepZ()).mul(pose.normal());
+            Direction worldDirection = Direction.getNearest(normal.x(), normal.y(), normal.z());
+            float shade = level.getShade(worldDirection, quad.isShade());
+            consumer.putBulkData(pose, quad, shade, shade, shade, 1.0f, packedLight, packedOverlay);
+        }
+    }
+
     @SuppressWarnings("deprecation")
     private void renderModel(
         PoseStack poseStack, MultiBufferSource buffer, ModelResourceLocation model, int packedLight, int packedOverlay) {

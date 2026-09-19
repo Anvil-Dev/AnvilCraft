@@ -632,6 +632,10 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         return this.getBlueprintLayout().getPosition(storageIndex);
     }
 
+    public BlockPos getBlueprintPosition(int storageIndex, Direction targetFacing, boolean upsideDown) {
+        return this.getBlueprintLayout().getPosition(storageIndex, targetFacing, upsideDown);
+    }
+
     public BlockState getBlueprintStateForPlacement(int storageIndex) {
         return this.getBlueprintLayout().getState(storageIndex);
     }
@@ -657,6 +661,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             this.getBlockPos(),
             this.getFacing().getOpposite(),
             scannerFacing,
+            diskData == null || diskData.autoRotate(),
             this.isUpsideDown(),
             POSITION_GRID_SIZE,
             POSITION_DISTANCE,
