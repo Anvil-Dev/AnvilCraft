@@ -340,12 +340,28 @@ public class OverflowChuteBlock extends BetterBaseEntityBlock implements HammerR
 
     @Override
     public BlockState rotate(BlockState state, Rotation rotation) {
-        return state.setValue(FACING, rotation.rotate(state.getValue(FACING)));
+        BlockState result = state.setValue(FACING, rotation.rotate(state.getValue(FACING)));
+        for (Direction direction : Direction.values()) {
+            Direction rotatedDirection = rotation.rotate(direction);
+            result = result.setValue(
+                overflowProperty(rotatedDirection),
+                state.getValue(overflowProperty(direction))
+            );
+        }
+        return result;
     }
 
     @Override
     public BlockState mirror(BlockState state, Mirror mirror) {
-        return this.rotate(state, mirror.getRotation(state.getValue(FACING)));
+        BlockState result = state.setValue(FACING, mirror.mirror(state.getValue(FACING)));
+        for (Direction direction : Direction.values()) {
+            Direction mirroredDirection = mirror.mirror(direction);
+            result = result.setValue(
+                overflowProperty(mirroredDirection),
+                state.getValue(overflowProperty(direction))
+            );
+        }
+        return result;
     }
 
     @Override
