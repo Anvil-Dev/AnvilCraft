@@ -17,6 +17,7 @@ import dev.dubhe.anvilcraft.client.renderer.entity.model.EquipmentModels;
 import dev.dubhe.anvilcraft.client.renderer.item.CelestialForgingAnvilItemRenderer;
 import dev.dubhe.anvilcraft.client.renderer.item.ItemSlotClipping;
 import dev.dubhe.anvilcraft.client.renderer.item.RuinsBlockItemRenderer;
+import dev.dubhe.anvilcraft.client.renderer.item.SmartBlockPlacerItemRenderer;
 import dev.dubhe.anvilcraft.client.renderer.item.decoration.TerminalInsertionDecoration;
 import dev.dubhe.anvilcraft.client.renderer.item.decoration.WeatherproofChestplateDecoration;
 import dev.dubhe.anvilcraft.client.selection.ModelBlockSelection;
@@ -118,6 +119,7 @@ public class AnvilCraftClient {
         ModFluids.onRegisterFluidType(e);
         e.registerItem(new RuinsBlockItemRenderer.ItemExtensions(), ModBlocks.RUINS_BLOCK.asItem());
         e.registerItem(new CelestialForgingAnvilItemRenderer.ItemExtensions(), ModBlocks.CELESTIAL_FORGING_ANVIL.asItem());
+        e.registerItem(new SmartBlockPlacerItemRenderer.ItemExtensions(), ModBlocks.SMART_BLOCK_PLACER.asItem());
         ItemExtensionImpl itemExtensionInstance = new ItemExtensionImpl();
         e.registerItem(itemExtensionInstance, ModItems.IONOCRAFT_BACKPACK, ModItems.BREATHING_HELMET,
             ModItems.POCKETS_LEGGINGS, ModItems.BUFFER_BOOTS, ModItems.WEATHERPROOF_SPACESUIT_HELMET,

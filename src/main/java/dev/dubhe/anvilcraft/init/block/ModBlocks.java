@@ -238,6 +238,7 @@ import dev.dubhe.anvilcraft.block.item.ResinBlockItem;
 import dev.dubhe.anvilcraft.block.item.RuinsBlockItem;
 import dev.dubhe.anvilcraft.block.item.ShulkerContainerBlockItem;
 import dev.dubhe.anvilcraft.block.item.SimpleMultiPartBlockItem;
+import dev.dubhe.anvilcraft.block.item.SmartBlockPlacerBlockItem;
 import dev.dubhe.anvilcraft.block.item.StorageFluidPortBlockItem;
 import dev.dubhe.anvilcraft.block.item.StoragePortBlockItem;
 import dev.dubhe.anvilcraft.block.item.SuperHeavyBlockItem;
@@ -941,7 +942,7 @@ public class ModBlocks {
         .lang("Burning Heater")
         .initialProperties(ModBlocks.MAGNET_BLOCK)
         .properties(properties -> properties.isValidSpawn(Blocks::never)
-            .lightLevel(state -> 15))
+            .lightLevel(state -> state.getValue(BurningHeaterBlock.LEVEL) > 0 ? 15 : 0))
         .blockstate(DataGenUtil::noExtraModelOrState)
         .item()
         .build()
@@ -1380,7 +1381,8 @@ public class ModBlocks {
                     .build();
             });
         })
-        .simpleItem()
+        .item(SmartBlockPlacerBlockItem::new)
+        .build()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .recipe(RegistrumBlockRecipeLoader::smartBlockPlacer)
         .register();

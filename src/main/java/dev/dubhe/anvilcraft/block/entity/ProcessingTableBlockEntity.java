@@ -108,7 +108,7 @@ public abstract class ProcessingTableBlockEntity extends BlockEntity implements 
 
         @Override
         public ItemStack extractItem(int slot, int amount, boolean simulate) {
-            return ProcessingTableBlockEntity.this.input.extractItem(slot, amount, simulate);
+            return ItemStack.EMPTY;
         }
     };
 
