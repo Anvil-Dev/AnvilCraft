@@ -39,29 +39,29 @@ public class EquipmentArmorItem extends ArmorItem {
         super.appendHoverText(stack, context, tooltip, flag);
         switch (this.type) {
             case HELMET -> {
-                TooltipUtil.addTranslatedLines(tooltip, ChatFormatting.GRAY, "tooltip.anvilcraft.equipment.breathing");
+                tooltip.addAll(TooltipUtil.translatedLines("tooltip.anvilcraft.equipment.breathing", ChatFormatting.GRAY));
                 if (this.weatherproof) {
-                    TooltipUtil.addTranslatedLines(tooltip, ChatFormatting.GRAY, "tooltip.anvilcraft.equipment.clear_vision");
+                    tooltip.addAll(TooltipUtil.translatedLines("tooltip.anvilcraft.equipment.clear_vision", ChatFormatting.GRAY));
                 }
             }
             case CHESTPLATE -> {
                 if (this.weatherproof) {
-                    TooltipUtil.addTranslatedLines(tooltip, ChatFormatting.GRAY, "tooltip.anvilcraft.equipment.recharge");
+                    tooltip.addAll(TooltipUtil.translatedLines("tooltip.anvilcraft.equipment.recharge", ChatFormatting.GRAY));
                 }
             }
-            case LEGGINGS -> TooltipUtil.addTranslatedLines(
-                tooltip, ChatFormatting.GRAY, "tooltip.anvilcraft.equipment.pockets", this.weatherproof ? 12 : 6);
+            case LEGGINGS -> tooltip.addAll(TooltipUtil.translatedLines(
+                "tooltip.anvilcraft.equipment.pockets", ChatFormatting.GRAY, this.weatherproof ? 12 : 6));
             case BOOTS -> {
-                TooltipUtil.addTranslatedLines(tooltip, ChatFormatting.GRAY, "tooltip.anvilcraft.equipment.buffer_boots");
+                tooltip.addAll(TooltipUtil.translatedLines("tooltip.anvilcraft.equipment.buffer_boots", ChatFormatting.GRAY));
                 if (this.weatherproof) {
-                    TooltipUtil.addTranslatedLines(tooltip, ChatFormatting.GRAY, "tooltip.anvilcraft.equipment.fluid_walking");
+                    tooltip.addAll(TooltipUtil.translatedLines("tooltip.anvilcraft.equipment.fluid_walking", ChatFormatting.GRAY));
                 }
             }
             default -> {
             }
         }
         if (this.weatherproof) {
-            TooltipUtil.addTranslatedLines(tooltip, ChatFormatting.AQUA, "tooltip.anvilcraft.equipment.full_suit");
+            tooltip.addAll(TooltipUtil.translatedLines("tooltip.anvilcraft.equipment.full_suit", ChatFormatting.AQUA));
         }
     }
 
