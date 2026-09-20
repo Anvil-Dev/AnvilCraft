@@ -242,11 +242,7 @@ public final class BuildingRodClient {
     private static Rotation viewRotation() {
         var player = Minecraft.getInstance().player;
         if (player == null || disk == null || !disk.autoRotate()) return Rotation.NONE;
-        Direction source = disk.direction().getAxis().isHorizontal() ? disk.direction() : Direction.NORTH;
-        for (Rotation candidate : Rotation.values()) {
-            if (candidate.rotate(source) == player.getDirection()) return candidate;
-        }
-        return Rotation.NONE;
+        return BlueprintPlacement.facingPlayer(disk.direction(), player.getDirection());
     }
 
     @SubscribeEvent

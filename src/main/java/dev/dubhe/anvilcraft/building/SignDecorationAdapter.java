@@ -117,8 +117,7 @@ public final class SignDecorationAdapter {
             .parse(registries.createSerializationContext(NbtOps.INSTANCE), side)
             .result()
             .orElse(null);
-        // 解析不出来的文本拆不成加工项,原样留在配置里,不悄悄丢掉蓝图数据
-        if (text == null) return;
+        if (text == null) throw new IllegalArgumentException("Invalid blueprint sign text");
         Tag messages = side.get(MESSAGES);
         config.remove(key);
         if (messages != null && hasText(text)) {
@@ -144,6 +143,15 @@ public final class SignDecorationAdapter {
                 null
             ));
         }
+    }
+
+    public static CompoundTag sanitize(BlockState state, CompoundTag nbt, HolderLookup.Provider registries) {
+        CompoundTag blank = new CompoundTag();
+        blank.put(FRONT_TEXT, blankSide(registries));
+        blank.put(BACK_TEXT, blankSide(registries));
+        blank.putBoolean(IS_WAXED, false);
+        Extracted extracted = extract(state, nbt, registries);
+        return compose(blank, extracted.decorations(), registries);
     }
 
     /** 提交时把配置与已交付的加工项合成最终 NBT;未交付项保持原版空白默认。 */

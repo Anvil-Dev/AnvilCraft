@@ -1,0 +1,396 @@
+package dev.dubhe.anvilcraft.building;
+
+import dev.dubhe.anvilcraft.api.taslatower.TeslaFilter;
+import dev.dubhe.anvilcraft.block.entity.ActiveSilencerBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.AdvancedComparatorBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.AutoEnchantingTableBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.BaseChuteBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.ChargerBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.DischargerBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.ExpCollectorBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.HeliostatsBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.IFilterBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.ItemCollectorBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.ItemDetectorBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.PulseGeneratorBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.RedstoneDiceBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.SmartBlockPlacerBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.StructureScannerBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.TeslaTowerBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.TradingStationBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.batch.BaseBatchCraftingBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.batch.BatchCrafterBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.fluid.AbstractPipeCheckValveBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.fluid.ControlValveBlockEntity;
+import dev.dubhe.anvilcraft.init.item.ModItems;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.NbtOps;
+import net.minecraft.nbt.StringTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.Mirror;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.CrafterBlockEntity;
+import net.minecraft.world.level.block.entity.LecternBlockEntity;
+import net.minecraft.world.level.block.entity.SignBlockEntity;
+import net.neoforged.neoforge.fluids.FluidStack;
+
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import javax.annotation.Nullable;
+
+/** 蓝图只复制经过字段校验的设置；库存、身份和执行缓存不属于设置。 */
+public final class BlueprintBlockConfiguration {
+    private BlueprintBlockConfiguration() {
+    }
+
+    static CompoundTag take(BlockEntity entity, CompoundTag source, HolderLookup.Provider registries) {
+        CompoundTag result = new CompoundTag();
+        if (entity instanceof SignBlockEntity) {
+            result = SignDecorationAdapter.sanitize(entity.getBlockState(), source, registries);
+            remove(source, "front_text", "back_text", "is_waxed");
+        }
+        if (entity instanceof IFilterBlockEntity filter && filter.getFilteredItemStackHandler().getSlots() > 0) {
+            for (String key : List.of("Inventory", "Depository", "Items")) {
+                if (!source.contains(key, Tag.TAG_COMPOUND)) continue;
+                result.put(key, filtering(source.getCompound(key), filter.getFilteredItemStackHandler().getSlots(), registries));
+                stripFiltering(source.getCompound(key));
+            }
+        }
+        if ((entity instanceof PulseGeneratorBlockEntity || entity instanceof AdvancedComparatorBlockEntity)
+            && source.contains("ExtraData", Tag.TAG_COMPOUND)) {
+            CompoundTag data = source.getCompound("ExtraData");
+            CompoundTag settings = new CompoundTag();
+            bool(data, settings, "OutputMode");
+            if (entity instanceof PulseGeneratorBlockEntity) {
+                integer(data, settings, "StartMode", 0, 2);
+                integer(data, settings, "WaitingTime", 0, 24000);
+                integer(data, settings, "SignalDuration", 0, 24000);
+                if (settings.getInt("WaitingTime") == 0 && settings.getInt("SignalDuration") == 0) settings.putInt("SignalDuration", 1);
+            } else {
+                integer(data, settings, "CompareMode", 0, 1);
+                integer(data, settings, "HighLimit", 0, 15);
+                integer(data, settings, "LowLimit", 0, 15);
+                bool(data, settings, "RedstoneControl");
+            }
+            result.put("ExtraData", settings);
+            source.remove("ExtraData");
+        }
+        if (entity instanceof BaseChuteBlockEntity) source.remove("Cooldown");
+        if (entity instanceof ChargerBlockEntity || entity instanceof DischargerBlockEntity) {
+            remove(source, "TimeLeft", "TimeTotalCache", "PowerValue", "StartupCoolDown", "FeCharging", "FeDischarging", "FeCooldown");
+        }
+        if (entity instanceof TradingStationBlockEntity) {
+            result.put("Filters", filterSamples(source.getCompound("Filters"), 3, registries));
+            for (String key : List.of("AllowPlayer", "AllowVillager", "AllowInput", "AllowOutput")) bool(source, result, key);
+            remove(source, "Filters", "Owner");
+        }
+        if (entity instanceof ItemDetectorBlockEntity) {
+            integer(source, result, "Range", 1, 8);
+            choice(source, result, "FilterMode", "ANY", "ALL");
+            bool(source, result, "OutputInvert");
+            result.put("Filter", filterSamples(source.getCompound("Filter"), 9, registries));
+            remove(source, "Filter", "OutputSignal");
+        }
+        if (entity instanceof ItemCollectorBlockEntity || entity instanceof ExpCollectorBlockEntity) {
+            integer(source, result, "Cooldown", 0, 3);
+            integer(source, result, "RangeRadius", 0, 3);
+            source.remove("cd");
+        }
+        if (entity instanceof ActiveSilencerBlockEntity) {
+            var sounds = ActiveSilencerBlockEntity.CODEC.parse(NbtOps.INSTANCE, source.getCompound("MutedSound"))
+                .result().orElse(List.of());
+            result.put("MutedSound", ActiveSilencerBlockEntity.CODEC.encodeStart(NbtOps.INSTANCE,
+                sounds.stream().distinct().limit(1024).toList()).getOrThrow());
+            source.remove("MutedSound");
+        }
+        if (entity instanceof TeslaTowerBlockEntity) tesla(source, result);
+        if (entity instanceof ControlValveBlockEntity) valve(source, result, registries);
+        if (entity instanceof AutoEnchantingTableBlockEntity) enchanting(source, result, registries);
+        if (entity instanceof StructureScannerBlockEntity) {
+            for (String key : List.of("rangeX", "rangeY", "rangeZ")) integer(source, result, key, 0, 15);
+            remove(source, "isScanning", "currentScanLayer", "scannedBlocks", "pendingAutoSave", "autoSaveStructureName");
+        }
+        if (entity instanceof BaseBatchCraftingBlockEntity) {
+            remove(source, "PoweredBefore", "Cooldown", "HasDisplayItemStack", "ResultItemStack");
+        }
+        if (entity instanceof BatchCrafterBlockEntity) integer(source, result, "Selecting", 0, Integer.MAX_VALUE);
+        if (entity instanceof SmartBlockPlacerBlockEntity) smartPlacer(source, result);
+        if (entity instanceof RedstoneDiceBlockEntity) {
+            bool(source, result, "Uniform");
+            remove(source, "Rolling", "PreviousFaces", "Faces", "Output", "RollStart");
+        }
+        if (entity instanceof CrafterBlockEntity) {
+            result.putIntArray("disabled_slots", Arrays.stream(source.getIntArray("disabled_slots"))
+                .filter(slot -> slot >= 0 && slot < 9).distinct().toArray());
+            remove(source, "disabled_slots", "crafting_ticks_remaining", "triggered");
+        }
+        if (entity instanceof LecternBlockEntity) integer(source, result, "Page", 0, Integer.MAX_VALUE);
+        if (entity instanceof HeliostatsBlockEntity && source.contains("Ix", Tag.TAG_INT)) {
+            for (String key : List.of("Ix", "Iy", "Iz")) integer(source, result, key, Integer.MIN_VALUE, Integer.MAX_VALUE);
+        }
+        if (entity instanceof AbstractPipeCheckValveBlockEntity) {
+            result.put("Valves", checkValves(source.getList("Valves", Tag.TAG_COMPOUND)));
+            remove(source, "Valves", "Powered");
+        }
+        return result;
+    }
+
+    static void strip(BlockEntity entity, CompoundTag tag, HolderLookup.Provider registries) {
+        take(entity, tag, registries);
+        if (entity instanceof IFilterBlockEntity filter && filter.getFilteredItemStackHandler().getSlots() > 0) {
+            remove(tag, "Inventory", "Depository", "Items");
+        }
+    }
+
+    private static CompoundTag filtering(CompoundTag source, int size, HolderLookup.Provider registries) {
+        CompoundTag result = new CompoundTag();
+        result.putBoolean("FilterEnabled", source.getBoolean("FilterEnabled"));
+        result.putInt("Size", size);
+        ListTag entries = new ListTag();
+        for (int slot = 0; slot < size; slot++) {
+            CompoundTag entry = new CompoundTag();
+            entry.putInt("Slot", slot);
+            entry.putBoolean("IsEmptySlot", true);
+            entry.putInt("SlotLimit", 64);
+            for (Tag value : source.getList("Inventory", Tag.TAG_COMPOUND)) {
+                CompoundTag saved = (CompoundTag) value;
+                if (saved.getInt("Slot") != slot) continue;
+                entry.putBoolean("Disabled", saved.getBoolean("Disabled"));
+                entry.putInt("SlotLimit", saved.contains("SlotLimit") ? Math.clamp(saved.getInt("SlotLimit"), 1, 64) : 64);
+                if (saved.getBoolean("SlotFilterEnabled")) {
+                    ItemStack item = ItemStack.parseOptional(registries, saved.getCompound("SlotFilterItem"));
+                    if (!item.isEmpty()) {
+                        entry.putBoolean("SlotFilterEnabled", true);
+                        entry.put("SlotFilterItem", item.copyWithCount(1).save(registries));
+                    }
+                }
+            }
+            entries.add(entry);
+        }
+        result.put("Inventory", entries);
+        return result;
+    }
+
+    private static void stripFiltering(CompoundTag source) {
+        source.remove("FilterEnabled");
+        for (Tag value : source.getList("Inventory", Tag.TAG_COMPOUND)) {
+            CompoundTag entry = (CompoundTag) value;
+            remove(entry, "SlotFilterEnabled", "SlotFilterItem", "Disabled", "SlotLimit");
+        }
+    }
+
+    private static CompoundTag filterSamples(CompoundTag source, int size, HolderLookup.Provider registries) {
+        var items = new dev.dubhe.anvilcraft.inventory.container.FilterOnlyContainer(null, size);
+        for (Tag value : source.getList("Items", Tag.TAG_COMPOUND)) {
+            CompoundTag tag = (CompoundTag) value;
+            int slot = tag.getInt("Slot");
+            if (slot < 0 || slot >= size) continue;
+            ItemStack item = ItemStack.parseOptional(registries, tag);
+            if (!item.isEmpty()) items.setItem(slot, item.copyWithCount(Math.min(item.getCount(), item.getMaxStackSize())));
+        }
+        return items.serializeNBT(registries);
+    }
+
+    private static void tesla(CompoundTag source, CompoundTag result) {
+        for (String key : List.copyOf(source.getAllKeys())) {
+            int delimiter = key.indexOf("_-_");
+            if (delimiter < 0) continue;
+            String id = key.substring(0, delimiter);
+            if (!TeslaFilter.getFilter(id).getId().isEmpty() && source.contains(key, Tag.TAG_STRING)) {
+                String argument = source.getString(key);
+                if (argument.length() > 256) throw new IllegalArgumentException("Tesla filter argument is too long");
+                result.putString(key, argument);
+            }
+            source.remove(key);
+        }
+        remove(source, "LastStrikeTime", "TargetEntityUUID", "TargetLightningRod");
+    }
+
+    private static void valve(CompoundTag source, CompoundTag result, HolderLookup.Provider registries) {
+        integer(source, result, "MaxRate", 0, ControlValveBlockEntity.MAX_RATE);
+        integer(source, result, "Facing", 0, 5);
+        ListTag filters = new ListTag();
+        for (Tag value : source.getList("Filters", Tag.TAG_COMPOUND)) {
+            CompoundTag tag = (CompoundTag) value;
+            int slot = tag.getInt("Slot");
+            if (slot < 0 || slot >= ControlValveBlockEntity.FILTER_SLOT_COUNT) continue;
+            FluidStack fluid = FluidStack.parseOptional(registries, tag.getCompound("Fluid"));
+            if (fluid.isEmpty()) continue;
+            CompoundTag entry = new CompoundTag();
+            entry.putInt("Slot", slot);
+            entry.put("Fluid", fluid.copyWithAmount(1).save(registries));
+            filters.add(entry);
+        }
+        result.put("Filters", filters);
+        source.remove("Filters");
+    }
+
+    private static void enchanting(CompoundTag source, CompoundTag result, HolderLookup.Provider registries) {
+        choice(source, result, "WorkMode", Arrays.stream(AutoEnchantingTableBlockEntity.WorkMode.values())
+            .map(AutoEnchantingTableBlockEntity.WorkMode::getSerializedName).toArray(String[]::new));
+        integer(source, result, "LiquidEnchantmentLevel", 0, 255);
+        ListTag selected = new ListTag();
+        Set<String> seen = new HashSet<>();
+        for (Tag value : source.getList("SelectedEnchantments", Tag.TAG_STRING)) {
+            String id = value.getAsString();
+            ResourceLocation key = ResourceLocation.tryParse(id);
+            if (key != null && seen.add(id) && registries.lookupOrThrow(Registries.ENCHANTMENT)
+                .get(net.minecraft.resources.ResourceKey.create(Registries.ENCHANTMENT, key)).isPresent()) {
+                selected.add(StringTag.valueOf(id));
+            }
+        }
+        result.put("SelectedEnchantments", selected);
+        remove(source, "SelectedEnchantments", "CooldownTicks", "ShelfLevel");
+    }
+
+    private static void smartPlacer(CompoundTag source, CompoundTag result) {
+        choice(source, result, "operation", "pickup", "move");
+        choice(source, result, "target", "position", "blueprint");
+        choice(source, result, "placement", "skip", "wait");
+        integer(source, result, "selectedLayer", 0, SmartBlockPlacerBlockEntity.POSITION_GRID_SIZE - 1);
+        byte[] stored = source.contains("layerPositions", Tag.TAG_BYTE_ARRAY)
+            ? source.getByteArray("layerPositions") : source.getByteArray("positionMarks");
+        byte[] positions = Arrays.copyOf(stored, SmartBlockPlacerBlockEntity.POSITION_COUNT);
+        if (source.contains("layerPositions", Tag.TAG_COMPOUND)) {
+            for (int layer = 0; layer < SmartBlockPlacerBlockEntity.POSITION_GRID_SIZE; layer++) {
+                for (int position : source.getCompound("layerPositions").getIntArray("layer_" + layer)) {
+                    if (position >= 0 && position < SmartBlockPlacerBlockEntity.POSITIONS_PER_LAYER) {
+                        positions[layer * SmartBlockPlacerBlockEntity.POSITIONS_PER_LAYER + position] = 1;
+                    }
+                }
+            }
+        }
+        for (int i = 0; i < positions.length; i++) positions[i] = positions[i] == 0 ? (byte) 0 : (byte) 1;
+        result.putByteArray("layerPositions", positions);
+        remove(source, "layerPositions", "positionMarks", "currentPlacementIndex", "phase", "progress", "blueprintStates",
+            "loadedStructureName", "invalidStructure", "missingBlock", "currentHeldBlock");
+    }
+
+    private static ListTag checkValves(ListTag source) {
+        ListTag result = new ListTag();
+        Set<Integer> faces = new HashSet<>();
+        for (Tag value : source) {
+            CompoundTag entry = (CompoundTag) value;
+            int face = entry.getInt("Face");
+            int flow = entry.getInt("Flow");
+            if (face < 0 || face > 5 || flow < 0 || flow > 5 || !faces.add(face)
+                || Direction.from3DDataValue(face).getAxis() != Direction.from3DDataValue(flow).getAxis()) {
+                throw new IllegalArgumentException("Invalid blueprint check valve direction");
+            }
+            CompoundTag valve = new CompoundTag();
+            valve.putInt("Face", face);
+            valve.putInt("Flow", flow);
+            result.add(valve);
+        }
+        return result;
+    }
+
+    static List<ItemStack> materials(CompoundTag config) {
+        int count = config.getList("Valves", Tag.TAG_COMPOUND).size();
+        return count == 0 ? List.of() : List.of(ModItems.CHECK_VALVE.asStack(count));
+    }
+
+    public static void transform(
+        CompoundTag config, BlueprintPlacement placement, @Nullable BlockPos sourceOrigin, StructureSnapshot snapshot
+    ) {
+        if (config.contains("Facing")) {
+            Direction facing = Direction.from3DDataValue(config.getInt("Facing"));
+            config.putInt("Facing", placement.rotation().rotate(placement.mirror().mirror(facing)).get3DDataValue());
+        }
+        for (Tag value : config.getList("Valves", Tag.TAG_COMPOUND)) {
+            CompoundTag tag = (CompoundTag) value;
+            for (String key : List.of("Face", "Flow")) {
+                Direction direction = Direction.from3DDataValue(tag.getInt(key));
+                tag.putInt(key, placement.rotation().rotate(placement.mirror().mirror(direction)).get3DDataValue());
+            }
+        }
+        if (config.contains("layerPositions") && placement.mirror() != Mirror.NONE) {
+            byte[] source = Arrays.copyOf(config.getByteArray("layerPositions"), SmartBlockPlacerBlockEntity.POSITION_COUNT);
+            byte[] mirrored = source.clone();
+            int side = SmartBlockPlacerBlockEntity.POSITION_GRID_SIZE;
+            for (int i = 0; i < source.length; i++) mirrored[i - i % side + side - 1 - i % side] = source[i];
+            config.putByteArray("layerPositions", mirrored);
+        }
+        if (!config.contains("Ix")) return;
+        BlockPos target = new BlockPos(config.getInt("Ix"), config.getInt("Iy"), config.getInt("Iz"));
+        if (sourceOrigin != null) {
+            BlockPos local = target.subtract(sourceOrigin);
+            if (local.getX() >= 0 && local.getY() >= 0 && local.getZ() >= 0 && local.getX() < snapshot.size().getX()
+                && local.getY() < snapshot.size().getY() && local.getZ() < snapshot.size().getZ()) {
+                BlockPos world = placement.worldOf(local);
+                config.putInt("Ix", world.getX());
+                config.putInt("Iy", world.getY());
+                config.putInt("Iz", world.getZ());
+                return;
+            }
+        }
+        remove(config, "Ix", "Iy", "Iz");
+    }
+
+    @Nullable
+    public static BlockPos sourceOrigin(StructureSnapshot snapshot) {
+        BlockPos origin = null;
+        for (var entry : snapshot.blocks()) {
+            CompoundTag tag = entry.nbt().orElse(null);
+            if (tag == null || !tag.contains("x", Tag.TAG_INT)
+                || !tag.contains("y", Tag.TAG_INT) || !tag.contains("z", Tag.TAG_INT)) continue;
+            BlockPos candidate = new BlockPos(tag.getInt("x"), tag.getInt("y"), tag.getInt("z")).subtract(entry.pos());
+            if (origin != null && !origin.equals(candidate)) return null;
+            origin = candidate;
+        }
+        return origin;
+    }
+
+    static void apply(BlockEntity entity, CompoundTag settings, ServerPlayer player) {
+        if (settings.isEmpty() && !(entity instanceof TradingStationBlockEntity)) return;
+        CompoundTag tag = entity.saveWithFullMetadata(player.registryAccess());
+        tag.merge(settings.copy());
+        if (entity instanceof TradingStationBlockEntity) tag.putUUID("Owner", player.getUUID());
+        if (entity instanceof PulseGeneratorBlockEntity pulse) pulse.loadBlueprint(tag, player.registryAccess());
+        else entity.loadWithComponents(tag, player.registryAccess());
+    }
+
+    static void afterContents(BlockEntity entity, CompoundTag settings, ServerPlayer player) {
+        if (entity instanceof LecternBlockEntity lectern && !lectern.getBook().isEmpty() && settings.contains("Page")) {
+            apply(entity, settings, player);
+        }
+        if (entity instanceof BatchCrafterBlockEntity crafter) crafter.setSelecting(settings.getInt("Selecting"));
+        if (entity instanceof AutoEnchantingTableBlockEntity enchanting) {
+            enchanting.setLiquidLevel(settings.getInt("LiquidEnchantmentLevel"));
+        }
+        if (entity instanceof SmartBlockPlacerBlockEntity placer) placer.applyDiskData(settings);
+    }
+
+    private static void integer(CompoundTag source, CompoundTag target, String key, int min, int max) {
+        if (!source.contains(key, Tag.TAG_ANY_NUMERIC)) return;
+        target.putInt(key, Math.clamp(source.getInt(key), min, max));
+        source.remove(key);
+    }
+
+    private static void bool(CompoundTag source, CompoundTag target, String key) {
+        if (!source.contains(key, Tag.TAG_ANY_NUMERIC)) return;
+        target.putBoolean(key, source.getBoolean(key));
+        source.remove(key);
+    }
+
+    private static void choice(CompoundTag source, CompoundTag target, String key, String... values) {
+        if (!source.contains(key)) return;
+        String value = source.getString(key);
+        target.putString(key, Arrays.asList(values).contains(value) ? value : values[0]);
+        source.remove(key);
+    }
+
+    private static void remove(CompoundTag tag, String... keys) {
+        for (String key : keys) tag.remove(key);
+    }
+}

@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.building;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
@@ -14,6 +15,14 @@ import net.minecraft.world.phys.Vec3;
  * 语义镜像和旋转,再平移到锚点;方块状态使用原版 mirror/rotate,保证与最终提交一致。
  */
 public record BlueprintPlacement(BlockPos anchor, Rotation rotation, Mirror mirror) {
+    public static Rotation facingPlayer(Direction source, Direction playerFacing) {
+        Direction front = source.getAxis().isHorizontal() ? source : Direction.NORTH;
+        for (Rotation candidate : Rotation.values()) {
+            if (candidate.rotate(front) == playerFacing.getOpposite()) return candidate;
+        }
+        return Rotation.NONE;
+    }
+
     /** 快照局部方块坐标经镜像与旋转后的局部坐标,不含锚点平移。 */
     @SuppressWarnings("deprecation")
     public BlockPos localOf(BlockPos snapshotLocal) {

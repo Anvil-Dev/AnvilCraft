@@ -5,7 +5,18 @@ import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.FloatTag;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.decoration.ArmorStand;
+import net.minecraft.world.entity.decoration.ItemFrame;
+import net.minecraft.world.entity.decoration.Painting;
+import net.minecraft.world.entity.vehicle.AbstractMinecart;
+import net.minecraft.world.entity.vehicle.Boat;
 import net.minecraft.world.phys.Vec3;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public final class BuildingEntityTransform {
     private BuildingEntityTransform() {
@@ -38,5 +49,24 @@ public final class BuildingEntityTransform {
         tag.put("Rotation", rotated);
         tag.remove("Passengers");
         return tag;
+    }
+
+    static CompoundTag sanitize(Entity entity, CompoundTag tag) {
+        List<String> keys = new ArrayList<>(List.of("id", "Pos", "Rotation", "CustomName", "CustomNameVisible"));
+        if (entity instanceof Boat) keys.add("Type");
+        if (entity instanceof AbstractMinecart) {
+            keys.addAll(List.of("CustomDisplayTile", "DisplayState", "DisplayOffset"));
+            if (entity.getType() == EntityType.COMMAND_BLOCK_MINECART) keys.add("Command");
+        }
+        if (entity instanceof ArmorStand) keys.addAll(List.of("Pose", "Small", "ShowArms", "NoBasePlate", "Invisible", "NoGravity"));
+        if (entity instanceof ItemFrame || entity instanceof Painting) {
+            keys.addAll(List.of("Facing", "facing", "TileX", "TileY", "TileZ", "ItemRotation", "Invisible", "variant"));
+        }
+        CompoundTag safe = new CompoundTag();
+        for (String key : keys) {
+            Tag value = tag.get(key);
+            if (value != null) safe.put(key, value.copy());
+        }
+        return safe;
     }
 }

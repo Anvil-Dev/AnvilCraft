@@ -168,7 +168,7 @@ public class StructureScannerBlockEntity extends BaseMachineBlockEntity implemen
     private String autoSaveStructureName = "";  // 自动保存的结构名称
     
     /**
-     * 缓存的方块数据；nbt 为方块实体的完整原版结构语义数据（saveWithId），无方块实体时为 null
+     * 缓存的方块数据；nbt 为方块实体完整数据及扫描时的世界坐标，无方块实体时为 null
      */
     public record CachedBlockData(
         int x,
@@ -363,11 +363,11 @@ public class StructureScannerBlockEntity extends BaseMachineBlockEntity implemen
                 net.minecraft.world.level.block.state.BlockState blockState = this.level.getBlockState(worldPos);
                 
                 if (!blockState.isAir() && BlueprintMultiblocks.shouldRecord(blockState)) {
-                    // 与原版结构 fillFromWorld 一致，方块实体使用 saveWithId 保留完整数据
+                    // 保留扫描时的世界坐标，用于粘贴时重定位蓝图内部的引用。
                     net.minecraft.world.level.block.entity.BlockEntity worldBlockEntity =
                         this.level.getBlockEntity(worldPos);
                     CompoundTag blockEntityNbt = worldBlockEntity != null
-                        ? worldBlockEntity.saveWithId(this.level.registryAccess())
+                        ? worldBlockEntity.saveWithFullMetadata(this.level.registryAccess())
                         : null;
                     this.scannedBlocks.add(
                         new CachedBlockData(x, this.currentScanLayer, z, blockState, blockEntityNbt)
