@@ -69,7 +69,8 @@ public class LargeBlockPlacePreviewEventListener {
     private static int failBoundErrorCooldown = 0;
 
     private static ItemStack currentItem = ItemStack.EMPTY;
-    private static BlockPos currentPos = null;
+    @Nullable
+    private static BlockPos currentPos;
 
     private static int boundColor = 0xffffffff;
     private static List<BlockPos> cachedErrorPosList = new ObjectArrayList<>();
@@ -535,7 +536,9 @@ public class LargeBlockPlacePreviewEventListener {
             currentItem = ItemStack.EMPTY;
             failBoundCooldown = 0;
         }
-        if (!currentPos.equals(pos)) {
+        if (currentPos == null) {
+            currentPos = pos;
+        } else if (!currentPos.equals(pos)) {
             currentPos = null;
             failBoundCooldown = 0;
         }
