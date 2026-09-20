@@ -7,6 +7,7 @@ import com.llamalad7.mixinextras.sugar.Local;
 import com.llamalad7.mixinextras.sugar.Share;
 import com.llamalad7.mixinextras.sugar.ref.LocalRef;
 import dev.anvilcraft.lib.v2.util.Util;
+import dev.dubhe.anvilcraft.api.amulet.AmuletManager;
 import dev.dubhe.anvilcraft.api.entity.fakeplayer.AnvilCraftFakePlayers;
 import dev.dubhe.anvilcraft.api.totem.TotemManager;
 import dev.dubhe.anvilcraft.api.totem.handler.TotemHandler;
@@ -19,7 +20,6 @@ import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.init.loot.ModLootTables;
 import dev.dubhe.anvilcraft.inventory.PocketInventory;
-import dev.dubhe.anvilcraft.item.AmuletAbilities;
 import dev.dubhe.anvilcraft.item.EquipmentAbilities;
 import dev.dubhe.anvilcraft.item.property.component.BoxContents;
 import dev.dubhe.anvilcraft.util.AtmosphereManager;
@@ -80,7 +80,14 @@ public abstract class LivingEntityMixin extends Entity {
 
     @Inject(method = "setLastHurtByMob", at = @At("HEAD"), cancellable = true)
     private void anvilcraft$ignoreProtectedAttacker(@Nullable LivingEntity attacker, CallbackInfo ci) {
-        if ((Object) this instanceof IronGolem && AmuletAbilities.isGolemProtected(attacker)) ci.cancel();
+        LivingEntity thiz = Util.cast(this);
+        if (
+            thiz instanceof IronGolem
+            && attacker instanceof Player player
+            && AmuletManager.get(player.registryAccess()).shouldIgnoreTarget(player, EntityType.IRON_GOLEM)
+        ) {
+            ci.cancel();
+        }
     }
 
     @Unique

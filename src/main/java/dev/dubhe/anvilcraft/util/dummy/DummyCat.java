@@ -25,11 +25,10 @@ public class DummyCat extends Cat {
         UUID id = player.getGameProfile().getId();
         DummyCat cache = DummyCat.CACHE.get(id);
         if (cache == null) {
-            DummyCat dummy = new DummyCat(level);
-            dummy.setPos(player.position());
-            DummyCat.CACHE.put(id, dummy);
-            cache = dummy;
+            cache = new DummyCat(level);
+            DummyCat.CACHE.put(id, cache);
         }
+        cache.setPos(player.position());
         return cache;
     }
 

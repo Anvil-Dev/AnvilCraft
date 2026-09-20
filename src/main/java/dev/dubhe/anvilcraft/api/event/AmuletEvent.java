@@ -16,7 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-/// 所有与本模组的 {@link dev.dubhe.anvilcraft.item.property.component.amulet.IAmulet 护符} 有关的事件的基类。
+/// 所有与本模组的 {@link dev.dubhe.anvilcraft.api.amulet.Amulet 护符} 有关的事件的基类。
 @Getter
 public abstract sealed class AmuletEvent extends Event
     permits AmuletEvent.Find,

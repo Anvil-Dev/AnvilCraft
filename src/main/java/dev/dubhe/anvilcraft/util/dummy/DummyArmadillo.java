@@ -2,7 +2,7 @@ package dev.dubhe.anvilcraft.util.dummy;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.animal.Wolf;
+import net.minecraft.world.entity.animal.armadillo.Armadillo;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
@@ -13,27 +13,27 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-public class DummyWolf extends Wolf {
-    private static final Map<UUID, DummyWolf> CACHE = new HashMap<>();
+public class DummyArmadillo extends Armadillo {
+    private static final Map<UUID, DummyArmadillo> CACHE = new HashMap<>();
 
-    public DummyWolf(Level level) {
-        super(EntityType.WOLF, level);
+    public DummyArmadillo(Level level) {
+        super(EntityType.ARMADILLO, level);
     }
 
-    public static @Nullable DummyWolf fromPlayer(Level level, @Nullable Player player) {
+    public static @Nullable DummyArmadillo fromPlayer(Level level, @Nullable Player player) {
         if (player == null) return null;
         UUID id = player.getGameProfile().getId();
-        DummyWolf cache = DummyWolf.CACHE.get(id);
+        DummyArmadillo cache = DummyArmadillo.CACHE.get(id);
         if (cache == null) {
-            cache = new DummyWolf(level);
-            DummyWolf.CACHE.put(id, cache);
+            cache = new DummyArmadillo(level);
+            DummyArmadillo.CACHE.put(id, cache);
         }
         cache.setPos(player.position());
         return cache;
     }
 
     public static void clear(Player player) {
-        DummyWolf.CACHE.remove(player.getGameProfile().getId());
+        DummyArmadillo.CACHE.remove(player.getGameProfile().getId());
     }
 
     @Override

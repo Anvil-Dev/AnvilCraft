@@ -1,7 +1,6 @@
 package dev.dubhe.anvilcraft.mixin;
 
 import dev.dubhe.anvilcraft.api.amulet.AmuletManager;
-import dev.dubhe.anvilcraft.init.item.ModAmulets;
 import net.minecraft.core.Holder;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.gameevent.GameEvent;
@@ -25,7 +24,7 @@ interface VibrationSystemUserMixin {
     ) {
         if (
             context.sourceEntity() instanceof Player player
-            && AmuletManager.get(player.registryAccess()).hasAmuletInInventory(player, ModAmulets.SILENCE.getKey())
+            && AmuletManager.get(player.registryAccess()).isImmuneToVibration(player)
         ) {
             cir.setReturnValue(false);
         }
