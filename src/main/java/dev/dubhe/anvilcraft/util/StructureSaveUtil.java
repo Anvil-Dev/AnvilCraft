@@ -1,18 +1,19 @@
 package dev.dubhe.anvilcraft.util;
 
 import dev.dubhe.anvilcraft.block.entity.StructureScannerBlockEntity;
+import dev.dubhe.anvilcraft.building.BlueprintNormalizer;
+import dev.dubhe.anvilcraft.building.ScannerDiskNormalizer;
+import dev.dubhe.anvilcraft.building.StructureSnapshot;
+import dev.dubhe.anvilcraft.building.StructureSnapshotCodec;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.item.property.component.StoredItem;
 import dev.dubhe.anvilcraft.item.property.component.StructureDiskData;
-import net.minecraft.SharedConstants;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.Vec3i;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.DoubleTag;
-import net.minecraft.nbt.IntTag;
-import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtIo;
-import net.minecraft.nbt.NbtUtils;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
@@ -27,6 +28,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
@@ -105,7 +107,8 @@ public class StructureSaveUtil {
             saveNbtFile(structureTag, structureFile);
 
             // 获取扫描器的朝向
-            Direction scannerFacing = blockEntity.getDirection();
+            Direction scannerFacing = Direction.NORTH;
+            var size = structureTag.getList("size", 3);
 
             // 创建磁盘副本并附加结构信息
             final ItemStack outputDisk = diskStack.copyWithCount(1);
@@ -114,10 +117,10 @@ public class StructureSaveUtil {
                 structureName,
                 uuid,
                 scannerFacing,
-                blockEntity.getRangeX().get(),
-                blockEntity.getRangeY().get(),
-                blockEntity.getRangeZ().get(),
-                blockEntity.isScannerUpsideDown(),
+                size.getInt(0),
+                size.getInt(1),
+                size.getInt(2),
+                false,
                 autoRotate
             );
             outputDisk.set(ModComponents.STRUCTURE_DISK_DATA, data);
@@ -143,82 +146,25 @@ public class StructureSaveUtil {
         StructureScannerBlockEntity blockEntity,
         List<StructureScannerBlockEntity.CachedBlockData> scannedBlocks
     ) {
-        final int rangeX = blockEntity.getRangeX().get();
-        final int rangeY = blockEntity.getRangeY().get();
-        final int rangeZ = blockEntity.getRangeZ().get();
+        return StructureSnapshotCodec.write(buildSnapshot(blockEntity, scannedBlocks).snapshot());
+    }
 
-        CompoundTag tag = new CompoundTag();
-        tag.putInt("DataVersion", SharedConstants.getCurrentVersion().getDataVersion().getVersion());
-        tag.putString("author", "AnvilCraft Structure Scanner");
-
-        // size 字段
-        ListTag sizeTag = new ListTag();
-        sizeTag.add(IntTag.valueOf(rangeX));
-        sizeTag.add(IntTag.valueOf(rangeY));
-        sizeTag.add(IntTag.valueOf(rangeZ));
-        tag.put("size", sizeTag);
-
-        // palette 字段
+    public static BlueprintNormalizer.Result buildSnapshot(
+        StructureScannerBlockEntity blockEntity, List<StructureScannerBlockEntity.CachedBlockData> scannedBlocks
+    ) {
         List<BlockState> palette = new ArrayList<>();
-        ListTag paletteTag = new ListTag();
-
-        for (StructureScannerBlockEntity.CachedBlockData data : scannedBlocks) {
-            if (!palette.contains(data.state())) {
-                palette.add(data.state());
-                paletteTag.add(NbtUtils.writeBlockState(data.state()));
-            }
+        List<StructureSnapshot.BlockEntry> blocks = new ArrayList<>();
+        for (var data : scannedBlocks) {
+            if (!palette.contains(data.state())) palette.add(data.state());
+            blocks.add(new StructureSnapshot.BlockEntry(new BlockPos(data.x(), data.y(), data.z() - 1),
+                palette.indexOf(data.state()), Optional.ofNullable(data.nbt()).map(CompoundTag::copy)));
         }
-        tag.put("palette", paletteTag);
-
-        // blocks 字段
-        ListTag blocksTag = new ListTag();
-        for (StructureScannerBlockEntity.CachedBlockData data : scannedBlocks) {
-            final CompoundTag blockTag = new CompoundTag();
-
-            ListTag posTag = new ListTag();
-            posTag.add(IntTag.valueOf(data.x()));
-            posTag.add(IntTag.valueOf(data.y()));
-            posTag.add(IntTag.valueOf(data.z() - 1));
-            blockTag.put("pos", posTag);
-
-            int paletteIndex = palette.indexOf(data.state());
-            if (paletteIndex >= 0) {
-                blockTag.putInt("state", paletteIndex);
-            }
-
-            // 与原版结构语义一致：方块实体数据写入该方块条目的 nbt 字段
-            if (data.nbt() != null) {
-                blockTag.put("nbt", data.nbt().copy());
-            }
-
-            blocksTag.add(blockTag);
-        }
-        tag.put("blocks", blocksTag);
-
-        // entities 字段：保存时刻按原版 fillEntityList 语义捕获区域内实体（排除玩家）
-        ListTag entitiesTag = new ListTag();
-        for (StructureScannerBlockEntity.CapturedEntityData entityData : blockEntity.captureEntities()) {
-
-            ListTag entityPosTag = new ListTag();
-            entityPosTag.add(DoubleTag.valueOf(entityData.pos().x));
-            entityPosTag.add(DoubleTag.valueOf(entityData.pos().y));
-            entityPosTag.add(DoubleTag.valueOf(entityData.pos().z));
-
-            CompoundTag entityTag = new CompoundTag();
-            entityTag.put("pos", entityPosTag);
-
-            ListTag entityBlockPosTag = new ListTag();
-            entityBlockPosTag.add(IntTag.valueOf(entityData.blockPos().getX()));
-            entityBlockPosTag.add(IntTag.valueOf(entityData.blockPos().getY()));
-            entityBlockPosTag.add(IntTag.valueOf(entityData.blockPos().getZ()));
-            entityTag.put("blockPos", entityBlockPosTag);
-
-            entityTag.put("nbt", entityData.nbt());
-            entitiesTag.add(entityTag);
-        }
-        tag.put("entities", entitiesTag);
-
-        return tag;
+        List<StructureSnapshot.EntityEntry> entities = blockEntity.captureEntities().stream().map(entity ->
+            new StructureSnapshot.EntityEntry(entity.pos(), entity.blockPos(), entity.nbt())).toList();
+        Vec3i size = new Vec3i(blockEntity.getRangeX().get(), blockEntity.getRangeY().get(), blockEntity.getRangeZ().get());
+        StructureSnapshot raw = new StructureSnapshot(size, palette, blocks, entities);
+        return BlueprintNormalizer.normalize(ScannerDiskNormalizer.normalize(raw,
+            blockEntity.getDirection(), blockEntity.isScannerUpsideDown()));
     }
 
     /**

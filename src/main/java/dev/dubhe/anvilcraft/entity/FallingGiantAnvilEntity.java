@@ -29,6 +29,8 @@ import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.common.NeoForge;
 
 public class FallingGiantAnvilEntity extends FallingBlockEntity {
+    private static final double COLLISION_MARGIN = 0.01;
+
     private float fallDistance = 0;
 
     public FallingGiantAnvilEntity(EntityType<? extends FallingGiantAnvilEntity> entityType, Level level) {
@@ -104,7 +106,7 @@ public class FallingGiantAnvilEntity extends FallingBlockEntity {
                 this.fallDistance = 0;
             }
             if (!this.level().isClientSide) {
-                BlockPos blockPos = this.blockPosition();
+                BlockPos blockPos = BlockPos.containing(this.getX(), this.getY() + COLLISION_MARGIN, this.getZ());
                 Block block = this.blockState.getBlock();
                 boolean landed = !controlledByRing && this.anvilcraft$hasBlockCollision(gravityDirection);
                 BlockPos blockingPos = this.anvilcraft$getBlockingFacePos(blockPos, gravityDirection);
@@ -275,6 +277,6 @@ public class FallingGiantAnvilEntity extends FallingBlockEntity {
 
     @Override
     protected AABB makeBoundingBox() {
-        return EntityDimensions.scalable(3, 3).makeBoundingBox(this.position().add(0, -1, 0)).deflate(0.01);
+        return EntityDimensions.scalable(3, 3).makeBoundingBox(this.position().add(0, -1, 0)).deflate(COLLISION_MARGIN);
     }
 }

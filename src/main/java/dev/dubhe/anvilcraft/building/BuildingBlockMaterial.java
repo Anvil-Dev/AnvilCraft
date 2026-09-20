@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.building;
 
 import dev.dubhe.anvilcraft.api.fluid.IFluidHandlerHolder;
+import dev.dubhe.anvilcraft.block.placement.ProcessingTablePlacement;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponents;
@@ -27,7 +28,7 @@ record BuildingBlockMaterial(
     @SuppressWarnings("deprecation")
     static BuildingBlockMaterial extract(BlockState state, @Nullable CompoundTag nbt, Level level) {
         final HolderLookup.Provider registries = level.registryAccess();
-        ItemStack stack = new ItemStack(state.getBlock().asItem());
+        ItemStack stack = ProcessingTablePlacement.baseMaterial(state);
         BlockEntity entity = createEntity(state);
         if (entity == null) return new BuildingBlockMaterial(stack, new CompoundTag(), List.of(), false);
         boolean restricted = entity.onlyOpCanSetNbt()

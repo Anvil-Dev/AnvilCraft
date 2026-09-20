@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.building;
 import dev.dubhe.anvilcraft.block.LargeCakeBlock;
 import dev.dubhe.anvilcraft.block.RedstoneWireBlock;
 import dev.dubhe.anvilcraft.block.RedstoneWireNetworkManager;
+import dev.dubhe.anvilcraft.block.UseItemOnBlock;
 import dev.dubhe.anvilcraft.block.cfa.CelestialForgingAnvilAmplifierBlock;
 import dev.dubhe.anvilcraft.block.item.FlexibleMultiPartBlockItem;
 import dev.dubhe.anvilcraft.block.item.LargeCakeBlockItem;
@@ -34,6 +35,7 @@ import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BedBlock;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.DoorBlock;
 import net.minecraft.world.level.block.DoublePlantBlock;
 import net.minecraft.world.level.block.Mirror;
@@ -41,7 +43,6 @@ import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.CommandBlockEntity;
-import net.minecraft.world.level.block.piston.PistonHeadBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BedPart;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -403,13 +404,14 @@ public final class BuildingRodService {
         CompoundTag tag = StructureLoadUtil.readStructureFileOnServer(player.serverLevel(), disk.file());
         if (tag == null) return;
         try {
-            StructureSnapshot snapshot = ScannerDiskNormalizer.normalize(StructureSnapshotCodec.parse(tag,
-                player.registryAccess()).snapshot(),
-                disk.direction(), disk.upsideDown());
+            StructureSnapshot snapshot = BlueprintNormalizer.load(tag, player.registryAccess(), disk.direction(), disk.upsideDown());
             BlueprintPlacement placement = new BlueprintPlacement(anchor, rotation, mirror);
             BlockPos sourceOrigin = BlueprintBlockConfiguration.sourceOrigin(snapshot);
             Map<BlockPos, Group> groups = new LinkedHashMap<>();
-            for (BlueprintMultiblocks.PlacedBlock entry : BlueprintMultiblocks.expand(snapshot, placement, -1)) {
+            List<BlueprintMultiblocks.PlacedBlock> blueprint = BlueprintMultiblocks.expand(snapshot, placement, -1);
+            Map<BlockPos, BlockState> declared = new LinkedHashMap<>();
+            blueprint.forEach(entry -> declared.put(entry.pos(), entry.state()));
+            for (BlueprintMultiblocks.PlacedBlock entry : blueprint) {
                 BlockState state = entry.state();
                 if (OrdinaryBlockAdapter.mapping(state) == OrdinaryBlockAdapter.Mapping.AIR) continue;
                 BlockPos pos = entry.pos();
@@ -422,7 +424,7 @@ public final class BuildingRodService {
                     message(player, "blocked");
                     return;
                 }
-                BlockPos core = core(pos, state);
+                BlockPos core = BlueprintMultiblocks.core(pos, state);
                 Group group = groups.computeIfAbsent(core, ignored -> new Group());
                 group.separateContents = true;
                 BuildingBlockMaterial blockMaterial = BuildingBlockMaterial.extract(state,
@@ -453,6 +455,8 @@ public final class BuildingRodService {
                     continue;
                 }
                 if (!core.equals(pos)) continue;
+                ItemStack upgrade = UseItemOnBlock.materialFor(state);
+                if (!upgrade.isEmpty()) group.materials.add(upgrade);
                 ItemStack material = blockMaterial.stack().copyWithCount(materialCount(state));
                 if (material.isEmpty() && !player.isCreative()) {
                     message(player, "unsupported");
@@ -512,28 +516,11 @@ public final class BuildingRodService {
                 group.entities.add(plan);
                 allGroups.add(group);
             }
-            boolean complete = commit(player, allGroups, partial, true);
+            boolean complete = commit(player, allGroups, partial, true, declared);
             if (complete) PacketDistributor.sendToPlayer(player, new BuildingRodResultPacket(true));
         } catch (ConstructionBlueprintException | IllegalArgumentException exception) {
             message(player, "invalid_structure");
         }
-    }
-
-    private static BlockPos core(BlockPos pos, BlockState state) {
-        if (state.getBlock() instanceof AbstractMultiPartBlock<?> multipart) return multipart.getMainPartPos(pos, state);
-        if (state.hasProperty(BlockStateProperties.DOUBLE_BLOCK_HALF)
-            && state.getValue(BlockStateProperties.DOUBLE_BLOCK_HALF)
-            == DoubleBlockHalf.UPPER) {
-            return pos.below();
-        }
-        if (state.hasProperty(BlockStateProperties.BED_PART)
-            && state.getValue(BlockStateProperties.BED_PART) == BedPart.HEAD) {
-            return pos.relative(state.getValue(BlockStateProperties.HORIZONTAL_FACING).getOpposite());
-        }
-        if (state.getBlock() instanceof PistonHeadBlock) {
-            return pos.relative(state.getValue(BlockStateProperties.FACING).getOpposite());
-        }
-        return pos;
     }
 
     private static int materialCount(BlockState state) {
@@ -547,6 +534,12 @@ public final class BuildingRodService {
     }
 
     static boolean commit(ServerPlayer player, List<Group> groups, boolean partial, boolean quiet) {
+        return commit(player, groups, partial, quiet, Map.of());
+    }
+
+    private static boolean commit(
+        ServerPlayer player, List<Group> groups, boolean partial, boolean quiet, Map<BlockPos, BlockState> declared
+    ) {
         if (!quiet && groups.stream().mapToInt(group -> group.cells.size()).sum() > MAX_BLOCKS) {
             message(player, "too_many");
             return false;
@@ -573,6 +566,20 @@ public final class BuildingRodService {
             placedGroups.add(allocated);
             cells.addAll(allocated.cells);
             entities.addAll(allocated.entities);
+        }
+        if (!declared.isEmpty()) {
+            Map<BlockPos, BlockState> available = new LinkedHashMap<>();
+            declared.forEach((pos, state) -> {
+                BlockState existing = player.level().getBlockState(pos);
+                available.put(pos, existing.equals(state) ? state : Blocks.AIR.defaultBlockState());
+            });
+            cells.forEach(cell -> available.put(cell.pos(), cell.state()));
+            var reached = BlueprintFluids.reachable(available);
+            cells.removeIf(cell -> BlueprintFluids.isFlowing(cell.state()) && !reached.contains(cell.pos()));
+            for (Group group : placedGroups) {
+                group.cells.removeIf(cell -> BlueprintFluids.isFlowing(cell.state()) && !reached.contains(cell.pos()));
+            }
+            placedGroups.removeIf(group -> group.cells.isEmpty() && group.entities.isEmpty());
         }
         List<Component> shortages = missing && quiet ? new BuildingMaterials(player).missing(groups) : List.of();
         if (missing) message(player, "missing_blocks");
@@ -611,47 +618,53 @@ public final class BuildingRodService {
         final BuildingRodUndo undo = new BuildingRodUndo(player, placedGroups);
         Map<BlockPos, ItemStack> placedMaterials = new LinkedHashMap<>();
         placedGroups.forEach(group -> placedMaterials.putAll(group.blockMaterials));
-        for (Cell cell : cells) BuildingCommit.set(player.level(), cell.pos(), cell.state());
-        for (Cell cell : cells) {
-            BlockEntity blockEntity = player.level().getBlockEntity(cell.pos());
-            if (blockEntity != null) {
-                if (!quiet && !cell.config().isEmpty() && !(blockEntity instanceof CommandBlockEntity)) {
-                    blockEntity.loadWithComponents(cell.config(), player.registryAccess());
+        Runnable place = () -> {
+            for (Cell cell : cells) BuildingCommit.set(player.level(), cell.pos(), cell.state());
+            for (Cell cell : cells) {
+                BlockEntity blockEntity = player.level().getBlockEntity(cell.pos());
+                if (blockEntity != null) {
+                    if (!quiet && !cell.config().isEmpty() && !(blockEntity instanceof CommandBlockEntity)) {
+                        blockEntity.loadWithComponents(cell.config(), player.registryAccess());
+                    }
+                    ItemStack supplied = placedMaterials.get(cell.pos());
+                    if (supplied != null) {
+                        BlockItem.updateCustomBlockEntityTag(player.level(), player, cell.pos(), supplied);
+                        blockEntity.applyComponentsFromItemStack(supplied);
+                    }
+                    if (quiet && !SignDecorationAdapter.isSign(cell.state())) {
+                        BlueprintBlockConfiguration.apply(blockEntity, cell.config(), player);
+                    }
+                    if (quiet && SignDecorationAdapter.isSign(cell.state())) {
+                        blockEntity.loadWithComponents(
+                            SignDecorationAdapter.sanitize(cell.state(), cell.config(), player.registryAccess()), player.registryAccess());
+                    }
+                    BlockEntityContentAdapter.insert(blockEntity, cell.contents(), player.registryAccess());
+                    if (quiet) BlueprintBlockConfiguration.afterContents(blockEntity, cell.config(), player);
+                    blockEntity.setChanged();
+                    player.level().sendBlockUpdated(cell.pos(), cell.state(), cell.state(), Block.UPDATE_CLIENTS);
                 }
-                ItemStack supplied = placedMaterials.get(cell.pos());
-                if (supplied != null) {
-                    BlockItem.updateCustomBlockEntityTag(player.level(), player, cell.pos(), supplied);
-                    blockEntity.applyComponentsFromItemStack(supplied);
-                }
-                if (quiet && !SignDecorationAdapter.isSign(cell.state())) {
-                    BlueprintBlockConfiguration.apply(blockEntity, cell.config(), player);
-                }
-                if (quiet && SignDecorationAdapter.isSign(cell.state())) {
-                    blockEntity.loadWithComponents(
-                        SignDecorationAdapter.sanitize(cell.state(), cell.config(), player.registryAccess()), player.registryAccess());
-                }
-                BlockEntityContentAdapter.insert(blockEntity, cell.contents(), player.registryAccess());
-                if (quiet) BlueprintBlockConfiguration.afterContents(blockEntity, cell.config(), player);
-                blockEntity.setChanged();
-                player.level().sendBlockUpdated(cell.pos(), cell.state(), cell.state(), Block.UPDATE_CLIENTS);
+                if (!quiet) player.level().updateNeighborsAt(cell.pos(), cell.state().getBlock());
             }
-            if (!quiet) player.level().updateNeighborsAt(cell.pos(), cell.state().getBlock());
-        }
-        Map<BlockPos, BlockState> wires = new LinkedHashMap<>();
-        for (Cell cell : cells) {
-            if (!(cell.state().getBlock() instanceof RedstoneWireBlock)) continue;
-            if (quiet) {
-                wires.put(cell.pos(), cell.state());
-            } else {
-                RedstoneWireNetworkManager.topologyChanged(player.serverLevel(), cell.pos());
+            Map<BlockPos, BlockState> wires = new LinkedHashMap<>();
+            for (Cell cell : cells) {
+                if (!(cell.state().getBlock() instanceof RedstoneWireBlock)) continue;
+                if (quiet) {
+                    wires.put(cell.pos(), cell.state());
+                } else {
+                    RedstoneWireNetworkManager.topologyChanged(player.serverLevel(), cell.pos());
+                }
             }
-        }
-        if (quiet) RedstoneWireNetworkManager.restoreBlueprint(player.serverLevel(), wires);
-        for (var plan : entities) {
-            Entity entity = EntityBuildAdapters.spawn(player.serverLevel(), new BuildingEntityOp(plan.entityNbt(), plan.returned()));
-            if (entity != null) EntityBuildAdapters.insertContents(entity, plan.contents(), player.registryAccess());
-            if (!player.isCreative() && !plan.returned().isEmpty()) player.getInventory().placeItemBackInInventory(plan.returned().copy());
-        }
+            if (quiet) RedstoneWireNetworkManager.restoreBlueprint(player.serverLevel(), wires);
+            for (var plan : entities) {
+                Entity entity = EntityBuildAdapters.spawn(player.serverLevel(), new BuildingEntityOp(plan.entityNbt(), plan.returned()));
+                if (entity != null) EntityBuildAdapters.insertContents(entity, plan.contents(), player.registryAccess());
+                if (!player.isCreative() && !plan.returned().isEmpty()) {
+                    player.getInventory().placeItemBackInInventory(plan.returned().copy());
+                }
+            }
+        };
+        if (quiet) BuildingCommit.quietly(player.level(), place);
+        else place.run();
         undo.finish(player);
         BuildingRodMaterialBook.give(player, shortages);
         finishPlacement(player, cells.size());

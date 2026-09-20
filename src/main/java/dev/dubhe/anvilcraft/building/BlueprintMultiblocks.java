@@ -3,18 +3,24 @@ package dev.dubhe.anvilcraft.building;
 import dev.dubhe.anvilcraft.block.multipart.AbstractMultiPartBlock;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.level.block.Mirror;
-import net.minecraft.world.level.block.Rotation;
+import net.minecraft.world.level.block.BedBlock;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.DoorBlock;
+import net.minecraft.world.level.block.DoublePlantBlock;
+import net.minecraft.world.level.block.piston.PistonBaseBlock;
+import net.minecraft.world.level.block.piston.PistonHeadBlock;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.BedPart;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
+import net.minecraft.world.level.block.state.properties.PistonType;
 
-import java.util.HashMap;
-import java.util.LinkedHashMap;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.function.BiConsumer;
 
-/** 蓝图只保存核心；部件按变换后的核心重新组装，展开范围不受蓝图记录尺寸裁剪。 */
+/** 核心选择与部件展开只用于生成完整蓝图；部署只变换已保存的每一格。 */
 public final class BlueprintMultiblocks {
     private BlueprintMultiblocks() {
     }
@@ -23,70 +29,66 @@ public final class BlueprintMultiblocks {
     }
 
     public static boolean shouldRecord(BlockState state) {
-        return !(state.getBlock() instanceof AbstractMultiPartBlock<?> block) || block.isMainPart(state);
+        if (state.getBlock() instanceof AbstractMultiPartBlock<?> block) return block.isMainPart(state);
+        if (isDoubleBlock(state)) return state.getValue(BlockStateProperties.DOUBLE_BLOCK_HALF) == DoubleBlockHalf.LOWER;
+        if (state.getBlock() instanceof BedBlock) return state.getValue(BedBlock.PART) == BedPart.FOOT;
+        return !(state.getBlock() instanceof PistonHeadBlock);
+    }
+
+    public static BlockPos core(BlockPos pos, BlockState state) {
+        if (state.getBlock() instanceof AbstractMultiPartBlock<?> block) return block.getMainPartPos(pos, state);
+        if (isDoubleBlock(state) && !shouldRecord(state)) return pos.below();
+        if (state.getBlock() instanceof BedBlock && !shouldRecord(state)) {
+            return pos.relative(state.getValue(BedBlock.FACING).getOpposite());
+        }
+        if (state.getBlock() instanceof PistonHeadBlock) {
+            return pos.relative(state.getValue(PistonHeadBlock.FACING).getOpposite());
+        }
+        return pos;
+    }
+
+    private static boolean isDoubleBlock(BlockState state) {
+        return state.getBlock() instanceof DoorBlock || state.getBlock() instanceof DoublePlantBlock;
     }
 
     public static void forEachPart(BlockPos pos, BlockState state, BiConsumer<BlockPos, BlockState> consumer) {
-        forEachPart(pos, state, new BlueprintPlacement(BlockPos.ZERO, Rotation.NONE, Mirror.NONE), consumer);
+        if (state.getBlock() instanceof AbstractMultiPartBlock<?> block && block.isMainPart(state)) {
+            addParts(pos, state, block, consumer);
+            return;
+        }
+        consumer.accept(pos, state);
+        if (!shouldRecord(state)) return;
+        if (isDoubleBlock(state)) {
+            consumer.accept(pos.above(), state.setValue(BlockStateProperties.DOUBLE_BLOCK_HALF, DoubleBlockHalf.UPPER));
+        } else if (state.getBlock() instanceof BedBlock) {
+            consumer.accept(pos.relative(state.getValue(BedBlock.FACING)), state.setValue(BedBlock.PART, BedPart.HEAD));
+        } else if (state.getBlock() instanceof PistonBaseBlock && state.getValue(PistonBaseBlock.EXTENDED)) {
+            consumer.accept(pos.relative(state.getValue(PistonBaseBlock.FACING)), Blocks.PISTON_HEAD.defaultBlockState()
+                .setValue(PistonHeadBlock.FACING, state.getValue(PistonBaseBlock.FACING))
+                .setValue(PistonHeadBlock.TYPE, state.is(Blocks.STICKY_PISTON) ? PistonType.STICKY : PistonType.DEFAULT));
+        }
     }
 
     public static void forEachPart(
         BlockPos pos, BlockState state, BlueprintPlacement placement, BiConsumer<BlockPos, BlockState> consumer
     ) {
-        BlockPos transformedPos = placement.worldOf(pos);
-        BlockState transformedState = placement.stateOf(state);
-        if (state.getBlock() instanceof AbstractMultiPartBlock<?> block && block.isMainPart(state)) {
-            addParts(block.getMainPartPos(transformedPos, transformedState), state, transformedState, block, consumer);
-        } else {
-            consumer.accept(transformedPos, transformedState);
-        }
+        forEachPart(pos, state, (partPos, partState) -> consumer.accept(placement.worldOf(partPos), placement.stateOf(partState)));
     }
 
     private static <P extends Enum<P>> void addParts(
-        BlockPos pos, BlockState original, BlockState transformed, AbstractMultiPartBlock<P> block,
-        BiConsumer<BlockPos, BlockState> consumer
+        BlockPos pos, BlockState state, AbstractMultiPartBlock<P> block, BiConsumer<BlockPos, BlockState> consumer
     ) {
-        BlockState core = block.placedState(original.getValue(block.getPart()), transformed);
-        for (P part : block.getParts()) {
-            consumer.accept(pos.offset(block.offsetFrom(core, part)), block.placedState(part, core));
-        }
-    }
-
-    private static <P extends Enum<P>> BlockState partState(
-        BlockState recorded, BlockState generated, AbstractMultiPartBlock<P> block
-    ) {
-        return recorded.setValue(block.getPart(), generated.getValue(block.getPart()));
+        for (P part : block.getParts()) consumer.accept(pos.offset(block.offsetFrom(state, part)), block.placedState(part, state));
     }
 
     public static List<PlacedBlock> expand(StructureSnapshot snapshot, BlueprintPlacement placement, int layer) {
-        Map<BlockPos, PlacedBlock> blocks = new LinkedHashMap<>();
-        Map<BlockPos, BlockPos> owners = new HashMap<>();
+        List<PlacedBlock> blocks = new ArrayList<>();
         for (var entry : snapshot.blocks()) {
             if (layer >= 0 && entry.pos().getY() != layer) continue;
-            BlockState original = snapshot.stateOf(entry);
-            if (OrdinaryBlockAdapter.mapping(original) == OrdinaryBlockAdapter.Mapping.AIR) continue;
-            BlockPos pos = placement.worldOf(entry.pos());
-            blocks.put(pos, new PlacedBlock(pos, placement.stateOf(original), entry.nbt()));
-            if (original.getBlock() instanceof AbstractMultiPartBlock<?> block) {
-                owners.put(pos, block.getMainPartPos(entry.pos(), original));
-            }
+            BlockState state = snapshot.stateOf(entry);
+            if (OrdinaryBlockAdapter.mapping(state) == OrdinaryBlockAdapter.Mapping.AIR) continue;
+            blocks.add(new PlacedBlock(placement.worldOf(entry.pos()), placement.stateOf(state), entry.nbt()));
         }
-        for (var entry : snapshot.blocks()) {
-            if (layer >= 0 && entry.pos().getY() != layer) continue;
-            BlockState original = snapshot.stateOf(entry);
-            if (!(original.getBlock() instanceof AbstractMultiPartBlock<?> block) || !block.isMainPart(original)) continue;
-            BlockPos originalPos = placement.worldOf(entry.pos());
-            forEachPart(entry.pos(), original, placement, (pos, state) -> {
-                PlacedBlock previous = blocks.get(pos);
-                if (previous != null && (!previous.state().is(block) || !entry.pos().equals(owners.get(pos)))) {
-                    throw new IllegalArgumentException("Overlapping blueprint multiblocks at " + pos);
-                }
-                Optional<CompoundTag> nbt = previous == null || pos.equals(originalPos) ? Optional.empty() : previous.nbt();
-                if (block.isMainPart(state)) nbt = entry.nbt();
-                blocks.put(pos, new PlacedBlock(pos, previous == null ? state : partState(previous.state(), state, block), nbt));
-                owners.put(pos, entry.pos());
-            });
-        }
-        return List.copyOf(blocks.values());
+        return List.copyOf(blocks);
     }
 }

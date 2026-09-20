@@ -36,7 +36,9 @@ import net.neoforged.neoforge.items.wrapper.InvWrapper;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class StructureScannerBlockEntity extends BaseMachineBlockEntity implements MenuProvider {
     /**
@@ -335,9 +337,11 @@ public class StructureScannerBlockEntity extends BaseMachineBlockEntity implemen
         }
         
         // 保存结构到磁盘
-        dev.dubhe.anvilcraft.util.StructureSaveUtil.saveStructureToDisk(
-            this.level, this, this.autoSaveStructureName
-        );
+        try {
+            dev.dubhe.anvilcraft.util.StructureSaveUtil.saveStructureToDisk(this.level, this, this.autoSaveStructureName);
+        } catch (IllegalArgumentException exception) {
+            dev.dubhe.anvilcraft.AnvilCraft.LOGGER.warn("Cannot save incomplete scanner blueprint: {}", exception.getMessage());
+        }
         
         // 清空结构名称
         this.autoSaveStructureName = "";
@@ -356,6 +360,8 @@ public class StructureScannerBlockEntity extends BaseMachineBlockEntity implemen
         final int rangeZ = this.rangeZ.get();
         final int halfRangeX = rangeX / 2;
         
+        Set<BlockPos> captured = new HashSet<>();
+        for (CachedBlockData data : this.scannedBlocks) captured.add(new BlockPos(data.x(), data.y(), data.z()));
         // 扫描当前层的所有方块
         for (int x = 0; x < rangeX; x++) {
             for (int z = 1; z < rangeZ + 1; z++) {
@@ -363,15 +369,15 @@ public class StructureScannerBlockEntity extends BaseMachineBlockEntity implemen
                 net.minecraft.world.level.block.state.BlockState blockState = this.level.getBlockState(worldPos);
                 
                 if (!blockState.isAir() && BlueprintMultiblocks.shouldRecord(blockState)) {
-                    // 保留扫描时的世界坐标，用于粘贴时重定位蓝图内部的引用。
-                    net.minecraft.world.level.block.entity.BlockEntity worldBlockEntity =
-                        this.level.getBlockEntity(worldPos);
-                    CompoundTag blockEntityNbt = worldBlockEntity != null
-                        ? worldBlockEntity.saveWithFullMetadata(this.level.registryAccess())
-                        : null;
-                    this.scannedBlocks.add(
-                        new CachedBlockData(x, this.currentScanLayer, z, blockState, blockEntityNbt)
-                    );
+                    BlueprintMultiblocks.forEachPart(worldPos, blockState, (partPos, generated) -> {
+                        BlockPos preview = this.worldBlockToPreview(partPos, halfRangeX).offset(0, 0, 1);
+                        if (!captured.add(preview)) return;
+                        BlockState actual = this.level.getBlockState(partPos);
+                        BlockState recorded = actual.isAir() ? generated : actual;
+                        var entity = this.level.getBlockEntity(partPos);
+                        CompoundTag nbt = entity == null ? null : entity.saveWithFullMetadata(this.level.registryAccess());
+                        this.scannedBlocks.add(new CachedBlockData(preview.getX(), preview.getY(), preview.getZ(), recorded, nbt));
+                    });
                 }
             }
         }
@@ -388,15 +394,7 @@ public class StructureScannerBlockEntity extends BaseMachineBlockEntity implemen
         }
     }
 
-    /**
-     * 保存时刻按原版结构 fillEntityList 语义捕获扫描区域内的实体（排除玩家），
-     * 坐标转换到与方块缓存相同的结构预览坐标系
-     */
-    public List<CapturedEntityData> captureEntities() {
-        List<CapturedEntityData> captured = new ArrayList<>();
-        if (this.level == null) {
-            return captured;
-        }
+    public AABB getScanBounds() {
         final int halfRangeX = this.rangeX.get() / 2;
         BlockPos cornerA = calculateWorldPos(0, 0, 0, halfRangeX);
         BlockPos cornerB = calculateWorldPos(
@@ -412,9 +410,22 @@ public class StructureScannerBlockEntity extends BaseMachineBlockEntity implemen
             Math.max(cornerA.getY(), cornerB.getY()),
             Math.max(cornerA.getZ(), cornerB.getZ())
         );
+        return AABB.encapsulatingFullBlocks(minCorner, maxCorner);
+    }
+
+    /**
+     * 保存时刻按原版结构 fillEntityList 语义捕获扫描区域内的实体（排除玩家），
+     * 坐标转换到与方块缓存相同的结构预览坐标系
+     */
+    public List<CapturedEntityData> captureEntities() {
+        List<CapturedEntityData> captured = new ArrayList<>();
+        if (this.level == null) {
+            return captured;
+        }
+        final int halfRangeX = this.rangeX.get() / 2;
         List<Entity> entities = this.level.getEntitiesOfClass(
             Entity.class,
-            AABB.encapsulatingFullBlocks(minCorner, maxCorner),
+            this.getScanBounds(),
             entity -> !(entity instanceof Player)
         );
         for (Entity entity : entities) {

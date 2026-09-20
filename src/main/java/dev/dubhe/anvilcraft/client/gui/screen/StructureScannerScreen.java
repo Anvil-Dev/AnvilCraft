@@ -36,6 +36,7 @@ import dev.dubhe.anvilcraft.inventory.StructureScannerMenu;
 import dev.dubhe.anvilcraft.network.StructureScannerActionPacket;
 import dev.dubhe.anvilcraft.network.StructureScannerSavePacket;
 import dev.dubhe.anvilcraft.util.LevelLike;
+import dev.dubhe.anvilcraft.util.StructureSaveUtil;
 import dev.dubhe.anvilcraft.util.WatchableCyclingValue;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
@@ -142,6 +143,9 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
 
     // 缓存数据
     private StructureScannerBlockEntity cachedBlockEntity;
+    @Nullable private String blueprintError;
+    @Nullable private Component statusTitle;
+    private long statusTitleUntil;
     private boolean cachedHasDisk;
     private StructureScannerBlockEntity.InfoStatus cachedInfoStatus;
     private boolean cachedIsScanComplete;
@@ -247,10 +251,33 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
     }
 
     private void addRangeControls(WatchableCyclingValue<Integer> range, int y) {
-        this.addScanWidget(new TextWidget(this.leftPos + 97, this.topPos + y + 1, 20, 8, this.font,
-            () -> Component.literal(range.get().toString())));
+        this.addScanWidget(new RangeValue(range, y));
         this.addScanWidget(new RangeButton(range, y, -1));
         this.addScanWidget(new RangeButton(range, y, 1));
+    }
+
+    private static void stepRange(WatchableCyclingValue<Integer> range, int step) {
+        int next = Math.clamp(range.index() + step, 0, range.count() - 1);
+        if (next == range.index()) return;
+        range.fromIndex(next);
+        PacketDistributor.sendToServer(new StructureScannerActionPacket("rangeChange", next, range.getName()));
+    }
+
+    private class RangeValue extends TextWidget {
+        private final WatchableCyclingValue<Integer> range;
+
+        RangeValue(WatchableCyclingValue<Integer> range, int y) {
+            super(StructureScannerScreen.this.leftPos + 97, StructureScannerScreen.this.topPos + y + 1,
+                20, 8, StructureScannerScreen.this.font, () -> Component.literal(range.get().toString()));
+            this.range = range;
+        }
+
+        @Override
+        public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
+            if (!this.active || !this.visible || !this.isMouseOver(mouseX, mouseY) || scrollY == 0) return false;
+            stepRange(this.range, (int) Math.signum(scrollY));
+            return true;
+        }
     }
 
     private class ScannerButton extends Button {
@@ -394,10 +421,7 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
         RangeButton(WatchableCyclingValue<Integer> range, int y, int step) {
             super(StructureScannerScreen.this.leftPos + (step < 0 ? 83 : 121), StructureScannerScreen.this.topPos + y,
                 step < 0 ? "minus" : "add", button -> {
-                    int next = range.index() + step;
-                    if (next < 0 || next >= range.count()) return;
-                    range.fromIndex(next);
-                    PacketDistributor.sendToServer(new StructureScannerActionPacket("rangeChange", next, range.getName()));
+                    stepRange(range, step);
                 });
             this.range = range;
             this.step = step;
@@ -488,9 +512,30 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
         }
     }
 
+    public void showStatus(Component message) {
+        this.statusTitle = message.copy();
+        this.statusTitleUntil = Util.getMillis() + 10000;
+    }
+
     @Override
     protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
-        guiGraphics.drawString(this.font, this.title, this.titleLabelX, this.titleLabelY, 4210752, false);
+        if (this.statusTitle != null && Util.getMillis() < this.statusTitleUntil) {
+            int available = this.imageWidth - 12;
+            if (this.font.width(this.statusTitle) <= available) {
+                guiGraphics.drawString(this.font, this.statusTitle,
+                    (this.imageWidth - this.font.width(this.statusTitle)) / 2, this.titleLabelY, 0xFF5555, false);
+            } else {
+                // 滚动文本的裁剪框使用屏幕坐标，不随 renderLabels 的局部 PoseStack 平移。
+                guiGraphics.pose().pushPose();
+                guiGraphics.pose().translate(-this.leftPos, -this.topPos, 0);
+                guiGraphics.drawScrollingString(this.font, this.statusTitle,
+                    this.leftPos + 6, this.leftPos + this.imageWidth - 6, this.topPos + this.titleLabelY, 0xFF5555);
+                guiGraphics.pose().popPose();
+            }
+        } else {
+            this.statusTitle = null;
+            guiGraphics.drawString(this.font, this.title, this.titleLabelX, this.titleLabelY, 4210752, false);
+        }
     }
 
     /**
@@ -1042,6 +1087,12 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
             if (this.cachedBlockEntity == null) return;
             var state = this.minecraft.level.getBlockState(this.cachedBlockEntity.getBlockPos());
             LevelLike scannedPreview = this.buildPreviewLevelLike(state.getValue(HorizontalDirectionalBlock.FACING));
+            if (this.blueprintError != null) {
+                guiGraphics.drawWordWrap(this.font, Component.translatable(
+                    "screen.anvilcraft.structure_scanner.file_failed", this.blueprintError),
+                    this.previewWindowX + 4, this.previewWindowY + 4, this.previewWindowWidth - 8, 0xFFFF5555);
+                return;
+            }
             if (scannedPreview == null) return;
             preview = scannedPreview;
             bounds = this.cachedPreviewBounds;
@@ -1139,15 +1190,28 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
         // 使用缓存的扫描结果渲染方块
         List<StructureScannerBlockEntity.CachedBlockData> scannedBlocks = this.cachedBlockEntity.getScannedBlocks();
 
+        this.blueprintError = null;
         if (!scannedBlocks.isEmpty()) {
-            for (StructureScannerBlockEntity.CachedBlockData data : scannedBlocks) {
-                int renderY = upsideDown ? (Math.max(1, rangeY) - 1 - data.y()) : data.y();
-                BlueprintPlacement placement = new BlueprintPlacement(new BlockPos(data.x(), renderY, data.z() + 1),
-                    this.rotationForPreview(facing), Mirror.NONE);
-                BlueprintMultiblocks.forEachPart(BlockPos.ZERO, data.state(), placement, (pos, state) -> {
-                    previewLevelLike.setBlockState(pos, state);
+            try {
+                var result = StructureSaveUtil.buildSnapshot(this.cachedBlockEntity, scannedBlocks);
+                var snapshot = result.snapshot();
+                for (var entry : snapshot.blocks()) {
+                    BlockPos local = entry.pos().subtract(result.offset());
+                    int x = local.getX();
+                    int z = local.getZ();
+                    BlockPos pos = switch (facing) {
+                        case SOUTH -> new BlockPos(rangeX - 1 - x, local.getY(), this.cachedRangeZ + 1 - z);
+                        case WEST -> new BlockPos(rangeX - 1 - z, local.getY(), x + 2);
+                        case EAST -> new BlockPos(z, local.getY(), this.cachedRangeZ + 1 - x);
+                        default -> new BlockPos(x, local.getY(), z + 2);
+                    };
+                    previewLevelLike.setBlockState(pos, snapshot.stateOf(entry).rotate(this.rotationForPreview(facing)));
                     this.cachedPreviewBounds = this.cachedPreviewBounds.minmax(new AABB(pos));
-                });
+                    var entity = previewLevelLike.getBlockEntity(pos);
+                    if (entity != null) entry.nbt().ifPresent(tag -> entity.loadWithComponents(tag, level.registryAccess()));
+                }
+            } catch (IllegalArgumentException exception) {
+                this.blueprintError = exception.getMessage();
             }
         }
 

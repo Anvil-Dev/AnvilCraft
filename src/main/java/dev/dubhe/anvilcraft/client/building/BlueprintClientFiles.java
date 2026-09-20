@@ -69,7 +69,7 @@ public final class BlueprintClientFiles {
                 screen.onFilesReceived(tag.getList("files", Tag.TAG_STRING).stream().map(Tag::getAsString).toList());
             }
         } catch (IOException exception) {
-            message("file_failed", exception.getMessage());
+            message(listContainerId, "file_failed", exception.getMessage());
         }
         pendingList = null;
         listDownload = null;
@@ -83,8 +83,8 @@ public final class BlueprintClientFiles {
 
     public static boolean isBusy() {
         if (pending != null && System.nanoTime() - started > 60_000_000_000L) {
-            clearTransfer();
             message("file_failed", "Transfer timed out");
+            clearTransfer();
         }
         return pending != null;
     }
@@ -139,12 +139,18 @@ public final class BlueprintClientFiles {
                 var tag = NbtIo.readCompressed(new ByteArrayInputStream(download.finish()), NbtAccounter.create(16L * 1024 * 1024));
                 var snapshot = StructureSnapshotCodec.parse(tag, minecraft.level.registryAccess()).snapshot();
                 screen.onImportComplete(fileName.substring(0, fileName.lastIndexOf('.')), snapshot);
-                message("imported", "");
+                int added = tag.getInt("anvilcraft:added_parts");
+                int removed = tag.getInt("anvilcraft:removed_parts");
+                var status = Component.translatable("screen.anvilcraft.structure_scanner.imported");
+                if (added > 0 || removed > 0) {
+                    status.append(" ").append(Component.translatable("screen.anvilcraft.structure_scanner.normalized", added, removed));
+                }
+                screen.showStatus(status);
             }
             clearTransfer();
         } catch (IOException | ConstructionBlueprintException | IllegalArgumentException exception) {
-            clearTransfer();
             message("file_failed", exception.getMessage());
+            clearTransfer();
         }
     }
 
@@ -173,9 +179,13 @@ public final class BlueprintClientFiles {
     }
 
     private static void message(String key, @Nullable String detail) {
-        var player = Minecraft.getInstance().player;
-        if (player != null) {
-            player.sendSystemMessage(Component.translatable("screen.anvilcraft.structure_scanner." + key, detail == null ? "" : detail));
+        message(pendingContainerId, key, detail);
+    }
+
+    private static void message(int containerId, String key, @Nullable String detail) {
+        if (Minecraft.getInstance().screen instanceof StructureScannerScreen screen
+            && (containerId < 0 || screen.getMenu().containerId == containerId)) {
+            screen.showStatus(Component.translatable("screen.anvilcraft.structure_scanner." + key, detail == null ? "" : detail));
         }
     }
 }

@@ -156,6 +156,10 @@ public class RenderEventListener {
         for (Iterator<Map.Entry<BlockPos, RangeOutline>> iterator = RANGE_OUTLINES.entrySet().iterator(); iterator.hasNext();) {
             Map.Entry<BlockPos, RangeOutline> entry = iterator.next();
             RangeOutline outline = entry.getValue();
+            if (outline.blockState.is(ModBlocks.STRUCTURE_SCANNER.get()) && !hasScannerHammer(Minecraft.getInstance().player)) {
+                iterator.remove();
+                continue;
+            }
             if (gameTime > outline.lastSeenTick + RANGE_OUTLINE_PERSIST_TICKS) {
                 iterator.remove();
                 continue;
@@ -240,12 +244,15 @@ public class RenderEventListener {
         addRangeOutline(hitPos, blockState, rangeShape, gameTime);
     }
 
-    /**
-     * 登记 Structure Scanner 的边框
-     */
+    private static boolean hasScannerHammer(@javax.annotation.Nullable Player player) {
+        return player != null && (AnvilHammerItem.isWearing(player)
+            || player.getMainHandItem().getItem() instanceof AnvilHammerItem
+            || player.getOffhandItem().getItem() instanceof AnvilHammerItem);
+    }
+
     private static void registerStructureScannerRange(BlockHitResult hitResult, long gameTime) {
         Player player = Minecraft.getInstance().player;
-        if (player == null || !AnvilHammerItem.shouldRenderEffect(player)) return;
+        if (player == null || !hasScannerHammer(player) || !AnvilHammerItem.shouldRenderEffect(player)) return;
         if (hitResult.miss) return;
 
         BlockPos hitPos = hitResult.getBlockPos();
@@ -258,64 +265,7 @@ public class RenderEventListener {
         var blockEntity = Minecraft.getInstance().level.getBlockEntity(hitPos);
         if (!(blockEntity instanceof dev.dubhe.anvilcraft.block.entity.StructureScannerBlockEntity scannerBE)) return;
         
-        int rangeX = scannerBE.getRangeX().get();
-        int rangeY = scannerBE.getRangeY().get();
-        int rangeZ = scannerBE.getRangeZ().get();
-                
-        int halfRangeX = (rangeX - 1) / 2;
-        int halfRangeZ = (rangeZ - 1) / 2;
-        
-        // 获取 Structure Scanner 的朝向
-        final Direction scannerFacing = blockState.getValue(net.minecraft.world.level.block.HorizontalDirectionalBlock.FACING);
-        boolean upsideDown = false;
-        if (blockState.hasProperty(dev.dubhe.anvilcraft.block.StructureScannerBlock.UPSIDE_DOWN)) {
-            upsideDown = blockState.getValue(dev.dubhe.anvilcraft.block.StructureScannerBlock.UPSIDE_DOWN);
-        }
-        
-        final int minY = upsideDown ? hitPos.getY() - rangeY + 1 : hitPos.getY();
-        final int maxY = upsideDown ? hitPos.getY() + 1 : hitPos.getY() + rangeY;
-        final int minX;
-        final int maxX;
-        final int minZ;
-        final int maxZ;
-        
-        switch (scannerFacing) {
-            case NORTH -> {
-                minX = hitPos.getX() - halfRangeX;
-                maxX = hitPos.getX() + rangeX - halfRangeX;
-                minZ = hitPos.getZ() + 2;
-                maxZ = hitPos.getZ() + rangeZ + 2;
-            }
-            case SOUTH -> {
-                minX = hitPos.getX() - halfRangeX;
-                maxX = hitPos.getX() + rangeX - halfRangeX;
-                minZ = hitPos.getZ() - rangeZ - 1;
-                maxZ = hitPos.getZ() - 1;
-            }
-            case WEST -> {
-                minX = hitPos.getX() + 2;
-                maxX = hitPos.getX() + rangeZ + 2;
-                minZ = hitPos.getZ() - halfRangeX;
-                maxZ = hitPos.getZ() + rangeX - halfRangeX;
-            }
-            case EAST -> {
-                minX = hitPos.getX() - rangeZ - 1;
-                maxX = hitPos.getX() - 1;
-                minZ = hitPos.getZ() - halfRangeX;
-                maxZ = hitPos.getZ() + rangeX - halfRangeX;
-            }
-            default -> {
-                minX = hitPos.getX() - halfRangeX;
-                maxX = hitPos.getX() + rangeX - halfRangeX;
-                minZ = hitPos.getZ() - halfRangeZ;
-                maxZ = hitPos.getZ() + rangeZ - halfRangeZ;
-            }
-        }
-        
-        VoxelShape rangeShape = Shapes.create(
-            minX, minY, minZ,
-            maxX, maxY, maxZ
-        );
+        VoxelShape rangeShape = Shapes.create(scannerBE.getScanBounds());
 
         addRangeOutline(hitPos, blockState, rangeShape, gameTime);
     }
