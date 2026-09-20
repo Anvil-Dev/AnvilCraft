@@ -5,7 +5,6 @@ import dev.dubhe.anvilcraft.api.chargecollector.ChargeCollectorManager;
 import dev.dubhe.anvilcraft.api.event.BlockEntityEvent;
 import dev.dubhe.anvilcraft.api.fluid.IFluidHandlerHolder;
 import dev.dubhe.anvilcraft.api.fluid.network.FluidNetworkManager;
-import dev.dubhe.anvilcraft.api.fluid.network.FluidNetworkScanner;
 import dev.dubhe.anvilcraft.api.heat.HeaterManager;
 import dev.dubhe.anvilcraft.api.power.IPowerComponent;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
@@ -22,11 +21,8 @@ import net.neoforged.fml.common.EventBusSubscriber;
 public class ServerBlockEntityEventListener {
     @SubscribeEvent
     public static void onLoad(BlockEntityEvent.ServerLoad event) {
-        // 外部模组容器不实现 AnvilCraft 接口，加载时也要登记到流体网络。
-        if (!(event.getEntity() instanceof IFluidHandlerHolder)
-            && FluidNetworkScanner.isContainer(
-                event.getLevel(), event.getEntity().getBlockPos(), event.getEntity()
-            )) {
+        // 加载回调中只登记候选位置；能力代理可能跨区块回查，必须等区块加载完成后再检测。
+        if (!(event.getEntity() instanceof IFluidHandlerHolder)) {
             FluidNetworkManager.INSTANCE.addContainerAfterLoad(
                 event.getLevel(), event.getEntity().getBlockPos()
             );

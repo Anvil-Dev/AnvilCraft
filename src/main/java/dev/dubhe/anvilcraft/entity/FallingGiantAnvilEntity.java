@@ -275,6 +275,6 @@ public class FallingGiantAnvilEntity extends FallingBlockEntity {
 
     @Override
     protected AABB makeBoundingBox() {
-        return EntityDimensions.scalable(3, 3).makeBoundingBox(this.position().add(0, -1, 0));
+        return EntityDimensions.scalable(3, 3).makeBoundingBox(this.position().add(0, -1, 0)).deflate(0.01);
     }
 }

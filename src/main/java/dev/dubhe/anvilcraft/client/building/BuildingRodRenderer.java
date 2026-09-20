@@ -15,6 +15,7 @@ import dev.anvilcraft.lib.v2.cube.client.OutlineRenderer;
 import dev.anvilcraft.lib.v2.cube.client.SelectionPart;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.multipart.AbstractMultiPartBlock;
+import dev.dubhe.anvilcraft.building.BlueprintBlockConfiguration;
 import dev.dubhe.anvilcraft.building.BlueprintMultiblocks;
 import dev.dubhe.anvilcraft.building.BlueprintPlacement;
 import dev.dubhe.anvilcraft.building.BuildingEntityTransform;
@@ -252,12 +253,17 @@ public final class BuildingRodRenderer {
             meshAlpha = alpha;
             return;
         }
+        BlockPos sourceOrigin = BlueprintBlockConfiguration.sourceOrigin(snapshot);
         for (var entry : blocks) {
             BlockPos pos = entry.pos();
             var state = entry.state();
             BlockEntity entity = state.getBlock() instanceof EntityBlock block ? block.newBlockEntity(pos, state) : null;
             if (entity != null) {
-                entry.nbt().ifPresent(nbt -> entity.loadWithComponents(nbt, mc.level.registryAccess()));
+                entry.nbt().ifPresent(nbt -> {
+                    var transformed = nbt.copy();
+                    BlueprintBlockConfiguration.transform(transformed, local, sourceOrigin, snapshot);
+                    entity.loadWithComponents(transformed, mc.level.registryAccess());
+                });
                 entity.setLevel(mc.level);
                 ENTITIES.add(entity);
             }

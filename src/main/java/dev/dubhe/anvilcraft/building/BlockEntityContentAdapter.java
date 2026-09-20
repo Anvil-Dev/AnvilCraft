@@ -1,17 +1,27 @@
 package dev.dubhe.anvilcraft.building;
 
 import dev.dubhe.anvilcraft.api.itemhandler.IItemHandlerHolder;
+import dev.dubhe.anvilcraft.block.entity.storage.StorageBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
+import net.minecraft.core.component.DataComponentMap;
+import net.minecraft.core.component.DataComponentPatch;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.world.Container;
 import net.minecraft.world.ContainerHelper;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.component.ItemContainerContents;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.JukeboxBlockEntity;
+import net.minecraft.world.level.block.entity.LecternBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.IItemHandlerModifiable;
 
@@ -40,16 +50,49 @@ public final class BlockEntityContentAdapter {
         if (nbt == null || nbt.isEmpty()) {
             return Extracted.empty();
         }
+        return extract(BlockEntity.loadStatic(BlockPos.ZERO, state, nbt, registries), nbt, registries, null);
+    }
+
+    static Extracted extract(BlockEntity entity, HolderLookup.Provider registries, @Nullable Level level) {
+        return extract(entity, entity.saveWithFullMetadata(registries), registries, level);
+    }
+
+    private static Extracted extract(
+        @Nullable BlockEntity loaded, CompoundTag nbt, HolderLookup.Provider registries, @Nullable Level level
+    ) {
         if (nbt.contains("LootTable", Tag.TAG_STRING) && !nbt.getString("LootTable").isEmpty()) {
             return new Extracted(stripResources(nbt), List.of(), true);
         }
         List<SlotStack> contents = new ArrayList<>();
-        BlockEntity loaded = BlockEntity.loadStatic(BlockPos.ZERO, state, nbt, registries);
+        if (loaded instanceof LecternBlockEntity lectern) {
+            ItemStack book = lectern.getBook();
+            if (!book.isEmpty() && !book.is(Items.WRITTEN_BOOK) && !book.is(Items.WRITABLE_BOOK)) {
+                throw new IllegalArgumentException("Blueprint lectern contains an invalid book");
+            }
+            if (!book.isEmpty()) contents.add(new SlotStack(0, book.copy()));
+            CompoundTag config = stripResources(nbt);
+            config.remove("Book");
+            config.remove("Page");
+            return new Extracted(config, List.copyOf(contents), false);
+        }
+        if (loaded instanceof JukeboxBlockEntity jukebox) {
+            ItemStack record = jukebox.getTheItem();
+            if (!record.isEmpty()) contents.add(new SlotStack(0, record.copy()));
+            CompoundTag config = stripResources(nbt);
+            config.remove("RecordItem");
+            config.remove("ticks_since_song_started");
+            return new Extracted(config, List.copyOf(contents), false);
+        }
         if (loaded instanceof Container container) {
             extractContainer(container, contents);
+            var components = loaded.collectComponents();
+            if (components.has(DataComponents.CONTAINER)) {
+                loaded.applyComponents(DataComponentMap.builder().addAll(components)
+                    .set(DataComponents.CONTAINER, ItemContainerContents.EMPTY).build(), DataComponentPatch.EMPTY);
+            }
             return new Extracted(configOf(loaded, registries), List.copyOf(contents), false);
         }
-        IItemHandler handler = itemHandlerOf(loaded);
+        IItemHandler handler = itemHandlerOf(loaded, level);
         if (handler != null) {
             extractHandler(handler, contents);
             CompoundTag config = configOf(loaded, registries);
@@ -68,6 +111,10 @@ public final class BlockEntityContentAdapter {
         if (contents.isEmpty()) {
             return;
         }
+        if (blockEntity instanceof LecternBlockEntity lectern) {
+            lectern.setBook(contents.getFirst().stack().copy());
+            return;
+        }
         if (blockEntity instanceof Container container) {
             for (SlotStack content : contents) {
                 if (content.slot() >= 0 && content.slot() < container.getContainerSize()) {
@@ -77,7 +124,7 @@ public final class BlockEntityContentAdapter {
             container.setChanged();
             return;
         }
-        IItemHandler handler = itemHandlerOf(blockEntity);
+        IItemHandler handler = itemHandlerOf(blockEntity, blockEntity.getLevel());
         if (handler instanceof IItemHandlerModifiable modifiable) {
             for (SlotStack content : contents) {
                 if (content.slot() >= 0 && content.slot() < modifiable.getSlots()) {
@@ -125,7 +172,6 @@ public final class BlockEntityContentAdapter {
             ItemStack stack = container.getItem(slot);
             if (stack.isEmpty()) continue;
             contents.add(new SlotStack(slot, stack.copy()));
-            container.setItem(slot, ItemStack.EMPTY);
         }
     }
 
@@ -138,11 +184,16 @@ public final class BlockEntityContentAdapter {
     }
 
     @Nullable
-    private static IItemHandler itemHandlerOf(@Nullable BlockEntity blockEntity) {
+    private static IItemHandler itemHandlerOf(@Nullable BlockEntity blockEntity, @Nullable Level level) {
+        // 外部仓储通过组件引用全局数据，不能在规划时读取或清空实际仓储。
+        if (blockEntity instanceof StorageBlockEntity) return null;
         if (blockEntity instanceof IItemHandlerHolder holder) {
             return holder.getItemHandler();
         }
-        return blockEntity instanceof IItemHandler handler ? handler : null;
+        if (blockEntity instanceof IItemHandler handler) return handler;
+        if (blockEntity == null || level == null) return null;
+        return level.getCapability(Capabilities.ItemHandler.BLOCK, blockEntity.getBlockPos(),
+            blockEntity.getBlockState(), blockEntity, null);
     }
 
     private static CompoundTag configOf(BlockEntity blockEntity, HolderLookup.Provider registries) {
@@ -167,6 +218,10 @@ public final class BlockEntityContentAdapter {
     private static void stripSerializedHandlerItems(Tag tag) {
         if (tag instanceof CompoundTag compound) {
             compound.remove("SlotItem");
+            compound.remove("Items");
+            if (compound.contains("components", Tag.TAG_COMPOUND)) {
+                compound.getCompound("components").remove("minecraft:container");
+            }
             for (String key : List.copyOf(compound.getAllKeys())) {
                 Tag child = compound.get(key);
                 if (child != null) {

@@ -435,7 +435,6 @@ public class RenderSupport {
         float centerOffset
     ) {
         RenderSystem.enableBlend();
-        final Minecraft minecraft = Minecraft.getInstance();
         PoseStack pose = guiGraphics.pose();
 
         pose.pushPose();
@@ -482,9 +481,18 @@ public class RenderSupport {
         pose.pushPose();
         RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
         pose.translate(0, 0, -1);
+        renderLevelLikeBlocks(level, pose, iter);
+        pose.popPose();
+        pose.popPose();
+    }
+
+    public static void renderLevelLikeBlocks(LevelLike level, PoseStack pose, Iterable<BlockPos> positions) {
+        RenderSystem.enableBlend();
+        RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
+        Minecraft minecraft = Minecraft.getInstance();
         MultiBufferSource.BufferSource buffers = minecraft.renderBuffers().bufferSource();
         BlockRenderDispatcher blockRenderer = minecraft.getBlockRenderer();
-        for (BlockPos pos : iter) {
+        for (BlockPos pos : positions) {
             BlockState state = level.getBlockState(pos);
             
             pose.pushPose();
@@ -509,8 +517,6 @@ public class RenderSupport {
             pose.popPose();
         }
         buffers.endBatch();
-        pose.popPose();
-        pose.popPose();
     }
 
     private static Optional<BlockEntity> getCachedBlockEntity(BlockState state) {

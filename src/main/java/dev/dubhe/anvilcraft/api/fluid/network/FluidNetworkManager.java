@@ -71,10 +71,10 @@ public final class FluidNetworkManager {
     }
 
     /**
-     * 登记刚加载的方块实体容器，并把网络重建延后一轮。
+     * 登记刚加载的方块实体候选位置，并把容器检测与网络重建延后一轮。
      *
-     * <p>外部模组可能在方块实体首次 tick 时才完成多方块流体处理器初始化；
-     * 延后一轮可避免缓存到尚未刷新的处理器。</p>
+     * <p>能力查询可能通过多方块代理同步请求其他区块，因此加载回调中不能检测能力。
+     * 重建时会剔除非容器；延后一轮也可等待首次 tick 完成流体处理器初始化。</p>
      */
     public void addContainerAfterLoad(Level level, BlockPos pos) {
         if (level.isClientSide()) {

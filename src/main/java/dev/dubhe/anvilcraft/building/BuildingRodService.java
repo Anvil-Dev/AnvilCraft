@@ -4,7 +4,6 @@ import dev.dubhe.anvilcraft.block.LargeCakeBlock;
 import dev.dubhe.anvilcraft.block.RedstoneWireBlock;
 import dev.dubhe.anvilcraft.block.RedstoneWireNetworkManager;
 import dev.dubhe.anvilcraft.block.cfa.CelestialForgingAnvilAmplifierBlock;
-import dev.dubhe.anvilcraft.block.entity.PulseGeneratorBlockEntity;
 import dev.dubhe.anvilcraft.block.item.FlexibleMultiPartBlockItem;
 import dev.dubhe.anvilcraft.block.item.LargeCakeBlockItem;
 import dev.dubhe.anvilcraft.block.item.SimpleMultiPartBlockItem;
@@ -21,6 +20,9 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.Container;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.player.Player;
@@ -36,6 +38,7 @@ import net.minecraft.world.level.block.DoorBlock;
 import net.minecraft.world.level.block.DoublePlantBlock;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
+import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.CommandBlockEntity;
 import net.minecraft.world.level.block.piston.PistonHeadBlock;
@@ -54,9 +57,11 @@ import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.network.PacketDistributor;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.WeakHashMap;
 import javax.annotation.Nullable;
 
@@ -66,12 +71,16 @@ public final class BuildingRodService {
     private static final Map<ServerPlayer, Confirmation> CONFIRMATIONS = new WeakHashMap<>();
 
     private record Confirmation(ResourceKey<Level> dimension, ItemStack disk, ItemStack rod, List<Cell> cells,
-                                List<ItemStack> materials, boolean partial, long expiresAt) {
-        boolean matches(ServerPlayer player, List<Cell> planned, List<ItemStack> supplied, boolean allowPartial) {
+                                List<CompoundTag> entities, List<ItemStack> materials, boolean partial, long expiresAt) {
+        boolean matches(
+            ServerPlayer player, List<Cell> planned, List<EntityBuildAdapter.Planned> plannedEntities,
+            List<ItemStack> supplied, boolean allowPartial
+        ) {
             if (this.dimension != player.level().dimension() || this.rod != BuildingRodItem.heldRod(player)
                 || this.partial != allowPartial || player.level().getGameTime() > this.expiresAt
                 || !ItemStack.isSameItemSameComponents(this.disk, BuildingRodItem.material(player))
-                || this.cells.size() != planned.size() || this.materials.size() != supplied.size()) return false;
+                || this.cells.size() != planned.size() || this.entities.size() != plannedEntities.size()
+                || this.materials.size() != supplied.size()) return false;
             for (int i = 0; i < planned.size(); i++) {
                 Cell expected = this.cells.get(i);
                 Cell current = planned.get(i);
@@ -82,6 +91,9 @@ public final class BuildingRodService {
                     var second = current.contents().get(slot);
                     if (first.slot() != second.slot() || !ItemStack.matches(first.stack(), second.stack())) return false;
                 }
+            }
+            for (int i = 0; i < plannedEntities.size(); i++) {
+                if (!this.entities.get(i).equals(plannedEntities.get(i).entityNbt())) return false;
             }
             for (int i = 0; i < supplied.size(); i++) {
                 if (!ItemStack.matches(this.materials.get(i), supplied.get(i))) return false;
@@ -123,7 +135,9 @@ public final class BuildingRodService {
         final List<EntityBuildAdapter.Planned> entities = new ArrayList<>();
         final Map<BlockPos, ItemStack> blockMaterials = new LinkedHashMap<>();
         final List<ItemStack> returned = new ArrayList<>();
+        boolean separateContents;
         boolean componentMismatch;
+        boolean missingContents;
     }
 
     public static long volume(BlockPos first, BlockPos last) {
@@ -393,6 +407,7 @@ public final class BuildingRodService {
                 player.registryAccess()).snapshot(),
                 disk.direction(), disk.upsideDown());
             BlueprintPlacement placement = new BlueprintPlacement(anchor, rotation, mirror);
+            BlockPos sourceOrigin = BlueprintBlockConfiguration.sourceOrigin(snapshot);
             Map<BlockPos, Group> groups = new LinkedHashMap<>();
             for (BlueprintMultiblocks.PlacedBlock entry : BlueprintMultiblocks.expand(snapshot, placement, -1)) {
                 BlockState state = entry.state();
@@ -409,14 +424,19 @@ public final class BuildingRodService {
                 }
                 BlockPos core = core(pos, state);
                 Group group = groups.computeIfAbsent(core, ignored -> new Group());
+                group.separateContents = true;
                 BuildingBlockMaterial blockMaterial = BuildingBlockMaterial.extract(state,
-                    entry.nbt().orElse(null), player.registryAccess());
-                BlockEntityContentAdapter.Extracted extracted = BlockEntityContentAdapter.extract(
-                    state, blockMaterial.config(), player.registryAccess());
-                group.cells.add(new Cell(pos, state, extracted.config(), extracted.contents()));
-                extracted.contents().forEach(content -> group.materials.add(content.stack()));
+                    entry.nbt().orElse(null), player.level());
+                if (blockMaterial.requiresOperator() && !player.canUseGameMasterBlocks()) {
+                    message(player, "blocked");
+                    return;
+                }
+                blockMaterial = blockMaterial.withConfiguration(state, blockMaterial.config(), player.registryAccess());
+                BlueprintBlockConfiguration.transform(blockMaterial.config(), placement, sourceOrigin, snapshot);
+                group.materials.addAll(BlueprintBlockConfiguration.materials(blockMaterial.config()));
+                group.cells.add(new Cell(pos, state, blockMaterial.config(), blockMaterial.contents()));
                 if (SignDecorationAdapter.isSign(state)) {
-                    var decoration = SignDecorationAdapter.extract(state, extracted.config(), player.registryAccess());
+                    var decoration = SignDecorationAdapter.extract(state, blockMaterial.config(), player.registryAccess());
                     decoration.decorations().stream().map(SignDecorationAdapter.Decoration::material)
                         .filter(material -> !material.isEmpty()).forEach(group.materials::add);
                 }
@@ -451,6 +471,16 @@ public final class BuildingRodService {
             for (var entry : snapshot.entities()) {
                 EntityType<?> type = EntityType.by(entry.nbt()).orElse(null);
                 if (type == null || EntityBuildAdapters.isTransient(type)) continue;
+                Entity probe = type.create(player.serverLevel());
+                if (probe == null) {
+                    message(player, "unsupported");
+                    return;
+                }
+                if ((type == EntityType.COMMAND_BLOCK_MINECART || probe.onlyOpCanSetNbt())
+                    && !player.canUseGameMasterBlocks()) {
+                    message(player, "blocked");
+                    return;
+                }
                 Vec3 world = placement.localOf(entry.pos(), entry.blockPos())
                     .add(anchor.getX(), anchor.getY(), anchor.getZ());
                 if (!canModify(player, BlockPos.containing(world))) {
@@ -472,9 +502,12 @@ public final class BuildingRodService {
                     message(player, "unsupported");
                     return;
                 }
+                plan = new EntityBuildAdapter.Planned(plan.material(), plan.returned(),
+                    BuildingEntityTransform.sanitize(probe, plan.entityNbt()), plan.contents(), plan.fluids(), false);
                 Group group = new Group();
+                group.separateContents = probe instanceof Container;
                 group.materials.add(plan.material());
-                plan.contents().forEach(content -> group.materials.add(content.stack()));
+                if (!group.separateContents) plan.contents().forEach(content -> group.materials.add(content.stack()));
                 plan.fluids().forEach(fluid -> group.fluids.add(fluid.fluid()));
                 group.entities.add(plan);
                 allGroups.add(group);
@@ -552,10 +585,12 @@ public final class BuildingRodService {
             List<ItemStack> supplied = new ArrayList<>();
             groups.forEach(group -> group.blockMaterials.values().forEach(stack -> supplied.add(stack.copy())));
             placedGroups.forEach(group -> group.materials.forEach(stack -> supplied.add(stack.copy())));
-            if (previous == null || !previous.matches(player, cells, supplied, partial)) {
+            if (previous == null || !previous.matches(player, cells, entities, supplied, partial)) {
                 CONFIRMATIONS.put(player, new Confirmation(player.level().dimension(), BuildingRodItem.material(player).copy(),
-                    BuildingRodItem.heldRod(player), List.copyOf(cells), supplied, partial, player.level().getGameTime() + 60));
-                message(player, "component_mismatch");
+                    BuildingRodItem.heldRod(player), List.copyOf(cells), entities.stream().map(plan -> plan.entityNbt().copy()).toList(),
+                    supplied, partial, player.level().getGameTime() + 60));
+                message(player, placedGroups.stream().anyMatch(group -> group.missingContents)
+                    ? "contents_missing" : "component_mismatch");
                 return false;
             }
         }
@@ -580,19 +615,23 @@ public final class BuildingRodService {
         for (Cell cell : cells) {
             BlockEntity blockEntity = player.level().getBlockEntity(cell.pos());
             if (blockEntity != null) {
-                if (!cell.config().isEmpty() && !(blockEntity instanceof CommandBlockEntity)) {
-                    if (quiet && blockEntity instanceof PulseGeneratorBlockEntity pulse) {
-                        pulse.loadBlueprint(cell.config(), player.registryAccess());
-                    } else {
-                        blockEntity.loadWithComponents(cell.config(), player.registryAccess());
-                    }
+                if (!quiet && !cell.config().isEmpty() && !(blockEntity instanceof CommandBlockEntity)) {
+                    blockEntity.loadWithComponents(cell.config(), player.registryAccess());
                 }
-                BlockEntityContentAdapter.insert(blockEntity, cell.contents(), player.registryAccess());
                 ItemStack supplied = placedMaterials.get(cell.pos());
                 if (supplied != null) {
                     BlockItem.updateCustomBlockEntityTag(player.level(), player, cell.pos(), supplied);
                     blockEntity.applyComponentsFromItemStack(supplied);
                 }
+                if (quiet && !SignDecorationAdapter.isSign(cell.state())) {
+                    BlueprintBlockConfiguration.apply(blockEntity, cell.config(), player);
+                }
+                if (quiet && SignDecorationAdapter.isSign(cell.state())) {
+                    blockEntity.loadWithComponents(
+                        SignDecorationAdapter.sanitize(cell.state(), cell.config(), player.registryAccess()), player.registryAccess());
+                }
+                BlockEntityContentAdapter.insert(blockEntity, cell.contents(), player.registryAccess());
+                if (quiet) BlueprintBlockConfiguration.afterContents(blockEntity, cell.config(), player);
                 blockEntity.setChanged();
                 player.level().sendBlockUpdated(cell.pos(), cell.state(), cell.state(), Block.UPDATE_CLIENTS);
             }
@@ -616,7 +655,24 @@ public final class BuildingRodService {
         undo.finish(player);
         BuildingRodMaterialBook.give(player, shortages);
         finishPlacement(player, cells.size());
+        if (quiet || !placedMaterials.isEmpty()) playPlacementSounds(player, cells, quiet);
         return !missing;
+    }
+
+    private static void playPlacementSounds(ServerPlayer player, List<Cell> cells, boolean blueprint) {
+        Level level = player.level();
+        if (blueprint) {
+            level.playSound(null, player.blockPosition(), SoundEvents.NOTE_BLOCK_PLING.value(), SoundSource.PLAYERS, 1.0f, 1.0f);
+            return;
+        }
+        Set<Block> sounded = new HashSet<>();
+        for (Cell cell : cells) {
+            BlockState state = cell.state();
+            if (!sounded.add(state.getBlock())) continue;
+            SoundType sound = state.getSoundType(level, cell.pos(), player);
+            level.playSound(null, cell.pos(), sound.getPlaceSound(), SoundSource.BLOCKS,
+                (sound.getVolume() + 1.0f) / 2.0f, sound.getPitch() * 0.8f);
+        }
     }
 
     static void finishPlacement(ServerPlayer player, int blocks) {

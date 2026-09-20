@@ -9,6 +9,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
@@ -45,6 +47,7 @@ public final class BuildingMaterials {
         private final ItemStack resource;
         private final long available;
         private final IntConsumer extract;
+        @Nullable private BuildingBlockMaterial.Supplied blockMaterial;
         private int reserved;
 
         private Source(ItemStack resource, long available, IntConsumer extract) {
@@ -114,29 +117,71 @@ public final class BuildingMaterials {
     BuildingRodService.Group reserve(BuildingRodService.Group group, boolean allowMismatch) {
         final int[] before = this.sources.stream().mapToInt(source -> source.reserved).toArray();
         BuildingRodService.Group allocated = new BuildingRodService.Group();
-        allocated.cells.addAll(group.cells);
-        allocated.entities.addAll(group.entities);
+        if (!group.separateContents) allocated.entities.addAll(group.entities);
         allocated.fluids.addAll(group.fluids);
         allocated.materials.addAll(group.materials);
         for (var entry : group.blockMaterials.entrySet()) {
             ItemStack expected = entry.getValue();
-            List<ItemStack> taken = new ArrayList<>();
-            int remaining = this.creative ? 0 : this.reserveBlock(expected, true, expected.getCount(), taken);
-            if (this.creative) taken.add(expected.copy());
-            if (remaining > 0 && allowMismatch) remaining = this.reserveBlock(expected, false, remaining, taken);
+            List<BlockSupply> taken = new ArrayList<>();
+            int remaining = this.creative ? 0 : this.reserveBlock(expected, true, expected.getCount(), taken, group.separateContents);
+            if (this.creative) taken.add(new BlockSupply(expected.copy(), expected.copy(), List.of()));
+            if (remaining > 0 && allowMismatch) remaining = this.reserveBlock(expected, false, remaining, taken, group.separateContents);
             if (remaining > 0) {
                 for (int i = 0; i < before.length; i++) this.sources.get(i).reserved = before[i];
                 return null;
             }
-            allocated.blockMaterials.put(entry.getKey(), taken.getFirst());
-            allocated.materials.addAll(taken);
-            allocated.componentMismatch |= taken.stream().anyMatch(stack -> !ItemStack.isSameItemSameComponents(stack, expected));
+            allocated.blockMaterials.put(entry.getKey(), taken.getFirst().placed());
+            taken.forEach(supply -> {
+                allocated.materials.add(supply.original());
+                allocated.returned.addAll(supply.returned());
+            });
+            allocated.componentMismatch |= taken.stream()
+                .anyMatch(supply -> !ItemStack.isSameItemSameComponents(supply.placed(), expected));
         }
-        if (!this.reserve(group.materials, group.fluids)) {
+        if (!this.reserve(group.materials)) {
+            for (int i = 0; i < before.length; i++) this.sources.get(i).reserved = before[i];
+            return null;
+        }
+        for (var cell : group.cells) {
+            List<ItemStack> contents = cell.contents().stream().map(BlockEntityContentAdapter.SlotStack::stack).toList();
+            if (this.reserve(contents)) {
+                allocated.cells.add(cell);
+                allocated.materials.addAll(contents);
+            } else if (allowMismatch) {
+                BlockState state = cell.state();
+                if (state.hasProperty(BlockStateProperties.HAS_BOOK)) state = state.setValue(BlockStateProperties.HAS_BOOK, false);
+                if (state.hasProperty(BlockStateProperties.HAS_RECORD)) state = state.setValue(BlockStateProperties.HAS_RECORD, false);
+                allocated.cells.add(new BuildingRodService.Cell(cell.pos(), state, cell.config(), List.of()));
+                allocated.componentMismatch = true;
+                allocated.missingContents = true;
+            } else {
+                for (int i = 0; i < before.length; i++) this.sources.get(i).reserved = before[i];
+                return null;
+            }
+        }
+        if (group.separateContents) {
+            for (var entity : group.entities) {
+                List<ItemStack> contents = entity.contents().stream().map(EntityBuildAdapter.SlotStack::stack).toList();
+                if (this.reserve(contents)) {
+                    allocated.entities.add(entity);
+                    allocated.materials.addAll(contents);
+                } else if (allowMismatch) {
+                    allocated.entities.add(new EntityBuildAdapter.Planned(entity.material(), entity.returned(),
+                        entity.entityNbt(), List.of(), entity.fluids(), false));
+                    allocated.componentMismatch = true;
+                    allocated.missingContents = true;
+                } else {
+                    for (int i = 0; i < before.length; i++) this.sources.get(i).reserved = before[i];
+                    return null;
+                }
+            }
+        }
+        if (!this.reserve(List.of(), group.fluids)) {
             for (int i = 0; i < before.length; i++) this.sources.get(i).reserved = before[i];
             return null;
         }
         if (!this.creative) {
+            allocated.returned.forEach(stack -> this.returned.add(stack.copy()));
             for (ItemStack stack : allocated.blockMaterials.values()) {
                 if (stack.is(Items.POWDER_SNOW_BUCKET)) {
                     ItemStack bucket = new ItemStack(Items.BUCKET, stack.getCount());
@@ -148,15 +193,25 @@ public final class BuildingMaterials {
         return allocated;
     }
 
-    private int reserveBlock(ItemStack expected, boolean exact, int remaining, List<ItemStack> taken) {
+    private record BlockSupply(ItemStack original, ItemStack placed, List<ItemStack> returned) {
+    }
+
+    private int reserveBlock(ItemStack expected, boolean exact, int remaining, List<BlockSupply> taken, boolean separateContents) {
         for (Source source : this.sources) {
-            if (!ItemStack.isSameItem(source.resource, expected)
-                || ItemStack.isSameItemSameComponents(source.resource, expected) != exact) continue;
+            if (!ItemStack.isSameItem(source.resource, expected) || source.available <= source.reserved) continue;
+            if (separateContents && source.blockMaterial == null) {
+                source.blockMaterial = BuildingBlockMaterial.separateContents(source.resource, this.player.level());
+            }
+            var material = separateContents && source.blockMaterial != null
+                ? source.blockMaterial : new BuildingBlockMaterial.Supplied(source.resource, List.of());
+            ItemStack empty = material.stack();
+            if (ItemStack.isSameItemSameComponents(empty, expected) != exact) continue;
             int take = (int) Math.min(remaining, source.available - source.reserved);
-            if (take == 0) continue;
             source.reserved += take;
             remaining -= take;
-            taken.add(source.resource.copyWithCount(take));
+            List<ItemStack> returned = material.contents().stream()
+                .map(content -> content.stack().copyWithCount(content.stack().getCount() * take)).toList();
+            taken.add(new BlockSupply(source.resource.copyWithCount(take), empty.copyWithCount(take), returned));
             if (remaining == 0) break;
         }
         return remaining;
@@ -203,6 +258,10 @@ public final class BuildingMaterials {
         List<FluidStack> fluids = new ArrayList<>();
         for (var group : groups) {
             List<ItemStack> required = new ArrayList<>(group.materials);
+            group.cells.forEach(cell -> cell.contents().forEach(content -> required.add(content.stack())));
+            if (group.separateContents) {
+                group.entities.forEach(entity -> entity.contents().forEach(content -> required.add(content.stack())));
+            }
             required.addAll(group.blockMaterials.values());
             for (ItemStack material : required) {
                 ItemStack combined = items.stream().filter(stack -> ItemStack.isSameItemSameComponents(stack, material))

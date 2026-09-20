@@ -63,9 +63,12 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.neoforge.network.PacketDistributor;
+import org.joml.Matrix3f;
+import org.joml.Quaternionf;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL30;
 
@@ -151,6 +154,8 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
     private LevelLike cachedPreviewLevelLike;
     @Nullable private StructureScannerMenu.ImportedStructure cachedImportedStructure;
     @Nullable private LevelLike cachedImportedPreview;
+    private AABB cachedPreviewBounds = new AABB(BlockPos.ZERO);
+    private AABB cachedImportedPreviewBounds = new AABB(BlockPos.ZERO);
     private Direction cachedPreviewFacing = Direction.NORTH;
 
     // 扫描数据版本追踪（用于缓存失效）
@@ -936,7 +941,7 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
         this.renderPreviewContent(
             guiGraphics,
             this.previewWindowX + this.previewWindowWidth / 2,
-            this.previewWindowY + this.previewWindowHeight / 2 + 5
+            this.previewWindowY + this.previewWindowHeight / 2
         );
 
         RenderSystem.disableScissor();
@@ -1024,58 +1029,49 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
     /**
      * 渲染3D预览内容
      */
-    @SuppressWarnings("checkstyle:VariableDeclarationUsageDistance")
     private void renderPreviewContent(GuiGraphics guiGraphics, int posX, int posY) {
-        if (this.minecraft == null || this.minecraft.level == null) {
-            return;
-        }
+        if (this.minecraft == null || this.minecraft.level == null) return;
 
         var imported = this.menu.getImportedStructure();
+        LevelLike preview;
+        AABB bounds;
         if (imported != null) {
-            LevelLike preview = this.buildImportedPreview(imported, this.minecraft.level);
-            RenderSupport.renderLevelLikeWithFixedSize(preview, guiGraphics, posX, posY, 80.0F,
-                this.previewRotationX, this.previewRotationY + 270.0F,
-                Math.max(1, preview.horizontalSize()), Math.max(1, preview.verticalSize()), -0.5F);
-            return;
+            preview = this.buildImportedPreview(imported, this.minecraft.level);
+            bounds = this.cachedImportedPreviewBounds;
+        } else {
+            if (this.cachedBlockEntity == null) return;
+            var state = this.minecraft.level.getBlockState(this.cachedBlockEntity.getBlockPos());
+            LevelLike scannedPreview = this.buildPreviewLevelLike(state.getValue(HorizontalDirectionalBlock.FACING));
+            if (scannedPreview == null) return;
+            preview = scannedPreview;
+            bounds = this.cachedPreviewBounds;
         }
 
-        // 获取Structure Scanner方块的状态
-        if (this.cachedBlockEntity == null) {
-            return;
-        }
+        PoseStack pose = guiGraphics.pose();
+        pose.pushPose();
+        this.applyPreviewTransform(pose, bounds, posX, posY);
+        RenderSupport.renderLevelLikeBlocks(preview, pose, BlockPos.betweenClosed(
+            BlockPos.containing(bounds.minX, bounds.minY, bounds.minZ),
+            BlockPos.containing(bounds.maxX - 1, bounds.maxY - 1, bounds.maxZ - 1)));
+        if (imported == null) this.renderScannerBorder(pose);
+        pose.popPose();
+    }
 
-        var level = this.minecraft.level;
-        var blockState = level.getBlockState(this.cachedBlockEntity.getBlockPos());
-        var facing = blockState.getValue(HorizontalDirectionalBlock.FACING);
-
-        // 构建并渲染 LevelLike（使用缓存）
-        LevelLike previewLevelLike = this.buildPreviewLevelLike(facing);
-        if (previewLevelLike != null) {
-            // 计算选区的实际尺寸（忽略 Scanner）
-            int rangeX = this.cachedRangeX;
-            int rangeY = this.cachedRangeY;
-
-            // 使用选区范围作为缩放基准，忽略 Scanner 的影响
-            int sizeX = Math.max(1, rangeX);
-            int sizeY = Math.max(1, rangeY);
-
-            // 应用朝向旋转偏移，让预览根据Scanner的实际朝向旋转
-            RenderSupport.renderLevelLikeWithFixedSize(
-                previewLevelLike,
-                guiGraphics,
-                posX,
-                posY,
-                (float) 80.0,
-                this.previewRotationX,
-                this.previewRotationY + getFacingYawOffset(facing),
-                sizeX,
-                sizeY,
-                -0.5f
-            );
-        }
-
-        // 渲染边框
-        this.renderScannerBorder(guiGraphics, posX, posY, facing);
+    private void applyPreviewTransform(PoseStack pose, AABB bounds, int posX, int posY) {
+        Quaternionf rotation = Axis.XP.rotationDegrees(this.previewRotationX)
+            .mul(Axis.YP.rotationDegrees(this.previewRotationY + 315.0F));
+        Matrix3f matrix = new Matrix3f().rotation(rotation);
+        float sizeX = (float) bounds.getXsize();
+        float sizeY = (float) bounds.getYsize();
+        float sizeZ = (float) bounds.getZsize();
+        float projectedWidth = Math.abs(matrix.m00()) * sizeX + Math.abs(matrix.m10()) * sizeY + Math.abs(matrix.m20()) * sizeZ;
+        float projectedHeight = Math.abs(matrix.m01()) * sizeX + Math.abs(matrix.m11()) * sizeY + Math.abs(matrix.m21()) * sizeZ;
+        float scale = Math.min((this.previewWindowWidth - 8.0F) / projectedWidth,
+            (this.previewWindowHeight - 8.0F) / projectedHeight);
+        pose.translate(posX, posY, 100);
+        pose.scale(-scale, -scale, -scale);
+        pose.mulPose(rotation);
+        pose.translate(-(bounds.minX + bounds.maxX) / 2, -(bounds.minY + bounds.maxY) / 2, -(bounds.minZ + bounds.maxZ) / 2);
     }
 
     private LevelLike buildImportedPreview(StructureScannerMenu.ImportedStructure imported, ClientLevel level) {
@@ -1087,9 +1083,11 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
         int minY = blocks.stream().mapToInt(block -> block.pos().getY()).min().orElse(0);
         int minZ = blocks.stream().mapToInt(block -> block.pos().getZ()).min().orElse(0);
         BlockPos origin = new BlockPos(minX, minY, minZ);
+        this.cachedImportedPreviewBounds = new AABB(BlockPos.ZERO);
         for (var block : blocks) {
             BlockPos pos = block.pos().subtract(origin);
             preview.setBlockState(pos, block.state());
+            this.cachedImportedPreviewBounds = this.cachedImportedPreviewBounds.minmax(new AABB(pos));
             var entity = preview.getBlockEntity(pos);
             if (entity != null) block.nbt().ifPresent(tag -> entity.loadWithComponents(tag, level.registryAccess()));
         }
@@ -1117,6 +1115,8 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
         // 获取扫描范围
         int rangeX = this.cachedRangeX;
         int rangeY = this.cachedRangeY;
+        this.cachedPreviewBounds = new AABB(0, 0, 0, Math.max(1, rangeX),
+            Math.max(1, rangeY), Math.max(1, this.cachedRangeZ) + 2);
 
         boolean upsideDown = false;
         if (this.cachedBlockEntity.getBlockState().hasProperty(dev.dubhe.anvilcraft.block.StructureScannerBlock.UPSIDE_DOWN)) {
@@ -1144,7 +1144,10 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
                 int renderY = upsideDown ? (Math.max(1, rangeY) - 1 - data.y()) : data.y();
                 BlueprintPlacement placement = new BlueprintPlacement(new BlockPos(data.x(), renderY, data.z() + 1),
                     this.rotationForPreview(facing), Mirror.NONE);
-                BlueprintMultiblocks.forEachPart(BlockPos.ZERO, data.state(), placement, previewLevelLike::setBlockState);
+                BlueprintMultiblocks.forEachPart(BlockPos.ZERO, data.state(), placement, (pos, state) -> {
+                    previewLevelLike.setBlockState(pos, state);
+                    this.cachedPreviewBounds = this.cachedPreviewBounds.minmax(new AABB(pos));
+                });
             }
         }
 
@@ -1167,77 +1170,13 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
         };
     }
 
-    @SuppressWarnings("unused")
-    private float getFacingYawOffset(Direction scannerFacing) {
-        return 270f;
-    }
-
-    /**
-     * 渲染Structure Scanner的边框（与世界渲染一致）
-     */
-    private void renderScannerBorder(GuiGraphics guiGraphics, int posX, int posY, Direction facing) {
-        if (this.minecraft == null || this.minecraft.level == null) {
-            return;
-        }
-
-        if (this.cachedBlockEntity == null) return;
-
-        // 使用缓存的扫描范围
-        int rangeX = this.cachedRangeX;
-        int rangeY = this.cachedRangeY;
-        int rangeZ = this.cachedRangeZ;
-
-        // 使用选区范围作为缩放基准，忽略 Scanner
-        int sizeX = Math.max(1, rangeX);
-        int sizeY = Math.max(1, rangeY);
-
-        // 获取缓冲区
+    private void renderScannerBorder(PoseStack pose) {
+        if (this.minecraft == null || this.cachedBlockEntity == null) return;
         MultiBufferSource.BufferSource buffers = this.minecraft.renderBuffers().bufferSource();
-        final VertexConsumer consumer = buffers.getBuffer(RenderType.lines());
-
-        // 设置PoseStack
-        PoseStack poseStack = guiGraphics.pose();
-        poseStack.pushPose();
-
-        // 1. 平移到预览窗口中心
-        poseStack.translate(posX, posY, 100);
-
-        // 2. 缩放（与方块渲染保持一致，使用选区范围）
-        float scaleX = 80.0f / (sizeX * Mth.SQRT_OF_TWO);
-        float scaleY = 80.0f / (float) sizeY;
-        float scale = Math.min(scaleY, scaleX);
-        poseStack.scale(-scale, -scale, -scale);
-
-        // 3. 平移到中心
-        poseStack.translate(-(float) sizeX / 2, -(float) sizeY / 2, 0);
-
-        // 4. 应用X轴旋转
-        poseStack.mulPose(Axis.XP.rotationDegrees(this.previewRotationX));
-
-        // 5. Y轴旋转
-        float offsetX = (float) -sizeX / 2 + 0.05f;
-        float offsetZ = (float) -sizeX / 2 + 1;
-        poseStack.translate(-offsetX, 0, -offsetZ);
-        // 应用朝向旋转偏移
-        float yawOffset = getFacingYawOffset(facing);
-        poseStack.mulPose(Axis.YP.rotationDegrees(this.previewRotationY + 45 + yawOffset));
-        poseStack.translate(offsetX, 0, offsetZ);
-
-        // 6. 平移Z轴
-        poseStack.translate(0, 0, -1);
-
-        // 7. 创建边框形状 - 与世界中渲染的边框完全一致
-        // 在预览坐标系中：
-        // - Scanner 在 Z=0
-        // - 选区从 Z=2 到 Z=rangeZ+1
-        // (内部渲染已规整化为正数纵向区间，无需使用负Y向下延伸边框)
-        final VoxelShape borderShape = Shapes.create(0.0, 0.0, 2.0, rangeX, rangeY, rangeZ + 2);
-
-        // 8. 渲染边框（青色）
-        TooltipRenderHelper.renderOutline(poseStack, consumer, 0, 0, 0, BlockPos.ZERO, borderShape, 0xFF00FFCC);
-
+        VertexConsumer consumer = buffers.getBuffer(RenderType.lines());
+        VoxelShape border = Shapes.create(0, 0, 2, this.cachedRangeX, this.cachedRangeY, this.cachedRangeZ + 2);
+        TooltipRenderHelper.renderOutline(pose, consumer, 0, 0, 0, BlockPos.ZERO, border, 0xFF00FFCC);
         buffers.endBatch(RenderType.lines());
-        poseStack.popPose();
     }
 
     /**
