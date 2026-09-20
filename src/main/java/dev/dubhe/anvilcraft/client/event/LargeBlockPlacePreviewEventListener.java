@@ -40,10 +40,8 @@ import net.minecraft.util.FastColor;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.BlockItem;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.UseOnContext;
-import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
@@ -71,7 +69,8 @@ public class LargeBlockPlacePreviewEventListener {
     private static int failBoundErrorCooldown = 0;
 
     private static ItemStack currentItem = ItemStack.EMPTY;
-    private static BlockPos currentPos = null;
+    @Nullable
+    private static BlockPos currentPos;
 
     private static int boundColor = 0xffffffff;
     private static List<BlockPos> cachedErrorPosList = new ObjectArrayList<>();
@@ -154,16 +153,27 @@ public class LargeBlockPlacePreviewEventListener {
         if (mc.hitResult instanceof BlockHitResult hit && hit.getType() == HitResult.Type.BLOCK
             && !PlacementInteractions.allowsPlacement(new UseOnContext(player, hand, hit))) return;
         UseOnContext useContext;
-        if (item.getItem() instanceof PlaceInWaterBlockItem) {
-            // 这类物品只在水面放置：useOn() 返回 PASS，实际落点由 use() 用流体射线
+        List<BuildingRodService.Cell> cells = null;
+        if (item.getItem() instanceof PlaceInWaterBlockItem && !player.isUnderWater()) {
+            // 不在水下时这类物品贴水面放置：useOn() 返回 PASS，实际落点由 use() 用流体射线
             // （Fluid.SOURCE_ONLY）取得。而准星拾取用的是 Fluid.NONE，且水方块 getShape()
             // 为空，水面根本不会出现在 mc.hitResult 里（还可能被前方实体挡成 EntityHitResult），
-            // 故这里不依赖 mc.hitResult，按放置逻辑同样的流体射线重算落点。
-            BlockHitResult fluidHit = Item.getPlayerPOVHitResult(mc.level, player, ClipContext.Fluid.SOURCE_ONLY);
-            if (fluidHit.getType() == HitResult.Type.MISS) {
+            // 故这里不依赖 mc.hitResult，按放置逻辑同样的流体射线取落点；
+            // 并逐个尝试 use() 会尝试的候选格，取第一个能放下的，与实际放置保持一致。
+            // 水下则退化为下面的普通方块放置预览。
+            useContext = null;
+            for (UseOnContext candidate :
+                PlaceInWaterBlockItem.surfaceCandidates(mc.level, player, hand)) {
+                List<BuildingRodService.Cell> attempt = BuildingRodService.singlePlacement(candidate);
+                if (!attempt.isEmpty()) {
+                    useContext = candidate;
+                    cells = attempt;
+                    break;
+                }
+            }
+            if (useContext == null) {
                 return;
             }
-            useContext = new UseOnContext(mc.level, player, hand, item, fluidHit.withPosition(fluidHit.getBlockPos()));
         } else {
             if (!(mc.hitResult instanceof BlockHitResult target)) {
                 return;
@@ -180,7 +190,9 @@ public class LargeBlockPlacePreviewEventListener {
         if (useContext instanceof BlockPlacementPicking.PlayerClick click && !click.anvilcraft$hasBlockHit()) {
             return;
         }
-        List<BuildingRodService.Cell> cells = BuildingRodService.singlePlacement(useContext);
+        if (cells == null) {
+            cells = BuildingRodService.singlePlacement(useContext);
+        }
         if (cells.isEmpty()) return;
         validateCanRender(item, blockItem, cells.getFirst().pos());
         for (var cell : cells) renderEntries.add(new RenderEntry(cell.pos(), cell.state()));
@@ -319,13 +331,9 @@ public class LargeBlockPlacePreviewEventListener {
         RenderType renderType = outlineMode ? RenderType.lines() : ModRenderTypes.BEACON_GLASS;
         VertexConsumer vertexConsumer = bufferSource.getBuffer(renderType);
         if (outlineMode) {
-            if (level != null) {
-                renderMissingAmplifierOutlines(poseStack, vertexConsumer, cameraPos, amplifier, level);
-            }
+            renderMissingAmplifierOutlines(poseStack, vertexConsumer, cameraPos, amplifier, level);
         } else {
-            if (level != null) {
-                renderMissingAmplifierGlass(poseStack, bufferSource, renderType, cameraPos, amplifier, level);
-            }
+            renderMissingAmplifierGlass(poseStack, bufferSource, renderType, cameraPos, amplifier, level);
         }
         bufferSource.endBatch(renderType);
         RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
