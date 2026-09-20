@@ -331,6 +331,7 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.structure_scanner.marker", "Display item (JEI drag supported; right-click to clear)");
         provider.add("screen.anvilcraft.structure_scanner.no_files", "No matching files");
         provider.add("screen.anvilcraft.structure_scanner.file_failed", "File operation failed: %s");
+        provider.add("screen.anvilcraft.structure_scanner.normalized", "Blueprint repaired: added %s parts, removed %s orphan parts or flows");
         provider.add("screen.anvilcraft.structure_scanner.imported", "Preview loaded; confirm to record the structure to a disk");
         provider.add("screen.anvilcraft.structure_scanner.exported", "Structure exported: %s");
         provider.add("screen.anvilcraft.structure_scanner.info_title", "Structure Info");

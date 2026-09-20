@@ -1857,6 +1857,7 @@
   "screen.anvilcraft.structure_scanner.marker": "Display item (JEI drag supported; right-click to clear)",
   "screen.anvilcraft.structure_scanner.name": "Structure name",
   "screen.anvilcraft.structure_scanner.no_files": "No matching files",
+  "screen.anvilcraft.structure_scanner.normalized": "Blueprint repaired: added %s parts, removed %s orphan parts or flows",
   "screen.anvilcraft.structure_scanner.open_folder": "Open structure folder",
   "screen.anvilcraft.structure_scanner.ready": "Structure scan ready",
   "screen.anvilcraft.structure_scanner.scan": "Click to scan structure",

@@ -99,7 +99,7 @@ public final class UseItemOnBlock {
         return ItemInteractionResult.sidedSuccess(level.isClientSide());
     }
 
-    private static ItemStack materialFor(BlockState state) {
+    public static ItemStack materialFor(BlockState state) {
         if (state.is(ModBlocks.CRUSHING_TABLE.get())) return new ItemStack(Items.GRINDSTONE);
         if (state.is(ModBlocks.SIFTING_TABLE.get())) return new ItemStack(Blocks.SCAFFOLDING.asItem());
         if (state.is(ModBlocks.UNPACKING_TABLE.get())) return new ItemStack(Items.IRON_TRAPDOOR);

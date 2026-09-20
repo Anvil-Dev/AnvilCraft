@@ -1,0 +1,12 @@
+{
+  "rules": [
+    {
+      "item": "anvilcraft:stamping_platform",
+      "properties": ""
+    },
+    {
+      "item": "minecraft:scaffolding",
+      "properties": ""
+    }
+  ]
+}

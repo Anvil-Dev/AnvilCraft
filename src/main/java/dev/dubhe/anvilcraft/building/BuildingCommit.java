@@ -13,9 +13,34 @@ import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.chunk.LevelChunkSection;
 import net.minecraft.world.level.levelgen.Heightmap;
 
+import javax.annotation.Nullable;
+
 /** 移植悦灵建造的静默提交，全部状态就位后再恢复方块实体，避免红石和多方块中途更新。 */
 public final class BuildingCommit {
+    private static final ThreadLocal<Level> QUIET_LEVEL = new ThreadLocal<>();
+
     private BuildingCommit() {
+    }
+
+    /** 仅在本次蓝图提交的调用栈内抑制恢复方块实体引起的间接更新。 */
+    public static void quietly(Level level, Runnable action) {
+        Level previous = QUIET_LEVEL.get();
+        QUIET_LEVEL.set(level);
+        try {
+            action.run();
+        } finally {
+            if (previous == null) QUIET_LEVEL.remove();
+            else QUIET_LEVEL.set(previous);
+        }
+    }
+
+    public static boolean isQuiet(Level level) {
+        return QUIET_LEVEL.get() == level;
+    }
+
+    @Nullable
+    public static Level quietLevel() {
+        return QUIET_LEVEL.get();
     }
 
     public static void set(Level level, BlockPos pos, BlockState state) {

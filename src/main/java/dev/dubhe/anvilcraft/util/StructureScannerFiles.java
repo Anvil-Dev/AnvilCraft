@@ -1,11 +1,9 @@
 package dev.dubhe.anvilcraft.util;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.building.BlueprintMultiblocks;
-import dev.dubhe.anvilcraft.building.BlueprintPlacement;
+import dev.dubhe.anvilcraft.building.BlueprintNormalizer;
 import dev.dubhe.anvilcraft.building.ConstructionBlueprintException;
 import dev.dubhe.anvilcraft.building.LitematicaImporter;
-import dev.dubhe.anvilcraft.building.ScannerDiskNormalizer;
 import dev.dubhe.anvilcraft.building.StructureSnapshot;
 import dev.dubhe.anvilcraft.building.StructureSnapshotCodec;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
@@ -15,7 +13,6 @@ import dev.dubhe.anvilcraft.item.property.component.StoredItem;
 import dev.dubhe.anvilcraft.item.property.component.StructureDiskData;
 import dev.dubhe.anvilcraft.network.StructureScannerFilePacket;
 import dev.dubhe.anvilcraft.network.StructureScannerFileResultPacket;
-import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -26,8 +23,6 @@ import net.minecraft.nbt.StringTag;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.datafix.DataFixTypes;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.Mirror;
-import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.storage.LevelResource;
 import net.neoforged.neoforge.network.PacketDistributor;
 
@@ -87,6 +82,11 @@ public final class StructureScannerFiles {
 
     public static StructureSnapshot parseImport(ServerPlayer player, CompoundTag tag, String fileName)
         throws IOException, ConstructionBlueprintException {
+        return parseImportResult(player, tag, fileName).snapshot();
+    }
+
+    private static BlueprintNormalizer.Result parseImportResult(ServerPlayer player, CompoundTag tag, String fileName)
+        throws IOException, ConstructionBlueprintException {
         if (!StructureFileTransfer.isSafeName(fileName)) throw new IOException("Invalid file name");
         if (LitematicaImporter.isLitematicFile(fileName)) {
             tag = LitematicaImporter.convert(tag).structureTag();
@@ -96,14 +96,17 @@ public final class StructureScannerFiles {
         CompoundTag updated = DataFixTypes.STRUCTURE.updateToCurrentVersion(player.server.getFixerUpper(), tag,
             NbtUtils.getDataVersion(tag, 500));
         StructureSnapshot snapshot = StructureSnapshotCodec.parse(updated, player.registryAccess()).snapshot();
-        BlueprintMultiblocks.expand(snapshot, new BlueprintPlacement(BlockPos.ZERO, Rotation.NONE, Mirror.NONE), -1);
-        return snapshot;
+        return BlueprintNormalizer.normalize(snapshot);
     }
 
     public static byte[] stageImport(ServerPlayer player, StructureScannerMenu menu, CompoundTag tag, String fileName)
         throws IOException, ConstructionBlueprintException {
-        StructureSnapshot snapshot = parseImport(player, tag, fileName);
-        byte[] preview = compress(StructureSnapshotCodec.write(snapshot));
+        var result = parseImportResult(player, tag, fileName);
+        StructureSnapshot snapshot = result.snapshot();
+        CompoundTag normalized = StructureSnapshotCodec.write(snapshot);
+        normalized.putInt("anvilcraft:added_parts", result.added());
+        normalized.putInt("anvilcraft:removed_parts", result.removed());
+        byte[] preview = compress(normalized);
         menu.setImportedStructure(fileName.substring(0, fileName.lastIndexOf('.')), snapshot);
         var scanner = menu.getBlockEntity();
         if (scanner != null) scanner.clearScan();
@@ -167,9 +170,6 @@ public final class StructureScannerFiles {
             autoRotate = false;
         } else if (scanner.isScanComplete()) {
             tag = StructureSaveUtil.buildStructureNBT(scanner, scanner.getScannedBlocks());
-            StructureSnapshot parsed = StructureSnapshotCodec.parse(tag, player.registryAccess()).snapshot();
-            tag = StructureSnapshotCodec.write(
-                ScannerDiskNormalizer.normalize(parsed, scanner.getDirection(), scanner.isScannerUpsideDown()));
         } else {
             ItemStack disk = menu.getSlot(1).hasItem() ? menu.getSlot(1).getItem() : menu.getSlot(0).getItem();
             StructureDiskData data = disk.get(ModComponents.STRUCTURE_DISK_DATA);
@@ -177,10 +177,7 @@ public final class StructureScannerFiles {
             autoRotate = data.autoRotate();
             tag = StructureLoadUtil.readStructureFileOnServer(player.serverLevel(), data.file());
             if (tag == null) throw new IOException("Structure file is missing");
-            if (data.direction() != Direction.NORTH || data.upsideDown()) {
-                StructureSnapshot parsed = StructureSnapshotCodec.parse(tag, player.registryAccess()).snapshot();
-                tag = StructureSnapshotCodec.write(ScannerDiskNormalizer.normalize(parsed, data.direction(), data.upsideDown()));
-            }
+            tag = StructureSnapshotCodec.write(BlueprintNormalizer.load(tag, player.registryAccess(), data.direction(), data.upsideDown()));
         }
         CompoundTag settings = new CompoundTag();
         settings.putBoolean("auto_rotate", autoRotate);

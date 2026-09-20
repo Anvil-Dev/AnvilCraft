@@ -7,6 +7,7 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.api.block.BlockPlacementRules;
+import dev.dubhe.anvilcraft.block.placement.ProcessingTablePlacement;
 import dev.dubhe.anvilcraft.init.registry.ModRegistries;
 import dev.dubhe.anvilcraft.init.registry.ModRegistryKeys;
 import dev.dubhe.anvilcraft.util.BlockPlacementUtil;
@@ -100,6 +101,11 @@ public class ItemEntityPointer implements ITargetPointer {
 
     @Override
     public boolean matches(Level level, BlockState requiredState) {
+        if (ProcessingTablePlacement.isConverted(requiredState)) {
+            ItemEntity entity = this.getEntity(level);
+            return ProcessingTablePlacement.matches(this.stack) && level instanceof ServerLevel serverLevel && entity != null
+                && ProcessingTablePlacement.upgradeEntity(serverLevel, entity, requiredState) != null;
+        }
         return BlockPlacementRules.getPlacementItemCount(level.registryAccess(), requiredState, this.stack) > 0;
     }
 
@@ -129,6 +135,9 @@ public class ItemEntityPointer implements ITargetPointer {
             return false;
         }
 
+        if (requiredState != null && ProcessingTablePlacement.isConverted(requiredState)) {
+            return ProcessingTablePlacement.placeFromEntities(level, pos, requiredState, entity, this.facing);
+        }
         int requiredCount = requiredState == null
             ? 1
             : BlockPlacementRules.getPlacementItemCount(level.registryAccess(), requiredState, this.stack);

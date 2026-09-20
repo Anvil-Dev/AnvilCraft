@@ -2,13 +2,12 @@ package dev.dubhe.anvilcraft.client.building;
 
 import com.mojang.blaze3d.platform.InputConstants;
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.building.BlueprintNormalizer;
 import dev.dubhe.anvilcraft.building.BlueprintPlacement;
 import dev.dubhe.anvilcraft.building.BuildingRodFluids;
 import dev.dubhe.anvilcraft.building.BuildingRodService;
 import dev.dubhe.anvilcraft.building.ConstructionBlueprintException;
-import dev.dubhe.anvilcraft.building.ScannerDiskNormalizer;
 import dev.dubhe.anvilcraft.building.StructureSnapshot;
-import dev.dubhe.anvilcraft.building.StructureSnapshotCodec;
 import dev.dubhe.anvilcraft.client.init.ModKeyMappings;
 import dev.dubhe.anvilcraft.config.AnvilCraftClientConfig;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
@@ -163,9 +162,8 @@ public final class BuildingRodClient {
             if (disk != null && snapshot == null && !invalidDisk) {
                 StructureLoadUtil.getStructureNbtForPreview(mc.level, disk).ifPresent(tag -> {
                     try {
-                        snapshot = ScannerDiskNormalizer.normalize(StructureSnapshotCodec.parse(tag, mc.level.registryAccess()).snapshot(),
-                            disk.direction(), disk.upsideDown());
-                    } catch (ConstructionBlueprintException exception) {
+                        snapshot = BlueprintNormalizer.load(tag, mc.level.registryAccess(), disk.direction(), disk.upsideDown());
+                    } catch (ConstructionBlueprintException | IllegalArgumentException exception) {
                         invalidDisk = true;
                         mc.player.displayClientMessage(Component.translatable("message.anvilcraft.building_rod.invalid_structure"), true);
                     }

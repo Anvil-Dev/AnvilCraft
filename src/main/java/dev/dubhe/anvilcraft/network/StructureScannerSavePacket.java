@@ -12,6 +12,7 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.neoforged.neoforge.network.PacketDistributor;
 
 import java.io.IOException;
 
@@ -40,15 +41,18 @@ public record StructureScannerSavePacket(int containerId, String name, boolean a
             || menu.containerId != this.containerId || !menu.stillValid(player)) return;
         var scanner = menu.getBlockEntity();
         if (scanner == null) return;
-        if (menu.getImportedStructure() != null && player instanceof ServerPlayer serverPlayer) {
-            try {
+        try {
+            if (menu.getImportedStructure() != null && player instanceof ServerPlayer serverPlayer) {
                 StructureScannerFiles.saveImportedStructure(serverPlayer, menu, this.name, this.autoRotate, this.marker);
-            } catch (IOException exception) {
-                AnvilCraft.LOGGER.warn("Failed to record imported structure", exception);
-                player.sendSystemMessage(Component.translatable("screen.anvilcraft.structure_scanner.file_failed", exception.toString()));
+            } else {
+                StructureSaveUtil.saveStructureToDisk(player.level(), scanner, this.name, this.autoRotate, this.marker);
             }
-        } else {
-            StructureSaveUtil.saveStructureToDisk(player.level(), scanner, this.name, this.autoRotate, this.marker);
+        } catch (IOException | IllegalArgumentException exception) {
+            AnvilCraft.LOGGER.warn("Failed to record structure", exception);
+            if (player instanceof ServerPlayer serverPlayer) {
+                PacketDistributor.sendToPlayer(serverPlayer, new StructureScannerStatusPacket(this.containerId,
+                    Component.translatable("screen.anvilcraft.structure_scanner.file_failed", exception.getMessage())));
+            }
         }
         menu.broadcastChanges();
     }

@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.util;
 
 import dev.anvilcraft.lib.v2.util.DistExecutor;
+import dev.dubhe.anvilcraft.building.BlueprintNormalizer;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.item.property.component.StructureDiskData;
 import dev.dubhe.anvilcraft.network.StructureDiskRequestPacket;
@@ -78,8 +79,13 @@ public class StructureLoadUtil {
         }
         try {
             HolderLookup.Provider registry = level.registryAccess();
-            StructureData data = new StructureData(structureDiskData);
-            StructureLoadUtil.parseStructureNBT(data, tag, registry);
+            var snapshot = BlueprintNormalizer.load(tag, registry, structureDiskData.direction(), structureDiskData.upsideDown());
+            StructureData data = new StructureData(new StructureDiskData(structureDiskData.file(), structureDiskData.name(),
+                structureDiskData.uuid(), net.minecraft.core.Direction.NORTH, snapshot.size().getX(), snapshot.size().getY(),
+                snapshot.size().getZ(), false, structureDiskData.autoRotate()));
+            for (var entry : snapshot.blocks()) {
+                data.blocks.add(new BlockPosition(entry.pos().getX(), entry.pos().getY(), entry.pos().getZ(), snapshot.stateOf(entry)));
+            }
             return data;
         } catch (Exception e) {
             LOGGER.warn("Failed to parse cached structure {}: {}", fileName, e.getMessage());

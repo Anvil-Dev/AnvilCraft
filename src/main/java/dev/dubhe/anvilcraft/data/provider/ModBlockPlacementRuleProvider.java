@@ -5,6 +5,7 @@ import com.mojang.serialization.JsonOps;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.CementCauldronBlock;
 import dev.dubhe.anvilcraft.block.Layered4LevelCauldronBlock;
+import dev.dubhe.anvilcraft.block.UseItemOnBlock;
 import dev.dubhe.anvilcraft.block.multipart.AbstractMultiPartBlock;
 import dev.dubhe.anvilcraft.block.placement.BlockPlacementRuleSet;
 import dev.dubhe.anvilcraft.block.placement.BlockPlacementRuleSet.StateRule;
@@ -21,6 +22,7 @@ import net.minecraft.data.DataProvider;
 import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.BedBlock;
 import net.minecraft.world.level.block.Block;
@@ -146,6 +148,12 @@ public final class ModBlockPlacementRuleProvider implements DataProvider {
     }
 
     private static void addBlockRules(Map<Block, List<StateRule>> rulesByBlock, Block block) {
+        ItemStack upgrade = UseItemOnBlock.materialFor(block.defaultBlockState());
+        if (!upgrade.isEmpty()) {
+            addRule(rulesByBlock, block, "", ModBlocks.STAMPING_PLATFORM.asItem(), 1);
+            addRule(rulesByBlock, block, "", upgrade.getItem(), 1);
+            return;
+        }
         // Blocks covered by code-level Fallbacks or resolved dynamically at runtime
         // have no data pack rule.
         if (shouldSkipDataPack(block)) return;

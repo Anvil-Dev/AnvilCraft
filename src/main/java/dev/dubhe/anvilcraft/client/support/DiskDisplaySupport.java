@@ -7,9 +7,8 @@ import dev.anvilcraft.lib.v2.multiblock.dynamic.definition.MultiblockDefinition;
 import dev.anvilcraft.lib.v2.util.predicate.BlockStatePredicate;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.entity.StructureScannerBlockEntity;
-import dev.dubhe.anvilcraft.block.multipart.AbstractMultiPartBlock;
-import dev.dubhe.anvilcraft.building.BlueprintMultiblocks;
-import dev.dubhe.anvilcraft.building.BlueprintPlacement;
+import dev.dubhe.anvilcraft.building.BlueprintNormalizer;
+import dev.dubhe.anvilcraft.building.ConstructionBlueprintException;
 import dev.dubhe.anvilcraft.building.StructureSnapshot;
 import dev.dubhe.anvilcraft.building.StructureSnapshotCodec;
 import dev.dubhe.anvilcraft.client.building.BlueprintClientFiles;
@@ -40,7 +39,6 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
@@ -87,12 +85,12 @@ public final class DiskDisplaySupport {
         var level = scanner.getLevel();
         if (level == null || !scanner.isScanComplete()) return ItemStack.EMPTY;
         if (!recipesLoaded) reloadRecipes(level.getRecipeManager());
-        List<Pattern> choices = PATTERNS.get(scanner.getRangeX().get());
-        if (choices == null) return ItemStack.EMPTY;
-        StructureDiskData data = new StructureDiskData("", "", new UUID(0, 0), scanner.getDirection(),
-            scanner.getRangeX().get(), scanner.getRangeY().get(), scanner.getRangeZ().get(), scanner.isScannerUpsideDown());
-        return matchStructure(data, StructureSaveUtil.buildStructureNBT(scanner, scanner.getScannedBlocks()),
-            level.registryAccess(), choices);
+        try {
+            var snapshot = StructureSaveUtil.buildSnapshot(scanner, scanner.getScannedBlocks()).snapshot();
+            return getImportedDisplay(snapshot);
+        } catch (IllegalArgumentException exception) {
+            return ItemStack.EMPTY;
+        }
     }
 
     public static ItemStack getDisplay(ItemStack stack) {
@@ -102,10 +100,8 @@ public final class DiskDisplaySupport {
         if (!stack.is(ModItems.STRUCTURE_DISK)) return ItemStack.EMPTY;
         var level = Minecraft.getInstance().level;
         StructureDiskData data = stack.get(ModComponents.STRUCTURE_DISK_DATA);
-        if (level == null || data == null || data.sizeX() != data.sizeY() || data.sizeX() != data.sizeZ()) return ItemStack.EMPTY;
+        if (level == null || data == null) return ItemStack.EMPTY;
         if (!recipesLoaded) reloadRecipes(level.getRecipeManager());
-        List<Pattern> choices = PATTERNS.get(data.sizeX());
-        if (choices == null) return ItemStack.EMPTY;
         Optional<CompoundTag> cached = StructureLoadUtil.getStructureNbtForPreview(level, data);
         if (cached.isEmpty()) return ItemStack.EMPTY;
         CompoundTag tag = cached.orElseThrow();
@@ -116,7 +112,13 @@ public final class DiskDisplaySupport {
         }
         // 同一文件仅缓存少量元数据变体，且不强引用大型结构 NBT。
         if (results.size() >= 32 && !results.containsKey(data)) results.clear();
-        return results.computeIfAbsent(data, ignored -> matchStructure(data, tag, level.registryAccess(), choices));
+        return results.computeIfAbsent(data, ignored -> {
+            try {
+                return getImportedDisplay(BlueprintNormalizer.load(tag, level.registryAccess(), data.direction(), data.upsideDown()));
+            } catch (ConstructionBlueprintException | IllegalArgumentException exception) {
+                return ItemStack.EMPTY;
+            }
+        });
     }
 
     static ItemStack recordedBlock(ItemStack stack) {
@@ -246,7 +248,6 @@ public final class DiskDisplaySupport {
         Cell air = new Cell(Blocks.AIR.defaultBlockState(), Optional.empty());
         Arrays.fill(cells, air);
         boolean[] occupied = new boolean[cells.length];
-        Map<BlockPos, Cell> cores = new HashMap<>();
         ListTag blocks = tag.getList("blocks", Tag.TAG_COMPOUND);
         if (blocks.size() > cells.length) return Optional.empty();
         for (int i = 0; i < blocks.size(); i++) {
@@ -267,31 +268,8 @@ public final class DiskDisplaySupport {
             Optional<CompoundTag> nbt = entry.contains("nbt", Tag.TAG_COMPOUND) ? Optional.of(entry.getCompound("nbt")) : Optional.empty();
             BlockState original = states.get(state);
             cells[index] = new Cell(original.rotate(normalize), nbt);
-            if (original.getBlock() instanceof AbstractMultiPartBlock<?> block && block.isMainPart(original)) {
-                cores.put(new BlockPos(x, y, z), new Cell(original, nbt));
-            }
         }
-        boolean[] valid = {true};
-        cores.forEach((origin, cell) -> {
-            AbstractMultiPartBlock<?> block = (AbstractMultiPartBlock<?>) cell.state.getBlock();
-            BlueprintMultiblocks.forEachPart(BlockPos.ZERO, cell.state,
-                new BlueprintPlacement(origin, normalize, Mirror.NONE), (pos, state) -> {
-                if (pos.getX() < 0 || pos.getY() < 0 || pos.getZ() < 0
-                    || pos.getX() >= size || pos.getY() >= size || pos.getZ() >= size) {
-                    valid[0] = false;
-                    return;
-                }
-                int offset = (pos.getY() * size + pos.getZ()) * size + pos.getX();
-                if (!cells[offset].state.isAir() && !cells[offset].state.is(block)) {
-                    valid[0] = false;
-                    return;
-                }
-                if (cells[offset].state.isAir() || pos.equals(origin) || block.isMainPart(state)) {
-                    cells[offset] = new Cell(state, block.isMainPart(state) ? cell.nbt : Optional.empty());
-                }
-            });
-        });
-        return valid[0] ? Optional.of(cells) : Optional.empty();
+        return Optional.of(cells);
     }
 
     private static boolean matches(Pattern pattern, Cell[] cells, Rotation rotation) {
