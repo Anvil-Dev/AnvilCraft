@@ -19,6 +19,7 @@ import net.minecraft.world.entity.npc.InventoryCarrier;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.FishingHook;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.ArrayList;
@@ -57,6 +58,10 @@ public final class EntityBuildAdapters {
         return REGISTRY.stream().filter(adapter -> adapter.matches(entity, nbt)).findFirst();
     }
 
+    public static Optional<Entity> create(CompoundTag tag, Level level) {
+        return Optional.ofNullable(BlueprintLeashes.create(tag, level));
+    }
+
     public static boolean isTransient(EntityType<?> type) {
         Class<? extends Entity> base = type.getBaseClass();
         return type == EntityType.PLAYER || type == EntityType.EXPERIENCE_ORB
@@ -89,7 +94,7 @@ public final class EntityBuildAdapters {
                 }
                 CompoundTag copy = nbt.copy();
                 copy.remove("UUID");
-                return EntityType.create(copy, level).map(entity -> {
+                return create(copy, level).map(entity -> {
                     if (!level.addFreshEntity(entity)) {
                         return null;
                     }

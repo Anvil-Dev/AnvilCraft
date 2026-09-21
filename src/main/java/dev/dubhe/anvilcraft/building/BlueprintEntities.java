@@ -33,6 +33,7 @@ final class BlueprintEntities {
                 (int) Math.round(saved.getDouble(1) - entry.pos().y),
                 (int) Math.round(saved.getDouble(2) - entry.pos().z)) : BlockPos.ZERO;
         }
+        BlueprintLeashes.transform(data, origin, placement);
         CompoundTag memories = data.getCompound("Brain").getCompound("memories");
         for (String key : List.copyOf(memories.getAllKeys())) {
             CompoundTag value = memories.getCompound(key).getCompound("value");
@@ -106,7 +107,7 @@ final class BlueprintEntities {
         }
     }
 
-    static void link(List<Map.Entry<Entity, CompoundTag>> spawned) {
+    static List<Entity> link(List<Map.Entry<Entity, CompoundTag>> spawned) {
         Map<UUID, UUID> ids = new HashMap<>();
         Map<UUID, Entity> entities = new HashMap<>();
         for (var pair : spawned) {
@@ -118,7 +119,7 @@ final class BlueprintEntities {
         for (var pair : spawned) {
             Entity entity = pair.getKey();
             CompoundTag saved = new CompoundTag();
-            entity.saveAsPassenger(saved);
+            BlueprintLeashes.save(entity, saved);
             remap(saved, ids);
             entity.load(saved);
             CompoundTag original = pair.getValue();
@@ -126,6 +127,7 @@ final class BlueprintEntities {
             Entity vehicle = entities.get(original.getUUID(VEHICLE));
             if (vehicle != null && vehicle != entity) entity.startRiding(vehicle, true);
         }
+        return BlueprintLeashes.link(spawned.stream().map(Map.Entry::getKey).toList());
     }
 
     private static void remap(CompoundTag tag, Map<UUID, UUID> ids) {

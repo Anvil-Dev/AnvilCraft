@@ -30,9 +30,11 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.Leashable;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.item.FallingBlockEntity;
 import net.minecraft.world.entity.player.Player;
@@ -58,6 +60,7 @@ import net.minecraft.world.level.block.state.properties.BedPart;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import net.minecraft.world.level.block.state.properties.SlabType;
+import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
@@ -72,6 +75,7 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.WeakHashMap;
 import javax.annotation.Nullable;
@@ -141,7 +145,9 @@ public final class BuildingRodService {
 
     static final class Group {
         final List<Item> tools = new ArrayList<>();
+        final List<BuildingMaterials.FluidPayment> fluidPayments = new ArrayList<>();
         int ignitions;
+        int leads;
         boolean hammer;
         @Nullable EntityType<?> creature;
         final List<Cell> cells = new ArrayList<>();
@@ -438,7 +444,9 @@ public final class BuildingRodService {
                 snapshot.ticks().forEach(tick -> ticks.add(tick.at(copy.worldOf(tick.pos()))));
                 if (!planBlueprint(player, snapshot, copy, allGroups, declared)) return;
             }
-            boolean complete = commit(player, allGroups, partial, true, declared, ticks);
+            var undoBounds = placements.getFirst().bounds(snapshot.size());
+            undoBounds.encapsulate(placements.getLast().bounds(snapshot.size()));
+            boolean complete = commit(player, allGroups, partial, true, declared, ticks, undoBounds);
             if (complete) PacketDistributor.sendToPlayer(player, new BuildingRodResultPacket(true));
         } catch (ConstructionBlueprintException | IllegalArgumentException exception) {
             message(player, "invalid_structure");
@@ -572,6 +580,12 @@ public final class BuildingRodService {
             }
             CompoundTag transformed = BuildingEntityTransform.transform(entry, placement);
             BlueprintEntities.relocateMemories(transformed, entry, snapshot, placement, player.level().dimension().location().toString());
+            var leashFence = BlueprintLeashes.attachment(transformed);
+            if (leashFence.isPresent() && (!canModify(player, leashFence.get())
+                || !declared.getOrDefault(leashFence.get(), player.level().getBlockState(leashFence.get())).is(BlockTags.FENCES))) {
+                message(player, "blocked");
+                return false;
+            }
             if (!player.canUseGameMasterBlocks() && DynamicBuildingEntities.requiresOperator(transformed, player.serverLevel())) {
                 message(player, "blocked");
                 return false;
@@ -618,6 +632,7 @@ public final class BuildingRodService {
             ItemStack tool = adapter.requiredTool();
             if (!tool.isEmpty()) group.tools.add(tool.getItem());
             group.hammer |= adapter.requiresHammer();
+            if (probe instanceof Leashable && BlueprintLeashes.hasLeash(plan.entityNbt())) group.leads = 1;
             if (probe instanceof Mob) group.creature = type;
             else group.materials.add(plan.material());
             if (!group.separateContents) {
@@ -640,12 +655,13 @@ public final class BuildingRodService {
     }
 
     static boolean commit(ServerPlayer player, List<Group> groups, boolean partial, boolean quiet) {
-        return commit(player, groups, partial, quiet, Map.of(), List.of());
+        return commit(player, groups, partial, quiet, Map.of(), List.of(), null);
     }
 
     private static boolean commit(
         ServerPlayer player, List<Group> groups, boolean partial, boolean quiet,
-        Map<BlockPos, BlockState> declared, List<BlueprintTicks.Entry> ticks
+        Map<BlockPos, BlockState> declared, List<BlueprintTicks.Entry> ticks,
+        @Nullable BoundingBox undoBounds
     ) {
         if (!quiet && groups.stream().mapToInt(group -> group.cells.size()).sum() > MAX_BLOCKS) {
             message(player, "too_many");
@@ -660,7 +676,10 @@ public final class BuildingRodService {
         boolean missing = false;
         List<Group> placedGroups = new ArrayList<>();
         for (Group group : groups) {
-            Group allocated = materials.reserve(group, allowMismatch);
+            boolean missingFence = group.entities.stream().map(entity -> BlueprintLeashes.attachment(entity.entityNbt()))
+                .flatMap(Optional::stream).anyMatch(pos -> !player.level().getBlockState(pos).is(BlockTags.FENCES)
+                    && cells.stream().noneMatch(cell -> cell.pos().equals(pos) && cell.state().is(BlockTags.FENCES)));
+            Group allocated = missingFence ? null : materials.reserve(group, allowMismatch);
             if (allocated == null) {
                 missing = true;
                 if (!partial) {
@@ -717,12 +736,13 @@ public final class BuildingRodService {
         }
         ItemStack rod = BuildingRodItem.heldRod(player);
         if (!BuildingRodItem.ready(player, rod)) return false;
+        final BuildingRodUndo undo = new BuildingRodUndo(player, placedGroups, undoBounds);
         if (!materials.consume()) {
             message(player, "missing_blocks");
             if (quiet) BuildingRodMaterialBook.give(player, new BuildingMaterials(player).missing(groups));
             return false;
         }
-        final BuildingRodUndo undo = new BuildingRodUndo(player, placedGroups);
+        undo.consumed();
         Map<BlockPos, ItemStack> placedMaterials = new LinkedHashMap<>();
         placedGroups.forEach(group -> placedMaterials.putAll(group.blockMaterials));
         List<Map.Entry<Entity, CompoundTag>> spawned = new ArrayList<>();
@@ -781,7 +801,7 @@ public final class BuildingRodService {
         };
         if (quiet) BuildingCommit.quietly(player.level(), place);
         else place.run();
-        BlueprintEntities.link(spawned);
+        BlueprintEntities.link(spawned).forEach(undo::recordAuxiliary);
         undo.finish(player);
         if (quiet) BuildingCommit.activate(player.serverLevel(), cells, ticks);
         BuildingRodMaterialBook.give(player, shortages);

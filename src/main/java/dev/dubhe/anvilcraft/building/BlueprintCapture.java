@@ -48,7 +48,7 @@ public final class BlueprintCapture {
         List<StructureSnapshot.EntityEntry> entities = new ArrayList<>();
         for (Entity entity : level.getEntities((Entity) null, area, entity -> !(entity instanceof Player))) {
             CompoundTag tag = new CompoundTag();
-            if (!entity.saveAsPassenger(tag)) continue;
+            if (!BlueprintLeashes.save(entity, tag)) continue;
             tag.remove("Passengers");
             if (entity.getVehicle() != null) tag.putUUID("anvilcraft:vehicle", entity.getVehicle().getUUID());
             Vec3 pos = entity.position().subtract(Vec3.atLowerCornerOf(origin));

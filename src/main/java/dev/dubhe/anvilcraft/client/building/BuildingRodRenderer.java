@@ -38,7 +38,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
@@ -285,7 +284,7 @@ public final class BuildingRodRenderer {
             view.put(pos, state, entity);
         }
         for (var entry : snapshot.entities()) {
-            EntityType.create(BuildingEntityTransform.transform(entry, local), mc.level)
+            EntityBuildAdapters.create(BuildingEntityTransform.transform(entry, local), mc.level)
                 .filter(entity -> !EntityBuildAdapters.isTransient(entity)).ifPresent(PREVIEW_ENTITIES::add);
         }
         try (ByteBufferBuilder memory = new ByteBufferBuilder(2_097_152)) {

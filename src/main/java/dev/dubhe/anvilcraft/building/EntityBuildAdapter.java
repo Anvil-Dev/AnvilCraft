@@ -59,7 +59,7 @@ public interface EntityBuildAdapter {
         }
         CompoundTag copy = nbt.copy();
         copy.remove("UUID");
-        return EntityType.create(copy, level).map(entity -> {
+        return EntityBuildAdapters.create(copy, level).map(entity -> {
             if (!level.addFreshEntity(entity)) {
                 return null;
             }

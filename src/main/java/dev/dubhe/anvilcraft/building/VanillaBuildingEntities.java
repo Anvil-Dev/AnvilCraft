@@ -12,6 +12,7 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraft.world.entity.decoration.ItemFrame;
+import net.minecraft.world.entity.decoration.LeashFenceKnotEntity;
 import net.minecraft.world.entity.decoration.Painting;
 import net.minecraft.world.entity.vehicle.AbstractMinecart;
 import net.minecraft.world.entity.vehicle.Boat;
@@ -41,7 +42,7 @@ public final class VanillaBuildingEntities {
 
     private static CompoundTag saveSanitized(Entity entity) {
         CompoundTag tag = new CompoundTag();
-        entity.save(tag);
+        BlueprintLeashes.save(entity, tag);
         tag.remove("UUID");
         return tag;
     }
@@ -97,7 +98,7 @@ public final class VanillaBuildingEntities {
         @Override
         public Planned plan(ServerLevel level, StructureSnapshot.EntityEntry entry, CompoundTag transformedNbt) {
             EntityType<?> type = EntityType.by(transformedNbt).orElse(null);
-            Entity entity = EntityType.create(transformedNbt, level).orElse(null);
+            Entity entity = EntityBuildAdapters.create(transformedNbt, level).orElse(null);
             List<SlotStack> contents = new ArrayList<>();
             ItemStack material = ItemStack.EMPTY;
             if (entity instanceof Container container) {
@@ -143,7 +144,7 @@ public final class VanillaBuildingEntities {
 
         @Override
         public Planned plan(ServerLevel level, StructureSnapshot.EntityEntry entry, CompoundTag transformedNbt) {
-            Entity entity = EntityType.create(transformedNbt, level).orElse(null);
+            Entity entity = EntityBuildAdapters.create(transformedNbt, level).orElse(null);
             if (!(entity instanceof ArmorStand stand)) {
                 return Planned.skip();
             }
@@ -185,30 +186,33 @@ public final class VanillaBuildingEntities {
         public boolean matches(EntityType<?> type, CompoundTag nbt) {
             return type == EntityType.ITEM_FRAME
                 || type == EntityType.GLOW_ITEM_FRAME
-                || type == EntityType.PAINTING;
+                || type == EntityType.PAINTING || type == EntityType.LEASH_KNOT;
         }
 
         @Override
         public Planned plan(ServerLevel level, StructureSnapshot.EntityEntry entry, CompoundTag transformedNbt) {
-            Entity entity = EntityType.create(transformedNbt, level).orElse(null);
+            Entity entity = EntityBuildAdapters.create(transformedNbt, level).orElse(null);
             if (entity == null) {
                 return Planned.skip();
             }
             List<SlotStack> contents = new ArrayList<>();
             ItemStack material;
-            if (entity instanceof ItemFrame frame) {
-                material = new ItemStack(frame.getType() == EntityType.GLOW_ITEM_FRAME
-                    ? Items.GLOW_ITEM_FRAME
-                    : Items.ITEM_FRAME);
-                ItemStack displayed = frame.getItem();
-                if (!displayed.isEmpty()) {
-                    contents.add(new SlotStack(0, displayed.copy()));
-                    frame.setItem(ItemStack.EMPTY);
+            switch (entity) {
+                case ItemFrame frame -> {
+                    material = new ItemStack(frame.getType() == EntityType.GLOW_ITEM_FRAME
+                                             ? Items.GLOW_ITEM_FRAME
+                                             : Items.ITEM_FRAME);
+                    ItemStack displayed = frame.getItem();
+                    if (!displayed.isEmpty()) {
+                        contents.add(new SlotStack(0, displayed.copy()));
+                        frame.setItem(ItemStack.EMPTY);
+                    }
                 }
-            } else if (entity instanceof Painting) {
-                material = new ItemStack(Items.PAINTING);
-            } else {
-                return Planned.skip();
+                case Painting painting -> material = new ItemStack(Items.PAINTING);
+                case LeashFenceKnotEntity leashFenceKnotEntity -> material = ItemStack.EMPTY;
+                default -> {
+                    return Planned.skip();
+                }
             }
             return new Planned(material, ItemStack.EMPTY, saveSanitized(entity), List.copyOf(contents), List.of(), false);
         }

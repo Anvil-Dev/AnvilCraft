@@ -7,13 +7,15 @@ public final class BuildingRodLang {
     }
 
     public static void init(RegistrumLangProvider provider) {
+        provider.add("message.anvilcraft.building_rod.undo_partial",
+            "Area restored; some entities or refunds are pending. Recover the returned items and undo again");
         provider.add("message.anvilcraft.building_rod.unsupported_type", "No supported building material for blueprint object: %s");
         provider.add("message.anvilcraft.building_rod.component_mismatch",
             "Some blocks have mismatched components; right-click again within 3 seconds to use the available materials and their data");
         provider.add("message.anvilcraft.building_rod.contents_missing",
             "Missing matching container contents; right-click again within 3 seconds to place those containers empty");
         provider.add("message.anvilcraft.building_rod.missing_book", "Missing materials; carry a book to receive a material list");
-        provider.add("message.anvilcraft.building_rod.nothing_to_undo", "No unchanged placement to undo");
+        provider.add("message.anvilcraft.building_rod.nothing_to_undo", "No placement to undo");
         provider.add("message.anvilcraft.building_rod.undone", "Last placement undone");
         provider.add("screen.anvilcraft.building_rod.selection_size", "%s × %s × %s");
         provider.add("item.anvilcraft.building_rod.fluids",

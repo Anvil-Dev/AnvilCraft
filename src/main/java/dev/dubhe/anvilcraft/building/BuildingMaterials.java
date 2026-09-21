@@ -67,7 +67,11 @@ public final class BuildingMaterials {
     }
 
     public BuildingMaterials(ServerPlayer player) {
-        this.creative = player.isCreative();
+        this(player, player.isCreative());
+    }
+
+    BuildingMaterials(ServerPlayer player, boolean creative) {
+        this.creative = creative;
         this.player = player;
         ItemStack held = BuildingRodItem.material(player);
         this.offhand = new Source(held, held.getCount(), held::shrink);
@@ -125,6 +129,8 @@ public final class BuildingMaterials {
     @Nullable
     BuildingRodService.Group reserve(BuildingRodService.Group group, boolean allowMismatch) {
         final int[] before = this.sources.stream().mapToInt(source -> source.reserved).toArray();
+        final int returnedBefore = this.returned.size();
+        final int[] fluidBefore = this.storedFluids.stream().mapToInt(source -> source.reserved).toArray();
         boolean[] toolsBefore = new boolean[this.sources.size()];
         for (int i = 0; i < toolsBefore.length; i++) toolsBefore[i] = this.sources.get(i).retainedTool;
         BuildingRodService.Group allocated = new BuildingRodService.Group();
@@ -138,10 +144,14 @@ public final class BuildingMaterials {
             return null;
         }
         if (group.ignitions > 0 && !this.reserveTool(Items.FLINT_AND_STEEL)) {
-            if (this.reserveIgnitions(group.ignitions, allocated.materials) > 0) {
+            if (this.reserveConsumable(Items.FIRE_CHARGE, group.ignitions, allocated.materials) > 0) {
                 this.restoreSources(before, toolsBefore);
                 return null;
             }
+        }
+        if (group.leads > 0 && this.reserveConsumable(Items.LEAD, group.leads, allocated.materials) > 0) {
+            this.restoreSources(before, toolsBefore);
+            return null;
         }
         if (!group.separateContents) allocated.entities.addAll(group.entities);
         allocated.fluids.addAll(group.fluids);
@@ -216,7 +226,25 @@ public final class BuildingMaterials {
                 }
             }
         }
+        if (!this.creative) {
+            allocated.materials.clear();
+            for (int i = 0; i < this.sources.size(); i++) {
+                Source source = this.sources.get(i);
+                int count = source.reserved - before[i];
+                if (count > 0) allocated.materials.add(source.resource.copyWithCount(count));
+            }
+            allocated.returned.clear();
+            this.returned.subList(returnedBefore, this.returned.size()).forEach(stack -> allocated.returned.add(stack.copy()));
+            for (int i = 0; i < this.storedFluids.size(); i++) {
+                StoredFluid source = this.storedFluids.get(i);
+                int count = source.reserved - (i < fluidBefore.length ? fluidBefore[i] : 0);
+                if (count > 0) allocated.fluidPayments.add(new FluidPayment(source.storage, source.fluid.copyWithAmount(count)));
+            }
+        }
         return allocated;
+    }
+
+    public record FluidPayment(UUID storage, FluidStack fluid) {
     }
 
     private boolean reserveTool(Item tool) {
@@ -259,9 +287,10 @@ public final class BuildingMaterials {
         return false;
     }
 
-    private int reserveIgnitions(int remaining, List<ItemStack> materials) {
+    private int reserveConsumable(Item item, int remaining, List<ItemStack> materials) {
+        if (this.creative) return 0;
         for (Source source : this.sources) {
-            if (!source.resource.is(Items.FIRE_CHARGE)) continue;
+            if (!source.resource.is(item)) continue;
             int take = (int) Math.min(remaining, source.available - source.reserved);
             if (take == 0) continue;
             source.reserved += take;
@@ -346,6 +375,7 @@ public final class BuildingMaterials {
         List<FluidStack> fluids = new ArrayList<>();
         List<Item> tools = new ArrayList<>();
         int ignitions = 0;
+        int leads = 0;
         for (var group : groups) {
             for (Item tool : group.tools) {
                 if (!tools.contains(tool)) tools.add(tool);
@@ -358,6 +388,7 @@ public final class BuildingMaterials {
                     : new ItemStack(SpawnEggItem.byId(group.creature)));
             }
             ignitions += group.ignitions;
+            leads += group.leads;
             List<ItemStack> required = new ArrayList<>(group.materials);
             group.cells.forEach(cell -> cell.contents().forEach(content -> required.add(content.stack())));
             if (group.separateContents) {
@@ -378,11 +409,13 @@ public final class BuildingMaterials {
             }
         }
         List<Component> lines = new ArrayList<>();
+        int missingLeads = this.reserveConsumable(Items.LEAD, leads, new ArrayList<>());
+        if (missingLeads > 0) lines.add(new ItemStack(Items.LEAD).getHoverName().copy().append(" ×" + missingLeads));
         for (Item tool : tools) {
             if (!this.reserveTool(tool)) lines.add(new ItemStack(tool).getHoverName().copy().append(" ×1"));
         }
         if (ignitions > 0 && !this.reserveTool(Items.FLINT_AND_STEEL)) {
-            int missing = this.reserveIgnitions(ignitions, new ArrayList<>());
+            int missing = this.reserveConsumable(Items.FIRE_CHARGE, ignitions, new ArrayList<>());
             if (missing > 0) {
                 lines.add(new ItemStack(Items.FLINT_AND_STEEL).getHoverName().copy().append(" ×1 / ")
                     .append(new ItemStack(Items.FIRE_CHARGE).getHoverName()).append(" ×" + missing));
