@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.init.block;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.MeltGemFluid;
 import dev.dubhe.anvilcraft.block.state.Color;
+import dev.dubhe.anvilcraft.fluid.CementFluid;
 import dev.dubhe.anvilcraft.fluid.GasFluid;
 import dev.dubhe.anvilcraft.fluid.HoneyFluid;
 import dev.dubhe.anvilcraft.fluid.LiquidEnchantmentFluid;
@@ -264,7 +265,10 @@ public class ModFluids {
     }
 
     private static DeferredHolder<Fluid, BaseFlowingFluid> registerSourceCement(Color color) {
-        return FLUIDS.register("%s_cement".formatted(color), () -> new BaseFlowingFluid.Source(ModFluids.CEMENT_PROPERTIES.get(color)));
+        return FLUIDS.register(
+            "%s_cement".formatted(color),
+            () -> new CementFluid.Source(ModFluids.CEMENT_PROPERTIES.get(color), color)
+        );
     }
 
     private static Object2ObjectMap<Color, DeferredHolder<Fluid, BaseFlowingFluid>> registerAllFlowingCement() {
@@ -279,7 +283,7 @@ public class ModFluids {
     private static DeferredHolder<Fluid, BaseFlowingFluid> registerFlowingCement(Color color) {
         return FLUIDS.register(
             "flowing_%s_cement".formatted(color),
-            () -> new BaseFlowingFluid.Flowing(ModFluids.CEMENT_PROPERTIES.get(color))
+            () -> new CementFluid.Flowing(ModFluids.CEMENT_PROPERTIES.get(color), color)
         );
     }
 
