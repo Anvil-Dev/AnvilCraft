@@ -18,8 +18,8 @@ public final class Amulet {
         this.effects = effects;
     }
 
-    public static Amulet of(IAmuletEffect... effects) {
-        return new Amulet(ImmutableSet.<IAmuletEffect>builder().add(effects).build());
+    public static Amulet of(IAmuletEffect effect, IAmuletEffect... effects) {
+        return new Amulet(ImmutableSet.<IAmuletEffect>builder().add(effect).add(effects).build());
     }
 
     /// 获取该护符自身的效果，不包含其包覆的其它护符的效果
