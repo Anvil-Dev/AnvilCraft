@@ -55,7 +55,7 @@ public class WeatherproofChestplateItem extends IonocraftBackpackItem implements
         }
         ItemStack stack = getByPlayer(player);
         PowerGrid grid = component.getPowerGrid();
-        if (!(stack.getItem() instanceof WeatherproofChestplateItem) || grid == null || !player.isAlive()
+        if (!(stack.getItem() instanceof WeatherproofChestplateItem) || grid == null || !player.isAlive() || (grid.getRemaining() < 512 && previous == 0)
             || player.isCreative() || player.isSpectator() || getEnergyStored(stack) >= MAX_ENERGY) return;
         long players = Math.max(1, grid.getDynamicComponents().stream().filter(entry -> entry.getOwner() instanceof ServerPlayer).count());
         long available = grid.getRemaining() / players + previous;
