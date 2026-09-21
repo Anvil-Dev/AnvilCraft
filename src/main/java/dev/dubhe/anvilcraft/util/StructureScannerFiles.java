@@ -30,6 +30,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
@@ -56,8 +57,8 @@ public final class StructureScannerFiles {
                     sendFile(player, packet.id(), preview);
                 }
                 case EXPORT -> {
-                    exportBlueprint(player, menu, packet.name());
-                    PacketDistributor.sendToPlayer(player, new StructureScannerFileResultPacket(packet.id(), "", 0, 0, new byte[0]));
+                    String exported = exportBlueprint(player, menu, packet.name());
+                    sendFile(player, packet.id(), exported.getBytes(StandardCharsets.UTF_8));
                 }
                 default -> throw new IOException("Unsupported blueprint action");
             }
@@ -153,9 +154,9 @@ public final class StructureScannerFiles {
         }
     }
 
-    public static void exportBlueprint(ServerPlayer player, StructureScannerMenu menu, String name)
+    public static String exportBlueprint(ServerPlayer player, StructureScannerMenu menu, String name)
         throws IOException, ConstructionBlueprintException {
-        StructureBlueprintFiles.write(player.server, name, compress(exportStructure(player, menu)));
+        return StructureBlueprintFiles.write(player.server, name, compress(exportStructure(player, menu)));
     }
 
     public static CompoundTag exportStructure(ServerPlayer player, StructureScannerMenu menu)

@@ -11,6 +11,9 @@ import dev.dubhe.anvilcraft.block.entity.celestial.CelestialBodyClass;
 import dev.dubhe.anvilcraft.block.entity.celestial.StarData;
 import dev.dubhe.anvilcraft.block.entity.celestial.StellarEventProfile;
 import dev.dubhe.anvilcraft.block.entity.celestial.StellarVisualState;
+import dev.dubhe.anvilcraft.client.init.ModRenderTypes;
+import dev.dubhe.anvilcraft.client.renderer.RenderState;
+import dev.dubhe.anvilcraft.integration.iris.CelestialIrisRenderer;
 import dev.dubhe.anvilcraft.integration.iris.IrisState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GameRenderer;
@@ -111,6 +114,7 @@ public final class StellarEmissionRenderer {
 
     @SubscribeEvent
     public static void registerShaders(RegisterShadersEvent event) {
+        if (RenderState.isIrisPresent()) CelestialIrisRenderer.reset();
         STATE.beginReload();
         surfaceShader = null;
         try {
@@ -152,6 +156,10 @@ public final class StellarEmissionRenderer {
         }
     }
 
+    public static void renderAfterShaders() {
+        CelestialIrisRenderer.render(SURFACE, CORONA, ModRenderTypes.CELESTIAL_ATMOSPHERE);
+    }
+
     private static void renderStandard(
         StarData star, BakedModel model, PoseStack poseStack, MultiBufferSource buffers, int overlay,
         @Nullable StellarVisualState visual, @Nullable StellarEventProfile event, float eventProgress
@@ -169,7 +177,7 @@ public final class StellarEmissionRenderer {
         }
         StellarRadiance.normalizeColor(color);
         float[] coreColor = StellarRadiance.coreColor(color, temperature, exposure);
-        boolean custom = surfaceShader != null && !IrisState.isShaderEnabled();
+        boolean custom = surfaceShader != null && (!IrisState.isShaderEnabled() || CelestialIrisRenderer.isRendering());
         float brightness = custom ? 1.0f : StellarRadiance.toneMap(1.0f, exposure);
         brightness *= StellarRadiance.surfaceGain(temperature);
         float red = coreColor[0] * brightness;

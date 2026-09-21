@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.block.entity;
 
 import dev.dubhe.anvilcraft.block.StructureScannerBlock;
+import dev.dubhe.anvilcraft.building.BlueprintCapture;
 import dev.dubhe.anvilcraft.building.BlueprintMultiblocks;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.init.item.ModItems;
@@ -429,8 +430,8 @@ public class StructureScannerBlockEntity extends BaseMachineBlockEntity implemen
             entity -> !(entity instanceof Player)
         );
         for (Entity entity : entities) {
-            CompoundTag entityNbt = new CompoundTag();
-            entity.save(entityNbt);
+            CompoundTag entityNbt = BlueprintCapture.captureEntity(entity);
+            if (entityNbt == null) continue;
             Vec3 previewPos = worldToPreview(entity.position(), halfRangeX);
             BlockPos previewBlockPos = entity instanceof Painting painting
                 ? worldBlockToPreview(painting.getPos(), halfRangeX)

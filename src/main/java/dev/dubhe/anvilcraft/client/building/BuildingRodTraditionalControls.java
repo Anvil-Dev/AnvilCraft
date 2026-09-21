@@ -60,10 +60,14 @@ final class BuildingRodTraditionalControls {
             BuildingRodClient.placement = new BlueprintPlacement(BlockPos.ZERO, Rotation.NONE, Mirror.NONE);
             BuildingRodRenderer.clear();
             updateTarget();
+            BuildingRodClient.beginBlueprintSelection();
             return;
         }
         switch (tool) {
-            case MOVE -> BuildingRodClient.locked = !BuildingRodClient.locked;
+            case MOVE -> {
+                if (BuildingRodClient.locked) BuildingRodClient.locked = false;
+                else BuildingRodClient.beginBlueprintSelection();
+            }
             case ROTATE -> BuildingRodClient.rotate(1);
             case FLIP -> mirror(1);
             case LAYER_DOWN -> BuildingRodClient.stepLayer(-1);
@@ -73,6 +77,10 @@ final class BuildingRodTraditionalControls {
             default -> {
             }
         }
+    }
+
+    static void finishSelection() {
+        tool = Tool.CONFIRM;
     }
 
     static void updateTarget() {

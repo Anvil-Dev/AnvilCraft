@@ -18,12 +18,19 @@ public record StructureSnapshot(
     Vec3i size,
     List<BlockState> palette,
     List<BlockEntry> blocks,
-    List<EntityEntry> entities
+    List<EntityEntry> entities,
+    List<BlueprintTicks.Entry> ticks,
+    long capturedAt
 ) {
+    public StructureSnapshot(Vec3i size, List<BlockState> palette, List<BlockEntry> blocks, List<EntityEntry> entities) {
+        this(size, palette, blocks, entities, List.of(), 0);
+    }
+
     public StructureSnapshot {
         palette = List.copyOf(palette);
         blocks = List.copyOf(blocks);
         entities = List.copyOf(entities);
+        ticks = List.copyOf(ticks);
     }
 
     /** 一个方块条目;nbt 为方块实体的完整数据(saveWithId 语义),无方块实体时为空。 */

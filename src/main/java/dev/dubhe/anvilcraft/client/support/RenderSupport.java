@@ -57,6 +57,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import net.minecraft.world.level.material.FluidState;
+import net.neoforged.neoforge.client.ClientHooks;
 import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
 import net.neoforged.neoforge.client.model.data.ModelData;
 import org.joml.Quaternionf;
@@ -506,14 +507,23 @@ public class RenderSupport {
             }
             if (state.getRenderShape() != RenderShape.INVISIBLE) {
                 BakedModel bakedModel = blockRenderer.getBlockModel(state);
-                for (RenderType type : bakedModel.getRenderTypes(state, RANDOM, ModelData.EMPTY)) {
+                ModelData modelData = level.getModelData(pos);
+                for (RenderType type : bakedModel.getRenderTypes(state, RANDOM, modelData)) {
                     VertexConsumer vertex = buffers.getBuffer(type);
-                    blockRenderer.renderBatched(state, pos, level, pose, vertex, false, RANDOM, ModelData.EMPTY, type);
+                    blockRenderer.renderBatched(state, pos, level, pose, vertex, false, RANDOM, modelData, type);
                 }
             }
 
             Optional.ofNullable(level.getBlockEntity(pos))
                 .ifPresent(blockEntity -> renderBlockEntity(blockEntity, pose, buffers));
+            pose.popPose();
+        }
+        for (var entity : level.getEntities()) {
+            var renderer = minecraft.getEntityRenderDispatcher().getRenderer(entity);
+            var offset = renderer.getRenderOffset(entity, 0);
+            pose.pushPose();
+            pose.translate(entity.getX() + offset.x, entity.getY() + offset.y, entity.getZ() + offset.z);
+            renderer.render(entity, entity.getYRot(), 0, pose, buffers, 0xF000F0);
             pose.popPose();
         }
         buffers.endBatch();
@@ -625,7 +635,7 @@ public class RenderSupport {
                 }
             }
 
-            bakedModel = net.neoforged.neoforge.client.ClientHooks.handleCameraTransforms(poseStack, bakedModel, displayContext, leftHand);
+            bakedModel = ClientHooks.handleCameraTransforms(poseStack, bakedModel, displayContext, leftHand);
             poseStack.translate(-0.5F, -0.5F, -0.5F);
             if (!bakedModel.isCustomRenderer() && (!itemStack.is(Items.TRIDENT) || flag)) {
                 boolean flag1;

@@ -20,7 +20,7 @@ import javax.annotation.Nullable;
 public record BuildingRodPacket(BlockPos first, BlockPos last, Direction face, boolean blueprint,
                                 Rotation rotation, Mirror mirror, boolean partial,
                                 @Nullable BlockHitResult hit, Action action, long seed) implements IServerboundPacket {
-    public enum Action { PLACE, START, UNDO }
+    public enum Action { PLACE, START, UNDO, PLACE_BLUEPRINTS }
 
     public BuildingRodPacket(BlockPos first, BlockPos last, Direction face, boolean blueprint,
                              Rotation rotation, Mirror mirror, boolean partial, @Nullable BlockHitResult hit, Action action) {
@@ -73,7 +73,12 @@ public record BuildingRodPacket(BlockPos first, BlockPos last, Direction face, b
             BuildingRodService.start(serverPlayer, this.first, this.face, this.hit, this.seed);
             return;
         }
-        if (this.blueprint) BuildingRodService.blueprint(serverPlayer, this.first, this.rotation, this.mirror, this.partial);
-        else BuildingRodService.box(serverPlayer, this.first, this.last, this.face, this.hit, this.seed);
+        if (this.action == Action.PLACE_BLUEPRINTS && this.blueprint) {
+            BuildingRodService.blueprints(serverPlayer, this.first, this.last, this.rotation, this.mirror, this.partial);
+        } else if (this.blueprint) {
+            BuildingRodService.blueprint(serverPlayer, this.first, this.rotation, this.mirror, this.partial);
+        } else {
+            BuildingRodService.box(serverPlayer, this.first, this.last, this.face, this.hit, this.seed);
+        }
     }
 }

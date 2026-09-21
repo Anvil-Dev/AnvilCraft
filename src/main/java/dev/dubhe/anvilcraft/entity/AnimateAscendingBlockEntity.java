@@ -4,7 +4,9 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.init.entity.ModEntities;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtUtils;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
@@ -107,10 +109,19 @@ public class AnimateAscendingBlockEntity extends Entity {
 
     @Override
     protected void readAdditionalSaveData(CompoundTag compound) {
+        this.blockState = NbtUtils.readBlockState(this.level().holderLookup(Registries.BLOCK),
+            compound.getCompound("BlockState"));
+        this.setStartPos(NbtUtils.readBlockPos(compound, "StartPos").orElse(this.blockPosition()));
+        this.setEndPos(NbtUtils.readBlockPos(compound, "EndPos").orElse(this.blockPosition()));
     }
 
     @Override
     protected void addAdditionalSaveData(CompoundTag compound) {
+        compound.put("BlockState", NbtUtils.writeBlockState(this.blockState));
+        compound.put("StartPos", NbtUtils.writeBlockPos(this.getStartPos()));
+        compound.put("EndPos", NbtUtils.writeBlockPos(this.getEndPos()));
+        compound.put("RelativeStart", NbtUtils.writeBlockPos(this.getStartPos().subtract(this.blockPosition())));
+        compound.put("RelativeEnd", NbtUtils.writeBlockPos(this.getEndPos().subtract(this.blockPosition())));
     }
 
     /**

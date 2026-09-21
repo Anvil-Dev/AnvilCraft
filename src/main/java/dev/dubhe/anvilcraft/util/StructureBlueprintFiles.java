@@ -5,10 +5,10 @@ import net.minecraft.world.level.storage.LevelResource;
 
 import java.io.IOException;
 import java.nio.file.DirectoryStream;
+import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -56,15 +56,25 @@ public final class StructureBlueprintFiles {
         return bytes;
     }
 
-    public static void write(MinecraftServer server, String name, byte[] bytes) throws IOException {
+    public static String write(MinecraftServer server, String name, byte[] bytes) throws IOException {
         if (!name.toLowerCase(Locale.ROOT).endsWith(".nbt")) throw new IOException("Invalid export file name");
         if (bytes.length == 0 || bytes.length > StructureFileTransfer.MAX_BYTES) throw new IOException("Invalid file size");
         Path target = resolve(server, name);
         Path temporary = Files.createTempFile(target.getParent(), ".scanner-", ".tmp");
         try {
             Files.write(temporary, bytes);
-            if (!resolve(server, name).equals(target)) throw new IOException("Export directory changed");
-            Files.move(temporary, target, StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING);
+            String candidate = name;
+            for (int index = 1; ; index++) {
+                if (!resolve(server, candidate).equals(target)) throw new IOException("Export directory changed");
+                try {
+                    Files.move(temporary, target);
+                    return candidate;
+                } catch (FileAlreadyExistsException exception) {
+                    String suffix = "_" + index + name.substring(name.length() - 4);
+                    candidate = name.substring(0, Math.min(name.length() - 4, 128 - suffix.length())) + suffix;
+                    target = resolve(server, candidate);
+                }
+            }
         } finally {
             Files.deleteIfExists(temporary);
         }

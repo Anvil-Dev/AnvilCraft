@@ -1,9 +1,10 @@
 package dev.dubhe.anvilcraft.building;
 
 import dev.dubhe.anvilcraft.api.fluid.IFluidHandlerHolder;
+import dev.dubhe.anvilcraft.entity.FluidTankMinecartEntity;
+import dev.dubhe.anvilcraft.init.item.ModItems;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.Entity;
@@ -11,13 +12,13 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraft.world.entity.decoration.ItemFrame;
+import net.minecraft.world.entity.decoration.LeashFenceKnotEntity;
 import net.minecraft.world.entity.decoration.Painting;
 import net.minecraft.world.entity.vehicle.AbstractMinecart;
 import net.minecraft.world.entity.vehicle.Boat;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.item.SpawnEggItem;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.neoforged.neoforge.items.IItemHandler;
@@ -36,12 +37,12 @@ public final class VanillaBuildingEntities {
         EntityBuildAdapters.register(new VehicleAdapter());
         EntityBuildAdapters.register(new ArmorStandAdapter());
         EntityBuildAdapters.register(new HangingAdapter());
-        EntityBuildAdapters.register(new SpawnEggAdapter());
+
     }
 
     private static CompoundTag saveSanitized(Entity entity) {
         CompoundTag tag = new CompoundTag();
-        entity.save(tag);
+        BlueprintLeashes.save(entity, tag);
         tag.remove("UUID");
         return tag;
     }
@@ -74,6 +75,11 @@ public final class VanillaBuildingEntities {
 
     private static final class VehicleAdapter implements EntityBuildAdapter {
         @Override
+        public boolean matches(Entity entity, CompoundTag nbt) {
+            return entity instanceof Boat || entity instanceof AbstractMinecart;
+        }
+
+        @Override
         public boolean matches(EntityType<?> type, CompoundTag nbt) {
             if (type == EntityType.BOAT
                 || type == EntityType.CHEST_BOAT
@@ -92,7 +98,7 @@ public final class VanillaBuildingEntities {
         @Override
         public Planned plan(ServerLevel level, StructureSnapshot.EntityEntry entry, CompoundTag transformedNbt) {
             EntityType<?> type = EntityType.by(transformedNbt).orElse(null);
-            Entity entity = EntityType.create(transformedNbt, level).orElse(null);
+            Entity entity = EntityBuildAdapters.create(transformedNbt, level).orElse(null);
             List<SlotStack> contents = new ArrayList<>();
             ItemStack material = ItemStack.EMPTY;
             if (entity instanceof Container container) {
@@ -112,7 +118,21 @@ public final class VanillaBuildingEntities {
             }
             CompoundTag sanitized = entity == null ? transformedNbt.copy() : saveSanitized(entity);
             sanitized.putString("id", transformedNbt.getString("id"));
-            return new Planned(material, ItemStack.EMPTY, sanitized, List.copyOf(contents), List.of(), false);
+            List<FluidBuildAdapter.TankFluid> fluids = new ArrayList<>();
+            if (entity != null) {
+                IFluidHandler handler = fluidHandlerOf(entity);
+                if (handler != null) {
+                    for (int tank = 0; tank < handler.getTanks(); tank++) {
+                        if (!handler.getFluidInTank(tank).isEmpty()) {
+                            fluids.add(new FluidBuildAdapter.TankFluid(tank, handler.getFluidInTank(tank).copy()));
+                        }
+                    }
+                }
+                if (entity instanceof FluidTankMinecartEntity) {
+                    material = ModItems.FLUID_TANK_MINECART.asStack();
+                }
+            }
+            return new Planned(material, ItemStack.EMPTY, sanitized, List.copyOf(contents), fluids, false);
         }
     }
 
@@ -124,7 +144,7 @@ public final class VanillaBuildingEntities {
 
         @Override
         public Planned plan(ServerLevel level, StructureSnapshot.EntityEntry entry, CompoundTag transformedNbt) {
-            Entity entity = EntityType.create(transformedNbt, level).orElse(null);
+            Entity entity = EntityBuildAdapters.create(transformedNbt, level).orElse(null);
             if (!(entity instanceof ArmorStand stand)) {
                 return Planned.skip();
             }
@@ -166,30 +186,33 @@ public final class VanillaBuildingEntities {
         public boolean matches(EntityType<?> type, CompoundTag nbt) {
             return type == EntityType.ITEM_FRAME
                 || type == EntityType.GLOW_ITEM_FRAME
-                || type == EntityType.PAINTING;
+                || type == EntityType.PAINTING || type == EntityType.LEASH_KNOT;
         }
 
         @Override
         public Planned plan(ServerLevel level, StructureSnapshot.EntityEntry entry, CompoundTag transformedNbt) {
-            Entity entity = EntityType.create(transformedNbt, level).orElse(null);
+            Entity entity = EntityBuildAdapters.create(transformedNbt, level).orElse(null);
             if (entity == null) {
                 return Planned.skip();
             }
             List<SlotStack> contents = new ArrayList<>();
             ItemStack material;
-            if (entity instanceof ItemFrame frame) {
-                material = new ItemStack(frame.getType() == EntityType.GLOW_ITEM_FRAME
-                    ? Items.GLOW_ITEM_FRAME
-                    : Items.ITEM_FRAME);
-                ItemStack displayed = frame.getItem();
-                if (!displayed.isEmpty()) {
-                    contents.add(new SlotStack(0, displayed.copy()));
-                    frame.setItem(ItemStack.EMPTY);
+            switch (entity) {
+                case ItemFrame frame -> {
+                    material = new ItemStack(frame.getType() == EntityType.GLOW_ITEM_FRAME
+                                             ? Items.GLOW_ITEM_FRAME
+                                             : Items.ITEM_FRAME);
+                    ItemStack displayed = frame.getItem();
+                    if (!displayed.isEmpty()) {
+                        contents.add(new SlotStack(0, displayed.copy()));
+                        frame.setItem(ItemStack.EMPTY);
+                    }
                 }
-            } else if (entity instanceof Painting) {
-                material = new ItemStack(Items.PAINTING);
-            } else {
-                return Planned.skip();
+                case Painting painting -> material = new ItemStack(Items.PAINTING);
+                case LeashFenceKnotEntity leashFenceKnotEntity -> material = ItemStack.EMPTY;
+                default -> {
+                    return Planned.skip();
+                }
             }
             return new Planned(material, ItemStack.EMPTY, saveSanitized(entity), List.copyOf(contents), List.of(), false);
         }
@@ -200,38 +223,6 @@ public final class VanillaBuildingEntities {
                 return;
             }
             frame.setItem(contents.getFirst().stack().copy(), false);
-        }
-    }
-
-    private static final class SpawnEggAdapter implements EntityBuildAdapter {
-        @Override
-        public boolean matches(EntityType<?> type, CompoundTag nbt) {
-            return SpawnEggItem.byId(type) != null;
-        }
-
-        @Override
-        public Planned plan(ServerLevel level, StructureSnapshot.EntityEntry entry, CompoundTag transformedNbt) {
-            EntityType<?> type = EntityType.by(transformedNbt).orElse(null);
-            SpawnEggItem egg = type == null ? null : SpawnEggItem.byId(type);
-            if (egg == null) {
-                return Planned.skip();
-            }
-            CompoundTag sanitized = new CompoundTag();
-            sanitized.putString("id", transformedNbt.getString("id"));
-            if (transformedNbt.contains("Pos", Tag.TAG_LIST)) {
-                sanitized.put("Pos", transformedNbt.getList("Pos", Tag.TAG_DOUBLE).copy());
-            }
-            if (transformedNbt.contains("Rotation", Tag.TAG_LIST)) {
-                sanitized.put("Rotation", transformedNbt.getList("Rotation", Tag.TAG_FLOAT).copy());
-            }
-            return new Planned(
-                new ItemStack(egg),
-                ItemStack.EMPTY,
-                sanitized,
-                List.of(),
-                List.of(),
-                false
-            );
         }
     }
 

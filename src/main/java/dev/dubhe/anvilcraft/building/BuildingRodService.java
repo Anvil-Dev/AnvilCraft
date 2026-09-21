@@ -10,6 +10,10 @@ import dev.dubhe.anvilcraft.block.item.LargeCakeBlockItem;
 import dev.dubhe.anvilcraft.block.item.SimpleMultiPartBlockItem;
 import dev.dubhe.anvilcraft.block.multipart.AbstractMultiPartBlock;
 import dev.dubhe.anvilcraft.block.multipart.SimpleMultiPartBlock;
+import dev.dubhe.anvilcraft.entity.AnimateAscendingBlockEntity;
+import dev.dubhe.anvilcraft.entity.CauldronOutletEntity;
+import dev.dubhe.anvilcraft.entity.MagnetizedNodeEntity;
+import dev.dubhe.anvilcraft.entity.SlidingBlockEntity;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.item.BuildingRodItem;
@@ -17,17 +21,25 @@ import dev.dubhe.anvilcraft.network.BuildingRodResultPacket;
 import dev.dubhe.anvilcraft.util.StructureLoadUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtUtils;
+import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.Leashable;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.item.FallingBlockEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -48,6 +60,7 @@ import net.minecraft.world.level.block.state.properties.BedPart;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import net.minecraft.world.level.block.state.properties.SlabType;
+import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
@@ -62,6 +75,7 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.WeakHashMap;
 import javax.annotation.Nullable;
@@ -130,6 +144,12 @@ public final class BuildingRodService {
     }
 
     static final class Group {
+        final List<Item> tools = new ArrayList<>();
+        final List<BuildingMaterials.FluidPayment> fluidPayments = new ArrayList<>();
+        int ignitions;
+        int leads;
+        boolean hammer;
+        @Nullable EntityType<?> creature;
         final List<Cell> cells = new ArrayList<>();
         final List<ItemStack> materials = new ArrayList<>();
         final List<FluidStack> fluids = new ArrayList<>();
@@ -398,132 +418,238 @@ public final class BuildingRodService {
     }
 
     public static void blueprint(ServerPlayer player, BlockPos anchor, Rotation rotation, Mirror mirror, boolean partial) {
+        blueprints(player, anchor, anchor, rotation, mirror, partial);
+    }
+
+    public static void blueprints(
+        ServerPlayer player, BlockPos anchor, BlockPos last, Rotation rotation, Mirror mirror, boolean partial
+    ) {
         if (!BuildingRodItem.isHeld(player) || !BuildingRodItem.material(player).is(ModItems.STRUCTURE_DISK)) return;
         var disk = BuildingRodItem.material(player).get(ModComponents.STRUCTURE_DISK_DATA);
-        if (disk == null || !withinReach(player, anchor, 26)) return;
+        if (disk == null || !withinReach(player, anchor, 26) || !withinReach(player, last, 26)) return;
         CompoundTag tag = StructureLoadUtil.readStructureFileOnServer(player.serverLevel(), disk.file());
         if (tag == null) return;
         try {
             StructureSnapshot snapshot = BlueprintNormalizer.load(tag, player.registryAccess(), disk.direction(), disk.upsideDown());
             BlueprintPlacement placement = new BlueprintPlacement(anchor, rotation, mirror);
-            BlockPos sourceOrigin = BlueprintBlockConfiguration.sourceOrigin(snapshot);
-            Map<BlockPos, Group> groups = new LinkedHashMap<>();
-            List<BlueprintMultiblocks.PlacedBlock> blueprint = BlueprintMultiblocks.expand(snapshot, placement, -1);
+            List<BlueprintPlacement> placements = placement.tile(snapshot, last);
+            if (placements.isEmpty()) {
+                message(player, "too_many");
+                return;
+            }
+            List<Group> allGroups = new ArrayList<>();
             Map<BlockPos, BlockState> declared = new LinkedHashMap<>();
-            blueprint.forEach(entry -> declared.put(entry.pos(), entry.state()));
-            for (BlueprintMultiblocks.PlacedBlock entry : blueprint) {
-                BlockState state = entry.state();
-                if (OrdinaryBlockAdapter.mapping(state) == OrdinaryBlockAdapter.Mapping.AIR) continue;
-                BlockPos pos = entry.pos();
-                if (!canModify(player, pos)) {
-                    message(player, "blocked");
-                    return;
-                }
-                if (player.level().getBlockState(pos).equals(state)) continue;
-                if (!player.level().getBlockState(pos).canBeReplaced()) {
-                    message(player, "blocked");
-                    return;
-                }
-                BlockPos core = BlueprintMultiblocks.core(pos, state);
-                Group group = groups.computeIfAbsent(core, ignored -> new Group());
-                group.separateContents = true;
-                BuildingBlockMaterial blockMaterial = BuildingBlockMaterial.extract(state,
-                    entry.nbt().orElse(null), player.level());
-                if (blockMaterial.requiresOperator() && !player.canUseGameMasterBlocks()) {
-                    message(player, "blocked");
-                    return;
-                }
-                blockMaterial = blockMaterial.withConfiguration(state, blockMaterial.config(), player.registryAccess());
-                BlueprintBlockConfiguration.transform(blockMaterial.config(), placement, sourceOrigin, snapshot);
-                group.materials.addAll(BlueprintBlockConfiguration.materials(blockMaterial.config()));
-                group.cells.add(new Cell(pos, state, blockMaterial.config(), blockMaterial.contents()));
-                if (SignDecorationAdapter.isSign(state)) {
-                    var decoration = SignDecorationAdapter.extract(state, blockMaterial.config(), player.registryAccess());
-                    decoration.decorations().stream().map(SignDecorationAdapter.Decoration::material)
-                        .filter(material -> !material.isEmpty()).forEach(group.materials::add);
-                }
-                if (state.hasProperty(BlockStateProperties.WATERLOGGED) && state.getValue(BlockStateProperties.WATERLOGGED)
-                    && !player.level().getFluidState(pos).isSource()) group.fluids.add(new FluidStack(Fluids.WATER, 1000));
-                if (FluidBuildAdapter.isLiquidBlock(state)) {
-                    if (!state.getFluidState().isSource()) continue;
-                    group.fluids.add(FluidBuildAdapter.liquidOf(state));
-                    continue;
-                }
-                if (FluidBuildAdapter.isFilledCauldron(state)) {
-                    group.materials.add(new ItemStack(Items.CAULDRON));
-                    group.fluids.add(FluidBuildAdapter.cauldronFluidOf(state));
-                    continue;
-                }
-                if (!core.equals(pos)) continue;
-                ItemStack upgrade = UseItemOnBlock.materialFor(state);
-                if (!upgrade.isEmpty()) group.materials.add(upgrade);
-                ItemStack material = blockMaterial.stack().copyWithCount(materialCount(state));
-                if (material.isEmpty() && !player.isCreative()) {
-                    message(player, "unsupported");
-                    return;
-                }
-                if (!material.isEmpty()) group.blockMaterials.put(pos, material);
+            List<BlueprintTicks.Entry> ticks = new ArrayList<>();
+            for (BlueprintPlacement copy : placements) {
+                snapshot.ticks().forEach(tick -> ticks.add(tick.at(copy.worldOf(tick.pos()))));
+                if (!planBlueprint(player, snapshot, copy, allGroups, declared)) return;
             }
-            for (var entry : groups.entrySet()) {
-                if (entry.getValue().cells.stream().noneMatch(cell -> cell.pos().equals(entry.getKey()))
-                    && player.level().getBlockState(entry.getKey()).isAir()) {
-                    message(player, "invalid_structure");
-                    return;
-                }
-            }
-            List<Group> allGroups = new ArrayList<>(groups.values());
-            for (var entry : snapshot.entities()) {
-                EntityType<?> type = EntityType.by(entry.nbt()).orElse(null);
-                if (type == null || EntityBuildAdapters.isTransient(type)) continue;
-                Entity probe = type.create(player.serverLevel());
-                if (probe == null) {
-                    message(player, "unsupported");
-                    return;
-                }
-                if ((type == EntityType.COMMAND_BLOCK_MINECART || probe.onlyOpCanSetNbt())
-                    && !player.canUseGameMasterBlocks()) {
-                    message(player, "blocked");
-                    return;
-                }
-                Vec3 world = placement.localOf(entry.pos(), entry.blockPos())
-                    .add(anchor.getX(), anchor.getY(), anchor.getZ());
-                if (!canModify(player, BlockPos.containing(world))) {
-                    message(player, "blocked");
-                    return;
-                }
-                if (!player.level().getEntitiesOfClass(Entity.class, AABB.ofSize(world, 0.25, 0.25, 0.25),
-                    entity -> entity.getType() == type && entity.position().distanceToSqr(world) < 0.02).isEmpty()) {
-                    continue;
-                }
-                CompoundTag transformed = BuildingEntityTransform.transform(entry, placement);
-                EntityBuildAdapter adapter = EntityBuildAdapters.find(type, transformed).orElse(null);
-                if (adapter == null) {
-                    message(player, "unsupported");
-                    return;
-                }
-                var plan = adapter.plan(player.serverLevel(), entry, transformed);
-                if (plan.unsupported()) {
-                    message(player, "unsupported");
-                    return;
-                }
-                plan = new EntityBuildAdapter.Planned(plan.material(), plan.returned(),
-                    BuildingEntityTransform.sanitize(probe, plan.entityNbt()), plan.contents(), plan.fluids(), false);
-                Group group = new Group();
-                group.separateContents = probe instanceof Container;
-                group.materials.add(plan.material());
-                if (!group.separateContents) plan.contents().forEach(content -> group.materials.add(content.stack()));
-                plan.fluids().forEach(fluid -> group.fluids.add(fluid.fluid()));
-                group.entities.add(plan);
-                allGroups.add(group);
-            }
-            boolean complete = commit(player, allGroups, partial, true, declared);
+            var undoBounds = placements.getFirst().bounds(snapshot.size());
+            undoBounds.encapsulate(placements.getLast().bounds(snapshot.size()));
+            boolean complete = commit(player, allGroups, partial, true, declared, ticks, undoBounds);
             if (complete) PacketDistributor.sendToPlayer(player, new BuildingRodResultPacket(true));
         } catch (ConstructionBlueprintException | IllegalArgumentException exception) {
             message(player, "invalid_structure");
         }
     }
 
-    private static int materialCount(BlockState state) {
+    private static boolean planBlueprint(
+        ServerPlayer player, StructureSnapshot snapshot, BlueprintPlacement placement,
+        List<Group> allGroups, Map<BlockPos, BlockState> declared
+    ) {
+        BlockPos sourceOrigin = BlueprintBlockConfiguration.sourceOrigin(snapshot);
+        Map<BlockPos, Group> groups = new LinkedHashMap<>();
+        List<BlueprintMultiblocks.PlacedBlock> blueprint = BlueprintMultiblocks.expand(snapshot, placement, -1);
+        blueprint.forEach(entry -> declared.put(entry.pos(), entry.state()));
+        Map<BlockPos, BlockPos> portalCores = BlueprintIgnition.portalCores(declared);
+        Map<BlockPos, BlockPos> localPositions = new LinkedHashMap<>();
+        snapshot.blocks().forEach(block -> localPositions.put(placement.worldOf(block.pos()), block.pos()));
+        for (BlueprintMultiblocks.PlacedBlock entry : blueprint) {
+            BlockState state = entry.state();
+            if (OrdinaryBlockAdapter.mapping(state) == OrdinaryBlockAdapter.Mapping.AIR) continue;
+            BlockPos pos = entry.pos();
+            if (!canModify(player, pos)) {
+                message(player, "blocked");
+                return false;
+            }
+            if (player.level().getBlockState(pos).equals(state)) continue;
+            if (!player.level().getBlockState(pos).canBeReplaced()) {
+                message(player, "blocked");
+                return false;
+            }
+            BlockPos core = portalCores.getOrDefault(pos, BlueprintMultiblocks.core(pos, state));
+            Group group = groups.computeIfAbsent(core, ignored -> new Group());
+            group.separateContents = true;
+            if (state.is(Blocks.MOVING_PISTON)) {
+                CompoundTag source = entry.nbt().orElseThrow(() -> new IllegalArgumentException("Moving piston has no runtime data"));
+                if (!"minecraft:piston".equals(source.getString("id")) || !Float.isFinite(source.getFloat("progress"))) {
+                    throw new IllegalArgumentException("Invalid moving piston runtime data");
+                }
+                BlockState moved = NbtUtils.readBlockState(player.registryAccess().lookupOrThrow(Registries.BLOCK),
+                    source.getCompound("blockState"));
+                if (BuildingBlockMaterial.extract(moved, null, player.level()).requiresOperator() && !player.canUseGameMasterBlocks()) {
+                    message(player, "blocked");
+                    return false;
+                }
+                CompoundTag config = source.copy();
+                BlueprintBlockConfiguration.transform(config, placement, sourceOrigin, snapshot);
+                group.cells.add(new Cell(pos, state, config, List.of()));
+                if (!moved.is(Blocks.PISTON_HEAD)) {
+                    ItemStack material = OrdinaryBlockAdapter.material(moved);
+                    if (material.isEmpty() && !player.isCreative()) {
+                        unsupported(player, state.getBlock().getName());
+                        return false;
+                    }
+                    if (!material.isEmpty()) group.materials.add(material);
+                }
+                continue;
+            }
+            if (BlueprintIgnition.isIgnition(state)) {
+                group.cells.add(new Cell(pos, state, new CompoundTag(), List.of()));
+                group.ignitions = 1;
+                continue;
+            }
+            BuildingBlockMaterial blockMaterial = BuildingBlockMaterial.extract(state,
+                entry.nbt().orElse(null), player.level());
+            if (blockMaterial.requiresOperator() && !player.canUseGameMasterBlocks()) {
+                message(player, "blocked");
+                return false;
+            }
+            blockMaterial = blockMaterial.withConfiguration(state, blockMaterial.config(), player.registryAccess());
+            BlueprintBlockConfiguration.transform(blockMaterial.config(), placement, sourceOrigin, snapshot);
+            BlueprintRuntimeData.restoreClock(blockMaterial.config(), snapshot,
+                localPositions.getOrDefault(pos, BlockPos.ZERO), player.level().getGameTime());
+            group.materials.addAll(BlueprintBlockConfiguration.materials(blockMaterial.config()));
+            group.cells.add(new Cell(pos, state, blockMaterial.config(), blockMaterial.contents()));
+            if (SignDecorationAdapter.isSign(state)) {
+                var decoration = SignDecorationAdapter.extract(state, blockMaterial.config(), player.registryAccess());
+                decoration.decorations().stream().map(SignDecorationAdapter.Decoration::material)
+                    .filter(material -> !material.isEmpty()).forEach(group.materials::add);
+            }
+            if (state.hasProperty(BlockStateProperties.WATERLOGGED) && state.getValue(BlockStateProperties.WATERLOGGED)
+                && !player.level().getFluidState(pos).isSource()) group.fluids.add(new FluidStack(Fluids.WATER, 1000));
+            if (FluidBuildAdapter.isLiquidBlock(state)) {
+                if (!state.getFluidState().isSource()) continue;
+                group.fluids.add(FluidBuildAdapter.liquidOf(state));
+                continue;
+            }
+            if (state.is(Blocks.BUBBLE_COLUMN)) {
+                group.fluids.add(new FluidStack(Fluids.WATER, 1000));
+                continue;
+            }
+            if (FluidBuildAdapter.isFilledCauldron(state)) {
+                group.materials.add(new ItemStack(Items.CAULDRON));
+                group.fluids.add(FluidBuildAdapter.cauldronFluidOf(state));
+                continue;
+            }
+            if (!core.equals(pos)) continue;
+            group.materials.addAll(BlueprintSpecialBlocks.extra(state));
+            ItemStack upgrade = UseItemOnBlock.materialFor(state);
+            if (!upgrade.isEmpty()) group.materials.add(upgrade);
+            ItemStack material = blockMaterial.stack().copyWithCount(materialCount(state));
+            if (material.isEmpty() && !player.isCreative()) {
+                unsupported(player, state.getBlock().getName());
+                return false;
+            }
+            if (!material.isEmpty()) group.blockMaterials.put(pos, material);
+        }
+        for (var entry : groups.entrySet()) {
+            if (entry.getValue().cells.stream().noneMatch(cell -> cell.pos().equals(entry.getKey()))
+                && player.level().getBlockState(entry.getKey()).isAir()) {
+                message(player, "invalid_structure");
+                return false;
+            }
+        }
+        allGroups.addAll(groups.values());
+        var identities = BlueprintEntities.identities(snapshot, placement);
+        for (var entry : snapshot.entities()) {
+            EntityType<?> type = EntityType.by(entry.nbt()).orElse(null);
+            if (type == null || EntityBuildAdapters.isTransient(type)) continue;
+            Entity probe = type.create(player.serverLevel());
+            if (probe == null) {
+                unsupported(player, type.getDescription());
+                return false;
+            }
+            if (EntityBuildAdapters.isTransient(probe)) continue;
+            if (probe instanceof AnimateAscendingBlockEntity && !entry.nbt().contains("BlockState")) continue;
+            if ((type == EntityType.COMMAND_BLOCK_MINECART || probe.onlyOpCanSetNbt()
+                && !(probe instanceof FallingBlockEntity) && !(probe instanceof SlidingBlockEntity))
+                && !player.canUseGameMasterBlocks()) {
+                message(player, "blocked");
+                return false;
+            }
+            CompoundTag transformed = BuildingEntityTransform.transform(entry, placement);
+            BlueprintEntities.relocateMemories(transformed, entry, snapshot, placement, player.level().dimension().location().toString());
+            var leashFence = BlueprintLeashes.attachment(transformed);
+            if (leashFence.isPresent() && (!canModify(player, leashFence.get())
+                || !declared.getOrDefault(leashFence.get(), player.level().getBlockState(leashFence.get())).is(BlockTags.FENCES))) {
+                message(player, "blocked");
+                return false;
+            }
+            if (!player.canUseGameMasterBlocks() && DynamicBuildingEntities.requiresOperator(transformed, player.serverLevel())) {
+                message(player, "blocked");
+                return false;
+            }
+            var position = transformed.getList("Pos", Tag.TAG_DOUBLE);
+            Vec3 world = new Vec3(position.getDouble(0), position.getDouble(1), position.getDouble(2));
+            if (!canModify(player, BlockPos.containing(world))) {
+                message(player, "blocked");
+                return false;
+            }
+            if (!player.level().getEntitiesOfClass(Entity.class, AABB.ofSize(world, 0.25, 0.25, 0.25),
+                entity -> entity.getType() == type && entity.position().distanceToSqr(world) < 0.02).isEmpty()) {
+                continue;
+            }
+            EntityBuildAdapter adapter = EntityBuildAdapters.find(probe, transformed).orElse(null);
+            if (adapter == null) {
+                unsupported(player, type.getDescription());
+                return false;
+            }
+            var plan = probe instanceof Mob && !player.isCreative()
+                ? new EntityBuildAdapter.Planned(ItemStack.EMPTY, ItemStack.EMPTY, transformed.copy(), List.of(), List.of(), false)
+                : adapter.plan(player.serverLevel(), entry, transformed);
+            if (plan.unsupported()) {
+                unsupported(player, type.getDescription());
+                return false;
+            }
+            plan = new EntityBuildAdapter.Planned(plan.material(), plan.returned(),
+                BuildingEntityTransform.sanitize(probe, plan.entityNbt()), plan.contents(), plan.fluids(), false);
+            if (transformed.contains("Motion", Tag.TAG_LIST)) {
+                plan.entityNbt().put("Motion", transformed.getList("Motion", Tag.TAG_DOUBLE).copy());
+            }
+            BlueprintEntities.scope(plan.entityNbt(), entry.nbt(), identities);
+            Group group = null;
+            if (probe instanceof MagnetizedNodeEntity || probe instanceof CauldronOutletEntity) {
+                BlockPos support = NbtUtils.readBlockPos(plan.entityNbt(),
+                    probe instanceof MagnetizedNodeEntity ? "BlockPos" : "CauldronPos").orElseThrow();
+                BlockState state = declared.get(support);
+                if (state == null) {
+                    message(player, "invalid_structure");
+                    return false;
+                }
+                group = groups.get(BlueprintMultiblocks.core(support, state));
+            }
+            if (group == null) {
+                group = new Group();
+                allGroups.add(group);
+            }
+            group.separateContents |= probe instanceof Container;
+            ItemStack tool = adapter.requiredTool();
+            if (!tool.isEmpty()) group.tools.add(tool.getItem());
+            group.hammer |= adapter.requiresHammer();
+            if (probe instanceof Leashable && BlueprintLeashes.hasLeash(plan.entityNbt())) group.leads = 1;
+            if (probe instanceof Mob) group.creature = type;
+            else group.materials.add(plan.material());
+            if (!group.separateContents) {
+                for (var content : plan.contents()) group.materials.add(content.stack());
+            }
+            for (var fluid : plan.fluids()) group.fluids.add(fluid.fluid());
+            group.entities.add(plan);
+        }
+        return true;
+    }
+
+    static int materialCount(BlockState state) {
         if (state.hasProperty(BlockStateProperties.SLAB_TYPE) && state.getValue(BlockStateProperties.SLAB_TYPE) == SlabType.DOUBLE) {
             return 2;
         }
@@ -534,11 +660,13 @@ public final class BuildingRodService {
     }
 
     static boolean commit(ServerPlayer player, List<Group> groups, boolean partial, boolean quiet) {
-        return commit(player, groups, partial, quiet, Map.of());
+        return commit(player, groups, partial, quiet, Map.of(), List.of(), null);
     }
 
     private static boolean commit(
-        ServerPlayer player, List<Group> groups, boolean partial, boolean quiet, Map<BlockPos, BlockState> declared
+        ServerPlayer player, List<Group> groups, boolean partial, boolean quiet,
+        Map<BlockPos, BlockState> declared, List<BlueprintTicks.Entry> ticks,
+        @Nullable BoundingBox undoBounds
     ) {
         if (!quiet && groups.stream().mapToInt(group -> group.cells.size()).sum() > MAX_BLOCKS) {
             message(player, "too_many");
@@ -553,7 +681,10 @@ public final class BuildingRodService {
         boolean missing = false;
         List<Group> placedGroups = new ArrayList<>();
         for (Group group : groups) {
-            Group allocated = materials.reserve(group, allowMismatch);
+            boolean missingFence = group.entities.stream().map(entity -> BlueprintLeashes.attachment(entity.entityNbt()))
+                .flatMap(Optional::stream).anyMatch(pos -> !player.level().getBlockState(pos).is(BlockTags.FENCES)
+                    && cells.stream().noneMatch(cell -> cell.pos().equals(pos) && cell.state().is(BlockTags.FENCES)));
+            Group allocated = missingFence ? null : materials.reserve(group, allowMismatch);
             if (allocated == null) {
                 missing = true;
                 if (!partial) {
@@ -610,18 +741,24 @@ public final class BuildingRodService {
         }
         ItemStack rod = BuildingRodItem.heldRod(player);
         if (!BuildingRodItem.ready(player, rod)) return false;
+        final BuildingRodUndo undo = new BuildingRodUndo(player, placedGroups, undoBounds);
         if (!materials.consume()) {
             message(player, "missing_blocks");
             if (quiet) BuildingRodMaterialBook.give(player, new BuildingMaterials(player).missing(groups));
             return false;
         }
-        final BuildingRodUndo undo = new BuildingRodUndo(player, placedGroups);
+        undo.consumed();
         Map<BlockPos, ItemStack> placedMaterials = new LinkedHashMap<>();
         placedGroups.forEach(group -> placedMaterials.putAll(group.blockMaterials));
+        List<Map.Entry<Entity, CompoundTag>> spawned = new ArrayList<>();
         Runnable place = () -> {
             for (Cell cell : cells) BuildingCommit.set(player.level(), cell.pos(), cell.state());
             for (Cell cell : cells) {
                 BlockEntity blockEntity = player.level().getBlockEntity(cell.pos());
+                if (blockEntity == null && cell.state().is(Blocks.MOVING_PISTON)) {
+                    blockEntity = BlueprintBlockEntities.create(player.level(), cell.pos(), cell.state(), cell.config());
+                    if (blockEntity != null) player.level().setBlockEntity(blockEntity);
+                }
                 if (blockEntity != null) {
                     if (!quiet && !cell.config().isEmpty() && !(blockEntity instanceof CommandBlockEntity)) {
                         blockEntity.loadWithComponents(cell.config(), player.registryAccess());
@@ -657,7 +794,11 @@ public final class BuildingRodService {
             if (quiet) RedstoneWireNetworkManager.restoreBlueprint(player.serverLevel(), wires);
             for (var plan : entities) {
                 Entity entity = EntityBuildAdapters.spawn(player.serverLevel(), new BuildingEntityOp(plan.entityNbt(), plan.returned()));
-                if (entity != null) EntityBuildAdapters.insertContents(entity, plan.contents(), player.registryAccess());
+                if (entity != null) {
+                    EntityBuildAdapters.insertContents(entity, plan.contents(), player.registryAccess());
+                    spawned.add(Map.entry(entity, plan.entityNbt()));
+                    undo.recordEntity(plan, entity);
+                }
                 if (!player.isCreative() && !plan.returned().isEmpty()) {
                     player.getInventory().placeItemBackInInventory(plan.returned().copy());
                 }
@@ -665,7 +806,9 @@ public final class BuildingRodService {
         };
         if (quiet) BuildingCommit.quietly(player.level(), place);
         else place.run();
+        BlueprintEntities.link(spawned).forEach(undo::recordAuxiliary);
         undo.finish(player);
+        if (quiet) BuildingCommit.activate(player.serverLevel(), cells, ticks);
         BuildingRodMaterialBook.give(player, shortages);
         finishPlacement(player, cells.size());
         if (quiet || !placedMaterials.isEmpty()) playPlacementSounds(player, cells, quiet);
@@ -702,6 +845,10 @@ public final class BuildingRodService {
 
     private static boolean withinReach(ServerPlayer player, BlockPos pos, int allowance) {
         return player.getEyePosition().distanceToSqr(Vec3.atCenterOf(pos)) <= Math.pow(player.blockInteractionRange() + allowance + 1, 2);
+    }
+
+    private static void unsupported(ServerPlayer player, Component type) {
+        player.displayClientMessage(Component.translatable("message.anvilcraft.building_rod.unsupported_type", type), true);
     }
 
     public static void message(ServerPlayer player, String key) {

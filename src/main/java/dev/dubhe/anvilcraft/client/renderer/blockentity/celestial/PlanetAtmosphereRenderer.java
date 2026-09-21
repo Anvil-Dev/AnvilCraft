@@ -6,6 +6,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.integration.iris.CelestialIrisRenderer;
 import dev.dubhe.anvilcraft.integration.iris.IrisState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.LightTexture;
@@ -78,6 +79,13 @@ public final class PlanetAtmosphereRenderer {
     }
 
     public static void render(PoseStack poseStack, MultiBufferSource buffers, float[] color, int overlay) {
+        if (IrisState.isShaderEnabled()) {
+            float[] tint = color.clone();
+            if (CelestialIrisRenderer.deferAtmosphere(poseStack,
+                (pose, deferredBuffers) -> render(pose, deferredBuffers, tint, overlay))) {
+                return;
+            }
+        }
         if (!STATE.standard(AnvilCraft.CLIENT_CONFIG.planetAtmosphereRenderingMode, IrisState.isShaderEnabled())) {
             VanillaCelestialRenderer.atmosphere(poseStack, buffers, color, overlay);
             return;
@@ -99,7 +107,8 @@ public final class PlanetAtmosphereRenderer {
             throw new IllegalStateException("Invalid planet atmosphere transform");
         }
         ShaderInstance shader = atmosphereShader;
-        if (shader == null || IrisState.isShaderEnabled() || !(buffers instanceof MultiBufferSource.BufferSource)) {
+        boolean shaderPackPass = IrisState.isShaderEnabled() && !CelestialIrisRenderer.isRendering();
+        if (shader == null || shaderPackPass || !(buffers instanceof MultiBufferSource.BufferSource)) {
             renderPortable(poseStack, buffers, camera, light, color, overlay);
             return;
         }

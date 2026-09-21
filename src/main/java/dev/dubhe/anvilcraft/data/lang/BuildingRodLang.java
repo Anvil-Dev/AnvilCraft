@@ -7,19 +7,23 @@ public final class BuildingRodLang {
     }
 
     public static void init(RegistrumLangProvider provider) {
+        provider.add("message.anvilcraft.building_rod.undo_partial",
+            "Area restored; some entities or refunds are pending. Recover the returned items and undo again");
+        provider.add("message.anvilcraft.building_rod.unsupported_type", "No supported building material for blueprint object: %s");
         provider.add("message.anvilcraft.building_rod.component_mismatch",
             "Some blocks have mismatched components; right-click again within 3 seconds to use the available materials and their data");
         provider.add("message.anvilcraft.building_rod.contents_missing",
             "Missing matching container contents; right-click again within 3 seconds to place those containers empty");
         provider.add("message.anvilcraft.building_rod.missing_book", "Missing materials; carry a book to receive a material list");
-        provider.add("message.anvilcraft.building_rod.nothing_to_undo", "No unchanged placement to undo");
+        provider.add("message.anvilcraft.building_rod.nothing_to_undo", "No placement to undo");
         provider.add("message.anvilcraft.building_rod.undone", "Last placement undone");
+        provider.add("screen.anvilcraft.building_rod.selection_size", "%s × %s × %s");
         provider.add("item.anvilcraft.building_rod.fluids",
             "Buckets can fill areas and waterlog blocks; renewable fluids cost 2 B per fill, supplied by inventory or linked storage");
         provider.add("screen.anvilcraft.building_rod.traditional.hint",
             """
                 %s+%s switches tools  %s+%s adjusts
-                %s executes  %s changes hotbar""");
+                %s executes (hold and drag with Move to repeat projections, then click again to paste)  %s changes hotbar""");
         provider.add("screen.anvilcraft.building_rod.traditional.scroll", "Scroll");
         provider.add("screen.anvilcraft.building_rod.traditional.status",
             """
@@ -33,7 +37,7 @@ public final class BuildingRodLang {
         provider.add("screen.anvilcraft.building_rod.distance",
             """
                 Hold %s to keep the projection distance
-                %s/%s to adjust | %s Lock blueprint""");
+                %s/%s to adjust | %s Lock projection / Hold and drag to repeat projections, then click again to paste""");
         provider.add("item.anvilcraft.building_rod.summary", "Place blocks and blueprints in bulk.");
         provider.add("message.anvilcraft.building_rod.placed", "Blueprint placed");
         provider.add(
@@ -50,7 +54,11 @@ public final class BuildingRodLang {
         );
         provider.add(
             "item.anvilcraft.building_rod.controls",
-            "Hold use and drag to fill a box (up to 4,000 blocks); hold Shift to build the available part of a blueprint"
+            "Hold use and drag from a collidable block to fill a box (up to 4,000 blocks); "
+                + "hold Ctrl after selecting the first corner to keep the distance, use arrow keys to adjust, "
+                + "right-click to place, or release Ctrl to cancel; hold use and drag to repeat blueprint projections, "
+                + "release to lock them, then right-click again to paste; "
+                + "hold Shift to build the available part of a blueprint"
         );
         provider.add(
             "item.anvilcraft.building_rod.import",
@@ -83,7 +91,7 @@ public final class BuildingRodLang {
         provider.add(
             "screen.anvilcraft.building_rod.optimized",
             """
-               %s Place | %s Cancel
+               %s Paste projections | %s Cancel
                %s %s %s %s %s %s Move
                %s %s Rotate | %s Mirror"""
         );

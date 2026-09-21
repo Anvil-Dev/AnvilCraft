@@ -23,15 +23,19 @@ import dev.dubhe.anvilcraft.block.entity.batch.BatchCrafterBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.fluid.AbstractPipeCheckValveBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.fluid.ControlValveBlockEntity;
 import dev.dubhe.anvilcraft.init.item.ModItems;
+import dev.dubhe.anvilcraft.inventory.container.FilterOnlyContainer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtOps;
+import net.minecraft.nbt.NbtUtils;
 import net.minecraft.nbt.StringTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
@@ -48,13 +52,14 @@ import java.util.List;
 import java.util.Set;
 import javax.annotation.Nullable;
 
-/** 蓝图只复制经过字段校验的设置；库存、身份和执行缓存不属于设置。 */
+/** 恢复蓝图设置与运行进度；库存由材料系统供应，身份由当前放置重建。 */
 public final class BlueprintBlockConfiguration {
     private BlueprintBlockConfiguration() {
     }
 
     static CompoundTag take(BlockEntity entity, CompoundTag source, HolderLookup.Provider registries) {
         CompoundTag result = new CompoundTag();
+        final CompoundTag runtime = BlueprintRuntimeData.take(entity, source);
         if (entity instanceof SignBlockEntity) {
             result = SignDecorationAdapter.sanitize(entity.getBlockState(), source, registries);
             remove(source, "front_text", "back_text", "is_waxed");
@@ -142,6 +147,7 @@ public final class BlueprintBlockConfiguration {
             result.put("Valves", checkValves(source.getList("Valves", Tag.TAG_COMPOUND)));
             remove(source, "Valves", "Powered");
         }
+        result.merge(runtime);
         return result;
     }
 
@@ -190,7 +196,7 @@ public final class BlueprintBlockConfiguration {
     }
 
     private static CompoundTag filterSamples(CompoundTag source, int size, HolderLookup.Provider registries) {
-        var items = new dev.dubhe.anvilcraft.inventory.container.FilterOnlyContainer(null, size);
+        var items = new FilterOnlyContainer(null, size);
         for (Tag value : source.getList("Items", Tag.TAG_COMPOUND)) {
             CompoundTag tag = (CompoundTag) value;
             int slot = tag.getInt("Slot");
@@ -245,7 +251,7 @@ public final class BlueprintBlockConfiguration {
             String id = value.getAsString();
             ResourceLocation key = ResourceLocation.tryParse(id);
             if (key != null && seen.add(id) && registries.lookupOrThrow(Registries.ENCHANTMENT)
-                .get(net.minecraft.resources.ResourceKey.create(Registries.ENCHANTMENT, key)).isPresent()) {
+                .get(ResourceKey.create(Registries.ENCHANTMENT, key)).isPresent()) {
                 selected.add(StringTag.valueOf(id));
             }
         }
@@ -303,6 +309,12 @@ public final class BlueprintBlockConfiguration {
     public static void transform(
         CompoundTag config, BlueprintPlacement placement, @Nullable BlockPos sourceOrigin, StructureSnapshot snapshot
     ) {
+        if ("minecraft:piston".equals(config.getString("id"))) {
+            var moved = NbtUtils.readBlockState(BuiltInRegistries.BLOCK.asLookup(), config.getCompound("blockState"));
+            config.put("blockState", NbtUtils.writeBlockState(placement.stateOf(moved)));
+            Direction facing = Direction.from3DDataValue(config.getInt("facing"));
+            config.putInt("facing", placement.rotation().rotate(placement.mirror().mirror(facing)).get3DDataValue());
+        }
         if (config.contains("Facing")) {
             Direction facing = Direction.from3DDataValue(config.getInt("Facing"));
             config.putInt("Facing", placement.rotation().rotate(placement.mirror().mirror(facing)).get3DDataValue());
@@ -361,6 +373,12 @@ public final class BlueprintBlockConfiguration {
     }
 
     static void afterContents(BlockEntity entity, CompoundTag settings, ServerPlayer player) {
+        CompoundTag runtime = BlueprintRuntimeData.take(entity, settings.copy());
+        if (!runtime.isEmpty()) {
+            CompoundTag restored = entity.saveWithFullMetadata(player.registryAccess()).merge(runtime);
+            if (entity instanceof PulseGeneratorBlockEntity pulse) pulse.loadBlueprint(restored, player.registryAccess());
+            else entity.loadWithComponents(restored, player.registryAccess());
+        }
         if (entity instanceof LecternBlockEntity lectern && !lectern.getBook().isEmpty() && settings.contains("Page")) {
             apply(entity, settings, player);
         }

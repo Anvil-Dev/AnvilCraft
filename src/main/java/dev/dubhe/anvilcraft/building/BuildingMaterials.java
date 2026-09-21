@@ -2,13 +2,21 @@ package dev.dubhe.anvilcraft.building;
 
 import dev.dubhe.anvilcraft.api.StoragePortManager;
 import dev.dubhe.anvilcraft.api.itemhandler.unlimited.UnlimitedItemStacksResourceHandler;
+import dev.dubhe.anvilcraft.block.item.ResinBlockItem;
+import dev.dubhe.anvilcraft.init.block.ModBlocks;
+import dev.dubhe.anvilcraft.init.item.ModComponents;
+import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.inventory.PocketInventory;
+import dev.dubhe.anvilcraft.item.AnvilHammerItem;
 import dev.dubhe.anvilcraft.item.BuildingRodItem;
 import dev.dubhe.anvilcraft.rpc.StorageServerStub;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.SpawnEggItem;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.neoforged.neoforge.capabilities.Capabilities;
@@ -49,6 +57,7 @@ public final class BuildingMaterials {
         private final IntConsumer extract;
         @Nullable private BuildingBlockMaterial.Supplied blockMaterial;
         private int reserved;
+        private boolean retainedTool;
 
         private Source(ItemStack resource, long available, IntConsumer extract) {
             this.resource = resource.copy();
@@ -58,7 +67,11 @@ public final class BuildingMaterials {
     }
 
     public BuildingMaterials(ServerPlayer player) {
-        this.creative = player.isCreative();
+        this(player, player.isCreative());
+    }
+
+    BuildingMaterials(ServerPlayer player, boolean creative) {
+        this.creative = creative;
         this.player = player;
         ItemStack held = BuildingRodItem.material(player);
         this.offhand = new Source(held, held.getCount(), held::shrink);
@@ -116,8 +129,45 @@ public final class BuildingMaterials {
     @Nullable
     BuildingRodService.Group reserve(BuildingRodService.Group group, boolean allowMismatch) {
         final int[] before = this.sources.stream().mapToInt(source -> source.reserved).toArray();
+        final int returnedBefore = this.returned.size();
+        final int[] fluidBefore = this.storedFluids.stream().mapToInt(source -> source.reserved).toArray();
+        boolean[] toolsBefore = new boolean[this.sources.size()];
+        for (int i = 0; i < toolsBefore.length; i++) toolsBefore[i] = this.sources.get(i).retainedTool;
         BuildingRodService.Group allocated = new BuildingRodService.Group();
-        if (!group.separateContents) allocated.entities.addAll(group.entities);
+        if (group.hammer && !this.reserveHammer()) {
+            this.restoreSources(before, toolsBefore);
+            return null;
+        }
+        ItemStack creature = group.creature == null ? ItemStack.EMPTY : this.reserveCreature(group.creature, allocated);
+        if (creature == null) {
+            this.restoreSources(before, toolsBefore);
+            return null;
+        }
+        List<EntityBuildAdapter.Planned> plannedEntities = new ArrayList<>();
+        for (var plan : group.entities) {
+            var supplied = creature.isEmpty() ? plan : BlueprintEntities.fromMaterial(this.player, creature, plan);
+            if (supplied == null) {
+                this.restoreSources(before, toolsBefore);
+                return null;
+            }
+            plannedEntities.add(supplied);
+        }
+        for (Item tool : group.tools) {
+            if (this.reserveTool(tool)) continue;
+            this.restoreSources(before, toolsBefore);
+            return null;
+        }
+        if (group.ignitions > 0 && !this.reserveTool(Items.FLINT_AND_STEEL)) {
+            if (this.reserveConsumable(Items.FIRE_CHARGE, group.ignitions, allocated.materials) > 0) {
+                this.restoreSources(before, toolsBefore);
+                return null;
+            }
+        }
+        if (group.leads > 0 && this.reserveConsumable(Items.LEAD, group.leads, allocated.materials) > 0) {
+            this.restoreSources(before, toolsBefore);
+            return null;
+        }
+        if (!group.separateContents) allocated.entities.addAll(plannedEntities);
         allocated.fluids.addAll(group.fluids);
         allocated.materials.addAll(group.materials);
         for (var entry : group.blockMaterials.entrySet()) {
@@ -127,7 +177,7 @@ public final class BuildingMaterials {
             if (this.creative) taken.add(new BlockSupply(expected.copy(), expected.copy(), List.of()));
             if (remaining > 0 && allowMismatch) remaining = this.reserveBlock(expected, false, remaining, taken, group.separateContents);
             if (remaining > 0) {
-                for (int i = 0; i < before.length; i++) this.sources.get(i).reserved = before[i];
+                this.restoreSources(before, toolsBefore);
                 return null;
             }
             allocated.blockMaterials.put(entry.getKey(), taken.getFirst().placed());
@@ -139,7 +189,7 @@ public final class BuildingMaterials {
                 .anyMatch(supply -> !ItemStack.isSameItemSameComponents(supply.placed(), expected));
         }
         if (!this.reserve(group.materials)) {
-            for (int i = 0; i < before.length; i++) this.sources.get(i).reserved = before[i];
+            this.restoreSources(before, toolsBefore);
             return null;
         }
         for (var cell : group.cells) {
@@ -155,12 +205,12 @@ public final class BuildingMaterials {
                 allocated.componentMismatch = true;
                 allocated.missingContents = true;
             } else {
-                for (int i = 0; i < before.length; i++) this.sources.get(i).reserved = before[i];
+                this.restoreSources(before, toolsBefore);
                 return null;
             }
         }
         if (group.separateContents) {
-            for (var entity : group.entities) {
+            for (var entity : plannedEntities) {
                 List<ItemStack> contents = entity.contents().stream().map(EntityBuildAdapter.SlotStack::stack).toList();
                 if (this.reserve(contents)) {
                     allocated.entities.add(entity);
@@ -171,13 +221,13 @@ public final class BuildingMaterials {
                     allocated.componentMismatch = true;
                     allocated.missingContents = true;
                 } else {
-                    for (int i = 0; i < before.length; i++) this.sources.get(i).reserved = before[i];
+                    this.restoreSources(before, toolsBefore);
                     return null;
                 }
             }
         }
         if (!this.reserve(List.of(), group.fluids)) {
-            for (int i = 0; i < before.length; i++) this.sources.get(i).reserved = before[i];
+            this.restoreSources(before, toolsBefore);
             return null;
         }
         if (!this.creative) {
@@ -190,7 +240,89 @@ public final class BuildingMaterials {
                 }
             }
         }
+        if (!this.creative) {
+            allocated.entities.forEach(entity -> BlueprintEntities.limitMotion(entity.entityNbt()));
+            allocated.materials.clear();
+            for (int i = 0; i < this.sources.size(); i++) {
+                Source source = this.sources.get(i);
+                int count = source.reserved - before[i];
+                if (count > 0) allocated.materials.add(source.resource.copyWithCount(count));
+            }
+            allocated.returned.clear();
+            this.returned.subList(returnedBefore, this.returned.size()).forEach(stack -> allocated.returned.add(stack.copy()));
+            for (int i = 0; i < this.storedFluids.size(); i++) {
+                StoredFluid source = this.storedFluids.get(i);
+                int count = source.reserved - (i < fluidBefore.length ? fluidBefore[i] : 0);
+                if (count > 0) allocated.fluidPayments.add(new FluidPayment(source.storage, source.fluid.copyWithAmount(count)));
+            }
+        }
         return allocated;
+    }
+
+    public record FluidPayment(UUID storage, FluidStack fluid) {
+    }
+
+    private boolean reserveTool(Item tool) {
+        if (this.creative) return true;
+        for (Source source : this.sources) {
+            if (!source.resource.is(tool) || source.available <= source.reserved) continue;
+            source.retainedTool = true;
+            return true;
+        }
+        return false;
+    }
+
+    private boolean reserveHammer() {
+        if (this.creative) return true;
+        for (Source source : this.sources) {
+            if (source.resource.getItem() instanceof AnvilHammerItem && source.available > source.reserved) {
+                source.retainedTool = true;
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Nullable
+    private ItemStack reserveCreature(EntityType<?> type, BuildingRodService.Group allocated) {
+        if (this.creative) return ItemStack.EMPTY;
+        for (int pass = 0; pass < 2; pass++) {
+            for (Source source : this.sources) {
+                if (source.available <= source.reserved + (source.retainedTool ? 1 : 0)) continue;
+                var saved = source.resource.get(ModComponents.SAVED_ENTITY);
+                boolean resin = source.resource.getItem() instanceof ResinBlockItem && saved != null
+                    && EntityType.by(saved.tag()).orElse(null) == type;
+                boolean egg = source.resource.getItem() instanceof SpawnEggItem spawnEgg && spawnEgg.getType(source.resource) == type;
+                if (pass == 0 ? !resin : !egg) continue;
+                source.reserved++;
+                allocated.materials.add(source.resource.copyWithCount(1));
+                if (resin) allocated.returned.add(ModItems.RESIN.asStack(this.player.getRandom().nextInt(1, 4)));
+                return source.resource.copyWithCount(1);
+            }
+        }
+        return null;
+    }
+
+    private int reserveConsumable(Item item, int remaining, List<ItemStack> materials) {
+        if (this.creative) return 0;
+        for (Source source : this.sources) {
+            if (!source.resource.is(item)) continue;
+            int take = (int) Math.min(remaining, source.available - source.reserved);
+            if (take == 0) continue;
+            source.reserved += take;
+            remaining -= take;
+            materials.add(source.resource.copyWithCount(take));
+            if (remaining == 0) break;
+        }
+        return remaining;
+    }
+
+    private void restoreSources(int[] reserved, boolean[] tools) {
+        for (int i = 0; i < reserved.length; i++) {
+            Source source = this.sources.get(i);
+            source.reserved = reserved[i];
+            source.retainedTool = tools[i];
+        }
     }
 
     private record BlockSupply(ItemStack original, ItemStack placed, List<ItemStack> returned) {
@@ -198,7 +330,8 @@ public final class BuildingMaterials {
 
     private int reserveBlock(ItemStack expected, boolean exact, int remaining, List<BlockSupply> taken, boolean separateContents) {
         for (Source source : this.sources) {
-            if (!ItemStack.isSameItem(source.resource, expected) || source.available <= source.reserved) continue;
+            if (!ItemStack.isSameItem(source.resource, expected)
+                || source.available <= source.reserved + (source.retainedTool ? 1 : 0)) continue;
             if (separateContents && source.blockMaterial == null) {
                 source.blockMaterial = BuildingBlockMaterial.separateContents(source.resource, this.player.level());
             }
@@ -206,7 +339,7 @@ public final class BuildingMaterials {
                 ? source.blockMaterial : new BuildingBlockMaterial.Supplied(source.resource, List.of());
             ItemStack empty = material.stack();
             if (ItemStack.isSameItemSameComponents(empty, expected) != exact) continue;
-            int take = (int) Math.min(remaining, source.available - source.reserved);
+            int take = (int) Math.min(remaining, source.available - source.reserved - (source.retainedTool ? 1 : 0));
             source.reserved += take;
             remaining -= take;
             List<ItemStack> returned = material.contents().stream()
@@ -221,7 +354,7 @@ public final class BuildingMaterials {
         int remaining = material.getCount();
         for (Source source : this.sources) {
             if (!ItemStack.isSameItemSameComponents(source.resource, material)) continue;
-            int take = (int) Math.min(remaining, source.available - source.reserved);
+            int take = (int) Math.min(remaining, source.available - source.reserved - (source.retainedTool ? 1 : 0));
             source.reserved += take;
             remaining -= take;
             if (remaining == 0) break;
@@ -256,7 +389,22 @@ public final class BuildingMaterials {
     List<Component> missing(List<BuildingRodService.Group> groups) {
         List<ItemStack> items = new ArrayList<>();
         List<FluidStack> fluids = new ArrayList<>();
+        List<Item> tools = new ArrayList<>();
+        int ignitions = 0;
+        int leads = 0;
         for (var group : groups) {
+            for (Item tool : group.tools) {
+                if (!tools.contains(tool)) tools.add(tool);
+            }
+            if (group.hammer && !this.reserveHammer() && !tools.contains(ModItems.ANVIL_HAMMER.get())) {
+                tools.add(ModItems.ANVIL_HAMMER.get());
+            }
+            if (group.creature != null && this.reserveCreature(group.creature, new BuildingRodService.Group()) == null) {
+                items.add(SpawnEggItem.byId(group.creature) == null ? ModBlocks.RESIN_BLOCK.asStack()
+                    : new ItemStack(SpawnEggItem.byId(group.creature)));
+            }
+            ignitions += group.ignitions;
+            leads += group.leads;
             List<ItemStack> required = new ArrayList<>(group.materials);
             group.cells.forEach(cell -> cell.contents().forEach(content -> required.add(content.stack())));
             if (group.separateContents) {
@@ -277,6 +425,18 @@ public final class BuildingMaterials {
             }
         }
         List<Component> lines = new ArrayList<>();
+        int missingLeads = this.reserveConsumable(Items.LEAD, leads, new ArrayList<>());
+        if (missingLeads > 0) lines.add(new ItemStack(Items.LEAD).getHoverName().copy().append(" ×" + missingLeads));
+        for (Item tool : tools) {
+            if (!this.reserveTool(tool)) lines.add(new ItemStack(tool).getHoverName().copy().append(" ×1"));
+        }
+        if (ignitions > 0 && !this.reserveTool(Items.FLINT_AND_STEEL)) {
+            int missing = this.reserveConsumable(Items.FIRE_CHARGE, ignitions, new ArrayList<>());
+            if (missing > 0) {
+                lines.add(new ItemStack(Items.FLINT_AND_STEEL).getHoverName().copy().append(" ×1 / ")
+                    .append(new ItemStack(Items.FIRE_CHARGE).getHoverName()).append(" ×" + missing));
+            }
+        }
         for (ItemStack material : items) {
             int missing = this.reserveItem(material);
             if (missing > 0) lines.add(material.getHoverName().copy().append(" ×" + missing));
@@ -289,7 +449,7 @@ public final class BuildingMaterials {
     }
 
     private int reserveContainer(Source source, FluidStack fluid, int remaining) {
-        while (remaining > 0 && source.available > source.reserved) {
+        while (remaining > 0 && source.available > source.reserved + (source.retainedTool ? 1 : 0)) {
             ItemStack container = source.resource.copyWithCount(1);
             IFluidHandlerItem handler = container.getCapability(Capabilities.FluidHandler.ITEM);
             if (handler == null) break;

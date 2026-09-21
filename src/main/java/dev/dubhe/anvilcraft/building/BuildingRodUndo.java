@@ -1,83 +1,190 @@
 package dev.dubhe.anvilcraft.building;
 
+import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.api.StoragePortManager;
 import dev.dubhe.anvilcraft.item.BuildingRodItem;
 import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.Leashable;
+import net.minecraft.world.entity.decoration.LeashFenceKnotEntity;
+import net.minecraft.world.entity.item.FallingBlockEntity;
+import net.minecraft.world.entity.item.PrimedTnt;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.neoforged.neoforge.common.CommonHooks;
+import net.minecraft.world.level.levelgen.structure.BoundingBox;
+import net.minecraft.world.phys.AABB;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
+import net.neoforged.neoforge.event.level.BlockDropsEvent;
+import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.IdentityHashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 import java.util.WeakHashMap;
+import javax.annotation.Nullable;
 
-/** 只保留最近一次放置；多方块作为一组核对和恢复，避免拆除后来放置的替代品。 */
+/** 最近一次放置的区域快照与逐组材料账单。区域恢复不依赖当前方块或实体仍与蓝图相同。 */
+@EventBusSubscriber(modid = AnvilCraft.MOD_ID)
 public final class BuildingRodUndo {
     private static final Map<ServerPlayer, BuildingRodUndo> HISTORY = new WeakHashMap<>();
-    private final Level level;
-    private final List<PlacedGroup> groups = new ArrayList<>();
-    private final Map<BlockPos, PlacedGroup> positions = new LinkedHashMap<>();
+    private final ServerLevel level;
+    private final BuildingRegionSnapshot region;
+    private final List<Receipt> receipts = new ArrayList<>();
+    private final Map<EntityBuildAdapter.Planned, Receipt> entityReceipts = new IdentityHashMap<>();
+    private final Map<UUID, Entity> auxiliary = new LinkedHashMap<>();
+    private final Map<UUID, Entity> derived = new LinkedHashMap<>();
+    private final Set<BlockPos> changedPositions = new HashSet<>();
+    private boolean restored;
+    private boolean restoring;
 
-    private record Saved(BlockPos pos, BlockState state, CompoundTag nbt) {
-        static Saved capture(Level level, BlockPos pos) {
-            BlockEntity entity = level.getBlockEntity(pos);
-            return new Saved(pos.immutable(), level.getBlockState(pos), entity == null
-                ? new CompoundTag() : entity.saveWithFullMetadata(level.registryAccess()));
-        }
-
-        boolean matches(Level level) {
-            return level.hasChunkAt(this.pos) && this.equals(capture(level, this.pos));
-        }
-    }
-
-    private static final class PlacedGroup {
-        private final List<Saved> before = new ArrayList<>();
-        private final List<BlockState> expected = new ArrayList<>();
-        private final List<Saved> after = new ArrayList<>();
+    private static final class Receipt {
         private final List<ItemStack> materials = new ArrayList<>();
         private final List<ItemStack> returned = new ArrayList<>();
-        private boolean replaced;
+        private final List<BuildingMaterials.FluidPayment> fluids = new ArrayList<>();
+        private final Map<UUID, Entity> entities = new LinkedHashMap<>();
+        private final Map<UUID, Entity> drops = new LinkedHashMap<>();
+        private boolean accepted;
     }
 
     BuildingRodUndo(ServerPlayer player, List<BuildingRodService.Group> planned) {
-        this.level = player.level();
+        this(player, planned, null);
+    }
+
+    BuildingRodUndo(ServerPlayer player, List<BuildingRodService.Group> planned, @Nullable BoundingBox bounds) {
+        this.level = player.serverLevel();
+        this.region = new BuildingRegionSnapshot(player, bounds == null ? bounds(planned) : bounds);
         for (var group : planned) {
-            if (group.cells.isEmpty()) continue;
-            PlacedGroup saved = new PlacedGroup();
-            for (var cell : group.cells) {
-                saved.before.add(Saved.capture(this.level, cell.pos()));
-                saved.expected.add(cell.state());
-                this.positions.put(cell.pos(), saved);
+            if (group.cells.isEmpty() && group.entities.isEmpty()) continue;
+            Receipt receipt = new Receipt();
+            if (!player.isCreative()) {
+                group.materials.forEach(stack -> receipt.materials.add(stack.copy()));
+                group.returned.forEach(stack -> receipt.returned.add(stack.copy()));
+                group.entities.forEach(entity -> {
+                    if (!entity.returned().isEmpty()) receipt.returned.add(entity.returned().copy());
+                });
+                group.fluidPayments.forEach(payment -> receipt.fluids.add(
+                    new BuildingMaterials.FluidPayment(payment.storage(), payment.fluid().copy())));
             }
-            if (!player.isCreative()) group.materials.forEach(stack -> saved.materials.add(stack.copy()));
-            group.returned.forEach(stack -> saved.returned.add(stack.copy()));
-            this.groups.add(saved);
+            group.entities.forEach(entity -> this.entityReceipts.put(entity, receipt));
+            this.receipts.add(receipt);
+        }
+    }
+
+    private static BoundingBox bounds(List<BuildingRodService.Group> planned) {
+        List<BlockPos> positions = new ArrayList<>();
+        planned.forEach(group -> {
+            group.cells.forEach(cell -> positions.add(cell.pos()));
+            group.entities.forEach(entity -> {
+                var pos = entity.entityNbt().getList("Pos", Tag.TAG_DOUBLE);
+                if (pos.size() == 3) positions.add(BlockPos.containing(pos.getDouble(0), pos.getDouble(1), pos.getDouble(2)));
+            });
+        });
+        return BoundingBox.encapsulatingPositions(positions).orElseThrow();
+    }
+
+    void consumed() {
+        List<ItemStack> restoredItems = this.region.restoredMaterials();
+        for (Receipt receipt : this.receipts) {
+            for (ItemStack material : receipt.materials) material.shrink(BuildingRegionSnapshot.subtract(restoredItems, material));
+            receipt.materials.removeIf(ItemStack::isEmpty);
         }
     }
 
     void finish(ServerPlayer player) {
-        for (PlacedGroup group : this.groups) {
-            for (int index = 0; index < group.before.size(); index++) {
-                Saved after = Saved.capture(this.level, group.before.get(index).pos());
-                group.after.add(after);
-                if (after.state().getBlock() != group.expected.get(index).getBlock()) group.replaced = true;
-            }
-        }
         HISTORY.put(player, this);
+    }
+
+    void recordEntity(EntityBuildAdapter.Planned plan, Entity entity) {
+        if (entity instanceof LeashFenceKnotEntity) {
+            this.recordAuxiliary(entity);
+            return;
+        }
+        Receipt receipt = this.entityReceipts.get(plan);
+        if (receipt != null) receipt.entities.put(entity.getUUID(), entity);
+    }
+
+    void recordAuxiliary(Entity entity) {
+        this.auxiliary.put(entity.getUUID(), entity);
     }
 
     public static void replaced(Level level, BlockPos pos, BlockState before, BlockState after) {
         if (level.isClientSide || before.getBlock() == after.getBlock()) return;
         for (BuildingRodUndo undo : HISTORY.values()) {
-            if (undo.level != level) continue;
-            PlacedGroup group = undo.positions.get(pos);
-            if (group != null) group.replaced = true;
+            if (undo.level == level && !undo.restoring && !undo.restored && undo.region.contains(pos)) {
+                undo.changedPositions.add(pos.immutable());
+            }
+        }
+    }
+
+    public static void spawnedBy(Entity source, Entity spawned) {
+        for (BuildingRodUndo undo : HISTORY.values()) {
+            if (undo.restoring) continue;
+            if (!undo.restored && (undo.derived.containsKey(source.getUUID()) || undo.region.containsEntity(source.getUUID()))) {
+                undo.derived.put(spawned.getUUID(), spawned);
+            }
+            for (Receipt receipt : undo.receipts) {
+                if (!receipt.accepted && (receipt.entities.containsKey(source.getUUID()) || receipt.drops.containsKey(source.getUUID()))) {
+                    receipt.drops.put(spawned.getUUID(), spawned);
+                    break;
+                }
+            }
+        }
+    }
+
+    @SubscribeEvent
+    public static void blockDrops(BlockDropsEvent event) {
+        for (BuildingRodUndo undo : HISTORY.values()) {
+            if (undo.level != event.getLevel() || undo.restoring || undo.restored || !undo.region.contains(event.getPos())) continue;
+            event.getDrops().forEach(drop -> undo.derived.put(drop.getUUID(), drop));
+        }
+    }
+
+    @SubscribeEvent
+    public static void fallingBlock(EntityJoinLevelEvent event) {
+        if (event.loadedFromDisk()) return;
+        Entity entity = event.getEntity();
+        BlockPos source = entity instanceof FallingBlockEntity falling ? falling.getStartPos()
+            : entity instanceof PrimedTnt ? entity.blockPosition() : null;
+        if (source == null) return;
+        for (BuildingRodUndo undo : HISTORY.values()) {
+            if (undo.level == event.getLevel() && !undo.restoring && !undo.restored && undo.changedPositions.contains(source)) {
+                undo.derived.put(entity.getUUID(), entity);
+            }
+        }
+    }
+
+    private boolean canRemove(ServerPlayer player, Map<UUID, Entity> owned) {
+        for (var entry : owned.entrySet()) {
+            Entity entity = BuildingRegionSnapshot.find(this.level, entry.getKey());
+            if (entity instanceof Player) return false;
+            if (entity != null) {
+                if (!entity.level().mayInteract(player, entity.blockPosition())) return false;
+            } else {
+                Entity.RemovalReason reason = entry.getValue().getRemovalReason();
+                if (reason == null || !reason.shouldDestroy()) return false;
+            }
+        }
+        return true;
+    }
+
+    private void remove(Map<UUID, Entity> owned) {
+        for (UUID uuid : owned.keySet()) {
+            Entity entity = BuildingRegionSnapshot.find(this.level, uuid);
+            if (entity == null || entity instanceof Player) continue;
+            if (entity instanceof Leashable leashable) leashable.setLeashData(null);
+            entity.discard();
         }
     }
 
@@ -88,42 +195,58 @@ public final class BuildingRodUndo {
             BuildingRodService.message(player, "nothing_to_undo");
             return;
         }
-        List<PlacedGroup> restore = new ArrayList<>();
-        BuildingMaterials materials = new BuildingMaterials(player);
-        for (PlacedGroup group : undo.groups) {
-            if (group.replaced || group.after.stream().anyMatch(saved -> !saved.matches(undo.level)
-                || !BuildingRodService.canModify(player, saved.pos()))) {
-                continue;
-            }
-            if (group.after.stream().anyMatch(saved -> CommonHooks.fireBlockBreak(undo.level,
-                player.gameMode.getGameModeForPlayer(), player, saved.pos(), saved.state()).isCanceled())) {
-                continue;
-            }
-            if (materials.reserve(group.returned)) restore.add(group);
+        if (!undo.restored && !undo.region.canRestore(player)) {
+            BuildingRodService.message(player, "blocked");
+            return;
         }
-        if (!materials.consume()) return;
-        HISTORY.remove(player);
-        for (PlacedGroup group : restore) {
-            for (Saved saved : group.before) BuildingCommit.set(undo.level, saved.pos(), saved.state());
-            for (Saved saved : group.before) {
-                BlockEntity entity = undo.level.getBlockEntity(saved.pos());
-                if (entity != null && !saved.nbt().isEmpty()) {
-                    entity.loadWithComponents(saved.nbt(), player.registryAccess());
-                    entity.setChanged();
-                    undo.level.sendBlockUpdated(saved.pos(), saved.state(), saved.state(), Block.UPDATE_CLIENTS);
+        BuildingMaterials recovery = new BuildingMaterials(player, false);
+        List<Receipt> accepted = new ArrayList<>();
+        for (Receipt receipt : undo.receipts) {
+            if (receipt.accepted || !undo.canRemove(player, receipt.entities)) continue;
+            if (recovery.reserve(receipt.returned)) accepted.add(receipt);
+        }
+        if (!recovery.consume()) return;
+        undo.restoring = true;
+        try {
+            for (Receipt receipt : accepted) {
+                undo.remove(receipt.entities);
+                undo.remove(receipt.drops);
+                receipt.accepted = true;
+            }
+            if (!undo.restored) {
+                undo.remove(undo.derived);
+                undo.region.restore();
+                undo.restored = true;
+            }
+            for (Entity original : undo.auxiliary.values()) {
+                Entity knot = BuildingRegionSnapshot.find(undo.level, original.getUUID());
+                if (knot == null || !knot.level().getEntities(knot, new AABB(knot.blockPosition()).inflate(16),
+                    entity -> entity instanceof Leashable leashable && leashable.getLeashHolder() == knot).isEmpty()) {
+                    continue;
+                }
+                knot.discard();
+            }
+            for (Receipt receipt : undo.receipts) {
+                if (!receipt.accepted) continue;
+                receipt.materials.forEach(stack -> player.getInventory().placeItemBackInInventory(stack.copy()));
+                receipt.materials.clear();
+                for (var payment : receipt.fluids) {
+                    while (!payment.fluid().isEmpty()) {
+                        IFluidHandler target = StoragePortManager.findRefillTarget(payment.storage(), payment.fluid());
+                        if (target == null) break;
+                        int filled = target.fill(payment.fluid().copy(), IFluidHandler.FluidAction.EXECUTE);
+                        if (filled <= 0) break;
+                        payment.fluid().shrink(filled);
+                    }
                 }
             }
-            for (ItemStack material : group.materials) player.getInventory().placeItemBackInInventory(material);
-        }
-        for (PlacedGroup group : restore) {
-            for (int index = 0; index < group.before.size(); index++) {
-                Saved saved = group.before.get(index);
-                undo.level.markAndNotifyBlock(saved.pos(), undo.level.getChunkAt(saved.pos()),
-                    group.after.get(index).state(), saved.state(), Block.UPDATE_ALL, Block.UPDATE_LIMIT);
-            }
+            undo.receipts.removeIf(receipt -> receipt.accepted && receipt.fluids.stream().allMatch(payment -> payment.fluid().isEmpty()));
+            if (undo.receipts.isEmpty()) HISTORY.remove(player);
+        } finally {
+            undo.restoring = false;
         }
         player.getInventory().setChanged();
         player.containerMenu.broadcastChanges();
-        BuildingRodService.message(player, restore.isEmpty() ? "nothing_to_undo" : "undone");
+        BuildingRodService.message(player, undo.receipts.isEmpty() ? "undone" : "undo_partial");
     }
 }

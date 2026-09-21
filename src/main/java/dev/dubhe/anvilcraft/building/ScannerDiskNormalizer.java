@@ -35,6 +35,7 @@ public final class ScannerDiskNormalizer {
             blocks.add(new StructureSnapshot.BlockEntry(normalized, entry.stateIndex(), entry.nbt()));
         }
 
+        StructureSnapshot normalizedBlocks = new StructureSnapshot(normalizedSize, snapshot.palette(), blocks, List.of());
         List<StructureSnapshot.EntityEntry> entities = new ArrayList<>(snapshot.entities().size());
         for (StructureSnapshot.EntityEntry entry : snapshot.entities()) {
             Vec3 pos = entry.pos();
@@ -45,7 +46,8 @@ public final class ScannerDiskNormalizer {
                 case EAST -> new Vec3(sz - pos.z, y, pos.x);
                 default -> new Vec3(pos.x, y, pos.z);
             };
-            BlockPos blockPos = entry.blockPos();
+            BlockPos blockPos = DynamicBuildingEntities.Outlet.isOutlet(entry.nbt())
+                ? DynamicBuildingEntities.Outlet.support(entry) : entry.blockPos();
             int blockY = upsideDown ? sy - 1 - blockPos.getY() : blockPos.getY();
             BlockPos normalizedBlockPos = switch (facing) {
                 case SOUTH -> new BlockPos(sx - 1 - blockPos.getX(), blockY, sz - 1 - blockPos.getZ());
@@ -53,9 +55,24 @@ public final class ScannerDiskNormalizer {
                 case EAST -> new BlockPos(sz - 1 - blockPos.getZ(), blockY, blockPos.getX());
                 default -> new BlockPos(blockPos.getX(), blockY, blockPos.getZ());
             };
+            if (MagnetizedNodeBuildAdapter.isNode(entry.nbt())) {
+                normalizedBlockPos = MagnetizedNodeBuildAdapter.support(normalizedBlocks,
+                    new StructureSnapshot.EntityEntry(normalized, normalizedBlockPos, entry.nbt()));
+            }
             entities.add(new StructureSnapshot.EntityEntry(normalized, normalizedBlockPos, entry.nbt()));
         }
 
-        return new StructureSnapshot(normalizedSize, snapshot.palette(), blocks, entities);
+        List<BlueprintTicks.Entry> ticks = snapshot.ticks().stream().map(tick -> {
+            BlockPos pos = tick.pos();
+            int y = upsideDown ? sy - 1 - pos.getY() : pos.getY();
+            BlockPos normalized = switch (facing) {
+                case SOUTH -> new BlockPos(sx - 1 - pos.getX(), y, sz - 1 - pos.getZ());
+                case WEST -> new BlockPos(pos.getZ(), y, sx - 1 - pos.getX());
+                case EAST -> new BlockPos(sz - 1 - pos.getZ(), y, pos.getX());
+                default -> new BlockPos(pos.getX(), y, pos.getZ());
+            };
+            return tick.at(normalized);
+        }).toList();
+        return new StructureSnapshot(normalizedSize, snapshot.palette(), blocks, entities, ticks, snapshot.capturedAt());
     }
 }

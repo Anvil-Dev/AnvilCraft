@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.api.power;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.item.WeatherproofChestplateItem;
 import dev.dubhe.anvilcraft.network.PowerGridRemovePacket;
 import dev.dubhe.anvilcraft.network.PowerGridSyncChunkPacket;
 import lombok.Getter;
@@ -182,17 +183,29 @@ public class PowerGrid {
             this.consume += consumer.getInputPower();
         }
 
+        int players = 0;
         for (DynamicPowerComponent dynamicComponent : new ArrayList<>(this.dynamicComponents)) {
             Entity owner = dynamicComponent.getOwner();
             if (owner.level() != this.level || !this.collideFast(dynamicComponent.boundingBox())) {
                 dynamicComponent.switchTo(null);
                 continue;
             }
+            if (owner instanceof ServerPlayer) {
+                WeatherproofChestplateItem.clearGridDemand(dynamicComponent);
+                players++;
+            }
             int power = dynamicComponent.getPowerConsumption();
             if (power > 0) {
                 this.consume += power;
             } else {
                 this.generate += power;
+            }
+        }
+
+        long chargingPowerPerPlayer = this.getRemaining() / Math.max(1, players);
+        for (DynamicPowerComponent dynamicComponent : this.dynamicComponents) {
+            if (dynamicComponent.getOwner() instanceof ServerPlayer player) {
+                this.consume += WeatherproofChestplateItem.refreshGridDemand(player, chargingPowerPerPlayer);
             }
         }
 

@@ -8,6 +8,7 @@ import net.minecraft.nbt.IntTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.LongArrayTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.resources.ResourceLocation;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -108,6 +109,7 @@ public final class LitematicaImporter {
         int overlapCount = 0;
 
         ListTag entitiesOut = new ListTag();
+        List<BlueprintTicks.Entry> ticks = new ArrayList<>();
         for (ParsedRegion region : parsedRegions) {
             int[] paletteMap = new int[region.palette().size()];
             for (int index = 0; index < region.palette().size(); index++) {
@@ -115,6 +117,19 @@ public final class LitematicaImporter {
             }
             overlapCount += region.blit(min, size, paletteMap, stateByPosition, nbtByPosition, covered);
             region.appendEntities(min, entitiesOut);
+            for (boolean fluid : List.of(false, true)) {
+                ListTag saved = regions.getCompound(region.name()).getList(
+                    fluid ? "PendingFluidTicks" : "PendingBlockTicks", Tag.TAG_COMPOUND);
+                for (Tag value : saved) {
+                    CompoundTag tick = (CompoundTag) value;
+                    BlockPos pos = new BlockPos(tick.getInt("x"), tick.getInt("y"), tick.getInt("z"))
+                        .offset(region.min()).subtract(min);
+                    ticks.add(new BlueprintTicks.Entry(pos,
+                        ResourceLocation.parse(tick.getString(fluid ? "Fluid" : "Block")),
+                        (int) Math.clamp(tick.getLong("Time"), 0, Integer.MAX_VALUE),
+                        tick.getInt("Priority"), fluid, tick.getLong("SubTick")));
+                }
+            }
         }
         if (overlapCount > 0) {
             warnings.add(new StructureSnapshotCodec.BlueprintWarning(
@@ -155,6 +170,7 @@ public final class LitematicaImporter {
         }
         out.put("blocks", blocksTag);
         out.put("entities", entitiesOut);
+        BlueprintTicks.write(out, ticks);
         return new ConvertedStructure(out, warnings);
     }
 

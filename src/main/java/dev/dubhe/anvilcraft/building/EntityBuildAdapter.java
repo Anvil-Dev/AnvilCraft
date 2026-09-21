@@ -34,7 +34,19 @@ public interface EntityBuildAdapter {
 
     boolean matches(EntityType<?> type, CompoundTag nbt);
 
+    default boolean matches(Entity entity, CompoundTag nbt) {
+        return this.matches(entity.getType(), nbt);
+    }
+
     Planned plan(ServerLevel level, StructureSnapshot.EntityEntry entry, CompoundTag transformedNbt);
+
+    default ItemStack requiredTool() {
+        return ItemStack.EMPTY;
+    }
+
+    default boolean requiresHammer() {
+        return false;
+    }
 
     default ItemStack returnAfterDeliver(ServerLevel level, BuildingEntityOp op) {
         return op.returnStack().copy();
@@ -47,7 +59,7 @@ public interface EntityBuildAdapter {
         }
         CompoundTag copy = nbt.copy();
         copy.remove("UUID");
-        return EntityType.create(copy, level).map(entity -> {
+        return EntityBuildAdapters.create(copy, level).map(entity -> {
             if (!level.addFreshEntity(entity)) {
                 return null;
             }

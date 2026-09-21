@@ -83,7 +83,8 @@ public final class StructureSnapshotCodec {
         List<StructureSnapshot.BlockEntry> blocks = parseBlocks(tag, size, palette.size(), warnings);
         List<StructureSnapshot.EntityEntry> entities = parseEntities(tag, registries, warnings);
 
-        StructureSnapshot snapshot = canonicalize(new StructureSnapshot(size, palette, blocks, entities));
+        StructureSnapshot snapshot = canonicalize(new StructureSnapshot(size, palette, blocks, entities,
+            BlueprintTicks.read(tag), tag.getLong("anvilcraft:captured_at")));
         return new ParsedSnapshot(snapshot, List.copyOf(warnings));
     }
 
@@ -287,7 +288,7 @@ public final class StructureSnapshotCodec {
             blocks.add(new StructureSnapshot.BlockEntry(entry.pos(), index, entry.nbt()));
         }
 
-        List<StructureSnapshot.EntityEntry> entities = new ArrayList<>(snapshot.entities());
+        List<StructureSnapshot.EntityEntry> entities = new ArrayList<>(BlueprintEntities.flatten(snapshot.entities()));
         entities.sort(Comparator
             .comparingInt((StructureSnapshot.EntityEntry entry) -> entry.blockPos().getY())
             .thenComparingInt(entry -> entry.blockPos().getZ())
@@ -297,7 +298,7 @@ public final class StructureSnapshotCodec {
             .thenComparingDouble(entry -> entry.pos().x)
             .thenComparing(entry -> entry.nbt().getString("id")));
 
-        return new StructureSnapshot(snapshot.size(), palette, blocks, entities);
+        return new StructureSnapshot(snapshot.size(), palette, blocks, entities, snapshot.ticks(), snapshot.capturedAt());
     }
 
     /** 写出规范结构 NBT;输入必须已经过 {@link #canonicalize}。 */
@@ -348,6 +349,8 @@ public final class StructureSnapshotCodec {
             entitiesTag.add(entityTag);
         }
         tag.put("entities", entitiesTag);
+        BlueprintTicks.write(tag, snapshot.ticks());
+        tag.putLong("anvilcraft:captured_at", snapshot.capturedAt());
         return tag;
     }
 

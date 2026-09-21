@@ -106,7 +106,6 @@ public class IonocraftBackpackItem extends EquipmentArmorItem implements IInvent
     }
 
     public static void refreshPower(ServerPlayer player) {
-        WeatherproofChestplateItem.refreshGridDemand(player);
         DynamicPowerComponent component = IDynamicPowerComponentHolder.of(player).anvilcraft$getPowerComponent();
         if (!getByPlayer(player).isEmpty() && !(getByPlayer(player).getItem() instanceof WeatherproofChestplateItem)
             && player.isAlive() && !player.isCreative() && !player.isSpectator()
