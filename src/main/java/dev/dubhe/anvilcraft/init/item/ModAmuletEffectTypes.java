@@ -2,9 +2,8 @@ package dev.dubhe.anvilcraft.init.item;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.amulet.effect.AttributeAmuletEffect;
-import dev.dubhe.anvilcraft.api.amulet.effect.ConditionalMobEffectAmuletEffect;
 import dev.dubhe.anvilcraft.api.amulet.effect.DiscountAmuletEffect;
-import dev.dubhe.anvilcraft.api.amulet.effect.GiveEffectAmuletEffect;
+import dev.dubhe.anvilcraft.api.amulet.effect.GiveMobEffectAmuletEffect;
 import dev.dubhe.anvilcraft.api.amulet.effect.IAmuletEffect;
 import dev.dubhe.anvilcraft.api.amulet.effect.IgnoreGravityAmuletEffect;
 import dev.dubhe.anvilcraft.api.amulet.effect.IgnoreMobTargetAmuletEffect;
@@ -34,9 +33,9 @@ public class ModAmuletEffectTypes {
         "discount",
         DiscountAmuletEffect.Type::new
     );
-    public static final DeferredHolder<IAmuletEffect.Type<?>, GiveEffectAmuletEffect.Type> GIVE_EFFECT = REGISTER.register(
-        "give_effect",
-        GiveEffectAmuletEffect.Type::new
+    public static final DeferredHolder<IAmuletEffect.Type<?>, GiveMobEffectAmuletEffect.Type> GIVE_MOB_EFFECT = REGISTER.register(
+        "give_mob_effect",
+        GiveMobEffectAmuletEffect.Type::new
     );
     public static final DeferredHolder<IAmuletEffect.Type<?>, ImmuneTypedDamageAmuletEffect.Type> IMMUNE_TYPED_DAMAGE = REGISTER.register(
         "immune_typed_damage",
@@ -56,8 +55,6 @@ public class ModAmuletEffectTypes {
     );
     public static final DeferredHolder<IAmuletEffect.Type<?>, ImmuneHarmfulMobEffectAmuletEffect.Type> IMMUNE_HARMFUL_MOB_EFFECT =
         REGISTER.register("immune_harmful_mob_effect", ImmuneHarmfulMobEffectAmuletEffect.Type::new);
-    public static final DeferredHolder<IAmuletEffect.Type<?>, ConditionalMobEffectAmuletEffect.Type> CONDITIONAL_MOB_EFFECT =
-        REGISTER.register("conditional_mob_effect", ConditionalMobEffectAmuletEffect.Type::new);
     public static final DeferredHolder<IAmuletEffect.Type<?>, AttributeAmuletEffect.Type> ATTRIBUTE = REGISTER.register(
         "attribute",
         AttributeAmuletEffect.Type::new

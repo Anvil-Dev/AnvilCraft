@@ -4,9 +4,8 @@ import dev.anvilcraft.lib.v2.math.expression.IExpression;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.amulet.Amulet;
 import dev.dubhe.anvilcraft.api.amulet.effect.AttributeAmuletEffect;
-import dev.dubhe.anvilcraft.api.amulet.effect.ConditionalMobEffectAmuletEffect;
 import dev.dubhe.anvilcraft.api.amulet.effect.DiscountAmuletEffect;
-import dev.dubhe.anvilcraft.api.amulet.effect.GiveEffectAmuletEffect;
+import dev.dubhe.anvilcraft.api.amulet.effect.GiveMobEffectAmuletEffect;
 import dev.dubhe.anvilcraft.api.amulet.effect.IgnoreGravityAmuletEffect;
 import dev.dubhe.anvilcraft.api.amulet.effect.IgnoreMobTargetAmuletEffect;
 import dev.dubhe.anvilcraft.api.amulet.effect.ImmuneAbnormalItemAmuletEffect;
@@ -17,7 +16,6 @@ import dev.dubhe.anvilcraft.api.amulet.effect.ImmuneKnockbackAmuletEffect;
 import dev.dubhe.anvilcraft.api.amulet.effect.ImmuneMobEffectAmuletEffect;
 import dev.dubhe.anvilcraft.api.amulet.effect.ImmuneTypedDamageAmuletEffect;
 import dev.dubhe.anvilcraft.api.amulet.effect.ImmuneVibrationAmuletEffect;
-import dev.dubhe.anvilcraft.api.amulet.effect.MobEffectCondition;
 import dev.dubhe.anvilcraft.api.amulet.effect.TameAnimalAmuletEffect;
 import dev.dubhe.anvilcraft.api.amulet.effect.WrapOtherAmuletEffect;
 import dev.dubhe.anvilcraft.init.entity.ModDamageTypeTags;
@@ -58,35 +56,35 @@ public class ModAmulets {
         "topaz",
         () -> Amulet.of(
             new ImmuneTypedDamageAmuletEffect(List.of(TagPredicate.is(ModDamageTypeTags.TOPAZ_AMULET_VALID))),
-            ConditionalMobEffectAmuletEffect.refresh(MobEffects.DIG_SPEED, 0, MobEffectCondition.ALWAYS)
+            GiveMobEffectAmuletEffect.always(MobEffects.DIG_SPEED, 0)
         )
     );
     public static final DeferredHolder<Amulet, Amulet> RUBY = REGISTER.register(
         "ruby",
         () -> Amulet.of(
-            GiveEffectAmuletEffect.inLava(
+            GiveMobEffectAmuletEffect.notInLava(
                 new MobEffectInstance(MobEffects.FIRE_RESISTANCE, 3, 0, false, false),
                 MinMaxBounds.Ints.atMost(3600)
             ),
-            ConditionalMobEffectAmuletEffect.refresh(MobEffects.DAMAGE_BOOST, 1, MobEffectCondition.ON_FIRE),
-            ConditionalMobEffectAmuletEffect.refresh(MobEffects.DAMAGE_BOOST, 0, MobEffectCondition.NOT_ON_FIRE)
+            GiveMobEffectAmuletEffect.onFire(MobEffects.DAMAGE_BOOST, 1),
+            GiveMobEffectAmuletEffect.notOnFire(MobEffects.DAMAGE_BOOST, 0)
         )
     );
     public static final DeferredHolder<Amulet, Amulet> SAPPHIRE = REGISTER.register(
         "sapphire",
         () -> Amulet.of(
-            GiveEffectAmuletEffect.inWater(
+            GiveMobEffectAmuletEffect.notInWater(
                 new MobEffectInstance(MobEffects.CONDUIT_POWER, 3, 0, false, false),
                 MinMaxBounds.Ints.atMost(3600)
             ),
-            ConditionalMobEffectAmuletEffect.refresh(MobEffects.DAMAGE_RESISTANCE, 0, MobEffectCondition.IN_WATER_OR_BREATHING)
+            GiveMobEffectAmuletEffect.inWaterOrBreathing(MobEffects.DAMAGE_RESISTANCE, 0)
         )
     );
     public static final DeferredHolder<Amulet, Amulet> ANVIL = REGISTER.register(
         "anvil",
         () -> Amulet.of(
             new ImmuneAnvilDamageAmuletEffect(),
-            ImmuneMobEffectAmuletEffect.of(MobEffects.LEVITATION, MobEffectCondition.ALWAYS),
+            ImmuneMobEffectAmuletEffect.of(MobEffects.LEVITATION),
             new AttributeAmuletEffect(
                 Attributes.KNOCKBACK_RESISTANCE,
                 ModAmulets.ANVIL_KNOCKBACK_RESISTANCE,
@@ -105,15 +103,15 @@ public class ModAmulets {
         "feather",
         () -> Amulet.of(
             new ImmuneTypedDamageAmuletEffect(List.of(TagPredicate.is(ModDamageTypeTags.FEATHER_AMULET_VALID))),
-            ImmuneMobEffectAmuletEffect.of(MobEffects.SLOW_FALLING, MobEffectCondition.SNEAKING),
-            ConditionalMobEffectAmuletEffect.refresh(MobEffects.SLOW_FALLING, 0, MobEffectCondition.NOT_SNEAKING)
+            ImmuneMobEffectAmuletEffect.whileSneaking(MobEffects.SLOW_FALLING),
+            GiveMobEffectAmuletEffect.notSneaking(MobEffects.SLOW_FALLING, 0)
         )
     );
     public static final DeferredHolder<Amulet, Amulet> ARMADILLO = REGISTER.register(
         "armadillo",
         () -> Amulet.of(
             new IgnoreMobTargetAmuletEffect(List.of(EntityTypePredicate.of(EntityType.SPIDER))),
-            ConditionalMobEffectAmuletEffect.refresh(MobEffects.DAMAGE_RESISTANCE, 1, MobEffectCondition.SNEAKING)
+            GiveMobEffectAmuletEffect.sneaking(MobEffects.DAMAGE_RESISTANCE, 1)
         )
     );
     public static final DeferredHolder<Amulet, Amulet> CAT = REGISTER.register(
@@ -136,7 +134,7 @@ public class ModAmulets {
     public static final DeferredHolder<Amulet, Amulet> SILENCE = REGISTER.register(
         "silence",
         () -> Amulet.of(
-            ImmuneMobEffectAmuletEffect.of(MobEffects.DARKNESS, MobEffectCondition.ALWAYS),
+            ImmuneMobEffectAmuletEffect.of(MobEffects.DARKNESS),
             new ImmuneVibrationAmuletEffect()
         )
     );
