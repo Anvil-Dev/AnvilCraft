@@ -1,12 +1,22 @@
 package dev.dubhe.anvilcraft.building;
 
+import dev.dubhe.anvilcraft.block.item.HasMobBlockItem;
+import dev.dubhe.anvilcraft.block.item.ResinBlockItem;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.DoubleTag;
 import net.minecraft.nbt.IntArrayTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtUtils;
 import net.minecraft.nbt.Tag;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.MobSpawnType;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.SpawnEggItem;
 import net.minecraft.world.phys.Vec3;
 
 import java.nio.charset.StandardCharsets;
@@ -15,12 +25,80 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import javax.annotation.Nullable;
 
 final class BlueprintEntities {
+    private static final double MAX_SURVIVAL_SPEED = 15.9;
     static final String SOURCE = "anvilcraft:source_entity";
     static final String VEHICLE = "anvilcraft:vehicle";
 
     private BlueprintEntities() {
+    }
+
+    @Nullable
+    static EntityBuildAdapter.Planned fromMaterial(ServerPlayer player, ItemStack material, EntityBuildAdapter.Planned plan) {
+        Entity entity;
+        if (material.getItem() instanceof ResinBlockItem) {
+            entity = HasMobBlockItem.getMobFromItem(player.level(), material);
+            if (entity != null && material.has(DataComponents.CUSTOM_NAME)) {
+                entity.setCustomName(material.get(DataComponents.CUSTOM_NAME));
+                if (entity instanceof Mob mob) mob.setPersistenceRequired();
+            }
+        } else if (material.getItem() instanceof SpawnEggItem egg) {
+            entity = egg.getType(material).create(player.level());
+            if (entity instanceof Mob mob) {
+                var pos = plan.entityNbt().getList("Pos", Tag.TAG_DOUBLE);
+                mob.setPos(pos.getDouble(0), pos.getDouble(1), pos.getDouble(2));
+                mob.finalizeSpawn(player.serverLevel(), player.level().getCurrentDifficultyAt(mob.blockPosition()),
+                    MobSpawnType.SPAWN_EGG, null);
+                if (mob.isSpawnCancelled()) return null;
+            }
+            if (entity != null) EntityType.createDefaultStackConfig(player.serverLevel(), material, player).accept(entity);
+        } else {
+            return null;
+        }
+        if (!(entity instanceof Mob) || entity.getType() != EntityType.by(plan.entityNbt()).orElse(null)) return null;
+        CompoundTag data = new CompoundTag();
+        if (!entity.saveAsPassenger(data)) return null;
+        data.remove("UUID");
+        data.remove("Passengers");
+        data.remove("Leash");
+        // 只从蓝图继承空间状态和已付费的连接，生物属性与物品完全来自实际材料。
+        for (String key : List.of("Pos", "Rotation", "Motion", SOURCE, VEHICLE, "leash")) {
+            data.remove(key);
+            Tag value = plan.entityNbt().get(key);
+            if (value != null) data.put(key, value.copy());
+        }
+        return new EntityBuildAdapter.Planned(plan.material(), plan.returned(), data, List.of(), List.of(), false);
+    }
+
+    private static Vec3 motion(CompoundTag data) {
+        ListTag motion = data.getList("Motion", Tag.TAG_DOUBLE);
+        if (motion.size() != 3) return Vec3.ZERO;
+        double x = motion.getDouble(0);
+        double y = motion.getDouble(1);
+        double z = motion.getDouble(2);
+        return Double.isFinite(x) && Double.isFinite(y) && Double.isFinite(z) ? new Vec3(x, y, z) : Vec3.ZERO;
+    }
+
+    static void limitMotion(CompoundTag data) {
+        Vec3 velocity = motion(data);
+        double largest = Math.max(Math.abs(velocity.x), Math.max(Math.abs(velocity.y), Math.abs(velocity.z)));
+        if (largest > 0) {
+            Vec3 scaled = new Vec3(velocity.x / largest, velocity.y / largest, velocity.z / largest);
+            double length = scaled.length();
+            if (largest > MAX_SURVIVAL_SPEED / length) velocity = scaled.scale(MAX_SURVIVAL_SPEED / length);
+        }
+        ListTag motion = new ListTag();
+        motion.add(DoubleTag.valueOf(velocity.x));
+        motion.add(DoubleTag.valueOf(velocity.y));
+        motion.add(DoubleTag.valueOf(velocity.z));
+        data.put("Motion", motion);
+    }
+
+    static void restoreMotion(Entity entity, CompoundTag data) {
+        // Entity.load 会清零绝对值大于 10 的速度分量；蓝图已在材料分配阶段统一限速。
+        entity.setDeltaMovement(motion(data));
     }
 
     static void relocateMemories(CompoundTag data, StructureSnapshot.EntityEntry entry,
@@ -122,6 +200,7 @@ final class BlueprintEntities {
             BlueprintLeashes.save(entity, saved);
             remap(saved, ids);
             entity.load(saved);
+            restoreMotion(entity, saved);
             CompoundTag original = pair.getValue();
             if (!original.hasUUID(VEHICLE)) continue;
             Entity vehicle = entities.get(original.getUUID(VEHICLE));

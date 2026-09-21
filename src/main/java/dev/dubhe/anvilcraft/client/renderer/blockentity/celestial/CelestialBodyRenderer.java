@@ -5,6 +5,8 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import dev.dubhe.anvilcraft.block.entity.celestial.StarData;
 import dev.dubhe.anvilcraft.block.entity.celestial.Temperature;
 import dev.dubhe.anvilcraft.client.init.ModRenderTypes;
+import dev.dubhe.anvilcraft.integration.iris.CelestialIrisRenderer;
+import dev.dubhe.anvilcraft.integration.iris.IrisState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -19,6 +21,7 @@ import net.neoforged.neoforge.client.model.data.ModelData;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
+import java.util.function.BiConsumer;
 import javax.annotation.Nullable;
 
 /// 天体渲染器 —— 提供行星体、大气、星晕和行星环的渲染方法。
@@ -28,6 +31,10 @@ import javax.annotation.Nullable;
 public class CelestialBodyRenderer {
 
     private static final Vector3f LIGHT_DIR = new Vector3f(0.7f, 0.5f, 0.5f).normalize();
+
+    public static boolean defer(PoseStack pose, BiConsumer<PoseStack, MultiBufferSource> draw) {
+        return IrisState.isShaderEnabled() && CelestialIrisRenderer.defer(pose, draw);
+    }
 
     static Vector3f localLightDirection(Matrix4f inversePose) {
         return inversePose.transformDirection(LIGHT_DIR, new Vector3f()).normalize();

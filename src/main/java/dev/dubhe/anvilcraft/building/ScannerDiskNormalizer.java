@@ -35,6 +35,7 @@ public final class ScannerDiskNormalizer {
             blocks.add(new StructureSnapshot.BlockEntry(normalized, entry.stateIndex(), entry.nbt()));
         }
 
+        StructureSnapshot normalizedBlocks = new StructureSnapshot(normalizedSize, snapshot.palette(), blocks, List.of());
         List<StructureSnapshot.EntityEntry> entities = new ArrayList<>(snapshot.entities().size());
         for (StructureSnapshot.EntityEntry entry : snapshot.entities()) {
             Vec3 pos = entry.pos();
@@ -45,9 +46,8 @@ public final class ScannerDiskNormalizer {
                 case EAST -> new Vec3(sz - pos.z, y, pos.x);
                 default -> new Vec3(pos.x, y, pos.z);
             };
-            BlockPos blockPos = MagnetizedNodeBuildAdapter.isNode(entry.nbt())
-                ? MagnetizedNodeBuildAdapter.support(snapshot, entry)
-                : DynamicBuildingEntities.Outlet.isOutlet(entry.nbt()) ? DynamicBuildingEntities.Outlet.support(entry) : entry.blockPos();
+            BlockPos blockPos = DynamicBuildingEntities.Outlet.isOutlet(entry.nbt())
+                ? DynamicBuildingEntities.Outlet.support(entry) : entry.blockPos();
             int blockY = upsideDown ? sy - 1 - blockPos.getY() : blockPos.getY();
             BlockPos normalizedBlockPos = switch (facing) {
                 case SOUTH -> new BlockPos(sx - 1 - blockPos.getX(), blockY, sz - 1 - blockPos.getZ());
@@ -55,6 +55,10 @@ public final class ScannerDiskNormalizer {
                 case EAST -> new BlockPos(sz - 1 - blockPos.getZ(), blockY, blockPos.getX());
                 default -> new BlockPos(blockPos.getX(), blockY, blockPos.getZ());
             };
+            if (MagnetizedNodeBuildAdapter.isNode(entry.nbt())) {
+                normalizedBlockPos = MagnetizedNodeBuildAdapter.support(normalizedBlocks,
+                    new StructureSnapshot.EntityEntry(normalized, normalizedBlockPos, entry.nbt()));
+            }
             entities.add(new StructureSnapshot.EntityEntry(normalized, normalizedBlockPos, entry.nbt()));
         }
 

@@ -109,11 +109,23 @@ public final class BlockPlacementUtil {
                 // 垂直朝向同样生效（抬头/低头放置）。
                 orientPlayerForDirection(player, defaultFacing);
             }
-            blockItem.place(level, pos, player, InteractionHand.MAIN_HAND);
+            BlockPos placementPos = pos;
+            if (requiredState != null && requiredState.getBlock() instanceof AbstractMultiPartBlock<?> multiPartBlock) {
+                placementPos = getMultiblockPlacementPos(pos, requiredState, multiPartBlock);
+            }
+            blockItem.place(level, placementPos, player, InteractionHand.MAIN_HAND);
             return player.getMainHandItem();
         } finally {
             AnvilCraftFakePlayers.getBlockPlacer().disable(player);
         }
+    }
+
+    private static <P extends Enum<P>> BlockPos getMultiblockPlacementPos(
+        BlockPos pos, BlockState requiredState, AbstractMultiPartBlock<P> block
+    ) {
+        // 蓝图定位到核心部件，物品放置则从默认部件开始生成整个结构。
+        P placementPart = block.defaultBlockState().getValue(block.getPart());
+        return pos.offset(block.offsetFrom(requiredState, placementPart));
     }
 
     private static void orientPlayerForState(ServerPlayer player, BlockState state) {

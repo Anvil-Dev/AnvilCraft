@@ -16,8 +16,8 @@ import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.math.Axis;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.tooltip.TooltipRenderHelper;
+import dev.dubhe.anvilcraft.block.StructureScannerBlock;
 import dev.dubhe.anvilcraft.block.entity.StructureScannerBlockEntity;
-import dev.dubhe.anvilcraft.building.BlueprintMultiblocks;
 import dev.dubhe.anvilcraft.building.BlueprintPlacement;
 import dev.dubhe.anvilcraft.building.StructureSnapshot;
 import dev.dubhe.anvilcraft.client.building.BlueprintClientFiles;
@@ -161,6 +161,10 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
     private AABB cachedPreviewBounds = new AABB(BlockPos.ZERO);
     private AABB cachedImportedPreviewBounds = new AABB(BlockPos.ZERO);
     private Direction cachedPreviewFacing = Direction.NORTH;
+    private List<StructureScannerBlockEntity.CachedBlockData> cachedPreviewBlocks = List.of();
+    private List<StructureScannerBlockEntity.CapturedEntityData> cachedPreviewEntities = List.of();
+    private long lastPreviewBlockCheck = -1;
+    private long lastPreviewEntityCheck = -10;
 
     // 扫描数据版本追踪（用于缓存失效）
     private int cachedScannedBlocksSize = -1;
@@ -1128,20 +1132,8 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
     private LevelLike buildImportedPreview(StructureScannerMenu.ImportedStructure imported, ClientLevel level) {
         if (imported == this.cachedImportedStructure && this.cachedImportedPreview != null) return this.cachedImportedPreview;
         LevelLike preview = new LevelLike(level);
-        var blocks = BlueprintMultiblocks.expand(imported.snapshot(),
-            new BlueprintPlacement(BlockPos.ZERO, Rotation.NONE, Mirror.NONE), -1);
-        int minX = blocks.stream().mapToInt(block -> block.pos().getX()).min().orElse(0);
-        int minY = blocks.stream().mapToInt(block -> block.pos().getY()).min().orElse(0);
-        int minZ = blocks.stream().mapToInt(block -> block.pos().getZ()).min().orElse(0);
-        BlockPos origin = new BlockPos(minX, minY, minZ);
-        this.cachedImportedPreviewBounds = new AABB(BlockPos.ZERO);
-        for (var block : blocks) {
-            BlockPos pos = block.pos().subtract(origin);
-            preview.setBlockState(pos, block.state());
-            this.cachedImportedPreviewBounds = this.cachedImportedPreviewBounds.minmax(new AABB(pos));
-            var entity = preview.getBlockEntity(pos);
-            if (entity != null) block.nbt().ifPresent(tag -> entity.loadWithComponents(tag, level.registryAccess()));
-        }
+        preview.addBlueprint(imported.snapshot(), new BlueprintPlacement(BlockPos.ZERO, Rotation.NONE, Mirror.NONE));
+        this.cachedImportedPreviewBounds = preview.getRenderBounds();
         this.cachedImportedStructure = imported;
         this.cachedImportedPreview = preview;
         return preview;
@@ -1155,10 +1147,23 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
             return null;
         }
 
-        // 如果缓存有效，直接返回
-        if (this.cachedPreviewLevelLike != null && this.cachedPreviewFacing == facing) {
-            return this.cachedPreviewLevelLike;
+        var scanned = this.cachedBlockEntity.getScannedBlocks();
+        long now = this.minecraft.level.getGameTime();
+        if (this.lastPreviewBlockCheck != now || this.cachedPreviewLevelLike == null) {
+            this.lastPreviewBlockCheck = now;
+            if (!scanned.equals(this.cachedPreviewBlocks)) {
+                this.cachedPreviewBlocks = scanned.stream().map(block -> new StructureScannerBlockEntity.CachedBlockData(
+                    block.x(), block.y(), block.z(), block.state(), block.nbt() == null ? null : block.nbt().copy())).toList();
+                this.cachedPreviewLevelLike = null;
+            }
         }
+        if (this.cachedPreviewLevelLike == null || now < this.lastPreviewEntityCheck || now - this.lastPreviewEntityCheck >= 10) {
+            var captured = this.cachedBlockEntity.captureEntities();
+            if (!captured.equals(this.cachedPreviewEntities)) this.cachedPreviewLevelLike = null;
+            this.cachedPreviewEntities = captured;
+            this.lastPreviewEntityCheck = now;
+        }
+        if (this.cachedPreviewLevelLike != null && this.cachedPreviewFacing == facing) return this.cachedPreviewLevelLike;
 
         ClientLevel level = this.minecraft.level;
         LevelLike previewLevelLike = new LevelLike(level);
@@ -1170,8 +1175,8 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
             Math.max(1, rangeY), Math.max(1, this.cachedRangeZ) + 2);
 
         boolean upsideDown = false;
-        if (this.cachedBlockEntity.getBlockState().hasProperty(dev.dubhe.anvilcraft.block.StructureScannerBlock.UPSIDE_DOWN)) {
-            upsideDown = this.cachedBlockEntity.getBlockState().getValue(dev.dubhe.anvilcraft.block.StructureScannerBlock.UPSIDE_DOWN);
+        if (this.cachedBlockEntity.getBlockState().hasProperty(StructureScannerBlock.UPSIDE_DOWN)) {
+            upsideDown = this.cachedBlockEntity.getBlockState().getValue(StructureScannerBlock.UPSIDE_DOWN);
         }
 
         // Scanner在预览中的位置：X居中，Y=0，Z=0（选区前面）
@@ -1184,32 +1189,27 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
             new BlockPos(scannerX, scannerY, scannerZ),
             ModBlocks.STRUCTURE_SCANNER.get().defaultBlockState()
                 .setValue(HorizontalDirectionalBlock.FACING, Direction.NORTH)
-                .setValue(dev.dubhe.anvilcraft.block.StructureScannerBlock.UPSIDE_DOWN, upsideDown)
+                .setValue(StructureScannerBlock.UPSIDE_DOWN, upsideDown)
         );
 
         // 使用缓存的扫描结果渲染方块
         List<StructureScannerBlockEntity.CachedBlockData> scannedBlocks = this.cachedBlockEntity.getScannedBlocks();
 
         this.blueprintError = null;
-        if (!scannedBlocks.isEmpty()) {
+        if (!scannedBlocks.isEmpty() || this.cachedBlockEntity.getCurrentScanLayer() > 0) {
             try {
                 var result = StructureSaveUtil.buildSnapshot(this.cachedBlockEntity, scannedBlocks);
                 var snapshot = result.snapshot();
-                for (var entry : snapshot.blocks()) {
-                    BlockPos local = entry.pos().subtract(result.offset());
-                    int x = local.getX();
-                    int z = local.getZ();
-                    BlockPos pos = switch (facing) {
-                        case SOUTH -> new BlockPos(rangeX - 1 - x, local.getY(), this.cachedRangeZ + 1 - z);
-                        case WEST -> new BlockPos(rangeX - 1 - z, local.getY(), x + 2);
-                        case EAST -> new BlockPos(z, local.getY(), this.cachedRangeZ + 1 - x);
-                        default -> new BlockPos(x, local.getY(), z + 2);
-                    };
-                    previewLevelLike.setBlockState(pos, snapshot.stateOf(entry).rotate(this.rotationForPreview(facing)));
-                    this.cachedPreviewBounds = this.cachedPreviewBounds.minmax(new AABB(pos));
-                    var entity = previewLevelLike.getBlockEntity(pos);
-                    if (entity != null) entry.nbt().ifPresent(tag -> entity.loadWithComponents(tag, level.registryAccess()));
-                }
+                BlockPos anchor = switch (facing) {
+                    case SOUTH -> new BlockPos(rangeX - 1, 0, this.cachedRangeZ + 1);
+                    case WEST -> new BlockPos(rangeX - 1, 0, 2);
+                    case EAST -> new BlockPos(0, 0, this.cachedRangeZ + 1);
+                    default -> new BlockPos(0, 0, 2);
+                };
+                BlueprintPlacement placement = new BlueprintPlacement(anchor, this.rotationForPreview(facing), Mirror.NONE);
+                placement = new BlueprintPlacement(anchor.subtract(placement.localOf(result.offset())), placement.rotation(), Mirror.NONE);
+                previewLevelLike.addBlueprint(snapshot, placement);
+                this.cachedPreviewBounds = this.cachedPreviewBounds.minmax(previewLevelLike.getRenderBounds());
             } catch (IllegalArgumentException exception) {
                 this.blueprintError = exception.getMessage();
             }

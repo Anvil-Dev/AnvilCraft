@@ -47,23 +47,24 @@ public class WeatherproofChestplateItem extends IonocraftBackpackItem implements
         return this.canAccept(stack, capacitor, capacitorStack, false) && this.chargeForce(stack, capacitor, capacitorStack);
     }
 
-    public static void refreshGridDemand(ServerPlayer player) {
-        DynamicPowerComponent component = IDynamicPowerComponentHolder.of(player).anvilcraft$getPowerComponent();
-        int previous = 0;
+    public static void clearGridDemand(DynamicPowerComponent component) {
         for (DynamicPowerComponent.PowerConsumption demand : CHARGING_POWER) {
-            if (component.getPowerConsumptions().remove(demand)) previous = demand.amount();
+            component.getPowerConsumptions().remove(demand);
         }
+    }
+
+    public static int refreshGridDemand(ServerPlayer player, long available) {
+        DynamicPowerComponent component = IDynamicPowerComponentHolder.of(player).anvilcraft$getPowerComponent();
         ItemStack stack = getByPlayer(player);
         PowerGrid grid = component.getPowerGrid();
         if (!(stack.getItem() instanceof WeatherproofChestplateItem) || grid == null || !player.isAlive()
-            || player.isCreative() || player.isSpectator() || getEnergyStored(stack) >= MAX_ENERGY) return;
-        long players = Math.max(1, grid.getDynamicComponents().stream().filter(entry -> entry.getOwner() instanceof ServerPlayer).count());
-        long available = grid.getRemaining() / players + previous;
+            || player.isCreative() || player.isSpectator() || getEnergyStored(stack) >= MAX_ENERGY) return 0;
         for (int index = CHARGING_POWER.length - 1; index >= 0; index--) {
             if (available < CHARGING_POWER[index].amount()) continue;
             component.getPowerConsumptions().add(CHARGING_POWER[index]);
-            break;
+            return CHARGING_POWER[index].amount();
         }
+        return 0;
     }
 
     private static void chargeFromGrid(ServerPlayer player, ItemStack stack) {

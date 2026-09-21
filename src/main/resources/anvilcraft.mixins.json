@@ -160,6 +160,7 @@
     "accessor.ScreenAccessor",
     "compat.EmbBlockOcclusionCacheMixin",
     "compat.EmbChunkBuilderMeshingTaskMixin",
+    "compat.IrisStellarMixin",
     "compat.SodiumBlockOcclusionCacheMixin",
     "compat.SodiumChunkBuilderMeshingTaskMixin",
     "mun.MunEntityShadowMixin",

@@ -3,6 +3,13 @@ package dev.dubhe.anvilcraft.util;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.MultimapBuilder;
 import dev.anvilcraft.lib.v2.util.predicate.BlockStatePredicate;
+import dev.dubhe.anvilcraft.building.BlueprintBlockConfiguration;
+import dev.dubhe.anvilcraft.building.BlueprintBlockEntities;
+import dev.dubhe.anvilcraft.building.BlueprintMultiblocks;
+import dev.dubhe.anvilcraft.building.BlueprintPlacement;
+import dev.dubhe.anvilcraft.building.BuildingEntityTransform;
+import dev.dubhe.anvilcraft.building.EntityBuildAdapters;
+import dev.dubhe.anvilcraft.building.StructureSnapshot;
 import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.client.Minecraft;
@@ -10,6 +17,7 @@ import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.ColorResolver;
 import net.minecraft.world.level.LightLayer;
@@ -21,6 +29,8 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.lighting.LevelLightEngine;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
+import net.minecraft.world.phys.AABB;
+import net.neoforged.neoforge.client.model.data.ModelData;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -33,6 +43,7 @@ public class LevelLike implements BlockAndTintGetter {
     private final ListMultimap<BlockPos, BlockStateAndEntity> blocks = MultimapBuilder.hashKeys().arrayListValues().build();
     private final Set<BlockPos> alwaysRenderBlocks = new HashSet<>();  // 始终渲染的方块
     private final ClientLevel parent;
+    private final List<Entity> entities = new ArrayList<>();
 
     @Setter
     @Getter
@@ -44,6 +55,41 @@ public class LevelLike implements BlockAndTintGetter {
 
     public LevelLike(ClientLevel parent) {
         this.parent = parent;
+    }
+
+    public void addBlueprint(StructureSnapshot snapshot, BlueprintPlacement placement) {
+        BlockPos sourceOrigin = BlueprintBlockConfiguration.sourceOrigin(snapshot);
+        for (var block : BlueprintMultiblocks.expand(snapshot, placement, -1)) {
+            var data = block.nbt().map(tag -> {
+                var transformed = tag.copy();
+                BlueprintBlockConfiguration.transform(transformed, placement, sourceOrigin, snapshot);
+                return transformed;
+            }).orElse(null);
+            BlockEntity entity = BlueprintBlockEntities.create(this.parent, block.pos(), block.state(), data);
+            this.blocks.removeAll(block.pos());
+            this.blocks.put(block.pos(), new BlockStateAndEntity(block.state(), entity));
+        }
+        for (var entry : snapshot.entities()) {
+            EntityBuildAdapters.create(BuildingEntityTransform.transform(entry, placement), this.parent)
+                .filter(entity -> !EntityBuildAdapters.isTransient(entity)).ifPresent(this.entities::add);
+        }
+    }
+
+    public List<Entity> getEntities() {
+        return Collections.unmodifiableList(this.entities);
+    }
+
+    public AABB getRenderBounds() {
+        AABB bounds = new AABB(BlockPos.ZERO);
+        for (BlockPos pos : this.blocks.keySet()) bounds = bounds.minmax(new AABB(pos));
+        for (Entity entity : this.entities) bounds = bounds.minmax(entity.getBoundingBox());
+        return bounds;
+    }
+
+    @Override
+    public ModelData getModelData(BlockPos pos) {
+        BlockEntity entity = this.getBlockEntity(pos);
+        return entity == null ? ModelData.EMPTY : entity.getModelData();
     }
 
     public int horizontalSize() {

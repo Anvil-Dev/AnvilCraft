@@ -59,7 +59,9 @@ public final class EntityBuildAdapters {
     }
 
     public static Optional<Entity> create(CompoundTag tag, Level level) {
-        return Optional.ofNullable(BlueprintLeashes.create(tag, level));
+        Entity entity = BlueprintLeashes.create(tag, level);
+        if (entity != null) BlueprintEntities.restoreMotion(entity, tag);
+        return Optional.ofNullable(entity);
     }
 
     public static boolean isTransient(EntityType<?> type) {

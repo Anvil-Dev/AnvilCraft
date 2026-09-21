@@ -220,6 +220,11 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
         MultiBufferSource buffer,
         int packedOverlay
     ) {
+        if (CelestialBodyRenderer.defer(poseStack, (pose, deferredBuffers) -> this.renderItemBody(
+            blockEntity, pose, deferredBuffers, packedOverlay
+        ))) {
+            return;
+        }
         CelestialBodyData body = blockEntity.getCelestialBodyData();
         if (body == null) return;
         @Nullable BakedModel model = null;
@@ -1169,6 +1174,12 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
         @Nullable StellarEventProfile eventProfile,
         float eventProgress
     ) {
+        if (CelestialBodyRenderer.defer(poseStack, (pose, deferredBuffers) -> this.renderCelestialBody(
+            bodyData, centerY, bodyRotation, pose, deferredBuffers, packedOverlay, seed,
+            animProgress, bodyScale, stellarVisual, eventProfile, eventProgress
+        ))) {
+            return;
+        }
         poseStack.pushPose();
         poseStack.translate(0.5, centerY, 0.5);
         float baseScale = bodyScale;
@@ -1446,6 +1457,11 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
         float bodyScaleMultiplier
     ) {
         if (bodyData.ringType() == RingType.NONE) return;
+        if (CelestialBodyRenderer.defer(poseStack, (pose, deferredBuffers) -> this.renderCelestialRing(
+            bodyData, centerY, bodyRotation, pose, deferredBuffers, packedOverlay, animProgress, bodyScaleMultiplier
+        ))) {
+            return;
+        }
         ResourceLocation ringTexture = CelestialBodyTextureBakery.getOrBakeRing(bodyData);
         if (ringTexture == null) return;
 
@@ -1553,6 +1569,11 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
         PoseStack poseStack,
         MultiBufferSource bufferSource
     ) {
+        if (CelestialBodyRenderer.defer(poseStack, (pose, deferredBuffers) -> this.renderSupernovaFlash(
+            blockEntity, partialTick, pose, deferredBuffers
+        ))) {
+            return;
+        }
         int ticks = blockEntity.getSupernovaFlashTicks();
         int total = CelestialForgingAnvilBlockEntity.SUPERNOVA_FLASH_TICKS;
         /// 已经过的进度 0→1（含 partialTick 平滑）

@@ -18,9 +18,19 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import javax.annotation.Nullable;
 
 public final class BlueprintCapture {
     private BlueprintCapture() {
+    }
+
+    @Nullable
+    public static CompoundTag captureEntity(Entity entity) {
+        CompoundTag tag = new CompoundTag();
+        if (!BlueprintLeashes.save(entity, tag)) return null;
+        tag.remove("Passengers");
+        if (entity.getVehicle() != null) tag.putUUID("anvilcraft:vehicle", entity.getVehicle().getUUID());
+        return tag;
     }
 
     public static BlueprintNormalizer.Result capture(ServerLevel level, AABB area) {
@@ -47,10 +57,8 @@ public final class BlueprintCapture {
         }
         List<StructureSnapshot.EntityEntry> entities = new ArrayList<>();
         for (Entity entity : level.getEntities((Entity) null, area, entity -> !(entity instanceof Player))) {
-            CompoundTag tag = new CompoundTag();
-            if (!BlueprintLeashes.save(entity, tag)) continue;
-            tag.remove("Passengers");
-            if (entity.getVehicle() != null) tag.putUUID("anvilcraft:vehicle", entity.getVehicle().getUUID());
+            CompoundTag tag = captureEntity(entity);
+            if (tag == null) continue;
             Vec3 pos = entity.position().subtract(Vec3.atLowerCornerOf(origin));
             BlockPos block = entity instanceof Painting painting ? painting.getPos().subtract(origin) : BlockPos.containing(pos);
             entities.add(new StructureSnapshot.EntityEntry(pos, block, tag));

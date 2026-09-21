@@ -134,9 +134,23 @@ public final class BuildingMaterials {
         boolean[] toolsBefore = new boolean[this.sources.size()];
         for (int i = 0; i < toolsBefore.length; i++) toolsBefore[i] = this.sources.get(i).retainedTool;
         BuildingRodService.Group allocated = new BuildingRodService.Group();
-        if (group.hammer && !this.reserveHammer() || group.creature != null && !this.reserveCreature(group.creature, allocated)) {
+        if (group.hammer && !this.reserveHammer()) {
             this.restoreSources(before, toolsBefore);
             return null;
+        }
+        ItemStack creature = group.creature == null ? ItemStack.EMPTY : this.reserveCreature(group.creature, allocated);
+        if (creature == null) {
+            this.restoreSources(before, toolsBefore);
+            return null;
+        }
+        List<EntityBuildAdapter.Planned> plannedEntities = new ArrayList<>();
+        for (var plan : group.entities) {
+            var supplied = creature.isEmpty() ? plan : BlueprintEntities.fromMaterial(this.player, creature, plan);
+            if (supplied == null) {
+                this.restoreSources(before, toolsBefore);
+                return null;
+            }
+            plannedEntities.add(supplied);
         }
         for (Item tool : group.tools) {
             if (this.reserveTool(tool)) continue;
@@ -153,7 +167,7 @@ public final class BuildingMaterials {
             this.restoreSources(before, toolsBefore);
             return null;
         }
-        if (!group.separateContents) allocated.entities.addAll(group.entities);
+        if (!group.separateContents) allocated.entities.addAll(plannedEntities);
         allocated.fluids.addAll(group.fluids);
         allocated.materials.addAll(group.materials);
         for (var entry : group.blockMaterials.entrySet()) {
@@ -196,7 +210,7 @@ public final class BuildingMaterials {
             }
         }
         if (group.separateContents) {
-            for (var entity : group.entities) {
+            for (var entity : plannedEntities) {
                 List<ItemStack> contents = entity.contents().stream().map(EntityBuildAdapter.SlotStack::stack).toList();
                 if (this.reserve(contents)) {
                     allocated.entities.add(entity);
@@ -227,6 +241,7 @@ public final class BuildingMaterials {
             }
         }
         if (!this.creative) {
+            allocated.entities.forEach(entity -> BlueprintEntities.limitMotion(entity.entityNbt()));
             allocated.materials.clear();
             for (int i = 0; i < this.sources.size(); i++) {
                 Source source = this.sources.get(i);
@@ -268,8 +283,9 @@ public final class BuildingMaterials {
         return false;
     }
 
-    private boolean reserveCreature(EntityType<?> type, BuildingRodService.Group allocated) {
-        if (this.creative) return true;
+    @Nullable
+    private ItemStack reserveCreature(EntityType<?> type, BuildingRodService.Group allocated) {
+        if (this.creative) return ItemStack.EMPTY;
         for (int pass = 0; pass < 2; pass++) {
             for (Source source : this.sources) {
                 if (source.available <= source.reserved + (source.retainedTool ? 1 : 0)) continue;
@@ -281,10 +297,10 @@ public final class BuildingMaterials {
                 source.reserved++;
                 allocated.materials.add(source.resource.copyWithCount(1));
                 if (resin) allocated.returned.add(ModItems.RESIN.asStack(this.player.getRandom().nextInt(1, 4)));
-                return true;
+                return source.resource.copyWithCount(1);
             }
         }
-        return false;
+        return null;
     }
 
     private int reserveConsumable(Item item, int remaining, List<ItemStack> materials) {
@@ -383,7 +399,7 @@ public final class BuildingMaterials {
             if (group.hammer && !this.reserveHammer() && !tools.contains(ModItems.ANVIL_HAMMER.get())) {
                 tools.add(ModItems.ANVIL_HAMMER.get());
             }
-            if (group.creature != null && !this.reserveCreature(group.creature, new BuildingRodService.Group())) {
+            if (group.creature != null && this.reserveCreature(group.creature, new BuildingRodService.Group()) == null) {
                 items.add(SpawnEggItem.byId(group.creature) == null ? ModBlocks.RESIN_BLOCK.asStack()
                     : new ItemStack(SpawnEggItem.byId(group.creature)));
             }

@@ -46,8 +46,7 @@ public class MagnetizedNodeEntity extends Entity {
         this.zo = pos.z;
         this.noPhysics = true;
         this.setInvulnerable(true);
-        this.blockPos = blockPos;
-        this.blockState = level.getBlockState(blockPos);
+        this.setSupport(blockPos, level.getBlockState(blockPos));
     }
 
     @Override
@@ -93,10 +92,22 @@ public class MagnetizedNodeEntity extends Entity {
         builder.define(DATA_BLOCK_POS, BlockPos.ZERO).define(DATA_BLOCK_STATE, Blocks.AIR.defaultBlockState());
     }
 
+    private void setSupport(BlockPos pos, BlockState state) {
+        this.entityData.set(DATA_BLOCK_POS, pos);
+        this.entityData.set(DATA_BLOCK_STATE, state);
+    }
+
+    @Override
+    public void onSyncedDataUpdated(EntityDataAccessor<?> key) {
+        super.onSyncedDataUpdated(key);
+        if (DATA_BLOCK_POS.equals(key)) this.blockPos = this.entityData.get(DATA_BLOCK_POS);
+        if (DATA_BLOCK_STATE.equals(key)) this.blockState = this.entityData.get(DATA_BLOCK_STATE);
+    }
+
     @Override
     protected void readAdditionalSaveData(CompoundTag compoundTag) {
-        this.blockPos = NbtUtils.readBlockPos(compoundTag, "BlockPos").orElse(BlockPos.ZERO);
-        this.blockState = NbtUtils.readBlockState(this.level().holderLookup(Registries.BLOCK), compoundTag.getCompound("BlockState"));
+        this.setSupport(NbtUtils.readBlockPos(compoundTag, "BlockPos").orElse(BlockPos.ZERO),
+            NbtUtils.readBlockState(this.level().holderLookup(Registries.BLOCK), compoundTag.getCompound("BlockState")));
     }
 
     @Override

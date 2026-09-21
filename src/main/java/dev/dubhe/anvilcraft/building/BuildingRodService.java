@@ -605,13 +605,18 @@ public final class BuildingRodService {
                 unsupported(player, type.getDescription());
                 return false;
             }
-            var plan = adapter.plan(player.serverLevel(), entry, transformed);
+            var plan = probe instanceof Mob && !player.isCreative()
+                ? new EntityBuildAdapter.Planned(ItemStack.EMPTY, ItemStack.EMPTY, transformed.copy(), List.of(), List.of(), false)
+                : adapter.plan(player.serverLevel(), entry, transformed);
             if (plan.unsupported()) {
                 unsupported(player, type.getDescription());
                 return false;
             }
             plan = new EntityBuildAdapter.Planned(plan.material(), plan.returned(),
                 BuildingEntityTransform.sanitize(probe, plan.entityNbt()), plan.contents(), plan.fluids(), false);
+            if (transformed.contains("Motion", Tag.TAG_LIST)) {
+                plan.entityNbt().put("Motion", transformed.getList("Motion", Tag.TAG_DOUBLE).copy());
+            }
             BlueprintEntities.scope(plan.entityNbt(), entry.nbt(), identities);
             Group group = null;
             if (probe instanceof MagnetizedNodeEntity || probe instanceof CauldronOutletEntity) {
