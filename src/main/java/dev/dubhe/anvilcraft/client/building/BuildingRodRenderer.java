@@ -16,10 +16,12 @@ import dev.anvilcraft.lib.v2.cube.client.SelectionPart;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.multipart.AbstractMultiPartBlock;
 import dev.dubhe.anvilcraft.building.BlueprintBlockConfiguration;
+import dev.dubhe.anvilcraft.building.BlueprintBlockEntities;
 import dev.dubhe.anvilcraft.building.BlueprintMultiblocks;
 import dev.dubhe.anvilcraft.building.BlueprintPlacement;
 import dev.dubhe.anvilcraft.building.BuildingEntityTransform;
 import dev.dubhe.anvilcraft.building.BuildingRodService;
+import dev.dubhe.anvilcraft.building.EntityBuildAdapters;
 import dev.dubhe.anvilcraft.building.StructureSnapshot;
 import dev.dubhe.anvilcraft.client.event.LargeBlockPlacePreviewEventListener;
 import dev.dubhe.anvilcraft.client.selection.ModelBlockSelection;
@@ -38,7 +40,6 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.BlockItem;
-import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -103,11 +104,12 @@ public final class BuildingRodRenderer {
         if (mc.level == null || mc.player == null) return;
         Vec3 camera = event.getCamera().getPosition();
         PoseStack pose = event.getPoseStack();
-        BlockPos first = BuildingRodClient.first;
-        BlockPos target = BuildingRodClient.target;
-        if (first != null && target != null) {
-            AABB box = AABB.encapsulatingFullBlocks(first, target).move(-camera.x, -camera.y, -camera.z);
-            boolean valid = BuildingRodService.volume(first, target) <= BuildingRodService.MAX_BLOCKS;
+        var bounds = BuildingRodClient.selectionBounds();
+        if (bounds != null) {
+            AABB box = AABB.of(bounds).move(-camera.x, -camera.y, -camera.z);
+            boolean valid = BuildingRodClient.snapshot == null
+                ? (long) bounds.getXSpan() * bounds.getYSpan() * bounds.getZSpan() <= BuildingRodService.MAX_BLOCKS
+                : !BuildingRodClient.blueprintPlacements().isEmpty();
             var buffers = mc.renderBuffers().bufferSource();
             LevelRenderer.renderLineBox(pose, buffers.getBuffer(RenderType.lines()), box, valid ? 0.2f : 1, valid ? 1 : 0.2f, 0.8f, 1);
             buffers.endBatch(RenderType.lines());
@@ -132,14 +134,27 @@ public final class BuildingRodRenderer {
             snapshot = placementSnapshot;
             placement = new BlueprintPlacement(placementAnchor, Rotation.NONE, Mirror.NONE);
         }
-        if (snapshot == null || (target == null && !BuildingRodClient.locked)) return;
+        if (snapshot == null || (BuildingRodClient.target == null && !BuildingRodClient.locked)) return;
         int alpha = materialPreview ? (int) Math.round(255 * AnvilCraft.CLIENT_CONFIG.multiPartPreviewGhostOpacity) : 110;
         if (built != snapshot || rotation != placement.rotation() || mirror != placement.mirror()
             || layer != BuildingRodClient.layer || meshAlpha != alpha) {
             build(snapshot, placement, alpha);
         }
+        List<BlueprintPlacement> copies = materialPreview ? List.of(placement) : BuildingRodClient.blueprintPlacements();
+        for (BlueprintPlacement copy : copies) {
+            renderCopy(event, snapshot, copy, alpha, materialPreview, !materialPreview && copies.size() == 1);
+        }
+    }
+
+    private static void renderCopy(
+        RenderLevelStageEvent event, StructureSnapshot snapshot, BlueprintPlacement placement,
+        int alpha, boolean materialPreview, boolean animate
+    ) {
+        Vec3 camera = event.getCamera().getPosition();
+        PoseStack pose = event.getPoseStack();
         Vec3 center = AABB.of(placement.bounds(snapshot.size())).getCenter();
-        BuildingRodAnimation.Pose visual = materialPreview ? new BuildingRodAnimation.Pose(center.x, center.y, center.z, 0, 1, 1)
+        BuildingRodAnimation.Pose visual = !animate ? new BuildingRodAnimation.Pose(center.x, center.y, center.z, placement.yawDegrees(),
+                placement.mirrorX(), placement.mirrorZ())
             : ANIMATION.sample(center.x, center.y, center.z, placement.yawDegrees(),
                 placement.mirrorX(), placement.mirrorZ(), System.nanoTime());
         pose.pushPose();
@@ -149,6 +164,7 @@ public final class BuildingRodRenderer {
         pose.scale(visual.mirrorX() * placement.mirrorX(), 1, visual.mirrorZ() * placement.mirrorZ());
         pose.mulPose(Axis.YP.rotationDegrees(-placement.yawDegrees()));
         pose.translate(placement.anchor().getX() - center.x, placement.anchor().getY() - center.y, placement.anchor().getZ() - center.z);
+        Minecraft mc = Minecraft.getInstance();
         if (!materialPreview && BuildingRodClient.traditional()) {
             var local = new BlueprintPlacement(BlockPos.ZERO, placement.rotation(), placement.mirror());
             var outlineBuffers = mc.renderBuffers().bufferSource();
@@ -257,20 +273,20 @@ public final class BuildingRodRenderer {
         for (var entry : blocks) {
             BlockPos pos = entry.pos();
             var state = entry.state();
-            BlockEntity entity = state.getBlock() instanceof EntityBlock block ? block.newBlockEntity(pos, state) : null;
+            var data = entry.nbt().map(nbt -> {
+                var transformed = nbt.copy();
+                BlueprintBlockConfiguration.transform(transformed, local, sourceOrigin, snapshot);
+                return transformed;
+            }).orElse(null);
+            BlockEntity entity = BlueprintBlockEntities.create(mc.level, pos, state, data);
             if (entity != null) {
-                entry.nbt().ifPresent(nbt -> {
-                    var transformed = nbt.copy();
-                    BlueprintBlockConfiguration.transform(transformed, local, sourceOrigin, snapshot);
-                    entity.loadWithComponents(transformed, mc.level.registryAccess());
-                });
-                entity.setLevel(mc.level);
                 ENTITIES.add(entity);
             }
             view.put(pos, state, entity);
         }
         for (var entry : snapshot.entities()) {
-            EntityType.create(BuildingEntityTransform.transform(entry, local), mc.level).ifPresent(PREVIEW_ENTITIES::add);
+            EntityType.create(BuildingEntityTransform.transform(entry, local), mc.level)
+                .filter(entity -> !EntityBuildAdapters.isTransient(entity)).ifPresent(PREVIEW_ENTITIES::add);
         }
         try (ByteBufferBuilder memory = new ByteBufferBuilder(2_097_152)) {
             BufferBuilder buffer = new BufferBuilder(memory, VertexFormat.Mode.QUADS, DefaultVertexFormat.BLOCK);

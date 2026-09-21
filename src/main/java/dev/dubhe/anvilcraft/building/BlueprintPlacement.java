@@ -10,6 +10,9 @@ import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
 import net.minecraft.world.phys.Vec3;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * 蓝图放置参数与坐标变换。快照局部坐标以零点为枢轴按原版 {@link StructureTemplate}
  * 语义镜像和旋转,再平移到锚点;方块状态使用原版 mirror/rotate,保证与最终提交一致。
@@ -111,5 +114,33 @@ public record BlueprintPlacement(BlockPos anchor, Rotation rotation, Mirror mirr
         BlockPos first = this.worldOf(BlockPos.ZERO);
         BlockPos second = this.worldOf(new BlockPos(size.getX() - 1, size.getY() - 1, size.getZ() - 1));
         return BoundingBox.fromCorners(first, second);
+    }
+
+    public List<BlueprintPlacement> tile(StructureSnapshot snapshot, BlockPos last) {
+        BoundingBox bounds = this.bounds(snapshot.size());
+        int width = bounds.getXSpan();
+        int height = bounds.getYSpan();
+        int depth = bounds.getZSpan();
+        long countX = Math.abs((long) last.getX() - this.anchor.getX()) / width + 1;
+        long countY = Math.abs((long) last.getY() - this.anchor.getY()) / height + 1;
+        long countZ = Math.abs((long) last.getZ() - this.anchor.getZ()) / depth + 1;
+        if (countX > BuildingRodService.MAX_BLOCKS || countY > BuildingRodService.MAX_BLOCKS
+            || countZ > BuildingRodService.MAX_BLOCKS) return List.of();
+        long count = countX * countY * countZ;
+        long entries = Math.max(1L, (long) snapshot.nonAirBlockCount() + snapshot.entities().size());
+        if (count > 1 && count * entries > BuildingRodService.MAX_BLOCKS) return List.of();
+        int signX = Integer.compare(last.getX(), this.anchor.getX());
+        int signY = Integer.compare(last.getY(), this.anchor.getY());
+        int signZ = Integer.compare(last.getZ(), this.anchor.getZ());
+        List<BlueprintPlacement> placements = new ArrayList<>((int) count);
+        for (int x = 0; x < countX; x++) {
+            for (int y = 0; y < countY; y++) {
+                for (int z = 0; z < countZ; z++) {
+                    placements.add(new BlueprintPlacement(this.anchor.offset(
+                        x * width * signX, y * height * signY, z * depth * signZ), this.rotation, this.mirror));
+                }
+            }
+        }
+        return List.copyOf(placements);
     }
 }

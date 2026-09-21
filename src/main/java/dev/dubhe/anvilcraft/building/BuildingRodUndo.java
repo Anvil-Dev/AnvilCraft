@@ -4,6 +4,7 @@ import dev.dubhe.anvilcraft.item.BuildingRodItem;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -12,6 +13,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.common.CommonHooks;
 
 import java.util.ArrayList;
+import java.util.IdentityHashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -23,6 +25,16 @@ public final class BuildingRodUndo {
     private final Level level;
     private final List<PlacedGroup> groups = new ArrayList<>();
     private final Map<BlockPos, PlacedGroup> positions = new LinkedHashMap<>();
+    private final Map<EntityBuildAdapter.Planned, PlacedGroup> entityGroups = new IdentityHashMap<>();
+
+    private record SavedEntity(Entity entity, CompoundTag tag) {
+        boolean matches() {
+            if (!this.entity.isAlive()) return false;
+            CompoundTag current = new CompoundTag();
+            this.entity.saveAsPassenger(current);
+            return current.equals(this.tag);
+        }
+    }
 
     private record Saved(BlockPos pos, BlockState state, CompoundTag nbt) {
         static Saved capture(Level level, BlockPos pos) {
@@ -43,12 +55,13 @@ public final class BuildingRodUndo {
         private final List<ItemStack> materials = new ArrayList<>();
         private final List<ItemStack> returned = new ArrayList<>();
         private boolean replaced;
+        private final List<SavedEntity> entities = new ArrayList<>();
     }
 
     BuildingRodUndo(ServerPlayer player, List<BuildingRodService.Group> planned) {
         this.level = player.level();
         for (var group : planned) {
-            if (group.cells.isEmpty()) continue;
+            if (group.cells.isEmpty() && group.entities.isEmpty()) continue;
             PlacedGroup saved = new PlacedGroup();
             for (var cell : group.cells) {
                 saved.before.add(Saved.capture(this.level, cell.pos()));
@@ -57,6 +70,7 @@ public final class BuildingRodUndo {
             }
             if (!player.isCreative()) group.materials.forEach(stack -> saved.materials.add(stack.copy()));
             group.returned.forEach(stack -> saved.returned.add(stack.copy()));
+            group.entities.forEach(entity -> this.entityGroups.put(entity, saved));
             this.groups.add(saved);
         }
     }
@@ -69,7 +83,16 @@ public final class BuildingRodUndo {
                 if (after.state().getBlock() != group.expected.get(index).getBlock()) group.replaced = true;
             }
         }
+        for (PlacedGroup group : this.groups) {
+            for (SavedEntity saved : group.entities) saved.entity().saveAsPassenger(saved.tag());
+        }
         HISTORY.put(player, this);
+    }
+
+    void recordEntity(EntityBuildAdapter.Planned plan, Entity entity) {
+        PlacedGroup group = this.entityGroups.get(plan);
+        if (group == null) return;
+        group.entities.add(new SavedEntity(entity, new CompoundTag()));
     }
 
     public static void replaced(Level level, BlockPos pos, BlockState before, BlockState after) {
@@ -91,6 +114,10 @@ public final class BuildingRodUndo {
         List<PlacedGroup> restore = new ArrayList<>();
         BuildingMaterials materials = new BuildingMaterials(player);
         for (PlacedGroup group : undo.groups) {
+            if (group.entities.stream().anyMatch(saved -> !saved.matches()
+                || !BuildingRodService.canModify(player, saved.entity().blockPosition()))) {
+                continue;
+            }
             if (group.replaced || group.after.stream().anyMatch(saved -> !saved.matches(undo.level)
                 || !BuildingRodService.canModify(player, saved.pos()))) {
                 continue;
@@ -104,6 +131,7 @@ public final class BuildingRodUndo {
         if (!materials.consume()) return;
         HISTORY.remove(player);
         for (PlacedGroup group : restore) {
+            group.entities.forEach(saved -> saved.entity().discard());
             for (Saved saved : group.before) BuildingCommit.set(undo.level, saved.pos(), saved.state());
             for (Saved saved : group.before) {
                 BlockEntity entity = undo.level.getBlockEntity(saved.pos());

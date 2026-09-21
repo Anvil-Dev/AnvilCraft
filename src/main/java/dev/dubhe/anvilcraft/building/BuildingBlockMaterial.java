@@ -29,6 +29,8 @@ record BuildingBlockMaterial(
     static BuildingBlockMaterial extract(BlockState state, @Nullable CompoundTag nbt, Level level) {
         final HolderLookup.Provider registries = level.registryAccess();
         ItemStack stack = ProcessingTablePlacement.baseMaterial(state);
+        ItemStack special = BlueprintSpecialBlocks.material(state);
+        if (!special.isEmpty()) stack = special;
         BlockEntity entity = createEntity(state);
         if (entity == null) return new BuildingBlockMaterial(stack, new CompoundTag(), List.of(), false);
         boolean restricted = entity.onlyOpCanSetNbt()
@@ -81,9 +83,6 @@ record BuildingBlockMaterial(
         config.merge(settings);
         if (entity instanceof AbstractFurnaceBlockEntity) {
             config.remove("RecipesUsed");
-            config.remove("BurnTime");
-            config.remove("CookTime");
-            config.remove("CookTimeTotal");
         }
         return new BuildingBlockMaterial(stack, config, extracted.contents(), restricted);
     }

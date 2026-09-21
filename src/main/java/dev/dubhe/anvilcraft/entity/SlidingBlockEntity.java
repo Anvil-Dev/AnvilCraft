@@ -16,6 +16,7 @@ import net.minecraft.core.Vec3i;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.EndTag;
 import net.minecraft.nbt.NbtOps;
+import net.minecraft.nbt.NbtUtils;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -194,6 +195,9 @@ public class SlidingBlockEntity extends Entity {
 
     @Override
     protected void addAdditionalSaveData(CompoundTag compound) {
+        compound.put("StartPos", NbtUtils.writeBlockPos(this.getStartPos()));
+        compound.putInt("Time", this.time);
+        compound.put("RelativeStart", NbtUtils.writeBlockPos(this.getStartPos().subtract(this.blockPosition())));
         SlidingBlockSection.CODEC.encode(this.section, NbtOps.INSTANCE, new CompoundTag())
             .ifSuccess(tag -> compound.put("SlidingBlocks", tag));
         Direction.CODEC.encode(Objects.requireNonNull(this.moveDirection), NbtOps.INSTANCE, EndTag.INSTANCE)
@@ -202,6 +206,8 @@ public class SlidingBlockEntity extends Entity {
 
     @Override
     protected void readAdditionalSaveData(CompoundTag compound) {
+        this.setStartPos(NbtUtils.readBlockPos(compound, "StartPos").orElse(this.blockPosition()));
+        this.time = compound.getInt("Time");
         SlidingBlockSection.CODEC.decode(NbtOps.INSTANCE, compound.getCompound("SlidingBlocks"))
             .ifSuccess(data -> this.section = data.getFirst());
         Direction.CODEC.decode(NbtOps.INSTANCE, Objects.requireNonNull(compound.get("MovingDirection")))

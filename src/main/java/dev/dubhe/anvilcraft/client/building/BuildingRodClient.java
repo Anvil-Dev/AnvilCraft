@@ -27,9 +27,11 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.item.context.UseOnContext;
+import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.neoforged.api.distmarker.Dist;
@@ -65,6 +67,12 @@ public final class BuildingRodClient {
     private static Rotation rotationOffset = Rotation.NONE;
     private static double previewDistance = 5;
     private static boolean distanceHeld;
+    private static BlockPos selectionOffset = BlockPos.ZERO;
+    private static BlockPos blueprintOffset = BlockPos.ZERO;
+    @Nullable private static StructureSnapshot tiledSnapshot;
+    @Nullable private static BlueprintPlacement tiledPlacement;
+    private static BlockPos tiledOffset = BlockPos.ZERO;
+    private static List<BlueprintPlacement> tiledBlueprints = List.of();
     private static boolean useHeld;
     private static boolean invalidDisk;
     private static Direction face = Direction.UP;
@@ -83,8 +91,10 @@ public final class BuildingRodClient {
 
     public static void cancel() {
         BuildingRodTraditionalControls.clear();
-        first = null;
-        patternSeed = PATTERN_RANDOM.nextLong();
+        clearSelection();
+        blueprintOffset = BlockPos.ZERO;
+        tiledSnapshot = null;
+        tiledBlueprints = List.of();
         locked = false;
         layer = -1;
         yOffset = 0;
@@ -137,9 +147,7 @@ public final class BuildingRodClient {
         }
         if (!active() || mc.screen != null || mc.level == null || mc.player == null) {
             if (!locked && !(traditional() && BuildingRodTraditionalControls.isActive())) cancel();
-            first = null;
-            target = null;
-            distanceHeld = false;
+            clearSelection();
             useHeld = mc.options.keyUse.isDown();
             KEY_REPEAT.clear();
             discardControlClicks();
@@ -174,25 +182,39 @@ public final class BuildingRodClient {
         if (mc.options.keyUse.isDown() && !useHeld) press();
         if (!mc.options.keyUse.isDown() && useHeld) release();
         controls();
+        if (first != null) {
+            BoundingBox bounds = selectionBounds();
+            mc.gui.setOverlayMessage(bounds == null ? Component.empty()
+                : Component.translatable("screen.anvilcraft.building_rod.selection_size",
+                    bounds.getXSpan(), bounds.getYSpan(), bounds.getZSpan()), false);
+        }
     }
 
     private static void updateTarget() {
         placementCells = null;
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null || mc.level == null) return;
-        if (traditional() && snapshot != null) {
+        if (traditional() && snapshot != null && first == null) {
             BuildingRodTraditionalControls.updateTarget();
             return;
         }
-        HitResult result = mc.player.pick(mc.player.blockInteractionRange(), 1, false);
-        boolean floating = snapshot != null && !locked && !traditional() && mc.isWindowActive()
-            && (physicalModifiers(mc.getWindow().getWindow()) & GLFW.GLFW_MOD_CONTROL) != 0;
+        boolean floating = canAdjustDistance();
+        if (snapshot == null && first != null && distanceHeld && !floating) {
+            clearSelection();
+            return;
+        }
+        HitResult result = snapshot == null && first == null
+            ? mc.level.clip(new ClipContext(mc.player.getEyePosition(),
+                mc.player.getEyePosition().add(mc.player.getLookAngle().scale(mc.player.blockInteractionRange())),
+                ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, mc.player))
+            : mc.player.pick(mc.player.blockInteractionRange(), 1, false);
         if (floating) {
             if (!distanceHeld && result.getType() == HitResult.Type.BLOCK) {
                 previewDistance = Math.clamp(mc.player.getEyePosition().distanceTo(result.getLocation()),
                     1, mc.player.blockInteractionRange());
             }
             target = BlockPos.containing(mc.player.getEyePosition().add(mc.player.getLookAngle().scale(previewDistance)));
+            if (first != null) target = target.offset(selectionOffset);
             face = Direction.UP;
         } else if (result instanceof BlockHitResult hit && result.getType() == HitResult.Type.BLOCK) {
             currentHit = hit;
@@ -202,8 +224,10 @@ public final class BuildingRodClient {
                 && BuildingRodFluids.isWater(BuildingRodItem.material(mc.player));
             if (snapshot == null && BuildingRodItem.isPlacementMaterial(BuildingRodItem.material(mc.player))
                 && !BuildingRodItem.material(mc.player).is(ModItems.FILTER) && !waterlogging) {
-                UseOnContext use = BlockPlacementPicking.forPlacement(
-                    new UseOnContext(mc.player, BuildingRodItem.materialHand(mc.player), hit));
+                UseOnContext use = first == null
+                    ? new UseOnContext(mc.level, mc.player, BuildingRodItem.materialHand(mc.player),
+                        BuildingRodItem.material(mc.player), hit)
+                    : BlockPlacementPicking.forPlacement(new UseOnContext(mc.player, BuildingRodItem.materialHand(mc.player), hit));
                 if (use instanceof BlockPlacementPicking.PlayerClick click && !click.anvilcraft$hasBlockHit()) {
                     target = null;
                     currentHit = null;
@@ -223,6 +247,7 @@ public final class BuildingRodClient {
             return;
         }
         distanceHeld = floating;
+        if (snapshot != null && first != null) blueprintOffset = target.subtract(first);
         if (snapshot == null || locked || disk == null) return;
         Rotation rotation = viewRotation().getRotated(rotationOffset);
         BlueprintPlacement local = new BlueprintPlacement(BlockPos.ZERO, rotation, placement.mirror());
@@ -268,16 +293,20 @@ public final class BuildingRodClient {
     private static void press() {
         useHeld = true;
         updateTarget();
+        if (first != null && distanceHeld) {
+            confirmSelection();
+            return;
+        }
         if (traditional() && disk != null) {
             BuildingRodTraditionalControls.press();
             return;
         }
         if (snapshot != null) {
             if (target == null && !locked) return;
-            if (!locked) {
-                locked = true;
-            } else {
+            if (locked) {
                 confirm();
+            } else {
+                beginBlueprintSelection();
             }
         } else if (target != null && BuildingRodItem.isPlacementMaterial(selected)) {
             first = target;
@@ -289,16 +318,66 @@ public final class BuildingRodClient {
 
     private static void release() {
         useHeld = false;
+        if (distanceHeld) return;
+        confirmSelection();
+    }
+
+    static void beginBlueprintSelection() {
+        if (snapshot == null) return;
+        first = target == null ? placement.anchor() : target;
+        target = first;
+        blueprintOffset = BlockPos.ZERO;
+        locked = true;
+    }
+
+    private static void confirmSelection() {
         if (first == null) return;
-        if (target != null) {
+        if (snapshot != null) {
+            clearSelection();
+            if (traditional()) BuildingRodTraditionalControls.finishSelection();
+            return;
+        } else if (target != null) {
             BuildingRodItemRenderer.preparePlacement();
             PacketDistributor.sendToServer(new BuildingRodPacket(first, target, firstHit == null ? face : firstHit.getDirection(),
                 false, Rotation.NONE, Mirror.NONE, false, firstHit, BuildingRodPacket.Action.PLACE, patternSeed));
         }
+        clearSelection();
+    }
+
+    private static void clearSelection() {
+        if (first != null) Minecraft.getInstance().gui.setOverlayMessage(Component.empty(), false);
         first = null;
         firstHit = null;
+        target = null;
+        currentHit = null;
         patternSeed = PATTERN_RANDOM.nextLong();
         placementCells = null;
+        distanceHeld = false;
+        selectionOffset = BlockPos.ZERO;
+        KEY_REPEAT.clear();
+    }
+
+    static List<BlueprintPlacement> blueprintPlacements() {
+        if (snapshot == null) return List.of();
+        if (tiledSnapshot != snapshot || !placement.equals(tiledPlacement) || !blueprintOffset.equals(tiledOffset)) {
+            tiledSnapshot = snapshot;
+            tiledPlacement = placement;
+            tiledOffset = blueprintOffset;
+            tiledBlueprints = placement.tile(snapshot, placement.anchor().offset(blueprintOffset));
+        }
+        return tiledBlueprints;
+    }
+
+    @Nullable
+    static BoundingBox selectionBounds() {
+        if (snapshot != null && (first != null || !blueprintOffset.equals(BlockPos.ZERO))) {
+            List<BlueprintPlacement> copies = blueprintPlacements();
+            if (!copies.isEmpty()) {
+                BoundingBox bounds = copies.getFirst().bounds(snapshot.size());
+                return bounds.encapsulate(copies.getLast().bounds(snapshot.size()));
+            }
+        }
+        return first == null || target == null ? null : BoundingBox.fromCorners(first, target);
     }
 
     public static List<BuildingRodService.Cell> placementPreview() {
@@ -321,13 +400,13 @@ public final class BuildingRodClient {
 
     private static boolean canControl() {
         Minecraft mc = Minecraft.getInstance();
-        return (locked || canAdjustDistance()) && active() && !traditional()
+        return (first == null && locked && !traditional() || canAdjustDistance()) && active()
             && mc.screen == null && mc.getOverlay() == null && mc.isWindowActive();
     }
 
     private static boolean canAdjustDistance() {
         Minecraft mc = Minecraft.getInstance();
-        return !locked && snapshot != null && active() && !traditional() && mc.screen == null
+        return (first != null || !locked && snapshot != null && !traditional()) && active() && mc.screen == null
             && mc.getOverlay() == null && mc.isWindowActive()
             && (physicalModifiers(mc.getWindow().getWindow()) & GLFW.GLFW_MOD_CONTROL) != 0;
     }
@@ -335,6 +414,9 @@ public final class BuildingRodClient {
     /** 在 KeyboardHandler 入口处理，避免依赖可能被其他模组取消的 NeoForge 末尾事件。 */
     public static boolean handleKeyboardInput(int key, int scanCode, int action, int modifiers) {
         Minecraft mc = Minecraft.getInstance();
+        if (first != null && (key == GLFW.GLFW_KEY_LEFT_CONTROL || key == GLFW.GLFW_KEY_RIGHT_CONTROL)) {
+            updateTarget();
+        }
         if (key == GLFW.GLFW_KEY_Z && (modifiers & GLFW.GLFW_MOD_CONTROL) != 0
             && active() && mc.screen == null && mc.getOverlay() == null && mc.isWindowActive()) {
             if (action == GLFW.GLFW_PRESS) {
@@ -362,7 +444,7 @@ public final class BuildingRodClient {
             if (bound.equals(InputConstants.UNKNOWN)) continue;
             if (!bound.equals(pressed) && !(bound.getType() == InputConstants.Type.SCANCODE && bound.getValue() == scanCode)) continue;
             if (action == GLFW.GLFW_RELEASE) KEY_REPEAT.release(i);
-            if (!enabled || (canAdjustDistance() && i >= 2) || !modifiersMatch(keys[i], modifiers)) continue;
+            if (!enabled || !controlAvailable(i) || !modifiersMatch(keys[i], modifiers)) continue;
             if (action == GLFW.GLFW_PRESS && KEY_REPEAT.press(i, System.nanoTime())) applyControl(i, 1);
             // 系统重复事件只拦截，不执行位移；连移统一使用物理状态与自己的计时。
             handled = true;
@@ -429,7 +511,7 @@ public final class BuildingRodClient {
         KeyMapping[] keys = controlKeys();
         long now = System.nanoTime();
         for (int i = 0; i < keys.length; i++) {
-            boolean down = (!canAdjustDistance() || i < 2)
+            boolean down = controlAvailable(i)
                 && physicalKeyDown(keys[i].getKey(), i, window) && modifiersMatch(keys[i], modifiers);
             int steps = KEY_REPEAT.update(i, down, now);
             if (steps > 0) applyControl(i, steps);
@@ -440,9 +522,15 @@ public final class BuildingRodClient {
         var player = Minecraft.getInstance().player;
         if (player == null) return;
         if (canAdjustDistance()) {
-            if (index >= 2) return;
+            if (!controlAvailable(index)) return;
             updateTarget();
-            previewDistance = Math.clamp(previewDistance + (index == 0 ? steps : -steps), 1, player.blockInteractionRange());
+            if (index < 2) {
+                previewDistance = Math.clamp(previewDistance + (index == 0 ? steps : -steps), 1, player.blockInteractionRange());
+            } else {
+                Direction forward = player.getDirection();
+                Direction[] directions = {forward.getCounterClockWise(), forward.getClockWise(), Direction.UP, Direction.DOWN};
+                selectionOffset = selectionOffset.relative(directions[index - 2], steps);
+            }
             updateTarget();
             return;
         }
@@ -458,12 +546,17 @@ public final class BuildingRodClient {
         }
     }
 
+    private static boolean controlAvailable(int index) {
+        return !canAdjustDistance() || index < (first == null ? 2 : 6);
+    }
+
     static void move(Direction direction, int steps) {
         placement = new BlueprintPlacement(placement.anchor().relative(direction, steps), placement.rotation(), placement.mirror());
     }
 
     static void transform(Rotation rotation, Mirror mirror) {
         if (snapshot == null) return;
+        if (first != null) return;
         if (!locked && !traditional()) {
             for (Rotation candidate : Rotation.values()) {
                 if (viewRotation().getRotated(candidate) == rotation) rotationOffset = candidate;
@@ -528,8 +621,8 @@ public final class BuildingRodClient {
         var player = Minecraft.getInstance().player;
         if (player == null || !hasMatchingDisk()) return;
         BuildingRodItemRenderer.preparePlacement();
-        PacketDistributor.sendToServer(new BuildingRodPacket(placement.anchor(), BlockPos.ZERO, face, true,
-            placement.rotation(), placement.mirror(), player.isShiftKeyDown()));
+        PacketDistributor.sendToServer(new BuildingRodPacket(placement.anchor(), placement.anchor().offset(blueprintOffset), face, true,
+            placement.rotation(), placement.mirror(), player.isShiftKeyDown(), null, BuildingRodPacket.Action.PLACE_BLUEPRINTS));
     }
 
     @SubscribeEvent

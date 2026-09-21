@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.building;
 
+import dev.dubhe.anvilcraft.entity.WeaponBeamEntity;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.DoubleTag;
@@ -9,13 +10,14 @@ import net.minecraft.world.Container;
 import net.minecraft.world.entity.AreaEffectCloud;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.ExperienceOrb;
 import net.minecraft.world.entity.LightningBolt;
 import net.minecraft.world.entity.Marker;
-import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.npc.InventoryCarrier;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.FishingHook;
-import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 
@@ -30,6 +32,9 @@ public final class EntityBuildAdapters {
 
     static {
         VanillaBuildingEntities.register();
+        register(new MagnetizedNodeBuildAdapter());
+        register(new DynamicBuildingEntities.Outlet());
+        register(new DynamicBuildingEntities());
     }
 
     private EntityBuildAdapters() {
@@ -48,18 +53,29 @@ public final class EntityBuildAdapters {
         return Optional.empty();
     }
 
+    public static Optional<EntityBuildAdapter> find(Entity entity, CompoundTag nbt) {
+        return REGISTRY.stream().filter(adapter -> adapter.matches(entity, nbt)).findFirst();
+    }
+
     public static boolean isTransient(EntityType<?> type) {
         Class<? extends Entity> base = type.getBaseClass();
-        return Player.class.isAssignableFrom(base)
-            || ItemEntity.class.isAssignableFrom(base)
+        return type == EntityType.PLAYER || type == EntityType.EXPERIENCE_ORB
+            || type == EntityType.LIGHTNING_BOLT
+            || type == EntityType.AREA_EFFECT_CLOUD || type == EntityType.FISHING_BOBBER || type == EntityType.MARKER
+            || Player.class.isAssignableFrom(base)
             || ExperienceOrb.class.isAssignableFrom(base)
             || LightningBolt.class.isAssignableFrom(base)
-            || Projectile.class.isAssignableFrom(base)
             || AreaEffectCloud.class.isAssignableFrom(base)
             || FishingHook.class.isAssignableFrom(base)
             || Marker.class.isAssignableFrom(base)
             || type == EntityType.EVOKER_FANGS
             || type == EntityType.INTERACTION;
+    }
+
+    public static boolean isTransient(Entity entity) {
+        return isTransient(entity.getType()) || entity instanceof Player
+            || entity instanceof ExperienceOrb || entity instanceof LightningBolt || entity instanceof WeaponBeamEntity
+            || entity instanceof AreaEffectCloud || entity instanceof FishingHook || entity instanceof Marker;
     }
 
     @Nullable
@@ -93,6 +109,17 @@ public final class EntityBuildAdapters {
         List<EntityBuildAdapter.SlotStack> contents,
         HolderLookup.Provider registries
     ) {
+        if (entity instanceof Mob mob) {
+            for (var content : contents) {
+                if (content.slot() >= 100 && content.slot() < 100 + EquipmentSlot.values().length) {
+                    mob.setItemSlot(EquipmentSlot.values()[content.slot() - 100], content.stack().copy());
+                } else if (mob instanceof InventoryCarrier carrier
+                    && content.slot() >= 0 && content.slot() < carrier.getInventory().getContainerSize()) {
+                    carrier.getInventory().setItem(content.slot(), content.stack().copy());
+                }
+            }
+            return;
+        }
         Optional<EntityBuildAdapter> adapter = find(entity.getType(), new CompoundTag());
         if (adapter.isPresent()) {
             adapter.get().insertContents(entity, contents, registries);

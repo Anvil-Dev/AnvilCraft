@@ -51,9 +51,6 @@ public final class BlueprintNormalizer {
         Map<BlockPos, BlueprintMultiblocks.PlacedBlock> original = new LinkedHashMap<>();
         for (var entry : snapshot.blocks()) {
             BlockState state = snapshot.stateOf(entry);
-            if (state.getBlock() instanceof MovingPistonBlock) {
-                throw new IllegalArgumentException("Moving piston at " + entry.pos().toShortString());
-            }
             if (OrdinaryBlockAdapter.mapping(state) != OrdinaryBlockAdapter.Mapping.AIR) {
                 original.put(entry.pos(), new BlueprintMultiblocks.PlacedBlock(entry.pos(), state, entry.nbt()));
             }
@@ -63,6 +60,8 @@ public final class BlueprintNormalizer {
             if (!BlueprintMultiblocks.shouldRecord(entry.state())) continue;
             BlueprintMultiblocks.forEachPart(entry.pos(), entry.state(), (pos, generated) -> {
                 var previous = original.get(pos);
+                if (previous != null && previous.state().getBlock() instanceof MovingPistonBlock
+                    && !pos.equals(entry.pos())) return;
                 if (complete.containsKey(pos) || previous != null && !pos.equals(entry.pos())
                     && (BlueprintMultiblocks.shouldRecord(previous.state()) || !sameFamily(previous.state(), generated))) {
                     throw new IllegalArgumentException("Overlapping blueprint parts at " + pos.toShortString());
@@ -113,7 +112,8 @@ public final class BlueprintNormalizer {
                 entry.nbt().copy())).toList();
         int added = (int) complete.keySet().stream().filter(pos -> !original.containsKey(pos)).count();
         int removed = (int) original.keySet().stream().filter(pos -> !complete.containsKey(pos)).count();
-        return new Result(StructureSnapshotCodec.canonicalize(new StructureSnapshot(size, palette, blocks, entities)),
+        return new Result(StructureSnapshotCodec.canonicalize(new StructureSnapshot(size, palette, blocks, entities,
+            snapshot.ticks().stream().map(tick -> tick.at(tick.pos().offset(offset))).toList(), snapshot.capturedAt())),
             offset, added, removed);
     }
 

@@ -29,6 +29,7 @@ import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.items.IItemHandler;
 
 import java.util.List;
+import javax.annotation.Nullable;
 
 public class CauldronOutletEntity extends Entity {
     private static final EntityDataAccessor<BlockPos> DATA_CAULDRON_POS = SynchedEntityData.defineId(
@@ -47,7 +48,7 @@ public class CauldronOutletEntity extends Entity {
     // 标记是否处于活塞推动状态
     private boolean wasMoving = false;
     // 目标位置
-    private BlockPos targetPos = null;
+    @Nullable private BlockPos targetPos;
 
     public CauldronOutletEntity(EntityType<?> entityType, Level level) {
         super(entityType, level);
@@ -326,6 +327,8 @@ public class CauldronOutletEntity extends Entity {
     @Override
     protected void readAdditionalSaveData(CompoundTag compoundTag) {
         this.setCauldronPos(NbtUtils.readBlockPos(compoundTag, "CauldronPos").orElse(BlockPos.ZERO));
+        this.wasMoving = compoundTag.getBoolean("WasMoving");
+        this.targetPos = NbtUtils.readBlockPos(compoundTag, "TargetPos").orElse(null);
         this.setAttachedDirection(Direction.from3DDataValue(compoundTag.getInt("AttachedDirection")));
         this.setCauldronState(NbtUtils.readBlockState(this.level().holderLookup(Registries.BLOCK),
             compoundTag.getCompound("CauldronState")));
@@ -333,6 +336,8 @@ public class CauldronOutletEntity extends Entity {
 
     @Override
     protected void addAdditionalSaveData(CompoundTag compoundTag) {
+        compoundTag.putBoolean("WasMoving", this.wasMoving);
+        if (this.targetPos != null) compoundTag.put("TargetPos", NbtUtils.writeBlockPos(this.targetPos));
         compoundTag.put("CauldronState", NbtUtils.writeBlockState(this.getCauldronState()));
         compoundTag.put("CauldronPos", NbtUtils.writeBlockPos(this.getCauldronPos()));
         compoundTag.putInt("AttachedDirection", this.getAttachedDirection().get3DDataValue());

@@ -91,7 +91,7 @@ public class PulseGeneratorBlockEntity extends BlockEntity implements MenuProvid
         tag.put("ExtraData", data);
     }
 
-    /** 恢复蓝图保存的停机状态，不把加载当作输入边沿或循环启动指令。 */
+    /** 暂缓结构恢复过程中的输入判定，完成后由蓝图统一激活。 */
     public void loadBlueprint(CompoundTag tag, HolderLookup.Provider registries) {
         this.loadingBlueprint = true;
         this.skipBlueprintLoadUpdate = true;

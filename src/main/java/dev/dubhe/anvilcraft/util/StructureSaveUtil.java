@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.util;
 
 import dev.dubhe.anvilcraft.block.entity.StructureScannerBlockEntity;
+import dev.dubhe.anvilcraft.building.BlueprintCapture;
 import dev.dubhe.anvilcraft.building.BlueprintNormalizer;
 import dev.dubhe.anvilcraft.building.ScannerDiskNormalizer;
 import dev.dubhe.anvilcraft.building.StructureSnapshot;
@@ -14,6 +15,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtIo;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
@@ -152,6 +154,9 @@ public class StructureSaveUtil {
     public static BlueprintNormalizer.Result buildSnapshot(
         StructureScannerBlockEntity blockEntity, List<StructureScannerBlockEntity.CachedBlockData> scannedBlocks
     ) {
+        if (blockEntity.getLevel() instanceof ServerLevel serverLevel) {
+            return BlueprintCapture.capture(serverLevel, blockEntity.getScanBounds());
+        }
         List<BlockState> palette = new ArrayList<>();
         List<StructureSnapshot.BlockEntry> blocks = new ArrayList<>();
         for (var data : scannedBlocks) {

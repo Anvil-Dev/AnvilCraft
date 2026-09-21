@@ -18,6 +18,7 @@ import net.neoforged.neoforge.network.PacketDistributor;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Locale;
 import java.util.UUID;
 import javax.annotation.Nullable;
@@ -122,10 +123,12 @@ public final class BlueprintClientFiles {
         try {
             if (!packet.error().isEmpty()) throw new IOException(packet.error());
             if (exporting) {
-                if (packet.total() != 0 || packet.offset() != 0 || packet.bytes().length != 0) {
+                String exported = new String(packet.bytes(), StandardCharsets.UTF_8);
+                if (packet.total() != packet.bytes().length || packet.offset() != 0
+                    || !StructureFileTransfer.isSafeName(exported) || !exported.toLowerCase(Locale.ROOT).endsWith(".nbt")) {
                     throw new IOException("Invalid export result");
                 }
-                message("exported", fileName);
+                message("exported", exported);
                 if (Minecraft.getInstance().screen instanceof StructureScannerScreen screen
                     && screen.getMenu().containerId == pendingContainerId) requestFiles(pendingContainerId);
                 clearTransfer();
