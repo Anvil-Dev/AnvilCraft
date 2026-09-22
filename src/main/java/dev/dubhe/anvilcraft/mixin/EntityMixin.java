@@ -12,6 +12,7 @@ import dev.dubhe.anvilcraft.block.entity.DeflectionRingBlockEntity;
 import dev.dubhe.anvilcraft.item.EquipmentAbilities;
 import dev.dubhe.anvilcraft.mixin.accessor.PortalProcessorAccessor;
 import dev.dubhe.anvilcraft.util.AccelerateManager;
+import dev.dubhe.anvilcraft.util.AtmosphereManager;
 import dev.dubhe.anvilcraft.util.GravityManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
@@ -44,9 +45,12 @@ import java.util.Optional;
 @Mixin(Entity.class)
 public abstract class EntityMixin implements IEntityExtension {
     @Inject(method = "setAirSupply", at = @At("HEAD"), cancellable = true)
-    private void anvilcraft$preserveHelmetAir(int airSupply, CallbackInfo callback) {
-        if ((Object) this instanceof LivingEntity living && EquipmentAbilities.canBreathe(living)
-            && airSupply < living.getAirSupply()) callback.cancel();
+    private void anvilcraft$preserveAirSupply(int airSupply, CallbackInfo callback) {
+        if (!((Object) this instanceof LivingEntity living)) return;
+        if (EquipmentAbilities.canBreathe(living) && airSupply < living.getAirSupply()
+            || airSupply > living.getAirSupply() && airSupply > 0 && AtmosphereManager.isSuffocating(living)) {
+            callback.cancel();
+        }
     }
 
     @Unique

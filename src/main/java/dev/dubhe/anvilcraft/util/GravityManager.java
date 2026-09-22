@@ -14,6 +14,7 @@ import dev.dubhe.anvilcraft.init.item.ModAmulets;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.network.GravitySourcesSyncPacket;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -23,6 +24,7 @@ import net.minecraft.world.entity.item.FallingBlockEntity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.Projectile;
+import net.minecraft.world.level.BlockCollisions;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -36,6 +38,7 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.level.ChunkEvent;
 import net.neoforged.neoforge.event.level.LevelEvent;
+import net.neoforged.neoforge.event.tick.EntityTickEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.jspecify.annotations.Nullable;
 
@@ -54,6 +57,7 @@ public final class GravityManager {
     private static final double MIN_SWEPT_MOVEMENT_SQR = 0.98 * 0.98;
     private static final double VECTOR_EPSILON = 1.0e-12;
     private static final double BODY_CONTACT_TOLERANCE = 1.0e-7;
+    private static final double SURFACE_CONTACT_DISTANCE = 1.0e-5;
     private static final int MAX_BODY_COLLISIONS_PER_MOVE = 4;
     private static final double MAX_SOURCE_STRENGTH = 1.0e6;
     private static final int MAX_SOURCE_RADIUS = 512;
@@ -111,6 +115,86 @@ public final class GravityManager {
             GravitySource decoded = source.toSource();
             if (decoded != null) index.upsert(decoded);
         }
+    }
+
+    public static Vec3 getNetGravityVector(Entity entity) {
+        if (entity.isNoGravity() || AtmosphereManager.isCreativeFlying(entity)
+            || AccelerateManager.isControlledByRing(entity)) {
+            return Vec3.ZERO;
+        }
+        Vec3 local = getGravityVector(entity);
+        return new Vec3(local.x, -entity.getGravity(), local.z);
+    }
+
+    public static boolean hasCustomSurfaceFriction(Entity entity) {
+        if (entity.noPhysics || entity.isSpectator() || entity.isPassenger()
+            || AtmosphereManager.isCreativeFlying(entity) || AccelerateManager.isControlledByRing(entity)
+            || entity.isInWater() || entity.isInLava() || AtmosphereManager.isInFluid(entity)) {
+            return false;
+        }
+        if (entity instanceof LivingEntity living && living.shouldDiscardFriction()) return false;
+        Vec3 gravity = getNetGravityVector(entity);
+        return Math.abs(gravity.x) > VECTOR_EPSILON || Math.abs(gravity.z) > VECTOR_EPSILON
+            || gravity.y >= -VECTOR_EPSILON;
+    }
+
+    public static boolean hasFloorSupport(Entity entity) {
+        if (!(entity instanceof LivingEntity living) || living.isFallFlying()
+            || entity.getDeltaMovement().y > VECTOR_EPSILON || !hasCustomSurfaceFriction(entity)) {
+            return false;
+        }
+        Vec3 gravity = getNetGravityVector(entity);
+        if (gravity.lengthSqr() > VECTOR_EPSILON * VECTOR_EPSILON && gravity.y >= -VECTOR_EPSILON) return false;
+        AABB box = entity.getBoundingBox().deflate(BODY_CONTACT_TOLERANCE);
+        Vec3 probe = new Vec3(0, -SURFACE_CONTACT_DISTANCE, 0);
+        return Entity.collideBoundingBox(entity, probe, box, entity.level(), List.of()).y != probe.y;
+    }
+
+    @SubscribeEvent
+    public static void onEntityTickPost(EntityTickEvent.Post event) {
+        Entity entity = event.getEntity();
+        if (entity.isRemoved() || entity.getDeltaMovement().lengthSqr() == 0.0
+            || (entity instanceof LivingEntity && !entity.isLocalInstanceAuthoritative())
+            || !hasCustomSurfaceFriction(entity)) {
+            return;
+        }
+        entity.setDeltaMovement(applySurfaceFriction(entity, entity.getDeltaMovement()));
+    }
+
+    public static Vec3 applySurfaceFriction(Entity entity, Vec3 velocity) {
+        Vec3 gravity = getNetGravityVector(entity);
+        boolean zeroGravity = gravity.lengthSqr() <= VECTOR_EPSILON * VECTOR_EPSILON;
+        AABB box = entity.getBoundingBox().deflate(BODY_CONTACT_TOLERANCE);
+        double x = 1.0;
+        double y = 1.0;
+        double z = 1.0;
+        for (Direction direction : Direction.values()) {
+            Vec3 normal = direction.getUnitVec3();
+            if (!zeroGravity && gravity.dot(normal) <= VECTOR_EPSILON) continue;
+            double friction = getSurfaceFriction(entity, box, direction);
+            if (direction.getAxis() != Direction.Axis.X) x = Math.min(x, friction);
+            if (direction.getAxis() != Direction.Axis.Y) y = Math.min(y, friction);
+            if (direction.getAxis() != Direction.Axis.Z) z = Math.min(z, friction);
+        }
+        return velocity.multiply(x, y, z);
+    }
+
+    private static double getSurfaceFriction(Entity entity, AABB box, Direction direction) {
+        Vec3 probe = direction.getUnitVec3().scale(SURFACE_CONTACT_DISTANCE);
+        double distance = direction.getAxis().choose(probe.x, probe.y, probe.z);
+        BlockCollisions<Double> collisions = new BlockCollisions<>(
+            entity.level(), entity, box.expandTowards(probe), false,
+            (pos, shape) -> {
+                if (shape.collide(direction.getAxis(), box, distance) == distance) return 1.0;
+                double friction = entity.level().getBlockState(pos).getFriction(entity.level(), pos, entity);
+                return Double.isFinite(friction) ? Math.clamp(friction, 0.0, 1.0) : 1.0;
+            }
+        );
+        double friction = 1.0;
+        while (collisions.hasNext()) {
+            friction = Math.min(friction, collisions.next());
+        }
+        return friction;
     }
 
     public static GravityType getGravityType(Entity entity) {

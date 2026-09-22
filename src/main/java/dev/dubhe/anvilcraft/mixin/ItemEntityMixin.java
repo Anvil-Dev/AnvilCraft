@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.mixin;
 
+import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import dev.dubhe.anvilcraft.api.event.ItemEntityEvent;
@@ -11,7 +12,9 @@ import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.init.item.ModItems;
+import dev.dubhe.anvilcraft.util.AtmosphereManager;
 import dev.dubhe.anvilcraft.util.FireReforgingUtil;
+import dev.dubhe.anvilcraft.util.GravityManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.level.ServerLevel;
@@ -38,7 +41,9 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Constant;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.ModifyConstant;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
@@ -433,5 +438,22 @@ abstract class ItemEntityMixin extends Entity implements IItemEntityExtension {
     @Override
     public boolean anvilcraft$isAdsorbable() {
         return this.anvilcraft$isAdsorbable;
+    }
+
+    @ModifyConstant(method = "tick", constant = @Constant(doubleValue = 0.98))
+    private double anvilcraft$verticalAtmosphereDrag(double drag) {
+        return AtmosphereManager.drag(this.level(), drag);
+    }
+
+    @ModifyConstant(method = "tick", constant = @Constant(floatValue = 0.98F))
+    private float anvilcraft$horizontalAtmosphereDrag(float drag) {
+        return AtmosphereManager.drag(this.level(), drag);
+    }
+
+    @ModifyExpressionValue(method = "tick", at = @At(value = "INVOKE",
+        target = "Lnet/minecraft/world/level/block/state/BlockState;getFriction("
+            + "Lnet/minecraft/world/level/LevelReader;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/entity/Entity;)F"))
+    private float anvilcraft$directionalFriction(float friction) {
+        return GravityManager.hasCustomSurfaceFriction(this) ? 1.0F : friction;
     }
 }

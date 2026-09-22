@@ -4,6 +4,9 @@
   "package": "dev.dubhe.anvilcraft.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
+    "AtmosphereLivingMixin",
+    "projectile.AbstractHurtingProjectileMixin",
+    "projectile.ThrowableProjectileMixin",
     "JeiSmithingTransferMixin",
     "AbstractVillagerMixin",
     "AnvilBlockMixin",
