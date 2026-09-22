@@ -67,6 +67,7 @@ public final class FrostRecipeTransferHandler<C extends AbstractContainerMenu, R
             ? new StorageServerStub.TerminalSnapshot(List.of(), List.of(), true) : TerminalJeiStorageCache.get(targets);
         if (!targets.isEmpty()) TerminalJeiStorageCache.ensure(targets);
         Choice choice = choose(player, menu, display, snapshot, maximum);
+        if (choice == null && snapshot != null && !snapshot.complete()) TerminalJeiStorageCache.ensureComplete(targets);
         if (choice == null && snapshot != null && snapshot.complete()) {
             return this.errors.createUserErrorForMissingSlots(Component.translatable("jei.tooltip.error.recipe.transfer.missing"),
                 slots.getSlotViews(RecipeIngredientRole.INPUT));
@@ -77,6 +78,12 @@ public final class FrostRecipeTransferHandler<C extends AbstractContainerMenu, R
         CompletableFuture<StorageServerStub.TerminalSnapshot> ready = targets.isEmpty()
             ? CompletableFuture.completedFuture(snapshot) : TerminalJeiStorageCache.ensure(targets);
         ready.thenComposeAsync(loaded -> {
+            if (!TerminalJeiStorageCache.isCurrent(epoch) || client.player != player || player.containerMenu != menu) {
+                return CompletableFuture.failedFuture(new IllegalStateException("Frost transfer menu changed"));
+            }
+            return !loaded.complete() && choose(player, menu, display, loaded, maximum) == null
+                ? TerminalJeiStorageCache.ensureComplete(targets) : CompletableFuture.completedFuture(loaded);
+        }, client).thenComposeAsync(loaded -> {
             if (!TerminalJeiStorageCache.isCurrent(epoch) || client.player != player || player.containerMenu != menu) {
                 return CompletableFuture.completedFuture(false);
             }

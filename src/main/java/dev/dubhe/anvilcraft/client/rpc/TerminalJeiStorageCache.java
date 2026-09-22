@@ -22,6 +22,7 @@ public final class TerminalJeiStorageCache {
     private static final long TTL_MILLIS = 60000;
     private static final Map<List<UUID>, Entry> CACHE = new HashMap<>();
     private static final Map<List<UUID>, CompletableFuture<StorageServerStub.TerminalSnapshot>> PENDING = new HashMap<>();
+    private static final Map<List<UUID>, CompletableFuture<StorageServerStub.TerminalSnapshot>> COMPLETE_PENDING = new HashMap<>();
     private static final Set<Function<Player, ItemStack>> PROVIDERS = new LinkedHashSet<>();
     private static @Nullable ClientPacketListener connection;
     private static long epoch;
@@ -82,9 +83,41 @@ public final class TerminalJeiStorageCache {
         return request;
     }
 
+    public static CompletableFuture<StorageServerStub.TerminalSnapshot> ensureComplete(List<UUID> targets) {
+        var snapshot = get(targets);
+        if (snapshot != null && snapshot.complete()) return CompletableFuture.completedFuture(snapshot);
+        final List<UUID> key = List.copyOf(targets);
+        var existing = COMPLETE_PENDING.get(key);
+        if (existing != null) return existing;
+        if (Minecraft.getInstance().player == null || connection == null) {
+            return CompletableFuture.failedFuture(new IllegalStateException("No connected client player"));
+        }
+        final var request = new CompletableFuture<StorageServerStub.TerminalSnapshot>();
+        final long requestedEpoch = epoch;
+        COMPLETE_PENDING.put(key, request);
+        TerminalSnapshotLoader.load(key, (target, offset) -> {
+            if (!isCurrent(requestedEpoch) || Minecraft.getInstance().player == null || COMPLETE_PENDING.get(key) != request) {
+                return CompletableFuture.failedFuture(new IllegalStateException("Terminal contents request is no longer current"));
+            }
+            return StorageTerminalClientStub.contentsPage(target, offset);
+        }, Minecraft.getInstance()).whenCompleteAsync((result, error) -> {
+            if (epoch == requestedEpoch && COMPLETE_PENDING.get(key) == request) {
+                COMPLETE_PENDING.remove(key);
+                if (error == null) {
+                    PENDING.remove(key);
+                    CACHE.put(key, new Entry(result, System.currentTimeMillis()));
+                }
+            }
+            if (error == null) request.complete(result);
+            else request.completeExceptionally(error);
+        }, Minecraft.getInstance());
+        return request;
+    }
+
     public static void invalidate(List<UUID> targets) {
         CACHE.remove(targets);
         PENDING.remove(targets);
+        COMPLETE_PENDING.remove(targets);
     }
 
     public static boolean isBusy() {
@@ -120,6 +153,7 @@ public final class TerminalJeiStorageCache {
         connection = null;
         CACHE.clear();
         PENDING.clear();
+        COMPLETE_PENDING.clear();
         busy = false;
         retrying = false;
     }

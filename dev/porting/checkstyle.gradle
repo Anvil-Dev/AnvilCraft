@@ -46,7 +46,7 @@ allprojects {
             include '**/AdjacentSmithingMenu.java', '**/EmberSmithingMenu.java', '**/TranscendenceSmithingMenu.java'
             include '**/SmithingServerStub.java', '**/SmithingRecipeTransferHandler.java', '**/JeiSmithingTransferMixin.java'
             include '**/MultipleToOneSmithingCategory.java'
-            include '**/TerminalJei*.java', '**/JeiBasicRecipeTransferHandlerMixin.java'
+            include '**/TerminalSnapshotLoader.java', '**/TerminalJei*.java', '**/JeiBasicRecipeTransferHandlerMixin.java'
             include '**/TerminalInsertionDecoration.java', '**/event/TooltipEventListener.java', '**/client/AnvilCraftClient.java'
             include '**/TerminalReachabilityCache.java', '**/TerminalRemoteOverlay.java', '**/TerminalOverlayEventListener.java'
             include '**/TerminalKeyMappingEventListener.java', '**/ModKeyMappings.java', '**/KeyMappingLang.java'

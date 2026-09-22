@@ -17,6 +17,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.Screenshot;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.inventory.ContainerLevelAccess;
@@ -160,6 +161,19 @@ public final class FrostSmithingScene {
                 items.insert(ItemResource.of(cycle == 1 ? ModItems.FROST_METAL_NUGGET.get() : ModItems.FROST_METAL_INGOT.get()),
                     cycle == 1 ? 3 : 4, transaction);
                 transaction.commit();
+            }
+            if (Boolean.getBoolean("anvilcraft.portFrostPagingScene")) {
+                var handler = storage.getItems();
+                for (int slot = 0; slot < handler.size(); slot++) {
+                    if (!handler.getResource(slot).isEmpty()) handler.set(slot, ItemResource.EMPTY, 0);
+                }
+                var fillers = BuiltInRegistries.ITEM.stream().filter(item -> item != Items.AIR && item != Items.IRON_HELMET
+                    && item != Items.IRON_INGOT && item != ModItems.EMBER_METAL_SWORD.get()
+                    && item != ModItems.FROST_METAL_NUGGET.get() && item != ModItems.FROST_METAL_INGOT.get()).limit(600).toList();
+                for (int slot = 0; slot < fillers.size(); slot++) handler.set(slot, ItemResource.of(fillers.get(slot)), 1);
+                handler.set(5000, ItemResource.of(cycle == 1 ? ModItems.EMBER_METAL_SWORD.get() : Items.IRON_HELMET), 1);
+                handler.set(60000, ItemResource.of(cycle == 1 ? ModItems.FROST_METAL_NUGGET.get() : ModItems.FROST_METAL_INGOT.get()),
+                    cycle == 1 ? 3 : 4);
             }
             var level = server.overworld();
             if (cycle > 0) {

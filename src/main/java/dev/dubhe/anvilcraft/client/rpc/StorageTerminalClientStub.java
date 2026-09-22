@@ -76,6 +76,11 @@ public final class StorageTerminalClientStub {
             Minecraft.getInstance().player.getUUID(), token, carried));
     }
 
+    public static CompletableFuture<StorageServerStub.TerminalContentsPage> contentsPage(UUID target, int offset) {
+        return RPC.invoke(RpcTarget.server(), StorageServerStub::terminalContentsPage,
+            Minecraft.getInstance().player.getUUID(), List.of(target), offset);
+    }
+
     public static CompletableFuture<StorageServerStub.TerminalSnapshot> snapshot(List<UUID> targets) {
         return RPC.invoke(RpcTarget.server(), StorageServerStub::terminalSnapshot, Minecraft.getInstance().player.getUUID(), targets);
     }

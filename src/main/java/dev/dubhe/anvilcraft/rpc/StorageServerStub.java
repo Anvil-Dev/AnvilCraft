@@ -127,6 +127,7 @@ public final class StorageServerStub {
     private final UUID storageId;
     private long version;
     private long orderVersion;
+    private @Nullable TerminalContentsSnapshot terminalContents;
     private final Map<SortOptions, IntList> orders = new HashMap<>();
 
     private static HolderLookup.Provider getAndClear() {
@@ -2340,6 +2341,7 @@ public final class StorageServerStub {
     private static final int MAX_TERMINAL_TARGETS = 64;
     private static final int MAX_TERMINAL_ITEMS = 512;
     private static final int MAX_TERMINAL_SCAN = 4096;
+    private static long terminalSnapshotSequence;
 
     public record TerminalSnapshot(List<ItemStack> items, List<FluidEntry> fluids, boolean complete) {
         public static final StreamCodec<RegistryFriendlyByteBuf, TerminalSnapshot> STREAM_CODEC = StreamCodec.composite(
@@ -2386,6 +2388,58 @@ public final class StorageServerStub {
         List<ItemStack> items = counts.entrySet().stream()
             .map(entry -> entry.getKey().toStack((int) Math.min(Integer.MAX_VALUE, entry.getValue()))).toList();
         return new TerminalSnapshot(items, List.copyOf(fluids.values()), complete);
+    }
+
+    public record TerminalContentsPage(UUID storageId, long version, int nextOffset,
+                                       List<ItemStack> items, List<FluidEntry> fluids, boolean last) {
+        public static final StreamCodec<RegistryFriendlyByteBuf, TerminalContentsPage> STREAM_CODEC = StreamCodec.composite(
+            UUIDUtil.STREAM_CODEC, TerminalContentsPage::storageId,
+            ByteBufCodecs.VAR_LONG, TerminalContentsPage::version,
+            ByteBufCodecs.VAR_INT, TerminalContentsPage::nextOffset,
+            ITEM_STACK_LIST_STREAM_CODEC, TerminalContentsPage::items,
+            FluidEntry.STREAM_CODEC.apply(ByteBufCodecs.list()), TerminalContentsPage::fluids,
+            ByteBufCodecs.BOOL, TerminalContentsPage::last, TerminalContentsPage::new
+        );
+    }
+
+    private record TerminalContentsSnapshot(long version, long expiresAt, List<ItemStack> items, List<FluidEntry> fluids) {
+    }
+
+    @RemoteCallable(validator = TerminalRecipeAccessValidator.class)
+    public static TerminalContentsPage terminalContentsPage(
+        UUID playerId, @CallableParam(clazz = StorageServerStub.class, field = "TERMINAL_IDS_STREAM_CODEC") List<UUID> targets,
+        int offset
+    ) {
+        if (targets.size() != 1) throw new IllegalArgumentException("A terminal contents page requires one target");
+        ServerPlayer player = getServerPlayer(playerId);
+        List<BaseStorage<?>> storages = terminalRecipeStorages(player, targets);
+        if (storages.isEmpty()) return new TerminalContentsPage(targets.getFirst(), -1, 0, List.of(), List.of(), true);
+        BaseStorage<?> storage = storages.getFirst();
+        StorageServerStub stub = get(playerId, storage.getId());
+        if (offset < 0) return new TerminalContentsPage(storage.getId(), stub.version, 0, List.of(), List.of(), true);
+        if (offset == 0) {
+            List<ItemStack> items = new ArrayList<>();
+            var handler = storage.getItems();
+            for (int slot = 0; slot < handler.size(); slot++) {
+                long count = handler.getAmountAsLong(slot);
+                if (count <= 0) continue;
+                ItemResource resource = handler.getResource(slot);
+                if (!resource.isEmpty()) items.add(resource.toStack((int) Math.min(Integer.MAX_VALUE, count)));
+            }
+            stub.terminalContents = new TerminalContentsSnapshot(++terminalSnapshotSequence, System.nanoTime() + 30000000000L,
+                List.copyOf(items), List.copyOf(StoragePortManager.collect(storage.getId())));
+        }
+        TerminalContentsSnapshot snapshot = stub.terminalContents;
+        if (snapshot == null || System.nanoTime() > snapshot.expiresAt) {
+            stub.terminalContents = null;
+            throw new IllegalStateException("Terminal contents snapshot expired");
+        }
+        int start = Math.min(offset, snapshot.items.size());
+        int end = (int) Math.min(snapshot.items.size(), (long) start + CONTENTS_PAGE_SIZE);
+        boolean last = end == snapshot.items.size();
+        if (last) stub.terminalContents = null;
+        return new TerminalContentsPage(storage.getId(), snapshot.version, end, List.copyOf(snapshot.items.subList(start, end)),
+            offset == 0 ? snapshot.fluids : List.of(), last);
     }
 
     private static List<BaseStorage<?>> terminalRecipeStorages(ServerPlayer player, List<UUID> targets) {
