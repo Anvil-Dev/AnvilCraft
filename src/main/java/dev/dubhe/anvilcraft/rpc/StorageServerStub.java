@@ -186,6 +186,36 @@ public final class StorageServerStub {
         return new SyncResult(stub.version, view.fullness(), updates, StoragePortManager.collect(view.primary().getId()));
     }
 
+    public static final int CONTENTS_PAGE_SIZE = 256;
+
+    public record ContentsPage(UUID storageId, long version, List<StackUpdate> items, List<FluidEntry> fluids, boolean last) {
+        public static final StreamCodec<RegistryFriendlyByteBuf, ContentsPage> STREAM_CODEC = StreamCodec.composite(
+            UUIDUtil.STREAM_CODEC, ContentsPage::storageId,
+            ByteBufCodecs.VAR_LONG, ContentsPage::version,
+            StackUpdate.STREAM_CODEC.apply(ByteBufCodecs.list()), ContentsPage::items,
+            FluidEntry.STREAM_CODEC.apply(ByteBufCodecs.list()), ContentsPage::fluids,
+            ByteBufCodecs.BOOL, ContentsPage::last, ContentsPage::new
+        );
+    }
+
+    @RemoteCallable(validator = StorageAccessValidator.class)
+    public static ContentsPage craftingStorageContents(UUID playerId, long sourcePos, int offset) {
+        StorageView view = getView(getAndClear(), playerId, sourcePos);
+        UUID storageId = view.primary().getId();
+        StorageServerStub stub = get(playerId, storageId);
+        if (offset < 0 || offset >= view.size()) {
+            return new ContentsPage(storageId, stub.version, List.of(),
+                offset == 0 ? StoragePortManager.collect(storageId) : List.of(), true);
+        }
+        int end = (int) Math.min(view.size(), (long) offset + CONTENTS_PAGE_SIZE);
+        List<StackUpdate> items = new ArrayList<>(end - offset);
+        for (int index = offset; index < end; index++) {
+            items.add(new StackUpdate(index, getStack(view, index), view.amount(index)));
+        }
+        return new ContentsPage(storageId, stub.version, List.copyOf(items),
+            offset == 0 ? StoragePortManager.collect(storageId) : List.of(), end == view.size());
+    }
+
     @RemoteCallable(validator = StorageAccessValidator.class)
     public static InteractionResult interact(
         UUID playerId, long sourcePos, int slot, int button, StorageInput action,

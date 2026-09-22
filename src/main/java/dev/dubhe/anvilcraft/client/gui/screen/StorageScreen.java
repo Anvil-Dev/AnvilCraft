@@ -100,6 +100,19 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
     private boolean craftingLoaded;
     private boolean recipeTransferPending;
     private boolean recipeTransferCompleted;
+    private Map<ItemResource, Long> unfilteredContents = Map.of();
+    private List<StorageServerStub.FluidEntry> unfilteredFluids = List.of();
+    private @Nullable UUID unfilteredStorageId;
+    private @Nullable UUID requestedStorageId;
+    private long unfilteredVersion = Long.MIN_VALUE;
+    private long requestedContentsVersion = Long.MIN_VALUE;
+    private long nextContentsMetadata;
+    private int contentsRequest;
+    private long contentsMetadataRequest;
+    private long acceptedContentsMetadataRequest;
+    private int metadataRequest;
+    private boolean contentsPending;
+    private boolean contentsMetadataPending;
     private int craftingRequest;
     private int recipeHead;
     private boolean recipeDragging;
@@ -491,10 +504,15 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
 
     public Map<ItemResource, Long> getTransferMaterials() {
         Map<ItemResource, Long> materials = new HashMap<>();
-        for (var entry : this.contents.int2ObjectEntrySet()) {
-            if (this.emptySlots.contains(entry.getIntKey()) || entry.getValue().isEmpty()) continue;
-            long count = this.counts.getOrDefault(entry.getIntKey(), entry.getValue().getCount());
-            materials.merge(ItemResource.of(entry.getValue().toStack()), count, LongMath::saturatedAdd);
+        this.refreshTransferSnapshot();
+        if (this.hasUnfilteredContents()) {
+            materials.putAll(this.unfilteredContents);
+        } else if (Objects.equals(this.requestedStorageId, this.storageId) && this.requestedContentsVersion == this.version) {
+            for (var entry : this.contents.int2ObjectEntrySet()) {
+                if (this.emptySlots.contains(entry.getIntKey()) || entry.getValue().isEmpty()) continue;
+                long count = this.counts.getOrDefault(entry.getIntKey(), entry.getValue().getCount());
+                materials.merge(ItemResource.of(entry.getValue().toStack()), count, LongMath::saturatedAdd);
+            }
         }
         for (int slot = 0; slot < Inventory.INVENTORY_SIZE; slot++) {
             ItemStack stack = this.player.getInventory().getItem(slot);
@@ -509,7 +527,82 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
     }
 
     public List<StorageServerStub.FluidEntry> getTransferFluids() {
-        return this.fluids;
+        this.refreshTransferSnapshot();
+        if (this.hasUnfilteredContents()) return this.unfilteredFluids;
+        return Objects.equals(this.requestedStorageId, this.storageId) && this.requestedContentsVersion == this.version
+            ? this.fluids : List.of();
+    }
+
+    public boolean hasUnfilteredContents() {
+        return this.unfilteredStorageId != null && this.unfilteredStorageId.equals(this.requestedStorageId)
+            && this.unfilteredVersion == this.requestedContentsVersion;
+    }
+
+    private boolean isTransferContextActive() {
+        return this.minecraft.player == this.player && (this.minecraft.screen == this || StorageJeiBridge.isRecipeParent(this));
+    }
+
+    private void refreshTransferSnapshot() {
+        if (!this.isTransferContextActive() || this.contentsMetadataPending
+            || System.currentTimeMillis() < this.nextContentsMetadata) return;
+        this.contentsMetadataPending = true;
+        final long request = ++this.contentsMetadataRequest;
+        this.nextContentsMetadata = System.currentTimeMillis() + 1000;
+        StorageClientStub.loadMetadata(this.sourcePos).whenCompleteAsync((metadata, error) -> {
+            this.contentsMetadataPending = false;
+            if (error == null && this.isTransferContextActive()) this.acceptContentsMetadata(metadata, request);
+        }, this.minecraft);
+    }
+
+    private void acceptContentsMetadata(StorageServerStub.Metadata metadata, long request) {
+        if (request < this.acceptedContentsMetadataRequest
+            || Objects.equals(this.requestedStorageId, metadata.storageId()) && metadata.version() < this.requestedContentsVersion) return;
+        this.acceptedContentsMetadataRequest = request;
+        this.nextContentsMetadata = System.currentTimeMillis() + 1000;
+        if (!Objects.equals(this.requestedStorageId, metadata.storageId()) || this.requestedContentsVersion != metadata.version()) {
+            this.contentsRequest++;
+            this.contentsPending = false;
+            this.requestedStorageId = metadata.storageId();
+            this.requestedContentsVersion = metadata.version();
+        }
+        if (this.contentsPending || this.hasUnfilteredContents()) return;
+        this.contentsPending = true;
+        this.fetchContentsPage(this.contentsRequest, metadata.storageId(), metadata.version(), 0, new HashMap<>(), List.of());
+    }
+
+    private void noticeContentsVersion() {
+        if (Objects.equals(this.storageId, this.requestedStorageId) && this.version > this.requestedContentsVersion) {
+            this.contentsRequest++;
+            this.contentsPending = false;
+            this.requestedContentsVersion = this.version;
+            this.nextContentsMetadata = 0;
+        }
+    }
+
+    private void fetchContentsPage(int request, UUID id, long version, int offset, Map<ItemResource, Long> collected,
+                                   List<StorageServerStub.FluidEntry> collectedFluids) {
+        StorageClientStub.craftingStorageContents(this.sourcePos, offset).whenCompleteAsync((page, error) -> {
+            if (request != this.contentsRequest) return;
+            if (error != null || !this.isTransferContextActive() || !id.equals(page.storageId()) || version != page.version()) {
+                this.contentsPending = false;
+                return;
+            }
+            for (var update : page.items()) {
+                if (!update.stack().isEmpty()) {
+                    collected.merge(ItemResource.of(update.stack().toStack()), update.count(), LongMath::saturatedAdd);
+                }
+            }
+            var fluids = offset == 0 ? page.fluids() : collectedFluids;
+            if (!page.last()) {
+                this.fetchContentsPage(request, id, version, offset + page.items().size(), collected, fluids);
+                return;
+            }
+            this.unfilteredContents = Map.copyOf(collected);
+            this.unfilteredFluids = List.copyOf(fluids);
+            this.unfilteredStorageId = id;
+            this.unfilteredVersion = version;
+            this.contentsPending = false;
+        }, this.minecraft);
     }
 
     public void transferRecipe(boolean stonecutter, boolean maximum, StorageRecipeTransferPlan.Result plan, ItemStack result) {
@@ -1750,6 +1843,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
         if (this.quickMoveDragging && this.minecraft.player != null) this.finishQuickMove();
         this.reorderRequest++;
         this.syncRequest++;
+        this.metadataRequest++;
         this.metadataPending = false;
         if (this.tracksOpenState && this.minecraft.player != null) {
             StorageClientStub.setOpen(this.sourcePos, false);
@@ -2268,6 +2362,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
 
     private void applySyncResult(StorageServerStub.SyncResult result) {
         this.version = result.version();
+        this.noticeContentsVersion();
         this.fullness = result.fullness();
         this.fluids = result.fluids();
         for (StorageServerStub.StackUpdate update : result.updates()) {
@@ -2319,6 +2414,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
 
         for (StorageServerStub.SyncResult result : results) {
             this.version = result.version();
+            this.noticeContentsVersion();
             this.fullness = result.fullness();
             this.fluids = result.fluids();
             for (StorageServerStub.StackUpdate update : result.updates()) {
@@ -2467,9 +2563,12 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
             return;
         }
         this.metadataPending = true;
+        final int request = ++this.metadataRequest;
+        final long contentsRequest = ++this.contentsMetadataRequest;
         this.metadataCooldown = StorageScreen.METADATA_REFRESH_INTERVAL;
         StorageClientStub.loadMetadata(this.sourcePos).whenCompleteAsync(
             (metadata, error) -> {
+                if (request != this.metadataRequest) return;
                 this.metadataPending = false;
                 if (error != null) {
                     return;
@@ -2488,6 +2587,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
                     this.rebuildDisplayOrder(this.nbtFolded);
                     this.scrollRow = 0;
                 }
+                this.acceptContentsMetadata(metadata, contentsRequest);
                 this.fullness = metadata.fullness();
                 this.capacity = metadata.capacity();
                 if (!this.orderLoaded || metadata.orderVersion() != this.orderVersion) {

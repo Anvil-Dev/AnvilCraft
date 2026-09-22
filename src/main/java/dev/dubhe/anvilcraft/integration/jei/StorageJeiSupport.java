@@ -36,12 +36,15 @@ public final class StorageJeiSupport {
 
     public static void onRuntimeAvailable(IJeiRuntime jeiRuntime) {
         runtime = jeiRuntime;
+        StorageJeiBridge.setRecipeParent(screen -> Minecraft.getInstance().screen == jeiRuntime.getRecipesGui()
+            && jeiRuntime.getRecipesGui().getParentScreen().orElse(null) == screen);
         StorageJeiBridge.setRecipeOpener(stonecutter -> jeiRuntime.getRecipesGui().showTypes(
             stonecutter ? List.of(RecipeTypes.STONECUTTING) : List.of(RecipeTypes.CRAFTING)));
     }
 
     public static void onRuntimeUnavailable() {
         runtime = null;
+        StorageJeiBridge.setRecipeParent(null);
         StorageJeiBridge.setRecipeOpener(null);
     }
 

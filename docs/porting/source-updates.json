@@ -189,8 +189,9 @@
     },
     {
       "commit": "aea7db56bc62de32f26639373d1bc266b11e7a5d",
-      "status": "pending",
-      "scope": "feat(storage): 增加JEI合成转移用未过滤存储快照支持 (#4913)"
+      "status": "ported",
+      "scope": "feat(storage): 增加JEI合成转移用未过滤存储快照支持 (#4913)",
+      "integration": "Unfiltered paged JEI materials with long counts, storage identity and version guards, and live refresh while JEI owns the screen. Verified by 250 GameTests and filtered/category client transfers."
     },
     {
       "commit": "862b6d35bff88bcd32c9d350ad9172a92d7fc967",

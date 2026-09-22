@@ -38,6 +38,7 @@ public final class TerminalScene {
     private static boolean creativeTesting;
     private static boolean restockTesting;
     private static boolean jeiTesting;
+    private static boolean unfilteredTesting;
     private static volatile boolean prepared;
     private static volatile boolean clientLoaded;
     private static volatile Throwable failure;
@@ -48,6 +49,10 @@ public final class TerminalScene {
     private static boolean capturing;
 
     public static void frame(Minecraft client) {
+        if (unfilteredTesting) {
+            StorageUnfilteredScene.frame(client);
+            return;
+        }
         if (jeiTesting) {
             TerminalJeiScene.frame(client);
             return;
@@ -230,7 +235,9 @@ public final class TerminalScene {
             }
             case 18 -> {
                 AnvilCraft.LOGGER.info("PORT_TERMINAL_SCENE_PASSED: binding, inventory, own crafting, local range, shulker priority");
-                if (Boolean.getBoolean("anvilcraft.portTerminalJeiScene")) {
+                if (Boolean.getBoolean("anvilcraft.portStorageUnfilteredScene")) {
+                    unfilteredTesting = true;
+                } else if (Boolean.getBoolean("anvilcraft.portTerminalJeiScene")) {
                     jeiTesting = true;
                 } else if (Boolean.getBoolean("anvilcraft.portTerminalRestockScene")) {
                     restockTesting = true;
