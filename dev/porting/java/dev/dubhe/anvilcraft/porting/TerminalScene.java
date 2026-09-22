@@ -40,6 +40,7 @@ public final class TerminalScene {
     private static boolean jeiTesting;
     private static boolean unfilteredTesting;
     private static boolean smithingTesting;
+    private static boolean readonlyTesting;
     private static volatile boolean prepared;
     private static volatile boolean clientLoaded;
     private static volatile Throwable failure;
@@ -50,6 +51,10 @@ public final class TerminalScene {
     private static boolean capturing;
 
     public static void frame(Minecraft client) {
+        if (readonlyTesting) {
+            ReadOnlyStorageScene.frame(client);
+            return;
+        }
         if (smithingTesting) {
             SmithingJeiScene.frame(client);
             return;
@@ -240,7 +245,9 @@ public final class TerminalScene {
             }
             case 18 -> {
                 AnvilCraft.LOGGER.info("PORT_TERMINAL_SCENE_PASSED: binding, inventory, own crafting, local range, shulker priority");
-                if (Boolean.getBoolean("anvilcraft.portSmithingJeiScene")) {
+                if (Boolean.getBoolean("anvilcraft.portReadOnlyStorageScene")) {
+                    readonlyTesting = true;
+                } else if (Boolean.getBoolean("anvilcraft.portSmithingJeiScene")) {
                     smithingTesting = true;
                 } else if (Boolean.getBoolean("anvilcraft.portStorageUnfilteredScene")) {
                     unfilteredTesting = true;

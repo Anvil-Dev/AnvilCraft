@@ -8,12 +8,15 @@ import dev.dubhe.anvilcraft.api.fluid.HoneyBottleResourceHandler;
 import dev.dubhe.anvilcraft.api.fluid.IFluidResourceHandlerHolder;
 import dev.dubhe.anvilcraft.api.fluid.VoidFluidHandler;
 import dev.dubhe.anvilcraft.api.itemhandler.IItemResourceHandlerHolder;
+import dev.dubhe.anvilcraft.api.itemhandler.ReadOnlyItemResourceHandler;
 import dev.dubhe.anvilcraft.api.itemhandler.SolidCauldronExtractor;
 import dev.dubhe.anvilcraft.block.LargeCauldronBlock;
 import dev.dubhe.anvilcraft.block.cauldron.HoneyCauldronBlock;
 import dev.dubhe.anvilcraft.block.cauldron.ObsidianCauldronBlock;
 import dev.dubhe.anvilcraft.block.container.LargeFluidTankBlock;
+import dev.dubhe.anvilcraft.block.container.storage.HyperdimensionStorageStationBlock;
 import dev.dubhe.anvilcraft.block.container.storage.LargeCrateBlock;
+import dev.dubhe.anvilcraft.block.container.storage.ShulkerContainerBlock;
 import dev.dubhe.anvilcraft.block.entity.LargeCauldronBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.LargeFluidTankBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.storage.LargeCrateBlockEntity;
@@ -46,7 +49,7 @@ import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import org.jspecify.annotations.Nullable;
 
-import java.util.Objects;
+import java.util.UUID;
 
 @EventBusSubscriber(modid = AnvilCraft.MOD_ID)
 public class ModCapabilities {
@@ -76,6 +79,17 @@ public class ModCapabilities {
             Capabilities.Item.BLOCK,
             ModCapabilities.multiblock(LargeCrateBlock.class, LargeCrateBlockEntity.class, ModCapabilities::item),
             ModBlocks.LARGE_CRATE.get()
+        );
+        event.registerBlock(
+            Capabilities.Item.BLOCK,
+            ModCapabilities.multiblock(ShulkerContainerBlock.class, StorageBlockEntity.class, ModCapabilities::readOnlyStorageItem),
+            ModBlocks.SHULKER_CONTAINER.get()
+        );
+        event.registerBlock(
+            Capabilities.Item.BLOCK,
+            ModCapabilities.multiblock(HyperdimensionStorageStationBlock.class,
+                StorageBlockEntity.class, ModCapabilities::readOnlyStorageItem),
+            ModBlocks.HYPERDIMENSION_STORAGE_STATION.get()
         );
         event.registerBlock(
             Capabilities.Item.BLOCK,
@@ -193,7 +207,12 @@ public class ModCapabilities {
 
     /// 存储容器的物品
     private static <T extends StorageBlockEntity, S> ResourceHandler<ItemResource> item(T be, @Nullable S ignored) {
-        return Storages.get().getOrCreate(Objects.requireNonNull(be.getId()), be.getStorageType().clazz()).getItems();
+        if (be.getId() == null) be.setId(UUID.randomUUID());
+        return Storages.get().getOrCreate(be.getId(), be.getStorageType().clazz()).getItems();
+    }
+
+    private static <T extends StorageBlockEntity, S> ResourceHandler<ItemResource> readOnlyStorageItem(T be, @Nullable S side) {
+        return new ReadOnlyItemResourceHandler(ModCapabilities.item(be, side));
     }
 
     /// 流体

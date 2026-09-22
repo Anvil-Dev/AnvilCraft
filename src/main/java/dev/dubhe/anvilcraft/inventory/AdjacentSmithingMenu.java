@@ -1,5 +1,7 @@
 package dev.dubhe.anvilcraft.inventory;
 
+import dev.dubhe.anvilcraft.api.itemhandler.ReadOnlyItemResourceHandler;
+import dev.dubhe.anvilcraft.block.multipart.AbstractMultiPartBlock;
 import dev.dubhe.anvilcraft.init.ModDataAttachments;
 import dev.dubhe.anvilcraft.network.multiple.SmithingTemplatePackets;
 import net.minecraft.core.BlockPos;
@@ -7,6 +9,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.Container;
 import net.minecraft.world.Containers;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -23,6 +26,7 @@ import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.item.VanillaContainerWrapper;
 import net.neoforged.neoforge.transfer.transaction.Transaction;
 import org.jspecify.annotations.Nullable;
 
@@ -304,7 +308,7 @@ public abstract class AdjacentSmithingMenu extends ItemCombinerMenu {
                         sourcePos.immutable(),
                         slot,
                         extracted,
-                        this.templateLevel.getBlockEntity(sourcePos)
+                        this.sourceEntity(sourcePos)
                     );
                 }
                 this.returnToHandlerOrDrop(handler, slot, extracted);
@@ -327,7 +331,7 @@ public abstract class AdjacentSmithingMenu extends ItemCombinerMenu {
             this.inputSlots.removeItemNoUpdate(AdjacentSmithingMenu.TEMPLATE_SLOT);
         }
         ResourceHandler<ItemResource> handler =
-            this.templateLevel.getBlockEntity(origin.sourcePos()) == origin.sourceBlockEntity()
+            this.sourceEntity(origin.sourcePos()) == origin.sourceBlockEntity()
             ? this.getItemHandler(origin.sourcePos())
             : null;
         this.returnToHandlerOrDrop(handler, origin.sourceSlot(), stack);
@@ -335,7 +339,15 @@ public abstract class AdjacentSmithingMenu extends ItemCombinerMenu {
 
     @Nullable
     private ResourceHandler<ItemResource> getItemHandler(BlockPos pos) {
-        return this.templateLevel.getCapability(Capabilities.Item.BLOCK, pos, null);
+        ResourceHandler<ItemResource> handler = this.templateLevel.getCapability(Capabilities.Item.BLOCK, pos, null);
+        if (handler != null) return handler;
+        return this.templateLevel.getBlockEntity(pos) instanceof Container container ? VanillaContainerWrapper.of(container) : null;
+    }
+
+    private @Nullable BlockEntity sourceEntity(BlockPos pos) {
+        var state = this.templateLevel.getBlockState(pos);
+        if (state.getBlock() instanceof AbstractMultiPartBlock<?> block) pos = block.getMainPartPos(pos, state);
+        return this.templateLevel.getBlockEntity(pos);
     }
 
     private void returnToHandlerOrDrop(
@@ -347,7 +359,7 @@ public abstract class AdjacentSmithingMenu extends ItemCombinerMenu {
         if (handler != null && preferredSlot >= 0 && preferredSlot < handler.size()) {
             remainder = AdjacentSmithingMenu.insert(handler, preferredSlot, remainder);
         }
-        if (handler != null && !remainder.isEmpty()) {
+        if (handler != null && !(handler instanceof ReadOnlyItemResourceHandler) && !remainder.isEmpty()) {
             for (int slot = 0; slot < handler.size() && !remainder.isEmpty(); slot++) {
                 if (slot == preferredSlot) continue;
                 remainder = AdjacentSmithingMenu.insert(handler, slot, remainder);
@@ -384,7 +396,8 @@ public abstract class AdjacentSmithingMenu extends ItemCombinerMenu {
         ItemResource resource = handler.getResource(slot);
         if (resource.isEmpty()) return ItemStack.EMPTY;
         try (Transaction transaction = Transaction.openRoot()) {
-            int extracted = handler.extract(slot, resource, 1, transaction);
+            int extracted = handler instanceof ReadOnlyItemResourceHandler readOnly
+                ? readOnly.extractBypass(slot, resource, 1, transaction) : handler.extract(slot, resource, 1, transaction);
             return extracted == 1 ? resource.toStack(1) : ItemStack.EMPTY;
         }
     }
@@ -393,7 +406,8 @@ public abstract class AdjacentSmithingMenu extends ItemCombinerMenu {
         ItemResource resource = handler.getResource(slot);
         if (resource.isEmpty()) return ItemStack.EMPTY;
         try (Transaction transaction = Transaction.openRoot()) {
-            int extracted = handler.extract(slot, resource, 1, transaction);
+            int extracted = handler instanceof ReadOnlyItemResourceHandler readOnly
+                ? readOnly.extractBypass(slot, resource, 1, transaction) : handler.extract(slot, resource, 1, transaction);
             if (extracted != 1) return ItemStack.EMPTY;
             transaction.commit();
             return resource.toStack(1);
@@ -403,7 +417,9 @@ public abstract class AdjacentSmithingMenu extends ItemCombinerMenu {
     private static ItemStack insert(ResourceHandler<ItemResource> handler, int slot, ItemStack stack) {
         if (stack.isEmpty()) return ItemStack.EMPTY;
         try (Transaction transaction = Transaction.openRoot()) {
-            int inserted = handler.insert(slot, ItemResource.of(stack), stack.getCount(), transaction);
+            int inserted = handler instanceof ReadOnlyItemResourceHandler readOnly
+                ? readOnly.insertBypass(slot, ItemResource.of(stack), stack.getCount(), transaction)
+                : handler.insert(slot, ItemResource.of(stack), stack.getCount(), transaction);
             if (inserted > 0) transaction.commit();
             return inserted == stack.getCount()
                 ? ItemStack.EMPTY

@@ -39,6 +39,7 @@ allprojects {
             include '**/BundleLike*.java', '**/InvertedActionEventListener.java', '**/PillBoxItem.java', '**/AmuletBoxItem.java'
             include '**/PillBoxContents.java', '**/event/PlayerTickEventHandler.java'
             include '**/data/lang/CategoryLang.java'
+            include '**/ReadOnlyItemResourceHandler.java', '**/ModCapabilities.java'
             include '**/AdjacentSmithingMenu.java', '**/EmberSmithingMenu.java', '**/TranscendenceSmithingMenu.java'
             include '**/SmithingServerStub.java', '**/SmithingRecipeTransferHandler.java', '**/JeiSmithingTransferMixin.java'
             include '**/MultipleToOneSmithingCategory.java'
