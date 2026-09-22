@@ -75,6 +75,13 @@ public final class StorageTerminalClientStub {
             Minecraft.getInstance().player.getUUID(), token, carried));
     }
 
+    public static CompletableFuture<StorageServerStub.InteractionResult> creativeTransfer(
+        UUID target, int menuSlot, boolean extract, ItemStack expected, ItemStack terminal
+    ) {
+        return RPC.invoke(RpcTarget.server(), StorageServerStub::creativeTerminalTransfer,
+            Minecraft.getInstance().player.getUUID(), target, menuSlot, extract, expected, terminal);
+    }
+
     private static <T> CompletableFuture<T> invoke(UUID target, java.util.function.Function<Long, CompletableFuture<T>> operation) {
         CompletableFuture<Long> position = ensureVirtualPos(target);
         final int epoch = cacheEpoch;

@@ -33,6 +33,7 @@ import dev.dubhe.anvilcraft.saved.storage.ShulkerContainerStorage;
 import dev.dubhe.anvilcraft.saved.storage.Storages;
 import dev.dubhe.anvilcraft.saved.storage.category.store.CategoryEntry;
 import dev.dubhe.anvilcraft.saved.storage.category.store.CategoryMode;
+import dev.dubhe.anvilcraft.util.ItemResourceHelper;
 import io.netty.buffer.ByteBuf;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
@@ -2280,22 +2281,95 @@ public final class StorageServerStub {
         if (terminal.isEmpty() || amount <= 0 || !targetSlot.isActive() || !targetSlot.allowModification(player)) return ItemStack.EMPTY;
         BaseStorage<?> storage = TerminalSessions.targetStorage(player, terminal, false);
         if (storage == null) return ItemStack.EMPTY;
+        try (Transaction transaction = Transaction.openRoot()) {
+            ItemStack extracted = extractTerminalItem(player, storage, amount, targetSlot, transaction);
+            transaction.commit();
+            return extracted;
+        }
+    }
+
+    private static ItemStack extractTerminalItem(
+        ServerPlayer player, BaseStorage<?> storage, int amount, Slot slot, Transaction transaction
+    ) {
         var view = new StorageView(List.of(storage), List.of());
         var setting = PlayerSettings.getSetting(player.registryAccess(), player.getUUID());
-        for (int index : get(player.getUUID(), storage.getId()).getOrder(view, setting)) {
+        var options = new SortOptions(setting.storage().getSort(), setting.storage().getOrder());
+        for (int index : createOrder(view, options, "", setting.listed())) {
             if (index < 0 || index >= view.size()) continue;
             ItemResource resource = view.resource(index);
             ItemStack stack = resource.toStack();
-            if (!targetSlot.mayPlace(stack)) continue;
-            int limit = Math.min(amount, Math.min(stack.getMaxStackSize(), targetSlot.getMaxStackSize(stack)));
-            try (Transaction transaction = Transaction.openRoot()) {
-                int extracted = view.extractByResource(resource, limit, transaction);
-                if (extracted == 0) continue;
-                transaction.commit();
-                return resource.toStack(extracted);
-            }
+            if (!slot.mayPlace(stack)) continue;
+            int limit = Math.min(amount, Math.min(stack.getMaxStackSize(), slot.getMaxStackSize(stack)));
+            int extracted = view.extractByResource(resource, limit, transaction);
+            if (extracted > 0) return resource.toStack(extracted);
         }
         return ItemStack.EMPTY;
+    }
+
+    @RemoteCallable(validator = CreativeTerminalAccessValidator.class)
+    public static InteractionResult creativeTerminalTransfer(
+        UUID playerId, UUID targetId, int menuSlot, boolean extract,
+        @CallableParam(clazz = ItemStack.class, field = "OPTIONAL_STREAM_CODEC") ItemStack expected,
+        @CallableParam(clazz = ItemStack.class, field = "OPTIONAL_STREAM_CODEC") ItemStack terminalStack
+    ) {
+        ServerPlayer player = getServerPlayer(playerId);
+        ItemStack carried = terminalStack.copy();
+        if (!validCreativeTerminal(player, targetId, menuSlot, terminalStack)) return new InteractionResult(carried, false);
+        Slot slot = player.inventoryMenu.getSlot(menuSlot);
+        if (!slot.allowModification(player) || extract != expected.isEmpty()
+            || !ItemResourceHelper.matchesNetworkStack(slot.getItem(), expected, player.registryAccess())) {
+            return new InteractionResult(carried, false);
+        }
+        BaseStorage<?> storage = TerminalSessions.targetStorage(player, terminalStack, false);
+        var inventory = PlayerInventoryWrapper.of(player);
+        int inventorySlot = slot.getContainerSlot();
+        boolean changed = false;
+        try (Transaction transaction = Transaction.openRoot()) {
+            if (extract) {
+                ItemStack result = storage == null ? ItemStack.EMPTY : extractTerminalItem(player, storage, 64, slot, transaction);
+                changed = !result.isEmpty();
+                if (!changed) {
+                    if (!slot.mayPlace(carried) || carried.getCount() > slot.getMaxStackSize(carried)) {
+                        return new InteractionResult(carried, false);
+                    }
+                    result = carried;
+                }
+                if (inventory.insert(inventorySlot, ItemResource.of(result), result.getCount(), transaction) != result.getCount()) {
+                    return new InteractionResult(carried, false);
+                }
+                if (!changed) carried = ItemStack.EMPTY;
+            } else if (storage != null) {
+                ItemStack actual = slot.getItem();
+                ItemResource resource = ItemResource.of(actual);
+                int inserted = new StorageView(List.of(storage), List.of()).insert(resource, actual.getCount(), transaction);
+                if (inventory.extract(inventorySlot, resource, inserted, transaction) != inserted) {
+                    return new InteractionResult(carried, false);
+                }
+                changed = inserted > 0;
+            }
+            transaction.commit();
+        }
+        player.getInventory().setChanged();
+        player.inventoryMenu.broadcastChanges();
+        return new InteractionResult(carried, changed);
+    }
+
+    private static boolean validCreativeTerminal(ServerPlayer player, UUID targetId, int menuSlot, ItemStack terminalStack) {
+        return player.isCreative() && player.containerMenu == player.inventoryMenu
+            && menuSlot >= 0 && menuSlot < player.inventoryMenu.slots.size()
+            && player.inventoryMenu.getSlot(menuSlot).container == player.getInventory()
+            && player.inventoryMenu.getSlot(menuSlot).isActive() && terminalStack.getCount() == 1
+            && terminalStack.getItem() instanceof TerminalItem terminal && targetId.equals(terminal.targetId(player, terminalStack));
+    }
+
+    public static final class CreativeTerminalAccessValidator implements IRemoteCallableValidator {
+        @Override
+        public boolean validate(IPayloadContext context, Method method, Object[] args) {
+            return context.player() instanceof ServerPlayer player && args.length == 6
+                && args[0] instanceof UUID playerId && playerId.equals(player.getUUID()) && args[1] instanceof UUID targetId
+                && args[2] instanceof Integer menuSlot && args[3] instanceof Boolean && args[4] instanceof ItemStack
+                && args[5] instanceof ItemStack terminalStack && validCreativeTerminal(player, targetId, menuSlot, terminalStack);
+        }
     }
 
     private record SortOptions(SortMode sort, OrderMode order) {

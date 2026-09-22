@@ -58,7 +58,7 @@ allprojects {
             include '**/GiantAnvilLandingEventListener.java'
             include '**/BlockStatePredicateMixin.java'
             include '**/FittedItemRenderer.java', '**/FilterItemRenderer.java', '**/DiskItemRenderer.java', '**/DiskDisplaySupport.java'
-            include '**/FormattingUtil.java'
+            include '**/FormattingUtil.java', '**/ItemResourceHelper.java'
             include '**/unlimited/UnlimitedItemStacksResourceHandler.java'
             include '**/saved/storage/*Storage.java'
         } + fileTree('dev/porting/java')
