@@ -442,7 +442,7 @@ public class ModItems {
             .component(ModComponents.ETERNAL, Eternal.DEFAULT)
             .component(DataComponents.UNBREAKABLE, Unit.INSTANCE)
             .component(ModComponents.PROVIDENCE, Unit.INSTANCE)
-            .component(DataComponents.USE_COOLDOWN, new UseCooldown(4 / 20f, Optional.of(DragonRodItem.COOLDOWN_GROUP)))
+            .component(DataComponents.USE_COOLDOWN, new UseCooldown(4 / 20f, Optional.of(DragonRodItem.TRANSCENDENCE_COOLDOWN_GROUP)))
         )
         .properties(properties -> properties.rarity(Rarity.EPIC))
         .tag(ItemTags.DURABILITY_ENCHANTABLE, ItemTags.MINING_LOOT_ENCHANTABLE, ModItemTags.DRAGON_ROD)

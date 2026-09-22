@@ -225,9 +225,9 @@ public class BlockTagLoader {
             .addTag(Tags.Blocks.CHESTS_ENDER.location())
             .addTag(Tags.Blocks.CHESTS_TRAPPED.location())
             .addTag(Tags.Blocks.CHESTS_WOODEN.location());
-        provider.rawBuilder(ModBlockTags.DEVOUR_BLACKLIST)
-            .addTag(Tags.Blocks.CHESTS_TRAPPED.location())
-            .addTag(Tags.Blocks.CHESTS_WOODEN.location());
+        provider.rawBuilder(ModBlockTags.DEVOUR_DENYLIST)
+            .addElement(ModBlocks.MINERAL_FOUNTAIN.getId())
+            .addElement(ModBlocks.STURDY_DEEPSLATE.getId());
 
         provider.rawBuilder(ModBlockTags.FELLING_APPLICABLE)
             .addTag(BlockTags.LOGS.location())

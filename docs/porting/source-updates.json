@@ -106,7 +106,8 @@
     {
       "commit": "36891dc67aed55627bce4f23e4d8e8de0c878baf",
       "status": "pending",
-      "scope": "refactor: 将 blackList/whiteList 统一重命名为 denyList/allowList (#4887)"
+      "scope": "refactor: 将 blackList/whiteList 统一重命名为 denyList/allowList (#4887)",
+      "integration": "吞噬禁用标签已迁移为 devour_denylist，并同步源成员；其它 blackList/whiteList 重命名仍待对应模块移植，保持 pending。"
     },
     {
       "commit": "5047091d845378536f71cf803ef4e0860d36528a",

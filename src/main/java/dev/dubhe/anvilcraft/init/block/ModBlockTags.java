@@ -112,7 +112,7 @@ public class ModBlockTags {
     public static final TagKey<Block> NEEDS_TRANSCENDIUM_TOOL = ModBlockTags.bind("needs_transcendium_tool");
 
     public static final TagKey<Block> ANVIL_HAMMER_BLACKLIST = ModBlockTags.bind("anvil_hammer_blacklist");
-    public static final TagKey<Block> DEVOUR_BLACKLIST = ModBlockTags.bind("devour_blacklist");
+    public static final TagKey<Block> DEVOUR_DENYLIST = ModBlockTags.bind("devour_denylist");
 
     public static final TagKey<Block> FELLING_APPLICABLE = ModBlockTags.bind("felling_applicable");
     public static final TagKey<Block> CLEANING_APPLICABLE = ModBlockTags.bind("cleaning_applicable");

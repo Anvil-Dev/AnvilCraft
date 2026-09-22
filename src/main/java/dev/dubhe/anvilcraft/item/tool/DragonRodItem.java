@@ -1,24 +1,21 @@
 package dev.dubhe.anvilcraft.item.tool;
 
-import com.google.common.collect.Streams;
 import dev.anvilcraft.lib.v2.util.InventoryUtil;
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.block.utility.BlockDevourerBlock;
 import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.item.property.component.DevourRange;
 import dev.dubhe.anvilcraft.util.BlockMiningEffect;
 import dev.dubhe.anvilcraft.util.BreakBlockUtil;
+import dev.dubhe.anvilcraft.util.DevourUtil;
 import dev.dubhe.anvilcraft.util.InfiniteFluidTankBreakProtection;
 import dev.dubhe.anvilcraft.util.ItemResourceHelper;
-import dev.dubhe.anvilcraft.util.MultiPartBlockUtil;
 import it.unimi.dsi.fastutil.ints.IntIterators;
 import it.unimi.dsi.fastutil.ints.IntListIterator;
 import lombok.extern.slf4j.Slf4j;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -30,7 +27,6 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.component.UseCooldown;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -56,6 +52,7 @@ import java.util.UUID;
 @Slf4j
 public class DragonRodItem extends Item {
     public static final Identifier COOLDOWN_GROUP = AnvilCraft.of("dragon_rods");
+    public static final Identifier TRANSCENDENCE_COOLDOWN_GROUP = AnvilCraft.of("transcendence_dragon_rod");
     private final BlockMiningEffect miningEffect;
     private static final Map<UUID, Long> LAST_TRANSCENDENCE_DEVOUR_TICK = new HashMap<>();
     private static final Set<UUID> CONTINUOUS_DEVOUR_PLAYERS = new HashSet<>();
@@ -67,8 +64,13 @@ public class DragonRodItem extends Item {
     public DragonRodItem(Properties properties, DevourRange defaultRange, BlockMiningEffect miningEffect) {
         super(properties
             .component(ModComponents.DEVOUR_RANGE, defaultRange)
+            .component(ModComponents.DEVOUR_PROTECT_CONTAINERS, false)
         );
         this.miningEffect = miningEffect;
+    }
+
+    public static boolean protectsContainers(ItemStack stack) {
+        return stack.getOrDefault(ModComponents.DEVOUR_PROTECT_CONTAINERS, false);
     }
 
     @Override
@@ -80,6 +82,11 @@ public class DragonRodItem extends Item {
             dragonRod.getOrDefault(ModComponents.DEVOUR_RANGE, DevourRange.THREE).getNext()
         );
         return super.use(level, player, usedHand);
+    }
+
+    @Override
+    public boolean canDestroyBlock(ItemStack stack, BlockState state, Level level, BlockPos pos, LivingEntity user) {
+        return !(user instanceof Player player) || !player.getAbilities().instabuild;
     }
 
     @Override
@@ -96,40 +103,25 @@ public class DragonRodItem extends Item {
         BlockState centerState,
         Direction clickedSide
     ) {
-        if (centerState.is(ModBlockTags.DEVOUR_BLACKLIST)) return;
+        if (centerState.is(ModBlockTags.DEVOUR_DENYLIST)) return;
         if (centerState.getDestroySpeed(level, centerPos) < 0.0F) return;
         ItemStack dragonRod = player.getItemInHand(hand);
-        if (!DragonRodItem.canDevour(player, dragonRod)) return;
+        if (!dragonRod.has(ModComponents.DEVOUR_RANGE) || !DragonRodItem.canDevour(player, dragonRod)) return;
 
         int range = dragonRod.getOrDefault(ModComponents.DEVOUR_RANGE, DevourRange.THREE).getRange();
         range = (range - 1) / 2;
-        Iterable<BlockPos> devouringPoses;
-        switch (clickedSide) {
-            case DOWN, UP -> devouringPoses = BlockPos.betweenClosed(
-                centerPos.relative(Direction.NORTH, range).relative(Direction.WEST, range),
-                centerPos.relative(Direction.SOUTH, range).relative(Direction.EAST, range)
-            );
-            case NORTH, SOUTH -> devouringPoses = BlockPos.betweenClosed(
-                centerPos.relative(Direction.UP, range).relative(Direction.WEST, range),
-                centerPos.relative(Direction.DOWN, range).relative(Direction.EAST, range)
-            );
-            case WEST, EAST -> devouringPoses = BlockPos.betweenClosed(
-                centerPos.relative(Direction.UP, range).relative(Direction.NORTH, range),
-                centerPos.relative(Direction.DOWN, range).relative(Direction.SOUTH, range)
-            );
-            default -> devouringPoses = List.of(centerPos);
-        }
-        devouringPoses = Streams.stream(devouringPoses).map(BlockPos::immutable).toList();
+        List<BlockPos> devouringPoses = DevourUtil.getDevourPosList(level, centerPos, clickedSide, range, 0);
 
         boolean infiniteFluidTankBlocked = false;
         for (BlockPos devouringPos : devouringPoses) {
             BlockState devouringState = level.getBlockState(devouringPos);
-            if (devouringState.isAir()) continue;
-            if (!BlockDevourerBlock.canDevour(devouringState)) continue;
+            if (!DevourUtil.shouldDevour(devouringState)) continue;
             if (InfiniteFluidTankBreakProtection.isProtected(level, devouringPos)) {
                 infiniteFluidTankBlocked = true;
                 continue;
             }
+            if (DragonRodItem.protectsContainers(dragonRod)
+                && level.getCapability(Capabilities.Item.BLOCK, devouringPos, null) != null) continue;
             BlockMiningEffect miningEffect = dragonRod.getItem() instanceof DragonRodItem item
                                              ? item.miningEffect
                                              : BlockMiningEffect.NORMAL;
@@ -139,9 +131,6 @@ public class DragonRodItem extends Item {
                 level.destroyBlock(devouringPos, false);
                 continue;
             }
-
-            devouringPos = MultiPartBlockUtil.getChainableMainPartPos(level, devouringPos);
-            devouringState = level.getBlockState(devouringPos);
 
             if (!player.getAbilities().instabuild) {
                 ItemStack miningTool = miningEffect.applyTo(level, dragonRod);
@@ -200,16 +189,21 @@ public class DragonRodItem extends Item {
             InfiniteFluidTankBreakProtection.showToolBreakDenied(player);
         }
 
+        player.getCooldowns().addCooldown(DragonRodItem.COOLDOWN_GROUP, DragonRodItem.calculateCooldown(player));
         if (dragonRod.is(ModItems.TRANSCENDENCE_DRAGON_ROD)) {
             long currentTick = level.getGameTime();
             Long lastTick = DragonRodItem.LAST_TRANSCENDENCE_DEVOUR_TICK.put(player.getUUID(), currentTick);
             boolean warmedUp = lastTick != null && currentTick - lastTick < 15;
-            player.getCooldowns().addCooldown(DragonRodItem.COOLDOWN_GROUP, warmedUp ? 0 : 10);
+            player.getCooldowns().addCooldown(DragonRodItem.TRANSCENDENCE_COOLDOWN_GROUP, warmedUp ? 0 : 10);
             if (warmedUp) {
                 DragonRodItem.CONTINUOUS_DEVOUR_PLAYERS.add(player.getUUID());
             }
         } else {
-            player.getCooldowns().addCooldown(DragonRodItem.COOLDOWN_GROUP, DragonRodItem.calculateCooldown(player, dragonRod));
+            player.getCooldowns().addCooldown(DragonRodItem.TRANSCENDENCE_COOLDOWN_GROUP, 0);
+        }
+
+        if (!(dragonRod.getItem() instanceof DragonRodItem)) {
+            player.getCooldowns().addCooldown(dragonRod, DragonRodItem.calculateCooldown(player));
         }
 
         dragonRod.hurtAndBreak(
@@ -228,17 +222,11 @@ public class DragonRodItem extends Item {
 
     public static int calculateDamage(ItemStack dragonRod) {
         int damage = dragonRod.getOrDefault(ModComponents.DEVOUR_RANGE, DevourRange.THREE).getDamage();
-        return Math.clamp(dragonRod.getMaxDamage() - dragonRod.getDamageValue(), 1, damage);
+        return Math.min(damage, Math.max(1, dragonRod.getMaxDamage() - dragonRod.getDamageValue()));
     }
 
-    public static int calculateCooldown(Player player, ItemStack dragonRod) {
-        int cooldown;
-        UseCooldown useCooldown = dragonRod.get(DataComponents.USE_COOLDOWN);
-        if (useCooldown == null) {
-            cooldown = 20;
-        } else {
-            cooldown = useCooldown.ticks();
-        }
+    public static int calculateCooldown(Player player) {
+        int cooldown = 20;
         if (player.hasEffect(MobEffects.HASTE)) {
             cooldown -= Objects.requireNonNull(player.getEffect(MobEffects.HASTE)).getAmplifier() * 4;
         }
@@ -275,7 +263,7 @@ public class DragonRodItem extends Item {
         BlockPos targetPos = blockHit.getBlockPos();
         ServerLevel level = player.level();
         BlockState targetState = level.getBlockState(targetPos);
-        if (targetState.isAir() || !BlockDevourerBlock.canDevour(targetState)) return;
+        if (targetState.isAir() || !DevourUtil.canDevour(targetState)) return;
         DragonRodItem.devourBlock(level, player, hand, targetPos, targetState, blockHit.getDirection());
     }
 }

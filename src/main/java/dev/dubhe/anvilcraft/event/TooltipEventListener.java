@@ -75,6 +75,13 @@ public class TooltipEventListener {
             builder
         );
         stack.addToTooltip(ModComponents.MULTIPHASE, ctx, display, builder, flag);
+        if (stack.has(ModComponents.DEVOUR_PROTECT_CONTAINERS) && display.shows(ModComponents.DEVOUR_PROTECT_CONTAINERS)) {
+            boolean protect = stack.getOrDefault(ModComponents.DEVOUR_PROTECT_CONTAINERS, false);
+            builder.accept(Component.translatable("tooltip.anvilcraft.property.protect_containers",
+                Component.translatable(protect ? "tooltip.anvilcraft.property.protect_containers.on"
+                    : "tooltip.anvilcraft.property.protect_containers.off").withStyle(protect ? ChatFormatting.GREEN : ChatFormatting.RED))
+                .withColor(0xDD91FA));
+        }
         stack.addToTooltip(ModComponents.STORED_ENERGY, ctx, display, builder, flag);
         stack.addToTooltip(ModComponents.FLIGHT_TIME, ctx, display, builder, flag);
         stack.addToTooltip(ModComponents.BOX_CONTENTS, ctx, display, builder, flag);
