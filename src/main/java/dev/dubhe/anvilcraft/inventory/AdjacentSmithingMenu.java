@@ -29,6 +29,7 @@ import org.jspecify.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.function.Predicate;
 
 /**
  * 支持从相邻容器临时借用锻造模板的菜单基类。
@@ -44,6 +45,7 @@ public abstract class AdjacentSmithingMenu extends ItemCombinerMenu {
     private ItemStack borrowedTemplateStack = ItemStack.EMPTY;
     private long nextRefreshTime;
     private boolean templateDataDirty = true;
+    private boolean recipeTransferInProgress;
 
     @Nullable
     private BlockPos tablePos;
@@ -77,6 +79,67 @@ public abstract class AdjacentSmithingMenu extends ItemCombinerMenu {
 
     public boolean isBorrowedTemplate(ItemStack stack) {
         return !this.borrowedTemplateStack.isEmpty() && stack.is(this.borrowedTemplateStack.getItem());
+    }
+
+    public boolean isRecipeTransferInProgress() {
+        return this.recipeTransferInProgress;
+    }
+
+    public void runRecipeTransfer(Runnable transfer) {
+        boolean previous = this.recipeTransferInProgress;
+        this.recipeTransferInProgress = true;
+        try {
+            transfer.run();
+        } finally {
+            this.recipeTransferInProgress = previous;
+            if (!previous) {
+                this.slotsChanged(this.inputSlots);
+                this.broadcastChanges();
+            }
+        }
+    }
+
+    protected boolean hasMaterialForPlacement() {
+        return this.recipeTransferInProgress || !this.inputSlots.getItem(1).isEmpty();
+    }
+
+    protected void setInputPlacementPredicate(int index, Predicate<ItemStack> predicate) {
+        Slot original = this.getSlot(index);
+        Slot replacement = new Slot(this.inputSlots, original.getContainerSlot(), original.x, original.y) {
+            @Override
+            public boolean mayPlace(ItemStack stack) {
+                return predicate.test(stack);
+            }
+        };
+        replacement.index = original.index;
+        this.slots.set(index, replacement);
+    }
+
+    public boolean selectTemplateForTransfer(ServerPlayer player, ItemStack template) {
+        if (player != this.menuPlayer || !this.stillValid(player) || !this.isUsableTemplate(template)) return false;
+        ItemStack current = this.inputSlots.getItem(TEMPLATE_SLOT);
+        if (ItemStack.isSameItemSameComponents(current, template)) return true;
+        this.refreshTemplateCatalog();
+        int inventorySlot = -1;
+        for (int index = 0; index < Inventory.INVENTORY_SIZE; index++) {
+            if (ItemStack.isSameItemSameComponents(player.getInventory().getItem(index), template)) {
+                inventorySlot = index;
+                break;
+            }
+        }
+        if (!this.containsTemplate(itemId(template)) && inventorySlot < 0) return false;
+        if (this.borrowedTemplate == null && !current.isEmpty()) {
+            this.moveItemStackTo(current, this.getResultSlot() + 1, this.slots.size(), false);
+            this.inputSlots.setItem(TEMPLATE_SLOT, current);
+            if (!current.isEmpty()) return false;
+        }
+        this.borrowTemplate(player, itemId(template));
+        if (ItemStack.isSameItemSameComponents(this.inputSlots.getItem(TEMPLATE_SLOT), template)) return true;
+        if (inventorySlot < 0) return false;
+        this.returnBorrowedTemplate(true);
+        this.inputSlots.setItem(TEMPLATE_SLOT, player.getInventory().removeItem(inventorySlot, 1));
+        this.syncTemplateData(player);
+        return ItemStack.isSameItemSameComponents(this.inputSlots.getItem(TEMPLATE_SLOT), template);
     }
 
     /** 接收服务端发来的模板面板数据。 */

@@ -323,6 +323,14 @@ public class TranscendenceSmithingMenu extends AbstractContainerMenu {
         }
     }
 
+    public boolean selectTemplateForTransfer(ServerPlayer player, ItemStack template) {
+        if (player != this.menuPlayer || !this.stillValid(player)) return false;
+        if (!ItemStack.isSameItemSameComponents(this.selectedTemplate, template)) {
+            this.handleTemplateAction(player, itemId(template), false);
+        }
+        return ItemStack.isSameItemSameComponents(this.selectedTemplate, template);
+    }
+
     /** 处理模板选择或置顶请求。 */
     public void handleTemplateAction(Player player, Identifier templateId, boolean toggleFavorite) {
         if (!(player instanceof ServerPlayer serverPlayer) || player != this.menuPlayer) return;

@@ -11,7 +11,6 @@ import dev.dubhe.anvilcraft.client.gui.screen.ItemCollectorScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.ItemDetectorScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.JewelCraftingScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.StorageScreen;
-import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.integration.jei.category.AnvilCollisionCraftCategory;
@@ -53,7 +52,7 @@ import dev.dubhe.anvilcraft.integration.jei.recipe.DecayRecipe;
 import dev.dubhe.anvilcraft.integration.jei.recipe.MeshRecipeGroup;
 import dev.dubhe.anvilcraft.integration.jei.recipe.MineralFountainJeiRecipe;
 import dev.dubhe.anvilcraft.integration.jei.recipe.MobTransformJeiRecipe;
-import dev.dubhe.anvilcraft.inventory.RoyalSmithingMenu;
+import dev.dubhe.anvilcraft.integration.jei.transfer.SmithingRecipeTransferHandler;
 import dev.dubhe.anvilcraft.recipe.CanningFoodRecipe;
 import dev.dubhe.anvilcraft.recipe.ChargerChargingRecipe;
 import dev.dubhe.anvilcraft.recipe.EnergyWeaponMakeRecipe;
@@ -306,12 +305,7 @@ public class AnvilCraftJeiPlugin implements IModPlugin {
     @Override
     public void registerRecipeTransferHandlers(IRecipeTransferRegistration registration) {
         StorageJeiSupport.registerRecipeTransferHandlers(registration);
-        registration.addRecipeTransferHandler(
-            RoyalSmithingMenu.class,
-            ModMenuTypes.ROYAL_SMITHING.get(),
-            RecipeTypes.SMITHING,
-            0, 3, 4, 36
-        );
+        SmithingRecipeTransferHandler.register(registration);
     }
 
     @Override
