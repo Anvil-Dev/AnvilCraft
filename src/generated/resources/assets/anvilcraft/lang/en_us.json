@@ -1392,7 +1392,7 @@
   "screen.anvilcraft.balance_mode.smart": "Smart",
   "screen.anvilcraft.batch_crafter.switch_recipe": "Switch crafting recipe",
   "screen.anvilcraft.building_rod.distance": "Hold %s to keep the projection distance\n%s/%s to adjust | %s Lock projection\nHold and drag to repeat projections, then click again to paste",
-  "screen.anvilcraft.building_rod.optimized": "%s Pasteexecute | %s Cancel\n%s %s %s %s %s %s Move\n%s %s Rotate | %s Mirror",
+  "screen.anvilcraft.building_rod.optimized": "%s Paste | %s Cancel\n%s %s %s %s %s %s Move\n%s %s Rotate | %s Mirror",
   "screen.anvilcraft.building_rod.selection_size": "%s × %s × %s",
   "screen.anvilcraft.building_rod.suspended": "Projection locked | Hold the building rod and %s to unlock",
   "screen.anvilcraft.building_rod.tool.cancel": "Cancel placement",

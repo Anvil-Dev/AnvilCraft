@@ -84,7 +84,7 @@ public final class BuildingRodLang {
         provider.add(
             "screen.anvilcraft.building_rod.optimized",
             """
-               %s Pasteexecute | %s Cancel
+               %s Paste | %s Cancel
                %s %s %s %s %s %s Move
                %s %s Rotate | %s Mirror"""
         );
