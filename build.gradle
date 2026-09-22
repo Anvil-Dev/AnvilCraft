@@ -62,7 +62,11 @@ if (providers.gradleProperty('portValidation').isPresent()) {
         || providers.gradleProperty('portTerminalOverlayRpcScene').isPresent()
         || providers.gradleProperty('portTerminalOverlayScene').isPresent()
         || providers.gradleProperty('portTerminalPresentationScene').isPresent()
-        || providers.gradleProperty('portTerminalCreativeScene').isPresent()) {
+        || providers.gradleProperty('portTerminalCreativeScene').isPresent()
+        || providers.gradleProperty('portTerminalRestockScene').isPresent()) {
+        if (providers.gradleProperty('portTerminalRestockScene').isPresent()) {
+            neoForge.runs.client.systemProperty 'anvilcraft.portTerminalRestockScene', 'true'
+        }
         if (providers.gradleProperty('portTerminalCreativeScene').isPresent()) {
             neoForge.runs.client.systemProperty 'anvilcraft.portTerminalCreativeScene', 'true'
         }

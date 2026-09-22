@@ -2306,6 +2306,239 @@ public final class StorageServerStub {
         return ItemStack.EMPTY;
     }
 
+    public static final StreamCodec<ByteBuf, List<UUID>> TERMINAL_IDS_STREAM_CODEC = UUIDUtil.STREAM_CODEC.apply(ByteBufCodecs.list());
+    private static final int MAX_TERMINAL_TARGETS = 64;
+    private static final int MAX_TERMINAL_ITEMS = 512;
+    private static final int MAX_TERMINAL_SCAN = 4096;
+
+    public record TerminalSnapshot(List<ItemStack> items, List<FluidEntry> fluids, boolean complete) {
+        public static final StreamCodec<RegistryFriendlyByteBuf, TerminalSnapshot> STREAM_CODEC = StreamCodec.composite(
+            ITEM_STACK_LIST_STREAM_CODEC, TerminalSnapshot::items,
+            FluidEntry.STREAM_CODEC.apply(ByteBufCodecs.list()), TerminalSnapshot::fluids,
+            ByteBufCodecs.BOOL, TerminalSnapshot::complete, TerminalSnapshot::new
+        );
+    }
+
+    public record TerminalRestock(List<ItemStack> withdrawn, List<ItemStack> inventoryBefore) {
+        public static final StreamCodec<RegistryFriendlyByteBuf, TerminalRestock> STREAM_CODEC = StreamCodec.composite(
+            ITEM_STACK_LIST_STREAM_CODEC, TerminalRestock::withdrawn,
+            ITEM_STACK_LIST_STREAM_CODEC, TerminalRestock::inventoryBefore, TerminalRestock::new
+        );
+        public static final TerminalRestock EMPTY = new TerminalRestock(List.of(), List.of());
+    }
+
+    @RemoteCallable(validator = TerminalRecipeAccessValidator.class)
+    public static TerminalSnapshot terminalSnapshot(
+        UUID playerId, @CallableParam(clazz = StorageServerStub.class, field = "TERMINAL_IDS_STREAM_CODEC") List<UUID> targets
+    ) {
+        ServerPlayer player = getServerPlayer(playerId);
+        Map<ItemResource, Long> counts = new java.util.LinkedHashMap<>();
+        Map<FluidResource, FluidEntry> fluids = new java.util.LinkedHashMap<>();
+        boolean complete = true;
+        for (BaseStorage<?> storage : terminalRecipeStorages(player, targets)) {
+            var items = storage.getItems();
+            if (items.size() > MAX_TERMINAL_SCAN) complete = false;
+            for (int slot = 0; slot < Math.min(items.size(), MAX_TERMINAL_SCAN); slot++) {
+                ItemResource resource = items.getResource(slot);
+                long amount = items.getAmountAsLong(slot);
+                if (resource.isEmpty() || amount <= 0) continue;
+                if (counts.size() >= MAX_TERMINAL_ITEMS && !counts.containsKey(resource)) {
+                    complete = false;
+                    continue;
+                }
+                counts.merge(resource, amount, Long::sum);
+            }
+            for (FluidEntry entry : StoragePortManager.collect(storage.getId())) {
+                fluids.merge(FluidResource.of(entry.icon()), entry, (first, second) -> new FluidEntry(first.icon(),
+                    (int) Math.min(Integer.MAX_VALUE, (long) first.amount() + second.amount())));
+            }
+        }
+        List<ItemStack> items = counts.entrySet().stream()
+            .map(entry -> entry.getKey().toStack((int) Math.min(Integer.MAX_VALUE, entry.getValue()))).toList();
+        return new TerminalSnapshot(items, List.copyOf(fluids.values()), complete);
+    }
+
+    private static List<BaseStorage<?>> terminalRecipeStorages(ServerPlayer player, List<UUID> targets) {
+        if (!ownsTerminalTargets(player, targets)) return List.of();
+        List<BaseStorage<?>> storages = new ArrayList<>();
+        for (UUID target : targets) {
+            var terminal = TerminalSessions.findTerminal(player, target);
+            BaseStorage<?> storage = TerminalSessions.targetStorage(player, terminal, false);
+            if (storage != null && storages.stream().noneMatch(existing -> existing.getId().equals(storage.getId()))) storages.add(storage);
+        }
+        return storages;
+    }
+
+    /** Desired counts are final main-inventory totals, not an already-subtracted deficit. */
+    @RemoteCallable(validator = TerminalRecipeAccessValidator.class)
+    public static TerminalRestock terminalRestock(
+        UUID playerId, int menuId,
+        @CallableParam(clazz = StorageServerStub.class, field = "TERMINAL_IDS_STREAM_CODEC") List<UUID> targets,
+        @CallableParam(clazz = StorageServerStub.class, field = "ITEM_STACK_LIST_STREAM_CODEC") List<ItemStack> desired
+    ) {
+        ServerPlayer player = getServerPlayer(playerId);
+        if (player.containerMenu.containerId != menuId || desired.size() > MAX_TERMINAL_ITEMS) return TerminalRestock.EMPTY;
+        List<BaseStorage<?>> storages = terminalRecipeStorages(player, targets);
+        if (storages.isEmpty()) return TerminalRestock.EMPTY;
+        List<ItemStack> before = new ArrayList<>();
+        List<ItemStack> withdrawn = new ArrayList<>();
+        for (ItemStack need : mergeTerminalCounts(player, desired, false)) {
+            int have = terminalInventoryCount(player, need);
+            if (have > 0) before.add(need.copyWithCount(have));
+            int required = Math.max(0, need.getCount() - have);
+            if (required == 0) continue;
+            int filled = fillTerminalContainers(player, storages, need.copyWithCount(1), required);
+            if (filled > 0) withdrawn.add(need.copyWithCount(filled));
+            required -= filled;
+            for (BaseStorage<?> storage : storages) {
+                var items = storage.getItems();
+                for (int slot = 0; slot < items.size() && required > 0; slot++) {
+                    ItemResource resource = items.getResource(slot);
+                    if (resource.isEmpty() || items.getAmountAsLong(slot) <= 0
+                        || !sameTerminalItem(player, need, resource.toStack())) continue;
+                    try (Transaction transaction = Transaction.openRoot()) {
+                        var inventory = PlayerInventoryWrapper.of(player).getMainSlots();
+                        int fit;
+                        try (Transaction simulation = Transaction.open(transaction)) {
+                            fit = inventory.insert(resource, required, simulation);
+                        }
+                        int taken = items.extract(slot, resource, fit, transaction);
+                        if (taken == 0 || inventory.insert(resource, taken, transaction) != taken) continue;
+                        transaction.commit();
+                        withdrawn.add(resource.toStack(taken));
+                        required -= taken;
+                    }
+                }
+                if (required == 0) break;
+            }
+        }
+        if (!withdrawn.isEmpty()) {
+            player.getInventory().setChanged();
+            player.containerMenu.broadcastChanges();
+        }
+        return new TerminalRestock(mergeTerminalCounts(player, withdrawn, true), List.copyOf(before));
+    }
+
+    private static boolean sameTerminalItem(ServerPlayer player, ItemStack first, ItemStack second) {
+        return !first.isEmpty() && !second.isEmpty()
+            && ItemResourceHelper.matchesNetworkStack(first.copyWithCount(1), second.copyWithCount(1), player.registryAccess());
+    }
+
+    private static List<ItemStack> mergeTerminalCounts(ServerPlayer player, List<ItemStack> stacks, boolean add) {
+        List<ItemStack> result = new ArrayList<>();
+        for (ItemStack stack : stacks) {
+            if (stack.isEmpty()) continue;
+            ItemStack existing = result.stream().filter(item -> sameTerminalItem(player, item, stack)).findFirst().orElse(null);
+            if (existing == null) result.add(stack.copy());
+            else existing.setCount(add ? (int) Math.min(Integer.MAX_VALUE, (long) existing.getCount() + stack.getCount())
+                : Math.max(existing.getCount(), stack.getCount()));
+        }
+        return List.copyOf(result);
+    }
+
+    private static int terminalInventoryCount(ServerPlayer player, ItemStack wanted) {
+        long count = 0;
+        for (int slot = 0; slot < Inventory.INVENTORY_SIZE; slot++) {
+            ItemStack stack = player.getInventory().getItem(slot);
+            if (sameTerminalItem(player, wanted, stack)) count += stack.getCount();
+        }
+        return (int) Math.min(Integer.MAX_VALUE, count);
+    }
+
+    private static int fillTerminalContainers(ServerPlayer player, List<BaseStorage<?>> storages, ItemStack wanted, int limit) {
+        FluidStack fluid = FluidUtil.getFirstStackContained(wanted);
+        if (fluid.isEmpty()) return 0;
+        ItemStack empty = emptyContainerOf(wanted);
+        if (empty.isEmpty()) return 0;
+        var inventory = PlayerInventoryWrapper.of(player).getMainSlots();
+        var view = new StorageView(storages, List.of());
+        int produced = 0;
+        while (produced < limit) {
+            try (Transaction transaction = Transaction.openRoot()) {
+                var single = new ItemStacksResourceHandler(1);
+                single.set(0, ItemResource.of(empty), 1);
+                var handler = ItemAccess.forHandlerIndexStrict(single, 0).getCapability(Capabilities.Fluid.ITEM);
+                if (handler == null || handler.insert(FluidResource.of(fluid), fluid.getAmount(), transaction) != fluid.getAmount()
+                    || !sameTerminalItem(player, wanted, single.getResource(0).toStack())) break;
+                ItemResource container = ItemResource.of(empty);
+                if (inventory.extract(container, 1, transaction) == 0 && view.extractByResource(container, 1, transaction) == 0) break;
+                if (inventory.insert(single.getResource(0), 1, transaction) != 1) break;
+                int remaining = fluid.getAmount();
+                for (BaseStorage<?> storage : storages) {
+                    remaining -= StoragePortManager.drain(storage.getId(), fluid, remaining, transaction);
+                    if (remaining == 0) break;
+                }
+                if (remaining != 0) break;
+                transaction.commit();
+                produced++;
+            }
+        }
+        return produced;
+    }
+
+    /** Return only the supplied surplus above the inventory count observed before restocking. */
+    @RemoteCallable(validator = TerminalRecipeAccessValidator.class)
+    public static boolean terminalReturnExcess(
+        UUID playerId,
+        @CallableParam(clazz = StorageServerStub.class, field = "TERMINAL_IDS_STREAM_CODEC") List<UUID> targets,
+        TerminalRestock restock
+    ) {
+        ServerPlayer player = getServerPlayer(playerId);
+        if (restock.withdrawn().size() > MAX_TERMINAL_ITEMS || restock.inventoryBefore().size() > MAX_TERMINAL_ITEMS) return false;
+        List<BaseStorage<?>> storages = terminalRecipeStorages(player, targets);
+        if (storages.isEmpty()) return false;
+        boolean changed = false;
+        var inventory = PlayerInventoryWrapper.of(player);
+        int selected = player.getInventory().getSelectedSlot();
+        for (ItemStack supplied : mergeTerminalCounts(player, restock.withdrawn(), true)) {
+            int before = restock.inventoryBefore().stream().filter(item -> sameTerminalItem(player, supplied, item))
+                .mapToInt(ItemStack::getCount).max().orElse(0);
+            int remaining = Math.min(supplied.getCount(), Math.max(0, terminalInventoryCount(player, supplied) - before));
+            for (int pass = Inventory.INVENTORY_SIZE; pass >= 0 && remaining > 0; pass--) {
+                int slot = pass == 0 ? selected : pass - 1;
+                if (pass != 0 && slot == selected) continue;
+                ItemStack actual = player.getInventory().getItem(slot);
+                if (!sameTerminalItem(player, supplied, actual)) continue;
+                ItemResource resource = ItemResource.of(actual);
+                try (Transaction transaction = Transaction.openRoot()) {
+                    int inserted = insertBalanceResource(storages, resource, Math.min(remaining, actual.getCount()), transaction);
+                    if (inserted == 0 || inventory.extract(slot, resource, inserted, transaction) != inserted) continue;
+                    transaction.commit();
+                    remaining -= inserted;
+                    changed = true;
+                }
+            }
+        }
+        if (changed) {
+            player.getInventory().setChanged();
+            player.containerMenu.broadcastChanges();
+        }
+        return changed;
+    }
+
+    private static boolean ownsTerminalTargets(ServerPlayer player, List<UUID> targets) {
+        return !targets.isEmpty() && targets.size() <= MAX_TERMINAL_TARGETS
+            && targets.stream().allMatch(target -> target != null && !TerminalSessions.findTerminal(player, target).isEmpty());
+    }
+
+    public static final class TerminalRecipeAccessValidator implements IRemoteCallableValidator {
+        @Override
+        public boolean validate(IPayloadContext context, Method method, Object[] args) {
+            if (!(context.player() instanceof ServerPlayer player) || args.length < 2 || !(args[0] instanceof UUID playerId)
+                || !playerId.equals(player.getUUID())) return false;
+            int targetIndex = 1;
+            if (args[1] instanceof Integer menuId) {
+                if (menuId != player.containerMenu.containerId || args.length != 4) return false;
+                targetIndex = 2;
+            }
+            if (!(args[targetIndex] instanceof List<?> targets) || targets.isEmpty() || targets.size() > MAX_TERMINAL_TARGETS) return false;
+            for (Object target : targets) {
+                if (!(target instanceof UUID id) || TerminalSessions.findTerminal(player, id).isEmpty()) return false;
+            }
+            return true;
+        }
+    }
+
     @RemoteCallable(validator = CreativeTerminalAccessValidator.class)
     public static InteractionResult creativeTerminalTransfer(
         UUID playerId, UUID targetId, int menuSlot, boolean extract,

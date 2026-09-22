@@ -16,6 +16,7 @@ import net.minecraft.world.item.ItemStack;
 import org.jspecify.annotations.Nullable;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -73,6 +74,20 @@ public final class StorageTerminalClientStub {
     public static CompletableFuture<StorageServerStub.InteractionResult> insert(UUID target, ItemStack carried) {
         return invoke(target, token -> RPC.invoke(RpcTarget.server(), StorageServerStub::terminalInsert,
             Minecraft.getInstance().player.getUUID(), token, carried));
+    }
+
+    public static CompletableFuture<StorageServerStub.TerminalSnapshot> snapshot(List<UUID> targets) {
+        return RPC.invoke(RpcTarget.server(), StorageServerStub::terminalSnapshot, Minecraft.getInstance().player.getUUID(), targets);
+    }
+
+    public static CompletableFuture<StorageServerStub.TerminalRestock> restock(int menuId, List<UUID> targets, List<ItemStack> desired) {
+        return RPC.invoke(RpcTarget.server(), StorageServerStub::terminalRestock,
+            Minecraft.getInstance().player.getUUID(), menuId, targets, desired);
+    }
+
+    public static CompletableFuture<Boolean> returnExcess(List<UUID> targets, StorageServerStub.TerminalRestock restock) {
+        return RPC.invoke(RpcTarget.server(), StorageServerStub::terminalReturnExcess,
+            Minecraft.getInstance().player.getUUID(), targets, restock);
     }
 
     public static CompletableFuture<StorageServerStub.InteractionResult> creativeTransfer(
