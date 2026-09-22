@@ -2,6 +2,7 @@ repositories {
     mavenLocal()
     exclusiveContent {
         forRepositories(
+            mavenLocal(),
             mavenCentral(),
             maven { // Anvil Lib
                 name = "Cjsah Maven"

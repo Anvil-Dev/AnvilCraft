@@ -20,6 +20,7 @@ lombok = "8.7.1"
 machete = "1.+"
 
 [libraries]
+anvillib-renderer = { group = "dev.anvilcraft.lib", name = "anvillib-renderer-neoforge-1.21.1", version = "2.0.0" }
 anvillib-recipe = { group = "dev.anvilcraft.lib", name = "anvillib-recipe-neoforge-1.21.1", version.ref = "anvillib" }
 anvillib-moveableEntityBlock = { group = "dev.anvilcraft.lib", name = "anvillib-moveable-entity-block-neoforge-1.21.1", version.ref = "anvillib" }
 anvillib = { group = "dev.anvilcraft.lib", name = "anvillib-neoforge-1.21.1", version.ref = "anvillib" }

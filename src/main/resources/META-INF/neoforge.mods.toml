@@ -78,6 +78,13 @@ file="META-INF/accesstransformer.cfg"
     side="BOTH"
 
 [[dependencies."${mod_id}"]]
+    modId="anvillib_renderer"
+    type="required"
+    versionRange="[2.0.0,)"
+    ordering="AFTER"
+    side="CLIENT"
+
+[[dependencies."${mod_id}"]]
     modId="jei"
     type="optional"
     versionRange="[19.19.0.219,)"
