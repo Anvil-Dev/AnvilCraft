@@ -85,6 +85,10 @@ public record Multiphase(List<Phase> phases, int activePhase) implements Tooltip
         return name.copy().append(Multiphase.makeSuffix(0));
     }
 
+    public static Component itemName(Item item, int phaseIndex) {
+        return Component.translatable(item.getDescriptionId()).append(Multiphase.makeSuffix(phaseIndex));
+    }
+
     public Component phaseDisplayName(int index) {
         return this.phases.get(index).customName().isPresent()
             ? this.phases.get(index).customName().get().copy()
@@ -149,7 +153,7 @@ public record Multiphase(List<Phase> phases, int activePhase) implements Tooltip
         this.phases.get(this.activePhase).applyToStack(stack);
         stack.set(
             DataComponents.ITEM_NAME,
-            stack.getItem().getName(stack.getItem().getDefaultInstance()).copy().append(Multiphase.makeSuffix(this.activePhase))
+            Multiphase.itemName(stack.getItem(), this.activePhase)
         );
     }
 

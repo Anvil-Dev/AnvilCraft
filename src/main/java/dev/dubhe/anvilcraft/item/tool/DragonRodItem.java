@@ -30,7 +30,6 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Rarity;
 import net.minecraft.world.item.component.UseCooldown;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.Level;
@@ -68,7 +67,6 @@ public class DragonRodItem extends Item {
     public DragonRodItem(Properties properties, DevourRange defaultRange, BlockMiningEffect miningEffect) {
         super(properties
             .component(ModComponents.DEVOUR_RANGE, defaultRange)
-            .rarity(Rarity.UNCOMMON)
         );
         this.miningEffect = miningEffect;
     }

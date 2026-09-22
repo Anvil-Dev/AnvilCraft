@@ -51,6 +51,7 @@ public final class TerminalScene {
     private static boolean reloadTesting;
     private static boolean weaponProgressTesting;
     private static boolean resonatorTesting;
+    private static boolean multiphaseTesting;
     private static volatile boolean prepared;
     private static volatile boolean clientLoaded;
     private static volatile Throwable failure;
@@ -61,6 +62,10 @@ public final class TerminalScene {
     private static boolean capturing;
 
     public static void frame(Minecraft client) {
+        if (multiphaseTesting) {
+            MultiphaseScene.frame(client);
+            return;
+        }
         if (resonatorTesting) {
             ResonatorScene.frame(client);
             return;
@@ -295,7 +300,9 @@ public final class TerminalScene {
             }
             case 18 -> {
                 AnvilCraft.LOGGER.info("PORT_TERMINAL_SCENE_PASSED: binding, inventory, own crafting, local range, shulker priority");
-                if (Boolean.getBoolean("anvilcraft.portResonatorScene")) {
+                if (Boolean.getBoolean("anvilcraft.portMultiphaseScene")) {
+                    multiphaseTesting = true;
+                } else if (Boolean.getBoolean("anvilcraft.portResonatorScene")) {
                     resonatorTesting = true;
                 } else if (Boolean.getBoolean("anvilcraft.portWeaponProgressScene")) {
                     weaponProgressTesting = true;

@@ -21,7 +21,6 @@ public class TranscendenceResonatorItem extends ResonatorItem {
             -3F,
             properties.fireResistant()
                 .component(ModComponents.MULTIPHASE, Multiphase.create())
-                .component(DataComponents.ITEM_NAME, Multiphase.firstPhaseName(TranscendenceResonatorItem.NAME))
                 .component(ModComponents.ETERNAL, Eternal.DEFAULT)
                 .component(DataComponents.UNBREAKABLE, Unit.INSTANCE)
                 .component(ModComponents.PROVIDENCE, Unit.INSTANCE)

@@ -75,9 +75,13 @@ if (providers.gradleProperty('portValidation').isPresent()) {
         || providers.gradleProperty('portEnergyReloadScene').isPresent()
         || providers.gradleProperty('portWeaponProgressScene').isPresent()
         || providers.gradleProperty('portResonatorScene').isPresent()
+        || providers.gradleProperty('portMultiphaseScene').isPresent()
         || providers.gradleProperty('portAmuletRegistryScene').isPresent()
         || providers.gradleProperty('portFrostSmithingScene').isPresent()
         || providers.gradleProperty('portReadOnlyStorageScene').isPresent()) {
+        if (providers.gradleProperty('portMultiphaseScene').isPresent()) {
+            neoForge.runs.client.systemProperty 'anvilcraft.portMultiphaseScene', 'true'
+        }
         if (providers.gradleProperty('portResonatorScene').isPresent()) {
             neoForge.runs.client.systemProperty 'anvilcraft.portResonatorScene', 'true'
         }

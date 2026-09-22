@@ -369,6 +369,7 @@ public class ModItems {
             .enchantable(28)
             .repairable(ModItemTags.TRANSCENDIUM_TOOL_MATERIALS)
         )
+        .properties(properties -> properties.rarity(Rarity.EPIC))
         .tag(ItemTags.MACE_ENCHANTABLE, ItemTags.DURABILITY_ENCHANTABLE, ModItemTags.ANVIL_HAMMER)
         .model(DataGenUtil::onlyInfo)
         .register();
@@ -380,6 +381,7 @@ public class ModItems {
             .repairable(Items.IRON_INGOT)
             .component(DataComponents.USE_COOLDOWN, new UseCooldown(1, Optional.of(DragonRodItem.COOLDOWN_GROUP)))
         )
+        .properties(properties -> properties.rarity(Rarity.UNCOMMON))
         .tag(ItemTags.DURABILITY_ENCHANTABLE, ItemTags.MINING_LOOT_ENCHANTABLE, ModItemTags.DRAGON_ROD)
         .model(DataGenUtil::onlyInfo)
         .recipe(RegistrumItemRecipeLoader::dragonRod)
@@ -392,6 +394,7 @@ public class ModItems {
             .repairable(ModItemTags.ROYAL_STEEL_TOOL_MATERIALS)
             .component(DataComponents.USE_COOLDOWN, new UseCooldown(1, Optional.of(DragonRodItem.COOLDOWN_GROUP)))
         )
+        .properties(properties -> properties.rarity(Rarity.UNCOMMON))
         .tag(ItemTags.DURABILITY_ENCHANTABLE, ItemTags.MINING_LOOT_ENCHANTABLE, ModItemTags.DRAGON_ROD)
         .model(DataGenUtil::onlyInfo)
         .recipe(RegistrumItemRecipeLoader::royalDragonRod)
@@ -406,6 +409,7 @@ public class ModItems {
             .component(ModComponents.FIRE_REFORGING, Unit.INSTANCE)
             .component(DataComponents.USE_COOLDOWN, new UseCooldown(1, Optional.of(DragonRodItem.COOLDOWN_GROUP)))
         )
+        .properties(properties -> properties.rarity(Rarity.UNCOMMON))
         .tag(ItemTags.DURABILITY_ENCHANTABLE, ItemTags.MINING_LOOT_ENCHANTABLE, ModItemTags.DRAGON_ROD, ModItemTags.EXPLOSION_PROOF)
         .model(DataGenUtil::onlyInfo)
         .recipe(RegistrumItemRecipeLoader::emberDragonRod)
@@ -422,6 +426,7 @@ public class ModItems {
             .component(ModComponents.MERCILESS, Merciless.DEFAULT)
             .component(DataComponents.USE_COOLDOWN, new UseCooldown(1, Optional.of(DragonRodItem.COOLDOWN_GROUP)))
         )
+        .properties(properties -> properties.rarity(Rarity.UNCOMMON))
         .tag(ItemTags.DURABILITY_ENCHANTABLE, ItemTags.MINING_LOOT_ENCHANTABLE, ModItemTags.DRAGON_ROD)
         .model(DataGenUtil::onlyInfo)
         .recipe(RegistrumItemRecipeLoader::frostDragonRod)
@@ -434,15 +439,12 @@ public class ModItems {
             .repairable(ModItemTags.TRANSCENDIUM_TOOL_MATERIALS)
             .fireResistant()
             .component(ModComponents.MULTIPHASE, Multiphase.create())
-            .component(
-                DataComponents.ITEM_NAME,
-                Multiphase.firstPhaseName(Component.translatable("item.anvilcraft.transcendence_dragon_rod"))
-            )
             .component(ModComponents.ETERNAL, Eternal.DEFAULT)
             .component(DataComponents.UNBREAKABLE, Unit.INSTANCE)
             .component(ModComponents.PROVIDENCE, Unit.INSTANCE)
             .component(DataComponents.USE_COOLDOWN, new UseCooldown(4 / 20f, Optional.of(DragonRodItem.COOLDOWN_GROUP)))
         )
+        .properties(properties -> properties.rarity(Rarity.EPIC))
         .tag(ItemTags.DURABILITY_ENCHANTABLE, ItemTags.MINING_LOOT_ENCHANTABLE, ModItemTags.DRAGON_ROD)
         .model(DataGenUtil::onlyInfo)
         .register();
@@ -487,6 +489,7 @@ public class ModItems {
             "transcendence_heavy_halberd",
             TranscendenceHeavyHalberdItem::new
         )
+        .properties(properties -> properties.rarity(Rarity.EPIC))
         .tag(
             ItemTags.DURABILITY_ENCHANTABLE,
             ItemTags.SPEARS,
@@ -505,6 +508,7 @@ public class ModItems {
             "frost_metal_resonator",
             FrostMetalResonatorItem::new
         )
+        .properties(properties -> properties.rarity(Rarity.EPIC))
         .tag(
             ItemTags.DURABILITY_ENCHANTABLE,
             ItemTags.MINING_ENCHANTABLE,
@@ -519,6 +523,7 @@ public class ModItems {
             "ember_metal_resonator",
             EmberMetalResonatorItem::new
         )
+        .properties(properties -> properties.rarity(Rarity.EPIC))
         .tag(
             ItemTags.DURABILITY_ENCHANTABLE,
             ItemTags.MINING_ENCHANTABLE,
@@ -530,6 +535,7 @@ public class ModItems {
         .register();
     public static final ItemEntry<TranscendenceResonatorItem> TRANSCENDENCE_RESONATOR = REGISTRUM
         .item("transcendence_resonator", TranscendenceResonatorItem::new)
+        .properties(properties -> properties.rarity(Rarity.EPIC))
         .tag(
             ItemTags.DURABILITY_ENCHANTABLE,
             ItemTags.MINING_ENCHANTABLE,
