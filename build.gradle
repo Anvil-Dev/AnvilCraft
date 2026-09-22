@@ -77,9 +77,14 @@ if (providers.gradleProperty('portValidation').isPresent()) {
         || providers.gradleProperty('portResonatorScene').isPresent()
         || providers.gradleProperty('portMultiphaseScene').isPresent()
         || providers.gradleProperty('portDragonRodScene').isPresent()
+        || providers.gradleProperty('portWheelCaptureScene').isPresent()
         || providers.gradleProperty('portAmuletRegistryScene').isPresent()
         || providers.gradleProperty('portFrostSmithingScene').isPresent()
         || providers.gradleProperty('portReadOnlyStorageScene').isPresent()) {
+        if (providers.gradleProperty('portWheelCaptureScene').isPresent()) {
+            neoForge.runs.client.systemProperty 'anvilcraft.portDragonRodScene', 'true'
+            neoForge.runs.client.systemProperty 'anvilcraft.portWheelCaptureScene', 'true'
+        }
         if (providers.gradleProperty('portDragonRodScene').isPresent()) {
             neoForge.runs.client.systemProperty 'anvilcraft.portDragonRodScene', 'true'
         }

@@ -1,8 +1,12 @@
 package dev.dubhe.anvilcraft.mixin;
 
+import dev.anvilcraft.lib.v2.wheel.client.gui.component.WheelFrostedBackground;
 import dev.anvilcraft.lib.v2.wheel.client.gui.component.WheelWidget;
 import dev.dubhe.anvilcraft.api.injection.wheel.IWheelWidgetExtension;
 import dev.dubhe.anvilcraft.client.event.WheelLifecycleEventListener;
+import dev.dubhe.anvilcraft.client.support.WheelBackgroundCapture;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Mutable;
@@ -10,13 +14,17 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-/** 保持锤子状态选择轮通过滚轮选中的扇区，直到鼠标再次移动。 */
+/** 对齐轮盘背景绘制，并保留锤子滚轮选区。 */
 @SuppressWarnings("UnresolvedMixinReference")
 @Mixin(value = WheelWidget.class, remap = false)
 public abstract class WheelWidgetMixin implements IWheelWidgetExtension {
+    @Shadow
+    private @Nullable WheelFrostedBackground frostedBackground;
+
     @Mutable
     @Shadow
     @Final
@@ -27,6 +35,17 @@ public abstract class WheelWidgetMixin implements IWheelWidgetExtension {
     private double anvilcraft$scrollMouseX;
     @Unique
     private double anvilcraft$scrollMouseY;
+
+    @ModifyArg(method = "renderDisc", at = @At(value = "INVOKE",
+        target = "Ldev/anvilcraft/lib/v2/rendering/sdf/SdfGraphics;color(I)Ldev/anvilcraft/lib/v2/rendering/sdf/SdfGraphics;"), index = 0)
+    private int anvilcraft$sourceDiscOpacity(int color) {
+        return this.frostedBackground == null ? color : WheelBackgroundCapture.sourceDiscColor(color);
+    }
+
+    @Inject(method = "renderFrostedBackground", at = @At("HEAD"))
+    private void anvilcraft$separateDiscFromBackground(GuiGraphicsExtractor graphics, float progress, CallbackInfo callback) {
+        if (this.frostedBackground != null && progress > 0) WheelBackgroundCapture.afterDisc(graphics);
+    }
 
     @Override
     public void anvilcraft$setTextScale(float scale) {

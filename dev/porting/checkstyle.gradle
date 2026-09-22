@@ -37,6 +37,8 @@ allprojects {
             include '**/EquipmentArmorItem.java', '**/EquipmentAbilities.java', '**/AmuletAbilities.java'
             include '**/ModModelLayers.java', '**/EquipmentHelmetModel.java', '**/EquipmentClientEvents.java', '**/SwitchEquipmentAbilityPacket.java'
             include '**/EquipmentFluidOverlayMixin.java', '**/EquipmentBootsModel.java', '**/EquipmentLiquidBlockMixin.java'
+            include '**/WheelGuiBlurMixin.java', '**/GuiBlurBoundaryAccessor.java', '**/WheelWidgetMixin.java'
+            include '**/WheelBackgroundCapture.java', '**/WheelBackgroundFrameMixin.java', '**/WheelFrostedBackgroundMixin.java'
             include '**/LensBlock.java'
             include '**/WheelLifecycleEventListener.java'
             include '**/DragonRodItem.java', '**/SwitchDragonRodProtectContainersPacket.java', '**/DevourUtil.java'

@@ -121,6 +121,10 @@
     "providence.EnchantedCountIncreaseFunctionMixin"
   ],
   "client": [
+    "WheelBackgroundFrameMixin",
+    "WheelGuiBlurMixin",
+    "accessor.GuiBlurBoundaryAccessor",
+    "WheelFrostedBackgroundMixin",
     "EnergyWeaponProjectionMixin",
     "EquipmentLayerTextureMixin",
     "PocketRecipeScreenAccessor",

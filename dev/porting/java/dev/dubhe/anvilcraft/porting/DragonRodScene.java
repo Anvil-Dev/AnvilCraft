@@ -131,8 +131,10 @@ public final class DragonRodScene {
             }
             case 13 -> {
                 AnvilCraft.LOGGER.info("PORT_DRAGON_ROD_PASSED: hold/release wheel, protected contents, actual devour, range switch");
-                client.stop();
+                if (Boolean.getBoolean("anvilcraft.portWheelCaptureScene")) advance(14);
+                else client.stop();
             }
+            case 14 -> WheelCaptureScene.frame(client);
             default -> throw new IllegalStateException("Unknown dragon rod stage " + stage);
         }
     }
