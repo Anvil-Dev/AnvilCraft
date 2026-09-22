@@ -110,7 +110,7 @@ public class MultipleToOneSmithingRecipeLoader {
         FourToOneSmithingRecipe.builder()
             .material(ModBlocks.FROST_METAL_BLOCK)
             .input(ModItems.SILENCE_AMULET)
-            .input(ModItems.FEATHER_AMULET)
+            .input(ModItems.ARMADILLO_AMULET)
             .input(ModItems.CAT_AMULET)
             .input(ModItems.DOG_AMULET)
             .result(ModItems.NATURE_AMULET)

@@ -280,6 +280,7 @@ public class ItemTooltipManager {
         ItemTooltipManager.NORMAL.put(ModItems.SAPPHIRE_AMULET.get(), "Grants Conduit Power");
         ItemTooltipManager.NORMAL.put(ModItems.ANVIL_AMULET.get(), "Grants immunity to anvil damage");
         ItemTooltipManager.NORMAL.put(ModItems.FEATHER_AMULET.get(), "Grants immunity to fall damage");
+        ItemTooltipManager.NORMAL.put(ModItems.ARMADILLO_AMULET.get(), "Scares away Spiders; grants Resistance II while holding Shift");
         ItemTooltipManager.NORMAL.put(ModItems.CAT_AMULET.get(), "Scares away Creepers and Phantoms");
         ItemTooltipManager.NORMAL.put(ModItems.DOG_AMULET.get(), "Scares away Skeletons");
         ItemTooltipManager.NORMAL.put(ModItems.SILENCE_AMULET.get(), "Silences the wearer");
@@ -287,7 +288,7 @@ public class ItemTooltipManager {
             ModItems.ABNORMAL_AMULET.get(),
             "Prevents damage from carrying Uranium, Plutonium, Floating Powder, Cursed Gold items"
         );
-        ItemTooltipManager.NORMAL.put(ModItems.NATURE_AMULET.get(), "Combines Silence, Cat, Dog, and Feather Amulet effects");
+        ItemTooltipManager.NORMAL.put(ModItems.NATURE_AMULET.get(), "Combines Silence, Cat, Dog, and Armadillo Amulet effects");
         ItemTooltipManager.NORMAL.put(ModItems.GEM_AMULET.get(), "Combines effects of all four Gem Amulets");
         ItemTooltipManager.NORMAL.put(ModItems.CAPACITOR.asItem(), "8 MFE stored");
         ItemTooltipManager.NORMAL.put(ModItems.CAPACITOR_EMPTY.asItem(), "8 MFE capacity");
@@ -536,9 +537,8 @@ public class ItemTooltipManager {
         );
         ItemTooltipManager.SHIFT.put(ModBlocks.STORAGE_PORT_CONSOLIDATOR.asItem(), """
                 Exposes the contents of connected storage ports to storage buses
-                Can only connect to directly adjacent ports on the same side of the same Container/Storage Station.
                 Inputs are prioritized into ports with matching filters
-                Right-click with a fluid bucket to pour fluid into the corresponding fluid port.""");
+                Right-click with a fluid bucket to pour fluid into the corresponding fluid port""");
 
         ItemTooltipManager.NORMAL.put(ModBlocks.STORAGE_PORT.asItem(), "External input/output ports of the Shulker Container or the Hyperdimension Storage Station.");
         ItemTooltipManager.SHIFT.put(ModBlocks.STORAGE_PORT.asItem(), """

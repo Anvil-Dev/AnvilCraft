@@ -55,6 +55,7 @@
     "MobMixin",
     "NaturalSpawnerMixin",
     "NearestAttackableTargetGoalMixin",
+    "SpiderMixin",
     "PhantomGoalMixin",
     "PigMixin",
     "PistonBaseBlockMixin",

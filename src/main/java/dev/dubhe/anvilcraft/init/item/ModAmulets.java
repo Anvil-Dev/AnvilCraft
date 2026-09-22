@@ -30,6 +30,7 @@ public class ModAmulets {
     public static final ImmuneDamageAmulet FEATHER = ImmuneDamageAmulet.builder()
         .immune(ModDamageTypeTags.FEATHER_AMULET_VALID)
         .build();
+    public static final DoNothingAmulet ARMADILLO = new DoNothingAmulet();
     public static final DoNothingAmulet CAT = new DoNothingAmulet();
     public static final DoNothingAmulet DOG = new DoNothingAmulet();
     public static final DoNothingAmulet SILENCE = new DoNothingAmulet();
@@ -41,7 +42,7 @@ public class ModAmulets {
         ModAmulets.SAPPHIRE
     );
     public static final WrappedOthersAmulet NATURE = WrappedOthersAmulet.of(
-        ModAmulets.FEATHER,
+        ModAmulets.ARMADILLO,
         ModAmulets.CAT,
         ModAmulets.DOG,
         ModAmulets.SILENCE

@@ -19,6 +19,7 @@ import dev.dubhe.anvilcraft.integration.jei.category.ChargerChargingCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.DecayCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.EnergyWeaponCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.FluidMixingCategory;
+import dev.dubhe.anvilcraft.integration.jei.category.FrostSmithingCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.JewelCraftingCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.MineralFountainCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.MobTransformCategory;
@@ -162,6 +163,8 @@ public class AnvilCraftJeiPlugin implements IModPlugin {
     public static final IRecipeHolderType<BaseMultipleToOneSmithingRecipe> MULTIPLE_TO_ONE_SMITHING = createHolderType(
         "multiple_to_one_smithing"
     );
+    public static final IRecipeType<FrostSmithingCategory.Display> FROST_SMITHING
+        = createRecipeType("frost_smithing", FrostSmithingCategory.Display.class);
     public static final IRecipeHolderType<PortalConversionRecipe> PORTAL_CONVERSION = createHolderType("portal_conversion");
 
     public static final IRecipeType<MobTransformJeiRecipe> MOB_TRANSFORM =
@@ -207,6 +210,7 @@ public class AnvilCraftJeiPlugin implements IModPlugin {
         DecayCategory.registerRecipes(registration);
         ChargerChargingCategory.registerRecipes(registration);
         MultipleToOneSmithingCategory.registerRecipes(registration);
+        FrostSmithingCategory.registerRecipes(registration);
         MobTransformCategory.registerRecipes(registration);
         AnvilCollisionCraftCategory.registerRecipes(registration);
         ProceduralProcessCategory.registerRecipes(registration);
@@ -237,6 +241,7 @@ public class AnvilCraftJeiPlugin implements IModPlugin {
         DecayCategory.registerRecipeCatalysts(registration);
         ChargerChargingCategory.registerRecipeCatalysts(registration);
         MultipleToOneSmithingCategory.registerRecipeCatalysts(registration);
+        FrostSmithingCategory.registerRecipeCatalysts(registration);
         MobTransformCategory.registerRecipeCatalysts(registration);
         AnvilCollisionCraftCategory.registerRecipeCatalysts(registration);
         ProceduralProcessCategory.registerRecipeCatalysts(registration);
@@ -285,6 +290,7 @@ public class AnvilCraftJeiPlugin implements IModPlugin {
         registration.addRecipeCategories(new DecayCategory(guiHelper));
         registration.addRecipeCategories(new ChargerChargingCategory(guiHelper));
         registration.addRecipeCategories(new MultipleToOneSmithingCategory(guiHelper));
+        registration.addRecipeCategories(new FrostSmithingCategory(guiHelper));
         registration.addRecipeCategories(new MobTransformCategory(guiHelper));
         registration.addRecipeCategories(new AnvilCollisionCraftCategory(guiHelper));
         registration.addRecipeCategories(new ProceduralProcessCategory(guiHelper));

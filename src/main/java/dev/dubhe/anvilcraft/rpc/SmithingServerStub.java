@@ -4,6 +4,8 @@ import dev.anvilcraft.lib.v2.rpc.CallableParam;
 import dev.anvilcraft.lib.v2.rpc.IRemoteCallableValidator;
 import dev.anvilcraft.lib.v2.rpc.RemoteCallable;
 import dev.dubhe.anvilcraft.inventory.AdjacentSmithingMenu;
+import dev.dubhe.anvilcraft.inventory.FrostSmithingMenu;
+import dev.dubhe.anvilcraft.inventory.FrostSmithingTransfer;
 import dev.dubhe.anvilcraft.inventory.TranscendenceSmithingMenu;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -12,6 +14,7 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
 import net.neoforged.neoforge.server.ServerLifecycleHooks;
 
 import java.lang.reflect.Method;
+import java.util.List;
 import java.util.UUID;
 
 public final class SmithingServerStub {
@@ -40,6 +43,31 @@ public final class SmithingServerStub {
         // 先同步模板切换造成的槽位变化，客户端收到响应后再计算材料转移。
         menu.broadcastChanges();
         return selected;
+    }
+
+    @RemoteCallable(validator = FrostTransferValidator.class)
+    public static boolean transferFrost(
+        UUID playerId, int containerId,
+        @CallableParam(clazz = ItemStack.class, field = "STREAM_CODEC") ItemStack equipment,
+        @CallableParam(clazz = ItemStack.class, field = "OPTIONAL_STREAM_CODEC") ItemStack material,
+        @CallableParam(clazz = StorageServerStub.class, field = "TERMINAL_IDS_STREAM_CODEC") List<UUID> targets
+    ) {
+        var server = ServerLifecycleHooks.getCurrentServer();
+        if (server == null) return false;
+        var player = server.getPlayerList().getPlayer(playerId);
+        return player != null && player.containerMenu.containerId == containerId
+            && FrostSmithingTransfer.transfer(player, equipment, material, targets);
+    }
+
+    public static final class FrostTransferValidator implements IRemoteCallableValidator {
+        @Override
+        public boolean validate(IPayloadContext context, Method method, Object[] args) {
+            return context.player() instanceof ServerPlayer player && args.length == 5
+                && player.getUUID().equals(args[0]) && args[1] instanceof Integer id && id == player.containerMenu.containerId
+                && (player.containerMenu instanceof FrostSmithingMenu || player.containerMenu instanceof TranscendenceSmithingMenu)
+                && args[2] instanceof ItemStack equipment && !equipment.isEmpty() && args[3] instanceof ItemStack
+                && args[4] instanceof List<?> targets && targets.size() <= 64;
+        }
     }
 
     public static final class Validator implements IRemoteCallableValidator {

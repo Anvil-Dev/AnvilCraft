@@ -22,7 +22,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.SmithingTemplateItem;
 import net.minecraft.world.item.equipment.Equippable;
 import org.joml.Quaternionf;
-import org.joml.Vector3f;
 
 import java.util.List;
 import java.util.Optional;
@@ -41,7 +40,6 @@ public class RoyalSmithingScreen extends AdjacentSmithingScreen<RoyalSmithingMen
             RoyalSmithingScreen.EMPTY_SLOT_SMITHING_TEMPLATE_ARMOR_TRIM,
             RoyalSmithingScreen.EMPTY_SLOT_SMITHING_TEMPLATE_NETHERITE_UPGRADE
         );
-    private static final Vector3f ARMOR_STAND_TRANSLATION = new Vector3f(0.0F, 1.0F, 0.0F);
     public static final Quaternionf ARMOR_STAND_ANGLE =
         new Quaternionf().rotationXYZ(0.43633232F, 0.0F, (float) Math.PI);
     private final CyclingSlotBackground templateIcon = new CyclingSlotBackground(0);
@@ -115,21 +113,7 @@ public class RoyalSmithingScreen extends AdjacentSmithingScreen<RoyalSmithingMen
         this.baseIcon.extractRenderState(this.menu, graphics, a, this.leftPos, this.topPos);
         this.additionalIcon.extractRenderState(this.menu, graphics, a, this.leftPos, this.topPos);
 
-        int x0 = this.leftPos + 131;
-        int y0 = this.topPos + 20;
-        int x1 = this.leftPos + 171;
-        int y1 = this.topPos + 60;
-        graphics.entity(
-            this.armorStandPreview,
-            25,
-            RoyalSmithingScreen.ARMOR_STAND_TRANSLATION,
-            RoyalSmithingScreen.ARMOR_STAND_ANGLE,
-            null,
-            x0,
-            y0,
-            x1,
-            y1
-        );
+        SmithingPreview.extract(graphics, this.armorStandPreview, RoyalSmithingScreen.ARMOR_STAND_ANGLE, this.leftPos, this.topPos);
     }
 
     @Override

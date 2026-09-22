@@ -64,11 +64,12 @@ public final class FrostMaterialTests {
     }
 
     private static IFrostSmithingRecipe recipe() {
-        return DeformationRecipe.builder().input(Items.IRON_SWORD).input(Items.IRON_AXE).buildRecipe();
+        return DeformationRecipe.builder().material(RepairMaterialFrostMaterialPredicate.allowUniversal(1))
+            .input(Items.IRON_SWORD).input(Items.IRON_AXE).buildRecipe();
     }
 
     private static FrostSmithingRecipeInput input(ItemStack equipment, ItemStack material) {
-        return new FrostSmithingRecipeInput(ModItems.DEFORMATION_TEMPLATE.asStack(), material, equipment);
+        return new FrostSmithingRecipeInput(ModItems.DEFORMATION_TEMPLATE.asStack(), equipment, material);
     }
 
     private static CustomFrostMaterialPredicate iron(int count) {

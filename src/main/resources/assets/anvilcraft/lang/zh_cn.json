@@ -781,6 +781,7 @@
   "item.anvilcraft.canned_food": "罐头食品",
   "item.anvilcraft.capacitor": "电容器",
   "item.anvilcraft.capacitor_empty": "电容器 (空)",
+  "item.anvilcraft.armadillo_amulet": "犰狳护符",
   "item.anvilcraft.cat_amulet": "猫护符",
   "item.anvilcraft.celestial_forging_anvil": "锻星砧",
   "item.anvilcraft.celestial_forging_anvil_amplifier": "锻星砧增幅器",
@@ -1296,7 +1297,7 @@
   "screen.anvilcraft.frost_smithing.ember_metal_ingot.missing_tools": "放入下界合金武器或工具，或余烬金属武器或工具",
   "screen.anvilcraft.frost_smithing.multiphase_matter.missing_tools": "放入浮霜金属武器或工具，或余烬金属武器或工具",
   "screen.anvilcraft.frost_smithing.multiphase_matter_block.missing_tools": "放入浮霜工作方块或余烬工作方块",
-  "screen.anvilcraft.frost_smithing.permutation.missing": "放入皇家钢锭、余烬金属锭、多相物质或多相物质块",
+  "screen.anvilcraft.frost_smithing.permutation.missing": "放入浮霜金属、余烬金属、超限合金、多相物质或其它材料，或留空",
   "screen.anvilcraft.frost_smithing.royal_steel_ingot.missing_tools": "放入钻石武器或工具，或皇家钢武器或工具",
   "screen.anvilcraft.frost_smithing.tooltip.missing_template": "放入嬗变模板或形变模板",
   "screen.anvilcraft.integration_screen.category.additional": "附属",
@@ -1527,6 +1528,7 @@
   "tooltip.anvilcraft.item.canned_food": "可快速食用，可堆叠",
   "tooltip.anvilcraft.item.capacitor": "储存了 8 MFE 能量",
   "tooltip.anvilcraft.item.capacitor_empty": "可以储存 8 MFE 能量",
+  "tooltip.anvilcraft.item.armadillo_amulet": "驱赶蜘蛛；按住 Shift 时获得抗性提升 II",
   "tooltip.anvilcraft.item.cat_amulet": "生效时苦力怕和幻翼会害怕",
   "tooltip.anvilcraft.item.charge_collector": "收集电荷以发电",
   "tooltip.anvilcraft.item.fe_collector": "收集 FE 发电",
@@ -1604,7 +1606,7 @@
   "tooltip.anvilcraft.item.magnet_block": "吸引下方的铁砧，被活塞推拉时使相邻的铜块产生电荷",
   "tooltip.anvilcraft.item.menger_sponge": "可无限吸纳流体的海绵",
   "tooltip.anvilcraft.item.multitool": "按 [Alt] 键可切换多种内置工具模式",
-  "tooltip.anvilcraft.item.nature_amulet": "同时有寂静、猫、狗、羽毛护符的效果",
+  "tooltip.anvilcraft.item.nature_amulet": "同时有寂静、猫、狗、犰狳护符的效果",
   "tooltip.anvilcraft.item.negative_matter": "负物质不是反物质，是反重力物质",
   "tooltip.anvilcraft.item.negative_matter_block": "负物质不是反物质，是反重力物质",
   "tooltip.anvilcraft.item.negative_matter_nugget": "负物质不是反物质，是反重力物质",
@@ -2579,5 +2581,6 @@
   "tooltip.anvilcraft.item.local_terminal": "连接 32 方块范围内最近的大型板条箱",
   "tooltip.anvilcraft.item.shulker_terminal": "连接世界上或物品栏内的潜影类存储方块",
   "tooltip.anvilcraft.item.shulker_terminal.shift": "优先连接物品栏最靠前的潜影集装箱，否则连接 64 格内最近的世界潜影集装箱",
-  "key.anvilcraft.open_terminal": "打开终端"
+  "key.anvilcraft.open_terminal": "打开终端",
+  "screen.anvilcraft.frost_smithing.permutation.missing_tools": "放入武器、工具、护甲或重型物品"
 }

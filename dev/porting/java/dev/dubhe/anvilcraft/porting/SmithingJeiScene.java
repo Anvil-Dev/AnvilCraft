@@ -266,16 +266,16 @@ public final class SmithingJeiScene {
         return (IconButton) ((List<?>) field(layout, "buttons")).getFirst();
     }
 
-    private static boolean active(Minecraft client) {
+    static boolean active(Minecraft client) {
         return button(client).isVisible() && ((AbstractWidget) field(button(client), "button")).active;
     }
 
-    private static void clickTransfer(Minecraft client) {
+    static void clickTransfer(Minecraft client) {
         var area = button(client).getArea();
         click(client, area.getX() + area.getWidth() / 2, area.getY() + area.getHeight() / 2);
     }
 
-    private static void takeAndPark(Minecraft client, int resultSlot) {
+    static void takeAndPark(Minecraft client, int resultSlot) {
         var screen = (AbstractContainerScreen<?>) client.screen;
         Slot result = screen.getMenu().getSlot(resultSlot);
         click(client, screen.getLeftPos() + result.x + 8, screen.getTopPos() + result.y + 8);
@@ -284,7 +284,7 @@ public final class SmithingJeiScene {
         click(client, screen.getLeftPos() + target.x + 8, screen.getTopPos() + target.y + 8);
     }
 
-    private static void click(Minecraft client, int x, int y) {
+    static void click(Minecraft client, int x, int y) {
         var screen = client.screen;
         var event = new MouseButtonEvent(x, y, new MouseButtonInfo(0, 0));
         screen.mouseClicked(event, false);

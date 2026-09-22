@@ -1,0 +1,27 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:mod_loaded",
+      "modid": "twilightforest"
+    }
+  ],
+  "type": "anvilcraft:deformation",
+  "material": {
+    "type": "anvilcraft:repair_material",
+    "cost": 2
+  },
+  "inputs": [
+    {
+      "id": "twilightforest:yeti_helmet"
+    },
+    {
+      "id": "twilightforest:yeti_chestplate"
+    },
+    {
+      "id": "twilightforest:yeti_leggings"
+    },
+    {
+      "id": "twilightforest:yeti_boots"
+    }
+  ]
+}

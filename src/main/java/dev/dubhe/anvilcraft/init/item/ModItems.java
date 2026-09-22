@@ -898,6 +898,11 @@ public class ModItems {
         () -> ModAmulets.FEATHER,
         builder -> builder.requires(Items.FEATHER, 16).requires(Items.PHANTOM_MEMBRANE, 4)
     );
+    public static final ItemEntry<? extends Item> ARMADILLO_AMULET = ModItems.createAmuletItem(
+        "armadillo",
+        () -> ModAmulets.ARMADILLO,
+        builder -> builder.requires(Items.SPIDER_EYE, 16).requires(Items.ARMADILLO_SCUTE, 4)
+    );
     public static final ItemEntry<? extends Item> CAT_AMULET = ModItems.createAmuletItem(
         "cat",
         () -> ModAmulets.CAT,

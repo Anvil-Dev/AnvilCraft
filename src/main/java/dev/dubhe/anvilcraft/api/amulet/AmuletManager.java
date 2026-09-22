@@ -4,6 +4,7 @@ import dev.anvilcraft.lib.v2.util.CollectionUtil;
 import dev.dubhe.anvilcraft.api.amulet.def.IAmuletDefinition;
 import dev.dubhe.anvilcraft.api.event.AmuletEvent;
 import dev.dubhe.anvilcraft.init.ModDataAttachments;
+import dev.dubhe.anvilcraft.init.item.ModAmulets;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.registry.ModRegistryKeys;
 import dev.dubhe.anvilcraft.item.property.component.amulet.DoNothingAmulet;
@@ -14,6 +15,8 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.common.NeoForge;
@@ -174,6 +177,10 @@ public class AmuletManager {
             all.add(def.value().create());
         }
         List<ItemStack> now = this.getAmuletsFromInventory(player);
+        if (player.isShiftKeyDown() && now.stream().anyMatch(stack ->
+            stack.getOrDefault(ModComponents.AMULET, DoNothingAmulet.INSTANCE).canActAs(ModAmulets.ARMADILLO))) {
+            player.addEffect(new MobEffectInstance(MobEffects.RESISTANCE, 2, 1, false, false, true));
+        }
         for (ItemStack stack : now) {
             IAmulet amulet = stack.getOrDefault(ModComponents.AMULET, DoNothingAmulet.INSTANCE);
             all.removeIf(other -> amulet.canActAs(

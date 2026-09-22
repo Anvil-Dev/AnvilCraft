@@ -1,0 +1,16 @@
+{
+  "type": "anvilcraft:permutation",
+  "input": {
+    "items": "minecraft:netherite_shovel"
+  },
+  "options": [
+    {
+      "material": {
+        "type": "anvilcraft:empty"
+      },
+      "result": {
+        "id": "minecraft:diamond_shovel"
+      }
+    }
+  ]
+}

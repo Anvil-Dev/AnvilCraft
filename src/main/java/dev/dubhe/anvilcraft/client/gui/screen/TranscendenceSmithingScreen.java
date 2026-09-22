@@ -2,7 +2,6 @@ package dev.dubhe.anvilcraft.client.gui.screen;
 
 import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.api.item.IMultipleMaterial;
-import dev.dubhe.anvilcraft.api.item.IPermutationMaterial;
 import dev.dubhe.anvilcraft.client.gui.component.TexturedButton;
 import dev.dubhe.anvilcraft.constant.Constant;
 import dev.dubhe.anvilcraft.constant.SharedTextures;
@@ -40,7 +39,6 @@ import net.minecraft.world.item.SmithingTemplateItem;
 import net.minecraft.world.item.equipment.Equippable;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import org.joml.Quaternionf;
-import org.joml.Vector3f;
 import org.jspecify.annotations.Nullable;
 
 import java.util.List;
@@ -90,7 +88,6 @@ public class TranscendenceSmithingScreen extends AbstractContainerScreen<Transce
     private static final List<Identifier> EMPTY_SLOT_DEFORMATION_MATERIAL = List.of(TranscendenceSmithingScreen.EMPTY_SLOT_INGOT);
     private static final Quaternionf ARMOR_STAND_ANGLE =
         new Quaternionf().rotationXYZ(0.43633232f, 0.0f, (float) Math.PI);
-    private static final Vector3f ARMOR_STAND_TRANSLATION = new Vector3f(0.0F, 1.0F, 0.0F);
 
     private final CyclingSlotBackground firstInputIcon =
         new CyclingSlotBackground(TranscendenceSmithingMenu.ROYAL_FROST_FIRST_INPUT_SLOT);
@@ -252,18 +249,13 @@ public class TranscendenceSmithingScreen extends AbstractContainerScreen<Transce
         this.clearEmberIcons();
         Item item = this.menu.getSelectedTemplate().getItem();
         if (item instanceof PermutationTemplateItem permutation) {
-            this.firstInputIcon.tick(permutation.getEmptySlotTextures());
-            ItemStack material = this.menu.getRoyalFrostFirstInput();
-            if (material.getItem() instanceof IPermutationMaterial permutationMaterial) {
-                this.secondInputIcon.tick(permutationMaterial.getEmptySlotTextures());
-            } else {
-                this.secondInputIcon.tick(List.of());
-            }
+            this.secondInputIcon.tick(permutation.getEmptySlotTextures());
+            this.firstInputIcon.tick(permutation.getInputSlotTextures());
             return;
         }
         if (item instanceof DeformationTemplateItem deformation) {
-            this.firstInputIcon.tick(TranscendenceSmithingScreen.EMPTY_SLOT_DEFORMATION_MATERIAL);
-            this.secondInputIcon.tick(deformation.getEmptySlotTextures());
+            this.firstInputIcon.tick(deformation.getEmptySlotTextures());
+            this.secondInputIcon.tick(EMPTY_SLOT_DEFORMATION_MATERIAL);
             return;
         }
         this.firstInputIcon.tick(List.of());
@@ -472,17 +464,8 @@ public class TranscendenceSmithingScreen extends AbstractContainerScreen<Transce
 
     private void extractArmorStand(GuiGraphicsExtractor graphics) {
         if (this.menu.getMode() == TranscendenceSmithingMenu.Mode.EMBER) return;
-        graphics.entity(
-            this.armorStandPreview,
-            25,
-            TranscendenceSmithingScreen.ARMOR_STAND_TRANSLATION,
-            TranscendenceSmithingScreen.ARMOR_STAND_ANGLE,
-            null,
-            this.leftPos + 131,
-            this.topPos + 20,
-            this.leftPos + 171,
-            this.topPos + 60
-        );
+        SmithingPreview.extract(graphics, this.armorStandPreview, TranscendenceSmithingScreen.ARMOR_STAND_ANGLE,
+            this.leftPos, this.topPos);
     }
 
     @Override
@@ -539,7 +522,7 @@ public class TranscendenceSmithingScreen extends AbstractContainerScreen<Transce
         switch (this.menu.getMode()) {
             case ROYAL -> this.extractRoyalSlotTooltip(graphics, mouseX, mouseY, hoveredSlot);
             case EMBER -> this.extractEmberSlotTooltip(graphics, mouseX, mouseY, hoveredSlot);
-            case FROST -> this.extractFrostSlotTooltip(graphics, mouseX, mouseY, hoveredSlot);
+            case FROST -> this.extractFrostSlotTooltip(graphics, mouseX, mouseY);
             default -> throw new IllegalStateException("Unknown smithing mode: " + this.menu.getMode());
         }
     }
@@ -602,23 +585,30 @@ public class TranscendenceSmithingScreen extends AbstractContainerScreen<Transce
         }
     }
 
-    private void extractFrostSlotTooltip(GuiGraphicsExtractor graphics, int mouseX, int mouseY, Slot hoveredSlot) {
+    private void extractFrostSlotTooltip(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
         Item item = this.menu.getSelectedTemplate().getItem();
         if (item instanceof PermutationTemplateItem permutation) {
-            if (hoveredSlot.index == TranscendenceSmithingMenu.ROYAL_FROST_FIRST_INPUT_SLOT) {
+            if (this.hoveredSlot == null) return;
+            if (this.hoveredSlot.index == TranscendenceSmithingMenu.ROYAL_FROST_FIRST_INPUT_SLOT) {
+                graphics.setTooltipForNextFrame(
+                    this.font,
+                    this.font.split(permutation.getInputTooltip(), 115),
+                    mouseX,
+                    mouseY
+                );
+            } else if (this.hoveredSlot.index == TranscendenceSmithingMenu.ROYAL_FROST_SECOND_INPUT_SLOT) {
                 graphics.setTooltipForNextFrame(
                     this.font,
                     this.font.split(permutation.getMaterialTooltip(), 115),
                     mouseX,
                     mouseY
                 );
-            } else if (hoveredSlot.index == TranscendenceSmithingMenu.ROYAL_FROST_SECOND_INPUT_SLOT
-                && this.menu.getRoyalFrostFirstInput().getItem() instanceof IPermutationMaterial material) {
-                Component tooltip = material.getInputTooltip(this.menu.getRoyalFrostFirstInput());
-                graphics.setTooltipForNextFrame(this.font, this.font.split(tooltip, 115), mouseX, mouseY);
             }
-        } else if (item instanceof DeformationTemplateItem deformation
-            && hoveredSlot.index == TranscendenceSmithingMenu.ROYAL_FROST_SECOND_INPUT_SLOT) {
+        } else if (
+            item instanceof DeformationTemplateItem deformation
+            && this.hoveredSlot != null
+            && this.hoveredSlot.index == TranscendenceSmithingMenu.ROYAL_FROST_FIRST_INPUT_SLOT
+        ) {
             graphics.setTooltipForNextFrame(
                 this.font,
                 this.font.split(deformation.getInputTooltip(), 115),

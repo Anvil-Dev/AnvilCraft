@@ -6,6 +6,7 @@ import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.integration.jei.AnvilCraftJeiPlugin;
 import dev.dubhe.anvilcraft.inventory.AdjacentSmithingMenu;
 import dev.dubhe.anvilcraft.inventory.EmberSmithingMenu;
+import dev.dubhe.anvilcraft.inventory.FrostSmithingMenu;
 import dev.dubhe.anvilcraft.inventory.RoyalSmithingMenu;
 import dev.dubhe.anvilcraft.inventory.TranscendenceSmithingMenu;
 import dev.dubhe.anvilcraft.rpc.SmithingServerStub;
@@ -55,9 +56,11 @@ public final class SmithingRecipeTransferHandler<C extends AbstractContainerMenu
         BiPredicate<R, ItemStack> templateMatches
     ) {
         this.helper = registration.getTransferHelper();
-        this.materials = this.helper.createUnregisteredRecipeTransferHandler(this.helper.createBasicRecipeTransferInfo(
-            menuClass, menuType, recipeType, inputStart, inputCount, inventoryStart, 36
-        ));
+        this.materials = recipeType == AnvilCraftJeiPlugin.FROST_SMITHING
+            ? new FrostRecipeTransferHandler<>(menuClass, menuType, recipeType, this.helper)
+            : this.helper.createUnregisteredRecipeTransferHandler(this.helper.createBasicRecipeTransferInfo(
+                menuClass, menuType, recipeType, inputStart, inputCount, inventoryStart, 36
+            ));
         this.inventoryTransfer = menuClass == RoyalSmithingMenu.class
             ? this.helper.createUnregisteredRecipeTransferHandler(this.helper.createBasicRecipeTransferInfo(
                 menuClass, menuType, recipeType, 0, 3, inventoryStart, 36
@@ -87,6 +90,16 @@ public final class SmithingRecipeTransferHandler<C extends AbstractContainerMenu
             AnvilCraftJeiPlugin.MULTIPLE_TO_ONE_SMITHING, 2, 9, 13, false,
             (recipe, stack) -> recipe.value().isTemplateIngredient(stack)
         ), AnvilCraftJeiPlugin.MULTIPLE_TO_ONE_SMITHING);
+        registration.addRecipeTransferHandler(new SmithingRecipeTransferHandler<>(
+            registration, FrostSmithingMenu.class, ModMenuTypes.FROST_SMITHING.get(),
+            AnvilCraftJeiPlugin.FROST_SMITHING, 1, 2, 4, false,
+            (recipe, stack) -> recipe.recipe().isTemplate(stack)
+        ), AnvilCraftJeiPlugin.FROST_SMITHING);
+        registration.addRecipeTransferHandler(new SmithingRecipeTransferHandler<>(
+            registration, TranscendenceSmithingMenu.class, ModMenuTypes.TRANSCENDENCE_SMITHING.get(),
+            AnvilCraftJeiPlugin.FROST_SMITHING, 0, 2, 13, false,
+            (recipe, stack) -> recipe.recipe().isTemplate(stack)
+        ), AnvilCraftJeiPlugin.FROST_SMITHING);
     }
 
     @Override
