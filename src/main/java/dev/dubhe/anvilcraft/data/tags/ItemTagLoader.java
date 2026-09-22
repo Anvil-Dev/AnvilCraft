@@ -276,6 +276,8 @@ public class ItemTagLoader {
         provider.rawBuilder(ModItemTags.ROYAL_STEEL_TOOL_MATERIALS)
             .addElement(ModItems.ROYAL_STEEL_INGOT.getId());
 
+        provider.rawBuilder(ModItemTags.UNIVERSAL_REPAIR_MATERIALS)
+            .addElement(ModItems.FROST_METAL_INGOT.getId());
         provider.rawBuilder(ModItemTags.FROST_METAL_TOOL_MATERIALS)
             .addElement(ModItems.FROST_METAL_INGOT.getId());
 

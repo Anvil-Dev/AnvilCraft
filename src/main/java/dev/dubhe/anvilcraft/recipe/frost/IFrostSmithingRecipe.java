@@ -46,6 +46,10 @@ public interface IFrostSmithingRecipe extends Recipe<FrostSmithingRecipeInput> {
 
     @Unmodifiable List<RecipeResult> inputs();
 
+    default List<ItemStack> possibleInputs() {
+        return this.inputs().stream().map(result -> result.result().item().value().getDefaultInstance()).toList();
+    }
+
     default @Unmodifiable List<RecipeResult> inputs(ItemStack input) {
         int head;
         for (head = 0; head < this.inputs().size(); head++) {

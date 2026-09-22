@@ -9,6 +9,7 @@ import dev.dubhe.anvilcraft.api.recipe.result.modifier.IResultModifier;
 import dev.dubhe.anvilcraft.block.entity.celestial.Megastructure;
 import dev.dubhe.anvilcraft.block.placement.BlockPlacementRuleSet;
 import dev.dubhe.anvilcraft.item.property.component.amulet.IAmulet;
+import dev.dubhe.anvilcraft.recipe.frost.IFrostMaterialPredicate;
 import dev.dubhe.anvilcraft.saved.storage.category.ICategory;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
@@ -24,6 +25,8 @@ public class ModRegistryKeys {
     public static final ResourceKey<Registry<IResultModifier.Type<?>>> MODIFIER = ModRegistryKeys.key("result_modifier");
     public static final ResourceKey<Registry<ICustomDataComponent.Type<?>>> CUSTOM_DATA_TYPE = ModRegistryKeys.key("custom_data_component");
     public static final ResourceKey<Registry<INumberProvider.Type<?>>> NUMBER_PROVIDER_TYPE = ModRegistryKeys.key("number_provider");
+    public static final ResourceKey<Registry<IFrostMaterialPredicate.Type<?>>> FROST_MATERIAL_PREDICATE_TYPE
+        = ModRegistryKeys.key("frost_material_predicate");
     public static final ResourceKey<Registry<ICategory.Type<?>>> CATEGORY_TYPE = ModRegistryKeys.key("category_type");
     public static final ResourceKey<Registry<ICategory>> CATEGORY = ModRegistryKeys.key("category");
     public static final ResourceKey<Registry<Megastructure>> MEGASTRUCTURE = ModRegistryKeys.key("megastructure");

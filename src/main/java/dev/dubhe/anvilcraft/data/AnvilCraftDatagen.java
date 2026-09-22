@@ -21,6 +21,7 @@ import dev.dubhe.anvilcraft.init.entity.ModDamageTypes;
 import dev.dubhe.anvilcraft.init.entity.ModTradeSets;
 import dev.dubhe.anvilcraft.init.entity.ModVillagerTrades;
 import dev.dubhe.anvilcraft.init.item.ModAmuletDefinitions;
+import dev.dubhe.anvilcraft.init.recipe.ModMathFunctions;
 import dev.dubhe.anvilcraft.init.registry.ModRegistryKeys;
 import dev.dubhe.anvilcraft.init.storage.ModCategories;
 import net.minecraft.advancements.Criterion;
@@ -84,6 +85,7 @@ public class AnvilCraftDatagen {
         genInit.add(Registries.VILLAGER_TRADE, ModVillagerTrades::bootstrap);
         genInit.add(Registries.TRADE_SET, ModTradeSets::bootstrap);
         genInit.add(LibRegistries.DEFINITIONS_KEY, ModMultiblockDefinitions::bootstrap);
+        genInit.add(dev.anvilcraft.lib.v2.math.init.LibRegistries.FUNCTION_KEY, ModMathFunctions::bootstrap);
         genInit.add(ModRegistryKeys.AMULET_DEF, ModAmuletDefinitions::bootstrap);
         genInit.add(ModRegistryKeys.CATEGORY, ModCategories::bootstrap);
 
