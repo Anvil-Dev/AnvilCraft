@@ -289,6 +289,12 @@
 		}
 	],
 	"gui_light": "front",
+	"overrides": [
+		{"predicate": {"custom_model_data": 1}, "model": "anvilcraft:item/ember_metal_resonance_axe"},
+		{"predicate": {"custom_model_data": 2}, "model": "anvilcraft:item/ember_metal_resonance_shovel"},
+		{"predicate": {"custom_model_data": 3}, "model": "anvilcraft:item/ember_metal_resonance_hoe"},
+		{"predicate": {"custom_model_data": 4}, "model": "anvilcraft:item/ember_metal_resonance_pickaxe"}
+	],
 	"display": {
 		"thirdperson_righthand": {
 			"rotation": [0, -90, 45],
@@ -315,9 +321,8 @@
 			"scale": [0.5, 0.5, 0.5]
 		},
 		"gui": {
-			"rotation": [0, 20, 0],
-			"translation": [-1.5, -1.5, 0],
-			"scale": [0.5, 0.5, 0.5]
+			"translation": [-3.5, -3.5, 0],
+			"scale": [0.6, 0.6, 0.6]
 		},
 		"head": {
 			"rotation": [-45, -90, 0],
@@ -326,8 +331,8 @@
 		},
 		"fixed": {
 			"rotation": [0, -180, 0],
-			"translation": [0.5, -0.5, 0],
-			"scale": [0.5, 0.5, 0.5]
+			"translation": [0.5, -0.5, -1],
+			"scale": [0.75, 0.75, 0.75]
 		},
 		"on_shelf": {
 			"rotation": [0, 0, 45],

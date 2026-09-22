@@ -28,7 +28,7 @@ import dev.dubhe.anvilcraft.item.armor.EquipmentArmorItem;
 import dev.dubhe.anvilcraft.item.armor.IonoCraftBackpackItem;
 import dev.dubhe.anvilcraft.item.tool.HeavyHalberdItem;
 import dev.dubhe.anvilcraft.item.tool.HeavyHalberdMode;
-import dev.dubhe.anvilcraft.item.tool.trascendence.TranscendenceResonatorItem;
+import dev.dubhe.anvilcraft.item.tool.ResonatorItem;
 import dev.dubhe.anvilcraft.item.weapon.AnvilRailgunItem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.HumanoidModel;
@@ -132,7 +132,8 @@ public class AnvilCraftClient {
             ModItems.EMBER_METAL_HEAVY_HALBERD,
             ModItems.TRANSCENDENCE_HEAVY_HALBERD
         );
-        e.registerItem(new TranscendenceResonatorExtensionImpl(), ModItems.TRANSCENDENCE_RESONATOR);
+        e.registerItem(new ResonatorExtensionImpl(),
+            ModItems.TRANSCENDENCE_RESONATOR, ModItems.EMBER_METAL_RESONATOR, ModItems.FROST_METAL_RESONATOR);
     }
 
     @SubscribeEvent
@@ -265,7 +266,7 @@ public class AnvilCraftClient {
         }
     }
 
-    public static class TranscendenceResonatorExtensionImpl implements IClientItemExtensions {
+    public static class ResonatorExtensionImpl implements IClientItemExtensions {
         @Override
         public boolean applyForgeHandTransform(
             PoseStack poseStack,
@@ -283,7 +284,7 @@ public class AnvilCraftClient {
                 stack,
                 partialTick,
                 equipProgress,
-                TranscendenceResonatorItem.RESONANCE_MINING_TICKS
+                ((ResonatorItem) stack.getItem()).resonanceMiningTicks()
             );
         }
     }
