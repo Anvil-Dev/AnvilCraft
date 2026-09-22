@@ -12,6 +12,7 @@ import dev.dubhe.anvilcraft.client.init.ModAtlasIds;
 import dev.dubhe.anvilcraft.client.init.ModKeyMappings;
 import dev.dubhe.anvilcraft.client.init.ModTextureAtlases;
 import dev.dubhe.anvilcraft.client.rpc.StorageTerminalClientStub;
+import dev.dubhe.anvilcraft.client.rpc.TerminalJeiStorageCache;
 import dev.dubhe.anvilcraft.client.rpc.TerminalReachabilityCache;
 import dev.dubhe.anvilcraft.client.support.AmuletSelectorSupport;
 import dev.dubhe.anvilcraft.client.support.BoxSelectionTarget;
@@ -107,6 +108,7 @@ public class ClientEventListener {
         RecipesRecord.CLIENTSIDE = null;
         StorageTerminalClientStub.clear();
         TerminalReachabilityCache.clear();
+        TerminalJeiStorageCache.clear();
         StructureDiskPreviewSupport.clearCache();
         ItemCollectorBlockEntity.clearPoachingCollectors();
     }

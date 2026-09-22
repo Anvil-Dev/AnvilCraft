@@ -69,10 +69,10 @@ public final class StorageRecipeTransferPlan {
         return true;
     }
 
-    private record FluidContainer(ItemResource empty, FluidResource fluid, int amount) {
+    public record FluidContainer(ItemResource empty, FluidResource fluid, int amount) {
     }
 
-    private static @Nullable FluidContainer container(ItemStack wanted) {
+    public static @Nullable FluidContainer container(ItemStack wanted) {
         FluidStack fluid = FluidUtil.getFirstStackContained(wanted.copyWithCount(1));
         if (fluid.isEmpty()) return null;
         var single = new ItemStacksResourceHandler(1);

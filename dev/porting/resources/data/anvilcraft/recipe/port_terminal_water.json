@@ -1,0 +1,6 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": ["minecraft:water_bucket", "minecraft:sand"],
+  "result": {"id": "minecraft:clay_ball"}
+}

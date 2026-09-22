@@ -39,6 +39,7 @@ allprojects {
             include '**/BundleLike*.java', '**/InvertedActionEventListener.java', '**/PillBoxItem.java', '**/AmuletBoxItem.java'
             include '**/PillBoxContents.java', '**/event/PlayerTickEventHandler.java'
             include '**/data/lang/CategoryLang.java'
+            include '**/TerminalJei*.java', '**/JeiBasicRecipeTransferHandlerMixin.java'
             include '**/TerminalInsertionDecoration.java', '**/event/TooltipEventListener.java', '**/client/AnvilCraftClient.java'
             include '**/TerminalReachabilityCache.java', '**/TerminalRemoteOverlay.java', '**/TerminalOverlayEventListener.java'
             include '**/TerminalKeyMappingEventListener.java', '**/ModKeyMappings.java', '**/KeyMappingLang.java'

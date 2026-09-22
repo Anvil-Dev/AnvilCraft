@@ -109,6 +109,7 @@
     "providence.EnchantedCountIncreaseFunctionMixin"
   ],
   "client": [
+    "JeiBasicRecipeTransferHandlerMixin",
     "client.ScaledGuiItemExtractionMixin",
     "client.ScaledGuiItemRendererMixin",
     "client.SmartPlacerScanTimeMixin",
