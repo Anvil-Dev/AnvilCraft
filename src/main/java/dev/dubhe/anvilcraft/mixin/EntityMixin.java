@@ -53,6 +53,11 @@ public abstract class EntityMixin implements IEntityExtension {
         }
     }
 
+    @ModifyVariable(method = {"onInsideBubbleColumn", "onAboveBubbleColumn"}, at = @At("HEAD"), argsOnly = true)
+    private boolean anvilcraft$sinkInBubbleColumn(boolean downwards) {
+        return downwards || (Object) this instanceof Player player && EquipmentAbilities.shouldSinkInFluid(player);
+    }
+
     @Unique
     public Vec3 anvil$fixedDeltaMovement = Vec3.ZERO;
 

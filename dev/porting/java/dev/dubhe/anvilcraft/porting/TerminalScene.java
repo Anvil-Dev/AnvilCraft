@@ -45,6 +45,7 @@ public final class TerminalScene {
     private static boolean amuletTesting;
     private static boolean headgearTesting;
     private static boolean atmosphereTesting;
+    private static boolean bootsTesting;
     private static volatile boolean prepared;
     private static volatile boolean clientLoaded;
     private static volatile Throwable failure;
@@ -55,6 +56,10 @@ public final class TerminalScene {
     private static boolean capturing;
 
     public static void frame(Minecraft client) {
+        if (bootsTesting) {
+            BufferBootsScene.frame(client);
+            return;
+        }
         if (atmosphereTesting) {
             AtmosphereScene.frame(client);
             return;
@@ -265,7 +270,9 @@ public final class TerminalScene {
             }
             case 18 -> {
                 AnvilCraft.LOGGER.info("PORT_TERMINAL_SCENE_PASSED: binding, inventory, own crafting, local range, shulker priority");
-                if (Boolean.getBoolean("anvilcraft.portAtmosphereScene")) {
+                if (Boolean.getBoolean("anvilcraft.portBufferBootsScene")) {
+                    bootsTesting = true;
+                } else if (Boolean.getBoolean("anvilcraft.portAtmosphereScene")) {
                     atmosphereTesting = true;
                 } else if (Boolean.getBoolean("anvilcraft.portHeadgearScene")) {
                     headgearTesting = true;

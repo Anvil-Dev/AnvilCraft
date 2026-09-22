@@ -56,6 +56,9 @@ public class ModComponents {
     public static final DataComponentType<TerminalBinding> TERMINAL_BINDING = ModComponents.register(
         "terminal_binding", b -> b.persistent(TerminalBinding.CODEC.codec()).networkSynchronized(TerminalBinding.STREAM_CODEC)
     );
+    public static final DataComponentType<Boolean> CHARGED_JUMP_ENABLED = ModComponents.register(
+        "charged_jump_enabled", b -> b.persistent(Codec.BOOL).networkSynchronized(ByteBufCodecs.BOOL)
+    );
     public static final DataComponentType<Boolean> NIGHT_VISION_ENABLED = ModComponents.register(
         "night_vision_enabled", b -> b.persistent(Codec.BOOL).networkSynchronized(ByteBufCodecs.BOOL)
     );

@@ -2590,5 +2590,12 @@
   "screen.anvilcraft.equipment.night_vision.on": "开启夜视",
   "screen.anvilcraft.equipment.night_vision.off": "关闭夜视",
   "tooltip.anvilcraft.item.breathing_helmet": "在水下和真空中供氧\n消除水下挖掘惩罚",
-  "tooltip.anvilcraft.item.weatherproof_spacesuit_helmet": "在水下和真空中供氧\n消除水下挖掘惩罚\n在所有流体中保持清晰视野\n%s"
+  "tooltip.anvilcraft.item.weatherproof_spacesuit_helmet": "在水下和真空中供氧\n消除水下挖掘惩罚\n在所有流体中保持清晰视野\n%s",
+  "item.anvilcraft.buffer_boots": "缓冲靴",
+  "item.anvilcraft.weatherproof_spacesuit_boots": "耐候航天靴子",
+  "message.anvilcraft.buffer_boots.charged": "按%1$s高跳",
+  "tooltip.anvilcraft.item.buffer_boots": "免疫摔落伤害\n潜行蓄力，最多可跳跃 4 格方块高",
+  "tooltip.anvilcraft.item.weatherproof_spacesuit_boots": "免疫摔落伤害\n潜行蓄力，最多可跳跃 4 格方块高\n可站在静止流体表面；潜行进入流体，持续潜行加快下沉",
+  "screen.anvilcraft.equipment.charged_jump.on": "开启蓄力跳跃",
+  "screen.anvilcraft.equipment.charged_jump.off": "关闭蓄力跳跃"
 }

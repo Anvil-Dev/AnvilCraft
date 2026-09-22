@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.mixin;
 
+import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.sugar.Local;
 import com.llamalad7.mixinextras.sugar.Share;
 import com.llamalad7.mixinextras.sugar.ref.LocalRef;
@@ -12,6 +13,7 @@ import dev.dubhe.anvilcraft.block.workstation.frost.FrostAnvilBlock;
 import dev.dubhe.anvilcraft.init.ModMobEffects;
 import dev.dubhe.anvilcraft.init.loot.ModLootTables;
 import dev.dubhe.anvilcraft.item.AmuletAbilities;
+import dev.dubhe.anvilcraft.item.EquipmentAbilities;
 import dev.dubhe.anvilcraft.item.property.consume.PreventShrinkingConsumeEffect;
 import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceKey;
@@ -230,5 +232,11 @@ public abstract class LivingEntityMixin extends Entity implements ILivingEntityE
                 cir.setReturnValue(false);
             }
         }
+    }
+
+    @ModifyExpressionValue(method = "jumpFromGround", at = @At(value = "INVOKE",
+        target = "Lnet/minecraft/world/entity/LivingEntity;getJumpPower()F"))
+    private float anvilcraft$chargedJump(float normal) {
+        return (Object) this instanceof Player player ? EquipmentAbilities.consumeChargedJump(player, normal) : normal;
     }
 }

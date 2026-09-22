@@ -5,6 +5,7 @@
   "compatibilityLevel": "JAVA_21",
   "mixins": [
     "AtmosphereLivingMixin",
+    "EquipmentLiquidBlockMixin",
     "projectile.AbstractHurtingProjectileMixin",
     "projectile.ThrowableProjectileMixin",
     "JeiSmithingTransferMixin",

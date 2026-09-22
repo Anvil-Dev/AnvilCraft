@@ -274,6 +274,10 @@ public class ItemTooltipManager {
         ItemTooltipManager.NORMAL.put(ModBlocks.PROPEL_PISTON.asItem(), "Integrated piston worm, requires Capacitor or Laser power");
         ItemTooltipManager.NORMAL.put(ModBlocks.PULSE_GENERATOR.asItem(), "Customizes pulse delay and duration");
         ItemTooltipManager.NORMAL.put(ModBlocks.ADVANCED_COMPARATOR.asItem(), "Supports Hysteresis and Window comparison modes");
+        final String boots = "Immune to fall damage\nHold sneak to charge a jump, up to 4 blocks height";
+        ItemTooltipManager.NORMAL.put(ModItems.BUFFER_BOOTS.get(), boots);
+        ItemTooltipManager.NORMAL.put(ModItems.WEATHERPROOF_SPACESUIT_BOOTS.get(), boots
+            + "\nWalk on still fluid surfaces; sneak to submerge, hold sneak to descend faster");
         ItemTooltipManager.NORMAL.put(ModItems.BREATHING_HELMET.get(), "Supplies oxygen underwater and in vacuum\nRemoves underwater mining penalties");
         ItemTooltipManager.NORMAL.put(ModItems.WEATHERPROOF_SPACESUIT_HELMET.get(),
             "Supplies oxygen underwater and in vacuum\nRemoves underwater mining penalties\nClear vision in all fluids\n%s");

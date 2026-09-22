@@ -1821,4 +1821,16 @@ public class RegistrumItemRecipeLoader {
             .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.PIPE), AnvilCraftDatagen.has(lookup, ModItems.PIPE))
             .save(provider);
     }
+
+    public static <T extends Item> void bufferArmor(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
+        ShapedRecipeBuilder.shaped(provider.getItems(), RecipeCategory.COMBAT, ctx.get())
+            .pattern("R R")
+            .pattern("RIR")
+            .pattern("B B")
+            .define('R', ModItems.HARDEND_RESIN)
+            .define('I', Items.IRON_BOOTS)
+            .define('B', ModBlocks.RESIN_BLOCK)
+            .unlockedBy("has_material", AnvilCraftDatagen.has(provider.getItems(), Items.IRON_BOOTS))
+            .save(provider);
+    }
 }

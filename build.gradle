@@ -69,9 +69,13 @@ if (providers.gradleProperty('portValidation').isPresent()) {
         || providers.gradleProperty('portSmithingJeiScene').isPresent()
         || providers.gradleProperty('portHeadgearScene').isPresent()
         || providers.gradleProperty('portAtmosphereScene').isPresent()
+        || providers.gradleProperty('portBufferBootsScene').isPresent()
         || providers.gradleProperty('portAmuletRegistryScene').isPresent()
         || providers.gradleProperty('portFrostSmithingScene').isPresent()
         || providers.gradleProperty('portReadOnlyStorageScene').isPresent()) {
+        if (providers.gradleProperty('portBufferBootsScene').isPresent()) {
+            neoForge.runs.client.systemProperty 'anvilcraft.portBufferBootsScene', 'true'
+        }
         if (providers.gradleProperty('portAtmosphereScene').isPresent()) {
             neoForge.runs.client.systemProperty 'anvilcraft.portAtmosphereScene', 'true'
         }

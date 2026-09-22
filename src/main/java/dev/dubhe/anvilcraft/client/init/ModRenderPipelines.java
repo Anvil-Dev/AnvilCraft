@@ -22,6 +22,11 @@ import net.neoforged.neoforge.client.event.RegisterRenderPipelinesEvent;
 @EventBusSubscriber(value = Dist.CLIENT, modid = AnvilCraft.MOD_ID)
 public class ModRenderPipelines {
 
+    public static final RenderPipeline EQUIPMENT_CHARGE = RenderPipeline.builder(RenderPipelines.GUI_TEXTURED_SNIPPET)
+        .withLocation(AnvilCraft.of("pipeline/equipment_charge"))
+        .withFragmentShader(AnvilCraft.of("core/equipment_charge"))
+        .build();
+
     public static final RenderPipeline FITTED_ITEM = RenderPipeline.builder(RenderPipelines.ENTITY_SNIPPET)
         .withSampler("Sampler1")
         .withColorTargetState(new ColorTargetState(new BlendFunction(
@@ -177,6 +182,7 @@ public class ModRenderPipelines {
 
     @SubscribeEvent
     public static void on(RegisterRenderPipelinesEvent event) {
+        event.registerPipeline(ModRenderPipelines.EQUIPMENT_CHARGE);
         event.registerPipeline(ModRenderPipelines.FITTED_ITEM);
         event.registerPipeline(ModRenderPipelines.SCAN_PREVIEW_ITEM);
         event.registerPipeline(ModRenderPipelines.PLACEMENT_GHOST);

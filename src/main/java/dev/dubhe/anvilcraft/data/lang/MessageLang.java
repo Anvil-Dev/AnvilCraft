@@ -4,6 +4,8 @@ import dev.anvilcraft.lib.v2.registrum.providers.RegistrumLangProvider;
 
 public class MessageLang {
     public static void init(RegistrumLangProvider provider) {
+        provider.add("message.anvilcraft.buffer_boots.charged", "Press %1$s to jump");
+
         provider.add("item.anvilcraft.hyperdimension_terminal.bound", "Bound to a Hyperdimension Storage Station");
         provider.add("item.anvilcraft.hyperdimension_terminal.unbound", "Right-click a Hyperdimension Storage Station to bind");
         provider.add("message.anvilcraft.hyperdimension_terminal.bound", "Terminal bound");

@@ -702,6 +702,18 @@ public class ModItems {
         .properties(properties -> properties.component(ModComponents.NIGHT_VISION_ENABLED, true).fireResistant())
         .tag(ItemTags.HEAD_ARMOR, ItemTags.HEAD_ARMOR_ENCHANTABLE, ItemTags.DURABILITY_ENCHANTABLE)
         .register();
+    public static final ItemEntry<EquipmentArmorItem> BUFFER_BOOTS = REGISTRUM
+        .item("buffer_boots", p -> new EquipmentArmorItem(p, ArmorType.BOOTS, false, "spacesuit"))
+        .properties(p -> p.component(ModComponents.CHARGED_JUMP_ENABLED, true))
+        .tag(ItemTags.FOOT_ARMOR, ItemTags.FOOT_ARMOR_ENCHANTABLE, ItemTags.DURABILITY_ENCHANTABLE)
+        .recipe(RegistrumItemRecipeLoader::bufferArmor)
+        .register();
+    public static final ItemEntry<EquipmentArmorItem> WEATHERPROOF_SPACESUIT_BOOTS = REGISTRUM
+        .item("weatherproof_spacesuit_boots", p -> new EquipmentArmorItem(p, ArmorType.BOOTS, true, "weatherproof_spacesuit"))
+        .properties(p -> p.component(ModComponents.CHARGED_JUMP_ENABLED, true))
+        .properties(Item.Properties::fireResistant)
+        .tag(ItemTags.FOOT_ARMOR, ItemTags.FOOT_ARMOR_ENCHANTABLE, ItemTags.DURABILITY_ENCHANTABLE)
+        .register();
     public static final ItemEntry<Item> WEATHERPROOF_CORE = REGISTRUM.item("weatherproof_core", Item::new)
         .recipe(RegistrumItemRecipeLoader::weatherproofCore).register();
 

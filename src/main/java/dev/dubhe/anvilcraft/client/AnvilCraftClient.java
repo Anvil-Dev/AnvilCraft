@@ -39,6 +39,7 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.resources.model.EquipmentClientInfo;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -117,7 +118,7 @@ public class AnvilCraftClient {
         ModFluids.onRegisterFluidType(e);
         ItemExtensionImpl itemExtensionInstance = new ItemExtensionImpl();
         e.registerItem(itemExtensionInstance, ModItems.IONOCRAFT_BACKPACK, ModItems.BREATHING_HELMET,
-            ModItems.WEATHERPROOF_SPACESUIT_HELMET);
+            ModItems.WEATHERPROOF_SPACESUIT_HELMET, ModItems.BUFFER_BOOTS, ModItems.WEATHERPROOF_SPACESUIT_BOOTS);
         e.registerItem(
             new EnergyWeaponExtensionImpl(),
             ModItems.ANVIL_RAILGUN,
@@ -198,8 +199,9 @@ public class AnvilCraftClient {
         public Model<?> getHumanoidArmorModel(
             ItemStack itemStack, EquipmentClientInfo.LayerType layerType, Model original
         ) {
-            if (itemStack.getItem() instanceof EquipmentArmorItem) {
-                return ModModelLayers.getEquipmentHelmetModel(original);
+            if (itemStack.getItem() instanceof EquipmentArmorItem equipment) {
+                return equipment.getEquipmentSlot() == EquipmentSlot.FEET
+                    ? ModModelLayers.getEquipmentBootsModel(original) : ModModelLayers.getEquipmentHelmetModel(original);
             }
             if (itemStack.is(ModItems.IONOCRAFT_BACKPACK)) {
                 return Objects.requireNonNull(ModModelLayers.getIonocraftBackpackModel());

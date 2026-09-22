@@ -65,6 +65,7 @@ public class EquipmentArmorItem extends Item {
     }
 
     public static @Nullable DataComponentType<Boolean> abilityComponent(ItemStack stack) {
+        if (stack.is(ModItems.BUFFER_BOOTS) || stack.is(ModItems.WEATHERPROOF_SPACESUIT_BOOTS)) return ModComponents.CHARGED_JUMP_ENABLED;
         return stack.is(ModItems.WEATHERPROOF_SPACESUIT_HELMET) ? ModComponents.NIGHT_VISION_ENABLED : null;
     }
 }
