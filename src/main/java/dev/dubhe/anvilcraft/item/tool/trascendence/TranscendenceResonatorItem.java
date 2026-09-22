@@ -11,6 +11,7 @@ import dev.dubhe.anvilcraft.item.tool.AnvilHammerItem;
 import dev.dubhe.anvilcraft.item.tool.ResonateMode;
 import dev.dubhe.anvilcraft.item.tool.ResonatorItem;
 import dev.dubhe.anvilcraft.network.ResonanceMiningEffectPacket;
+import dev.dubhe.anvilcraft.network.WeaponChargeProgressPacket;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
@@ -151,6 +152,9 @@ public class TranscendenceResonatorItem extends ResonatorItem {
         }
 
         int elapsedTicks = this.getUseDuration(stack, livingEntity) - remainingUseDuration;
+        if (livingEntity instanceof ServerPlayer player) {
+            WeaponChargeProgressPacket.sync(player, stack, elapsedTicks, RESONANCE_MINING_TICKS, false);
+        }
         if (!level.isClientSide() && elapsedTicks % 3 == 0) {
             float pitch = 0.75F + 0.04F * elapsedTicks;
             level.playSound(null, target.hitPos(), SoundEvents.AMETHYST_BLOCK_RESONATE, SoundSource.BLOCKS, 0.8F, pitch);
@@ -174,6 +178,9 @@ public class TranscendenceResonatorItem extends ResonatorItem {
 
         TranscendenceResonatorItem.sendMiningEffects(level, target.effectPositions(), 0);
         int elapsedTicks = this.getUseDuration(stack, livingEntity) - remainingUseDuration;
+        if (livingEntity instanceof ServerPlayer player) {
+            WeaponChargeProgressPacket.sync(player, stack, elapsedTicks, RESONANCE_MINING_TICKS, false);
+        }
         if (elapsedTicks >= TranscendenceResonatorItem.RESONANCE_MINING_TICKS || !(livingEntity instanceof ServerPlayer player)) {
             return true;
         }

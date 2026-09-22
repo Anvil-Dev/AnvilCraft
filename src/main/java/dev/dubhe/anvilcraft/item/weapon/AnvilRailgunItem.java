@@ -4,6 +4,7 @@ import dev.dubhe.anvilcraft.api.tooltip.providers.IItemTooltipProvider;
 import dev.dubhe.anvilcraft.entity.RailgunAnvilEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
+import dev.dubhe.anvilcraft.network.WeaponChargeProgressPacket;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
@@ -64,9 +65,14 @@ public class AnvilRailgunItem extends EnergyWeaponItem implements IItemTooltipPr
     @Override
     public void onUseTick(Level level, LivingEntity user, ItemStack weapon, int remaining) {
         if (!(user instanceof Player usingPlayer) || !this.canContinueUsing(usingPlayer, weapon)) return;
-        if (!(user instanceof ServerPlayer player) || AnvilRailgunItem.isLoading(player, weapon, player.getUsedItemHand())) return;
+        if (!(user instanceof ServerPlayer player)) return;
+        if (AnvilRailgunItem.isLoading(player, weapon, player.getUsedItemHand())) {
+            WeaponChargeProgressPacket.sync(player, weapon, 0, 0, false);
+            return;
+        }
         int elapsed = this.getUseDuration(weapon, user) - remaining;
         int fullTicks = AnvilRailgunItem.fullChargeTicks(level, weapon);
+        WeaponChargeProgressPacket.sync(player, weapon, elapsed, fullTicks, true);
         if (elapsed > 0 && elapsed % fullTicks == 0) {
             this.fire((ServerLevel) level, player, weapon, 1.0F);
             if (AnvilRailgunItem.ammo(weapon).isEmpty()) player.releaseUsingItem();

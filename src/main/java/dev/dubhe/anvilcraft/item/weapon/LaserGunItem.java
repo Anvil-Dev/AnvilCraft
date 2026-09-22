@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.item.weapon;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.entity.WeaponBeamEntity;
 import dev.dubhe.anvilcraft.init.entity.ModDamageTypes;
+import dev.dubhe.anvilcraft.network.WeaponChargeProgressPacket;
 import dev.dubhe.anvilcraft.util.BreakBlockUtil;
 import dev.dubhe.anvilcraft.util.WeaponRaycastUtil;
 import net.minecraft.core.BlockPos;
@@ -75,10 +76,13 @@ public class LaserGunItem extends EnergyWeaponItem {
         if (!targets.isEmpty()) {
             state.resetMining();
             LaserGunItem.hurtTargets(serverLevel, player, stack, targets, state);
+            WeaponChargeProgressPacket.sync(
+                player, stack, state.targetTicks >= 400 ? 100 : state.targetTicks, 100, state.targetTicks < 400);
             return;
         }
         state.resetTarget();
         LaserGunItem.mine(serverLevel, player, stack, blockHit, state);
+        WeaponChargeProgressPacket.sync(player, stack, state.miningTicks, state.vein.isEmpty() ? 0 : miningPeriod(level, stack), true);
     }
 
     private static void hurtTargets(
