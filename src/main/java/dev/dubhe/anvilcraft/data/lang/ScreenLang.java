@@ -258,6 +258,8 @@ public class ScreenLang {
 
         provider.add("screen.anvilcraft.filter.scroll_wheel_to_change_stack_limit", "Scroll mouse wheel to change stack limit");
 
+        provider.add("screen.anvilcraft.equipment.night_vision.on", "Enable Night Vision");
+        provider.add("screen.anvilcraft.equipment.night_vision.off", "Disable Night Vision");
         provider.add("screen.anvilcraft.frost_smithing.permutation.missing_tools", "Add weapons, tools, armors or heavy items");
         provider.add("screen.anvilcraft.frost_smithing.tooltip.missing_template", "Add Permutation Template or Deformation Template");
         provider.add("screen.anvilcraft.frost_smithing.permutation.missing", "Add Frost Metal, Ember Metal, Transcendium, Multiphase Matter and other materials, or leave it empty");

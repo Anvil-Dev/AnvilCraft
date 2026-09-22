@@ -111,6 +111,7 @@
     "providence.EnchantedCountIncreaseFunctionMixin"
   ],
   "client": [
+    "EquipmentFluidOverlayMixin",
     "JeiBasicRecipeTransferHandlerMixin",
     "client.ScaledGuiItemExtractionMixin",
     "client.ScaledGuiItemRendererMixin",

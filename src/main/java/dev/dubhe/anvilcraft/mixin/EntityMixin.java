@@ -9,11 +9,13 @@ import dev.dubhe.anvilcraft.api.event.EntityThroughPortalEvent;
 import dev.dubhe.anvilcraft.api.injection.entity.IEntityExtension;
 import dev.dubhe.anvilcraft.api.portal.PortalType;
 import dev.dubhe.anvilcraft.block.entity.DeflectionRingBlockEntity;
+import dev.dubhe.anvilcraft.item.EquipmentAbilities;
 import dev.dubhe.anvilcraft.mixin.accessor.PortalProcessorAccessor;
 import dev.dubhe.anvilcraft.util.AccelerateManager;
 import dev.dubhe.anvilcraft.util.GravityManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.PortalProcessor;
 import net.minecraft.world.entity.Pose;
@@ -41,6 +43,12 @@ import java.util.Optional;
 
 @Mixin(Entity.class)
 public abstract class EntityMixin implements IEntityExtension {
+    @Inject(method = "setAirSupply", at = @At("HEAD"), cancellable = true)
+    private void anvilcraft$preserveHelmetAir(int airSupply, CallbackInfo callback) {
+        if ((Object) this instanceof LivingEntity living && EquipmentAbilities.canBreathe(living)
+            && airSupply < living.getAirSupply()) callback.cancel();
+    }
+
     @Unique
     public Vec3 anvil$fixedDeltaMovement = Vec3.ZERO;
 

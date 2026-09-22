@@ -6,7 +6,6 @@ import dev.dubhe.anvilcraft.init.item.ModFoodItems;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.resources.language.I18n;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
@@ -24,6 +23,7 @@ public class ItemTooltipManager {
         Component.literal("Shift").withStyle(ChatFormatting.WHITE)
     ).withStyle(ChatFormatting.DARK_GRAY);
     private static final Map<Item, String> NORMAL = Maps.newHashMap();
+    private static final Map<Item, Object[]> NORMAL_ARGUMENTS = Maps.newHashMap();
     private static final Map<Item, String> SHIFT = Maps.newHashMap();
 
     static {
@@ -274,20 +274,22 @@ public class ItemTooltipManager {
         ItemTooltipManager.NORMAL.put(ModBlocks.PROPEL_PISTON.asItem(), "Integrated piston worm, requires Capacitor or Laser power");
         ItemTooltipManager.NORMAL.put(ModBlocks.PULSE_GENERATOR.asItem(), "Customizes pulse delay and duration");
         ItemTooltipManager.NORMAL.put(ModBlocks.ADVANCED_COMPARATOR.asItem(), "Supports Hysteresis and Window comparison modes");
-        ItemTooltipManager.NORMAL.put(ModItems.EMERALD_AMULET.get(), "Grants Hero of the Village");
-        ItemTooltipManager.NORMAL.put(ModItems.TOPAZ_AMULET.get(), "Grants immunity to lightning damage");
-        ItemTooltipManager.NORMAL.put(ModItems.RUBY_AMULET.get(), "Grants Fire Resistance");
-        ItemTooltipManager.NORMAL.put(ModItems.SAPPHIRE_AMULET.get(), "Grants Conduit Power");
-        ItemTooltipManager.NORMAL.put(ModItems.ANVIL_AMULET.get(), "Grants immunity to anvil damage");
-        ItemTooltipManager.NORMAL.put(ModItems.FEATHER_AMULET.get(), "Grants immunity to fall damage");
+        ItemTooltipManager.NORMAL.put(ModItems.BREATHING_HELMET.get(), "Supplies oxygen underwater and in vacuum\nRemoves underwater mining penalties");
+        ItemTooltipManager.NORMAL.put(ModItems.WEATHERPROOF_SPACESUIT_HELMET.get(),
+            "Supplies oxygen underwater and in vacuum\nRemoves underwater mining penalties\nClear vision in all fluids\n%s");
+        ItemTooltipManager.NORMAL_ARGUMENTS.put(ModItems.WEATHERPROOF_SPACESUIT_HELMET.get(),
+            new Object[]{Component.translatable("effect.minecraft.night_vision")});
+        ItemTooltipManager.NORMAL.put(ModItems.EMERALD_AMULET.get(), "Villagers offer discounts; Iron Golems never become hostile to the wearer");
+        ItemTooltipManager.NORMAL.put(ModItems.TOPAZ_AMULET.get(), "Grants immunity to lightning damage and Haste I");
+        ItemTooltipManager.NORMAL.put(ModItems.RUBY_AMULET.get(), "Grants Fire Resistance and Strength I; Strength II while on fire");
+        ItemTooltipManager.NORMAL.put(ModItems.SAPPHIRE_AMULET.get(), "Grants Conduit Power; Resistance I in water or with a Breathing Helmet or Weatherproof Spacesuit Helmet");
+        ItemTooltipManager.NORMAL.put(ModItems.ANVIL_AMULET.get(), "Grants immunity to anvil damage, knockback, Levitation, and celestial gravity from the Celestial Forging Anvil");
+        ItemTooltipManager.NORMAL.put(ModItems.FEATHER_AMULET.get(), "Grants immunity to fall damage and Slow Falling; holding Shift removes Slow Falling");
         ItemTooltipManager.NORMAL.put(ModItems.ARMADILLO_AMULET.get(), "Scares away Spiders; grants Resistance II while holding Shift");
-        ItemTooltipManager.NORMAL.put(ModItems.CAT_AMULET.get(), "Scares away Creepers and Phantoms");
-        ItemTooltipManager.NORMAL.put(ModItems.DOG_AMULET.get(), "Scares away Skeletons");
-        ItemTooltipManager.NORMAL.put(ModItems.SILENCE_AMULET.get(), "Silences the wearer");
-        ItemTooltipManager.NORMAL.put(
-            ModItems.ABNORMAL_AMULET.get(),
-            "Prevents damage from carrying Uranium, Plutonium, Floating Powder, Cursed Gold items"
-        );
+        ItemTooltipManager.NORMAL.put(ModItems.CAT_AMULET.get(), "Scares away Creepers and Phantoms; tame wild Cats with one empty-hand interaction");
+        ItemTooltipManager.NORMAL.put(ModItems.DOG_AMULET.get(), "Scares away Skeletons; tame wild Wolves with one empty-hand interaction");
+        ItemTooltipManager.NORMAL.put(ModItems.SILENCE_AMULET.get(), "Silences the wearer and grants immunity to Darkness");
+        ItemTooltipManager.NORMAL.put(ModItems.ABNORMAL_AMULET.get(), "Prevents harmful effects from food and from carrying Uranium, Plutonium, Floating Powder, or Cursed Gold items");
         ItemTooltipManager.NORMAL.put(ModItems.NATURE_AMULET.get(), "Combines Silence, Cat, Dog, and Armadillo Amulet effects");
         ItemTooltipManager.NORMAL.put(ModItems.GEM_AMULET.get(), "Combines effects of all four Gem Amulets");
         ItemTooltipManager.NORMAL.put(ModItems.CAPACITOR.asItem(), "8 MFE stored");
@@ -810,14 +812,15 @@ public class ItemTooltipManager {
         }
     }
 
-    private static void addTranslatedTooltip(Consumer<Component> builder, String key) {
-        for (String line : I18n.get(key).split("\n")) {
+    private static void addTranslatedTooltip(Consumer<Component> builder, String key, Object... arguments) {
+        for (String line : Component.translatable(key, arguments).getString().split("\n")) {
             builder.accept(Component.literal(line).withStyle(ChatFormatting.GRAY));
         }
     }
 
     private static void addNormalTooltip(Consumer<Component> builder, Item item) {
-        ItemTooltipManager.addTranslatedTooltip(builder, ItemTooltipManager.getTranslationKey(item));
+        ItemTooltipManager.addTranslatedTooltip(builder, ItemTooltipManager.getTranslationKey(item),
+            NORMAL_ARGUMENTS.getOrDefault(item, new Object[0]));
     }
 
     private static void addShiftTooltip(Consumer<Component> builder, Item item) {

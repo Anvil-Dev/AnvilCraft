@@ -8,11 +8,14 @@ import com.llamalad7.mixinextras.sugar.ref.LocalRef;
 import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.event.AppendCustomHoverTextEvent;
+import dev.dubhe.anvilcraft.item.AmuletAbilities;
 import dev.dubhe.anvilcraft.util.BlockPlacementPicking;
 import net.minecraft.core.Holder;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
@@ -33,6 +36,13 @@ import java.util.function.Consumer;
 
 @Mixin(ItemStack.class)
 public class ItemStackMixin {
+    @WrapMethod(method = "finishUsingItem")
+    private ItemStack anvilcraft$protectFoodEffects(Level level, LivingEntity consumer, Operation<ItemStack> original) {
+        ItemStack stack = Util.cast(this);
+        if (!stack.has(DataComponents.FOOD)) return original.call(level, consumer);
+        return AmuletAbilities.consumeFood(consumer, () -> original.call(level, consumer));
+    }
+
     @ModifyVariable(method = "useOn", at = @At("HEAD"), argsOnly = true)
     private UseOnContext useOriginalBlockItemTarget(UseOnContext context) {
         return context.getItemInHand().getItem() instanceof BlockItem ? BlockPlacementPicking.forPlacement(context) : context;

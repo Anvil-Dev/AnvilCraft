@@ -188,11 +188,11 @@ public final class TerminalBalanceScene {
         return count;
     }
 
-    private static void key(int action) {
+    static void key(int action) {
         NeoForge.EVENT_BUS.post(new InputEvent.Key(new KeyEvent(GLFW.GLFW_KEY_LEFT_ALT, 0, GLFW.GLFW_MOD_ALT), action));
     }
 
-    private static void point(Minecraft client, int index) {
+    static void point(Minecraft client, int index) {
         var widget = field(client.screen, "wheelWidget");
         var section = (WheelWidget.WheelSection) ((List<?>) field(widget, "sections")).get(index);
         try {

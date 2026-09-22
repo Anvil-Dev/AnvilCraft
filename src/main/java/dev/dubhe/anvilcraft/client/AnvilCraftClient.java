@@ -24,6 +24,7 @@ import dev.dubhe.anvilcraft.init.ModParticles;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.block.ModFluids;
 import dev.dubhe.anvilcraft.init.item.ModItems;
+import dev.dubhe.anvilcraft.item.armor.EquipmentArmorItem;
 import dev.dubhe.anvilcraft.item.armor.IonoCraftBackpackItem;
 import dev.dubhe.anvilcraft.item.tool.HeavyHalberdItem;
 import dev.dubhe.anvilcraft.item.tool.HeavyHalberdMode;
@@ -115,7 +116,8 @@ public class AnvilCraftClient {
     public static void registerClientExtensions(RegisterClientExtensionsEvent e) {
         ModFluids.onRegisterFluidType(e);
         ItemExtensionImpl itemExtensionInstance = new ItemExtensionImpl();
-        e.registerItem(itemExtensionInstance, ModItems.IONOCRAFT_BACKPACK);
+        e.registerItem(itemExtensionInstance, ModItems.IONOCRAFT_BACKPACK, ModItems.BREATHING_HELMET,
+            ModItems.WEATHERPROOF_SPACESUIT_HELMET);
         e.registerItem(
             new EnergyWeaponExtensionImpl(),
             ModItems.ANVIL_RAILGUN,
@@ -196,6 +198,9 @@ public class AnvilCraftClient {
         public Model<?> getHumanoidArmorModel(
             ItemStack itemStack, EquipmentClientInfo.LayerType layerType, Model original
         ) {
+            if (itemStack.getItem() instanceof EquipmentArmorItem) {
+                return ModModelLayers.getEquipmentHelmetModel(original);
+            }
             if (itemStack.is(ModItems.IONOCRAFT_BACKPACK)) {
                 return Objects.requireNonNull(ModModelLayers.getIonocraftBackpackModel());
             }
@@ -209,6 +214,7 @@ public class AnvilCraftClient {
             EquipmentClientInfo.Layer layer,
             Identifier defaultId
         ) {
+            if (itemStack.getItem() instanceof EquipmentArmorItem armor) return armor.getArmorTexture();
             if (itemStack.is(ModItems.IONOCRAFT_BACKPACK)) {
                 if (IonoCraftBackpackItem.getEnergyStored(itemStack) > 0) {
                     return IonoCraftBackpackItem.TEXTURE;

@@ -100,7 +100,8 @@
     {
       "commit": "e501e72b927d6129fc46ddf8278d1a9edca7a028",
       "status": "pending",
-      "scope": "Add space equipment and inventory pocket system, and improve the building wand and structure scanner, and fixed bugs 添加航天装备与口袋系统并完善建筑杖和结构扫描仪，以及修复bug (#4878)"
+      "scope": "Add space equipment and inventory pocket system, and improve the building wand and structure scanner, and fixed bugs 添加航天装备与口袋系统并完善建筑杖和结构扫描仪，以及修复bug (#4878)",
+      "integration": "呼吸头盔、全天候航天头盔、核心及头盔升级配方、呼吸/水下挖掘/夜视/流体视野与穿戴模型已接入并验证。其余航天部件、口袋、飞行与缓冲靴及建筑杖/扫描仪相关改动仍待续。"
     },
     {
       "commit": "36891dc67aed55627bce4f23e4d8e8de0c878baf",

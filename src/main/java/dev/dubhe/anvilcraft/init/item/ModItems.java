@@ -30,6 +30,7 @@ import dev.dubhe.anvilcraft.item.abnormal.RadiationItem;
 import dev.dubhe.anvilcraft.item.abnormal.SuperHeavyItem;
 import dev.dubhe.anvilcraft.item.amulet.AmuletBoxItem;
 import dev.dubhe.anvilcraft.item.amulet.ComradeAmuletItem;
+import dev.dubhe.anvilcraft.item.armor.EquipmentArmorItem;
 import dev.dubhe.anvilcraft.item.armor.IonoCraftBackpackItem;
 import dev.dubhe.anvilcraft.item.block.PipeBlockItem;
 import dev.dubhe.anvilcraft.item.ingredients.CapacitorItem;
@@ -690,6 +691,20 @@ public class ModItems {
         .tag(ItemTags.CHEST_ARMOR_ENCHANTABLE)
         .recipe(RegistrumItemRecipeLoader::ionocraftBackpack)
         .register();
+    public static final ItemEntry<EquipmentArmorItem> BREATHING_HELMET = REGISTRUM
+        .item("breathing_helmet", properties -> new EquipmentArmorItem(properties, ArmorType.HELMET, false, "spacesuit"))
+        .tag(ItemTags.HEAD_ARMOR, ItemTags.HEAD_ARMOR_ENCHANTABLE, ItemTags.DURABILITY_ENCHANTABLE)
+        .recipe(RegistrumItemRecipeLoader::breathingArmor)
+        .register();
+    public static final ItemEntry<EquipmentArmorItem> WEATHERPROOF_SPACESUIT_HELMET = REGISTRUM
+        .item("weatherproof_spacesuit_helmet",
+            properties -> new EquipmentArmorItem(properties, ArmorType.HELMET, true, "weatherproof_spacesuit"))
+        .properties(properties -> properties.component(ModComponents.NIGHT_VISION_ENABLED, true).fireResistant())
+        .tag(ItemTags.HEAD_ARMOR, ItemTags.HEAD_ARMOR_ENCHANTABLE, ItemTags.DURABILITY_ENCHANTABLE)
+        .register();
+    public static final ItemEntry<Item> WEATHERPROOF_CORE = REGISTRUM.item("weatherproof_core", Item::new)
+        .recipe(RegistrumItemRecipeLoader::weatherproofCore).register();
+
     // 升级锻造模板
     public static final ItemEntry<RoyalSteelUpgradeTemplateItem> ROYAL_STEEL_UPGRADE_SMITHING_TEMPLATE = REGISTRUM
         .item(

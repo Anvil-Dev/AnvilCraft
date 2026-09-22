@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.util;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.api.amulet.AmuletManager;
 import dev.dubhe.anvilcraft.api.entity.IAnvilCraftEntityExtension;
 import dev.dubhe.anvilcraft.block.entity.CelestialForgingAnvilBlockEntity;
 import dev.dubhe.anvilcraft.block.special.BlackHoleBlock;
@@ -9,6 +10,7 @@ import dev.dubhe.anvilcraft.entity.LevitatingBlockEntity;
 import dev.dubhe.anvilcraft.entity.StandableFallingBlockEntity;
 import dev.dubhe.anvilcraft.entity.StandableLevitatingBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
+import dev.dubhe.anvilcraft.init.item.ModAmulets;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.network.GravitySourcesSyncPacket;
 import net.minecraft.core.BlockPos;
@@ -147,6 +149,11 @@ public final class GravityManager {
             : GravityType.NORMAL;
     }
 
+    private static boolean ignoresCelestialGravity(Entity entity) {
+        return entity instanceof Player player && (player.isShiftKeyDown()
+            || AmuletManager.get(player.registryAccess()).hasAmuletInInventory(player, ModAmulets.ANVIL.getKey()));
+    }
+
     public static Vec3 getGravityVector(Entity entity) {
         return getGravityVector(entity, GravitySourceManager.getEntityG(entity));
     }
@@ -155,7 +162,8 @@ public final class GravityManager {
         Vec3 gravity = GravitySourceManager.calculateGravityVector(
             entity.level(),
             entity.getBoundingBox().getCenter(),
-            Math.abs(baseGravity)
+            Math.abs(baseGravity),
+            ignoresCelestialGravity(entity)
         );
         if (entity instanceof IAnvilCraftEntityExtension extension) {
             Vec3 additional = extension.anvilcraft$getAdditionalGravity(Math.abs(baseGravity));
@@ -347,6 +355,10 @@ public final class GravityManager {
         }
 
         public static Vec3 calculateGravityVector(Level level, Vec3 position, double g) {
+            return calculateGravityVector(level, position, g, false);
+        }
+
+        private static Vec3 calculateGravityVector(Level level, Vec3 position, double g, boolean ignoreCelestialGravity) {
             GravityFieldIndex index = GRAVITY_FIELDS.get(level);
             if (index == null) return Vec3.ZERO;
 
@@ -354,6 +366,7 @@ public final class GravityManager {
             double fy = 0;
             double fz = 0;
             for (GravitySource source : index.sourcesAt(position)) {
+                if (ignoreCelestialGravity && source.type().bodyRadius() > 0) continue;
                 Vec3 force = calculateGravityVector(source, position, g);
                 fx += force.x;
                 fy += force.y;
@@ -452,7 +465,9 @@ public final class GravityManager {
             Vec3 movementImpulse = Vec3.ZERO;
             Vec3 velocityImpulse = Vec3.ZERO;
 
+            boolean ignoreCelestialGravity = ignoresCelestialGravity(entity);
             for (GravitySource source : index.sourcesAlong(start, end)) {
+                if (ignoreCelestialGravity && source.type().bodyRadius() > 0) continue;
                 if (start.distanceToSqr(source.center()) <= source.type().radiusSqr()
                     || end.distanceToSqr(source.center()) <= source.type().radiusSqr()) {
                     continue;

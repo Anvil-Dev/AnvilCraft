@@ -15,6 +15,7 @@ import dev.dubhe.anvilcraft.block.multipart.IMultiPartBlockModelHolder;
 import dev.dubhe.anvilcraft.client.init.ModKeyMappings;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItems;
+import dev.dubhe.anvilcraft.item.armor.EquipmentArmorItem;
 import dev.dubhe.anvilcraft.item.property.component.Multiphase;
 import dev.dubhe.anvilcraft.item.property.component.TerminalBinding;
 import dev.dubhe.anvilcraft.item.tool.AnvilHammerItem;
@@ -27,6 +28,7 @@ import dev.dubhe.anvilcraft.item.tool.ResonatorItem;
 import dev.dubhe.anvilcraft.network.HammerChangeBlockPacket;
 import dev.dubhe.anvilcraft.network.HammerChangeFlexibleMultiPartBlockPacket;
 import dev.dubhe.anvilcraft.network.HammerUsePacket;
+import dev.dubhe.anvilcraft.network.SwitchEquipmentAbilityPacket;
 import dev.dubhe.anvilcraft.network.SwitchHeavyHalberdModePacket;
 import dev.dubhe.anvilcraft.network.SwitchMultitoolModePacket;
 import dev.dubhe.anvilcraft.network.SwitchResonateModePacket;
@@ -40,7 +42,9 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -65,6 +69,10 @@ import java.util.function.Supplier;
 @EventBusSubscriber(modid = AnvilCraft.MOD_ID, value = Dist.CLIENT)
 public class WheelLifecycleEventListener {
     private static final WheelScreenController CONTROLLER = new WheelScreenController();
+
+    private static long equipmentKeyTime = -1L;
+    private static boolean equipmentKeyWasDown;
+    private static @Nullable WheelMenuModel equipmentWheelCache;
 
     private static long balanceKeyTime = -1L;
     private static boolean balanceKeyWasDown;
@@ -115,6 +123,7 @@ public class WheelLifecycleEventListener {
         WheelLifecycleEventListener.openHeavyHalberdWheel(gameTime);
         WheelLifecycleEventListener.openMultitoolWheel(gameTime);
         WheelLifecycleEventListener.openBalanceWheel(gameTime);
+        WheelLifecycleEventListener.openEquipmentWheel(gameTime);
     }
 
     public static boolean openHammerWheel(
@@ -585,6 +594,7 @@ public class WheelLifecycleEventListener {
             WheelLifecycleEventListener.processHeavyHalberdPress(client, event.getAction());
             WheelLifecycleEventListener.processMultitoolPress(client, event.getAction());
             WheelLifecycleEventListener.processBalancePress(client, event.getAction());
+            WheelLifecycleEventListener.processEquipmentPress(client, event.getAction());
         }
     }
 
@@ -603,6 +613,7 @@ public class WheelLifecycleEventListener {
             WheelLifecycleEventListener.processHeavyHalberdPress(client, event.getAction());
             WheelLifecycleEventListener.processMultitoolPress(client, event.getAction());
             WheelLifecycleEventListener.processBalancePress(client, event.getAction());
+            WheelLifecycleEventListener.processEquipmentPress(client, event.getAction());
         }
     }
 
@@ -857,6 +868,49 @@ public class WheelLifecycleEventListener {
             if (!WheelLifecycleEventListener.balanceKeyWasDown) {
                 WheelLifecycleEventListener.balanceKeyTime = client.level.getGameTime();
             }
+        }
+    }
+
+    private static void openEquipmentWheel(long gameTime) {
+        Minecraft client = Minecraft.getInstance();
+        if (equipmentKeyTime < 0 || gameTime - equipmentKeyTime <= 4 || client.player == null
+            || client.screen != null && !equipmentKeyWasDown) return;
+        if (equipmentWheelCache == null) {
+            for (InteractionHand hand : InteractionHand.values()) {
+                ItemStack stack = client.player.getItemInHand(hand);
+                if (EquipmentArmorItem.abilityComponent(stack) == null) continue;
+                equipmentWheelCache = getEquipmentWheel(hand, stack);
+                break;
+            }
+        }
+        if (equipmentWheelCache == null) return;
+        CONTROLLER.onHoldKeyPressed(equipmentWheelCache);
+        equipmentKeyWasDown = true;
+    }
+
+    private static WheelMenuModel getEquipmentWheel(InteractionHand hand, ItemStack holding) {
+        EquipmentSlot slot = ((EquipmentArmorItem) holding.getItem()).getEquipmentSlot();
+        String ability = slot == EquipmentSlot.HEAD ? "night_vision" : "charged_jump";
+        return WheelMenuBuilder.create()
+            .selectionEffect(WheelSelectionEffect.ANNULAR_SECTOR)
+            .slotsPerPage(2)
+            .action("enable", Component.translatable("screen.anvilcraft.equipment." + ability + ".on"),
+                (graphics, pose, width, height) -> graphics.fakeItem(holding, -8, -8),
+                ctx -> ClientPacketDistributor.sendToServer(new SwitchEquipmentAbilityPacket(hand, slot, true)))
+            .action("disable", Component.translatable("screen.anvilcraft.equipment." + ability + ".off"),
+                (graphics, pose, width, height) -> graphics.fakeItem(new ItemStack(Items.BARRIER), -8, -8),
+                ctx -> ClientPacketDistributor.sendToServer(new SwitchEquipmentAbilityPacket(hand, slot, false)))
+            .build();
+    }
+
+    private static void processEquipmentPress(Minecraft client, int action) {
+        if (action == GLFW.GLFW_RELEASE) {
+            if (equipmentKeyWasDown) CONTROLLER.onHoldKeyReleased();
+            equipmentKeyWasDown = false;
+            equipmentKeyTime = -1L;
+            equipmentWheelCache = null;
+        } else if (action == GLFW.GLFW_PRESS && client.level != null && client.screen == null && !equipmentKeyWasDown) {
+            equipmentKeyTime = client.level.getGameTime();
         }
     }
 }

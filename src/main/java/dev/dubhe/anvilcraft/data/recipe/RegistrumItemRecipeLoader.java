@@ -498,6 +498,23 @@ public class RegistrumItemRecipeLoader {
             .save(provider);
     }
 
+    public static <T extends Item> void breathingArmor(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
+        ShapedRecipeBuilder.shaped(provider.getItems(), RecipeCategory.COMBAT, ctx.get())
+            .pattern(" W ").pattern("PFP").pattern("NHN")
+            .define('W', Items.WATER_BUCKET).define('P', ModItems.PIPE).define('F', ModBlocks.FISH_TANK)
+            .define('N', Items.NAUTILUS_SHELL).define('H', Items.HEART_OF_THE_SEA)
+            .unlockedBy("has_material", AnvilCraftDatagen.has(provider.getItems(), ModBlocks.FISH_TANK))
+            .save(provider);
+    }
+
+    public static <T extends Item> void weatherproofCore(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
+        ShapedRecipeBuilder.shaped(provider.getItems(), RecipeCategory.COMBAT, ctx.get())
+            .pattern("LTL").pattern("TMT").pattern("LTL")
+            .define('L', ModItemTags.LEAD_INGOTS).define('T', ModItemTags.TITANIUM_INGOTS).define('M', ModItems.MULTIPHASE_MATTER)
+            .unlockedBy("has_material", AnvilCraftDatagen.has(provider.getItems(), ModItems.MULTIPHASE_MATTER))
+            .save(provider);
+    }
+
     public static <T extends Item> void permutationTemplateItem(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
         HolderGetter<Item> lookup = provider.getItems();
         ShapedRecipeBuilder.shaped(lookup, RecipeCategory.MISC, ctx.get())

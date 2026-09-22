@@ -11,6 +11,7 @@ import dev.dubhe.anvilcraft.block.workstation.ember.EmberAnvilBlock;
 import dev.dubhe.anvilcraft.block.workstation.frost.FrostAnvilBlock;
 import dev.dubhe.anvilcraft.init.ModMobEffects;
 import dev.dubhe.anvilcraft.init.loot.ModLootTables;
+import dev.dubhe.anvilcraft.item.AmuletAbilities;
 import dev.dubhe.anvilcraft.item.property.consume.PreventShrinkingConsumeEffect;
 import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceKey;
@@ -24,6 +25,7 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.animal.golem.IronGolem;
 import net.minecraft.world.entity.item.FallingBlockEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -47,6 +49,11 @@ import java.util.function.Consumer;
 
 @Mixin(LivingEntity.class)
 public abstract class LivingEntityMixin extends Entity implements ILivingEntityExtension {
+    @Inject(method = "setLastHurtByMob", at = @At("HEAD"), cancellable = true)
+    private void anvilcraft$ignoreProtectedAttacker(@Nullable LivingEntity attacker, CallbackInfo ci) {
+        if ((Object) this instanceof IronGolem && AmuletAbilities.isGolemProtected(attacker)) ci.cancel();
+    }
+
     @Unique
     private boolean anvilcraft$raged = false;
 
