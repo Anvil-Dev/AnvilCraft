@@ -1,7 +1,7 @@
 {
   "branch": "dev/1.21/1.6",
   "baseline": "eb2dadbc4d7fb3a0476765f6313e1667a758ed66",
-  "latest_observed": "aabf0cc0c327583c9278bf26844788c8dc3851a3",
+  "latest_observed": "a378f98e4d41d0d92f97cf2486ac9da7881b1674",
   "updates": [
     {
       "commit": "6c7b3f5b87705c5626a17143064064a0b855b187",
@@ -146,6 +146,111 @@
       "commit": "aabf0cc0c327583c9278bf26844788c8dc3851a3",
       "status": "pending",
       "scope": "button (#4903)"
+    },
+    {
+      "commit": "b652aefcc929e3c5d8faf6b013928598fd358f4c",
+      "status": "pending",
+      "scope": "fix(item): 修正蓄力判断逻辑支持墙边和斜坡蓄力 (#4905)"
+    },
+    {
+      "commit": "0e4933d4c3e5c60cfa9ef65af21801bd10c7bf2a",
+      "status": "pending",
+      "scope": "fix(item): 修正蓄力判断逻辑支持墙边和斜坡蓄力 (#4905)"
+    },
+    {
+      "commit": "eee66236e0a2630c6437a453da0c336f354af2b3",
+      "status": "pending",
+      "scope": "Refactor Frost smithing and update tooltip 重构浮霜锻造与更新tooltip (#4852)"
+    },
+    {
+      "commit": "b684eaec5cdd496da2085745896093f58a5cb7f7",
+      "status": "pending",
+      "scope": "feat(dependency): complete dependency relationships (#4908)"
+    },
+    {
+      "commit": "a90224e047583374a87e520014b8e9c5d60fd7f1",
+      "status": "pending",
+      "scope": "adjust textures of port (#4910)"
+    },
+    {
+      "commit": "f006cad1e93ad6edccdb824ad8d65db81dcdf9f2",
+      "status": "pending",
+      "scope": "refactor(amulet): refactor amulet to more registry driven (#4909)"
+    },
+    {
+      "commit": "1d05aa531a176da25751981f82cfbd9fef68d9f0",
+      "status": "pending",
+      "scope": "Translated using Weblate (Chinese (Simplified Han script)) (#4850)"
+    },
+    {
+      "commit": "480e1b04bcef3abf04af3ba837ca021ee1ec54d5",
+      "status": "pending",
+      "scope": "Refactored the fluid port caching logic, modified its configuration, and fixed the issue with the jetpack's leg slot. 重构了流体端口的缓存逻辑，修改其配方，修复飘升机背包进护腿槽的问题 (#4912)"
+    },
+    {
+      "commit": "aea7db56bc62de32f26639373d1bc266b11e7a5d",
+      "status": "pending",
+      "scope": "feat(storage): 增加JEI合成转移用未过滤存储快照支持 (#4913)"
+    },
+    {
+      "commit": "862b6d35bff88bcd32c9d350ad9172a92d7fc967",
+      "status": "pending",
+      "scope": "Improve storage port performance, support plasma jets on empty cauldrons, fix filter codec crash 尝试提升仓储端口的性能，修复空炼药锅无法支撑等离子喷流的问题，修复过滤器的编解码器崩溃问题 (#4914)"
+    },
+    {
+      "commit": "29a8301d7139022c1ee5bfcf15eb61ae63d7fa40",
+      "status": "pending",
+      "scope": "refactor(client): 优化建筑杆传统界面文本显示与配色 (#4916)"
+    },
+    {
+      "commit": "bcedbc5ed5583b9f21a193886c175bc7194c19cd",
+      "status": "pending",
+      "scope": "add assets of armadillo amulet (#4926)"
+    },
+    {
+      "commit": "68d5f6258dcb2dc1cd1490d2f32ca505aabf9638",
+      "status": "pending",
+      "scope": "refactor(tooltip): 优化提示文本格式和内容 (#4937)"
+    },
+    {
+      "commit": "fe912815bf727f36428fa765f256400579dac32a",
+      "status": "pending",
+      "scope": "Add client config to swap fluid port bucket pour/store mouse actions, fix tooltips, and added four processing table to denylist 增加流体端口桶操作左右键翻转功能，修正tooltip换行，把四个加工台放入精确拾取黑名单 (#4940)"
+    },
+    {
+      "commit": "4f77cc7be61c8b9e5943520066878cdbc425acb9",
+      "status": "pending",
+      "scope": "Update the guide book: new logistics and armor pages 更新手册：新增物流元件与盔甲页面，修订流程/机器页 (#4945)"
+    },
+    {
+      "commit": "db61fc69f512b28370df94c20518747fc52addbc",
+      "status": "pending",
+      "scope": "Expand amulet and equipment capabilities, and refine blueprint construction and storage interactions 扩展护符与装备能力并完善蓝图建造和仓储交互 (#4951)"
+    },
+    {
+      "commit": "0b2f54774cf3672e545d7b91f6931ca5e94e48e2",
+      "status": "pending",
+      "scope": "Fix mirror and rotation for fish tank and overflow chute 修复鱼缸和溢流溜槽翻转旋转 (#4947)"
+    },
+    {
+      "commit": "490127b81c1637567e4070b00023d3469e4c375f",
+      "status": "pending",
+      "scope": "fix: 修复蓝图建造与预览并调整流体网络加载和巨型铁砧碰撞 (#4957)"
+    },
+    {
+      "commit": "56ce7b8b0ad015e0a2da63960f8981351d7dc244",
+      "status": "pending",
+      "scope": "fix: 修复蓝图完整性与建造行为并完善结构扫描器交互 (#4962)"
+    },
+    {
+      "commit": "8aba6d835fb847d360181c6f2d12ed9f0d9e9034",
+      "status": "pending",
+      "scope": "Improve crab trap underwater placement behavior and preview 优化蟹笼在水下放置的手感与预览 (#4965)"
+    },
+    {
+      "commit": "a378f98e4d41d0d92f97cf2486ac9da7881b1674",
+      "status": "pending",
+      "scope": "Support repeated projection of blueprints and improve runtime status and entity restoration 支持蓝图重复投影并完善运行状态与实体恢复 (#4971)"
     }
   ]
 }

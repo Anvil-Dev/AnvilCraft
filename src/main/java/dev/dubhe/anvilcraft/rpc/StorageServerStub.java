@@ -2102,6 +2102,85 @@ public final class StorageServerStub {
         return new StorageView(storages, List.of());
     }
 
+    @CallableParam(clazz = StorageServerStub.class, field = "ORDER_STREAM_CODEC")
+    @RemoteCallable(validator = StorageAccessValidator.class)
+    public static IntList terminalReorder(UUID playerId, long sourcePos, String search) {
+        var registries = getAndClear();
+        StorageView view = getView(registries, playerId, sourcePos);
+        PlayerSetting setting = PlayerSettings.getSetting(registries, playerId);
+        StorageSetting storage = setting.storage();
+        return createOrder(view, new SortOptions(storage.getSort(), storage.getOrder()),
+            search.strip().toLowerCase(Locale.ROOT), setting.listed());
+    }
+
+    @RemoteCallable(validator = StorageAccessValidator.class)
+    public static InteractionResult terminalTake(
+        UUID playerId, long sourcePos, int slot, int button,
+        @CallableParam(clazz = ItemStack.class, field = "OPTIONAL_STREAM_CODEC") ItemStack clientCarried
+    ) {
+        ServerPlayer player = getServerPlayer(playerId);
+        StorageView view = getView(getAndClear(), playerId, sourcePos);
+        ItemStack carried = player.containerMenu.getCarried();
+        boolean blocked = player.hasInfiniteMaterials() ? !clientCarried.isEmpty() : !carried.isEmpty();
+        if (blocked || button < 0 || button > 1 || slot < 0 || slot >= view.size()) return new InteractionResult(carried, false);
+        ItemResource resource = view.resource(slot);
+        int amount = button == 0 ? resource.toStack().getMaxStackSize() : 1;
+        try (Transaction transaction = Transaction.openRoot()) {
+            int taken = view.extractByResource(resource, amount, transaction);
+            if (taken == 0) return new InteractionResult(carried, false);
+            var cursor = CarriedSlotWrapper.of(player.containerMenu);
+            if (!carried.isEmpty()) cursor.extract(ItemResource.of(carried), carried.getCount(), transaction);
+            if (cursor.insert(resource, taken, transaction) != taken) return new InteractionResult(carried, false);
+            transaction.commit();
+        }
+        player.getInventory().setChanged();
+        player.containerMenu.broadcastChanges();
+        return new InteractionResult(player.containerMenu.getCarried(), true);
+    }
+
+    @RemoteCallable(validator = StorageAccessValidator.class)
+    public static InteractionResult terminalTakeToInventory(UUID playerId, long sourcePos, int slot, int button) {
+        ServerPlayer player = getServerPlayer(playerId);
+        StorageView view = getView(getAndClear(), playerId, sourcePos);
+        ItemStack carried = player.containerMenu.getCarried();
+        if (button < 0 || button > 1 || slot < 0 || slot >= view.size()) return new InteractionResult(carried, false);
+        ItemResource resource = view.resource(slot);
+        int amount = button == 0 ? resource.toStack().getMaxStackSize() : 1;
+        var inventory = PlayerInventoryWrapper.of(player).getMainSlots();
+        try (Transaction transaction = Transaction.openRoot()) {
+            int fit;
+            try (Transaction simulation = Transaction.open(transaction)) {
+                fit = inventory.insert(resource, amount, simulation);
+            }
+            if (fit == 0) return new InteractionResult(carried, false);
+            int taken = view.extractByResource(resource, fit, transaction);
+            if (taken == 0 || inventory.insert(resource, taken, transaction) != taken) return new InteractionResult(carried, false);
+            transaction.commit();
+        }
+        player.getInventory().setChanged();
+        player.containerMenu.broadcastChanges();
+        return new InteractionResult(carried, true);
+    }
+
+    @RemoteCallable(validator = StorageAccessValidator.class)
+    public static InteractionResult terminalInsert(
+        UUID playerId, long sourcePos,
+        @CallableParam(clazz = ItemStack.class, field = "OPTIONAL_STREAM_CODEC") ItemStack clientCarried
+    ) {
+        ServerPlayer player = getServerPlayer(playerId);
+        StorageView view = getView(getAndClear(), playerId, sourcePos);
+        ItemStack carried = (player.hasInfiniteMaterials() ? clientCarried : player.containerMenu.getCarried()).copy();
+        if (carried.isEmpty()) return new InteractionResult(carried, false);
+        int poured = pourIntoFluidPort(player, view, carried, carried.getCount());
+        int inserted = poured == 0 ? view.insert(carried, carried.getCount()) : 0;
+        if (poured == 0 && inserted == 0) return new InteractionResult(carried, false);
+        carried.shrink(inserted);
+        player.containerMenu.setCarried(carried);
+        player.getInventory().setChanged();
+        player.containerMenu.broadcastChanges();
+        return new InteractionResult(carried, true);
+    }
+
     private static List<BaseStorage<?>> boundStorages(ServerPlayer player) {
         List<BaseStorage<?>> storages = new ArrayList<>();
         List<ItemStack> terminals = TerminalItem.getAll(player);

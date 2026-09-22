@@ -21,6 +21,14 @@ public final class StorageTerminalServerStub {
         return TerminalSessions.open(Objects.requireNonNull(server.getPlayerList().getPlayer(playerId)), target);
     }
 
+    @RemoteCallable(validator = TerminalAccessValidator.class)
+    public static boolean isTerminalReachable(UUID playerId, UUID target) {
+        var server = Objects.requireNonNull(ServerLifecycleHooks.getCurrentServer());
+        var player = Objects.requireNonNull(server.getPlayerList().getPlayer(playerId));
+        var terminal = TerminalSessions.findTerminal(player, target);
+        return !terminal.isEmpty() && TerminalSessions.targetStorage(player, terminal, false) != null;
+    }
+
     public static final class TerminalAccessValidator implements IRemoteCallableValidator {
         @Override
         public boolean validate(IPayloadContext context, Method method, Object[] args) {

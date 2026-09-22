@@ -113,7 +113,8 @@ public final class TerminalSessions {
                     player.getInventory().setChanged();
                     player.inventoryMenu.broadcastChanges();
                 }
-                return id == null ? null : Storages.get().getOrCreate(id, ShulkerContainerStorage.class);
+                if (id == null) continue;
+                return Storages.get().getOrCreate(id, ShulkerContainerStorage.class);
             }
         }
         var level = player.level();
