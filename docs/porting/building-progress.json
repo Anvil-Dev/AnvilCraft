@@ -1,0 +1,230 @@
+{
+  "source_branch": "dev/1.21/1.6",
+  "source_commit": "a378f98e4d41d0d92f97cf2486ac9da7881b1674",
+  "scope": "Building Rod and its shared blueprint construction dependencies. This is an incremental checklist, not full feature completion.",
+  "files": [
+    {
+      "source": "src/main/java/dev/dubhe/anvilcraft/building/BlockEntityContentAdapter.java",
+      "status": "pending"
+    },
+    {
+      "source": "src/main/java/dev/dubhe/anvilcraft/building/BlueprintBlockConfiguration.java",
+      "status": "pending"
+    },
+    {
+      "source": "src/main/java/dev/dubhe/anvilcraft/building/BlueprintBlockEntities.java",
+      "status": "pending"
+    },
+    {
+      "source": "src/main/java/dev/dubhe/anvilcraft/building/BlueprintCapture.java",
+      "status": "pending"
+    },
+    {
+      "source": "src/main/java/dev/dubhe/anvilcraft/building/BlueprintEntities.java",
+      "status": "partial",
+      "integration": "Only passenger flattening and duplicate identity merging. Material-derived spawning, identity remapping, memories and leash restoration remain pending."
+    },
+    {
+      "source": "src/main/java/dev/dubhe/anvilcraft/building/BlueprintFluids.java",
+      "status": "pending"
+    },
+    {
+      "source": "src/main/java/dev/dubhe/anvilcraft/building/BlueprintIgnition.java",
+      "status": "pending"
+    },
+    {
+      "source": "src/main/java/dev/dubhe/anvilcraft/building/BlueprintLeashes.java",
+      "status": "pending"
+    },
+    {
+      "source": "src/main/java/dev/dubhe/anvilcraft/building/BlueprintMultiblocks.java",
+      "status": "pending"
+    },
+    {
+      "source": "src/main/java/dev/dubhe/anvilcraft/building/BlueprintNormalizer.java",
+      "status": "pending"
+    },
+    {
+      "source": "src/main/java/dev/dubhe/anvilcraft/building/BlueprintPlacement.java",
+      "status": "pending"
+    },
+    {
+      "source": "src/main/java/dev/dubhe/anvilcraft/building/BlueprintRuntimeData.java",
+      "status": "pending"
+    },
+    {
+      "source": "src/main/java/dev/dubhe/anvilcraft/building/BlueprintSpecialBlocks.java",
+      "status": "pending"
+    },
+    {
+      "source": "src/main/java/dev/dubhe/anvilcraft/building/BlueprintTicks.java",
+      "status": "ported"
+    },
+    {
+      "source": "src/main/java/dev/dubhe/anvilcraft/building/BuildingBlockMaterial.java",
+      "status": "pending"
+    },
+    {
+      "source": "src/main/java/dev/dubhe/anvilcraft/building/BuildingCommit.java",
+      "status": "pending"
+    },
+    {
+      "source": "src/main/java/dev/dubhe/anvilcraft/building/BuildingEntityOp.java",
+      "status": "pending"
+    },
+    {
+      "source": "src/main/java/dev/dubhe/anvilcraft/building/BuildingEntityTransform.java",
+      "status": "pending"
+    },
+    {
+      "source": "src/main/java/dev/dubhe/anvilcraft/building/BuildingMaterials.java",
+      "status": "pending"
+    },
+    {
+      "source": "src/main/java/dev/dubhe/anvilcraft/building/BuildingRegionSnapshot.java",
+      "status": "pending"
+    },
+    {
+      "source": "src/main/java/dev/dubhe/anvilcraft/building/BuildingRodFluids.java",
+      "status": "pending"
+    },
+    {
+      "source": "src/main/java/dev/dubhe/anvilcraft/building/BuildingRodMaterialBook.java",
+      "status": "pending"
+    },
+    {
+      "source": "src/main/java/dev/dubhe/anvilcraft/building/BuildingRodObstructions.java",
+      "status": "pending"
+    },
+    {
+      "source": "src/main/java/dev/dubhe/anvilcraft/building/BuildingRodPattern.java",
+      "status": "pending"
+    },
+    {
+      "source": "src/main/java/dev/dubhe/anvilcraft/building/BuildingRodService.java",
+      "status": "pending"
+    },
+    {
+      "source": "src/main/java/dev/dubhe/anvilcraft/building/BuildingRodUndo.java",
+      "status": "pending"
+    },
+    {
+      "source": "src/main/java/dev/dubhe/anvilcraft/building/ConstructionBlueprintException.java",
+      "status": "ported"
+    },
+    {
+      "source": "src/main/java/dev/dubhe/anvilcraft/building/DynamicBuildingEntities.java",
+      "status": "pending"
+    },
+    {
+      "source": "src/main/java/dev/dubhe/anvilcraft/building/EntityBuildAdapter.java",
+      "status": "pending"
+    },
+    {
+      "source": "src/main/java/dev/dubhe/anvilcraft/building/EntityBuildAdapters.java",
+      "status": "pending"
+    },
+    {
+      "source": "src/main/java/dev/dubhe/anvilcraft/building/FluidBuildAdapter.java",
+      "status": "pending"
+    },
+    {
+      "source": "src/main/java/dev/dubhe/anvilcraft/building/LitematicaImporter.java",
+      "status": "ported"
+    },
+    {
+      "source": "src/main/java/dev/dubhe/anvilcraft/building/MagnetizedNodeBuildAdapter.java",
+      "status": "pending"
+    },
+    {
+      "source": "src/main/java/dev/dubhe/anvilcraft/building/OrdinaryBlockAdapter.java",
+      "status": "pending"
+    },
+    {
+      "source": "src/main/java/dev/dubhe/anvilcraft/building/ScannerDiskNormalizer.java",
+      "status": "pending"
+    },
+    {
+      "source": "src/main/java/dev/dubhe/anvilcraft/building/SignDecorationAdapter.java",
+      "status": "pending"
+    },
+    {
+      "source": "src/main/java/dev/dubhe/anvilcraft/building/StructureSnapshot.java",
+      "status": "ported"
+    },
+    {
+      "source": "src/main/java/dev/dubhe/anvilcraft/building/StructureSnapshotCodec.java",
+      "status": "ported"
+    },
+    {
+      "source": "src/main/java/dev/dubhe/anvilcraft/building/VanillaBuildingEntities.java",
+      "status": "pending"
+    },
+    {
+      "source": "src/main/java/dev/dubhe/anvilcraft/client/building/BlueprintClientFiles.java",
+      "status": "pending"
+    },
+    {
+      "source": "src/main/java/dev/dubhe/anvilcraft/client/building/BlueprintRenderView.java",
+      "status": "pending"
+    },
+    {
+      "source": "src/main/java/dev/dubhe/anvilcraft/client/building/BuildingRodAnimation.java",
+      "status": "pending"
+    },
+    {
+      "source": "src/main/java/dev/dubhe/anvilcraft/client/building/BuildingRodClient.java",
+      "status": "pending"
+    },
+    {
+      "source": "src/main/java/dev/dubhe/anvilcraft/client/building/BuildingRodItemRenderer.java",
+      "status": "pending"
+    },
+    {
+      "source": "src/main/java/dev/dubhe/anvilcraft/client/building/BuildingRodKeyRepeat.java",
+      "status": "pending"
+    },
+    {
+      "source": "src/main/java/dev/dubhe/anvilcraft/client/building/BuildingRodModelParts.java",
+      "status": "pending"
+    },
+    {
+      "source": "src/main/java/dev/dubhe/anvilcraft/client/building/BuildingRodMotion.java",
+      "status": "pending"
+    },
+    {
+      "source": "src/main/java/dev/dubhe/anvilcraft/client/building/BuildingRodObstructionHighlight.java",
+      "status": "pending"
+    },
+    {
+      "source": "src/main/java/dev/dubhe/anvilcraft/client/building/BuildingRodRenderTypes.java",
+      "status": "pending"
+    },
+    {
+      "source": "src/main/java/dev/dubhe/anvilcraft/client/building/BuildingRodRenderer.java",
+      "status": "pending"
+    },
+    {
+      "source": "src/main/java/dev/dubhe/anvilcraft/client/building/BuildingRodTraditionalControls.java",
+      "status": "pending"
+    },
+    {
+      "source": "src/main/java/dev/dubhe/anvilcraft/client/building/BuildingRodTraditionalOverlay.java",
+      "status": "pending"
+    }
+  ],
+  "pending_integration": [
+    "BuildingRodItem registration, recipes, energy and carried-item reach",
+    "Material allocation from hands, inventory, pockets and storage, including actual consumed components",
+    "Placement service, confirmations, undo, fluids, block entities and entity adapters",
+    "Packets, input state machine, fixed-distance selection, HUD and traditional controls",
+    "First-person model animation, preview rendering and in-game comparison",
+    "Structure scanner and disk/client file workflow integration"
+  ],
+  "verification": {
+    "server_tests_passed": 371,
+    "server_log": "build/porting/validate-blueprint-data-final.log",
+    "compile_log": "build/porting/compile-blueprint-data-final.log",
+    "client": "No client behavior is registered by the data-only node."
+  }
+}
