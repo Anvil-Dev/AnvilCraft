@@ -197,12 +197,17 @@ public class SlidingBlockEntity extends Entity {
 
     @Override
     protected void addAdditionalSaveData(ValueOutput compound) {
+        compound.store("StartPos", BlockPos.CODEC, this.getStartPos());
+        compound.putInt("Time", this.time);
+        compound.store("RelativeStart", BlockPos.CODEC, this.getStartPos().subtract(this.blockPosition()));
         compound.store("SlidingBlocks", SlidingBlockSection.CODEC, this.section);
         compound.store("MovingDirection", Direction.CODEC, this.moveDirection);
     }
 
     @Override
     protected void readAdditionalSaveData(ValueInput compound) {
+        this.setStartPos(compound.read("StartPos", BlockPos.CODEC).orElse(this.blockPosition()));
+        this.time = compound.getIntOr("Time", 0);
         compound.read("SlidingBlocks", SlidingBlockSection.CODEC).ifPresent(data -> this.section = data);
         compound.read("MovingDirection", Direction.CODEC).ifPresent(data -> this.moveDirection = data);
     }

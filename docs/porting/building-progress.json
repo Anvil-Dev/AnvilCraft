@@ -223,12 +223,22 @@
     "First-person model animation, preview rendering and in-game comparison",
     "Structure scanner and disk/client file workflow integration",
     "When porting BuildingRodService, share BlueprintPlacement.MAX_ENTRIES (4000); reuse BuildingEntityTransform.withWorldPos in entity adapters.",
-    "Complete dynamic entity persistence and capture normalization, including ascending/sliding state and outlet target restoration, before runtime blueprint spawning."
+    "Wire captured dynamic state into blueprint entity adapters and validate tracking/rendering of restored entities."
   ],
   "verification": {
-    "server_tests_passed": 380,
-    "server_log": "build/porting/validate-blueprint-transform-final.log",
-    "compile_log": "build/porting/compile-blueprint-transform-final.log",
-    "client": "Placement/input/preview are not registered yet; native entity NBT loads were verified in server tests."
+    "server_tests_passed": 386,
+    "server_log": "build/porting/validate-dynamic-persistence-final.log",
+    "compile_log": "build/porting/compile-dynamic-persistence-final.log",
+    "client": "No new client renderer changed; restored entity tracking and full building workflow acceptance remain pending."
+  },
+  "runtime_persistence": {
+    "source_commit": "a378f98e4d41d0d92f97cf2486ac9da7881b1674",
+    "ported": [
+      "entity/AnimateAscendingBlockEntity.java: block state and absolute/relative endpoints",
+      "entity/SlidingBlockEntity.java: origin, age and relative origin",
+      "entity/CauldronOutletEntity.java: moving flag and target, including legacy field aliases",
+      "api/sliding/SlidingBlockInfo.java: actual block entity loading, registry-aware encoding and legacy/empty data"
+    ],
+    "pending": "Blueprint capture/normalization, material-derived entity creation, runtime placement callbacks and client tracking/render acceptance remain pending."
   }
 }

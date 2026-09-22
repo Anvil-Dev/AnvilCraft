@@ -37,6 +37,8 @@ allprojects {
             include '**/EquipmentArmorItem.java', '**/EquipmentAbilities.java', '**/AmuletAbilities.java'
             include '**/ModModelLayers.java', '**/EquipmentHelmetModel.java', '**/EquipmentClientEvents.java', '**/SwitchEquipmentAbilityPacket.java'
             include '**/EquipmentFluidOverlayMixin.java', '**/EquipmentBootsModel.java', '**/EquipmentLiquidBlockMixin.java'
+            include '**/sliding/SlidingBlockInfo.java'
+            include '**/AnimateAscendingBlockEntity.java', '**/SlidingBlockEntity.java', '**/CauldronOutletEntity.java'
             include '**/building/*.java'
             include '**/WheelGuiBlurMixin.java', '**/GuiBlurBoundaryAccessor.java', '**/WheelWidgetMixin.java'
             include '**/WheelBackgroundCapture.java', '**/WheelBackgroundFrameMixin.java', '**/WheelFrostedBackgroundMixin.java'
