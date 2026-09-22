@@ -23,6 +23,6 @@ public abstract class SpiderMixin extends Monster {
     private void anvilcraft$avoidArmadilloAmulet(CallbackInfo ci) {
         this.goalSelector.addGoal(2, new AvoidEntityGoal<>(this, Player.class, 6.0F, 1.0, 1.2,
             entity -> entity instanceof Player player
-                && AmuletManager.get(player.registryAccess()).hasAmuletInInventory(player, ModAmulets.ARMADILLO)));
+                && AmuletManager.get(player.registryAccess()).hasAmuletInInventory(player, ModAmulets.ARMADILLO.getKey())));
     }
 }

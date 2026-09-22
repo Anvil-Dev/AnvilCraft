@@ -42,6 +42,7 @@ public final class TerminalScene {
     private static boolean smithingTesting;
     private static boolean readonlyTesting;
     private static boolean frostTesting;
+    private static boolean amuletTesting;
     private static volatile boolean prepared;
     private static volatile boolean clientLoaded;
     private static volatile Throwable failure;
@@ -52,6 +53,10 @@ public final class TerminalScene {
     private static boolean capturing;
 
     public static void frame(Minecraft client) {
+        if (amuletTesting) {
+            AmuletRegistryScene.frame(client);
+            return;
+        }
         if (frostTesting) {
             FrostSmithingScene.frame(client);
             return;
@@ -250,7 +255,9 @@ public final class TerminalScene {
             }
             case 18 -> {
                 AnvilCraft.LOGGER.info("PORT_TERMINAL_SCENE_PASSED: binding, inventory, own crafting, local range, shulker priority");
-                if (Boolean.getBoolean("anvilcraft.portFrostSmithingScene")) {
+                if (Boolean.getBoolean("anvilcraft.portAmuletRegistryScene")) {
+                    amuletTesting = true;
+                } else if (Boolean.getBoolean("anvilcraft.portFrostSmithingScene")) {
                     frostTesting = true;
                 } else if (Boolean.getBoolean("anvilcraft.portReadOnlyStorageScene")) {
                     readonlyTesting = true;

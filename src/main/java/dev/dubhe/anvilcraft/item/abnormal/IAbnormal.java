@@ -22,7 +22,7 @@ public interface IAbnormal {
         if (level.isClientSide()) return;
         if (!(entity instanceof Player player)) return;
         if (player.getAbilities().instabuild || player.getAbilities().invulnerable) return;
-        if (AmuletManager.get(level.registryAccess()).hasAmuletInInventory(player, ModAmulets.ABNORMAL)) return;
+        if (AmuletManager.get(level.registryAccess()).hasAmuletInInventory(player, ModAmulets.ABNORMAL.getKey())) return;
         this.addEffect(player);
     }
 

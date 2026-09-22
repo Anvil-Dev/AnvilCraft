@@ -107,11 +107,11 @@ public abstract class AvoidEntityGoalMixin<T extends LivingEntity> {
     private static boolean anvilcraft$is(Class<? extends LivingEntity> avoiding, @Nullable LivingEntity entity) {
         if (Cat.class.isAssignableFrom(avoiding)) {
             return entity instanceof Player player
-                   && AmuletManager.get(player.registryAccess()).hasAmuletInInventory(player, ModAmulets.CAT);
+                   && AmuletManager.get(player.registryAccess()).hasAmuletInInventory(player, ModAmulets.CAT.getKey());
         }
         if (Wolf.class.isAssignableFrom(avoiding)) {
             return entity instanceof Player player
-                   && AmuletManager.get(player.registryAccess()).hasAmuletInInventory(player, ModAmulets.DOG);
+                   && AmuletManager.get(player.registryAccess()).hasAmuletInInventory(player, ModAmulets.DOG.getKey());
         }
         return false;
     }

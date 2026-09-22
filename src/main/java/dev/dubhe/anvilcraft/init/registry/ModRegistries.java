@@ -19,6 +19,7 @@ import net.neoforged.neoforge.registries.RegistryBuilder;
 
 @EventBusSubscriber(modid = AnvilCraft.MOD_ID)
 public class ModRegistries {
+    public static final Registry<IAmulet> AMULET = ModRegistries.simple(ModRegistryKeys.AMULET);
     public static final Registry<IAmulet.Type<?>> AMULET_TYPE = ModRegistries.simple(
         ModRegistryKeys.AMULET_TYPE
     );
@@ -49,6 +50,7 @@ public class ModRegistries {
     @SubscribeEvent
     public static void registerRegistries(NewRegistryEvent event) {
         event.register(ModRegistries.AMULET_TYPE);
+        event.register(ModRegistries.AMULET);
         event.register(ModRegistries.TARGET_POINTER_TYPE);
         event.register(ModRegistries.AMULET_DEF_TYPE);
         event.register(ModRegistries.MODIFIER_TYPE);

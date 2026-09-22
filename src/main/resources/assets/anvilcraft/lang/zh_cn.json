@@ -809,6 +809,7 @@
   "item.anvilcraft.cocoa_liquor": "可可液块",
   "item.anvilcraft.cocoa_powder": "可可粉",
   "item.anvilcraft.comrade_amulet": "战友护符",
+  "tooltip.anvilcraft.comrade_amulet.player": "· %s",
   "item.anvilcraft.comrade_amulet.tooltip": "已签名的玩家：",
   "item.anvilcraft.confined_energy_anvilon": "约束能量砧子",
   "item.anvilcraft.confined_mass_anvilon": "约束质量砧子",

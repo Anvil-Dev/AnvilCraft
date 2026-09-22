@@ -34,6 +34,8 @@ allprojects {
             include '**/saved/storage/category/HasComponentCategory.java', '**/saved/storage/category/FilterCategory.java'
             include '**/saved/storage/category/CreativeModeTabCategory.java', '**/saved/storage/category/RecipeBookCategoryCategory.java'
             include '**/client/gui/component/category/CategoryButton.java', '**/client/gui/component/category/CategoryList.java'
+            include '**/api/amulet/AmuletManager.java', '**/item/property/component/amulet/*.java', '**/Comrades.java'
+            include '**/ComradeAmuletItem.java', '**/ModAmulets.java', '**/BoxContents.java'
             include '**/BoxSelection*.java', '**/PillSelectorSupport.java', '**/AmuletSelectorSupport.java'
             include '**/client/event/ClientEventListener.java'
             include '**/BundleLike*.java', '**/InvertedActionEventListener.java', '**/PillBoxItem.java', '**/AmuletBoxItem.java'

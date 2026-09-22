@@ -1960,6 +1960,7 @@
   "tooltip.anvilcraft.charger.jade.energy": "%1$s / %2$s",
   "tooltip.anvilcraft.charger.jade.time": "%1$s / %2$s",
   "tooltip.anvilcraft.charger.jade.working_progress": "Charging Progress: %s",
+  "tooltip.anvilcraft.comrade_amulet.player": "· %s",
   "tooltip.anvilcraft.crab_trap.jade.fishing": "Fishing Attempts: %s",
   "tooltip.anvilcraft.crab_trap.state_name": "Crab Trap State",
   "tooltip.anvilcraft.creative_container.content": "Content: %s",

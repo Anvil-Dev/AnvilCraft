@@ -175,7 +175,8 @@
     {
       "commit": "f006cad1e93ad6edccdb824ad8d65db81dcdf9f2",
       "status": "pending",
-      "scope": "refactor(amulet): refactor amulet to more registry driven (#4909)"
+      "scope": "refactor(amulet): refactor amulet to more registry driven (#4909)",
+      "integration": "护符注册身份、独立重量与战友签名组件及现有调用链已移植并完成存档/网络、伤害、折扣和客户端验证。目标分支尚缺 IEnchantedGold 及其物品体系，该调用点随材料/装备批次继续，因此本增量保持 pending。"
     },
     {
       "commit": "1d05aa531a176da25751981f82cfbd9fef68d9f0",

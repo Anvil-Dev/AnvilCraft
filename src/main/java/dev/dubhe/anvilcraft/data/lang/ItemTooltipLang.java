@@ -51,6 +51,7 @@ public class ItemTooltipLang {
         provider.add("tooltip.anvilcraft.resonator.desc", "Press [%s] to switch modes. Auto mode supports all tools");
         provider.add("tooltip.anvilcraft.resonator.mining_desc", "Press [%s] to change modes. Auto mode supports all tools and can “resonance‑mine” most blocks when holding right‑click");
 
+        provider.add("tooltip.anvilcraft.comrade_amulet.player", "· %s");
         provider.add("tooltip.anvilcraft.thought", "Press [%s] for more info");
     }
     // 启用行长警告"""

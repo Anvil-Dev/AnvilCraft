@@ -29,6 +29,7 @@ import dev.dubhe.anvilcraft.item.abnormal.LevitationItem;
 import dev.dubhe.anvilcraft.item.abnormal.RadiationItem;
 import dev.dubhe.anvilcraft.item.abnormal.SuperHeavyItem;
 import dev.dubhe.anvilcraft.item.amulet.AmuletBoxItem;
+import dev.dubhe.anvilcraft.item.amulet.ComradeAmuletItem;
 import dev.dubhe.anvilcraft.item.armor.IonoCraftBackpackItem;
 import dev.dubhe.anvilcraft.item.block.PipeBlockItem;
 import dev.dubhe.anvilcraft.item.ingredients.CapacitorItem;
@@ -49,7 +50,6 @@ import dev.dubhe.anvilcraft.item.property.component.Merciless;
 import dev.dubhe.anvilcraft.item.property.component.Multiphase;
 import dev.dubhe.anvilcraft.item.property.component.TerminalBinding;
 import dev.dubhe.anvilcraft.item.property.component.amulet.IAmulet;
-import dev.dubhe.anvilcraft.item.property.component.amulet.WrappedOthersAmulet;
 import dev.dubhe.anvilcraft.item.property.predicate.IntegerComponentPredicate;
 import dev.dubhe.anvilcraft.item.template.EmberMetalUpgradeTemplateItem;
 import dev.dubhe.anvilcraft.item.template.FrostMetalUpgradeTemplateItem;
@@ -152,7 +152,6 @@ import net.neoforged.neoforge.common.Tags;
 
 import java.util.Optional;
 import java.util.function.Function;
-import java.util.function.Supplier;
 
 import static dev.dubhe.anvilcraft.AnvilCraft.REGISTRUM;
 
@@ -832,11 +831,13 @@ public class ModItems {
 
     private static ItemEntry<? extends Item> createAmuletItem(
         String type,
-        Supplier<IAmulet> amulet,
+        ResourceKey<IAmulet> amulet,
+        int weight,
         NonNullConsumer<JewelCraftingRecipe.Builder> builderConsumer
     ) {
         return REGISTRUM.item(type + "_amulet", Item::new)
-            .properties(properties -> properties.stacksTo(1).component(ModComponents.AMULET, amulet.get()))
+            .properties(properties -> properties.stacksTo(1).component(ModComponents.AMULET, amulet)
+                .component(ModComponents.AMULET_WEIGHT, weight))
             .tag(ModItemTags.AMULET)
             .recipe(RegistrumItemRecipeLoader.amulet(builderConsumer))
             .register();
@@ -846,90 +847,106 @@ public class ModItems {
     private static <T extends Item> ItemEntry<T> createAmuletItem(
         String type,
         Function<Item.Properties, T> factory,
-        Supplier<IAmulet> amulet,
+        ResourceKey<IAmulet> amulet,
+        int weight,
         NonNullConsumer<JewelCraftingRecipe.Builder> builderConsumer
     ) {
         return REGISTRUM.item(type + "_amulet", factory::apply)
-            .properties(properties -> properties.stacksTo(1).component(ModComponents.AMULET, amulet.get()))
+            .properties(properties -> properties.stacksTo(1).component(ModComponents.AMULET, amulet)
+                .component(ModComponents.AMULET_WEIGHT, weight))
             .tag(ModItemTags.AMULET)
             .recipe(RegistrumItemRecipeLoader.amulet(builderConsumer))
             .register();
     }
 
-    private static ItemEntry<? extends Item> createBigAmuletItem(String type, Supplier<WrappedOthersAmulet> amulet) {
+    private static ItemEntry<? extends Item> createBigAmuletItem(String type, ResourceKey<IAmulet> amulet) {
         return REGISTRUM.item(type + "_amulet", Item::new)
-            .properties(properties -> properties.stacksTo(1).component(ModComponents.AMULET, amulet.get()))
+            .properties(properties -> properties.stacksTo(1).component(ModComponents.AMULET, amulet)
+                .component(ModComponents.AMULET_WEIGHT, IAmulet.BIG_AMULET_WEIGHT))
             .tag(ModItemTags.AMULET)
             .register();
     }
 
     public static final ItemEntry<? extends Item> EMERALD_AMULET = ModItems.createAmuletItem(
         "emerald",
-        () -> ModAmulets.EMERALD,
+        ModAmulets.EMERALD.getKey(),
+        IAmulet.SMALL_AMULET_WEIGHT,
         builder -> builder.requires(Items.EMERALD_BLOCK)
     );
     public static final ItemEntry<? extends Item> TOPAZ_AMULET = ModItems.createAmuletItem(
         "topaz",
-        () -> ModAmulets.TOPAZ,
+        ModAmulets.TOPAZ.getKey(),
+        IAmulet.SMALL_AMULET_WEIGHT,
         builder -> builder.requires(ModBlocks.TOPAZ_BLOCK)
     );
     public static final ItemEntry<? extends Item> RUBY_AMULET = ModItems.createAmuletItem(
         "ruby",
-        () -> ModAmulets.RUBY,
+        ModAmulets.RUBY.getKey(),
+        IAmulet.SMALL_AMULET_WEIGHT,
         builder -> builder.requires(ModBlocks.RUBY_BLOCK)
     );
     public static final ItemEntry<? extends Item> SAPPHIRE_AMULET = ModItems.createAmuletItem(
         "sapphire",
-        () -> ModAmulets.SAPPHIRE,
+        ModAmulets.SAPPHIRE.getKey(),
+        IAmulet.SMALL_AMULET_WEIGHT,
         builder -> builder.requires(ModBlocks.SAPPHIRE_BLOCK)
     );
     public static final ItemEntry<? extends Item> ANVIL_AMULET = ModItems.createAmuletItem(
         "anvil",
-        () -> ModAmulets.ANVIL,
+        ModAmulets.ANVIL.getKey(),
+        IAmulet.SMALL_AMULET_WEIGHT,
         builder -> builder.requires(Items.ANVIL)
     );
     public static final ItemEntry<? extends Item> COMRADE_AMULET = ModItems.createAmuletItem(
         "comrade",
-        () -> ModAmulets.COMRADE,
+        ComradeAmuletItem::new,
+        ModAmulets.COMRADE.getKey(),
+        IAmulet.SMALL_AMULET_WEIGHT,
         builder -> builder.requires(Items.NAME_TAG, 4)
     );
     public static final ItemEntry<? extends Item> FEATHER_AMULET = ModItems.createAmuletItem(
         "feather",
-        () -> ModAmulets.FEATHER,
+        ModAmulets.FEATHER.getKey(),
+        IAmulet.SMALL_AMULET_WEIGHT,
         builder -> builder.requires(Items.FEATHER, 16).requires(Items.PHANTOM_MEMBRANE, 4)
     );
     public static final ItemEntry<? extends Item> ARMADILLO_AMULET = ModItems.createAmuletItem(
         "armadillo",
-        () -> ModAmulets.ARMADILLO,
+        ModAmulets.ARMADILLO.getKey(),
+        IAmulet.SMALL_AMULET_WEIGHT,
         builder -> builder.requires(Items.SPIDER_EYE, 16).requires(Items.ARMADILLO_SCUTE, 4)
     );
     public static final ItemEntry<? extends Item> CAT_AMULET = ModItems.createAmuletItem(
         "cat",
-        () -> ModAmulets.CAT,
+        ModAmulets.CAT.getKey(),
+        IAmulet.SMALL_AMULET_WEIGHT,
         builder -> builder.requires(Items.SALMON, 16).requires(Items.COD, 16)
     );
     public static final ItemEntry<? extends Item> DOG_AMULET = ModItems.createAmuletItem(
         "dog",
-        () -> ModAmulets.DOG,
+        ModAmulets.DOG.getKey(),
+        IAmulet.SMALL_AMULET_WEIGHT,
         builder -> builder.requires(Items.BONE, 16).requires(ItemTags.MEAT, 16)
     );
     public static final ItemEntry<? extends Item> SILENCE_AMULET = ModItems.createAmuletItem(
         "silence",
-        () -> ModAmulets.SILENCE,
+        ModAmulets.SILENCE.getKey(),
+        IAmulet.SMALL_AMULET_WEIGHT,
         builder -> builder.requires(Items.ECHO_SHARD, 16)
     );
     public static final ItemEntry<? extends Item> ABNORMAL_AMULET = ModItems.createAmuletItem(
         "abnormal",
-        () -> ModAmulets.ABNORMAL, // TODO: 修改配方
+        ModAmulets.ABNORMAL.getKey(),
+        IAmulet.SMALL_AMULET_WEIGHT,
         builder -> builder.requires(ModItems.CURSED_GOLD_INGOT, 1).requires(ModItems.LEVITATION_POWDER, 16)
     );
     public static final ItemEntry<? extends Item> GEM_AMULET = ModItems.createBigAmuletItem(
         "gem",
-        () -> ModAmulets.GEM
+        ModAmulets.GEM.getKey()
     );
     public static final ItemEntry<? extends Item> NATURE_AMULET = ModItems.createBigAmuletItem(
         "nature",
-        () -> ModAmulets.NATURE
+        ModAmulets.NATURE.getKey()
     );
 
     public static final ItemEntry<CapacitorItem> CAPACITOR = REGISTRUM.item("capacitor", CapacitorItem::new)

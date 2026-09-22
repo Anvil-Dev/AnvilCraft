@@ -3,8 +3,10 @@ package dev.dubhe.anvilcraft.init.item;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.init.registry.ModRegistryKeys;
 import dev.dubhe.anvilcraft.item.property.component.BoxContents;
 import dev.dubhe.anvilcraft.item.property.component.CanTakeOutAmmo;
+import dev.dubhe.anvilcraft.item.property.component.Comrades;
 import dev.dubhe.anvilcraft.item.property.component.DevourRange;
 import dev.dubhe.anvilcraft.item.property.component.DiskData;
 import dev.dubhe.anvilcraft.item.property.component.Eternal;
@@ -35,6 +37,7 @@ import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.util.Unit;
 import net.minecraft.world.item.component.ChargedProjectiles;
 import net.minecraft.world.item.component.ItemContainerContents;
@@ -210,9 +213,16 @@ public class ModComponents {
         b -> b.persistent(StoredFluids.CODEC).networkSynchronized(StoredFluids.STREAM_CODEC)
     );
 
-    public static final DataComponentType<IAmulet> AMULET = ModComponents.register(
+    public static final DataComponentType<ResourceKey<IAmulet>> AMULET = ModComponents.register(
         "amulet",
-        b -> b.persistent(IAmulet.CODEC).networkSynchronized(IAmulet.STREAM_CODEC)
+        b -> b.persistent(ResourceKey.codec(ModRegistryKeys.AMULET)).networkSynchronized(ResourceKey.streamCodec(ModRegistryKeys.AMULET))
+    );
+
+    public static final DataComponentType<Integer> AMULET_WEIGHT = ModComponents.register(
+        "amulet_weight", b -> b.persistent(Codec.INT).networkSynchronized(ByteBufCodecs.VAR_INT)
+    );
+    public static final DataComponentType<Comrades> COMRADES = ModComponents.register(
+        "comrades", b -> b.persistent(Comrades.CODEC).networkSynchronized(Comrades.STREAM_CODEC)
     );
 
     public static final DataComponentType<StorageRef> STORAGE = ModComponents.register(

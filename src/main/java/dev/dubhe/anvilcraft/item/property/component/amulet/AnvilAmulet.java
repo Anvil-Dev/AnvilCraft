@@ -17,12 +17,13 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.item.FallingBlockEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 
 public record AnvilAmulet() implements IAmulet {
     private static final AnvilAmulet INSTANCE = new AnvilAmulet();
 
     @Override
-    public boolean shouldImmune(ServerPlayer player, DamageSource source) {
+    public boolean shouldImmune(ServerPlayer player, ItemStack amulet, DamageSource source) {
         if (!source.is(ModDamageTypeTags.ANVIL_AMULET_VALID)) {
             return false;
         }
@@ -38,6 +39,11 @@ public record AnvilAmulet() implements IAmulet {
     @Override
     public Type getType() {
         return ModAmuletTypes.ANVIL.get();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return obj == this;
     }
 
     public static class Type implements IAmulet.Type<AnvilAmulet> {

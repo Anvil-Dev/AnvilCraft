@@ -15,6 +15,11 @@ public record DiscountAmulet(float rate) implements IAmulet {
         return ModAmuletTypes.DISCOUNT.get();
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        return obj == this;
+    }
+
     public static class Type implements IAmulet.Type<DiscountAmulet> {
         public static final MapCodec<DiscountAmulet> CODEC = RecordCodecBuilder.mapCodec(inst -> inst.group(
             Codec.FLOAT

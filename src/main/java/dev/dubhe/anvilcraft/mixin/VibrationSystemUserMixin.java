@@ -25,7 +25,7 @@ interface VibrationSystemUserMixin {
     ) {
         if (
             context.sourceEntity() instanceof Player player
-            && AmuletManager.get(player.registryAccess()).hasAmuletInInventory(player, ModAmulets.SILENCE)
+            && AmuletManager.get(player.registryAccess()).hasAmuletInInventory(player, ModAmulets.SILENCE.getKey())
         ) {
             cir.setReturnValue(false);
         }
