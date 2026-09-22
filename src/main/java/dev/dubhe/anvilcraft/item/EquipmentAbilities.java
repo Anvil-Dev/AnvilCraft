@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.item;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItems;
+import dev.dubhe.anvilcraft.inventory.PocketInventory;
 import dev.dubhe.anvilcraft.util.AtmosphereManager;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.DamageTypeTags;
@@ -75,7 +76,10 @@ public final class EquipmentAbilities {
 
     @SubscribeEvent
     public static void afterTick(PlayerTickEvent.Post event) {
-        if (event.getEntity() instanceof ServerPlayer player) updateNightVision(player);
+        if (event.getEntity() instanceof ServerPlayer player) {
+            PocketInventory.get(player).tick(player);
+            updateNightVision(player);
+        }
     }
 
     private static void updateNightVision(ServerPlayer player) {

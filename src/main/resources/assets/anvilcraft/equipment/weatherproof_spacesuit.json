@@ -4,6 +4,11 @@
       {
         "texture": "anvilcraft:weatherproof_spacesuit"
       }
+    ],
+    "humanoid_leggings": [
+      {
+        "texture": "anvilcraft:weatherproof_spacesuit"
+      }
     ]
   }
 }

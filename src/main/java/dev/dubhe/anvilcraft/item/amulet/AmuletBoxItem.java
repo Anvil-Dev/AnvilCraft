@@ -3,12 +3,19 @@ package dev.dubhe.anvilcraft.item.amulet;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
+import dev.dubhe.anvilcraft.init.item.ModItems;
+import dev.dubhe.anvilcraft.inventory.PocketInventory;
 import dev.dubhe.anvilcraft.item.BundleLikeItem;
 import dev.dubhe.anvilcraft.item.property.component.BoxContents;
+import dev.dubhe.anvilcraft.item.property.consume.PreventShrinkingConsumeEffect;
 import dev.dubhe.anvilcraft.util.ColorUtil;
+import net.minecraft.advancements.CriteriaTriggers;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
+import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
@@ -20,6 +27,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemUseAnimation;
 import net.minecraft.world.item.ItemUtils;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.gameevent.GameEvent;
+import net.neoforged.neoforge.common.CommonHooks;
 
 import java.util.Optional;
 
@@ -136,4 +145,32 @@ public class AmuletBoxItem extends BundleLikeItem {
         );
     }
 
+    public static boolean tryUsePocketTotem(ServerPlayer player, DamageSource damage) {
+        if (damage.is(DamageTypeTags.BYPASSES_INVULNERABILITY)) return false;
+        PocketInventory pockets = PocketInventory.get(player);
+        for (int slot = 0; slot < PocketInventory.capacity(player); slot++) {
+            ItemStack box = pockets.getItem(slot);
+            if (!box.is(ModItems.AMULET_BOX)) continue;
+            var protection = box.get(DataComponents.DEATH_PROTECTION);
+            if (protection == null || !CommonHooks.onLivingUseTotem(player, damage, box, InteractionHand.OFF_HAND)) continue;
+            ItemStack activated = box.copy();
+            InteractionHand previous = PreventShrinkingConsumeEffect.USED_HAND.get();
+            try {
+                PreventShrinkingConsumeEffect.USED_HAND.remove();
+                player.setHealth(1.0F);
+                protection.applyEffects(activated, player);
+            } finally {
+                if (previous == null) PreventShrinkingConsumeEffect.USED_HAND.remove();
+                else PreventShrinkingConsumeEffect.USED_HAND.set(previous);
+            }
+            pockets.setItem(slot, activated);
+            pockets.syncChanges(player);
+            player.awardStat(Stats.ITEM_USED.get(box.getItem()));
+            CriteriaTriggers.USED_TOTEM.trigger(player, box);
+            box.causeUseVibration(player, GameEvent.ITEM_INTERACT_FINISH);
+            player.level().broadcastEntityEvent(player, (byte) 35);
+            return true;
+        }
+        return false;
+    }
 }

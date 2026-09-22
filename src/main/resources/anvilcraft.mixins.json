@@ -4,6 +4,11 @@
   "package": "dev.dubhe.anvilcraft.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
+    "SlotPositionAccessor",
+    "InventoryMenuMixin",
+    "ArmorSlotMixin",
+    "CreativePocketPacketMixin",
+    "EquipmentPocketLockMixin",
     "AtmosphereLivingMixin",
     "EquipmentLiquidBlockMixin",
     "projectile.AbstractHurtingProjectileMixin",
@@ -115,6 +120,14 @@
     "providence.EnchantedCountIncreaseFunctionMixin"
   ],
   "client": [
+    "PocketRecipeScreenAccessor",
+    "PocketEffectScreenMixin",
+    "JeiPocketEffectAreaMixin",
+    "PocketInventoryScreenMixin",
+    "CreativePocketScreenMixin",
+    "PocketRecipeScreenMixin",
+    "CreativePocketSlotMixin",
+    "PocketRecipeBookMixin",
     "EquipmentFluidOverlayMixin",
     "JeiBasicRecipeTransferHandlerMixin",
     "client.ScaledGuiItemExtractionMixin",

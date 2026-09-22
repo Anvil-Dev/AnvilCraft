@@ -2597,5 +2597,11 @@
   "tooltip.anvilcraft.item.buffer_boots": "免疫摔落伤害\n潜行蓄力，最多可跳跃 4 格方块高",
   "tooltip.anvilcraft.item.weatherproof_spacesuit_boots": "免疫摔落伤害\n潜行蓄力，最多可跳跃 4 格方块高\n可站在静止流体表面；潜行进入流体，持续潜行加快下沉",
   "screen.anvilcraft.equipment.charged_jump.on": "开启蓄力跳跃",
-  "screen.anvilcraft.equipment.charged_jump.off": "关闭蓄力跳跃"
+  "screen.anvilcraft.equipment.charged_jump.off": "关闭蓄力跳跃",
+  "item.anvilcraft.pockets_leggings": "口袋护腿",
+  "item.anvilcraft.weatherproof_spacesuit_leggings": "耐候航天护腿",
+  "key.anvilcraft.pockets": "交换口袋与副手物品",
+  "screen.anvilcraft.pockets.empty": "空的口袋",
+  "tooltip.anvilcraft.item.pockets_leggings": "有 6 格口袋\n使用口袋快捷键与副手交换物品\n清空口袋后才能卸下护腿",
+  "tooltip.anvilcraft.item.weatherproof_spacesuit_leggings": "有 12 格口袋\n使用口袋快捷键与副手交换物品\n清空口袋后才能卸下护腿"
 }

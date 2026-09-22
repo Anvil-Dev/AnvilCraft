@@ -316,6 +316,10 @@ public class AnvilCraftJeiPlugin implements IModPlugin {
 
     @Override
     public void registerGuiHandlers(IGuiHandlerRegistration registration) {
+        registration.addGuiContainerHandler(net.minecraft.client.gui.screens.inventory.InventoryScreen.class,
+            new dev.dubhe.anvilcraft.integration.jei.util.PocketGuiHandler<>());
+        registration.addGuiContainerHandler(net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen.class,
+            new dev.dubhe.anvilcraft.integration.jei.util.PocketGuiHandler<>());
         registration.addGuiScreenHandler(
             StorageScreen.class,
             screen -> screen.width > 0 && screen.height > 0 ? new IGuiProperties() {

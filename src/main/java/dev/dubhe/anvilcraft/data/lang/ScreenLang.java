@@ -10,6 +10,7 @@ public class ScreenLang {
      */
     @SuppressWarnings("checkstyle:LineLength")
     public static void init(RegistrumLangProvider provider) {
+        provider.add("screen.anvilcraft.pockets.empty", "Empty Pocket");
         provider.add("screen.anvilcraft.equipment.charged_jump.on", "Enable Charged Jump");
         provider.add("screen.anvilcraft.equipment.charged_jump.off", "Disable Charged Jump");
 

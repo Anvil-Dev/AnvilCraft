@@ -4,6 +4,7 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.client.renderer.entity.model.CauldronOutletModel;
 import dev.dubhe.anvilcraft.client.renderer.entity.model.EquipmentBootsModel;
 import dev.dubhe.anvilcraft.client.renderer.entity.model.EquipmentHelmetModel;
+import dev.dubhe.anvilcraft.client.renderer.entity.model.EquipmentLeggingsModel;
 import dev.dubhe.anvilcraft.client.renderer.entity.model.IonocraftBackpackModel;
 import dev.dubhe.anvilcraft.client.renderer.entity.model.IonocraftModel;
 import dev.dubhe.anvilcraft.client.renderer.entity.model.MagnetizedNodeModel;
@@ -33,6 +34,8 @@ public class ModModelLayers {
 
     public static final ModelLayerLocation EQUIPMENT_HELMET = new ModelLayerLocation(AnvilCraft.of("equipment_helmet"), "armor");
     public static final ModelLayerLocation EQUIPMENT_BOOTS = new ModelLayerLocation(AnvilCraft.of("equipment_boots"), "armor");
+    public static final ModelLayerLocation EQUIPMENT_LEGGINGS = new ModelLayerLocation(AnvilCraft.of("equipment_leggings"), "armor");
+    private static final Map<Model<?>, EquipmentLeggingsModel> EQUIPMENT_LEGGINGS_MODELS = new IdentityHashMap<>();
     private static final Map<Model<?>, EquipmentBootsModel> EQUIPMENT_BOOTS_MODELS = new IdentityHashMap<>();
     private static final Map<Model<?>, EquipmentHelmetModel> EQUIPMENT_HELMETS = new IdentityHashMap<>();
     private static @Nullable EntityModelSet equipmentModels;
@@ -58,12 +61,26 @@ public class ModModelLayers {
         });
     }
 
+    public static EquipmentLeggingsModel getEquipmentLeggingsModel(Model<?> original) {
+        return EQUIPMENT_LEGGINGS_MODELS.computeIfAbsent(original, model -> {
+            var replacement = new EquipmentLeggingsModel(Objects.requireNonNull(equipmentModels).bakeLayer(EQUIPMENT_LEGGINGS));
+            replacement.root().setInitialPose(model.root().getInitialPose());
+            if (model instanceof HumanoidModel<?> humanoid) {
+                replacement.body.setInitialPose(humanoid.body.getInitialPose());
+                replacement.rightLeg.setInitialPose(humanoid.rightLeg.getInitialPose());
+                replacement.leftLeg.setInitialPose(humanoid.leftLeg.getInitialPose());
+            }
+            return replacement;
+        });
+    }
+
     @Getter
     @Nullable
     private static IonocraftBackpackModel ionocraftBackpackModel;
 
     @SubscribeEvent
     public static void register(EntityRenderersEvent.RegisterLayerDefinitions event) {
+        event.registerLayerDefinition(EQUIPMENT_LEGGINGS, EquipmentLeggingsModel::createBodyLayer);
         event.registerLayerDefinition(EQUIPMENT_BOOTS, EquipmentBootsModel::createBodyLayer);
         event.registerLayerDefinition(EQUIPMENT_HELMET, EquipmentHelmetModel::createBodyLayer);
         event.registerLayerDefinition(
@@ -92,6 +109,7 @@ public class ModModelLayers {
     public static void createModel(EntityRenderersEvent.AddLayers event) {
         EQUIPMENT_HELMETS.clear();
         EQUIPMENT_BOOTS_MODELS.clear();
+        EQUIPMENT_LEGGINGS_MODELS.clear();
         equipmentModels = event.getContext().getModelSet();
         ModModelLayers.ionocraftBackpackModel = new IonocraftBackpackModel(event.getContext().bakeLayer(ModModelLayers.IONOCRAFT_BACKPACK));
     }

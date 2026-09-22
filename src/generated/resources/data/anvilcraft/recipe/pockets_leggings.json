@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "I": "minecraft:iron_leggings",
+    "L": "minecraft:leather",
+    "S": "minecraft:string"
+  },
+  "pattern": [
+    "S S",
+    "LIL"
+  ],
+  "result": {
+    "id": "anvilcraft:pockets_leggings"
+  }
+}

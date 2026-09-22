@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.init;
 import com.mojang.serialization.Codec;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.amulet.AmuletRaffleProbability;
+import dev.dubhe.anvilcraft.inventory.PocketInventory;
 import dev.dubhe.anvilcraft.inventory.SmithingTemplateFavorites;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.attachment.AttachmentType;
@@ -39,6 +40,10 @@ public class ModDataAttachments {
                 .copyOnDeath()
                 .build()
         );
+
+    public static final Supplier<AttachmentType<PocketInventory>> POCKETS = ATTACHMENT_TYPES.register(
+        "pockets", () -> AttachmentType.builder(PocketInventory::new).serialize(PocketInventory.CODEC.fieldOf("items"))
+            .copyOnDeath().sync((holder, player) -> holder == player, PocketInventory.STREAM_CODEC).build());
 
     public static void register(IEventBus eventBus) {
         ModDataAttachments.ATTACHMENT_TYPES.register(eventBus);

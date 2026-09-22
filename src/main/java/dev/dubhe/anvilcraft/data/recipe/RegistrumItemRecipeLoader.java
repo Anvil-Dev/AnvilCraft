@@ -1833,4 +1833,15 @@ public class RegistrumItemRecipeLoader {
             .unlockedBy("has_material", AnvilCraftDatagen.has(provider.getItems(), Items.IRON_BOOTS))
             .save(provider);
     }
+
+    public static <T extends Item> void pocketsArmor(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
+        ShapedRecipeBuilder.shaped(provider.getItems(), RecipeCategory.COMBAT, ctx.get())
+            .pattern("S S")
+            .pattern("LIL")
+            .define('S', Items.STRING)
+            .define('L', Items.LEATHER)
+            .define('I', Items.IRON_LEGGINGS)
+            .unlockedBy("has_material", AnvilCraftDatagen.has(provider.getItems(), Items.IRON_LEGGINGS))
+            .save(provider);
+    }
 }

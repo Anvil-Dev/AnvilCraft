@@ -274,6 +274,9 @@ public class ItemTooltipManager {
         ItemTooltipManager.NORMAL.put(ModBlocks.PROPEL_PISTON.asItem(), "Integrated piston worm, requires Capacitor or Laser power");
         ItemTooltipManager.NORMAL.put(ModBlocks.PULSE_GENERATOR.asItem(), "Customizes pulse delay and duration");
         ItemTooltipManager.NORMAL.put(ModBlocks.ADVANCED_COMPARATOR.asItem(), "Supports Hysteresis and Window comparison modes");
+        final String pockets = "%s pocket slots\nUse the pocket key to swap with your offhand\nEmpty pockets before removing leggings";
+        ItemTooltipManager.NORMAL.put(ModItems.POCKETS_LEGGINGS.get(), pockets.formatted(6));
+        ItemTooltipManager.NORMAL.put(ModItems.WEATHERPROOF_SPACESUIT_LEGGINGS.get(), pockets.formatted(12));
         final String boots = "Immune to fall damage\nHold sneak to charge a jump, up to 4 blocks height";
         ItemTooltipManager.NORMAL.put(ModItems.BUFFER_BOOTS.get(), boots);
         ItemTooltipManager.NORMAL.put(ModItems.WEATHERPROOF_SPACESUIT_BOOTS.get(), boots

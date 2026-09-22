@@ -714,6 +714,16 @@ public class ModItems {
         .properties(Item.Properties::fireResistant)
         .tag(ItemTags.FOOT_ARMOR, ItemTags.FOOT_ARMOR_ENCHANTABLE, ItemTags.DURABILITY_ENCHANTABLE)
         .register();
+    public static final ItemEntry<EquipmentArmorItem> POCKETS_LEGGINGS = REGISTRUM
+        .item("pockets_leggings", p -> new EquipmentArmorItem(p, ArmorType.LEGGINGS, false, "spacesuit"))
+        .tag(ItemTags.LEG_ARMOR, ItemTags.LEG_ARMOR_ENCHANTABLE, ItemTags.DURABILITY_ENCHANTABLE)
+        .recipe(RegistrumItemRecipeLoader::pocketsArmor)
+        .register();
+    public static final ItemEntry<EquipmentArmorItem> WEATHERPROOF_SPACESUIT_LEGGINGS = REGISTRUM
+        .item("weatherproof_spacesuit_leggings", p -> new EquipmentArmorItem(p, ArmorType.LEGGINGS, true, "weatherproof_spacesuit"))
+        .properties(Item.Properties::fireResistant)
+        .tag(ItemTags.LEG_ARMOR, ItemTags.LEG_ARMOR_ENCHANTABLE, ItemTags.DURABILITY_ENCHANTABLE)
+        .register();
     public static final ItemEntry<Item> WEATHERPROOF_CORE = REGISTRUM.item("weatherproof_core", Item::new)
         .recipe(RegistrumItemRecipeLoader::weatherproofCore).register();
 

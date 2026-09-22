@@ -4,6 +4,7 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.event.AmuletEvent;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItems;
+import dev.dubhe.anvilcraft.inventory.PocketInventory;
 import dev.dubhe.anvilcraft.item.property.component.BoxContents;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -17,6 +18,7 @@ public class AmuletEventListener {
         Player player = event.getPlayer();
         event.provide(player.getMainHandItem());
         event.provide(player.getOffhandItem());
+        PocketInventory.items(player).forEach(event::provide);
     }
 
     @SubscribeEvent

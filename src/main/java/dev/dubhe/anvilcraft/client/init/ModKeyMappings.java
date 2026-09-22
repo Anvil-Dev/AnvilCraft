@@ -8,12 +8,17 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
 import net.neoforged.neoforge.client.settings.KeyConflictContext;
+import net.neoforged.neoforge.client.settings.KeyModifier;
 import net.neoforged.neoforge.common.util.Lazy;
 import org.lwjgl.glfw.GLFW;
 
 @EventBusSubscriber(modid = AnvilCraft.MOD_ID, value = Dist.CLIENT)
 public class ModKeyMappings {
     public static final KeyMapping.Category ANVILCRAFT_CATEGORY = new KeyMapping.Category(AnvilCraft.of("all"));
+
+    public static final Lazy<KeyMapping> POCKETS = Lazy.of(() -> new KeyMapping(
+        "key.anvilcraft.pockets", KeyConflictContext.IN_GAME, KeyModifier.CONTROL_OR_COMMAND,
+        Type.KEYSYM, GLFW.GLFW_KEY_F, ANVILCRAFT_CATEGORY));
 
     public static final Lazy<KeyMapping> SWITCH_PHASE = ModKeyMappings.register(
         "switch_phase",
@@ -57,6 +62,7 @@ public class ModKeyMappings {
     @SubscribeEvent
     public static void register(RegisterKeyMappingsEvent event) {
         event.registerCategory(ModKeyMappings.ANVILCRAFT_CATEGORY);
+        event.register(ModKeyMappings.POCKETS.get());
         event.register(ModKeyMappings.SWITCH_PHASE.get());
         event.register(ModKeyMappings.TOGGLE_GOGGLE.get());
         event.register(ModKeyMappings.SWITCH_TOOL_MODE.get());

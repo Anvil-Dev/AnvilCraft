@@ -5,6 +5,7 @@ import dev.anvilcraft.lib.v2.util.InventoryUtil;
 import dev.dubhe.anvilcraft.api.TerminalSessions;
 import dev.dubhe.anvilcraft.client.rpc.StorageTerminalClientStub;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
+import dev.dubhe.anvilcraft.inventory.PocketInventory;
 import dev.dubhe.anvilcraft.item.property.component.TerminalBinding;
 import dev.dubhe.anvilcraft.rpc.StorageServerStub;
 import net.minecraft.server.level.ServerPlayer;
@@ -16,7 +17,6 @@ import net.minecraft.world.level.Level;
 import net.neoforged.api.distmarker.Dist;
 import org.jspecify.annotations.Nullable;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -57,8 +57,7 @@ public abstract class TerminalItem extends BundleLikeItem {
     }
 
     public static List<ItemStack> carriedItems(Player player) {
-        List<ItemStack> items = new ArrayList<>();
-        for (int slot = 0; slot < player.getInventory().getContainerSize(); slot++) items.add(player.getInventory().getItem(slot));
+        List<ItemStack> items = PocketInventory.carriedItems(player);
         items.addAll(InventoryUtil.getCompatItems(player));
         return items;
     }

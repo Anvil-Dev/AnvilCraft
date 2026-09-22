@@ -14,6 +14,7 @@ import dev.dubhe.anvilcraft.init.ModMobEffects;
 import dev.dubhe.anvilcraft.init.loot.ModLootTables;
 import dev.dubhe.anvilcraft.item.AmuletAbilities;
 import dev.dubhe.anvilcraft.item.EquipmentAbilities;
+import dev.dubhe.anvilcraft.item.amulet.AmuletBoxItem;
 import dev.dubhe.anvilcraft.item.property.consume.PreventShrinkingConsumeEffect;
 import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceKey;
@@ -31,6 +32,7 @@ import net.minecraft.world.entity.animal.golem.IronGolem;
 import net.minecraft.world.entity.item.FallingBlockEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.DeathProtection;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -238,5 +240,19 @@ public abstract class LivingEntityMixin extends Entity implements ILivingEntityE
         target = "Lnet/minecraft/world/entity/LivingEntity;getJumpPower()F"))
     private float anvilcraft$chargedJump(float normal) {
         return (Object) this instanceof Player player ? EquipmentAbilities.consumeChargedJump(player, normal) : normal;
+    }
+
+    @Inject(method = "checkTotemDeathProtection", at = @At("RETURN"), cancellable = true)
+    private void anvilcraft$usePocketTotem(DamageSource damage, CallbackInfoReturnable<Boolean> callback) {
+        if (!callback.getReturnValue() && (Object) this instanceof ServerPlayer player
+            && AmuletBoxItem.tryUsePocketTotem(player, damage)) callback.setReturnValue(true);
+    }
+
+    @ModifyExpressionValue(method = "checkTotemDeathProtection", at = @At(value = "INVOKE",
+        target = "Lnet/neoforged/neoforge/common/CommonHooks;onLivingUseTotem(Lnet/minecraft/world/entity/LivingEntity;"
+            + "Lnet/minecraft/world/damagesource/DamageSource;Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/InteractionHand;)Z"))
+    private boolean anvilcraft$discardCanceledTotem(boolean allowed, @Local LocalRef<DeathProtection> protection) {
+        if (!allowed) protection.set(null);
+        return allowed;
     }
 }

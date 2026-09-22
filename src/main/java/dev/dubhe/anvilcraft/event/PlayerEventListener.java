@@ -181,7 +181,7 @@ public class PlayerEventListener {
     @SubscribeEvent
     public static void onPlayerUsingTotem(LivingUseTotemEvent event) {
         if (!(event.getEntity() instanceof ServerPlayer player)) return;
-        ItemStack inHand = player.getItemInHand(event.getHandHolding());
+        ItemStack inHand = event.getTotem();
         if (!inHand.is(ModItems.AMULET_BOX.asItem())) return;
         if (inHand.getOrDefault(ModComponents.BOX_CONTENTS, BoxContents.EMPTY).totems().isEmpty()) {
             event.setCanceled(true);
