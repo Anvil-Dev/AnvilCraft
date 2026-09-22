@@ -2461,6 +2461,7 @@
   "screen.anvilcraft.storage.search.clear": "清除",
   "screen.anvilcraft.storage.search.edit": "搜索",
   "screen.anvilcraft.storage.search.retention": "保留",
+  "screen.anvilcraft.storage.search.tab": "按 Tab",
   "screen.anvilcraft.storage.sort": "排序方式：当前为%s",
   "screen.anvilcraft.storage.sort.count": "按数量",
   "screen.anvilcraft.storage.sort.mod": "按模组 ID",

@@ -4,6 +4,7 @@ import dev.anvilcraft.lib.v2.registrum.providers.RegistrumLangProvider;
 
 public class CategoryLang {
     public static void init(RegistrumLangProvider provider) {
+        provider.add("screen.anvilcraft.storage.search.tab", "Press Tab");
         provider.add("screen.anvilcraft.storage.crafting.auto_fill", "Auto Refill: %s");
         provider.add("screen.anvilcraft.storage.crafting.auto_fill.disabled", "Disabled");
         provider.add("screen.anvilcraft.storage.crafting.auto_fill.enabled", "Enabled");

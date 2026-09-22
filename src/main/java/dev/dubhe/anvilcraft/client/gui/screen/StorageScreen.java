@@ -2517,7 +2517,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
     }
 
     @SuppressWarnings("UnstableApiUsage")
-    private static void itemDecorations(
+    public static void itemDecorations(
         GuiGraphicsExtractor graphic,
         Minecraft minecraft,
         ItemStack stack,
