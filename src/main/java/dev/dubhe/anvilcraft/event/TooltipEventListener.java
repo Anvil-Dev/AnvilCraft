@@ -81,6 +81,7 @@ public class TooltipEventListener {
         stack.addToTooltip(ModComponents.BOX_CONTENTS, ctx, display, builder, flag);
         stack.addToTooltip(ModComponents.OVER_LIMIT_CONTAINER, ctx, display, builder, flag);
         stack.addToTooltip(ModComponents.STORAGE, ctx, display, builder, flag);
+        stack.addToTooltip(ModComponents.TERMINAL_BINDING, ctx, display, builder, flag);
     }
 
     @SuppressWarnings("SameParameterValue")

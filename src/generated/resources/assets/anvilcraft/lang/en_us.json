@@ -2254,7 +2254,7 @@
   "tooltip.anvilcraft.item.sapphire": "Containing the power of frost",
   "tooltip.anvilcraft.item.sapphire_amulet": "Grants Conduit Power",
   "tooltip.anvilcraft.item.shulker_terminal": "Link to Shulker-like storages in world or inventory",
-  "tooltip.anvilcraft.item.shulker_terminal.shift": "Automatically links to the first inventory Shulker Container, then the nearest world Shulker Container within 64 blocks",
+  "tooltip.anvilcraft.item.shulker_terminal.shift": "Automatically links to the first Shulker Container in your inventory.\nOtherwise, links to the nearest Shulker Container within 64 blocks.",
   "tooltip.anvilcraft.item.silence_amulet": "Silences the wearer",
   "tooltip.anvilcraft.item.silver_block": "A large block of highly reflective metal",
   "tooltip.anvilcraft.item.silver_ingot": "A highly reflective metal",

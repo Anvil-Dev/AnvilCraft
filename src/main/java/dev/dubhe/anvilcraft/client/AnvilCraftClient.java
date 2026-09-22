@@ -14,6 +14,7 @@ import dev.dubhe.anvilcraft.client.particle.PlasmaJetsParticle;
 import dev.dubhe.anvilcraft.client.renderer.RenderState;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.CFARenderer;
 import dev.dubhe.anvilcraft.client.renderer.item.ItemUseAnimationTransform;
+import dev.dubhe.anvilcraft.client.renderer.item.decoration.TerminalInsertionDecoration;
 import dev.dubhe.anvilcraft.client.renderer.laser.CachedLaserBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.selection.ModelSelectionBlacklist;
 import dev.dubhe.anvilcraft.client.support.InspectionSupport;
@@ -133,7 +134,10 @@ public class AnvilCraftClient {
 
     @SubscribeEvent
     public static void registerCustomItemDecorations(RegisterItemDecorationsEvent e) {
-        // IonocraftBackpackDecoration has been removed - decoration was migrated to armor renderer
+        var terminal = new TerminalInsertionDecoration();
+        e.register(ModItems.LOCAL_TERMINAL, terminal);
+        e.register(ModItems.SHULKER_TERMINAL, terminal);
+        e.register(ModItems.HYPERDIMENSION_TERMINAL, terminal);
     }
 
     @SubscribeEvent

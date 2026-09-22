@@ -27,6 +27,14 @@ public class ItemTooltipManager {
     private static final Map<Item, String> SHIFT = Maps.newHashMap();
 
     static {
+        ItemTooltipManager.NORMAL.put(ModItems.LOCAL_TERMINAL.asItem(), "Link to nearest Large Crate (32-block range)");
+        ItemTooltipManager.NORMAL.put(ModItems.SHULKER_TERMINAL.asItem(), "Link to Shulker-like storages in world or inventory");
+        ItemTooltipManager.NORMAL.put(
+            ModItems.HYPERDIMENSION_TERMINAL.asItem(), "A portable port of the binding Hyperdimension Storage Station"
+        );
+        ItemTooltipManager.SHIFT.put(ModItems.SHULKER_TERMINAL.asItem(), """
+            Automatically links to the first Shulker Container in your inventory.
+            Otherwise, links to the nearest Shulker Container within 64 blocks.""");
         ItemTooltipManager.NORMAL.put(ModItems.MAGNET.get(), "Attract surrounding items when use");
         ItemTooltipManager.NORMAL.put(ModItems.GEODE.get(), "Find the surrounding Amethyst Geode when using it");
         ItemTooltipManager.NORMAL.put(ModItems.ANVIL_HAMMER.get(), "It's a hammer, an anvil, a wrench, goggles, and a mace");
