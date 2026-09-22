@@ -39,6 +39,7 @@ items:
 ## <ref item="anvilcraft:weatherproof_spacesuit_helmet"/>
 
 - 在熔岩下提供清晰视野
+- 提供夜视效果
 
 ## <ref item="anvilcraft:weatherproof_spacesuit_chestplate"/>
 

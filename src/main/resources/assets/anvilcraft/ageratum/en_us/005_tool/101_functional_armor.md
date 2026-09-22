@@ -25,6 +25,10 @@ items:
 - Lets the player breathe normally underwater or in a vacuum and removes the underwater **mining speed penalty**
 - Does not prevent *suffocation by blocks*
 
+<info>
+Think of it as submerging your head in water while receiving the benefits of a <ref item="minecraft:conduit"/>
+</info>
+
 # <ref item="anvilcraft:ionocraft_backpack"/>
 
 <row>

@@ -39,6 +39,7 @@ items:
 ## <ref item="anvilcraft:weatherproof_spacesuit_helmet"/>
 
 - Provides clear vision in lava
+- Provides Night Vision
 
 ## <ref item="anvilcraft:weatherproof_spacesuit_chestplate"/>
 

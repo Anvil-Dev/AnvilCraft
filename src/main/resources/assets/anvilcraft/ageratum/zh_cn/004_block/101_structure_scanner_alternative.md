@@ -48,6 +48,10 @@ items:
 1. 导入和导出作用于同一文件夹，该文件夹位于**世界文件夹**下；在服务器上，文件操作需要**管理员权限**
 2. 可以设置该结构是否允许自动旋转，以免有方向要求的机器被放反
 
+<tip>
+按住shift+点击导入/导出按钮可以打开文件夹
+</tip>
+
 <info>
 具体操作涉及世界存储（可理解为云端）、<ref item="anvilcraft:structure_scanner"/>的存储（可理解为本地电脑）和<ref item="anvilcraft:structure_disk"/>的存储（可理解为 U 盘）。
 </info>

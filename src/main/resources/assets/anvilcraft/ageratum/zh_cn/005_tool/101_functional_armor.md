@@ -25,6 +25,10 @@ items:
 - 使玩家可以在水下或真空中正常呼吸，并消除水下的**挖掘速度惩罚**
 - 无法防止*方块窒息*
 
+<info>
+相当于把脑袋泡在水里，然后享受<ref item="minecraft:conduit"/>的增益
+</info>
+
 # <ref item="anvilcraft:ionocraft_backpack"/>
 
 <row>
