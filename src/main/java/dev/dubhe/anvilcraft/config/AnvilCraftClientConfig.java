@@ -82,13 +82,14 @@ public class AnvilCraftClientConfig {
     public boolean ionoCraftBackpackExhaustParticlesEnabled = true;
 
     @CollapsibleObject
-    public IonoCraftBackpackHud ionoCraftBackpackHud = new IonoCraftBackpackHud();
+    @SerializedName(value = "weatherproofChestplateHud", alternate = "ionoCraftBackpackHud")
+    public WeatherproofChestplateHud weatherproofChestplateHud = new WeatherproofChestplateHud();
 
     @Comment("Toggle the behaviour when exiting the Category Setting menu")
     public ExitBehaviourMode exitCategorySettingBehaviour = ExitBehaviourMode.CONFIRM;
 
-    public static class IonoCraftBackpackHud {
-        @Comment("If true, will show Ionocraft Backpack current power in hud")
+    public static class WeatherproofChestplateHud {
+        @Comment("If true, will show Weatherproof Chestplate current power in hud")
         public boolean enabled = true;
 
         @Comment("If true, will show charged capacitor counts in hud")

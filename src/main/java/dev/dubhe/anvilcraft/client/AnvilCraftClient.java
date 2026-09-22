@@ -118,7 +118,7 @@ public class AnvilCraftClient {
         ItemExtensionImpl itemExtensionInstance = new ItemExtensionImpl();
         e.registerItem(itemExtensionInstance, ModItems.IONOCRAFT_BACKPACK, ModItems.BREATHING_HELMET,
             ModItems.WEATHERPROOF_SPACESUIT_HELMET, ModItems.BUFFER_BOOTS, ModItems.WEATHERPROOF_SPACESUIT_BOOTS,
-            ModItems.POCKETS_LEGGINGS, ModItems.WEATHERPROOF_SPACESUIT_LEGGINGS);
+            ModItems.POCKETS_LEGGINGS, ModItems.WEATHERPROOF_SPACESUIT_LEGGINGS, ModItems.WEATHERPROOF_SPACESUIT_CHESTPLATE);
         e.registerItem(
             new EnergyWeaponExtensionImpl(),
             ModItems.ANVIL_RAILGUN,
@@ -137,6 +137,8 @@ public class AnvilCraftClient {
 
     @SubscribeEvent
     public static void registerCustomItemDecorations(RegisterItemDecorationsEvent e) {
+        e.register(ModItems.WEATHERPROOF_SPACESUIT_CHESTPLATE.get(),
+            new dev.dubhe.anvilcraft.client.renderer.item.decoration.WeatherproofChestplateDecoration());
         var terminal = new TerminalInsertionDecoration();
         e.register(ModItems.LOCAL_TERMINAL, terminal);
         e.register(ModItems.SHULKER_TERMINAL, terminal);
@@ -201,6 +203,7 @@ public class AnvilCraftClient {
         ) {
             if (itemStack.getItem() instanceof EquipmentArmorItem equipment) {
                 return switch (equipment.getEquipmentSlot()) {
+                    case CHEST -> ModModelLayers.getEquipmentChestModel(original);
                     case FEET -> ModModelLayers.getEquipmentBootsModel(original);
                     case LEGS -> ModModelLayers.getEquipmentLeggingsModel(original);
                     default -> ModModelLayers.getEquipmentHelmetModel(original);
@@ -219,13 +222,8 @@ public class AnvilCraftClient {
             EquipmentClientInfo.Layer layer,
             Identifier defaultId
         ) {
+            if (itemStack.getItem() instanceof IonoCraftBackpackItem backpack) return backpack.getArmorTexture(itemStack, false);
             if (itemStack.getItem() instanceof EquipmentArmorItem armor) return armor.getArmorTexture();
-            if (itemStack.is(ModItems.IONOCRAFT_BACKPACK)) {
-                if (IonoCraftBackpackItem.getEnergyStored(itemStack) > 0) {
-                    return IonoCraftBackpackItem.TEXTURE;
-                }
-                return IonoCraftBackpackItem.TEXTURE_OFF;
-            }
             return IClientItemExtensions.super.getArmorTexture(itemStack, type, layer, defaultId);
         }
     }

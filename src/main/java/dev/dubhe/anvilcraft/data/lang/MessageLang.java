@@ -4,6 +4,7 @@ import dev.anvilcraft.lib.v2.registrum.providers.RegistrumLangProvider;
 
 public class MessageLang {
     public static void init(RegistrumLangProvider provider) {
+        provider.add("hud.anvilcraft.weatherproof_chestplate_power", "%s%%");
         provider.add("message.anvilcraft.buffer_boots.charged", "Press %1$s to jump");
 
         provider.add("item.anvilcraft.hyperdimension_terminal.bound", "Bound to a Hyperdimension Storage Station");

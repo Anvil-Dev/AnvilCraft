@@ -4,21 +4,29 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.inventory.PocketInventory;
+import dev.dubhe.anvilcraft.item.armor.IonoCraftBackpackItem;
 import dev.dubhe.anvilcraft.util.AtmosphereManager;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.DamageTypeTags;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.AttributeInstance;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.event.entity.living.LivingBreatheEvent;
 import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
 import net.neoforged.neoforge.event.entity.living.MobEffectEvent;
@@ -29,6 +37,7 @@ import java.util.WeakHashMap;
 
 @EventBusSubscriber(modid = AnvilCraft.MOD_ID)
 public final class EquipmentAbilities {
+    private static final Identifier FLIGHT_STABILITY = AnvilCraft.of("flight_stability");
     public static final int CHARGE_TICKS = 20;
     public static final int CHARGE_HOLD_TICKS = 20;
     public static final int CHARGE_DECAY_TICKS = 10;
@@ -62,8 +71,7 @@ public final class EquipmentAbilities {
 
     @SubscribeEvent
     public static void damage(LivingIncomingDamageEvent event) {
-        if (canBreathe(event.getEntity()) && event.getSource().is(DamageTypeTags.IS_DROWNING)
-            || hasBufferBoots(event.getEntity()) && event.getSource().is(DamageTypeTags.IS_FALL)) event.setCanceled(true);
+        if (isImmune(event.getEntity(), event.getSource())) event.setCanceled(true);
     }
 
     @SubscribeEvent
@@ -79,6 +87,14 @@ public final class EquipmentAbilities {
         if (event.getEntity() instanceof ServerPlayer player) {
             PocketInventory.get(player).tick(player);
             updateNightVision(player);
+            AttributeInstance resistance = player.getAttribute(Attributes.KNOCKBACK_RESISTANCE);
+            if (resistance == null) return;
+            boolean flying = !IonoCraftBackpackItem.getByPlayer(player).isEmpty() && player.getAbilities().flying;
+            if (flying && !resistance.hasModifier(FLIGHT_STABILITY)) {
+                resistance.addTransientModifier(new AttributeModifier(FLIGHT_STABILITY, 0.75, AttributeModifier.Operation.ADD_VALUE));
+            } else if (!flying) {
+                resistance.removeModifier(FLIGHT_STABILITY);
+            }
         }
     }
 
@@ -230,5 +246,41 @@ public final class EquipmentAbilities {
         } else {
             SUBMERGING.remove(player);
         }
+        if (hasFullSuit(player)) {
+            player.clearFire();
+            player.setTicksFrozen(0);
+            if (!player.isSpectator() && !player.getAbilities().flying && player.getY() < player.level().getMinY()) {
+                Vec3 movement = player.getDeltaMovement();
+                player.setDeltaMovement(movement.x, 0.2, movement.z);
+                player.fallDistance = 0;
+            }
+        }
+    }
+
+    public static boolean hasFullSuit(LivingEntity entity) {
+        return entity.getItemBySlot(EquipmentSlot.HEAD).is(ModItems.WEATHERPROOF_SPACESUIT_HELMET)
+            && entity.getItemBySlot(EquipmentSlot.CHEST).is(ModItems.WEATHERPROOF_SPACESUIT_CHESTPLATE)
+            && entity.getItemBySlot(EquipmentSlot.LEGS).is(ModItems.WEATHERPROOF_SPACESUIT_LEGGINGS)
+            && entity.getItemBySlot(EquipmentSlot.FEET).is(ModItems.WEATHERPROOF_SPACESUIT_BOOTS);
+    }
+
+    public static boolean isImmune(LivingEntity entity, DamageSource source) {
+        if (source.is(DamageTypes.FELL_OUT_OF_WORLD) || source.is(DamageTypes.GENERIC_KILL)) return false;
+        if (canBreathe(entity) && source.is(DamageTypeTags.IS_DROWNING)) return true;
+        if (hasBufferBoots(entity) && source.is(DamageTypeTags.IS_FALL)) return true;
+        return hasFullSuit(entity) && (source.is(Tags.DamageTypes.IS_ENVIRONMENT)
+            || source.is(DamageTypeTags.IS_FIRE) || source.is(DamageTypeTags.IS_FREEZING)
+            || source.is(DamageTypeTags.IS_LIGHTNING));
+    }
+
+    public static boolean isVoidProtected(Player player) {
+        return !player.isSpectator() && !player.getAbilities().flying && hasFullSuit(player);
+    }
+
+    public static Vec3 collideWithVoidFloor(Player player, Vec3 movement) {
+        double floor = player.level().getMinY();
+        if (movement.y >= 0 || player.getY() < floor || player.getY() + movement.y >= floor
+            || !isVoidProtected(player)) return movement;
+        return new Vec3(movement.x, floor - player.getY(), movement.z);
     }
 }

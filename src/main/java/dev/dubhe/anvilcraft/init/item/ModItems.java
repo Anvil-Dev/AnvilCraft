@@ -32,6 +32,7 @@ import dev.dubhe.anvilcraft.item.amulet.AmuletBoxItem;
 import dev.dubhe.anvilcraft.item.amulet.ComradeAmuletItem;
 import dev.dubhe.anvilcraft.item.armor.EquipmentArmorItem;
 import dev.dubhe.anvilcraft.item.armor.IonoCraftBackpackItem;
+import dev.dubhe.anvilcraft.item.armor.WeatherproofChestplateItem;
 import dev.dubhe.anvilcraft.item.block.PipeBlockItem;
 import dev.dubhe.anvilcraft.item.ingredients.CapacitorItem;
 import dev.dubhe.anvilcraft.item.ingredients.EmberMetalIngotItem;
@@ -675,20 +676,9 @@ public class ModItems {
 
     public static final ItemEntry<? extends IonoCraftBackpackItem> IONOCRAFT_BACKPACK = REGISTRUM
         .item("ionocraft_backpack", IonoCraftBackpackItem::new)
-        .properties(properties -> properties
-            .humanoidArmor(ArmorMaterials.IRON, ArmorType.CHESTPLATE)
-            .component(
-                DataComponents.EQUIPPABLE,
-                Equippable.builder(EquipmentSlot.CHEST)
-                    .setEquipSound(SoundEvents.ARMOR_EQUIP_ELYTRA)
-                    .setAsset(ModEquipmentAssets.IONOCRAFT_BACKPACK)
-                    .setDamageOnHurt(false)
-                    .build()
-            )
-            .enchantable(15)
-        )
+        .properties(properties -> properties.durability(ArmorType.CHESTPLATE.getDurability(15)))
         .model(DataGenUtil::ionocraftBackpack)
-        .tag(ItemTags.CHEST_ARMOR_ENCHANTABLE)
+        .tag(ItemTags.CHEST_ARMOR, ItemTags.CHEST_ARMOR_ENCHANTABLE, ItemTags.DURABILITY_ENCHANTABLE)
         .recipe(RegistrumItemRecipeLoader::ionocraftBackpack)
         .register();
     public static final ItemEntry<EquipmentArmorItem> BREATHING_HELMET = REGISTRUM
@@ -723,6 +713,12 @@ public class ModItems {
         .item("weatherproof_spacesuit_leggings", p -> new EquipmentArmorItem(p, ArmorType.LEGGINGS, true, "weatherproof_spacesuit"))
         .properties(Item.Properties::fireResistant)
         .tag(ItemTags.LEG_ARMOR, ItemTags.LEG_ARMOR_ENCHANTABLE, ItemTags.DURABILITY_ENCHANTABLE)
+        .register();
+    public static final ItemEntry<WeatherproofChestplateItem> WEATHERPROOF_SPACESUIT_CHESTPLATE = REGISTRUM
+        .item("weatherproof_spacesuit_chestplate", WeatherproofChestplateItem::new)
+        .model(DataGenUtil::poweredEquipment)
+        .properties(Item.Properties::fireResistant)
+        .tag(ItemTags.CHEST_ARMOR, ItemTags.CHEST_ARMOR_ENCHANTABLE, ItemTags.DURABILITY_ENCHANTABLE)
         .register();
     public static final ItemEntry<Item> WEATHERPROOF_CORE = REGISTRUM.item("weatherproof_core", Item::new)
         .recipe(RegistrumItemRecipeLoader::weatherproofCore).register();

@@ -33,6 +33,14 @@ public class MultipleToOneSmithingRecipeLoader {
             .save(provider);
         TwoToOneSmithingRecipe.builder()
             .material(ModItems.WEATHERPROOF_CORE)
+            .input(ModItems.IONOCRAFT_BACKPACK)
+            .input(Items.NETHERITE_CHESTPLATE)
+            .resultMerge(ModItems.WEATHERPROOF_SPACESUIT_CHESTPLATE,
+                NormalDataComponent.of(0, DataComponents.CUSTOM_NAME),
+                ItemEnchantmentsData.enchantments(0), ItemEnchantmentsData.enchantments(1))
+            .save(provider);
+        TwoToOneSmithingRecipe.builder()
+            .material(ModItems.WEATHERPROOF_CORE)
             .input(ModItems.POCKETS_LEGGINGS)
             .input(Items.NETHERITE_LEGGINGS)
             .resultMerge(ModItems.WEATHERPROOF_SPACESUIT_LEGGINGS,

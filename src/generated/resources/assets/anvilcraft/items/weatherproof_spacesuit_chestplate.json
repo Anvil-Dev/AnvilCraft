@@ -3,11 +3,11 @@
     "type": "minecraft:condition",
     "on_false": {
       "type": "minecraft:model",
-      "model": "anvilcraft:item/ionocraft_backpack"
+      "model": "anvilcraft:item/weatherproof_spacesuit_chestplate"
     },
     "on_true": {
       "type": "minecraft:model",
-      "model": "anvilcraft:item/ionocraft_backpack_on"
+      "model": "anvilcraft:item/weatherproof_spacesuit_chestplate_on"
     },
     "property": "anvilcraft:equipment_powered"
   }

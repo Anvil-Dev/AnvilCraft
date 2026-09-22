@@ -5,6 +5,7 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.amulet.AmuletRaffleProbability;
 import dev.dubhe.anvilcraft.inventory.PocketInventory;
 import dev.dubhe.anvilcraft.inventory.SmithingTemplateFavorites;
+import net.minecraft.network.codec.ByteBufCodecs;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.attachment.AttachmentType;
 import net.neoforged.neoforge.registries.DeferredRegister;
@@ -44,6 +45,16 @@ public class ModDataAttachments {
     public static final Supplier<AttachmentType<PocketInventory>> POCKETS = ATTACHMENT_TYPES.register(
         "pockets", () -> AttachmentType.builder(PocketInventory::new).serialize(PocketInventory.CODEC.fieldOf("items"))
             .copyOnDeath().sync((holder, player) -> holder == player, PocketInventory.STREAM_CODEC).build());
+
+    public static final Supplier<AttachmentType<Boolean>> IN_POWER_GRID = ATTACHMENT_TYPES.register(
+        "in_power_grid", () -> AttachmentType.builder(() -> false).sync(ByteBufCodecs.BOOL).build());
+
+    public static final Supplier<AttachmentType<Boolean>> POWER_GRID_OVERLOADED = ATTACHMENT_TYPES.register(
+        "power_grid_overloaded", () -> AttachmentType.builder(() -> false).sync(ByteBufCodecs.BOOL).build());
+
+    public static final Supplier<AttachmentType<Boolean>> IONOCRAFT_DESCENT_AVAILABLE = ATTACHMENT_TYPES.register(
+        "ionocraft_descent_available", () -> AttachmentType.builder(() -> false)
+            .sync((holder, player) -> holder == player, ByteBufCodecs.BOOL).build());
 
     public static void register(IEventBus eventBus) {
         ModDataAttachments.ATTACHMENT_TYPES.register(eventBus);

@@ -17,6 +17,9 @@ public class ConfigScreenLang {
 
     @SuppressWarnings("checkstyle:LineLength")
     private static void addOverrides(RegistrumLangProvider provider) {
+        ConfigScreenLang.addOverride(provider, "anvilcraft.configuration.weatherproof_chestplate_hud", "Weatherproof Chestplate HUD");
+        ConfigScreenLang.addOverride(provider, "anvilcraft.configuration.weatherproof_chestplate_hud.button", "Open HUD Settings");
+        ConfigScreenLang.addOverride(provider, "anvilcraft.configuration.weatherproof_chestplate_hud.tooltip", "Chestplate power and capacitor display");
         ConfigScreenLang.addOverride(provider, "anvilcraft.configuration.anvil_collision_craft_speed", "Anvil Collision Explosion Speed Threshold");
         ConfigScreenLang.addOverride(
             provider,

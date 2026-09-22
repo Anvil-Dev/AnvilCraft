@@ -6,8 +6,8 @@ import dev.dubhe.anvilcraft.api.tooltip.HudTooltipManager;
 import dev.dubhe.anvilcraft.block.multipart.AbstractMultiPartBlock;
 import dev.dubhe.anvilcraft.client.hud.AnvilHammerUseHUD;
 import dev.dubhe.anvilcraft.client.hud.EnergyWeaponUseHUD;
-import dev.dubhe.anvilcraft.client.hud.IonoCraftBackpackHUD;
 import dev.dubhe.anvilcraft.client.hud.TradingStationHUD;
+import dev.dubhe.anvilcraft.client.hud.WeatherproofChestplateHUD;
 import dev.dubhe.anvilcraft.item.tool.AnvilHammerItem;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
@@ -91,7 +91,7 @@ public class GuiLayerRegistrationEventListener {
         event.registerAboveAll(AnvilCraft.of("test"), GuiLayerRegistrationEventListener::render);
         event.registerAboveAll(AnvilCraft.of("anvil_hammer_use"), AnvilHammerUseHUD::render);
         event.registerAboveAll(AnvilCraft.of("energy_weapon_use"), EnergyWeaponUseHUD::render);
-        event.registerAboveAll(AnvilCraft.of("ionocraft_backpack"), IonoCraftBackpackHUD::render);
+        event.registerAboveAll(AnvilCraft.of("weatherproof_chestplate"), WeatherproofChestplateHUD::render);
         event.registerAboveAll(AnvilCraft.of("trading_station"), TradingStationHUD::render);
     }
 

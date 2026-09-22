@@ -101,7 +101,7 @@
       "commit": "e501e72b927d6129fc46ddf8278d1a9edca7a028",
       "status": "pending",
       "scope": "Add space equipment and inventory pocket system, and improve the building wand and structure scanner, and fixed bugs 添加航天装备与口袋系统并完善建筑杖和结构扫描仪，以及修复bug (#4878)",
-      "integration": "头盔、缓冲靴、护腿/口袋及配方、模型、能力和交互已接入并验证：口袋保存/同步/重生/掉落、护腿锁定、创造包校验、Ctrl/Cmd+F轮盘、配方书/效果/JEI布局、终端与护符/图腾均已接通。航天胸甲、能耗/飞行、全套保护及建筑杖/扫描仪相关改动仍待续；建筑杖和新电容体系后续使用现有 carriedItems 入口。"
+      "integration": "航天四部件、普通电网背包、口袋、模型/HUD、飞行/缓降和整套保护已接入并完成运行验证。胸甲余电充电与共享电容基础已接通。建筑杖/扫描仪相关改动及能量武器新版换电等其余子系统仍待续，保持 pending。"
     },
     {
       "commit": "36891dc67aed55627bce4f23e4d8e8de0c878baf",

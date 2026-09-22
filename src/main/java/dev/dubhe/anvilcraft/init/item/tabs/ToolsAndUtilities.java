@@ -68,6 +68,7 @@ public class ToolsAndUtilities extends DisplayItemsGenerator {
         this.plain(ModItems.BREATHING_HELMET);
         this.plain(ModItems.POCKETS_LEGGINGS);
         this.plain(ModItems.WEATHERPROOF_SPACESUIT_LEGGINGS);
+        this.ionoCraftBackpack(ModItems.WEATHERPROOF_SPACESUIT_CHESTPLATE);
         this.plain(ModItems.BUFFER_BOOTS);
         this.plain(ModItems.WEATHERPROOF_SPACESUIT_BOOTS);
         this.plain(ModItems.WEATHERPROOF_SPACESUIT_HELMET);

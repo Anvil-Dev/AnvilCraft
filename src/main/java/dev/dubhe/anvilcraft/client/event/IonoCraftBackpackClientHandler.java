@@ -2,8 +2,10 @@ package dev.dubhe.anvilcraft.client.event;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.client.AnvilCraftClient;
+import dev.dubhe.anvilcraft.init.ModDataAttachments;
 import dev.dubhe.anvilcraft.init.ModParticles;
 import dev.dubhe.anvilcraft.item.armor.IonoCraftBackpackItem;
+import dev.dubhe.anvilcraft.network.IonoCraftBackpackToggleDescentPacket;
 import net.minecraft.client.CameraType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -15,6 +17,8 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
+import net.neoforged.neoforge.client.event.MovementInputUpdateEvent;
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Collections;
@@ -27,9 +31,39 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 @EventBusSubscriber(modid = AnvilCraft.MOD_ID, value = Dist.CLIENT)
 public class IonoCraftBackpackClientHandler {
+    private static @Nullable Player inputPlayer;
+    private static boolean jumpWasDown;
+    private static int lastJumpTick = -1;
+
+    @SubscribeEvent
+    public static void onMovementInput(MovementInputUpdateEvent event) {
+        Player player = event.getEntity();
+        boolean jumpDown = event.getInput().keyPresses.jump();
+        if (inputPlayer != player) {
+            inputPlayer = player;
+            jumpWasDown = jumpDown;
+            lastJumpTick = -1;
+        }
+        boolean pressed = jumpDown && !jumpWasDown;
+        jumpWasDown = jumpDown;
+        if (Minecraft.getInstance().screen != null || player.onGround() || !player.isAlive()
+            || player.isCreative() || player.isSpectator()
+            || !player.getData(ModDataAttachments.IONOCRAFT_DESCENT_AVAILABLE)) {
+            lastJumpTick = -1;
+            return;
+        }
+        if (!pressed) return;
+        if (lastJumpTick >= 0 && player.tickCount - lastJumpTick < 7) {
+            lastJumpTick = -1;
+            ClientPacketDistributor.sendToServer(new IonoCraftBackpackToggleDescentPacket());
+        } else {
+            lastJumpTick = player.tickCount;
+        }
+    }
+
     private static final double SIDE_OFFSET = 0.3;
     private static final double BACK_OFFSET = 0.45;
-    private static final double Y_OFFSET = 0.9;
+    private static final double Y_OFFSET = 1.1;
 
     /** 服务器同步的正在用背包飞行的玩家 entityId 集合 */
     private static final Set<Integer> SYNCED_FLYING_PLAYERS = Collections.newSetFromMap(new ConcurrentHashMap<>());
@@ -50,7 +84,14 @@ public class IonoCraftBackpackClientHandler {
     @SubscribeEvent
     public static void onClientTick(ClientTickEvent.Post event) {
         Minecraft minecraft = Minecraft.getInstance();
-        if (minecraft.level == null) return;
+        if (minecraft.level == null) {
+            inputPlayer = null;
+            jumpWasDown = false;
+            lastJumpTick = -1;
+            SYNCED_FLYING_PLAYERS.clear();
+            lastLevel = null;
+            return;
+        }
         if (minecraft.isPaused()) return;
         if (!AnvilCraftClient.CONFIG.ionoCraftBackpackExhaustParticlesEnabled) return;
 

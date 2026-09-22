@@ -14,6 +14,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
@@ -274,6 +275,11 @@ public class ItemTooltipManager {
         ItemTooltipManager.NORMAL.put(ModBlocks.PROPEL_PISTON.asItem(), "Integrated piston worm, requires Capacitor or Laser power");
         ItemTooltipManager.NORMAL.put(ModBlocks.PULSE_GENERATOR.asItem(), "Customizes pulse delay and duration");
         ItemTooltipManager.NORMAL.put(ModBlocks.ADVANCED_COMPARATOR.asItem(), "Supports Hysteresis and Window comparison modes");
+        ItemTooltipManager.NORMAL.put(ModItems.IONOCRAFT_BACKPACK.get(), "Allows creative flight while equipped in a powered grid");
+        ItemTooltipManager.SHIFT.put(ModItems.IONOCRAFT_BACKPACK.get(),
+            "Leaving the grid while flying grants slow falling until landing or reentry\nDouble-tap Jump to toggle slow falling during this descent");
+        ItemTooltipManager.NORMAL.put(ModItems.WEATHERPROOF_SPACESUIT_CHESTPLATE.get(),
+            "Uses 100 kFE per second\nRechargeable from grids or capacitors");
         final String pockets = "%s pocket slots\nUse the pocket key to swap with your offhand\nEmpty pockets before removing leggings";
         ItemTooltipManager.NORMAL.put(ModItems.POCKETS_LEGGINGS.get(), pockets.formatted(6));
         ItemTooltipManager.NORMAL.put(ModItems.WEATHERPROOF_SPACESUIT_LEGGINGS.get(), pockets.formatted(12));
@@ -286,6 +292,11 @@ public class ItemTooltipManager {
             "Supplies oxygen underwater and in vacuum\nRemoves underwater mining penalties\nClear vision in all fluids\n%s");
         ItemTooltipManager.NORMAL_ARGUMENTS.put(ModItems.WEATHERPROOF_SPACESUIT_HELMET.get(),
             new Object[]{Component.translatable("effect.minecraft.night_vision")});
+        final String fullSuit = "\nFull suit: immune to environmental damage except the void; prevents falling into the void";
+        for (Item armor : List.of(ModItems.WEATHERPROOF_SPACESUIT_HELMET.get(), ModItems.WEATHERPROOF_SPACESUIT_CHESTPLATE.get(),
+            ModItems.WEATHERPROOF_SPACESUIT_LEGGINGS.get(), ModItems.WEATHERPROOF_SPACESUIT_BOOTS.get())) {
+            ItemTooltipManager.NORMAL.merge(armor, fullSuit, String::concat);
+        }
         ItemTooltipManager.NORMAL.put(ModItems.EMERALD_AMULET.get(), "Villagers offer discounts; Iron Golems never become hostile to the wearer");
         ItemTooltipManager.NORMAL.put(ModItems.TOPAZ_AMULET.get(), "Grants immunity to lightning damage and Haste I");
         ItemTooltipManager.NORMAL.put(ModItems.RUBY_AMULET.get(), "Grants Fire Resistance and Strength I; Strength II while on fire");

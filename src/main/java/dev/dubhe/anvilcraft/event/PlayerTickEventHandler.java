@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.event;
 
+import dev.dubhe.anvilcraft.api.item.ICapacitorChargeable;
 import dev.dubhe.anvilcraft.api.power.IDynamicPowerComponentHolder;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
@@ -58,6 +59,7 @@ public class PlayerTickEventHandler {
 
     @SubscribeEvent
     public static void onPlayerTick(PlayerTickEvent.Post event) {
+        IonoCraftBackpackItem.applySlowFalling(event.getEntity());
         if (event.getEntity() instanceof ServerPlayer serverPlayer) {
             PlayerTickEventHandler.applyPowerGrid(serverPlayer);
             IonoCraftBackpackItem.playerTick(serverPlayer);
@@ -89,7 +91,7 @@ public class PlayerTickEventHandler {
         // 操作 STORED_ENERGY 组件，为物品充能
         for (int i = 0; i < inventory.getContainerSize(); i++) {
             ItemStack item = inventory.getItem(i);
-            if (item.isEmpty()) continue;
+            if (item.isEmpty() || item.getItem() instanceof ICapacitorChargeable) continue;
             if (!item.has(ModComponents.STORED_ENERGY)) continue;
 
             // 获取物品的最大容量

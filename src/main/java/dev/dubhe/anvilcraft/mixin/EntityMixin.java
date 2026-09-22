@@ -355,4 +355,9 @@ public abstract class EntityMixin implements IEntityExtension {
     private void anvilcraft$handleAcceleration(CallbackInfo ci) {
         AccelerateManager.handleAcceleration((Entity) (Object) this);
     }
+
+    @ModifyVariable(method = "collide", at = @At("HEAD"), argsOnly = true)
+    private Vec3 anvilcraft$collideWithVoidFloor(Vec3 movement) {
+        return (Object) this instanceof Player player ? EquipmentAbilities.collideWithVoidFloor(player, movement) : movement;
+    }
 }

@@ -2,7 +2,7 @@ package dev.dubhe.anvilcraft.init.item.tabs;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
-import dev.dubhe.anvilcraft.item.armor.IonoCraftBackpackItem;
+import dev.dubhe.anvilcraft.item.armor.WeatherproofChestplateItem;
 import dev.dubhe.anvilcraft.item.property.component.StoredEnergy;
 import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceKey;
@@ -40,10 +40,8 @@ public abstract class DisplayItemsGenerator implements CreativeModeTab.DisplayIt
             return;
         }
         ItemStack stack = item.asItem().getDefaultInstance();
-        ItemStack full = stack.copy();
-        full.set(ModComponents.STORED_ENERGY, new StoredEnergy(IonoCraftBackpackItem.MAX_ENERGY));
         this.output.accept(stack);
-        this.output.accept(full);
+        if (item.asItem() instanceof WeatherproofChestplateItem chestplate) this.output.accept(chestplate.creativeStack());
     }
 
     public void enchanting(ItemLike item, ResourceKey<Enchantment> enchKey, int level) {

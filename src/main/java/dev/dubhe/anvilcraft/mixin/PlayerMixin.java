@@ -77,4 +77,10 @@ abstract class PlayerMixin extends LivingEntity {
         if (player == null) return;
         AnvilCraftFakePlayers.getKiller().disable(player);
     }
+
+    @ModifyExpressionValue(method = "causeFallDamage", at = @At(value = "INVOKE",
+        target = "Lnet/minecraft/world/entity/player/Player;mayFly()Z"))
+    private boolean anvilcraft$backpackRequiresActiveFlight(boolean original) {
+        return original && IonoCraftBackpackItem.protectsFromFalling((Player) (Object) this);
+    }
 }

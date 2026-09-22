@@ -478,23 +478,15 @@ public class RegistrumItemRecipeLoader {
     }
 
     public static <T extends Item> void ionocraftBackpack(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
-        HolderGetter<Item> lookup = provider.getItems();
-        DataComponentPatch patch = DataComponentPatch.builder()
-            .set(ModComponents.STORED_ENERGY, new StoredEnergy(0))
-            .build();
-        ShapedRecipeBuilder.shaped(lookup, RecipeCategory.MISC, new ItemStackTemplate(ctx.get(), patch))
+        ShapedRecipeBuilder.shaped(provider.getItems(), RecipeCategory.COMBAT, ctx.get())
             .pattern("ABA")
-            .pattern("ABA")
-            .pattern("CDC")
-            .define('A', ModItems.IONOCRAFT.asItem())
-            .define('B', ModItemTags.CAPACITOR)
+            .pattern("ADA")
+            .pattern("C C")
+            .define('A', ModItems.IONOCRAFT)
+            .define('B', ModBlocks.MAGNETO_ELECTRIC_CORE_BLOCK)
             .define('C', ModItemTags.TIN_PLATES)
-            .define('D', Items.LEATHER_CHESTPLATE)
-            .group(ctx.getId().toString())
-            .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.IONOCRAFT.asItem()), AnvilCraftDatagen.has(lookup, ModItems.IONOCRAFT.asItem()))
-            .unlockedBy(AnvilCraftDatagen.hasItem(ModItemTags.CAPACITOR), AnvilCraftDatagen.has(lookup, ModItemTags.CAPACITOR))
-            .unlockedBy(AnvilCraftDatagen.hasItem(ModItemTags.TIN_PLATES), AnvilCraftDatagen.has(lookup, ModItemTags.TIN_PLATES))
-            .unlockedBy(AnvilCraftDatagen.hasItem(Items.LEATHER_CHESTPLATE), AnvilCraftDatagen.has(lookup, Items.LEATHER_CHESTPLATE))
+            .define('D', Items.IRON_CHESTPLATE)
+            .unlockedBy("has_material", AnvilCraftDatagen.has(provider.getItems(), ModItems.IONOCRAFT))
             .save(provider);
     }
 

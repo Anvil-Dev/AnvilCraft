@@ -26,7 +26,7 @@ import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.entity.ModEntities;
 import dev.dubhe.anvilcraft.init.item.ModItems;
-import dev.dubhe.anvilcraft.item.armor.IonoCraftBackpackItem;
+import dev.dubhe.anvilcraft.item.armor.WeatherproofChestplateItem;
 import dev.dubhe.anvilcraft.item.utility.EnergyWeaponPlatformItem;
 import dev.dubhe.anvilcraft.item.weapon.AnvilRailgunItem;
 import dev.dubhe.anvilcraft.item.weapon.SpectralWeaponLauncherItem;
@@ -151,7 +151,6 @@ public class ModCapabilities {
             (cart, side) -> cart.getFluidHandler()
         );
 
-
         event.registerItem(Capabilities.Fluid.ITEM, (_, ctx) -> new BucketResourceHandler(ctx), Items.POWDER_SNOW_BUCKET);
         event.registerItem(Capabilities.Fluid.ITEM, (_, ctx) -> new BucketResourceHandler(ctx), Items.MILK_BUCKET);
         event.registerItem(
@@ -178,8 +177,8 @@ public class ModCapabilities {
         );
         event.registerItem(
             Capabilities.Energy.ITEM,
-            ModCapabilities.energy(IonoCraftBackpackItem.MAX_ENERGY),
-            ModItems.IONOCRAFT_BACKPACK.get()
+            ModCapabilities.energy(WeatherproofChestplateItem.MAX_ENERGY),
+            ModItems.WEATHERPROOF_SPACESUIT_CHESTPLATE.get()
         );
 
         event.registerBlockEntity(Capabilities.Energy.BLOCK, ModBlockEntities.POWER_CONVERTER.get(), ModCapabilities::energy);

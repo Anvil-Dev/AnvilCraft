@@ -225,7 +225,21 @@ public class DataGenUtil {
     }
 
     public static <T extends Item> NonNullBiConsumer<DataGenContext<Item, T>, RegistrumItemModelGenerator> ionocraftBackpack() {
-        return DataGenUtil.exhaustable(ModComponents.FLIGHT_TIME);
+        return DataGenUtil.poweredEquipment();
+    }
+
+    public static <T extends Item> NonNullBiConsumer<DataGenContext<Item, T>, RegistrumItemModelGenerator> poweredEquipment() {
+        return (ctx, generator) -> {
+            Item item = ctx.get();
+            Identifier model = ModelLocationUtils.getModelLocation(item);
+            ModelTemplates.FLAT_ITEM.create(model,
+                TextureMapping.layer0(new Material(ctx.getId().withPrefix("item/").withSuffix("_off"))), generator.modelOutput);
+            ModelTemplates.FLAT_ITEM.create(model.withSuffix("_on"),
+                TextureMapping.layer0(new Material(ctx.getId().withPrefix("item/"))), generator.modelOutput);
+            generator.itemModelOutput.accept(item, ItemModelUtils.conditional(
+                dev.dubhe.anvilcraft.client.renderer.item.EquipmentPoweredProperty.INSTANCE,
+                ItemModelUtils.plainModel(model.withSuffix("_on")), ItemModelUtils.plainModel(model)));
+        };
     }
 
     public static <T extends Item> NonNullBiConsumer<DataGenContext<Item, T>, RegistrumItemModelGenerator> energyWeapon() {

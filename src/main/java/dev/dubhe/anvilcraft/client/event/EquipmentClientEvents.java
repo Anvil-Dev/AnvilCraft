@@ -116,7 +116,7 @@ public final class EquipmentClientEvents {
             builder.action("pocket_" + slot, stack.isEmpty()
                     ? Component.translatable("screen.anvilcraft.pockets.empty") : stack.getHoverName(),
                 (graphics, pose, width, height) -> {
-                    graphics.fakeItem(stack, -8, -8);
+                    graphics.item(stack, -8, -8);
                     graphics.itemDecorations(client.font, stack, -8, -8);
                 }, ctx -> ClientPacketDistributor.sendToServer(new SwapPocketPacket(selected)));
         }
