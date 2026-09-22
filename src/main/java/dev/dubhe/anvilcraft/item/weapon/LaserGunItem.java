@@ -43,7 +43,7 @@ public class LaserGunItem extends EnergyWeaponItem {
     private static final int[] VISUAL_LEVEL = {1, 2, 4, 8, 16};
 
     public LaserGunItem(Properties properties) {
-        super(properties);
+        super(properties, ENERGY[0]);
     }
 
     @Override
@@ -56,6 +56,7 @@ public class LaserGunItem extends EnergyWeaponItem {
 
     @Override
     public void onUseTick(Level level, LivingEntity user, ItemStack stack, int remaining) {
+        if (!(user instanceof Player usingPlayer) || !this.canContinueUsing(usingPlayer, stack)) return;
         if (!(user instanceof ServerPlayer player) || !(level instanceof ServerLevel serverLevel)) return;
         LaserState state = LaserGunItem.STATES.computeIfAbsent(player.getUUID(), ignored -> new LaserState());
         WeaponRaycastUtil.Ray fullRay = WeaponRaycastUtil.ray(player, 48.0);
@@ -99,7 +100,7 @@ public class LaserGunItem extends EnergyWeaponItem {
         if (state.targetTicks % period != 0) return;
         int stage = Math.min(4, state.targetTicks / 100);
         EnergyWeaponItem weapon = (EnergyWeaponItem) stack.getItem();
-        if (!weapon.consumeEnergy(player, stack, LaserGunItem.ENERGY[stage], 80_000_000)) return;
+        if (!weapon.consumeEnergy(player, stack, LaserGunItem.ENERGY[stage])) return;
 
         if (stage >= 3) {
             player.igniteForSeconds(5.0F);
@@ -133,7 +134,7 @@ public class LaserGunItem extends EnergyWeaponItem {
                 state.miningAnchor = null;
                 state.idleTicks++;
                 if (state.idleTicks % 20 == 0) {
-                    ((EnergyWeaponItem) stack.getItem()).consumeEnergy(player, stack, 400_000, 80_000_000);
+                    ((EnergyWeaponItem) stack.getItem()).consumeEnergy(player, stack, 400_000);
                 }
                 return;
             }
@@ -145,7 +146,7 @@ public class LaserGunItem extends EnergyWeaponItem {
         state.miningTicks++;
         if (state.miningTicks % LaserGunItem.miningPeriod(level, stack) != 0 || state.vein.isEmpty()) return;
         if (!((EnergyWeaponItem) stack.getItem()).consumeEnergy(
-            player, stack, 400_000, 80_000_000)) {
+            player, stack, 400_000)) {
             return;
         }
         BlockPos pos = state.vein.removeFirst();
@@ -205,9 +206,9 @@ public class LaserGunItem extends EnergyWeaponItem {
     }
 
     @Override
-    protected void stopForInsufficientPower(Player player) {
+    protected void stopForInsufficientPower(Player player, ItemStack weapon) {
         LaserGunItem.STATES.remove(player.getUUID());
-        super.stopForInsufficientPower(player);
+        super.stopForInsufficientPower(player, weapon);
     }
 
     public static void clearState(UUID playerId) {

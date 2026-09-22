@@ -37,6 +37,7 @@ allprojects {
             include '**/EquipmentArmorItem.java', '**/EquipmentAbilities.java', '**/AmuletAbilities.java'
             include '**/ModModelLayers.java', '**/EquipmentHelmetModel.java', '**/EquipmentClientEvents.java', '**/SwitchEquipmentAbilityPacket.java'
             include '**/EquipmentFluidOverlayMixin.java', '**/EquipmentBootsModel.java', '**/EquipmentLiquidBlockMixin.java'
+            include '**/EnergyWeapon*.java', '**/EnergyReload*.java', '**/SpectralWeaponLauncherItem.java'
             include '**/ICapacitorChargeable.java', '**/IFullCapacitor.java', '**/WeatherproofChestplate*.java'
             include '**/EquipmentChestModel.java', '**/EquipmentPoweredProperty.java', '**/EquipmentLayerTextureMixin.java'
             include '**/IonoCraftBackpackItem.java', '**/IonoCraftBackpackToggleDescentPacket.java'

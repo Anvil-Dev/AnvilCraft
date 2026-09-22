@@ -160,6 +160,8 @@ public class ModCapabilities {
             Items.GLASS_BOTTLE
         );
 
+        event.registerItem(Capabilities.Energy.ITEM, ModCapabilities.energy(AnvilRailgunItem.MAX_ENERGY),
+            ModItems.LASER_GUN.get(), ModItems.TESLA_GUN.get(), ModItems.CORRUPTED_BEACON_ACTIVATOR.get());
         event.registerItem(
             Capabilities.Energy.ITEM,
             ModCapabilities.energy(AnvilRailgunItem.MAX_ENERGY),

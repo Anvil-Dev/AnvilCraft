@@ -612,10 +612,7 @@ public class ModItems {
                 generator.itemModelOutput.accept(
                     item,
                     ItemModelUtils.conditional(
-                        new ComponentMatches(new DataComponentPredicate.Single<>(
-                            ModDataComponentPredicates.INT_COMP.get(),
-                            new IntegerComponentPredicate(ModComponents.STORED_ENERGY, 0)
-                        )),
+                        dev.dubhe.anvilcraft.client.renderer.item.EnergyWeaponExhaustedProperty.INSTANCE,
                         ItemModelUtils.composite(
                             ItemModelUtils.plainModel(ModelLocationUtils.getModelLocation(item, "_exhausted")),
                             ItemModelUtils.specialModel(

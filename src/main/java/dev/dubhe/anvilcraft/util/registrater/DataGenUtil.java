@@ -243,7 +243,10 @@ public class DataGenUtil {
     }
 
     public static <T extends Item> NonNullBiConsumer<DataGenContext<Item, T>, RegistrumItemModelGenerator> energyWeapon() {
-        return DataGenUtil.exhaustable(ModComponents.STORED_ENERGY);
+        return (ctx, generator) -> generator.itemModelOutput.accept(ctx.get(), ItemModelUtils.conditional(
+            dev.dubhe.anvilcraft.client.renderer.item.EnergyWeaponExhaustedProperty.INSTANCE,
+            ItemModelUtils.plainModel(ModelLocationUtils.getModelLocation(ctx.get()).withSuffix("_exhausted")),
+            ItemModelUtils.plainModel(ModelLocationUtils.getModelLocation(ctx.get()))));
     }
 
     public static <T extends Item> NonNullBiConsumer<DataGenContext<Item, T>, RegistrumItemModelGenerator> exhaustable(

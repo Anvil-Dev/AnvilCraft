@@ -7,6 +7,7 @@ import dev.dubhe.anvilcraft.client.init.ModRenderTypes;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.CorruptedBeaconRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.state.LaserRenderState;
 import dev.dubhe.anvilcraft.client.renderer.entity.state.WeaponBeamRenderState;
+import dev.dubhe.anvilcraft.client.renderer.item.EnergyWeaponFirstPersonRenderer;
 import dev.dubhe.anvilcraft.client.renderer.laser.LaserCompiler;
 import dev.dubhe.anvilcraft.entity.WeaponBeamEntity;
 import dev.dubhe.anvilcraft.item.weapon.CorruptedBeaconActivatorItem;
@@ -48,6 +49,9 @@ public class WeaponBeamRenderer extends EntityRenderer<WeaponBeamEntity, WeaponB
     public void extractRenderState(WeaponBeamEntity entity, WeaponBeamRenderState state, float partialTick) {
         super.extractRenderState(entity, state, partialTick);
         state.setVisible(false);
+        state.setFramePartialTick(partialTick);
+        state.setFirstPersonLocalBeam(entity.getOwner() == Minecraft.getInstance().player
+            && Minecraft.getInstance().options.getCameraType().isFirstPerson());
         state.setCompensateViewBob(false);
         if (WeaponBeamRenderer.isObsoleteContinuousBeam(entity) || !WeaponBeamRenderer.isOwnerFiringContinuousBeam(entity)) return;
 
@@ -112,6 +116,9 @@ public class WeaponBeamRenderer extends EntityRenderer<WeaponBeamEntity, WeaponB
             pose.last().normal().set(compensation.normal().mul(pose.last().normal(), new Matrix3f()));
         }
         pose.translate(state.getOriginOffset().x, state.getOriginOffset().y, state.getOriginOffset().z);
+        if (state.isFirstPersonLocalBeam() && (state.getStyle() == WeaponBeamEntity.CORRUPTED || state.getStyle() == WeaponBeamEntity.LASER)) {
+            EnergyWeaponFirstPersonRenderer.captureBeam(pose, end, state.getFramePartialTick());
+        }
         if (state.getStyle() == WeaponBeamEntity.CORRUPTED) {
             WeaponBeamRenderer.rotateLocalYTo(end, pose);
             pose.scale(0.5F, 1.0F, 0.5F);
@@ -132,6 +139,12 @@ public class WeaponBeamRenderer extends EntityRenderer<WeaponBeamEntity, WeaponB
         }
         pose.popPose();
         super.submit(state, pose, collector, camera);
+    }
+
+    public static void counterViewBob(PoseStack pose, CameraRenderState camera) {
+        var compensation = createViewBobCompensation(camera);
+        pose.last().pose().set(compensation.pose().mul(pose.last().pose(), new Matrix4f()));
+        pose.last().normal().set(compensation.normal().mul(pose.last().normal(), new Matrix3f()));
     }
 
     private static ViewBobCompensation createViewBobCompensation(CameraRenderState camera) {

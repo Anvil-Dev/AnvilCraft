@@ -10,6 +10,8 @@ import net.minecraft.world.phys.Vec3;
 @Setter
 public class WeaponBeamRenderState extends EntityRenderState {
     private boolean visible;
+    private boolean firstPersonLocalBeam;
+    private float framePartialTick;
     private int style;
     private Vec3 origin = Vec3.ZERO;
     private Vec3 originOffset = Vec3.ZERO;

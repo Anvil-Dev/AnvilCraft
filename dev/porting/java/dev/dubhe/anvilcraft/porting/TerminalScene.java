@@ -48,6 +48,7 @@ public final class TerminalScene {
     private static boolean bootsTesting;
     private static boolean pocketTesting;
     private static boolean chestTesting;
+    private static boolean reloadTesting;
     private static volatile boolean prepared;
     private static volatile boolean clientLoaded;
     private static volatile Throwable failure;
@@ -58,6 +59,10 @@ public final class TerminalScene {
     private static boolean capturing;
 
     public static void frame(Minecraft client) {
+        if (reloadTesting) {
+            EnergyReloadScene.frame(client);
+            return;
+        }
         if (chestTesting) {
             ChestFlightScene.frame(client);
             return;
@@ -280,7 +285,9 @@ public final class TerminalScene {
             }
             case 18 -> {
                 AnvilCraft.LOGGER.info("PORT_TERMINAL_SCENE_PASSED: binding, inventory, own crafting, local range, shulker priority");
-                if (Boolean.getBoolean("anvilcraft.portChestScene")) {
+                if (Boolean.getBoolean("anvilcraft.portEnergyReloadScene")) {
+                    reloadTesting = true;
+                } else if (Boolean.getBoolean("anvilcraft.portChestScene")) {
                     chestTesting = true;
                 } else if (Boolean.getBoolean("anvilcraft.portPocketScene")) {
                     pocketTesting = true;
