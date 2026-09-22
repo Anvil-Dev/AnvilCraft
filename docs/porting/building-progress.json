@@ -46,7 +46,8 @@
     },
     {
       "source": "src/main/java/dev/dubhe/anvilcraft/building/BlueprintPlacement.java",
-      "status": "pending"
+      "status": "ported",
+      "integration": "Coordinate/data transforms are implemented and tested; placement and rendering consumers remain pending."
     },
     {
       "source": "src/main/java/dev/dubhe/anvilcraft/building/BlueprintRuntimeData.java",
@@ -74,7 +75,8 @@
     },
     {
       "source": "src/main/java/dev/dubhe/anvilcraft/building/BuildingEntityTransform.java",
-      "status": "pending"
+      "status": "ported",
+      "integration": "Coordinate/data transforms are implemented and tested; placement and rendering consumers remain pending."
     },
     {
       "source": "src/main/java/dev/dubhe/anvilcraft/building/BuildingMaterials.java",
@@ -219,12 +221,14 @@
     "Placement service, confirmations, undo, fluids, block entities and entity adapters",
     "Packets, input state machine, fixed-distance selection, HUD and traditional controls",
     "First-person model animation, preview rendering and in-game comparison",
-    "Structure scanner and disk/client file workflow integration"
+    "Structure scanner and disk/client file workflow integration",
+    "When porting BuildingRodService, share BlueprintPlacement.MAX_ENTRIES (4000); reuse BuildingEntityTransform.withWorldPos in entity adapters.",
+    "Complete dynamic entity persistence and capture normalization, including ascending/sliding state and outlet target restoration, before runtime blueprint spawning."
   ],
   "verification": {
-    "server_tests_passed": 371,
-    "server_log": "build/porting/validate-blueprint-data-final.log",
-    "compile_log": "build/porting/compile-blueprint-data-final.log",
-    "client": "No client behavior is registered by the data-only node."
+    "server_tests_passed": 380,
+    "server_log": "build/porting/validate-blueprint-transform-final.log",
+    "compile_log": "build/porting/compile-blueprint-transform-final.log",
+    "client": "Placement/input/preview are not registered yet; native entity NBT loads were verified in server tests."
   }
 }
