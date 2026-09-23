@@ -73,7 +73,8 @@
     },
     {
       "source": "src/main/java/dev/dubhe/anvilcraft/building/BuildingBlockMaterial.java",
-      "status": "pending"
+      "status": "ported",
+      "integration": "Native typed block-entity data, component/content separation and material-required opaque data tested. Material source allocation and placement consumers remain pending."
     },
     {
       "source": "src/main/java/dev/dubhe/anvilcraft/building/BuildingCommit.java",
@@ -239,12 +240,12 @@
     "When porting BuildingRodService, share BlueprintPlacement.MAX_ENTRIES (4000); reuse BuildingEntityTransform.withWorldPos in entity adapters.",
     "Wire captured dynamic state into blueprint entity adapters and validate tracking/rendering of restored entities.",
     "Reuse BlueprintCapture.saveEntity in leash/runtime adapters and BuildingEntityTransform support helpers; wire normalized capture into scanner/file workflows.",
-    "ProcessingTablePlacement and shared table inventory/material rules are available. Continue BuildingBlockMaterial; use FluidBuildAdapter.takeExactFluid(ItemAccess, FluidStack) for native replacement containers."
+    "ProcessingTablePlacement and shared table inventory/material rules are available. BuildingBlockMaterial is now available; continue full material allocation. use FluidBuildAdapter.takeExactFluid(ItemAccess, FluidStack) for native replacement containers."
   ],
   "verification": {
-    "server_tests_passed": 417,
-    "server_log": "build/porting/validate-processing-core-3.log",
-    "compile_log": "build/porting/compile-processing-render-cubic-final.log",
+    "server_tests_passed": 423,
+    "server_log": "build/porting/validate-block-material-2.log",
+    "compile_log": "build/porting/compile-block-material-final.log",
     "client": "Processing-table runtime rendering and source comparison completed for the recorded scenes. Building Rod input/preview and scanner consumers remain pending."
   },
   "runtime_persistence": {
