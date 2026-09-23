@@ -16,6 +16,11 @@ public class ItemTagLoader {
     ///
     /// @param provider 提供器
     public static void init(RegistrumTagsProvider<Item> provider) {
+        provider.rawBuilder(ModItemTags.AUTO_ENCHANTING_TABLE_PRIMERS)
+            .addElement(ModItems.EMERALD_AMULET.getId())
+            .addElement(ModBlocks.EMBER_ANVIL.getId())
+            .addElement(ModBlocks.TRANSCENDENCE_ANVIL.getId());
+
         provider.rawBuilder(ModItemTags.PLAYER_WORKSTATIONS_STONECUTTERS)
             .addElement(ItemTagLoader.findId(Items.STONECUTTER))
             .addElement(ModBlocks.BATCH_CUTTER.getId());

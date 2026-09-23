@@ -1,10 +1,13 @@
 package dev.dubhe.anvilcraft.init.block;
 
+import static dev.dubhe.anvilcraft.AnvilCraft.REGISTRUM;
+
 import dev.anvilcraft.lib.v2.registrum.util.entry.BlockEntityEntry;
 import dev.dubhe.anvilcraft.block.entity.AccelerationRingBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.ActivatorSlidingRailBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.ActiveSilencerBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.AdvancedComparatorBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.AutoEnchantingTableBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.BigRedButtonBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.BlackHoleBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.BurningHeaterBlockEntity;
@@ -136,9 +139,14 @@ import dev.dubhe.anvilcraft.client.renderer.blockentity.UnpackingTableBlockEntit
 import dev.dubhe.anvilcraft.client.renderer.blockentity.VoidEnergyCollectorRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.WipBlockEntityRenderer;
 
-import static dev.dubhe.anvilcraft.AnvilCraft.REGISTRUM;
-
 public class ModBlockEntities {
+    public static final BlockEntityEntry<AutoEnchantingTableBlockEntity> AUTO_ENCHANTING_TABLE = REGISTRUM.blockEntity(
+        "auto_enchanting_table",
+        AutoEnchantingTableBlockEntity::createBlockEntity
+    ).validBlock(ModBlocks.AUTO_ENCHANTING_TABLE)
+        .renderer(() -> dev.dubhe.anvilcraft.client.renderer.blockentity.AutoEnchantingTableBlockEntityRenderer::new)
+        .register();
+
     public static final BlockEntityEntry<BatchCrafterBlockEntity> BATCH_CRAFTER = REGISTRUM
         .blockEntity("batch_crafter", BatchCrafterBlockEntity::new)
         .renderer(() -> BatchCraftingRenderer::new)

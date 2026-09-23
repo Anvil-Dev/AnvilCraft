@@ -10,6 +10,18 @@ import net.neoforged.fml.config.ModConfig;
 
 @Config(name = AnvilCraft.MOD_ID, type = ModConfig.Type.SERVER)
 public class AnvilCraftServerConfig {
+    @Comment("Maximum selectable level in auto enchanting table's liquid enchantment mode")
+    @BoundedDiscrete(min = 1, max = 15)
+    public int liquidEnchantmentMaxLevel = 15;
+
+    @Comment("Working interval of the auto enchanting table (in ticks)")
+    @BoundedDiscrete(min = 1, max = 1000)
+    public int autoEnchantingTableInterval = 80;
+
+    @Comment("Maximum valid bookshelves of the auto enchanting table")
+    @BoundedDiscrete(min = 1, max = 80)
+    public int autoEnchantingTableMaxBookshelf = 15;
+
     @Comment("Maximum duration of Plasma Jets (in ticks)")
     @BoundedDiscrete(min = 10 * 20, max = 24 * 60 * 60 * 20)
     public int plasmaJetsMaxDuration = 10 * 60 * 20;

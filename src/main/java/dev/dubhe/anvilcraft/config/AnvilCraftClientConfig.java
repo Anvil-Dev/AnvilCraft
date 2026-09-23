@@ -11,6 +11,9 @@ import net.neoforged.fml.config.ModConfig;
 
 @Config(name = AnvilCraft.MOD_ID, type = ModConfig.Type.CLIENT)
 public class AnvilCraftClientConfig {
+    @Comment("Show levels above 10 as Roman numerals in auto enchanting table's liquid enchantment mode")
+    public boolean liquidEnchantmentRomanNumerals = true;
+
     @Comment("Building rod blueprint controls")
     public BuildingRodControls buildingRodControls = BuildingRodControls.OPTIMIZED;
 

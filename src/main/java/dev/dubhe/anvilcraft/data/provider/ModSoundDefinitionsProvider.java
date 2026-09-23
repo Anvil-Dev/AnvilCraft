@@ -14,6 +14,10 @@ public class ModSoundDefinitionsProvider extends SoundDefinitionsProvider {
 
     @Override
     public void registerSounds() {
+        this.add(ModSoundEvents.AUTO_ENCHANTING_TABLE_USE.get(), SoundDefinitionsProvider.definition()
+            .subtitle("subtitles.anvilcraft.auto_enchanting_table.use")
+            .with(SoundDefinitionsProvider.sound(Identifier.withDefaultNamespace("block.enchantment_table.use"),
+                SoundDefinition.SoundType.EVENT)));
         this.add(
             ModSoundEvents.PLASMA_JET.get(), SoundDefinitionsProvider.definition()
                 .subtitle("subtitles.anvilcraft.plasma_jet")

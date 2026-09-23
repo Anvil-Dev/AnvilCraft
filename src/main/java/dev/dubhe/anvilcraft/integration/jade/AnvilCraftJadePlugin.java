@@ -51,6 +51,8 @@ import snownee.jade.api.WailaPlugin;
 public class AnvilCraftJadePlugin implements IWailaPlugin {
     @Override
     public void register(IWailaCommonRegistration registration) {
+        registration.registerBlockDataProvider(dev.dubhe.anvilcraft.integration.jade.provider.AutoEnchantingTableProvider.INSTANCE,
+            dev.dubhe.anvilcraft.block.entity.AutoEnchantingTableBlockEntity.class);
         registration.registerBlockDataProvider(PowerBlockProvider.INSTANCE, Block.class);
         registration.registerBlockDataProvider(RubyPrismProvider.INSTANCE, BlockEntity.class);
         registration.registerBlockDataProvider(ItemDetectorProvider.INSTANCE, BlockEntity.class);
@@ -72,6 +74,8 @@ public class AnvilCraftJadePlugin implements IWailaPlugin {
 
     @Override
     public void registerClient(IWailaClientRegistration registration) {
+        registration.registerBlockComponent(dev.dubhe.anvilcraft.integration.jade.provider.client.AutoEnchantingTableClientProvider.INSTANCE,
+            dev.dubhe.anvilcraft.block.AutoEnchantingTableBlock.class);
         registration.registerBlockComponent(PowerBlockClientProvider.INSTANCE, Block.class);
         registration.registerBlockComponent(BurningHeaterClientProvider.INSTANCE, Block.class);
         registration.registerBlockComponent(RubyPrismClientProvider.INSTANCE, Block.class);

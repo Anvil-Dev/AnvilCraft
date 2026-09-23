@@ -11,7 +11,7 @@
     {
       "source": "src/main/java/dev/dubhe/anvilcraft/building/BlueprintBlockConfiguration.java",
       "status": "partial",
-      "integration": "Available block configuration, filter samples, runtime restoration and transforms tested. AutoEnchantingTable dependency is not ported yet; its configuration branch remains pending. ItemDetector output inversion backend, UI button and native menu synchronization are ported and validated."
+      "integration": "Available block configuration, filter samples, runtime restoration and transforms tested. AutoEnchantingTable settings are ported: bounded level, registered/deduplicated selections and recomputed bookshelf state. Server and client workflows validated; source visual A/B pending. ItemDetector output inversion backend, UI button and native menu synchronization are ported and validated."
     },
     {
       "source": "src/main/java/dev/dubhe/anvilcraft/building/BlueprintBlockEntities.java",
@@ -474,5 +474,27 @@
     "coverage": "Cube, flat, X/Y/Z line, chest/armor stand and scan effect at two angles; screenshots inspected. Ten block-geometry pairs have identical bounds, mask IoU 0.980088-1 and zero pixels beyond one-pixel contour tolerance.",
     "fix": "Explicit source-white hint color bypasses the native EditBox default dark-gray hint style. Restore native container background extraction and world dimming.",
     "limits": "Selected static scenarios only. Background world, native rasterization/lighting and animated shader time are not asserted pixel-identical."
+  },
+  "auto_enchanting_table": {
+    "source_commit": "a378f98e4d41d0d92f97cf2486ac9da7881b1674",
+    "status": "partial",
+    "ported": [
+      "Random/primer/liquid modes with source costs, power, cooldown, bookshelf limits, primer memory and open-menu pause",
+      "Native transactional item/fluid automation, bucket/experience-bottle operations, single-item slots and read-only output",
+      "Native and source handler NBT, blueprint setting normalization, recipe/tag/lang/manual/sound registration",
+      "Searchable selector, result ghost, liquid scroll level and native book/item/fluid renderer",
+      "Native liquid-enchantment fluid model registration shared by fluid displays and world renderers"
+    ],
+    "verification": {
+      "server_tests_passed": 506,
+      "server_log": "build/porting/validate-auto-enchanting-2.log",
+      "datagen_log": "build/porting/datagen-auto-enchanting-3.log",
+      "compile_log": "build/porting/compile-auto-enchanting-final.log",
+      "client_log": "build/porting/client-auto-enchanting-3.log"
+    },
+    "limits": [
+      "Source/target visual A/B for book animation, transparent output, fluid display and Jade progress remains pending",
+      "Broader multiplayer/menu concurrency, GUI search and reload/animation acceptance remains pending"
+    ]
   }
 }

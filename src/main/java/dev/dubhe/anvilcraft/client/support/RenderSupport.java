@@ -24,6 +24,11 @@ import java.util.Optional;
 // TODO:
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class RenderSupport {
+    public static void renderItemWithTransparency(net.minecraft.world.item.ItemStack stack, GuiGraphicsExtractor graphics,
+                                                  int x, int y, float alpha) {
+        TransparentItemRenderer.extract(stack, graphics, x, y, alpha);
+    }
+
     private static final int MAX_CACHE_SIZE = 64;
     private static final float WIP_PREVIEW_SCALE = 0.6F;
     private static final LinkedHashMap<BlockState, BlockEntity> BLOCK_ENTITY_CACHE = new LinkedHashMap<>();

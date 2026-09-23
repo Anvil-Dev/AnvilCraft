@@ -49,7 +49,8 @@ public final class BlueprintConfigurationTests {
         "port_blueprint_sign_decoration", BlueprintConfigurationTests::sign,
         "port_blueprint_configuration_limits", BlueprintConfigurationTests::limits,
         "port_blueprint_configuration_transform", BlueprintConfigurationTests::transform,
-        "port_blueprint_pulse_load", BlueprintConfigurationTests::pulse
+        "port_blueprint_pulse_load", BlueprintConfigurationTests::pulse,
+        "port_blueprint_enchanting_config", BlueprintConfigurationTests::enchanting
     );
 
     @SubscribeEvent
@@ -64,6 +65,26 @@ public final class BlueprintConfigurationTests {
             ResourceKey.create(Registries.TEST_FUNCTION, AnvilCraft.of(name)),
             new TestData<>(environment, AnvilCraft.of("port_logistics_empty"), 100, 0, true)
         )));
+    }
+
+    private static void enchanting(GameTestHelper helper) {
+        final var machine = ModBlocks.AUTO_ENCHANTING_TABLE.get()
+            .newBlockEntity(BlockPos.ZERO, ModBlocks.AUTO_ENCHANTING_TABLE.getDefaultState());
+        var tag = new CompoundTag();
+        tag.putString("WorkMode", "liquid_enchantment");
+        tag.putInt("LiquidEnchantmentLevel", 999);
+        tag.putInt("ShelfLevel", 999);
+        var selected = new ListTag();
+        for (String id : List.of("minecraft:mending", "minecraft:mending", "bad id", "anvilcraft:missing_enchantment")) {
+            selected.add(net.minecraft.nbt.StringTag.valueOf(id));
+        }
+        tag.put("SelectedEnchantments", selected);
+        var settings = BlueprintBlockConfiguration.take(machine, tag, helper.getLevel().registryAccess());
+        helper.assertTrue(settings.getStringOr("WorkMode", "").equals("liquid_enchantment")
+            && settings.getIntOr("LiquidEnchantmentLevel", 0) == 255
+            && settings.getListOrEmpty("SelectedEnchantments").size() == 1 && !tag.contains("ShelfLevel"),
+            "Blueprint enchanting config must retain mode, bound level, deduplicate registered enchantments and recalculate shelves");
+        helper.succeed();
     }
 
     private static void contents(GameTestHelper helper) {

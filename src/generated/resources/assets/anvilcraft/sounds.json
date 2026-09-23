@@ -8,6 +8,15 @@
     ],
     "subtitle": "subtitles.anvilcraft.anvil_hammer_rotate_block"
   },
+  "block.anvilcraft.auto_enchanting_table.use": {
+    "sounds": [
+      {
+        "type": "event",
+        "name": "block.enchantment_table.use"
+      }
+    ],
+    "subtitle": "subtitles.anvilcraft.auto_enchanting_table.use"
+  },
   "burning_heater": {
     "sounds": [
       "block/furnace/fire_crackle1",

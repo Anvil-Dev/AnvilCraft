@@ -4,6 +4,8 @@ import dev.anvilcraft.lib.v2.registrum.providers.RegistrumLangProvider;
 
 public class OtherLang {
     public static void init(RegistrumLangProvider provider) {
+        provider.add("subtitles.anvilcraft.auto_enchanting_table.use", "Auto Enchanting Table used");
+        provider.add("tooltip.anvilcraft.auto_enchanting_table.jade.working_progress", "Enchanting Progress: %s");
         provider.add("item.anvilcraft.inherent_enchantment.tooltip", "Inherent enchantments:");
         provider.add(
             "item.anvilcraft.amethyst_pickaxe.tooltip", "Stone pickaxe quality, can mine iron ore, not diamonds!");

@@ -388,5 +388,7 @@ public class RegisterAdditionalEventListener {
     public static void registerPictureInPictureRenderers(RegisterPictureInPictureRenderersEvent event) {
         event.register(CfaPreviewPipRenderer.State.class, CfaPreviewPipRenderer::new);
         event.register(SmartPlacerPreviewRenderer.State.class, SmartPlacerPreviewRenderer::new);
+        event.register(dev.dubhe.anvilcraft.client.support.TransparentItemRenderer.State.class,
+            dev.dubhe.anvilcraft.client.support.TransparentItemRenderer::new);
     }
 }

@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.building;
 import dev.dubhe.anvilcraft.api.teslatower.TeslaFilter;
 import dev.dubhe.anvilcraft.block.entity.ActiveSilencerBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.AdvancedComparatorBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.AutoEnchantingTableBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.BaseChuteBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.ChargerBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.DischargerBlockEntity;
@@ -28,6 +29,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.ByteArrayTag;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.IntTag;
@@ -37,6 +39,8 @@ import net.minecraft.nbt.NbtUtils;
 import net.minecraft.nbt.NumericTag;
 import net.minecraft.nbt.StringTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.item.ItemStack;
@@ -125,6 +129,7 @@ public final class BlueprintBlockConfiguration {
         }
         if (entity instanceof TeslaTowerBlockEntity) tesla(source, result);
         if (entity instanceof ControlValveBlockEntity) valve(source, result, registries);
+        if (entity instanceof AutoEnchantingTableBlockEntity) enchanting(source, result, registries);
         if (entity instanceof StructureScannerBlockEntity) {
             for (String key : List.of("rangeX", "rangeY", "rangeZ")) integer(source, result, key, 0, 15);
             remove(source, "isScanning", "currentScanLayer", "scannedBlocks", "pendingAutoSave", "autoSaveStructureName");
@@ -376,10 +381,31 @@ public final class BlueprintBlockConfiguration {
         if (entity instanceof LecternBlockEntity lectern && !lectern.getBook().isEmpty() && settings.contains("Page")) {
             apply(entity, settings, player);
         }
+        if (entity instanceof AutoEnchantingTableBlockEntity enchanting) {
+            enchanting.setLiquidLevel(settings.getIntOr("LiquidEnchantmentLevel", 0));
+        }
         if (entity instanceof BatchCrafterBlockEntity crafter) crafter.setSelecting(settings.getIntOr("Selecting", 0));
         if (entity instanceof SmartBlockPlacerBlockEntity placer) {
             placer.applyDiskData(TagValueInput.create(ProblemReporter.DISCARDING, player.registryAccess(), settings));
         }
+    }
+
+    private static void enchanting(CompoundTag source, CompoundTag result, HolderLookup.Provider registries) {
+        choice(source, result, "WorkMode", Arrays.stream(AutoEnchantingTableBlockEntity.WorkMode.values())
+            .map(AutoEnchantingTableBlockEntity.WorkMode::getSerializedName).toArray(String[]::new));
+        integer(source, result, "LiquidEnchantmentLevel", 0, 255);
+        ListTag selected = new ListTag();
+        Set<String> seen = new HashSet<>();
+        for (Tag value : source.getListOrEmpty("SelectedEnchantments")) {
+            String id = value.asString().orElse("");
+            Identifier key = Identifier.tryParse(id);
+            if (key != null && seen.add(id) && registries.lookupOrThrow(Registries.ENCHANTMENT)
+                .get(ResourceKey.create(Registries.ENCHANTMENT, key)).isPresent()) {
+                selected.add(StringTag.valueOf(id));
+            }
+        }
+        result.put("SelectedEnchantments", selected);
+        remove(source, "SelectedEnchantments", "CooldownTicks", "ShelfLevel");
     }
 
     private static void integer(CompoundTag source, CompoundTag target, String key, int min, int max) {

@@ -1,5 +1,7 @@
 package dev.dubhe.anvilcraft.init.block;
 
+import static dev.dubhe.anvilcraft.AnvilCraft.REGISTRUM;
+
 import com.mojang.math.Quadrant;
 import dev.anvilcraft.lib.v2.registrum.providers.DataGenContext;
 import dev.anvilcraft.lib.v2.registrum.providers.generators.RegistrumBlockModelGenerator;
@@ -11,6 +13,7 @@ import dev.anvilcraft.lib.v2.util.nullness.NonNullFunction;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.power.IPowerComponent.Switch;
 import dev.dubhe.anvilcraft.api.power.IPowerConsumer;
+import dev.dubhe.anvilcraft.block.AutoEnchantingTableBlock;
 import dev.dubhe.anvilcraft.block.LargeCauldronBlock;
 import dev.dubhe.anvilcraft.block.RedstoneWireBlock;
 import dev.dubhe.anvilcraft.block.TradingStationBlock;
@@ -329,13 +332,21 @@ import net.neoforged.neoforge.common.Tags;
 
 import java.util.function.Supplier;
 
-import static dev.dubhe.anvilcraft.AnvilCraft.REGISTRUM;
-
 @SuppressWarnings({
     "unused",
     "CodeBlock2Expr"
 })
 public class ModBlocks {
+    public static final BlockEntry<AutoEnchantingTableBlock> AUTO_ENCHANTING_TABLE = REGISTRUM
+        .block("auto_enchanting_table", AutoEnchantingTableBlock::new)
+        .recipe(RegistrumBlockRecipeLoader::autoEnchantingTable)
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .initialProperties(() -> Blocks.ENCHANTING_TABLE)
+        .properties(properties -> properties.noOcclusion().isValidSpawn(Blocks::never))
+        .blockstate(DataGenUtil::noExtraModelOrState)
+        .simpleItem()
+        .register();
+
     public static final BlockEntry<? extends Block> MAGNET_BLOCK = REGISTRUM.block("magnet_block", MagnetBlock::new)
         .lang("Block of Magnet")
         .initialProperties(() -> Blocks.IRON_BLOCK)

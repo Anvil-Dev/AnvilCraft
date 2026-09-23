@@ -10,6 +10,16 @@ public class ScreenLang {
      */
     @SuppressWarnings("checkstyle:LineLength")
     public static void init(RegistrumLangProvider provider) {
+        provider.add("screen.anvilcraft.auto_enchanting_table.title", "Auto Enchant");
+        provider.add("screen.anvilcraft.auto_enchanting_table.search", "Search enchantments");
+        provider.add("screen.anvilcraft.auto_enchanting_table.warning.bookshelf", "Not enough bookshelves");
+        provider.add("screen.anvilcraft.auto_enchanting_table.warning.fluid_capacity", "Exceeds fluid capacity");
+        provider.add("screen.anvilcraft.auto_enchanting_table.warning.liquid_incompatible", "Incompatible with the item");
+        provider.add("screen.anvilcraft.auto_enchanting_table.warning.item_incompatible", "Item cannot hold the selected enchantments");
+        provider.add("screen.anvilcraft.auto_enchanting_table.primer", "Put primers, like Emerald Amulet or specific anvils");
+        provider.add("screen.anvilcraft.auto_enchanting_table.enchant_power_bonus", "Enchant Power Bonus: %s");
+        provider.add("screen.anvilcraft.auto_enchanting_table.liquid_enchantment.0", "Scroll on the Enchanted Book");
+        provider.add("screen.anvilcraft.auto_enchanting_table.liquid_enchantment.1", "above can tweak the levels");
         provider.add("book.anvilcraft.material_list.title",
             "Material List");
         provider.add("screen.anvilcraft.pockets.empty", "Empty Pocket");

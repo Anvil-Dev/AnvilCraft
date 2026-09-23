@@ -12,6 +12,11 @@ public class ModSoundEvents {
     private static final DeferredRegister<SoundEvent> REGISTER =
         DeferredRegister.create(Registries.SOUND_EVENT, AnvilCraft.MOD_ID);
 
+    public static final Supplier<SoundEvent> AUTO_ENCHANTING_TABLE_USE = REGISTER.register(
+        "block.anvilcraft.auto_enchanting_table.use",
+        () -> SoundEvent.createVariableRangeEvent(AnvilCraft.of("block.anvilcraft.auto_enchanting_table.use"))
+    );
+
     public static final Supplier<SoundEvent> PLASMA_JET = ModSoundEvents.REGISTER.register(
         "plasma_jet", () -> SoundEvent.createFixedRangeEvent(AnvilCraft.of("plasma_jet"), 16.0f)
     );

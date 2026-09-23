@@ -56,6 +56,9 @@ import java.util.UUID;
 public class ModCapabilities {
     @SubscribeEvent
     public static void registerCapabilities(final RegisterCapabilitiesEvent event) {
+        event.registerBlockEntity(Capabilities.Item.BLOCK, ModBlockEntities.AUTO_ENCHANTING_TABLE.get(),
+            (be, side) -> be.getAutomationHandler());
+        event.registerBlockEntity(Capabilities.Fluid.BLOCK, ModBlockEntities.AUTO_ENCHANTING_TABLE.get(), ModCapabilities::fluid);
         event.registerBlockEntity(Capabilities.Item.BLOCK, ModBlockEntities.BATCH_CRAFTER.get(), ModCapabilities::item);
         event.registerBlockEntity(Capabilities.Item.BLOCK, ModBlockEntities.BATCH_CUTTER.get(), ModCapabilities::item);
         event.registerBlockEntity(Capabilities.Item.BLOCK, ModBlockEntities.CHARGER.get(), ModCapabilities::item);
