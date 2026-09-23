@@ -439,7 +439,6 @@
       "StructureSaveUtil captures canonical live block/entity/runtime state at save time and consumes only one disk"
     ],
     "pending": [
-      "Source/target visual comparison for scanner effects and rotated thin/non-cubic previews",
       "Native directory opening and additional UI edge cases"
     ],
     "verification": {
@@ -465,6 +464,15 @@
       "datagen_log": "build/porting/datagen-scanner-ui.log"
     },
     "coverage": "Real client list, multi-chunk import, preview-only disk staging, release cancellation, marker/name/rotation save, export suffix, close cancellation, live chest/entity scan and drag rotation. Imported/live screenshots inspected.",
-    "limits": "Source A/B and exhaustive thin/non-cubic preview rotations remain pending. Datagen completed; style failures from that invocation corrected by final focused check. Vanilla 26.1 rendering retained."
+    "limits": "Fourteen source/target static scenes now validated. Directory opening, additional UI edge cases and exhaustive animated/entity/BER coverage remain pending; vanilla 26.1 rendering retained."
+  },
+  "scanner_visual": {
+    "scenes": 14,
+    "source_log": "build/porting/client-scanner-parity-source.log",
+    "target_log": "build/porting/client-scanner-parity-target-final.log",
+    "report": "build/porting/scanner-visual-comparison.json",
+    "coverage": "Cube, flat, X/Y/Z line, chest/armor stand and scan effect at two angles; screenshots inspected. Ten block-geometry pairs have identical bounds, mask IoU 0.980088-1 and zero pixels beyond one-pixel contour tolerance.",
+    "fix": "Explicit source-white hint color bypasses the native EditBox default dark-gray hint style.",
+    "limits": "Selected static scenarios only. Background world, native rasterization/lighting and animated shader time are not asserted pixel-identical."
   }
 }

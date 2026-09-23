@@ -447,7 +447,7 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
         input.setCanLoseFocus(true);
         input.setMaxLength(maxLength);
         input.setTextColor(0xFFFFFFFF);
-        input.setHint(Component.translatable("screen.anvilcraft.structure_scanner." + key));
+        input.setHint(Component.translatable("screen.anvilcraft.structure_scanner." + key).withColor(0xFFFFFF));
         return this.addRenderableWidget(input);
     }
 

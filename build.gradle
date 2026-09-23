@@ -170,6 +170,10 @@ if (providers.gradleProperty('portValidation').isPresent()) {
         neoForge.runs.client.systemProperty 'anvilcraft.portProcessingTableScene', 'true'
         neoForge.runs.client.programArguments.addAll '--width', '1280', '--height', '720'
     }
+    if (providers.gradleProperty('portScannerVisualParityScene').isPresent()) {
+        neoForge.runs.client.systemProperty 'anvilcraft.portScannerVisualParityScene', 'true'
+        neoForge.runs.client.programArguments.addAll '--width', '1280', '--height', '720'
+    }
     if (providers.gradleProperty('portScannerFilesScene').isPresent()) {
         neoForge.runs.client.systemProperty 'anvilcraft.portVisualScene', 'true'
         neoForge.runs.client.systemProperty 'anvilcraft.portScannerFilesScene', 'true'
