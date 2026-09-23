@@ -79,8 +79,8 @@
     },
     {
       "source": "src/main/java/dev/dubhe/anvilcraft/building/BuildingCommit.java",
-      "status": "partial",
-      "integration": "Quiet scope, native side-effect-free chunk writes, activation and observer phase guards are implemented with mixins. BuildingRodUndo.replaced notification must be wired when the history layer is ported."
+      "status": "ported",
+      "integration": "Native quiet commit and activation tested. Chunk replacement mixin now covers native writes, including BuildingCommit.set, for undo tracking. Full service caller remains pending."
     },
     {
       "source": "src/main/java/dev/dubhe/anvilcraft/building/BuildingEntityOp.java",
@@ -94,7 +94,8 @@
     },
     {
       "source": "src/main/java/dev/dubhe/anvilcraft/building/BuildingMaterials.java",
-      "status": "pending"
+      "status": "ported",
+      "integration": "Full reservation and native atomic debit engine tested. Constructor accepts the selected material stack explicitly; BuildingRodItem/BuildingRodService must provide it."
     },
     {
       "source": "src/main/java/dev/dubhe/anvilcraft/building/BuildingRegionSnapshot.java",
@@ -124,7 +125,8 @@
     },
     {
       "source": "src/main/java/dev/dubhe/anvilcraft/building/BuildingRodUndo.java",
-      "status": "pending"
+      "status": "partial",
+      "integration": "History, region recovery, receipts, drop/falling/TNT tracking and retryable item/fluid refunds tested. Package-private restore returns a typed Result; public rod-held validation and localized response belong to the pending service entry point."
     },
     {
       "source": "src/main/java/dev/dubhe/anvilcraft/building/ConstructionBlueprintException.java",
@@ -252,13 +254,12 @@
     "Leash/runtime adapters now reuse BlueprintCapture.saveEntity and shared entity transforms; wire normalized capture into scanner/file workflows.",
     "ProcessingTablePlacement and shared table inventory/material rules are available. BuildingBlockMaterial is now available; continue full material allocation. use FluidBuildAdapter.takeExactFluid(ItemAccess, FluidStack) for native replacement containers.",
     "When porting BuildingRodService.materialCount, delegate to BuildingBlockMaterial.materialCount so moving sections and static placement share the same source counting rules.",
-    "When porting BuildingRodService.Cell, implement BuildingCommit.PlacedCell; delegate canModify to BuildingCommit.canModify. Region restoration uses the same placed-cell contract.",
-    "Wire BuildingRodUndo.replaced into BuildingCommit.set and port undo tracking mixins/events; region snapshots alone do not clean up derived entities or refund consumed materials."
+    "Use shared BuildingPlan.Cell/Group when porting BuildingRodService; do not duplicate plan records. Pass BuildingRodItem.material(player) to BuildingMaterials. Guard undo with rod ownership and map BuildingRodUndo.Result to the source messages."
   ],
   "verification": {
-    "server_tests_passed": 445,
-    "server_log": "build/porting/validate-region-snapshot-valid-wire.log",
-    "compile_log": "build/porting/compile-region-snapshot-final.log",
+    "server_tests_passed": 455,
+    "server_log": "build/porting/validate-undo-materials-2.log",
+    "compile_log": "build/porting/compile-undo-materials-final.log",
     "client": "Processing-table runtime rendering and source comparison completed for the recorded scenes. Building Rod input/preview and scanner consumers remain pending."
   },
   "runtime_persistence": {
@@ -300,6 +301,6 @@
       "StorageServerStub.buildingMaterialSources/buildingFluidSources reuse current terminal reachability and preserve source carried-terminal order and deduplication",
       "BuildingRodMaterialBook with pocket/ordinary carried-book consumption and six-line pages"
     ],
-    "pending": "BuildingMaterials allocation/consume, BuildingRodItem material selection and BuildingRodService group/commit/failure-report integration remain pending."
+    "pending": "Connect the tested allocator/history engine to BuildingRodItem material selection, confirmation, service commit and failure-report messages."
   }
 }

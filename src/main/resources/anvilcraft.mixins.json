@@ -5,6 +5,9 @@
   "compatibilityLevel": "JAVA_21",
   "mixins": [
     "BlueprintLevelMixin",
+    "BlueprintUndoChunkMixin",
+    "BlueprintEntityDropsMixin",
+    "BlueprintTntOriginMixin",
     "BlueprintServerLevelMixin",
     "BlueprintTicksMixin",
     "accessor.BlueprintBlockEventsAccessor",

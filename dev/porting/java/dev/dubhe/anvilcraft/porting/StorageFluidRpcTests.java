@@ -82,7 +82,7 @@ public final class StorageFluidRpcTests {
         )));
     }
 
-    static final class Fixture implements AutoCloseable {
+    public static final class Fixture implements AutoCloseable {
         private final GameTestHelper helper;
         private final UUID id = UUID.randomUUID();
         private final BlockPos core;
@@ -90,11 +90,11 @@ public final class StorageFluidRpcTests {
         private final ResourceHandler<ItemResource> items;
         private final List<BlockPos> ports = new ArrayList<>();
 
-        Fixture(GameTestHelper helper) {
+        public Fixture(GameTestHelper helper) {
             this(helper, false);
         }
 
-        Fixture(GameTestHelper helper, boolean hyperdimension) {
+        public Fixture(GameTestHelper helper, boolean hyperdimension) {
             this.helper = helper;
             this.core = helper.absolutePos(CORE);
             if (hyperdimension) this.placeCore(helper, ModBlocks.HYPERDIMENSION_STORAGE_STATION.get());
@@ -107,7 +107,7 @@ public final class StorageFluidRpcTests {
             this.player.setPos(this.core.getX() + 0.5, this.core.getY() + 1, this.core.getZ() + 0.5);
         }
 
-        StorageFluidPortBlockEntity fluid(FluidResource resource, int amount) {
+        public StorageFluidPortBlockEntity fluid(FluidResource resource, int amount) {
             BlockPos pos = this.core.west(2 + this.ports.size());
             this.helper.getLevel().setBlock(pos, ModBlocks.STORAGE_FLUID_PORT.getDefaultState(), Block.UPDATE_ALL);
             final var port = (StorageFluidPortBlockEntity) this.helper.getLevel().getBlockEntity(pos);
@@ -174,14 +174,14 @@ public final class StorageFluidRpcTests {
                 button, action, fluid);
         }
 
-        void stock(ItemResource resource, int amount) {
+        public void stock(ItemResource resource, int amount) {
             try (Transaction transaction = Transaction.openRoot()) {
                 this.helper.assertTrue(this.items.insert(resource, amount, transaction) == amount, "仓储测试存入必须足量");
                 transaction.commit();
             }
         }
 
-        int count(ItemResource resource) {
+        public int count(ItemResource resource) {
             int count = 0;
             for (int index = 0; index < this.items.size(); index++) {
                 if (this.items.getResource(index).equals(resource)) count += this.items.getAmountAsInt(index);
@@ -197,15 +197,15 @@ public final class StorageFluidRpcTests {
             this.playerLookup().remove(this.playerId(), this.player);
         }
 
-        ServerPlayer player() {
+        public ServerPlayer player() {
             return this.player;
         }
 
-        BlockPos core() {
+        public BlockPos core() {
             return this.core;
         }
 
-        ResourceHandler<ItemResource> items() {
+        public ResourceHandler<ItemResource> items() {
             return this.items;
         }
 
