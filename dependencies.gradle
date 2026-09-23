@@ -4,6 +4,9 @@ dependencies {
     interfaceInjectionData(libs.anvillib.recipe)
     interfaceInjectionData(libs.anvillib.moveableEntityBlock)
     jarJar(libs.anvillib)
+    api(libs.anvillib.renderer)
+    jarJar(libs.anvillib.renderer)
+    compileOnly 'org.jspecify:jspecify:1.0.0'
 
     // Ageratum 藿香
     api(libs.ageratum)

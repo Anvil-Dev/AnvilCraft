@@ -43,13 +43,9 @@ public class ModShaders {
     static ShaderInstance scanPreviewItemShader;
     @Getter
     static Matrix4f orthoMatrix = new Matrix4f();
-    @Getter
-    private static ShaderInstance buildingRodGhostShader;
 
     public static void register(RegisterShadersEvent event) {
         try {
-            event.registerShader(new ShaderInstance(event.getResourceProvider(), AnvilCraft.of("building_rod_ghost"),
-                DefaultVertexFormat.BLOCK), shader -> buildingRodGhostShader = shader);
             event.registerShader(new ShaderInstance(event.getResourceProvider(), AnvilCraft.of("equipment_charge"),
                 DefaultVertexFormat.POSITION_TEX_COLOR), shader -> equipmentChargeShader = shader);
             event.registerShader(
