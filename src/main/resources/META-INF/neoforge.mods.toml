@@ -73,9 +73,16 @@ file="META-INF/accesstransformer.cfg"
 [[dependencies."${mod_id}"]]
     modId="anvillib"
     type="required"
-    versionRange="[2.0.0+snapshot.521,)"
+    versionRange="[2.0.0+snapshot.534,)"
     ordering="AFTER"
     side="BOTH"
+
+[[dependencies."${mod_id}"]]
+    modId="anvillib_renderer"
+    type="required"
+    versionRange="[2.0.0+snapshot.534,)"
+    ordering="AFTER"
+    side="CLIENT"
 
 [[dependencies."${mod_id}"]]
     modId="jei"

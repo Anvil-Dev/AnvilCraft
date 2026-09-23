@@ -1,18 +1,13 @@
 package dev.dubhe.anvilcraft.client.building;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.BufferBuilder;
-import com.mojang.blaze3d.vertex.ByteBufferBuilder;
-import com.mojang.blaze3d.vertex.DefaultVertexFormat;
-import com.mojang.blaze3d.vertex.MeshData;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexBuffer;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.math.Axis;
 import dev.anvilcraft.lib.v2.cube.client.CubeSelection;
 import dev.anvilcraft.lib.v2.cube.client.OutlineRenderer;
 import dev.anvilcraft.lib.v2.cube.client.SelectionPart;
+import dev.anvilcraft.lib.v2.renderer.projection.ProjectionRenderer;
+import dev.anvilcraft.lib.v2.renderer.projection.ProjectionScene;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.multipart.AbstractMultiPartBlock;
 import dev.dubhe.anvilcraft.building.BlueprintBlockConfiguration;
@@ -30,15 +25,12 @@ import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.item.BuildingRodItem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.LevelRenderer;
-import net.minecraft.client.renderer.LightTexture;
-import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
-import net.minecraft.util.RandomSource;
-import net.minecraft.world.entity.Entity;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -49,27 +41,23 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
-import net.neoforged.neoforge.client.model.data.ModelData;
-import org.joml.Matrix4f;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import javax.annotation.Nullable;
 
 @EventBusSubscriber(modid = AnvilCraft.MOD_ID, value = Dist.CLIENT)
 public final class BuildingRodRenderer {
-    @Nullable private static VertexBuffer mesh;
+    private static final ProjectionRenderer PROJECTION = new ProjectionRenderer();
     @Nullable private static StructureSnapshot built;
     private static Rotation rotation = Rotation.NONE;
     private static Mirror mirror = Mirror.NONE;
     private static int layer = -1;
     private static int meshAlpha = 110;
     private static final BuildingRodAnimation ANIMATION = new BuildingRodAnimation();
-    private static final List<BlockEntity> ENTITIES = new ArrayList<>();
-    private static final List<Entity> PREVIEW_ENTITIES = new ArrayList<>();
     private static List<BuildingRodService.Cell> placementCells = List.of();
     @Nullable private static StructureSnapshot placementSnapshot;
     private static BlockPos placementAnchor = BlockPos.ZERO;
@@ -89,11 +77,8 @@ public final class BuildingRodRenderer {
     }
 
     private static void clearMesh() {
-        if (mesh != null) mesh.close();
-        mesh = null;
+        PROJECTION.close();
         built = null;
-        ENTITIES.clear();
-        PREVIEW_ENTITIES.clear();
     }
 
     @SubscribeEvent
@@ -135,19 +120,19 @@ public final class BuildingRodRenderer {
         }
         if (snapshot == null || (BuildingRodClient.target == null && !BuildingRodClient.locked)) return;
         int alpha = materialPreview ? (int) Math.round(255 * AnvilCraft.CLIENT_CONFIG.multiPartPreviewGhostOpacity) : 110;
-        if (built != snapshot || rotation != placement.rotation() || mirror != placement.mirror()
+        if (!PROJECTION.isValid() || built != snapshot || rotation != placement.rotation() || mirror != placement.mirror()
             || layer != BuildingRodClient.layer || meshAlpha != alpha) {
             build(snapshot, placement, alpha);
         }
         List<BlueprintPlacement> copies = materialPreview ? List.of(placement) : BuildingRodClient.blueprintPlacements();
         for (BlueprintPlacement copy : copies) {
-            renderCopy(event, snapshot, copy, alpha, materialPreview, !materialPreview && copies.size() == 1);
+            renderCopy(event, snapshot, copy, materialPreview, !materialPreview && copies.size() == 1);
         }
     }
 
     private static void renderCopy(
         RenderLevelStageEvent event, StructureSnapshot snapshot, BlueprintPlacement placement,
-        int alpha, boolean materialPreview, boolean animate
+        boolean materialPreview, boolean animate
     ) {
         Vec3 camera = event.getCamera().getPosition();
         PoseStack pose = event.getPoseStack();
@@ -171,31 +156,7 @@ public final class BuildingRodRenderer {
                 AABB.of(local.bounds(snapshot.size())), 0.2f, 0.9f, 1, 0.8f);
             outlineBuffers.endBatch(RenderType.lines());
         }
-        if (mesh != null) {
-            RenderType type = BuildingRodRenderTypes.ghost(RenderType.translucent());
-            type.setupRenderState();
-            mesh.bind();
-            // 缓存网格直接绘制，需要显式合入相机视图矩阵，与实体缓冲渲染保持一致。
-            Matrix4f modelView = new Matrix4f(RenderSystem.getModelViewMatrix()).mul(pose.last().pose());
-            mesh.drawWithShader(modelView, event.getProjectionMatrix(), RenderSystem.getShader());
-            VertexBuffer.unbind();
-            type.clearRenderState();
-        }
-        var buffers = mc.renderBuffers().bufferSource();
-        MultiBufferSource ghostBuffers = type -> new GhostConsumer(
-            buffers.getBuffer(BuildingRodRenderTypes.ghost(type)), BlockPos.ZERO, alpha);
-        for (BlockEntity entity : ENTITIES) {
-            pose.pushPose();
-            BlockPos pos = entity.getBlockPos();
-            pose.translate(pos.getX(), pos.getY(), pos.getZ());
-            mc.getBlockEntityRenderDispatcher().renderItem(entity, pose, ghostBuffers, LightTexture.FULL_BRIGHT, OverlayTexture.NO_OVERLAY);
-            pose.popPose();
-        }
-        for (Entity entity : PREVIEW_ENTITIES) {
-            mc.getEntityRenderDispatcher().render(entity, entity.getX(), entity.getY(), entity.getZ(),
-                entity.getYRot(), 0, pose, ghostBuffers, LightTexture.FULL_BRIGHT);
-        }
-        buffers.endBatch();
+        PROJECTION.render(pose, event.getProjectionMatrix(), mc.renderBuffers().bufferSource());
         pose.popPose();
     }
 
@@ -255,12 +216,15 @@ public final class BuildingRodRenderer {
         clearMesh();
         Minecraft mc = Minecraft.getInstance();
         if (mc.level == null) return;
-        BlueprintRenderView view = new BlueprintRenderView(mc.level, placement.anchor());
+        var plains = mc.level.registryAccess().registryOrThrow(Registries.BIOME).getHolderOrThrow(Biomes.PLAINS).value();
+        ProjectionScene view = new ProjectionScene(mc.level, placement.anchor(),
+            (pos, resolver) -> resolver.getColor(plains, placement.anchor().getX(), placement.anchor().getZ()));
         BlueprintPlacement local = new BlueprintPlacement(BlockPos.ZERO, placement.rotation(), placement.mirror());
         List<BlueprintMultiblocks.PlacedBlock> blocks;
         try {
             blocks = BlueprintMultiblocks.expand(snapshot, local, BuildingRodClient.layer);
         } catch (IllegalArgumentException exception) {
+            PROJECTION.rebuild(view, alpha);
             built = snapshot;
             rotation = placement.rotation();
             mirror = placement.mirror();
@@ -278,87 +242,17 @@ public final class BuildingRodRenderer {
                 return transformed;
             }).orElse(null);
             BlockEntity entity = BlueprintBlockEntities.create(mc.level, pos, state, data);
-            if (entity != null) {
-                ENTITIES.add(entity);
-            }
             view.put(pos, state, entity);
         }
         for (var entry : snapshot.entities()) {
             EntityBuildAdapters.create(BuildingEntityTransform.transform(entry, local), mc.level)
-                .filter(entity -> !EntityBuildAdapters.isTransient(entity)).ifPresent(PREVIEW_ENTITIES::add);
+                .filter(entity -> !EntityBuildAdapters.isTransient(entity)).ifPresent(view::addEntity);
         }
-        try (ByteBufferBuilder memory = new ByteBufferBuilder(2_097_152)) {
-            BufferBuilder buffer = new BufferBuilder(memory, VertexFormat.Mode.QUADS, DefaultVertexFormat.BLOCK);
-            VertexConsumer vertices = new GhostConsumer(buffer, BlockPos.ZERO, alpha);
-            PoseStack pose = new PoseStack();
-            RandomSource random = RandomSource.create();
-            for (var entry : blocks) {
-                BlockPos pos = entry.pos();
-                var state = view.realState(pos);
-                if (state.isAir()) continue;
-                pose.pushPose();
-                pose.translate(pos.getX(), pos.getY(), pos.getZ());
-                ModelData data = view.getModelData(pos);
-                var model = mc.getBlockRenderer().getBlockModel(state);
-                for (RenderType type : model.getRenderTypes(state, random, data)) {
-                    mc.getBlockRenderer().renderBatched(state, pos, view, pose, vertices, true, random, data, type);
-                }
-                pose.popPose();
-                if (!state.getFluidState().isEmpty()) {
-                    mc.getBlockRenderer().renderLiquid(BlockPos.ZERO, view.shifted(pos), new GhostConsumer(buffer, pos, alpha),
-                        state, state.getFluidState());
-                }
-            }
-            MeshData data = buffer.build();
-            if (data != null) {
-                mesh = new VertexBuffer(VertexBuffer.Usage.STATIC);
-                mesh.bind();
-                mesh.upload(data);
-                VertexBuffer.unbind();
-            }
-        }
+        PROJECTION.rebuild(view, alpha);
         built = snapshot;
         rotation = placement.rotation();
         mirror = placement.mirror();
         layer = BuildingRodClient.layer;
         meshAlpha = alpha;
-    }
-
-    private record GhostConsumer(VertexConsumer delegate, BlockPos offset, int opacity) implements VertexConsumer {
-        @Override
-        public VertexConsumer addVertex(float x, float y, float z) {
-            this.delegate.addVertex(x + this.offset.getX(), y + this.offset.getY(), z + this.offset.getZ());
-            return this;
-        }
-
-        @Override
-        public VertexConsumer setColor(int red, int green, int blue, int alpha) {
-            this.delegate.setColor(red, green, blue, this.opacity);
-            return this;
-        }
-
-        @Override
-        public VertexConsumer setUv(float u, float v) {
-            this.delegate.setUv(u, v);
-            return this;
-        }
-
-        @Override
-        public VertexConsumer setUv1(int u, int v) {
-            this.delegate.setUv1(u, v);
-            return this;
-        }
-
-        @Override
-        public VertexConsumer setUv2(int u, int v) {
-            this.delegate.setUv2(240, 240);
-            return this;
-        }
-
-        @Override
-        public VertexConsumer setNormal(float x, float y, float z) {
-            this.delegate.setNormal(x, y, z);
-            return this;
-        }
     }
 }

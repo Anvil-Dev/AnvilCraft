@@ -23,7 +23,7 @@ public final class BuildingRodLang {
         provider.add("screen.anvilcraft.building_rod.traditional.hint",
             """
                 %s+%s switches tools  %s+%s adjusts
-                %s executes (hold and drag with Move to repeat projections, then click again to paste)  %s changes hotbar""");
+                %s executes (hold and drag with Move to repeat projections)""");
         provider.add("screen.anvilcraft.building_rod.traditional.scroll", "Scroll");
         provider.add("screen.anvilcraft.building_rod.traditional.status",
             """
@@ -37,7 +37,8 @@ public final class BuildingRodLang {
         provider.add("screen.anvilcraft.building_rod.distance",
             """
                 Hold %s to keep the projection distance
-                %s/%s to adjust | %s Lock projection / Hold and drag to repeat projections, then click again to paste""");
+                %s/%s to adjust | %s Lock projection
+                Hold and drag to repeat projections, then click again to paste""");
         provider.add("item.anvilcraft.building_rod.summary", "Place blocks and blueprints in bulk.");
         provider.add("message.anvilcraft.building_rod.placed", "Blueprint placed");
         provider.add(
@@ -51,14 +52,6 @@ public final class BuildingRodLang {
         provider.add(
             "item.anvilcraft.building_rod.energy",
             "%s / 8,000,000 FE · 100 FE/block"
-        );
-        provider.add(
-            "item.anvilcraft.building_rod.controls",
-            "Hold use and drag from a collidable block to fill a box (up to 4,000 blocks); "
-                + "hold Ctrl after selecting the first corner to keep the distance, use arrow keys to adjust, "
-                + "right-click to place, or release Ctrl to cancel; hold use and drag to repeat blueprint projections, "
-                + "release to lock them, then right-click again to paste; "
-                + "hold Shift to build the available part of a blueprint"
         );
         provider.add(
             "item.anvilcraft.building_rod.import",
@@ -91,7 +84,7 @@ public final class BuildingRodLang {
         provider.add(
             "screen.anvilcraft.building_rod.optimized",
             """
-               %s Paste projections | %s Cancel
+               %s Paste | %s Cancel
                %s %s %s %s %s %s Move
                %s %s Rotate | %s Mirror"""
         );
