@@ -1,10 +1,15 @@
 """Compare scanner preview geometry in source/target screenshots, excluding vanilla world rendering."""
 from pathlib import Path
+import argparse
 import json
 import numpy as np
 from PIL import Image
 
 ROOT = Path(__file__).resolve().parents[2]
+parser = argparse.ArgumentParser()
+parser.add_argument("--source-log", default="client-scanner-parity-source.log")
+parser.add_argument("--target-log", default="client-scanner-parity-background.log")
+args = parser.parse_args()
 SOURCE = ROOT / "build/porting/reference-frost-1.21/run/frost-reference/screenshots"
 TARGET = ROOT / "run/port-validation/client/screenshots"
 NAMES = ["cube", "flat", "x-line", "y-line", "z-line"]
@@ -28,7 +33,7 @@ def dilate(value):
                                  for y in range(3) for x in range(3)])
 
 
-for version, log in [("1.21", "client-scanner-parity-source.log"), ("26.1", "client-scanner-parity-target-final.log")]:
+for version, log in [("1.21", args.source_log), ("26.1", args.target_log)]:
     if f"PORT_SCANNER_PARITY_PASSED {version}: 14 scenes" not in (ROOT / "build/porting" / log).read_text(
             encoding="utf-8", errors="replace"):
         raise RuntimeError(f"Incomplete client scene: {version}")

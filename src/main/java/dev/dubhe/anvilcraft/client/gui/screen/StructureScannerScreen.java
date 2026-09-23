@@ -540,6 +540,7 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
 
     @Override
     public void extractBackground(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTick) {
+        super.extractBackground(guiGraphics, mouseX, mouseY, partialTick);
         int i = (this.width - this.getImageWidth()) / 2;
         int j = (this.height - this.getImageHeight()) / 2;
         guiGraphics.blit(RenderPipelines.GUI_TEXTURED, BACKGROUND, i, j, 0, 0, this.getImageWidth(), this.getImageHeight(), 256, 256);

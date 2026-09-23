@@ -469,10 +469,10 @@
   "scanner_visual": {
     "scenes": 14,
     "source_log": "build/porting/client-scanner-parity-source.log",
-    "target_log": "build/porting/client-scanner-parity-target-final.log",
+    "target_log": "build/porting/client-scanner-parity-background.log",
     "report": "build/porting/scanner-visual-comparison.json",
     "coverage": "Cube, flat, X/Y/Z line, chest/armor stand and scan effect at two angles; screenshots inspected. Ten block-geometry pairs have identical bounds, mask IoU 0.980088-1 and zero pixels beyond one-pixel contour tolerance.",
-    "fix": "Explicit source-white hint color bypasses the native EditBox default dark-gray hint style.",
+    "fix": "Explicit source-white hint color bypasses the native EditBox default dark-gray hint style. Restore native container background extraction and world dimming.",
     "limits": "Selected static scenarios only. Background world, native rasterization/lighting and animated shader time are not asserted pixel-identical."
   }
 }
