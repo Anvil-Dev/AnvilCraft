@@ -373,6 +373,8 @@ public class RegisterAdditionalEventListener {
 
     @SubscribeEvent
     public static void registerSpecialRenderers(RegisterSpecialModelRendererEvent event) {
+        event.register(AnvilCraft.of("celestial_forging_anvil"),
+            dev.dubhe.anvilcraft.client.renderer.item.CelestialForgingAnvilItemRenderer.Unbaked.CODEC);
         event.register(AnvilCraft.of("filter"), FilterItemRenderer.Unbaked.CODEC);
         event.register(AnvilCraft.of("disk"), DiskItemRenderer.Unbaked.CODEC);
         event.register(AnvilCraft.of("spectral_slingshot"), SpectralSlingshotRenderer.Unbaked.CODEC);

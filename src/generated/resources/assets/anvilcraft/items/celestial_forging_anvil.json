@@ -1,7 +1,79 @@
 {
   "model": {
-    "type": "minecraft:model",
-    "model": "anvilcraft:block/celestial_forging_anvil"
+    "type": "minecraft:select",
+    "cases": [
+      {
+        "model": {
+          "type": "minecraft:composite",
+          "models": [
+            {
+              "type": "minecraft:model",
+              "model": "anvilcraft:item/celestial_forging_anvil"
+            },
+            {
+              "type": "minecraft:special",
+              "base": "anvilcraft:item/celestial_forging_anvil",
+              "model": {
+                "type": "anvilcraft:celestial_forging_anvil"
+              }
+            }
+          ]
+        },
+        "when": "gui"
+      },
+      {
+        "model": {
+          "type": "minecraft:special",
+          "base": "anvilcraft:item/celestial_forging_anvil",
+          "model": {
+            "type": "anvilcraft:celestial_forging_anvil",
+            "head": true
+          }
+        },
+        "when": "head"
+      }
+    ],
+    "fallback": {
+      "type": "minecraft:composite",
+      "models": [
+        {
+          "type": "minecraft:model",
+          "model": "anvilcraft:item/celestial_forging_anvil"
+        },
+        {
+          "type": "minecraft:special",
+          "base": "anvilcraft:item/celestial_forging_anvil",
+          "model": {
+            "type": "anvilcraft:celestial_forging_anvil"
+          }
+        }
+      ],
+      "transformation": {
+        "left_rotation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "right_rotation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "translation": [
+          0.0,
+          1.0,
+          0.0
+        ]
+      }
+    },
+    "property": "minecraft:display_context"
   },
   "oversized_in_gui": true
 }

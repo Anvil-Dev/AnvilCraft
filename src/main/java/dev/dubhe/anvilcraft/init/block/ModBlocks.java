@@ -1805,7 +1805,7 @@ public class ModBlocks {
         .properties(properties -> properties.stacksTo(1).rarity(Rarity.EPIC)
             .component(ModComponents.ETERNAL, Eternal.DEFAULT))
         .tag(ItemTags.HEAD_ARMOR_ENCHANTABLE, ItemTags.EQUIPPABLE_ENCHANTABLE, ItemTags.VANISHING_ENCHANTABLE)
-        .model(DataGenUtil::oversizedItem)
+        .model(DataGenUtil::celestialAnvilItem)
         .build()
         .register();
 

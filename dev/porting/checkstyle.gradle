@@ -61,6 +61,7 @@ allprojects {
             include '**/UseItemOnBlock.java', '**/ProcessingTablePlacement.java', '**/ModBlockPlacementRuleProvider.java'
             include '**/BlockItemHandlerPointer.java', '**/ItemEntityPointer.java'
             include '**/ItemDetectorBlockEntity.java', '**/PulseGeneratorBlockEntity.java'
+            include '**/CelestialForgingAnvilItemRenderer.java', '**/CelestialAnvilItemExtensions.java', '**/CFARenderer.java'
             include '**/CelestialForgingAnvilBlock.java', '**/CelestialForgingAnvilBlockItem.java', '**/CelestialAnvilPickDataMixin.java'
             include '**/ItemDetectorMenu.java', '**/ItemDetectorScreen.java'
             include '**/AutoEnchanting*.java', '**/PrimerEnchantmentsEvent.java', '**/FluidHandlerWrapper.java'

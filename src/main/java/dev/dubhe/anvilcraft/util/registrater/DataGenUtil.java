@@ -291,6 +291,25 @@ public class DataGenUtil {
         };
     }
 
+    public static <T extends Item> NonNullBiConsumer<DataGenContext<Item, T>, RegistrumItemModelGenerator> celestialAnvilItem() {
+        return (ctx, generator) -> {
+            Identifier base = ctx.getId().withPrefix("item/");
+            var plain = ItemModelUtils.plainModel(base);
+            var body = ItemModelUtils.specialModel(base,
+                new dev.dubhe.anvilcraft.client.renderer.item.CelestialForgingAnvilItemRenderer.Unbaked(false));
+            var gui = new net.minecraft.client.renderer.item.CompositeModel.Unbaked(java.util.List.of(plain, body), java.util.Optional.empty());
+            var held = new net.minecraft.client.renderer.item.CompositeModel.Unbaked(java.util.List.of(plain, body),
+                java.util.Optional.of(new com.mojang.math.Transformation(new org.joml.Vector3f(0, 1, 0), null, null, null)));
+            var head = ItemModelUtils.specialModel(base,
+                new dev.dubhe.anvilcraft.client.renderer.item.CelestialForgingAnvilItemRenderer.Unbaked(true));
+            generator.itemModelOutput.accept(ctx.get(), ItemModelUtils.select(
+                new net.minecraft.client.renderer.item.properties.select.DisplayContext(), held,
+                ItemModelUtils.when(net.minecraft.world.item.ItemDisplayContext.GUI, gui),
+                ItemModelUtils.when(net.minecraft.world.item.ItemDisplayContext.HEAD, head)),
+                new ClientItem.Properties(true, true, 1.0F));
+        };
+    }
+
     public static <T extends Item> NonNullBiConsumer<DataGenContext<Item, T>, RegistrumItemModelGenerator> oversizedItem() {
         return new NonNullBiConsumer<>() {
             @Override

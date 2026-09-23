@@ -114,6 +114,8 @@ public class AnvilCraftClient {
 
     @SubscribeEvent
     public static void registerClientExtensions(RegisterClientExtensionsEvent e) {
+        e.registerItem(new dev.dubhe.anvilcraft.client.renderer.item.CelestialAnvilItemExtensions(),
+            dev.dubhe.anvilcraft.init.block.ModBlocks.CELESTIAL_FORGING_ANVIL.asItem());
         ModFluids.onRegisterFluidType(e);
         ItemExtensionImpl itemExtensionInstance = new ItemExtensionImpl();
         e.registerItem(itemExtensionInstance, ModItems.IONOCRAFT_BACKPACK, ModItems.BREATHING_HELMET,

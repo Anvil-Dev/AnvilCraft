@@ -519,18 +519,24 @@
       "Single-stack epic/eternal item, native head equipping and source armor/enchantment values",
       "Independent itemRenderData snapshot, paused accelerator time and source drop runtime sanitization",
       "Native server-side Ctrl-pick redirects multipart lookup to the CFA controller and captures appearance",
-      "Source removal of the obsolete seven-block item placement radius"
+      "Source removal of the obsolete seven-block item placement radius",
+      "Native GUI/head/held item model routing with source display transforms and non-GUI local translation",
+      "Bounded stored-body preview and model bounds caches with load-before-level attachment and reload/logout cleanup",
+      "Body preview, full 18-part head base, item-local rings/beam submission and native cradle hand submission"
     ],
     "verification": {
       "server_tests_passed": 511,
       "server_log": "build/porting/validate-cfa-item-data-2.log",
       "datagen_log": "build/porting/datagen-cfa-item-data.log",
-      "compile_log": "build/porting/compile-cfa-item-data-final.log"
+      "compile_log": "build/porting/compile-cfa-item-data-final.log",
+      "client_log": "build/porting/client-cfa-item-1.log",
+      "renderer_datagen_log": "build/porting/datagen-cfa-item-renderer.log",
+      "renderer_compile_log": "build/porting/compile-cfa-item-renderer-final.log"
     },
     "pending": [
-      "Standalone item body/head rendering and cached stored celestial preview",
-      "Source first-person cradle hands and context-specific transforms",
-      "Real client visual and source A/B acceptance"
+      "Source A/B for ordinary bodies, first-person cradle and head contexts",
+      "Latest source stellar evolution/emission backend, advanced megastructure state and associated world/head visual parity",
+      "Wider special-item/third-party rendering and dynamic timing/performance coverage"
     ]
   }
 }

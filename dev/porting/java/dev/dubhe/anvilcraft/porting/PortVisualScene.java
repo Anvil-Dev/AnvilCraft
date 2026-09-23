@@ -81,6 +81,10 @@ public final class PortVisualScene {
             MinecraftServer server = client.getSingleplayerServer();
             server.execute(() -> prepare(server));
         }
+        if (Boolean.getBoolean("anvilcraft.portCfaItemScene")) {
+            if (prepared) CelestialAnvilItemClientScene.frame(client);
+            return;
+        }
         if (Boolean.getBoolean("anvilcraft.portAutoEnchantingScene")) {
             if (prepared) AutoEnchantingClientScene.frame(client);
             return;
