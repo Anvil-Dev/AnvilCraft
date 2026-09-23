@@ -511,5 +511,26 @@
       "results": "Base ghost max RGB difference 2; 3 book contour pairs have matching bounds and no points beyond one pixel; Jade gradient stripe RGB exact; all 8 fluid tint/layer samples exact.",
       "fixture": "Book cached pose is fixed to the same time/open values to exclude native frozen-tick interpolation differences; glint animation is stopped and solid/no-glint controls separate native foil differences from mod opacity."
     }
+  },
+  "cfa_item": {
+    "source_commit": "a378f98e4d41d0d92f97cf2486ac9da7881b1674",
+    "status": "partial",
+    "ported": [
+      "Single-stack epic/eternal item, native head equipping and source armor/enchantment values",
+      "Independent itemRenderData snapshot, paused accelerator time and source drop runtime sanitization",
+      "Native server-side Ctrl-pick redirects multipart lookup to the CFA controller and captures appearance",
+      "Source removal of the obsolete seven-block item placement radius"
+    ],
+    "verification": {
+      "server_tests_passed": 511,
+      "server_log": "build/porting/validate-cfa-item-data-2.log",
+      "datagen_log": "build/porting/datagen-cfa-item-data.log",
+      "compile_log": "build/porting/compile-cfa-item-data-final.log"
+    },
+    "pending": [
+      "Standalone item body/head rendering and cached stored celestial preview",
+      "Source first-person cradle hands and context-specific transforms",
+      "Real client visual and source A/B acceptance"
+    ]
   }
 }

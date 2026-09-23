@@ -5,6 +5,7 @@ import dev.anvilcraft.lib.v2.multiblock.dynamic.MultiblockState;
 import dev.anvilcraft.lib.v2.multiblock.dynamic.controller.IController;
 import dev.anvilcraft.lib.v2.util.ShapeUtil;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
+import dev.dubhe.anvilcraft.block.cfa.item.CelestialForgingAnvilBlockItem;
 import dev.dubhe.anvilcraft.block.entity.CelestialForgingAnvilBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.celestial.StarData;
 import dev.dubhe.anvilcraft.block.laser.PropelPistonBlock;
@@ -267,26 +268,93 @@ public class CelestialForgingAnvilBlock
         LootParams.Builder params
     ) {
         CompoundTag blockEntityTag = blockEntity.saveForDrop(params.getLevel().registryAccess());
-
-        blockEntityTag.remove("anvils");              // dropped separately
-        blockEntityTag.remove("materialFilter");      // menu state
-        blockEntityTag.remove("materialLimit");       // menu state
-        blockEntityTag.remove("searchHistory");       // search history is not preserved
-        blockEntityTag.remove("searching");           // runtime state
-        blockEntityTag.remove("searchTicks");         // runtime state
-        blockEntityTag.remove("searchFailed");        // runtime state
-        blockEntityTag.remove("powerInsufficient");   // runtime state
-        blockEntityTag.remove("amplifierPresent");       // derived from the multiblock
-        blockEntityTag.remove("activeMegastructureId");  // structure-dependent state
-        blockEntityTag.remove("activeMegastructure");    // legacy structure-dependent state
+        CelestialForgingAnvilBlockItem.saveRenderData(blockEntityTag, params.getLevel().getGameTime());
+        blockEntityTag.remove("anvils");
+        blockEntityTag.remove("materialFilter");
+        blockEntityTag.remove("materialLimit");
+        blockEntityTag.remove("searchHistory");
+        blockEntityTag.remove("searching");
+        blockEntityTag.remove("searchTicks");
+        blockEntityTag.remove("searchFailed");
+        blockEntityTag.remove("powerInsufficient");
+        blockEntityTag.remove("searchCapturedSeed");
+        blockEntityTag.remove("searchSeedStateKnown");
+        blockEntityTag.remove("historyBrowseIndex");
+        blockEntityTag.remove("excavatorLaserActive");
+        blockEntityTag.remove("penroseSphereLaserActive");
+        blockEntityTag.remove("templeCycleDay");
+        blockEntityTag.remove("templeLastDay");
+        blockEntityTag.remove("templeDemand");
+        blockEntityTag.remove("templeDemandCount");
+        blockEntityTag.remove("templeDemandProgress");
+        blockEntityTag.remove("templeDemandSatisfied");
+        blockEntityTag.remove("acceleratorStage");
+        blockEntityTag.remove("acceleratorTicksRemaining");
+        blockEntityTag.remove("acceleratorTicksTotal");
+        blockEntityTag.remove("acceleratorOriginalMass");
+        blockEntityTag.remove("acceleratorOriginalEnergy");
+        blockEntityTag.remove("acceleratorOriginalSize");
+        blockEntityTag.remove("acceleratorDysonDestroyed");
+        blockEntityTag.remove("acceleratorDysonDestroyTick");
+        blockEntityTag.remove("acceleratorPausedSinceGameTime");
+        blockEntityTag.remove("quenchedScheduled");
+        blockEntityTag.remove("quenchedStartTick");
+        blockEntityTag.remove("quenchedStarted");
+        blockEntityTag.remove("quenchedCanceled");
+        blockEntityTag.remove("quenchedSupernovaFired");
+        blockEntityTag.remove("supernovaFlashTicks");
+        blockEntityTag.remove("supernovaCenterY");
+        blockEntityTag.remove("supernovaScale");
+        blockEntityTag.remove("supernovaProfileId");
+        blockEntityTag.remove("supernovaEventSeed");
+        blockEntityTag.remove("stellarTrackId");
+        blockEntityTag.remove("stellarPhaseId");
+        blockEntityTag.remove("stellarPhaseIndex");
+        blockEntityTag.remove("stellarScheduleStartIndex");
+        blockEntityTag.remove("stellarPhaseStartGameTime");
+        blockEntityTag.remove("stellarPhaseDurationTicks");
+        blockEntityTag.remove("stellarTotalStartGameTime");
+        blockEntityTag.remove("stellarTotalDurationTicks");
+        blockEntityTag.remove("stellarPhaseProgress");
+        blockEntityTag.remove("stellarInitialMass");
+        blockEntityTag.remove("stellarInitialEnergy");
+        blockEntityTag.remove("stellarInitialSize");
+        blockEntityTag.remove("stellarInitialSurfaceClass");
+        blockEntityTag.remove("stellarCurrentMass");
+        blockEntityTag.remove("stellarTrackSeed");
+        blockEntityTag.remove("stellarMetallicityVariant");
+        blockEntityTag.remove("stellarRotationVariant");
+        blockEntityTag.remove("stellarBinaryVariant");
+        blockEntityTag.remove("stellarTerminalProfileId");
+        blockEntityTag.remove("stellarEventId");
+        blockEntityTag.remove("stellarEventStartGameTime");
+        blockEntityTag.remove("stellarEventSeed");
+        blockEntityTag.remove("stellarEventTriggered");
+        blockEntityTag.remove("stellarTerminalApplied");
+        blockEntityTag.remove("wormholeBodyUuid");
+        blockEntityTag.remove("portals");
+        blockEntityTag.remove("amplifierPresent");
+        blockEntityTag.remove("activeMegastructureId");
+        blockEntityTag.remove("activeMegastructure");
         blockEntityTag.remove("activeMegastructureName");
         blockEntityTag.remove("activeMegastructureRing");
+        blockEntityTag.remove("colliderCooldown");
+        blockEntityTag.remove("colliderCycleRemaining");
+        blockEntityTag.remove("colliderActiveSpeed");
+        blockEntityTag.remove("colliderLogisticsRoundRobin");
+        blockEntityTag.remove("colliderReservedAnvil");
+        blockEntityTag.remove("colliderReservedHitBlock");
 
         if (blockEntityTag.isEmpty()) return;
         TagValueOutput output = TagValueOutput.createWithoutContext(
             new ProblemReporter.ScopedCollector(blockEntity.problemPath(), LogUtils.getLogger()));
         output.store(blockEntityTag);
         BlockItem.setBlockEntityData(stack, blockEntity.getType(), output);
+    }
+
+    public @Nullable CelestialForgingAnvilBlockEntity getPickBlockEntity(BlockGetter level, BlockPos pos, BlockState state) {
+        BlockEntity entity = level.getBlockEntity(this.getMainPartPos(pos, state));
+        return entity instanceof CelestialForgingAnvilBlockEntity anvil ? anvil : null;
     }
 
     // === 多方块结构生命周期 ===

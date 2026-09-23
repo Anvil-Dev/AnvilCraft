@@ -1800,9 +1800,11 @@ public class ModBlocks {
             .explosionResistance(1200)
             .emissiveRendering(ModBlocks::always))
         .blockstate(DataGenUtil::noExtraModelOrState)
-        .tag((BlockTags.MINEABLE_WITH_PICKAXE))
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.WITHER_IMMUNE, BlockTags.DRAGON_IMMUNE, ModBlockTags.COLLISION_IMMUNE)
         .item(CelestialForgingAnvilBlockItem::new)
-        .properties(properties -> properties.stacksTo(16))
+        .properties(properties -> properties.stacksTo(1).rarity(Rarity.EPIC)
+            .component(ModComponents.ETERNAL, Eternal.DEFAULT))
+        .tag(ItemTags.HEAD_ARMOR_ENCHANTABLE, ItemTags.EQUIPPABLE_ENCHANTABLE, ItemTags.VANISHING_ENCHANTABLE)
         .model(DataGenUtil::oversizedItem)
         .build()
         .register();

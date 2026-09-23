@@ -16,6 +16,7 @@
     "InventoryMenuMixin",
     "ArmorSlotMixin",
     "CreativePocketPacketMixin",
+    "CelestialAnvilPickDataMixin",
     "EquipmentPocketLockMixin",
     "AtmosphereLivingMixin",
     "EquipmentLiquidBlockMixin",
