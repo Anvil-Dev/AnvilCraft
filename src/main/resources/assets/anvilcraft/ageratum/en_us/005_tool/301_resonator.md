@@ -22,10 +22,10 @@ items:
 
 - A universal tool that can mine any block
 - When durability is depleted, it does not break completely, similar to <ref item="minecraft:elytra"/>
-- Hold [Left Alt] to bring up a radial menu with five options
+- Hold <key id="key.anvilcraft.switch_phase"/> to bring up a radial menu with five options
   - Auto is selected by default, accelerating the breaking of any block
   - Selecting a specific tool type only accelerates breaking the corresponding blocks, but enables operations such as *stripping* and *tilling*
-- Press [Left Alt] to cycle clockwise through the tool mode radial menu
+- Press <key id="key.anvilcraft.switch_phase"/> to cycle clockwise through the tool mode radial menu
 - Resonant Mining: long-press right-click on any block for a short time to instantly mine it, specifically for tough blocks (excluding blocks like <ref item="minecraft:bedrock"/>), but consumes 128 durability
 
 # Crafting
