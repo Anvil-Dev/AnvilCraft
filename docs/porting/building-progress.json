@@ -15,7 +15,8 @@
     },
     {
       "source": "src/main/java/dev/dubhe/anvilcraft/building/BlueprintBlockEntities.java",
-      "status": "pending"
+      "status": "ported",
+      "integration": "Shared creation, special materials, portal grouping and transactional fluid APIs tested. Placement/material planner and client preview consumers remain pending. Fluid consumption uses native ItemAccess to preserve replacement containers."
     },
     {
       "source": "src/main/java/dev/dubhe/anvilcraft/building/BlueprintCapture.java",
@@ -34,7 +35,8 @@
     },
     {
       "source": "src/main/java/dev/dubhe/anvilcraft/building/BlueprintIgnition.java",
-      "status": "pending"
+      "status": "ported",
+      "integration": "Shared creation, special materials, portal grouping and transactional fluid APIs tested. Placement/material planner and client preview consumers remain pending. Fluid consumption uses native ItemAccess to preserve replacement containers."
     },
     {
       "source": "src/main/java/dev/dubhe/anvilcraft/building/BlueprintLeashes.java",
@@ -62,7 +64,8 @@
     },
     {
       "source": "src/main/java/dev/dubhe/anvilcraft/building/BlueprintSpecialBlocks.java",
-      "status": "pending"
+      "status": "ported",
+      "integration": "Shared creation, special materials, portal grouping and transactional fluid APIs tested. Placement/material planner and client preview consumers remain pending. Fluid consumption uses native ItemAccess to preserve replacement containers."
     },
     {
       "source": "src/main/java/dev/dubhe/anvilcraft/building/BlueprintTicks.java",
@@ -135,7 +138,8 @@
     },
     {
       "source": "src/main/java/dev/dubhe/anvilcraft/building/FluidBuildAdapter.java",
-      "status": "pending"
+      "status": "ported",
+      "integration": "Shared creation, special materials, portal grouping and transactional fluid APIs tested. Placement/material planner and client preview consumers remain pending. Fluid consumption uses native ItemAccess to preserve replacement containers."
     },
     {
       "source": "src/main/java/dev/dubhe/anvilcraft/building/LitematicaImporter.java",
@@ -234,12 +238,13 @@
     "Structure scanner and disk/client file workflow integration",
     "When porting BuildingRodService, share BlueprintPlacement.MAX_ENTRIES (4000); reuse BuildingEntityTransform.withWorldPos in entity adapters.",
     "Wire captured dynamic state into blueprint entity adapters and validate tracking/rendering of restored entities.",
-    "Reuse BlueprintCapture.saveEntity in leash/runtime adapters and BuildingEntityTransform support helpers; wire normalized capture into scanner/file workflows."
+    "Reuse BlueprintCapture.saveEntity in leash/runtime adapters and BuildingEntityTransform support helpers; wire normalized capture into scanner/file workflows.",
+    "BuildingBlockMaterial depends on missing ProcessingTablePlacement/UseItemOnBlock material rules. Port shared processing-table assembly before material allocation; use FluidBuildAdapter.takeExactFluid(ItemAccess, FluidStack) for native replacement-container handling."
   ],
   "verification": {
-    "server_tests_passed": 395,
-    "server_log": "build/porting/validate-blueprint-capture-final.log",
-    "compile_log": "build/porting/compile-blueprint-capture-final.log",
+    "server_tests_passed": 408,
+    "server_log": "build/porting/validate-blueprint-supply-2.log",
+    "compile_log": "build/porting/compile-blueprint-supply-final.log",
     "client": "No scanner UI or building input/preview consumer is switched by this node."
   },
   "runtime_persistence": {
