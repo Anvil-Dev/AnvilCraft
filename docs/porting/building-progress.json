@@ -17,7 +17,8 @@
     },
     {
       "source": "src/main/java/dev/dubhe/anvilcraft/building/BlueprintCapture.java",
-      "status": "pending"
+      "status": "ported",
+      "integration": "Shared capture/normalization/runtime-data API tested. Scanner UI, material allocation and configuration application remain pending."
     },
     {
       "source": "src/main/java/dev/dubhe/anvilcraft/building/BlueprintEntities.java",
@@ -26,7 +27,8 @@
     },
     {
       "source": "src/main/java/dev/dubhe/anvilcraft/building/BlueprintFluids.java",
-      "status": "pending"
+      "status": "ported",
+      "integration": "Shared capture/normalization/runtime-data API tested. Scanner UI, material allocation and configuration application remain pending."
     },
     {
       "source": "src/main/java/dev/dubhe/anvilcraft/building/BlueprintIgnition.java",
@@ -38,11 +40,13 @@
     },
     {
       "source": "src/main/java/dev/dubhe/anvilcraft/building/BlueprintMultiblocks.java",
-      "status": "pending"
+      "status": "ported",
+      "integration": "Shared capture/normalization/runtime-data API tested. Scanner UI, material allocation and configuration application remain pending."
     },
     {
       "source": "src/main/java/dev/dubhe/anvilcraft/building/BlueprintNormalizer.java",
-      "status": "pending"
+      "status": "ported",
+      "integration": "Shared capture/normalization/runtime-data API tested. Scanner UI, material allocation and configuration application remain pending."
     },
     {
       "source": "src/main/java/dev/dubhe/anvilcraft/building/BlueprintPlacement.java",
@@ -51,7 +55,8 @@
     },
     {
       "source": "src/main/java/dev/dubhe/anvilcraft/building/BlueprintRuntimeData.java",
-      "status": "pending"
+      "status": "ported",
+      "integration": "Shared capture/normalization/runtime-data API tested. Scanner UI, material allocation and configuration application remain pending."
     },
     {
       "source": "src/main/java/dev/dubhe/anvilcraft/building/BlueprintSpecialBlocks.java",
@@ -140,11 +145,13 @@
     },
     {
       "source": "src/main/java/dev/dubhe/anvilcraft/building/OrdinaryBlockAdapter.java",
-      "status": "pending"
+      "status": "ported",
+      "integration": "Shared capture/normalization/runtime-data API tested. Scanner UI, material allocation and configuration application remain pending."
     },
     {
       "source": "src/main/java/dev/dubhe/anvilcraft/building/ScannerDiskNormalizer.java",
-      "status": "pending"
+      "status": "ported",
+      "integration": "Shared capture/normalization/runtime-data API tested. Scanner UI, material allocation and configuration application remain pending."
     },
     {
       "source": "src/main/java/dev/dubhe/anvilcraft/building/SignDecorationAdapter.java",
@@ -223,13 +230,14 @@
     "First-person model animation, preview rendering and in-game comparison",
     "Structure scanner and disk/client file workflow integration",
     "When porting BuildingRodService, share BlueprintPlacement.MAX_ENTRIES (4000); reuse BuildingEntityTransform.withWorldPos in entity adapters.",
-    "Wire captured dynamic state into blueprint entity adapters and validate tracking/rendering of restored entities."
+    "Wire captured dynamic state into blueprint entity adapters and validate tracking/rendering of restored entities.",
+    "Reuse BlueprintCapture.saveEntity in leash/runtime adapters and BuildingEntityTransform support helpers; wire normalized capture into scanner/file workflows."
   ],
   "verification": {
-    "server_tests_passed": 386,
-    "server_log": "build/porting/validate-dynamic-persistence-final.log",
-    "compile_log": "build/porting/compile-dynamic-persistence-final.log",
-    "client": "No new client renderer changed; restored entity tracking and full building workflow acceptance remain pending."
+    "server_tests_passed": 395,
+    "server_log": "build/porting/validate-blueprint-capture-final.log",
+    "compile_log": "build/porting/compile-blueprint-capture-final.log",
+    "client": "No scanner UI or building input/preview consumer is switched by this node."
   },
   "runtime_persistence": {
     "source_commit": "a378f98e4d41d0d92f97cf2486ac9da7881b1674",

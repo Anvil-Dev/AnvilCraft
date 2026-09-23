@@ -147,6 +147,31 @@ public final class BuildingEntityTransform {
         return "anvilcraft:magnetized_node".equals(tag.getStringOr("id", ""));
     }
 
+    static boolean isOutlet(CompoundTag tag) {
+        return "anvilcraft:cauldron_outlet".equals(tag.getStringOr("id", ""));
+    }
+
+    static BlockPos outletSupport(StructureSnapshot.EntityEntry entry) {
+        Direction direction = Direction.from3DDataValue(entry.nbt().getIntOr("attached_direction",
+            entry.nbt().getIntOr("AttachedDirection", 0)));
+        return BlockPos.containing(entry.pos().subtract(Vec3.ZERO.relative(direction, 0.51)));
+    }
+
+    static BlockPos nodeSupport(StructureSnapshot snapshot, StructureSnapshot.EntityEntry entry) {
+        CompoundTag tag = entry.nbt().getCompound("block_state").orElseGet(() -> entry.nbt().getCompoundOrEmpty("BlockState"));
+        String block = tag.getStringOr("Name", "");
+        BlockPos column = BlockPos.containing(entry.pos());
+        for (var candidate : snapshot.blocks()) {
+            BlockPos pos = candidate.pos();
+            if (pos.getX() != column.getX() || pos.getZ() != column.getZ()) continue;
+            var state = snapshot.stateOf(candidate);
+            if (!BuiltInRegistries.BLOCK.getKey(state.getBlock()).toString().equals(block)) continue;
+            double height = state.getCollisionShape(EmptyBlockGetter.INSTANCE, pos).max(Direction.Axis.Y, 0.5, 0.5);
+            if (Math.abs(pos.getY() + height - entry.pos().y) < 1.0E-5) return pos;
+        }
+        throw new IllegalArgumentException("Missing magnetized node support at " + entry.pos());
+    }
+
     private static void rename(CompoundTag tag, String legacy, String current) {
         if (!tag.contains(current) && tag.contains(legacy)) tag.put(current, tag.get(legacy).copy());
         tag.remove(legacy);
