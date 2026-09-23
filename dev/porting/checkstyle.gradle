@@ -40,6 +40,8 @@ allprojects {
             include '**/sliding/SlidingBlockInfo.java'
             include '**/AnimateAscendingBlockEntity.java', '**/SlidingBlockEntity.java', '**/CauldronOutletEntity.java'
             include '**/building/*.java'
+            include '**/BlueprintLevelMixin.java', '**/BlueprintServerLevelMixin.java', '**/BlueprintTicksMixin.java'
+            include '**/BlueprintBlockEventsAccessor.java'
             include '**/InWorldRecipeEventListener.java', '**/MeshRecipe.java', '**/UnpackRecipe.java', '**/ItemCrushRecipe.java'
             include '**/ProcessingItemStackRenderer.java', '**/ProcessingModel*.java'
             include '**/*ProcessingTable*.java', '**/StampingPlatform*.java', '**/CrushingTable*.java', '**/SiftingTable*.java', '**/UnpackingTable*.java'

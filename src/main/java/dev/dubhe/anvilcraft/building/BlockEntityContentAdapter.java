@@ -59,7 +59,9 @@ public final class BlockEntityContentAdapter {
     }
 
     static Extracted extract(BlockEntity entity, HolderLookup.Provider registries, @Nullable Level level) {
-        return extract(entity, entity.saveWithFullMetadata(registries), registries, level);
+        CompoundTag saved = entity.saveWithFullMetadata(registries);
+        BlockEntity copy = BlockEntity.loadStatic(entity.getBlockPos(), entity.getBlockState(), saved, registries);
+        return extract(copy, saved, registries, level);
     }
 
     private static Extracted extract(

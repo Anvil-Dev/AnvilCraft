@@ -79,7 +79,8 @@
     },
     {
       "source": "src/main/java/dev/dubhe/anvilcraft/building/BuildingCommit.java",
-      "status": "pending"
+      "status": "partial",
+      "integration": "Quiet scope, native side-effect-free chunk writes, activation and observer phase guards are implemented with mixins. BuildingRodUndo.replaced notification must be wired when the history layer is ported."
     },
     {
       "source": "src/main/java/dev/dubhe/anvilcraft/building/BuildingEntityOp.java",
@@ -97,7 +98,8 @@
     },
     {
       "source": "src/main/java/dev/dubhe/anvilcraft/building/BuildingRegionSnapshot.java",
-      "status": "pending"
+      "status": "ported",
+      "integration": "Region capture/restore, permissions, original entity identity, inventory deltas and tick/event recovery tested. Undo-history ownership, derived entity cleanup and refunds remain pending."
     },
     {
       "source": "src/main/java/dev/dubhe/anvilcraft/building/BuildingRodFluids.java",
@@ -249,12 +251,14 @@
     "Entity adapters now consume captured dynamic state; validate tracking/rendering of restored entities after service integration.",
     "Leash/runtime adapters now reuse BlueprintCapture.saveEntity and shared entity transforms; wire normalized capture into scanner/file workflows.",
     "ProcessingTablePlacement and shared table inventory/material rules are available. BuildingBlockMaterial is now available; continue full material allocation. use FluidBuildAdapter.takeExactFluid(ItemAccess, FluidStack) for native replacement containers.",
-    "When porting BuildingRodService.materialCount, delegate to BuildingBlockMaterial.materialCount so moving sections and static placement share the same source counting rules."
+    "When porting BuildingRodService.materialCount, delegate to BuildingBlockMaterial.materialCount so moving sections and static placement share the same source counting rules.",
+    "When porting BuildingRodService.Cell, implement BuildingCommit.PlacedCell; delegate canModify to BuildingCommit.canModify. Region restoration uses the same placed-cell contract.",
+    "Wire BuildingRodUndo.replaced into BuildingCommit.set and port undo tracking mixins/events; region snapshots alone do not clean up derived entities or refund consumed materials."
   ],
   "verification": {
-    "server_tests_passed": 438,
-    "server_log": "build/porting/validate-entity-adapters-final.log",
-    "compile_log": "build/porting/compile-entity-adapters-final.log",
+    "server_tests_passed": 445,
+    "server_log": "build/porting/validate-region-snapshot-valid-wire.log",
+    "compile_log": "build/porting/compile-region-snapshot-final.log",
     "client": "Processing-table runtime rendering and source comparison completed for the recorded scenes. Building Rod input/preview and scanner consumers remain pending."
   },
   "runtime_persistence": {
