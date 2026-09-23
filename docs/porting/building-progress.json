@@ -261,9 +261,9 @@
     "Use shared BuildingPlan.Cell/Group when porting BuildingRodService; do not duplicate plan records. Pass BuildingRodItem.material(player) to BuildingMaterials. Route undo input to the guarded public BuildingRodUndo.undo entry point."
   ],
   "verification": {
-    "server_tests_passed": 461,
-    "server_log": "build/porting/validate-building-rod-item.log",
-    "compile_log": "build/porting/compile-building-rod-item-final.log",
+    "server_tests_passed": 465,
+    "server_log": "build/porting/validate-large-cake-final.log",
+    "compile_log": "build/porting/compile-large-cake-final.log",
     "client": "Processing-table comparison completed for recorded scenes. Building Rod empty/charged inventory model and tooltip client scene passed; full input/preview and first-person animation remain pending."
   },
   "runtime_persistence": {
@@ -315,5 +315,31 @@
       "run/port-validation/client/screenshots/building-rod-item-26.1-charged.png"
     ],
     "limits": "Inventory model condition and tooltip only; no source A/B or interactive building acceptance claimed."
+  },
+  "large_cake": {
+    "source_commit": "a378f98e4d41d0d92f97cf2486ac9da7881b1674",
+    "status": "partial",
+    "ported": [
+      "Independent per-cell support and clicked-cell eating, native block interaction dispatch",
+      "LargeCakeBlockItem places 27 cells once, with complete footprint and support precheck",
+      "Partial blueprint capture no longer completes a cake implicitly",
+      "Placement preview reuses item part expansion and includes all 27 cells",
+      "Remove the obsolete large_cake model-outline exclusion to match source precise selection",
+      "Datagen removes the obsolete main-part-only placement rule, matching the source independent-cell material mapping"
+    ],
+    "pending": [
+      "BuildingRodService single placement and tiling caller",
+      "In-game source comparison and player guide updates for additional cake materials",
+      "Audit remaining model_selection_denylist differences, including filled cauldrons and processing-table picking, in the corresponding feature nodes"
+    ],
+    "verification": {
+      "server_tests_passed": 465,
+      "server_log": "build/porting/validate-large-cake-final.log",
+      "assets": "15 model, blockstate, texture and structure resources match the local source after line-ending normalization; two guide pages differ for other cake material additions.",
+      "client_log": "build/porting/client-large-cake-preview-5.log",
+      "datagen_log": "build/porting/datagen-large-cake.log",
+      "compile_log": "build/porting/compile-large-cake-final.log",
+      "client": "All six preview scenes passed; cake outline and ghost each contain 27 rendered cells. Both screenshots inspected. No source screenshot A/B yet."
+    }
   }
 }

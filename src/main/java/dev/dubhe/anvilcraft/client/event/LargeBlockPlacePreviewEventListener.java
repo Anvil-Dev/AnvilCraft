@@ -7,6 +7,7 @@ import dev.anvilcraft.lib.v2.cube.client.OutlineRenderer;
 import dev.anvilcraft.lib.v2.cube.client.SelectionPart;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.tooltip.TooltipRenderHelper;
+import dev.dubhe.anvilcraft.block.cake.LargeCakeBlock;
 import dev.dubhe.anvilcraft.block.cfa.CelestialForgingAnvilAmplifierBlock;
 import dev.dubhe.anvilcraft.block.entity.CelestialForgingAnvilBlockEntity;
 import dev.dubhe.anvilcraft.block.multipart.AbstractMultiPartBlock;
@@ -20,6 +21,7 @@ import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.item.block.ChuteBlockItem;
 import dev.dubhe.anvilcraft.item.block.FlexibleMultiPartBlockItem;
+import dev.dubhe.anvilcraft.item.block.LargeCakeBlockItem;
 import dev.dubhe.anvilcraft.item.block.PlaceInWaterBlockItem;
 import dev.dubhe.anvilcraft.item.block.SimpleMultiPartBlockItem;
 import dev.dubhe.anvilcraft.util.BlockPlacementPicking;
@@ -149,8 +151,8 @@ public class LargeBlockPlacePreviewEventListener {
             return;
         }
         // 多方块方块自成一体；标签内的单方块（红石类 / 物流类）走单方块预览
-        boolean multiPart = blockItem.getBlock() instanceof AbstractMultiPartBlock<?>;
-        if (!multiPart && !blockItem.getBlock().defaultBlockState().is(ModBlockTags.PLACEMENT_PREVIEW)) {
+        final boolean multiPart = blockItem.getBlock() instanceof AbstractMultiPartBlock<?>;
+        if (!isPreviewable(blockItem.getBlock())) {
             return;
         }
         UseOnContext useContext;
@@ -232,12 +234,18 @@ public class LargeBlockPlacePreviewEventListener {
         BlockPlaceContext context = new BlockPlaceContext(useContext);
         BlockPos pos = context.getClickedPos();
         // 放不下（如压力板缺少支撑）时不显示鬼影，避免给出错误预期
-        BlockState state = block.getStateForPlacement(context);
+        BlockState state = blockItem instanceof LargeCakeBlockItem cake ? cake.getPlacementState(context)
+            : block.getStateForPlacement(context);
         if (mc.level != null && (state == null || !mc.level.getBlockState(pos).canBeReplaced(context))) {
             return;
         }
         if (state != null) {
-            renderEntries.add(new RenderEntry(pos, state));
+            if (blockItem instanceof LargeCakeBlockItem) {
+                LargeCakeBlockItem.forEachPlacedBlock(pos, state,
+                    (partPos, partState) -> renderEntries.add(new RenderEntry(partPos, partState)));
+            } else {
+                renderEntries.add(new RenderEntry(pos, state));
+            }
         }
     }
 
@@ -258,7 +266,7 @@ public class LargeBlockPlacePreviewEventListener {
 
     /** 该方块是否参与放置预览：多方块方块，或 {@link ModBlockTags#PLACEMENT_PREVIEW} 内的单方块。 */
     private static boolean isPreviewable(Block block) {
-        return block instanceof AbstractMultiPartBlock<?>
+        return block instanceof AbstractMultiPartBlock<?> || block instanceof LargeCakeBlock
                || block.defaultBlockState().is(ModBlockTags.PLACEMENT_PREVIEW);
     }
 
@@ -333,15 +341,16 @@ public class LargeBlockPlacePreviewEventListener {
                 RenderEntry base = renderEntries.getFirst();
                 boolean outlined = false;
                 if (AnvilCraftClient.CONFIG.multiPartPreviewMode == AnvilCraftClientConfig.MultiPartPreviewMode.OUTLINE) {
-                    List<SelectionPart> parts = new ArrayList<>(ModelBlockSelection.multipartOutline(base.state()));
-                    parts.addAll(ModelBlockSelection.previewBerParts(base.state(), base.pos()));
-                    if (!parts.isEmpty()) {
-                        outlines.add(new OutlineBatch(base.pos(), List.copyOf(parts), boundColor,
-                            (float) AnvilCraftClient.CONFIG.multiPartPreviewOutlineOpacity));
-                        outlined = true;
-                    } else {
-                        expandRenderEntriesForGhost();
+                    for (RenderEntry entry : renderEntries) {
+                        List<SelectionPart> parts = new ArrayList<>(ModelBlockSelection.multipartOutline(entry.state()));
+                        parts.addAll(ModelBlockSelection.previewBerParts(entry.state(), entry.pos()));
+                        if (!parts.isEmpty()) {
+                            outlines.add(new OutlineBatch(entry.pos(), List.copyOf(parts), boundColor,
+                                (float) AnvilCraftClient.CONFIG.multiPartPreviewOutlineOpacity));
+                            outlined = true;
+                        }
                     }
+                    if (!outlined) expandRenderEntriesForGhost();
                 }
                 if (!outlined) {
                     int color = ARGB.color((int) (255 * AnvilCraftClient.CONFIG.multiPartPreviewGhostOpacity), boundColor);

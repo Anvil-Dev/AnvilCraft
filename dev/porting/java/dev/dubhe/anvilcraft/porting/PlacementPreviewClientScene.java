@@ -35,19 +35,23 @@ public final class PlacementPreviewClientScene {
 
     public static void frame(Minecraft mc) {
         if (mc.screen != null || !(mc.level.getBlockEntity(ANVIL) instanceof CelestialForgingAnvilBlockEntity)) return;
-        if (stage >= 4) {
-            AnvilCraft.LOGGER.info("PORT_PLACEMENT_PREVIEW_PASSED: outline, ghost, off, independent amplifier warning");
+        if (stage >= 6) {
+            AnvilCraft.LOGGER.info("PORT_PLACEMENT_PREVIEW_PASSED: outline, ghost, off, independent amplifier warning, "
+                + "large cake outline/ghost");
             mc.stop();
             return;
         }
-        mc.player.setPos(8.5, 81.6, 11.5);
+        mc.player.setPos(8.5, stage >= 4 ? 82.0 : 81.6, stage >= 4 ? 12.0 : 11.5);
+        if (stage >= 4) mc.options.fov().set(90);
         mc.player.setYRot(180);
         mc.player.setXRot(36.5F);
-        mc.player.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(ModBlocks.SMART_BLOCK_PLACER.asItem()));
+        var item = stage >= 4 ? ModBlocks.LARGE_CAKE.asItem() : ModBlocks.SMART_BLOCK_PLACER.asItem();
+        mc.player.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(item));
         mc.options.hideGui = true;
-        AnvilCraftClient.CONFIG.multiPartPreviewMode = stage == 0 ? MultiPartPreviewMode.OUTLINE
-            : stage == 1 ? MultiPartPreviewMode.GHOST : MultiPartPreviewMode.OFF;
+        AnvilCraftClient.CONFIG.multiPartPreviewMode = stage == 0 || stage == 4 ? MultiPartPreviewMode.OUTLINE
+            : stage == 1 || stage == 5 ? MultiPartPreviewMode.GHOST : MultiPartPreviewMode.OFF;
         if (stage == 3) LargeBlockPlacePreviewEventListener.offerMissingAmplifierAnvil(ANVIL);
+        if (stage >= 4) LargeBlockPlacePreviewEventListener.removeMissingAmplifierAnvil(ANVIL);
         ready = true;
         if (capturing || ++frames < 60 || verifiedStage != stage) return;
         capturing = true;
@@ -81,8 +85,8 @@ public final class PlacementPreviewClientScene {
         ghosts.setAccessible(true);
         int outlineCount = ((List<?>) outlines.invoke(snapshot)).size();
         int ghostCount = ((List<?>) ghosts.invoke(snapshot)).size();
-        int expectedOutline = stage == 0 ? 1 : stage == 3 ? 4 : 0;
-        int expectedGhost = stage == 1 ? 5 : 0;
+        int expectedOutline = stage == 0 ? 1 : stage == 3 ? 4 : stage == 4 ? 27 : 0;
+        int expectedGhost = stage == 1 ? 5 : stage == 5 ? 27 : 0;
         if (outlineCount != expectedOutline || ghostCount != expectedGhost) {
             throw new IllegalStateException("预览阶段 " + stage + " 数量不符: outlines=" + outlineCount + ", ghosts=" + ghostCount);
         }
