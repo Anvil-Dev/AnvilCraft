@@ -11,7 +11,7 @@
     {
       "source": "src/main/java/dev/dubhe/anvilcraft/building/BlueprintBlockConfiguration.java",
       "status": "partial",
-      "integration": "Available block configuration, filter samples, runtime restoration and transforms tested. AutoEnchantingTable dependency is not ported yet; its configuration branch remains pending. ItemDetector output inversion backend is ported; UI/network controls remain pending."
+      "integration": "Available block configuration, filter samples, runtime restoration and transforms tested. AutoEnchantingTable dependency is not ported yet; its configuration branch remains pending. ItemDetector output inversion backend, UI button and native menu synchronization are ported and validated."
     },
     {
       "source": "src/main/java/dev/dubhe/anvilcraft/building/BlueprintBlockEntities.java",

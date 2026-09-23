@@ -52,6 +52,7 @@ public class ItemDetectorBlockEntity extends BlockEntity implements MenuProvider
 
     public static final int DATASLOT_ID_RANGE = 0;
     public static final int DATASLOT_ID_FILTER_MODE = 1;
+    public static final int DATASLOT_ID_OUTPUT_INVERT = 2;
     private static final FilteredItemStackHandler DUMMY_HANDLER = new FilteredItemStackHandler(0);
     private static final int MIN_RANGE = 1;
     private static final int MAX_RANGE = 8;
@@ -70,6 +71,7 @@ public class ItemDetectorBlockEntity extends BlockEntity implements MenuProvider
             return switch (index) {
                 case ItemDetectorBlockEntity.DATASLOT_ID_RANGE -> ItemDetectorBlockEntity.this.range;
                 case ItemDetectorBlockEntity.DATASLOT_ID_FILTER_MODE -> ItemDetectorBlockEntity.this.filterMode.ordinal();
+                case ItemDetectorBlockEntity.DATASLOT_ID_OUTPUT_INVERT -> ItemDetectorBlockEntity.this.outputInvert ? 1 : 0;
                 default -> 0;
             };
         }
@@ -84,13 +86,16 @@ public class ItemDetectorBlockEntity extends BlockEntity implements MenuProvider
                     if (value < 0 || value >= Mode.values().length) return;
                     ItemDetectorBlockEntity.this.setFilterMode(Mode.values()[value]);
                     break;
+                case ItemDetectorBlockEntity.DATASLOT_ID_OUTPUT_INVERT:
+                    ItemDetectorBlockEntity.this.setOutputInvert(value != 0);
+                    break;
                 default:
             }
         }
 
         @Override
         public int getCount() {
-            return 2;
+            return 3;
         }
     };
     @Getter

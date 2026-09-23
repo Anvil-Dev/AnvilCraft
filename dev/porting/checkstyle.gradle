@@ -61,6 +61,7 @@ allprojects {
             include '**/UseItemOnBlock.java', '**/ProcessingTablePlacement.java', '**/ModBlockPlacementRuleProvider.java'
             include '**/BlockItemHandlerPointer.java', '**/ItemEntityPointer.java'
             include '**/ItemDetectorBlockEntity.java', '**/PulseGeneratorBlockEntity.java'
+            include '**/ItemDetectorMenu.java', '**/ItemDetectorScreen.java'
             include '**/WheelGuiBlurMixin.java', '**/GuiBlurBoundaryAccessor.java', '**/WheelWidgetMixin.java'
             include '**/WheelBackgroundCapture.java', '**/WheelBackgroundFrameMixin.java', '**/WheelFrostedBackgroundMixin.java'
             include '**/LensBlock.java'
