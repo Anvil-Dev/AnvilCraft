@@ -2629,5 +2629,7 @@
   "block.anvilcraft.sifting_table": "加工台 - 过筛",
   "block.anvilcraft.unpacking_table": "加工台 - 解包",
   "anvilcraft.configuration.sifting_unpacking_block_render_enabled": "过筛/解包台的内容物是否渲染为方块大小",
-  "anvilcraft.configuration.sifting_unpacking_block_render_enabled.tooltip": "把过筛或解包台内容的方块物品，渲染成真实的方块大小"
+  "anvilcraft.configuration.sifting_unpacking_block_render_enabled.tooltip": "把过筛或解包台内容的方块物品，渲染成真实的方块大小",
+  "message.anvilcraft.building_rod.missing_book": "缺少材料，携带一本书以获得材料列表",
+  "book.anvilcraft.material_list.title": "材料清单"
 }

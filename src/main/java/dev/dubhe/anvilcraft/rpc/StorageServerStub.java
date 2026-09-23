@@ -2299,6 +2299,31 @@ public final class StorageServerStub {
         player.containerMenu.broadcastChanges();
     }
 
+    /** 按随身终端顺序提供当前可达的建筑物品源，同一仓储只分配一次。 */
+    public static List<UnlimitedItemStacksResourceHandler> buildingMaterialSources(ServerPlayer player) {
+        List<UnlimitedItemStacksResourceHandler> result = new ArrayList<>();
+        for (BaseStorage<?> storage : buildingStorages(player)) result.add(storage.getItems());
+        return result;
+    }
+
+    /** 与建筑物品源共用目标解析，流体预留使用真实仓储标识。 */
+    public static List<UUID> buildingFluidSources(ServerPlayer player) {
+        List<UUID> result = new ArrayList<>();
+        for (BaseStorage<?> storage : buildingStorages(player)) result.add(storage.getId());
+        return result;
+    }
+
+    private static List<BaseStorage<?>> buildingStorages(ServerPlayer player) {
+        List<BaseStorage<?>> result = new ArrayList<>();
+        for (ItemStack terminal : TerminalItem.getAll(player)) {
+            BaseStorage<?> storage = TerminalSessions.targetStorage(player, terminal, false);
+            if (storage != null && result.stream().noneMatch(existing -> existing.getId().equals(storage.getId()))) {
+                result.add(storage);
+            }
+        }
+        return result;
+    }
+
     public static int insertIntoTerminal(ServerPlayer player, UUID targetId, ItemStack stack, int amount) {
         ItemStack terminal = TerminalSessions.findTerminal(player, targetId);
         if (terminal.isEmpty() || stack.isEmpty() || amount <= 0) return 0;

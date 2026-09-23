@@ -103,7 +103,8 @@
     },
     {
       "source": "src/main/java/dev/dubhe/anvilcraft/building/BuildingRodMaterialBook.java",
-      "status": "pending"
+      "status": "ported",
+      "integration": "Server book helper, carried/pocket book consumption, six-line pagination and native item-codec roundtrip tested. BuildingRodService failure-report caller remains pending."
     },
     {
       "source": "src/main/java/dev/dubhe/anvilcraft/building/BuildingRodObstructions.java",
@@ -243,9 +244,9 @@
     "ProcessingTablePlacement and shared table inventory/material rules are available. BuildingBlockMaterial is now available; continue full material allocation. use FluidBuildAdapter.takeExactFluid(ItemAccess, FluidStack) for native replacement containers."
   ],
   "verification": {
-    "server_tests_passed": 423,
-    "server_log": "build/porting/validate-block-material-2.log",
-    "compile_log": "build/porting/compile-block-material-final.log",
+    "server_tests_passed": 429,
+    "server_log": "build/porting/validate-building-supply-final.log",
+    "compile_log": "build/porting/compile-building-supply-final.log",
     "client": "Processing-table runtime rendering and source comparison completed for the recorded scenes. Building Rod input/preview and scanner consumers remain pending."
   },
   "runtime_persistence": {
@@ -280,5 +281,13 @@
       "coverage": "Eight matched screenshot scenes, item layers and enlargement/blocking, front-lit cuboid vs generated plant models, repeated extraction stability, shared selection parts, source runtime wheel matrices at 25% progress.",
       "limits": "No pixel-identity claim: native terrain sampling/color and registry-ID-based scatter seeds differ. Wheel motion mask IoU 0.996; door motion bounds match, threshold-mask IoU 0.7179."
     }
+  },
+  "material_supply_support": {
+    "source_commit": "a378f98e4d41d0d92f97cf2486ac9da7881b1674",
+    "ported": [
+      "StorageServerStub.buildingMaterialSources/buildingFluidSources reuse current terminal reachability and preserve source carried-terminal order and deduplication",
+      "BuildingRodMaterialBook with pocket/ordinary carried-book consumption and six-line pages"
+    ],
+    "pending": "BuildingMaterials allocation/consume, BuildingRodItem material selection and BuildingRodService group/commit/failure-report integration remain pending."
   }
 }

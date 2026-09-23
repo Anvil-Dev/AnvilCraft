@@ -4,6 +4,8 @@ import dev.anvilcraft.lib.v2.registrum.providers.RegistrumLangProvider;
 
 public class MessageLang {
     public static void init(RegistrumLangProvider provider) {
+        provider.add("message.anvilcraft.building_rod.missing_book",
+            "Missing materials; carry a book to receive a material list");
         provider.add("hud.anvilcraft.weatherproof_chestplate_power", "%s%%");
         provider.add("message.anvilcraft.buffer_boots.charged", "Press %1$s to jump");
 
