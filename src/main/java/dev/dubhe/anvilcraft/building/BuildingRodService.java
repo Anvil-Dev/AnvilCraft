@@ -12,6 +12,7 @@ import dev.dubhe.anvilcraft.entity.SlidingBlockEntity;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.item.BuildingRodItem;
+import dev.dubhe.anvilcraft.network.BuildingRodResultPacket;
 import dev.dubhe.anvilcraft.util.StructureLoadUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -57,6 +58,7 @@ import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.common.util.BlockSnapshot;
 import net.neoforged.neoforge.event.EventHooks;
 import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.network.PacketDistributor;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -234,7 +236,7 @@ public final class BuildingRodService {
             var undoBounds = placements.getFirst().bounds(snapshot.size());
             undoBounds.encapsulate(placements.getLast().bounds(snapshot.size()));
             boolean complete = commit(player, allGroups, partial, true, declared, ticks, undoBounds);
-            if (complete) message(player, "placed");
+            if (complete) PacketDistributor.sendToPlayer(player, new BuildingRodResultPacket(true));
         } catch (ConstructionBlueprintException | IllegalArgumentException exception) {
             message(player, "invalid_structure");
         }
@@ -623,6 +625,7 @@ public final class BuildingRodService {
         BuildingRodItem.consume(player, BuildingRodItem.heldRod(player), blocks);
         player.getInventory().setChanged();
         player.containerMenu.broadcastChanges();
+        PacketDistributor.sendToPlayer(player, new BuildingRodResultPacket(false));
     }
 
     static boolean canModify(Player player, BlockPos pos) {

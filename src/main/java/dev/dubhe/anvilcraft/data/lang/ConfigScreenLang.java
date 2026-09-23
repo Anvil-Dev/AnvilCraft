@@ -10,6 +10,11 @@ public class ConfigScreenLang {
     ///
     /// @param provider 提供器
     public static void init(RegistrumLangProvider provider) {
+        addOverride(provider, "anvilcraft.configuration.building_rod_controls", "Building Rod Blueprint Controls");
+        addOverride(provider,
+            "anvillib.configuration.enum.dev.dubhe.anvilcraft.config.anvil_craft_client_config.building_rod_controls.traditional", "Traditional");
+        addOverride(provider,
+            "anvillib.configuration.enum.dev.dubhe.anvilcraft.config.anvil_craft_client_config.building_rod_controls.optimized", "Optimized");
         addOverride(provider, "anvilcraft.configuration.sifting_unpacking_block_render_enabled",
             "Enlarged Block Rendering in Sifting/Unpacking Tables");
         addOverride(provider, "anvilcraft.configuration.sifting_unpacking_block_render_enabled.tooltip",

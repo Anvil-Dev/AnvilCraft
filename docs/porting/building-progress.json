@@ -100,7 +100,7 @@
     {
       "source": "src/main/java/dev/dubhe/anvilcraft/building/BuildingRegionSnapshot.java",
       "status": "ported",
-      "integration": "Region capture/restore, permissions, original entity identity, inventory deltas and tick/event recovery tested. Undo-history ownership, derived entity cleanup and refunds remain pending."
+      "integration": "Region recovery is connected to actual service and undo receipts. Native client world/inventory synchronization tested."
     },
     {
       "source": "src/main/java/dev/dubhe/anvilcraft/building/BuildingRodFluids.java",
@@ -110,7 +110,7 @@
     {
       "source": "src/main/java/dev/dubhe/anvilcraft/building/BuildingRodMaterialBook.java",
       "status": "ported",
-      "integration": "Server book helper, carried/pocket book consumption, six-line pagination and native item-codec roundtrip tested. BuildingRodService failure-report caller remains pending."
+      "integration": "Source missing-material book helper is connected to full/partial service failure reports."
     },
     {
       "source": "src/main/java/dev/dubhe/anvilcraft/building/BuildingRodObstructions.java",
@@ -124,13 +124,13 @@
     },
     {
       "source": "src/main/java/dev/dubhe/anvilcraft/building/BuildingRodService.java",
-      "status": "partial",
-      "integration": "Server selection, reach/material validation, blueprint-file loading/planning, exact/partial allocation, 60-tick component confirmation, events, native commit, entity/configuration restoration, undo, energy and sounds implemented. Shared planner is reused. Client result packet (projection cancellation and placement animation) remains pending; successful blueprints currently emit the same localized completion message from the server."
+      "status": "ported",
+      "integration": "Source server flow and result packets are connected to the actual client controller. Full/partial commits, mismatch confirmation and refunds tested. AutoEnchantingTable configuration remains pending in its shared adapter."
     },
     {
       "source": "src/main/java/dev/dubhe/anvilcraft/building/BuildingRodUndo.java",
-      "status": "partial",
-      "integration": "History, region recovery, receipts, drop/falling/TNT tracking and retryable refunds connected to actual service commits and BuildingRodPacket.UNDO with a held-rod guard. Client controls remain pending."
+      "status": "ported",
+      "integration": "History, receipts and refund engine now connected through real service commits, native Ctrl+Z input and network synchronization. Complex restored-entity visual coverage remains pending."
     },
     {
       "source": "src/main/java/dev/dubhe/anvilcraft/building/ConstructionBlueprintException.java",
@@ -199,31 +199,38 @@
     },
     {
       "source": "src/main/java/dev/dubhe/anvilcraft/client/building/BlueprintRenderView.java",
-      "status": "pending"
+      "status": "ported",
+      "integration": "Native local block/tint/light view and shifted fluid adjacency are connected; block entities remain detached from the real world."
     },
     {
       "source": "src/main/java/dev/dubhe/anvilcraft/client/building/BuildingRodAnimation.java",
-      "status": "pending"
+      "status": "ported",
+      "integration": "Source following, queued rotation direction and nonsingular mirror interpolation verified."
     },
     {
       "source": "src/main/java/dev/dubhe/anvilcraft/client/building/BuildingRodClient.java",
-      "status": "pending"
+      "status": "ported",
+      "integration": "Optimized/traditional controls, collider-first selection, fixed-distance hold/confirm/cancel, HUD, native keyboard hook, blueprint rotation/mirror and result cancellation exercised in a real client."
     },
     {
       "source": "src/main/java/dev/dubhe/anvilcraft/client/building/BuildingRodItemRenderer.java",
-      "status": "pending"
+      "status": "partial",
+      "integration": "First-person and native armed-entity render-state paths share extracted held state. Main/offhand payload, last consumed material, carried claw and mining beam exercised. Source screenshot A/B and complex/tall payload fit acceptance remain pending."
     },
     {
       "source": "src/main/java/dev/dubhe/anvilcraft/client/building/BuildingRodKeyRepeat.java",
-      "status": "pending"
+      "status": "ported",
+      "integration": "Source repeat timing, event/poll deduplication, no repeating rotate/mirror and bounded stall catch-up verified."
     },
     {
       "source": "src/main/java/dev/dubhe/anvilcraft/client/building/BuildingRodModelParts.java",
-      "status": "pending"
+      "status": "ported",
+      "integration": "Native baked quads split by the original core bounds; six core faces verified. Native item transforms, tint, light and foil preserved with bounded caches."
     },
     {
       "source": "src/main/java/dev/dubhe/anvilcraft/client/building/BuildingRodMotion.java",
-      "status": "pending"
+      "status": "ported",
+      "integration": "Source speed integration and kick/knock timings verified, including 20/144 FPS equivalence; runtime core and payload animations connected."
     },
     {
       "source": "src/main/java/dev/dubhe/anvilcraft/client/building/BuildingRodObstructionHighlight.java",
@@ -232,19 +239,23 @@
     },
     {
       "source": "src/main/java/dev/dubhe/anvilcraft/client/building/BuildingRodRenderTypes.java",
-      "status": "pending"
+      "status": "ported",
+      "integration": "Source low-alpha cutout handling adapted to native block shader/fog; entity pipeline cloning preserves native format/textures and enables blending. No global terrain pipeline change."
     },
     {
       "source": "src/main/java/dev/dubhe/anvilcraft/client/building/BuildingRodRenderer.java",
-      "status": "pending"
+      "status": "partial",
+      "integration": "Native cached GPU geometry, fluids, BER/entity features and model outlines implemented; real block/fluid/chest/armor-stand scenes rendered and inspected. Source A/B, large/tiled projection performance and wider entity/BER coverage remain pending."
     },
     {
       "source": "src/main/java/dev/dubhe/anvilcraft/client/building/BuildingRodTraditionalControls.java",
-      "status": "pending"
+      "status": "ported",
+      "integration": "Native Ctrl-scroll tool selection, Alt-scroll action, unmodified hotbar scrolling and lock/cancel exercised. Remaining exhaustive tool/batch combinations tracked in client acceptance."
     },
     {
       "source": "src/main/java/dev/dubhe/anvilcraft/client/building/BuildingRodTraditionalOverlay.java",
-      "status": "pending"
+      "status": "ported",
+      "integration": "Source seven icons copied byte-for-byte; native GUI extraction renders selected tool, status and hints. Runtime screenshots inspected."
     },
     {
       "source": "src/main/java/dev/dubhe/anvilcraft/item/BuildingRodItem.java",
@@ -253,23 +264,18 @@
     }
   ],
   "pending_integration": [
-    "Packets, input state machine, fixed-distance selection, HUD and traditional controls",
-    "First-person model animation, preview rendering and in-game comparison",
-    "Structure scanner and disk/client file workflow integration",
-    "When porting BuildingRodService, share BlueprintPlacement.MAX_ENTRIES (4000); reuse BuildingEntityTransform.withWorldPos in entity adapters.",
-    "Entity adapters now consume captured dynamic state; validate tracking/rendering of restored entities after service integration.",
-    "Leash/runtime adapters now reuse BlueprintCapture.saveEntity and shared entity transforms; wire normalized capture into scanner/file workflows.",
-    "ProcessingTablePlacement and shared table inventory/material rules are available. BuildingBlockMaterial is now available; continue full material allocation. use FluidBuildAdapter.takeExactFluid(ItemAccess, FluidStack) for native replacement containers.",
-    "When porting BuildingRodService.materialCount, delegate to BuildingBlockMaterial.materialCount so moving sections and static placement share the same source counting rules.",
-    "Use shared BuildingPlan.Cell/Group when porting BuildingRodService; do not duplicate plan records. Pass BuildingRodItem.material(player) to BuildingMaterials. Route undo input to the guarded public BuildingRodUndo.undo entry point.",
-    "BuildingRodService must reuse BuildingBlockPlanner.planBlocks/singlePlacement and BuildingRodPattern; the shared planner already uses BuildingPlan.Cell/Group and BuildingCommit.canModify. Do not reintroduce parallel placement logic.",
-    "Port BuildingRodResultPacket with the real client controls/item renderer: finishPlacement currently has no placement-animation packet and completed blueprints only send the localized message. Projection cancellation and pushed-payload animation remain required."
+    "Source screenshot A/B for building previews, hand poses/payloads, animation and HUD; retain native 26.1 terrain rendering.",
+    "Large/tiled projection performance, thin/non-cubic/column/CFA payloads, resource reload and broader entity/BER acceptance.",
+    "Structure scanner and disk/client file workflows, including BlueprintClientFiles and NBT/Litematica import UI.",
+    "AutoEnchantingTable configuration and remaining ItemDetector UI/network controls.",
+    "Complete ordinary preview PlacementInteractions and PlaceInWaterBlockItem.surfaceCandidates workflows.",
+    "Exhaustive traditional tool/batch-placement combinations and additional restored-entity visual tracking."
   ],
   "verification": {
-    "server_tests_passed": 481,
-    "server_log": "build/porting/validate-building-service-2.log",
-    "compile_log": "build/porting/compile-building-service-final.log",
-    "client": "Processing-table comparison completed for recorded scenes. Building Rod empty/charged inventory model and tooltip client scene passed; full input/preview and first-person animation remain pending."
+    "server_tests_passed": 485,
+    "server_log": "build/porting/validate-building-client-final.log",
+    "compile_log": "build/porting/compile-building-client-final.log",
+    "client": "Real native control, projection, hand, result packet and third-person scenes passed; source A/B and remaining coverage are explicitly pending."
   },
   "runtime_persistence": {
     "source_commit": "a378f98e4d41d0d92f97cf2486ac9da7881b1674",
@@ -310,7 +316,7 @@
       "StorageServerStub.buildingMaterialSources/buildingFluidSources reuse current terminal reachability and preserve source carried-terminal order and deduplication",
       "BuildingRodMaterialBook with pocket/ordinary carried-book consumption and six-line pages"
     ],
-    "pending": "Connect the tested allocator/history engine to BuildingRodItem material selection, confirmation, service commit and failure-report messages."
+    "pending": "Core allocator, history and material-book helpers are connected to the service; remaining full-goal work is tracked in pending_integration."
   },
   "building_rod_item": {
     "datagen_log": "build/porting/datagen-building-rod-item-4.log",
@@ -357,8 +363,8 @@
       "Obstruction collision-shape checks, deduplicated entity packet and three-second client-only native glow"
     ],
     "pending": [
-      "BuildingRodService placement/confirmation/commit integration",
-      "Full source preview PlacementInteractions and PlaceInWaterBlockItem surfaceCandidates workflow still pending; current ordinary preview retains existing water path"
+      "Complete ordinary preview PlacementInteractions and water surface-candidate workflows",
+      "Source visual A/B and broader shape/tiling acceptance remain pending"
     ],
     "verification": {
       "server_log": "build/porting/validate-building-planner-final.log",
@@ -370,18 +376,18 @@
   },
   "server_service": {
     "source_commit": "a378f98e4d41d0d92f97cf2486ac9da7881b1674",
-    "status": "partial",
+    "status": "ported",
     "ported": [
       "BuildingRodPacket START/PLACE/PLACE_BLUEPRINTS/UNDO codec and server routing",
       "Source selection/material/hand/reach guards and file-backed blueprint transforms and entity planning",
       "Full/partial reservation, actual component mismatch confirmation with 60-tick expiry, event cancellation and native commit",
       "Entity and block-entity contents/configuration, undo receipts and energy/inventory synchronization",
-      "Waterlogging, renewable/nonrenewable fluids, native WATER_EVAPORATES environment attribute and evaporation"
+      "Waterlogging, renewable/nonrenewable fluids, native WATER_EVAPORATES environment attribute and evaporation",
+      "Original result packets now trigger payload animation and cancel completed locked projections through the actual client"
     ],
     "pending": [
-      "Client result packet, projection cancellation and first-person animation",
-      "Full input/controller/HUD integration and visual source comparison",
-      "AutoEnchantingTable configuration branch remains pending with that block feature"
+      "AutoEnchantingTable configuration branch remains pending with that block feature",
+      "Broader rendering acceptance remains in client acceptance scope"
     ],
     "verification": {
       "server_tests_passed": 481,
@@ -389,5 +395,21 @@
       "client_log": "build/porting/client-building-service-2.log",
       "compile_log": "build/porting/compile-building-service-final.log"
     }
+  },
+  "client_controls": {
+    "source_commit": "a378f98e4d41d0d92f97cf2486ac9da7881b1674",
+    "status": "partial",
+    "runtime_log": "build/porting/client-building-controls-third-person.log",
+    "coverage": [
+      "Real native window Control press/release and raw keyboard hook; fixed-distance release/click contracts and arrow adjustment",
+      "Drag/release placement, Ctrl+Z, actual packets, blueprint file loading, lock, rotate, mirror and completion cancellation",
+      "Traditional Ctrl/Alt scrolling, selected tool and layer HUD, unchanged bare scroll",
+      "Block/fluid/chest/armor-stand projection and cached native GPU path",
+      "Main/offhand payload, last ordinary-placement material, carried and empty-hand claw",
+      "Native third-person main/offhand rod state, hidden material hand and creative mining beam"
+    ],
+    "limits": "No source screenshot A/B claim yet. Large/batched render performance, complex payload fit, resource reload and exhaustive mode combinations remain pending.",
+    "input_fixture": "Windows-only development harness posts modifier messages to its own GLFW test window; production input is unchanged and no global keyboard injection is used.",
+    "data": "Four config language entries generated; seven source icons copied exactly; StructureDiskData autoRotate defaults true for legacy data and survives NBT/network roundtrip."
   }
 }

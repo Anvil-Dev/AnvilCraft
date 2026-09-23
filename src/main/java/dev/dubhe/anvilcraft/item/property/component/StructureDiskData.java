@@ -18,10 +18,16 @@ public record StructureDiskData(
     int sizeX,
     int sizeY,
     int sizeZ,
-    boolean upsideDown
+    boolean upsideDown,
+    boolean autoRotate
 ) {
     public StructureDiskData(String file, String name, UUID uuid, Direction direction, int sizeX, int sizeY, int sizeZ) {
-        this(file, name, uuid, direction, sizeX, sizeY, sizeZ, false);
+        this(file, name, uuid, direction, sizeX, sizeY, sizeZ, false, true);
+    }
+
+    public StructureDiskData(String file, String name, UUID uuid, Direction direction,
+                             int sizeX, int sizeY, int sizeZ, boolean upsideDown) {
+        this(file, name, uuid, direction, sizeX, sizeY, sizeZ, upsideDown, true);
     }
 
     public static final Codec<StructureDiskData> CODEC = RecordCodecBuilder.create(instance -> instance.group(
@@ -32,7 +38,8 @@ public record StructureDiskData(
         Codec.INT.fieldOf("sizeX").forGetter(StructureDiskData::sizeX),
         Codec.INT.fieldOf("sizeY").forGetter(StructureDiskData::sizeY),
         Codec.INT.fieldOf("sizeZ").forGetter(StructureDiskData::sizeZ),
-        Codec.BOOL.optionalFieldOf("upsideDown", false).forGetter(StructureDiskData::upsideDown)
+        Codec.BOOL.optionalFieldOf("upsideDown", false).forGetter(StructureDiskData::upsideDown),
+        Codec.BOOL.optionalFieldOf("autoRotate", true).forGetter(StructureDiskData::autoRotate)
     ).apply(instance, StructureDiskData::new));
 
     public static final StreamCodec<FriendlyByteBuf, StructureDiskData> STREAM_CODEC = StreamCodec.of(
@@ -49,6 +56,7 @@ public record StructureDiskData(
         buffer.writeVarInt(data.sizeY);
         buffer.writeVarInt(data.sizeZ);
         buffer.writeBoolean(data.upsideDown);
+        buffer.writeBoolean(data.autoRotate);
     }
 
     private static StructureDiskData read(FriendlyByteBuf buffer) {
@@ -60,6 +68,7 @@ public record StructureDiskData(
             buffer.readVarInt(),
             buffer.readVarInt(),
             buffer.readVarInt(),
+            buffer.readBoolean(),
             buffer.readBoolean()
         );
     }

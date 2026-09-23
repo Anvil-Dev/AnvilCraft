@@ -16,6 +16,31 @@ import org.lwjgl.glfw.GLFW;
 public class ModKeyMappings {
     public static final KeyMapping.Category ANVILCRAFT_CATEGORY = new KeyMapping.Category(AnvilCraft.of("all"));
 
+    public static final Lazy<KeyMapping> BUILDING_ROD_FORWARD = register("building_rod_forward", KeyConflictContext.IN_GAME,
+        Type.KEYSYM, GLFW.GLFW_KEY_UP);
+    public static final Lazy<KeyMapping> BUILDING_ROD_BACK = register("building_rod_back", KeyConflictContext.IN_GAME,
+        Type.KEYSYM, GLFW.GLFW_KEY_DOWN);
+    public static final Lazy<KeyMapping> BUILDING_ROD_LEFT = register("building_rod_left", KeyConflictContext.IN_GAME,
+        Type.KEYSYM, GLFW.GLFW_KEY_LEFT);
+    public static final Lazy<KeyMapping> BUILDING_ROD_RIGHT = register("building_rod_right", KeyConflictContext.IN_GAME,
+        Type.KEYSYM, GLFW.GLFW_KEY_RIGHT);
+    public static final Lazy<KeyMapping> BUILDING_ROD_UP = register("building_rod_up", KeyConflictContext.IN_GAME,
+        Type.KEYSYM, GLFW.GLFW_KEY_PAGE_UP);
+    public static final Lazy<KeyMapping> BUILDING_ROD_DOWN = register("building_rod_down", KeyConflictContext.IN_GAME,
+        Type.KEYSYM, GLFW.GLFW_KEY_PAGE_DOWN);
+    public static final Lazy<KeyMapping> BUILDING_ROD_CLOCKWISE = register("building_rod_clockwise",
+        KeyConflictContext.IN_GAME, Type.KEYSYM, GLFW.GLFW_KEY_EQUAL);
+    public static final Lazy<KeyMapping> BUILDING_ROD_COUNTERCLOCKWISE = register("building_rod_counterclockwise",
+        KeyConflictContext.IN_GAME, Type.KEYSYM, GLFW.GLFW_KEY_MINUS);
+    public static final Lazy<KeyMapping> BUILDING_ROD_MIRROR = register("building_rod_mirror", KeyConflictContext.IN_GAME,
+        Type.KEYSYM, GLFW.GLFW_KEY_BACKSLASH);
+    public static final Lazy<KeyMapping> BUILDING_ROD_TOOL = register("building_rod_tool", KeyConflictContext.IN_GAME,
+        Type.KEYSYM, GLFW.GLFW_KEY_LEFT_CONTROL);
+    public static final Lazy<KeyMapping> BUILDING_ROD_ADJUST = register("building_rod_adjust", KeyConflictContext.IN_GAME,
+        Type.KEYSYM, GLFW.GLFW_KEY_LEFT_ALT);
+    public static final Lazy<KeyMapping> BUILDING_ROD_LAYER = register("building_rod_layer", KeyConflictContext.IN_GAME,
+        Type.KEYSYM, GLFW.GLFW_KEY_LEFT_SHIFT);
+
     public static final Lazy<KeyMapping> POCKETS = Lazy.of(() -> new KeyMapping(
         "key.anvilcraft.pockets", KeyConflictContext.IN_GAME, KeyModifier.CONTROL_OR_COMMAND,
         Type.KEYSYM, GLFW.GLFW_KEY_F, ANVILCRAFT_CATEGORY));
@@ -62,6 +87,19 @@ public class ModKeyMappings {
     @SubscribeEvent
     public static void register(RegisterKeyMappingsEvent event) {
         event.registerCategory(ModKeyMappings.ANVILCRAFT_CATEGORY);
+        event.register(BUILDING_ROD_FORWARD.get());
+        event.register(BUILDING_ROD_BACK.get());
+        event.register(BUILDING_ROD_LEFT.get());
+        event.register(BUILDING_ROD_RIGHT.get());
+        event.register(BUILDING_ROD_UP.get());
+        event.register(BUILDING_ROD_DOWN.get());
+        event.register(BUILDING_ROD_CLOCKWISE.get());
+        event.register(BUILDING_ROD_COUNTERCLOCKWISE.get());
+        event.register(BUILDING_ROD_MIRROR.get());
+        event.register(BUILDING_ROD_TOOL.get());
+        event.register(BUILDING_ROD_ADJUST.get());
+        event.register(BUILDING_ROD_LAYER.get());
+
         event.register(ModKeyMappings.POCKETS.get());
         event.register(ModKeyMappings.SWITCH_PHASE.get());
         event.register(ModKeyMappings.TOGGLE_GOGGLE.get());

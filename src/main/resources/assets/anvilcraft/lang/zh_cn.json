@@ -2677,5 +2677,9 @@
   "key.anvilcraft.building_rod_adjust": "建筑杖：选择工具（滚轮）",
   "key.anvilcraft.building_rod_layer": "建筑杖：分层查看（滚轮）",
   "item.anvilcraft.building_rod": "建筑杖",
-  "tooltip.anvilcraft.item.building_rod": "批量放置方块与蓝图；随身携带（含口袋）即可获得蟹钳触及距离"
+  "tooltip.anvilcraft.item.building_rod": "批量放置方块与蓝图；随身携带（含口袋）即可获得蟹钳触及距离",
+  "anvilcraft.configuration.building_rod_controls": "建筑杖蓝图操作模式",
+  "anvilcraft.configuration.building_rod_controls.tooltip": "建筑杖蓝图操作模式",
+  "anvillib.configuration.enum.dev.dubhe.anvilcraft.config.anvil_craft_client_config.building_rod_controls.optimized": "优化",
+  "anvillib.configuration.enum.dev.dubhe.anvilcraft.config.anvil_craft_client_config.building_rod_controls.traditional": "传统"
 }

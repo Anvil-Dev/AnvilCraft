@@ -11,6 +11,14 @@ import net.neoforged.fml.config.ModConfig;
 
 @Config(name = AnvilCraft.MOD_ID, type = ModConfig.Type.CLIENT)
 public class AnvilCraftClientConfig {
+    @Comment("Building rod blueprint controls")
+    public BuildingRodControls buildingRodControls = BuildingRodControls.OPTIMIZED;
+
+    public enum BuildingRodControls implements TranslatableEnum {
+        TRADITIONAL,
+        OPTIMIZED
+    }
+
     @Comment("Swap insert/collect to left-click and keep extract/place on right-click (Left Collect, Right Place)")
     public boolean invertOverrideAction = false;
 

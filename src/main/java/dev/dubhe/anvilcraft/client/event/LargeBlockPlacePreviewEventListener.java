@@ -19,6 +19,7 @@ import dev.dubhe.anvilcraft.client.selection.SelectionModel;
 import dev.dubhe.anvilcraft.config.AnvilCraftClientConfig;
 import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
+import dev.dubhe.anvilcraft.item.BuildingRodItem;
 import dev.dubhe.anvilcraft.item.block.ChuteBlockItem;
 import dev.dubhe.anvilcraft.item.block.PlaceInWaterBlockItem;
 import dev.dubhe.anvilcraft.util.BlockPlacementPicking;
@@ -187,7 +188,7 @@ public class LargeBlockPlacePreviewEventListener {
     }
 
     /** 该方块是否参与放置预览：多方块方块，或 {@link ModBlockTags#PLACEMENT_PREVIEW} 内的单方块。 */
-    private static boolean isPreviewable(Block block) {
+    public static boolean isPreviewable(Block block) {
         return block instanceof AbstractMultiPartBlock<?> || block instanceof LargeCakeBlock
                || block.defaultBlockState().is(ModBlockTags.PLACEMENT_PREVIEW);
     }
@@ -228,7 +229,8 @@ public class LargeBlockPlacePreviewEventListener {
         List<OutlineBatch> outlines = new ArrayList<>();
         List<GhostBatch> ghosts = new ArrayList<>();
         collectMissingAmplifiers(mc.level, outlines, ghosts);
-        if (AnvilCraftClient.CONFIG.multiPartPreviewMode != AnvilCraftClientConfig.MultiPartPreviewMode.OFF) {
+        if (!BuildingRodItem.isHeld(mc.player)
+            && AnvilCraftClient.CONFIG.multiPartPreviewMode != AnvilCraftClientConfig.MultiPartPreviewMode.OFF) {
             updatePreview();
             if (!renderEntries.isEmpty()) {
                 RenderEntry base = renderEntries.getFirst();

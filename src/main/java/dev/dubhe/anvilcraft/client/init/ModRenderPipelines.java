@@ -47,6 +47,12 @@ public class ModRenderPipelines {
         .withLocation(AnvilCraft.of("pipeline/scan_preview_item"))
         .build();
 
+    public static final RenderPipeline BUILDING_ROD_GHOST = RenderPipeline.builder(RenderPipelines.BLOCK_SNIPPET)
+        .withColorTargetState(new ColorTargetState(BlendFunction.TRANSLUCENT))
+        .withFragmentShader(AnvilCraft.of("core/building_rod_ghost"))
+        .withLocation(AnvilCraft.of("pipeline/building_rod_ghost"))
+        .build();
+
     public static final RenderPipeline PLACEMENT_GHOST = RenderPipeline.builder(RenderPipelines.BLOCK_SNIPPET)
         .withColorTargetState(new ColorTargetState(BlendFunction.TRANSLUCENT))
         .withDepthStencilState(new DepthStencilState(CompareOp.LESS_THAN_OR_EQUAL, false))
@@ -186,6 +192,7 @@ public class ModRenderPipelines {
         event.registerPipeline(ModRenderPipelines.FITTED_ITEM);
         event.registerPipeline(ModRenderPipelines.SCAN_PREVIEW_ITEM);
         event.registerPipeline(ModRenderPipelines.PLACEMENT_GHOST);
+        event.registerPipeline(ModRenderPipelines.BUILDING_ROD_GHOST);
         event.registerPipeline(ModRenderPipelines.LASER_TRANSLUCENT);
         event.registerPipeline(ModRenderPipelines.LIGHTNING);
         event.registerPipeline(ModRenderPipelines.SUPERNOVA_BEAM);
