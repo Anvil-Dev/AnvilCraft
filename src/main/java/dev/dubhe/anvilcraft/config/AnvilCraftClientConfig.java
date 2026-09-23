@@ -11,6 +11,17 @@ import net.neoforged.fml.config.ModConfig;
 
 @Config(name = AnvilCraft.MOD_ID, type = ModConfig.Type.CLIENT)
 public class AnvilCraftClientConfig {
+    @Comment("Vanilla restores the original translucent atmosphere shell; Standard enables a thicker volume atmosphere. "
+        + "Rendering failures fall back to Vanilla until resources reload. Changes take effect immediately.")
+    public CelestialRenderingMode planetAtmosphereRenderingMode = CelestialRenderingMode.STANDARD;
+
+    public enum CelestialRenderingMode implements TranslatableEnum {
+        @SerializedName("Vanilla")
+        VANILLA,
+        @SerializedName("Standard")
+        STANDARD
+    }
+
     @Comment("Show levels above 10 as Roman numerals in auto enchanting table's liquid enchantment mode")
     public boolean liquidEnchantmentRomanNumerals = true;
 

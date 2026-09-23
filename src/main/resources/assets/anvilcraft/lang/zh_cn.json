@@ -2722,5 +2722,9 @@
   "anvilcraft.configuration.liquid_enchantment_max_level": "液态魔咒模式最大等级",
   "anvilcraft.configuration.liquid_enchantment_max_level.tooltip": "自动附魔台液态魔咒模式的最大可选择等级",
   "anvilcraft.configuration.liquid_enchantment_roman_numerals": "液态魔咒模式罗马数字",
-  "anvilcraft.configuration.liquid_enchantment_roman_numerals.tooltip": "在自动附魔台液态魔咒模式中将大于 10 级的等级数字显示为罗马数字"
+  "anvilcraft.configuration.liquid_enchantment_roman_numerals.tooltip": "在自动附魔台液态魔咒模式中将大于 10 级的等级数字显示为罗马数字",
+  "anvilcraft.configuration.planet_atmosphere_rendering_mode": "锻星砧行星大气渲染",
+  "anvilcraft.configuration.planet_atmosphere_rendering_mode.tooltip": "[香草]是仅使用原版渲染管线的半透明大气外壳\n[标准]是使用强化渲染管线的体积大气\n渲染失败时会回退到[香草]，直到资源重新加载。更改会立即生效。",
+  "anvillib.configuration.enum.dev.dubhe.anvilcraft.config.anvil_craft_client_config.celestial_rendering_mode.standard": "标准",
+  "anvillib.configuration.enum.dev.dubhe.anvilcraft.config.anvil_craft_client_config.celestial_rendering_mode.vanilla": "香草"
 }

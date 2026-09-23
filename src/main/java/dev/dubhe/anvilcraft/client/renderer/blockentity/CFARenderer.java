@@ -903,9 +903,6 @@ public class CFARenderer implements BlockEntityRenderer<CelestialForgingAnvilBlo
             } else if (state.getComplexBodyModel() != null) {
                 this.tessellateModel(state.getComplexBodyModel(), pose, collector);
             }
-            if (!special.isPlayerHead() && special.hasAtmosphere() && special.temperature() != null) {
-                this.submitAtmosphere(pose, collector, special.temperature(), 1.125F, seed);
-            }
         } else if (body instanceof StarData star) {
             this.submitStar(state, star, pose, collector, seed);
         } else {
@@ -1058,7 +1055,8 @@ public class CFARenderer implements BlockEntityRenderer<CelestialForgingAnvilBlo
             atmosTemp = null;
         }
         if (hasAtmos && atmosTemp != null) {
-            this.submitAtmosphere(pose, collector, atmosTemp, 1.125f, seed);
+            dev.dubhe.anvilcraft.client.renderer.blockentity.celestial.PlanetAtmosphereRenderer.submit(
+                pose, collector, CelestialBodyRenderer.getAtmosphereColor(atmosTemp));
         }
 
         // 褐矮星使用较弱的恒星式光晕。

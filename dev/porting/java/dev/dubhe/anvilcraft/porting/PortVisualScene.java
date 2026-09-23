@@ -79,7 +79,8 @@ public final class PortVisualScene {
         if (!preparing) {
             preparing = true;
             MinecraftServer server = client.getSingleplayerServer();
-            server.execute(() -> prepare(server));
+            if (Boolean.getBoolean("anvilcraft.portCfaItemScene")) prepared = true;
+            else server.execute(() -> prepare(server));
         }
         if (Boolean.getBoolean("anvilcraft.portCfaItemScene")) {
             if (prepared) CelestialAnvilItemClientScene.frame(client);

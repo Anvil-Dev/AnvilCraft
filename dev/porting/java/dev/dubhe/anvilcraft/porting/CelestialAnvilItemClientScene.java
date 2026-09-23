@@ -43,8 +43,15 @@ public final class CelestialAnvilItemClientScene {
     public static void frame(Minecraft client) {
         if (deadline == 0) deadline = System.currentTimeMillis() + 180000;
         if (System.currentTimeMillis() > deadline) throw new IllegalStateException("CFA item stage " + stage);
+        client.player.setNoGravity(true);
+        client.player.setDeltaMovement(net.minecraft.world.phys.Vec3.ZERO);
+        client.player.setPos(8.5, 85, 12.5);
         if (capturing || System.currentTimeMillis() < next) return;
         client.options.guiScale().set(2);
+        client.options.fov().set(70);
+        client.options.fovEffectScale().set(0.0);
+        client.level.setTimeFromServer(500);
+        client.options.bobView().set(false);
         client.getToastManager().clear();
         client.gui.getChat().clearMessages(false);
         if (stage == 0) {
@@ -52,7 +59,11 @@ public final class CelestialAnvilItemClientScene {
                 var server = client.getSingleplayerServer();
                 server.getCommands().performPrefixedCommand(server.createCommandSourceStack(), "tick unfreeze");
                 server.getCommands().performPrefixedCommand(server.createCommandSourceStack(), "tp @a 8.5 85 12.5 180 15");
-                server.getPlayerList().getPlayers().getFirst().setNoGravity(true);
+                var player = server.getPlayerList().getPlayers().getFirst();
+                player.setNoGravity(true);
+                player.setDeltaMovement(net.minecraft.world.phys.Vec3.ZERO);
+                player.getAbilities().flying = false;
+                player.onUpdateAbilities();
                 ready = true;
             });
             prepare(client);
@@ -98,6 +109,14 @@ public final class CelestialAnvilItemClientScene {
                 capture(client, "reloaded", 10);
             }
             case 10 -> {
+                AnvilCraft.CLIENT_CONFIG.planetAtmosphereRenderingMode =
+                    dev.dubhe.anvilcraft.config.AnvilCraftClientConfig.CelestialRenderingMode.VANILLA;
+                advance(11);
+            }
+            case 11 -> capture(client, "vanilla-atmosphere", 12);
+            case 12 -> {
+                AnvilCraft.CLIENT_CONFIG.planetAtmosphereRenderingMode =
+                    dev.dubhe.anvilcraft.config.AnvilCraftClientConfig.CelestialRenderingMode.STANDARD;
                 AnvilCraft.LOGGER.info("PORT_CFA_ITEM_RENDER_PASSED: body data, fitting, head parts, hands and reload");
                 client.stop();
             }
@@ -161,12 +180,29 @@ public final class CelestialAnvilItemClientScene {
         });
     }
 
+    private static boolean atmosphereReady() {
+        try {
+            var type = dev.dubhe.anvilcraft.client.renderer.blockentity.celestial.PlanetAtmosphereRenderer.class;
+            var checked = type.getDeclaredField("checked");
+            var failed = type.getDeclaredField("failed");
+            checked.setAccessible(true);
+            failed.setAccessible(true);
+            if (failed.getBoolean(null)) throw new IllegalStateException("Native atmosphere pipeline entered fallback");
+            return checked.getBoolean(null);
+        } catch (ReflectiveOperationException error) {
+            throw new IllegalStateException(error);
+        }
+    }
+
     private static void advance(int value) {
         stage = value;
         next = System.currentTimeMillis() + 1400;
     }
 
     private static void capture(Minecraft client, String name, int nextStage) {
+        if (!Boolean.getBoolean("anvilcraft.portCfaItemReference") && !name.equals("vanilla-atmosphere") && !atmosphereReady()) return;
+        AnvilCraft.LOGGER.info("PORT_CFA_VIEW {}: position={}, flying={}", name,
+            client.player.position(), client.player.getAbilities().flying);
         capturing = true;
         Screenshot.grab(client.gameDirectory, "cfa-item-26.1-" + name + ".png", client.getMainRenderTarget(), 1,
             message -> client.execute(() -> {

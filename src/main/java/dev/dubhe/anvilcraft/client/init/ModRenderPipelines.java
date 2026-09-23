@@ -151,6 +151,21 @@ public class ModRenderPipelines {
         .withLocation(AnvilCraft.of("pipeline/star_color_overlay"))
         .build();
 
+    public static final RenderPipeline PLANET_ATMOSPHERE = RenderPipeline.builder(RenderPipelines.MATRICES_FOG_SNIPPET)
+        .withVertexShader(AnvilCraft.of("core/planet_atmosphere"))
+        .withFragmentShader(AnvilCraft.of("core/planet_atmosphere"))
+        .withVertexFormat(DefaultVertexFormat.POSITION_COLOR, VertexFormat.Mode.QUADS)
+        .withColorTargetState(new ColorTargetState(BlendFunction.TRANSLUCENT))
+        .withDepthStencilState(new DepthStencilState(CompareOp.LESS_THAN_OR_EQUAL, false))
+        .withCull(false)
+        .withLocation(AnvilCraft.of("pipeline/planet_atmosphere"))
+        .build();
+
+    public static final RenderPipeline PLANET_ATMOSPHERE_INSIDE = PLANET_ATMOSPHERE.toBuilder()
+        .withDepthStencilState(new DepthStencilState(CompareOp.ALWAYS_PASS, false))
+        .withLocation(AnvilCraft.of("pipeline/planet_atmosphere_inside"))
+        .build();
+
     public static final RenderPipeline CELESTIAL_ATMOSPHERE = RenderPipeline.builder(RenderPipelines.BLOCK_SNIPPET)
         .withColorTargetState(new ColorTargetState(BlendFunction.TRANSLUCENT))
         .withShaderDefine("ALPHA_CUTOUT", 0.01F)
@@ -200,6 +215,8 @@ public class ModRenderPipelines {
         event.registerPipeline(ModRenderPipelines.CORRUPTED_BEACON_BEAM);
         event.registerPipeline(ModRenderPipelines.STAR_COLOR_OVERLAY);
         event.registerPipeline(ModRenderPipelines.CELESTIAL_ATMOSPHERE);
+        event.registerPipeline(ModRenderPipelines.PLANET_ATMOSPHERE);
+        event.registerPipeline(ModRenderPipelines.PLANET_ATMOSPHERE_INSIDE);
         event.registerPipeline(ModRenderPipelines.CELESTIAL_RING);
         event.registerPipeline(ModRenderPipelines.SUPERNOVA_FLASH);
         event.registerPipeline(ModRenderPipelines.GRAVITATIONAL_LENS);

@@ -522,7 +522,9 @@
       "Source removal of the obsolete seven-block item placement radius",
       "Native GUI/head/held item model routing with source display transforms and non-GUI local translation",
       "Bounded stored-body preview and model bounds caches with load-before-level attachment and reload/logout cleanup",
-      "Body preview, full 18-part head base, item-local rings/beam submission and native cradle hand submission"
+      "Body preview, full 18-part head base, item-local rings/beam submission and native cradle hand submission",
+      "Source complex-model item path without the world-only atmosphere shell",
+      "Native twelve-step planet volume atmosphere pipelines, per-draw transforms and Standard/Vanilla selection with reload-reset shader failure fallback"
     ],
     "verification": {
       "server_tests_passed": 511,
@@ -531,12 +533,30 @@
       "compile_log": "build/porting/compile-cfa-item-data-final.log",
       "client_log": "build/porting/client-cfa-item-1.log",
       "renderer_datagen_log": "build/porting/datagen-cfa-item-renderer.log",
-      "renderer_compile_log": "build/porting/compile-cfa-item-renderer-final.log"
+      "renderer_compile_log": "build/porting/compile-cfa-item-renderer-final.log",
+      "atmosphere_compile_log": "build/porting/compile-cfa-atmosphere-final.log",
+      "atmosphere_datagen_log": "build/porting/datagen-cfa-atmosphere.log",
+      "atmosphere_style_log": "build/porting/checkstyle-cfa-atmosphere-final.log",
+      "visual_report": "build/porting/cfa-item-visual-comparison.json",
+      "source_client_log": "build/porting/client-cfa-item-source-4.log",
+      "target_client_log": "build/porting/client-cfa-atmosphere-4.log"
     },
     "pending": [
-      "Source A/B for ordinary bodies, first-person cradle and head contexts",
+      "Head animation phase alignment and atmosphere brightness parity; native GUI atlas resolution/camera differences remain visible",
       "Latest source stellar evolution/emission backend, advanced megastructure state and associated world/head visual parity",
-      "Wider special-item/third-party rendering and dynamic timing/performance coverage"
-    ]
+      "Wider special-item/third-party rendering and dynamic timing/performance coverage",
+      "World, inside-volume and simultaneous-planet atmosphere validation plus source portable/Iris integration"
+    ],
+    "visual_comparison": {
+      "scenes": 6,
+      "fixed_position": [
+        8.5,
+        85,
+        12.5
+      ],
+      "main_hand_frame_bound_difference_pixels": 1,
+      "off_hand_frame_bound_difference_pixels": 0,
+      "scope": "Orange frame bounds only; texture/lighting masks differ. GUI and head visuals are inspected but not declared equivalent."
+    }
   }
 }
