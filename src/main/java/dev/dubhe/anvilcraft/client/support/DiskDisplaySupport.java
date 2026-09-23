@@ -6,15 +6,23 @@ import dev.anvilcraft.lib.v2.multiblock.dynamic.definition.DefinitionSerializati
 import dev.anvilcraft.lib.v2.multiblock.dynamic.definition.MultiblockDefinition;
 import dev.anvilcraft.lib.v2.util.predicate.BlockStatePredicate;
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.block.entity.StructureScannerBlockEntity;
+import dev.dubhe.anvilcraft.building.BlueprintNormalizer;
+import dev.dubhe.anvilcraft.building.ConstructionBlueprintException;
+import dev.dubhe.anvilcraft.building.StructureSnapshot;
+import dev.dubhe.anvilcraft.building.StructureSnapshotCodec;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
+import dev.dubhe.anvilcraft.item.property.component.StoredItem;
 import dev.dubhe.anvilcraft.item.property.component.StructureDiskData;
 import dev.dubhe.anvilcraft.recipe.multiblock.MultiblockConversionRecipe;
 import dev.dubhe.anvilcraft.recipe.multiblock.MultiblockUtil;
 import dev.dubhe.anvilcraft.util.StructureLoadUtil;
+import dev.dubhe.anvilcraft.util.StructureSaveUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
@@ -48,6 +56,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 
 @EventBusSubscriber(modid = AnvilCraft.MOD_ID, value = Dist.CLIENT)
 public final class DiskDisplaySupport {
@@ -60,18 +69,47 @@ public final class DiskDisplaySupport {
     private DiskDisplaySupport() {
     }
 
-    public static ItemStack getDisplay(ItemStack stack) {
-        if (stack.is(ModItems.DISK)) return recordedBlock(stack);
-        if (!stack.is(ModItems.STRUCTURE_DISK)) return ItemStack.EMPTY;
+    public static ItemStack getImportedDisplay(StructureSnapshot snapshot) {
         var level = Minecraft.getInstance().level;
-        StructureDiskData data = stack.get(ModComponents.STRUCTURE_DISK_DATA);
-        if (level == null || data == null || data.sizeX() != data.sizeY() || data.sizeX() != data.sizeZ()) return ItemStack.EMPTY;
+        if (level == null) return ItemStack.EMPTY;
         if (!recipesLoaded) {
             if (recipes == null) return ItemStack.EMPTY;
             reloadRecipes(recipes);
         }
-        List<Pattern> choices = PATTERNS.get(data.sizeX());
+        List<Pattern> choices = PATTERNS.get(snapshot.size().getX());
         if (choices == null) return ItemStack.EMPTY;
+        StructureDiskData data = new StructureDiskData("", "", new UUID(0, 0), Direction.NORTH,
+            snapshot.size().getX(), snapshot.size().getY(), snapshot.size().getZ(), false);
+        return matchStructure(data, StructureSnapshotCodec.write(snapshot), level.registryAccess(), choices);
+    }
+
+    public static ItemStack getScannedDisplay(StructureScannerBlockEntity scanner) {
+        var level = scanner.getLevel();
+        if (level == null || !scanner.isScanComplete()) return ItemStack.EMPTY;
+        if (!recipesLoaded) {
+            if (recipes == null) return ItemStack.EMPTY;
+            reloadRecipes(recipes);
+        }
+        try {
+            var snapshot = StructureSaveUtil.buildSnapshot(scanner, scanner.getScannedBlocks()).snapshot();
+            return getImportedDisplay(snapshot);
+        } catch (IllegalArgumentException exception) {
+            return ItemStack.EMPTY;
+        }
+    }
+
+    public static ItemStack getDisplay(ItemStack stack) {
+        StoredItem marker = stack.get(ModComponents.DISPLAY_ITEM);
+        if (stack.is(ModItems.STRUCTURE_DISK) && marker != null) return marker.stored();
+        if (stack.is(ModItems.DISK)) return recordedBlock(stack);
+        if (!stack.is(ModItems.STRUCTURE_DISK)) return ItemStack.EMPTY;
+        var level = Minecraft.getInstance().level;
+        StructureDiskData data = stack.get(ModComponents.STRUCTURE_DISK_DATA);
+        if (level == null || data == null) return ItemStack.EMPTY;
+        if (!recipesLoaded) {
+            if (recipes == null) return ItemStack.EMPTY;
+            reloadRecipes(recipes);
+        }
         Optional<CompoundTag> cached = StructureLoadUtil.getStructureNbtForPreview(level, data);
         if (cached.isEmpty()) return ItemStack.EMPTY;
         CompoundTag tag = cached.orElseThrow();
@@ -82,7 +120,13 @@ public final class DiskDisplaySupport {
         }
         // 同一文件仅缓存少量元数据变体，且不强引用大型结构 NBT。
         if (results.size() >= 32 && !results.containsKey(data)) results.clear();
-        return results.computeIfAbsent(data, ignored -> matchStructure(data, tag, level.registryAccess(), choices));
+        return results.computeIfAbsent(data, ignored -> {
+            try {
+                return getImportedDisplay(BlueprintNormalizer.load(tag, level.registryAccess(), data.direction(), data.upsideDown()));
+            } catch (ConstructionBlueprintException | IllegalArgumentException exception) {
+                return ItemStack.EMPTY;
+            }
+        });
     }
 
     public static ItemStack recordedBlock(ItemStack stack) {
@@ -119,6 +163,7 @@ public final class DiskDisplaySupport {
 
     @SubscribeEvent
     public static void logout(ClientPlayerNetworkEvent.LoggingOut event) {
+        dev.dubhe.anvilcraft.client.building.BlueprintClientFiles.clear();
         PATTERNS.clear();
         RESULTS.invalidateAll();
         recipesLoaded = false;

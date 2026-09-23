@@ -14,6 +14,7 @@ import net.minecraft.client.gui.render.pip.PictureInPictureRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.renderer.state.gui.pip.PictureInPictureRenderState;
+import net.minecraft.resources.Identifier;
 import org.joml.Matrix3x2f;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
@@ -70,7 +71,7 @@ public final class SmartPlacerPreviewRenderer extends PictureInPictureRenderer<S
         var indexBuffer = indices.getBuffer(count);
         var transform = RenderSystem.getDynamicUniforms().writeTransform(
             new Matrix4f(), new Vector4f(1, 1, 1, 1), new Vector3f(), new Matrix4f());
-        var texture = client.getTextureManager().getTexture(SharedTextures.bg("machine", "smart_block_placer"));
+        var texture = client.getTextureManager().getTexture(state.background());
         try (var pass = RenderSystem.getDevice().createCommandEncoder().createRenderPass(
             () -> "Smart placer preview background", RenderSystem.outputColorTextureOverride, OptionalInt.empty()
         )) {
@@ -116,7 +117,11 @@ public final class SmartPlacerPreviewRenderer extends PictureInPictureRenderer<S
         }
     }
 
-    public record State(StructurePipRenderingState structure) implements PictureInPictureRenderState {
+    public record State(StructurePipRenderingState structure, Identifier background) implements PictureInPictureRenderState {
+        public State(StructurePipRenderingState structure) {
+            this(structure, SharedTextures.bg("machine", "smart_block_placer"));
+        }
+
         @Override
         public int x0() {
             return this.structure.x0();

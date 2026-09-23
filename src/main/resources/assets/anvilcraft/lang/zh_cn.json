@@ -2681,5 +2681,20 @@
   "anvilcraft.configuration.building_rod_controls": "建筑杖蓝图操作模式",
   "anvilcraft.configuration.building_rod_controls.tooltip": "建筑杖蓝图操作模式",
   "anvillib.configuration.enum.dev.dubhe.anvilcraft.config.anvil_craft_client_config.building_rod_controls.optimized": "优化",
-  "anvillib.configuration.enum.dev.dubhe.anvilcraft.config.anvil_craft_client_config.building_rod_controls.traditional": "传统"
+  "anvillib.configuration.enum.dev.dubhe.anvilcraft.config.anvil_craft_client_config.building_rod_controls.traditional": "传统",
+  "screen.anvilcraft.structure_scanner.auto_rotate_off": "自动旋转：关",
+  "screen.anvilcraft.structure_scanner.auto_rotate_on": "自动旋转：开",
+  "screen.anvilcraft.structure_scanner.confirm": "确认记录结构",
+  "screen.anvilcraft.structure_scanner.export": "导出结构",
+  "screen.anvilcraft.structure_scanner.export_file": "导出文件",
+  "screen.anvilcraft.structure_scanner.exported": "结构已导出：%s",
+  "screen.anvilcraft.structure_scanner.file_failed": "文件操作失败：%s",
+  "screen.anvilcraft.structure_scanner.import": "导入结构",
+  "screen.anvilcraft.structure_scanner.import_file": "导入文件",
+  "screen.anvilcraft.structure_scanner.imported": "已加载结构预览，请确认写入磁盘",
+  "screen.anvilcraft.structure_scanner.marker": "标记物品（支持 JEI 拖放，右键清除）",
+  "screen.anvilcraft.structure_scanner.name": "结构命名",
+  "screen.anvilcraft.structure_scanner.no_files": "无匹配文件",
+  "screen.anvilcraft.structure_scanner.scan": "点击扫描结构",
+  "screen.anvilcraft.structure_scanner.scanning": "扫描中"
 }

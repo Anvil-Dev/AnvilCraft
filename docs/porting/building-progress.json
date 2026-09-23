@@ -439,9 +439,8 @@
       "StructureSaveUtil captures canonical live block/entity/runtime state at save time and consumes only one disk"
     ],
     "pending": [
-      "File request/result/status packets and client BlueprintClientFiles transfer controller",
-      "Scanner import/export/preview/settings UI and save packet",
-      "Client in-game acceptance for updated scanner preview and file workflow"
+      "Source/target visual comparison for scanner effects and rotated thin/non-cubic previews",
+      "Native directory opening and additional UI edge cases"
     ],
     "verification": {
       "server_tests_passed": 493,
@@ -449,5 +448,23 @@
       "compile_log": "build/porting/compile-scanner-backend-final.log",
       "client": "Not run for this backend node; transport and updated UI remain pending."
     }
+  },
+  "scanner_ui": {
+    "source_commit": "a378f98e4d41d0d92f97cf2486ac9da7881b1674",
+    "status": "partial",
+    "ported": [
+      "Menu-bound file/list/result/save/status packets and client chunk assembly/cancellation",
+      "Source scanner layout, release-only atlas buttons, file dropdown, marker, autoRotate and save controls",
+      "Native PIP block/block-entity/entity preview, source scan effect and drag rotation"
+    ],
+    "verification": {
+      "server_tests_passed": 495,
+      "server_log": "build/porting/validate-scanner-ui.log",
+      "client_log": "build/porting/client-scanner-files-live-2.log",
+      "compile_log": "build/porting/compile-scanner-ui-final-2.log",
+      "datagen_log": "build/porting/datagen-scanner-ui.log"
+    },
+    "coverage": "Real client list, multi-chunk import, preview-only disk staging, release cancellation, marker/name/rotation save, export suffix, close cancellation, live chest/entity scan and drag rotation. Imported/live screenshots inspected.",
+    "limits": "Source A/B and exhaustive thin/non-cubic preview rotations remain pending. Datagen completed; style failures from that invocation corrected by final focused check. Vanilla 26.1 rendering retained."
   }
 }

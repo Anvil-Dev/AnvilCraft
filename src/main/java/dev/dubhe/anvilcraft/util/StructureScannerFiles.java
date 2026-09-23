@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.util;
 
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.building.BlueprintNormalizer;
 import dev.dubhe.anvilcraft.building.ConstructionBlueprintException;
 import dev.dubhe.anvilcraft.building.LitematicaImporter;
@@ -10,26 +11,70 @@ import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.inventory.StructureScannerMenu;
 import dev.dubhe.anvilcraft.item.property.component.StoredItem;
 import dev.dubhe.anvilcraft.item.property.component.StructureDiskData;
+import dev.dubhe.anvilcraft.network.StructureScannerFilePacket;
+import dev.dubhe.anvilcraft.network.StructureScannerFileResultPacket;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtAccounter;
 import net.minecraft.nbt.NbtIo;
 import net.minecraft.nbt.NbtUtils;
+import net.minecraft.nbt.StringTag;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.datafix.DataFixTypes;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.storage.LevelResource;
+import net.neoforged.neoforge.network.PacketDistributor;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.Locale;
 import java.util.UUID;
 
 public final class StructureScannerFiles {
+    public static void handle(ServerPlayer player, StructureScannerMenu menu, StructureScannerFilePacket packet) {
+        try {
+            switch (packet.action()) {
+                case LIST -> {
+                    ListTag files = new ListTag();
+                    StructureBlueprintFiles.list(player.level().getServer()).forEach(name -> files.add(StringTag.valueOf(name)));
+                    CompoundTag tag = new CompoundTag();
+                    tag.put("files", files);
+                    sendFile(player, packet.id(), compress(tag));
+                }
+                case IMPORT -> {
+                    byte[] preview = importBlueprint(player, menu, packet.name());
+                    menu.broadcastChanges();
+                    sendFile(player, packet.id(), preview);
+                }
+                case EXPORT -> {
+                    String exported = exportBlueprint(player, menu, packet.name());
+                    sendFile(player, packet.id(), exported.getBytes(StandardCharsets.UTF_8));
+                }
+                default -> throw new IOException("Unsupported blueprint action");
+            }
+        } catch (IOException | ConstructionBlueprintException | IllegalArgumentException exception) {
+            AnvilCraft.LOGGER.warn("Structure scanner file operation failed: {}", packet.name(), exception);
+            String message = exception.getMessage();
+            if (message == null) message = "Invalid structure file";
+            PacketDistributor.sendToPlayer(player, new StructureScannerFileResultPacket(packet.id(),
+                message.substring(0, Math.min(message.length(), 512)), 0, 0, new byte[0]));
+        }
+    }
+
+    private static void sendFile(ServerPlayer player, UUID id, byte[] bytes) {
+        for (int offset = 0; offset < bytes.length; offset += StructureFileTransfer.CHUNK_BYTES) {
+            byte[] chunk = Arrays.copyOfRange(bytes, offset, Math.min(offset + StructureFileTransfer.CHUNK_BYTES, bytes.length));
+            PacketDistributor.sendToPlayer(player, new StructureScannerFileResultPacket(id, "", bytes.length, offset, chunk));
+        }
+    }
+
     private StructureScannerFiles() {
     }
 

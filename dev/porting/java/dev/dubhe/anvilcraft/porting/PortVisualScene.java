@@ -81,6 +81,10 @@ public final class PortVisualScene {
             MinecraftServer server = client.getSingleplayerServer();
             server.execute(() -> prepare(server));
         }
+        if (Boolean.getBoolean("anvilcraft.portScannerFilesScene")) {
+            if (prepared) ScannerFilesClientScene.frame(client);
+            return;
+        }
         if (Boolean.getBoolean("anvilcraft.portBuildingClientScene")) {
             if (prepared) dev.dubhe.anvilcraft.client.building.BuildingRodClientScene.frame(client);
             return;
