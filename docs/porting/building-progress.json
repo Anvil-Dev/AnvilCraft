@@ -25,8 +25,8 @@
     },
     {
       "source": "src/main/java/dev/dubhe/anvilcraft/building/BlueprintEntities.java",
-      "status": "partial",
-      "integration": "Only passenger flattening and duplicate identity merging. Material-derived spawning, identity remapping, memories and leash restoration remain pending."
+      "status": "ported",
+      "integration": "Shared entity planning, creation, content restoration, actual creature materials, motion, scoped identity/leash/vehicle links and native/legacy boat type handling implemented. Full BuildingRodService/commit and restored-entity client tracking remain pending."
     },
     {
       "source": "src/main/java/dev/dubhe/anvilcraft/building/BlueprintFluids.java",
@@ -40,7 +40,8 @@
     },
     {
       "source": "src/main/java/dev/dubhe/anvilcraft/building/BlueprintLeashes.java",
-      "status": "pending"
+      "status": "ported",
+      "integration": "Shared entity planning, creation, content restoration, actual creature materials, motion, scoped identity/leash/vehicle links and native/legacy boat type handling implemented. Full BuildingRodService/commit and restored-entity client tracking remain pending."
     },
     {
       "source": "src/main/java/dev/dubhe/anvilcraft/building/BlueprintMultiblocks.java",
@@ -82,7 +83,8 @@
     },
     {
       "source": "src/main/java/dev/dubhe/anvilcraft/building/BuildingEntityOp.java",
-      "status": "pending"
+      "status": "ported",
+      "integration": "Shared entity planning, creation, content restoration, actual creature materials, motion, scoped identity/leash/vehicle links and native/legacy boat type handling implemented. Full BuildingRodService/commit and restored-entity client tracking remain pending."
     },
     {
       "source": "src/main/java/dev/dubhe/anvilcraft/building/BuildingEntityTransform.java",
@@ -128,15 +130,18 @@
     },
     {
       "source": "src/main/java/dev/dubhe/anvilcraft/building/DynamicBuildingEntities.java",
-      "status": "pending"
+      "status": "ported",
+      "integration": "Shared entity planning, creation, content restoration, actual creature materials, motion, scoped identity/leash/vehicle links and native/legacy boat type handling implemented. Full BuildingRodService/commit and restored-entity client tracking remain pending."
     },
     {
       "source": "src/main/java/dev/dubhe/anvilcraft/building/EntityBuildAdapter.java",
-      "status": "pending"
+      "status": "ported",
+      "integration": "Shared entity planning, creation, content restoration, actual creature materials, motion, scoped identity/leash/vehicle links and native/legacy boat type handling implemented. Full BuildingRodService/commit and restored-entity client tracking remain pending."
     },
     {
       "source": "src/main/java/dev/dubhe/anvilcraft/building/EntityBuildAdapters.java",
-      "status": "pending"
+      "status": "ported",
+      "integration": "Shared entity planning, creation, content restoration, actual creature materials, motion, scoped identity/leash/vehicle links and native/legacy boat type handling implemented. Full BuildingRodService/commit and restored-entity client tracking remain pending."
     },
     {
       "source": "src/main/java/dev/dubhe/anvilcraft/building/FluidBuildAdapter.java",
@@ -149,7 +154,8 @@
     },
     {
       "source": "src/main/java/dev/dubhe/anvilcraft/building/MagnetizedNodeBuildAdapter.java",
-      "status": "pending"
+      "status": "ported",
+      "integration": "Shared entity planning, creation, content restoration, actual creature materials, motion, scoped identity/leash/vehicle links and native/legacy boat type handling implemented. Full BuildingRodService/commit and restored-entity client tracking remain pending."
     },
     {
       "source": "src/main/java/dev/dubhe/anvilcraft/building/OrdinaryBlockAdapter.java",
@@ -176,7 +182,8 @@
     },
     {
       "source": "src/main/java/dev/dubhe/anvilcraft/building/VanillaBuildingEntities.java",
-      "status": "pending"
+      "status": "ported",
+      "integration": "Shared entity planning, creation, content restoration, actual creature materials, motion, scoped identity/leash/vehicle links and native/legacy boat type handling implemented. Full BuildingRodService/commit and restored-entity client tracking remain pending."
     },
     {
       "source": "src/main/java/dev/dubhe/anvilcraft/client/building/BlueprintClientFiles.java",
@@ -239,14 +246,15 @@
     "First-person model animation, preview rendering and in-game comparison",
     "Structure scanner and disk/client file workflow integration",
     "When porting BuildingRodService, share BlueprintPlacement.MAX_ENTRIES (4000); reuse BuildingEntityTransform.withWorldPos in entity adapters.",
-    "Wire captured dynamic state into blueprint entity adapters and validate tracking/rendering of restored entities.",
-    "Reuse BlueprintCapture.saveEntity in leash/runtime adapters and BuildingEntityTransform support helpers; wire normalized capture into scanner/file workflows.",
-    "ProcessingTablePlacement and shared table inventory/material rules are available. BuildingBlockMaterial is now available; continue full material allocation. use FluidBuildAdapter.takeExactFluid(ItemAccess, FluidStack) for native replacement containers."
+    "Entity adapters now consume captured dynamic state; validate tracking/rendering of restored entities after service integration.",
+    "Leash/runtime adapters now reuse BlueprintCapture.saveEntity and shared entity transforms; wire normalized capture into scanner/file workflows.",
+    "ProcessingTablePlacement and shared table inventory/material rules are available. BuildingBlockMaterial is now available; continue full material allocation. use FluidBuildAdapter.takeExactFluid(ItemAccess, FluidStack) for native replacement containers.",
+    "When porting BuildingRodService.materialCount, delegate to BuildingBlockMaterial.materialCount so moving sections and static placement share the same source counting rules."
   ],
   "verification": {
-    "server_tests_passed": 429,
-    "server_log": "build/porting/validate-building-supply-final.log",
-    "compile_log": "build/porting/compile-building-supply-final.log",
+    "server_tests_passed": 438,
+    "server_log": "build/porting/validate-entity-adapters-final.log",
+    "compile_log": "build/porting/compile-entity-adapters-final.log",
     "client": "Processing-table runtime rendering and source comparison completed for the recorded scenes. Building Rod input/preview and scanner consumers remain pending."
   },
   "runtime_persistence": {
@@ -257,7 +265,7 @@
       "entity/CauldronOutletEntity.java: moving flag and target, including legacy field aliases",
       "api/sliding/SlidingBlockInfo.java: actual block entity loading, registry-aware encoding and legacy/empty data"
     ],
-    "pending": "Blueprint capture/normalization, material-derived entity creation, runtime placement callbacks and client tracking/render acceptance remain pending."
+    "pending": "Runtime placement callbacks, full service integration and restored-entity client tracking/render acceptance remain pending."
   },
   "processing_tables": {
     "source_commit": "a378f98e4d41d0d92f97cf2486ac9da7881b1674",

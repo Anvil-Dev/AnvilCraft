@@ -19,6 +19,8 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.LecternBlockEntity;
 import net.minecraft.world.level.block.entity.SignBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.SlabType;
 import net.minecraft.world.level.storage.TagValueInput;
 import net.minecraft.world.level.storage.TagValueOutput;
 import org.jspecify.annotations.Nullable;
@@ -171,6 +173,16 @@ record BuildingBlockMaterial(
                 tag.remove(key);
             }
         }
+    }
+
+    static int materialCount(BlockState state) {
+        if (state.hasProperty(BlockStateProperties.SLAB_TYPE) && state.getValue(BlockStateProperties.SLAB_TYPE) == SlabType.DOUBLE) {
+            return 2;
+        }
+        if (state.hasProperty(BlockStateProperties.LAYERS)) return state.getValue(BlockStateProperties.LAYERS);
+        if (state.hasProperty(BlockStateProperties.CANDLES)) return state.getValue(BlockStateProperties.CANDLES);
+        if (state.hasProperty(BlockStateProperties.PICKLES)) return state.getValue(BlockStateProperties.PICKLES);
+        return 1;
     }
 
     @Nullable

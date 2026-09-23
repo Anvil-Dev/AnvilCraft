@@ -224,7 +224,7 @@ public final class StructureSnapshotCodec {
             if (posTag.size() != 3 || blockPosTag.size() != 3) {
                 throw new ConstructionBlueprintException("corrupt_entities", "entity position lists malformed");
             }
-            CompoundTag nbt = entityTag.getCompoundOrEmpty("nbt").copy();
+            CompoundTag nbt = EntityBuildAdapters.normalizeType(entityTag.getCompoundOrEmpty("nbt"));
             String rawId = nbt.getStringOr("id", "");
             if (rawId.isEmpty()) {
                 // 原版对乘客实体会保存空数据,加载时同样跳过;保留条目并给出警告。
