@@ -95,7 +95,7 @@
     {
       "source": "src/main/java/dev/dubhe/anvilcraft/building/BuildingMaterials.java",
       "status": "ported",
-      "integration": "Full reservation and native atomic debit engine tested. Constructor accepts the selected material stack explicitly; BuildingRodItem/BuildingRodService must provide it."
+      "integration": "Full reservation and native atomic debit engine wired into BuildingRodService with the actual selected material stack. Exact/mismatched component confirmation, partial construction and real blueprint contents/entity debit tested."
     },
     {
       "source": "src/main/java/dev/dubhe/anvilcraft/building/BuildingRegionSnapshot.java",
@@ -104,7 +104,8 @@
     },
     {
       "source": "src/main/java/dev/dubhe/anvilcraft/building/BuildingRodFluids.java",
-      "status": "pending"
+      "status": "ported",
+      "integration": "Bucket preview/placement, waterlogging, two-bucket renewable and per-cell nonrenewable debit, native environment evaporation and fluid ticks implemented. Client preview only uses cells; source-conversion pricing is resolved on the server with current gamerules."
     },
     {
       "source": "src/main/java/dev/dubhe/anvilcraft/building/BuildingRodMaterialBook.java",
@@ -124,12 +125,12 @@
     {
       "source": "src/main/java/dev/dubhe/anvilcraft/building/BuildingRodService.java",
       "status": "partial",
-      "integration": "Source block planning, single placement and multipart tiling extracted to shared BuildingBlockPlanner; native regular placement preview now uses it. Selection, blueprint planning, confirmation, commit and result-packet entry points remain pending."
+      "integration": "Server selection, reach/material validation, blueprint-file loading/planning, exact/partial allocation, 60-tick component confirmation, events, native commit, entity/configuration restoration, undo, energy and sounds implemented. Shared planner is reused. Client result packet (projection cancellation and placement animation) remains pending; successful blueprints currently emit the same localized completion message from the server."
     },
     {
       "source": "src/main/java/dev/dubhe/anvilcraft/building/BuildingRodUndo.java",
       "status": "partial",
-      "integration": "History, region recovery, receipts, drop/falling/TNT tracking and retryable item/fluid refunds tested. Public undo now validates a held rod and emits localized results; input/network caller remains pending."
+      "integration": "History, region recovery, receipts, drop/falling/TNT tracking and retryable refunds connected to actual service commits and BuildingRodPacket.UNDO with a held-rod guard. Client controls remain pending."
     },
     {
       "source": "src/main/java/dev/dubhe/anvilcraft/building/ConstructionBlueprintException.java",
@@ -252,8 +253,6 @@
     }
   ],
   "pending_integration": [
-    "Material allocation from hands, inventory, pockets and storage, including actual consumed components",
-    "Placement service, confirmations, undo, fluids, block entities and entity adapters",
     "Packets, input state machine, fixed-distance selection, HUD and traditional controls",
     "First-person model animation, preview rendering and in-game comparison",
     "Structure scanner and disk/client file workflow integration",
@@ -263,12 +262,13 @@
     "ProcessingTablePlacement and shared table inventory/material rules are available. BuildingBlockMaterial is now available; continue full material allocation. use FluidBuildAdapter.takeExactFluid(ItemAccess, FluidStack) for native replacement containers.",
     "When porting BuildingRodService.materialCount, delegate to BuildingBlockMaterial.materialCount so moving sections and static placement share the same source counting rules.",
     "Use shared BuildingPlan.Cell/Group when porting BuildingRodService; do not duplicate plan records. Pass BuildingRodItem.material(player) to BuildingMaterials. Route undo input to the guarded public BuildingRodUndo.undo entry point.",
-    "BuildingRodService must reuse BuildingBlockPlanner.planBlocks/singlePlacement and BuildingRodPattern; the shared planner already uses BuildingPlan.Cell/Group and BuildingCommit.canModify. Do not reintroduce parallel placement logic."
+    "BuildingRodService must reuse BuildingBlockPlanner.planBlocks/singlePlacement and BuildingRodPattern; the shared planner already uses BuildingPlan.Cell/Group and BuildingCommit.canModify. Do not reintroduce parallel placement logic.",
+    "Port BuildingRodResultPacket with the real client controls/item renderer: finishPlacement currently has no placement-animation packet and completed blueprints only send the localized message. Projection cancellation and pushed-payload animation remain required."
   ],
   "verification": {
-    "server_tests_passed": 471,
-    "server_log": "build/porting/validate-building-planner-final.log",
-    "compile_log": "build/porting/compile-building-planner-final.log",
+    "server_tests_passed": 481,
+    "server_log": "build/porting/validate-building-service-2.log",
+    "compile_log": "build/porting/compile-building-service-final.log",
     "client": "Processing-table comparison completed for recorded scenes. Building Rod empty/charged inventory model and tooltip client scene passed; full input/preview and first-person animation remain pending."
   },
   "runtime_persistence": {
@@ -366,6 +366,28 @@
       "client_log": "build/porting/client-building-planner.log",
       "client_screenshot": "run/port-validation/client/screenshots/building-obstruction-26.1-glow.png",
       "compile_log": "build/porting/compile-building-planner-final.log"
+    }
+  },
+  "server_service": {
+    "source_commit": "a378f98e4d41d0d92f97cf2486ac9da7881b1674",
+    "status": "partial",
+    "ported": [
+      "BuildingRodPacket START/PLACE/PLACE_BLUEPRINTS/UNDO codec and server routing",
+      "Source selection/material/hand/reach guards and file-backed blueprint transforms and entity planning",
+      "Full/partial reservation, actual component mismatch confirmation with 60-tick expiry, event cancellation and native commit",
+      "Entity and block-entity contents/configuration, undo receipts and energy/inventory synchronization",
+      "Waterlogging, renewable/nonrenewable fluids, native WATER_EVAPORATES environment attribute and evaporation"
+    ],
+    "pending": [
+      "Client result packet, projection cancellation and first-person animation",
+      "Full input/controller/HUD integration and visual source comparison",
+      "AutoEnchantingTable configuration branch remains pending with that block feature"
+    ],
+    "verification": {
+      "server_tests_passed": 481,
+      "server_log": "build/porting/validate-building-service-2.log",
+      "client_log": "build/porting/client-building-service-2.log",
+      "compile_log": "build/porting/compile-building-service-final.log"
     }
   }
 }
