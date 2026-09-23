@@ -2,8 +2,10 @@ package dev.dubhe.anvilcraft.building;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.StoragePortManager;
+import dev.dubhe.anvilcraft.item.BuildingRodItem;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.Tag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
@@ -200,6 +202,17 @@ public final class BuildingRodUndo {
 
     enum Result {
         NOTHING, BLOCKED, PARTIAL, UNDONE
+    }
+
+    public static void undo(ServerPlayer player) {
+        if (!BuildingRodItem.isHeld(player)) return;
+        String message = switch (restore(player)) {
+            case NOTHING -> "nothing_to_undo";
+            case BLOCKED -> "blocked";
+            case PARTIAL -> "undo_partial";
+            case UNDONE -> "undone";
+        };
+        player.sendSystemMessage(Component.translatable("message.anvilcraft.building_rod." + message), true);
     }
 
     static Result restore(ServerPlayer player) {

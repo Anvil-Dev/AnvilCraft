@@ -12,6 +12,7 @@ public class ToolsAndUtilities extends DisplayItemsGenerator {
         this.plain(ModItems.GEODE);
         this.plain(ModItems.MAGNET);
         this.plain(ModItems.CRAB_CLAW);
+        if (this.output != null) this.output.accept(ModItems.BUILDING_ROD.get().creativeStack());
         this.plain(ModItems.DISK);
         this.plain(ModItems.STRUCTURE_DISK);
         this.plain(ModItems.FILTER);

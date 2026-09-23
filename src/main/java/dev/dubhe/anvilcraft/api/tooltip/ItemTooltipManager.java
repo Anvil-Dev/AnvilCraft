@@ -36,6 +36,8 @@ public class ItemTooltipManager {
         ItemTooltipManager.SHIFT.put(ModItems.SHULKER_TERMINAL.asItem(), """
             Automatically links to the first Shulker Container in your inventory.
             Otherwise, links to the nearest Shulker Container within 64 blocks.""");
+        ItemTooltipManager.NORMAL.put(ModItems.BUILDING_ROD.get(),
+            "Place blocks in bulk and build blueprints quickly; increases reach while carried");
         ItemTooltipManager.NORMAL.put(ModItems.MAGNET.get(), "Attract surrounding items when use");
         ItemTooltipManager.NORMAL.put(ModItems.GEODE.get(), "Find the surrounding Amethyst Geode when using it");
         ItemTooltipManager.NORMAL.put(ModItems.ANVIL_HAMMER.get(), "It's a hammer, an anvil, a wrench, goggles, and a mace");

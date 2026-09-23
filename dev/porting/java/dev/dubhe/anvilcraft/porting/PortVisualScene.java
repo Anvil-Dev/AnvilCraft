@@ -81,6 +81,10 @@ public final class PortVisualScene {
             MinecraftServer server = client.getSingleplayerServer();
             server.execute(() -> prepare(server));
         }
+        if (Boolean.getBoolean("anvilcraft.portBuildingRodItemScene")) {
+            if (prepared) BuildingRodItemScene.frame(client);
+            return;
+        }
         if (Boolean.getBoolean("anvilcraft.portTerminalBalanceScene")) {
             if (prepared) TerminalBalanceScene.frame(client);
             return;

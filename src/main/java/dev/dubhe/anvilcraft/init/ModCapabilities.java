@@ -26,6 +26,7 @@ import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.entity.ModEntities;
 import dev.dubhe.anvilcraft.init.item.ModItems;
+import dev.dubhe.anvilcraft.item.BuildingRodItem;
 import dev.dubhe.anvilcraft.item.armor.WeatherproofChestplateItem;
 import dev.dubhe.anvilcraft.item.utility.EnergyWeaponPlatformItem;
 import dev.dubhe.anvilcraft.item.weapon.AnvilRailgunItem;
@@ -186,6 +187,8 @@ public class ModCapabilities {
             ModCapabilities.energy(WeatherproofChestplateItem.MAX_ENERGY),
             ModItems.WEATHERPROOF_SPACESUIT_CHESTPLATE.get()
         );
+
+        event.registerItem(Capabilities.Energy.ITEM, ModCapabilities.energy(BuildingRodItem.MAX_ENERGY), ModItems.BUILDING_ROD.get());
 
         event.registerBlockEntity(Capabilities.Energy.BLOCK, ModBlockEntities.POWER_CONVERTER.get(), ModCapabilities::energy);
         event.registerBlockEntity(Capabilities.Energy.BLOCK, ModBlockEntities.FE_COLLECTOR.get(), ModCapabilities::energy);

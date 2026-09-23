@@ -17,6 +17,7 @@ import dev.dubhe.anvilcraft.data.recipe.RegistrumItemRecipeLoader;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.block.ModFluids;
 import dev.dubhe.anvilcraft.init.enchantment.ModEnchantments;
+import dev.dubhe.anvilcraft.item.BuildingRodItem;
 import dev.dubhe.anvilcraft.item.FluidTankMinecartItem;
 import dev.dubhe.anvilcraft.item.HyperdimensionTerminalItem;
 import dev.dubhe.anvilcraft.item.LocalTerminalItem;
@@ -833,6 +834,12 @@ public class ModItems {
         })
         .recipe(RegistrumItemRecipeLoader::filter)
         .properties(properties -> properties.stacksTo(16))
+        .register();
+
+    public static final ItemEntry<BuildingRodItem> BUILDING_ROD = REGISTRUM.item("building_rod", BuildingRodItem::new)
+        .lang("Building Rod")
+        .model(DataGenUtil::buildingRod)
+        .recipe(RegistrumItemRecipeLoader::buildingRod)
         .register();
 
     public static final ItemEntry<CrabClawItem> CRAB_CLAW = REGISTRUM.item("crab_claw", CrabClawItem::new)

@@ -40,6 +40,7 @@ allprojects {
             include '**/sliding/SlidingBlockInfo.java'
             include '**/AnimateAscendingBlockEntity.java', '**/SlidingBlockEntity.java', '**/CauldronOutletEntity.java'
             include '**/building/*.java'
+            include '**/BuildingRodItem.java', '**/StoredEnergyEmptyProperty.java', '**/BuildingRodLang.java'
             include '**/BlueprintUndoChunkMixin.java', '**/BlueprintEntityDropsMixin.java', '**/BlueprintTntOriginMixin.java'
             include '**/BlueprintLevelMixin.java', '**/BlueprintServerLevelMixin.java', '**/BlueprintTicksMixin.java'
             include '**/BlueprintBlockEventsAccessor.java'

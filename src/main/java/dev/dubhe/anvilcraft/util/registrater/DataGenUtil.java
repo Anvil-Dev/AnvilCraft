@@ -242,6 +242,13 @@ public class DataGenUtil {
         };
     }
 
+    public static <T extends Item> NonNullBiConsumer<DataGenContext<Item, T>, RegistrumItemModelGenerator> buildingRod() {
+        return (ctx, generator) -> generator.itemModelOutput.accept(ctx.get(), ItemModelUtils.conditional(
+            dev.dubhe.anvilcraft.client.renderer.item.StoredEnergyEmptyProperty.INSTANCE,
+            ItemModelUtils.plainModel(ModelLocationUtils.getModelLocation(ctx.get()).withSuffix("_off")),
+            ItemModelUtils.plainModel(ModelLocationUtils.getModelLocation(ctx.get()))));
+    }
+
     public static <T extends Item> NonNullBiConsumer<DataGenContext<Item, T>, RegistrumItemModelGenerator> energyWeapon() {
         return (ctx, generator) -> generator.itemModelOutput.accept(ctx.get(), ItemModelUtils.conditional(
             dev.dubhe.anvilcraft.client.renderer.item.EnergyWeaponExhaustedProperty.INSTANCE,

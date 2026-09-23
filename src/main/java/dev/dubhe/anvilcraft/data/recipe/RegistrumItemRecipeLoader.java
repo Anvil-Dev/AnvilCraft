@@ -46,6 +46,24 @@ public class RegistrumItemRecipeLoader {
             .save(provider);
     }
 
+    public static <T extends Item> void buildingRod(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
+        for (boolean charged : new boolean[]{false, true}) {
+            var result = new ItemStackTemplate(ctx.get(), DataComponentPatch.builder()
+                .set(ModComponents.STORED_ENERGY, new StoredEnergy(charged ? 8_000_000 : 0)).build());
+            var builder = ShapedRecipeBuilder.shaped(provider.getItems(), RecipeCategory.TOOLS, result)
+                .pattern("ABA")
+                .pattern("ACA")
+                .pattern(" D ")
+                .define('A', ModBlocks.SMART_BLOCK_PLACER)
+                .define('B', ModBlocks.MAGNETO_ELECTRIC_CORE_BLOCK)
+                .define('C', ModItems.ANVIL_HAMMER)
+                .define('D', charged ? ModItems.CAPACITOR.get() : ModItems.CAPACITOR_EMPTY.get())
+                .unlockedBy("hasitem", AnvilCraftDatagen.has(provider.getItems(), ModItems.ANVIL_HAMMER));
+            if (charged) builder.save(provider, AnvilCraft.of("building_rod_charged").toString());
+            else builder.save(provider);
+        }
+    }
+
     public static <T extends Item> void fluidTankMinecart(
         DataGenContext<Item, T> ctx,
         RegistrumRecipeProvider provider

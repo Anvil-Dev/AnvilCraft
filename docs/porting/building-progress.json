@@ -126,7 +126,7 @@
     {
       "source": "src/main/java/dev/dubhe/anvilcraft/building/BuildingRodUndo.java",
       "status": "partial",
-      "integration": "History, region recovery, receipts, drop/falling/TNT tracking and retryable item/fluid refunds tested. Package-private restore returns a typed Result; public rod-held validation and localized response belong to the pending service entry point."
+      "integration": "History, region recovery, receipts, drop/falling/TNT tracking and retryable item/fluid refunds tested. Public undo now validates a held rod and emits localized results; input/network caller remains pending."
     },
     {
       "source": "src/main/java/dev/dubhe/anvilcraft/building/ConstructionBlueprintException.java",
@@ -240,10 +240,14 @@
     {
       "source": "src/main/java/dev/dubhe/anvilcraft/client/building/BuildingRodTraditionalOverlay.java",
       "status": "pending"
+    },
+    {
+      "source": "src/main/java/dev/dubhe/anvilcraft/item/BuildingRodItem.java",
+      "status": "ported",
+      "integration": "Registration, energy/recharge, dual-hand material selection, carried/pocket reach, recipes, energy tooltip and native empty/charged static model condition tested. Full service/input and first-person animation remain pending."
     }
   ],
   "pending_integration": [
-    "BuildingRodItem registration, recipes, energy and carried-item reach",
     "Material allocation from hands, inventory, pockets and storage, including actual consumed components",
     "Placement service, confirmations, undo, fluids, block entities and entity adapters",
     "Packets, input state machine, fixed-distance selection, HUD and traditional controls",
@@ -254,13 +258,13 @@
     "Leash/runtime adapters now reuse BlueprintCapture.saveEntity and shared entity transforms; wire normalized capture into scanner/file workflows.",
     "ProcessingTablePlacement and shared table inventory/material rules are available. BuildingBlockMaterial is now available; continue full material allocation. use FluidBuildAdapter.takeExactFluid(ItemAccess, FluidStack) for native replacement containers.",
     "When porting BuildingRodService.materialCount, delegate to BuildingBlockMaterial.materialCount so moving sections and static placement share the same source counting rules.",
-    "Use shared BuildingPlan.Cell/Group when porting BuildingRodService; do not duplicate plan records. Pass BuildingRodItem.material(player) to BuildingMaterials. Guard undo with rod ownership and map BuildingRodUndo.Result to the source messages."
+    "Use shared BuildingPlan.Cell/Group when porting BuildingRodService; do not duplicate plan records. Pass BuildingRodItem.material(player) to BuildingMaterials. Route undo input to the guarded public BuildingRodUndo.undo entry point."
   ],
   "verification": {
-    "server_tests_passed": 455,
-    "server_log": "build/porting/validate-undo-materials-2.log",
-    "compile_log": "build/porting/compile-undo-materials-final.log",
-    "client": "Processing-table runtime rendering and source comparison completed for the recorded scenes. Building Rod input/preview and scanner consumers remain pending."
+    "server_tests_passed": 461,
+    "server_log": "build/porting/validate-building-rod-item.log",
+    "compile_log": "build/porting/compile-building-rod-item-final.log",
+    "client": "Processing-table comparison completed for recorded scenes. Building Rod empty/charged inventory model and tooltip client scene passed; full input/preview and first-person animation remain pending."
   },
   "runtime_persistence": {
     "source_commit": "a378f98e4d41d0d92f97cf2486ac9da7881b1674",
@@ -302,5 +306,14 @@
       "BuildingRodMaterialBook with pocket/ordinary carried-book consumption and six-line pages"
     ],
     "pending": "Connect the tested allocator/history engine to BuildingRodItem material selection, confirmation, service commit and failure-report messages."
+  },
+  "building_rod_item": {
+    "datagen_log": "build/porting/datagen-building-rod-item-4.log",
+    "client_log": "build/porting/client-building-rod-item.log",
+    "screenshots": [
+      "run/port-validation/client/screenshots/building-rod-item-26.1-empty.png",
+      "run/port-validation/client/screenshots/building-rod-item-26.1-charged.png"
+    ],
+    "limits": "Inventory model condition and tooltip only; no source A/B or interactive building acceptance claimed."
   }
 }

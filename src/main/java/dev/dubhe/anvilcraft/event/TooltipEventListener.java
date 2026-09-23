@@ -5,6 +5,7 @@ import dev.dubhe.anvilcraft.api.event.AppendCustomHoverTextEvent;
 import dev.dubhe.anvilcraft.api.tooltip.ItemTooltipManager;
 import dev.dubhe.anvilcraft.api.tooltip.providers.IItemTooltipProvider;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
+import dev.dubhe.anvilcraft.init.item.ModItems;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.network.chat.Component;
@@ -49,6 +50,7 @@ public class TooltipEventListener {
         final TooltipFlag flag = event.getTooltipFlag();
         final boolean shift = flag.hasShiftDown();
 
+        if (stack.is(ModItems.BUILDING_ROD)) stack.addToTooltip(ModComponents.STORED_ENERGY, ctx, display, builder, flag);
         ItemTooltipManager.addTooltip(stack, builder, flag);
         if (stack.getItem() instanceof IItemTooltipProvider provider) {
             provider.appendItemTooltip(stack, ctx, display, builder, flag);
@@ -82,7 +84,7 @@ public class TooltipEventListener {
                     : "tooltip.anvilcraft.property.protect_containers.off").withStyle(protect ? ChatFormatting.GREEN : ChatFormatting.RED))
                 .withColor(0xDD91FA));
         }
-        stack.addToTooltip(ModComponents.STORED_ENERGY, ctx, display, builder, flag);
+        if (!stack.is(ModItems.BUILDING_ROD)) stack.addToTooltip(ModComponents.STORED_ENERGY, ctx, display, builder, flag);
         stack.addToTooltip(ModComponents.FLIGHT_TIME, ctx, display, builder, flag);
         stack.addToTooltip(ModComponents.BOX_CONTENTS, ctx, display, builder, flag);
         stack.addToTooltip(ModComponents.OVER_LIMIT_CONTAINER, ctx, display, builder, flag);
