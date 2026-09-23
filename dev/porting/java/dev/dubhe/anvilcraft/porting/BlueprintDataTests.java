@@ -274,7 +274,7 @@ public final class BlueprintDataTests {
         helper.succeed();
     }
 
-    private static CompoundTag litematic(Map<String, CompoundTag> entries) {
+    static CompoundTag litematic(Map<String, CompoundTag> entries) {
         var root = new CompoundTag();
         var regions = new CompoundTag();
         entries.forEach(regions::put);
@@ -283,7 +283,7 @@ public final class BlueprintDataTests {
         return root;
     }
 
-    private static CompoundTag region(BlockPos pos, Vec3i size, List<BlockState> palette, int[] states) {
+    static CompoundTag region(BlockPos pos, Vec3i size, List<BlockState> palette, int[] states) {
         var region = new CompoundTag();
         region.put("Position", vector(pos));
         region.put("Size", vector(size));

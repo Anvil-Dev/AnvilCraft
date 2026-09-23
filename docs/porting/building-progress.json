@@ -272,9 +272,9 @@
     "Exhaustive traditional tool/batch-placement combinations and additional restored-entity visual tracking."
   ],
   "verification": {
-    "server_tests_passed": 485,
-    "server_log": "build/porting/validate-building-client-final.log",
-    "compile_log": "build/porting/compile-rod-parity-production.log",
+    "server_tests_passed": 493,
+    "server_log": "build/porting/validate-scanner-backend-3.log",
+    "compile_log": "build/porting/compile-scanner-backend-final.log",
     "client": "Real native control, projection, hand, result packet and third-person scenes passed; source A/B and remaining coverage are explicitly pending."
   },
   "runtime_persistence": {
@@ -426,5 +426,28 @@
       "Convert opaque entity projection materials to the native translucent culling pipeline; avoid double-sided overdraw and inherited dissolve behavior"
     ],
     "limits": "These are selected static reference scenes, not universal pixel identity. Vanilla sky/cloud/terrain/lighting retained. Large/tiled performance, resource reload, further animated/entity/BER cases and full standalone CFA item renderer remain pending."
+  },
+  "scanner_backend": {
+    "source_commit": "a378f98e4d41d0d92f97cf2486ac9da7881b1674",
+    "status": "partial",
+    "ported": [
+      "StructureFileTransfer sequential chunks, 24 KiB chunk/2 MiB file/60 second limits and safe names",
+      "StructureBlueprintFiles server-world directory, bounded NBT/Litematica reads, listing and non-overwriting _1/_2 export names",
+      "StructureScannerFiles canonical parsing, import staging, single-disk save with marker/autoRotate and export from staged/scanned/disk data",
+      "StructureScannerMenu staging lifecycle and reset synchronization; range/start action guards",
+      "Scanner block-entity NBT cache persistence, multipart capture and entity coordinate transforms; completed-scan state",
+      "StructureSaveUtil captures canonical live block/entity/runtime state at save time and consumes only one disk"
+    ],
+    "pending": [
+      "File request/result/status packets and client BlueprintClientFiles transfer controller",
+      "Scanner import/export/preview/settings UI and save packet",
+      "Client in-game acceptance for updated scanner preview and file workflow"
+    ],
+    "verification": {
+      "server_tests_passed": 493,
+      "server_log": "build/porting/validate-scanner-backend-3.log",
+      "compile_log": "build/porting/compile-scanner-backend-final.log",
+      "client": "Not run for this backend node; transport and updated UI remain pending."
+    }
   }
 }

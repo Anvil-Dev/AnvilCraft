@@ -79,13 +79,15 @@ public record StructureScannerActionPacket(
 
     @Override
     public void handleOnServer(Player player) {
-        if (!(player.containerMenu instanceof StructureScannerMenu menu)) {
+        if (!(player.containerMenu instanceof StructureScannerMenu menu) || !menu.stillValid(player)) {
             return;
         }
         StructureScannerBlockEntity blockEntity = menu.getBlockEntity();
 
         switch (this.action) {
             case START -> {
+                menu.clearImportedStructure();
+                menu.broadcastChanges();
                 blockEntity.startScanning();
                 // 同步范围到客户端
                 this.syncRangeToClient(player, blockEntity);
@@ -96,6 +98,7 @@ public record StructureScannerActionPacket(
                 this.syncRangeToClient(player, blockEntity);
             }
             case RANGE_CHANGE -> {
+                if (blockEntity.isScanning() || menu.getImportedStructure() != null) return;
                 boolean validRange = switch (this.rangeAxis) {
                     case X -> StructureScannerActionPacket.validateAndApplyRange(blockEntity.getRangeX(), this.value);
                     case Y -> StructureScannerActionPacket.validateAndApplyRange(blockEntity.getRangeY(), this.value);
@@ -114,6 +117,7 @@ public record StructureScannerActionPacket(
                     return;
                 }
 
+                blockEntity.clearScan();
                 // 同步范围到客户端
                 this.syncRangeToClient(player, blockEntity);
             }

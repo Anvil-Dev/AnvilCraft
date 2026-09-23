@@ -1,0 +1,143 @@
+package dev.dubhe.anvilcraft.util;
+
+import dev.dubhe.anvilcraft.building.BlueprintNormalizer;
+import dev.dubhe.anvilcraft.building.ConstructionBlueprintException;
+import dev.dubhe.anvilcraft.building.LitematicaImporter;
+import dev.dubhe.anvilcraft.building.StructureSnapshot;
+import dev.dubhe.anvilcraft.building.StructureSnapshotCodec;
+import dev.dubhe.anvilcraft.init.item.ModComponents;
+import dev.dubhe.anvilcraft.init.item.ModItems;
+import dev.dubhe.anvilcraft.inventory.StructureScannerMenu;
+import dev.dubhe.anvilcraft.item.property.component.StoredItem;
+import dev.dubhe.anvilcraft.item.property.component.StructureDiskData;
+import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtAccounter;
+import net.minecraft.nbt.NbtIo;
+import net.minecraft.nbt.NbtUtils;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.datafix.DataFixTypes;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.storage.LevelResource;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Locale;
+import java.util.UUID;
+
+public final class StructureScannerFiles {
+    private StructureScannerFiles() {
+    }
+
+    public static byte[] importBlueprint(ServerPlayer player, StructureScannerMenu menu, String name)
+        throws IOException, ConstructionBlueprintException {
+        byte[] bytes = StructureBlueprintFiles.read(player.level().getServer(), name);
+        CompoundTag tag = bytes.length >= 2 && (bytes[0] & 255) == 31 && (bytes[1] & 255) == 139
+            ? NbtIo.readCompressed(new ByteArrayInputStream(bytes), NbtAccounter.create(16L * 1024 * 1024))
+            : NbtIo.read(new DataInputStream(new ByteArrayInputStream(bytes)), NbtAccounter.create(16L * 1024 * 1024));
+        if (tag == null) throw new IOException("Empty structure file");
+        return stageImport(player, menu, tag, name);
+    }
+
+    public static StructureSnapshot parseImport(ServerPlayer player, CompoundTag tag, String fileName)
+        throws IOException, ConstructionBlueprintException {
+        return parseImportResult(player, tag, fileName).snapshot();
+    }
+
+    private static BlueprintNormalizer.Result parseImportResult(ServerPlayer player, CompoundTag tag, String fileName)
+        throws IOException, ConstructionBlueprintException {
+        if (!StructureFileTransfer.isSafeName(fileName)) throw new IOException("Invalid file name");
+        if (LitematicaImporter.isLitematicFile(fileName)) {
+            tag = LitematicaImporter.convert(tag).structureTag();
+        } else if (!fileName.toLowerCase(Locale.ROOT).endsWith(".nbt")) {
+            throw new IOException("Unsupported structure format");
+        }
+        CompoundTag updated = DataFixTypes.STRUCTURE.updateToCurrentVersion(player.level().getServer().getFixerUpper(), tag,
+            NbtUtils.getDataVersion(tag, 500));
+        StructureSnapshot snapshot = StructureSnapshotCodec.parse(updated, player.registryAccess()).snapshot();
+        return BlueprintNormalizer.normalize(snapshot);
+    }
+
+    public static byte[] stageImport(ServerPlayer player, StructureScannerMenu menu, CompoundTag tag, String fileName)
+        throws IOException, ConstructionBlueprintException {
+        var result = parseImportResult(player, tag, fileName);
+        StructureSnapshot snapshot = result.snapshot();
+        CompoundTag normalized = StructureSnapshotCodec.write(snapshot);
+        normalized.putInt("anvilcraft:added_parts", result.added());
+        normalized.putInt("anvilcraft:removed_parts", result.removed());
+        byte[] preview = compress(normalized);
+        menu.setImportedStructure(fileName.substring(0, fileName.lastIndexOf('.')), snapshot);
+        var scanner = menu.getBlockEntity();
+        if (scanner != null) scanner.clearScan();
+        return preview;
+    }
+
+    public static boolean saveImportedStructure(
+        ServerPlayer player, StructureScannerMenu menu, String name, boolean autoRotate, ItemStack marker
+    ) throws IOException {
+        var imported = menu.getImportedStructure();
+        ItemStack input = menu.getSlot(0).getItem();
+        if (imported == null || !input.is(ModItems.STRUCTURE_DISK) || menu.getSlot(1).hasItem()) return false;
+        StructureSnapshot snapshot = imported.snapshot();
+        CompoundTag canonical = StructureSnapshotCodec.write(snapshot);
+        UUID id = UUID.randomUUID();
+        String storedFile = "import_" + id + ".nbt";
+        Path root = player.level().getServer().getWorldPath(LevelResource.ROOT).resolve("anvilcraft/structures");
+        Files.createDirectories(root);
+        NbtIo.writeCompressed(canonical, root.resolve(storedFile));
+        ItemStack output = input.copyWithCount(1);
+        output.set(ModComponents.STRUCTURE_DISK_DATA, new StructureDiskData(storedFile,
+            name.isBlank() ? imported.name() : name, id, Direction.NORTH,
+            snapshot.size().getX(), snapshot.size().getY(), snapshot.size().getZ(), false, autoRotate));
+        if (marker.isEmpty()) output.remove(ModComponents.DISPLAY_ITEM);
+        else output.set(ModComponents.DISPLAY_ITEM, new StoredItem(marker.copyWithCount(1)));
+        menu.getSlot(1).set(output);
+        menu.getSlot(0).remove(1);
+        menu.clearImportedStructure();
+        return true;
+    }
+
+    private static byte[] compress(CompoundTag tag) throws IOException {
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        NbtIo.writeCompressed(tag, stream);
+        byte[] bytes = stream.toByteArray();
+        if (bytes.length > StructureFileTransfer.MAX_BYTES) throw new IOException("Structure file is too large");
+        return bytes;
+    }
+
+    public static String exportBlueprint(ServerPlayer player, StructureScannerMenu menu, String name)
+        throws IOException, ConstructionBlueprintException {
+        return StructureBlueprintFiles.write(player.level().getServer(), name, compress(exportStructure(player, menu)));
+    }
+
+    public static CompoundTag exportStructure(ServerPlayer player, StructureScannerMenu menu)
+        throws IOException, ConstructionBlueprintException {
+        var scanner = menu.getBlockEntity();
+        if (scanner == null) throw new IOException("Scanner is unavailable");
+        CompoundTag tag;
+        boolean autoRotate = true;
+        var imported = menu.getImportedStructure();
+        if (imported != null) {
+            tag = StructureSnapshotCodec.write(imported.snapshot());
+            autoRotate = false;
+        } else if (scanner.isScanComplete()) {
+            tag = StructureSaveUtil.buildStructureNBT(scanner, scanner.getScannedBlocks());
+        } else {
+            ItemStack disk = menu.getSlot(1).hasItem() ? menu.getSlot(1).getItem() : menu.getSlot(0).getItem();
+            StructureDiskData data = disk.get(ModComponents.STRUCTURE_DISK_DATA);
+            if (data == null) throw new IOException("No recorded structure to export");
+            autoRotate = data.autoRotate();
+            tag = StructureLoadUtil.readStructureFileOnServer(player.level(), data.file());
+            if (tag == null) throw new IOException("Structure file is missing");
+            tag = StructureSnapshotCodec.write(BlueprintNormalizer.load(tag, player.registryAccess(), data.direction(), data.upsideDown()));
+        }
+        CompoundTag settings = new CompoundTag();
+        settings.putBoolean("auto_rotate", autoRotate);
+        tag.put("anvilcraft:blueprint", settings);
+        return tag;
+    }
+}
