@@ -63,7 +63,7 @@ allprojects {
             include '**/ItemDetectorBlockEntity.java', '**/PulseGeneratorBlockEntity.java'
             include '**/ItemDetectorMenu.java', '**/ItemDetectorScreen.java'
             include '**/AutoEnchanting*.java', '**/PrimerEnchantmentsEvent.java', '**/FluidHandlerWrapper.java'
-            include '**/ClientModFluidModels.java'
+            include '**/ClientModFluidModels.java', '**/LiquidEnchantmentClientFluidTypeExtension.java', '**/LiquidEnchantmentUtil.java'
             include '**/FluidDisplayWidget.java', '**/TransparentItemRenderer.java', '**/FluidUtil.java', '**/AnvilMenuResult.java'
             include '**/WheelGuiBlurMixin.java', '**/GuiBlurBoundaryAccessor.java', '**/WheelWidgetMixin.java'
             include '**/WheelBackgroundCapture.java', '**/WheelBackgroundFrameMixin.java', '**/WheelFrostedBackgroundMixin.java'

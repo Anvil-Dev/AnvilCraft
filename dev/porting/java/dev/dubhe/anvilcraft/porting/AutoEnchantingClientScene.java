@@ -36,6 +36,8 @@ public final class AutoEnchantingClientScene {
     private static boolean capturing;
     private static volatile boolean prepared;
     private static volatile boolean finished;
+    private static boolean reloadRequested;
+    private static volatile boolean reloaded;
     private static volatile Throwable failure;
 
     public static void frame(Minecraft client) {
@@ -115,6 +117,18 @@ public final class AutoEnchantingClientScene {
                 capture(client, "primer-ghost", 4);
             }
             case 4 -> {
+                if (!reloadRequested) {
+                    reloadRequested = true;
+                    client.reloadResourcePacks().whenComplete((ignored, error) -> client.execute(() -> {
+                        failure = error;
+                        reloaded = error == null;
+                    }));
+                    return;
+                }
+                if (!reloaded) return;
+                check(field(screen, "ghostOutput") instanceof ItemStack ghost && !ghost.isEmpty(),
+                    "Open menu and transparent item recover after resource reload");
+                AnvilCraft.LOGGER.info("PORT_AUTO_ENCHANTING_RELOAD_PASSED");
                 server(client, () -> {
                     var machine = machine(client);
                     machine.getFluidTank().set(0, FluidResource.of(ModFluids.EXP_FLUID.get()), 1000);

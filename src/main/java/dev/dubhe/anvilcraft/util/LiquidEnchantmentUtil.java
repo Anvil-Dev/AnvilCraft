@@ -47,4 +47,15 @@ public final class LiquidEnchantmentUtil {
         }
         return hash & 0xFFFFFF;
     }
+
+    /** 返回诅咒液态魔咒专用的渲染覆盖层颜色；消失诅咒偏橙红、绑定诅咒偏玫红，其余诅咒回退通用深红。 */
+    public static int curseLayer(Holder<Enchantment> enchantment) {
+        Identifier id = enchantment.unwrapKey()
+            .orElseThrow(() -> new IllegalArgumentException("Liquid enchantment must be registered"))
+            .identifier();
+        String path = id.getPath();
+        if (path.equals("vanishing_curse")) return 0xF0E83400;
+        if (path.equals("binding_curse")) return 0xF0C01050;
+        return 0xE8990000;
+    }
 }

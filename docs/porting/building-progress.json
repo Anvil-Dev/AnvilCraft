@@ -386,7 +386,7 @@
       "Original result packets now trigger payload animation and cancel completed locked projections through the actual client"
     ],
     "pending": [
-      "AutoEnchantingTable configuration branch remains pending with that block feature",
+      "AutoEnchantingTable configuration is integrated and covered by server/client validation",
       "Broader rendering acceptance remains in client acceptance scope"
     ],
     "verification": {
@@ -493,8 +493,23 @@
       "client_log": "build/porting/client-auto-enchanting-3.log"
     },
     "limits": [
-      "Source/target visual A/B for book animation, transparent output, fluid display and Jade progress remains pending",
-      "Broader multiplayer/menu concurrency, GUI search and reload/animation acceptance remains pending"
-    ]
+      "Static source/target comparison completed for the recorded 17 scenes; continuous transition timing, wider special-item rendering and multiplayer menu edge cases remain pending.",
+      "Native vanilla glint/terrain and Jade host layout/unit formatting retained; no universal pixel-identity claim.",
+      "Fluid animation phase is not frozen; exact comparison covers tint/layer parameters, not every animated texture pixel."
+    ],
+    "visual_parity": {
+      "scenes": 17,
+      "source_log": "build/porting/client-enchanting-parity-source-5.log",
+      "target_log": "build/porting/client-enchanting-parity-target-7.log",
+      "report": "build/porting/enchanting-visual-comparison.json",
+      "reload_log": "build/porting/client-enchanting-reload.log",
+      "fixes": [
+        "Apply item opacity before native foil blending; normalized ghost/solid glint recovered from about 0.52 to 1.0",
+        "Restore source Jade gradient and theme-colored left text",
+        "Port latest soft-light liquid tint and distinct vanishing/binding curse layers"
+      ],
+      "results": "Base ghost max RGB difference 2; 3 book contour pairs have matching bounds and no points beyond one pixel; Jade gradient stripe RGB exact; all 8 fluid tint/layer samples exact.",
+      "fixture": "Book cached pose is fixed to the same time/open values to exclude native frozen-tick interpolation differences; glint animation is stopped and solid/no-glint controls separate native foil differences from mod opacity."
+    }
   }
 }
