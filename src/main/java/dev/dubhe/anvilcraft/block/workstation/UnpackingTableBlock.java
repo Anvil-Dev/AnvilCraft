@@ -8,15 +8,15 @@ import net.minecraft.world.level.block.state.BlockState;
 import org.jspecify.annotations.Nullable;
 
 /**
- * 粉碎台：在台面上放置原料，铁坷砸落时执行粉碎配方。
+ * 拆包台：在台面上放置原料，铁坷砸落时执行拆包配方。
  */
-public class CrushingTableBlock extends ProcessingTableBlock {
-    public CrushingTableBlock(Properties properties) {
+public class UnpackingTableBlock extends ProcessingTableBlock {
+    public UnpackingTableBlock(Properties properties) {
         super(properties);
     }
 
     @Override
     public @Nullable BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
-        return ModBlockEntities.CRUSHING_TABLE.create(pos, state);
+        return ModBlockEntities.UNPACKING_TABLE.create(pos, state);
     }
 }

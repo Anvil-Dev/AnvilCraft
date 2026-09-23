@@ -21,6 +21,7 @@ import dev.dubhe.anvilcraft.block.entity.CorruptedBeaconBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.CreativeCrateBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.CreativeFluidTankBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.CreativeGeneratorBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.CrushingTableBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.DeflectionRingBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.DetectorSlidingRailBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.DischargerBlockEntity;
@@ -57,11 +58,13 @@ import dev.dubhe.anvilcraft.block.entity.RemoteTransmissionPoleBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.ResentfulAmberBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.RubyLaserBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.RubyPrismBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.SiftingTableBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.SimpleChuteBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.SimpleMagneticChuteBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.SmartBlockPlacerBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.SpaceOvercompressorBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.SpacetimeSupercomputerBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.StampingPlatformBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.StorageFluidPortBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.StoragePortBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.StoragePortConsolidatorBlockEntity;
@@ -69,6 +72,7 @@ import dev.dubhe.anvilcraft.block.entity.StructureScannerBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.TeslaTowerBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.TradingStationBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.TransmissionPoleBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.UnpackingTableBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.VoidEnergyCollectorBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.WhiteHoleBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.WipBlockEntity;
@@ -527,6 +531,26 @@ public class ModBlockEntities {
     public static final BlockEntityEntry<CelestialForgingAnvilLaserInterfaceBlockEntity> CELESTIAL_FORGING_ANVIL_LASER_INTERFACE = REGISTRUM
         .blockEntity("celestial_forging_anvil_laser_interface", CelestialForgingAnvilLaserInterfaceBlockEntity::createBlockEntity)
         .validBlock(ModBlocks.CELESTIAL_FORGING_ANVIL_LASER_INTERFACE)
+        .register();
+
+    public static final BlockEntityEntry<StampingPlatformBlockEntity> STAMPING_PLATFORM = REGISTRUM
+        .blockEntity("stamping_platform", StampingPlatformBlockEntity::new)
+        .validBlocks(ModBlocks.STAMPING_PLATFORM)
+        .register();
+
+    public static final BlockEntityEntry<CrushingTableBlockEntity> CRUSHING_TABLE = REGISTRUM
+        .blockEntity("crushing_table", CrushingTableBlockEntity::new)
+        .validBlocks(ModBlocks.CRUSHING_TABLE)
+        .register();
+
+    public static final BlockEntityEntry<SiftingTableBlockEntity> SIFTING_TABLE = REGISTRUM
+        .blockEntity("sifting_table", SiftingTableBlockEntity::new)
+        .validBlocks(ModBlocks.SIFTING_TABLE)
+        .register();
+
+    public static final BlockEntityEntry<UnpackingTableBlockEntity> UNPACKING_TABLE = REGISTRUM
+        .blockEntity("unpacking_table", UnpackingTableBlockEntity::new)
+        .validBlocks(ModBlocks.UNPACKING_TABLE)
         .register();
 
     public static final BlockEntityEntry<FishTankBlockEntity> FISH_TANK = REGISTRUM

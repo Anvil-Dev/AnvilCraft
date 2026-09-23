@@ -6,8 +6,11 @@ import dev.anvilcraft.lib.v2.recipe.event.InWorldRecipeManagerEvent;
 import dev.anvilcraft.lib.v2.recipe.event.ItemCacheEvent;
 import dev.anvilcraft.lib.v2.recipe.util.InWorldRecipeContext;
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.block.entity.CrushingTableBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.LargeCauldronBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.StampingPlatformBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
+import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.MeshRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.VanillaRecipesWrap;
 import dev.dubhe.anvilcraft.recipe.generate.MeshRecipeGeneratingCache;
@@ -49,6 +52,14 @@ public class InWorldRecipeEventListener {
         InWorldRecipeContext context = event.getContext();
         ServerLevel level = context.getLevel();
         BlockPos pos = BlockPos.containing(context.getPos());
+        if (recipeType == ModRecipeTypes.ITEM_CRUSH.get()
+            && level.getBlockEntity(pos.below()) instanceof CrushingTableBlockEntity table) {
+            table.onRecipeExecuted(20);
+        }
+        if (recipeType == ModRecipeTypes.STAMPING.get()
+            && level.getBlockEntity(pos.below()) instanceof StampingPlatformBlockEntity platform) {
+            platform.onRecipeExecuted(8);
+        }
         TriggerUtil.inWorldRecipe(level, pos, Identifier.parse(recipeType.toString()), id);
     }
 

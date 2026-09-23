@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.data.provider;
 import com.google.gson.JsonElement;
 import com.mojang.serialization.JsonOps;
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.block.UseItemOnBlock;
 import dev.dubhe.anvilcraft.block.cauldron.CementCauldronBlock;
 import dev.dubhe.anvilcraft.block.cauldron.Layered4LevelCauldronBlock;
 import dev.dubhe.anvilcraft.block.multipart.AbstractMultiPartBlock;
@@ -141,6 +142,12 @@ public final class ModBlockPlacementRuleProvider implements DataProvider {
     }
 
     private static void addBlockRules(Map<Block, List<StateRule>> rulesByBlock, Block block) {
+        Item upgrade = UseItemOnBlock.upgradeItem(block.defaultBlockState());
+        if (upgrade != Items.AIR) {
+            addRule(rulesByBlock, block, "", ModBlocks.STAMPING_PLATFORM.asItem(), 1);
+            addRule(rulesByBlock, block, "", upgrade, 1);
+            return;
+        }
         // 代码回退或运行时动态解析的方块不需要数据包规则。
         if (shouldSkipDataPack(block)) return;
 

@@ -200,12 +200,14 @@ import dev.dubhe.anvilcraft.block.workstation.GiantAnvilBlock;
 import dev.dubhe.anvilcraft.block.workstation.JewelCraftingTable;
 import dev.dubhe.anvilcraft.block.workstation.NeoforgeBlock;
 import dev.dubhe.anvilcraft.block.workstation.NeutronIrradiatorBlock;
+import dev.dubhe.anvilcraft.block.workstation.SiftingTableBlock;
 import dev.dubhe.anvilcraft.block.workstation.SpaceOvercompressorBlock;
 import dev.dubhe.anvilcraft.block.workstation.SpectralAnvilBlock;
 import dev.dubhe.anvilcraft.block.workstation.StampingPlatformBlock;
 import dev.dubhe.anvilcraft.block.workstation.StructureScannerBlock;
 import dev.dubhe.anvilcraft.block.workstation.TranscendenceAnvilBlock;
 import dev.dubhe.anvilcraft.block.workstation.TransparentCraftingTableBlock;
+import dev.dubhe.anvilcraft.block.workstation.UnpackingTableBlock;
 import dev.dubhe.anvilcraft.block.workstation.ember.EmberAnvilBlock;
 import dev.dubhe.anvilcraft.block.workstation.ember.EmberGrindstoneBlock;
 import dev.dubhe.anvilcraft.block.workstation.ember.EmberSmithingTableBlock;
@@ -375,8 +377,9 @@ public class ModBlocks {
 
     public static final BlockEntry<? extends Block> STAMPING_PLATFORM = REGISTRUM.block("stamping_platform", StampingPlatformBlock::new)
         .initialProperties(() -> Blocks.IRON_BLOCK)
-        .properties(p -> p.isValidSpawn(Blocks::never))
-        .blockstate(DataGenUtil::horizontalFacingBlock)
+        .lang("Processing Table - Stamping")
+        .properties(properties -> properties.isValidSpawn(Blocks::never))
+        .blockstate(DataGenUtil::noExtraModelOrState)
         .simpleItem()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .recipe(RegistrumBlockRecipeLoader::stampingPlatform)
@@ -384,11 +387,50 @@ public class ModBlocks {
 
     public static final BlockEntry<? extends Block> CRUSHING_TABLE = REGISTRUM.block("crushing_table", CrushingTableBlock::new)
         .initialProperties(() -> Blocks.IRON_BLOCK)
-        .properties(p -> p.isValidSpawn(Blocks::never))
+        .lang("Processing Table - Crushing")
+        .properties(properties -> properties.isValidSpawn(Blocks::never))
         .blockstate(DataGenUtil::noExtraModelOrState)
+        .loot((tables, block) -> tables.add(block, LootTable.lootTable()
+            .withPool(tables.applyExplosionCondition(block, LootPool.lootPool()
+                .setRolls(ConstantValue.exactly(1.0f))
+                .add(LootItem.lootTableItem(ModBlocks.STAMPING_PLATFORM))))
+            .withPool(tables.applyExplosionCondition(block, LootPool.lootPool()
+                .setRolls(ConstantValue.exactly(1.0f))
+                .add(LootItem.lootTableItem(Items.GRINDSTONE))))))
         .simpleItem()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
-        .recipe(RegistrumBlockRecipeLoader::crushingTable)
+        .register();
+
+    public static final BlockEntry<SiftingTableBlock> SIFTING_TABLE = REGISTRUM.block("sifting_table", SiftingTableBlock::new)
+        .initialProperties(() -> Blocks.IRON_BLOCK)
+        .lang("Processing Table - Sifting")
+        .properties(properties -> properties.isValidSpawn(Blocks::never))
+        .blockstate(DataGenUtil::noExtraModelOrState)
+        .loot((tables, block) -> tables.add(block, LootTable.lootTable()
+            .withPool(tables.applyExplosionCondition(block, LootPool.lootPool()
+                .setRolls(ConstantValue.exactly(1.0f))
+                .add(LootItem.lootTableItem(ModBlocks.STAMPING_PLATFORM))))
+            .withPool(tables.applyExplosionCondition(block, LootPool.lootPool()
+                .setRolls(ConstantValue.exactly(1.0f))
+                .add(LootItem.lootTableItem(Blocks.SCAFFOLDING.asItem()))))))
+        .simpleItem()
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .register();
+
+    public static final BlockEntry<UnpackingTableBlock> UNPACKING_TABLE = REGISTRUM.block("unpacking_table", UnpackingTableBlock::new)
+        .initialProperties(() -> Blocks.IRON_BLOCK)
+        .lang("Processing Table - Unpacking")
+        .properties(properties -> properties.isValidSpawn(Blocks::never))
+        .blockstate(DataGenUtil::noExtraModelOrState)
+        .loot((tables, block) -> tables.add(block, LootTable.lootTable()
+            .withPool(tables.applyExplosionCondition(block, LootPool.lootPool()
+                .setRolls(ConstantValue.exactly(1.0f))
+                .add(LootItem.lootTableItem(ModBlocks.STAMPING_PLATFORM))))
+            .withPool(tables.applyExplosionCondition(block, LootPool.lootPool()
+                .setRolls(ConstantValue.exactly(1.0f))
+                .add(LootItem.lootTableItem(Items.IRON_TRAPDOOR))))))
+        .simpleItem()
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .register();
 
     public static final BlockEntry<FishTankBlock> FISH_TANK = REGISTRUM.block("fish_tank", FishTankBlock::new)

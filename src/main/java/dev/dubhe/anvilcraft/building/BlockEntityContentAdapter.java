@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.building;
 
 import dev.dubhe.anvilcraft.api.itemhandler.IItemResourceHandlerHolder;
+import dev.dubhe.anvilcraft.block.entity.ProcessingTableBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.storage.StorageBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
@@ -192,6 +193,7 @@ public final class BlockEntityContentAdapter {
     private static ResourceHandler<ItemResource> itemHandlerOf(@Nullable BlockEntity blockEntity, @Nullable Level level) {
         // 外部仓储通过组件引用全局数据，不能在规划时读取或清空实际仓储。
         if (blockEntity instanceof StorageBlockEntity) return null;
+        if (blockEntity instanceof ProcessingTableBlockEntity table) return table.getInput();
         if (blockEntity instanceof IItemResourceHandlerHolder holder) {
             return holder.getItemHandler();
         }
@@ -223,6 +225,7 @@ public final class BlockEntityContentAdapter {
     private static void stripSerializedHandlerItems(Tag tag) {
         if (tag instanceof CompoundTag compound) {
             compound.remove("SlotItem");
+            compound.remove("stacks");
             compound.remove("Items");
             if ((compound.get("components") instanceof CompoundTag)) {
                 compound.getCompoundOrEmpty("components").remove("minecraft:container");

@@ -239,12 +239,12 @@
     "When porting BuildingRodService, share BlueprintPlacement.MAX_ENTRIES (4000); reuse BuildingEntityTransform.withWorldPos in entity adapters.",
     "Wire captured dynamic state into blueprint entity adapters and validate tracking/rendering of restored entities.",
     "Reuse BlueprintCapture.saveEntity in leash/runtime adapters and BuildingEntityTransform support helpers; wire normalized capture into scanner/file workflows.",
-    "BuildingBlockMaterial depends on missing ProcessingTablePlacement/UseItemOnBlock material rules. Port shared processing-table assembly before material allocation; use FluidBuildAdapter.takeExactFluid(ItemAccess, FluidStack) for native replacement-container handling."
+    "ProcessingTablePlacement and shared table inventory/material rules are available. Continue BuildingBlockMaterial; use FluidBuildAdapter.takeExactFluid(ItemAccess, FluidStack) for native replacement containers."
   ],
   "verification": {
-    "server_tests_passed": 408,
-    "server_log": "build/porting/validate-blueprint-supply-2.log",
-    "compile_log": "build/porting/compile-blueprint-supply-final.log",
+    "server_tests_passed": 417,
+    "server_log": "build/porting/validate-processing-core-3.log",
+    "compile_log": "build/porting/compile-processing-core-final.log",
     "client": "No scanner UI or building input/preview consumer is switched by this node."
   },
   "runtime_persistence": {
@@ -256,5 +256,20 @@
       "api/sliding/SlidingBlockInfo.java: actual block entity loading, registry-aware encoding and legacy/empty data"
     ],
     "pending": "Blueprint capture/normalization, material-derived entity creation, runtime placement callbacks and client tracking/render acceptance remain pending."
+  },
+  "processing_tables": {
+    "source_commit": "a378f98e4d41d0d92f97cf2486ac9da7881b1674",
+    "status": "partial",
+    "ported": [
+      "ProcessingTableBlock and four concrete blocks/block entities, capabilities and legacy Inputs deserialization",
+      "UseItemOnBlock and ProcessingTablePlacement, both source-pointer consumers and generated dual-material placement rules",
+      "Recipe table alternatives, bottom outputs and stamping/crushing animation clocks",
+      "Static models/textures, generated item definitions, loot/material drops and translated block names"
+    ],
+    "pending": [
+      "ProcessingItemStackRenderer and four renderers; dynamic doors/wheels and displayed inputs are not registered yet",
+      "Shared model registration, selection/preview parts, source-vs-target in-game visual comparison",
+      "Player documentation, other recipe/advancement/JEI consumers and full building material integration"
+    ]
   }
 }
