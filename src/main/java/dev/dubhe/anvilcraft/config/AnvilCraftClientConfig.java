@@ -75,6 +75,9 @@ public class AnvilCraftClientConfig {
     @BoundedDiscrete(max = 1, min = 0)
     public double groundHeaveParticleChance = 0.8;
 
+    @Comment("Render block-state items in sifting and unpacking tables with the enlarged block model pick")
+    public boolean siftingUnpackingBlockRenderEnabled = true;
+
     @Comment("A vertical item frame vertically displays items")
     public boolean verticalItemFrame = false;
 

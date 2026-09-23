@@ -2627,5 +2627,7 @@
   "anvilcraft.configuration.weatherproof_chestplate_hud.hud_y": "显示 Y 坐标",
   "anvilcraft.configuration.weatherproof_chestplate_hud.hud_y.tooltip": "相对于游戏窗口左上角的垂直位置",
   "block.anvilcraft.sifting_table": "加工台 - 过筛",
-  "block.anvilcraft.unpacking_table": "加工台 - 解包"
+  "block.anvilcraft.unpacking_table": "加工台 - 解包",
+  "anvilcraft.configuration.sifting_unpacking_block_render_enabled": "过筛/解包台的内容物是否渲染为方块大小",
+  "anvilcraft.configuration.sifting_unpacking_block_render_enabled.tooltip": "把过筛或解包台内容的方块物品，渲染成真实的方块大小"
 }

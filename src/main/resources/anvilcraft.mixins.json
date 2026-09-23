@@ -142,6 +142,8 @@
     "client.SmartPlacerScanTimeMixin",
     "client.SmartPlacerStructureLightingMixin",
     "client.ItemStackRenderStateAccessor",
+    "client.ProcessingModelShapeMixin",
+    "client.ProcessingModelBakeMixin",
     "client.ItemLayerTransformInvoker",
     "client.CubeHighlightEventsMixin",
     "client.SimpleModelWrapperSelectionMixin",

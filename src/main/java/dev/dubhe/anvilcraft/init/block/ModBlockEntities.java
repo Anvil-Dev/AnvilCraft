@@ -105,6 +105,7 @@ import dev.dubhe.anvilcraft.client.renderer.blockentity.CorruptedBeaconRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.CreativeCrateRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.CreativeFluidTankRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.CreativeGeneratorRenderer;
+import dev.dubhe.anvilcraft.client.renderer.blockentity.CrushingTableBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.DischargerRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.DrainBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.ExpCollectorBlockEntityRenderer;
@@ -124,11 +125,14 @@ import dev.dubhe.anvilcraft.client.renderer.blockentity.PipeCheckValveBERenderer
 import dev.dubhe.anvilcraft.client.renderer.blockentity.PulseGeneratorBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.PumpBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.RedstoneDiceBlockEntityRenderer;
+import dev.dubhe.anvilcraft.client.renderer.blockentity.SiftingTableBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.SmartBlockPlacerRenderer;
+import dev.dubhe.anvilcraft.client.renderer.blockentity.StampingPlatformBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.StorageFluidPortBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.StoragePortBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.TeslaTowerRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.TradingStationBlockEntityRenderer;
+import dev.dubhe.anvilcraft.client.renderer.blockentity.UnpackingTableBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.VoidEnergyCollectorRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.WipBlockEntityRenderer;
 
@@ -536,21 +540,25 @@ public class ModBlockEntities {
     public static final BlockEntityEntry<StampingPlatformBlockEntity> STAMPING_PLATFORM = REGISTRUM
         .blockEntity("stamping_platform", StampingPlatformBlockEntity::new)
         .validBlocks(ModBlocks.STAMPING_PLATFORM)
+        .renderer(() -> StampingPlatformBlockEntityRenderer::new)
         .register();
 
     public static final BlockEntityEntry<CrushingTableBlockEntity> CRUSHING_TABLE = REGISTRUM
         .blockEntity("crushing_table", CrushingTableBlockEntity::new)
         .validBlocks(ModBlocks.CRUSHING_TABLE)
+        .renderer(() -> CrushingTableBlockEntityRenderer::new)
         .register();
 
     public static final BlockEntityEntry<SiftingTableBlockEntity> SIFTING_TABLE = REGISTRUM
         .blockEntity("sifting_table", SiftingTableBlockEntity::new)
         .validBlocks(ModBlocks.SIFTING_TABLE)
+        .renderer(() -> SiftingTableBlockEntityRenderer::new)
         .register();
 
     public static final BlockEntityEntry<UnpackingTableBlockEntity> UNPACKING_TABLE = REGISTRUM
         .blockEntity("unpacking_table", UnpackingTableBlockEntity::new)
         .validBlocks(ModBlocks.UNPACKING_TABLE)
+        .renderer(() -> UnpackingTableBlockEntityRenderer::new)
         .register();
 
     public static final BlockEntityEntry<FishTankBlockEntity> FISH_TANK = REGISTRUM

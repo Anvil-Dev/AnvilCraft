@@ -244,8 +244,8 @@
   "verification": {
     "server_tests_passed": 417,
     "server_log": "build/porting/validate-processing-core-3.log",
-    "compile_log": "build/porting/compile-processing-core-final.log",
-    "client": "No scanner UI or building input/preview consumer is switched by this node."
+    "compile_log": "build/porting/compile-processing-render-cubic-final.log",
+    "client": "Processing-table runtime rendering and source comparison completed for the recorded scenes. Building Rod input/preview and scanner consumers remain pending."
   },
   "runtime_persistence": {
     "source_commit": "a378f98e4d41d0d92f97cf2486ac9da7881b1674",
@@ -264,12 +264,20 @@
       "ProcessingTableBlock and four concrete blocks/block entities, capabilities and legacy Inputs deserialization",
       "UseItemOnBlock and ProcessingTablePlacement, both source-pointer consumers and generated dual-material placement rules",
       "Recipe table alternatives, bottom outputs and stamping/crushing animation clocks",
-      "Static models/textures, generated item definitions, loot/material drops and translated block names"
+      "Static models/textures, generated item definitions, loot/material drops and translated block names",
+      "ProcessingItemStackRenderer and all four renderers with reusable item states/poses; shared mechanical transforms for rendering, picking and static preview",
+      "Standalone door/wheel model registration; native cuboid/generated shape metadata independent of gui_light; enlarged-display config and translations"
     ],
     "pending": [
-      "ProcessingItemStackRenderer and four renderers; dynamic doors/wheels and displayed inputs are not registered yet",
-      "Shared model registration, selection/preview parts, source-vs-target in-game visual comparison",
-      "Player documentation, other recipe/advancement/JEI consumers and full building material integration"
-    ]
+      "Player documentation, remaining recipe/advancement/JEI consumers and full building material integration",
+      "Full Building Rod preview/input integration is still pending; no global vanilla rendering changes were made."
+    ],
+    "client_verification": {
+      "target_log": "build/porting/client-processing-render-cubic.log",
+      "source_log": "build/porting/client-processing-reference-mechanical.log",
+      "comparison": "build/porting/processing-visual-comparison.json",
+      "coverage": "Eight matched screenshot scenes, item layers and enlargement/blocking, front-lit cuboid vs generated plant models, repeated extraction stability, shared selection parts, source runtime wheel matrices at 25% progress.",
+      "limits": "No pixel-identity claim: native terrain sampling/color and registry-ID-based scatter seeds differ. Wheel motion mask IoU 0.996; door motion bounds match, threshold-mask IoU 0.7179."
+    }
   }
 }

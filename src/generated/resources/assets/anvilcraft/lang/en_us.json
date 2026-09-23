@@ -284,6 +284,8 @@
   "anvilcraft.configuration.section.anvilcraft.client.toml.title": "Anvilcraft Client Configuration",
   "anvilcraft.configuration.section.anvilcraft.server.toml": "Anvilcraft Server Configuration",
   "anvilcraft.configuration.section.anvilcraft.server.toml.title": "Anvilcraft Server Configuration",
+  "anvilcraft.configuration.sifting_unpacking_block_render_enabled": "Enlarged Block Rendering in Sifting/Unpacking Tables",
+  "anvilcraft.configuration.sifting_unpacking_block_render_enabled.tooltip": "Renders block-state items inside sifting and unpacking tables with the enlarged block model pick instead of regular scattered item rendering",
   "anvilcraft.configuration.sliding_rail_stick_to_each_other": "Sliding Rail Stick To Each Other",
   "anvilcraft.configuration.sliding_rail_stick_to_each_other.tooltip": "Pushing or pulling a sliding rail will chain to other rails",
   "anvilcraft.configuration.smart_block_placer_interval": "Smart Block Placer Interval",

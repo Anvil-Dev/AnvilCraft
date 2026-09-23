@@ -10,6 +10,7 @@ import dev.dubhe.anvilcraft.client.renderer.blockentity.CFARenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.ChargeCollectorRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.ControlValveBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.CreativeGeneratorRenderer;
+import dev.dubhe.anvilcraft.client.renderer.blockentity.CrushingTableBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.FeCollectorRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.FishTankRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.HeatCollectorRenderer;
@@ -21,6 +22,7 @@ import dev.dubhe.anvilcraft.client.renderer.blockentity.PulseGeneratorBlockEntit
 import dev.dubhe.anvilcraft.client.renderer.blockentity.PumpBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.RedstoneDiceBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.SmartBlockPlacerRenderer;
+import dev.dubhe.anvilcraft.client.renderer.blockentity.StampingPlatformBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.VoidEnergyCollectorRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.WipBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.item.CrabClawItemInHandRenderer;
@@ -28,10 +30,10 @@ import dev.dubhe.anvilcraft.client.renderer.item.DiskItemRenderer;
 import dev.dubhe.anvilcraft.client.renderer.item.FilterItemRenderer;
 import dev.dubhe.anvilcraft.client.renderer.item.FluidTankItemRenderer;
 import dev.dubhe.anvilcraft.client.renderer.item.LargeFluidTankItemRenderer;
-import dev.dubhe.anvilcraft.client.renderer.item.StorageFluidPortItemRenderer;
-import dev.dubhe.anvilcraft.client.renderer.item.StoragePortItemRenderer;
 import dev.dubhe.anvilcraft.client.renderer.item.SpectralSlingshotRenderer;
 import dev.dubhe.anvilcraft.client.renderer.item.SpectralWeaponLauncherRenderer;
+import dev.dubhe.anvilcraft.client.renderer.item.StorageFluidPortItemRenderer;
+import dev.dubhe.anvilcraft.client.renderer.item.StoragePortItemRenderer;
 import dev.dubhe.anvilcraft.init.registry.ModRegistries;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.Identifier;
@@ -242,6 +244,14 @@ public class RegisterAdditionalEventListener {
             LargeCauldronBlockEntityRenderer.FIRE,
             SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/fire_cauldron_fire4"))
         );
+        event.register(StampingPlatformBlockEntityRenderer.DOOR_LEFT,
+            SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/processing_table_door_left")));
+        event.register(StampingPlatformBlockEntityRenderer.DOOR_RIGHT,
+            SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/processing_table_door_right")));
+        event.register(CrushingTableBlockEntityRenderer.WHEEL_LEFT,
+            SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/processing_table_crushing_wheel_left")));
+        event.register(CrushingTableBlockEntityRenderer.WHEEL_RIGHT,
+            SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/processing_table_crushing_wheel_right")));
         event.register(
             SmartBlockPlacerRenderer.BASE_MODEL,
             SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/smart_block_placer_base"))

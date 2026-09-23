@@ -41,6 +41,7 @@ allprojects {
             include '**/AnimateAscendingBlockEntity.java', '**/SlidingBlockEntity.java', '**/CauldronOutletEntity.java'
             include '**/building/*.java'
             include '**/InWorldRecipeEventListener.java', '**/MeshRecipe.java', '**/UnpackRecipe.java', '**/ItemCrushRecipe.java'
+            include '**/ProcessingItemStackRenderer.java', '**/ProcessingModel*.java'
             include '**/*ProcessingTable*.java', '**/StampingPlatform*.java', '**/CrushingTable*.java', '**/SiftingTable*.java', '**/UnpackingTable*.java'
             include '**/UseItemOnBlock.java', '**/ProcessingTablePlacement.java', '**/ModBlockPlacementRuleProvider.java'
             include '**/BlockItemHandlerPointer.java', '**/ItemEntityPointer.java'

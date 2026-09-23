@@ -10,6 +10,12 @@ public class ConfigScreenLang {
     ///
     /// @param provider 提供器
     public static void init(RegistrumLangProvider provider) {
+        addOverride(provider, "anvilcraft.configuration.sifting_unpacking_block_render_enabled",
+            "Enlarged Block Rendering in Sifting/Unpacking Tables");
+        addOverride(provider, "anvilcraft.configuration.sifting_unpacking_block_render_enabled.tooltip",
+            "Renders block-state items inside sifting and unpacking tables with the enlarged block model pick"
+                + " instead of regular scattered item rendering");
+
         ConfigScreenLang.addOverrides(provider);
         ConfigData.readConfigClass(provider, AnvilCraftServerConfig.class);
         ConfigData.readConfigClass(provider, AnvilCraftClientConfig.class);
