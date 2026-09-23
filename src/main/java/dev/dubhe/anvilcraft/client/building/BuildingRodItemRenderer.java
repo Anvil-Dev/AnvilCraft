@@ -338,7 +338,7 @@ public final class BuildingRodItemRenderer {
         private static PayloadPose of(BuildingRodModelParts.ModelState model, ItemStack stack) {
             Vector3f min = new Vector3f(Float.POSITIVE_INFINITY);
             Vector3f max = new Vector3f(Float.NEGATIVE_INFINITY);
-            model.visitExtents(vertex -> {
+            model.visitQuadExtents(vertex -> {
                 min.min(vertex);
                 max.max(vertex);
             });

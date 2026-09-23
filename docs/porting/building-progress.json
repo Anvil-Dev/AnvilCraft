@@ -215,7 +215,7 @@
     {
       "source": "src/main/java/dev/dubhe/anvilcraft/client/building/BuildingRodItemRenderer.java",
       "status": "partial",
-      "integration": "First-person and native armed-entity render-state paths share extracted held state. Main/offhand payload, last consumed material, carried claw and mining beam exercised. Source screenshot A/B and complex/tall payload fit acceptance remain pending."
+      "integration": "Shared first/third-person state and ordinary-placement feedback implemented. Selected source A/B validates hand bounds and payload fits, including pole/CFA/special-only items. Full standalone CFA item behavior and broader animated/complex acceptance remain pending."
     },
     {
       "source": "src/main/java/dev/dubhe/anvilcraft/client/building/BuildingRodKeyRepeat.java",
@@ -240,7 +240,7 @@
     {
       "source": "src/main/java/dev/dubhe/anvilcraft/client/building/BuildingRodRenderTypes.java",
       "status": "ported",
-      "integration": "Source low-alpha cutout handling adapted to native block shader/fog; entity pipeline cloning preserves native format/textures and enables blending. No global terrain pipeline change."
+      "integration": "Native block ghost shader and source-equivalent translucent culling for opaque entity materials. Reference projection corrected double-sided overdraw; no global terrain pipeline change."
     },
     {
       "source": "src/main/java/dev/dubhe/anvilcraft/client/building/BuildingRodRenderer.java",
@@ -264,8 +264,8 @@
     }
   ],
   "pending_integration": [
-    "Source screenshot A/B for building previews, hand poses/payloads, animation and HUD; retain native 26.1 terrain rendering.",
-    "Large/tiled projection performance, thin/non-cubic/column/CFA payloads, resource reload and broader entity/BER acceptance.",
+    "Expand source visual acceptance beyond the 18 recorded static scenes: animated interactions, wider entity/BER cases and resource reload. Retain native 26.1 terrain rendering.",
+    "Large/tiled projection performance and further complex payload acceptance; full standalone CFA item renderer (including stored celestial body and context-specific behavior) still pending.",
     "Structure scanner and disk/client file workflows, including BlueprintClientFiles and NBT/Litematica import UI.",
     "AutoEnchantingTable configuration and remaining ItemDetector UI/network controls.",
     "Complete ordinary preview PlacementInteractions and PlaceInWaterBlockItem.surfaceCandidates workflows.",
@@ -274,7 +274,7 @@
   "verification": {
     "server_tests_passed": 485,
     "server_log": "build/porting/validate-building-client-final.log",
-    "compile_log": "build/porting/compile-building-client-final.log",
+    "compile_log": "build/porting/compile-rod-parity-production.log",
     "client": "Real native control, projection, hand, result packet and third-person scenes passed; source A/B and remaining coverage are explicitly pending."
   },
   "runtime_persistence": {
@@ -408,8 +408,23 @@
       "Main/offhand payload, last ordinary-placement material, carried and empty-hand claw",
       "Native third-person main/offhand rod state, hidden material hand and creative mining beam"
     ],
-    "limits": "No source screenshot A/B claim yet. Large/batched render performance, complex payload fit, resource reload and exhaustive mode combinations remain pending.",
+    "limits": "18 static source A/B scenes now recorded. Large/batched render performance, resource reload, broader animated/BER/entity coverage and exhaustive mode combinations remain pending.",
     "input_fixture": "Windows-only development harness posts modifier messages to its own GLFW test window; production input is unchanged and no global keyboard injection is used.",
     "data": "Four config language entries generated; seven source icons copied exactly; StructureDiskData autoRotate defaults true for legacy data and survives NBT/network roundtrip."
+  },
+  "visual_parity": {
+    "source_commit": "a378f98e4d41d0d92f97cf2486ac9da7881b1674",
+    "source_log": "build/porting/client-rod-parity-source-final.log",
+    "target_log": "build/porting/client-rod-parity-target-entity-fixed.log",
+    "report": "build/porting/building-visual-comparison.json",
+    "scenes": 18,
+    "coverage": "Fixed camera/FOV/light/core angle; main/off hands, empty/charged/uncharged rod, stone/slab/torch/pole/CFA/disk, bed/chest/shulker/head, mixed block/fluid/BER/entity projection and rotated/mirrored projection.",
+    "results": "All orange hand-geometry bounds match; mask IoU 0.980252-0.998467; normalized payload fit maximum error 1.1920928955078125e-7. CFA, bed and projection screenshots inspected.",
+    "fixes": [
+      "Use baked-quad extents only for payload fitting; preserve source fallback for special-only models instead of sizing overlays/BER bounds",
+      "Update source CFA item model from 84 to 140 elements and matching top texture; world base/assembly geometry already matches",
+      "Convert opaque entity projection materials to the native translucent culling pipeline; avoid double-sided overdraw and inherited dissolve behavior"
+    ],
+    "limits": "These are selected static reference scenes, not universal pixel identity. Vanilla sky/cloud/terrain/lighting retained. Large/tiled performance, resource reload, further animated/entity/BER cases and full standalone CFA item renderer remain pending."
   }
 }

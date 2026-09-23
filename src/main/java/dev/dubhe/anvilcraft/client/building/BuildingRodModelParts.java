@@ -9,12 +9,15 @@ import net.minecraft.client.resources.model.geometry.BakedQuad;
 import net.minecraft.util.LightCoordsUtil;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
+import org.joml.Vector3f;
+import org.joml.Vector3fc;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
 final class BuildingRodModelParts {
     private static final int[] GREEN_TINT = {0xFFD8FFBF};
@@ -111,6 +114,21 @@ final class BuildingRodModelParts {
 
         List<Object> identity() {
             return this.identity == null ? List.of() : List.copyOf(this.identity);
+        }
+
+        void visitQuadExtents(Consumer<Vector3fc> output) {
+            if (this.layers == null) return;
+            PoseStack.Pose pose = new PoseStack.Pose();
+            Vector3f vertex = new Vector3f();
+            for (var layer : this.layers) {
+                pose.setIdentity();
+                ((BuildingRodItemLayerAccessor) layer).anvilcraft$applyTransform(pose);
+                for (var quad : layer.prepareQuadList()) {
+                    for (int index = 0; index < 4; index++) {
+                        output.accept(vertex.set(quad.position(index)).mulPosition(pose.pose()));
+                    }
+                }
+            }
         }
 
         void applyTransform(PoseStack pose) {
