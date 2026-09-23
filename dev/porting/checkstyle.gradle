@@ -40,6 +40,7 @@ allprojects {
             include '**/sliding/SlidingBlockInfo.java'
             include '**/AnimateAscendingBlockEntity.java', '**/SlidingBlockEntity.java', '**/CauldronOutletEntity.java'
             include '**/building/*.java'
+            include '**/ItemDetectorBlockEntity.java', '**/PulseGeneratorBlockEntity.java'
             include '**/WheelGuiBlurMixin.java', '**/GuiBlurBoundaryAccessor.java', '**/WheelWidgetMixin.java'
             include '**/WheelBackgroundCapture.java', '**/WheelBackgroundFrameMixin.java', '**/WheelFrostedBackgroundMixin.java'
             include '**/LensBlock.java'

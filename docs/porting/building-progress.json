@@ -5,11 +5,13 @@
   "files": [
     {
       "source": "src/main/java/dev/dubhe/anvilcraft/building/BlockEntityContentAdapter.java",
-      "status": "pending"
+      "status": "ported",
+      "integration": "Shared content extraction/insertion and sign decoration APIs tested. Material allocation, commit and preview consumers remain pending."
     },
     {
       "source": "src/main/java/dev/dubhe/anvilcraft/building/BlueprintBlockConfiguration.java",
-      "status": "pending"
+      "status": "partial",
+      "integration": "Available block configuration, filter samples, runtime restoration and transforms tested. AutoEnchantingTable dependency is not ported yet; its configuration branch remains pending. ItemDetector output inversion backend is ported; UI/network controls remain pending."
     },
     {
       "source": "src/main/java/dev/dubhe/anvilcraft/building/BlueprintBlockEntities.java",
@@ -155,7 +157,8 @@
     },
     {
       "source": "src/main/java/dev/dubhe/anvilcraft/building/SignDecorationAdapter.java",
-      "status": "pending"
+      "status": "ported",
+      "integration": "Shared content extraction/insertion and sign decoration APIs tested. Material allocation, commit and preview consumers remain pending."
     },
     {
       "source": "src/main/java/dev/dubhe/anvilcraft/building/StructureSnapshot.java",

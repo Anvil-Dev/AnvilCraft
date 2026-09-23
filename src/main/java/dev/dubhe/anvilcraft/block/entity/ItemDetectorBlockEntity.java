@@ -95,6 +95,8 @@ public class ItemDetectorBlockEntity extends BlockEntity implements MenuProvider
     };
     @Getter
     private int outputSignal = 0;
+    @Getter
+    private boolean outputInvert;
 
     public ItemDetectorBlockEntity(BlockEntityType<? extends BlockEntity> type, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState);
@@ -123,10 +125,11 @@ public class ItemDetectorBlockEntity extends BlockEntity implements MenuProvider
     protected void loadAdditional(ValueInput input) {
         super.loadAdditional(input);
         this.setRange(input.getIntOr("Range", 0));
-        if (input.getInt("FilterMode").isPresent()) {
+        if (input.getString("FilterMode").isPresent()) {
             this.filterMode = Mode.valueOf(input.getStringOr("FilterMode", ""));
         }
         input.child("Filter").ifPresent(this.filter::deserialize);
+        this.outputInvert = input.getBooleanOr("OutputInvert", this.outputInvert);
         if (input.getInt("OutputSignal").isPresent()) {
             this.outputSignal = input.getIntOr("OutputSignal", 0);
         }
@@ -138,6 +141,7 @@ public class ItemDetectorBlockEntity extends BlockEntity implements MenuProvider
         super.saveAdditional(output);
         output.putInt("Range", this.range);
         output.putString("FilterMode", this.filterMode.toString());
+        output.putBoolean("OutputInvert", this.outputInvert);
         ValueOutput child = output.child("Filter");
         this.filter.serialize(child);
         output.putInt("OutputSignal", this.outputSignal);
@@ -148,6 +152,7 @@ public class ItemDetectorBlockEntity extends BlockEntity implements MenuProvider
         if (!this.rangeChanged) return new CompoundTag();
         CompoundTag tag = super.getUpdateTag(registries);
         tag.putInt("Range", this.range);
+        tag.putBoolean("OutputInvert", this.outputInvert);
         this.rangeChanged = false;
         return tag;
     }
@@ -168,6 +173,7 @@ public class ItemDetectorBlockEntity extends BlockEntity implements MenuProvider
             entity -> !entity.getItem().isEmpty()
         );
         int output = this.getOutput(itemEntities, level, this.detectionRange);
+        if (this.outputInvert) output = 15 - output;
         if (output == this.outputSignal) return;
         this.outputSignal = output;
         if (blockState.getValue(ItemDetectorBlock.POWERED) != (this.outputSignal > 0)) {
@@ -230,6 +236,12 @@ public class ItemDetectorBlockEntity extends BlockEntity implements MenuProvider
     public void setFilterMode(Mode filterMode) {
         if (this.filterMode == filterMode) return;
         this.filterMode = filterMode;
+        this.setChanged();
+    }
+
+    public void setOutputInvert(boolean outputInvert) {
+        if (this.outputInvert == outputInvert) return;
+        this.outputInvert = outputInvert;
         this.setChanged();
     }
 
@@ -345,6 +357,7 @@ public class ItemDetectorBlockEntity extends BlockEntity implements MenuProvider
         if (this.level == null) return;
         output.putInt("Range", this.range);
         output.putString("FilterMode", this.filterMode.toString());
+        output.putBoolean("OutputInvert", this.outputInvert);
         ValueOutput child = output.child("Filter");
         this.filter.serialize(child);
     }
@@ -354,6 +367,7 @@ public class ItemDetectorBlockEntity extends BlockEntity implements MenuProvider
         if (this.level == null) return;
         this.setRange(input.getIntOr("Range", 0));
         this.filterMode = Mode.valueOf(input.getStringOr("FilterMode", ""));
+        this.outputInvert = input.getBooleanOr("OutputInvert", this.outputInvert);
         ValueInput filter1 = input.childOrEmpty("Filter");
         this.filter.deserialize(filter1);
         this.recalcDetectionRange();
