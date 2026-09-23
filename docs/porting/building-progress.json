@@ -113,15 +113,18 @@
     },
     {
       "source": "src/main/java/dev/dubhe/anvilcraft/building/BuildingRodObstructions.java",
-      "status": "pending"
+      "status": "ported",
+      "integration": "Precise collision-shape detection, deduplication, localized rejection and client packet implemented. Real native client glow and three-second expiry tested; full service commit caller pending."
     },
     {
       "source": "src/main/java/dev/dubhe/anvilcraft/building/BuildingRodPattern.java",
-      "status": "pending"
+      "status": "ported",
+      "integration": "Source slot bounds, tiled/random materials, per-cell components, empty slots and multipart grouping implemented and tested through shared BuildingBlockPlanner. Building service input caller pending."
     },
     {
       "source": "src/main/java/dev/dubhe/anvilcraft/building/BuildingRodService.java",
-      "status": "pending"
+      "status": "partial",
+      "integration": "Source block planning, single placement and multipart tiling extracted to shared BuildingBlockPlanner; native regular placement preview now uses it. Selection, blueprint planning, confirmation, commit and result-packet entry points remain pending."
     },
     {
       "source": "src/main/java/dev/dubhe/anvilcraft/building/BuildingRodUndo.java",
@@ -223,7 +226,8 @@
     },
     {
       "source": "src/main/java/dev/dubhe/anvilcraft/client/building/BuildingRodObstructionHighlight.java",
-      "status": "pending"
+      "status": "ported",
+      "integration": "Source WeakHashMap and monotonic three-second expiry, real packet handler and Minecraft.shouldEntityAppearGlowing mixin tested in client; no persistent glow flag is written."
     },
     {
       "source": "src/main/java/dev/dubhe/anvilcraft/client/building/BuildingRodRenderTypes.java",
@@ -258,12 +262,13 @@
     "Leash/runtime adapters now reuse BlueprintCapture.saveEntity and shared entity transforms; wire normalized capture into scanner/file workflows.",
     "ProcessingTablePlacement and shared table inventory/material rules are available. BuildingBlockMaterial is now available; continue full material allocation. use FluidBuildAdapter.takeExactFluid(ItemAccess, FluidStack) for native replacement containers.",
     "When porting BuildingRodService.materialCount, delegate to BuildingBlockMaterial.materialCount so moving sections and static placement share the same source counting rules.",
-    "Use shared BuildingPlan.Cell/Group when porting BuildingRodService; do not duplicate plan records. Pass BuildingRodItem.material(player) to BuildingMaterials. Route undo input to the guarded public BuildingRodUndo.undo entry point."
+    "Use shared BuildingPlan.Cell/Group when porting BuildingRodService; do not duplicate plan records. Pass BuildingRodItem.material(player) to BuildingMaterials. Route undo input to the guarded public BuildingRodUndo.undo entry point.",
+    "BuildingRodService must reuse BuildingBlockPlanner.planBlocks/singlePlacement and BuildingRodPattern; the shared planner already uses BuildingPlan.Cell/Group and BuildingCommit.canModify. Do not reintroduce parallel placement logic."
   ],
   "verification": {
-    "server_tests_passed": 465,
-    "server_log": "build/porting/validate-large-cake-final.log",
-    "compile_log": "build/porting/compile-large-cake-final.log",
+    "server_tests_passed": 471,
+    "server_log": "build/porting/validate-building-planner-final.log",
+    "compile_log": "build/porting/compile-building-planner-final.log",
     "client": "Processing-table comparison completed for recorded scenes. Building Rod empty/charged inventory model and tooltip client scene passed; full input/preview and first-person animation remain pending."
   },
   "runtime_persistence": {
@@ -340,6 +345,27 @@
       "datagen_log": "build/porting/datagen-large-cake.log",
       "compile_log": "build/porting/compile-large-cake-final.log",
       "client": "All six preview scenes passed; cake outline and ghost each contain 27 rendered cells. Both screenshots inspected. No source screenshot A/B yet."
+    }
+  },
+  "block_planning": {
+    "source_commit": "a378f98e4d41d0d92f97cf2486ac9da7881b1674",
+    "ported": [
+      "Single click respects native placement context and slab merging; multipart offset retry and amplifier snapping; full cake, doors, beds and plants",
+      "Area planning and face-relative multipart tiling, shared 4000-cell limit and permission checks",
+      "Filter patterns preserve components and empty slots, deterministic world-position seeded choices and grouped overlap suppression",
+      "Regular placement preview consumes shared plans and retains complete-outline-or-ghost fallback",
+      "Obstruction collision-shape checks, deduplicated entity packet and three-second client-only native glow"
+    ],
+    "pending": [
+      "BuildingRodService placement/confirmation/commit integration",
+      "Full source preview PlacementInteractions and PlaceInWaterBlockItem surfaceCandidates workflow still pending; current ordinary preview retains existing water path"
+    ],
+    "verification": {
+      "server_log": "build/porting/validate-building-planner-final.log",
+      "server_tests_passed": 471,
+      "client_log": "build/porting/client-building-planner.log",
+      "client_screenshot": "run/port-validation/client/screenshots/building-obstruction-26.1-glow.png",
+      "compile_log": "build/porting/compile-building-planner-final.log"
     }
   }
 }

@@ -32,13 +32,18 @@ public final class PlacementPreviewClientScene {
     private static int verifiedStage = -1;
     private static boolean capturing;
     private static boolean ready;
+    private static boolean previewPassed;
 
     public static void frame(Minecraft mc) {
         if (mc.screen != null || !(mc.level.getBlockEntity(ANVIL) instanceof CelestialForgingAnvilBlockEntity)) return;
         if (stage >= 6) {
-            AnvilCraft.LOGGER.info("PORT_PLACEMENT_PREVIEW_PASSED: outline, ghost, off, independent amplifier warning, "
-                + "large cake outline/ghost");
-            mc.stop();
+            if (!previewPassed) {
+                AnvilCraft.LOGGER.info("PORT_PLACEMENT_PREVIEW_PASSED: outline, ghost, off, independent amplifier warning, "
+                    + "large cake outline/ghost");
+                previewPassed = true;
+            }
+            ready = false;
+            BuildingObstructionClientScene.frame(mc);
             return;
         }
         mc.player.setPos(8.5, stage >= 4 ? 82.0 : 81.6, stage >= 4 ? 12.0 : 11.5);

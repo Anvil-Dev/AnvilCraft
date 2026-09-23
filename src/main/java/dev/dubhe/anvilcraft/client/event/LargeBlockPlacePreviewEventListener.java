@@ -11,7 +11,7 @@ import dev.dubhe.anvilcraft.block.cake.LargeCakeBlock;
 import dev.dubhe.anvilcraft.block.cfa.CelestialForgingAnvilAmplifierBlock;
 import dev.dubhe.anvilcraft.block.entity.CelestialForgingAnvilBlockEntity;
 import dev.dubhe.anvilcraft.block.multipart.AbstractMultiPartBlock;
-import dev.dubhe.anvilcraft.block.multipart.FlexibleMultiPartBlock;
+import dev.dubhe.anvilcraft.building.BuildingBlockPlanner;
 import dev.dubhe.anvilcraft.client.AnvilCraftClient;
 import dev.dubhe.anvilcraft.client.init.ModRenderTypes;
 import dev.dubhe.anvilcraft.client.selection.ModelBlockSelection;
@@ -20,10 +20,7 @@ import dev.dubhe.anvilcraft.config.AnvilCraftClientConfig;
 import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.item.block.ChuteBlockItem;
-import dev.dubhe.anvilcraft.item.block.FlexibleMultiPartBlockItem;
-import dev.dubhe.anvilcraft.item.block.LargeCakeBlockItem;
 import dev.dubhe.anvilcraft.item.block.PlaceInWaterBlockItem;
-import dev.dubhe.anvilcraft.item.block.SimpleMultiPartBlockItem;
 import dev.dubhe.anvilcraft.util.BlockPlacementPicking;
 import dev.dubhe.anvilcraft.util.SegmentedActuator;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
@@ -44,7 +41,6 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
@@ -151,7 +147,6 @@ public class LargeBlockPlacePreviewEventListener {
             return;
         }
         // 多方块方块自成一体；标签内的单方块（红石类 / 物流类）走单方块预览
-        final boolean multiPart = blockItem.getBlock() instanceof AbstractMultiPartBlock<?>;
         if (!isPreviewable(blockItem.getBlock())) {
             return;
         }
@@ -185,83 +180,10 @@ public class LargeBlockPlacePreviewEventListener {
         if (useContext instanceof BlockPlacementPicking.PlayerClick click && !click.anvilcraft$hasBlockHit()) {
             return;
         }
-        if (!multiPart) {
-            updateSingleBlockPreview(mc, blockItem, useContext);
-            return;
-        }
-        final Direction direction = useContext.getClickedFace();
-        AbstractMultiPartBlock<?> block = (AbstractMultiPartBlock<?>) blockItem.getBlock();
-        BlockPlaceContext context = snapPlacementContext(block, new BlockPlaceContext(useContext));
-        BlockPos pos = context.getClickedPos();
-        validateCanRender(item, blockItem, pos);
-        BlockState state = getPlacementState(block, blockItem, context);
-        List<BlockPos> errorPosList = getErrorPosList(mc.level, block, pos, state);
-        if (!errorPosList.isEmpty()) {
-            if (blockItem instanceof SimpleMultiPartBlockItem<?> simpleMultiPartBlockItem) {
-                int distance = simpleMultiPartBlockItem.getMaxOffsetDistance(direction);
-                pos = useContext.getClickedPos().relative(direction, distance);
-            }
-            if (blockItem instanceof FlexibleMultiPartBlockItem<?, ?, ?> flexibleMultiPartBlockItem) {
-                int distance = flexibleMultiPartBlockItem.getMaxOffsetDistance(state, direction);
-                pos = useContext.getClickedPos().relative(direction, distance);
-            }
-            context = snapPlacementContext(block, new BlockPlaceContext(new UseOnContext(
-                mc.level, player, hand, item, new BlockHitResult(
-                    useContext.getClickLocation().add(Vec3.atLowerCornerOf(pos.subtract(useContext.getClickedPos()))),
-                    direction,
-                    pos,
-                    false
-                )
-            )));
-            pos = context.getClickedPos();
-            state = getPlacementState(block, blockItem, context);
-            errorPosList = getErrorPosList(mc.level, block, pos, state);
-        }
-        if (errorPosList.isEmpty()) {
-            collectRenderEntries(block, pos, state);
-        }
-    }
-
-    /**
-     * 单方块放置预览：按放置状态在落点渲染一个鬼影。
-     *
-     * <p>红石类与物流类的朝向 / 贴面由点击位置决定（溜槽会自动背对玩家、红石导线贴在
-     * 被点击的面、滑轨沿视线轴向），先看一眼朝向能避免放错。渲染复用多方块的鬼影与
-     * 描边（{@link #extractPreview}），故这里只负责算出落点与放置状态。</p>
-     */
-    private static void updateSingleBlockPreview(Minecraft mc, BlockItem blockItem, UseOnContext useContext) {
-        Block block = blockItem.getBlock();
-        BlockPlaceContext context = new BlockPlaceContext(useContext);
-        BlockPos pos = context.getClickedPos();
-        // 放不下（如压力板缺少支撑）时不显示鬼影，避免给出错误预期
-        BlockState state = blockItem instanceof LargeCakeBlockItem cake ? cake.getPlacementState(context)
-            : block.getStateForPlacement(context);
-        if (mc.level != null && (state == null || !mc.level.getBlockState(pos).canBeReplaced(context))) {
-            return;
-        }
-        if (state != null) {
-            if (blockItem instanceof LargeCakeBlockItem) {
-                LargeCakeBlockItem.forEachPlacedBlock(pos, state,
-                    (partPos, partState) -> renderEntries.add(new RenderEntry(partPos, partState)));
-            } else {
-                renderEntries.add(new RenderEntry(pos, state));
-            }
-        }
-    }
-
-    private static BlockPlaceContext snapPlacementContext(AbstractMultiPartBlock<?> block, BlockPlaceContext context) {
-        if (!(block instanceof CelestialForgingAnvilAmplifierBlock amplifier)) return context;
-        BlockPos pos = context.getClickedPos();
-        BlockPos snapped = amplifier.snapMainPos(context.getLevel(), pos);
-        if (snapped == null || snapped.equals(pos)) return context;
-        return new BlockPlaceContext(
-            context.getLevel(), context.getPlayer(), context.getHand(), context.getItemInHand(), new BlockHitResult(
-                context.getClickLocation().add(Vec3.atLowerCornerOf(snapped.subtract(pos))),
-                context.getClickedFace(),
-                snapped,
-                false
-            )
-        );
+        var cells = BuildingBlockPlanner.singlePlacement(useContext);
+        if (cells.isEmpty()) return;
+        validateCanRender(item, blockItem, cells.getFirst().pos());
+        for (var cell : cells) renderEntries.add(new RenderEntry(cell.pos(), cell.state()));
     }
 
     /** 该方块是否参与放置预览：多方块方块，或 {@link ModBlockTags#PLACEMENT_PREVIEW} 内的单方块。 */
@@ -282,35 +204,6 @@ public class LargeBlockPlacePreviewEventListener {
         }
         renderEntries.clear();
         renderEntries.addAll(parts);
-    }
-
-    private static List<BlockPos> getErrorPosList(
-        Level level,
-        AbstractMultiPartBlock<?> block,
-        BlockPos pos,
-        BlockState state
-    ) {
-        List<BlockPos> errorBlockPosList = new ObjectArrayList<>();
-        for (Enum<?> part : block.getParts()) {
-            BlockPos offset = pos.offset(block.offsetFrom(state, cast(part)));
-            BlockState blockState = level.getBlockState(offset);
-            if (!blockState.canBeReplaced() || level.isOutsideBuildHeight(offset)) {
-                errorBlockPosList.add(offset);
-            }
-        }
-        return errorBlockPosList;
-    }
-
-    private static void collectRenderEntries(AbstractMultiPartBlock<?> block, BlockPos pos, BlockState state) {
-        if (AnvilCraftClient.CONFIG.multiPartPreviewMode == AnvilCraftClientConfig.MultiPartPreviewMode.OUTLINE) {
-            renderEntries.add(new RenderEntry(pos, state));
-            return;
-        }
-        for (Enum<?> part : block.getParts()) {
-            BlockPos partPos = pos.offset(block.offsetFrom(state, cast(part)));
-            BlockState partState = block.placedState(cast(part), state);
-            renderEntries.add(new RenderEntry(partPos, partState));
-        }
     }
 
     private static final ContextKey<PreviewFrame> PREVIEW = new ContextKey<>(AnvilCraft.of("placement_preview"));
@@ -341,16 +234,21 @@ public class LargeBlockPlacePreviewEventListener {
                 RenderEntry base = renderEntries.getFirst();
                 boolean outlined = false;
                 if (AnvilCraftClient.CONFIG.multiPartPreviewMode == AnvilCraftClientConfig.MultiPartPreviewMode.OUTLINE) {
-                    for (RenderEntry entry : renderEntries) {
+                    var entries = base.state().getBlock() instanceof AbstractMultiPartBlock<?> ? List.of(base) : renderEntries;
+                    List<OutlineBatch> placementOutlines = new ArrayList<>();
+                    for (RenderEntry entry : entries) {
                         List<SelectionPart> parts = new ArrayList<>(ModelBlockSelection.multipartOutline(entry.state()));
                         parts.addAll(ModelBlockSelection.previewBerParts(entry.state(), entry.pos()));
-                        if (!parts.isEmpty()) {
-                            outlines.add(new OutlineBatch(entry.pos(), List.copyOf(parts), boundColor,
-                                (float) AnvilCraftClient.CONFIG.multiPartPreviewOutlineOpacity));
-                            outlined = true;
+                        if (parts.isEmpty()) {
+                            placementOutlines.clear();
+                            break;
                         }
+                        placementOutlines.add(new OutlineBatch(entry.pos(), List.copyOf(parts), boundColor,
+                            (float) AnvilCraftClient.CONFIG.multiPartPreviewOutlineOpacity));
                     }
-                    if (!outlined) expandRenderEntriesForGhost();
+                    outlined = !placementOutlines.isEmpty();
+                    if (outlined) outlines.addAll(placementOutlines);
+                    else expandRenderEntriesForGhost();
                 }
                 if (!outlined) {
                     int color = ARGB.color((int) (255 * AnvilCraftClient.CONFIG.multiPartPreviewGhostOpacity), boundColor);
@@ -488,20 +386,6 @@ public class LargeBlockPlacePreviewEventListener {
     @SuppressWarnings("unchecked")
     private static <P extends Enum<P>> P cast(Enum<?> e) {
         return (P) e;
-    }
-
-    private static BlockState getPlacementState(
-        AbstractMultiPartBlock<?> block,
-        BlockItem blockItem,
-        BlockPlaceContext context
-    ) {
-        if (blockItem instanceof FlexibleMultiPartBlockItem<?, ?, ?> flexibleMultiPartBlockItem) {
-            FlexibleMultiPartBlock<?, ?, ?> flexBlock = flexibleMultiPartBlockItem.getBlock();
-            BlockState state = flexBlock.getPlacementState(context);
-            return state != null ? state : block.defaultBlockState();
-        }
-        BlockState state = block.getStateForPlacement(context);
-        return state != null ? state : block.defaultBlockState();
     }
 
     public static void startFailBoundCooldown() {

@@ -4,6 +4,7 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.cfa.CelestialForgingAnvilAmplifierBlock;
 import dev.dubhe.anvilcraft.block.cfa.CelestialForgingAnvilBlock;
 import dev.dubhe.anvilcraft.block.state.Cube323PartHalf;
+import dev.dubhe.anvilcraft.building.BuildingBlockPlanner;
 import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.item.block.ChuteBlockItem;
@@ -85,13 +86,20 @@ public final class PlacementPreviewPortGameTests {
         }
         BlockPos main = center.offset(-2, 0, -2);
         BlockPos clicked = main.offset(-1, 0, -1);
-        var result = stack.useOn(new UseOnContext(helper.getLevel(), player, InteractionHand.MAIN_HAND, stack,
-            new BlockHitResult(clicked.getCenter(), Direction.UP, clicked, false)));
+        var use = new UseOnContext(helper.getLevel(), player, InteractionHand.MAIN_HAND, stack,
+            new BlockHitResult(clicked.getCenter(), Direction.UP, clicked, false));
+        var planned = BuildingBlockPlanner.singlePlacement(use);
+        helper.assertTrue(planned.size() == amplifier.getParts().length && planned.getFirst().pos().equals(main),
+            "共用规划必须吸附同一主格并包含所有增幅器部件");
+        var result = stack.useOn(use);
         helper.assertTrue(result.consumesAction() && stack.getCount() == 1, "吸附后的实际放置必须成功且只消耗一个物品");
         var placed = helper.getLevel().getBlockState(main);
         for (var part : amplifier.getParts()) {
             helper.assertTrue(helper.getLevel().getBlockState(main.offset(amplifier.offsetFrom(placed, part)))
                 == amplifier.placedState(part, placed), "吸附后全部部件必须完整");
+        }
+        for (var cell : planned) {
+            helper.assertTrue(helper.getLevel().getBlockState(cell.pos()) == cell.state(), "实际增幅器放置必须与规划逐格一致");
         }
         helper.assertTrue(amplifier.snapMainPos(helper.getLevel(), clicked) == null, "占用后不能继续显示合法吸附位置");
         helper.succeed();
