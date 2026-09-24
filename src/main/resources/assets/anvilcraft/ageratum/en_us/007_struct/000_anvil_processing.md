@@ -4,23 +4,7 @@ navigation:
   icon: "minecraft:anvil"
 ---
 
-## Table of Contents
-
-- [Anvil: Item Processing](#anvil-item-processing)
-  - [Stamping](#stamping)
-  - [Crushing](#crushing)
-  - [Compacting](#compacting)
-  - [Unpacking](#unpacking)
-  - [Meshing](#meshing)
-  - [Solid-Liquid Reaction](#solid-liquid-reaction)
-  - [Fast Cooking](#fast-cooking)
-- [Anvil: Block Processing](#anvil-block-processing)
-  - [Block + Stonecutter: Block Destruction](#block--stonecutter-block-destruction)
-  - [Single Block Processing: Block Crushing](#single-block-processing-block-crushing)
-  - [Dual Block Processing: Block Pressing](#dual-block-processing-block-pressing)
-  - [Dual Block Processing: Block Smearing](#dual-block-processing-block-smearing)
-  - [Block + Cauldron: Block Squeezing](#block--cauldron-block-squeezing)
-- [Block Procedural Processing](#block-procedural-processing)
+<directory>
 
 # Anvil: Item Processing
 

@@ -17,6 +17,8 @@ items:
   - anvilcraft:armadillo_amulet
 ---
 
+<directory>
+
 # 获取
 
 - 获取第一个护符需要<ref item="anvilcraft:amulet_box"/>：

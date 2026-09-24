@@ -17,6 +17,8 @@ items:
   - anvilcraft:armadillo_amulet
 ---
 
+<directory>
+
 # Acquisition
 
 - To obtain your first amulet, you need an <ref item="anvilcraft:amulet_box"/>:

@@ -12,6 +12,8 @@ items:
   - anvilcraft:stellar_evolution_accelerator_component
 ---
 
+<directory>
+
 # 巨构
 
 巨构用于从锻造完成的天体中提取资源、发电或改变天体状态

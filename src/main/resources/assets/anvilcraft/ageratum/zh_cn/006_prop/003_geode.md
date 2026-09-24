@@ -10,7 +10,6 @@ items:
 
 <item id="anvilcraft:geode"/>
 
-
 # 获取方式
 
 - 挖掘<ref item="minecraft:budding_amethyst"/>
@@ -23,10 +22,12 @@ items:
 
 # 参与合成
 
-- 晶洞在[物品冲压](../007_struct/000_anvil_processing.md#冲压)或[物品粉碎](../007_struct/000_anvil_processing.md#粉碎)时，一定出4个<ref item="minecraft:amethyst_shard"/>，概率出[黄玉、蓝宝石和红宝石](../002_material/000_gems.md)
-- 对晶洞进行时移，可以合成出<ref item="minecraft:budding_amethyst"/>
+- <ref item="anvilcraft:geode"/>在[物品冲压](../007_struct/000_anvil_processing.md#冲压)或[物品粉碎](../007_struct/000_anvil_processing.md#粉碎)时，一定出4个<ref item="minecraft:amethyst_shard"/>，概率出<ref item="anvilcraft:topaz"/>、<ref item="anvilcraft:ruby"/>和<ref item="anvilcraft:sapphire"/>
 
-<row halign="center">
 <recipe id="anvilcraft:stamping/geode_gems"/>
+
+# 重回母岩
+
+- 在发展一段时间，获得<ref item="anvilcraft:corrupted_beacon"/>后，可以将<ref item="anvilcraft:geode"/>变回<ref item="minecraft:budding_amethyst"/>，但这是后话了
+
 <recipe id="anvilcraft:time_warp/budding_amethyst"/>
-</row>
