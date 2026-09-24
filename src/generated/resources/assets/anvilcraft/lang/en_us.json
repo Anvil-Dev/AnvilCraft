@@ -286,6 +286,8 @@
   "anvilcraft.configuration.remote_power_transmitter_range.tooltip": "Power grid range of Remote Transmission Pole",
   "anvilcraft.configuration.render_bloom_effect": "Render Power Transmission Line Bloom",
   "anvilcraft.configuration.render_bloom_effect.tooltip": "Bloom effect on laser and power transmitter lines.",
+  "anvilcraft.configuration.render_overworld_like_sky": "Render Overworld Like Sky",
+  "anvilcraft.configuration.render_overworld_like_sky.tooltip": "Render the shared orbital rings in the overworld-like dimension",
   "anvilcraft.configuration.render_power_transmitter_lines": "Render Power Transmitter Lines",
   "anvilcraft.configuration.render_power_transmitter_lines.tooltip": "Render lines between power transmitters",
   "anvilcraft.configuration.render_scan_preview_effect": "Render Scan Preview Effect",

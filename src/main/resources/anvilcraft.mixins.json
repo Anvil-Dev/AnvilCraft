@@ -133,6 +133,7 @@
     "providence.EnchantedCountIncreaseFunctionMixin"
   ],
   "client": [
+    "OverworldLikeLightmapMixin",
     "BuildingRodArmedStateMixin",
     "BuildingRodKeyboardMixin",
     "accessor.BuildingRodItemLayerAccessor",

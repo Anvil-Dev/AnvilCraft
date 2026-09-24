@@ -64,6 +64,7 @@ allprojects {
             include '**/ItemDetectorBlockEntity.java', '**/PulseGeneratorBlockEntity.java'
             include '**/VanillaStructureSetLookup.java'
             include '**/VanillaOverworldBiomeSource.java', '**/ModBiomeSources.java'
+            include '**/OrbitalSky*.java', '**/ClientLevelMixin.java'
             include '**/OverworldLike*.java', '**/MinecraftServerAccessor.java', '**/WormholeNetwork.java', '**/ModDamageTypes.java'
             include '**/CelestialTravelManager.java', '**/CelestialBackGate*.java', '**/CelestialForgingAnvilPortalBlockEntity.java'
             include '**/CelestialBodyInfoFormatter.java'

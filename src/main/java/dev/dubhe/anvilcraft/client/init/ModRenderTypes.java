@@ -14,6 +14,15 @@ import java.util.function.Function;
 
 public class ModRenderTypes {
 
+    public static final RenderType OVERWORLD_LIKE_SKY_RING = RenderType.create(
+        "anvilcraft:overworld_like_sky_ring",
+        RenderSetup.builder(ModRenderPipelines.OVERWORLD_LIKE_SKY_RING)
+            .useLightmap()
+            .withTexture("Sampler0", Sheets.BLOCKS_MAPPER.sheet())
+            .bufferSize(786432)
+            .createRenderSetup()
+    );
+
     public static final RenderType PLACEMENT_GHOST = RenderType.create(
         "anvilcraft:placement_ghost",
         RenderSetup.builder(ModRenderPipelines.PLACEMENT_GHOST)

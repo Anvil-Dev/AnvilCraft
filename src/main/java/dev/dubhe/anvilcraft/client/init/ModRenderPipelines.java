@@ -53,6 +53,13 @@ public class ModRenderPipelines {
         .withLocation(AnvilCraft.of("pipeline/building_rod_ghost"))
         .build();
 
+    public static final RenderPipeline OVERWORLD_LIKE_SKY_RING = RenderPipeline.builder(RenderPipelines.BLOCK_SNIPPET)
+        .withShaderDefine("ALPHA_CUTOUT", 0.5F)
+        .withDepthStencilState(new DepthStencilState(CompareOp.LESS_THAN_OR_EQUAL, false))
+        .withCull(false)
+        .withLocation(AnvilCraft.of("pipeline/overworld_like_sky_ring"))
+        .build();
+
     public static final RenderPipeline PLACEMENT_GHOST = RenderPipeline.builder(RenderPipelines.BLOCK_SNIPPET)
         .withColorTargetState(new ColorTargetState(BlendFunction.TRANSLUCENT))
         .withDepthStencilState(new DepthStencilState(CompareOp.LESS_THAN_OR_EQUAL, false))
@@ -269,6 +276,7 @@ public class ModRenderPipelines {
         event.registerPipeline(ModRenderPipelines.FITTED_ITEM);
         event.registerPipeline(ModRenderPipelines.SCAN_PREVIEW_ITEM);
         event.registerPipeline(ModRenderPipelines.PLACEMENT_GHOST);
+        event.registerPipeline(ModRenderPipelines.OVERWORLD_LIKE_SKY_RING);
         event.registerPipeline(ModRenderPipelines.BUILDING_ROD_GHOST);
         event.registerPipeline(ModRenderPipelines.LASER_TRANSLUCENT);
         event.registerPipeline(ModRenderPipelines.LIGHTNING);

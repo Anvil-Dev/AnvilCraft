@@ -895,7 +895,7 @@
   },
   "overworld_like_reset": {
     "source_commit": "a378f98e4d41d0d92f97cf2486ac9da7881b1674",
-    "status": "generation_collapse_reset_entry_lifecycle_ported_sky_rendering_pending",
+    "status": "generation_collapse_reset_entry_lifecycle_ported",
     "ported": [
       "Builtin overworld-like dimension with independent native seed override and vanilla biome generation",
       "Per-save atomic reset manifest, pending startup cleanup and generation replacement on entry",
@@ -918,8 +918,43 @@
     "limits": [
       "Offline UUID persistence is tested, actual disconnect/reconnect is pending.",
       "Startup storage recovery is isolated-test verified; full interrupted-server restart remains pending.",
-      "Orbital sky rendering and client environmental eclipse tint remain pending; vanilla 26.1 terrain rendering is retained.",
+      "Orbital sky and client eclipse tint are supplied by overworld_like_orbital_sky; vanilla 26.1 terrain rendering is retained.",
       "No explicit injected third-party biome/structure integration test yet."
+    ]
+  },
+  "overworld_like_orbital_sky": {
+    "source_commit": "a378f98e4d41d0d92f97cf2486ac9da7881b1674",
+    "status": "orbital_geometry_and_eclipse_environment_ported",
+    "ported": [
+      "Source ring models, generation-global rotations and tint-only brightness semantics",
+      "Native extracted frame state with immediate after-sky cutout drawing, no depth writes",
+      "Eclipse sky/cloud/fog/lightmap scaling and client dimension-state reset",
+      "Immediate configuration toggle and model cache replacement after resource reload"
+    ],
+    "verification": {
+      "source_client_log": "build/porting/client-orbital-sky-source-3.log",
+      "target_client_log": "build/porting/client-orbital-sky-target-final.log",
+      "report": "build/porting/orbital-sky-comparison.json",
+      "scene_pairs": 7,
+      "extraction_frames": 100,
+      "eclipse_factor": 0.7129702,
+      "lightmap_multiplier": 0.48666143,
+      "silhouette_roi": [
+        0,
+        0,
+        1280,
+        540
+      ],
+      "minimum_silhouette_iou": 0.9986662496780603,
+      "max_normal_rgb_difference": 7,
+      "max_reload_rgb_difference": 58,
+      "datagen_log": "build/porting/datagen-orbital-sky-1.log",
+      "compile_log": "build/porting/compile-orbital-sky-final.log"
+    },
+    "limits": [
+      "Preserves native 26.1 sky/fog and resulting color rounding; reload has a small source sub-tick edge difference.",
+      "Silhouette comparison excludes the lower fog fade; rotated camera looks away from both rings in both versions.",
+      "Void dimension activation, water/lava views, multiplayer and shader-pack integration remain separate validation work."
     ]
   }
 }

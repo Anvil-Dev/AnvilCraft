@@ -35,6 +35,7 @@ abstract class ClientLevelMixin implements LevelReader {
         CallbackInfo ci
     ) {
         PowerGridSupport.clearAllGrid();
+        dev.dubhe.anvilcraft.client.support.OverworldLikeClientState.clear();
     }
 
     @Inject(method = "addBreakingBlockEffect(Lnet/minecraft/core/BlockPos;Lnet/minecraft/core/Direction;"
