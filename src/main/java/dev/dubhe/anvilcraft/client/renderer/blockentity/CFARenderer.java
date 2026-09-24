@@ -509,6 +509,7 @@ public class CFARenderer implements BlockEntityRenderer<CelestialForgingAnvilBlo
         }
 
         switch (effectiveBodyData) {
+            case SpecialCelestialBodyData special when special.usesEndGatewayModel() -> state.setBodyTexture(null);
             case SpecialCelestialBodyData special when special.isPlayerHead() -> {
                 if (special.playerHeadProfile() != null) {
                     ResolvableProfile profile = ResolvableProfile.CODEC
@@ -1092,6 +1093,10 @@ public class CFARenderer implements BlockEntityRenderer<CelestialForgingAnvilBlo
         SubmitNodeCollector collector,
         long seed
     ) {
+        if (bodyData instanceof SpecialCelestialBodyData special && special.usesEndGatewayModel()) {
+            CelestialBodyRenderer.submitEndGatewayBody(pose, collector);
+            return;
+        }
         Identifier bodyTexture = state.getBodyTexture();
         if (bodyTexture != null) {
             collector.submitCustomGeometry(

@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.mixin.client;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
+import dev.dubhe.anvilcraft.client.support.GatewayGuiProjection;
 import dev.dubhe.anvilcraft.client.support.ScaledGuiItemAtlases;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.render.GuiItemAtlas;
@@ -48,6 +49,16 @@ abstract class ScaledGuiItemRendererMixin {
     private GuiItemAtlas.@Nullable SlotView anvilcraft$scaledSlot(
         GuiItemAtlas atlas, TrackingItemStackRenderState state, Operation<GuiItemAtlas.SlotView> original,
         @Local(argsOnly = true) GuiItemRenderState item
+    ) {
+        if (GatewayGuiProjection.isProjected(state)) {
+            return GatewayGuiProjection.withItem(item, () -> this.anvilcraft$resolveSlot(atlas, state, original, item));
+        }
+        return this.anvilcraft$resolveSlot(atlas, state, original, item);
+    }
+
+    @Unique
+    private GuiItemAtlas.@Nullable SlotView anvilcraft$resolveSlot(
+        GuiItemAtlas atlas, TrackingItemStackRenderState state, Operation<GuiItemAtlas.SlotView> original, GuiItemRenderState item
     ) {
         if (this.anvilcraft$scaledItems != null) {
             GuiItemAtlas.SlotView scaled = this.anvilcraft$scaledItems.get(item);

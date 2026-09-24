@@ -4,6 +4,7 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.client.support.GatewayGuiProjection;
 import dev.dubhe.anvilcraft.client.support.ScaledGuiItemAtlases;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -33,6 +34,7 @@ abstract class ScaledGuiItemExtractionMixin {
             || screen != null && screen.getClass().getName().startsWith("dev.dubhe.anvilcraft.")) {
             state.appendModelIdentityElement(ScaledGuiItemAtlases.OWNED_ITEM);
         }
+        GatewayGuiProjection.mark(state, pose, x, y);
         return original.call(pose, state, x, y, scissor);
     }
 }

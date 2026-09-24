@@ -10,7 +10,7 @@ relative = "dev/dubhe/anvilcraft/porting/SpecialCelestialWorldScene.java"
 scene = (root / "dev/porting/java" / relative).read_text(encoding="utf-8")
 scene = scene.replace("import net.minecraft.world.level.storage.TagValueInput;\n", "")
 scene = scene.replace("import net.minecraft.util.ProblemReporter;\n", "")
-scene = scene.replace("client.level.setTimeFromServer(500)", "client.level.setGameTime(500)")
+scene = scene.replace("client.level.setTimeFromServer(", "client.level.setGameTime(")
 scene = scene.replace("be.loadCustomOnly(TagValueInput.create(ProblemReporter.DISCARDING, client.level.registryAccess(), tag))",
                       "be.loadCustomOnly(tag, client.level.registryAccess())")
 scene = scene.replace("        SpecialCelestialRendererChecks.verify(be);\n", "")

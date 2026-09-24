@@ -149,6 +149,8 @@
     "PocketRecipeBookMixin",
     "EquipmentFluidOverlayMixin",
     "JeiBasicRecipeTransferHandlerMixin",
+    "client.GatewayItemAtlasMixin",
+    "client.ScaledGuiItemPipMixin",
     "client.ScaledGuiItemExtractionMixin",
     "client.ScaledGuiItemRendererMixin",
     "client.SmartPlacerScanTimeMixin",

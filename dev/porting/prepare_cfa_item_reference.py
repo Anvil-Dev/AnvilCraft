@@ -17,6 +17,8 @@ scene = (root / "dev/porting/java/dev/dubhe/anvilcraft/porting/CelestialAnvilIte
 scene = scene.replace("import net.minecraft.world.level.storage.TagValueOutput;\n", "")
 scene = scene.replace("import net.minecraft.util.ProblemReporter;\n", "")
 scene = scene.replace("client.getToastManager()", "client.getToasts()")
+scene = scene.replace("        if (GATEWAY && stage == 1 && client.getOverlay() == null) GatewayItemCacheProbe.sample(client);\n", "")
+scene = scene.replace("        if (GATEWAY && name.equals(\"gallery\")) GatewayItemCacheProbe.verify();\n", "")
 scene = scene.replace("client.level.setTimeFromServer(500)", "client.level.setGameTime(500)")
 scene = scene.replace("client.player.getGameProfile().name()", "client.player.getGameProfile().getName()")
 scene = scene.replace('profile.store("id", UUIDUtil.CODEC, client.player.getUUID());', 'profile.putUUID("id", client.player.getUUID());')
@@ -73,4 +75,6 @@ text += "\nneoForge.runs.client { systemProperty 'anvilcraft.portCfaItemReferenc
 if "--stellar" in sys.argv:
     text += "\nneoForge.runs.client { systemProperty 'anvilcraft.portStellarScene', 'true' }\n"
 build.write_bytes(text.replace("\n", "\r\n").encode("utf-8"))
+helper = "dev/dubhe/anvilcraft/porting/SpecialCelestialVisualFixture.java"
+(reference / "src/main/java" / helper).write_bytes((root / "dev/porting/java" / helper).read_bytes())
 print(source_ref)

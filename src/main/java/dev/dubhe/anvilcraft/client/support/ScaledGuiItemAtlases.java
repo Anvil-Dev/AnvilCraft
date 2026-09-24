@@ -7,6 +7,7 @@ import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.feature.FeatureRenderDispatcher;
 import net.minecraft.client.renderer.state.gui.GuiItemRenderState;
 import net.minecraft.client.renderer.state.gui.GuiRenderState;
+import net.minecraft.client.renderer.state.gui.pip.PictureInPictureRenderState;
 import org.joml.Matrix3x2fc;
 import org.jspecify.annotations.Nullable;
 
@@ -52,6 +53,16 @@ public final class ScaledGuiItemAtlases implements AutoCloseable {
         Object identity = item.itemStackRenderState().getModelIdentity();
         if (!(identity instanceof List<?> elements) || !elements.contains(OWNED_ITEM)) return 0;
         return resolution(item.pose(), this.guiScale, RenderSystem.getDevice().getMaxTextureSize());
+    }
+
+    public static int pipScale(GuiItemRenderState item, PictureInPictureRenderState state, int guiScale, int maximum) {
+        Object identity = item.itemStackRenderState().getModelIdentity();
+        if (!(identity instanceof List<?> elements) || !elements.contains(OWNED_ITEM)) return guiScale;
+        int pixels = resolution(state.pose(), guiScale, maximum);
+        if (pixels <= 0) return guiScale;
+        int extent = Math.max(state.x1() - state.x0(), state.y1() - state.y0());
+        if (extent <= 0) return guiScale;
+        return Math.min(Math.max(guiScale, (pixels + 15) / 16), Math.max(1, maximum / extent));
     }
 
     public void prepare(GuiRenderState state, int guiScale) {

@@ -21,9 +21,10 @@ import net.minecraft.world.phys.Vec3;
 import java.util.List;
 
 public final class StellarEvolutionUiClientScene {
-    private static final boolean SPECIAL = Boolean.getBoolean("anvilcraft.portSpecialCelestialScene");
+    private static final boolean GATEWAY = Boolean.getBoolean("anvilcraft.portGatewayScene");
+    private static final boolean SPECIAL = GATEWAY || Boolean.getBoolean("anvilcraft.portSpecialCelestialScene");
     private static final boolean PREVIEW = SPECIAL || Boolean.getBoolean("anvilcraft.portCfaPreviewScene");
-    private static final List<String> PREVIEWS = SPECIAL
+    private static final List<String> PREVIEWS = GATEWAY ? List.of("gateway", "gateway-offset", "gateway-time") : SPECIAL
         ? List.of("plain-cyan", "plain-magenta", "complex-cyan", "complex-magenta",
             "no-temperature", "no-temperature-details", "no-atmosphere", "no-atmosphere-details")
         : List.of("star", "rocky", "atmosphere", "white-dwarf",
@@ -62,7 +63,7 @@ public final class StellarEvolutionUiClientScene {
             freezeAtlas(client);
         }
         client.options.hideGui = false;
-        client.level.setTimeFromServer(500);
+        client.level.setTimeFromServer(GATEWAY && index == 2 ? 12000 : 500);
         client.player.setNoGravity(true);
         client.player.setDeltaMovement(Vec3.ZERO);
         client.player.setPos(8.5, 83, 12.5);
@@ -80,7 +81,8 @@ public final class StellarEvolutionUiClientScene {
         }
         if (!ready || reloading || capturing || System.currentTimeMillis() < next) return;
         if (index == (PREVIEW ? PREVIEWS.size() : CASES.size())) {
-            AnvilCraft.LOGGER.info(SPECIAL ? "PORT_SPECIAL_CELESTIAL_CAPTURED: eight custom-atmosphere and information views"
+            AnvilCraft.LOGGER.info(GATEWAY ? "PORT_GATEWAY_UI_CAPTURED: base, moved GUI and animated projection"
+                : SPECIAL ? "PORT_SPECIAL_CELESTIAL_CAPTURED: eight custom-atmosphere and information views"
                 : PREVIEW ? "PORT_CFA_PREVIEWS_CAPTURED: eight fixed bodies and no-foil ghost control"
                 : "PORT_STELLAR_UI_CAPTURED: eight layouts and countdown controls");
             client.stop();
@@ -138,7 +140,8 @@ public final class StellarEvolutionUiClientScene {
         AnvilCraft.LOGGER.info("PORT_STELLAR_UI {}: scroll={}, remaining={}, phase={}, total={}", sample.name, scroll,
             field(screen, "localAcceleratorTicksRemaining"), be.getStellarPhaseProgress(), be.getStellarTotalProgress(0));
         capturing = true;
-        String prefix = SPECIAL ? "special-celestial-26.1-" : PREVIEW ? "cfa-preview-26.1-" : "stellar-ui-26.1-";
+        String prefix = GATEWAY ? "gateway-ui-26.1-" : SPECIAL ? "special-celestial-26.1-"
+            : PREVIEW ? "cfa-preview-26.1-" : "stellar-ui-26.1-";
         Screenshot.grab(client.gameDirectory, prefix + sample.name + ".png", client.getMainRenderTarget(), 1,
             message -> client.execute(() -> {
                 capturing = false;
@@ -258,8 +261,14 @@ public final class StellarEvolutionUiClientScene {
         }
 
         @Override
+        protected void init() {
+            super.init();
+            if (GATEWAY && index == 1) this.leftPos += 30;
+        }
+
+        @Override
         public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
-            Minecraft.getInstance().level.setTimeFromServer(500);
+            Minecraft.getInstance().level.setTimeFromServer(GATEWAY && index == 2 ? 12000 : 500);
             try {
                 var field = CelestialForgingAnvilScreen.class.getDeclaredField("localAcceleratorTicksRemaining");
                 field.setAccessible(true);

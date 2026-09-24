@@ -10,7 +10,7 @@ relative = "dev/dubhe/anvilcraft/porting/StellarEvolutionUiClientScene.java"
 scene = (root / "dev/porting/java" / relative).read_text(encoding="utf-8")
 scene = scene.replace("import net.minecraft.world.level.storage.TagValueInput;\n", "")
 scene = scene.replace("import net.minecraft.util.ProblemReporter;\n", "")
-scene = scene.replace(".setTimeFromServer(500)", ".setGameTime(500)")
+scene = scene.replace(".setTimeFromServer(", ".setGameTime(")
 scene = scene.replace("be.loadCustomOnly(TagValueInput.create(ProblemReporter.DISCARDING, client.level.registryAccess(), tag))",
                       "be.loadCustomOnly(tag, client.level.registryAccess())")
 scene = scene.replace("GuiGraphicsExtractor", "GuiGraphics").replace("extractRenderState(", "render(")

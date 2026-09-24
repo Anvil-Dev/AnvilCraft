@@ -17,6 +17,14 @@ public final class SpecialCelestialRendererChecks {
         var state = renderer.createRenderState();
         renderer.extractRenderState(be, state, 0, Vec3.ZERO, null);
         var body = (SpecialCelestialBodyData) state.getEffectiveBodyData();
+        if (body.usesEndGatewayModel()) {
+            if (!state.isCanRenderBody() || state.getBodyTexture() != null || state.getComplexBodyModel() != null
+                || dev.dubhe.anvilcraft.client.renderer.blockentity.celestial.CelestialBodyTextureBakery.getOrBakeBody(body) != null) {
+                throw new IllegalStateException("Gateway must render without a baked model or texture");
+            }
+            AnvilCraft.LOGGER.info("PORT_GATEWAY_RENDER_STATE_PASSED");
+            return;
+        }
         if (!state.isCanRenderBody() || (body.needsCustomModel() ? state.getComplexBodyModel() == null : state.getBodyTexture() == null)) {
             throw new IllegalStateException("Special body did not resolve its model or texture");
         }

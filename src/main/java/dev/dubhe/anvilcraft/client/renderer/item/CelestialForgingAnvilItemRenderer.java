@@ -41,6 +41,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Consumer;
 
 @EventBusSubscriber(modid = AnvilCraft.MOD_ID, value = Dist.CLIENT)
@@ -100,7 +101,7 @@ public final class CelestialForgingAnvilItemRenderer implements SpecialModelRend
         if (!(candidate instanceof CFARenderer renderer)) return null;
         var state = renderer.createRenderState();
         renderer.extractItemState(preview.entity, state, this.head);
-        return new Argument(renderer, state, this.head ? preview.parts() : List.of(), bounds(state), preview.entity.getBodySeed());
+        return new Argument(renderer, state, this.head ? preview.parts() : List.of(), bounds(state), preview.entity.getBodySeed(), key);
     }
 
     private static AABB bounds(CFARenderState state) {
@@ -187,7 +188,21 @@ public final class CelestialForgingAnvilItemRenderer implements SpecialModelRend
     public record Part(BlockPos offset, BlockModelRenderState model) {
     }
 
-    public record Argument(CFARenderer renderer, CFARenderState state, List<Part> parts, AABB bounds, long seed) {
+    public record Argument(CFARenderer renderer, CFARenderState state, List<Part> parts, AABB bounds, long seed, Object identity) {
+        public Argument(CFARenderer renderer, CFARenderState state, List<Part> parts, AABB bounds, long seed) {
+            this(renderer, state, parts, bounds, seed, state);
+        }
+
+        @Override
+        public boolean equals(Object other) {
+            return other instanceof Argument argument && this.renderer == argument.renderer && this.seed == argument.seed
+                && this.identity.equals(argument.identity) && this.parts.equals(argument.parts) && this.bounds.equals(argument.bounds);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(this.renderer, this.identity, this.parts, this.bounds, this.seed);
+        }
     }
 
     public record Unbaked(boolean head) implements SpecialModelRenderer.Unbaked<Argument> {

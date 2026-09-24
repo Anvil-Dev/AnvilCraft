@@ -665,6 +665,7 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.cfa.seed_slot.description", "Consume all items placed in. If specific item has been consumed, a hidden celestial body will be discovered.");
 
         // 特殊天体类型名称。
+        provider.add("screen.anvilcraft.cfa.class.special.void_planet", "Void Planet");
         provider.add("screen.anvilcraft.cfa.class.special.overworld_like", "Overworld Like"); // 类主世界
         provider.add("screen.anvilcraft.cfa.class.special.flesh_planet", "Flesh Planet"); // 血肉星球
         provider.add("screen.anvilcraft.cfa.class.special.intelligent_planet", "Intelligent Planet"); // 智慧星球

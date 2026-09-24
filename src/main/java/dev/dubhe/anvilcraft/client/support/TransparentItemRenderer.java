@@ -52,6 +52,8 @@ public final class TransparentItemRenderer extends PictureInPictureRenderer<Tran
         var client = Minecraft.getInstance();
         var item = new TrackingItemStackRenderState();
         client.getItemModelResolver().updateForTopItem(item, stack, ItemDisplayContext.GUI, client.level, client.player, 0);
+        item.appendModelIdentityElement(ScaledGuiItemAtlases.OWNED_ITEM);
+        GatewayGuiProjection.mark(item, new Matrix3x2f(graphics.pose()), x, y);
         var gui = new GuiItemRenderState(new Matrix3x2f(graphics.pose()), item, x, y, graphics.peekScissorStack());
         var bounds = gui.oversizedItemBounds();
         if (bounds == null) bounds = new ScreenRectangle(x, y, 16, 16);

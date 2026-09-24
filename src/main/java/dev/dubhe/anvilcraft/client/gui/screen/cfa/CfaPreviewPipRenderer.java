@@ -19,6 +19,7 @@ import dev.dubhe.anvilcraft.client.renderer.blockentity.celestial.CelestialBodyR
 import dev.dubhe.anvilcraft.client.renderer.blockentity.celestial.CelestialBodyTextureBakery;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.celestial.CelestialShellRenderer;
 import dev.dubhe.anvilcraft.client.renderer.item.CelestialForgingAnvilItemRenderer;
+import dev.dubhe.anvilcraft.client.support.GatewayGuiProjection;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.navigation.ScreenRectangle;
@@ -85,7 +86,7 @@ public final class CfaPreviewPipRenderer extends PictureInPictureRenderer<CfaPre
                     -((state.y1() - state.y0()) % 2) / (2.0F * state.scale()), 0);
                 this.submitBody(body, poseStack, nodes, new Vector3f(
                     -(state.x0() + (state.x1() - state.x0()) / 2),
-                    -(state.y0() + (state.y1() - state.y0()) / 2), -100).normalize());
+                    -(state.y0() + (state.y1() - state.y0()) / 2), -100).normalize(), state);
             }
             case ModelContent model -> this.submitModelPreview(model, poseStack, nodes);
         }
@@ -101,7 +102,9 @@ public final class CfaPreviewPipRenderer extends PictureInPictureRenderer<CfaPre
         this.submitStandalone(content.model(), false, content.seed(), poseStack, collector, true);
     }
 
-    private void submitBody(BodyContent content, PoseStack poseStack, SubmitNodeCollector collector, Vector3f atmosphereView) {
+    private void submitBody(
+        BodyContent content, PoseStack poseStack, SubmitNodeCollector collector, Vector3f atmosphereView, State state
+    ) {
         CelestialBodyData body = content.body();
         // PIP 基类已经翻转 Z 轴，再翻转 Y/Z 可得到与界面坐标一致的正向天体。
         poseStack.scale(1.0f, -1.0f, -1.0f);
@@ -118,7 +121,9 @@ public final class CfaPreviewPipRenderer extends PictureInPictureRenderer<CfaPre
         poseStack.mulPose(Axis.YP.rotationDegrees(rotation));
         poseStack.translate(-0.5f, -0.5f, -0.5f);
 
-        if (body instanceof SpecialCelestialBodyData special && special.needsCustomModel()) {
+        if (body instanceof SpecialCelestialBodyData gateway && gateway.usesEndGatewayModel()) {
+            CelestialBodyRenderer.submitEndGatewayPreview(poseStack, collector, GatewayGuiProjection.pip(state));
+        } else if (body instanceof SpecialCelestialBodyData special && special.needsCustomModel()) {
             if (special.isPlayerHead()) {
                 this.submitPlayerHead(special, poseStack, collector);
             } else {

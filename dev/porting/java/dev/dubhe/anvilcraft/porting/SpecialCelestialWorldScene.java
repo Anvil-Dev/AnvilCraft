@@ -18,8 +18,10 @@ import net.minecraft.world.phys.Vec3;
 import java.util.List;
 
 public final class SpecialCelestialWorldScene {
+    private static final boolean GATEWAY = Boolean.getBoolean("anvilcraft.portGatewayScene");
     private static final BlockPos POS = new BlockPos(8, 80, 8);
-    private static final List<String> CASES = List.of("plain-cyan", "plain-magenta", "complex-cyan", "complex-magenta",
+    private static final List<String> CASES = GATEWAY ? List.of("gateway", "gateway-angle", "gateway-time")
+        : List.of("plain-cyan", "plain-magenta", "complex-cyan", "complex-magenta",
         "no-temperature", "no-atmosphere");
     private static boolean requested;
     private static volatile boolean ready;
@@ -41,7 +43,7 @@ public final class SpecialCelestialWorldScene {
         client.options.bobView().set(false);
         client.options.setCameraType(CameraType.FIRST_PERSON);
         client.options.hideGui = true;
-        client.level.setTimeFromServer(500);
+        client.level.setTimeFromServer(GATEWAY && index == 2 ? 12000 : 500);
         client.player.setNoGravity(true);
         client.player.setDeltaMovement(Vec3.ZERO);
         client.player.setPos(camera.x, camera.y, camera.z);
@@ -67,12 +69,13 @@ public final class SpecialCelestialWorldScene {
         if (!ready || !(client.level.getBlockEntity(POS) instanceof CelestialForgingAnvilBlockEntity be)) return;
         setField(be, "rotation", 0.0F);
         setField(be, "preRotation", 0.0F);
-        setField(be, "bodyRotation", 0);
+        setField(be, "bodyRotation", GATEWAY && index == 1 ? 45 : 0);
         if (capturing || System.currentTimeMillis() < next) return;
         if (index == CASES.size()) {
             client.options.hideGui = false;
             client.options.renderDistance().set(16);
-            AnvilCraft.LOGGER.info("PORT_SPECIAL_WORLD_CAPTURED: six custom-color atmosphere scenes");
+            AnvilCraft.LOGGER.info(GATEWAY ? "PORT_GATEWAY_WORLD_CAPTURED: base, rotated body and animated projection"
+                : "PORT_SPECIAL_WORLD_CAPTURED: six custom-color atmosphere scenes");
             client.stop();
             return;
         }
@@ -103,7 +106,7 @@ public final class SpecialCelestialWorldScene {
         AnvilCraft.LOGGER.info("PORT_SPECIAL_WORLD_GEOMETRY {}: ring={}, center={}, body={}, beam={}, camera={}, pitch={}",
             sample, be.getSmoothRingScale(), be.getSmoothCenterY(), be.getSmoothBodyScale(), be.getSmoothBeamHeight(), camera, pitch);
         capturing = true;
-        String prefix = "special-world-26.1-";
+        String prefix = GATEWAY ? "gateway-world-26.1-" : "special-world-26.1-";
         Screenshot.grab(client.gameDirectory, prefix + sample + ".png", client.getMainRenderTarget(), 1,
             message -> client.execute(() -> {
                 capturing = false;

@@ -211,6 +211,11 @@ public class ModRenderPipelines {
         .withLocation(AnvilCraft.of("pipeline/planet_atmosphere"))
         .build();
 
+    public static final RenderPipeline CELESTIAL_GATEWAY_PREVIEW = RenderPipelines.END_GATEWAY.toBuilder()
+        .withLocation(AnvilCraft.of("pipeline/celestial_gateway_preview"))
+        .withVertexShader(AnvilCraft.of("core/celestial_gateway_preview"))
+        .build();
+
     public static final RenderPipeline PLANET_ATMOSPHERE_INSIDE = PLANET_ATMOSPHERE.toBuilder()
         .withDepthStencilState(new DepthStencilState(CompareOp.ALWAYS_PASS, false))
         .withLocation(AnvilCraft.of("pipeline/planet_atmosphere_inside"))
@@ -279,6 +284,7 @@ public class ModRenderPipelines {
         event.registerPipeline(ModRenderPipelines.CELESTIAL_ATMOSPHERE);
         event.registerPipeline(ModRenderPipelines.PLANET_ATMOSPHERE);
         event.registerPipeline(ModRenderPipelines.PLANET_ATMOSPHERE_INSIDE);
+        event.registerPipeline(ModRenderPipelines.CELESTIAL_GATEWAY_PREVIEW);
         event.registerPipeline(ModRenderPipelines.STELLAR_SURFACE);
         event.registerPipeline(ModRenderPipelines.STELLAR_CORONA);
         event.registerPipeline(ModRenderPipelines.STELLAR_ENVELOPE);

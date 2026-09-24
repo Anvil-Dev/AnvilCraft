@@ -817,5 +817,47 @@
       "Mun and Void Planet recipes remain pending their dimension/rendering feature nodes.",
       "Native sky/cloud/fog are retained; remaining complex-preview edge differences are tracked separately."
     ]
+  },
+  "cfa_gateway_rendering": {
+    "source_commit": "a378f98e4d41d0d92f97cf2486ac9da7881b1674",
+    "status": "world_item_gui_effect_ported_source_gui_submission_issue_documented",
+    "ported": [
+      "Native 16-layer gateway body in world, equipped items and GUI",
+      "Shared GUI projection restoration for PIP and native/scaled item atlases",
+      "Animated per-position procedural icons with stable serialized-data render identities",
+      "Owned oversized GUI items rendered at the required pixel density while keeping GPU size limits",
+      "No baked texture request for procedural gateway bodies"
+    ],
+    "verification": {
+      "ui_baseline_log": "build/porting/client-gateway-ui-source-1.log",
+      "ui_source_control_log": "build/porting/client-gateway-ui-control-source-2.log",
+      "ui_target_log": "build/porting/client-gateway-ui-target-3.log",
+      "world_source_log": "build/porting/client-gateway-world-source-1.log",
+      "world_target_log": "build/porting/client-gateway-world-target-1.log",
+      "item_source_log": "build/porting/client-gateway-item-source-1.log",
+      "item_target_log": "build/porting/client-gateway-item-target-3.log",
+      "report": "build/porting/gateway-visual-comparison.json",
+      "ui_pairs": 3,
+      "world_pairs": 3,
+      "item_views": 6,
+      "max_ui_mean_rgb_difference": 0.5671502441827061,
+      "min_ui_correlation": 0.9138361657751635,
+      "cache_reuse": {
+        "frames": 112,
+        "renderers": 3,
+        "atlas_allocations": 1
+      },
+      "storage_regression_log": "build/porting/client-gateway-storage-regression.log",
+      "unchanged_storage_screenshots": 8,
+      "transparent_item_regression_log": "build/porting/client-gateway-enchanting-regression.log",
+      "transparent_item_scenes": 17,
+      "compile_style_log": "build/porting/validate-gateway-final-1.log",
+      "datagen_log": "build/porting/datagen-gateway-final.log"
+    },
+    "limits": [
+      "Unmodified source GUI is blank; immediate-flush source control is disclosed separately.",
+      "Native environmental rendering and local procedural-sampling pixel differences remain.",
+      "Void dimension/travel, its builtin recipe, ruins blocks and arbitrary resource packs remain separate pending nodes."
+    ]
   }
 }

@@ -58,6 +58,7 @@ public class CelestialBodyTextureBakery {
 
     @Nullable
     public static Identifier getOrBakeBody(CelestialBodyData data) {
+        if (data instanceof SpecialCelestialBodyData special && special.usesEndGatewayModel()) return null;
         return CelestialBodyTextureBakery.CACHE.computeIfAbsent(
             CelestialBodyTextureBakery.cacheKey(data), k -> CelestialBodyTextureBakery.bakeBody(data, k));
     }

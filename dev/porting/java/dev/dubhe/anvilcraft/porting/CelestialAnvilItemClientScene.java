@@ -32,6 +32,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public final class CelestialAnvilItemClientScene {
+    private static final boolean GATEWAY = Boolean.getBoolean("anvilcraft.portGatewayScene");
     private static final boolean STELLAR = Boolean.getBoolean("anvilcraft.portStellarScene");
     private static final String[] STAR_NAMES = {"M", "K", "G", "F", "A", "B", "O", "White dwarf", "Neutron", "Black hole", "Brown dwarf"};
     private static final List<ItemStack> ITEMS = new ArrayList<>();
@@ -49,6 +50,8 @@ public final class CelestialAnvilItemClientScene {
         client.player.setNoGravity(true);
         client.player.setDeltaMovement(net.minecraft.world.phys.Vec3.ZERO);
         client.player.setPos(8.5, 85, 12.5);
+        if (GATEWAY) client.level.setTimeFromServer(500);
+        if (GATEWAY && stage == 1 && client.getOverlay() == null) GatewayItemCacheProbe.sample(client);
         if (capturing || System.currentTimeMillis() < next) return;
         client.options.guiScale().set(2);
         client.options.fov().set(70);
@@ -193,6 +196,13 @@ public final class CelestialAnvilItemClientScene {
     }
 
     private static void prepare(Minecraft client) {
+        if (GATEWAY) {
+            ITEMS.add(ModBlocks.CELESTIAL_FORGING_ANVIL.asStack());
+            ITEMS.add(item(SpecialCelestialVisualFixture.gatewayBody(), 42));
+            ITEMS.add(item(SpecialCelestialVisualFixture.gatewayBody(), 73));
+            verify();
+            return;
+        }
         if (STELLAR) {
             prepareStars();
             verify();
@@ -245,6 +255,7 @@ public final class CelestialAnvilItemClientScene {
     }
 
     private static void verify() {
+        if (GATEWAY) verifyGatewayProjection();
         var bodyRenderer = new CelestialForgingAnvilItemRenderer(false);
         var headRenderer = new CelestialForgingAnvilItemRenderer(true);
         for (int index = 1; index < ITEMS.size(); index++) {
@@ -256,8 +267,58 @@ public final class CelestialAnvilItemClientScene {
             }
             double extent = Math.max(body.bounds().getXsize(), Math.max(body.bounds().getYsize(), body.bounds().getZsize()));
             if (!(extent > 0) || !Double.isFinite(extent)) throw new IllegalStateException("Invalid celestial fit");
+            if (GATEWAY && (!(body.state().getEffectiveBodyData() instanceof SpecialCelestialBodyData special)
+                || !special.usesEndGatewayModel() || extent != 1 || body.state().getBodyTexture() != null)) {
+                throw new IllegalStateException("Gateway item must retain procedural rendering and unit fitting bounds");
+            }
+            var again = bodyRenderer.extractArgument(ITEMS.get(index));
+            if (!body.equals(again) || body.hashCode() != again.hashCode() || body.state() == again.state()) {
+                throw new IllegalStateException("Item render identity must be stable while frame snapshots remain independent");
+            }
             AnvilCraft.LOGGER.info("PORT_CFA_ITEM_FIT {}: {}", index, body.bounds());
         }
+    }
+
+    private static void verifyGatewayProjection() {
+        var client = Minecraft.getInstance();
+        var state = new net.minecraft.client.renderer.item.TrackingItemStackRenderState();
+        client.getItemModelResolver().updateForTopItem(state, ITEMS.get(1), net.minecraft.world.item.ItemDisplayContext.GUI,
+            client.level, client.player, 0);
+        var pose = new org.joml.Matrix3x2f().translation(30, 90).scale(3);
+        dev.dubhe.anvilcraft.client.support.GatewayGuiProjection.mark(state, pose, 7, 11);
+        if (!state.isAnimated()) throw new IllegalStateException("Gateway icon must refresh its procedural surface");
+        state.appendModelIdentityElement(dev.dubhe.anvilcraft.client.support.ScaledGuiItemAtlases.OWNED_ITEM);
+        var gui = new net.minecraft.client.renderer.state.gui.GuiItemRenderState(pose, state, 7, 11, null);
+        var pip = new net.minecraft.client.renderer.state.gui.pip.OversizedItemRenderState(gui, 0, 0, 32, 32);
+        if (dev.dubhe.anvilcraft.client.support.ScaledGuiItemAtlases.pipScale(gui, pip, 2, 4096) != 6
+            || dev.dubhe.anvilcraft.client.support.ScaledGuiItemAtlases.pipScale(gui, pip, 2, 64) != 2) {
+            throw new IllegalStateException("Owned PIP must preserve scaled resolution within GPU limits");
+        }
+        dev.dubhe.anvilcraft.client.support.GatewayGuiProjection.withItem(gui, () -> {
+            dev.dubhe.anvilcraft.client.support.GatewayGuiProjection.withAtlas(512, 96, 2, 1, () -> {
+                var matrix = dev.dubhe.anvilcraft.client.support.GatewayGuiProjection.current();
+                var topLeft = new org.joml.Vector4f(192.0F / 512, 1 - 96.0F / 512, 0, 1).mul(matrix);
+                var bottomRight = new org.joml.Vector4f(288.0F / 512, 1 - 192.0F / 512, 0, 1).mul(matrix);
+                float width = client.getWindow().getGuiScaledWidth();
+                float height = client.getWindow().getGuiScaledHeight();
+                if (Math.abs(topLeft.x - 51 / width) > 0.00001F || Math.abs(topLeft.y - (1 - 123 / height)) > 0.00001F
+                    || Math.abs(bottomRight.x - 99 / width) > 0.00001F || Math.abs(bottomRight.y - (1 - 171 / height)) > 0.00001F) {
+                    throw new IllegalStateException("Scaled item atlas lost its screen projection");
+                }
+            });
+            return null;
+        });
+        try {
+            dev.dubhe.anvilcraft.client.support.GatewayGuiProjection.withProjection(new org.joml.Matrix4f(), () -> {
+                throw new IllegalStateException("projection scope probe");
+            });
+        } catch (IllegalStateException expected) {
+            if (!expected.getMessage().equals("projection scope probe")) throw expected;
+        }
+        if (dev.dubhe.anvilcraft.client.support.GatewayGuiProjection.current() != null) {
+            throw new IllegalStateException("GUI projection leaked into world rendering");
+        }
+        AnvilCraft.LOGGER.info("PORT_GATEWAY_GUI_PROJECTION_PASSED: scaled atlas corners, animation and scope cleanup");
     }
 
     private static void supply(Minecraft client, int index, boolean offhand, boolean head) {
@@ -296,11 +357,12 @@ public final class CelestialAnvilItemClientScene {
             return;
         }
         boolean fallback = name.equals("vanilla-atmosphere") || name.equals("forced-fallback");
-        if (!Boolean.getBoolean("anvilcraft.portCfaItemReference") && !fallback && !atmosphereReady()) return;
+        if (!GATEWAY && !Boolean.getBoolean("anvilcraft.portCfaItemReference") && !fallback && !atmosphereReady()) return;
+        if (GATEWAY && name.equals("gallery")) GatewayItemCacheProbe.verify();
         AnvilCraft.LOGGER.info("PORT_CFA_VIEW {}: position={}, flying={}", name,
             client.player.position(), client.player.getAbilities().flying);
         capturing = true;
-        String fileName = (STELLAR ? "stellar-26.1-" : "cfa-item-26.1-") + name + ".png";
+        String fileName = (GATEWAY ? "gateway-item-26.1-" : STELLAR ? "stellar-26.1-" : "cfa-item-26.1-") + name + ".png";
         Screenshot.grab(client.gameDirectory, fileName, client.getMainRenderTarget(), 1,
             message -> client.execute(() -> {
                 capturing = false;
@@ -316,7 +378,8 @@ public final class CelestialAnvilItemClientScene {
         @Override
         public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
             graphics.fill(0, 0, this.width, this.height, 0xFF252525);
-            String[] names = STELLAR ? STAR_NAMES : new String[]{"Empty", "Rocky", "Atmosphere", "Star", "Black hole", "Flesh", "Head"};
+            String[] names = GATEWAY ? new String[]{"Empty", "Gateway", "Gateway copy"}
+                : STELLAR ? STAR_NAMES : new String[]{"Empty", "Rocky", "Atmosphere", "Star", "Black hole", "Flesh", "Head"};
             for (int index = 0; index < ITEMS.size(); index++) {
                 graphics.pose().pushMatrix();
                 graphics.pose().translate(30 + (index % 7) * 84, (STELLAR ? 60 + (index / 7) * 150 : 90));

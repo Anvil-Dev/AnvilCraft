@@ -24,6 +24,7 @@ allprojects {
             include '**/IStoragePort.java', '**/StoragePortManager.java', '**/StoragePortType.java', '**/AbstractStoragePortBlock.java'
             include '**/StoragePort*.java', '**/BlockEntityItemUtil.java'
             include '**/ClientStoragePortTooltip.java'
+            include '**/GatewayGuiProjection.java', '**/GatewayItem*Mixin.java'
             include '**/ScaledGuiItem*.java'
             include '**/StorageFluidPort*.java', '**/FluidBottleInteraction.java'
             include '**/FluidTankTooltip.java', '**/ClientFluidTankTooltip.java'
