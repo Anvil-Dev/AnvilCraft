@@ -54,6 +54,7 @@ import dev.dubhe.anvilcraft.integration.jei.recipe.MeshRecipeGroup;
 import dev.dubhe.anvilcraft.integration.jei.recipe.MineralFountainJeiRecipe;
 import dev.dubhe.anvilcraft.integration.jei.recipe.MobTransformJeiRecipe;
 import dev.dubhe.anvilcraft.integration.jei.transfer.SmithingRecipeTransferHandler;
+import dev.dubhe.anvilcraft.integration.jei.transfer.StructureScannerRecipeTransferHandler;
 import dev.dubhe.anvilcraft.recipe.CanningFoodRecipe;
 import dev.dubhe.anvilcraft.recipe.ChargerChargingRecipe;
 import dev.dubhe.anvilcraft.recipe.EnergyWeaponMakeRecipe;
@@ -312,6 +313,7 @@ public class AnvilCraftJeiPlugin implements IModPlugin {
     public void registerRecipeTransferHandlers(IRecipeTransferRegistration registration) {
         StorageJeiSupport.registerRecipeTransferHandlers(registration);
         SmithingRecipeTransferHandler.register(registration);
+        StructureScannerRecipeTransferHandler.register(registration);
     }
 
     @Override

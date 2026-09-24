@@ -42,7 +42,8 @@ public final class BlueprintNormalizer {
         StructureSnapshot cached = CACHE.getIfPresent(key);
         if (cached != null) return cached;
         StructureSnapshot parsed = StructureSnapshotCodec.parse(tag, registries).snapshot();
-        StructureSnapshot normalized = normalize(ScannerDiskNormalizer.normalize(parsed, facing, upsideDown)).snapshot();
+        StructureSnapshot normalized = normalize(tag.getBooleanOr("anvilcraft:world_coordinates", false)
+            ? parsed : ScannerDiskNormalizer.normalize(parsed, facing, upsideDown)).snapshot();
         CACHE.put(new LoadKey(tag.copy(), registries, facing, upsideDown), normalized);
         return normalized;
     }

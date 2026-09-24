@@ -305,6 +305,7 @@ public final class StructureSnapshotCodec {
     public static CompoundTag write(StructureSnapshot snapshot) {
         CompoundTag tag = new CompoundTag();
         tag.putInt("DataVersion", SharedConstants.getCurrentVersion().dataVersion().version());
+        tag.putBoolean("anvilcraft:world_coordinates", true);
 
         ListTag sizeTag = new ListTag();
         sizeTag.add(IntTag.valueOf(snapshot.size().getX()));

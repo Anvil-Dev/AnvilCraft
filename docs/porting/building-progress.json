@@ -1010,7 +1010,8 @@
     ],
     "completed_nodes": [
       "cement_fluid_behavior",
-      "building_rod_control_hints"
+      "building_rod_control_hints",
+      "scanner_recipe_import"
     ]
   },
   "mun_foundation": {
@@ -1553,6 +1554,38 @@
     "limits": [
       "No new in-game HUD capture for this text-only node.",
       "New undo/refund messages remain coupled to the pending resource-accounting port."
+    ]
+  },
+  "scanner_recipe_import": {
+    "source_commit": "1260db54f6e2b9f88d0a79b8108459d346344e44",
+    "status": "recipe_import_and_coordinate_marker_ported",
+    "ported": [
+      "JEI multiblock crafting/conversion transfers into scanner preview",
+      "Server-authoritative recipe lookup, bounded input snapshot and copied predicate NBT",
+      "World-coordinate marker prevents duplicate transformation while preserving legacy disk orientation"
+    ],
+    "verification": {
+      "tests_log": "build/porting/tests-scanner-recipe-final.log",
+      "client_and_style_log": "build/porting/client-scanner-recipe-final.log",
+      "report": "build/porting/scanner-recipe-comparison.json",
+      "required_tests_passed": 567,
+      "catalog": {
+        "crafting": 14,
+        "conversion": 10
+      },
+      "source_files_equal_after_api_mapping": 2,
+      "client_checks": [
+        "Registered JEI handlers with dry-run and busy rejection",
+        "Both categories through native packets and matching input previews",
+        "Disk retained and missing recipe rejected"
+      ],
+      "coordinate_checks": "Four horizontal facings and both upside-down states for normalized and legacy snapshots"
+    },
+    "limits": [
+      "Client fixture invokes registered transfer handlers directly instead of clicking the JEI plus button.",
+      "Initial client fixture opened before chunk synchronization and was terminated after disconnect; final run exited cleanly.",
+      "Server test command passed all tests but failed on fixture formatting; subsequent client/checkPortJava run passed after the formatting repair.",
+      "Other source blueprint placement, entity restoration and undo-accounting updates remain pending."
     ]
   }
 }

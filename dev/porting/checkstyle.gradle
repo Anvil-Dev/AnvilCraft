@@ -133,6 +133,7 @@ allprojects {
             include '**/StorageSetting.java', '**/SettingClientStub.java', '**/SettingServerStub.java', '**/CategorySettingsScreen.java'
             include '**/StorageServerStub.java', '**/StorageClientStub.java', '**/StorageInput.java', '**/StorageScreen.java', '**/StorageMenu.java'
             include '**/FluidAmountUtil.java'
+            include '**/StructureScannerRecipe*.java'
             include '**/StructureLoadUtil.java', '**/StructureDisk*Packet.java', '**/StructureDiskPreviewSupport.java'
             include '**/item/utility/DiskItem.java', '**/StructureDiskData.java'
             include '**/recipe/multiblock/Multiblock*.java', '**/IMultiblockRecipe.java', '**/LevelLikeDisplaySupport.java'

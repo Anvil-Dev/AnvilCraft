@@ -152,6 +152,10 @@ public final class PortVisualScene {
             if (prepared) ItemDetectorClientScene.frame(client);
             return;
         }
+        if (Boolean.getBoolean("anvilcraft.portScannerRecipeScene")) {
+            if (prepared) ScannerRecipeClientScene.frame(client);
+            return;
+        }
         if (Boolean.getBoolean("anvilcraft.portScannerFilesScene")) {
             if (prepared) ScannerFilesClientScene.frame(client);
             return;

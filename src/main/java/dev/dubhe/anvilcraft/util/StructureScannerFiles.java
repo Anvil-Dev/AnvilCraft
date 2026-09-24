@@ -14,12 +14,15 @@ import dev.dubhe.anvilcraft.item.property.component.StructureDiskData;
 import dev.dubhe.anvilcraft.network.StructureScannerFilePacket;
 import dev.dubhe.anvilcraft.network.StructureScannerFileResultPacket;
 import net.minecraft.core.Direction;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtAccounter;
 import net.minecraft.nbt.NbtIo;
 import net.minecraft.nbt.NbtUtils;
 import net.minecraft.nbt.StringTag;
+import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.datafix.DataFixTypes;
 import net.minecraft.world.item.ItemStack;
@@ -50,6 +53,16 @@ public final class StructureScannerFiles {
                 }
                 case IMPORT -> {
                     byte[] preview = importBlueprint(player, menu, packet.name());
+                    menu.broadcastChanges();
+                    sendFile(player, packet.id(), preview);
+                }
+                case RECIPE -> {
+                    Identifier id = Identifier.parse(packet.name());
+                    var recipe = player.level().getServer().getRecipeManager().recipeMap().byKey(ResourceKey.create(Registries.RECIPE, id));
+                    if (recipe == null) throw new IllegalArgumentException("Recipe is unavailable");
+                    StructureSnapshot snapshot = StructureScannerRecipes.snapshot(recipe.value());
+                    byte[] preview = stageImport(player, menu, StructureSnapshotCodec.write(snapshot),
+                        StructureScannerRecipes.fileName(id));
                     menu.broadcastChanges();
                     sendFile(player, packet.id(), preview);
                 }

@@ -8,11 +8,13 @@ import dev.dubhe.anvilcraft.network.StructureScannerFilePacket.Action;
 import dev.dubhe.anvilcraft.network.StructureScannerFileResultPacket;
 import dev.dubhe.anvilcraft.util.StructureBlueprintFiles;
 import dev.dubhe.anvilcraft.util.StructureFileTransfer;
+import dev.dubhe.anvilcraft.util.StructureScannerRecipes;
 import net.minecraft.client.Minecraft;
 import net.minecraft.nbt.NbtAccounter;
 import net.minecraft.nbt.NbtIo;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Util;
 import org.jspecify.annotations.Nullable;
 
@@ -94,6 +96,12 @@ public final class BlueprintClientFiles {
         if (isBusy()) return;
         UUID id = begin(containerId, name, false);
         Minecraft.getInstance().getConnection().send(new StructureScannerFilePacket(containerId, id, Action.IMPORT, name));
+    }
+
+    public static void requestRecipe(int containerId, Identifier recipe) {
+        if (isBusy()) return;
+        UUID id = begin(containerId, StructureScannerRecipes.fileName(recipe), false);
+        Minecraft.getInstance().getConnection().send(new StructureScannerFilePacket(containerId, id, Action.RECIPE, recipe.toString()));
     }
 
     public static void requestExport(int containerId, String name) {
