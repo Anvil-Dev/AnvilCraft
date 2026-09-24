@@ -185,6 +185,7 @@ if (providers.gradleProperty('portValidation').isPresent()) {
             neoForge.runs.client.systemProperty 'anvilcraft.portMunSurfaceScene', 'true'
         }
         if (providers.gradleProperty('portMunSkyScene').isPresent()) {
+            neoForge.runs.client.systemProperty 'anvilcraft.portMunShadowResources', providers.gradleProperty('portMunShadowResources').isPresent().toString()
             neoForge.runs.client.systemProperty 'anvilcraft.portMunSkyScene', 'true'
         }
         if (providers.gradleProperty('portOrbitalSkyScene').isPresent()) {

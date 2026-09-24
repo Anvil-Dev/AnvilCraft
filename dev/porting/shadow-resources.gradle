@@ -1,0 +1,10 @@
+gradle.projectsEvaluated {
+    rootProject.tasks.named('runClient') {
+        if (!(it instanceof JavaExec)) throw new GradleException('Expected JavaExec for isolated validation arguments')
+        systemProperty 'anvilcraft.portVisualScene', 'true'
+        systemProperty 'anvilcraft.portCfaItemScene', 'true'
+        systemProperty 'anvilcraft.portMunSkyScene', 'true'
+        systemProperty 'anvilcraft.portMunShadowResources', 'true'
+        args '--width', '1280', '--height', '720'
+    }
+}

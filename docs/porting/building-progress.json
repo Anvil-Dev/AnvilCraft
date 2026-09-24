@@ -1101,5 +1101,35 @@
       "Native texture filtering and AO vertices retain visible local differences; OFF is native rendering rather than cross-version pixel parity.",
       "The largest remaining mean color discrepancy is the illuminated chest at about 1.22/255."
     ]
+  },
+  "mun_shadow_resources": {
+    "source_commit": "1260db54f6e2b9f88d0a79b8108459d346344e44",
+    "status": "projection_clock_and_exact_gl_resources_ported_receiver_caster_integration_pending",
+    "ported": [
+      "Source discrete shadow clock and snapped projection grid",
+      "Pure DEPTH_COMPONENT24 shadow targets and exact RG32UI transmission targets",
+      "Source integer history allocation, frame swap, invalidation and image binding restoration",
+      "Native GL state isolation and separate-sampler restoration for integer history reads"
+    ],
+    "verification": {
+      "client_log": "build/porting/client-mun-shadow-resources-final-2.log",
+      "validation_init": "dev/porting/shadow-resources.gradle",
+      "checks": [
+        "24-bit depth allocation, clear and copy",
+        "Exact integer transmission clear/write",
+        "Shader image atomic claims and previous-frame reads",
+        "History invalidation and external image/sampler/texture binding restoration",
+        "Clock reversal, pause, horizon substeps and negative time",
+        "Projection stability and culling at million-block coordinates"
+      ],
+      "sky_comparison": "build/porting/mun-sky-comparison.json",
+      "compile_log": "build/porting/compile-mun-shadow-resources-final.log",
+      "resource_report": "build/porting/mun-shadow-resources-comparison.json"
+    },
+    "limits": [
+      "Standard remains inactive until cached caster meshes, receiver bindings and dynamic/translucent rendering are connected.",
+      "This node tests GL resources and history semantics, not actual scene shadow appearance.",
+      "Non-OpenGL backends and hardware without image load/store were not runtime-tested."
+    ]
   }
 }
