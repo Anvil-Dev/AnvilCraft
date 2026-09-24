@@ -2823,5 +2823,9 @@
   "anvillib.configuration.enum.dev.dubhe.anvilcraft.config.anvil_craft_client_config.mun_lighting_quality.standard": "标准",
   "screen.anvilcraft.building_rod.left_click": "左键",
   "screen.anvilcraft.building_rod.traditional.scroll": "滚轮",
-  "screen.anvilcraft.building_rod.selection_size": "%s × %s × %s"
+  "screen.anvilcraft.building_rod.selection_size": "%s × %s × %s",
+  "message.anvilcraft.building_rod.undo_partial": "区域已恢复，但流体尚未退还。请腾出关联流体仓储空间，并在继续建造前再次撤销",
+  "message.anvilcraft.building_rod.undo_conflict": "无法安全结算资源变化，已取消撤销且未修改区域",
+  "message.anvilcraft.building_rod.undo_missing_materials": "恢复原区域缺少材料或流体，请补齐后再次撤销",
+  "message.anvilcraft.building_rod.undo_missing_containers": "缺少回收容器或关联流体仓储空间，请腾出空间后再次撤销"
 }

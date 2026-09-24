@@ -112,6 +112,14 @@ public final class BuildingRegionTests {
         helper.succeed();
     }
 
+    private static List<ItemStack> requiredMaterials(BuildingRegionSnapshot region) {
+        var recovered = new BuildingUndoResources();
+        var required = new BuildingUndoResources();
+        region.resources(recovered, required);
+        BuildingUndoResources.cancel(recovered, required);
+        return required.items;
+    }
+
     private static void inventory(GameTestHelper helper) {
         var level = helper.getLevel();
         var pos = pos(helper);
@@ -123,11 +131,11 @@ public final class BuildingRegionTests {
         chest.setItem(0, diamond);
         var region = new BuildingRegionSnapshot(player, new BoundingBox(pos));
         chest.setItem(0, diamond.copyWithCount(3));
-        var restored = region.restoredMaterials();
+        var restored = requiredMaterials(region);
         helper.assertTrue(restored.size() == 1 && restored.getFirst().getCount() == 2 && chest.getItem(0).getCount() == 3,
             "计算恢复增量不得清空或修改当前容器");
         chest.setItem(0, new ItemStack(Items.DIAMOND, 3));
-        helper.assertTrue(region.restoredMaterials().getFirst().getCount() == 5 && chest.getItem(0).getCount() == 3,
+        helper.assertTrue(requiredMaterials(region).getFirst().getCount() == 5 && chest.getItem(0).getCount() == 3,
             "不同组件的物品不能抵扣待恢复库存");
         BuildingCommit.quietly(level, () -> BuildingCommit.set(level, pos, Blocks.STONE.defaultBlockState()));
         helper.assertTrue(level.getEntitiesOfClass(net.minecraft.world.entity.item.ItemEntity.class, new AABB(pos).inflate(1)).isEmpty(),

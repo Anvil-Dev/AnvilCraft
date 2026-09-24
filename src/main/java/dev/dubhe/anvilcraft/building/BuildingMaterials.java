@@ -2,6 +2,8 @@ package dev.dubhe.anvilcraft.building;
 
 import dev.dubhe.anvilcraft.api.StoragePortManager;
 import dev.dubhe.anvilcraft.api.itemhandler.unlimited.UnlimitedItemStacksResourceHandler;
+import dev.dubhe.anvilcraft.block.entity.FluidTankBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.LargeFluidTankBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItems;
@@ -9,6 +11,7 @@ import dev.dubhe.anvilcraft.inventory.PocketInventory;
 import dev.dubhe.anvilcraft.item.block.ResinBlockItem;
 import dev.dubhe.anvilcraft.item.tool.AnvilHammerItem;
 import dev.dubhe.anvilcraft.rpc.StorageServerStub;
+import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.EntityType;
@@ -32,6 +35,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.LongSupplier;
+import java.util.function.Predicate;
 
 /** 同一服务端任务内先分配全部材料，预检完成后再统一扣除。 */
 public final class BuildingMaterials {
@@ -79,7 +83,7 @@ public final class BuildingMaterials {
         this.creative = creative;
         this.player = player;
         this.offhand = inventorySource(player, held);
-        this.fluidStorages = StorageServerStub.buildingFluidSources(player);
+        this.fluidStorages = new ArrayList<>(StorageServerStub.buildingFluidSources(player));
         for (ItemStack stack : PocketInventory.carriedItems(player)) {
             if (!stack.isEmpty() && stack != held) this.sources.add(inventorySource(player, stack));
         }
@@ -488,6 +492,61 @@ public final class BuildingMaterials {
             this.returned.add(items.getResource(0).toStack(items.getAmountAsInt(0)));
         }
         return remaining;
+    }
+
+    void excludeFluidSources(Predicate<BlockPos> excluded) {
+        this.fluidStorages.removeIf(storage -> StoragePortManager.positions(storage).stream().anyMatch(excluded));
+    }
+
+    void reserveRefundContainers(List<FluidStack> fluids, List<ItemStack> refunds) {
+        List<ItemStack> filled = new ArrayList<>();
+        for (FluidStack fluid : fluids) {
+            for (ItemStack stack : refunds) this.fillRefundContainer(stack, fluid, filled);
+            for (ItemStack stack : this.returned) this.fillRefundContainer(stack, fluid, filled);
+            for (Source source : this.sources) {
+                while (!fluid.isEmpty() && source.available > source.reserved) {
+                    ItemStack container = source.resource.copyWithCount(1);
+                    if (!this.fillRefundContainer(container, fluid, filled)) break;
+                    source.reserved++;
+                }
+            }
+        }
+        refunds.removeIf(ItemStack::isEmpty);
+        refunds.addAll(filled);
+    }
+
+    private boolean fillRefundContainer(ItemStack stack, FluidStack fluid, List<ItemStack> filled) {
+        boolean changed = false;
+        while (!stack.isEmpty() && !fluid.isEmpty()) {
+            ItemStack container = stack.copyWithCount(1);
+            var items = new ItemStacksResourceHandler(1);
+            items.set(0, ItemResource.of(container), 1);
+            var handler = ItemAccess.forHandlerIndexStrict(items, 0).getCapability(Capabilities.Fluid.ITEM);
+            int amount;
+            ItemStack result;
+            if (handler != null) {
+                try (Transaction transaction = Transaction.openRoot()) {
+                    amount = handler.insert(FluidResource.of(fluid), fluid.getAmount(), transaction);
+                    transaction.commit();
+                }
+                result = items.getResource(0).toStack(items.getAmountAsInt(0));
+            } else if (container.is(ModBlocks.FLUID_TANK.asItem())) {
+                amount = Math.min(fluid.getAmount(), FluidTankBlockEntity.BASE_CAPACITY);
+                result = FluidTankBlockEntity.fillItem(container, fluid.copyWithAmount(amount), this.player.registryAccess());
+            } else if (container.is(ModBlocks.LARGE_FLUID_TANK.asItem())) {
+                amount = Math.min(fluid.getAmount(), LargeFluidTankBlockEntity.BASE_CAPACITY);
+                result = LargeFluidTankBlockEntity.fillItem(container, List.of(fluid.copyWithAmount(amount)), this.player.registryAccess());
+            } else {
+                break;
+            }
+            if (result.isEmpty()) break;
+            if (amount <= 0) break;
+            fluid.shrink(amount);
+            stack.shrink(1);
+            filled.add(result);
+            changed = true;
+        }
+        return changed;
     }
 
     public boolean consume() {

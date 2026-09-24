@@ -16,6 +16,10 @@ public class LargeCakeBlockItem extends BlockItem {
         super(block, properties);
     }
 
+    public static BlockPos origin(BlockPos pos, BlockState state) {
+        return pos.subtract(state.getValue(LargeCakeBlock.HALF).getOffset());
+    }
+
     public static void forEachPlacedBlock(BlockPos origin, BlockState state, BiConsumer<BlockPos, BlockState> consumer) {
         for (Cube3x3PartHalf part : Cube3x3PartHalf.values()) {
             consumer.accept(origin.offset(part.getOffset()), state.setValue(LargeCakeBlock.HALF, part));

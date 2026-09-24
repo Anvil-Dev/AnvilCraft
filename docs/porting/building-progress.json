@@ -1011,7 +1011,8 @@
     "completed_nodes": [
       "cement_fluid_behavior",
       "building_rod_control_hints",
-      "scanner_recipe_import"
+      "scanner_recipe_import",
+      "building_undo_settlement"
     ]
   },
   "mun_foundation": {
@@ -1586,6 +1587,36 @@
       "Initial client fixture opened before chunk synchronization and was terminated after disconnect; final run exited cleanly.",
       "Server test command passed all tests but failed on fixture formatting; subsequent client/checkPortJava run passed after the formatting repair.",
       "Other source blueprint placement, entity restoration and undo-accounting updates remain pending."
+    ]
+  },
+  "building_undo_settlement": {
+    "source_commit": "1260db54f6e2b9f88d0a79b8108459d346344e44",
+    "status": "actual_resource_settlement_and_native_refund_transactions_ported",
+    "ported": [
+      "Actual block/entity resource differences replace original receipt refunds",
+      "Missing material, harvest-state, multipart-boundary and container preflight checks",
+      "Native transactional fluid container filling, external-storage refunds and pending retry guard",
+      "Source pipe material, large-cake grouping, spectral-anvil ghost/tool behavior and common activation",
+      "Source English refund messages and matching Chinese translations"
+    ],
+    "verification": {
+      "server_datagen_log": "build/porting/validate-building-undo-final.log",
+      "client_and_style_log": "build/porting/client-building-undo-final.log",
+      "report": "build/porting/building-undo-comparison.json",
+      "required_tests_passed": 572,
+      "source_algorithms_equal_after_api_mapping": 11,
+      "checks": [
+        "Picked-up drops and remaining entity products",
+        "Missing chest contents and consumed furnace fuel",
+        "Eaten cake refusal and fluid container/capacity preflight",
+        "Execution-time refill refusal, construction blocking and exactly-once retry",
+        "Real client place/undo with world, inventory and energy synchronization"
+      ]
+    },
+    "limits": [
+      "Server/datagen command passed all tests and generated two language files, then failed on fixture formatting; final client/checkPortJava run validates the repair.",
+      "Deficit and refusal cases use native server GameTests; client exercise covers ordinary place/undo.",
+      "Other source placement, interaction and optional rendering compatibility changes remain pending."
     ]
   }
 }

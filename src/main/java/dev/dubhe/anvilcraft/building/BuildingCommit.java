@@ -77,6 +77,10 @@ public final class BuildingCommit {
         }
     }
 
+    public static void activate(ServerLevel level, List<? extends PlacedCell> cells) {
+        activatePlaced(level, cells);
+    }
+
     public static boolean isRestoredObserverUpdate(Level level, Direction direction, BlockState source,
                                                     BlockPos pos, BlockPos sourcePos) {
         Activation activation = ACTIVATION.get();
@@ -95,6 +99,10 @@ public final class BuildingCommit {
             level.getFluidTicks().clearArea(bounds);
         }
         BlueprintTicks.restore(level, ticks, placed);
+        activatePlaced(level, cells);
+    }
+
+    private static void activatePlaced(ServerLevel level, List<? extends PlacedCell> cells) {
         for (var cell : cells) {
             BlockPos pos = cell.pos();
             BlockState state = level.getBlockState(pos);

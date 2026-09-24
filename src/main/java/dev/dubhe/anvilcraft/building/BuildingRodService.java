@@ -3,15 +3,19 @@ package dev.dubhe.anvilcraft.building;
 import dev.dubhe.anvilcraft.block.RedstoneWireBlock;
 import dev.dubhe.anvilcraft.block.RedstoneWireNetworkManager;
 import dev.dubhe.anvilcraft.block.UseItemOnBlock;
+import dev.dubhe.anvilcraft.block.cake.LargeCakeBlock;
 import dev.dubhe.anvilcraft.building.BuildingPlan.Cell;
 import dev.dubhe.anvilcraft.building.BuildingPlan.Group;
 import dev.dubhe.anvilcraft.entity.AnimateAscendingBlockEntity;
 import dev.dubhe.anvilcraft.entity.CauldronOutletEntity;
+import dev.dubhe.anvilcraft.entity.FallingSpectralBlockEntity;
 import dev.dubhe.anvilcraft.entity.MagnetizedNodeEntity;
 import dev.dubhe.anvilcraft.entity.SlidingBlockEntity;
+import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.item.BuildingRodItem;
+import dev.dubhe.anvilcraft.item.block.LargeCakeBlockItem;
 import dev.dubhe.anvilcraft.network.BuildingRodResultPacket;
 import dev.dubhe.anvilcraft.util.StructureLoadUtil;
 import net.minecraft.core.BlockPos;
@@ -246,10 +250,17 @@ public final class BuildingRodService {
         ServerPlayer player, StructureSnapshot snapshot, BlueprintPlacement placement,
         List<Group> allGroups, Map<BlockPos, BlockState> declared
     ) {
-        BlockPos sourceOrigin = BlueprintBlockConfiguration.sourceOrigin(snapshot);
-        Map<BlockPos, Group> groups = new LinkedHashMap<>();
+        final BlockPos sourceOrigin = BlueprintBlockConfiguration.sourceOrigin(snapshot);
+        final Map<BlockPos, Group> groups = new LinkedHashMap<>();
         List<BlueprintMultiblocks.PlacedBlock> blueprint = BlueprintMultiblocks.expand(snapshot, placement, -1);
         blueprint.forEach(entry -> declared.put(entry.pos(), entry.state()));
+        Map<BlockPos, BlockPos> cakeMaterials = new LinkedHashMap<>();
+        for (var entry : blueprint) {
+            if (entry.state().getBlock() instanceof LargeCakeBlock
+                && !player.level().getBlockState(entry.pos()).equals(entry.state())) {
+                cakeMaterials.putIfAbsent(LargeCakeBlockItem.origin(entry.pos(), entry.state()), entry.pos());
+            }
+        }
         Map<BlockPos, BlockPos> portalCores = BlueprintIgnition.portalCores(declared);
         Map<BlockPos, BlockPos> localPositions = new LinkedHashMap<>();
         snapshot.blocks().forEach(block -> localPositions.put(placement.worldOf(block.pos()), block.pos()));
@@ -266,7 +277,9 @@ public final class BuildingRodService {
                 message(player, "blocked");
                 return false;
             }
-            BlockPos core = portalCores.getOrDefault(pos, BlueprintMultiblocks.core(pos, state));
+            BlockPos core = state.getBlock() instanceof LargeCakeBlock
+                ? cakeMaterials.get(LargeCakeBlockItem.origin(pos, state))
+                : portalCores.getOrDefault(pos, BlueprintMultiblocks.core(pos, state));
             Group group = groups.computeIfAbsent(core, ignored -> new Group());
             group.separateContents = true;
             if (state.is(Blocks.MOVING_PISTON)) {
@@ -428,7 +441,9 @@ public final class BuildingRodService {
             group.hammer |= adapter.requiresHammer();
             if (probe instanceof Leashable && BlueprintLeashes.hasLeash(plan.entityNbt())) group.leads = 1;
             if (probe instanceof Mob) group.creature = type;
-            else group.materials.add(plan.material());
+            else if (probe instanceof FallingSpectralBlockEntity && plan.material().is(ModBlocks.SPECTRAL_ANVIL.asItem())) {
+                group.tools.add(plan.material().getItem());
+            } else group.materials.add(plan.material());
             if (!group.separateContents) {
                 for (var content : plan.contents()) group.materials.add(content.stack());
             }
@@ -451,6 +466,10 @@ public final class BuildingRodService {
         Map<BlockPos, BlockState> declared, List<BlueprintTicks.Entry> ticks,
         @Nullable BoundingBox undoBounds
     ) {
+        if (BuildingRodUndo.hasPendingRefund(player)) {
+            message(player, "undo_partial");
+            return false;
+        }
         if (!quiet && groups.stream().mapToInt(group -> group.cells.size()).sum() > MAX_BLOCKS) {
             message(player, "too_many");
             return false;
@@ -536,7 +555,6 @@ public final class BuildingRodService {
             }
             return false;
         }
-        undo.consumed();
         Map<BlockPos, ItemStack> placedMaterials = new LinkedHashMap<>();
         placedGroups.forEach(group -> placedMaterials.putAll(group.blockMaterials));
         List<Map.Entry<Entity, CompoundTag>> spawned = new ArrayList<>();
@@ -570,7 +588,6 @@ public final class BuildingRodService {
                     blockEntity.setChanged();
                     player.level().sendBlockUpdated(cell.pos(), cell.state(), cell.state(), Block.UPDATE_CLIENTS);
                 }
-                if (!quiet) player.level().updateNeighborsAt(cell.pos(), cell.state().getBlock());
             }
             Map<BlockPos, BlockState> wires = new LinkedHashMap<>();
             for (Cell cell : cells) {
@@ -599,6 +616,7 @@ public final class BuildingRodService {
         BlueprintEntities.link(spawned).forEach(undo::recordAuxiliary);
         undo.finish(player);
         if (quiet) BuildingCommit.activate(player.level(), cells, ticks);
+        else BuildingCommit.activate(player.level(), cells);
         BuildingRodMaterialBook.give(player, shortages);
         finishPlacement(player, cells.size());
         if (quiet || !placedMaterials.isEmpty()) playPlacementSounds(player, cells, quiet);

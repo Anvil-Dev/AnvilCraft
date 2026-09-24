@@ -3,8 +3,10 @@ package dev.dubhe.anvilcraft.building;
 import dev.dubhe.anvilcraft.api.sliding.SlidingBlockSection;
 import dev.dubhe.anvilcraft.block.UseItemOnBlock;
 import dev.dubhe.anvilcraft.entity.AnimateAscendingBlockEntity;
+import dev.dubhe.anvilcraft.entity.FallingSpectralBlockEntity;
 import dev.dubhe.anvilcraft.entity.IonocraftEntity;
 import dev.dubhe.anvilcraft.entity.SlidingBlockEntity;
+import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
@@ -117,6 +119,10 @@ final class DynamicBuildingEntities implements EntityBuildAdapter {
             CompoundTag saved = nbt.copy();
             // time=0 的原版下落实体会先删除起点方块；蓝图已将实体与方块分别恢复。
             saved.putInt("Time", Math.max(1, saved.getIntOr("Time", 0)));
+            if (entity instanceof FallingSpectralBlockEntity && falling.getBlockState().is(ModBlocks.SPECTRAL_ANVIL)) {
+                saved.putBoolean("Ghost", true);
+                saved.putBoolean("DropItem", false);
+            }
             List<SlotStack> costs = new ArrayList<>();
             for (var content : block.contents()) costs.add(new SlotStack(-1, content.stack()));
             ItemStack upgrade = UseItemOnBlock.materialFor(falling.getBlockState());

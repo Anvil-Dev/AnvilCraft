@@ -71,30 +71,29 @@ public final class BuildingMaterialUndoTests {
         )));
     }
 
-    private static BlockPos pos(GameTestHelper helper) {
+    static BlockPos pos(GameTestHelper helper) {
         return helper.absolutePos(new BlockPos(2, 16, 4));
     }
 
-    private static ServerPlayer player(GameTestHelper helper) {
+    static ServerPlayer player(GameTestHelper helper) {
         var player = FakePlayerFactory.get(helper.getLevel(), new GameProfile(UUID.randomUUID(), "PortMaterialUndo"));
         player.setGameMode(GameType.SURVIVAL);
         return player;
     }
 
-    private static BuildingPlan.Group block(BlockPos pos, Block block, ItemStack material) {
+    static BuildingPlan.Group block(BlockPos pos, Block block, ItemStack material) {
         var group = new BuildingPlan.Group();
         group.cells.add(new BuildingPlan.Cell(pos, block.defaultBlockState(), new CompoundTag(), List.of()));
         if (!material.isEmpty()) group.materials.add(material);
         return group;
     }
 
-    private static BuildingRodUndo paid(GameTestHelper helper, ServerPlayer player, BuildingPlan.Group group) {
+    static BuildingRodUndo paid(GameTestHelper helper, ServerPlayer player, BuildingPlan.Group group) {
         var materials = new BuildingMaterials(player, ItemStack.EMPTY, false);
         var allocated = materials.reserve(group, false);
         helper.assertTrue(allocated != null, "应能预留本次建造材料");
         var undo = new BuildingRodUndo(player, List.of(allocated));
         helper.assertTrue(materials.consume(), "预留后应统一扣除材料");
-        undo.consumed();
         BuildingCommit.quietly(helper.getLevel(), () -> allocated.cells.forEach(cell ->
             BuildingCommit.set(helper.getLevel(), cell.pos(), cell.state())));
         return undo;
@@ -210,7 +209,9 @@ public final class BuildingMaterialUndoTests {
         var second = first.spawnAtLocation(helper.getLevel(), new ItemStack(Items.IRON_INGOT), Vec3.ZERO);
         entity.discard();
         helper.assertTrue(BuildingRodUndo.restore(player) == BuildingRodUndo.Result.UNDONE && first.isRemoved() && second.isRemoved()
-            && player.getInventory().countItem(Items.DIAMOND) == 1, "实体产物链必须随撤销清理，原实体消失也不能丢失退款");
+            && player.getInventory().countItem(Items.DIAMOND) == 0
+            && player.getInventory().countItem(Items.EMERALD) == 1 && player.getInventory().countItem(Items.IRON_INGOT) == 1,
+            "撤销只结算仍存在的实际产物，不能返还已经消失的原实体材料");
         helper.succeed();
     }
 
@@ -223,9 +224,9 @@ public final class BuildingMaterialUndoTests {
         undo.finish(player);
         helper.assertTrue(player.getInventory().countItem(Items.BUCKET) == 1, "流体供料应产生实际空桶");
         player.getInventory().clearContent();
-        helper.assertTrue(BuildingRodUndo.restore(player) == BuildingRodUndo.Result.PARTIAL
-            && helper.getLevel().getBlockState(pos(helper)).isAir()
-            && player.getInventory().countItem(Items.WATER_BUCKET) == 0, "缺少需要收回的空桶时应恢复区域但暂缓该账单退款");
+        helper.assertTrue(BuildingRodUndo.restore(player) == BuildingRodUndo.Result.MISSING_CONTAINERS
+            && helper.getLevel().getBlockState(pos(helper)).is(Blocks.WATER)
+            && player.getInventory().countItem(Items.WATER_BUCKET) == 0, "缺少容器时不得修改区域，应保留水源等待补齐");
         player.getInventory().setItem(0, new ItemStack(Items.BUCKET));
         helper.assertTrue(BuildingRodUndo.restore(player) == BuildingRodUndo.Result.UNDONE
             && player.getInventory().countItem(Items.BUCKET) == 0 && player.getInventory().countItem(Items.WATER_BUCKET) == 1,
@@ -245,8 +246,9 @@ public final class BuildingMaterialUndoTests {
             undo.finish(player);
             int capacity = port.getFluidHandler().getCapacityAsInt(0, FluidResource.of(Fluids.WATER));
             port.getTank().set(0, FluidResource.of(Fluids.WATER), capacity);
-            helper.assertTrue(BuildingRodUndo.restore(player) == BuildingRodUndo.Result.PARTIAL,
-                "原流体仓储装满时必须保留退款欠额");
+            helper.assertTrue(BuildingRodUndo.restore(player) == BuildingRodUndo.Result.MISSING_CONTAINERS
+                && helper.getLevel().getBlockState(pos(helper)).is(Blocks.WATER),
+                "原流体仓储装满时应在恢复区域之前拒绝撤销");
             try (Transaction transaction = Transaction.openRoot()) {
                 port.getFluidHandler().extract(FluidResource.of(Fluids.WATER), 1000, transaction);
                 transaction.commit();
@@ -264,6 +266,7 @@ public final class BuildingMaterialUndoTests {
         undo.finish(player);
         var falling = FallingBlockEntity.fall(helper.getLevel(), pos(helper), Blocks.SAND.defaultBlockState());
         var drop = falling.spawnAtLocation(helper.getLevel(), new ItemStack(Items.SAND), Vec3.ZERO);
+        falling.discard();
         helper.assertTrue(BuildingRodUndo.restore(player) == BuildingRodUndo.Result.UNDONE && falling.isRemoved() && drop.isRemoved()
             && player.getInventory().countItem(Items.SAND) == 1, "区块替换钩子应追踪下落方块及其后续产物");
         helper.succeed();

@@ -1,6 +1,8 @@
 package dev.dubhe.anvilcraft.building;
 
+import dev.dubhe.anvilcraft.block.fluid.PipeBlock;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
+import dev.dubhe.anvilcraft.init.item.ModItems;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
@@ -18,6 +20,7 @@ final class BlueprintSpecialBlocks {
     }
 
     static ItemStack material(BlockState state) {
+        if (state.getBlock() instanceof PipeBlock) return ModItems.PIPE.asStack();
         if (state.is(ModBlocks.SIMPLE_MAGNETIC_CHUTE.get())) return ModBlocks.MAGNETIC_CHUTE.asStack();
         if (state.getBlock() instanceof FlowerPotBlock) return new ItemStack(Items.FLOWER_POT);
         if (state.getBlock() instanceof CandleCakeBlock) return new ItemStack(Items.CAKE);

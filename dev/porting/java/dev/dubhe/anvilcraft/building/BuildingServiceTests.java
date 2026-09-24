@@ -248,10 +248,14 @@ public final class BuildingServiceTests {
             && helper.getLevel().getFluidState(pos.east(2)).isSource(), "空格放置水源");
         helper.assertTrue(count(player, Items.WATER_BUCKET) == 0 && count(player, Items.BUCKET) == 2 && energy(player) == 9700,
             "无限水区域只收两桶，能量仍按实际三格收取");
+        helper.assertTrue(BuildingRodUndo.restore(player) == BuildingRodUndo.Result.MISSING_CONTAINERS
+            && helper.getLevel().getBlockState(pos).getValue(BlockStateProperties.WATERLOGGED),
+            "实际三桶水需要三只容器，缺少时不能先恢复区域");
+        player.getInventory().setItem(2, new ItemStack(Items.BUCKET));
         BuildingRodUndo.undo(player);
         helper.assertTrue(helper.getLevel().getBlockState(pos) == slab && helper.getLevel().getBlockState(pos.east()).isAir(),
             "撤销保留原半砖并清除新水源");
-        helper.assertTrue(count(player, Items.WATER_BUCKET) == 2 && count(player, Items.BUCKET) == 0, "撤销流体容器账单");
+        helper.assertTrue(count(player, Items.WATER_BUCKET) == 3 && count(player, Items.BUCKET) == 0, "撤销按现场三桶实际水源结算");
         helper.succeed();
     }
 
