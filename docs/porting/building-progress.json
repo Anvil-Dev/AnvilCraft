@@ -726,5 +726,31 @@
       "Preview RGB metrics cover the legacy body rectangle, not black-hole overflow or all other UI elements.",
       "Remaining jet/black-hole edge differences, custom resource packs and broad shader/platform coverage are not declared complete."
     ]
+  },
+  "cfa_map_guide": {
+    "source_commit": "a378f98e4d41d0d92f97cf2486ac9da7881b1674",
+    "status": "interactive_chart_ported_physical_shift_validation_pending",
+    "ported": [
+      "Three chart quadrants set paired anvil quantities through the native container input API",
+      "Bounded target-count transfer conserves inventory and stops on capacity limits",
+      "Both wheel axes, source Shift conversion, initial guide visibility and resize persistence",
+      "Source-sized guide labels and unmatched translation"
+    ],
+    "verification": {
+      "source_log": "build/porting/client-cfa-map-source-1.log",
+      "target_log": "build/porting/client-cfa-map-target-4.log",
+      "report": "build/porting/cfa-map-visual-comparison.json",
+      "matching_server_steps": 9,
+      "captures_per_version": 3,
+      "max_rgb_difference": 2,
+      "full_server_tests": 528,
+      "tests_log": "build/porting/tests-cfa-map-full-1.log",
+      "compile_style_log": "build/porting/validate-cfa-map-final-2.log",
+      "datagen_log": "build/porting/datagen-cfa-map-1.log"
+    },
+    "limits": [
+      "Physical Shift injection was not observed by GLFW; source-equivalent branch retained, both wheel axes tested independently.",
+      "Chart screenshots do not certify all CFA UI, locked/history combinations or multiplayer contention."
+    ]
   }
 }

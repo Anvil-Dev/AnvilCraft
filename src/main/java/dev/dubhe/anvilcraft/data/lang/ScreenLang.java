@@ -350,7 +350,7 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.cfa.wind.very_high", "Very High"); // 非常高
 
         provider.add("screen.anvilcraft.cfa.type", "Type: %s"); // 天体类型: %s
-        provider.add("screen.anvilcraft.cfa.class.no_match", "Null"); // ？？？
+        provider.add("screen.anvilcraft.cfa.class.no_match", "???"); // ？？？
         provider.add("screen.anvilcraft.cfa.class.large_moon", "Large Moon"); // 大型卫星
         provider.add("screen.anvilcraft.cfa.class.rocky_planet", "Rocky Planet"); // 岩石行星
         // 岩石行星类型，按温度、液体覆盖和大气层组合区分。

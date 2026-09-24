@@ -8,6 +8,7 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.ContainerInput;
 import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
@@ -61,6 +62,20 @@ public class CelestialForgingAnvilMenu extends AbstractContainerMenu {
     ) {
         this(menuType, containerId, inventory,
             (CelestialForgingAnvilBlockEntity) inventory.player.level().getBlockEntity(extraData.readBlockPos()));
+    }
+
+    @Override
+    public void clicked(int slotId, int button, ContainerInput input, Player player) {
+        if (input == ContainerInput.QUICK_CRAFT && slotId >= 0 && slotId < ANVIL_SLOTS && button >= 0 && button <= 64) {
+            for (int i = 0; i <= 64; i++) {
+                int count = this.getSlot(slotId).getItem().getCount();
+                if (count == button) break;
+                this.handleAnvilTransfer(slotId, button > count);
+                if (count == this.getSlot(slotId).getItem().getCount()) break;
+            }
+            return;
+        }
+        super.clicked(slotId, button, input, player);
     }
 
     @Override
