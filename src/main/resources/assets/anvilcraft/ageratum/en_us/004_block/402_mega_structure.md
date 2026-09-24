@@ -12,6 +12,8 @@ items:
   - anvilcraft:stellar_evolution_accelerator_component
 ---
 
+<directory>
+
 # Mega Structures
 
 Mega structures extract resources from forged celestial bodies, generate power, or alter celestial body states.

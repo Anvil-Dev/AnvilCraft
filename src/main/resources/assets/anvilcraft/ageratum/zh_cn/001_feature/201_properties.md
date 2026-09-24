@@ -30,9 +30,9 @@ navigation:
 
 # 多相
 
-拥有此属性的工具将会拥有两个“相位”  
-每个相位会存储它们自己的名称和附魔，不会冲突  
-可以通过按下 <key id="key.anvilcraft.switch_phase" /> 选择相位
+- 拥有此属性的工具将会拥有两个“相位”  
+- 每个相位会存储它们自己的名称和附魔，不会冲突  
+- 可以通过按下 <key id="key.anvilcraft.switch_phase"/> 选择相位
 
 # 永恒
 

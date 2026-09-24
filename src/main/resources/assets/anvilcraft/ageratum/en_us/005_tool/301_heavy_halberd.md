@@ -22,12 +22,12 @@ items:
 
 - A versatile weapon that can be used as four types of melee weapons, but all modes benefit from the heavy hammer's fall damage bonus
 - When durability is depleted, it does not break completely, similar to <ref item="minecraft:elytra"/>
-- Hold [Left Alt] to bring up a radial menu with four options, each providing a different right-click ability
+- Hold <key id="key.anvilcraft.switch_phase"/> to bring up a radial menu with four options, each providing a different right-click ability
   - <ref item="minecraft:trident"/> mode: right-click to throw
   - Spear mode: right-click to stab (no function in MC versions without spears)
   - Sword mode: right-click to block, reducing physical damage taken
   - <ref item="minecraft:mace"/> mode: right-click has no function, but attack speed is very fast
-- Press [Left Alt] to cycle clockwise through the tool mode radial menu
+- Press <key id="key.anvilcraft.switch_phase"/> to cycle clockwise through the tool mode radial menu
 
 ## Crafting
 

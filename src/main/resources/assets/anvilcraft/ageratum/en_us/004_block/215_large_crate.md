@@ -46,6 +46,10 @@ Smash 1 <ref item="anvilcraft:space_overcompressor"/> and 6 <ref item="minecraft
 Container blocks provided by AnvilCraft have similar GUIs with features such as a [crafting window](003_crate.md#crafting-window).
 </tip>
 
+<info>
+A <ref item="anvilcraft:shulker_container"/> cannot be placed into a <ref item="anvilcraft:shulker_container"/> or its storage ports
+</info>
+
 # Automated Storage Access
 
 ## <ref item="anvilcraft:storage_port"/>

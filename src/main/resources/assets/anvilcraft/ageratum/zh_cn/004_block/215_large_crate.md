@@ -45,6 +45,10 @@ items:
 铁砧工艺提供的容器方块均拥有类似的GUI，拥有[合成窗口](003_crate.md#合成窗口)等功能
 </tip>
 
+<info>
+<ref item="anvilcraft:shulker_container"/>不能被放入<ref item="anvilcraft:shulker_container"/>及其接口中
+</info>
+
 # 自动化存取
 
 ## <ref item="anvilcraft:storage_port"/>

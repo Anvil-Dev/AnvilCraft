@@ -48,6 +48,10 @@ Open the GUI:
 1. Import and export operate on the same folder, located under the **world folder**. On servers, file operations require **operator permissions**
 2. You can choose whether the structure can rotate automatically to prevent directional machines from being placed incorrectly
 
+<tip>
+Hold Shift and click the import/export button to open the folder
+</tip>
+
 <info>
 These operations involve world storage (think of it as the cloud), <ref item="anvilcraft:structure_scanner"/> storage (think of it as your computer), and <ref item="anvilcraft:structure_disk"/> storage (think of it as a USB drive).
 </info>

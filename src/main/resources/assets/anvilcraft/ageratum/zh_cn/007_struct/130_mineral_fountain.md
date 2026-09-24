@@ -33,15 +33,15 @@ items:
 生成的结构会将除<ref item="minecraft:bedrock"/>外的方块替换
 </warning>
 
-### <ref item="anvilcraft:sturdy_deepslate"/>
-
-很硬的石头，没什么用
-
 ## 特性
 
 - 坚硬抗爆
 - 极难挖掘
 - 破坏没有掉落物
+
+### <ref item="anvilcraft:sturdy_deepslate"/>
+
+很硬的石头，没什么用
 
 # 功能
 
@@ -51,9 +51,14 @@ items:
 
 ## 产矿
 
-<structure id="../../structures/mineral_fountain/raw_mineral.snbt"/>
+<row halign="center">
 
-- 如果<ref item="anvilcraft:mineral_fountain"/>的四面都是**同种粗矿块**，则将上方<ref item="minecraft:deepslate"/>转化为对应的**深层矿**
+<recipe id="anvilcraft:mineral_fountain/deepslate_gold_ore"/>
+<recipe id="anvilcraft:mineral_fountain_chance/void_stone_from_overworld"/>
+
+</row>
+
+- 如果<ref item="anvilcraft:mineral_fountain"/>的四面都是**同种粗矿块**，则将上方<ref item="minecraft:deepslate"/>转化为对应的**深层矿**(不消耗**粗矿块**)
 - 有概率转而生成<ref item="anvilcraft:earth_core_shard_ore"/>或<ref item="anvilcraft:void_stone"/>
 
 <info>
@@ -89,4 +94,3 @@ items:
 <structure id="../../structures/mineral_fountain/cinerite.snbt"/>
 
 - 其他结构都不满足时，<ref item="anvilcraft:mineral_fountain"/>在上方生成<ref item="anvilcraft:cinerite"/>，可将其用于[筛矿](../008_recipe/001_basic_minerals.md)
-
