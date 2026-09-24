@@ -1131,5 +1131,38 @@
       "This node tests GL resources and history semantics, not actual scene shadow appearance.",
       "Non-OpenGL backends and hardware without image load/store were not runtime-tested."
     ]
+  },
+  "mun_shadow_mesh": {
+    "source_commit": "1260db54f6e2b9f88d0a79b8108459d346344e44",
+    "status": "native_model_and_fluid_mesh_ported_world_shadow_integration_pending",
+    "ported": [
+      "Source convex triangulation, selection-part transforms and greedy solid column faces",
+      "Native contextual model parts and baked quads with conservative static-model caching",
+      "Source opaque markers, ARGB transmission colors and fluid chunk-origin offsets",
+      "Bounded model/fluid vertex emission and owned OpenGL VAO/VBO resources",
+      "Model-reload cache invalidation and idempotent GPU cleanup"
+    ],
+    "verification": {
+      "client_log": "build/porting/client-mun-shadow-mesh-final.log",
+      "compile_log": "build/porting/compile-mun-shadow-mesh-final.log",
+      "geometry_report": "build/porting/mun-shadow-mesh-comparison.json",
+      "sky_report": "build/porting/mun-sky-comparison.json",
+      "source_equal_geometry_functions": 6,
+      "sky_scene_pairs": 10,
+      "checks": [
+        "GPU vertex bounds and 36-vertex greedy volume",
+        "Stone/slab/stair/fence classification and glass opacity",
+        "Distinct-model cache identity and position-dependent model collection",
+        "Model quad/vertex caps and whole-fluid-quad budgets",
+        "Negative origin fluid height adjustment",
+        "Actual shader draw into RG32UI preserves red 204 and alpha 128",
+        "GPU disposal, integer shadow-resource regression and clean client save/exit"
+      ]
+    },
+    "limits": [
+      "Standard world shadows still await caster programs, chunk cache, dynamic capture and receiver integration.",
+      "No claim of scene-shadow visual parity is made by this node.",
+      "The GPU probe was run on the current OpenGL backend only."
+    ]
   }
 }

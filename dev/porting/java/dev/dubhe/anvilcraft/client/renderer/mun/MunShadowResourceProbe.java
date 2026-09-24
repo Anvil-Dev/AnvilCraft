@@ -33,6 +33,7 @@ public final class MunShadowResourceProbe {
                 throw new IllegalStateException("This validation requires shader image load/store");
             }
             history();
+            MunShadowMeshProbe.verify();
         }
         AnvilCraft.LOGGER.info("PORT_MUN_SHADOW_RESOURCES_PASSED: exact formats, depth copy, integer history and state restoration");
     }

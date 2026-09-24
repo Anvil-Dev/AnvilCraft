@@ -5,6 +5,5 @@ gradle.projectsEvaluated {
         systemProperty 'anvilcraft.portCfaItemScene', 'true'
         systemProperty 'anvilcraft.portMunSkyScene', 'true'
         systemProperty 'anvilcraft.portMunShadowResources', 'true'
-        args '--width', '1280', '--height', '720'
     }
 }
