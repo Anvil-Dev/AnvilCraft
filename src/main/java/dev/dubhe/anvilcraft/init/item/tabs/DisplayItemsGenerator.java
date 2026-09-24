@@ -34,6 +34,8 @@ public abstract class DisplayItemsGenerator implements CreativeModeTab.DisplayIt
         List<ItemStack> variants = CreativeVariantPickerRegistry.createVariants(stack).orElse(List.of());
         if (variants.isEmpty() || ItemStack.isSameItemSameComponents(variants.getFirst(), stack)) {
             output.accept(item);
+        } else {
+            output.accept(item, CreativeModeTab.TabVisibility.SEARCH_TAB_ONLY);
         }
     }
 

@@ -15,7 +15,7 @@ import java.util.UUID;
 public record StructureScannerFilePacket(int containerId, UUID id, Action action, String name)
     implements IServerboundPacket {
     public enum Action {
-        LIST, IMPORT, EXPORT
+        LIST, IMPORT, EXPORT, RECIPE
     }
 
     public static final Type<StructureScannerFilePacket> TYPE = IPacket.type(AnvilCraft.of("structure_scanner_file"));

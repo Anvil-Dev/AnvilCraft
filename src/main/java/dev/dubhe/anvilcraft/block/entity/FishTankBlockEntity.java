@@ -301,6 +301,7 @@ public class FishTankBlockEntity extends BlockEntity implements IItemHandlerHold
         }
 
         void checkAutoOutput(int slot) {
+            if (FishTankBlockEntity.this.processingRecipe) return;
             Level level = FishTankBlockEntity.this.level;
             if (level == null || level.isClientSide()) return;
             BlockState state = FishTankBlockEntity.this.getBlockState();
@@ -348,6 +349,8 @@ public class FishTankBlockEntity extends BlockEntity implements IItemHandlerHold
             FishTankBlockEntity.this.sendUpdate();
         }
     };
+    // 配方的不同产物缓存会重复同步同一输出槽，全部提交前不能让输出口清空槽位。
+    private boolean processingRecipe;
     private boolean processingOutput;
     private long lastRecipeProcessingGameTime = Long.MIN_VALUE;
     private boolean ignited = false;
@@ -463,6 +466,7 @@ public class FishTankBlockEntity extends BlockEntity implements IItemHandlerHold
     }
 
     public void beginRecipeProcessing() {
+        this.processingRecipe = true;
         boolean hasInput = !isEmpty(this.input);
         long gameTime = this.level == null ? Long.MIN_VALUE + 1 : this.level.getGameTime();
         this.processingOutput = !hasInput
@@ -484,6 +488,8 @@ public class FishTankBlockEntity extends BlockEntity implements IItemHandlerHold
     public void finishRecipeProcessing() {
         this.processingOutput = false;
         this.processingInputSnapshot = null;
+        this.processingRecipe = false;
+        if (this.getBlockState().getValue(FishTankBlock.OUTLET)) this.tryAutoOutputResults();
     }
 
     /**
@@ -769,6 +775,7 @@ public class FishTankBlockEntity extends BlockEntity implements IItemHandlerHold
     }
 
     public void tryAutoOutputResults() {
+        if (this.processingRecipe) return;
         Level level = this.level;
         if (level == null || level.isClientSide()) return;
         BlockPos pos = this.getBlockPos();

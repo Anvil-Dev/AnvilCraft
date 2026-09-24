@@ -341,6 +341,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
     private final IntSet storageQuickMoveSlots = new IntOpenHashSet();
     private final Int2ObjectMap<IntList> quickMoveMovedBySlot = new Int2ObjectOpenHashMap<>();
     private @Nullable List<Component> renderingTooltips;
+    @Getter
     private boolean craftingAvailable;
     private boolean craftingLoaded;
     @Getter
@@ -433,6 +434,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
         this.topPos = (this.height - StorageScreen.BG_HEIGHT) / 2;
         // 已缓存的设置立即可用；首次加载时随后由异步回调再同步一次
         this.flipped = SettingClientStub.setting().storage().isFlipped();
+        this.menu.updateSlotPositions(this::fx);
         this.remapTitleLabel();
 
         this.search = this.addRenderableWidget(new EditBox(
@@ -3326,6 +3328,11 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
         }
         StorageClientStub.returnCarriedToInventory(this.sourcePos);
         this.carried = this.player.inventoryMenu.getCarried();
+    }
+
+    @Override
+    protected void slotClicked(@Nullable Slot slot, int slotId, int mouseButton, ClickType type) {
+        // Mouse Tweaks 等扩展会直接调用此入口；不能让它们与本界面的拖拽处理重复发送背包点击。
     }
 
     /**

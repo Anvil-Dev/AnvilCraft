@@ -58,6 +58,7 @@ import dev.dubhe.anvilcraft.integration.jei.recipe.MineralFountainJeiRecipe;
 import dev.dubhe.anvilcraft.integration.jei.recipe.MobTransformJeiRecipe;
 import dev.dubhe.anvilcraft.integration.jei.recipe.UseItemOnBlockRecipe;
 import dev.dubhe.anvilcraft.integration.jei.transfer.SmithingRecipeTransferHandler;
+import dev.dubhe.anvilcraft.integration.jei.transfer.StructureScannerRecipeTransferHandler;
 import dev.dubhe.anvilcraft.integration.jei.util.PocketGuiHandler;
 import dev.dubhe.anvilcraft.recipe.CanningFoodRecipe;
 import dev.dubhe.anvilcraft.recipe.ChargerChargingRecipe;
@@ -357,6 +358,7 @@ public class AnvilCraftJeiPlugin implements IModPlugin {
     @Override
     public void registerRecipeTransferHandlers(IRecipeTransferRegistration registration) {
         SmithingRecipeTransferHandler.register(registration);
+        StructureScannerRecipeTransferHandler.register(registration);
         // 仓储界面（StorageScreen）：③/④ 结果槽区域的 JEI 配方打开与合成/切石机转移
         StorageJeiSupport.registerRecipeTransferHandlers(registration);
     }

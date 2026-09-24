@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.block.entity;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.heat.HeaterManager;
+import dev.dubhe.anvilcraft.block.entity.fluid.DrainBlockEntity;
 import dev.dubhe.anvilcraft.init.ModHeaterInfos;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
@@ -16,6 +17,10 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.material.Fluids;
+import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.FluidType;
+import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 
 import java.util.Arrays;
 import java.util.List;
@@ -63,7 +68,14 @@ public class MineralFountainBlockEntity extends BlockEntity {
         }
         BlockState aboveState = this.level.getBlockState(getBlockPos().above());
         if (aroundState.is(Blocks.LAVA)) {
-            if (aboveState.is(Blocks.AIR)) {
+            if (this.level.getBlockEntity(getBlockPos().above()) instanceof DrainBlockEntity drain) {
+                var handler = drain.getFluidHandler();
+                FluidStack lava = new FluidStack(Fluids.LAVA, FluidType.BUCKET_VOLUME);
+                if (handler.fill(lava, IFluidHandler.FluidAction.SIMULATE) == lava.getAmount()) {
+                    handler.fill(lava, IFluidHandler.FluidAction.EXECUTE);
+                }
+                this.resetTickCount();
+            } else if (aboveState.is(Blocks.AIR)) {
                 this.level.setBlockAndUpdate(getBlockPos().above(), Blocks.LAVA.defaultBlockState());
                 return;
             }

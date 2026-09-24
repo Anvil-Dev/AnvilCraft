@@ -4,8 +4,14 @@ import dev.dubhe.anvilcraft.api.IHasMultiBlock;
 import dev.dubhe.anvilcraft.api.block.BlockPlacementRules;
 import dev.dubhe.anvilcraft.api.entity.fakeplayer.AnvilCraftFakePlayers;
 import dev.dubhe.anvilcraft.api.item.IBlockItem;
+import dev.dubhe.anvilcraft.block.LargeCakeBlock;
+import dev.dubhe.anvilcraft.block.fluid.PipeBlock;
+import dev.dubhe.anvilcraft.block.item.LargeCakeBlockItem;
+import dev.dubhe.anvilcraft.block.item.PipeBlockItem;
 import dev.dubhe.anvilcraft.block.multipart.AbstractMultiPartBlock;
 import dev.dubhe.anvilcraft.block.multipart.MultiPartBlockEntity;
+import dev.dubhe.anvilcraft.block.state.Cube3x3PartHalf;
+import dev.dubhe.anvilcraft.init.item.ModItems;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -81,6 +87,11 @@ public final class BlockPlacementUtil {
         @Nullable BlockState requiredState,
         @Nullable Direction defaultFacing
     ) {
+        if (requiredState != null && requiredState.getBlock() instanceof PipeBlock pipe
+            && pipe.isGlassPipe() && stack.is(ModItems.PIPE)) {
+            ItemStack remaining = placeBlock(level, pos, stack.transmuteCopy(ModItems.GLASS_PIPE.get()), requiredState, defaultFacing);
+            return stack.copyWithCount(remaining.getCount());
+        }
         // 桶 → 炼药锅：消耗一桶流体，放置目标锅状态
         // （状态转换如火锅 → 油锅由蓝图状态规则处理）
         if (stack.getItem() instanceof BucketItem && requiredState != null
@@ -91,6 +102,7 @@ public final class BlockPlacementUtil {
             return stack;
         }
         IBlockItem blockItem = switch (stack.getItem()) {
+            case PipeBlockItem item -> (world, target, player, hand) -> item.place(world, target, player, hand, requiredState);
             case IBlockItem item -> item;
             case BlockItem item -> IBlockItem.wrap(item);
             default -> null;
@@ -112,6 +124,8 @@ public final class BlockPlacementUtil {
             BlockPos placementPos = pos;
             if (requiredState != null && requiredState.getBlock() instanceof AbstractMultiPartBlock<?> multiPartBlock) {
                 placementPos = getMultiblockPlacementPos(pos, requiredState, multiPartBlock);
+            } else if (requiredState != null && requiredState.getBlock() instanceof LargeCakeBlock) {
+                placementPos = LargeCakeBlockItem.origin(pos, requiredState);
             }
             blockItem.place(level, placementPos, player, InteractionHand.MAIN_HAND);
             return player.getMainHandItem();
@@ -260,6 +274,11 @@ public final class BlockPlacementUtil {
         return block instanceof BedBlock || block instanceof DoorBlock || block instanceof DoublePlantBlock;
     }
 
+    public static boolean isSecondaryBlueprintPart(BlockState state) {
+        return isSecondaryMultiblockPart(state) || state.getBlock() instanceof LargeCakeBlock
+            && state.getValue(LargeCakeBlock.HALF) != Cube3x3PartHalf.BOTTOM_CENTER;
+    }
+
     public static boolean isSecondaryMultiblockPart(BlockState state) {
         Block block = state.getBlock();
         if (block instanceof BedBlock) {
@@ -342,12 +361,19 @@ public final class BlockPlacementUtil {
             return false;
         }
         Block block = state.getBlock();
-        if (block instanceof AbstractMultiPartBlock<?> multiPartBlock) {
-            Property<?> partProperty = multiPartBlock.getPart();
-            return state.getOptionalValue(partProperty).equals(expectedState.getOptionalValue(partProperty));
-        }
-        if (block instanceof BedBlock) {
-            return state.getValue(BED_PART) == expectedState.getValue(BED_PART);
+        switch (block) {
+            case AbstractMultiPartBlock<?> multiPartBlock -> {
+                Property<?> partProperty = multiPartBlock.getPart();
+                return state.getOptionalValue(partProperty).equals(expectedState.getOptionalValue(partProperty));
+            }
+            case LargeCakeBlock largeCakeBlock -> {
+                return state.getValue(LargeCakeBlock.HALF) == expectedState.getValue(LargeCakeBlock.HALF);
+            }
+            case BedBlock bedBlock -> {
+                return state.getValue(BED_PART) == expectedState.getValue(BED_PART);
+            }
+            default -> {
+            }
         }
         if (block instanceof DoorBlock || block instanceof DoublePlantBlock) {
             return state.getValue(DOUBLE_BLOCK_HALF) == expectedState.getValue(DOUBLE_BLOCK_HALF);
@@ -487,7 +513,14 @@ public final class BlockPlacementUtil {
             BlockState requiredState
         ) {
             List<BlueprintPartSnapshot> snapshots = new ArrayList<>();
-            for (MultiblockPart expectedPart : getExpectedMultiblockParts(targetPos, requiredState)) {
+            List<MultiblockPart> expected = new ArrayList<>();
+            if (requiredState.getBlock() instanceof LargeCakeBlock) {
+                LargeCakeBlockItem.forEachPlacedBlock(LargeCakeBlockItem.origin(targetPos, requiredState), requiredState,
+                    (pos, state) -> expected.add(new MultiblockPart(pos, state)));
+            } else {
+                expected.addAll(getExpectedMultiblockParts(targetPos, requiredState));
+            }
+            for (MultiblockPart expectedPart : expected) {
                 int storageIndex = this.getStorageIndex(expectedPart.pos());
                 if (storageIndex < 0) {
                     return List.of();

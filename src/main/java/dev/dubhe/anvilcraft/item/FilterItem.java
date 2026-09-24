@@ -63,7 +63,7 @@ public class FilterItem extends Item {
         ItemStack itemstack = player.getItemInHand(usedHand);
         if (!itemstack.is(ModItems.FILTER)) return InteractionResultHolder.pass(itemstack);
         if (level.isClientSide()) return InteractionResultHolder.success(itemstack);
-        int position = usedHand == InteractionHand.MAIN_HAND ? player.getInventory().selected : 151;
+        int position = usedHand == InteractionHand.MAIN_HAND ? player.getInventory().selected : Inventory.SLOT_OFFHAND;
         ModMenuTypes.open((ServerPlayer) player, new FilterMenuProvider(position));
         return InteractionResultHolder.success(itemstack);
     }

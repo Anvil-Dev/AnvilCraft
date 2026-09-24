@@ -1,7 +1,9 @@
 package dev.dubhe.anvilcraft.building;
 
+import dev.dubhe.anvilcraft.block.LargeCakeBlock;
 import dev.dubhe.anvilcraft.block.RedstoneWireBlock;
 import dev.dubhe.anvilcraft.block.RedstoneWireNetworkManager;
+import dev.dubhe.anvilcraft.block.item.LargeCakeBlockItem;
 import dev.dubhe.anvilcraft.mixin.accessor.BlueprintBlockEventsAccessor;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -22,8 +24,9 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
-import java.util.stream.Collectors;
+import java.util.function.Function;
 import javax.annotation.Nullable;
 
 final class BuildingRegionSnapshot {
@@ -95,20 +98,50 @@ final class BuildingRegionSnapshot {
         return true;
     }
 
-    List<ItemStack> restoredMaterials() {
-        List<ItemStack> result = new ArrayList<>();
+    void resources(BuildingUndoResources recovered, BuildingUndoResources required) {
+        Map<BlockPos, BlockState> original = new LinkedHashMap<>();
+        this.blocks.forEach(block -> original.put(block.pos(), block.state()));
         for (SavedBlock block : this.blocks) {
-            if (block.data() == null) continue;
-            List<ItemStack> before = BlockEntityContentAdapter.extract(block.state(), block.data(), this.level.registryAccess())
-                .contents().stream().map(content -> content.stack().copy()).collect(Collectors.toCollection(ArrayList::new));
             BlockEntity current = this.level.getBlockEntity(block.pos());
-            if (current != null) {
-                var contents = BlockEntityContentAdapter.extract(current, this.level.registryAccess(), this.level);
-                for (var content : contents.contents()) subtract(before, content.stack());
+            BlockState state = this.level.getBlockState(block.pos());
+            CompoundTag data = current == null ? null : current.saveWithFullMetadata(this.level.registryAccess());
+            if (state == block.state() && Objects.equals(data, block.data())) continue;
+            if (block.data() != null && block.data().getInt("BurnTime") > (data == null ? 0 : data.getInt("BurnTime"))) {
+                throw new IllegalArgumentException("Consumed furnace fuel cannot be restored for free");
             }
-            before.stream().filter(stack -> !stack.isEmpty()).forEach(result::add);
+            this.checkParts(block.pos(), state, this.level::getBlockState);
+            this.checkParts(block.pos(), block.state(), original::get);
+            recovered.block(this.level, block.pos(), state, data);
+            required.block(this.level, block.pos(), block.state(), block.data());
         }
-        return result;
+        for (SavedEntity saved : this.entities) {
+            Entity current = find(this.level, saved.uuid());
+            CompoundTag data = new CompoundTag();
+            if (current != null && !BlueprintLeashes.save(current, data)) {
+                throw new IllegalArgumentException("Cannot inspect original entity");
+            }
+            if (data.equals(saved.data())) continue;
+            if (saved.data().getBoolean("Sheared") != data.getBoolean("Sheared")) {
+                throw new IllegalArgumentException("Harvested entity resources cannot be restored for free");
+            }
+            required.entity(this.level, saved.data());
+            if (current != null) recovered.entity(this.level, data);
+        }
+    }
+
+    private void checkParts(BlockPos pos, BlockState state, Function<BlockPos, BlockState> states) {
+        if (state.getBlock() instanceof LargeCakeBlock) {
+            LargeCakeBlockItem.forEachPlacedBlock(LargeCakeBlockItem.origin(pos, state), state, (part, expected) -> {
+                if (!this.contains(part) || !expected.equals(states.apply(part))) {
+                    throw new IllegalArgumentException("Incomplete cake crosses undo boundary");
+                }
+            });
+        }
+        BlockPos core = BlueprintMultiblocks.core(pos, state);
+        if (!this.contains(core)) throw new IllegalArgumentException("Multipart block crosses undo bounds");
+        BlueprintMultiblocks.forEachPart(pos, state, (part, ignored) -> {
+            if (!this.contains(part)) throw new IllegalArgumentException("Multipart block crosses undo bounds");
+        });
     }
 
     static int subtract(List<ItemStack> stacks, ItemStack required) {

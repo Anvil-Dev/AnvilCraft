@@ -124,7 +124,7 @@ public class BigRedButtonBlock extends BaseEntityBlock {
 
     @Override
     protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hit) {
-        if (player.getMainHandItem().is(ModItems.BUILDING_ROD)) return InteractionResult.PASS;
+        if (player.isShiftKeyDown() || player.getMainHandItem().is(ModItems.BUILDING_ROD)) return InteractionResult.PASS;
         if (!level.isClientSide && level.getBlockEntity(pos) instanceof BigRedButtonBlockEntity button) {
             button.press(player);
         }
@@ -135,7 +135,9 @@ public class BigRedButtonBlock extends BaseEntityBlock {
     protected ItemInteractionResult useItemOn(
         ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit
     ) {
-        if (player.getMainHandItem().is(ModItems.BUILDING_ROD)) return ItemInteractionResult.SKIP_DEFAULT_BLOCK_INTERACTION;
+        if (player.isShiftKeyDown() || player.getMainHandItem().is(ModItems.BUILDING_ROD)) {
+            return ItemInteractionResult.SKIP_DEFAULT_BLOCK_INTERACTION;
+        }
         this.useWithoutItem(state, level, pos, player, hit);
         return ItemInteractionResult.sidedSuccess(level.isClientSide);
     }

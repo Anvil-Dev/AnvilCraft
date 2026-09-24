@@ -109,7 +109,7 @@ public class StructureSaveUtil {
             saveNbtFile(structureTag, structureFile);
 
             // 获取扫描器的朝向
-            Direction scannerFacing = Direction.NORTH;
+            Direction scannerFacing = blockEntity.getDirection();
             var size = structureTag.getList("size", 3);
 
             // 创建磁盘副本并附加结构信息

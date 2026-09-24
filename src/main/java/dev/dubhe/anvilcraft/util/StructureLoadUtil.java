@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.util;
 
 import dev.anvilcraft.lib.v2.util.DistExecutor;
 import dev.dubhe.anvilcraft.building.BlueprintNormalizer;
+import dev.dubhe.anvilcraft.building.BlueprintPlacement;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.item.property.component.StructureDiskData;
 import dev.dubhe.anvilcraft.network.StructureDiskRequestPacket;
@@ -9,15 +10,15 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtAccounter;
 import net.minecraft.nbt.NbtIo;
-import net.minecraft.nbt.NbtUtils;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.LevelResource;
 import net.neoforged.api.distmarker.Dist;
@@ -81,7 +82,7 @@ public class StructureLoadUtil {
             HolderLookup.Provider registry = level.registryAccess();
             var snapshot = BlueprintNormalizer.load(tag, registry, structureDiskData.direction(), structureDiskData.upsideDown());
             StructureData data = new StructureData(new StructureDiskData(structureDiskData.file(), structureDiskData.name(),
-                structureDiskData.uuid(), net.minecraft.core.Direction.NORTH, snapshot.size().getX(), snapshot.size().getY(),
+                structureDiskData.uuid(), Direction.NORTH, snapshot.size().getX(), snapshot.size().getY(),
                 snapshot.size().getZ(), false, structureDiskData.autoRotate()));
             for (var entry : snapshot.blocks()) {
                 data.blocks.add(new BlockPosition(entry.pos().getX(), entry.pos().getY(), entry.pos().getZ(), snapshot.stateOf(entry)));
@@ -222,7 +223,17 @@ public class StructureLoadUtil {
             // 解析结构数据
             HolderLookup.Provider registry = level.registryAccess();
             StructureData data = new StructureData(structureDiskData);
-            StructureLoadUtil.parseStructureNBT(data, structureTag, registry);
+            var snapshot = BlueprintNormalizer.load(structureTag, registry, structureDiskData.direction(), structureDiskData.upsideDown());
+            var frame = new BlueprintPlacement(BlockPos.ZERO,
+                BlueprintPlacement.facingPlayer(structureDiskData.direction(), Direction.SOUTH),
+                Mirror.NONE);
+            var bounds = frame.bounds(snapshot.size());
+            for (var entry : snapshot.blocks()) {
+                var pos = frame.localOf(entry.pos()).offset(-bounds.minX(), -bounds.minY(), -bounds.minZ());
+                data.blocks.add(new BlockPosition(pos.getX(), pos.getY(), pos.getZ(), snapshot.stateOf(entry)));
+            }
+            data.width = bounds.getXSpan();
+            data.depth = bounds.getZSpan();
 
             // LOGGER.debug("Structure loaded: {} ({} blocks)", structureName, data.blocks.size());
             return data;
@@ -248,51 +259,6 @@ public class StructureLoadUtil {
         } catch (Exception e) {
             LOGGER.error("Failed to read structure file: {}", e.getMessage(), e);
             return null;
-        }
-    }
-
-    /**
-     * 解析结构 NBT 数据
-     *
-     * @param tag              NBT标签
-     * @param registry         注册表
-     */
-    private static void parseStructureNBT(
-        StructureData data,
-        CompoundTag tag,
-        HolderLookup.Provider registry
-    ) {
-        // 读取 palette
-        ListTag paletteTag = tag.getList("palette", 10);  // 10 = COMPOUND
-        List<BlockState> palette = new ArrayList<>();
-        for (int i = 0; i < paletteTag.size(); i++) {
-            CompoundTag stateTag = paletteTag.getCompound(i);
-            try {
-                BlockState state = NbtUtils.readBlockState(registry.lookupOrThrow(Registries.BLOCK), stateTag);
-                palette.add(state);
-            } catch (Exception e) {
-                LOGGER.warn("Failed to read block state at palette index {}", i, e);
-            }
-        }
-
-        // 读取 blocks，过滤掉多方块方块
-        ListTag blocksTag = tag.getList("blocks", 10);  // 10 = COMPOUND
-        for (int i = 0; i < blocksTag.size(); i++) {
-            CompoundTag blockTag = blocksTag.getCompound(i);
-            ListTag posTag = blockTag.getList("pos", 3);  // 3 = INT
-
-            if (posTag.size() >= 3) {
-                int x = posTag.getInt(0);
-                int y = posTag.getInt(1);
-                int z = posTag.getInt(2);
-                int stateIndex = blockTag.getInt("state");
-
-                if (stateIndex >= 0 && stateIndex < palette.size()) {
-                    BlockState state = palette.get(stateIndex);
-
-                    data.blocks.add(new BlockPosition(x, y, z, state));
-                }
-            }
         }
     }
 
@@ -388,10 +354,14 @@ public class StructureLoadUtil {
      */
     public static class StructureData {
         public final StructureDiskData diskData;
+        public int width;
+        public int depth;
         public final List<BlockPosition> blocks = new ArrayList<>();
 
         public StructureData(StructureDiskData diskData) {
             this.diskData = diskData;
+            this.width = diskData.sizeX();
+            this.depth = diskData.sizeZ();
         }
 
         public boolean isEmpty() {

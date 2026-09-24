@@ -239,6 +239,7 @@ public class BlockTagLoader {
 
         provider.addTag(ModBlockTags.ANVIL_HAMMER_DENYLIST)
             .add(findResourceKey(Blocks.NETHER_PORTAL))
+            .add(ModBlocks.CELESTIAL_FORGING_ANVIL_PORTAL.getKey())
             .add(findResourceKey(Blocks.PISTON_HEAD))
             .add(findResourceKey(Blocks.END_PORTAL_FRAME))
             .add(findResourceKey(Blocks.ATTACHED_MELON_STEM))

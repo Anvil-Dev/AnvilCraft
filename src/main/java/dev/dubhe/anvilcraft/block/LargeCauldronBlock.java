@@ -13,6 +13,7 @@ import dev.dubhe.anvilcraft.block.state.Cube3x3PartHalf;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
+import dev.dubhe.anvilcraft.util.BlockPlacementPicking;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
@@ -151,8 +152,7 @@ public class LargeCauldronBlock
 
     @Override
     public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
-        Cube3x3PartHalf part = state.getValue(HALF);
-        if (part.getOffsetY() == 2 && context.isHoldingItem(ModBlocks.GIANT_ANVIL.asItem())) {
+        if (BlockPlacementPicking.hasFullPlacementShape(state, context)) {
             return Shapes.block();
         }
         // 每个部件都要独立参与射线检测，否则整口锅的组合形状会抢占相邻部件的交互命中。

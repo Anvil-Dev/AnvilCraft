@@ -318,6 +318,7 @@ public class ItemDetectorBlockEntity extends BlockEntity implements MenuProvider
     public boolean setFilter(int slot, ItemStack filter) {
         if (slot < 0 || slot >= this.filter.getContainerSize()) return false;
         this.filter.setItem(slot, filter);
+        this.filterChanged();
         return true;
     }
 

@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.block.item;
 
+import dev.dubhe.anvilcraft.api.item.IBlockItem;
 import dev.dubhe.anvilcraft.block.fluid.PipeBlock;
 import dev.dubhe.anvilcraft.block.fluid.PipeCornerBlock;
 import dev.dubhe.anvilcraft.block.fluid.PipeNodeBlock;
@@ -13,6 +14,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
@@ -28,6 +30,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.material.Fluids;
+import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
 
@@ -50,7 +53,7 @@ import javax.annotation.Nullable;
  * <h3>弯管交互</h3>
  * 点击弯管时会根据弯管状态和被点击面对弯管进行转换（→直管/节点/旋转）。
  */
-public class PipeBlockItem extends Item {
+public class PipeBlockItem extends Item implements IBlockItem {
     private final Supplier<PipeStraightBlock> straightBlock;
 
     public PipeBlockItem(Properties properties) {
@@ -316,11 +319,30 @@ public class PipeBlockItem extends Item {
     /**
      * 普通放置流程（同 BlockItem），放置新方块并播放声音、消耗物品。
      */
+    @Override
+    public boolean place(Level level, BlockPos pos, Player player, InteractionHand hand) {
+        return this.place(level, pos, player, hand, null);
+    }
+
+    public boolean place(Level level, BlockPos pos, Player player, InteractionHand hand, @Nullable BlockState requiredState) {
+        BlockPlaceContext context = new BlockPlaceContext(level, player, hand, player.getItemInHand(hand),
+            new BlockHitResult(pos.getCenter(), player.getDirection(), pos, false));
+        return context.getClickedPos().equals(pos) && this.place(context, requiredState).consumesAction();
+    }
+
     public InteractionResult place(BlockPlaceContext context) {
+        return this.place(context, null);
+    }
+
+    private InteractionResult place(BlockPlaceContext context, @Nullable BlockState requiredState) {
+        if (requiredState != null && (!(requiredState.getBlock() instanceof PipeBlock pipe)
+            || pipe.isGlassPipe() != this.straightBlock.get().isGlassPipe() || !this.canPlace(context, requiredState))) {
+            return InteractionResult.FAIL;
+        }
         if (!context.canPlace()) {
             return InteractionResult.FAIL;
         }
-        BlockState blockstate = this.getPlacementState(context);
+        BlockState blockstate = requiredState == null ? this.getPlacementState(context) : requiredState;
         if (blockstate == null) {
             return InteractionResult.FAIL;
         }

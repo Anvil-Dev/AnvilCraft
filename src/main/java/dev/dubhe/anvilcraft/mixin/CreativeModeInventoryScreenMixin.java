@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.mixin;
 import dev.anvilcraft.lib.v2.registrum.util.CreativeVariantPickerRegistry;
 import dev.dubhe.anvilcraft.client.support.TerminalRemoteOverlay;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
 import net.minecraft.network.chat.Component;
@@ -16,6 +17,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import javax.annotation.Nullable;
@@ -32,6 +34,9 @@ abstract class CreativeModeInventoryScreenMixin
     @Shadow
     private static CreativeModeTab selectedTab;
     @Shadow
+    @Nullable
+    private Slot destroyItemSlot;
+    @Shadow
     @Final
     private static SimpleContainer CONTAINER;
 
@@ -41,6 +46,12 @@ abstract class CreativeModeInventoryScreenMixin
         Component title
     ) {
         super(menu, inventory, title);
+    }
+
+    @ModifyVariable(method = "slotClicked", at = @At("HEAD"), argsOnly = true)
+    private ClickType anvilcraft$shiftDestroy(ClickType type, @Nullable Slot slot) {
+        return slot != null && slot == this.destroyItemSlot && type == ClickType.PICKUP && Screen.hasShiftDown()
+            ? ClickType.QUICK_MOVE : type;
     }
 
     @Inject(method = "slotClicked", at = @At("HEAD"), cancellable = true)

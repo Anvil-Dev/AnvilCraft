@@ -1305,7 +1305,8 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
         float rotationX,
         float rotationY
     ) {
-        RenderSupport.renderLevelLikeWithFixedSize(level, guiGraphics, posX, posY, (float) 80.0, rotationX, rotationY, 5, 5, -0.5f);
+        float yaw = this.isBlueprintMode ? rotationY + 90.0f : rotationY;
+        RenderSupport.renderLevelLikeWithFixedSize(level, guiGraphics, posX, posY, 80.0f, rotationX, yaw, 5, 5, -0.5f);
     }
 
     /**
@@ -1344,7 +1345,7 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
         float offsetX = (float) -5 / 2 + 0.05f;
         float offsetZ = (float) -5 / 2 + 1;
         poseStack.translate(-offsetX, 0, -offsetZ);
-        poseStack.mulPose(Axis.YP.rotationDegrees(this.previewRotationY + 45));
+        poseStack.mulPose(Axis.YP.rotationDegrees(this.previewRotationY + (this.isBlueprintMode ? 135 : 45)));
         poseStack.translate(offsetX, 0, offsetZ);
 
         // 6. 平移Z轴（与方块保持一致，在Z=-1处渲染）
