@@ -7,6 +7,8 @@ import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Mirror;
+import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.material.Fluids;
@@ -166,5 +168,42 @@ public class PipeStraightBlock extends PipeBlock {
         if (newState != state) {
             setBlockPreservingValve(level, pos, state, newState);
         }
+    }
+
+    @Override
+    protected BlockState rotate(BlockState state, Rotation rotation) {
+        Direction.Axis axis = state.getValue(AXIS);
+        if (axis == Direction.Axis.Y) return state;
+        return switch (rotation) {
+            case CLOCKWISE_90, COUNTERCLOCKWISE_90 -> {
+                Direction direction = getDirectionFromAxis(axis, Direction.AxisDirection.POSITIVE);
+                Direction rotatedDirection = rotation.rotate(direction);
+                BlockState result = state.setValue(AXIS, rotatedDirection.getAxis());
+                if (rotatedDirection.getAxisDirection() == Direction.AxisDirection.NEGATIVE) {
+                    result = swapEnds(result);
+                }
+                yield result;
+            }
+            case CLOCKWISE_180 -> swapEnds(state);
+            default -> state;
+        };
+    }
+
+    @Override
+    protected BlockState mirror(BlockState state, Mirror mirror) {
+        Direction.Axis axis = state.getValue(AXIS);
+        boolean swap = switch (axis) {
+            case X -> mirror == Mirror.FRONT_BACK;
+            case Z -> mirror == Mirror.LEFT_RIGHT;
+            default -> false;
+        };
+        if (swap) return swapEnds(state);
+        return state;
+    }
+
+    private static BlockState swapEnds(BlockState state) {
+        return state
+            .setValue(HAS_END_START, state.getValue(HAS_END_END))
+            .setValue(HAS_END_END, state.getValue(HAS_END_START));
     }
 }

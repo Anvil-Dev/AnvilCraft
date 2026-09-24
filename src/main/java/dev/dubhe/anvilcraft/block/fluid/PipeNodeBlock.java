@@ -11,6 +11,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Mirror;
+import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
@@ -366,5 +368,31 @@ public class PipeNodeBlock extends PipeBlock {
         BlockState newState = trySimplify(disconnected);
         setBlockPreservingValve(level, pos, state, newState);
         return ItemInteractionResult.sidedSuccess(false);
+    }
+
+    @Override
+    protected BlockState rotate(BlockState state, Rotation rotation) {
+        BlockState result = state;
+        for (Direction direction : Direction.values()) {
+            Direction rotatedDirection = rotation.rotate(direction);
+            result = result.setValue(
+                getPropertyForDirection(rotatedDirection),
+                state.getValue(getPropertyForDirection(direction))
+            );
+        }
+        return result;
+    }
+
+    @Override
+    protected BlockState mirror(BlockState state, Mirror mirror) {
+        BlockState result = state;
+        for (Direction direction : Direction.values()) {
+            Direction mirroredDirection = mirror.mirror(direction);
+            result = result.setValue(
+                getPropertyForDirection(mirroredDirection),
+                state.getValue(getPropertyForDirection(direction))
+            );
+        }
+        return result;
     }
 }

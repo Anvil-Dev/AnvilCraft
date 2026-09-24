@@ -345,11 +345,8 @@ public class BlockComparatorBlock extends Block implements IHammerRemovable, IHa
 
         public FacingWithAxis rotate(Rotation rotation) {
             Direction newFacing = rotation.rotate(this.facing);
-            Direction.Axis newAxis = this.axis;
-            if (this.facing.getAxis() == Direction.Axis.Y) {
-                Direction axisDir = Direction.fromAxisAndDirection(this.axis, Direction.AxisDirection.POSITIVE);
-                newAxis = rotation.rotate(axisDir).getAxis();
-            }
+            Direction axisDir = Direction.fromAxisAndDirection(this.axis, Direction.AxisDirection.POSITIVE);
+            Direction.Axis newAxis = rotation.rotate(axisDir).getAxis();
             return of(newFacing, newAxis);
         }
 

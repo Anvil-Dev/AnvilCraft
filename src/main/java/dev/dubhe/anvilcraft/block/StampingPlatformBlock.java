@@ -11,7 +11,7 @@ import net.minecraft.world.phys.HitResult;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * 冲压平台：在台面上放置原料，铁坷砸落时执行冲压配方。
+ * 冲压平台：在台面上放置原料，铁砧砸落时执行冲压配方。
  */
 public class StampingPlatformBlock extends ProcessingTableBlock {
     public StampingPlatformBlock(Properties properties) {

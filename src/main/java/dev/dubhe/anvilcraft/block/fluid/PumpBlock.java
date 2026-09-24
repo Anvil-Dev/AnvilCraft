@@ -20,6 +20,7 @@ import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -260,6 +261,11 @@ public class PumpBlock extends BetterBaseEntityBlock implements IHammerRemovable
     @Override
     public BlockState rotate(BlockState state, Rotation rotation) {
         return state.setValue(ORIENTATION, state.getValue(ORIENTATION).rotate(rotation));
+    }
+
+    @Override
+    public BlockState mirror(BlockState state, Mirror mirror) {
+        return state.setValue(ORIENTATION, state.getValue(ORIENTATION).mirror(mirror));
     }
 
     @Override
