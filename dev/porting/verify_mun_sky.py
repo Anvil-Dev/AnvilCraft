@@ -1,19 +1,23 @@
 """Compare source/native Moon skies without substituting isolated shader output for game captures."""
 from pathlib import Path
+import argparse
 import json
 import numpy as np
 from PIL import Image
 
+parser = argparse.ArgumentParser()
+parser.add_argument("--target-log", default="client-mun-sky-target-final-2.log")
+args = parser.parse_args()
 root = Path(__file__).resolve().parents[2]
 reference = root / "build/porting/reference-mun-1.21"
 source = reference / "run/mun-reference/screenshots"
 target = root / "run/port-validation/client/screenshots"
 cases = ["earth-new", "earth-quarter", "earth-full", "boundary", "far-side", "sun", "potato-sun", "off-earth", "off-sun", "reloaded"]
-report = {"cases": {}, "limits": ["Moon surface lighting, shadows and third-party shader integration are separate pending nodes."]}
-for log in ["client-mun-sky-source-1.log", "client-mun-sky-target-final-2.log"]:
+report = {"cases": {}, "limits": ["This comparison covers sky rendering; surface lighting and shadows require separate checks."]}
+for log in ["client-mun-sky-source-1.log", args.target_log]:
     text = (root / "build/porting" / log).read_text(encoding="utf8", errors="replace")
     assert "PORT_MUN_SKY_PASSED" in text and "All dimensions are saved" in text and "BUILD SUCCESSFUL" in text, log
-    if "target" in log:
+    if log == args.target_log:
         assert "PORT_MUN_SKY_BUFFER_REUSE_PASSED" in text
 
 for name in cases:

@@ -134,6 +134,12 @@
     "providence.EnchantedCountIncreaseFunctionMixin"
   ],
   "client": [
+    "MunSurfacePassMixin",
+    "MunWorldPassMixin",
+    "MunTerrainShadeMixin",
+    "MunLightmapMixin",
+    "MunLightmapStateMixin",
+    "MunLightmapExtractionMixin",
     "MunClockRateMixin",
     "OverworldLikeLightmapMixin",
     "BuildingRodArmedStateMixin",

@@ -35,7 +35,8 @@
     "minecraft:gameplay/can_start_raid": false,
     "minecraft:gameplay/can_pillager_patrol_spawn": false,
     "neoforge:custom_skybox": "anvilcraft:mun",
-    "minecraft:visual/cloud_color": "#00000000"
+    "minecraft:visual/cloud_color": "#00000000",
+    "minecraft:visual/fog_end_distance": 3.4028235e+38
   },
   "coordinate_scale": 16.0,
   "default_clock": "minecraft:overworld",

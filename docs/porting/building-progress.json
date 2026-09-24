@@ -1064,10 +1064,42 @@
       "datagen_style_log": "build/porting/datagen-mun-sky-final.log"
     },
     "limits": [
-      "Moon surface lighting, terrain/entity/translucent shadows and server lighting hooks remain pending.",
+      "Potato surface lighting/post effects are supplied by mun_potato_lighting; Standard shadow pipeline and server lighting hooks remain pending.",
       "CFA/pearl entry, music and Monolith are not supplied by this node.",
       "Sky captures use fixed camera/time controls; broader motion, fluids and third-party shader-pack coverage remains pending.",
       "Sparse texture/pixel boundary differences remain; full-frame equality is not asserted."
+    ]
+  },
+  "mun_potato_lighting": {
+    "source_commit": "1260db54f6e2b9f88d0a79b8108459d346344e44",
+    "status": "potato_directional_light_lightmap_and_post_effects_ported_standard_shadows_pending",
+    "ported": [
+      "Source position-dependent solar lighting for native terrain, block and entity pipelines",
+      "Source Moon lightmap colors, gamma and lightmap sampling coordinates",
+      "Source Potato SSAO, edge-aware blur and glare composition preserving scene alpha/depth",
+      "Native terrain albedo filtering retained; extra atmospheric haze disabled only in Mun",
+      "Persistent common OFF fallback and bounded reusable GPU resources",
+      "Exception-safe world/lightmap scopes prevent GUI and hand-render leakage"
+    ],
+    "verification": {
+      "source_client_log": "build/porting/client-mun-surface-source-2.log",
+      "target_client_log": "build/porting/client-mun-surface-target-final.log",
+      "report": "build/porting/mun-surface-comparison.json",
+      "scene_pairs": 7,
+      "equal_lightmap_pixels": 256,
+      "max_white_column_mean_channel_difference": 0.146,
+      "max_chest_mean_channel_difference": 1.21875,
+      "max_material_region_mean_rgb_difference": 4.268956439393939,
+      "scope_reuse_frames": 100,
+      "sky_regression_log": "build/porting/client-mun-surface-sky-regression.log",
+      "compile_log": "build/porting/compile-mun-surface-final.log",
+      "datagen_log": "build/porting/datagen-mun-surface-final.log"
+    },
+    "limits": [
+      "Only Potato activates the new surface path; Standard still requires its full shadow implementation.",
+      "Opaque/dynamic/colored-translucent shadow maps, stable shadow history and Iris/Sodium integration remain pending.",
+      "Native texture filtering and AO vertices retain visible local differences; OFF is native rendering rather than cross-version pixel parity.",
+      "The largest remaining mean color discrepancy is the illuminated chest at about 1.22/255."
     ]
   }
 }

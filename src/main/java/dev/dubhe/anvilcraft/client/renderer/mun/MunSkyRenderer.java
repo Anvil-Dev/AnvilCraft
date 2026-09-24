@@ -125,29 +125,11 @@ public final class MunSkyRenderer implements CustomSkyboxRenderer {
                 return true;
             } catch (RuntimeException exception) {
                 failed = true;
-                AnvilCraft.CLIENT_CONFIG.munLightingQuality = MunLightingQuality.OFF;
-                try {
-                    saveOff();
-                } catch (RuntimeException ignored) {
-                    // Keep the OFF fallback active if configuration cannot be saved.
-                }
-                AnvilCraft.LOGGER.warn("Mun sky shader unavailable; using native sky geometry", exception);
+                MunRenderPipeline.fail(exception);
             }
         }
         MunVanillaSkyRenderer.render(frame.x, frame.z, frame.time, frame.partialTime, frame.daylight, view, projection, draw);
         return true;
-    }
-
-    private static void saveOff() {
-        for (var config : net.neoforged.fml.config.ModConfigs.getModConfigs(AnvilCraft.MOD_ID)) {
-            if (config.getType() != net.neoforged.fml.config.ModConfig.Type.CLIENT
-                || !(config.getSpec() instanceof net.neoforged.neoforge.common.ModConfigSpec spec)) continue;
-            net.neoforged.neoforge.common.ModConfigSpec.EnumValue<MunLightingQuality> value =
-                spec.getValues().get("mun_lighting_quality");
-            if (value == null || config.getLoadedConfig() == null) continue;
-            value.set(MunLightingQuality.OFF);
-            spec.save();
-        }
     }
 
     public static Matrix4f earthMatrix(long time, double partialTick) {
