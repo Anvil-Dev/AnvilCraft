@@ -96,7 +96,9 @@ public class ModRenderTypes {
     );
 
     public static final Function<Identifier, RenderType> STAR_CUTOUT =
-            Util.memoize((Identifier tex) -> RenderTypes.entityCutout(tex));
+            Util.memoize(tex -> RenderType.create("anvilcraft:celestial_planet_cutout",
+                RenderSetup.builder(ModRenderPipelines.CELESTIAL_PLANET_CUTOUT)
+                    .withTexture("Sampler0", tex).useLightmap().createRenderSetup()));
 
     /**
      * 天体环使用独立的方块半透明管线，以保持与 1.21 相同的深度和混合行为。

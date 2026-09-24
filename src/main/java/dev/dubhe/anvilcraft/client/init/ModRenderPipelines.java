@@ -151,6 +151,38 @@ public class ModRenderPipelines {
         .withLocation(AnvilCraft.of("pipeline/star_color_overlay"))
         .build();
 
+    public static final RenderPipeline SLOT_GHOST_OVERLAY = RenderPipeline.builder(RenderPipelines.MATRICES_PROJECTION_SNIPPET)
+        .withVertexShader("core/position_color")
+        .withFragmentShader("core/position_color")
+        .withVertexFormat(DefaultVertexFormat.POSITION_COLOR, VertexFormat.Mode.QUADS)
+        .withColorTargetState(new ColorTargetState(BlendFunction.TRANSLUCENT))
+        .withDepthStencilState(new DepthStencilState(CompareOp.LESS_THAN_OR_EQUAL, false))
+        .withCull(false)
+        .withLocation(AnvilCraft.of("pipeline/slot_ghost_overlay"))
+        .build();
+
+    public static final RenderPipeline CELESTIAL_PLANET_CUTOUT = RenderPipeline.builder(RenderPipelines.BLOCK_SNIPPET)
+        .withShaderDefine("ALPHA_CUTOUT", 0.1F)
+        .withLocation(AnvilCraft.of("pipeline/celestial_planet_cutout"))
+        .build();
+
+    public static final RenderPipeline CFA_PREVIEW_CUTOUT = CELESTIAL_PLANET_CUTOUT.toBuilder()
+        .withFragmentShader(AnvilCraft.of("core/cfa_preview_cutout"))
+        .withLocation(AnvilCraft.of("pipeline/cfa_preview_cutout"))
+        .build();
+
+    public static final RenderPipeline CFA_PREVIEW_TRANSLUCENT = RenderPipeline.builder(RenderPipelines.BLOCK_SNIPPET)
+        .withColorTargetState(new ColorTargetState(BlendFunction.TRANSLUCENT))
+        .withDepthStencilState(DepthStencilState.DEFAULT)
+        .withLocation(AnvilCraft.of("pipeline/cfa_preview_translucent"))
+        .build();
+
+    public static final RenderPipeline CELESTIAL_COLOR_SHELL = RenderPipeline.builder(RenderPipelines.BLOCK_SNIPPET)
+        .withColorTargetState(new ColorTargetState(ModRenderPipelines.MULTIPLY_BLEND))
+        .withDepthStencilState(new DepthStencilState(CompareOp.LESS_THAN_OR_EQUAL, false))
+        .withLocation(AnvilCraft.of("pipeline/celestial_color_shell"))
+        .build();
+
     public static final RenderPipeline STELLAR_SURFACE = RenderPipeline.builder(RenderPipelines.MATRICES_FOG_SNIPPET)
         .withVertexShader(AnvilCraft.of("core/stellar_surface"))
         .withFragmentShader(AnvilCraft.of("core/stellar_surface"))
@@ -239,6 +271,11 @@ public class ModRenderPipelines {
         event.registerPipeline(ModRenderPipelines.STELLAR_BEAM);
         event.registerPipeline(ModRenderPipelines.CORRUPTED_BEACON_BEAM);
         event.registerPipeline(ModRenderPipelines.STAR_COLOR_OVERLAY);
+        event.registerPipeline(ModRenderPipelines.CELESTIAL_COLOR_SHELL);
+        event.registerPipeline(ModRenderPipelines.SLOT_GHOST_OVERLAY);
+        event.registerPipeline(ModRenderPipelines.CFA_PREVIEW_TRANSLUCENT);
+        event.registerPipeline(ModRenderPipelines.CELESTIAL_PLANET_CUTOUT);
+        event.registerPipeline(ModRenderPipelines.CFA_PREVIEW_CUTOUT);
         event.registerPipeline(ModRenderPipelines.CELESTIAL_ATMOSPHERE);
         event.registerPipeline(ModRenderPipelines.PLANET_ATMOSPHERE);
         event.registerPipeline(ModRenderPipelines.PLANET_ATMOSPHERE_INSIDE);

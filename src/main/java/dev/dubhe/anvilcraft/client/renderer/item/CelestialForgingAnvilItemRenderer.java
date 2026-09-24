@@ -108,6 +108,10 @@ public final class CelestialForgingAnvilItemRenderer implements SpecialModelRend
         var tessellation = state.getComplexBodyModel() == null ? state.getBodyModel() : state.getComplexBodyModel();
         if (tessellation == null) return UNIT;
         var model = Minecraft.getInstance().getModelManager().getStandaloneModel(tessellation.key());
+        return modelBounds(model);
+    }
+
+    public static AABB modelBounds(@Nullable BlockStateModel model) {
         if (model == null) return UNIT;
         var cached = BOUNDS.getIfPresent(model);
         if (cached != null) return cached;

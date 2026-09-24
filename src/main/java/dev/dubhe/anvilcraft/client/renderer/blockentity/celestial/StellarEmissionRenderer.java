@@ -12,6 +12,7 @@ import dev.dubhe.anvilcraft.block.entity.celestial.StellarVisualState;
 import dev.dubhe.anvilcraft.client.init.ModRenderPipelines;
 import dev.dubhe.anvilcraft.config.AnvilCraftClientConfig.CelestialRenderingMode;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.OrderedSubmitNodeCollector;
 import net.minecraft.client.renderer.Sheets;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.block.BlockAndTintGetter;
@@ -109,7 +110,7 @@ public final class StellarEmissionRenderer {
         return true;
     }
 
-    static void drawModel(BlockStateModel model, PoseStack pose, SubmitNodeCollector collector, RenderType type, int tint) {
+    static void drawModel(BlockStateModel model, PoseStack pose, OrderedSubmitNodeCollector collector, RenderType type, int tint) {
         collector.submitCustomGeometry(pose, type, (matrix, vertices) ->
             BlockStateModelRenderer.INSTANCE.getTessellatorNoLighting().tesselateBlock((x, y, z, quad, instance) -> {
                 instance.setColor(tint);

@@ -1,6 +1,8 @@
 package dev.dubhe.anvilcraft.client.gui.screen.cfa;
 
 import com.mojang.blaze3d.platform.Lighting;
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.textures.FilterMode;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import dev.dubhe.anvilcraft.block.entity.celestial.CelestialBodyClass;
@@ -11,10 +13,13 @@ import dev.dubhe.anvilcraft.block.entity.celestial.RockyPlanetData;
 import dev.dubhe.anvilcraft.block.entity.celestial.SpecialCelestialBodyData;
 import dev.dubhe.anvilcraft.block.entity.celestial.StarData;
 import dev.dubhe.anvilcraft.block.entity.celestial.Temperature;
+import dev.dubhe.anvilcraft.client.init.ModRenderPipelines;
 import dev.dubhe.anvilcraft.client.init.ModRenderTypes;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.CFARenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.celestial.CelestialBodyRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.celestial.CelestialBodyTextureBakery;
+import dev.dubhe.anvilcraft.client.renderer.blockentity.celestial.CelestialShellRenderer;
+import dev.dubhe.anvilcraft.client.renderer.item.CelestialForgingAnvilItemRenderer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.navigation.ScreenRectangle;
@@ -23,6 +28,7 @@ import net.minecraft.client.model.object.skull.SkullModelBase;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderBuffers;
+import net.minecraft.client.renderer.Sheets;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.SubmitNodeStorage;
 import net.minecraft.client.renderer.block.BlockAndTintGetter;
@@ -30,6 +36,8 @@ import net.minecraft.client.renderer.block.BlockModelRenderState;
 import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
 import net.minecraft.client.renderer.blockentity.SkullBlockRenderer;
 import net.minecraft.client.renderer.feature.FeatureRenderDispatcher;
+import net.minecraft.client.renderer.rendertype.RenderSetup;
+import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.state.gui.pip.PictureInPictureRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.BlockPos;
@@ -43,6 +51,7 @@ import net.minecraft.world.level.block.SkullBlock;
 import net.neoforged.neoforge.client.model.standalone.StandaloneModelKey;
 import org.joml.Matrix3x2f;
 import org.joml.Matrix4f;
+import org.joml.Vector3f;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -72,7 +81,13 @@ public final class CfaPreviewPipRenderer extends PictureInPictureRenderer<CfaPre
 
         SubmitNodeStorage nodes = new SubmitNodeStorage();
         switch (state.content()) {
-            case BodyContent body -> this.submitBody(body, poseStack, nodes);
+            case BodyContent body -> {
+                poseStack.translate(-((state.x1() - state.x0()) % 2) / (2.0F * state.scale()),
+                    -((state.y1() - state.y0()) % 2) / (2.0F * state.scale()), 0);
+                this.submitBody(body, poseStack, nodes, new Vector3f(
+                    -(state.x0() + (state.x1() - state.x0()) / 2),
+                    -(state.y0() + (state.y1() - state.y0()) / 2), -100).normalize());
+            }
             case ModelContent model -> this.submitModelPreview(model, poseStack, nodes);
         }
         this.renderSubmittedFeatures(minecraft, nodes);
@@ -87,7 +102,7 @@ public final class CfaPreviewPipRenderer extends PictureInPictureRenderer<CfaPre
         this.submitStandalone(content.model(), false, content.seed(), poseStack, collector, true);
     }
 
-    private void submitBody(BodyContent content, PoseStack poseStack, SubmitNodeCollector collector) {
+    private void submitBody(BodyContent content, PoseStack poseStack, SubmitNodeCollector collector, Vector3f atmosphereView) {
         CelestialBodyData body = content.body();
         // PIP 基类已经翻转 Z 轴，再翻转 Y/Z 可得到与界面坐标一致的正向天体。
         poseStack.scale(1.0f, -1.0f, -1.0f);
@@ -108,12 +123,12 @@ public final class CfaPreviewPipRenderer extends PictureInPictureRenderer<CfaPre
             if (special.isPlayerHead()) {
                 this.submitPlayerHead(special, poseStack, collector);
             } else {
-                this.submitComplexBody(special, content.seed(), poseStack, collector);
+                this.submitComplexBody(special, content.seed(), poseStack, collector, atmosphereView);
             }
         } else if (body instanceof StarData star) {
             this.submitStar(star, content.seed(), poseStack, collector);
         } else {
-            this.submitPlanet(body, poseStack, collector);
+            this.submitPlanet(body, poseStack, collector, atmosphereView);
         }
         poseStack.popPose();
         this.submitCelestialRing(body, rotation, poseStack, collector);
@@ -123,12 +138,13 @@ public final class CfaPreviewPipRenderer extends PictureInPictureRenderer<CfaPre
         SpecialCelestialBodyData special,
         long seed,
         PoseStack poseStack,
-        SubmitNodeCollector collector
+        SubmitNodeCollector collector,
+        Vector3f atmosphereView
     ) {
         StandaloneModelKey<BlockStateModel> model = CelestialBodyPreviewRenderer.resolveSpecialModel(special);
-        this.submitStandalone(model, false, seed, poseStack, collector, false);
+        this.submitStandalone(model, false, seed, poseStack, collector, true);
         if (special.hasAtmosphere() && special.temperature() != null) {
-            this.submitAtmosphere(special.temperature(), poseStack, collector);
+            this.submitAtmosphere(special.temperature(), poseStack, collector, atmosphereView);
         }
     }
 
@@ -167,7 +183,7 @@ public final class CfaPreviewPipRenderer extends PictureInPictureRenderer<CfaPre
         SubmitNodeCollector collector
     ) {
         if (star.bodyClass() == CelestialBodyClass.BLACK_HOLE) {
-            this.submitStandalone(CFARenderer.BODY_BLACK_HOLE, true, seed, poseStack, collector, true);
+            this.submitStandalone(CFARenderer.BODY_BLACK_HOLE, false, seed, poseStack, collector, true);
             return;
         }
         if (star.bodyClass() == CelestialBodyClass.NEUTRON_STAR) {
@@ -183,25 +199,12 @@ public final class CfaPreviewPipRenderer extends PictureInPictureRenderer<CfaPre
         }
 
         this.submitStandalone(CFARenderer.BODY_STAR, false, seed, poseStack, collector, true);
-        final float[] color = CelestialBodyRenderer.getStarColor(star);
+        final float[] color = CelestialBodyTextureBakery.starColor(star);
         poseStack.pushPose();
         poseStack.translate(0.5f, 0.5f, 0.5f);
         poseStack.scale(1.005f, 1.005f, 1.005f);
         poseStack.translate(-0.5f, -0.5f, -0.5f);
-        collector.submitCustomGeometry(
-            poseStack,
-            ModRenderTypes.STAR_COLOR_OVERLAY,
-            (pose, consumer) -> CelestialBodyRenderer.renderColorCube(
-                pose,
-                consumer,
-                color[0],
-                color[1],
-                color[2],
-                1.0f,
-                LightCoordsUtil.FULL_BRIGHT,
-                OverlayTexture.NO_OVERLAY
-            )
-        );
+        CelestialShellRenderer.colorOverlay(poseStack, collector.order(1), color);
         poseStack.popPose();
 
         for (int i = 0; i < 10; i++) {
@@ -220,7 +223,8 @@ public final class CfaPreviewPipRenderer extends PictureInPictureRenderer<CfaPre
     private void submitPlanet(
         CelestialBodyData body,
         PoseStack poseStack,
-        SubmitNodeCollector collector
+        SubmitNodeCollector collector,
+        Vector3f atmosphereView
     ) {
         Identifier texture = CelestialBodyTextureBakery.getOrBakeBody(body);
         if (texture != null) {
@@ -243,7 +247,7 @@ public final class CfaPreviewPipRenderer extends PictureInPictureRenderer<CfaPre
             atmosphere = special.temperature();
         }
         if (atmosphere != null) {
-            this.submitAtmosphere(atmosphere, poseStack, collector);
+            this.submitAtmosphere(atmosphere, poseStack, collector, atmosphereView);
         }
 
     }
@@ -259,17 +263,13 @@ public final class CfaPreviewPipRenderer extends PictureInPictureRenderer<CfaPre
         Identifier ringTexture = CelestialBodyTextureBakery.getOrBakeRing(body);
         if (ringTexture == null) return;
 
-        float ringScale = switch (body) {
-            case RockyPlanetData ignored -> 1.35f;
-            case GiantPlanetData ignored -> 1.3f;
-            default -> 1.4f;
-        };
+        float ringScale = 1.2F;
         poseStack.pushPose();
         poseStack.scale(ringScale, ringScale, ringScale);
         poseStack.mulPose(Axis.XP.rotationDegrees(CfaPreviewPipRenderer.UI_AXIAL_TILT));
         poseStack.mulPose(Axis.YP.rotationDegrees(rotation));
         poseStack.translate(-0.5f, -0.5f, -0.5f);
-        collector.submitCustomGeometry(
+        collector.order(3).submitCustomGeometry(
             poseStack,
             ModRenderTypes.CELESTIAL_RING.apply(ringTexture),
             (pose, consumer) -> CelestialBodyRenderer.renderRing(
@@ -285,25 +285,15 @@ public final class CfaPreviewPipRenderer extends PictureInPictureRenderer<CfaPre
     private void submitAtmosphere(
         Temperature temperature,
         PoseStack poseStack,
-        SubmitNodeCollector collector
+        SubmitNodeCollector collector,
+        Vector3f atmosphereView
     ) {
         final float[] color = CelestialBodyRenderer.getAtmosphereColor(temperature);
         poseStack.pushPose();
         poseStack.translate(0.5f, 0.5f, 0.5f);
         poseStack.scale(1.125f, 1.125f, 1.125f);
         poseStack.translate(-0.5f, -0.5f, -0.5f);
-        collector.submitCustomGeometry(
-            poseStack,
-            ModRenderTypes.CELESTIAL_ATMOSPHERE,
-            (pose, consumer) -> CelestialBodyRenderer.renderAtmosphereCube(
-                pose,
-                consumer,
-                color,
-                0.2f,
-                LightCoordsUtil.FULL_BRIGHT,
-                OverlayTexture.NO_OVERLAY
-            )
-        );
+        CelestialShellRenderer.atmosphere(poseStack, collector.order(2), color, atmosphereView);
         poseStack.popPose();
     }
 
@@ -313,20 +303,7 @@ public final class CfaPreviewPipRenderer extends PictureInPictureRenderer<CfaPre
         PoseStack poseStack,
         SubmitNodeCollector collector
     ) {
-        collector.submitCustomGeometry(
-            poseStack,
-            ModRenderTypes.CELESTIAL_ATMOSPHERE,
-            (pose, consumer) -> CelestialBodyRenderer.renderColorCube(
-                pose,
-                consumer,
-                color[0],
-                color[1],
-                color[2],
-                alpha,
-                LightCoordsUtil.FULL_BRIGHT,
-                OverlayTexture.NO_OVERLAY
-            )
-        );
+        CelestialShellRenderer.translucent(poseStack, collector.order(2), color, alpha);
     }
 
     private void submitStandalone(
@@ -349,7 +326,7 @@ public final class CfaPreviewPipRenderer extends PictureInPictureRenderer<CfaPre
         );
         if (fullBright) {
             renderState.submitModel(
-                translucent ? ModRenderTypes.TRANSLUCENT_BLOCK : ModRenderTypes.CUTOUT_BLOCK,
+                translucent ? PreviewLayers.TRANSLUCENT : PreviewLayers.CUTOUT,
                 poseStack,
                 collector,
                 LightCoordsUtil.FULL_BRIGHT,
@@ -380,7 +357,14 @@ public final class CfaPreviewPipRenderer extends PictureInPictureRenderer<CfaPre
             minecraft.font,
             gameRenderer.getGameRenderState()
         );
-        dispatcher.renderAllFeatures();
+        dispatcher.renderSolidFeatures();
+        this.bufferSource.endBatch();
+        dispatcher.renderTranslucentFeatures();
+        this.bufferSource.endBatch();
+        dispatcher.renderTranslucentParticles();
+        nodes.clear();
+        dispatcher.endFrame();
+        dispatcher.close();
     }
 
     @Override
@@ -396,6 +380,17 @@ public final class CfaPreviewPipRenderer extends PictureInPictureRenderer<CfaPre
     @Override
     public boolean canBeReusedFor(State state, int textureWidth, int textureHeight) {
         return false;
+    }
+
+    private static final class PreviewLayers {
+        private static final RenderType CUTOUT = RenderType.create("anvilcraft:cfa_preview_cutout",
+            RenderSetup.builder(ModRenderPipelines.CFA_PREVIEW_CUTOUT)
+                .withTexture("Sampler0", Sheets.BLOCKS_MAPPER.sheet()).useLightmap().createRenderSetup());
+        private static final RenderType TRANSLUCENT = RenderType.create("anvilcraft:cfa_preview_translucent",
+            RenderSetup.builder(ModRenderPipelines.CFA_PREVIEW_TRANSLUCENT)
+                .withTexture("Sampler0", Sheets.BLOCKS_MAPPER.sheet(),
+                    () -> RenderSystem.getSamplerCache().getClampToEdge(FilterMode.NEAREST, true))
+                .useLightmap().sortOnUpload().createRenderSetup());
     }
 
     /** 界面预览内容。 */
@@ -462,12 +457,28 @@ public final class CfaPreviewPipRenderer extends PictureInPictureRenderer<CfaPre
             int height,
             float scale
         ) {
+            int padX = 0;
+            int padY = 0;
+            if (body instanceof StarData star && star.bodyClass() == CelestialBodyClass.BLACK_HOLE) {
+                var bounds = CelestialForgingAnvilItemRenderer.modelBounds(
+                    Minecraft.getInstance().getModelManager().getStandaloneModel(CFARenderer.BODY_BLACK_HOLE));
+                var transform = new Matrix4f().rotateX((float) Math.toRadians(UI_AXIAL_TILT))
+                    .rotateY((float) Math.toRadians(animationTick * CelestialBodyData.getVisualRotationSpeed(body.rotationSpeed())))
+                    .scale(1.5F).translate(-0.5F, -0.5F, -0.5F);
+                for (int corner = 0; corner < 8; corner++) {
+                    var point = new Vector3f((float) ((corner & 1) == 0 ? bounds.minX : bounds.maxX),
+                        (float) ((corner & 2) == 0 ? bounds.minY : bounds.maxY),
+                        (float) ((corner & 4) == 0 ? bounds.minZ : bounds.maxZ)).mulPosition(transform);
+                    padX = Math.max(padX, (int) Math.ceil(Math.abs(point.x) * scale + 1 - width / 2));
+                    padY = Math.max(padY, (int) Math.ceil(Math.abs(point.y) * scale + 1 - height / 2));
+                }
+            }
             return new State(
                 new BodyContent(body, animationTick, seed),
-                x,
-                y,
-                x + width,
-                y + height,
+                x - padX,
+                y - padY,
+                x + width + padX,
+                y + height + padY,
                 scale,
                 graphics.pose().get(new Matrix3x2f()),
                 graphics.peekScissorStack()

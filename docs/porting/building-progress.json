@@ -667,7 +667,11 @@
       "Initial/current solar mass, metallicity, remaining time, expected terminal outcome and paused/infinite-power indicators",
       "Source wrapping, clipping and scrollbar geometry; paused countdown no longer decrements",
       "Client refactor list uses the same valid-option list as the block entity; English megastructure heading follows source",
-      "53 English and 70 Chinese evolution entries exactly match the local source branch"
+      "53 English and 70 Chinese evolution entries exactly match the local source branch",
+      "CFA slot ghosts use the shared vertex-opacity renderer with depth-aware pink slot overlays",
+      "Preview pass flushing and ordered multiply/halo/atmosphere/ring layers use source atlas materials",
+      "Odd-sized preview origins, fixed UI ring scale and black-hole canvas bounds restored",
+      "Procedural planet shader avoids a second entity-lighting pass; cutout preview preserves opaque surviving fragments"
     ],
     "verification": {
       "scenes_per_version": 8,
@@ -687,9 +691,40 @@
       "Menus are opened locally for visual verification; multiplayer opening/long-duration synchronization remains pending."
     ],
     "pending": [
-      "CFA celestial preview appearance and ghost-slot opacity differ from source screenshots",
-      "Source count-entry controls and remaining general CFA screen differences",
+      "Neutron-jet low-alpha tails and black-hole fine texture/cutout edge differences remain in comparison images",
+      "Source count-entry controls, general celestial information text, other special-body schemas and remaining CFA screen differences",
       "Profile-specific instantaneous flash/rays and continuous/multiplayer evolution validation"
+    ]
+  },
+  "cfa_preview": {
+    "source_commit": "a378f98e4d41d0d92f97cf2486ac9da7881b1674",
+    "status": "major_preview_and_ghost_differences_fixed_remaining_edges",
+    "ported": [
+      "Shared transparent-item slot overlay composited behind the item in the same depth buffer, retaining original helper API",
+      "Explicit opaque-buffer flush before multiplicative tint, ordered translucent layers and atlas white-concrete shells",
+      "Source 1.2 GUI ring scale, integer preview center and legacy GUI atmosphere view direction",
+      "Source cutout threshold and opaque offscreen cutout semantics; expanded black-hole canvas from cached model bounds",
+      "Dedicated planet block shader removes unintended second diffuse-lighting pass; source neutron-jet model render_type restored"
+    ],
+    "verification": {
+      "source_log": "build/porting/client-cfa-preview-source-3.log",
+      "target_log": "build/porting/client-cfa-preview-target-10.log",
+      "report": "build/porting/cfa-preview-visual-comparison.json",
+      "captures_per_version": 9,
+      "matching_non_jet_preview_bounds": 6,
+      "rocky_max_rgb_difference": 2,
+      "atmosphere_max_rgb_difference": 4,
+      "ghost_mean_rgb_difference_below": 1,
+      "material_ghost_max_rgb_difference": 2,
+      "compile_style_log": "build/porting/validate-cfa-preview-final-3.log",
+      "datagen_log": "build/porting/datagen-cfa-preview-final.log",
+      "transparent_item_regression_log": "build/porting/client-enchanting-ghost-regression.log",
+      "transparent_item_regression_scenes": 17
+    },
+    "limits": [
+      "Atlas animations are fixed at first frame only in the test fixture; production animations are unchanged.",
+      "Preview RGB metrics cover the legacy body rectangle, not black-hole overflow or all other UI elements.",
+      "Remaining jet/black-hole edge differences, custom resource packs and broad shader/platform coverage are not declared complete."
     ]
   }
 }

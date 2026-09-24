@@ -1,6 +1,5 @@
 package dev.dubhe.anvilcraft.client.gui.screen;
 
-import dev.anvilcraft.lib.v2.rendering.gui.GuiRenderExtras;
 import dev.anvilcraft.lib.v2.util.MathUtil;
 import dev.dubhe.anvilcraft.block.entity.CelestialForgingAnvilBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.celestial.CelestialBodyClass;
@@ -15,6 +14,7 @@ import dev.dubhe.anvilcraft.block.entity.celestial.StellarVisualState;
 import dev.dubhe.anvilcraft.client.event.LargeBlockPlacePreviewEventListener;
 import dev.dubhe.anvilcraft.client.gui.screen.cfa.CelestialBodyInfoFormatter;
 import dev.dubhe.anvilcraft.client.gui.screen.cfa.CelestialBodyPreviewRenderer;
+import dev.dubhe.anvilcraft.client.support.RenderSupport;
 import dev.dubhe.anvilcraft.constant.SharedTextures;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.inventory.CelestialForgingAnvilMenu;
@@ -861,8 +861,7 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
                 if (idx >= 0 && idx < GHOST_STACKS.length) {
                     int sx = guiLeft + slot.x;
                     int sy = guiTop + slot.y;
-                    GuiRenderExtras.itemWithTransparency(g, GHOST_STACKS[idx], sx, sy, 0.52F);
-                    g.fill(sx, sy, sx + 16, sy + 16, 0x60FFAAAA);
+                    RenderSupport.renderSlotGhost(GHOST_STACKS[idx], g, sx, sy, 0.52F, 0x60FFAAAA);
                 }
             }
             if (slot instanceof CelestialForgingAnvilMenu.CFAMaterialSlot && !slot.hasItem()) {
@@ -871,8 +870,7 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
                 if (!filter.isEmpty()) {
                     int sx = guiLeft + slot.x;
                     int sy = guiTop + slot.y;
-                    GuiRenderExtras.itemWithTransparency(g, filter, sx, sy, 0.52F);
-                    g.fill(sx, sy, sx + 16, sy + 16, 0x60FFAAAA);
+                    RenderSupport.renderSlotGhost(filter, g, sx, sy, 0.52F, 0x60FFAAAA);
                     int limit = be.getMaterialLimit();
                     if (limit > 0 && !filter.is(Items.BARRIER)) {
                         String countStr = String.valueOf(limit);

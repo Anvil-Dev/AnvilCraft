@@ -4,6 +4,7 @@ import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.vertex.ByteBufferBuilder;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import dev.dubhe.anvilcraft.client.init.ModRenderPipelines;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.navigation.ScreenRectangle;
@@ -43,6 +44,10 @@ public final class TransparentItemRenderer extends PictureInPictureRenderer<Tran
     }
 
     public static void extract(ItemStack stack, GuiGraphicsExtractor graphics, int x, int y, float alpha) {
+        extract(stack, graphics, x, y, alpha, 0);
+    }
+
+    public static void extract(ItemStack stack, GuiGraphicsExtractor graphics, int x, int y, float alpha, int slotOverlay) {
         if (stack.isEmpty()) return;
         var client = Minecraft.getInstance();
         var item = new TrackingItemStackRenderState();
@@ -50,7 +55,8 @@ public final class TransparentItemRenderer extends PictureInPictureRenderer<Tran
         var gui = new GuiItemRenderState(new Matrix3x2f(graphics.pose()), item, x, y, graphics.peekScissorStack());
         var bounds = gui.oversizedItemBounds();
         if (bounds == null) bounds = new ScreenRectangle(x, y, 16, 16);
-        graphics.submitPictureInPictureRenderState(new State(gui, bounds.left(), bounds.top(), bounds.right(), bounds.bottom(), alpha));
+        graphics.submitPictureInPictureRenderState(
+            new State(gui, bounds.left(), bounds.top(), bounds.right(), bounds.bottom(), alpha, slotOverlay));
     }
 
     @Override
@@ -71,6 +77,17 @@ public final class TransparentItemRenderer extends PictureInPictureRenderer<Tran
         gui.itemStackRenderState().submit(pose, this.nodes, 15728880, OverlayTexture.NO_OVERLAY, 0);
         this.features.renderAllFeatures();
         this.buffers.endBatch();
+        if (state.slotOverlay() != 0) {
+            this.buffers.opacity = 1;
+            var vertices = this.buffers.getBuffer(SlotOverlay.TYPE);
+            // 源版物品位于 GUI z=150，槽位提示位于 z=0；保留深度遮挡而非在物品图像上涂色。
+            float z = -150.0F / 16.0F;
+            vertices.addVertex(pose.last(), -0.5F, -0.5F, z).setColor(state.slotOverlay());
+            vertices.addVertex(pose.last(), 0.5F, -0.5F, z).setColor(state.slotOverlay());
+            vertices.addVertex(pose.last(), 0.5F, 0.5F, z).setColor(state.slotOverlay());
+            vertices.addVertex(pose.last(), -0.5F, 0.5F, z).setColor(state.slotOverlay());
+            this.buffers.endBatch();
+        }
         this.features.endFrame();
         this.nodes.endFrame();
     }
@@ -188,7 +205,17 @@ public final class TransparentItemRenderer extends PictureInPictureRenderer<Tran
         }
     }
 
-    public record State(GuiItemRenderState item, int x0, int y0, int x1, int y1, float alpha) implements PictureInPictureRenderState {
+    private static final class SlotOverlay {
+        private static final RenderType TYPE = RenderType.create("anvilcraft_slot_ghost_overlay",
+            RenderSetup.builder(ModRenderPipelines.SLOT_GHOST_OVERLAY).createRenderSetup());
+    }
+
+    public record State(GuiItemRenderState item, int x0, int y0, int x1, int y1, float alpha, int slotOverlay)
+        implements PictureInPictureRenderState {
+        public State(GuiItemRenderState item, int x0, int y0, int x1, int y1, float alpha) {
+            this(item, x0, y0, x1, y1, alpha, 0);
+        }
+
         @Override
         public float scale() {
             return 16;

@@ -15,7 +15,8 @@ scene = scene.replace("be.loadCustomOnly(TagValueInput.create(ProblemReporter.DI
                       "be.loadCustomOnly(tag, client.level.registryAccess())")
 scene = scene.replace("GuiGraphicsExtractor", "GuiGraphics").replace("extractRenderState(", "render(")
 scene = scene.replace("ModMenuTypes.CELESTIAL_FORGING_ANVIL", "ModMenuTypes.CFA")
-scene = scene.replace("stellar-ui-26.1-", "stellar-ui-1.21-")
+scene = scene.replace("animatedTexturesStates", "animatedTextures")
+scene = scene.replace("stellar-ui-26.1-", "stellar-ui-1.21-").replace("cfa-preview-26.1-", "cfa-preview-1.21-")
 scene = scene.replace("client.getMainRenderTarget(), 1,", "client.getMainRenderTarget(),")
 (reference / "src/main/java" / relative).write_bytes(scene.replace("\n", "\r\n").encode("utf-8"))
 wrapper = reference / "src/main/java/dev/dubhe/anvilcraft/porting/CfaItemReferenceScene.java"
