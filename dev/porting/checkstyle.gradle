@@ -64,7 +64,7 @@ allprojects {
             include '**/ItemDetectorBlockEntity.java', '**/PulseGeneratorBlockEntity.java'
             include '**/VanillaStructureSetLookup.java'
             include '**/VanillaOverworldBiomeSource.java', '**/ModBiomeSources.java'
-            include '**/*Monolith*.java'
+            include '**/*Monolith*.java', '**/CementFluid*.java'
             include '**/Mun*.java', '**/CraterDensityFunction.java', '**/ModDensityFunctionTypes.java'
             include '**/OrbitalSky*.java', '**/ClientLevelMixin.java'
             include '**/OverworldLike*.java', '**/MinecraftServerAccessor.java', '**/WormholeNetwork.java', '**/ModDamageTypes.java'
