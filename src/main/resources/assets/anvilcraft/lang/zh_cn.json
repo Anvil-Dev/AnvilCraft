@@ -1,4 +1,11 @@
 {
+  "block.anvilcraft.giant_monolith_core": "巨型石碑核心",
+  "block.anvilcraft.giant_monolith_line": "巨型石碑线条",
+  "block.anvilcraft.monolith": "石碑方块",
+  "block.anvilcraft.monolith_core": "石碑核心",
+  "block.anvilcraft.monolith_line": "石碑线条",
+  "book.anvilcraft.monolith.page": "【%1$s】\n时间砧子数：%2$s\n空间砧子数：%3$s\n质量砧子数：%4$s\n能量砧子数：%5$s\n种子物品：%6$s",
+  "book.anvilcraft.monolith.title": "锻星知识",
   "anvilcraft.music.mun.above_the_moon_dust_loop": "Above the Moon Dust",
   "anvilcraft.music.mun.far_side_glow_loop": "Far Side Glow",
   "screen.anvilcraft.storage.count": "数量：%s",

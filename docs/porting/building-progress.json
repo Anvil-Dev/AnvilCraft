@@ -1434,5 +1434,49 @@
       "Monolith blocks, offerings, generation and return confirmation still require porting.",
       "The client fixture uses the matched body in an assembled CFA; prior search-process tests cover the shared matching path."
     ]
+  },
+  "monolith_blocks_and_offerings": {
+    "source_commit": "1260db54f6e2b9f88d0a79b8108459d346344e44",
+    "status": "blocks_rewards_and_native_animation_ported_generation_and_events_pending",
+    "ported": [
+      "Five original monolith blocks, item models, textures, tags and creative entries",
+      "Ordinary and giant offering filters, 100-tick cooldown and delayed reward delivery",
+      "Persistent pending reward/player state and native client data synchronization",
+      "Giant 27-part placement, main-part loot and source silk-touch results",
+      "Native extraction/submission for anvil dissolve and rising mist with source color/curve math",
+      "Explicit loot tables replacing the inherited native bedrock no-loot setting"
+    ],
+    "verification": {
+      "tests_log": "build/porting/tests-monolith-final.log",
+      "target_client_log": "build/porting/client-monolith-target-final-2.log",
+      "source_client_log": "build/porting/client-monolith-source-final-3.log",
+      "datagen_log": "build/porting/validate-monolith-final.log",
+      "compile_style_log": "build/porting/compile-monolith-final.log",
+      "report": "build/porting/monolith-comparison.json",
+      "required_tests_passed": 557,
+      "source_asset_files_equal": 13,
+      "source_loot_tables_equal": 5,
+      "animation_stages": [
+        20,
+        50,
+        65,
+        80,
+        95,
+        100
+      ],
+      "minimum_effect_mask_iou": 0.9886792452830189,
+      "effect_pixels_beyond_one_pixel": 0,
+      "checks": [
+        "Online ordinary guide/giant knowledge-book rewards and single-item consumption",
+        "Pending save/reload, 99/100-tick boundary and offline reward without duplication",
+        "Ordinary/silk-touch loot and primary versus placeholder giant drops",
+        "Source/native animation snapshots and clean client exits"
+      ]
+    },
+    "limits": [
+      "Natural generation, POI proximity hints and confirmed return are not included yet.",
+      "Native terrain/sky rendering and small composite-color differences remain.",
+      "The failed source setup with overlapping fixtures was terminated after its wait state was diagnosed."
+    ]
   }
 }

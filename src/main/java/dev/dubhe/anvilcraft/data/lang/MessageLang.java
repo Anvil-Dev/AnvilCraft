@@ -4,6 +4,9 @@ import dev.anvilcraft.lib.v2.registrum.providers.RegistrumLangProvider;
 
 public class MessageLang {
     public static void init(RegistrumLangProvider provider) {
+        provider.add("book.anvilcraft.monolith.title", "Celestial Knowledge");
+        provider.add("book.anvilcraft.monolith.page",
+            "[%1$s]\nTime Anvils: %2$s\nSpace Anvils: %3$s\nMass Anvils: %4$s\nEnergy Anvils: %5$s\nSeed Item: %6$s");
         provider.add("hud.anvilcraft.weatherproof_chestplate_power", "%s%%");
         provider.add("message.anvilcraft.buffer_boots.charged", "Press %1$s to jump");
 

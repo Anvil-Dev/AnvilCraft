@@ -1,6 +1,11 @@
 {
   "values": [
     "anvilcraft:big_red_button",
+    "anvilcraft:monolith",
+    "anvilcraft:monolith_core",
+    "anvilcraft:monolith_line",
+    "anvilcraft:giant_monolith_core",
+    "anvilcraft:giant_monolith_line",
     "minecraft:nether_portal",
     "minecraft:piston_head",
     "minecraft:end_portal_frame",

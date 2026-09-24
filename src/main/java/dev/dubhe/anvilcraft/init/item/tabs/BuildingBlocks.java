@@ -189,5 +189,10 @@ public class BuildingBlocks extends DisplayItemsGenerator {
         this.plain(ModBlocks.SUGAR_BLOCK);
         this.plain(ModBlocks.GUNPOWER_BLOCK);
         this.plain(ModBlocks.ROTTEN_FLESH_BLOCK);
+        this.plain(ModBlocks.MONOLITH);
+        this.plain(ModBlocks.MONOLITH_CORE);
+        this.plain(ModBlocks.MONOLITH_LINE);
+        this.plain(ModBlocks.GIANT_MONOLITH_CORE);
+        this.plain(ModBlocks.GIANT_MONOLITH_LINE);
     }
 }

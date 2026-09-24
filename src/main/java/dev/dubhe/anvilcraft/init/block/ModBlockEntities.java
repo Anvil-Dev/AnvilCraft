@@ -1,6 +1,8 @@
 package dev.dubhe.anvilcraft.init.block;
 
 import dev.anvilcraft.lib.v2.registrum.util.entry.BlockEntityEntry;
+import dev.dubhe.anvilcraft.block.entity.MonolithCoreBlockEntity;
+import dev.dubhe.anvilcraft.client.renderer.blockentity.MonolithCoreBlockEntityRenderer;
 import dev.dubhe.anvilcraft.block.entity.AccelerationRingBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.ActivatorSlidingRailBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.ActiveSilencerBlockEntity;
@@ -655,6 +657,12 @@ public class ModBlockEntities {
         .blockEntity("wip_block", WipBlockEntity::new)
         .renderer(() -> WipBlockEntityRenderer::new)
         .validBlock(ModBlocks.WIP_BLOCK)
+        .register();
+
+    public static final BlockEntityEntry<MonolithCoreBlockEntity> MONOLITH_CORE = REGISTRUM
+        .blockEntity("monolith_core", MonolithCoreBlockEntity::new)
+        .validBlocks(ModBlocks.MONOLITH_CORE, ModBlocks.GIANT_MONOLITH_CORE)
+        .renderer(() -> MonolithCoreBlockEntityRenderer::new)
         .register();
 
     public static void register() {

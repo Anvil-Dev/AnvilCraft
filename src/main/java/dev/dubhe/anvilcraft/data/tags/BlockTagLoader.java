@@ -213,6 +213,11 @@ public class BlockTagLoader {
             .addElement(ModBlocks.DEFLECTION_RING.getId());
 
         provider.rawBuilder(ModBlockTags.ANVIL_HAMMER_BLACKLIST)
+            .addElement(ModBlocks.MONOLITH.getId())
+            .addElement(ModBlocks.MONOLITH_CORE.getId())
+            .addElement(ModBlocks.MONOLITH_LINE.getId())
+            .addElement(ModBlocks.GIANT_MONOLITH_CORE.getId())
+            .addElement(ModBlocks.GIANT_MONOLITH_LINE.getId())
             .addElement(BlockTagLoader.findId(Blocks.NETHER_PORTAL))
             .addElement(BlockTagLoader.findId(Blocks.PISTON_HEAD))
             .addElement(BlockTagLoader.findId(Blocks.END_PORTAL_FRAME))

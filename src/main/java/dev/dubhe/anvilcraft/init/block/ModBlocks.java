@@ -10,6 +10,9 @@ import dev.anvilcraft.lib.v2.registrum.util.entry.BlockEntry;
 import dev.anvilcraft.lib.v2.util.nullness.NonNullBiConsumer;
 import dev.anvilcraft.lib.v2.util.nullness.NonNullFunction;
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.block.GiantMonolithCoreBlock;
+import dev.dubhe.anvilcraft.block.MonolithCoreBlock;
+import dev.dubhe.anvilcraft.block.MonolithBlock;
 import dev.dubhe.anvilcraft.api.power.IPowerComponent.Switch;
 import dev.dubhe.anvilcraft.api.power.IPowerConsumer;
 import dev.dubhe.anvilcraft.block.AutoEnchantingTableBlock;
@@ -4657,6 +4660,95 @@ public class ModBlocks {
         .properties(p -> p.strength(10000.0F, 10000.0F).lightLevel(state -> 15).emissiveRendering(ModBlocks::always))
         .blockstate(DataGenUtil::noExtraModelOrState)
         .simpleItem()
+        .register();
+
+    public static final BlockEntry<? extends Block> MONOLITH = REGISTRUM.block("monolith", Block::new)
+        .initialProperties(() -> Blocks.BEDROCK)
+        .properties(properties -> properties.destroyTime(55.0F).pushReaction(PushReaction.BLOCK))
+        .tag(BlockTags.WITHER_IMMUNE, BlockTags.DRAGON_IMMUNE)
+        .properties(properties -> properties.overrideLootTable(java.util.Optional.of(net.minecraft.resources.ResourceKey.create(
+            net.minecraft.core.registries.Registries.LOOT_TABLE, AnvilCraft.of("blocks/monolith")))))
+        .lang("Monolith")
+        .blockstate(DataGenUtil::noExtraModelOrState)
+        .item()
+        .properties(Item.Properties::useBlockDescriptionPrefix)
+        .setData(ProviderType.LANG, (_, _) -> {})
+        .model(() -> (ctx, provider) -> provider.itemModelOutput.accept(ctx.get(),
+            ItemModelUtils.plainModel(AnvilCraft.of("block/monolith"))))
+        .build()
+        .register();
+
+    public static final BlockEntry<MonolithCoreBlock> MONOLITH_CORE = REGISTRUM.block("monolith_core", MonolithCoreBlock::new)
+        .initialProperties(() -> Blocks.BEDROCK)
+        .properties(properties -> properties.destroyTime(55.0F).pushReaction(PushReaction.BLOCK))
+        .tag(BlockTags.WITHER_IMMUNE, BlockTags.DRAGON_IMMUNE)
+        .loot((tables, block) -> DataGenUtil.dropOtherAndSelfWhenSilkTouch(tables, block, MONOLITH))
+        .properties(properties -> properties.lightLevel(state -> 10).noOcclusion())
+        .properties(properties -> properties.overrideLootTable(java.util.Optional.of(net.minecraft.resources.ResourceKey.create(
+            net.minecraft.core.registries.Registries.LOOT_TABLE, AnvilCraft.of("blocks/monolith_core")))))
+        .lang("Monolith Core")
+        .blockstate(DataGenUtil::noExtraModelOrState)
+        .item()
+        .properties(Item.Properties::useBlockDescriptionPrefix)
+        .setData(ProviderType.LANG, (_, _) -> {})
+        .model(() -> (ctx, provider) -> provider.itemModelOutput.accept(ctx.get(),
+            ItemModelUtils.plainModel(AnvilCraft.of("block/monolith_core"))))
+        .build()
+        .register();
+
+    public static final BlockEntry<MonolithBlock> MONOLITH_LINE = REGISTRUM.block("monolith_line", MonolithBlock::new)
+        .initialProperties(() -> Blocks.BEDROCK)
+        .properties(properties -> properties.destroyTime(55.0F).pushReaction(PushReaction.BLOCK))
+        .tag(BlockTags.WITHER_IMMUNE, BlockTags.DRAGON_IMMUNE)
+        .loot((tables, block) -> DataGenUtil.dropOtherAndSelfWhenSilkTouch(tables, block, MONOLITH))
+        .properties(properties -> properties.lightLevel(state -> 10).noOcclusion())
+        .properties(properties -> properties.overrideLootTable(java.util.Optional.of(net.minecraft.resources.ResourceKey.create(
+            net.minecraft.core.registries.Registries.LOOT_TABLE, AnvilCraft.of("blocks/monolith_line")))))
+        .lang("Monolith Line")
+        .blockstate(DataGenUtil::noExtraModelOrState)
+        .item()
+        .properties(Item.Properties::useBlockDescriptionPrefix)
+        .setData(ProviderType.LANG, (_, _) -> {})
+        .model(() -> (ctx, provider) -> provider.itemModelOutput.accept(ctx.get(),
+            ItemModelUtils.plainModel(AnvilCraft.of("block/monolith_line"))))
+        .build()
+        .register();
+
+    public static final BlockEntry<GiantMonolithCoreBlock> GIANT_MONOLITH_CORE = REGISTRUM.block(
+            "giant_monolith_core",
+            GiantMonolithCoreBlock::new
+        )
+        .initialProperties(() -> Blocks.BEDROCK)
+        .properties(properties -> properties.destroyTime(55.0F).pushReaction(PushReaction.BLOCK))
+        .tag(BlockTags.WITHER_IMMUNE, BlockTags.DRAGON_IMMUNE)
+        .loot(GiantMonolithCoreBlock::loot)
+        .properties(properties -> properties.lightLevel(state -> 10).noOcclusion().noCollision())
+        .properties(properties -> properties.overrideLootTable(java.util.Optional.of(net.minecraft.resources.ResourceKey.create(
+            net.minecraft.core.registries.Registries.LOOT_TABLE, AnvilCraft.of("blocks/giant_monolith_core")))))
+        .lang("Giant Monolith Core")
+        .item(SimpleMultiPartBlockItem<Cube3x3PartHalf>::new)
+        .properties(properties -> properties.stacksTo(16).useBlockDescriptionPrefix())
+        .setData(ProviderType.LANG, (_, _) -> {})
+        .build()
+        .blockstate(DataGenUtil::noExtraModelOrState)
+        .register();
+
+    public static final BlockEntry<MonolithBlock> GIANT_MONOLITH_LINE = REGISTRUM.block("giant_monolith_line", MonolithBlock::new)
+        .initialProperties(() -> Blocks.BEDROCK)
+        .properties(properties -> properties.destroyTime(55.0F).pushReaction(PushReaction.BLOCK))
+        .tag(BlockTags.WITHER_IMMUNE, BlockTags.DRAGON_IMMUNE)
+        .loot((tables, block) -> DataGenUtil.dropOtherAndSelfWhenSilkTouch(tables, block, MONOLITH))
+        .properties(properties -> properties.lightLevel(state -> 10).noOcclusion().noCollision())
+        .properties(properties -> properties.overrideLootTable(java.util.Optional.of(net.minecraft.resources.ResourceKey.create(
+            net.minecraft.core.registries.Registries.LOOT_TABLE, AnvilCraft.of("blocks/giant_monolith_line")))))
+        .lang("Giant Monolith Line")
+        .blockstate(DataGenUtil::noExtraModelOrState)
+        .item()
+        .properties(Item.Properties::useBlockDescriptionPrefix)
+        .setData(ProviderType.LANG, (_, _) -> {})
+        .model(() -> (ctx, provider) -> provider.itemModelOutput.accept(ctx.get(),
+            ItemModelUtils.plainModel(AnvilCraft.of("block/giant_monolith_line"))))
+        .build()
         .register();
 
     public static void register() {
