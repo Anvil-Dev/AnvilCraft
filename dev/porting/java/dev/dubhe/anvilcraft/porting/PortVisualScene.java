@@ -82,6 +82,10 @@ public final class PortVisualScene {
             if (Boolean.getBoolean("anvilcraft.portCfaItemScene")) prepared = true;
             else server.execute(() -> prepare(server));
         }
+        if (Boolean.getBoolean("anvilcraft.portCelestialTravelScene")) {
+            if (prepared) CelestialTravelClientScene.frame(client);
+            return;
+        }
         if (Boolean.getBoolean("anvilcraft.portSpecialWorldScene")) {
             if (prepared) SpecialCelestialWorldScene.frame(client);
             return;

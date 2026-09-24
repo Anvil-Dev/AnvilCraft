@@ -859,5 +859,38 @@
       "Native environmental rendering and local procedural-sampling pixel differences remain.",
       "Void dimension/travel, its builtin recipe, ruins blocks and arbitrary resource packs remain separate pending nodes."
     ]
+  },
+  "celestial_travel": {
+    "source_commit": "a378f98e4d41d0d92f97cf2486ac9da7881b1674",
+    "status": "generic_travel_and_return_gate_ported_builtin_dimension_lifecycle_pending",
+    "ported": [
+      "Six coordinate rules and three return-position rules executed against real server levels",
+      "Safe surface/height searches and protected emergency platform creation",
+      "Entity/player transitions preserve source rotation, momentum, cooldown and sound behavior",
+      "Standalone amplified CFA landing gate and stale wormhole laser cleanup",
+      "Persistent unbreakable return gate, connection-aware reuse/deduplication and water synchronization"
+    ],
+    "verification": {
+      "focused_tests": 6,
+      "full_tests": 542,
+      "full_log": "build/porting/tests-travel-full-3.log",
+      "source_client_log": "build/porting/client-travel-source-1.log",
+      "target_client_log": "build/porting/client-travel-1.log",
+      "report": "build/porting/celestial-travel-comparison.json",
+      "target_save_exit": "passed",
+      "source_shutdown": "stopped after repeated busy unload queue snapshots; not verified clean",
+      "compile_style_log": "build/porting/validate-travel-final-2.log",
+      "datagen_log": "build/porting/datagen-travel-final.log"
+    },
+    "required_followups": [
+      "Before enabling builtin overworld_like, replace direct destination lookup with collapse/reset entry gating and generation requests.",
+      "Port builtin dimension definitions, derived seed/generation manifests, reset lifecycle, Mun and Void Planet content.",
+      "Integrate remaining component-based laser shutdown behavior with the upcoming laser subsystem port."
+    ],
+    "limits": [
+      "Development void dimensions are test-only and excluded from release builds.",
+      "Source reference shutdown stalled after the successful round trip; native target saved and exited normally.",
+      "Back-gate geometry/resources verified; independent texture animation phases and native environment differences retained."
+    ]
   }
 }

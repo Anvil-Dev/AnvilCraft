@@ -5,6 +5,9 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.heat.HeaterManager;
 import dev.dubhe.anvilcraft.block.cfa.CelestialForgingAnvilBlock;
 import dev.dubhe.anvilcraft.block.cfa.CelestialForgingAnvilPortalBlock;
+import dev.dubhe.anvilcraft.block.entity.celestial.CelestialTravelData;
+import dev.dubhe.anvilcraft.block.entity.celestial.CelestialTravelManager;
+import dev.dubhe.anvilcraft.block.entity.celestial.SpecialCelestialBodyData;
 import dev.dubhe.anvilcraft.block.multipart.FlexibleMultiPartBlock;
 import dev.dubhe.anvilcraft.block.state.Cube323PartHalf;
 import dev.dubhe.anvilcraft.block.state.DirectionGate331PartHalf;
@@ -28,7 +31,6 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.Relative;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.item.ItemStack;
@@ -40,7 +42,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.entity.EntityTypeTest;
 import net.minecraft.world.level.material.Fluids;
-import net.minecraft.world.level.portal.TeleportTransition;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.AABB;
@@ -323,6 +324,11 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
             return;
         }
 
+        if (this.getLandingData(parent) != null) {
+            this.tickLandingPortal(state);
+            return;
+        }
+
         Cube323PartHalf side = this.findSideFromParent(parent);
         if (side == null) return;
 
@@ -568,6 +574,57 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
     }
 
     // ==================== 实体传送 ====================
+    @Nullable
+    private CelestialTravelData getLandingData(CelestialForgingAnvilBlockEntity parent) {
+        if (parent.getCelestialBodyData() instanceof SpecialCelestialBodyData special) {
+            return special.landing();
+        }
+        return null;
+    }
+
+    private void setGammaOutputState(boolean emitting, int level) {
+        int normalizedLevel = emitting ? Math.max(0, level) : 0;
+        if (this.emittingGamma != emitting || this.gammaLevel != normalizedLevel) this.markChanged();
+        this.emittingGamma = emitting;
+        this.gammaLevel = normalizedLevel;
+    }
+
+    private void tickLandingPortal(BlockState state) {
+        if (!state.getValue(CelestialForgingAnvilPortalBlock.OPEN)) {
+            state = state.setValue(CelestialForgingAnvilPortalBlock.OPEN, true);
+            level.setBlock(worldPosition, state, 3);
+        }
+        /// A landing gate has no remote laser endpoint; discard stale wormhole output.
+        this.wormholeLaserLevel = 0;
+        this.wormholeLaserGamma = false;
+        this.setGammaOutputState(false, 0);
+        if (irradiateBlockPos != null) {
+            BlockEntity oldBe = level.getBlockEntity(irradiateBlockPos);
+            if (oldBe instanceof BaseLaserBlockEntity lastIrradiated) {
+                lastIrradiated.onCancelingIrradiation(this);
+            }
+            updateIrradiateBlockPos(null);
+        }
+        clearIrradiateSelfLaserBlockSet();
+        updateLaserLevel(0);
+        this.gammaIrradiatingPos = null;
+        this.gammaExposureTicks = 0;
+        if (this.isAnchor()) {
+            AABB portalSpace = new AABB(worldPosition).expandTowards(0, 1, 0);
+            for (Entity entity : level.getEntitiesOfClass(Entity.class, portalSpace)) {
+                this.tryTouchTeleport(entity);
+            }
+            if (!this.touchingEntities.isEmpty()) {
+                Set<UUID> present = level.getEntitiesOfClass(Entity.class, portalSpace)
+                    .stream().map(Entity::getUUID).collect(Collectors.toSet());
+                this.touchingEntities.removeIf(uuid -> !present.contains(uuid));
+            }
+        } else {
+            this.touchingEntities.clear();
+        }
+        this.sendLaserPackets();
+    }
+
     /// 当实体进入开口格时调用（由方块的 entityInside 在每移动步触发）。
     /// 用 touchingEntities 去重：实体仍在格内时后续触发被跳过；离开后 tick 清理记录，
     /// 使其再次进入时能再次传送。
@@ -577,15 +634,22 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
 
         CelestialForgingAnvilBlockEntity parent = this.findParentCfa();
         if (parent == null) return;
+        if (!(this.level instanceof ServerLevel sourceLevel)) return;
+        CelestialTravelData landing = this.getLandingData(parent);
+        if (landing != null) {
+            if (CelestialTravelManager.tryLand(entity, sourceLevel, this.getAnchorPos(), this.getFacing(), landing)) {
+                this.touchingEntities.add(uuid);
+            }
+            return;
+        }
         Cube323PartHalf side = this.findSideFromParent(parent);
         if (side == null) return;
 
+        UUID hash = parent.getWormholeParamsHash();
+        if (hash == null) return;
         WormholeNetwork network = WormholeNetwork.get();
-        List<WormholeNetwork.Entry> connected = network.getConnected(
-            Objects.requireNonNull(parent.getWormholeParamsHash()),
-            Objects.requireNonNull(level).dimension(),
-            parent.getBlockPos()
-        );
+        if (!network.hasPortalAt(sourceLevel.dimension(), parent.getBlockPos(), side)) return;
+        List<WormholeNetwork.Entry> connected = network.getConnected(hash, sourceLevel.dimension(), parent.getBlockPos());
         // 仅当恰好有另一个 CFA 在此同侧有传送门时才传送
         List<WormholeNetwork.Entry> matching = connected.stream()
             .filter(e -> network.hasPortalAt(e.dimension(), e.pos(), side))
@@ -633,33 +697,7 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
         } else {
             momentum = new Vec3(-vel.x, vel.y, vel.z);
         }
-        float targetYRot = (entity.getYRot() + 180.0f) % 360.0f;
-
-        // 对于同维度传送，直接使用 teleportTo 以避免 changeDimension 重建实体
-        // 导致的弹射物 1 tick 停滞和速度丢失问题。
-        // 对于跨维度传送，使用 26.1 的 TeleportTransition（等价于 1.21 的 DimensionTransition）。
-        if (targetLevel == level) {
-            entity.teleportTo(targetLevel, dx, dy, dz, Set.<Relative>of(), targetYRot, entity.getXRot(), false);
-            if (entity instanceof ServerPlayer player) {
-                player.connection.teleport(dx, dy, dz, targetYRot, entity.getXRot());
-            }
-            entity.setDeltaMovement(momentum);
-            entity.hurtMarked = true; // 26.1: 强制向客户端同步速度（等价于 1.21 的 hasImpulse）
-        } else {
-            TeleportTransition transition = new TeleportTransition(
-                targetLevel,
-                new Vec3(dx, dy, dz),
-                momentum,
-                targetYRot,
-                entity.getXRot(),
-                TeleportTransition.DO_NOTHING
-            );
-            Entity teleported = entity.teleport(transition);
-            if (teleported != null) {
-                teleported.setDeltaMovement(momentum);
-                teleported.hurtMarked = true; // 26.1: 强制向客户端同步速度（等价于 1.21 的 hasImpulse）
-            }
-        }
+        CelestialTravelManager.teleportEntity(entity, sourceLevel, targetLevel, new Vec3(dx, dy, dz), momentum);
 
         this.touchingEntities.add(uuid);
     }

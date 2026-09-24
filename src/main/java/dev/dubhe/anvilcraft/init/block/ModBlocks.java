@@ -1,7 +1,5 @@
 package dev.dubhe.anvilcraft.init.block;
 
-import static dev.dubhe.anvilcraft.AnvilCraft.REGISTRUM;
-
 import com.mojang.math.Quadrant;
 import dev.anvilcraft.lib.v2.registrum.providers.DataGenContext;
 import dev.anvilcraft.lib.v2.registrum.providers.generators.RegistrumBlockModelGenerator;
@@ -14,6 +12,7 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.power.IPowerComponent.Switch;
 import dev.dubhe.anvilcraft.api.power.IPowerConsumer;
 import dev.dubhe.anvilcraft.block.AutoEnchantingTableBlock;
+import dev.dubhe.anvilcraft.block.CelestialBackGateBlock;
 import dev.dubhe.anvilcraft.block.LargeCauldronBlock;
 import dev.dubhe.anvilcraft.block.RedstoneWireBlock;
 import dev.dubhe.anvilcraft.block.TradingStationBlock;
@@ -329,6 +328,7 @@ import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.level.storage.loot.predicates.LootItemRandomChanceWithEnchantedBonusCondition;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import net.neoforged.neoforge.common.Tags;
+import static dev.dubhe.anvilcraft.AnvilCraft.REGISTRUM;
 
 import java.util.function.Supplier;
 
@@ -1907,6 +1907,23 @@ public class ModBlocks {
         .register();
 
     @SuppressWarnings("Convert2Lambda")
+    public static final BlockEntry<CelestialBackGateBlock> CELESTIAL_BACK_GATE = REGISTRUM
+        .block("celestial_back_gate", CelestialBackGateBlock::new)
+        .lang("Celestial Back Gate")
+        .initialProperties(() -> Blocks.IRON_BLOCK)
+        .properties(properties -> properties
+            .noOcclusion()
+            .noCollision()
+            .isViewBlocking(ModBlocks::never)
+            .isValidSpawn(Blocks::never)
+            .strength(-1.0F, 3600000.0F)
+            .pushReaction(PushReaction.BLOCK)
+            .emissiveRendering(ModBlocks::always)
+            .noLootTable())
+        .blockstate(DataGenUtil::noExtraModelOrState)
+        .tag(BlockTags.WITHER_IMMUNE, BlockTags.DRAGON_IMMUNE, ModBlockTags.COLLISION_IMMUNE)
+        .register();
+
     public static final BlockEntry<CelestialForgingAnvilPortalBlock> CELESTIAL_FORGING_ANVIL_PORTAL = REGISTRUM
         .block("celestial_forging_anvil_portal", CelestialForgingAnvilPortalBlock::new)
         .initialProperties(() -> Blocks.IRON_BLOCK)

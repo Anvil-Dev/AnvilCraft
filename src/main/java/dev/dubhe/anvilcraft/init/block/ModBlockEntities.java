@@ -1,7 +1,5 @@
 package dev.dubhe.anvilcraft.init.block;
 
-import static dev.dubhe.anvilcraft.AnvilCraft.REGISTRUM;
-
 import dev.anvilcraft.lib.v2.registrum.util.entry.BlockEntityEntry;
 import dev.dubhe.anvilcraft.block.entity.AccelerationRingBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.ActivatorSlidingRailBlockEntity;
@@ -11,6 +9,7 @@ import dev.dubhe.anvilcraft.block.entity.AutoEnchantingTableBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.BigRedButtonBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.BlackHoleBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.BurningHeaterBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.CelestialBackGateBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.CelestialForgingAnvilBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.CelestialForgingAnvilFluidInterfaceBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.CelestialForgingAnvilLaserInterfaceBlockEntity;
@@ -138,6 +137,7 @@ import dev.dubhe.anvilcraft.client.renderer.blockentity.TradingStationBlockEntit
 import dev.dubhe.anvilcraft.client.renderer.blockentity.UnpackingTableBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.VoidEnergyCollectorRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.WipBlockEntityRenderer;
+import static dev.dubhe.anvilcraft.AnvilCraft.REGISTRUM;
 
 public class ModBlockEntities {
     public static final BlockEntityEntry<AutoEnchantingTableBlockEntity> AUTO_ENCHANTING_TABLE = REGISTRUM.blockEntity(
@@ -521,6 +521,11 @@ public class ModBlockEntities {
     /// 传送门的门体模型由 blockstate 在 MID_CENTER 渲染，激光束由
     /// CachedLaserBlockEntityRenderer 渲染（在 AnvilCraftClient.clientSetup 注册），
     /// 因此此处不再注册专用 BlockEntityRenderer。
+    public static final BlockEntityEntry<CelestialBackGateBlockEntity> CELESTIAL_BACK_GATE = REGISTRUM
+        .blockEntity("celestial_back_gate", CelestialBackGateBlockEntity::new)
+        .validBlock(ModBlocks.CELESTIAL_BACK_GATE)
+        .register();
+
     public static final BlockEntityEntry<CelestialForgingAnvilPortalBlockEntity> CELESTIAL_FORGING_ANVIL_PORTAL = REGISTRUM
         .blockEntity("celestial_forging_anvil_portal", CelestialForgingAnvilPortalBlockEntity::new)
         .validBlock(ModBlocks.CELESTIAL_FORGING_ANVIL_PORTAL)
