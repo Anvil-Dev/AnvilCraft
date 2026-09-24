@@ -53,6 +53,11 @@ public class CelestialBodyRenderer {
     }
 
     /** 获取指定温度对应的大气层颜色。 */
+    public static float[] getAtmosphereColor(net.minecraft.util.ColorRGBA color) {
+        int rgb = color.rgba();
+        return new float[]{((rgb >> 16) & 255) / 255.0F, ((rgb >> 8) & 255) / 255.0F, (rgb & 255) / 255.0F};
+    }
+
     public static float[] getAtmosphereColor(Temperature temperature) {
         return switch (temperature) {
             case FREEZING -> new float[]{

@@ -21,8 +21,12 @@ import net.minecraft.world.phys.Vec3;
 import java.util.List;
 
 public final class StellarEvolutionUiClientScene {
-    private static final boolean PREVIEW = Boolean.getBoolean("anvilcraft.portCfaPreviewScene");
-    private static final List<String> PREVIEWS = List.of("star", "rocky", "atmosphere", "white-dwarf",
+    private static final boolean SPECIAL = Boolean.getBoolean("anvilcraft.portSpecialCelestialScene");
+    private static final boolean PREVIEW = SPECIAL || Boolean.getBoolean("anvilcraft.portCfaPreviewScene");
+    private static final List<String> PREVIEWS = SPECIAL
+        ? List.of("plain-cyan", "plain-magenta", "complex-cyan", "complex-magenta",
+            "no-temperature", "no-temperature-details", "no-atmosphere", "no-atmosphere-details")
+        : List.of("star", "rocky", "atmosphere", "white-dwarf",
         "neutron-slow", "neutron-fast", "black-hole", "flesh", "ghost-no-foil");
     private static final BlockPos POS = new BlockPos(8, 80, 8);
     private static final List<Case> CASES = List.of(
@@ -76,12 +80,15 @@ public final class StellarEvolutionUiClientScene {
         }
         if (!ready || reloading || capturing || System.currentTimeMillis() < next) return;
         if (index == (PREVIEW ? PREVIEWS.size() : CASES.size())) {
-            AnvilCraft.LOGGER.info(PREVIEW ? "PORT_CFA_PREVIEWS_CAPTURED: eight fixed bodies and no-foil ghost control"
+            AnvilCraft.LOGGER.info(SPECIAL ? "PORT_SPECIAL_CELESTIAL_CAPTURED: eight custom-atmosphere and information views"
+                : PREVIEW ? "PORT_CFA_PREVIEWS_CAPTURED: eight fixed bodies and no-foil ghost control"
                 : "PORT_STELLAR_UI_CAPTURED: eight layouts and countdown controls");
             client.stop();
             return;
         }
-        var sample = PREVIEW ? new Case(PREVIEWS.get(index), 49, "", true, false, "en_us") : CASES.get(index);
+        var sample = PREVIEW
+            ? new Case(PREVIEWS.get(index), 49, "", true, SPECIAL && PREVIEWS.get(index).endsWith("-details"), "en_us")
+            : CASES.get(index);
         if (!client.getLanguageManager().getSelected().equals(sample.language)) {
             client.getLanguageManager().setSelected(sample.language);
             client.options.languageCode = sample.language;
@@ -121,7 +128,7 @@ public final class StellarEvolutionUiClientScene {
         if (sample.bottom && !scrolled) {
             double x = (screen.width - 344) / 2.0 + 180;
             double y = (screen.height - 207) / 2.0 + 35;
-            screen.mouseScrolled(x, y, 0, -100);
+            screen.mouseScrolled(x, y, 0, SPECIAL ? -8 : -100);
             scrolled = true;
             next = System.currentTimeMillis() + 700;
             return;
@@ -131,7 +138,7 @@ public final class StellarEvolutionUiClientScene {
         AnvilCraft.LOGGER.info("PORT_STELLAR_UI {}: scroll={}, remaining={}, phase={}, total={}", sample.name, scroll,
             field(screen, "localAcceleratorTicksRemaining"), be.getStellarPhaseProgress(), be.getStellarTotalProgress(0));
         capturing = true;
-        String prefix = PREVIEW ? "cfa-preview-26.1-" : "stellar-ui-26.1-";
+        String prefix = SPECIAL ? "special-celestial-26.1-" : PREVIEW ? "cfa-preview-26.1-" : "stellar-ui-26.1-";
         Screenshot.grab(client.gameDirectory, prefix + sample.name + ".png", client.getMainRenderTarget(), 1,
             message -> client.execute(() -> {
                 capturing = false;
@@ -194,6 +201,7 @@ public final class StellarEvolutionUiClientScene {
     }
 
     private static net.minecraft.nbt.CompoundTag preview(String name) {
+        if (SPECIAL) return SpecialCelestialVisualFixture.snapshot(name);
         var bodyClass = switch (name) {
             case "white-dwarf" -> dev.dubhe.anvilcraft.block.entity.celestial.CelestialBodyClass.WHITE_DWARF;
             case "neutron-slow", "neutron-fast" -> dev.dubhe.anvilcraft.block.entity.celestial.CelestialBodyClass.NEUTRON_STAR;

@@ -17,7 +17,6 @@ import dev.dubhe.anvilcraft.block.entity.celestial.RingType;
 import dev.dubhe.anvilcraft.block.entity.celestial.RockyPlanetData;
 import dev.dubhe.anvilcraft.block.entity.celestial.SpecialCelestialBodyData;
 import dev.dubhe.anvilcraft.block.entity.celestial.StarData;
-import dev.dubhe.anvilcraft.block.entity.celestial.Temperature;
 import dev.dubhe.anvilcraft.client.init.ModRenderTypes;
 import dev.dubhe.anvilcraft.client.renderer.RenderState;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.celestial.CelestialBodyRenderer;
@@ -928,8 +927,9 @@ public class CFARenderer implements BlockEntityRenderer<CelestialForgingAnvilBlo
                 if (state.getComplexBodyModel() != null) {
                     this.tessellateModel(state.getComplexBodyModel(), pose, collector);
                 }
-                if (special.hasAtmosphere() && special.temperature() != null) {
-                    this.submitAtmosphere(pose, collector, special.temperature(), 1.125f, seed);
+                if (special.atmosphereColor() != null) {
+                    dev.dubhe.anvilcraft.client.renderer.blockentity.celestial.PlanetAtmosphereRenderer.submit(
+                        pose, collector, CelestialBodyRenderer.getAtmosphereColor(special.atmosphereColor()));
                 }
             }
         } else if (bodyData instanceof StarData star) {
@@ -1105,21 +1105,14 @@ public class CFARenderer implements BlockEntityRenderer<CelestialForgingAnvilBlo
             );
         }
 
-        boolean hasAtmos;
-        Temperature atmosTemp;
-        if (bodyData instanceof RockyPlanetData rp) {
-            hasAtmos = rp.hasAtmosphere();
-            atmosTemp = rp.temperature();
-        } else if (bodyData instanceof SpecialCelestialBodyData s) {
-            hasAtmos = s.hasAtmosphere();
-            atmosTemp = s.temperature();
-        } else {
-            hasAtmos = false;
-            atmosTemp = null;
+        float[] atmosphere = null;
+        if (bodyData instanceof RockyPlanetData rocky && rocky.hasAtmosphere()) {
+            atmosphere = CelestialBodyRenderer.getAtmosphereColor(rocky.temperature());
+        } else if (bodyData instanceof SpecialCelestialBodyData special && special.atmosphereColor() != null) {
+            atmosphere = CelestialBodyRenderer.getAtmosphereColor(special.atmosphereColor());
         }
-        if (hasAtmos && atmosTemp != null) {
-            dev.dubhe.anvilcraft.client.renderer.blockentity.celestial.PlanetAtmosphereRenderer.submit(
-                pose, collector, CelestialBodyRenderer.getAtmosphereColor(atmosTemp));
+        if (atmosphere != null) {
+            dev.dubhe.anvilcraft.client.renderer.blockentity.celestial.PlanetAtmosphereRenderer.submit(pose, collector, atmosphere);
         }
 
         // 褐矮星使用较弱的恒星式光晕。
@@ -1208,32 +1201,6 @@ public class CFARenderer implements BlockEntityRenderer<CelestialForgingAnvilBlo
                 }
             }
         );
-    }
-
-    private void submitAtmosphere(
-        PoseStack pose,
-        SubmitNodeCollector collector,
-        Temperature temp,
-        float scale,
-        long seed
-    ) {
-        float[] rgb = CelestialBodyRenderer.getAtmosphereColor(temp);
-        pose.pushPose();
-        pose.translate(0.5, 0.5, 0.5);
-        pose.scale(scale, scale, scale);
-        pose.translate(-0.5, -0.5, -0.5);
-        collector.submitCustomGeometry(
-            pose, ModRenderTypes.CELESTIAL_ATMOSPHERE,
-            (last, consumer) -> CelestialBodyRenderer.renderAtmosphereCube(
-                last,
-                consumer,
-                rgb,
-                0.2f,
-                LightCoordsUtil.FULL_BRIGHT,
-                OverlayTexture.NO_OVERLAY
-            )
-        );
-        pose.popPose();
     }
 
     /// 将当前姿态包装为单层姿态栈，以适配天体渲染工具的参数形式。

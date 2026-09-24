@@ -309,11 +309,11 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.cfa.tilt", "Axial Tilt: %s"); // 自转轴倾角: %s
 
         provider.add("screen.anvilcraft.cfa.atmos", "Atmosphere: %s"); // 大气: %s
-        provider.add("screen.anvilcraft.cfa.atmos.yes", "Yes"); // 有
+        provider.add("screen.anvilcraft.cfa.atmos.yes", "Present"); // 有
         provider.add("screen.anvilcraft.cfa.none", "None"); // 无
 
         provider.add("screen.anvilcraft.cfa.mag", "Magnetic Field: %s"); // 磁场: %s
-        provider.add("screen.anvilcraft.cfa.mag.very_weak", "Very Weak"); // 几乎没有
+        provider.add("screen.anvilcraft.cfa.mag.very_weak", "Negligible"); // 几乎没有
         provider.add("screen.anvilcraft.cfa.mag.weak", "Weak"); // 弱
         provider.add("screen.anvilcraft.cfa.mag.medium", "Medium"); // 中等
         provider.add("screen.anvilcraft.cfa.mag.strong", "Strong"); // 强
@@ -346,10 +346,10 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.cfa.pressure.ice", "Ice"); // 冰
 
         provider.add("screen.anvilcraft.cfa.wind", "Wind Speed: %s"); // 风速: %s
-        provider.add("screen.anvilcraft.cfa.wind.high", "High"); // 高
-        provider.add("screen.anvilcraft.cfa.wind.very_high", "Very High"); // 非常高
+        provider.add("screen.anvilcraft.cfa.wind.high", "Fast"); // 高
+        provider.add("screen.anvilcraft.cfa.wind.very_high", "Very Fast"); // 非常高
 
-        provider.add("screen.anvilcraft.cfa.type", "Type: %s"); // 天体类型: %s
+        provider.add("screen.anvilcraft.cfa.type", "Celestial Body Type: %s"); // 天体类型: %s
         provider.add("screen.anvilcraft.cfa.class.no_match", "???"); // ？？？
         provider.add("screen.anvilcraft.cfa.class.large_moon", "Large Moon"); // 大型卫星
         provider.add("screen.anvilcraft.cfa.class.rocky_planet", "Rocky Planet"); // 岩石行星

@@ -569,7 +569,7 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
         if (this.scrollOffset < 0) this.scrollOffset = 0;
 
         int ax = guiLeft + PV_INFO_X;
-        int ay = guiTop + PV_INFO_Y + 2;
+        int ay = guiTop + PV_INFO_Y;
         int aw = PV_INFO_W;
         int ah = PV_INFO_H;
 

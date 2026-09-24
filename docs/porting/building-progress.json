@@ -781,5 +781,41 @@
       "Native sky/cloud/fog appearance remains different; world pixel identity is not asserted.",
       "Fixed snapshots do not cover full continuous transformation, multiplayer or custom resource-pack behavior."
     ]
+  },
+  "special_celestial_schema": {
+    "source_commit": "a378f98e4d41d0d92f97cf2486ac9da7881b1674",
+    "status": "schema_and_custom_atmosphere_ported_execution_paths_pending",
+    "ported": [
+      "Full source special-body recipe/data fields and backward-compatible NBT aliases",
+      "Coordinate and return rule codecs, network transport, persistence and normalization",
+      "Source six-digit atmosphere colors independent of temperature",
+      "Source-equivalent five existing builtin recipes and biological milk resources",
+      "Custom RGB preview and shared world volume atmosphere for ordinary and complex bodies",
+      "Source ordinary info position, missing-data semantics and property labels"
+    ],
+    "verification": {
+      "focused_assertion_tests": 4,
+      "full_tests": 536,
+      "full_log": "build/porting/tests-special-full-1.log",
+      "compile_style_log": "build/porting/validate-special-final-1.log",
+      "datagen_log": "build/porting/datagen-special-data-2.log",
+      "source_ui_log": "build/porting/client-special-celestial-source-2.log",
+      "target_ui_log": "build/porting/client-special-celestial-target-3.log",
+      "source_world_log": "build/porting/client-special-world-source-1.log",
+      "target_world_log": "build/porting/client-special-world-target-1.log",
+      "report": "build/porting/special-celestial-visual-comparison.json",
+      "ui_scene_pairs": 8,
+      "world_scene_pairs": 6,
+      "info_max_rgb_difference": 3,
+      "plain_preview_max_rgb_difference": 4,
+      "complex_preview_mean_rgb_difference_below": 0.35,
+      "complex_preview_max_rgb_difference": 31,
+      "max_world_geometry_camera_difference": 0
+    },
+    "limits": [
+      "Travel, shattering, Monolith use, arbitrary resource-pack model registration and end-gateway surface execution are not complete.",
+      "Mun and Void Planet recipes remain pending their dimension/rendering feature nodes.",
+      "Native sky/cloud/fog are retained; remaining complex-preview edge differences are tracked separately."
+    ]
   }
 }

@@ -198,7 +198,7 @@ public class CelestialBodyTextureBakery {
 
     @Nullable
     private static Identifier bakeSpecial(String key, SpecialCelestialBodyData special) {
-        String filename = special.textureName() + ".png";
+        String filename = special.model() + ".png";
         NativeImage img = CelestialBodyTextureBakery.loadImage(filename);
         if (img == null) return null;
         return CelestialBodyTextureBakery.registerTexture(key, img);

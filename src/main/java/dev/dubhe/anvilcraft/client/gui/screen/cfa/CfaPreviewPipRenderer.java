@@ -12,7 +12,6 @@ import dev.dubhe.anvilcraft.block.entity.celestial.RingType;
 import dev.dubhe.anvilcraft.block.entity.celestial.RockyPlanetData;
 import dev.dubhe.anvilcraft.block.entity.celestial.SpecialCelestialBodyData;
 import dev.dubhe.anvilcraft.block.entity.celestial.StarData;
-import dev.dubhe.anvilcraft.block.entity.celestial.Temperature;
 import dev.dubhe.anvilcraft.client.init.ModRenderPipelines;
 import dev.dubhe.anvilcraft.client.init.ModRenderTypes;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.CFARenderer;
@@ -143,8 +142,9 @@ public final class CfaPreviewPipRenderer extends PictureInPictureRenderer<CfaPre
     ) {
         StandaloneModelKey<BlockStateModel> model = CelestialBodyPreviewRenderer.resolveSpecialModel(special);
         this.submitStandalone(model, false, seed, poseStack, collector, true);
-        if (special.hasAtmosphere() && special.temperature() != null) {
-            this.submitAtmosphere(special.temperature(), poseStack, collector, atmosphereView);
+        if (special.atmosphereColor() != null) {
+            this.submitAtmosphere(CelestialBodyRenderer.getAtmosphereColor(special.atmosphereColor()),
+                poseStack, collector, atmosphereView);
         }
     }
 
@@ -240,11 +240,11 @@ public final class CfaPreviewPipRenderer extends PictureInPictureRenderer<CfaPre
             );
         }
 
-        Temperature atmosphere = null;
+        float[] atmosphere = null;
         if (body instanceof RockyPlanetData rocky && rocky.hasAtmosphere()) {
-            atmosphere = rocky.temperature();
-        } else if (body instanceof SpecialCelestialBodyData special && special.hasAtmosphere()) {
-            atmosphere = special.temperature();
+            atmosphere = CelestialBodyRenderer.getAtmosphereColor(rocky.temperature());
+        } else if (body instanceof SpecialCelestialBodyData special && special.atmosphereColor() != null) {
+            atmosphere = CelestialBodyRenderer.getAtmosphereColor(special.atmosphereColor());
         }
         if (atmosphere != null) {
             this.submitAtmosphere(atmosphere, poseStack, collector, atmosphereView);
@@ -283,12 +283,11 @@ public final class CfaPreviewPipRenderer extends PictureInPictureRenderer<CfaPre
     }
 
     private void submitAtmosphere(
-        Temperature temperature,
+        float[] color,
         PoseStack poseStack,
         SubmitNodeCollector collector,
         Vector3f atmosphereView
     ) {
-        final float[] color = CelestialBodyRenderer.getAtmosphereColor(temperature);
         poseStack.pushPose();
         poseStack.translate(0.5f, 0.5f, 0.5f);
         poseStack.scale(1.125f, 1.125f, 1.125f);
