@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.init.block;
 
 import com.mojang.math.Quadrant;
 import dev.anvilcraft.lib.v2.registrum.providers.DataGenContext;
+import dev.anvilcraft.lib.v2.registrum.providers.ProviderType;
 import dev.anvilcraft.lib.v2.registrum.providers.generators.RegistrumBlockModelGenerator;
 import dev.anvilcraft.lib.v2.registrum.providers.generators.RegistrumItemModelGenerator;
 import dev.anvilcraft.lib.v2.registrum.providers.generators.model.PropertyDispatchWrap;
@@ -3459,6 +3460,34 @@ public class ModBlocks {
         .item(RadiationBlockItem::new)
         .tag(ModItemTags.STORAGE_BLOCKS_RAW_URANIUM, Tags.Items.STORAGE_BLOCKS, ModItemTags.RADIATIONS)
         .build()
+        .register();
+
+    public static final BlockEntry<? extends Block> LUNAR_ROCK = REGISTRUM.block("lunar_rock", Block::new)
+        .initialProperties(() -> Blocks.STONE)
+        .lang("Mun Rock")
+        // 随机纹理变种的 blockstate 与模型为手写资源（assets/anvilcraft/blockstates/lunar_rock.json），
+        // 与原版草方块同机制：4 个纹理变种按方块位置随机显示
+        .blockstate(DataGenUtil::noExtraModelOrState)
+        .item()
+        .properties(Item.Properties::useBlockDescriptionPrefix)
+        .setData(ProviderType.LANG, (_, _) -> {})
+        .model(() -> (ctx, provider) -> provider.itemModelOutput.accept(ctx.get(),
+            ItemModelUtils.plainModel(ctx.getId().withPrefix("block/"))))
+        .build()
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.NEEDS_STONE_TOOL)
+        .register();
+
+    public static final BlockEntry<? extends Block> LUNAR_SOIL = REGISTRUM.block("lunar_soil", Block::new)
+        .initialProperties(() -> Blocks.DIRT)
+        .lang("Mun Soil")
+        .blockstate(DataGenUtil::noExtraModelOrState)
+        .item()
+        .properties(Item.Properties::useBlockDescriptionPrefix)
+        .setData(ProviderType.LANG, (_, _) -> {})
+        .model(() -> (ctx, provider) -> provider.itemModelOutput.accept(ctx.get(),
+            ItemModelUtils.plainModel(ctx.getId().withPrefix("block/"))))
+        .build()
+        .tag(BlockTags.MINEABLE_WITH_SHOVEL)
         .register();
 
     public static final BlockEntry<Block> DEEPSLATE_ZINC_ORE = REGISTRUM.block("deepslate_zinc_ore", Block::new)

@@ -71,6 +71,7 @@ public final class GravityManager {
         GravitySourceManager.registerSourceType(BlackHoleBlock.class, 7, 10);
         GravitySourceManager.registerSourceType(WhiteHoleBlock.class, 7, -10);
         registerDimensionGravity(dev.dubhe.anvilcraft.init.ModLevelKeys.VOID_PLANET, 0.0);
+        registerDimensionGravity(dev.dubhe.anvilcraft.init.ModLevelKeys.MUN, 1.0 / 6.0);
     }
 
     private GravityManager() {

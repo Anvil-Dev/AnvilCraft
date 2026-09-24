@@ -2800,5 +2800,7 @@
   "block.anvilcraft.celestial_back_gate": "锻星砧返回传送门",
   "death.attack.anvilcraft.planetary_collapse": "%1$s被行星崩解吞噬",
   "anvilcraft.configuration.render_overworld_like_sky": "渲染类主世界天空",
-  "anvilcraft.configuration.render_overworld_like_sky.tooltip": "在类主世界维度渲染共享束星环"
+  "anvilcraft.configuration.render_overworld_like_sky.tooltip": "在类主世界维度渲染共享束星环",
+  "block.anvilcraft.lunar_rock": "月岩",
+  "block.anvilcraft.lunar_soil": "月壤"
 }
