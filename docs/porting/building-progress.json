@@ -567,7 +567,10 @@
       "Source StellarRadiance and StellarVisualState math (only style/this qualifiers changed in the latter)",
       "Native exposure-mapped surface shader, additive exterior-only six-band corona and native fog",
       "Neutron-star compact corona and source brown-dwarf glow values",
-      "Standard/Vanilla mode with pipeline-failure latch and resource-reload retry; lazy material initialization"
+      "Standard/Vanilla mode with pipeline-failure latch and resource-reload retry; lazy material initialization",
+      "Frozen evolution snapshots drive native surface exposure/color and cubic wind/event layers",
+      "Source redstone scaling, independent structural/pulsating geometry, remnant fade guard and effect-aware culling bounds",
+      "Source full-RGBA corona fog attenuation and no low-alpha cutoff for stellar envelope layers"
     ],
     "verification": {
       "compile_log": "build/porting/validate-stellar-emission-final.log",
@@ -583,14 +586,34 @@
       "forced_failure": "Injected failure latch gives the Vanilla patch; resource reload restores Standard patch and a valid pipeline, after the loading overlay exits"
     },
     "pending": [
-      "Connect evolution/track/event snapshots and dynamic textures to native render state; the current common call passes neutral visual/event parameters",
-      "World multi-star, Iris/portable backend, transparent item previews and performance/platform coverage",
-      "GUI low-resolution item atlas and Vanilla-mode visual differences; head animation phase and broader full-image parity"
-    ]
+      "Profile-specific supernova burst/ray geometry and remaining phase UI",
+      "Iris/portable backend, custom resource packs, transparent previews and wider head/item/performance coverage",
+      "Continuous motion and multiplayer validation; native fog/cloud/lighting differences retained"
+    ],
+    "world_comparison": {
+      "source_log": "build/porting/client-stellar-evolution-source-2.log",
+      "target_log": "build/porting/client-stellar-evolution-target-6.log",
+      "report": "build/porting/stellar-evolution-visual-comparison.json",
+      "scenes": 10,
+      "max_ring_center_body_beam_difference": 1e-05,
+      "agb_structural_radius_stable": true,
+      "tint_isolation_and_remnant_transition_checks": true,
+      "native_environment_fog": [
+        0,
+        1024
+      ],
+      "far_view_control": "32 chunks did not remove independent environment fog; only diagnostic core-color evidence, not a whole-image parity gate.",
+      "compile_style_log": "build/porting/validate-stellar-geometry-final-2.log",
+      "server_tests_passed": 527,
+      "server_log": "build/porting/tests-stellar-geometry-full-2.log",
+      "limits": "Fixed-stage world captures and bounding checks; colors/whole screenshots are not identical and continuous transition timing is not certified.",
+      "datagen_log": "build/porting/datagen-stellar-geometry-final.log",
+      "generated_changes": 0
+    }
   },
   "stellar_evolution": {
     "source_commit": "a378f98e4d41d0d92f97cf2486ac9da7881b1674",
-    "status": "server_integrated_visual_pending",
+    "status": "server_and_core_world_visuals_ported_remaining_ui_effects",
     "ported": [
       "24 discrete mass tracks (41-64), 21 stellar surface entries plus the brown-dwarf entry, event profiles and coverage resources copied byte-for-byte",
       "Frozen track/profile/metallicity/event snapshots, absolute phase clock, timeline shifts and one-time event bookkeeping",
@@ -602,7 +625,11 @@
       "Idempotent terminal outcomes for all 24 tracks, source 10-block explosion radius and music packet/asset",
       "Build validation before material consumption and auxiliary ring occupancy checks",
       "Separate chunk unload from permanent removal using native preRemoveSideEffects; preserve evolution/wormhole persistent state and cache drops before cleanup",
-      "Special-red-dwarf NBT/UUID preservation and evolution eligibility guard"
+      "Special-red-dwarf NBT/UUID preservation and evolution eligibility guard",
+      "Native evolving surface state/exposure, structural ring radius separated from pulsating body radius, source 0..15 redstone geometry and 0.5-block-per-level beam",
+      "Source convective/radiative wind, independent event core and up to six cube ejecta shells; retained animated block-atlas surfaces",
+      "Expanded bounds include ejecta and smoothing history; remnant transitions do not replay discovery fades",
+      "Shared full-bright tessellator resets flat-quad color so transparent stellar draws cannot hide mechanical rings"
     ],
     "verification": {
       "focused_tests_passed": 8,
@@ -626,9 +653,9 @@
       "explosion_scope": "Real explosion start counted and radius checked; destructive world effects canceled in the test fixture."
     },
     "pending": [
-      "Native evolving geometry/center/ring scale, dynamic surface textures, event geometry and phase UI integration",
-      "World/client evolution transitions and multiplayer validation; packet-driven scheduled music timing beyond direct native start/stop",
-      "Special red dwarf production/normalization and no-amplifier rendering; wider megastructure lifecycle parity"
+      "Phase UI and profile-specific instantaneous supernova flash/rays; further special celestial-body schema/rendering differences",
+      "Continuous evolution transitions, wider head/item contexts, multiplayer timing, resource-pack/Iris and performance/platform coverage",
+      "Special red dwarf production/normalization and no-amplifier rendering; remaining celestial gameplay/lifecycle parity"
     ],
     "known_validation_noise": "PowerGrid.detach exception from AutoEnchantingTests.removal also appears in earlier validate-auto-enchanting-2 and validate-cfa-item-data-2 logs; not introduced by this node."
   }

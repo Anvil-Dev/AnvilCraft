@@ -39,6 +39,7 @@ public class FullBrightNoOpLighter extends BlockModelLighter {
         BakedQuad quad,
         QuadInstance outputInstance
     ) {
+        outputInstance.setColor(-1);
     }
 
     @Override

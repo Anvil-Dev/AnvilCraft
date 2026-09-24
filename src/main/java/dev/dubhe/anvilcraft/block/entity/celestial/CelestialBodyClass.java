@@ -122,4 +122,12 @@ public enum CelestialBodyClass {
     public static CelestialBodyClass fromRgb(int rgb) {
         return CelestialBodyClass.BY_RGB.get(rgb);
     }
+
+    public boolean isStellarSurfaceClass() {
+        return this.stellar && this != WHITE_DWARF && !this.isExtreme();
+    }
+
+    public boolean isRemnant() {
+        return this == WHITE_DWARF || this.isExtreme();
+    }
 }

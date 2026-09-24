@@ -98,12 +98,34 @@ public sealed interface CelestialBodyData permits RockyPlanetData, GiantPlanetDa
         }
     }
 
+    float RING_CENTER_HEIGHT_RATIO = 0.74F;
+
+    static float ringSystemScaleForVisualBodyScale(float bodyScale) {
+        float safeBodyScale = Float.isFinite(bodyScale) ? Math.max(0.01f, bodyScale) : 0.01f;
+        float proportional = safeBodyScale * BODY_SCALE_FACTOR * RING_TO_BODY_RATIO;
+        float inBoneBoost = Math.max(0.0f, INNER_BONE_BOOST_MAX - safeBodyScale * INNER_BONE_BOOST_RATE);
+        return proportional + inBoneBoost;
+    }
+
+    static float ringScaleForRenderedBodyScale(float renderedBodyScale) {
+        float safe = Float.isFinite(renderedBodyScale) ? Math.max(0.01f, renderedBodyScale) : 0.01f;
+        return safe * RING_TO_BODY_RATIO;
+    }
+
+    static float centerYForRingScale(float ringScale, boolean isAmplify) {
+        float safe = Float.isFinite(ringScale) ? Math.max(0.0f, ringScale) : 0.0f;
+        return (isAmplify ? 2.5f : 1.5f) + safe * RING_CENTER_HEIGHT_RATIO;
+    }
+
+    static float centerYForVisualBodyScale(float bodyScale, boolean isAmplify) {
+        return centerYForRingScale(ringSystemScaleForVisualBodyScale(bodyScale), isAmplify);
+    }
+
     /** 计算指定天体的动态中心高度，不包含红石插值。 */
     static float dynamicCenterY(@Nullable CelestialBodyData data, boolean isAmplify) {
         if (data == null) return isAmplify ? 6.5f : 4.5f;
         float ringScale = CelestialBodyData.ringSystemScale(data, isAmplify);
-        float baseHeight = isAmplify ? 2.5f : 1.5f;
-        float height = baseHeight + ringScale * 0.74f;
+        float height = centerYForRingScale(ringScale, isAmplify);
         if (!(data instanceof StarData)) {
             float bodyS = data.bodyScale();
             float planetMinBS = 0.3f;

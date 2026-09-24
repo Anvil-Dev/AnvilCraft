@@ -535,13 +535,24 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity
      * 计算当前红石信号下天体视觉中心的世界 Y 坐标，与渲染器的中心插值保持一致。
      */
     public double getBodyCenterWorldY() {
-        int redstoneSignal = this.getRedstoneSignal();
-        float redstoneFactor = redstoneSignal / 5.0f;
+        float redstoneFactor = this.getRedstoneSignal() / 15.0f;
         float fullCenterY = CelestialBodyData.dynamicCenterY(this.celestialBodyData, this.isAmplify);
+        float visualBodyScale = 0.0f;
+        if (this.celestialBodyData instanceof StarData && this.isAcceleratorActive()) {
+            visualBodyScale = this.getStellarVisualBodyScale(0.0f);
+            if (visualBodyScale > 0.0f) {
+                fullCenterY = CelestialBodyData.centerYForVisualBodyScale(visualBodyScale, this.isAmplify);
+            }
+        }
         float baseCenterY = this.isAmplify ? 6.5f : 4.5f;
         float centerY = baseCenterY + (fullCenterY - baseCenterY) * redstoneFactor;
-        if (this.isAmplify) {
-            centerY += 19.0f * (redstoneSignal / 15.0f);
+        if (visualBodyScale > 0.0f) {
+            float rendered = visualBodyScale
+                + (visualBodyScale * CelestialBodyData.BODY_SCALE_FACTOR - visualBodyScale) * redstoneFactor;
+            centerY = Math.max(centerY, CelestialBodyData.centerYForRingScale(
+                CelestialBodyData.ringScaleForRenderedBodyScale(rendered),
+                this.isAmplify
+            ));
         }
         return this.worldPosition.getY() + centerY;
     }
@@ -554,9 +565,11 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity
         if (this.celestialBodyData == null) return 1.0f;
         float rawBodyScale = this.celestialBodyData.bodyScale();
         if (rawBodyScale <= 1.0e-6f) return 1.0f;
-        float redstoneFactor = this.getRedstoneSignal() / 5.0f;
-        float fullBodyScale = rawBodyScale * CelestialBodyData.BODY_SCALE_FACTOR;
-        float bodyScaleMultiplier = rawBodyScale + (fullBodyScale - rawBodyScale) * redstoneFactor;
+        float redstoneFactor = this.getRedstoneSignal() / 15.0f;
+        float visualBodyScale = this.celestialBodyData instanceof StarData && this.isAcceleratorActive()
+            ? this.getStellarVisualBodyScale(0) : rawBodyScale;
+        float fullBodyScale = visualBodyScale * CelestialBodyData.BODY_SCALE_FACTOR;
+        float bodyScaleMultiplier = visualBodyScale + (fullBodyScale - visualBodyScale) * redstoneFactor;
         return bodyScaleMultiplier / rawBodyScale;
     }
 
@@ -1040,9 +1053,21 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity
         }
     }
 
-    /**
-     * 在客户端检测天体切换并触发对应动画。
-     */
+    /** 恒星连续演化及残骸切换保持已有显示进度。 */
+    private boolean shouldAnimateBodyReplacement(CelestialBodyData oldBody, CelestialBodyData newBody) {
+        if (this.isAcceleratorActive() && oldBody instanceof StarData oldStar && newBody instanceof StarData newStar
+            && oldStar.bodyClass() == newStar.bodyClass()) {
+            return false;
+        }
+        // 演化终点已经在视觉快照中连续收缩；再次播放“从零淡入”会把白矮星
+        // 瞬间重置成隐藏状态，破坏最后一帧与服务端 StarData 尺寸的一致性。
+        if (oldBody instanceof StarData oldStar && newBody instanceof StarData newStar
+            && oldStar.bodyClass().isStellarSurfaceClass() && newStar.bodyClass().isRemnant()) {
+            return false;
+        }
+        return !oldBody.toTag().equals(newBody.toTag());
+    }
+
     private void detectAnimationTransition(@Nullable CelestialBodyData oldBody, @Nullable CelestialBodyData newBody) {
         if (this.level == null || !this.level.isClientSide()) return;
         boolean hadBody = oldBody != null;
@@ -1057,7 +1082,7 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity
             this.animationTicks = CelestialForgingAnvilBlockEntity.ANIMATION_DURATION_TICKS;
             this.animationForward = false;
             this.animationPreviousBodyData = oldBody;
-        } else if (hadBody && !oldBody.toTag().equals(newBody.toTag())) {
+        } else if (hadBody && this.shouldAnimateBodyReplacement(oldBody, newBody)) {
             // 天体类型变化：先缓存旧天体并播放切换动画。
             this.animationTicks = CelestialForgingAnvilBlockEntity.ANIMATION_DURATION_TICKS;
             this.animationForward = true;

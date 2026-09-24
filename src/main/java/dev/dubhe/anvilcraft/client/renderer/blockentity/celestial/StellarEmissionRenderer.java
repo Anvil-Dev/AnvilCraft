@@ -109,7 +109,7 @@ public final class StellarEmissionRenderer {
         return true;
     }
 
-    private static void drawModel(BlockStateModel model, PoseStack pose, SubmitNodeCollector collector, RenderType type, int tint) {
+    static void drawModel(BlockStateModel model, PoseStack pose, SubmitNodeCollector collector, RenderType type, int tint) {
         collector.submitCustomGeometry(pose, type, (matrix, vertices) ->
             BlockStateModelRenderer.INSTANCE.getTessellatorNoLighting().tesselateBlock((x, y, z, quad, instance) -> {
                 instance.setColor(tint);

@@ -192,6 +192,13 @@ public class ModRenderPipelines {
         .withLocation(AnvilCraft.of("pipeline/celestial_atmosphere"))
         .build();
 
+    public static final RenderPipeline STELLAR_ENVELOPE = RenderPipeline.builder(RenderPipelines.BLOCK_SNIPPET)
+        .withColorTargetState(new ColorTargetState(BlendFunction.TRANSLUCENT))
+        .withDepthStencilState(new DepthStencilState(CompareOp.LESS_THAN_OR_EQUAL, false))
+        .withCull(true)
+        .withLocation(AnvilCraft.of("pipeline/stellar_envelope"))
+        .build();
+
     /**
      * 天体环使用方块半透明着色器，只写颜色并保留深度测试。
      * 这样行星主体能够遮挡环的背面部分，同时不会让环本身写入深度。
@@ -237,6 +244,7 @@ public class ModRenderPipelines {
         event.registerPipeline(ModRenderPipelines.PLANET_ATMOSPHERE_INSIDE);
         event.registerPipeline(ModRenderPipelines.STELLAR_SURFACE);
         event.registerPipeline(ModRenderPipelines.STELLAR_CORONA);
+        event.registerPipeline(ModRenderPipelines.STELLAR_ENVELOPE);
         event.registerPipeline(ModRenderPipelines.CELESTIAL_RING);
         event.registerPipeline(ModRenderPipelines.SUPERNOVA_FLASH);
         event.registerPipeline(ModRenderPipelines.GRAVITATIONAL_LENS);
