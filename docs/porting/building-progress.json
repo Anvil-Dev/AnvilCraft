@@ -1012,7 +1012,8 @@
       "cement_fluid_behavior",
       "building_rod_control_hints",
       "scanner_recipe_import",
-      "building_undo_settlement"
+      "building_undo_settlement",
+      "storage_source_update"
     ]
   },
   "mun_foundation": {
@@ -1617,6 +1618,41 @@
       "Server/datagen command passed all tests and generated two language files, then failed on fixture formatting; final client/checkPortJava run validates the repair.",
       "Deficit and refusal cases use native server GameTests; client exercise covers ordinary place/undo.",
       "Other source placement, interaction and optional rendering compatibility changes remain pending."
+    ]
+  },
+  "storage_source_update": {
+    "source_commit": "1260db54f6e2b9f88d0a79b8108459d346344e44",
+    "status": "source_storage_delta_ported_with_native_transactions",
+    "ported": [
+      "Crafted-item hooks, crafting events, recipe criteria and unlocks on successful result paths",
+      "Cross-storage extraction from merged entries with transactional count rollback",
+      "Client/server crafting unlock gate for recipe transfers",
+      "Extension slot-click interception"
+    ],
+    "existing_native_equivalents_verified": [
+      "Shift result pickup already consumes through the shared native operation",
+      "Mirrored inventory slots already recreated at native final positions"
+    ],
+    "verification": {
+      "tests_log": "build/porting/tests-storage-source-update-final.log",
+      "report": "build/porting/storage-source-update-comparison.json",
+      "required_tests_passed": 575,
+      "checks": [
+        "Normal, shift, take-all and thrown crafting results emit one event with original inputs",
+        "Stonecutter recipe unlock without a crafting-grid event",
+        "Merged extraction, rollback and subsequent extraction use live stock",
+        "Locked server transfer preserves grid and inventory",
+        "Actual player sugar crafting statistic increases by six",
+        "Full native storage UI chain, mirrored slots, extension callback and actual JEI transfer buttons"
+      ],
+      "client_log": "build/porting/client-storage-source-update-3.log",
+      "compile_style_log": "build/porting/compile-storage-source-update-final.log"
+    },
+    "limits": [
+      "Two initial client runs were terminated after the locked-button probe changed state without reopening JEI; the final probe follows the reopen flow.",
+      "The JEI locked-state probe sets client availability; actual server authorization is covered independently.",
+      "Server and client behavior checks passed; a separate compile/checkPortJava run verifies the diagnostic-log formatting repair.",
+      "Other source branch features and optional renderer integrations remain pending."
     ]
   }
 }

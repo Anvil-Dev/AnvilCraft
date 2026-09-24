@@ -57,6 +57,15 @@ public final class StorageCraftingTransferTests {
         )));
     }
 
+    static void unlock(StorageFluidRpcTests.Fixture fixture) {
+        fixture.stock(ItemResource.of(Items.CRAFTING_TABLE), 1);
+        fixture.stock(ItemResource.of(Items.STONECUTTER), 1);
+        fixture.authorize();
+        if (!StorageServerStub.craftingUnlock(fixture.playerId(), fixture.core().asLong())) {
+            throw new IllegalStateException("Fixture crafting unlock failed");
+        }
+    }
+
     private static boolean transfer(StorageFluidRpcTests.Fixture fixture, boolean max, List<ItemStack> inputs, int... counts) {
         fixture.authorize();
         return StorageServerStub.craftingTransfer(fixture.playerId(), fixture.core().asLong(), false, max, inputs,
@@ -65,6 +74,7 @@ public final class StorageCraftingTransferTests {
 
     private static void layout(GameTestHelper helper) {
         try (var fixture = new StorageFluidRpcTests.Fixture(helper)) {
+            unlock(fixture);
             final var storage = StorageCraftingExecutionTests.storage(helper, fixture);
             storage.setCrafting(CraftingStorage.EMPTY.withStonecutterInput(new ItemStack(Items.STONE, 3))
                 .withCraftingSlot(8, new ItemStack(Items.STICK, 2)).withAutoFill(true).withToStorage(true).withLastOpened(true));
@@ -85,6 +95,7 @@ public final class StorageCraftingTransferTests {
 
     private static void sets(GameTestHelper helper) {
         try (var fixture = new StorageFluidRpcTests.Fixture(helper)) {
+            unlock(fixture);
             final var storage = StorageCraftingExecutionTests.storage(helper, fixture);
             fixture.stock(ItemResource.of(Items.STICK), 10);
             helper.assertTrue(transfer(fixture, true, List.of(new ItemStack(Items.STICK), new ItemStack(Items.STICK)), 2, 1),
@@ -100,6 +111,7 @@ public final class StorageCraftingTransferTests {
 
     private static void components(GameTestHelper helper) {
         try (var fixture = new StorageFluidRpcTests.Fixture(helper)) {
+            unlock(fixture);
             final var storage = StorageCraftingExecutionTests.storage(helper, fixture);
             var named = new ItemStack(Items.STICK, 3);
             named.set(DataComponents.CUSTOM_NAME, Component.literal("Keep me"));
@@ -118,6 +130,7 @@ public final class StorageCraftingTransferTests {
 
     private static void fluids(GameTestHelper helper) {
         try (var fixture = new StorageFluidRpcTests.Fixture(helper)) {
+            unlock(fixture);
             final var storage = StorageCraftingExecutionTests.storage(helper, fixture);
             final var water = fixture.fluid(FluidResource.of(Fluids.WATER), 1000);
             final var lava = fixture.fluid(FluidResource.of(Fluids.LAVA), 1000);
@@ -140,6 +153,7 @@ public final class StorageCraftingTransferTests {
 
     private static void partialFluid(GameTestHelper helper) {
         try (var fixture = new StorageFluidRpcTests.Fixture(helper)) {
+            unlock(fixture);
             final var water = fixture.fluid(FluidResource.of(Fluids.WATER), 1500);
             fixture.stock(ItemResource.of(Items.BUCKET), 2);
             helper.assertTrue(!transfer(fixture, false,
@@ -153,6 +167,7 @@ public final class StorageCraftingTransferTests {
 
     private static void clearFallback(GameTestHelper helper) {
         try (var fixture = new StorageFluidRpcTests.Fixture(helper)) {
+            unlock(fixture);
             final var storage = StorageCraftingExecutionTests.storage(helper, fixture);
             var handler = (TypeLimitItemStacksResourceHandler) fixture.items();
             fixture.stock(ItemResource.of(Items.DIAMOND), TypeLimitItemStacksResourceHandler.computeCount(
@@ -169,6 +184,7 @@ public final class StorageCraftingTransferTests {
 
     private static void stonecutter(GameTestHelper helper) {
         try (var fixture = new StorageFluidRpcTests.Fixture(helper)) {
+            unlock(fixture);
             final var storage = StorageCraftingExecutionTests.storage(helper, fixture);
             fixture.stock(ItemResource.of(Items.STONE), 70);
             fixture.authorize();
@@ -190,6 +206,7 @@ public final class StorageCraftingTransferTests {
 
     private static void invalid(GameTestHelper helper) {
         try (var fixture = new StorageFluidRpcTests.Fixture(helper)) {
+            unlock(fixture);
             final var storage = StorageCraftingExecutionTests.storage(helper, fixture);
             var state = CraftingStorage.EMPTY.withCraftingSlot(8, new ItemStack(Items.DIAMOND, 3));
             storage.setCrafting(state);

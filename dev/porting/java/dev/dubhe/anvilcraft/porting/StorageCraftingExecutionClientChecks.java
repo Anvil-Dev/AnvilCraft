@@ -7,14 +7,18 @@ import dev.dubhe.anvilcraft.saved.storage.CraftingStorage;
 import dev.dubhe.anvilcraft.saved.storage.Storages;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
+import net.minecraft.stats.Stats;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.crafting.CraftingInput;
+import net.minecraft.world.item.crafting.RecipeType;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 
 import java.util.concurrent.CompletableFuture;
 
 public final class StorageCraftingExecutionClientChecks {
     private static boolean started;
+    private static int craftedBefore;
     private static volatile boolean done;
     private static volatile Throwable failure;
     private static boolean batchesStarted;
@@ -35,6 +39,7 @@ public final class StorageCraftingExecutionClientChecks {
                     var storage = Storages.get().get(core.getId()).orElseThrow();
                     storage.setCrafting(CraftingStorage.EMPTY.withCraftingSlot(8, new ItemStack(Items.HONEY_BOTTLE)).withAutoFill(true));
                     var player = server.getPlayerList().getPlayers().getFirst();
+                    craftedBefore = player.getStats().getValue(Stats.ITEM_CRAFTED.get(Items.SUGAR));
                     player.containerMenu.setCarried(ItemStack.EMPTY);
                     player.getInventory().setItem(15, new ItemStack(Items.HONEY_BOTTLE));
                     player.inventoryMenu.broadcastChanges();
@@ -75,6 +80,16 @@ public final class StorageCraftingExecutionClientChecks {
                             if (items.getResource(i).equals(ItemResource.of(Items.SUGAR))) count += items.getAmountAsLong(i);
                         }
                         if (count != 3) failure = new IllegalStateException("仓储产物数量错误：" + count);
+                        var player = client.getSingleplayerServer().getPlayerList().getPlayers().getFirst();
+                        var recipe = player.level().recipeAccess().getRecipeFor(RecipeType.CRAFTING,
+                            CraftingInput.of(1, 1, java.util.List.of(new ItemStack(Items.HONEY_BOTTLE))), player.level()).orElseThrow();
+                        if (player.getStats().getValue(Stats.ITEM_CRAFTED.get(Items.SUGAR)) != craftedBefore + 6
+                            || !player.getRecipeBook().contains(recipe.id())) {
+                            failure = new IllegalStateException("Actual player crafting statistics or recipe unlock missing");
+                        }
+                        if (failure == null) {
+                            AnvilCraft.LOGGER.info("PORT_STORAGE_CRAFT_AWARDS_CLIENT_PASSED: crafted sugar=6 and recipe unlocked");
+                        }
                         done = true;
                     });
                 }, client);

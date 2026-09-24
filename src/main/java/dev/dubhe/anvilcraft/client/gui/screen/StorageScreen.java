@@ -98,6 +98,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
     private ItemStack craftingResult = ItemStack.EMPTY;
     private boolean craftingMode;
     private boolean craftingLoaded;
+    private boolean craftingAvailable;
     private boolean recipeTransferPending;
     private boolean recipeTransferCompleted;
     private Map<ItemResource, Long> unfilteredContents = Map.of();
@@ -484,7 +485,9 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
             }));
         this.setCraftingMode(this.craftingMode);
         StorageClientStub.craftingAvailable(this.sourcePos).thenCombine(StorageClientStub.craftingGet(this.sourcePos),
-            (available, data) -> data.withLastOpened(available && data.lastOpened())).thenAcceptAsync(data -> {
+            Map::entry).thenAcceptAsync(response -> {
+                this.craftingAvailable = response.getKey();
+                var data = response.getValue().withLastOpened(this.craftingAvailable && response.getValue().lastOpened());
                 this.crafting = data;
                 this.craftingLoaded = true;
                 if (this.recipeTransferCompleted) {
@@ -498,8 +501,13 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
             }, this.screenExecutor);
     }
 
+    @Override
+    protected void slotClicked(@javax.annotation.Nullable Slot slot, int slotId, int mouseButton, ContainerInput input) {
+        // Extensions must not send a second inventory click alongside this screen's own handling.
+    }
+
     public boolean canTransferRecipe() {
-        return this.orderLoaded && this.craftingLoaded && !this.interactionPending && !this.recipeTransferPending;
+        return this.orderLoaded && this.craftingLoaded && this.craftingAvailable && !this.interactionPending && !this.recipeTransferPending;
     }
 
     public Map<ItemResource, Long> getTransferMaterials() {
@@ -652,6 +660,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
                 this.showNotice(Component.translatable("tooltip.anvilcraft.storage.missing_workbench"));
                 return;
             }
+            this.craftingAvailable = true;
             this.flyoutTimer = FLYOUT_TOTAL_TICKS;
             this.setCraftingMode(true);
             StorageClientStub.craftingSetLastOpened(this.sourcePos, true);

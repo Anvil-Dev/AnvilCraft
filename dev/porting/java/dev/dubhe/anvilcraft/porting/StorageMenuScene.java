@@ -88,6 +88,20 @@ public final class StorageMenuScene {
                 require(foregrounds > 0, "容器前景事件缺失，JEI 列表将无法绘制");
                 require(screen.getMenu().getSourcePos().equals(corePos), "扩展菜单必须指向当前仓储");
                 require(client.player.containerMenu == client.player.inventoryMenu, "界面不应替换原版同步容器");
+                try {
+                    var method = StorageScreen.class.getDeclaredMethod("slotClicked", net.minecraft.world.inventory.Slot.class,
+                        int.class, int.class, net.minecraft.world.inventory.ContainerInput.class);
+                    method.setAccessible(true);
+                    method.invoke(screen, screen.getMenu().getSlot(9), 9, 0, net.minecraft.world.inventory.ContainerInput.PICKUP);
+                } catch (ReflectiveOperationException exception) {
+                    throw new IllegalStateException(exception);
+                }
+                advance(11);
+            }
+            case 11 -> {
+                require(client.player.inventoryMenu.getCarried().isEmpty() && client.player.getInventory().getItem(9).getCount() == 3,
+                    "Extension slot callback sent a duplicate vanilla inventory click");
+                AnvilCraft.LOGGER.info("PORT_STORAGE_EXTENSION_CLICK_PASSED");
                 mouse(client, 122, 148);
                 require(screen.getHoveredSlot().index == 9 && screen.getHoveredSlot().getItem().is(Items.STONE), "原版扩展悬停槽错误");
                 screen.keyPressed(new KeyEvent(GLFW.GLFW_KEY_2, 0, 0));

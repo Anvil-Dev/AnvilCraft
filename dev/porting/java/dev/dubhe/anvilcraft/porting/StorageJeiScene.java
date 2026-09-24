@@ -49,6 +49,16 @@ public final class StorageJeiScene {
         }
     }
 
+    private static void setCraftingAvailable(boolean available) {
+        try {
+            var field = StorageScreen.class.getDeclaredField("craftingAvailable");
+            field.setAccessible(true);
+            field.setBoolean(screen, available);
+        } catch (ReflectiveOperationException exception) {
+            throw new IllegalStateException(exception);
+        }
+    }
+
     private static void runFrame(Minecraft client, BlockPos corePos) {
         if (!started) {
             started = true;
@@ -92,6 +102,21 @@ public final class StorageJeiScene {
             }
             case 1 -> {
                 if (!screen.canTransferRecipe()) return;
+                var recipe = manager.createRecipeLookup(RecipeTypes.CRAFTING).get()
+                    .filter(holder -> holder.id().identifier().toString().equals("minecraft:crafting_table")).findFirst().orElseThrow();
+                setCraftingAvailable(false);
+                runtime.getRecipesGui().showRecipes(manager.getRecipeCategory(RecipeTypes.CRAFTING), List.of(recipe), List.of());
+                advance(100);
+            }
+            case 100 -> {
+                require(!buttonActive(client), "Locked crafting must disable the JEI transfer button");
+                setCraftingAvailable(true);
+                client.screen.onClose();
+                AnvilCraft.LOGGER.info("PORT_STORAGE_JEI_LOCKED_PASSED");
+                advance(101);
+            }
+            case 101 -> {
+                if (client.screen != screen || !screen.canTransferRecipe()) return;
                 var recipe = manager.createRecipeLookup(RecipeTypes.CRAFTING).get()
                     .filter(holder -> holder.id().identifier().toString().equals("minecraft:crafting_table")).findFirst().orElseThrow();
                 runtime.getRecipesGui().showRecipes(manager.getRecipeCategory(RecipeTypes.CRAFTING), List.of(recipe), List.of());

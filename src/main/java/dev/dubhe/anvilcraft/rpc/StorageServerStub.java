@@ -56,6 +56,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerLevelAccess;
@@ -75,6 +76,7 @@ import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.common.CommonHooks;
 import net.neoforged.neoforge.common.SoundAction;
 import net.neoforged.neoforge.common.SoundActions;
+import net.neoforged.neoforge.event.EventHooks;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.FluidType;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
@@ -87,6 +89,7 @@ import net.neoforged.neoforge.transfer.item.CarriedSlotWrapper;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
 import net.neoforged.neoforge.transfer.item.PlayerInventoryWrapper;
+import net.neoforged.neoforge.transfer.transaction.SnapshotJournal;
 import net.neoforged.neoforge.transfer.transaction.Transaction;
 import org.jspecify.annotations.Nullable;
 
@@ -569,7 +572,8 @@ public final class StorageServerStub {
     }
 
     private record CraftOperation(
-        Identifier recipeId, ItemStack result, CraftingStorage next, List<ItemStack> remainders, boolean consumed
+        Identifier recipeId, ItemStack result, CraftingStorage next, List<ItemStack> remainders, boolean consumed,
+        RecipeHolder<?> recipe, List<ItemStack> inputs
     ) {
     }
 
@@ -618,7 +622,8 @@ public final class StorageServerStub {
             if (lockedId != null && !lockedId.equals(recipeId)) return null;
             ItemStack result = choices.get(selected).value().assemble(new SingleRecipeInput(input));
             return new CraftOperation(recipeId, result,
-                crafting.withStonecutterInput(input.copyWithCount(input.getCount() - 1)), List.of(), true);
+                crafting.withStonecutterInput(input.copyWithCount(input.getCount() - 1)), List.of(), true,
+                choices.get(selected), List.of(input.copy()));
         }
         var positioned = CraftingInput.ofPositioned(3, 3, crafting.craftingInput());
         var input = positioned.input();
@@ -662,10 +667,18 @@ public final class StorageServerStub {
                 consumed |= !ItemStack.isSameItemSameComponents(current, next) || current.getCount() != next.getCount();
             }
         }
-        return new CraftOperation(holder.id().identifier(), result, crafting.withCraftingInput(grid), overflow, consumed);
+        return new CraftOperation(holder.id().identifier(), result, crafting.withCraftingInput(grid), overflow, consumed,
+            holder, crafting.craftingInput().stream().map(ItemStack::copy).toList());
     }
 
     private static void applyCraftOperation(CraftingTarget target, CraftOperation operation, boolean storageFirst) {
+        ServerPlayer player = target.player();
+        operation.result.onCraftedBy(player, operation.result.getCount());
+        if (operation.recipe.value() instanceof CraftingRecipe) {
+            EventHooks.firePlayerCraftingEvent(player, operation.result, new SimpleContainer(operation.inputs.toArray(ItemStack[]::new)));
+        }
+        player.triggerRecipeCrafted(operation.recipe, operation.inputs);
+        if (!operation.recipe.value().isSpecial()) player.awardRecipes(List.of(operation.recipe));
         if (operation.consumed) target.write(operation.next);
         for (ItemStack remainder : operation.remainders) {
             StorageServerStub.returnCraftingStack(target, remainder, storageFirst);
@@ -927,6 +940,7 @@ public final class StorageServerStub {
     ) {
         ServerPlayer player = getServerPlayer(playerId);
         final CraftingTarget target = resolveCraftingTarget(player, sourcePos);
+        if (!target.view.primary().isCraftingUnlocked()) return false;
         if (inputs.isEmpty() || inputs.size() > CraftingStorage.CRAFTING_GRID_SIZE
             || requestedCounts.size() > CraftingStorage.CRAFTING_GRID_SIZE) return false;
         int rounds = 0;
@@ -2734,7 +2748,7 @@ public final class StorageServerStub {
                     ItemResource resource = items.getResource(slot);
                     Entry entry = merged.get(resource);
                     if (entry == null) {
-                        entry = new Entry(resource, 0, storageIndex, slot);
+                        entry = new Entry(resource, 0);
                         merged.put(resource, entry);
                         this.entries.add(entry);
                     }
@@ -2830,21 +2844,32 @@ public final class StorageServerStub {
         }
 
         int extract(int index, ItemResource resource, int amount, Transaction tx) {
-            Entry e = this.entries.get(index);
-            return this.storages.get(e.storageIndex).getItems().extract(e.slot, resource, amount, tx);
+            if (amount <= 0) return 0;
+            Entry entry = this.entries.get(index);
+            if (!entry.resource.equals(resource)) return 0;
+            int extracted = this.extractByResource(resource, amount, tx);
+            entry.updateSnapshots(tx);
+            entry.amount = Math.max(0, entry.amount - extracted);
+            return extracted;
         }
 
-        private static final class Entry {
+        private static final class Entry extends SnapshotJournal<Long> {
             final ItemResource resource;
             long amount;
-            final int storageIndex;
-            final int slot;
 
-            Entry(ItemResource resource, long amount, int storageIndex, int slot) {
+            Entry(ItemResource resource, long amount) {
                 this.resource = resource;
                 this.amount = amount;
-                this.storageIndex = storageIndex;
-                this.slot = slot;
+            }
+
+            @Override
+            protected Long createSnapshot() {
+                return this.amount;
+            }
+
+            @Override
+            protected void revertToSnapshot(Long snapshot) {
+                this.amount = snapshot;
             }
         }
     }
