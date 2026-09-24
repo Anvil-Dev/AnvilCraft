@@ -22,7 +22,9 @@ import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
+import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.RenderShape;
+import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -102,6 +104,22 @@ public class SmartBlockPlacerBlock extends BetterBaseEntityBlock implements IHam
             .setValue(UPSIDE_DOWN, upsideDown)
             .setValue(POWERED, level.hasNeighborSignal(context.getClickedPos()))
             .setValue(OVERLOAD, true);
+    }
+
+    @Override
+    protected BlockState rotate(BlockState state, Rotation rotation) {
+        return state.setValue(
+            HorizontalDirectionalBlock.FACING,
+            rotation.rotate(state.getValue(HorizontalDirectionalBlock.FACING))
+        );
+    }
+
+    @Override
+    protected BlockState mirror(BlockState state, Mirror mirror) {
+        return state.setValue(
+            HorizontalDirectionalBlock.FACING,
+            mirror.mirror(state.getValue(HorizontalDirectionalBlock.FACING))
+        );
     }
 
     @Override

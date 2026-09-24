@@ -7,7 +7,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * 过筛台：在台面上放置原料，铁坷砸落时执行过筛配方。
+ * 过筛台：在台面上放置原料，铁砧砸落时执行过筛配方。
  */
 public class SiftingTableBlock extends ProcessingTableBlock {
     public SiftingTableBlock(Properties properties) {

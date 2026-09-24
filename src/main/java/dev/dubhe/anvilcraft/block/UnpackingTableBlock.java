@@ -7,7 +7,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * 拆包台：在台面上放置原料，铁坷砸落时执行拆包配方。
+ * 拆包台：在台面上放置原料，铁砧砸落时执行拆包配方。
  */
 public class UnpackingTableBlock extends ProcessingTableBlock {
     public UnpackingTableBlock(Properties properties) {

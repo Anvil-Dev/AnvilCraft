@@ -6,6 +6,8 @@ import net.minecraft.core.Direction;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Mirror;
+import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.phys.shapes.CollisionContext;
@@ -141,5 +143,31 @@ public class PipeCornerBlock extends PipeBlock {
         if (newState != state) {
             setBlockPreservingValve(level, pos, state, newState);
         }
+    }
+
+    @Override
+    protected BlockState rotate(BlockState state, Rotation rotation) {
+        CornerEnded corner = state.getValue(CORNER_ENDED);
+        Direction first = rotation.rotate(corner.getFirstDirection());
+        Direction second = rotation.rotate(corner.getSecondDirection());
+        corner = CornerEnded.fromDirections(first, second);
+        if (corner.getFirstDirection() != first) state = swapEnds(state);
+        return state.setValue(CORNER_ENDED, corner);
+    }
+
+    @Override
+    protected BlockState mirror(BlockState state, Mirror mirror) {
+        CornerEnded corner = state.getValue(CORNER_ENDED);
+        Direction first = mirror.mirror(corner.getFirstDirection());
+        Direction second = mirror.mirror(corner.getSecondDirection());
+        corner = CornerEnded.fromDirections(first, second);
+        if (corner.getFirstDirection() != first) state = swapEnds(state);
+        return state.setValue(CORNER_ENDED, corner);
+    }
+
+    private static BlockState swapEnds(BlockState state) {
+        return state
+            .setValue(HAS_END_START, state.getValue(HAS_END_END))
+            .setValue(HAS_END_END, state.getValue(HAS_END_START));
     }
 }
