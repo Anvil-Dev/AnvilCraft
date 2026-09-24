@@ -6,7 +6,7 @@ allprojects {
     }
     tasks.register('checkPortJava', Checkstyle) {
         source = fileTree('src/main/java') {
-            include '**/*BigRedButton*.java', '**/*RedstoneDice*.java'
+            include '**/*BigRedButton*.java', '**/*RedstoneDice*.java', '**/BuildingRodLang.java'
             include '**/client/selection/*.java', '**/mixin/client/*SelectionMixin.java', '**/mixin/client/CubeHighlightEventsMixin.java'
             include '**/PowerProducerRenderer.java', '**/AdvancedComparatorRenderer.java', '**/HeliostatsRenderer.java'
             include '**/ControlValveBlockEntityRenderer.java', '**/PipeCheckValveBERenderer.java', '**/PumpBlockEntityRenderer.java'

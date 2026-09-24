@@ -1009,7 +1009,8 @@
       "Dependency and translations/resource changes"
     ],
     "completed_nodes": [
-      "cement_fluid_behavior"
+      "cement_fluid_behavior",
+      "building_rod_control_hints"
     ]
   },
   "mun_foundation": {
@@ -1531,6 +1532,27 @@
     },
     "limits": [
       "No assets changed; client visual comparison is outside this behavior-only node."
+    ]
+  },
+  "building_rod_control_hints": {
+    "source_commit": "1260db54f6e2b9f88d0a79b8108459d346344e44",
+    "status": "source_control_text_ported",
+    "ported": [
+      "Source 659c178ff control hint changes and removal of unused English controls entry",
+      "Current Chinese bound-key substitutions and multiline HUD hints"
+    ],
+    "verification": {
+      "validation_log": "build/porting/validate-building-hints-final.log",
+      "report": "build/porting/building-hints-comparison.json",
+      "source_screen_keys_equal": {
+        "en_us": 18,
+        "en_ud": 18,
+        "zh_cn": 19
+      }
+    },
+    "limits": [
+      "No new in-game HUD capture for this text-only node.",
+      "New undo/refund messages remain coupled to the pending resource-accounting port."
     ]
   }
 }
