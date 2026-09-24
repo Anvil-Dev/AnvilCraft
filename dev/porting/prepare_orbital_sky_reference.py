@@ -1,6 +1,7 @@
 """Install the orbital sky fixture without changing source-branch production rendering."""
 from pathlib import Path
 import runpy
+import sys
 
 root = Path(__file__).resolve().parents[2]
 runpy.run_path(str(root / "dev/porting/prepare_cfa_item_reference.py"), run_name="__main__")
@@ -11,7 +12,7 @@ scene = scene.replace("import net.minecraft.world.entity.Relative;\n", "").repla
 scene = scene.replace(", Set.<Relative>of()", "").replace(", -35, false);", ", -35);")
 scene = scene.replace(".setTimeFromServer(", ".setGameTime(").replace(".getOverworldClockTime()", ".getDayTime()")
 scene = scene.replace("client.getMainRenderTarget(), 1,", "client.getMainRenderTarget(),")
-scene = scene.replace("orbital-sky-26.1-", "orbital-sky-1.21-")
+scene = scene.replace("orbital-sky-26.1-", "orbital-sky-1.21-").replace("void-sky-26.1-", "void-sky-1.21-")
 start = scene.index("        client.level.clockManager()")
 end = scene.index("        OverworldLikeClientState.update", start)
 scene = scene[:start] + "        client.level.setDayTime(6000);\n" + scene[end:]
@@ -23,4 +24,7 @@ p.write_bytes(s.replace("\n", "\r\n").encode())
 p = reference / "build.gradle"
 s = p.read_text(encoding="utf8")
 s += "\nneoForge.runs.client { systemProperty 'anvilcraft.portOrbitalSkyScene', 'true' }\n"
+p.write_bytes(s.replace("\n", "\r\n").encode())
+
+s += "\nneoForge.runs.client { systemProperty 'anvilcraft.portVoidPlanetScene', '" + str("--void" in sys.argv).lower() + "' }\n"
 p.write_bytes(s.replace("\n", "\r\n").encode())

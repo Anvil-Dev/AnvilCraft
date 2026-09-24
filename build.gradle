@@ -180,6 +180,7 @@ if (providers.gradleProperty('portValidation').isPresent()) {
     }
     if (providers.gradleProperty('portCfaItemScene').isPresent() || providers.gradleProperty('portStellarScene').isPresent()
         || providers.gradleProperty('portCfaMusicScene').isPresent() || providers.gradleProperty('portStellarEvolutionScene').isPresent() || providers.gradleProperty('portStellarUiScene').isPresent() || providers.gradleProperty('portCfaPreviewScene').isPresent() || providers.gradleProperty('portCfaMapScene').isPresent() || providers.gradleProperty('portDysonScene').isPresent() || providers.gradleProperty('portSpecialCelestialScene').isPresent() || providers.gradleProperty('portSpecialWorldScene').isPresent() || providers.gradleProperty('portGatewayUiScene').isPresent() || providers.gradleProperty('portGatewayWorldScene').isPresent() || providers.gradleProperty('portGatewayItemScene').isPresent() || providers.gradleProperty('portCelestialTravelScene').isPresent() || providers.gradleProperty('portOverworldResetScene').isPresent() || providers.gradleProperty('portOrbitalSkyScene').isPresent()) {
+        neoForge.runs.client.systemProperty 'anvilcraft.portVoidPlanetScene', providers.gradleProperty('portVoidPlanetScene').isPresent().toString()
         if (providers.gradleProperty('portOrbitalSkyScene').isPresent()) {
             neoForge.runs.client.systemProperty 'anvilcraft.portOrbitalSkyScene', 'true'
         }

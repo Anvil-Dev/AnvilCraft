@@ -884,7 +884,7 @@
     },
     "required_followups": [
       "Overworld-like reset entry gating and builtin dimension are now supplied by overworld_like_reset.",
-      "Port Mun and Void Planet dimensions and content.",
+      "Port Mun dimensions and content; builtin Void Planet is supplied by void_planet.",
       "Integrate remaining component-based laser shutdown behavior with the upcoming laser subsystem port."
     ],
     "limits": [
@@ -955,6 +955,36 @@
       "Preserves native 26.1 sky/fog and resulting color rounding; reload has a small source sub-tick edge difference.",
       "Silhouette comparison excludes the lower fog fade; rotated camera looks away from both rings in both versions.",
       "Void dimension activation, water/lava views, multiplayer and shader-pack integration remain separate validation work."
+    ]
+  },
+  "void_planet": {
+    "source_commit": "a378f98e4d41d0d92f97cf2486ac9da7881b1674",
+    "status": "builtin_dimension_recipe_physics_travel_and_orbital_sky_ported",
+    "ported": [
+      "Barrier seed with zero anvil counts discovers the non-shatterable gateway planet",
+      "Source flat void generator and native dimension-type migration with fixed-time rules",
+      "Zero gravity, zero drag and vacuum breathing in the production dimension",
+      "Same-3D entry with source safe-landing fallback and linked return gate",
+      "End sky with source orbital rings, independent of overworld collapse/eclipse state"
+    ],
+    "verification": {
+      "full_tests": 552,
+      "full_log": "build/porting/tests-void-final.log",
+      "source_travel_log": "build/porting/client-void-travel-source-final.log",
+      "target_travel_log": "build/porting/client-void-travel-target-final.log",
+      "source_sky_log": "build/porting/client-void-sky-source-1.log",
+      "target_sky_log": "build/porting/client-void-sky-target-1.log",
+      "sky_pairs": 7,
+      "datagen_log": "build/porting/datagen-void-final.log",
+      "compile_log": "build/porting/compile-void-final.log",
+      "report": "build/porting/void-planet-comparison.json",
+      "max_sky_mean_rgb_difference": 0.12626519097222222,
+      "minimum_silhouette_iou": 0.9987057624097239
+    },
+    "limits": [
+      "Native 26.1 End sky and terrain rendering are retained.",
+      "Actual multiplayer, third-party shader packs and broader resource packs remain unverified.",
+      "Ruins editor/blocks and Mun are separate remaining feature nodes."
     ]
   }
 }

@@ -27,16 +27,18 @@ public final class OrbitalSkyRenderProbe {
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void verify(ExtractLevelRenderStateEvent event) throws ReflectiveOperationException {
-        if (!Boolean.getBoolean("anvilcraft.portOrbitalSkyScene") || !OverworldLikeClientState.isInitialized()) return;
-        if (!CelestialTravelManager.isOverworldLike(event.getLevel().dimension())) return;
+        if (!Boolean.getBoolean("anvilcraft.portOrbitalSkyScene")) return;
+        boolean overworld = CelestialTravelManager.isOverworldLike(event.getLevel().dimension());
+        if (!overworld && !CelestialTravelManager.VOID_PLANET_LEVEL.equals(event.getLevel().dimension())) return;
+        if (overworld && !OverworldLikeClientState.isInitialized()) return;
         var field = OverworldLikeOrbitalSkyRenderer.class.getDeclaredField("FRAME");
         field.setAccessible(true);
         var frame = event.getRenderState().getRenderData((ContextKey<?>) field.get(null));
         boolean visible = AnvilCraftClient.CONFIG.renderOverworldLikeSky
-            && OverworldLikeClientState.phase() != OverworldLikeWorldState.Phase.RESET_PENDING;
+            && (!overworld || OverworldLikeClientState.phase() != OverworldLikeWorldState.Phase.RESET_PENDING);
         if ((frame != null) != visible) throw new IllegalStateException("Orbital visibility state leaked");
         float partial = event.getDeltaTracker().getGameTimeDeltaPartialTick(Minecraft.getInstance().isPaused());
-        float multiplier = OverworldLikeClientState.environmentColorMultiplier(event.getLevel());
+        float multiplier = overworld ? OverworldLikeClientState.environmentColorMultiplier(event.getLevel()) : 1;
         if (!lightingChecked && multiplier < 0.5F) {
             var client = Minecraft.getInstance();
             var extractor = new LightmapRenderStateExtractor(client.gameRenderer, client);
@@ -57,13 +59,14 @@ public final class OrbitalSkyRenderProbe {
         }
         int sky = event.getCamera().attributeProbe().getValue(EnvironmentAttributes.SKY_COLOR, partial);
         int cloud = event.getCamera().attributeProbe().getValue(EnvironmentAttributes.CLOUD_COLOR, partial);
-        if (event.getRenderState().skyRenderState.skyColor != ARGB.scaleRGB(sky, multiplier)
+        if ((overworld && event.getRenderState().skyRenderState.skyColor != ARGB.scaleRGB(sky, multiplier))
             || event.getRenderState().cloudColor != ARGB.scaleRGB(cloud, multiplier)) {
             throw new IllegalStateException("Eclipse sky/cloud color not extracted");
         }
         if (frame != null) {
             var pose = OverworldLikeOrbitMath.ringPose(4, event.getLevel().getGameTime(), partial,
-                OverworldLikeClientState.orbitEpochGameTime(), OverworldLikeClientState.visualSeed());
+                overworld ? OverworldLikeClientState.orbitEpochGameTime() : 0,
+                overworld ? OverworldLikeClientState.visualSeed() : 0);
             double[] expected = {pose.outerRotation(), pose.middleRotation(), pose.innerRotation()};
             String[] names = {"outer", "middle", "inner"};
             for (int i = 0; i < names.length; i++) {

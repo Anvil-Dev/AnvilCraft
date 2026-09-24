@@ -17,9 +17,11 @@ import net.minecraft.world.phys.Vec3;
 import java.util.Set;
 
 public final class CelestialTravelClientScene {
+    private static final boolean BUILTIN = Boolean.getBoolean("anvilcraft.portVoidPlanetScene");
     private static final BlockPos CENTER = new BlockPos(8, 80, 8);
-    private static final BlockPos DESTINATION = new BlockPos(160, 100, 160);
-    private static final ResourceKey<Level> VOID = ResourceKey.create(Registries.DIMENSION, AnvilCraft.of("port_travel_void"));
+    private static BlockPos destination = BUILTIN ? CENTER.north(2) : new BlockPos(160, 100, 160);
+    private static final ResourceKey<Level> VOID = ResourceKey.create(
+        Registries.DIMENSION, AnvilCraft.of(BUILTIN ? "void_planet" : "port_travel_void"));
     private static boolean requested;
     private static volatile boolean ready;
     private static volatile RuntimeException failure;
@@ -27,11 +29,18 @@ public final class CelestialTravelClientScene {
     private static int stage;
     private static long next;
     private static long deadline;
+    private static long lastStatus;
+    private static volatile Vec3 actualArrival;
 
     public static void frame(Minecraft client) {
         if (deadline == 0) deadline = System.currentTimeMillis() + 240000;
         if (System.currentTimeMillis() > deadline) throw new IllegalStateException("Player travel timed out at " + stage);
         if (failure != null) throw failure;
+        if (System.currentTimeMillis() - lastStatus > 5000) {
+            lastStatus = System.currentTimeMillis();
+            AnvilCraft.LOGGER.info("PORT_TRAVEL_STATUS: stage={}, ready={}, dimension={}, position={}",
+                stage, ready, client.level.dimension(), client.player.position());
+        }
         client.options.pauseOnLostFocus = false;
         client.options.hideGui = true;
         client.options.fov().set(70);
@@ -47,7 +56,15 @@ public final class CelestialTravelClientScene {
                         level.setBlock(CENTER.offset(x, -1, z), Blocks.STONE.defaultBlockState(), Block.UPDATE_CLIENTS);
                     }
                 }
-                CelestialTravelTests.machine(level, CENTER, CelestialTravelTests.travel(VOID, DESTINATION));
+                var match = BUILTIN ? dev.dubhe.anvilcraft.block.entity.celestial.CelestialSeedMatcher.match(
+                    level, 0, 0, 0, 0, net.minecraft.world.item.Items.BARRIER) : null;
+                if (BUILTIN && match == null) throw new IllegalStateException("Builtin barrier recipe missing");
+                var portal = CelestialTravelTests.machine(level, CENTER,
+                    BUILTIN ? match.body().landing() : CelestialTravelTests.travel(VOID, destination));
+                if (BUILTIN) {
+                    portal.findParentCfa().setCelestialBodyData(match.body());
+                    portal.findParentCfa().syncToClient();
+                }
                 var player = server.getPlayerList().getPlayers().getFirst();
                 player.setNoGravity(true);
                 player.getAbilities().flying = true;
@@ -70,7 +87,13 @@ public final class CelestialTravelClientScene {
             }
             case 1 -> {
                 if (!client.level.dimension().equals(VOID)) return;
-                if (client.player.position().distanceTo(Vec3.atBottomCenterOf(DESTINATION.north())) > 0.1) {
+                if (BUILTIN && actualArrival == null) {
+                    server(client, () -> actualArrival = client.getSingleplayerServer().getPlayerList().getPlayers()
+                        .getFirst().position());
+                    return;
+                }
+                if (BUILTIN && client.player.position().distanceTo(actualArrival) > 0.1) return;
+                if (!BUILTIN && client.player.position().distanceTo(Vec3.atBottomCenterOf(destination.north())) > 0.1) {
                     return;
                 }
                 AnvilCraft.LOGGER.info("PORT_TRAVEL_PLAYER_OUTBOUND: dimension={}, position={}",
@@ -78,12 +101,26 @@ public final class CelestialTravelClientScene {
                 stage = 2;
                 server(client, () -> {
                     var player = client.getSingleplayerServer().getPlayerList().getPlayers().getFirst();
-                    var gate = player.level().getBlockEntity(DESTINATION.above());
+                    if (BUILTIN) {
+                        boolean found = false;
+                        for (BlockPos pos : BlockPos.betweenClosed(player.blockPosition().offset(-8, -4, -8),
+                            player.blockPosition().offset(8, 4, 8))) {
+                            if (player.level().getBlockEntity(pos) instanceof CelestialBackGateBlockEntity returning
+                                && CENTER.north(2).equals(returning.getReturnPortalPos())) {
+                                destination = pos.below().immutable();
+                                found = true;
+                                break;
+                            }
+                        }
+                        if (!found) throw new IllegalStateException("Builtin landing did not create a nearby return gate");
+                    }
+                    var gate = player.level().getBlockEntity(destination.above());
                     if (!(gate instanceof CelestialBackGateBlockEntity returning)
                         || !CENTER.north(2).equals(returning.getReturnPortalPos())) {
                         throw new IllegalStateException("Player landing did not create a linked return gate");
                     }
-                    player.teleportTo(player.level(), 160.5, 100, 156.5, Set.<Relative>of(), 0, 0, false);
+                    player.teleportTo(player.level(), destination.getX() + 0.5, destination.getY(), destination.getZ() - 3.5,
+                        Set.<Relative>of(), 0, 0, false);
                     player.setDeltaMovement(Vec3.ZERO);
                 });
                 next = System.currentTimeMillis() + 1500;
@@ -92,7 +129,8 @@ public final class CelestialTravelClientScene {
             case 3 -> server(client, () -> {
                 var player = client.getSingleplayerServer().getPlayerList().getPlayers().getFirst();
                 if (player.isOnPortalCooldown()) return;
-                player.teleportTo(player.level(), 160.5, 100, 160.5, Set.<Relative>of(), 180, 0, false);
+                player.teleportTo(player.level(), destination.getX() + 0.5, destination.getY(), destination.getZ() + 0.5,
+                    Set.<Relative>of(), 180, 0, false);
                 player.setDeltaMovement(Vec3.ZERO);
                 stage = 4;
             });
@@ -135,7 +173,8 @@ public final class CelestialTravelClientScene {
 
     private static void capture(Minecraft client, String name, int nextStage) {
         capturing = true;
-        Screenshot.grab(client.gameDirectory, "celestial-travel-26.1-" + name + ".png", client.getMainRenderTarget(), 1,
+        Screenshot.grab(client.gameDirectory, (BUILTIN ? "void-travel-26.1-" : "celestial-travel-26.1-") + name + ".png",
+            client.getMainRenderTarget(), 1,
             message -> client.execute(() -> {
                 capturing = false;
                 stage = nextStage;

@@ -16,6 +16,9 @@ import java.util.Set;
 /** Fixed world-space sky views, with source-identical time and synchronized generation state. */
 @net.neoforged.fml.common.EventBusSubscriber(modid = AnvilCraft.MOD_ID, value = net.neoforged.api.distmarker.Dist.CLIENT)
 public final class OrbitalSkyClientScene {
+    private static final boolean VOID = Boolean.getBoolean("anvilcraft.portVoidPlanetScene");
+    private static final net.minecraft.resources.ResourceKey<net.minecraft.world.level.Level> DIMENSION = VOID
+        ? CelestialTravelManager.VOID_PLANET_LEVEL : CelestialTravelManager.OVERWORLD_LIKE_LEVEL;
     private static boolean requested;
     private static volatile boolean ready;
     private static volatile RuntimeException failure;
@@ -43,7 +46,7 @@ public final class OrbitalSkyClientScene {
             client.getSingleplayerServer().execute(() -> {
                 try {
                     var server = client.getSingleplayerServer();
-                    final var level = server.getLevel(CelestialTravelManager.OVERWORLD_LIKE_LEVEL);
+                    final var level = server.getLevel(DIMENSION);
                     var player = server.getPlayerList().getPlayers().getFirst();
                     player.setNoGravity(true);
                     player.getAbilities().flying = true;
@@ -61,7 +64,7 @@ public final class OrbitalSkyClientScene {
             next = System.currentTimeMillis() + 5000;
             return;
         }
-        if (!ready || !CelestialTravelManager.isOverworldLike(client.level.dimension())) return;
+        if (!ready || !DIMENSION.equals(client.level.dimension())) return;
         if (index == CASES.length) {
             AnvilCraftClient.CONFIG.renderOverworldLikeSky = true;
             AnvilCraft.LOGGER.info("PORT_ORBITAL_SKY_PASSED: seven views and resource reload");
@@ -81,7 +84,8 @@ public final class OrbitalSkyClientScene {
         capturing = true;
         AnvilCraft.LOGGER.info("PORT_ORBITAL_SAMPLE: {}, gameTime={}, dayTime={}, eclipse={}", CASES[index],
             client.level.getGameTime(), client.level.getOverworldClockTime(), OverworldLikeClientState.eclipseFactor(client.level));
-        Screenshot.grab(client.gameDirectory, "orbital-sky-26.1-" + CASES[index] + ".png", client.getMainRenderTarget(), 1,
+        Screenshot.grab(client.gameDirectory, (VOID ? "void-sky-26.1-" : "orbital-sky-26.1-") + CASES[index] + ".png",
+            client.getMainRenderTarget(), 1,
             message -> client.execute(() -> {
                 capturing = false;
                 index++;
