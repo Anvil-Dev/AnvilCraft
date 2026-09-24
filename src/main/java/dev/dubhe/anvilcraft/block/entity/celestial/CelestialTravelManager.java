@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.block.entity.celestial;
 import dev.dubhe.anvilcraft.block.CelestialBackGateBlock;
 import dev.dubhe.anvilcraft.block.entity.CelestialBackGateBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
+import dev.dubhe.anvilcraft.worldgen.OverworldLikeResetManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.Registries;
@@ -99,7 +100,7 @@ public final class CelestialTravelManager {
     ) {
         if (entity.isOnPortalCooldown()) return false;
         ResourceKey<Level> destinationKey = ResourceKey.create(Registries.DIMENSION, travel.dimension());
-        ServerLevel destination = sourceLevel.getServer().getLevel(destinationKey);
+        ServerLevel destination = OverworldLikeResetManager.getEntryDestination(sourceLevel.getServer(), destinationKey);
         if (destination == null) return false;
 
         BlockPos desired = landingOrigin(entity, destination, travel.coordinateRule());

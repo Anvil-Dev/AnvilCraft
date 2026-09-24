@@ -883,14 +883,43 @@
       "datagen_log": "build/porting/datagen-travel-final.log"
     },
     "required_followups": [
-      "Before enabling builtin overworld_like, replace direct destination lookup with collapse/reset entry gating and generation requests.",
-      "Port builtin dimension definitions, derived seed/generation manifests, reset lifecycle, Mun and Void Planet content.",
+      "Overworld-like reset entry gating and builtin dimension are now supplied by overworld_like_reset.",
+      "Port Mun and Void Planet dimensions and content.",
       "Integrate remaining component-based laser shutdown behavior with the upcoming laser subsystem port."
     ],
     "limits": [
       "Development void dimensions are test-only and excluded from release builds.",
       "Source reference shutdown stalled after the successful round trip; native target saved and exited normally.",
       "Back-gate geometry/resources verified; independent texture animation phases and native environment differences retained."
+    ]
+  },
+  "overworld_like_reset": {
+    "source_commit": "a378f98e4d41d0d92f97cf2486ac9da7881b1674",
+    "status": "generation_collapse_reset_entry_lifecycle_ported_sky_rendering_pending",
+    "ported": [
+      "Builtin overworld-like dimension with independent native seed override and vanilla biome generation",
+      "Per-save atomic reset manifest, pending startup cleanup and generation replacement on entry",
+      "Gamma excavator collapse, unavoidable damage, shared-spawn return and persisted offline player queue",
+      "Generation-aware wormhole invalidation and legacy state/network file migration",
+      "Native border listener replacement and synchronized white collapse overlay"
+    ],
+    "verification": {
+      "focused_tests": 7,
+      "full_tests": 549,
+      "full_log": "build/porting/tests-overworld-reset-full-2.log",
+      "client_log": "build/porting/client-overworld-reset-final.log",
+      "client_save_exit": "passed",
+      "orbital_source_samples": 120,
+      "orbital_outputs_per_sample": 5,
+      "orbital_tolerance": 1e-06,
+      "compile_log": "build/porting/compile-overworld-reset-final.log",
+      "datagen_style_log": "build/porting/datagen-overworld-reset-final.log"
+    },
+    "limits": [
+      "Offline UUID persistence is tested, actual disconnect/reconnect is pending.",
+      "Startup storage recovery is isolated-test verified; full interrupted-server restart remains pending.",
+      "Orbital sky rendering and client environmental eclipse tint remain pending; vanilla 26.1 terrain rendering is retained.",
+      "No explicit injected third-party biome/structure integration test yet."
     ]
   }
 }

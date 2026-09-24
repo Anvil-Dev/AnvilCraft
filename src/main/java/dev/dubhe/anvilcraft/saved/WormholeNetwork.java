@@ -3,7 +3,9 @@ package dev.dubhe.anvilcraft.saved;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.block.entity.celestial.CelestialTravelManager;
 import dev.dubhe.anvilcraft.block.state.Cube323PartHalf;
+import dev.dubhe.anvilcraft.worldgen.OverworldLikeGenerationBootstrap;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import net.minecraft.core.BlockPos;
@@ -14,8 +16,10 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.saveddata.SavedDataType;
+import net.neoforged.neoforge.server.ServerLifecycleHooks;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -50,10 +54,31 @@ public class WormholeNetwork extends BetterSavedData {
 
     public static final SavedDataType<WormholeNetwork> TYPE = new SavedDataType<>(
         AnvilCraft.of("wormhole_network"),
-        WormholeNetwork::new,
-        WormholeNetwork.CODEC,
+        WormholeNetwork::loadLegacy,
+        ignored -> WormholeNetwork.CODEC,
         null
     );
+
+    private static WormholeNetwork loadLegacy(@Nullable ServerLevel level) {
+        if (level == null) return new WormholeNetwork();
+        var file = level.getServer().getWorldPath(net.minecraft.world.level.storage.LevelResource.ROOT)
+            .resolve("data/anvilcraft_wormhole_network.dat");
+        return loadLegacyFile(file);
+    }
+
+    private static WormholeNetwork loadLegacyFile(java.nio.file.Path file) {
+        WormholeNetwork network = new WormholeNetwork();
+        try {
+            if (java.nio.file.Files.exists(file)) {
+                network.readFromTag(net.minecraft.nbt.NbtIo.readCompressed(file, net.minecraft.nbt.NbtAccounter.unlimitedHeap())
+                    .getCompoundOrEmpty("data"));
+                network.setDirty();
+            }
+            return network;
+        } catch (java.io.IOException exception) {
+            throw new IllegalStateException("Unable to migrate the legacy wormhole network", exception);
+        }
+    }
 
     /** 虫洞网络中的单个锻星砧条目。 */
     public record Entry(ResourceKey<Level> dimension, BlockPos pos, Set<Cube323PartHalf> portalSides) {
@@ -113,10 +138,27 @@ public class WormholeNetwork extends BetterSavedData {
     /** 维度和位置到天体标识的反向索引，用于常数时间注销。 */
     private final Map<ResourceKey<Level>, Map<BlockPos, UUID>> reverseIndex = new HashMap<>();
 
+    private int overworldLikeGeneration = -1;
+
     // ==================== 静态访问 ====================
 
     public static WormholeNetwork get() {
-        return BetterSavedData.get(WormholeNetwork.TYPE, WormholeNetwork.CLIENT_COPY);
+        WormholeNetwork network = BetterSavedData.get(WormholeNetwork.TYPE, WormholeNetwork.CLIENT_COPY);
+        var server = ServerLifecycleHooks.getCurrentServer();
+        if (server != null && network != CLIENT_COPY) {
+            network.synchronizeOverworldLikeGeneration(OverworldLikeGenerationBootstrap.getManifest(server));
+        }
+        return network;
+    }
+
+    private void synchronizeOverworldLikeGeneration(OverworldLikeResetManifest manifest) {
+        if (this.overworldLikeGeneration != manifest.generation() || manifest.resetPending()) {
+            this.unregisterDimension(CelestialTravelManager.OVERWORLD_LIKE_LEVEL);
+        }
+        if (this.overworldLikeGeneration != manifest.generation()) {
+            this.overworldLikeGeneration = manifest.generation();
+            this.setDirty();
+        }
     }
 
     // ==================== 注册与注销 ====================
@@ -124,6 +166,13 @@ public class WormholeNetwork extends BetterSavedData {
     /** 使用指定黑洞身份标识将锻星砧注册到虫洞网络。 */
     public void register(UUID bodyUuid, Level level, BlockPos pos) {
         ResourceKey<Level> dim = level.dimension();
+        if (CelestialTravelManager.isOverworldLike(dim) && level instanceof ServerLevel serverLevel) {
+            var manifest = OverworldLikeGenerationBootstrap.getManifest(serverLevel.getServer());
+            this.synchronizeOverworldLikeGeneration(manifest);
+            if (manifest.resetPending() || serverLevel.getServer().getLevel(dim) != level) return;
+        }
+        UUID previous = this.reverseIndex.getOrDefault(dim, Map.of()).get(pos);
+        if (previous != null && !previous.equals(bodyUuid)) this.unregister(level, pos);
         List<Entry> entries = this.network.computeIfAbsent(bodyUuid, k -> new ArrayList<>());
         entries.removeIf(e -> e.dimension.equals(dim) && e.pos.equals(pos));
         entries.add(new Entry(dim, pos));
@@ -148,6 +197,16 @@ public class WormholeNetwork extends BetterSavedData {
             }
             this.setDirty();
         }
+    }
+
+    public void unregisterDimension(ResourceKey<Level> dimension) {
+        boolean changed = this.reverseIndex.remove(dimension) != null;
+        for (var iterator = this.network.entrySet().iterator(); iterator.hasNext();) {
+            var entry = iterator.next();
+            changed |= entry.getValue().removeIf(node -> node.dimension().equals(dimension));
+            if (entry.getValue().isEmpty()) iterator.remove();
+        }
+        if (changed) this.setDirty();
     }
 
     // ==================== 传送门侧面管理 ====================
@@ -197,6 +256,7 @@ public class WormholeNetwork extends BetterSavedData {
     // ==================== 编解码器使用的 NBT 序列化 ====================
 
     private void writeToTag(CompoundTag nbt) {
+        nbt.putInt("overworldLikeGeneration", this.overworldLikeGeneration);
         for (Map.Entry<UUID, List<Entry>> entry : this.network.entrySet()) {
             ListTag list = new ListTag();
             for (Entry e : entry.getValue()) {
@@ -207,6 +267,7 @@ public class WormholeNetwork extends BetterSavedData {
     }
 
     private void readFromTag(CompoundTag nbt) {
+        this.overworldLikeGeneration = nbt.getIntOr("overworldLikeGeneration", -1);
         this.network.clear();
         this.reverseIndex.clear();
         for (String key : nbt.keySet()) {

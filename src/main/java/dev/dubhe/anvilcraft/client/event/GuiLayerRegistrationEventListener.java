@@ -30,6 +30,8 @@ public class GuiLayerRegistrationEventListener {
 
     @SubscribeEvent
     public static void onRegister(RegisterGuiLayersEvent event) {
+        event.registerAboveAll(AnvilCraft.of("overworld_like_collapse"),
+            (graphics, deltaTracker) -> dev.dubhe.anvilcraft.client.support.OverworldLikeCollapseOverlay.render(graphics));
         event.registerAboveAll(AnvilCraft.of("power"), (graphics, deltaTracker) -> {
             Minecraft minecraft = Minecraft.getInstance();
             if (minecraft.options.hideGui) return;
