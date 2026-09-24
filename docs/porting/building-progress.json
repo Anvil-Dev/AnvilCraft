@@ -1164,5 +1164,36 @@
       "No claim of scene-shadow visual parity is made by this node.",
       "The GPU probe was run on the current OpenGL backend only."
     ]
+  },
+  "mun_shadow_caster": {
+    "source_commit": "1260db54f6e2b9f88d0a79b8108459d346344e44",
+    "status": "native_caster_programs_ported_chunk_cache_dynamic_capture_and_receivers_pending",
+    "ported": [
+      "Original solar projection, opaque alpha threshold and colored transmission shader bodies",
+      "Native shader registration, compilation ownership and reload-aware uniform locations",
+      "Per-cascade scales and per-model solar origin/offset uploads to exact shadow targets"
+    ],
+    "verification": {
+      "client_log": "build/porting/client-mun-caster-final-2.log",
+      "compile_log": "build/porting/compile-mun-caster-final.log",
+      "datagen_log": "build/porting/datagen-mun-caster-final.log",
+      "report": "build/porting/mun-shadow-caster-comparison.json",
+      "sky_report": "build/porting/mun-sky-comparison.json",
+      "gpu_cases_before_reload": 13,
+      "gpu_cases_after_reload": 13,
+      "checks": [
+        "Opaque marker and texture/vertex alpha threshold at 127/128",
+        "Separate fully opaque and fractional-alpha transmission passes",
+        "RGB transmission tint multiplication and integer packing",
+        "Source 24-bit packed depth and positive/negative caster elevations",
+        "Resource reload followed by repeated GPU checks and ten sky scenes",
+        "Original caster shader bodies and solar declarations compared directly"
+      ]
+    },
+    "limits": [
+      "Standard scene shadows still require the full chunk cache, dynamic entity/block-entity capture and receiver binding integration.",
+      "Synthetic GPU caster checks do not establish world-shadow visual parity.",
+      "Only the current OpenGL backend has been exercised."
+    ]
   }
 }

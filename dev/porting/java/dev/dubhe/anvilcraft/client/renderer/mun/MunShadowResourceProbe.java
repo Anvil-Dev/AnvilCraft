@@ -23,6 +23,11 @@ public final class MunShadowResourceProbe {
     private static boolean complete;
 
     @SubscribeEvent
+    public static void reload(net.neoforged.neoforge.client.event.ModelEvent.BakingCompleted event) {
+        complete = false;
+    }
+
+    @SubscribeEvent
     public static void frame(RenderFrameEvent.Post event) {
         if (!Boolean.getBoolean("anvilcraft.portMunShadowResources") || complete || Minecraft.getInstance().level == null) return;
         complete = true;
@@ -34,6 +39,7 @@ public final class MunShadowResourceProbe {
             }
             history();
             MunShadowMeshProbe.verify();
+            MunShadowCasterProbe.verify();
         }
         AnvilCraft.LOGGER.info("PORT_MUN_SHADOW_RESOURCES_PASSED: exact formats, depth copy, integer history and state restoration");
     }
