@@ -7,6 +7,7 @@ import dev.dubhe.anvilcraft.client.markdown.recipe.MDAnvilCollisionCraftRecipeCo
 import dev.dubhe.anvilcraft.client.markdown.recipe.MDChargerChargingRecipeComponent;
 import dev.dubhe.anvilcraft.client.markdown.recipe.MDEnergyWeaponMakeRecipeComponent;
 import dev.dubhe.anvilcraft.client.markdown.recipe.MDJewelCraftingRecipeComponent;
+import dev.dubhe.anvilcraft.client.markdown.recipe.MDMineralFountainRecipeComponent;
 import dev.dubhe.anvilcraft.client.markdown.recipe.MDMultipleToOneSmithingRecipeComponent;
 import dev.dubhe.anvilcraft.client.markdown.recipe.MDPortalConversionRecipeComponent;
 import dev.dubhe.anvilcraft.client.markdown.recipe.MDProceduralProcessRecipeComponent;
@@ -200,6 +201,22 @@ public class AnvilCraftRecipeComponentFactories {
         "portal_conversion", () -> MDRecipeComponent.RecipeComponentFactory.create(
             ModRecipeTypes.PORTAL_CONVERSION_TYPE.get(),
             MDPortalConversionRecipeComponent::new
+        )
+    );
+
+    public static final DeferredHolder<MDRecipeComponent.RecipeComponentFactory<?>, MDRecipeComponent.RecipeComponentFactory<?>>
+        MINERAL_FOUNTAIN = RECIPE_COMPONENT_FACTORIES.register(
+        "mineral_fountain", () -> MDRecipeComponent.RecipeComponentFactory.create(
+            ModRecipeTypes.MINERAL_FOUNTAIN.get(),
+            MDMineralFountainRecipeComponent::new
+        )
+    );
+
+    public static final DeferredHolder<MDRecipeComponent.RecipeComponentFactory<?>, MDRecipeComponent.RecipeComponentFactory<?>>
+        MINERAL_FOUNTAIN_CHANCE = RECIPE_COMPONENT_FACTORIES.register(
+        "mineral_fountain_chance", () -> MDRecipeComponent.RecipeComponentFactory.create(
+            ModRecipeTypes.MINERAL_FOUNTAIN_CHANCE.get(),
+            MDMineralFountainRecipeComponent::new
         )
     );
 
