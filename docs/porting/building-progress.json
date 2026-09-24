@@ -1231,5 +1231,39 @@
       "Source-versus-target scene shadow appearance and dense-scene performance remain unverified.",
       "Only the current OpenGL backend and selected native/mod renderers were exercised."
     ]
+  },
+  "mun_shadow_map": {
+    "source_commit": "1260db54f6e2b9f88d0a79b8108459d346344e44",
+    "status": "cascade_generation_and_cache_ported_world_receiver_integration_pending",
+    "ported": [
+      "Source incremental chunk build jobs, nearest-first cache admission and bounded eviction",
+      "Three native caster cascades combining static, opaque-translucent, colored-translucent and dynamic depth",
+      "Source solar/projection invalidation, chunk/block change handling and moving-window cleanup",
+      "Native block/fluid models, chunk coordinates and shared OpenGL texture/sampler isolation"
+    ],
+    "verification": {
+      "client_log": "build/porting/client-mun-map-final-2.log",
+      "compile_log": "build/porting/compile-mun-map-final.log",
+      "report": "build/porting/mun-shadow-map-comparison.json",
+      "sky_report": "build/porting/mun-sky-comparison.json",
+      "source_equal_cache_functions_after_api_mapping": 13,
+      "client_probe_runs": 2,
+      "probe_resolution": 128,
+      "probe_render_distance": 2,
+      "checks": [
+        "Weighted lunar rock and lunar soil remain eligible for full-cube merging",
+        "Static depth reuse, glass/fluid transmission and separate dynamic depth composition",
+        "Full-cube replacement reuse versus slab invalidation and chunk rebuild",
+        "Entity removal, moved-window opaque/translucent clearing and GPU texture disposal",
+        "Cache budget rejection and source cascade invalidation rules",
+        "Resource reload, entity/caster regressions, ten sky comparisons and clean exit"
+      ]
+    },
+    "limits": [
+      "Standard world receiver bindings and change-notification hooks remain pending.",
+      "Default-resolution scene parity and normal-view-distance cache build performance remain unverified.",
+      "The initial large-window fixture exceeded its 1000-call wait bound; the functional fixture now fixes its view distance to 2.",
+      "Current OpenGL backend only."
+    ]
   }
 }
