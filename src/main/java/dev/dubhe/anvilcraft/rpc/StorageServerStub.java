@@ -63,6 +63,7 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerLevelAccess;
@@ -84,6 +85,7 @@ import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.phys.AABB;
 import net.neoforged.neoforge.common.SoundAction;
 import net.neoforged.neoforge.common.SoundActions;
+import net.neoforged.neoforge.event.EventHooks;
 import net.neoforged.neoforge.fluids.FluidActionResult;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.FluidType;
@@ -1451,13 +1453,14 @@ public final class StorageServerStub {
             return new InteractionResult(carried, false);
         }
         if (shift) {
-            if (crafting.toStorage()) {
-                StorageServerStub.placeCraftingResultToStorageFirst(player, target, result);
-            } else {
-                StorageServerStub.placeCraftingResult(player, target, result);
-            }
+            PlaceResult placed = crafting.toStorage()
+                ? StorageServerStub.placeCraftingResultToStorageFirst(player, target, result)
+                : StorageServerStub.placeCraftingResult(player, target, result);
+            if (placed == PlaceResult.NONE) return new InteractionResult(carried, false);
+            StorageServerStub.consumeCraftingInput(target, crafting, stonecutter, result, null);
+            int refilledSlots = StorageServerStub.refillAndCollectSlots(player, target, crafting);
             player.containerMenu.broadcastChanges();
-            return new InteractionResult(player.containerMenu.getCarried(), true);
+            return new InteractionResult(player.containerMenu.getCarried(), true, refilledSlots);
         }
         // 指针有物：仅当与产物同种且能放下时合并取出；否则拒绝（不消耗输入）
         if (!carried.isEmpty()) {
@@ -1467,13 +1470,13 @@ public final class StorageServerStub {
             }
             ItemStack merged = carried.copy();
             merged.grow(result.getCount());
-            StorageServerStub.consumeCraftingInput(target, crafting, stonecutter);
+            StorageServerStub.consumeCraftingInput(target, crafting, stonecutter, result, null);
             int refilledSlots = StorageServerStub.refillAndCollectSlots(player, target, crafting);
             player.containerMenu.setCarried(merged);
             player.containerMenu.broadcastChanges();
             return new InteractionResult(merged, true, refilledSlots);
         }
-        StorageServerStub.consumeCraftingInput(target, crafting, stonecutter);
+        StorageServerStub.consumeCraftingInput(target, crafting, stonecutter, result, null);
         int refilledSlots = StorageServerStub.refillAndCollectSlots(player, target, crafting);
         player.containerMenu.setCarried(result);
         player.containerMenu.broadcastChanges();
@@ -1546,7 +1549,7 @@ public final class StorageServerStub {
             player.drop(result.copy(), true);
             any = true;
             performed++;
-            if (!StorageServerStub.consumeCraftingInput(target, crafting, stonecutter)) {
+            if (!StorageServerStub.consumeCraftingInput(target, crafting, stonecutter, result, null)) {
                 // 不消耗型配方：已丢出一份，继续循环只会无限产出相同产物
                 break;
             }
@@ -1698,13 +1701,13 @@ public final class StorageServerStub {
                 // 产物部分放入仓储（其余已在 placeCraftingResult 内丢弃）：消耗
                 // 输入后截断，避免重复「合成→部分放入→丢弃」浪费材料且产出不可控
                 StorageServerStub.unlockTakeAllRecipe(playerId, sourcePos);
-                StorageServerStub.consumeCraftingInput(target, crafting, stonecutter);
+                StorageServerStub.consumeCraftingInput(target, crafting, stonecutter, result, lockedId);
                 player.containerMenu.broadcastChanges();
                 return new TakeAllResult(player.containerMenu.getCarried(), true, true, refilledAccum);
             }
             any = true;
             // 只消耗合成格内已有的原料合成一次
-            boolean consumed = StorageServerStub.consumeCraftingInput(target, crafting, stonecutter);
+            boolean consumed = StorageServerStub.consumeCraftingInput(target, crafting, stonecutter, result, lockedId);
             if (!consumed) {
                 // 不消耗型配方（如催化剂 / 模具，或剩余物与输入完全相同）：继续
                 // 循环只会无限产出相同产物，立即终止
@@ -2029,6 +2032,31 @@ public final class StorageServerStub {
         NONE
     }
 
+    private static void awardCraftingResult(
+        ServerPlayer player, CraftingStorage crafting, boolean stonecutter, ItemStack result,
+        @Nullable ResourceLocation recipeId
+    ) {
+        RecipeHolder<?> recipe;
+        List<ItemStack> inputs;
+        if (stonecutter) {
+            recipe = StorageServerStub.selectedStonecutterRecipe(player, crafting);
+            inputs = List.of(crafting.stonecutterInput().copy());
+        } else {
+            CraftingInput input = CraftingInput.of(3, 3, crafting.craftingInput());
+            recipe = recipeId == null ? player.level().getRecipeManager()
+                .getRecipesFor(RecipeType.CRAFTING, input, player.level()).stream().findFirst().orElse(null)
+                : StorageServerStub.findTakeAllLockedRecipe(player, recipeId);
+            inputs = crafting.craftingInput().stream().map(ItemStack::copy).toList();
+        }
+        if (recipe == null) return;
+        result.onCraftedBy(player.level(), player, result.getCount());
+        if (!stonecutter) {
+            EventHooks.firePlayerCraftingEvent(player, result, new SimpleContainer(inputs.toArray(ItemStack[]::new)));
+        }
+        player.triggerRecipeCrafted(recipe, inputs);
+        if (!recipe.value().isSpecial()) player.awardRecipes(List.of(recipe));
+    }
+
     /**
      * 消耗③/④ 对应的输入并写入合成数据。
      *
@@ -2038,8 +2066,11 @@ public final class StorageServerStub {
     private static boolean consumeCraftingInput(
         StorageServerStub.CraftingTarget target,
         CraftingStorage crafting,
-        boolean stonecutter
+        boolean stonecutter,
+        ItemStack result,
+        @Nullable ResourceLocation recipeId
     ) {
+        StorageServerStub.awardCraftingResult(target.player(), crafting, stonecutter, result, recipeId);
         if (stonecutter) {
             ItemStack input = crafting.stonecutterInput();
             if (input.isEmpty()) {
@@ -2333,6 +2364,7 @@ public final class StorageServerStub {
         ServerPlayer player = StorageServerStub.getServerPlayer(playerId);
         StorageServerStub.CraftingTarget target = StorageServerStub.resolveCraftingTarget(player, sourcePos);
         CraftingStorage crafting = target.read();
+        if (target.view() == null || !target.view().primary().isCraftingUnlocked()) return false;
         Inventory inventory = player.getInventory();
         crafting = StorageServerStub.clearCrafting(target, crafting);
         if (stonecutter) {
@@ -5466,7 +5498,7 @@ public final class StorageServerStub {
                         UnlimitedItemStacksResourceHandler.ResourceKey.of(resource);
                     Entry entry = merged.get(key);
                     if (entry == null) {
-                        entry = new Entry(resource, 0, storageIndex, slot);
+                        entry = new Entry(resource, 0);
                         merged.put(key, entry);
                         this.entries.add(entry);
                     }
@@ -5537,8 +5569,22 @@ public final class StorageServerStub {
         }
 
         int extract(int index, int amount) {
-            Entry e = this.entries.get(index);
-            return this.storages.get(e.storageIndex).getItems().extractUnlimited(e.slot, amount, false).getCount();
+            if (amount <= 0) return 0;
+            Entry entry = this.entries.get(index);
+            int extracted = 0;
+            for (BaseStorage<?> storage : this.storages) {
+                UnlimitedItemStacksResourceHandler items = storage.getItems();
+                while (extracted < amount) {
+                    int slot = items.findSlot(entry.resource);
+                    if (slot < 0) break;
+                    int taken = items.extractUnlimited(slot, amount - extracted, false).getCount();
+                    if (taken == 0) break;
+                    extracted += taken;
+                }
+                if (extracted == amount) break;
+            }
+            entry.amount = Math.max(0, entry.amount - extracted);
+            return extracted;
         }
 
         private static int insertInto(UnlimitedItemStacksResourceHandler items, ItemStack stack) {
@@ -5550,14 +5596,10 @@ public final class StorageServerStub {
         private static final class Entry {
             final ItemStack resource;
             long amount;
-            final int storageIndex;
-            final int slot;
 
-            Entry(ItemStack resource, long amount, int storageIndex, int slot) {
+            Entry(ItemStack resource, long amount) {
                 this.resource = resource;
                 this.amount = amount;
-                this.storageIndex = storageIndex;
-                this.slot = slot;
             }
         }
     }

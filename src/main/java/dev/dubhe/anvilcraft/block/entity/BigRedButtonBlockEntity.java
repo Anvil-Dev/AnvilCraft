@@ -38,7 +38,7 @@ public class BigRedButtonBlockEntity extends BlockEntity {
     }
 
     public void press(Player player) {
-        if (this.level == null || this.level.isClientSide || !player.isAlive() || player.isSpectator()
+        if (this.level == null || this.level.isClientSide || !player.isAlive() || player.isSpectator() || player.isShiftKeyDown()
             || player.getMainHandItem().is(ModItems.BUILDING_ROD)) return;
         this.holders.put(player.getUUID(), this.level.getGameTime());
         this.setPressed(true);
@@ -55,7 +55,7 @@ public class BigRedButtonBlockEntity extends BlockEntity {
         if (this.level == null || this.level.isClientSide) return;
         this.holders.entrySet().removeIf(entry -> {
             Player player = this.level.getPlayerByUUID(entry.getKey());
-            return player == null || !player.isAlive() || player.isSpectator()
+            return player == null || !player.isAlive() || player.isSpectator() || player.isShiftKeyDown()
                 || player.getMainHandItem().is(ModItems.BUILDING_ROD)
                 || !player.canInteractWithBlock(this.worldPosition, 1.0)
                 || this.level.getGameTime() - entry.getValue() > HOLD_TIMEOUT;

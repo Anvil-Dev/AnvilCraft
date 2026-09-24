@@ -27,7 +27,6 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.item.context.UseOnContext;
-import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -199,14 +198,8 @@ public final class BuildingRodClient {
             return;
         }
         boolean floating = canAdjustDistance();
-        if (snapshot == null && first != null && distanceHeld && !floating) {
-            clearSelection();
-            return;
-        }
         HitResult result = snapshot == null && first == null
-            ? mc.level.clip(new ClipContext(mc.player.getEyePosition(),
-                mc.player.getEyePosition().add(mc.player.getLookAngle().scale(mc.player.blockInteractionRange())),
-                ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, mc.player))
+            ? BlockPlacementPicking.pickBuildingRodTarget(mc.player)
             : mc.player.pick(mc.player.blockInteractionRange(), 1, false);
         if (floating) {
             if (!distanceHeld && result.getType() == HitResult.Type.BLOCK) {
@@ -272,6 +265,7 @@ public final class BuildingRodClient {
     public static void interaction(InputEvent.InteractionKeyMappingTriggered event) {
         Minecraft mc = Minecraft.getInstance();
         if (mc.screen == null && holdingRod() && event.isAttack() && ((!traditional() && locked) || first != null)) {
+            stopDestroying();
             BuildingRodItemRenderer.cancelAttack();
             cancel();
             event.setCanceled(true);
@@ -280,6 +274,10 @@ public final class BuildingRodClient {
         }
         if (!active()) return;
         if (event.isAttack()) {
+            if (BuildingRodItemRenderer.isAttackCanceled()) {
+                stopDestroying();
+                event.setCanceled(true);
+            }
             event.setSwingHand(false);
             BuildingRodItemRenderer.attack();
         }
@@ -290,10 +288,16 @@ public final class BuildingRodClient {
         }
     }
 
+    private static void stopDestroying() {
+        var gameMode = Minecraft.getInstance().gameMode;
+        if (gameMode != null) gameMode.stopDestroyBlock();
+    }
+
     private static void press() {
+        stopDestroying();
         useHeld = true;
         updateTarget();
-        if (first != null && distanceHeld) {
+        if (first != null) {
             confirmSelection();
             return;
         }
@@ -331,7 +335,7 @@ public final class BuildingRodClient {
     }
 
     private static void confirmSelection() {
-        if (first == null) return;
+        if (first == null || snapshot == null && target == null) return;
         if (snapshot != null) {
             clearSelection();
             if (traditional()) BuildingRodTraditionalControls.finishSelection();

@@ -96,8 +96,8 @@ public final class StorageJeiSupport {
      */
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     private static boolean isStorageScreen() {
-        return StorageJeiSupport.parentScreen() instanceof StorageScreen
-            || Minecraft.getInstance().screen instanceof StorageScreen;
+        StorageScreen screen = StorageJeiSupport.storageScreen();
+        return screen != null && screen.isCraftingAvailable();
     }
 
     /** JEI 配方界面的父屏幕（未打开配方界面时可能为 null）。 */

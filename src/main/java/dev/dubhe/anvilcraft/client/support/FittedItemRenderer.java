@@ -6,6 +6,7 @@ import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.ByteBufferBuilder;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
@@ -13,6 +14,7 @@ import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.blaze3d.vertex.VertexSorting;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.client.init.ModShaders;
+import dev.dubhe.anvilcraft.mixin.accessor.RenderSystemAccessor;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GameRenderer;
@@ -38,7 +40,7 @@ import org.lwjgl.opengl.GL30;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Objects;
+import javax.annotation.Nullable;
 
 /** 以独立的高分辨率纹理保留模型细节，再按实际可见轮廓适配标记大小。 */
 public final class FittedItemRenderer {
@@ -145,7 +147,7 @@ public final class FittedItemRenderer {
                 pose.translate(-(bounds.minX + bounds.maxX) / 2, -(bounds.minY + bounds.maxY) / 2,
                     -(bounds.minZ + bounds.maxZ) / 2);
             }
-            MultiBufferSource.BufferSource buffers = Minecraft.getInstance().renderBuffers().bufferSource();
+            MultiBufferSource.BufferSource buffers = TargetHolder.BUFFERS;
             renderer.render(measured, ItemDisplayContext.GUI, false, pose, buffers,
                 LightTexture.FULL_BRIGHT, OverlayTexture.NO_OVERLAY, model);
             buffers.endBatch();
@@ -239,6 +241,8 @@ public final class FittedItemRenderer {
 
     private static class TargetHolder {
         private static final RenderTarget TARGET = new TextureTarget(RESOLUTION, RESOLUTION, true, Minecraft.ON_OSX);
+        // Iris 的世界缓冲区可延迟提交，离屏捕获需要独立缓冲区。
+        private static final MultiBufferSource.BufferSource BUFFERS = MultiBufferSource.immediate(new ByteBufferBuilder(786432));
     }
 
     private static class CaptureState implements AutoCloseable {
@@ -257,7 +261,7 @@ public final class FittedItemRenderer {
         private final VertexSorting sorting = RenderSystem.getVertexSorting();
         private final float[] color = RenderSystem.getShaderColor().clone();
         private final float fogStart = RenderSystem.getShaderFogStart();
-        private final ShaderInstance shader = RenderSystem.getShader();
+        private final @Nullable ShaderInstance shader = RenderSystem.getShader();
         private final Vector3f light0;
         private final Vector3f light1;
 
@@ -266,10 +270,9 @@ public final class FittedItemRenderer {
             GL11.glGetIntegerv(GL11.GL_SCISSOR_BOX, this.scissorBox);
             GL11.glGetIntegerv(GL11.GL_COLOR_WRITEMASK, this.colorMask);
             GL11.glGetFloatv(GL11.GL_COLOR_CLEAR_VALUE, this.clearColor);
-            ShaderInstance lightShader = Objects.requireNonNull(GameRenderer.getRendertypeEntityCutoutNoCullShader());
-            RenderSystem.setupShaderLights(lightShader);
-            this.light0 = new Vector3f(Objects.requireNonNull(lightShader.LIGHT0_DIRECTION).getFloatBuffer());
-            this.light1 = new Vector3f(Objects.requireNonNull(lightShader.LIGHT1_DIRECTION).getFloatBuffer());
+            Vector3f[] lights = RenderSystemAccessor.anvilcraft$getShaderLightDirections();
+            this.light0 = new Vector3f(lights[0]);
+            this.light1 = new Vector3f(lights[1]);
             RenderSystem.getModelViewStack().pushMatrix();
         }
 

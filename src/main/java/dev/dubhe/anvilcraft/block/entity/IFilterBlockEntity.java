@@ -3,12 +3,17 @@ package dev.dubhe.anvilcraft.block.entity;
 import dev.dubhe.anvilcraft.api.itemhandler.FilteredItemStackHandler;
 import net.minecraft.core.NonNullList;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.entity.BlockEntity;
 
 /**
  * 有过滤的方块实体
  */
 public interface IFilterBlockEntity {
     int DEFAULT_SLOT_LIMIT = 64;
+
+    default void filterChanged() {
+        if (this instanceof BlockEntity blockEntity) blockEntity.setChanged();
+    }
     
     /**
      * 获取有过滤的物品存储
@@ -33,6 +38,7 @@ public interface IFilterBlockEntity {
      */
     default void setFilterEnabled(boolean enable) {
         this.getFilteredItemStackHandler().setFilterEnabled(enable);
+        this.filterChanged();
     }
 
     /**
@@ -52,6 +58,7 @@ public interface IFilterBlockEntity {
      */
     default void setSlotDisabled(int slot, boolean disable) {
         this.getFilteredItemStackHandler().setSlotDisabled(slot, disable);
+        this.filterChanged();
     }
 
     /**
@@ -79,7 +86,9 @@ public interface IFilterBlockEntity {
      * @param filter 过滤
      */
     default boolean setFilter(int slot, ItemStack filter) {
-        return this.getFilteredItemStackHandler().setFilter(slot, filter);
+        boolean changed = this.getFilteredItemStackHandler().setFilter(slot, filter);
+        if (changed) this.filterChanged();
+        return changed;
     }
     
     /**
@@ -100,5 +109,6 @@ public interface IFilterBlockEntity {
      */
     default void setSlotLimit(int slot, int limit) {
         this.getFilteredItemStackHandler().setSlotLimit(slot, limit);
+        this.filterChanged();
     }
 }

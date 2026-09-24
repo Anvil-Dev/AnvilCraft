@@ -24,12 +24,12 @@ import net.minecraft.world.item.crafting.ShapelessRecipe;
 import net.minecraft.world.item.crafting.SmeltingRecipe;
 import net.minecraft.world.item.crafting.SmokingRecipe;
 import net.neoforged.neoforge.common.Tags;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import javax.annotation.Nullable;
 
 @Slf4j
 @SuppressWarnings("DuplicatedCode")
@@ -57,6 +57,21 @@ public class VanillaRecipesWrap {
             name = BuiltInRegistries.ITEM.getKey(items[items.length - 1]).getPath();
         }
         return new WrappedIngredient(builder.withCount(count).build(), name);
+    }
+
+    @Nullable
+    private static WrappedIngredient wrapCompressionIngredients(List<Ingredient> ingredients) {
+        if (ingredients.isEmpty() || ingredients.stream().anyMatch(ingredient -> !ingredient.isSimple())) return null;
+        Item[] items = Arrays.stream(ingredients.getFirst().getItems())
+            .filter(stack -> ingredients.stream().allMatch(ingredient -> ingredient.test(stack)))
+            .map(ItemStack::getItem)
+            .distinct()
+            .toArray(Item[]::new);
+        if (items.length == 0) return null;
+        return new WrappedIngredient(
+            ItemIngredientPredicate.of(items).withCount(ingredients.size()).build(),
+            BuiltInRegistries.ITEM.getKey(items[items.length - 1]).getPath()
+        );
     }
 
     public static List<RecipeHolder<InWorldRecipe>> init(HolderLookup.Provider registries, Collection<RecipeHolder<?>> recipes) {
@@ -116,11 +131,9 @@ public class VanillaRecipesWrap {
         }
         if (ingredients.size() != 4 && ingredients.size() != 9) return;
         if (!result.is(Tags.Items.STORAGE_BLOCKS) && !result.is(ModItemTags.COMPRESS_ITEM)) return;
-        for (Ingredient ingredient : ingredients) {
-            if (!ingredient.equals(first)) return;
-        }
+        WrappedIngredient ingredient = wrapCompressionIngredients(ingredients);
+        if (ingredient == null) return;
         ItemCompressRecipe.Builder builder = ItemCompressRecipe.builder();
-        WrappedIngredient ingredient = wrapIngredient(first, ingredients.size());
         builder.requires(ingredient.predicate());
         builder.result(result);
         ItemCompressRecipe itemCompressRecipe = builder.buildRecipe();
@@ -133,18 +146,15 @@ public class VanillaRecipesWrap {
         if (recipe == null) return;
         if (recipe.getHeight() != recipe.getWidth()) return;
         NonNullList<Ingredient> ingredients = recipe.getIngredients();
-        final Ingredient first = ingredients.getFirst();
         if (ingredients.size() <= 1) return;
         ItemStack result = recipe.getResultItem(registries);
         // noinspection ConstantValue
         if (result == null) return;
         result = result.copy();
         if (!result.is(ModItemTags.COMPRESS_ITEM)) return;
-        for (Ingredient ingredient : ingredients) {
-            if (!ingredient.equals(first)) return;
-        }
+        WrappedIngredient ingredient = wrapCompressionIngredients(ingredients);
+        if (ingredient == null) return;
         ItemCompressRecipe.Builder builder = ItemCompressRecipe.builder();
-        WrappedIngredient ingredient = wrapIngredient(first, ingredients.size());
         builder.requires(ingredient.predicate());
         builder.result(result);
         ItemCompressRecipe itemCompressRecipe = builder.buildRecipe();

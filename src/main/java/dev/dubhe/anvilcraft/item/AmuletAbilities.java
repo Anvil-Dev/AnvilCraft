@@ -87,7 +87,7 @@ public final class AmuletAbilities {
     }
 
     private static void refreshEffect(Player player, Holder<MobEffect> effect, int amplifier) {
-        player.addEffect(new MobEffectInstance(effect, 2, amplifier, false, false, true));
+        player.addEffect(new MobEffectInstance(effect, 200, amplifier, false, false, true));
     }
 
     @SubscribeEvent

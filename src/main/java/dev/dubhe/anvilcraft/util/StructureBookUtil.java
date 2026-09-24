@@ -45,7 +45,7 @@ public class StructureBookUtil {
                 continue;
             }
             // 跳过多方块方块的次要部件
-            if (BlockPlacementUtil.isSecondaryMultiblockPart(state)) {
+            if (BlockPlacementUtil.isSecondaryBlueprintPart(state)) {
                 continue;
             }
             Block block = state.getBlock();
@@ -192,7 +192,7 @@ public class StructureBookUtil {
             BlockState expectedState = blockEntity.getBlueprintStateForPlacement(index);
 
             // 跳过多方块方块的次要部件，与需求统计保持一致
-            if (BlockPlacementUtil.isSecondaryMultiblockPart(expectedState)) {
+            if (BlockPlacementUtil.isSecondaryBlueprintPart(expectedState)) {
                 continue;
             }
 

@@ -2,18 +2,27 @@ package dev.dubhe.anvilcraft.building;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.StoragePortManager;
+import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.item.BuildingRodItem;
+import dev.dubhe.anvilcraft.item.property.component.SavedEntity;
+import dev.dubhe.anvilcraft.rpc.StorageServerStub;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Leashable;
+import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.decoration.LeashFenceKnotEntity;
 import net.minecraft.world.entity.item.FallingBlockEntity;
 import net.minecraft.world.entity.item.PrimedTnt;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.SpawnEggItem;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
@@ -22,12 +31,15 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
 import net.neoforged.neoforge.event.level.BlockDropsEvent;
+import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.IdentityHashMap;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -35,7 +47,7 @@ import java.util.UUID;
 import java.util.WeakHashMap;
 import javax.annotation.Nullable;
 
-/** 最近一次放置的区域快照与逐组材料账单。区域恢复不依赖当前方块或实体仍与蓝图相同。 */
+/** 保留区域快照，撤销时按实际收回与恢复的资源结算。 */
 @EventBusSubscriber(modid = AnvilCraft.MOD_ID)
 public final class BuildingRodUndo {
     private static final Map<ServerPlayer, BuildingRodUndo> HISTORY = new WeakHashMap<>();
@@ -46,6 +58,8 @@ public final class BuildingRodUndo {
     private final Map<UUID, Entity> auxiliary = new LinkedHashMap<>();
     private final Map<UUID, Entity> derived = new LinkedHashMap<>();
     private final Set<BlockPos> changedPositions = new HashSet<>();
+    private final boolean creative;
+    private final List<BuildingMaterials.FluidPayment> pendingFluids = new ArrayList<>();
     private boolean restored;
     private boolean restoring;
 
@@ -55,7 +69,6 @@ public final class BuildingRodUndo {
         private final List<BuildingMaterials.FluidPayment> fluids = new ArrayList<>();
         private final Map<UUID, Entity> entities = new LinkedHashMap<>();
         private final Map<UUID, Entity> drops = new LinkedHashMap<>();
-        private boolean accepted;
     }
 
     BuildingRodUndo(ServerPlayer player, List<BuildingRodService.Group> planned) {
@@ -64,6 +77,7 @@ public final class BuildingRodUndo {
 
     BuildingRodUndo(ServerPlayer player, List<BuildingRodService.Group> planned, @Nullable BoundingBox bounds) {
         this.level = player.serverLevel();
+        this.creative = player.isCreative();
         this.region = new BuildingRegionSnapshot(player, bounds == null ? bounds(planned) : bounds);
         for (var group : planned) {
             if (group.cells.isEmpty() && group.entities.isEmpty()) continue;
@@ -92,14 +106,6 @@ public final class BuildingRodUndo {
             });
         });
         return BoundingBox.encapsulatingPositions(positions).orElseThrow();
-    }
-
-    void consumed() {
-        List<ItemStack> restoredItems = this.region.restoredMaterials();
-        for (Receipt receipt : this.receipts) {
-            for (ItemStack material : receipt.materials) material.shrink(BuildingRegionSnapshot.subtract(restoredItems, material));
-            receipt.materials.removeIf(ItemStack::isEmpty);
-        }
     }
 
     void finish(ServerPlayer player) {
@@ -135,7 +141,7 @@ public final class BuildingRodUndo {
                 undo.derived.put(spawned.getUUID(), spawned);
             }
             for (Receipt receipt : undo.receipts) {
-                if (!receipt.accepted && (receipt.entities.containsKey(source.getUUID()) || receipt.drops.containsKey(source.getUUID()))) {
+                if (!undo.restored && (receipt.entities.containsKey(source.getUUID()) || receipt.drops.containsKey(source.getUUID()))) {
                     receipt.drops.put(spawned.getUUID(), spawned);
                     break;
                 }
@@ -188,6 +194,99 @@ public final class BuildingRodUndo {
         }
     }
 
+    private Map<UUID, Entity> owned() {
+        Map<UUID, Entity> result = new LinkedHashMap<>(this.derived);
+        for (Receipt receipt : this.receipts) {
+            result.putAll(receipt.entities);
+            result.putAll(receipt.drops);
+        }
+        result.keySet().removeIf(this.region::containsEntity);
+        return result;
+    }
+
+    private void entityResources(Map<UUID, Entity> owned, BuildingUndoResources recovered) {
+        for (UUID uuid : owned.keySet()) {
+            Entity entity = BuildingRegionSnapshot.find(this.level, uuid);
+            if (entity == null) continue;
+            if (entity instanceof Mob && !entity.isAlive()) continue;
+            CompoundTag data = new CompoundTag();
+            if (!BlueprintLeashes.save(entity, data)) throw new IllegalArgumentException("Cannot inspect removed entity");
+            if (entity instanceof Mob mob && this.mobResource(mob, data, recovered)) continue;
+            recovered.entity(this.level, data);
+        }
+    }
+
+    private boolean mobResource(Mob mob, CompoundTag data, BuildingUndoResources recovered) {
+        for (Receipt receipt : this.receipts) {
+            if (!receipt.entities.containsKey(mob.getUUID())) continue;
+            for (ItemStack original : receipt.materials) {
+                if (original.getItem() instanceof SpawnEggItem egg && egg.getType(original) == mob.getType()) {
+                    recovered.entity(this.level, data, original);
+                    return true;
+                }
+                SavedEntity saved = original.get(ModComponents.SAVED_ENTITY);
+                if (saved == null || EntityType.by(saved.tag()).orElse(null) != mob.getType()) continue;
+                CompoundTag contents = data.copy();
+                contents.remove("UUID");
+                contents.remove("Passengers");
+                contents.remove("leash");
+                contents.remove("Leash");
+                ItemStack current = original.copyWithCount(1);
+                current.set(ModComponents.SAVED_ENTITY, new SavedEntity(contents, saved.isMonster()));
+                if (mob.getCustomName() == null) current.remove(DataComponents.CUSTOM_NAME);
+                else current.set(DataComponents.CUSTOM_NAME, mob.getCustomName());
+                recovered.item(current);
+                receipt.returned.forEach(stack -> recovered.containers.add(stack.copy()));
+                if (data.contains("leash") || data.contains("Leash")) recovered.item(new ItemStack(Items.LEAD));
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean prepareFluidRefunds(ServerPlayer player, List<FluidStack> fluids) {
+        Set<UUID> storages = new LinkedHashSet<>();
+        this.receipts.forEach(receipt -> receipt.fluids.forEach(payment -> storages.add(payment.storage())));
+        storages.addAll(StorageServerStub.buildingFluidSources(player));
+        storages.removeIf(storage -> StoragePortManager.positions(storage).stream().anyMatch(this.region::contains));
+        Set<IFluidHandler> used = Collections.newSetFromMap(new IdentityHashMap<>());
+        this.pendingFluids.clear();
+        for (FluidStack fluid : fluids) {
+            for (UUID storage : storages) {
+                if (fluid.isEmpty()) break;
+                IFluidHandler target = StoragePortManager.findRefillTarget(storage, fluid);
+                if (target == null || !used.add(target)) continue;
+                int amount = target.fill(fluid.copy(), IFluidHandler.FluidAction.SIMULATE);
+                if (amount <= 0) continue;
+                this.pendingFluids.add(new BuildingMaterials.FluidPayment(storage, fluid.copyWithAmount(amount)));
+                fluid.shrink(amount);
+            }
+            if (!fluid.isEmpty()) {
+                this.pendingFluids.clear();
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private void refundFluids() {
+        for (var payment : this.pendingFluids) {
+            while (!payment.fluid().isEmpty()) {
+                IFluidHandler target = StoragePortManager.findRefillTarget(payment.storage(), payment.fluid());
+                if (target == null) break;
+                int filled = target.fill(payment.fluid().copy(), IFluidHandler.FluidAction.EXECUTE);
+                if (filled <= 0) break;
+                payment.fluid().shrink(filled);
+            }
+        }
+        this.pendingFluids.removeIf(payment -> payment.fluid().isEmpty());
+    }
+
+    static boolean hasPendingRefund(ServerPlayer player) {
+        BuildingRodUndo undo = HISTORY.get(player);
+        return undo != null && undo.restored && !undo.pendingFluids.isEmpty();
+    }
+
     public static void undo(ServerPlayer player) {
         if (!BuildingRodItem.isHeld(player)) return;
         BuildingRodUndo undo = HISTORY.get(player);
@@ -195,29 +294,49 @@ public final class BuildingRodUndo {
             BuildingRodService.message(player, "nothing_to_undo");
             return;
         }
-        if (!undo.restored && !undo.region.canRestore(player)) {
+        if (undo.restored) {
+            undo.refundFluids();
+            undo.finishRefund(player);
+            return;
+        }
+        Map<UUID, Entity> owned = undo.owned();
+        if (!undo.region.canRestore(player) || !undo.canRemove(player, owned)) {
             BuildingRodService.message(player, "blocked");
             return;
         }
+        BuildingUndoResources recovered = new BuildingUndoResources();
+        BuildingUndoResources required = new BuildingUndoResources();
         BuildingMaterials recovery = new BuildingMaterials(player, false);
-        List<Receipt> accepted = new ArrayList<>();
-        for (Receipt receipt : undo.receipts) {
-            if (receipt.accepted || !undo.canRemove(player, receipt.entities)) continue;
-            if (recovery.reserve(receipt.returned)) accepted.add(receipt);
+        recovery.excludeFluidSources(undo.region::contains);
+        if (!undo.creative) {
+            try {
+                undo.region.resources(recovered, required);
+                undo.entityResources(owned, recovered);
+                BuildingUndoResources.cancel(recovered, required);
+            } catch (RuntimeException exception) {
+                AnvilCraft.LOGGER.debug("Cannot settle building rod undo resources", exception);
+                BuildingRodService.message(player, "undo_conflict");
+                return;
+            }
+            if (!recovery.reserve(required.items, required.fluids)) {
+                BuildingRodService.message(player, "undo_missing_materials");
+                return;
+            }
+            recovery.reserveRefundContainers(recovered.fluids, recovered.items);
+            if (!undo.prepareFluidRefunds(player, recovered.fluids)) {
+                BuildingRodService.message(player, "undo_missing_containers");
+                return;
+            }
+            if (!recovery.consume()) {
+                BuildingRodService.message(player, "undo_missing_materials");
+                return;
+            }
         }
-        if (!recovery.consume()) return;
         undo.restoring = true;
         try {
-            for (Receipt receipt : accepted) {
-                undo.remove(receipt.entities);
-                undo.remove(receipt.drops);
-                receipt.accepted = true;
-            }
-            if (!undo.restored) {
-                undo.remove(undo.derived);
-                undo.region.restore();
-                undo.restored = true;
-            }
+            undo.remove(owned);
+            undo.region.restore();
+            undo.restored = true;
             for (Entity original : undo.auxiliary.values()) {
                 Entity knot = BuildingRegionSnapshot.find(undo.level, original.getUUID());
                 if (knot == null || !knot.level().getEntities(knot, new AABB(knot.blockPosition()).inflate(16),
@@ -226,27 +345,20 @@ public final class BuildingRodUndo {
                 }
                 knot.discard();
             }
-            for (Receipt receipt : undo.receipts) {
-                if (!receipt.accepted) continue;
-                receipt.materials.forEach(stack -> player.getInventory().placeItemBackInInventory(stack.copy()));
-                receipt.materials.clear();
-                for (var payment : receipt.fluids) {
-                    while (!payment.fluid().isEmpty()) {
-                        IFluidHandler target = StoragePortManager.findRefillTarget(payment.storage(), payment.fluid());
-                        if (target == null) break;
-                        int filled = target.fill(payment.fluid().copy(), IFluidHandler.FluidAction.EXECUTE);
-                        if (filled <= 0) break;
-                        payment.fluid().shrink(filled);
-                    }
-                }
+            for (ItemStack stack : recovered.items) {
+                while (!stack.isEmpty()) player.getInventory().placeItemBackInInventory(stack.split(stack.getMaxStackSize()));
             }
-            undo.receipts.removeIf(receipt -> receipt.accepted && receipt.fluids.stream().allMatch(payment -> payment.fluid().isEmpty()));
-            if (undo.receipts.isEmpty()) HISTORY.remove(player);
+            undo.refundFluids();
         } finally {
             undo.restoring = false;
         }
         player.getInventory().setChanged();
         player.containerMenu.broadcastChanges();
-        BuildingRodService.message(player, undo.receipts.isEmpty() ? "undone" : "undo_partial");
+        undo.finishRefund(player);
+    }
+
+    private void finishRefund(ServerPlayer player) {
+        if (this.pendingFluids.isEmpty()) HISTORY.remove(player);
+        BuildingRodService.message(player, this.pendingFluids.isEmpty() ? "undone" : "undo_partial");
     }
 }

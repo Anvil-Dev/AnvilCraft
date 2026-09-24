@@ -1,18 +1,29 @@
 package dev.dubhe.anvilcraft.util;
 
+import dev.dubhe.anvilcraft.block.LargeCauldronBlock;
+import dev.dubhe.anvilcraft.init.block.ModBlocks;
+import dev.dubhe.anvilcraft.item.BuildingRodItem;
+import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.UseOnContext;
+import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.pattern.BlockInWorld;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.EntityCollisionContext;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.neoforge.common.util.FakePlayer;
 
 import javax.annotation.Nullable;
@@ -21,6 +32,34 @@ public final class BlockPlacementPicking {
     private static final double HIT_EPSILON = 1.0E-5;
 
     private BlockPlacementPicking() {
+    }
+
+    public static boolean hasFullPlacementShape(BlockState state, CollisionContext context) {
+        if (state.is(ModBlocks.ACCELERATION_RING) || state.is(ModBlocks.DEFLECTION_RING)) {
+            return isHoldingPlacementItem(context, ModBlocks.ACCELERATION_RING.asItem())
+                || isHoldingPlacementItem(context, ModBlocks.DEFLECTION_RING.asItem());
+        }
+        return state.is(ModBlocks.LARGE_CAULDRON)
+            && state.getValue(LargeCauldronBlock.HALF).getOffsetY() == 2
+            && isHoldingPlacementItem(context, ModBlocks.GIANT_ANVIL.asItem());
+    }
+
+    private static boolean isHoldingPlacementItem(CollisionContext context, Item item) {
+        return context.isHoldingItem(item)
+            || context instanceof EntityCollisionContext entityContext && entityContext.getEntity() instanceof Player player
+            && BuildingRodItem.isHeld(player) && BuildingRodItem.material(player).is(item);
+    }
+
+    public static BlockHitResult pickBuildingRodTarget(Player player) {
+        Vec3 start = player.getEyePosition();
+        Vec3 end = start.add(player.getLookAngle().scale(player.blockInteractionRange()));
+        CollisionContext context = CollisionContext.of(player);
+        return player.level().clip(new ClipContext(start, end, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, context) {
+            @Override
+            public VoxelShape getBlockShape(BlockState state, BlockGetter level, BlockPos pos) {
+                return hasFullPlacementShape(state, context) ? Shapes.block() : super.getBlockShape(state, level, pos);
+            }
+        });
     }
 
     public static UseOnContext forPlacement(UseOnContext context) {

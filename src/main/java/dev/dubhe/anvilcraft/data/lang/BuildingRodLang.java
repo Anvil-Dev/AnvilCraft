@@ -8,7 +8,13 @@ public final class BuildingRodLang {
 
     public static void init(RegistrumLangProvider provider) {
         provider.add("message.anvilcraft.building_rod.undo_partial",
-            "Area restored; some entities or refunds are pending. Recover the returned items and undo again");
+            "Area restored; fluid refund pending. Make room in linked fluid storage and undo again before building");
+        provider.add("message.anvilcraft.building_rod.undo_conflict",
+            "Cannot safely account for the changed resources; undo cancelled without changing the area");
+        provider.add("message.anvilcraft.building_rod.undo_missing_materials",
+            "Restoring the original area requires missing materials or fluid; replenish them and undo again");
+        provider.add("message.anvilcraft.building_rod.undo_missing_containers",
+            "Not enough containers or linked fluid storage space for the refund; make room and undo again");
         provider.add("message.anvilcraft.building_rod.unsupported_type", "No supported building material for blueprint object: %s");
         provider.add("message.anvilcraft.building_rod.component_mismatch",
             "Some blocks have mismatched components; right-click again within 3 seconds to use the available materials and their data");

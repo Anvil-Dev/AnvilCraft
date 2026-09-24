@@ -9,6 +9,7 @@ import net.minecraft.world.inventory.ContainerSynchronizer;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 
+import java.util.function.IntUnaryOperator;
 import javax.annotation.Nullable;
 
 /**
@@ -63,6 +64,12 @@ public class StorageMenu extends AbstractContainerMenu {
         return new StorageMenu(player.inventoryMenu, sourcePos);
     }
 
+    public void updateSlotPositions(IntUnaryOperator transformX) {
+        for (int index = 9; index < 45; index++) {
+            this.getSlot(index).x = transformX.applyAsInt(PLAYER_INVENTORY_X + 18 * ((index - 9) % 9));
+        }
+    }
+
     @Override
     public ItemStack getCarried() {
         return this.inventoryMenu.getCarried();
@@ -74,8 +81,8 @@ public class StorageMenu extends AbstractContainerMenu {
     }
 
     /**
-     * 仓储界面不应触发原版容器点击逻辑：所有交互（含背包槽）都走 RPC。
-     * 兜底为空实现，任何路径都不会真正同步到服务端。
+     * 仓储界面自行处理点击，不通过此菜单执行原版点击逻辑。
+     * 此处仅阻止本地模拟；扩展模组的发包入口由 StorageScreen.slotClicked 拦截。
      */
     @Override
     public void clicked(int slotId, int button, ClickType clickType, Player player) {

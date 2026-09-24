@@ -20,6 +20,7 @@ import net.minecraft.nbt.NbtAccounter;
 import net.minecraft.nbt.NbtIo;
 import net.minecraft.nbt.NbtUtils;
 import net.minecraft.nbt.StringTag;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.datafix.DataFixTypes;
 import net.minecraft.world.item.ItemStack;
@@ -53,6 +54,16 @@ public final class StructureScannerFiles {
                 }
                 case IMPORT -> {
                     byte[] preview = importBlueprint(player, menu, packet.name());
+                    menu.broadcastChanges();
+                    sendFile(player, packet.id(), preview);
+                }
+                case RECIPE -> {
+                    ResourceLocation id = ResourceLocation.parse(packet.name());
+                    var recipe = player.level().getRecipeManager().byKey(id)
+                        .orElseThrow(() -> new IllegalArgumentException("Recipe is unavailable"));
+                    StructureSnapshot snapshot = StructureScannerRecipes.snapshot(recipe.value());
+                    byte[] preview = stageImport(player, menu, StructureSnapshotCodec.write(snapshot),
+                        StructureScannerRecipes.fileName(id));
                     menu.broadcastChanges();
                     sendFile(player, packet.id(), preview);
                 }

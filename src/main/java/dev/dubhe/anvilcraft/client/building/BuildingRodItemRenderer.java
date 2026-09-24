@@ -68,6 +68,10 @@ public final class BuildingRodItemRenderer {
         pushedPayload = ItemStack.EMPTY;
     }
 
+    static boolean isAttackCanceled() {
+        return attackCanceled;
+    }
+
     static void cancelAttack() {
         attackCanceled = true;
         attackUntil = 0;
