@@ -171,6 +171,20 @@ public final class MunSkyMath {
         return (Math.floorMod(dayTime, DAY_LENGTH) - 18000.0 + partialTick) / DAY_LENGTH * (Math.PI * 2);
     }
 
+    public static float solarTime(long dayTime) {
+        double turns = solarAngle(dayTime, 0) / (Math.PI * 2);
+        return (float) (turns - Math.floor(turns));
+    }
+
+    /** Preserve the source float-table boundary so detector power does not shift by one level. */
+    public static float daylightDetectorCosine(long dayTime) {
+        float angle = solarTime(dayTime) * (float) (Math.PI * 2);
+        float offset = angle < (float) Math.PI ? 0 : (float) (Math.PI * 2);
+        angle += (offset - angle) * 0.2F;
+        int index = (int) (angle * 10430.378F + 16384.0F) & 65535;
+        return (float) Math.sin(index * Math.PI * 2 / 65536.0);
+    }
+
     public static Vector referenceSun(long dayTime, double partialTick) {
         double angle = solarAngle(dayTime, partialTick);
         return new Vector(Math.sin(angle), Math.cos(angle), 0);

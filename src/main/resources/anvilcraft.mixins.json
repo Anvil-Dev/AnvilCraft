@@ -5,6 +5,10 @@
   "compatibilityLevel": "JAVA_21",
   "mixins": [
     "MunFallDamageMixin",
+    "MunLevelLightMixin",
+    "MunLevelReaderMixin",
+    "MunEnvironmentMixin",
+    "MunDaylightDetectorMixin",
     "OverworldLikeServerMixin",
     "OverworldLikeChunkGeneratorMixin",
     "OverworldLikeLightMixin",

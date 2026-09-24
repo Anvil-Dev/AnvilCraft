@@ -1309,5 +1309,40 @@
       "History-free variants compile but were not exercised on a device lacking image load/store.",
       "The timing fixture disables AFK throttling and random light flicker; this is not a cross-platform benchmark."
     ]
+  },
+  "mun_world_lighting": {
+    "source_commit": "1260db54f6e2b9f88d0a79b8108459d346344e44",
+    "status": "shared_day_night_local_brightness_and_solar_angle_ported",
+    "ported": [
+      "Origin-based dimension sky darkness and day/night using shared source solar-disc math",
+      "Position-dependent local raw brightness with direct sky light only at sky level 15",
+      "Eight-day solar angle through a native time-based environment layer",
+      "Source daylight detector behavior while leaving explicit brightness overrides and other dimensions intact",
+      "Source float-table cosine retained for exact daylight-detector boundary output"
+    ],
+    "verification": {
+      "tests_log": "build/porting/tests-mun-world-light-final-4.log",
+      "compile_log": "build/porting/compile-mun-world-light-final.log",
+      "client_log": "build/porting/client-mun-world-light-final.log",
+      "visual_report": "build/porting/mun-standard-comparison.json",
+      "required_game_tests_passed": 555,
+      "sampled_clock_times": 4205,
+      "checks": [
+        "Negative and multi-cycle time samples",
+        "Near/far-side full skylight, covered darkness and nearby block light",
+        "Normal and inverted daylight detectors against source angle/power rules",
+        "Non-Mun guard and unchanged seven-view Standard visual comparison"
+      ],
+      "cosine_cycle_ticks": 192000,
+      "detector_boundary": {
+        "time": 165260,
+        "sky_light": 9,
+        "power": 4
+      }
+    },
+    "limits": [
+      "This node ports shared light-query contracts; broad mob/crop gameplay scenarios were not separately exercised.",
+      "Remaining Moon travel, music, Monolith and optional renderer compatibility are separate work."
+    ]
   }
 }

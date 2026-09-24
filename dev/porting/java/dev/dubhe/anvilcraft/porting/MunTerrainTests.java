@@ -45,14 +45,16 @@ public final class MunTerrainTests {
             new TestData<>(environment, AnvilCraft.of("port_logistics_empty"), 1200, 0, true)));
     }
 
-    private static ServerLevel level(MinecraftServer server) {
+    static ServerLevel level(MinecraftServer server) {
         var existing = server.getLevel(CelestialTravelManager.MUN_LEVEL);
         if (existing != null) return existing;
         var biome = server.registryAccess().lookupOrThrow(Registries.BIOME)
             .getOrThrow(ResourceKey.create(Registries.BIOME, AnvilCraft.of("mun")));
         var settings = server.registryAccess().lookupOrThrow(Registries.NOISE_SETTINGS)
             .getOrThrow(ResourceKey.create(Registries.NOISE_SETTINGS, AnvilCraft.of("mun")));
-        var stem = new LevelStem(server.overworld().dimensionTypeRegistration(),
+        var type = server.registryAccess().lookupOrThrow(Registries.DIMENSION_TYPE)
+            .getOrThrow(ResourceKey.create(Registries.DIMENSION_TYPE, AnvilCraft.of("mun")));
+        var stem = new LevelStem(type,
             new NoiseBasedChunkGenerator(new FixedBiomeSource(biome), settings), OptionalLong.of(121261));
         var accessor = (MinecraftServerAccessor) server;
         var created = new ServerLevel(server, net.minecraft.util.Util.backgroundExecutor(), accessor.anvilcraft$getStorageSource(),
