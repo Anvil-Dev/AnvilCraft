@@ -135,6 +135,12 @@
   ],
   "client": [
     "MunSurfacePassMixin",
+    "MunGlRenderPassAccessor",
+    "MunShadowReceiverMixin",
+    "MunShadowChunkMixin",
+    "MunShadowLevelMixin",
+    "MunShadowChunkCacheMixin",
+    "MunEntityShadowMixin",
     "MunWorldPassMixin",
     "MunTerrainShadeMixin",
     "MunLightmapMixin",

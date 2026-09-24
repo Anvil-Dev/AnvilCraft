@@ -29,7 +29,6 @@ uniform ivec3 ShadowHistoryOrigin;
 layout(rgba32i) uniform writeonly iimage2D ShadowHistoryOutput;
 layout(r32ui) uniform uimage2D ShadowHistoryClaims;
 #endif
-uniform float AmbientFloor;
 uniform mat4 ShadowMatrix0;
 uniform mat4 ShadowMatrix1;
 uniform mat4 ShadowMatrix2;

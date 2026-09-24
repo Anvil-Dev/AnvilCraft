@@ -121,6 +121,10 @@ final class MunShadowHistory implements AutoCloseable {
         GL30C.glUniform1i(GL30C.glGetUniformLocation(program, "ShadowHistoryOutput"), 0);
         GL30C.glUniform1i(GL30C.glGetUniformLocation(program, "ShadowHistoryClaims"), 1);
         GL30C.glUniform1i(GL30C.glGetUniformLocation(program, "ShadowHistory"), 6);
+        this.bindTexture();
+    }
+
+    void bindTexture() {
         if (!this.active) return;
         final int old = GL30C.glGetInteger(GL30C.GL_ACTIVE_TEXTURE);
         GlStateManager._activeTexture(GL30C.GL_TEXTURE6);

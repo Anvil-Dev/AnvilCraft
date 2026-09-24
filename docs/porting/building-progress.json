@@ -1265,5 +1265,49 @@
       "The initial large-window fixture exceeded its 1000-call wait bound; the functional fixture now fixes its view distance to 2.",
       "Current OpenGL backend only."
     ]
+  },
+  "mun_standard_receivers": {
+    "source_commit": "1260db54f6e2b9f88d0a79b8108459d346344e44",
+    "status": "native_standard_lighting_shadows_and_change_notifications_ported_compatibility_pending",
+    "ported": [
+      "Standard directional lighting with static/dynamic cascades, colored transmission and stable integer history",
+      "Native pipeline variants and post-binding shadow uniforms, preserving vanilla terrain albedo sampling",
+      "Ten scoped texture slots with raw access beyond the native twelve-slot state cache",
+      "Chunk load/unload, block changes and adjacent model invalidation notifications",
+      "Standard-only removal of vanilla entity blob shadows and persistent OFF fallback",
+      "History-free shader variants without eager image-load/store compilation on unsupported hardware"
+    ],
+    "verification": {
+      "source_client_log": "build/porting/client-mun-standard-source-final.log",
+      "target_client_log": "build/porting/client-mun-standard-target-final-3.log",
+      "reload_client_log": "build/porting/client-mun-standard-reload-final.log",
+      "compile_style_log": "build/porting/compile-mun-standard-final-2.log",
+      "datagen_log": "build/porting/datagen-mun-standard-final.log",
+      "report": "build/porting/mun-standard-comparison.json",
+      "scene_pairs": 7,
+      "lightmap_equal_pixels": 256,
+      "source_surface_functions_equal": 12,
+      "receiver_scope_frames": 8967,
+      "restored_texture_slots": 10,
+      "ordinary_shadow_mask_iou_min": 0.99430965806218,
+      "large_coordinate_shadow_mask_iou": 0.9441727791361043,
+      "max_shadow_pixels_beyond_one_pixel": 8,
+      "max_material_region_mean_rgb_difference": 4.244133522727273,
+      "first_capture_wait_ms_source": 20550,
+      "first_capture_wait_ms_target": 21105,
+      "checks": [
+        "Native terrain sampling functions match the current vanilla shader",
+        "Actual block and same-state adjacent model notifications reach the cache",
+        "Texture/sampler/image restoration, normal source comparisons and clean client exits",
+        "Sky, caster, dynamic mesh and cascade-cache probes pass after resource reload"
+      ]
+    },
+    "limits": [
+      "Sparse raster and texture-boundary differences remain; whole-frame pixel equality is not claimed.",
+      "Native vanilla OFF rendering, texture filtering and AO differences are intentionally retained.",
+      "Iris/Sodium integration, server lighting hooks and broad gameplay/motion coverage remain pending.",
+      "History-free variants compile but were not exercised on a device lacking image load/store.",
+      "The timing fixture disables AFK throttling and random light flicker; this is not a cross-platform benchmark."
+    ]
   }
 }

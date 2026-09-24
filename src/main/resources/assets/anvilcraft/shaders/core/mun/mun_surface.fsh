@@ -1,4 +1,7 @@
 #version 330
+#ifdef MUN_SHADOW_HISTORY
+#extension GL_ARB_shader_image_load_store : require
+#endif
 #moj_import <minecraft:fog.glsl>
 #moj_import <anvilcraft:mun/mun_surface_uniforms.glsl>
 #moj_import <anvilcraft:mun/mun_surface.glsl>

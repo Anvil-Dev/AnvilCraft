@@ -28,12 +28,22 @@ public final class MunSurfaceClientScene {
     private static int supplied = -1;
     private static long next;
     private static long deadline;
+    private static long frames;
+    private static long startedFrame;
+    private static long startedAt;
 
     @SubscribeEvent
     public static void before(RenderFrameEvent.Pre event) {
         if (!Boolean.getBoolean("anvilcraft.portMunSurfaceScene") || !ready || stage >= NAMES.length) return;
+        frames++;
         var client = Minecraft.getInstance();
         if (client.level != null && client.player != null) controls(client);
+    }
+
+    @SubscribeEvent
+    public static void tick(net.neoforged.neoforge.client.event.ClientTickEvent.Post event) {
+        var client = Minecraft.getInstance();
+        if (Boolean.getBoolean("anvilcraft.portMunSurfaceScene") && ready && client.level != null) freezeLightmap(client);
     }
 
     public static void frame(Minecraft client) {
@@ -53,8 +63,10 @@ public final class MunSurfaceClientScene {
         }
         if (supplied != stage) {
             supplied = stage;
+            startedFrame = frames;
+            startedAt = System.currentTimeMillis();
             ready = false;
-            AnvilCraft.CLIENT_CONFIG.munLightingQuality = stage == 4 ? MunLightingQuality.OFF : MunLightingQuality.POTATO;
+            AnvilCraft.CLIENT_CONFIG.munLightingQuality = quality();
             client.options.ambientOcclusion().set(stage != 3);
             client.levelRenderer.allChanged();
             client.getSingleplayerServer().execute(() -> {
@@ -102,19 +114,55 @@ public final class MunSurfaceClientScene {
             next = System.currentTimeMillis() + 1500;
             return;
         }
+        if (Boolean.getBoolean("anvilcraft.portMunStandardScene") && stage != 4 && !shadowsReady()) {
+            next = Math.max(next, System.currentTimeMillis() + 1500);
+            return;
+        }
         if (capturing || System.currentTimeMillis() < next) return;
-        if (AnvilCraft.CLIENT_CONFIG.munLightingQuality != (stage == 4 ? MunLightingQuality.OFF : MunLightingQuality.POTATO)) {
+        if (AnvilCraft.CLIENT_CONFIG.munLightingQuality != (quality())) {
             throw new IllegalStateException("Unexpected Moon lighting fallback at " + NAMES[stage]);
         }
         capturing = true;
+        AnvilCraft.LOGGER.info("PORT_MUN_SURFACE_TIMING: {}, frames={}, milliseconds={}",
+            NAMES[stage], frames - startedFrame, System.currentTimeMillis() - startedAt);
         if (stage == 1) dumpLightmap(client);
         AnvilCraft.LOGGER.info("PORT_MUN_SURFACE_SAMPLE: {}, time={}, center={}, quality={}",
             NAMES[stage], time(), center(), AnvilCraft.CLIENT_CONFIG.munLightingQuality);
-        Screenshot.grab(client.gameDirectory, "mun-surface-26.1-" + NAMES[stage] + ".png", client.getMainRenderTarget(), 1,
+        String prefix = Boolean.getBoolean("anvilcraft.portMunStandardScene") ? "mun-standard-26.1-" : "mun-surface-26.1-";
+        Screenshot.grab(client.gameDirectory, prefix + NAMES[stage] + ".png", client.getMainRenderTarget(), 1,
             message -> client.execute(() -> {
                 capturing = false;
                 stage++;
             }));
+    }
+
+    private static MunLightingQuality quality() {
+        if (stage == 4) return MunLightingQuality.OFF;
+        return Boolean.getBoolean("anvilcraft.portMunStandardScene") ? MunLightingQuality.STANDARD : MunLightingQuality.POTATO;
+    }
+
+    private static boolean shadowsReady() {
+        try {
+            Class<?> renderer = Class.forName("dev.dubhe.anvilcraft.client.renderer.mun.MunSurfaceRenderer");
+            Object map;
+            try {
+                var owner = renderer.getDeclaredField("SHADOWS");
+                owner.setAccessible(true);
+                Object receiver = owner.get(null);
+                var field = receiver.getClass().getDeclaredField("map");
+                field.setAccessible(true);
+                map = field.get(receiver);
+            } catch (NoSuchFieldException ignored) {
+                var field = renderer.getDeclaredField("SHADOW_MAP");
+                field.setAccessible(true);
+                map = field.get(null);
+            }
+            var pending = map.getClass().getDeclaredField("meshesPending");
+            pending.setAccessible(true);
+            return !pending.getBoolean(map);
+        } catch (ReflectiveOperationException exception) {
+            throw new IllegalStateException(exception);
+        }
     }
 
     private static BlockPos center() {
@@ -126,6 +174,7 @@ public final class MunSurfaceClientScene {
     }
 
     private static void controls(Minecraft client) {
+        client.options.inactivityFpsLimit().set(net.minecraft.client.InactivityFpsLimit.MINIMIZED);
         client.options.fov().set(70);
         client.options.renderDistance().set(8);
         client.options.fovEffectScale().set(0.0);
