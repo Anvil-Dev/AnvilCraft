@@ -1195,5 +1195,41 @@
       "Synthetic GPU caster checks do not establish world-shadow visual parity.",
       "Only the current OpenGL backend has been exercised."
     ]
+  },
+  "mun_entity_shadows": {
+    "source_commit": "1260db54f6e2b9f88d0a79b8108459d346344e44",
+    "status": "native_dynamic_capture_ported_world_cascades_and_receivers_pending",
+    "ported": [
+      "Native entity/block-entity render-state extraction and feature replay into shadow vertices",
+      "Model, model-part, item, block, custom geometry and leash feature paths with source material exclusions",
+      "Native BLOCK format support after removal of the normal vertex attribute",
+      "Shared static/dynamic shadow VAO/VBO implementation with source dynamic upload semantics",
+      "Source distance/count/vertex limits, per-frame reuse and 60-frame idle retention",
+      "Texture/sampler restoration and explicit auxiliary native buffer disposal"
+    ],
+    "verification": {
+      "client_log": "build/porting/client-mun-entities-final-4.log",
+      "compile_log": "build/porting/compile-mun-entities-final.log",
+      "report": "build/porting/mun-entity-shadows-comparison.json",
+      "sky_report": "build/porting/mun-sky-comparison.json",
+      "source_equal_capture_functions": 7,
+      "scene_depth_pixels_before_and_after_reload": [
+        456,
+        456
+      ],
+      "checks": [
+        "Cow/chest/item/falling-block scene and rotating AnvilCraft creative generator",
+        "Changed animated geometry with stable GPU buffer handles",
+        "Dynamic vertex budget, invisible/distant exclusion, idle eviction and cleanup",
+        "Reload-time capture, exact caster/mesh resource regressions and ten sky comparisons",
+        "Clean client save and process exit"
+      ],
+      "readback_regression": "Dev depth readback now restores pack row length and pack buffer after native screenshots."
+    },
+    "limits": [
+      "Standard world shadows still require cascade cache and receiver binding integration.",
+      "Source-versus-target scene shadow appearance and dense-scene performance remain unverified.",
+      "Only the current OpenGL backend and selected native/mod renderers were exercised."
+    ]
   }
 }

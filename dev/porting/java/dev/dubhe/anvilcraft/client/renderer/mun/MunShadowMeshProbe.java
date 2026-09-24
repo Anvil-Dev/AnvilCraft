@@ -241,9 +241,11 @@ public final class MunShadowMeshProbe {
 
     private static int field(MunShadowMesh mesh, String name) {
         try {
-            var field = MunShadowMesh.class.getDeclaredField(name);
+            var owner = MunShadowMesh.class.getDeclaredField("vertices");
+            owner.setAccessible(true);
+            var field = MunShadowVertexBuffer.class.getDeclaredField(name);
             field.setAccessible(true);
-            return field.getInt(mesh);
+            return field.getInt(owner.get(mesh));
         } catch (ReflectiveOperationException exception) {
             throw new IllegalStateException(exception);
         }
