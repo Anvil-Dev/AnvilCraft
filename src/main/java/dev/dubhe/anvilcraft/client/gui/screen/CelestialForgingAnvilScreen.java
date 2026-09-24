@@ -1266,7 +1266,7 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
             if (!be.isAmplifierPresent()) {
                 var amplified = CelestialBodyMatcher.match(be.getAnvilCount(0), be.getAnvilCount(1), be.getAnvilCount(2),
                     be.getAnvilCount(3), true, this.minecraft.level.getRandom());
-                if (amplified instanceof StarData) {
+                if (amplified instanceof StarData star && !star.specialRedDwarf()) {
                     this.missingAmplifierBlocked = true;
                     LargeBlockPlacePreviewEventListener.offerMissingAmplifierAnvil(be.getBlockPos());
                     return;

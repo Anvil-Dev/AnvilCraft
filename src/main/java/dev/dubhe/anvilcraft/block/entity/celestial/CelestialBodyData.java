@@ -14,6 +14,10 @@ public sealed interface CelestialBodyData permits RockyPlanetData, GiantPlanetDa
 
     int size();
 
+    default boolean usesLargeStellarRings() {
+        return this.size() >= 48 && !(this instanceof StarData star && star.specialRedDwarf());
+    }
+
     float axialTilt();
 
     /**

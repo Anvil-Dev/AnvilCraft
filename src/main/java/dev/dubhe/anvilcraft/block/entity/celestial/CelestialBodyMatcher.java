@@ -359,7 +359,7 @@ public final class CelestialBodyMatcher {
             CelestialBodyClass.BROWN_DWARF,
             PressureType.GAS, WindSpeed.HIGH, RingType.NONE, size,
             baseRow, overlayRow,
-            CelestialBodyMatcher.randomAxialTilt(random), CelestialBodyMatcher.randomRotationSpeed(random), mag, true
+            CelestialBodyMatcher.randomAxialTilt(random), CelestialBodyMatcher.randomRotationSpeed(random), mag, true, energy
         );
     }
 

@@ -244,6 +244,21 @@ public class CfaMegastructureManager {
         this.clearAllLaserRequirements(be);
     }
 
+    public void clearAuxiliaryMegastructures(CelestialForgingAnvilBlockEntity be) {
+        boolean acceleratorCleared = false;
+        for (Megastructure definition : ModRegistries.MEGASTRUCTURE) {
+            if (!definition.auxiliary()) continue;
+            IMegastructureHandler handler = this.handlers.get(definition.id());
+            if (handler != null && handler.isAuxiliaryActive(be)) {
+                handler.onClear(be);
+                acceleratorCleared |= handler == this.acceleratorHandler;
+            }
+        }
+        if (!acceleratorCleared && this.acceleratorHandler.isAuxiliaryActive(be)) {
+            this.acceleratorHandler.onClear(be);
+        }
+    }
+
     public void clearAllMegastructures(CelestialForgingAnvilBlockEntity be) {
         for (Megastructure megastructure : ModRegistries.MEGASTRUCTURE) {
             if (!megastructure.auxiliary()) continue;

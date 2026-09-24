@@ -706,6 +706,7 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity
     }
 
     public void serverTick() {
+        this.normalizeRedDwarfState();
         this.syncRedstoneSignalIfChanged();
         this.searchController.serverTick(this);
 
@@ -751,7 +752,7 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity
 
     public void tick() {
         if (this.level != null && this.level.isClientSide()) {
-            boolean missing = this.celestialBodyData instanceof StarData && !this.amplifierPresent;
+            boolean missing = this.celestialBodyData instanceof StarData star && !star.specialRedDwarf() && !this.amplifierPresent;
             if (missing != this.clientMissingAmplifier) {
                 this.clientMissingAmplifier = missing;
                 if (missing) LargeBlockPlacePreviewEventListener.offerMissingAmplifierAnvil(this.worldPosition);
@@ -775,6 +776,25 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity
         // 客户端超新星闪光倒计时。
         if (this.supernovaFlashTicks > 0) this.supernovaFlashTicks--;
 
+    }
+
+    /** Completes the stellar mode switch, including red dwarfs loaded from older saves. */
+    public void normalizeRedDwarfState() {
+        if (!(this.celestialBodyData instanceof StarData star) || !star.specialRedDwarf()) return;
+        boolean brownDwarfSphere = ModMegastructures.DYSON_SPHERE_BROWN_DWARF.getId()
+            .equals(this.megastructureManager.getActiveId(this));
+        if (this.isAmplify && !brownDwarfSphere) return;
+        this.megastructureManager.clearAuxiliaryMegastructures(this);
+        this.clearMegastructure();
+        this.removeGravitySource();
+        this.locked = true;
+        this.clearSearchHistory();
+        this.setAmplify(true);
+        this.setChanged();
+        if (this.grid != null) this.grid.markChanged();
+        if (this.level != null && !this.level.isClientSide()) {
+            this.level.sendBlockUpdated(this.worldPosition, this.getBlockState(), this.getBlockState(), 3);
+        }
     }
 
     public void setAmplify(boolean amplify) {

@@ -63,6 +63,7 @@ public class CFARenderState extends BlockEntityRenderState {
     private float stellarEventProgress;
     private boolean bodyOnlyItem;
 
+    private boolean brownDwarfDysonSphere;
     private boolean dysonSphereR4;
     private boolean dysonSphereR5;
     private boolean magnetarCoil;

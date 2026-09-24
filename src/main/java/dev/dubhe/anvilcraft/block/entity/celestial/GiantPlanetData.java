@@ -13,8 +13,39 @@ public record GiantPlanetData(
     float axialTilt,
     int rotationSpeed,
     int magneticFieldStrength,
-    boolean brownDwarf
+    boolean brownDwarf,
+    int energy
 ) implements CelestialBodyData {
+
+    /** Backwards-compatible constructor for giant planets stored before energy was persisted. */
+    public GiantPlanetData(
+        CelestialBodyClass bodyClass,
+        PressureType pressureType,
+        WindSpeed windSpeed,
+        RingType ringType,
+        int size,
+        int paletteBaseRow,
+        int paletteOverlayRow,
+        float axialTilt,
+        int rotationSpeed,
+        int magneticFieldStrength,
+        boolean brownDwarf
+    ) {
+        this(
+            bodyClass,
+            pressureType,
+            windSpeed,
+            ringType,
+            size,
+            paletteBaseRow,
+            paletteOverlayRow,
+            axialTilt,
+            rotationSpeed,
+            magneticFieldStrength,
+            brownDwarf,
+            0
+        );
+    }
 
     @Override
     public CelestialBodyType type() {
@@ -36,6 +67,7 @@ public record GiantPlanetData(
         tag.putInt("rotationSpeed", this.rotationSpeed);
         tag.putInt("magneticFieldStrength", this.magneticFieldStrength);
         tag.putBoolean("brownDwarf", this.brownDwarf);
+        tag.putInt("energy", this.energy);
         return tag;
     }
 
@@ -54,7 +86,8 @@ public record GiantPlanetData(
             tag.getFloatOr("axialTilt", 0f),
             tag.getIntOr("rotationSpeed", 0),
             mag,
-            bd
+            bd,
+            tag.getIntOr("energy", 0)
         );
     }
 }

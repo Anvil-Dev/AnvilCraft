@@ -82,6 +82,10 @@ public final class PortVisualScene {
             if (Boolean.getBoolean("anvilcraft.portCfaItemScene")) prepared = true;
             else server.execute(() -> prepare(server));
         }
+        if (Boolean.getBoolean("anvilcraft.portDysonScene")) {
+            if (prepared) DysonSphereClientScene.frame(client);
+            return;
+        }
         if (Boolean.getBoolean("anvilcraft.portCfaMapScene")) {
             if (prepared) CelestialMapClientScene.frame(client);
             return;

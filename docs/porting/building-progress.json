@@ -752,5 +752,34 @@
       "Physical Shift injection was not observed by GLFW; source-equivalent branch retained, both wheel axes tested independently.",
       "Chart screenshots do not certify all CFA UI, locked/history combinations or multiplayer contention."
     ]
+  },
+  "cfa_dyson_supply": {
+    "source_commit": "a378f98e4d41d0d92f97cf2486ac9da7881b1674",
+    "status": "ported_with_focused_and_world_snapshot_validation",
+    "ported": [
+      "Ring-two brown-dwarf Dyson sphere, original model and bilingual descriptions",
+      "Persisted giant energy with legacy input fallback",
+      "Transactional primordial-matter consumption, four brown-dwarf and three small-star boost tiers after 40 stable ticks",
+      "Persistent surplus matter and 12800-bucket special-red-dwarf transformation",
+      "Legacy normalization, small stellar ring classification, accelerator exclusion and source amplifier visibility distinction",
+      "Brown Dyson and outer-ring Y-axis synchronized rendering"
+    ],
+    "verification": {
+      "focused_tests": 4,
+      "focused_log": "build/porting/tests-dyson-1.log",
+      "full_tests": 532,
+      "full_log": "build/porting/tests-dyson-full-1.log",
+      "source_log": "build/porting/client-dyson-source-4.log",
+      "target_log": "build/porting/client-dyson-target-3.log",
+      "report": "build/porting/dyson-visual-comparison.json",
+      "world_scenes_per_version": 6,
+      "max_geometry_camera_difference": 0,
+      "compile_style_log": "build/porting/validate-dyson-final-3.log",
+      "datagen_log": "build/porting/datagen-dyson-1.log"
+    },
+    "limits": [
+      "Native sky/cloud/fog appearance remains different; world pixel identity is not asserted.",
+      "Fixed snapshots do not cover full continuous transformation, multiplayer or custom resource-pack behavior."
+    ]
   }
 }

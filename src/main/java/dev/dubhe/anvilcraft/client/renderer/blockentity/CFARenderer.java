@@ -296,6 +296,7 @@ public class CFARenderer implements BlockEntityRenderer<CelestialForgingAnvilBlo
             }
         }
         state.setPenroseLaserActive(be.isPenroseSphereLaserActive());
+        state.setBrownDwarfDysonSphere(ModMegastructures.DYSON_SPHERE_BROWN_DWARF.getId().equals(megastructureId));
         state.setDysonSphereR4(ModMegastructures.DYSON_SPHERE_SMALL.getId().equals(megastructureId));
         state.setDysonSphereR5(ModMegastructures.DYSON_SPHERE_LARGE.getId().equals(megastructureId));
         state.setMagnetarCoil(ModMegastructures.MAGNETAR_COIL.getId().equals(megastructureId));
@@ -344,10 +345,14 @@ public class CFARenderer implements BlockEntityRenderer<CelestialForgingAnvilBlo
         state.setInnerVisibleNow(isRingVisible(innerIndex, bodyData, isAmplify));
         state.setInnerWasVisible(prevBody == null || isRingVisible(innerIndex, prevBody, isAmplify));
 
+        if (!isAmplify && state.isBrownDwarfDysonSphere()) {
+            state.setHasMiddleRing(false);
+            state.setHasOuterRing(false);
+        }
         // 特殊巨构使用随恒星同步的额外渲染层替代机械环时，隐藏骨骼层级中的对应环。
         if (isAmplify) {
             boolean anyDyson = state.isDysonSphereR4() || state.isDysonSphereR5();
-            boolean isSmallStar = bodyData != null && bodyData.size() < 48;
+            boolean isSmallStar = bodyData != null && !bodyData.usesLargeStellarRings();
             // 戴森球隐藏外环；彭罗斯球仅在加速器未工作时隐藏外环。
             boolean hideOuterForPenrose = state.isPenroseSphere() && !state.isAcceleratorActive();
             if (anyDyson || hideOuterForPenrose) {
@@ -371,9 +376,9 @@ public class CFARenderer implements BlockEntityRenderer<CelestialForgingAnvilBlo
         if (bodyData instanceof SpecialCelestialBodyData special && special.isPlayerHead()) return false;
         if (isAmplify) {
             return switch (ring) {
-                case 4 -> bodyData == null || bodyData.size() < 48;
+                case 4 -> bodyData == null || !bodyData.usesLargeStellarRings();
                 case 5 -> true;
-                case 6 -> bodyData == null || bodyData.size() >= 48;
+                case 6 -> bodyData == null || bodyData.usesLargeStellarRings();
                 default -> false;
             };
         } else {
@@ -459,7 +464,7 @@ public class CFARenderer implements BlockEntityRenderer<CelestialForgingAnvilBlo
                 state.setR5DysonModel(FeatureRendererSupport.createTessellation(
                     R5_DYSON_SPHERE, false, false));
             }
-            boolean isSmallStar = bodyData.size() < 48;
+            boolean isSmallStar = !bodyData.usesLargeStellarRings();
             state.setDysonSmallStar(isSmallStar);
             if (state.isDysonSphereR4() && isSmallStar) {
                 state.setDysonOuterRingModel(FeatureRendererSupport.createTessellation(
@@ -772,8 +777,31 @@ public class CFARenderer implements BlockEntityRenderer<CelestialForgingAnvilBlo
         );
     }
 
+    private void submitBrownDwarfDysonRings(CFARenderState state, PoseStack pose, SubmitNodeCollector collector) {
+        if (state.getAnimationProgress() < 0.001F) return;
+        CelestialBodyData body = state.getBodyData();
+        if (body == null) return;
+        float rotation = state.getBodyRotation() * CelestialBodyData.getVisualRotationSpeed(body.rotationSpeed());
+        float sphereScale = 6 + (CelestialBodyData.ringSystemScale(body, false) - 6) * state.getRedstoneFactor();
+        if (state.getMiddleRingModel() != null) {
+            pushRing(pose, state.getCenterY(), sphereScale);
+            pose.mulPose(Axis.YP.rotationDegrees(rotation));
+            this.tessellateModel(state.getMiddleRingModel(), pose, collector);
+            pose.popPose();
+        }
+        if (state.getOuterRingModel() != null) {
+            pushRing(pose, state.getCenterY(), state.getRingScale());
+            pose.mulPose(Axis.YP.rotationDegrees(rotation));
+            this.tessellateModel(state.getOuterRingModel(), pose, collector);
+            pose.popPose();
+        }
+    }
+
     /// 渲染戴森球、彭罗斯球、磁星线圈和物质解压器的恒星同步层。
     private void submitMegastructureRings(CFARenderState state, PoseStack pose, SubmitNodeCollector collector) {
+        if (!state.isAmplified() && state.isBrownDwarfDysonSphere() && state.getBodyData() != null) {
+            this.submitBrownDwarfDysonRings(state, pose, collector);
+        }
         if (!state.isAmplified() || !(state.getBodyData() instanceof StarData star)) return;
         float centerY = state.getCenterY();
         float ringScale = state.getRingScale();

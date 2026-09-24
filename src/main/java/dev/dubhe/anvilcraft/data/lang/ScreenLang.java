@@ -435,6 +435,21 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.cfa.megastructure.temple", "Temple"); // 神庙
         provider.add("screen.anvilcraft.cfa.megastructure.giant_planet_exctractor", "Giant Planet Exctractor"); // 巨行星抽取器
         provider.add("screen.anvilcraft.cfa.megastructure.stellar_ring_collider", "Stellar Ring Collider"); // 星环对撞机
+        provider.add("screen.anvilcraft.cfa.megastructure.dyson_sphere_brown_dwarf", "Brown Dwarf Dyson Sphere"); // 戴森球（褐矮星）
+        provider.add("screen.anvilcraft.cfa.megastructure.dyson_sphere_brown_dwarf.description", "Collecting a brown dwarf's energy to generate power; primordial matter can amplify the output and eventually turn it into a red dwarf");
+        provider.add("screen.anvilcraft.cfa.megastructure.dyson_sphere_brown_dwarf.usage",
+            """
+                Requires:
+                §b[Flu Int]§r
+                §fPrimordial Matter: 250mB–2B per tick, stable for 40gt§r
+                ———————
+                Outputs:
+                §a[Power Grid]§r
+                §fP=(E×R²)/1600 MW; stable supply provides ×1.5/×2/×3/×5§r
+                ———————
+                Side Effects:
+                §fMatter above 2B accumulates; 12800B turns the brown dwarf into a red dwarf§r"""
+        );
         provider.add("screen.anvilcraft.cfa.megastructure.dyson_sphere_small", "Dyson Sphere"); // 小戴森球
         provider.add("screen.anvilcraft.cfa.megastructure.dyson_sphere_large", "Dyson Sphere"); // 大戴森球
         provider.add("screen.anvilcraft.cfa.megastructure.magnetar_coil", "Magnetar Coil"); // 磁星线圈

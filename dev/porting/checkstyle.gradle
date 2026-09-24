@@ -61,6 +61,7 @@ allprojects {
             include '**/UseItemOnBlock.java', '**/ProcessingTablePlacement.java', '**/ModBlockPlacementRuleProvider.java'
             include '**/BlockItemHandlerPointer.java', '**/ItemEntityPointer.java'
             include '**/ItemDetectorBlockEntity.java', '**/PulseGeneratorBlockEntity.java'
+            include '**/DysonSphereHandler.java', '**/BaseMegastructureHandler.java', '**/GiantPlanetData.java', '**/CelestialBodyMatcher.java', '**/ModMegastructures.java', '**/CelestialForgingAnvilFluidInterfaceBlockEntity.java'
             include '**/AcceleratorHandler.java', '**/CelestialForgingAnvilBlockEntity.java', '**/StarData.java', '**/CelestialBodyData.java', '**/CelestialBodyClass.java', '**/CFARenderState.java', '**/FullBrightNoOpLighter.java'
             include '**/QuenchedOut*.java', '**/IMegastructureHandler.java', '**/CfaMegastructureManager.java', '**/WormholeStabilizerHandler.java', '**/ModSoundEvents.java', '**/ModSoundDefinitionsProvider.java'
             include '**/CelestialMapsGuideWidget.java', '**/CelestialForgingAnvilScreen.java', '**/CfaPreviewPipRenderer.java', '**/CelestialShellRenderer.java'
