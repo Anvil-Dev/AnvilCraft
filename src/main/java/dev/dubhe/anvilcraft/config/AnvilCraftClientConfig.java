@@ -19,6 +19,21 @@ public class AnvilCraftClientConfig {
         + "Rendering failures fall back to Vanilla until resources reload. Changes take effect immediately.")
     public CelestialRenderingMode stellarRenderingMode = CelestialRenderingMode.STANDARD;
 
+    @Comment("Mun lighting: Potato uses Standard lighting and ambient occlusion without custom shadows, retaining vanilla entity shadows; "
+        + "Standard adds terrain, animated entity, and colored translucent shadows; "
+        + "Vanilla uses the vanilla rendering pipeline without Mun shaders, retaining the cloudless Mun sky, Overworld and moving stars. "
+        + "Rendering failures switch this setting to Vanilla. Shadow range is limited by render distance.")
+    public MunLightingQuality munLightingQuality = MunLightingQuality.STANDARD;
+
+    public enum MunLightingQuality implements TranslatableEnum {
+        @SerializedName("Potato")
+        POTATO,
+        @SerializedName("Standard")
+        STANDARD,
+        @SerializedName("Off")
+        OFF
+    }
+
     public enum CelestialRenderingMode implements TranslatableEnum {
         @SerializedName("Vanilla")
         VANILLA,

@@ -2802,5 +2802,10 @@
   "anvilcraft.configuration.render_overworld_like_sky": "渲染类主世界天空",
   "anvilcraft.configuration.render_overworld_like_sky.tooltip": "在类主世界维度渲染共享束星环",
   "block.anvilcraft.lunar_rock": "月岩",
-  "block.anvilcraft.lunar_soil": "月壤"
+  "block.anvilcraft.lunar_soil": "月壤",
+  "anvilcraft.configuration.mun_lighting_quality": "月球光照质量",
+  "anvilcraft.configuration.mun_lighting_quality.tooltip": "[土豆] 使用标准光照和环境光遮蔽，没有自定义阴影\n[标准]添加地形、动画实体和彩色半透明阴影\n[香草] 使用原版渲染管线，不使用月球着色器，保留月球天空\n渲染失败会将该设置切换为[香草]，阴影范围受渲染距离限制",
+  "anvillib.configuration.enum.dev.dubhe.anvilcraft.config.anvil_craft_client_config.mun_lighting_quality.off": "香草",
+  "anvillib.configuration.enum.dev.dubhe.anvilcraft.config.anvil_craft_client_config.mun_lighting_quality.potato": "土豆",
+  "anvillib.configuration.enum.dev.dubhe.anvilcraft.config.anvil_craft_client_config.mun_lighting_quality.standard": "标准"
 }

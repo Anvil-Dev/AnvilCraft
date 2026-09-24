@@ -1033,11 +1033,41 @@
       "datagen_style_log": "build/porting/datagen-mun-foundation-final-3.log"
     },
     "limits": [
-      "Builtin Mun dimension and CFA/pearl entry are not enabled yet.",
+      "Builtin Mun dimension and sky are supplied by mun_sky; CFA/pearl entry remains pending.",
       "The GameTest uses a temporary Mun level with matching height limits and an explicit source seed.",
       "Mun sky, custom lighting/shadows, music, Monolith and client appearance remain required followups.",
       "Source updates since a378f98e4 are separately tracked in source_update_1260db54f.",
       "Other pre-existing BlockItem registrations need a separate audit of native translation prefixes."
+    ]
+  },
+  "mun_sky": {
+    "source_commit": "1260db54f6e2b9f88d0a79b8108459d346344e44",
+    "status": "sky_and_builtin_dimension_ported_surface_pipeline_and_travel_pending",
+    "ported": [
+      "Native custom skybox with unchanged source Earth/Sun shader calculations and textures",
+      "Original stock-shader OFF geometry, clipped horizon, stars and solar halo",
+      "World-clock interpolation and source sunlight cache",
+      "Reusable GPU buffers with resource-reload and shutdown cleanup",
+      "Source Mun dimension/generator activation, cloudless black environment and 16:1 coordinate scale"
+    ],
+    "verification": {
+      "source_client_log": "build/porting/client-mun-sky-source-1.log",
+      "target_client_log": "build/porting/client-mun-sky-target-final-2.log",
+      "scene_pairs": 10,
+      "report": "build/porting/mun-sky-comparison.json",
+      "max_mean_rgb_difference": 0.0036733217592592594,
+      "min_body_mask_iou": 0.9995841419462157,
+      "max_local_rgb_difference": 127,
+      "max_pixels_above_16": 37,
+      "gpu_reuse_frames": 100,
+      "compile_log": "build/porting/compile-mun-sky-final.log",
+      "datagen_style_log": "build/porting/datagen-mun-sky-final.log"
+    },
+    "limits": [
+      "Moon surface lighting, terrain/entity/translucent shadows and server lighting hooks remain pending.",
+      "CFA/pearl entry, music and Monolith are not supplied by this node.",
+      "Sky captures use fixed camera/time controls; broader motion, fluids and third-party shader-pack coverage remains pending.",
+      "Sparse texture/pixel boundary differences remain; full-frame equality is not asserted."
     ]
   }
 }

@@ -134,6 +134,7 @@
     "providence.EnchantedCountIncreaseFunctionMixin"
   ],
   "client": [
+    "MunClockRateMixin",
     "OverworldLikeLightmapMixin",
     "BuildingRodArmedStateMixin",
     "BuildingRodKeyboardMixin",
