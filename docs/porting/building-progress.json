@@ -1370,5 +1370,38 @@
       "Selection ticks were accelerated and the first track was stopped to exercise completion handling.",
       "Full track durations and subjective listening were not used as validation evidence."
     ]
+  },
+  "mun_pearl_travel": {
+    "source_commit": "1260db54f6e2b9f88d0a79b8108459d346344e44",
+    "status": "pearl_round_trip_and_arrival_damage_ported",
+    "ported": [
+      "Source height, upward velocity, total-speed and midnight launch gates",
+      "Launch-time persistent return eligibility within 128 blocks of the Moon origin",
+      "Safe random arrival near Moon spawn and return near overworld origin",
+      "Cancellable landing event, modified coordinates/damage and motion/fall reset",
+      "Delayed fall damage waits for both teleport and native client-load acknowledgements"
+    ],
+    "verification": {
+      "client_log": "build/porting/client-mun-pearl-final.log",
+      "compile_log": "build/porting/compile-mun-pearl-final.log",
+      "report": "build/porting/mun-pearl-comparison.json",
+      "source_rules_equal_after_api_mapping": true,
+      "round_trip_damage": [
+        1,
+        3
+      ],
+      "checks": [
+        "Exact and negative-time midnight window edges",
+        "Y=512 boundary, upward direction and total speed including diagonal motion",
+        "Cancellation consumes pearl without moving the player",
+        "Radius-128 launch acceptance and persistent eligibility after owner movement",
+        "Real cross-dimension flight, target override, facing and velocity reset",
+        "Return ignores a moved overworld spawn and damage is applied once after load acknowledgement"
+      ]
+    },
+    "limits": [
+      "Long-term pearl persistence and multiplayer disconnect races were not separately exercised.",
+      "CFA entry and Monolith world/spawn integration remain separate work."
+    ]
   }
 }
