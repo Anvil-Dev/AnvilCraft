@@ -71,7 +71,9 @@ public final class PortVisualScene {
                 name,
                 new LevelSettings(name, GameType.CREATIVE,
                     new LevelSettings.DifficultySettings(Difficulty.PEACEFUL, false, false), true, WorldDataConfiguration.DEFAULT),
-                new WorldOptions(121261L, false, false), WorldPresets::createFlatWorldDimensions, client.screen
+                new WorldOptions(121261L, false, false), registries -> Boolean.getBoolean("anvilcraft.portMonolithNormalWorldScene")
+                    ? WorldPresets.createNormalWorldDimensions(registries) : WorldPresets.createFlatWorldDimensions(registries),
+                client.screen
             );
             return;
         }
@@ -81,6 +83,10 @@ public final class PortVisualScene {
             MinecraftServer server = client.getSingleplayerServer();
             if (Boolean.getBoolean("anvilcraft.portCfaItemScene")) prepared = true;
             else server.execute(() -> prepare(server));
+        }
+        if (Boolean.getBoolean("anvilcraft.portMonolithWorldScene")) {
+            if (prepared) MonolithWorldClientScene.frame(client);
+            return;
         }
         if (Boolean.getBoolean("anvilcraft.portMonolithScene")) {
             if (prepared) MonolithClientScene.frame(client);

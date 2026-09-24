@@ -16,6 +16,7 @@ import dev.dubhe.anvilcraft.dfu.AnvilCraftDfu;
 import dev.dubhe.anvilcraft.init.ModAttachments;
 import dev.dubhe.anvilcraft.init.ModBiomeSources;
 import dev.dubhe.anvilcraft.init.ModDensityFunctionTypes;
+import dev.dubhe.anvilcraft.init.ModStructureTypes;
 import dev.dubhe.anvilcraft.init.ModBlockPlacementFallbacks;
 import dev.dubhe.anvilcraft.init.ModCriterionTriggers;
 import dev.dubhe.anvilcraft.init.ModDataAttachments;
@@ -106,6 +107,7 @@ public class AnvilCraft {
         ModMegastructures.register(modEventBus);
         ModBiomeSources.register(modEventBus);
         ModDensityFunctionTypes.register(modEventBus);
+        ModStructureTypes.register(modEventBus);
         ModTargetPointers.register(modEventBus);
         ModComponents.register(modEventBus);
         ModVillagers.register(modEventBus);

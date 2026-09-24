@@ -1,4 +1,7 @@
 {
+  "message.anvilcraft.monolith.giant_offering": "向石碑献上巨型铁砧获取知识",
+  "message.anvilcraft.monolith.offering": "向石碑献上铁砧获取知识",
+  "message.anvilcraft.monolith.return_confirmation": "石碑能帮助你返回，3 秒内再次触摸返程",
   "block.anvilcraft.giant_monolith_core": "巨型石碑核心",
   "block.anvilcraft.giant_monolith_line": "巨型石碑线条",
   "block.anvilcraft.monolith": "石碑方块",

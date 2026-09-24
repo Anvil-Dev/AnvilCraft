@@ -73,7 +73,7 @@ public final class CelestialTravelTests {
     }
 
     @SuppressWarnings("unchecked")
-    private static ServerLevel createTestDimension(GameTestHelper helper, ResourceKey<Level> dimension) {
+    public static ServerLevel createTestDimension(GameTestHelper helper, ResourceKey<Level> dimension) {
         var server = helper.getLevel().getServer();
         try (var input = java.util.Objects.requireNonNull(CelestialTravelTests.class.getResourceAsStream(
             "/data/anvilcraft/dimension/port_travel_void.json"));

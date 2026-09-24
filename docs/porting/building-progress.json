@@ -1478,5 +1478,37 @@
       "Native terrain/sky rendering and small composite-color differences remain.",
       "The failed source setup with overlapping fixtures was terminated after its wait state was diagnosed."
     ]
+  },
+  "monolith_world_and_interaction": {
+    "source_commit": "1260db54f6e2b9f88d0a79b8108459d346344e44",
+    "status": "generation_saved_state_hints_and_confirmed_return_ported",
+    "ported": [
+      "Original giant/small templates, structure type and clipped structure piece",
+      "New-world-only generation, flat-world exclusion, rotated placement and natural dry-site preparation",
+      "Namespaced saved data with preserved legacy file import",
+      "Core POI registration, five-second proximity hint and three-second return confirmation",
+      "Respawn-based return with same-tick duplicate suppression and leave cleanup"
+    ],
+    "verification": {
+      "tests_log": "build/porting/tests-monolith-generation-final.log",
+      "flat_client_log": "build/porting/client-monolith-world-1.log",
+      "normal_client_log": "build/porting/client-monolith-normal-world-final.log",
+      "validation_log": "build/porting/validate-monolith-world-final.log",
+      "report": "build/porting/monolith-world-comparison.json",
+      "required_tests_passed": 558,
+      "source_generation_functions_equal_after_api_mapping": 8,
+      "source_templates_equal": true,
+      "checks": [
+        "Real normal-world small monolith and Moon giant generation",
+        "Flat Overworld exclusion and one-time generation state",
+        "Dry/natural terrain, two-block slope preparation and rejection without partial edits",
+        "Legacy bounding-box load and codec round trip",
+        "Actual client POI hint, expired/same-tick/60-tick confirmation cases and configured respawn return"
+      ]
+    },
+    "limits": [
+      "Normal-world automatic placement was exercised with one fixed seed; controlled fixtures cover invalid terrain.",
+      "Optional render backends and other outstanding branch features remain outside this node."
+    ]
   }
 }
