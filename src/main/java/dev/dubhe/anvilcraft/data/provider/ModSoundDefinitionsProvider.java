@@ -114,5 +114,8 @@ public class ModSoundDefinitionsProvider extends SoundDefinitionsProvider {
                     SoundDefinitionsProvider.sound(
                         Identifier.withDefaultNamespace("block.copper_bulb.turn_on"), SoundDefinition.SoundType.EVENT))
         );
+        this.add(ModSoundEvents.QUENCHED_OUT.get(), SoundDefinitionsProvider.definition()
+            .subtitle("subtitles.anvilcraft.quenched_out")
+            .with(SoundDefinitionsProvider.sound(AnvilCraft.of("quenched_out"))));
     }
 }

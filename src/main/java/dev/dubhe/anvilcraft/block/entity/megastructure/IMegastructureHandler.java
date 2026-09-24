@@ -34,6 +34,13 @@ public interface IMegastructureHandler {
     /** 客户端读取锻星砧更新标签中的同步数据。 */
     void readUpdateTag(CompoundTag tag, HolderLookup.Provider registries);
 
+    default void onUnload(CelestialForgingAnvilBlockEntity be) {
+    }
+
+    default boolean isAuxiliaryActive(CelestialForgingAnvilBlockEntity be) {
+        return false;
+    }
+
     default int getInputPower(CelestialForgingAnvilBlockEntity be) {
         return 0;
     }

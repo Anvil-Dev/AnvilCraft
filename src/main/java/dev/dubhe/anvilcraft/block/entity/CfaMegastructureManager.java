@@ -126,7 +126,77 @@ public class CfaMegastructureManager {
         }
     }
 
+    private void synchronizeRegistryHandlers() {
+        for (Megastructure definition : ModRegistries.MEGASTRUCTURE) {
+            if (!this.handlers.containsKey(definition.id())) {
+                this.handlers.put(definition.id(), definition.createHandler());
+            }
+        }
+    }
+
+    public boolean canBuild(CelestialRefactorOption option, CelestialForgingAnvilBlockEntity be) {
+        this.synchronizeRegistryHandlers();
+        if (!be.isLocked() || be.isSearching() || be.isAcceleratorActive() || be.getCelestialBodyData() == null) {
+            return false;
+        }
+        boolean currentOption = be.getClientVisibleOptions().stream()
+            .anyMatch(candidate -> candidate.id().equals(option.id()) && candidate.ring() == option.ring());
+        if (!currentOption) return false;
+        IMegastructureHandler handler = this.handlers.get(option.id());
+        if (handler == null) return false;
+        if (option.auxiliary()) {
+            return !handler.isAuxiliaryActive(be) && !this.isRingOccupied(option.ring(), be);
+        }
+        return !this.hasActiveMegastructure()
+            && this.getActiveAuxiliaryOptionForRing(be, option.ring()) == null;
+    }
+
+    private boolean isRingOccupied(int ring, CelestialForgingAnvilBlockEntity be) {
+        CelestialRefactorOption primary = this.getActiveOption(be);
+        return (primary != null && primary.ring() == ring)
+            || this.getActiveAuxiliaryOptionForRing(be, ring) != null;
+    }
+
+    public @Nullable CelestialRefactorOption getActiveAuxiliaryOptionForRing(
+        CelestialForgingAnvilBlockEntity be,
+        int ring
+    ) {
+        this.synchronizeRegistryHandlers();
+        boolean acceleratorVisited = false;
+        for (Megastructure definition : ModRegistries.MEGASTRUCTURE) {
+            if (!definition.auxiliary()) continue;
+            IMegastructureHandler handler = this.handlers.get(definition.id());
+            if (handler == null || !handler.isAuxiliaryActive(be)) continue;
+            acceleratorVisited |= handler == this.acceleratorHandler;
+            CelestialRefactorOption option = CelestialRefactorRegistry.getOption(
+                definition.id(),
+                be.getCelestialBodyData(),
+                be.isAmplify(),
+                be.getPlanetaryResourceSet()
+            );
+            if (option != null && option.ring() == ring) return option;
+        }
+        if (!acceleratorVisited && this.acceleratorHandler.isAuxiliaryActive(be)) {
+            CelestialRefactorOption option = CelestialRefactorRegistry.getOption(
+                ModMegastructures.STELLAR_EVOLUTION_ACCELERATOR.getId(),
+                be.getCelestialBodyData(),
+                be.isAmplify(),
+                be.getPlanetaryResourceSet()
+            );
+            if (option != null && option.ring() == ring) return option;
+        }
+        return null;
+    }
+
+    public void unload(CelestialForgingAnvilBlockEntity be) {
+        this.synchronizeRegistryHandlers();
+        for (IMegastructureHandler handler : this.handlers.values()) {
+            handler.onUnload(be);
+        }
+    }
+
     public void buildMegastructure(CelestialRefactorOption option, CelestialForgingAnvilBlockEntity be) {
+        if (!this.canBuild(option, be)) return;
         IMegastructureHandler handler = this.handlers.get(option.id());
         if (option.auxiliary()) {
             if (handler != null) {
@@ -151,6 +221,26 @@ public class CfaMegastructureManager {
         }
         this.activeMegastructureId = null;
         this.clearLegacyIdentity();
+        this.clearAllLaserRequirements(be);
+    }
+
+    public void clearOtherMegastructures(CelestialForgingAnvilBlockEntity be) {
+        IMegastructureHandler active = this.getActiveHandler(be);
+        if (active != null && active != this.acceleratorHandler) {
+            active.onClear(be);
+            this.activeMegastructureId = null;
+            this.clearLegacyIdentity();
+        } else if (active == null && this.hasActiveMegastructure()) {
+            this.activeMegastructureId = null;
+            this.clearLegacyIdentity();
+        }
+        for (Megastructure definition : ModRegistries.MEGASTRUCTURE) {
+            if (!definition.auxiliary()) continue;
+            IMegastructureHandler handler = this.handlers.get(definition.id());
+            if (handler != null && handler != this.acceleratorHandler && handler.isAuxiliaryActive(be)) {
+                handler.onClear(be);
+            }
+        }
         this.clearAllLaserRequirements(be);
     }
 

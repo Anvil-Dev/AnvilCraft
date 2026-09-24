@@ -178,7 +178,11 @@ if (providers.gradleProperty('portValidation').isPresent()) {
         neoForge.runs.client.systemProperty 'anvilcraft.portAutoEnchantingVisualParityScene', 'true'
         neoForge.runs.client.programArguments.addAll '--width', '1280', '--height', '720'
     }
-    if (providers.gradleProperty('portCfaItemScene').isPresent() || providers.gradleProperty('portStellarScene').isPresent()) {
+    if (providers.gradleProperty('portCfaItemScene').isPresent() || providers.gradleProperty('portStellarScene').isPresent()
+        || providers.gradleProperty('portCfaMusicScene').isPresent()) {
+        if (providers.gradleProperty('portCfaMusicScene').isPresent()) {
+            neoForge.runs.client.systemProperty 'anvilcraft.portCfaMusicScene', 'true'
+        }
         if (providers.gradleProperty('portStellarScene').isPresent()) {
             neoForge.runs.client.systemProperty 'anvilcraft.portStellarScene', 'true'
         }

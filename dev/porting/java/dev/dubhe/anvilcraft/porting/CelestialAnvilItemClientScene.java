@@ -36,6 +36,7 @@ public final class CelestialAnvilItemClientScene {
     private static final String[] STAR_NAMES = {"M", "K", "G", "F", "A", "B", "O", "White dwarf", "Neutron", "Black hole", "Brown dwarf"};
     private static final List<ItemStack> ITEMS = new ArrayList<>();
     private static int stage;
+    private static net.minecraft.core.BlockPos musicPos;
     private static long next;
     private static long deadline;
     private static boolean capturing;
@@ -81,12 +82,21 @@ public final class CelestialAnvilItemClientScene {
                 supply(client, 1, false, false);
                 advance(3);
             }
-            case 3 -> capture(client, "main-hand", 4);
+            case 3 -> {
+                if (Boolean.getBoolean("anvilcraft.portCfaMusicScene") && musicPos == null) {
+                    musicPos = client.player.blockPosition();
+                    dev.dubhe.anvilcraft.client.event.QuenchedOutMusicHandler.start(musicPos);
+                }
+                capture(client, "main-hand", 4);
+            }
             case 4 -> {
                 supply(client, 2, true, false);
                 advance(5);
             }
-            case 5 -> capture(client, "off-hand", 6);
+            case 5 -> {
+                if (Boolean.getBoolean("anvilcraft.portCfaMusicScene")) verifyMusic(client);
+                capture(client, "off-hand", 6);
+            }
             case 6 -> {
                 supply(client, 2, false, true);
                 client.options.setCameraType(CameraType.THIRD_PERSON_FRONT);
@@ -148,6 +158,21 @@ public final class CelestialAnvilItemClientScene {
             }
             case 16 -> finish(client);
             default -> throw new IllegalStateException("Unknown CFA item stage");
+        }
+    }
+
+    private static void verifyMusic(Minecraft client) {
+        try {
+            var field = dev.dubhe.anvilcraft.client.event.QuenchedOutMusicHandler.class.getDeclaredField("ACTIVE");
+            field.setAccessible(true);
+            var active = (java.util.Map<?, ?>) field.get(null);
+            var sound = (net.minecraft.client.resources.sounds.AbstractTickableSoundInstance) active.get(musicPos);
+            if (sound == null || !client.getSoundManager().isActive(sound)) throw new IllegalStateException("CFA music did not play");
+            dev.dubhe.anvilcraft.client.event.QuenchedOutMusicHandler.stop(musicPos);
+            if (!sound.isStopped() || active.containsKey(musicPos)) throw new IllegalStateException("CFA music did not stop");
+            AnvilCraft.LOGGER.info("PORT_CFA_MUSIC_PASSED: native sound started and stopped");
+        } catch (ReflectiveOperationException error) {
+            throw new IllegalStateException(error);
         }
     }
 

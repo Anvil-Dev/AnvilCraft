@@ -64,6 +64,10 @@ public class ModSoundEvents {
         "anvil_hammer_rotate_block", () -> SoundEvent.createVariableRangeEvent(AnvilCraft.of("anvil_hammer_rotate_block"))
     );
 
+    public static final Supplier<SoundEvent> QUENCHED_OUT = ModSoundEvents.REGISTER.register(
+        "quenched_out", () -> SoundEvent.createFixedRangeEvent(AnvilCraft.of("quenched_out"), 64.0F)
+    );
+
     public static void register(IEventBus modBus) {
         ModSoundEvents.REGISTER.register(modBus);
     }

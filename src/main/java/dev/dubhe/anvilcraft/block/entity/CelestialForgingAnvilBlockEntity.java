@@ -13,6 +13,12 @@ import dev.dubhe.anvilcraft.block.entity.celestial.CelestialSearchHistory;
 import dev.dubhe.anvilcraft.block.entity.celestial.CelestialSnapshotCodec;
 import dev.dubhe.anvilcraft.block.entity.celestial.PlanetaryResourceSet;
 import dev.dubhe.anvilcraft.block.entity.celestial.StarData;
+import dev.dubhe.anvilcraft.block.entity.celestial.StellarEventProfile;
+import dev.dubhe.anvilcraft.block.entity.celestial.StellarEvolutionPhase;
+import dev.dubhe.anvilcraft.block.entity.celestial.StellarEvolutionState;
+import dev.dubhe.anvilcraft.block.entity.celestial.StellarTrack;
+import dev.dubhe.anvilcraft.block.entity.celestial.StellarTrackLibrary;
+import dev.dubhe.anvilcraft.block.entity.celestial.StellarVisualState;
 import dev.dubhe.anvilcraft.block.entity.megastructure.ExcavatorHandler;
 import dev.dubhe.anvilcraft.block.entity.megastructure.PenroseSphereHandler;
 import dev.dubhe.anvilcraft.block.entity.megastructure.WormholeStabilizerHandler;
@@ -234,7 +240,7 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity
     }
 
     public int getAcceleratorTicksRemaining() {
-        return this.megastructureManager.getAcceleratorHandler().getTicksRemaining();
+        return this.megastructureManager.getAcceleratorHandler().getTicksRemaining(this);
     }
 
     public int getAcceleratorTicksTotal() {
@@ -242,7 +248,7 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity
     }
 
     public int getSupernovaFlashTicks() {
-        return this.megastructureManager.getAcceleratorHandler().getSupernovaFlashTicks();
+        return this.supernovaFlashTicks;
     }
 
     /**
@@ -250,6 +256,122 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity
      */
     public boolean isAcceleratorActive() {
         return this.megastructureManager.getAcceleratorHandler().isActive();
+    }
+
+    public boolean isAcceleratorPaused() {
+        return this.megastructureManager.getAcceleratorHandler().isPaused();
+    }
+
+    /** 返回当前恒星演化状态；空值表示没有运行中的加速轨道。 */
+    @Nullable
+    public StellarEvolutionState getStellarEvolutionState() {
+        var handler = this.megastructureManager.getAcceleratorHandler();
+        handler.getPhaseId(this);
+        return handler.getEvolutionState();
+    }
+
+    @Nullable
+    public StellarTrack getEvolutionTrack() {
+        var handler = this.megastructureManager.getAcceleratorHandler();
+        handler.getPhaseId(this);
+        return handler.getEvolutionTrack();
+    }
+
+    /** 返回当前物理阶段，供 UI 和调试信息使用。 */
+    @Nullable
+    public StellarEvolutionPhase getStellarEvolutionPhase() {
+        String id = this.megastructureManager.getAcceleratorHandler().getPhaseId(this);
+        return id.isEmpty() ? null : StellarEvolutionPhase.fromId(id);
+    }
+
+    public float getStellarPhaseProgress() {
+        return this.megastructureManager.getAcceleratorHandler().getPhaseProgress(this, 0.0f);
+    }
+
+    public String getStellarTrackId() {
+        this.megastructureManager.getAcceleratorHandler().getPhaseId(this);
+        StellarEvolutionState state = this.getStellarEvolutionState();
+        return state == null ? "" : state.trackId();
+    }
+
+    public String getStellarTerminalOutcomeId() {
+        return this.megastructureManager.getAcceleratorHandler().getTerminalOutcomeId(this);
+    }
+
+    public float getStellarTotalProgress(float partialTick) {
+        return this.megastructureManager.getAcceleratorHandler().getTotalProgress(this, partialTick);
+    }
+
+    public int getStellarInitialMass() {
+        StellarEvolutionState state = this.getStellarEvolutionState();
+        return state == null ? this.stellarMass : state.initialMass();
+    }
+
+    public int getStellarCurrentMass() {
+        StellarEvolutionState state = this.getStellarEvolutionState();
+        return state == null ? this.stellarMass : state.currentMass();
+    }
+
+    public String getStellarInitialSurfaceClass() {
+        StellarEvolutionState state = this.getStellarEvolutionState();
+        return state == null ? "" : state.initialSurfaceClass();
+    }
+
+    @Nullable
+    public StellarEventProfile getStellarEventProfile() {
+        return this.megastructureManager.getAcceleratorHandler().getCurrentEventProfile(this);
+    }
+
+    public float getStellarEventProgress(float partialTick) {
+        return this.megastructureManager.getAcceleratorHandler().getEventProgress(this, partialTick);
+    }
+
+    /**
+     * 获取渲染专用浮点快照。演化期间从轨道采样，空闲时由旧 StarData 构造兼容快照。
+     */
+    @Nullable
+    public StellarVisualState getStellarVisualState(float partialTick) {
+        StellarVisualState evolving = this.megastructureManager.getAcceleratorHandler().getVisualState(this, partialTick);
+        if (evolving != null) return evolving;
+        if (!(this.celestialBodyData instanceof StarData star)) return null;
+        float temperature = StellarVisualState.temperatureForSurfaceClass(star.bodyClass(), star.energy());
+        int color = (Math.clamp(star.colorR(), 0, 255) << 16)
+            | (Math.clamp(star.colorG(), 0, 255) << 8)
+            | Math.clamp(star.colorB(), 0, 255);
+        float radius = Math.max(0.01f, star.bodyScale());
+        return new StellarVisualState(
+            radius,
+            temperature,
+            Math.max(0.01f, star.energy() / 32.0f),
+            color,
+            1.0f,
+            0.0f,
+            radius,
+            0.0f,
+            0.0f,
+            0.0f,
+            "default"
+        );
+    }
+
+    /** 返回与渲染快照对应的恒星本体缩放，不影响引力半径。 */
+    public float getStellarVisualBodyScale(float partialTick) {
+        return this.megastructureManager.getAcceleratorHandler().getVisualBodyScale(this, partialTick);
+    }
+
+    /** 返回不含恒星表面脉动的结构缩放，供束星环和巨构使用。 */
+    public float getStellarStructuralBodyScale(float partialTick) {
+        return this.megastructureManager.getAcceleratorHandler().getVisualBodyScale(this, partialTick);
+    }
+
+    /** 返回包含恒星表面脉动的本体缩放，仅供恒星本体渲染使用。 */
+    public float getStellarPulsatingBodyScale(float partialTick) {
+        return this.megastructureManager.getAcceleratorHandler().getPulsatingVisualBodyScale(this, partialTick);
+    }
+
+    /** 返回服务端残骸 StarData 对应的终点缩放，供动画末帧校准。 */
+    public float getStellarTerminalVisualBodyScale() {
+        return this.megastructureManager.getAcceleratorHandler().getTerminalVisualBodyScale(this);
     }
 
     public CelestialForgingAnvilBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
@@ -378,6 +500,11 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity
     /** 触发时记录的天体视觉中心世界 Y 坐标，避免残骸生成后闪光中心跳变。 */
     @Getter
     private double supernovaCenterY = 0;
+    private int supernovaFlashTicks;
+    @Getter
+    private String supernovaProfileId = "SUPERNOVA";
+    @Getter
+    private long supernovaEventSeed;
     /** 触发时记录的天体缩放比例，使闪光大小跟随爆炸前天体。 */
     @Getter
     private float supernovaScale = 1.0f;
@@ -389,9 +516,13 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity
      * 必须在残骸替换天体数据前调用，才能记录爆炸恒星的中心和缩放。
      */
     public void startSupernovaFlash() {
-        this.megastructureManager.getAcceleratorHandler().setSupernovaFlashTicks(
-            CelestialForgingAnvilBlockEntity.SUPERNOVA_FLASH_TICKS
-        );
+        this.startSupernovaFlash("SUPERNOVA", 0L);
+    }
+
+    public void startSupernovaFlash(String profileId, long eventSeed) {
+        this.supernovaFlashTicks = SUPERNOVA_FLASH_TICKS;
+        this.supernovaProfileId = profileId == null || profileId.isBlank() ? "SUPERNOVA" : profileId;
+        this.supernovaEventSeed = eventSeed;
         this.supernovaCenterY = this.getBodyCenterWorldY();
         this.supernovaScale = this.getBodyVisualScaleRatio();
         this.setChanged();
@@ -574,10 +705,7 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity
         this.megastructureManager.serverTick(this);
 
         // 服务端超新星闪光计时。
-        var accel = this.megastructureManager.getAcceleratorHandler();
-        if (accel.getSupernovaFlashTicks() > 0) {
-            accel.setSupernovaFlashTicks(accel.getSupernovaFlashTicks() - 1);
-        }
+        if (this.supernovaFlashTicks > 0) this.supernovaFlashTicks--;
     }
 
     /** 强制移除当前重力源，供结构拆除和方块实体卸载时立即清理缓存。 */
@@ -627,15 +755,8 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity
             }
         }
         // 客户端超新星闪光倒计时。
-        var accel = this.megastructureManager.getAcceleratorHandler();
-        if (accel.getSupernovaFlashTicks() > 0) {
-            accel.setSupernovaFlashTicks(accel.getSupernovaFlashTicks() - 1);
-        }
-        // 坍缩动画在加速器阶段 3 由服务端每刻同步，客户端不能自行递减以免失步；
-        // 离开阶段 3 后客户端独立递减，作为同步中断时的回退。
-        if (accel.getCollapseAnimTicks() > 0 && accel.getStage() != 3) {
-            accel.setCollapseAnimTicks(accel.getCollapseAnimTicks() - 1);
-        }
+        if (this.supernovaFlashTicks > 0) this.supernovaFlashTicks--;
+
     }
 
     public void setAmplify(boolean amplify) {
@@ -657,20 +778,14 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity
 
     @Override
     public void setRemoved() {
-        boolean shouldClear = this.level != null && !this.level.isClientSide() && !PowerGrid.isServerClosing;
-        if (shouldClear && this.cachedDropData == null) {
-            this.cachedDropData = this.saveCustomOnly(this.level.registryAccess());
-        }
         super.setRemoved();
-        if (this.level != null && this.level.isClientSide()) {
+        if (level != null && level.isClientSide()) {
             this.clientMissingAmplifier = false;
-            LargeBlockPlacePreviewEventListener.removeMissingAmplifierAnvil(this.worldPosition);
+            LargeBlockPlacePreviewEventListener.removeMissingAmplifierAnvil(worldPosition);
         }
-        if (shouldClear) {
-            this.gravityController.remove(this.level, this.worldPosition);
-            // 注销虫洞并清理巨构，使连接传送门及时关闭。
-            // 服务器关闭期间跳过，避免保存过程中访问持久化数据。
-            this.megastructureManager.clearAllMegastructures(this);
+        if (level != null && !level.isClientSide() && !PowerGrid.isServerClosing) {
+            this.removeGravitySource();
+            this.megastructureManager.unload(this);
         }
     }
 
@@ -678,6 +793,28 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity
     public void clearRemoved() {
         super.clearRemoved();
         this.cachedDropData = null;
+        this.permanentRemovalPrepared = false;
+    }
+
+    private boolean permanentRemovalPrepared;
+
+    @Override
+    public void preRemoveSideEffects(BlockPos pos, BlockState state) {
+        this.prepareForPermanentRemoval();
+        super.preRemoveSideEffects(pos, state);
+    }
+
+    public void prepareForPermanentRemoval() {
+        if (this.permanentRemovalPrepared
+            || this.level == null
+            || this.level.isClientSide()
+            || PowerGrid.isServerClosing) {
+            return;
+        }
+        this.cachedDropData = this.saveCustomOnly(this.level.registryAccess());
+        this.permanentRemovalPrepared = true;
+        this.removeGravitySource();
+        this.megastructureManager.clearAllMegastructures(this);
     }
 
     public CompoundTag saveForDrop(HolderLookup.Provider registries) {
@@ -705,6 +842,9 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity
             output.putLong("bodySeed", this.bodySeed);
             output.putInt("ageAnvilCount", this.ageAnvilCount);
             output.putInt("stellarMass", this.stellarMass);
+            CompoundTag evolutionSnapshot = new CompoundTag();
+            this.megastructureManager.getAcceleratorHandler().captureSnapshot(this, evolutionSnapshot);
+            output.store(evolutionSnapshot);
             output.putIntArray(
                 "anvilCounts", new int[]{
                     this.getAnvilCount(0),
@@ -855,7 +995,8 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity
         this.celestialBodyData = input.read("celestialBody", CompoundTag.CODEC)
             .map(CelestialBodyData::fromTag).orElse(null);
         // 客户端在区块加载等情况下检测天体切换；恒星演化或超新星闪光期间跳过。
-        boolean skipAnimLoad = this.getAcceleratorStage() >= 1 || this.getSupernovaFlashTicks() > 0;
+        boolean skipAnimLoad = input.getString(StellarEvolutionState.TRACK_ID_KEY).isPresent()
+            && !input.getBooleanOr(StellarEvolutionState.TERMINAL_APPLIED_KEY, false) || this.getSupernovaFlashTicks() > 0;
         if (this.level != null && this.level.isClientSide() && !skipAnimLoad) {
             this.detectAnimationTransition(oldBodyData, this.celestialBodyData);
         }
@@ -885,10 +1026,9 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity
         // 运行时通过 loadAdditional 同步超新星闪光，磁盘读取不会触发。
         // 仅在传入剩余时间更大时重置，保持客户端倒计时连续。
         input.getInt("supernovaFlashTicks").ifPresent(incomingFlash -> {
-            var accel = this.megastructureManager.getAcceleratorHandler();
-            if (incomingFlash > accel.getSupernovaFlashTicks()) {
-                accel.setSupernovaFlashTicks(incomingFlash);
-            }
+            if (incomingFlash > this.supernovaFlashTicks) this.supernovaFlashTicks = incomingFlash;
+            this.supernovaProfileId = input.getStringOr("supernovaProfileId", "SUPERNOVA");
+            this.supernovaEventSeed = input.getLongOr("supernovaEventSeed", 0L);
             this.supernovaCenterY = input.getDoubleOr("supernovaCenterY", 0);
             this.supernovaScale = input.getFloatOr("supernovaScale", 1.0f);
         });
@@ -972,6 +1112,8 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity
         tag.putInt("historyBrowseIndex", this.searchHistory.browseIndex());
         // 超新星闪光渲染状态
         tag.putInt("supernovaFlashTicks", this.getSupernovaFlashTicks());
+        tag.putString("supernovaProfileId", this.supernovaProfileId);
+        tag.putLong("supernovaEventSeed", this.supernovaEventSeed);
         tag.putDouble("supernovaCenterY", this.supernovaCenterY);
         tag.putFloat("supernovaScale", this.supernovaScale);
         // 巨构专属同步数据
@@ -1093,6 +1235,11 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity
             this.isAmplify,
             this.planetaryResourceSet
         );
+        if (this.celestialBodyData instanceof StarData star
+            && !StellarTrackLibrary.canStart(this.stellarMass, star.bodyClass(), star.specialRedDwarf())) {
+            options = options.stream()
+                .filter(option -> !option.id().equals(ModMegastructures.STELLAR_EVOLUTION_ACCELERATOR.getId())).toList();
+        }
         if (this.megastructureManager.hasActiveMegastructure()) {
             options = options.stream().filter(CelestialRefactorOption::auxiliary).toList();
         }
@@ -1127,6 +1274,7 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity
         if (optionIndex < 0 || optionIndex >= options.size()) return;
 
         CelestialRefactorOption option = options.get(optionIndex);
+        if (!this.megastructureManager.canBuild(option, this)) return;
 
         // 先验证并扣除建材。
         if (option.needsMaterial()) {

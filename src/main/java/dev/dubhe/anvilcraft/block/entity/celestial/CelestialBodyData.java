@@ -52,11 +52,15 @@ public sealed interface CelestialBodyData permits RockyPlanetData, GiantPlanetDa
             if (star.bodyClass() == CelestialBodyClass.BLACK_HOLE) return 1.5f;
             if (star.bodyClass() == CelestialBodyClass.NEUTRON_STAR) return 0.8f;
         }
-        int size = this.size();
-        if (size <= 20) {
-            return 1.5f * (0.2f + (size - 1) * 0.8f / 19f);
+        return bodyScaleForSize(this.size());
+    }
+
+    static float bodyScaleForSize(int size) {
+        int clampedSize = Math.clamp(size, 1, 64);
+        if (clampedSize <= 20) {
+            return 1.5f * (0.2f + (clampedSize - 1) * 0.8f / 19f);
         } else {
-            float t = (size - 20) / 44f;
+            float t = (clampedSize - 20) / 44f;
             return 1.5f * (1.0f + t * t * 1.63f);
         }
     }

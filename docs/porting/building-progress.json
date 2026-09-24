@@ -544,7 +544,7 @@
     },
     "pending": [
       "Head animation phase alignment and atmosphere brightness parity; native GUI atlas resolution/camera differences remain visible",
-      "Latest stellar evolution/event state integration, advanced megastructure state and associated world/head visual parity",
+      "Latest stellar evolution/event native rendering integration, advanced megastructure state and associated world/head visual parity",
       "Wider special-item/third-party rendering and dynamic timing/performance coverage",
       "World, inside-volume and simultaneous-planet atmosphere validation plus source portable/Iris integration"
     ],
@@ -590,27 +590,46 @@
   },
   "stellar_evolution": {
     "source_commit": "a378f98e4d41d0d92f97cf2486ac9da7881b1674",
-    "status": "state_engine_ported_integration_pending",
+    "status": "server_integrated_visual_pending",
     "ported": [
       "24 discrete mass tracks (41-64), 21 stellar surface entries plus the brown-dwarf entry, event profiles and coverage resources copied byte-for-byte",
       "Frozen track/profile/metallicity/event snapshots, absolute phase clock, timeline shifts and one-time event bookkeeping",
       "Native NBT scalar/list/array access and format-2 result-stage migration to format 3",
       "Native server resource reload publishes a valid library atomically and retains the previous library on invalid data",
-      "Shared 64-entry mass table used by menu and evolution; all prior display strings preserved"
+      "Shared 64-entry mass table used by menu and evolution; all prior display strings preserved",
+      "Source AcceleratorHandler absolute progression, amplifier pause/resume, phase/event/terminal dispatch and pre-supernova music scheduling",
+      "Native flat ValueInput/ValueOutput persistence, full update snapshots, disk capture and seed-slot restoration",
+      "Idempotent terminal outcomes for all 24 tracks, source 10-block explosion radius and music packet/asset",
+      "Build validation before material consumption and auxiliary ring occupancy checks",
+      "Separate chunk unload from permanent removal using native preRemoveSideEffects; preserve evolution/wormhole persistent state and cache drops before cleanup",
+      "Special-red-dwarf NBT/UUID preservation and evolution eligibility guard"
     ],
     "verification": {
       "focused_tests_passed": 8,
       "entry_combinations": 484,
       "nbt_round_trips": 72,
       "test_and_style_log": "build/porting/tests-stellar-state-focused.log",
-      "compile_log": "build/porting/compile-stellar-state-final.log",
-      "datagen_log": "build/porting/datagen-stellar-state-final.log",
-      "generated_changes": 0
+      "compile_log": "build/porting/compile-accelerator-final.log",
+      "datagen_log": "build/porting/validate-accelerator-final-2.log",
+      "generated_changes": 3,
+      "integration_tests_passed": 8,
+      "full_server_tests_passed": 527,
+      "all_terminal_tracks_checked": 24,
+      "integration_log": "build/porting/validate-accelerator-final-2.log",
+      "full_server_log": "build/porting/tests-accelerator-full-1.log",
+      "client_music_log": "build/porting/client-cfa-music-1.log",
+      "client_markers": [
+        "PORT_CFA_MUSIC_PASSED",
+        "PORT_CFA_ITEM_RENDER_PASSED"
+      ],
+      "source_audio_bytes_equal": true,
+      "explosion_scope": "Real explosion start counted and radius checked; destructive world effects canceled in the test fixture."
     },
     "pending": [
-      "Replace legacy AcceleratorHandler progression and connect amplifier pause/resume, old four-stage saves, terminal outcomes and event gameplay",
-      "Connect frozen snapshots to network/menu/native render state and dynamic textures",
-      "Game-level evolution, client transition and multiplayer/reload verification after integration"
-    ]
+      "Native evolving geometry/center/ring scale, dynamic surface textures, event geometry and phase UI integration",
+      "World/client evolution transitions and multiplayer validation; packet-driven scheduled music timing beyond direct native start/stop",
+      "Special red dwarf production/normalization and no-amplifier rendering; wider megastructure lifecycle parity"
+    ],
+    "known_validation_noise": "PowerGrid.detach exception from AutoEnchantingTests.removal also appears in earlier validate-auto-enchanting-2 and validate-cfa-item-data-2 logs; not introduced by this node."
   }
 }
