@@ -7,10 +7,11 @@ import dev.dubhe.anvilcraft.block.entity.celestial.CelestialBodyClass;
 import dev.dubhe.anvilcraft.block.entity.celestial.CelestialBodyData;
 import dev.dubhe.anvilcraft.block.entity.celestial.CelestialBodyMatcher;
 import dev.dubhe.anvilcraft.block.entity.celestial.CelestialRefactorOption;
-import dev.dubhe.anvilcraft.block.entity.celestial.CelestialRefactorRegistry;
 import dev.dubhe.anvilcraft.block.entity.celestial.PlanetaryResourceSet;
 import dev.dubhe.anvilcraft.block.entity.celestial.SpecialCelestialBodyData;
 import dev.dubhe.anvilcraft.block.entity.celestial.StarData;
+import dev.dubhe.anvilcraft.block.entity.celestial.StellarEvolutionPhase;
+import dev.dubhe.anvilcraft.block.entity.celestial.StellarVisualState;
 import dev.dubhe.anvilcraft.client.event.LargeBlockPlacePreviewEventListener;
 import dev.dubhe.anvilcraft.client.gui.screen.cfa.CelestialBodyInfoFormatter;
 import dev.dubhe.anvilcraft.client.gui.screen.cfa.CelestialBodyPreviewRenderer;
@@ -249,7 +250,7 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
             if (this.localAcceleratorTicksRemaining <= 0 || serverTicks < this.localAcceleratorTicksRemaining) {
                 this.localAcceleratorTicksRemaining = serverTicks;
             }
-            if (this.localAcceleratorTicksRemaining > 0) {
+            if (this.localAcceleratorTicksRemaining > 0 && !be.isAcceleratorPaused()) {
                 this.localAcceleratorTicksRemaining--;
             }
         } else {
@@ -324,7 +325,8 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
     private void renderPreviewAreaContents(GuiGraphicsExtractor graphics, int guiLeft, int guiTop) {
         // 增幅天体缺少增幅器时不显示预览内容。
         CelestialBodyData body = getMenu().getBlockEntity().getCelestialBodyData();
-        boolean missingAmplifier = this.missingAmplifierBlocked || body instanceof StarData && !getMenu().getBlockEntity().isAmplifierPresent();
+        boolean missingAmplifier = this.missingAmplifierBlocked
+            || body instanceof StarData && !getMenu().getBlockEntity().isAmplifierPresent();
         if (missingAmplifier) {
             Component line1 = Component.translatable("screen.anvilcraft.cfa.missing_amplifier.line1");
             Component line2 = Component.translatable("screen.anvilcraft.cfa.missing_amplifier.line2");
@@ -572,33 +574,69 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
                                                     CelestialForgingAnvilBlockEntity be,
                                                     int guiLeft, int guiTop) {
         List<Component> lines = new ArrayList<>();
-        int stage = be.getAcceleratorStage();
-        String stageKey = switch (stage) {
-            case 1 -> "screen.anvilcraft.cfa.evolution.stage1";
-            case 2 -> "screen.anvilcraft.cfa.evolution.stage2";
-            case 3 -> "screen.anvilcraft.cfa.evolution.stage3";
-            case 4 -> "screen.anvilcraft.cfa.evolution.stage4";
-            default -> "screen.anvilcraft.cfa.evolution.stage_unknown";
-        };
-        lines.add(Component.translatable(stageKey));
+        if (be.getMegastructureManager().getAcceleratorHandler().isPaused()) {
+            lines.add(Component.translatable("screen.anvilcraft.cfa.evolution.paused"));
+        }
+        StellarEvolutionPhase phase = be.getStellarEvolutionPhase();
+        if (phase != null) {
+            lines.add(Component.translatable("screen.anvilcraft.cfa.evolution.phase." + phase.getSerializedName()));
+            int phasePercent = Math.clamp(Math.round(be.getStellarPhaseProgress() * 100.0f), 0, 100);
+            int totalPercent = Math.clamp(Math.round(be.getStellarTotalProgress(0.0f) * 100.0f), 0, 100);
+            lines.add(Component.translatable("screen.anvilcraft.cfa.evolution.phase_progress", phasePercent));
+            lines.add(Component.translatable("screen.anvilcraft.cfa.evolution.total_progress", totalPercent));
+            StellarVisualState visual = be.getStellarVisualState(0.0f);
+            if (visual != null) {
+                lines.add(Component.translatable("screen.anvilcraft.cfa.evolution.temperature",
+                    Math.round(visual.temperature())));
+            }
+            @Nullable CelestialBodyClass surfaceClass = be.getVisualSurfaceClass();
+            if (surfaceClass != null) {
+                lines.add(Component.translatable("screen.anvilcraft.cfa.evolution.surface_class",
+                    surfaceClass.name()));
+            }
+        }
+        var evolution = be.getStellarEvolutionState();
+        if (evolution != null) {
+            lines.add(Component.translatable("screen.anvilcraft.cfa.evolution.initial_mass",
+                String.format(java.util.Locale.ROOT, "%.3g", evolution.initialSolarMass())));
+            lines.add(Component.translatable("screen.anvilcraft.cfa.evolution.current_mass",
+                String.format(java.util.Locale.ROOT, "%.3g", evolution.currentSolarMass())));
+            lines.add(Component.translatable("screen.anvilcraft.cfa.evolution.metallicity",
+                String.format(java.util.Locale.ROOT, "%.3g", evolution.metallicityZ())));
+        }
+        /// 剩余时间（使用客户端本地倒计时，每tick递减）
         int displayTicks = this.localAcceleratorTicksRemaining > 0
             ? this.localAcceleratorTicksRemaining : be.getAcceleratorTicksRemaining();
         int secondsRemaining = displayTicks / 20;
         lines.add(Component.translatable("screen.anvilcraft.cfa.evolution.time_remaining",
             Component.literal(formatDuration(secondsRemaining))));
-        if (be.getAcceleratorTicksTotal() > 0) {
-            int pct = (int) ((1.0f - (float) displayTicks / be.getAcceleratorTicksTotal()) * 100);
-            lines.add(Component.literal(pct + "%"));
-        }
+        lines.add(Component.translatable(
+            "screen.anvilcraft.cfa.evolution.terminal_outcome." + be.getStellarTerminalOutcomeId()
+        ));
+        /// 无限能量指示器 —— 仅在戴森球提供无限能量时显示
         if (be.isInfinitePower()) {
             lines.add(Component.translatable("screen.anvilcraft.cfa.evolution.infinite_power"));
         }
 
-        int ax = guiLeft + PV_INFO_X;
-        int y = guiTop + PV_INFO_Y + 10;
-        for (Component line : lines) {
-            graphics.text(this.font, line, ax, y, 0xFFFFFFFF, false);
-            y += this.font.lineHeight + 1;
+        int lineHeight = this.font.lineHeight + 1;
+        List<FormattedCharSequence> wrapped = new ArrayList<>();
+        for (Component line : lines) wrapped.addAll(this.font.split(line, PV_INFO_W - 5));
+        int maxLines = PV_INFO_H / lineHeight;
+        int maxScroll = Math.max(0, wrapped.size() - maxLines);
+        this.scrollOffset = Math.clamp(this.scrollOffset, 0, maxScroll);
+        int x = guiLeft + PV_INFO_X;
+        int y = guiTop + PV_INFO_Y;
+        graphics.enableScissor(x, y, x + PV_INFO_W, y + PV_INFO_H);
+        for (int index = this.scrollOffset; index < Math.min(wrapped.size(), this.scrollOffset + maxLines); index++) {
+            graphics.text(this.font, wrapped.get(index), x, y + (index - this.scrollOffset) * lineHeight, 0xFFFFFFFF, false);
+        }
+        graphics.disableScissor();
+        if (maxScroll > 0) {
+            int barX = x + PV_INFO_W - 3;
+            int thumbHeight = Math.max(8, PV_INFO_H * maxLines / wrapped.size());
+            int thumbY = y + (PV_INFO_H - thumbHeight) * this.scrollOffset / maxScroll;
+            graphics.fill(barX, y, barX + 2, y + PV_INFO_H, 0x40FFFFFF);
+            graphics.fill(barX, thumbY, barX + 2, thumbY + thumbHeight, 0x80CCCCCC);
         }
     }
 
@@ -1006,16 +1044,7 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
             && !hasAcceleratorActive;
 
         if (isActive) {
-            this.refactorOptions = CelestialRefactorRegistry.getOptions(
-                body,
-                getMenu().getBlockEntity().isAmplify(),
-                getMenu().getBlockEntity().getPlanetaryResourceSet()
-            );
-            if (hasMegastructure) {
-                this.refactorOptions = this.refactorOptions.stream()
-                    .filter(CelestialRefactorOption::auxiliary)
-                    .toList();
-            }
+            this.refactorOptions = getMenu().getBlockEntity().getClientVisibleOptions();
         } else {
             this.refactorOptions = List.of();
         }

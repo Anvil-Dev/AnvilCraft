@@ -179,7 +179,10 @@ if (providers.gradleProperty('portValidation').isPresent()) {
         neoForge.runs.client.programArguments.addAll '--width', '1280', '--height', '720'
     }
     if (providers.gradleProperty('portCfaItemScene').isPresent() || providers.gradleProperty('portStellarScene').isPresent()
-        || providers.gradleProperty('portCfaMusicScene').isPresent() || providers.gradleProperty('portStellarEvolutionScene').isPresent()) {
+        || providers.gradleProperty('portCfaMusicScene').isPresent() || providers.gradleProperty('portStellarEvolutionScene').isPresent() || providers.gradleProperty('portStellarUiScene').isPresent()) {
+        if (providers.gradleProperty('portStellarUiScene').isPresent()) {
+            neoForge.runs.client.systemProperty 'anvilcraft.portStellarUiScene', 'true'
+        }
         if (providers.gradleProperty('portStellarEvolutionScene').isPresent()) {
             neoForge.runs.client.systemProperty 'anvilcraft.portStellarEvolutionScene', 'true'
             neoForge.runs.client.systemProperty 'anvilcraft.portStellarFarViewScene', providers.gradleProperty('portStellarFarViewScene').isPresent().toString()

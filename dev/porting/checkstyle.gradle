@@ -63,6 +63,7 @@ allprojects {
             include '**/ItemDetectorBlockEntity.java', '**/PulseGeneratorBlockEntity.java'
             include '**/AcceleratorHandler.java', '**/CelestialForgingAnvilBlockEntity.java', '**/StarData.java', '**/CelestialBodyData.java', '**/CelestialBodyClass.java', '**/CFARenderState.java', '**/FullBrightNoOpLighter.java'
             include '**/QuenchedOut*.java', '**/IMegastructureHandler.java', '**/CfaMegastructureManager.java', '**/WormholeStabilizerHandler.java', '**/ModSoundEvents.java', '**/ModSoundDefinitionsProvider.java'
+            include '**/CelestialForgingAnvilScreen.java'
             include '**/Stellar*.java', '**/PhaseNode.java', '**/CelestialMassTable.java', '**/CelestialForgingAnvilMenu.java', '**/ReloadEventListener.java'
             include '**/PlanetAtmosphereRenderer.java', '**/StellarEmissionRenderer.java', '**/StellarRadiance.java', '**/StellarVisualState.java'
             include '**/CelestialForgingAnvilItemRenderer.java', '**/CelestialAnvilItemExtensions.java', '**/CFARenderer.java'

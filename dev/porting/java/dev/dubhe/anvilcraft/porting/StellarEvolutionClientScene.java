@@ -135,6 +135,10 @@ public final class StellarEvolutionClientScene {
             }));
     }
 
+    static CompoundTag snapshot(int mass, String phase, float progress, int redstone) {
+        return snapshot(new Case("fixture", mass, phase, progress, redstone));
+    }
+
     private static CompoundTag snapshot(Case sample) {
         var track = StellarTrackLibrary.forMass(sample.mass);
         var state = StellarEvolutionState.beginNew(track, CelestialBodyClass.G_MAIN, sample.mass, 32, 32, 73, 0, 10000);

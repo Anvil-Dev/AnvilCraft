@@ -6,6 +6,7 @@ import dev.dubhe.anvilcraft.api.power.IPowerProducer;
 import dev.dubhe.anvilcraft.api.power.PowerComponentInfo;
 import dev.dubhe.anvilcraft.api.power.PowerComponentType;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
+import dev.dubhe.anvilcraft.block.entity.celestial.CelestialBodyClass;
 import dev.dubhe.anvilcraft.block.entity.celestial.CelestialBodyData;
 import dev.dubhe.anvilcraft.block.entity.celestial.CelestialRefactorOption;
 import dev.dubhe.anvilcraft.block.entity.celestial.CelestialRefactorRegistry;
@@ -372,6 +373,10 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity
     /** 返回服务端残骸 StarData 对应的终点缩放，供动画末帧校准。 */
     public float getStellarTerminalVisualBodyScale() {
         return this.megastructureManager.getAcceleratorHandler().getTerminalVisualBodyScale(this);
+    }
+
+    public @Nullable CelestialBodyClass getVisualSurfaceClass() {
+        return this.celestialBodyData == null ? null : this.celestialBodyData.bodyClass();
     }
 
     public CelestialForgingAnvilBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {

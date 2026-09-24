@@ -586,7 +586,7 @@
       "forced_failure": "Injected failure latch gives the Vanilla patch; resource reload restores Standard patch and a valid pipeline, after the loading overlay exits"
     },
     "pending": [
-      "Profile-specific supernova burst/ray geometry and remaining phase UI",
+      "Profile-specific instantaneous supernova burst/ray geometry",
       "Iris/portable backend, custom resource packs, transparent previews and wider head/item/performance coverage",
       "Continuous motion and multiplayer validation; native fog/cloud/lighting differences retained"
     ],
@@ -653,10 +653,43 @@
       "explosion_scope": "Real explosion start counted and radius checked; destructive world effects canceled in the test fixture."
     },
     "pending": [
-      "Phase UI and profile-specific instantaneous supernova flash/rays; further special celestial-body schema/rendering differences",
+      "Profile-specific instantaneous supernova flash/rays; further special celestial-body schema/rendering differences",
       "Continuous evolution transitions, wider head/item contexts, multiplayer timing, resource-pack/Iris and performance/platform coverage",
       "Special red dwarf production/normalization and no-amplifier rendering; remaining celestial gameplay/lifecycle parity"
     ],
     "known_validation_noise": "PowerGrid.detach exception from AutoEnchantingTests.removal also appears in earlier validate-auto-enchanting-2 and validate-cfa-item-data-2 logs; not introduced by this node."
+  },
+  "stellar_ui": {
+    "source_commit": "a378f98e4d41d0d92f97cf2486ac9da7881b1674",
+    "status": "evolution_panel_ported_other_cfa_ui_pending",
+    "ported": [
+      "Physical phase, phase/total progress, effective temperature and read-only surface class",
+      "Initial/current solar mass, metallicity, remaining time, expected terminal outcome and paused/infinite-power indicators",
+      "Source wrapping, clipping and scrollbar geometry; paused countdown no longer decrements",
+      "Client refactor list uses the same valid-option list as the block entity; English megastructure heading follows source",
+      "53 English and 70 Chinese evolution entries exactly match the local source branch"
+    ],
+    "verification": {
+      "scenes_per_version": 8,
+      "source_log": "build/porting/client-stellar-ui-source-2.log",
+      "target_log": "build/porting/client-stellar-ui-target-2.log",
+      "report": "build/porting/stellar-ui-visual-comparison.json",
+      "text_masks_equal": true,
+      "maximum_rgb_channel_difference": 3,
+      "scroll_and_value_samples_equal": true,
+      "countdown_checks": "One running and seven paused cases: eight original screen.tick calls subtract eight or zero ticks respectively.",
+      "compile_log": "build/porting/compile-stellar-ui-final-2.log",
+      "style_and_datagen_log": "build/porting/datagen-stellar-ui-final.log"
+    },
+    "limits": [
+      "Comparison ROI is the evolution information panel, not the entire CFA screen.",
+      "Screenshots normalize the render-time clock/countdown; separate tick calls verify countdown behavior.",
+      "Menus are opened locally for visual verification; multiplayer opening/long-duration synchronization remains pending."
+    ],
+    "pending": [
+      "CFA celestial preview appearance and ghost-slot opacity differ from source screenshots",
+      "Source count-entry controls and remaining general CFA screen differences",
+      "Profile-specific instantaneous flash/rays and continuous/multiplayer evolution validation"
+    ]
   }
 }
