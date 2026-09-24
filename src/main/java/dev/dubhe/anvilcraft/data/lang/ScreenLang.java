@@ -666,6 +666,7 @@ public class ScreenLang {
 
         // 特殊天体类型名称。
         provider.add("screen.anvilcraft.cfa.class.special.void_planet", "Void Planet");
+        provider.add("screen.anvilcraft.cfa.class.special.mun", "Mun");
         provider.add("screen.anvilcraft.cfa.class.special.overworld_like", "Overworld Like"); // 类主世界
         provider.add("screen.anvilcraft.cfa.class.special.flesh_planet", "Flesh Planet"); // 血肉星球
         provider.add("screen.anvilcraft.cfa.class.special.intelligent_planet", "Intelligent Planet"); // 智慧星球

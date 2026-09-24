@@ -17,11 +17,12 @@ import net.minecraft.world.phys.Vec3;
 import java.util.Set;
 
 public final class CelestialTravelClientScene {
-    private static final boolean BUILTIN = Boolean.getBoolean("anvilcraft.portVoidPlanetScene");
+    private static final boolean MUN = Boolean.getBoolean("anvilcraft.portCfaMunScene");
+    private static final boolean BUILTIN = MUN || Boolean.getBoolean("anvilcraft.portVoidPlanetScene");
     private static final BlockPos CENTER = new BlockPos(8, 80, 8);
     private static BlockPos destination = BUILTIN ? CENTER.north(2) : new BlockPos(160, 100, 160);
     private static final ResourceKey<Level> VOID = ResourceKey.create(
-        Registries.DIMENSION, AnvilCraft.of(BUILTIN ? "void_planet" : "port_travel_void"));
+        Registries.DIMENSION, AnvilCraft.of(MUN ? "mun" : BUILTIN ? "void_planet" : "port_travel_void"));
     private static boolean requested;
     private static volatile boolean ready;
     private static volatile RuntimeException failure;
@@ -57,8 +58,9 @@ public final class CelestialTravelClientScene {
                     }
                 }
                 var match = BUILTIN ? dev.dubhe.anvilcraft.block.entity.celestial.CelestialSeedMatcher.match(
-                    level, 0, 0, 0, 0, net.minecraft.world.item.Items.BARRIER) : null;
-                if (BUILTIN && match == null) throw new IllegalStateException("Builtin barrier recipe missing");
+                    level, MUN ? 34 : 0, MUN ? 4 : 0, MUN ? 1 : 0, MUN ? 14 : 0,
+                    MUN ? dev.dubhe.anvilcraft.init.block.ModBlocks.LUNAR_ROCK.asItem() : net.minecraft.world.item.Items.BARRIER) : null;
+                if (BUILTIN && match == null) throw new IllegalStateException("Builtin celestial recipe missing");
                 var portal = CelestialTravelTests.machine(level, CENTER,
                     BUILTIN ? match.body().landing() : CelestialTravelTests.travel(VOID, destination));
                 if (BUILTIN) {
@@ -173,7 +175,8 @@ public final class CelestialTravelClientScene {
 
     private static void capture(Minecraft client, String name, int nextStage) {
         capturing = true;
-        Screenshot.grab(client.gameDirectory, (BUILTIN ? "void-travel-26.1-" : "celestial-travel-26.1-") + name + ".png",
+        String prefix = MUN ? "mun-cfa-travel-26.1-" : BUILTIN ? "void-travel-26.1-" : "celestial-travel-26.1-";
+        Screenshot.grab(client.gameDirectory, prefix + name + ".png",
             client.getMainRenderTarget(), 1,
             message -> client.execute(() -> {
                 capturing = false;

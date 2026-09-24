@@ -25,6 +25,7 @@ public class SpecialCelestialBodyRecipeLoader {
     public static void init(RegistrumRecipeProvider provider) {
         SpecialCelestialBodyRecipeLoader.createOverworldLike(provider);
         SpecialCelestialBodyRecipeLoader.createVoidPlanet(provider);
+        SpecialCelestialBodyRecipeLoader.createMun(provider);
         SpecialCelestialBodyRecipeLoader.createFleshPlanet(provider);
         SpecialCelestialBodyRecipeLoader.createIntelligentPlanet(provider);
         SpecialCelestialBodyRecipeLoader.createHollowPlanet(provider);
@@ -114,6 +115,41 @@ public class SpecialCelestialBodyRecipeLoader {
                     new CelestialTravelData.ReturnRule(
                         CelestialTravelData.ReturnRule.Type.ENTRY_PORTAL, 0, 64, 0, 8
                     )
+                ))
+            )
+        );
+    }
+
+    private static void createMun(RegistrumRecipeProvider provider) {
+        saveRecipe(
+            provider, "mun", new SpecialCelestialBodyRecipe(
+                "mun",
+                "planet_atmosphereless",
+                false,
+                false,
+                34,
+                4,
+                1,
+                14,
+                Optional.empty(),
+                Optional.of(LiquidCoverage.NONE),
+                0,
+                0,
+                0f,
+                List.of(anvil("lunar_rock")),
+                List.of(),
+                List.of(),
+                List.of(),
+                List.of(),
+                List.of(),
+                List.of(),
+                List.of(),
+                Optional.of(new CelestialTravelData(
+                    anvil("mun"),
+                    new CelestialTravelData.CoordinateRule(
+                        CelestialTravelData.CoordinateRule.Type.FIXED_SURFACE, 1.0, 0, 64, 0, 8
+                    ),
+                    CelestialTravelData.ReturnRule.DEFAULT
                 ))
             )
         );

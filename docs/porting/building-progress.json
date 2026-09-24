@@ -1403,5 +1403,36 @@
       "Long-term pearl persistence and multiplayer disconnect races were not separately exercised.",
       "CFA entry and Monolith world/spawn integration remain separate work."
     ]
+  },
+  "mun_cfa_entry": {
+    "source_commit": "1260db54f6e2b9f88d0a79b8108459d346344e44",
+    "status": "source_recipe_and_live_cfa_entry_return_ported",
+    "ported": [
+      "Source lunar-rock recipe with time/space/mass/energy 34/4/1/14",
+      "Unshatterable atmosphereless Moon data with fixed-surface entry and linked return",
+      "Matching advancement and English/Chinese Moon name"
+    ],
+    "verification": {
+      "client_log": "build/porting/client-cfa-mun-1.log",
+      "tests_log": "build/porting/tests-cfa-mun-final.log",
+      "validation_log": "build/porting/validate-cfa-mun-final.log",
+      "report": "build/porting/cfa-mun-comparison.json",
+      "required_game_tests_passed": 556,
+      "source_recipe_and_advancement_equal": true,
+      "outbound_position": [
+        0.5,
+        61,
+        -0.5
+      ],
+      "returned_position": [
+        8.5,
+        80,
+        5.5
+      ]
+    },
+    "limits": [
+      "Monolith blocks, offerings, generation and return confirmation still require porting.",
+      "The client fixture uses the matched body in an assembled CFA; prior search-process tests cover the shared matching path."
+    ]
   }
 }

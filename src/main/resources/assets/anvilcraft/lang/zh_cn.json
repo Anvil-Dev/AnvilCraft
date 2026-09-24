@@ -2799,6 +2799,7 @@
   "screen.anvilcraft.cfa.megastructure.dyson_sphere_brown_dwarf.description": "收集褐矮星能量发电，可消耗原始物质增强发电并最终将其转化为红矮星",
   "screen.anvilcraft.cfa.megastructure.dyson_sphere_brown_dwarf.usage": "需求:\n§b[流体接口]§r\n§f稳定的原始物质供应§r\n———————\n产出:\n§a[电力功率]§r\n§f原始物质供应量越大，产出电力功率越高§r\n———————\nSide Effects:\n§f超过 2B/gt 的原始物质供应会转变为质量，总转化量达到 12800B 时褐矮星会升级为红矮星§r",
   "screen.anvilcraft.cfa.class.special.void_planet": "虚空星球",
+  "screen.anvilcraft.cfa.class.special.mun": "月球",
   "block.anvilcraft.celestial_back_gate": "锻星砧返回传送门",
   "death.attack.anvilcraft.planetary_collapse": "%1$s被行星崩解吞噬",
   "anvilcraft.configuration.render_overworld_like_sky": "渲染类主世界天空",
