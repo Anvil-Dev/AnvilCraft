@@ -1344,5 +1344,31 @@
       "This node ports shared light-query contracts; broad mob/crop gameplay scenarios were not separately exercised.",
       "Remaining Moon travel, music, Monolith and optional renderer compatibility are separate work."
     ]
+  },
+  "mun_music": {
+    "source_commit": "1260db54f6e2b9f88d0a79b8108459d346344e44",
+    "status": "source_tracks_and_selection_flow_ported",
+    "ported": [
+      "Both original Ogg tracks without transcoding",
+      "Source 30-90 second initial silence and 60-180 second between-track silence",
+      "Random first selection, alternating subsequent tracks and one-shot streaming",
+      "Moon exit, re-entry and logout state handling through SelectMusicEvent",
+      "Track titles for the native 26.1 now-playing UI"
+    ],
+    "verification": {
+      "client_log": "build/porting/client-mun-music-2.log",
+      "compile_log": "build/porting/compile-mun-music-final.log",
+      "datagen_style_log": "build/porting/validate-mun-music-final.log",
+      "report": "build/porting/mun-music-comparison.json",
+      "source_audio_bytes_equal": true,
+      "source_handler_equal_after_api_mapping": true,
+      "decoded_format": "PCM signed 48000 Hz, 16-bit stereo",
+      "initial_silence_ticks": 1505,
+      "observed_between_silence_ticks": 3395
+    },
+    "limits": [
+      "Selection ticks were accelerated and the first track was stopped to exercise completion handling.",
+      "Full track durations and subjective listening were not used as validation evidence."
+    ]
   }
 }

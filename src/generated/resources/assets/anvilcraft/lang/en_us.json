@@ -350,6 +350,8 @@
   "anvilcraft.configuration.weatherproof_chestplate_hud.hud_y": "Hud Y",
   "anvilcraft.configuration.weatherproof_chestplate_hud.hud_y.tooltip": "The gui hud y position",
   "anvilcraft.configuration.weatherproof_chestplate_hud.tooltip": "Chestplate power and capacitor display",
+  "anvilcraft.music.mun.above_the_moon_dust_loop": "Above the Moon Dust",
+  "anvilcraft.music.mun.far_side_glow_loop": "Far Side Glow",
   "anvillib.configuration.enum.dev.dubhe.anvilcraft.config.anvil_craft_client_config.building_rod_controls.optimized": "Optimized",
   "anvillib.configuration.enum.dev.dubhe.anvilcraft.config.anvil_craft_client_config.building_rod_controls.traditional": "Traditional",
   "anvillib.configuration.enum.dev.dubhe.anvilcraft.config.anvil_craft_client_config.celestial_rendering_mode.standard": "Standard",

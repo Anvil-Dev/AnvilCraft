@@ -4,6 +4,8 @@ import dev.anvilcraft.lib.v2.registrum.providers.RegistrumLangProvider;
 
 public class OtherLang {
     public static void init(RegistrumLangProvider provider) {
+        provider.add("anvilcraft.music.mun.above_the_moon_dust_loop", "Above the Moon Dust");
+        provider.add("anvilcraft.music.mun.far_side_glow_loop", "Far Side Glow");
         provider.add("subtitles.anvilcraft.auto_enchanting_table.use", "Auto Enchanting Table used");
         provider.add("tooltip.anvilcraft.auto_enchanting_table.jade.working_progress", "Enchanting Progress: %s");
         provider.add("item.anvilcraft.inherent_enchantment.tooltip", "Inherent enchantments:");

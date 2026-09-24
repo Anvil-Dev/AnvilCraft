@@ -54,6 +54,22 @@
     ],
     "subtitle": "subtitles.anvilcraft.giant_anvil_shock"
   },
+  "music.mun.above_the_moon_dust": {
+    "sounds": [
+      {
+        "name": "anvilcraft:music/mun/above_the_moon_dust_loop",
+        "stream": true
+      }
+    ]
+  },
+  "music.mun.far_side_glow": {
+    "sounds": [
+      {
+        "name": "anvilcraft:music/mun/far_side_glow_loop",
+        "stream": true
+      }
+    ]
+  },
   "neoforge_land": {
     "sounds": [
       {

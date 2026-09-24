@@ -14,6 +14,11 @@ public class ModSoundDefinitionsProvider extends SoundDefinitionsProvider {
 
     @Override
     public void registerSounds() {
+        this.add(ModSoundEvents.ABOVE_THE_MOON_DUST.get(), SoundDefinitionsProvider.definition()
+            .with(SoundDefinitionsProvider.sound(AnvilCraft.of("music/mun/above_the_moon_dust_loop")).stream()));
+        this.add(ModSoundEvents.FAR_SIDE_GLOW.get(), SoundDefinitionsProvider.definition()
+            .with(SoundDefinitionsProvider.sound(AnvilCraft.of("music/mun/far_side_glow_loop")).stream()));
+
         this.add(ModSoundEvents.AUTO_ENCHANTING_TABLE_USE.get(), SoundDefinitionsProvider.definition()
             .subtitle("subtitles.anvilcraft.auto_enchanting_table.use")
             .with(SoundDefinitionsProvider.sound(Identifier.withDefaultNamespace("block.enchantment_table.use"),

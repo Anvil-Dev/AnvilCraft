@@ -1,4 +1,6 @@
 {
+  "anvilcraft.music.mun.above_the_moon_dust_loop": "Above the Moon Dust",
+  "anvilcraft.music.mun.far_side_glow_loop": "Far Side Glow",
   "screen.anvilcraft.storage.count": "数量：%s",
   "screen.anvilcraft.storage.fluid_amount": "储量：%s",
   "screen.anvilcraft.storage.fluid.bucket_missing": "需要一个空桶",

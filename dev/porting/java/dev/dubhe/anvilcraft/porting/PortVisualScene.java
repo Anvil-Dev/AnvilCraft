@@ -82,6 +82,10 @@ public final class PortVisualScene {
             if (Boolean.getBoolean("anvilcraft.portCfaItemScene")) prepared = true;
             else server.execute(() -> prepare(server));
         }
+        if (Boolean.getBoolean("anvilcraft.portMunMusicScene")) {
+            if (prepared) MunMusicClientScene.frame(client);
+            return;
+        }
         if (Boolean.getBoolean("anvilcraft.portMunSurfaceScene")) {
             if (prepared) MunSurfaceClientScene.frame(client);
             return;
