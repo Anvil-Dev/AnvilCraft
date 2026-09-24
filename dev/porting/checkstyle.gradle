@@ -61,7 +61,7 @@ allprojects {
             include '**/UseItemOnBlock.java', '**/ProcessingTablePlacement.java', '**/ModBlockPlacementRuleProvider.java'
             include '**/BlockItemHandlerPointer.java', '**/ItemEntityPointer.java'
             include '**/ItemDetectorBlockEntity.java', '**/PulseGeneratorBlockEntity.java'
-            include '**/PlanetAtmosphereRenderer.java'
+            include '**/PlanetAtmosphereRenderer.java', '**/StellarEmissionRenderer.java', '**/StellarRadiance.java', '**/StellarVisualState.java'
             include '**/CelestialForgingAnvilItemRenderer.java', '**/CelestialAnvilItemExtensions.java', '**/CFARenderer.java'
             include '**/CelestialForgingAnvilBlock.java', '**/CelestialForgingAnvilBlockItem.java', '**/CelestialAnvilPickDataMixin.java'
             include '**/ItemDetectorMenu.java', '**/ItemDetectorScreen.java'

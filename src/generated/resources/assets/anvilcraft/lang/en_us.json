@@ -315,6 +315,8 @@
   "anvilcraft.configuration.spacetime_supercomputer_command.allow_time_add_command.tooltip": "Allow /time add command",
   "anvilcraft.configuration.spacetime_supercomputer_command.button": "Spacetime Supercomputer Command",
   "anvilcraft.configuration.spacetime_supercomputer_command.tooltip": "Spacetime Supercomputer Command",
+  "anvilcraft.configuration.stellar_rendering_mode": "Stellar Rendering Mode",
+  "anvilcraft.configuration.stellar_rendering_mode.tooltip": "Vanilla restores the original stellar shells; Standard enables emissive surfaces and an exterior corona. Rendering failures fall back to Vanilla until resources reload. Changes take effect immediately.",
   "anvilcraft.configuration.storage_port": "Storage Port",
   "anvilcraft.configuration.storage_port.button": "Storage Port",
   "anvilcraft.configuration.storage_port.max_items_per_scan": "Max Items Per Scan",

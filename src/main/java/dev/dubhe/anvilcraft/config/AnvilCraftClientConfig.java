@@ -15,6 +15,10 @@ public class AnvilCraftClientConfig {
         + "Rendering failures fall back to Vanilla until resources reload. Changes take effect immediately.")
     public CelestialRenderingMode planetAtmosphereRenderingMode = CelestialRenderingMode.STANDARD;
 
+    @Comment("Vanilla restores the original stellar shells; Standard enables emissive surfaces and an exterior corona. "
+        + "Rendering failures fall back to Vanilla until resources reload. Changes take effect immediately.")
+    public CelestialRenderingMode stellarRenderingMode = CelestialRenderingMode.STANDARD;
+
     public enum CelestialRenderingMode implements TranslatableEnum {
         @SerializedName("Vanilla")
         VANILLA,

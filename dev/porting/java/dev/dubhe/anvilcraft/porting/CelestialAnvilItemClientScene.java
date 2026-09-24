@@ -32,6 +32,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public final class CelestialAnvilItemClientScene {
+    private static final boolean STELLAR = Boolean.getBoolean("anvilcraft.portStellarScene");
+    private static final String[] STAR_NAMES = {"M", "K", "G", "F", "A", "B", "O", "White dwarf", "Neutron", "Black hole", "Brown dwarf"};
     private static final List<ItemStack> ITEMS = new ArrayList<>();
     private static int stage;
     private static long next;
@@ -111,20 +113,66 @@ public final class CelestialAnvilItemClientScene {
             case 10 -> {
                 AnvilCraft.CLIENT_CONFIG.planetAtmosphereRenderingMode =
                     dev.dubhe.anvilcraft.config.AnvilCraftClientConfig.CelestialRenderingMode.VANILLA;
+                if (STELLAR) {
+                    AnvilCraft.CLIENT_CONFIG.stellarRenderingMode =
+                        dev.dubhe.anvilcraft.config.AnvilCraftClientConfig.CelestialRenderingMode.VANILLA;
+                }
                 advance(11);
             }
             case 11 -> capture(client, "vanilla-atmosphere", 12);
             case 12 -> {
                 AnvilCraft.CLIENT_CONFIG.planetAtmosphereRenderingMode =
                     dev.dubhe.anvilcraft.config.AnvilCraftClientConfig.CelestialRenderingMode.STANDARD;
-                AnvilCraft.LOGGER.info("PORT_CFA_ITEM_RENDER_PASSED: body data, fitting, head parts, hands and reload");
-                client.stop();
+                if (STELLAR) {
+                    AnvilCraft.CLIENT_CONFIG.stellarRenderingMode =
+                        dev.dubhe.anvilcraft.config.AnvilCraftClientConfig.CelestialRenderingMode.STANDARD;
+                }
+                if (STELLAR && !Boolean.getBoolean("anvilcraft.portCfaItemReference")) {
+                    failStellarPipeline();
+                    advance(13);
+                    return;
+                }
+                finish(client);
             }
+            case 13 -> capture(client, "forced-fallback", 14);
+            case 14 -> {
+                reloaded = false;
+                client.reloadResourcePacks().whenComplete((ignored, error) -> client.execute(() -> {
+                    if (error != null) throw new IllegalStateException(error);
+                    reloaded = true;
+                }));
+                advance(15);
+            }
+            case 15 -> {
+                if (reloaded) capture(client, "recovered", 16);
+            }
+            case 16 -> finish(client);
             default -> throw new IllegalStateException("Unknown CFA item stage");
         }
     }
 
+    private static void finish(Minecraft client) {
+        AnvilCraft.LOGGER.info("PORT_CFA_ITEM_RENDER_PASSED: body data, fitting, head parts, hands and reload");
+        client.stop();
+    }
+
+    private static void failStellarPipeline() {
+        try {
+            var type = dev.dubhe.anvilcraft.client.renderer.blockentity.celestial.StellarEmissionRenderer.class;
+            var failed = type.getDeclaredField("failed");
+            failed.setAccessible(true);
+            failed.setBoolean(null, true);
+        } catch (ReflectiveOperationException error) {
+            throw new IllegalStateException(error);
+        }
+    }
+
     private static void prepare(Minecraft client) {
+        if (STELLAR) {
+            prepareStars();
+            verify();
+            return;
+        }
         ITEMS.add(ModBlocks.CELESTIAL_FORGING_ANVIL.asStack());
         ITEMS.add(item(new RockyPlanetData(CelestialBodyClass.ROCKY_MED_LIQUID, false, LiquidCoverage.MEDIUM,
             Temperature.MILD, RingType.NONE, 32, 2, 3, 0, 2, 0), 42));
@@ -139,6 +187,23 @@ public final class CelestialAnvilItemClientScene {
         profile.store("id", UUIDUtil.CODEC, client.player.getUUID());
         ITEMS.add(item(SpecialCelestialBodyData.fromPlayerHead(profile, 16), 81));
         verify();
+    }
+
+    private static void prepareStars() {
+        var classes = new CelestialBodyClass[]{CelestialBodyClass.M_MAIN, CelestialBodyClass.K_MAIN,
+            CelestialBodyClass.G_MAIN, CelestialBodyClass.F_MAIN, CelestialBodyClass.A_MAIN, CelestialBodyClass.B_MAIN,
+            CelestialBodyClass.O_MAIN, CelestialBodyClass.WHITE_DWARF, CelestialBodyClass.NEUTRON_STAR, CelestialBodyClass.BLACK_HOLE};
+        for (var type : classes) {
+            float temperature = dev.dubhe.anvilcraft.block.entity.celestial.StellarVisualState.temperatureForSurfaceClass(type, 32);
+            int rgb = dev.dubhe.anvilcraft.block.entity.celestial.StellarVisualState.colorForTemperature(temperature);
+            if (type == CelestialBodyClass.BLACK_HOLE) rgb = 0;
+            ITEMS.add(item(new StarData(type, 32, (rgb >> 16) & 255, (rgb >> 8) & 255, rgb & 255, 10, 0, 0, 32, null), 15));
+            AnvilCraft.LOGGER.info("PORT_STELLAR_SAMPLE {}: temperature={}, color={}, exposure={}", type, temperature, rgb,
+                dev.dubhe.anvilcraft.client.renderer.blockentity.celestial.StellarRadiance.exposure(temperature, 1, 1));
+        }
+        ITEMS.add(item(new dev.dubhe.anvilcraft.block.entity.celestial.GiantPlanetData(CelestialBodyClass.BROWN_DWARF,
+            dev.dubhe.anvilcraft.block.entity.celestial.PressureType.GAS,
+            dev.dubhe.anvilcraft.block.entity.celestial.WindSpeed.HIGH, RingType.NONE, 32, 1, 1, 10, 0, 0, true), 15));
     }
 
     private static ItemStack item(CelestialBodyData body, long seed) {
@@ -182,7 +247,8 @@ public final class CelestialAnvilItemClientScene {
 
     private static boolean atmosphereReady() {
         try {
-            var type = dev.dubhe.anvilcraft.client.renderer.blockentity.celestial.PlanetAtmosphereRenderer.class;
+            var type = STELLAR ? dev.dubhe.anvilcraft.client.renderer.blockentity.celestial.StellarEmissionRenderer.class
+                : dev.dubhe.anvilcraft.client.renderer.blockentity.celestial.PlanetAtmosphereRenderer.class;
             var checked = type.getDeclaredField("checked");
             var failed = type.getDeclaredField("failed");
             checked.setAccessible(true);
@@ -200,11 +266,17 @@ public final class CelestialAnvilItemClientScene {
     }
 
     private static void capture(Minecraft client, String name, int nextStage) {
-        if (!Boolean.getBoolean("anvilcraft.portCfaItemReference") && !name.equals("vanilla-atmosphere") && !atmosphereReady()) return;
+        if (client.getOverlay() != null) {
+            next = System.currentTimeMillis() + 500;
+            return;
+        }
+        boolean fallback = name.equals("vanilla-atmosphere") || name.equals("forced-fallback");
+        if (!Boolean.getBoolean("anvilcraft.portCfaItemReference") && !fallback && !atmosphereReady()) return;
         AnvilCraft.LOGGER.info("PORT_CFA_VIEW {}: position={}, flying={}", name,
             client.player.position(), client.player.getAbilities().flying);
         capturing = true;
-        Screenshot.grab(client.gameDirectory, "cfa-item-26.1-" + name + ".png", client.getMainRenderTarget(), 1,
+        String fileName = (STELLAR ? "stellar-26.1-" : "cfa-item-26.1-") + name + ".png";
+        Screenshot.grab(client.gameDirectory, fileName, client.getMainRenderTarget(), 1,
             message -> client.execute(() -> {
                 capturing = false;
                 advance(nextStage);
@@ -219,14 +291,14 @@ public final class CelestialAnvilItemClientScene {
         @Override
         public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
             graphics.fill(0, 0, this.width, this.height, 0xFF252525);
-            String[] names = {"Empty", "Rocky", "Atmosphere", "Star", "Black hole", "Flesh", "Head"};
+            String[] names = STELLAR ? STAR_NAMES : new String[]{"Empty", "Rocky", "Atmosphere", "Star", "Black hole", "Flesh", "Head"};
             for (int index = 0; index < ITEMS.size(); index++) {
                 graphics.pose().pushMatrix();
-                graphics.pose().translate(30 + index * 84, 90);
+                graphics.pose().translate(30 + (index % 7) * 84, (STELLAR ? 60 + (index / 7) * 150 : 90));
                 graphics.pose().scale(3);
                 graphics.item(ITEMS.get(index), 0, 0);
                 graphics.pose().popMatrix();
-                graphics.text(this.font, names[index], 30 + index * 84, 160, -1, false);
+                graphics.text(this.font, names[index], 30 + (index % 7) * 84, (STELLAR ? 130 + (index / 7) * 150 : 160), -1, false);
             }
         }
     }

@@ -178,7 +178,10 @@ if (providers.gradleProperty('portValidation').isPresent()) {
         neoForge.runs.client.systemProperty 'anvilcraft.portAutoEnchantingVisualParityScene', 'true'
         neoForge.runs.client.programArguments.addAll '--width', '1280', '--height', '720'
     }
-    if (providers.gradleProperty('portCfaItemScene').isPresent()) {
+    if (providers.gradleProperty('portCfaItemScene').isPresent() || providers.gradleProperty('portStellarScene').isPresent()) {
+        if (providers.gradleProperty('portStellarScene').isPresent()) {
+            neoForge.runs.client.systemProperty 'anvilcraft.portStellarScene', 'true'
+        }
         neoForge.runs.client.systemProperty 'anvilcraft.portVisualScene', 'true'
         neoForge.runs.client.systemProperty 'anvilcraft.portCfaItemScene', 'true'
         neoForge.runs.client.programArguments.addAll '--width', '1280', '--height', '720'

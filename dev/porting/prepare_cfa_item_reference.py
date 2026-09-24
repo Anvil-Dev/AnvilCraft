@@ -5,7 +5,7 @@ import sys
 import re
 
 root = Path(__file__).resolve().parents[2]
-reference = Path(sys.argv[1]).resolve() if len(sys.argv) > 1 else root / "build/porting/reference-frost-1.21"
+reference = Path(sys.argv[1]).resolve() if len(sys.argv) > 1 and not sys.argv[1].startswith("--") else root / "build/porting/reference-frost-1.21"
 if not reference.is_relative_to((root / "build/porting").resolve()):
     raise SystemExit("Reference must be inside the task-owned build/porting directory")
 source_ref = subprocess.check_output(["git", "rev-parse", "dev/1.21/1.6"], cwd=root, text=True).strip()
@@ -20,12 +20,12 @@ scene = scene.replace("client.getToastManager()", "client.getToasts()")
 scene = scene.replace("client.level.setTimeFromServer(500)", "client.level.setGameTime(500)")
 scene = scene.replace("client.player.getGameProfile().name()", "client.player.getGameProfile().getName()")
 scene = scene.replace('profile.store("id", UUIDUtil.CODEC, client.player.getUUID());', 'profile.putUUID("id", client.player.getUUID());')
-scene = scene.replace('cfa-item-26.1-', 'cfa-item-1.21-')
+scene = scene.replace('cfa-item-26.1-', 'cfa-item-1.21-').replace('stellar-26.1-', 'stellar-1.21-')
 scene = scene.replace("client.getMainRenderTarget(), 1,", "client.getMainRenderTarget(),")
 scene = scene.replace("GuiGraphicsExtractor", "GuiGraphics")
 scene = scene.replace("extractRenderState(GuiGraphics", "render(GuiGraphics")
 scene = scene.replace(".pushMatrix()", ".pushPose()").replace(".popMatrix()", ".popPose()")
-scene = scene.replace(".translate(30 + index * 84, 90)", ".translate(30 + index * 84, 90, 0)")
+scene = scene.replace(".translate(30 + (index % 7) * 84, (STELLAR ? 60 + (index / 7) * 150 : 90))", ".translate(30 + (index % 7) * 84, (STELLAR ? 60 + (index / 7) * 150 : 90), 0)")
 scene = scene.replace(".scale(3)", ".scale(3, 3, 3)").replace("graphics.item(", "graphics.renderItem(").replace("graphics.text(", "graphics.drawString(")
 scene = scene.replace("        var output = TagValueOutput.createWithoutContext(ProblemReporter.DISCARDING);\n        output.store(tag);\n        BlockItem.setBlockEntityData(stack, ModBlockEntities.CELESTIAL_FORGING_ANVIL.get(), output);", "        BlockItem.setBlockEntityData(stack, ModBlockEntities.CELESTIAL_FORGING_ANVIL.get(), tag);")
 start = scene.index("    private static void verify() {")
@@ -70,5 +70,7 @@ text = build.read_text(encoding="utf-8")
 text = re.sub(r"(systemProperty 'anvilcraft\.port[^']+', )'true'", r"\1'false'", text)
 text = re.sub(r"\nneoForge.runs.client \{ systemProperty 'anvilcraft\.portCfaItemReference', '[^']+' \}\n", "\n", text)
 text += "\nneoForge.runs.client { systemProperty 'anvilcraft.portCfaItemReference', 'true' }\n"
+if "--stellar" in sys.argv:
+    text += "\nneoForge.runs.client { systemProperty 'anvilcraft.portStellarScene', 'true' }\n"
 build.write_bytes(text.replace("\n", "\r\n").encode("utf-8"))
 print(source_ref)

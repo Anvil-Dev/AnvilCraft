@@ -151,6 +151,24 @@ public class ModRenderPipelines {
         .withLocation(AnvilCraft.of("pipeline/star_color_overlay"))
         .build();
 
+    public static final RenderPipeline STELLAR_SURFACE = RenderPipeline.builder(RenderPipelines.MATRICES_FOG_SNIPPET)
+        .withVertexShader(AnvilCraft.of("core/stellar_surface"))
+        .withFragmentShader(AnvilCraft.of("core/stellar_surface"))
+        .withSampler("Sampler0")
+        .withVertexFormat(DefaultVertexFormat.ENTITY, VertexFormat.Mode.QUADS)
+        .withDepthStencilState(DepthStencilState.DEFAULT)
+        .withLocation(AnvilCraft.of("pipeline/stellar_surface"))
+        .build();
+
+    public static final RenderPipeline STELLAR_CORONA = STELLAR_SURFACE.toBuilder()
+        .withFragmentShader(AnvilCraft.of("core/stellar_corona"))
+        .withColorTargetState(new ColorTargetState(new BlendFunction(
+            SourceFactor.SRC_ALPHA, DestFactor.ONE, SourceFactor.ZERO, DestFactor.ONE)))
+        .withDepthStencilState(new DepthStencilState(CompareOp.LESS_THAN_OR_EQUAL, false))
+        .withCull(false)
+        .withLocation(AnvilCraft.of("pipeline/stellar_corona"))
+        .build();
+
     public static final RenderPipeline PLANET_ATMOSPHERE = RenderPipeline.builder(RenderPipelines.MATRICES_FOG_SNIPPET)
         .withVertexShader(AnvilCraft.of("core/planet_atmosphere"))
         .withFragmentShader(AnvilCraft.of("core/planet_atmosphere"))
@@ -217,6 +235,8 @@ public class ModRenderPipelines {
         event.registerPipeline(ModRenderPipelines.CELESTIAL_ATMOSPHERE);
         event.registerPipeline(ModRenderPipelines.PLANET_ATMOSPHERE);
         event.registerPipeline(ModRenderPipelines.PLANET_ATMOSPHERE_INSIDE);
+        event.registerPipeline(ModRenderPipelines.STELLAR_SURFACE);
+        event.registerPipeline(ModRenderPipelines.STELLAR_CORONA);
         event.registerPipeline(ModRenderPipelines.CELESTIAL_RING);
         event.registerPipeline(ModRenderPipelines.SUPERNOVA_FLASH);
         event.registerPipeline(ModRenderPipelines.GRAVITATIONAL_LENS);

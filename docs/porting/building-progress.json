@@ -524,7 +524,8 @@
       "Bounded stored-body preview and model bounds caches with load-before-level attachment and reload/logout cleanup",
       "Body preview, full 18-part head base, item-local rings/beam submission and native cradle hand submission",
       "Source complex-model item path without the world-only atmosphere shell",
-      "Native twelve-step planet volume atmosphere pipelines, per-draw transforms and Standard/Vanilla selection with reload-reset shader failure fallback"
+      "Native twelve-step planet volume atmosphere pipelines, per-draw transforms and Standard/Vanilla selection with reload-reset shader failure fallback",
+      "Source exposure-mapped stellar surfaces and silhouette-only corona shared by item/head/world entry points, including neutron-star and brown-dwarf emission"
     ],
     "verification": {
       "server_tests_passed": 511,
@@ -543,7 +544,7 @@
     },
     "pending": [
       "Head animation phase alignment and atmosphere brightness parity; native GUI atlas resolution/camera differences remain visible",
-      "Latest source stellar evolution/emission backend, advanced megastructure state and associated world/head visual parity",
+      "Latest stellar evolution/event state integration, advanced megastructure state and associated world/head visual parity",
       "Wider special-item/third-party rendering and dynamic timing/performance coverage",
       "World, inside-volume and simultaneous-planet atmosphere validation plus source portable/Iris integration"
     ],
@@ -558,5 +559,33 @@
       "off_hand_frame_bound_difference_pixels": 0,
       "scope": "Orange frame bounds only; texture/lighting masks differ. GUI and head visuals are inspected but not declared equivalent."
     }
+  },
+  "stellar_renderer": {
+    "source_commit": "a378f98e4d41d0d92f97cf2486ac9da7881b1674",
+    "status": "partial",
+    "ported": [
+      "Source StellarRadiance and StellarVisualState math (only style/this qualifiers changed in the latter)",
+      "Native exposure-mapped surface shader, additive exterior-only six-band corona and native fog",
+      "Neutron-star compact corona and source brown-dwarf glow values",
+      "Standard/Vanilla mode with pipeline-failure latch and resource-reload retry; lazy material initialization"
+    ],
+    "verification": {
+      "compile_log": "build/porting/validate-stellar-emission-final.log",
+      "datagen_and_style_log": "build/porting/datagen-stellar-emission-final.log",
+      "source_client_log": "build/porting/client-stellar-source-2.log",
+      "target_client_log": "build/porting/client-stellar-target-3.log",
+      "report": "build/porting/stellar-visual-comparison.json",
+      "body_variants": 11,
+      "source_scenes": 6,
+      "target_scenes": 8,
+      "matching_temperature_color_exposure_samples": 10,
+      "k_star_surface_max_mean_channel_difference": 0.008941650390625,
+      "forced_failure": "Injected failure latch gives the Vanilla patch; resource reload restores Standard patch and a valid pipeline, after the loading overlay exits"
+    },
+    "pending": [
+      "Connect evolution/track/event snapshots and dynamic textures to native render state; the current common call passes neutral visual/event parameters",
+      "World multi-star, Iris/portable backend, transparent item previews and performance/platform coverage",
+      "GUI low-resolution item atlas and Vanilla-mode visual differences; head animation phase and broader full-image parity"
+    ]
   }
 }

@@ -22,6 +22,7 @@ import dev.dubhe.anvilcraft.client.init.ModRenderTypes;
 import dev.dubhe.anvilcraft.client.renderer.RenderState;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.celestial.CelestialBodyRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.celestial.CelestialBodyTextureBakery;
+import dev.dubhe.anvilcraft.client.renderer.blockentity.celestial.StellarEmissionRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.state.CFARenderState;
 import dev.dubhe.anvilcraft.client.support.FeatureRendererSupport;
 import dev.dubhe.anvilcraft.init.ModMegastructures;
@@ -937,15 +938,17 @@ public class CFARenderer implements BlockEntityRenderer<CelestialForgingAnvilBlo
         SubmitNodeCollector collector,
         long seed
     ) {
-        // 黑洞和中子星使用独立烘焙模型，不叠加普通恒星颜色或光晕。
+        // 黑洞保留独立模型；中子星的表面辐射与普通恒星共用。
         if (star.bodyClass() == CelestialBodyClass.BLACK_HOLE) {
             if (state.getBodyModel() != null) {
                 this.tessellateModel(state.getBodyModel(), pose, collector);
             }
             return;
         }
+        boolean emissive = state.getBodyModel() != null
+            && StellarEmissionRenderer.submit(star, state.getBodyModel(), pose, collector, null, 0);
         if (star.bodyClass() == CelestialBodyClass.NEUTRON_STAR) {
-            if (state.getBodyModel() != null) {
+            if (!emissive && state.getBodyModel() != null) {
                 this.tessellateModel(state.getBodyModel(), pose, collector);
             }
             if (state.getNeutronJetModel() != null) {
@@ -963,7 +966,8 @@ public class CFARenderer implements BlockEntityRenderer<CelestialForgingAnvilBlo
             return;
         }
 
-        // 主序星使用带动画的灰度烘焙模型。
+        if (emissive) return;
+        // 香草模式使用带动画的灰度烘焙模型。
         float[] rgb = CelestialBodyRenderer.getStarColor(star);
         this.submitRegularStarCore(state.getBodyModel(), rgb, pose, collector);
 
@@ -972,6 +976,7 @@ public class CFARenderer implements BlockEntityRenderer<CelestialForgingAnvilBlo
     }
 
     private void submitStarBloom(CFARenderState state, StarData star, CameraRenderState camera) {
+        if (StellarEmissionRenderer.standard()) return;
         if (!RenderState.isEnhancedRenderingAvailable() || !RenderState.isBloomEffectEnabled()) return;
         BlockStateModelTessellateState bodyModel = state.getBodyModel();
         if (star.bodyClass().isExtreme() || bodyModel == null) return;
@@ -1060,8 +1065,8 @@ public class CFARenderer implements BlockEntityRenderer<CelestialForgingAnvilBlo
         }
 
         // 褐矮星使用较弱的恒星式光晕。
-        if (bodyData instanceof GiantPlanetData gp && gp.brownDwarf()) {
-            float[] rgb = CelestialBodyRenderer.getAtmosphereColor(Temperature.SCORCHED);
+        if (bodyData instanceof GiantPlanetData gp && gp.brownDwarf() && !StellarEmissionRenderer.submitBrownDwarf(pose, collector)) {
+            float[] rgb = {1.0F, 0.3F, 0.1F};
             this.submitHalo(pose, collector, rgb[0], rgb[1], rgb[2], 3, 1.15f, 0.25f, 0.45f, 0.38f);
         }
     }

@@ -190,9 +190,9 @@ public class CelestialBodyTextureBakery {
 
     public static float[] starColor(StarData star) {
         return new float[]{
-            star.colorR() / 255f,
-            star.colorG() / 255f,
-            star.colorB() / 255f
+            Math.clamp(star.colorR() / 255f, 0.0f, 1.0f),
+            Math.clamp(star.colorG() / 255f, 0.0f, 1.0f),
+            Math.clamp(star.colorB() / 255f, 0.0f, 1.0f)
         };
     }
 
