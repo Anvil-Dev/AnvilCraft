@@ -587,5 +587,30 @@
       "World multi-star, Iris/portable backend, transparent item previews and performance/platform coverage",
       "GUI low-resolution item atlas and Vanilla-mode visual differences; head animation phase and broader full-image parity"
     ]
+  },
+  "stellar_evolution": {
+    "source_commit": "a378f98e4d41d0d92f97cf2486ac9da7881b1674",
+    "status": "state_engine_ported_integration_pending",
+    "ported": [
+      "24 discrete mass tracks (41-64), 21 stellar surface entries plus the brown-dwarf entry, event profiles and coverage resources copied byte-for-byte",
+      "Frozen track/profile/metallicity/event snapshots, absolute phase clock, timeline shifts and one-time event bookkeeping",
+      "Native NBT scalar/list/array access and format-2 result-stage migration to format 3",
+      "Native server resource reload publishes a valid library atomically and retains the previous library on invalid data",
+      "Shared 64-entry mass table used by menu and evolution; all prior display strings preserved"
+    ],
+    "verification": {
+      "focused_tests_passed": 8,
+      "entry_combinations": 484,
+      "nbt_round_trips": 72,
+      "test_and_style_log": "build/porting/tests-stellar-state-focused.log",
+      "compile_log": "build/porting/compile-stellar-state-final.log",
+      "datagen_log": "build/porting/datagen-stellar-state-final.log",
+      "generated_changes": 0
+    },
+    "pending": [
+      "Replace legacy AcceleratorHandler progression and connect amplifier pause/resume, old four-stage saves, terminal outcomes and event gameplay",
+      "Connect frozen snapshots to network/menu/native render state and dynamic textures",
+      "Game-level evolution, client transition and multiplayer/reload verification after integration"
+    ]
   }
 }
