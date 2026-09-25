@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "group": "anvilcraft:local_terminal",
+  "key": {
+    "A": "anvilcraft:crate",
+    "B": "minecraft:ender_pearl",
+    "C": "anvilcraft:processor",
+    "D": "minecraft:lapis_lazuli",
+    "E": "minecraft:redstone_block"
+  },
+  "pattern": [
+    "ABA",
+    "CDC",
+    "AEA"
+  ],
+  "result": {
+    "id": "anvilcraft:local_terminal"
+  }
+}

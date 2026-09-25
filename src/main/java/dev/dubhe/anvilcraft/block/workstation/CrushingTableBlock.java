@@ -1,109 +1,22 @@
 package dev.dubhe.anvilcraft.block.workstation;
 
-import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
+import dev.dubhe.anvilcraft.block.ProcessingTableBlock;
+import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.util.RandomSource;
-import net.minecraft.world.item.context.BlockPlaceContext;
-import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.LevelReader;
-import net.minecraft.world.level.ScheduledTickAccess;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.SimpleWaterloggedBlock;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.StateDefinition;
-import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.minecraft.world.level.block.state.properties.BooleanProperty;
-import net.minecraft.world.level.material.FluidState;
-import net.minecraft.world.level.material.Fluids;
-import net.minecraft.world.level.pathfinder.PathComputationType;
-import net.minecraft.world.phys.shapes.BooleanOp;
-import net.minecraft.world.phys.shapes.CollisionContext;
-import net.minecraft.world.phys.shapes.Shapes;
-import net.minecraft.world.phys.shapes.VoxelShape;
+import org.jspecify.annotations.Nullable;
 
-public class CrushingTableBlock extends Block implements SimpleWaterloggedBlock, IHammerRemovable {
-    public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
-    private static final VoxelShape REDUCE_AABB = Shapes.or(
-        Block.box(2.0, 12.0, 2.0, 14.0, 16.0, 14.0),
-        Block.box(2.0, 0.0, 2.0, 14.0, 10.0, 14.0),
-        Block.box(4.0, 0.0, 0.0, 12.0, 10.0, 16.0),
-        Block.box(0.0, 0.0, 4.0, 16.0, 10.0, 12.0)
-    );
-    private static final VoxelShape REDUCE_AABB_INTERACTION = Shapes.or(
-        Block.box(2.0, 0.0, 2.0, 14.0, 10.0, 14.0),
-        Block.box(4.0, 0.0, 0.0, 12.0, 10.0, 16.0),
-        Block.box(0.0, 0.0, 4.0, 16.0, 10.0, 12.0)
-    );
-    private static final VoxelShape AABB = Shapes.join(Shapes.block(), CrushingTableBlock.REDUCE_AABB, BooleanOp.ONLY_FIRST);
-    private static final VoxelShape INTERACTION_BOX = Shapes.join(
-        Shapes.block(), CrushingTableBlock.REDUCE_AABB_INTERACTION, BooleanOp.ONLY_FIRST);
-
+/**
+ * 粉碎台：在台面上放置原料，铁坷砸落时执行粉碎配方。
+ */
+public class CrushingTableBlock extends ProcessingTableBlock {
     public CrushingTableBlock(Properties properties) {
         super(properties);
-        this.registerDefaultState(this.stateDefinition.any().setValue(CrushingTableBlock.WATERLOGGED, false));
     }
 
     @Override
-    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        super.createBlockStateDefinition(builder);
-        builder.add(CrushingTableBlock.WATERLOGGED);
-    }
-
-    @Override
-    public VoxelShape getShape(
-        BlockState blockState,
-        BlockGetter blockGetter,
-        BlockPos blockPos,
-        CollisionContext collisionContext
-    ) {
-        return CrushingTableBlock.AABB;
-    }
-
-    @Override
-    protected VoxelShape getInteractionShape(BlockState state, BlockGetter level, BlockPos pos) {
-        return CrushingTableBlock.INTERACTION_BOX;
-    }
-
-    @Override
-    protected boolean isPathfindable(BlockState state, PathComputationType pathComputationType) {
-        return false;
-    }
-
-    @Override
-    protected boolean useShapeForLightOcclusion(BlockState state) {
-        return true;
-    }
-
-    @Override
-    public BlockState getStateForPlacement(BlockPlaceContext blockPlaceContext) {
-        BlockPos blockPos = blockPlaceContext.getClickedPos();
-        FluidState
-            fluidState = blockPlaceContext.getLevel().getFluidState(blockPos);
-        BlockState state = super.getStateForPlacement(blockPlaceContext);
-        state = null != state ? state : this.defaultBlockState();
-        return state.setValue(CrushingTableBlock.WATERLOGGED, fluidState.getType() == Fluids.WATER);
-    }
-
-    @Override
-    public FluidState getFluidState(BlockState blockState) {
-        return blockState.getValue(CrushingTableBlock.WATERLOGGED) ? Fluids.WATER.getSource(false) : super.getFluidState(blockState);
-    }
-
-    @Override
-    protected BlockState updateShape(
-        BlockState blockState,
-        LevelReader levelReader,
-        ScheduledTickAccess ticks,
-        BlockPos blockPos,
-        Direction direction,
-        BlockPos blockPos2,
-        BlockState blockState2,
-        RandomSource random
-    ) {
-        if (blockState.getValue(CrushingTableBlock.WATERLOGGED)) {
-            ticks.scheduleTick(blockPos, Fluids.WATER, Fluids.WATER.getTickDelay(levelReader));
-        }
-        return super.updateShape(blockState, levelReader, ticks, blockPos, direction, blockPos2, blockState2, random);
+    public @Nullable BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
+        return ModBlockEntities.CRUSHING_TABLE.create(pos, state);
     }
 }

@@ -1,10 +1,11 @@
 package dev.dubhe.anvilcraft.mixin;
 
 import dev.dubhe.anvilcraft.api.amulet.AmuletManager;
-import dev.dubhe.anvilcraft.init.item.ModComponents;
+import dev.dubhe.anvilcraft.init.registry.ModRegistries;
 import dev.dubhe.anvilcraft.item.property.component.amulet.DiscountAmulet;
 import dev.dubhe.anvilcraft.item.property.component.amulet.IAmulet;
 import dev.dubhe.anvilcraft.item.property.component.amulet.WrappedOthersAmulet;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.npc.villager.AbstractVillager;
 import net.minecraft.world.entity.npc.villager.Villager;
@@ -35,7 +36,9 @@ public abstract class VillagerMixin extends AbstractVillager {
         AmuletManager manager = AmuletManager.get(player.registryAccess());
         List<ItemStack> stacks = manager.getAmuletsFromInventory(player);
         for (ItemStack stack : stacks) {
-            this.anvilcraft$updateSpecialPrices(stack.get(ModComponents.AMULET));
+            IAmulet amulet = manager.getAmulet(stack);
+            if (amulet == null) continue;
+            this.anvilcraft$updateSpecialPrices(amulet);
             return;
         }
     }
@@ -44,9 +47,15 @@ public abstract class VillagerMixin extends AbstractVillager {
     private void anvilcraft$updateSpecialPrices(IAmulet amulet) {
         switch (amulet) {
             case DiscountAmulet(float rate) -> this.anvilcraft$updateSpecialPrices(rate);
-            case WrappedOthersAmulet(List<IAmulet> amulets) -> amulets.forEach(this::anvilcraft$updateSpecialPrices);
+            case WrappedOthersAmulet(List<ResourceKey<IAmulet>> amulets) -> amulets.forEach(this::anvilcraft$updateSpecialPrices);
             default -> {}
         }
+    }
+
+    @Unique
+    private void anvilcraft$updateSpecialPrices(ResourceKey<IAmulet> amulet) {
+        IAmulet found = ModRegistries.AMULET.getValue(amulet);
+        if (found != null) this.anvilcraft$updateSpecialPrices(found);
     }
 
     @Unique

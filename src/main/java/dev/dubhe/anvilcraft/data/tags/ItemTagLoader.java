@@ -16,6 +16,15 @@ public class ItemTagLoader {
     ///
     /// @param provider 提供器
     public static void init(RegistrumTagsProvider<Item> provider) {
+        provider.rawBuilder(ModItemTags.AUTO_ENCHANTING_TABLE_PRIMERS)
+            .addElement(ModItems.EMERALD_AMULET.getId())
+            .addElement(ModBlocks.EMBER_ANVIL.getId())
+            .addElement(ModBlocks.TRANSCENDENCE_ANVIL.getId());
+
+        provider.rawBuilder(ModItemTags.PLAYER_WORKSTATIONS_STONECUTTERS)
+            .addElement(ItemTagLoader.findId(Items.STONECUTTER))
+            .addElement(ModBlocks.BATCH_CUTTER.getId());
+
         provider.rawBuilder(ModItemTags.PLATES)
             .addElement(ItemTagLoader.findId(Items.HEAVY_WEIGHTED_PRESSURE_PLATE))
             .addElement(ItemTagLoader.findId(Items.LIGHT_WEIGHTED_PRESSURE_PLATE));
@@ -272,6 +281,10 @@ public class ItemTagLoader {
         provider.rawBuilder(ModItemTags.ROYAL_STEEL_TOOL_MATERIALS)
             .addElement(ModItems.ROYAL_STEEL_INGOT.getId());
 
+        provider.rawBuilder(ModItemTags.WEATHERPROOF_REPAIR_MATERIALS)
+            .addElement(ModItems.MULTIPHASE_MATTER.getId());
+        provider.rawBuilder(ModItemTags.UNIVERSAL_REPAIR_MATERIALS)
+            .addElement(ModItems.FROST_METAL_INGOT.getId());
         provider.rawBuilder(ModItemTags.FROST_METAL_TOOL_MATERIALS)
             .addElement(ModItems.FROST_METAL_INGOT.getId());
 

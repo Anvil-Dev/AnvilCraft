@@ -5,6 +5,7 @@ import dev.dubhe.anvilcraft.init.item.ModAmulets;
 import dev.dubhe.anvilcraft.item.property.component.amulet.IAmulet;
 import dev.dubhe.anvilcraft.mixin.accessor.TargetingConditionsAccessor;
 import dev.dubhe.anvilcraft.util.mixin.ModifiedSelector;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
@@ -12,6 +13,7 @@ import net.minecraft.world.entity.ai.goal.target.TargetGoal;
 import net.minecraft.world.entity.ai.targeting.TargetingConditions;
 import net.minecraft.world.entity.monster.Creeper;
 import net.minecraft.world.entity.monster.skeleton.AbstractSkeleton;
+import net.minecraft.world.entity.monster.spider.Spider;
 import net.minecraft.world.entity.player.Player;
 import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
@@ -44,10 +46,11 @@ public abstract class NearestAttackableTargetGoalMixin extends TargetGoal {
         index = 0
     )
     private TargetingConditions addAmuletScare(TargetingConditions conditions) {
-        IAmulet amulet;
+        ResourceKey<IAmulet> amulet;
         switch (this.mob.getClass()) {
-            case Class<?> clazz when clazz.isAssignableFrom(AbstractSkeleton.class) -> amulet = ModAmulets.DOG;
-            case Class<?> clazz when clazz.isAssignableFrom(Creeper.class) -> amulet = ModAmulets.CAT;
+            case Class<?> clazz when Spider.class.isAssignableFrom(clazz) -> amulet = ModAmulets.ARMADILLO.getKey();
+            case Class<?> clazz when clazz.isAssignableFrom(AbstractSkeleton.class) -> amulet = ModAmulets.DOG.getKey();
+            case Class<?> clazz when clazz.isAssignableFrom(Creeper.class) -> amulet = ModAmulets.CAT.getKey();
             default -> {
                 return conditions;
             }

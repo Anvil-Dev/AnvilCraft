@@ -128,3 +128,6 @@ reference/
 
 libs/
 /AGENT.md
+
+# Python cache from port validation tools
+/dev/porting/__pycache__/

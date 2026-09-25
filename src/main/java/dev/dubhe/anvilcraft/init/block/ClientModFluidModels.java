@@ -16,6 +16,23 @@ public class ClientModFluidModels {
     @SubscribeEvent
     public static void registerFluidModel(RegisterFluidModelsEvent event) {
         FluidTintSource tint = _ -> 0xFFFFFFFF;
+        var enchantmentColors = new dev.dubhe.anvilcraft.util.LiquidEnchantmentClientFluidTypeExtension();
+        FluidTintSource enchantmentTint = new FluidTintSource() {
+            @Override
+            public int color(net.minecraft.world.level.material.FluidState state) {
+                return 0xFFFFFFFF;
+            }
+
+            @Override
+            public int colorAsStack(net.neoforged.neoforge.fluids.FluidStack stack) {
+                return enchantmentColors.getTintColor(stack);
+            }
+        };
+        event.register(new FluidModel.Unbaked(
+            new Material(AnvilCraft.of("block/liquid_enchantment")),
+            new Material(AnvilCraft.of("block/liquid_enchantment")),
+            null, enchantmentTint
+        ), ModFluids.LIQUID_ENCHANTMENT);
         event.register(new FluidModel.Unbaked(
             new Material(AnvilCraft.of("block/exp_fluid")),
             new Material(AnvilCraft.of("block/exp_fluid_flow")),

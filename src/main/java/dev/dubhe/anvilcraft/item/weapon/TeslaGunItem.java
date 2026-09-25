@@ -39,7 +39,7 @@ public class TeslaGunItem extends EnergyWeaponItem {
     private static final double COS_15_DEGREES = Math.cos(Math.toRadians(15.0));
 
     public TeslaGunItem(Properties properties) {
-        super(properties);
+        super(properties, SHOT_ENERGY);
     }
 
     @Override
@@ -52,13 +52,14 @@ public class TeslaGunItem extends EnergyWeaponItem {
 
     @Override
     public void onUseTick(Level level, LivingEntity user, ItemStack stack, int remaining) {
+        if (!(user instanceof Player usingPlayer) || !this.canContinueUsing(usingPlayer, stack)) return;
         if (!(user instanceof ServerPlayer player) || !(level instanceof ServerLevel serverLevel)) return;
         if (player.getCooldowns().isOnCooldown(stack)) return;
         Target target = TeslaGunItem.findTarget(level, player);
         if (target == null) return;
         BlockPos rod = target.rod();
         if (rod != null && !(level.getBlockState(rod).getBlock() instanceof LightningRodBlock)) return;
-        if (!this.consumeEnergy(player, stack, TeslaGunItem.SHOT_ENERGY, 160_000_000)) return;
+        if (!this.consumeEnergy(player, stack, TeslaGunItem.SHOT_ENERGY)) return;
         int quickCharge = stack.getEnchantmentLevel(
             level.holderLookup(Registries.ENCHANTMENT).getOrThrow(Enchantments.QUICK_CHARGE));
         player.getCooldowns().addCooldown(stack, 80 - Math.min(60, quickCharge * 5));

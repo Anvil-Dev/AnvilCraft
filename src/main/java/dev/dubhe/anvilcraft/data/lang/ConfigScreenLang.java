@@ -10,6 +10,17 @@ public class ConfigScreenLang {
     ///
     /// @param provider 提供器
     public static void init(RegistrumLangProvider provider) {
+        addOverride(provider, "anvilcraft.configuration.building_rod_controls", "Building Rod Blueprint Controls");
+        addOverride(provider,
+            "anvillib.configuration.enum.dev.dubhe.anvilcraft.config.anvil_craft_client_config.building_rod_controls.traditional", "Traditional");
+        addOverride(provider,
+            "anvillib.configuration.enum.dev.dubhe.anvilcraft.config.anvil_craft_client_config.building_rod_controls.optimized", "Optimized");
+        addOverride(provider, "anvilcraft.configuration.sifting_unpacking_block_render_enabled",
+            "Enlarged Block Rendering in Sifting/Unpacking Tables");
+        addOverride(provider, "anvilcraft.configuration.sifting_unpacking_block_render_enabled.tooltip",
+            "Renders block-state items inside sifting and unpacking tables with the enlarged block model pick"
+                + " instead of regular scattered item rendering");
+
         ConfigScreenLang.addOverrides(provider);
         ConfigData.readConfigClass(provider, AnvilCraftServerConfig.class);
         ConfigData.readConfigClass(provider, AnvilCraftClientConfig.class);
@@ -17,6 +28,9 @@ public class ConfigScreenLang {
 
     @SuppressWarnings("checkstyle:LineLength")
     private static void addOverrides(RegistrumLangProvider provider) {
+        ConfigScreenLang.addOverride(provider, "anvilcraft.configuration.weatherproof_chestplate_hud", "Weatherproof Chestplate HUD");
+        ConfigScreenLang.addOverride(provider, "anvilcraft.configuration.weatherproof_chestplate_hud.button", "Open HUD Settings");
+        ConfigScreenLang.addOverride(provider, "anvilcraft.configuration.weatherproof_chestplate_hud.tooltip", "Chestplate power and capacitor display");
         ConfigScreenLang.addOverride(provider, "anvilcraft.configuration.anvil_collision_craft_speed", "Anvil Collision Explosion Speed Threshold");
         ConfigScreenLang.addOverride(
             provider,

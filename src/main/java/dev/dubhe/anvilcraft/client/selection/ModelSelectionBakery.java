@@ -1,0 +1,288 @@
+package dev.dubhe.anvilcraft.client.selection;
+
+import com.mojang.blaze3d.vertex.PoseStack;
+import dev.anvilcraft.lib.v2.cube.client.SelectionPart;
+import dev.anvilcraft.lib.v2.cube.client.model.ModelSelection;
+import dev.anvilcraft.lib.v2.cube.geometry.ConvexShape;
+import dev.anvilcraft.lib.v2.cube.geometry.SelectionGeometry;
+import dev.anvilcraft.lib.v2.cube.mixin.client.MultipartModelAccessor;
+import dev.anvilcraft.lib.v2.cube.mixin.client.SingleVariantAccessor;
+import dev.anvilcraft.lib.v2.cube.mixin.client.WeightedModelAccessor;
+import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.block.multipart.AbstractMultiPartBlock;
+import dev.dubhe.anvilcraft.block.workstation.GiantAnvilBlock;
+import dev.dubhe.anvilcraft.client.event.NegativeShapeModelEventListener;
+import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
+import net.minecraft.client.renderer.block.dispatch.BlockStateModelPart;
+import net.minecraft.client.resources.model.ModelBakery;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Vec3i;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.RenderShape;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.AABB;
+import org.joml.Matrix4d;
+import org.joml.Matrix4f;
+import org.jspecify.annotations.Nullable;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.IdentityHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+final class ModelSelectionBakery {
+    private static final long MAX_BYTES = 64L * 1024 * 1024;
+    private static final ModelSelection EMPTY = new ModelSelection.Multipart(List.of(), new AABB(0, 0, 0, 0, 0, 0));
+    private final Map<BlockStateModelPart, ModelSelectionCapture.Source> sources;
+    private final Map<BlockStateModelPart, ModelSelection> leaves = new IdentityHashMap<>();
+    private final Map<List<ConvexShape>, SelectionGeometry> geometries = new HashMap<>();
+    private final Set<ConvexShape> retainedShapes = Collections.newSetFromMap(new IdentityHashMap<>());
+    private final Map<List<?>, List<ConvexShape>> elements = new IdentityHashMap<>();
+    private long bytes;
+
+    ModelSelectionBakery(Map<BlockStateModelPart, ModelSelectionCapture.Source> sources) {
+        this.sources = sources;
+    }
+
+    ModelBlockSelection.Snapshot bake(ModelBakery.BakingResult baking) {
+        Map<BlockState, ModelSelection> states = new IdentityHashMap<>();
+        Map<BlockState, List<SelectionPart>> outlines = new IdentityHashMap<>();
+        Map<SelectionModel, ModelSelection> models = new HashMap<>();
+        int failures = 0;
+        Map<String, Integer> fallbackReasons = new java.util.TreeMap<>();
+        for (Block block : BuiltInRegistries.BLOCK) {
+            if (!AnvilCraft.MOD_ID.equals(BuiltInRegistries.BLOCK.getKey(block).getNamespace())) continue;
+            for (BlockState state : block.getStateDefinition().getPossibleStates()) {
+                BlockStateModel model = baking.blockStateModels().get(state);
+                if (model == null) continue;
+                try {
+                    ModelSelection selection = this.resolve(model, state, 0);
+                    models.put(new SelectionModel.State(state), selection);
+                    boolean rendered = state.getRenderShape() == RenderShape.MODEL;
+                    states.put(state, rendered ? selection : EMPTY);
+                    if (rendered && !(block instanceof AbstractMultiPartBlock<?>) && !ModelSelectionBlacklist.usesOriginalOutline(block)) {
+                        List<SelectionPart> own = collect(selection, state.getSeed(BlockPos.ZERO));
+                        if (!own.isEmpty()) outlines.put(state, own);
+                    }
+                } catch (IllegalArgumentException exception) {
+                    failures++;
+                    fallbackReasons.merge(BuiltInRegistries.BLOCK.getKey(block) + ": " + exception.getMessage(), 1, Integer::sum);
+                }
+            }
+            if (block instanceof AbstractMultiPartBlock<?> multipart) this.multipart(multipart, states, outlines);
+        }
+        for (var entry : baking.standaloneModels().models().entrySet()) {
+            if (!(entry.getValue() instanceof BlockStateModel model)) continue;
+            try {
+                models.put(SelectionModel.standalone(entry.getKey()), this.resolve(model, null, 0));
+            } catch (IllegalArgumentException exception) {
+                AnvilCraft.LOGGER.debug("Unable to prepare selection model {}: {}", entry.getKey(), exception.getMessage());
+            }
+        }
+        fallbackReasons.forEach((reason, count) -> AnvilCraft.LOGGER.debug("Selection fallback ({} states): {}", count, reason));
+        AnvilCraft.LOGGER.info("Prepared cube selection: {} states, {} outline states, {} render models, {} bytes, {} fallback states",
+            states.size(), outlines.size(), models.size(), this.bytes, failures);
+        return new ModelBlockSelection.Snapshot(Map.copyOf(states), Map.copyOf(outlines), Map.copyOf(models));
+    }
+
+    private ModelSelection resolve(BlockStateModel model, @Nullable BlockState state, int depth) {
+        if (depth > 16) throw new IllegalArgumentException("Model recursion limit exceeded");
+        model = NegativeShapeModelEventListener.modelForSelection(model);
+        if (model instanceof SingleVariantAccessor single) {
+            BlockStateModelPart leaf = single.anvillib_cube$model();
+            ModelSelection cached = this.leaves.get(leaf);
+            if (cached != null) return cached;
+            ModelSelectionCapture.Source source = this.sources.get(leaf);
+            if (source == null) throw new IllegalArgumentException("Custom geometry loader");
+            List<ConvexShape> shapes = this.elements.computeIfAbsent(source.elements(), key -> ModelCubeGeometry.decode(source.elements()));
+            ModelSelection selection = shapes.isEmpty() ? EMPTY : new ModelSelection.Fixed(new SelectionPart(this.geometry(shapes),
+                new Matrix4f().translation(0.5F, 0.5F, 0.5F).mul(source.state().transformation().getMatrix())
+                    .translate(-0.5F, -0.5F, -0.5F).scale(1 / ModelCubeGeometry.SCALE)));
+            this.leaves.put(leaf, selection);
+            return selection;
+        }
+        if (model instanceof WeightedModelAccessor weighted) {
+            List<ModelSelection> choices = new ArrayList<>();
+            List<Integer> weights = new ArrayList<>();
+            for (var variant : weighted.anvillib_cube$variants().unwrap()) {
+                choices.add(this.resolve(variant.value(), state, depth + 1));
+                weights.add(variant.weight());
+            }
+            if (choices.size() == 1) return choices.getFirst();
+            return new ModelSelection.Weighted(choices, weights, weights.stream().mapToInt(Integer::intValue).sum(), bounds(choices));
+        }
+        if (model instanceof MultipartModelAccessor multipart && state != null) {
+            List<ModelSelection> parts = new ArrayList<>();
+            for (BlockStateModel part : multipart.anvillib_cube$shared().selectModels(state)) {
+                parts.add(this.resolve(part, state, depth + 1));
+            }
+            return this.combine(parts);
+        }
+        throw new IllegalArgumentException("Unsupported block model " + model.getClass().getSimpleName());
+    }
+
+    private ModelSelection combine(List<ModelSelection> parts) {
+        if (parts.isEmpty()) return EMPTY;
+        if (parts.size() == 1 && parts.getFirst() instanceof ModelSelection.Fixed) return parts.getFirst();
+        // 管道等方块有大量状态组合，保留共享子模型，避免为每种连接状态复制整套凸体。
+        return new ModelSelection.Multipart(parts, bounds(parts));
+    }
+
+    private static void appendShapes(ModelSelection selection, Matrix4d transform, List<ConvexShape> output) {
+        if (selection instanceof ModelSelection.Fixed(SelectionPart part1)) {
+            PoseStack pose = new PoseStack();
+            part1.apply(pose);
+            Matrix4d matrix = new Matrix4d(transform).scale(ModelCubeGeometry.SCALE).mul(new Matrix4d(pose.last().pose()));
+            part1.geometry().shapes().forEach(shape -> output.add(shape.transform(matrix)));
+        } else if (selection instanceof ModelSelection.Multipart multipart) {
+            for (ModelSelection part : multipart.parts()) appendShapes(part, transform, output);
+        } else {
+            throw new IllegalArgumentException("Randomized multipart structure");
+        }
+    }
+
+    private <P extends Enum<P>> void multipart(
+        AbstractMultiPartBlock<P> block, Map<BlockState, ModelSelection> states, Map<BlockState, List<SelectionPart>> outlines
+    ) {
+        P first = block.getParts()[0];
+        Map<BlockState, ModelSelection> original = new IdentityHashMap<>();
+        for (BlockState state : block.getStateDefinition().getPossibleStates()) {
+            ModelSelection selection = states.get(state);
+            if (selection != null) original.put(state, selection);
+        }
+        for (BlockState base : block.getStateDefinition().getPossibleStates()) {
+            if (base.getValue(block.getPart()) != first) continue;
+            try {
+                List<ConvexShape> joined = new ArrayList<>();
+                for (P part : block.getParts()) {
+                    BlockState source = base.setValue(block.getPart(), part);
+                    // 完整模型只由承载部件提供，其余部件是空模型（giant_anvil_part 与
+                    // giant_monolith_core_part 都没有 elements）。这类方块的 placedState() 会按部件
+                    // 重算决定模型的属性（CUBE），必须按映射后的状态解析：否则每个部件都解析到
+                    // 空模型，joined 为空 → 不写 outlines（这些方块 RenderShape=MODEL）→
+                    // 框线模式完全没有描边，只能退回鬼影。
+                    if (block instanceof GiantAnvilBlock) {
+                        source = block.placedState(part, source);
+                    }
+                    ModelSelection selection = original.get(source);
+                    if (selection == EMPTY) continue;
+                    if (selection == null) throw new IllegalArgumentException("Missing multipart model");
+                    Vec3i offset = block.offsetFrom(base, part);
+                    Matrix4d translation = new Matrix4d().translation(
+                        offset.getX() * ModelCubeGeometry.SCALE, offset.getY() * ModelCubeGeometry.SCALE,
+                        offset.getZ() * ModelCubeGeometry.SCALE
+                    );
+                    appendShapes(selection, translation, joined);
+                }
+                if (joined.isEmpty()) {
+                    if (base.getRenderShape() != RenderShape.MODEL) {
+                        for (P part : block.getParts()) outlines.put(base.setValue(block.getPart(), part), List.of());
+                    }
+                    continue;
+                }
+                // 整体几何仅用于生成描边。anvillib 的 SelectionGeometry 有 MAX_SHAPES 上限，
+                // 超过会抛 IllegalArgumentException，被本方法的 catch 吞掉后整个多方块拿不到描边，
+                // 框线模式只能退回鬼影。大型多方块（如 3×3×3 的巨型独石核心：27 部件合计上千个凸体）
+                // 会触发该上限；此时按库自身对超预算描边的做法（见 SelectionGeometry 构造器）
+                // 退化为整体包围盒。逐部件的裁剪几何仍用完整的 joined，交互与拾取精度不受影响。
+                SelectionGeometry whole;
+                if (joined.size() > SelectionGeometry.MAX_SHAPES) {
+                    whole = this.geometry(List.of(ConvexShape.box(ModelSelectionBakery.unionBounds(joined))));
+                } else {
+                    whole = this.geometry(joined);
+                }
+                AABB occupied = new AABB(0, 0, 0, ModelCubeGeometry.SCALE, ModelCubeGeometry.SCALE, ModelCubeGeometry.SCALE);
+                for (P part : block.getParts()) {
+                    Vec3i offset = block.offsetFrom(base, part);
+                    occupied = occupied.minmax(new AABB(0, 0, 0, ModelCubeGeometry.SCALE, ModelCubeGeometry.SCALE, ModelCubeGeometry.SCALE)
+                        .move(offset.getX() * ModelCubeGeometry.SCALE, offset.getY() * ModelCubeGeometry.SCALE,
+                            offset.getZ() * ModelCubeGeometry.SCALE));
+                }
+                Map<BlockState, ModelSelection> clipped = new IdentityHashMap<>();
+                Map<BlockState, List<SelectionPart>> complete = new IdentityHashMap<>();
+                for (P part : block.getParts()) {
+                    BlockState state = base.setValue(block.getPart(), part);
+                    Vec3i offset = block.offsetFrom(base, part);
+                    double x = offset.getX() * ModelCubeGeometry.SCALE;
+                    double y = offset.getY() * ModelCubeGeometry.SCALE;
+                    double z = offset.getZ() * ModelCubeGeometry.SCALE;
+                    AABB cell = new AABB(x, y, z, x + ModelCubeGeometry.SCALE, y + ModelCubeGeometry.SCALE, z + ModelCubeGeometry.SCALE);
+                    AABB bounds = whole.bounds();
+                    cell = new AABB(
+                        x == occupied.minX ? Math.min(x, bounds.minX) : cell.minX,
+                        y == occupied.minY ? Math.min(y, bounds.minY) : cell.minY,
+                        z == occupied.minZ ? Math.min(z, bounds.minZ) : cell.minZ,
+                        cell.maxX == occupied.maxX ? Math.max(cell.maxX, bounds.maxX) : cell.maxX,
+                        cell.maxY == occupied.maxY ? Math.max(cell.maxY, bounds.maxY) : cell.maxY,
+                        cell.maxZ == occupied.maxZ ? Math.max(cell.maxZ, bounds.maxZ) : cell.maxZ
+                    );
+                    List<ConvexShape> pieces = new ArrayList<>();
+                    Matrix4d translation = new Matrix4d().translation(-x, -y, -z);
+                    for (ConvexShape shape : joined) {
+                        ConvexShape piece = ModelCubeGeometry.clip(shape, cell);
+                        if (piece != null) pieces.add(piece.transform(translation));
+                    }
+                    clipped.put(state, this.fixed(pieces));
+                    complete.put(state, List.of(new SelectionPart(whole, new Matrix4f()
+                        .translation(-offset.getX(), -offset.getY(), -offset.getZ()).scale(1 / ModelCubeGeometry.SCALE))));
+                }
+                states.putAll(clipped);
+                outlines.putAll(complete);
+            } catch (IllegalArgumentException exception) {
+                AnvilCraft.LOGGER.warn("Unable to prepare multipart selection {}: {}", base, exception.getMessage());
+            }
+        }
+    }
+
+    private ModelSelection fixed(List<ConvexShape> shapes) {
+        return shapes.isEmpty() ? EMPTY : new ModelSelection.Fixed(
+            new SelectionPart(this.geometry(shapes), new Matrix4f().scaling(1 / ModelCubeGeometry.SCALE))
+        );
+    }
+
+    private SelectionGeometry geometry(List<ConvexShape> shapes) {
+        SelectionGeometry existing = this.geometries.get(shapes);
+        if (existing != null) return existing;
+        SelectionGeometry result = new SelectionGeometry(shapes);
+        if (!this.retain(result)) throw new IllegalArgumentException("Selection memory budget exceeded");
+        this.geometries.put(result.shapes(), result);
+        return result;
+    }
+
+    private boolean retain(SelectionGeometry geometry) {
+        long additionalBytes = geometry.estimatedBytes();
+        for (ConvexShape shape : geometry.shapes()) {
+            if (this.retainedShapes.contains(shape)) additionalBytes -= shape.estimatedBytes();
+        }
+        if (this.bytes + additionalBytes > MAX_BYTES) return false;
+        this.bytes += additionalBytes;
+        this.retainedShapes.addAll(geometry.shapes());
+        return true;
+    }
+
+    static List<SelectionPart> collect(@Nullable ModelSelection selection, long seed) {
+        if (selection == null) return List.of();
+        if (selection instanceof ModelSelection.Fixed(SelectionPart part)) return List.of(part);
+        List<SelectionPart> result = new ArrayList<>();
+        selection.collect(RandomSource.create(seed), result);
+        return result;
+    }
+
+    private static AABB bounds(List<ModelSelection> selections) {
+        AABB bounds = selections.isEmpty() ? new AABB(0, 0, 0, 0, 0, 0) : selections.getFirst().bounds();
+        for (ModelSelection selection : selections) bounds = bounds.minmax(selection.bounds());
+        return bounds;
+    }
+
+    /** 一组凸体的整体包围盒。 */
+    private static AABB unionBounds(List<ConvexShape> shapes) {
+        AABB bounds = shapes.getFirst().bounds();
+        for (int i = 1; i < shapes.size(); i++) bounds = bounds.minmax(shapes.get(i).bounds());
+        return bounds;
+    }
+}

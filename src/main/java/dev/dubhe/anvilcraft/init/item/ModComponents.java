@@ -3,8 +3,10 @@ package dev.dubhe.anvilcraft.init.item;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.init.registry.ModRegistryKeys;
 import dev.dubhe.anvilcraft.item.property.component.BoxContents;
 import dev.dubhe.anvilcraft.item.property.component.CanTakeOutAmmo;
+import dev.dubhe.anvilcraft.item.property.component.Comrades;
 import dev.dubhe.anvilcraft.item.property.component.DevourRange;
 import dev.dubhe.anvilcraft.item.property.component.DiskData;
 import dev.dubhe.anvilcraft.item.property.component.Eternal;
@@ -23,15 +25,19 @@ import dev.dubhe.anvilcraft.item.property.component.StoredFluids;
 import dev.dubhe.anvilcraft.item.property.component.StoredItem;
 import dev.dubhe.anvilcraft.item.property.component.StructureData;
 import dev.dubhe.anvilcraft.item.property.component.StructureDiskData;
+import dev.dubhe.anvilcraft.item.property.component.TerminalBinding;
 import dev.dubhe.anvilcraft.item.property.component.amulet.IAmulet;
 import dev.dubhe.anvilcraft.item.tool.HeavyHalberdMode;
 import dev.dubhe.anvilcraft.item.tool.MultitoolMode;
 import dev.dubhe.anvilcraft.item.tool.ResonateMode;
+import dev.dubhe.anvilcraft.saved.setting.mode.BalanceMode;
+import dev.dubhe.anvilcraft.saved.storage.CraftingStorage;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.util.Unit;
 import net.minecraft.world.item.component.ChargedProjectiles;
 import net.minecraft.world.item.component.ItemContainerContents;
@@ -45,6 +51,23 @@ import java.util.function.Consumer;
 public class ModComponents {
     public static final DeferredRegister<DataComponentType<?>> DR = DeferredRegister.create(
         Registries.DATA_COMPONENT_TYPE, AnvilCraft.MOD_ID
+    );
+
+    public static final DataComponentType<TerminalBinding> TERMINAL_BINDING = ModComponents.register(
+        "terminal_binding", b -> b.persistent(TerminalBinding.CODEC.codec()).networkSynchronized(TerminalBinding.STREAM_CODEC)
+    );
+    public static final DataComponentType<Boolean> CHARGED_JUMP_ENABLED = ModComponents.register(
+        "charged_jump_enabled", b -> b.persistent(Codec.BOOL).networkSynchronized(ByteBufCodecs.BOOL)
+    );
+    public static final DataComponentType<Boolean> NIGHT_VISION_ENABLED = ModComponents.register(
+        "night_vision_enabled", b -> b.persistent(Codec.BOOL).networkSynchronized(ByteBufCodecs.BOOL)
+    );
+    public static final DataComponentType<BalanceMode> TERMINAL_BALANCE_MODE = ModComponents.register(
+        "terminal_balance_mode", b -> b.persistent(BalanceMode.CODEC).networkSynchronized(BalanceMode.STREAM_CODEC)
+    );
+
+    public static final DataComponentType<CraftingStorage> CRAFTING = ModComponents.register(
+        "crafting", b -> b.persistent(CraftingStorage.CODEC.codec()).networkSynchronized(CraftingStorage.STREAM_CODEC)
     );
 
     public static final DataComponentType<DiskData> DISK_DATA = ModComponents.register(
@@ -117,6 +140,10 @@ public class ModComponents {
     public static final DataComponentType<DevourRange> DEVOUR_RANGE = ModComponents.register(
         "devour_range",
         b -> b.persistent(DevourRange.CODEC).networkSynchronized(DevourRange.STREAM_CODEC)
+    );
+
+    public static final DataComponentType<Boolean> DEVOUR_PROTECT_CONTAINERS = ModComponents.register(
+        "devour_protect_containers", b -> b.persistent(Codec.BOOL).networkSynchronized(ByteBufCodecs.BOOL)
     );
 
     public static final DataComponentType<BoxContents> BOX_CONTENTS = ModComponents.register(
@@ -196,9 +223,16 @@ public class ModComponents {
         b -> b.persistent(StoredFluids.CODEC).networkSynchronized(StoredFluids.STREAM_CODEC)
     );
 
-    public static final DataComponentType<IAmulet> AMULET = ModComponents.register(
+    public static final DataComponentType<ResourceKey<IAmulet>> AMULET = ModComponents.register(
         "amulet",
-        b -> b.persistent(IAmulet.CODEC).networkSynchronized(IAmulet.STREAM_CODEC)
+        b -> b.persistent(ResourceKey.codec(ModRegistryKeys.AMULET)).networkSynchronized(ResourceKey.streamCodec(ModRegistryKeys.AMULET))
+    );
+
+    public static final DataComponentType<Integer> AMULET_WEIGHT = ModComponents.register(
+        "amulet_weight", b -> b.persistent(Codec.INT).networkSynchronized(ByteBufCodecs.VAR_INT)
+    );
+    public static final DataComponentType<Comrades> COMRADES = ModComponents.register(
+        "comrades", b -> b.persistent(Comrades.CODEC).networkSynchronized(Comrades.STREAM_CODEC)
     );
 
     public static final DataComponentType<StorageRef> STORAGE = ModComponents.register(

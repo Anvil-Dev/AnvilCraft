@@ -1,8 +1,11 @@
 package dev.dubhe.anvilcraft.init;
 
+import static dev.dubhe.anvilcraft.AnvilCraft.REGISTRUM;
+
 import dev.anvilcraft.lib.v2.registrum.util.entry.MenuEntry;
 import dev.dubhe.anvilcraft.client.gui.screen.ActiveSilencerScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.AdvancedComparatorScreen;
+import dev.dubhe.anvilcraft.client.gui.screen.AutoEnchantingTableScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.BatchCrafterScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.BatchCutterScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.CelestialForgingAnvilScreen;
@@ -36,6 +39,7 @@ import dev.dubhe.anvilcraft.client.gui.screen.TranscendenceGrindstoneScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.TranscendenceSmithingScreen;
 import dev.dubhe.anvilcraft.inventory.ActiveSilencerMenu;
 import dev.dubhe.anvilcraft.inventory.AdvancedComparatorMenu;
+import dev.dubhe.anvilcraft.inventory.AutoEnchantingTableMenu;
 import dev.dubhe.anvilcraft.inventory.BatchCrafterMenu;
 import dev.dubhe.anvilcraft.inventory.BatchCutterMenu;
 import dev.dubhe.anvilcraft.inventory.CelestialForgingAnvilMenu;
@@ -74,10 +78,12 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.inventory.AnvilMenu;
 
-import static dev.dubhe.anvilcraft.AnvilCraft.REGISTRUM;
-
 @SuppressWarnings("DataFlowIssue")
 public class ModMenuTypes {
+    public static final MenuEntry<AutoEnchantingTableMenu> AUTO_ENCHANTING_TABLE = REGISTRUM
+        .menu("auto_enchanting_table", AutoEnchantingTableMenu::new, () -> AutoEnchantingTableScreen::new)
+        .register();
+
     public static final MenuEntry<AnvilMenu> PORTABLE_ANVIL = REGISTRUM
         .menu("portable_anvil", (type, id, inv) -> new PortableAnvilMenu(id, inv), () -> AnvilScreen::new)
         .register();

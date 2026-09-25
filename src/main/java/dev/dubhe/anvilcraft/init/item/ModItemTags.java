@@ -11,6 +11,9 @@ import net.minecraft.world.item.Item;
 
 @SuppressWarnings("unused")
 public class ModItemTags {
+    public static final TagKey<Item> AUTO_ENCHANTING_TABLE_PRIMERS = bind("auto_enchanting_table_primers");
+
+    public static final TagKey<Item> PLAYER_WORKSTATIONS_STONECUTTERS = ModItemTags.bindC("player_workstations/stonecutters");
     public static final TagKey<Item> RESIN = ModItemTags.bindC("resin");
     public static final TagKey<Item> WHEAT_FLOUR = ModItemTags.bindC("flour/wheat");
     public static final TagKey<Item> WHEAT_DOUGH = ModItemTags.bindC("dough/wheat");
@@ -140,6 +143,8 @@ public class ModItemTags {
     public static final TagKey<Item> ROYAL_STEEL_HOE_BASE = ModItemTags.bind("royal_steel_hoe_base");
     public static final TagKey<Item> ROYAL_STEEL_SHOVEL_BASE = ModItemTags.bind("royal_steel_shovel_base");
     public static final TagKey<Item> ROYAL_STEEL_SWORD_BASE = ModItemTags.bind("royal_steel_sword_base");
+    public static final TagKey<Item> WEATHERPROOF_REPAIR_MATERIALS = ModItemTags.bind("weatherproof_repair_materials");
+    public static final TagKey<Item> UNIVERSAL_REPAIR_MATERIALS = ModItemTags.bind("universal_repair_materials");
     public static final TagKey<Item> FROST_METAL_PICKAXE_BASE = ModItemTags.bind("frost_metal_pickaxe_base");
     public static final TagKey<Item> FROST_METAL_AXE_BASE = ModItemTags.bind("frost_metal_axe_base");
     public static final TagKey<Item> FROST_METAL_HOE_BASE = ModItemTags.bind("frost_metal_hoe_base");

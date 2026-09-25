@@ -225,11 +225,35 @@ public class DataGenUtil {
     }
 
     public static <T extends Item> NonNullBiConsumer<DataGenContext<Item, T>, RegistrumItemModelGenerator> ionocraftBackpack() {
-        return DataGenUtil.exhaustable(ModComponents.FLIGHT_TIME);
+        return DataGenUtil.poweredEquipment();
+    }
+
+    public static <T extends Item> NonNullBiConsumer<DataGenContext<Item, T>, RegistrumItemModelGenerator> poweredEquipment() {
+        return (ctx, generator) -> {
+            Item item = ctx.get();
+            Identifier model = ModelLocationUtils.getModelLocation(item);
+            ModelTemplates.FLAT_ITEM.create(model,
+                TextureMapping.layer0(new Material(ctx.getId().withPrefix("item/").withSuffix("_off"))), generator.modelOutput);
+            ModelTemplates.FLAT_ITEM.create(model.withSuffix("_on"),
+                TextureMapping.layer0(new Material(ctx.getId().withPrefix("item/"))), generator.modelOutput);
+            generator.itemModelOutput.accept(item, ItemModelUtils.conditional(
+                dev.dubhe.anvilcraft.client.renderer.item.EquipmentPoweredProperty.INSTANCE,
+                ItemModelUtils.plainModel(model.withSuffix("_on")), ItemModelUtils.plainModel(model)));
+        };
+    }
+
+    public static <T extends Item> NonNullBiConsumer<DataGenContext<Item, T>, RegistrumItemModelGenerator> buildingRod() {
+        return (ctx, generator) -> generator.itemModelOutput.accept(ctx.get(), ItemModelUtils.conditional(
+            dev.dubhe.anvilcraft.client.renderer.item.StoredEnergyEmptyProperty.INSTANCE,
+            ItemModelUtils.plainModel(ModelLocationUtils.getModelLocation(ctx.get()).withSuffix("_off")),
+            ItemModelUtils.plainModel(ModelLocationUtils.getModelLocation(ctx.get()))));
     }
 
     public static <T extends Item> NonNullBiConsumer<DataGenContext<Item, T>, RegistrumItemModelGenerator> energyWeapon() {
-        return DataGenUtil.exhaustable(ModComponents.STORED_ENERGY);
+        return (ctx, generator) -> generator.itemModelOutput.accept(ctx.get(), ItemModelUtils.conditional(
+            dev.dubhe.anvilcraft.client.renderer.item.EnergyWeaponExhaustedProperty.INSTANCE,
+            ItemModelUtils.plainModel(ModelLocationUtils.getModelLocation(ctx.get()).withSuffix("_exhausted")),
+            ItemModelUtils.plainModel(ModelLocationUtils.getModelLocation(ctx.get()))));
     }
 
     public static <T extends Item> NonNullBiConsumer<DataGenContext<Item, T>, RegistrumItemModelGenerator> exhaustable(
@@ -264,6 +288,25 @@ public class DataGenUtil {
                     ItemModelUtils.plainModel(ModelLocationUtils.getModelLocation(item))
                 );
             }
+        };
+    }
+
+    public static <T extends Item> NonNullBiConsumer<DataGenContext<Item, T>, RegistrumItemModelGenerator> celestialAnvilItem() {
+        return (ctx, generator) -> {
+            Identifier base = ctx.getId().withPrefix("item/");
+            var plain = ItemModelUtils.plainModel(base);
+            var body = ItemModelUtils.specialModel(base,
+                new dev.dubhe.anvilcraft.client.renderer.item.CelestialForgingAnvilItemRenderer.Unbaked(false));
+            var gui = new net.minecraft.client.renderer.item.CompositeModel.Unbaked(java.util.List.of(plain, body), java.util.Optional.empty());
+            var held = new net.minecraft.client.renderer.item.CompositeModel.Unbaked(java.util.List.of(plain, body),
+                java.util.Optional.of(new com.mojang.math.Transformation(new org.joml.Vector3f(0, 1, 0), null, null, null)));
+            var head = ItemModelUtils.specialModel(base,
+                new dev.dubhe.anvilcraft.client.renderer.item.CelestialForgingAnvilItemRenderer.Unbaked(true));
+            generator.itemModelOutput.accept(ctx.get(), ItemModelUtils.select(
+                new net.minecraft.client.renderer.item.properties.select.DisplayContext(), held,
+                ItemModelUtils.when(net.minecraft.world.item.ItemDisplayContext.GUI, gui),
+                ItemModelUtils.when(net.minecraft.world.item.ItemDisplayContext.HEAD, head)),
+                new ClientItem.Properties(true, true, 1.0F));
         };
     }
 

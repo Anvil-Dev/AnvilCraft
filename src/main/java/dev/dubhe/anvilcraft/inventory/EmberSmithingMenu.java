@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.inventory;
 import dev.anvilcraft.lib.v2.util.ListUtil;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
+import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.item.template.mto.BaseMultipleToOneTemplateItem;
 import dev.dubhe.anvilcraft.recipe.multiple.BaseMultipleToOneSmithingRecipe;
@@ -53,6 +54,10 @@ public class EmberSmithingMenu extends AdjacentSmithingMenu {
         super(type, containerId, playerInventory, access, EmberSmithingMenu.createInputSlotDefinitions(playerInventory.player.level()));
         this.level = playerInventory.player.level();
         this.recipes = List.copyOf(RecipesRecord.getRecipes(this.level).byType(ModRecipeTypes.MULTIPLE_TO_ONE_SMITHING.get()));
+        for (int index = 1; index < 10; index++) {
+            final int slot = index;
+            this.setInputPlacementPredicate(slot, stack -> this.mayPlaceInput(slot, stack));
+        }
     }
 
     protected static ItemCombinerMenuSlotDefinition createInputSlotDefinitions(Level level) {
@@ -111,6 +116,19 @@ public class EmberSmithingMenu extends AdjacentSmithingMenu {
         ).withResultSlot(10, 151, 48).build();
     }
 
+    private boolean mayPlaceInput(int slot, ItemStack stack) {
+        ItemStack template = this.inputSlots.getItem(0);
+        if (slot == 1) {
+            return !template.isEmpty() && this.recipes.stream().anyMatch(recipe ->
+                recipe.value().isTemplateIngredient(template) && recipe.value().isMaterialIngredient(stack));
+        }
+        if (!this.hasMaterialForPlacement()) return false;
+        if (slot < 4 && template.isEmpty()) return false;
+        if (slot >= 4 && slot < 6 && template.is(ModItems.TWO_TO_ONE_SMITHING_TEMPLATE)) return false;
+        if (slot >= 6 && !template.is(ModItems.EIGHT_TO_ONE_SMITHING_TEMPLATE)) return false;
+        return this.recipes.stream().anyMatch(recipe -> recipe.value().isInputIngredient(slot - 2, stack));
+    }
+
     @Override
     protected boolean isUsableTemplate(ItemStack stack) {
         return this.recipes.stream().anyMatch(recipe -> recipe.value().isTemplateIngredient(stack));
@@ -158,6 +176,7 @@ public class EmberSmithingMenu extends AdjacentSmithingMenu {
 
     @Override
     public void slotsChanged(Container inventory) {
+        if (this.isRecipeTransferInProgress()) return;
         super.slotsChanged(inventory);
         if (inventory == this.inputSlots) {
             if (this.inputSlots.getItem(0).isEmpty()) {

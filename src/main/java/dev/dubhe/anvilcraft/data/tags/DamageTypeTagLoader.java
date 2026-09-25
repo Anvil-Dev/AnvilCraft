@@ -14,6 +14,12 @@ public class DamageTypeTagLoader {
     ///
     /// @param provider 提供器
     public static void init(RegistrumTagsProvider<DamageType> provider) {
+        for (var tag : java.util.List.of(DamageTypeTags.BYPASSES_ARMOR, DamageTypeTags.BYPASSES_RESISTANCE,
+            DamageTypeTags.BYPASSES_SHIELD, DamageTypeTags.BYPASSES_INVULNERABILITY, DamageTypeTags.BYPASSES_COOLDOWN,
+            DamageTypeTags.BYPASSES_EFFECTS, DamageTypeTags.BYPASSES_ENCHANTMENTS, DamageTypeTags.NO_KNOCKBACK)) {
+            provider.rawBuilder(tag).addOptionalElement(ModDamageTypes.PLANETARY_COLLAPSE.identifier());
+        }
+
         provider.rawBuilder(DamageTypeTags.BYPASSES_ARMOR)
             .addOptionalElement(ModDamageTypes.LOST_IN_TIME.identifier());
 

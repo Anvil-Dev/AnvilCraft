@@ -53,14 +53,7 @@ public abstract class BaseChuteBlockEntity
     implements IFilterBlockEntity, IDiskCloneable, IItemResourceHandlerHolder {
     private static final int EJECTED_ITEM_TRACK_TICKS = 20;
 
-    private final FilteredItemStackHandler itemHandler = new FilteredItemStackHandler(9) {
-        @Override
-        protected void onContentsChanged(int index, ItemStack previousContents) {
-            assert BaseChuteBlockEntity.this.level != null;
-            if (BaseChuteBlockEntity.this.level.isClientSide()) return;
-            BaseChuteBlockEntity.this.setChanged();
-        }
-    };
+    private final FilteredItemStackHandler itemHandler;
     @Setter
     private int cooldown = 0;
     private long tickedGameTime;
@@ -79,7 +72,21 @@ public abstract class BaseChuteBlockEntity
     }
 
     protected BaseChuteBlockEntity(BlockEntityType<? extends BlockEntity> type, BlockPos pos, BlockState blockState) {
+        this(type, pos, blockState, 9);
+    }
+
+    protected BaseChuteBlockEntity(
+        BlockEntityType<? extends BlockEntity> type, BlockPos pos, BlockState blockState, int slotCount
+    ) {
         super(type, pos, blockState);
+        this.itemHandler = new FilteredItemStackHandler(slotCount) {
+            @Override
+            protected void onContentsChanged(int index, ItemStack previousContents) {
+                assert BaseChuteBlockEntity.this.level != null;
+                if (BaseChuteBlockEntity.this.level.isClientSide()) return;
+                BaseChuteBlockEntity.this.setChanged();
+            }
+        };
     }
 
     @Override
@@ -150,74 +157,73 @@ public abstract class BaseChuteBlockEntity
             this.level.updateNeighbourForOutputSignal(this.getBlockPos(), this.getBlockState().getBlock());
             return;
         }
-        if (!this.isEnabled()) {
-            this.level.updateNeighbourForOutputSignal(this.getBlockPos(), this.getBlockState().getBlock());
-            return;
-        }
-        BlockPos targetPos = this.getBlockPos().relative(this.getOutputDirection());
-        // 尝试向朝向容器输出
-        List<ResourceHandler<ItemResource>> targetList = ItemHandlerUtil.getTargetItemHandlerList(
-            targetPos,
-            this.getOutputDirection().getOpposite(),
-            this.level
-        );
-        if (targetList != null && !targetList.isEmpty()) {
-            for (ResourceHandler<ItemResource> target : targetList) {
-                BlockEntity targetBE = this.level.getBlockEntity(targetPos);
-                boolean setChuteCD = targetBE != null && this.isTargetEmpty(targetBE);
-                boolean success = ItemHandlerUtil.exportToTarget(this.getItemHandler(), 64, (_, _) -> true, target);
-                if (success) {
-                    // 特判溜槽cd7gt
-                    if (setChuteCD) this.setChuteCD(targetBE);
-                    resetCD = true;
-                    break;
-                }
-            }
-        } else {
-            Vec3 center = this.getBlockPos().relative(this.getOutputDirection()).getCenter();
-            AABB aabb = new AABB(center.add(-0.125, -0.125, -0.125), center.add(0.125, 0.125, 0.125));
-            if (Objects.requireNonNull(this.getLevel()).noCollision(aabb)) {
-                List<ItemEntity> itemEntities = this.getLevel().getEntitiesOfClass(
-                    ItemEntity.class,
-                    new AABB(this.getBlockPos().relative(this.getOutputDirection())).expandTowards(0, -0.5, 0),
-                    itemEntity -> !itemEntity.getItem().isEmpty()
-                );
-                for (int i = 0; i < this.itemHandler.size(); i++) {
-                    ItemResource resource = this.itemHandler.getResource(i);
-                    if (resource.isEmpty()) continue;
-                    int slotLimit = this.itemHandler.getSlotLimit(i);
-                    int sameItemCount = 0;
-                    for (ItemEntity entity : itemEntities) {
-                        if (entity.getItem().getItem() != resource.getItem()) continue;
-                        sameItemCount += entity.getItem().getCount();
+        if (this.isEnabled()) {
+            BlockPos targetPos = this.getBlockPos().relative(this.getOutputDirection());
+            // 尝试向朝向容器输出
+            List<ResourceHandler<ItemResource>> targetList = ItemHandlerUtil.getTargetItemHandlerList(
+                targetPos,
+                this.getOutputDirection().getOpposite(),
+                this.level
+            );
+            if (targetList != null && !targetList.isEmpty()) {
+                for (ResourceHandler<ItemResource> target : targetList) {
+                    BlockEntity targetBE = this.level.getBlockEntity(targetPos);
+                    boolean setChuteCD = targetBE != null && this.isTargetEmpty(targetBE);
+                    boolean success = ItemHandlerUtil.exportToTarget(this.getItemHandler(), 64, (_, _) -> true, target);
+                    if (success) {
+                        // 特判溜槽cd7gt
+                        if (setChuteCD) this.setChuteCD(targetBE);
+                        resetCD = true;
+                        break;
                     }
-                    if (sameItemCount >= slotLimit) continue;
-                    int accessible = this.itemHandler.getAmountAsInt(i);
-                    int dropping = Math.min(accessible, slotLimit - sameItemCount);
-                    ItemStack remaining = resource.toStack(dropping);
-                    if (resource.isEmpty()) remaining = ItemStack.EMPTY;
-                    ItemEntity itemEntity = new ItemEntity(
-                        this.getLevel(),
-                        center.x,
-                        center.y,
-                        center.z,
-                        remaining,
-                        0,
-                        0,
-                        0
+                }
+            } else {
+                Vec3 center = this.getBlockPos().relative(this.getOutputDirection()).getCenter();
+                AABB aabb = new AABB(center.add(-0.125, -0.125, -0.125), center.add(0.125, 0.125, 0.125));
+                if (Objects.requireNonNull(this.getLevel()).noCollision(aabb)) {
+                    List<ItemEntity> itemEntities = this.getLevel().getEntitiesOfClass(
+                        ItemEntity.class,
+                        new AABB(this.getBlockPos().relative(this.getOutputDirection())).inflate(0.01).expandTowards(0, -0.5, 0),
+                        itemEntity -> !itemEntity.getItem().isEmpty()
                     );
-                    this.applySpeed(itemEntity, this.getOutputDirection());
-                    itemEntity.setDefaultPickUpDelay();
-                    this.getLevel().addFreshEntity(itemEntity);
-                    this.trackEjectedItem(itemEntity);
-                    this.itemHandler.set(i, resource, accessible - dropping);
-                    resetCD = true;
-                    break;
+                    for (int i = 0; i < this.itemHandler.size(); i++) {
+                        ItemResource resource = this.itemHandler.getResource(i);
+                        if (resource.isEmpty()) continue;
+                        int slotLimit = this.itemHandler.getSlotLimit(i);
+                        int sameItemCount = 0;
+                        for (ItemEntity entity : itemEntities) {
+                            if (entity.getItem().getItem() != resource.getItem()) continue;
+                            sameItemCount += entity.getItem().getCount();
+                        }
+                        if (sameItemCount >= slotLimit) continue;
+                        int accessible = this.itemHandler.getAmountAsInt(i);
+                        int dropping = Math.min(accessible, slotLimit - sameItemCount);
+                        ItemStack remaining = resource.toStack(dropping);
+                        if (resource.isEmpty()) remaining = ItemStack.EMPTY;
+                        ItemEntity itemEntity = new ItemEntity(
+                            this.getLevel(),
+                            center.x,
+                            center.y,
+                            center.z,
+                            remaining,
+                            0,
+                            0,
+                            0
+                        );
+                        this.applySpeed(itemEntity, this.getOutputDirection());
+                        itemEntity.setDefaultPickUpDelay();
+                        this.getLevel().addFreshEntity(itemEntity);
+                        this.trackEjectedItem(itemEntity);
+                        this.itemHandler.set(i, resource, accessible - dropping);
+                        resetCD = true;
+                        break;
+                    }
                 }
             }
         }
+        if (!resetCD) resetCD = this.tryOverflowOutput();
         // 尝试从上方容器输入
-        if (this.inventoryFull()) {
+        if (!this.isInputEnabled() || this.inventoryFull()) {
             this.level.updateNeighbourForOutputSignal(this.getBlockPos(), this.getBlockState().getBlock());
             if (resetCD) this.cooldown = AnvilCraft.CONFIG.chuteMaxCooldown;
             return;
@@ -257,7 +263,15 @@ public abstract class BaseChuteBlockEntity
         if (resetCD) this.cooldown = AnvilCraft.CONFIG.chuteMaxCooldown;
     }
 
-    private boolean isTargetEmpty(BlockEntity blockEntity) {
+    protected boolean isInputEnabled() {
+        return this.isEnabled();
+    }
+
+    protected boolean tryOverflowOutput() {
+        return false;
+    }
+
+    protected boolean isTargetEmpty(BlockEntity blockEntity) {
         if (blockEntity instanceof SimpleChuteBlockEntity chute) {
             return chute.isEmpty();
         }
@@ -267,7 +281,7 @@ public abstract class BaseChuteBlockEntity
         return false;
     }
 
-    private void setChuteCD(BlockEntity targetBE) {
+    protected void setChuteCD(BlockEntity targetBE) {
         if (targetBE instanceof BaseChuteBlockEntity chute) {
             int k = 0;
             if (chute.getTickedGameTime() >= this.tickedGameTime) k++;

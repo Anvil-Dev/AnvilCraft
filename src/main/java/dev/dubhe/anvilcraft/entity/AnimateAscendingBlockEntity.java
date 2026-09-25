@@ -119,10 +119,18 @@ public class AnimateAscendingBlockEntity extends Entity {
 
     @Override
     protected void readAdditionalSaveData(ValueInput input) {
+        this.blockState = input.read("BlockState", BlockState.CODEC).orElse(Blocks.AIR.defaultBlockState());
+        this.setStartPos(input.read("StartPos", BlockPos.CODEC).orElse(this.blockPosition()));
+        this.setEndPos(input.read("EndPos", BlockPos.CODEC).orElse(this.blockPosition()));
     }
 
     @Override
     protected void addAdditionalSaveData(ValueOutput output) {
+        output.store("BlockState", BlockState.CODEC, this.blockState);
+        output.store("StartPos", BlockPos.CODEC, this.getStartPos());
+        output.store("EndPos", BlockPos.CODEC, this.getEndPos());
+        output.store("RelativeStart", BlockPos.CODEC, this.getStartPos().subtract(this.blockPosition()));
+        output.store("RelativeEnd", BlockPos.CODEC, this.getEndPos().subtract(this.blockPosition()));
     }
 
     /// 动画

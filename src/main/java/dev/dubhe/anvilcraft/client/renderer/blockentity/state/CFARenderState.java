@@ -2,6 +2,8 @@ package dev.dubhe.anvilcraft.client.renderer.blockentity.state;
 
 import dev.dubhe.anvilcraft.api.rendering.BlockStateModelTessellateState;
 import dev.dubhe.anvilcraft.block.entity.celestial.CelestialBodyData;
+import dev.dubhe.anvilcraft.block.entity.celestial.StellarEventProfile;
+import dev.dubhe.anvilcraft.block.entity.celestial.StellarVisualState;
 import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState;
@@ -56,7 +58,12 @@ public class CFARenderState extends BlockEntityRenderState {
     @Nullable
     private CelestialBodyData effectiveBodyData;
     private float bodyRotation;
+    private @Nullable StellarVisualState stellarVisual;
+    private @Nullable StellarEventProfile stellarEvent;
+    private float stellarEventProgress;
+    private boolean bodyOnlyItem;
 
+    private boolean brownDwarfDysonSphere;
     private boolean dysonSphereR4;
     private boolean dysonSphereR5;
     private boolean magnetarCoil;

@@ -12,6 +12,7 @@ public class ToolsAndUtilities extends DisplayItemsGenerator {
         this.plain(ModItems.GEODE);
         this.plain(ModItems.MAGNET);
         this.plain(ModItems.CRAB_CLAW);
+        if (this.output != null) this.output.accept(ModItems.BUILDING_ROD.get().creativeStack());
         this.plain(ModItems.DISK);
         this.plain(ModItems.STRUCTURE_DISK);
         this.plain(ModItems.FILTER);
@@ -65,6 +66,14 @@ public class ToolsAndUtilities extends DisplayItemsGenerator {
         this.plain(ModItems.LASER_GUN);
         this.plain(ModItems.IONOCRAFT);
         this.plain(ModItems.IONOCRAFT_BACKPACK);
+        this.plain(ModItems.BREATHING_HELMET);
+        this.plain(ModItems.POCKETS_LEGGINGS);
+        this.plain(ModItems.WEATHERPROOF_SPACESUIT_LEGGINGS);
+        this.ionoCraftBackpack(ModItems.WEATHERPROOF_SPACESUIT_CHESTPLATE);
+        this.plain(ModItems.BUFFER_BOOTS);
+        this.plain(ModItems.WEATHERPROOF_SPACESUIT_BOOTS);
+        this.plain(ModItems.WEATHERPROOF_SPACESUIT_HELMET);
+        this.plain(ModItems.WEATHERPROOF_CORE);
 
         this.plain(ModItems.CAPACITOR);
         this.plain(ModItems.CAPACITOR_EMPTY);
@@ -83,6 +92,7 @@ public class ToolsAndUtilities extends DisplayItemsGenerator {
         this.plain(ModItems.ANVIL_AMULET);
         this.plain(ModItems.COMRADE_AMULET);
         this.plain(ModItems.FEATHER_AMULET);
+        this.plain(ModItems.ARMADILLO_AMULET);
         this.plain(ModItems.CAT_AMULET);
         this.plain(ModItems.DOG_AMULET);
         this.plain(ModItems.SILENCE_AMULET);

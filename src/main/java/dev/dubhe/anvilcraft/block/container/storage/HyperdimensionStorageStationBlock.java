@@ -9,6 +9,7 @@ import dev.dubhe.anvilcraft.block.multipart.SimpleMultiPartBlock;
 import dev.dubhe.anvilcraft.block.state.Cube3x3PartHalf;
 import dev.dubhe.anvilcraft.client.gui.screen.StorageScreen;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
+import dev.dubhe.anvilcraft.item.HyperdimensionTerminalItem;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerPlayer;
@@ -98,6 +99,14 @@ public class HyperdimensionStorageStationBlock
         BlockEntity blockEntity = level.getBlockEntity(this.getMainPartPos(pos, state));
         if (blockEntity instanceof HyperdimensionStorageStationBlockEntity entity) {
             if (player.isSpectator()) return InteractionResult.PASS;
+            if (itemStack.getItem() instanceof HyperdimensionTerminalItem terminal) {
+                if (player instanceof ServerPlayer serverPlayer) {
+                    HyperdimensionTerminalItem.bindToStation(serverPlayer, itemStack, entity);
+                    return InteractionResult.SUCCESS_SERVER;
+                }
+                if (terminal.targetId(player, itemStack) != null) terminal.use(level, player, hand);
+                return InteractionResult.SUCCESS;
+            }
             if (player instanceof ServerPlayer) {
                 return InteractionResult.SUCCESS_SERVER;
             } else if (level.isClientSide()) {

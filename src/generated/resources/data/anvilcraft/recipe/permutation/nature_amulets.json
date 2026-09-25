@@ -1,0 +1,57 @@
+{
+  "type": "anvilcraft:permutation",
+  "input": {
+    "items": [
+      "anvilcraft:silence_amulet",
+      "anvilcraft:armadillo_amulet",
+      "anvilcraft:cat_amulet",
+      "anvilcraft:dog_amulet"
+    ]
+  },
+  "options": [
+    {
+      "material": {
+        "type": "anvilcraft:custom",
+        "predicate": {
+          "items": "minecraft:cake"
+        }
+      },
+      "result": {
+        "id": "anvilcraft:silence_amulet"
+      }
+    },
+    {
+      "material": {
+        "type": "anvilcraft:custom",
+        "predicate": {
+          "items": "minecraft:cake"
+        }
+      },
+      "result": {
+        "id": "anvilcraft:armadillo_amulet"
+      }
+    },
+    {
+      "material": {
+        "type": "anvilcraft:custom",
+        "predicate": {
+          "items": "minecraft:cake"
+        }
+      },
+      "result": {
+        "id": "anvilcraft:cat_amulet"
+      }
+    },
+    {
+      "material": {
+        "type": "anvilcraft:custom",
+        "predicate": {
+          "items": "minecraft:cake"
+        }
+      },
+      "result": {
+        "id": "anvilcraft:dog_amulet"
+      }
+    }
+  ]
+}

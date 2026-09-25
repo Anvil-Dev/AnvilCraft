@@ -1,0 +1,17 @@
+{
+    "multipart": [
+        { "when": { "facing": "up" }, "apply": { "model": "anvilcraft:block/overflow_chute_overflow" } },
+        { "when": { "facing": "down" }, "apply": { "model": "anvilcraft:block/overflow_chute_overflow", "x": 180 } },
+        { "when": { "facing": "north" }, "apply": { "model": "anvilcraft:block/overflow_chute_overflow", "x": 90 } },
+        { "when": { "facing": "south" }, "apply": { "model": "anvilcraft:block/overflow_chute_overflow", "x": 90, "y": 180 } },
+        { "when": { "facing": "east" }, "apply": { "model": "anvilcraft:block/overflow_chute_overflow", "x": 90, "y": 90 } },
+        { "when": { "facing": "west" }, "apply": { "model": "anvilcraft:block/overflow_chute_overflow", "x": 90, "y": 270 } },
+
+        { "when": { "overflow_north": "true" }, "apply": { "model": "anvilcraft:block/overflow_chute_base" } },
+        { "when": { "overflow_east": "true" }, "apply": { "model": "anvilcraft:block/overflow_chute_base", "y": 90 } },
+        { "when": { "overflow_south": "true" }, "apply": { "model": "anvilcraft:block/overflow_chute_base", "y": 180 } },
+        { "when": { "overflow_west": "true" }, "apply": { "model": "anvilcraft:block/overflow_chute_base", "y": 270 } },
+        { "when": { "overflow_down": "true" }, "apply": { "model": "anvilcraft:block/overflow_chute_base", "x": 90 } },
+        { "when": { "overflow_up": "true" }, "apply": { "model": "anvilcraft:block/overflow_chute_base", "x": 270 } }
+    ]
+}

@@ -11,7 +11,6 @@ import dev.dubhe.anvilcraft.client.gui.screen.ItemCollectorScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.ItemDetectorScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.JewelCraftingScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.StorageScreen;
-import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.integration.jei.category.AnvilCollisionCraftCategory;
@@ -20,6 +19,7 @@ import dev.dubhe.anvilcraft.integration.jei.category.ChargerChargingCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.DecayCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.EnergyWeaponCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.FluidMixingCategory;
+import dev.dubhe.anvilcraft.integration.jei.category.FrostSmithingCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.JewelCraftingCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.MineralFountainCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.MobTransformCategory;
@@ -53,7 +53,8 @@ import dev.dubhe.anvilcraft.integration.jei.recipe.DecayRecipe;
 import dev.dubhe.anvilcraft.integration.jei.recipe.MeshRecipeGroup;
 import dev.dubhe.anvilcraft.integration.jei.recipe.MineralFountainJeiRecipe;
 import dev.dubhe.anvilcraft.integration.jei.recipe.MobTransformJeiRecipe;
-import dev.dubhe.anvilcraft.inventory.RoyalSmithingMenu;
+import dev.dubhe.anvilcraft.integration.jei.transfer.SmithingRecipeTransferHandler;
+import dev.dubhe.anvilcraft.integration.jei.transfer.StructureScannerRecipeTransferHandler;
 import dev.dubhe.anvilcraft.recipe.CanningFoodRecipe;
 import dev.dubhe.anvilcraft.recipe.ChargerChargingRecipe;
 import dev.dubhe.anvilcraft.recipe.EnergyWeaponMakeRecipe;
@@ -98,6 +99,7 @@ import mezz.jei.api.registration.IRecipeRegistration;
 import mezz.jei.api.registration.IRecipeTransferRegistration;
 import mezz.jei.api.registration.IVanillaCategoryExtensionRegistration;
 import mezz.jei.api.runtime.IClickableIngredient;
+import mezz.jei.api.runtime.IJeiRuntime;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.Rect2i;
@@ -162,6 +164,8 @@ public class AnvilCraftJeiPlugin implements IModPlugin {
     public static final IRecipeHolderType<BaseMultipleToOneSmithingRecipe> MULTIPLE_TO_ONE_SMITHING = createHolderType(
         "multiple_to_one_smithing"
     );
+    public static final IRecipeType<FrostSmithingCategory.Display> FROST_SMITHING
+        = createRecipeType("frost_smithing", FrostSmithingCategory.Display.class);
     public static final IRecipeHolderType<PortalConversionRecipe> PORTAL_CONVERSION = createHolderType("portal_conversion");
 
     public static final IRecipeType<MobTransformJeiRecipe> MOB_TRANSFORM =
@@ -207,6 +211,7 @@ public class AnvilCraftJeiPlugin implements IModPlugin {
         DecayCategory.registerRecipes(registration);
         ChargerChargingCategory.registerRecipes(registration);
         MultipleToOneSmithingCategory.registerRecipes(registration);
+        FrostSmithingCategory.registerRecipes(registration);
         MobTransformCategory.registerRecipes(registration);
         AnvilCollisionCraftCategory.registerRecipes(registration);
         ProceduralProcessCategory.registerRecipes(registration);
@@ -237,6 +242,7 @@ public class AnvilCraftJeiPlugin implements IModPlugin {
         DecayCategory.registerRecipeCatalysts(registration);
         ChargerChargingCategory.registerRecipeCatalysts(registration);
         MultipleToOneSmithingCategory.registerRecipeCatalysts(registration);
+        FrostSmithingCategory.registerRecipeCatalysts(registration);
         MobTransformCategory.registerRecipeCatalysts(registration);
         AnvilCollisionCraftCategory.registerRecipeCatalysts(registration);
         ProceduralProcessCategory.registerRecipeCatalysts(registration);
@@ -285,6 +291,7 @@ public class AnvilCraftJeiPlugin implements IModPlugin {
         registration.addRecipeCategories(new DecayCategory(guiHelper));
         registration.addRecipeCategories(new ChargerChargingCategory(guiHelper));
         registration.addRecipeCategories(new MultipleToOneSmithingCategory(guiHelper));
+        registration.addRecipeCategories(new FrostSmithingCategory(guiHelper));
         registration.addRecipeCategories(new MobTransformCategory(guiHelper));
         registration.addRecipeCategories(new AnvilCollisionCraftCategory(guiHelper));
         registration.addRecipeCategories(new ProceduralProcessCategory(guiHelper));
@@ -293,17 +300,28 @@ public class AnvilCraftJeiPlugin implements IModPlugin {
     }
 
     @Override
+    public void onRuntimeAvailable(IJeiRuntime jeiRuntime) {
+        StorageJeiSupport.onRuntimeAvailable(jeiRuntime);
+    }
+
+    @Override
+    public void onRuntimeUnavailable() {
+        StorageJeiSupport.onRuntimeUnavailable();
+    }
+
+    @Override
     public void registerRecipeTransferHandlers(IRecipeTransferRegistration registration) {
-        registration.addRecipeTransferHandler(
-            RoyalSmithingMenu.class,
-            ModMenuTypes.ROYAL_SMITHING.get(),
-            RecipeTypes.SMITHING,
-            0, 3, 4, 36
-        );
+        StorageJeiSupport.registerRecipeTransferHandlers(registration);
+        SmithingRecipeTransferHandler.register(registration);
+        StructureScannerRecipeTransferHandler.register(registration);
     }
 
     @Override
     public void registerGuiHandlers(IGuiHandlerRegistration registration) {
+        registration.addGuiContainerHandler(net.minecraft.client.gui.screens.inventory.InventoryScreen.class,
+            new dev.dubhe.anvilcraft.integration.jei.util.PocketGuiHandler<>());
+        registration.addGuiContainerHandler(net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen.class,
+            new dev.dubhe.anvilcraft.integration.jei.util.PocketGuiHandler<>());
         registration.addGuiScreenHandler(
             StorageScreen.class,
             screen -> screen.width > 0 && screen.height > 0 ? new IGuiProperties() {

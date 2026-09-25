@@ -22,7 +22,7 @@ public record SmartBlockPlacerActionPacket(String action, int value, String name
     public static final Type<SmartBlockPlacerActionPacket> TYPE = IPacket.type(
         AnvilCraft.of("smart_block_placer_action")
     );
-    
+
     public static final StreamCodec<ByteBuf, SmartBlockPlacerActionPacket> STREAM_CODEC = StreamCodec.composite(
         ByteBufCodecs.STRING_UTF8,
         SmartBlockPlacerActionPacket::action,
@@ -40,7 +40,7 @@ public record SmartBlockPlacerActionPacket(String action, int value, String name
 
     @Override
     public Type<SmartBlockPlacerActionPacket> type() {
-        return SmartBlockPlacerActionPacket.TYPE;
+        return TYPE;
     }
 
     @Override
@@ -52,15 +52,15 @@ public record SmartBlockPlacerActionPacket(String action, int value, String name
         if (blockEntity == null) {
             return;
         }
-        
+
         switch (this.action) {
             case "mode" -> {
-                // value: 0=移动模式, 1=拾取模式
+                // this.value: 0=移动模式, 1=拾取模式
                 boolean pickupMode = this.value == 1;
                 blockEntity.setPickupMode(pickupMode);
             }
             case "layer" -> {
-                // value: 0-4 层索引
+                // this.value: 0-4 层索引
                 if (this.value < 0 || this.value > 4) {
                     AnvilCraft.LOGGER.warn(
                         "Player {} attempted to select invalid layer {} for SmartBlockPlacer at {}",
@@ -73,7 +73,7 @@ public record SmartBlockPlacerActionPacket(String action, int value, String name
                 blockEntity.setSelectedLayer(this.value);
             }
             case "position" -> {
-                // name 格式: "layer:position:selected"
+                // this.name 格式: "layer:position:selected"
                 String[] parts = this.name.split(":");
                 if (parts.length != 3) {
                     AnvilCraft.LOGGER.warn(
@@ -83,14 +83,14 @@ public record SmartBlockPlacerActionPacket(String action, int value, String name
                     );
                     return;
                 }
-                
+
                 try {
                     int layer = Integer.parseInt(parts[0]);
                     int position = Integer.parseInt(parts[1]);
                     boolean selected = Boolean.parseBoolean(parts[2]);
-                    
+
                     // 验证数据范围
-                    if (layer < 0 || layer > 4) {
+                    if (layer < 0 || layer >= SmartBlockPlacerBlockEntity.POSITION_GRID_SIZE) {
                         AnvilCraft.LOGGER.warn(
                             "Player {} attempted to set invalid layer {} for SmartBlockPlacer at {}",
                             player.getName().getString(),
@@ -99,8 +99,8 @@ public record SmartBlockPlacerActionPacket(String action, int value, String name
                         );
                         return;
                     }
-                    
-                    if (position < 0 || position > 24) {
+
+                    if (position < 0 || position >= SmartBlockPlacerBlockEntity.POSITIONS_PER_LAYER) {
                         AnvilCraft.LOGGER.warn(
                             "Player {} attempted to set invalid position {} for SmartBlockPlacer at {}",
                             player.getName().getString(),
@@ -109,7 +109,7 @@ public record SmartBlockPlacerActionPacket(String action, int value, String name
                         );
                         return;
                     }
-                    
+
                     blockEntity.togglePosition(layer, position, selected);
                 } catch (NumberFormatException e) {
                     AnvilCraft.LOGGER.warn(
@@ -120,7 +120,7 @@ public record SmartBlockPlacerActionPacket(String action, int value, String name
                 }
             }
             case "missingMode" -> {
-                // value: 0=停止模式, 1=跳过模式
+                // this.value: 0=停止模式, 1=跳过模式
                 boolean skipMissingMode = this.value == 1;
                 blockEntity.setSkipMissingMode(skipMissingMode);
             }

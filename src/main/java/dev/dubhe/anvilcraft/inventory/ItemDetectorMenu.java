@@ -42,6 +42,7 @@ public class ItemDetectorMenu extends AbstractContainerMenu implements IFilterMe
 
         this.addDataSlot(DataSlot.forContainer(this.blockEntity.getDataAccess(), 0));
         this.addDataSlot(DataSlot.forContainer(this.blockEntity.getDataAccess(), 1));
+        this.addDataSlot(DataSlot.forContainer(this.blockEntity.getDataAccess(), ItemDetectorBlockEntity.DATASLOT_ID_OUTPUT_INVERT));
     }
 
     public ItemDetectorMenu(@Nullable MenuType<?> menuType, int containerId, Inventory inventory, FriendlyByteBuf extraData) {
@@ -123,6 +124,13 @@ public class ItemDetectorMenu extends AbstractContainerMenu implements IFilterMe
             return;
         }
         super.clicked(slotId, button, input, player);
+    }
+
+    @Override
+    public boolean clickMenuButton(Player player, int id) {
+        if (id != 0 && id != 1) return false;
+        this.setData(ItemDetectorBlockEntity.DATASLOT_ID_OUTPUT_INVERT, id);
+        return true;
     }
 
     public void setFilterMode(ItemDetectorBlockEntity.Mode mode) {

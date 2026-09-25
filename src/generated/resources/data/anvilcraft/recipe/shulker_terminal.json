@@ -1,0 +1,17 @@
+{
+  "type": "anvilcraft:terminal_upgrade",
+  "category": "misc",
+  "group": "anvilcraft:shulker_terminal",
+  "key": {
+    "A": "minecraft:shulker_shell",
+    "B": "anvilcraft:local_terminal"
+  },
+  "pattern": [
+    "A",
+    "B",
+    "A"
+  ],
+  "result": {
+    "id": "anvilcraft:shulker_terminal"
+  }
+}

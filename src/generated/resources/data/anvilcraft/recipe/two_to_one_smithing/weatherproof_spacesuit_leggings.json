@@ -1,0 +1,42 @@
+{
+  "type": "anvilcraft:two_to_one_smithing",
+  "inputs": [
+    {
+      "items": "anvilcraft:pockets_leggings"
+    },
+    {
+      "items": "minecraft:netherite_leggings"
+    }
+  ],
+  "material": {
+    "items": "anvilcraft:weatherproof_core"
+  },
+  "modifiers": [
+    {
+      "type": "anvilcraft:merge_data",
+      "types": [
+        {
+          "type": "anvilcraft:normal_data_component",
+          "component": "minecraft:custom_name",
+          "input": "input.0"
+        },
+        {
+          "type": "anvilcraft:item_enchantments",
+          "component": "minecraft:enchantments",
+          "input": "input.0"
+        },
+        {
+          "type": "anvilcraft:item_enchantments",
+          "component": "minecraft:enchantments",
+          "input": "input.1"
+        }
+      ]
+    }
+  ],
+  "result": {
+    "id": "anvilcraft:weatherproof_spacesuit_leggings"
+  },
+  "template": {
+    "items": "anvilcraft:two_to_one_smithing_template"
+  }
+}

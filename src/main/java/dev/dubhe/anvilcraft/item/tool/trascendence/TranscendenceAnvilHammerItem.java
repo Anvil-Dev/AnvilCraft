@@ -20,7 +20,6 @@ public class TranscendenceAnvilHammerItem extends AnvilHammerItem {
         super(
             properties.fireResistant()
                 .component(ModComponents.MULTIPHASE, Multiphase.create())
-                .component(DataComponents.ITEM_NAME, Multiphase.firstPhaseName(TranscendenceAnvilHammerItem.NAME))
                 .component(ModComponents.ETERNAL, Eternal.DEFAULT)
                 .component(DataComponents.UNBREAKABLE, Unit.INSTANCE)
                 .component(ModComponents.PROVIDENCE, Unit.INSTANCE));

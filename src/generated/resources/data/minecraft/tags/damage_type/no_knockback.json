@@ -1,6 +1,10 @@
 {
   "values": [
     {
+      "id": "anvilcraft:planetary_collapse",
+      "required": false
+    },
+    {
       "id": "anvilcraft:lost_in_time",
       "required": false
     },

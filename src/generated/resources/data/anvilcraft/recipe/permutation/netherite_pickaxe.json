@@ -1,0 +1,16 @@
+{
+  "type": "anvilcraft:permutation",
+  "input": {
+    "items": "minecraft:netherite_pickaxe"
+  },
+  "options": [
+    {
+      "material": {
+        "type": "anvilcraft:empty"
+      },
+      "result": {
+        "id": "minecraft:diamond_pickaxe"
+      }
+    }
+  ]
+}

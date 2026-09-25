@@ -1,0 +1,65 @@
+{
+	"format_version": "1.9.0",
+	"credit": "Made by XeKr with Blockbench",
+	"parent": "block/block",
+	"ambientocclusion": false,
+	"render_type": "minecraft:cutout",
+	"textures": {
+		"3": "anvilcraft:block/processing_table_crushing",
+		"particle": "anvilcraft:block/processing_table_top"
+	},
+	"elements": [
+		{
+			"from": [11, 9, 8.5],
+			"to": [14, 15, 14.5],
+			"rotation": {"angle": -22.5, "axis": "x", "origin": [8, 12, 11.5]},
+			"faces": {
+				"north": {"uv": [7, 0, 10, 6], "texture": "#3"},
+				"east": {"uv": [0, 0, 6, 6], "texture": "#3"},
+				"south": {"uv": [7, 0, 10, 6], "texture": "#3"},
+				"west": {"uv": [0, 0, 6, 6], "texture": "#3"},
+				"up": {"uv": [7, 0, 10, 6], "texture": "#3"},
+				"down": {"uv": [7, 0, 10, 6], "texture": "#3"}
+			}
+		},
+		{
+			"from": [8, 9, 8.5],
+			"to": [11, 15, 14.5],
+			"rotation": {"angle": 22.5, "axis": "x", "origin": [8, 12, 11.5]},
+			"faces": {
+				"north": {"uv": [7, 0, 10, 6], "texture": "#3"},
+				"east": {"uv": [0, 0, 6, 6], "texture": "#3"},
+				"south": {"uv": [7, 0, 10, 6], "texture": "#3"},
+				"west": {"uv": [0, 0, 6, 6], "texture": "#3"},
+				"up": {"uv": [7, 0, 10, 6], "texture": "#3"},
+				"down": {"uv": [7, 0, 10, 6], "texture": "#3"}
+			}
+		},
+		{
+			"from": [5, 9, 8.5],
+			"to": [8, 15, 14.5],
+			"rotation": {"angle": -22.5, "axis": "x", "origin": [8, 12, 11.5]},
+			"faces": {
+				"north": {"uv": [7, 0, 10, 6], "texture": "#3"},
+				"east": {"uv": [0, 0, 6, 6], "texture": "#3"},
+				"south": {"uv": [7, 0, 10, 6], "texture": "#3"},
+				"west": {"uv": [0, 0, 6, 6], "texture": "#3"},
+				"up": {"uv": [7, 0, 10, 6], "texture": "#3"},
+				"down": {"uv": [7, 0, 10, 6], "texture": "#3"}
+			}
+		},
+		{
+			"from": [2, 9, 8.5],
+			"to": [5, 15, 14.5],
+			"rotation": {"angle": 22.5, "axis": "x", "origin": [8, 12, 11.5]},
+			"faces": {
+				"north": {"uv": [7, 0, 10, 6], "texture": "#3"},
+				"east": {"uv": [0, 0, 6, 6], "texture": "#3"},
+				"south": {"uv": [7, 0, 10, 6], "texture": "#3"},
+				"west": {"uv": [0, 0, 6, 6], "texture": "#3"},
+				"up": {"uv": [7, 0, 10, 6], "texture": "#3"},
+				"down": {"uv": [7, 0, 10, 6], "texture": "#3"}
+			}
+		}
+	]
+}

@@ -4,6 +4,10 @@ import dev.anvilcraft.lib.v2.registrum.providers.RegistrumLangProvider;
 
 public class OtherLang {
     public static void init(RegistrumLangProvider provider) {
+        provider.add("anvilcraft.music.mun.above_the_moon_dust_loop", "Above the Moon Dust");
+        provider.add("anvilcraft.music.mun.far_side_glow_loop", "Far Side Glow");
+        provider.add("subtitles.anvilcraft.auto_enchanting_table.use", "Auto Enchanting Table used");
+        provider.add("tooltip.anvilcraft.auto_enchanting_table.jade.working_progress", "Enchanting Progress: %s");
         provider.add("item.anvilcraft.inherent_enchantment.tooltip", "Inherent enchantments:");
         provider.add(
             "item.anvilcraft.amethyst_pickaxe.tooltip", "Stone pickaxe quality, can mine iron ore, not diamonds!");
@@ -61,6 +65,7 @@ public class OtherLang {
         provider.add("subtitles.anvilcraft.smart_block_placer_retract", "Smart Block Placer retracted");
         provider.add("subtitles.anvilcraft.smart_block_placer_shulker_open", "Smart Block Placer whirs");
         provider.add("subtitles.anvilcraft.anvil_hammer_rotate_block", "Anvil Hammer rotates block");
+        provider.add("death.attack.anvilcraft.planetary_collapse", "%1$s was consumed by planetary collapse");
         provider.add("death.attack.anvilcraft.laser", "%1$s was pierced by laser");
         provider.add("death.attack.anvilcraft.lost_in_time", "%1$s was lost in the river of time");
         provider.add("death.attack.anvilcraft.heater_burn", "%1$s was well done by the heater");
@@ -75,6 +80,8 @@ public class OtherLang {
             "Must be placed on the corner of a Celestial Forging Anvil");
         provider.add("message.anvilcraft.disk.extreme_body_requires_crystal",
             "Extreme celestial body data can only be stored using singularity crystals.");
+
+        provider.add("subtitles.anvilcraft.quenched_out", "Quenched out");
 
         provider.add("component_content.anvilcraft.mod_name.unknown", "Unknown <%s>");
         provider.add("component_content.anvilcraft.mod_name.minecraft", "Minecraft");

@@ -1,8 +1,11 @@
 package dev.dubhe.anvilcraft.mixin;
 
+import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.mojang.blaze3d.vertex.PoseStack;
+import dev.dubhe.anvilcraft.client.building.BuildingRodItemRenderer;
+import dev.dubhe.anvilcraft.client.event.BigRedButtonInputListener;
 import dev.dubhe.anvilcraft.client.renderer.item.ItemInHandRendererManager;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import net.minecraft.client.Minecraft;
@@ -12,6 +15,7 @@ import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.client.renderer.item.ItemModelResolver;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
@@ -20,6 +24,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ItemInHandRenderer.class)
@@ -43,6 +48,28 @@ abstract class ItemInHandRendererMixin {
     @Unique
     private ItemInHandRendererManager anvilcraft$manager = null;
 
+    @ModifyExpressionValue(method = "renderHandsWithItems", at = @At(value = "FIELD",
+        target = "Lnet/minecraft/client/renderer/ItemInHandRenderer$HandRenderSelection;renderOffHand:Z"))
+    private boolean anvilcraft$showOffhandRod(boolean original) {
+        var player = Minecraft.getInstance().player;
+        return original || player != null && player.getOffhandItem().is(ModItems.BUILDING_ROD);
+    }
+
+    @Inject(method = "renderItem", at = @At("HEAD"), cancellable = true)
+    private void anvilcraft$renderBuildingRod(
+        LivingEntity entity, ItemStack stack, ItemDisplayContext context,
+        PoseStack pose, SubmitNodeCollector collector, int light, CallbackInfo ci
+    ) {
+        boolean left = context.leftHand();
+        boolean offhand = left != (entity.getMainArm() == HumanoidArm.LEFT);
+        if (BuildingRodItemRenderer.hideHand(entity, offhand ? InteractionHand.OFF_HAND : InteractionHand.MAIN_HAND)) {
+            ci.cancel();
+        } else if (stack.is(ModItems.BUILDING_ROD)) {
+            BuildingRodItemRenderer.renderHeld(entity, stack, context, left, pose, collector, light);
+            ci.cancel();
+        }
+    }
+
     @Inject(method = "<init>", at = @At("RETURN"))
     private void init(
         Minecraft minecraft,
@@ -51,6 +78,14 @@ abstract class ItemInHandRendererMixin {
         CallbackInfo ci
     ) {
         this.anvilcraft$manager = new ItemInHandRendererManager(itemModelResolver, this::renderItem);
+    }
+
+    @ModifyVariable(method = "renderArmWithItem", at = @At("HEAD"), argsOnly = true, ordinal = 2)
+    private float anvilcraft$holdButtonHand(
+        float original, AbstractClientPlayer player, float partialTicks, float pitch, InteractionHand hand,
+        float swingProgress, ItemStack stack, float equippedProgress, PoseStack poseStack, SubmitNodeCollector collector, int combinedLight
+    ) {
+        return BigRedButtonInputListener.getHandSwingProgress(hand, partialTicks, original);
     }
 
     @WrapOperation(
@@ -65,6 +100,8 @@ abstract class ItemInHandRendererMixin {
         if (this.offHandItem.is(ModItems.CRAB_CLAW.get())) {
             return false;
         }
+        var player = Minecraft.getInstance().player;
+        if (player != null && BuildingRodItemRenderer.usesToolClaw(player)) return false;
         return original.call(instance);
     }
 

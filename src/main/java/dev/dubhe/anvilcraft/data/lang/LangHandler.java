@@ -11,6 +11,7 @@ public class LangHandler {
         WthitLang.init(provider);
         OtherLang.init(provider);
         MessageLang.init(provider);
+        BuildingRodLang.init(provider);
         ScreenLang.init(provider);
         JeiLang.init(provider);
         EnchantmentDescriptionsLang.init(provider);

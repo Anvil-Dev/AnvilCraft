@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.client.renderer.item;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import dev.dubhe.anvilcraft.api.item.IExtraItemDisplay;
+import dev.dubhe.anvilcraft.client.building.BuildingRodItemRenderer;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.SubmitNodeCollector;
@@ -49,6 +50,17 @@ public class ItemInHandRendererManager extends AbstractItemInHandRenderer {
         SubmitNodeCollector collector,
         int lightCoords
     ) {
+        if (hand == InteractionHand.MAIN_HAND && BuildingRodItemRenderer.usesToolClaw(player)) {
+            this.crabClawItemRenderer.setOffHandItem(ModItems.CRAB_CLAW.asStack());
+            try {
+                if (this.crabClawItemRenderer.render(player, partialTicks, pitch, hand, swingProgress, stack,
+                    equippedProgress, poseStack, collector, lightCoords)) {
+                    return true;
+                }
+            } finally {
+                this.crabClawItemRenderer.setOffHandItem(this.offHandItem);
+            }
+        }
         if (this.offHandItem.is(ModItems.CRAB_CLAW.get())
                 && !this.mainHandItem.is(ModItems.CRAB_CLAW.get())
         ) {

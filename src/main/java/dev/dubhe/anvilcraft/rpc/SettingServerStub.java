@@ -106,6 +106,12 @@ public class SettingServerStub {
         PlayerSettings.get().setDirty();
     }
 
+    @RemoteCallable(validator = OwnSettingValidator.class)
+    public static void updateFlipped(UUID playerId, boolean flipped) {
+        PlayerSettings.getSetting(SettingServerStub.getAndClear(), playerId).storage().setFlipped(flipped);
+        PlayerSettings.get().setDirty();
+    }
+
     public static final class OwnSettingValidator implements IRemoteCallableValidator {
         @Override
         public boolean validate(IPayloadContext ctx, Method method, Object[] args) {

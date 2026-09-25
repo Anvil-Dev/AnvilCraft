@@ -8,12 +8,15 @@ import dev.dubhe.anvilcraft.api.fluid.HoneyBottleResourceHandler;
 import dev.dubhe.anvilcraft.api.fluid.IFluidResourceHandlerHolder;
 import dev.dubhe.anvilcraft.api.fluid.VoidFluidHandler;
 import dev.dubhe.anvilcraft.api.itemhandler.IItemResourceHandlerHolder;
+import dev.dubhe.anvilcraft.api.itemhandler.ReadOnlyItemResourceHandler;
 import dev.dubhe.anvilcraft.api.itemhandler.SolidCauldronExtractor;
 import dev.dubhe.anvilcraft.block.LargeCauldronBlock;
 import dev.dubhe.anvilcraft.block.cauldron.HoneyCauldronBlock;
 import dev.dubhe.anvilcraft.block.cauldron.ObsidianCauldronBlock;
 import dev.dubhe.anvilcraft.block.container.LargeFluidTankBlock;
+import dev.dubhe.anvilcraft.block.container.storage.HyperdimensionStorageStationBlock;
 import dev.dubhe.anvilcraft.block.container.storage.LargeCrateBlock;
+import dev.dubhe.anvilcraft.block.container.storage.ShulkerContainerBlock;
 import dev.dubhe.anvilcraft.block.entity.LargeCauldronBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.LargeFluidTankBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.storage.LargeCrateBlockEntity;
@@ -23,7 +26,8 @@ import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.entity.ModEntities;
 import dev.dubhe.anvilcraft.init.item.ModItems;
-import dev.dubhe.anvilcraft.item.armor.IonoCraftBackpackItem;
+import dev.dubhe.anvilcraft.item.BuildingRodItem;
+import dev.dubhe.anvilcraft.item.armor.WeatherproofChestplateItem;
 import dev.dubhe.anvilcraft.item.utility.EnergyWeaponPlatformItem;
 import dev.dubhe.anvilcraft.item.weapon.AnvilRailgunItem;
 import dev.dubhe.anvilcraft.item.weapon.SpectralWeaponLauncherItem;
@@ -46,17 +50,24 @@ import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import org.jspecify.annotations.Nullable;
 
-import java.util.Objects;
+import java.util.UUID;
 
 @EventBusSubscriber(modid = AnvilCraft.MOD_ID)
 public class ModCapabilities {
     @SubscribeEvent
     public static void registerCapabilities(final RegisterCapabilitiesEvent event) {
+        event.registerBlockEntity(Capabilities.Item.BLOCK, ModBlockEntities.AUTO_ENCHANTING_TABLE.get(),
+            (be, side) -> be.getAutomationHandler());
+        event.registerBlockEntity(Capabilities.Fluid.BLOCK, ModBlockEntities.AUTO_ENCHANTING_TABLE.get(), ModCapabilities::fluid);
         event.registerBlockEntity(Capabilities.Item.BLOCK, ModBlockEntities.BATCH_CRAFTER.get(), ModCapabilities::item);
         event.registerBlockEntity(Capabilities.Item.BLOCK, ModBlockEntities.BATCH_CUTTER.get(), ModCapabilities::item);
         event.registerBlockEntity(Capabilities.Item.BLOCK, ModBlockEntities.CHARGER.get(), ModCapabilities::item);
         event.registerBlockEntity(Capabilities.Item.BLOCK, ModBlockEntities.DISCHARGER.get(), ModCapabilities::item);
         event.registerBlockEntity(Capabilities.Item.BLOCK, ModBlockEntities.CHUTE.get(), ModCapabilities::item);
+        event.registerBlockEntity(Capabilities.Item.BLOCK, ModBlockEntities.ITEM_SPLITTER.get(), ModCapabilities::item);
+        event.registerBlockEntity(Capabilities.Item.BLOCK, ModBlockEntities.OVERFLOW_CHUTE.get(), ModCapabilities::item);
+        event.registerBlockEntity(Capabilities.Item.BLOCK, ModBlockEntities.STORAGE_PORT_CONSOLIDATOR.get(), ModCapabilities::item);
+        event.registerBlockEntity(Capabilities.Item.BLOCK, ModBlockEntities.STORAGE_PORT.get(), ModCapabilities::item);
         event.registerBlockEntity(Capabilities.Item.BLOCK, ModBlockEntities.SIMPLE_CHUTE.get(), ModCapabilities::item);
         event.registerBlockEntity(Capabilities.Item.BLOCK, ModBlockEntities.SIMPLE_MAGNETIC_CHUTE.get(), ModCapabilities::item);
         event.registerBlockEntity(Capabilities.Item.BLOCK, ModBlockEntities.ITEM_COLLECTOR.get(), ModCapabilities::item);
@@ -64,6 +75,10 @@ public class ModCapabilities {
         event.registerBlockEntity(Capabilities.Item.BLOCK, ModBlockEntities.CONFINEMENT_CHAMBER.get(), ModCapabilities::item);
         event.registerBlockEntity(Capabilities.Item.BLOCK, ModBlockEntities.BURNING_HEATER.get(), ModCapabilities::item);
         event.registerBlockEntity(Capabilities.Item.BLOCK, ModBlockEntities.FISH_TANK.get(), ModCapabilities::item);
+        event.registerBlockEntity(Capabilities.Item.BLOCK, ModBlockEntities.STAMPING_PLATFORM.get(), ModCapabilities::item);
+        event.registerBlockEntity(Capabilities.Item.BLOCK, ModBlockEntities.CRUSHING_TABLE.get(), ModCapabilities::item);
+        event.registerBlockEntity(Capabilities.Item.BLOCK, ModBlockEntities.SIFTING_TABLE.get(), ModCapabilities::item);
+        event.registerBlockEntity(Capabilities.Item.BLOCK, ModBlockEntities.UNPACKING_TABLE.get(), ModCapabilities::item);
         event.registerBlockEntity(Capabilities.Item.BLOCK, ModBlockEntities.CREATIVE_CRATE.get(), ModCapabilities::item);
         event.registerBlockEntity(Capabilities.Item.BLOCK, ModBlockEntities.TRADING_STATION.get(), ModCapabilities::item);
         event.registerBlockEntity(Capabilities.Item.BLOCK, ModBlockEntities.CRATE.get(), ModCapabilities::item);
@@ -72,6 +87,17 @@ public class ModCapabilities {
             Capabilities.Item.BLOCK,
             ModCapabilities.multiblock(LargeCrateBlock.class, LargeCrateBlockEntity.class, ModCapabilities::item),
             ModBlocks.LARGE_CRATE.get()
+        );
+        event.registerBlock(
+            Capabilities.Item.BLOCK,
+            ModCapabilities.multiblock(ShulkerContainerBlock.class, StorageBlockEntity.class, ModCapabilities::readOnlyStorageItem),
+            ModBlocks.SHULKER_CONTAINER.get()
+        );
+        event.registerBlock(
+            Capabilities.Item.BLOCK,
+            ModCapabilities.multiblock(HyperdimensionStorageStationBlock.class,
+                StorageBlockEntity.class, ModCapabilities::readOnlyStorageItem),
+            ModBlocks.HYPERDIMENSION_STORAGE_STATION.get()
         );
         event.registerBlock(
             Capabilities.Item.BLOCK,
@@ -101,6 +127,8 @@ public class ModCapabilities {
         event.registerBlockEntity(Capabilities.Fluid.BLOCK, ModBlockEntities.FISH_TANK.get(), ModCapabilities::fluid);
         event.registerBlockEntity(Capabilities.Fluid.BLOCK, ModBlockEntities.EXP_COLLECTOR.get(), ModCapabilities::fluid);
         event.registerBlockEntity(Capabilities.Fluid.BLOCK, ModBlockEntities.FLUID_TANK.get(), ModCapabilities::fluid);
+        event.registerBlockEntity(Capabilities.Fluid.BLOCK, ModBlockEntities.STORAGE_PORT_CONSOLIDATOR.get(), ModCapabilities::fluid);
+        event.registerBlockEntity(Capabilities.Fluid.BLOCK, ModBlockEntities.STORAGE_FLUID_PORT.get(), ModCapabilities::fluid);
         event.registerBlock(
             Capabilities.Fluid.BLOCK,
             ModCapabilities.multiblock(LargeFluidTankBlock.class, LargeFluidTankBlockEntity.class, ModCapabilities::fluid),
@@ -131,7 +159,6 @@ public class ModCapabilities {
             (cart, side) -> cart.getFluidHandler()
         );
 
-
         event.registerItem(Capabilities.Fluid.ITEM, (_, ctx) -> new BucketResourceHandler(ctx), Items.POWDER_SNOW_BUCKET);
         event.registerItem(Capabilities.Fluid.ITEM, (_, ctx) -> new BucketResourceHandler(ctx), Items.MILK_BUCKET);
         event.registerItem(
@@ -141,6 +168,8 @@ public class ModCapabilities {
             Items.GLASS_BOTTLE
         );
 
+        event.registerItem(Capabilities.Energy.ITEM, ModCapabilities.energy(AnvilRailgunItem.MAX_ENERGY),
+            ModItems.LASER_GUN.get(), ModItems.TESLA_GUN.get(), ModItems.CORRUPTED_BEACON_ACTIVATOR.get());
         event.registerItem(
             Capabilities.Energy.ITEM,
             ModCapabilities.energy(AnvilRailgunItem.MAX_ENERGY),
@@ -158,9 +187,11 @@ public class ModCapabilities {
         );
         event.registerItem(
             Capabilities.Energy.ITEM,
-            ModCapabilities.energy(IonoCraftBackpackItem.MAX_ENERGY),
-            ModItems.IONOCRAFT_BACKPACK.get()
+            ModCapabilities.energy(WeatherproofChestplateItem.MAX_ENERGY),
+            ModItems.WEATHERPROOF_SPACESUIT_CHESTPLATE.get()
         );
+
+        event.registerItem(Capabilities.Energy.ITEM, ModCapabilities.energy(BuildingRodItem.MAX_ENERGY), ModItems.BUILDING_ROD.get());
 
         event.registerBlockEntity(Capabilities.Energy.BLOCK, ModBlockEntities.POWER_CONVERTER.get(), ModCapabilities::energy);
         event.registerBlockEntity(Capabilities.Energy.BLOCK, ModBlockEntities.FE_COLLECTOR.get(), ModCapabilities::energy);
@@ -187,7 +218,12 @@ public class ModCapabilities {
 
     /// 存储容器的物品
     private static <T extends StorageBlockEntity, S> ResourceHandler<ItemResource> item(T be, @Nullable S ignored) {
-        return Storages.get().getOrCreate(Objects.requireNonNull(be.getId()), be.getStorageType().clazz()).getItems();
+        if (be.getId() == null) be.setId(UUID.randomUUID());
+        return Storages.get().getOrCreate(be.getId(), be.getStorageType().clazz()).getItems();
+    }
+
+    private static <T extends StorageBlockEntity, S> ResourceHandler<ItemResource> readOnlyStorageItem(T be, @Nullable S side) {
+        return new ReadOnlyItemResourceHandler(ModCapabilities.item(be, side));
     }
 
     /// 流体

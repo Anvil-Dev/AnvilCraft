@@ -39,6 +39,8 @@ public class PulseGeneratorBlockEntity extends BlockEntity implements MenuProvid
     protected boolean outputInvert = false;
     protected int waitingTime = 2;
     protected int signalDuration = 2;
+    private boolean loadingBlueprint;
+    private boolean skipBlueprintLoadUpdate;
     protected State state = State.DEFAULT;
     protected long phaseStartGameTime = -1L;
     protected int phaseDuration;
@@ -84,6 +86,16 @@ public class PulseGeneratorBlockEntity extends BlockEntity implements MenuProvid
         output.store("ExtraData", CompoundTag.CODEC, data);
     }
 
+    public void loadBlueprint(ValueInput input) {
+        this.loadingBlueprint = true;
+        this.skipBlueprintLoadUpdate = true;
+        try {
+            this.loadWithComponents(input);
+        } finally {
+            this.loadingBlueprint = false;
+        }
+    }
+
     @Override
     protected void loadAdditional(ValueInput input) {
         super.loadAdditional(input);
@@ -99,19 +111,21 @@ public class PulseGeneratorBlockEntity extends BlockEntity implements MenuProvid
             int signalDurationRemaining = data.getIntOr("RemainingSignalDuration", 0);
             if (waitingTimeRemaining != 0) {
                 this.state = State.WAITING;
-                Optional.ofNullable(this.getLevel())
-                    .ifPresent(level -> level.scheduleTick(
+                if (!this.loadingBlueprint) {
+                    Optional.ofNullable(this.getLevel()).ifPresent(level -> level.scheduleTick(
                         this.getBlockPos(), ModBlocks.PULSE_GENERATOR.get(), waitingTimeRemaining));
+                }
             } else if (signalDurationRemaining != 0) {
                 this.state = State.OUTPUTTING;
-                Optional.ofNullable(this.getLevel())
-                    .ifPresent(level -> level.scheduleTick(
+                if (!this.loadingBlueprint) {
+                    Optional.ofNullable(this.getLevel()).ifPresent(level -> level.scheduleTick(
                         this.getBlockPos(), ModBlocks.PULSE_GENERATOR.get(), signalDurationRemaining));
+                }
             } else {
                 this.state = State.DEFAULT;
             }
         }
-        if (this.getLevel() == null) return;
+        if (this.loadingBlueprint || this.getLevel() == null) return;
         Util.castSafely(this.getBlockState().getBlock(), PulseGeneratorBlock.class)
             .ifPresent(block -> block.update(this.getLevel(), this.getBlockPos(), this::getBlockState));
     }
@@ -119,6 +133,10 @@ public class PulseGeneratorBlockEntity extends BlockEntity implements MenuProvid
     @Override
     public void onLoad() {
         super.onLoad();
+        if (this.skipBlueprintLoadUpdate) {
+            this.skipBlueprintLoadUpdate = false;
+            return;
+        }
         if (this.level == null) return;
         if (!this.level.isClientSide() && this.isProcessing() && this.phaseStartGameTime < 0L) {
             this.phaseStartGameTime = this.level.getGameTime();

@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.event;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.block.entity.celestial.StellarTrackLibrary;
 import dev.dubhe.anvilcraft.recipe.anvil.outcome.RoyalPreferenceOutcome;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
@@ -17,6 +18,8 @@ public class ReloadEventListener {
     @SuppressWarnings("ConstantValue")
     @SubscribeEvent
     public static void onServerReload(AddServerReloadListenersEvent event) {
+        event.addListener(AnvilCraft.of("stellar_tracks"), (state, executor, barrier, reloadExecutor) ->
+            barrier.wait(Unit.INSTANCE).thenRunAsync(() -> StellarTrackLibrary.reload(state.resourceManager()), reloadExecutor));
         event.addListener(
             ReloadEventListener.ROYAL_PREFERENCE,
             (_, _, barrier, _) -> {

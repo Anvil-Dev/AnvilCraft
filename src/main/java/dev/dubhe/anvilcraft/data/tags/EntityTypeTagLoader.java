@@ -21,6 +21,7 @@ public class EntityTypeTagLoader {
             .addOptionalTag(ModEntityTypeTags.EMERALD_AMULET_VALID.location())
             .addOptionalTag(ModEntityTypeTags.SAPPHIRE_AMULET_VALID.location())
             .addOptionalTag(ModEntityTypeTags.ANVIL_AMULET_VALID.location())
+            .addOptionalTag(ModEntityTypeTags.ARMADILLO_AMULET_VALID.location())
             .addOptionalTag(ModEntityTypeTags.CAT_AMULET_VALID.location())
             .addOptionalTag(ModEntityTypeTags.DOG_AMULET_VALID.location())
             .addOptionalTag(ModEntityTypeTags.SILENCE_AMULET_VALID.location());
@@ -37,6 +38,9 @@ public class EntityTypeTagLoader {
             .addElement(EntityTypeTagLoader.findId(EntityType.FALLING_BLOCK))
             .addElement(ModEntities.FALLING_GIANT_ANVIL.getId());
 
+        provider.rawBuilder(ModEntityTypeTags.ARMADILLO_AMULET_VALID)
+            .addElement(EntityType.SPIDER.builtInRegistryHolder().key().identifier())
+            .addElement(EntityType.CAVE_SPIDER.builtInRegistryHolder().key().identifier());
         provider.rawBuilder(ModEntityTypeTags.CAT_AMULET_VALID)
             .addElement(EntityTypeTagLoader.findId(EntityType.CREEPER))
             .addElement(EntityTypeTagLoader.findId(EntityType.PHANTOM));

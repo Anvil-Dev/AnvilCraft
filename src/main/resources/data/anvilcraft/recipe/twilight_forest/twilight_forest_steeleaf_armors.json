@@ -1,0 +1,27 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:mod_loaded",
+      "modid": "twilightforest"
+    }
+  ],
+  "type": "anvilcraft:deformation",
+  "material": {
+    "type": "anvilcraft:repair_material",
+    "cost": 2
+  },
+  "inputs": [
+    {
+      "id": "twilightforest:steeleaf_helmet"
+    },
+    {
+      "id": "twilightforest:steeleaf_chestplate"
+    },
+    {
+      "id": "twilightforest:steeleaf_leggings"
+    },
+    {
+      "id": "twilightforest:steeleaf_boots"
+    }
+  ]
+}

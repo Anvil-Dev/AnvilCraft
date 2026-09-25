@@ -16,8 +16,16 @@ public record StarData(
     int rotationSpeed,
     int magneticFieldStrength,
     int energy,
-    @Nullable UUID bodyUuid
+    @Nullable UUID bodyUuid,
+    boolean specialRedDwarf
 ) implements CelestialBodyData {
+
+    public StarData(
+        CelestialBodyClass bodyClass, int size, int colorR, int colorG, int colorB, float axialTilt,
+        int rotationSpeed, int magneticFieldStrength, int energy, @Nullable UUID bodyUuid
+    ) {
+        this(bodyClass, size, colorR, colorG, colorB, axialTilt, rotationSpeed, magneticFieldStrength, energy, bodyUuid, false);
+    }
 
     @Override
     public CelestialBodyType type() {
@@ -41,7 +49,8 @@ public record StarData(
             this.rotationSpeed,
             this.magneticFieldStrength,
             this.energy,
-            uuid
+            uuid,
+            this.specialRedDwarf
         );
     }
 
@@ -65,6 +74,7 @@ public record StarData(
         tag.putInt("rotationSpeed", this.rotationSpeed);
         tag.putInt("magneticFieldStrength", this.magneticFieldStrength);
         tag.putInt("energy", this.energy);
+        tag.putBoolean("specialRedDwarf", this.specialRedDwarf);
         if (this.bodyUuid != null) {
             tag.store("bodyUuid", UUIDUtil.CODEC, this.bodyUuid);
         }
@@ -81,6 +91,7 @@ public record StarData(
         int energy = tag.getIntOr("energy", 0);
         int rotSpeed = tag.getIntOr("rotationSpeed", 0);
         UUID uuid = tag.read("bodyUuid", UUIDUtil.CODEC).orElse(null);
-        return new StarData(cls, size, r, g, b, tag.getFloatOr("axialTilt", 0f), rotSpeed, mag, energy, uuid);
+        return new StarData(cls, size, r, g, b, tag.getFloatOr("axialTilt", 0f), rotSpeed, mag, energy, uuid,
+            tag.getBooleanOr("specialRedDwarf", false));
     }
 }

@@ -32,6 +32,7 @@ public class StorageSetting {
         NbtDisplayMode.CODEC
             .fieldOf("nbtDisplay")
             .forGetter(StorageSetting::getNbtDisplay),
+        Codec.BOOL.optionalFieldOf("flipped", false).forGetter(StorageSetting::isFlipped),
         StorageSetting::new
     );
     public static final StreamCodec<ByteBuf, StorageSetting> STREAM_CODEC = StreamCodec.composite(
@@ -45,6 +46,8 @@ public class StorageSetting {
         StorageSetting::getOrder,
         NbtDisplayMode.STREAM_CODEC,
         StorageSetting::getNbtDisplay,
+        ByteBufCodecs.BOOL,
+        StorageSetting::isFlipped,
         StorageSetting::new
     );
     private String searchContent;
@@ -52,6 +55,11 @@ public class StorageSetting {
     private SortMode sort;
     private OrderMode order;
     private NbtDisplayMode nbtDisplay;
+    private boolean flipped;
+
+    public StorageSetting(String content, SearchMode search, SortMode sort, OrderMode order, NbtDisplayMode nbtDisplay) {
+        this(content, search, sort, order, nbtDisplay, false);
+    }
 
     public StorageSetting() {
         this("", SearchMode.CLEAR, SortMode.COUNT, OrderMode.SEQUENTIAL, NbtDisplayMode.UNFOLD);

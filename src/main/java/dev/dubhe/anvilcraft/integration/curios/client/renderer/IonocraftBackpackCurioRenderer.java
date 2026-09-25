@@ -2,12 +2,14 @@ package dev.dubhe.anvilcraft.integration.curios.client.renderer;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import dev.dubhe.anvilcraft.client.init.ModModelLayers;
+import dev.dubhe.anvilcraft.client.renderer.item.EquipmentPoweredProperty;
 import dev.dubhe.anvilcraft.item.armor.IonoCraftBackpackItem;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
+import net.minecraft.client.renderer.entity.state.HumanoidRenderState;
 import net.minecraft.client.renderer.entity.state.LivingEntityRenderState;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.client.renderer.texture.OverlayTexture;
@@ -30,21 +32,11 @@ public class IonocraftBackpackCurioRenderer implements ICurioRenderer {
         float rotationY,
         float rotationX
     ) {
-        ModelPart modelPart = ModModelLayers.getIonocraftBackpackModel().getRoot();
-        submitNodeCollector.submitModelPart(
-            modelPart,
-            poseStack,
-            RenderTypes.entityCutout(this.texture(stack)),
-            packedLight,
-            OverlayTexture.NO_OVERLAY,
-            null
-        );
-    }
-
-    private Identifier texture(ItemStack itemStack) {
-        if (IonoCraftBackpackItem.getFlightTime(itemStack) > 0) {
-            return IonoCraftBackpackItem.TEXTURE;
-        }
-        return IonoCraftBackpackItem.TEXTURE_OFF;
+        if (!(renderState instanceof HumanoidRenderState humanoid)) return;
+        var model = ModModelLayers.getEquipmentChestModel(renderLayerParent.getModel());
+        boolean powered = Boolean.TRUE.equals(renderState.getRenderData(EquipmentPoweredProperty.IN_GRID));
+        var texture = ((IonoCraftBackpackItem) stack.getItem()).getArmorTexture(stack, powered);
+        submitNodeCollector.submitModel(model, humanoid, poseStack, RenderTypes.armorCutoutNoCull(texture),
+            packedLight, OverlayTexture.NO_OVERLAY, -1, null, renderState.outlineColor, null);
     }
 }

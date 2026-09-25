@@ -1,0 +1,8 @@
+gradle.projectsEvaluated {
+    rootProject.tasks.named('runClient') {
+        systemProperty 'anvilcraft.portVisualScene', 'true'
+        systemProperty 'anvilcraft.portCfaItemScene', 'true'
+        systemProperty 'anvilcraft.portMonolithWorldScene', 'true'
+        systemProperty 'anvilcraft.portMonolithNormalWorldScene', rootProject.providers.gradleProperty('portMonolithNormalWorld').isPresent().toString()
+    }
+}

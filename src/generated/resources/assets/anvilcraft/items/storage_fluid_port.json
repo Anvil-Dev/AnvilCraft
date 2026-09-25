@@ -1,0 +1,18 @@
+{
+  "model": {
+    "type": "minecraft:composite",
+    "models": [
+      {
+        "type": "minecraft:model",
+        "model": "anvilcraft:block/storage_fluid_port"
+      },
+      {
+        "type": "minecraft:special",
+        "base": "anvilcraft:block/storage_fluid_port",
+        "model": {
+          "type": "anvilcraft:storage_fluid_port"
+        }
+      }
+    ]
+  }
+}

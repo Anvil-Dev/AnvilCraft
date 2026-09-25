@@ -14,6 +14,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageType;
+import net.minecraft.world.item.ItemStack;
 
 import java.util.List;
 
@@ -23,7 +24,7 @@ public record ImmuneDamageAmulet(List<TagPredicate<DamageType>> immune) implemen
     }
 
     @Override
-    public boolean shouldImmune(ServerPlayer player, DamageSource source) {
+    public boolean shouldImmune(ServerPlayer player, ItemStack amulet, DamageSource source) {
         for (TagPredicate<DamageType> immune : this.immune) {
             if (immune.matches(source.typeHolder())) {
                 return true;
@@ -35,6 +36,11 @@ public record ImmuneDamageAmulet(List<TagPredicate<DamageType>> immune) implemen
     @Override
     public Type getType() {
         return ModAmuletTypes.IMMUNE_DAMAGE.get();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return obj == this;
     }
 
     public static class Type implements IAmulet.Type<ImmuneDamageAmulet> {

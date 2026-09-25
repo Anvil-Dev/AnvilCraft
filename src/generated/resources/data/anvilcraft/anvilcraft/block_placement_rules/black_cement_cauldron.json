@@ -1,0 +1,9 @@
+{
+  "rules": [
+    {
+      "item": "anvilcraft:black_cement_bucket",
+      "properties": "",
+      "return_item": "minecraft:bucket"
+    }
+  ]
+}

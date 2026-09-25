@@ -1,10 +1,13 @@
 package dev.dubhe.anvilcraft.item.tool;
 
 import dev.dubhe.anvilcraft.api.tooltip.providers.IItemTooltipProvider;
+import dev.dubhe.anvilcraft.block.multipart.AbstractMultiPartBlock;
 import dev.dubhe.anvilcraft.init.enchantment.ModEnchantmentTags;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.init.item.ModItems;
+import dev.dubhe.anvilcraft.network.ResonanceMiningEffectPacket;
+import dev.dubhe.anvilcraft.network.WeaponChargeProgressPacket;
 import lombok.Getter;
 import net.minecraft.ChatFormatting;
 import net.minecraft.advancements.CriteriaTriggers;
@@ -39,6 +42,7 @@ import net.minecraft.world.item.HoeItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemInstance;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemUseAnimation;
 import net.minecraft.world.item.ToolMaterial;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.component.ItemAttributeModifiers;
@@ -48,6 +52,7 @@ import net.minecraft.world.item.component.Weapon;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.ItemEnchantments;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -56,17 +61,26 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.ChestType;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
 import net.neoforged.neoforge.common.ItemAbilities;
 import net.neoforged.neoforge.common.ItemAbility;
+import net.neoforged.neoforge.network.PacketDistributor;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.WeakHashMap;
 import java.util.function.Consumer;
 
 @Getter
 public abstract class ResonatorItem extends Item implements IItemTooltipProvider {
+    private static final int USE_DURATION = 72000;
+    private static final int STANDARD_RESONANCE_MINING_TICKS = 20;
+    private static final int STANDARD_RESONANCE_MINING_DURABILITY_COST = 128;
+    private final Map<LivingEntity, MiningTarget> clientMiningTargets = new WeakHashMap<>();
+    private final Map<LivingEntity, MiningTarget> serverMiningTargets = new WeakHashMap<>();
     private final ToolMaterial material;
     private final float attackDamage;
 
@@ -82,35 +96,12 @@ public abstract class ResonatorItem extends Item implements IItemTooltipProvider
         this.attackDamage = attackDamage;
     }
 
-    private boolean isTranscendence(ItemStack stack) {
-        return stack.is(ModItems.TRANSCENDENCE_RESONATOR);
-    }
-
     @Override
     public void appendItemTooltip(
-        ItemStack stack,
-        TooltipContext context,
-        TooltipDisplay display,
-        Consumer<Component> builder,
-        TooltipFlag tooltipFlag
+        ItemStack stack, TooltipContext context, TooltipDisplay display, Consumer<Component> builder, TooltipFlag tooltipFlag
     ) {
-        if (this.isTranscendence(stack)) {
-            builder.accept(
-                Component.translatable(
-                    "tooltip.anvilcraft.resonator.mining_desc",
-                    Component.keybind("key.anvilcraft.switch_tool_mode")
-                )
-                    .withStyle(ChatFormatting.GRAY)
-            );
-        } else {
-            builder.accept(
-                Component.translatable(
-                    "tooltip.anvilcraft.resonator.desc",
-                    Component.keybind("key.anvilcraft.switch_tool_mode")
-                )
-                    .withStyle(ChatFormatting.GRAY)
-            );
-        }
+        builder.accept(Component.translatable("tooltip.anvilcraft.resonator.mining_desc",
+            Component.keybind("key.anvilcraft.switch_tool_mode")).withStyle(ChatFormatting.GRAY));
     }
 
     public static ItemAttributeModifiers createAttributes(ToolMaterial material, float attackDamage, float attackSpeed) {
@@ -279,48 +270,63 @@ public abstract class ResonatorItem extends Item implements IItemTooltipProvider
         ItemStack stack = context.getItemInHand();
         ResonateMode mode = ResonatorItem.getMode(stack);
         return switch (mode) {
-            case AUTO -> {
-                if (this.isTranscendence(stack) && !ResonatorItem.isTooDamagedToUse(stack)) {
-                    Player player = context.getPlayer();
-                    if (player != null) {
-                        player.startUsingItem(context.getHand());
-                        yield InteractionResult.CONSUME;
-                    }
-                }
-                yield InteractionResult.PASS;
-            }
+            case AUTO -> this.canStartResonanceMining(stack)
+                ? this.startResonanceMining(context)
+                : InteractionResult.PASS;
             case AXE -> this.useOnAsAxe(context);
             case SHOVEL -> this.useOnAsShovel(context);
             case HOE -> this.useOnAsHoe(context);
             case PICKAXE -> this.useOnAsPickaxe(context);
+            default -> super.useOn(context);
         };
     }
 
     @Override
     public int getUseDuration(ItemStack stack, LivingEntity entity) {
-        return 72000;
+        return getMode(stack) == ResonateMode.AUTO ? USE_DURATION : super.getUseDuration(stack, entity);
     }
 
     @Override
     public void onUseTick(Level level, LivingEntity livingEntity, ItemStack stack, int remainingUseDuration) {
-        if (level.isClientSide() || !(livingEntity instanceof ServerPlayer player)) return;
-
-        // 0.5秒 = 10 ticks
-        if (this.getUseDuration(stack, livingEntity) - remainingUseDuration >= 10) {
-            // 获取视线方块
-            if (player.pick(player.blockInteractionRange(), 0F, false) instanceof BlockHitResult hit) {
-                BlockPos pos = hit.getBlockPos();
-                BlockState state = level.getBlockState(pos);
-                // 检查是否可破坏 (硬度 >= 0)
-                if (state.getDestroySpeed(level, pos) >= 0) {
-                    Block.dropResources(state, level, pos, level.getBlockEntity(pos), player, stack);
-                    level.destroyBlock(pos, false);
-                    stack.hurtAndBreak(1, player, EquipmentSlot.MAINHAND);
-                }
-            }
-            // 停止使用
-            player.stopUsingItem();
+        Map<LivingEntity, MiningTarget> targets = this.miningTargets(level);
+        MiningTarget target = targets.get(livingEntity);
+        if (target == null) {
+            if (!level.isClientSide()) livingEntity.stopUsingItem();
+            return;
         }
+
+        BlockHitResult hit = getTargetedBlock(livingEntity);
+        if (hit == null || !target.hitPos().equals(hit.getBlockPos()) || !this.canStartResonanceMining(stack)) {
+            this.stopResonanceMining(level, livingEntity, target);
+            return;
+        }
+
+        BlockState state = level.getBlockState(target.hitPos());
+        if (!canResonanceMine(state, level, target.hitPos())) {
+            this.stopResonanceMining(level, livingEntity, target);
+            return;
+        }
+
+        int elapsedTicks = this.getUseDuration(stack, livingEntity) - remainingUseDuration;
+        if (livingEntity instanceof ServerPlayer player) {
+            WeaponChargeProgressPacket.sync(player, stack, elapsedTicks, this.resonanceMiningTicks(), false);
+        }
+        if (!level.isClientSide() && elapsedTicks % 3 == 0) {
+            float pitch = 0.75f + 0.04f * elapsedTicks;
+            level.playSound(null, target.hitPos(), SoundEvents.AMETHYST_BLOCK_RESONATE, SoundSource.BLOCKS, 0.8f, pitch);
+        }
+        if (elapsedTicks < this.resonanceMiningTicks()) return;
+
+        int damageBeforeMining = stack.getDamageValue();
+        boolean destroyed = livingEntity instanceof ServerPlayer player
+            && player.gameMode.destroyBlock(target.hitPos());
+        targets.remove(livingEntity);
+        if (destroyed) {
+            this.consumeResonanceMiningDurability(stack, damageBeforeMining);
+            level.playSound(null, target.hitPos(), SoundEvents.AMETHYST_CLUSTER_BREAK, SoundSource.BLOCKS, 1.0f, 0.7f);
+        }
+        sendMiningEffects(level, target.effectPositions(), 0);
+        livingEntity.stopUsingItem();
     }
 
     public InteractionResult useOnAsAxe(UseOnContext context) {
@@ -459,19 +465,191 @@ public abstract class ResonatorItem extends Item implements IItemTooltipProvider
         };
     }
 
+    public static boolean allowsToolTag(ResonateMode mode, TagKey<?> tag) {
+        if (mode == ResonateMode.AUTO) return true;
+        if (tag.equals(ItemTags.AXES)) return mode == ResonateMode.AXE;
+        if (tag.equals(ItemTags.SHOVELS)) return mode == ResonateMode.SHOVEL;
+        if (tag.equals(ItemTags.HOES)) return mode == ResonateMode.HOE;
+        if (tag.equals(ItemTags.PICKAXES)) return mode == ResonateMode.PICKAXE;
+        return true;
+    }
+
+    public int resonanceMiningTicks() {
+        return STANDARD_RESONANCE_MINING_TICKS;
+    }
+
+    protected int resonanceMiningDurabilityCost() {
+        return STANDARD_RESONANCE_MINING_DURABILITY_COST;
+    }
+
+    private boolean canStartResonanceMining(ItemStack stack) {
+        if (isTooDamagedToUse(stack)) return false;
+        int durabilityCost = this.resonanceMiningDurabilityCost();
+        return durabilityCost <= 0 || stack.getMaxDamage() - stack.getDamageValue() > durabilityCost;
+    }
+
+    @Override
+    public InteractionResult use(Level level, Player player, InteractionHand usedHand) {
+        ItemStack stack = player.getItemInHand(usedHand);
+        if (getMode(stack) == ResonateMode.AUTO && this.canStartResonanceMining(stack)) {
+            return InteractionResult.FAIL;
+        }
+        return super.use(level, player, usedHand);
+    }
+
+    @Override
+    public InteractionResult onItemUseFirst(ItemStack stack, UseOnContext context) {
+        if (getMode(stack) != ResonateMode.AUTO || !this.canStartResonanceMining(stack)) {
+            return super.onItemUseFirst(stack, context);
+        }
+        return this.startResonanceMining(context);
+    }
+
+    private InteractionResult startResonanceMining(UseOnContext context) {
+        if (context.getHand() != InteractionHand.MAIN_HAND) return InteractionResult.PASS;
+
+        Level level = context.getLevel();
+        BlockPos pos = context.getClickedPos();
+        if (!canResonanceMine(level.getBlockState(pos), level, pos)) return InteractionResult.PASS;
+
+        Player player = context.getPlayer();
+        if (player == null) return InteractionResult.PASS;
+
+        BlockHitResult hitResult = new BlockHitResult(
+            context.getClickLocation(),
+            context.getClickedFace(),
+            pos.immutable(),
+            context.isInside()
+        );
+        MiningTarget target = new MiningTarget(hitResult, context.getHand(), getEffectPositions(level, pos));
+        this.miningTargets(level).put(player, target);
+        player.startUsingItem(context.getHand());
+        sendMiningEffects(level, target.effectPositions(), this.resonanceMiningTicks() + 2);
+        return InteractionResult.CONSUME;
+    }
+
+    @Override
+    public ItemUseAnimation getUseAnimation(ItemStack stack) {
+        return getMode(stack) == ResonateMode.AUTO ? ItemUseAnimation.CROSSBOW : ItemUseAnimation.NONE;
+    }
+
+    public static float resonanceMiningProgress(Level level, Player player, float partialTick) {
+        if (!(player.getUseItem().getItem() instanceof ResonatorItem resonator)) return -1.0F;
+        if (!resonator.miningTargets(level).containsKey(player)) return -1.0F;
+
+        ItemStack stack = player.getUseItem();
+        int elapsedTicks = stack.getUseDuration(player) - player.getUseItemRemainingTicks();
+        return Math.min(1.0F, (elapsedTicks + partialTick) / resonator.resonanceMiningTicks());
+    }
+
+    @Override
+    public boolean releaseUsing(ItemStack stack, Level level, LivingEntity livingEntity, int remainingUseDuration) {
+        MiningTarget target = this.miningTargets(level).remove(livingEntity);
+        if (target == null) return false;
+
+        sendMiningEffects(level, target.effectPositions(), 0);
+        int elapsedTicks = this.getUseDuration(stack, livingEntity) - remainingUseDuration;
+        if (elapsedTicks >= this.resonanceMiningTicks() || !(livingEntity instanceof Player player)) return false;
+
+        BlockHitResult hit = getTargetedBlock(player);
+        if (hit == null || !target.hitPos().equals(hit.getBlockPos())) return false;
+        AnvilHammerItem.interactWithBlock(
+            player,
+            target.hitPos(),
+            level,
+            stack,
+            target.hand(),
+            target.hitResult()
+        );
+        return false;
+    }
+
+    private void consumeResonanceMiningDurability(ItemStack stack, int damageBeforeMining) {
+        int durabilityCost = this.resonanceMiningDurabilityCost();
+        if (durabilityCost <= 0) return;
+        // 直接写入损伤值，避免耐久附魔改变本次消耗。
+        stack.setDamageValue(damageBeforeMining + durabilityCost);
+    }
+
+    private Map<LivingEntity, MiningTarget> miningTargets(Level level) {
+        return level.isClientSide() ? this.clientMiningTargets : this.serverMiningTargets;
+    }
+
+    public static boolean isResonanceMining(Level level, Player player, BlockPos pos) {
+        if (!(player.getUseItem().getItem() instanceof ResonatorItem resonator)) return false;
+        MiningTarget target = resonator.miningTargets(level).get(player);
+        return target != null && target.hitPos().equals(pos);
+    }
+
+    private void stopResonanceMining(Level level, LivingEntity livingEntity, MiningTarget target) {
+        this.miningTargets(level).remove(livingEntity);
+        sendMiningEffects(level, target.effectPositions(), 0);
+        livingEntity.stopUsingItem();
+    }
+
+    private static List<BlockPos> getEffectPositions(Level level, BlockPos hitPos) {
+        BlockState state = level.getBlockState(hitPos);
+        if (!(state.getBlock() instanceof AbstractMultiPartBlock<?> multiPartBlock)) {
+            return List.of(hitPos.immutable());
+        }
+
+        return getMultiPartEffectPositions(level, hitPos, state, multiPartBlock);
+    }
+
+    private static <P extends Enum<P>> List<BlockPos> getMultiPartEffectPositions(
+        Level level,
+        BlockPos hitPos,
+        BlockState hitState,
+        AbstractMultiPartBlock<P> multiPartBlock
+    ) {
+        List<BlockPos> positions = new ArrayList<>();
+        for (P part : multiPartBlock.getParts()) {
+            BlockPos partPos = hitPos.offset(multiPartBlock.offsetFrom(hitState, part));
+            if (level.getBlockState(partPos).is(multiPartBlock)) positions.add(partPos.immutable());
+        }
+        return positions.isEmpty() ? List.of(hitPos.immutable()) : List.copyOf(positions);
+    }
+
+    private static void sendMiningEffects(Level level, List<BlockPos> positions, int durationTicks) {
+        for (BlockPos pos : positions) {
+            sendMiningEffect(level, pos, durationTicks);
+        }
+    }
+
+    private static void sendMiningEffect(Level level, BlockPos pos, int durationTicks) {
+        if (!(level instanceof ServerLevel serverLevel)) return;
+        PacketDistributor.sendToPlayersTrackingChunk(
+            serverLevel,
+            new ChunkPos(pos.getX() >> 4, pos.getZ() >> 4),
+            new ResonanceMiningEffectPacket(pos, durationTicks)
+        );
+    }
+
+    private static @Nullable BlockHitResult getTargetedBlock(LivingEntity livingEntity) {
+        if (!(livingEntity instanceof Player player)) return null;
+        HitResult hit = player.pick(player.blockInteractionRange(), 0.0f, false);
+        return hit.getType() == HitResult.Type.BLOCK ? (BlockHitResult) hit : null;
+    }
+
+    static boolean canResonanceMine(BlockState state, Level level, BlockPos pos) {
+        if (state.isAir()) return false;
+        return state.getDestroySpeed(level, pos) >= 0.0f;
+    }
+
+    private record MiningTarget(BlockHitResult hitResult, InteractionHand hand, List<BlockPos> effectPositions) {
+        private BlockPos hitPos() {
+            return this.hitResult.getBlockPos();
+        }
+    }
+
     public static class ResonatorHolder extends Holder.Reference<Item> {
         public ResonatorHolder(Holder.Reference.Type type, HolderOwner<Item> owner, ResourceKey<Item> key, Item value) {
             super(type, owner, key, value);
         }
 
         public boolean is(ResonateMode mode, TagKey<Item> tag) {
-            return switch (mode) {
-                case AXE -> tag.equals(ItemTags.AXES) && super.is(tag);
-                case SHOVEL -> tag.equals(ItemTags.SHOVELS) && super.is(tag);
-                case HOE -> tag.equals(ItemTags.HOES) && super.is(tag);
-                case PICKAXE -> tag.equals(ItemTags.PICKAXES) && super.is(tag);
-                default -> super.is(tag);
-            };
+            return super.is(tag) && allowsToolTag(mode, tag);
         }
+
     }
 }

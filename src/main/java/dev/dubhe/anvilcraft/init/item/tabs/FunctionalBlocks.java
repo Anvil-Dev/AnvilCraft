@@ -52,6 +52,7 @@ public class FunctionalBlocks extends DisplayItemsGenerator {
         this.plain(ModBlocks.FROST_GRINDSTONE);
         this.plain(ModBlocks.EMBER_GRINDSTONE);
         this.plain(ModBlocks.TRANSCENDENCE_GRINDSTONE);
+        this.plain(ModBlocks.AUTO_ENCHANTING_TABLE);
         this.plain(ModBlocks.ROYAL_SMITHING_TABLE);
         this.plain(ModBlocks.FROST_SMITHING_TABLE);
         this.plain(ModBlocks.EMBER_SMITHING_TABLE);
@@ -91,6 +92,8 @@ public class FunctionalBlocks extends DisplayItemsGenerator {
         this.plain(ModBlocks.LENS);
         this.plain(ModBlocks.LASER_RECEIVER);
 
+        this.plain(ModBlocks.REDSTONE_DICE);
+        this.plain(ModBlocks.BIG_RED_BUTTON);
         this.plain(ModBlocks.PULSE_GENERATOR);
         this.plain(ModBlocks.ADVANCED_COMPARATOR);
         this.plain(ModBlocks.BLOCK_COMPARATOR);
@@ -108,6 +111,11 @@ public class FunctionalBlocks extends DisplayItemsGenerator {
 
         this.plain(ModBlocks.CHUTE);
         this.plain(ModBlocks.MAGNETIC_CHUTE);
+        this.plain(ModBlocks.STORAGE_PORT);
+        this.plain(ModBlocks.STORAGE_PORT_CONSOLIDATOR);
+        this.plain(ModBlocks.STORAGE_FLUID_PORT);
+        this.plain(ModBlocks.OVERFLOW_CHUTE);
+        this.plain(ModBlocks.ITEM_SPLITTER);
         this.plain(ModBlocks.SLIDING_RAIL);
         this.plain(ModBlocks.POWERED_SLIDING_RAIL);
         this.plain(ModBlocks.ACTIVATOR_SLIDING_RAIL);

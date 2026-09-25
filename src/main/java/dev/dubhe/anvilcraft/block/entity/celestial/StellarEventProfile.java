@@ -1,0 +1,328 @@
+package dev.dubhe.anvilcraft.block.entity.celestial;
+
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.DataResult;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.util.StringRepresentable;
+
+import java.util.List;
+import java.util.Objects;
+
+/**
+ * 恒星终局事件的视觉参数。
+ *
+ * <p>事件只描述渲染时间线和最终残骸提示，实际方块破坏、伤害和残骸写回仍由
+ * 加速器的既有玩法路径负责。曲线中的半径是相对于事件开始时本体半径的比例。</p>
+ */
+public final class StellarEventProfile implements StringRepresentable {
+    /** 通用事件时间线段。 */
+    public enum TimelinePhase {
+        PRECURSOR,
+        CORE_COLLAPSE,
+        SHOCK_BREAKOUT,
+        EJECTA_EXPANSION,
+        FADE
+    }
+
+    /** 事件最终残骸种类。NONE 表示完全解体。 */
+    public enum RemnantKind {
+        WHITE_DWARF("white_dwarf"),
+        NEUTRON_STAR("neutron_star"),
+        BLACK_HOLE("black_hole"),
+        NONE("none");
+
+        private final String id;
+
+        public static final Codec<RemnantKind> CODEC = Codec.STRING.comapFlatMap(
+            serializedId -> {
+                RemnantKind kind = fromId(serializedId);
+                return kind == null
+                    ? DataResult.error(() -> "未知残骸种类: " + serializedId)
+                    : DataResult.success(kind);
+            },
+            RemnantKind::getSerializedName
+        );
+
+        RemnantKind(String id) {
+            this.id = id;
+        }
+
+        public String getSerializedName() {
+            return this.id;
+        }
+
+        @org.jspecify.annotations.Nullable
+        private static RemnantKind fromId(String id) {
+            if (id == null) return null;
+            for (RemnantKind kind : values()) {
+                if (kind.id.equalsIgnoreCase(id) || kind.name().equalsIgnoreCase(id)) return kind;
+            }
+            return null;
+        }
+    }
+
+    public static final Codec<StellarEventProfile> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+        Codec.STRING.fieldOf("profileId").forGetter(StellarEventProfile::profileId),
+        Codec.INT.fieldOf("precursorTicks").forGetter(StellarEventProfile::precursorTicks),
+        Codec.INT.fieldOf("collapseTicks").forGetter(StellarEventProfile::collapseTicks),
+        Codec.INT.fieldOf("ejectaTicks").forGetter(StellarEventProfile::ejectaTicks),
+        Codec.INT.fieldOf("fadeTicks").forGetter(StellarEventProfile::fadeTicks),
+        Codec.FLOAT.listOf().fieldOf("coreRadiusCurve").forGetter(StellarEventProfile::coreRadiusCurve),
+        Codec.FLOAT.listOf().fieldOf("ejectaRadiusCurve").forGetter(StellarEventProfile::ejectaRadiusCurve),
+        Codec.FLOAT.fieldOf("peakEmission").forGetter(StellarEventProfile::peakEmission),
+        Codec.INT.listOf().fieldOf("palette").forGetter(StellarEventProfile::palette),
+        Codec.INT.fieldOf("shellCount").forGetter(StellarEventProfile::shellCount),
+        Codec.INT.fieldOf("rayCount").forGetter(StellarEventProfile::rayCount),
+        Codec.FLOAT.fieldOf("rayLength").forGetter(StellarEventProfile::rayLength),
+        Codec.FLOAT.fieldOf("asymmetry").forGetter(StellarEventProfile::asymmetry),
+        RemnantKind.CODEC.fieldOf("remnantKind").forGetter(StellarEventProfile::remnantKind)
+    ).apply(instance, StellarEventProfile::new));
+
+    private final String profileId;
+    private final int precursorTicks;
+    private final int collapseTicks;
+    private final int ejectaTicks;
+    private final int fadeTicks;
+    private final List<Float> coreRadiusCurve;
+    private final List<Float> ejectaRadiusCurve;
+    private final float peakEmission;
+    private final List<Integer> palette;
+    private final int shellCount;
+    private final int rayCount;
+    private final float rayLength;
+    private final float asymmetry;
+    private final RemnantKind remnantKind;
+
+    public StellarEventProfile(
+        String profileId,
+        int precursorTicks,
+        int collapseTicks,
+        int ejectaTicks,
+        int fadeTicks,
+        List<Float> coreRadiusCurve,
+        List<Float> ejectaRadiusCurve,
+        float peakEmission,
+        List<Integer> palette,
+        int shellCount,
+        int rayCount,
+        float rayLength,
+        float asymmetry,
+        RemnantKind remnantKind
+    ) {
+        if (precursorTicks < 0 || collapseTicks < 1 || ejectaTicks < 0 || fadeTicks < 0
+            || !Float.isFinite(peakEmission) || peakEmission < 0 || peakEmission > 64
+            || !Float.isFinite(rayLength) || rayLength < 0 || rayLength > 128
+            || !Float.isFinite(asymmetry) || asymmetry < 0 || asymmetry > 1
+            || shellCount < 0 || shellCount > 16 || rayCount < 0 || rayCount > 128) {
+            throw new IllegalArgumentException("Invalid stellar event values: " + profileId);
+        }
+        for (List<Float> curve : List.of(coreRadiusCurve, ejectaRadiusCurve)) {
+            if (curve.isEmpty() || curve.size() > 64 || curve.stream().anyMatch(value -> !Float.isFinite(value)
+                || value < 0 || value > 128)) {
+                throw new IllegalArgumentException("Invalid stellar event curve: " + profileId);
+            }
+        }
+        this.profileId = Objects.requireNonNull(profileId);
+        this.precursorTicks = Math.max(0, precursorTicks);
+        this.collapseTicks = Math.max(1, collapseTicks);
+        this.ejectaTicks = Math.max(0, ejectaTicks);
+        this.fadeTicks = Math.max(0, fadeTicks);
+        this.coreRadiusCurve = normaliseCurve(coreRadiusCurve, 1.0f);
+        this.ejectaRadiusCurve = normaliseCurve(ejectaRadiusCurve, 0.0f);
+        this.peakEmission = Float.isFinite(peakEmission) ? Math.max(0.0f, peakEmission) : 0.0f;
+        this.palette = palette == null || palette.isEmpty()
+            ? List.of(0xFFFFFF)
+            : palette.stream().map(value -> value == null ? 0xFFFFFF : value & 0xFFFFFF).toList();
+        this.shellCount = Math.max(0, shellCount);
+        this.rayCount = Math.max(0, rayCount);
+        this.rayLength = Float.isFinite(rayLength) ? Math.max(0.0f, rayLength) : 0.0f;
+        this.asymmetry = Float.isFinite(asymmetry) ? Math.clamp(asymmetry, 0.0f, 1.0f) : 0.0f;
+        this.remnantKind = Objects.requireNonNull(remnantKind);
+    }
+
+    public void validate() {
+        if (this.profileId.isBlank() || this.palette.size() > 64
+            || (long) this.precursorTicks + this.collapseTicks + this.ejectaTicks + this.fadeTicks > 24000) {
+            throw new IllegalArgumentException("Invalid stellar event: " + this.profileId);
+        }
+    }
+
+    public StellarEventProfile resolveVisual(double coordinate) {
+        float factor = (float) (1 + coordinate * 0.1);
+        return new StellarEventProfile(this.profileId, this.precursorTicks, this.collapseTicks, this.ejectaTicks, this.fadeTicks,
+            this.coreRadiusCurve, this.ejectaRadiusCurve.stream().map(value -> Math.min(128, value * factor)).toList(),
+            Math.min(64, this.peakEmission * factor), this.palette, this.shellCount, this.rayCount, this.rayLength,
+            Math.clamp(this.asymmetry * factor, 0, 1), this.remnantKind);
+    }
+
+    private static List<Float> normaliseCurve(List<Float> curve, float fallback) {
+        if (curve == null || curve.isEmpty()) return List.of(fallback);
+        return curve.stream()
+            .map(value -> value == null || !Float.isFinite(value) ? fallback : Math.max(0.0f, value))
+            .toList();
+    }
+
+    public String profileId() {
+        return this.profileId;
+    }
+
+    public String id() {
+        return this.profileId;
+    }
+
+    @Override
+    public String getSerializedName() {
+        return this.profileId;
+    }
+
+    public int precursorTicks() {
+        return this.precursorTicks;
+    }
+
+    public int collapseTicks() {
+        return this.collapseTicks;
+    }
+
+    public int ejectaTicks() {
+        return this.ejectaTicks;
+    }
+
+    public int fadeTicks() {
+        return this.fadeTicks;
+    }
+
+    public List<Float> coreRadiusCurve() {
+        return this.coreRadiusCurve;
+    }
+
+    public List<Float> ejectaRadiusCurve() {
+        return this.ejectaRadiusCurve;
+    }
+
+    public float peakEmission() {
+        return this.peakEmission;
+    }
+
+    public List<Integer> palette() {
+        return this.palette;
+    }
+
+    /** 按事件进度在 profile 调色板中平滑取色。 */
+    public int color(float progress) {
+        if (this.palette.size() == 1) return this.palette.get(0);
+        float t = safeProgress(progress) * (this.palette.size() - 1);
+        int index = Math.min((int) Math.floor(t), this.palette.size() - 2);
+        return StellarVisualState.interpolateColor(this.palette.get(index), this.palette.get(index + 1), t - index);
+    }
+
+    public int shellCount() {
+        return this.shellCount;
+    }
+
+    public int rayCount() {
+        return this.rayCount;
+    }
+
+    public float rayLength() {
+        return this.rayLength;
+    }
+
+    public float asymmetry() {
+        return this.asymmetry;
+    }
+
+    public RemnantKind remnantKind() {
+        return this.remnantKind;
+    }
+
+    /** 返回整个事件时间线长度，保证至少包含坍缩窗口。 */
+    public int totalTicks() {
+        long total = (long) this.precursorTicks + this.collapseTicks + this.ejectaTicks + this.fadeTicks;
+        return (int) Math.clamp(total, 1L, Integer.MAX_VALUE);
+    }
+
+    public int shockBreakoutTick() {
+        long total = (long) this.precursorTicks + this.collapseTicks;
+        return (int) Math.clamp(total, 0L, Integer.MAX_VALUE);
+    }
+
+    public TimelinePhase timelinePhase(float progress) {
+        int tick = Math.round(safeProgress(progress) * this.totalTicks());
+        if (tick < this.precursorTicks) return TimelinePhase.PRECURSOR;
+        if (tick < this.shockBreakoutTick()) return TimelinePhase.CORE_COLLAPSE;
+        if (tick == this.shockBreakoutTick()) return TimelinePhase.SHOCK_BREAKOUT;
+        if (tick < this.shockBreakoutTick() + this.ejectaTicks) return TimelinePhase.EJECTA_EXPANSION;
+        return TimelinePhase.FADE;
+    }
+
+    /**
+     * 根据事件进度采样核心半径曲线。
+     *
+     * <p>AGB 热脉冲的胀缩由阶段级脉动负责（见 {@code StellarVisualState#radiusAt}），
+     * 这里不再叠加第二个正弦，否则两个不同周期的振荡叠在一起会变成高频抖动。</p>
+     */
+    public float coreRadius(float progress) {
+        float value = sampleCurve(this.coreRadiusCurve, progress);
+        return Math.max(0.0f, value);
+    }
+
+    /** 根据事件进度采样抛射物半径曲线。 */
+    public float ejectaRadius(float progress) {
+        float value = sampleCurve(this.ejectaRadiusCurve, progress);
+        if (this.profileId.equals("AGB_THERMAL_PULSE")) {
+            // 使用连续的呼吸曲线，避免在脉冲边界瞬间归零造成细碎抖动。
+            float pulse = 0.5f - 0.5f * (float) Math.cos(progress * Math.PI * 2.0);
+            value *= 0.72f + pulse * 0.28f;
+        }
+        return Math.max(0.0f, value);
+    }
+
+    /** 曲线可能达到的最大抛射半径，用于包围盒预留空间。 */
+    public float maxEjectaRadius() {
+        float maximum = 0.0f;
+        for (Float value : this.ejectaRadiusCurve) {
+            if (value != null && Float.isFinite(value)) maximum = Math.max(maximum, value);
+        }
+        return maximum;
+    }
+
+    /** 曲线可能达到的最大核心半径。 */
+    public float maxCoreRadius() {
+        float maximum = 0.0f;
+        for (Float value : this.coreRadiusCurve) {
+            if (value != null && Float.isFinite(value)) maximum = Math.max(maximum, value);
+        }
+        return maximum;
+    }
+
+    /** 计算带有峰值和末段淡出的发光强度。 */
+    public float emission(float progress) {
+        float t = safeProgress(progress);
+        float rise = smoothstep(Math.clamp(t * 4.0f, 0.0f, 1.0f));
+        float fade = t > 0.72f ? smoothstep(Math.clamp((1.0f - t) / 0.28f, 0.0f, 1.0f)) : 1.0f;
+        float pulse = 1.0f;
+        if (this.profileId.equals("AGB_THERMAL_PULSE")) {
+            float wave = 0.5f + 0.5f * (float) Math.sin(t * 2.0f * Math.PI * 2.0);
+            pulse = 0.78f + 0.22f * wave;
+        }
+        return this.peakEmission * pulse * Math.clamp(rise, 0.0f, 1.0f) * Math.clamp(fade, 0.0f, 1.0f);
+    }
+
+    private static float smoothstep(float value) {
+        return value * value * (3.0f - 2.0f * value);
+    }
+
+    private static float sampleCurve(List<Float> curve, float progress) {
+        if (curve.isEmpty()) return 0.0f;
+        if (curve.size() == 1) return curve.get(0);
+        float t = safeProgress(progress) * (curve.size() - 1);
+        int low = Math.min((int) Math.floor(t), curve.size() - 2);
+        float fraction = t - low;
+        fraction = fraction * fraction * (3.0f - 2.0f * fraction);
+        return curve.get(low) + (curve.get(low + 1) - curve.get(low)) * fraction;
+    }
+
+    private static float safeProgress(float progress) {
+        return Float.isFinite(progress) ? Math.clamp(progress, 0.0f, 1.0f) : 0.0f;
+    }
+}

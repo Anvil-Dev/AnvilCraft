@@ -1,0 +1,10 @@
+gradle.projectsEvaluated {
+    rootProject.tasks.named('runClient') {
+        systemProperty 'anvilcraft.portVisualScene', 'true'
+        systemProperty 'anvilcraft.portCfaItemScene', 'true'
+        systemProperty 'anvilcraft.portMonolithScene', 'true'
+        systemProperty 'anvilcraft.portMunSurfaceScene', 'false'
+        systemProperty 'anvilcraft.portMunSkyScene', 'false'
+        if (rootProject.providers.gradleProperty('portValidation').isPresent()) args '--width', '1280', '--height', '720'
+    }
+}

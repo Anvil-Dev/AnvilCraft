@@ -82,7 +82,7 @@ public class ItemDetectorBlock extends BetterBaseEntityBlock implements EntityBl
     @Override
     public BlockState getStateForPlacement(BlockPlaceContext context) {
         Direction direction = context.getHorizontalDirection();
-        return this.defaultBlockState().setValue(ItemDetectorBlock.FACING, direction.getOpposite());
+        return this.defaultBlockState().setValue(ItemDetectorBlock.FACING, direction);
     }
 
     @Override

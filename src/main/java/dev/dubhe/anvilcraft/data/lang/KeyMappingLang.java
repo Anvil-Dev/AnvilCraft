@@ -5,6 +5,8 @@ import dev.dubhe.anvilcraft.client.init.ModKeyMappings;
 
 public class KeyMappingLang {
     public static void init(RegistrumLangProvider provider) {
+        provider.add("key.anvilcraft.pockets", "Swap Pocket and Offhand");
+        provider.add("key.anvilcraft.open_terminal", "Open Terminal");
         provider.add(ModKeyMappings.ANVILCRAFT_CATEGORY.id().toLanguageKey("key.category"), "AnvilCraft");
         provider.add("key.anvilcraft.switch_phase", "Switch Phase");
         provider.add("key.anvilcraft.toggle_goggle", "Toggle Goggle Mode");

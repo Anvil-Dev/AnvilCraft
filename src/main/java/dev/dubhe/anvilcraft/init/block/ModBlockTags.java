@@ -54,6 +54,8 @@ public class ModBlockTags {
     public static final TagKey<Block> GIANT_ANVIL = ModBlockTags.bind("giant_anvil");
     public static final TagKey<Block> SLIDING_RAIL_STOP_LIKE = ModBlockTags.bind("sliding_rail_stop_like");
 
+    public static final TagKey<Block> PLACEMENT_PREVIEW = ModBlockTags.bind("placement_preview");
+
     // common tags
     public static final TagKey<Block> ORES_TUNGSTEN = ModBlockTags.bindC("ores/tungsten");
     public static final TagKey<Block> ORES_TITANIUM = ModBlockTags.bindC("ores/titanium");
@@ -110,7 +112,7 @@ public class ModBlockTags {
     public static final TagKey<Block> NEEDS_TRANSCENDIUM_TOOL = ModBlockTags.bind("needs_transcendium_tool");
 
     public static final TagKey<Block> ANVIL_HAMMER_BLACKLIST = ModBlockTags.bind("anvil_hammer_blacklist");
-    public static final TagKey<Block> DEVOUR_BLACKLIST = ModBlockTags.bind("devour_blacklist");
+    public static final TagKey<Block> DEVOUR_DENYLIST = ModBlockTags.bind("devour_denylist");
 
     public static final TagKey<Block> FELLING_APPLICABLE = ModBlockTags.bind("felling_applicable");
     public static final TagKey<Block> CLEANING_APPLICABLE = ModBlockTags.bind("cleaning_applicable");

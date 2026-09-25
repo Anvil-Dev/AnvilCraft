@@ -1,0 +1,27 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:mod_loaded",
+      "modid": "twilightforest"
+    }
+  ],
+  "type": "anvilcraft:deformation",
+  "material": {
+    "type": "anvilcraft:repair_material",
+    "cost": 2
+  },
+  "inputs": [
+    {
+      "id": "twilightforest:arctic_helmet"
+    },
+    {
+      "id": "twilightforest:arctic_chestplate"
+    },
+    {
+      "id": "twilightforest:arctic_leggings"
+    },
+    {
+      "id": "twilightforest:arctic_boots"
+    }
+  ]
+}

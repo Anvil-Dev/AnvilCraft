@@ -62,7 +62,7 @@ public class AnvilMenuResult {
     }
 
     public void createResult(
-        Player player,
+        @Nullable Player player,
         ItemStack inputLeft,
         ItemStack inputRight,
         @Nullable String itemName
@@ -194,7 +194,7 @@ public class AnvilMenuResult {
     }
 
     private void createMultiphaseResult(
-        Player player,
+        @Nullable Player player,
         ItemStack inputLeft,
         ItemStack inputRight,
         @Nullable String itemName
@@ -353,7 +353,7 @@ public class AnvilMenuResult {
     }
 
     private int applyEnchantment(
-        Player player,
+        @Nullable Player player,
         ItemStack inputLeft,
         ItemStack inputRight,
         ItemEnchantments.Mutable enchantments,
@@ -371,7 +371,7 @@ public class AnvilMenuResult {
     }
 
     private int applyEnchantment(
-        Player player,
+        @Nullable Player player,
         ItemStack inputLeft,
         ItemEnchantments.Mutable enchantments,
         ItemEnchantments enchantmentsOnRight,
@@ -392,7 +392,7 @@ public class AnvilMenuResult {
 
             if (!this.ignoreEnchantmentCompatible) {
                 boolean compatible = inputLeft.supportsEnchantment(holder);
-                if (player.hasInfiniteMaterials() || inputLeft.is(Items.ENCHANTED_BOOK)) {
+                if ((player != null && player.hasInfiniteMaterials()) || inputLeft.is(Items.ENCHANTED_BOOK)) {
                     compatible = true;
                 }
 

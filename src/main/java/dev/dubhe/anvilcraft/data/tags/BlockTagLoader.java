@@ -213,6 +213,11 @@ public class BlockTagLoader {
             .addElement(ModBlocks.DEFLECTION_RING.getId());
 
         provider.rawBuilder(ModBlockTags.ANVIL_HAMMER_BLACKLIST)
+            .addElement(ModBlocks.MONOLITH.getId())
+            .addElement(ModBlocks.MONOLITH_CORE.getId())
+            .addElement(ModBlocks.MONOLITH_LINE.getId())
+            .addElement(ModBlocks.GIANT_MONOLITH_CORE.getId())
+            .addElement(ModBlocks.GIANT_MONOLITH_LINE.getId())
             .addElement(BlockTagLoader.findId(Blocks.NETHER_PORTAL))
             .addElement(BlockTagLoader.findId(Blocks.PISTON_HEAD))
             .addElement(BlockTagLoader.findId(Blocks.END_PORTAL_FRAME))
@@ -225,9 +230,9 @@ public class BlockTagLoader {
             .addTag(Tags.Blocks.CHESTS_ENDER.location())
             .addTag(Tags.Blocks.CHESTS_TRAPPED.location())
             .addTag(Tags.Blocks.CHESTS_WOODEN.location());
-        provider.rawBuilder(ModBlockTags.DEVOUR_BLACKLIST)
-            .addTag(Tags.Blocks.CHESTS_TRAPPED.location())
-            .addTag(Tags.Blocks.CHESTS_WOODEN.location());
+        provider.rawBuilder(ModBlockTags.DEVOUR_DENYLIST)
+            .addElement(ModBlocks.MINERAL_FOUNTAIN.getId())
+            .addElement(ModBlocks.STURDY_DEEPSLATE.getId());
 
         provider.rawBuilder(ModBlockTags.FELLING_APPLICABLE)
             .addTag(BlockTags.LOGS.location())
@@ -426,5 +431,28 @@ public class BlockTagLoader {
             .addElement(ModBlocks.CELESTIAL_FORGING_ANVIL_LASER_INTERFACE.getId())
             .addElement(ModBlocks.CELESTIAL_FORGING_ANVIL_FLUID_INTERFACE.getId())
             .addElement(ModBlocks.CELESTIAL_FORGING_ANVIL_PORTAL.getId());
+
+        provider.rawBuilder(ModBlockTags.PLACEMENT_PREVIEW)
+            .addElement(ModBlocks.OVERFLOW_CHUTE.getId())
+            .addElement(ModBlocks.ITEM_SPLITTER.getId())
+            .addElement(ModBlocks.CHUTE.getId())
+            .addElement(ModBlocks.MAGNETIC_CHUTE.getId())
+            .addElement(ModBlocks.SLIDING_RAIL.getId())
+            .addElement(ModBlocks.POWERED_SLIDING_RAIL.getId())
+            .addElement(ModBlocks.ACTIVATOR_SLIDING_RAIL.getId())
+            .addElement(ModBlocks.DETECTOR_SLIDING_RAIL.getId())
+            .addElement(ModBlocks.PULSE_GENERATOR.getId())
+            .addElement(ModBlocks.ADVANCED_COMPARATOR.getId())
+            .addElement(ModBlocks.BLOCK_COMPARATOR.getId())
+            .addElement(ModBlocks.ITEM_DETECTOR.getId())
+            .addElement(ModBlocks.PUMP.getId())
+            .addElement(ModBlocks.BLOCK_PLACER.getId())
+            .addElement(ModBlocks.BLOCK_DEVOURER.getId())
+            .addElement(ModBlocks.SMART_BLOCK_PLACER.getId())
+            .addElement(ModBlocks.STRUCTURE_SCANNER.getId())
+            .addElement(ModBlocks.RUBY_LASER.getId())
+            .addElement(ModBlocks.RUBY_PRISM.getId())
+            .addElement(ModBlocks.LASER_RECEIVER.getId())
+            .addElement(ModBlocks.CRAB_TRAP.getId());
     }
 }

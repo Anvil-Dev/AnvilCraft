@@ -4,6 +4,7 @@ import dev.anvilcraft.lib.v2.registrum.providers.RegistrumLangProvider;
 
 public class JadeLang {
     public static void init(RegistrumLangProvider provider) {
+        provider.add("config.jade.plugin_anvilcraft.overflow_disposal_fluid_tank", "Overflow Disposal Fluid Tank");
         provider.add("config.jade.plugin_anvilcraft.crab_trap", "Crab Trap");
         provider.add("config.jade.plugin_anvilcraft.power_provider", "Anvil Craft Power");
         provider.add("config.jade.plugin_anvilcraft.ruby_prism", "Ruby Prism");
@@ -53,7 +54,7 @@ public class JadeLang {
         provider.add("tooltip.anvilcraft.smart_block_placer.jade.placement.pickup", "Pickup");
         provider.add("tooltip.anvilcraft.smart_block_placer.jade.placement.move", "Move");
         provider.add("tooltip.anvilcraft.smart_block_placer.jade.blueprint_name", "Blueprint: %s");
-        provider.add("tooltip.anvilcraft.smart_block_placer.jade.missing_mode", "Missing Block: %s");
+        provider.add("tooltip.anvilcraft.smart_block_placer.jade.missing_mode", "Missing Mode: %s");
         provider.add("tooltip.anvilcraft.smart_block_placer.jade.missing.skip", "Skip");
         provider.add("tooltip.anvilcraft.smart_block_placer.jade.missing.stop", "Stop");
 

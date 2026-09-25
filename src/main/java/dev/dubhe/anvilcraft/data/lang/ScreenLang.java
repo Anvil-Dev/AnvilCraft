@@ -10,6 +10,32 @@ public class ScreenLang {
      */
     @SuppressWarnings("checkstyle:LineLength")
     public static void init(RegistrumLangProvider provider) {
+        provider.add("screen.anvilcraft.auto_enchanting_table.title", "Auto Enchant");
+        provider.add("screen.anvilcraft.auto_enchanting_table.search", "Search enchantments");
+        provider.add("screen.anvilcraft.auto_enchanting_table.warning.bookshelf", "Not enough bookshelves");
+        provider.add("screen.anvilcraft.auto_enchanting_table.warning.fluid_capacity", "Exceeds fluid capacity");
+        provider.add("screen.anvilcraft.auto_enchanting_table.warning.liquid_incompatible", "Incompatible with the item");
+        provider.add("screen.anvilcraft.auto_enchanting_table.warning.item_incompatible", "Item cannot hold the selected enchantments");
+        provider.add("screen.anvilcraft.auto_enchanting_table.primer", "Put primers, like Emerald Amulet or specific anvils");
+        provider.add("screen.anvilcraft.auto_enchanting_table.enchant_power_bonus", "Enchant Power Bonus: %s");
+        provider.add("screen.anvilcraft.auto_enchanting_table.liquid_enchantment.0", "Scroll on the Enchanted Book");
+        provider.add("screen.anvilcraft.auto_enchanting_table.liquid_enchantment.1", "above can tweak the levels");
+        provider.add("book.anvilcraft.material_list.title",
+            "Material List");
+        provider.add("screen.anvilcraft.pockets.empty", "Empty Pocket");
+        provider.add("screen.anvilcraft.equipment.charged_jump.on", "Enable Charged Jump");
+        provider.add("screen.anvilcraft.equipment.charged_jump.off", "Disable Charged Jump");
+
+        provider.add("screen.anvilcraft.storage.flip", "Flip Layout");
+        provider.add("tooltip.anvilcraft.fluid_tank.capacity", "Capacity:");
+        provider.add("tooltip.anvilcraft.fluid_tank.capacity.value", "  %s / %s");
+        provider.add("tooltip.anvilcraft.fluid_tank.capacity.value.infinity", "  %s / ∞");
+        provider.add("tooltip.anvilcraft.fluid_tank.fluid", "Fluid:");
+        provider.add("tooltip.anvilcraft.fluid_tank.more", "and %s more...");
+        provider.add("screen.anvilcraft.storage_port.clear_mark", "Clear Mark");
+        provider.add("tooltip.anvilcraft.storage_port.item", "Item:");
+        provider.add("screen.anvilcraft.redstone_dice.uniform", "Uniform Mode");
+        provider.add("screen.anvilcraft.redstone_dice.realistic", "Realistic Mode");
         provider.add("screen.anvilcraft.trading_station.not_owner", "You are not the owner of this Trading Station!");
         provider.add("screen.anvilcraft.trading_station.provide", "Mark as providing items");
         provider.add("screen.anvilcraft.trading_station.request", "Mark as requesting items");
@@ -227,6 +253,9 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.resonator.hoe", "Hoe");
         provider.add("screen.anvilcraft.resonator.pickaxe", "Pickaxe");
 
+        provider.add("screen.anvilcraft.dragon_rod.protect_containers", "Protect Containers");
+        provider.add("screen.anvilcraft.dragon_rod.devour_containers", "Devour Containers");
+
         provider.add("screen.anvilcraft.heavy_halberd.title", "Switch heavy halberd mode");
         provider.add("screen.anvilcraft.heavy_halberd.trident", "Trident");
         provider.add("screen.anvilcraft.heavy_halberd.spear", "Spear");
@@ -248,8 +277,11 @@ public class ScreenLang {
 
         provider.add("screen.anvilcraft.filter.scroll_wheel_to_change_stack_limit", "Scroll mouse wheel to change stack limit");
 
+        provider.add("screen.anvilcraft.equipment.night_vision.on", "Enable Night Vision");
+        provider.add("screen.anvilcraft.equipment.night_vision.off", "Disable Night Vision");
+        provider.add("screen.anvilcraft.frost_smithing.permutation.missing_tools", "Add weapons, tools, armors or heavy items");
         provider.add("screen.anvilcraft.frost_smithing.tooltip.missing_template", "Add Permutation Template or Deformation Template");
-        provider.add("screen.anvilcraft.frost_smithing.permutation.missing", "Add Royal Steel Ingot, Ember Metal Ingot, Multiphase Matter or Multiphase Matter Block");
+        provider.add("screen.anvilcraft.frost_smithing.permutation.missing", "Add Frost Metal, Ember Metal, Transcendium, Multiphase Matter and other materials, or leave it empty");
         provider.add("screen.anvilcraft.frost_smithing.deformation.missing_tools", "Add any type of Swords, tools, armors or bow-likes");
         provider.add("screen.anvilcraft.frost_smithing.royal_steel_ingot.missing_tools", "Add Diamond weapons or tools or Royal Steel weapons or tools");
         provider.add("screen.anvilcraft.frost_smithing.ember_metal_ingot.missing_tools", "Add Netherite weapons or tools or Ember Metal weapons or tools");
@@ -277,11 +309,11 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.cfa.tilt", "Axial Tilt: %s"); // 自转轴倾角: %s
 
         provider.add("screen.anvilcraft.cfa.atmos", "Atmosphere: %s"); // 大气: %s
-        provider.add("screen.anvilcraft.cfa.atmos.yes", "Yes"); // 有
+        provider.add("screen.anvilcraft.cfa.atmos.yes", "Present"); // 有
         provider.add("screen.anvilcraft.cfa.none", "None"); // 无
 
         provider.add("screen.anvilcraft.cfa.mag", "Magnetic Field: %s"); // 磁场: %s
-        provider.add("screen.anvilcraft.cfa.mag.very_weak", "Very Weak"); // 几乎没有
+        provider.add("screen.anvilcraft.cfa.mag.very_weak", "Negligible"); // 几乎没有
         provider.add("screen.anvilcraft.cfa.mag.weak", "Weak"); // 弱
         provider.add("screen.anvilcraft.cfa.mag.medium", "Medium"); // 中等
         provider.add("screen.anvilcraft.cfa.mag.strong", "Strong"); // 强
@@ -314,11 +346,11 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.cfa.pressure.ice", "Ice"); // 冰
 
         provider.add("screen.anvilcraft.cfa.wind", "Wind Speed: %s"); // 风速: %s
-        provider.add("screen.anvilcraft.cfa.wind.high", "High"); // 高
-        provider.add("screen.anvilcraft.cfa.wind.very_high", "Very High"); // 非常高
+        provider.add("screen.anvilcraft.cfa.wind.high", "Fast"); // 高
+        provider.add("screen.anvilcraft.cfa.wind.very_high", "Very Fast"); // 非常高
 
-        provider.add("screen.anvilcraft.cfa.type", "Type: %s"); // 天体类型: %s
-        provider.add("screen.anvilcraft.cfa.class.no_match", "Null"); // ？？？
+        provider.add("screen.anvilcraft.cfa.type", "Celestial Body Type: %s"); // 天体类型: %s
+        provider.add("screen.anvilcraft.cfa.class.no_match", "???"); // ？？？
         provider.add("screen.anvilcraft.cfa.class.large_moon", "Large Moon"); // 大型卫星
         provider.add("screen.anvilcraft.cfa.class.rocky_planet", "Rocky Planet"); // 岩石行星
         // 岩石行星类型，按温度、液体覆盖和大气层组合区分。
@@ -368,7 +400,7 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.cfa.class.white_dwarf", "White Dwarf"); // 白矮星
 
         // 束星环巨构重构。
-        provider.add("screen.anvilcraft.cfa.refactor_title", "Refactor"); // 束星环重构
+        provider.add("screen.anvilcraft.cfa.refactor_title", "Megastructure"); // 巨构建造
         provider.add("screen.anvilcraft.cfa.need_lock", "Need to lock"); // 需要先锁定搜索结果
         provider.add("screen.anvilcraft.cfa.no_refactor_option", "No refactoring option selected"); // 未选择再构选项
         provider.add("screen.anvilcraft.cfa.insufficient_materials", "Insufficient building materials"); // 建材不足
@@ -403,6 +435,21 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.cfa.megastructure.temple", "Temple"); // 神庙
         provider.add("screen.anvilcraft.cfa.megastructure.giant_planet_exctractor", "Giant Planet Exctractor"); // 巨行星抽取器
         provider.add("screen.anvilcraft.cfa.megastructure.stellar_ring_collider", "Stellar Ring Collider"); // 星环对撞机
+        provider.add("screen.anvilcraft.cfa.megastructure.dyson_sphere_brown_dwarf", "Brown Dwarf Dyson Sphere"); // 戴森球（褐矮星）
+        provider.add("screen.anvilcraft.cfa.megastructure.dyson_sphere_brown_dwarf.description", "Collecting a brown dwarf's energy to generate power; primordial matter can amplify the output and eventually turn it into a red dwarf");
+        provider.add("screen.anvilcraft.cfa.megastructure.dyson_sphere_brown_dwarf.usage",
+            """
+                Requires:
+                §b[Flu Int]§r
+                §fPrimordial Matter: 250mB–2B per tick, stable for 40gt§r
+                ———————
+                Outputs:
+                §a[Power Grid]§r
+                §fP=(E×R²)/1600 MW; stable supply provides ×1.5/×2/×3/×5§r
+                ———————
+                Side Effects:
+                §fMatter above 2B accumulates; 12800B turns the brown dwarf into a red dwarf§r"""
+        );
         provider.add("screen.anvilcraft.cfa.megastructure.dyson_sphere_small", "Dyson Sphere"); // 小戴森球
         provider.add("screen.anvilcraft.cfa.megastructure.dyson_sphere_large", "Dyson Sphere"); // 大戴森球
         provider.add("screen.anvilcraft.cfa.megastructure.magnetar_coil", "Magnetar Coil"); // 磁星线圈
@@ -618,6 +665,8 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.cfa.seed_slot.description", "Consume all items placed in. If specific item has been consumed, a hidden celestial body will be discovered.");
 
         // 特殊天体类型名称。
+        provider.add("screen.anvilcraft.cfa.class.special.void_planet", "Void Planet");
+        provider.add("screen.anvilcraft.cfa.class.special.mun", "Mun");
         provider.add("screen.anvilcraft.cfa.class.special.overworld_like", "Overworld Like"); // 类主世界
         provider.add("screen.anvilcraft.cfa.class.special.flesh_planet", "Flesh Planet"); // 血肉星球
         provider.add("screen.anvilcraft.cfa.class.special.intelligent_planet", "Intelligent Planet"); // 智慧星球
@@ -630,13 +679,59 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.cfa.class.black_hole", "Black Hole"); // 黑洞
 
         // 恒星演化加速器阶段。
-        provider.add("screen.anvilcraft.cfa.evolution.stage1", "Main Sequence"); // 主序星阶段
-        provider.add("screen.anvilcraft.cfa.evolution.stage2", "Giant Phase"); // 巨星阶段
-        provider.add("screen.anvilcraft.cfa.evolution.stage3", "Supernova"); // 超新星爆发
-        provider.add("screen.anvilcraft.cfa.evolution.stage4", "M-Dwarf"); // 红矮星阶段
-        provider.add("screen.anvilcraft.cfa.evolution.stage_unknown", "Unknown Stage"); // ？？？
-        provider.add("screen.anvilcraft.cfa.evolution.time_remaining", "Time: %s"); // 剩余时间:
-        provider.add("screen.anvilcraft.cfa.evolution.infinite_power", "Infinite Power"); // 无限发电中
+        provider.add("screen.anvilcraft.cfa.evolution.phase.main_sequence", "Main Sequence");
+        provider.add("screen.anvilcraft.cfa.evolution.phase.subgiant", "Subgiant Branch");
+        provider.add("screen.anvilcraft.cfa.evolution.phase.rgb", "Red Giant Branch");
+        provider.add("screen.anvilcraft.cfa.evolution.phase.helium_flash", "Helium Flash");
+        provider.add("screen.anvilcraft.cfa.evolution.phase.red_clump", "Red Clump");
+        provider.add("screen.anvilcraft.cfa.evolution.phase.blue_loop", "Blue Loop");
+        provider.add("screen.anvilcraft.cfa.evolution.phase.red_supergiant", "Red Supergiant Branch");
+        provider.add("screen.anvilcraft.cfa.evolution.phase.wolf_rayet", "Wolf-Rayet Star");
+        provider.add("screen.anvilcraft.cfa.evolution.phase.fully_convective_main_sequence", "Fully Convective Main Sequence");
+        provider.add("screen.anvilcraft.cfa.evolution.phase.radiative_core_main_sequence", "Radiative Core Main Sequence");
+        provider.add("screen.anvilcraft.cfa.evolution.phase.pre_white_dwarf", "Pre-white Dwarf");
+        provider.add("screen.anvilcraft.cfa.evolution.phase.hook", "Hook");
+        provider.add("screen.anvilcraft.cfa.evolution.phase.hertzsprung_gap", "Hertzsprung Gap");
+        provider.add("screen.anvilcraft.cfa.evolution.phase.second_hertzsprung_gap", "Second Hertzsprung Gap");
+        provider.add("screen.anvilcraft.cfa.evolution.phase.non_explosive_contraction", "Non-explosive Contraction");
+        provider.add("screen.anvilcraft.cfa.evolution.phase.shell_hydrogen_burning", "Shell Hydrogen Burning");
+        provider.add("screen.anvilcraft.cfa.evolution.phase.planetary_nebula", "Planetary Nebula");
+        provider.add("screen.anvilcraft.cfa.evolution.phase.naked_helium_star", "Naked Helium Star");
+        provider.add("screen.anvilcraft.cfa.evolution.phase.breathing_pulses", "Breathing Pulses");
+        provider.add("screen.anvilcraft.cfa.evolution.phase.agb_manque", "AGB manqué");
+        provider.add("screen.anvilcraft.cfa.evolution.phase.secondary_red_clump", "Secondary Red Clump");
+        provider.add("screen.anvilcraft.cfa.evolution.phase.nondegenerate_core_helium_burning", "Nondegenerate Core Helium Burning");
+        provider.add("screen.anvilcraft.cfa.evolution.phase.helium_main_sequence", "Helium Main Sequence");
+        provider.add("screen.anvilcraft.cfa.evolution.phase.early_agb", "E-AGB");
+        provider.add("screen.anvilcraft.cfa.evolution.phase.thermal_pulsing_agb", "TP-AGB");
+        provider.add("screen.anvilcraft.cfa.evolution.phase.early_super_agb", "E-SAGB");
+        provider.add("screen.anvilcraft.cfa.evolution.phase.thermal_pulsing_agb_superwind", "TP-AGB / Superwind");
+        provider.add("screen.anvilcraft.cfa.evolution.phase.red_supergiant_superwind", "Red Supergiant / Superwind");
+        provider.add("screen.anvilcraft.cfa.evolution.phase.superwind_contraction", "Superwind / Contraction");
+        provider.add("screen.anvilcraft.cfa.evolution.phase.superwind", "Superwind");
+        provider.add("screen.anvilcraft.cfa.evolution.phase.contraction", "Contraction");
+        provider.add("screen.anvilcraft.cfa.evolution.phase.envelope_stripping", "Envelope Stripping");
+        provider.add("screen.anvilcraft.cfa.evolution.phase.bare_core_wr", "Bare-core WR");
+        provider.add("screen.anvilcraft.cfa.evolution.phase.supernova", "Supernova");
+        provider.add("screen.anvilcraft.cfa.evolution.phase.direct_collapse", "DC: Direct Collapse");
+        provider.add("screen.anvilcraft.cfa.evolution.phase.ppisn", "PPISN");
+        provider.add("screen.anvilcraft.cfa.evolution.phase.pisn", "PISN");
+        provider.add("screen.anvilcraft.cfa.evolution.phase.brown_dwarf_cooling", "Brown Dwarf Cooling");
+        provider.add("screen.anvilcraft.cfa.evolution.initial_mass", "Initial mass: %s M☉");
+        provider.add("screen.anvilcraft.cfa.evolution.current_mass", "Current mass: %s M☉");
+        provider.add("screen.anvilcraft.cfa.evolution.metallicity", "Metallicity Z: %s");
+        provider.add("screen.anvilcraft.cfa.evolution.paused", "Paused");
+        provider.add("screen.anvilcraft.cfa.evolution.terminal_outcome.keep", "Remains a brown dwarf");
+        provider.add("screen.anvilcraft.cfa.evolution.phase_progress", "Phase progress: %s%%");
+        provider.add("screen.anvilcraft.cfa.evolution.total_progress", "Total progress: %s%%");
+        provider.add("screen.anvilcraft.cfa.evolution.temperature", "Effective temperature: %s K");
+        provider.add("screen.anvilcraft.cfa.evolution.surface_class", "Surface class: %s");
+        provider.add("screen.anvilcraft.cfa.evolution.terminal_outcome.white_dwarf", "Expected remnant: white dwarf");
+        provider.add("screen.anvilcraft.cfa.evolution.terminal_outcome.neutron_star", "Expected remnant: neutron star");
+        provider.add("screen.anvilcraft.cfa.evolution.terminal_outcome.black_hole", "Expected remnant: black hole");
+        provider.add("screen.anvilcraft.cfa.evolution.terminal_outcome.disruption", "Expected outcome: complete disruption");
+        provider.add("screen.anvilcraft.cfa.evolution.time_remaining", "Time Remaining: %s"); // 剩余时间:
+        provider.add("screen.anvilcraft.cfa.evolution.infinite_power", "Generating Infinite Power..."); // 无限发电中
         provider.add("screen.anvilcraft.cfa.evolution_cannot_unlock", "The star is currently evolving and cannot be unlocked"); // 天体正在演化，无法解锁
 
         // 传送门放置提示。
@@ -663,8 +758,25 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.smart_block_placer.structure.loaded", "Loaded: ");
 
         // 结构扫描仪。
+        provider.add("screen.anvilcraft.structure_scanner.auto_rotate_off", "Auto rotation: off");
+        provider.add("screen.anvilcraft.structure_scanner.auto_rotate_on", "Auto rotation: on");
+        provider.add("screen.anvilcraft.structure_scanner.confirm", "Record structure to disk");
+        provider.add("screen.anvilcraft.structure_scanner.export", "Export structure");
+        provider.add("screen.anvilcraft.structure_scanner.export_file", "Export file");
+        provider.add("screen.anvilcraft.structure_scanner.exported", "Structure exported: %s");
+        provider.add("screen.anvilcraft.structure_scanner.file_failed", "File operation failed: %s");
+        provider.add("screen.anvilcraft.structure_scanner.import", "Import structure");
+        provider.add("screen.anvilcraft.structure_scanner.import_file", "Import file");
+        provider.add("screen.anvilcraft.structure_scanner.imported", "Preview loaded; confirm to record the structure to a disk");
         provider.add("screen.anvilcraft.structure_scanner.info_title", "Structure Info");
-        provider.add("screen.anvilcraft.structure_scanner.ready", "Scan ready");
+        provider.add("screen.anvilcraft.structure_scanner.marker", "Display item (JEI drag supported; right-click to clear)");
+        provider.add("screen.anvilcraft.structure_scanner.name", "Structure name");
+        provider.add("screen.anvilcraft.structure_scanner.no_files", "No matching files");
+        provider.add("screen.anvilcraft.structure_scanner.normalized", "Blueprint repaired: added %s parts, removed %s orphan parts or flows");
+        provider.add("screen.anvilcraft.structure_scanner.open_folder", "Open structure folder");
+        provider.add("screen.anvilcraft.structure_scanner.ready", "Structure scan ready");
+        provider.add("screen.anvilcraft.structure_scanner.scan", "Click to scan structure");
+        provider.add("screen.anvilcraft.structure_scanner.scanning", "Scanning");
         provider.add("screen.anvilcraft.structure_scanner.tooltip.large_structure", "This structure is large and cannot be placed by the Smart Block Placer, but can still be saved");
         provider.add("screen.anvilcraft.structure_scanner.tooltip.multiblock_blocks", "Structure contains multiblock blocks, cannot be recognized by Smart Block Placer");
         provider.add("screen.anvilcraft.structure_scanner.tooltip.too_large", "Structure is too large to save");

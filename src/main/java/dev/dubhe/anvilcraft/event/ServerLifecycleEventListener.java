@@ -1,6 +1,8 @@
 package dev.dubhe.anvilcraft.event;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.api.StoragePortManager;
+import dev.dubhe.anvilcraft.api.TerminalSourceManager;
 import dev.dubhe.anvilcraft.api.fluid.network.FluidNetworkManager;
 import dev.dubhe.anvilcraft.api.hammer.HammerManager;
 import dev.dubhe.anvilcraft.api.heat.HeaterManager;
@@ -13,6 +15,7 @@ import dev.dubhe.anvilcraft.block.entity.ExpCollectorBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.ItemCollectorBlockEntity;
 import dev.dubhe.anvilcraft.init.ModHammerInits;
 import dev.dubhe.anvilcraft.item.weapon.LaserGunItem;
+import dev.dubhe.anvilcraft.rpc.BundleLikeServerStub;
 import dev.dubhe.anvilcraft.rpc.StorageServerStub;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -52,12 +55,16 @@ public class ServerLifecycleEventListener {
 
     @SubscribeEvent
     public static void onServerStopped(ServerStoppedEvent event) {
+        StoragePortManager.clear();
         PowerGrid.isServerClosing = false;
         PowerGrid.clear();
         HeatCollectorManager.clear();
         FluidNetworkManager.INSTANCE.clear();
         SoundHelper.INSTANCE.clear();
         StorageServerStub.clear();
+        BundleLikeServerStub.clear();
+        PlayerBalanceHandler.clear();
+        TerminalSourceManager.clear();
         ExpCollectorBlockEntity.clearPoachingCollectors();
         ItemCollectorBlockEntity.clearPoachingCollectors();
         LaserGunItem.clearStates();

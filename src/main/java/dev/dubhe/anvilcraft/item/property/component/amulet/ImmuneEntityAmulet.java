@@ -15,6 +15,7 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.item.ItemStack;
 
 import java.util.List;
 
@@ -24,7 +25,7 @@ public record ImmuneEntityAmulet(List<TagPredicate<EntityType<?>>> source, List<
     }
 
     @Override
-    public boolean shouldImmune(ServerPlayer player, DamageSource source) {
+    public boolean shouldImmune(ServerPlayer player, ItemStack amulet, DamageSource source) {
         Entity entity = source.getEntity();
         if (entity != null) {
             boolean passed = this.source.isEmpty();
@@ -53,6 +54,11 @@ public record ImmuneEntityAmulet(List<TagPredicate<EntityType<?>>> source, List<
     @Override
     public Type getType() {
         return ModAmuletTypes.IMMUNE_ENTITY.get();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return obj == this;
     }
 
     public static class Type implements IAmulet.Type<ImmuneEntityAmulet> {

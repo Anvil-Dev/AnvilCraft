@@ -1,5 +1,7 @@
 package dev.dubhe.anvilcraft.inventory;
 
+import dev.dubhe.anvilcraft.api.itemhandler.ReadOnlyItemResourceHandler;
+import dev.dubhe.anvilcraft.block.multipart.AbstractMultiPartBlock;
 import dev.dubhe.anvilcraft.init.ModDataAttachments;
 import dev.dubhe.anvilcraft.network.multiple.SmithingTemplatePackets;
 import net.minecraft.core.BlockPos;
@@ -7,6 +9,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.Container;
 import net.minecraft.world.Containers;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -23,12 +26,14 @@ import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.item.VanillaContainerWrapper;
 import net.neoforged.neoforge.transfer.transaction.Transaction;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.function.Predicate;
 
 /**
  * 支持从相邻容器临时借用锻造模板的菜单基类。
@@ -44,6 +49,7 @@ public abstract class AdjacentSmithingMenu extends ItemCombinerMenu {
     private ItemStack borrowedTemplateStack = ItemStack.EMPTY;
     private long nextRefreshTime;
     private boolean templateDataDirty = true;
+    private boolean recipeTransferInProgress;
 
     @Nullable
     private BlockPos tablePos;
@@ -77,6 +83,67 @@ public abstract class AdjacentSmithingMenu extends ItemCombinerMenu {
 
     public boolean isBorrowedTemplate(ItemStack stack) {
         return !this.borrowedTemplateStack.isEmpty() && stack.is(this.borrowedTemplateStack.getItem());
+    }
+
+    public boolean isRecipeTransferInProgress() {
+        return this.recipeTransferInProgress;
+    }
+
+    public void runRecipeTransfer(Runnable transfer) {
+        boolean previous = this.recipeTransferInProgress;
+        this.recipeTransferInProgress = true;
+        try {
+            transfer.run();
+        } finally {
+            this.recipeTransferInProgress = previous;
+            if (!previous) {
+                this.slotsChanged(this.inputSlots);
+                this.broadcastChanges();
+            }
+        }
+    }
+
+    protected boolean hasMaterialForPlacement() {
+        return this.recipeTransferInProgress || !this.inputSlots.getItem(1).isEmpty();
+    }
+
+    protected void setInputPlacementPredicate(int index, Predicate<ItemStack> predicate) {
+        Slot original = this.getSlot(index);
+        Slot replacement = new Slot(this.inputSlots, original.getContainerSlot(), original.x, original.y) {
+            @Override
+            public boolean mayPlace(ItemStack stack) {
+                return predicate.test(stack);
+            }
+        };
+        replacement.index = original.index;
+        this.slots.set(index, replacement);
+    }
+
+    public boolean selectTemplateForTransfer(ServerPlayer player, ItemStack template) {
+        if (player != this.menuPlayer || !this.stillValid(player) || !this.isUsableTemplate(template)) return false;
+        ItemStack current = this.inputSlots.getItem(TEMPLATE_SLOT);
+        if (ItemStack.isSameItemSameComponents(current, template)) return true;
+        this.refreshTemplateCatalog();
+        int inventorySlot = -1;
+        for (int index = 0; index < Inventory.INVENTORY_SIZE; index++) {
+            if (ItemStack.isSameItemSameComponents(player.getInventory().getItem(index), template)) {
+                inventorySlot = index;
+                break;
+            }
+        }
+        if (!this.containsTemplate(itemId(template)) && inventorySlot < 0) return false;
+        if (this.borrowedTemplate == null && !current.isEmpty()) {
+            this.moveItemStackTo(current, this.getResultSlot() + 1, this.slots.size(), false);
+            this.inputSlots.setItem(TEMPLATE_SLOT, current);
+            if (!current.isEmpty()) return false;
+        }
+        this.borrowTemplate(player, itemId(template));
+        if (ItemStack.isSameItemSameComponents(this.inputSlots.getItem(TEMPLATE_SLOT), template)) return true;
+        if (inventorySlot < 0) return false;
+        this.returnBorrowedTemplate(true);
+        this.inputSlots.setItem(TEMPLATE_SLOT, player.getInventory().removeItem(inventorySlot, 1));
+        this.syncTemplateData(player);
+        return ItemStack.isSameItemSameComponents(this.inputSlots.getItem(TEMPLATE_SLOT), template);
     }
 
     /** 接收服务端发来的模板面板数据。 */
@@ -241,7 +308,7 @@ public abstract class AdjacentSmithingMenu extends ItemCombinerMenu {
                         sourcePos.immutable(),
                         slot,
                         extracted,
-                        this.templateLevel.getBlockEntity(sourcePos)
+                        this.sourceEntity(sourcePos)
                     );
                 }
                 this.returnToHandlerOrDrop(handler, slot, extracted);
@@ -264,7 +331,7 @@ public abstract class AdjacentSmithingMenu extends ItemCombinerMenu {
             this.inputSlots.removeItemNoUpdate(AdjacentSmithingMenu.TEMPLATE_SLOT);
         }
         ResourceHandler<ItemResource> handler =
-            this.templateLevel.getBlockEntity(origin.sourcePos()) == origin.sourceBlockEntity()
+            this.sourceEntity(origin.sourcePos()) == origin.sourceBlockEntity()
             ? this.getItemHandler(origin.sourcePos())
             : null;
         this.returnToHandlerOrDrop(handler, origin.sourceSlot(), stack);
@@ -272,7 +339,15 @@ public abstract class AdjacentSmithingMenu extends ItemCombinerMenu {
 
     @Nullable
     private ResourceHandler<ItemResource> getItemHandler(BlockPos pos) {
-        return this.templateLevel.getCapability(Capabilities.Item.BLOCK, pos, null);
+        ResourceHandler<ItemResource> handler = this.templateLevel.getCapability(Capabilities.Item.BLOCK, pos, null);
+        if (handler != null) return handler;
+        return this.templateLevel.getBlockEntity(pos) instanceof Container container ? VanillaContainerWrapper.of(container) : null;
+    }
+
+    private @Nullable BlockEntity sourceEntity(BlockPos pos) {
+        var state = this.templateLevel.getBlockState(pos);
+        if (state.getBlock() instanceof AbstractMultiPartBlock<?> block) pos = block.getMainPartPos(pos, state);
+        return this.templateLevel.getBlockEntity(pos);
     }
 
     private void returnToHandlerOrDrop(
@@ -284,7 +359,7 @@ public abstract class AdjacentSmithingMenu extends ItemCombinerMenu {
         if (handler != null && preferredSlot >= 0 && preferredSlot < handler.size()) {
             remainder = AdjacentSmithingMenu.insert(handler, preferredSlot, remainder);
         }
-        if (handler != null && !remainder.isEmpty()) {
+        if (handler != null && !(handler instanceof ReadOnlyItemResourceHandler) && !remainder.isEmpty()) {
             for (int slot = 0; slot < handler.size() && !remainder.isEmpty(); slot++) {
                 if (slot == preferredSlot) continue;
                 remainder = AdjacentSmithingMenu.insert(handler, slot, remainder);
@@ -321,7 +396,8 @@ public abstract class AdjacentSmithingMenu extends ItemCombinerMenu {
         ItemResource resource = handler.getResource(slot);
         if (resource.isEmpty()) return ItemStack.EMPTY;
         try (Transaction transaction = Transaction.openRoot()) {
-            int extracted = handler.extract(slot, resource, 1, transaction);
+            int extracted = handler instanceof ReadOnlyItemResourceHandler readOnly
+                ? readOnly.extractBypass(slot, resource, 1, transaction) : handler.extract(slot, resource, 1, transaction);
             return extracted == 1 ? resource.toStack(1) : ItemStack.EMPTY;
         }
     }
@@ -330,7 +406,8 @@ public abstract class AdjacentSmithingMenu extends ItemCombinerMenu {
         ItemResource resource = handler.getResource(slot);
         if (resource.isEmpty()) return ItemStack.EMPTY;
         try (Transaction transaction = Transaction.openRoot()) {
-            int extracted = handler.extract(slot, resource, 1, transaction);
+            int extracted = handler instanceof ReadOnlyItemResourceHandler readOnly
+                ? readOnly.extractBypass(slot, resource, 1, transaction) : handler.extract(slot, resource, 1, transaction);
             if (extracted != 1) return ItemStack.EMPTY;
             transaction.commit();
             return resource.toStack(1);
@@ -340,7 +417,9 @@ public abstract class AdjacentSmithingMenu extends ItemCombinerMenu {
     private static ItemStack insert(ResourceHandler<ItemResource> handler, int slot, ItemStack stack) {
         if (stack.isEmpty()) return ItemStack.EMPTY;
         try (Transaction transaction = Transaction.openRoot()) {
-            int inserted = handler.insert(slot, ItemResource.of(stack), stack.getCount(), transaction);
+            int inserted = handler instanceof ReadOnlyItemResourceHandler readOnly
+                ? readOnly.insertBypass(slot, ItemResource.of(stack), stack.getCount(), transaction)
+                : handler.insert(slot, ItemResource.of(stack), stack.getCount(), transaction);
             if (inserted > 0) transaction.commit();
             return inserted == stack.getCount()
                 ? ItemStack.EMPTY

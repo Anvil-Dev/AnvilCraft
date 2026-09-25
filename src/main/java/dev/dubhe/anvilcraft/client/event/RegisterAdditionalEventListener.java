@@ -1,13 +1,16 @@
 package dev.dubhe.anvilcraft.client.event;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.client.gui.screen.SmartPlacerPreviewRenderer;
 import dev.dubhe.anvilcraft.client.gui.screen.cfa.CfaPreviewPipRenderer;
 import dev.dubhe.anvilcraft.client.init.ModRenderTypes;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.AdvancedComparatorRenderer;
+import dev.dubhe.anvilcraft.client.renderer.blockentity.BigRedButtonBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.CFARenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.ChargeCollectorRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.ControlValveBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.CreativeGeneratorRenderer;
+import dev.dubhe.anvilcraft.client.renderer.blockentity.CrushingTableBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.FeCollectorRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.FishTankRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.HeatCollectorRenderer;
@@ -17,14 +20,20 @@ import dev.dubhe.anvilcraft.client.renderer.blockentity.LargeCauldronBlockEntity
 import dev.dubhe.anvilcraft.client.renderer.blockentity.PipeCheckValveBERenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.PulseGeneratorBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.PumpBlockEntityRenderer;
+import dev.dubhe.anvilcraft.client.renderer.blockentity.RedstoneDiceBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.SmartBlockPlacerRenderer;
+import dev.dubhe.anvilcraft.client.renderer.blockentity.StampingPlatformBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.VoidEnergyCollectorRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.WipBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.item.CrabClawItemInHandRenderer;
+import dev.dubhe.anvilcraft.client.renderer.item.DiskItemRenderer;
+import dev.dubhe.anvilcraft.client.renderer.item.FilterItemRenderer;
 import dev.dubhe.anvilcraft.client.renderer.item.FluidTankItemRenderer;
 import dev.dubhe.anvilcraft.client.renderer.item.LargeFluidTankItemRenderer;
 import dev.dubhe.anvilcraft.client.renderer.item.SpectralSlingshotRenderer;
 import dev.dubhe.anvilcraft.client.renderer.item.SpectralWeaponLauncherRenderer;
+import dev.dubhe.anvilcraft.client.renderer.item.StorageFluidPortItemRenderer;
+import dev.dubhe.anvilcraft.client.renderer.item.StoragePortItemRenderer;
 import dev.dubhe.anvilcraft.init.registry.ModRegistries;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.Identifier;
@@ -52,6 +61,14 @@ public class RegisterAdditionalEventListener {
     /// 注册模型
     @SubscribeEvent
     public static void registerModels(ModelEvent.RegisterStandalone event) {
+        event.register(
+            RedstoneDiceBlockEntityRenderer.DICE,
+            SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/redstone_dice_dice"))
+        );
+        event.register(
+            BigRedButtonBlockEntityRenderer.CAP,
+            SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/big_red_button_cap"))
+        );
         event.register(
             CrabClawItemInHandRenderer.HOLDING_BLOCK,
             SimpleUnbakedStandaloneModel.quadCollection(AnvilCraft.of("item/crab_claw_holding_block"))
@@ -227,6 +244,14 @@ public class RegisterAdditionalEventListener {
             LargeCauldronBlockEntityRenderer.FIRE,
             SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/fire_cauldron_fire4"))
         );
+        event.register(StampingPlatformBlockEntityRenderer.DOOR_LEFT,
+            SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/processing_table_door_left")));
+        event.register(StampingPlatformBlockEntityRenderer.DOOR_RIGHT,
+            SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/processing_table_door_right")));
+        event.register(CrushingTableBlockEntityRenderer.WHEEL_LEFT,
+            SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/processing_table_crushing_wheel_left")));
+        event.register(CrushingTableBlockEntityRenderer.WHEEL_RIGHT,
+            SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/processing_table_crushing_wheel_right")));
         event.register(
             SmartBlockPlacerRenderer.BASE_MODEL,
             SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/smart_block_placer_base"))
@@ -348,15 +373,24 @@ public class RegisterAdditionalEventListener {
 
     @SubscribeEvent
     public static void registerSpecialRenderers(RegisterSpecialModelRendererEvent event) {
+        event.register(AnvilCraft.of("celestial_forging_anvil"),
+            dev.dubhe.anvilcraft.client.renderer.item.CelestialForgingAnvilItemRenderer.Unbaked.CODEC);
+        event.register(AnvilCraft.of("filter"), FilterItemRenderer.Unbaked.CODEC);
+        event.register(AnvilCraft.of("disk"), DiskItemRenderer.Unbaked.CODEC);
         event.register(AnvilCraft.of("spectral_slingshot"), SpectralSlingshotRenderer.Unbaked.CODEC);
         event.register(AnvilCraft.of("spectral_weapon_launcher"), SpectralWeaponLauncherRenderer.Unbaked.CODEC);
         event.register(AnvilCraft.of("fluid_tank"), FluidTankItemRenderer.Unbaked.CODEC);
         event.register(AnvilCraft.of("large_fluid_tank"), LargeFluidTankItemRenderer.Unbaked.CODEC);
+        event.register(AnvilCraft.of("storage_port"), StoragePortItemRenderer.Unbaked.CODEC);
+        event.register(AnvilCraft.of("storage_fluid_port"), StorageFluidPortItemRenderer.Unbaked.CODEC);
     }
 
     /** 注册锻星砧界面使用的画中画渲染器。 */
     @SubscribeEvent
     public static void registerPictureInPictureRenderers(RegisterPictureInPictureRenderersEvent event) {
         event.register(CfaPreviewPipRenderer.State.class, CfaPreviewPipRenderer::new);
+        event.register(SmartPlacerPreviewRenderer.State.class, SmartPlacerPreviewRenderer::new);
+        event.register(dev.dubhe.anvilcraft.client.support.TransparentItemRenderer.State.class,
+            dev.dubhe.anvilcraft.client.support.TransparentItemRenderer::new);
     }
 }

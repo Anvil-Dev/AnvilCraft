@@ -1,13 +1,27 @@
 {
   "type": "anvilcraft:special_celestial_body",
+  "atmosphere": "#0099CCFF",
   "axial_tilt": 0.0,
+  "can_be_shattered": true,
   "energy": 16,
-  "has_atmosphere": true,
+  "landing": {
+    "coordinate_rule": {
+      "type": "same"
+    },
+    "dimension": "anvilcraft:overworld_like"
+  },
   "liquid_coverage": "medium",
   "magnetic_field": 2,
   "mass": 20,
+  "model": "planet_overworld",
   "name": "overworld_like",
   "resources": {
+    "biological_fluids": [
+      {
+        "id": "minecraft:milk",
+        "weight": 50
+      }
+    ],
     "biological_items": [
       {
         "id": "minecraft:porkchop",
@@ -35,23 +49,23 @@
       },
       {
         "id": "minecraft:white_wool",
-        "weight": 10
+        "weight": 9
       },
       {
         "id": "minecraft:light_gray_wool",
-        "weight": 4
+        "weight": 3
       },
       {
         "id": "minecraft:gray_wool",
-        "weight": 4
+        "weight": 3
       },
       {
         "id": "minecraft:black_wool",
-        "weight": 4
+        "weight": 3
       },
       {
         "id": "minecraft:brown_wool",
-        "weight": 4
+        "weight": 3
       },
       {
         "id": "minecraft:red_wool",
@@ -124,6 +138,5 @@
     "minecraft:grass_block"
   ],
   "space": 14,
-  "texture": "planet_overworld",
   "time": 32
 }

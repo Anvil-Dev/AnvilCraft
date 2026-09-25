@@ -21,8 +21,13 @@ public class AmuletSelectorSupport {
 
     private static ItemStack currentHoveringItemStack = ItemStack.EMPTY;
     private static int maxSelection = -1;
+    private static BoxSelectionTarget target = BoxSelectionTarget.NONE;
     private static @Nullable Layout layout = null;
     private static @Nullable BoxContents contents = null;
+
+    public static void setHoveredTarget(BoxSelectionTarget target) {
+        AmuletSelectorSupport.target = target;
+    }
 
     public static void render(GuiGraphicsExtractor graphics, int x, int y) {
         int left = x - AmuletSelectorSupport.BACKGROUND_WIDTH / 2;
@@ -49,8 +54,10 @@ public class AmuletSelectorSupport {
     }
 
     public static void setCurrentHoveringItemStack(ItemStack itemStack) {
-        if (ItemStack.isSameItemSameComponents(AmuletSelectorSupport.currentHoveringItemStack, itemStack)) return;
+        boolean sameComponents = ItemStack.isSameItemSameComponents(AmuletSelectorSupport.currentHoveringItemStack, itemStack);
+        if (sameComponents && AmuletSelectorSupport.currentHoveringItemStack == itemStack) return;
         AmuletSelectorSupport.currentHoveringItemStack = itemStack;
+        if (sameComponents) return;
         if (itemStack.isEmpty()) {
             AmuletSelectorSupport.contents = null;
             AmuletSelectorSupport.layout = null;
@@ -115,6 +122,7 @@ public class AmuletSelectorSupport {
         mutable.select(selection);
         AmuletSelectorSupport.contents = mutable.immutable();
         AmuletSelectorSupport.currentHoveringItemStack.set(ModComponents.BOX_CONTENTS, AmuletSelectorSupport.contents);
+        AmuletSelectorSupport.target.send(AmuletSelectorSupport.currentHoveringItemStack, selection);
     }
 
     public enum Layout {
@@ -322,8 +330,8 @@ public class AmuletSelectorSupport {
             List<ItemStack> amulets = content.amulets();
             var firstAmulet = amulets.getFirst().get(ModComponents.AMULET);
             if (firstAmulet == null) return Layout.EMPTY;
-            boolean firstBigAmulet = firstAmulet.getWeight() > 6;
-            boolean firstSmallAmulet = firstAmulet.getWeight() <= 6;
+            boolean firstBigAmulet = amulets.getFirst().getOrDefault(ModComponents.AMULET_WEIGHT, 0) > 6;
+            boolean firstSmallAmulet = amulets.getFirst().getOrDefault(ModComponents.AMULET_WEIGHT, 0) <= 6;
             if (firstBigAmulet) {
                 return Layout.BIG_AMULET_1;
             }

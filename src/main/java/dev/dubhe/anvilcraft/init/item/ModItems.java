@@ -9,22 +9,31 @@ import dev.anvilcraft.lib.v2.util.nullness.NonNullConsumer;
 import dev.dubhe.anvilcraft.block.item.CheckValveItem;
 import dev.dubhe.anvilcraft.block.state.Color;
 import dev.dubhe.anvilcraft.client.init.ModEquipmentAssets;
+import dev.dubhe.anvilcraft.client.renderer.item.DiskItemRenderer;
+import dev.dubhe.anvilcraft.client.renderer.item.FilterItemRenderer;
 import dev.dubhe.anvilcraft.client.renderer.item.SpectralSlingshotRenderer;
 import dev.dubhe.anvilcraft.client.renderer.item.SpectralWeaponLauncherRenderer;
 import dev.dubhe.anvilcraft.data.recipe.RegistrumItemRecipeLoader;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.block.ModFluids;
 import dev.dubhe.anvilcraft.init.enchantment.ModEnchantments;
+import dev.dubhe.anvilcraft.item.BuildingRodItem;
 import dev.dubhe.anvilcraft.item.FluidTankMinecartItem;
+import dev.dubhe.anvilcraft.item.HyperdimensionTerminalItem;
+import dev.dubhe.anvilcraft.item.LocalTerminalItem;
 import dev.dubhe.anvilcraft.item.RubyItem;
 import dev.dubhe.anvilcraft.item.SapphireItem;
+import dev.dubhe.anvilcraft.item.ShulkerTerminalItem;
 import dev.dubhe.anvilcraft.item.StructureDiskItem;
 import dev.dubhe.anvilcraft.item.abnormal.CursedItem;
 import dev.dubhe.anvilcraft.item.abnormal.LevitationItem;
 import dev.dubhe.anvilcraft.item.abnormal.RadiationItem;
 import dev.dubhe.anvilcraft.item.abnormal.SuperHeavyItem;
 import dev.dubhe.anvilcraft.item.amulet.AmuletBoxItem;
+import dev.dubhe.anvilcraft.item.amulet.ComradeAmuletItem;
+import dev.dubhe.anvilcraft.item.armor.EquipmentArmorItem;
 import dev.dubhe.anvilcraft.item.armor.IonoCraftBackpackItem;
+import dev.dubhe.anvilcraft.item.armor.WeatherproofChestplateItem;
 import dev.dubhe.anvilcraft.item.block.PipeBlockItem;
 import dev.dubhe.anvilcraft.item.ingredients.CapacitorItem;
 import dev.dubhe.anvilcraft.item.ingredients.EmberMetalIngotItem;
@@ -42,8 +51,8 @@ import dev.dubhe.anvilcraft.item.property.component.DevourRange;
 import dev.dubhe.anvilcraft.item.property.component.Eternal;
 import dev.dubhe.anvilcraft.item.property.component.Merciless;
 import dev.dubhe.anvilcraft.item.property.component.Multiphase;
+import dev.dubhe.anvilcraft.item.property.component.TerminalBinding;
 import dev.dubhe.anvilcraft.item.property.component.amulet.IAmulet;
-import dev.dubhe.anvilcraft.item.property.component.amulet.WrappedOthersAmulet;
 import dev.dubhe.anvilcraft.item.property.predicate.IntegerComponentPredicate;
 import dev.dubhe.anvilcraft.item.template.EmberMetalUpgradeTemplateItem;
 import dev.dubhe.anvilcraft.item.template.FrostMetalUpgradeTemplateItem;
@@ -104,6 +113,8 @@ import dev.dubhe.anvilcraft.item.weapon.LaserGunItem;
 import dev.dubhe.anvilcraft.item.weapon.SpectralWeaponLauncherItem;
 import dev.dubhe.anvilcraft.item.weapon.TeslaGunItem;
 import dev.dubhe.anvilcraft.recipe.JewelCraftingRecipe;
+import dev.dubhe.anvilcraft.saved.setting.mode.BalanceMode;
+import dev.dubhe.anvilcraft.saved.storage.CraftingStorage;
 import dev.dubhe.anvilcraft.util.BlockMiningEffect;
 import dev.dubhe.anvilcraft.util.dummy.DummyHolder;
 import dev.dubhe.anvilcraft.util.registrater.DataGenUtil;
@@ -113,6 +124,7 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.client.data.models.model.ItemModelUtils;
 import net.minecraft.client.data.models.model.ModelLocationUtils;
 import net.minecraft.client.data.models.model.ModelTemplate;
+import net.minecraft.client.data.models.model.ModelTemplates;
 import net.minecraft.client.data.models.model.TextureMapping;
 import net.minecraft.client.renderer.item.properties.conditional.ComponentMatches;
 import net.minecraft.core.HolderLookup;
@@ -143,7 +155,6 @@ import net.neoforged.neoforge.common.Tags;
 
 import java.util.Optional;
 import java.util.function.Function;
-import java.util.function.Supplier;
 
 import static dev.dubhe.anvilcraft.AnvilCraft.REGISTRUM;
 
@@ -359,6 +370,7 @@ public class ModItems {
             .enchantable(28)
             .repairable(ModItemTags.TRANSCENDIUM_TOOL_MATERIALS)
         )
+        .properties(properties -> properties.rarity(Rarity.EPIC))
         .tag(ItemTags.MACE_ENCHANTABLE, ItemTags.DURABILITY_ENCHANTABLE, ModItemTags.ANVIL_HAMMER)
         .model(DataGenUtil::onlyInfo)
         .register();
@@ -370,6 +382,7 @@ public class ModItems {
             .repairable(Items.IRON_INGOT)
             .component(DataComponents.USE_COOLDOWN, new UseCooldown(1, Optional.of(DragonRodItem.COOLDOWN_GROUP)))
         )
+        .properties(properties -> properties.rarity(Rarity.UNCOMMON))
         .tag(ItemTags.DURABILITY_ENCHANTABLE, ItemTags.MINING_LOOT_ENCHANTABLE, ModItemTags.DRAGON_ROD)
         .model(DataGenUtil::onlyInfo)
         .recipe(RegistrumItemRecipeLoader::dragonRod)
@@ -382,6 +395,7 @@ public class ModItems {
             .repairable(ModItemTags.ROYAL_STEEL_TOOL_MATERIALS)
             .component(DataComponents.USE_COOLDOWN, new UseCooldown(1, Optional.of(DragonRodItem.COOLDOWN_GROUP)))
         )
+        .properties(properties -> properties.rarity(Rarity.UNCOMMON))
         .tag(ItemTags.DURABILITY_ENCHANTABLE, ItemTags.MINING_LOOT_ENCHANTABLE, ModItemTags.DRAGON_ROD)
         .model(DataGenUtil::onlyInfo)
         .recipe(RegistrumItemRecipeLoader::royalDragonRod)
@@ -396,6 +410,7 @@ public class ModItems {
             .component(ModComponents.FIRE_REFORGING, Unit.INSTANCE)
             .component(DataComponents.USE_COOLDOWN, new UseCooldown(1, Optional.of(DragonRodItem.COOLDOWN_GROUP)))
         )
+        .properties(properties -> properties.rarity(Rarity.UNCOMMON))
         .tag(ItemTags.DURABILITY_ENCHANTABLE, ItemTags.MINING_LOOT_ENCHANTABLE, ModItemTags.DRAGON_ROD, ModItemTags.EXPLOSION_PROOF)
         .model(DataGenUtil::onlyInfo)
         .recipe(RegistrumItemRecipeLoader::emberDragonRod)
@@ -412,6 +427,7 @@ public class ModItems {
             .component(ModComponents.MERCILESS, Merciless.DEFAULT)
             .component(DataComponents.USE_COOLDOWN, new UseCooldown(1, Optional.of(DragonRodItem.COOLDOWN_GROUP)))
         )
+        .properties(properties -> properties.rarity(Rarity.UNCOMMON))
         .tag(ItemTags.DURABILITY_ENCHANTABLE, ItemTags.MINING_LOOT_ENCHANTABLE, ModItemTags.DRAGON_ROD)
         .model(DataGenUtil::onlyInfo)
         .recipe(RegistrumItemRecipeLoader::frostDragonRod)
@@ -424,15 +440,12 @@ public class ModItems {
             .repairable(ModItemTags.TRANSCENDIUM_TOOL_MATERIALS)
             .fireResistant()
             .component(ModComponents.MULTIPHASE, Multiphase.create())
-            .component(
-                DataComponents.ITEM_NAME,
-                Multiphase.firstPhaseName(Component.translatable("item.anvilcraft.transcendence_dragon_rod"))
-            )
             .component(ModComponents.ETERNAL, Eternal.DEFAULT)
             .component(DataComponents.UNBREAKABLE, Unit.INSTANCE)
             .component(ModComponents.PROVIDENCE, Unit.INSTANCE)
-            .component(DataComponents.USE_COOLDOWN, new UseCooldown(4 / 20f, Optional.of(DragonRodItem.COOLDOWN_GROUP)))
+            .component(DataComponents.USE_COOLDOWN, new UseCooldown(4 / 20f, Optional.of(DragonRodItem.TRANSCENDENCE_COOLDOWN_GROUP)))
         )
+        .properties(properties -> properties.rarity(Rarity.EPIC))
         .tag(ItemTags.DURABILITY_ENCHANTABLE, ItemTags.MINING_LOOT_ENCHANTABLE, ModItemTags.DRAGON_ROD)
         .model(DataGenUtil::onlyInfo)
         .register();
@@ -477,6 +490,7 @@ public class ModItems {
             "transcendence_heavy_halberd",
             TranscendenceHeavyHalberdItem::new
         )
+        .properties(properties -> properties.rarity(Rarity.EPIC))
         .tag(
             ItemTags.DURABILITY_ENCHANTABLE,
             ItemTags.SPEARS,
@@ -495,6 +509,7 @@ public class ModItems {
             "frost_metal_resonator",
             FrostMetalResonatorItem::new
         )
+        .properties(properties -> properties.rarity(Rarity.EPIC))
         .tag(
             ItemTags.DURABILITY_ENCHANTABLE,
             ItemTags.MINING_ENCHANTABLE,
@@ -509,6 +524,7 @@ public class ModItems {
             "ember_metal_resonator",
             EmberMetalResonatorItem::new
         )
+        .properties(properties -> properties.rarity(Rarity.EPIC))
         .tag(
             ItemTags.DURABILITY_ENCHANTABLE,
             ItemTags.MINING_ENCHANTABLE,
@@ -520,6 +536,7 @@ public class ModItems {
         .register();
     public static final ItemEntry<TranscendenceResonatorItem> TRANSCENDENCE_RESONATOR = REGISTRUM
         .item("transcendence_resonator", TranscendenceResonatorItem::new)
+        .properties(properties -> properties.rarity(Rarity.EPIC))
         .tag(
             ItemTags.DURABILITY_ENCHANTABLE,
             ItemTags.MINING_ENCHANTABLE,
@@ -602,10 +619,7 @@ public class ModItems {
                 generator.itemModelOutput.accept(
                     item,
                     ItemModelUtils.conditional(
-                        new ComponentMatches(new DataComponentPredicate.Single<>(
-                            ModDataComponentPredicates.INT_COMP.get(),
-                            new IntegerComponentPredicate(ModComponents.STORED_ENERGY, 0)
-                        )),
+                        dev.dubhe.anvilcraft.client.renderer.item.EnergyWeaponExhaustedProperty.INSTANCE,
                         ItemModelUtils.composite(
                             ItemModelUtils.plainModel(ModelLocationUtils.getModelLocation(item, "_exhausted")),
                             ItemModelUtils.specialModel(
@@ -666,22 +680,53 @@ public class ModItems {
 
     public static final ItemEntry<? extends IonoCraftBackpackItem> IONOCRAFT_BACKPACK = REGISTRUM
         .item("ionocraft_backpack", IonoCraftBackpackItem::new)
-        .properties(properties -> properties
-            .humanoidArmor(ArmorMaterials.IRON, ArmorType.CHESTPLATE)
-            .component(
-                DataComponents.EQUIPPABLE,
-                Equippable.builder(EquipmentSlot.CHEST)
-                    .setEquipSound(SoundEvents.ARMOR_EQUIP_ELYTRA)
-                    .setAsset(ModEquipmentAssets.IONOCRAFT_BACKPACK)
-                    .setDamageOnHurt(false)
-                    .build()
-            )
-            .enchantable(15)
-        )
+        .properties(properties -> properties.durability(ArmorType.CHESTPLATE.getDurability(15)))
         .model(DataGenUtil::ionocraftBackpack)
-        .tag(ItemTags.CHEST_ARMOR_ENCHANTABLE)
+        .tag(ItemTags.CHEST_ARMOR, ItemTags.CHEST_ARMOR_ENCHANTABLE, ItemTags.DURABILITY_ENCHANTABLE)
         .recipe(RegistrumItemRecipeLoader::ionocraftBackpack)
         .register();
+    public static final ItemEntry<EquipmentArmorItem> BREATHING_HELMET = REGISTRUM
+        .item("breathing_helmet", properties -> new EquipmentArmorItem(properties, ArmorType.HELMET, false, "spacesuit"))
+        .tag(ItemTags.HEAD_ARMOR, ItemTags.HEAD_ARMOR_ENCHANTABLE, ItemTags.DURABILITY_ENCHANTABLE)
+        .recipe(RegistrumItemRecipeLoader::breathingArmor)
+        .register();
+    public static final ItemEntry<EquipmentArmorItem> WEATHERPROOF_SPACESUIT_HELMET = REGISTRUM
+        .item("weatherproof_spacesuit_helmet",
+            properties -> new EquipmentArmorItem(properties, ArmorType.HELMET, true, "weatherproof_spacesuit"))
+        .properties(properties -> properties.component(ModComponents.NIGHT_VISION_ENABLED, true).fireResistant())
+        .tag(ItemTags.HEAD_ARMOR, ItemTags.HEAD_ARMOR_ENCHANTABLE, ItemTags.DURABILITY_ENCHANTABLE)
+        .register();
+    public static final ItemEntry<EquipmentArmorItem> BUFFER_BOOTS = REGISTRUM
+        .item("buffer_boots", p -> new EquipmentArmorItem(p, ArmorType.BOOTS, false, "spacesuit"))
+        .properties(p -> p.component(ModComponents.CHARGED_JUMP_ENABLED, true))
+        .tag(ItemTags.FOOT_ARMOR, ItemTags.FOOT_ARMOR_ENCHANTABLE, ItemTags.DURABILITY_ENCHANTABLE)
+        .recipe(RegistrumItemRecipeLoader::bufferArmor)
+        .register();
+    public static final ItemEntry<EquipmentArmorItem> WEATHERPROOF_SPACESUIT_BOOTS = REGISTRUM
+        .item("weatherproof_spacesuit_boots", p -> new EquipmentArmorItem(p, ArmorType.BOOTS, true, "weatherproof_spacesuit"))
+        .properties(p -> p.component(ModComponents.CHARGED_JUMP_ENABLED, true))
+        .properties(Item.Properties::fireResistant)
+        .tag(ItemTags.FOOT_ARMOR, ItemTags.FOOT_ARMOR_ENCHANTABLE, ItemTags.DURABILITY_ENCHANTABLE)
+        .register();
+    public static final ItemEntry<EquipmentArmorItem> POCKETS_LEGGINGS = REGISTRUM
+        .item("pockets_leggings", p -> new EquipmentArmorItem(p, ArmorType.LEGGINGS, false, "spacesuit"))
+        .tag(ItemTags.LEG_ARMOR, ItemTags.LEG_ARMOR_ENCHANTABLE, ItemTags.DURABILITY_ENCHANTABLE)
+        .recipe(RegistrumItemRecipeLoader::pocketsArmor)
+        .register();
+    public static final ItemEntry<EquipmentArmorItem> WEATHERPROOF_SPACESUIT_LEGGINGS = REGISTRUM
+        .item("weatherproof_spacesuit_leggings", p -> new EquipmentArmorItem(p, ArmorType.LEGGINGS, true, "weatherproof_spacesuit"))
+        .properties(Item.Properties::fireResistant)
+        .tag(ItemTags.LEG_ARMOR, ItemTags.LEG_ARMOR_ENCHANTABLE, ItemTags.DURABILITY_ENCHANTABLE)
+        .register();
+    public static final ItemEntry<WeatherproofChestplateItem> WEATHERPROOF_SPACESUIT_CHESTPLATE = REGISTRUM
+        .item("weatherproof_spacesuit_chestplate", WeatherproofChestplateItem::new)
+        .model(DataGenUtil::poweredEquipment)
+        .properties(Item.Properties::fireResistant)
+        .tag(ItemTags.CHEST_ARMOR, ItemTags.CHEST_ARMOR_ENCHANTABLE, ItemTags.DURABILITY_ENCHANTABLE)
+        .register();
+    public static final ItemEntry<Item> WEATHERPROOF_CORE = REGISTRUM.item("weatherproof_core", Item::new)
+        .recipe(RegistrumItemRecipeLoader::weatherproofCore).register();
+
     // 升级锻造模板
     public static final ItemEntry<RoyalSteelUpgradeTemplateItem> ROYAL_STEEL_UPGRADE_SMITHING_TEMPLATE = REGISTRUM
         .item(
@@ -753,18 +798,48 @@ public class ModItems {
 
     public static final ItemEntry<DiskItem> DISK = REGISTRUM.item("disk", DiskItem::new)
         .properties(p -> p.stacksTo(1))
+        .model(() -> new NonNullBiConsumer<>() {
+            @Override
+            public void accept(DataGenContext<Item, DiskItem> ctx, RegistrumItemModelGenerator generator) {
+                var model = ModelTemplates.FLAT_ITEM.create(ctx.get(), TextureMapping.layer0(ctx.get()), generator.modelOutput);
+                generator.itemModelOutput.accept(ctx.get(), ItemModelUtils.composite(
+                    ItemModelUtils.plainModel(model), ItemModelUtils.specialModel(model, DiskItemRenderer.Unbaked.INSTANCE)));
+            }
+        })
         .recipe(RegistrumItemRecipeLoader::disk)
         .register();
 
     public static final ItemEntry<StructureDiskItem> STRUCTURE_DISK = REGISTRUM
         .item("structure_disk", StructureDiskItem::new)
         .properties(p -> p.stacksTo(1))
+        .model(() -> new NonNullBiConsumer<>() {
+            @Override
+            public void accept(DataGenContext<Item, StructureDiskItem> ctx, RegistrumItemModelGenerator generator) {
+                var model = ModelTemplates.FLAT_ITEM.create(ctx.get(), TextureMapping.layer0(ctx.get()), generator.modelOutput);
+                generator.itemModelOutput.accept(ctx.get(), ItemModelUtils.composite(
+                    ItemModelUtils.plainModel(model), ItemModelUtils.specialModel(model, DiskItemRenderer.Unbaked.INSTANCE)));
+            }
+        })
         .recipe(RegistrumItemRecipeLoader::structureDisk)
         .register();
 
     public static final ItemEntry<FilterItem> FILTER = REGISTRUM.item("filter", FilterItem::new)
+        .model(() -> new NonNullBiConsumer<>() {
+            @Override
+            public void accept(DataGenContext<Item, FilterItem> ctx, RegistrumItemModelGenerator generator) {
+                var model = ModelTemplates.FLAT_ITEM.create(ctx.get(), TextureMapping.layer0(ctx.get()), generator.modelOutput);
+                generator.itemModelOutput.accept(ctx.get(), ItemModelUtils.composite(
+                    ItemModelUtils.plainModel(model), ItemModelUtils.specialModel(model, FilterItemRenderer.Unbaked.INSTANCE)));
+            }
+        })
         .recipe(RegistrumItemRecipeLoader::filter)
         .properties(properties -> properties.stacksTo(16))
+        .register();
+
+    public static final ItemEntry<BuildingRodItem> BUILDING_ROD = REGISTRUM.item("building_rod", BuildingRodItem::new)
+        .lang("Building Rod")
+        .model(DataGenUtil::buildingRod)
+        .recipe(RegistrumItemRecipeLoader::buildingRod)
         .register();
 
     public static final ItemEntry<CrabClawItem> CRAB_CLAW = REGISTRUM.item("crab_claw", CrabClawItem::new)
@@ -799,11 +874,13 @@ public class ModItems {
 
     private static ItemEntry<? extends Item> createAmuletItem(
         String type,
-        Supplier<IAmulet> amulet,
+        ResourceKey<IAmulet> amulet,
+        int weight,
         NonNullConsumer<JewelCraftingRecipe.Builder> builderConsumer
     ) {
         return REGISTRUM.item(type + "_amulet", Item::new)
-            .properties(properties -> properties.stacksTo(1).component(ModComponents.AMULET, amulet.get()))
+            .properties(properties -> properties.stacksTo(1).component(ModComponents.AMULET, amulet)
+                .component(ModComponents.AMULET_WEIGHT, weight))
             .tag(ModItemTags.AMULET)
             .recipe(RegistrumItemRecipeLoader.amulet(builderConsumer))
             .register();
@@ -813,85 +890,106 @@ public class ModItems {
     private static <T extends Item> ItemEntry<T> createAmuletItem(
         String type,
         Function<Item.Properties, T> factory,
-        Supplier<IAmulet> amulet,
+        ResourceKey<IAmulet> amulet,
+        int weight,
         NonNullConsumer<JewelCraftingRecipe.Builder> builderConsumer
     ) {
         return REGISTRUM.item(type + "_amulet", factory::apply)
-            .properties(properties -> properties.stacksTo(1).component(ModComponents.AMULET, amulet.get()))
+            .properties(properties -> properties.stacksTo(1).component(ModComponents.AMULET, amulet)
+                .component(ModComponents.AMULET_WEIGHT, weight))
             .tag(ModItemTags.AMULET)
             .recipe(RegistrumItemRecipeLoader.amulet(builderConsumer))
             .register();
     }
 
-    private static ItemEntry<? extends Item> createBigAmuletItem(String type, Supplier<WrappedOthersAmulet> amulet) {
+    private static ItemEntry<? extends Item> createBigAmuletItem(String type, ResourceKey<IAmulet> amulet) {
         return REGISTRUM.item(type + "_amulet", Item::new)
-            .properties(properties -> properties.stacksTo(1).component(ModComponents.AMULET, amulet.get()))
+            .properties(properties -> properties.stacksTo(1).component(ModComponents.AMULET, amulet)
+                .component(ModComponents.AMULET_WEIGHT, IAmulet.BIG_AMULET_WEIGHT))
             .tag(ModItemTags.AMULET)
             .register();
     }
 
     public static final ItemEntry<? extends Item> EMERALD_AMULET = ModItems.createAmuletItem(
         "emerald",
-        () -> ModAmulets.EMERALD,
+        ModAmulets.EMERALD.getKey(),
+        IAmulet.SMALL_AMULET_WEIGHT,
         builder -> builder.requires(Items.EMERALD_BLOCK)
     );
     public static final ItemEntry<? extends Item> TOPAZ_AMULET = ModItems.createAmuletItem(
         "topaz",
-        () -> ModAmulets.TOPAZ,
+        ModAmulets.TOPAZ.getKey(),
+        IAmulet.SMALL_AMULET_WEIGHT,
         builder -> builder.requires(ModBlocks.TOPAZ_BLOCK)
     );
     public static final ItemEntry<? extends Item> RUBY_AMULET = ModItems.createAmuletItem(
         "ruby",
-        () -> ModAmulets.RUBY,
+        ModAmulets.RUBY.getKey(),
+        IAmulet.SMALL_AMULET_WEIGHT,
         builder -> builder.requires(ModBlocks.RUBY_BLOCK)
     );
     public static final ItemEntry<? extends Item> SAPPHIRE_AMULET = ModItems.createAmuletItem(
         "sapphire",
-        () -> ModAmulets.SAPPHIRE,
+        ModAmulets.SAPPHIRE.getKey(),
+        IAmulet.SMALL_AMULET_WEIGHT,
         builder -> builder.requires(ModBlocks.SAPPHIRE_BLOCK)
     );
     public static final ItemEntry<? extends Item> ANVIL_AMULET = ModItems.createAmuletItem(
         "anvil",
-        () -> ModAmulets.ANVIL,
+        ModAmulets.ANVIL.getKey(),
+        IAmulet.SMALL_AMULET_WEIGHT,
         builder -> builder.requires(Items.ANVIL)
     );
     public static final ItemEntry<? extends Item> COMRADE_AMULET = ModItems.createAmuletItem(
         "comrade",
-        () -> ModAmulets.COMRADE,
+        ComradeAmuletItem::new,
+        ModAmulets.COMRADE.getKey(),
+        IAmulet.SMALL_AMULET_WEIGHT,
         builder -> builder.requires(Items.NAME_TAG, 4)
     );
     public static final ItemEntry<? extends Item> FEATHER_AMULET = ModItems.createAmuletItem(
         "feather",
-        () -> ModAmulets.FEATHER,
+        ModAmulets.FEATHER.getKey(),
+        IAmulet.SMALL_AMULET_WEIGHT,
         builder -> builder.requires(Items.FEATHER, 16).requires(Items.PHANTOM_MEMBRANE, 4)
+    );
+    public static final ItemEntry<? extends Item> ARMADILLO_AMULET = ModItems.createAmuletItem(
+        "armadillo",
+        ModAmulets.ARMADILLO.getKey(),
+        IAmulet.SMALL_AMULET_WEIGHT,
+        builder -> builder.requires(Items.SPIDER_EYE, 16).requires(Items.ARMADILLO_SCUTE, 4)
     );
     public static final ItemEntry<? extends Item> CAT_AMULET = ModItems.createAmuletItem(
         "cat",
-        () -> ModAmulets.CAT,
+        ModAmulets.CAT.getKey(),
+        IAmulet.SMALL_AMULET_WEIGHT,
         builder -> builder.requires(Items.SALMON, 16).requires(Items.COD, 16)
     );
     public static final ItemEntry<? extends Item> DOG_AMULET = ModItems.createAmuletItem(
         "dog",
-        () -> ModAmulets.DOG,
+        ModAmulets.DOG.getKey(),
+        IAmulet.SMALL_AMULET_WEIGHT,
         builder -> builder.requires(Items.BONE, 16).requires(ItemTags.MEAT, 16)
     );
     public static final ItemEntry<? extends Item> SILENCE_AMULET = ModItems.createAmuletItem(
         "silence",
-        () -> ModAmulets.SILENCE,
+        ModAmulets.SILENCE.getKey(),
+        IAmulet.SMALL_AMULET_WEIGHT,
         builder -> builder.requires(Items.ECHO_SHARD, 16)
     );
     public static final ItemEntry<? extends Item> ABNORMAL_AMULET = ModItems.createAmuletItem(
         "abnormal",
-        () -> ModAmulets.ABNORMAL, // TODO: 修改配方
+        ModAmulets.ABNORMAL.getKey(),
+        IAmulet.SMALL_AMULET_WEIGHT,
         builder -> builder.requires(ModItems.CURSED_GOLD_INGOT, 1).requires(ModItems.LEVITATION_POWDER, 16)
     );
     public static final ItemEntry<? extends Item> GEM_AMULET = ModItems.createBigAmuletItem(
         "gem",
-        () -> ModAmulets.GEM
+        ModAmulets.GEM.getKey()
     );
     public static final ItemEntry<? extends Item> NATURE_AMULET = ModItems.createBigAmuletItem(
         "nature",
-        () -> ModAmulets.NATURE
+        ModAmulets.NATURE.getKey()
     );
 
     public static final ItemEntry<CapacitorItem> CAPACITOR = REGISTRUM.item("capacitor", CapacitorItem::new)
@@ -947,6 +1045,27 @@ public class ModItems {
             }
         })
         .properties(properties -> properties.stacksTo(1).component(DataComponents.ENCHANTMENT_GLINT_OVERRIDE, true))
+        .register();
+
+    public static final ItemEntry<LocalTerminalItem> LOCAL_TERMINAL = REGISTRUM.item("local_terminal", LocalTerminalItem::new)
+        .properties(properties -> properties.stacksTo(1).component(ModComponents.CRAFTING, CraftingStorage.EMPTY)
+            .component(ModComponents.TERMINAL_BALANCE_MODE, BalanceMode.RESTOCK))
+        .recipe(RegistrumItemRecipeLoader::localTerminal)
+        .register();
+
+    public static final ItemEntry<ShulkerTerminalItem> SHULKER_TERMINAL = REGISTRUM.item("shulker_terminal", ShulkerTerminalItem::new)
+        .properties(properties -> properties.stacksTo(1).component(ModComponents.CRAFTING, CraftingStorage.EMPTY)
+            .component(ModComponents.TERMINAL_BALANCE_MODE, BalanceMode.RESTOCK))
+        .recipe(RegistrumItemRecipeLoader::shulkerTerminal)
+        .register();
+
+    public static final ItemEntry<HyperdimensionTerminalItem> HYPERDIMENSION_TERMINAL = REGISTRUM
+        .item("hyperdimension_terminal", HyperdimensionTerminalItem::new)
+        .properties(properties -> properties.stacksTo(1).fireResistant().rarity(Rarity.EPIC)
+            .component(ModComponents.ETERNAL, Eternal.DEFAULT).component(DataComponents.UNBREAKABLE, Unit.INSTANCE)
+            .component(ModComponents.TERMINAL_BINDING, TerminalBinding.EMPTY).component(ModComponents.CRAFTING, CraftingStorage.EMPTY)
+            .component(ModComponents.TERMINAL_BALANCE_MODE, BalanceMode.RESTOCK))
+        .recipe(RegistrumItemRecipeLoader::hyperdimensionTerminalUnbind)
         .register();
 
     public static final ItemEntry<PillBoxItem> PILL_BOX = REGISTRUM

@@ -23,7 +23,7 @@ public class CorruptedBeaconActivatorItem extends EnergyWeaponItem {
     private static final int ENERGY_PER_PULSE = 200_000;
 
     public CorruptedBeaconActivatorItem(Properties properties) {
-        super(properties);
+        super(properties, ENERGY_PER_PULSE);
     }
 
     @Override
@@ -36,13 +36,14 @@ public class CorruptedBeaconActivatorItem extends EnergyWeaponItem {
 
     @Override
     public void onUseTick(Level level, LivingEntity user, ItemStack stack, int remaining) {
+        if (!(user instanceof Player usingPlayer) || !this.canContinueUsing(usingPlayer, stack)) return;
         if (!(user instanceof Player player) || !(level instanceof ServerLevel serverLevel)) return;
         int elapsed = this.getUseDuration(stack, user) - remaining;
         int quickCharge = stack.getEnchantmentLevel(
             level.holderLookup(Registries.ENCHANTMENT).getOrThrow(Enchantments.QUICK_CHARGE));
         int period = 20 - Math.min(quickCharge, 10);
         boolean pulse = elapsed > 0 && elapsed % period == 0;
-        if (pulse && !this.consumeEnergy(player, stack, CorruptedBeaconActivatorItem.ENERGY_PER_PULSE, 160_000_000)) return;
+        if (pulse && !this.consumeEnergy(player, stack, CorruptedBeaconActivatorItem.ENERGY_PER_PULSE)) return;
 
         WeaponRaycastUtil.Ray fullRay = WeaponRaycastUtil.ray(player, 64.0);
         Vec3 end = WeaponRaycastUtil.laserBlockHit(level, player, fullRay).getLocation();

@@ -31,10 +31,14 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.pathfinder.PathComputationType;
+import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jspecify.annotations.Nullable;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class LensBlock extends BaseLaserBlock implements IHammerRemovable, IMoveableEntityBlock {
 
@@ -214,18 +218,11 @@ public class LensBlock extends BaseLaserBlock implements IHammerRemovable, IMove
     }
 
     @Override
-    protected void spawnAfterBreak(
-        BlockState state,
-        ServerLevel level,
-        BlockPos pos,
-        ItemStack tool,
-        boolean dropExperience
-    ) {
-        super.spawnAfterBreak(state, level, pos, tool, dropExperience);
+    protected List<ItemStack> getDrops(BlockState state, LootParams.Builder params) {
+        List<ItemStack> drops = new ArrayList<>(super.getDrops(state, params));
         LensType type = state.getValue(LensBlock.TYPE);
-        if (type != LensType.NONE) {
-            Block.popResource(level, pos, LensBlock.getGlassItem(type));
-        }
+        if (type != LensType.NONE) drops.add(LensBlock.getGlassItem(type));
+        return drops;
     }
 
     /**

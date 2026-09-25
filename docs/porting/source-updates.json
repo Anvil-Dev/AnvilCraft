@@ -1,0 +1,260 @@
+{
+  "branch": "dev/1.21/1.6",
+  "baseline": "eb2dadbc4d7fb3a0476765f6313e1667a758ed66",
+  "latest_observed": "a378f98e4d41d0d92f97cf2486ac9da7881b1674",
+  "updates": [
+    {
+      "commit": "6c7b3f5b87705c5626a17143064064a0b855b187",
+      "status": "ported",
+      "scope": "新增装备及建筑杖素材",
+      "integration": "Assets synchronized; baseline equipment and building rod gameplay remains in the full port backlog."
+    },
+    {
+      "commit": "e0a37995d98af31ca8a7268a918f1c23347eab0f",
+      "status": "ported",
+      "scope": "空炼药锅与等离子喷流存续"
+    },
+    {
+      "commit": "21368aa28593e2d508c356e78a7262cef9038b74",
+      "status": "ported",
+      "scope": "红石元件取消潜行反转朝向"
+    },
+    {
+      "commit": "cd39077686cb6c97cc1e4f956ebbf0aa032fe74f",
+      "status": "ported",
+      "scope": "燃烧炼药锅使用原始轮廓"
+    },
+    {
+      "commit": "0ea18ca7781f63da237af71f74aee1809722ded4",
+      "status": "ported",
+      "scope": "超级电容粉碎配方"
+    },
+    {
+      "commit": "d3a4454089fde0262c655100c9180122d71da28b",
+      "status": "ported",
+      "scope": "鱼缸喷流续燃时长配置下限"
+    },
+    {
+      "commit": "5e55d32a1047214caa6139452a68fe7cb2203cc9",
+      "status": "ported",
+      "scope": "过滤器、磁盘和结构磁盘内容额外渲染"
+    },
+    {
+      "commit": "5002741dc7fd8bef26dbb6b483d964be996520fb",
+      "status": "pending",
+      "scope": "Fix crate crafting consuming non-consumable items 修复板条箱合成吞掉不消耗物品的问题 (#4846)",
+      "integration": "余料偏移修复已覆盖单次、批量和丢出 RPC；完整合成面板仍待接入。26.1 电容器 Shift 提示及对应生成键已不存在。"
+    },
+    {
+      "commit": "b1a8356cc4707cbd683d98e5d8b31901a7a61496",
+      "status": "pending",
+      "scope": "adjust gui (#4848)"
+    },
+    {
+      "commit": "ac76c438d3c460347d69cda44ce438a01614e684",
+      "status": "pending",
+      "scope": "feat: 添加建筑杖与蓝图建造功能并完善红石行为 (#4854)"
+    },
+    {
+      "commit": "471e3b30c4bacfe4749f9ed6d4dba485f59575bd",
+      "status": "pending",
+      "scope": "Fixed an issue where the game was incorrectly selecting items from the pill or amulet box inventory. 修复了药盒和护符盒选取物品错误的问题 (#4853)",
+      "integration": "BundleLike prediction, box interaction and selection-index synchronization migrated and verified with real client input. Processing-renderer restriction remains pending."
+    },
+    {
+      "commit": "2b594b888a735c43e859bf1df37b4d7904fc2a3e",
+      "status": "pending",
+      "scope": "add assets of armor (#4857)"
+    },
+    {
+      "commit": "c9fa7ae1f63e2f255735292033ae68d4175f447c",
+      "status": "pending",
+      "scope": "Adjust the GUI of SpacetimeSupercomputer, added VFX of laser. 调整了时空超算的GUI，添加了激光特效 (#4856)"
+    },
+    {
+      "commit": "ad3f2c73f4ad368b106a1b06e9020368ebba6b1a",
+      "status": "pending",
+      "scope": "adjust section textures (#4859)"
+    },
+    {
+      "commit": "bc2f2c8b519fc20a656ffe60f164f82155774e8d",
+      "status": "pending",
+      "scope": "adjust textures of pockets leggings (#4862)"
+    },
+    {
+      "commit": "d52d844e2eebeaaeec411e001d72309f76c258c5",
+      "status": "pending",
+      "scope": "Added a warehouse GUI flip mode, fixed laser effects, and fixed the selection box for oil cauldron. 添加了仓储gui翻转模式，修复了激光特效，修正了油锅等的选择框 (#4865)",
+      "integration": "Warehouse pane swapping, normal/crafting/category backgrounds, button and persistent per-player setting integrated. Laser effects and oil-cauldron selection remain pending."
+    },
+    {
+      "commit": "cd11f829fbaf75147a8cebf3a3b689f33c80d6ef",
+      "status": "pending",
+      "scope": "Adjust recipes and fix JEI slot style for chance outputs, add material summary for block sequence processing recipes 完成了配方调整，修改了JEI概率产出物品的物品格类型，添加了序列组装配方的材料汇总 (#4869)"
+    },
+    {
+      "commit": "01f319c7232d32f4533e92d821cfbe3f2f7713f5",
+      "status": "pending",
+      "scope": "Fix material list not consuming the book and broken missing-block display in blueprint mode. 修复了智能方块放置器蓝图模式下，材料清单不消耗书，缺失方块显示不正常的问题 (#4873)"
+    },
+    {
+      "commit": "e501e72b927d6129fc46ddf8278d1a9edca7a028",
+      "status": "pending",
+      "scope": "Add space equipment and inventory pocket system, and improve the building wand and structure scanner, and fixed bugs 添加航天装备与口袋系统并完善建筑杖和结构扫描仪，以及修复bug (#4878)",
+      "integration": "航天四部件、普通电网背包、口袋、模型/HUD、飞行/缓降和整套保护已接入并完成运行验证。胸甲余电充电与共享电容基础已接通。能量武器新版换电、服务器蓄力进度和共振器共享采掘也已接通。建筑杖/扫描仪相关改动及其它专项仍待续，保持 pending。"
+    },
+    {
+      "commit": "36891dc67aed55627bce4f23e4d8e8de0c878baf",
+      "status": "pending",
+      "scope": "refactor: 将 blackList/whiteList 统一重命名为 denyList/allowList (#4887)",
+      "integration": "吞噬禁用标签已迁移为 devour_denylist，并同步源成员；其它 blackList/whiteList 重命名仍待对应模块移植，保持 pending。"
+    },
+    {
+      "commit": "5047091d845378536f71cf803ef4e0860d36528a",
+      "status": "pending",
+      "scope": "fix(inventory): 修复创意模式界面槽位列表长度同步问题 (#4884)"
+    },
+    {
+      "commit": "b85f647860bef4bdf6dbc1728cf2ab75d434bcf7",
+      "status": "pending",
+      "scope": "docs(readme): 修改 README 中的徽标 (#4889)"
+    },
+    {
+      "commit": "6514cf186aa59bf63afb13817c4fe95014506b33",
+      "status": "pending",
+      "scope": "adjust gui textures of structure scanner, adjust model of CFA item (#4893)"
+    },
+    {
+      "commit": "605e8c38540e0cf315dd1423297a0ea5429b2e46",
+      "status": "pending",
+      "scope": "fix(renderer): 调整星辰锻造铁砧的渲染姿态与显示效果 (#4898)"
+    },
+    {
+      "commit": "87b2b4b6d4981a4962faa8f3e116f1f845461eb9",
+      "status": "pending",
+      "scope": "feat(equipment): 实现缓冲靴蓄力停留及衰减机制，改进跳跃逻辑和提示显示 (#4897)"
+    },
+    {
+      "commit": "85099d0dcd7a780c3521aedf87cdbbe746ce9704",
+      "status": "pending",
+      "scope": "Fixed manual not rendering the processing block, added lighting for the processing block, and fixed laser effects. 修复了手册不渲染进程方块的问题，为进程方块添加了光照，修复了激光特效 (#4891)"
+    },
+    {
+      "commit": "11d915f08ae4918f96d937fbb0480cd649e8d444",
+      "status": "pending",
+      "scope": "Fix building wand material handling, equipment abilities and terminal item extraction logic 修复建筑杖材料处理、装备能力与终端取物逻辑 (#4901)"
+    },
+    {
+      "commit": "aabf0cc0c327583c9278bf26844788c8dc3851a3",
+      "status": "pending",
+      "scope": "button (#4903)"
+    },
+    {
+      "commit": "b652aefcc929e3c5d8faf6b013928598fd358f4c",
+      "status": "pending",
+      "scope": "fix(item): 修正蓄力判断逻辑支持墙边和斜坡蓄力 (#4905)"
+    },
+    {
+      "commit": "0e4933d4c3e5c60cfa9ef65af21801bd10c7bf2a",
+      "status": "pending",
+      "scope": "fix(item): 修正蓄力判断逻辑支持墙边和斜坡蓄力 (#4905)"
+    },
+    {
+      "commit": "eee66236e0a2630c6437a453da0c336f354af2b3",
+      "status": "ported",
+      "scope": "Refactor Frost smithing and update tooltip 重构浮霜锻造与更新tooltip (#4852)"
+    },
+    {
+      "commit": "b684eaec5cdd496da2085745896093f58a5cb7f7",
+      "status": "pending",
+      "scope": "feat(dependency): complete dependency relationships (#4908)"
+    },
+    {
+      "commit": "a90224e047583374a87e520014b8e9c5d60fd7f1",
+      "status": "pending",
+      "scope": "adjust textures of port (#4910)"
+    },
+    {
+      "commit": "f006cad1e93ad6edccdb824ad8d65db81dcdf9f2",
+      "status": "pending",
+      "scope": "refactor(amulet): refactor amulet to more registry driven (#4909)",
+      "integration": "护符注册身份、独立重量与战友签名组件及现有调用链已移植并完成存档/网络、伤害、折扣和客户端验证。目标分支尚缺 IEnchantedGold 及其物品体系，该调用点随材料/装备批次继续，因此本增量保持 pending。"
+    },
+    {
+      "commit": "1d05aa531a176da25751981f82cfbd9fef68d9f0",
+      "status": "pending",
+      "scope": "Translated using Weblate (Chinese (Simplified Han script)) (#4850)"
+    },
+    {
+      "commit": "480e1b04bcef3abf04af3ba837ca021ee1ec54d5",
+      "status": "pending",
+      "scope": "Refactored the fluid port caching logic, modified its configuration, and fixed the issue with the jetpack's leg slot. 重构了流体端口的缓存逻辑，修改其配方，修复飘升机背包进护腿槽的问题 (#4912)"
+    },
+    {
+      "commit": "aea7db56bc62de32f26639373d1bc266b11e7a5d",
+      "status": "ported",
+      "scope": "feat(storage): 增加JEI合成转移用未过滤存储快照支持 (#4913)",
+      "integration": "Unfiltered paged JEI materials with long counts, storage identity and version guards, and live refresh while JEI owns the screen. Verified by 250 GameTests and filtered/category client transfers."
+    },
+    {
+      "commit": "862b6d35bff88bcd32c9d350ad9172a92d7fc967",
+      "status": "pending",
+      "scope": "Improve storage port performance, support plasma jets on empty cauldrons, fix filter codec crash 尝试提升仓储端口的性能，修复空炼药锅无法支撑等离子喷流的问题，修复过滤器的编解码器崩溃问题 (#4914)"
+    },
+    {
+      "commit": "29a8301d7139022c1ee5bfcf15eb61ae63d7fa40",
+      "status": "pending",
+      "scope": "refactor(client): 优化建筑杆传统界面文本显示与配色 (#4916)"
+    },
+    {
+      "commit": "bcedbc5ed5583b9f21a193886c175bc7194c19cd",
+      "status": "pending",
+      "scope": "add assets of armadillo amulet (#4926)"
+    },
+    {
+      "commit": "68d5f6258dcb2dc1cd1490d2f32ca505aabf9638",
+      "status": "pending",
+      "scope": "refactor(tooltip): 优化提示文本格式和内容 (#4937)"
+    },
+    {
+      "commit": "fe912815bf727f36428fa765f256400579dac32a",
+      "status": "pending",
+      "scope": "Add client config to swap fluid port bucket pour/store mouse actions, fix tooltips, and added four processing table to denylist 增加流体端口桶操作左右键翻转功能，修正tooltip换行，把四个加工台放入精确拾取黑名单 (#4940)"
+    },
+    {
+      "commit": "4f77cc7be61c8b9e5943520066878cdbc425acb9",
+      "status": "pending",
+      "scope": "Update the guide book: new logistics and armor pages 更新手册：新增物流元件与盔甲页面，修订流程/机器页 (#4945)"
+    },
+    {
+      "commit": "db61fc69f512b28370df94c20518747fc52addbc",
+      "status": "pending",
+      "scope": "Expand amulet and equipment capabilities, and refine blueprint construction and storage interactions 扩展护符与装备能力并完善蓝图建造和仓储交互 (#4951)"
+    },
+    {
+      "commit": "0b2f54774cf3672e545d7b91f6931ca5e94e48e2",
+      "status": "pending",
+      "scope": "Fix mirror and rotation for fish tank and overflow chute 修复鱼缸和溢流溜槽翻转旋转 (#4947)"
+    },
+    {
+      "commit": "490127b81c1637567e4070b00023d3469e4c375f",
+      "status": "pending",
+      "scope": "fix: 修复蓝图建造与预览并调整流体网络加载和巨型铁砧碰撞 (#4957)"
+    },
+    {
+      "commit": "56ce7b8b0ad015e0a2da63960f8981351d7dc244",
+      "status": "pending",
+      "scope": "fix: 修复蓝图完整性与建造行为并完善结构扫描器交互 (#4962)"
+    },
+    {
+      "commit": "8aba6d835fb847d360181c6f2d12ed9f0d9e9034",
+      "status": "pending",
+      "scope": "Improve crab trap underwater placement behavior and preview 优化蟹笼在水下放置的手感与预览 (#4965)"
+    },
+    {
+      "commit": "a378f98e4d41d0d92f97cf2486ac9da7881b1674",
+      "status": "pending",
+      "scope": "Support repeated projection of blueprints and improve runtime status and entity restoration 支持蓝图重复投影并完善运行状态与实体恢复 (#4971)"
+    }
+  ]
+}

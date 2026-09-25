@@ -22,6 +22,19 @@ public class ModVillagers {
     public static final DeferredRegister<VillagerProfession> VILLAGER_PROFESSIONS =
         DeferredRegister.create(Registries.VILLAGER_PROFESSION, AnvilCraft.MOD_ID);
 
+    public static final DeferredHolder<PoiType, PoiType> MONOLITH_CORE_POI = POI_TYPES.register(
+        "monolith_core",
+        () -> new PoiType(
+            java.util.stream.Stream.concat(
+                ModBlocks.MONOLITH_CORE.get().getStateDefinition().getPossibleStates().stream(),
+                ModBlocks.GIANT_MONOLITH_CORE.get().getStateDefinition().getPossibleStates().stream()
+                    .filter(state -> state.getValue(dev.dubhe.anvilcraft.block.GiantMonolithCoreBlock.HALF) == dev.dubhe.anvilcraft.block.state.Cube3x3PartHalf.MID_CENTER)
+            ).collect(java.util.stream.Collectors.toSet()),
+            0,
+            1
+        )
+    );
+
     public static final DeferredHolder<PoiType, PoiType> JEWELER_POI = ModVillagers.POI_TYPES.register(
         "jeweler_poi",
         () -> new PoiType(

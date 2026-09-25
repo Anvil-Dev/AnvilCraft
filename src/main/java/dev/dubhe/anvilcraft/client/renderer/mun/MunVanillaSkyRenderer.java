@@ -1,0 +1,237 @@
+package dev.dubhe.anvilcraft.client.renderer.mun;
+
+import com.mojang.blaze3d.pipeline.RenderPipeline;
+import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
+import com.mojang.blaze3d.vertex.Tesselator;
+import com.mojang.blaze3d.vertex.VertexFormat;
+import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.worldgen.MunSkyMath;
+import dev.dubhe.anvilcraft.worldgen.MunSkyMath.Vector;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.Sheets;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.resources.model.sprite.SpriteId;
+import net.minecraft.resources.Identifier;
+import org.joml.Matrix4f;
+import org.joml.Matrix4fc;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+import javax.annotation.Nullable;
+
+/** 用原版顶点颜色与贴图 shader 绘制月球天空，不分配专用 framebuffer 或 shader。 */
+final class MunVanillaSkyRenderer {
+    private static final Identifier EARTH = Identifier.fromNamespaceAndPath(
+        AnvilCraft.MOD_ID, "textures/block/celestial_body/planet_overworld.png"
+    );
+    private static final Identifier SUN = Identifier.fromNamespaceAndPath(AnvilCraft.MOD_ID, "block/celestial_body/star");
+    private static final int[][] FACES = {{1, 3, 7, 5}, {0, 4, 6, 2}, {2, 6, 7, 3}, {0, 1, 5, 4}, {4, 5, 7, 6}, {0, 2, 3, 1}};
+    private static final Vector[] NORMALS = {
+        new Vector(1, 0, 0), new Vector(-1, 0, 0), new Vector(0, 1, 0),
+        new Vector(0, -1, 0), new Vector(0, 0, 1), new Vector(0, 0, -1)
+    };
+    private static final int[][] TILES = {{0, 1}, {2, 1}, {1, 0}, {1, 2}, {3, 1}, {1, 1}};
+    private static final List<List<SkyVertex>> STARS = createStars();
+
+    private MunVanillaSkyRenderer() {
+    }
+
+    static void render(double x, double z, long time, double partialTick, float daylight,
+                       Matrix4fc view, Matrix4fc projection, MunSkyDraw draw) {
+        Context context = new Context(draw, view, projection);
+        drawBackground(context);
+        var rotation = MunSkyMath.skyRotation(x, z, time, partialTick);
+        drawStars(rotation, time, partialTick, daylight, context);
+        drawSun(rotation, time, partialTick, daylight, context);
+        drawEarth(rotation, time, partialTick, context);
+    }
+
+    private static void drawBackground(Context context) {
+        BufferBuilder buffer = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
+        buffer.addVertex(-1, -1, 0).setColor(0, 0, 0, 255);
+        buffer.addVertex(1, -1, 0).setColor(0, 0, 0, 255);
+        buffer.addVertex(1, 1, 0).setColor(0, 0, 0, 255);
+        buffer.addVertex(-1, 1, 0).setColor(0, 0, 0, 255);
+        context.draw.draw(buffer.buildOrThrow(), MunSkyPipelines.BACKGROUND, null, new Matrix4f(), new Matrix4f());
+    }
+
+    private static void drawStars(MunSkyMath.Rotation rotation, long time, double partialTick, float daylight, Context context) {
+        float brightness = 0.85F - 0.55F * daylight;
+        BufferBuilder buffer = Tesselator.getInstance().begin(VertexFormat.Mode.TRIANGLES, DefaultVertexFormat.POSITION_COLOR);
+        for (List<SkyVertex> star : STARS) {
+            List<SkyVertex> vertices = new ArrayList<>(4);
+            for (SkyVertex vertex : star) {
+                vertices.add(new SkyVertex(rotation.apply(solarDirection(vertex.position(), time, partialTick)), 0, 0));
+            }
+            emit(buffer, clipHorizon(vertices), brightness, false);
+        }
+        draw(buffer, MunSkyPipelines.COLOR, null, context);
+    }
+
+    static Vector solarDirection(Vector vector, long time, double partialTick) {
+        Vector sun = MunSkyMath.referenceSun(time, partialTick);
+        return new Vector(sun.y() * vector.x() + sun.x() * vector.y(),
+            -sun.x() * vector.x() + sun.y() * vector.y(), vector.z());
+    }
+
+    private static void drawSun(MunSkyMath.Rotation rotation, long time, double partialTick, float daylight, Context context) {
+        BufferBuilder halo = Tesselator.getInstance().begin(VertexFormat.Mode.TRIANGLES, DefaultVertexFormat.POSITION_COLOR);
+        for (int layer = 32; layer > 0; layer--) {
+            double inner = 0.30 * Math.pow((layer - 1) / 32.0, 2);
+            double outer = 0.30 * Math.pow(layer / 32.0, 2);
+            double scale = 1 + outer / MunSkyMath.SUN_DISC_HALF_SIZE;
+            float alpha = daylight * (sunGlow(inner) - sunGlow(outer));
+            for (int face = 0; face < FACES.length; face++) {
+                if (!sunFaceVisible(face, scale)) continue;
+                emit(halo, sunFace(face, scale, rotation, time, partialTick), 1, 0.92F, 0.74F, alpha, false);
+            }
+        }
+        draw(halo, MunSkyPipelines.ADDITIVE, null, context);
+        TextureAtlasSprite sprite = Minecraft.getInstance().getAtlasManager()
+            .get(new SpriteId(Sheets.BLOCKS_MAPPER.sheet(), SUN));
+        BufferBuilder buffer = Tesselator.getInstance().begin(VertexFormat.Mode.TRIANGLES, DefaultVertexFormat.POSITION_TEX_COLOR);
+        for (int face = 0; face < FACES.length; face++) {
+            if (!sunFaceVisible(face, 1)) continue;
+            float brightness = face == 3 ? 1 : face == 1 ? 0.97F : 0.94F;
+            List<SkyVertex> vertices = sunFace(face, 1, rotation, time, partialTick).stream()
+                .map(vertex -> new SkyVertex(vertex.position(), sprite.getU(vertex.u()), sprite.getV(vertex.v()))).toList();
+            emit(buffer, vertices, brightness, brightness * 0.985F, brightness * 0.94F, 1, true);
+        }
+        draw(buffer, MunSkyPipelines.TEXTURED, Sheets.BLOCKS_MAPPER.sheet(), context);
+        BufferBuilder core = Tesselator.getInstance().begin(VertexFormat.Mode.TRIANGLES, DefaultVertexFormat.POSITION_COLOR);
+        for (int face = 0; face < FACES.length; face++) {
+            if (!sunFaceVisible(face, 1)) continue;
+            float brightness = face == 3 ? 1 : face == 1 ? 0.97F : 0.94F;
+            emit(core, sunFace(face, 1, rotation, time, partialTick), brightness, brightness * 0.985F, brightness * 0.94F, 0.9F, false);
+        }
+        draw(core, MunSkyPipelines.TRANSLUCENT, null, context);
+    }
+
+    private static float sunGlow(double distance) {
+        return (float) (0.8 * Math.exp(-distance / 0.009) + 0.35 * Math.exp(-distance / 0.035) + 0.1 * Math.exp(-distance / 0.09));
+    }
+
+    private static boolean sunFaceVisible(int face, double scale) {
+        return MunSkyMath.SUN_ROTATION.apply(NORMALS[face]).y() / MunSkyMath.SUN_PERSPECTIVE
+            + MunSkyMath.SUN_BODY_HALF_SIZE * scale < 0;
+    }
+
+    static List<SkyVertex> sunFace(int face, double scale, MunSkyMath.Rotation rotation, long time, double partialTick) {
+        List<SkyVertex> vertices = new ArrayList<>(4);
+        for (int corner : FACES[face]) {
+            float x = corner & 1;
+            float y = (corner >> 1) & 1;
+            float z = (corner >> 2) & 1;
+            float u = face == 0 ? 1 - z : face == 1 ? z : face == 2 || face == 5 ? 1 - x : x;
+            float v = face == 2 || face == 3 ? 1 - z : 1 - y;
+            Vector point = rotation.apply(solarDirection(MunSkyMath.sunCorner(corner, scale), time, partialTick));
+            vertices.add(new SkyVertex(point, 0.001F + u * 0.998F, 0.001F + v * 0.998F));
+        }
+        return clipHorizon(vertices);
+    }
+
+    private static void drawEarth(MunSkyMath.Rotation rotation, long time, double partialTick, Context context) {
+        BufferBuilder buffer = Tesselator.getInstance().begin(VertexFormat.Mode.TRIANGLES, DefaultVertexFormat.POSITION_TEX_COLOR);
+        Vector sun = MunSkyMath.referenceSun(time, partialTick);
+        Vector center = MunSkyMath.earthCenter(time, partialTick);
+        for (int face = 0; face < FACES.length; face++) {
+            Vector normal = MunSkyMath.earthNormal(NORMALS[face], time, partialTick);
+            // 弱透视等效于沿地球中心方向拉远观察者，剔除也须使用相同距离。
+            if (normal.dot(center) / MunSkyMath.EARTH_PERSPECTIVE + MunSkyMath.EARTH_HALF_SIZE >= 0) continue;
+            float light = (float) (0.18 + 0.82 * Math.sqrt(Math.max(0, normal.dot(sun))));
+            emit(buffer, earthFace(face, rotation, time, partialTick), light, true);
+        }
+        draw(buffer, MunSkyPipelines.TEXTURED, EARTH, context);
+    }
+
+    static List<SkyVertex> earthFace(int face, MunSkyMath.Rotation rotation, long time, double partialTick) {
+        List<SkyVertex> vertices = new ArrayList<>(4);
+        for (int corner : FACES[face]) {
+            float x = corner & 1;
+            float y = (corner >> 1) & 1;
+            float z = (corner >> 2) & 1;
+            float u = switch (face) {
+                case 0 -> 1 - z;
+                case 1 -> z;
+                case 5 -> 1 - x;
+                default -> x;
+            };
+            float v = face == 2 ? z : face == 3 ? 1 - z : 1 - y;
+            vertices.add(new SkyVertex(rotation.apply(MunSkyMath.earthCorner(corner, time, partialTick)),
+                (TILES[face][0] + 0.001F + u * 0.998F) / 4, (TILES[face][1] + 0.001F + v * 0.998F) / 4));
+        }
+        return clipHorizon(vertices);
+    }
+
+    static List<SkyVertex> clipHorizon(List<SkyVertex> vertices) {
+        List<SkyVertex> clipped = new ArrayList<>(5);
+        if (vertices.isEmpty()) return clipped;
+        SkyVertex previous = vertices.getLast();
+        for (SkyVertex current : vertices) {
+            double first = previous.position().y();
+            double second = current.position().y();
+            if ((first >= 0) != (second >= 0)) {
+                double fraction = first / (first - second);
+                Vector point = previous.position().scale(1 - fraction).add(current.position().scale(fraction));
+                clipped.add(new SkyVertex(new Vector(point.x(), 0, point.z()),
+                    (float) (previous.u() + (current.u() - previous.u()) * fraction),
+                    (float) (previous.v() + (current.v() - previous.v()) * fraction)));
+            }
+            if (second >= 0) clipped.add(current);
+            previous = current;
+        }
+        return clipped;
+    }
+
+    private static void emit(BufferBuilder buffer, List<SkyVertex> vertices, float light, boolean textured) {
+        emit(buffer, vertices, light, light, light, 1, textured);
+    }
+
+    private static void emit(
+        BufferBuilder buffer, List<SkyVertex> vertices, float red, float green, float blue, float alpha, boolean textured
+    ) {
+        for (int index = 1; index < vertices.size() - 1; index++) {
+            for (SkyVertex vertex : List.of(vertices.getFirst(), vertices.get(index), vertices.get(index + 1))) {
+                Vector point = vertex.position();
+                buffer.addVertex((float) (point.x() * 100), (float) (point.y() * 100), (float) (point.z() * 100));
+                if (textured) buffer.setUv(vertex.u(), vertex.v());
+                buffer.setColor(red, green, blue, alpha);
+            }
+        }
+    }
+
+    private static void draw(BufferBuilder buffer, RenderPipeline pipeline, @Nullable Identifier texture, Context context) {
+        var mesh = buffer.build();
+        if (mesh != null) context.draw.draw(mesh, pipeline, texture, context.view, context.projection);
+    }
+
+    private record Context(MunSkyDraw draw, Matrix4fc view, Matrix4fc projection) {
+    }
+
+    private static List<List<SkyVertex>> createStars() {
+        Random random = new Random(10842);
+        List<List<SkyVertex>> stars = new ArrayList<>();
+        for (int index = 0; index < 1500; index++) {
+            Vector point = new Vector(random.nextDouble() * 2 - 1, random.nextDouble() * 2 - 1, random.nextDouble() * 2 - 1);
+            double length = point.dot(point);
+            if (length < 0.01 || length > 1) continue;
+            Vector center = point.scale(1 / Math.sqrt(length));
+            Vector tangent = center.cross(Math.abs(center.y()) > 0.9 ? new Vector(1, 0, 0) : MunSkyMath.UP);
+            tangent = tangent.scale(1 / Math.sqrt(tangent.dot(tangent)));
+            Vector vertical = center.cross(tangent);
+            double size = 0.001 + random.nextDouble() * 0.001;
+            stars.add(List.of(
+                new SkyVertex(center.add(tangent.scale(-size)).add(vertical.scale(-size)), 0, 0),
+                new SkyVertex(center.add(tangent.scale(size)).add(vertical.scale(-size)), 0, 0),
+                new SkyVertex(center.add(tangent.scale(size)).add(vertical.scale(size)), 0, 0),
+                new SkyVertex(center.add(tangent.scale(-size)).add(vertical.scale(size)), 0, 0)
+            ));
+        }
+        return List.copyOf(stars);
+    }
+
+    record SkyVertex(Vector position, float u, float v) {
+    }
+}

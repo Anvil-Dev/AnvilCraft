@@ -1,0 +1,1702 @@
+{
+  "source_branch": "dev/1.21/1.6",
+  "source_commit": "a378f98e4d41d0d92f97cf2486ac9da7881b1674",
+  "scope": "Building Rod and its shared blueprint construction dependencies. This is an incremental checklist, not full feature completion.",
+  "files": [
+    {
+      "source": "src/main/java/dev/dubhe/anvilcraft/building/BlockEntityContentAdapter.java",
+      "status": "ported",
+      "integration": "Shared content extraction/insertion and sign decoration APIs tested. Material allocation, commit and preview consumers remain pending."
+    },
+    {
+      "source": "src/main/java/dev/dubhe/anvilcraft/building/BlueprintBlockConfiguration.java",
+      "status": "partial",
+      "integration": "Available block configuration, filter samples, runtime restoration and transforms tested. AutoEnchantingTable settings are ported: bounded level, registered/deduplicated selections and recomputed bookshelf state. Server and client workflows validated; source visual A/B pending. ItemDetector output inversion backend, UI button and native menu synchronization are ported and validated."
+    },
+    {
+      "source": "src/main/java/dev/dubhe/anvilcraft/building/BlueprintBlockEntities.java",
+      "status": "ported",
+      "integration": "Shared creation, special materials, portal grouping and transactional fluid APIs tested. Placement/material planner and client preview consumers remain pending. Fluid consumption uses native ItemAccess to preserve replacement containers."
+    },
+    {
+      "source": "src/main/java/dev/dubhe/anvilcraft/building/BlueprintCapture.java",
+      "status": "ported",
+      "integration": "Shared capture/normalization/runtime-data API tested. Scanner UI, material allocation and configuration application remain pending."
+    },
+    {
+      "source": "src/main/java/dev/dubhe/anvilcraft/building/BlueprintEntities.java",
+      "status": "ported",
+      "integration": "Shared entity planning, creation, content restoration, actual creature materials, motion, scoped identity/leash/vehicle links and native/legacy boat type handling implemented. Full BuildingRodService/commit and restored-entity client tracking remain pending."
+    },
+    {
+      "source": "src/main/java/dev/dubhe/anvilcraft/building/BlueprintFluids.java",
+      "status": "ported",
+      "integration": "Shared capture/normalization/runtime-data API tested. Scanner UI, material allocation and configuration application remain pending."
+    },
+    {
+      "source": "src/main/java/dev/dubhe/anvilcraft/building/BlueprintIgnition.java",
+      "status": "ported",
+      "integration": "Shared creation, special materials, portal grouping and transactional fluid APIs tested. Placement/material planner and client preview consumers remain pending. Fluid consumption uses native ItemAccess to preserve replacement containers."
+    },
+    {
+      "source": "src/main/java/dev/dubhe/anvilcraft/building/BlueprintLeashes.java",
+      "status": "ported",
+      "integration": "Shared entity planning, creation, content restoration, actual creature materials, motion, scoped identity/leash/vehicle links and native/legacy boat type handling implemented. Full BuildingRodService/commit and restored-entity client tracking remain pending."
+    },
+    {
+      "source": "src/main/java/dev/dubhe/anvilcraft/building/BlueprintMultiblocks.java",
+      "status": "ported",
+      "integration": "Shared capture/normalization/runtime-data API tested. Scanner UI, material allocation and configuration application remain pending."
+    },
+    {
+      "source": "src/main/java/dev/dubhe/anvilcraft/building/BlueprintNormalizer.java",
+      "status": "ported",
+      "integration": "Shared capture/normalization/runtime-data API tested. Scanner UI, material allocation and configuration application remain pending."
+    },
+    {
+      "source": "src/main/java/dev/dubhe/anvilcraft/building/BlueprintPlacement.java",
+      "status": "ported",
+      "integration": "Coordinate/data transforms are implemented and tested; placement and rendering consumers remain pending."
+    },
+    {
+      "source": "src/main/java/dev/dubhe/anvilcraft/building/BlueprintRuntimeData.java",
+      "status": "ported",
+      "integration": "Shared capture/normalization/runtime-data API tested. Scanner UI, material allocation and configuration application remain pending."
+    },
+    {
+      "source": "src/main/java/dev/dubhe/anvilcraft/building/BlueprintSpecialBlocks.java",
+      "status": "ported",
+      "integration": "Shared creation, special materials, portal grouping and transactional fluid APIs tested. Placement/material planner and client preview consumers remain pending. Fluid consumption uses native ItemAccess to preserve replacement containers."
+    },
+    {
+      "source": "src/main/java/dev/dubhe/anvilcraft/building/BlueprintTicks.java",
+      "status": "ported"
+    },
+    {
+      "source": "src/main/java/dev/dubhe/anvilcraft/building/BuildingBlockMaterial.java",
+      "status": "ported",
+      "integration": "Native typed block-entity data, component/content separation and material-required opaque data tested. Material source allocation and placement consumers remain pending."
+    },
+    {
+      "source": "src/main/java/dev/dubhe/anvilcraft/building/BuildingCommit.java",
+      "status": "ported",
+      "integration": "Native quiet commit and activation tested. Chunk replacement mixin now covers native writes, including BuildingCommit.set, for undo tracking. Full service caller remains pending."
+    },
+    {
+      "source": "src/main/java/dev/dubhe/anvilcraft/building/BuildingEntityOp.java",
+      "status": "ported",
+      "integration": "Shared entity planning, creation, content restoration, actual creature materials, motion, scoped identity/leash/vehicle links and native/legacy boat type handling implemented. Full BuildingRodService/commit and restored-entity client tracking remain pending."
+    },
+    {
+      "source": "src/main/java/dev/dubhe/anvilcraft/building/BuildingEntityTransform.java",
+      "status": "ported",
+      "integration": "Coordinate/data transforms are implemented and tested; placement and rendering consumers remain pending."
+    },
+    {
+      "source": "src/main/java/dev/dubhe/anvilcraft/building/BuildingMaterials.java",
+      "status": "ported",
+      "integration": "Full reservation and native atomic debit engine wired into BuildingRodService with the actual selected material stack. Exact/mismatched component confirmation, partial construction and real blueprint contents/entity debit tested."
+    },
+    {
+      "source": "src/main/java/dev/dubhe/anvilcraft/building/BuildingRegionSnapshot.java",
+      "status": "ported",
+      "integration": "Region recovery is connected to actual service and undo receipts. Native client world/inventory synchronization tested."
+    },
+    {
+      "source": "src/main/java/dev/dubhe/anvilcraft/building/BuildingRodFluids.java",
+      "status": "ported",
+      "integration": "Bucket preview/placement, waterlogging, two-bucket renewable and per-cell nonrenewable debit, native environment evaporation and fluid ticks implemented. Client preview only uses cells; source-conversion pricing is resolved on the server with current gamerules."
+    },
+    {
+      "source": "src/main/java/dev/dubhe/anvilcraft/building/BuildingRodMaterialBook.java",
+      "status": "ported",
+      "integration": "Source missing-material book helper is connected to full/partial service failure reports."
+    },
+    {
+      "source": "src/main/java/dev/dubhe/anvilcraft/building/BuildingRodObstructions.java",
+      "status": "ported",
+      "integration": "Precise collision-shape detection, deduplication, localized rejection and client packet implemented. Real native client glow and three-second expiry tested; full service commit caller pending."
+    },
+    {
+      "source": "src/main/java/dev/dubhe/anvilcraft/building/BuildingRodPattern.java",
+      "status": "ported",
+      "integration": "Source slot bounds, tiled/random materials, per-cell components, empty slots and multipart grouping implemented and tested through shared BuildingBlockPlanner. Building service input caller pending."
+    },
+    {
+      "source": "src/main/java/dev/dubhe/anvilcraft/building/BuildingRodService.java",
+      "status": "ported",
+      "integration": "Source server flow and result packets are connected to the actual client controller. Full/partial commits, mismatch confirmation and refunds tested. AutoEnchantingTable configuration remains pending in its shared adapter."
+    },
+    {
+      "source": "src/main/java/dev/dubhe/anvilcraft/building/BuildingRodUndo.java",
+      "status": "ported",
+      "integration": "History, receipts and refund engine now connected through real service commits, native Ctrl+Z input and network synchronization. Complex restored-entity visual coverage remains pending."
+    },
+    {
+      "source": "src/main/java/dev/dubhe/anvilcraft/building/ConstructionBlueprintException.java",
+      "status": "ported"
+    },
+    {
+      "source": "src/main/java/dev/dubhe/anvilcraft/building/DynamicBuildingEntities.java",
+      "status": "ported",
+      "integration": "Shared entity planning, creation, content restoration, actual creature materials, motion, scoped identity/leash/vehicle links and native/legacy boat type handling implemented. Full BuildingRodService/commit and restored-entity client tracking remain pending."
+    },
+    {
+      "source": "src/main/java/dev/dubhe/anvilcraft/building/EntityBuildAdapter.java",
+      "status": "ported",
+      "integration": "Shared entity planning, creation, content restoration, actual creature materials, motion, scoped identity/leash/vehicle links and native/legacy boat type handling implemented. Full BuildingRodService/commit and restored-entity client tracking remain pending."
+    },
+    {
+      "source": "src/main/java/dev/dubhe/anvilcraft/building/EntityBuildAdapters.java",
+      "status": "ported",
+      "integration": "Shared entity planning, creation, content restoration, actual creature materials, motion, scoped identity/leash/vehicle links and native/legacy boat type handling implemented. Full BuildingRodService/commit and restored-entity client tracking remain pending."
+    },
+    {
+      "source": "src/main/java/dev/dubhe/anvilcraft/building/FluidBuildAdapter.java",
+      "status": "ported",
+      "integration": "Shared creation, special materials, portal grouping and transactional fluid APIs tested. Placement/material planner and client preview consumers remain pending. Fluid consumption uses native ItemAccess to preserve replacement containers."
+    },
+    {
+      "source": "src/main/java/dev/dubhe/anvilcraft/building/LitematicaImporter.java",
+      "status": "ported"
+    },
+    {
+      "source": "src/main/java/dev/dubhe/anvilcraft/building/MagnetizedNodeBuildAdapter.java",
+      "status": "ported",
+      "integration": "Shared entity planning, creation, content restoration, actual creature materials, motion, scoped identity/leash/vehicle links and native/legacy boat type handling implemented. Full BuildingRodService/commit and restored-entity client tracking remain pending."
+    },
+    {
+      "source": "src/main/java/dev/dubhe/anvilcraft/building/OrdinaryBlockAdapter.java",
+      "status": "ported",
+      "integration": "Shared capture/normalization/runtime-data API tested. Scanner UI, material allocation and configuration application remain pending."
+    },
+    {
+      "source": "src/main/java/dev/dubhe/anvilcraft/building/ScannerDiskNormalizer.java",
+      "status": "ported",
+      "integration": "Shared capture/normalization/runtime-data API tested. Scanner UI, material allocation and configuration application remain pending."
+    },
+    {
+      "source": "src/main/java/dev/dubhe/anvilcraft/building/SignDecorationAdapter.java",
+      "status": "ported",
+      "integration": "Shared content extraction/insertion and sign decoration APIs tested. Material allocation, commit and preview consumers remain pending."
+    },
+    {
+      "source": "src/main/java/dev/dubhe/anvilcraft/building/StructureSnapshot.java",
+      "status": "ported"
+    },
+    {
+      "source": "src/main/java/dev/dubhe/anvilcraft/building/StructureSnapshotCodec.java",
+      "status": "ported"
+    },
+    {
+      "source": "src/main/java/dev/dubhe/anvilcraft/building/VanillaBuildingEntities.java",
+      "status": "ported",
+      "integration": "Shared entity planning, creation, content restoration, actual creature materials, motion, scoped identity/leash/vehicle links and native/legacy boat type handling implemented. Full BuildingRodService/commit and restored-entity client tracking remain pending."
+    },
+    {
+      "source": "src/main/java/dev/dubhe/anvilcraft/client/building/BlueprintClientFiles.java",
+      "status": "pending"
+    },
+    {
+      "source": "src/main/java/dev/dubhe/anvilcraft/client/building/BlueprintRenderView.java",
+      "status": "ported",
+      "integration": "Native local block/tint/light view and shifted fluid adjacency are connected; block entities remain detached from the real world."
+    },
+    {
+      "source": "src/main/java/dev/dubhe/anvilcraft/client/building/BuildingRodAnimation.java",
+      "status": "ported",
+      "integration": "Source following, queued rotation direction and nonsingular mirror interpolation verified."
+    },
+    {
+      "source": "src/main/java/dev/dubhe/anvilcraft/client/building/BuildingRodClient.java",
+      "status": "ported",
+      "integration": "Optimized/traditional controls, collider-first selection, fixed-distance hold/confirm/cancel, HUD, native keyboard hook, blueprint rotation/mirror and result cancellation exercised in a real client."
+    },
+    {
+      "source": "src/main/java/dev/dubhe/anvilcraft/client/building/BuildingRodItemRenderer.java",
+      "status": "partial",
+      "integration": "Shared first/third-person state and ordinary-placement feedback implemented. Selected source A/B validates hand bounds and payload fits, including pole/CFA/special-only items. Full standalone CFA item behavior and broader animated/complex acceptance remain pending."
+    },
+    {
+      "source": "src/main/java/dev/dubhe/anvilcraft/client/building/BuildingRodKeyRepeat.java",
+      "status": "ported",
+      "integration": "Source repeat timing, event/poll deduplication, no repeating rotate/mirror and bounded stall catch-up verified."
+    },
+    {
+      "source": "src/main/java/dev/dubhe/anvilcraft/client/building/BuildingRodModelParts.java",
+      "status": "ported",
+      "integration": "Native baked quads split by the original core bounds; six core faces verified. Native item transforms, tint, light and foil preserved with bounded caches."
+    },
+    {
+      "source": "src/main/java/dev/dubhe/anvilcraft/client/building/BuildingRodMotion.java",
+      "status": "ported",
+      "integration": "Source speed integration and kick/knock timings verified, including 20/144 FPS equivalence; runtime core and payload animations connected."
+    },
+    {
+      "source": "src/main/java/dev/dubhe/anvilcraft/client/building/BuildingRodObstructionHighlight.java",
+      "status": "ported",
+      "integration": "Source WeakHashMap and monotonic three-second expiry, real packet handler and Minecraft.shouldEntityAppearGlowing mixin tested in client; no persistent glow flag is written."
+    },
+    {
+      "source": "src/main/java/dev/dubhe/anvilcraft/client/building/BuildingRodRenderTypes.java",
+      "status": "ported",
+      "integration": "Native block ghost shader and source-equivalent translucent culling for opaque entity materials. Reference projection corrected double-sided overdraw; no global terrain pipeline change."
+    },
+    {
+      "source": "src/main/java/dev/dubhe/anvilcraft/client/building/BuildingRodRenderer.java",
+      "status": "partial",
+      "integration": "Native cached GPU geometry, fluids, BER/entity features and model outlines implemented; real block/fluid/chest/armor-stand scenes rendered and inspected. Source A/B, large/tiled projection performance and wider entity/BER coverage remain pending."
+    },
+    {
+      "source": "src/main/java/dev/dubhe/anvilcraft/client/building/BuildingRodTraditionalControls.java",
+      "status": "ported",
+      "integration": "Native Ctrl-scroll tool selection, Alt-scroll action, unmodified hotbar scrolling and lock/cancel exercised. Remaining exhaustive tool/batch combinations tracked in client acceptance."
+    },
+    {
+      "source": "src/main/java/dev/dubhe/anvilcraft/client/building/BuildingRodTraditionalOverlay.java",
+      "status": "ported",
+      "integration": "Source seven icons copied byte-for-byte; native GUI extraction renders selected tool, status and hints. Runtime screenshots inspected."
+    },
+    {
+      "source": "src/main/java/dev/dubhe/anvilcraft/item/BuildingRodItem.java",
+      "status": "ported",
+      "integration": "Registration, energy/recharge, dual-hand material selection, carried/pocket reach, recipes, energy tooltip and native empty/charged static model condition tested. Full service/input and first-person animation remain pending."
+    }
+  ],
+  "pending_integration": [
+    "Expand source visual acceptance beyond the 18 recorded static scenes: animated interactions, wider entity/BER cases and resource reload. Retain native 26.1 terrain rendering.",
+    "Large/tiled projection performance and further complex payload acceptance; full standalone CFA item renderer (including stored celestial body and context-specific behavior) still pending.",
+    "Structure scanner and disk/client file workflows, including BlueprintClientFiles and NBT/Litematica import UI.",
+    "AutoEnchantingTable configuration and remaining ItemDetector UI/network controls.",
+    "Complete ordinary preview PlacementInteractions and PlaceInWaterBlockItem.surfaceCandidates workflows.",
+    "Exhaustive traditional tool/batch-placement combinations and additional restored-entity visual tracking."
+  ],
+  "verification": {
+    "server_tests_passed": 493,
+    "server_log": "build/porting/validate-scanner-backend-3.log",
+    "compile_log": "build/porting/compile-scanner-backend-final.log",
+    "client": "Real native control, projection, hand, result packet and third-person scenes passed; source A/B and remaining coverage are explicitly pending."
+  },
+  "runtime_persistence": {
+    "source_commit": "a378f98e4d41d0d92f97cf2486ac9da7881b1674",
+    "ported": [
+      "entity/AnimateAscendingBlockEntity.java: block state and absolute/relative endpoints",
+      "entity/SlidingBlockEntity.java: origin, age and relative origin",
+      "entity/CauldronOutletEntity.java: moving flag and target, including legacy field aliases",
+      "api/sliding/SlidingBlockInfo.java: actual block entity loading, registry-aware encoding and legacy/empty data"
+    ],
+    "pending": "Runtime placement callbacks, full service integration and restored-entity client tracking/render acceptance remain pending."
+  },
+  "processing_tables": {
+    "source_commit": "a378f98e4d41d0d92f97cf2486ac9da7881b1674",
+    "status": "partial",
+    "ported": [
+      "ProcessingTableBlock and four concrete blocks/block entities, capabilities and legacy Inputs deserialization",
+      "UseItemOnBlock and ProcessingTablePlacement, both source-pointer consumers and generated dual-material placement rules",
+      "Recipe table alternatives, bottom outputs and stamping/crushing animation clocks",
+      "Static models/textures, generated item definitions, loot/material drops and translated block names",
+      "ProcessingItemStackRenderer and all four renderers with reusable item states/poses; shared mechanical transforms for rendering, picking and static preview",
+      "Standalone door/wheel model registration; native cuboid/generated shape metadata independent of gui_light; enlarged-display config and translations"
+    ],
+    "pending": [
+      "Player documentation, remaining recipe/advancement/JEI consumers and full building material integration",
+      "Full Building Rod preview/input integration is still pending; no global vanilla rendering changes were made."
+    ],
+    "client_verification": {
+      "target_log": "build/porting/client-processing-render-cubic.log",
+      "source_log": "build/porting/client-processing-reference-mechanical.log",
+      "comparison": "build/porting/processing-visual-comparison.json",
+      "coverage": "Eight matched screenshot scenes, item layers and enlargement/blocking, front-lit cuboid vs generated plant models, repeated extraction stability, shared selection parts, source runtime wheel matrices at 25% progress.",
+      "limits": "No pixel-identity claim: native terrain sampling/color and registry-ID-based scatter seeds differ. Wheel motion mask IoU 0.996; door motion bounds match, threshold-mask IoU 0.7179."
+    }
+  },
+  "material_supply_support": {
+    "source_commit": "a378f98e4d41d0d92f97cf2486ac9da7881b1674",
+    "ported": [
+      "StorageServerStub.buildingMaterialSources/buildingFluidSources reuse current terminal reachability and preserve source carried-terminal order and deduplication",
+      "BuildingRodMaterialBook with pocket/ordinary carried-book consumption and six-line pages"
+    ],
+    "pending": "Core allocator, history and material-book helpers are connected to the service; remaining full-goal work is tracked in pending_integration."
+  },
+  "building_rod_item": {
+    "datagen_log": "build/porting/datagen-building-rod-item-4.log",
+    "client_log": "build/porting/client-building-rod-item.log",
+    "screenshots": [
+      "run/port-validation/client/screenshots/building-rod-item-26.1-empty.png",
+      "run/port-validation/client/screenshots/building-rod-item-26.1-charged.png"
+    ],
+    "limits": "Inventory model condition and tooltip only; no source A/B or interactive building acceptance claimed."
+  },
+  "large_cake": {
+    "source_commit": "a378f98e4d41d0d92f97cf2486ac9da7881b1674",
+    "status": "partial",
+    "ported": [
+      "Independent per-cell support and clicked-cell eating, native block interaction dispatch",
+      "LargeCakeBlockItem places 27 cells once, with complete footprint and support precheck",
+      "Partial blueprint capture no longer completes a cake implicitly",
+      "Placement preview reuses item part expansion and includes all 27 cells",
+      "Remove the obsolete large_cake model-outline exclusion to match source precise selection",
+      "Datagen removes the obsolete main-part-only placement rule, matching the source independent-cell material mapping"
+    ],
+    "pending": [
+      "BuildingRodService single placement and tiling caller",
+      "In-game source comparison and player guide updates for additional cake materials",
+      "Audit remaining model_selection_denylist differences, including filled cauldrons and processing-table picking, in the corresponding feature nodes"
+    ],
+    "verification": {
+      "server_tests_passed": 465,
+      "server_log": "build/porting/validate-large-cake-final.log",
+      "assets": "15 model, blockstate, texture and structure resources match the local source after line-ending normalization; two guide pages differ for other cake material additions.",
+      "client_log": "build/porting/client-large-cake-preview-5.log",
+      "datagen_log": "build/porting/datagen-large-cake.log",
+      "compile_log": "build/porting/compile-large-cake-final.log",
+      "client": "All six preview scenes passed; cake outline and ghost each contain 27 rendered cells. Both screenshots inspected. No source screenshot A/B yet."
+    }
+  },
+  "block_planning": {
+    "source_commit": "a378f98e4d41d0d92f97cf2486ac9da7881b1674",
+    "ported": [
+      "Single click respects native placement context and slab merging; multipart offset retry and amplifier snapping; full cake, doors, beds and plants",
+      "Area planning and face-relative multipart tiling, shared 4000-cell limit and permission checks",
+      "Filter patterns preserve components and empty slots, deterministic world-position seeded choices and grouped overlap suppression",
+      "Regular placement preview consumes shared plans and retains complete-outline-or-ghost fallback",
+      "Obstruction collision-shape checks, deduplicated entity packet and three-second client-only native glow"
+    ],
+    "pending": [
+      "Complete ordinary preview PlacementInteractions and water surface-candidate workflows",
+      "Source visual A/B and broader shape/tiling acceptance remain pending"
+    ],
+    "verification": {
+      "server_log": "build/porting/validate-building-planner-final.log",
+      "server_tests_passed": 471,
+      "client_log": "build/porting/client-building-planner.log",
+      "client_screenshot": "run/port-validation/client/screenshots/building-obstruction-26.1-glow.png",
+      "compile_log": "build/porting/compile-building-planner-final.log"
+    }
+  },
+  "server_service": {
+    "source_commit": "a378f98e4d41d0d92f97cf2486ac9da7881b1674",
+    "status": "ported",
+    "ported": [
+      "BuildingRodPacket START/PLACE/PLACE_BLUEPRINTS/UNDO codec and server routing",
+      "Source selection/material/hand/reach guards and file-backed blueprint transforms and entity planning",
+      "Full/partial reservation, actual component mismatch confirmation with 60-tick expiry, event cancellation and native commit",
+      "Entity and block-entity contents/configuration, undo receipts and energy/inventory synchronization",
+      "Waterlogging, renewable/nonrenewable fluids, native WATER_EVAPORATES environment attribute and evaporation",
+      "Original result packets now trigger payload animation and cancel completed locked projections through the actual client"
+    ],
+    "pending": [
+      "AutoEnchantingTable configuration is integrated and covered by server/client validation",
+      "Broader rendering acceptance remains in client acceptance scope"
+    ],
+    "verification": {
+      "server_tests_passed": 481,
+      "server_log": "build/porting/validate-building-service-2.log",
+      "client_log": "build/porting/client-building-service-2.log",
+      "compile_log": "build/porting/compile-building-service-final.log"
+    }
+  },
+  "client_controls": {
+    "source_commit": "a378f98e4d41d0d92f97cf2486ac9da7881b1674",
+    "status": "partial",
+    "runtime_log": "build/porting/client-building-controls-third-person.log",
+    "coverage": [
+      "Real native window Control press/release and raw keyboard hook; fixed-distance release/click contracts and arrow adjustment",
+      "Drag/release placement, Ctrl+Z, actual packets, blueprint file loading, lock, rotate, mirror and completion cancellation",
+      "Traditional Ctrl/Alt scrolling, selected tool and layer HUD, unchanged bare scroll",
+      "Block/fluid/chest/armor-stand projection and cached native GPU path",
+      "Main/offhand payload, last ordinary-placement material, carried and empty-hand claw",
+      "Native third-person main/offhand rod state, hidden material hand and creative mining beam"
+    ],
+    "limits": "18 static source A/B scenes now recorded. Large/batched render performance, resource reload, broader animated/BER/entity coverage and exhaustive mode combinations remain pending.",
+    "input_fixture": "Windows-only development harness posts modifier messages to its own GLFW test window; production input is unchanged and no global keyboard injection is used.",
+    "data": "Four config language entries generated; seven source icons copied exactly; StructureDiskData autoRotate defaults true for legacy data and survives NBT/network roundtrip."
+  },
+  "visual_parity": {
+    "source_commit": "a378f98e4d41d0d92f97cf2486ac9da7881b1674",
+    "source_log": "build/porting/client-rod-parity-source-final.log",
+    "target_log": "build/porting/client-rod-parity-target-entity-fixed.log",
+    "report": "build/porting/building-visual-comparison.json",
+    "scenes": 18,
+    "coverage": "Fixed camera/FOV/light/core angle; main/off hands, empty/charged/uncharged rod, stone/slab/torch/pole/CFA/disk, bed/chest/shulker/head, mixed block/fluid/BER/entity projection and rotated/mirrored projection.",
+    "results": "All orange hand-geometry bounds match; mask IoU 0.980252-0.998467; normalized payload fit maximum error 1.1920928955078125e-7. CFA, bed and projection screenshots inspected.",
+    "fixes": [
+      "Use baked-quad extents only for payload fitting; preserve source fallback for special-only models instead of sizing overlays/BER bounds",
+      "Update source CFA item model from 84 to 140 elements and matching top texture; world base/assembly geometry already matches",
+      "Convert opaque entity projection materials to the native translucent culling pipeline; avoid double-sided overdraw and inherited dissolve behavior"
+    ],
+    "limits": "These are selected static reference scenes, not universal pixel identity. Vanilla sky/cloud/terrain/lighting retained. Large/tiled performance, resource reload, further animated/entity/BER cases and full standalone CFA item renderer remain pending."
+  },
+  "scanner_backend": {
+    "source_commit": "a378f98e4d41d0d92f97cf2486ac9da7881b1674",
+    "status": "partial",
+    "ported": [
+      "StructureFileTransfer sequential chunks, 24 KiB chunk/2 MiB file/60 second limits and safe names",
+      "StructureBlueprintFiles server-world directory, bounded NBT/Litematica reads, listing and non-overwriting _1/_2 export names",
+      "StructureScannerFiles canonical parsing, import staging, single-disk save with marker/autoRotate and export from staged/scanned/disk data",
+      "StructureScannerMenu staging lifecycle and reset synchronization; range/start action guards",
+      "Scanner block-entity NBT cache persistence, multipart capture and entity coordinate transforms; completed-scan state",
+      "StructureSaveUtil captures canonical live block/entity/runtime state at save time and consumes only one disk"
+    ],
+    "pending": [
+      "Native directory opening and additional UI edge cases"
+    ],
+    "verification": {
+      "server_tests_passed": 493,
+      "server_log": "build/porting/validate-scanner-backend-3.log",
+      "compile_log": "build/porting/compile-scanner-backend-final.log",
+      "client": "Not run for this backend node; transport and updated UI remain pending."
+    }
+  },
+  "scanner_ui": {
+    "source_commit": "a378f98e4d41d0d92f97cf2486ac9da7881b1674",
+    "status": "partial",
+    "ported": [
+      "Menu-bound file/list/result/save/status packets and client chunk assembly/cancellation",
+      "Source scanner layout, release-only atlas buttons, file dropdown, marker, autoRotate and save controls",
+      "Native PIP block/block-entity/entity preview, source scan effect and drag rotation"
+    ],
+    "verification": {
+      "server_tests_passed": 495,
+      "server_log": "build/porting/validate-scanner-ui.log",
+      "client_log": "build/porting/client-scanner-files-live-2.log",
+      "compile_log": "build/porting/compile-scanner-ui-final-2.log",
+      "datagen_log": "build/porting/datagen-scanner-ui.log"
+    },
+    "coverage": "Real client list, multi-chunk import, preview-only disk staging, release cancellation, marker/name/rotation save, export suffix, close cancellation, live chest/entity scan and drag rotation. Imported/live screenshots inspected.",
+    "limits": "Fourteen source/target static scenes now validated. Directory opening, additional UI edge cases and exhaustive animated/entity/BER coverage remain pending; vanilla 26.1 rendering retained."
+  },
+  "scanner_visual": {
+    "scenes": 14,
+    "source_log": "build/porting/client-scanner-parity-source.log",
+    "target_log": "build/porting/client-scanner-parity-background.log",
+    "report": "build/porting/scanner-visual-comparison.json",
+    "coverage": "Cube, flat, X/Y/Z line, chest/armor stand and scan effect at two angles; screenshots inspected. Ten block-geometry pairs have identical bounds, mask IoU 0.980088-1 and zero pixels beyond one-pixel contour tolerance.",
+    "fix": "Explicit source-white hint color bypasses the native EditBox default dark-gray hint style. Restore native container background extraction and world dimming.",
+    "limits": "Selected static scenarios only. Background world, native rasterization/lighting and animated shader time are not asserted pixel-identical."
+  },
+  "auto_enchanting_table": {
+    "source_commit": "a378f98e4d41d0d92f97cf2486ac9da7881b1674",
+    "status": "partial",
+    "ported": [
+      "Random/primer/liquid modes with source costs, power, cooldown, bookshelf limits, primer memory and open-menu pause",
+      "Native transactional item/fluid automation, bucket/experience-bottle operations, single-item slots and read-only output",
+      "Native and source handler NBT, blueprint setting normalization, recipe/tag/lang/manual/sound registration",
+      "Searchable selector, result ghost, liquid scroll level and native book/item/fluid renderer",
+      "Native liquid-enchantment fluid model registration shared by fluid displays and world renderers"
+    ],
+    "verification": {
+      "server_tests_passed": 506,
+      "server_log": "build/porting/validate-auto-enchanting-2.log",
+      "datagen_log": "build/porting/datagen-auto-enchanting-3.log",
+      "compile_log": "build/porting/compile-auto-enchanting-final.log",
+      "client_log": "build/porting/client-auto-enchanting-3.log"
+    },
+    "limits": [
+      "Static source/target comparison completed for the recorded 17 scenes; continuous transition timing, wider special-item rendering and multiplayer menu edge cases remain pending.",
+      "Native vanilla glint/terrain and Jade host layout/unit formatting retained; no universal pixel-identity claim.",
+      "Fluid animation phase is not frozen; exact comparison covers tint/layer parameters, not every animated texture pixel."
+    ],
+    "visual_parity": {
+      "scenes": 17,
+      "source_log": "build/porting/client-enchanting-parity-source-5.log",
+      "target_log": "build/porting/client-enchanting-parity-target-7.log",
+      "report": "build/porting/enchanting-visual-comparison.json",
+      "reload_log": "build/porting/client-enchanting-reload.log",
+      "fixes": [
+        "Apply item opacity before native foil blending; normalized ghost/solid glint recovered from about 0.52 to 1.0",
+        "Restore source Jade gradient and theme-colored left text",
+        "Port latest soft-light liquid tint and distinct vanishing/binding curse layers"
+      ],
+      "results": "Base ghost max RGB difference 2; 3 book contour pairs have matching bounds and no points beyond one pixel; Jade gradient stripe RGB exact; all 8 fluid tint/layer samples exact.",
+      "fixture": "Book cached pose is fixed to the same time/open values to exclude native frozen-tick interpolation differences; glint animation is stopped and solid/no-glint controls separate native foil differences from mod opacity."
+    }
+  },
+  "cfa_item": {
+    "source_commit": "a378f98e4d41d0d92f97cf2486ac9da7881b1674",
+    "status": "partial",
+    "ported": [
+      "Single-stack epic/eternal item, native head equipping and source armor/enchantment values",
+      "Independent itemRenderData snapshot, paused accelerator time and source drop runtime sanitization",
+      "Native server-side Ctrl-pick redirects multipart lookup to the CFA controller and captures appearance",
+      "Source removal of the obsolete seven-block item placement radius",
+      "Native GUI/head/held item model routing with source display transforms and non-GUI local translation",
+      "Bounded stored-body preview and model bounds caches with load-before-level attachment and reload/logout cleanup",
+      "Body preview, full 18-part head base, item-local rings/beam submission and native cradle hand submission",
+      "Source complex-model item path without the world-only atmosphere shell",
+      "Native twelve-step planet volume atmosphere pipelines, per-draw transforms and Standard/Vanilla selection with reload-reset shader failure fallback",
+      "Source exposure-mapped stellar surfaces and silhouette-only corona shared by item/head/world entry points, including neutron-star and brown-dwarf emission"
+    ],
+    "verification": {
+      "server_tests_passed": 511,
+      "server_log": "build/porting/validate-cfa-item-data-2.log",
+      "datagen_log": "build/porting/datagen-cfa-item-data.log",
+      "compile_log": "build/porting/compile-cfa-item-data-final.log",
+      "client_log": "build/porting/client-cfa-item-1.log",
+      "renderer_datagen_log": "build/porting/datagen-cfa-item-renderer.log",
+      "renderer_compile_log": "build/porting/compile-cfa-item-renderer-final.log",
+      "atmosphere_compile_log": "build/porting/compile-cfa-atmosphere-final.log",
+      "atmosphere_datagen_log": "build/porting/datagen-cfa-atmosphere.log",
+      "atmosphere_style_log": "build/porting/checkstyle-cfa-atmosphere-final.log",
+      "visual_report": "build/porting/cfa-item-visual-comparison.json",
+      "source_client_log": "build/porting/client-cfa-item-source-4.log",
+      "target_client_log": "build/porting/client-cfa-atmosphere-4.log"
+    },
+    "pending": [
+      "Head animation phase alignment and atmosphere brightness parity; native GUI atlas resolution/camera differences remain visible",
+      "Latest stellar evolution/event native rendering integration, advanced megastructure state and associated world/head visual parity",
+      "Wider special-item/third-party rendering and dynamic timing/performance coverage",
+      "World, inside-volume and simultaneous-planet atmosphere validation plus source portable/Iris integration"
+    ],
+    "visual_comparison": {
+      "scenes": 6,
+      "fixed_position": [
+        8.5,
+        85,
+        12.5
+      ],
+      "main_hand_frame_bound_difference_pixels": 1,
+      "off_hand_frame_bound_difference_pixels": 0,
+      "scope": "Orange frame bounds only; texture/lighting masks differ. GUI and head visuals are inspected but not declared equivalent."
+    }
+  },
+  "stellar_renderer": {
+    "source_commit": "a378f98e4d41d0d92f97cf2486ac9da7881b1674",
+    "status": "partial",
+    "ported": [
+      "Source StellarRadiance and StellarVisualState math (only style/this qualifiers changed in the latter)",
+      "Native exposure-mapped surface shader, additive exterior-only six-band corona and native fog",
+      "Neutron-star compact corona and source brown-dwarf glow values",
+      "Standard/Vanilla mode with pipeline-failure latch and resource-reload retry; lazy material initialization",
+      "Frozen evolution snapshots drive native surface exposure/color and cubic wind/event layers",
+      "Source redstone scaling, independent structural/pulsating geometry, remnant fade guard and effect-aware culling bounds",
+      "Source full-RGBA corona fog attenuation and no low-alpha cutoff for stellar envelope layers"
+    ],
+    "verification": {
+      "compile_log": "build/porting/validate-stellar-emission-final.log",
+      "datagen_and_style_log": "build/porting/datagen-stellar-emission-final.log",
+      "source_client_log": "build/porting/client-stellar-source-2.log",
+      "target_client_log": "build/porting/client-stellar-target-3.log",
+      "report": "build/porting/stellar-visual-comparison.json",
+      "body_variants": 11,
+      "source_scenes": 6,
+      "target_scenes": 8,
+      "matching_temperature_color_exposure_samples": 10,
+      "k_star_surface_max_mean_channel_difference": 0.008941650390625,
+      "forced_failure": "Injected failure latch gives the Vanilla patch; resource reload restores Standard patch and a valid pipeline, after the loading overlay exits"
+    },
+    "pending": [
+      "Profile-specific instantaneous supernova burst/ray geometry",
+      "Iris/portable backend, custom resource packs, transparent previews and wider head/item/performance coverage",
+      "Continuous motion and multiplayer validation; native fog/cloud/lighting differences retained"
+    ],
+    "world_comparison": {
+      "source_log": "build/porting/client-stellar-evolution-source-2.log",
+      "target_log": "build/porting/client-stellar-evolution-target-6.log",
+      "report": "build/porting/stellar-evolution-visual-comparison.json",
+      "scenes": 10,
+      "max_ring_center_body_beam_difference": 1e-05,
+      "agb_structural_radius_stable": true,
+      "tint_isolation_and_remnant_transition_checks": true,
+      "native_environment_fog": [
+        0,
+        1024
+      ],
+      "far_view_control": "32 chunks did not remove independent environment fog; only diagnostic core-color evidence, not a whole-image parity gate.",
+      "compile_style_log": "build/porting/validate-stellar-geometry-final-2.log",
+      "server_tests_passed": 527,
+      "server_log": "build/porting/tests-stellar-geometry-full-2.log",
+      "limits": "Fixed-stage world captures and bounding checks; colors/whole screenshots are not identical and continuous transition timing is not certified.",
+      "datagen_log": "build/porting/datagen-stellar-geometry-final.log",
+      "generated_changes": 0
+    }
+  },
+  "stellar_evolution": {
+    "source_commit": "a378f98e4d41d0d92f97cf2486ac9da7881b1674",
+    "status": "server_and_core_world_visuals_ported_remaining_ui_effects",
+    "ported": [
+      "24 discrete mass tracks (41-64), 21 stellar surface entries plus the brown-dwarf entry, event profiles and coverage resources copied byte-for-byte",
+      "Frozen track/profile/metallicity/event snapshots, absolute phase clock, timeline shifts and one-time event bookkeeping",
+      "Native NBT scalar/list/array access and format-2 result-stage migration to format 3",
+      "Native server resource reload publishes a valid library atomically and retains the previous library on invalid data",
+      "Shared 64-entry mass table used by menu and evolution; all prior display strings preserved",
+      "Source AcceleratorHandler absolute progression, amplifier pause/resume, phase/event/terminal dispatch and pre-supernova music scheduling",
+      "Native flat ValueInput/ValueOutput persistence, full update snapshots, disk capture and seed-slot restoration",
+      "Idempotent terminal outcomes for all 24 tracks, source 10-block explosion radius and music packet/asset",
+      "Build validation before material consumption and auxiliary ring occupancy checks",
+      "Separate chunk unload from permanent removal using native preRemoveSideEffects; preserve evolution/wormhole persistent state and cache drops before cleanup",
+      "Special-red-dwarf NBT/UUID preservation and evolution eligibility guard",
+      "Native evolving surface state/exposure, structural ring radius separated from pulsating body radius, source 0..15 redstone geometry and 0.5-block-per-level beam",
+      "Source convective/radiative wind, independent event core and up to six cube ejecta shells; retained animated block-atlas surfaces",
+      "Expanded bounds include ejecta and smoothing history; remnant transitions do not replay discovery fades",
+      "Shared full-bright tessellator resets flat-quad color so transparent stellar draws cannot hide mechanical rings"
+    ],
+    "verification": {
+      "focused_tests_passed": 8,
+      "entry_combinations": 484,
+      "nbt_round_trips": 72,
+      "test_and_style_log": "build/porting/tests-stellar-state-focused.log",
+      "compile_log": "build/porting/compile-accelerator-final.log",
+      "datagen_log": "build/porting/validate-accelerator-final-2.log",
+      "generated_changes": 3,
+      "integration_tests_passed": 8,
+      "full_server_tests_passed": 527,
+      "all_terminal_tracks_checked": 24,
+      "integration_log": "build/porting/validate-accelerator-final-2.log",
+      "full_server_log": "build/porting/tests-accelerator-full-1.log",
+      "client_music_log": "build/porting/client-cfa-music-1.log",
+      "client_markers": [
+        "PORT_CFA_MUSIC_PASSED",
+        "PORT_CFA_ITEM_RENDER_PASSED"
+      ],
+      "source_audio_bytes_equal": true,
+      "explosion_scope": "Real explosion start counted and radius checked; destructive world effects canceled in the test fixture."
+    },
+    "pending": [
+      "Profile-specific instantaneous supernova flash/rays; further special celestial-body schema/rendering differences",
+      "Continuous evolution transitions, wider head/item contexts, multiplayer timing, resource-pack/Iris and performance/platform coverage",
+      "Special red dwarf production/normalization and no-amplifier rendering; remaining celestial gameplay/lifecycle parity"
+    ],
+    "known_validation_noise": "PowerGrid.detach exception from AutoEnchantingTests.removal also appears in earlier validate-auto-enchanting-2 and validate-cfa-item-data-2 logs; not introduced by this node."
+  },
+  "stellar_ui": {
+    "source_commit": "a378f98e4d41d0d92f97cf2486ac9da7881b1674",
+    "status": "evolution_panel_ported_other_cfa_ui_pending",
+    "ported": [
+      "Physical phase, phase/total progress, effective temperature and read-only surface class",
+      "Initial/current solar mass, metallicity, remaining time, expected terminal outcome and paused/infinite-power indicators",
+      "Source wrapping, clipping and scrollbar geometry; paused countdown no longer decrements",
+      "Client refactor list uses the same valid-option list as the block entity; English megastructure heading follows source",
+      "53 English and 70 Chinese evolution entries exactly match the local source branch",
+      "CFA slot ghosts use the shared vertex-opacity renderer with depth-aware pink slot overlays",
+      "Preview pass flushing and ordered multiply/halo/atmosphere/ring layers use source atlas materials",
+      "Odd-sized preview origins, fixed UI ring scale and black-hole canvas bounds restored",
+      "Procedural planet shader avoids a second entity-lighting pass; cutout preview preserves opaque surviving fragments"
+    ],
+    "verification": {
+      "scenes_per_version": 8,
+      "source_log": "build/porting/client-stellar-ui-source-2.log",
+      "target_log": "build/porting/client-stellar-ui-target-2.log",
+      "report": "build/porting/stellar-ui-visual-comparison.json",
+      "text_masks_equal": true,
+      "maximum_rgb_channel_difference": 3,
+      "scroll_and_value_samples_equal": true,
+      "countdown_checks": "One running and seven paused cases: eight original screen.tick calls subtract eight or zero ticks respectively.",
+      "compile_log": "build/porting/compile-stellar-ui-final-2.log",
+      "style_and_datagen_log": "build/porting/datagen-stellar-ui-final.log"
+    },
+    "limits": [
+      "Comparison ROI is the evolution information panel, not the entire CFA screen.",
+      "Screenshots normalize the render-time clock/countdown; separate tick calls verify countdown behavior.",
+      "Menus are opened locally for visual verification; multiplayer opening/long-duration synchronization remains pending."
+    ],
+    "pending": [
+      "Neutron-jet low-alpha tails and black-hole fine texture/cutout edge differences remain in comparison images",
+      "Source count-entry controls, general celestial information text, other special-body schemas and remaining CFA screen differences",
+      "Profile-specific instantaneous flash/rays and continuous/multiplayer evolution validation"
+    ]
+  },
+  "cfa_preview": {
+    "source_commit": "a378f98e4d41d0d92f97cf2486ac9da7881b1674",
+    "status": "major_preview_and_ghost_differences_fixed_remaining_edges",
+    "ported": [
+      "Shared transparent-item slot overlay composited behind the item in the same depth buffer, retaining original helper API",
+      "Explicit opaque-buffer flush before multiplicative tint, ordered translucent layers and atlas white-concrete shells",
+      "Source 1.2 GUI ring scale, integer preview center and legacy GUI atmosphere view direction",
+      "Source cutout threshold and opaque offscreen cutout semantics; expanded black-hole canvas from cached model bounds",
+      "Dedicated planet block shader removes unintended second diffuse-lighting pass; source neutron-jet model render_type restored"
+    ],
+    "verification": {
+      "source_log": "build/porting/client-cfa-preview-source-3.log",
+      "target_log": "build/porting/client-cfa-preview-target-10.log",
+      "report": "build/porting/cfa-preview-visual-comparison.json",
+      "captures_per_version": 9,
+      "matching_non_jet_preview_bounds": 6,
+      "rocky_max_rgb_difference": 2,
+      "atmosphere_max_rgb_difference": 4,
+      "ghost_mean_rgb_difference_below": 1,
+      "material_ghost_max_rgb_difference": 2,
+      "compile_style_log": "build/porting/validate-cfa-preview-final-3.log",
+      "datagen_log": "build/porting/datagen-cfa-preview-final.log",
+      "transparent_item_regression_log": "build/porting/client-enchanting-ghost-regression.log",
+      "transparent_item_regression_scenes": 17
+    },
+    "limits": [
+      "Atlas animations are fixed at first frame only in the test fixture; production animations are unchanged.",
+      "Preview RGB metrics cover the legacy body rectangle, not black-hole overflow or all other UI elements.",
+      "Remaining jet/black-hole edge differences, custom resource packs and broad shader/platform coverage are not declared complete."
+    ]
+  },
+  "cfa_map_guide": {
+    "source_commit": "a378f98e4d41d0d92f97cf2486ac9da7881b1674",
+    "status": "interactive_chart_ported_physical_shift_validation_pending",
+    "ported": [
+      "Three chart quadrants set paired anvil quantities through the native container input API",
+      "Bounded target-count transfer conserves inventory and stops on capacity limits",
+      "Both wheel axes, source Shift conversion, initial guide visibility and resize persistence",
+      "Source-sized guide labels and unmatched translation"
+    ],
+    "verification": {
+      "source_log": "build/porting/client-cfa-map-source-1.log",
+      "target_log": "build/porting/client-cfa-map-target-4.log",
+      "report": "build/porting/cfa-map-visual-comparison.json",
+      "matching_server_steps": 9,
+      "captures_per_version": 3,
+      "max_rgb_difference": 2,
+      "full_server_tests": 528,
+      "tests_log": "build/porting/tests-cfa-map-full-1.log",
+      "compile_style_log": "build/porting/validate-cfa-map-final-2.log",
+      "datagen_log": "build/porting/datagen-cfa-map-1.log"
+    },
+    "limits": [
+      "Physical Shift injection was not observed by GLFW; source-equivalent branch retained, both wheel axes tested independently.",
+      "Chart screenshots do not certify all CFA UI, locked/history combinations or multiplayer contention."
+    ]
+  },
+  "cfa_dyson_supply": {
+    "source_commit": "a378f98e4d41d0d92f97cf2486ac9da7881b1674",
+    "status": "ported_with_focused_and_world_snapshot_validation",
+    "ported": [
+      "Ring-two brown-dwarf Dyson sphere, original model and bilingual descriptions",
+      "Persisted giant energy with legacy input fallback",
+      "Transactional primordial-matter consumption, four brown-dwarf and three small-star boost tiers after 40 stable ticks",
+      "Persistent surplus matter and 12800-bucket special-red-dwarf transformation",
+      "Legacy normalization, small stellar ring classification, accelerator exclusion and source amplifier visibility distinction",
+      "Brown Dyson and outer-ring Y-axis synchronized rendering"
+    ],
+    "verification": {
+      "focused_tests": 4,
+      "focused_log": "build/porting/tests-dyson-1.log",
+      "full_tests": 532,
+      "full_log": "build/porting/tests-dyson-full-1.log",
+      "source_log": "build/porting/client-dyson-source-4.log",
+      "target_log": "build/porting/client-dyson-target-3.log",
+      "report": "build/porting/dyson-visual-comparison.json",
+      "world_scenes_per_version": 6,
+      "max_geometry_camera_difference": 0,
+      "compile_style_log": "build/porting/validate-dyson-final-3.log",
+      "datagen_log": "build/porting/datagen-dyson-1.log"
+    },
+    "limits": [
+      "Native sky/cloud/fog appearance remains different; world pixel identity is not asserted.",
+      "Fixed snapshots do not cover full continuous transformation, multiplayer or custom resource-pack behavior."
+    ]
+  },
+  "special_celestial_schema": {
+    "source_commit": "a378f98e4d41d0d92f97cf2486ac9da7881b1674",
+    "status": "schema_and_custom_atmosphere_ported_execution_paths_pending",
+    "ported": [
+      "Full source special-body recipe/data fields and backward-compatible NBT aliases",
+      "Coordinate and return rule codecs, network transport, persistence and normalization",
+      "Source six-digit atmosphere colors independent of temperature",
+      "Source-equivalent five existing builtin recipes and biological milk resources",
+      "Custom RGB preview and shared world volume atmosphere for ordinary and complex bodies",
+      "Source ordinary info position, missing-data semantics and property labels"
+    ],
+    "verification": {
+      "focused_assertion_tests": 4,
+      "full_tests": 536,
+      "full_log": "build/porting/tests-special-full-1.log",
+      "compile_style_log": "build/porting/validate-special-final-1.log",
+      "datagen_log": "build/porting/datagen-special-data-2.log",
+      "source_ui_log": "build/porting/client-special-celestial-source-2.log",
+      "target_ui_log": "build/porting/client-special-celestial-target-3.log",
+      "source_world_log": "build/porting/client-special-world-source-1.log",
+      "target_world_log": "build/porting/client-special-world-target-1.log",
+      "report": "build/porting/special-celestial-visual-comparison.json",
+      "ui_scene_pairs": 8,
+      "world_scene_pairs": 6,
+      "info_max_rgb_difference": 3,
+      "plain_preview_max_rgb_difference": 4,
+      "complex_preview_mean_rgb_difference_below": 0.35,
+      "complex_preview_max_rgb_difference": 31,
+      "max_world_geometry_camera_difference": 0
+    },
+    "limits": [
+      "Travel, shattering, Monolith use, arbitrary resource-pack model registration and end-gateway surface execution are not complete.",
+      "Mun and Void Planet recipes remain pending their dimension/rendering feature nodes.",
+      "Native sky/cloud/fog are retained; remaining complex-preview edge differences are tracked separately."
+    ]
+  },
+  "cfa_gateway_rendering": {
+    "source_commit": "a378f98e4d41d0d92f97cf2486ac9da7881b1674",
+    "status": "world_item_gui_effect_ported_source_gui_submission_issue_documented",
+    "ported": [
+      "Native 16-layer gateway body in world, equipped items and GUI",
+      "Shared GUI projection restoration for PIP and native/scaled item atlases",
+      "Animated per-position procedural icons with stable serialized-data render identities",
+      "Owned oversized GUI items rendered at the required pixel density while keeping GPU size limits",
+      "No baked texture request for procedural gateway bodies"
+    ],
+    "verification": {
+      "ui_baseline_log": "build/porting/client-gateway-ui-source-1.log",
+      "ui_source_control_log": "build/porting/client-gateway-ui-control-source-2.log",
+      "ui_target_log": "build/porting/client-gateway-ui-target-3.log",
+      "world_source_log": "build/porting/client-gateway-world-source-1.log",
+      "world_target_log": "build/porting/client-gateway-world-target-1.log",
+      "item_source_log": "build/porting/client-gateway-item-source-1.log",
+      "item_target_log": "build/porting/client-gateway-item-target-3.log",
+      "report": "build/porting/gateway-visual-comparison.json",
+      "ui_pairs": 3,
+      "world_pairs": 3,
+      "item_views": 6,
+      "max_ui_mean_rgb_difference": 0.5671502441827061,
+      "min_ui_correlation": 0.9138361657751635,
+      "cache_reuse": {
+        "frames": 112,
+        "renderers": 3,
+        "atlas_allocations": 1
+      },
+      "storage_regression_log": "build/porting/client-gateway-storage-regression.log",
+      "unchanged_storage_screenshots": 8,
+      "transparent_item_regression_log": "build/porting/client-gateway-enchanting-regression.log",
+      "transparent_item_scenes": 17,
+      "compile_style_log": "build/porting/validate-gateway-final-1.log",
+      "datagen_log": "build/porting/datagen-gateway-final.log"
+    },
+    "limits": [
+      "Unmodified source GUI is blank; immediate-flush source control is disclosed separately.",
+      "Native environmental rendering and local procedural-sampling pixel differences remain.",
+      "Void dimension/travel, its builtin recipe, ruins blocks and arbitrary resource packs remain separate pending nodes."
+    ]
+  },
+  "celestial_travel": {
+    "source_commit": "a378f98e4d41d0d92f97cf2486ac9da7881b1674",
+    "status": "generic_travel_and_return_gate_ported_builtin_dimension_lifecycle_pending",
+    "ported": [
+      "Six coordinate rules and three return-position rules executed against real server levels",
+      "Safe surface/height searches and protected emergency platform creation",
+      "Entity/player transitions preserve source rotation, momentum, cooldown and sound behavior",
+      "Standalone amplified CFA landing gate and stale wormhole laser cleanup",
+      "Persistent unbreakable return gate, connection-aware reuse/deduplication and water synchronization"
+    ],
+    "verification": {
+      "focused_tests": 6,
+      "full_tests": 542,
+      "full_log": "build/porting/tests-travel-full-3.log",
+      "source_client_log": "build/porting/client-travel-source-1.log",
+      "target_client_log": "build/porting/client-travel-1.log",
+      "report": "build/porting/celestial-travel-comparison.json",
+      "target_save_exit": "passed",
+      "source_shutdown": "stopped after repeated busy unload queue snapshots; not verified clean",
+      "compile_style_log": "build/porting/validate-travel-final-2.log",
+      "datagen_log": "build/porting/datagen-travel-final.log"
+    },
+    "required_followups": [
+      "Overworld-like reset entry gating and builtin dimension are now supplied by overworld_like_reset.",
+      "Port Mun dimensions and content; builtin Void Planet is supplied by void_planet.",
+      "Integrate remaining component-based laser shutdown behavior with the upcoming laser subsystem port."
+    ],
+    "limits": [
+      "Development void dimensions are test-only and excluded from release builds.",
+      "Source reference shutdown stalled after the successful round trip; native target saved and exited normally.",
+      "Back-gate geometry/resources verified; independent texture animation phases and native environment differences retained."
+    ]
+  },
+  "overworld_like_reset": {
+    "source_commit": "a378f98e4d41d0d92f97cf2486ac9da7881b1674",
+    "status": "generation_collapse_reset_entry_lifecycle_ported",
+    "ported": [
+      "Builtin overworld-like dimension with independent native seed override and vanilla biome generation",
+      "Per-save atomic reset manifest, pending startup cleanup and generation replacement on entry",
+      "Gamma excavator collapse, unavoidable damage, shared-spawn return and persisted offline player queue",
+      "Generation-aware wormhole invalidation and legacy state/network file migration",
+      "Native border listener replacement and synchronized white collapse overlay"
+    ],
+    "verification": {
+      "focused_tests": 7,
+      "full_tests": 549,
+      "full_log": "build/porting/tests-overworld-reset-full-2.log",
+      "client_log": "build/porting/client-overworld-reset-final.log",
+      "client_save_exit": "passed",
+      "orbital_source_samples": 120,
+      "orbital_outputs_per_sample": 5,
+      "orbital_tolerance": 1e-06,
+      "compile_log": "build/porting/compile-overworld-reset-final.log",
+      "datagen_style_log": "build/porting/datagen-overworld-reset-final.log"
+    },
+    "limits": [
+      "Offline UUID persistence is tested, actual disconnect/reconnect is pending.",
+      "Startup storage recovery is isolated-test verified; full interrupted-server restart remains pending.",
+      "Orbital sky and client eclipse tint are supplied by overworld_like_orbital_sky; vanilla 26.1 terrain rendering is retained.",
+      "No explicit injected third-party biome/structure integration test yet."
+    ]
+  },
+  "overworld_like_orbital_sky": {
+    "source_commit": "a378f98e4d41d0d92f97cf2486ac9da7881b1674",
+    "status": "orbital_geometry_and_eclipse_environment_ported",
+    "ported": [
+      "Source ring models, generation-global rotations and tint-only brightness semantics",
+      "Native extracted frame state with immediate after-sky cutout drawing, no depth writes",
+      "Eclipse sky/cloud/fog/lightmap scaling and client dimension-state reset",
+      "Immediate configuration toggle and model cache replacement after resource reload"
+    ],
+    "verification": {
+      "source_client_log": "build/porting/client-orbital-sky-source-3.log",
+      "target_client_log": "build/porting/client-orbital-sky-target-final.log",
+      "report": "build/porting/orbital-sky-comparison.json",
+      "scene_pairs": 7,
+      "extraction_frames": 100,
+      "eclipse_factor": 0.7129702,
+      "lightmap_multiplier": 0.48666143,
+      "silhouette_roi": [
+        0,
+        0,
+        1280,
+        540
+      ],
+      "minimum_silhouette_iou": 0.9986662496780603,
+      "max_normal_rgb_difference": 7,
+      "max_reload_rgb_difference": 58,
+      "datagen_log": "build/porting/datagen-orbital-sky-1.log",
+      "compile_log": "build/porting/compile-orbital-sky-final.log"
+    },
+    "limits": [
+      "Preserves native 26.1 sky/fog and resulting color rounding; reload has a small source sub-tick edge difference.",
+      "Silhouette comparison excludes the lower fog fade; rotated camera looks away from both rings in both versions.",
+      "Void dimension activation, water/lava views, multiplayer and shader-pack integration remain separate validation work."
+    ]
+  },
+  "void_planet": {
+    "source_commit": "a378f98e4d41d0d92f97cf2486ac9da7881b1674",
+    "status": "builtin_dimension_recipe_physics_travel_and_orbital_sky_ported",
+    "ported": [
+      "Barrier seed with zero anvil counts discovers the non-shatterable gateway planet",
+      "Source flat void generator and native dimension-type migration with fixed-time rules",
+      "Zero gravity, zero drag and vacuum breathing in the production dimension",
+      "Same-3D entry with source safe-landing fallback and linked return gate",
+      "End sky with source orbital rings, independent of overworld collapse/eclipse state"
+    ],
+    "verification": {
+      "full_tests": 552,
+      "full_log": "build/porting/tests-void-final.log",
+      "source_travel_log": "build/porting/client-void-travel-source-final.log",
+      "target_travel_log": "build/porting/client-void-travel-target-final.log",
+      "source_sky_log": "build/porting/client-void-sky-source-1.log",
+      "target_sky_log": "build/porting/client-void-sky-target-1.log",
+      "sky_pairs": 7,
+      "datagen_log": "build/porting/datagen-void-final.log",
+      "compile_log": "build/porting/compile-void-final.log",
+      "report": "build/porting/void-planet-comparison.json",
+      "max_sky_mean_rgb_difference": 0.12626519097222222,
+      "minimum_silhouette_iou": 0.9987057624097239
+    },
+    "limits": [
+      "Native 26.1 End sky and terrain rendering are retained.",
+      "Actual multiplayer, third-party shader packs and broader resource packs remain unverified.",
+      "Ruins editor/blocks and Mun are separate remaining feature nodes."
+    ]
+  },
+  "source_update_1260db54f": {
+    "previous_source": "a378f98e4d41d0d92f97cf2486ac9da7881b1674",
+    "latest_source": "1260db54f6e2b9f88d0a79b8108459d346344e44",
+    "status": "partially_ported",
+    "commits": [
+      "1260db54f feat: 扩展蓝图配方导入并完善建筑撤销、仓储交互与渲染兼容 (#5024)",
+      "5a13ecd85 Update the manual 更新手册 (#5018)",
+      "cd599b54c Translated using Weblate (Chinese (Simplified Han script)) (#4935)",
+      "68a41f7c9 build(deps): 更新藿香至 build.121 并移除重复按键组件注册 (#5016)",
+      "eff8720ea Add concrete fluid behavior. 添加水泥流体行为 (#4982)",
+      "659c178ff Optimize the text and instructions related to architectural supports. 优化建筑杖相关文本和控制说明 (#4988)",
+      "dbaad14b5 Switch to Anvil Library projection rendering module 改用砧库投影渲染模块 (#4993)"
+    ],
+    "areas": [
+      "Projection module migration and preview rendering compatibility",
+      "Cement fluid behavior",
+      "Blueprint recipe import and scanner flow",
+      "Building undo resource restoration and snapshots",
+      "Storage interactions, block placement rules and filters",
+      "Dependency and translations/resource changes"
+    ],
+    "completed_nodes": [
+      "cement_fluid_behavior",
+      "building_rod_control_hints",
+      "scanner_recipe_import",
+      "building_undo_settlement",
+      "storage_source_update",
+      "blueprint_placement_frames"
+    ]
+  },
+  "mun_foundation": {
+    "source_commit": "1260db54f6e2b9f88d0a79b8108459d346344e44",
+    "status": "terrain_blocks_physics_foundation_ported_builtin_dimension_and_visuals_pending",
+    "ported": [
+      "Lunar rock and soil registration, item models, loot, mining tags and creative tab; native block-item translation prefix preserves block names",
+      "Source crater density function and lunar terrain/ore resources",
+      "Native preliminary-surface value equivalent to the source constant-density search fallback",
+      "One-sixth dimension gravity and source Mun fall-distance encoding",
+      "Mun-only legacy float/ceil damage calculation, retaining source attribute effects",
+      "Source lunar geometry math staged for the upcoming sky renderer"
+    ],
+    "verification": {
+      "source_reference": "build/porting/reference-mun-1.21",
+      "source_client_log": "build/porting/client-mun-terrain-source-1.log",
+      "oracle": "dev/porting/resources/mun-terrain-source.csv",
+      "terrain_columns": 1024,
+      "fall_damage_cases": 128,
+      "sample_rows_including_seed": 1153,
+      "full_tests": 553,
+      "full_log": "build/porting/tests-mun-terrain-2.log",
+      "compile_log": "build/porting/compile-mun-foundation-final-3.log",
+      "datagen_style_log": "build/porting/datagen-mun-foundation-final-3.log"
+    },
+    "limits": [
+      "Builtin Mun dimension and sky are supplied by mun_sky; CFA/pearl entry remains pending.",
+      "The GameTest uses a temporary Mun level with matching height limits and an explicit source seed.",
+      "Mun sky, custom lighting/shadows, music, Monolith and client appearance remain required followups.",
+      "Source updates since a378f98e4 are separately tracked in source_update_1260db54f.",
+      "Other pre-existing BlockItem registrations need a separate audit of native translation prefixes."
+    ]
+  },
+  "mun_sky": {
+    "source_commit": "1260db54f6e2b9f88d0a79b8108459d346344e44",
+    "status": "sky_and_builtin_dimension_ported_surface_pipeline_and_travel_pending",
+    "ported": [
+      "Native custom skybox with unchanged source Earth/Sun shader calculations and textures",
+      "Original stock-shader OFF geometry, clipped horizon, stars and solar halo",
+      "World-clock interpolation and source sunlight cache",
+      "Reusable GPU buffers with resource-reload and shutdown cleanup",
+      "Source Mun dimension/generator activation, cloudless black environment and 16:1 coordinate scale"
+    ],
+    "verification": {
+      "source_client_log": "build/porting/client-mun-sky-source-1.log",
+      "target_client_log": "build/porting/client-mun-sky-target-final-2.log",
+      "scene_pairs": 10,
+      "report": "build/porting/mun-sky-comparison.json",
+      "max_mean_rgb_difference": 0.0036733217592592594,
+      "min_body_mask_iou": 0.9995841419462157,
+      "max_local_rgb_difference": 127,
+      "max_pixels_above_16": 37,
+      "gpu_reuse_frames": 100,
+      "compile_log": "build/porting/compile-mun-sky-final.log",
+      "datagen_style_log": "build/porting/datagen-mun-sky-final.log"
+    },
+    "limits": [
+      "Potato surface lighting/post effects are supplied by mun_potato_lighting; Standard shadow pipeline and server lighting hooks remain pending.",
+      "CFA/pearl entry, music and Monolith are not supplied by this node.",
+      "Sky captures use fixed camera/time controls; broader motion, fluids and third-party shader-pack coverage remains pending.",
+      "Sparse texture/pixel boundary differences remain; full-frame equality is not asserted."
+    ]
+  },
+  "mun_potato_lighting": {
+    "source_commit": "1260db54f6e2b9f88d0a79b8108459d346344e44",
+    "status": "potato_directional_light_lightmap_and_post_effects_ported_standard_shadows_pending",
+    "ported": [
+      "Source position-dependent solar lighting for native terrain, block and entity pipelines",
+      "Source Moon lightmap colors, gamma and lightmap sampling coordinates",
+      "Source Potato SSAO, edge-aware blur and glare composition preserving scene alpha/depth",
+      "Native terrain albedo filtering retained; extra atmospheric haze disabled only in Mun",
+      "Persistent common OFF fallback and bounded reusable GPU resources",
+      "Exception-safe world/lightmap scopes prevent GUI and hand-render leakage"
+    ],
+    "verification": {
+      "source_client_log": "build/porting/client-mun-surface-source-2.log",
+      "target_client_log": "build/porting/client-mun-surface-target-final.log",
+      "report": "build/porting/mun-surface-comparison.json",
+      "scene_pairs": 7,
+      "equal_lightmap_pixels": 256,
+      "max_white_column_mean_channel_difference": 0.146,
+      "max_chest_mean_channel_difference": 1.21875,
+      "max_material_region_mean_rgb_difference": 4.268956439393939,
+      "scope_reuse_frames": 100,
+      "sky_regression_log": "build/porting/client-mun-surface-sky-regression.log",
+      "compile_log": "build/porting/compile-mun-surface-final.log",
+      "datagen_log": "build/porting/datagen-mun-surface-final.log"
+    },
+    "limits": [
+      "Only Potato activates the new surface path; Standard still requires its full shadow implementation.",
+      "Opaque/dynamic/colored-translucent shadow maps, stable shadow history and Iris/Sodium integration remain pending.",
+      "Native texture filtering and AO vertices retain visible local differences; OFF is native rendering rather than cross-version pixel parity.",
+      "The largest remaining mean color discrepancy is the illuminated chest at about 1.22/255."
+    ]
+  },
+  "mun_shadow_resources": {
+    "source_commit": "1260db54f6e2b9f88d0a79b8108459d346344e44",
+    "status": "projection_clock_and_exact_gl_resources_ported_receiver_caster_integration_pending",
+    "ported": [
+      "Source discrete shadow clock and snapped projection grid",
+      "Pure DEPTH_COMPONENT24 shadow targets and exact RG32UI transmission targets",
+      "Source integer history allocation, frame swap, invalidation and image binding restoration",
+      "Native GL state isolation and separate-sampler restoration for integer history reads"
+    ],
+    "verification": {
+      "client_log": "build/porting/client-mun-shadow-resources-final-2.log",
+      "validation_init": "dev/porting/shadow-resources.gradle",
+      "checks": [
+        "24-bit depth allocation, clear and copy",
+        "Exact integer transmission clear/write",
+        "Shader image atomic claims and previous-frame reads",
+        "History invalidation and external image/sampler/texture binding restoration",
+        "Clock reversal, pause, horizon substeps and negative time",
+        "Projection stability and culling at million-block coordinates"
+      ],
+      "sky_comparison": "build/porting/mun-sky-comparison.json",
+      "compile_log": "build/porting/compile-mun-shadow-resources-final.log",
+      "resource_report": "build/porting/mun-shadow-resources-comparison.json"
+    },
+    "limits": [
+      "Standard remains inactive until cached caster meshes, receiver bindings and dynamic/translucent rendering are connected.",
+      "This node tests GL resources and history semantics, not actual scene shadow appearance.",
+      "Non-OpenGL backends and hardware without image load/store were not runtime-tested."
+    ]
+  },
+  "mun_shadow_mesh": {
+    "source_commit": "1260db54f6e2b9f88d0a79b8108459d346344e44",
+    "status": "native_model_and_fluid_mesh_ported_world_shadow_integration_pending",
+    "ported": [
+      "Source convex triangulation, selection-part transforms and greedy solid column faces",
+      "Native contextual model parts and baked quads with conservative static-model caching",
+      "Source opaque markers, ARGB transmission colors and fluid chunk-origin offsets",
+      "Bounded model/fluid vertex emission and owned OpenGL VAO/VBO resources",
+      "Model-reload cache invalidation and idempotent GPU cleanup"
+    ],
+    "verification": {
+      "client_log": "build/porting/client-mun-shadow-mesh-final.log",
+      "compile_log": "build/porting/compile-mun-shadow-mesh-final.log",
+      "geometry_report": "build/porting/mun-shadow-mesh-comparison.json",
+      "sky_report": "build/porting/mun-sky-comparison.json",
+      "source_equal_geometry_functions": 6,
+      "sky_scene_pairs": 10,
+      "checks": [
+        "GPU vertex bounds and 36-vertex greedy volume",
+        "Stone/slab/stair/fence classification and glass opacity",
+        "Distinct-model cache identity and position-dependent model collection",
+        "Model quad/vertex caps and whole-fluid-quad budgets",
+        "Negative origin fluid height adjustment",
+        "Actual shader draw into RG32UI preserves red 204 and alpha 128",
+        "GPU disposal, integer shadow-resource regression and clean client save/exit"
+      ]
+    },
+    "limits": [
+      "Standard world shadows still await caster programs, chunk cache, dynamic capture and receiver integration.",
+      "No claim of scene-shadow visual parity is made by this node.",
+      "The GPU probe was run on the current OpenGL backend only."
+    ]
+  },
+  "mun_shadow_caster": {
+    "source_commit": "1260db54f6e2b9f88d0a79b8108459d346344e44",
+    "status": "native_caster_programs_ported_chunk_cache_dynamic_capture_and_receivers_pending",
+    "ported": [
+      "Original solar projection, opaque alpha threshold and colored transmission shader bodies",
+      "Native shader registration, compilation ownership and reload-aware uniform locations",
+      "Per-cascade scales and per-model solar origin/offset uploads to exact shadow targets"
+    ],
+    "verification": {
+      "client_log": "build/porting/client-mun-caster-final-2.log",
+      "compile_log": "build/porting/compile-mun-caster-final.log",
+      "datagen_log": "build/porting/datagen-mun-caster-final.log",
+      "report": "build/porting/mun-shadow-caster-comparison.json",
+      "sky_report": "build/porting/mun-sky-comparison.json",
+      "gpu_cases_before_reload": 13,
+      "gpu_cases_after_reload": 13,
+      "checks": [
+        "Opaque marker and texture/vertex alpha threshold at 127/128",
+        "Separate fully opaque and fractional-alpha transmission passes",
+        "RGB transmission tint multiplication and integer packing",
+        "Source 24-bit packed depth and positive/negative caster elevations",
+        "Resource reload followed by repeated GPU checks and ten sky scenes",
+        "Original caster shader bodies and solar declarations compared directly"
+      ]
+    },
+    "limits": [
+      "Standard scene shadows still require the full chunk cache, dynamic entity/block-entity capture and receiver binding integration.",
+      "Synthetic GPU caster checks do not establish world-shadow visual parity.",
+      "Only the current OpenGL backend has been exercised."
+    ]
+  },
+  "mun_entity_shadows": {
+    "source_commit": "1260db54f6e2b9f88d0a79b8108459d346344e44",
+    "status": "native_dynamic_capture_ported_world_cascades_and_receivers_pending",
+    "ported": [
+      "Native entity/block-entity render-state extraction and feature replay into shadow vertices",
+      "Model, model-part, item, block, custom geometry and leash feature paths with source material exclusions",
+      "Native BLOCK format support after removal of the normal vertex attribute",
+      "Shared static/dynamic shadow VAO/VBO implementation with source dynamic upload semantics",
+      "Source distance/count/vertex limits, per-frame reuse and 60-frame idle retention",
+      "Texture/sampler restoration and explicit auxiliary native buffer disposal"
+    ],
+    "verification": {
+      "client_log": "build/porting/client-mun-entities-final-4.log",
+      "compile_log": "build/porting/compile-mun-entities-final.log",
+      "report": "build/porting/mun-entity-shadows-comparison.json",
+      "sky_report": "build/porting/mun-sky-comparison.json",
+      "source_equal_capture_functions": 7,
+      "scene_depth_pixels_before_and_after_reload": [
+        456,
+        456
+      ],
+      "checks": [
+        "Cow/chest/item/falling-block scene and rotating AnvilCraft creative generator",
+        "Changed animated geometry with stable GPU buffer handles",
+        "Dynamic vertex budget, invisible/distant exclusion, idle eviction and cleanup",
+        "Reload-time capture, exact caster/mesh resource regressions and ten sky comparisons",
+        "Clean client save and process exit"
+      ],
+      "readback_regression": "Dev depth readback now restores pack row length and pack buffer after native screenshots."
+    },
+    "limits": [
+      "Standard world shadows still require cascade cache and receiver binding integration.",
+      "Source-versus-target scene shadow appearance and dense-scene performance remain unverified.",
+      "Only the current OpenGL backend and selected native/mod renderers were exercised."
+    ]
+  },
+  "mun_shadow_map": {
+    "source_commit": "1260db54f6e2b9f88d0a79b8108459d346344e44",
+    "status": "cascade_generation_and_cache_ported_world_receiver_integration_pending",
+    "ported": [
+      "Source incremental chunk build jobs, nearest-first cache admission and bounded eviction",
+      "Three native caster cascades combining static, opaque-translucent, colored-translucent and dynamic depth",
+      "Source solar/projection invalidation, chunk/block change handling and moving-window cleanup",
+      "Native block/fluid models, chunk coordinates and shared OpenGL texture/sampler isolation"
+    ],
+    "verification": {
+      "client_log": "build/porting/client-mun-map-final-2.log",
+      "compile_log": "build/porting/compile-mun-map-final.log",
+      "report": "build/porting/mun-shadow-map-comparison.json",
+      "sky_report": "build/porting/mun-sky-comparison.json",
+      "source_equal_cache_functions_after_api_mapping": 13,
+      "client_probe_runs": 2,
+      "probe_resolution": 128,
+      "probe_render_distance": 2,
+      "checks": [
+        "Weighted lunar rock and lunar soil remain eligible for full-cube merging",
+        "Static depth reuse, glass/fluid transmission and separate dynamic depth composition",
+        "Full-cube replacement reuse versus slab invalidation and chunk rebuild",
+        "Entity removal, moved-window opaque/translucent clearing and GPU texture disposal",
+        "Cache budget rejection and source cascade invalidation rules",
+        "Resource reload, entity/caster regressions, ten sky comparisons and clean exit"
+      ]
+    },
+    "limits": [
+      "Standard world receiver bindings and change-notification hooks remain pending.",
+      "Default-resolution scene parity and normal-view-distance cache build performance remain unverified.",
+      "The initial large-window fixture exceeded its 1000-call wait bound; the functional fixture now fixes its view distance to 2.",
+      "Current OpenGL backend only."
+    ]
+  },
+  "mun_standard_receivers": {
+    "source_commit": "1260db54f6e2b9f88d0a79b8108459d346344e44",
+    "status": "native_standard_lighting_shadows_and_change_notifications_ported_compatibility_pending",
+    "ported": [
+      "Standard directional lighting with static/dynamic cascades, colored transmission and stable integer history",
+      "Native pipeline variants and post-binding shadow uniforms, preserving vanilla terrain albedo sampling",
+      "Ten scoped texture slots with raw access beyond the native twelve-slot state cache",
+      "Chunk load/unload, block changes and adjacent model invalidation notifications",
+      "Standard-only removal of vanilla entity blob shadows and persistent OFF fallback",
+      "History-free shader variants without eager image-load/store compilation on unsupported hardware"
+    ],
+    "verification": {
+      "source_client_log": "build/porting/client-mun-standard-source-final.log",
+      "target_client_log": "build/porting/client-mun-standard-target-final-3.log",
+      "reload_client_log": "build/porting/client-mun-standard-reload-final.log",
+      "compile_style_log": "build/porting/compile-mun-standard-final-2.log",
+      "datagen_log": "build/porting/datagen-mun-standard-final.log",
+      "report": "build/porting/mun-standard-comparison.json",
+      "scene_pairs": 7,
+      "lightmap_equal_pixels": 256,
+      "source_surface_functions_equal": 12,
+      "receiver_scope_frames": 8967,
+      "restored_texture_slots": 10,
+      "ordinary_shadow_mask_iou_min": 0.99430965806218,
+      "large_coordinate_shadow_mask_iou": 0.9441727791361043,
+      "max_shadow_pixels_beyond_one_pixel": 8,
+      "max_material_region_mean_rgb_difference": 4.244133522727273,
+      "first_capture_wait_ms_source": 20550,
+      "first_capture_wait_ms_target": 21105,
+      "checks": [
+        "Native terrain sampling functions match the current vanilla shader",
+        "Actual block and same-state adjacent model notifications reach the cache",
+        "Texture/sampler/image restoration, normal source comparisons and clean client exits",
+        "Sky, caster, dynamic mesh and cascade-cache probes pass after resource reload"
+      ]
+    },
+    "limits": [
+      "Sparse raster and texture-boundary differences remain; whole-frame pixel equality is not claimed.",
+      "Native vanilla OFF rendering, texture filtering and AO differences are intentionally retained.",
+      "Iris/Sodium integration, server lighting hooks and broad gameplay/motion coverage remain pending.",
+      "History-free variants compile but were not exercised on a device lacking image load/store.",
+      "The timing fixture disables AFK throttling and random light flicker; this is not a cross-platform benchmark."
+    ]
+  },
+  "mun_world_lighting": {
+    "source_commit": "1260db54f6e2b9f88d0a79b8108459d346344e44",
+    "status": "shared_day_night_local_brightness_and_solar_angle_ported",
+    "ported": [
+      "Origin-based dimension sky darkness and day/night using shared source solar-disc math",
+      "Position-dependent local raw brightness with direct sky light only at sky level 15",
+      "Eight-day solar angle through a native time-based environment layer",
+      "Source daylight detector behavior while leaving explicit brightness overrides and other dimensions intact",
+      "Source float-table cosine retained for exact daylight-detector boundary output"
+    ],
+    "verification": {
+      "tests_log": "build/porting/tests-mun-world-light-final-4.log",
+      "compile_log": "build/porting/compile-mun-world-light-final.log",
+      "client_log": "build/porting/client-mun-world-light-final.log",
+      "visual_report": "build/porting/mun-standard-comparison.json",
+      "required_game_tests_passed": 555,
+      "sampled_clock_times": 4205,
+      "checks": [
+        "Negative and multi-cycle time samples",
+        "Near/far-side full skylight, covered darkness and nearby block light",
+        "Normal and inverted daylight detectors against source angle/power rules",
+        "Non-Mun guard and unchanged seven-view Standard visual comparison"
+      ],
+      "cosine_cycle_ticks": 192000,
+      "detector_boundary": {
+        "time": 165260,
+        "sky_light": 9,
+        "power": 4
+      }
+    },
+    "limits": [
+      "This node ports shared light-query contracts; broad mob/crop gameplay scenarios were not separately exercised.",
+      "Remaining Moon travel, music, Monolith and optional renderer compatibility are separate work."
+    ]
+  },
+  "mun_music": {
+    "source_commit": "1260db54f6e2b9f88d0a79b8108459d346344e44",
+    "status": "source_tracks_and_selection_flow_ported",
+    "ported": [
+      "Both original Ogg tracks without transcoding",
+      "Source 30-90 second initial silence and 60-180 second between-track silence",
+      "Random first selection, alternating subsequent tracks and one-shot streaming",
+      "Moon exit, re-entry and logout state handling through SelectMusicEvent",
+      "Track titles for the native 26.1 now-playing UI"
+    ],
+    "verification": {
+      "client_log": "build/porting/client-mun-music-2.log",
+      "compile_log": "build/porting/compile-mun-music-final.log",
+      "datagen_style_log": "build/porting/validate-mun-music-final.log",
+      "report": "build/porting/mun-music-comparison.json",
+      "source_audio_bytes_equal": true,
+      "source_handler_equal_after_api_mapping": true,
+      "decoded_format": "PCM signed 48000 Hz, 16-bit stereo",
+      "initial_silence_ticks": 1505,
+      "observed_between_silence_ticks": 3395
+    },
+    "limits": [
+      "Selection ticks were accelerated and the first track was stopped to exercise completion handling.",
+      "Full track durations and subjective listening were not used as validation evidence."
+    ]
+  },
+  "mun_pearl_travel": {
+    "source_commit": "1260db54f6e2b9f88d0a79b8108459d346344e44",
+    "status": "pearl_round_trip_and_arrival_damage_ported",
+    "ported": [
+      "Source height, upward velocity, total-speed and midnight launch gates",
+      "Launch-time persistent return eligibility within 128 blocks of the Moon origin",
+      "Safe random arrival near Moon spawn and return near overworld origin",
+      "Cancellable landing event, modified coordinates/damage and motion/fall reset",
+      "Delayed fall damage waits for both teleport and native client-load acknowledgements"
+    ],
+    "verification": {
+      "client_log": "build/porting/client-mun-pearl-final.log",
+      "compile_log": "build/porting/compile-mun-pearl-final.log",
+      "report": "build/porting/mun-pearl-comparison.json",
+      "source_rules_equal_after_api_mapping": true,
+      "round_trip_damage": [
+        1,
+        3
+      ],
+      "checks": [
+        "Exact and negative-time midnight window edges",
+        "Y=512 boundary, upward direction and total speed including diagonal motion",
+        "Cancellation consumes pearl without moving the player",
+        "Radius-128 launch acceptance and persistent eligibility after owner movement",
+        "Real cross-dimension flight, target override, facing and velocity reset",
+        "Return ignores a moved overworld spawn and damage is applied once after load acknowledgement"
+      ]
+    },
+    "limits": [
+      "Long-term pearl persistence and multiplayer disconnect races were not separately exercised.",
+      "CFA entry and Monolith world/spawn integration remain separate work."
+    ]
+  },
+  "mun_cfa_entry": {
+    "source_commit": "1260db54f6e2b9f88d0a79b8108459d346344e44",
+    "status": "source_recipe_and_live_cfa_entry_return_ported",
+    "ported": [
+      "Source lunar-rock recipe with time/space/mass/energy 34/4/1/14",
+      "Unshatterable atmosphereless Moon data with fixed-surface entry and linked return",
+      "Matching advancement and English/Chinese Moon name"
+    ],
+    "verification": {
+      "client_log": "build/porting/client-cfa-mun-1.log",
+      "tests_log": "build/porting/tests-cfa-mun-final.log",
+      "validation_log": "build/porting/validate-cfa-mun-final.log",
+      "report": "build/porting/cfa-mun-comparison.json",
+      "required_game_tests_passed": 556,
+      "source_recipe_and_advancement_equal": true,
+      "outbound_position": [
+        0.5,
+        61,
+        -0.5
+      ],
+      "returned_position": [
+        8.5,
+        80,
+        5.5
+      ]
+    },
+    "limits": [
+      "Monolith blocks, offerings, generation and return confirmation still require porting.",
+      "The client fixture uses the matched body in an assembled CFA; prior search-process tests cover the shared matching path."
+    ]
+  },
+  "monolith_blocks_and_offerings": {
+    "source_commit": "1260db54f6e2b9f88d0a79b8108459d346344e44",
+    "status": "blocks_rewards_and_native_animation_ported_generation_and_events_pending",
+    "ported": [
+      "Five original monolith blocks, item models, textures, tags and creative entries",
+      "Ordinary and giant offering filters, 100-tick cooldown and delayed reward delivery",
+      "Persistent pending reward/player state and native client data synchronization",
+      "Giant 27-part placement, main-part loot and source silk-touch results",
+      "Native extraction/submission for anvil dissolve and rising mist with source color/curve math",
+      "Explicit loot tables replacing the inherited native bedrock no-loot setting"
+    ],
+    "verification": {
+      "tests_log": "build/porting/tests-monolith-final.log",
+      "target_client_log": "build/porting/client-monolith-target-final-2.log",
+      "source_client_log": "build/porting/client-monolith-source-final-3.log",
+      "datagen_log": "build/porting/validate-monolith-final.log",
+      "compile_style_log": "build/porting/compile-monolith-final.log",
+      "report": "build/porting/monolith-comparison.json",
+      "required_tests_passed": 557,
+      "source_asset_files_equal": 13,
+      "source_loot_tables_equal": 5,
+      "animation_stages": [
+        20,
+        50,
+        65,
+        80,
+        95,
+        100
+      ],
+      "minimum_effect_mask_iou": 0.9886792452830189,
+      "effect_pixels_beyond_one_pixel": 0,
+      "checks": [
+        "Online ordinary guide/giant knowledge-book rewards and single-item consumption",
+        "Pending save/reload, 99/100-tick boundary and offline reward without duplication",
+        "Ordinary/silk-touch loot and primary versus placeholder giant drops",
+        "Source/native animation snapshots and clean client exits"
+      ]
+    },
+    "limits": [
+      "Natural generation, POI proximity hints and confirmed return are not included yet.",
+      "Native terrain/sky rendering and small composite-color differences remain.",
+      "The failed source setup with overlapping fixtures was terminated after its wait state was diagnosed."
+    ]
+  },
+  "monolith_world_and_interaction": {
+    "source_commit": "1260db54f6e2b9f88d0a79b8108459d346344e44",
+    "status": "generation_saved_state_hints_and_confirmed_return_ported",
+    "ported": [
+      "Original giant/small templates, structure type and clipped structure piece",
+      "New-world-only generation, flat-world exclusion, rotated placement and natural dry-site preparation",
+      "Namespaced saved data with preserved legacy file import",
+      "Core POI registration, five-second proximity hint and three-second return confirmation",
+      "Respawn-based return with same-tick duplicate suppression and leave cleanup"
+    ],
+    "verification": {
+      "tests_log": "build/porting/tests-monolith-generation-final.log",
+      "flat_client_log": "build/porting/client-monolith-world-1.log",
+      "normal_client_log": "build/porting/client-monolith-normal-world-final.log",
+      "validation_log": "build/porting/validate-monolith-world-final.log",
+      "report": "build/porting/monolith-world-comparison.json",
+      "required_tests_passed": 558,
+      "source_generation_functions_equal_after_api_mapping": 8,
+      "source_templates_equal": true,
+      "checks": [
+        "Real normal-world small monolith and Moon giant generation",
+        "Flat Overworld exclusion and one-time generation state",
+        "Dry/natural terrain, two-block slope preparation and rejection without partial edits",
+        "Legacy bounding-box load and codec round trip",
+        "Actual client POI hint, expired/same-tick/60-tick confirmation cases and configured respawn return"
+      ]
+    },
+    "limits": [
+      "Normal-world automatic placement was exercised with one fixed seed; controlled fixtures cover invalid terrain.",
+      "Optional render backends and other outstanding branch features remain outside this node."
+    ]
+  },
+  "cement_fluid_behavior": {
+    "source_commit": "1260db54f6e2b9f88d0a79b8108459d346344e44",
+    "status": "source_behavior_ported",
+    "ported": [
+      "16-color source/flowing fluid registration",
+      "Scheduled source-conserving descent with nearest-source search",
+      "Two-ring hardening with sugar/slime/honey behavior",
+      "Stale state and duplicate random tick guards"
+    ],
+    "verification": {
+      "tests_log": "build/porting/tests-cement-fluid-final.log",
+      "report": "build/porting/cement-comparison.json",
+      "required_tests_passed": 563,
+      "full_source_equal_after_native_api_mapping": true
+    },
+    "limits": [
+      "No assets changed; client visual comparison is outside this behavior-only node."
+    ]
+  },
+  "building_rod_control_hints": {
+    "source_commit": "1260db54f6e2b9f88d0a79b8108459d346344e44",
+    "status": "source_control_text_ported",
+    "ported": [
+      "Source 659c178ff control hint changes and removal of unused English controls entry",
+      "Current Chinese bound-key substitutions and multiline HUD hints"
+    ],
+    "verification": {
+      "validation_log": "build/porting/validate-building-hints-final.log",
+      "report": "build/porting/building-hints-comparison.json",
+      "source_screen_keys_equal": {
+        "en_us": 18,
+        "en_ud": 18,
+        "zh_cn": 19
+      }
+    },
+    "limits": [
+      "No new in-game HUD capture for this text-only node.",
+      "New undo/refund messages remain coupled to the pending resource-accounting port."
+    ]
+  },
+  "scanner_recipe_import": {
+    "source_commit": "1260db54f6e2b9f88d0a79b8108459d346344e44",
+    "status": "recipe_import_and_coordinate_marker_ported",
+    "ported": [
+      "JEI multiblock crafting/conversion transfers into scanner preview",
+      "Server-authoritative recipe lookup, bounded input snapshot and copied predicate NBT",
+      "World-coordinate marker prevents duplicate transformation while preserving legacy disk orientation"
+    ],
+    "verification": {
+      "tests_log": "build/porting/tests-scanner-recipe-final.log",
+      "client_and_style_log": "build/porting/client-scanner-recipe-final.log",
+      "report": "build/porting/scanner-recipe-comparison.json",
+      "required_tests_passed": 567,
+      "catalog": {
+        "crafting": 14,
+        "conversion": 10
+      },
+      "source_files_equal_after_api_mapping": 2,
+      "client_checks": [
+        "Registered JEI handlers with dry-run and busy rejection",
+        "Both categories through native packets and matching input previews",
+        "Disk retained and missing recipe rejected"
+      ],
+      "coordinate_checks": "Four horizontal facings and both upside-down states for normalized and legacy snapshots"
+    },
+    "limits": [
+      "Client fixture invokes registered transfer handlers directly instead of clicking the JEI plus button.",
+      "Initial client fixture opened before chunk synchronization and was terminated after disconnect; final run exited cleanly.",
+      "Server test command passed all tests but failed on fixture formatting; subsequent client/checkPortJava run passed after the formatting repair.",
+      "Other source blueprint placement, entity restoration and undo-accounting updates remain pending."
+    ]
+  },
+  "building_undo_settlement": {
+    "source_commit": "1260db54f6e2b9f88d0a79b8108459d346344e44",
+    "status": "actual_resource_settlement_and_native_refund_transactions_ported",
+    "ported": [
+      "Actual block/entity resource differences replace original receipt refunds",
+      "Missing material, harvest-state, multipart-boundary and container preflight checks",
+      "Native transactional fluid container filling, external-storage refunds and pending retry guard",
+      "Source pipe material, large-cake grouping, spectral-anvil ghost/tool behavior and common activation",
+      "Source English refund messages and matching Chinese translations"
+    ],
+    "verification": {
+      "server_datagen_log": "build/porting/validate-building-undo-final.log",
+      "client_and_style_log": "build/porting/client-building-undo-final.log",
+      "report": "build/porting/building-undo-comparison.json",
+      "required_tests_passed": 572,
+      "source_algorithms_equal_after_api_mapping": 11,
+      "checks": [
+        "Picked-up drops and remaining entity products",
+        "Missing chest contents and consumed furnace fuel",
+        "Eaten cake refusal and fluid container/capacity preflight",
+        "Execution-time refill refusal, construction blocking and exactly-once retry",
+        "Real client place/undo with world, inventory and energy synchronization"
+      ]
+    },
+    "limits": [
+      "Server/datagen command passed all tests and generated two language files, then failed on fixture formatting; final client/checkPortJava run validates the repair.",
+      "Deficit and refusal cases use native server GameTests; client exercise covers ordinary place/undo.",
+      "Other source placement, interaction and optional rendering compatibility changes remain pending."
+    ]
+  },
+  "storage_source_update": {
+    "source_commit": "1260db54f6e2b9f88d0a79b8108459d346344e44",
+    "status": "source_storage_delta_ported_with_native_transactions",
+    "ported": [
+      "Crafted-item hooks, crafting events, recipe criteria and unlocks on successful result paths",
+      "Cross-storage extraction from merged entries with transactional count rollback",
+      "Client/server crafting unlock gate for recipe transfers",
+      "Extension slot-click interception"
+    ],
+    "existing_native_equivalents_verified": [
+      "Shift result pickup already consumes through the shared native operation",
+      "Mirrored inventory slots already recreated at native final positions"
+    ],
+    "verification": {
+      "tests_log": "build/porting/tests-storage-source-update-final.log",
+      "report": "build/porting/storage-source-update-comparison.json",
+      "required_tests_passed": 575,
+      "checks": [
+        "Normal, shift, take-all and thrown crafting results emit one event with original inputs",
+        "Stonecutter recipe unlock without a crafting-grid event",
+        "Merged extraction, rollback and subsequent extraction use live stock",
+        "Locked server transfer preserves grid and inventory",
+        "Actual player sugar crafting statistic increases by six",
+        "Full native storage UI chain, mirrored slots, extension callback and actual JEI transfer buttons"
+      ],
+      "client_log": "build/porting/client-storage-source-update-3.log",
+      "compile_style_log": "build/porting/compile-storage-source-update-final.log"
+    },
+    "limits": [
+      "Two initial client runs were terminated after the locked-button probe changed state without reopening JEI; the final probe follows the reopen flow.",
+      "The JEI locked-state probe sets client availability; actual server authorization is covered independently.",
+      "Server and client behavior checks passed; a separate compile/checkPortJava run verifies the diagnostic-log formatting repair.",
+      "Other source branch features and optional renderer integrations remain pending."
+    ]
+  },
+  "blueprint_placement_frames": {
+    "source_commit": "1260db54f6e2b9f88d0a79b8108459d346344e44",
+    "status": "coordinates_existing_pipe_multipart_and_preview_geometry_ported",
+    "ported": [
+      "Scanner heading retained on saved disks, canonical parsing and rotated width/depth centering",
+      "Source auto-rotation layout and shared world/preview position transforms",
+      "Multipart core-to-item-origin mapping and complete large-cake snapshots/material count",
+      "Straight/corner/node pipe placement with required states",
+      "Source preview yaw, separate block/outline pivots and pixel-width range overlay before scan processing",
+      "Disk tooltip spinning respects autoRotate"
+    ],
+    "verification": {
+      "tests_log": "build/porting/tests-blueprint-placement-final-2.log",
+      "datagen_log": "build/porting/validate-blueprint-placement-final.log",
+      "target_raw_log": "build/porting/client-smart-blueprint-raw-final.log",
+      "target_scan_log": "build/porting/client-smart-blueprint-final-3.log",
+      "source_raw_log": "build/porting/client-smart-blueprint-source-raw-2.log",
+      "report": "build/porting/blueprint-placement-comparison.json",
+      "required_tests_passed": 582,
+      "orientation_combinations": 8000,
+      "source_layout_sections_equal": 3,
+      "source_raw_color_masks_equal": 3,
+      "source_raw_outline_mask_equal": true
+    },
+    "limits": [
+      "Glass-pipe variants are a separate missing source feature and remain pending.",
+      "Native vanilla block-texture sampling is retained; raw preview RGB means differ by about 0.69 to 1.63 out of 255.",
+      "A concurrent validation run exposed a Moon-light fixture timing failure; the final serial suite passed.",
+      "Block-picking/input changes from the source update remain pending."
+    ]
+  },
+  "glass_pipes": {
+    "source_commit": "1260db54f6e2b9f88d0a79b8108459d346344e44",
+    "introduced_by": "3810b139a773a56e55a25e8b4ce426750e17d1cb",
+    "status": "pending_port",
+    "required": [
+      "Glass straight/corner/node registrations, original resources and interactions",
+      "Shared check-valve block entities and glass-pipe fluid state synchronization",
+      "Fluid-network flow visualization and native glass/fluid rendering",
+      "Glass item/ordinary pipe material mapping for blueprint placement"
+    ],
+    "discovered_during": "blueprint_placement_frames"
+  }
+}

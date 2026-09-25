@@ -1,12 +1,14 @@
 package dev.dubhe.anvilcraft.inventory;
 
 import dev.dubhe.anvilcraft.block.entity.CelestialForgingAnvilBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.celestial.CelestialMassTable;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import lombok.Getter;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.ContainerInput;
 import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
@@ -60,6 +62,20 @@ public class CelestialForgingAnvilMenu extends AbstractContainerMenu {
     ) {
         this(menuType, containerId, inventory,
             (CelestialForgingAnvilBlockEntity) inventory.player.level().getBlockEntity(extraData.readBlockPos()));
+    }
+
+    @Override
+    public void clicked(int slotId, int button, ContainerInput input, Player player) {
+        if (input == ContainerInput.QUICK_CRAFT && slotId >= 0 && slotId < ANVIL_SLOTS && button >= 0 && button <= 64) {
+            for (int i = 0; i <= 64; i++) {
+                int count = this.getSlot(slotId).getItem().getCount();
+                if (count == button) break;
+                this.handleAnvilTransfer(slotId, button > count);
+                if (count == this.getSlot(slotId).getItem().getCount()) break;
+            }
+            return;
+        }
+        super.clicked(slotId, button, input, player);
     }
 
     @Override
@@ -245,25 +261,6 @@ public class CelestialForgingAnvilMenu extends AbstractContainerMenu {
         "1.26k R☉", "1.59k R☉", "2k R☉", "2.52k R☉"
     };
 
-    private static final String[] MASS_TABLE = {
-        "0.022 M⊕", "0.031 M⊕", "0.044 M⊕", "0.063 M⊕",
-        "0.088 M⊕", "0.125 M⊕", "0.177 M⊕", "0.25 M⊕",
-        "0.35 M⊕", "0.5 M⊕", "0.7 M⊕", "1 M⊕",
-        "1.41 M⊕", "2 M⊕", "2.82 M⊕", "4 M⊕",
-        "5.66 M⊕", "8 M⊕", "11.3 M⊕", "16 M⊕",
-        "22.6 M⊕", "32 M⊕", "45.3 M⊕", "64 M⊕",
-        "90.5 M⊕", "128 M⊕", "181 M⊕", "256 M⊕",
-        "362 M⊕", "512 M⊕", "724 M⊕", "1k M⊕",
-        "1.41k M⊕", "2k M⊕", "2.82k M⊕", "4k M⊕",
-        "5.66k M⊕", "8k M⊕", "11.3k M⊕", "16k M⊕",
-        "0.063 M☉", "0.088 M☉", "0.125 M☉", "0.177 M☉",
-        "0.25 M☉", "0.35 M☉", "0.5 M☉", "0.7 M☉",
-        "1 M☉", "1.41 M☉", "2 M☉", "2.82 M☉",
-        "4 M☉", "5.66 M☉", "8 M☉", "11.3 M☉",
-        "16 M☉", "22.6 M☉", "32 M☉", "45.3 M☉",
-        "64 M☉", "90.5 M☉", "128 M☉", "181 M☉"
-    };
-
     private static final String[] TEMPERATURE_TABLE = {
         "-223 ℃", "-217 ℃", "-210 ℃", "-202 ℃",
         "-194 ℃", "-184 ℃", "-173 ℃", "-161 ℃",
@@ -297,7 +294,7 @@ public class CelestialForgingAnvilMenu extends AbstractContainerMenu {
 
     public static String formatMass(int count) {
         if (count == 0) return "---";
-        if (count >= 1 && count <= 64) return MASS_TABLE[count - 1];
+        if (count >= 1 && count <= 64) return CelestialMassTable.display(count);
         return "---";
     }
 
@@ -321,7 +318,7 @@ public class CelestialForgingAnvilMenu extends AbstractContainerMenu {
 
     public static String formatMassOffset(int count, float offset) {
         if (count == 0) return "---";
-        if (count >= 1 && count <= 64) return applyOffset(MASS_TABLE[count - 1], offset);
+        if (count >= 1 && count <= 64) return applyOffset(CelestialMassTable.display(count), offset);
         return "---";
     }
 

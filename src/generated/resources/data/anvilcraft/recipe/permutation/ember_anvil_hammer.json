@@ -1,0 +1,30 @@
+{
+  "type": "anvilcraft:permutation",
+  "input": {
+    "items": "anvilcraft:ember_anvil_hammer"
+  },
+  "options": [
+    {
+      "material": {
+        "type": "anvilcraft:custom",
+        "predicate": {
+          "count": 3,
+          "items": "anvilcraft:frost_metal_ingot"
+        }
+      },
+      "result": {
+        "modifiers": [
+          {
+            "type": "anvilcraft:remove_data",
+            "types": [
+              "anvilcraft:reforging"
+            ]
+          }
+        ],
+        "result": {
+          "id": "anvilcraft:frost_anvil_hammer"
+        }
+      }
+    }
+  ]
+}

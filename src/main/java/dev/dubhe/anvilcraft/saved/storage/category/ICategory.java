@@ -1,9 +1,14 @@
 package dev.dubhe.anvilcraft.saved.storage.category;
 
+import com.google.gson.JsonParseException;
+import com.google.gson.JsonParser;
+import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
+import com.mojang.serialization.Decoder;
 import com.mojang.serialization.DynamicOps;
 import com.mojang.serialization.Encoder;
+import com.mojang.serialization.JsonOps;
 import dev.anvilcraft.lib.v2.util.ISerializer;
 import dev.anvilcraft.lib.v2.util.UnlimitedItemStack;
 import dev.dubhe.anvilcraft.init.registry.ModRegistries;
@@ -12,12 +17,14 @@ import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.RegistryFileCodec;
 import net.minecraft.resources.RegistryOps;
 import net.minecraft.world.item.ItemStackTemplate;
+import net.neoforged.neoforge.fluids.FluidStack;
 
 import java.util.List;
 import java.util.Optional;
@@ -54,6 +61,23 @@ public interface ICategory extends Predicate<UnlimitedItemStack> {
     StreamCodec<RegistryFriendlyByteBuf, ICategory> STREAM_CODEC = ByteBufCodecs.registry(ModRegistryKeys.CATEGORY_TYPE)
         .dispatch(ICategory::getType, Type::streamCodec);
     StreamCodec<RegistryFriendlyByteBuf, List<ICategory>> LIST_STREAM_CODEC = ICategory.STREAM_CODEC.apply(ByteBufCodecs.list());
+    Codec<Component> NAME_CODEC = Codec.of(ComponentSerialization.CODEC, new Decoder<>() {
+        @Override
+        public <T> DataResult<Pair<Component, T>> decode(DynamicOps<T> ops, T input) {
+            String legacy = ops.getStringValue(input).result().orElse(null);
+            if (legacy != null) {
+                try {
+                    // 旧版本把组件 JSON 再编码为字符串；转换时保留当前注册表上下文。
+                    T converted = JsonOps.INSTANCE.convertTo(ops, JsonParser.parseString(legacy));
+                    DataResult<Component> decoded = ComponentSerialization.CODEC.parse(ops, converted);
+                    if (decoded.isSuccess()) return decoded.map(component -> Pair.of(component, ops.empty()));
+                } catch (JsonParseException ignored) {
+                    return ComponentSerialization.CODEC.decode(ops, input);
+                }
+            }
+            return ComponentSerialization.CODEC.decode(ops, input);
+        }
+    });
 
     ItemStackTemplate icon();
 
@@ -61,6 +85,11 @@ public interface ICategory extends Predicate<UnlimitedItemStack> {
 
     @Override
     boolean test(UnlimitedItemStack stack);
+
+    /** 默认物品分类不匹配流体；流体、命名空间及组合分类按各自规则覆写。 */
+    default boolean testFluid(FluidStack fluid) {
+        return false;
+    }
 
     Type<? extends ICategory> getType();
 

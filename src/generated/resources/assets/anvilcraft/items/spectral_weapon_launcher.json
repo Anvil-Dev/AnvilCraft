@@ -33,11 +33,6 @@
         }
       ]
     },
-    "predicate": "anvilcraft:integer_component",
-    "property": "minecraft:component",
-    "value": {
-      "type": "anvilcraft:stored_energy",
-      "value": 0
-    }
+    "property": "anvilcraft:energy_weapon_exhausted"
   }
 }

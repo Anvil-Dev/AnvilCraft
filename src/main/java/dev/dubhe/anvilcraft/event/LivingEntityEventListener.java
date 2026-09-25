@@ -27,6 +27,7 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.monster.Creeper;
 import net.minecraft.world.entity.monster.Giant;
 import net.minecraft.world.entity.monster.Phantom;
+import net.minecraft.world.entity.monster.spider.Spider;
 import net.minecraft.world.entity.monster.warden.Warden;
 import net.minecraft.world.entity.monster.zombie.ZombifiedPiglin;
 import net.minecraft.world.entity.npc.villager.AbstractVillager;
@@ -58,8 +59,9 @@ public class LivingEntityEventListener {
         if (!(event.getNewAboutToBeSetTarget() instanceof Player player)) return;
         AmuletManager manager = AmuletManager.get(player.registryAccess());
         if (
-            entity.is(EntityTypeTags.SKELETONS) && manager.hasAmuletInInventory(player, ModAmulets.DOG)
-            || (entity instanceof Creeper || entity instanceof Phantom) && manager.hasAmuletInInventory(player, ModAmulets.CAT)
+            entity instanceof Spider && manager.hasAmuletInInventory(player, ModAmulets.ARMADILLO.getKey())
+            || entity.is(EntityTypeTags.SKELETONS) && manager.hasAmuletInInventory(player, ModAmulets.DOG.getKey())
+            || (entity instanceof Creeper || entity instanceof Phantom) && manager.hasAmuletInInventory(player, ModAmulets.CAT.getKey())
         ) {
             event.setCanceled(true);
         }
@@ -73,8 +75,9 @@ public class LivingEntityEventListener {
         if (!(entity.getTarget() instanceof Player player)) return;
         AmuletManager manager = AmuletManager.get(player.registryAccess());
         if (
-            entity.is(EntityTypeTags.SKELETONS) && manager.hasAmuletInInventory(player, ModAmulets.DOG)
-            || (entity instanceof Creeper || entity instanceof Phantom) && manager.hasAmuletInInventory(player, ModAmulets.CAT)
+            entity instanceof Spider && manager.hasAmuletInInventory(player, ModAmulets.ARMADILLO.getKey())
+            || entity.is(EntityTypeTags.SKELETONS) && manager.hasAmuletInInventory(player, ModAmulets.DOG.getKey())
+            || (entity instanceof Creeper || entity instanceof Phantom) && manager.hasAmuletInInventory(player, ModAmulets.CAT.getKey())
         ) {
             entity.setTarget(null);
         }

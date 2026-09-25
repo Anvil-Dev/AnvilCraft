@@ -164,6 +164,11 @@ public record GiveEffectAmulet(
         return ModAmuletTypes.GIVE_EFFECT.get();
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        return obj == this;
+    }
+
     public static class Type implements IAmulet.Type<GiveEffectAmulet> {
         public static final MapCodec<GiveEffectAmulet> CODEC = RecordCodecBuilder.mapCodec(inst -> inst.group(
             EntityPredicate.CODEC

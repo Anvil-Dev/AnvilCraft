@@ -1,11 +1,12 @@
 {
   "type": "anvilcraft:special_celestial_body",
   "axial_tilt": 45.0,
+  "can_be_shattered": false,
   "energy": 17,
-  "has_atmosphere": false,
   "liquid_coverage": "none",
   "magnetic_field": 3,
   "mass": 1,
+  "model": "planet_hollow",
   "name": "hollow_planet",
   "needs_custom_model": true,
   "resources": {
@@ -29,6 +30,5 @@
     "anvilcraft:negative_matter_block"
   ],
   "space": 10,
-  "texture": "planet_hollow",
   "time": 60
 }

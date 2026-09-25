@@ -14,6 +14,24 @@ import java.util.function.Function;
 
 public class ModRenderTypes {
 
+    public static final RenderType OVERWORLD_LIKE_SKY_RING = RenderType.create(
+        "anvilcraft:overworld_like_sky_ring",
+        RenderSetup.builder(ModRenderPipelines.OVERWORLD_LIKE_SKY_RING)
+            .useLightmap()
+            .withTexture("Sampler0", Sheets.BLOCKS_MAPPER.sheet())
+            .bufferSize(786432)
+            .createRenderSetup()
+    );
+
+    public static final RenderType PLACEMENT_GHOST = RenderType.create(
+        "anvilcraft:placement_ghost",
+        RenderSetup.builder(ModRenderPipelines.PLACEMENT_GHOST)
+            .useLightmap()
+            .sortOnUpload()
+            .withTexture("Sampler0", Sheets.BLOCKS_MAPPER.sheet())
+            .createRenderSetup()
+    );
+
     public static final RenderType LINE_BLOOM = ALRRenderTypeExtension.copyWithBloom(RenderTypes.LINES);
 
     public static final RenderType LASER_TRANSLUCENT = RenderType.create(
@@ -87,7 +105,9 @@ public class ModRenderTypes {
     );
 
     public static final Function<Identifier, RenderType> STAR_CUTOUT =
-            Util.memoize((Identifier tex) -> RenderTypes.entityCutout(tex));
+            Util.memoize(tex -> RenderType.create("anvilcraft:celestial_planet_cutout",
+                RenderSetup.builder(ModRenderPipelines.CELESTIAL_PLANET_CUTOUT)
+                    .withTexture("Sampler0", tex).useLightmap().createRenderSetup()));
 
     /**
      * 天体环使用独立的方块半透明管线，以保持与 1.21 相同的深度和混合行为。

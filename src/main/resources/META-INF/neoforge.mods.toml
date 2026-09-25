@@ -78,6 +78,13 @@ file="META-INF/accesstransformer.cfg"
     side="BOTH"
 
 [[dependencies."${mod_id}"]]
+    modId="anvillib_math"
+    type="required"
+    versionRange="[2.0.0+snapshot.533,)"
+    ordering="AFTER"
+    side="BOTH"
+
+[[dependencies."${mod_id}"]]
     modId="jei"
     type="optional"
     versionRange="[19.19.0.219,)"

@@ -1,21 +1,25 @@
 package dev.dubhe.anvilcraft.client.gui.screen;
 
-import dev.anvilcraft.lib.v2.rendering.gui.GuiRenderExtras;
 import dev.anvilcraft.lib.v2.util.MathUtil;
 import dev.dubhe.anvilcraft.block.entity.CelestialForgingAnvilBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.celestial.CelestialBodyClass;
 import dev.dubhe.anvilcraft.block.entity.celestial.CelestialBodyData;
 import dev.dubhe.anvilcraft.block.entity.celestial.CelestialBodyMatcher;
 import dev.dubhe.anvilcraft.block.entity.celestial.CelestialRefactorOption;
-import dev.dubhe.anvilcraft.block.entity.celestial.CelestialRefactorRegistry;
 import dev.dubhe.anvilcraft.block.entity.celestial.PlanetaryResourceSet;
 import dev.dubhe.anvilcraft.block.entity.celestial.SpecialCelestialBodyData;
 import dev.dubhe.anvilcraft.block.entity.celestial.StarData;
+import dev.dubhe.anvilcraft.block.entity.celestial.StellarEvolutionPhase;
+import dev.dubhe.anvilcraft.block.entity.celestial.StellarVisualState;
+import dev.dubhe.anvilcraft.client.event.LargeBlockPlacePreviewEventListener;
+import dev.dubhe.anvilcraft.client.gui.component.CelestialMapsGuideWidget;
 import dev.dubhe.anvilcraft.client.gui.screen.cfa.CelestialBodyInfoFormatter;
 import dev.dubhe.anvilcraft.client.gui.screen.cfa.CelestialBodyPreviewRenderer;
+import dev.dubhe.anvilcraft.client.support.RenderSupport;
 import dev.dubhe.anvilcraft.constant.SharedTextures;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.inventory.CelestialForgingAnvilMenu;
+import it.unimi.dsi.fastutil.ints.AbstractIntList;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
@@ -112,13 +116,6 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
     private static final Identifier TEX_REFACTOR_OPTIONS = SharedTextures.textureGui(BTN_DIR + "refactor_options");
     private static final Identifier TEX_REFACTORING = SharedTextures.textureGui(BTN_DIR + "refactoring");
 
-    // 星图引导。
-    private static final Identifier TEX_CELESTIAL_MAPS = SharedTextures.texture("block/celestial_maps");
-    private static final int MAP_SIZE = 160;
-    private static final int COLOR_TIME = 0xBF_A0FFA0;    // light green, 75% alpha
-    private static final int COLOR_SPACE = 0xBF_00FFFF;   // cyan, 75% alpha
-    private static final int COLOR_MASS = 0xBF_FFFFA0;    // light yellow, 75% alpha
-    private static final int COLOR_ENERGY = 0xBF_FF8080;  // light red, 75% alpha
     private static final int COLOR_MINERAL = 0xFFFFFF;
     private static final int COLOR_FLUID = 0x55AAFF;
     private static final int COLOR_BIOLOGICAL = 0x55FF55;
@@ -143,6 +140,7 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
     private SearchState searchState = SearchState.IDLE;
     @Nullable
     private CelestialBodyData preSearchBody = null;
+    private boolean missingAmplifierBlocked;
 
     // 锁定状态由方块实体持久化。
     private boolean isLocked() {
@@ -187,10 +185,22 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
 
     // 砧子数量变化时触发星图引导。
     private final int[] previousAnvilCounts = new int[4];
-    private boolean guideTriggered = false;
+    private @Nullable Boolean guideTriggered;
+    private final CelestialMapsGuideWidget mapsGuide;
 
     public CelestialForgingAnvilScreen(CelestialForgingAnvilMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title, 344, 207);
+        this.mapsGuide = new CelestialMapsGuideWidget(new AbstractIntList() {
+            @Override
+            public int getInt(int index) {
+                return menu.getBlockEntity().getAnvilCount(index);
+            }
+
+            @Override
+            public int size() {
+                return 4;
+            }
+        });
     }
 
     @Override
@@ -211,7 +221,22 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
         for (int i = 0; i < 4; i++) {
             this.previousAnvilCounts[i] = be.getAnvilCount(i);
         }
-        this.guideTriggered = false;
+        int size = CelestialMapsGuideWidget.MAP_SIZE / 2;
+        this.mapsGuide.setPosition(this.leftPos + PV_X + (PV_W - size) / 2, this.topPos + PV_Y + (PV_H - size) / 2);
+        this.mapsGuide.setSize(size, size);
+        this.addRenderableWidget(this.mapsGuide);
+        if (this.guideTriggered == null) {
+            this.guideTriggered = this.searchState != SearchState.DONE;
+        }
+        this.updateGuideVisibility();
+    }
+
+    private void updateGuideVisibility() {
+        var body = this.getMenu().getBlockEntity().getCelestialBodyData();
+        boolean missingAmplifier = this.missingAmplifierBlocked
+            || body instanceof StarData star && !star.specialRedDwarf() && !this.getMenu().getBlockEntity().isAmplifierPresent();
+        this.mapsGuide.visible = !missingAmplifier && !this.isLocked()
+            && Boolean.TRUE.equals(this.guideTriggered) && this.searchState != SearchState.LOADING;
     }
 
     @Override
@@ -224,8 +249,14 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
             int cur = be.getAnvilCount(i);
             if (cur != this.previousAnvilCounts[i]) {
                 this.guideTriggered = true;
+                this.missingAmplifierBlocked = false;
+                LargeBlockPlacePreviewEventListener.removeMissingAmplifierAnvil(be.getBlockPos());
             }
             this.previousAnvilCounts[i] = cur;
+        }
+        if (this.missingAmplifierBlocked && be.isAmplifierPresent()) {
+            this.missingAmplifierBlocked = false;
+            LargeBlockPlacePreviewEventListener.removeMissingAmplifierAnvil(be.getBlockPos());
         }
         if (this.searchState == SearchState.LOADING) {
             this.guideTriggered = false;
@@ -241,7 +272,7 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
             if (this.localAcceleratorTicksRemaining <= 0 || serverTicks < this.localAcceleratorTicksRemaining) {
                 this.localAcceleratorTicksRemaining = serverTicks;
             }
-            if (this.localAcceleratorTicksRemaining > 0) {
+            if (this.localAcceleratorTicksRemaining > 0 && !be.isAcceleratorPaused()) {
                 this.localAcceleratorTicksRemaining--;
             }
         } else {
@@ -272,6 +303,7 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
 
     @Override
     public void extractContents(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
+        this.updateGuideVisibility();
         super.extractContents(graphics, mouseX, mouseY, partialTick);
         int guiLeft = this.leftPos;
         int guiTop = this.topPos;
@@ -292,9 +324,8 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
 
         // 引导已触发、界面未锁定且未搜索时显示星图。
         // 指南显示时完全取代天体预览/信息/资源框——不再叠加渲染，避免混乱（对齐 1.21：指南分支 return）。
-        boolean showGuide = !this.isLocked() && this.guideTriggered && this.searchState != SearchState.LOADING;
+        boolean showGuide = this.mapsGuide.visible;
         if (showGuide) {
-            this.renderCelestialMapsGuide(graphics, guiLeft, guiTop);
             // 在星图上层重新绘制预览按钮。
             this.renderPreviewBottomButtons(graphics, guiLeft, guiTop, relX, relY);
         } else {
@@ -316,7 +347,8 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
     private void renderPreviewAreaContents(GuiGraphicsExtractor graphics, int guiLeft, int guiTop) {
         // 增幅天体缺少增幅器时不显示预览内容。
         CelestialBodyData body = getMenu().getBlockEntity().getCelestialBodyData();
-        boolean missingAmplifier = body instanceof StarData && !getMenu().getBlockEntity().isAmplifierPresent();
+        boolean missingAmplifier = this.missingAmplifierBlocked
+            || body instanceof StarData star && !star.specialRedDwarf() && !getMenu().getBlockEntity().isAmplifierPresent();
         if (missingAmplifier) {
             Component line1 = Component.translatable("screen.anvilcraft.cfa.missing_amplifier.line1");
             Component line2 = Component.translatable("screen.anvilcraft.cfa.missing_amplifier.line2");
@@ -537,7 +569,7 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
         if (this.scrollOffset < 0) this.scrollOffset = 0;
 
         int ax = guiLeft + PV_INFO_X;
-        int ay = guiTop + PV_INFO_Y + 2;
+        int ay = guiTop + PV_INFO_Y;
         int aw = PV_INFO_W;
         int ah = PV_INFO_H;
 
@@ -564,33 +596,69 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
                                                     CelestialForgingAnvilBlockEntity be,
                                                     int guiLeft, int guiTop) {
         List<Component> lines = new ArrayList<>();
-        int stage = be.getAcceleratorStage();
-        String stageKey = switch (stage) {
-            case 1 -> "screen.anvilcraft.cfa.evolution.stage1";
-            case 2 -> "screen.anvilcraft.cfa.evolution.stage2";
-            case 3 -> "screen.anvilcraft.cfa.evolution.stage3";
-            case 4 -> "screen.anvilcraft.cfa.evolution.stage4";
-            default -> "screen.anvilcraft.cfa.evolution.stage_unknown";
-        };
-        lines.add(Component.translatable(stageKey));
+        if (be.getMegastructureManager().getAcceleratorHandler().isPaused()) {
+            lines.add(Component.translatable("screen.anvilcraft.cfa.evolution.paused"));
+        }
+        StellarEvolutionPhase phase = be.getStellarEvolutionPhase();
+        if (phase != null) {
+            lines.add(Component.translatable("screen.anvilcraft.cfa.evolution.phase." + phase.getSerializedName()));
+            int phasePercent = Math.clamp(Math.round(be.getStellarPhaseProgress() * 100.0f), 0, 100);
+            int totalPercent = Math.clamp(Math.round(be.getStellarTotalProgress(0.0f) * 100.0f), 0, 100);
+            lines.add(Component.translatable("screen.anvilcraft.cfa.evolution.phase_progress", phasePercent));
+            lines.add(Component.translatable("screen.anvilcraft.cfa.evolution.total_progress", totalPercent));
+            StellarVisualState visual = be.getStellarVisualState(0.0f);
+            if (visual != null) {
+                lines.add(Component.translatable("screen.anvilcraft.cfa.evolution.temperature",
+                    Math.round(visual.temperature())));
+            }
+            @Nullable CelestialBodyClass surfaceClass = be.getVisualSurfaceClass();
+            if (surfaceClass != null) {
+                lines.add(Component.translatable("screen.anvilcraft.cfa.evolution.surface_class",
+                    surfaceClass.name()));
+            }
+        }
+        var evolution = be.getStellarEvolutionState();
+        if (evolution != null) {
+            lines.add(Component.translatable("screen.anvilcraft.cfa.evolution.initial_mass",
+                String.format(java.util.Locale.ROOT, "%.3g", evolution.initialSolarMass())));
+            lines.add(Component.translatable("screen.anvilcraft.cfa.evolution.current_mass",
+                String.format(java.util.Locale.ROOT, "%.3g", evolution.currentSolarMass())));
+            lines.add(Component.translatable("screen.anvilcraft.cfa.evolution.metallicity",
+                String.format(java.util.Locale.ROOT, "%.3g", evolution.metallicityZ())));
+        }
+        /// 剩余时间（使用客户端本地倒计时，每tick递减）
         int displayTicks = this.localAcceleratorTicksRemaining > 0
             ? this.localAcceleratorTicksRemaining : be.getAcceleratorTicksRemaining();
         int secondsRemaining = displayTicks / 20;
         lines.add(Component.translatable("screen.anvilcraft.cfa.evolution.time_remaining",
             Component.literal(formatDuration(secondsRemaining))));
-        if (be.getAcceleratorTicksTotal() > 0) {
-            int pct = (int) ((1.0f - (float) displayTicks / be.getAcceleratorTicksTotal()) * 100);
-            lines.add(Component.literal(pct + "%"));
-        }
+        lines.add(Component.translatable(
+            "screen.anvilcraft.cfa.evolution.terminal_outcome." + be.getStellarTerminalOutcomeId()
+        ));
+        /// 无限能量指示器 —— 仅在戴森球提供无限能量时显示
         if (be.isInfinitePower()) {
             lines.add(Component.translatable("screen.anvilcraft.cfa.evolution.infinite_power"));
         }
 
-        int ax = guiLeft + PV_INFO_X;
-        int y = guiTop + PV_INFO_Y + 10;
-        for (Component line : lines) {
-            graphics.text(this.font, line, ax, y, 0xFFFFFFFF, false);
-            y += this.font.lineHeight + 1;
+        int lineHeight = this.font.lineHeight + 1;
+        List<FormattedCharSequence> wrapped = new ArrayList<>();
+        for (Component line : lines) wrapped.addAll(this.font.split(line, PV_INFO_W - 5));
+        int maxLines = PV_INFO_H / lineHeight;
+        int maxScroll = Math.max(0, wrapped.size() - maxLines);
+        this.scrollOffset = Math.clamp(this.scrollOffset, 0, maxScroll);
+        int x = guiLeft + PV_INFO_X;
+        int y = guiTop + PV_INFO_Y;
+        graphics.enableScissor(x, y, x + PV_INFO_W, y + PV_INFO_H);
+        for (int index = this.scrollOffset; index < Math.min(wrapped.size(), this.scrollOffset + maxLines); index++) {
+            graphics.text(this.font, wrapped.get(index), x, y + (index - this.scrollOffset) * lineHeight, 0xFFFFFFFF, false);
+        }
+        graphics.disableScissor();
+        if (maxScroll > 0) {
+            int barX = x + PV_INFO_W - 3;
+            int thumbHeight = Math.max(8, PV_INFO_H * maxLines / wrapped.size());
+            int thumbY = y + (PV_INFO_H - thumbHeight) * this.scrollOffset / maxScroll;
+            graphics.fill(barX, y, barX + 2, y + PV_INFO_H, 0x40FFFFFF);
+            graphics.fill(barX, thumbY, barX + 2, thumbY + thumbHeight, 0x80CCCCCC);
         }
     }
 
@@ -815,8 +883,7 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
                 if (idx >= 0 && idx < GHOST_STACKS.length) {
                     int sx = guiLeft + slot.x;
                     int sy = guiTop + slot.y;
-                    GuiRenderExtras.itemWithTransparency(g, GHOST_STACKS[idx], sx, sy, 0.52F);
-                    g.fill(sx, sy, sx + 16, sy + 16, 0x60FFAAAA);
+                    RenderSupport.renderSlotGhost(GHOST_STACKS[idx], g, sx, sy, 0.52F, 0x60FFAAAA);
                 }
             }
             if (slot instanceof CelestialForgingAnvilMenu.CFAMaterialSlot && !slot.hasItem()) {
@@ -825,8 +892,7 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
                 if (!filter.isEmpty()) {
                     int sx = guiLeft + slot.x;
                     int sy = guiTop + slot.y;
-                    GuiRenderExtras.itemWithTransparency(g, filter, sx, sy, 0.52F);
-                    g.fill(sx, sy, sx + 16, sy + 16, 0x60FFAAAA);
+                    RenderSupport.renderSlotGhost(filter, g, sx, sy, 0.52F, 0x60FFAAAA);
                     int limit = be.getMaterialLimit();
                     if (limit > 0 && !filter.is(Items.BARRIER)) {
                         String countStr = String.valueOf(limit);
@@ -868,122 +934,6 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
         }
     }
 
-    // ==================== 星图引导 ====================
-
-    private void renderCelestialMapsGuide(GuiGraphicsExtractor g, int guiLeft, int guiTop) {
-        int previewCenterX = guiLeft + PV_X + PV_W / 2;
-        int previewCenterY = guiTop + PV_Y + PV_H / 2;
-
-        var ps = g.pose();
-        ps.pushMatrix();
-        float scale = 0.5f;
-        ps.translate(previewCenterX, previewCenterY);
-        ps.scale(scale, scale);
-        ps.translate(-MAP_SIZE / 2.0f, -MAP_SIZE / 2.0f);
-
-        // 将 160×160 的星图贴图缩放到界面中的 80×80 区域。
-        g.blit(RenderPipelines.GUI_TEXTURED, TEX_CELESTIAL_MAPS, 0, 0, 0, 0, MAP_SIZE, MAP_SIZE, MAP_SIZE, MAP_SIZE);
-
-        int timeCount = getMenu().getBlockEntity().getAnvilCount(0);
-        int spaceCount = getMenu().getBlockEntity().getAnvilCount(1);
-        int massCount = getMenu().getBlockEntity().getAnvilCount(2);
-        final int energyCount = getMenu().getBlockEntity().getAnvilCount(3);
-
-        // 时间砧：浅绿色纵向区域，覆盖贴图完整高度。
-        if (timeCount > 0) {
-            int x = 11 + Math.round((timeCount - 1) * 64.0f / 63.0f);
-            g.fill(x, 0, x + 2, MAP_SIZE, COLOR_TIME);
-            String text = String.valueOf(timeCount);
-            int textX = x + 1 - this.font.width(text) / 2;
-            int textY = -this.font.lineHeight - 4;
-            g.text(this.font, text, textX, textY, COLOR_TIME, false);
-        }
-
-        // 空间砧：青色横向区域，覆盖贴图完整宽度。
-        if (spaceCount > 0) {
-            int y = MAP_SIZE - Math.round(92 + (spaceCount - 1) * 64.0f / 63.0f) - 2;
-            g.fill(0, y, MAP_SIZE, y + 2, COLOR_SPACE);
-            String text = String.valueOf(spaceCount);
-            int textX = -this.font.width(text) - 6;
-            int textY = y + 1 - this.font.lineHeight / 2;
-            g.text(this.font, text, textX, textY, COLOR_SPACE, false);
-        }
-
-        // 质量砧：浅黄色纵向区域，位于贴图上半部分。
-        if (massCount > 0) {
-            int x = 91 + Math.round((massCount - 1) * 64.0f / 63.0f);
-            g.fill(x, 0, x + 2, MAP_SIZE / 2, COLOR_MASS);
-            String text = String.valueOf(massCount);
-            int textX = x + 1 - this.font.width(text) / 2;
-            int textY = -this.font.lineHeight - 4;
-            g.text(this.font, text, textX, textY, COLOR_MASS, false);
-        }
-
-        // 能量砧：浅红色横向区域，位于贴图左半部分。
-        if (energyCount > 0) {
-            int y = MAP_SIZE - Math.round(12 + (energyCount - 1) * 64.0f / 63.0f) - 2;
-            g.fill(0, y, MAP_SIZE / 2, y + 2, COLOR_ENERGY);
-            String text = String.valueOf(energyCount);
-            int textX = -this.font.width(text) - 6;
-            int textY = y + 1 - this.font.lineHeight / 2;
-            g.text(this.font, text, textX, textY, COLOR_ENERGY, false);
-        }
-
-        // 三步星图匹配提示。
-        this.renderGuideStepText(g, timeCount, spaceCount, massCount, energyCount);
-
-        ps.popMatrix();
-    }
-
-    private void renderGuideStepText(GuiGraphicsExtractor g, int time, int space, int mass, int energy) {
-        int textX = 88;
-        int lineSpacing = this.font.lineHeight + 5;
-        int y0 = 108;
-
-        // 第一步：根据质量与空间在质量-半径图中向上确定类型。
-        int step1Rgb = CelestialBodyMatcher.getMassRadiusRgb(mass, space);
-        String step1Name = getTypeDisplayName(step1Rgb);
-        this.drawGuideLine(g, "↑" + step1Name, textX, y0, 0xFFCCCCCC);
-
-        // 第二步：根据时间与能量在年龄-温度图中向左确定类型。
-        CelestialBodyClass step1Class = CelestialBodyClass.fromRgb(step1Rgb);
-        int step2Rgb;
-        if (step1Class != null && step1Class.step2UsesSp()) {
-            step2Rgb = CelestialBodyMatcher.getAgeTempSpRgb(time, energy);
-        } else {
-            step2Rgb = CelestialBodyMatcher.getAgeTempRgb(time, energy);
-        }
-        String step2Name = getTypeDisplayName(step2Rgb);
-        this.drawGuideLine(g, "←" + step2Name, textX, y0 + lineSpacing * 2, 0xFFCCCCCC);
-
-        // 第三步：根据时间与空间在年龄-半径图中向左上确定类型。
-        int step3Rgb = CelestialBodyMatcher.getAgeRadiusRgb(time, space);
-        String step3Name = getTypeDisplayName(step3Rgb);
-        this.drawGuideLine(g, "↖" + step3Name, textX, y0 + lineSpacing, 0xFFCCCCCC);
-    }
-
-    private static String getTypeDisplayName(int rgb) {
-        if (rgb == 0x000000) {
-            return Component.translatable("screen.anvilcraft.cfa.class.no_match").getString();
-        }
-        CelestialBodyClass bodyClass = CelestialBodyClass.fromRgb(rgb);
-        if (bodyClass == null) {
-            return Component.translatable("screen.anvilcraft.cfa.class.no_match").getString();
-        }
-        String key;
-        if (bodyClass.isRockyPlanet()) {
-            key = "screen.anvilcraft.cfa.class.rocky_planet";
-        } else {
-            key = "screen.anvilcraft.cfa.class." + bodyClass.name().toLowerCase();
-        }
-        return Component.translatable(key).getString();
-    }
-
-    @SuppressWarnings("SameParameterValue")
-    private void drawGuideLine(GuiGraphicsExtractor g, String text, int x, int y, int color) {
-        g.text(this.font, text, x, y, color, false);
-    }
-
     // ==================== 巨构重构区域 ====================
 
     private void renderRefactorSection(GuiGraphicsExtractor g, int guiLeft, int guiTop, int relX, int relY) {
@@ -998,16 +948,7 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
             && !hasAcceleratorActive;
 
         if (isActive) {
-            this.refactorOptions = CelestialRefactorRegistry.getOptions(
-                body,
-                getMenu().getBlockEntity().isAmplify(),
-                getMenu().getBlockEntity().getPlanetaryResourceSet()
-            );
-            if (hasMegastructure) {
-                this.refactorOptions = this.refactorOptions.stream()
-                    .filter(CelestialRefactorOption::auxiliary)
-                    .toList();
-            }
+            this.refactorOptions = getMenu().getBlockEntity().getClientVisibleOptions();
         } else {
             this.refactorOptions = List.of();
         }
@@ -1265,6 +1206,7 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
 
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
+        if (this.mapsGuide.mouseScrolled(mouseX, mouseY, scrollX, scrollY)) return true;
         int relX = (int) mouseX - this.leftPos;
         int relY = (int) mouseY - this.topPos;
 
@@ -1289,14 +1231,14 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
         }
 
         // 在信息区域滚动文本。
-        if (relX >= PV_INFO_X && relX < PV_INFO_X + PV_INFO_W
+        if (!this.mapsGuide.visible && relX >= PV_INFO_X && relX < PV_INFO_X + PV_INFO_W
             && relY >= PV_INFO_Y && relY < PV_INFO_Y + PV_INFO_H) {
             this.scrollOffset -= (int) scrollY;
             return true;
         }
 
         // 在资源条上按像素横向滚动。
-        if (relX >= PV_X && relX < PV_X + PV_W && relY >= PV_RES_Y && relY < PV_RES_Y + PV_RES_H) {
+        if (!this.mapsGuide.visible && relX >= PV_X && relX < PV_X + PV_W && relY >= PV_RES_Y && relY < PV_RES_Y + PV_RES_H) {
             this.resourceScrollOffset -= (int) scrollY * 30;
             return true;
         }
@@ -1319,7 +1261,17 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
         if (this.searchState == SearchState.LOADING) return;
         var be = getMenu().getBlockEntity();
         boolean hasSeedItem = !be.getAnvilInventory().getItem(4).isEmpty();
+        this.missingAmplifierBlocked = false;
         if (!hasSeedItem && this.minecraft.level != null) {
+            if (!be.isAmplifierPresent()) {
+                var amplified = CelestialBodyMatcher.match(be.getAnvilCount(0), be.getAnvilCount(1), be.getAnvilCount(2),
+                    be.getAnvilCount(3), true, this.minecraft.level.getRandom());
+                if (amplified instanceof StarData star && !star.specialRedDwarf()) {
+                    this.missingAmplifierBlocked = true;
+                    LargeBlockPlacePreviewEventListener.offerMissingAmplifierAnvil(be.getBlockPos());
+                    return;
+                }
+            }
             var preCheck = CelestialBodyMatcher.match(
                 be.getAnvilCount(0),
                 be.getAnvilCount(1),

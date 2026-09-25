@@ -7,6 +7,7 @@ import dev.anvilcraft.lib.v2.registrum.providers.generators.RegistrumRecipeProvi
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.data.advancement.ModAdvancementsHandler;
 import dev.dubhe.anvilcraft.data.lang.LangHandler;
+import dev.dubhe.anvilcraft.data.provider.ModBlockPlacementRuleProvider;
 import dev.dubhe.anvilcraft.data.provider.ModFurnaceFuelProvider;
 import dev.dubhe.anvilcraft.data.provider.ModLootModifierProvider;
 import dev.dubhe.anvilcraft.data.provider.ModLootTableProvider;
@@ -20,6 +21,7 @@ import dev.dubhe.anvilcraft.init.entity.ModDamageTypes;
 import dev.dubhe.anvilcraft.init.entity.ModTradeSets;
 import dev.dubhe.anvilcraft.init.entity.ModVillagerTrades;
 import dev.dubhe.anvilcraft.init.item.ModAmuletDefinitions;
+import dev.dubhe.anvilcraft.init.recipe.ModMathFunctions;
 import dev.dubhe.anvilcraft.init.registry.ModRegistryKeys;
 import dev.dubhe.anvilcraft.init.storage.ModCategories;
 import net.minecraft.advancements.Criterion;
@@ -54,6 +56,7 @@ public class AnvilCraftDatagen {
         generator.addProvider(true, new ModLootTableProvider(packOutput, event.getLookupProvider()));
         generator.addProvider(true, new ModFurnaceFuelProvider(packOutput, event.getLookupProvider()));
         generator.addProvider(true, new ModLootModifierProvider(packOutput, event.getLookupProvider()));
+        generator.addProvider(true, new ModBlockPlacementRuleProvider(packOutput));
 
         IntegrationHook.setEvent(event);
         AnvilCraft.getINTEGRATION_MANAGER().loadAllClientDataIntegrations();
@@ -68,6 +71,7 @@ public class AnvilCraftDatagen {
         generator.addProvider(true, new ModLootTableProvider(packOutput, lookupProvider));
         generator.addProvider(true, new ModFurnaceFuelProvider(packOutput, lookupProvider));
         generator.addProvider(true, new ModLootModifierProvider(packOutput, lookupProvider));
+        generator.addProvider(true, new ModBlockPlacementRuleProvider(packOutput));
 
         IntegrationHook.setEvent(event);
         AnvilCraft.getINTEGRATION_MANAGER().loadAllServerDataIntegrations();
@@ -81,6 +85,7 @@ public class AnvilCraftDatagen {
         genInit.add(Registries.VILLAGER_TRADE, ModVillagerTrades::bootstrap);
         genInit.add(Registries.TRADE_SET, ModTradeSets::bootstrap);
         genInit.add(LibRegistries.DEFINITIONS_KEY, ModMultiblockDefinitions::bootstrap);
+        genInit.add(dev.anvilcraft.lib.v2.math.init.LibRegistries.FUNCTION_KEY, ModMathFunctions::bootstrap);
         genInit.add(ModRegistryKeys.AMULET_DEF, ModAmuletDefinitions::bootstrap);
         genInit.add(ModRegistryKeys.CATEGORY, ModCategories::bootstrap);
 

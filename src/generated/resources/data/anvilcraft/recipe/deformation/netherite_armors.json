@@ -13,5 +13,9 @@
     {
       "id": "minecraft:netherite_boots"
     }
-  ]
+  ],
+  "material": {
+    "type": "anvilcraft:repair_material",
+    "cost": 2
+  }
 }

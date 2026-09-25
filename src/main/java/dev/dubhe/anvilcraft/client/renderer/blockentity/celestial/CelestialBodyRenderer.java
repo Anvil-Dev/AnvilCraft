@@ -4,18 +4,42 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import dev.dubhe.anvilcraft.block.entity.celestial.StarData;
 import dev.dubhe.anvilcraft.block.entity.celestial.Temperature;
+import dev.dubhe.anvilcraft.client.init.ModRenderPipelines;
+import dev.dubhe.anvilcraft.client.support.GatewayGuiProjection;
+import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.client.renderer.blockentity.AbstractEndPortalRenderer;
+import net.minecraft.client.renderer.rendertype.RenderSetup;
+import net.minecraft.client.renderer.rendertype.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
+import net.minecraft.client.renderer.rendertype.TextureTransform;
 import net.minecraft.util.ARGB;
+import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
 /**
  * 锻星砧天体顶点渲染工具，提供带朗伯光照的行星、大气层、恒星光晕和天体环渲染。
- * 所有方法都直接向 {@link VertexConsumer} 提交顶点。
  * 各面的顶点绕序和纹理方向必须显式保留，避免抽象后误翻转贴图或法线。
  */
 @SuppressWarnings("DuplicatedCode")
 public class CelestialBodyRenderer {
 
     private static final Vector3f LIGHT_DIR = new Vector3f(0.7f, 0.5f, 0.5f).normalize();
+
+    public static void submitEndGatewayBody(PoseStack pose, SubmitNodeCollector collector) {
+        Matrix4f projection = GatewayGuiProjection.current();
+        if (projection != null) submitEndGatewayPreview(pose, collector, projection);
+        else AbstractEndPortalRenderer.submitSpecial(RenderTypes.endGateway(), pose, collector);
+    }
+
+    public static void submitEndGatewayPreview(PoseStack pose, SubmitNodeCollector collector, Matrix4f guiProjection) {
+        RenderType type = RenderType.create("anvilcraft_gateway_preview",
+            RenderSetup.builder(ModRenderPipelines.CELESTIAL_GATEWAY_PREVIEW)
+                .withTexture("Sampler0", AbstractEndPortalRenderer.END_SKY_LOCATION)
+                .withTexture("Sampler1", AbstractEndPortalRenderer.END_PORTAL_LOCATION)
+                .setTextureTransform(new TextureTransform("anvilcraft_gateway_gui", () -> guiProjection))
+                .createRenderSetup());
+        AbstractEndPortalRenderer.submitSpecial(type, pose, collector);
+    }
 
     /** 将浮点 RGBA 分量打包为 26.1 顶点消费者使用的 ARGB 颜色。 */
     private static int packColor(float r, float g, float b, float a) {
@@ -53,6 +77,11 @@ public class CelestialBodyRenderer {
     }
 
     /** 获取指定温度对应的大气层颜色。 */
+    public static float[] getAtmosphereColor(net.minecraft.util.ColorRGBA color) {
+        int rgb = color.rgba();
+        return new float[]{((rgb >> 16) & 255) / 255.0F, ((rgb >> 8) & 255) / 255.0F, (rgb & 255) / 255.0F};
+    }
+
     public static float[] getAtmosphereColor(Temperature temperature) {
         return switch (temperature) {
             case FREEZING -> new float[]{

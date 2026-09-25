@@ -25,6 +25,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.storage.TagValueOutput;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
@@ -32,6 +33,7 @@ import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import net.neoforged.neoforge.transfer.fluid.FluidStacksResourceHandler;
+import net.neoforged.neoforge.transfer.transaction.Transaction;
 import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 import org.jspecify.annotations.Nullable;
 
@@ -47,6 +49,7 @@ public class CelestialForgingAnvilFluidInterfaceBlockEntity extends BlockEntity 
     @Getter
     private final FluidStacksResourceHandler tank;
     private final ResourceHandler<FluidResource> externalTank;
+    private boolean suppressFluidSync;
 
     @Setter
     @Nullable
@@ -178,10 +181,27 @@ public class CelestialForgingAnvilFluidInterfaceBlockEntity extends BlockEntity 
     @Override
     public void setChanged() {
         super.setChanged();
-        if (this.level != null && !this.level.isClientSide()) {
+        if (!this.suppressFluidSync && this.level != null && !this.level.isClientSide()) {
             this.level.sendBlockUpdated(this.worldPosition, this.getBlockState(), this.getBlockState(), 3);
             this.syncToClients();
         }
+    }
+
+    public int drainFluid(Fluid fluid) {
+        int drained = 0;
+        this.suppressFluidSync = true;
+        try (Transaction transaction = Transaction.openRoot()) {
+            for (int slot = 0; slot < this.tank.size(); slot++) {
+                FluidResource resource = this.tank.getResource(slot);
+                if (resource.isEmpty() || resource.getFluid() != fluid) continue;
+                drained += this.tank.extract(slot, resource, this.tank.getAmountAsInt(slot), transaction);
+            }
+            transaction.commit();
+        } finally {
+            this.suppressFluidSync = false;
+        }
+        if (drained > 0) this.setChanged();
+        return drained;
     }
 
     @Override

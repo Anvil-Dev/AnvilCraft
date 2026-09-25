@@ -91,10 +91,21 @@ public final class ModMegastructures {
             .handler(GiantExtractorHandler::new)
             .build()
     );
+    public static final DeferredHolder<Megastructure, Megastructure> DYSON_SPHERE_BROWN_DWARF = register(
+        "dyson_sphere_brown_dwarf",
+        id -> Megastructure.builder(id, "dyson_sphere_brown_dwarf")
+            .prerequisite(ModMegastructures::isBrownDwarf)
+            .ring(2)
+            .rotation(ModMegastructures::bodySynchronizedRotation)
+            .model(2, ringModel(2, "dyson_sphere"))
+            .material(ModItems.DYSON_SPHERE_COMPONENT, 8)
+            .handler(() -> new DysonSphereHandler("dyson_sphere_brown_dwarf"))
+            .build()
+    );
     public static final DeferredHolder<Megastructure, Megastructure> STELLAR_RING_COLLIDER = register(
         "stellar_ring_collider",
         id -> Megastructure.builder(id, "stellar_ring_collider")
-            .prerequisite(context -> context.body() instanceof StarData star && star.size() < 48
+            .prerequisite(context -> context.body() instanceof StarData star && !star.usesLargeStellarRings()
                 && star.bodyClass() != CelestialBodyClass.NEUTRON_STAR
                 && star.bodyClass() != CelestialBodyClass.BLACK_HOLE)
             .ring(4)
@@ -173,10 +184,11 @@ public final class ModMegastructures {
         "stellar_evolution_accelerator",
         id -> Megastructure.builder(id, "stellar_evolution_accelerator")
             .prerequisite(context -> context.body() instanceof StarData star
+                && !star.specialRedDwarf()
                 && star.bodyClass() != CelestialBodyClass.WHITE_DWARF
                 && star.bodyClass() != CelestialBodyClass.NEUTRON_STAR
                 && star.bodyClass() != CelestialBodyClass.BLACK_HOLE)
-            .ring(context -> context.body().size() >= 48 ? 6 : 5)
+            .ring(context -> context.body().usesLargeStellarRings() ? 6 : 5)
             .model(5, ringModel(5, "stellar_evolution_accelerator"))
             .model(6, ringModel(6, "stellar_evolution_accelerator"))
             .material(ModItems.STELLAR_EVOLUTION_ACCELERATOR_COMPONENT, 8)
@@ -231,9 +243,13 @@ public final class ModMegastructures {
 
     private static boolean isOrdinaryStar(Megastructure.Context context, boolean large) {
         return context.body() instanceof StarData star
-            && (star.size() >= 48) == large
+            && star.usesLargeStellarRings() == large
             && star.bodyClass() != CelestialBodyClass.NEUTRON_STAR
             && star.bodyClass() != CelestialBodyClass.BLACK_HOLE;
+    }
+
+    private static boolean isBrownDwarf(Megastructure.Context context) {
+        return !context.amplified() && context.body() instanceof GiantPlanetData brown && brown.brownDwarf();
     }
 
     private static boolean isBlackHole(Megastructure.Context context) {

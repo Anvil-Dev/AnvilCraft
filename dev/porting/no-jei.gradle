@@ -1,0 +1,5 @@
+gradle.afterProject { project, state ->
+    project.configurations.matching { it.name == 'runtimeClasspath' }.configureEach {
+        exclude group: 'mezz.jei'
+    }
+}

@@ -6,6 +6,7 @@ import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.recipe.frost.DeformationRecipe;
+import dev.dubhe.anvilcraft.recipe.frost.FrostSmithingOption;
 import dev.dubhe.anvilcraft.recipe.frost.FrostSmithingRecipeInput;
 import dev.dubhe.anvilcraft.recipe.frost.IFrostSmithingRecipe;
 import dev.dubhe.anvilcraft.recipe.frost.PermutationRecipe;
@@ -25,6 +26,7 @@ import org.jetbrains.annotations.Unmodifiable;
 import org.jspecify.annotations.Nullable;
 
 import java.util.List;
+import java.util.Optional;
 
 public class FrostSmithingMenu extends AdjacentSmithingMenu {
     private final Level level;
@@ -34,6 +36,7 @@ public class FrostSmithingMenu extends AdjacentSmithingMenu {
     private @Nullable RecipeHolder<? extends IFrostSmithingRecipe> selectedRecipe = null;
     public int selected = -1;
     public @Nullable List<RecipeResult> results = null;
+    private @Nullable List<FrostSmithingOption> options = null;
 
     public FrostSmithingMenu(MenuType<FrostSmithingMenu> type, int containerId, Inventory playerInventory) {
         this(type, containerId, playerInventory, ContainerLevelAccess.NULL);
@@ -43,51 +46,57 @@ public class FrostSmithingMenu extends AdjacentSmithingMenu {
         this(ModMenuTypes.FROST_SMITHING.get(), containerId, playerInventory, access);
     }
 
-    /// 浮霜锻造台菜单
-    ///
-    /// @param type            类型
-    /// @param containerId     容器id
-    /// @param playerInventory 背包
-    /// @param access          检查
-    public FrostSmithingMenu(MenuType<FrostSmithingMenu> type, int containerId, Inventory playerInventory, ContainerLevelAccess access) {
-        super(
-            type,
-            containerId,
-            playerInventory,
-            access,
-            FrostSmithingMenu.createInputSlotDefinitions(
-                ImmutableList.<RecipeHolder<? extends IFrostSmithingRecipe>>builder()
-                    .addAll(RecipesRecord.getRecipes(playerInventory.player.level()).byType(ModRecipeTypes.PERMUTATION.get()))
-                    .addAll(RecipesRecord.getRecipes(playerInventory.player.level()).byType(ModRecipeTypes.DEFORMATION.get()))
-                    .build()
-            )
-        );
+    /**
+     * 浮霜锻造台菜单
+     *
+     * @param type            类型
+     * @param containerId     容器id
+     * @param playerInventory 背包
+     * @param access          检查
+     */
+    public FrostSmithingMenu(
+        MenuType<FrostSmithingMenu> type, int containerId, Inventory playerInventory, ContainerLevelAccess access) {
+        super(type, containerId, playerInventory, access, createInputSlotDefinitions());
         this.level = playerInventory.player.level();
         this.recipes = ImmutableList.<RecipeHolder<? extends IFrostSmithingRecipe>>builder()
             .addAll(RecipesRecord.getRecipes(this.level).byType(ModRecipeTypes.PERMUTATION.get()))
             .addAll(RecipesRecord.getRecipes(this.level).byType(ModRecipeTypes.DEFORMATION.get()))
             .build();
+        this.setInputPlacementPredicate(IFrostSmithingRecipe.TEMPLATE_SLOT,
+            stack -> this.recipes.stream().anyMatch(recipe -> recipe.value().isTemplate(stack)));
+        this.setInputPlacementPredicate(IFrostSmithingRecipe.INPUT_SLOT, stack -> this.hasTemplateForPlacement()
+                         && this.recipes.stream()
+                             .anyMatch(recipe -> recipe.value().isTemplate(this.template())
+                                                 && recipe.value().isInput(stack)));
+        this.setInputPlacementPredicate(IFrostSmithingRecipe.MATERIAL_SLOT, stack -> this.hasTemplateForPlacement()
+                         && this.recipes.stream()
+                             .anyMatch(recipe -> recipe.value().isTemplate(this.template())
+                                                 && recipe.value().acceptsMaterial(this.createRecipeInput(), stack)));
     }
 
-    protected static ItemCombinerMenuSlotDefinition createInputSlotDefinitions(List<RecipeHolder<? extends IFrostSmithingRecipe>> recipes) {
+    protected static ItemCombinerMenuSlotDefinition createInputSlotDefinitions() {
         return ItemCombinerMenuSlotDefinition.create()
-            .withSlot(
-                0,
-                8,
-                48,
-                stack -> recipes.stream().anyMatch(recipe -> recipe.value().isTemplate(stack))
-            ).withSlot(
-                1,
-                44,
-                48,
-                stack -> recipes.stream().anyMatch(recipe -> recipe.value().isMaterial(stack))
-            ).withSlot(
-                2,
-                62,
-                48,
-                stack -> recipes.stream().anyMatch(recipe -> recipe.value().isInput(stack))
-            ).withResultSlot(3, 106, 48)
+            .withSlot(IFrostSmithingRecipe.TEMPLATE_SLOT, 8, 48, stack -> false)
+            .withSlot(IFrostSmithingRecipe.INPUT_SLOT, 44, 48, stack -> false)
+            .withSlot(IFrostSmithingRecipe.MATERIAL_SLOT, 62, 48, stack -> false)
+            .withResultSlot(3, 106, 48)
             .build();
+    }
+
+    private ItemStack template() {
+        return this.inputSlots.getItem(IFrostSmithingRecipe.TEMPLATE_SLOT);
+    }
+
+    private ItemStack input() {
+        return this.inputSlots.getItem(IFrostSmithingRecipe.INPUT_SLOT);
+    }
+
+    private ItemStack material() {
+        return this.inputSlots.getItem(IFrostSmithingRecipe.MATERIAL_SLOT);
+    }
+
+    private boolean hasTemplateForPlacement() {
+        return this.isRecipeTransferInProgress() || !this.template().isEmpty();
     }
 
     @Override
@@ -100,118 +109,8 @@ public class FrostSmithingMenu extends AdjacentSmithingMenu {
         return state.is(ModBlocks.FROST_SMITHING_TABLE.get());
     }
 
-    @Override
-    protected void onTake(Player player, ItemStack stack) {
-        stack.onCraftedBy(player, stack.getCount());
-        this.resultSlots.awardUsedRecipes(player, this.getRelevantItems());
-        this.shrinkStackInSlot(2);
-        this.shrinkStackInSlot(1);
-        this.access.execute((level, blockPos) -> level.levelEvent(1044, blockPos, 0));
-    }
-
-    private @Unmodifiable List<ItemStack> getRelevantItems() {
-        return List.of(this.inputSlots.getItem(0), this.inputSlots.getItem(1), this.inputSlots.getItem(2));
-    }
-
     private FrostSmithingRecipeInput createRecipeInput() {
-        return new FrostSmithingRecipeInput(
-            this.inputSlots.getItem(0),
-            this.inputSlots.getItem(1),
-            this.inputSlots.getItem(2)
-        );
-    }
-
-    private void shrinkStackInSlot(int index) {
-        ItemStack stack = this.inputSlots.getItem(index);
-        if (stack.isEmpty()) return;
-        stack.shrink(1);
-        this.inputSlots.setItem(index, stack);
-    }
-
-    @Override
-    public void slotsChanged(Container inventory) {
-        super.slotsChanged(inventory);
-        if (inventory != this.inputSlots) return;
-        if (this.inputSlots.getItem(0).isEmpty()) {
-            for (int i = 1; i < 3; i++) {
-                ItemStack stack = this.inputSlots.getItem(i);
-                if (stack.isEmpty()) continue;
-                this.inputSlots.removeItemNoUpdate(i);
-                this.moveItemStackTo(stack, 4, 40, false);
-                this.selectedRecipe = null;
-            }
-        } else if (this.inputSlots.getItem(1).isEmpty()) {
-            ItemStack stack = this.inputSlots.getItem(2);
-            if (stack.isEmpty()) return;
-            this.inputSlots.removeItemNoUpdate(2);
-            this.moveItemStackTo(stack, 4, 40, false);
-            this.selectedRecipe = null;
-        }
-    }
-
-    @Override
-    public void createResult() {
-        FrostSmithingRecipeInput input = this.createRecipeInput();
-
-        List<RecipeHolder<PermutationRecipe>> permuts = RecipesRecord.getRecipes(this.level)
-            .getRecipesFor(ModRecipeTypes.PERMUTATION.get(), input, this.level)
-            .toList();
-        if (!permuts.isEmpty()) {
-            RecipeHolder<PermutationRecipe> holder = permuts.getFirst();
-            this.results = holder.value().inputs(input.input());
-            for (RecipeResult result : this.results) {
-                if (!result.result().item().value().isEnabled(this.level.enabledFeatures())) {
-                    this.selectedRecipe = null;
-                    this.selected = -1;
-                    this.results = null;
-                    this.resultSlots.setItem(0, ItemStack.EMPTY);
-                    return;
-                }
-            }
-            this.selectedRecipe = holder;
-            this.selected = 0;
-            this.resultSlots.setRecipeUsed(holder);
-            this.resultSlots.setItem(0, this.selectedRecipe.value().assemble(this.selected, this.createRecipeInput(), this.level));
-            return;
-        }
-
-        List<RecipeHolder<DeformationRecipe>> deforms = RecipesRecord.getRecipes(this.level)
-            .getRecipesFor(ModRecipeTypes.DEFORMATION.get(), input, this.level)
-            .toList();
-        if (!deforms.isEmpty()) {
-            RecipeHolder<DeformationRecipe> holder = deforms.getFirst();
-            this.results = holder.value().inputs(input.input());
-            for (RecipeResult result : this.results) {
-                if (!result.result().item().value().isEnabled(this.level.enabledFeatures())) {
-                    this.selectedRecipe = null;
-                    this.selected = -1;
-                    this.results = null;
-                    this.resultSlots.setItem(0, ItemStack.EMPTY);
-                    return;
-                }
-            }
-            this.selectedRecipe = holder;
-            this.selected = 0;
-            this.resultSlots.setRecipeUsed(holder);
-            this.resultSlots.setItem(0, this.selectedRecipe.value().assemble(this.selected, this.createRecipeInput(), this.level));
-            return;
-        }
-
-        this.selectedRecipe = null;
-        this.selected = -1;
-        this.results = null;
-        this.resultSlots.setItem(0, ItemStack.EMPTY);
-    }
-
-    @Override
-    public boolean canTakeItemForPickAll(ItemStack stack, Slot slot) {
-        return slot.container != this.resultSlots && super.canTakeItemForPickAll(stack, slot);
-    }
-
-    @Override
-    public boolean canMoveIntoInputSlots(ItemStack stack) {
-        return this.recipes.stream()
-            .anyMatch(recipe -> this.isMatchingRecipe(recipe.value(), stack));
+        return new FrostSmithingRecipeInput(this.template(), this.input(), this.material());
     }
 
     @Override
@@ -222,24 +121,108 @@ public class FrostSmithingMenu extends AdjacentSmithingMenu {
                && this.selectedRecipe.value().matches(this.createRecipeInput(), this.level);
     }
 
-    private boolean isMatchingRecipe(IFrostSmithingRecipe recipe, ItemStack stack) {
-        if (recipe.isTemplate(stack)) return this.getSlot(0).hasItem();
-        if (recipe.isMaterial(stack)) return recipe.isTemplate(this.getSlot(0).getItem());
-        if (!recipe.isTemplate(this.getSlot(0).getItem()) || !recipe.isMaterial(this.getSlot(1).getItem())) return false;
-        return recipe.isInput(stack);
+    @Override
+    public void slotsChanged(Container inventory) {
+        if (this.isRecipeTransferInProgress()) return;
+        super.slotsChanged(inventory);
+        if (inventory != this.inputSlots) return;
+        this.selectedRecipe = null;
+        this.createResult();
     }
 
-    public void sync(int selected, List<RecipeResult> results) {
-        if (this.selectedRecipe == null) return;
-        this.selected = selected;
-        this.results = results.isEmpty() ? this.results : results;
+    @Override
+    protected void onTake(Player player, ItemStack stack) {
+        // 必须在消耗装备前计算，消耗装备会立刻重算结果并清空当前选择
+        final int cost = this.selectedRecipe == null || this.selected < 0 || this.options == null || this.selected >= this.options.size()
+                         ? 0
+                         : this.options.get(this.selected).cost(this.selectedRecipe.value(), this.createRecipeInput());
+        stack.onCraftedBy(player, stack.getCount());
+        this.resultSlots.awardUsedRecipes(player, this.getRelevantItems());
+        this.shrinkStackInSlot(IFrostSmithingRecipe.INPUT_SLOT, 1);
+        this.shrinkStackInSlot(IFrostSmithingRecipe.MATERIAL_SLOT, cost);
+        this.access.execute((level, blockPos) -> level.levelEvent(1044, blockPos, 0));
+    }
+
+    private @Unmodifiable List<ItemStack> getRelevantItems() {
+        return List.of(this.template(), this.input(), this.material());
+    }
+
+    private void shrinkStackInSlot(int index, int count) {
+        if (count <= 0) return;
+        ItemStack stack = this.inputSlots.getItem(index);
+        if (stack.isEmpty()) return;
+        stack.shrink(count);
+        this.inputSlots.setItem(index, stack);
+    }
+
+    @Override
+    public void createResult() {
+        FrostSmithingRecipeInput input = this.createRecipeInput();
+
+        List<RecipeHolder<PermutationRecipe>> permuts = RecipesRecord.getRecipes(this.level)
+            .getRecipesFor(ModRecipeTypes.PERMUTATION.get(), input, this.level).toList();
+        if (!permuts.isEmpty()) {
+            this.setupResult(permuts.getFirst(), input);
+            return;
+        }
+
+        List<RecipeHolder<DeformationRecipe>> deforms = RecipesRecord.getRecipes(this.level)
+            .getRecipesFor(ModRecipeTypes.DEFORMATION.get(), input, this.level).toList();
+        if (!deforms.isEmpty()) {
+            this.setupResult(deforms.getFirst(), input);
+            return;
+        }
+
+        this.clearResult();
+    }
+
+    private void setupResult(RecipeHolder<? extends IFrostSmithingRecipe> holder, FrostSmithingRecipeInput input) {
+        List<FrostSmithingOption> available = holder.value().options(input);
+        for (FrostSmithingOption option : available) {
+            if (!option.result().result().item().value().isEnabled(this.level.enabledFeatures())) {
+                this.clearResult();
+                return;
+            }
+        }
+        this.selectedRecipe = holder;
+        this.options = available;
+        this.results = available.stream().map(FrostSmithingOption::result).toList();
+        this.selected = 0;
+        this.resultSlots.setRecipeUsed(holder);
+        this.resultSlots.setItem(0, holder.value().assemble(this.selected, input, this.level));
+    }
+
+    private void clearResult() {
+        this.selectedRecipe = null;
+        this.selected = -1;
+        this.results = null;
+        this.options = null;
+        this.resultSlots.setItem(0, ItemStack.EMPTY);
+    }
+
+    private Optional<Integer> findSlotMatchingIngredient(IFrostSmithingRecipe recipe, ItemStack stack) {
+        if (recipe.isTemplate(stack)) return Optional.of(IFrostSmithingRecipe.TEMPLATE_SLOT);
+        if (recipe.isInput(stack)) return Optional.of(IFrostSmithingRecipe.INPUT_SLOT);
+        if (recipe.acceptsMaterial(this.createRecipeInput(), stack)) return Optional.of(IFrostSmithingRecipe.MATERIAL_SLOT);
+        return Optional.empty();
+    }
+
+    @Override
+    public boolean canTakeItemForPickAll(ItemStack stack, Slot slot) {
+        return slot.container != this.resultSlots && super.canTakeItemForPickAll(stack, slot);
+    }
+
+    @Override
+    public boolean canMoveIntoInputSlots(ItemStack stack) {
+        if (this.template().isEmpty()) return false;
+        return this.recipes.stream()
+            .map(recipe -> this.findSlotMatchingIngredient(recipe.value(), stack))
+            .anyMatch(Optional::isPresent);
     }
 
     public void turn(boolean left) {
-        var selectedRecipe = this.selectedRecipe;
-        if (this.selected == -1 || this.results == null || selectedRecipe == null) return;
-        this.selected = (this.selected + (left ? -1 : 1)) % this.results.size();
-        if (this.selected < 0) this.selected += this.results.size();
-        this.resultSlots.setItem(0, selectedRecipe.value().assemble(this.selected, this.createRecipeInput(), this.level));
+        if (this.selected == -1 || this.options == null || this.options.isEmpty() || this.selectedRecipe == null) return;
+        this.selected = Math.floorMod(this.selected + (left ? -1 : 1), this.options.size());
+        this.resultSlots.setItem(0, this.selectedRecipe.value().assemble(this.selected, this.createRecipeInput(), this.level));
     }
 }

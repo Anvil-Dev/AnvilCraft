@@ -4,6 +4,8 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.entity.WipBlockEntity;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.state.WipBlockRenderState;
+import dev.dubhe.anvilcraft.client.selection.ModelSelectionRenderer;
+import dev.dubhe.anvilcraft.client.selection.SelectionModel;
 import dev.dubhe.anvilcraft.recipe.anvil.procedural.ProceduralProcessRecipe;
 import dev.dubhe.anvilcraft.recipe.sync.RecipesRecord;
 import net.minecraft.client.Minecraft;
@@ -20,10 +22,8 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.client.model.standalone.StandaloneModelKey;
 import org.joml.Matrix4f;
@@ -31,9 +31,9 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
-public class WipBlockEntityRenderer implements BlockEntityRenderer<WipBlockEntity, WipBlockRenderState> {
+public class WipBlockEntityRenderer
+    implements BlockEntityRenderer<WipBlockEntity, WipBlockRenderState>, ModelSelectionRenderer<WipBlockEntity> {
 
     private static final Map<Identifier, StandaloneModelKey<BlockStateModel>> MODEL_KEYS = new HashMap<>();
 
@@ -126,31 +126,35 @@ public class WipBlockEntityRenderer implements BlockEntityRenderer<WipBlockEntit
     }
 
     private @Nullable BlockStateModel getDisplayedModel(WipBlockEntity be, Level level, Minecraft mc) {
-        // Try to get standalone model from recipe's displayedModel field
-        Optional<Identifier> displayedModelId = Optional.ofNullable(be.getRecipeId())
-            .map(recipeId -> {
-                ResourceKey<Recipe<?>> key = ResourceKey.create(Registries.RECIPE, recipeId);
-                RecipeHolder<?> holder = RecipesRecord.getRecipes(level).byKey(key);
-                if (holder != null && holder.value() instanceof ProceduralProcessRecipe ppr) {
-                    return ppr.getDisplayedModelForStep(be.getStepCount()).orElse(null);
-                }
-                return null;
-            });
-        if (displayedModelId.isPresent()) {
-            StandaloneModelKey<BlockStateModel> modelKey = WipBlockEntityRenderer.getModelKey(displayedModelId.get());
-            if (modelKey != null) {
-                BlockStateModel standaloneModel = mc.getModelManager().getStandaloneModel(modelKey);
-                if (standaloneModel != null) {
-                    return standaloneModel;
-                }
+        SelectionModel selected = this.getDisplayedSelection(be, level);
+        if (selected instanceof SelectionModel.State state && state.state().isAir()) return null;
+        return switch (selected) {
+            case SelectionModel.Standalone standalone -> mc.getModelManager().getStandaloneModel(
+                WipBlockEntityRenderer.getModelKeyForSelection(standalone));
+            case SelectionModel.State state -> mc.getModelManager().getBlockStateModelSet().get(state.state());
+        };
+    }
+
+    @SuppressWarnings("unchecked")
+    private static StandaloneModelKey<BlockStateModel> getModelKeyForSelection(SelectionModel.Standalone model) {
+        return (StandaloneModelKey<BlockStateModel>) model.key();
+    }
+
+    private SelectionModel getDisplayedSelection(WipBlockEntity be, Level level) {
+        Identifier recipeId = be.getRecipeId();
+        if (recipeId != null) {
+            RecipeHolder<?> holder = RecipesRecord.getRecipes(level).byKey(ResourceKey.create(Registries.RECIPE, recipeId));
+            if (holder != null && holder.value() instanceof ProceduralProcessRecipe recipe) {
+                var modelKey = recipe.getDisplayedModelForStep(be.getStepCount()).map(WipBlockEntityRenderer::getModelKey).orElse(null);
+                if (modelKey != null) return SelectionModel.standalone(modelKey);
             }
         }
-        // Fallback: render the initial block's model
-        BlockState initialState = be.getInitialBlock();
-        if (!initialState.isAir()) {
-            return mc.getModelManager().getBlockStateModelSet().get(initialState);
-        }
-        return null;
+        return new SelectionModel.State(be.getInitialBlock());
+    }
+
+    @Override
+    public void collectSelectionModels(WipBlockEntity be, float partialTick, PoseStack pose, ModelConsumer consumer) {
+        if (be.getLevel() != null) consumer.accept(this.getDisplayedSelection(be, be.getLevel()), pose);
     }
 
     @Override

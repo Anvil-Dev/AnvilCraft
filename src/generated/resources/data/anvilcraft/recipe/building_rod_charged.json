@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "A": "anvilcraft:smart_block_placer",
+    "B": "anvilcraft:magnetoelectric_core",
+    "C": "anvilcraft:anvil_hammer",
+    "D": "anvilcraft:capacitor"
+  },
+  "pattern": [
+    "ABA",
+    "ACA",
+    " D "
+  ],
+  "result": {
+    "components": {
+      "anvilcraft:stored_energy": {
+        "energy": 8000000
+      }
+    },
+    "id": "anvilcraft:building_rod"
+  }
+}

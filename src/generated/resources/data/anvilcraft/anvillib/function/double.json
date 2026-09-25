@@ -1,0 +1,7 @@
+{
+  "type": "anvillib:custom",
+  "body": "$(a)*2",
+  "parameters": [
+    "a"
+  ]
+}

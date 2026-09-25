@@ -1,0 +1,6 @@
+gradle.projectsEvaluated {
+    rootProject.tasks.named('runClient') {
+        systemProperty 'anvilcraft.portSmartBlueprintScene', 'true'
+        systemProperty 'anvilcraft.portPreviewRaw', rootProject.providers.gradleProperty('portPreviewRaw').isPresent().toString()
+    }
+}

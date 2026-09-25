@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.inventory;
 
 import dev.dubhe.anvilcraft.block.entity.StructureScannerBlockEntity;
+import dev.dubhe.anvilcraft.building.StructureSnapshot;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.inventory.component.StructureDiskOnlySlot;
@@ -10,6 +11,7 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerLevelAccess;
+import net.minecraft.world.inventory.DataSlot;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
@@ -24,6 +26,28 @@ public class StructureScannerMenu extends AbstractContainerMenu {
     @Getter
     private final StructureScannerBlockEntity blockEntity;
     private final Level level;
+    private @Nullable ImportedStructure importedStructure;
+
+    public record ImportedStructure(String name, StructureSnapshot snapshot) {
+    }
+
+    public @Nullable ImportedStructure getImportedStructure() {
+        return this.importedStructure;
+    }
+
+    public void setImportedStructure(String name, StructureSnapshot snapshot) {
+        this.importedStructure = new ImportedStructure(name, snapshot);
+    }
+
+    public void clearImportedStructure() {
+        this.importedStructure = null;
+    }
+
+    @Override
+    public void removed(Player player) {
+        super.removed(player);
+        this.clearImportedStructure();
+    }
 
     public StructureScannerMenu(@Nullable MenuType<?> menuType, int containerId, Inventory inventory, FriendlyByteBuf extraData) {
         this(menuType, containerId, inventory, Objects.requireNonNull(
@@ -34,6 +58,17 @@ public class StructureScannerMenu extends AbstractContainerMenu {
         super(menuType, containerId);
         this.blockEntity = (StructureScannerBlockEntity) blockEntity;
         this.level = inventory.player.level();
+        this.addDataSlot(new DataSlot() {
+            @Override
+            public int get() {
+                return StructureScannerMenu.this.importedStructure == null ? 0 : 1;
+            }
+
+            @Override
+            public void set(int value) {
+                if (value == 0) StructureScannerMenu.this.clearImportedStructure();
+            }
+        });
 
         // 添加Structure Disk物品栏槽位（1个槽位）
         // Structure Scanner 不限制结构大小（支持最大 16x16x16，超过 5x5x5 会显示警告）
