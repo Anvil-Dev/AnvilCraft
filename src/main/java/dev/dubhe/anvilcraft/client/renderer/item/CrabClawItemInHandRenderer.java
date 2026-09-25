@@ -6,6 +6,7 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.item.CheckValveItem;
 import dev.dubhe.anvilcraft.block.item.PipeBlockItem;
 import dev.dubhe.anvilcraft.client.support.RenderModelSupport;
+import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.item.HeavyHalberdItem;
 import dev.dubhe.anvilcraft.item.weapon.EnergyWeaponItem;
 import net.minecraft.client.player.AbstractClientPlayer;
@@ -181,6 +182,8 @@ public class CrabClawItemInHandRenderer extends AbstractItemInHandRenderer {
             return;
         }
         if (stack.getItem() instanceof EnergyWeaponItem) return;
+        // 锻星砧自带托举手部变换，不再套蟹钳持握姿态
+        if (stack.is(ModBlocks.CELESTIAL_FORGING_ANVIL.asItem())) return;
         BakedModel mainHandModel = this.itemRenderer.getModel(
             this.mainHandItem, player.level(), player, combinedLight
         );
