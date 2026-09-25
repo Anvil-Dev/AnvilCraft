@@ -4,23 +4,27 @@ import dev.anvilcraft.lib.v2.util.DistExecutor;
 import dev.dubhe.anvilcraft.api.IHasMultiBlock;
 import dev.dubhe.anvilcraft.block.multipart.AbstractMultiPartBlock;
 import dev.dubhe.anvilcraft.block.multipart.MultiPartBlockEntity;
+import dev.dubhe.anvilcraft.building.BlueprintNormalizer;
+import dev.dubhe.anvilcraft.building.BlueprintPlacement;
+import dev.dubhe.anvilcraft.building.ConstructionBlueprintException;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.item.property.component.StructureDiskData;
 import dev.dubhe.anvilcraft.network.StructureDiskRequestPacket;
 import net.minecraft.client.Minecraft;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtAccounter;
 import net.minecraft.nbt.NbtIo;
-import net.minecraft.nbt.NbtUtils;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BedBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.DoorBlock;
+import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BedPart;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -141,16 +145,21 @@ public class StructureLoadUtil {
      */
     @Nullable
     public static StructureData loadStructureFromDiskForPreview(Level level, ItemStack diskStack) {
-        if (!level.isClientSide()) return loadStructureFromDisk(level, diskStack);
         StructureDiskData diskData = diskStack.get(ModComponents.STRUCTURE_DISK_DATA);
         if (diskData == null) return null;
-        var cached = getStructureNbtForPreview(level, diskData);
+        var cached = level instanceof ServerLevel serverLevel
+            ? Optional.ofNullable(readStructureFileOnServer(serverLevel, diskData.file())) : getStructureNbtForPreview(level, diskData);
         if (cached.isEmpty()) return null;
         try {
-            var data = new StructureData(diskData);
-            parseStructureNBT(data, cached.orElseThrow(), level.registryAccess());
+            var snapshot = BlueprintNormalizer.load(
+                cached.orElseThrow(), level.registryAccess(), diskData.direction(), diskData.upsideDown());
+            var data = new StructureData(new StructureDiskData(diskData.file(), diskData.name(), diskData.uuid(), Direction.NORTH,
+                snapshot.size().getX(), snapshot.size().getY(), snapshot.size().getZ(), false, diskData.autoRotate()));
+            for (var entry : snapshot.blocks()) {
+                data.blocks.add(new BlockPosition(entry.pos().getX(), entry.pos().getY(), entry.pos().getZ(), snapshot.stateOf(entry)));
+            }
             return data;
-        } catch (RuntimeException exception) {
+        } catch (ConstructionBlueprintException | RuntimeException exception) {
             LOGGER.warn("Failed to parse cached structure {}", diskData.file(), exception);
             removeCachedStructureNbt(diskData.file());
             return null;
@@ -215,7 +224,7 @@ public class StructureLoadUtil {
             // LOGGER.debug("Structure loaded: {} ({} blocks)", structureName, data.blocks.size());
             return data;
 
-        } catch (IOException e) {
+        } catch (IOException | ConstructionBlueprintException | RuntimeException e) {
             StructureLoadUtil.LOGGER.error("Failed to load structure file: {}", e.getMessage(), e);
             return null;
         }
@@ -231,42 +240,18 @@ public class StructureLoadUtil {
         StructureData data,
         CompoundTag tag,
         HolderLookup.Provider registry
-    ) {
-        // 读取 palette
-        ListTag paletteTag = tag.getListOrEmpty("palette");
-        List<BlockState> palette = new ArrayList<>();
-        for (int i = 0; i < paletteTag.size(); i++) {
-            CompoundTag stateTag = paletteTag.getCompound(i).orElse(null);
-            if (stateTag == null) continue;
-            try {
-                BlockState state = NbtUtils.readBlockState(registry.lookupOrThrow(Registries.BLOCK), stateTag);
-                palette.add(state);
-            } catch (Exception e) {
-                StructureLoadUtil.LOGGER.warn("Failed to read block state at palette index {}", i, e);
-            }
+    ) throws ConstructionBlueprintException {
+        StructureDiskData diskData = data.diskData;
+        var snapshot = BlueprintNormalizer.load(tag, registry, diskData.direction(), diskData.upsideDown());
+        var frame = new BlueprintPlacement(BlockPos.ZERO,
+            BlueprintPlacement.facingPlayer(diskData.direction(), Direction.SOUTH), Mirror.NONE);
+        var bounds = frame.bounds(snapshot.size());
+        for (var entry : snapshot.blocks()) {
+            var pos = frame.localOf(entry.pos()).offset(-bounds.minX(), -bounds.minY(), -bounds.minZ());
+            data.blocks.add(new BlockPosition(pos.getX(), pos.getY(), pos.getZ(), snapshot.stateOf(entry)));
         }
-
-        // 读取 blocks，过滤掉多方块方块
-        ListTag blocksTag = tag.getListOrEmpty("blocks");
-        for (int i = 0; i < blocksTag.size(); i++) {
-            CompoundTag blockTag = blocksTag.getCompound(i).orElse(null);
-            if (blockTag == null) continue;
-            ListTag posTag = blockTag.getListOrEmpty("pos");
-
-            if (posTag.size() >= 3) {
-                int x = posTag.getInt(0).orElse(0);
-                int y = posTag.getInt(1).orElse(0);
-                int z = posTag.getInt(2).orElse(0);
-                int stateIndex = blockTag.getInt("state").orElse(-1);
-
-                if (stateIndex >= 0 && stateIndex < palette.size()) {
-                    BlockState state = palette.get(stateIndex);
-
-                    // 不过滤多方块方块，保留所有部件以便智能放置器正确应用蓝图状态
-                    data.blocks.add(new BlockPosition(x, y, z, state));
-                }
-            }
-        }
+        data.width = bounds.getXSpan();
+        data.depth = bounds.getZSpan();
     }
 
     /**
@@ -432,10 +417,14 @@ public class StructureLoadUtil {
      */
     public static class StructureData {
         public final StructureDiskData diskData;
+        public int width;
+        public int depth;
         public final List<BlockPosition> blocks = new ArrayList<>();
 
         public StructureData(StructureDiskData diskData) {
             this.diskData = diskData;
+            this.width = diskData.sizeX();
+            this.depth = diskData.sizeZ();
         }
 
         public boolean isEmpty() {

@@ -4,9 +4,11 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import dev.anvilcraft.lib.v2.rendering.gui.renderer.StructurePipRenderer;
 import dev.anvilcraft.lib.v2.rendering.gui.state.StructurePipRenderingState;
+import dev.dubhe.anvilcraft.client.init.ModRenderPipelines;
 import dev.dubhe.anvilcraft.constant.SharedTextures;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.navigation.ScreenRectangle;
@@ -15,6 +17,7 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.renderer.state.gui.pip.PictureInPictureRenderState;
 import net.minecraft.resources.Identifier;
+import net.minecraft.world.phys.shapes.Shapes;
 import org.joml.Matrix3x2f;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
@@ -26,7 +29,11 @@ import java.util.OptionalInt;
 /** 扫描效果需要同时处理预览背景和结构，保持源版本的合成顺序。 */
 public final class SmartPlacerPreviewRenderer extends PictureInPictureRenderer<SmartPlacerPreviewRenderer.State> {
     private static final ThreadLocal<Boolean> SCAN_SCOPE = ThreadLocal.withInitial(() -> false);
+    private static final ThreadLocal<RangeBox> RANGE_BOX = new ThreadLocal<>();
     private final StructureRenderer structures;
+
+    private record RangeBox(Matrix4f pose, int originX, int originY) {
+    }
 
     public SmartPlacerPreviewRenderer(MultiBufferSource.BufferSource buffer) {
         super(buffer);
@@ -37,6 +44,31 @@ public final class SmartPlacerPreviewRenderer extends PictureInPictureRenderer<S
         return SCAN_SCOPE.get();
     }
 
+    public static void captureRangeBox(Matrix4f pose, int originX, int originY) {
+        RANGE_BOX.set(new RangeBox(pose, originX, originY));
+    }
+
+    private static void drawRangeBox(Matrix4f pose, VertexConsumer vertices, int originX, int originY) {
+        // Vanilla line shaders use the main window size, so extrude in this preview's pixel coordinates instead.
+        float shrink = (1.0F - 1.0F / 256.0F) * 0.99975586F;
+        Shapes.create(0, 0, 0, 5, 5, 5).forAllEdges((x0, y0, z0, x1, y1, z1) -> {
+            var start = pose.transformPosition(new Vector3f((float) x0, (float) y0, (float) z0));
+            var end = pose.transformPosition(new Vector3f((float) x1, (float) y1, (float) z1));
+            start.mul(shrink).add(-originX * (1.0F - shrink), -originY * (1.0F - shrink), 0);
+            end.mul(shrink).add(-originX * (1.0F - shrink), -originY * (1.0F - shrink), 0);
+            float dx = end.x - start.x;
+            float dy = end.y - start.y;
+            float length = (float) Math.sqrt(dx * dx + dy * dy);
+            if (length < 0.0001F) return;
+            float offsetX = -dy * 1.25F / length;
+            float offsetY = dx * 1.25F / length;
+            vertices.addVertex(start.x + offsetX, start.y + offsetY, start.z).setColor(0xFF00FFCC);
+            vertices.addVertex(start.x - offsetX, start.y - offsetY, start.z).setColor(0xFF00FFCC);
+            vertices.addVertex(end.x - offsetX, end.y - offsetY, end.z).setColor(0xFF00FFCC);
+            vertices.addVertex(end.x + offsetX, end.y + offsetY, end.z).setColor(0xFF00FFCC);
+        });
+    }
+
     @Override
     public Class<State> getRenderStateClass() {
         return State.class;
@@ -44,8 +76,48 @@ public final class SmartPlacerPreviewRenderer extends PictureInPictureRenderer<S
 
     @Override
     protected void renderToTexture(State state, PoseStack pose) {
-        if (state.structure().glitched()) this.drawBackground(state);
-        this.structures.draw(state.structure(), pose);
+        RangeBox previous = RANGE_BOX.get();
+        boolean previousScan = SCAN_SCOPE.get();
+        RANGE_BOX.remove();
+        SCAN_SCOPE.set(true);
+        try {
+            if (state.structure().glitched()) this.drawBackground(state);
+            this.structures.draw(state.structure(), pose);
+            RangeBox range = RANGE_BOX.get();
+            if (range != null) this.drawRangeOverlay(range);
+            if (state.structure().glitched()) {
+                int scale = Minecraft.getInstance().gameRenderer.getGameRenderState().windowRenderState.guiScale;
+                this.structures.applyGlitchEffect((state.x1() - state.x0()) * scale, (state.y1() - state.y0()) * scale);
+            }
+        } finally {
+            SCAN_SCOPE.set(previousScan);
+            if (previous == null) RANGE_BOX.remove();
+            else RANGE_BOX.set(previous);
+        }
+    }
+
+    private void drawRangeOverlay(RangeBox range) {
+        var format = DefaultVertexFormat.POSITION_COLOR;
+        var builder = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, format);
+        drawRangeBox(range.pose(), builder, range.originX(), range.originY());
+        var data = builder.buildOrThrow();
+        var vertices = format.uploadImmediateVertexBuffer(data.vertexBuffer());
+        int count = data.drawState().indexCount();
+        data.close();
+        var indices = RenderSystem.getSequentialBuffer(VertexFormat.Mode.QUADS);
+        var indexBuffer = indices.getBuffer(count);
+        var transform = RenderSystem.getDynamicUniforms().writeTransform(
+            new Matrix4f(), new Vector4f(1, 1, 1, 1), new Vector3f(), new Matrix4f());
+        try (var pass = RenderSystem.getDevice().createCommandEncoder().createRenderPass(
+            () -> "Smart placer range overlay", RenderSystem.outputColorTextureOverride, OptionalInt.empty()
+        )) {
+            pass.setPipeline(ModRenderPipelines.SMART_PLACER_RANGE);
+            pass.setVertexBuffer(0, vertices);
+            pass.setIndexBuffer(indexBuffer, indices.type());
+            pass.setUniform("DynamicTransforms", transform);
+            RenderSystem.bindDefaultUniforms(pass);
+            pass.drawIndexed(0, 0, count, 1);
+        }
     }
 
     private void drawBackground(State state) {
@@ -102,18 +174,28 @@ public final class SmartPlacerPreviewRenderer extends PictureInPictureRenderer<S
     }
 
     public static final class StructureRenderer extends StructurePipRenderer {
+        private boolean deferGlitch;
+
         private StructureRenderer(MultiBufferSource.BufferSource buffer) {
             super(buffer);
         }
 
         private void draw(StructurePipRenderingState state, PoseStack pose) {
             boolean previous = SCAN_SCOPE.get();
+            boolean previousDefer = this.deferGlitch;
+            this.deferGlitch = true;
             SCAN_SCOPE.set(true);
             try {
                 super.renderToTexture(state, pose);
             } finally {
+                this.deferGlitch = previousDefer;
                 SCAN_SCOPE.set(previous);
             }
+        }
+
+        @Override
+        public void applyGlitchEffect(int width, int height) {
+            if (!this.deferGlitch) super.applyGlitchEffect(width, height);
         }
     }
 

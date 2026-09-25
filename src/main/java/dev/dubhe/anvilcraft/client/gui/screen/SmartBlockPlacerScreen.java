@@ -24,7 +24,6 @@ import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.RenderPipelines;
-import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
@@ -36,7 +35,6 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.shapes.Shapes;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import org.joml.Matrix3x2f;
 import org.jspecify.annotations.Nullable;
@@ -1063,27 +1061,23 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
         pose.scale(-1, 1, -1);
         pose.translate(-2.5F, -2.5F, 0);
         pose.mulPose(Axis.XP.rotationDegrees(rotationX));
-        pose.translate(2.45F, 0, 1.5F);
-        pose.mulPose(Axis.YP.rotationDegrees(rotationY + 45));
-        pose.translate(-2.45F, 0, -1.5F);
+        float yaw = rotationY + (this.isBlueprintMode ? 135 : 45);
+        pose.translate(2.5F, 0, 1.5F);
+        pose.mulPose(Axis.YP.rotationDegrees(yaw));
+        pose.translate(-2.5F, 0, -1.5F);
         pose.translate(0.5F, 0.5F, -0.5F);
+        var outlineOffset = Axis.YP.rotationDegrees(yaw).conjugate()
+            .transform(new org.joml.Vector3f(-0.05F, 0, 0)).add(0.05F, 0, 0);
+        int guiScale = this.minecraft.gameRenderer.getGameRenderState().windowRenderState.guiScale;
+        int outlineOriginX = this.previewWindowX * guiScale;
+        int outlineOriginY = this.previewWindowY * guiScale;
         graphics.submitPictureInPictureRenderState(new SmartPlacerPreviewRenderer.State(new StructurePipRenderingState(
             level, new BlockPos(0, 0, 0), new BlockPos(4, 4, 6),
             this.previewWindowX, this.previewWindowY, this.previewWindowX + this.previewWindowWidth,
             this.previewWindowY + this.previewWindowHeight, scale, false, AnvilCraftClient.CONFIG.renderScanPreviewEffect,
             pose.last().copy(), graphics.pose().get(new Matrix3x2f()), graphics.peekScissorStack(),
-            (collector, modelPose) -> collector.submitCustomGeometry(modelPose, RenderTypes.lines(), (linePose, vertices) -> {
-                PoseStack lines = new PoseStack();
-                lines.mulPose(linePose.pose());
-                Shapes.create(0, 0, 0, 5, 5, 5).forAllEdges((x0, y0, z0, x1, y1, z1) -> {
-                    var direction = new org.joml.Vector3f((float) (x1 - x0), (float) (y1 - y0), (float) (z1 - z0));
-                    lines.last().pose().transformDirection(direction).normalize();
-                    vertices.addVertex(lines.last(), (float) x0, (float) y0, (float) z0).setColor(0xFF00FFCC)
-                        .setNormal(direction.x, direction.y, direction.z).setLineWidth(2.5F);
-                    vertices.addVertex(lines.last(), (float) x1, (float) y1, (float) z1).setColor(0xFF00FFCC)
-                        .setNormal(direction.x, direction.y, direction.z).setLineWidth(2.5F);
-                });
-            }))));
+            (collector, modelPose) -> SmartPlacerPreviewRenderer.captureRangeBox(
+                new org.joml.Matrix4f(modelPose.last().pose()).translate(outlineOffset), outlineOriginX, outlineOriginY))));
     }
 
     /**
@@ -1181,12 +1175,9 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
                         Direction.NORTH,
                         upsideDown
                     );
-                    int row = position / SmartBlockPlacerBlockEntity.POSITION_GRID_SIZE;
-                    int column = position % SmartBlockPlacerBlockEntity.POSITION_GRID_SIZE;
-                    previewLevelLike.setBlockState(
-                        new BlockPos(column, layer, row),
-                        blueprintState
-                    );
+                    BlockPos previewPos = blockEntity.getBlueprintPosition(index, Direction.NORTH, upsideDown)
+                        .subtract(blockEntity.getBlockPos()).offset(placerX, placerY, placerZ);
+                    previewLevelLike.setBlockState(previewPos, blueprintState);
                 }
             }
             return previewLevelLike;

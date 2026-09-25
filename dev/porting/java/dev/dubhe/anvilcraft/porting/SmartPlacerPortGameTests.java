@@ -146,6 +146,9 @@ public final class SmartPlacerPortGameTests {
             var directory = helper.getLevel().getServer().getWorldPath(LevelResource.ROOT).resolve("anvilcraft/structures");
             Files.createDirectories(directory);
             CompoundTag nbt = new CompoundTag();
+            ListTag size = new ListTag();
+            for (int axis = 0; axis < 3; axis++) size.add(IntTag.valueOf(1));
+            nbt.put("size", size);
             ListTag palette = new ListTag();
             palette.add(NbtUtils.writeBlockState(state));
             nbt.put("palette", palette);

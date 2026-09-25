@@ -4,8 +4,12 @@ import dev.dubhe.anvilcraft.api.IHasMultiBlock;
 import dev.dubhe.anvilcraft.api.block.BlockPlacementRules;
 import dev.dubhe.anvilcraft.api.entity.fakeplayer.AnvilCraftFakePlayers;
 import dev.dubhe.anvilcraft.api.item.IBlockItem;
+import dev.dubhe.anvilcraft.block.cake.LargeCakeBlock;
 import dev.dubhe.anvilcraft.block.multipart.AbstractMultiPartBlock;
 import dev.dubhe.anvilcraft.block.multipart.MultiPartBlockEntity;
+import dev.dubhe.anvilcraft.block.state.Cube3x3PartHalf;
+import dev.dubhe.anvilcraft.item.block.LargeCakeBlockItem;
+import dev.dubhe.anvilcraft.item.block.PipeBlockItem;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -35,10 +39,10 @@ import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.level.block.state.properties.SlabType;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.shapes.Shapes;
-import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+import javax.annotation.Nullable;
 
 /**
  * 方块物品和蓝图状态的放置工具。
@@ -88,6 +92,7 @@ public final class BlockPlacementUtil {
             return stack;
         }
         IBlockItem blockItem = switch (stack.getItem()) {
+            case PipeBlockItem item -> (world, target, player, hand) -> item.place(world, target, player, hand, requiredState);
             case IBlockItem item -> item;
             case BlockItem item -> IBlockItem.wrap(item);
             default -> null;
@@ -106,11 +111,25 @@ public final class BlockPlacementUtil {
                 // 垂直朝向同样生效（抬头/低头放置）。
                 orientPlayerForDirection(player, defaultFacing);
             }
-            blockItem.place(level, pos, player, InteractionHand.MAIN_HAND);
+            BlockPos placementPos = pos;
+            if (requiredState != null && requiredState.getBlock() instanceof AbstractMultiPartBlock<?> multiPartBlock) {
+                placementPos = getMultiblockPlacementPos(pos, requiredState, multiPartBlock);
+            } else if (requiredState != null && requiredState.getBlock() instanceof LargeCakeBlock) {
+                placementPos = LargeCakeBlockItem.origin(pos, requiredState);
+            }
+            blockItem.place(level, placementPos, player, InteractionHand.MAIN_HAND);
             return player.getMainHandItem();
         } finally {
             AnvilCraftFakePlayers.getBlockPlacer().disable(player);
         }
+    }
+
+    private static <P extends Enum<P>> BlockPos getMultiblockPlacementPos(
+        BlockPos pos, BlockState requiredState, AbstractMultiPartBlock<P> block
+    ) {
+        // 蓝图定位到核心部件，物品放置则从默认部件开始生成整个结构。
+        P placementPart = block.defaultBlockState().getValue(block.getPart());
+        return pos.offset(block.offsetFrom(requiredState, placementPart));
     }
 
     private static void orientPlayerForState(ServerPlayer player, BlockState state) {
@@ -245,6 +264,11 @@ public final class BlockPlacementUtil {
         return block instanceof BedBlock || block instanceof DoorBlock || block instanceof DoublePlantBlock;
     }
 
+    public static boolean isSecondaryBlueprintPart(BlockState state) {
+        return isSecondaryMultiblockPart(state) || state.getBlock() instanceof LargeCakeBlock
+            && state.getValue(LargeCakeBlock.HALF) != Cube3x3PartHalf.BOTTOM_CENTER;
+    }
+
     public static boolean isSecondaryMultiblockPart(BlockState state) {
         Block block = state.getBlock();
         if (block instanceof BedBlock) {
@@ -327,12 +351,19 @@ public final class BlockPlacementUtil {
             return false;
         }
         Block block = state.getBlock();
-        if (block instanceof AbstractMultiPartBlock<?> multiPartBlock) {
-            Property<?> partProperty = multiPartBlock.getPart();
-            return state.getOptionalValue(partProperty).equals(expectedState.getOptionalValue(partProperty));
-        }
-        if (block instanceof BedBlock) {
-            return state.getValue(BlockStateProperties.BED_PART) == expectedState.getValue(BlockStateProperties.BED_PART);
+        switch (block) {
+            case AbstractMultiPartBlock<?> multiPartBlock -> {
+                Property<?> partProperty = multiPartBlock.getPart();
+                return state.getOptionalValue(partProperty).equals(expectedState.getOptionalValue(partProperty));
+            }
+            case LargeCakeBlock largeCakeBlock -> {
+                return state.getValue(LargeCakeBlock.HALF) == expectedState.getValue(LargeCakeBlock.HALF);
+            }
+            case BedBlock bedBlock -> {
+                return state.getValue(BlockStateProperties.BED_PART) == expectedState.getValue(BlockStateProperties.BED_PART);
+            }
+            default -> {
+            }
         }
         if (block instanceof DoorBlock || block instanceof DoublePlantBlock) {
             return state.getValue(BlockStateProperties.DOUBLE_BLOCK_HALF) == expectedState.getValue(BlockStateProperties.DOUBLE_BLOCK_HALF);
@@ -393,6 +424,7 @@ public final class BlockPlacementUtil {
         BlockPos placerPos,
         Direction targetFacing,
         Direction scannerFacing,
+        boolean autoRotate,
         boolean upsideDown,
         int gridSize,
         int distance,
@@ -410,19 +442,31 @@ public final class BlockPlacementUtil {
             return this.getPosition(storageIndex, this.targetFacing, this.upsideDown);
         }
 
-        private BlockPos getPosition(int storageIndex, Direction targetFacing, boolean upsideDown) {
+        public BlockPos getPosition(int storageIndex, Direction targetFacing, boolean upsideDown) {
             int positionsPerLayer = this.gridSize * this.gridSize;
             int layer = storageIndex / positionsPerLayer;
             int position = storageIndex % positionsPerLayer;
             int row = position / this.gridSize;
             int column = position % this.gridSize;
-            Direction right = targetFacing.getClockWise();
+            Direction layoutFacing = this.getLayoutFacing(targetFacing);
+            Direction right = layoutFacing.getClockWise();
             int gridRadius = this.gridSize / 2;
             int verticalOffset = upsideDown ? layer - this.gridSize + 1 : layer;
             return this.placerPos.relative(targetFacing, this.distance)
                 .above(verticalOffset)
                 .relative(right, column - gridRadius)
-                .relative(targetFacing, gridRadius - row);
+                .relative(layoutFacing, gridRadius - row);
+        }
+
+        private Direction getLayoutFacing(Direction targetFacing) {
+            if (this.autoRotate) {
+                return targetFacing;
+            }
+            return Direction.from2DDataValue(Math.floorMod(
+                this.scannerFacing.getOpposite().get2DDataValue()
+                    + targetFacing.get2DDataValue() - this.targetFacing.get2DDataValue(),
+                4
+            ));
         }
 
         public BlockState getState(int storageIndex) {
@@ -433,7 +477,7 @@ public final class BlockPlacementUtil {
                 this.states[storageIndex],
                 this.level,
                 this.getPosition(storageIndex),
-                this.targetFacing,
+                this.getLayoutFacing(this.targetFacing),
                 this.scannerFacing,
                 this.upsideDown
             );
@@ -447,7 +491,7 @@ public final class BlockPlacementUtil {
                 this.states[storageIndex],
                 this.level,
                 this.getPosition(storageIndex, targetFacing, upsideDown),
-                targetFacing,
+                this.getLayoutFacing(targetFacing),
                 this.scannerFacing,
                 upsideDown
             );
@@ -459,7 +503,14 @@ public final class BlockPlacementUtil {
             BlockState requiredState
         ) {
             List<BlueprintPartSnapshot> snapshots = new ArrayList<>();
-            for (MultiblockPart expectedPart : getExpectedMultiblockParts(targetPos, requiredState)) {
+            List<MultiblockPart> expected = new ArrayList<>();
+            if (requiredState.getBlock() instanceof LargeCakeBlock) {
+                LargeCakeBlockItem.forEachPlacedBlock(LargeCakeBlockItem.origin(targetPos, requiredState), requiredState,
+                    (pos, state) -> expected.add(new MultiblockPart(pos, state)));
+            } else {
+                expected.addAll(getExpectedMultiblockParts(targetPos, requiredState));
+            }
+            for (MultiblockPart expectedPart : expected) {
                 int storageIndex = this.getStorageIndex(expectedPart.pos());
                 if (storageIndex < 0) {
                     return List.of();

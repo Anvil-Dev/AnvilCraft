@@ -142,6 +142,10 @@ public final class ModBlockPlacementRuleProvider implements DataProvider {
     }
 
     private static void addBlockRules(Map<Block, List<StateRule>> rulesByBlock, Block block) {
+        if (block instanceof dev.dubhe.anvilcraft.block.fluid.PipeBlock) {
+            addRule(rulesByBlock, block, "", ModItems.PIPE.get(), 1);
+            return;
+        }
         Item upgrade = UseItemOnBlock.upgradeItem(block.defaultBlockState());
         if (upgrade != Items.AIR) {
             addRule(rulesByBlock, block, "", ModBlocks.STAMPING_PLATFORM.asItem(), 1);

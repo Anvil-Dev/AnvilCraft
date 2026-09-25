@@ -1013,7 +1013,8 @@
       "building_rod_control_hints",
       "scanner_recipe_import",
       "building_undo_settlement",
-      "storage_source_update"
+      "storage_source_update",
+      "blueprint_placement_frames"
     ]
   },
   "mun_foundation": {
@@ -1654,5 +1655,48 @@
       "Server and client behavior checks passed; a separate compile/checkPortJava run verifies the diagnostic-log formatting repair.",
       "Other source branch features and optional renderer integrations remain pending."
     ]
+  },
+  "blueprint_placement_frames": {
+    "source_commit": "1260db54f6e2b9f88d0a79b8108459d346344e44",
+    "status": "coordinates_existing_pipe_multipart_and_preview_geometry_ported",
+    "ported": [
+      "Scanner heading retained on saved disks, canonical parsing and rotated width/depth centering",
+      "Source auto-rotation layout and shared world/preview position transforms",
+      "Multipart core-to-item-origin mapping and complete large-cake snapshots/material count",
+      "Straight/corner/node pipe placement with required states",
+      "Source preview yaw, separate block/outline pivots and pixel-width range overlay before scan processing",
+      "Disk tooltip spinning respects autoRotate"
+    ],
+    "verification": {
+      "tests_log": "build/porting/tests-blueprint-placement-final-2.log",
+      "datagen_log": "build/porting/validate-blueprint-placement-final.log",
+      "target_raw_log": "build/porting/client-smart-blueprint-raw-final.log",
+      "target_scan_log": "build/porting/client-smart-blueprint-final-3.log",
+      "source_raw_log": "build/porting/client-smart-blueprint-source-raw-2.log",
+      "report": "build/porting/blueprint-placement-comparison.json",
+      "required_tests_passed": 582,
+      "orientation_combinations": 8000,
+      "source_layout_sections_equal": 3,
+      "source_raw_color_masks_equal": 3,
+      "source_raw_outline_mask_equal": true
+    },
+    "limits": [
+      "Glass-pipe variants are a separate missing source feature and remain pending.",
+      "Native vanilla block-texture sampling is retained; raw preview RGB means differ by about 0.69 to 1.63 out of 255.",
+      "A concurrent validation run exposed a Moon-light fixture timing failure; the final serial suite passed.",
+      "Block-picking/input changes from the source update remain pending."
+    ]
+  },
+  "glass_pipes": {
+    "source_commit": "1260db54f6e2b9f88d0a79b8108459d346344e44",
+    "introduced_by": "3810b139a773a56e55a25e8b4ce426750e17d1cb",
+    "status": "pending_port",
+    "required": [
+      "Glass straight/corner/node registrations, original resources and interactions",
+      "Shared check-valve block entities and glass-pipe fluid state synchronization",
+      "Fluid-network flow visualization and native glass/fluid rendering",
+      "Glass item/ordinary pipe material mapping for blueprint placement"
+    ],
+    "discovered_during": "blueprint_placement_frames"
   }
 }

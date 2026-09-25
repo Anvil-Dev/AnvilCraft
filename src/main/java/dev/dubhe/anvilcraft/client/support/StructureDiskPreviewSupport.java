@@ -121,9 +121,10 @@ public class StructureDiskPreviewSupport {
         );
         int scale = Math.max(1, 30 / maxDim);
 
+        StructureDiskData diskData = diskStack.get(ModComponents.STRUCTURE_DISK_DATA);
         RenderSupport.renderLevelLike(
             cache.levelLike, graphics, previewX, previewY,
-            StructureDiskPreviewSupport.PREVIEW_SIZE, scale, 2.0f, false
+            StructureDiskPreviewSupport.PREVIEW_SIZE, scale, diskData == null || diskData.autoRotate() ? 2.0f : 0.0f, false
         );
     }
 

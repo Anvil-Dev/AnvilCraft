@@ -469,7 +469,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
 
             BlockPos targetPos = blueprintLayout.getPosition(storageIndex);
             BlockState requiredState = blueprintLayout.getState(storageIndex);
-            if (BlockPlacementUtil.isSecondaryMultiblockPart(requiredState)) {
+            if (BlockPlacementUtil.isSecondaryBlueprintPart(requiredState)) {
                 this.advanceBlueprintIndex(orderIndex);
                 continue;
             }
@@ -507,7 +507,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
             }
             BlockPos targetPos = blueprintLayout.getPosition(storageIndex);
             BlockState requiredState = blueprintLayout.getState(storageIndex);
-            return !BlockPlacementUtil.isSecondaryMultiblockPart(requiredState)
+            return !BlockPlacementUtil.isSecondaryBlueprintPart(requiredState)
                 && !BlockPlacementUtil.isBlueprintStatePresent(level, targetPos, requiredState)
                 && BlockPlacementUtil.isTargetAvailable(level, targetPos);
         }
@@ -633,6 +633,10 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
         return this.getBlueprintLayout().getPosition(storageIndex);
     }
 
+    public BlockPos getBlueprintPosition(int storageIndex, Direction targetFacing, boolean upsideDown) {
+        return this.getBlueprintLayout().getPosition(storageIndex, targetFacing, upsideDown);
+    }
+
     public BlockState getBlueprintStateForPlacement(int storageIndex) {
         return this.getBlueprintLayout().getState(storageIndex);
     }
@@ -658,6 +662,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
             this.getBlockPos(),
             this.getFacing().getOpposite(),
             scannerFacing,
+            diskData == null || diskData.autoRotate(),
             this.isUpsideDown(),
             POSITION_GRID_SIZE,
             POSITION_DISTANCE,
@@ -858,11 +863,11 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
             return;
         }
 
-        int columnOffset = (POSITION_GRID_SIZE - diskData.sizeX()) / 2;
-        int rowOffset = (POSITION_GRID_SIZE - diskData.sizeZ()) / 2;
+        int columnOffset = (POSITION_GRID_SIZE - structure.width) / 2;
+        int rowOffset = (POSITION_GRID_SIZE - structure.depth) / 2;
         for (StructureLoadUtil.BlockPosition block : structure.blocks) {
-            int column = columnOffset + diskData.sizeX() - block.x() - 1;
-            int row = rowOffset + diskData.sizeZ() - block.z() - 1;
+            int column = columnOffset + structure.width - block.x() - 1;
+            int row = rowOffset + structure.depth - block.z() - 1;
             int layer = block.y();
             if (!isValidLayer(layer)
                 || column < 0 || column >= POSITION_GRID_SIZE
@@ -1041,7 +1046,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
             BlockPos targetPos = blueprintLayout.getPosition(storageIndex);
             if (level != null) {
                 BlockState requiredState = blueprintLayout.getState(storageIndex);
-                if (BlockPlacementUtil.isSecondaryMultiblockPart(requiredState)) {
+                if (BlockPlacementUtil.isSecondaryBlueprintPart(requiredState)) {
                     continue;
                 }
                 BlockState worldState = level.getBlockState(targetPos);

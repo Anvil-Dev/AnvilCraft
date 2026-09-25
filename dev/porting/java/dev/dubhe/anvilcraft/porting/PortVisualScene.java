@@ -397,7 +397,13 @@ public final class PortVisualScene {
                 var cache = SmartBlockPlacerScreen.class.getDeclaredField("cachedPreviewLevelLike");
                 cache.setAccessible(true);
                 var preview = (dev.dubhe.anvilcraft.util.LevelLike) cache.get(client.screen);
-                if (preview != null) {
+                if (Boolean.getBoolean("anvilcraft.portSmartBlueprintScene") && readyFrames == 119) {
+                    var mode = SmartBlockPlacerScreen.class.getDeclaredField("isBlueprintMode");
+                    mode.setAccessible(true);
+                    if (!mode.getBoolean(client.screen) || preview == null) throw new IllegalStateException("Missing blueprint preview");
+                    SmartBlueprintSceneSetup.verify(preview);
+                }
+                if (preview != null && !Boolean.getBoolean("anvilcraft.portSmartBlueprintScene")) {
                     for (BlockPos pos : List.of(new BlockPos(2, 0, 2), new BlockPos(0, 2, 0), new BlockPos(4, 4, 4))) {
                         preview.setBlockState(pos, Blocks.LIME_CONCRETE.defaultBlockState());
                     }
@@ -408,7 +414,9 @@ public final class PortVisualScene {
         }
         if (++readyFrames < 120) return;
         captured = true;
-        String name = "smart-placer-26.1-" + smartStage + (Boolean.getBoolean("anvilcraft.portPreviewRaw") ? "-raw" : "") + ".png";
+        String name = "smart-placer-26.1-" + smartStage
+            + (Boolean.getBoolean("anvilcraft.portSmartBlueprintScene") ? "-blueprint" : "")
+            + (Boolean.getBoolean("anvilcraft.portPreviewRaw") ? "-raw" : "") + ".png";
         Screenshot.grab(client.gameDirectory, name, client.getMainRenderTarget(), 1, message -> client.execute(() -> {
             AnvilCraft.LOGGER.info("PORT_SMART_SCENE_CAPTURED: {}", message.getString());
             if (smartStage == 2) {
@@ -426,6 +434,7 @@ public final class PortVisualScene {
                         server.getCommands().performPrefixedCommand(server.createCommandSourceStack(), "tp @a 0 83 2 180 25");
                         BlockEntity machine = server.overworld().getBlockEntity(SMART_POS);
                         if (machine instanceof SmartBlockPlacerBlockEntity placer) {
+                            if (Boolean.getBoolean("anvilcraft.portSmartBlueprintScene")) SmartBlueprintSceneSetup.install(server, placer);
                             server.getPlayerList().getPlayers().forEach(player -> ModMenuTypes.open(player, placer, SMART_POS));
                         }
                     });
