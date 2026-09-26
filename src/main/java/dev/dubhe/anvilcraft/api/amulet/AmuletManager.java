@@ -5,7 +5,6 @@ import dev.dubhe.anvilcraft.api.amulet.def.IAmuletDefinition;
 import dev.dubhe.anvilcraft.api.amulet.effect.IAmuletEffect;
 import dev.dubhe.anvilcraft.api.event.AmuletEvent;
 import dev.dubhe.anvilcraft.init.ModDataAttachments;
-import dev.dubhe.anvilcraft.init.item.ModAmuletEffectContextKeys;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.registry.ModRegistries;
 import dev.dubhe.anvilcraft.init.registry.ModRegistryKeys;
@@ -15,10 +14,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.effect.MobEffectInstance;
-import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.TamableAnimal;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.common.NeoForge;
@@ -61,9 +57,9 @@ public class AmuletManager {
         this.definitions = definitions;
     }
 
-    public List<ItemStack> getAmuletsFromInventory(Player player) {
+    public List<ItemStack> getAmuletsFromInventory(LivingEntity entity) {
         List<ItemStack> founds = new ArrayList<>();
-        NeoForge.EVENT_BUS.post(new AmuletEvent.Find(this, player, founds::add));
+        NeoForge.EVENT_BUS.post(new AmuletEvent.Find(this, entity, founds::add));
         List<ItemStack> amulets = new ArrayList<>();
         for (ItemStack found : founds) {
             this.processFoundStack(found, amulets);
@@ -97,12 +93,12 @@ public class AmuletManager {
     /// <p>包覆类护符展开后与被包覆护符共用同一批效果实例，这里按引用判等去重，
     /// 保证同时佩戴二者时同一效果只会触发一次。</p>
     ///
-    /// @param player 佩戴护符的玩家
+    /// @param entity 佩戴护符的玩家
     /// @return 玩家身上所有护符展开后的效果
-    private Map<IAmuletEffect, ItemStack> getActiveEffects(Player player) {
+    public Map<IAmuletEffect, ItemStack> getActiveEffects(LivingEntity entity) {
         Map<IAmuletEffect, ItemStack> effects = new LinkedHashMap<>();
         Set<IAmuletEffect> triggered = AmuletManager.identityView();
-        for (ItemStack stack : this.getAmuletsFromInventory(player)) {
+        for (ItemStack stack : this.getAmuletsFromInventory(entity)) {
             Amulet amulet = this.getAmulet(stack);
             if (amulet == null) {
                 continue;
@@ -119,153 +115,25 @@ public class AmuletManager {
     /// 以引用判等的视角看待一组护符效果
     ///
     /// @return 按引用判等的空效果集合
-    private static Set<IAmuletEffect> identityView() {
+    public static Set<IAmuletEffect> identityView() {
         return Collections.newSetFromMap(new IdentityHashMap<>());
     }
 
     /// 判断护符效果是否应在当前侧求值。
     ///
     /// <p>护符是代码注册的静态数据，效果判定全部由服务端负责，客户端只展示服务端同步的结果；
-    /// 唯有需要参与客户端预测的重力计算（{@link #ignoresGravity}）与需要两侧同时拦截的交互
-    /// （{@link #tryTame}）例外。</p>
+    /// 唯有需要参与客户端预测的重力计算与需要两侧同时拦截的交互例外。</p>
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
-    private static boolean shouldEvaluate(Player player) {
-        return !player.level().isClientSide();
+    public static boolean shouldEvaluate(LivingEntity entity) {
+        return !entity.level().isClientSide();
     }
 
     /// 触发玩家身上所有护符的效果
     ///
-    /// @param player 佩戴护符的玩家
+    /// @param entity 佩戴护符的玩家
     /// @param ctx    本次触发的上下文
-    private void trigger(Player player, AmuletEffectContext ctx) {
-        this.getActiveEffects(player).forEach((effect, stack) -> effect.trigger(player, stack, ctx));
-    }
-
-    public void inventoryTick(ServerPlayer player) {
-        Map<IAmuletEffect, ItemStack> active = this.getActiveEffects(player);
-        Set<IAmuletEffect> triggered = AmuletManager.identityView();
-        triggered.addAll(active.keySet());
-        AmuletEffectContext enabled = new AmuletEffectContext();
-        enabled.set(ModAmuletEffectContextKeys.ENABLED, true);
-        active.forEach((effect, stack) -> effect.trigger(player, stack, enabled));
-        AmuletEffectContext disabled = new AmuletEffectContext();
-        disabled.set(ModAmuletEffectContextKeys.ENABLED, false);
-        for (Amulet amulet : ModRegistries.AMULET) {
-            Set<IAmuletEffect> effects = amulet.getFlattenEffects();
-            if (effects.isEmpty() || triggered.containsAll(effects)) {
-                continue;
-            }
-            // 这里只撤回该护符自身效果提供的状态，它包覆的护符会各自被判定到
-            for (IAmuletEffect effect : amulet.getEffects()) {
-                effect.trigger(player, ItemStack.EMPTY, disabled);
-            }
-        }
-    }
-
-    public boolean shouldImmune(ServerPlayer player, DamageSource source) {
-        AmuletEffectContext ctx = new AmuletEffectContext();
-        ctx.set(ModAmuletEffectContextKeys.DAMAGE_SOURCE, source);
-        this.trigger(player, ctx);
-        return ctx.get(ModAmuletEffectContextKeys.IMMUNE_DAMAGE).orElse(false);
-    }
-
-    /// 获取玩家的护符提供的交易折扣率
-    ///
-    /// <p>没有任何护符提供折扣时返回 0，表示不打折；{@link dev.dubhe.anvilcraft.api.amulet.effect.DiscountAmuletEffect}
-    /// 里的缺省值 1 则是「已有折扣率」的基准，两者含义不同，不要互换。</p>
-    ///
-    /// @param player 佩戴护符的玩家
-    /// @return 玩家的交易折扣率
-    public float getDiscountRate(Player player) {
-        if (!AmuletManager.shouldEvaluate(player)) {
-            return 0F;
-        }
-        AmuletEffectContext ctx = new AmuletEffectContext();
-        this.trigger(player, ctx);
-        return ctx.get(ModAmuletEffectContextKeys.DISCOUNT_RATE).orElse(0F);
-    }
-
-    /// 判断玩家是否免疫给定药水效果
-    ///
-    /// @param player        佩戴护符的玩家
-    /// @param effect        待判定的药水效果
-    /// @param consumingFood 玩家是否处于进食中
-    /// @return 玩家是否免疫给定药水效果
-    public boolean isImmuneToMobEffect(Player player, MobEffectInstance effect, boolean consumingFood) {
-        if (!AmuletManager.shouldEvaluate(player)) {
-            return false;
-        }
-        AmuletEffectContext ctx = new AmuletEffectContext();
-        ctx.set(ModAmuletEffectContextKeys.MOB_EFFECT, effect);
-        ctx.set(ModAmuletEffectContextKeys.CONSUMING_FOOD, consumingFood);
-        this.trigger(player, ctx);
-        return ctx.get(ModAmuletEffectContextKeys.IMMUNE_MOB_EFFECT).orElse(false);
-    }
-
-    /// 判断给定生物是否无视玩家
-    ///
-    /// @param player 佩戴护符的玩家
-    /// @param mob    待判定的生物
-    /// @return 给定生物是否无视玩家
-    public boolean shouldIgnoreTarget(Player player, LivingEntity mob) {
-        return this.shouldIgnoreTarget(player, mob.getType());
-    }
-
-    /// 判断给定类型的生物是否无视玩家
-    ///
-    /// @param player  佩戴护符的玩家
-    /// @param mobType 待判定的生物类型
-    /// @return 给定类型的生物是否无视玩家
-    public boolean shouldIgnoreTarget(Player player, EntityType<?> mobType) {
-        if (!AmuletManager.shouldEvaluate(player)) {
-            return false;
-        }
-        AmuletEffectContext ctx = new AmuletEffectContext();
-        ctx.set(ModAmuletEffectContextKeys.MOB_TYPE, mobType);
-        this.trigger(player, ctx);
-        return ctx.get(ModAmuletEffectContextKeys.IGNORE_MOB).orElse(false);
-    }
-
-    public boolean isImmuneToKnockback(Player player) {
-        if (!AmuletManager.shouldEvaluate(player)) {
-            return false;
-        }
-        AmuletEffectContext ctx = new AmuletEffectContext();
-        this.trigger(player, ctx);
-        return ctx.get(ModAmuletEffectContextKeys.IMMUNE_KNOCKBACK).orElse(false);
-    }
-
-    public boolean isImmuneToVibration(Player player) {
-        if (!AmuletManager.shouldEvaluate(player)) {
-            return false;
-        }
-        AmuletEffectContext ctx = new AmuletEffectContext();
-        this.trigger(player, ctx);
-        return ctx.get(ModAmuletEffectContextKeys.IMMUNE_VIBRATION).orElse(false);
-    }
-
-    public boolean ignoresGravity(Player player) {
-        AmuletEffectContext ctx = new AmuletEffectContext();
-        this.trigger(player, ctx);
-        return ctx.get(ModAmuletEffectContextKeys.IGNORE_GRAVITY).orElse(false);
-    }
-
-    public boolean isImmuneToAbnormalItems(Player player) {
-        AmuletEffectContext ctx = new AmuletEffectContext();
-        this.trigger(player, ctx);
-        return ctx.get(ModAmuletEffectContextKeys.IMMUNE_ABNORMAL_ITEM).orElse(false);
-    }
-
-    /// 尝试驯服给定动物
-    ///
-    /// @param player 佩戴护符的玩家
-    /// @param animal 待驯服的动物
-    /// @return 是否有护符处理了本次交互
-    public boolean tryTame(Player player, TamableAnimal animal) {
-        AmuletEffectContext ctx = new AmuletEffectContext();
-        ctx.set(ModAmuletEffectContextKeys.INTERACT_TARGET, animal);
-        this.trigger(player, ctx);
-        return ctx.get(ModAmuletEffectContextKeys.HANDLE_INTERACT).orElse(false);
+    public void trigger(LivingEntity entity, AmuletEffectContext ctx) {
+        this.getActiveEffects(entity).forEach((effect, stack) -> effect.trigger(entity, stack, ctx));
     }
 
     public void tryRaffle(ServerPlayer player, DamageSource source) {

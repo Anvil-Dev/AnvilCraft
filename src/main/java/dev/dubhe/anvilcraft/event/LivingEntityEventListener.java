@@ -1,8 +1,6 @@
 package dev.dubhe.anvilcraft.event;
 
-import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.api.amulet.AmuletManager;
 import dev.dubhe.anvilcraft.entity.ai.goal.GenericZombieAttackGoal;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.recipe.transform.MobTransformWithItemRecipe;
@@ -34,7 +32,6 @@ import net.minecraft.world.level.Level;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
-import net.neoforged.neoforge.event.entity.living.LivingChangeTargetEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import net.neoforged.neoforge.event.tick.EntityTickEvent;
@@ -45,28 +42,8 @@ import java.util.Objects;
 @EventBusSubscriber(modid = AnvilCraft.MOD_ID)
 public class LivingEntityEventListener {
     @SubscribeEvent
-    public static void onChangeTarget(LivingChangeTargetEvent event) {
-        if (event.getTargetType() != LivingChangeTargetEvent.LivingTargetType.MOB_TARGET) return;
-        Mob entity = Util.castSafely(event.getEntity(), Mob.class).orElse(null);
-        if (entity == null) return;
-        if (!(event.getNewAboutToBeSetTarget() instanceof Player player)) return;
-        AmuletManager manager = AmuletManager.get(player.registryAccess());
-        if (manager.shouldIgnoreTarget(player, entity)) {
-            event.setCanceled(true);
-        }
-    }
-
-    @SubscribeEvent
     public static void onTick(EntityTickEvent.Post event) {
         CauldronUtil.hurtFromHeaterBelow(event.getEntity());
-        Mob entity = Util.castSafely(event.getEntity(), Mob.class).orElse(null);
-        if (entity == null) return;
-        if (!(entity.getTarget() instanceof Player player)) return;
-        AmuletManager manager = AmuletManager.get(player.registryAccess());
-        if (manager.shouldIgnoreTarget(player, entity)) {
-            if (entity instanceof IronGolem golem) golem.stopBeingAngry();
-            entity.setTarget(null);
-        }
     }
 
     @SubscribeEvent

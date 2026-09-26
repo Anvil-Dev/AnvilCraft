@@ -201,14 +201,6 @@ public class PlayerEventListener {
         AmuletManager.get(player.registryAccess()).tryRaffle(player, event.getSource());
     }
 
-    @SubscribeEvent
-    public static void onPlayerHurt(LivingIncomingDamageEvent event) {
-        if (!(event.getEntity() instanceof ServerPlayer player)) return;
-        if (AmuletManager.get(player.registryAccess()).shouldImmune(player, event.getSource())) {
-            event.setCanceled(true);
-        }
-    }
-
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void onPlayerBlockWithHeavyHalberd(LivingIncomingDamageEvent event) {
         if (!(event.getEntity() instanceof Player player)) return;

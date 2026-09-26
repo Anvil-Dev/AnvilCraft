@@ -7,7 +7,7 @@ import lombok.Setter;
 import net.minecraft.core.Holder;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.bus.api.Event;
 import net.neoforged.bus.api.ICancellableEvent;
@@ -28,7 +28,7 @@ public abstract sealed class AmuletEvent extends Event
         this.manager = manager;
     }
 
-    /// 本事件会在 {@link AmuletManager#getAmuletsFromInventory(Player)} 内发出，<br>
+    /// 本事件会在 {@link AmuletManager#getAmuletsFromInventory(LivingEntity)} 内发出，<br>
     /// 并允许其它模组从非物品栈形式的源提供护符。
     /// <p>注意：您不需要在此事件中处理护符容器（物品栈形式的源）。请与 {@link ProcessFound} 中执行上述操作。</p>
     /// <p>本事件会在双端发出。</p>
@@ -36,12 +36,12 @@ public abstract sealed class AmuletEvent extends Event
     /// @see ProcessFound
     public static final class Find extends AmuletEvent {
         @Getter
-        private final Player player;
+        private final LivingEntity entity;
         private final Consumer<ItemStack> collector;
 
-        public Find(AmuletManager manager, Player player, Consumer<ItemStack> collector) {
+        public Find(AmuletManager manager, LivingEntity entity, Consumer<ItemStack> collector) {
             super(manager);
-            this.player = player;
+            this.entity = entity;
             this.collector = collector;
         }
 

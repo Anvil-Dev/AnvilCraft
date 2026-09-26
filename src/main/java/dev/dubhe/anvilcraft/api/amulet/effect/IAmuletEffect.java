@@ -1,9 +1,8 @@
 package dev.dubhe.anvilcraft.api.amulet.effect;
 
 import com.google.common.collect.ImmutableSet;
-import dev.anvilcraft.lib.v2.util.ISerializer;
 import dev.dubhe.anvilcraft.api.amulet.ctx.AmuletEffectContext;
-import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Unmodifiable;
 
@@ -20,10 +19,10 @@ import java.util.Set;
 public interface IAmuletEffect {
     /// 触发该效果。
     ///
-    /// @param player 佩戴护符的玩家
+    /// @param entity 佩戴护符的玩家
     /// @param amulet 提供该效果的护符物品堆，未启用时为 {@link ItemStack#EMPTY}
     /// @param ctx    本次触发的上下文
-    void trigger(Player player, ItemStack amulet, AmuletEffectContext ctx);
+    void trigger(LivingEntity entity, ItemStack amulet, AmuletEffectContext ctx);
 
     /// 获取该效果展开后的效果，包含其包覆的其它护符的效果。
     ///
@@ -32,10 +31,5 @@ public interface IAmuletEffect {
     /// @return 该效果展开后的效果
     default @Unmodifiable Set<IAmuletEffect> flatten() {
         return ImmutableSet.of(this);
-    }
-
-    Type<?> getType();
-
-    interface Type<T extends IAmuletEffect> extends ISerializer<T> {
     }
 }

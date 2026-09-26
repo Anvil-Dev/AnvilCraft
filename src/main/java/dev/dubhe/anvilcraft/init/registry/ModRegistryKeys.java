@@ -3,7 +3,6 @@ package dev.dubhe.anvilcraft.init.registry;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.amulet.Amulet;
 import dev.dubhe.anvilcraft.api.amulet.def.IAmuletDefinition;
-import dev.dubhe.anvilcraft.api.amulet.effect.IAmuletEffect;
 import dev.dubhe.anvilcraft.api.pointer.ITargetPointer;
 import dev.dubhe.anvilcraft.api.recipe.data.ICustomDataComponent;
 import dev.dubhe.anvilcraft.api.recipe.number.INumberProvider;
@@ -21,7 +20,6 @@ import net.neoforged.neoforge.registries.DataPackRegistryEvent;
 
 @EventBusSubscriber(modid = AnvilCraft.MOD_ID)
 public class ModRegistryKeys {
-    public static final ResourceKey<Registry<IAmuletEffect.Type<?>>> AMULET_EFFECT_TYPE = ModRegistryKeys.key("amulet_effect_type");
     public static final ResourceKey<Registry<Amulet>> AMULET = ModRegistryKeys.key("amulet");
     public static final ResourceKey<Registry<IAmuletDefinition.Type<?>>> AMULET_DEF_TYPE = ModRegistryKeys.key("amulet_definition_type");
     public static final ResourceKey<Registry<IAmuletDefinition>> AMULET_DEF = ModRegistryKeys.key("amulet_definition");

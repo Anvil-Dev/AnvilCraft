@@ -1,7 +1,6 @@
 package dev.dubhe.anvilcraft.api.amulet.effect;
 
 import com.mojang.serialization.Codec;
-import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.anvilcraft.lib.v2.codec.StreamCodecUtil;
 import dev.anvilcraft.lib.v2.math.expression.Arguments;
@@ -9,7 +8,6 @@ import dev.anvilcraft.lib.v2.math.expression.IExpression;
 import dev.anvilcraft.lib.v2.math.init.LibBuiltInFunctions;
 import dev.dubhe.anvilcraft.api.amulet.ctx.AmuletEffectContext;
 import dev.dubhe.anvilcraft.init.item.ModAmuletEffectContextKeys;
-import dev.dubhe.anvilcraft.init.item.ModAmuletEffectTypes;
 import dev.dubhe.anvilcraft.predicate.InWaterOrBreathingPredicate;
 import dev.dubhe.anvilcraft.predicate.NotInLavaPredicate;
 import dev.dubhe.anvilcraft.predicate.NotInWaterPredicate;
@@ -24,7 +22,7 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
-import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 
 import java.util.List;
@@ -143,8 +141,8 @@ public record GiveMobEffectAmuletEffect(
     }
 
     @Override
-    public void trigger(Player player, ItemStack amulet, AmuletEffectContext ctx) {
-        if (!(player instanceof ServerPlayer serverPlayer) || !ctx.get(ModAmuletEffectContextKeys.ENABLED).orElse(false)) {
+    public void trigger(LivingEntity entity, ItemStack amulet, AmuletEffectContext ctx) {
+        if (!(entity instanceof ServerPlayer serverPlayer) || !ctx.get(ModAmuletEffectContextKeys.ENABLED).orElse(false)) {
             return;
         }
         if (this.predicate.isPresent() && !this.predicate.get().matches(serverPlayer, serverPlayer)) {
@@ -196,11 +194,6 @@ public record GiveMobEffectAmuletEffect(
         );
     }
 
-    @Override
-    public Type getType() {
-        return ModAmuletEffectTypes.GIVE_MOB_EFFECT.get();
-    }
-
     /// 一条要给予的药水效果
     ///
     /// @param effect   效果自身，其中的时长是 {@link #duration} 里的 {@code $(extra)}
@@ -236,35 +229,6 @@ public record GiveMobEffectAmuletEffect(
         /// 每 tick 把剩余时长重置回效果自身时长
         public static Entry refresh(MobEffectInstance effect) {
             return new Entry(effect, Optional.empty(), GiveMobEffectAmuletEffect.REFRESH_DURATION);
-        }
-    }
-
-    public static class Type implements IAmuletEffect.Type<GiveMobEffectAmuletEffect> {
-        public static final MapCodec<GiveMobEffectAmuletEffect> CODEC = RecordCodecBuilder.mapCodec(inst -> inst.group(
-            EntityPredicate.CODEC
-                .optionalFieldOf("predicate")
-                .forGetter(GiveMobEffectAmuletEffect::predicate),
-            Entry.CODEC
-                .listOf()
-                .fieldOf("effects")
-                .forGetter(GiveMobEffectAmuletEffect::effects)
-        ).apply(inst, GiveMobEffectAmuletEffect::new));
-        public static final StreamCodec<RegistryFriendlyByteBuf, GiveMobEffectAmuletEffect> STREAM_CODEC = StreamCodec.composite(
-            ByteBufCodecs.optional(StreamCodecUtil.ENTITY_PREDICATE),
-            GiveMobEffectAmuletEffect::predicate,
-            Entry.STREAM_CODEC.apply(ByteBufCodecs.list()),
-            GiveMobEffectAmuletEffect::effects,
-            GiveMobEffectAmuletEffect::new
-        );
-
-        @Override
-        public MapCodec<GiveMobEffectAmuletEffect> codec() {
-            return Type.CODEC;
-        }
-
-        @Override
-        public StreamCodec<RegistryFriendlyByteBuf, GiveMobEffectAmuletEffect> streamCodec() {
-            return Type.STREAM_CODEC;
         }
     }
 }

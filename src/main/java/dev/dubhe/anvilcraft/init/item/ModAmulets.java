@@ -83,7 +83,7 @@ public class ModAmulets {
     public static final DeferredHolder<Amulet, Amulet> ANVIL = REGISTER.register(
         "anvil",
         () -> Amulet.of(
-            new ImmuneAnvilDamageAmuletEffect(),
+            ImmuneAnvilDamageAmuletEffect.INSTANCE,
             ImmuneMobEffectAmuletEffect.of(MobEffects.LEVITATION),
             new AttributeAmuletEffect(
                 Attributes.KNOCKBACK_RESISTANCE,
@@ -91,13 +91,13 @@ public class ModAmulets {
                 1,
                 AttributeModifier.Operation.ADD_VALUE
             ),
-            new ImmuneKnockbackAmuletEffect(),
-            new IgnoreGravityAmuletEffect()
+            ImmuneKnockbackAmuletEffect.INSTANCE,
+            IgnoreGravityAmuletEffect.INSTANCE
         )
     );
     public static final DeferredHolder<Amulet, Amulet> COMRADE = REGISTER.register(
         "comrade",
-        () -> Amulet.of(new ImmuneFriendlyDamageAmuletEffect())
+        () -> Amulet.of(ImmuneFriendlyDamageAmuletEffect.INSTANCE)
     );
     public static final DeferredHolder<Amulet, Amulet> FEATHER = REGISTER.register(
         "feather",
@@ -135,14 +135,14 @@ public class ModAmulets {
         "silence",
         () -> Amulet.of(
             ImmuneMobEffectAmuletEffect.of(MobEffects.DARKNESS),
-            new ImmuneVibrationAmuletEffect()
+            ImmuneVibrationAmuletEffect.INSTANCE
         )
     );
     public static final DeferredHolder<Amulet, Amulet> ABNORMAL = REGISTER.register(
         "abnormal",
         () -> Amulet.of(
-            new ImmuneHarmfulMobEffectAmuletEffect(),
-            new ImmuneAbnormalItemAmuletEffect()
+            ImmuneHarmfulMobEffectAmuletEffect.INSTANCE,
+            ImmuneAbnormalItemAmuletEffect.INSTANCE
         )
     );
     public static final DeferredHolder<Amulet, Amulet> GEM = REGISTER.register(

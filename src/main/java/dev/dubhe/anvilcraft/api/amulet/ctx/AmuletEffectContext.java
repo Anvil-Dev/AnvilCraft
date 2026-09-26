@@ -31,6 +31,10 @@ public class AmuletEffectContext {
         return Optional.ofNullable(this.ctx.get(key)).map(key.clazz()::cast);
     }
 
+    public <T> T getOrDefault(AmuletEffectContextKey<T> key, T defaultValue) {
+        return this.get(key).orElse(defaultValue);
+    }
+
     public <T> T getOrThrow(AmuletEffectContextKey<T> key) {
         return key.clazz().cast(Objects.requireNonNull(this.ctx.get(key), () -> "Cannot find context for key " + key.id()));
     }

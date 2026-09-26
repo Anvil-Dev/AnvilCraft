@@ -41,7 +41,6 @@ import dev.dubhe.anvilcraft.init.entity.ModEntities;
 import dev.dubhe.anvilcraft.init.entity.ModEntitySubPredicates;
 import dev.dubhe.anvilcraft.init.entity.ModVillagers;
 import dev.dubhe.anvilcraft.init.item.ModAmuletDefinitionTypes;
-import dev.dubhe.anvilcraft.init.item.ModAmuletEffectTypes;
 import dev.dubhe.anvilcraft.init.item.ModAmulets;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModCustomDataComponents;
@@ -136,7 +135,6 @@ public class AnvilCraft {
         ModTargetPointers.register(modEventBus);
         ModCategoryTypes.register(modEventBus);
         TeslaFilter.init();
-        ModAmuletEffectTypes.register(modEventBus);
         ModAmulets.register(modEventBus);
         ModAmuletDefinitionTypes.register(modEventBus);
         ModEntitySubPredicates.register(modEventBus);

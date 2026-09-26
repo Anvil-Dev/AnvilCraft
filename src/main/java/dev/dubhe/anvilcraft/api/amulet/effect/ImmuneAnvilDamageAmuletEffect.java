@@ -1,21 +1,17 @@
 package dev.dubhe.anvilcraft.api.amulet.effect;
 
-import com.mojang.serialization.MapCodec;
 import dev.dubhe.anvilcraft.api.amulet.ctx.AmuletEffectContext;
 import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import dev.dubhe.anvilcraft.init.entity.ModDamageTypeTags;
 import dev.dubhe.anvilcraft.init.entity.ModEntityTypeTags;
-import dev.dubhe.anvilcraft.init.item.ModAmuletEffectTypes;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
-import io.netty.buffer.ByteBuf;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.FallingBlockEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -23,10 +19,10 @@ import net.minecraft.world.level.block.state.BlockState;
 
 /// 免疫铁砧相关伤害的护符效果
 public record ImmuneAnvilDamageAmuletEffect() implements IImmuneDamageAmuletEffect {
-    private static final ImmuneAnvilDamageAmuletEffect INSTANCE = new ImmuneAnvilDamageAmuletEffect();
+    public static final ImmuneAnvilDamageAmuletEffect INSTANCE = new ImmuneAnvilDamageAmuletEffect();
 
     @Override
-    public boolean shouldImmune(Player player, ItemStack amulet, DamageSource source, AmuletEffectContext ctx) {
+    public boolean shouldImmune(LivingEntity entity, ItemStack amulet, DamageSource source, AmuletEffectContext ctx) {
         if (!source.is(ModDamageTypeTags.ANVIL_AMULET_VALID)) {
             return false;
         }
@@ -41,27 +37,5 @@ public record ImmuneAnvilDamageAmuletEffect() implements IImmuneDamageAmuletEffe
         }
         BlockState state = falling.getBlockState();
         return state.is(BlockTags.ANVIL) || state.is(ModBlockTags.GIANT_ANVIL);
-    }
-
-    @Override
-    public Type getType() {
-        return ModAmuletEffectTypes.IMMUNE_ANVIL_DAMAGE.get();
-    }
-
-    public static class Type implements IAmuletEffect.Type<ImmuneAnvilDamageAmuletEffect> {
-        public static final MapCodec<ImmuneAnvilDamageAmuletEffect> CODEC = MapCodec.unit(ImmuneAnvilDamageAmuletEffect.INSTANCE);
-        public static final StreamCodec<ByteBuf, ImmuneAnvilDamageAmuletEffect> STREAM_CODEC = StreamCodec.unit(
-            ImmuneAnvilDamageAmuletEffect.INSTANCE
-        );
-
-        @Override
-        public MapCodec<ImmuneAnvilDamageAmuletEffect> codec() {
-            return Type.CODEC;
-        }
-
-        @Override
-        public StreamCodec<RegistryFriendlyByteBuf, ImmuneAnvilDamageAmuletEffect> streamCodec() {
-            return Type.STREAM_CODEC.cast();
-        }
     }
 }

@@ -1,6 +1,6 @@
 package dev.dubhe.anvilcraft.mixin;
 
-import dev.dubhe.anvilcraft.api.amulet.AmuletManager;
+import dev.dubhe.anvilcraft.event.AmuletAbilitiesEventListener;
 import dev.dubhe.anvilcraft.mixin.accessor.TargetingConditionsAccessor;
 import dev.dubhe.anvilcraft.util.mixin.ModifiedSelector;
 import net.minecraft.world.entity.Entity;
@@ -55,6 +55,6 @@ public abstract class NearestAttackableTargetGoalMixin extends TargetGoal {
     @Unique
     private static boolean anvilcraft$canTarget(LivingEntity mob, Entity entity) {
         return !(entity instanceof Player player)
-               || !AmuletManager.get(player.registryAccess()).shouldIgnoreTarget(player, mob);
+               || !AmuletAbilitiesEventListener.shouldIgnoreTarget(player, mob.getType());
     }
 }

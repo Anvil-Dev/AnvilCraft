@@ -1,8 +1,6 @@
 package dev.dubhe.anvilcraft.mixin;
 
-import dev.dubhe.anvilcraft.api.amulet.AmuletManager;
 import dev.dubhe.anvilcraft.inventory.PocketInventory;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import org.spongepowered.asm.mixin.Final;
@@ -21,16 +19,5 @@ abstract class InventoryMixin {
     @Inject(method = "dropAll", at = @At("HEAD"))
     private void anvilcraft$dropPockets(CallbackInfo ci) {
         PocketInventory.get(this.player).dropAll(this.player);
-    }
-
-    @SuppressWarnings("PatternVariableHidesField")
-    @Inject(
-        method = "tick",
-        at = @At(value = "HEAD")
-    )
-    private void preInventoryTick(CallbackInfo ci) {
-        if (this.player instanceof ServerPlayer player) {
-            AmuletManager.get(player.registryAccess()).inventoryTick(player);
-        }
     }
 }

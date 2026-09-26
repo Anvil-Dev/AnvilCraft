@@ -1,6 +1,8 @@
 package dev.dubhe.anvilcraft.mixin;
 
 import dev.dubhe.anvilcraft.api.amulet.AmuletManager;
+import dev.dubhe.anvilcraft.api.amulet.ctx.AmuletEffectContext;
+import dev.dubhe.anvilcraft.init.item.ModAmuletEffectContextKeys;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.npc.AbstractVillager;
 import net.minecraft.world.entity.npc.Villager;
@@ -24,7 +26,12 @@ public abstract class VillagerMixin extends AbstractVillager {
     )
     private void updateAmuletSpecialPrices(Player player, CallbackInfo ci) {
         // 如果需要不叠加，就加上&& !player.hasEffect(MobEffects.HERO_OF_THE_VILLAGE)
-        float rate = AmuletManager.get(player.registryAccess()).getDiscountRate(player);
+        if (!AmuletManager.shouldEvaluate(player)) {
+            return;
+        }
+        AmuletEffectContext ctx = new AmuletEffectContext();
+        AmuletManager.get(player.registryAccess()).trigger(player, ctx);
+        float rate = ctx.getOrDefault(ModAmuletEffectContextKeys.DISCOUNT_RATE, 0F);
         if (rate <= 0F) return;
         for (MerchantOffer merchantOffer : this.getOffers()) {
             int k = (int) Math.floor(rate * merchantOffer.getBaseCostA().getCount());

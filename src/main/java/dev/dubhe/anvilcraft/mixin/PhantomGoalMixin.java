@@ -2,7 +2,7 @@ package dev.dubhe.anvilcraft.mixin;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
-import dev.dubhe.anvilcraft.api.amulet.AmuletManager;
+import dev.dubhe.anvilcraft.event.AmuletAbilitiesEventListener;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.EntitySelector;
 import net.minecraft.world.entity.monster.Phantom;
@@ -38,7 +38,7 @@ public abstract class PhantomGoalMixin {
             this.this$0.getBoundingBox().inflate(16.0),
             EntitySelector.NO_SPECTATORS.and(
                 entity -> entity instanceof Player player
-                          && AmuletManager.get(player.registryAccess()).shouldIgnoreTarget(player, this.this$0)
+                          && AmuletAbilitiesEventListener.shouldIgnoreTarget(player, this.this$0.getType())
             )
         );
         for (Player player : players) {
