@@ -43,6 +43,16 @@ items:
 
 ---
 
+## 从JEI导入
+
+![structure_scanner_2.png](../../textures/structure_scanner_2.png)
+
+1. 打开<ref item="anvilcraft:structure_scanner"/>
+2. 通过右侧的JEI物品栏打开配方
+3. 导入多方块配方的结构至<ref item="anvilcraft:structure_scanner"/>
+
+---
+
 ## 导入导出功能
 
 1. 导入和导出作用于同一文件夹，该文件夹位于**世界文件夹**下；在服务器上，文件操作需要**管理员权限**

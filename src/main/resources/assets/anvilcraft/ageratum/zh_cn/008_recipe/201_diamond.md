@@ -4,7 +4,7 @@ navigation:
   icon: "minecraft:diamond"
 ---
 
-# 熔岩再生
+# 量产钻石
 
 <row halign="center">
 <item id="minecraft:oak_log"/>

@@ -79,6 +79,10 @@ items:
 
 - 四周被**熔岩**环绕的<ref item="anvilcraft:mineral_fountain"/>可以生成**熔岩**
 
+<tip>
+可以直接将<ref item="anvilcraft:drain"/>放在<ref item="anvilcraft:mineral_fountain"/>上方收集熔岩
+</tip>
+
 ---
 
 ## 加热

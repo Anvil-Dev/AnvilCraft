@@ -43,6 +43,16 @@ Open the GUI:
 
 ---
 
+## Import from JEI
+
+![structure_scanner_2.png](../../textures/structure_scanner_2.png)
+
+1. Open the <ref item="anvilcraft:structure_scanner"/>
+2. Open the recipe through the JEI ingredient list on the right
+3. Import the multiblock recipe structure into the <ref item="anvilcraft:structure_scanner"/>
+
+---
+
 ## Import and Export
 
 1. Import and export operate on the same folder, located under the **world folder**. On servers, file operations require **operator permissions**

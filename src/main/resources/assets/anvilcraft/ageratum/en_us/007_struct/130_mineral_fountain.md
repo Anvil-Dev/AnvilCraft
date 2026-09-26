@@ -79,6 +79,10 @@ Raw ore blocks can be obtained through <ref item="anvilcraft:corrupted_beacon"/>
 
 - A <ref item="anvilcraft:mineral_fountain"/> surrounded on all four sides by **lava** can generate **lava**
 
+<tip>
+You can place a <ref item="anvilcraft:drain"/> directly above the <ref item="anvilcraft:mineral_fountain"/> to collect lava
+</tip>
+
 ---
 
 ## Heating

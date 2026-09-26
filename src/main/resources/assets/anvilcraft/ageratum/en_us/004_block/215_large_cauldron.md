@@ -36,6 +36,10 @@ items:
 - Empty hand right-click the cauldron opening to extract all items in the targeted input slot
 - Through *logistics blocks* from the **bottom** or the **bottommost layer of the sides**
 
+<tip>
+Place a chute underneath to output only products
+</tip>
+
 ## Fluids
 
 ### Input
@@ -49,6 +53,10 @@ items:
 - Hold an empty bucket and aim at the side to extract the targeted fluid
 - Through *fluid pipes* from the **sides** and **top** to extract the top layer of fluid
 - Through *fluid pipes* from the **bottom** to extract the bottom layer of fluid
+
+<info>
+In other words, you **cannot** output only *produced fluids* by pumping fluid out through the bottom; you can only filter them with a <ref item="anvilcraft:control_valve"/>
+</info>
 
 # Processing
 
