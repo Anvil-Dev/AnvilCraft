@@ -32,9 +32,6 @@ public class ModDataAttachments {
         "ionocraft_descent_available", () -> AttachmentType.builder(() -> false)
             .sync((holder, player) -> holder == player, ByteBufCodecs.BOOL).build());
 
-    public static final Supplier<AttachmentType<Float>> DISCOUNT_RATE = ATTACHMENT_TYPES.register(
-        "discount_rate", () -> AttachmentType.builder(() -> 0f).build());
-
     public static final Supplier<AttachmentType<Boolean>> ZOMBIFICATED_BY_CURSE = ATTACHMENT_TYPES.register(
         "zombificated_by_curse", () -> AttachmentType.builder(() -> false).serialize(Codec.BOOL).build());
 

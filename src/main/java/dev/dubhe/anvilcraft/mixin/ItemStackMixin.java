@@ -8,7 +8,6 @@ import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.block.item.ChuteBlockItem;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItems;
-import dev.dubhe.anvilcraft.item.AmuletAbilities;
 import dev.dubhe.anvilcraft.item.BuildingRodItem;
 import dev.dubhe.anvilcraft.item.HeavyHalberdItem;
 import dev.dubhe.anvilcraft.item.MultitoolItem;
@@ -24,7 +23,6 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
@@ -46,13 +44,6 @@ import javax.annotation.Nullable;
 
 @Mixin(ItemStack.class)
 public abstract class ItemStackMixin implements DataComponentHolder {
-    @WrapMethod(method = "finishUsingItem")
-    private ItemStack anvilcraft$protectFoodEffects(Level level, LivingEntity consumer, Operation<ItemStack> original) {
-        ItemStack stack = Util.cast(this);
-        if (stack.getFoodProperties(consumer) == null) return original.call(level, consumer);
-        return AmuletAbilities.consumeFood(consumer, () -> original.call(level, consumer));
-    }
-
     @WrapMethod(method = "useOn")
     private InteractionResult anvilcraft$animateOffhandRodPlacement(UseOnContext context, Operation<InteractionResult> original) {
         ItemStack stack = context.getItemInHand();

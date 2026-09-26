@@ -7,6 +7,8 @@ import com.llamalad7.mixinextras.sugar.Local;
 import com.llamalad7.mixinextras.sugar.Share;
 import com.llamalad7.mixinextras.sugar.ref.LocalRef;
 import dev.anvilcraft.lib.v2.util.Util;
+import dev.dubhe.anvilcraft.api.amulet.AmuletManager;
+import dev.dubhe.anvilcraft.api.amulet.ctx.AmuletEffectContext;
 import dev.dubhe.anvilcraft.api.entity.fakeplayer.AnvilCraftFakePlayers;
 import dev.dubhe.anvilcraft.api.totem.TotemManager;
 import dev.dubhe.anvilcraft.api.totem.handler.TotemHandler;
@@ -14,12 +16,13 @@ import dev.dubhe.anvilcraft.block.EmberAnvilBlock;
 import dev.dubhe.anvilcraft.block.FrostAnvilBlock;
 import dev.dubhe.anvilcraft.block.LargeCauldronBlock;
 import dev.dubhe.anvilcraft.block.TranscendenceAnvilBlock;
+import dev.dubhe.anvilcraft.event.AmuletAbilitiesEventListener;
 import dev.dubhe.anvilcraft.init.ModMobEffects;
+import dev.dubhe.anvilcraft.init.item.ModAmuletEffectContextKeys;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.init.loot.ModLootTables;
 import dev.dubhe.anvilcraft.inventory.PocketInventory;
-import dev.dubhe.anvilcraft.item.AmuletAbilities;
 import dev.dubhe.anvilcraft.item.EquipmentAbilities;
 import dev.dubhe.anvilcraft.item.property.component.BoxContents;
 import dev.dubhe.anvilcraft.util.AtmosphereManager;
@@ -80,7 +83,14 @@ public abstract class LivingEntityMixin extends Entity {
 
     @Inject(method = "setLastHurtByMob", at = @At("HEAD"), cancellable = true)
     private void anvilcraft$ignoreProtectedAttacker(@Nullable LivingEntity attacker, CallbackInfo ci) {
-        if ((Object) this instanceof IronGolem && AmuletAbilities.isGolemProtected(attacker)) ci.cancel();
+        LivingEntity thiz = Util.cast(this);
+        if (
+            thiz instanceof IronGolem
+            && attacker instanceof Player player
+            && AmuletAbilitiesEventListener.shouldIgnoreTarget(player, EntityType.IRON_GOLEM)
+        ) {
+            ci.cancel();
+        }
     }
 
     @Unique
@@ -301,6 +311,27 @@ public abstract class LivingEntityMixin extends Entity {
         @Local MobEffectInstance effect
     ) {
         return original.call(instance, o) && !effect.is(ModMobEffects.RAGE);
+    }
+
+    @WrapOperation(
+        method = "addEatEffect",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/world/entity/LivingEntity;addEffect(Lnet/minecraft/world/effect/MobEffectInstance;)Z"
+        )
+    )
+    private boolean letAmuletProcess(LivingEntity instance, MobEffectInstance effect, Operation<Boolean> original) {
+        if (!AmuletManager.shouldEvaluate(instance)) {
+            return original.call(instance, effect);
+        }
+        AmuletEffectContext ctx = new AmuletEffectContext();
+        ctx.set(ModAmuletEffectContextKeys.MOB_EFFECT, effect);
+        ctx.set(ModAmuletEffectContextKeys.CONSUMING_FOOD, true);
+        AmuletManager.get(instance.registryAccess()).trigger(instance, ctx);
+        if (!ctx.getOrDefault(ModAmuletEffectContextKeys.IMMUNE_MOB_EFFECT, false)) {
+            return original.call(instance, effect);
+        }
+        return false;
     }
 
     @Inject(

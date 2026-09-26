@@ -77,7 +77,6 @@
     "ServerPlayerContainerListenerMixin",
     "ServerPlayerMixin",
     "ServicesMixin",
-    "SpiderMixin",
     "StriderMixin",
     "TntBlockMixin",
     "UseOnContextMixin",

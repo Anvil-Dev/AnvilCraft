@@ -1,7 +1,8 @@
 package dev.dubhe.anvilcraft.item.abnormal;
 
 import dev.dubhe.anvilcraft.api.amulet.AmuletManager;
-import dev.dubhe.anvilcraft.init.item.ModAmulets;
+import dev.dubhe.anvilcraft.api.amulet.ctx.AmuletEffectContext;
+import dev.dubhe.anvilcraft.init.item.ModAmuletEffectContextKeys;
 import net.minecraft.core.Holder;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -22,7 +23,9 @@ public interface IAbnormal {
         if (level.isClientSide()) return;
         if (!(entity instanceof Player player)) return;
         if (player.getAbilities().instabuild || player.getAbilities().invulnerable) return;
-        if (AmuletManager.get(level.registryAccess()).hasAmuletInInventory(player, ModAmulets.ABNORMAL.getKey())) return;
+        AmuletEffectContext ctx = new AmuletEffectContext();
+        AmuletManager.get(level.registryAccess()).trigger(player, ctx);
+        if (ctx.getOrDefault(ModAmuletEffectContextKeys.IMMUNE_ABNORMAL_ITEM, false)) return;
         this.addEffect(player);
     }
 

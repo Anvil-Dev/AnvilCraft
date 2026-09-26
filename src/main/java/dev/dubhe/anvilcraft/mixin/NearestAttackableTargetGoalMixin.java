@@ -1,23 +1,19 @@
 package dev.dubhe.anvilcraft.mixin;
 
-import dev.dubhe.anvilcraft.api.amulet.AmuletManager;
-import dev.dubhe.anvilcraft.init.item.ModAmulets;
-import dev.dubhe.anvilcraft.item.property.component.amulet.IAmulet;
+import dev.dubhe.anvilcraft.event.AmuletAbilitiesEventListener;
 import dev.dubhe.anvilcraft.mixin.accessor.TargetingConditionsAccessor;
 import dev.dubhe.anvilcraft.util.mixin.ModifiedSelector;
-import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import net.minecraft.world.entity.ai.goal.target.TargetGoal;
 import net.minecraft.world.entity.ai.targeting.TargetingConditions;
-import net.minecraft.world.entity.monster.AbstractSkeleton;
-import net.minecraft.world.entity.monster.Creeper;
-import net.minecraft.world.entity.monster.Spider;
 import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
 
@@ -45,27 +41,20 @@ public abstract class NearestAttackableTargetGoalMixin extends TargetGoal {
         index = 0
     )
     private TargetingConditions addAmuletScare(TargetingConditions conditions) {
-        ResourceKey<IAmulet> amulet;
-        switch (this.mob.getClass()) {
-            case Class<?> clazz when Spider.class.isAssignableFrom(clazz) -> amulet = ModAmulets.ARMADILLO.getKey();
-            case Class<?> clazz when clazz.isAssignableFrom(AbstractSkeleton.class) -> amulet = ModAmulets.DOG.getKey();
-            case Class<?> clazz when clazz.isAssignableFrom(Creeper.class) -> amulet = ModAmulets.CAT.getKey();
-            default -> {
-                return conditions;
-            }
-        }
+        LivingEntity mob = this.mob;
         return conditions.selector(
             Optional.ofNullable(((TargetingConditionsAccessor) conditions).getSelector())
                 .map(p -> ModifiedSelector.toModified(
                     p,
-                    () -> entity ->
-                        entity instanceof Player player
-                        && !AmuletManager.get(player.registryAccess()).hasAmuletInInventory(player, amulet)
+                    () -> entity -> NearestAttackableTargetGoalMixin.anvilcraft$canTarget(mob, entity)
                 ))
-                .orElse(entity ->
-                            entity instanceof Player player
-                            && !AmuletManager.get(player.registryAccess()).hasAmuletInInventory(player, amulet)
-                )
+                .orElse(entity -> NearestAttackableTargetGoalMixin.anvilcraft$canTarget(mob, entity))
         );
+    }
+
+    @Unique
+    private static boolean anvilcraft$canTarget(LivingEntity mob, Entity entity) {
+        return !(entity instanceof Player player)
+               || !AmuletAbilitiesEventListener.shouldIgnoreTarget(player, mob.getType());
     }
 }

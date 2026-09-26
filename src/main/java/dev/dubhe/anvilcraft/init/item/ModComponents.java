@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.init.item;
 import com.mojang.datafixers.util.Unit;
 import com.mojang.serialization.Codec;
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.api.amulet.Amulet;
 import dev.dubhe.anvilcraft.init.registry.ModRegistryKeys;
 import dev.dubhe.anvilcraft.item.property.component.BoxContents;
 import dev.dubhe.anvilcraft.item.property.component.Comrades;
@@ -23,7 +24,6 @@ import dev.dubhe.anvilcraft.item.property.component.StoredItem;
 import dev.dubhe.anvilcraft.item.property.component.StructureData;
 import dev.dubhe.anvilcraft.item.property.component.StructureDiskData;
 import dev.dubhe.anvilcraft.item.property.component.TerminalBinding;
-import dev.dubhe.anvilcraft.item.property.component.amulet.IAmulet;
 import dev.dubhe.anvilcraft.saved.setting.mode.BalanceMode;
 import dev.dubhe.anvilcraft.saved.storage.CraftingStorage;
 import net.minecraft.core.component.DataComponentType;
@@ -186,7 +186,7 @@ public class ModComponents {
         b -> b.persistent(OverLimitItemContainerContents.CODEC).networkSynchronized(OverLimitItemContainerContents.STREAM_CODEC)
     );
 
-    public static final DataComponentType<ResourceKey<IAmulet>> AMULET = register(
+    public static final DataComponentType<ResourceKey<Amulet>> AMULET = register(
         "amulet",
         b -> b.persistent(ResourceKey.codec(ModRegistryKeys.AMULET))
             .networkSynchronized(ResourceKey.streamCodec(ModRegistryKeys.AMULET))
