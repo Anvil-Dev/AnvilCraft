@@ -8,11 +8,11 @@ import net.minecraft.world.entity.animal.Cat;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import javax.annotation.Nullable;
 
 public class DummyCat extends Cat {
     private static final Map<UUID, DummyCat> CACHE = new HashMap<>();

@@ -1,12 +1,12 @@
 package dev.dubhe.anvilcraft.api.amulet.effect;
 
+import com.google.common.collect.HashBasedTable;
+import com.google.common.collect.Table;
+import com.google.common.collect.Tables;
 import dev.dubhe.anvilcraft.api.amulet.ctx.AmuletEffectContext;
 import dev.dubhe.anvilcraft.api.entity.IImpersonator;
 import dev.dubhe.anvilcraft.init.item.ModAmuletEffectContextKeys;
 import dev.dubhe.anvilcraft.mixin.accessor.AvoidEntityGoalAccessor;
-import it.unimi.dsi.fastutil.objects.Object2BooleanMap;
-import it.unimi.dsi.fastutil.objects.Object2BooleanMaps;
-import it.unimi.dsi.fastutil.objects.Object2BooleanOpenHashMap;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
@@ -15,8 +15,8 @@ import net.minecraft.world.entity.ai.goal.WrappedGoal;
 import net.minecraft.world.item.ItemStack;
 
 public record ActAsScarecrowAmuletEffect<T extends LivingEntity>(IImpersonator<T> impersonator) implements IAmuletEffect {
-    private static final Object2BooleanMap<Class<? extends Entity>> CACHE = Object2BooleanMaps.synchronize(
-        new Object2BooleanOpenHashMap<>()
+    private static final Table<Class<? extends Entity>, IImpersonator<?>, Boolean> CACHE = Tables.synchronizedTable(
+        HashBasedTable.create()
     );
 
     @Override
@@ -36,7 +36,7 @@ public record ActAsScarecrowAmuletEffect<T extends LivingEntity>(IImpersonator<T
         if (target == null) return;
 
         Class<? extends Mob> clazz = target.getClass();
-        if (CACHE.getOrDefault(clazz, false)) {
+        if (Boolean.TRUE.equals(CACHE.get(clazz, this.impersonator()))) {
             ctx.set(ModAmuletEffectContextKeys.MASK_VALID, true);
             ctx.set(ModAmuletEffectContextKeys.IGNORE_MOB, true);
             return;
@@ -48,9 +48,9 @@ public record ActAsScarecrowAmuletEffect<T extends LivingEntity>(IImpersonator<T
 
             ctx.set(ModAmuletEffectContextKeys.MASK_VALID, true);
             ctx.set(ModAmuletEffectContextKeys.IGNORE_MOB, true);
-            CACHE.put(clazz, true);
+            CACHE.put(clazz, this.impersonator(), true);
             return;
         }
-        CACHE.put(clazz, false);
+        CACHE.put(clazz, this.impersonator(), false);
     }
 }

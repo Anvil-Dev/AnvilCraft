@@ -20,16 +20,18 @@ public class Impersonators {
     public static final IImpersonator<Wolf> WOLF = Impersonators.of(Wolf.class, DummyWolf::fromEntity);
 
     public static <T extends LivingEntity> IImpersonator<T> of(Class<T> clazz, Function<LivingEntity, T> factory) {
-        return new IImpersonator<>() {
-            @Override
-            public boolean isValidMask(@Nullable Class<?> mask) {
-                return mask != null && clazz.isAssignableFrom(mask);
-            }
+        return new Simple<>(clazz, factory);
+    }
 
-            @Override
-            public T impersonate(LivingEntity entity) {
-                return factory.apply(entity);
-            }
-        };
+    private record Simple<T extends LivingEntity>(Class<T> clazz, Function<LivingEntity, T> factory) implements IImpersonator<T> {
+        @Override
+        public boolean isValidMask(@Nullable Class<?> mask) {
+            return mask != null && this.clazz.isAssignableFrom(mask);
+        }
+
+        @Override
+        public T impersonate(LivingEntity entity) {
+            return this.factory.apply(entity);
+        }
     }
 }

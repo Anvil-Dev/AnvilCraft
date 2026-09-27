@@ -6,6 +6,7 @@ import net.minecraft.world.entity.LivingEntity;
 import javax.annotation.Nullable;
 
 public interface IImpersonator<T extends Entity> {
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     boolean isValidMask(@Nullable Class<?> mask);
 
     T impersonate(LivingEntity entity);

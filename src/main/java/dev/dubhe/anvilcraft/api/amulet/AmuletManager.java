@@ -25,7 +25,6 @@ import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.network.connection.ConnectionType;
 
-import java.lang.ref.SoftReference;
 import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -43,13 +42,13 @@ import java.util.WeakHashMap;
 import javax.annotation.Nullable;
 
 public class AmuletManager {
-    private static @Nullable SoftReference<AmuletManager> INSTANCE;
+    private static final WeakHashMap<HolderLookup.Provider, AmuletManager> INSTANCES = new WeakHashMap<>();
 
     public static AmuletManager get(HolderLookup.Provider registries) {
-        if (AmuletManager.INSTANCE == null || AmuletManager.INSTANCE.get() == null) {
-            AmuletManager.INSTANCE = new SoftReference<>(new AmuletManager(AmuletManager.extractDefinitions(registries)));
-        }
-        return Objects.requireNonNull(AmuletManager.INSTANCE.get());
+        return AmuletManager.INSTANCES.computeIfAbsent(
+            registries,
+            key -> new AmuletManager(AmuletManager.extractDefinitions(registries))
+        );
     }
 
     public static List<Holder.Reference<IAmuletDefinition>> extractDefinitions(HolderLookup.Provider registries) {
@@ -59,7 +58,7 @@ public class AmuletManager {
     }
 
     public static void clear() {
-        AmuletManager.INSTANCE = null;
+        AmuletManager.INSTANCES.clear();
     }
 
     public void clear(UUID id) {
@@ -316,7 +315,7 @@ public class AmuletManager {
         public boolean equals(Object o) {
             if (!(o instanceof CacheEntry that)) return false;
             return this.size() == that.size()
-                   && this.sha256() == that.sha256();
+                   && Arrays.equals(this.sha256(), that.sha256());
         }
 
         @Override
