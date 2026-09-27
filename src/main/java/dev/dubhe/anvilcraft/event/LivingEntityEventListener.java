@@ -1,15 +1,11 @@
 package dev.dubhe.anvilcraft.event;
 
-import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.api.amulet.AmuletManager;
 import dev.dubhe.anvilcraft.entity.ai.goal.GenericZombieAttackGoal;
 import dev.dubhe.anvilcraft.init.ModMobEffects;
-import dev.dubhe.anvilcraft.init.item.ModAmulets;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.recipe.transform.MobTransformWithItemRecipe;
 import dev.dubhe.anvilcraft.util.CauldronUtil;
-import net.minecraft.tags.EntityTypeTags;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.Entity;
@@ -24,10 +20,7 @@ import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import net.minecraft.world.entity.animal.golem.IronGolem;
 import net.minecraft.world.entity.animal.turtle.Turtle;
 import net.minecraft.world.entity.item.ItemEntity;
-import net.minecraft.world.entity.monster.Creeper;
 import net.minecraft.world.entity.monster.Giant;
-import net.minecraft.world.entity.monster.Phantom;
-import net.minecraft.world.entity.monster.spider.Spider;
 import net.minecraft.world.entity.monster.warden.Warden;
 import net.minecraft.world.entity.monster.zombie.ZombifiedPiglin;
 import net.minecraft.world.entity.npc.villager.AbstractVillager;
@@ -40,7 +33,6 @@ import net.minecraft.world.level.Level;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
-import net.neoforged.neoforge.event.entity.living.LivingChangeTargetEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
 import net.neoforged.neoforge.event.entity.living.MobEffectEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
@@ -52,35 +44,9 @@ import java.util.Objects;
 @EventBusSubscriber(modid = AnvilCraft.MOD_ID)
 public class LivingEntityEventListener {
     @SubscribeEvent
-    public static void onChangeTarget(LivingChangeTargetEvent event) {
-        if (event.getTargetType() != LivingChangeTargetEvent.LivingTargetType.MOB_TARGET) return;
-        Mob entity = Util.castSafely(event.getEntity(), Mob.class).orElse(null);
-        if (entity == null) return;
-        if (!(event.getNewAboutToBeSetTarget() instanceof Player player)) return;
-        AmuletManager manager = AmuletManager.get(player.registryAccess());
-        if (
-            entity instanceof Spider && manager.hasAmuletInInventory(player, ModAmulets.ARMADILLO.getKey())
-            || entity.is(EntityTypeTags.SKELETONS) && manager.hasAmuletInInventory(player, ModAmulets.DOG.getKey())
-            || (entity instanceof Creeper || entity instanceof Phantom) && manager.hasAmuletInInventory(player, ModAmulets.CAT.getKey())
-        ) {
-            event.setCanceled(true);
-        }
-    }
-
-    @SubscribeEvent
     public static void onTick(EntityTickEvent.Post event) {
         CauldronUtil.hurtFromHeaterBelow(event.getEntity());
-        Mob entity = Util.castSafely(event.getEntity(), Mob.class).orElse(null);
-        if (entity == null) return;
-        if (!(entity.getTarget() instanceof Player player)) return;
-        AmuletManager manager = AmuletManager.get(player.registryAccess());
-        if (
-            entity instanceof Spider && manager.hasAmuletInInventory(player, ModAmulets.ARMADILLO.getKey())
-            || entity.is(EntityTypeTags.SKELETONS) && manager.hasAmuletInInventory(player, ModAmulets.DOG.getKey())
-            || (entity instanceof Creeper || entity instanceof Phantom) && manager.hasAmuletInInventory(player, ModAmulets.CAT.getKey())
-        ) {
-            entity.setTarget(null);
-        }
+
     }
 
     @SubscribeEvent

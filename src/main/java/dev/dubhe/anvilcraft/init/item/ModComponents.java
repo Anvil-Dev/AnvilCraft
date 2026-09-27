@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.init.item;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.api.amulet.Amulet;
 import dev.dubhe.anvilcraft.init.registry.ModRegistryKeys;
 import dev.dubhe.anvilcraft.item.property.component.BoxContents;
 import dev.dubhe.anvilcraft.item.property.component.CanTakeOutAmmo;
@@ -26,7 +27,6 @@ import dev.dubhe.anvilcraft.item.property.component.StoredItem;
 import dev.dubhe.anvilcraft.item.property.component.StructureData;
 import dev.dubhe.anvilcraft.item.property.component.StructureDiskData;
 import dev.dubhe.anvilcraft.item.property.component.TerminalBinding;
-import dev.dubhe.anvilcraft.item.property.component.amulet.IAmulet;
 import dev.dubhe.anvilcraft.item.tool.HeavyHalberdMode;
 import dev.dubhe.anvilcraft.item.tool.MultitoolMode;
 import dev.dubhe.anvilcraft.item.tool.ResonateMode;
@@ -223,7 +223,7 @@ public class ModComponents {
         b -> b.persistent(StoredFluids.CODEC).networkSynchronized(StoredFluids.STREAM_CODEC)
     );
 
-    public static final DataComponentType<ResourceKey<IAmulet>> AMULET = ModComponents.register(
+    public static final DataComponentType<ResourceKey<Amulet>> AMULET = ModComponents.register(
         "amulet",
         b -> b.persistent(ResourceKey.codec(ModRegistryKeys.AMULET)).networkSynchronized(ResourceKey.streamCodec(ModRegistryKeys.AMULET))
     );

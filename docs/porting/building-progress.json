@@ -1760,13 +1760,14 @@
       "8569d095d Refactor Amulet system 重构护符系统 (#5042)",
       "989bf7b33 fix: Improve block rotation and mirroring logic 完善方块旋转和镜像逻辑 (#5026)"
     ],
-    "current_work": "The remaining update in this source delta is the amulet refactor; older source-port requirements also remain tracked separately.",
+    "current_work": "Amulet effect core and current native consumers are integrated; the Enchanted Gold prerequisite and its related source delta remain queued.",
     "completed_nodes": [
       "glass_pipe_rotation_mirroring",
       "fluid_network_pressure",
       "monolith_asset_update_07eb60b47",
       "machine_rotation_mirroring",
-      "crab_claw_hand_rendering"
+      "crab_claw_hand_rendering",
+      "amulet_effect_refactor"
     ]
   },
   "fluid_network_pressure": {
@@ -1876,6 +1877,48 @@
       "Dedicated reference fixtures use identical full-bright hand light, a fixed 20-tick use clock and partial tick 0, with contrasting per-case hidden-hand backgrounds; production lighting and animation timing are unchanged.",
       "The 1.21 flat-world reference has sky light 1 at the camera despite noon and settled lighting, so natural world lighting is not compared.",
       "Earlier fixture iterations diagnosed use-key release, source clock/light differences and color-mask contamination; only the final clean captures are accepted."
+    ]
+  },
+  "amulet_effect_refactor": {
+    "source_commit": "07eb60b47f14439375da10e78f4d4770f3a83256",
+    "introduced_by": "8569d095d",
+    "status": "effect_core_ported_and_verified",
+    "ported": [
+      "Immutable amulets and typed effect contexts with wrapped-effect identity deduplication",
+      "Registry-scoped managers, component-sensitive inventory caches and entity/reload invalidation",
+      "Lifecycle, damage, potion, food, gravity, trading, taming, vibration and AI queries",
+      "Native food-consume hook and current holder/predicate APIs",
+      "Level-aware impersonator caches and native AI hooks for cats, wolves and armadillos",
+      "Removal of legacy amulet implementation/type registry and unused cogwheel asset",
+      "Dedicated-server integration candidate filtering restores Curios common discovery"
+    ],
+    "verification": {
+      "focused_log": "build/porting/tests-amulet-focused-final-3.log",
+      "tests_datagen_style_log": "build/porting/tests-amulet-final.log",
+      "client_log": "build/porting/client-amulet-1.log",
+      "compile_style_log": "build/porting/compile-amulet-final.log",
+      "report": "build/porting/amulet-refactor-comparison.json",
+      "amulet_focused_tests": 18,
+      "client_stages": 5,
+      "required_tests_passed": 604,
+      "source_classes_equivalent_after_api_adaptation": 29,
+      "manifest_recheck_log": "build/porting/tests-amulet-manifest-recheck.log"
+    },
+    "limits": [
+      "The source Enchanted Gold feature is not yet present in the native branch; its related IEnchantedGold change is queued with that feature.",
+      "AnvilLib rendering dependencies remain required by the native 26.1 rendering implementation.",
+      "Client gameplay and reload checks passed before a fixture indentation correction; final compile/style checks cover that correction."
+    ]
+  },
+  "enchanted_gold": {
+    "source_commit": "07eb60b47f14439375da10e78f4d4770f3a83256",
+    "status": "source_feature_missing_in_native_branch",
+    "discovered_during": "amulet_effect_refactor",
+    "required": [
+      "Enchanted gold block, ingot and nugget registrations and resources",
+      "Carrying effects and cursed-gold interaction, including the current amulet-related behavior",
+      "Recipes, tags and player-facing tooltips",
+      "Original block glint visual behavior adapted to native rendering"
     ]
   }
 }

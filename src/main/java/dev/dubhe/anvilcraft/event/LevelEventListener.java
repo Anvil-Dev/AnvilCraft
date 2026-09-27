@@ -12,6 +12,7 @@ import dev.dubhe.anvilcraft.block.RedstoneWireClientPowerCache;
 import dev.dubhe.anvilcraft.block.RedstoneWireNetworkManager;
 import dev.dubhe.anvilcraft.block.entity.AccelerationRingBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.DeflectionRingBlockEntity;
+import dev.dubhe.anvilcraft.util.dummy.DummyArmadillo;
 import dev.dubhe.anvilcraft.util.dummy.DummyCat;
 import dev.dubhe.anvilcraft.util.dummy.DummyWolf;
 import net.minecraft.server.level.ServerLevel;
@@ -60,6 +61,7 @@ public class LevelEventListener {
             DeflectionRingBlockEntity.clear(level);
             RedstoneWireClientPowerCache.clear(level);
             HeatCollectorManager.remove(level);
+            DummyArmadillo.clear(level);
             DummyCat.clear(level);
             DummyWolf.clear(level);
         }

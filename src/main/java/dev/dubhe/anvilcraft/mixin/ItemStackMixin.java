@@ -9,18 +9,15 @@ import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.event.AppendCustomHoverTextEvent;
 import dev.dubhe.anvilcraft.init.item.ModItems;
-import dev.dubhe.anvilcraft.item.AmuletAbilities;
 import dev.dubhe.anvilcraft.item.BuildingRodItem;
 import dev.dubhe.anvilcraft.item.block.ChuteBlockItem;
 import dev.dubhe.anvilcraft.network.BuildingRodResultPacket;
 import dev.dubhe.anvilcraft.util.BlockPlacementPicking;
 import net.minecraft.core.Holder;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
@@ -43,13 +40,6 @@ import java.util.function.Consumer;
 
 @Mixin(ItemStack.class)
 public class ItemStackMixin {
-    @WrapMethod(method = "finishUsingItem")
-    private ItemStack anvilcraft$protectFoodEffects(Level level, LivingEntity consumer, Operation<ItemStack> original) {
-        ItemStack stack = Util.cast(this);
-        if (!stack.has(DataComponents.FOOD)) return original.call(level, consumer);
-        return AmuletAbilities.consumeFood(consumer, () -> original.call(level, consumer));
-    }
-
     @WrapMethod(method = "useOn")
     private InteractionResult anvilcraft$animateOffhandRodPlacement(UseOnContext context, Operation<InteractionResult> original) {
         ItemStack stack = context.getItemInHand();

@@ -1,40 +1,55 @@
 package dev.dubhe.anvilcraft.api.amulet;
 
-import dev.anvilcraft.lib.v2.util.CollectionUtil;
+import com.google.common.collect.Multimap;
+import com.google.common.collect.MultimapBuilder;
+import dev.dubhe.anvilcraft.api.amulet.ctx.AmuletEffectContext;
 import dev.dubhe.anvilcraft.api.amulet.def.IAmuletDefinition;
+import dev.dubhe.anvilcraft.api.amulet.effect.IAmuletEffect;
 import dev.dubhe.anvilcraft.api.event.AmuletEvent;
 import dev.dubhe.anvilcraft.init.ModDataAttachments;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.registry.ModRegistries;
 import dev.dubhe.anvilcraft.init.registry.ModRegistryKeys;
-import dev.dubhe.anvilcraft.item.property.component.amulet.IAmulet;
+import io.netty.buffer.ByteBufUtil;
+import io.netty.buffer.Unpooled;
+import lombok.SneakyThrows;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.RegistryAccess;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.network.connection.ConnectionType;
 import org.jspecify.annotations.Nullable;
 
-import java.lang.ref.SoftReference;
+import java.security.MessageDigest;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.UUID;
+import java.util.WeakHashMap;
 
 public class AmuletManager {
-    private static @Nullable SoftReference<AmuletManager> INSTANCE;
+    private static final Map<HolderLookup.Provider, AmuletManager> INSTANCES = Collections.synchronizedMap(new WeakHashMap<>());
 
     public static AmuletManager get(HolderLookup.Provider registries) {
-        SoftReference<AmuletManager> reference = AmuletManager.INSTANCE;
-        AmuletManager manager = reference == null ? null : reference.get();
-        if (manager == null) {
-            manager = new AmuletManager(AmuletManager.extractDefinitions(registries));
-            AmuletManager.INSTANCE = new SoftReference<>(manager);
-        }
-        return manager;
+        return AmuletManager.INSTANCES.computeIfAbsent(
+            registries,
+            key -> new AmuletManager(AmuletManager.extractDefinitions(registries))
+        );
     }
 
     public static List<Holder.Reference<IAmuletDefinition>> extractDefinitions(HolderLookup.Provider registries) {
@@ -44,18 +59,28 @@ public class AmuletManager {
     }
 
     public static void clear() {
-        AmuletManager.INSTANCE = null;
+        AmuletManager.INSTANCES.clear();
     }
 
+    public void clear(UUID id) {
+        for (Map<UUID, CacheEntry> value : this.cache.values()) {
+            value.remove(id);
+        }
+    }
+
+    private final WeakHashMap<RegistryAccess, Map<UUID, CacheEntry>> cache = new WeakHashMap<>();
     private final List<Holder.Reference<IAmuletDefinition>> definitions;
 
     private AmuletManager(List<Holder.Reference<IAmuletDefinition>> definitions) {
         this.definitions = definitions;
     }
 
-    public List<ItemStack> getAmuletsFromInventory(Player player) {
+    public @Nullable List<ItemStack> findAmulets(LivingEntity entity) {
+        if (!NeoForge.EVENT_BUS.post(new AmuletEvent.EntityCheck(this, entity)).isPassed()) {
+            return null;
+        }
         List<ItemStack> founds = new ArrayList<>();
-        NeoForge.EVENT_BUS.post(new AmuletEvent.Find(this, player, founds::add));
+        NeoForge.EVENT_BUS.post(new AmuletEvent.Find(this, entity, founds::add));
         List<ItemStack> amulets = new ArrayList<>();
         for (ItemStack found : founds) {
             this.processFoundStack(found, amulets);
@@ -84,6 +109,68 @@ public class AmuletManager {
         }
     }
 
+    /// 获取实体身上所有护符展开后的效果，以及提供该效果的护符物品堆
+    ///
+    /// <p>包覆类护符展开后与被包覆护符共用同一批效果实例，这里按引用判等去重，
+    /// 保证同时佩戴二者时同一效果只会触发一次。</p>
+    ///
+    /// @param entity 佩戴护符的实体
+    /// @return 实体身上所有护符展开后的效果
+    public @Nullable Multimap<IAmuletEffect, ItemStack> getActiveEffects(LivingEntity entity) {
+        List<ItemStack> amulets = this.findAmulets(entity);
+        if (amulets == null) {
+            return null;
+        }
+
+        UUID id = entity.getUUID();
+        RegistryAccess registries = entity.registryAccess();
+        Map<UUID, CacheEntry> cache = this.cache.computeIfAbsent(registries, ignore -> new HashMap<>());
+        CacheEntry entry = cache.get(id);
+        if (entry != null && entry.isCacheHit(amulets, registries)) {
+            return entry.effects();
+        }
+
+
+        Multimap<IAmuletEffect, ItemStack> effects = MultimapBuilder.hashKeys().arrayListValues().build();
+        Set<IAmuletEffect> triggered = AmuletManager.identityView();
+        for (ItemStack stack : amulets) {
+            Amulet amulet = this.getAmulet(stack);
+            if (amulet == null) {
+                continue;
+            }
+            for (IAmuletEffect effect : amulet.getFlattenEffects()) {
+                if (triggered.add(effect) || effect.shouldIgnoreRepetition(entity, stack)) {
+                    effects.put(effect, stack);
+                }
+            }
+        }
+        cache.put(id, new CacheEntry(amulets, registries, effects));
+        return effects;
+    }
+
+    /// 以引用判等的视角看待一组护符效果
+    ///
+    /// @return 按引用判等的空效果集合
+    public static Set<IAmuletEffect> identityView() {
+        return Collections.newSetFromMap(new IdentityHashMap<>());
+    }
+
+    /// 判断护符效果是否应在当前侧求值。
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
+    public static boolean shouldEvaluate(LivingEntity entity) {
+        return !entity.level().isClientSide();
+    }
+
+    /// 触发实体身上所有护符的效果
+    ///
+    /// @param entity 佩戴护符的实体
+    /// @param ctx    本次触发的上下文
+    public void trigger(LivingEntity entity, AmuletEffectContext ctx) {
+        Multimap<IAmuletEffect, ItemStack> effects = this.getActiveEffects(entity);
+        if (effects == null) return;
+        effects.forEach((effect, stack) -> effect.trigger(entity, stack, ctx));
+    }
+
     public void tryRaffle(ServerPlayer player, DamageSource source) {
         Holder.Reference<IAmuletDefinition> trying = null;
         ItemStack amulet = null;
@@ -98,8 +185,8 @@ public class AmuletManager {
         shuffled.sort(Comparator.comparingInt(ignored -> random.nextInt()));
         for (Holder.Reference<IAmuletDefinition> def : shuffled) {
             amulet = def.value().create();
-            ResourceKey<IAmulet> key = amulet.get(ModComponents.AMULET);
-            if (key == null || !this.hasAmuletInInventory(player, key)) {
+            ResourceKey<Amulet> key = amulet.get(ModComponents.AMULET);
+            if (key == null || !this.isAmuletActive(player, key)) {
                 trying = def;
                 break;
             }
@@ -136,7 +223,7 @@ public class AmuletManager {
     }
 
     public int getRaffleProbability(Player player, Holder<IAmuletDefinition> def) {
-        if (this.hasAmuletInInventory(player, def)) {
+        if (this.isAmuletActive(player, def)) {
             return 0;
         }
         return AmuletManager.getStoredRaffleProbability(player, def);
@@ -146,79 +233,115 @@ public class AmuletManager {
         return player.getData(ModDataAttachments.AMULET_RAFFLE_PROBABILITY).getProbability(def);
     }
 
-    public boolean hasAmuletInInventory(Player player, ResourceKey<IAmulet> amulet) {
-        List<ItemStack> amulets = this.getAmuletsFromInventory(player);
-        return CollectionUtil.anyMatch(amulets, stack -> this.canActLike(amulet, stack));
-    }
-
-    public boolean hasAmuletInInventory(Player player, Holder<IAmuletDefinition> def) {
-        ItemStack target = def.value().create();
-        List<ItemStack> amulets = this.getAmuletsFromInventory(player);
-        return CollectionUtil.anyMatch(amulets, stack -> ItemStack.isSameItem(stack, target));
-    }
-
-    /// 判断给定物品堆上的护符是否能充当给定护符
+    /// 判断能充当给定护符的护符是否已在实体身上生效
     ///
+    /// @param entity 佩戴护符的实体
     /// @param amulet 给定护符的资源键
-    /// @param stack  给定的护符物品堆
-    /// @return 给定物品堆上的护符是否能充当给定护符
-    private boolean canActLike(ResourceKey<IAmulet> amulet, ItemStack stack) {
-        ResourceKey<IAmulet> key = stack.get(ModComponents.AMULET);
-        if (key == null) {
+    /// @return 能充当给定护符的护符是否已在实体身上生效
+    private boolean isAmuletActive(LivingEntity entity, ResourceKey<Amulet> amulet) {
+        Multimap<IAmuletEffect, ItemStack> active = this.getActiveEffects(entity);
+        if (active == null) {
             return false;
         }
-        if (key.equals(amulet)) {
-            return true;
+
+        Amulet target = ModRegistries.AMULET.getValue(amulet);
+        if (target == null) {
+            return false;
         }
-        IAmulet found = ModRegistries.AMULET.getValue(key);
-        return found != null && found.canActLike().contains(amulet);
+
+        Set<IAmuletEffect> effects = target.getFlattenEffects();
+        if (effects.isEmpty()) {
+            return false;
+        }
+
+        Set<IAmuletEffect> triggered = AmuletManager.identityView();
+        triggered.addAll(active.keySet());
+        return triggered.containsAll(effects);
+    }
+
+    /// 判断给定护符定义对应的护符是否已佩戴在实体身上
+    ///
+    /// @param entity 佩戴护符的实体
+    /// @param def    给定护符的定义
+    /// @return 给定护符定义对应的护符是否已佩戴在实体身上
+    private boolean isAmuletActive(LivingEntity entity, Holder<IAmuletDefinition> def) {
+        ItemStack target = def.value().create();
+        List<ItemStack> amulets = this.findAmulets(entity);
+        if (amulets == null) {
+            return false;
+        }
+        return amulets.stream().anyMatch(stack -> ItemStack.isSameItem(stack, target));
     }
 
     public void setRaffleProbability(ServerPlayer player, Holder<IAmuletDefinition> def, int probability) {
         AmuletRaffleProbability arp = player.getData(ModDataAttachments.AMULET_RAFFLE_PROBABILITY);
-        if (!this.hasAmuletInInventory(player, def)) {
+        if (!this.isAmuletActive(player, def)) {
             arp.setProbability(def, probability);
         } else {
             arp.setProbability(def, 0);
         }
     }
 
-    public void inventoryTick(ServerPlayer player) {
-        List<ItemStack> disabled = new ArrayList<>();
-        for (Holder<IAmuletDefinition> def : this.definitions) {
-            disabled.add(def.value().create());
-        }
-        List<ItemStack> now = this.getAmuletsFromInventory(player);
-        for (ItemStack stack : now) {
-            ResourceKey<IAmulet> key = stack.get(ModComponents.AMULET);
-            IAmulet amulet = this.getAmulet(stack);
-            if (key == null || amulet == null) {
-                continue;
-            }
-            disabled.removeIf(other -> this.canActLike(key, other));
-            amulet.inventoryTick(player, stack, true);
-        }
-        for (ItemStack stack : disabled) {
-            IAmulet amulet = this.getAmulet(stack);
-            if (amulet != null) {
-                amulet.inventoryTick(player, stack, false);
-            }
-        }
-    }
-
-    public boolean shouldImmune(ServerPlayer player, DamageSource source) {
-        return CollectionUtil.anyMatch(this.getAmuletsFromInventory(player), stack -> {
-            IAmulet amulet = this.getAmulet(stack);
-            return amulet != null && amulet.shouldImmune(player, stack, source);
-        });
-    }
-
     /// 获取给定物品堆上的护符
     ///
     /// @param stack 给定的护符物品堆
     /// @return 给定物品堆上的护符，若物品堆没有护符则为 `null`
-    public @Nullable IAmulet getAmulet(ItemStack stack) {
-        ResourceKey<IAmulet> key = stack.get(ModComponents.AMULET);
+    public @Nullable Amulet getAmulet(ItemStack stack) {
+        ResourceKey<Amulet> key = stack.get(ModComponents.AMULET);
         return key == null ? null : ModRegistries.AMULET.getValue(key);
+    }
+
+    private record CacheEntry(int size, byte[] sha256, Multimap<IAmuletEffect, ItemStack> effects) {
+        public CacheEntry(List<ItemStack> stacks, RegistryAccess registries, Multimap<IAmuletEffect, ItemStack> effects) {
+            this(stacks.size(), CacheEntry.sha256StackList(stacks, registries), effects);
+        }
+
+        public boolean isCacheHit(List<ItemStack> stacks, RegistryAccess registries) {
+            return this.size == stacks.size()
+                   && Arrays.equals(this.sha256, CacheEntry.sha256StackList(stacks, registries));
+        }
+
+        @SneakyThrows
+        private static byte[] sha256StackList(List<ItemStack> list, RegistryAccess registries) {
+            MessageDigest md = MessageDigest.getInstance("SHA-256");
+
+            CacheEntry.updateInt(md, list.size());
+
+            RegistryFriendlyByteBuf buf = new RegistryFriendlyByteBuf(Unpooled.buffer(), registries, ConnectionType.NEOFORGE);
+            try {
+                for (ItemStack stack : list) {
+                    buf.clear();
+
+                    ItemStack.STREAM_CODEC.encode(buf, stack);
+                    byte[] encoded = ByteBufUtil.getBytes(buf, buf.readerIndex(), buf.readableBytes(), false);
+
+                    CacheEntry.updateInt(md, encoded.length);
+                    md.update(encoded);
+                }
+            } finally {
+                buf.release();
+            }
+
+            return md.digest();
+        }
+
+        private static void updateInt(MessageDigest md, int v) {
+            md.update((byte) (v >>> 24));
+            md.update((byte) (v >>> 16));
+            md.update((byte) (v >>> 8));
+            md.update((byte) v);
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (!(o instanceof CacheEntry that)) return false;
+            return this.size() == that.size()
+                   && Arrays.equals(this.sha256(), that.sha256());
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(this.size(), Arrays.hashCode(this.sha256()));
+        }
     }
 }

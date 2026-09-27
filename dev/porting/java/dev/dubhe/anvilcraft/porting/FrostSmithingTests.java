@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.porting;
 
 import com.mojang.serialization.JsonOps;
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.event.AmuletAbilitiesEventListener;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItems;
@@ -33,6 +34,7 @@ import net.minecraft.world.level.block.Block;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.RegisterGameTestsEvent;
+import net.neoforged.neoforge.event.tick.EntityTickEvent;
 import net.neoforged.neoforge.registries.RegisterEvent;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 
@@ -249,7 +251,8 @@ public final class FrostSmithingTests {
             var player = fixture.player();
             player.getInventory().setItem(0, ModItems.ARMADILLO_AMULET.asStack());
             player.setShiftKeyDown(true);
-            dev.dubhe.anvilcraft.item.AmuletAbilities.onTick(new net.neoforged.neoforge.event.tick.PlayerTickEvent.Post(player));
+            player.setPose(net.minecraft.world.entity.Pose.CROUCHING);
+            AmuletAbilitiesEventListener.onInventoryTick(new EntityTickEvent.Post(player));
             helper.assertTrue(player.hasEffect(MobEffects.RESISTANCE) && player.getEffect(MobEffects.RESISTANCE).getAmplifier() == 1,
                 "犰狳护符在潜行时必须提供抗性提升 II");
             var spider = new Spider(EntityType.SPIDER, helper.getLevel());
@@ -257,11 +260,13 @@ public final class FrostSmithingTests {
             helper.assertTrue(spider.getTarget() == null, "蜘蛛不能锁定持有犰狳护符的玩家");
             player.removeEffect(MobEffects.RESISTANCE);
             player.setShiftKeyDown(false);
-            dev.dubhe.anvilcraft.item.AmuletAbilities.onTick(new net.neoforged.neoforge.event.tick.PlayerTickEvent.Post(player));
+            player.setPose(net.minecraft.world.entity.Pose.STANDING);
+            AmuletAbilitiesEventListener.onInventoryTick(new EntityTickEvent.Post(player));
             helper.assertTrue(!player.hasEffect(MobEffects.RESISTANCE), "非潜行状态不能刷新犰狳抗性");
             player.getInventory().setItem(0, ModItems.NATURE_AMULET.asStack());
             player.setShiftKeyDown(true);
-            dev.dubhe.anvilcraft.item.AmuletAbilities.onTick(new net.neoforged.neoforge.event.tick.PlayerTickEvent.Post(player));
+            player.setPose(net.minecraft.world.entity.Pose.CROUCHING);
+            AmuletAbilitiesEventListener.onInventoryTick(new EntityTickEvent.Post(player));
             helper.assertTrue(player.hasEffect(MobEffects.RESISTANCE), "自然护符必须包含犰狳护符能力");
         }
         helper.succeed();

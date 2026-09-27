@@ -1,9 +1,10 @@
 package dev.dubhe.anvilcraft.mixin;
 
 import dev.dubhe.anvilcraft.api.amulet.AmuletManager;
-import dev.dubhe.anvilcraft.init.item.ModAmulets;
+import dev.dubhe.anvilcraft.api.amulet.ctx.AmuletEffectContext;
+import dev.dubhe.anvilcraft.init.item.ModAmuletEffectContextKeys;
 import net.minecraft.core.Holder;
-import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.gameevent.vibrations.VibrationSystem;
 import org.spongepowered.asm.mixin.Mixin;
@@ -23,11 +24,15 @@ interface VibrationSystemUserMixin {
         GameEvent.Context context,
         CallbackInfoReturnable<Boolean> cir
     ) {
-        if (
-            context.sourceEntity() instanceof Player player
-            && AmuletManager.get(player.registryAccess()).hasAmuletInInventory(player, ModAmulets.SILENCE.getKey())
-        ) {
-            cir.setReturnValue(false);
+        if (!(context.sourceEntity() instanceof LivingEntity entity)) {
+            return;
         }
+        if (!AmuletManager.shouldEvaluate(entity)) {
+            return;
+        }
+        AmuletEffectContext ctx = new AmuletEffectContext();
+        AmuletManager.get(entity.registryAccess()).trigger(entity, ctx);
+        if (!ctx.get(ModAmuletEffectContextKeys.IMMUNE_VIBRATION).orElse(false)) return;
+        cir.setReturnValue(false);
     }
 }

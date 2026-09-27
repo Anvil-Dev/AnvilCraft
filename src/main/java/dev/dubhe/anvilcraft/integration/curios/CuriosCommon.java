@@ -8,7 +8,7 @@ import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.item.armor.IonoCraftBackpackItem;
 import dev.dubhe.anvilcraft.item.tool.AnvilHammerItem;
-import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
@@ -63,9 +63,9 @@ public class CuriosCommon {
     }
 
     private void findFromCurios(AmuletEvent.Find event) {
-        Player player = event.getPlayer();
-        if (CuriosApi.getCuriosInventory(player).isPresent()) {
-            List<SlotResult> results = CuriosApi.getCuriosInventory(player).get()
+        LivingEntity entity = event.getEntity();
+        if (CuriosApi.getCuriosInventory(entity).isPresent()) {
+            List<SlotResult> results = CuriosApi.getCuriosInventory(entity).get()
                 .findCurios(stack -> stack.is(ModItemTags.AMULET));
             for (SlotResult result : results) {
                 event.provide(result.stack());

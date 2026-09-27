@@ -1,10 +1,10 @@
 package dev.dubhe.anvilcraft.porting;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.event.AmuletAbilitiesEventListener;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
-import dev.dubhe.anvilcraft.item.AmuletAbilities;
 import dev.dubhe.anvilcraft.item.EquipmentAbilities;
 import dev.dubhe.anvilcraft.network.SwitchEquipmentAbilityPacket;
 import dev.dubhe.anvilcraft.recipe.multiple.MultipleToOneSmithingRecipeInput;
@@ -192,33 +192,34 @@ public final class HeadgearAbilityTests {
             var player = fixture.player();
             player.getInventory().setItem(0, ModItems.GEM_AMULET.asStack());
             player.setItemSlot(EquipmentSlot.HEAD, ModItems.BREATHING_HELMET.asStack());
-            AmuletAbilities.onTick(new PlayerTickEvent.Post(player));
+            AmuletAbilitiesEventListener.onInventoryTick(new net.neoforged.neoforge.event.tick.EntityTickEvent.Post(player));
             helper.assertTrue(player.hasEffect(MobEffects.HASTE) && player.hasEffect(MobEffects.STRENGTH)
                 && player.hasEffect(MobEffects.RESISTANCE), "宝石复合护符应提供急迫、力量及呼吸装备联动抗性");
             player.igniteForSeconds(10);
-            AmuletAbilities.onTick(new PlayerTickEvent.Post(player));
+            AmuletAbilitiesEventListener.onInventoryTick(new net.neoforged.neoforge.event.tick.EntityTickEvent.Post(player));
             helper.assertTrue(player.getEffect(MobEffects.STRENGTH).getAmplifier() == 1, "燃烧时红宝石力量应升为 II");
             player.getInventory().setItem(0, ModItems.FEATHER_AMULET.asStack());
-            AmuletAbilities.onTick(new PlayerTickEvent.Post(player));
+            AmuletAbilitiesEventListener.onInventoryTick(new net.neoforged.neoforge.event.tick.EntityTickEvent.Post(player));
             helper.assertTrue(player.hasEffect(MobEffects.SLOW_FALLING), "羽毛护符应提供缓降");
             player.setShiftKeyDown(true);
-            AmuletAbilities.onTick(new PlayerTickEvent.Post(player));
+            player.setPose(net.minecraft.world.entity.Pose.CROUCHING);
+            AmuletAbilitiesEventListener.onInventoryTick(new net.neoforged.neoforge.event.tick.EntityTickEvent.Post(player));
             helper.assertTrue(!player.hasEffect(MobEffects.SLOW_FALLING)
                 && !player.addEffect(new MobEffectInstance(MobEffects.SLOW_FALLING, 100)), "潜行时应移除并拒绝缓降");
             player.getInventory().setItem(0, ModItems.ANVIL_AMULET.asStack());
-            AmuletAbilities.onTick(new PlayerTickEvent.Post(player));
+            AmuletAbilitiesEventListener.onInventoryTick(new net.neoforged.neoforge.event.tick.EntityTickEvent.Post(player));
             helper.assertTrue(!player.addEffect(new MobEffectInstance(MobEffects.LEVITATION, 100)), "铁砧护符应拒绝漂浮");
             var knockback = new LivingKnockBackEvent(player, 1, 1, 0);
-            AmuletAbilities.onKnockback(knockback);
+            AmuletAbilitiesEventListener.onKnockback(knockback);
             helper.assertTrue(knockback.isCanceled() && player.getAttribute(Attributes.KNOCKBACK_RESISTANCE)
                 .hasModifier(AnvilCraft.of("anvil_amulet_knockback_resistance")), "铁砧护符应同时拦截击退并提供属性");
             var explosion = new ServerExplosion(helper.getLevel(), null, null, null, player.position(), 1, false,
                 Explosion.BlockInteraction.KEEP);
             var blast = new ExplosionKnockbackEvent(helper.getLevel(), explosion, player, new Vec3(1, 1, 1), List.of());
-            AmuletAbilities.onExplosionKnockback(blast);
+            AmuletAbilitiesEventListener.onExplosionKnockback(blast);
             helper.assertTrue(blast.getKnockbackVelocity().equals(Vec3.ZERO), "爆炸击退也必须被铁砧护符归零");
             player.getInventory().setItem(0, ModItems.SILENCE_AMULET.asStack());
-            AmuletAbilities.onTick(new PlayerTickEvent.Post(player));
+            AmuletAbilitiesEventListener.onInventoryTick(new net.neoforged.neoforge.event.tick.EntityTickEvent.Post(player));
             helper.assertTrue(!player.addEffect(new MobEffectInstance(MobEffects.DARKNESS, 100))
                 && !player.getAttribute(Attributes.KNOCKBACK_RESISTANCE).hasModifier(AnvilCraft.of("anvil_amulet_knockback_resistance")),
                 "寂静护符应拒绝黑暗，移除铁砧后应清理其属性");
@@ -235,13 +236,8 @@ public final class HeadgearAbilityTests {
             helper.assertTrue(!player.hasEffect(MobEffects.POISON) && !player.hasEffect(MobEffects.HUNGER)
                 && !player.hasEffect(MobEffects.NAUSEA), "真实食物消费路径中的负面效果应被异常护符过滤");
             helper.assertTrue(player.addEffect(new MobEffectInstance(MobEffects.POISON, 200)), "普通来源的负面效果不能被异常护符泛化免疫");
-            try {
-                AmuletAbilities.consumeFood(player, () -> {
-                    throw new IllegalStateException("fixture");
-                });
-            } catch (IllegalStateException expected) {
-                helper.assertTrue(player.addEffect(new MobEffectInstance(MobEffects.NAUSEA, 200)), "消费异常后不得泄露线程局部免疫状态");
-            }
+            helper.assertTrue(player.addEffect(new MobEffectInstance(MobEffects.NAUSEA, 200)),
+                "消费结束后的普通负面效果不应继承食物免疫上下文");
         }
         helper.succeed();
     }
@@ -253,18 +249,21 @@ public final class HeadgearAbilityTests {
             player.setItemInHand(InteractionHand.OFF_HAND, ModItems.CAT_AMULET.asStack());
             var cat = new Cat(EntityType.CAT, helper.getLevel());
             var event = new PlayerInteractEvent.EntityInteract(player, InteractionHand.MAIN_HAND, cat);
-            AmuletAbilities.onInteract(event);
+            AmuletAbilitiesEventListener.onInteractTamableAnimal(event);
             helper.assertTrue(event.isCanceled() && cat.isTame() && cat.isOrderedToSit()
                 && cat.getOwnerReference().getUUID().equals(player.getUUID()), "空手一次交互应驯服野猫并设置正确主人");
             var wolf = new Wolf(EntityType.WOLF, helper.getLevel());
-            AmuletAbilities.onInteract(new PlayerInteractEvent.EntityInteract(player, InteractionHand.MAIN_HAND, wolf));
+            AmuletAbilitiesEventListener.onInteractTamableAnimal(
+                new PlayerInteractEvent.EntityInteract(player, InteractionHand.MAIN_HAND, wolf));
             helper.assertTrue(!wolf.isTame(), "猫护符不能驯服狼");
             player.setItemInHand(InteractionHand.OFF_HAND, ModItems.DOG_AMULET.asStack());
             player.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(Items.STONE));
-            AmuletAbilities.onInteract(new PlayerInteractEvent.EntityInteract(player, InteractionHand.MAIN_HAND, wolf));
+            AmuletAbilitiesEventListener.onInteractTamableAnimal(
+                new PlayerInteractEvent.EntityInteract(player, InteractionHand.MAIN_HAND, wolf));
             helper.assertTrue(!wolf.isTame(), "非空手不能触发免费驯服");
             player.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
-            AmuletAbilities.onInteract(new PlayerInteractEvent.EntityInteract(player, InteractionHand.MAIN_HAND, wolf));
+            AmuletAbilitiesEventListener.onInteractTamableAnimal(
+                new PlayerInteractEvent.EntityInteract(player, InteractionHand.MAIN_HAND, wolf));
             helper.assertTrue(wolf.isTame() && wolf.getOwnerReference().getUUID().equals(player.getUUID()), "狗护符应一次驯服野狼");
             player.setItemInHand(InteractionHand.OFF_HAND, ModItems.EMERALD_AMULET.asStack());
             var golem = new IronGolem(EntityType.IRON_GOLEM, helper.getLevel());

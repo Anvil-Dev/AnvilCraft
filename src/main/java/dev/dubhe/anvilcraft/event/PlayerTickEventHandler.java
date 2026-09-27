@@ -13,8 +13,6 @@ import dev.dubhe.anvilcraft.network.PlayerSettingsSyncPacket;
 import dev.dubhe.anvilcraft.rpc.BundleLikeServerStub;
 import dev.dubhe.anvilcraft.rpc.StorageServerStub;
 import dev.dubhe.anvilcraft.saved.setting.PlayerSettings;
-import dev.dubhe.anvilcraft.util.dummy.DummyCat;
-import dev.dubhe.anvilcraft.util.dummy.DummyWolf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -38,8 +36,6 @@ public class PlayerTickEventHandler {
     @SubscribeEvent
     public static void onPlayerLoggedOut(PlayerEvent.PlayerLoggedOutEvent event) {
         Player player = event.getEntity();
-        DummyCat.clear(player);
-        DummyWolf.clear(player);
         if (player instanceof ServerPlayer serverPlayer) {
             IonoCraftBackpackItem.onPlayerLoggedOut(serverPlayer.getUUID());
             LaserGunItem.clearState(serverPlayer.getUUID());

@@ -2,7 +2,6 @@ package dev.dubhe.anvilcraft.porting;
 
 import com.mojang.serialization.JsonOps;
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.api.amulet.AmuletManager;
 import dev.dubhe.anvilcraft.init.item.ModAmulets;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItems;
@@ -254,7 +253,7 @@ public final class PocketTests {
             pockets.setItem(0, ModItems.HYPERDIMENSION_TERMINAL.asStack());
             pockets.setItem(1, ModItems.EMERALD_AMULET.asStack());
             helper.assertTrue(TerminalItem.getAll(player).size() == 1
-                && AmuletManager.get(player.registryAccess()).hasAmuletInInventory(player, ModAmulets.EMERALD.getKey()),
+                && AmuletRegistryTests.active(player, ModAmulets.EMERALD.getKey()),
                 "口袋终端和护符必须进入各自现有功能查找入口");
         }
         helper.succeed();

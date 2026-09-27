@@ -73,12 +73,12 @@ public final class AmuletRegistryTests {
             helper.assertTrue(ModAmulets.CAT.get() != ModAmulets.DOG.get()
                 && manager.getAmulet(ModItems.CAT_AMULET.asStack()) == ModAmulets.CAT.get(), "相同实现类型的护符必须保持独立注册身份");
             player.getInventory().setItem(0, ModItems.GEM_AMULET.asStack());
-            helper.assertTrue(manager.hasAmuletInInventory(player, ModAmulets.EMERALD.getKey())
-                && manager.hasAmuletInInventory(player, ModAmulets.RUBY.getKey())
-                && !manager.hasAmuletInInventory(player, ModAmulets.CAT.getKey()), "复合宝石护符必须按注册键提供对应成员能力");
+            helper.assertTrue(active(player, ModAmulets.EMERALD.getKey())
+                && active(player, ModAmulets.RUBY.getKey())
+                && !active(player, ModAmulets.CAT.getKey()), "复合宝石护符必须按注册键提供对应成员能力");
             player.getInventory().setItem(0, ModItems.NATURE_AMULET.asStack());
-            helper.assertTrue(manager.hasAmuletInInventory(player, ModAmulets.ARMADILLO.getKey())
-                && !manager.hasAmuletInInventory(player, ModAmulets.FEATHER.getKey()), "自然护符包含犰狳但不能再充当羽毛护符");
+            helper.assertTrue(active(player, ModAmulets.ARMADILLO.getKey())
+                && !active(player, ModAmulets.FEATHER.getKey()), "自然护符包含犰狳但不能再充当羽毛护符");
             var unknown = ModItems.CAT_AMULET.asStack();
             unknown.set(ModComponents.AMULET, ResourceKey.create(ModRegistryKeys.AMULET, AnvilCraft.of("port_unknown")));
             helper.assertTrue(manager.getAmulet(unknown) == null, "未注册护符键应安全地没有行为");
@@ -178,7 +178,7 @@ public final class AmuletRegistryTests {
         helper.assertTrue(victim.getHealth() == 20, "护符盒内的签名应同样参与伤害判定");
         victim.getInventory().setItem(0, ModItems.COMRADE_AMULET.asStack());
         var source = victim.damageSources().playerAttack(attacker);
-        helper.assertTrue(!AmuletManager.get(victim.registryAccess()).shouldImmune(victim, source), "未签名护符不能授予免疫");
+        helper.assertTrue(!immune(victim, source), "未签名护符不能授予免疫");
         victim.hurtServer(helper.getLevel(), source, 4);
         helper.assertTrue(victim.getHealth() < 20, "未签名护符不能阻止玩家伤害");
         helper.succeed();
@@ -201,6 +201,20 @@ public final class AmuletRegistryTests {
             helper.assertTrue(offer.getSpecialPriceDiff() == -3, "复合护符应解析注册键并应用三成交易折扣");
         }
         helper.succeed();
+    }
+
+    public static boolean active(net.minecraft.world.entity.player.Player player,
+                                 net.minecraft.resources.ResourceKey<dev.dubhe.anvilcraft.api.amulet.Amulet> key) {
+        var effects = AmuletManager.get(player.registryAccess()).getActiveEffects(player);
+        return effects != null && effects.keySet().containsAll(
+            dev.dubhe.anvilcraft.init.registry.ModRegistries.AMULET.getValue(key).getFlattenEffects());
+    }
+
+    private static boolean immune(net.minecraft.world.entity.LivingEntity entity, net.minecraft.world.damagesource.DamageSource source) {
+        var ctx = new dev.dubhe.anvilcraft.api.amulet.ctx.AmuletEffectContext();
+        ctx.set(dev.dubhe.anvilcraft.init.item.ModAmuletEffectContextKeys.DAMAGE_SOURCE, source);
+        AmuletManager.get(entity.registryAccess()).trigger(entity, ctx);
+        return ctx.getOrDefault(dev.dubhe.anvilcraft.init.item.ModAmuletEffectContextKeys.IMMUNE_DAMAGE, false);
     }
 
 }

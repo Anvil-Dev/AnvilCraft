@@ -10,9 +10,9 @@ import dev.dubhe.anvilcraft.api.injection.entity.ILivingEntityExtension;
 import dev.dubhe.anvilcraft.block.workstation.TranscendenceAnvilBlock;
 import dev.dubhe.anvilcraft.block.workstation.ember.EmberAnvilBlock;
 import dev.dubhe.anvilcraft.block.workstation.frost.FrostAnvilBlock;
+import dev.dubhe.anvilcraft.event.AmuletAbilitiesEventListener;
 import dev.dubhe.anvilcraft.init.ModMobEffects;
 import dev.dubhe.anvilcraft.init.loot.ModLootTables;
-import dev.dubhe.anvilcraft.item.AmuletAbilities;
 import dev.dubhe.anvilcraft.item.EquipmentAbilities;
 import dev.dubhe.anvilcraft.item.amulet.AmuletBoxItem;
 import dev.dubhe.anvilcraft.item.property.consume.PreventShrinkingConsumeEffect;
@@ -28,7 +28,8 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.animal.golem.IronGolem;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.NeutralMob;
 import net.minecraft.world.entity.item.FallingBlockEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -55,7 +56,15 @@ import java.util.function.Consumer;
 public abstract class LivingEntityMixin extends Entity implements ILivingEntityExtension {
     @Inject(method = "setLastHurtByMob", at = @At("HEAD"), cancellable = true)
     private void anvilcraft$ignoreProtectedAttacker(@Nullable LivingEntity attacker, CallbackInfo ci) {
-        if ((Object) this instanceof IronGolem && AmuletAbilities.isGolemProtected(attacker)) ci.cancel();
+        LivingEntity thiz = Util.cast(this);
+        if (
+            thiz instanceof NeutralMob neutral
+            && neutral instanceof Mob mob
+            && attacker instanceof Player player
+            && AmuletAbilitiesEventListener.shouldIgnoreTarget(player, mob)
+        ) {
+            ci.cancel();
+        }
     }
 
     @Unique
