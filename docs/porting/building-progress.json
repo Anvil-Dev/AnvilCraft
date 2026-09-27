@@ -1015,10 +1015,11 @@
       "building_undo_settlement",
       "storage_source_update",
       "blueprint_placement_frames",
-      "building_selection_interaction"
+      "building_selection_interaction",
+      "filter_source_update"
     ],
     "remaining_audit": [
-      "Filter persistence and offhand slot; fountain drain output; fish-tank recipe output guard; compression ingredient intersection",
+      "Fountain drain output; fish-tank recipe output guard; compression ingredient intersection",
       "Creative search/reset and source resource/dependency deltas",
       "Projection migration, optional renderer compatibility and full feature inventory"
     ]
@@ -1983,6 +1984,28 @@
     "limits": [
       "Client input events are driven by the developer fixture in a real native client.",
       "Native ring geometry and vanilla terrain rendering remain unchanged."
+    ]
+  },
+  "filter_source_update": {
+    "source_commit": "07eb60b47f14439375da10e78f4d4770f3a83256",
+    "introduced_by": "1260db54f",
+    "status": "source_persistence_and_native_hand_menu_verified",
+    "ported": [
+      "Real chunk dirty marking for every shared filter mutation; rejected empty filter is unchanged",
+      "Native block-entity save/load preserves enable flag, disabled slots, sample items and limits",
+      "Actual offhand and selected main-hand use opens the corresponding client/server menu",
+      "Content and option packets update each intended filter independently"
+    ],
+    "verification": {
+      "focused_compile_tests_style_log": "build/porting/tests-filter-focused-final.log",
+      "client_style_log": "build/porting/client-filter-final-2.log",
+      "report": "build/porting/filter-update-comparison.json",
+      "source_methods_equivalent": 5,
+      "focused_tests_passed": 1
+    },
+    "limits": [
+      "Client scenario drives native use and packet APIs; manual mouse input is not part of this fixture.",
+      "Client inventory synchronization may replace stack objects; server menu identity and final packet writes are verified."
     ]
   }
 }

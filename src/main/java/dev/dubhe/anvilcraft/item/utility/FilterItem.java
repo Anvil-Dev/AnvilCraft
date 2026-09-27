@@ -39,7 +39,7 @@ public class FilterItem extends Item {
         ItemStack itemstack = player.getItemInHand(usedHand);
         if (!itemstack.is(ModItems.FILTER)) return InteractionResult.PASS;
         if (level.isClientSide()) return InteractionResult.SUCCESS;
-        int position = usedHand == InteractionHand.MAIN_HAND ? player.getInventory().getSelectedSlot() : 151;
+        int position = usedHand == InteractionHand.MAIN_HAND ? player.getInventory().getSelectedSlot() : Inventory.SLOT_OFFHAND;
         ModMenuTypes.open((ServerPlayer) player, new FilterMenuProvider(position));
         return InteractionResult.SUCCESS;
     }
