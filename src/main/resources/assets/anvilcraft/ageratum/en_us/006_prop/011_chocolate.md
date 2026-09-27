@@ -18,6 +18,7 @@ items:
   - anvilcraft:cocoa_powder
   - anvilcraft:cocoa_butter
   - anvilcraft:cocoa_liquor
+  - anvilcraft:black_white_chocolate_block
 ---
 
 # Various Chocolates
@@ -51,9 +52,9 @@ items:
 
 # Eating
 
-- <ref item="anvilcraft:chocolate"/>: 2 Hunger + 16 Saturation + 30s Speed 10
-- <ref item="anvilcraft:chocolate_black"/>: 2 Hunger + 8 Saturation + 30s Speed 5 + 30s Haste 4
-- <ref item="anvilcraft:chocolate_white"/>: 2 Hunger + 8 Saturation + 30s Speed 5 + 30s Jump Boost 6
+- <ref item="anvilcraft:chocolate"/>: 2 Hunger + 16 Saturation + 30s Speed IV
+- <ref item="anvilcraft:chocolate_black"/>: 2 Hunger + 8 Saturation + 30s Speed II + 30s Haste III
+- <ref item="anvilcraft:chocolate_white"/>: 2 Hunger + 8 Saturation + 30s Speed II + 30s Jump Boost IV
 
 Can be eaten even when full
 
@@ -75,12 +76,14 @@ Can be eaten even when full
 # Chocolate Blocks
 
 Standing on chocolate blocks/stairs/slabs continuously grants effects:
-- <ref item="anvilcraft:chocolate"/>: Speed IV
-- <ref item="anvilcraft:chocolate_black"/>: Speed II + Haste III
-- <ref item="anvilcraft:chocolate_white"/>: Speed II + Jump Boost IV
+- <ref item="anvilcraft:chocolate"/>: Speed 10
+- <ref item="anvilcraft:chocolate_black"/>: Speed 5 + Haste 4
+- <ref item="anvilcraft:chocolate_white"/>: Speed 5 + Jump Boost 6
+- <ref item="anvilcraft:black_white_chocolate_block"/>: Speed 5 + Jump Boost 6 + Haste 4
 
 <row halign="center">
 <recipe id="anvilcraft:chocolate_block"/>
 <recipe id="anvilcraft:stonecutting/chocolate_slab"/>
 <recipe id="anvilcraft:stonecutting/chocolate_stairs"/>
+<recipe id="anvilcraft:black_white_chocolate_block"/>
 </row>

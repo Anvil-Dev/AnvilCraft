@@ -2094,6 +2094,44 @@ public class RegistrumBlockRecipeLoader {
             .save(provider);
     }
 
+    public static <T extends Block> void blackWhiteChocolateBlock(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
+        HolderGetter<Item> lookup = provider.getItems();
+        ShapedRecipeBuilder.shaped(lookup, RecipeCategory.BUILDING_BLOCKS, ctx.get(), 4)
+            .pattern("AB")
+            .pattern("BA")
+            .define('A', ModBlocks.BLACK_CHOCOLATE_BLOCK)
+            .define('B', ModBlocks.WHITE_CHOCOLATE_BLOCK)
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.BLACK_CHOCOLATE_BLOCK), AnvilCraftDatagen.has(lookup, ModBlocks.BLACK_CHOCOLATE_BLOCK))
+            .save(provider);
+    }
+
+    public static <T extends Block> void cookieBlock(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
+        HolderGetter<Item> lookup = provider.getItems();
+        ShapedRecipeBuilder.shaped(lookup, RecipeCategory.BUILDING_BLOCKS, ctx.get())
+            .pattern("AAA")
+            .pattern("AAA")
+            .pattern("AAA")
+            .define('A', Items.COOKIE)
+            .unlockedBy(AnvilCraftDatagen.hasItem(Items.COOKIE), AnvilCraftDatagen.has(lookup, Items.COOKIE))
+            .save(provider);
+
+        ShapelessRecipeBuilder.shapeless(lookup, RecipeCategory.MISC, Items.COOKIE, 9)
+            .requires(ctx.get())
+            .unlockedBy(AnvilCraftDatagen.hasItem(ctx.get()), AnvilCraftDatagen.has(lookup, ctx.get()))
+            .save(provider, AnvilCraft.of("cookie_from_cookie_block").toString());
+    }
+
+    public static <T extends Block> void cookiePillar(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
+        HolderGetter<Item> lookup = provider.getItems();
+        ShapedRecipeBuilder.shaped(lookup, RecipeCategory.BUILDING_BLOCKS, ctx.get(), 8)
+            .pattern("A A")
+            .pattern("A A")
+            .pattern("A A")
+            .define('A', ModBlocks.COOKIE_BLOCK)
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.COOKIE_BLOCK), AnvilCraftDatagen.has(lookup, ModBlocks.COOKIE_BLOCK))
+            .save(provider);
+    }
+
     public static <T extends Block> void chocolateSlab(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
         HolderGetter<Item> lookup = provider.getItems();
         ShapedRecipeBuilder.shaped(lookup, RecipeCategory.BUILDING_BLOCKS, ctx.get(), 6)

@@ -2840,5 +2840,17 @@
   "tooltip.anvilcraft.item.enchanted_gold_ingot": "清除携带者身上的诅咒\n用于猪灵交易时，相当于交易四次",
   "tooltip.anvilcraft.item.enchanted_gold_nugget": "清除携带者身上的诅咒",
   "anvilcraft.configuration.creative_variant_picker_enabled": "染色方块折叠",
-  "anvilcraft.configuration.creative_variant_picker_enabled.tooltip": "将 16 色染色方块折叠为一个小类，可以用右键展开；适用于两种物品栏（需要重启）"
+  "anvilcraft.configuration.creative_variant_picker_enabled.tooltip": "将 16 色染色方块折叠为一个小类，可以用右键展开；适用于两种物品栏（需要重启）",
+  "block.anvilcraft.black_white_chocolate_block": "黑白巧克力块",
+  "block.anvilcraft.cookie_block": "曲奇块",
+  "block.anvilcraft.cookie_pillar": "曲奇柱",
+  "block.anvilcraft.honey_cake_block": "蜂蜜蛋糕块",
+  "block.anvilcraft.honey_cream_block": "蜂蜜奶油块",
+  "block.anvilcraft.matcha_cake_block": "抹茶蛋糕块",
+  "block.anvilcraft.matcha_cream_block": "抹茶奶油块",
+  "tooltip.anvilcraft.item.cookie_block": "可以放下来的大块曲奇！",
+  "tooltip.anvilcraft.item.matcha_cake_block": "一块抹茶蛋糕，可以拿铲子当勺子挖着吃",
+  "tooltip.anvilcraft.item.black_white_chocolate_block": "由混合白巧克力和黑巧克力制作，，踩上去获得急迫和跳跃提升效果",
+  "tooltip.anvilcraft.item.matcha_cream_block": "一块抹茶奶油，可以拿铲子当勺子挖着吃",
+  "tooltip.anvilcraft.item.cookie_pillar": " 中空的曲奇块！"
 }

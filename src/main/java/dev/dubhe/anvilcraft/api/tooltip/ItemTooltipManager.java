@@ -450,6 +450,12 @@ public class ItemTooltipManager {
         ItemTooltipManager.NORMAL.put(ModBlocks.CAKE_BASE_BLOCK.asItem(), "A block of cake base, use a shovel as a spoon to eat it");
         ItemTooltipManager.NORMAL.put(ModBlocks.CREAM_BLOCK.asItem(), "A block of cream, use a shovel as a spoon to eat it");
         ItemTooltipManager.NORMAL.put(ModBlocks.BERRY_CREAM_BLOCK.asItem(), "A block of berry cream, use a shovel as a spoon to eat it");
+        ItemTooltipManager.NORMAL.put(ModBlocks.MATCHA_CREAM_BLOCK.asItem(), "A block of matcha cream, use a shovel as a spoon to eat it");
+        ItemTooltipManager.NORMAL.put(ModBlocks.MATCHA_CAKE_BLOCK.asItem(), "A block of matcha cake, use a shovel as a spoon to eat it");
+        ItemTooltipManager.NORMAL.put(ModBlocks.COOKIE_BLOCK.asItem(), "A placeable giant cookie!");
+        ItemTooltipManager.NORMAL.put(ModBlocks.COOKIE_PILLAR.asItem(), " A hollow cookie block!");
+        ItemTooltipManager.NORMAL.put(ModBlocks.BLACK_WHITE_CHOCOLATE_BLOCK.asItem(),
+            "Made by mixing white and dark chocolate, step on it to gain Haste and Jump Boost");
         ItemTooltipManager.NORMAL.put(ModBlocks.CHOCOLATE_CREAM_BLOCK.asItem(), "A block of chocolate cream, use a shovel as a spoon to eat it");
         ItemTooltipManager.NORMAL.put(ModBlocks.CAKE_BLOCK.asItem(), "A block of cream cake, use a shovel as a spoon to eat it");
         ItemTooltipManager.NORMAL.put(ModBlocks.BERRY_CAKE_BLOCK.asItem(), "A block of berry cake, use a shovel as a spoon to eat it");

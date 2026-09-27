@@ -2122,18 +2122,85 @@
       "BuildingBlocksSections": {
         "ModItems": [],
         "ModBlocks": [
-          "BLACK_WHITE_CHOCOLATE_BLOCK",
-          "COOKIE_BLOCK",
-          "COOKIE_PILLAR",
           "GUNPOWDER_BLOCK",
-          "HONEY_CAKE_BLOCK",
-          "HONEY_CREAM_BLOCK",
-          "MATCHA_CAKE_BLOCK",
-          "MATCHA_CREAM_BLOCK",
           "RUINS_BLOCK"
         ]
       }
     },
-    "note": "These are unmatched Java field names, not a confirmed list of missing registry entries; map aliases and port missing content before source layout acceptance."
+    "note": "These are unmatched Java field names, not a confirmed list of missing registry entries; map aliases and port missing content before source layout acceptance.",
+    "verified_aliases": {
+      "ModItems.DEFORMATION_TEMPLATE_ITEM": "ModItems.DEFORMATION_TEMPLATE",
+      "ModItems.PERMUTATION_TEMPLATE_ITEM": "ModItems.PERMUTATION_TEMPLATE",
+      "ModBlocks.OVERSEER_BLOCK": "ModBlocks.OVERSEER",
+      "ModBlocks.GUNPOWDER_BLOCK": "ModBlocks.GUNPOWER_BLOCK"
+    },
+    "completed_content_nodes": [
+      "confectionery_blocks"
+    ]
+  },
+  "confectionery_blocks": {
+    "source_commit": "07eb60b47f14439375da10e78f4d4770f3a83256",
+    "status": "source_food_blocks_recipes_and_controlled_visual_parity_verified",
+    "ported": [
+      "Honey and matcha cream/cake blocks using the existing shared shovel-eating implementation",
+      "Cookie block, three-axis hollow cookie pillar and black-white chocolate block",
+      "Nine source crafting, compression and liquid-honey recipes",
+      "Server-only chocolate effects and combined speed/haste/jump buffs",
+      "Original model/texture/guide resources, tooltips, tags and block-item translation keys"
+    ],
+    "verification": {
+      "focused_log": "build/porting/tests-confectionery-focused-1.log",
+      "tests_datagen_style_log": "build/porting/tests-confectionery-final-2.log",
+      "compile_style_log": "build/porting/compile-confectionery-final.log",
+      "manifest_recheck_log": "build/porting/tests-confectionery-manifest-recheck.log",
+      "native_client_log": "build/porting/client-confectionery-1.log",
+      "source_client_log": "build/porting/client-confectionery-source-final.log",
+      "report": "build/porting/confectionery-comparison.json",
+      "required_tests_passed": 623,
+      "recipes_equivalent": 9,
+      "source_assets_equal": 18,
+      "visuals": {
+        "honey_cream_block": {
+          "silhouette_iou": 1.0,
+          "mean_rgb_error": 1.909020031186278,
+          "maximum_rgb_error": 63
+        },
+        "honey_cake_block": {
+          "silhouette_iou": 1.0,
+          "mean_rgb_error": 1.5507076886170086,
+          "maximum_rgb_error": 63
+        },
+        "matcha_cream_block": {
+          "silhouette_iou": 1.0,
+          "mean_rgb_error": 1.5812342569269522,
+          "maximum_rgb_error": 69
+        },
+        "matcha_cake_block": {
+          "silhouette_iou": 1.0,
+          "mean_rgb_error": 1.3292251409379874,
+          "maximum_rgb_error": 69
+        },
+        "cookie_block": {
+          "silhouette_iou": 1.0,
+          "mean_rgb_error": 1.542131462156651,
+          "maximum_rgb_error": 128
+        },
+        "cookie_pillar": {
+          "silhouette_iou": 1.0,
+          "mean_rgb_error": 1.1081624085402424,
+          "maximum_rgb_error": 92
+        },
+        "black_white_chocolate_block": {
+          "silhouette_iou": 1.0,
+          "mean_rgb_error": 1.1782115869017633,
+          "maximum_rgb_error": 36
+        }
+      }
+    },
+    "limits": [
+      "Vanilla 26.1 GUI item sampling and lighting are retained; color differences remain despite identical silhouettes/assets.",
+      "Source guide resources are copied verbatim; honey-food values in the source guide differ from source code, whose behavior is preserved.",
+      "Initial full suite hit Windows AccessDenied in an existing world-reset manifest fixture; isolated recheck and final full rerun passed."
+    ]
   }
 }

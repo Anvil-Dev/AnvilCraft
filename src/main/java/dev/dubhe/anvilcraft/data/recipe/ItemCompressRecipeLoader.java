@@ -59,6 +59,18 @@ public class ItemCompressRecipeLoader {
             .save(provider);
 
         ItemCompressRecipe.builder()
+            .requires(items, ModItemTags.CREAM, 4)
+            .requires(Items.SUGAR)
+            .requires(Items.AZALEA_LEAVES)
+            .result(ModBlocks.MATCHA_CREAM_BLOCK)
+            .save(provider);
+
+        ItemCompressRecipe.builder()
+            .requires(Items.COOKIE, 9)
+            .result(ModBlocks.COOKIE_BLOCK)
+            .save(provider);
+
+        ItemCompressRecipe.builder()
             .requires(items, ModItemTags.IRON_PLATES, 2)
             .requires(
                 ItemIngredientPredicate

@@ -43,6 +43,14 @@ public class SolidLiquidRecipeLoader {
         });
 
         SolidLiquidRecipe.builder()
+            .cauldron(ModFluids.HONEY.getId())
+            .consume(250)
+            .requires(provider.getItems(), ModItemTags.CREAM, 4)
+            .requires(Items.SUGAR)
+            .result(ModBlocks.HONEY_CREAM_BLOCK)
+            .save(provider);
+
+        SolidLiquidRecipe.builder()
             .cauldron(Blocks.WATER_CAULDRON)
             .consume(1000)
             .transform(ModBlocks.CEMENT_CAULDRONS.get(Color.GRAY).get())

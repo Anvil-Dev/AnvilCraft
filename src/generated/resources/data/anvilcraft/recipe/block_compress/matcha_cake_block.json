@@ -1,0 +1,14 @@
+{
+  "type": "anvilcraft:block_compress",
+  "inputs": [
+    {
+      "blocks": "anvilcraft:matcha_cream_block"
+    },
+    {
+      "blocks": "anvilcraft:cake_base_block"
+    }
+  ],
+  "result": {
+    "block": "anvilcraft:matcha_cake_block"
+  }
+}
