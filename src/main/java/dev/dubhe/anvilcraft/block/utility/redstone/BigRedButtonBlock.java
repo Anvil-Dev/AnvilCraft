@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.block.utility.redstone;
 import com.mojang.serialization.MapCodec;
 import dev.dubhe.anvilcraft.block.entity.BigRedButtonBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
+import dev.dubhe.anvilcraft.init.item.ModItems;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -122,6 +123,7 @@ public class BigRedButtonBlock extends BaseEntityBlock {
 
     @Override
     protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hit) {
+        if (player.isShiftKeyDown() || player.getMainHandItem().is(ModItems.BUILDING_ROD)) return InteractionResult.PASS;
         if (!level.isClientSide() && level.getBlockEntity(pos) instanceof BigRedButtonBlockEntity button) {
             button.press(player);
         }
@@ -132,6 +134,7 @@ public class BigRedButtonBlock extends BaseEntityBlock {
     protected InteractionResult useItemOn(
         ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit
     ) {
+        if (player.isShiftKeyDown() || player.getMainHandItem().is(ModItems.BUILDING_ROD)) return InteractionResult.PASS;
         this.useWithoutItem(state, level, pos, player, hit);
         return InteractionResult.SUCCESS;
     }

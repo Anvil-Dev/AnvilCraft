@@ -219,6 +219,7 @@ public class BlockTagLoader {
             .addElement(ModBlocks.GIANT_MONOLITH_CORE.getId())
             .addElement(ModBlocks.GIANT_MONOLITH_LINE.getId())
             .addElement(BlockTagLoader.findId(Blocks.NETHER_PORTAL))
+            .addElement(ModBlocks.CELESTIAL_FORGING_ANVIL_PORTAL.getId())
             .addElement(BlockTagLoader.findId(Blocks.PISTON_HEAD))
             .addElement(BlockTagLoader.findId(Blocks.END_PORTAL_FRAME))
             .addElement(BlockTagLoader.findId(Blocks.ATTACHED_MELON_STEM))

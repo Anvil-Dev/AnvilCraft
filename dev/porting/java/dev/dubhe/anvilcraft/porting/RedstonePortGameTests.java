@@ -6,6 +6,8 @@ import dev.dubhe.anvilcraft.block.entity.BigRedButtonBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.RedstoneDiceBlockEntity;
 import dev.dubhe.anvilcraft.block.utility.redstone.BigRedButtonBlock;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
+import dev.dubhe.anvilcraft.init.item.ModItems;
+import dev.dubhe.anvilcraft.item.tool.AnvilHammerItem;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.gametest.framework.FunctionGameTestInstance;
@@ -15,8 +17,13 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.ProblemReporter;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.storage.TagValueInput;
+import net.minecraft.world.phys.BlockHitResult;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.common.util.FakePlayerFactory;
@@ -34,7 +41,8 @@ public final class RedstonePortGameTests {
         "port_dice_outcomes", RedstonePortGameTests::diceOutcomes,
         "port_dice_timing_reload", RedstonePortGameTests::diceTimingReload,
         "port_button_holders", RedstonePortGameTests::buttonHolders,
-        "port_button_timeout_reload", RedstonePortGameTests::buttonTimeoutReload
+        "port_button_timeout_reload", RedstonePortGameTests::buttonTimeoutReload,
+        "port_button_sneak_rod", RedstonePortGameTests::buttonSneakRod
     );
 
     @SubscribeEvent
@@ -183,5 +191,48 @@ public final class RedstonePortGameTests {
             helper.getLevel().removePlayerImmediately(player, Entity.RemovalReason.DISCARDED);
             helper.succeed();
         });
+    }
+
+    private static void buttonSneakRod(GameTestHelper helper) {
+        helper.setBlock(POS, ModBlocks.BIG_RED_BUTTON.get());
+        var button = helper.getBlockEntity(POS, BigRedButtonBlockEntity.class);
+        var player = playerNear(helper);
+        var pos = helper.absolutePos(POS);
+        var hit = new BlockHitResult(pos.getCenter(), net.minecraft.core.Direction.UP, pos, false);
+        try {
+            player.setShiftKeyDown(true);
+            var state = helper.getBlockState(POS);
+            helper.assertTrue(state.useWithoutItem(helper.getLevel(), player, hit) == InteractionResult.PASS,
+                "Sneaking empty-hand use passes to placement");
+            player.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(Items.STONE));
+            helper.assertTrue(state.useItemOn(player.getMainHandItem(), helper.getLevel(), player, InteractionHand.MAIN_HAND, hit)
+                == InteractionResult.PASS, "Sneaking item use passes to placement");
+            button.press(player);
+            assertPressed(helper, false);
+            player.setShiftKeyDown(false);
+            button.press(player);
+            assertPressed(helper, true);
+            player.setShiftKeyDown(true);
+            button.checkPressed();
+            assertPressed(helper, false);
+            player.setShiftKeyDown(false);
+            player.setItemInHand(InteractionHand.MAIN_HAND, ModItems.BUILDING_ROD.asStack());
+            button.press(player);
+            assertPressed(helper, false);
+            helper.assertTrue(helper.getBlockState(POS).useWithoutItem(helper.getLevel(), player, hit) == InteractionResult.PASS,
+                "Building rod does not trigger block use");
+            player.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
+            button.press(player);
+            assertPressed(helper, true);
+            player.setItemInHand(InteractionHand.MAIN_HAND, ModItems.BUILDING_ROD.asStack());
+            button.checkPressed();
+            assertPressed(helper, false);
+            helper.setBlock(POS.above(2), ModBlocks.CELESTIAL_FORGING_ANVIL_PORTAL.getDefaultState());
+            helper.assertTrue(!AnvilHammerItem.ableToUseAnvilHammer(helper.getLevel(), pos.above(2), player),
+                "Celestial anvil portal cannot be rotated by an anvil hammer");
+        } finally {
+            helper.getLevel().removePlayerImmediately(player, Entity.RemovalReason.DISCARDED);
+        }
+        helper.succeed();
     }
 }
