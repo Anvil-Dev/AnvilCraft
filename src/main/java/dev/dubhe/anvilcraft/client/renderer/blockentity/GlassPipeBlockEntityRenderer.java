@@ -9,10 +9,10 @@ import dev.dubhe.anvilcraft.client.support.FluidRenderHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
-import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
 import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.common.NeoForgeMod;
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import org.jspecify.annotations.Nullable;
 
@@ -45,7 +45,7 @@ public class GlassPipeBlockEntityRenderer extends PipeCheckValveBERenderer<Glass
         var tint = model.fluidTintSource();
         state.color = tint == null ? -1 : tint.colorAsStack(state.fluid.toStack(1));
         state.sprite = model.stillMaterial().sprite();
-        state.opaque = model.layer() != ChunkSectionLayer.TRANSLUCENT;
+        state.opaque = state.fluid.getFluid() == NeoForgeMod.MILK.value();
     }
 
     @Override
@@ -53,7 +53,7 @@ public class GlassPipeBlockEntityRenderer extends PipeCheckValveBERenderer<Glass
         super.submit(base, pose, collector, camera);
         var state = (GlassPipeRenderState) base;
         if (state.fluid.isEmpty() || state.directions.isEmpty() || state.sprite == null) return;
-        collector.submitCustomGeometry(pose, state.opaque ? ModRenderTypes.CUTOUT_BLOCK : ModRenderTypes.TRANSLUCENT_BLOCK,
+        collector.submitCustomGeometry(pose, state.opaque ? ModRenderTypes.CUTOUT_BLOCK : ModRenderTypes.GLASS_PIPE_FLUID,
             (matrix, vertices) -> GlassPipeFluidBERenderer.renderDisplayFluid(
                 state, state.blockState, state.directions, state.alpha, matrix, vertices, state.lightCoords));
     }

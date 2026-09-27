@@ -157,6 +157,15 @@ public class ModRenderTypes {
             )
     );
 
+    public static final RenderType GLASS_PIPE_FLUID = RenderType.create(
+        "anvilcraft:glass_pipe_fluid",
+        RenderSetup.builder(ModRenderPipelines.GLASS_PIPE_FLUID)
+            .withTexture("Sampler0", Sheets.BLOCKS_MAPPER.sheet())
+            .useLightmap()
+            .sortOnUpload()
+            .createRenderSetup()
+    );
+
     public static final RenderType CUTOUT_BLOCK = ModRenderTypes.CUTOUT_NO_LIGHTING.apply(Sheets.BLOCKS_MAPPER.sheet());
     public static final RenderType TRANSLUCENT_BLOCK = ModRenderTypes.TRANSLUCENT_NO_LIGHTING.apply(Sheets.BLOCKS_MAPPER.sheet());
 }

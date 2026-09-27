@@ -22,6 +22,11 @@ import net.neoforged.neoforge.client.event.RegisterRenderPipelinesEvent;
 @EventBusSubscriber(value = Dist.CLIENT, modid = AnvilCraft.MOD_ID)
 public class ModRenderPipelines {
 
+    public static final RenderPipeline GLASS_PIPE_FLUID = RenderPipeline.builder(RenderPipelines.BLOCK_SNIPPET)
+        .withColorTargetState(new ColorTargetState(BlendFunction.TRANSLUCENT))
+        .withLocation(AnvilCraft.of("pipeline/glass_pipe_fluid"))
+        .build();
+
     public static final RenderPipeline SMART_PLACER_RANGE = RenderPipeline.builder(RenderPipelines.GUI_SNIPPET)
         .withCull(false)
         .withLocation(AnvilCraft.of("pipeline/smart_placer_range"))
@@ -277,6 +282,7 @@ public class ModRenderPipelines {
 
     @SubscribeEvent
     public static void on(RegisterRenderPipelinesEvent event) {
+        event.registerPipeline(ModRenderPipelines.GLASS_PIPE_FLUID);
         event.registerPipeline(ModRenderPipelines.SMART_PLACER_RANGE);
         event.registerPipeline(ModRenderPipelines.EQUIPMENT_CHARGE);
         event.registerPipeline(ModRenderPipelines.FITTED_ITEM);

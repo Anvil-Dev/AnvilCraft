@@ -2,10 +2,9 @@
   "format_version": "1.9.0",
   "credit": "Made by XeKr with Blockbench",
   "parent": "minecraft:block/cube",
-  "render_type": "minecraft:translucent",
   "textures": {
-    "particle": "anvilcraft:block/pipe_glass",
-    "body": "anvilcraft:block/pipe_glass"
+    "particle": {"sprite": "anvilcraft:block/pipe_glass", "force_translucent": true},
+    "body": {"sprite": "anvilcraft:block/pipe_glass", "force_translucent": true}
   },
   "elements": [
     {

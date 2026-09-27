@@ -1690,7 +1690,7 @@
   "glass_pipes": {
     "source_commit": "07eb60b47f14439375da10e78f4d4770f3a83256",
     "introduced_by": "3810b139a773a56e55a25e8b4ce426750e17d1cb",
-    "status": "network_and_native_display_ported_visual_comparison_pending",
+    "status": "native_materials_and_controlled_visual_parity_verified",
     "required": [
       "Glass straight/corner/node registrations, original resources and interactions",
       "Shared check-valve block entities and glass-pipe fluid state synchronization",
@@ -1704,7 +1704,9 @@
       "Source liquid/gas display state, deduplication and packet codec adaptation",
       "Native fluid geometry and valve rendering with original face bounds and quantized opacity",
       "Ordinary pipe material for blueprint glass variants",
-      "Latest source pipe rotation/mirror mappings and JSpecify annotations"
+      "Latest source pipe rotation/mirror mappings and JSpecify annotations",
+      "Native force_translucent material metadata preserves source glass-shell blending",
+      "Source low-opacity fluid pipeline without alpha cutoff; milk retains the cutout route"
     ],
     "verification": {
       "tests_log": "build/porting/tests-glass-foundation-final.log",
@@ -1714,14 +1716,15 @@
       "report": "build/porting/glass-foundation-comparison.json",
       "required_tests_passed": 586,
       "rotation_mirror_cases": 44184,
-      "source_assets_equal": 12,
-      "source_display_methods_equal": 10
+      "source_display_methods_equal": 10,
+      "source_assets_equivalent": 12
     },
     "remaining": [
-      "Source/native gas visual comparison and broader optional-fluid rendering validation"
+      "Broader mod-gas and optional-fluid appearance coverage when their registrations are ported"
     ],
     "limits": [
-      "Foundation vertex/display checks and a real scanned liquid network have passed; source/native gas screenshots remain pending."
+      "Source/native captures isolate water in gas-display mode at a fixed view and animation frame; actual gas math is verified separately.",
+      "Vanilla 26.1 lighting and terrain texture sampling are retained; this is not a pixel-identical vanilla-renderer backport."
     ],
     "network_verification": {
       "tests_log": "build/porting/tests-fluid-network-final.log",
@@ -1730,6 +1733,21 @@
       "report": "build/porting/fluid-network-comparison.json",
       "required_tests_passed": 595,
       "source_algorithm_bodies_equal": 13
+    },
+    "visual_verification": {
+      "native_client_log": "build/porting/client-glass-parity-final.log",
+      "source_client_log": "build/porting/client-glass-parity-source-final.log",
+      "compile_datagen_style_log": "build/porting/data-glass-parity-final.log",
+      "report": "build/porting/glass-visual-parity.json",
+      "stages": [
+        0,
+        0.25,
+        0.5,
+        1,
+        "1/255",
+        "water/lava"
+      ],
+      "maximum_opacity_response_delta": 0.003229
     }
   },
   "source_update_07eb60b47": {
@@ -1743,7 +1761,7 @@
       "8569d095d Refactor Amulet system 重构护符系统 (#5042)",
       "989bf7b33 fix: Improve block rotation and mirroring logic 完善方块旋转和镜像逻辑 (#5026)"
     ],
-    "current_work": "Pipe rotations/mirroring are being included with glass-pipe foundation; infinite gas pressure will be included with network migration.",
+    "current_work": "Pipe rotations and infinite-pressure network semantics are ported; remaining source updates include monolith assets, amulets and held-item rendering.",
     "completed_nodes": [
       "glass_pipe_rotation_mirroring",
       "fluid_network_pressure"

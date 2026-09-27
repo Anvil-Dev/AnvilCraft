@@ -40,7 +40,18 @@ for source in subprocess.check_output(['git', 'ls-tree', '-r', '--name-only', re
                                            '/textures/block/pipe_glass', '/models/item/glass_pipe.json']):
         continue
     target = source.replace('src/generated/resources/', 'src/main/resources/')
-    assert (root / target).read_bytes() == subprocess.check_output(['git', 'show', f'{ref}:{source}'], cwd=root), target
+    source_bytes = subprocess.check_output(['git', 'show', f'{ref}:{source}'], cwd=root)
+    target_bytes = (root / target).read_bytes()
+    if '/models/block/' in target:
+        source_model, target_model = json.loads(source_bytes), json.loads(target_bytes)
+        assert source_model.pop('render_type') == 'minecraft:translucent'
+        for slot, material in target_model['textures'].items():
+            if isinstance(material, dict):
+                assert material['force_translucent'] is True, (target, slot)
+                target_model['textures'][slot] = material['sprite']
+        assert target_model == source_model, target
+    else:
+        assert target_bytes == source_bytes, target
     assets.append(target)
 tests = (root / 'build/porting/tests-glass-foundation-final.log').read_text(encoding='utf-8', errors='replace')
 assert 'BUILD SUCCESSFUL' in tests and 'All 586 required tests passed' in tests
@@ -50,10 +61,10 @@ assert 'PORT_GLASS_PIPE_CLIENT_PASSED' in client and 'All dimensions are saved' 
 compile_log = (root / 'build/porting/compile-glass-foundation-final.log').read_text(encoding='utf-8', errors='replace')
 assert 'BUILD SUCCESSFUL' in compile_log
 report = {
-    'source_commit': ref, 'source_assets_equal': assets, 'source_display_methods_equal': checked,
+    'source_commit': ref, 'source_assets_equivalent_with_native_translucent_materials': assets, 'source_display_methods_equal': checked,
     'required_tests_passed': 586, 'rotation_mirror_cases': 44184,
     'native_client': 'three registered shapes, synchronized display fields, vertex counts 16/48/120, alpha 102 for 0.4 opacity',
-    'limits': ['Fluid-network path marking, automatic display expiry and gas-pressure equilibration remain pending.',
+    'limits': ['This foundation report retains the original 586-test evidence; network and visual parity have separate reports.',
                'The client fixture injects display events; it does not claim end-to-end network visualization.',
                'The node geometry includes its full center box as in the source; an earlier fixture omitted those 24 vertices.',
                'Final compile/style checks validate JSpecify imports and rotation/mirror additions.'],

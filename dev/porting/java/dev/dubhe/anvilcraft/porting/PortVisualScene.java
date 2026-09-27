@@ -184,6 +184,10 @@ public final class PortVisualScene {
             if (prepared) BundleActionScene.frame(client);
             return;
         }
+        if (Boolean.getBoolean("anvilcraft.portGlassParityScene")) {
+            if (prepared) GlassVisualParityScene.frame(client);
+            return;
+        }
         if (Boolean.getBoolean("anvilcraft.portGlassNetworkScene")) {
             if (prepared) GlassNetworkClientScene.frame(client);
             return;
