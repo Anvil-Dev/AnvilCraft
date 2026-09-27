@@ -24,9 +24,20 @@ public interface IAmuletEffect {
     /// @param ctx    本次触发的上下文
     void trigger(LivingEntity entity, ItemStack amulet, AmuletEffectContext ctx);
 
+    /// 是否应当忽略重复。
+    ///
+    /// 在 {@link dev.dubhe.anvilcraft.api.amulet.AmuletManager#getActiveEffects(LivingEntity)} 内非第一次找到该效果时调用。
+    ///
+    /// @param entity 佩戴护符的实体
+    /// @param amulet 提供该效果的护符物品堆
+    /// @return 需要忽略重复（将该效果的护符物品堆加入结果）时返回 `true`
+    default boolean shouldIgnoreRepetition(LivingEntity entity, ItemStack amulet) {
+        return true;
+    }
+
     /// 获取该效果展开后的效果，包含其包覆的其它护符的效果。
     ///
-    /// <p>护符注册在静态注册表里，展开时不需要注册表访问器。</p>
+    /// 护符注册在静态注册表里，展开时不需要注册表访问器。
     ///
     /// @return 该效果展开后的效果
     /// @apiNote 由于此方法实现上可能有缓存机制，不允许在注册完成前调用！

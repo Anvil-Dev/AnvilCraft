@@ -21,6 +21,11 @@ public record ImmuneFriendlyDamageAmuletEffect() implements IImmuneDamageAmuletE
         return ImmuneFriendlyDamageAmuletEffect.isMurdererComrade(amulet, source, comrades);
     }
 
+    @Override
+    public boolean shouldIgnoreRepetition(LivingEntity entity, ItemStack amulet) {
+        return amulet.has(ModComponents.COMRADES);
+    }
+
     private static boolean isMurdererComrade(ItemStack amulet, DamageSource source, Comrades comrades) {
         return Optional.ofNullable(source.getEntity())
             .flatMap(entity -> Util.castSafely(entity, Player.class))

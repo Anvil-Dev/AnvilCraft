@@ -131,7 +131,7 @@ public class AmuletManager {
                 continue;
             }
             for (IAmuletEffect effect : amulet.getFlattenEffects()) {
-                if (triggered.add(effect)) {
+                if (triggered.add(effect) || effect.shouldIgnoreRepetition(entity, stack)) {
                     effects.put(effect, stack);
                 }
             }
