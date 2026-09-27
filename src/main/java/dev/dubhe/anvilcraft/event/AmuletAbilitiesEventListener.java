@@ -10,7 +10,6 @@ import dev.dubhe.anvilcraft.init.item.ModAmuletEffectContextKeys;
 import dev.dubhe.anvilcraft.init.registry.ModRegistries;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.TamableAnimal;
@@ -78,7 +77,7 @@ public class AmuletAbilitiesEventListener {
         Mob mob = Util.castSafely(event.getEntity(), Mob.class).orElse(null);
         if (mob == null) return;
         if (!(event.getNewAboutToBeSetTarget() instanceof LivingEntity entity)) return;
-        if (!AmuletAbilitiesEventListener.shouldIgnoreTarget(entity, mob.getType())) {
+        if (!AmuletAbilitiesEventListener.shouldIgnoreTarget(entity, mob)) {
             return;
         }
         event.setCanceled(true);
@@ -89,21 +88,21 @@ public class AmuletAbilitiesEventListener {
         Mob mob = Util.castSafely(event.getEntity(), Mob.class).orElse(null);
         if (mob == null) return;
         if (!(mob.getTarget() instanceof LivingEntity entity)) return;
-        if (!AmuletAbilitiesEventListener.shouldIgnoreTarget(entity, mob.getType())) {
+        if (!AmuletAbilitiesEventListener.shouldIgnoreTarget(entity, mob)) {
             return;
         }
-        if (entity instanceof IronGolem golem) golem.stopBeingAngry();
+        if (mob instanceof IronGolem golem) golem.stopBeingAngry();
         mob.setTarget(null);
     }
 
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
-    public static boolean shouldIgnoreTarget(LivingEntity entity, EntityType<?> mob) {
-        if (!AmuletManager.shouldEvaluate(entity)) {
+    public static boolean shouldIgnoreTarget(LivingEntity target, Mob targeting) {
+        if (!AmuletManager.shouldEvaluate(target)) {
             return false;
         }
         AmuletEffectContext ctx = new AmuletEffectContext();
-        ctx.set(ModAmuletEffectContextKeys.MOB_TYPE, mob);
-        AmuletManager.get(entity.registryAccess()).trigger(entity, ctx);
+        ctx.set(ModAmuletEffectContextKeys.TARGETING_MOB, targeting);
+        AmuletManager.get(target.registryAccess()).trigger(target, ctx);
         return ctx.get(ModAmuletEffectContextKeys.IGNORE_MOB).orElse(false);
     }
 
@@ -140,6 +139,17 @@ public class AmuletAbilitiesEventListener {
         ctx.set(ModAmuletEffectContextKeys.INTERACT_TARGET, animal);
         AmuletManager.get(player.registryAccess()).trigger(player, ctx);
         if (!ctx.getOrDefault(ModAmuletEffectContextKeys.HANDLE_INTERACT, false)) return;
+
+        for (TamableAnimal tamed : player.level().getEntitiesOfClass(
+            TamableAnimal.class,
+            player.getBoundingBox().inflate(8.0F),
+            tamable -> tamable.isOwnedBy(player)
+        )) {
+            if (tamed.getTarget() == animal) {
+                tamed.setTarget(null);
+            }
+        }
+
         event.setCancellationResult(InteractionResult.sidedSuccess(event.getLevel().isClientSide()));
         event.setCanceled(true);
     }

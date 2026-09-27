@@ -1,30 +1,32 @@
 package dev.dubhe.anvilcraft.init.item;
 
-import dev.anvilcraft.lib.v2.math.expression.IExpression;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.amulet.Amulet;
+import dev.dubhe.anvilcraft.api.amulet.effect.ActAsScarecrowAmuletEffect;
 import dev.dubhe.anvilcraft.api.amulet.effect.AttributeAmuletEffect;
 import dev.dubhe.anvilcraft.api.amulet.effect.DiscountAmuletEffect;
 import dev.dubhe.anvilcraft.api.amulet.effect.GiveMobEffectAmuletEffect;
 import dev.dubhe.anvilcraft.api.amulet.effect.IgnoreGravityAmuletEffect;
 import dev.dubhe.anvilcraft.api.amulet.effect.IgnoreMobTargetAmuletEffect;
 import dev.dubhe.anvilcraft.api.amulet.effect.ImmuneAbnormalItemAmuletEffect;
-import dev.dubhe.anvilcraft.api.amulet.effect.ImmuneAnvilDamageAmuletEffect;
+import dev.dubhe.anvilcraft.api.amulet.effect.ImmuneEatEffectAmuletEffect;
+import dev.dubhe.anvilcraft.api.amulet.effect.ImmuneEntityAnvilDamageAmuletEffect;
 import dev.dubhe.anvilcraft.api.amulet.effect.ImmuneFriendlyDamageAmuletEffect;
-import dev.dubhe.anvilcraft.api.amulet.effect.ImmuneHarmfulMobEffectAmuletEffect;
 import dev.dubhe.anvilcraft.api.amulet.effect.ImmuneKnockbackAmuletEffect;
 import dev.dubhe.anvilcraft.api.amulet.effect.ImmuneMobEffectAmuletEffect;
 import dev.dubhe.anvilcraft.api.amulet.effect.ImmuneTypedDamageAmuletEffect;
 import dev.dubhe.anvilcraft.api.amulet.effect.ImmuneVibrationAmuletEffect;
+import dev.dubhe.anvilcraft.api.amulet.effect.ScarePhantomAmuletEffect;
 import dev.dubhe.anvilcraft.api.amulet.effect.TameAnimalAmuletEffect;
 import dev.dubhe.anvilcraft.api.amulet.effect.WrapOtherAmuletEffect;
 import dev.dubhe.anvilcraft.init.entity.ModDamageTypeTags;
 import dev.dubhe.anvilcraft.init.registry.ModRegistryKeys;
+import dev.dubhe.anvilcraft.util.Impersonators;
 import net.minecraft.advancements.critereon.EntityTypePredicate;
 import net.minecraft.advancements.critereon.MinMaxBounds;
 import net.minecraft.advancements.critereon.TagPredicate;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.tags.EntityTypeTags;
+import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EntityType;
@@ -48,7 +50,7 @@ public class ModAmulets {
     public static final DeferredHolder<Amulet, Amulet> EMERALD = REGISTER.register(
         "emerald",
         () -> Amulet.of(
-            new DiscountAmuletEffect(IExpression.of(0.3)),
+            new DiscountAmuletEffect(0.3F),
             new IgnoreMobTargetAmuletEffect(List.of(EntityTypePredicate.of(EntityType.IRON_GOLEM)))
         )
     );
@@ -83,7 +85,8 @@ public class ModAmulets {
     public static final DeferredHolder<Amulet, Amulet> ANVIL = REGISTER.register(
         "anvil",
         () -> Amulet.of(
-            ImmuneAnvilDamageAmuletEffect.INSTANCE,
+            ImmuneTypedDamageAmuletEffect.of(ModDamageTypeTags.ANVIL_AMULET_VALID),
+            ImmuneEntityAnvilDamageAmuletEffect.INSTANCE,
             ImmuneMobEffectAmuletEffect.of(MobEffects.LEVITATION),
             new AttributeAmuletEffect(
                 Attributes.KNOCKBACK_RESISTANCE,
@@ -110,24 +113,22 @@ public class ModAmulets {
     public static final DeferredHolder<Amulet, Amulet> ARMADILLO = REGISTER.register(
         "armadillo",
         () -> Amulet.of(
-            new IgnoreMobTargetAmuletEffect(List.of(EntityTypePredicate.of(EntityType.SPIDER))),
+            new ActAsScarecrowAmuletEffect<>(Impersonators.ARMADILLO),
             GiveMobEffectAmuletEffect.sneaking(MobEffects.DAMAGE_RESISTANCE, 1)
         )
     );
     public static final DeferredHolder<Amulet, Amulet> CAT = REGISTER.register(
         "cat",
         () -> Amulet.of(
-            new IgnoreMobTargetAmuletEffect(List.of(
-                EntityTypePredicate.of(EntityType.CREEPER),
-                EntityTypePredicate.of(EntityType.PHANTOM)
-            )),
+            new ActAsScarecrowAmuletEffect<>(Impersonators.CAT),
+            ScarePhantomAmuletEffect.INSTANCE,
             new TameAnimalAmuletEffect(List.of(EntityTypePredicate.of(EntityType.CAT)))
         )
     );
     public static final DeferredHolder<Amulet, Amulet> DOG = REGISTER.register(
         "dog",
         () -> Amulet.of(
-            new IgnoreMobTargetAmuletEffect(List.of(EntityTypePredicate.of(EntityTypeTags.SKELETONS))),
+            new ActAsScarecrowAmuletEffect<>(Impersonators.WOLF),
             new TameAnimalAmuletEffect(List.of(EntityTypePredicate.of(EntityType.WOLF)))
         )
     );
@@ -141,7 +142,7 @@ public class ModAmulets {
     public static final DeferredHolder<Amulet, Amulet> ABNORMAL = REGISTER.register(
         "abnormal",
         () -> Amulet.of(
-            ImmuneHarmfulMobEffectAmuletEffect.INSTANCE,
+            new ImmuneEatEffectAmuletEffect(MobEffectCategory.HARMFUL),
             ImmuneAbnormalItemAmuletEffect.INSTANCE
         )
     );

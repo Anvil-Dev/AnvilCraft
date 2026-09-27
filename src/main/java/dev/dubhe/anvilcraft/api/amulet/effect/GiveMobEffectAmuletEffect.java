@@ -46,8 +46,8 @@ public record GiveMobEffectAmuletEffect(
     );
     /// 条件刷新用的时长表达式：只取效果自身时长，把剩余时长重置回该值，即 {@code $(extra)}。
     public static final IExpression REFRESH_DURATION = IExpression.ref(VAR_EXTRA);
-    /// 条件刷新给予的效果时长：每 tick 重置回该值，条件不再成立后很快失效。
-    public static final int REFRESH_TICKS = 2;
+    /// 条件刷新给予的效果时长：每 tick 重置回该值，保证不再闪烁。
+    public static final int REFRESH_TICKS = 201;
 
     /// 佩戴者不在水里时给予，时长按上下界累加
     public static GiveMobEffectAmuletEffect notInWater(MobEffectInstance effect, MinMaxBounds.Ints bounds) {
@@ -142,7 +142,7 @@ public record GiveMobEffectAmuletEffect(
 
     @Override
     public void trigger(LivingEntity entity, ItemStack amulet, AmuletEffectContext ctx) {
-        if (!(entity instanceof ServerPlayer serverPlayer) || !ctx.get(ModAmuletEffectContextKeys.ENABLED).orElse(false)) {
+        if (!(entity instanceof ServerPlayer serverPlayer) || !ctx.getOrDefault(ModAmuletEffectContextKeys.ENABLED, false)) {
             return;
         }
         if (this.predicate.isPresent() && !this.predicate.get().matches(serverPlayer, serverPlayer)) {

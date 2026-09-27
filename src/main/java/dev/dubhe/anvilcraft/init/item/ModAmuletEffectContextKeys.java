@@ -8,6 +8,8 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
 
 public class ModAmuletEffectContextKeys {
     // 参数：由护符管理器在触发护符效果前提供
@@ -25,13 +27,23 @@ public class ModAmuletEffectContextKeys {
     );
     /// 玩家是否处于进食中
     public static final AmuletEffectContextKey<Boolean> CONSUMING_FOOD = AmuletEffectContextKey.ofBool(AnvilCraft.of("consuming_food"));
-    /// 待判定的生物类型
-    public static final AmuletEffectContextKey<EntityType<?>> MOB_TYPE = ModAmuletEffectContextKeys.ofEntityType(AnvilCraft.of("mob_type"));
+    /// 待判定的追踪者
+    public static final AmuletEffectContextKey<Mob> TARGETING_MOB = AmuletEffectContextKey.of(
+        AnvilCraft.of("targeting_mob"),
+        Mob.class
+    );
     /// 待判定的交互目标
     public static final AmuletEffectContextKey<Entity> INTERACT_TARGET = AmuletEffectContextKey.of(
         AnvilCraft.of("interact_target"),
         Entity.class
     );
+    /// 待判定的生命实体类
+    public static final AmuletEffectContextKey<Class<? extends LivingEntity>> LIVING_ENTITY_CLASS = AmuletEffectContextKey.of(
+        AnvilCraft.of("living_entity_class"),
+        Util.cast(Class.class)
+    );
+    /// 当前上下文是否为查询/模拟上下文
+    public static final AmuletEffectContextKey<Boolean> SIMULATE = AmuletEffectContextKey.ofBool(AnvilCraft.of("simulate"));
 
     // 返回值：由护符效果在触发时写入
     /// 是否免疫待判定的伤害源
@@ -61,6 +73,15 @@ public class ModAmuletEffectContextKeys {
     /// 是否免疫异常物品带来的负面效果
     public static final AmuletEffectContextKey<Boolean> IMMUNE_ABNORMAL_ITEM = AmuletEffectContextKey.ofBool(
         AnvilCraft.of("immune_abnormal_item")
+    );
+    /// 是否符合面具
+    public static final AmuletEffectContextKey<Boolean> MASK_VALID = AmuletEffectContextKey.ofBool(
+        AnvilCraft.of("mask_valid")
+    );
+    /// 将要避开的实体
+    public static final AmuletEffectContextKey<LivingEntity> TO_AVOID_ENTITY = AmuletEffectContextKey.of(
+        AnvilCraft.of("to_avoid_entity"),
+        LivingEntity.class
     );
 
     private static AmuletEffectContextKey<EntityType<?>> ofEntityType(ResourceLocation id) {

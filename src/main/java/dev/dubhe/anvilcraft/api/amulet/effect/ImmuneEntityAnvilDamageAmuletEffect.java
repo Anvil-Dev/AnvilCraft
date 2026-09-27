@@ -2,7 +2,6 @@ package dev.dubhe.anvilcraft.api.amulet.effect;
 
 import dev.dubhe.anvilcraft.api.amulet.ctx.AmuletEffectContext;
 import dev.dubhe.anvilcraft.init.block.ModBlockTags;
-import dev.dubhe.anvilcraft.init.entity.ModDamageTypeTags;
 import dev.dubhe.anvilcraft.init.entity.ModEntityTypeTags;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import net.minecraft.core.HolderSet;
@@ -17,15 +16,12 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
 
-/// 免疫铁砧相关伤害的护符效果
-public record ImmuneAnvilDamageAmuletEffect() implements IImmuneDamageAmuletEffect {
-    public static final ImmuneAnvilDamageAmuletEffect INSTANCE = new ImmuneAnvilDamageAmuletEffect();
+/// 免疫铁砧实体或铁砧锤相关伤害的护符效果
+public record ImmuneEntityAnvilDamageAmuletEffect() implements IImmuneDamageAmuletEffect {
+    public static final ImmuneEntityAnvilDamageAmuletEffect INSTANCE = new ImmuneEntityAnvilDamageAmuletEffect();
 
     @Override
     public boolean shouldImmune(LivingEntity entity, ItemStack amulet, DamageSource source, AmuletEffectContext ctx) {
-        if (!source.is(ModDamageTypeTags.ANVIL_AMULET_VALID)) {
-            return false;
-        }
         Entity direct = source.getDirectEntity();
         HolderSet.Named<EntityType<?>> valid = BuiltInRegistries.ENTITY_TYPE.getOrCreateTag(ModEntityTypeTags.ANVIL_AMULET_VALID);
         if (direct == null || !direct.getType().is(valid)) {

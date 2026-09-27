@@ -17,7 +17,7 @@ public interface IImmuneDamageAmuletEffect extends IAmuletEffect {
         if (sourceOp.isEmpty()) {
             return;
         }
-        boolean immune = ctx.get(ModAmuletEffectContextKeys.IMMUNE_DAMAGE).orElse(false)
+        boolean immune = ctx.getOrDefault(ModAmuletEffectContextKeys.IMMUNE_DAMAGE, false)
                          || this.shouldImmune(entity, amulet, sourceOp.get(), ctx);
         ctx.set(ModAmuletEffectContextKeys.IMMUNE_DAMAGE, immune);
     }

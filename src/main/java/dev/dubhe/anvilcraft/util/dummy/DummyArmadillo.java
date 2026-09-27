@@ -1,9 +1,10 @@
 package dev.dubhe.anvilcraft.util.dummy;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.animal.armadillo.Armadillo;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
@@ -20,20 +21,23 @@ public class DummyArmadillo extends Armadillo {
         super(EntityType.ARMADILLO, level);
     }
 
-    public static @Nullable DummyArmadillo fromPlayer(Level level, @Nullable Player player) {
-        if (player == null) return null;
-        UUID id = player.getGameProfile().getId();
+    public static @Nullable DummyArmadillo fromEntity(@Nullable LivingEntity entity) {
+        if (entity == null) return null;
+
+        UUID id = entity.getUUID();
         DummyArmadillo cache = DummyArmadillo.CACHE.get(id);
-        if (cache == null) {
-            cache = new DummyArmadillo(level);
-            DummyArmadillo.CACHE.put(id, cache);
+        if (cache != null) {
+            cache.setPos(entity.position());
+            return cache;
         }
-        cache.setPos(player.position());
+        cache = new DummyArmadillo(entity.level());
+        cache.setPos(entity.position());
+        DummyArmadillo.CACHE.put(id, cache);
         return cache;
     }
 
-    public static void clear(Player player) {
-        DummyArmadillo.CACHE.remove(player.getGameProfile().getId());
+    public static void clear(Entity entity) {
+        DummyArmadillo.CACHE.remove(entity.getUUID());
     }
 
     @Override
@@ -63,6 +67,11 @@ public class DummyArmadillo extends Armadillo {
 
     @Override
     public boolean mayInteract(Level level, BlockPos pos) {
+        return false;
+    }
+
+    @Override
+    public boolean mayBeLeashed() {
         return false;
     }
 }

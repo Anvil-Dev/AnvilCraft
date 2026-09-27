@@ -53,7 +53,7 @@ public record ImmuneMobEffectAmuletEffect(
             }
             return;
         }
-        if (!ctx.get(ModAmuletEffectContextKeys.ENABLED).orElse(false)) {
+        if (!ctx.getOrDefault(ModAmuletEffectContextKeys.ENABLED, false)) {
             return;
         }
         for (Holder<MobEffect> effect : this.immune) {

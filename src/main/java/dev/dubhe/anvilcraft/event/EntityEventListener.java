@@ -3,11 +3,15 @@ package dev.dubhe.anvilcraft.event;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.init.entity.ModDamageTypeTags;
 import dev.dubhe.anvilcraft.init.entity.ModEntityTypeTags;
+import dev.dubhe.anvilcraft.util.dummy.DummyArmadillo;
+import dev.dubhe.anvilcraft.util.dummy.DummyCat;
+import dev.dubhe.anvilcraft.util.dummy.DummyWolf;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.EntityInvulnerabilityCheckEvent;
+import net.neoforged.neoforge.event.entity.EntityLeaveLevelEvent;
 
 @EventBusSubscriber(modid = AnvilCraft.MOD_ID)
 public class EntityEventListener {
@@ -21,5 +25,12 @@ public class EntityEventListener {
         ) {
             event.setInvulnerable(true);
         }
+    }
+
+    @SubscribeEvent
+    public static void onLeaveLevel(EntityLeaveLevelEvent event) {
+        DummyArmadillo.clear(event.getEntity());
+        DummyCat.clear(event.getEntity());
+        DummyWolf.clear(event.getEntity());
     }
 }

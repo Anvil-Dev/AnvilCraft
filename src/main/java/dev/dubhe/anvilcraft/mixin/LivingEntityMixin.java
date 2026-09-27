@@ -85,9 +85,9 @@ public abstract class LivingEntityMixin extends Entity {
     private void anvilcraft$ignoreProtectedAttacker(@Nullable LivingEntity attacker, CallbackInfo ci) {
         LivingEntity thiz = Util.cast(this);
         if (
-            thiz instanceof IronGolem
+            thiz instanceof IronGolem golem
             && attacker instanceof Player player
-            && AmuletAbilitiesEventListener.shouldIgnoreTarget(player, EntityType.IRON_GOLEM)
+            && AmuletAbilitiesEventListener.shouldIgnoreTarget(player, golem)
         ) {
             ci.cancel();
         }
