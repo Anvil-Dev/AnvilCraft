@@ -1,5 +1,7 @@
 package dev.dubhe.anvilcraft.api.amulet;
 
+import com.google.common.collect.Multimap;
+import com.google.common.collect.MultimapBuilder;
 import dev.dubhe.anvilcraft.api.amulet.ctx.AmuletEffectContext;
 import dev.dubhe.anvilcraft.api.amulet.def.IAmuletDefinition;
 import dev.dubhe.anvilcraft.api.amulet.effect.IAmuletEffect;
@@ -32,7 +34,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.IdentityHashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -112,7 +113,7 @@ public class AmuletManager {
     ///
     /// @param entity 佩戴护符的实体
     /// @return 实体身上所有护符展开后的效果
-    public Map<IAmuletEffect, ItemStack> getActiveEffects(LivingEntity entity) {
+    public Multimap<IAmuletEffect, ItemStack> getActiveEffects(LivingEntity entity) {
         List<ItemStack> amulets = this.findAmulets(entity);
         UUID id = entity.getUUID();
         RegistryAccess registries = entity.registryAccess();
@@ -122,7 +123,7 @@ public class AmuletManager {
             return entry.effects();
         }
 
-        Map<IAmuletEffect, ItemStack> effects = new LinkedHashMap<>();
+        Multimap<IAmuletEffect, ItemStack> effects = MultimapBuilder.hashKeys().arrayListValues().build();
         Set<IAmuletEffect> triggered = AmuletManager.identityView();
         for (ItemStack stack : amulets) {
             Amulet amulet = this.getAmulet(stack);
@@ -270,8 +271,8 @@ public class AmuletManager {
         return key == null ? null : ModRegistries.AMULET.get(key);
     }
 
-    private record CacheEntry(int size, byte[] sha256, Map<IAmuletEffect, ItemStack> effects) {
-        public CacheEntry(List<ItemStack> stacks, RegistryAccess registries, Map<IAmuletEffect, ItemStack> effects) {
+    private record CacheEntry(int size, byte[] sha256, Multimap<IAmuletEffect, ItemStack> effects) {
+        public CacheEntry(List<ItemStack> stacks, RegistryAccess registries, Multimap<IAmuletEffect, ItemStack> effects) {
             this(stacks.size(), CacheEntry.sha256StackList(stacks, registries), effects);
         }
 

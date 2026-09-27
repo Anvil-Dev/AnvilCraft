@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.event;
 
+import com.google.common.collect.Multimap;
 import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.amulet.Amulet;
@@ -27,7 +28,6 @@ import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import net.neoforged.neoforge.event.level.ExplosionKnockbackEvent;
 import net.neoforged.neoforge.event.tick.EntityTickEvent;
 
-import java.util.Map;
 import java.util.Set;
 
 @EventBusSubscriber(modid = AnvilCraft.MOD_ID)
@@ -40,7 +40,7 @@ public class AmuletAbilitiesEventListener {
         if (!(event.getEntity() instanceof LivingEntity entity)) return;
 
         AmuletManager manager = AmuletManager.get(entity.registryAccess());
-        Map<IAmuletEffect, ItemStack> active = manager.getActiveEffects(entity);
+        Multimap<IAmuletEffect, ItemStack> active = manager.getActiveEffects(entity);
         Set<IAmuletEffect> triggered = AmuletManager.identityView();
         triggered.addAll(active.keySet());
 
