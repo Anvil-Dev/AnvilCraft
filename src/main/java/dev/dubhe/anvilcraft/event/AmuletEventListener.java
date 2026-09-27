@@ -34,4 +34,11 @@ public class AmuletEventListener {
             }
         }
     }
+
+    @SubscribeEvent
+    public static void on(AmuletEvent.EntityCheck event) {
+        if (event.getEntity() instanceof Player) {
+            event.pass();
+        }
+    }
 }

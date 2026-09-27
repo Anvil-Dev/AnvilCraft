@@ -21,7 +21,8 @@ import java.util.function.Consumer;
 public abstract sealed class AmuletEvent extends Event
     permits AmuletEvent.Find,
     AmuletEvent.ProcessFound,
-    AmuletEvent.ModifyRaffleProbability {
+    AmuletEvent.ModifyRaffleProbability,
+    AmuletEvent.EntityCheck {
     private final AmuletManager manager;
 
     protected AmuletEvent(AmuletManager manager) {
@@ -54,7 +55,7 @@ public abstract sealed class AmuletEvent extends Event
     }
 
     /// 本事件会在 {@link AmuletManager#processFoundStack(ItemStack, List)} 内发出，<br>
-    /// 并允许其它模组处理护符容器（物品栈形式的源）并提供。
+    /// 并允许其它模组处理护符容器（物品栈形式的源）。
     /// <p>取消该事件将阻止源及其可能包含的其它护符被加入最终结果。</p>
     /// <p>注意：您不应在此事件中从非物品栈形式的源提供护符。请与 {@link Find} 中执行上述操作。</p>
     /// <p>本事件会在双端发出。</p>
@@ -102,6 +103,29 @@ public abstract sealed class AmuletEvent extends Event
             this.source = source;
             this.def = def;
             this.probability = probability;
+        }
+    }
+
+    /// 本事件会在 {@link AmuletManager#findAmulets(LivingEntity)} 中发出，<br>
+    /// 并允许放行或拦截实体触发护符效果。
+    /// <p>{@link EntityCheck#passed} 为 `true` 时，允许实体触发护符效果。反之则不允许。</p>
+    /// <p>本事件会在双端发出。</p>
+    @Getter
+    public static final class EntityCheck extends AmuletEvent {
+        private final LivingEntity entity;
+        private boolean passed = false;
+
+        public EntityCheck(AmuletManager manager, LivingEntity entity) {
+            super(manager);
+            this.entity = entity;
+        }
+
+        public void pass() {
+            this.passed = true;
+        }
+
+        public void unpass() {
+            this.passed = false;
         }
     }
 }

@@ -75,7 +75,10 @@ public class AmuletManager {
         this.definitions = definitions;
     }
 
-    public List<ItemStack> findAmulets(LivingEntity entity) {
+    public @Nullable List<ItemStack> findAmulets(LivingEntity entity) {
+        if (!NeoForge.EVENT_BUS.post(new AmuletEvent.EntityCheck(this, entity)).isPassed()) {
+            return null;
+        }
         List<ItemStack> founds = new ArrayList<>();
         NeoForge.EVENT_BUS.post(new AmuletEvent.Find(this, entity, founds::add));
         List<ItemStack> amulets = new ArrayList<>();
@@ -113,8 +116,12 @@ public class AmuletManager {
     ///
     /// @param entity 佩戴护符的实体
     /// @return 实体身上所有护符展开后的效果
-    public Multimap<IAmuletEffect, ItemStack> getActiveEffects(LivingEntity entity) {
+    public @Nullable Multimap<IAmuletEffect, ItemStack> getActiveEffects(LivingEntity entity) {
         List<ItemStack> amulets = this.findAmulets(entity);
+        if (amulets == null) {
+            return null;
+        }
+
         UUID id = entity.getUUID();
         RegistryAccess registries = entity.registryAccess();
         Map<UUID, CacheEntry> cache = this.cache.computeIfAbsent(registries, ignore -> new HashMap<>());
@@ -122,6 +129,7 @@ public class AmuletManager {
         if (entry != null && entry.isCacheHit(amulets, registries)) {
             return entry.effects();
         }
+
 
         Multimap<IAmuletEffect, ItemStack> effects = MultimapBuilder.hashKeys().arrayListValues().build();
         Set<IAmuletEffect> triggered = AmuletManager.identityView();
@@ -158,7 +166,9 @@ public class AmuletManager {
     /// @param entity 佩戴护符的实体
     /// @param ctx    本次触发的上下文
     public void trigger(LivingEntity entity, AmuletEffectContext ctx) {
-        this.getActiveEffects(entity).forEach((effect, stack) -> effect.trigger(entity, stack, ctx));
+        Multimap<IAmuletEffect, ItemStack> effects = this.getActiveEffects(entity);
+        if (effects == null) return;
+        effects.forEach((effect, stack) -> effect.trigger(entity, stack, ctx));
     }
 
     public void tryRaffle(ServerPlayer player, DamageSource source) {
@@ -229,16 +239,23 @@ public class AmuletManager {
     /// @param amulet 给定护符的资源键
     /// @return 能充当给定护符的护符是否已在实体身上生效
     private boolean isAmuletActive(LivingEntity entity, ResourceKey<Amulet> amulet) {
+        Multimap<IAmuletEffect, ItemStack> active = this.getActiveEffects(entity);
+        if (active == null) {
+            return false;
+        }
+
         Amulet target = ModRegistries.AMULET.get(amulet);
         if (target == null) {
             return false;
         }
+
         Set<IAmuletEffect> effects = target.getFlattenEffects();
         if (effects.isEmpty()) {
             return false;
         }
+
         Set<IAmuletEffect> triggered = AmuletManager.identityView();
-        triggered.addAll(this.getActiveEffects(entity).keySet());
+        triggered.addAll(active.keySet());
         return triggered.containsAll(effects);
     }
 
@@ -250,6 +267,9 @@ public class AmuletManager {
     private boolean isAmuletActive(LivingEntity entity, Holder<IAmuletDefinition> def) {
         ItemStack target = def.value().create();
         List<ItemStack> amulets = this.findAmulets(entity);
+        if (amulets == null) {
+            return false;
+        }
         return amulets.stream().anyMatch(stack -> ItemStack.isSameItem(stack, target));
     }
 

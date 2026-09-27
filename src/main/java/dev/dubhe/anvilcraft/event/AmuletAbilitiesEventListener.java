@@ -41,6 +41,10 @@ public class AmuletAbilitiesEventListener {
 
         AmuletManager manager = AmuletManager.get(entity.registryAccess());
         Multimap<IAmuletEffect, ItemStack> active = manager.getActiveEffects(entity);
+        if (active == null) {
+            return;
+        }
+
         Set<IAmuletEffect> triggered = AmuletManager.identityView();
         triggered.addAll(active.keySet());
 
