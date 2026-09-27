@@ -31,6 +31,7 @@ allprojects {
             include '**/api/laser/*.java', '**/LaserHitRecipe*.java', '**/BaseLaserBlockEntity.java', '**/LensBlockEntity.java'
             include '**/CelestialForgingAnvilLaserInterfaceBlockEntity.java', '**/CelestialForgingAnvilPortalBlockEntity.java'
             include '**/LaserEmitPacket.java', '**/LaserCompiler.java', '**/LaserRenderState.java'
+            include '**/LaserBloomPostEffect.java', '**/LaserBloomCaptureMixin.java'
             include '**/ItemCompressRecipeLoader.java', '**/BlockCompressRecipeLoader.java', '**/SolidLiquidRecipeLoader.java'
             include '**/LargeBlockPlacePreviewEventListener.java', '**/ChuteBlockItem.java', '**/CelestialForgingAnvilAmplifierBlockItem.java'
             include '**/ItemSplitter*.java'

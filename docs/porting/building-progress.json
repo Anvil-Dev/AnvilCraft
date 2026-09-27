@@ -2360,7 +2360,7 @@
   },
   "laser_components_and_hit_recipes": {
     "source_commit": "07eb60b47f14439375da10e78f4d4770f3a83256",
-    "status": "behavior_and_default_beams_verified_optional_bloom_parity_pending",
+    "status": "behavior_and_default_and_bloom_beams_verified",
     "ported": [
       "Thirteen source-equivalent laser components with type-owned factories, merge policies and priorities; local exposure state survives equivalent updates.",
       "Shared emitter/lens/CFA interface/portal emission, damage, heating, particles, mining, gamma behavior and native partial-inventory delivery.",
@@ -2456,15 +2456,66 @@
       }
     },
     "remaining": [
-      "Restore optional Bloom to the source four-pass full-resolution weighted blur; current AnvilLib 519 down/up sampling changes the halo profile.",
       "Creative laser block/entity/menu/screen/packets and source item/model assets are still a separate pending feature.",
       "Additional shader-pack, fallback renderer, resource reload and broad camera-angle visual coverage are not established by this scene."
     ],
     "limits": [
       "No-fog captures are a development-only diagnostic. Production retains vanilla 26.1 atmospheric fog.",
       "Native fog probe: environmental 0..1024, render distance 230.4..256; default 1.21 near-field has no atmospheric fog.",
-      "Bloom enabled remains pending: source uses four full-resolution weighted blur passes, native library uses down/up sampling.",
-      "Particles are randomized; central beam strips exclude impact particles and the vanilla background."
+      "Particles are randomized; central beam strips exclude impact particles and the vanilla background.",
+      "The later laser_bloom_parity node restores Bloom and corrects cached camera-relative fog distances."
     ]
+  },
+  "laser_bloom_parity": {
+    "source_commit": "07eb60b47f14439375da10e78f4d4770f3a83256",
+    "status": "source_kernel_and_paired_live_visuals_verified",
+    "ported": [
+      "Four full-resolution weighted blur passes with source coefficients, nearest sampling, 1.943 sample spacing, 1.105 multiplier and luminance-dependent composition.",
+      "Scoped capture of cached AnvilCraft laser geometry; no replacement of the library Bloom effect used by other render types or mods.",
+      "Lazy reusable targets and direction uniforms, release on logout/shutdown, resize recreation and shader resource reload support.",
+      "Laser-specific camera-relative fog distances, preserving vanilla 26.1 atmosphere and terrain rendering."
+    ],
+    "verification": {
+      "compile_data_log": "build/porting/check-laser-bloom-final.log",
+      "style_log": "build/porting/style-laser-bloom-final.log",
+      "client_log": "build/porting/client-laser-bloom-1.log",
+      "controlled_fog_log": "build/porting/client-laser-bloom-no-fog.log",
+      "height_reload_resize_log": "build/porting/client-laser-bloom-lifecycle.log",
+      "report": "build/porting/laser-bloom-comparison.json",
+      "controlled_fog_source_rgb_error": {
+        "gamma": 1.8848422496570645,
+        "ember": 1.7756066411238824,
+        "frost": 2.412233469739393,
+        "royal": 4.105877616747182,
+        "normal": 5.9413255360623785
+      },
+      "height_invariance_96_blocks": {
+        "default": {
+          "gamma": 0.0,
+          "ember": 0.0,
+          "frost": 0.0,
+          "royal": 0.0,
+          "normal": 0.0
+        },
+        "bloom": {
+          "gamma": 0.0,
+          "ember": 0.0,
+          "frost": 0.0,
+          "royal": 0.01313258051024676,
+          "normal": 0.0
+        }
+      },
+      "resource_reload_resize": "960x540 image visually inspected; clean client shutdown"
+    },
+    "limits": [
+      "Native atmospheric fog remains visible near the camera, unlike the source; comparison includes controlled no-fog diagnostics but production never disables fog.",
+      "Texture-atlas sampling and randomized particles leave small pixel differences; this is not a claim of pixel-identical rendering.",
+      "Additional shader-pack, fallback-renderer and broad camera-angle coverage remains part of the overall port audit."
+    ]
+  },
+  "power_line_bloom_parity": {
+    "source_commit": "07eb60b47f14439375da10e78f4d4770f3a83256",
+    "status": "pending_separate_live_submit_path_audit",
+    "evidence": "PowerGridSupport submits LINE_BLOOM through live geometry rather than CachedRenderingChunk; laser-only capture intentionally leaves this separate path for its own source visual audit."
   }
 }

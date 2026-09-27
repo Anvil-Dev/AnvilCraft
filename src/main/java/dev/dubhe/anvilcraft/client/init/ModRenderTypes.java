@@ -50,7 +50,7 @@ public class ModRenderTypes {
 
     public static final RenderType LASER_SOLID = RenderType.create(
         "anvilcraft:laser_solid",
-        RenderSetup.builder(RenderPipelines.SOLID_BLOCK)
+        RenderSetup.builder(ModRenderPipelines.LASER_SOLID)
             .useLightmap()
             .withTexture("Sampler0", ModTextureAtlases.LOCATION_LASER)
             .createRenderSetup()

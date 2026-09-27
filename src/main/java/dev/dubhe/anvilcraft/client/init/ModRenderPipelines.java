@@ -122,7 +122,13 @@ public class ModRenderPipelines {
         .withLocation(AnvilCraft.of("pipeline/colored_overlay_block"))
         .build();
 
+    public static final RenderPipeline LASER_SOLID = RenderPipelines.SOLID_BLOCK.toBuilder()
+        .withVertexShader(AnvilCraft.of("core/laser"))
+        .withLocation(AnvilCraft.of("pipeline/solid_laser"))
+        .build();
+
     public static final RenderPipeline LASER_TRANSLUCENT = RenderPipeline.builder(RenderPipelines.BLOCK_SNIPPET)
+        .withVertexShader(AnvilCraft.of("core/laser"))
         .withColorTargetState(new ColorTargetState(ModRenderPipelines.LASER_BLEND))
         .withShaderDefine("ALPHA_CUTOUT", 0.01F)
         .withDepthStencilState(DepthStencilState.DEFAULT)
@@ -304,6 +310,7 @@ public class ModRenderPipelines {
         event.registerPipeline(ModRenderPipelines.OVERWORLD_LIKE_SKY_RING);
         event.registerPipeline(ModRenderPipelines.BUILDING_ROD_GHOST);
         event.registerPipeline(ModRenderPipelines.LASER_TRANSLUCENT);
+        event.registerPipeline(ModRenderPipelines.LASER_SOLID);
         event.registerPipeline(ModRenderPipelines.LIGHTNING);
         event.registerPipeline(ModRenderPipelines.SUPERNOVA_BEAM);
         event.registerPipeline(ModRenderPipelines.STELLAR_BEAM);

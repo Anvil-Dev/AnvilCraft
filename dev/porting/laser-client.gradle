@@ -6,6 +6,12 @@ gradle.projectsEvaluated {
         if (rootProject.providers.gradleProperty('portLaserNoFog').isPresent()) {
             systemProperty 'anvilcraft.portLaserNoFog', 'true'
         }
+        if (rootProject.providers.gradleProperty('portLaserHeight').isPresent()) {
+            systemProperty 'anvilcraft.portLaserHeight', rootProject.providers.gradleProperty('portLaserHeight').get()
+        }
+        if (rootProject.providers.gradleProperty('portLaserLifecycle').isPresent()) {
+            systemProperty 'anvilcraft.portLaserLifecycle', 'true'
+        }
         args '--width', '1280', '--height', '720'
     }
 }

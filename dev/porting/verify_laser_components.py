@@ -66,7 +66,8 @@ report = {
     'limits': [
         'No-fog captures are a development-only diagnostic. Production retains vanilla 26.1 atmospheric fog.',
         'Native fog probe: environmental 0..1024, render distance 230.4..256; default 1.21 near-field has no atmospheric fog.',
-        'Bloom enabled remains pending: source uses four full-resolution weighted blur passes, native library uses down/up sampling.',
+        'Source four-pass full-resolution Bloom is restored for cached AnvilCraft laser geometry; other render types keep their library Bloom.',
+        'Laser fog distances use camera-relative coordinates; the original cached path used world height and exaggerated atmospheric fog.',
         'Particles are randomized; central beam strips exclude impact particles and the vanilla background.',
     ],
 }
