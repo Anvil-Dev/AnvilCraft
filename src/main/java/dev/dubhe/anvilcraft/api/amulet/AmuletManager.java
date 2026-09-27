@@ -43,7 +43,7 @@ import java.util.WeakHashMap;
 import javax.annotation.Nullable;
 
 public class AmuletManager {
-    private static final WeakHashMap<HolderLookup.Provider, AmuletManager> INSTANCES = new WeakHashMap<>();
+    private static final Map<HolderLookup.Provider, AmuletManager> INSTANCES = Collections.synchronizedMap(new WeakHashMap<>());
 
     public static AmuletManager get(HolderLookup.Provider registries) {
         return AmuletManager.INSTANCES.computeIfAbsent(
@@ -278,7 +278,7 @@ public class AmuletManager {
 
         public boolean isCacheHit(List<ItemStack> stacks, RegistryAccess registries) {
             return this.size == stacks.size()
-                   && this.sha256 == CacheEntry.sha256StackList(stacks, registries);
+                   && Arrays.equals(this.sha256, CacheEntry.sha256StackList(stacks, registries));
         }
 
         @SneakyThrows
