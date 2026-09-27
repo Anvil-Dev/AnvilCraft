@@ -1,7 +1,5 @@
 package dev.dubhe.anvilcraft.item.abnormal;
 
-import dev.dubhe.anvilcraft.api.amulet.AmuletManager;
-import dev.dubhe.anvilcraft.init.item.ModAmulets;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
@@ -18,7 +16,6 @@ public interface IEnchantedGold {
         if (level.isClientSide()) return;
         if (!(entity instanceof Player player)) return;
         if (player.getAbilities().instabuild || player.getAbilities().invulnerable) return;
-        if (AmuletManager.get(level.registryAccess()).hasAmuletInInventory(player, ModAmulets.ABNORMAL.getKey())) return;
         if (getEnchantedGoldCount(player) >= 64) {
             player.addEffect(IAbnormal.makeEffectInstance(MobEffects.LUCK, 0));
         }

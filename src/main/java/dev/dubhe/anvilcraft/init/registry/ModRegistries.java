@@ -1,13 +1,13 @@
 package dev.dubhe.anvilcraft.init.registry;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.api.amulet.Amulet;
 import dev.dubhe.anvilcraft.api.amulet.def.IAmuletDefinition;
 import dev.dubhe.anvilcraft.api.pointer.ITargetPointer;
 import dev.dubhe.anvilcraft.api.recipe.data.ICustomDataComponent;
 import dev.dubhe.anvilcraft.api.recipe.number.INumberProvider;
 import dev.dubhe.anvilcraft.api.recipe.result.modifier.IResultModifier;
 import dev.dubhe.anvilcraft.block.entity.celestial.Megastructure;
-import dev.dubhe.anvilcraft.item.property.component.amulet.IAmulet;
 import dev.dubhe.anvilcraft.recipe.frost.IFrostMaterialPredicate;
 import dev.dubhe.anvilcraft.saved.storage.IStorageType;
 import dev.dubhe.anvilcraft.saved.storage.category.ICategory;
@@ -20,10 +20,7 @@ import net.neoforged.neoforge.registries.RegistryBuilder;
 
 @EventBusSubscriber(modid = AnvilCraft.MOD_ID)
 public class ModRegistries {
-    public static final Registry<IAmulet.Type<?>> AMULET_TYPE = ModRegistries.simple(
-        ModRegistryKeys.AMULET_TYPE
-    );
-    public static final Registry<IAmulet> AMULET = ModRegistries.simple(
+    public static final Registry<Amulet> AMULET = ModRegistries.simple(
         ModRegistryKeys.AMULET
     );
     public static final Registry<IAmuletDefinition.Type<?>> AMULET_DEF_TYPE = ModRegistries.simple(
@@ -56,7 +53,6 @@ public class ModRegistries {
 
     @SubscribeEvent
     public static void registerRegistries(NewRegistryEvent event) {
-        event.register(ModRegistries.AMULET_TYPE);
         event.register(ModRegistries.AMULET);
         event.register(ModRegistries.AMULET_DEF_TYPE);
         event.register(ModRegistries.MODIFIER_TYPE);

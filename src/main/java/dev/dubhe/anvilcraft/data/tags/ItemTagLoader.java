@@ -1,7 +1,6 @@
 package dev.dubhe.anvilcraft.data.tags;
 
 import dev.anvilcraft.lib.v2.registrum.providers.RegistrumTagsProvider;
-import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.init.item.ModItems;
@@ -180,9 +179,6 @@ public class ItemTagLoader {
             .add(findResourceKey(Items.NETHERITE_BLOCK));
         provider.addTag(ModItemTags.DISALLOW_HAND_INSERT_INTO_TANK)
             .addTag(ModItemTags.ANVIL_HAMMER);
-
-        provider.addTag(ModItemTags.AMULET)
-            .addOptional(AnvilCraft.of("cogwheel_amulet"));
 
         provider.addTag(ModItemTags.CURIOS_HEAD)
             .replace(false)

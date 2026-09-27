@@ -2,12 +2,11 @@ package dev.dubhe.anvilcraft.mixin;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
-import dev.dubhe.anvilcraft.api.amulet.AmuletManager;
-import dev.dubhe.anvilcraft.init.item.ModAmulets;
+import dev.dubhe.anvilcraft.event.AmuletAbilitiesEventListener;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.EntitySelector;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.monster.Phantom;
-import net.minecraft.world.entity.player.Player;
 import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -34,18 +33,19 @@ public abstract class PhantomGoalMixin {
         )
     )
     private void addAvoidPlayerGoal(Phantom.PhantomSweepAttackGoal instance, boolean value, Operation<Void> original) {
-        List<Player> players = this.this$0.level().getEntitiesOfClass(
-            Player.class,
+        List<LivingEntity> entities = this.this$0.level().getEntitiesOfClass(
+            LivingEntity.class,
             this.this$0.getBoundingBox().inflate(16.0),
             EntitySelector.NO_SPECTATORS.and(
-                entity -> entity instanceof Player player
-                          && AmuletManager.get(player.registryAccess()).hasAmuletInInventory(player, ModAmulets.CAT.getKey())
+                entity -> entity instanceof LivingEntity living
+                          && AmuletAbilitiesEventListener.shouldIgnoreTarget(living, this.this$0)
             )
         );
-        for (Player player : players) {
-            player.makeSound(SoundEvents.CAT_HISS);
+
+        for (LivingEntity living : entities) {
+            living.makeSound(SoundEvents.CAT_HISS);
         }
 
-        original.call(instance, value || !players.isEmpty());
+        original.call(instance, value || !entities.isEmpty());
     }
 }
