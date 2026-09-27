@@ -2832,5 +2832,11 @@
   "block.anvilcraft.glass_pipe_node": "玻璃管道节点",
   "block.anvilcraft.glass_pipe_straight": "玻璃直管",
   "item.anvilcraft.glass_pipe": "玻璃管道",
-  "tooltip.anvilcraft.item.glass_pipe": "仅创造模式可用\n使用铁砧锤转化为普通管道"
+  "tooltip.anvilcraft.item.glass_pipe": "仅创造模式可用\n使用铁砧锤转化为普通管道",
+  "block.anvilcraft.enchanted_gold_block": "附魔金块",
+  "item.anvilcraft.enchanted_gold_ingot": "附魔金锭",
+  "item.anvilcraft.enchanted_gold_nugget": "附魔金粒",
+  "tooltip.anvilcraft.item.enchanted_gold_block": "清除携带者身上的诅咒",
+  "tooltip.anvilcraft.item.enchanted_gold_ingot": "清除携带者身上的诅咒\n用于猪灵交易时，相当于交易四次",
+  "tooltip.anvilcraft.item.enchanted_gold_nugget": "清除携带者身上的诅咒"
 }

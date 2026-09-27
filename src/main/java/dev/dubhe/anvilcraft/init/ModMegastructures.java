@@ -77,7 +77,7 @@ public final class ModMegastructures {
                 && (context.resources() == null || context.resources().hasCivilization()))
             .ring(1)
             .model(1, ringModel(1, "temple"))
-            .material(Items.GOLD_BLOCK, 64)
+            .material(ModBlocks.ENCHANTED_GOLD_BLOCK.asItem(), 64)
             .handler(TempleHandler::new)
             .build()
     );

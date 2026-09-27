@@ -1752,7 +1752,7 @@
   "source_update_07eb60b47": {
     "previous_source": "1260db54f6e2b9f88d0a79b8108459d346344e44",
     "latest_source": "07eb60b47f14439375da10e78f4d4770f3a83256",
-    "status": "partially_ported",
+    "status": "listed_source_delta_ported_and_verified",
     "commits": [
       "07eb60b47 adjust assets of monolith (#5050)",
       "a73b59668 feat(fluid): 实现锻星砧流体接口的无穷大气压输出功能 (#5045)",
@@ -1760,14 +1760,15 @@
       "8569d095d Refactor Amulet system 重构护符系统 (#5042)",
       "989bf7b33 fix: Improve block rotation and mirroring logic 完善方块旋转和镜像逻辑 (#5026)"
     ],
-    "current_work": "Amulet effect core and current native consumers are integrated; the Enchanted Gold prerequisite and its related source delta remain queued.",
+    "current_work": "The five listed source-update commits are integrated; earlier source differences and the complete feature inventory remain under audit.",
     "completed_nodes": [
       "glass_pipe_rotation_mirroring",
       "fluid_network_pressure",
       "monolith_asset_update_07eb60b47",
       "machine_rotation_mirroring",
       "crab_claw_hand_rendering",
-      "amulet_effect_refactor"
+      "amulet_effect_refactor",
+      "enchanted_gold"
     ]
   },
   "fluid_network_pressure": {
@@ -1890,7 +1891,8 @@
       "Native food-consume hook and current holder/predicate APIs",
       "Level-aware impersonator caches and native AI hooks for cats, wolves and armadillos",
       "Removal of legacy amulet implementation/type registry and unused cogwheel asset",
-      "Dedicated-server integration candidate filtering restores Curios common discovery"
+      "Dedicated-server integration candidate filtering restores Curios common discovery",
+      "Enchanted Gold prerequisite and related latest amulet delta integrated in the enchanted_gold node"
     ],
     "verification": {
       "focused_log": "build/porting/tests-amulet-focused-final-3.log",
@@ -1905,20 +1907,52 @@
       "manifest_recheck_log": "build/porting/tests-amulet-manifest-recheck.log"
     },
     "limits": [
-      "The source Enchanted Gold feature is not yet present in the native branch; its related IEnchantedGold change is queued with that feature.",
       "AnvilLib rendering dependencies remain required by the native 26.1 rendering implementation.",
       "Client gameplay and reload checks passed before a fixture indentation correction; final compile/style checks cover that correction."
     ]
   },
   "enchanted_gold": {
     "source_commit": "07eb60b47f14439375da10e78f4d4770f3a83256",
-    "status": "source_feature_missing_in_native_branch",
+    "status": "source_feature_and_controlled_native_visual_parity_verified",
     "discovered_during": "amulet_effect_refactor",
     "required": [
       "Enchanted gold block, ingot and nugget registrations and resources",
       "Carrying effects and cursed-gold interaction, including the current amulet-related behavior",
       "Recipes, tags and player-facing tooltips",
       "Original block glint visual behavior adapted to native rendering"
+    ],
+    "ported": [
+      "Original block, ingot and nugget registrations, tags, resources, tooltips and guide assets",
+      "Raw-count carrying luck, unconditional curse cleansing and latest amulet interaction",
+      "Three liquid-enchantment routes, eight crafting recipes and native JEI lookup",
+      "Piglin and brute held-item protection with explicit anger preserved; four independent enchanted-ingot barter rolls",
+      "Temple material and celestial forging anvil enchanted-gold prerequisites",
+      "Native block glint, visible-face selection, chunk tracking and unload/reload cleanup"
+    ],
+    "verification": {
+      "tests_datagen_style_log": "build/porting/tests-enchanted-gold-final.log",
+      "native_client_log": "build/porting/client-enchanted-gold-final.log",
+      "source_client_log": "build/porting/client-enchanted-gold-source-fixed.log",
+      "report": "build/porting/enchanted-gold-comparison.json",
+      "required_tests_passed": 610,
+      "recipes_equivalent": 8,
+      "source_assets_equal": 5,
+      "glint_phases": {
+        "1": {
+          "pixels": 24463,
+          "mean_blue_error": 0.892000163512243,
+          "maximum_blue_error": 4.0
+        },
+        "2": {
+          "pixels": 18295,
+          "mean_blue_error": 1.5632139928942335,
+          "maximum_blue_error": 4.0
+        }
+      }
+    },
+    "limits": [
+      "Vanilla 26.1 terrain sampling, light and fog remain active.",
+      "The glint phase is fixed only in the paired developer scenes; blue-channel increments avoid saturated gold highlights."
     ]
   }
 }

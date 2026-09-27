@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.mixin;
 
 import dev.dubhe.anvilcraft.client.support.PowerGridSupport;
+import dev.dubhe.anvilcraft.util.EnchantedGoldBlockPositions;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.client.renderer.LevelRenderer;
@@ -8,8 +9,10 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.phys.HitResult;
 import org.spongepowered.asm.mixin.Mixin;
@@ -35,6 +38,7 @@ abstract class ClientLevelMixin implements LevelReader {
         CallbackInfo ci
     ) {
         PowerGridSupport.clearAllGrid();
+        EnchantedGoldBlockPositions.clear();
         dev.dubhe.anvilcraft.client.support.OverworldLikeClientState.clear();
         dev.dubhe.anvilcraft.client.renderer.mun.MunClientSky.clear();
     }
@@ -46,4 +50,15 @@ abstract class ClientLevelMixin implements LevelReader {
             ci.cancel();
         }
     }
+
+    @Inject(method = "onChunkLoaded", at = @At("TAIL"))
+    private void anvilcraft$scanEnchantedGold(ChunkPos pos, CallbackInfo ci) {
+        EnchantedGoldBlockPositions.scanChunk(((ClientLevel) (Object) this).getChunk(pos.x(), pos.z()));
+    }
+
+    @Inject(method = "unload", at = @At("TAIL"))
+    private void anvilcraft$unloadEnchantedGold(LevelChunk chunk, CallbackInfo ci) {
+        EnchantedGoldBlockPositions.unload(chunk.getPos());
+    }
+
 }

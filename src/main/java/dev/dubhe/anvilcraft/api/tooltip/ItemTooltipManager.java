@@ -48,6 +48,10 @@ public class ItemTooltipManager {
         ItemTooltipManager.NORMAL.put(ModBlocks.CURSED_GOLD_BLOCK.asItem(), "Carriers will be cursed");
         ItemTooltipManager.NORMAL.put(ModItems.CURSED_GOLD_INGOT.get(), "Carriers will be cursed");
         ItemTooltipManager.NORMAL.put(ModItems.CURSED_GOLD_NUGGET.get(), "Carriers will be cursed");
+        ItemTooltipManager.NORMAL.put(ModBlocks.ENCHANTED_GOLD_BLOCK.asItem(), "Carrying enchanted gold cancels cursed gold debuffs");
+        ItemTooltipManager.NORMAL.put(ModItems.ENCHANTED_GOLD_INGOT.get(),
+            "Carrying enchanted gold cancels cursed gold debuffs\nPiglins barter with it four times");
+        ItemTooltipManager.NORMAL.put(ModItems.ENCHANTED_GOLD_NUGGET.get(), "Carrying enchanted gold cancels cursed gold debuffs");
         ItemTooltipManager.NORMAL.put(ModItems.TOPAZ.get(), "Containing the power of lightning");
         ItemTooltipManager.NORMAL.put(ModItems.RUBY.get(), "Containing the power of fire");
         ItemTooltipManager.NORMAL.put(ModItems.SAPPHIRE.get(), "Containing the power of frost");

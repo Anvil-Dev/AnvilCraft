@@ -2674,4 +2674,14 @@ public class RegistrumBlockRecipeLoader {
             )
             .save(provider);
     }
+
+    public static <T extends Block> void enchantedGoldBlock(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
+        ShapedRecipeBuilder.shaped(provider.getItems(), RecipeCategory.BUILDING_BLOCKS, ctx.get())
+            .pattern("AAA")
+            .pattern("AAA")
+            .pattern("AAA")
+            .define('A', ModItems.ENCHANTED_GOLD_INGOT)
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.ENCHANTED_GOLD_INGOT), AnvilCraftDatagen.has(provider.getItems(), ModItems.ENCHANTED_GOLD_INGOT))
+            .save(provider);
+    }
 }

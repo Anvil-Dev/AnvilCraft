@@ -274,7 +274,7 @@ public class MultiBlockRecipeLoader {
             .layer("DED", "E E", "DED")
             .symbol('A', ModBlocks.TRANSCENDIUM_BLOCK)
             .symbol('B', ModBlocks.SPACETIME_SUPERCOMPUTER)
-            .symbol('C', Blocks.GOLD_BLOCK)
+            .symbol('C', ModBlocks.ENCHANTED_GOLD_BLOCK)
             .symbol('D', ModBlocks.CONFINEMENT_CHAMBER)
             .symbol('E', ModBlocks.NEGATIVE_MATTER_BLOCK)
             .save(provider);

@@ -4,6 +4,9 @@ import dev.anvilcraft.lib.v2.rendering.extension.ALRRenderTypeExtension;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.renderer.Sheets;
+import net.minecraft.client.renderer.feature.ItemFeatureRenderer;
+import net.minecraft.client.renderer.rendertype.LayeringTransform;
+import net.minecraft.client.renderer.rendertype.TextureTransform;
 import net.minecraft.client.renderer.rendertype.RenderSetup;
 import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
@@ -155,6 +158,15 @@ public class ModRenderTypes {
                             .sortOnUpload()
                             .createRenderSetup()
             )
+    );
+
+    public static final RenderType ENCHANTED_GOLD_GLINT = RenderType.create(
+        "anvilcraft:enchanted_gold_glint",
+        RenderSetup.builder(ModRenderPipelines.ENCHANTED_GOLD_GLINT)
+            .withTexture("Sampler0", ItemFeatureRenderer.ENCHANTED_GLINT_ITEM)
+            .setTextureTransform(TextureTransform.GLINT_TEXTURING)
+            .setLayeringTransform(LayeringTransform.VIEW_OFFSET_Z_LAYERING)
+            .createRenderSetup()
     );
 
     public static final RenderType GLASS_PIPE_FLUID = RenderType.create(

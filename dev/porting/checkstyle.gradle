@@ -135,6 +135,7 @@ allprojects {
             include '**/api/amulet/Amulet.java', '**/api/amulet/AmuletManager.java', '**/api/amulet/ctx/*.java', '**/api/amulet/effect/*.java'
             include '**/AmuletEvent.java', '**/AmuletEventListener.java', '**/AmuletAbilitiesEventListener.java', '**/ServerReloadEventListener.java'
             include '**/ModAmulets.java', '**/ModAmuletEffectContextKeys.java', '**/IImpersonator.java', '**/Impersonators.java', '**/Dummy*.java'
+            include '**/*EnchantedGold*.java', '**/PiglinAiMixin.java', '**/PiglinBruteAiMixin.java', '**/ICursed.java'
             include '**/IntegrationManagerMixin.java'
             include '**/ApplyStatusEffectsConsumeEffectMixin.java', '**/TargetGoalMixin.java', '**/AvoidEntityGoalMixin.java'
             include '**/NearestAttackableTargetGoalMixin.java', '**/PhantomGoalMixin.java', '**/VibrationSystemUserMixin.java', '**/VillagerMixin.java'

@@ -10,6 +10,8 @@ import dev.anvilcraft.lib.v2.registrum.util.entry.BlockEntry;
 import dev.anvilcraft.lib.v2.util.nullness.NonNullBiConsumer;
 import dev.anvilcraft.lib.v2.util.nullness.NonNullFunction;
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.block.EnchantedGoldBlock;
+import dev.dubhe.anvilcraft.item.block.EnchantedGoldBlockItem;
 import dev.dubhe.anvilcraft.block.GiantMonolithCoreBlock;
 import dev.dubhe.anvilcraft.block.MonolithCoreBlock;
 import dev.dubhe.anvilcraft.block.MonolithBlock;
@@ -2610,6 +2612,17 @@ public class ModBlocks {
         .build()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.NEEDS_IRON_TOOL, BlockTags.BEACON_BASE_BLOCKS)
         .recipe(RegistrumBlockRecipeLoader::cursedGoldBlock)
+        .register();
+
+    public static final BlockEntry<EnchantedGoldBlock> ENCHANTED_GOLD_BLOCK = REGISTRUM
+        .block("enchanted_gold_block", EnchantedGoldBlock::new)
+        .lang("Block of Enchanted Gold")
+        .initialProperties(() -> Blocks.GOLD_BLOCK)
+        .item(EnchantedGoldBlockItem::new)
+        .tag(ItemTags.PIGLIN_LOVED, Tags.Items.STORAGE_BLOCKS, ModItemTags.ENCHANTED_GOLD)
+        .build()
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.NEEDS_IRON_TOOL, BlockTags.BEACON_BASE_BLOCKS)
+        .recipe(RegistrumBlockRecipeLoader::enchantedGoldBlock)
         .register();
 
     public static final BlockEntry<? extends Block> ZINC_BLOCK = REGISTRUM.block("zinc_block", Block::new)

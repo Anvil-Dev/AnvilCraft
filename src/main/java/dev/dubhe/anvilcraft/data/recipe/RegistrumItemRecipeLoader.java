@@ -1854,4 +1854,36 @@ public class RegistrumItemRecipeLoader {
             .unlockedBy("has_material", AnvilCraftDatagen.has(provider.getItems(), Items.IRON_LEGGINGS))
             .save(provider);
     }
+
+    public static <T extends Item> void enchantedGoldIngot(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
+        ShapelessRecipeBuilder.shapeless(provider.getItems(), RecipeCategory.MISC, ctx.get(), 9)
+            .requires(ModBlocks.ENCHANTED_GOLD_BLOCK)
+            .group(ctx.getId().toString())
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(ModBlocks.ENCHANTED_GOLD_BLOCK.asItem()),
+                AnvilCraftDatagen.has(provider.getItems(), ModBlocks.ENCHANTED_GOLD_BLOCK)
+            )
+            .save(provider, AnvilCraft.recipe("enchanted_gold_ingot_from_enchanted_gold_block"));
+        ShapedRecipeBuilder.shaped(provider.getItems(), RecipeCategory.MISC, ctx.get())
+            .pattern("AAA")
+            .pattern("AAA")
+            .pattern("AAA")
+            .define('A', ModItems.ENCHANTED_GOLD_NUGGET)
+            .group(ctx.getId().toString())
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(ModItems.ENCHANTED_GOLD_NUGGET.get()),
+                AnvilCraftDatagen.has(provider.getItems(), ModItems.ENCHANTED_GOLD_NUGGET)
+            )
+            .save(provider, AnvilCraft.recipe("enchanted_gold_ingot_from_enchanted_gold_nugget"));
+    }
+
+    public static <T extends Item> void enchantedGoldNugget(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
+        ShapelessRecipeBuilder.shapeless(provider.getItems(), RecipeCategory.MISC, ctx.get(), 9)
+            .requires(ModItems.ENCHANTED_GOLD_INGOT)
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(ModItems.ENCHANTED_GOLD_INGOT.get()),
+                AnvilCraftDatagen.has(provider.getItems(), ModItems.ENCHANTED_GOLD_INGOT)
+            )
+            .save(provider);
+    }
 }

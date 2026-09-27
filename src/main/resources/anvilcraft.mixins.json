@@ -4,6 +4,8 @@
   "package": "dev.dubhe.anvilcraft.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
+    "piglin.PiglinAiMixin",
+    "piglin.PiglinBruteAiMixin",
     "IntegrationManagerMixin",
     "ApplyStatusEffectsConsumeEffectMixin",
     "accessor.AvoidEntityGoalAccessor",

@@ -151,5 +151,35 @@ public class VanillaRecipesLoader {
             AnvilCraftDatagen.hasItem(ModItems.DOUGH.get()),
             AnvilCraftDatagen.has(lookup, ModItems.DOUGH)
         ).save(provider, AnvilCraft.recipe("smelting_cooking_bread"));
+        ShapedRecipeBuilder.shaped(lookup, RecipeCategory.MISC, Items.ENCHANTED_GOLDEN_APPLE)
+            .pattern("AAA")
+            .pattern("ABA")
+            .pattern("AAA")
+            .define('A', ModBlocks.ENCHANTED_GOLD_BLOCK)
+            .define('B', Items.APPLE)
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.ENCHANTED_GOLD_BLOCK), AnvilCraftDatagen.has(lookup, ModBlocks.ENCHANTED_GOLD_BLOCK))
+            .unlockedBy(AnvilCraftDatagen.hasItem(Items.APPLE), AnvilCraftDatagen.has(lookup, Items.APPLE))
+            .save(provider, AnvilCraft.recipe("enchanted_golden_apple"));
+
+        ShapelessRecipeBuilder.shapeless(lookup, RecipeCategory.MISC, Items.GOLD_NUGGET, 2)
+            .requires(ModItems.ENCHANTED_GOLD_NUGGET)
+            .requires(ModItems.CURSED_GOLD_NUGGET)
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.ENCHANTED_GOLD_NUGGET), AnvilCraftDatagen.has(lookup, ModItems.ENCHANTED_GOLD_NUGGET))
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.CURSED_GOLD_NUGGET), AnvilCraftDatagen.has(lookup, ModItems.CURSED_GOLD_NUGGET))
+            .save(provider, AnvilCraft.recipe("gold_nugget_from_enchanted_and_cursed"));
+
+        ShapelessRecipeBuilder.shapeless(lookup, RecipeCategory.MISC, Items.GOLD_INGOT, 2)
+            .requires(ModItems.ENCHANTED_GOLD_INGOT)
+            .requires(ModItems.CURSED_GOLD_INGOT)
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.ENCHANTED_GOLD_INGOT), AnvilCraftDatagen.has(lookup, ModItems.ENCHANTED_GOLD_INGOT))
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.CURSED_GOLD_INGOT), AnvilCraftDatagen.has(lookup, ModItems.CURSED_GOLD_INGOT))
+            .save(provider, AnvilCraft.recipe("gold_ingot_from_enchanted_and_cursed"));
+
+        ShapelessRecipeBuilder.shapeless(lookup, RecipeCategory.BUILDING_BLOCKS, Items.GOLD_BLOCK, 2)
+            .requires(ModBlocks.ENCHANTED_GOLD_BLOCK)
+            .requires(ModBlocks.CURSED_GOLD_BLOCK)
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.ENCHANTED_GOLD_BLOCK), AnvilCraftDatagen.has(lookup, ModBlocks.ENCHANTED_GOLD_BLOCK))
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.CURSED_GOLD_BLOCK), AnvilCraftDatagen.has(lookup, ModBlocks.CURSED_GOLD_BLOCK))
+            .save(provider, AnvilCraft.recipe("gold_block_from_enchanted_and_cursed"));
     }
 }

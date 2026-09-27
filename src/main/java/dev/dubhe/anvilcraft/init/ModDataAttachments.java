@@ -26,6 +26,9 @@ public class ModDataAttachments {
             .build()
     );
 
+    public static final Supplier<AttachmentType<Boolean>> ENCHANTED_GOLD_BARTER = ATTACHMENT_TYPES.register(
+        "enchanted_gold_barter", () -> AttachmentType.builder(() -> false).build());
+
     public static final Supplier<AttachmentType<Boolean>> ZOMBIFICATED_BY_CURSE = ModDataAttachments.ATTACHMENT_TYPES.register(
         "zombificated_by_curse",
         () -> AttachmentType.builder(() -> false)
