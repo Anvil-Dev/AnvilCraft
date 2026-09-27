@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "anvilcraft:power_converter_big",
+    "anvilcraft:power_converter_big",
+    "anvilcraft:power_converter_big",
+    "anvilcraft:power_converter_big",
+    "anvilcraft:power_converter_big",
+    "anvilcraft:power_converter_big",
+    "anvilcraft:power_converter_big",
+    "anvilcraft:power_converter_big"
+  ],
+  "result": {
+    "id": "anvilcraft:power_converter_super_big"
+  }
+}

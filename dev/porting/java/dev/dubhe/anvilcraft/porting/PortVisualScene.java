@@ -84,6 +84,10 @@ public final class PortVisualScene {
             if (Boolean.getBoolean("anvilcraft.portCfaItemScene")) prepared = true;
             else server.execute(() -> prepare(server));
         }
+        if (Boolean.getBoolean("anvilcraft.portPowerConverterScene")) {
+            if (prepared) PowerConverterClientScene.frame(client);
+            return;
+        }
         if (Boolean.getBoolean("anvilcraft.portGasFluidScene")) {
             if (prepared) GasFluidClientScene.frame(client);
             return;

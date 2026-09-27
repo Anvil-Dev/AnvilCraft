@@ -2865,5 +2865,12 @@
   "item.anvilcraft.xenon_bucket": "氙气桶",
   "block.anvilcraft.krypton": "氪气",
   "item.anvilcraft.krypton_bucket": "氪气桶",
-  "item.anvilcraft.primordial_matter_bucket": "原始物质桶"
+  "item.anvilcraft.primordial_matter_bucket": "原始物质桶",
+  "tooltip.anvilcraft.power_converter.fe_stored.value": "  %dk/%d kFE",
+  "tooltip.anvilcraft.item.power_converter": "将电力转换为 FE，耗电功率为 %d kW",
+  "tooltip.anvilcraft.power_converter.fe_stored": "FE",
+  "block.anvilcraft.power_converter_extremely_big": "能量转换器（极大）",
+  "block.anvilcraft.power_converter_super_big": "能量转换器（超大）",
+  "tooltip.anvilcraft.item.power_converter_extremely_big": "将能量转换为 FE，消耗 %d kW",
+  "tooltip.anvilcraft.item.power_converter_super_big": "将能量转换为 FE，消耗 %d kW"
 }

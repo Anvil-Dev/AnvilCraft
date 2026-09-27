@@ -780,34 +780,60 @@ public class RegistrumBlockRecipeLoader {
             .save(provider);
     }
 
-    public static <T extends Block> void powerConverterSmall(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
+    public static <T extends Block> void powerConverterSuperBig(
+        DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider
+    ) {
         HolderGetter<Item> lookup = provider.getItems();
-        ShapelessRecipeBuilder.shapeless(lookup, RecipeCategory.MISC, ctx.get(), 8)
-            .requires(ModBlocks.POWER_CONVERTER_MIDDLE)
-            .unlockedBy(
-                AnvilCraftDatagen.hasItem(ModBlocks.POWER_CONVERTER_MIDDLE),
-                AnvilCraftDatagen.has(lookup, ModBlocks.POWER_CONVERTER_MIDDLE)
-            )
-            .save(provider, ctx.getId() + "_from_middle");
-        ShapelessRecipeBuilder.shapeless(lookup, RecipeCategory.MISC, ctx.get(), 64)
-            .requires(ModBlocks.POWER_CONVERTER_BIG)
+        ShapelessRecipeBuilder.shapeless(lookup, RecipeCategory.MISC, ctx.get())
+            .requires(ModBlocks.POWER_CONVERTER_BIG, 8)
             .unlockedBy(
                 AnvilCraftDatagen.hasItem(ModBlocks.POWER_CONVERTER_BIG),
                 AnvilCraftDatagen.has(lookup, ModBlocks.POWER_CONVERTER_BIG)
             )
             .save(provider, ctx.getId() + "_from_big");
-        RegistrumBlockRecipeLoader.stonecutting(Ingredient.of(ModBlocks.POWER_CONVERTER_BIG), RecipeCategory.MISC, ctx.get(), 64)
-            .unlockedBy(
-                AnvilCraftDatagen.hasItem(ModBlocks.POWER_CONVERTER_BIG),
-                AnvilCraftDatagen.has(lookup, ModBlocks.POWER_CONVERTER_BIG)
+        RegistrumBlockRecipeLoader.stonecutting(
+                Ingredient.of(ModBlocks.POWER_CONVERTER_EXTREMELY_BIG),
+                RecipeCategory.MISC,
+                ctx.get(),
+                8
             )
+            .unlockedBy("has_extremely_big", AnvilCraftDatagen.has(lookup, ModBlocks.POWER_CONVERTER_EXTREMELY_BIG))
+            .save(provider, AnvilCraft.recipe("stonecutting/" + ctx.getName() + "_from_extremely_big"));
+        ShapelessRecipeBuilder.shapeless(lookup, RecipeCategory.MISC, ctx.get(), 8)
+            .requires(ModBlocks.POWER_CONVERTER_EXTREMELY_BIG)
+            .unlockedBy("has_extremely_big", AnvilCraftDatagen.has(lookup, ModBlocks.POWER_CONVERTER_EXTREMELY_BIG))
+            .save(provider, AnvilCraft.recipe(ctx.getName() + "_from_extremely_big"));
+    }
+
+    public static <T extends Block> void powerConverterExtremelyBig(
+        DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider
+    ) {
+        HolderGetter<Item> lookup = provider.getItems();
+        ShapelessRecipeBuilder.shapeless(lookup, RecipeCategory.MISC, ctx.get())
+            .requires(ModBlocks.POWER_CONVERTER_SUPER_BIG, 8)
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(ModBlocks.POWER_CONVERTER_SUPER_BIG),
+                AnvilCraftDatagen.has(lookup, ModBlocks.POWER_CONVERTER_SUPER_BIG)
+            )
+            .save(provider, ctx.getId() + "_from_super_big");
+    }
+
+    public static <T extends Block> void powerConverterSmall(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
+        HolderGetter<Item> lookup = provider.getItems();
+        RegistrumBlockRecipeLoader.stonecutting(Ingredient.of(ModBlocks.POWER_CONVERTER_BIG), RecipeCategory.MISC, ctx.get(), 64)
+            .unlockedBy("hasitem", AnvilCraftDatagen.has(lookup, ModBlocks.POWER_CONVERTER_BIG))
             .save(provider, AnvilCraft.recipe("stonecutting/" + ctx.getName() + "_from_big"));
         RegistrumBlockRecipeLoader.stonecutting(Ingredient.of(ModBlocks.POWER_CONVERTER_MIDDLE), RecipeCategory.MISC, ctx.get(), 8)
-            .unlockedBy(
-                AnvilCraftDatagen.hasItem(ModBlocks.POWER_CONVERTER_MIDDLE),
-                AnvilCraftDatagen.has(lookup, ModBlocks.POWER_CONVERTER_MIDDLE)
-            )
+            .unlockedBy("hasitem", AnvilCraftDatagen.has(lookup, ModBlocks.POWER_CONVERTER_MIDDLE))
             .save(provider, AnvilCraft.recipe("stonecutting/" + ctx.getName() + "_from_middle"));
+        ShapelessRecipeBuilder.shapeless(lookup, RecipeCategory.MISC, ctx.get(), 64)
+            .requires(ModBlocks.POWER_CONVERTER_BIG)
+            .unlockedBy("has_big", AnvilCraftDatagen.has(lookup, ModBlocks.POWER_CONVERTER_BIG))
+            .save(provider, AnvilCraft.recipe(ctx.getName() + "_from_big"));
+        ShapelessRecipeBuilder.shapeless(lookup, RecipeCategory.MISC, ctx.get(), 8)
+            .requires(ModBlocks.POWER_CONVERTER_MIDDLE)
+            .unlockedBy("has_middle", AnvilCraftDatagen.has(lookup, ModBlocks.POWER_CONVERTER_MIDDLE))
+            .save(provider, AnvilCraft.recipe(ctx.getName() + "_from_middle"));
     }
 
     public static <T extends Block> void powerConverterMiddle(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
@@ -819,19 +845,21 @@ public class RegistrumBlockRecipeLoader {
                 AnvilCraftDatagen.has(lookup, ModBlocks.POWER_CONVERTER_SMALL)
             )
             .save(provider, ctx.getId() + "_from_small");
+        RegistrumBlockRecipeLoader.stonecutting(Ingredient.of(ModBlocks.POWER_CONVERTER_BIG), RecipeCategory.MISC, ctx.get(), 8)
+            .unlockedBy("has_big", AnvilCraftDatagen.has(lookup, ModBlocks.POWER_CONVERTER_BIG))
+            .save(provider, AnvilCraft.recipe("stonecutting/" + ctx.getName()));
+        RegistrumBlockRecipeLoader.stonecutting(
+                Ingredient.of(ModBlocks.POWER_CONVERTER_SUPER_BIG),
+                RecipeCategory.MISC,
+                ctx.get(),
+                64
+            )
+            .unlockedBy("has_super_big", AnvilCraftDatagen.has(lookup, ModBlocks.POWER_CONVERTER_SUPER_BIG))
+            .save(provider, AnvilCraft.recipe("stonecutting/" + ctx.getName() + "_from_super_big"));
         ShapelessRecipeBuilder.shapeless(lookup, RecipeCategory.MISC, ctx.get(), 8)
             .requires(ModBlocks.POWER_CONVERTER_BIG)
-            .unlockedBy(
-                AnvilCraftDatagen.hasItem(ModBlocks.POWER_CONVERTER_BIG),
-                AnvilCraftDatagen.has(lookup, ModBlocks.POWER_CONVERTER_BIG)
-            )
-            .save(provider, ctx.getId() + "_from_big");
-        RegistrumBlockRecipeLoader.stonecutting(Ingredient.of(ModBlocks.POWER_CONVERTER_BIG), RecipeCategory.MISC, ctx.get(), 8)
-            .unlockedBy(
-                AnvilCraftDatagen.hasItem(ModBlocks.POWER_CONVERTER_BIG),
-                AnvilCraftDatagen.has(lookup, ModBlocks.POWER_CONVERTER_BIG)
-            )
-            .save(provider, AnvilCraft.recipe("stonecutting/" + ctx.getName()));
+            .unlockedBy("has_big", AnvilCraftDatagen.has(lookup, ModBlocks.POWER_CONVERTER_BIG))
+            .save(provider, AnvilCraft.recipe(ctx.getName() + "_from_big"));
     }
 
     public static <T extends Block> void powerConverterBig(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
@@ -853,6 +881,26 @@ public class RegistrumBlockRecipeLoader {
                 AnvilCraftDatagen.has(lookup, ModBlocks.POWER_CONVERTER_MIDDLE)
             )
             .save(provider, ctx.getId() + "_from_middle");
+        RegistrumBlockRecipeLoader.stonecutting(
+                Ingredient.of(ModBlocks.POWER_CONVERTER_SUPER_BIG),
+                RecipeCategory.MISC,
+                ctx.get(),
+                8
+            )
+            .unlockedBy("has_super_big", AnvilCraftDatagen.has(lookup, ModBlocks.POWER_CONVERTER_SUPER_BIG))
+            .save(provider, AnvilCraft.recipe("stonecutting/" + ctx.getName() + "_from_super_big"));
+        RegistrumBlockRecipeLoader.stonecutting(
+                Ingredient.of(ModBlocks.POWER_CONVERTER_EXTREMELY_BIG),
+                RecipeCategory.MISC,
+                ctx.get(),
+                64
+            )
+            .unlockedBy("has_extremely_big", AnvilCraftDatagen.has(lookup, ModBlocks.POWER_CONVERTER_EXTREMELY_BIG))
+            .save(provider, AnvilCraft.recipe("stonecutting/" + ctx.getName() + "_from_extremely_big"));
+        ShapelessRecipeBuilder.shapeless(lookup, RecipeCategory.MISC, ctx.get(), 8)
+            .requires(ModBlocks.POWER_CONVERTER_SUPER_BIG)
+            .unlockedBy("has_super_big", AnvilCraftDatagen.has(lookup, ModBlocks.POWER_CONVERTER_SUPER_BIG))
+            .save(provider, AnvilCraft.recipe(ctx.getName() + "_from_super_big"));
     }
 
     public static <T extends Block> void piezoelectricCrystal(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {

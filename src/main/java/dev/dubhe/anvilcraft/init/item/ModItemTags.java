@@ -11,6 +11,7 @@ import net.minecraft.world.item.Item;
 
 @SuppressWarnings("unused")
 public class ModItemTags {
+    public static final TagKey<Item> POWER_CONVERTER = bind("power_converter");
     public static final TagKey<Item> ENCHANTED_GOLD = bind("enchanted_gold");
     public static final TagKey<Item> AUTO_ENCHANTING_TABLE_PRIMERS = bind("auto_enchanting_table_primers");
 

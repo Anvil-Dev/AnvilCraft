@@ -2107,9 +2107,7 @@
           "HYPERCUBE",
           "HYPERDIMENSION_UPLOADER",
           "MASS_ENERGY_INVERTER",
-          "OVERSEER_BLOCK",
-          "POWER_CONVERTER_EXTREMELY_BIG",
-          "POWER_CONVERTER_SUPER_BIG"
+          "OVERSEER_BLOCK"
         ]
       },
       "BuildingBlocksSections": {
@@ -2129,7 +2127,8 @@
     },
     "completed_content_nodes": [
       "confectionery_blocks",
-      "gas_fluids_and_buckets"
+      "gas_fluids_and_buckets",
+      "power_converter_tiers"
     ]
   },
   "confectionery_blocks": {
@@ -2259,5 +2258,63 @@
       "Atlas sizes change the legacy UV inset slightly; native GUI lighting retains a maximum three-channel-value difference.",
       "The six chemical gases retain source getBucket=AIR behavior; primordial matter provides the registered refill bucket."
     ]
+  },
+  "power_converter_tiers": {
+    "source_commit": "07eb60b47f14439375da10e78f4d4770f3a83256",
+    "status": "five_tier_behavior_resources_and_paired_client_verified",
+    "ported": [
+      "Source 4096 kW and 65536 kW tiers with shared block-entity support",
+      "Five-tier grid-tick generation, default 100 FE/t efficiency, long intermediate saturation and redstone dimming",
+      "Native shared energy journal for simulated, nested and multi-capability extraction",
+      "Seventeen source recipes, converter tags, translation arguments and original visual resources"
+    ],
+    "verification": {
+      "tests_datagen_style_log": "build/porting/tests-power-converters-final.log",
+      "focused_final_log": "build/porting/tests-power-converters-focused-final-2.log",
+      "native_client_log": "build/porting/client-power-converters-final.log",
+      "source_client_log": "build/porting/client-power-converters-source-final-2.log",
+      "report": "build/porting/power-converters-comparison.json",
+      "required_tests_passed": 631,
+      "recipes_equivalent": 17,
+      "paired_model_states": 120,
+      "grid_generation_body_equivalent": true,
+      "visuals": {
+        "small": {
+          "silhouette_iou": 1.0,
+          "mean_rgb_error": 0.6780016792611251
+        },
+        "middle": {
+          "silhouette_iou": 1.0,
+          "mean_rgb_error": 0.9028400597907325
+        },
+        "big": {
+          "silhouette_iou": 1.0,
+          "mean_rgb_error": 0.9760692464358453
+        },
+        "super_big": {
+          "silhouette_iou": 1.0,
+          "mean_rgb_error": 1.1321873147599288
+        },
+        "extremely_big": {
+          "silhouette_iou": 1.0,
+          "mean_rgb_error": 1.2920870113493064
+        }
+      }
+    },
+    "limits": [
+      "Native GUI lighting is retained.",
+      "The overflow regression injects a synthetic rate above the normal configuration range to exercise long addition.",
+      "Some source model bounds differ from collision boxes; each is preserved and checked independently."
+    ]
+  },
+  "creative_generator_source_delta": {
+    "source_commit": "07eb60b47f14439375da10e78f4d4770f3a83256",
+    "status": "pending",
+    "discovered_during": "power_converter_tiers",
+    "required": [
+      "Source clamps configured and loaded generator power to +/-65536",
+      "Audit source slider/menu range and related presentation changes"
+    ],
+    "evidence": "Source CreativeGeneratorBlockEntity.MAX_POWER is 65536; native setter currently has no clamp. The paired converter scene uses two 65536 kW generators."
   }
 }

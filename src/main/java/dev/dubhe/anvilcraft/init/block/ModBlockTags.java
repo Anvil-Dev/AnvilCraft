@@ -10,6 +10,7 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.block.Block;
 
 public class ModBlockTags {
+    public static final TagKey<Block> POWER_CONVERTER = bind("power_converter");
 
     private static final String MEKANISM_MODID = "mekanism";
     private static final String AE2_MODID = "ae2";

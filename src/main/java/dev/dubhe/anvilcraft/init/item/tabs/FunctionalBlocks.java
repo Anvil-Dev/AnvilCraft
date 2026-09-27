@@ -73,6 +73,8 @@ public class FunctionalBlocks extends DisplayItemsGenerator {
         this.plain(ModBlocks.POWER_CONVERTER_SMALL);
         this.plain(ModBlocks.POWER_CONVERTER_MIDDLE);
         this.plain(ModBlocks.POWER_CONVERTER_BIG);
+        this.plain(ModBlocks.POWER_CONVERTER_SUPER_BIG);
+        this.plain(ModBlocks.POWER_CONVERTER_EXTREMELY_BIG);
         this.plain(ModBlocks.CHARGER);
         this.plain(ModBlocks.DISCHARGER);
         this.plain(ModBlocks.INDUCTION_LIGHT);

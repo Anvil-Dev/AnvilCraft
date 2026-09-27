@@ -1,7 +1,7 @@
 {
   "parent": "minecraft:recipes/root",
   "criteria": {
-    "has_big": {
+    "has_power_converter_big": {
       "conditions": {
         "items": [
           {
@@ -13,7 +13,7 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "anvilcraft:power_converter_middle_from_big"
+        "recipe": "anvilcraft:power_converter_super_big_from_big"
       },
       "trigger": "minecraft:recipe_unlocked"
     }
@@ -21,12 +21,12 @@
   "requirements": [
     [
       "has_the_recipe",
-      "has_big"
+      "has_power_converter_big"
     ]
   ],
   "rewards": {
     "recipes": [
-      "anvilcraft:power_converter_middle_from_big"
+      "anvilcraft:power_converter_super_big_from_big"
     ]
   }
 }

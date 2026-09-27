@@ -146,8 +146,10 @@ import dev.dubhe.anvilcraft.block.power.consumer.ItemCollectorBlock;
 import dev.dubhe.anvilcraft.block.power.consumer.SmartBlockPlacerBlock;
 import dev.dubhe.anvilcraft.block.power.consumer.TeslaTowerBlock;
 import dev.dubhe.anvilcraft.block.power.converter.PowerConverterBigBlock;
+import dev.dubhe.anvilcraft.block.power.converter.PowerConverterExtremelyBigBlock;
 import dev.dubhe.anvilcraft.block.power.converter.PowerConverterMiddleBlock;
 import dev.dubhe.anvilcraft.block.power.converter.PowerConverterSmallBlock;
+import dev.dubhe.anvilcraft.block.power.converter.PowerConverterSuperBigBlock;
 import dev.dubhe.anvilcraft.block.power.generator.ChargeCollectorBlock;
 import dev.dubhe.anvilcraft.block.power.generator.ChargerBlock;
 import dev.dubhe.anvilcraft.block.power.generator.CreativeGeneratorBlock;
@@ -1255,15 +1257,19 @@ public class ModBlocks {
         )
         .initialProperties(() -> Blocks.IRON_BLOCK)
         .properties(p -> p.isValidSpawn(Blocks::never).lightLevel(state -> {
-            if (state.getValue(IPowerConsumer.OVERLOAD)) {
+            if (state.getValue(IPowerConsumer.OVERLOAD) || state.getValue(BlockStateProperties.POWERED)) {
                 return 6;
             } else {
                 return 15;
             }
         }))
         .blockstate(DataGenUtil::noExtraModelOrState)
+        .tag(ModBlockTags.POWER_CONVERTER)
         .recipe(RegistrumBlockRecipeLoader::powerConverterSmall)
         .item()
+        .properties(Item.Properties::useBlockDescriptionPrefix)
+        .setData(ProviderType.LANG, (_, _) -> {})
+        .tag(ModItemTags.POWER_CONVERTER)
         .model(() -> new NonNullBiConsumer<>() {
             @Override
             public void accept(DataGenContext<Item, BlockItem> ctx, RegistrumItemModelGenerator generator) {
@@ -1281,15 +1287,19 @@ public class ModBlocks {
         )
         .initialProperties(() -> Blocks.IRON_BLOCK)
         .properties(p -> p.isValidSpawn(Blocks::never).lightLevel(state -> {
-            if (state.getValue(IPowerConsumer.OVERLOAD)) {
+            if (state.getValue(IPowerConsumer.OVERLOAD) || state.getValue(BlockStateProperties.POWERED)) {
                 return 6;
             } else {
                 return 15;
             }
         }))
         .blockstate(DataGenUtil::noExtraModelOrState)
+        .tag(ModBlockTags.POWER_CONVERTER)
         .recipe(RegistrumBlockRecipeLoader::powerConverterMiddle)
         .item()
+        .properties(Item.Properties::useBlockDescriptionPrefix)
+        .setData(ProviderType.LANG, (_, _) -> {})
+        .tag(ModItemTags.POWER_CONVERTER)
         .model(() -> new NonNullBiConsumer<>() {
             @Override
             public void accept(DataGenContext<Item, BlockItem> ctx, RegistrumItemModelGenerator generator) {
@@ -1307,15 +1317,79 @@ public class ModBlocks {
         )
         .initialProperties(() -> Blocks.IRON_BLOCK)
         .properties(p -> p.isValidSpawn(Blocks::never).lightLevel(state -> {
-            if (state.getValue(IPowerConsumer.OVERLOAD)) {
+            if (state.getValue(IPowerConsumer.OVERLOAD) || state.getValue(BlockStateProperties.POWERED)) {
                 return 6;
             } else {
                 return 15;
             }
         }))
         .blockstate(DataGenUtil::noExtraModelOrState)
+        .tag(ModBlockTags.POWER_CONVERTER)
         .recipe(RegistrumBlockRecipeLoader::powerConverterBig)
         .item()
+        .properties(Item.Properties::useBlockDescriptionPrefix)
+        .setData(ProviderType.LANG, (_, _) -> {})
+        .tag(ModItemTags.POWER_CONVERTER)
+        .model(() -> new NonNullBiConsumer<>() {
+            @Override
+            public void accept(DataGenContext<Item, BlockItem> ctx, RegistrumItemModelGenerator generator) {
+                generator.createWithExistingModel(ctx.get(), ctx.getId().withPrefix("block/"));
+            }
+        })
+        .build()
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .register();
+
+    @SuppressWarnings("Convert2Lambda")
+    public static final BlockEntry<PowerConverterSuperBigBlock> POWER_CONVERTER_SUPER_BIG = REGISTRUM.block(
+            "power_converter_super_big",
+            PowerConverterSuperBigBlock::new
+        )
+        .initialProperties(() -> Blocks.IRON_BLOCK)
+        .properties(p -> p.isValidSpawn(Blocks::never).lightLevel(state -> {
+            if (state.getValue(IPowerConsumer.OVERLOAD) || state.getValue(BlockStateProperties.POWERED)) {
+                return 6;
+            } else {
+                return 15;
+            }
+        }))
+        .blockstate(DataGenUtil::noExtraModelOrState)
+        .tag(ModBlockTags.POWER_CONVERTER)
+        .recipe(RegistrumBlockRecipeLoader::powerConverterSuperBig)
+        .item()
+        .properties(Item.Properties::useBlockDescriptionPrefix)
+        .setData(ProviderType.LANG, (_, _) -> {})
+        .tag(ModItemTags.POWER_CONVERTER)
+        .model(() -> new NonNullBiConsumer<>() {
+            @Override
+            public void accept(DataGenContext<Item, BlockItem> ctx, RegistrumItemModelGenerator generator) {
+                generator.createWithExistingModel(ctx.get(), ctx.getId().withPrefix("block/"));
+            }
+        })
+        .build()
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .register();
+
+    @SuppressWarnings("Convert2Lambda")
+    public static final BlockEntry<PowerConverterExtremelyBigBlock> POWER_CONVERTER_EXTREMELY_BIG = REGISTRUM.block(
+            "power_converter_extremely_big",
+            PowerConverterExtremelyBigBlock::new
+        )
+        .initialProperties(() -> Blocks.IRON_BLOCK)
+        .properties(p -> p.isValidSpawn(Blocks::never).lightLevel(state -> {
+            if (state.getValue(IPowerConsumer.OVERLOAD) || state.getValue(BlockStateProperties.POWERED)) {
+                return 6;
+            } else {
+                return 15;
+            }
+        }))
+        .blockstate(DataGenUtil::noExtraModelOrState)
+        .tag(ModBlockTags.POWER_CONVERTER)
+        .recipe(RegistrumBlockRecipeLoader::powerConverterExtremelyBig)
+        .item()
+        .properties(Item.Properties::useBlockDescriptionPrefix)
+        .setData(ProviderType.LANG, (_, _) -> {})
+        .tag(ModItemTags.POWER_CONVERTER)
         .model(() -> new NonNullBiConsumer<>() {
             @Override
             public void accept(DataGenContext<Item, BlockItem> ctx, RegistrumItemModelGenerator generator) {
