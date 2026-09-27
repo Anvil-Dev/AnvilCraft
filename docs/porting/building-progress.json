@@ -1760,11 +1760,12 @@
       "8569d095d Refactor Amulet system 重构护符系统 (#5042)",
       "989bf7b33 fix: Improve block rotation and mirroring logic 完善方块旋转和镜像逻辑 (#5026)"
     ],
-    "current_work": "Remaining latest-source updates include the amulet refactor, held-item rendering and non-pipe rotation/mirroring.",
+    "current_work": "Remaining latest-source updates include the amulet refactor and crab-claw held-item rendering.",
     "completed_nodes": [
       "glass_pipe_rotation_mirroring",
       "fluid_network_pressure",
-      "monolith_asset_update_07eb60b47"
+      "monolith_asset_update_07eb60b47",
+      "machine_rotation_mirroring"
     ]
   },
   "fluid_network_pressure": {
@@ -1807,6 +1808,44 @@
     "limits": [
       "Client captures do not synchronize the phase of the inner texture animation.",
       "Initial native validation failed due to overlapping compilation; final rerun is verified separately."
+    ]
+  },
+  "machine_rotation_mirroring": {
+    "source_commit": "07eb60b47f14439375da10e78f4d4770f3a83256",
+    "introduced_by": "989bf7b33",
+    "status": "source_delta_ported_and_verified",
+    "ported": [
+      "Comparator facing and axis rotate together in shared FacingWithAxis",
+      "Smart placer and scanner horizontal rotation and mirror preserve powered/upside-down/overload properties",
+      "Control-valve axis rotation and pump orientation mirror",
+      "Source processing-table comment corrections"
+    ],
+    "verification": {
+      "focused_log": "build/porting/tests-machine-transform-focused-final.log",
+      "final_log": "build/porting/tests-machine-transform-final.log",
+      "report": "build/porting/machine-transform-comparison.json",
+      "state_transform_combinations": 1800,
+      "required_tests_passed": 596,
+      "source_methods_equivalent": 8
+    },
+    "limits": [
+      "The focused behavior pass was followed by a fixture line-length correction; the final full suite and Checkstyle passed."
+    ]
+  },
+  "crab_claw_hand_rendering": {
+    "source_commit": "07eb60b47f14439375da10e78f4d4770f3a83256",
+    "status": "source_differences_identified",
+    "required": [
+      "Preserve CFA own hand transform without crab-claw transform conflict",
+      "Source block/slab/panel claw model selection by geometry height",
+      "Pipe and check-valve block-like classification and non-3D model handling",
+      "Source spear/heavy-halberd offsets and throwing-claw rotation",
+      "Native model transforms, left-hand support, model measurement caching and resource reload",
+      "Retain shared building-rod claw behavior"
+    ],
+    "evidence": [
+      "Current native renderer only registers item/block claw models and tests BlockItem directly",
+      "Current native renderer rejects SPEAR animation and lacks CFA guard; source includes them"
     ]
   }
 }
