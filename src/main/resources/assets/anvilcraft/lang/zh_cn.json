@@ -2848,7 +2848,7 @@
   "tooltip.anvilcraft.item.transcendence_heavy_halberd": "按 [%s] 切换模式",
   "tooltip.anvilcraft.item.weatherproof_spacesuit_boots": "免疫摔落伤害\n按住潜行蓄力跳跃，最高可达 4 格高度\n可在静止的流体表面行走；潜行可没入其中，按住潜行可更快下沉\n全套：免疫除虚空外的环境伤害；防止坠入虚空",
   "tooltip.anvilcraft.item.weatherproof_spacesuit_chestplate": "每秒消耗 100 kFE\n可从电网或电容器中充能\n全套：免疫除虚空外的环境伤害；防止坠入虚空",
-  "tooltip.anvilcraft.item.weatherproof_spacesuit_helmet": "在水下和真空中供应氧气\n移除水下挖掘惩罚\n在所有流体中视野清晰\n%s\n全套：免疫除虚空外的环境伤害；防止坠入虚空",
+  "tooltip.anvilcraft.item.weatherproof_spacesuit_helmet": "在水下和真空中供应氧气\n移除水下挖掘惩罚\n在所有流体中视野清晰\n视线不会激怒末影人\n%s\n全套：免疫除虚空外的环境伤害；防止坠入虚空",
   "tooltip.anvilcraft.item_count": "%s x%s",
   "tooltip.anvilcraft.key": "[%s]",
   "tooltip.anvilcraft.property.charged_jump": "蓄力跳跃 [按住 %1$s]：%2$s",

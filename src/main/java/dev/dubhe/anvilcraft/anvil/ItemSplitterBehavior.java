@@ -23,6 +23,6 @@ public class ItemSplitterBehavior implements IAnvilBehavior {
         AnvilEvent.OnLand event
     ) {
         if (!(level.getBlockEntity(hitBlockPos) instanceof ItemSplitterBlockEntity splitter)) return false;
-        return splitter.splitToSpace(Math.max(1, (int) Math.ceil(fallDistance)));
+        return splitter.splitToSpace((int) fallDistance + 1);
     }
 }

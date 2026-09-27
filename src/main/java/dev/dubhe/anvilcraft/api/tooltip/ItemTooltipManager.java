@@ -56,11 +56,16 @@ public class ItemTooltipManager {
         final String breathing = "Supplies oxygen underwater and in vacuum\nRemoves underwater mining penalties";
         final String pockets = "%s pocket slots\nUse the pocket key to swap with your offhand\nEmpty pockets before removing leggings";
         final String boots = "Immune to fall damage\nHold sneak to charge a jump, up to 4 blocks height";
+        final String clearVision = "Clear vision in all fluids";
+        final String endermanProtection = "Endermen remain calm when stared at";
         final String fullSuit = "\nFull suit: immune to environmental damage except the void; prevents falling into the void";
         NORMAL.put(ModItems.BREATHING_HELMET.get(), breathing);
         NORMAL.put(ModItems.POCKETS_LEGGINGS.get(), pockets.formatted(6));
         NORMAL.put(ModItems.BUFFER_BOOTS.get(), boots);
-        NORMAL.put(ModItems.WEATHERPROOF_SPACESUIT_HELMET.get(), breathing + "\nClear vision in all fluids\n%s" + fullSuit);
+        NORMAL.put(
+            ModItems.WEATHERPROOF_SPACESUIT_HELMET.get(),
+            String.join("\n", breathing, clearVision, endermanProtection, "%s") + fullSuit
+        );
         NORMAL_ARGUMENTS.put(ModItems.WEATHERPROOF_SPACESUIT_HELMET.get(),
             new Object[]{Component.translatable("effect.minecraft.night_vision")});
         NORMAL.put(ModItems.WEATHERPROOF_SPACESUIT_CHESTPLATE.get(),

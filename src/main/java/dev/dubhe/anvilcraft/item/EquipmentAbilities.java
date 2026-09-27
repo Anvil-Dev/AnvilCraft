@@ -65,6 +65,11 @@ public final class EquipmentAbilities {
         return boots.is(ModItems.BUFFER_BOOTS) || boots.is(ModItems.WEATHERPROOF_SPACESUIT_BOOTS);
     }
 
+    public static boolean hasEndermanProtection(LivingEntity entity) {
+        ItemStack helmet = entity.getItemBySlot(EquipmentSlot.HEAD);
+        return helmet.is(ModItems.WEATHERPROOF_SPACESUIT_HELMET);
+    }
+
     public static boolean hasNightVision(LivingEntity entity) {
         ItemStack helmet = entity.getItemBySlot(EquipmentSlot.HEAD);
         return helmet.is(ModItems.WEATHERPROOF_SPACESUIT_HELMET) && helmet.getOrDefault(ModComponents.NIGHT_VISION_ENABLED, true);
