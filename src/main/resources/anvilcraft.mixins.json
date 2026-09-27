@@ -35,6 +35,7 @@
     "EnchantCommandMixin",
     "EnchantmentHelperMixin",
     "EnchantmentPredicateMixin",
+    "EndermanMixin",
     "EntityMixin",
     "EntityTypeBuilderMixin",
     "EquipableMixin",

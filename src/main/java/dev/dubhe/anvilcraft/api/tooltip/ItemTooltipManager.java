@@ -60,7 +60,7 @@ public class ItemTooltipManager {
         NORMAL.put(ModItems.BREATHING_HELMET.get(), breathing);
         NORMAL.put(ModItems.POCKETS_LEGGINGS.get(), pockets.formatted(6));
         NORMAL.put(ModItems.BUFFER_BOOTS.get(), boots);
-        NORMAL.put(ModItems.WEATHERPROOF_SPACESUIT_HELMET.get(), breathing + "\nClear vision in all fluids\n%s" + fullSuit);
+        NORMAL.put(ModItems.WEATHERPROOF_SPACESUIT_HELMET.get(), breathing + "\nClear vision in all fluids\nEndermen remain calm when stared at\n%s" + fullSuit);
         NORMAL_ARGUMENTS.put(ModItems.WEATHERPROOF_SPACESUIT_HELMET.get(),
             new Object[]{Component.translatable("effect.minecraft.night_vision")});
         NORMAL.put(ModItems.WEATHERPROOF_SPACESUIT_CHESTPLATE.get(),

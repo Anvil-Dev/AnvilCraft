@@ -2450,7 +2450,7 @@
   "tooltip.anvilcraft.item.weathered_copper_pressure_plate": "Redstone signal increases with pressing time, also a copper plate",
   "tooltip.anvilcraft.item.weatherproof_spacesuit_boots": "Immune to fall damage\nHold sneak to charge a jump, up to 4 blocks height\nWalk on still fluid surfaces; sneak to submerge, hold sneak to descend faster\nFull suit: immune to environmental damage except the void; prevents falling into the void",
   "tooltip.anvilcraft.item.weatherproof_spacesuit_chestplate": "Uses 100 kFE per second\nRechargeable from grids or capacitors\nFull suit: immune to environmental damage except the void; prevents falling into the void",
-  "tooltip.anvilcraft.item.weatherproof_spacesuit_helmet": "Supplies oxygen underwater and in vacuum\nRemoves underwater mining penalties\nClear vision in all fluids\n%s\nFull suit: immune to environmental damage except the void; prevents falling into the void",
+  "tooltip.anvilcraft.item.weatherproof_spacesuit_helmet": "Supplies oxygen underwater and in vacuum\nRemoves underwater mining penalties\nClear vision in all fluids\nEndermen remain calm when stared at\n%s\nFull suit: immune to environmental damage except the void; prevents falling into the void",
   "tooltip.anvilcraft.item.weatherproof_spacesuit_leggings": "12 pocket slots\nUse the pocket key to swap with your offhand\nEmpty pockets before removing leggings\nFull suit: immune to environmental damage except the void; prevents falling into the void",
   "tooltip.anvilcraft.item.white_cement_bucket": "Produced by dyeing Gray Cement",
   "tooltip.anvilcraft.item.white_chocolate_block": "Made by real cocoa butter, step on it to gain Jump Boost",
