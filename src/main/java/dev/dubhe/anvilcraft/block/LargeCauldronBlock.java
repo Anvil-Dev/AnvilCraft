@@ -12,6 +12,7 @@ import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.item.block.SimpleMultiPartBlockItem;
+import dev.dubhe.anvilcraft.util.BlockPlacementPicking;
 import dev.dubhe.anvilcraft.util.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -149,7 +150,7 @@ public class LargeCauldronBlock
     @Override
     public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
         Cube3x3PartHalf part = state.getValue(LargeCauldronBlock.HALF);
-        if (part.getOffsetY() == 2 && context.isHoldingItem(ModBlocks.GIANT_ANVIL.asItem())) {
+        if (BlockPlacementPicking.hasFullPlacementShape(state, context)) {
             return Shapes.block();
         }
         return LargeCauldronBlock.SHAPES.get(part);

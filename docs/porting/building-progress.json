@@ -1014,7 +1014,13 @@
       "scanner_recipe_import",
       "building_undo_settlement",
       "storage_source_update",
-      "blueprint_placement_frames"
+      "blueprint_placement_frames",
+      "building_selection_interaction"
+    ],
+    "remaining_audit": [
+      "Filter persistence and offhand slot; fountain drain output; fish-tank recipe output guard; compression ingredient intersection",
+      "Creative search/reset and source resource/dependency deltas",
+      "Projection migration, optional renderer compatibility and full feature inventory"
     ]
   },
   "mun_foundation": {
@@ -1953,6 +1959,30 @@
     "limits": [
       "Vanilla 26.1 terrain sampling, light and fog remain active.",
       "The glint phase is fixed only in the paired developer scenes; blue-channel increments avoid saturated gold highlights."
+    ]
+  },
+  "building_selection_interaction": {
+    "source_commit": "07eb60b47f14439375da10e78f4d4770f3a83256",
+    "introduced_by": "1260db54f",
+    "status": "source_interaction_delta_ported_and_native_client_verified",
+    "ported": [
+      "All ring and cauldron states, both hands, relevant and unrelated placement materials",
+      "Full placement outline with unchanged physical collision and actual cauldron ray picking",
+      "Control release preserves selection; missing target does not discard it; re-aim and confirm once",
+      "Native mining stopped on selection press/cancel; repeated attack suppressed",
+      "Existing placement, undo, blueprint, traditional-control and held-item client workflow"
+    ],
+    "verification": {
+      "focused_log": "build/porting/tests-building-interaction-focused-4.log",
+      "tests_style_log": "build/porting/tests-building-interaction-final.log",
+      "client_log": "build/porting/client-building-interaction-final.log",
+      "report": "build/porting/building-interaction-comparison.json",
+      "source_methods_equivalent": 8,
+      "required_tests_passed": 612
+    },
+    "limits": [
+      "Client input events are driven by the developer fixture in a real native client.",
+      "Native ring geometry and vanilla terrain rendering remain unchanged."
     ]
   }
 }

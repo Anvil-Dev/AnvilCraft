@@ -125,7 +125,7 @@ public final class BuildingRodClientScene {
             }
             case 5 -> {
                 if (!client.level.getBlockState(FIRST.east(2)).is(Blocks.STONE)) return;
-                check(BuildingRodClient.first == null && count(client) == 13 && energy(client) == 9700, "Release commits once");
+                check(BuildingRodClient.first == null && count(client) == 13 && energy(client) == 9600, "Release commits once");
                 check(!((ItemStack) field(BuildingRodItemRenderer.class, "pushedPayload")).isEmpty(),
                     "Result packet starts payload animation");
                 capture(client, "placed", 6);
@@ -137,7 +137,7 @@ public final class BuildingRodClientScene {
             }
             case 7 -> {
                 if (!client.level.getBlockState(FIRST).isAir() || count(client) != 16) return;
-                check(energy(client) == 9700, "Keyboard undo preserves consumed energy");
+                check(energy(client) == 9600, "Keyboard undo preserves consumed energy");
                 aim(client, Vec3.atBottomCenterOf(FIRST));
                 advance(26);
             }
@@ -229,7 +229,8 @@ public final class BuildingRodClientScene {
                 } catch (Exception error) {
                     throw new IllegalStateException(error);
                 }
-                AnvilCraft.LOGGER.info("PORT_BUILDING_CLIENT_PASSED: selection, fixed-distance, Control release/click, undo, "
+                AnvilCraft.LOGGER.info("PORT_BUILDING_CLIENT_PASSED: selection, fixed-distance, Control release/re-aim/click, "
+                    + "mining cancel, undo, "
                     + "ghost blocks/fluid/BER/entity, lock, rotation, mirror, completion, traditional scrolling, "
                     + "offhand, last material, carried claw, third-person, mining beam");
                 client.stop();
@@ -256,9 +257,50 @@ public final class BuildingRodClientScene {
                 advance(25);
             }
             case 25 -> {
-                check(BuildingRodClient.first == null && count(client) == 16 && energy(client) == 10000,
-                    "Control release cancels without placement or cost");
+                check(BuildingRodClient.first != null && BuildingRodClient.target == null && count(client) == 16 && energy(client) == 10000,
+                    "Control release retains selection while looking into empty space");
+                use(client);
+                check(BuildingRodClient.first != null, "Missing target cannot consume or discard selection");
+                advance(63);
+            }
+            case 63 -> {
+                check(BuildingRodClient.first != null, "Release with missing target preserves the selection");
                 aim(client, Vec3.atBottomCenterOf(FIRST));
+                advance(60);
+            }
+            case 60 -> {
+                check(BuildingRodClient.first != null && BuildingRodClient.target != null, "Re-aim retains existing selection");
+                client.options.keyUse.setDown(true);
+                use(client);
+                advance(61);
+            }
+            case 61 -> {
+                client.options.keyUse.setDown(false);
+                if (energy(client) != 9900) return;
+                check(BuildingRodClient.first == null && count(client) == 15, "Re-aimed selection confirms exactly once");
+                key(client, GLFW.GLFW_KEY_Z, GLFW.GLFW_MOD_CONTROL);
+                advance(62);
+            }
+            case 62 -> {
+                if (count(client) != 16 || !client.level.getBlockState(FIRST).isAir()) return;
+                client.options.keyUse.setDown(true);
+                client.gameMode.startDestroyBlock(FIRST.below(), Direction.UP);
+                check((Boolean) field(client.gameMode, "isDestroying"), "Native mining starts before use");
+                use(client);
+                check(!(Boolean) field(client.gameMode, "isDestroying"), "Selection press aborts native mining");
+                client.gameMode.startDestroyBlock(FIRST.below(), Direction.UP);
+                check((Boolean) field(client.gameMode, "isDestroying"), "Native mining starts before cancellation");
+                client.options.keyAttack.setDown(true);
+                var attack = new InputEvent.InteractionKeyMappingTriggered(0, client.options.keyAttack, InteractionHand.MAIN_HAND);
+                BuildingRodClient.interaction(attack);
+                check(attack.isCanceled() && BuildingRodClient.first == null && !(Boolean) field(client.gameMode, "isDestroying"),
+                    "Left-click cancellation aborts native mining");
+                var repeated = new InputEvent.InteractionKeyMappingTriggered(0, client.options.keyAttack, InteractionHand.MAIN_HAND);
+                BuildingRodClient.interaction(repeated);
+                check(repeated.isCanceled() && BuildingRodItemRenderer.isAttackCanceled(),
+                    "Held attack remains suppressed after cancellation");
+                client.options.keyAttack.setDown(false);
+                client.options.keyUse.setDown(false);
                 advance(2);
             }
             case 26 -> {
