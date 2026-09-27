@@ -300,6 +300,7 @@ public class FishTankBlockEntity extends BlockEntity implements IItemResourceHan
         }
 
         void checkAutoOutput(int index) {
+            if (FishTankBlockEntity.this.processingRecipe) return;
             Level level = FishTankBlockEntity.this.level;
             if (level == null || level.isClientSide()) return;
             BlockState state = FishTankBlockEntity.this.getBlockState();
@@ -345,7 +346,9 @@ public class FishTankBlockEntity extends BlockEntity implements IItemResourceHan
             }
         }
     };
+    private boolean processingRecipe;
     private boolean processingOutput;
+    private ItemStack @Nullable [] processingInputSnapshot;
     private long lastRecipeProcessingGameTime = Long.MIN_VALUE;
     private boolean ignited = false;
 
@@ -449,16 +452,47 @@ public class FishTankBlockEntity extends BlockEntity implements IItemResourceHan
 
     /// 输入槽为空时，允许本 tick 把输出槽中的产物当作原料再加工一次
     public void beginRecipeProcessing() {
+        this.processingRecipe = true;
         boolean hasInput = !FishTankBlockEntity.isEmpty(this.input);
         long gameTime = this.level == null ? Long.MIN_VALUE + 1 : this.level.getGameTime();
         this.processingOutput = !hasInput
             && !FishTankBlockEntity.isEmpty(this.output)
             && gameTime != this.lastRecipeProcessingGameTime;
         if (hasInput || this.processingOutput) this.lastRecipeProcessingGameTime = gameTime;
+        if (hasInput) {
+            ItemStack[] snapshot = new ItemStack[this.input.size()];
+            for (int slot = 0; slot < this.input.size(); slot++) {
+                snapshot[slot] = this.input.getResource(slot).toStack(this.input.getAmountAsInt(slot));
+            }
+            this.processingInputSnapshot = snapshot;
+        }
     }
 
     public void finishRecipeProcessing() {
         this.processingOutput = false;
+        this.processingInputSnapshot = null;
+        this.processingRecipe = false;
+        if (this.getBlockState().getValue(FishTankBlock.OUTLET)) this.tryAutoOutputResults();
+    }
+
+    public ItemStack insertRecipeOutputReturningCatalyst(ItemStack stack) {
+        ItemStack[] snapshot = this.processingInputSnapshot;
+        if (snapshot == null) return this.insertRecipeOutput(stack);
+        ItemStack remaining = stack.copy();
+        for (int slot = 0; slot < this.input.size() && !remaining.isEmpty(); slot++) {
+            ItemStack before = snapshot[slot];
+            if (before.isEmpty()) continue;
+            int consumed = before.getCount() - this.input.getAmountAsInt(slot);
+            if (consumed <= 0 || !ItemStack.isSameItemSameComponents(before, remaining)) continue;
+            int refund = Math.min(consumed, remaining.getCount());
+            ItemStack left = ItemHandlerUtil.insertItem(this.input, remaining.copyWithCount(refund), false);
+            int accepted = refund - left.getCount();
+            if (accepted > 0) {
+                snapshot[slot].shrink(accepted);
+                remaining.shrink(accepted);
+            }
+        }
+        return remaining.isEmpty() ? ItemStack.EMPTY : this.insertRecipeOutput(remaining);
     }
 
     public ItemStack insertRecipeOutput(ItemStack stack) {
@@ -665,6 +699,7 @@ public class FishTankBlockEntity extends BlockEntity implements IItemResourceHan
     }
 
     public void tryAutoOutputResults() {
+        if (this.processingRecipe) return;
         Level level = this.level;
         if (level == null || level.isClientSide()) return;
         BlockPos pos = this.getBlockPos();

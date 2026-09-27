@@ -84,7 +84,7 @@ public class InWorldRecipeEventListener {
         }
         entity.level().getBlockEntity(pos, ModBlockEntities.FISH_TANK.get())
             .ifPresent(be -> {
-                ItemStack remaining = be.insertRecipeOutput(entity.getItem());
+                ItemStack remaining = be.insertRecipeOutputReturningCatalyst(entity.getItem());
                 if (remaining.isEmpty()) {
                     entity.discard();
                 } else {

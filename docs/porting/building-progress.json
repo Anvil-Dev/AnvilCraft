@@ -1016,10 +1016,11 @@
       "storage_source_update",
       "blueprint_placement_frames",
       "building_selection_interaction",
-      "filter_source_update"
+      "filter_source_update",
+      "production_source_update"
     ],
     "remaining_audit": [
-      "Fountain drain output; fish-tank recipe output guard; compression ingredient intersection",
+      "Remaining placement/interaction deltas, including big-red-button sneak interaction and hammer denylist",
       "Creative search/reset and source resource/dependency deltas",
       "Projection migration, optional renderer compatibility and full feature inventory"
     ]
@@ -2006,6 +2007,29 @@
     "limits": [
       "Client scenario drives native use and packet APIs; manual mouse input is not part of this fixture.",
       "Client inventory synchronization may replace stack objects; server menu identity and final packet writes are verified."
+    ]
+  },
+  "production_source_update": {
+    "source_commit": "07eb60b47f14439375da10e78f4d4770f3a83256",
+    "introduced_by": "1260db54f",
+    "status": "source_production_behaviors_ported_and_server_verified",
+    "ported": [
+      "Fountain interval, one-bucket lava production, full/partial/incompatible drain contents and height restriction",
+      "Fish-tank commit guard, repeated cache writes, once-per-tick output processing, closed/blocked/unblocked outlet",
+      "Recipe item-spawn event returns consumed catalysts, never over-refunds or ignores component differences",
+      "Shaped/shapeless compression intersects all ingredients, accepts simple compound ingredients, preserves count and source ID",
+      "Disjoint, component-sensitive and empty-cell recipes are rejected"
+    ],
+    "verification": {
+      "focused_log": "build/porting/tests-production-update-focused-2.log",
+      "compile_tests_datagen_style_log": "build/porting/tests-production-update-final.log",
+      "report": "build/porting/production-update-comparison.json",
+      "required_tests_passed": 617,
+      "generated_resources_written": 0
+    },
+    "limits": [
+      "Acceptance uses native dedicated-server GameTests and runtime recipe wrappers; no client visual changes are introduced.",
+      "This node does not prove completion of the broader source-branch feature inventory."
     ]
   }
 }

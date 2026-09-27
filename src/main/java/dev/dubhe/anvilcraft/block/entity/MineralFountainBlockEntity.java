@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.block.entity;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.heat.HeaterManager;
+import dev.dubhe.anvilcraft.block.entity.fluid.DrainBlockEntity;
 import dev.dubhe.anvilcraft.init.ModHeaterInfos;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
@@ -15,8 +16,12 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
+import net.neoforged.neoforge.fluids.FluidType;
+import net.neoforged.neoforge.transfer.fluid.FluidResource;
+import net.neoforged.neoforge.transfer.transaction.Transaction;
 
 import java.util.Arrays;
 import java.util.List;
@@ -62,7 +67,13 @@ public class MineralFountainBlockEntity extends BlockEntity {
         }
         BlockState aboveState = this.level.getBlockState(this.getBlockPos().above());
         if (aroundState.is(Blocks.LAVA)) {
-            if (aboveState.is(Blocks.AIR)) {
+            if (this.level.getBlockEntity(this.getBlockPos().above()) instanceof DrainBlockEntity drain) {
+                try (Transaction transaction = Transaction.openRoot()) {
+                    if (drain.getFluidHandler().insert(FluidResource.of(Fluids.LAVA), FluidType.BUCKET_VOLUME, transaction)
+                        == FluidType.BUCKET_VOLUME) transaction.commit();
+                }
+                this.resetTickCount();
+            } else if (aboveState.is(Blocks.AIR)) {
                 this.level.setBlockAndUpdate(this.getBlockPos().above(), Blocks.LAVA.defaultBlockState());
                 return;
             }

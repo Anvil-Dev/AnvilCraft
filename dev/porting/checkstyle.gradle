@@ -20,6 +20,7 @@ allprojects {
             include '**/BlockPlacementPicking.java', '**/BlockPlaceContextMixin.java', '**/UseOnContextMixin.java', '**/ItemStackMixin.java'
             include '**/AccelerationRingBlock.java', '**/DeflectionRingBlock.java', '**/LargeCauldronBlock.java'
             include '**/IFilterBlockEntity.java', '**/FilterItem.java'
+            include '**/MineralFountainBlockEntity.java', '**/FishTankBlockEntity.java', '**/VanillaRecipesWrap.java'
             include '**/LargeBlockPlacePreviewEventListener.java', '**/ChuteBlockItem.java', '**/CelestialForgingAnvilAmplifierBlockItem.java'
             include '**/ItemSplitter*.java'
             include '**/OverflowChute*.java', '**/BaseChuteBlockEntity.java'
