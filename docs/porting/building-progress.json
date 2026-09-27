@@ -1760,12 +1760,13 @@
       "8569d095d Refactor Amulet system 重构护符系统 (#5042)",
       "989bf7b33 fix: Improve block rotation and mirroring logic 完善方块旋转和镜像逻辑 (#5026)"
     ],
-    "current_work": "Remaining latest-source updates include the amulet refactor and crab-claw held-item rendering.",
+    "current_work": "The remaining update in this source delta is the amulet refactor; older source-port requirements also remain tracked separately.",
     "completed_nodes": [
       "glass_pipe_rotation_mirroring",
       "fluid_network_pressure",
       "monolith_asset_update_07eb60b47",
-      "machine_rotation_mirroring"
+      "machine_rotation_mirroring",
+      "crab_claw_hand_rendering"
     ]
   },
   "fluid_network_pressure": {
@@ -1834,7 +1835,7 @@
   },
   "crab_claw_hand_rendering": {
     "source_commit": "07eb60b47f14439375da10e78f4d4770f3a83256",
-    "status": "source_differences_identified",
+    "status": "source_resources_and_controlled_native_visual_parity_verified",
     "required": [
       "Preserve CFA own hand transform without crab-claw transform conflict",
       "Source block/slab/panel claw model selection by geometry height",
@@ -1846,6 +1847,35 @@
     "evidence": [
       "Current native renderer only registers item/block claw models and tests BlockItem directly",
       "Current native renderer rejects SPEAR animation and lacks CFA guard; source includes them"
+    ],
+    "ported": [
+      "Four original claw models with native standalone geometry and resource-defined hand transforms",
+      "Raw-quad height classification, special-model fallback and bounded model/state cache with reload invalidation",
+      "Pipe/check-valve block-like handling and generated-item geometry classification",
+      "Source spear offsets and independent 90-degree throwing-claw rotation on both hands",
+      "CFA transform guard and shared carried-building-rod rendering",
+      "Native TRIDENT versus SPEAR animation mapping for heavy halberds",
+      "Four source heavy-halberd parent models, retaining native item-model selection instead of legacy overrides"
+    ],
+    "verification": {
+      "native_client_log": "build/porting/client-crab-claw-final.log",
+      "source_client_log": "build/porting/client-crab-claw-source-final.log",
+      "tests_datagen_style_log": "build/porting/tests-crab-claw-final.log",
+      "datagen_log": "build/porting/data-crab-claw-final.log",
+      "report": "build/porting/crab-claw-comparison.json",
+      "native_model_pose_cases": 18,
+      "native_throw_pose_cases": 4,
+      "paired_hand_cases": 32,
+      "required_tests_passed": 596,
+      "held_silhouette_comparisons": 28,
+      "minimum_held_silhouette_iou": 0.9993051497875969,
+      "source_models_equivalent": 9,
+      "source_textures_equal": 4
+    },
+    "limits": [
+      "Dedicated reference fixtures use identical full-bright hand light, a fixed 20-tick use clock and partial tick 0, with contrasting per-case hidden-hand backgrounds; production lighting and animation timing are unchanged.",
+      "The 1.21 flat-world reference has sky light 1 at the camera despite noon and settled lighting, so natural world lighting is not compared.",
+      "Earlier fixture iterations diagnosed use-key release, source clock/light differences and color-mask contamination; only the final clean captures are accepted."
     ]
   }
 }

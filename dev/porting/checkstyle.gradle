@@ -132,6 +132,7 @@ allprojects {
             include '**/StorageRecipeTransferPlan.java', '**/StorageJeiBridge.java', '**/StorageJeiSupport.java'
             include '**/StorageSetting.java', '**/SettingClientStub.java', '**/SettingServerStub.java', '**/CategorySettingsScreen.java'
             include '**/StorageServerStub.java', '**/StorageClientStub.java', '**/StorageInput.java', '**/StorageScreen.java', '**/StorageMenu.java'
+            include '**/CrabClawItemInHandRenderer.java'
             include '**/FacingWithAxis.java', '**/BlockComparatorBlock.java', '**/ControlValveBlock.java', '**/PumpBlock.java'
             include '**/StructureScannerBlock.java'
             include '**/FluidAmountUtil.java'

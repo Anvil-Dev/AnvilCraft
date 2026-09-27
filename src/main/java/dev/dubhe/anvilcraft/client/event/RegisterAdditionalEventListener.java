@@ -69,14 +69,7 @@ public class RegisterAdditionalEventListener {
             BigRedButtonBlockEntityRenderer.CAP,
             SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/big_red_button_cap"))
         );
-        event.register(
-            CrabClawItemInHandRenderer.HOLDING_BLOCK,
-            SimpleUnbakedStandaloneModel.quadCollection(AnvilCraft.of("item/crab_claw_holding_block"))
-        );
-        event.register(
-            CrabClawItemInHandRenderer.HOLDING_ITEM,
-            SimpleUnbakedStandaloneModel.quadCollection(AnvilCraft.of("item/crab_claw_holding_item"))
-        );
+        CrabClawItemInHandRenderer.registerModels(event);
         event.register(
             HeliostatsRenderer.HEAD,
             SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/heliostats_head"))

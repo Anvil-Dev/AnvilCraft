@@ -279,7 +279,8 @@ public abstract class HeavyHalberdItem extends Item implements ProjectileItem, I
     @Override
     public ItemUseAnimation getUseAnimation(ItemStack stack) {
         return switch (getMode(stack)) {
-            case TRIDENT, SPEAR -> ItemUseAnimation.SPEAR;
+            case TRIDENT -> ItemUseAnimation.TRIDENT;
+            case SPEAR -> ItemUseAnimation.SPEAR;
             case SWORD -> ItemUseAnimation.BLOCK;
             case MACE -> ItemUseAnimation.NONE;
         };
