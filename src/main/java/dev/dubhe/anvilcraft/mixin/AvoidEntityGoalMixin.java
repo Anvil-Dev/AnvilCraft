@@ -65,7 +65,12 @@ public abstract class AvoidEntityGoalMixin<T extends LivingEntity> {
         );
         List<T> avoidingList = new ArrayList<>();
         for (LivingEntity living : entities) {
-            avoidingList.add(Util.castSafely(living, this.avoidClass).orElseGet(() -> anvilcraft$toDummy(this.avoidClass, living)));
+            T t = Util.castSafely(living, this.avoidClass).orElse(null);
+            if (t == null) {
+                t = anvilcraft$toDummy(this.avoidClass, living);
+            }
+            if (t == null) continue;
+            avoidingList.add(t);
         }
         this.toAvoid = Util.<ServerLevel>cast(this.mob.level()).getNearestEntity(
             avoidingList,
@@ -86,7 +91,8 @@ public abstract class AvoidEntityGoalMixin<T extends LivingEntity> {
         Class<? extends LivingEntity> avoiding,
         @Nullable LivingEntity entity
     ) {
-        if (entity == null || avoiding.isInstance(entity)) return false;
+        if (entity == null) return false;
+        if (avoiding.isInstance(entity)) return true;
 
         AmuletEffectContext ctx = new AmuletEffectContext();
         ctx.set(ModAmuletEffectContextKeys.LIVING_ENTITY_CLASS, avoiding);

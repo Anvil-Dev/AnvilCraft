@@ -22,6 +22,7 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.living.LivingChangeTargetEvent;
 import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
 import net.neoforged.neoforge.event.entity.living.LivingKnockBackEvent;
+import net.neoforged.neoforge.event.entity.living.MobEffectEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import net.neoforged.neoforge.event.level.ExplosionKnockbackEvent;
 import net.neoforged.neoforge.event.tick.EntityTickEvent;
@@ -62,8 +63,27 @@ public class AmuletAbilitiesEventListener {
     }
 
     @SubscribeEvent
+    public static void onEffect(MobEffectEvent.Applicable event) {
+        LivingEntity entity = event.getEntity();
+        if (!AmuletManager.shouldEvaluate(entity)) {
+            return;
+        }
+
+        AmuletEffectContext ctx = new AmuletEffectContext();
+        ctx.set(ModAmuletEffectContextKeys.MOB_EFFECT, event.getEffectInstance());
+        AmuletManager.get(entity.registryAccess()).trigger(entity, ctx);
+        if (!ctx.getOrDefault(ModAmuletEffectContextKeys.IMMUNE_MOB_EFFECT, false)) return;
+
+        event.setResult(MobEffectEvent.Applicable.Result.DO_NOT_APPLY);
+    }
+
+    @SubscribeEvent
     public static void onHurt(LivingIncomingDamageEvent event) {
         LivingEntity entity = event.getEntity();
+        if (!AmuletManager.shouldEvaluate(entity)) {
+            return;
+        }
+
         AmuletEffectContext ctx = new AmuletEffectContext();
         ctx.set(ModAmuletEffectContextKeys.DAMAGE_SOURCE, event.getSource());
         AmuletManager.get(entity.registryAccess()).trigger(entity, ctx);
@@ -121,10 +141,10 @@ public class AmuletAbilitiesEventListener {
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     private static boolean shouldImmuneKnockback(Entity entity) {
         if (!(entity instanceof LivingEntity living)) {
-            return true;
+            return false;
         }
         if (!AmuletManager.shouldEvaluate(living)) {
-            return true;
+            return false;
         }
         AmuletEffectContext ctx = new AmuletEffectContext();
         AmuletManager.get(living.registryAccess()).trigger(living, ctx);

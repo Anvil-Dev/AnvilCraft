@@ -29,6 +29,7 @@ public interface IAmuletEffect {
     /// <p>护符注册在静态注册表里，展开时不需要注册表访问器。</p>
     ///
     /// @return 该效果展开后的效果
+    /// @apiNote 由于此方法实现上可能有缓存机制，不允许在注册完成前调用！
     default @Unmodifiable Set<IAmuletEffect> flatten() {
         return ImmutableSet.of(this);
     }

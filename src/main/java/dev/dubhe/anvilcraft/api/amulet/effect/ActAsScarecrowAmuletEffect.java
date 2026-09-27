@@ -20,10 +20,9 @@ public record ActAsScarecrowAmuletEffect<T extends LivingEntity>(IImpersonator<T
     public void trigger(LivingEntity entity, ItemStack amulet, AmuletEffectContext ctx) {
         Class<? extends LivingEntity> mask = ctx.get(ModAmuletEffectContextKeys.LIVING_ENTITY_CLASS).orElse(null);
         if (mask != null) {
-            boolean valid = this.impersonator().isValidMask(mask);
-            ctx.set(ModAmuletEffectContextKeys.MASK_VALID, valid);
-            if (!valid || ctx.getOrDefault(ModAmuletEffectContextKeys.SIMULATE, false)) return;
+            if (!this.impersonator().isValidMask(mask) || ctx.getOrDefault(ModAmuletEffectContextKeys.SIMULATE, false)) return;
 
+            ctx.set(ModAmuletEffectContextKeys.MASK_VALID, true);
             ctx.set(ModAmuletEffectContextKeys.TO_AVOID_ENTITY, this.impersonator().impersonate(entity));
             return;
         }
@@ -47,7 +46,6 @@ public record ActAsScarecrowAmuletEffect<T extends LivingEntity>(IImpersonator<T
             CACHE.put(clazz, true);
             return;
         }
-        ctx.set(ModAmuletEffectContextKeys.MASK_VALID, false);
         CACHE.put(clazz, false);
     }
 }

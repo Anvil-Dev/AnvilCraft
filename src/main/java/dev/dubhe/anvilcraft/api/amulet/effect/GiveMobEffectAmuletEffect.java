@@ -159,7 +159,8 @@ public record GiveMobEffectAmuletEffect(
                     effect.getDuration(),
                     effect.getAmplifier(),
                     effect.isAmbient(),
-                    effect.isVisible()
+                    effect.isVisible(),
+                    effect.showIcon()
                 ));
             } else if (boundsOp.isEmpty()) {
                 serverPlayer.addEffect(new MobEffectInstance(
@@ -167,7 +168,8 @@ public record GiveMobEffectAmuletEffect(
                     entry.duration().evaluateInt(GiveMobEffectAmuletEffect.durationInputs(exist.getDuration(), effect.getDuration())),
                     effect.getAmplifier(),
                     effect.isAmbient(),
-                    effect.isVisible()
+                    effect.isVisible(),
+                    effect.showIcon()
                 ));
             } else if (boundsOp.get().matches(exist.getDuration())) {
                 MinMaxBounds.Ints bounds = boundsOp.get();
@@ -180,7 +182,8 @@ public record GiveMobEffectAmuletEffect(
                     ),
                     effect.getAmplifier(),
                     effect.isAmbient(),
-                    effect.isVisible()
+                    effect.isVisible(),
+                    effect.showIcon()
                 ));
             }
         }

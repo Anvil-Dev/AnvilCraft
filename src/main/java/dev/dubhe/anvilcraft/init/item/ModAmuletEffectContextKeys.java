@@ -3,11 +3,9 @@ package dev.dubhe.anvilcraft.init.item;
 import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.amulet.ctx.AmuletEffectContextKey;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 
@@ -83,8 +81,4 @@ public class ModAmuletEffectContextKeys {
         AnvilCraft.of("to_avoid_entity"),
         LivingEntity.class
     );
-
-    private static AmuletEffectContextKey<EntityType<?>> ofEntityType(ResourceLocation id) {
-        return AmuletEffectContextKey.of(id, Util.cast(EntityType.class));
-    }
 }

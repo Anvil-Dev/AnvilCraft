@@ -23,11 +23,13 @@ import java.lang.ref.SoftReference;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import javax.annotation.Nullable;
 
 @SuppressWarnings("DataFlowIssue")
@@ -51,6 +53,7 @@ public class AmuletManager {
         AmuletManager.INSTANCE = null;
     }
 
+    private static final Map<UUID, CacheEntry> CACHE = new HashMap<>();
     private final List<Holder.Reference<IAmuletDefinition>> definitions;
 
     private AmuletManager(List<Holder.Reference<IAmuletDefinition>> definitions) {
@@ -96,9 +99,16 @@ public class AmuletManager {
     /// @param entity 佩戴护符的玩家
     /// @return 玩家身上所有护符展开后的效果
     public Map<IAmuletEffect, ItemStack> getActiveEffects(LivingEntity entity) {
+        List<ItemStack> amulets = this.getAmuletsFromInventory(entity);
+        UUID id = entity.getUUID();
+        CacheEntry entry = CACHE.get(id);
+        if (entry != null && entry.isCacheHit(amulets)) {
+            return entry.effects();
+        }
+
         Map<IAmuletEffect, ItemStack> effects = new LinkedHashMap<>();
         Set<IAmuletEffect> triggered = AmuletManager.identityView();
-        for (ItemStack stack : this.getAmuletsFromInventory(entity)) {
+        for (ItemStack stack : amulets) {
             Amulet amulet = this.getAmulet(stack);
             if (amulet == null) {
                 continue;
@@ -109,6 +119,7 @@ public class AmuletManager {
                 }
             }
         }
+        CACHE.put(id, new CacheEntry(amulets, effects));
         return effects;
     }
 
@@ -120,9 +131,6 @@ public class AmuletManager {
     }
 
     /// 判断护符效果是否应在当前侧求值。
-    ///
-    /// <p>护符是代码注册的静态数据，效果判定全部由服务端负责，客户端只展示服务端同步的结果；
-    /// 唯有需要参与客户端预测的重力计算与需要两侧同时拦截的交互例外。</p>
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     public static boolean shouldEvaluate(LivingEntity entity) {
         return !entity.level().isClientSide();
@@ -198,12 +206,12 @@ public class AmuletManager {
         return player.getData(ModDataAttachments.AMULET_RAFFLE_PROBABILITY).getProbability(def);
     }
 
-    /// 判断能充当给定护符的护符是否已在玩家身上生效
+    /// 判断能充当给定护符的护符是否已在实体身上生效
     ///
-    /// @param player 佩戴护符的玩家
+    /// @param entity 佩戴护符的实体
     /// @param amulet 给定护符的资源键
-    /// @return 能充当给定护符的护符是否已在玩家身上生效
-    public boolean isAmuletActive(Player player, ResourceKey<Amulet> amulet) {
+    /// @return 能充当给定护符的护符是否已在实体身上生效
+    private boolean isAmuletActive(LivingEntity entity, ResourceKey<Amulet> amulet) {
         Amulet target = ModRegistries.AMULET.get(amulet);
         if (target == null) {
             return false;
@@ -213,18 +221,18 @@ public class AmuletManager {
             return false;
         }
         Set<IAmuletEffect> triggered = AmuletManager.identityView();
-        triggered.addAll(this.getActiveEffects(player).keySet());
+        triggered.addAll(this.getActiveEffects(entity).keySet());
         return triggered.containsAll(effects);
     }
 
-    /// 判断给定护符定义对应的护符是否已佩戴在玩家身上
+    /// 判断给定护符定义对应的护符是否已佩戴在实体身上
     ///
-    /// @param player 佩戴护符的玩家
+    /// @param entity 佩戴护符的实体
     /// @param def    给定护符的定义
-    /// @return 给定护符定义对应的护符是否已佩戴在玩家身上
-    public boolean isAmuletActive(Player player, Holder<IAmuletDefinition> def) {
+    /// @return 给定护符定义对应的护符是否已佩戴在实体身上
+    private boolean isAmuletActive(LivingEntity entity, Holder<IAmuletDefinition> def) {
         ItemStack target = def.value().create();
-        List<ItemStack> amulets = this.getAmuletsFromInventory(player);
+        List<ItemStack> amulets = this.getAmuletsFromInventory(entity);
         return amulets.stream().anyMatch(stack -> ItemStack.isSameItem(stack, target));
     }
 
@@ -244,5 +252,35 @@ public class AmuletManager {
     public @Nullable Amulet getAmulet(ItemStack stack) {
         ResourceKey<Amulet> key = stack.get(ModComponents.AMULET);
         return key == null ? null : ModRegistries.AMULET.get(key);
+    }
+
+    private record CacheEntry(int hash, Map<IAmuletEffect, ItemStack> effects) {
+        public CacheEntry(List<ItemStack> stacks, Map<IAmuletEffect, ItemStack> effects) {
+            this(CacheEntry.hashStackList(stacks), effects);
+        }
+
+        public boolean isCacheHit(List<ItemStack> stacks) {
+            return this.hash == CacheEntry.hashStackList(stacks);
+        }
+
+        private static int hashStackList(List<ItemStack> stacks) {
+            int i = 0;
+            for (ItemStack stack : stacks) {
+                i *= 31;
+                i += ItemStack.hashItemAndComponents(stack);
+            }
+            return i;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (!(o instanceof CacheEntry that)) return false;
+            return this.hash() == that.hash();
+        }
+
+        @Override
+        public int hashCode() {
+            return this.hash();
+        }
     }
 }

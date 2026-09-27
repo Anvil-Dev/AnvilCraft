@@ -65,7 +65,7 @@ public class ModAmulets {
         "ruby",
         () -> Amulet.of(
             GiveMobEffectAmuletEffect.notInLava(
-                new MobEffectInstance(MobEffects.FIRE_RESISTANCE, 3, 0, false, false),
+                new MobEffectInstance(MobEffects.FIRE_RESISTANCE, 3, 0, false, false, true),
                 MinMaxBounds.Ints.atMost(3600)
             ),
             GiveMobEffectAmuletEffect.onFire(MobEffects.DAMAGE_BOOST, 1),
@@ -76,7 +76,7 @@ public class ModAmulets {
         "sapphire",
         () -> Amulet.of(
             GiveMobEffectAmuletEffect.notInWater(
-                new MobEffectInstance(MobEffects.CONDUIT_POWER, 3, 0, false, false),
+                new MobEffectInstance(MobEffects.CONDUIT_POWER, 3, 0, false, false, true),
                 MinMaxBounds.Ints.atMost(3600)
             ),
             GiveMobEffectAmuletEffect.inWaterOrBreathing(MobEffects.DAMAGE_RESISTANCE, 0)
