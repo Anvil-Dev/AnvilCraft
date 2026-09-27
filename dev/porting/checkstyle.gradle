@@ -27,6 +27,7 @@ allprojects {
             include '**/GasFluid.java', '**/PrimordialMatterFluid.java', '**/ModelProviderUtil.java', '**/FluidLang.java'
             include '**/ModFluidBucketModelMixin.java', '**/FluidBucketGeometry.java'
             include '**/PowerConverter*.java', '**/BasePowerConverterBlock.java'
+            include '**/CreativeGeneratorBlockEntity.java', '**/SliderScreen.java'
             include '**/ItemCompressRecipeLoader.java', '**/BlockCompressRecipeLoader.java', '**/SolidLiquidRecipeLoader.java'
             include '**/LargeBlockPlacePreviewEventListener.java', '**/ChuteBlockItem.java', '**/CelestialForgingAnvilAmplifierBlockItem.java'
             include '**/ItemSplitter*.java'

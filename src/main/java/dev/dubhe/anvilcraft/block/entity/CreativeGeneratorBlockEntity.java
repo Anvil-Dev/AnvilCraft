@@ -28,9 +28,11 @@ import java.util.Objects;
 
 @Getter
 public class CreativeGeneratorBlockEntity extends BlockEntity implements IPowerProducer, IPowerConsumer, MenuProvider {
+    public static final int MAX_POWER = 65536;
+    private static final int DEFAULT_POWER = 8192;
     private @Nullable PowerGrid grid;
 
-    private int power = 16;
+    private int power = DEFAULT_POWER;
 
     private int time = 0;
     private boolean previousSyncFailed = false;
@@ -58,7 +60,7 @@ public class CreativeGeneratorBlockEntity extends BlockEntity implements IPowerP
     @Override
     public void loadAdditional(ValueInput input) {
         super.loadAdditional(input);
-        this.power = input.getIntOr("power", 0);
+        this.power = Math.clamp(input.getIntOr("power", 0), -MAX_POWER, MAX_POWER);
     }
 
     @Override
@@ -107,7 +109,7 @@ public class CreativeGeneratorBlockEntity extends BlockEntity implements IPowerP
     }
 
     public void setPower(int power) {
-        this.power = power;
+        this.power = Math.clamp(power, -MAX_POWER, MAX_POWER);
         if (this.level instanceof ServerLevel) {
             if (this.grid != null) {
                 this.grid.markChanged();

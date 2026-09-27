@@ -2309,12 +2309,53 @@
   },
   "creative_generator_source_delta": {
     "source_commit": "07eb60b47f14439375da10e78f4d4770f3a83256",
-    "status": "pending",
+    "status": "source_bounds_default_and_native_menu_verified",
     "discovered_during": "power_converter_tiers",
     "required": [
       "Source clamps configured and loaded generator power to +/-65536",
       "Audit source slider/menu range and related presentation changes"
     ],
-    "evidence": "Source CreativeGeneratorBlockEntity.MAX_POWER is 65536; native setter currently has no clamp. The paired converter scene uses two 65536 kW generators."
+    "ported": [
+      "Source default 8192 kW and signed 65536 kW setter/load limits",
+      "Logarithmic slider range, endpoint buttons and text-input clamping",
+      "Preserved grid notification lifecycle and actual menu/network initialization"
+    ],
+    "verification": {
+      "focused_log": "build/porting/tests-creative-generator-focused-1.log",
+      "tests_style_log": "build/porting/tests-creative-generator-final.log",
+      "native_client_style_log": "build/porting/client-creative-generator-3.log",
+      "source_client_log": "build/porting/client-creative-generator-source-final.log",
+      "report": "build/porting/creative-generator-comparison.json",
+      "required_tests_passed": 633,
+      "source_methods_equivalent": 4,
+      "visuals": {
+        "default": {
+          "mean_rgb_error": 0.031803423848878395,
+          "equal_pixel_fraction": 0.9770513577331759
+        },
+        "max": {
+          "mean_rgb_error": 0.0368211334120425,
+          "equal_pixel_fraction": 0.9746900826446281
+        },
+        "min": {
+          "mean_rgb_error": 0.03829693034238489,
+          "equal_pixel_fraction": 0.973952184179457
+        }
+      }
+    },
+    "limits": [
+      "Cursor blink and native GUI rendering may differ in the paired screenshots.",
+      "The fixture uses a server-confirmed teleport before client interaction."
+    ]
+  },
+  "creative_laser_prerequisites": {
+    "source_commit": "07eb60b47f14439375da10e78f4d4770f3a83256",
+    "status": "source_dependency_audit_pending_port",
+    "required": [
+      "Source laser component-map framework and gamma emission hooks in shared BaseLaserBlockEntity",
+      "Creative laser block/entity, control menu/screen and init/update packets",
+      "Original model assets and native beam rendering parity"
+    ],
+    "evidence": "Native api/laser component framework is absent and shared BaseLaserBlockEntity lacks configureLaserComponents/emitGammaLaserBeam hooks required by source CreativeLaserBlockEntity."
   }
 }
