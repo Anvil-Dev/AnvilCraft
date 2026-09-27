@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.event;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.api.amulet.AmuletManager;
 import dev.dubhe.anvilcraft.init.entity.ModDamageTypeTags;
 import dev.dubhe.anvilcraft.init.entity.ModEntityTypeTags;
 import dev.dubhe.anvilcraft.util.dummy.DummyArmadillo;
@@ -29,8 +30,10 @@ public class EntityEventListener {
 
     @SubscribeEvent
     public static void onLeaveLevel(EntityLeaveLevelEvent event) {
-        DummyArmadillo.clear(event.getEntity());
-        DummyCat.clear(event.getEntity());
-        DummyWolf.clear(event.getEntity());
+        Entity entity = event.getEntity();
+        DummyArmadillo.clear(entity);
+        DummyCat.clear(entity);
+        DummyWolf.clear(entity);
+        AmuletManager.get(event.getLevel().registryAccess()).clear(entity.getUUID());
     }
 }

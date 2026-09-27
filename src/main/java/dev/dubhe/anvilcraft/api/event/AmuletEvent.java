@@ -28,7 +28,7 @@ public abstract sealed class AmuletEvent extends Event
         this.manager = manager;
     }
 
-    /// 本事件会在 {@link AmuletManager#getAmuletsFromInventory(LivingEntity)} 内发出，<br>
+    /// 本事件会在 {@link AmuletManager#findAmulets(LivingEntity)} 内发出，<br>
     /// 并允许其它模组从非物品栈形式的源提供护符。
     /// <p>注意：您不需要在此事件中处理护符容器（物品栈形式的源）。请与 {@link ProcessFound} 中执行上述操作。</p>
     /// <p>本事件会在双端发出。</p>

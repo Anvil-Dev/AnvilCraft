@@ -9,9 +9,9 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.animal.Cat;
 import net.minecraft.world.entity.animal.Wolf;
 import net.minecraft.world.entity.animal.armadillo.Armadillo;
-import org.jspecify.annotations.Nullable;
 
 import java.util.function.Function;
+import javax.annotation.Nullable;
 
 @UtilityClass
 public class Impersonators {

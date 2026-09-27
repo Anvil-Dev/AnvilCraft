@@ -39,7 +39,8 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.animal.IronGolem;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.NeutralMob;
 import net.minecraft.world.entity.item.FallingBlockEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
@@ -85,9 +86,10 @@ public abstract class LivingEntityMixin extends Entity {
     private void anvilcraft$ignoreProtectedAttacker(@Nullable LivingEntity attacker, CallbackInfo ci) {
         LivingEntity thiz = Util.cast(this);
         if (
-            thiz instanceof IronGolem golem
+            thiz instanceof NeutralMob neutral
+            && neutral instanceof Mob mob
             && attacker instanceof Player player
-            && AmuletAbilitiesEventListener.shouldIgnoreTarget(player, golem)
+            && AmuletAbilitiesEventListener.shouldIgnoreTarget(player, mob)
         ) {
             ci.cancel();
         }

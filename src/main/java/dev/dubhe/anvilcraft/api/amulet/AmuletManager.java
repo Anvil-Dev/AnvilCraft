@@ -8,8 +8,13 @@ import dev.dubhe.anvilcraft.init.ModDataAttachments;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.registry.ModRegistries;
 import dev.dubhe.anvilcraft.init.registry.ModRegistryKeys;
+import io.netty.buffer.ByteBufUtil;
+import io.netty.buffer.Unpooled;
+import lombok.SneakyThrows;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.RegistryAccess;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.RandomSource;
@@ -18,9 +23,12 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.network.connection.ConnectionType;
 
 import java.lang.ref.SoftReference;
+import java.security.MessageDigest;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -28,11 +36,12 @@ import java.util.IdentityHashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
+import java.util.WeakHashMap;
 import javax.annotation.Nullable;
 
-@SuppressWarnings("DataFlowIssue")
 public class AmuletManager {
     private static @Nullable SoftReference<AmuletManager> INSTANCE;
 
@@ -40,7 +49,7 @@ public class AmuletManager {
         if (AmuletManager.INSTANCE == null || AmuletManager.INSTANCE.get() == null) {
             AmuletManager.INSTANCE = new SoftReference<>(new AmuletManager(AmuletManager.extractDefinitions(registries)));
         }
-        return AmuletManager.INSTANCE.get();
+        return Objects.requireNonNull(AmuletManager.INSTANCE.get());
     }
 
     public static List<Holder.Reference<IAmuletDefinition>> extractDefinitions(HolderLookup.Provider registries) {
@@ -53,14 +62,20 @@ public class AmuletManager {
         AmuletManager.INSTANCE = null;
     }
 
-    private static final Map<UUID, CacheEntry> CACHE = new HashMap<>();
+    public void clear(UUID id) {
+        for (Map<UUID, CacheEntry> value : this.cache.values()) {
+            value.remove(id);
+        }
+    }
+
+    private final WeakHashMap<RegistryAccess, Map<UUID, CacheEntry>> cache = new WeakHashMap<>();
     private final List<Holder.Reference<IAmuletDefinition>> definitions;
 
     private AmuletManager(List<Holder.Reference<IAmuletDefinition>> definitions) {
         this.definitions = definitions;
     }
 
-    public List<ItemStack> getAmuletsFromInventory(LivingEntity entity) {
+    public List<ItemStack> findAmulets(LivingEntity entity) {
         List<ItemStack> founds = new ArrayList<>();
         NeoForge.EVENT_BUS.post(new AmuletEvent.Find(this, entity, founds::add));
         List<ItemStack> amulets = new ArrayList<>();
@@ -91,18 +106,20 @@ public class AmuletManager {
         }
     }
 
-    /// 获取玩家身上所有护符展开后的效果，以及提供该效果的护符物品堆
+    /// 获取实体身上所有护符展开后的效果，以及提供该效果的护符物品堆
     ///
     /// <p>包覆类护符展开后与被包覆护符共用同一批效果实例，这里按引用判等去重，
     /// 保证同时佩戴二者时同一效果只会触发一次。</p>
     ///
-    /// @param entity 佩戴护符的玩家
-    /// @return 玩家身上所有护符展开后的效果
+    /// @param entity 佩戴护符的实体
+    /// @return 实体身上所有护符展开后的效果
     public Map<IAmuletEffect, ItemStack> getActiveEffects(LivingEntity entity) {
-        List<ItemStack> amulets = this.getAmuletsFromInventory(entity);
+        List<ItemStack> amulets = this.findAmulets(entity);
         UUID id = entity.getUUID();
-        CacheEntry entry = CACHE.get(id);
-        if (entry != null && entry.isCacheHit(amulets)) {
+        RegistryAccess registries = entity.registryAccess();
+        Map<UUID, CacheEntry> cache = this.cache.computeIfAbsent(registries, ignore -> new HashMap<>());
+        CacheEntry entry = cache.get(id);
+        if (entry != null && entry.isCacheHit(amulets, registries)) {
             return entry.effects();
         }
 
@@ -119,7 +136,7 @@ public class AmuletManager {
                 }
             }
         }
-        CACHE.put(id, new CacheEntry(amulets, effects));
+        cache.put(id, new CacheEntry(amulets, registries, effects));
         return effects;
     }
 
@@ -136,9 +153,9 @@ public class AmuletManager {
         return !entity.level().isClientSide();
     }
 
-    /// 触发玩家身上所有护符的效果
+    /// 触发实体身上所有护符的效果
     ///
-    /// @param entity 佩戴护符的玩家
+    /// @param entity 佩戴护符的实体
     /// @param ctx    本次触发的上下文
     public void trigger(LivingEntity entity, AmuletEffectContext ctx) {
         this.getActiveEffects(entity).forEach((effect, stack) -> effect.trigger(entity, stack, ctx));
@@ -232,7 +249,7 @@ public class AmuletManager {
     /// @return 给定护符定义对应的护符是否已佩戴在实体身上
     private boolean isAmuletActive(LivingEntity entity, Holder<IAmuletDefinition> def) {
         ItemStack target = def.value().create();
-        List<ItemStack> amulets = this.getAmuletsFromInventory(entity);
+        List<ItemStack> amulets = this.findAmulets(entity);
         return amulets.stream().anyMatch(stack -> ItemStack.isSameItem(stack, target));
     }
 
@@ -254,33 +271,57 @@ public class AmuletManager {
         return key == null ? null : ModRegistries.AMULET.get(key);
     }
 
-    private record CacheEntry(int hash, Map<IAmuletEffect, ItemStack> effects) {
-        public CacheEntry(List<ItemStack> stacks, Map<IAmuletEffect, ItemStack> effects) {
-            this(CacheEntry.hashStackList(stacks), effects);
+    private record CacheEntry(int size, byte[] sha256, Map<IAmuletEffect, ItemStack> effects) {
+        public CacheEntry(List<ItemStack> stacks, RegistryAccess registries, Map<IAmuletEffect, ItemStack> effects) {
+            this(stacks.size(), CacheEntry.sha256StackList(stacks, registries), effects);
         }
 
-        public boolean isCacheHit(List<ItemStack> stacks) {
-            return this.hash == CacheEntry.hashStackList(stacks);
+        public boolean isCacheHit(List<ItemStack> stacks, RegistryAccess registries) {
+            return this.size == stacks.size()
+                   && this.sha256 == CacheEntry.sha256StackList(stacks, registries);
         }
 
-        private static int hashStackList(List<ItemStack> stacks) {
-            int i = 0;
-            for (ItemStack stack : stacks) {
-                i *= 31;
-                i += ItemStack.hashItemAndComponents(stack);
+        @SneakyThrows
+        private static byte[] sha256StackList(List<ItemStack> list, RegistryAccess registries) {
+            MessageDigest md = MessageDigest.getInstance("SHA-256");
+
+            CacheEntry.updateInt(md, list.size());
+
+            RegistryFriendlyByteBuf buf = new RegistryFriendlyByteBuf(Unpooled.buffer(), registries, ConnectionType.NEOFORGE);
+            try {
+                for (ItemStack stack : list) {
+                    buf.clear();
+
+                    ItemStack.STREAM_CODEC.encode(buf, stack);
+                    byte[] encoded = ByteBufUtil.getBytes(buf, buf.readerIndex(), buf.readableBytes(), false);
+
+                    CacheEntry.updateInt(md, encoded.length);
+                    md.update(encoded);
+                }
+            } finally {
+                buf.release();
             }
-            return i;
+
+            return md.digest();
+        }
+
+        private static void updateInt(MessageDigest md, int v) {
+            md.update((byte) (v >>> 24));
+            md.update((byte) (v >>> 16));
+            md.update((byte) (v >>> 8));
+            md.update((byte) v);
         }
 
         @Override
         public boolean equals(Object o) {
             if (!(o instanceof CacheEntry that)) return false;
-            return this.hash() == that.hash();
+            return this.size() == that.size()
+                   && this.sha256() == that.sha256();
         }
 
         @Override
         public int hashCode() {
-            return this.hash();
+            return Objects.hash(this.size(), Arrays.hashCode(this.sha256()));
         }
     }
 }

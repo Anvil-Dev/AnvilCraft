@@ -6,7 +6,7 @@ import net.minecraft.advancements.critereon.EntityFlagsPredicate;
 import net.minecraft.advancements.critereon.EntityPredicate;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderSet;
-import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.LivingEntity;
@@ -41,7 +41,7 @@ public record ImmuneMobEffectAmuletEffect(
 
     @Override
     public void trigger(LivingEntity entity, ItemStack amulet, AmuletEffectContext ctx) {
-        if (!(entity instanceof ServerPlayer serverPlayer) || !this.matches(serverPlayer)) {
+        if (!(entity.level() instanceof ServerLevel level) || !this.matches(level, entity)) {
             return;
         }
         Optional<MobEffectInstance> instance = ctx.get(ModAmuletEffectContextKeys.MOB_EFFECT);
@@ -61,7 +61,7 @@ public record ImmuneMobEffectAmuletEffect(
         }
     }
 
-    private boolean matches(ServerPlayer player) {
-        return this.condition.isEmpty() || this.condition.get().matches(player, player);
+    private boolean matches(ServerLevel level, LivingEntity entity) {
+        return this.condition.isEmpty() || this.condition.get().matches(level, entity.position(), entity);
     }
 }

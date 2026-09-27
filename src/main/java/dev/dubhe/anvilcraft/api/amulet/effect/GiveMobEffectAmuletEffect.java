@@ -1,8 +1,5 @@
 package dev.dubhe.anvilcraft.api.amulet.effect;
 
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
-import dev.anvilcraft.lib.v2.codec.StreamCodecUtil;
 import dev.anvilcraft.lib.v2.math.expression.Arguments;
 import dev.anvilcraft.lib.v2.math.expression.IExpression;
 import dev.anvilcraft.lib.v2.math.init.LibBuiltInFunctions;
@@ -16,10 +13,7 @@ import net.minecraft.advancements.critereon.EntityPredicate;
 import net.minecraft.advancements.critereon.EntitySubPredicate;
 import net.minecraft.advancements.critereon.MinMaxBounds;
 import net.minecraft.core.Holder;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.LivingEntity;
@@ -142,19 +136,19 @@ public record GiveMobEffectAmuletEffect(
 
     @Override
     public void trigger(LivingEntity entity, ItemStack amulet, AmuletEffectContext ctx) {
-        if (!(entity instanceof ServerPlayer serverPlayer) || !ctx.getOrDefault(ModAmuletEffectContextKeys.ENABLED, false)) {
+        if (!(entity.level() instanceof ServerLevel level) || !ctx.getOrDefault(ModAmuletEffectContextKeys.ENABLED, false)) {
             return;
         }
-        if (this.predicate.isPresent() && !this.predicate.get().matches(serverPlayer, serverPlayer)) {
+        if (this.predicate.isPresent() && !this.predicate.get().matches(level, entity.position(), entity)) {
             return;
         }
         for (Entry entry : this.effects) {
             MobEffectInstance effect = entry.effect();
             Optional<MinMaxBounds.Ints> boundsOp = entry.bounds();
             Holder<MobEffect> type = effect.getEffect();
-            MobEffectInstance exist = serverPlayer.getEffect(type);
+            MobEffectInstance exist = entity.getEffect(type);
             if (exist == null) {
-                serverPlayer.addEffect(new MobEffectInstance(
+                entity.addEffect(new MobEffectInstance(
                     type,
                     effect.getDuration(),
                     effect.getAmplifier(),
@@ -163,7 +157,7 @@ public record GiveMobEffectAmuletEffect(
                     effect.showIcon()
                 ));
             } else if (boundsOp.isEmpty()) {
-                serverPlayer.addEffect(new MobEffectInstance(
+                entity.addEffect(new MobEffectInstance(
                     type,
                     entry.duration().evaluateInt(GiveMobEffectAmuletEffect.durationInputs(exist.getDuration(), effect.getDuration())),
                     effect.getAmplifier(),
@@ -173,7 +167,7 @@ public record GiveMobEffectAmuletEffect(
                 ));
             } else if (boundsOp.get().matches(exist.getDuration())) {
                 MinMaxBounds.Ints bounds = boundsOp.get();
-                serverPlayer.addEffect(new MobEffectInstance(
+                entity.addEffect(new MobEffectInstance(
                     type,
                     Math.clamp(
                         entry.duration().evaluateInt(GiveMobEffectAmuletEffect.durationInputs(exist.getDuration(), effect.getDuration())),
@@ -203,27 +197,6 @@ public record GiveMobEffectAmuletEffect(
     /// @param bounds   既有剩余时长的上下界，不满足时不叠加时长
     /// @param duration 剩余时长的计算方式，见 {@link GiveMobEffectAmuletEffect#DEFAULT_DURATION}
     public record Entry(MobEffectInstance effect, Optional<MinMaxBounds.Ints> bounds, IExpression duration) {
-        public static final Codec<Entry> CODEC = RecordCodecBuilder.create(inst -> inst.group(
-            MobEffectInstance.CODEC
-                .fieldOf("effect")
-                .forGetter(Entry::effect),
-            MinMaxBounds.Ints.CODEC
-                .optionalFieldOf("bounds")
-                .forGetter(Entry::bounds),
-            IExpression.CODEC
-                .optionalFieldOf("duration", GiveMobEffectAmuletEffect.DEFAULT_DURATION)
-                .forGetter(Entry::duration)
-        ).apply(inst, Entry::new));
-        public static final StreamCodec<RegistryFriendlyByteBuf, Entry> STREAM_CODEC = StreamCodec.composite(
-            MobEffectInstance.STREAM_CODEC,
-            Entry::effect,
-            ByteBufCodecs.optional(StreamCodecUtil.MIN_MAX_BOUNDS_INTS),
-            Entry::bounds,
-            IExpression.STREAM_CODEC,
-            Entry::duration,
-            Entry::new
-        );
-
         /// 时长按上下界累加
         public static Entry of(MobEffectInstance effect, MinMaxBounds.Ints bounds) {
             return new Entry(effect, Optional.of(bounds), GiveMobEffectAmuletEffect.DEFAULT_DURATION);

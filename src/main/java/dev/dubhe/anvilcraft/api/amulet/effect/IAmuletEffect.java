@@ -19,7 +19,7 @@ import java.util.Set;
 public interface IAmuletEffect {
     /// 触发该效果。
     ///
-    /// @param entity 佩戴护符的玩家
+    /// @param entity 佩戴护符的实体
     /// @param amulet 提供该效果的护符物品堆，未启用时为 {@link ItemStack#EMPTY}
     /// @param ctx    本次触发的上下文
     void trigger(LivingEntity entity, ItemStack amulet, AmuletEffectContext ctx);
