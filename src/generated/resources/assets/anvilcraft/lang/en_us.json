@@ -155,6 +155,8 @@
   "anvilcraft.configuration.chute_max_cooldown.tooltip": "Maximum cooldown time of chute (in ticks)",
   "anvilcraft.configuration.clean_fluid_after_update_menger_sponge": "Clean Fluid After Update Menger Sponge",
   "anvilcraft.configuration.clean_fluid_after_update_menger_sponge.tooltip": "Whether to clean fluid after updating Menger Sponge",
+  "anvilcraft.configuration.creative_variant_picker_enabled": "Fold Colored Item Variants",
+  "anvilcraft.configuration.creative_variant_picker_enabled.tooltip": "Folds 16-color families into a single representative item and enables the right-click variant picker; applies to both creative inventory layouts (requires restart)",
   "anvilcraft.configuration.display_anvil_animation": "Display Anvil Animation",
   "anvilcraft.configuration.display_anvil_animation.tooltip": "Should show anvil levitate animation",
   "anvilcraft.configuration.do_not_show_tooltip_when_jade_present": "Do Not Show Tooltip When Jade Present",

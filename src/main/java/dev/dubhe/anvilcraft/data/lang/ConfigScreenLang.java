@@ -151,6 +151,10 @@ public class ConfigScreenLang {
             "anvilcraft.configuration.laser_ore_cluster_max_size.tooltip",
             "Maximum ore vein size searched while mining with a laser gun; ore beyond this limit is not chain-mined (default: 64)"
         );
+        ConfigScreenLang.addOverride(provider, "anvilcraft.configuration.creative_variant_picker_enabled", "Fold Colored Item Variants");
+        ConfigScreenLang.addOverride(provider, "anvilcraft.configuration.creative_variant_picker_enabled.tooltip",
+            "Folds 16-color families into a single representative item and enables the right-click variant picker; "
+                + "applies to both creative inventory layouts (requires restart)");
     }
 
     private static void addOverride(RegistrumLangProvider provider, String key, String value) {

@@ -21,6 +21,7 @@ allprojects {
             include '**/AccelerationRingBlock.java', '**/DeflectionRingBlock.java', '**/LargeCauldronBlock.java'
             include '**/IFilterBlockEntity.java', '**/FilterItem.java'
             include '**/MineralFountainBlockEntity.java', '**/FishTankBlockEntity.java', '**/VanillaRecipesWrap.java'
+            include '**/ModCreativeVariantGroups.java'
             include '**/LargeBlockPlacePreviewEventListener.java', '**/ChuteBlockItem.java', '**/CelestialForgingAnvilAmplifierBlockItem.java'
             include '**/ItemSplitter*.java'
             include '**/OverflowChute*.java', '**/BaseChuteBlockEntity.java'

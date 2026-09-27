@@ -11,6 +11,9 @@ import net.neoforged.fml.config.ModConfig;
 
 @Config(name = AnvilCraft.MOD_ID, type = ModConfig.Type.CLIENT)
 public class AnvilCraftClientConfig {
+    @Comment("Fold 16-color item families into one representative item with a right-click variant picker in the creative inventory")
+    public boolean creativeVariantPickerEnabled = false;
+
     @Comment("Vanilla restores the original translucent atmosphere shell; Standard enables a thicker volume atmosphere. "
         + "Rendering failures fall back to Vanilla until resources reload. Changes take effect immediately.")
     public CelestialRenderingMode planetAtmosphereRenderingMode = CelestialRenderingMode.STANDARD;

@@ -1018,11 +1018,12 @@
       "building_selection_interaction",
       "filter_source_update",
       "production_source_update",
-      "button_and_portal_interaction"
+      "button_and_portal_interaction",
+      "creative_variants"
     ],
     "remaining_audit": [
       "Audit the remaining source-update files against the integrated placement, resource-accounting and interaction nodes",
-      "Creative search/reset and source resource/dependency deltas",
+      "Sectioned creative layout and content prerequisites, plus source translations/resources/dependency deltas",
       "Projection migration, optional renderer compatibility and full feature inventory"
     ]
   },
@@ -2055,5 +2056,84 @@
       "The native tag remains named anvil_hammer_blacklist, as used by native hammer consumers.",
       "Initial combined datagen/test invocation completed generation but tested stale processed resources; the separate focused rerun loaded the new tag and passed."
     ]
+  },
+  "creative_variants": {
+    "source_commit": "07eb60b47f14439375da10e78f4d4770f3a83256",
+    "status": "shared_variant_picker_and_trash_interaction_ported_and_paired_client_verified",
+    "ported": [
+      "Native Registrum snapshot.529 API and required runtime module version",
+      "Source default-disabled configuration and five sixteen-color variant families",
+      "Source white plus indicator adapted to native GUI extraction ordering",
+      "Shift pickup on creative trash maps to vanilla quick move",
+      "Source configuration translations and preservation of every color in search"
+    ],
+    "verification": {
+      "tests_datagen_style_log": "build/porting/tests-creative-variants-final.log",
+      "native_client_style_log": "build/porting/client-creative-variants-final-2.log",
+      "source_client_log": "build/porting/client-creative-variants-source-final.log",
+      "report": "build/porting/creative-variants-comparison.json",
+      "required_tests_passed": 619,
+      "groups_equal": 5,
+      "colors_per_group": 16,
+      "frame_maximum_error": 0,
+      "icon_mean_rgb_error": 0.68157958984375,
+      "marker_white_pixels": {
+        "26.1": 36,
+        "1.21": 2
+      }
+    },
+    "limits": [
+      "Both paired scenes use the legacy tab and replace the visible page with one representative after verifying real tab contents.",
+      "Source item depth partly occludes the plus glyph; native GUI draws the full source-specified glyph above the item.",
+      "Vanilla native item lighting is retained; sectioned creative tabs and their content prerequisites remain a separate node."
+    ]
+  },
+  "creative_sectioned_layout": {
+    "source_commit": "07eb60b47f14439375da10e78f4d4770f3a83256",
+    "status": "pending_content_reference_mapping_and_layout_port",
+    "dependency": "creative_variants supplies the native Registrum section/picker APIs",
+    "unresolved_source_names": {
+      "ItemsSections": {
+        "ModItems": [
+          "DEFORMATION_TEMPLATE_ITEM",
+          "DEUTERIUM_BUCKET",
+          "HELIUM_BUCKET",
+          "HYDROGEN_BUCKET",
+          "KRYPTON_BUCKET",
+          "OXYGEN_BUCKET",
+          "PERMUTATION_TEMPLATE_ITEM",
+          "PRIMORDIAL_MATTER_BUCKET",
+          "XENON_BUCKET"
+        ],
+        "ModBlocks": []
+      },
+      "FunctionalBlocksSections": {
+        "ModItems": [],
+        "ModBlocks": [
+          "CREATIVE_LASER",
+          "HYPERCUBE",
+          "HYPERDIMENSION_UPLOADER",
+          "MASS_ENERGY_INVERTER",
+          "OVERSEER_BLOCK",
+          "POWER_CONVERTER_EXTREMELY_BIG",
+          "POWER_CONVERTER_SUPER_BIG"
+        ]
+      },
+      "BuildingBlocksSections": {
+        "ModItems": [],
+        "ModBlocks": [
+          "BLACK_WHITE_CHOCOLATE_BLOCK",
+          "COOKIE_BLOCK",
+          "COOKIE_PILLAR",
+          "GUNPOWDER_BLOCK",
+          "HONEY_CAKE_BLOCK",
+          "HONEY_CREAM_BLOCK",
+          "MATCHA_CAKE_BLOCK",
+          "MATCHA_CREAM_BLOCK",
+          "RUINS_BLOCK"
+        ]
+      }
+    },
+    "note": "These are unmatched Java field names, not a confirmed list of missing registry entries; map aliases and port missing content before source layout acceptance."
   }
 }

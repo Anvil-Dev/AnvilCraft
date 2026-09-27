@@ -6,6 +6,7 @@ import dev.anvilcraft.lib.v2.cube.client.CubeSelection;
 import dev.anvilcraft.lib.v2.integration.IntegrationHook;
 import dev.anvilcraft.lib.v2.rendering.cachedber.renderer.CachedBlockEntityRenderDispatcher;
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.client.init.ModCreativeVariantGroups;
 import dev.dubhe.anvilcraft.client.init.ModModelLayers;
 import dev.dubhe.anvilcraft.client.init.ModPostEffects;
 import dev.dubhe.anvilcraft.client.particle.IonoCraftBackpackExhaustParticle;
@@ -84,6 +85,7 @@ public class AnvilCraftClient {
 
     @SubscribeEvent
     public static void clientSetup(FMLClientSetupEvent event) {
+        ModCreativeVariantGroups.register();
         event.enqueueWork(() -> {
             CachedBlockEntityRenderDispatcher.INSTANCE.registerRenderer(
                 ModBlockEntities.RUBY_LASER.get(),

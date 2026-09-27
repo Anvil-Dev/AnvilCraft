@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.mixin;
 
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
+import dev.anvilcraft.lib.v2.registrum.util.CreativeVariantPickerRegistry;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.inventory.PocketInventory;
 import dev.dubhe.anvilcraft.inventory.PocketSlot;
@@ -9,16 +10,19 @@ import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.ContainerInput;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.CreativeModeTab;
 import org.jspecify.annotations.Nullable;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyArgs;
+import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.invoke.arg.Args;
 
@@ -26,9 +30,35 @@ import org.spongepowered.asm.mixin.injection.invoke.arg.Args;
 abstract class CreativePocketScreenMixin extends AbstractContainerScreen<CreativeModeInventoryScreen.ItemPickerMenu> {
     @Shadow
     private static CreativeModeTab selectedTab;
+    @Shadow
+    private @Nullable Slot destroyItemSlot;
+    @Shadow
+    @Final
+    private static SimpleContainer CONTAINER;
 
     protected CreativePocketScreenMixin(CreativeModeInventoryScreen.ItemPickerMenu menu, Inventory inventory, Component title) {
         super(menu, inventory, title);
+    }
+
+    @ModifyVariable(method = "slotClicked", at = @At("HEAD"), argsOnly = true)
+    private ContainerInput anvilcraft$shiftDestroy(ContainerInput type, @Nullable Slot slot) {
+        return slot != null && slot == this.destroyItemSlot && type == ContainerInput.PICKUP && this.minecraft.hasShiftDown()
+            ? ContainerInput.QUICK_MOVE : type;
+    }
+
+    @Override
+    public void extractContents(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
+        super.extractContents(graphics, mouseX, mouseY, partialTick);
+        if (selectedTab.getType() != CreativeModeTab.Type.CATEGORY) return;
+        graphics.pose().pushMatrix();
+        graphics.pose().translate(this.leftPos, this.topPos);
+        graphics.nextStratum();
+        for (Slot slot : this.menu.slots) {
+            if (slot.container != CONTAINER || !slot.isActive()
+                || !CreativeVariantPickerRegistry.isCreativePickerEnabled(slot.getItem())) continue;
+            graphics.text(this.font, "+", slot.x + 10, slot.y + 1, 0xFFFFFFFF, true);
+        }
+        graphics.pose().popMatrix();
     }
 
     @ModifyArgs(method = "selectTab", at = @At(value = "INVOKE", target =
