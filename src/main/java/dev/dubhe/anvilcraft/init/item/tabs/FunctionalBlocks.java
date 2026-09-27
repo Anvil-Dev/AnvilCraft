@@ -163,6 +163,7 @@ public class FunctionalBlocks extends DisplayItemsGenerator {
         this.plain(ModBlocks.BRONZE_PRESSURE_PLATE);
 
         this.plain(ModBlocks.CREATIVE_GENERATOR);
+        this.plain(ModBlocks.CREATIVE_LASER);
         this.plain(ModBlocks.CREATIVE_FLUID_TANK);
         this.plain(ModBlocks.CREATIVE_CRATE);
         this.plain(ModBlocks.BLACK_HOLE);

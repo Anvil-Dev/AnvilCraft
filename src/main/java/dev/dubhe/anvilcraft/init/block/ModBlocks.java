@@ -101,6 +101,7 @@ import dev.dubhe.anvilcraft.block.heatable.RedhotBlock;
 import dev.dubhe.anvilcraft.block.item.RedstoneWireBlockItem;
 import dev.dubhe.anvilcraft.block.item.TradingStationBlockItem;
 import dev.dubhe.anvilcraft.block.laser.LargeLaserBlock;
+import dev.dubhe.anvilcraft.block.laser.CreativeLaserBlock;
 import dev.dubhe.anvilcraft.block.laser.LaserReceiverBlock;
 import dev.dubhe.anvilcraft.block.laser.LensBlock;
 import dev.dubhe.anvilcraft.block.laser.PropelPistonBlock;
@@ -1134,6 +1135,22 @@ public class ModBlocks {
         .simpleItem()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .recipe(RegistrumBlockRecipeLoader::inductionLight)
+        .register();
+
+    public static final BlockEntry<CreativeLaserBlock> CREATIVE_LASER = REGISTRUM.block("creative_laser", CreativeLaserBlock::new)
+        .initialProperties(() -> Blocks.IRON_BLOCK)
+        .properties(properties -> properties
+            .explosionResistance(Float.MAX_VALUE)
+            .isValidSpawn(Blocks::never)
+            .noOcclusion())
+        .blockstate(DataGenUtil::noExtraModelOrState)
+        .item()
+        .properties(Item.Properties::useBlockDescriptionPrefix)
+        .setData(ProviderType.LANG, (_, _) -> {})
+        .model(() -> (ctx, generator) -> generator.createWithExistingModel(ctx.get(), ctx.getId().withPrefix("block/")))
+        .properties(properties -> properties.rarity(Rarity.EPIC))
+        .build()
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .register();
 
     public static final BlockEntry<CreativeGeneratorBlock> CREATIVE_GENERATOR = REGISTRUM

@@ -5,6 +5,8 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.cfa.interfaces.CelestialForgingAnvilInterfaceBlock;
 import dev.dubhe.anvilcraft.block.entity.BaseLaserBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.CelestialForgingAnvilLaserInterfaceBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.CreativeLaserBlockEntity;
+import dev.dubhe.anvilcraft.block.laser.CreativeLaserBlock;
 import dev.dubhe.anvilcraft.block.laser.LensBlock;
 import dev.dubhe.anvilcraft.block.state.LensType;
 import dev.dubhe.anvilcraft.client.AnvilCraftClient;
@@ -17,6 +19,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 
 public final class LaserClientScene {
+    private static final boolean CREATIVE = Boolean.getBoolean("anvilcraft.portCreativeLaserBeam");
     private static final int HEIGHT_OFFSET = Integer.getInteger("anvilcraft.portLaserHeight", 0);
     private static int stage;
     private static long deadline;
@@ -43,13 +46,22 @@ public final class LaserClientScene {
                 int[] strengths = {1, 4, 16, 64, 16};
                 for (int row = 0; row < 5; row++) {
                     var pos = new BlockPos(-6, 162 + HEIGHT_OFFSET + row * 2, 0);
-                    var state = ModBlocks.CELESTIAL_FORGING_ANVIL_LASER_INTERFACE.getDefaultState()
-                        .setValue(CelestialForgingAnvilInterfaceBlock.FACING, Direction.EAST)
-                        .setValue(CelestialForgingAnvilInterfaceBlock.ACTIVE, true);
-                    level.setBlock(pos, state, Block.UPDATE_ALL);
-                    var source = (CelestialForgingAnvilLaserInterfaceBlockEntity) level.getBlockEntity(pos);
-                    source.setWormholeLaserOutput(strengths[row], row == 4);
-                    if (row < 4) {
+                    if (CREATIVE) {
+                        level.setBlock(pos, ModBlocks.CREATIVE_LASER.getDefaultState()
+                            .setValue(CreativeLaserBlock.FACING, Direction.EAST), Block.UPDATE_ALL);
+                        var source = (CreativeLaserBlockEntity) level.getBlockEntity(pos);
+                        source.setConfiguredLevel(strengths[row]);
+                        source.setGamma(row == 4);
+                        source.setLensType(LensType.values()[row < 4 ? row : 0]);
+                    } else {
+                        var state = ModBlocks.CELESTIAL_FORGING_ANVIL_LASER_INTERFACE.getDefaultState()
+                            .setValue(CelestialForgingAnvilInterfaceBlock.FACING, Direction.EAST)
+                            .setValue(CelestialForgingAnvilInterfaceBlock.ACTIVE, true);
+                        level.setBlock(pos, state, Block.UPDATE_ALL);
+                        var source = (CelestialForgingAnvilLaserInterfaceBlockEntity) level.getBlockEntity(pos);
+                        source.setWormholeLaserOutput(strengths[row], row == 4);
+                    }
+                    if (row < 4 && !CREATIVE) {
                         var lens = ModBlocks.LENS.getDefaultState().setValue(LensBlock.AXIS, Direction.Axis.X)
                             .setValue(LensBlock.TYPE, LensType.values()[row]);
                         level.setBlock(pos.east(2), lens, Block.UPDATE_ALL);
@@ -73,7 +85,7 @@ public final class LaserClientScene {
         }
         if (stage == 1) {
             for (int row = 0; row < 5; row++) {
-                var pos = new BlockPos(row == 0 || row == 4 ? -6 : -4, 162 + HEIGHT_OFFSET + row * 2, 0);
+                var pos = new BlockPos(CREATIVE || row == 0 || row == 4 ? -6 : -4, 162 + HEIGHT_OFFSET + row * 2, 0);
                 if (!(client.level.getBlockEntity(pos) instanceof BaseLaserBlockEntity laser)
                     || laser.getIrradiateBlockPos() == null || laser.getLaserLevel() <= 0) return;
                 if (laser.isEmittingGamma() != (row == 4)) throw new IllegalStateException("Client gamma row " + row);
@@ -153,6 +165,7 @@ public final class LaserClientScene {
     }
 
     private static String captureName(String name) {
+        if (CREATIVE) name = name.replace("laser-components", "creative-laser-beams");
         return HEIGHT_OFFSET == 0 ? name : name.replace(".png", "-high.png");
     }
 

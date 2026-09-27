@@ -12,6 +12,9 @@ gradle.projectsEvaluated {
         if (rootProject.providers.gradleProperty('portLaserLifecycle').isPresent()) {
             systemProperty 'anvilcraft.portLaserLifecycle', 'true'
         }
+        if (rootProject.providers.gradleProperty('portCreativeLaserBeam').isPresent()) {
+            systemProperty 'anvilcraft.portCreativeLaserBeam', 'true'
+        }
         args '--width', '1280', '--height', '720'
     }
 }

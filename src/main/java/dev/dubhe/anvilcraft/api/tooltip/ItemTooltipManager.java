@@ -286,6 +286,8 @@ public class ItemTooltipManager {
         ItemTooltipManager.NORMAL.put(ModItems.RECOVERY_PEARL.get(), "Right-click to teleport to last death point");
         ItemTooltipManager.NORMAL.put(ModBlocks.HEAT_COLLECTOR.asItem(), "Generates power from heat");
         ItemTooltipManager.NORMAL.put(ModBlocks.VOID_ENERGY_COLLECTOR.asItem(), "Generates power from Void energy");
+        ItemTooltipManager.NORMAL.put(ModBlocks.CREATIVE_LASER.asItem(), "Emits a laser beam");
+        ItemTooltipManager.SHIFT.put(ModBlocks.CREATIVE_LASER.asItem(), "Adjustable laser level, lens and gamma mode, can be turned off by redstone");
         ItemTooltipManager.NORMAL.put(ModBlocks.RUBY_LASER.asItem(), "Emits a laser beam when powered");
         ItemTooltipManager.NORMAL.put(ModBlocks.RUBY_PRISM.asItem(), "Deflects or converges laser beams");
         ItemTooltipManager.NORMAL.put(ModBlocks.TRANSPARENT_CRAFTING_TABLE.asItem(), "Aesthetic, connectable Crafting Table");

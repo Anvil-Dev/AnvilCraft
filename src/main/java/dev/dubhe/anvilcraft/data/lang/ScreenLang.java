@@ -10,6 +10,12 @@ public class ScreenLang {
      */
     @SuppressWarnings("checkstyle:LineLength")
     public static void init(RegistrumLangProvider provider) {
+        provider.add("screen.anvilcraft.creative_laser.lens.none", "No Lens"); // 无透镜
+        provider.add("screen.anvilcraft.creative_laser.lens.royal", "Royal Lens"); // 皇家透镜
+        provider.add("screen.anvilcraft.creative_laser.lens.frost", "Frost Lens"); // 浮霜透镜
+        provider.add("screen.anvilcraft.creative_laser.lens.ember", "Ember Lens"); // 余烬透镜
+        provider.add("screen.anvilcraft.creative_laser.type.normal", "Normal Laser"); // 普通激光
+        provider.add("screen.anvilcraft.creative_laser.type.gamma", "Gamma Laser"); // 伽马激光
         provider.add("screen.anvilcraft.auto_enchanting_table.title", "Auto Enchant");
         provider.add("screen.anvilcraft.auto_enchanting_table.search", "Search enchantments");
         provider.add("screen.anvilcraft.auto_enchanting_table.warning.bookshelf", "Not enough bookshelves");

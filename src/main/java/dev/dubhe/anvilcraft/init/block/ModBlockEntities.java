@@ -25,6 +25,7 @@ import dev.dubhe.anvilcraft.block.entity.CorruptedBeaconBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.CreativeCrateBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.CreativeFluidTankBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.CreativeGeneratorBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.CreativeLaserBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.CrushingTableBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.DeflectionRingBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.DetectorSlidingRailBlockEntity;
@@ -305,6 +306,12 @@ public class ModBlockEntities {
         .renderer(() -> LaserBlockEntityRenderer::new)
         .validBlock(ModBlocks.RUBY_PRISM)
         .register();
+    public static final BlockEntityEntry<CreativeLaserBlockEntity> CREATIVE_LASER = REGISTRUM
+        .blockEntity("creative_laser", CreativeLaserBlockEntity::createBlockEntity)
+        .renderer(() -> LaserBlockEntityRenderer::new)
+        .validBlock(ModBlocks.CREATIVE_LASER)
+        .register();
+
     public static final BlockEntityEntry<RubyLaserBlockEntity> RUBY_LASER = REGISTRUM
         .blockEntity("ruby_laser", RubyLaserBlockEntity::createBlockEntity)
         .renderer(() -> LaserBlockEntityRenderer::new)

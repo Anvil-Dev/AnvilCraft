@@ -2103,7 +2103,6 @@
       "FunctionalBlocksSections": {
         "ModItems": [],
         "ModBlocks": [
-          "CREATIVE_LASER",
           "HYPERCUBE",
           "HYPERDIMENSION_UPLOADER",
           "MASS_ENERGY_INVERTER",
@@ -2128,7 +2127,8 @@
     "completed_content_nodes": [
       "confectionery_blocks",
       "gas_fluids_and_buckets",
-      "power_converter_tiers"
+      "power_converter_tiers",
+      "creative_laser"
     ]
   },
   "confectionery_blocks": {
@@ -2350,13 +2350,13 @@
   },
   "creative_laser_prerequisites": {
     "source_commit": "07eb60b47f14439375da10e78f4d4770f3a83256",
-    "status": "shared_components_and_recipes_ported_creative_controls_pending",
+    "status": "complete_see_creative_laser",
     "required": [
       "Source laser component-map framework and gamma emission hooks in shared BaseLaserBlockEntity",
       "Creative laser block/entity, control menu/screen and init/update packets",
       "Original model assets and native beam rendering parity"
     ],
-    "evidence": "BaseLaserBlockEntity now exposes source component/gamma hooks; live default and Bloom comparisons recorded in laser_components_and_hit_recipes. Creative laser controls/assets remain missing."
+    "evidence": "Shared components, creative controls, assets and native rendering are now integrated and tested; see creative_laser and laser_bloom_parity."
   },
   "laser_components_and_hit_recipes": {
     "source_commit": "07eb60b47f14439375da10e78f4d4770f3a83256",
@@ -2456,7 +2456,6 @@
       }
     },
     "remaining": [
-      "Creative laser block/entity/menu/screen/packets and source item/model assets are still a separate pending feature.",
       "Additional shader-pack, fallback renderer, resource reload and broad camera-angle visual coverage are not established by this scene."
     ],
     "limits": [
@@ -2517,5 +2516,90 @@
     "source_commit": "07eb60b47f14439375da10e78f4d4770f3a83256",
     "status": "pending_separate_live_submit_path_audit",
     "evidence": "PowerGridSupport submits LINE_BLOOM through live geometry rather than CachedRenderingChunk; laser-only capture intentionally leaves this separate path for its own source visual audit."
+  },
+  "creative_laser": {
+    "source_commit": "07eb60b47f14439375da10e78f4d4770f3a83256",
+    "status": "ported_and_server_client_reference_verified",
+    "ported": [
+      "Creative laser block, six directional placement/crouch and hammer rotation, source model/collision shape, EPIC block item and functional creative entry.",
+      "Default level 16, adjustable 0..64 strength, four mining lens configurations, normal/gamma modes and redstone/zero-level cancellation.",
+      "Native ValueInput/ValueOutput persistence with source keys, client block-entity updates, initial menu payload and server update payload.",
+      "Source 176x77 menu, linear slider, endpoint and increment buttons, two-digit input, independent lens/type selection, resize and reopening.",
+      "Thirteen unchanged source resources; native item model definition, block loot and pickaxe tag; source English/Chinese names and tooltips.",
+      "Creative emitter registered in cached and fallback laser renderers and gamma packet routing."
+    ],
+    "verification": {
+      "focused_tests_log": "build/porting/tests-creative-laser-final-2.log",
+      "full_tests_style_log": "build/porting/tests-creative-laser-full.log",
+      "compile_data_log": "build/porting/check-creative-laser-final.log",
+      "final_compile_style_log": "build/porting/style-creative-laser-final.log",
+      "required_tests_passed": 645,
+      "focused_tests_passed": 4,
+      "native_menu_client_log": "build/porting/client-creative-laser-final.log",
+      "source_menu_client_log": "build/porting/client-creative-laser-reference-final.log",
+      "native_beam_client_log": "build/porting/client-creative-laser-beams-1.log",
+      "source_beam_client_log": "build/porting/client-creative-laser-beams-reference.log",
+      "report": "build/porting/creative-laser-comparison.json",
+      "source_equal_resources": 13,
+      "source_equivalent_method_bodies": 30,
+      "menu_comparisons": {
+        "default": {
+          "mean_rgb_error": 0.018816410861865408,
+          "equal_pixel_fraction": 0.985168240850059
+        },
+        "max": {
+          "mean_rgb_error": 0.01962809917355372,
+          "equal_pixel_fraction": 0.9847992916174735
+        },
+        "royal": {
+          "mean_rgb_error": 0.01933293978748524,
+          "equal_pixel_fraction": 0.9849468713105076
+        },
+        "frost": {
+          "mean_rgb_error": 0.01933293978748524,
+          "equal_pixel_fraction": 0.9849468713105076
+        },
+        "ember": {
+          "mean_rgb_error": 0.01933293978748524,
+          "equal_pixel_fraction": 0.9849468713105076
+        },
+        "gamma": {
+          "mean_rgb_error": 0.01933293978748524,
+          "equal_pixel_fraction": 0.9849468713105076
+        },
+        "reopen": {
+          "mean_rgb_error": 0.01652892561983471,
+          "equal_pixel_fraction": 0.9862750885478159
+        }
+      },
+      "item_visual": {
+        "mask_iou": 1.0,
+        "mean_rgb_error_on_item": 1.0541304347826086
+      },
+      "beam_rgb_error_with_native_atmospheric_fog": {
+        "default": {
+          "gamma": 4.497811447811448,
+          "ember": 3.2306126226170644,
+          "frost": 4.6685185185185185,
+          "royal": 6.873544973544973,
+          "normal": 6.295925925925926
+        },
+        "bloom": {
+          "gamma": 4.255692729766804,
+          "ember": 3.801596424010217,
+          "frost": 5.025237273511648,
+          "royal": 6.64549114331723,
+          "normal": 8.943957115009747
+        }
+      }
+    },
+    "source_contracts": [
+      "Configured creative lenses use specialTargets=false; source ore tags still classify void stone and earth-core ore as deepslate ores.",
+      "Two-digit input 99 retains source text-entry behavior while the submitted strength is clamped to 64.",
+      "The native TriStateButton expects full sheet height 48 rather than the source per-state height 16; shared tooltip rendering is reused."
+    ],
+    "limits": [
+      "Beam captures preserve native 26.1 atmospheric fog and randomized impact particles; remaining RGB differences are reported rather than claimed pixel-identical."
+    ]
   }
 }

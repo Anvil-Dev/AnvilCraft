@@ -6,6 +6,7 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.entity.BaseLaserBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.CelestialForgingAnvilLaserInterfaceBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.CelestialForgingAnvilPortalBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.CreativeLaserBlockEntity;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
@@ -52,6 +53,8 @@ public record LaserEmitPacket(int level, BlockPos laserPos, @Nullable BlockPos i
             cfaLaser.clientUpdateGamma(this.irradiatePos, this.level);
         } else if (this.gamma && laser instanceof CelestialForgingAnvilPortalBlockEntity portal) {
             portal.clientUpdateGamma(this.irradiatePos, this.level);
+        } else if (this.gamma && laser instanceof CreativeLaserBlockEntity creativeLaser) {
+            creativeLaser.clientUpdateGamma(this.irradiatePos, this.level);
         } else {
             laser.clientUpdate(this.irradiatePos, this.level);
         }

@@ -2872,5 +2872,14 @@
   "block.anvilcraft.power_converter_extremely_big": "能量转换器（极大）",
   "block.anvilcraft.power_converter_super_big": "能量转换器（超大）",
   "tooltip.anvilcraft.item.power_converter_extremely_big": "将能量转换为 FE，消耗 %d kW",
-  "tooltip.anvilcraft.item.power_converter_super_big": "将能量转换为 FE，消耗 %d kW"
+  "tooltip.anvilcraft.item.power_converter_super_big": "将能量转换为 FE，消耗 %d kW",
+  "block.anvilcraft.creative_laser": "创造激光器",
+  "screen.anvilcraft.creative_laser.lens.ember": "余烬透镜",
+  "screen.anvilcraft.creative_laser.lens.frost": "浮霜透镜",
+  "screen.anvilcraft.creative_laser.lens.none": "无透镜",
+  "screen.anvilcraft.creative_laser.lens.royal": "皇家透镜",
+  "screen.anvilcraft.creative_laser.type.gamma": "伽马激光",
+  "screen.anvilcraft.creative_laser.type.normal": "普通激光",
+  "tooltip.anvilcraft.item.creative_laser": "发射一道激光",
+  "tooltip.anvilcraft.item.creative_laser.shift": "可调节激光等级、透镜、伽马激光，可以用红石关闭"
 }

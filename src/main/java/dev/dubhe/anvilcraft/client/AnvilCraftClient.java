@@ -88,6 +88,10 @@ public class AnvilCraftClient {
         ModCreativeVariantGroups.register();
         event.enqueueWork(() -> {
             CachedBlockEntityRenderDispatcher.INSTANCE.registerRenderer(
+                ModBlockEntities.CREATIVE_LASER.get(),
+                new CachedLaserBlockEntityRenderer<>()
+            );
+            CachedBlockEntityRenderDispatcher.INSTANCE.registerRenderer(
                 ModBlockEntities.RUBY_LASER.get(),
                 new CachedLaserBlockEntityRenderer<>()
             );
