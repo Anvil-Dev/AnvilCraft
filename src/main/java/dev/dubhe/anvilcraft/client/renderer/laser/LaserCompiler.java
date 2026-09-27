@@ -45,7 +45,7 @@ public class LaserCompiler {
                 width,
                 state.length + 0.501F,
                 width,
-                ARGB.color(1, state.color),
+                ARGB.color(1.0F, state.coreColor),
                 state.laserAtlasSprite,
                 state.solidAtlasSprite
             )
@@ -86,7 +86,9 @@ public class LaserCompiler {
     ) {
         LaserCompiler.renderQuadX(consumer, pose, maxX, maxX, minY, minZ, maxY, maxZ, color, sprite);
         LaserCompiler.renderQuadX(consumer, pose, minX, minX, minY, maxZ, maxY, minZ, color, sprite);
-        LaserCompiler.renderQuadY(consumer, pose, maxY, maxY, minX, minZ, maxX, maxZ, ARGB.color(0.35f, color), endSprite);
+        LaserCompiler.renderQuadY(
+            consumer, pose, maxY, maxY, minX, minZ, maxX, maxZ, ARGB.color(Math.max(0, ARGB.alpha(color) - 64), color), endSprite
+        );
         // renderQuadY(consumer, pose, minY, minY, maxX, minZ, minX, maxZ, color, endSprite);
         LaserCompiler.renderQuadZ(consumer, pose, maxZ, maxZ, minX, maxY, maxX, minY, color, sprite);
         LaserCompiler.renderQuadZ(consumer, pose, minZ, minZ, minX, minY, maxX, maxY, color, sprite);

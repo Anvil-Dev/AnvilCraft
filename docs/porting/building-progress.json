@@ -2350,12 +2350,121 @@
   },
   "creative_laser_prerequisites": {
     "source_commit": "07eb60b47f14439375da10e78f4d4770f3a83256",
-    "status": "source_dependency_audit_pending_port",
+    "status": "shared_components_and_recipes_ported_creative_controls_pending",
     "required": [
       "Source laser component-map framework and gamma emission hooks in shared BaseLaserBlockEntity",
       "Creative laser block/entity, control menu/screen and init/update packets",
       "Original model assets and native beam rendering parity"
     ],
-    "evidence": "Native api/laser component framework is absent and shared BaseLaserBlockEntity lacks configureLaserComponents/emitGammaLaserBeam hooks required by source CreativeLaserBlockEntity."
+    "evidence": "BaseLaserBlockEntity now exposes source component/gamma hooks; live default and Bloom comparisons recorded in laser_components_and_hit_recipes. Creative laser controls/assets remain missing."
+  },
+  "laser_components_and_hit_recipes": {
+    "source_commit": "07eb60b47f14439375da10e78f4d4770f3a83256",
+    "status": "behavior_and_default_beams_verified_optional_bloom_parity_pending",
+    "ported": [
+      "Thirteen source-equivalent laser components with type-owned factories, merge policies and priorities; local exposure state survives equivalent updates.",
+      "Shared emitter/lens/CFA interface/portal emission, damage, heating, particles, mining, gamma behavior and native partial-inventory delivery.",
+      "Thirty-six identical laser_hit recipes, deterministic recipe priority and strength ordering, continuous exposure reset and lens targets leaving deepslate.",
+      "Network component type/strength, explicit CFA and portal gamma-state accessors, one-tick Penrose requests and correct front-face reception.",
+      "Native cached renderer preserved; separate red core and lens-color halo, source gamma color, end-face opacity and vanilla white-concrete end sprite.",
+      "Source Bloom default false restored without overwriting existing user configurations."
+    ],
+    "verification": {
+      "compile_data_log": "build/porting/check-laser-components-final.log",
+      "style_log": "build/porting/style-laser-components-final.log",
+      "focused_tests_log": "build/porting/tests-laser-components-2.log",
+      "full_tests_log": "build/porting/tests-laser-components-full-1.log",
+      "required_tests_passed": 641,
+      "focused_tests_passed": 8,
+      "native_client_log": "build/porting/client-laser-components-3.log",
+      "source_client_log": "build/porting/client-laser-reference-3.log",
+      "fog_diagnostic_log": "build/porting/client-laser-no-fog-1.log",
+      "report": "build/porting/laser-components-comparison.json",
+      "source_equivalent_component_count": 13,
+      "source_equal_recipe_count": 36,
+      "default_diagnostic_no_fog": {
+        "gamma": {
+          "mean_rgb_error_on_source_beam": 2.0158249158249157,
+          "saturated_mask_iou": 1.0,
+          "native_center_rgb": [
+            150.0,
+            16.0,
+            255.0
+          ],
+          "source_center_rgb": [
+            149.0,
+            16.0,
+            255.0
+          ]
+        },
+        "ember": {
+          "mean_rgb_error_on_source_beam": 0.9430555555555555,
+          "saturated_mask_iou": 1.0,
+          "native_center_rgb": [
+            255.0,
+            133.0,
+            7.0
+          ],
+          "source_center_rgb": [
+            255.0,
+            133.0,
+            7.0
+          ]
+        },
+        "frost": {
+          "mean_rgb_error_on_source_beam": 1.3174074074074074,
+          "saturated_mask_iou": 1.0,
+          "native_center_rgb": [
+            167.0,
+            59.0,
+            180.0
+          ],
+          "source_center_rgb": [
+            165.0,
+            59.0,
+            180.0
+          ]
+        },
+        "royal": {
+          "mean_rgb_error_on_source_beam": 3.6185185185185187,
+          "saturated_mask_iou": 1.0,
+          "native_center_rgb": [
+            147.0,
+            180.0,
+            104.0
+          ],
+          "source_center_rgb": [
+            138.0,
+            179.0,
+            103.0
+          ]
+        },
+        "normal": {
+          "mean_rgb_error_on_source_beam": 3.385925925925926,
+          "saturated_mask_iou": 1.0,
+          "native_center_rgb": [
+            255.0,
+            7.0,
+            7.0
+          ],
+          "source_center_rgb": [
+            255.0,
+            6.0,
+            6.0
+          ]
+        }
+      }
+    },
+    "remaining": [
+      "Restore optional Bloom to the source four-pass full-resolution weighted blur; current AnvilLib 519 down/up sampling changes the halo profile.",
+      "Creative laser block/entity/menu/screen/packets and source item/model assets are still a separate pending feature.",
+      "Additional shader-pack, fallback renderer, resource reload and broad camera-angle visual coverage are not established by this scene."
+    ],
+    "limits": [
+      "No-fog captures are a development-only diagnostic. Production retains vanilla 26.1 atmospheric fog.",
+      "Native fog probe: environmental 0..1024, render distance 230.4..256; default 1.21 near-field has no atmospheric fog.",
+      "Bloom enabled remains pending: source uses four full-resolution weighted blur passes, native library uses down/up sampling.",
+      "Particles are randomized; central beam strips exclude impact particles and the vanilla background."
+    ]
   }
 }

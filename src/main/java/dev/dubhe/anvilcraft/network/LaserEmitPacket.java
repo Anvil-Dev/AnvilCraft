@@ -47,6 +47,7 @@ public record LaserEmitPacket(int level, BlockPos laserPos, @Nullable BlockPos i
     @Override
     public void handleOnClient(Player player) {
         if (!(player.level().getBlockEntity(this.laserPos) instanceof BaseLaserBlockEntity laser)) return;
+        laser.clientUpdateComponents(this.level, this.gamma);
         if (this.gamma && laser instanceof CelestialForgingAnvilLaserInterfaceBlockEntity cfaLaser) {
             cfaLaser.clientUpdateGamma(this.irradiatePos, this.level);
         } else if (this.gamma && laser instanceof CelestialForgingAnvilPortalBlockEntity portal) {

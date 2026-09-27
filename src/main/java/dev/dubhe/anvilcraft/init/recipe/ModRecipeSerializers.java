@@ -9,6 +9,7 @@ import dev.dubhe.anvilcraft.recipe.ChargerChargingRecipe;
 import dev.dubhe.anvilcraft.recipe.EnergyWeaponMakeRecipe;
 import dev.dubhe.anvilcraft.recipe.FluidMixingRecipe;
 import dev.dubhe.anvilcraft.recipe.JewelCraftingRecipe;
+import dev.dubhe.anvilcraft.recipe.LaserHitRecipe;
 import dev.dubhe.anvilcraft.recipe.PillRecipe;
 import dev.dubhe.anvilcraft.recipe.PortalConversionRecipe;
 import dev.dubhe.anvilcraft.recipe.TerminalUnbindRecipe;
@@ -57,6 +58,10 @@ public class ModRecipeSerializers {
     private static final DeferredRegister<RecipeSerializer<?>> DF = DeferredRegister.create(
         Registries.RECIPE_SERIALIZER,
         AnvilCraft.MOD_ID
+    );
+
+    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<LaserHitRecipe>> LASER_HIT = DF.register(
+        "laser_hit", () -> LaserHitRecipe.SERIALIZER
     );
 
     public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<ShapelessRecipe>> TERMINAL_UNBIND = DF.register(

@@ -1,0 +1,18 @@
+{
+  "type": "anvilcraft:laser_hit",
+  "heat_duration": 40,
+  "hit_time": 20,
+  "input": {
+    "blocks": [
+      "anvilcraft:heated_netherite_block",
+      "anvilcraft:redhot_netherite_block",
+      "anvilcraft:glowing_netherite_block",
+      "anvilcraft:incandescent_netherite_block"
+    ]
+  },
+  "laser_strength": 64,
+  "priority": -50,
+  "result_block": {
+    "Name": "anvilcraft:incandescent_netherite_block"
+  }
+}

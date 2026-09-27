@@ -8,6 +8,7 @@ import dev.dubhe.anvilcraft.recipe.ChargerChargingRecipe;
 import dev.dubhe.anvilcraft.recipe.EnergyWeaponMakeRecipe;
 import dev.dubhe.anvilcraft.recipe.FluidMixingRecipe;
 import dev.dubhe.anvilcraft.recipe.JewelCraftingRecipe;
+import dev.dubhe.anvilcraft.recipe.LaserHitRecipe;
 import dev.dubhe.anvilcraft.recipe.PortalConversionRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.MassInjectRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.collision.AnvilCollisionCraftRecipe;
@@ -47,6 +48,8 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 
 public class ModRecipeTypes {
     private static final DeferredRegister<RecipeType<?>> DF = DeferredRegister.create(Registries.RECIPE_TYPE, AnvilCraft.MOD_ID);
+
+    public static final DeferredHolder<RecipeType<?>, RecipeType<LaserHitRecipe>> LASER_HIT = registerType("laser_hit");
 
     public static final DeferredHolder<RecipeType<?>, RecipeType<BlockCrushRecipe>> BLOCK_CRUSH = registerType("block_crush");
     public static final DeferredHolder<RecipeType<?>, RecipeType<ItemCrushRecipe>> ITEM_CRUSH = registerType("item_crush");

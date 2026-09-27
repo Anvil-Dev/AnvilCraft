@@ -1,0 +1,13 @@
+{
+  "type": "anvilcraft:laser_hit",
+  "hit_time": 40,
+  "input": {
+    "blocks": "#c:ores"
+  },
+  "laser_strength": 12,
+  "priority": -100,
+  "result_block": {
+    "Name": "minecraft:stone"
+  },
+  "use_block_loot": true
+}

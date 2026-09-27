@@ -1,0 +1,11 @@
+gradle.projectsEvaluated {
+    rootProject.tasks.named('runClient') {
+        systemProperty 'anvilcraft.portVisualScene', 'true'
+        systemProperty 'anvilcraft.portCfaItemScene', 'true'
+        systemProperty 'anvilcraft.portLaserScene', 'true'
+        if (rootProject.providers.gradleProperty('portLaserNoFog').isPresent()) {
+            systemProperty 'anvilcraft.portLaserNoFog', 'true'
+        }
+        args '--width', '1280', '--height', '720'
+    }
+}

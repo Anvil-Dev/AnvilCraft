@@ -1,14 +1,13 @@
-package dev.dubhe.anvilcraft.block.entity;
+package dev.dubhe.anvilcraft.api.laser;
 
 import dev.dubhe.anvilcraft.block.entity.heatable.HeatableBlockEntity;
 import dev.dubhe.anvilcraft.block.heatable.OverheatedEmberMetalBlock;
 import dev.dubhe.anvilcraft.block.laser.RubyPrismBlock;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.entity.ModDamageTypes;
-import dev.dubhe.anvilcraft.util.EntityUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.tags.BlockTags;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
@@ -19,21 +18,9 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.Nullable;
 
-/**
- * 锻星砧激光接口与传送门共用的伽马激光世界效果。
- */
-final class CfaGammaLaserEffects {
-    private static final int MAX_DISTANCE = 16;
-
-    private CfaGammaLaserEffects() {
-    }
-
-    static BlockPos findTarget(Level level, BlockPos origin, Direction direction) {
-        for (int distance = 1; distance <= CfaGammaLaserEffects.MAX_DISTANCE; distance++) {
-            BlockPos candidate = origin.relative(direction, distance);
-            if (!level.getBlockState(candidate).is(BlockTags.REPLACEABLE)) return candidate;
-        }
-        return origin.relative(direction, CfaGammaLaserEffects.MAX_DISTANCE);
+/** 伽马激光组件使用的世界效果。 */
+final class GammaLaserEffects {
+    private GammaLaserEffects() {
     }
 
     static void destroyPrisms(Level level, BlockPos origin, Direction direction, BlockPos target) {
@@ -47,14 +34,13 @@ final class CfaGammaLaserEffects {
     }
 
     static void damageEntities(Level level, BlockPos origin, BlockPos target, Direction direction, int gammaLevel) {
+        if (!(level instanceof ServerLevel serverLevel)) return;
         int damage = Math.min(16, gammaLevel - 4) * 16;
         if (damage <= 0) return;
         Vec3 start = origin.relative(direction).getCenter().add(-0.0625, -0.0625, -0.0625);
         Vec3 end = target.relative(direction.getOpposite()).getCenter().add(0.0625, 0.0625, 0.0625);
         level.getEntities(EntityTypeTest.forClass(LivingEntity.class), new AABB(start, end), Entity::isAlive)
-            .forEach(entity -> {
-                EntityUtil.hurtOrSimulate(entity, ModDamageTypes.gammaLaser(level), damage);
-            });
+            .forEach(entity -> entity.hurtServer(serverLevel, ModDamageTypes.gammaLaser(level), damage));
     }
 
     static void heatEmberMetal(
@@ -65,9 +51,9 @@ final class CfaGammaLaserEffects {
         int updateFlags
     ) {
         if (target == null || gammaLevel < 4 || level.getGameTime() % 20 != 0) return;
-        BlockState targetState = level.getBlockState(target);
-        if (!targetState.is(ModBlocks.EMBER_METAL_BLOCK.get())
-            && !targetState.is(ModBlocks.OVERHEATED_EMBER_METAL_BLOCK.get())) {
+        BlockState hitState = level.getBlockState(target);
+        if (!hitState.is(ModBlocks.EMBER_METAL_BLOCK.get())
+            && !hitState.is(ModBlocks.OVERHEATED_EMBER_METAL_BLOCK.get())) {
             return;
         }
         int areaSize = gammaLevel >= 16 ? 7 : gammaLevel >= 12 ? 5 : gammaLevel >= 8 ? 3 : 1;
@@ -83,7 +69,7 @@ final class CfaGammaLaserEffects {
             BlockPos depthPos = target.relative(direction, depth);
             for (int first = -halfSize; first <= halfSize; first++) {
                 for (int second = -halfSize; second <= halfSize; second++) {
-                    CfaGammaLaserEffects.heatEmberMetalAt(level, depthPos
+                    heatEmberMetalAt(level, depthPos
                         .relative(perpendiculars[0], first)
                         .relative(perpendiculars[1], second), updateFlags);
                 }

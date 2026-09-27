@@ -21,6 +21,7 @@ public class RecipeHandler {
         FastCookingRecipeLoader.init(provider);
         SolidLiquidRecipeLoader.init(provider);
         FluidMixingRecipeLoader.init(provider);
+        LaserHitRecipeLoader.init(provider);
         ItemInjectRecipeLoader.init(provider);
         MassInjectRecipeLoader.init(provider);
         SqueezingRecipeLoader.init(provider);

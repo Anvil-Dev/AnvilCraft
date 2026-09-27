@@ -1,0 +1,17 @@
+{
+  "type": "anvilcraft:laser_hit",
+  "heat_duration": 40,
+  "hit_time": 20,
+  "input": {
+    "blocks": [
+      "anvilcraft:heated_tungsten_block",
+      "anvilcraft:redhot_tungsten_block",
+      "anvilcraft:glowing_tungsten_block"
+    ]
+  },
+  "laser_strength": 16,
+  "priority": -50,
+  "result_block": {
+    "Name": "anvilcraft:glowing_tungsten_block"
+  }
+}

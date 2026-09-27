@@ -1,0 +1,13 @@
+{
+  "type": "anvilcraft:laser_hit",
+  "hit_time": 40,
+  "input": {
+    "blocks": "#c:ores_in_ground/netherrack"
+  },
+  "laser_strength": 12,
+  "priority": -80,
+  "result_block": {
+    "Name": "minecraft:netherrack"
+  },
+  "use_block_loot": true
+}
