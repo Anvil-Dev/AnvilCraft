@@ -2319,7 +2319,7 @@
   "tooltip.anvilcraft.item.overheated_ember_metal_block": "极高的温度打破了它的质能平衡，注入质量会突破为超限合金\n冷却后有可能劣化为下界合金块",
   "tooltip.anvilcraft.item.pill_box": "存储药片，可以快速使用",
   "tooltip.anvilcraft.item.pill_box.shift": "存储药片，右键时会把存储的药片各吃一片，在物品栏时也可以按 [%s] 使用",
-  "tooltip.anvilcraft.item.pipe": "在容器间转移流体，流体的流动由重力驱动",
+  "tooltip.anvilcraft.item.pipe": "在容器间转移流体，流体的流动由重力驱动\n使用玻璃板右键转化为玻璃管道",
   "tooltip.anvilcraft.item.plutonium_block": "一大块强放射性物质，无法自然开采仅能通过铀转化，会持续释放热量但多块紧邻放置会发生衰变",
   "tooltip.anvilcraft.item.plutonium_ingot": "一块强放射性物质，无法自然开采仅能通过铀转化",
   "tooltip.anvilcraft.item.plutonium_nugget": "一小块强放射性物质，无法自然开采仅能通过铀转化",
@@ -2827,5 +2827,10 @@
   "message.anvilcraft.building_rod.undo_partial": "区域已恢复，但流体尚未退还。请腾出关联流体仓储空间，并在继续建造前再次撤销",
   "message.anvilcraft.building_rod.undo_conflict": "无法安全结算资源变化，已取消撤销且未修改区域",
   "message.anvilcraft.building_rod.undo_missing_materials": "恢复原区域缺少材料或流体，请补齐后再次撤销",
-  "message.anvilcraft.building_rod.undo_missing_containers": "缺少回收容器或关联流体仓储空间，请腾出空间后再次撤销"
+  "message.anvilcraft.building_rod.undo_missing_containers": "缺少回收容器或关联流体仓储空间，请腾出空间后再次撤销",
+  "block.anvilcraft.glass_pipe_corner": "玻璃弯头管",
+  "block.anvilcraft.glass_pipe_node": "玻璃管道节点",
+  "block.anvilcraft.glass_pipe_straight": "玻璃直管",
+  "item.anvilcraft.glass_pipe": "玻璃管道",
+  "tooltip.anvilcraft.item.glass_pipe": "仅创造模式可用\n使用铁砧锤转化为普通管道"
 }

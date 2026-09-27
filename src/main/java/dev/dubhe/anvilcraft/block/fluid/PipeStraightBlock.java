@@ -1,14 +1,14 @@
 package dev.dubhe.anvilcraft.block.fluid;
 
-import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
-import dev.dubhe.anvilcraft.init.block.ModBlocks;
+import dev.dubhe.anvilcraft.api.fluid.network.FluidNetworkManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.Mirror;
+import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.material.Fluids;
@@ -18,104 +18,203 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jspecify.annotations.Nullable;
 
 /**
- * 直管道，沿单一轴向（X/Y/Z）延伸。
- * 当管道出现在侧面（垂直方向）时，自动转为 PipeNodeBlock。
+ * 直管道，沿单一轴向（{@link PipeBlock#AXIS X/Y/Z}）延伸。
+ *
+ * <p>两端通过 {@link PipeBlock#HAS_END_START} / {@link PipeBlock#HAS_END_END}
+ * 控制端头开关：
+ * <ul>
+ *   <li>{@code true} — 有端头（封闭）</li>
+ *   <li>{@code false} — 无端头（开放，连接至管道）</li>
+ * </ul>
+ *
+ * <p>当管道出现在侧面（垂直方向）时，自动转为
+ * {@link PipeNodeBlock}，由节点的 {@code onPlace}+{@code trySimplify}
+ * 决定最终形态（弯管或节点）。
  */
 public class PipeStraightBlock extends PipeBlock {
 
+    /**
+     * 构造直管，默认沿 X 轴，两端均有端头。
+     */
     public PipeStraightBlock(Properties properties) {
         super(properties);
+        this.registerDefaultState();
+    }
+
+    public PipeStraightBlock(Properties properties, boolean glassPipe) {
+        super(properties, glassPipe);
+        this.registerDefaultState();
+    }
+
+    private void registerDefaultState() {
         this.registerDefaultState(this.getStateDefinition()
             .any()
-            .setValue(PipeBlock.WATERLOGGED, false)
-            .setValue(PipeBlock.HAS_CHECK_VALVE, false)
-            .setValue(PipeBlock.AXIS, Direction.Axis.X)
-            .setValue(PipeBlock.HAS_END_START, true)
-            .setValue(PipeBlock.HAS_END_END, true));
+            .setValue(AXIS, Direction.Axis.X)
+            .setValue(HAS_END_START, true)
+            .setValue(HAS_END_END, true)
+            .setValue(HAS_CHECK_VALVE, false)
+            .setValue(WATERLOGGED, false));
     }
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         super.createBlockStateDefinition(builder);
-        builder.add(PipeBlock.AXIS);
-        builder.add(PipeBlock.HAS_END_START);
-        builder.add(PipeBlock.HAS_END_END);
+        builder.add(AXIS);
+        builder.add(HAS_END_START);
+        builder.add(HAS_END_END);
     }
 
+    /**
+     * 放置时沿点击面的轴向放置。
+     */
     @Override
     @Nullable
     public BlockState getStateForPlacement(BlockPlaceContext context) {
         return this.defaultBlockState()
-            .setValue(PipeBlock.AXIS, context.getClickedFace().getAxis())
-            .setValue(PipeBlock.WATERLOGGED, context.getLevel().getFluidState(context.getClickedPos()).getType() == Fluids.WATER);
+            .setValue(AXIS, context.getClickedFace().getAxis())
+            .setValue(WATERLOGGED, context.getLevel().getFluidState(context.getClickedPos()).getType() == Fluids.WATER);
     }
 
+    /**
+     * 碰撞箱：中心体 + 两端按端头状态拼接 {@code noEnd} 或 {@code end} arm。
+     */
     @Override
     public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext ctx) {
-        Direction.Axis axis = state.getValue(PipeBlock.AXIS);
-        Direction startDir = PipeBlock.getDirectionFromAxis(axis, Direction.AxisDirection.NEGATIVE);
-        Direction endDir = PipeBlock.getDirectionFromAxis(axis, Direction.AxisDirection.POSITIVE);
+        Direction.Axis axis = state.getValue(AXIS);
+        Direction startDir = getDirectionFromAxis(axis, Direction.AxisDirection.NEGATIVE);
+        Direction endDir = getDirectionFromAxis(axis, Direction.AxisDirection.POSITIVE);
         return this.getShape(state, startDir, endDir);
     }
 
     /**
      * 邻居更新：
      * <ul>
-     *   <li><b>侧面（非轴向）</b>出现对准的管道或连接面正对的泵 → 升级为节点
-     *       （由 {@link PipeNodeBlock#trySimplify} 决定最终形态）</li>
-     *   <li><b>无侧面连接</b> → 保持直管形态，仅按轴端邻居刷新端头开关，
-     *       断开连接也不会塌成节点</li>
+     *   <li><b>侧面方向</b>（非轴方向）：有管道对准时转为 {@link PipeNodeBlock}，
+     *       由节点扫描全方向并自动退化</li>
+     *   <li><b>轴端方向</b>：邻居是管道则开端口（无端头），否则关端口（有端头）</li>
      * </ul>
-     *
-     * <p>26.1 的 {@code neighborChanged} 不再传入变更来源方向，故每次扫描全部方向，
-     * 但以本方块自身轴向 {@link PipeBlock#AXIS} 为准，避免断连时丢失形状。
      */
     @Override
     protected void neighborChanged(
-        BlockState state, Level level, BlockPos pos,
-        Block neighborBlock, @Nullable Orientation orientation, boolean movedByPiston
+        BlockState state, Level level, BlockPos pos, Block neighborBlock, @Nullable Orientation orientation, boolean movedByPiston
     ) {
-        if (level.isClientSide()) return;
-        this.updateCheckValvePower(level, pos, state);
-        Direction.Axis axis = state.getValue(PipeBlock.AXIS);
+        for (Direction direction : Direction.values()) {
+            BlockState current = level.getBlockState(pos);
+            if (!current.is(this)) return;
+            this.neighborChangedAt(current, level, pos, neighborBlock, pos.relative(direction), movedByPiston);
+        }
+    }
 
-        // 侧面（非轴向）出现对准的管道或连接面正对的泵 → 升级为节点
+    private void neighborChangedAt(
+        BlockState state,
+        Level level,
+        BlockPos pos,
+        Block neighborBlock,
+        BlockPos neighborPos,
+        boolean movedByPiston
+    ) {
+        if (level.isClientSide()) {
+            return;
+        }
+        FluidNetworkManager.INSTANCE.addAdjacentContainers(level, pos);
+        // 红石信号变化 → 更新本管道止逆阀反向状态
+        updateCheckValvePower(state, level, pos);
+        Direction.Axis axis = state.getValue(AXIS);
+
+        // 查找邻居相对于本方块的方向
+        Direction neighborDir = null;
         for (Direction dir : Direction.values()) {
-            if (dir.getAxis() == axis) {
-                continue;
-            }
-            BlockState neighborState = level.getBlockState(pos.relative(dir));
-            boolean sidePump = neighborState.getBlock() instanceof PumpBlock
-                && PumpBlock.isConnectableFace(neighborState, dir.getOpposite());
-            if (PipeBlock.isNeighborPipeToward(level, pos, dir) || sidePump) {
-                BlockState nodeState = ModBlocks.PIPE_NODE.get().defaultBlockState()
-                    .setValue(PipeBlock.WATERLOGGED, state.getValue(PipeBlock.WATERLOGGED));
-                for (Direction d : Direction.values()) {
-                    nodeState = nodeState.setValue(
-                        PipeBlock.getPropertyForDirection(d),
-                        PipeNodeBlock.evaluateNeighbor(level, pos, d));
-                }
-                BlockState simplified = PipeNodeBlock.trySimplify(nodeState);
-                if (!simplified.equals(state)) {
-                    PipeBlock.setBlockPreservingValve(level, pos, simplified);
-                }
-                return;
+            if (pos.relative(dir).equals(neighborPos)) {
+                neighborDir = dir;
+                break;
             }
         }
+        if (neighborDir == null) {
+            return;
+        }
 
-        // 无侧面连接 → 保持直管，仅按轴端邻居刷新端头（断连只封头，不变节点）
-        Direction startDir = PipeBlock.getDirectionFromAxis(axis, Direction.AxisDirection.NEGATIVE);
-        Direction endDir = PipeBlock.getDirectionFromAxis(axis, Direction.AxisDirection.POSITIVE);
+        if (neighborDir.getAxis() != axis) {
+            // 侧面连接：检查邻居管道是否对准本方块，或邻居是连接面正对本方块的泵
+            BlockState neighborState = level.getBlockState(neighborPos);
+            boolean neighborIsPipeToward = isNeighborPipeToward(level, pos, neighborDir);
+            boolean neighborIsPump = neighborState.getBlock() instanceof PumpBlock
+                && PumpBlock.isConnectableFace(neighborState, neighborDir.getOpposite());
+            boolean neighborIsValve = neighborState.getBlock() instanceof ControlValveBlock
+                && ControlValveBlock.isConnectableFace(neighborState, neighborDir.getOpposite());
+            if (!neighborIsPipeToward && !neighborIsPump && !neighborIsValve) {
+                return;
+            }
+
+            // 转为节点 → 扫描全方向 → 自动退化（保留止逆阀）
+            BlockState nodeState = PipeBlock.nodeVariant(state).setValue(WATERLOGGED, state.getValue(WATERLOGGED));
+            for (Direction dir : Direction.values()) {
+                nodeState = nodeState.setValue(getPropertyForDirection(dir), PipeNodeBlock.evaluateNeighbor(level, pos, dir));
+            }
+            setBlockPreservingValve(level, pos, state, nodeState);
+            return;
+        }
+
+        // 轴端更新：开/关端头
+        Direction startDir = getDirectionFromAxis(axis, Direction.AxisDirection.NEGATIVE);
+        boolean neighborIsSameKindPipe = isNeighborSameKindPipeToward(state, level, pos, neighborDir);
+        this.changePipeState(level, pos, state, startDir, neighborDir, neighborIsSameKindPipe);
+    }
+
+    /**
+     * 放置 / 被推动落地时，按两端实际邻居重算端头（端头 = 该端未接对准的管道）。
+     * 解决被活塞等整体推动后端头状态未刷新的问题。
+     */
+    @Override
+    public void onPlace(BlockState state, Level level, BlockPos pos, BlockState oldState, boolean movedByPiston) {
+        super.onPlace(state, level, pos, oldState, movedByPiston);
+        if (level.isClientSide() || state.is(oldState.getBlock())) {
+            return;
+        }
+        Direction.Axis axis = state.getValue(AXIS);
+        Direction negDir = getDirectionFromAxis(axis, Direction.AxisDirection.NEGATIVE);
+        Direction posDir = getDirectionFromAxis(axis, Direction.AxisDirection.POSITIVE);
         BlockState newState = state
-            .setValue(PipeBlock.HAS_END_START, !PipeBlock.isNeighborPipeToward(level, pos, startDir))
-            .setValue(PipeBlock.HAS_END_END, !PipeBlock.isNeighborPipeToward(level, pos, endDir));
-        if (!newState.equals(state)) {
-            PipeBlock.setBlockPreservingValve(level, pos, newState);
+            .setValue(HAS_END_START, !isNeighborSameKindPipeToward(state, level, pos, negDir))
+            .setValue(HAS_END_END, !isNeighborSameKindPipeToward(state, level, pos, posDir));
+        if (newState != state) {
+            setBlockPreservingValve(level, pos, state, newState);
         }
     }
 
     @Override
-    public @Nullable BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
-        return ModBlockEntities.PIPE.create(pos, state);
+    protected BlockState rotate(BlockState state, Rotation rotation) {
+        Direction.Axis axis = state.getValue(AXIS);
+        if (axis == Direction.Axis.Y) return state;
+        return switch (rotation) {
+            case CLOCKWISE_90, COUNTERCLOCKWISE_90 -> {
+                Direction direction = getDirectionFromAxis(axis, Direction.AxisDirection.POSITIVE);
+                Direction rotatedDirection = rotation.rotate(direction);
+                BlockState result = state.setValue(AXIS, rotatedDirection.getAxis());
+                if (rotatedDirection.getAxisDirection() == Direction.AxisDirection.NEGATIVE) {
+                    result = swapEnds(result);
+                }
+                yield result;
+            }
+            case CLOCKWISE_180 -> swapEnds(state);
+            default -> state;
+        };
+    }
+
+    @Override
+    protected BlockState mirror(BlockState state, Mirror mirror) {
+        Direction.Axis axis = state.getValue(AXIS);
+        boolean swap = switch (axis) {
+            case X -> mirror == Mirror.FRONT_BACK;
+            case Z -> mirror == Mirror.LEFT_RIGHT;
+            default -> false;
+        };
+        if (swap) return swapEnds(state);
+        return state;
+    }
+
+    private static BlockState swapEnds(BlockState state) {
+        return state
+            .setValue(HAS_END_START, state.getValue(HAS_END_END))
+            .setValue(HAS_END_END, state.getValue(HAS_END_START));
     }
 }

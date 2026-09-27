@@ -1,5 +1,8 @@
 {
   "values": [
+    "anvilcraft:glass_pipe_straight",
+    "anvilcraft:glass_pipe_corner",
+    "anvilcraft:glass_pipe_node",
     "anvilcraft:overflow_chute"
   ]
 }

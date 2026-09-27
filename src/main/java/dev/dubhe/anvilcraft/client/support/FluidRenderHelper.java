@@ -32,6 +32,8 @@ import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtension
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import org.joml.Vector3f;
 
+import java.util.Set;
+
 public final class FluidRenderHelper {
     public static final FluidRenderHelper INSTANCE = new FluidRenderHelper();
 
@@ -64,6 +66,15 @@ public final class FluidRenderHelper {
         float minX, float minY, float minZ, float maxX, float maxY, float maxZ,
         int color, VertexConsumer builder, PoseStack.Pose pose, int light, boolean renderBottom, boolean invertGasses, float opacity
     ) {
+        this.renderFluidBox(sprite, fluid, minX, minY, minZ, maxX, maxY, maxZ, color, builder, pose, light,
+            renderBottom ? Set.of() : Set.of(Direction.DOWN), invertGasses, opacity);
+    }
+
+    public void renderFluidBox(
+        TextureAtlasSprite sprite, FluidResource fluid,
+        float minX, float minY, float minZ, float maxX, float maxY, float maxZ,
+        int color, VertexConsumer builder, PoseStack.Pose pose, int light, Set<Direction> skippedSides, boolean invertGasses, float opacity
+    ) {
         int blockLightIn = (light >> 4) & 0xF;
         int luminosity = Math.max(blockLightIn, fluid.getFluidType().getLightLevel());
         light = (light & 0xF00000) | luminosity << 4;
@@ -80,9 +91,9 @@ public final class FluidRenderHelper {
             ? liquidEnchantment.getLayerColors(fluid.toStack(1))
             : new int[]{color};
         for (int layerColor : colors) {
-            layerColor = ARGB.color((int) (ARGB.alpha(layerColor) * opacity), layerColor);
+            layerColor = ARGB.color(ARGB.alpha(layerColor) * (int) (Mth.clamp(opacity, 0, 1) * 255) / 255, layerColor);
             for (Direction side : Direction.values()) {
-                if (side == Direction.DOWN && !renderBottom) continue;
+                if (skippedSides.contains(side)) continue;
 
                 boolean positive = side.getAxisDirection() == Direction.AxisDirection.POSITIVE;
                 if (side.getAxis().isHorizontal()) {

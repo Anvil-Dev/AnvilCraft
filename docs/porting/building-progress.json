@@ -1688,15 +1688,61 @@
     ]
   },
   "glass_pipes": {
-    "source_commit": "1260db54f6e2b9f88d0a79b8108459d346344e44",
+    "source_commit": "07eb60b47f14439375da10e78f4d4770f3a83256",
     "introduced_by": "3810b139a773a56e55a25e8b4ce426750e17d1cb",
-    "status": "pending_port",
+    "status": "foundation_ported_network_integration_pending",
     "required": [
       "Glass straight/corner/node registrations, original resources and interactions",
       "Shared check-valve block entities and glass-pipe fluid state synchronization",
       "Fluid-network flow visualization and native glass/fluid rendering",
       "Glass item/ordinary pipe material mapping for blueprint placement"
     ],
-    "discovered_during": "blueprint_placement_frames"
+    "discovered_during": "blueprint_placement_frames",
+    "ported": [
+      "Three glass variants and creative item with original models/textures",
+      "Pane and hammer conversions preserving native valve block entities",
+      "Source liquid/gas display state, deduplication and packet codec adaptation",
+      "Native fluid geometry and valve rendering with original face bounds and quantized opacity",
+      "Ordinary pipe material for blueprint glass variants",
+      "Latest source pipe rotation/mirror mappings and JSpecify annotations"
+    ],
+    "verification": {
+      "tests_log": "build/porting/tests-glass-foundation-final.log",
+      "datagen_log": "build/porting/tests-glass-foundation-1.log",
+      "client_log": "build/porting/client-glass-state-final.log",
+      "compile_style_log": "build/porting/compile-glass-foundation-final.log",
+      "report": "build/porting/glass-foundation-comparison.json",
+      "required_tests_passed": 586,
+      "rotation_mirror_cases": 44184,
+      "source_assets_equal": 12,
+      "source_display_methods_equal": 10
+    },
+    "remaining": [
+      "Automatic network path display and active-display expiry",
+      "Multi-entry endpoints and source gas-pressure equilibration",
+      "Latest infinite-gas-pressure source integration and creative source/sink semantics",
+      "End-to-end network gameplay and source/native visual comparison"
+    ],
+    "limits": [
+      "The native client fixture injects display events; automatic network visualization is not implemented yet.",
+      "The original node renderer retains its full center box; client checks expect 120 vertices.",
+      "Existing ordinary pipe block-entity IDs remain compatible with the native branch."
+    ]
+  },
+  "source_update_07eb60b47": {
+    "previous_source": "1260db54f6e2b9f88d0a79b8108459d346344e44",
+    "latest_source": "07eb60b47f14439375da10e78f4d4770f3a83256",
+    "status": "partially_ported",
+    "commits": [
+      "07eb60b47 adjust assets of monolith (#5050)",
+      "a73b59668 feat(fluid): 实现锻星砧流体接口的无穷大气压输出功能 (#5045)",
+      "1e8f1e1c2 fix(renderer): 修复蟹钳持握姿态与锻星砧的冲突 (#5034)",
+      "8569d095d Refactor Amulet system 重构护符系统 (#5042)",
+      "989bf7b33 fix: Improve block rotation and mirroring logic 完善方块旋转和镜像逻辑 (#5026)"
+    ],
+    "current_work": "Pipe rotations/mirroring are being included with glass-pipe foundation; infinite gas pressure will be included with network migration.",
+    "completed_nodes": [
+      "glass_pipe_rotation_mirroring"
+    ]
   }
 }

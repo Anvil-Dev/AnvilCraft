@@ -184,6 +184,10 @@ public final class PortVisualScene {
             if (prepared) BundleActionScene.frame(client);
             return;
         }
+        if (Boolean.getBoolean("anvilcraft.portGlassPipeScene")) {
+            if (prepared) GlassPipeClientScene.frame(client);
+            return;
+        }
         if (Boolean.getBoolean("anvilcraft.portSmartPlacerScene")) {
             smartFrame(client);
             return;

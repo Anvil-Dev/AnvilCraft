@@ -5,9 +5,11 @@ import dev.dubhe.anvilcraft.api.block.BlockPlacementRules;
 import dev.dubhe.anvilcraft.api.entity.fakeplayer.AnvilCraftFakePlayers;
 import dev.dubhe.anvilcraft.api.item.IBlockItem;
 import dev.dubhe.anvilcraft.block.cake.LargeCakeBlock;
+import dev.dubhe.anvilcraft.block.fluid.PipeBlock;
 import dev.dubhe.anvilcraft.block.multipart.AbstractMultiPartBlock;
 import dev.dubhe.anvilcraft.block.multipart.MultiPartBlockEntity;
 import dev.dubhe.anvilcraft.block.state.Cube3x3PartHalf;
+import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.item.block.LargeCakeBlockItem;
 import dev.dubhe.anvilcraft.item.block.PipeBlockItem;
 import net.minecraft.core.BlockPos;
@@ -82,6 +84,11 @@ public final class BlockPlacementUtil {
         @Nullable BlockState requiredState,
         @Nullable Direction defaultFacing
     ) {
+        if (requiredState != null && requiredState.getBlock() instanceof PipeBlock pipe
+            && pipe.isGlassPipe() && stack.is(ModItems.PIPE)) {
+            ItemStack remaining = placeBlock(level, pos, stack.transmuteCopy(ModItems.GLASS_PIPE.get()), requiredState, defaultFacing);
+            return stack.copyWithCount(remaining.getCount());
+        }
         // 桶 → 炼药锅：消耗一桶流体，放置目标锅状态
         // （状态转换如火锅 → 油锅由蓝图状态规则处理）
         if (stack.getItem() instanceof BucketItem && requiredState != null

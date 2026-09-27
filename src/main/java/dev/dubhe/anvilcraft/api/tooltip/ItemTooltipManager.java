@@ -388,7 +388,12 @@ public class ItemTooltipManager {
         ItemTooltipManager.NORMAL.put(ModItems.PILL_BOX.asItem(), "Store pills for quick use");
         ItemTooltipManager.NORMAL.put(ModItems.AMULET_BOX.asItem(), "Stores multiple active amulets or totems");
         ItemTooltipManager.NORMAL.put(ModBlocks.CELESTIAL_FORGING_ANVIL.asItem(), "Forge celestial bodies, build megastructures");
-        ItemTooltipManager.NORMAL.put(ModItems.PIPE.get(), "Transports fluids between containers, gravity-driven flow");
+        ItemTooltipManager.NORMAL.put(ModItems.PIPE.get(), """
+            Transports fluids between containers, gravity-driven flow
+            Right-click with Glass Pane to turn it into Glass Pipe""");
+        ItemTooltipManager.NORMAL.put(ModItems.GLASS_PIPE.get(), """
+            Creative mode only
+            Use an Anvil Hammer to convert it into normal Pipe""");
         ItemTooltipManager.NORMAL.put(ModItems.TRANSCENDIUM_INGOT.get(), "A piece of strong-interaction matter sustained by magic, immune to most forms of destruction");
         ItemTooltipManager.NORMAL.put(ModBlocks.TRANSCENDIUM_BLOCK.asItem(), "A large block of strong-interaction matter sustained by magic, immune to most forms of destruction");
         ItemTooltipManager.NORMAL.put(ModItems.TRANSCENDIUM_NUGGET.get(), "A small piece of strong-interaction matter sustained by magic, immune to most forms of destruction");

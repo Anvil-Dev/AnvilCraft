@@ -52,9 +52,15 @@ import org.jspecify.annotations.Nullable;
  * 点击弯管时会根据弯管状态和被点击面对弯管进行转换（→直管/节点/旋转）。
  */
 public class PipeBlockItem extends Item implements IBlockItem {
+    private final java.util.function.Supplier<PipeStraightBlock> straightBlock;
 
     public PipeBlockItem(Properties properties) {
+        this(properties, ModBlocks.PIPE_STRAIGHT);
+    }
+
+    public PipeBlockItem(Properties properties, java.util.function.Supplier<PipeStraightBlock> straightBlock) {
         super(properties);
+        this.straightBlock = straightBlock;
     }
 
     /**
@@ -101,16 +107,16 @@ public class PipeBlockItem extends Item implements IBlockItem {
         boolean modified = false;
         Player player = context.getPlayer();
         if (targetIsPipe) {
-            BlockState newState = PipeBlockItem.modifyPipeToConnect(level, targetPos, targetState, clickedFace, placeIsPipe);
+            BlockState newState = modifyPipeToConnect(level, targetPos, targetState, clickedFace, placeIsPipe);
             if (newState != null) {
-                PipeBlockItem.playPlaceSound(level, targetPos, newState, player);
+                playPlaceSound(level, targetPos, newState, player);
                 modified = true;
             }
         }
         if (placeIsPipe) {
-            BlockState newState = PipeBlockItem.modifyPipeToConnect(level, placePos, placeState, clickedFace.getOpposite(), targetIsPipe);
+            BlockState newState = modifyPipeToConnect(level, placePos, placeState, clickedFace.getOpposite(), targetIsPipe);
             if (newState != null) {
-                PipeBlockItem.playPlaceSound(level, placePos, newState, player);
+                playPlaceSound(level, placePos, newState, player);
                 modified = true;
             }
         }
@@ -131,19 +137,20 @@ public class PipeBlockItem extends Item implements IBlockItem {
      */
     @Nullable
     private static BlockState modifyPipeToConnect(Level level, BlockPos pos, BlockState state, Direction toward, boolean towardIsPipe) {
-        if (PipeBlockItem.hasOpenConnectionToward(state, toward)) {
+        if (hasOpenConnectionToward(state, toward)) {
             return null;
         }
 
         if (state.getBlock() instanceof PipeStraightBlock) {
-            return PipeBlockItem.modifyStraightToConnect(level, pos, state, toward, towardIsPipe);
+            return modifyStraightToConnect(level, pos, state, toward, towardIsPipe);
         } else if (state.getBlock() instanceof PipeCornerBlock) {
-            return PipeBlockItem.modifyCornerToConnect(level, pos, state, toward, towardIsPipe);
+            return modifyCornerToConnect(level, pos, state, toward, towardIsPipe);
         } else if (state.getBlock() instanceof PipeNodeBlock) {
+            // 节点：直接设置对应方向
             PipeBlock.NodePipe value = towardIsPipe ? PipeBlock.NodePipe.PIPE : PipeBlock.NodePipe.END;
             BlockState newState = state.setValue(PipeBlock.getPropertyForDirection(toward), value);
-            PipeBlock.setBlockPreservingValve(level, pos, newState);
-            return newState;
+            PipeBlock.setBlockPreservingValve(level, pos, state, newState);
+            return level.getBlockState(pos);
         }
         return null;
     }
@@ -167,9 +174,11 @@ public class PipeBlockItem extends Item implements IBlockItem {
         Direction endDir = Direction.get(Direction.AxisDirection.POSITIVE, axis);
 
         if (toward.getAxis() == axis) {
-            return PipeBlockItem.getContainsDirectionBlockState(level, pos, state, toward, towardIsPipe, startDir);
+            // 轴方向：只开关端头
+            return getContainsDirectionBlockState(level, pos, state, toward, towardIsPipe, startDir);
         }
-        return PipeBlockItem.getConnectedBlockState(level, pos, state, toward, towardIsPipe, startDir, endDir);
+        // 侧面：需要转换管型
+        return getConnectedBlockState(level, pos, state, toward, towardIsPipe, startDir, endDir);
     }
 
     /**
@@ -191,9 +200,11 @@ public class PipeBlockItem extends Item implements IBlockItem {
         Direction second = corner.getSecondDirection();
 
         if (corner.containsDirection(toward)) {
-            return PipeBlockItem.getContainsDirectionBlockState(level, pos, state, toward, towardIsPipe, first);
+            // 弯管已有方向：只开关端头
+            return getContainsDirectionBlockState(level, pos, state, toward, towardIsPipe, first);
         }
-        return PipeBlockItem.getConnectedBlockState(level, pos, state, toward, towardIsPipe, first, second);
+        // 新方向：需要转换管型
+        return getConnectedBlockState(level, pos, state, toward, towardIsPipe, first, second);
     }
 
     /**
@@ -215,8 +226,8 @@ public class PipeBlockItem extends Item implements IBlockItem {
         } else {
             newState = newState.setValue(PipeBlock.HAS_END_END, !towardIsPipe);
         }
-        if (!newState.equals(state)) {
-            PipeBlock.setBlockPreservingValve(level, pos, newState);
+        if (newState != state) {
+            PipeBlock.setBlockPreservingValve(level, pos, state, newState);
             return newState;
         }
         return null;
@@ -246,35 +257,36 @@ public class PipeBlockItem extends Item implements IBlockItem {
         boolean endOccupied = PipeBlock.isNeighborOccupied(level, pos, endDir);
 
         if (startOccupied && endOccupied) {
-            return PipeBlockItem.convertToNode(level, pos, state, toward, towardIsPipe, startDir, endDir);
+            // 两端都忙 → 节点（3+ 连接）
+            return convertToNode(level, pos, state, toward, towardIsPipe, startDir, endDir);
         } else {
             Direction occupiedEnd = startOccupied ? startDir : endDir;
             boolean occupiedEndIsPipe = PipeBlock.isNeighborPipeToward(level, pos, occupiedEnd);
 
             if (occupiedEnd.getOpposite() == toward) {
+                // 占用端与连接方向对向 → 直管贯通
                 Direction.Axis axis = occupiedEnd.getAxis();
                 Direction negDir = PipeBlock.getDirectionFromAxis(axis, Direction.AxisDirection.NEGATIVE);
                 boolean negIsOccupied = negDir == occupiedEnd;
-                BlockState straightState = ModBlocks.PIPE_STRAIGHT.get()
-                    .defaultBlockState()
+                BlockState straightState = PipeBlock.straightVariant(state)
                     .setValue(PipeBlock.WATERLOGGED, state.getValue(PipeBlock.WATERLOGGED))
                     .setValue(PipeBlock.AXIS, axis)
                     .setValue(PipeBlock.HAS_END_START, negIsOccupied ? !occupiedEndIsPipe : !towardIsPipe)
                     .setValue(PipeBlock.HAS_END_END, negIsOccupied ? !towardIsPipe : !occupiedEndIsPipe);
-                PipeBlock.setBlockPreservingValve(level, pos, straightState);
-                return straightState;
+                PipeBlock.setBlockPreservingValve(level, pos, state, straightState);
+                return level.getBlockState(pos);
             }
 
+            // 弯管
             PipeBlock.CornerEnded corner = PipeBlock.CornerEnded.fromDirections(occupiedEnd, toward);
             boolean firstIsOccupied = corner.getFirstDirection() == occupiedEnd;
-            BlockState cornerState = ModBlocks.PIPE_CORNER.get()
-                .defaultBlockState()
+            BlockState cornerState = PipeBlock.cornerVariant(state)
                 .setValue(PipeBlock.WATERLOGGED, state.getValue(PipeBlock.WATERLOGGED))
                 .setValue(PipeBlock.CORNER_ENDED, corner)
                 .setValue(PipeBlock.HAS_END_START, firstIsOccupied ? !occupiedEndIsPipe : !towardIsPipe)
                 .setValue(PipeBlock.HAS_END_END, firstIsOccupied ? !towardIsPipe : !occupiedEndIsPipe);
-            PipeBlock.setBlockPreservingValve(level, pos, cornerState);
-            return cornerState;
+            PipeBlock.setBlockPreservingValve(level, pos, state, cornerState);
+            return level.getBlockState(pos);
         }
     }
 
@@ -290,8 +302,7 @@ public class PipeBlockItem extends Item implements IBlockItem {
         Direction dir1,
         Direction dir2
     ) {
-        BlockState nodeState = ModBlocks.PIPE_NODE.get()
-            .defaultBlockState()
+        BlockState nodeState = PipeBlock.nodeVariant(state)
             .setValue(PipeBlock.WATERLOGGED, state.getValue(PipeBlock.WATERLOGGED));
         nodeState = nodeState.setValue(PipeBlock.getPropertyForDirection(dir1), PipeNodeBlock.evaluateNeighbor(level, pos, dir1));
         nodeState = nodeState.setValue(PipeBlock.getPropertyForDirection(dir2), PipeNodeBlock.evaluateNeighbor(level, pos, dir2));
@@ -299,8 +310,8 @@ public class PipeBlockItem extends Item implements IBlockItem {
             PipeBlock.getPropertyForDirection(toward),
             towardIsPipe ? PipeBlock.NodePipe.PIPE : PipeBlock.NodePipe.END
         );
-        PipeBlock.setBlockPreservingValve(level, pos, nodeState);
-        return nodeState;
+        PipeBlock.setBlockPreservingValve(level, pos, state, nodeState);
+        return level.getBlockState(pos);
     }
 
     /**
@@ -322,7 +333,8 @@ public class PipeBlockItem extends Item implements IBlockItem {
     }
 
     private InteractionResult place(BlockPlaceContext context, @Nullable BlockState requiredState) {
-        if (requiredState != null && (!(requiredState.getBlock() instanceof PipeBlock) || !this.canPlace(context, requiredState))) {
+        if (requiredState != null && (!(requiredState.getBlock() instanceof PipeBlock pipe)
+            || pipe.isGlassPipe() != this.straightBlock.get().isGlassPipe() || !this.canPlace(context, requiredState))) {
             return InteractionResult.FAIL;
         }
         if (!context.canPlace()) {
@@ -390,15 +402,18 @@ public class PipeBlockItem extends Item implements IBlockItem {
         boolean clickedOnEntityFluidHandler = targetState.canBeReplaced() && clickedOnFluidHandler;
         boolean shiftDown = player != null && player.isShiftKeyDown() && !clickedOnEntityFluidHandler;
 
+        // 视线模式
         if (shiftDown || (!clickedOnPipe && !clickedOnFluidHandler)) {
-            Direction.Axis axis = PipeBlockItem.getLookAxis(player);
+            Direction.Axis axis = getLookAxis(player);
             return this.makeStraightState(level, placePos, axis, true, true);
         }
 
+        // 弯管交互
         if (targetBlock instanceof PipeCornerBlock) {
             return this.handleCornerPlacement(level, placePos, clickedFace, targetPos, targetState, player);
         }
 
+        // 连接模式
         Direction.Axis axis = clickedFace.getAxis();
         Direction startDir = PipeBlock.getDirectionFromAxis(axis, Direction.AxisDirection.NEGATIVE);
         Direction endDir = PipeBlock.getDirectionFromAxis(axis, Direction.AxisDirection.POSITIVE);
@@ -421,7 +436,7 @@ public class PipeBlockItem extends Item implements IBlockItem {
      * 构造直管方块状态
      */
     private BlockState makeStraightState(Level level, BlockPos pos, Direction.Axis axis, boolean hasEndStart, boolean hasEndEnd) {
-        return ModBlocks.PIPE_STRAIGHT.get()
+        return this.straightBlock.get()
             .defaultBlockState()
             .setValue(PipeBlock.AXIS, axis)
             .setValue(PipeBlock.HAS_END_START, hasEndStart)
@@ -464,60 +479,67 @@ public class PipeBlockItem extends Item implements IBlockItem {
         boolean oppositeOccupied = (firstOccupied && clickedFace == first.getOpposite())
                                    || (secondOccupied && clickedFace == second.getOpposite());
 
-        if (!level.isClientSide()) {
-            if (bothOccupied) {
-                BlockState nodeState = ModBlocks.PIPE_NODE.get()
-                    .defaultBlockState()
-                    .setValue(PipeBlock.WATERLOGGED, cornerState.getValue(PipeBlock.WATERLOGGED));
-                nodeState = nodeState.setValue(
-                    PipeBlock.getPropertyForDirection(first),
-                    PipeNodeBlock.evaluateNeighbor(level, cornerPos, first)
-                );
-                nodeState = nodeState.setValue(
-                    PipeBlock.getPropertyForDirection(second),
-                    PipeNodeBlock.evaluateNeighbor(level, cornerPos, second)
-                );
-                nodeState = nodeState.setValue(PipeBlock.getPropertyForDirection(clickedFace), PipeBlock.NodePipe.PIPE);
-                PipeBlock.setBlockPreservingValve(level, cornerPos, nodeState);
-                PipeBlockItem.playPlaceSound(level, cornerPos, nodeState, player);
-            } else if (bothFree || oppositeOccupied) {
-                Direction.Axis axis = clickedFace.getAxis();
-                Direction startDir = PipeBlock.getDirectionFromAxis(axis, Direction.AxisDirection.NEGATIVE);
-                Direction endDir = PipeBlock.getDirectionFromAxis(axis, Direction.AxisDirection.POSITIVE);
+        // 弯管修改：管型转换（setBlockPreservingValve）双端执行，确保客户端即时渲染；
+        // 音效与掉落等服务端副作用留在 !level.isClientSide() 块内
+        if (bothOccupied) {
+            // 两端都忙 → 转节点
+            BlockState nodeState = PipeBlock.nodeVariant(cornerState)
+                .setValue(PipeBlock.WATERLOGGED, cornerState.getValue(PipeBlock.WATERLOGGED));
+            nodeState = nodeState.setValue(
+                PipeBlock.getPropertyForDirection(first),
+                PipeNodeBlock.evaluateNeighbor(level, cornerPos, first)
+            );
+            nodeState = nodeState.setValue(
+                PipeBlock.getPropertyForDirection(second),
+                PipeNodeBlock.evaluateNeighbor(level, cornerPos, second)
+            );
+            nodeState = nodeState.setValue(PipeBlock.getPropertyForDirection(clickedFace), PipeBlock.NodePipe.PIPE);
+            PipeBlock.setBlockPreservingValve(level, cornerPos, cornerState, nodeState);
+            if (!level.isClientSide()) {
+                playPlaceSound(level, cornerPos, level.getBlockState(cornerPos), player);
+            }
+        } else if (bothFree || oppositeOccupied) {
+            // 都闲 或 点击面对向忙端 → 转直管
+            Direction.Axis axis = clickedFace.getAxis();
+            Direction startDir = PipeBlock.getDirectionFromAxis(axis, Direction.AxisDirection.NEGATIVE);
+            Direction endDir = PipeBlock.getDirectionFromAxis(axis, Direction.AxisDirection.POSITIVE);
 
-                boolean startIsPipe = PipeBlock.isNeighborPipeToward(level, cornerPos, startDir);
-                boolean endIsPipe = PipeBlock.isNeighborPipeToward(level, cornerPos, endDir);
-                if (clickedFace == startDir) {
-                    startIsPipe = true;
-                } else if (clickedFace == endDir) {
-                    endIsPipe = true;
-                }
+            boolean startIsPipe = PipeBlock.isNeighborPipeToward(level, cornerPos, startDir);
+            boolean endIsPipe = PipeBlock.isNeighborPipeToward(level, cornerPos, endDir);
+            if (clickedFace == startDir) {
+                startIsPipe = true;
+            } else if (clickedFace == endDir) {
+                endIsPipe = true;
+            }
 
-                BlockState straightState = ModBlocks.PIPE_STRAIGHT.get()
-                    .defaultBlockState()
-                    .setValue(PipeBlock.AXIS, axis)
-                    .setValue(PipeBlock.HAS_END_START, !startIsPipe)
-                    .setValue(PipeBlock.HAS_END_END, !endIsPipe)
-                    .setValue(PipeBlock.WATERLOGGED, cornerState.getValue(PipeBlock.WATERLOGGED));
-                PipeBlock.setBlockPreservingValve(level, cornerPos, straightState);
-                PipeBlockItem.playPlaceSound(level, cornerPos, straightState, player);
-            } else if (!directionMatches) {
-                Direction occupiedEnd = firstOccupied ? first : second;
-                PipeBlock.CornerEnded newCorner = PipeBlock.CornerEnded.fromDirections(occupiedEnd, clickedFace);
-                boolean occupiedEndIsPipe = PipeBlock.isNeighborPipeToward(level, cornerPos, occupiedEnd);
-                boolean firstIsOccupied = newCorner.getFirstDirection() == occupiedEnd;
+            BlockState straightState = PipeBlock.straightVariant(cornerState)
+                .setValue(PipeBlock.AXIS, axis)
+                .setValue(PipeBlock.HAS_END_START, !startIsPipe)
+                .setValue(PipeBlock.HAS_END_END, !endIsPipe)
+                .setValue(PipeBlock.WATERLOGGED, cornerState.getValue(PipeBlock.WATERLOGGED));
+            PipeBlock.setBlockPreservingValve(level, cornerPos, cornerState, straightState);
+            if (!level.isClientSide()) {
+                playPlaceSound(level, cornerPos, level.getBlockState(cornerPos), player);
+            }
+        } else if (!directionMatches) {
+            // 方向不匹配 → 旋转弯管（保留忙端，闲端改为新方向）
+            Direction occupiedEnd = firstOccupied ? first : second;
+            PipeBlock.CornerEnded newCorner = PipeBlock.CornerEnded.fromDirections(occupiedEnd, clickedFace);
+            boolean occupiedEndIsPipe = PipeBlock.isNeighborPipeToward(level, cornerPos, occupiedEnd);
+            boolean firstIsOccupied = newCorner.getFirstDirection() == occupiedEnd;
 
-                BlockState newCornerState = ModBlocks.PIPE_CORNER.get()
-                    .defaultBlockState()
-                    .setValue(PipeBlock.WATERLOGGED, cornerState.getValue(PipeBlock.WATERLOGGED))
-                    .setValue(PipeBlock.CORNER_ENDED, newCorner)
-                    .setValue(PipeBlock.HAS_END_START, firstIsOccupied && !occupiedEndIsPipe)
-                    .setValue(PipeBlock.HAS_END_END, !firstIsOccupied && !occupiedEndIsPipe);
-                PipeBlock.setBlockPreservingValve(level, cornerPos, newCornerState);
-                PipeBlockItem.playPlaceSound(level, cornerPos, newCornerState, player);
+            BlockState newCornerState = PipeBlock.cornerVariant(cornerState)
+                .setValue(PipeBlock.WATERLOGGED, cornerState.getValue(PipeBlock.WATERLOGGED))
+                .setValue(PipeBlock.CORNER_ENDED, newCorner)
+                .setValue(PipeBlock.HAS_END_START, firstIsOccupied && !occupiedEndIsPipe)
+                .setValue(PipeBlock.HAS_END_END, !firstIsOccupied && !occupiedEndIsPipe);
+            PipeBlock.setBlockPreservingValve(level, cornerPos, cornerState, newCornerState);
+            if (!level.isClientSide()) {
+                playPlaceSound(level, cornerPos, level.getBlockState(cornerPos), player);
             }
         }
 
+        // 计算新管道状态（两端的端头根据邻居类型决定）
         Direction.Axis axis = clickedFace.getAxis();
         Direction startDir = PipeBlock.getDirectionFromAxis(axis, Direction.AxisDirection.NEGATIVE);
         Direction endDir = PipeBlock.getDirectionFromAxis(axis, Direction.AxisDirection.POSITIVE);

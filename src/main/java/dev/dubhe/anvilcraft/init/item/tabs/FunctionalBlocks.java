@@ -44,6 +44,7 @@ public class FunctionalBlocks extends DisplayItemsGenerator {
         this.plain(ModBlocks.LARGE_FLUID_TANK);
         this.plain(ModBlocks.DRAIN);
         this.plain(ModItems.PIPE);
+        this.plain(ModItems.GLASS_PIPE);
         this.plain(ModBlocks.PUMP);
         this.plain(ModBlocks.CONTROL_VALVE);
         this.plain(ModItems.CHECK_VALVE);

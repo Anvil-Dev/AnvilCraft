@@ -85,6 +85,7 @@ import dev.dubhe.anvilcraft.block.entity.batch.BatchCutterBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.fluid.ControlValveBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.fluid.DrainBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.fluid.PipeBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.fluid.GlassPipeBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.fluid.PipeNodeBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.fluid.PumpBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.heatable.GlowingBlockEntity;
@@ -126,6 +127,7 @@ import dev.dubhe.anvilcraft.client.renderer.blockentity.LargeFluidTankRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.LaserBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.OverseerBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.PipeCheckValveBERenderer;
+import dev.dubhe.anvilcraft.client.renderer.blockentity.GlassPipeBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.PulseGeneratorBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.PumpBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.RedstoneDiceBlockEntityRenderer;
@@ -616,6 +618,12 @@ public class ModBlockEntities {
         .blockEntity("pipe_node", PipeNodeBlockEntity::create)
         .validBlock(ModBlocks.PIPE_NODE)
         .renderer(() -> PipeCheckValveBERenderer::new)
+        .register();
+
+    public static final BlockEntityEntry<GlassPipeBlockEntity> GLASS_PIPE = REGISTRUM
+        .blockEntity("glass_pipe", GlassPipeBlockEntity::new)
+        .validBlocks(ModBlocks.GLASS_PIPE_STRAIGHT, ModBlocks.GLASS_PIPE_CORNER, ModBlocks.GLASS_PIPE_NODE)
+        .renderer(() -> GlassPipeBlockEntityRenderer::new)
         .register();
 
     public static final BlockEntityEntry<PumpBlockEntity> PUMP = REGISTRUM

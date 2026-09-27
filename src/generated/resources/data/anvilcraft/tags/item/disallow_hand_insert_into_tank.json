@@ -1,6 +1,7 @@
 {
   "values": [
     "anvilcraft:pipe",
+    "anvilcraft:glass_pipe",
     "#anvilcraft:tools/anvil_hammer"
   ]
 }
