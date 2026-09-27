@@ -4,6 +4,7 @@ import dev.dubhe.anvilcraft.api.fluid.IFluidHandlerHolder;
 import dev.dubhe.anvilcraft.api.fluid.network.FluidNetworkManager;
 import dev.dubhe.anvilcraft.api.fluid.network.FluidNetworkScanner;
 import dev.dubhe.anvilcraft.api.fluid.network.FluidPipeNetwork;
+import dev.dubhe.anvilcraft.api.fluid.network.InfiniteGasPressureSource;
 import dev.dubhe.anvilcraft.api.power.IPowerConsumer;
 import dev.dubhe.anvilcraft.api.power.PowerComponentType;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
@@ -31,9 +32,10 @@ import javax.annotation.Nullable;
 
 /// 锻星砧流体接口。
 /// 被动模式：存储最多 4 种流体，各 80 桶，供管道和巨构读写。
-/// 主动模式（红石信号激活）：模型切换到 _active，以 10 米扬程向前方泵送。
+/// 主动模式（红石信号激活）：模型切换到 _active，以 10 米扬程向前方泵送，
+/// 并把自身存有的气体按无穷大气压压入管网（管网侧见 InfiniteGasPressureSource）。
 public class CelestialForgingAnvilFluidInterfaceBlockEntity extends BlockEntity
-    implements IPowerConsumer, IFluidHandlerHolder {
+    implements IPowerConsumer, IFluidHandlerHolder, InfiniteGasPressureSource {
     private static final int TANK_COUNT = 4;
     private static final int CAPACITY_PER_TANK = 80_000; /// 80 桶（以 mB 计）
     private static final int PUMP_HEADLIFT = 10; /// 10 米扬程
@@ -205,67 +207,88 @@ public class CelestialForgingAnvilFluidInterfaceBlockEntity extends BlockEntity
     }
 
     private IFluidHandler createFluidHandler(boolean allowInputWhenActive) {
-        return new IFluidHandler() {
-            @Override
-            public int getTanks() {
-                return TANK_COUNT;
-            }
+        return new TankHandler(allowInputWhenActive);
+    }
 
-            @Override
-            public FluidStack getFluidInTank(int tank) {
-                return tanks[tank].getFluid();
-            }
+    /// 主动模式下以无穷大气压输出自身存有的气体，使气体越过填充率限制持续向管网扩散；
+    /// 储量照常被消耗，排空后不再提供气压。
+    @Override
+    public boolean isSupplyingInfiniteGasPressure() {
+        return isActive() && grid != null && grid.isWorking();
+    }
 
-            @Override
-            public int getTankCapacity(int tank) {
-                return tanks[tank].getCapacity();
-            }
+    /// 合并全部 4 个储罐的流体处理器。
+    private final class TankHandler implements IFluidHandler, InfiniteGasPressureSource {
+        private final boolean allowInputWhenActive;
 
-            @Override
-            public boolean isFluidValid(int tank, FluidStack stack) {
-                if (!allowInputWhenActive && isActive()) return false;
-                return tanks[tank].isFluidValid(stack);
-            }
+        private TankHandler(boolean allowInputWhenActive) {
+            this.allowInputWhenActive = allowInputWhenActive;
+        }
 
-            @Override
-            public int fill(FluidStack resource, FluidAction action) {
-                if (!allowInputWhenActive && isActive()) return 0;
-                if (resource.isEmpty()) return 0;
-                /// 优先尝试已有流体的储罐，再尝试空储罐
-                for (int i = 0; i < TANK_COUNT; i++) {
-                    if (tanks[i].getFluid().is(resource.getFluid())) {
-                        return tanks[i].fill(resource, action);
-                    }
+        @Override
+        public boolean isSupplyingInfiniteGasPressure() {
+            return CelestialForgingAnvilFluidInterfaceBlockEntity.this.isSupplyingInfiniteGasPressure();
+        }
+
+        @Override
+        public int getTanks() {
+            return TANK_COUNT;
+        }
+
+        @Override
+        public FluidStack getFluidInTank(int tank) {
+            return tanks[tank].getFluid();
+        }
+
+        @Override
+        public int getTankCapacity(int tank) {
+            return tanks[tank].getCapacity();
+        }
+
+        @Override
+        public boolean isFluidValid(int tank, FluidStack stack) {
+            if (!allowInputWhenActive && isActive()) return false;
+            return tanks[tank].isFluidValid(stack);
+        }
+
+        @Override
+        public int fill(FluidStack resource, FluidAction action) {
+            if (!allowInputWhenActive && isActive()) return 0;
+            if (resource.isEmpty()) return 0;
+            /// 优先尝试已有流体的储罐，再尝试空储罐
+            for (int i = 0; i < TANK_COUNT; i++) {
+                if (tanks[i].getFluid().is(resource.getFluid())) {
+                    return tanks[i].fill(resource, action);
                 }
-                for (int i = 0; i < TANK_COUNT; i++) {
-                    if (tanks[i].getFluid().isEmpty()) {
-                        return tanks[i].fill(resource, action);
-                    }
-                }
-                return 0;
             }
+            for (int i = 0; i < TANK_COUNT; i++) {
+                if (tanks[i].getFluid().isEmpty()) {
+                    return tanks[i].fill(resource, action);
+                }
+            }
+            return 0;
+        }
 
-            @Override
-            public FluidStack drain(FluidStack resource, FluidAction action) {
-                if (resource.isEmpty()) return FluidStack.EMPTY;
-                for (int i = 0; i < TANK_COUNT; i++) {
-                    if (tanks[i].getFluid().is(resource.getFluid())) {
-                        return tanks[i].drain(resource, action);
-                    }
+        @Override
+        public FluidStack drain(FluidStack resource, FluidAction action) {
+            if (resource.isEmpty()) return FluidStack.EMPTY;
+            for (int i = 0; i < TANK_COUNT; i++) {
+                if (tanks[i].getFluid().is(resource.getFluid())) {
+                    return tanks[i].drain(resource, action);
                 }
-                return FluidStack.EMPTY;
             }
+            return FluidStack.EMPTY;
+        }
 
-            @Override
-            public FluidStack drain(int maxDrain, FluidAction action) {
-                for (int i = 0; i < TANK_COUNT; i++) {
-                    if (!tanks[i].getFluid().isEmpty()) {
-                        return tanks[i].drain(maxDrain, action);
-                    }
+        @Override
+        public FluidStack drain(int maxDrain, FluidAction action) {
+            for (int i = 0; i < TANK_COUNT; i++) {
+                if (!tanks[i].getFluid().isEmpty()) {
+                    return tanks[i].drain(maxDrain, action);
                 }
-                return FluidStack.EMPTY;
             }
-        };
+            return FluidStack.EMPTY;
+        }
     }
 
     private boolean isActive() {
