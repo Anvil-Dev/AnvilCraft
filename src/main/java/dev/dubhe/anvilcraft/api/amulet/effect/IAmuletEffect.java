@@ -32,7 +32,7 @@ public interface IAmuletEffect {
     /// @param amulet 提供该效果的护符物品堆
     /// @return 需要忽略重复（将该效果的护符物品堆加入结果）时返回 `true`
     default boolean shouldIgnoreRepetition(LivingEntity entity, ItemStack amulet) {
-        return true;
+        return false;
     }
 
     /// 获取该效果展开后的效果，包含其包覆的其它护符的效果。
