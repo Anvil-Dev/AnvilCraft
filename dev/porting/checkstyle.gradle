@@ -133,6 +133,7 @@ allprojects {
             include '**/StorageSetting.java', '**/SettingClientStub.java', '**/SettingServerStub.java', '**/CategorySettingsScreen.java'
             include '**/StorageServerStub.java', '**/StorageClientStub.java', '**/StorageInput.java', '**/StorageScreen.java', '**/StorageMenu.java'
             include '**/FluidAmountUtil.java'
+            include '**/api/fluid/network/*.java', '**/CreativeFluidHandler.java', '**/CreativeFluidTankBlockEntity.java'
             include '**/GlassPipe*.java', '**/PipeBlock.java', '**/PipeCornerBlock.java', '**/PipeStraightBlock.java'
             include '**/PipeNodeBlock.java', '**/PipeBlockItem.java', '**/FluidRenderHelper.java'
             include '**/StructureScannerRecipe*.java'

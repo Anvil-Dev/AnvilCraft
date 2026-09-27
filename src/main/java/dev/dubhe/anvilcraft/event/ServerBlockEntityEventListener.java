@@ -3,6 +3,8 @@ package dev.dubhe.anvilcraft.event;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.chargecollector.ChargeCollectorManager;
 import dev.dubhe.anvilcraft.api.event.BlockEntityEvent;
+import dev.dubhe.anvilcraft.api.fluid.IFluidResourceHandlerHolder;
+import dev.dubhe.anvilcraft.api.fluid.network.FluidNetworkManager;
 import dev.dubhe.anvilcraft.api.heat.HeaterManager;
 import dev.dubhe.anvilcraft.api.power.IPowerComponent;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
@@ -18,6 +20,9 @@ import net.neoforged.fml.common.EventBusSubscriber;
 public class ServerBlockEntityEventListener {
     @SubscribeEvent
     public static void onLoad(BlockEntityEvent.ServerLoad event) {
+        if (!(event.getEntity() instanceof IFluidResourceHandlerHolder)) {
+            FluidNetworkManager.INSTANCE.addContainerAfterLoad(event.getLevel(), event.getEntity().getBlockPos());
+        }
         if (event.getEntity() instanceof IPowerComponent component) {
             PowerGrid.addComponent(component);
         }
@@ -34,6 +39,10 @@ public class ServerBlockEntityEventListener {
 
     @SubscribeEvent
     public static void onUnload(BlockEntityEvent.ServerUnload event) {
+        var current = event.getLevel().getBlockEntity(event.getEntity().getBlockPos());
+        if (current == null || current == event.getEntity()) {
+            FluidNetworkManager.INSTANCE.removeContainer(event.getLevel(), event.getEntity().getBlockPos());
+        }
         if (event.getEntity() instanceof IPowerComponent component) {
             PowerGrid.removeComponent(component);
         }

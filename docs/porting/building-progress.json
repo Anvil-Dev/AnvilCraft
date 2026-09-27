@@ -1690,7 +1690,7 @@
   "glass_pipes": {
     "source_commit": "07eb60b47f14439375da10e78f4d4770f3a83256",
     "introduced_by": "3810b139a773a56e55a25e8b4ce426750e17d1cb",
-    "status": "foundation_ported_network_integration_pending",
+    "status": "network_and_native_display_ported_visual_comparison_pending",
     "required": [
       "Glass straight/corner/node registrations, original resources and interactions",
       "Shared check-valve block entities and glass-pipe fluid state synchronization",
@@ -1718,16 +1718,19 @@
       "source_display_methods_equal": 10
     },
     "remaining": [
-      "Automatic network path display and active-display expiry",
-      "Multi-entry endpoints and source gas-pressure equilibration",
-      "Latest infinite-gas-pressure source integration and creative source/sink semantics",
-      "End-to-end network gameplay and source/native visual comparison"
+      "Source/native gas visual comparison and broader optional-fluid rendering validation"
     ],
     "limits": [
-      "The native client fixture injects display events; automatic network visualization is not implemented yet.",
-      "The original node renderer retains its full center box; client checks expect 120 vertices.",
-      "Existing ordinary pipe block-entity IDs remain compatible with the native branch."
-    ]
+      "Foundation vertex/display checks and a real scanned liquid network have passed; source/native gas screenshots remain pending."
+    ],
+    "network_verification": {
+      "tests_log": "build/porting/tests-fluid-network-final.log",
+      "client_log": "build/porting/client-glass-network-final.log",
+      "compile_style_log": "build/porting/compile-fluid-network-final.log",
+      "report": "build/porting/fluid-network-comparison.json",
+      "required_tests_passed": 595,
+      "source_algorithm_bodies_equal": 13
+    }
   },
   "source_update_07eb60b47": {
     "previous_source": "1260db54f6e2b9f88d0a79b8108459d346344e44",
@@ -1742,7 +1745,31 @@
     ],
     "current_work": "Pipe rotations/mirroring are being included with glass-pipe foundation; infinite gas pressure will be included with network migration.",
     "completed_nodes": [
-      "glass_pipe_rotation_mirroring"
+      "glass_pipe_rotation_mirroring",
+      "fluid_network_pressure"
+    ]
+  },
+  "fluid_network_pressure": {
+    "source_commit": "07eb60b47f14439375da10e78f4d4770f3a83256",
+    "status": "network_semantics_ported",
+    "ported": [
+      "Multi-entry endpoints and deferred external-capability discovery",
+      "Actual transfer and blocked-path display with expiry and topology rebuild cleanup",
+      "Gas equilibrium, diffusion display, creative source/sink and finite infinite-pressure sources",
+      "Powered active CFA interfaces expose pressure on internal and external handlers",
+      "Atomic native transfers and non-mutating creative transport simulation"
+    ],
+    "verification": {
+      "tests_log": "build/porting/tests-fluid-network-final.log",
+      "client_log": "build/porting/client-glass-network-final.log",
+      "compile_style_log": "build/porting/compile-fluid-network-final.log",
+      "report": "build/porting/fluid-network-comparison.json",
+      "required_tests_passed": 595,
+      "source_algorithm_bodies_equal": 13
+    },
+    "limits": [
+      "Controlled gas handlers verify gas math and pressure; the real client scene exercises liquid transfer.",
+      "Final server suite passed all tests; the separate compile/style check resolves an import-order violation."
     ]
   }
 }

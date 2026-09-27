@@ -4,6 +4,7 @@ import dev.dubhe.anvilcraft.api.fluid.IFluidResourceHandlerHolder;
 import dev.dubhe.anvilcraft.api.fluid.network.FluidNetworkManager;
 import dev.dubhe.anvilcraft.api.fluid.network.FluidNetworkScanner;
 import dev.dubhe.anvilcraft.api.fluid.network.FluidPipeNetwork;
+import dev.dubhe.anvilcraft.api.fluid.network.InfiniteGasPressureSource;
 import dev.dubhe.anvilcraft.api.power.IPowerConsumer;
 import dev.dubhe.anvilcraft.api.power.PowerComponentType;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
@@ -41,7 +42,8 @@ import org.jspecify.annotations.Nullable;
  * 锻星砧流体接口。
  * 最多存储 4 种流体，每种容量为 80 桶；工作时消耗 128 kW，并支持管道输入输出。
  */
-public class CelestialForgingAnvilFluidInterfaceBlockEntity extends BlockEntity implements IPowerConsumer, IFluidResourceHandlerHolder {
+public class CelestialForgingAnvilFluidInterfaceBlockEntity extends BlockEntity
+    implements IPowerConsumer, IFluidResourceHandlerHolder, InfiniteGasPressureSource {
     private static final int TANK_COUNT = 4;
     private static final int CAPACITY_PER_TANK = 80_000; // 80 桶，以 mB 计
     private static final int PUMP_HEADLIFT = 10; // 10 米扬程
@@ -57,95 +59,8 @@ public class CelestialForgingAnvilFluidInterfaceBlockEntity extends BlockEntity 
 
     public CelestialForgingAnvilFluidInterfaceBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState);
-        this.tank = new FluidStacksResourceHandler(
-            CelestialForgingAnvilFluidInterfaceBlockEntity.TANK_COUNT,
-            CelestialForgingAnvilFluidInterfaceBlockEntity.CAPACITY_PER_TANK
-        ) {
-            @Override
-            public boolean isValid(int index, FluidResource resource) {
-                if (resource.isEmpty()) return false;
-                FluidStack currentStack = this.getStackFrom(this.getResource(index), this.getAmountAsInt(index));
-                if (!currentStack.isEmpty() && currentStack.is(resource.getFluid())) return true;
-                if (currentStack.isEmpty()) {
-                    for (int j = 0; j < CelestialForgingAnvilFluidInterfaceBlockEntity.TANK_COUNT; j++) {
-                        if (j != index) {
-                            FluidStack otherStack = this.getStackFrom(this.getResource(j), this.getAmountAsInt(j));
-                            if (!otherStack.isEmpty() && otherStack.is(resource.getFluid())) {
-                                return false;
-                            }
-                        }
-                    }
-                    return true;
-                }
-                return false;
-            }
-
-            @Override
-            protected void onContentsChanged(int index, FluidStack previousContents) {
-                CelestialForgingAnvilFluidInterfaceBlockEntity.this.setChanged();
-            }
-        };
-        this.externalTank = new ResourceHandler<>() {
-            @Override
-            public int size() {
-                return CelestialForgingAnvilFluidInterfaceBlockEntity.this.tank.size();
-            }
-
-            @Override
-            public FluidResource getResource(int index) {
-                return CelestialForgingAnvilFluidInterfaceBlockEntity.this.tank.getResource(index);
-            }
-
-            @Override
-            public long getAmountAsLong(int index) {
-                return CelestialForgingAnvilFluidInterfaceBlockEntity.this.tank.getAmountAsLong(index);
-            }
-
-            @Override
-            public long getCapacityAsLong(int index, FluidResource resource) {
-                return CelestialForgingAnvilFluidInterfaceBlockEntity.this.tank.getCapacityAsLong(index, resource);
-            }
-
-            @Override
-            public boolean isValid(int index, FluidResource resource) {
-                return !CelestialForgingAnvilFluidInterfaceBlockEntity.this.isActive()
-                    && CelestialForgingAnvilFluidInterfaceBlockEntity.this.tank.isValid(index, resource);
-            }
-
-            @Override
-            public int insert(
-                int index, FluidResource resource, int amount, TransactionContext transaction
-            ) {
-                if (CelestialForgingAnvilFluidInterfaceBlockEntity.this.isActive()) return 0;
-                return CelestialForgingAnvilFluidInterfaceBlockEntity.this.tank.insert(
-                    index, resource, amount, transaction
-                );
-            }
-
-            @Override
-            public int insert(FluidResource resource, int amount, TransactionContext transaction) {
-                if (CelestialForgingAnvilFluidInterfaceBlockEntity.this.isActive()) return 0;
-                return CelestialForgingAnvilFluidInterfaceBlockEntity.this.tank.insert(
-                    resource, amount, transaction
-                );
-            }
-
-            @Override
-            public int extract(
-                int index, FluidResource resource, int amount, TransactionContext transaction
-            ) {
-                return CelestialForgingAnvilFluidInterfaceBlockEntity.this.tank.extract(
-                    index, resource, amount, transaction
-                );
-            }
-
-            @Override
-            public int extract(FluidResource resource, int amount, TransactionContext transaction) {
-                return CelestialForgingAnvilFluidInterfaceBlockEntity.this.tank.extract(
-                    resource, amount, transaction
-                );
-            }
-        };
+        this.tank = new Tank();
+        this.externalTank = new ExternalTank();
     }
 
     public CelestialForgingAnvilFluidInterfaceBlockEntity(BlockPos pos, BlockState blockState) {
@@ -271,6 +186,11 @@ public class CelestialForgingAnvilFluidInterfaceBlockEntity extends BlockEntity 
         return this.tank;
     }
 
+    @Override
+    public boolean isSupplyingInfiniteGasPressure() {
+        return this.isActive() && this.grid != null && this.grid.isWorking();
+    }
+
     private boolean isActive() {
         BlockState state = this.getBlockState();
         return state.hasProperty(CelestialForgingAnvilInterfaceBlock.ACTIVE)
@@ -339,5 +259,110 @@ public class CelestialForgingAnvilFluidInterfaceBlockEntity extends BlockEntity 
             targetQueryDir,  // 从接收方面向源
             heightDiff       // 有效高度差（含扬程）
         );
+    }
+
+    private final class Tank extends FluidStacksResourceHandler implements InfiniteGasPressureSource {
+        private Tank() {
+            super(
+                CelestialForgingAnvilFluidInterfaceBlockEntity.TANK_COUNT,
+                CelestialForgingAnvilFluidInterfaceBlockEntity.CAPACITY_PER_TANK
+            );
+        }
+
+        @Override
+        public boolean isValid(int index, FluidResource resource) {
+            if (resource.isEmpty()) return false;
+            FluidStack currentStack = this.getStackFrom(this.getResource(index), this.getAmountAsInt(index));
+            if (!currentStack.isEmpty() && currentStack.is(resource.getFluid())) return true;
+            if (currentStack.isEmpty()) {
+                for (int j = 0; j < CelestialForgingAnvilFluidInterfaceBlockEntity.TANK_COUNT; j++) {
+                    if (j != index) {
+                        FluidStack otherStack = this.getStackFrom(this.getResource(j), this.getAmountAsInt(j));
+                        if (!otherStack.isEmpty() && otherStack.is(resource.getFluid())) {
+                            return false;
+                        }
+                    }
+                }
+                return true;
+            }
+            return false;
+        }
+
+        @Override
+        protected void onContentsChanged(int index, FluidStack previousContents) {
+            CelestialForgingAnvilFluidInterfaceBlockEntity.this.setChanged();
+        }
+
+        @Override
+        public boolean isSupplyingInfiniteGasPressure() {
+            return CelestialForgingAnvilFluidInterfaceBlockEntity.this.isSupplyingInfiniteGasPressure();
+        }
+    }
+
+    private final class ExternalTank implements ResourceHandler<FluidResource>, InfiniteGasPressureSource {
+        @Override
+        public int size() {
+            return CelestialForgingAnvilFluidInterfaceBlockEntity.this.tank.size();
+        }
+
+        @Override
+        public FluidResource getResource(int index) {
+            return CelestialForgingAnvilFluidInterfaceBlockEntity.this.tank.getResource(index);
+        }
+
+        @Override
+        public long getAmountAsLong(int index) {
+            return CelestialForgingAnvilFluidInterfaceBlockEntity.this.tank.getAmountAsLong(index);
+        }
+
+        @Override
+        public long getCapacityAsLong(int index, FluidResource resource) {
+            return CelestialForgingAnvilFluidInterfaceBlockEntity.this.tank.getCapacityAsLong(index, resource);
+        }
+
+        @Override
+        public boolean isValid(int index, FluidResource resource) {
+            return !CelestialForgingAnvilFluidInterfaceBlockEntity.this.isActive()
+                && CelestialForgingAnvilFluidInterfaceBlockEntity.this.tank.isValid(index, resource);
+        }
+
+        @Override
+        public int insert(
+            int index, FluidResource resource, int amount, TransactionContext transaction
+        ) {
+            if (CelestialForgingAnvilFluidInterfaceBlockEntity.this.isActive()) return 0;
+            return CelestialForgingAnvilFluidInterfaceBlockEntity.this.tank.insert(
+                index, resource, amount, transaction
+            );
+        }
+
+        @Override
+        public int insert(FluidResource resource, int amount, TransactionContext transaction) {
+            if (CelestialForgingAnvilFluidInterfaceBlockEntity.this.isActive()) return 0;
+            return CelestialForgingAnvilFluidInterfaceBlockEntity.this.tank.insert(
+                resource, amount, transaction
+            );
+        }
+
+        @Override
+        public int extract(
+            int index, FluidResource resource, int amount, TransactionContext transaction
+        ) {
+            return CelestialForgingAnvilFluidInterfaceBlockEntity.this.tank.extract(
+                index, resource, amount, transaction
+            );
+        }
+
+        @Override
+        public int extract(FluidResource resource, int amount, TransactionContext transaction) {
+            return CelestialForgingAnvilFluidInterfaceBlockEntity.this.tank.extract(
+                resource, amount, transaction
+            );
+        }
+
+        @Override
+        public boolean isSupplyingInfiniteGasPressure() {
+            return CelestialForgingAnvilFluidInterfaceBlockEntity.this.isSupplyingInfiniteGasPressure();
+        }
     }
 }

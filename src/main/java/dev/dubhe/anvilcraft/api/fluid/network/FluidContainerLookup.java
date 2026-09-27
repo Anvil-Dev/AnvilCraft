@@ -15,20 +15,31 @@ import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import org.jspecify.annotations.Nullable;
 
-/// 查找方块单元中由方块或实体提供的流体容器。
+/** 查找方块单元中由方块或实体提供的流体容器。 */
 public final class FluidContainerLookup {
-    /// 水平碰撞判定允许实体偏移约 0.001 个方块距离，同时仍判定两个面相接触。
+    /**
+     * 水平碰撞判定允许实体偏移约 0.001 个方块距离，同时仍判定两个面相接触。
+     */
     private static final double ENTITY_PIPE_CONTACT_TOLERANCE = 1.1E-3D;
 
     private FluidContainerLookup() {
     }
 
-    /// 查找占据 {@code pos} 的流体端点。方块能力优先于实体能力。
-    ///
-    /// <p>实体归属于其碰撞箱中心所在的方块单元，避免移动实体同时从多个相邻位置暴露能力。</p>
+    /**
+     * 查找占据 {@code pos} 的流体端点。方块能力优先于实体能力。
+     * 实体归属于其碰撞箱中心所在的方块单元，避免移动实体同时从多个相邻位置暴露能力。
+     */
     public static @Nullable Result find(Level level, BlockPos pos, @Nullable Direction side) {
-        BlockState state = level.getBlockState(pos);
-        BlockEntity blockEntity = level.getBlockEntity(pos);
+        return find(level, pos, side, level.getBlockEntity(pos));
+    }
+
+    private static @Nullable Result find(
+        Level level,
+        BlockPos pos,
+        @Nullable Direction side,
+        @Nullable BlockEntity blockEntity
+    ) {
+        BlockState state = blockEntity == null ? level.getBlockState(pos) : blockEntity.getBlockState();
         ResourceHandler<FluidResource> blockHandler = level.getCapability(
             Capabilities.Fluid.BLOCK,
             pos,
@@ -61,7 +72,40 @@ public final class FluidContainerLookup {
         return selectedHandler == null ? null : new Result(selectedHandler, cauldron, selected);
     }
 
-    /// 返回实体端点是否仍与相邻管道部件实际接触。
+    /**
+     * 查找任意方向暴露流体能力的容器。
+     *
+     * <p>部分外部模组只在特定方向提供能力，不能只用 {@code side == null}
+     * 判断其是否为容器；加载登记时需要检查所有方向。</p>
+     */
+    public static @Nullable Result findAny(Level level, BlockPos pos) {
+        return findAny(level, pos, level.getBlockEntity(pos));
+    }
+
+    /**
+     * 使用指定的方块实体查找任意方向的流体能力。
+     *
+     * <p>复用调用方已取得的方块实体，避免重复按位置查找。</p>
+     */
+    public static @Nullable Result findAny(
+        Level level,
+        BlockPos pos,
+        @Nullable BlockEntity blockEntity
+    ) {
+        Result result = find(level, pos, null, blockEntity);
+        if (result != null) {
+            return result;
+        }
+        for (Direction side : Direction.values()) {
+            result = find(level, pos, side, blockEntity);
+            if (result != null) {
+                return result;
+            }
+        }
+        return null;
+    }
+
+    /** 返回实体端点是否仍与相邻管道部件实际接触。 */
     public static boolean isEntityConnectedToPipe(
         Level level, BlockPos containerPos, Direction sideToPipe, Entity entity
     ) {
@@ -75,14 +119,14 @@ public final class FluidContainerLookup {
         if (!level.isLoaded(pipePos)) {
             return false;
         }
-        Vec3 towardPipe = Vec3.atLowerCornerOf(sideToPipe.getUnitVec3i()).scale(FluidContainerLookup.ENTITY_PIPE_CONTACT_TOLERANCE);
+        Vec3 towardPipe = Vec3.atLowerCornerOf(sideToPipe.getUnitVec3i()).scale(ENTITY_PIPE_CONTACT_TOLERANCE);
         AABB contactBox = entity.getBoundingBox().expandTowards(towardPipe);
         return level.getBlockState(pipePos).getCollisionShape(level, pipePos).toAabbs().stream()
             .map(box -> box.move(pipePos.getX(), pipePos.getY(), pipePos.getZ()))
             .anyMatch(contactBox::intersects);
     }
 
-    /// 在单个网络端点发现的流体处理器及其转移语义。
+    /** 在单个网络端点发现的流体处理器及其转移语义。 */
     public record Result(ResourceHandler<FluidResource> handler, boolean cauldron, @Nullable Entity entity) {
     }
 }
