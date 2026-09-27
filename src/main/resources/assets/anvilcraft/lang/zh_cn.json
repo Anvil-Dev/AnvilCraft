@@ -2852,5 +2852,18 @@
   "tooltip.anvilcraft.item.matcha_cake_block": "一块抹茶蛋糕，可以拿铲子当勺子挖着吃",
   "tooltip.anvilcraft.item.black_white_chocolate_block": "由混合白巧克力和黑巧克力制作，，踩上去获得急迫和跳跃提升效果",
   "tooltip.anvilcraft.item.matcha_cream_block": "一块抹茶奶油，可以拿铲子当勺子挖着吃",
-  "tooltip.anvilcraft.item.cookie_pillar": " 中空的曲奇块！"
+  "tooltip.anvilcraft.item.cookie_pillar": " 中空的曲奇块！",
+  "block.anvilcraft.hydrogen": "氢气",
+  "item.anvilcraft.hydrogen_bucket": "氢气桶",
+  "block.anvilcraft.oxygen": "氧气",
+  "item.anvilcraft.oxygen_bucket": "氧气桶",
+  "block.anvilcraft.helium": "氦气",
+  "item.anvilcraft.helium_bucket": "氦气桶",
+  "block.anvilcraft.deuterium": "氘气",
+  "item.anvilcraft.deuterium_bucket": "氘气桶",
+  "block.anvilcraft.xenon": "氙气",
+  "item.anvilcraft.xenon_bucket": "氙气桶",
+  "block.anvilcraft.krypton": "氪气",
+  "item.anvilcraft.krypton_bucket": "氪气桶",
+  "item.anvilcraft.primordial_matter_bucket": "原始物质桶"
 }

@@ -107,6 +107,14 @@ public class Ingredients extends DisplayItemsGenerator {
         this.plain(ModItems.EXP_BUCKET);
         this.plain(ModItems.OIL_BUCKET);
         this.plain(ModItems.MELT_GEM_BUCKET);
+        this.plain(ModItems.HYDROGEN_BUCKET);
+        this.plain(ModItems.OXYGEN_BUCKET);
+        this.plain(ModItems.HELIUM_BUCKET);
+        this.plain(ModItems.DEUTERIUM_BUCKET);
+        this.plain(ModItems.XENON_BUCKET);
+        this.plain(ModItems.KRYPTON_BUCKET);
+        this.plain(ModItems.PRIMORDIAL_MATTER_BUCKET);
+
         for (ItemEntry<BucketItem> entry : ModItems.CEMENT_BUCKETS.values()) {
             this.plain(entry.asItem());
         }

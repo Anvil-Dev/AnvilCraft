@@ -143,6 +143,7 @@
     "providence.EnchantedCountIncreaseFunctionMixin"
   ],
   "client": [
+    "client.ModFluidBucketModelMixin",
     "MunSurfacePassMixin",
     "MunGlRenderPassAccessor",
     "MunShadowReceiverMixin",

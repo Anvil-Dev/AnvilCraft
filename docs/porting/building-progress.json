@@ -2096,14 +2096,7 @@
       "ItemsSections": {
         "ModItems": [
           "DEFORMATION_TEMPLATE_ITEM",
-          "DEUTERIUM_BUCKET",
-          "HELIUM_BUCKET",
-          "HYDROGEN_BUCKET",
-          "KRYPTON_BUCKET",
-          "OXYGEN_BUCKET",
-          "PERMUTATION_TEMPLATE_ITEM",
-          "PRIMORDIAL_MATTER_BUCKET",
-          "XENON_BUCKET"
+          "PERMUTATION_TEMPLATE_ITEM"
         ],
         "ModBlocks": []
       },
@@ -2135,7 +2128,8 @@
       "ModBlocks.GUNPOWDER_BLOCK": "ModBlocks.GUNPOWER_BLOCK"
     },
     "completed_content_nodes": [
-      "confectionery_blocks"
+      "confectionery_blocks",
+      "gas_fluids_and_buckets"
     ]
   },
   "confectionery_blocks": {
@@ -2201,6 +2195,69 @@
       "Vanilla 26.1 GUI item sampling and lighting are retained; color differences remain despite identical silhouettes/assets.",
       "Source guide resources are copied verbatim; honey-food values in the source guide differ from source code, whose behavior is preserved.",
       "Initial full suite hit Windows AccessDenied in an existing world-reset manifest fixture; isolated recheck and final full rerun passed."
+    ]
+  },
+  "gas_fluids_and_buckets": {
+    "source_commit": "07eb60b47f14439375da10e78f4d4770f3a83256",
+    "status": "source_gases_containers_network_and_bucket_visuals_ported",
+    "ported": [
+      "Six source chemical gases with contained-only behavior and original physical profiles",
+      "Seven buckets, translations, creative entries and primordial-matter gas/refill semantics",
+      "Native fluid model colors and fixed source gas flipping",
+      "Shared mod bucket transparency, same-atlas base layering and source mask geometry with seam/UV adaptation"
+    ],
+    "verification": {
+      "focused_log": "build/porting/tests-gas-fluids-focused-final.log",
+      "tests_datagen_style_log": "build/porting/tests-gas-fluids-final-3.log",
+      "native_client_style_log": "build/porting/client-gas-fluids-final-6.log",
+      "source_client_log": "build/porting/client-gas-fluids-source-mesh.log",
+      "report": "build/porting/gas-fluids-comparison.json",
+      "required_tests_passed": 627,
+      "source_fluid_classes_equal": 2,
+      "fluid_quads_with_identical_positions": 58,
+      "maximum_normalized_uv_error": 0.0006122499999999809,
+      "visuals": {
+        "hydrogen": {
+          "silhouette_iou": 1.0,
+          "mean_rgb_error": 1.643835616438356,
+          "maximum_rgb_error": 3
+        },
+        "oxygen": {
+          "silhouette_iou": 1.0,
+          "mean_rgb_error": 1.6210045662100456,
+          "maximum_rgb_error": 3
+        },
+        "helium": {
+          "silhouette_iou": 1.0,
+          "mean_rgb_error": 1.6529680365296804,
+          "maximum_rgb_error": 3
+        },
+        "deuterium": {
+          "silhouette_iou": 1.0,
+          "mean_rgb_error": 1.6552511415525115,
+          "maximum_rgb_error": 3
+        },
+        "xenon": {
+          "silhouette_iou": 1.0,
+          "mean_rgb_error": 1.6210045662100456,
+          "maximum_rgb_error": 3
+        },
+        "krypton": {
+          "silhouette_iou": 1.0,
+          "mean_rgb_error": 1.6575342465753424,
+          "maximum_rgb_error": 3
+        },
+        "primordial_matter": {
+          "silhouette_iou": 1.0,
+          "mean_rgb_error": 1.63013698630137,
+          "maximum_rgb_error": 3
+        }
+      }
+    },
+    "limits": [
+      "Paired renders freeze vanilla water animation at frame zero only in developer fixtures; output overrides are cleaned afterward.",
+      "Atlas sizes change the legacy UV inset slightly; native GUI lighting retains a maximum three-channel-value difference.",
+      "The six chemical gases retain source getBucket=AIR behavior; primordial matter provides the registered refill bucket."
     ]
   }
 }

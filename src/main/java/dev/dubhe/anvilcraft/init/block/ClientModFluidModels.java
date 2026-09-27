@@ -65,5 +65,40 @@ public class ClientModFluidModels {
             new Material(Identifier.withDefaultNamespace("block/honey_block_top")),
             null, tint
         ), ModFluids.HONEY);
+        event.register(new FluidModel.Unbaked(
+            new Material(Identifier.withDefaultNamespace("block/water_still")),
+            new Material(Identifier.withDefaultNamespace("block/water_flow")),
+            null, _ -> 0xFFC9E4F7
+        ), ModFluids.HYDROGEN);
+        event.register(new FluidModel.Unbaked(
+            new Material(Identifier.withDefaultNamespace("block/water_still")),
+            new Material(Identifier.withDefaultNamespace("block/water_flow")),
+            null, _ -> 0xFF9CCCF8
+        ), ModFluids.OXYGEN);
+        event.register(new FluidModel.Unbaked(
+            new Material(Identifier.withDefaultNamespace("block/water_still")),
+            new Material(Identifier.withDefaultNamespace("block/water_flow")),
+            null, _ -> 0xFFF0C8E0
+        ), ModFluids.HELIUM);
+        event.register(new FluidModel.Unbaked(
+            new Material(Identifier.withDefaultNamespace("block/water_still")),
+            new Material(Identifier.withDefaultNamespace("block/water_flow")),
+            null, _ -> 0xFFA8E8DC
+        ), ModFluids.DEUTERIUM);
+        event.register(new FluidModel.Unbaked(
+            new Material(Identifier.withDefaultNamespace("block/water_still")),
+            new Material(Identifier.withDefaultNamespace("block/water_flow")),
+            null, _ -> 0xFFC9C2F0
+        ), ModFluids.XENON);
+        event.register(new FluidModel.Unbaked(
+            new Material(Identifier.withDefaultNamespace("block/water_still")),
+            new Material(Identifier.withDefaultNamespace("block/water_flow")),
+            null, _ -> 0xFFB0E8A8
+        ), ModFluids.KRYPTON);
+        event.register(new FluidModel.Unbaked(
+            new Material(Identifier.withDefaultNamespace("block/water_still")),
+            new Material(Identifier.withDefaultNamespace("block/water_flow")),
+            null, _ -> 0xFFE6CFFF
+        ), ModFluids.PRIMORDIAL_MATTER);
     }
 }

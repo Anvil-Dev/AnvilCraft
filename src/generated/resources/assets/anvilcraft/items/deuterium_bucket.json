@@ -1,7 +1,8 @@
 {
   "model": {
     "type": "neoforge:fluid_container",
-    "fluid": "anvilcraft:orange_cement",
+    "flip_gas": true,
+    "fluid": "anvilcraft:deuterium",
     "force_opaque_fluid": false,
     "textures": {
       "base": {

@@ -4,6 +4,7 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.fluid.MeltGemFluid;
 import dev.dubhe.anvilcraft.block.state.Color;
 import dev.dubhe.anvilcraft.fluid.CementFluid;
+import dev.dubhe.anvilcraft.fluid.GasFluid;
 import dev.dubhe.anvilcraft.fluid.HoneyFluid;
 import dev.dubhe.anvilcraft.fluid.LiquidEnchantmentFluid;
 import dev.dubhe.anvilcraft.fluid.PowderSnowFluid;
@@ -113,6 +114,64 @@ public class ModFluids {
         .tickRate(10)
         .slopeFindDistance(3)
         .explosionResistance(100);
+
+    public static final FluidType HYDROGEN_FLUID_TYPE = gasType("hydrogen");
+    public static final DeferredHolder<FluidType, FluidType> HYDROGEN_TYPE = FLUID_TYPES.register(
+        "hydrogen", () -> ModFluids.HYDROGEN_FLUID_TYPE
+    );
+    public static final DeferredHolder<Fluid, GasFluid> HYDROGEN = FLUIDS.register(
+        "hydrogen", () -> new GasFluid(ModFluids.HYDROGEN_FLUID_TYPE)
+    );
+
+    public static final FluidType OXYGEN_FLUID_TYPE = gasType("oxygen");
+    public static final DeferredHolder<FluidType, FluidType> OXYGEN_TYPE = FLUID_TYPES.register(
+        "oxygen", () -> ModFluids.OXYGEN_FLUID_TYPE
+    );
+    public static final DeferredHolder<Fluid, GasFluid> OXYGEN = FLUIDS.register(
+        "oxygen", () -> new GasFluid(ModFluids.OXYGEN_FLUID_TYPE)
+    );
+
+    public static final FluidType HELIUM_FLUID_TYPE = gasType("helium");
+    public static final DeferredHolder<FluidType, FluidType> HELIUM_TYPE = FLUID_TYPES.register(
+        "helium", () -> ModFluids.HELIUM_FLUID_TYPE
+    );
+    public static final DeferredHolder<Fluid, GasFluid> HELIUM = FLUIDS.register(
+        "helium", () -> new GasFluid(ModFluids.HELIUM_FLUID_TYPE)
+    );
+
+    public static final FluidType DEUTERIUM_FLUID_TYPE = gasType("deuterium");
+    public static final DeferredHolder<FluidType, FluidType> DEUTERIUM_TYPE = FLUID_TYPES.register(
+        "deuterium", () -> ModFluids.DEUTERIUM_FLUID_TYPE
+    );
+    public static final DeferredHolder<Fluid, GasFluid> DEUTERIUM = FLUIDS.register(
+        "deuterium", () -> new GasFluid(ModFluids.DEUTERIUM_FLUID_TYPE)
+    );
+
+    public static final FluidType XENON_FLUID_TYPE = gasType("xenon");
+    public static final DeferredHolder<FluidType, FluidType> XENON_TYPE = FLUID_TYPES.register(
+        "xenon", () -> ModFluids.XENON_FLUID_TYPE
+    );
+    public static final DeferredHolder<Fluid, GasFluid> XENON = FLUIDS.register(
+        "xenon", () -> new GasFluid(ModFluids.XENON_FLUID_TYPE)
+    );
+
+    public static final FluidType KRYPTON_FLUID_TYPE = gasType("krypton");
+    public static final DeferredHolder<FluidType, FluidType> KRYPTON_TYPE = FLUID_TYPES.register(
+        "krypton", () -> ModFluids.KRYPTON_FLUID_TYPE
+    );
+    public static final DeferredHolder<Fluid, GasFluid> KRYPTON = FLUIDS.register(
+        "krypton", () -> new GasFluid(ModFluids.KRYPTON_FLUID_TYPE)
+    );
+
+    private static FluidType gasType(String name) {
+        return new FluidType(FluidType.Properties.create()
+            .descriptionId("block.anvilcraft." + name)
+            .density(-1000)
+            .viscosity(100)
+            .fallDistanceModifier(0)
+            .sound(SoundActions.BUCKET_FILL, SoundEvents.BUCKET_FILL)
+            .sound(SoundActions.BUCKET_EMPTY, SoundEvents.BUCKET_EMPTY));
+    }
 
     public static final Object2ObjectMap<Color, DeferredHolder<FluidType, FluidType>> CEMENT_TYPES = ModFluids.registerAllCementTypes();
     public static final Object2ObjectMap<Color, DeferredHolder<Fluid, BaseFlowingFluid>> SOURCE_CEMENTS =
@@ -321,6 +380,13 @@ public class ModFluids {
         e.registerFluidType(new ModClientFluidTypeExtensionImpl(0xB7EEDE, 2.0F), ModFluids.MELT_GEM_TYPE);
         e.registerFluidType(new ModClientFluidTypeExtensionImpl(0xFFC200, 1.0F), ModFluids.HONEY_TYPE);
         e.registerFluidType(new ModClientFluidTypeExtensionImpl(0xE6CFFF, 0.5F), ModFluids.PRIMORDIAL_MATTER_TYPE);
+        e.registerFluidType(new ModClientFluidTypeExtensionImpl(0xC9E4F7, 2.0F), ModFluids.HYDROGEN_TYPE);
+        e.registerFluidType(new ModClientFluidTypeExtensionImpl(0x9CCCF8, 2.0F), ModFluids.OXYGEN_TYPE);
+        e.registerFluidType(new ModClientFluidTypeExtensionImpl(0xF0C8E0, 2.0F), ModFluids.HELIUM_TYPE);
+        e.registerFluidType(new ModClientFluidTypeExtensionImpl(0xA8E8DC, 2.0F), ModFluids.DEUTERIUM_TYPE);
+        e.registerFluidType(new ModClientFluidTypeExtensionImpl(0xC9C2F0, 2.0F), ModFluids.XENON_TYPE);
+        e.registerFluidType(new ModClientFluidTypeExtensionImpl(0xB0E8A8, 2.0F), ModFluids.KRYPTON_TYPE);
+
         e.registerFluidType(
             new LiquidEnchantmentClientFluidTypeExtension(),
             ModFluids.LIQUID_ENCHANTMENT_TYPE

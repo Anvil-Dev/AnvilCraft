@@ -2,8 +2,12 @@
   "model": {
     "type": "neoforge:fluid_container",
     "fluid": "anvilcraft:pink_cement",
+    "force_opaque_fluid": false,
     "textures": {
-      "base": "minecraft:item/bucket",
+      "base": {
+        "force_translucent": true,
+        "sprite": "anvilcraft:block/bucket"
+      },
       "fluid": "neoforge:item/mask/bucket_fluid_drip"
     }
   }

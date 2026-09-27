@@ -4,6 +4,7 @@ import dev.anvilcraft.lib.v2.registrum.providers.DataGenContext;
 import dev.anvilcraft.lib.v2.registrum.providers.generators.RegistrumBlockModelGenerator;
 import dev.anvilcraft.lib.v2.registrum.providers.generators.RegistrumItemModelGenerator;
 import dev.anvilcraft.lib.v2.util.nullness.NonNullBiConsumer;
+import dev.dubhe.anvilcraft.AnvilCraft;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import net.minecraft.client.data.models.model.ModelLocationUtils;
@@ -39,7 +40,15 @@ public class ModelProviderUtil {
     }
 
     /// 用于流体的ItemModel生成器
+    public static NonNullBiConsumer<DataGenContext<Item, BucketItem>, RegistrumItemModelGenerator> bucketGassy() {
+        return bucket(true);
+    }
+
     public static NonNullBiConsumer<DataGenContext<Item, BucketItem>, RegistrumItemModelGenerator> bucket() {
+        return bucket(false);
+    }
+
+    private static NonNullBiConsumer<DataGenContext<Item, BucketItem>, RegistrumItemModelGenerator> bucket(boolean flipGas) {
         return new NonNullBiConsumer<>() {
             @Override
             public void accept(
@@ -51,15 +60,16 @@ public class ModelProviderUtil {
                     new DynamicFluidContainerModel.Unbaked(
                         new DynamicFluidContainerModel.Textures(
                             Optional.empty(),
-                            Optional.of(new Material(ModelLocationUtils.decorateItemModelLocation("bucket"))),
+                            Optional.of(new Material(AnvilCraft.of("block/bucket"), true)),
                             Optional.of(new Material(ModelLocationUtils.decorateItemModelLocation(
                                 "neoforge:mask/bucket_fluid_drip"))),
                             Optional.empty()
                         ),
                         ctx.get().content,
-                        false,
+                        flipGas,
                         true,
-                        true
+                        true,
+                        false
                     )
                 );
             }
