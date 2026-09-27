@@ -19,6 +19,10 @@ public record ActAsScarecrowAmuletEffect<T extends LivingEntity>(IImpersonator<T
         HashBasedTable.create()
     );
 
+    public static void clear() {
+        ActAsScarecrowAmuletEffect.CACHE.clear();
+    }
+
     @Override
     public void trigger(LivingEntity entity, ItemStack amulet, AmuletEffectContext ctx) {
         Class<? extends LivingEntity> mask = ctx.get(ModAmuletEffectContextKeys.LIVING_ENTITY_CLASS).orElse(null);

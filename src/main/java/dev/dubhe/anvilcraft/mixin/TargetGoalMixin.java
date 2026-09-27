@@ -1,16 +1,15 @@
 package dev.dubhe.anvilcraft.mixin;
 
-import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
-import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import dev.dubhe.anvilcraft.event.AmuletAbilitiesEventListener;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.goal.target.TargetGoal;
-import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import javax.annotation.Nullable;
 
@@ -24,19 +23,16 @@ public class TargetGoalMixin {
     @Final
     protected Mob mob;
 
-    @WrapOperation(
+    @Inject(
         method = "canContinueToUse",
-        at = @At(
-            value = "FIELD",
-            target = "Lnet/minecraft/world/entity/ai/goal/target/TargetGoal;targetMob:Lnet/minecraft/world/entity/LivingEntity;",
-            opcode = Opcodes.GETFIELD
-        )
+        at = @At("HEAD"),
+        cancellable = true
     )
-    private @Nullable LivingEntity stopTargetingByAmulet(TargetGoal instance, Operation<LivingEntity> original) {
+    private void stopTargetingByAmulet(CallbackInfoReturnable<Boolean> cir) {
         if (this.targetMob == null || !AmuletAbilitiesEventListener.shouldIgnoreTarget(this.targetMob, this.mob)) {
-            return original.call(instance);
+            return;
         }
         this.targetMob = null;
-        return null;
+        cir.setReturnValue(false);
     }
 }
