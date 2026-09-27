@@ -19,7 +19,6 @@ import javax.annotation.Nullable;
 /// 该效果自身不产生任何作用，仅将其包覆的护符的效果展开后一并生效。
 public final class WrapOtherAmuletEffect implements IAmuletEffect {
     private final List<ResourceKey<Amulet>> others;
-    @Unmodifiable
     private @Nullable Set<IAmuletEffect> flatten;
 
     public WrapOtherAmuletEffect(List<ResourceKey<Amulet>> others) {
@@ -36,6 +35,7 @@ public final class WrapOtherAmuletEffect implements IAmuletEffect {
         return this.getFlattenEffects();
     }
 
+    @Unmodifiable
     private Set<IAmuletEffect> getFlattenEffects() {
         if (this.flatten == null) {
             this.flatten = this.computeFlattenEffects();

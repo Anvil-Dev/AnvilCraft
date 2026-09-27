@@ -11,7 +11,6 @@ import javax.annotation.Nullable;
 
 public final class Amulet {
     private final @Unmodifiable Set<IAmuletEffect> effects;
-    @Unmodifiable
     private @Nullable Set<IAmuletEffect> flatten;
 
     private Amulet(@Unmodifiable Set<IAmuletEffect> effects) {
