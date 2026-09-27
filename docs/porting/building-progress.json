@@ -1445,7 +1445,7 @@
   },
   "monolith_blocks_and_offerings": {
     "source_commit": "1260db54f6e2b9f88d0a79b8108459d346344e44",
-    "status": "blocks_rewards_and_native_animation_ported_generation_and_events_pending",
+    "status": "blocks_rewards_native_effects_and_world_interactions_ported",
     "ported": [
       "Five original monolith blocks, item models, textures, tags and creative entries",
       "Ordinary and giant offering filters, 100-tick cooldown and delayed reward delivery",
@@ -1482,9 +1482,8 @@
       ]
     },
     "limits": [
-      "Natural generation, POI proximity hints and confirmed return are not included yet.",
-      "Native terrain/sky rendering and small composite-color differences remain.",
-      "The failed source setup with overlapping fixtures was terminated after its wait state was diagnosed."
+      "Foundation evidence below refers to source 1260db54f; current artwork validation is tracked in monolith_asset_update_07eb60b47.",
+      "Native terrain/sky rendering and small composite-color differences remain."
     ]
   },
   "monolith_world_and_interaction": {
@@ -1761,10 +1760,11 @@
       "8569d095d Refactor Amulet system 重构护符系统 (#5042)",
       "989bf7b33 fix: Improve block rotation and mirroring logic 完善方块旋转和镜像逻辑 (#5026)"
     ],
-    "current_work": "Pipe rotations and infinite-pressure network semantics are ported; remaining source updates include monolith assets, amulets and held-item rendering.",
+    "current_work": "Remaining latest-source updates include the amulet refactor, held-item rendering and non-pipe rotation/mirroring.",
     "completed_nodes": [
       "glass_pipe_rotation_mirroring",
-      "fluid_network_pressure"
+      "fluid_network_pressure",
+      "monolith_asset_update_07eb60b47"
     ]
   },
   "fluid_network_pressure": {
@@ -1788,6 +1788,25 @@
     "limits": [
       "Controlled gas handlers verify gas math and pressure; the real client scene exercises liquid transfer.",
       "Final server suite passed all tests; the separate compile/style check resolves an import-order violation."
+    ]
+  },
+  "monolith_asset_update_07eb60b47": {
+    "source_commit": "07eb60b47f14439375da10e78f4d4770f3a83256",
+    "status": "source_assets_and_native_client_verified",
+    "ported": [
+      "Four source model updates for ordinary/giant monolith cores and lines",
+      "Original outer texture and interpolated three-frame inner texture animation",
+      "Original legacy essence texture asset; source does not register a new item for it"
+    ],
+    "verification": {
+      "native_client_log": "build/porting/client-monolith-assets-target-final.log",
+      "source_client_log": "build/porting/client-monolith-assets-source-final.log",
+      "datagen_log": "build/porting/data-monolith-assets-final.log",
+      "report": "build/porting/monolith-assets-comparison.json"
+    },
+    "limits": [
+      "Client captures do not synchronize the phase of the inner texture animation.",
+      "Initial native validation failed due to overlapping compilation; final rerun is verified separately."
     ]
   }
 }
