@@ -38,6 +38,9 @@ public class AmuletAbilitiesEventListener {
     @SubscribeEvent
     public static void onInventoryTick(EntityTickEvent.Post event) {
         if (!(event.getEntity() instanceof LivingEntity entity)) return;
+        if (!AmuletManager.shouldEvaluate(entity)) {
+            return;
+        }
 
         AmuletManager manager = AmuletManager.get(entity.registryAccess());
         Multimap<IAmuletEffect, ItemStack> active = manager.getActiveEffects(entity);
