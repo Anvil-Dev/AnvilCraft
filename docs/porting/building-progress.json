@@ -2810,5 +2810,47 @@
       "Native terminal crafting uses the existing content-preserving recipe adapter.",
       "World crops include native 26.1 atmosphere and terrain; transparency scenarios are also visually inspected."
     ]
+  },
+  "storage_upgrade_chain": {
+    "source_commit": "07eb60b47f14439375da10e78f4d4770f3a83256",
+    "status": "behavior_persistence_and_native_client_verified_visual_refresh_pending",
+    "ported": [
+      "Large Crate to Shulker Container consumes exactly one Space Overcompressor and six Netherite Blocks, preserving excess input materials.",
+      "New Shulker Containers start at 1024 types and 65536 normalized units per type; each compressor doubles both limits, up to four upgrades (16384 types and 1048576 units per type).",
+      "Fully expanded Shulker Container upgrades to Hyperdimension Storage Station with one Singularity Crystal and sixteen Hypercubes; higher-priority registration preserves source dispatch order.",
+      "Stored items, crafting unlock and crafting inputs survive both upgrades; source UUID replacement and old-storage removal are retained.",
+      "Migrated excess item types survive native storage codecs without allowing new item types above capacity; existing larger legacy type limits are preserved.",
+      "English/Chinese item and hammer hints, including the full-capacity switch to Hyperdimension upgrade instructions."
+    ],
+    "verification": {
+      "focused_tests": "build/porting/tests-storage-upgrade-2.log",
+      "focused_tests_passed": 5,
+      "full_tests": "build/porting/tests-storage-upgrade-full.log",
+      "required_tests_passed": 664,
+      "native_client": "build/porting/client-storage-upgrade-2.log",
+      "native_client_checks": [
+        "Full-capacity hammer tooltip changes to the four-line Hyperdimension instruction.",
+        "Multipart Shulker replacement produces the station in the live client.",
+        "StorageScreen RPC loads 50000 diamonds, crafting unlock and three emeralds in crafting inputs.",
+        "Normal server save/shutdown completes."
+      ],
+      "asset_inventory": "build/porting/storage-upgrade-assets.json",
+      "unchanged_source_equal_assets": 11,
+      "screenshots": [
+        "run/port-validation/client/screenshots/storage-upgrade-26.1-before.png",
+        "run/port-validation/client/screenshots/storage-upgrade-26.1-after.png",
+        "run/port-validation/client/screenshots/storage-upgrade-26.1-contents.png"
+      ]
+    },
+    "remaining": [
+      "Latest-source Hyperdimension Storage Station texture and center/corner/full models are not yet ported. Native upgrade screenshots verify replacement and UI, not source visual parity.",
+      "ContainerUpgradeCategory JEI display and recipe/catalyst lookup.",
+      "Compare latest source/native station rendering and item model in game after the resource/model refresh.",
+      "English StorageScreen title overlaps its right-side control at GUI scale 2; compare source layout and repair in the storage UI visual pass."
+    ],
+    "limits": [
+      "The initial client fixture re-entered its render callback through setScreenAndShow; advancing the fixture stage before opening the screen fixed the test harness.",
+      "Vanilla 26.1 terrain/lightmap rendering remains unchanged."
+    ]
   }
 }

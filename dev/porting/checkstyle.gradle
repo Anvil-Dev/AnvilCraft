@@ -33,7 +33,7 @@ allprojects {
             include '**/LaserEmitPacket.java', '**/LaserCompiler.java', '**/LaserRenderState.java'
             include '**/LaserBloomPostEffect.java', '**/LaserBloomCaptureMixin.java'
             include '**/CreativeLaser*.java', '**/MassEnergyInverter*.java', '**/MassInjectBehavior.java'
-            include '**/Hypercube*.java'
+            include '**/Hypercube*.java', '**/Upgrade*ContainerBehavior.java', '**/Upgrade2HyperdimensionStationBehavior.java'
             include '**/Multiblock4D*.java', '**/NbtUtil.java', '**/GiantAnvilEvent.java'
             include '**/SpacetimeSupercomputerBlockEntity*.java', '**/SpacetimeSupercomputerRenderState.java'
             include '**/ItemCompressRecipeLoader.java', '**/BlockCompressRecipeLoader.java', '**/SolidLiquidRecipeLoader.java'
@@ -174,7 +174,8 @@ allprojects {
             include '**/BlockStatePredicateMixin.java'
             include '**/FittedItemRenderer.java', '**/FilterItemRenderer.java', '**/DiskItemRenderer.java', '**/DiskDisplaySupport.java'
             include '**/FormattingUtil.java', '**/ItemResourceHelper.java'
-            include '**/unlimited/UnlimitedItemStacksResourceHandler.java'
+            include '**/unlimited/UnlimitedItemStacksResourceHandler.java', '**/unlimited/TypeLimitItemStacksResourceHandler.java'
+            include '**/ShulkerContainerTooltipProvider.java', '**/AabbUtil.java'
             include '**/saved/storage/*Storage.java'
         } + fileTree('dev/porting/java')
         classpath = files()

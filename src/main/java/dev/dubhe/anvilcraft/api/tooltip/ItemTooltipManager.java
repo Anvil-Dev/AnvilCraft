@@ -33,6 +33,30 @@ public class ItemTooltipManager {
     private static final Map<Item, String> SHIFT = Maps.newHashMap();
 
     static {
+        NORMAL.put(ModBlocks.LARGE_CRATE.asItem(), "A large crate, stores more items");
+        SHIFT.put(
+            ModBlocks.LARGE_CRATE.asItem(), """
+                Can contain 65536 unit of items
+                Breaking it drops the contents
+                When it holds more than 1000 items, hold Shift to break it
+                Hold Shift and right-click to replace a 3×3×3 cube of crates with a large crate, preserving all contents
+                Can update to Shulker Container"""
+        );
+        NORMAL.put(ModBlocks.SHULKER_CONTAINER.asItem(), "A space-folding container upgraded from a Large Crate");
+        SHIFT.put(
+            ModBlocks.SHULKER_CONTAINER.asItem(), """
+                Can contain 1024 types of items by default, each type with 65536 unit of items by default
+                Breaking it drops the container with its items stored inside
+                Drop Space Overcompressors on top and strike with an anvil to expand capacity
+                Each one doubles both the type limit and the space per type (up to 4 times)
+                Can update to Hyperdimension Storage Station"""
+        );
+        NORMAL.put(ModBlocks.HYPERDIMENSION_STORAGE_STATION.asItem(), "An infinite container upgraded from a Shulker Container");
+        SHIFT.put(
+            ModBlocks.HYPERDIMENSION_STORAGE_STATION.asItem(), """
+                Can contain infinite items
+                Breaking it drops the container with its items stored inside"""
+        );
         ItemTooltipManager.NORMAL.put(ModItems.LOCAL_TERMINAL.asItem(), "Link to nearest Large Crate (32-block range)");
         ItemTooltipManager.NORMAL.put(ModItems.SHULKER_TERMINAL.asItem(), "Link to Shulker-like storages in world or inventory");
         ItemTooltipManager.NORMAL.put(

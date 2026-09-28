@@ -19,6 +19,7 @@ import dev.dubhe.anvilcraft.anvil.TimeWarpPlayerBehavior;
 import dev.dubhe.anvilcraft.anvil.TranscendiumBehavior;
 import dev.dubhe.anvilcraft.anvil.Upgrade2ShulkerContainerBehavior;
 import dev.dubhe.anvilcraft.anvil.UpgradeShulkerContainerBehavior;
+import dev.dubhe.anvilcraft.anvil.Upgrade2HyperdimensionStationBehavior;
 import dev.dubhe.anvilcraft.api.event.AnvilBehaviorRegisterEvent;
 import dev.dubhe.anvilcraft.block.storage.GunpowderBlock;
 import dev.dubhe.anvilcraft.block.storage.SugarBlock;
@@ -61,6 +62,7 @@ public class ModAnvilBehaviors {
             new MagnetBlockBehavior()
         );
         event.registerBehavior(ModBlocks.LARGE_CRATE.get(), new Upgrade2ShulkerContainerBehavior());
+        event.registerBehavior(ModBlocks.SHULKER_CONTAINER.get(), new Upgrade2HyperdimensionStationBehavior());
         event.registerBehavior(ModBlocks.SHULKER_CONTAINER.get(), new UpgradeShulkerContainerBehavior());
     }
 }

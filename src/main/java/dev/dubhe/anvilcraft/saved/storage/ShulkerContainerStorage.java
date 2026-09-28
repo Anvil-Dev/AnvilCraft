@@ -12,6 +12,7 @@ import net.minecraft.network.codec.StreamCodec;
 import java.util.UUID;
 
 public class ShulkerContainerStorage extends BaseStorage<TypeLimitItemStacksResourceHandler> {
+    public static final int DEFAULT_TYPE_LIMIT = 1024;
     public static final MapCodec<ShulkerContainerStorage> CODEC = BaseStorage.withCrafting(CodecUtil.mapCodec(
         UUIDUtil.CODEC
             .fieldOf("storage_id")
@@ -41,7 +42,7 @@ public class ShulkerContainerStorage extends BaseStorage<TypeLimitItemStacksReso
 
     @Override
     protected TypeLimitItemStacksResourceHandler constructItemHandler(IntObjectBiConsumer<UnlimitedItemStack> onContentsChanged) {
-        return new TypeLimitItemStacksResourceHandler(65536, 65536) {
+        return new TypeLimitItemStacksResourceHandler(DEFAULT_TYPE_LIMIT, 65536) {
             @Override
             protected void onContentsChanged(int index, UnlimitedItemStack original) {
                 onContentsChanged.accept(index, original);

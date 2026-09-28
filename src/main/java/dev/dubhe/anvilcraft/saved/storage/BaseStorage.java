@@ -41,6 +41,11 @@ public abstract class BaseStorage<T extends UnlimitedItemStacksResourceHandler> 
         Storages.get().setDirty();
     }
 
+    public void copyCraftingFrom(BaseStorage<?> source) {
+        this.craftingUnlocked = source.craftingUnlocked;
+        this.setCrafting(source.crafting);
+    }
+
     public boolean unlockCrafting() {
         if (this.craftingUnlocked) return true;
         int workbench = -1;
