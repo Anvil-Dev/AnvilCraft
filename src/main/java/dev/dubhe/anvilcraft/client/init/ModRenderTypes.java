@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.client.init;
 
 import dev.anvilcraft.lib.v2.rendering.extension.ALRRenderTypeExtension;
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.client.renderer.post.LaserBloomPostEffect;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.renderer.Sheets;
 import net.minecraft.client.renderer.feature.ItemFeatureRenderer;
@@ -46,7 +47,13 @@ public class ModRenderTypes {
             .createRenderSetup()
     );
 
-    public static final RenderType LINE_BLOOM = ALRRenderTypeExtension.copyWithBloom(RenderTypes.LINES);
+    public static final RenderType LINE_BLOOM = RenderType.create(
+        "anvilcraft:line_bloom",
+        RenderSetup.builder(RenderPipelines.LINES)
+            .setLayeringTransform(LayeringTransform.VIEW_OFFSET_Z_LAYERING)
+            .setOutputTarget(new OutputTarget("anvilcraft:line_bloom", LaserBloomPostEffect::lineTarget))
+            .createRenderSetup()
+    );
 
     public static final RenderType LASER_TRANSLUCENT = RenderType.create(
         "anvilcraft:laser_translucent",

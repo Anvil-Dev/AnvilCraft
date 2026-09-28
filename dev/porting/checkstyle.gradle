@@ -187,6 +187,7 @@ allprojects {
             include '**/recipe/multiblock/Multiblock*.java', '**/IMultiblockRecipe.java', '**/LevelLikeDisplaySupport.java'
             include '**/GiantAnvilLandingEventListener.java'
             include '**/BlockStatePredicateMixin.java'
+            include '**/PowerGridSupport.java', '**/SubmitGeometryEventListener.java'
             include '**/CannedFoodItem.java', '**/StoredItem.java', '**/ItemDefaultComponentsEventListener.java'
             include '**/CursedGoldenAppleItem.java', '**/ModFoodItems.java', '**/ModFoods.java'
             include '**/init/item/tabs/*.java', '**/ModItemGroups.java', '**/CreativeTabLang.java'

@@ -80,10 +80,15 @@ public final class LaserBloomPostEffect implements AutoCloseable {
         INSTANCE.close();
     }
 
-    public static void beginDraw() {
+    public static RenderTarget lineTarget() {
         INSTANCE.prepare();
         var input = Objects.requireNonNull(INSTANCE.input);
         input.copyDepthFrom(Minecraft.getInstance().getMainRenderTarget());
+        return input;
+    }
+
+    public static void beginDraw() {
+        var input = lineTarget();
         INSTANCE.previousColor = RenderSystem.outputColorTextureOverride;
         INSTANCE.previousDepth = RenderSystem.outputDepthTextureOverride;
         RenderSystem.outputColorTextureOverride = input.getColorTextureView();

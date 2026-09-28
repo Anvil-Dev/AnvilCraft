@@ -2603,9 +2603,57 @@
     ]
   },
   "power_line_bloom_parity": {
-    "source_commit": "07eb60b47f14439375da10e78f4d4770f3a83256",
-    "status": "pending_separate_live_submit_path_audit",
-    "evidence": "PowerGridSupport submits LINE_BLOOM through live geometry rather than CachedRenderingChunk; laser-only capture intentionally leaves this separate path for its own source visual audit."
+    "source_commit": "a3a037f17876b2e7036779baee71898978c5d4be",
+    "status": "native_and_source_live_rendering_verified",
+    "verification": {
+      "source_commit": "a3a037f17876b2e7036779baee71898978c5d4be",
+      "source_native_mean_rgb_difference": {
+        "plain": 2.1077817531305905,
+        "bloom": 3.1327804590669115,
+        "bloom-hidden": 3.1377767203679787,
+        "occluded": 3.209078359723914,
+        "reload": 3.1774232535653857
+      },
+      "source_plain_line_silhouette": "identical",
+      "height_delta_blocks": 96,
+      "height_mean_rgb_difference": {
+        "plain": 0.0020870602265951103,
+        "bloom": 0.0,
+        "bloom-hidden": 0.0,
+        "occluded": 0.0,
+        "reload": 0.0
+      },
+      "mixed_laser_line_mean_rgb_difference": {
+        "plain": 4.425501189262657,
+        "bloom": 5.954046276720695
+      },
+      "contracts": [
+        "Transmitter lines use the same source four-pass bloom processor as lasers instead of the library's different bloom kernel.",
+        "Line width matches source max(2.5, framebufferWidth/1920*2.5); bounds and transmitter lines share that rendering path.",
+        "Enhanced lines remain visible with HUD hidden, while the ordinary fallback respects the HUD switch.",
+        "Opaque geometry occludes lines, resource reload and resizing to 960x540 preserve output, and moving the scene up 96 blocks is invariant.",
+        "Live transmitter snapshots and cached laser geometry coexist without overwriting one another."
+      ],
+      "limits": [
+        "The source disabled-line case retains its old bloom target; native deliberately clears visibility when the option is disabled instead of reproducing that stale image.",
+        "Raw RGB comparisons retain different vanilla backgrounds; they establish close visual parity rather than pixel-identical terrain/fog/blending.",
+        "The scene supplies client grid geometry to the normal production submit path; networking, topology construction and large-grid HUD data remain separate audits.",
+        "The first mixed run passed its live checks and failed only two fixture style issues; final compile and Checkstyle passed after formatting cleanup.",
+        "Shader-pack-specific and Fabulous-mode live acceptance are not claimed by these scenes."
+      ]
+    },
+    "logs": {
+      "native": "build/porting/client-power-lines-2.log",
+      "source": "build/porting/client-power-lines-reference-1.log",
+      "height": "build/porting/client-power-lines-high.log",
+      "mixed_native": "build/porting/client-power-lines-mixed.log",
+      "mixed_source": "build/porting/client-power-lines-reference-mixed.log",
+      "laser_regression": "build/porting/client-laser-power-line-regression.log",
+      "final_checks": "build/porting/checks-power-lines-final.log"
+    },
+    "remaining": [
+      "Live shader-pack/Fabulous-specific acceptance remains part of broader rendering compatibility coverage."
+    ]
   },
   "creative_laser": {
     "source_commit": "07eb60b47f14439375da10e78f4d4770f3a83256",
@@ -4495,5 +4543,14 @@
       "focused": "build/porting/tests-creative-food-2.log",
       "full": "build/porting/tests-creative-sections-final-all.log"
     }
+  },
+  "power_grid_sync_audit": {
+    "source_commit": "a3a037f17876b2e7036779baee71898978c5d4be",
+    "status": "pending",
+    "findings": [
+      "Source supports PowerGridSyncChunkPacket assembly/removal in PowerGridSupport; native still has a single SimplePowerGrid NBT packet path.",
+      "Source PowerComponentInfo includes per-component infinitePower; native uses a boundingBox field instead and its unused scalar STREAM_CODEC getters repeat consumes.",
+      "Audit synchronization, large payload handling and HUD data separately from the live line rendering comparison."
+    ]
   }
 }

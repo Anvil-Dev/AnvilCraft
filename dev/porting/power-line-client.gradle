@@ -1,0 +1,12 @@
+def mixed = gradle.startParameter.projectProperties.containsKey('portPowerLineMixed')
+def height = gradle.startParameter.projectProperties.get('portPowerLineHeight') ?: '0'
+gradle.projectsEvaluated {
+    rootProject.tasks.named('runClient') {
+        systemProperty 'anvilcraft.portVisualScene', 'true'
+        systemProperty 'anvilcraft.portCfaItemScene', 'true'
+        systemProperty 'anvilcraft.portPowerLineScene', 'true'
+        systemProperty 'anvilcraft.portPowerLineHeight', height
+        systemProperty 'anvilcraft.portPowerLineMixed', mixed.toString()
+        args '--width', '1280', '--height', '720'
+    }
+}
