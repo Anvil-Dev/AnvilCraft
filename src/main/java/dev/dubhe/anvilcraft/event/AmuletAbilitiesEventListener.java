@@ -16,11 +16,13 @@ import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.NeutralMob;
 import net.minecraft.world.entity.TamableAnimal;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.living.LivingChangeTargetEvent;
+import net.neoforged.neoforge.event.entity.living.LivingEntityUseItemEvent;
 import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
 import net.neoforged.neoforge.event.entity.living.LivingKnockBackEvent;
 import net.neoforged.neoforge.event.entity.living.MobEffectEvent;
@@ -32,6 +34,8 @@ import java.util.Set;
 
 @EventBusSubscriber(modid = AnvilCraft.MOD_ID)
 public class AmuletAbilitiesEventListener {
+    private static final ThreadLocal<Boolean> CONSUMED_FOOD = new ThreadLocal<>();
+
     private AmuletAbilitiesEventListener() {
     }
 
@@ -67,6 +71,37 @@ public class AmuletAbilitiesEventListener {
                 effect.trigger(entity, ItemStack.EMPTY, disabled);
             }
         }
+    }
+
+    @SubscribeEvent
+    public static void onEat(LivingEntityUseItemEvent.Tick event) {
+        if (event.getDuration() > 1) {
+            return;
+        }
+
+        LivingEntity entity = event.getEntity();
+        FoodProperties properties = event.getItem().getFoodProperties(entity);
+        AmuletAbilitiesEventListener.CONSUMED_FOOD.set(properties != null);
+    }
+
+    @SubscribeEvent
+    public static void onEatEffect(MobEffectEvent.Applicable event) {
+        Boolean consumedFood = AmuletAbilitiesEventListener.CONSUMED_FOOD.get();
+        AmuletAbilitiesEventListener.CONSUMED_FOOD.remove();
+        if (Boolean.FALSE.equals(consumedFood)) {
+            return;
+        }
+
+        // 仅在服务端拦截会导致客户端仍有效果
+
+        AmuletEffectContext ctx = new AmuletEffectContext();
+        ctx.set(ModAmuletEffectContextKeys.MOB_EFFECT, event.getEffectInstance());
+        ctx.set(ModAmuletEffectContextKeys.CONSUMING_FOOD, true);
+        LivingEntity entity = event.getEntity();
+        AmuletManager.get(entity.registryAccess()).trigger(entity, ctx);
+        if (!ctx.getOrDefault(ModAmuletEffectContextKeys.IMMUNE_MOB_EFFECT, false)) return;
+
+        event.setResult(MobEffectEvent.Applicable.Result.DO_NOT_APPLY);
     }
 
     @SubscribeEvent
