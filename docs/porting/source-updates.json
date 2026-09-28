@@ -1,7 +1,7 @@
 {
   "branch": "dev/1.21/1.6",
   "baseline": "eb2dadbc4d7fb3a0476765f6313e1667a758ed66",
-  "latest_observed": "a378f98e4d41d0d92f97cf2486ac9da7881b1674",
+  "latest_observed": "a3a037f17876b2e7036779baee71898978c5d4be",
   "updates": [
     {
       "commit": "6c7b3f5b87705c5626a17143064064a0b855b187",
@@ -255,6 +255,18 @@
       "commit": "a378f98e4d41d0d92f97cf2486ac9da7881b1674",
       "status": "pending",
       "scope": "Support repeated projection of blueprints and improve runtime status and entity restoration 支持蓝图重复投影并完善运行状态与实体恢复 (#4971)"
+    },
+    {
+      "commit": "fbea4e0ba5cae05ea9e7f3f8fcd1c35df48ff32b",
+      "status": "ported",
+      "scope": "经验收集器按经验点吸收并返还余量",
+      "integration": "Shared collector helper covers periodic and entity-add paths; 724 required GameTests passed. See source_update_a3a037f in building-progress.json."
+    },
+    {
+      "commit": "a3a037f17876b2e7036779baee71898978c5d4be",
+      "status": "ported",
+      "scope": "经验球非正数值及合并计数守卫",
+      "integration": "Shared collector helper covers periodic and entity-add paths; 724 required GameTests passed. See source_update_a3a037f in building-progress.json."
     }
   ]
 }

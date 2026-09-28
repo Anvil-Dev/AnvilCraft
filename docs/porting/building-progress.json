@@ -3812,5 +3812,41 @@
       "Bottle interactions reuse FluidBottleInteraction for both tank sizes and large-tank child parts.",
       "Native capture uses isSectionCompiledAndVisible; reference uses the 1.21 isSectionCompiled API."
     ]
+  },
+  "source_update_a3a037f": {
+    "source_commit": "a3a037f17876b2e7036779baee71898978c5d4be",
+    "previous_source": "e0dedd6e8f1dd8667090eae161ba372c4da10bc2",
+    "status": "ported_and_verified",
+    "verification": {
+      "source_commit": "a3a037f17876b2e7036779baee71898978c5d4be",
+      "previous_source": "e0dedd6e8f1dd8667090eae161ba372c4da10bc2",
+      "source_updates": [
+        "fbea4e0ba5cae05ea9e7f3f8fcd1c35df48ff32b",
+        "a3a037f17876b2e7036779baee71898978c5d4be"
+      ],
+      "focused_tests": 6,
+      "full_required_tests": 724,
+      "contracts": [
+        "Both periodic scanning and entity-add interception absorb available XP points at twenty mB per point.",
+        "Partially consumed merged orbs preserve whole remaining units and award the remainder back into the world.",
+        "Nonpositive orb values are discarded and nonpositive merged counts normalize to one.",
+        "Less than twenty mB of space leaves XP untouched; a full collector does not block another eligible collector.",
+        "Grid power, redstone disabling and configured range still constrain collection.",
+        "Long multiplication preserves XP for merged counts up to Integer.MAX_VALUE without overflow."
+      ],
+      "adaptation": [
+        "Both source changes use the existing shared 26.1 collector helper, so ExperienceOrbMixin keeps delegating to one implementation.",
+        "Experience data uses the 26.1 getValue accessor and transactional fluid insertion.",
+        "Tests exercise actual ServerLevel.addFreshEntity interception and periodic gridTick, then sum surviving world orbs."
+      ],
+      "limits": [
+        "No resource or rendering assets changed; no datagen or new screenshot capture was required for this gameplay update."
+      ]
+    },
+    "logs": {
+      "focused": "build/porting/tests-exp-source-1.log",
+      "full": "build/porting/tests-exp-source-all.log"
+    },
+    "next_step": "Resume Jade finite/infinite fluid display parity; the overall port goal remains active."
   }
 }
