@@ -8,6 +8,7 @@ import net.minecraft.client.renderer.feature.ItemFeatureRenderer;
 import net.minecraft.client.renderer.rendertype.LayeringTransform;
 import net.minecraft.client.renderer.rendertype.TextureTransform;
 import net.minecraft.client.renderer.rendertype.RenderSetup;
+import net.minecraft.client.renderer.rendertype.OutputTarget;
 import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.resources.Identifier;
@@ -16,6 +17,16 @@ import net.minecraft.util.Util;
 import java.util.function.Function;
 
 public class ModRenderTypes {
+
+    public static final RenderType HYPERCUBE = RenderType.create(
+        "anvilcraft:hypercube",
+        RenderSetup.builder(ModRenderPipelines.HYPERCUBE)
+            .useLightmap().sortOnUpload().affectsCrumbling()
+            .withTexture("Sampler0", Sheets.BLOCKS_MAPPER.sheet())
+            .setOutputTarget(OutputTarget.ITEM_ENTITY_TARGET)
+            .bufferSize(786432)
+            .createRenderSetup()
+    );
 
     public static final RenderType OVERWORLD_LIKE_SKY_RING = RenderType.create(
         "anvilcraft:overworld_like_sky_ring",

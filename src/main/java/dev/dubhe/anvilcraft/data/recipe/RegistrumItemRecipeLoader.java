@@ -838,6 +838,26 @@ public class RegistrumItemRecipeLoader {
             .save(provider, AnvilCraft.recipe(ctx.getId().getPath() + "_from_ingot"));
     }
 
+    public static <T extends Item> void hyperdimensionTerminal(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
+        ShapedRecipeBuilder.shaped(provider.getItems(), RecipeCategory.MISC, ctx.get())
+            .pattern(" B ").pattern("ACA").pattern(" D ")
+            .define('A', ModItems.TRANSCENDIUM_INGOT)
+            .define('B', ModBlocks.SINGULARITY_CRYSTAL)
+            .define('C', ModItems.SHULKER_TERMINAL)
+            .define('D', ModBlocks.HYPERCUBE)
+            .group(ctx.getId().toString())
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.TRANSCENDIUM_INGOT),
+                AnvilCraftDatagen.has(provider.getItems(), ModItems.TRANSCENDIUM_INGOT))
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.SINGULARITY_CRYSTAL.asItem()),
+                AnvilCraftDatagen.has(provider.getItems(), ModBlocks.SINGULARITY_CRYSTAL))
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.SHULKER_TERMINAL),
+                AnvilCraftDatagen.has(provider.getItems(), ModItems.SHULKER_TERMINAL))
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.HYPERCUBE.asItem()),
+                AnvilCraftDatagen.has(provider.getItems(), ModBlocks.HYPERCUBE))
+            .save(TerminalUpgradeRecipe.output(provider));
+        hyperdimensionTerminalUnbind(ctx, provider);
+    }
+
     public static <T extends Item> void hyperdimensionTerminalUnbind(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
         ShapelessRecipeBuilder.shapeless(provider.getItems(), RecipeCategory.MISC, ctx.get())
             .requires(ModItems.HYPERDIMENSION_TERMINAL)

@@ -2103,7 +2103,6 @@
       "FunctionalBlocksSections": {
         "ModItems": [],
         "ModBlocks": [
-          "HYPERCUBE",
           "HYPERDIMENSION_UPLOADER",
           "OVERSEER_BLOCK"
         ]
@@ -2128,7 +2127,8 @@
       "gas_fluids_and_buckets",
       "power_converter_tiers",
       "creative_laser",
-      "mass_energy_inverter"
+      "mass_energy_inverter",
+      "hypercube"
     ]
   },
   "confectionery_blocks": {
@@ -2746,15 +2746,69 @@
       }
     },
     "remaining": [
-      "Hypercube block/renderer/default recipe and its source ingredient uses.",
       "Source MultiBlock4DCategory JEI display and structure-tool/scanner integration.",
-      "Source hyperdimension-station upgrade behavior and container-upgrade JEI changes.",
-      "Source Spacetime Supercomputer EPIC item rarity differs from the native existing simpleItem registration; include it with the content integration."
+      "Source hyperdimension-station upgrade behavior and container-upgrade JEI changes."
     ],
     "limits": [
       "World text uses native 26.1 font/lightmap rendering; geometry and glyph masks are compared separately from brightness.",
       "The first full run hit the known intermittent Windows reset-manifest AccessDenied fixture; isolated recheck and the repeated full suite passed.",
-      "Only development recipes currently exercise the new type; this milestone does not claim the Hypercube content is ported."
+      "The later hypercube node provides and verifies the first production four-dimensional recipe."
+    ]
+  },
+  "hypercube": {
+    "source_commit": "07eb60b47f14439375da10e78f4d4770f3a83256",
+    "status": "block_crafting_terminal_recipe_and_translucency_verified",
+    "ported": [
+      "Glass-like Hypercube block/entity and dedicated standalone model renderer, native selection/preview model key and building creative entry.",
+      "Source translucent, sorted, color-only/no-depth-write rendering pipeline with native moving-block output routing.",
+      "Three 3x3x3 tempering-glass inputs produce one Hypercube through the real four-dimensional crafting entrypoint.",
+      "Source Hyperdimension Terminal ingredient layout, retaining the native terminal-content-preserving adapter and existing unbind recipe.",
+      "Source Hypercube textures/model and literal guide pages; native item definition, loot, blockstate and localization.",
+      "Spacetime Supercomputer EPIC rarity restored to the source setting."
+    ],
+    "verification": {
+      "focused_tests": "build/porting/tests-hypercube-2.log",
+      "full_tests": "build/porting/tests-hypercube-full.log",
+      "compile_data_style": "build/porting/check-hypercube-final.log",
+      "required_tests_passed": 659,
+      "focused_tests_passed": 3,
+      "native_client": "build/porting/client-hypercube-1.log",
+      "source_client": "build/porting/client-hypercube-reference-final.log",
+      "report": "build/porting/hypercube-comparison.json",
+      "source_equal_assets": 7,
+      "recipe_ingredients": [
+        "4d_multiblock/hypercube",
+        "hyperdimension_terminal"
+      ],
+      "visuals": {
+        "single": {
+          "mean_rgb_error": 9.974203471764447,
+          "native_pink_pixels": 4872,
+          "source_pink_pixels": 4815
+        },
+        "overlap": {
+          "mean_rgb_error": 10.256532630191167,
+          "native_pink_pixels": 6456,
+          "source_pink_pixels": 6486
+        },
+        "occluded": {
+          "mean_rgb_error": 7.086161283234454,
+          "native_pink_pixels": 3713,
+          "source_pink_pixels": 3766
+        },
+        "item": {
+          "mask_iou": 1.0,
+          "mean_rgb_error": 1.1793810723281757
+        }
+      }
+    },
+    "remaining": [
+      "Container-to-hyperdimension-station upgrade behavior and its source JEI category.",
+      "Four-dimensional JEI/structure-tool integration."
+    ],
+    "limits": [
+      "Native terminal crafting uses the existing content-preserving recipe adapter.",
+      "World crops include native 26.1 atmosphere and terrain; transparency scenarios are also visually inspected."
     ]
   }
 }

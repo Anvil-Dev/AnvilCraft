@@ -88,6 +88,10 @@ public final class PortVisualScene {
             if (prepared) LaserClientScene.frame(client);
             return;
         }
+        if (Boolean.getBoolean("anvilcraft.portHypercubeScene")) {
+            if (prepared) HypercubeClientScene.frame(client);
+            return;
+        }
         if (Boolean.getBoolean("anvilcraft.port4dScene")) {
             if (prepared) Multiblock4DClientScene.frame(client);
             return;

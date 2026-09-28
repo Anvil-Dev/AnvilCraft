@@ -25,6 +25,7 @@ import dev.dubhe.anvilcraft.client.renderer.blockentity.SmartBlockPlacerRenderer
 import dev.dubhe.anvilcraft.client.renderer.blockentity.StampingPlatformBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.VoidEnergyCollectorRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.WipBlockEntityRenderer;
+import dev.dubhe.anvilcraft.client.renderer.blockentity.HypercubeBERenderer;
 import dev.dubhe.anvilcraft.client.renderer.item.CrabClawItemInHandRenderer;
 import dev.dubhe.anvilcraft.client.renderer.item.DiskItemRenderer;
 import dev.dubhe.anvilcraft.client.renderer.item.FilterItemRenderer;
@@ -338,6 +339,7 @@ public class RegisterAdditionalEventListener {
             WipBlockEntityRenderer.SHULKER_BOX_WIP,
             SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/shulker_box_wip"))
         );
+        event.register(HypercubeBERenderer.MODEL, SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/hypercube")));
         event.register(
             WipBlockEntityRenderer.SHULKER_BOX_WIP_2,
             SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/shulker_box_wip_2"))

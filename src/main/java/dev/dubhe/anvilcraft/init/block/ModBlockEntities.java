@@ -26,6 +26,8 @@ import dev.dubhe.anvilcraft.block.entity.CreativeCrateBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.CreativeFluidTankBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.CreativeGeneratorBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.CreativeLaserBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.HypercubeBlockEntity;
+import dev.dubhe.anvilcraft.client.renderer.blockentity.HypercubeBERenderer;
 import dev.dubhe.anvilcraft.block.entity.CrushingTableBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.DeflectionRingBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.DetectorSlidingRailBlockEntity;
@@ -308,6 +310,12 @@ public class ModBlockEntities {
         .renderer(() -> LaserBlockEntityRenderer::new)
         .validBlock(ModBlocks.RUBY_PRISM)
         .register();
+    public static final BlockEntityEntry<HypercubeBlockEntity> HYPERCUBE = REGISTRUM
+        .blockEntity("hypercube", HypercubeBlockEntity::new)
+        .validBlock(ModBlocks.HYPERCUBE)
+        .renderer(() -> HypercubeBERenderer::new)
+        .register();
+
     public static final BlockEntityEntry<CreativeLaserBlockEntity> CREATIVE_LASER = REGISTRUM
         .blockEntity("creative_laser", CreativeLaserBlockEntity::createBlockEntity)
         .renderer(() -> LaserBlockEntityRenderer::new)

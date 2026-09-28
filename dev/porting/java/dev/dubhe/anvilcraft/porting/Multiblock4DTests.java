@@ -47,7 +47,7 @@ public final class Multiblock4DTests {
     private static BlockPos cancelBlock;
     private static FallingGiantAnvilEntity cancelEntity;
     private static boolean blockEventSeen;
-    private static final BlockPos CENTER = new BlockPos(8, 8, 3);
+    static final BlockPos CENTER = new BlockPos(8, 8, 3);
     private static final Map<String, Consumer<GameTestHelper>> TESTS = Map.of(
         "port_4d_sequence", Multiblock4DTests::sequence,
         "port_4d_break_refund", Multiblock4DTests::refund,
@@ -72,7 +72,7 @@ public final class Multiblock4DTests {
             new TestData<>(environment, AnvilCraft.of("port_logistics_empty"), 100, 0, true))));
     }
 
-    private static SpacetimeSupercomputerBlockEntity setup(GameTestHelper h) {
+    static SpacetimeSupercomputerBlockEntity setup(GameTestHelper h) {
         for (int x = -1; x <= 1; x++) {
             for (int z = -1; z <= 1; z++) h.setBlock(CENTER.offset(x, 0, z), Blocks.CRAFTING_TABLE);
         }
@@ -80,7 +80,7 @@ public final class Multiblock4DTests {
         return h.getBlockEntity(CENTER, SpacetimeSupercomputerBlockEntity.class);
     }
 
-    private static void fill(GameTestHelper h, Block block) {
+    static void fill(GameTestHelper h, Block block) {
         for (int x = -1; x <= 1; x++) {
             for (int y = -3; y <= -1; y++) {
                 for (int z = -1; z <= 1; z++) h.setBlock(CENTER.offset(x, y, z), block);
@@ -88,13 +88,13 @@ public final class Multiblock4DTests {
         }
     }
 
-    private static void land(GameTestHelper h) {
+    static void land(GameTestHelper h) {
         var entity = new FallingGiantAnvilEntity(ModEntities.FALLING_GIANT_ANVIL.get(), h.getLevel());
         GiantAnvilLandingEventListener.handleMultiblock(new AnvilEvent.GiantOnLand(
             h.getLevel(), h.absolutePos(CENTER.above(2)), entity, 1));
     }
 
-    private static int dropped(GameTestHelper h, Item item) {
+    static int dropped(GameTestHelper h, Item item) {
         return h.getLevel().getEntitiesOfClass(ItemEntity.class, new AABB(h.absolutePos(CENTER)).inflate(4)).stream()
             .filter(e -> e.getItem().is(item)).mapToInt(e -> e.getItem().getCount()).sum();
     }
@@ -257,8 +257,8 @@ public final class Multiblock4DTests {
     }
 
     private static void codec(GameTestHelper h) {
-        var recipe = h.getLevel().getServer().getRecipeManager().recipeMap().byType(ModRecipeTypes.MULTIBLOCK_4D.get())
-            .iterator().next().value();
+        var recipe = h.getLevel().getServer().getRecipeManager().recipeMap().byType(ModRecipeTypes.MULTIBLOCK_4D.get()).stream()
+            .filter(r -> r.id().identifier().getPath().equals("port_4d/progress")).findFirst().orElseThrow().value();
         var buffer = new RegistryFriendlyByteBuf(Unpooled.buffer(), h.getLevel().registryAccess());
         try {
             Multiblock4DRecipe.Serializer.STREAM_CODEC.encode(buffer, recipe);

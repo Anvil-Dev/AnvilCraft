@@ -20,6 +20,7 @@ import dev.dubhe.anvilcraft.api.power.IPowerConsumer;
 import dev.dubhe.anvilcraft.block.AutoEnchantingTableBlock;
 import dev.dubhe.anvilcraft.block.CelestialBackGateBlock;
 import dev.dubhe.anvilcraft.block.LargeCauldronBlock;
+import dev.dubhe.anvilcraft.block.HypercubeBlock;
 import dev.dubhe.anvilcraft.block.RedstoneWireBlock;
 import dev.dubhe.anvilcraft.block.TradingStationBlock;
 import dev.dubhe.anvilcraft.block.TranscendenceGrindstoneBlock;
@@ -1138,6 +1139,19 @@ public class ModBlocks {
         .recipe(RegistrumBlockRecipeLoader::inductionLight)
         .register();
 
+    public static final BlockEntry<HypercubeBlock> HYPERCUBE = REGISTRUM.block("hypercube", HypercubeBlock::new)
+        .initialProperties(() -> Blocks.GLASS)
+        .properties(properties -> properties.explosionResistance(1200.0F).noOcclusion()
+            .isValidSpawn(ModBlocks::never).isRedstoneConductor(ModBlocks::never)
+            .isSuffocating(ModBlocks::never).isViewBlocking(ModBlocks::never))
+        .blockstate(DataGenUtil::onlyState)
+        .item()
+        .properties(Item.Properties::useBlockDescriptionPrefix)
+        .setData(ProviderType.LANG, (_, _) -> {})
+        .model(DataGenUtil::blockItem)
+        .build()
+        .register();
+
     public static final BlockEntry<CreativeLaserBlock> CREATIVE_LASER = REGISTRUM.block("creative_laser", CreativeLaserBlock::new)
         .initialProperties(() -> Blocks.IRON_BLOCK)
         .properties(properties -> properties
@@ -2157,7 +2171,10 @@ public class ModBlocks {
             .isSuffocating(ModBlocks::never))
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.NEEDS_DIAMOND_TOOL)
         .blockstate(DataGenUtil::onlyState)
-        .simpleItem()
+        .item()
+        .properties(properties -> properties.rarity(Rarity.EPIC))
+        .model(DataGenUtil::blockItem)
+        .build()
         .register();
 
     public static final BlockEntry<WipBlock> WIP_BLOCK = REGISTRUM.block("wip_block", WipBlock::new)

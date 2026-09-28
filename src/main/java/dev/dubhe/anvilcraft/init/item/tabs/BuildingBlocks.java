@@ -94,6 +94,7 @@ public class BuildingBlocks extends DisplayItemsGenerator {
         this.plain(ModBlocks.MOB_AMBER_BLOCK);
         this.plain(ModBlocks.RESENTFUL_AMBER_BLOCK);
         this.plain(ModBlocks.TEMPERING_GLASS);
+        this.plain(ModBlocks.HYPERCUBE);
         this.plain(ModBlocks.FROST_GLASS);
         this.plain(ModBlocks.EMBER_GLASS);
 

@@ -1067,7 +1067,7 @@ public class ModItems {
             .component(ModComponents.ETERNAL, Eternal.DEFAULT).component(DataComponents.UNBREAKABLE, Unit.INSTANCE)
             .component(ModComponents.TERMINAL_BINDING, TerminalBinding.EMPTY).component(ModComponents.CRAFTING, CraftingStorage.EMPTY)
             .component(ModComponents.TERMINAL_BALANCE_MODE, BalanceMode.RESTOCK))
-        .recipe(RegistrumItemRecipeLoader::hyperdimensionTerminalUnbind)
+        .recipe(RegistrumItemRecipeLoader::hyperdimensionTerminal)
         .register();
 
     public static final ItemEntry<PillBoxItem> PILL_BOX = REGISTRUM

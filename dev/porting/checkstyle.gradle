@@ -33,6 +33,7 @@ allprojects {
             include '**/LaserEmitPacket.java', '**/LaserCompiler.java', '**/LaserRenderState.java'
             include '**/LaserBloomPostEffect.java', '**/LaserBloomCaptureMixin.java'
             include '**/CreativeLaser*.java', '**/MassEnergyInverter*.java', '**/MassInjectBehavior.java'
+            include '**/Hypercube*.java'
             include '**/Multiblock4D*.java', '**/NbtUtil.java', '**/GiantAnvilEvent.java'
             include '**/SpacetimeSupercomputerBlockEntity*.java', '**/SpacetimeSupercomputerRenderState.java'
             include '**/ItemCompressRecipeLoader.java', '**/BlockCompressRecipeLoader.java', '**/SolidLiquidRecipeLoader.java'

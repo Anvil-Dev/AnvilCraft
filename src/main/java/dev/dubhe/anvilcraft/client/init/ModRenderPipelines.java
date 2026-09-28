@@ -22,6 +22,12 @@ import net.neoforged.neoforge.client.event.RegisterRenderPipelinesEvent;
 @EventBusSubscriber(value = Dist.CLIENT, modid = AnvilCraft.MOD_ID)
 public class ModRenderPipelines {
 
+    public static final RenderPipeline HYPERCUBE = RenderPipeline.builder(RenderPipelines.BLOCK_SNIPPET)
+        .withLocation(AnvilCraft.of("pipeline/hypercube"))
+        .withColorTargetState(new ColorTargetState(BlendFunction.TRANSLUCENT))
+        .withDepthStencilState(new DepthStencilState(CompareOp.LESS_THAN_OR_EQUAL, false))
+        .build();
+
     public static final RenderPipeline ENCHANTED_GOLD_GLINT = RenderPipeline.builder(
         RenderPipelines.MATRICES_PROJECTION_SNIPPET, RenderPipelines.FOG_SNIPPET, RenderPipelines.GLOBALS_SNIPPET)
         .withLocation(AnvilCraft.of("pipeline/enchanted_gold_glint"))
@@ -301,6 +307,7 @@ public class ModRenderPipelines {
     @SubscribeEvent
     public static void on(RegisterRenderPipelinesEvent event) {
         event.registerPipeline(ModRenderPipelines.ENCHANTED_GOLD_GLINT);
+        event.registerPipeline(ModRenderPipelines.HYPERCUBE);
         event.registerPipeline(ModRenderPipelines.GLASS_PIPE_FLUID);
         event.registerPipeline(ModRenderPipelines.SMART_PLACER_RANGE);
         event.registerPipeline(ModRenderPipelines.EQUIPMENT_CHARGE);
