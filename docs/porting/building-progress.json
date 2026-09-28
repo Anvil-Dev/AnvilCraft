@@ -3109,5 +3109,60 @@
       "Earlier full runs stopped before later test functions started: forced chunks were loaded but some remained TRACKED rather than TICKING. Runtime inspection distinguished this driver wait from assertion failures.",
       "An experimental ticket-reissue branch never executed in the passing run and was removed; the final driver only observes and times out stalled setup."
     ]
+  },
+  "hyperdimension_uploader": {
+    "source_commit": "07eb60b47f14439375da10e78f4d4770f3a83256",
+    "status": "binding_logistics_persistence_weighted_transfer_and_live_visuals_verified",
+    "ported": [
+      "Main-hand bound Hyperdimension Terminal converts a placed Singularity Crystal; unbound/offhand use preserves the crystal and terminals are not consumed.",
+      "Existing uploaders can be rebound; 16 buffer slots support hopper insertion/extraction and chute input through native transactional capabilities.",
+      "Global Hyperdimension Storage access does not load target chunks; source countdown, defaults and configurable transfer budget are retained.",
+      "Shared export/import helper restores source single-type scan locking and normalized stack-weight quotas, including extraction simulation and transactional rollback.",
+      "Binding and buffer persist through native saves, legacy 1.21 handler data, update packets, survival/creative drops and replacement.",
+      "Source block model, emissive lighting, protection tags, epic item, creative entry, translations and item hints.",
+      "Source Use Item on Block JEI category/catalog, including terminal-to-uploader conversion and its right-click indicator."
+    ],
+    "verification": {
+      "compile_data": "build/porting/tests-grid-removed.log",
+      "focused_tests": "build/porting/check-uploader-transfer-final.log",
+      "focused_tests_passed": 9,
+      "full_tests": "build/porting/tests-uploader-final-all.log",
+      "required_tests_passed": 677,
+      "style": "build/porting/style-uploader-final.log",
+      "native_client": "build/porting/client-uploader-1.log",
+      "source_client": "build/porting/client-uploader-reference-1.log",
+      "report": "build/porting/uploader-comparison.json",
+      "visuals": {
+        "day": {
+          "outline_mask_iou": 1.0,
+          "mean_rgb_error": 3.571921668075514
+        },
+        "night": {
+          "outline_mask_iou": 1.0,
+          "mean_rgb_error": 2.6648492533107917
+        },
+        "item": {
+          "mask_iou": 1.0,
+          "mean_rgb_error": 0.9450259989053093
+        },
+        "jei": {
+          "card_mean_rgb_error": 0.5317038539553752
+        }
+      },
+      "source_equal_assets": 6,
+      "checks": [
+        "Actual bound-terminal crystal conversion and rebinding, with synchronized client UUID.",
+        "Populated and emptied buffers synchronize while 150 gold ingots upload to the second global target.",
+        "World day/night, item model and registered JEI conversion recipe."
+      ],
+      "final_compile": "build/porting/compile-uploader-final.log"
+    },
+    "limits": [
+      "Captures fix the animated outline to frame zero in development output; original metadata is restored.",
+      "World crops retain native 26.1 terrain, atmosphere and lightmap differences.",
+      "Source scan budget is stack-normalized: 64 units move one sword or 16 pearls, not 64 of every item. The first accepted type stays locked until the scan ends.",
+      "The source workInterval value is the number of intervening ticks because the countdown uses post-decrement.",
+      "The initial data generation encountered transient Windows mapped-file writes; the subsequent data run and generated diff were verified."
+    ]
   }
 }

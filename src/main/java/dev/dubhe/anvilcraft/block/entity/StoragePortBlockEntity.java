@@ -1,6 +1,5 @@
 package dev.dubhe.anvilcraft.block.entity;
 
-import com.mojang.serialization.MapCodec;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.IStoragePort;
 import dev.dubhe.anvilcraft.api.StoragePortManager;
@@ -20,8 +19,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
@@ -627,21 +624,7 @@ public class StoragePortBlockEntity extends BlockEntity implements IItemResource
     protected void loadAdditional(ValueInput input) {
         super.loadAdditional(input);
         this.markedItem = createMarker(input.read("marked_item", ItemStack.CODEC).orElse(ItemStack.EMPTY));
-        for (int slot = 0; slot < this.buffer.size(); slot++) this.buffer.set(slot, ItemResource.EMPTY, 0);
-        ValueInput inventory = input.childOrEmpty("buffer");
-        CompoundTag tag = inventory.read(MapCodec.assumeMapUnsafe(CompoundTag.CODEC)).orElseGet(CompoundTag::new);
-        if (tag.get("Items") instanceof ListTag items) {
-            var ops = input.lookup().createSerializationContext(NbtOps.INSTANCE);
-            for (int i = 0; i < items.size(); i++) {
-                CompoundTag entry = items.getCompoundOrEmpty(i);
-                int slot = entry.getIntOr("Slot", -1);
-                if (slot < 0 || slot >= this.buffer.size()) continue;
-                ItemStack stack = ItemStack.CODEC.parse(ops, entry).result().orElse(ItemStack.EMPTY);
-                this.buffer.set(slot, ItemResource.of(stack), stack.getCount());
-            }
-        } else {
-            this.buffer.deserialize(inventory);
-        }
+        ItemHandlerUtil.deserializeCompatibleStacks(this.buffer, input.childOrEmpty("buffer"));
     }
 
     private static ItemStack stackAt(ResourceHandler<ItemResource> handler, int slot) {

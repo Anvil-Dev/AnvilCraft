@@ -4,6 +4,7 @@ import dev.anvilcraft.lib.v2.registrum.providers.RegistrumLangProvider;
 
 public class MessageLang {
     public static void init(RegistrumLangProvider provider) {
+        provider.add("message.anvilcraft.hyperdimension_uploader.bound", "Hyperdimension Uploader bound");
         provider.add("message.anvilcraft.monolith.return_confirmation",
             "The monolith can help you return. Touch it again within 3 seconds to travel back.");
         provider.add("message.anvilcraft.monolith.offering", "Offer an anvil to the monolith to gain knowledge");

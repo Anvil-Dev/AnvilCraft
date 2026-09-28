@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.api.itemhandler;
 
 import com.google.common.collect.ImmutableList;
+import com.mojang.serialization.MapCodec;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.entity.LargeCauldronBlockEntity;
 import dev.dubhe.anvilcraft.block.utility.BlockPlacerBlock;
@@ -9,6 +10,9 @@ import dev.dubhe.anvilcraft.item.property.component.OverLimitItemContainerConten
 import dev.dubhe.anvilcraft.util.AnvilUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.NbtOps;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.vehicle.ContainerEntity;
@@ -16,12 +20,14 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.access.ItemAccess;
 import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
 import net.neoforged.neoforge.transfer.transaction.Transaction;
 import org.jetbrains.annotations.Unmodifiable;
 import org.jspecify.annotations.Nullable;
@@ -31,31 +37,62 @@ import java.util.List;
 import java.util.function.BiPredicate;
 
 public class ItemHandlerUtil {
+    public static void deserializeCompatibleStacks(ItemStacksResourceHandler handler, ValueInput input) {
+        for (int slot = 0; slot < handler.size(); slot++) handler.set(slot, ItemResource.EMPTY, 0);
+        CompoundTag tag = input.read(MapCodec.assumeMapUnsafe(CompoundTag.CODEC)).orElseGet(CompoundTag::new);
+        if (tag.get("Items") instanceof ListTag items) {
+            var ops = input.lookup().createSerializationContext(NbtOps.INSTANCE);
+            for (int index = 0; index < items.size(); index++) {
+                CompoundTag entry = items.getCompoundOrEmpty(index);
+                int slot = entry.getIntOr("Slot", -1);
+                if (slot < 0 || slot >= handler.size()) continue;
+                ItemStack stack = ItemStack.CODEC.parse(ops, entry).result().orElse(ItemStack.EMPTY);
+                handler.set(slot, ItemResource.of(stack), stack.getCount());
+            }
+        } else {
+            handler.deserialize(input);
+        }
+    }
+
     public static boolean exportToTarget(
         ResourceHandler<ItemResource> source,
         int maxAmountWeight,
         BiPredicate<ItemResource, Integer> predicate,
         @Nullable ResourceHandler<ItemResource> target
     ) {
-        if (target == null) return false;
+        if (target == null || maxAmountWeight <= 0) return false;
         boolean success = false;
-        int maxAmount = maxAmountWeight;
+        ItemResource selected = ItemResource.EMPTY;
+        int remaining = 0;
         try (Transaction root = Transaction.openRoot()) {
-            for (int srcIndex = 0; srcIndex < source.size(); srcIndex++) {
-                ItemResource resource = source.getResource(srcIndex);
-                if (resource.isEmpty()) continue;
+            for (int slot = 0; slot < source.size(); slot++) {
+                ItemResource resource = source.getResource(slot);
+                if (resource.isEmpty() || !selected.isEmpty() && !selected.equals(resource)) continue;
+                int available;
+                try (Transaction simulation = Transaction.open(root)) {
+                    available = source.extract(slot, resource, source.getAmountAsInt(slot), simulation);
+                }
+                if (available <= 0 || !predicate.test(resource, available)) continue;
+                if (selected.isEmpty()) {
+                    selected = resource;
+                    remaining = (int) (maxAmountWeight / 64F * resource.getMaxStackSize());
+                    if (remaining <= 0) break;
+                }
                 try (Transaction transaction = Transaction.open(root)) {
-                    int transferAmount = Math.min(maxAmount, source.getAmountAsInt(srcIndex));
-                    int inserted = target.insert(resource, transferAmount, transaction);
-                    if (inserted <= 0) continue;
-                    int extracted = source.extract(srcIndex, resource, inserted, transaction);
-                    if (extracted <= 0 || !predicate.test(resource, extracted)) continue;
-                    if (extracted != inserted) continue;
+                    int inserted = target.insert(resource, Math.min(remaining, available), transaction);
+                    if (inserted <= 0) {
+                        if (!success) selected = ItemResource.EMPTY;
+                        continue;
+                    }
+                    if (source.extract(slot, resource, inserted, transaction) != inserted) {
+                        if (!success) selected = ItemResource.EMPTY;
+                        continue;
+                    }
                     success = true;
-                    maxAmount -= extracted;
+                    remaining -= inserted;
                     transaction.commit();
                 }
-                if (maxAmount <= 0) break;
+                if (remaining <= 0) break;
             }
             root.commit();
         }

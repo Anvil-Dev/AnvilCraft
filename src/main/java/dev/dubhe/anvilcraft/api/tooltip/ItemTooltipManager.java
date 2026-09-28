@@ -49,6 +49,12 @@ public class ItemTooltipManager {
     private static final Map<Item, String> SHIFT = Maps.newHashMap();
 
     static {
+        NORMAL.put(ModBlocks.HYPERDIMENSION_UPLOADER.asItem(), "Can interact with hoppers or chutes to upload items to the Hyperdimension Storage Station");
+        SHIFT.put(ModBlocks.HYPERDIMENSION_UPLOADER.asItem(), """
+            Right-click a placed Singularity Crystal with a bound Hyperdimension Terminal to create it
+            Buffered items are uploaded into the bound storage station, rate-limited by the server config
+            Right-click it with another bound Hyperdimension Terminal to rebind""");
+
         NORMAL.put(ModBlocks.LARGE_CRATE.asItem(), "A large crate, stores more items");
         SHIFT.put(
             ModBlocks.LARGE_CRATE.asItem(), """

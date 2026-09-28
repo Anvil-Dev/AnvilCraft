@@ -21,7 +21,9 @@ import dev.dubhe.anvilcraft.block.AutoEnchantingTableBlock;
 import dev.dubhe.anvilcraft.block.CelestialBackGateBlock;
 import dev.dubhe.anvilcraft.block.LargeCauldronBlock;
 import dev.dubhe.anvilcraft.block.HypercubeBlock;
+import dev.dubhe.anvilcraft.block.HyperdimensionUploaderBlock;
 import dev.dubhe.anvilcraft.block.RedstoneWireBlock;
+import dev.dubhe.anvilcraft.block.SingularityCrystalBlock;
 import dev.dubhe.anvilcraft.block.TradingStationBlock;
 import dev.dubhe.anvilcraft.block.TranscendenceGrindstoneBlock;
 import dev.dubhe.anvilcraft.block.TranscendenceSmithingTableBlock;
@@ -719,6 +721,35 @@ public class ModBlocks {
         .blockstate(DataGenUtil::noExtraModelOrState)
         .tag(BlockTags.NEEDS_DIAMOND_TOOL, BlockTags.MINEABLE_WITH_PICKAXE)
         .register();
+    public static final BlockEntry<HyperdimensionUploaderBlock> HYPERDIMENSION_UPLOADER = REGISTRUM
+        .block("hyperdimension_uploader", HyperdimensionUploaderBlock::new)
+        .initialProperties(() -> Blocks.NETHERITE_BLOCK)
+        .properties(properties -> properties
+            .noOcclusion()
+            .lightLevel(state -> 8)
+            .emissiveRendering(ModBlocks::always)
+            .explosionResistance(1200)
+            .isValidSpawn(ModBlocks::never)
+            .requiresCorrectToolForDrops())
+        .item()
+        .properties(properties -> properties
+            .fireResistant()
+            .stacksTo(1)
+            .rarity(Rarity.EPIC))
+        .model(DataGenUtil::blockItem)
+        .properties(Item.Properties::useBlockDescriptionPrefix)
+        .setData(ProviderType.LANG, (_, _) -> {})
+        .tag(ModItemTags.EXPLOSION_PROOF)
+        .build()
+        .blockstate(DataGenUtil::onlyState)
+        .tag(
+            BlockTags.MINEABLE_WITH_PICKAXE,
+            BlockTags.DRAGON_IMMUNE,
+            BlockTags.WITHER_IMMUNE,
+            ModBlockTags.NEEDS_TRANSCENDIUM_TOOL
+        )
+        .register();
+
     public static final BlockEntry<HyperdimensionStorageStationBlock> HYPERDIMENSION_STORAGE_STATION = REGISTRUM
         .block("hyperdimension_storage_station", HyperdimensionStorageStationBlock::new)
         .initialProperties(() -> Blocks.NETHERITE_BLOCK)
@@ -4455,7 +4486,8 @@ public class ModBlocks {
         .recipe(RegistrumBlockRecipeLoader::confinementChamber)
         .register();
 
-    public static final BlockEntry<Block> SINGULARITY_CRYSTAL = REGISTRUM.block("singularity_crystal", Block::new)
+    public static final BlockEntry<SingularityCrystalBlock> SINGULARITY_CRYSTAL = REGISTRUM
+        .block("singularity_crystal", SingularityCrystalBlock::new)
         .initialProperties(() -> ModBlocks.CONFINEMENT_CHAMBER.get())
         .blockstate(DataGenUtil::onlyState)
         .properties(properties -> properties.pushReaction(PushReaction.BLOCK)

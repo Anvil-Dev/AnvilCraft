@@ -112,6 +112,7 @@ public class FunctionalBlocks extends DisplayItemsGenerator {
         this.plain(ModBlocks.LARGE_CRATE);
         this.plain(ModBlocks.SHULKER_CONTAINER);
         this.plain(ModBlocks.HYPERDIMENSION_STORAGE_STATION);
+        this.plain(ModBlocks.HYPERDIMENSION_UPLOADER);
 
         this.plain(ModBlocks.CHUTE);
         this.plain(ModBlocks.MAGNETIC_CHUTE);

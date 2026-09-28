@@ -68,6 +68,7 @@ public class ModCapabilities {
         event.registerBlockEntity(Capabilities.Item.BLOCK, ModBlockEntities.OVERFLOW_CHUTE.get(), ModCapabilities::item);
         event.registerBlockEntity(Capabilities.Item.BLOCK, ModBlockEntities.STORAGE_PORT_CONSOLIDATOR.get(), ModCapabilities::item);
         event.registerBlockEntity(Capabilities.Item.BLOCK, ModBlockEntities.STORAGE_PORT.get(), ModCapabilities::item);
+        event.registerBlockEntity(Capabilities.Item.BLOCK, ModBlockEntities.HYPERDIMENSION_UPLOADER.get(), ModCapabilities::item);
         event.registerBlockEntity(Capabilities.Item.BLOCK, ModBlockEntities.SIMPLE_CHUTE.get(), ModCapabilities::item);
         event.registerBlockEntity(Capabilities.Item.BLOCK, ModBlockEntities.SIMPLE_MAGNETIC_CHUTE.get(), ModCapabilities::item);
         event.registerBlockEntity(Capabilities.Item.BLOCK, ModBlockEntities.ITEM_COLLECTOR.get(), ModCapabilities::item);

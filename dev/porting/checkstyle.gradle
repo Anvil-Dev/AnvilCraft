@@ -33,6 +33,8 @@ allprojects {
             include '**/LaserEmitPacket.java', '**/LaserCompiler.java', '**/LaserRenderState.java'
             include '**/LaserBloomPostEffect.java', '**/LaserBloomCaptureMixin.java'
             include '**/CreativeLaser*.java', '**/MassEnergyInverter*.java', '**/MassInjectBehavior.java'
+            include '**/UseItemOnBlock*.java', '**/api/power/PowerGridManager.java'
+            include '**/HyperdimensionUploader*.java', '**/SingularityCrystalBlock.java', '**/api/itemhandler/ItemHandlerUtil.java'
             include '**/Hypercube*.java', '**/Upgrade*ContainerBehavior.java', '**/Upgrade2HyperdimensionStationBehavior.java'
             include '**/Multiblock4D*.java', '**/NbtUtil.java', '**/GiantAnvilEvent.java'
             include '**/SpacetimeSupercomputerBlockEntity*.java', '**/SpacetimeSupercomputerRenderState.java'

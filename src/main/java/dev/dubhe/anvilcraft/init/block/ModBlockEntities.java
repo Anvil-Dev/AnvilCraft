@@ -27,6 +27,7 @@ import dev.dubhe.anvilcraft.block.entity.CreativeFluidTankBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.CreativeGeneratorBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.CreativeLaserBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.HypercubeBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.HyperdimensionUploaderBlockEntity;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.HypercubeBERenderer;
 import dev.dubhe.anvilcraft.block.entity.CrushingTableBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.DeflectionRingBlockEntity;
@@ -410,6 +411,11 @@ public class ModBlockEntities {
     public static final BlockEntityEntry<StoragePortConsolidatorBlockEntity> STORAGE_PORT_CONSOLIDATOR = REGISTRUM
         .blockEntity("storage_port_consolidator", StoragePortConsolidatorBlockEntity::new)
         .validBlocks(ModBlocks.STORAGE_PORT_CONSOLIDATOR)
+        .register();
+
+    public static final BlockEntityEntry<HyperdimensionUploaderBlockEntity> HYPERDIMENSION_UPLOADER = REGISTRUM
+        .blockEntity("hyperdimension_uploader", HyperdimensionUploaderBlockEntity::new)
+        .validBlocks(ModBlocks.HYPERDIMENSION_UPLOADER)
         .register();
 
     public static final BlockEntityEntry<StoragePortBlockEntity> STORAGE_PORT = REGISTRUM
