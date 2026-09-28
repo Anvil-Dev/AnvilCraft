@@ -1,0 +1,89 @@
+{
+	"format_version": "1.9.0",
+	"credit": "Made by XeKr with Blockbench",
+	"parent": "minecraft:block/block",
+	"render_type": "cutout",
+	"texture_size": [64, 64],
+	"textures": {
+		"0": "anvilcraft:block/hyperdimension_storage_station",
+		"1": "anvilcraft:block/transcendium_block_outline",
+		"particle": "anvilcraft:block/celestial_forging_anvil_particle"
+	},
+	"elements": [
+		{
+			"name": "cube_outline",
+			"from": [9.975, 9.975, 9.975],
+			"to": [0.025, 0.025, 0.025],
+			"shade": false,
+			"light_emission": 15,
+			"faces": {
+				"north": {"uv": [0, 0, 2.25, 2.25], "texture": "#1"},
+				"east": {"uv": [0, 0, 2.25, 2.25], "texture": "#1"},
+				"south": {"uv": [0, 0, 2.25, 2.25], "texture": "#1"},
+				"west": {"uv": [0, 0, 2.25, 2.25], "texture": "#1"},
+				"up": {"uv": [0, 0, 2.25, 2.25], "texture": "#1"},
+				"down": {"uv": [0, 0, 2.25, 2.25], "texture": "#1"}
+			}
+		},
+		{
+			"from": [0.5, 0.5, 0.5],
+			"to": [9.5, 9.5, 9.5],
+			"faces": {
+				"north": {"uv": [0, 0, 2.25, 2.25], "rotation": 180, "texture": "#0"},
+				"east": {"uv": [0, 0, 2.25, 2.25], "rotation": 180, "texture": "#0"},
+				"south": {"uv": [0, 0, 2.25, 2.25], "rotation": 180, "texture": "#0"},
+				"west": {"uv": [0, 0, 2.25, 2.25], "rotation": 180, "texture": "#0"},
+				"up": {"uv": [0, 0, 2.25, 2.25], "rotation": 180, "texture": "#0"},
+				"down": {"uv": [0, 0, 2.25, 2.25], "rotation": 180, "texture": "#0"}
+			}
+		},
+		{
+			"from": [3.5, 3.5, 3.5],
+			"to": [6.5, 6.5, 6.5],
+			"faces": {
+				"north": {"uv": [5.5, 5.5, 6.25, 6.25], "rotation": 180, "texture": "#0"},
+				"east": {"uv": [5.5, 5.5, 6.25, 6.25], "rotation": 180, "texture": "#0"},
+				"south": {"uv": [5.5, 5.5, 6.25, 6.25], "rotation": 180, "texture": "#0"},
+				"west": {"uv": [5.5, 5.5, 6.25, 6.25], "rotation": 180, "texture": "#0"},
+				"up": {"uv": [5.5, 5.5, 6.25, 6.25], "rotation": 180, "texture": "#0"},
+				"down": {"uv": [5.5, 5.5, 6.25, 6.25], "rotation": 180, "texture": "#0"}
+			}
+		},
+		{
+			"name": "cube inverted",
+			"from": [9.5, 5.5, 9.5],
+			"to": [0.5, 4.5, 0.5],
+			"faces": {
+				"up": {"uv": [12, 0, 9.75, 2.25], "rotation": 180, "texture": "#0"},
+				"down": {"uv": [12, 0, 9.75, 2.25], "rotation": 180, "texture": "#0"}
+			}
+		},
+		{
+			"name": "cube inverted",
+			"from": [9.5, 9.5, 5.5],
+			"to": [0.5, 0.5, 4.5],
+			"faces": {
+				"north": {"uv": [9.75, 2.25, 12, 0], "rotation": 180, "texture": "#0"},
+				"south": {"uv": [9.75, 2.25, 12, 0], "rotation": 180, "texture": "#0"}
+			}
+		},
+		{
+			"name": "cube inverted",
+			"from": [5.5, 9.5, 9.5],
+			"to": [4.5, 0.5, 0.5],
+			"faces": {
+				"east": {"uv": [9.75, 2.25, 12, 0], "rotation": 180, "texture": "#0"},
+				"west": {"uv": [9.75, 2.25, 12, 0], "rotation": 180, "texture": "#0"}
+			}
+		}
+	],
+	"groups": [
+		{
+			"name": "group",
+			"origin": [8, 8, 8],
+			"scope": 0,
+			"color": 0,
+			"children": [0, 1, 2, 3, 4, 5]
+		}
+	]
+}

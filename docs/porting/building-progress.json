@@ -2813,7 +2813,7 @@
   },
   "storage_upgrade_chain": {
     "source_commit": "07eb60b47f14439375da10e78f4d4770f3a83256",
-    "status": "behavior_persistence_and_native_client_verified_visual_refresh_pending",
+    "status": "behavior_persistence_native_client_verified_station_visuals_verified_by_followup",
     "ported": [
       "Large Crate to Shulker Container consumes exactly one Space Overcompressor and six Netherite Blocks, preserving excess input materials.",
       "New Shulker Containers start at 1024 types and 65536 normalized units per type; each compressor doubles both limits, up to four upgrades (16384 types and 1048576 units per type).",
@@ -2843,14 +2843,60 @@
       ]
     },
     "remaining": [
-      "Latest-source Hyperdimension Storage Station texture and center/corner/full models are not yet ported. Native upgrade screenshots verify replacement and UI, not source visual parity.",
       "ContainerUpgradeCategory JEI display and recipe/catalyst lookup.",
-      "Compare latest source/native station rendering and item model in game after the resource/model refresh.",
       "English StorageScreen title overlaps its right-side control at GUI scale 2; compare source layout and repair in the storage UI visual pass."
     ],
     "limits": [
       "The initial client fixture re-entered its render callback through setScreenAndShow; advancing the fixture stage before opening the screen fixed the test harness.",
       "Vanilla 26.1 terrain/lightmap rendering remains unchanged."
+    ]
+  },
+  "hyperdimension_station_visuals": {
+    "source_commit": "07eb60b47f14439375da10e78f4d4770f3a83256",
+    "status": "source_resources_light_emission_and_live_visuals_verified",
+    "ported": [
+      "Latest source center/eight-corner multipart models, full item model, updated texture and blockstate rotations.",
+      "Per-part source light emission (2/6/8), emissive world rendering and Transcendium negative-shape culling membership.",
+      "Full model selected through a suffix option on the existing shared oversized item generator; obsolete monolithic model removed.",
+      "Literal English and Chinese source guide pages."
+    ],
+    "verification": {
+      "compile_data": "build/porting/data-station-visual-2.log",
+      "compile_style": "build/porting/check-station-visual-final.log",
+      "native_client": "build/porting/client-station-visual-final.log",
+      "source_client": "build/porting/client-station-reference-final.log",
+      "report": "build/porting/storage-station-comparison.json",
+      "source_equal_assets": 12,
+      "visuals": {
+        "front": {
+          "outline_mask_iou": 0.9949014744384732,
+          "mean_rgb_error": 3.965646014678273
+        },
+        "corner": {
+          "outline_mask_iou": 0.9932254422280767,
+          "mean_rgb_error": 3.9962037037037037
+        },
+        "night": {
+          "outline_mask_iou": 0.9939736346516007,
+          "mean_rgb_error": 3.1930908289241624
+        },
+        "item": {
+          "mask_iou": 0.9972231296961778,
+          "mean_rgb_error": 1.0767450724164216
+        }
+      },
+      "part_light_assertions": 27,
+      "server_regression": "No gameplay/storage code changed in this node; previous storage-upgrade node passed all 664 required tests."
+    },
+    "remaining": [
+      "ContainerUpgradeCategory JEI display and lookup.",
+      "Source item hover storage-usage preview is missing from the native station/shulker items; port its common tooltip/RPC implementation.",
+      "Complete the remaining storage interaction audit, including the source station opening sound and English screen title overlap."
+    ],
+    "limits": [
+      "The animated outline is fixed to source frame zero in development output for capture; production metadata is restored.",
+      "World crops include vanilla terrain, atmosphere and lightmap differences retained for 26.1.",
+      "This verifies the default resource pack at the recorded viewpoints, not every shader pack."
     ]
   }
 }

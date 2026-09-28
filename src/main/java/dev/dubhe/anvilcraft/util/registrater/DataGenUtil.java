@@ -311,12 +311,16 @@ public class DataGenUtil {
     }
 
     public static <T extends Item> NonNullBiConsumer<DataGenContext<Item, T>, RegistrumItemModelGenerator> oversizedItem() {
+        return DataGenUtil.oversizedItem("");
+    }
+
+    public static <T extends Item> NonNullBiConsumer<DataGenContext<Item, T>, RegistrumItemModelGenerator> oversizedItem(String suffix) {
         return new NonNullBiConsumer<>() {
             @Override
             public void accept(DataGenContext<Item, T> ctx, RegistrumItemModelGenerator generator) {
                 generator.itemModelOutput.accept(
                     ctx.get(),
-                    ItemModelUtils.plainModel(ctx.getId().withPrefix("block/")),
+                    ItemModelUtils.plainModel(ctx.getId().withPrefix("block/").withSuffix(suffix)),
                     new ClientItem.Properties(true, true, 1.0F)
                 );
             }

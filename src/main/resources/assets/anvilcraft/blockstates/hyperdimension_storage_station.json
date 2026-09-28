@@ -1,7 +1,7 @@
 {
   "variants": {
     "half=mid_center": {
-      "model": "anvilcraft:block/hyperdimension_storage_station"
+      "model": "anvilcraft:block/hyperdimension_storage_station_center"
     },
     "half=bottom_center": {
       "model": "anvilcraft:block/hyperdimension_storage_station_part"
@@ -19,16 +19,19 @@
       "model": "anvilcraft:block/hyperdimension_storage_station_part"
     },
     "half=bottom_wn": {
-      "model": "anvilcraft:block/hyperdimension_storage_station_part"
+      "model": "anvilcraft:block/hyperdimension_storage_station_corner"
     },
     "half=bottom_ws": {
-      "model": "anvilcraft:block/hyperdimension_storage_station_part"
+      "model": "anvilcraft:block/hyperdimension_storage_station_corner",
+      "y": 270
     },
     "half=bottom_en": {
-      "model": "anvilcraft:block/hyperdimension_storage_station_part"
+      "model": "anvilcraft:block/hyperdimension_storage_station_corner",
+      "y": 90
     },
     "half=bottom_es": {
-      "model": "anvilcraft:block/hyperdimension_storage_station_part"
+      "model": "anvilcraft:block/hyperdimension_storage_station_corner",
+      "y": 180
     },
     "half=mid_w": {
       "model": "anvilcraft:block/hyperdimension_storage_station_part"
@@ -70,16 +73,23 @@
       "model": "anvilcraft:block/hyperdimension_storage_station_part"
     },
     "half=top_wn": {
-      "model": "anvilcraft:block/hyperdimension_storage_station_part"
+      "model": "anvilcraft:block/hyperdimension_storage_station_corner",
+      "x": 270
     },
     "half=top_ws": {
-      "model": "anvilcraft:block/hyperdimension_storage_station_part"
+      "model": "anvilcraft:block/hyperdimension_storage_station_corner",
+      "y": 270,
+      "x": 270
     },
     "half=top_en": {
-      "model": "anvilcraft:block/hyperdimension_storage_station_part"
+      "model": "anvilcraft:block/hyperdimension_storage_station_corner",
+      "y": 90,
+      "x": 270
     },
     "half=top_es": {
-      "model": "anvilcraft:block/hyperdimension_storage_station_part"
+      "model": "anvilcraft:block/hyperdimension_storage_station_corner",
+      "y": 180,
+      "x": 270
     }
   }
 }

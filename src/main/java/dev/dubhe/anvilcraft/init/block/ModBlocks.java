@@ -724,6 +724,8 @@ public class ModBlocks {
         .loot(SimpleMultiPartBlock::loot)
         .properties(properties -> properties
             .noOcclusion()
+            .lightLevel(HyperdimensionStorageStationBlock::getLightLevel)
+            .emissiveRendering(ModBlocks::always)
             .explosionResistance(1200)
             .isValidSpawn(ModBlocks::never)
             .requiresCorrectToolForDrops()
@@ -734,7 +736,7 @@ public class ModBlocks {
             .stacksTo(1)
             .component(ModComponents.STORAGE, StorageRef.hyperdimension())
         )
-        .model(DataGenUtil::oversizedItem)
+        .model(() -> DataGenUtil.oversizedItem("_full"))
         .tag(ModItemTags.EXPLOSION_PROOF)
         .build()
         .blockstate(DataGenUtil::noExtraModelOrState)

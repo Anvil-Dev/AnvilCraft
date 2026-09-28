@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.block.container.storage;
 
 import dev.anvilcraft.lib.v2.util.DistExecutor;
 import dev.anvilcraft.lib.v2.util.ShapeUtil;
+import dev.dubhe.anvilcraft.api.block.ITranscendiumBlock;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.block.entity.storage.HyperdimensionStorageStationBlockEntity;
 import dev.dubhe.anvilcraft.block.multipart.MultiPartBlockEntity;
@@ -34,7 +35,7 @@ import net.neoforged.api.distmarker.Dist;
 
 public class HyperdimensionStorageStationBlock
     extends SimpleMultiPartBlock<Cube3x3PartHalf>
-    implements MultiPartBlockEntity<Cube3x3PartHalf, HyperdimensionStorageStationBlock>, IHammerRemovable {
+    implements MultiPartBlockEntity<Cube3x3PartHalf, HyperdimensionStorageStationBlock>, IHammerRemovable, ITranscendiumBlock {
     public static final EnumProperty<Cube3x3PartHalf> HALF = EnumProperty.create("half", Cube3x3PartHalf.class);
 
     public HyperdimensionStorageStationBlock(Properties properties) {
@@ -115,6 +116,14 @@ public class HyperdimensionStorageStationBlock
             }
         }
         return super.useItemOn(itemStack, state, level, pos, player, hand, hitResult);
+    }
+
+    public static int getLightLevel(BlockState state) {
+        return switch (state.getValue(HyperdimensionStorageStationBlock.HALF)) {
+            case BOTTOM_CENTER, MID_N, MID_E, MID_S, MID_W, MID_CENTER, TOP_CENTER -> 2;
+            case BOTTOM_WN, BOTTOM_EN, BOTTOM_ES, BOTTOM_WS, TOP_WN, TOP_EN, TOP_ES, TOP_WS -> 8;
+            default -> 6;
+        };
     }
 
     // region VoxelShapes
