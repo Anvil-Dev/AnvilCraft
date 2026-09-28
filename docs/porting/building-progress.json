@@ -4187,11 +4187,51 @@
   },
   "fish_tank_nonfluid_rendering_audit": {
     "source_commit": "a3a037f17876b2e7036779baee71898978c5d4be",
+    "status": "ported_and_verified",
+    "verification": {
+      "source_commit": "a3a037f17876b2e7036779baee71898978c5d4be",
+      "client_cases": 7,
+      "compared_vertices": 1472,
+      "full_required_tests": 730,
+      "maximum_vertex_distance": {
+        "dry-items:items": 0,
+        "wet-items:items": 0,
+        "wet-items:fluid": 0,
+        "fish:fish": 0.0009680625844438245,
+        "fish:fluid": 0,
+        "mixed:items": 0,
+        "mixed:fish": 0.0009680625844438245,
+        "mixed:fluid": 0,
+        "empty-fire:fire": 9.999999994736442e-08,
+        "wet-fire:fluid": 0,
+        "wet-fire:fire": 9.999999994736442e-08,
+        "hidden-fire:fluid": 0
+      },
+      "contracts": [
+        "Inventory-derived item seeds, source bob timing and source fish orbit math survive extract/submit separation.",
+        "The original fire model, fill-relative height, full-bright unshaded material and extended culling bounds are restored.",
+        "Render submissions preserve items/fish/fluid/fire/hooks order and fish world lighting.",
+        "External hooks can veto fire and submit extracted extension data in registration order.",
+        "Reused render states clear removed items/fish and level-less tanks use the client level."
+      ],
+      "limits": [
+        "Vanilla 26.1 tropical-fish body/tail animation remains native; its double-precision trig lookup accounts for sub-0.001-block vertex differences.",
+        "Screenshots retain native vanilla terrain, lighting and texture animation timing; they are not asserted pixel-identical.",
+        "The full GameTest run passed before final client-render-only corrections; final compile, Checkstyle and both real client scenes passed."
+      ]
+    },
+    "logs": {
+      "full_tests": "build/porting/tests-fish-contents-all.log",
+      "final_checks_and_native_client": "build/porting/client-fish-contents-4.log",
+      "source_client": "build/porting/client-fish-contents-reference-2.log"
+    }
+  },
+  "multiblock_4d_jei_audit": {
+    "source_commit": "a3a037f17876b2e7036779baee71898978c5d4be",
     "status": "pending",
     "findings": [
-      "Source FishTankBlockEntityRenderer uses FishTankRenderHooks.showVanillaFire/afterRender; native renderer has no matching calls or hook class.",
-      "Source item placement seed is based on inventory contents; native renderer currently uses block-entity identity.",
-      "Compare empty-fluid fire height and fish animation state reuse alongside the hook adaptation."
+      "The 4D recipe logic is present, but native JEI lacks MultiBlock4DCategory, recipe/catalyst/category registrations, its conversion texture and two translation keys.",
+      "Port time-step switching, layer controls, aggregate ingredients and rotating previews through existing native GUI helpers; verify actual JEI lookup and screenshots."
     ]
   }
 }

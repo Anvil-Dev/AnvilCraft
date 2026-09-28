@@ -234,7 +234,7 @@ public class RegisterAdditionalEventListener {
         RegisterAdditionalEventListener.registerCelestialBodyModels(event);
         event.register(
             FishTankRenderer.FIRE,
-            SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/oil_cauldron_fire4"))
+            SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/fire_cauldron_fire4"))
         );
         event.register(
             LargeCauldronBlockEntityRenderer.FIRE,

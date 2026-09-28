@@ -10,10 +10,12 @@ import net.minecraft.client.renderer.item.ItemModelResolver;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.client.model.standalone.StandaloneModelKey;
 import org.joml.Matrix4f;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -87,9 +89,13 @@ public class FeatureRendererSupport {
     }
 
     public static ItemClusterRenderState initialize(ItemStack stack, ItemModelResolver resolver) {
+        return initialize(stack, resolver, null, ItemClusterRenderState.getSeedForItemStack(stack));
+    }
+
+    public static ItemClusterRenderState initialize(ItemStack stack, ItemModelResolver resolver, @Nullable Level level, int seed) {
         ItemClusterRenderState state = new ItemClusterRenderState();
-        state.seed = ItemClusterRenderState.getSeedForItemStack(stack);
-        resolver.updateForTopItem(state.item, stack, ItemDisplayContext.GROUND, null, null, state.seed);
+        state.seed = seed;
+        resolver.updateForTopItem(state.item, stack, ItemDisplayContext.GROUND, level, null, state.seed);
         state.count = ItemClusterRenderState.getRenderedAmount(stack.count());
         return state;
     }

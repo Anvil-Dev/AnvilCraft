@@ -10,6 +10,7 @@ import dev.dubhe.anvilcraft.block.entity.FishTankBlockEntity;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.state.FishTankRenderState;
 import dev.dubhe.anvilcraft.client.support.FeatureRendererSupport;
 import dev.dubhe.anvilcraft.mixin.accessor.EntityAccessor;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
@@ -28,6 +29,7 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.animal.fish.TropicalFish;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.client.model.standalone.StandaloneModelKey;
 import net.neoforged.neoforge.transfer.ResourceHandler;
@@ -55,6 +57,11 @@ public class FishTankRenderer extends BaseFluidHandlerHolderRenderer<FishTankBlo
     public FishTankRenderer(BlockEntityRendererProvider.Context ctx) {
         this.resolver = ctx.itemModelResolver();
         this.renderer = ctx.entityRenderer();
+    }
+
+    @Override
+    public AABB getRenderBoundingBox(FishTankBlockEntity tank) {
+        return new AABB(tank.getBlockPos()).expandTowards(0, 2, 0);
     }
 
     @Override
@@ -86,14 +93,26 @@ public class FishTankRenderer extends BaseFluidHandlerHolderRenderer<FishTankBlo
         Vec3 cameraPosition,
         ModelFeatureRenderer.@Nullable CrumblingOverlay breakProgress
     ) {
-        super.extractRenderState(be, state, partialTicks, cameraPosition, breakProgress);
-        state.setIgnited(be.isIgnited());
-        for (ItemStack stack : ItemHandlerUtil.getNonEmptyItemsFromHandler(be.getItemHandler())) {
-            state.getStacks().add(Pair.of(stack, FeatureRendererSupport.initialize(stack, this.resolver)));
+        state.getStacks().clear();
+        state.getFishes().clear();
+        state.setFire(null);
+        state.setAfterRender(List.of());
+        if (be.getLevel() == null) be.setLevel(Minecraft.getInstance().level);
+        if (be.getLevel() == null) {
+            state.setResource(null);
+            state.setFill(0);
+            state.setIgnited(false);
+            return;
         }
-        state.setFire(FeatureRendererSupport.initialize(FishTankRenderer.FIRE, be));
-        // seed workaround
-        state.setSeed(System.identityHashCode(be));
+        super.extractRenderState(be, state, partialTicks, cameraPosition, breakProgress);
+        state.setIgnited(be.isIgnited() && FishTankRenderHooks.showVanillaFire(be));
+        state.setAfterRender(FishTankRenderHooks.extract(be, partialTicks));
+        state.setItemTicks(ClientTickRecorder.getTicks());
+        for (ItemStack stack : ItemHandlerUtil.getNonEmptyItemsFromHandler(be.getItemHandler())) {
+            state.getStacks().add(Pair.of(stack, FeatureRendererSupport.initialize(stack, this.resolver, be.getLevel(), 0)));
+        }
+        if (state.isIgnited()) state.setFire(FeatureRendererSupport.createTessellation(FishTankRenderer.FIRE, false));
+        state.setSeed(ItemHandlerUtil.hash(be.getItemHandler()));
 
         Level level = be.getLevel();
         if (level == null) return;
@@ -115,35 +134,18 @@ public class FishTankRenderer extends BaseFluidHandlerHolderRenderer<FishTankBlo
             cachedFishes = cacheEntry.cachedFishes;
         }
 
-        state.setTicks(ClientTickRecorder.getTicks() + partialTicks);
+        this.fishRandom.setSeed(cachedFishes.hashCode() + be.getBlockPos().hashCode());
+        state.setTicks(ClientTickRecorder.getTicks() + partialTicks + this.fishRandom.nextInt(1297361));
         for (TropicalFish fish : cachedFishes) {
             fish.tickCount = (int) state.getTicks();
             EntityRenderState entityState = this.renderer.extractEntity(fish, partialTicks);
-            entityState.lightCoords = LightCoordsUtil.FULL_SKY;
+            entityState.lightCoords = state.lightCoords;
             state.getFishes().add(entityState);
         }
-        this.fishRandom.setSeed(cachedFishes.hashCode() + be.getBlockPos().hashCode());
     }
 
     @Override
     public void submit(FishTankRenderState state, PoseStack pose, SubmitNodeCollector collector, CameraRenderState camera) {
-        super.submit(state, pose, collector, camera);
-        if (state.isIgnited()) {
-            pose.pushPose();
-            if (state.getFill() != 0) {
-                pose.translate(0, (state.getMaxY() - state.getMinY()) * (state.getFill() - 1), 0);
-            } else {
-                pose.translate(0, FishTankRenderer.TANK_W - 1, 0);
-            }
-            state.getFire().submit(
-                pose,
-                collector,
-                LightCoordsUtil.FULL_BRIGHT,
-                OverlayTexture.NO_OVERLAY,
-                0
-            );
-            pose.popPose();
-        }
         if (!state.getStacks().isEmpty()) {
             FishTankRenderer.submitItemsInTank(
                 state.getStacks(),
@@ -152,10 +154,24 @@ public class FishTankRenderer extends BaseFluidHandlerHolderRenderer<FishTankBlo
                 this.random,
                 state.getFill(),
                 state.lightCoords,
-                state.getSeed()
+                state.getSeed(),
+                state.getItemTicks()
             );
         }
         FishTankRenderer.submitFishesInTank(state, this.renderer, pose, collector, camera);
+        super.submit(state, pose, collector, camera);
+        var fire = state.getFire();
+        if (state.isIgnited() && fire != null) {
+            pose.pushPose();
+            if (state.getFill() != 0) {
+                pose.translate(0, (state.getMaxY() - state.getMinY()) * (state.getFill() - 1), 0);
+            } else {
+                pose.translate(0, FishTankRenderer.TANK_W - (1 - FishTankRenderer.TANK_W), 0);
+            }
+            fire.submit(collector, pose, OverlayTexture.NO_OVERLAY, LightCoordsUtil.FULL_BRIGHT, -1);
+            pose.popPose();
+        }
+        FishTankRenderHooks.afterRender(state.getAfterRender(), pose, collector, state.lightCoords, OverlayTexture.NO_OVERLAY);
     }
 
     // Thanks for Create Mod, logics in this method are mostly from it.
@@ -166,7 +182,8 @@ public class FishTankRenderer extends BaseFluidHandlerHolderRenderer<FishTankBlo
         RandomSource random,
         float fill,
         int light,
-        long seed
+        long seed,
+        int itemTicks
     ) {
         random.setSeed(seed);
         final float randomOffsetDeg = random.nextIntBetweenInclusive(0, 50) - 25;
@@ -187,14 +204,14 @@ public class FishTankRenderer extends BaseFluidHandlerHolderRenderer<FishTankBlo
             if (fill > 0) {
                 pose.translate(
                     0,
-                    (Mth.sin(ClientTickRecorder.getTicks() / 12F + partAngleDeg * itemCount) + 1.5F) * 1 / 32F,
+                    (sourceSin(itemTicks / 12F + partAngleDeg * itemCount) + 1.5F) * 1 / 32F,
                     0
                 );
             }
 
             float angle = Mth.DEG_TO_RAD * (partAngleDeg * itemCount);
-            double sin = Mth.sin(angle);
-            double cos = Mth.cos(angle);
+            double sin = sourceSin(angle);
+            double cos = sourceCos(angle);
             pose.translate(vec.x * cos + vec.z * sin, vec.y, vec.z * cos - vec.x * sin);
             pose.mulPose(
                 new Quaternionf()
@@ -238,15 +255,15 @@ public class FishTankRenderer extends BaseFluidHandlerHolderRenderer<FishTankBlo
         int count = fishes.size();
 
         for (int i = 0; i < count; i++) {
-            int ticks = (int) state.getTicks();
+            float ticks = state.getTicks();
 
             float speed = 0.05F;
             float angle = ticks * speed + (Mth.TWO_PI / count) * i;
             float radius = 0.22F;
-            float x = 0.5F + Mth.cos(angle) * radius;
-            float z = 0.5F + Mth.sin(angle) * radius;
+            float x = 0.5F + sourceCos(angle) * radius;
+            float z = 0.5F + sourceSin(angle) * radius;
 
-            float y = FishTankRenderer.TANK_W + height * (0.5F + Mth.sin(ticks * 0.07F + i) * 0.07F + Mth.sin(ticks * 0.19F + i) * 0.19F);
+            float y = FishTankRenderer.TANK_W + height * (0.5F + sourceSin(ticks * 0.07F + i) * 0.07F + sourceSin(ticks * 0.19F + i) * 0.19F);
 
             float yawDeg = -(angle * Mth.RAD_TO_DEG);
 
@@ -257,6 +274,17 @@ public class FishTankRenderer extends BaseFluidHandlerHolderRenderer<FishTankBlo
             renderer.submit(fishes.get(i), camera, 0, 0, 0, pose, collector);
             pose.popPose();
         }
+    }
+
+    // Preserve the float lookup indices used by the source animation; 26.1 uses double precision in Mth.
+    private static float sourceSin(float angle) {
+        int index = (int) (angle * 10430.378F) & 65535;
+        return (float) Math.sin(index * Math.PI * 2 / 65536.0);
+    }
+
+    private static float sourceCos(float angle) {
+        int index = (int) (angle * 10430.378F + 16384.0F) & 65535;
+        return (float) Math.sin(index * Math.PI * 2 / 65536.0);
     }
 
     /// Creates TropicalFish entities from fish data NBT tags
