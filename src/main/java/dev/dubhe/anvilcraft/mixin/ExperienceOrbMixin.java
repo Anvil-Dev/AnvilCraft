@@ -58,6 +58,13 @@ abstract class ExperienceOrbMixin extends Entity implements IExperienceOrbExtens
                 && !collector.getBlockState().getValue(ExpCollectorBlock.POWERED)
                 && collector.shape().contains(this.position())
                 && !collector.isRemoved()) {
+                if (this.value <= 0) {
+                    this.remove(Entity.RemovalReason.DISCARDED);
+                    this.discard();
+                    anvilcraft$discarded = true;
+                    break;
+                }
+                if (this.count <= 0) this.count = 1;
                 int totalExp = this.value * this.count;
                 int acceptableExp = (collector.getFluidTank().getCapacity() - collector.getFluidTank().getFluidAmount()) / 20;
                 if (acceptableExp == 0) continue;

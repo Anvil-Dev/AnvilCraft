@@ -199,6 +199,11 @@ public class ExpCollectorBlockEntity extends BlockEntity
             .stream().sorted(Comparator.comparing(ExperienceOrb::getValue))
             .toList();
         for (ExperienceOrb experienceOrb : experienceOrbs) {
+            if (experienceOrb.value <= 0) {
+                experienceOrb.discard();
+                continue;
+            }
+            if (experienceOrb.count <= 0) experienceOrb.count = 1;
             int totalExp = experienceOrb.value * experienceOrb.count;
             int acceptableExp = (this.fluidTank.getCapacity() - this.fluidTank.getFluidAmount()) / 20;
             if (acceptableExp == 0) break;
