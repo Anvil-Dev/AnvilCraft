@@ -3596,7 +3596,7 @@
   },
   "storage_block_behavior_audit": {
     "source_commit": "e0dedd6e8f1dd8667090eae161ba372c4da10bc2",
-    "status": "comparator_pick_and_opening_sound_ported_and_verified",
+    "status": "identified_storage_block_contracts_ported_and_verified",
     "verification": {
       "source_commit": "e0dedd6e8f1dd8667090eae161ba372c4da10bc2",
       "focused_tests": 4,
@@ -3619,9 +3619,7 @@
       "26.1 server includeData pick replaces client Ctrl detection; final component restoration prevents child-part null IDs overwriting the main reference.",
       "Comparator tracking uses loaded ServerLevel instances, no forced chunk loads, and world/server cleanup."
     ],
-    "pending": [
-      "Crate merge origin search, consumed-crate recovery and crafting unlock propagation."
-    ],
+    "pending": [],
     "limits": [
       "This milestone verifies storage interactions only; full feature-port goal remains active.",
       "No assets or generated data changed in this milestone; runData is not applicable."
@@ -3730,8 +3728,34 @@
       "Shared loot generator copies STORAGE only from the main part; shared empty-container cleanup preserves upgraded shulker containers.",
       "Clearing a storage ID unregisters loaded-source/comparator tracking before resetting it."
     ],
-    "remaining": [
-      "Crate merging must search valid 3x3x3 origins independently of clicked face, return the 27 consumed crates into storage, and propagate crafting unlock."
-    ]
+    "remaining": []
+  },
+  "crate_merge": {
+    "source_commit": "e0dedd6e8f1dd8667090eae161ba372c4da10bc2",
+    "status": "ported_and_verified",
+    "verification": {
+      "source_commit": "e0dedd6e8f1dd8667090eae161ba372c4da10bc2",
+      "focused_tests": 4,
+      "full_required_tests": 712,
+      "part_face_combinations": 162,
+      "contracts": [
+        "All 27 clicked parts and six faces find the complete 3x3x3 crate region.",
+        "Overlapping candidates follow source X/Y/Z scan order, leaving outside crates intact.",
+        "Clear the old region before placing the main part and expanding the large crate, without drops or broken parts.",
+        "Recover all 27 physical crates into the target and inherit crafting unlock while retaining target crafting input.",
+        "Shared source IDs transfer only once; bound target contents remain; creative retains the held item.",
+        "Incomplete regions and insufficient total capacity leave source blocks, inventory, target contents and unlock unchanged."
+      ],
+      "adaptation": [
+        "Existing native atomic transfer protection includes the 27 recovered crates; this prevents the source nontransactional capacity edge from discarding items.",
+        "No assets or generated data changed; runData and new rendering captures are not applicable.",
+        "Full GameTests passed before the last formatting fix; final compile/style checks passed separately on the final files."
+      ]
+    },
+    "logs": {
+      "focused": "build/porting/tests-crate-merge-1.log",
+      "full_tests": "build/porting/tests-crate-merge-all.log",
+      "final_checks": "build/porting/checks-crate-merge-final.log"
+    }
   }
 }
