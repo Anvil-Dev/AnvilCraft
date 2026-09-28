@@ -1,5 +1,7 @@
 package dev.dubhe.anvilcraft.entity;
 
+import net.neoforged.neoforge.common.NeoForge;
+import dev.dubhe.anvilcraft.api.event.GiantAnvilEvent;
 import dev.dubhe.anvilcraft.block.workstation.GiantAnvilBlock;
 import dev.dubhe.anvilcraft.init.entity.ModEntities;
 import dev.dubhe.anvilcraft.util.AccelerateManager;
@@ -76,6 +78,7 @@ public class FallingGiantAnvilEntity extends FallingBlockEntity {
 
     @Override
     public void tick() {
+        if (NeoForge.EVENT_BUS.post(new GiantAnvilEvent.FallingTick(this)).isCanceled()) return;
         if (this.blockState.isAir()) {
             this.discard();
         } else {

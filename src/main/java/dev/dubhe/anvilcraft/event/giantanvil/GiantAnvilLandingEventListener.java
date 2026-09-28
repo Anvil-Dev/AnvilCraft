@@ -2,17 +2,19 @@ package dev.dubhe.anvilcraft.event.giantanvil;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.event.AnvilEvent;
-import dev.dubhe.anvilcraft.init.block.ModBlocks;
+import dev.dubhe.anvilcraft.api.event.GiantAnvilEvent;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
+import dev.dubhe.anvilcraft.recipe.multiblock.IMultiblockRecipe;
 import dev.dubhe.anvilcraft.recipe.multiblock.MultiblockInput;
+import dev.dubhe.anvilcraft.util.TriggerUtil;
 import net.minecraft.core.BlockPos;
-import net.minecraft.world.entity.Entity;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.common.Tags;
 
 import java.util.ArrayList;
@@ -25,42 +27,90 @@ public class GiantAnvilLandingEventListener {
 
     @SubscribeEvent
     public static void handleMultiblock(AnvilEvent.GiantOnLand event) {
+        if (NeoForge.EVENT_BUS.post(new GiantAnvilEvent.Multiblock(event)).isCanceled()) {
+            return;
+        }
         Level level = event.getLevel();
         BlockPos landPos = event.getPos().below(2);
 
-        BlockState centerState = level.getBlockState(landPos);
-        boolean overCompressorDetected = false;
-        if (centerState.is(ModBlocks.SPACE_OVERCOMPRESSOR)) {
-            overCompressorDetected = true;
-        } else if (!centerState.is(Tags.Blocks.PLAYER_WORKSTATIONS_CRAFTING_TABLES)) {
+        int size = GiantAnvilLandingEventListener.findCraftingTableSize(landPos, level);
+        if (size < MIN_MULTIBLOCK_SIZE || size > MAX_MULTIBLOCK_SIZE) {
             return;
         }
-        int size = GiantAnvilLandingEventListener.findCraftingTableSize(landPos, level);
-        if (size < 3 || size > 15) return;
 
         BlockPos inputCorner = landPos.offset(-size / 2, -size, -size / 2);
+        MultiblockInput input = GiantAnvilLandingEventListener.buildInput(level, inputCorner, size, landPos);
+        BlockState centerState = level.getBlockState(landPos);
 
+        GiantAnvilLandingEventListener.craft(
+            level,
+            landPos,
+            inputCorner,
+            input,
+            centerState,
+            ModRecipeTypes.MULTIBLOCK_4D.get()
+        );
+        GiantAnvilLandingEventListener.craft(
+            level,
+            landPos,
+            inputCorner,
+            input,
+            centerState,
+            ModRecipeTypes.MULTIBLOCK.get()
+        );
+        GiantAnvilLandingEventListener.craft(
+            level,
+            landPos,
+            inputCorner,
+            input,
+            centerState,
+            ModRecipeTypes.MULTIBLOCK_CONVERSION.get()
+        );
+    }
+
+    private static void craft(
+        Level level,
+        BlockPos landPos,
+        BlockPos inputCorner,
+        MultiblockInput input,
+        BlockState centerState,
+        RecipeType<? extends IMultiblockRecipe> type
+    ) {
+        if (!GiantAnvilLandingEventListener.isValidCenter(level, landPos, centerState, type)) {
+            return;
+        }
+        level.getServer().getRecipeManager()
+            .getRecipeFor(type, input, level)
+            .ifPresent(holder -> {
+                holder.value().assemble(level, landPos, inputCorner, input);
+                TriggerUtil.inWorldRecipe(level, landPos, BuiltInRegistries.RECIPE_TYPE.getKey(type), holder.id().identifier());
+            });
+    }
+
+    private static boolean isValidCenter(
+        Level level,
+        BlockPos pos,
+        BlockState state,
+        RecipeType<? extends IMultiblockRecipe> type
+    ) {
+        return level.getServer().getRecipeManager().recipeMap().byType(type).stream()
+            .anyMatch(holder -> holder.value().isValidCenterBlock(level, pos, state));
+    }
+
+    private static MultiblockInput buildInput(Level level, BlockPos inputCorner, int size, BlockPos centerPos) {
         List<List<List<BlockState>>> blocks = new ArrayList<>();
         for (int y = 0; y < size; y++) {
             List<List<BlockState>> blocksY = new ArrayList<>();
             for (int z = 0; z < size; z++) {
                 List<BlockState> blocksZ = new ArrayList<>();
                 for (int x = 0; x < size; x++) {
-                    BlockState state = level.getBlockState(inputCorner.offset(x, y, z));
-                    blocksZ.add(state);
+                    blocksZ.add(level.getBlockState(inputCorner.offset(x, y, z)));
                 }
                 blocksY.add(blocksZ);
             }
             blocks.add(blocksY);
         }
-        MultiblockInput input = new MultiblockInput(blocks, size, landPos);
-        if (overCompressorDetected) {
-            level.getServer().getRecipeManager().getRecipeFor(ModRecipeTypes.MULTIBLOCK.get(), input, level)
-                .ifPresent(recipe -> recipe.value().assemble(level, landPos, inputCorner, input));
-        } else {
-            level.getServer().getRecipeManager().getRecipeFor(ModRecipeTypes.MULTIBLOCK_CONVERSION.get(), input, level)
-                .ifPresent(recipe -> recipe.value().assemble(level, landPos, inputCorner, input));
-        }
+        return new MultiblockInput(blocks, size, centerPos);
     }
 
     private static int findCraftingTableSize(BlockPos centerPos, Level level) {

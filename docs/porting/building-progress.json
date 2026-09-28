@@ -2695,5 +2695,66 @@
       "World patches include native 26.1 lightmap, atmospheric fog and terrain sampling; they are not pixel-identical to 1.21.",
       "Only extraction reads world state; submitted geometry carries independent vertex light and color values."
     ]
+  },
+  "multiblock_4d_foundation": {
+    "source_commit": "07eb60b47f14439375da10e78f4d4770f3a83256",
+    "status": "crafting_persistence_refunds_and_progress_verified_content_integration_pending",
+    "ported": [
+      "Four-dimensional recipe type/serializer/builder with ordered multiblock definitions and native lazy item templates.",
+      "Spacetime Supercomputer processing state, pending material drops, save/load, stable recipe-id resolution after reload, removal/missing-recipe refunds and completion clearing.",
+      "Generic giant-anvil recipe dispatch and source cancellable multiblock/block-tick/falling-tick extension events; retained native bounded table-size scan.",
+      "Four-sided world progress text with source positioning, scale and colors; adapted the 26.1 font background depth convention.",
+      "Processing updates coexist with command/history/charging synchronization; full sync explicitly carries zero charge and empty history.",
+      "Fixed the same early-loading ItemStack limitation for explicit laser result_items by storing ItemStackTemplate values.",
+      "NBT recipe-export helper adapted to native tag accessors, numeric argument casts and tag lookup APIs."
+    ],
+    "verification": {
+      "focused_tests": "build/porting/tests-multiblock-4d-final.log",
+      "full_tests_style": "build/porting/tests-multiblock-4d-full-final.log",
+      "manifest_recheck": "build/porting/tests-4d-manifest-recheck.log",
+      "required_tests_passed": 656,
+      "focused_tests_passed": 8,
+      "datagen": "build/porting/data-multiblock-4d-1.log",
+      "native_client": "build/porting/client-multiblock-4d-final.log",
+      "source_client": "build/porting/client-multiblock-4d-reference.log",
+      "comparison": "build/porting/multiblock-4d-comparison.json",
+      "visuals": {
+        "step1-face0": {
+          "text_mask_iou": 0.8733997155049786,
+          "mean_rgb_error_on_source_text": 49.27553865652725
+        },
+        "step1-face1": {
+          "text_mask_iou": 0.8726884779516358,
+          "mean_rgb_error_on_source_text": 49.34575411913815
+        },
+        "step1-face2": {
+          "text_mask_iou": 0.8726884779516358,
+          "mean_rgb_error_on_source_text": 48.64765525982256
+        },
+        "step1-face3": {
+          "text_mask_iou": 0.8726884779516358,
+          "mean_rgb_error_on_source_text": 49.85855513307985
+        },
+        "step2": {
+          "text_mask_iou": 0.8708100558659218,
+          "mean_rgb_error_on_source_text": 49.274993767140366
+        },
+        "complete": {
+          "native_text_pixels": 0,
+          "source_text_pixels": 0
+        }
+      }
+    },
+    "remaining": [
+      "Hypercube block/renderer/default recipe and its source ingredient uses.",
+      "Source MultiBlock4DCategory JEI display and structure-tool/scanner integration.",
+      "Source hyperdimension-station upgrade behavior and container-upgrade JEI changes.",
+      "Source Spacetime Supercomputer EPIC item rarity differs from the native existing simpleItem registration; include it with the content integration."
+    ],
+    "limits": [
+      "World text uses native 26.1 font/lightmap rendering; geometry and glyph masks are compared separately from brightness.",
+      "The first full run hit the known intermittent Windows reset-manifest AccessDenied fixture; isolated recheck and the repeated full suite passed.",
+      "Only development recipes currently exercise the new type; this milestone does not claim the Hypercube content is ported."
+    ]
   }
 }

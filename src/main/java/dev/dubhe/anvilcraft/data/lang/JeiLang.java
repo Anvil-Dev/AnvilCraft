@@ -4,6 +4,7 @@ import dev.anvilcraft.lib.v2.registrum.providers.RegistrumLangProvider;
 
 public class JeiLang {
     public static void init(RegistrumLangProvider provider) {
+        provider.add("gui.anvilcraft.multiblock_4d.progress", "Crafting Progress: %1$d / %2$d");
         provider.add("gui.anvilcraft.category.chance", "Chance: %s%%");
         provider.add("gui.anvilcraft.category.average_output", "Average: %s");
         provider.add("gui.anvilcraft.category.min_output", "Min: %s");

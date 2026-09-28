@@ -36,6 +36,7 @@ import dev.dubhe.anvilcraft.recipe.mineral.MineralFountainChanceRecipe;
 import dev.dubhe.anvilcraft.recipe.mineral.MineralFountainRecipe;
 import dev.dubhe.anvilcraft.recipe.multiblock.MultiblockConversionRecipe;
 import dev.dubhe.anvilcraft.recipe.multiblock.MultiblockRecipe;
+import dev.dubhe.anvilcraft.recipe.multiblock.Multiblock4DRecipe;
 import dev.dubhe.anvilcraft.recipe.multiple.BaseMultipleToOneSmithingRecipe;
 import dev.dubhe.anvilcraft.recipe.transform.MobTransformRecipe;
 import dev.dubhe.anvilcraft.recipe.transform.MobTransformWithItemRecipe;
@@ -48,6 +49,8 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 
 public class ModRecipeTypes {
     private static final DeferredRegister<RecipeType<?>> DF = DeferredRegister.create(Registries.RECIPE_TYPE, AnvilCraft.MOD_ID);
+
+    public static final DeferredHolder<RecipeType<?>, RecipeType<Multiblock4DRecipe>> MULTIBLOCK_4D = registerType("4d_multiblock");
 
     public static final DeferredHolder<RecipeType<?>, RecipeType<LaserHitRecipe>> LASER_HIT = registerType("laser_hit");
 

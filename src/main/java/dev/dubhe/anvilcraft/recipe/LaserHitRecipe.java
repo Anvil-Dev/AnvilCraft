@@ -16,6 +16,7 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.crafting.PlacementInfo;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeBookCategories;
@@ -41,7 +42,7 @@ public class LaserHitRecipe implements Recipe<LaserHitRecipe.Input> {
         Identifier.CODEC.optionalFieldOf("dimension").forGetter(LaserHitRecipe::getDimension),
         Codec.intRange(1, Integer.MAX_VALUE).fieldOf("laser_strength").forGetter(LaserHitRecipe::getLaserStrength),
         Codec.intRange(1, Integer.MAX_VALUE).fieldOf("hit_time").forGetter(LaserHitRecipe::getHitTime),
-        ItemStack.CODEC.listOf().optionalFieldOf("result_items", List.of()).forGetter(LaserHitRecipe::getResultItems),
+        ItemStackTemplate.CODEC.listOf().optionalFieldOf("result_items", List.of()).forGetter(LaserHitRecipe::getResultItems),
         BlockState.CODEC.optionalFieldOf("result_block", Blocks.AIR.defaultBlockState()).forGetter(LaserHitRecipe::getResultBlock),
         Codec.BOOL.optionalFieldOf("use_block_loot", false).forGetter(LaserHitRecipe::isUseBlockLoot),
         Codec.BOOL.optionalFieldOf("requires_lens", false).forGetter(LaserHitRecipe::isRequiresLens),
@@ -63,7 +64,7 @@ public class LaserHitRecipe implements Recipe<LaserHitRecipe.Input> {
     private final Optional<Identifier> dimension;
     private final int laserStrength;
     private final int hitTime;
-    private final List<ItemStack> resultItems;
+    private final List<ItemStackTemplate> resultItems;
     private final BlockState resultBlock;
     private final boolean useBlockLoot;
     private final boolean requiresLens;
@@ -73,14 +74,14 @@ public class LaserHitRecipe implements Recipe<LaserHitRecipe.Input> {
 
     public LaserHitRecipe(
         BlockStatePredicate input, Optional<Identifier> dimension, int laserStrength, int hitTime,
-        List<ItemStack> resultItems, BlockState resultBlock, boolean useBlockLoot, boolean requiresLens, int priority
+        List<ItemStackTemplate> resultItems, BlockState resultBlock, boolean useBlockLoot, boolean requiresLens, int priority
     ) {
         this(input, dimension, laserStrength, hitTime, resultItems, resultBlock, useBlockLoot, requiresLens, priority, LaserType.NORMAL, 0);
     }
 
     public LaserHitRecipe(
         BlockStatePredicate input, Optional<Identifier> dimension, int laserStrength, int hitTime,
-        List<ItemStack> resultItems, BlockState resultBlock, boolean useBlockLoot, boolean requiresLens, int priority,
+        List<ItemStackTemplate> resultItems, BlockState resultBlock, boolean useBlockLoot, boolean requiresLens, int priority,
         LaserType laserType, int heatDuration
     ) {
         if (laserStrength < 1 || hitTime < 1) throw new IllegalArgumentException("Laser strength and mining time must be positive");
@@ -88,7 +89,7 @@ public class LaserHitRecipe implements Recipe<LaserHitRecipe.Input> {
         this.dimension = dimension;
         this.laserStrength = laserStrength;
         this.hitTime = hitTime;
-        this.resultItems = resultItems.stream().map(ItemStack::copy).toList();
+        this.resultItems = List.copyOf(resultItems);
         this.resultBlock = resultBlock;
         this.useBlockLoot = useBlockLoot;
         this.requiresLens = requiresLens;
@@ -114,7 +115,7 @@ public class LaserHitRecipe implements Recipe<LaserHitRecipe.Input> {
 
     public List<ItemStack> createDrops(ServerLevel level, BlockPos pos, BlockMiningEffect effect) {
         List<ItemStack> drops = new ArrayList<>();
-        this.resultItems.forEach(stack -> drops.add(stack.copy()));
+        this.resultItems.forEach(stack -> drops.add(stack.create()));
         if (this.useBlockLoot) drops.addAll(BreakBlockUtil.dropForLaser(level, pos, effect));
         return drops;
     }
@@ -139,7 +140,7 @@ public class LaserHitRecipe implements Recipe<LaserHitRecipe.Input> {
 
     @Override
     public ItemStack assemble(Input input) {
-        return this.resultItems.isEmpty() ? ItemStack.EMPTY : this.resultItems.getFirst().copy();
+        return this.resultItems.isEmpty() ? ItemStack.EMPTY : this.resultItems.getFirst().create();
     }
 
     @Override

@@ -148,7 +148,8 @@ public final class LaserComponentTests {
     private static void recipes(GameTestHelper h) {
         var level = h.getLevel();
         var pos = h.absolutePos(new BlockPos(8, 5, 3));
-        h.assertTrue(level.getServer().getRecipeManager().recipeMap().byType(ModRecipeTypes.LASER_HIT.get()).size() == 36, "36 个原分支激光配方");
+        h.assertTrue(level.getServer().getRecipeManager().recipeMap().byType(ModRecipeTypes.LASER_HIT.get()).stream()
+            .filter(r -> r.id().identifier().getPath().startsWith("laser_hit/")).count() == 36, "36 个原分支激光配方");
         for (Block ore : List.of(Blocks.DIAMOND_ORE, Blocks.DEEPSLATE_DIAMOND_ORE, Blocks.NETHER_QUARTZ_ORE, Blocks.ANCIENT_DEBRIS)) {
             level.setBlock(pos, ore.defaultBlockState(), Block.UPDATE_ALL);
             h.assertTrue(LaserHitRecipe.find(level, new LaserHitRecipe.Input(pos, ore.defaultBlockState(), 3, false)).isEmpty(), "三级不可开采");

@@ -34,6 +34,7 @@ public class DatapackSyncEventListener {
             ModRecipeTypes.MOB_TRANSFORM.get(),
             ModRecipeTypes.MOB_TRANSFORM_WITH_ITEM.get(),
             ModRecipeTypes.MULTIBLOCK.get(),
+            ModRecipeTypes.MULTIBLOCK_4D.get(),
             ModRecipeTypes.MULTIBLOCK_CONVERSION.get(),
             ModRecipeTypes.MULTIPLE_TO_ONE_SMITHING.get(),
             ModRecipeTypes.NEUTRON_IRRADIATION.get(),

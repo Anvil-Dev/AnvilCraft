@@ -143,6 +143,7 @@ import dev.dubhe.anvilcraft.client.renderer.blockentity.TradingStationBlockEntit
 import dev.dubhe.anvilcraft.client.renderer.blockentity.UnpackingTableBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.VoidEnergyCollectorRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.WipBlockEntityRenderer;
+import dev.dubhe.anvilcraft.client.renderer.blockentity.SpacetimeSupercomputerBlockEntityRenderer;
 import static dev.dubhe.anvilcraft.AnvilCraft.REGISTRUM;
 
 public class ModBlockEntities {
@@ -672,6 +673,7 @@ public class ModBlockEntities {
 
     public static final BlockEntityEntry<SpacetimeSupercomputerBlockEntity> SPACETIME_SUPERCOMPUTER = REGISTRUM
         .blockEntity("spacetime_supercomputer", SpacetimeSupercomputerBlockEntity::new)
+        .renderer(() -> SpacetimeSupercomputerBlockEntityRenderer::new)
         .validBlock(ModBlocks.SPACETIME_SUPERCOMPUTER)
         .register();
 

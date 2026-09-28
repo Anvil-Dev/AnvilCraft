@@ -41,6 +41,7 @@ import dev.dubhe.anvilcraft.recipe.mineral.MineralFountainChanceRecipe;
 import dev.dubhe.anvilcraft.recipe.mineral.MineralFountainRecipe;
 import dev.dubhe.anvilcraft.recipe.multiblock.MultiblockConversionRecipe;
 import dev.dubhe.anvilcraft.recipe.multiblock.MultiblockRecipe;
+import dev.dubhe.anvilcraft.recipe.multiblock.Multiblock4DRecipe;
 import dev.dubhe.anvilcraft.recipe.multiple.EightToOneSmithingRecipe;
 import dev.dubhe.anvilcraft.recipe.multiple.FourToOneSmithingRecipe;
 import dev.dubhe.anvilcraft.recipe.multiple.TwoToOneSmithingRecipe;
@@ -58,6 +59,10 @@ public class ModRecipeSerializers {
     private static final DeferredRegister<RecipeSerializer<?>> DF = DeferredRegister.create(
         Registries.RECIPE_SERIALIZER,
         AnvilCraft.MOD_ID
+    );
+
+    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<Multiblock4DRecipe>> MULTIBLOCK_4D = DF.register(
+        "4d_multiblock", () -> Multiblock4DRecipe.SERIALIZER
     );
 
     public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<LaserHitRecipe>> LASER_HIT = DF.register(
