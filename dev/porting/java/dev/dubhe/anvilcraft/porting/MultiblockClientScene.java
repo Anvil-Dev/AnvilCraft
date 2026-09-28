@@ -54,10 +54,11 @@ public final class MultiblockClientScene implements IModPlugin {
                 throw new IllegalStateException("标签材料候选或数量未同步到客户端");
             }
             var preview = LevelLikeDisplaySupport.asLevelLike(recipe.value().getPattern());
+            MultiblockPreviewProbe.verify(preview);
             LevelLikeDisplaySupport.cycleTags(preview, 0);
-            var first = preview.getBlockState(new BlockPos(-1, 0, 0));
+            var first = preview.getBlockState(new BlockPos(0, 1, 1));
             LevelLikeDisplaySupport.cycleTags(preview, 1);
-            if (first == preview.getBlockState(new BlockPos(-1, 0, 0))) throw new IllegalStateException("标签方块预览未切换变体");
+            if (first == preview.getBlockState(new BlockPos(0, 1, 1))) throw new IllegalStateException("标签方块预览未切换变体");
             var category = runtime.getRecipeManager().getRecipeCategory(AnvilCraftJeiPlugin.MULTIBLOCK_CRAFTING);
             runtime.getRecipesGui().showRecipes(category, List.of(recipe), List.of());
         }

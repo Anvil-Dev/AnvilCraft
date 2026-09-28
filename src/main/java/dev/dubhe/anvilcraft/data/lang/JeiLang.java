@@ -64,6 +64,9 @@ public class JeiLang {
         provider.add("gui.anvilcraft.category.neutron_irradiation", "Neutron Irradiation");
         provider.add("gui.anvilcraft.category.neutron_irradiation.explosion", "Explodes");
 
+        provider.add("gui.anvilcraft.category.4d_multiblock", "4D Multiblock Crafting");
+        provider.add("gui.anvilcraft.category.4d_multiblock.step", "Time Step: %1$d of %2$d");
+
         provider.add("gui.anvilcraft.category.multiblock", "Multiblock Crafting");
         provider.add("gui.anvilcraft.category.multiblock.all_layers", "All Layers Visible");
         provider.add("gui.anvilcraft.category.multiblock.single_layer", "Visible Layer: %1$d of %2$d");

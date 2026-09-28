@@ -909,6 +909,8 @@
   "entity.anvilcraft.villager.jeweler": "Jeweler",
   "entity.anvilcraft.weapon_beam": "Weapon Beam",
   "fluid.anvilcraft.fire": "Burning Oil (The content of Fire Cauldron)",
+  "gui.anvilcraft.category.4d_multiblock": "4D Multiblock Crafting",
+  "gui.anvilcraft.category.4d_multiblock.step": "Time Step: %1$d of %2$d",
   "gui.anvilcraft.category.anvil_collision": "Anvil Collision",
   "gui.anvilcraft.category.anvil_collision.consume": "Consume Anvil: %d",
   "gui.anvilcraft.category.anvil_collision.maxcount": "Max Count: %s",

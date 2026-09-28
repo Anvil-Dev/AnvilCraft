@@ -4228,10 +4228,41 @@
   },
   "multiblock_4d_jei_audit": {
     "source_commit": "a3a037f17876b2e7036779baee71898978c5d4be",
-    "status": "pending",
-    "findings": [
-      "The 4D recipe logic is present, but native JEI lacks MultiBlock4DCategory, recipe/catalyst/category registrations, its conversion texture and two translation keys.",
-      "Port time-step switching, layer controls, aggregate ingredients and rotating previews through existing native GUI helpers; verify actual JEI lookup and screenshots."
+    "status": "ported_and_verified",
+    "verification": {
+      "source_commit": "a3a037f17876b2e7036779baee71898978c5d4be",
+      "client_layouts_per_version": 6,
+      "structure_silhouette_iou": {
+        "step1": 0.9991396096544853,
+        "step2": 0.9991396096544853,
+        "step3": 0.9991396096544853,
+        "layer2": 0.9984637705897415,
+        "previous-layer": 0.9984639016897081
+      },
+      "texture_sha256": "8a7c33116d0faadcc3e2bd726f6f065e850fa00bf1f385fb1739a15fedc88f28",
+      "contracts": [
+        "The 4D category registers recipes, four crafting stations and input/output recipe lookup.",
+        "Repeated items aggregate across steps (81 tempering glass); repeated tags aggregate choices with count 54.",
+        "Actual JEI layout buttons wrap time steps, share layer mode and retain independent per-step layer indices.",
+        "Source preview anchor, scale, rotation and conversion texture are restored through native 26.1 rendering.",
+        "Shared zero-based structure coordinates expose all layers; both preview paths restrict block-entity submission to the visible layer.",
+        "Existing 3D crafting/conversion client layouts and tag cycling pass regression verification."
+      ],
+      "limits": [
+        "Screenshot comparisons measure structure silhouettes, not pixel-identical vanilla lighting or texture filtering.",
+        "Recipe indexing is verified through live JEI focus lookups; keyboard bindings themselves are unchanged.",
+        "This node covers JEI presentation; scanner export integration remains a separate audit."
+      ]
+    },
+    "logs": {
+      "native_client": "build/porting/client-4d-jei-3.log",
+      "source_client": "build/porting/client-4d-jei-reference-1.log",
+      "three_dimensional_regression": "build/porting/client-4d-jei-3d-regression.log",
+      "data": "build/porting/data-4d-jei-2.log",
+      "final_checks": "build/porting/checks-4d-jei-final.log"
+    },
+    "remaining": [
+      "Audit previously deferred structure-tool/scanner integration against current source before declaring the wider 4D feature complete."
     ]
   }
 }

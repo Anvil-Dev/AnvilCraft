@@ -187,6 +187,7 @@ allprojects {
             include '**/recipe/multiblock/Multiblock*.java', '**/IMultiblockRecipe.java', '**/LevelLikeDisplaySupport.java'
             include '**/GiantAnvilLandingEventListener.java'
             include '**/BlockStatePredicateMixin.java'
+            include '**/MultiBlock4DCategory.java'
             include '**/FittedItemRenderer.java', '**/FilterItemRenderer.java', '**/DiskItemRenderer.java', '**/DiskDisplaySupport.java'
             include '**/FormattingUtil.java', '**/ItemResourceHelper.java'
             include '**/unlimited/UnlimitedItemStacksResourceHandler.java', '**/unlimited/TypeLimitItemStacksResourceHandler.java'

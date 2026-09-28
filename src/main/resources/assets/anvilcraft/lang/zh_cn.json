@@ -710,6 +710,8 @@
   "gui.anvilcraft.category.mob_transform": "腐化信标光柱内的生物转化",
   "gui.anvilcraft.category.mob_transform_with_item": "持物生物转化",
   "gui.anvilcraft.category.mob_transform_with_item.chance_per_item": "每个物品概率：%s%%",
+  "gui.anvilcraft.category.4d_multiblock": "四维多方块合成",
+  "gui.anvilcraft.category.4d_multiblock.step": "时间步骤：%1$d / %2$d",
   "gui.anvilcraft.category.multiblock": "多方块合成",
   "gui.anvilcraft.category.multiblock.all_layers": "所有层可见",
   "gui.anvilcraft.category.multiblock.single_layer": "可见层：%1$d / %2$d",

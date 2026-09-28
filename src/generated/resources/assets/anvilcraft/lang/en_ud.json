@@ -909,6 +909,8 @@
   "entity.anvilcraft.villager.jeweler": "ɹǝꞁǝʍǝՐ",
   "entity.anvilcraft.weapon_beam": "ɯɐǝᗺ uodɐǝM",
   "fluid.anvilcraft.fire": "(uoɹpꞁnɐƆ ǝɹᴉℲ ɟo ʇuǝʇuoɔ ǝɥ⟘) ꞁᴉO ᵷuᴉuɹnᗺ",
+  "gui.anvilcraft.category.4d_multiblock": "ᵷuᴉʇɟɐɹƆ ʞɔoꞁqᴉʇꞁnW ᗡ߈",
+  "gui.anvilcraft.category.4d_multiblock.step": "%2$d ɟo %1$d :dǝʇS ǝɯᴉ⟘",
   "gui.anvilcraft.category.anvil_collision": "uoᴉsᴉꞁꞁoƆ ꞁᴉʌuⱯ",
   "gui.anvilcraft.category.anvil_collision.consume": "%d :ꞁᴉʌuⱯ ǝɯnsuoƆ",
   "gui.anvilcraft.category.anvil_collision.maxcount": "%s :ʇunoƆ xɐW",

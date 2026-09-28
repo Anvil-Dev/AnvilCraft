@@ -18,6 +18,7 @@ public class JeiTextures {
     public static final Identifier SLOT_PROBABILITY = JeiTextures.texture("slot_probability");
 
     // MULTIBLOCK
+    public static final Identifier BLOCK_4D = JeiTextures.texture("multiblock/4d_multiblock");
     public static final Identifier DISPLAY_MODES = JeiTextures.texture("multiblock/display_modes");
     public static final Identifier LAYER_UP = JeiTextures.texture("multiblock/layer_up");
     public static final Identifier LAYER_DOWN = JeiTextures.texture("multiblock/layer_down");

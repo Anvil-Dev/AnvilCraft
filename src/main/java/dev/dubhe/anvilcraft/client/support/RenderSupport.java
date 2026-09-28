@@ -13,6 +13,7 @@ import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.Identifier;
+import net.minecraft.util.Mth;
 import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -150,6 +151,43 @@ public class RenderSupport {
         );
     }
 
+    /** Draw a recipe preview using the source animation's anchor, scale and rotation. */
+    public static void renderLevelLikeAt(
+        LevelLike level,
+        GuiGraphicsExtractor graphics,
+        int posX,
+        int posY,
+        float scaleFactor,
+        float rotationSpeed
+    ) {
+        var min = level.getMinPos();
+        var max = level.getMaxPos();
+        var minecraft = Minecraft.getInstance();
+        var clientLevel = minecraft.level;
+        if (min.isEmpty() || max.isEmpty() || clientLevel == null) return;
+        int sizeX = level.horizontalSize();
+        int sizeY = level.verticalSize();
+        if (sizeX <= 0 || sizeY <= 0) return;
+        float scale = Math.min(scaleFactor / (sizeX * Mth.SQRT_OF_TWO), scaleFactor / sizeY);
+        float centerOffset = (sizeX + 1) % 2 != 0 ? -0.5F : 0;
+        float offsetX = -sizeX / 2F + centerOffset;
+        float offsetZ = -sizeX / 2F + 1 + centerOffset;
+        float rotation = (clientLevel.getGameTime() + minecraft.getDeltaTracker().getGameTimeDeltaPartialTick(true)) * rotationSpeed;
+        PoseStack pose = new PoseStack();
+        pose.scale(-1, 1, -1);
+        pose.translate(-sizeX / 2F + centerOffset, -sizeY / 2F, 0);
+        pose.mulPose(Axis.XP.rotationDegrees(-30));
+        pose.translate(-offsetX, 0, -offsetZ);
+        pose.mulPose(Axis.YP.rotationDegrees(rotation + 45));
+        pose.translate(offsetX, 0, offsetZ);
+        // StructurePipRenderer subtracts half a block before tessellation.
+        pose.translate(0.5F, 0.5F, -0.5F);
+        int extent = Mth.ceil(scaleFactor);
+        GuiRenderExtras.submitStructure(graphics, level, visibleLayerPos(level, min.get()), visibleLayerPos(level, max.get()),
+            posX - extent, posY - extent, posX + extent, posY + extent,
+            scale, true, false, pose);
+    }
+
     public static void renderLevelLike(
         LevelLike level,
         GuiGraphicsExtractor graphics,
@@ -170,11 +208,14 @@ public class RenderSupport {
         if (currentLevel == null) return;
         float gameTime = currentLevel.getGameTime() + minecraft.getDeltaTracker().getGameTimeDeltaPartialTick(true);
         poseStack.mulPose(Axis.YP.rotationDegrees(gameTime * rotationSpeed));
+        poseStack.translate(-(minPos.get().getX() + maxPos.get().getX()) / 2F,
+            -(minPos.get().getY() + maxPos.get().getY()) / 2F,
+            -(minPos.get().getZ() + maxPos.get().getZ()) / 2F);
         GuiRenderExtras.submitStructure(
             graphics,
             level,
-            minPos.get(),
-            maxPos.get(),
+            visibleLayerPos(level, minPos.get()),
+            visibleLayerPos(level, maxPos.get()),
             posX,
             posY,
             posX + size,
@@ -184,6 +225,10 @@ public class RenderSupport {
             glitched,
             poseStack
         );
+    }
+
+    private static BlockPos visibleLayerPos(LevelLike level, BlockPos pos) {
+        return level.isAllLayersVisible() ? pos : pos.atY(level.getCurrentVisibleLayer());
     }
 
     private static Optional<BlockEntity> getCachedBlockEntity(BlockState state) {

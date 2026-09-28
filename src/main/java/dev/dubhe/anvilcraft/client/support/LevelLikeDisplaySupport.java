@@ -71,7 +71,7 @@ public class LevelLikeDisplaySupport {
                     var predicate = data.mapping().get(data.grid()[y][z].charAt(x));
                     var state = predicate == null ? net.minecraft.world.level.block.Blocks.AIR.defaultBlockState()
                         : MultiblockUtil.getDefaultState(predicate);
-                    var pos = new BlockPos(x - size / 2, y - size / 2, z - size / 2);
+                    var pos = new BlockPos(x, y, z);
                     levelLike.setBlockState(pos, state);
                     if (predicate != null && predicate.getBlocks() instanceof HolderSet.Named<?>) {
                         tags.add(new TagSlot(pos, tagStates(predicate)));
