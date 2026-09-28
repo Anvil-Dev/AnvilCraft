@@ -6,6 +6,7 @@ import dev.dubhe.anvilcraft.api.itemhandler.unlimited.UnlimitedItemStacksResourc
 import dev.dubhe.anvilcraft.block.entity.storage.CrateBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.storage.StorageBlockEntity;
 import dev.dubhe.anvilcraft.block.state.Cube3x3PartHalf;
+import dev.dubhe.anvilcraft.block.storage.VoidMatterBlock;
 import dev.dubhe.anvilcraft.client.gui.screen.StorageScreen;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
@@ -17,6 +18,7 @@ import dev.dubhe.anvilcraft.saved.storage.StorageType;
 import dev.dubhe.anvilcraft.saved.storage.Storages;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -30,6 +32,9 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.level.redstone.Orientation;
 import net.minecraft.world.phys.BlockHitResult;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.neoforge.transfer.item.ItemResource;
@@ -44,8 +49,45 @@ import java.util.Set;
 import java.util.UUID;
 
 public class CrateBlock extends Block implements EntityBlock, IHammerRemovable {
+    public static final BooleanProperty DISPOSE = BooleanProperty.create("dispose");
+
     public CrateBlock(Properties properties) {
         super(properties);
+        this.registerDefaultState(this.stateDefinition.any().setValue(DISPOSE, false));
+    }
+
+    @Override
+    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
+        builder.add(DISPOSE);
+    }
+
+    public static boolean hasAdjacentVoidMatter(LevelReader level, BlockPos pos) {
+        for (Direction direction : Direction.values()) {
+            if (level.getBlockState(pos.relative(direction)).getBlock() instanceof VoidMatterBlock) return true;
+        }
+        return false;
+    }
+
+    public static void updateDisposeState(Level level, BlockPos pos) {
+        BlockState state = level.getBlockState(pos);
+        if (level.isClientSide() || !(state.getBlock() instanceof CrateBlock)) return;
+        boolean dispose = hasAdjacentVoidMatter(level, pos);
+        if (state.getValue(DISPOSE) != dispose) {
+            level.setBlock(pos, state.setValue(DISPOSE, dispose), Block.UPDATE_CLIENTS);
+            if (level.getBlockEntity(pos) instanceof CrateBlockEntity crate) crate.refreshDispose();
+        }
+    }
+
+    @Override
+    protected void neighborChanged(
+        BlockState state, Level level, BlockPos pos, Block neighbor, @Nullable Orientation orientation, boolean isMoving
+    ) {
+        super.neighborChanged(state, level, pos, neighbor, orientation, isMoving);
+        updateDisposeState(level, pos);
+    }
+
+    public static Component displayName(BlockState state) {
+        return state.getValue(DISPOSE) ? Component.translatable("block.anvilcraft.overflow_disposal_crate") : state.getBlock().getName();
     }
 
     @Override
@@ -120,7 +162,7 @@ public class CrateBlock extends Block implements EntityBlock, IHammerRemovable {
                 return InteractionResult.SUCCESS_SERVER;
             } else if (level.isClientSide()) {
                 level.playSound(player, pos, SoundEvents.BARREL_OPEN, SoundSource.BLOCKS, 1.0F, 1.0F);
-                DistExecutor.run(Dist.CLIENT, () -> () -> StorageScreen.openScreen(entity.getBlockPos()));
+                DistExecutor.run(Dist.CLIENT, () -> () -> StorageScreen.openScreen(entity.getBlockPos(), displayName(state)));
                 return InteractionResult.SUCCESS;
             }
         }

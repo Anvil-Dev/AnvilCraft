@@ -9,6 +9,7 @@ import dev.anvilcraft.lib.v2.util.MathUtil;
 import dev.anvilcraft.lib.v2.util.UnlimitedItemStack;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.StoragePortManager;
+import dev.dubhe.anvilcraft.block.container.storage.CrateBlock;
 import dev.dubhe.anvilcraft.block.container.storage.ShulkerContainerBlock;
 import dev.dubhe.anvilcraft.client.gui.component.SwitchableButton;
 import dev.dubhe.anvilcraft.client.gui.component.TexturedButton;
@@ -229,6 +230,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
     private int doubleCraftingPickup = -1;
     private int queuedCraftingPickup = -2;
     private boolean craftingCloseRequested;
+    private Component displayTitle;
     private int left;
     private int top;
 
@@ -239,6 +241,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
     public StorageScreen(BlockPos sourcePos, Component title) {
         super(new StorageMenu(Objects.requireNonNull(Minecraft.getInstance().player), sourcePos),
             Minecraft.getInstance().player.getInventory(), title, BG_WIDTH, BG_HEIGHT);
+        this.displayTitle = title;
         this.sourcePos = sourcePos;
         this.player = Objects.requireNonNull(Minecraft.getInstance().player);
         this.serverSlots.defaultReturnValue(-1);
@@ -265,7 +268,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
         this.top = (this.height - StorageScreen.BG_HEIGHT) / 2;
         this.leftPos = this.left;
         this.topPos = this.top;
-        this.titleLabelX = (StorageScreen.BG_WIDTH - 106 - this.font.width(this.title)) / 2 + (this.flipped ? 0 : 106);
+        this.remapTitleLabel();
 
         this.search = this.addRenderableWidget(new EditBox(
             this.font,
@@ -435,6 +438,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
 
     @Override
     protected void containerTick() {
+        this.refreshTitle();
         this.flushQuickMoves();
         this.flushCraftingPickup();
         if (this.craftingCloseRequested && !this.interactionPending && this.queuedCraftingPickup == -2) {
@@ -448,6 +452,25 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
         } else {
             this.refreshMetadata();
         }
+    }
+
+    @Override
+    public Component getTitle() {
+        return this.displayTitle;
+    }
+
+    private void remapTitleLabel() {
+        this.titleLabelX = (StorageScreen.BG_WIDTH - 106 - this.font.width(this.displayTitle)) / 2 + (this.flipped ? 0 : 106);
+    }
+
+    private void refreshTitle() {
+        if (this.minecraft.level == null) return;
+        var state = this.minecraft.level.getBlockState(this.sourcePos);
+        if (!(state.getBlock() instanceof CrateBlock)) return;
+        Component title = CrateBlock.displayName(state);
+        if (this.displayTitle.getContents().equals(title.getContents())) return;
+        this.displayTitle = title;
+        this.remapTitleLabel();
     }
 
     // 两个功能区整体换位，区块内部的控件与槽位顺序保持不变。
@@ -936,7 +959,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
         );
         graphics.text(
             this.font,
-            this.title,
+            this.displayTitle,
             this.left + this.titleLabelX,
             this.top + Constant.SCREEN_TITLE_Y,
             0xFF404040,

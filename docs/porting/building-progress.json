@@ -3620,7 +3620,6 @@
       "Comparator tracking uses loaded ServerLevel instances, no forced chunk loads, and world/server cleanup."
     ],
     "pending": [
-      "Crate overflow disposal state, transaction-aware handler, all insertion entry points, dynamic GUI/Jade title and assets.",
       "Source removal/drop lifecycle for crates and empty shulker/hyperdimension containers, including upgrades and crafting unlock materials."
     ],
     "limits": [
@@ -3630,6 +3629,69 @@
     "harness_repairs": [
       "Large-crate comparator fixtures use staggered support columns so comparators do not overwrite one another.",
       "Client scene advances before opening screens because native setScreenAndShow immediately renders a frame."
+    ]
+  },
+  "crate_overflow_disposal": {
+    "source_commit": "e0dedd6e8f1dd8667090eae161ba372c4da10bc2",
+    "status": "ported_and_verified",
+    "verification": {
+      "source_commit": "e0dedd6e8f1dd8667090eae161ba372c4da10bc2",
+      "full_required_tests": 701,
+      "focused_tests": 6,
+      "assets_checked": [
+        "src/main/resources/assets/anvilcraft/models/block/crate.json",
+        "src/main/resources/assets/anvilcraft/textures/block/crate_top.png",
+        "src/main/resources/assets/anvilcraft/textures/block/crate_side.png",
+        "src/main/resources/assets/anvilcraft/textures/block/crate_bottom.png"
+      ],
+      "visuals": {
+        "normal-ui": {
+          "title_mean_rgb_error": 0.03125,
+          "glyph_mask_iou": 1.0,
+          "max_channel_error": 1
+        },
+        "disposal-ui": {
+          "title_mean_rgb_error": 0.13020833333333334,
+          "glyph_mask_iou": 1.0,
+          "max_channel_error": 1
+        },
+        "restored-ui": {
+          "title_mean_rgb_error": 0.03125,
+          "glyph_mask_iou": 1.0,
+          "max_channel_error": 1
+        }
+      },
+      "contracts": [
+        "Only face-adjacent ordinary void matter enables disposal; no diagonal/excited-state trigger.",
+        "Store within weighted 2048 capacity, consume overflow, never destroy eternal items.",
+        "Wrong occupied slot still routes to available sparse storage before disposing overflow.",
+        "Nested transaction rollback restores both endpoints; committed transfers consume overflow.",
+        "Capability and RPC creation/search paths refresh mode; cached capabilities follow adjacency changes.",
+        "Mode is transient, recomputed after load, and preserves the block entity, storage ID and contents.",
+        "Live source/native screens recenter their changing title; actual Jade collection switches names both ways."
+      ],
+      "limits": [
+        "Vanilla 26.1 world rendering is retained; pixel assertions target the mod screen title.",
+        "Both versions use 0x404040 title color: source rasterizes to RGB 63 and native to RGB 64; only this one-level glyph difference is allowed.",
+        "Storage ports still connect only to shulker/hyperdimension cores, matching source; no new crate connectivity is added.",
+        "Crate/container removal-drop lifecycle remains a separate pending port milestone."
+      ]
+    },
+    "logs": {
+      "full": "build/porting/tests-crate-disposal-all.log",
+      "focused": "build/porting/tests-crate-disposal-3.log",
+      "data_and_style": "build/porting/data-crate-disposal-1.log",
+      "native_client": "build/porting/client-crate-disposal-1.log",
+      "reference_client": "build/porting/client-crate-disposal-reference-1.log"
+    },
+    "adaptation": [
+      "NeoForge transaction handlers report stored plus disposed input while rolling back physical insertion normally.",
+      "Bulk insertion delays disposal until sparse-slot routing completes; slot-specific collisions reuse bulk insertion.",
+      "26.1 Screen.title is final, so StorageScreen caches the dynamic display title and exposes it through getTitle, including narration."
+    ],
+    "remaining": [
+      "Crate and large-crate removal contents/drop lifecycle; empty shulker/hyperdimension drop normalization.",
+      "Source overflow-disposal fluid tank feature remains to be audited and ported separately."
     ]
   }
 }

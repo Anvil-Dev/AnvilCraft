@@ -4,6 +4,7 @@ import dev.dubhe.anvilcraft.block.LargeCauldronBlock;
 import dev.dubhe.anvilcraft.block.WipBlock;
 import dev.dubhe.anvilcraft.block.container.FluidTankBlock;
 import dev.dubhe.anvilcraft.block.container.LargeFluidTankBlock;
+import dev.dubhe.anvilcraft.block.container.storage.CrateBlock;
 import dev.dubhe.anvilcraft.block.entity.CreativeCrateBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.CreativeFluidTankBlockEntity;
 import dev.dubhe.anvilcraft.block.multipart.AbstractMultiPartBlock;
@@ -27,6 +28,7 @@ import dev.dubhe.anvilcraft.integration.jade.provider.WipBlockProvider;
 import dev.dubhe.anvilcraft.integration.jade.provider.client.BurningHeaterClientProvider;
 import dev.dubhe.anvilcraft.integration.jade.provider.client.ChargerClientProvider;
 import dev.dubhe.anvilcraft.integration.jade.provider.client.CrabTrapBlockStateClientProvider;
+import dev.dubhe.anvilcraft.integration.jade.provider.client.CrateClientProvider;
 import dev.dubhe.anvilcraft.integration.jade.provider.client.CreativeCrateClientProvider;
 import dev.dubhe.anvilcraft.integration.jade.provider.client.CreativeFluidTankClientProvider;
 import dev.dubhe.anvilcraft.integration.jade.provider.client.DischargerClientProvider;
@@ -74,6 +76,7 @@ public class AnvilCraftJadePlugin implements IWailaPlugin {
 
     @Override
     public void registerClient(IWailaClientRegistration registration) {
+        registration.registerBlockComponent(CrateClientProvider.INSTANCE, CrateBlock.class);
         registration.registerBlockComponent(dev.dubhe.anvilcraft.integration.jade.provider.client.AutoEnchantingTableClientProvider.INSTANCE,
             dev.dubhe.anvilcraft.block.AutoEnchantingTableBlock.class);
         registration.registerBlockComponent(PowerBlockClientProvider.INSTANCE, Block.class);

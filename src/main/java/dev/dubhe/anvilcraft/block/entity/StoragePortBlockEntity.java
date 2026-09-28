@@ -5,6 +5,7 @@ import dev.dubhe.anvilcraft.api.IStoragePort;
 import dev.dubhe.anvilcraft.api.StoragePortManager;
 import dev.dubhe.anvilcraft.api.itemhandler.IItemResourceHandlerHolder;
 import dev.dubhe.anvilcraft.api.itemhandler.ItemHandlerUtil;
+import dev.dubhe.anvilcraft.block.entity.storage.CrateBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.storage.StorageBlockEntity;
 import dev.dubhe.anvilcraft.block.logistics.storage.AbstractStoragePortBlock;
 import dev.dubhe.anvilcraft.block.logistics.storage.StoragePortBlock;
@@ -595,7 +596,9 @@ public class StoragePortBlockEntity extends BlockEntity implements IItemResource
             if (id == null) {
                 return null;
             }
-            return Storages.get().getOrCreate(id, storage.getStorageType().clazz()).getItems();
+            var handler = Storages.get().getOrCreate(id, storage.getStorageType().clazz()).getItems();
+            if (storage instanceof CrateBlockEntity crate) crate.refreshDispose();
+            return handler;
         }
         return null;
     }

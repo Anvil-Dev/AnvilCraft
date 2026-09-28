@@ -2431,6 +2431,7 @@
   "anvilcraft.configuration.smart_block_placer_interval.tooltip": "智能方块放置器放置的时间间隔（单位：ticks）",
   "anvilcraft.configuration.storage_recover_max_size": "存储回收站最大条目数量",
   "anvilcraft.configuration.storage_recover_max_size.tooltip": "存储回收站的最大条目数量",
+  "block.anvilcraft.overflow_disposal_crate": "过量销毁板条箱",
   "block.anvilcraft.crate": "板条箱",
   "block.anvilcraft.hyperdimension_storage_station": "超维存储站",
   "block.anvilcraft.large_crate": "大型板条箱",

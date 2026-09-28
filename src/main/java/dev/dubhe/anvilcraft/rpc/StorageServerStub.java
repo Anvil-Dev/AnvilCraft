@@ -2194,6 +2194,7 @@ public final class StorageServerStub {
             storage.setId(id);
         }
         BaseStorage<?> primary = Storages.get().getOrCreate(id, storage.getStorageType().clazz());
+        if (storage instanceof CrateBlockEntity crate) crate.refreshDispose();
         String search = PlayerSettings.getSetting(registries, playerId).storage().getSearchContent().strip();
         if (search.isEmpty() || !(storage instanceof CrateBlockEntity)) {
             return new StorageView(List.of(primary), List.of());
@@ -2201,7 +2202,10 @@ public final class StorageServerStub {
         List<BaseStorage<?>> storages = new ArrayList<>();
         for (CrateBlockEntity crate : CrateBlock.getNearbyCrates(player.level(), pos)) {
             if (crate.getId() != null) {
-                Storages.get().get(crate.getId()).ifPresent(storages::add);
+                Storages.get().get(crate.getId()).ifPresent(nearby -> {
+                    crate.refreshDispose();
+                    storages.add(nearby);
+                });
             }
         }
         return new StorageView(storages, List.of());

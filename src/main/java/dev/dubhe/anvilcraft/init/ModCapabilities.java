@@ -19,6 +19,7 @@ import dev.dubhe.anvilcraft.block.container.storage.LargeCrateBlock;
 import dev.dubhe.anvilcraft.block.container.storage.ShulkerContainerBlock;
 import dev.dubhe.anvilcraft.block.entity.LargeCauldronBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.LargeFluidTankBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.storage.CrateBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.storage.LargeCrateBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.storage.StorageBlockEntity;
 import dev.dubhe.anvilcraft.block.multipart.AbstractMultiPartBlock;
@@ -220,7 +221,9 @@ public class ModCapabilities {
     /// 存储容器的物品
     private static <T extends StorageBlockEntity, S> ResourceHandler<ItemResource> item(T be, @Nullable S ignored) {
         if (be.getId() == null) be.setId(UUID.randomUUID());
-        return Storages.get().getOrCreate(be.getId(), be.getStorageType().clazz()).getItems();
+        var handler = Storages.get().getOrCreate(be.getId(), be.getStorageType().clazz()).getItems();
+        if (be instanceof CrateBlockEntity crate) crate.refreshDispose();
+        return handler;
     }
 
     private static <T extends StorageBlockEntity, S> ResourceHandler<ItemResource> readOnlyStorageItem(T be, @Nullable S side) {
