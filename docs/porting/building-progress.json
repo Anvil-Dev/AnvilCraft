@@ -2604,7 +2604,7 @@
   },
   "mass_energy_inverter": {
     "source_commit": "07eb60b47f14439375da10e78f4d4770f3a83256",
-    "status": "runtime_recipes_assets_verified_shared_wip_lighting_followup_pending",
+    "status": "runtime_recipes_assets_and_shared_wip_lighting_verified",
     "ported": [
       "1024 kW consumer injecting 5 mass per tick into each horizontal neighboring Space Overcompressor while its grid works.",
       "Presence-based horizontal anvil mass multiplier, applied once regardless of inverter count, matching the source even without power.",
@@ -2651,13 +2651,49 @@
     "limits": [
       "WIP animation is fixed to frame 0 only in test build output and restored after each client run.",
       "World patches include retained vanilla 26.1 lighting and terrain sampling.",
-      "Shared WIP renderer still needs the source per-face world-light sampling intent restored via native 26.1 APIs; see wip_world_lighting."
+      "Shared WIP world lighting is covered by the later wip_world_lighting node."
     ]
   },
   "wip_world_lighting": {
-    "status": "pending_native_world_light_sampling_port",
     "source_commit": "07eb60b47f14439375da10e78f4d4770f3a83256",
-    "evidence": "Source WipBlockEntityRenderer uses ModelBlockRenderer.tesselateBlock with level, initial state and block position. Native WIP uses BlockModelRenderState.submit with one lightCoords value.",
-    "next": "Use the shared WIP renderer to preserve per-face native world lighting, then compare fixed-frame WIP stages under multiple light conditions."
+    "status": "native_per_face_sampling_and_client_contracts_verified",
+    "ported": [
+      "Shared WIP extraction now uses native ModelBlockRenderer world tessellation with the initial block state and actual block position.",
+      "Preserves directional shade, adjacent light sampling, biome tint and the source behavior of drawing every model face; follows the native ambient-occlusion option.",
+      "Copies per-vertex light/color data into independent render-state quads and groups submissions by solid/cutout/translucent material.",
+      "Retains model selection and initial-block fallback while clearing stale geometry for empty or missing displayed content."
+    ],
+    "verification": {
+      "compile_style_log": "build/porting/check-wip-lighting-final-2.log",
+      "native_client_log": "build/porting/client-wip-lighting-final.log",
+      "source_client_log": "build/porting/client-wip-lighting-reference.log",
+      "report": "build/porting/wip-lighting-comparison.json",
+      "runtime_contracts": [
+        "Four distinct direction colors",
+        "Four distinct side-light coordinates",
+        "Quad snapshots remain stable after later model extraction",
+        "Grass fallback retains biome tint",
+        "Glass fallback retains translucent layer",
+        "Air fallback clears old geometry"
+      ],
+      "visuals": {
+        "world": {
+          "wip_1": 7.594038208168643,
+          "wip_2": 7.329270970575318,
+          "wip_3": 7.640755379885815,
+          "finished": 7.760759771629337
+        },
+        "night": {
+          "wip_1": 2.694609134826526,
+          "wip_2": 2.706357048748353,
+          "wip_3": 3.2447848045674132,
+          "finished": 4.182806324110672
+        }
+      }
+    },
+    "limits": [
+      "World patches include native 26.1 lightmap, atmospheric fog and terrain sampling; they are not pixel-identical to 1.21.",
+      "Only extraction reads world state; submitted geometry carries independent vertex light and color values."
+    ]
   }
 }

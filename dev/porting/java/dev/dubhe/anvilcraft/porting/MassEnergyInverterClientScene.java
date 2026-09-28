@@ -23,6 +23,7 @@ public final class MassEnergyInverterClientScene {
     private static long next;
     private static volatile boolean ready;
     private static boolean capturing;
+    private static boolean nightCaptured;
 
     public static void frame(Minecraft client) {
         if (deadline == 0) deadline = System.currentTimeMillis() + 120000;
@@ -95,6 +96,18 @@ public final class MassEnergyInverterClientScene {
             return;
         }
         if (stage == 3) {
+            if (Boolean.getBoolean("anvilcraft.portWipLightingScene") && !nightCaptured) {
+                client.getSingleplayerServer().execute(() -> {
+                    var server = client.getSingleplayerServer();
+                    server.getCommands().performPrefixedCommand(server.createCommandSourceStack(), "time set midnight");
+                    for (int index = 0; index < 4; index++) {
+                        server.overworld().setBlockAndUpdate(new BlockPos(-3 + index * 3, 162, 0), Blocks.TORCH.defaultBlockState());
+                    }
+                });
+                stage = 6;
+                next = System.currentTimeMillis() + 4000;
+                return;
+            }
             client.setScreen(new Preview());
             stage = 4;
             next = System.currentTimeMillis() + 1000;
@@ -104,11 +117,16 @@ public final class MassEnergyInverterClientScene {
             capture(client, "item", 5);
             return;
         }
+        if (stage == 6) {
+            nightCaptured = true;
+            capture(client, "night", 3);
+            return;
+        }
         if (stage == 5) {
             AnvilCraft.LOGGER.info("PORT_MASS_ENERGY_CLIENT_PASSED: real power grid, 1024 kW demand, "
                 + "four compressors, WIP stages and item");
             client.stop();
-            stage = 6;
+            stage = 7;
         }
     }
 

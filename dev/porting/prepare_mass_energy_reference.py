@@ -2,6 +2,7 @@
 from pathlib import Path
 import re
 import subprocess
+import sys
 
 root = Path(__file__).resolve().parents[2]
 reference = root / 'build/porting/reference-mun-1.21'
@@ -57,3 +58,8 @@ if (providers.gradleProperty('portMassEnergyScene').isPresent()) {
 // END_PORT_MASS_ENERGY_WIP_ANIMATION
 """
 p.write_text(s, encoding='utf-8', newline='\r\n')
+
+if '--lighting' in sys.argv:
+    s = p.read_text(encoding='utf-8')
+    s += "\nneoForge.runs.client { systemProperty 'anvilcraft.portWipLightingScene', 'true' }\n"
+    p.write_text(s, encoding='utf-8', newline='\r\n')

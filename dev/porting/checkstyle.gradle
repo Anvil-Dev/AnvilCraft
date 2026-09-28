@@ -10,7 +10,7 @@ allprojects {
             include '**/client/selection/*.java', '**/mixin/client/*SelectionMixin.java', '**/mixin/client/CubeHighlightEventsMixin.java'
             include '**/PowerProducerRenderer.java', '**/AdvancedComparatorRenderer.java', '**/HeliostatsRenderer.java'
             include '**/ControlValveBlockEntityRenderer.java', '**/PipeCheckValveBERenderer.java', '**/PumpBlockEntityRenderer.java'
-            include '**/OverseerBlockEntityRenderer.java', '**/WipBlockEntityRenderer.java', '**/PulseGeneratorBlockEntityRenderer.java'
+            include '**/OverseerBlockEntityRenderer.java', '**/WipBlockEntityRenderer.java', '**/WipBlockRenderState.java', '**/PulseGeneratorBlockEntityRenderer.java'
             include '**/block/placement/*.java', '**/api/pointer/*.java', '**/api/block/BlockPlacementRules.java'
             include '**/api/block/IBlockPlacementRule.java', '**/api/block/ICauldron.java', '**/api/item/IBlockItem.java'
             include '**/BlockPlacementUtil.java', '**/BlockStateAndEntity.java', '**/ModBlockPlacementFallbacks.java'

@@ -11,25 +11,24 @@ import dev.dubhe.anvilcraft.recipe.sync.RecipesRecord;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.SubmitNodeCollector;
-import net.minecraft.client.renderer.block.BlockModelRenderState;
+import net.minecraft.client.renderer.block.ModelBlockRenderer;
 import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
-import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.client.model.standalone.StandaloneModelKey;
-import org.joml.Matrix4f;
 import org.jspecify.annotations.Nullable;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class WipBlockEntityRenderer
@@ -100,7 +99,12 @@ public class WipBlockEntityRenderer
         return WipBlockEntityRenderer.MODEL_KEYS.get(id);
     }
 
+    private final ModelBlockRenderer ambientRenderer;
+    private final ModelBlockRenderer flatRenderer;
+
     public WipBlockEntityRenderer(BlockEntityRendererProvider.Context context) {
+        this.ambientRenderer = new ModelBlockRenderer(true, false, Minecraft.getInstance().getBlockColors());
+        this.flatRenderer = new ModelBlockRenderer(false, false, Minecraft.getInstance().getBlockColors());
     }
 
     @Override
@@ -117,22 +121,15 @@ public class WipBlockEntityRenderer
         ModelFeatureRenderer.@Nullable CrumblingOverlay breakProgress
     ) {
         BlockEntityRenderer.super.extractRenderState(be, state, partialTicks, cameraPosition, breakProgress);
+        state.clearQuads();
         Minecraft mc = Minecraft.getInstance();
         ClientLevel level = mc.level;
         if (level == null) return;
-
         BlockStateModel model = this.getDisplayedModel(be, level, mc);
-        BlockModelRenderState blockModelState = new BlockModelRenderState();
-        if (model != null) {
-            model.collectParts(
-                level,
-                be.getBlockPos(),
-                be.getBlockState(),
-                RandomSource.create(be.getInitialBlock().getSeed(be.getBlockPos())),
-                blockModelState.setupModel(new Matrix4f(), false)
-            );
-        }
-        state.setBlockModel(blockModelState);
+        if (model == null) return;
+        ModelBlockRenderer renderer = mc.options.ambientOcclusion().get() ? this.ambientRenderer : this.flatRenderer;
+        var initial = be.getInitialBlock();
+        renderer.tesselateBlock(state::addQuad, 0, 0, 0, level, be.getBlockPos(), initial, model, initial.getSeed(be.getBlockPos()));
     }
 
     private @Nullable BlockStateModel getDisplayedModel(WipBlockEntity be, Level level, Minecraft mc) {
@@ -174,8 +171,22 @@ public class WipBlockEntityRenderer
         SubmitNodeCollector collector,
         CameraRenderState camera
     ) {
-        pose.pushPose();
-        state.getBlockModel().submit(pose, collector, state.lightCoords, OverlayTexture.NO_OVERLAY, 0);
-        pose.popPose();
+        state.getLayers().forEach((layer, quads) -> {
+            if (quads.isEmpty()) return;
+            var renderType = switch (layer) {
+                case SOLID -> RenderTypes.solidMovingBlock();
+                case CUTOUT -> RenderTypes.cutoutMovingBlock();
+                case TRANSLUCENT -> RenderTypes.translucentMovingBlock();
+            };
+            var snapshot = List.copyOf(quads);
+            collector.submitCustomGeometry(pose, renderType, (submittedPose, buffer) -> {
+                var translated = submittedPose.copy();
+                for (var quad : snapshot) {
+                    translated.set(submittedPose);
+                    translated.translate(quad.x(), quad.y(), quad.z());
+                    buffer.putBakedQuad(translated, quad.quad(), quad.lighting());
+                }
+            });
+        });
     }
 }

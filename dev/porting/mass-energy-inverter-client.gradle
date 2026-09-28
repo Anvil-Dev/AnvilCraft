@@ -10,6 +10,9 @@ gradle.projectsEvaluated {
         systemProperty 'anvilcraft.portVisualScene', 'true'
         systemProperty 'anvilcraft.portCfaItemScene', 'true'
         systemProperty 'anvilcraft.portMassEnergyScene', 'true'
+        if (rootProject.providers.gradleProperty('portWipLightingScene').isPresent()) {
+            systemProperty 'anvilcraft.portWipLightingScene', 'true'
+        }
         args '--width', '1280', '--height', '720'
     }
 }
