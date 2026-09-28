@@ -149,11 +149,15 @@ public class LargeCauldronBlock
 
     @Override
     public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
-        Cube3x3PartHalf part = state.getValue(LargeCauldronBlock.HALF);
         if (BlockPlacementPicking.hasFullPlacementShape(state, context)) {
             return Shapes.block();
         }
-        return LargeCauldronBlock.SHAPES.get(part);
+        return this.getPartShape(state);
+    }
+
+    @Override
+    public VoxelShape getPartShape(BlockState state) {
+        return LargeCauldronBlock.SHAPES.get(state.getValue(LargeCauldronBlock.HALF));
     }
 
     @Override

@@ -151,7 +151,12 @@ public class ShulkerContainerBlock
 
     // region VoxelShapes
     @Override
-    protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+    protected VoxelShape getCollisionShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+        return Shapes.block();
+    }
+
+    @Override
+    public VoxelShape getPartShape(BlockState state) {
         return switch (state.getValue(ShulkerContainerBlock.HALF)) {
             case BOTTOM_CENTER -> ShulkerContainerBlock.BOTTOM_CENTER;
             case BOTTOM_W -> ShulkerContainerBlock.BOTTOM_W;

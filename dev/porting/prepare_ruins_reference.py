@@ -9,7 +9,7 @@ reference = root / 'build/porting/reference-mun-1.21'
 assert subprocess.check_output(['git', 'rev-parse', 'dev/1.21/1.6'], cwd=root).strip() == subprocess.check_output(
     ['git', 'rev-parse', 'HEAD'], cwd=reference).strip()
 folder = reference / 'src/main/java/dev/dubhe/anvilcraft/porting'
-modes = {'--finish': 'RuinsFinish', '--geometry': 'RuinsGeometry', '--fluid': 'RuinsFluid', '--effects': 'RuinsEffects'}
+modes = {'--fallback': 'RuinsFallback', '--finish': 'RuinsFinish', '--geometry': 'RuinsGeometry', '--fluid': 'RuinsFluid', '--effects': 'RuinsEffects'}
 name = next((name for flag, name in modes.items() if flag in sys.argv), 'Ruins')
 scene = (root / f'dev/porting/java/dev/dubhe/anvilcraft/porting/{name}ClientScene.java').read_text(encoding='utf-8')
 scene = re.sub(r'^\s*Ruins(?:Fluid|Geometry|Face)Probe\.[^\n]+\n', '', scene, flags=re.M)
@@ -18,6 +18,7 @@ scene = scene.replace('ruins-finish-26.1-', 'ruins-finish-1.21-')
 scene = scene.replace('client.level.setTimeFromServer(phase)', 'client.level.setGameTime(phase)')
 scene = scene.replace('.translate(positions[index] + offset, 120)', '.translate(positions[index] + offset, 120, 0)')
 scene = scene.replace('.scale(scales[index], scales[index])', '.scale(scales[index], scales[index], scales[index])')
+scene = scene.replace('ruins-fallback-26.1-', 'ruins-fallback-1.21-').replace('ModelSelectionBlacklist', 'ModelSelectionDenylist')
 scene = scene.replace('.item.block.RuinsBlockItem', '.block.item.RuinsBlockItem')
 scene = scene.replace('client.resizeGui()', 'client.resizeDisplay()')
 scene = scene.replace('client.getDeltaTracker()', 'client.getTimer()')
@@ -34,6 +35,12 @@ scene = scene.replace('client.level.addDestroyBlockEffect(', 'client.particleEng
 scene = scene.replace('client.level.addBreakingBlockEffect(pos, Direction.UP, new BlockHitResult(pos.getCenter(), Direction.UP, pos, false))',
                       'client.particleEngine.crack(pos, Direction.UP)')
 (folder / f'{name}ClientScene.java').write_text(scene, encoding='utf-8', newline='\r\n')
+if name == 'RuinsFallback':
+    snapshot = (root / 'dev/porting/java/dev/dubhe/anvilcraft/porting/MultipartShapeSnapshot.java').read_text(encoding='utf-8')
+    snapshot = snapshot.replace('state.getOcclusionShape()', 'state.getOcclusionShape(client.level, pos)')
+    snapshot = snapshot.replace('state.propagatesSkylightDown()', 'state.propagatesSkylightDown(client.level, pos)')
+    snapshot = snapshot.replace('multipart-shapes-26.1.json', 'multipart-shapes-1.21.json')
+    (folder / 'MultipartShapeSnapshot.java').write_text(snapshot, encoding='utf-8', newline='\r\n')
 wrapper = (folder / 'MonolithReferenceScene.java').read_text(encoding='utf-8')
 wrapper = wrapper.replace('MonolithReferenceScene', f'{name}ReferenceScene').replace('MonolithClientScene', f'{name}ClientScene')
 wrapper = wrapper.replace('portMonolithScene', f'port{name}Scene')

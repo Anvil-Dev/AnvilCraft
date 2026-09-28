@@ -224,11 +224,11 @@ public class DeflectionRingBlock
         if (BlockPlacementPicking.hasFullPlacementShape(state, context)) {
             return Shapes.block();
         }
-        return DeflectionRingBlock.getPreciseShape(state);
+        return super.getShape(state, level, pos, context);
     }
 
     @Override
-    protected VoxelShape getCollisionShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+    public VoxelShape getPartShape(BlockState state) {
         return DeflectionRingBlock.getPreciseShape(state);
     }
 

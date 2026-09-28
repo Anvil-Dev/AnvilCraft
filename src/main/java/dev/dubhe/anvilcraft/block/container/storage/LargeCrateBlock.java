@@ -110,7 +110,12 @@ public class LargeCrateBlock
 
     // region VoxelShapes
     @Override
-    protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+    protected VoxelShape getCollisionShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+        return Shapes.block();
+    }
+
+    @Override
+    public VoxelShape getPartShape(BlockState state) {
         return switch (state.getValue(LargeCrateBlock.HALF)) {
             case BOTTOM_CENTER -> LargeCrateBlock.BOTTOM_CENTER;
             case BOTTOM_W -> LargeCrateBlock.BOTTOM_W;
@@ -144,7 +149,7 @@ public class LargeCrateBlock
 
     protected static final VoxelShape MID_CENTER = Shapes.block();
 
-    protected static final VoxelShape BOTTOM_CENTER = Block.box(0, 2, 0, 16, 16, 16);
+    protected static final VoxelShape BOTTOM_CENTER = Block.box(0, 4, 0, 16, 16, 16);
     protected static final VoxelShape TOP_CENTER = ShapeUtil.rotate(Direction.Axis.X, 180, LargeCrateBlock.BOTTOM_CENTER);
     protected static final VoxelShape MID_N = ShapeUtil.rotate(Direction.Axis.X, 270, LargeCrateBlock.BOTTOM_CENTER);
     protected static final VoxelShape MID_W = ShapeUtil.rotate(Direction.Axis.Y, 90, LargeCrateBlock.MID_N);
@@ -152,7 +157,7 @@ public class LargeCrateBlock
     protected static final VoxelShape MID_E = ShapeUtil.rotate(Direction.Axis.Y, 270, LargeCrateBlock.MID_N);
 
     protected static final VoxelShape BOTTOM_N = ShapeUtil.merge(
-        new AABB(0, 2, 2, 16, 16, 16),
+        new AABB(0, 4, 4, 16, 16, 16),
         new AABB(0, 0, 0, 16, 7, 7)
     );
     protected static final VoxelShape BOTTOM_W = ShapeUtil.rotate(Direction.Axis.Y, 90, LargeCrateBlock.BOTTOM_N);
@@ -161,9 +166,9 @@ public class LargeCrateBlock
 
     protected static final VoxelShape BOTTOM_NW = ShapeUtil.cut(
         new AABB(0, 0, 0, 16, 16, 16),
-        new AABB(7, 7, 0, 16, 16, 2),
-        new AABB(7, 0, 7, 16, 2, 16),
-        new AABB(0, 7, 7, 2, 16, 16)
+        new AABB(7, 7, 0, 16, 16, 4),
+        new AABB(7, 0, 7, 16, 4, 16),
+        new AABB(0, 7, 7, 4, 16, 16)
     );
     protected static final VoxelShape BOTTOM_SW = ShapeUtil.rotate(Direction.Axis.Y, 90, LargeCrateBlock.BOTTOM_NW);
     protected static final VoxelShape BOTTOM_SE = ShapeUtil.rotate(Direction.Axis.Y, 180, LargeCrateBlock.BOTTOM_NW);

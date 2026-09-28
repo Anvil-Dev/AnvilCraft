@@ -3166,8 +3166,8 @@
     ]
   },
   "ruins_block": {
-    "source_commit": "07eb60b47f14439375da10e78f4d4770f3a83256",
-    "status": "neighbors_gateway_and_item_animation_verified_multipart_fallback_pending",
+    "source_commit": "e0dedd6e8f1dd8667090eae161ba372c4da10bc2",
+    "status": "ported_and_verified_current_source_native_and_sodium",
     "ported": [
       "Creative item conversion snapshots original states and block entity data; multipart groups convert atomically without spilling container contents.",
       "Configured named or inline loot, inert/fragile interaction, multipart single-drop cleanup and creative no-drop removal.",
@@ -3183,7 +3183,8 @@
       "Native and Sodium section compilation classify each disguise individually; client load/update transitions maintain native global membership without duplicate section submission.",
       "Ordinary neighbor culling resolves disguised states before native or Sodium face decisions, including negative-shape blocks, without allocating neighbor positions on the ordinary native path.",
       "Shared mod gateway shaders preserve source runtime layer arithmetic instead of constant-folding large rotation angles; vanilla render pipelines remain unchanged.",
-      "Ruins uses default item swap animation, while the existing special block-item model helper retains its own properties."
+      "Ruins uses default item swap animation, while the existing special block-item model helper retains its own properties.",
+      "Multipart fallback and placement-context exceptions now use the shared source part/whole shape contract."
     ],
     "verification": {
       "compile_data_focused": "build/porting/tests-ruins-3.log",
@@ -3219,11 +3220,9 @@
         "Native and source world captures visually inspected: grass, slab and child chest renderer visible in paired positions."
       ]
     },
-    "pending": [
-      "Audit and restore multipart voxel-outline fallback when model outlines are disabled, including explicit per-part exceptions and placement-context behavior."
-    ],
+    "pending": [],
     "limits": [
-      "A remaining multipart fallback audit is recorded above; the broad branch port is still active.",
+      "Ruins verification is scoped to the native and Sodium backends; the broad branch port remains active.",
       "Retain vanilla 26.1 terrain, atmosphere and lighting as requested; native/source world pixels are not expected to be identical.",
       "The focused data/test run succeeded but its first style check failed; all remaining style issues were fixed and the subsequent full run passed."
     ],
@@ -3502,9 +3501,9 @@
       ]
     },
     "source_contract_audit": [
-      "Native multipart getShape implementations retain the source per-part shapes, while source AbstractMultiPartBlock now provides a cached whole-structure getShape.",
-      "Source RuinsSelection falls back to the original getShape after model-outline rejection; the native fallback currently sees per-part shapes for classes such as LargeCrate.",
-      "Source LargeCauldron explicitly overrides getShape to remain per-part. A fix must preserve such exceptions rather than union every multipart fallback indiscriminately."
+      "All 3897 states of the 18 registered multipart blocks match source part, whole, outline, collision, effective occlusion, placement-context and skylight values.",
+      "Source cauldron and trading-station explicit part-local outline exceptions are retained.",
+      "Model-outline-disabled ordinary and disguised crate fallbacks were captured and visually inspected on both versions; Sodium also passed."
     ]
   },
   "source_update_e0dedd6": {
@@ -3542,5 +3541,66 @@
       "The first broad run failed the existing unticked-chunk setup watchdog; the subsequent complete run passed all 688 tests."
     ],
     "current_work": "The five listed commits are integrated. Multipart outline fallback and the broader branch feature inventory remain under audit."
+  },
+  "multipart_shape_parity": {
+    "source_commit": "e0dedd6e8f1dd8667090eae161ba372c4da10bc2",
+    "status": "ported_and_verified",
+    "ported": [
+      "Shared cached whole-structure shapes and separate part-shape, collision, occlusion and skylight contracts.",
+      "Shape providers adapted across the multipart hierarchy; source cauldron/trading-station picking and portal collision exceptions retained.",
+      "Large crate edge dimensions and Overseer part-local collision boxes updated to source values; crate/shulker solid collision restored.",
+      "Ruins picking reads part shapes directly while fallback outlines and render bounds use the complete original structure."
+    ],
+    "verification": {
+      "focused": "build/porting/tests-multipart-shapes-2.log",
+      "full_compile_tests_style": "build/porting/tests-multipart-shapes-all.log",
+      "required_tests_passed": 691,
+      "native_client": "build/porting/client-multipart-shapes-2.log",
+      "source_client": "build/porting/client-multipart-shapes-reference-2.log",
+      "sodium_client": "build/porting/client-multipart-shapes-sodium-1.log",
+      "report": "build/porting/multipart-shapes-report.json",
+      "blocks": 18,
+      "comparisons": {
+        "26.1": {
+          "states": 3897,
+          "shape_and_light_checks": 35073,
+          "unique_shapes": 904
+        },
+        "sodium": {
+          "states": 3897,
+          "shape_and_light_checks": 35073,
+          "unique_shapes": 904
+        }
+      },
+      "visuals": {
+        "ordinary": {
+          "source_crop_mean_rgb_error": 5.753620689655173,
+          "sodium_crop_mean_rgb_error": 0.6147151424287856
+        },
+        "ruins": {
+          "source_crop_mean_rgb_error": 5.748805597201399,
+          "sodium_crop_mean_rgb_error": 0.10638430784607696
+        }
+      },
+      "contracts": [
+        "Whole outlines are cached and translated consistently for every member.",
+        "Part, whole, ordinary outline, empty/entity collision, effective occlusion and two placement contexts match source.",
+        "Large crates and shulker containers retain full collision; cauldron/trading-station exceptions remain part-local.",
+        "Ruins picking ignores placement-guide expansion and model-disabled highlighting uses the original whole fallback."
+      ]
+    },
+    "limits": [
+      "Disabled occlusion is normalized to empty on both sides because 26.1 caches this effective result.",
+      "World screenshots retain native terrain/lightmap differences; exact assertions concern shape data."
+    ]
+  },
+  "storage_block_behavior_audit": {
+    "source_commit": "e0dedd6e8f1dd8667090eae161ba372c4da10bc2",
+    "status": "pending",
+    "findings": [
+      "Source LargeCrateBlock exposes comparator output and pick-block storage identity; native counterpart currently lacks these paths.",
+      "Source storage opening sounds and corresponding ShulkerContainer behavior require a shared audit."
+    ],
+    "next_step": "Compare the shared storage entity helpers and all three storage block front ends before implementing the missing contracts."
   }
 }

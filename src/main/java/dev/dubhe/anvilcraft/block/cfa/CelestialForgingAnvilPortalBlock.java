@@ -298,15 +298,15 @@ public class CelestialForgingAnvilPortalBlock
         DirectionGate331PartHalf half = state.getValue(HALF);
         if (half == DirectionGate331PartHalf.BOTTOM_CENTER || half == DirectionGate331PartHalf.MID_CENTER) {
             if (context == CollisionContext.empty()) {
-                return this.getShape(state, level, pos, context);
+                return super.getCollisionShape(state, level, pos, context);
             }
             return Shapes.empty();
         }
-        return this.getShape(state, level, pos, context);
+        return super.getCollisionShape(state, level, pos, context);
     }
 
     @Override
-    protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+    public VoxelShape getPartShape(BlockState state) {
         Direction facing = state.getValue(FACING);
         return switch (state.getValue(HALF)) {
             case BOTTOM_CENTER -> byFacing(facing, BOTTOM_CENTER_NORTH);

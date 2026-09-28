@@ -174,7 +174,8 @@ public class RuinsBlockEntityRenderer implements BlockEntityRenderer<RuinsBlockE
         AABB cached = this.structureBounds.getIfPresent(state);
         if (cached != null) return cached;
         AABB bounds = new AABB(BlockPos.ZERO);
-        for (P part : block.getParts()) bounds = bounds.minmax(new AABB(BlockPos.ZERO.offset(block.offsetFrom(state, part))));
+        var shape = block.getMultiPartShape(state);
+        if (!shape.isEmpty()) bounds = bounds.minmax(shape.bounds());
         for (var part : ModelBlockSelection.multipartOutline(state)) bounds = bounds.minmax(part.bounds());
         this.structureBounds.put(state, bounds);
         return bounds;

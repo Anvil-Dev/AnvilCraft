@@ -112,7 +112,7 @@ public class CelestialForgingAnvilAmplifierBlock
     }
 
     @Override
-    protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+    public VoxelShape getPartShape(BlockState state) {
         return switch (state.getValue(FACING)) {
             case NORTH -> switch (state.getValue(HALF)) {
                 case BOTTOM_WS -> NORTH_TIP;

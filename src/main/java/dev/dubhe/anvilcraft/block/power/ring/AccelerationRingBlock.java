@@ -223,11 +223,11 @@ public class AccelerationRingBlock
         if (BlockPlacementPicking.hasFullPlacementShape(state, context)) {
             return Shapes.block();
         }
-        return AccelerationRingBlock.getPreciseShape(state);
+        return super.getShape(state, level, pos, context);
     }
 
     @Override
-    protected VoxelShape getCollisionShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+    public VoxelShape getPartShape(BlockState state) {
         return AccelerationRingBlock.getPreciseShape(state);
     }
 

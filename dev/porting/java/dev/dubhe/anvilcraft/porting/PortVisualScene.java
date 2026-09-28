@@ -88,6 +88,10 @@ public final class PortVisualScene {
             if (prepared) LaserClientScene.frame(client);
             return;
         }
+        if (Boolean.getBoolean("anvilcraft.portRuinsFallbackScene")) {
+            if (prepared) RuinsFallbackClientScene.frame(client);
+            return;
+        }
         if (Boolean.getBoolean("anvilcraft.portSourceUpdateScene")) {
             if (prepared) SourceUpdateClientScene.frame(client);
             return;

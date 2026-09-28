@@ -228,13 +228,13 @@ public class LargeLaserBlock extends FlexibleMultiPartBlock<DirectionCube3x3Part
     }
 
     @Override
-    protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+    public VoxelShape getPartShape(BlockState state) {
         return LargeLaserBlock.COLLISION_SHAPES.get(state.getValue(LargeLaserBlock.FACING)).get(state.getValue(LargeLaserBlock.HALF));
     }
 
     @Override
     protected VoxelShape getCollisionShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
-        return this.getShape(state, level, pos, context);
+        return super.getCollisionShape(state, level, pos, context);
     }
 
     @Override

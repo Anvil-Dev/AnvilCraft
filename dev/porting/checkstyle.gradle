@@ -33,6 +33,7 @@ allprojects {
             include '**/LaserEmitPacket.java', '**/LaserCompiler.java', '**/LaserRenderState.java'
             include '**/LaserBloomPostEffect.java', '**/LaserBloomCaptureMixin.java'
             include '**/CreativeLaser*.java', '**/MassEnergyInverter*.java', '**/MassInjectBehavior.java'
+            include '**/AbstractMultiPartBlock.java', '**/TransmissionPoleBlock.java', '**/RemoteTransmissionPoleBlock.java'
             include '**/Ruins*.java', '**/SodiumRuinsMeshingMixin.java', '**/SodiumBlockOcclusionCacheMixin.java', '**/LitBlockRenderState.java', '**/WorldFluidRenderState.java', '**/RedStoneWireBlockAccessor.java'
             include '**/UseItemOnBlock*.java', '**/api/power/PowerGridManager.java'
             include '**/HyperdimensionUploader*.java', '**/SingularityCrystalBlock.java', '**/api/itemhandler/ItemHandlerUtil.java'

@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.block;
 import com.mojang.serialization.MapCodec;
 import dev.anvilcraft.lib.v2.piston.IMoveableEntityBlock;
 import dev.dubhe.anvilcraft.block.entity.RuinsBlockEntity;
+import dev.dubhe.anvilcraft.block.multipart.AbstractMultiPartBlock;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.mixin.accessor.RedStoneWireBlockAccessor;
 import net.minecraft.core.BlockPos;
@@ -112,6 +113,7 @@ public class RuinsBlock extends BaseEntityBlock implements IMoveableEntityBlock 
         if (!(level.getBlockEntity(pos) instanceof RuinsBlockEntity ruins)) return Shapes.block();
         BlockGetter view = new RuinsBlockView(level);
         BlockState display = connectedDisplayState(view, pos, ruins.getDisplayState());
+        if (display.getBlock() instanceof AbstractMultiPartBlock<?> multipart) return multipart.getPartShape(display);
         return display.isAir() ? Shapes.block() : display.getShape(view, pos, context);
     }
 
