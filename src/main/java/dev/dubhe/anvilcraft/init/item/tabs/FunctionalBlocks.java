@@ -107,6 +107,7 @@ public class FunctionalBlocks extends DisplayItemsGenerator {
 
         this.plain(ModBlocks.TRANSPARENT_CRAFTING_TABLE);
         this.plain(ModBlocks.SPACE_OVERCOMPRESSOR);
+        this.plain(ModBlocks.MASS_ENERGY_INVERTER);
         this.plain(ModBlocks.CRATE);
         this.plain(ModBlocks.LARGE_CRATE);
         this.plain(ModBlocks.SHULKER_CONTAINER);

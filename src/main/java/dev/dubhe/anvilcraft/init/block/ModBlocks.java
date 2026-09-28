@@ -142,6 +142,7 @@ import dev.dubhe.anvilcraft.block.power.batch.BatchCutterBlock;
 import dev.dubhe.anvilcraft.block.power.consumer.DischargerBlock;
 import dev.dubhe.anvilcraft.block.power.consumer.ExpCollectorBlock;
 import dev.dubhe.anvilcraft.block.power.consumer.HeaterBlock;
+import dev.dubhe.anvilcraft.block.power.consumer.MassEnergyInverterBlock;
 import dev.dubhe.anvilcraft.block.power.consumer.InductionLightBlock;
 import dev.dubhe.anvilcraft.block.power.consumer.ItemCollectorBlock;
 import dev.dubhe.anvilcraft.block.power.consumer.SmartBlockPlacerBlock;
@@ -1787,6 +1788,22 @@ public class ModBlocks {
         .properties(p -> p.noLootTable().isValidSpawn(Blocks::never))
         .simpleItem()
         .blockstate(DataGenUtil::onlyState)
+        .register();
+
+    public static final BlockEntry<MassEnergyInverterBlock> MASS_ENERGY_INVERTER = REGISTRUM.block(
+            "mass_energy_inverter",
+            MassEnergyInverterBlock::new
+        )
+        .initialProperties(() -> Blocks.NETHERITE_BLOCK)
+        .properties(properties -> properties.isValidSpawn(Blocks::never).noOcclusion())
+        .blockstate(DataGenUtil::onlyState)
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .item()
+        .properties(properties -> properties.rarity(Rarity.EPIC))
+        .properties(Item.Properties::useBlockDescriptionPrefix)
+        .setData(ProviderType.LANG, (_, _) -> {})
+        .model(DataGenUtil::blockItem)
+        .build()
         .register();
 
     public static final BlockEntry<SpaceOvercompressorBlock> SPACE_OVERCOMPRESSOR = REGISTRUM.block(

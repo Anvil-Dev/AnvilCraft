@@ -2881,5 +2881,8 @@
   "screen.anvilcraft.creative_laser.type.gamma": "伽马激光",
   "screen.anvilcraft.creative_laser.type.normal": "普通激光",
   "tooltip.anvilcraft.item.creative_laser": "发射一道激光",
-  "tooltip.anvilcraft.item.creative_laser.shift": "可调节激光等级、透镜、伽马激光，可以用红石关闭"
+  "tooltip.anvilcraft.item.creative_laser.shift": "可调节激光等级、透镜、伽马激光，可以用红石关闭",
+  "block.anvilcraft.mass_energy_inverter": "能质逆变器",
+  "tooltip.anvilcraft.item.mass_energy_inverter": "将相邻空间超压器的质量增长效率翻倍，消耗 1024 kW",
+  "tooltip.anvilcraft.item.mass_energy_inverter.shift": "每刻向相邻空间超压器注入 5 质量\n将相邻空间超压器在铁砧注入质量时注入的质量翻倍"
 }

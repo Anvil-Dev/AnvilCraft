@@ -68,6 +68,7 @@ import dev.dubhe.anvilcraft.block.entity.SimpleChuteBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.SimpleMagneticChuteBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.SmartBlockPlacerBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.SpaceOvercompressorBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.MassEnergyInverterBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.SpacetimeSupercomputerBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.StampingPlatformBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.StorageFluidPortBlockEntity;
@@ -339,6 +340,11 @@ public class ModBlockEntities {
         .blockEntity("tesla_tower", TeslaTowerBlockEntity::createBlockEntity)
         .renderer(() -> TeslaTowerRenderer::new)
         .validBlocks(ModBlocks.TESLA_TOWER)
+        .register();
+
+    public static final BlockEntityEntry<MassEnergyInverterBlockEntity> MASS_ENERGY_INVERTER = REGISTRUM
+        .blockEntity("mass_energy_inverter", MassEnergyInverterBlockEntity::createBlockEntity)
+        .validBlocks(ModBlocks.MASS_ENERGY_INVERTER)
         .register();
 
     public static final BlockEntityEntry<SpaceOvercompressorBlockEntity> SPACE_OVERCOMPRESSOR = REGISTRUM

@@ -2105,7 +2105,6 @@
         "ModBlocks": [
           "HYPERCUBE",
           "HYPERDIMENSION_UPLOADER",
-          "MASS_ENERGY_INVERTER",
           "OVERSEER_BLOCK"
         ]
       },
@@ -2128,7 +2127,8 @@
       "confectionery_blocks",
       "gas_fluids_and_buckets",
       "power_converter_tiers",
-      "creative_laser"
+      "creative_laser",
+      "mass_energy_inverter"
     ]
   },
   "confectionery_blocks": {
@@ -2601,5 +2601,63 @@
     "limits": [
       "Beam captures preserve native 26.1 atmospheric fog and randomized impact particles; remaining RGB differences are reported rather than claimed pixel-identical."
     ]
+  },
+  "mass_energy_inverter": {
+    "source_commit": "07eb60b47f14439375da10e78f4d4770f3a83256",
+    "status": "runtime_recipes_assets_verified_shared_wip_lighting_followup_pending",
+    "ported": [
+      "1024 kW consumer injecting 5 mass per tick into each horizontal neighboring Space Overcompressor while its grid works.",
+      "Presence-based horizontal anvil mass multiplier, applied once regardless of inverter count, matching the source even without power.",
+      "Mass-first and energy-first irradiation/injection recipes, three loops, three WIP display models, and the new CFA center ingredient.",
+      "Source block shape, item, creative entry, tooltip/localization, textures/models and literal source guide pages.",
+      "Native standalone registration for all three WIP models and native item/blockstate/loot generation."
+    ],
+    "verification": {
+      "focused_tests": "build/porting/tests-mass-energy-inverter-2.log",
+      "full_tests": "build/porting/tests-mass-energy-full.log",
+      "compile_style_data": "build/porting/check-mass-energy-final.log",
+      "required_tests_passed": 648,
+      "focused_tests_passed": 3,
+      "native_client": "build/porting/client-mass-energy-inverter-final.log",
+      "source_client": "build/porting/client-mass-energy-reference-final.log",
+      "comparison": "build/porting/mass-energy-inverter-comparison.json",
+      "source_equal_machine_classes": 2,
+      "source_equal_resources": 10,
+      "source_equal_recipes": [
+        "procedural_process/mass_energy_inverter_mass_first",
+        "procedural_process/mass_energy_inverter_energy_first",
+        "multiblock/celestial_forging_anvil"
+      ],
+      "item_visual": {
+        "mask_iou": 1.0,
+        "mean_rgb_error": 1.4848083377495143
+      },
+      "world_patch_visuals": {
+        "wip_1": {
+          "mean_rgb_error": 6.129611330698287
+        },
+        "wip_2": {
+          "mean_rgb_error": 5.750823451910408
+        },
+        "wip_3": {
+          "mean_rgb_error": 6.11786341677646
+        },
+        "finished": {
+          "mean_rgb_error": 7.760759771629337
+        }
+      },
+      "runtime": "Real powered grid drives four adjacent compressors; both nine-step procedural paths complete and retain mid-process saved progress."
+    },
+    "limits": [
+      "WIP animation is fixed to frame 0 only in test build output and restored after each client run.",
+      "World patches include retained vanilla 26.1 lighting and terrain sampling.",
+      "Shared WIP renderer still needs the source per-face world-light sampling intent restored via native 26.1 APIs; see wip_world_lighting."
+    ]
+  },
+  "wip_world_lighting": {
+    "status": "pending_native_world_light_sampling_port",
+    "source_commit": "07eb60b47f14439375da10e78f4d4770f3a83256",
+    "evidence": "Source WipBlockEntityRenderer uses ModelBlockRenderer.tesselateBlock with level, initial state and block position. Native WIP uses BlockModelRenderState.submit with one lightCoords value.",
+    "next": "Use the shared WIP renderer to preserve per-face native world lighting, then compare fixed-frame WIP stages under multiple light conditions."
   }
 }

@@ -32,7 +32,7 @@ allprojects {
             include '**/CelestialForgingAnvilLaserInterfaceBlockEntity.java', '**/CelestialForgingAnvilPortalBlockEntity.java'
             include '**/LaserEmitPacket.java', '**/LaserCompiler.java', '**/LaserRenderState.java'
             include '**/LaserBloomPostEffect.java', '**/LaserBloomCaptureMixin.java'
-            include '**/CreativeLaser*.java'
+            include '**/CreativeLaser*.java', '**/MassEnergyInverter*.java', '**/MassInjectBehavior.java'
             include '**/ItemCompressRecipeLoader.java', '**/BlockCompressRecipeLoader.java', '**/SolidLiquidRecipeLoader.java'
             include '**/LargeBlockPlacePreviewEventListener.java', '**/ChuteBlockItem.java', '**/CelestialForgingAnvilAmplifierBlockItem.java'
             include '**/ItemSplitter*.java'

@@ -9,13 +9,13 @@
       ],
       [
         "BBB",
-        "BBB",
+        "BCB",
         "BBB"
       ],
       [
-        "CDC",
-        "D D",
-        "CDC"
+        "DED",
+        "E E",
+        "DED"
       ]
     ],
     "mapping": {
@@ -29,9 +29,12 @@
         "blocks": "anvilcraft:enchanted_gold_block"
       },
       "C": {
-        "blocks": "anvilcraft:confinement_chamber"
+        "blocks": "anvilcraft:mass_energy_inverter"
       },
       "D": {
+        "blocks": "anvilcraft:confinement_chamber"
+      },
+      "E": {
         "blocks": "anvilcraft:negative_matter_block"
       }
     }

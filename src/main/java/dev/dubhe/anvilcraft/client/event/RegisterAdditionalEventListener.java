@@ -342,6 +342,18 @@ public class RegisterAdditionalEventListener {
             WipBlockEntityRenderer.SHULKER_BOX_WIP_2,
             SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/shulker_box_wip_2"))
         );
+        event.register(
+            WipBlockEntityRenderer.MASS_ENERGY_INVERTER_WIP,
+            SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/wip_display/mass_energy_inverter_wip"))
+        );
+        event.register(
+            WipBlockEntityRenderer.MASS_ENERGY_INVERTER_WIP_2,
+            SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/wip_display/mass_energy_inverter_wip_2"))
+        );
+        event.register(
+            WipBlockEntityRenderer.MASS_ENERGY_INVERTER_WIP_3,
+            SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/wip_display/mass_energy_inverter_wip_3"))
+        );
     }
 
     /** 自动注册资源包中提供的天体模型。 */

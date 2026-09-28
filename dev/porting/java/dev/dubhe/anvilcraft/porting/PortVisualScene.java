@@ -88,6 +88,10 @@ public final class PortVisualScene {
             if (prepared) LaserClientScene.frame(client);
             return;
         }
+        if (Boolean.getBoolean("anvilcraft.portMassEnergyScene")) {
+            if (prepared) MassEnergyInverterClientScene.frame(client);
+            return;
+        }
         if (Boolean.getBoolean("anvilcraft.portCreativeLaserScene")) {
             if (prepared) CreativeLaserClientScene.frame(client);
             return;

@@ -79,6 +79,16 @@ public class WipBlockEntityRenderer
         "block/shulker_box_wip_2"
     );
 
+    public static final StandaloneModelKey<BlockStateModel> MASS_ENERGY_INVERTER_WIP = WipBlockEntityRenderer.registerModel(
+        "block/wip_display/mass_energy_inverter_wip"
+    );
+    public static final StandaloneModelKey<BlockStateModel> MASS_ENERGY_INVERTER_WIP_2 = WipBlockEntityRenderer.registerModel(
+        "block/wip_display/mass_energy_inverter_wip_2"
+    );
+    public static final StandaloneModelKey<BlockStateModel> MASS_ENERGY_INVERTER_WIP_3 = WipBlockEntityRenderer.registerModel(
+        "block/wip_display/mass_energy_inverter_wip_3"
+    );
+
     private static StandaloneModelKey<BlockStateModel> registerModel(String path) {
         Identifier id = AnvilCraft.of(path);
         StandaloneModelKey<BlockStateModel> key = new StandaloneModelKey<>(() -> "AnvilCraft: WIP " + path);

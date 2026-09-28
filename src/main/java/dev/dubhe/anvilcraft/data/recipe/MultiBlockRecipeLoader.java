@@ -270,13 +270,14 @@ public class MultiBlockRecipeLoader {
 
         MultiblockRecipe.builder(ModBlocks.CELESTIAL_FORGING_ANVIL, 1)
             .layer("AAA", "ABA", "AAA")
-            .layer("CCC", "CCC", "CCC")
+            .layer("CCC", "CFC", "CCC")
             .layer("DED", "E E", "DED")
             .symbol('A', ModBlocks.TRANSCENDIUM_BLOCK)
             .symbol('B', ModBlocks.SPACETIME_SUPERCOMPUTER)
             .symbol('C', ModBlocks.ENCHANTED_GOLD_BLOCK)
             .symbol('D', ModBlocks.CONFINEMENT_CHAMBER)
             .symbol('E', ModBlocks.NEGATIVE_MATTER_BLOCK)
+            .symbol('F', ModBlocks.MASS_ENERGY_INVERTER)
             .save(provider);
     }
 }
