@@ -210,6 +210,9 @@
     "accessor.LevelRendererAccessor",
     "accessor.MultiPlayerGameModeAccessor",
     "accessor.ScreenAccessor",
+    "compat.JadeTooltipMixin",
+    "compat.JeiJadeItemTooltipMixin",
+    "client.ClientTextTooltipAccessor",
     "compat.SodiumBlockOcclusionCacheMixin"
   ],
   "plugin": "dev.dubhe.anvilcraft.mixin.plugin.AnvilCraftMixinPlugin",

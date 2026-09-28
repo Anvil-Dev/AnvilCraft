@@ -188,6 +188,7 @@ public final class ContainerUpgradeJeiScene implements IModPlugin {
                     throw new IllegalStateException("Expansion hint slot");
                 }
                 this.layout.drawOverlays(graphics, x, y);
+                TooltipDedupProbe.verifyDeferred(graphics);
             }
         }
     }

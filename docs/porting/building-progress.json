@@ -2840,9 +2840,7 @@
         "run/port-validation/client/screenshots/storage-upgrade-26.1-contents.png"
       ]
     },
-    "remaining": [
-      "English StorageScreen title overlaps its right-side control at GUI scale 2; compare source layout and repair in the storage UI visual pass."
-    ],
+    "remaining": [],
     "limits": [
       "The initial client fixture re-entered its render callback through setScreenAndShow; advancing the fixture stage before opening the screen fixed the test harness.",
       "Vanilla 26.1 terrain/lightmap rendering remains unchanged."
@@ -2886,7 +2884,7 @@
       "server_regression": "No gameplay/storage code changed in this node; previous storage-upgrade node passed all 664 required tests."
     },
     "remaining": [
-      "Complete the remaining storage interaction audit, including the source station opening sound and English screen title overlap."
+      "Complete the remaining storage interaction audit beyond the verified source opening sound and title layout."
     ],
     "limits": [
       "The animated outline is fixed to source frame zero in development output for capture; production metadata is restored.",
@@ -2935,9 +2933,7 @@
       ],
       "server_regression": "No gameplay logic changed in this node; the prior storage-upgrade suite passed all 664 required tests."
     },
-    "remaining": [
-      "Shared JEI/Ageratum tooltip integration shows the mod name twice in 26.1 and changes its order relative to category hints; source/native hint captures preserve evidence for the shared compatibility audit."
-    ],
+    "remaining": [],
     "limits": [
       "Native 26.1 preview rasterization and lighting can differ at individual model pixels.",
       "The development capture freezes only outline texture timing; original metadata is restored."
@@ -2998,13 +2994,101 @@
       "density_capture": "run/port-validation/client/screenshots/storage-tooltip-26.1-scaled.png"
     },
     "remaining": [
-      "Shared tooltip footer/mod-name integration still differs from source; the component comparison excludes that unrelated footer.",
       "Full navigation and rendering of linked manual pages remains part of the global handbook audit."
     ],
     "limits": [
       "The comparison isolates the new data component; shared Ageratum/mod-name footer differences remain a separate audit.",
       "Client checks use an integrated server; remote-server authorization is additionally covered by validator tests.",
       "The full server suite passed before client-only atlas cache repair; the final combined compile/data/style/client run covers that repair."
+    ]
+  },
+  "storage_interaction_and_tooltip_compat": {
+    "source_commit": "07eb60b47f14439375da10e78f4d4770f3a83256",
+    "status": "opening_sound_source_title_layout_and_optional_tooltip_compat_verified",
+    "ported": [
+      "Hyperdimension Storage Station plays the source ender-chest sound when opened through actual empty-hand use.",
+      "JEI ingredient tooltips include the configured Jade mod name before recipe-specific hints, matching the source order.",
+      "Final Jade tooltip preparation retains one mod-name line, preserving the first item-title line, custom tooltip images, guide hints and user settings.",
+      "Compatibility mixins are gated by actual Jade/JEI availability; immutable tooltip lists are copied before preparation."
+    ],
+    "verification": {
+      "compile_style_and_tooltip_client": "build/porting/client-tooltip-dedup-final.log",
+      "native_interaction": "build/porting/client-storage-interaction-1.log",
+      "source_interaction": "build/porting/client-storage-interaction-reference.log",
+      "without_jade": "build/porting/client-storage-interaction-no-jade-final.log",
+      "without_jei": "build/porting/client-storage-interaction-no-jei.log",
+      "report": "build/porting/storage-interaction-comparison.json",
+      "checks": [
+        "Actual empty-hand use opens the station and emits exactly one ender-chest opening sound.",
+        "Normal and flipped title coordinates match the source runtime.",
+        "JEI/Jade produce one mod-name line before recipe hints; guide hints and custom item names remain.",
+        "The storage screen works with Jade removed or JEI removed; ordinary tooltips also work without Jade."
+      ],
+      "title_layouts": {
+        "client-storage-interaction-1.log": [
+          [
+            "158",
+            "452",
+            "450",
+            "true"
+          ],
+          [
+            "158",
+            "346",
+            "344",
+            "true"
+          ]
+        ],
+        "client-storage-interaction-reference.log": [
+          [
+            "158",
+            "452",
+            "450",
+            "true"
+          ],
+          [
+            "158",
+            "346",
+            "344",
+            "true"
+          ]
+        ],
+        "client-storage-interaction-no-jade-final.log": [
+          [
+            "158",
+            "452",
+            "450",
+            "true"
+          ],
+          [
+            "158",
+            "346",
+            "344",
+            "true"
+          ]
+        ],
+        "client-storage-interaction-no-jei.log": [
+          [
+            "158",
+            "452",
+            "450",
+            "true"
+          ],
+          [
+            "158",
+            "346",
+            "344",
+            "true"
+          ]
+        ]
+      },
+      "jei_hint_foreground_iou": 0.9931300470049416,
+      "jei_hint_mean_rgb_error": 2.861797436824555
+    },
+    "limits": [
+      "The measured two-pixel title/button overlap exists in the source branch too; layout is preserved.",
+      "A single mod-name footer remains subject to the installed Jade version and user settings.",
+      "These changes affect client presentation only; the previous storage backend node passed 667 server GameTests."
     ]
   }
 }

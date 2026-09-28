@@ -9,6 +9,7 @@ assert subprocess.check_output(['git', 'rev-parse', 'dev/1.21/1.6'], cwd=root).s
     ['git', 'rev-parse', 'HEAD'], cwd=reference).strip()
 folder = reference / 'src/main/java/dev/dubhe/anvilcraft/porting'
 scene = (root / 'dev/porting/java/dev/dubhe/anvilcraft/porting/ContainerUpgradeJeiScene.java').read_text(encoding='utf-8')
+scene = scene.replace('TooltipDedupProbe.verifyDeferred(graphics);', '')
 scene = scene.replace('client.resizeGui()', 'client.resizeDisplay()')
 scene = scene.replace('Identifier', 'ResourceLocation').replace('createCraftingStationLookup', 'createRecipeCatalystLookup')
 scene = scene.replace('client.getMainRenderTarget(), 1,', 'client.getMainRenderTarget(),')

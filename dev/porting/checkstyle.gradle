@@ -180,6 +180,8 @@ allprojects {
             include '**/StorageTooltip.java', '**/ClientStorageTooltip.java', '**/HyperdimensionStorageStationBlockItem.java'
             include '**/ShulkerContainerBlockItem.java', '**/ModTooltipComponents.java', '**/client/event/ClientEventListener.java'
             include '**/ScaledGuiItemAtlases.java', '**/ScaledGuiItemRendererMixin.java'
+            include '**/JadeTooltipMixin.java', '**/JeiJadeItemTooltipMixin.java'
+            include '**/ClientTextTooltipAccessor.java', '**/AnvilCraftMixinPlugin.java'
             include '**/saved/storage/*Storage.java'
         } + fileTree('dev/porting/java')
         classpath = files()

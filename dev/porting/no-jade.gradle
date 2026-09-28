@@ -1,0 +1,9 @@
+gradle.afterProject { project, state ->
+    project.configurations.matching { it.name == 'runtimeClasspath' }.configureEach {
+        exclude group: 'maven.modrinth', module: 'jade'
+    }
+}
+
+gradle.projectsEvaluated {
+    rootProject.tasks.named('runClient') { systemProperty 'anvilcraft.portExpectNoJade', 'true' }
+}
