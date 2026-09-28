@@ -2469,6 +2469,7 @@
   "stat.anvilcraft.place_power_component": "电网组件放置次数",
   "tooltip.anvilcraft.burning_heater.jade.burn_time": "燃烧时间：%s",
   "tooltip.anvilcraft.creative_container.content": "内容：%s",
+  "tooltip.anvilcraft.infinity": "无限",
   "tooltip.anvilcraft.jade.infinity": "∞",
   "tooltip.anvilcraft.property.storage.id": "存储 ID：%s",
   "tooltip.anvilcraft.property.storage.id.null": "暂无，将在放置时生成",

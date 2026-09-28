@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.integration.jade.provider.client;
 
 import dev.dubhe.anvilcraft.integration.jade.provider.LargeFluidTankProvider;
+import dev.dubhe.anvilcraft.util.UnitUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -9,6 +10,7 @@ import net.minecraft.world.level.material.Fluids;
 import org.jspecify.annotations.Nullable;
 import snownee.jade.api.Accessor;
 import snownee.jade.api.fluid.JadeFluidObject;
+import snownee.jade.api.ui.IDisplayHelper;
 import snownee.jade.api.ui.JadeUI;
 import snownee.jade.api.ui.NarratableComponent;
 import snownee.jade.api.view.ClientViewGroup;
@@ -26,10 +28,12 @@ public enum LargeFluidTankClientProvider implements IClientExtensionProvider<Flu
 
     @Override
     public List<ClientViewGroup<FluidView>> getClientGroups(Accessor<?> accessor, List<ViewGroup<FluidView.Data>> groups) {
+        boolean hasInfiniteFluid = groups.stream().flatMap(group -> group.views.stream())
+            .anyMatch(data -> data.capacity() == Integer.MAX_VALUE);
         List<ClientViewGroup<FluidView>> result = new ArrayList<>();
         for (ViewGroup<FluidView.Data> group : groups) {
             List<FluidView> views = group.views.stream()
-                .map(LargeFluidTankClientProvider::createView)
+                .map(data -> createView(data, hasInfiniteFluid))
                 .filter(Objects::nonNull)
                 .toList();
             if (!views.isEmpty()) result.add(new ClientViewGroup<>(views));
@@ -37,14 +41,14 @@ public enum LargeFluidTankClientProvider implements IClientExtensionProvider<Flu
         return result;
     }
 
-    private static @Nullable FluidView createView(FluidView.Data data) {
+    private static @Nullable FluidView createView(FluidView.Data data, boolean hasInfiniteFluid) {
         JadeFluidObject fluid = data.fluids().getFirst();
-        if (fluid.isEmpty()) return null;
+        if (data.capacity() <= 0) return null;
         long amount = fluid.getAmount();
         long capacity = data.capacity();
-        MutableComponent infinity = Component.translatable("tooltip.anvilcraft.jade.infinity").withStyle(ChatFormatting.GRAY);
-        Component current = capacity == Integer.MAX_VALUE ? infinity : FluidTextHelper.getMillibuckets(amount, true);
-        Component max = capacity == Integer.MAX_VALUE ? infinity : FluidTextHelper.getMillibuckets(capacity, true);
+        MutableComponent infinity = Component.translatable("tooltip.anvilcraft.infinity").withStyle(ChatFormatting.GRAY);
+        Component current = capacity == Integer.MAX_VALUE ? infinity : formatAmount(amount);
+        Component max = capacity == Integer.MAX_VALUE ? infinity : formatAmount(capacity);
         FluidView view = new FluidView(JadeUI.fluid(fluid), current, max);
         view.fluidName = fluid.getDisplayName();
         view.ratio = capacity == Integer.MAX_VALUE ? 1.0F : Math.clamp((float) amount / capacity, 0.0F, 1.0F);
@@ -52,10 +56,20 @@ public enum LargeFluidTankClientProvider implements IClientExtensionProvider<Flu
             view.overrideText = NarratableComponent.translatable(
                 "jade.fluid",
                 FluidView.EMPTY_FLUID,
-                NarratableComponent.attach(Component.literal(view.max.getString()), view.max)
+                NarratableComponent.attach(Component.literal(view.max.getString()).withStyle(ChatFormatting.GRAY), view.max)
             );
+        } else if (hasInfiniteFluid) {
+            Component amountText = capacity == Integer.MAX_VALUE ? infinity
+                : Component.literal(UnitUtil.fluidUnit(amount, false) + " / " + UnitUtil.fluidUnit(capacity, false))
+                    .withStyle(ChatFormatting.GRAY);
+            view.overrideText = view.fluidName.copy().withStyle(ChatFormatting.WHITE).append(" ").append(amountText);
         }
         return view;
+    }
+
+    private static Component formatAmount(long amount) {
+        Component visible = Component.literal(IDisplayHelper.get().humanReadableNumber(amount, "B", true));
+        return NarratableComponent.attach(visible, FluidTextHelper.getMillibuckets(amount, true));
     }
 
     @Override

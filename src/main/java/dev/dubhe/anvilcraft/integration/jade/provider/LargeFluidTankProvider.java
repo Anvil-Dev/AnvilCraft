@@ -5,7 +5,6 @@ import dev.dubhe.anvilcraft.block.entity.FluidTankBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.LargeCauldronBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.LargeFluidTankBlockEntity;
 import net.minecraft.resources.Identifier;
-import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import org.jspecify.annotations.Nullable;
@@ -29,7 +28,6 @@ public enum LargeFluidTankProvider implements IServerExtensionProvider<FluidView
         if (blockAccessor.getBlockEntity() instanceof FluidTankBlockEntity tank) {
             ResourceHandler<FluidResource> handler = tank.getFluidHandler();
             FluidResource resource = handler.getResource(0);
-            if (resource.isEmpty()) return null;
             long capacity = tank.isInfinite()
                 ? Integer.MAX_VALUE
                 : handler.getCapacityAsLong(0, resource);
@@ -64,18 +62,20 @@ public enum LargeFluidTankProvider implements IServerExtensionProvider<FluidView
         }
         if (!(blockAccessor.getBlockEntity() instanceof LargeFluidTankBlockEntity tank)) return null;
 
-        long capacity = tank.isEnhanced()
-            ? LargeFluidTankBlockEntity.INFINITY_THRESHOLD
-            : LargeFluidTankBlockEntity.BASE_CAPACITY;
+        ResourceHandler<FluidResource> handler = tank.getFluidHandler();
+        boolean hasInfiniteFluid = tank.getStoredFluids().stream().anyMatch(tank::isInfinite);
         List<FluidView.Data> fluids = new ArrayList<>();
-        for (FluidStack fluid : tank.getStoredFluids()) {
-            if (fluid.isEmpty()) continue;
+        for (int index = 0; index < handler.size(); index++) {
+            FluidResource resource = handler.getResource(index);
+            if (resource.isEmpty() && hasInfiniteFluid) continue;
+            long amount = handler.getAmountAsLong(index);
+            long capacity = hasInfiniteFluid
+                ? tank.isInfinite(resource.toStack((int) amount)) ? Integer.MAX_VALUE : LargeFluidTankBlockEntity.INFINITY_THRESHOLD
+                : handler.getCapacityAsLong(index, resource);
             fluids.add(new FluidView.Data(
-                JadeFluidObject.of(fluid.getFluid(), fluid.getAmount(), fluid.getComponentsPatch()),
-                tank.isInfinite(fluid) ? Integer.MAX_VALUE : capacity
-            ));
+                JadeFluidObject.of(resource.getFluid(), amount, resource.getComponentsPatch()), capacity));
         }
-        return fluids.isEmpty() ? null : List.of(new ViewGroup<>(fluids));
+        return List.of(new ViewGroup<>(fluids));
     }
 
     @Override

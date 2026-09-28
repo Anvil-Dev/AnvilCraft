@@ -3804,14 +3804,13 @@
       "failure": "Full enhanced reload did not activate infinity on committed input.",
       "after": "build/porting/tests-tank-disposal-all.log"
     },
-    "remaining": [
-      "Audit Jade fluid quantity formatting for normal/large/infinite mixed tanks: source normal fallback shows 16B; native extension uses FluidTextHelper.getMillibuckets and shows 16000mB."
-    ],
+    "remaining": [],
     "adaptation": [
       "Disposal is transient and refreshed at load, neighbor changes, capability access and player interaction.",
       "Bottle interactions reuse FluidBottleInteraction for both tank sizes and large-tank child parts.",
       "Native capture uses isSectionCompiledAndVisible; reference uses the 1.21 isSectionCompiled API."
-    ]
+    ],
+    "resolved_display_parity": "jade_fluid_display_parity"
   },
   "source_update_a3a037f": {
     "source_commit": "a3a037f17876b2e7036779baee71898978c5d4be",
@@ -3847,6 +3846,136 @@
       "focused": "build/porting/tests-exp-source-1.log",
       "full": "build/porting/tests-exp-source-all.log"
     },
-    "next_step": "Resume Jade finite/infinite fluid display parity; the overall port goal remains active."
+    "next_step": "Jade fluid display parity is handled by jade_fluid_display_parity; continue the full branch inventory and remaining 4D/JEI/scanner integration."
+  },
+  "jade_fluid_display_parity": {
+    "source_commit": "a3a037f17876b2e7036779baee71898978c5d4be",
+    "status": "ported_and_verified",
+    "verification": {
+      "source_commit": "a3a037f17876b2e7036779baee71898978c5d4be",
+      "actual_client_cases": 9,
+      "formatted_amounts": {
+        "0": "0B",
+        "1": "1mB",
+        "250": "250mB",
+        "999": "999mB",
+        "1000": "1B",
+        "1575": "1.57B",
+        "16000": "16B",
+        "512000": "512B",
+        "1000000": "1kB",
+        "12800000": "12.8kB",
+        "2147483647": "2.14MB"
+      },
+      "source_matching_rows": {
+        "single-empty": [
+          {
+            "text": "Empty 16B",
+            "progress": 0.0
+          }
+        ],
+        "single-250": [
+          {
+            "text": "Water 250mB",
+            "progress": 0.015625
+          }
+        ],
+        "single-full": [
+          {
+            "text": "Water 16B",
+            "progress": 1.0
+          }
+        ],
+        "single-infinite": [
+          {
+            "text": "Water Infinity",
+            "progress": 1.0
+          }
+        ],
+        "large-empty": [
+          {
+            "text": "Empty 512B",
+            "progress": 0.0
+          }
+        ],
+        "large-finite": [
+          {
+            "text": "Water 16B",
+            "progress": 0.031311154
+          },
+          {
+            "text": "Lava 1B",
+            "progress": 1.0
+          }
+        ],
+        "large-enhanced-finite": [
+          {
+            "text": "Water 1.57B",
+            "progress": 0.00012304688
+          },
+          {
+            "text": "Lava 64B",
+            "progress": 0.005
+          },
+          {
+            "text": "Empty 12.8kB",
+            "progress": 0.0
+          }
+        ],
+        "large-mixed": [
+          {
+            "text": "Water Infinity",
+            "progress": 1.0
+          },
+          {
+            "text": "Lava 64 B / 12.80 KB",
+            "progress": 0.005
+          }
+        ],
+        "large-infinite": [
+          {
+            "text": "Water Infinity",
+            "progress": 1.0
+          },
+          {
+            "text": "Lava Infinity",
+            "progress": 1.0
+          }
+        ]
+      },
+      "full_required_tests": 724,
+      "contracts": [
+        "Finite storage uses the source Jade bucket/millibucket and compact-prefix formatting, including empty capacity hints.",
+        "Infinite storage displays localized Infinity rather than the old native infinity symbol.",
+        "Mixed infinite tanks show finite amount/capacity using the existing shared UnitUtil formatter.",
+        "Finite multi-fluid progress uses the source per-slot capacities and preserves the enhanced empty virtual slot.",
+        "Native narration remains attached to the native fluid quantity component while visible labels match source."
+      ],
+      "limits": [
+        "World lighting, animated fluid frames and framework tooltip padding remain native to each Minecraft/Jade version.",
+        "Comparisons assert actual rendered progress-element text and raw progress values; screenshots provide visual inspection."
+      ]
+    },
+    "logs": {
+      "data": "build/porting/data-jade-fluid-parity-1.log",
+      "full_checks": "build/porting/tests-jade-fluid-parity-final.log",
+      "native_client": "build/porting/client-jade-fluid-parity-2.log",
+      "reference_client": "build/porting/client-jade-fluid-parity-reference-1.log"
+    },
+    "adaptation": [
+      "Visible finite labels reuse the same Jade human-readable formatter as the source helper; native narration remains available.",
+      "Source infinite/mixed labels reuse UnitUtil and the source localized Infinity key.",
+      "Server data preserves actual finite slot capacities and the enhanced empty virtual slot; infinite groups omit the empty virtual slot as source does."
+    ]
+  },
+  "large_tank_rendering_audit": {
+    "source_commit": "a3a037f17876b2e7036779baee71898978c5d4be",
+    "status": "pending",
+    "evidence": [
+      "run/port-validation/client/screenshots/jade-fluid-26.1-large-enhanced-finite.png",
+      "build/porting/reference-mun-1.21/run/mun-reference/screenshots/jade-fluid-1.21-large-enhanced-finite.png"
+    ],
+    "question": "The paired enhanced finite-tank images have similar geometry but visibly different fluid tint. Compare mod vertex colors, blending and animation phase before attributing the difference to vanilla 26.1 rendering.",
+    "constraint": "Retain vanilla 26.1 rendering and restore mod-owned resources/effects."
   }
 }
