@@ -261,6 +261,7 @@ public final class AutoEnchantingTests {
         machine.getItemHandler().set(1, ItemResource.of(Items.DIAMOND), 1);
         machine.getItemHandler().set(2, ItemResource.of(ModItems.EMERALD_AMULET.asStack()), 1);
         var pos = machine.getBlockPos();
+        machine.setGrid(null);
         helper.getLevel().destroyBlock(pos, true);
         var drops = helper.getLevel().getEntitiesOfClass(net.minecraft.world.entity.item.ItemEntity.class,
             new net.minecraft.world.phys.AABB(pos).inflate(1));

@@ -3090,5 +3090,24 @@
       "A single mod-name footer remains subject to the installed Jade version and user settings.",
       "These changes affect client presentation only; the previous storage backend node passed 667 server GameTests."
     ]
+  },
+  "removed_power_registration": {
+    "status": "removed_queue_regression_verified",
+    "changed": [
+      "Discard removed block entities before queued power-grid registration.",
+      "Clear the isolated auto-enchanting fixture grid before testing block removal.",
+      "Bound GameTest pre-start chunk waits to 30 seconds with diagnostics; no chunk readiness check or assertion is bypassed."
+    ],
+    "verification": {
+      "focused": "build/porting/tests-grid-removed.log",
+      "focused_tests_passed": 1,
+      "combined_port_suite": "build/porting/tests-uploader-final-all.log",
+      "required_tests_passed": 677,
+      "style": "build/porting/style-uploader-final.log"
+    },
+    "limits": [
+      "Earlier full runs stopped before later test functions started: forced chunks were loaded but some remained TRACKED rather than TICKING. Runtime inspection distinguished this driver wait from assertion failures.",
+      "An experimental ticket-reissue branch never executed in the passing run and was removed; the final driver only observes and times out stalled setup."
+    ]
   }
 }

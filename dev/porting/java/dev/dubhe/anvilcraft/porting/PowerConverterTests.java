@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.porting;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
+import dev.dubhe.anvilcraft.api.power.PowerGridManager;
 import dev.dubhe.anvilcraft.block.entity.CreativeGeneratorBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.FeCollectorBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.PowerConverterBlockEntity;
@@ -44,7 +45,8 @@ public final class PowerConverterTests {
         "port_converter_states", PowerConverterTests::states,
         "port_converter_generation", PowerConverterTests::generation,
         "port_converter_transactions", PowerConverterTests::transactions,
-        "port_converter_recipes", PowerConverterTests::recipes
+        "port_converter_recipes", PowerConverterTests::recipes,
+        "port_converter_removed_queue", PowerConverterTests::removedQueue
     );
 
     @SubscribeEvent
@@ -63,6 +65,17 @@ public final class PowerConverterTests {
     private static List<BasePowerConverterBlock> blocks() {
         return List.of(ModBlocks.POWER_CONVERTER_SMALL.get(), ModBlocks.POWER_CONVERTER_MIDDLE.get(), ModBlocks.POWER_CONVERTER_BIG.get(),
             ModBlocks.POWER_CONVERTER_SUPER_BIG.get(), ModBlocks.POWER_CONVERTER_EXTREMELY_BIG.get());
+    }
+
+    private static void removedQueue(GameTestHelper helper) {
+        var converter = place(helper, 0);
+        var manager = new PowerGridManager();
+        manager.addComponent(converter);
+        helper.setBlock(POS, Blocks.AIR);
+        helper.assertTrue(converter.isRemoved(), "Fixture removes the block entity before queued registration");
+        manager.tick();
+        helper.assertTrue(manager.getGridSet(helper.getLevel()).isEmpty(), "Removed components must not re-enter a grid");
+        helper.succeed();
     }
 
     private static PowerConverterBlockEntity place(GameTestHelper helper, int tier) {
