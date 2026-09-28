@@ -10,6 +10,9 @@ public class ConfigScreenLang {
     ///
     /// @param provider 提供器
     public static void init(RegistrumLangProvider provider) {
+        addOverride(provider, "anvilcraft.configuration.use_legacy_creative_tab", "Use Legacy Creative Inventory");
+        addOverride(provider, "anvilcraft.configuration.use_legacy_creative_tab.tooltip",
+            "Uses the flat legacy creative inventory layout instead of the sectioned layout with banners (requires restart)");
         addOverride(provider, "anvilcraft.configuration.building_rod_controls", "Building Rod Blueprint Controls");
         addOverride(provider,
             "anvillib.configuration.enum.dev.dubhe.anvilcraft.config.anvil_craft_client_config.building_rod_controls.traditional", "Traditional");

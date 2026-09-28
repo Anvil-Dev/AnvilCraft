@@ -94,7 +94,6 @@ public class BuildingBlocks extends DisplayItemsGenerator {
         this.plain(ModBlocks.MOB_AMBER_BLOCK);
         this.plain(ModBlocks.RESENTFUL_AMBER_BLOCK);
         this.plain(ModBlocks.TEMPERING_GLASS);
-        this.plain(ModBlocks.HYPERCUBE);
         this.plain(ModBlocks.FROST_GLASS);
         this.plain(ModBlocks.EMBER_GLASS);
 
@@ -115,6 +114,11 @@ public class BuildingBlocks extends DisplayItemsGenerator {
         this.plain(ModBlocks.END_DUST);
         this.plain(ModBlocks.LUNAR_ROCK);
         this.plain(ModBlocks.LUNAR_SOIL);
+        this.plain(ModBlocks.MONOLITH);
+        this.plain(ModBlocks.MONOLITH_CORE);
+        this.plain(ModBlocks.MONOLITH_LINE);
+        this.plain(ModBlocks.GIANT_MONOLITH_CORE);
+        this.plain(ModBlocks.GIANT_MONOLITH_LINE);
         this.plain(ModBlocks.RAW_ZINC_BLOCK);
         this.plain(ModBlocks.RAW_TIN_BLOCK);
         this.plain(ModBlocks.RAW_TITANIUM_BLOCK);
@@ -142,6 +146,7 @@ public class BuildingBlocks extends DisplayItemsGenerator {
         this.plain(ModBlocks.NEGATIVE_MATTER_BLOCK);
 
         this.plain(ModBlocks.SINGULARITY_CRYSTAL);
+        this.plain(ModBlocks.HYPERCUBE);
 
         // Heated and incandescent metal variants.
         this.plain(ModBlocks.HEATED_NETHERITE_BLOCK);
@@ -160,7 +165,6 @@ public class BuildingBlocks extends DisplayItemsGenerator {
         this.plain(ModBlocks.CROSS_MARK);
         this.plain(ModBlocks.EXCLAMATION_MARK);
         this.plain(ModBlocks.QUESTION_MARK);
-        this.plain(ModBlocks.RUINS_BLOCK);
         this.plain(ModBlocks.FLINT_BLOCK);
         this.plain(ModBlocks.POLISHED_FLINT_BLOCK);
         this.plain(ModBlocks.CUT_FLINT_BLOCK);
@@ -199,10 +203,5 @@ public class BuildingBlocks extends DisplayItemsGenerator {
         this.plain(ModBlocks.SUGAR_BLOCK);
         this.plain(ModBlocks.GUNPOWER_BLOCK);
         this.plain(ModBlocks.ROTTEN_FLESH_BLOCK);
-        this.plain(ModBlocks.MONOLITH);
-        this.plain(ModBlocks.MONOLITH_CORE);
-        this.plain(ModBlocks.MONOLITH_LINE);
-        this.plain(ModBlocks.GIANT_MONOLITH_CORE);
-        this.plain(ModBlocks.GIANT_MONOLITH_LINE);
     }
 }

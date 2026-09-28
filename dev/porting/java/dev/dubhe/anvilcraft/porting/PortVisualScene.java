@@ -120,6 +120,14 @@ public final class PortVisualScene {
             if (prepared) UploaderClientScene.frame(client);
             return;
         }
+        if (Boolean.getBoolean("anvilcraft.portCreativeSectionsScene")) {
+            CreativeSectionsClientScene.frame(client);
+            return;
+        }
+        if (Boolean.getBoolean("anvilcraft.portCursedAppleScene")) {
+            CursedAppleClientScene.frame(client);
+            return;
+        }
         if (Boolean.getBoolean("anvilcraft.portLargeCauldronRenderScene")) {
             LargeCauldronRenderScene.frame(client);
             return;

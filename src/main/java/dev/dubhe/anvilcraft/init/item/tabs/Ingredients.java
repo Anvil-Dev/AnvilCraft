@@ -1,8 +1,7 @@
 package dev.dubhe.anvilcraft.init.item.tabs;
 
-import dev.anvilcraft.lib.v2.registrum.util.entry.ItemEntry;
+import dev.dubhe.anvilcraft.init.item.ModFoodItems;
 import dev.dubhe.anvilcraft.init.item.ModItems;
-import net.minecraft.world.item.BucketItem;
 
 public class Ingredients extends DisplayItemsGenerator {
     @Override
@@ -60,6 +59,7 @@ public class Ingredients extends DisplayItemsGenerator {
         this.plain(ModItems.RAW_SILVER);
         this.plain(ModItems.RAW_URANIUM);
 
+        // Gems and progression materials.
         this.plain(ModItems.TOPAZ);
         this.plain(ModItems.RUBY);
         this.plain(ModItems.SAPPHIRE);
@@ -67,6 +67,7 @@ public class Ingredients extends DisplayItemsGenerator {
         this.plain(ModItems.CIRCUIT_BOARD);
         this.plain(ModItems.PROCESSOR);
 
+        // Smithing templates.
         this.plain(ModItems.ROYAL_STEEL_UPGRADE_SMITHING_TEMPLATE);
         this.plain(ModItems.FROST_METAL_UPGRADE_SMITHING_TEMPLATE);
         this.plain(ModItems.EMBER_METAL_UPGRADE_SMITHING_TEMPLATE);
@@ -76,6 +77,7 @@ public class Ingredients extends DisplayItemsGenerator {
         this.plain(ModItems.FOUR_TO_ONE_SMITHING_TEMPLATE);
         this.plain(ModItems.EIGHT_TO_ONE_SMITHING_TEMPLATE);
 
+        // Advanced components.
         this.plain(ModItems.HEAVY_HALBERD_CORE);
         this.plain(ModItems.RESONATOR_CORE);
         this.plain(ModItems.MULTIPHASE_TRANSCENDIUM);
@@ -87,6 +89,7 @@ public class Ingredients extends DisplayItemsGenerator {
         this.plain(ModItems.MAGNETAR_COIL_COMPONENT);
         this.plain(ModItems.STELLAR_EVOLUTION_ACCELERATOR_COMPONENT);
 
+        // Void matter and neutronium.
         this.plain(ModItems.VOID_MATTER);
         this.plain(ModItems.EXCITED_STATE_VOID_MATTER);
         this.plain(ModItems.EARTH_CORE_SHARD);
@@ -97,6 +100,7 @@ public class Ingredients extends DisplayItemsGenerator {
         this.plain(ModItems.STABLE_NEUTRONIUM_INGOT);
         this.plain(ModItems.CHARGED_NEUTRONIUM_INGOT);
 
+        // Cooking ingredients are also listed in the tools tab for quick access.
         this.plain(ModItems.CREAM);
         this.plain(ModItems.DOUGH);
         this.plain(ModItems.FLOUR);
@@ -104,6 +108,7 @@ public class Ingredients extends DisplayItemsGenerator {
         this.plain(ModItems.COCOA_LIQUOR);
         this.plain(ModItems.COCOA_BUTTER);
 
+        // Fluid ingredients.
         this.plain(ModItems.EXP_BUCKET);
         this.plain(ModItems.OIL_BUCKET);
         this.plain(ModItems.MELT_GEM_BUCKET);
@@ -114,9 +119,6 @@ public class Ingredients extends DisplayItemsGenerator {
         this.plain(ModItems.XENON_BUCKET);
         this.plain(ModItems.KRYPTON_BUCKET);
         this.plain(ModItems.PRIMORDIAL_MATTER_BUCKET);
-
-        for (ItemEntry<BucketItem> entry : ModItems.CEMENT_BUCKETS.values()) {
-            this.plain(entry.asItem());
-        }
+        ModItems.CEMENT_BUCKETS.forEach((color, bucketItem) -> this.plain(bucketItem));
     }
 }

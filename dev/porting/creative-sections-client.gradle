@@ -1,0 +1,38 @@
+def legacy = gradle.startParameter.projectProperties.containsKey('portCreativeLegacy')
+def reference = gradle.startParameter.projectProperties.containsKey('portCreativeReference')
+gradle.projectsEvaluated {
+    def configPath = rootProject.file(reference ? 'run/mun-reference/config/anvilcraft-client.toml'
+        : 'run/port-validation/client/config/anvilcraft-client.toml').absolutePath
+    def backupPath = rootProject.file('build/porting/creative-sections-client-config-backup.toml').absolutePath
+    def restore = rootProject.tasks.register('restoreCreativeSectionsClientConfig') {
+        doLast {
+            def backup = new File(backupPath)
+            if (backup.exists()) new File(configPath).bytes = backup.bytes
+        }
+    }
+    rootProject.tasks.named('runClient') {
+        if (!reference) {
+            systemProperty 'anvilcraft.portVisualScene', 'true'
+            systemProperty 'anvilcraft.portCfaItemScene', 'true'
+            args '--width', '1280', '--height', '720'
+        }
+        systemProperty 'anvilcraft.portCreativeSectionsScene', 'true'
+        systemProperty 'anvilcraft.portCreativeLegacy', legacy.toString()
+        doFirst {
+            def config = new File(configPath)
+            if (!config.isFile()) throw new GradleException('Run the validation client once before the creative mode fixture')
+            def backup = new File(backupPath)
+            backup.parentFile.mkdirs()
+            backup.bytes = config.bytes
+            def text = config.getText('UTF-8')
+            def key = 'use_legacy_creative_tab = ' + legacy
+            if (text =~ /(?m)^\s*use_legacy_creative_tab\s*=/) {
+                text = text.replaceAll(/(?m)^\s*use_legacy_creative_tab\s*=.*$/, key)
+            } else {
+                text += '\n' + key + '\n'
+            }
+            config.setText(text, 'UTF-8')
+        }
+        finalizedBy(restore)
+    }
+}

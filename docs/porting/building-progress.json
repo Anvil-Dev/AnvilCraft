@@ -2089,47 +2089,137 @@
     ]
   },
   "creative_sectioned_layout": {
-    "source_commit": "07eb60b47f14439375da10e78f4d4770f3a83256",
-    "status": "pending_content_reference_mapping_and_layout_port",
-    "dependency": "creative_variants supplies the native Registrum section/picker APIs",
-    "unresolved_source_names": {
-      "ItemsSections": {
-        "ModItems": [
-          "DEFORMATION_TEMPLATE_ITEM",
-          "PERMUTATION_TEMPLATE_ITEM"
-        ],
-        "ModBlocks": []
+    "source_commit": "a3a037f17876b2e7036779baee71898978c5d4be",
+    "status": "ported_and_verified",
+    "verification": {
+      "source_commit": "a3a037f17876b2e7036779baee71898978c5d4be",
+      "catalogs": {
+        "sectioned": {
+          "items/expanded": {
+            "display_cells": 281,
+            "search_entries": 214,
+            "sections": 9
+          },
+          "building_blocks/expanded": {
+            "display_cells": 245,
+            "search_entries": 217,
+            "sections": 5
+          },
+          "functional_blocks/expanded": {
+            "display_cells": 216,
+            "search_entries": 160,
+            "sections": 9
+          },
+          "items/folded": {
+            "display_cells": 266,
+            "search_entries": 214,
+            "sections": 9
+          },
+          "building_blocks/folded": {
+            "display_cells": 182,
+            "search_entries": 217,
+            "sections": 5
+          },
+          "functional_blocks/folded": {
+            "display_cells": 216,
+            "search_entries": 160,
+            "sections": 9
+          }
+        },
+        "legacy": {
+          "building_blocks/expanded": {
+            "display_cells": 225,
+            "search_entries": 225,
+            "sections": 0
+          },
+          "functional_blocks/expanded": {
+            "display_cells": 148,
+            "search_entries": 148,
+            "sections": 0
+          },
+          "ingredients/expanded": {
+            "display_cells": 114,
+            "search_entries": 114,
+            "sections": 0
+          },
+          "tools_and_utilities/expanded": {
+            "display_cells": 100,
+            "search_entries": 100,
+            "sections": 0
+          },
+          "building_blocks/folded": {
+            "display_cells": 165,
+            "search_entries": 225,
+            "sections": 0
+          },
+          "functional_blocks/folded": {
+            "display_cells": 148,
+            "search_entries": 148,
+            "sections": 0
+          },
+          "ingredients/folded": {
+            "display_cells": 99,
+            "search_entries": 114,
+            "sections": 0
+          },
+          "tools_and_utilities/folded": {
+            "display_cells": 100,
+            "search_entries": 100,
+            "sections": 0
+          }
+        }
       },
-      "FunctionalBlocksSections": {
-        "ModItems": [],
-        "ModBlocks": [
-          "HYPERDIMENSION_UPLOADER",
-          "OVERSEER_BLOCK"
-        ]
+      "banner_mean_rgb_difference": {
+        "items/0": 0.21810699588477367,
+        "items/1": 0.2674897119341564,
+        "items/2": 0.25205761316872427,
+        "items/3": 0.25617283950617287,
+        "items/4": 0.2613168724279835,
+        "items/5": 0.2736625514403292,
+        "items/6": 0.24897119341563786,
+        "items/7": 0.29732510288065844,
+        "items/8": 0.2674897119341564,
+        "building_blocks/0": 0.2736625514403292,
+        "building_blocks/1": 0.2767489711934156,
+        "building_blocks/2": 0.22530864197530864,
+        "building_blocks/3": 0.2613168724279835,
+        "building_blocks/4": 0.294238683127572,
+        "functional_blocks/0": 0.27469135802469136,
+        "functional_blocks/1": 0.2397119341563786,
+        "functional_blocks/2": 0.2932098765432099,
+        "functional_blocks/3": 0.21604938271604937,
+        "functional_blocks/4": 0.25102880658436216,
+        "functional_blocks/5": 0.25205761316872427,
+        "functional_blocks/6": 0.2777777777777778,
+        "functional_blocks/7": 0.1748971193415638,
+        "functional_blocks/8": 0.25823045267489714
       },
-      "BuildingBlocksSections": {
-        "ModItems": [],
-        "ModBlocks": [
-          "GUNPOWDER_BLOCK",
-          "RUINS_BLOCK"
-        ]
-      }
+      "client_screenshots_per_version": 34,
+      "apple_real_player_cases_per_version": 5,
+      "full_required_tests": 744,
+      "contracts": [
+        "Default three sectioned tabs and restart-controlled four legacy tabs preserve source titles, ordering and complete expanded/folded catalogs.",
+        "All 23 section banners retain source textures, alignment, text ranges, row boundaries and empty non-item cells.",
+        "Search catalogs keep every color while category folding follows source boundaries; cement bucket ordering is deterministic.",
+        "Energy, enchantments, filter defaults, displayed food, saved mobs and food metadata match after explicit registry/codec normalization.",
+        "Cursed golden apples preserve the source recipe, texture, food values, positive/negative dimension scaling, End respawn and consumption rules.",
+        "Canned food has source default stew, sixteen-tick consumption, copied custom contents and localized quantity tooltips."
+      ],
+      "limits": [
+        "Concrete IDs retain existing 26.1 color-prefix naming; renamed IDs and codec layouts are explicitly normalized, not rewritten in saves.",
+        "Banner comparisons isolate the UI artwork/text; ordinary item lighting and vanilla inventory chrome remain native.",
+        "Live apple tests use controlled safe platforms; the source landing search/fallback algorithms were carried over with height/teleport API adaptations."
+      ]
     },
-    "note": "These are unmatched Java field names, not a confirmed list of missing registry entries; map aliases and port missing content before source layout acceptance.",
-    "verified_aliases": {
-      "ModItems.DEFORMATION_TEMPLATE_ITEM": "ModItems.DEFORMATION_TEMPLATE",
-      "ModItems.PERMUTATION_TEMPLATE_ITEM": "ModItems.PERMUTATION_TEMPLATE",
-      "ModBlocks.OVERSEER_BLOCK": "ModBlocks.OVERSEER",
-      "ModBlocks.GUNPOWDER_BLOCK": "ModBlocks.GUNPOWER_BLOCK"
+    "logs": {
+      "native_sectioned": "build/porting/client-creative-sections-3.log",
+      "source_sectioned": "build/porting/client-creative-sections-reference-4.log",
+      "native_legacy": "build/porting/client-creative-legacy-2.log",
+      "source_legacy": "build/porting/client-creative-legacy-reference-2.log",
+      "full_tests_and_checks": "build/porting/tests-creative-sections-final-all.log",
+      "data": "build/porting/data-creative-sections-verified.log"
     },
-    "completed_content_nodes": [
-      "confectionery_blocks",
-      "gas_fluids_and_buckets",
-      "power_converter_tiers",
-      "creative_laser",
-      "mass_energy_inverter",
-      "hypercube"
-    ]
+    "remaining": []
   },
   "confectionery_blocks": {
     "source_commit": "07eb60b47f14439375da10e78f4d4770f3a83256",
@@ -4355,5 +4445,55 @@
       "source_client": "build/porting/client-large-cauldron-render-reference-1.log"
     },
     "remaining": []
+  },
+  "cursed_golden_apple": {
+    "source_commit": "a3a037f17876b2e7036779baee71898978c5d4be",
+    "status": "gameplay_registration_and_resources_verified",
+    "verification": {
+      "real_player_cases_per_version": 5,
+      "routes": [
+        "overworld-nether",
+        "negative-coordinates",
+        "nether-overworld",
+        "end-respawn",
+        "creative"
+      ],
+      "matching_results": true,
+      "recipe_and_texture_match": true,
+      "food_properties_gametest": true
+    },
+    "logs": {
+      "native_client": "build/porting/client-cursed-apple-2.log",
+      "source_client": "build/porting/client-cursed-apple-reference-1.log"
+    },
+    "remaining": [
+      "Linked handbook pages remain part of the broader handbook/resource audit."
+    ]
+  },
+  "canned_food_defaults": {
+    "source_commit": "a3a037f17876b2e7036779baee71898978c5d4be",
+    "status": "ported_and_verified",
+    "verification": {
+      "default_stew": true,
+      "use_duration_ticks": 16,
+      "ingredient_multipliers": [
+        1,
+        1.8,
+        2.4,
+        2.8,
+        3
+      ],
+      "localized_contents_tooltip": true,
+      "food_tests_including_apple": 4,
+      "full_required_tests": 744
+    },
+    "changes": [
+      "Native default component initialization uses a memoized display stack template to avoid constructing ItemStack before components bind.",
+      "StoredItem retains its ItemStack constructor, stored() accessor, codecs and value equality; custom canned foods receive native Consumable data."
+    ],
+    "logs": {
+      "focused": "build/porting/tests-creative-food-2.log",
+      "full": "build/porting/tests-creative-sections-final-all.log"
+    }
   }
 }

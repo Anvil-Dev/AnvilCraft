@@ -121,8 +121,8 @@ import dev.dubhe.anvilcraft.util.BlockMiningEffect;
 import dev.dubhe.anvilcraft.util.dummy.DummyHolder;
 import dev.dubhe.anvilcraft.util.registrater.DataGenUtil;
 import dev.dubhe.anvilcraft.util.registrater.ModelProviderUtil;
+import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
-import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.client.data.models.model.ItemModelUtils;
 import net.minecraft.client.data.models.model.ModelLocationUtils;
 import net.minecraft.client.data.models.model.ModelTemplate;
@@ -1486,7 +1486,7 @@ public class ModItems {
     public static final Object2ObjectMap<Color, ItemEntry<BucketItem>> CEMENT_BUCKETS = ModItems.registerAllCementBuckets();
 
     private static Object2ObjectMap<Color, ItemEntry<BucketItem>> registerAllCementBuckets() {
-        Object2ObjectMap<Color, ItemEntry<BucketItem>> map = new Object2ObjectOpenHashMap<>();
+        Object2ObjectMap<Color, ItemEntry<BucketItem>> map = new Object2ObjectLinkedOpenHashMap<>();
         for (Color color : Color.values()) {
             var entry = ModItems.registerCementBucket(color);
             map.put(color, entry);

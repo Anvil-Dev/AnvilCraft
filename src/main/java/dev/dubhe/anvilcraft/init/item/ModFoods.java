@@ -3,6 +3,8 @@ package dev.dubhe.anvilcraft.init.item;
 import net.minecraft.world.food.FoodProperties;
 
 public class ModFoods {
+    public static final FoodProperties CURSED_GOLDEN_APPLE = new FoodProperties.Builder()
+        .nutrition(4).saturationModifier(0.3F).alwaysEdible().build();
     public static final FoodProperties CHOCOLATE = new FoodProperties.Builder()
         .nutrition(2)
         .saturationModifier(4.0F)

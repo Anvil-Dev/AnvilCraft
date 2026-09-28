@@ -1,25 +1,38 @@
 package dev.dubhe.anvilcraft.item.property.component;
 
+import com.google.common.base.Suppliers;
 import com.mojang.serialization.Codec;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import net.minecraft.core.component.DataComponentGetter;
-import net.minecraft.core.component.DataComponentType;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.component.TooltipProvider;
 
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
-/// 由于 {@link DataComponentType} 要求存储的数值必须继承 `hashCode` 与 `equals` 方法，
-/// 我们需要一个记录类存储用于展示的物品。
-///
-/// @param stored 被储存的用于展示的物品
-/// @apiNote `stored` 中的物品仅用于展示，不要尝试修改它。
-public record StoredItem(ItemStack stored) implements TooltipProvider {
+/// 展示物品的数据组件；模板允许在默认组件绑定完成后再创建物品栈。
+public final class StoredItem implements TooltipProvider {
+    private final Supplier<ItemStack> stored;
+
+    public StoredItem(ItemStack stored) {
+        this.stored = () -> stored;
+    }
+
+    public StoredItem(ItemStackTemplate template) {
+        this.stored = Suppliers.memoize(template::create);
+    }
+
+    /// 返回仅用于展示的物品栈，调用方不应修改它。
+    public ItemStack stored() {
+        return this.stored.get();
+    }
+
     public static Codec<StoredItem> CODEC = ItemStack.CODEC.xmap(
         StoredItem::new,
         StoredItem::stored
@@ -32,13 +45,13 @@ public record StoredItem(ItemStack stored) implements TooltipProvider {
 
     @Override
     public boolean equals(Object obj) {
-        if (!(obj instanceof StoredItem(ItemStack stack))) return false;
-        return ItemStack.isSameItemSameComponents(this.stored, stack);
+        if (!(obj instanceof StoredItem other)) return false;
+        return ItemStack.isSameItemSameComponents(this.stored(), other.stored());
     }
 
     @Override
     public int hashCode() {
-        return ItemStack.hashItemAndComponents(this.stored);
+        return ItemStack.hashItemAndComponents(this.stored());
     }
 
     @Override
@@ -49,7 +62,7 @@ public record StoredItem(ItemStack stored) implements TooltipProvider {
             if (stored.getCount() == 1) {
                 consumer.accept(stored.getHoverName());
             } else {
-                consumer.accept(stored.getHoverName().copy().append(" x").append(String.valueOf(stored.getCount())));
+                consumer.accept(Component.translatable("tooltip.anvilcraft.item_count", stored.getHoverName(), stored.getCount()));
             }
         }
     }

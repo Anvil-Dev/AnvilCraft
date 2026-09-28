@@ -49,6 +49,10 @@ public class ItemTooltipManager {
     private static final Map<Item, String> SHIFT = Maps.newHashMap();
 
     static {
+        NORMAL.put(ModFoodItems.CURSED_GOLDEN_APPLE.get(), """
+            Eating teleports:
+            Overworld <-> Nether
+            End -> respawn point""");
         NORMAL.put(ModBlocks.HYPERDIMENSION_UPLOADER.asItem(), "Can interact with hoppers or chutes to upload items to the Hyperdimension Storage Station");
         SHIFT.put(ModBlocks.HYPERDIMENSION_UPLOADER.asItem(), """
             Right-click a placed Singularity Crystal with a bound Hyperdimension Terminal to create it
