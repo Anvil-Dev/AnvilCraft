@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.api.tooltip;
 
+import com.mojang.serialization.Codec;
 import dev.dubhe.anvilcraft.inventory.tooltip.FluidTankTooltip;
 import dev.dubhe.anvilcraft.util.UnitUtil;
 import net.minecraft.ChatFormatting;
@@ -106,8 +107,12 @@ public final class FluidTankItemTooltip {
 
     /// 读出大型储罐物品中的所有流体，供物品渲染复用
     public static List<FluidStack> readMultiTankFluids(ItemStack stack) {
+        return readMultiTankFluids(stack, null);
+    }
+
+    public static List<FluidStack> readMultiTankFluids(ItemStack stack, HolderLookup.@Nullable Provider registries) {
         List<FluidStack> fluids = new ArrayList<>();
-        for (TooltipFluid stored : FluidTankItemTooltip.readMultipleFluids(FluidTankItemTooltip.getTankTag(stack), null)) {
+        for (TooltipFluid stored : FluidTankItemTooltip.readMultipleFluids(FluidTankItemTooltip.getTankTag(stack), registries)) {
             fluids.add(stored.fluid());
         }
         return fluids;
@@ -125,7 +130,13 @@ public final class FluidTankItemTooltip {
     }
 
     private static FluidStack readFluid(CompoundTag tag) {
-        return tag.read(FluidTankItemTooltip.TAG_FLUID, FluidStack.OPTIONAL_CODEC).orElse(FluidStack.EMPTY);
+        return readFluid(tag, null);
+    }
+
+    private static FluidStack readFluid(CompoundTag tag, HolderLookup.@Nullable Provider registries) {
+        var ops = registries == null ? NbtOps.INSTANCE : registries.createSerializationContext(NbtOps.INSTANCE);
+        CompoundTag fluid = tag.contains(TAG_FLUID) ? tag.getCompoundOrEmpty(TAG_FLUID) : tag;
+        return FluidStack.OPTIONAL_CODEC.parse(ops, fluid).result().orElse(FluidStack.EMPTY);
     }
 
     private static List<TooltipFluid> readSingleFluid(
@@ -133,7 +144,7 @@ public final class FluidTankItemTooltip {
         HolderLookup.@Nullable Provider registries,
         int capacity
     ) {
-        FluidStack fluid = FluidTankItemTooltip.readFluid(tankTag);
+        FluidStack fluid = FluidTankItemTooltip.readFluid(tankTag, registries);
         if (fluid.isEmpty()) return new ArrayList<>();
         int amount = Math.min(fluid.getAmount(), capacity);
         return new ArrayList<>(List.of(new TooltipFluid(fluid.copyWithAmount(amount), false)));
@@ -146,14 +157,15 @@ public final class FluidTankItemTooltip {
         List<TooltipFluid> fluids = new ArrayList<>();
         boolean enhanced = tankTag.getBooleanOr(FluidTankItemTooltip.TAG_ENHANCED, false);
         ListTag fluidsTag = tankTag.getListOrEmpty(FluidTankItemTooltip.TAG_FLUIDS);
+        List<Boolean> infinite = tankTag.read(TAG_INFINITE, Codec.BOOL.listOf()).orElse(List.of());
         for (int i = 0; i < fluidsTag.size(); i++) {
             CompoundTag storedFluidTag = fluidsTag.getCompound(i).orElse(null);
             if (storedFluidTag == null) continue;
-            FluidStack fluid = FluidTankItemTooltip.readFluid(storedFluidTag);
+            FluidStack fluid = FluidTankItemTooltip.readFluid(storedFluidTag, registries);
             if (!fluid.isEmpty()) {
                 fluids.add(new TooltipFluid(
                     fluid,
-                    enhanced && storedFluidTag.getBooleanOr(FluidTankItemTooltip.TAG_INFINITE, false)
+                    enhanced && storedFluidTag.getBooleanOr(FluidTankItemTooltip.TAG_INFINITE, i < infinite.size() && infinite.get(i))
                 ));
             }
         }

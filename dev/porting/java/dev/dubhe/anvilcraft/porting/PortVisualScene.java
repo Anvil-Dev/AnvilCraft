@@ -120,6 +120,10 @@ public final class PortVisualScene {
             if (prepared) UploaderClientScene.frame(client);
             return;
         }
+        if (Boolean.getBoolean("anvilcraft.portLargeTankLayersScene")) {
+            if (prepared) LargeTankLayersClientScene.frame(client);
+            return;
+        }
         if (Boolean.getBoolean("anvilcraft.portJadeFluidParityScene")) {
             if (prepared) JadeFluidParityClientScene.frame(client);
             return;

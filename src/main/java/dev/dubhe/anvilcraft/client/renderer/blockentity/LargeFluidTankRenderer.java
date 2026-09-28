@@ -15,63 +15,50 @@
 
 package dev.dubhe.anvilcraft.client.renderer.blockentity;
 
-import dev.dubhe.anvilcraft.api.fluid.InfinityFluidTank;
+import com.mojang.blaze3d.vertex.PoseStack;
 import dev.dubhe.anvilcraft.block.entity.LargeFluidTankBlockEntity;
-import dev.dubhe.anvilcraft.client.renderer.blockentity.state.FluidHandlerRenderState;
+import dev.dubhe.anvilcraft.client.renderer.LargeFluidTankRenderUtil;
+import dev.dubhe.anvilcraft.client.renderer.blockentity.state.LayeredFluidTankRenderState;
+import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
+import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.transfer.ResourceHandler;
-import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import org.jspecify.annotations.Nullable;
 
-public class LargeFluidTankRenderer extends BaseFluidHandlerHolderRenderer<LargeFluidTankBlockEntity, FluidHandlerRenderState> {
-    private static final float TANK_W = 4 / 16F + 0.001F; // avoiding Z-fighting
+import java.util.List;
 
+public class LargeFluidTankRenderer implements BlockEntityRenderer<LargeFluidTankBlockEntity, LayeredFluidTankRenderState> {
     public LargeFluidTankRenderer(BlockEntityRendererProvider.Context ignored) {
     }
 
     @Override
-    public FluidHandlerRenderState createRenderState() {
-        return new FluidHandlerRenderState();
+    public LayeredFluidTankRenderState createRenderState() {
+        return new LayeredFluidTankRenderState();
     }
 
     @Override
     public boolean shouldRender(LargeFluidTankBlockEntity blockEntity, Vec3 cameraPosition) {
-        return blockEntity.isMainPart() && super.shouldRender(blockEntity, cameraPosition);
+        return blockEntity.isMainPart() && BlockEntityRenderer.super.shouldRender(blockEntity, cameraPosition);
     }
 
     @Override
     public void extractRenderState(
-        LargeFluidTankBlockEntity be,
-        FluidHandlerRenderState state,
-        float partialTicks,
-        Vec3 cameraPosition,
-        ModelFeatureRenderer.@Nullable CrumblingOverlay breakProgress
+        LargeFluidTankBlockEntity be, LayeredFluidTankRenderState state, float partialTicks,
+        Vec3 cameraPosition, ModelFeatureRenderer.@Nullable CrumblingOverlay breakProgress
     ) {
-        if (!be.isMainPart()) {
-            state.setResource(null);
-            state.setFill(0.0F);
-            return;
+        BlockEntityRenderer.super.extractRenderState(be, state, partialTicks, cameraPosition, breakProgress);
+        state.layers = be.isMainPart() ? LargeFluidTankRenderUtil.layers(be.getStoredFluids(), be.isEnhanced()) : List.of();
+    }
+
+    @Override
+    public void submit(LayeredFluidTankRenderState state, PoseStack pose, SubmitNodeCollector collector, CameraRenderState camera) {
+        for (var layer : state.layers) {
+            LargeFluidTankRenderUtil.submit(layer, true, pose, collector, state.lightCoords,
+                BaseFluidHandlerHolderRenderer.FLUID_RENDER_TYPE);
         }
-        super.extractRenderState(be, state, partialTicks, cameraPosition, breakProgress);
-    }
-
-    @Override
-    protected void updateTankW(
-        LargeFluidTankBlockEntity be,
-        FluidHandlerRenderState state,
-        float partialTicks,
-        Vec3 cameraPosition,
-        ModelFeatureRenderer.@Nullable CrumblingOverlay breakProgress
-    ) {
-        state.setTankW(-1, -1, -1, 2, 2, 2, LargeFluidTankRenderer.TANK_W);
-    }
-
-    @Override
-    public float getFill(ResourceHandler<FluidResource> tank) {
-        return tank instanceof InfinityFluidTank infinity && infinity.isInfinity() ? 1.0F : super.getFill(tank);
     }
 
     @Override

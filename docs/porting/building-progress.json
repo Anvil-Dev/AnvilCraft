@@ -3970,12 +3970,106 @@
   },
   "large_tank_rendering_audit": {
     "source_commit": "a3a037f17876b2e7036779baee71898978c5d4be",
-    "status": "pending",
+    "status": "ported_and_verified",
     "evidence": [
       "run/port-validation/client/screenshots/jade-fluid-26.1-large-enhanced-finite.png",
       "build/porting/reference-mun-1.21/run/mun-reference/screenshots/jade-fluid-1.21-large-enhanced-finite.png"
     ],
     "question": "The paired enhanced finite-tank images have similar geometry but visibly different fluid tint. Compare mod vertex colors, blending and animation phase before attributing the difference to vanilla 26.1 rendering.",
-    "constraint": "Retain vanilla 26.1 rendering and restore mod-owned resources/effects."
+    "constraint": "Retain vanilla 26.1 rendering and restore mod-owned resources/effects.",
+    "finding": "The visible tint mismatch was caused by rendering only the first fluid instead of the source layers. Actual world/item render submissions now match source.",
+    "verification": "large_tank_layered_rendering"
+  },
+  "large_tank_layered_rendering": {
+    "source_commit": "a3a037f17876b2e7036779baee71898978c5d4be",
+    "status": "ported_and_verified",
+    "verification": {
+      "source_commit": "a3a037f17876b2e7036779baee71898978c5d4be",
+      "client_scenes": 13,
+      "world_and_item_cases": 18,
+      "matching_vertices": 4320,
+      "full_required_tests": 727,
+      "gallery": [
+        {
+          "index": 0,
+          "silhouette_iou": 0.9944448505226227,
+          "mean_rgb_difference": 2.9217162488122215
+        },
+        {
+          "index": 1,
+          "silhouette_iou": 0.9944448505226227,
+          "mean_rgb_difference": 3.834149550471457
+        },
+        {
+          "index": 2,
+          "silhouette_iou": 0.9944448505226227,
+          "mean_rgb_difference": 3.2071729649392102
+        },
+        {
+          "index": 3,
+          "silhouette_iou": 0.9949328950972336,
+          "mean_rgb_difference": 3.2530813475760065
+        },
+        {
+          "index": 4,
+          "silhouette_iou": 0.9949328950972336,
+          "mean_rgb_difference": 4.196201953802611
+        },
+        {
+          "index": 5,
+          "silhouette_iou": 0.9949328950972336,
+          "mean_rgb_difference": 4.196201953802611
+        },
+        {
+          "index": 6,
+          "silhouette_iou": 0.9945903623033668,
+          "mean_rgb_difference": 3.4814103020381046
+        },
+        {
+          "index": 7,
+          "silhouette_iou": 0.9948403962575674,
+          "mean_rgb_difference": 3.413960741148413
+        },
+        {
+          "index": 8,
+          "silhouette_iou": 0.9948403962575674,
+          "mean_rgb_difference": 3.338607594936709
+        }
+      ],
+      "contracts": [
+        "World and item forms share sorting, normalization and layer construction; equal amounts sort by fluid registry ID.",
+        "World gas occupies the full interior with share-based alpha; item gas retains source layer geometry.",
+        "Enhanced totals above the single-fluid threshold preserve source normalization; milk uses cutout material.",
+        "Current flat fluid lists and legacy nested item display data decode with registry context and their infinity flags.",
+        "Actual renderer submissions match source positions, normals, RGBA, light and material type; filled items render in a real GUI."
+      ],
+      "limits": [
+        "Vertex comparison uses fixed sky light to isolate mod geometry and color from native lightmaps.",
+        "Texture UV packing and animation phase are not asserted numerically; paired world/item images were inspected.",
+        "Gallery RGB differences include animated textures and native renderer shading; silhouettes exceed 0.99 IoU.",
+        "Single-tank/base-holder gas opacity and minimum-fill behavior still need a separate source audit."
+      ]
+    },
+    "logs": {
+      "full": "build/porting/tests-large-tank-layers-final.log",
+      "item_data": "build/porting/tests-large-tank-item-2.log",
+      "native_client": "build/porting/client-large-tank-layers-2.log",
+      "reference_client": "build/porting/client-large-tank-layers-reference-2.log"
+    },
+    "fixes": [
+      "World renderer previously drew only slot zero with a minimum fill, losing the source multi-fluid layering.",
+      "Item renderer and tooltip previously expected nested Fluid entries, while the 26.1 writer emits direct fluid entries and parallel Infinite flags.",
+      "Shared immutable layer descriptions now serve world and item rendering with their distinct source gas geometry rules."
+    ],
+    "data_scope": "Legacy support in this milestone concerns item display decoding; it does not claim full cross-version world-save migration."
+  },
+  "single_tank_rendering_audit": {
+    "source_commit": "a3a037f17876b2e7036779baee71898978c5d4be",
+    "status": "pending",
+    "findings": [
+      "Source FluidTankBlockEntityRenderer clamps fill to 0..1 without a minimum; native BaseFluidHandlerHolderRenderer forces at least 0.025.",
+      "Source FluidTankRenderUtil draws gas at full tank volume with fill-based opacity; native single-tank paths require a separate comparison."
+    ],
+    "next_step": "Review ordinary, creative, item and minecart callers against the shared source helper before changing shared defaults."
   }
 }
