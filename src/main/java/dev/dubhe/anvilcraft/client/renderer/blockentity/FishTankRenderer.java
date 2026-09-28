@@ -30,6 +30,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.client.model.standalone.StandaloneModelKey;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import org.joml.Quaternionf;
 import org.jspecify.annotations.Nullable;
 
@@ -58,6 +60,11 @@ public class FishTankRenderer extends BaseFluidHandlerHolderRenderer<FishTankBlo
     @Override
     public FishTankRenderState createRenderState() {
         return new FishTankRenderState();
+    }
+
+    @Override
+    public float getFill(ResourceHandler<FluidResource> tank) {
+        return Math.min(super.getFill(tank), 1);
     }
 
     @Override

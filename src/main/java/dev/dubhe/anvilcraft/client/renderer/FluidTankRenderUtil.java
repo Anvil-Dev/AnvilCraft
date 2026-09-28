@@ -15,9 +15,17 @@ public final class FluidTankRenderUtil {
     public static void submit(
         FluidResource resource, int amount, float fill, PoseStack pose, SubmitNodeCollector collector, int light, RenderType type
     ) {
+        submit(resource, amount, fill, 0, pose, collector, light, type);
+    }
+
+    public static void submit(
+        FluidResource resource, int amount, float fill, float insetPixels,
+        PoseStack pose, SubmitNodeCollector collector, int light, RenderType type
+    ) {
+        float inset = INSET + insetPixels / 16F;
         boolean gas = resource.getFluidType().isLighterThanAir();
-        float maxY = gas ? 1 - INSET : INSET + fill * (1 - 2 * INSET);
-        FluidRenderHelper.submitFluidBox(resource, amount, INSET, INSET, INSET, 1 - INSET, maxY, 1 - INSET,
+        float maxY = gas ? 1 - inset : inset + fill * (1 - 2 * inset);
+        FluidRenderHelper.submitFluidBox(resource, amount, inset, inset, inset, 1 - inset, maxY, 1 - inset,
             gas ? fill : 1, pose, collector, light, type);
     }
 }

@@ -4070,7 +4070,7 @@
       "Source FluidTankBlockEntityRenderer clamps fill to 0..1 without a minimum; native BaseFluidHandlerHolderRenderer forces at least 0.025.",
       "Source FluidTankRenderUtil draws gas at full tank volume with fill-based opacity; native single-tank paths require a separate comparison."
     ],
-    "next_step": "Selected tank forms are verified; remaining fluid-holder callers still require their own source-contract checks.",
+    "next_step": "Fluid-only holder comparisons are recorded in fluid_holder_rendering; non-fluid fish-tank rendering remains a separate audit.",
     "verification": "single_tank_rendering"
   },
   "single_tank_rendering": {
@@ -4155,8 +4155,43 @@
       "Common fluid geometry submission retains native render pipelines, gas alpha and milk cutout behavior.",
       "Creative tank items now register a special renderer and decode component/current-handler/legacy display data."
     ],
-    "remaining": [
-      "Independently audit other fluid-holder callers (for example drains, fish tanks and storage fluid ports) before altering their preserved base defaults."
+    "remaining": []
+  },
+  "fluid_holder_rendering": {
+    "source_commit": "a3a037f17876b2e7036779baee71898978c5d4be",
+    "status": "ported_and_verified",
+    "verification": {
+      "source_commit": "a3a037f17876b2e7036779baee71898978c5d4be",
+      "client_cases": 12,
+      "matching_vertices": 588,
+      "full_required_tests": 730,
+      "contracts": [
+        "Storage fluid port world/item rendering preserves its two-pixel extra inset, gas alpha and source milk cutout material.",
+        "Collector, fish tank and drain fluid levels follow source values without the old forced minimum.",
+        "Fish-tank fluid retains source height layering; drain gas uses full tank volume with opacity.",
+        "Drain column sides use flowing sprites, top uses still sprite and bottom stays omitted.",
+        "Reusing a drain render state after stopping the column clears its previous extent."
+      ],
+      "limits": [
+        "Client-only visual fixtures seed block-entity render data to isolate renderer behavior from fluid transfer ticks.",
+        "Fish/fire/item animation and external fish-render hooks are not covered by this fluid-only comparison.",
+        "Full GameTests passed before formatting-only cleanup; final compilation and Checkstyle passed separately."
+      ]
+    },
+    "logs": {
+      "full_tests": "build/porting/tests-fluid-holders-all.log",
+      "final_checks": "build/porting/checks-fluid-holders-final.log",
+      "native_client": "build/porting/client-fluid-holders-1.log",
+      "source_client": "build/porting/client-fluid-holders-reference-1.log"
+    }
+  },
+  "fish_tank_nonfluid_rendering_audit": {
+    "source_commit": "a3a037f17876b2e7036779baee71898978c5d4be",
+    "status": "pending",
+    "findings": [
+      "Source FishTankBlockEntityRenderer uses FishTankRenderHooks.showVanillaFire/afterRender; native renderer has no matching calls or hook class.",
+      "Source item placement seed is based on inventory contents; native renderer currently uses block-entity identity.",
+      "Compare empty-fluid fire height and fish animation state reuse alongside the hook adaptation."
     ]
   }
 }

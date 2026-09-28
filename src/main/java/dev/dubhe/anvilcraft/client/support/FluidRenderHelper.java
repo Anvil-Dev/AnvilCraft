@@ -51,14 +51,28 @@ public final class FluidRenderHelper {
         FluidResource resource, int amount, float minX, float minY, float minZ, float maxX, float maxY, float maxZ,
         float opacity, PoseStack pose, SubmitNodeCollector collector, int light, RenderType translucent
     ) {
+        submitFluidBox(resource, amount, minX, minY, minZ, maxX, maxY, maxZ,
+            opacity, pose, collector, light, translucent, true, false);
+    }
+
+    public static void submitFluidBox(
+        FluidResource resource, int amount, float minX, float minY, float minZ, float maxX, float maxY, float maxZ,
+        float opacity, PoseStack pose, SubmitNodeCollector collector, int light, RenderType translucent,
+        boolean renderBottom, boolean flowingSides
+    ) {
         var model = getModel(Minecraft.getInstance().getModelManager().getFluidStateModelSet(), resource.getFluid());
         var tint = model.fluidTintSource();
         int color = tint == null ? -1 : tint.colorAsStack(resource.toStack(Math.max(1, amount)));
         var sprite = model.stillMaterial().sprite();
-        RenderType type = resource.is(NeoForgeMod.MILK.get()) ? RenderTypes.cutoutMovingBlock() : translucent;
+        RenderType type = renderType(resource, translucent);
+        var sideSprite = flowingSides ? model.flowingMaterial().sprite() : sprite;
         collector.submitCustomGeometry(pose, type, (submittedPose, output) -> INSTANCE.renderFluidBox(
             sprite, resource, minX, minY, minZ, maxX, maxY, maxZ,
-            color, output, submittedPose, light, true, false, opacity));
+            color, output, submittedPose, light, renderBottom ? Set.of() : Set.of(Direction.DOWN), false, opacity, sideSprite));
+    }
+
+    public static RenderType renderType(FluidResource resource, RenderType translucent) {
+        return resource.is(NeoForgeMod.MILK.get()) ? RenderTypes.cutoutMovingBlock() : translucent;
     }
 
     public void renderFluidBox(
@@ -94,6 +108,16 @@ public final class FluidRenderHelper {
         float minX, float minY, float minZ, float maxX, float maxY, float maxZ,
         int color, VertexConsumer builder, PoseStack.Pose pose, int light, Set<Direction> skippedSides, boolean invertGasses, float opacity
     ) {
+        this.renderFluidBox(sprite, fluid, minX, minY, minZ, maxX, maxY, maxZ, color, builder, pose, light,
+            skippedSides, invertGasses, opacity, sprite);
+    }
+
+    public void renderFluidBox(
+        TextureAtlasSprite sprite, FluidResource fluid,
+        float minX, float minY, float minZ, float maxX, float maxY, float maxZ,
+        int color, VertexConsumer builder, PoseStack.Pose pose, int light, Set<Direction> skippedSides,
+        boolean invertGasses, float opacity, TextureAtlasSprite sideSprite
+    ) {
         int blockLightIn = (light >> 4) & 0xF;
         int luminosity = Math.max(blockLightIn, fluid.getFluidType().getLightLevel());
         light = (light & 0xF00000) | luminosity << 4;
@@ -114,23 +138,24 @@ public final class FluidRenderHelper {
             for (Direction side : Direction.values()) {
                 if (skippedSides.contains(side)) continue;
 
+                TextureAtlasSprite texture = side.getAxis().isHorizontal() ? sideSprite : sprite;
                 boolean positive = side.getAxisDirection() == Direction.AxisDirection.POSITIVE;
                 if (side.getAxis().isHorizontal()) {
                     if (side.getAxis() == Direction.Axis.X) {
                         FluidRenderHelper.renderStillTiledFace(
                             side, minZ, minY, maxZ, maxY, positive ? maxX : minX,
-                            builder, pose, light, layerColor, sprite
+                            builder, pose, light, layerColor, texture
                         );
                     } else {
                         FluidRenderHelper.renderStillTiledFace(
                             side, minX, minY, maxX, maxY, positive ? maxZ : minZ,
-                            builder, pose, light, layerColor, sprite
+                            builder, pose, light, layerColor, texture
                         );
                     }
                 } else {
                     FluidRenderHelper.renderStillTiledFace(
                         side, minX, minZ, maxX, maxZ, positive ? maxY : minY,
-                        builder, pose, light, layerColor, sprite
+                        builder, pose, light, layerColor, texture
                     );
                 }
             }

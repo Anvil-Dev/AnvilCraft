@@ -2,9 +2,8 @@ package dev.dubhe.anvilcraft.client.renderer.blockentity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import dev.dubhe.anvilcraft.block.entity.StorageFluidPortBlockEntity;
+import dev.dubhe.anvilcraft.client.renderer.FluidTankRenderUtil;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.state.FluidHandlerRenderState;
-import dev.dubhe.anvilcraft.client.support.FluidRenderHelper;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
@@ -44,17 +43,6 @@ public class StorageFluidPortBlockEntityRenderer
     public void submit(FluidHandlerRenderState state, PoseStack pose, SubmitNodeCollector collector, CameraRenderState camera) {
         var fluid = state.getResource();
         if (fluid == null || state.getFill() <= 0) return;
-        if (!fluid.getFluidType().isLighterThanAir()) {
-            super.submit(state, pose, collector, camera);
-            return;
-        }
-        var model = FluidRenderHelper.getModel(Minecraft.getInstance().getModelManager().getFluidStateModelSet(), fluid.getFluid());
-        var tint = model.fluidTintSource();
-        int color = tint == null ? -1 : tint.colorAsStack(fluid.toStack(1));
-        var sprite = model.stillMaterial().sprite();
-        collector.submitCustomGeometry(pose, FLUID_RENDER_TYPE, (matrix, buffer) -> FluidRenderHelper.INSTANCE.renderFluidBox(
-            sprite, fluid, state.getMinX(), state.getMinY(), state.getMinZ(), state.getMaxX(), state.getMaxY(), state.getMaxZ(),
-            color, buffer, matrix, state.lightCoords, true, false, state.getFill()
-        ));
+        FluidTankRenderUtil.submit(fluid, state.getAmount(), state.getFill(), 2, pose, collector, state.lightCoords, FLUID_RENDER_TYPE);
     }
 }

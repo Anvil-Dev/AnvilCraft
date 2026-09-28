@@ -9,7 +9,13 @@ public final class FluidGeometryRecorder implements VertexConsumer {
     public record Vertex(float x, float y, float z, int color, int light, float nx, float ny, float nz) {
     }
 
+    public record Uv(float u, float v) {
+    }
+
     private final List<Vertex> vertices = new ArrayList<>();
+    private final List<Uv> coordinates = new ArrayList<>();
+    private float textureU;
+    private float textureV;
     private boolean started;
     private float posX;
     private float posY;
@@ -44,6 +50,8 @@ public final class FluidGeometryRecorder implements VertexConsumer {
 
     @Override
     public VertexConsumer setUv(float u, float v) {
+        this.textureU = u;
+        this.textureV = v;
         return this;
     }
 
@@ -73,7 +81,13 @@ public final class FluidGeometryRecorder implements VertexConsumer {
     private void finish() {
         if (!this.started) return;
         this.vertices.add(new Vertex(this.posX, this.posY, this.posZ, this.color, this.light, this.nx, this.ny, this.nz));
+        this.coordinates.add(new Uv(this.textureU, this.textureV));
         this.started = false;
+    }
+
+    public List<Uv> coordinates() {
+        this.finish();
+        return List.copyOf(this.coordinates);
     }
 
     public List<Vertex> vertices() {

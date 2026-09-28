@@ -45,7 +45,8 @@ public class StorageFluidPortItemRenderer implements SpecialModelRenderer<Storag
         if (contents == null) return;
         boolean gas = contents.fluid().getFluidType().isLighterThanAir();
         float top = gas ? 1 - INSET : INSET + (1 - 2 * INSET) * contents.fill();
-        collector.submitCustomGeometry(pose, FluidTankItemRenderState.FLUID_RENDER_TYPE, (matrix, buffer) ->
+        var type = FluidRenderHelper.renderType(contents.fluid(), FluidTankItemRenderState.FLUID_RENDER_TYPE);
+        collector.submitCustomGeometry(pose, type, (matrix, buffer) ->
             FluidRenderHelper.INSTANCE.renderFluidBox(contents.sprite(), contents.fluid(), INSET, INSET, INSET,
                 1 - INSET, top, 1 - INSET, contents.color(), buffer, matrix, light, true, false, gas ? contents.fill() : 1));
     }
