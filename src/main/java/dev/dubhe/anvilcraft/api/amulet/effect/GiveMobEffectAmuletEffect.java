@@ -13,9 +13,7 @@ import net.minecraft.advancements.critereon.EntityPredicate;
 import net.minecraft.advancements.critereon.EntitySubPredicate;
 import net.minecraft.advancements.critereon.MinMaxBounds;
 import net.minecraft.core.Holder;
-import net.minecraft.network.protocol.game.ClientboundUpdateMobEffectPacket;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.LivingEntity;
@@ -43,7 +41,7 @@ public record GiveMobEffectAmuletEffect(
     /// 条件刷新用的时长表达式：只取效果自身时长，把剩余时长重置回该值，即 {@code $(extra)}。
     public static final IExpression REFRESH_DURATION = IExpression.ref(VAR_EXTRA);
     /// 条件刷新给予的效果时长：每 tick 重置回该值，保证不再闪烁。
-    public static final int REFRESH_TICKS = 205;
+    public static final int REFRESH_TICKS = 210;
 
     /// 佩戴者不在水里时给予，时长按上下界累加
     public static GiveMobEffectAmuletEffect notInWater(MobEffectInstance effect, MinMaxBounds.Ints bounds) {
@@ -164,7 +162,7 @@ public record GiveMobEffectAmuletEffect(
                     exist.getCures().addAll(effect.getCures());
                 }
             } else if (boundsOp.isEmpty()) {
-                exist.update(new MobEffectInstance(
+                entity.addEffect(new MobEffectInstance(
                     type,
                     entry.duration().evaluateInt(GiveMobEffectAmuletEffect.durationInputs(exist.getDuration(), effect.getDuration())),
                     effect.getAmplifier(),
@@ -174,12 +172,9 @@ public record GiveMobEffectAmuletEffect(
                 ));
                 exist.getCures().clear();
                 exist.getCures().addAll(effect.getCures());
-                if (entity instanceof ServerPlayer player) {
-                    player.connection.send(new ClientboundUpdateMobEffectPacket(entity.getId(), exist, false));
-                }
             } else if (boundsOp.get().matches(exist.getDuration())) {
                 MinMaxBounds.Ints bounds = boundsOp.get();
-                exist.update(new MobEffectInstance(
+                entity.addEffect(new MobEffectInstance(
                     type,
                     Math.clamp(
                         entry.duration().evaluateInt(GiveMobEffectAmuletEffect.durationInputs(exist.getDuration(), effect.getDuration())),
@@ -193,9 +188,6 @@ public record GiveMobEffectAmuletEffect(
                 ));
                 exist.getCures().clear();
                 exist.getCures().addAll(effect.getCures());
-                if (entity instanceof ServerPlayer player) {
-                    player.connection.send(new ClientboundUpdateMobEffectPacket(player.getId(), exist, false));
-                }
             }
         }
     }
