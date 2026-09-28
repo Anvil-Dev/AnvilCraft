@@ -6,6 +6,7 @@ import dev.anvilcraft.lib.v2.codec.CodecUtil;
 import dev.anvilcraft.lib.v2.recipe.cache.ItemResourceHandlerCache;
 import dev.anvilcraft.lib.v2.util.MathUtil;
 import dev.anvilcraft.lib.v2.util.Util;
+import dev.dubhe.anvilcraft.api.event.FishTankEvent;
 import dev.dubhe.anvilcraft.api.fluid.FluidStackResourceHandler;
 import dev.dubhe.anvilcraft.api.fluid.IFluidResourceHandlerHolder;
 import dev.dubhe.anvilcraft.api.fluid.network.FluidNetworkManager;
@@ -20,6 +21,7 @@ import dev.dubhe.anvilcraft.init.block.ModFluids;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.mixin.accessor.StacksResourceHandlerAccessor;
 import dev.dubhe.anvilcraft.util.AnvilUtil;
+import dev.dubhe.anvilcraft.util.EntityUtil;
 import dev.dubhe.anvilcraft.util.FireReforgingUtil;
 import io.netty.buffer.ByteBuf;
 import lombok.Getter;
@@ -72,6 +74,7 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.common.world.AuxiliaryLightManager;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.transfer.ResourceHandler;
@@ -357,6 +360,9 @@ public class FishTankBlockEntity extends BlockEntity implements IItemResourceHan
     }
 
     public static void serverTick(Level level, BlockPos pos, BlockState state, FishTankBlockEntity entity) {
+        if (level instanceof ServerLevel serverLevel) {
+            NeoForge.EVENT_BUS.post(new FishTankEvent.ServerTick(serverLevel, pos, entity));
+        }
         if (!entity.fluidHandler.getStack().is(Fluids.LAVA)) return;
         boolean changed = false;
         for (int slot = 0; slot < entity.input.size(); slot++) {
@@ -995,7 +1001,14 @@ public class FishTankBlockEntity extends BlockEntity implements IItemResourceHan
 
         FluidStack stack = this.fluidHandler.getStack();
         if (this.isIgnited()) {
-            effectApplier.apply(InsideBlockEffectType.FIRE_IGNITE);
+            effectApplier.runAfter(InsideBlockEffectType.FIRE_IGNITE, target -> {
+                if (!target.fireImmune()) {
+                    target.setRemainingFireTicks(target.getRemainingFireTicks() + 1);
+                    if (target.getRemainingFireTicks() == 0) target.igniteForSeconds(8.0F);
+                }
+                EntityUtil.hurt(target, level.damageSources().inFire(),
+                    NeoForge.EVENT_BUS.post(new FishTankEvent.FluidDamage(level, pos, this, stack, 4.0F)).getDamage());
+            });
         } else if (stack.is(Fluids.LAVA)) {
             effectApplier.apply(InsideBlockEffectType.LAVA_IGNITE);
         } else if (entity.canFluidExtinguish(stack.getFluidType()) && entity.isOnFire()) {

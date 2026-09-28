@@ -4280,12 +4280,41 @@
   },
   "cauldron_extension_events_audit": {
     "source_commit": "a3a037f17876b2e7036779baee71898978c5d4be",
-    "status": "pending",
-    "findings": [
-      "Source FishTankEvent.ServerTick and FluidDamage are posted by FishTankBlockEntity; neither event class nor corresponding native calls are present.",
-      "Source LargeCauldronEvent includes ServerTick, GiantAnvilImpact, MixingOutput and FluidDamage; native only retains the generic InWorldRecipeEvent path.",
-      "Port the actual server event contracts and verify mutation/cancellation behavior in focused GameTests."
-    ]
+    "status": "ported_and_verified",
+    "verification": {
+      "source_commit": "a3a037f17876b2e7036779baee71898978c5d4be",
+      "source_equivalent_posting_sites": {
+        "FishTankEvent.EntityInside": 1,
+        "LargeCauldronEvent.UseItem": 1,
+        "LargeCauldronEvent.EntityInside": 1,
+        "FishTankEvent.ServerTick": 1,
+        "FishTankEvent.FluidDamage": 1,
+        "LargeCauldronEvent.ServerTick": 1,
+        "LargeCauldronEvent.GiantAnvilImpact": 1,
+        "LargeCauldronEvent.MixingOutput": 2,
+        "LargeCauldronEvent.FluidDamage": 1
+      },
+      "focused_tests": 10,
+      "full_required_tests": 740,
+      "contracts": [
+        "Fish tick events are posted before the lava-only repair guard; large-cauldron tick events follow intake, fluid effects and repair and only come from the main part.",
+        "Both entity-inside events precede vanilla handling and retain the collided entity/state/position context.",
+        "Cancelable UseItem returns the handler-selected native InteractionResult before any item/fluid handling.",
+        "GiantAnvilImpact can replace the state used for validating and processing the landing.",
+        "Burning fish-tank fluid restores source four-point damage and ignition through the native deferred collision queue; both fluid-damage hooks control actual damage.",
+        "MixingOutput receives fresh copies during both capacity simulation and commit, honors empty replacements, and preserves fluid contents when transformed output cannot fit."
+      ],
+      "limits": [
+        "Interaction and collision event tests run on the server; client-side dispatch is verified from the unconditional production call sites.",
+        "The first focused run passed all gameplay assertions and failed only two test-file line-length checks; the final full run includes the corrected style checks.",
+        "Rendering hooks and visual comparisons are covered by the preceding fish-tank and large-cauldron render nodes."
+      ]
+    },
+    "logs": {
+      "focused": "build/porting/tests-cauldron-events-focused-1.log",
+      "full_and_checks": "build/porting/tests-cauldron-events-all.log"
+    },
+    "remaining": []
   },
   "large_cauldron_rendering": {
     "source_commit": "a3a037f17876b2e7036779baee71898978c5d4be",

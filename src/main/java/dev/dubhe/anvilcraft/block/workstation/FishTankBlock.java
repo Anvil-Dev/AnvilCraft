@@ -7,6 +7,7 @@ import dev.anvilcraft.lib.v2.util.ShapeUtil;
 import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.block.IIgnitableCauldron;
+import dev.dubhe.anvilcraft.api.event.FishTankEvent;
 import dev.dubhe.anvilcraft.api.hammer.HammerRotateBehavior;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.block.entity.FishTankBlockEntity;
@@ -52,6 +53,7 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.common.world.AuxiliaryLightManager;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
@@ -197,6 +199,9 @@ public class FishTankBlock extends Block implements IMoveableEntityBlock, Hammer
         InsideBlockEffectApplier effectApplier,
         boolean isPrecise
     ) {
+        if (level.getBlockEntity(pos) instanceof FishTankBlockEntity tank) {
+            NeoForge.EVENT_BUS.post(new FishTankEvent.EntityInside(level, pos, state, tank, entity));
+        }
         if (level.isClientSide()) return;
         if (entity.isOnFire()) {
             this.tryIgnite(level, pos);

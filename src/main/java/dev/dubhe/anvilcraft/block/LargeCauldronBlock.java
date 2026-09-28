@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.block;
 
 import dev.dubhe.anvilcraft.api.block.ICauldronGeometry;
+import dev.dubhe.anvilcraft.api.event.LargeCauldronEvent;
 import dev.dubhe.anvilcraft.api.fluid.FluidInteractionItems;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.block.entity.LargeCauldronBlockEntity;
@@ -46,6 +47,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import net.neoforged.neoforge.common.NeoForge;
 import org.jspecify.annotations.Nullable;
 
 import java.util.EnumMap;
@@ -252,6 +254,8 @@ public class LargeCauldronBlock
         InteractionHand hand,
         BlockHitResult hit
     ) {
+        var event = NeoForge.EVENT_BUS.post(new LargeCauldronEvent.UseItem(level, pos, state, player, hand, hit, stack));
+        if (event.isCanceled()) return event.getResult();
         if (stack.is(ModItemTags.ANVIL_HAMMER)) return InteractionResult.SUCCESS;
         LargeCauldronBlockEntity cauldron = LargeCauldronBlockEntity.getMain(level, pos, state);
         if (cauldron == null) return InteractionResult.PASS;
@@ -344,6 +348,7 @@ public class LargeCauldronBlock
         InsideBlockEffectApplier effectApplier,
         boolean isPrecise
     ) {
+        NeoForge.EVENT_BUS.post(new LargeCauldronEvent.EntityInside(level, pos, state, entity));
         if (level.isClientSide() || !(entity instanceof ItemEntity item)) return;
         LargeCauldronBlockEntity cauldron = LargeCauldronBlockEntity.getMain(level, pos, state);
         if (cauldron != null) {
