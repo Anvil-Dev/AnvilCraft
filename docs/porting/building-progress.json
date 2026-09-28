@@ -4546,11 +4546,53 @@
   },
   "power_grid_sync_audit": {
     "source_commit": "a3a037f17876b2e7036779baee71898978c5d4be",
-    "status": "pending",
-    "findings": [
-      "Source supports PowerGridSyncChunkPacket assembly/removal in PowerGridSupport; native still has a single SimplePowerGrid NBT packet path.",
-      "Source PowerComponentInfo includes per-component infinitePower; native uses a boundingBox field instead and its unused scalar STREAM_CODEC getters repeat consumes.",
-      "Audit synchronization, large payload handling and HUD data separately from the live line rendering comparison."
-    ]
+    "status": "ported_and_verified",
+    "verification": {
+      "source_commit": "a3a037f17876b2e7036779baee71898978c5d4be",
+      "focused_tests": 5,
+      "full_required_tests": 749,
+      "live_remote_components": 1025,
+      "live_atomic_replacement_components": 257,
+      "matching_tooltip_providers": 4,
+      "matching_hud_pixel_counts": {
+        "normal": 112,
+        "overloaded": 112,
+        "outside": 0,
+        "hidden": 0,
+        "creative": 0,
+        "spectator": 0
+      },
+      "visibility_steps": [
+        0.25,
+        0.5,
+        0.75,
+        1.0,
+        0.75,
+        0.5,
+        0.25,
+        0.0
+      ],
+      "contracts": [
+        "Tracking, split/broadcast and player synchronization use packets of at most 256 components; empty snapshots still produce one packet.",
+        "Every component retains consumes/produces/stores/capacity/range/type and per-producer infinite power; native AABB precision is retained with doubles.",
+        "Partial/out-of-order/duplicate chunks preserve the visible grid until complete; unchanged transmitter topology reuses its lines.",
+        "Grid removal, world cleanup and legacy full snapshots clear pending data; invalid indices and oversized component lists are rejected.",
+        "Sparse pending storage allocates according to received data, not an advertised total count.",
+        "Producer, collector, charger and discharger tooltips use synchronized infinity and source unit formatting.",
+        "The experience-bar indicator has source normal/overload colors, four-tick transitions and HUD/creative/spectator guards."
+      ],
+      "limits": [
+        "Live transport uses synthetic server grid snapshots; existing power generation/balance behavior is not redefined by this node.",
+        "HUD screenshots seed client attachment values to isolate rendering; the existing server attachment producer is unchanged.",
+        "The first focused/client runs passed runtime assertions but failed fixture formatting; the final full run passed compilation and Checkstyle."
+      ]
+    },
+    "logs": {
+      "focused": "build/porting/tests-power-sync-focused-1.log",
+      "full_and_checks": "build/porting/tests-power-sync-all.log",
+      "native_client": "build/porting/client-power-sync-1.log",
+      "source_client": "build/porting/client-power-sync-reference-1.log"
+    },
+    "remaining": []
   }
 }

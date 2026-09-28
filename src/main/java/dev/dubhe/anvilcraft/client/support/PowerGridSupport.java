@@ -3,11 +3,13 @@ package dev.dubhe.anvilcraft.client.support;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import dev.anvilcraft.lib.v2.util.client.Line;
+import dev.dubhe.anvilcraft.api.power.PowerComponentInfo;
 import dev.dubhe.anvilcraft.api.power.SimplePowerGrid;
 import dev.dubhe.anvilcraft.client.AnvilCraftClient;
 import dev.dubhe.anvilcraft.client.init.ModRenderTypes;
 import dev.dubhe.anvilcraft.client.renderer.RenderState;
 import dev.dubhe.anvilcraft.constant.Constant;
+import dev.dubhe.anvilcraft.network.PowerGridSyncChunkPacket;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
@@ -21,6 +23,8 @@ import java.util.Map;
 
 public class PowerGridSupport {
     private static final Map<Integer, SimplePowerGrid> GRID_MAP = Collections.synchronizedMap(new HashMap<>());
+
+    private static final Map<Integer, PendingGridSync> PENDING = Collections.synchronizedMap(new HashMap<>());
 
     public static Map<Integer, SimplePowerGrid> getGridMap() {
         return PowerGridSupport.GRID_MAP;
@@ -94,11 +98,60 @@ public class PowerGridSupport {
             (float) (line.end().z - camera.z)).setColor(color).setLineWidth(width).setNormal(pose, dx, dy, dz);
     }
 
+    public static void mergeSyncChunk(PowerGridSyncChunkPacket packet) {
+        int count = packet.totalChunks();
+        int index = packet.chunkIndex();
+        if (count <= 0 || index < 0 || index >= count) return;
+        PENDING.compute(packet.gridId(), (id, pending) -> {
+            if (pending == null || pending.count != count) pending = new PendingGridSync(count);
+            pending.chunks.put(index, packet.components());
+            if (!pending.complete()) return pending;
+            List<PowerComponentInfo> components = new ArrayList<>();
+            for (int part = 0; part < count; part++) components.addAll(pending.chunks.get(part));
+            installGrid(new SimplePowerGrid(packet.gridId(), packet.level(), packet.pos(), components,
+                packet.generate(), packet.consume(), packet.infinitePower()));
+            return null;
+        });
+    }
+
+    public static void acceptGrid(SimplePowerGrid grid) {
+        PENDING.remove(grid.getId());
+        installGrid(grid);
+    }
+
+    private static void installGrid(SimplePowerGrid grid) {
+        GRID_MAP.compute(grid.getId(), (id, previous) -> {
+            grid.rebuildTransmitterVisualLines(previous);
+            if (previous != null) previous.destroy();
+            return grid;
+        });
+    }
+
+    public static void removeGrid(int id) {
+        SimplePowerGrid grid = GRID_MAP.remove(id);
+        if (grid != null) grid.destroy();
+        PENDING.remove(id);
+    }
+
+    private static final class PendingGridSync {
+        private final int count;
+        private final Map<Integer, List<PowerComponentInfo>> chunks = new HashMap<>();
+
+        private PendingGridSync(int size) {
+            this.count = size;
+        }
+
+        private boolean complete() {
+            return this.chunks.size() == this.count;
+        }
+    }
+
     public static void clearAllGrid() {
         SimplePowerGrid.recreateExecutorLimitedParallelism();
         for (SimplePowerGrid value : PowerGridSupport.GRID_MAP.values()) {
             value.destroy();
         }
         PowerGridSupport.GRID_MAP.clear();
+        PENDING.clear();
     }
 }

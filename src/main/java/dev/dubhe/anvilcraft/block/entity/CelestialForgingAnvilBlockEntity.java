@@ -443,7 +443,8 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity
             0, 0,
             this.getRange(),
             this.getShape(),
-            type
+            type,
+            type == PowerComponentType.PRODUCER && this.isInfinitePower()
         );
     }
 

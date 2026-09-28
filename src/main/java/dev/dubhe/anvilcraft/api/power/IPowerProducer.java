@@ -32,7 +32,8 @@ public interface IPowerProducer extends IPowerComponent {
             0,
             this.getRange(),
             this.getShape(),
-            PowerComponentType.PRODUCER
+            PowerComponentType.PRODUCER,
+            this.isInfinitePower()
         );
     }
 
