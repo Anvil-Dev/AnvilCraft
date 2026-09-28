@@ -152,6 +152,8 @@ allprojects {
             include '**/TerminalSessions.java', '**/TerminalItem.java', '**/*TerminalItem.java', '**/TerminalBinding.java'
             include '**/StorageTerminal*Stub.java', '**/BalanceMode.java', '**/HyperdimensionStorageStationBlock.java'
             include '**/OverflowDisposalItemStacksResourceHandler.java', '**/CrateBlockEntity.java', '**/CrateStorage.java', '**/CrateClientProvider.java'
+            include '**/FluidTankRenderUtil.java', '**/FluidTankRenderer.java', '**/CreativeFluidTankRenderer.java'
+            include '**/CreativeFluidTankItemRenderer.java', '**/BaseFluidHandlerHolderRenderer.java', '**/FluidHandlerRenderState.java'
             include '**/LargeFluidTankRenderUtil.java', '**/LayeredFluidTankRenderState.java', '**/LargeFluidTankRenderer.java'
             include '**/LargeFluidTankProvider.java', '**/LargeFluidTankClientProvider.java'
             include '**/ExpCollectorBlockEntity.java', '**/ExperienceOrbMixin.java'

@@ -1,6 +1,9 @@
 {
   "model": {
-    "type": "minecraft:model",
-    "model": "anvilcraft:block/creative_fluid_tank"
+    "type": "minecraft:special",
+    "base": "anvilcraft:block/creative_fluid_tank",
+    "model": {
+      "type": "anvilcraft:creative_fluid_tank"
+    }
   }
 }

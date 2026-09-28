@@ -45,6 +45,10 @@ public abstract class BaseFluidHandlerHolderRenderer<B extends BlockEntity & IFl
         ModelFeatureRenderer.@Nullable CrumblingOverlay breakProgress
     );
 
+    protected float minimumFill() {
+        return 0.025F;
+    }
+
     public float getFill(ResourceHandler<FluidResource> tank) {
         return (float) tank.getAmountAsLong(0) / tank.getCapacityAsLong(0, tank.getResource(0));
     }
@@ -64,8 +68,9 @@ public abstract class BaseFluidHandlerHolderRenderer<B extends BlockEntity & IFl
         FluidResource resource = tank.getResource(0);
         if (resource.isEmpty()) return;
         state.setResource(resource);
+        state.setAmount(tank.getAmountAsInt(0));
         state.setFill(this.getFill(tank));
-        if (state.getFill() <= 0.025) state.setFill(0.025F);
+        state.setFill(Math.max(this.minimumFill(), state.getFill()));
         this.updateTankW(be, state, partialTicks, cameraPosition, breakProgress);
     }
 

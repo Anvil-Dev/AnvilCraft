@@ -239,6 +239,7 @@ import dev.dubhe.anvilcraft.block.workstation.frost.FrostSmithingTableBlock;
 import dev.dubhe.anvilcraft.block.workstation.royal.RoyalAnvilBlock;
 import dev.dubhe.anvilcraft.block.workstation.royal.RoyalGrindstoneBlock;
 import dev.dubhe.anvilcraft.block.workstation.royal.RoyalSmithingTableBlock;
+import dev.dubhe.anvilcraft.client.renderer.item.CreativeFluidTankItemRenderer;
 import dev.dubhe.anvilcraft.client.renderer.item.FluidTankItemRenderer;
 import dev.dubhe.anvilcraft.client.renderer.item.LargeFluidTankItemRenderer;
 import dev.dubhe.anvilcraft.client.renderer.item.StorageFluidPortItemRenderer;
@@ -572,6 +573,8 @@ public class ModBlocks {
             )
         ))
         .item(CreativeContainerBlockItem::new)
+        .model(() -> (ctx, generator) -> generator.itemModelOutput.accept(ctx.get(),
+            ItemModelUtils.specialModel(ctx.getId().withPrefix("block/"), CreativeFluidTankItemRenderer.Unbaked.INSTANCE)))
         .build()
         .register();
 

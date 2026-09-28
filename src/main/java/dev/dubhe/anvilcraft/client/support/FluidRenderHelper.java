@@ -20,8 +20,12 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 import dev.dubhe.anvilcraft.mixin.accessor.FluidStateModelSetAccessor;
 import dev.dubhe.anvilcraft.util.LiquidEnchantmentClientFluidTypeExtension;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.block.FluidModel;
 import net.minecraft.client.renderer.block.FluidStateModelSet;
+import net.minecraft.client.renderer.rendertype.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
@@ -29,6 +33,7 @@ import net.minecraft.util.ARGB;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.material.Fluid;
 import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions;
+import net.neoforged.neoforge.common.NeoForgeMod;
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import org.joml.Vector3f;
 
@@ -40,6 +45,20 @@ public final class FluidRenderHelper {
     public static FluidModel getModel(FluidStateModelSet set, Fluid fluid) {
         FluidStateModelSetAccessor accessor = (FluidStateModelSetAccessor) set;
         return accessor.getModelByFluid().getOrDefault(fluid, accessor.getMissingModel());
+    }
+
+    public static void submitFluidBox(
+        FluidResource resource, int amount, float minX, float minY, float minZ, float maxX, float maxY, float maxZ,
+        float opacity, PoseStack pose, SubmitNodeCollector collector, int light, RenderType translucent
+    ) {
+        var model = getModel(Minecraft.getInstance().getModelManager().getFluidStateModelSet(), resource.getFluid());
+        var tint = model.fluidTintSource();
+        int color = tint == null ? -1 : tint.colorAsStack(resource.toStack(Math.max(1, amount)));
+        var sprite = model.stillMaterial().sprite();
+        RenderType type = resource.is(NeoForgeMod.MILK.get()) ? RenderTypes.cutoutMovingBlock() : translucent;
+        collector.submitCustomGeometry(pose, type, (submittedPose, output) -> INSTANCE.renderFluidBox(
+            sprite, resource, minX, minY, minZ, maxX, maxY, maxZ,
+            color, output, submittedPose, light, true, false, opacity));
     }
 
     public void renderFluidBox(

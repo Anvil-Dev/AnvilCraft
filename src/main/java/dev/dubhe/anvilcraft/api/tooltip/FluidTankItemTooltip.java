@@ -1,7 +1,10 @@
 package dev.dubhe.anvilcraft.api.tooltip;
 
 import com.mojang.serialization.Codec;
+import dev.dubhe.anvilcraft.api.fluidtank.CreativeFluidHandler;
+import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.inventory.tooltip.FluidTankTooltip;
+import dev.dubhe.anvilcraft.item.property.component.StoredFluids;
 import dev.dubhe.anvilcraft.util.UnitUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.HolderLookup;
@@ -10,10 +13,12 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.chat.Component;
+import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.inventory.tooltip.TooltipComponent;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.TypedEntityData;
+import net.minecraft.world.level.storage.TagValueInput;
 import net.neoforged.neoforge.fluids.FluidStack;
 import org.jspecify.annotations.Nullable;
 
@@ -116,6 +121,19 @@ public final class FluidTankItemTooltip {
             fluids.add(stored.fluid());
         }
         return fluids;
+    }
+
+    public static FluidStack readCreativeTank(ItemStack stack, HolderLookup.@Nullable Provider registries) {
+        StoredFluids stored = stack.getOrDefault(ModComponents.CREATIVE_TANK_FLUIDS, StoredFluids.EMPTY);
+        if (!stored.fluids().isEmpty()) return stored.fluids().getFirst().copy();
+        TypedEntityData<?> data = stack.get(DataComponents.BLOCK_ENTITY_DATA);
+        if (data == null || registries == null) return FluidStack.EMPTY;
+        CompoundTag tag = data.copyTagWithoutId();
+        FluidStack legacy = readFluid(tag.getCompoundOrEmpty("infinityFluid"), registries);
+        if (!legacy.isEmpty()) return legacy;
+        var handler = new CreativeFluidHandler();
+        handler.deserialize(TagValueInput.create(ProblemReporter.DISCARDING, registries, tag));
+        return handler.getStacks().stream().findFirst().orElse(FluidStack.EMPTY);
     }
 
     /// 大型储罐物品是否处于扩容状态

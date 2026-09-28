@@ -29,5 +29,6 @@ public class FluidTankItemRenderState {
 
     private @Nullable FluidResource resource;
     private float fill;
+    private int amount;
     private List<LargeFluidTankRenderUtil.Layer> layers = List.of();
 }

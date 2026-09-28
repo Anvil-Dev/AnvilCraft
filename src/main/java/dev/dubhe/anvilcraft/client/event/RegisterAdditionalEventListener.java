@@ -27,6 +27,7 @@ import dev.dubhe.anvilcraft.client.renderer.blockentity.VoidEnergyCollectorRende
 import dev.dubhe.anvilcraft.client.renderer.blockentity.WipBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.HypercubeBERenderer;
 import dev.dubhe.anvilcraft.client.renderer.item.CrabClawItemInHandRenderer;
+import dev.dubhe.anvilcraft.client.renderer.item.CreativeFluidTankItemRenderer;
 import dev.dubhe.anvilcraft.client.renderer.item.DiskItemRenderer;
 import dev.dubhe.anvilcraft.client.renderer.item.FilterItemRenderer;
 import dev.dubhe.anvilcraft.client.renderer.item.FluidTankItemRenderer;
@@ -387,6 +388,7 @@ public class RegisterAdditionalEventListener {
         event.register(AnvilCraft.of("disk"), DiskItemRenderer.Unbaked.CODEC);
         event.register(AnvilCraft.of("spectral_slingshot"), SpectralSlingshotRenderer.Unbaked.CODEC);
         event.register(AnvilCraft.of("spectral_weapon_launcher"), SpectralWeaponLauncherRenderer.Unbaked.CODEC);
+        event.register(AnvilCraft.of("creative_fluid_tank"), CreativeFluidTankItemRenderer.Unbaked.CODEC);
         event.register(AnvilCraft.of("fluid_tank"), FluidTankItemRenderer.Unbaked.CODEC);
         event.register(AnvilCraft.of("large_fluid_tank"), LargeFluidTankItemRenderer.Unbaked.CODEC);
         event.register(AnvilCraft.of("storage_port"), StoragePortItemRenderer.Unbaked.CODEC);

@@ -120,6 +120,10 @@ public final class PortVisualScene {
             if (prepared) UploaderClientScene.frame(client);
             return;
         }
+        if (Boolean.getBoolean("anvilcraft.portSingleTankRenderScene")) {
+            if (prepared) SingleTankRenderClientScene.frame(client);
+            return;
+        }
         if (Boolean.getBoolean("anvilcraft.portLargeTankLayersScene")) {
             if (prepared) LargeTankLayersClientScene.frame(client);
             return;

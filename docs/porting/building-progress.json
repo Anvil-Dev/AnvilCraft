@@ -4065,11 +4065,98 @@
   },
   "single_tank_rendering_audit": {
     "source_commit": "a3a037f17876b2e7036779baee71898978c5d4be",
-    "status": "pending",
+    "status": "ported_and_verified",
     "findings": [
       "Source FluidTankBlockEntityRenderer clamps fill to 0..1 without a minimum; native BaseFluidHandlerHolderRenderer forces at least 0.025.",
       "Source FluidTankRenderUtil draws gas at full tank volume with fill-based opacity; native single-tank paths require a separate comparison."
     ],
-    "next_step": "Review ordinary, creative, item and minecart callers against the shared source helper before changing shared defaults."
+    "next_step": "Selected tank forms are verified; remaining fluid-holder callers still require their own source-contract checks.",
+    "verification": "single_tank_rendering"
+  },
+  "single_tank_rendering": {
+    "source_commit": "a3a037f17876b2e7036779baee71898978c5d4be",
+    "status": "ported_and_verified",
+    "verification": {
+      "source_commit": "a3a037f17876b2e7036779baee71898978c5d4be",
+      "client_cases": 9,
+      "render_paths": 27,
+      "matching_vertices": 576,
+      "large_tank_regression_vertices": 4320,
+      "full_required_tests": 730,
+      "gallery": [
+        {
+          "index": 0,
+          "silhouette_iou": 0.9988727101925787,
+          "mean_rgb_difference": 1.9769531861593863
+        },
+        {
+          "index": 1,
+          "silhouette_iou": 0.9988727101925787,
+          "mean_rgb_difference": 2.067386879599186
+        },
+        {
+          "index": 2,
+          "silhouette_iou": 0.9988727101925787,
+          "mean_rgb_difference": 2.068764678252701
+        },
+        {
+          "index": 3,
+          "silhouette_iou": 1.0,
+          "mean_rgb_difference": 2.1978229578985244
+        },
+        {
+          "index": 4,
+          "silhouette_iou": 1.0,
+          "mean_rgb_difference": 2.0206309223941465
+        },
+        {
+          "index": 5,
+          "silhouette_iou": 1.0,
+          "mean_rgb_difference": 2.3695495495495495
+        },
+        {
+          "index": 6,
+          "silhouette_iou": 1.0,
+          "mean_rgb_difference": 1.5990764063811922
+        },
+        {
+          "index": 7,
+          "silhouette_iou": 1.0,
+          "mean_rgb_difference": 1.9333393306944944
+        },
+        {
+          "index": 8,
+          "silhouette_iou": 1.0,
+          "mean_rgb_difference": 1.7924013434089001
+        }
+      ],
+      "contracts": [
+        "Ordinary world/item tanks and minecart contents use exact source fill without a forced minimum and clamp over-capacity fill.",
+        "Gas fills the whole interior with amount-based alpha, and milk uses cutout material.",
+        "Creative world and item tanks render configured fluid at full volume; the item uses a registered special renderer.",
+        "Creative fluid components take precedence over current serialized handler data and legacy infinityFluid display data.",
+        "Other base-holder users keep their original minimum-fill policy; large layered tank submissions remain source-equivalent."
+      ],
+      "limits": [
+        "Vertex tests isolate contents at fixed sky light; vanilla entity transforms, lightmaps and texture animation remain native.",
+        "The first full run failed one lunar-light assertion and one Windows temporary-file move; a full retry passed all 730 tests without changing either failing subsystem."
+      ]
+    },
+    "logs": {
+      "data": "build/porting/data-single-tank-render-2.log",
+      "full": "build/porting/tests-single-tank-render-final-2.log",
+      "first_full_run": "build/porting/tests-single-tank-render-final.log",
+      "native_client": "build/porting/client-single-tank-render-1.log",
+      "source_client": "build/porting/client-single-tank-reference-1.log",
+      "large_regression": "build/porting/client-large-tank-single-helper-regression.log"
+    },
+    "changes": [
+      "Source-equivalent single-tank geometry is shared by ordinary/creative world tanks, items and minecart contents.",
+      "Common fluid geometry submission retains native render pipelines, gas alpha and milk cutout behavior.",
+      "Creative tank items now register a special renderer and decode component/current-handler/legacy display data."
+    ],
+    "remaining": [
+      "Independently audit other fluid-holder callers (for example drains, fish tanks and storage fluid ports) before altering their preserved base defaults."
+    ]
   }
 }
