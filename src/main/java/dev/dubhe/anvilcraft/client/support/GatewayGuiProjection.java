@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.client.support;
 
 import dev.dubhe.anvilcraft.block.entity.celestial.SpecialCelestialBodyData;
 import dev.dubhe.anvilcraft.client.renderer.item.CelestialForgingAnvilItemRenderer;
+import dev.dubhe.anvilcraft.client.renderer.item.RuinsBlockItemRenderer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.item.TrackingItemStackRenderState;
 import net.minecraft.client.renderer.state.gui.GuiItemRenderState;
@@ -25,6 +26,7 @@ public final class GatewayGuiProjection {
     public static boolean isProjected(TrackingItemStackRenderState state) {
         if (!(state.getModelIdentity() instanceof List<?> elements)) return false;
         for (Object element : elements) {
+            if (element instanceof RuinsBlockItemRenderer.Argument) return true;
             if (element instanceof CelestialForgingAnvilItemRenderer.Argument argument
                 && argument.state().getEffectiveBodyData() instanceof SpecialCelestialBodyData special
                 && special.usesEndGatewayModel()) return true;
@@ -35,7 +37,7 @@ public final class GatewayGuiProjection {
     public static void mark(TrackingItemStackRenderState state, Matrix3x2f pose, int x, int y) {
         if (state.getModelIdentity() instanceof List<?> elements) {
             for (Object element : elements) {
-                if (element instanceof CelestialForgingAnvilItemRenderer.Argument) {
+                if (element instanceof CelestialForgingAnvilItemRenderer.Argument || element instanceof RuinsBlockItemRenderer.Argument) {
                     state.setAnimated();
                     break;
                 }

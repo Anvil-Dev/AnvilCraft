@@ -329,15 +329,28 @@ public class DataGenUtil {
 
     /// 生成带自定义特殊渲染器的方块物品模型
     public static <T extends Item> NonNullBiConsumer<DataGenContext<Item, T>, RegistrumItemModelGenerator> specialBlockItem(
+        SpecialModelRenderer.Unbaked<?> renderer, boolean oversized
+    ) {
+        return DataGenUtil.specialModel(renderer, oversized, "block/");
+    }
+
+    public static <T extends Item> NonNullBiConsumer<DataGenContext<Item, T>, RegistrumItemModelGenerator> specialItem(
+        SpecialModelRenderer.Unbaked<?> renderer, boolean oversized
+    ) {
+        return DataGenUtil.specialModel(renderer, oversized, "item/");
+    }
+
+    private static <T extends Item> NonNullBiConsumer<DataGenContext<Item, T>, RegistrumItemModelGenerator> specialModel(
         SpecialModelRenderer.Unbaked<?> renderer,
-        boolean oversized
+        boolean oversized,
+        String prefix
     ) {
         return new NonNullBiConsumer<>() {
             @Override
             public void accept(DataGenContext<Item, T> ctx, RegistrumItemModelGenerator generator) {
                 generator.itemModelOutput.accept(
                     ctx.get(),
-                    ItemModelUtils.specialModel(ctx.getId().withPrefix("block/"), renderer),
+                    ItemModelUtils.specialModel(ctx.getId().withPrefix(prefix), renderer),
                     new ClientItem.Properties(oversized, oversized, 1.0F)
                 );
             }

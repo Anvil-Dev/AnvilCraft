@@ -23,6 +23,7 @@ import dev.dubhe.anvilcraft.block.LargeCauldronBlock;
 import dev.dubhe.anvilcraft.block.HypercubeBlock;
 import dev.dubhe.anvilcraft.block.HyperdimensionUploaderBlock;
 import dev.dubhe.anvilcraft.block.RedstoneWireBlock;
+import dev.dubhe.anvilcraft.block.RuinsBlock;
 import dev.dubhe.anvilcraft.block.SingularityCrystalBlock;
 import dev.dubhe.anvilcraft.block.TradingStationBlock;
 import dev.dubhe.anvilcraft.block.TranscendenceGrindstoneBlock;
@@ -270,6 +271,7 @@ import dev.dubhe.anvilcraft.item.block.MultiphaseMatterBlockItem;
 import dev.dubhe.anvilcraft.item.block.PlaceInWaterBlockItem;
 import dev.dubhe.anvilcraft.item.block.RadiationBlockItem;
 import dev.dubhe.anvilcraft.item.block.ResinBlockItem;
+import dev.dubhe.anvilcraft.item.block.RuinsBlockItem;
 import dev.dubhe.anvilcraft.item.block.ShulkerContainerBlockItem;
 import dev.dubhe.anvilcraft.item.block.SimpleMultiPartBlockItem;
 import dev.dubhe.anvilcraft.item.block.StorageFluidPortBlockItem;
@@ -2208,6 +2210,18 @@ public class ModBlocks {
         .item()
         .properties(properties -> properties.rarity(Rarity.EPIC))
         .model(DataGenUtil::blockItem)
+        .build()
+        .register();
+
+    public static final BlockEntry<RuinsBlock> RUINS_BLOCK = REGISTRUM.block("ruins_block", RuinsBlock::new)
+        .properties(properties -> properties.noOcclusion().dynamicShape()
+            .isValidSpawn(ModBlocks::never).isRedstoneConductor(ModBlocks::never)
+            .isSuffocating(ModBlocks::never).isViewBlocking(ModBlocks::never))
+        .blockstate(DataGenUtil::noExtraModelOrState)
+        .loot((tables, block) -> tables.add(block, LootTable.lootTable()))
+        .item(RuinsBlockItem::new)
+        .model(() -> DataGenUtil.specialItem(
+            dev.dubhe.anvilcraft.client.renderer.item.RuinsBlockItemRenderer.Unbaked.INSTANCE, false))
         .build()
         .register();
 

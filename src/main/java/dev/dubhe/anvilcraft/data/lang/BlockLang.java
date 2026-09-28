@@ -4,6 +4,10 @@ import dev.anvilcraft.lib.v2.registrum.providers.RegistrumLangProvider;
 
 public class BlockLang {
     public static void init(RegistrumLangProvider provider) {
+        provider.add("screen.anvilcraft.ruins.title", "Ruins Block");
+        provider.add("screen.anvilcraft.ruins.inert", "Interaction: No response");
+        provider.add("screen.anvilcraft.ruins.fragile", "Interaction: Break instantly");
+        provider.add("screen.anvilcraft.ruins.loot_table", "Loot table");
         provider.add("block.anvilcraft.spacetime_supercomputer.insufficient_energy", "Insufficient energy to execute the command");
         provider.add("block.anvilcraft.spacetime_supercomputer.no_supported_command", "This command is not supported for execution");
         provider.add(

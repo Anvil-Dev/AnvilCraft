@@ -160,6 +160,7 @@ public class BuildingBlocks extends DisplayItemsGenerator {
         this.plain(ModBlocks.CROSS_MARK);
         this.plain(ModBlocks.EXCLAMATION_MARK);
         this.plain(ModBlocks.QUESTION_MARK);
+        this.plain(ModBlocks.RUINS_BLOCK);
         this.plain(ModBlocks.FLINT_BLOCK);
         this.plain(ModBlocks.POLISHED_FLINT_BLOCK);
         this.plain(ModBlocks.CUT_FLINT_BLOCK);

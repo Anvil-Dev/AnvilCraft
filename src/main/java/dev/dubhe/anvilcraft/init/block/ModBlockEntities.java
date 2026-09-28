@@ -26,6 +26,8 @@ import dev.dubhe.anvilcraft.block.entity.CreativeCrateBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.CreativeFluidTankBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.CreativeGeneratorBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.CreativeLaserBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.RuinsBlockEntity;
+import dev.dubhe.anvilcraft.client.renderer.blockentity.RuinsBlockEntityRenderer;
 import dev.dubhe.anvilcraft.block.entity.HypercubeBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.HyperdimensionUploaderBlockEntity;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.HypercubeBERenderer;
@@ -689,6 +691,12 @@ public class ModBlockEntities {
         .blockEntity("spacetime_supercomputer", SpacetimeSupercomputerBlockEntity::new)
         .renderer(() -> SpacetimeSupercomputerBlockEntityRenderer::new)
         .validBlock(ModBlocks.SPACETIME_SUPERCOMPUTER)
+        .register();
+
+    public static final BlockEntityEntry<RuinsBlockEntity> RUINS_BLOCK = REGISTRUM
+        .blockEntity("ruins_block", RuinsBlockEntity::new)
+        .validBlock(ModBlocks.RUINS_BLOCK)
+        .renderer(() -> RuinsBlockEntityRenderer::new)
         .register();
 
     public static final BlockEntityEntry<WipBlockEntity> WIP_BLOCK = REGISTRUM

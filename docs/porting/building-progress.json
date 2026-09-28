@@ -3164,5 +3164,63 @@
       "The source workInterval value is the number of intervening ticks because the countdown uses post-decrement.",
       "The initial data generation encountered transient Windows mapped-file writes; the subsequent data run and generated diff were verified."
     ]
+  },
+  "ruins_block": {
+    "source_commit": "07eb60b47f14439375da10e78f4d4770f3a83256",
+    "status": "foundation_verified_advanced_rendering_pending",
+    "ported": [
+      "Creative item conversion snapshots original states and block entity data; multipart groups convert atomically without spilling container contents.",
+      "Configured named or inline loot, inert/fragile interaction, multipart single-drop cleanup and creative no-drop removal.",
+      "Creative held-tool and reach authorization, validated loot table editor, suggestions and mode-only inline loot editing.",
+      "Original collision, emission, shade, cached native skylight/dampening and piston movement rules; display entities remain client-only.",
+      "World-lit static model snapshots share the existing WIP geometry path; basic child block entity rendering and animated gateway item rendering.",
+      "Registration, creative entry, source model transforms, translations and native data generation."
+    ],
+    "verification": {
+      "compile_data_focused": "build/porting/tests-ruins-3.log",
+      "focused_tests_passed": 7,
+      "compile_full_tests_style": "build/porting/tests-ruins-all.log",
+      "required_tests_passed": 684,
+      "native_client": "build/porting/client-ruins-2.log",
+      "source_client": "build/porting/client-ruins-reference-1.log",
+      "report": "build/porting/ruins-foundation-comparison.json",
+      "visuals": {
+        "world": {
+          "note": "World captures require visual inspection; vanilla terrain/lighting is intentionally retained."
+        },
+        "world-wide": {
+          "note": "World captures require visual inspection; vanilla terrain/lighting is intentionally retained."
+        },
+        "invalid": {
+          "label_and_input_foreground_iou": 1.0,
+          "invalid_input_red_iou": 1.0
+        },
+        "editor": {
+          "label_and_input_foreground_iou": 1.0
+        },
+        "item": {
+          "silhouette_iou": 1.0,
+          "note": "Gateway animation phase differs between independent client runs; texture pixels are not compared."
+        }
+      },
+      "checks": [
+        "Creative conversion through actual client interaction.",
+        "Invalid and valid loot IDs, fragile toggle, server-side save and exactly one configured drop.",
+        "Source item display transforms and native/source inventory silhouettes.",
+        "Native and source world captures visually inspected: grass, slab and child chest renderer visible in paired positions."
+      ]
+    },
+    "pending": [
+      "Fluid rendering",
+      "Visual-only entity ticking",
+      "Dynamic selection and expanded culling bounds",
+      "Disguised particles and neighbor face culling",
+      "Animated effect pixel comparison"
+    ],
+    "limits": [
+      "This checkpoint does not complete the Ruins feature: full fluid, animated entity, selection, culling and particle fidelity still require implementation and validation.",
+      "Retain vanilla 26.1 terrain, atmosphere and lighting as requested; native/source world pixels are not expected to be identical.",
+      "The focused data/test run succeeded but its first style check failed; all remaining style issues were fixed and the subsequent full run passed."
+    ]
   }
 }

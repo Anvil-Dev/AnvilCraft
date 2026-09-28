@@ -1,4 +1,9 @@
 {
+  "block.anvilcraft.ruins_block": "遗迹方块",
+  "screen.anvilcraft.ruins.fragile": "交互即碎",
+  "screen.anvilcraft.ruins.inert": "交互无响应",
+  "screen.anvilcraft.ruins.loot_table": "战利品表",
+  "screen.anvilcraft.ruins.title": "遗迹方块",
   "gui.anvilcraft.category.use_item_on_block": "对方块使用物品",
   "gui.anvilcraft.category.use_item_on_block.convert": "手持物品右击方块将其转化",
   "anvilcraft.configuration.hyperdimension_uploader": "超维上传站",

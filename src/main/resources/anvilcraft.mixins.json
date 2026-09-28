@@ -140,7 +140,9 @@
     "projectile.ThrownEnderpearlMixin",
     "providence.ApplyBonusCountMixin",
     "providence.DamageEntityMixin",
-    "providence.EnchantedCountIncreaseFunctionMixin"
+    "providence.EnchantedCountIncreaseFunctionMixin",
+    "RuinsRemovalMixin",
+    "accessor.RedStoneWireBlockAccessor"
   ],
   "client": [
     "client.ModFluidBucketModelMixin",
@@ -213,7 +215,8 @@
     "compat.JadeTooltipMixin",
     "compat.JeiJadeItemTooltipMixin",
     "client.ClientTextTooltipAccessor",
-    "compat.SodiumBlockOcclusionCacheMixin"
+    "compat.SodiumBlockOcclusionCacheMixin",
+    "RuinsRenderLevelMixin"
   ],
   "plugin": "dev.dubhe.anvilcraft.mixin.plugin.AnvilCraftMixinPlugin",
   "mixinextras": {

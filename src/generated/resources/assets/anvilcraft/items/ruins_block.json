@@ -1,0 +1,10 @@
+{
+  "hand_animation_on_swap": false,
+  "model": {
+    "type": "minecraft:special",
+    "base": "anvilcraft:item/ruins_block",
+    "model": {
+      "type": "anvilcraft:ruins_block"
+    }
+  }
+}

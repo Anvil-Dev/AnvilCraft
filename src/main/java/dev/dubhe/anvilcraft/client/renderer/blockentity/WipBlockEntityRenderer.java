@@ -16,7 +16,6 @@ import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
-import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
@@ -28,7 +27,6 @@ import net.neoforged.neoforge.client.model.standalone.StandaloneModelKey;
 import org.jspecify.annotations.Nullable;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class WipBlockEntityRenderer
@@ -171,22 +169,6 @@ public class WipBlockEntityRenderer
         SubmitNodeCollector collector,
         CameraRenderState camera
     ) {
-        state.getLayers().forEach((layer, quads) -> {
-            if (quads.isEmpty()) return;
-            var renderType = switch (layer) {
-                case SOLID -> RenderTypes.solidMovingBlock();
-                case CUTOUT -> RenderTypes.cutoutMovingBlock();
-                case TRANSLUCENT -> RenderTypes.translucentMovingBlock();
-            };
-            var snapshot = List.copyOf(quads);
-            collector.submitCustomGeometry(pose, renderType, (submittedPose, buffer) -> {
-                var translated = submittedPose.copy();
-                for (var quad : snapshot) {
-                    translated.set(submittedPose);
-                    translated.translate(quad.x(), quad.y(), quad.z());
-                    buffer.putBakedQuad(translated, quad.quad(), quad.lighting());
-                }
-            });
-        });
+        state.submitGeometry(pose, collector);
     }
 }
