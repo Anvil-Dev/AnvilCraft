@@ -86,9 +86,7 @@ public class AmuletAbilitiesEventListener {
 
     @SubscribeEvent
     public static void onEatEffect(MobEffectEvent.Applicable event) {
-        Boolean consumedFood = AmuletAbilitiesEventListener.CONSUMED_FOOD.get();
-        AmuletAbilitiesEventListener.CONSUMED_FOOD.remove();
-        if (Boolean.FALSE.equals(consumedFood)) {
+        if (!Boolean.TRUE.equals(AmuletAbilitiesEventListener.CONSUMED_FOOD.get())) {
             return;
         }
 
@@ -102,6 +100,11 @@ public class AmuletAbilitiesEventListener {
         if (!ctx.getOrDefault(ModAmuletEffectContextKeys.IMMUNE_MOB_EFFECT, false)) return;
 
         event.setResult(MobEffectEvent.Applicable.Result.DO_NOT_APPLY);
+    }
+
+    @SubscribeEvent
+    public static void onEatFinish(LivingEntityUseItemEvent.Finish event) {
+        AmuletAbilitiesEventListener.CONSUMED_FOOD.remove();
     }
 
     @SubscribeEvent
