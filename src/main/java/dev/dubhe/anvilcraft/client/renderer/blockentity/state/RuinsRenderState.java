@@ -7,6 +7,7 @@ import org.jspecify.annotations.Nullable;
 
 public class RuinsRenderState extends LitBlockRenderState {
     public @Nullable DisplayRenderer display;
+    public @Nullable WorldFluidRenderState fluid;
 
     @FunctionalInterface
     public interface DisplayRenderer {

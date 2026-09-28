@@ -5,6 +5,7 @@ import dev.dubhe.anvilcraft.block.RuinsBlock;
 import dev.dubhe.anvilcraft.block.entity.CelestialForgingAnvilBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.RuinsBlockEntity;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.state.RuinsRenderState;
+import dev.dubhe.anvilcraft.client.renderer.blockentity.state.WorldFluidRenderState;
 import dev.dubhe.anvilcraft.client.selection.ModelSelectionRenderer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.SubmitNodeCollector;
@@ -46,12 +47,16 @@ public class RuinsBlockEntityRenderer implements BlockEntityRenderer<RuinsBlockE
         BlockEntityRenderer.super.extractRenderState(entity, state, partialTick, camera, breaking);
         state.clearQuads();
         state.display = null;
+        state.fluid = null;
         var client = Minecraft.getInstance();
         var level = client.level;
         if (level == null) return;
         try (var ignored = RuinsRenderContext.enter(level)) {
             BlockEntity visual = this.prepareDisplay(entity);
             var display = RuinsBlock.connectedDisplayState(level, entity.getBlockPos(), entity.getDisplayState());
+            if (!display.getFluidState().isEmpty()) {
+                state.fluid = WorldFluidRenderState.extract(level, entity.getBlockPos(), display);
+            }
             if (display.getRenderShape() == RenderShape.MODEL) {
                 var model = client.getModelManager().getBlockStateModelSet().get(display);
                 var renderer = client.options.ambientOcclusion().get() ? this.ambient : this.flat;
@@ -103,6 +108,7 @@ public class RuinsBlockEntityRenderer implements BlockEntityRenderer<RuinsBlockE
 
     @Override
     public void submit(RuinsRenderState state, PoseStack pose, SubmitNodeCollector collector, CameraRenderState camera) {
+        if (state.fluid != null) state.fluid.submit(pose, collector);
         state.submitGeometry(pose, collector);
         if (state.display != null) state.display.submit(pose, collector, camera);
     }

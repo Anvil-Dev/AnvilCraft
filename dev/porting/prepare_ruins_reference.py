@@ -9,8 +9,10 @@ reference = root / 'build/porting/reference-mun-1.21'
 assert subprocess.check_output(['git', 'rev-parse', 'dev/1.21/1.6'], cwd=root).strip() == subprocess.check_output(
     ['git', 'rev-parse', 'HEAD'], cwd=reference).strip()
 folder = reference / 'src/main/java/dev/dubhe/anvilcraft/porting'
-name = 'RuinsEffects' if '--effects' in sys.argv else 'Ruins'
+name = 'RuinsFluid' if '--fluid' in sys.argv else 'RuinsEffects' if '--effects' in sys.argv else 'Ruins'
 scene = (root / f'dev/porting/java/dev/dubhe/anvilcraft/porting/{name}ClientScene.java').read_text(encoding='utf-8')
+scene = scene.replace('                RuinsFluidProbe.verify(client);\n', '')
+scene = scene.replace('ruins-fluid-26.1-', 'ruins-fluid-1.21-')
 scene = scene.replace('.item.block.RuinsBlockItem', '.block.item.RuinsBlockItem')
 scene = scene.replace('client.resizeGui()', 'client.resizeDisplay()')
 scene = scene.replace('client.getMainRenderTarget(), 1,', 'client.getMainRenderTarget(),')
