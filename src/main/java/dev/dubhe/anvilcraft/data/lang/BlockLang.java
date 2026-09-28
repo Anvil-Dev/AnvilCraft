@@ -4,6 +4,7 @@ import dev.anvilcraft.lib.v2.registrum.providers.RegistrumLangProvider;
 
 public class BlockLang {
     public static void init(RegistrumLangProvider provider) {
+        provider.add("block.anvilcraft.overflow_disposal_fluid_tank", "Overflow Disposal Fluid Tank");
         provider.add("block.anvilcraft.overflow_disposal_crate", "Overflow Disposal Crate");
         provider.add("screen.anvilcraft.ruins.title", "Ruins Block");
         provider.add("screen.anvilcraft.ruins.inert", "Interaction: No response");

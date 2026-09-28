@@ -3687,9 +3687,7 @@
       "Bulk insertion delays disposal until sparse-slot routing completes; slot-specific collisions reuse bulk insertion.",
       "26.1 Screen.title is final, so StorageScreen caches the dynamic display title and exposes it through getTitle, including narration."
     ],
-    "remaining": [
-      "Source overflow-disposal fluid tank feature remains to be audited and ported separately."
-    ]
+    "remaining": []
   },
   "storage_removal_lifecycle": {
     "source_commit": "e0dedd6e8f1dd8667090eae161ba372c4da10bc2",
@@ -3757,5 +3755,62 @@
       "full_tests": "build/porting/tests-crate-merge-all.log",
       "final_checks": "build/porting/checks-crate-merge-final.log"
     }
+  },
+  "tank_overflow_disposal": {
+    "source_commit": "e0dedd6e8f1dd8667090eae161ba372c4da10bc2",
+    "status": "mode_and_interactions_ported_and_verified",
+    "verification": {
+      "source_commit": "e0dedd6e8f1dd8667090eae161ba372c4da10bc2",
+      "focused_tests": 6,
+      "full_required_tests": 718,
+      "assets_checked": [
+        "src/main/resources/assets/anvilcraft/models/block/fluid_tank.json",
+        "src/main/resources/assets/anvilcraft/textures/block/fluid_tank_top.png",
+        "src/main/resources/assets/anvilcraft/textures/block/fluid_tank_side.png"
+      ],
+      "screenshots": [
+        "run\\port-validation\\client\\screenshots\\tank-disposal-26.1-normal.png",
+        "build\\porting\\reference-mun-1.21\\run\\mun-reference\\screenshots\\tank-disposal-1.21-normal.png",
+        "run\\port-validation\\client\\screenshots\\tank-disposal-26.1-disposal.png",
+        "build\\porting\\reference-mun-1.21\\run\\mun-reference\\screenshots\\tank-disposal-1.21-disposal.png",
+        "run\\port-validation\\client\\screenshots\\tank-disposal-26.1-restored.png",
+        "build\\porting\\reference-mun-1.21\\run\\mun-reference\\screenshots\\tank-disposal-1.21-restored.png"
+      ],
+      "contracts": [
+        "Only ordinary fluid tanks enable overflow disposal beside a face-adjacent Menger sponge.",
+        "Store up to capacity and consume same-fluid overflow; reject foreign fluid and update cached handlers when adjacency changes.",
+        "Transactions restore amount and infinity flags, including nested rollback; downgrade preserves existing excess fluid.",
+        "Full enhanced tanks loaded without the infinity flag activate on the next committed input, matching source behavior.",
+        "Fluid network transfers into a full disposal tank and stops when disposal is disabled.",
+        "Ordinary and large-tank child parts use the common bottle interaction with 250 mB exchanges.",
+        "Actual native/source clients accept a bucket into a full disposal tank, return an empty bucket and keep 16000 mB; normal mode rejects it.",
+        "Actual Jade names toggle in both runtimes and stable screenshots wait for the target render section."
+      ],
+      "limits": [
+        "World images retain native 26.1 terrain/lightmap and animated water differences; model/texture files match source exactly.",
+        "Existing Jade integration still shows 16000mB where source shows 16B; fluid amount formatting remains a separate display-parity audit.",
+        "First source screenshot was taken before section compilation; final runs include a render-readiness guard and settling interval."
+      ]
+    },
+    "logs": {
+      "focused": "build/porting/tests-tank-disposal-1.log",
+      "full": "build/porting/tests-tank-disposal-all.log",
+      "final_checks": "build/porting/checks-tank-disposal-final.log",
+      "native_client": "build/porting/client-tank-disposal-2.log",
+      "source_client": "build/porting/client-tank-disposal-reference-4.log"
+    },
+    "regression": {
+      "before": "build/porting/tests-tank-disposal-2.log",
+      "failure": "Full enhanced reload did not activate infinity on committed input.",
+      "after": "build/porting/tests-tank-disposal-all.log"
+    },
+    "remaining": [
+      "Audit Jade fluid quantity formatting for normal/large/infinite mixed tanks: source normal fallback shows 16B; native extension uses FluidTextHelper.getMillibuckets and shows 16000mB."
+    ],
+    "adaptation": [
+      "Disposal is transient and refreshed at load, neighbor changes, capability access and player interaction.",
+      "Bottle interactions reuse FluidBottleInteraction for both tank sizes and large-tank child parts.",
+      "Native capture uses isSectionCompiledAndVisible; reference uses the 1.21 isSectionCompiled API."
+    ]
   }
 }

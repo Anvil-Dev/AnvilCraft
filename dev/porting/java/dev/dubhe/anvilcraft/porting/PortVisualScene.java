@@ -120,6 +120,10 @@ public final class PortVisualScene {
             if (prepared) UploaderClientScene.frame(client);
             return;
         }
+        if (Boolean.getBoolean("anvilcraft.portTankDisposalScene")) {
+            if (prepared) TankDisposalClientScene.frame(client);
+            return;
+        }
         if (Boolean.getBoolean("anvilcraft.portCrateDisposalScene")) {
             if (prepared) CrateDisposalClientScene.frame(client);
             return;

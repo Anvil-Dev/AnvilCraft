@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.block.entity;
 
+import dev.dubhe.anvilcraft.api.fluid.FluidBottleInteraction;
 import dev.dubhe.anvilcraft.api.fluid.IFluidResourceHandlerHolder;
 import dev.dubhe.anvilcraft.api.fluid.network.FluidNetworkManager;
 import dev.dubhe.anvilcraft.block.container.LargeFluidTankBlock;
@@ -224,6 +225,10 @@ public class LargeFluidTankBlockEntity extends BlockEntity implements IFluidReso
     }
 
     public boolean onPlayerUse(Player player, InteractionHand hand) {
+        if (this.level != null
+            && FluidBottleInteraction.tryInteract(player, hand, this.getFluidHandler(), this.level, this.getBlockPos())) {
+            return true;
+        }
         try (Transaction transaction = Transaction.openRoot()) {
             boolean success = FluidUtil.interactWithFluidHandler(player, hand, this.getBlockPos(), this.getFluidHandler(), transaction);
             if (success) transaction.commit();

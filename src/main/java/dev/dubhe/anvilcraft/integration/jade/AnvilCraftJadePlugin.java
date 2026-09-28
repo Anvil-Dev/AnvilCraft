@@ -36,6 +36,7 @@ import dev.dubhe.anvilcraft.integration.jade.provider.client.HeatableBlockClient
 import dev.dubhe.anvilcraft.integration.jade.provider.client.ItemDetectorClientProvider;
 import dev.dubhe.anvilcraft.integration.jade.provider.client.LargeFluidTankClientProvider;
 import dev.dubhe.anvilcraft.integration.jade.provider.client.MengerSpongeClientProvider;
+import dev.dubhe.anvilcraft.integration.jade.provider.client.OverflowDisposalTankClientProvider;
 import dev.dubhe.anvilcraft.integration.jade.provider.client.PowerBlockClientProvider;
 import dev.dubhe.anvilcraft.integration.jade.provider.client.RubyPrismClientProvider;
 import dev.dubhe.anvilcraft.integration.jade.provider.client.SmartBlockPlacerClientProvider;
@@ -76,6 +77,7 @@ public class AnvilCraftJadePlugin implements IWailaPlugin {
 
     @Override
     public void registerClient(IWailaClientRegistration registration) {
+        registration.registerBlockComponent(OverflowDisposalTankClientProvider.INSTANCE, FluidTankBlock.class);
         registration.registerBlockComponent(CrateClientProvider.INSTANCE, CrateBlock.class);
         registration.registerBlockComponent(dev.dubhe.anvilcraft.integration.jade.provider.client.AutoEnchantingTableClientProvider.INSTANCE,
             dev.dubhe.anvilcraft.block.AutoEnchantingTableBlock.class);
