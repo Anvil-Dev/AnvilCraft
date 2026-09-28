@@ -23,11 +23,9 @@ import dev.dubhe.anvilcraft.init.entity.ModDamageTypeTags;
 import dev.dubhe.anvilcraft.init.registry.ModRegistryKeys;
 import dev.dubhe.anvilcraft.util.Impersonators;
 import net.minecraft.advancements.critereon.EntityTypePredicate;
-import net.minecraft.advancements.critereon.MinMaxBounds;
 import net.minecraft.advancements.critereon.TagPredicate;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.effect.MobEffectCategory;
-import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
@@ -64,10 +62,7 @@ public class ModAmulets {
     public static final DeferredHolder<Amulet, Amulet> RUBY = REGISTER.register(
         "ruby",
         () -> Amulet.of(
-            GiveMobEffectAmuletEffect.notInLava(
-                new MobEffectInstance(MobEffects.FIRE_RESISTANCE, 3, 0, false, false, true),
-                MinMaxBounds.Ints.atMost(3600)
-            ),
+            GiveMobEffectAmuletEffect.always(MobEffects.FIRE_RESISTANCE, 0),
             GiveMobEffectAmuletEffect.onFire(MobEffects.DAMAGE_BOOST, 1),
             GiveMobEffectAmuletEffect.notOnFire(MobEffects.DAMAGE_BOOST, 0)
         )
@@ -75,10 +70,7 @@ public class ModAmulets {
     public static final DeferredHolder<Amulet, Amulet> SAPPHIRE = REGISTER.register(
         "sapphire",
         () -> Amulet.of(
-            GiveMobEffectAmuletEffect.notInWater(
-                new MobEffectInstance(MobEffects.CONDUIT_POWER, 3, 0, false, false, true),
-                MinMaxBounds.Ints.atMost(3600)
-            ),
+            GiveMobEffectAmuletEffect.always(MobEffects.CONDUIT_POWER, 0),
             GiveMobEffectAmuletEffect.inWaterOrBreathing(MobEffects.DAMAGE_RESISTANCE, 0)
         )
     );
