@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.event;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.api.StorageComparatorManager;
 import dev.dubhe.anvilcraft.api.TerminalSourceManager;
 import dev.dubhe.anvilcraft.api.entity.fakeplayer.AnvilCraftFakeBlockPlacer;
 import dev.dubhe.anvilcraft.api.entity.fakeplayer.AnvilCraftFakeDestroyer;
@@ -71,6 +72,7 @@ public class LevelEventListener {
             // LEVELS 按 ServerLevel 对象持有强引用，世界卸载时清理才能释放整张拓扑缓存。
             RedstoneWireNetworkManager.clear(serverLevel);
             TerminalSourceManager.clear(serverLevel);
+            StorageComparatorManager.clear(serverLevel);
         }
     }
 }

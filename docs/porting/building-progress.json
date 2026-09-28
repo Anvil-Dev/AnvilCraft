@@ -3596,11 +3596,40 @@
   },
   "storage_block_behavior_audit": {
     "source_commit": "e0dedd6e8f1dd8667090eae161ba372c4da10bc2",
-    "status": "pending",
-    "findings": [
-      "Source LargeCrateBlock exposes comparator output and pick-block storage identity; native counterpart currently lacks these paths.",
-      "Source storage opening sounds and corresponding ShulkerContainer behavior require a shared audit."
+    "status": "comparator_pick_and_opening_sound_ported_and_verified",
+    "verification": {
+      "source_commit": "e0dedd6e8f1dd8667090eae161ba372c4da10bc2",
+      "focused_tests": 4,
+      "client_blocks": 4,
+      "client_log": "build/porting/client-storage-behavior-2.log",
+      "test_log": "build/porting/tests-storage-behavior-3.log",
+      "contracts": [
+        "Weighted ceil(fullness * 15) signals, transactional rollback and committed insert/extract.",
+        "Loaded aliases update together; unloaded aliases stop notifications and reload restores them.",
+        "Large crate comparator outputs update at three heights on all four horizontal sides.",
+        "Actual server pick packets preserve main storage ID from child parts, including subsequent placement.",
+        "Real client opens each storage with the source sound once, plain pick unbound and Ctrl pick bound."
+      ],
+      "full_required_tests": 695,
+      "full_log": "build/porting/tests-storage-behavior-all.log",
+      "compile_java": "passed",
+      "check_port_java": "passed"
+    },
+    "adaptation": [
+      "26.1 server includeData pick replaces client Ctrl detection; final component restoration prevents child-part null IDs overwriting the main reference.",
+      "Comparator tracking uses loaded ServerLevel instances, no forced chunk loads, and world/server cleanup."
     ],
-    "next_step": "Compare the shared storage entity helpers and all three storage block front ends before implementing the missing contracts."
+    "pending": [
+      "Crate overflow disposal state, transaction-aware handler, all insertion entry points, dynamic GUI/Jade title and assets.",
+      "Source removal/drop lifecycle for crates and empty shulker/hyperdimension containers, including upgrades and crafting unlock materials."
+    ],
+    "limits": [
+      "This milestone verifies storage interactions only; full feature-port goal remains active.",
+      "No assets or generated data changed in this milestone; runData is not applicable."
+    ],
+    "harness_repairs": [
+      "Large-crate comparator fixtures use staggered support columns so comparators do not overwrite one another.",
+      "Client scene advances before opening screens because native setScreenAndShow immediately renders a frame."
+    ]
   }
 }

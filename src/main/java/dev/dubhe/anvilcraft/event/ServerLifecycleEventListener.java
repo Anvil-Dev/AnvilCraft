@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.event;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.api.StorageComparatorManager;
 import dev.dubhe.anvilcraft.api.StoragePortManager;
 import dev.dubhe.anvilcraft.api.TerminalSourceManager;
 import dev.dubhe.anvilcraft.api.fluid.network.FluidNetworkManager;
@@ -65,6 +66,7 @@ public class ServerLifecycleEventListener {
         BundleLikeServerStub.clear();
         PlayerBalanceHandler.clear();
         TerminalSourceManager.clear();
+        StorageComparatorManager.clear();
         ExpCollectorBlockEntity.clearPoachingCollectors();
         ItemCollectorBlockEntity.clearPoachingCollectors();
         LaserGunItem.clearStates();

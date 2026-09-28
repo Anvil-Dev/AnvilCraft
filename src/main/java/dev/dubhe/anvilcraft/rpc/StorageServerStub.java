@@ -7,6 +7,7 @@ import dev.anvilcraft.lib.v2.rpc.CallableParam;
 import dev.anvilcraft.lib.v2.rpc.IRemoteCallableValidator;
 import dev.anvilcraft.lib.v2.rpc.RemoteCallable;
 import dev.anvilcraft.lib.v2.util.UnlimitedItemStack;
+import dev.dubhe.anvilcraft.api.StorageComparatorManager;
 import dev.dubhe.anvilcraft.api.StoragePortManager;
 import dev.dubhe.anvilcraft.api.TerminalSessions;
 import dev.dubhe.anvilcraft.api.itemhandler.unlimited.SpaceSizeItemStacksResourceHandler;
@@ -1504,6 +1505,7 @@ public final class StorageServerStub {
     }
 
     public static void onContentsChanged(UUID storageId) {
+        StorageComparatorManager.notifyContentsChanged(storageId);
         for (StorageServerStub stub : StorageServerStub.STUBS.values()) {
             if (stub.storageId.equals(storageId)) {
                 stub.version++;

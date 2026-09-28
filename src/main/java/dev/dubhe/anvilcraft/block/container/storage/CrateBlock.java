@@ -18,11 +18,14 @@ import dev.dubhe.anvilcraft.saved.storage.Storages;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -43,6 +46,23 @@ import java.util.UUID;
 public class CrateBlock extends Block implements EntityBlock, IHammerRemovable {
     public CrateBlock(Properties properties) {
         super(properties);
+    }
+
+    @Override
+    public ItemStack getCloneItemStack(LevelReader level, BlockPos pos, BlockState state, boolean includeData, Player player) {
+        ItemStack stack = super.getCloneItemStack(level, pos, state, includeData, player);
+        StorageBlockEntity.applyPickStorageId(stack, level, pos, state, includeData);
+        return stack;
+    }
+
+    @Override
+    public boolean hasAnalogOutputSignal(BlockState state) {
+        return true;
+    }
+
+    @Override
+    protected int getAnalogOutputSignal(BlockState state, Level level, BlockPos pos, Direction direction) {
+        return level.getBlockEntity(pos) instanceof StorageBlockEntity storage ? storage.getComparatorSignal() : 0;
     }
 
     @Override
@@ -99,6 +119,7 @@ public class CrateBlock extends Block implements EntityBlock, IHammerRemovable {
             if (player instanceof ServerPlayer) {
                 return InteractionResult.SUCCESS_SERVER;
             } else if (level.isClientSide()) {
+                level.playSound(player, pos, SoundEvents.BARREL_OPEN, SoundSource.BLOCKS, 1.0F, 1.0F);
                 DistExecutor.run(Dist.CLIENT, () -> () -> StorageScreen.openScreen(entity.getBlockPos()));
                 return InteractionResult.SUCCESS;
             }

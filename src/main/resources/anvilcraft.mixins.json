@@ -33,6 +33,7 @@
     "ArmorSlotMixin",
     "CreativePocketPacketMixin",
     "CelestialAnvilPickDataMixin",
+    "StoragePickMixin",
     "EquipmentPocketLockMixin",
     "AtmosphereLivingMixin",
     "EquipmentLiquidBlockMixin",
