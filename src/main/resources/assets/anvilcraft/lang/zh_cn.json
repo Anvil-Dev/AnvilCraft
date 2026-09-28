@@ -1,4 +1,8 @@
 {
+  "gui.anvilcraft.category.container_upgrade": "容器升级",
+  "gui.anvilcraft.category.container_upgrade.drop_on_top": "将这些物品丢到容器顶部",
+  "gui.anvilcraft.category.container_upgrade.requires_expansion": "需要 4 次空间超压器升级",
+  "gui.anvilcraft.category.container_upgrade.strike": "使用铁砧下砸容器以升级",
   "tooltip.anvilcraft.item.hyperdimension_storage_station.shift": "可以容纳无限个物品\n破坏时，掉落其本身，物品存储其中",
   "tooltip.anvilcraft.item.hyperdimension_storage_station": "由潜影集装箱升级而来的无限容器",
   "tooltip.anvilcraft.item.shulker_container.shift": "默认可以存储 1024 种物品，每个种类默认可以存储 65536 个物品单元\n破坏时，掉落其本身，物品存储其中\n用铁砧压入空间超压器可以拓展其储量\n每个超压器使其种类限制与其存量翻倍（最多 4 次）\n可升级为超维存储站",

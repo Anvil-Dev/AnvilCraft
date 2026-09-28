@@ -2746,8 +2746,7 @@
       }
     },
     "remaining": [
-      "Source MultiBlock4DCategory JEI display and structure-tool/scanner integration.",
-      "Source hyperdimension-station upgrade behavior and container-upgrade JEI changes."
+      "Source MultiBlock4DCategory JEI display and structure-tool/scanner integration."
     ],
     "limits": [
       "World text uses native 26.1 font/lightmap rendering; geometry and glyph masks are compared separately from brightness.",
@@ -2803,7 +2802,6 @@
       }
     },
     "remaining": [
-      "Container-to-hyperdimension-station upgrade behavior and its source JEI category.",
       "Four-dimensional JEI/structure-tool integration."
     ],
     "limits": [
@@ -2843,7 +2841,6 @@
       ]
     },
     "remaining": [
-      "ContainerUpgradeCategory JEI display and recipe/catalyst lookup.",
       "English StorageScreen title overlaps its right-side control at GUI scale 2; compare source layout and repair in the storage UI visual pass."
     ],
     "limits": [
@@ -2889,7 +2886,6 @@
       "server_regression": "No gameplay/storage code changed in this node; previous storage-upgrade node passed all 664 required tests."
     },
     "remaining": [
-      "ContainerUpgradeCategory JEI display and lookup.",
       "Source item hover storage-usage preview is missing from the native station/shulker items; port its common tooltip/RPC implementation.",
       "Complete the remaining storage interaction audit, including the source station opening sound and English screen title overlap."
     ],
@@ -2897,6 +2893,55 @@
       "The animated outline is fixed to source frame zero in development output for capture; production metadata is restored.",
       "World crops include vanilla terrain, atmosphere and lightmap differences retained for 26.1.",
       "This verifies the default resource pack at the recorded viewpoints, not every shader pack."
+    ]
+  },
+  "container_upgrade_jei": {
+    "source_commit": "07eb60b47f14439375da10e78f4d4770f3a83256",
+    "status": "recipe_lookup_counts_layout_animation_and_hint_verified",
+    "ported": [
+      "Two source Container Upgrade pages, registered recipe category, focused output lookup and crafting-station/catalyst entries.",
+      "Crate input: one Space Overcompressor and six Netherite Blocks; station input: one Singularity Crystal and sixteen Hypercubes, with four prior expansion upgrades displayed.",
+      "Source slot positions, named block hover targets, arrows, icon, dimensions and anvil animation.",
+      "Shared fixed-scale block preview helper preserves source projection/anchor and fractional vertical positioning through the native PIP renderer.",
+      "English/Chinese title and drop/strike/expansion hints."
+    ],
+    "verification": {
+      "compile_data": "build/porting/check-container-jei-final.log",
+      "style": "build/porting/style-container-jei-final.log",
+      "native_client": "build/porting/client-container-jei-final.log",
+      "source_client": "build/porting/client-container-jei-reference-final.log",
+      "report": "build/porting/container-jei-comparison.json",
+      "visuals": {
+        "crate": {
+          "model_mask_iou": 0.98575,
+          "layout_mean_rgb_error": 1.7092524509803921,
+          "model_mean_rgb_error": 17.185147933953566
+        },
+        "station": {
+          "model_mask_iou": 0.9835941443715295,
+          "layout_mean_rgb_error": 2.0019063180827885,
+          "model_mean_rgb_error": 20.9433290978399
+        },
+        "raised": {
+          "model_mask_iou": 0.9782560461504327,
+          "layout_mean_rgb_error": 2.291809640522876,
+          "model_mean_rgb_error": 21.149226977369484
+        }
+      },
+      "checks": [
+        "Two registered recipes and their focused output lookups.",
+        "Actual ingredient slots preserve source counts, including four prerequisite expansions.",
+        "Anvil/container crafting stations, live JEI browser and expansion hover hint.",
+        "Fixed timer values 0 and 15 exercise both ends of the anvil animation."
+      ],
+      "server_regression": "No gameplay logic changed in this node; the prior storage-upgrade suite passed all 664 required tests."
+    },
+    "remaining": [
+      "Shared JEI/Ageratum tooltip integration shows the mod name twice in 26.1 and changes its order relative to category hints; source/native hint captures preserve evidence for the shared compatibility audit."
+    ],
+    "limits": [
+      "Native 26.1 preview rasterization and lighting can differ at individual model pixels.",
+      "The development capture freezes only outline texture timing; original metadata is restored."
     ]
   }
 }

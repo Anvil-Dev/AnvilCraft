@@ -4,6 +4,10 @@ import dev.anvilcraft.lib.v2.registrum.providers.RegistrumLangProvider;
 
 public class JeiLang {
     public static void init(RegistrumLangProvider provider) {
+        provider.add("gui.anvilcraft.category.container_upgrade", "Container Upgrade");
+        provider.add("gui.anvilcraft.category.container_upgrade.drop_on_top", "Drop these items onto the container");
+        provider.add("gui.anvilcraft.category.container_upgrade.strike", "Strike with an anvil to upgrade the container");
+        provider.add("gui.anvilcraft.category.container_upgrade.requires_expansion", "Requires 4 Space Over-compressor Expansions");
         provider.add("gui.anvilcraft.multiblock_4d.progress", "Crafting Progress: %1$d / %2$d");
         provider.add("gui.anvilcraft.category.chance", "Chance: %s%%");
         provider.add("gui.anvilcraft.category.average_output", "Average: %s");

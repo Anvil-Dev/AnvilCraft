@@ -66,6 +66,24 @@ public class RenderSupport {
         );
     }
 
+    /** Draw a preview at an anchor with a fixed number of GUI pixels per block. */
+    public static void renderBlockAt(GuiGraphicsExtractor graphics, BlockState block, float x, float y, float scale) {
+        float size = 8 * scale;
+        float fittedScale = 8 / (1 + (float) Math.sqrt(2) / 2);
+        PoseStack.Pose pose = new PoseStack.Pose();
+        pose.scale(1 / fittedScale, 1 / fittedScale, 1 / fittedScale);
+        pose.rotate(Axis.XP.rotationDegrees(30));
+        pose.rotate(Axis.YP.rotationDegrees(225));
+        float left = x - size / 2;
+        float top = y + scale * (fittedScale * 0.5F - 7.25F);
+        float alignedTop = (float) Math.floor(top);
+        graphics.pose().pushMatrix();
+        graphics.pose().translate(0, top - alignedTop);
+        GuiRenderExtras.tessellateBlock(graphics, block, null, null, left, alignedTop, left + size, alignedTop + size,
+            -1, Minecraft.getInstance().options.ambientOcclusion().get(), pose);
+        graphics.pose().popMatrix();
+    }
+
     public static void render3x3Block(GuiGraphicsExtractor graphics, BlockState block, float x, float y, float size) {
         PoseStack.Pose poseStack = RenderSupport.BLOCK_DISPLAY_POSE.copy();
         poseStack.scale(0.3f, 0.3f, 0.3f);

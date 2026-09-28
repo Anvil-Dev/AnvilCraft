@@ -88,6 +88,10 @@ public final class PortVisualScene {
             if (prepared) LaserClientScene.frame(client);
             return;
         }
+        if (Boolean.getBoolean("anvilcraft.portContainerJeiScene")) {
+            if (prepared) ContainerUpgradeJeiScene.frame(client);
+            return;
+        }
         if (Boolean.getBoolean("anvilcraft.portStorageStationScene")) {
             if (prepared) StorageStationClientScene.frame(client);
             return;

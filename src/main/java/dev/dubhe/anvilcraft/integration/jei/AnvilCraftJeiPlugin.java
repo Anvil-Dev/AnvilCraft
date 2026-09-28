@@ -16,6 +16,7 @@ import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.integration.jei.category.AnvilCollisionCraftCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.BeaconConversionCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.ChargerChargingCategory;
+import dev.dubhe.anvilcraft.integration.jei.category.ContainerUpgradeCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.DecayCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.EnergyWeaponCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.FluidMixingCategory;
@@ -49,6 +50,7 @@ import dev.dubhe.anvilcraft.integration.jei.category.multiblock.MultiBlockConver
 import dev.dubhe.anvilcraft.integration.jei.category.multiblock.MultiBlockCraftingCategory;
 import dev.dubhe.anvilcraft.integration.jei.handlers.GhostIngredientHandler;
 import dev.dubhe.anvilcraft.integration.jei.recipe.BeaconConversionRecipe;
+import dev.dubhe.anvilcraft.integration.jei.recipe.ContainerUpgradeRecipe;
 import dev.dubhe.anvilcraft.integration.jei.recipe.DecayRecipe;
 import dev.dubhe.anvilcraft.integration.jei.recipe.MeshRecipeGroup;
 import dev.dubhe.anvilcraft.integration.jei.recipe.MineralFountainJeiRecipe;
@@ -137,6 +139,8 @@ public class AnvilCraftJeiPlugin implements IModPlugin {
     public static final IRecipeType<MeshRecipeGroup> MESH = createRecipeType("mesh", MeshRecipeGroup.class);
     public static final IRecipeType<BeaconConversionRecipe> BEACON_CONVERSION =
         createRecipeType("beacon_conversion", BeaconConversionRecipe.class);
+    public static final IRecipeType<ContainerUpgradeRecipe> CONTAINER_UPGRADE =
+        createRecipeType("container_upgrade", ContainerUpgradeRecipe.class);
     public static final IRecipeType<DecayRecipe> DECAY = createRecipeType("decay", DecayRecipe.class);
 
     public static final IRecipeHolderType<BlockCompressRecipe> BLOCK_COMPRESS = createHolderType("block_compress");
@@ -208,6 +212,7 @@ public class AnvilCraftJeiPlugin implements IModPlugin {
         JewelCraftingCategory.registerRecipes(registration);
         PortalConversionCategory.registerRecipes(registration);
         BeaconConversionCategory.registerRecipes(registration);
+        ContainerUpgradeCategory.registerRecipes(registration);
         DecayCategory.registerRecipes(registration);
         ChargerChargingCategory.registerRecipes(registration);
         MultipleToOneSmithingCategory.registerRecipes(registration);
@@ -239,6 +244,7 @@ public class AnvilCraftJeiPlugin implements IModPlugin {
         JewelCraftingCategory.registerRecipeCatalysts(registration);
         PortalConversionCategory.registerRecipeCatalysts(registration);
         BeaconConversionCategory.registerRecipeCatalysts(registration);
+        ContainerUpgradeCategory.registerRecipeCatalysts(registration);
         DecayCategory.registerRecipeCatalysts(registration);
         ChargerChargingCategory.registerRecipeCatalysts(registration);
         MultipleToOneSmithingCategory.registerRecipeCatalysts(registration);
@@ -288,6 +294,7 @@ public class AnvilCraftJeiPlugin implements IModPlugin {
         registration.addRecipeCategories(new JewelCraftingCategory(guiHelper));
         registration.addRecipeCategories(new PortalConversionCategory(guiHelper));
         registration.addRecipeCategories(new BeaconConversionCategory(guiHelper));
+        registration.addRecipeCategories(new ContainerUpgradeCategory(guiHelper));
         registration.addRecipeCategories(new DecayCategory(guiHelper));
         registration.addRecipeCategories(new ChargerChargingCategory(guiHelper));
         registration.addRecipeCategories(new MultipleToOneSmithingCategory(guiHelper));
