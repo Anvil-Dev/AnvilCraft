@@ -12,7 +12,9 @@ import dev.anvilcraft.lib.v2.cube.geometry.ConvexShape;
 import dev.anvilcraft.lib.v2.cube.geometry.PackedOutline;
 import dev.anvilcraft.lib.v2.cube.geometry.SelectionGeometry;
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.block.entity.RuinsBlockEntity;
 import dev.dubhe.anvilcraft.block.multipart.AbstractMultiPartBlock;
+import dev.dubhe.anvilcraft.client.renderer.blockentity.RuinsRenderContext;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
@@ -266,25 +268,44 @@ public final class ModelBlockSelection {
     @SubscribeEvent(priority = EventPriority.LOW)
     public static void highlight(ExtractBlockOutlineRenderStateEvent event) {
         Minecraft minecraft = Minecraft.getInstance();
-        BlockState state = event.getBlockState();
+        if (minecraft.options.hideGui) return;
+        if (event.getLevel().getBlockEntity(event.getBlockPos()) instanceof RuinsBlockEntity ruins) {
+            try (var ignored = RuinsRenderContext.enter(event.getLevel())) {
+                RuinsSelection.prepare(ruins);
+                if (!highlight(event, ruins.getDisplayState())) {
+                    submitOutline(event, event.getBlockPos().immutable(), Vec3.ZERO,
+                        prepareOutline(fallback(event.getLevel(), event.getBlockPos(), ruins.getDisplayState())));
+                }
+            }
+        } else {
+            highlight(event, event.getBlockState());
+        }
+    }
+
+    private static boolean highlight(ExtractBlockOutlineRenderStateEvent event, BlockState state) {
+        Minecraft minecraft = Minecraft.getInstance();
         Block block = state.getBlock();
-        if (minecraft.options.hideGui || !AnvilCraft.MOD_ID.equals(BuiltInRegistries.BLOCK.getKey(block).getNamespace())) return;
-        if (ModelSelectionBlacklist.usesOriginalOutline(block)) return;
-        if (!ModelSelectionBlacklist.usesOriginalPicking(block) && !CubeSelection.isEnabled(block)) return;
+        if (minecraft.options.hideGui || !AnvilCraft.MOD_ID.equals(BuiltInRegistries.BLOCK.getKey(block).getNamespace())) return false;
+        if (ModelSelectionBlacklist.usesOriginalOutline(block)) return false;
+        if (!ModelSelectionBlacklist.usesOriginalPicking(block) && !CubeSelection.isEnabled(block)) return false;
         ClientLevel level = event.getLevel();
         BlockPos pos = event.getBlockPos().immutable();
         float partialTick = event.getCamera().getCameraEntityPartialTicks(minecraft.getDeltaTracker());
         List<SelectionPart> whole = snapshot.outlines().get(state);
         boolean multipart = whole != null && block instanceof AbstractMultiPartBlock<?>;
         List<SelectionPart> outline = multipart ? whole : parts(level, pos, state, partialTick);
-        if (outline.isEmpty() && !multipart) return;
+        if (outline.isEmpty() && !multipart) return false;
         List<OutlinePart> prepared = prepareOutline(outline);
         if (multipart && block instanceof AbstractMultiPartBlock<?> multi) {
             collectDynamicOutline(multi, state, pos, level, partialTick, prepared);
         }
+        submitOutline(event, pos, multipart ? Vec3.ZERO : state.getOffset(pos), prepared);
+        return true;
+    }
+
+    private static void submitOutline(ExtractBlockOutlineRenderStateEvent event, BlockPos pos, Vec3 offset, List<OutlinePart> prepared) {
         List<OutlinePart> drawing = List.copyOf(prepared);
-        Vec3 offset = multipart ? Vec3.ZERO : state.getOffset(pos);
-        float lineWidth = minecraft.gameRenderer.getGameRenderState().windowRenderState.appropriateLineWidth;
+        float lineWidth = Minecraft.getInstance().gameRenderer.getGameRenderState().windowRenderState.appropriateLineWidth;
         // 回调只保留本帧提取的数据，不能在提交阶段读取世界或方块实体。
         event.addCustomRenderer((renderState, buffer, pose, translucentPass, levelState) -> {
             if (renderState.isTranslucent() != translucentPass) return true;

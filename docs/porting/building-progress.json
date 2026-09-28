@@ -3167,7 +3167,7 @@
   },
   "ruins_block": {
     "source_commit": "07eb60b47f14439375da10e78f4d4770f3a83256",
-    "status": "foundation_fluids_entity_visuals_particles_verified_selection_bounds_pending",
+    "status": "geometry_visibility_verified_solid_culling_and_gateway_animation_pending",
     "ported": [
       "Creative item conversion snapshots original states and block entity data; multipart groups convert atomically without spilling container contents.",
       "Configured named or inline loot, inert/fragile interaction, multipart single-drop cleanup and creative no-drop removal.",
@@ -3177,7 +3177,10 @@
       "Registration, creative entry, source model transforms, translations and native data generation.",
       "Display block entities run their original client visual ticker once per game tick; celestial forging anvils share their visual-only timer path without amplifier preview registration.",
       "Native ClientLevel hit/destroy effects use the original disguise state, shape, sprite and tint; removed entities retain the source bounded short-lived particle cache.",
-      "Disguised fluids use native world-fluid tessellation, custom fluid renderer delegation, lighting, tint, UVs and immutable deferred geometry; section-relative vertices are normalized to block-local positions."
+      "Disguised fluids use native world-fluid tessellation, custom fluid renderer delegation, lighting, tint, UVs and immutable deferred geometry; section-relative vertices are normalized to block-local positions.",
+      "Precise picking and outline extraction reuse original multipart geometry, child renderer poses and vanilla shape fallback within the disguise context.",
+      "Render bounds combine cached static model and whole-structure bounds with child renderer extents; view distance measures from the visible extent.",
+      "Native and Sodium section compilation classify each disguise individually; client load/update transitions maintain native global membership without duplicate section submission."
     ],
     "verification": {
       "compile_data_focused": "build/porting/tests-ruins-3.log",
@@ -3214,12 +3217,11 @@
       ]
     },
     "pending": [
-      "Dynamic selection and expanded culling bounds",
-      "Neighbor face culling",
+      "Neighbor solid-block face culling",
       "Gateway item animation pixel comparison"
     ],
     "limits": [
-      "Ruins still requires dynamic selection, expanded bounds, neighbor solid-block face culling and further gateway animation comparison.",
+      "Ruins still requires neighbor solid-block face culling and further gateway animation comparison.",
       "Retain vanilla 26.1 terrain, atmosphere and lighting as requested; native/source world pixels are not expected to be identical.",
       "The focused data/test run succeeded but its first style check failed; all remaining style issues were fixed and the subsequent full run passed."
     ],
@@ -3281,6 +3283,44 @@
         "Image errors include surrounding glass, native 26.1 terrain lighting and independent texture animation phases.",
         "Crops are diagnostic measurements; visual inspection and geometry assertions determine this checkpoint.",
         "Neighbor solid-block face culling, dynamic selection and expanded render bounds remain separate work."
+      ]
+    },
+    "geometry_verification": {
+      "compile_style": "build/porting/check-ruins-geometry-final.log",
+      "full_tests": "build/porting/tests-ruins-geometry-all.log",
+      "required_tests_passed": 684,
+      "native_client": "build/porting/client-ruins-geometry-4.log",
+      "source_client": "build/porting/client-ruins-geometry-reference-1.log",
+      "sodium_client": "build/porting/client-ruins-geometry-sodium-3.log",
+      "report": "build/porting/ruins-geometry-report.json",
+      "checks": [
+        "CubeSelection targets retain the original block state, geometry and dynamic pose through the disguise.",
+        "Multipart render bounds include the whole structure; selected geometry lies within render bounds.",
+        "Render distance is measured from model extent, preserving objects near the view-distance boundary.",
+        "Actual extraction events produce outlines for the targeted crate, mechanical arm and vanilla slab.",
+        "Native and Sodium section/global lists contain each disguise on exactly one path.",
+        "Switching a beacon disguise to stone and back updates both native and Sodium collection lists."
+      ],
+      "visuals": {
+        "crate": {
+          "source_crop_mean_rgb_error": 3.479446002805049,
+          "sodium_crop_mean_rgb_error": 0.16157316503038804
+        },
+        "arm": {
+          "source_crop_mean_rgb_error": 5.948916861826698,
+          "sodium_crop_mean_rgb_error": 0.8183548009367682
+        },
+        "slab": {
+          "source_crop_mean_rgb_error": 5.350178571428572,
+          "sodium_crop_mean_rgb_error": 0.2863293650793651
+        }
+      },
+      "visual_review": "Native/source crate, arm and slab outlines inspected; Sodium crate capture also inspected.",
+      "limits": [
+        "Crops omit UI overlays and retain native 26.1 lighting/sampling differences.",
+        "Neighbor solid-block face culling and gateway item animation comparison remain separate work.",
+        "Sodium development runtime uses the full sodium-neoforge artifact; the compilation-only mod/API artifacts omit startup compatibility classes.",
+        "The native outline probe observes actual extraction events, since 26.1 clears the render state before the frame-post callback."
       ]
     }
   }

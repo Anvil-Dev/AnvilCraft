@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.block.entity;
 
 import dev.anvilcraft.lib.v2.piston.IMoveableEntityBlock;
 import dev.dubhe.anvilcraft.block.RuinsBlock;
+import dev.dubhe.anvilcraft.client.renderer.blockentity.RuinsBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.RuinsParticles;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
@@ -142,6 +143,7 @@ public class RuinsBlockEntity extends BlockEntity {
         }
         this.updateMovement();
         this.refreshLight();
+        this.refreshClientVisibility();
     }
 
     @Override
@@ -149,6 +151,7 @@ public class RuinsBlockEntity extends BlockEntity {
         super.onLoad();
         this.updateMovement();
         this.refreshLight();
+        this.refreshClientVisibility();
     }
 
     private void updateMovement() {
@@ -169,6 +172,11 @@ public class RuinsBlockEntity extends BlockEntity {
             this.level.sendBlockUpdated(this.worldPosition, this.getBlockState(), this.getBlockState(), Block.UPDATE_CLIENTS);
         }
         this.refreshLight();
+        this.refreshClientVisibility();
+    }
+
+    private void refreshClientVisibility() {
+        if (this.level != null && this.level.isClientSide()) RuinsBlockEntityRenderer.updateVisibility(this);
     }
 
     private void refreshLight() {

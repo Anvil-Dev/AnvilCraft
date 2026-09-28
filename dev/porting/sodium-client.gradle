@@ -1,0 +1,4 @@
+gradle.projectsEvaluated {
+    rootProject.dependencies.add('runtimeOnly', "net.caffeinemc:sodium-neoforge:${rootProject.libs.versions.sodium.get()}")
+    rootProject.tasks.named('runClient') { systemProperty 'anvilcraft.portSodiumScene', 'true' }
+}
