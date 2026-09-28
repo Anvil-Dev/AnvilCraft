@@ -177,6 +177,9 @@ allprojects {
             include '**/FormattingUtil.java', '**/ItemResourceHelper.java'
             include '**/unlimited/UnlimitedItemStacksResourceHandler.java', '**/unlimited/TypeLimitItemStacksResourceHandler.java'
             include '**/ShulkerContainerTooltipProvider.java', '**/AabbUtil.java'
+            include '**/StorageTooltip.java', '**/ClientStorageTooltip.java', '**/HyperdimensionStorageStationBlockItem.java'
+            include '**/ShulkerContainerBlockItem.java', '**/ModTooltipComponents.java', '**/client/event/ClientEventListener.java'
+            include '**/ScaledGuiItemAtlases.java', '**/ScaledGuiItemRendererMixin.java'
             include '**/saved/storage/*Storage.java'
         } + fileTree('dev/porting/java')
         classpath = files()

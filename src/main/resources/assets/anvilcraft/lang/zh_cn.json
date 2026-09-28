@@ -1,4 +1,7 @@
 {
+  "tooltip.anvilcraft.storage.types": "种类：",
+  "tooltip.anvilcraft.storage.types.value": "  %s / %s",
+  "tooltip.anvilcraft.storage.types.value.infinite": "  %s / ∞",
   "gui.anvilcraft.category.container_upgrade": "容器升级",
   "gui.anvilcraft.category.container_upgrade.drop_on_top": "将这些物品丢到容器顶部",
   "gui.anvilcraft.category.container_upgrade.requires_expansion": "需要 4 次空间超压器升级",

@@ -6,14 +6,21 @@ import dev.dubhe.anvilcraft.block.power.converter.PowerConverterExtremelyBigBloc
 import dev.dubhe.anvilcraft.block.power.converter.PowerConverterMiddleBlock;
 import dev.dubhe.anvilcraft.block.power.converter.PowerConverterSmallBlock;
 import dev.dubhe.anvilcraft.block.power.converter.PowerConverterSuperBigBlock;
+import dev.dubhe.anvilcraft.client.rpc.StorageClientStub;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
+import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModFoodItems;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.init.item.ModItems;
+import dev.dubhe.anvilcraft.inventory.tooltip.StorageTooltip;
+import dev.dubhe.anvilcraft.item.property.component.StorageRef;
+import dev.dubhe.anvilcraft.rpc.StorageServerStub;
 import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
+import net.minecraft.world.inventory.tooltip.TooltipComponent;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
@@ -21,6 +28,10 @@ import net.minecraft.world.item.TooltipFlag;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 
 public class ItemTooltipManager {
@@ -28,6 +39,11 @@ public class ItemTooltipManager {
         "tooltip.anvilcraft.press_key",
         Component.literal("Shift").withStyle(ChatFormatting.WHITE)
     ).withStyle(ChatFormatting.DARK_GRAY);
+    private static final Map<UUID, StorageServerStub.StorageUsage> STORAGE_USAGE = new ConcurrentHashMap<>();
+    private static final Map<UUID, Long> STORAGE_USAGE_TIMES = new ConcurrentHashMap<>();
+    private static final Set<UUID> STORAGE_USAGE_PENDING = ConcurrentHashMap.newKeySet();
+    private static final long STORAGE_USAGE_REFRESH_INTERVAL = 2000L;
+    private static int storageUsageGeneration;
     private static final Map<Item, String> NORMAL = Maps.newHashMap();
     private static final Map<Item, Object[]> NORMAL_ARGUMENTS = Maps.newHashMap();
     private static final Map<Item, String> SHIFT = Maps.newHashMap();
@@ -895,6 +911,37 @@ public class ItemTooltipManager {
                     .withStyle(ChatFormatting.GRAY)
             );
         }
+    }
+
+    public static Optional<TooltipComponent> getStorageTooltip(ItemStack stack) {
+        StorageRef ref = stack.get(ModComponents.STORAGE);
+        if (ref == null || ref.id().isEmpty()) return Optional.empty();
+        UUID storageId = ref.id().get();
+        StorageServerStub.StorageUsage usage = STORAGE_USAGE.get(storageId);
+        if (System.currentTimeMillis() - STORAGE_USAGE_TIMES.getOrDefault(storageId, 0L) > STORAGE_USAGE_REFRESH_INTERVAL) {
+            ItemTooltipManager.requestStorageUsage(storageId);
+        }
+        return usage == null || usage.typeLimit() < 0 ? Optional.empty()
+            : Optional.of(new StorageTooltip(usage.usedTypes(), usage.typeLimit(), usage.types()));
+    }
+
+    private static void requestStorageUsage(UUID storageId) {
+        Minecraft client = Minecraft.getInstance();
+        if (client.player == null || !STORAGE_USAGE_PENDING.add(storageId)) return;
+        int generation = storageUsageGeneration;
+        STORAGE_USAGE_TIMES.put(storageId, System.currentTimeMillis());
+        StorageClientStub.loadUsage(storageId).whenCompleteAsync((usage, error) -> {
+            if (generation != storageUsageGeneration) return;
+            STORAGE_USAGE_PENDING.remove(storageId);
+            if (error == null && usage != null && usage.typeLimit() >= 0) STORAGE_USAGE.put(storageId, usage);
+        }, client);
+    }
+
+    public static void clearStorageTooltips() {
+        storageUsageGeneration++;
+        STORAGE_USAGE.clear();
+        STORAGE_USAGE_TIMES.clear();
+        STORAGE_USAGE_PENDING.clear();
     }
 
     private static void addTranslatedTooltip(Consumer<Component> builder, String key, Object... arguments) {

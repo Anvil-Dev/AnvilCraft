@@ -258,6 +258,7 @@ import dev.dubhe.anvilcraft.item.block.HasMobBlockItem;
 import dev.dubhe.anvilcraft.item.block.HeatCollectorBlockItem;
 import dev.dubhe.anvilcraft.item.block.HeatableBlockItem;
 import dev.dubhe.anvilcraft.item.block.HeliostatsItem;
+import dev.dubhe.anvilcraft.item.block.HyperdimensionStorageStationBlockItem;
 import dev.dubhe.anvilcraft.item.block.InfiniteCollectorBlockItem;
 import dev.dubhe.anvilcraft.item.block.LargeCakeBlockItem;
 import dev.dubhe.anvilcraft.item.block.LargeFluidTankBlockItem;
@@ -730,7 +731,7 @@ public class ModBlocks {
             .isValidSpawn(ModBlocks::never)
             .requiresCorrectToolForDrops()
         )
-        .item(SimpleMultiPartBlockItem::new)
+        .item(HyperdimensionStorageStationBlockItem::new)
         .properties(properties -> properties
             .fireResistant()
             .stacksTo(1)

@@ -6,6 +6,7 @@ import com.mojang.math.Axis;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.sound.SoundHelper;
 import dev.dubhe.anvilcraft.api.thought.ThoughtManager;
+import dev.dubhe.anvilcraft.api.tooltip.ItemTooltipManager;
 import dev.dubhe.anvilcraft.block.entity.ItemCollectorBlockEntity;
 import dev.dubhe.anvilcraft.client.AnvilCraftClient;
 import dev.dubhe.anvilcraft.client.init.ModAtlasIds;
@@ -107,6 +108,7 @@ public class ClientEventListener {
         SoundHelper.INSTANCE.clear();
         RecipesRecord.CLIENTSIDE = null;
         StorageTerminalClientStub.clear();
+        ItemTooltipManager.clearStorageTooltips();
         TerminalReachabilityCache.clear();
         TerminalJeiStorageCache.clear();
         StructureDiskPreviewSupport.clearCache();

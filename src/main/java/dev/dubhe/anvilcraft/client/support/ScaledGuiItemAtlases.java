@@ -7,6 +7,7 @@ import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.feature.FeatureRenderDispatcher;
 import net.minecraft.client.renderer.state.gui.GuiItemRenderState;
 import net.minecraft.client.renderer.state.gui.GuiRenderState;
+import net.minecraft.client.renderer.state.gui.pip.OversizedItemRenderState;
 import net.minecraft.client.renderer.state.gui.pip.PictureInPictureRenderState;
 import org.joml.Matrix3x2fc;
 import org.jspecify.annotations.Nullable;
@@ -63,6 +64,17 @@ public final class ScaledGuiItemAtlases implements AutoCloseable {
         int extent = Math.max(state.x1() - state.x0(), state.y1() - state.y0());
         if (extent <= 0) return guiScale;
         return Math.min(Math.max(guiScale, (pixels + 15) / 16), Math.max(1, maximum / extent));
+    }
+
+    public static Object oversizedKey(GuiItemRenderState item, Object model, int guiScale) {
+        var bounds = item.oversizedItemBounds();
+        if (bounds == null || !(model instanceof List<?> elements) || !elements.contains(OWNED_ITEM)) return model;
+        var state = new OversizedItemRenderState(item, bounds.left(), bounds.top(), bounds.right(), bounds.bottom());
+        int scale = pipScale(item, state, guiScale, RenderSystem.getDevice().getMaxTextureSize());
+        return new OversizedKey(model, bounds.width(), bounds.height(), scale);
+    }
+
+    private record OversizedKey(Object model, int width, int height, int scale) {
     }
 
     public void prepare(GuiRenderState state, int guiScale) {

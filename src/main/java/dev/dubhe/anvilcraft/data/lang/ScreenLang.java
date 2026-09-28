@@ -10,6 +10,9 @@ public class ScreenLang {
      */
     @SuppressWarnings("checkstyle:LineLength")
     public static void init(RegistrumLangProvider provider) {
+        provider.add("tooltip.anvilcraft.storage.types", "Types:");
+        provider.add("tooltip.anvilcraft.storage.types.value", "  %s / %s");
+        provider.add("tooltip.anvilcraft.storage.types.value.infinite", "  %s / ∞");
         provider.add("screen.anvilcraft.creative_laser.lens.none", "No Lens"); // 无透镜
         provider.add("screen.anvilcraft.creative_laser.lens.royal", "Royal Lens"); // 皇家透镜
         provider.add("screen.anvilcraft.creative_laser.lens.frost", "Frost Lens"); // 浮霜透镜

@@ -2886,7 +2886,6 @@
       "server_regression": "No gameplay/storage code changed in this node; previous storage-upgrade node passed all 664 required tests."
     },
     "remaining": [
-      "Source item hover storage-usage preview is missing from the native station/shulker items; port its common tooltip/RPC implementation.",
       "Complete the remaining storage interaction audit, including the source station opening sound and English screen title overlap."
     ],
     "limits": [
@@ -2942,6 +2941,70 @@
     "limits": [
       "Native 26.1 preview rasterization and lighting can differ at individual model pixels.",
       "The development capture freezes only outline texture timing; original metadata is restored."
+    ]
+  },
+  "storage_item_tooltip": {
+    "source_commit": "07eb60b47f14439375da10e78f4d4770f3a83256",
+    "status": "usage_rpc_access_refresh_visual_component_and_density_regression_verified",
+    "ported": [
+      "Shared storage tooltip path for Shulker Container and Hyperdimension Storage Station items.",
+      "Used/maximum type counts, source infinity marker, nine count-one representative stacks preserving components and an ellipsis for further types.",
+      "Source inventory/bound-terminal query authorization, adapted to native equipment slots and existing TerminalSessions resolution.",
+      "Two-second asynchronous refresh with deduplicated pending requests; disconnect clears the cache and rejects late replies.",
+      "Exact source English/Chinese usage translations and Large Crate/Shulker Container guide pages."
+    ],
+    "fixes": [
+      "Fixed native oversized item cache reuse across different pixel densities: owned mod icons are keyed by model, bounds and effective density; vanilla per-frame renderer eviction remains active.",
+      "The tooltip fixture exposed a closed Sampler0 texture when an oversized hotbar icon changed from 51x57 to 34x38 before queued drawing; the same fixture now passes and additionally draws four scales together."
+    ],
+    "verification": {
+      "focused_tests": "build/porting/tests-storage-tooltip-1.log",
+      "focused_tests_passed": 3,
+      "full_tests": "build/porting/tests-storage-tooltip-full.log",
+      "required_tests_passed": 667,
+      "compile_data_style_and_native_client": "build/porting/client-storage-tooltip-final.log",
+      "source_client": "build/porting/client-storage-tooltip-reference-1.log",
+      "report": "build/porting/storage-tooltip-comparison.json",
+      "visuals": {
+        "empty": {
+          "component_foreground_iou": 1.0,
+          "mean_rgb_error": 1.8523206751054853
+        },
+        "finite": {
+          "component_foreground_iou": 1.0,
+          "mean_rgb_error": 1.8336980306345734
+        },
+        "many": {
+          "component_foreground_iou": 1.0,
+          "mean_rgb_error": 1.7938556067588325
+        },
+        "infinite": {
+          "component_foreground_iou": 1.0,
+          "mean_rgb_error": 1.8141809290953546
+        },
+        "updated": {
+          "component_foreground_iou": 1.0,
+          "mean_rgb_error": 1.92128801431127
+        }
+      },
+      "checks": [
+        "Real inventory items use the registered tooltip factory and RPC path.",
+        "Empty, finite, expanded and infinite capacities; nine representatives and ellipsis.",
+        "The tooltip refreshes after server-side contents change.",
+        "Native pending responses do not repopulate an invalidated cache.",
+        "Simultaneous oversized item densities no longer share and release a pending draw texture."
+      ],
+      "source_equal_guide_pages": 2,
+      "density_capture": "run/port-validation/client/screenshots/storage-tooltip-26.1-scaled.png"
+    },
+    "remaining": [
+      "Shared tooltip footer/mod-name integration still differs from source; the component comparison excludes that unrelated footer.",
+      "Full navigation and rendering of linked manual pages remains part of the global handbook audit."
+    ],
+    "limits": [
+      "The comparison isolates the new data component; shared Ageratum/mod-name footer differences remain a separate audit.",
+      "Client checks use an integrated server; remote-server authorization is additionally covered by validator tests.",
+      "The full server suite passed before client-only atlas cache repair; the final combined compile/data/style/client run covers that repair."
     ]
   }
 }

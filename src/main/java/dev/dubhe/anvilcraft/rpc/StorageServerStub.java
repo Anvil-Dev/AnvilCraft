@@ -21,6 +21,7 @@ import dev.dubhe.anvilcraft.block.entity.storage.StorageBlockEntity;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.item.HyperdimensionTerminalItem;
 import dev.dubhe.anvilcraft.item.TerminalItem;
+import dev.dubhe.anvilcraft.item.property.component.StorageRef;
 import dev.dubhe.anvilcraft.saved.setting.PlayerSetting;
 import dev.dubhe.anvilcraft.saved.setting.PlayerSettings;
 import dev.dubhe.anvilcraft.saved.setting.StorageSetting;
@@ -57,6 +58,7 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.SimpleContainer;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerLevelAccess;
@@ -1523,6 +1525,49 @@ public final class StorageServerStub {
         TerminalSessions.clear();
     }
 
+    @RemoteCallable(validator = StorageUsageValidator.class)
+    public static StorageUsage getStorageUsage(UUID ignoredPlayerId, UUID storageId) {
+        return Storages.get().get(storageId).map(storage -> {
+            UnlimitedItemStacksResourceHandler items = storage.getItems();
+            List<ItemStack> representatives = new ArrayList<>();
+            for (int index = 0; index < items.size() && representatives.size() < 9; index++) {
+                if (items.getAmountAsLong(index) <= 0) continue;
+                ItemStack stack = items.getResource(index).toStack(1);
+                if (representatives.stream().noneMatch(type -> ItemStack.isSameItemSameComponents(type, stack))) {
+                    representatives.add(stack);
+                }
+            }
+            int typeLimit = items.getTypeLimit();
+            return new StorageUsage(items.getTypeCount(), typeLimit == Integer.MAX_VALUE ? 0 : typeLimit, representatives);
+        }).orElse(new StorageUsage(0, 0, List.of()));
+    }
+
+    private static boolean ownsStorageRef(ServerPlayer player, UUID storageId) {
+        for (int slot = 0; slot < player.getInventory().getContainerSize(); slot++) {
+            if (StorageServerStub.hasStorageRef(player.getInventory().getItem(slot), storageId)) return true;
+        }
+        for (EquipmentSlot slot : List.of(EquipmentSlot.OFFHAND, EquipmentSlot.HEAD, EquipmentSlot.CHEST,
+            EquipmentSlot.LEGS, EquipmentSlot.FEET)) {
+            if (StorageServerStub.hasStorageRef(player.getItemBySlot(slot), storageId)) return true;
+        }
+        return false;
+    }
+
+    private static boolean hasStorageRef(ItemStack stack, UUID storageId) {
+        StorageRef ref = stack.get(ModComponents.STORAGE);
+        return ref != null && ref.id().filter(storageId::equals).isPresent();
+    }
+
+    public static final class StorageUsageValidator implements IRemoteCallableValidator {
+        @Override
+        public boolean validate(IPayloadContext context, Method method, Object[] args) {
+            return context.player() instanceof ServerPlayer player && args.length == 2 && args[0] instanceof UUID playerId
+                && player.getUUID().equals(playerId) && args[1] instanceof UUID requestedStorageId
+                && (!TerminalSessions.findTerminal(player, requestedStorageId).isEmpty()
+                    || StorageServerStub.ownsStorageRef(player, requestedStorageId));
+        }
+    }
+
     public static final class StorageAccessValidator implements IRemoteCallableValidator {
         @Override
         public boolean validate(IPayloadContext ctx, Method method, Object[] args) {
@@ -1594,6 +1639,18 @@ public final class StorageServerStub {
             UUIDUtil.STREAM_CODEC,
             Metadata::storageId,
             Metadata::new
+        );
+    }
+
+    public record StorageUsage(int usedTypes, int typeLimit, List<ItemStack> types) {
+        public static final StreamCodec<RegistryFriendlyByteBuf, StorageUsage> STREAM_CODEC = StreamCodec.composite(
+            ByteBufCodecs.VAR_INT,
+            StorageUsage::usedTypes,
+            ByteBufCodecs.VAR_INT,
+            StorageUsage::typeLimit,
+            ItemStack.OPTIONAL_STREAM_CODEC.apply(ByteBufCodecs.list()),
+            StorageUsage::types,
+            StorageUsage::new
         );
     }
 

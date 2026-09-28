@@ -17,6 +17,10 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 public final class StorageClientStub {
+    public static CompletableFuture<StorageServerStub.StorageUsage> loadUsage(UUID storageId) {
+        return RPC.invoke(RpcTarget.server(), StorageServerStub::getStorageUsage, StorageClientStub.playerId(), storageId);
+    }
+
     public static CompletableFuture<StorageServerStub.ContentsPage> craftingStorageContents(BlockPos sourcePos, int offset) {
         return RPC.invoke(RpcTarget.server(), StorageServerStub::craftingStorageContents, playerId(), sourcePos.asLong(), offset);
     }

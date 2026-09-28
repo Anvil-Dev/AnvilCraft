@@ -67,6 +67,18 @@ abstract class ScaledGuiItemRendererMixin {
         return original.call(atlas, state);
     }
 
+    @WrapOperation(
+        method = "*",
+        at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/item/TrackingItemStackRenderState;"
+            + "getModelIdentity()Ljava/lang/Object;")
+    )
+    private Object anvilcraft$oversizedCacheKey(
+        TrackingItemStackRenderState state, Operation<Object> original, @Local(argsOnly = true) GuiItemRenderState item
+    ) {
+        return ScaledGuiItemAtlases.oversizedKey(item, original.call(state),
+            Minecraft.getInstance().gameRenderer.getGameRenderState().windowRenderState.guiScale);
+    }
+
     @Inject(method = "endFrame", at = @At("TAIL"))
     private void anvilcraft$endScaledFrame(CallbackInfo ci) {
         if (this.anvilcraft$scaledItems != null) this.anvilcraft$scaledItems.endFrame();
