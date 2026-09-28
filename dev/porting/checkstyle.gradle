@@ -189,6 +189,7 @@ allprojects {
             include '**/BlockStatePredicateMixin.java'
             include '**/PowerComponentTooltipProvider.java', '**/HeatCollectorTooltipProvider.java', '**/ChargerTooltipProvider.java', '**/DischargerTooltipProvider.java'
             include '**/PowerGridSyncChunkPacket.java', '**/PowerGridSyncPacket.java', '**/PowerGridRemovePacket.java', '**/PowerComponentInfo.java'
+            include '**/HandbookRecipeMixin.java', '**/AnvilCraftClient.java'
             include '**/PowerGridHUD.java', '**/PowerGrid.java', '**/IPowerProducer.java'
             include '**/PowerGridSupport.java', '**/SubmitGeometryEventListener.java'
             include '**/CannedFoodItem.java', '**/StoredItem.java', '**/ItemDefaultComponentsEventListener.java'

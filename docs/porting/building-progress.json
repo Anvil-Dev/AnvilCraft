@@ -4594,5 +4594,49 @@
       "source_client": "build/porting/client-power-sync-reference-1.log"
     },
     "remaining": []
+  },
+  "handbook_recipe_resolution_2026_09_29": {
+    "source_ref": "dev/1.21/1.6",
+    "source_commit": "a3a037f17876b2e7036779baee71898978c5d4be",
+    "status": "recipe_lookup_and_factory_registration_complete_visual_port_continues",
+    "changes": [
+      "Upgrade native Ageratum from build.109 to the available 26.1.2 build.117.",
+      "Restore the omitted client registration of all existing AnvilCraft handbook recipe factories.",
+      "Resolve handbook recipe proxies from the synchronized native RecipeMap before layout and rendering.",
+      "Rebuild cached components when the recipe map changes; clear unavailable recipes and use the existing empty component when no recipe can resolve."
+    ],
+    "validation": {
+      "client_factories": 20,
+      "client_gallery_pages": 4,
+      "required_game_tests": 749,
+      "client_cases": [
+        "first layout",
+        "stable map reuse",
+        "map replacement",
+        "same ID changes recipe type",
+        "recipe removal and restoration",
+        "no client level and restoration",
+        "not yet synchronized",
+        "missing recipe later synchronized",
+        "missing recipe rendering"
+      ],
+      "commands": [
+        "./gradlew.bat -PportValidation -I dev/porting/handbook-recipes-client.gradle -I dev/porting/checkstyle.gradle compileJava runClient runGameTestServer checkPortJava --console=plain",
+        "git diff --check"
+      ],
+      "client_report": "run/port-validation/client/handbook-recipes-26.1.json",
+      "screenshots": "run/port-validation/client/screenshots/handbook-recipes-26.1-{0,1,2,3}.png",
+      "log": "build/porting/checks-handbook-recipes-final.log",
+      "limits": [
+        "Lifecycle cases replace the live client map and temporarily clear the level in the fixture; this is not remote multiplayer reload acceptance.",
+        "The gallery verifies recipe lookup and drawing, not source visual parity. No data or assets changed; runData is not applicable to this node."
+      ]
+    },
+    "remaining": [
+      "Port block_processing, block_smear, both mineral fountain factories and procedural_process handbook components.",
+      "Fix old blit overload calls in AgeratumUtil and MDAnvilCollisionCraftRecipeComponent; arrow/slot textures currently disappear.",
+      "Restore source block anchors, dimensions, stacking, multipart model-holder mapping and charger time formatting; compare in both real clients.",
+      "Audit remaining handbook pages/resources/links, directory and server structure-export framework support."
+    ]
   }
 }

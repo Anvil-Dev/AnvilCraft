@@ -149,6 +149,7 @@
     "accessor.RedStoneWireBlockAccessor"
   ],
   "client": [
+    "client.HandbookRecipeMixin",
     "client.ModFluidBucketModelMixin",
     "client.LaserBloomCaptureMixin",
     "MunSurfacePassMixin",

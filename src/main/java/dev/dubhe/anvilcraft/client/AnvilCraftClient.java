@@ -76,6 +76,7 @@ public class AnvilCraftClient {
         );
         AnvilCraftClient.modEventBus = modBus;
         AnvilCraftClient.modContainer = container;
+        AnvilCraftRecipeComponentFactories.RECIPE_COMPONENT_FACTORIES.register(modBus);
         InspectionSupport.initializeClient();
 
         IntegrationHook.setModEventBus(modBus);
