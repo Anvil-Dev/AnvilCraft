@@ -1,8 +1,9 @@
 package dev.dubhe.anvilcraft.client.renderer.blockentity.state;
 
+import dev.dubhe.anvilcraft.api.rendering.BlockStateModelTessellateState;
+import dev.dubhe.anvilcraft.client.renderer.blockentity.LargeCauldronRenderHooks;
 import lombok.Getter;
 import lombok.Setter;
-import net.minecraft.client.renderer.block.BlockModelRenderState;
 import net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState;
 import net.minecraft.client.renderer.entity.state.ItemClusterRenderState;
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
@@ -16,8 +17,9 @@ import java.util.List;
 public class LargeCauldronRenderState extends BlockEntityRenderState {
     private final List<ItemRenderState> items = new ArrayList<>();
     private final List<FluidLayerRenderState> fluids = new ArrayList<>();
-    private @Nullable BlockModelRenderState fire;
+    private @Nullable BlockStateModelTessellateState fire;
     private float fill;
+    private List<LargeCauldronRenderHooks.AfterRender> afterRender = List.of();
 
     public record ItemRenderState(
         ItemClusterRenderState item,

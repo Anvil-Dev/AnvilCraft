@@ -10,10 +10,7 @@ import dev.dubhe.anvilcraft.client.renderer.blockentity.state.LargeCauldronRende
 import dev.dubhe.anvilcraft.client.renderer.blockentity.state.LargeCauldronRenderState.ItemRenderState;
 import dev.dubhe.anvilcraft.client.support.FeatureRendererSupport;
 import dev.dubhe.anvilcraft.client.support.FluidRenderHelper;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.SubmitNodeCollector;
-import net.minecraft.client.renderer.block.BlockModelRenderState;
-import net.minecraft.client.renderer.block.FluidModel;
 import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
@@ -22,7 +19,6 @@ import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
 import net.minecraft.client.renderer.item.ItemModelResolver;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.util.LightCoordsUtil;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
@@ -33,6 +29,8 @@ import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import org.jspecify.annotations.Nullable;
+
+import java.util.List;
 
 public class LargeCauldronBlockEntityRenderer
     implements BlockEntityRenderer<LargeCauldronBlockEntity, LargeCauldronRenderState> {
@@ -74,9 +72,11 @@ public class LargeCauldronBlockEntityRenderer
         state.getItems().clear();
         state.getFluids().clear();
         state.setFire(null);
+        state.setAfterRender(List.of());
         state.setFill(0.0F);
         if (!cauldron.isMainPart() || cauldron.getLevel() == null) return;
 
+        state.setAfterRender(LargeCauldronRenderHooks.extract(cauldron, partialTicks));
         LargeCauldronFluidHandler fluids = cauldron.getFluids();
         float fill = Mth.clamp(
             (float) fluids.getTotalAmount() / LargeCauldronFluidHandler.TOTAL_CAPACITY,
@@ -97,8 +97,8 @@ public class LargeCauldronBlockEntityRenderer
                 state.getFluids().add(new FluidLayerRenderState(resource, amount));
             }
         }
-        if (cauldron.isIgnited()) {
-            state.setFire(FeatureRendererSupport.initialize(LargeCauldronBlockEntityRenderer.FIRE, cauldron));
+        if (cauldron.isIgnited() && LargeCauldronRenderHooks.showVanillaFire(cauldron)) {
+            state.setFire(FeatureRendererSupport.createTessellation(LargeCauldronBlockEntityRenderer.FIRE, false));
         }
     }
 
@@ -109,7 +109,7 @@ public class LargeCauldronBlockEntityRenderer
             if (stack.isEmpty()) continue;
             float x = LargeCauldronBlockEntityRenderer.SLOT_OFFSETS[slot][0] * LargeCauldronBlockEntityRenderer.INPUT_CELL_SPACING + 0.5F;
             float z = LargeCauldronBlockEntityRenderer.SLOT_OFFSETS[slot][1] * LargeCauldronBlockEntityRenderer.INPUT_CELL_SPACING + 0.5F;
-            state.getItems().add(this.createItemState(stack, x, itemY, z, slot * 37.0F));
+            state.getItems().add(this.createItemState(cauldron, stack, x, itemY, z, slot * 37.0F));
         }
 
         ResourceHandler<ItemResource> outputs = cauldron.getOutputHandler();
@@ -120,12 +120,15 @@ public class LargeCauldronBlockEntityRenderer
             float radius = 0.08F + slot % 3 * 0.07F;
             float x = 0.5F + Mth.cos(angle) * radius;
             float z = 0.5F + Mth.sin(angle) * radius;
-            state.getItems().add(this.createItemState(stack, x, itemY - 0.08F, z, slot * 29.0F));
+            state.getItems().add(this.createItemState(cauldron, stack, x, itemY - 0.08F, z, slot * 29.0F));
         }
     }
 
-    private ItemRenderState createItemState(ItemStack stack, float x, float y, float z, float rotation) {
-        ItemClusterRenderState item = FeatureRendererSupport.initialize(stack, this.itemModelResolver);
+    private ItemRenderState createItemState(
+        LargeCauldronBlockEntity cauldron, ItemStack stack, float x, float y, float z, float rotation
+    ) {
+        ItemClusterRenderState item = FeatureRendererSupport.initialize(
+            stack, this.itemModelResolver, cauldron.getLevel(), (int) cauldron.getBlockPos().asLong());
         return new ItemRenderState(item, x, y, z, rotation);
     }
 
@@ -157,20 +160,17 @@ public class LargeCauldronBlockEntityRenderer
         }
         this.submitFluids(state, poseStack, submitNodeCollector);
 
-        BlockModelRenderState fire = state.getFire();
-        if (fire == null) return;
-        poseStack.pushPose();
-        float surfaceY = LargeCauldronBlockEntityRenderer.MIN_Y + LargeCauldronBlockEntityRenderer.CONTENT_HEIGHT * state.getFill();
-        poseStack.translate(-1.0F, surfaceY - LargeCauldronBlockEntityRenderer.FIRE_MODEL_SURFACE_Y * 3.0F, -1.0F);
-        poseStack.scale(3.0F, 3.0F, 3.0F);
-        fire.submit(
-            poseStack,
-            submitNodeCollector,
-            LightCoordsUtil.FULL_BRIGHT,
-            OverlayTexture.NO_OVERLAY,
-            0
-        );
-        poseStack.popPose();
+        var fire = state.getFire();
+        if (fire != null) {
+            poseStack.pushPose();
+            float surfaceY = LargeCauldronBlockEntityRenderer.MIN_Y + LargeCauldronBlockEntityRenderer.CONTENT_HEIGHT * state.getFill();
+            poseStack.translate(-1.0F, surfaceY - LargeCauldronBlockEntityRenderer.FIRE_MODEL_SURFACE_Y * 3.0F, -1.0F);
+            poseStack.scale(3.0F, 3.0F, 3.0F);
+            fire.submit(submitNodeCollector, poseStack, OverlayTexture.NO_OVERLAY, LightCoordsUtil.FULL_BRIGHT, -1);
+            poseStack.popPose();
+        }
+        LargeCauldronRenderHooks.afterRender(state.getAfterRender(), poseStack, submitNodeCollector,
+            state.lightCoords, OverlayTexture.NO_OVERLAY);
     }
 
     private void submitFluids(
@@ -181,35 +181,10 @@ public class LargeCauldronBlockEntityRenderer
         float minY = LargeCauldronBlockEntityRenderer.MIN_Y;
         for (FluidLayerRenderState layer : state.getFluids()) {
             float maxY = minY + LargeCauldronBlockEntityRenderer.CONTENT_HEIGHT * layer.amount() / LargeCauldronFluidHandler.TOTAL_CAPACITY;
-            FluidResource resource = layer.resource();
-            FluidModel model = FluidRenderHelper.getModel(
-                Minecraft.getInstance().getModelManager().getFluidStateModelSet(),
-                resource.getFluid()
-            );
-            var tintSource = model.fluidTintSource();
-            int tintColor = tintSource == null ? -1 : tintSource.colorAsStack(resource.toStack(1));
-            TextureAtlasSprite sprite = model.stillMaterial().sprite();
-            float layerMinY = minY;
-            submitNodeCollector.submitCustomGeometry(
-                poseStack,
-                BaseFluidHandlerHolderRenderer.FLUID_RENDER_TYPE,
-                (pose, buffer) -> FluidRenderHelper.INSTANCE.renderFluidBox(
-                    sprite,
-                    resource,
-                    LargeCauldronBlockEntityRenderer.MIN_XZ,
-                    layerMinY,
-                    LargeCauldronBlockEntityRenderer.MIN_XZ,
-                    LargeCauldronBlockEntityRenderer.MAX_XZ,
-                    maxY,
-                    LargeCauldronBlockEntityRenderer.MAX_XZ,
-                    tintColor,
-                    buffer,
-                    pose,
-                    state.lightCoords,
-                    true,
-                    false
-                )
-            );
+            FluidRenderHelper.submitFluidBox(layer.resource(), layer.amount(),
+                LargeCauldronBlockEntityRenderer.MIN_XZ, minY, LargeCauldronBlockEntityRenderer.MIN_XZ,
+                LargeCauldronBlockEntityRenderer.MAX_XZ, maxY, LargeCauldronBlockEntityRenderer.MAX_XZ,
+                1, poseStack, submitNodeCollector, state.lightCoords, BaseFluidHandlerHolderRenderer.FLUID_RENDER_TYPE);
             minY = maxY;
         }
     }

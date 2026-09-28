@@ -4261,8 +4261,70 @@
       "data": "build/porting/data-4d-jei-2.log",
       "final_checks": "build/porting/checks-4d-jei-final.log"
     },
-    "remaining": [
-      "Audit previously deferred structure-tool/scanner integration against current source before declaring the wider 4D feature complete."
+    "remaining": []
+  },
+  "multiblock_4d_scanner_scope_audit": {
+    "source_commit": "a3a037f17876b2e7036779baee71898978c5d4be",
+    "status": "source_scope_verified_no_missing_4d_export",
+    "evidence": {
+      "scanner_source": "src/main/java/dev/dubhe/anvilcraft/util/StructureScannerRecipes.java",
+      "scanner_source_blob": "8ab3aef9a3b4c5cba2ba50142a26948014e66b03",
+      "comparison": "The complete native StructureScannerRecipes source is identical after the ResourceLocation-to-Identifier API rename.",
+      "supported_recipe_types": [
+        "MultiblockRecipe",
+        "MultiblockConversionRecipe"
+      ],
+      "structure_tool": "Both source and native StructureToolScreen construct only ordinary multiblock crafting or conversion recipes. Source does not expose 4D step capture/export."
+    },
+    "resolution": "Previous historical notes grouped 4D JEI with a speculative scanner integration. JEI is now ported; do not add a scanner 4D workflow that does not exist in the source branch."
+  },
+  "cauldron_extension_events_audit": {
+    "source_commit": "a3a037f17876b2e7036779baee71898978c5d4be",
+    "status": "pending",
+    "findings": [
+      "Source FishTankEvent.ServerTick and FluidDamage are posted by FishTankBlockEntity; neither event class nor corresponding native calls are present.",
+      "Source LargeCauldronEvent includes ServerTick, GiantAnvilImpact, MixingOutput and FluidDamage; native only retains the generic InWorldRecipeEvent path.",
+      "Port the actual server event contracts and verify mutation/cancellation behavior in focused GameTests."
     ]
+  },
+  "large_cauldron_rendering": {
+    "source_commit": "a3a037f17876b2e7036779baee71898978c5d4be",
+    "status": "ported_and_verified",
+    "verification": {
+      "source_commit": "a3a037f17876b2e7036779baee71898978c5d4be",
+      "client_cases": 8,
+      "matching_vertices": 7248,
+      "fluid_color_light_normal_vertices": 5280,
+      "maximum_vertex_distance": {
+        "dry-items:items": 0,
+        "water-items:items": 0,
+        "water-items:fluid": 0,
+        "layers:fluid": 0,
+        "milk:fluid": 0,
+        "oil-fire:fluid": 0,
+        "oil-fire:fire": 5.999999996841865e-08,
+        "half-fire:fluid": 0,
+        "half-fire:fire": 5.999999996841865e-08,
+        "empty-fire:fire": 5.999999996841865e-08,
+        "hidden-fire:fluid": 0
+      },
+      "contracts": [
+        "All eight input slots and 32 output slots render at source positions, using world-aware models and block-position seeds.",
+        "Each fluid layer preserves geometry, color, light, normals, bottom faces and source material choice; milk is cutout.",
+        "Full, partial and empty fire surfaces preserve the source model and unshaded full brightness.",
+        "Fire veto and ordered after-render hooks work with immutable extracted extension data.",
+        "State reuse cannot accumulate contents or retain main-part rendering on a child part."
+      ],
+      "limits": [
+        "The scenes seed client-only renderer contents and explicitly force ignition for the otherwise unreachable empty-fluid boundary.",
+        "Actual gameplay transfer, ignition and recipe event contracts are outside this render-only node.",
+        "Native vanilla terrain, lighting and texture animation timing are retained; screenshots are inspected but not asserted pixel-identical."
+      ]
+    },
+    "logs": {
+      "native_client_and_checks": "build/porting/client-large-cauldron-render-4.log",
+      "source_client": "build/porting/client-large-cauldron-render-reference-1.log"
+    },
+    "remaining": []
   }
 }
