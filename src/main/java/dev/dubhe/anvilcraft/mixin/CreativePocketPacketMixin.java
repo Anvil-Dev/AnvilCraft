@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.mixin;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import dev.dubhe.anvilcraft.inventory.PocketInventory;
 import dev.dubhe.anvilcraft.inventory.PocketSlot;
+import net.minecraft.network.protocol.game.ClientboundContainerSetSlotPacket;
 import net.minecraft.network.protocol.game.ServerboundSetCreativeModeSlotPacket;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
@@ -36,7 +37,11 @@ abstract class CreativePocketPacketMixin {
         if (slot >= this.player.inventoryMenu.slots.size()
             || slot >= 0 && this.player.inventoryMenu.getSlot(slot) instanceof PocketSlot pocket && !pocket.isActive()
             || slot == 7 && PocketInventory.isLocked(this.player)) {
-            this.player.inventoryMenu.sendAllDataToRemote();
+            if (slot >= 0 && slot < this.player.inventoryMenu.slots.size()) {
+                this.player.connection.send(new ClientboundContainerSetSlotPacket(
+                    this.player.inventoryMenu.containerId, this.player.inventoryMenu.getStateId(), slot,
+                    this.player.inventoryMenu.getSlot(slot).getItem().copy()));
+            }
             ci.cancel();
         }
     }

@@ -3506,5 +3506,41 @@
       "Source RuinsSelection falls back to the original getShape after model-outline rejection; the native fallback currently sees per-part shapes for classes such as LargeCrate.",
       "Source LargeCauldron explicitly overrides getShape to remain per-part. A fix must preserve such exceptions rather than union every multipart fallback indiscriminately."
     ]
+  },
+  "source_update_e0dedd6": {
+    "previous_source": "07eb60b47f14439375da10e78f4d4770f3a83256",
+    "latest_source": "e0dedd6e8f1dd8667090eae161ba372c4da10bc2",
+    "status": "listed_source_delta_ported_and_verified",
+    "commits": [
+      "e0dedd6e8 fix: 改进创造模式口袋槽位同步 (#5064)",
+      "7c0165308 feat(amulet): make some effects not relative to environment (#5059)",
+      "d59d64eb0 fix(amulet): fix edge cases bug (#5057)",
+      "d58c28a29 fix(amulet): fix effect blinking and eat effect interception failed (#5055)",
+      "8d3fcb44d Fix item splitter calculation error and prevent weatherproof helmet from provoking endermen 修复物品分配器份数计算错误及耐候头盔触发末影人仇恨的问题 (#5053)"
+    ],
+    "verification": {
+      "focused": "build/porting/tests-source-e0dedd6-6.log",
+      "full_compile_tests_style": "build/porting/tests-source-e0dedd6-all-2.log",
+      "required_tests_passed": 688,
+      "client": "build/porting/client-source-e0dedd6-3.log",
+      "report": "build/porting/source-e0dedd6-report.json",
+      "checks": [
+        "Integer and fractional anvil distances produce the source splitter share counts.",
+        "Ruby/Sapphire effects refresh to 210 ticks inside lava/water; native milk and honey removal remain functional.",
+        "Food effects cover component listeners and direct consumption; nested, exceptional and cross-entity contexts are isolated.",
+        "Actual client stew consumption blocks harmful effects, retains beneficial effects and clears its food context.",
+        "Weatherproof helmets suppress the vanilla stare predicate independently of night vision and preserve normal aggression.",
+        "Creative rejected writes produce only the affected-slot packets; the live client retains its cursor stack.",
+        "English and Chinese helmet tooltips describe Enderman protection."
+      ]
+    },
+    "adaptations": [
+      "Consumption scopes wrap native ItemStack completion and Consumable execution, covering suspicious stew listeners, immediate consumption and both logical sides. They restore previous context in finally and identify the consuming entity.",
+      "26.1 removed per-instance cure sets; there is no getCures state to copy. Native consumable removal behavior is verified instead."
+    ],
+    "limits": [
+      "The first broad run failed the existing unticked-chunk setup watchdog; the subsequent complete run passed all 688 tests."
+    ],
+    "current_work": "The five listed commits are integrated. Multipart outline fallback and the broader branch feature inventory remain under audit."
   }
 }

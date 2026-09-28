@@ -160,7 +160,7 @@ allprojects {
             include '**/ModAmulets.java', '**/ModAmuletEffectContextKeys.java', '**/IImpersonator.java', '**/Impersonators.java', '**/Dummy*.java'
             include '**/*EnchantedGold*.java', '**/PiglinAiMixin.java', '**/PiglinBruteAiMixin.java', '**/ICursed.java'
             include '**/IntegrationManagerMixin.java'
-            include '**/ApplyStatusEffectsConsumeEffectMixin.java', '**/TargetGoalMixin.java', '**/AvoidEntityGoalMixin.java'
+            include '**/ConsumableFoodEffectMixin.java', '**/ItemStackFoodEffectMixin.java', '**/EndermanMixin.java', '**/TargetGoalMixin.java', '**/AvoidEntityGoalMixin.java'
             include '**/NearestAttackableTargetGoalMixin.java', '**/PhantomGoalMixin.java', '**/VibrationSystemUserMixin.java', '**/VillagerMixin.java'
             include '**/InWaterOrBreathingPredicate.java', '**/NotInWaterPredicate.java', '**/NotInLavaPredicate.java', '**/IAbnormal.java'
             include '**/CrabClawItemInHandRenderer.java'

@@ -367,7 +367,8 @@ public class ItemTooltipManager {
             + "\nWalk on still fluid surfaces; sneak to submerge, hold sneak to descend faster");
         ItemTooltipManager.NORMAL.put(ModItems.BREATHING_HELMET.get(), "Supplies oxygen underwater and in vacuum\nRemoves underwater mining penalties");
         ItemTooltipManager.NORMAL.put(ModItems.WEATHERPROOF_SPACESUIT_HELMET.get(),
-            "Supplies oxygen underwater and in vacuum\nRemoves underwater mining penalties\nClear vision in all fluids\n%s");
+            "Supplies oxygen underwater and in vacuum\nRemoves underwater mining penalties\n"
+                + "Clear vision in all fluids\nEndermen remain calm when stared at\n%s");
         ItemTooltipManager.NORMAL_ARGUMENTS.put(ModItems.WEATHERPROOF_SPACESUIT_HELMET.get(),
             new Object[]{Component.translatable("effect.minecraft.night_vision")});
         final String fullSuit = "\nFull suit: immune to environmental damage except the void; prevents falling into the void";

@@ -9,6 +9,7 @@ import dev.dubhe.anvilcraft.api.amulet.ctx.AmuletEffectContext;
 import dev.dubhe.anvilcraft.api.amulet.effect.IAmuletEffect;
 import dev.dubhe.anvilcraft.init.item.ModAmuletEffectContextKeys;
 import dev.dubhe.anvilcraft.init.registry.ModRegistries;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -29,9 +30,12 @@ import net.neoforged.neoforge.event.level.ExplosionKnockbackEvent;
 import net.neoforged.neoforge.event.tick.EntityTickEvent;
 
 import java.util.Set;
+import java.util.function.Supplier;
 
 @EventBusSubscriber(modid = AnvilCraft.MOD_ID)
 public class AmuletAbilitiesEventListener {
+    private static final ThreadLocal<LivingEntity> CONSUMING_FOOD = new ThreadLocal<>();
+
     private AmuletAbilitiesEventListener() {
     }
 
@@ -69,15 +73,29 @@ public class AmuletAbilitiesEventListener {
         }
     }
 
+    public static ItemStack withFoodConsumption(LivingEntity entity, ItemStack stack, Supplier<ItemStack> action) {
+        LivingEntity previous = CONSUMING_FOOD.get();
+        if (stack.has(DataComponents.FOOD)) CONSUMING_FOOD.set(entity);
+        else CONSUMING_FOOD.remove();
+        try {
+            return action.get();
+        } finally {
+            if (previous == null) CONSUMING_FOOD.remove();
+            else CONSUMING_FOOD.set(previous);
+        }
+    }
+
     @SubscribeEvent
     public static void onEffect(MobEffectEvent.Applicable event) {
         LivingEntity entity = event.getEntity();
-        if (!AmuletManager.shouldEvaluate(entity)) {
+        boolean eating = CONSUMING_FOOD.get() == entity;
+        if (!eating && !AmuletManager.shouldEvaluate(entity)) {
             return;
         }
 
         AmuletEffectContext ctx = new AmuletEffectContext();
         ctx.set(ModAmuletEffectContextKeys.MOB_EFFECT, event.getEffectInstance());
+        if (eating) ctx.set(ModAmuletEffectContextKeys.CONSUMING_FOOD, true);
         AmuletManager.get(entity.registryAccess()).trigger(entity, ctx);
         if (!ctx.getOrDefault(ModAmuletEffectContextKeys.IMMUNE_MOB_EFFECT, false)) return;
 

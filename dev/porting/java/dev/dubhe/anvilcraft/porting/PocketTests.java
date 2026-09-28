@@ -21,6 +21,7 @@ import net.minecraft.network.Connection;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.PacketFlow;
+import net.minecraft.network.protocol.game.ClientboundContainerSetSlotPacket;
 import net.minecraft.network.protocol.game.ServerboundSetCreativeModeSlotPacket;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
@@ -45,6 +46,7 @@ import net.neoforged.neoforge.event.RegisterGameTestsEvent;
 import net.neoforged.neoforge.registries.RegisterEvent;
 import org.jspecify.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.function.Consumer;
 
@@ -230,11 +232,27 @@ public final class PocketTests {
             try {
                 var listener = new ServerGamePacketListenerImpl(helper.getLevel().getServer(), connection, player,
                     CommonListenerCookie.createInitial(player.getGameProfile(), false));
+                player.connection = listener;
                 listener.handleSetCreativeModeSlot(new ServerboundSetCreativeModeSlotPacket(46, new ItemStack(Items.DIAMOND, 3)));
                 helper.assertTrue(PocketInventory.get(player).getItem(0).getCount() == 3, "真实创造模式包处理器必须接纳已启用的扩展槽");
+                channel.runPendingTasks();
+                while (channel.readOutbound() != null) {
+                    // Drop synchronization from the accepted write before examining rejected requests.
+                }
                 listener.handleSetCreativeModeSlot(new ServerboundSetCreativeModeSlotPacket(52, new ItemStack(Items.EMERALD)));
                 listener.handleSetCreativeModeSlot(new ServerboundSetCreativeModeSlotPacket(7, ItemStack.EMPTY));
                 listener.handleSetCreativeModeSlot(new ServerboundSetCreativeModeSlotPacket(500, new ItemStack(Items.EMERALD)));
+                channel.runPendingTasks();
+                var corrections = new ArrayList<ClientboundContainerSetSlotPacket>();
+                Object outbound;
+                while ((outbound = channel.readOutbound()) != null) {
+                    helper.assertTrue(outbound instanceof ClientboundContainerSetSlotPacket,
+                        "Rejected writes only correct the affected slot");
+                    corrections.add((ClientboundContainerSetSlotPacket) outbound);
+                }
+                helper.assertTrue(corrections.size() == 2 && corrections.get(0).getSlot() == 52
+                    && corrections.get(0).getItem().isEmpty() && corrections.get(1).getSlot() == 7
+                    && corrections.get(1).getItem().is(ModItems.POCKETS_LEGGINGS), "Inactive and locked slots receive precise corrections");
                 helper.assertTrue(PocketInventory.get(player).getItem(6).isEmpty()
                     && player.getItemBySlot(EquipmentSlot.LEGS).is(ModItems.POCKETS_LEGGINGS), "创造包不能写禁用槽、越界槽或卸下锁定护腿");
             } finally {

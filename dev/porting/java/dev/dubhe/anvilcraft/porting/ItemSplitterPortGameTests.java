@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.porting;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.anvil.ItemSplitterBehavior;
 import dev.dubhe.anvilcraft.api.event.AnvilEvent;
 import dev.dubhe.anvilcraft.block.entity.ItemSplitterBlockEntity;
 import dev.dubhe.anvilcraft.block.logistics.ItemSplitterBlock;
@@ -62,6 +63,7 @@ public final class ItemSplitterPortGameTests {
         "port_splitter_double_chest", ItemSplitterPortGameTests::doubleChest,
         "port_splitter_space", ItemSplitterPortGameTests::space,
         "port_splitter_anvil", ItemSplitterPortGameTests::anvil,
+        "port_splitter_integer_distance", ItemSplitterPortGameTests::integerDistance,
         "port_splitter_persistence", ItemSplitterPortGameTests::persistence,
         "port_splitter_remove", ItemSplitterPortGameTests::remove
     );
@@ -183,6 +185,27 @@ public final class ItemSplitterPortGameTests {
         helper.assertTrue(be.splitToSpace(5) && be.getTotalCount() == 14, "只有一份能在最远十六格落位，其余份额必须保留");
         helper.assertTrue(drops(helper).size() == 1
             && drops(helper).getFirst().blockPosition().equals(helper.absolutePos(POS.east(16))), "不能越过十六格范围");
+        helper.succeed();
+    }
+
+    private static void integerDistance(GameTestHelper helper) {
+        var pos = helper.absolutePos(POS);
+        var falling = FallingBlockEntity.fall(helper.getLevel(), pos.above(10), Blocks.ANVIL.defaultBlockState());
+        falling.discard();
+        double[] distances = {0, 1, 1.75, 2, 2.75, 3};
+        int[] shares = {1, 2, 2, 3, 3, 4};
+        for (int index = 0; index < distances.length; index++) {
+            double distance = distances[index];
+            var be = setup(helper, 12);
+            int parts = shares[index];
+            var event = new AnvilEvent.OnLand(helper.getLevel(), pos, falling, distance);
+            helper.assertTrue(new ItemSplitterBehavior().handle(helper.getLevel(), pos, be.getBlockState(), distance, event),
+                "Anvil activates splitter at distance " + distance);
+            var drops = drops(helper);
+            helper.assertTrue(drops.size() == parts && be.getTotalCount() == 0
+                && drops.stream().allMatch(item -> item.getItem().getCount() == 12 / parts), "Integer boundary includes landing cell");
+            drops.forEach(ItemEntity::discard);
+        }
         helper.succeed();
     }
 
