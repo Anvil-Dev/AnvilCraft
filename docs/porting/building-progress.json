@@ -3167,7 +3167,7 @@
   },
   "ruins_block": {
     "source_commit": "07eb60b47f14439375da10e78f4d4770f3a83256",
-    "status": "geometry_visibility_verified_solid_culling_and_gateway_animation_pending",
+    "status": "neighbors_gateway_and_item_animation_verified_multipart_fallback_pending",
     "ported": [
       "Creative item conversion snapshots original states and block entity data; multipart groups convert atomically without spilling container contents.",
       "Configured named or inline loot, inert/fragile interaction, multipart single-drop cleanup and creative no-drop removal.",
@@ -3180,7 +3180,10 @@
       "Disguised fluids use native world-fluid tessellation, custom fluid renderer delegation, lighting, tint, UVs and immutable deferred geometry; section-relative vertices are normalized to block-local positions.",
       "Precise picking and outline extraction reuse original multipart geometry, child renderer poses and vanilla shape fallback within the disguise context.",
       "Render bounds combine cached static model and whole-structure bounds with child renderer extents; view distance measures from the visible extent.",
-      "Native and Sodium section compilation classify each disguise individually; client load/update transitions maintain native global membership without duplicate section submission."
+      "Native and Sodium section compilation classify each disguise individually; client load/update transitions maintain native global membership without duplicate section submission.",
+      "Ordinary neighbor culling resolves disguised states before native or Sodium face decisions, including negative-shape blocks, without allocating neighbor positions on the ordinary native path.",
+      "Shared mod gateway shaders preserve source runtime layer arithmetic instead of constant-folding large rotation angles; vanilla render pipelines remain unchanged.",
+      "Ruins uses default item swap animation, while the existing special block-item model helper retains its own properties."
     ],
     "verification": {
       "compile_data_focused": "build/porting/tests-ruins-3.log",
@@ -3217,11 +3220,10 @@
       ]
     },
     "pending": [
-      "Neighbor solid-block face culling",
-      "Gateway item animation pixel comparison"
+      "Audit and restore multipart voxel-outline fallback when model outlines are disabled, including explicit per-part exceptions and placement-context behavior."
     ],
     "limits": [
-      "Ruins still requires neighbor solid-block face culling and further gateway animation comparison.",
+      "A remaining multipart fallback audit is recorded above; the broad branch port is still active.",
       "Retain vanilla 26.1 terrain, atmosphere and lighting as requested; native/source world pixels are not expected to be identical.",
       "The focused data/test run succeeded but its first style check failed; all remaining style issues were fixed and the subsequent full run passed."
     ],
@@ -3322,6 +3324,187 @@
         "Sodium development runtime uses the full sodium-neoforge artifact; the compilation-only mod/API artifacts omit startup compatibility classes.",
         "The native outline probe observes actual extraction events, since 26.1 clears the render state before the frame-post callback."
       ]
-    }
+    },
+    "finish_verification": {
+      "compile_data_style": "build/porting/client-ruins-finish-4.log",
+      "final_compile_style_server": "build/porting/tests-ruins-finish-final.log",
+      "focused_server_tests_passed": 7,
+      "native_client": "build/porting/client-ruins-finish-5.log",
+      "source_client": "build/porting/client-ruins-finish-reference-2.log",
+      "sodium_client": "build/porting/client-ruins-finish-sodium-3.log",
+      "shared_gateway_regression": "build/porting/client-ruins-gateway-cfa-regression.log",
+      "report": "build/porting/ruins-finish-report.json",
+      "checks": [
+        "Eight ordinary/disguised neighbor pairs match face visibility and tessellation, including slabs and negative shapes.",
+        "Sodium runs its real side-visibility implementation against the same pairs.",
+        "Three GUI sizes match source silhouettes and pixels at two exact shader times, after relocation and resource reload.",
+        "Ruins retains default hand swap animation; main/offhand displays were captured.",
+        "Shared celestial gateway item fitting, hands, head, reload and atlas reuse regressions pass."
+      ],
+      "visuals": {
+        "items": {
+          "26.1": [
+            {
+              "scale": 1,
+              "silhouette_iou": 1.0,
+              "mean_rgb_error": 0.0
+            },
+            {
+              "scale": 3,
+              "silhouette_iou": 1.0,
+              "mean_rgb_error": 0.0002883506343713956
+            },
+            {
+              "scale": 5,
+              "silhouette_iou": 1.0,
+              "mean_rgb_error": 0.00029031789809841774
+            }
+          ],
+          "sodium": [
+            {
+              "scale": 1,
+              "silhouette_iou": 1.0,
+              "mean_rgb_error": 0.0
+            },
+            {
+              "scale": 3,
+              "silhouette_iou": 1.0,
+              "mean_rgb_error": 0.0002883506343713956
+            },
+            {
+              "scale": 5,
+              "silhouette_iou": 1.0,
+              "mean_rgb_error": 0.00029031789809841774
+            }
+          ]
+        },
+        "items-later": {
+          "26.1": [
+            {
+              "scale": 1,
+              "silhouette_iou": 1.0,
+              "mean_rgb_error": 0.0
+            },
+            {
+              "scale": 3,
+              "silhouette_iou": 1.0,
+              "mean_rgb_error": 0.00041650647186979365
+            },
+            {
+              "scale": 5,
+              "silhouette_iou": 1.0,
+              "mean_rgb_error": 0.00030241447718585185
+            }
+          ],
+          "sodium": [
+            {
+              "scale": 1,
+              "silhouette_iou": 1.0,
+              "mean_rgb_error": 0.0
+            },
+            {
+              "scale": 3,
+              "silhouette_iou": 1.0,
+              "mean_rgb_error": 0.00041650647186979365
+            },
+            {
+              "scale": 5,
+              "silhouette_iou": 1.0,
+              "mean_rgb_error": 0.00030241447718585185
+            }
+          ]
+        },
+        "items-offset": {
+          "26.1": [
+            {
+              "scale": 1,
+              "silhouette_iou": 1.0,
+              "mean_rgb_error": 0.0
+            },
+            {
+              "scale": 3,
+              "silhouette_iou": 1.0,
+              "mean_rgb_error": 9.611687812379854e-05
+            },
+            {
+              "scale": 5,
+              "silhouette_iou": 1.0,
+              "mean_rgb_error": 0.0002298350026612474
+            }
+          ],
+          "sodium": [
+            {
+              "scale": 1,
+              "silhouette_iou": 1.0,
+              "mean_rgb_error": 0.0
+            },
+            {
+              "scale": 3,
+              "silhouette_iou": 1.0,
+              "mean_rgb_error": 9.611687812379854e-05
+            },
+            {
+              "scale": 5,
+              "silhouette_iou": 1.0,
+              "mean_rgb_error": 0.0002298350026612474
+            }
+          ]
+        },
+        "items-reloaded": {
+          "26.1": [
+            {
+              "scale": 1,
+              "silhouette_iou": 1.0,
+              "mean_rgb_error": 0.0
+            },
+            {
+              "scale": 3,
+              "silhouette_iou": 1.0,
+              "mean_rgb_error": 9.611687812379854e-05
+            },
+            {
+              "scale": 5,
+              "silhouette_iou": 1.0,
+              "mean_rgb_error": 0.0002298350026612474
+            }
+          ],
+          "sodium": [
+            {
+              "scale": 1,
+              "silhouette_iou": 1.0,
+              "mean_rgb_error": 0.0
+            },
+            {
+              "scale": 3,
+              "silhouette_iou": 1.0,
+              "mean_rgb_error": 9.611687812379854e-05
+            },
+            {
+              "scale": 5,
+              "silhouette_iou": 1.0,
+              "mean_rgb_error": 0.0002298350026612474
+            }
+          ]
+        }
+      },
+      "diagnosis": "Uniform-dependent layer arithmetic preserves the 1.21 runtime rotation calculation; constant folding changes the star pattern.",
+      "visual_review": "Paired GUI, main-hand and offhand captures inspected; world terrain and lighting differences retained.",
+      "cache_reuse": {
+        "frames": 79,
+        "renderers": 3,
+        "atlas_allocations": 1
+      },
+      "limits": [
+        "World/hand captures retain native 26.1 terrain, atmosphere and animation differences.",
+        "Pixel comparisons concern isolated GUI items on this test GPU; universal driver-level bit identity is not claimed.",
+        "Data generation updated the item definition after processResources had copied it; the first combined client run detected the stale copy. Separate final client runs synchronized resources and passed.",
+        "Temporary projection calibration and runtime-layer probe edits were restored; the permanent shader contains only the verified arithmetic adaptation."
+      ]
+    },
+    "source_contract_audit": [
+      "Native multipart getShape implementations retain the source per-part shapes, while source AbstractMultiPartBlock now provides a cached whole-structure getShape.",
+      "Source RuinsSelection falls back to the original getShape after model-outline rejection; the native fallback currently sees per-part shapes for classes such as LargeCrate.",
+      "Source LargeCauldron explicitly overrides getShape to remain per-part. A fix must preserve such exceptions rather than union every multipart fallback indiscriminately."
+    ]
   }
 }

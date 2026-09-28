@@ -9,13 +9,18 @@ reference = root / 'build/porting/reference-mun-1.21'
 assert subprocess.check_output(['git', 'rev-parse', 'dev/1.21/1.6'], cwd=root).strip() == subprocess.check_output(
     ['git', 'rev-parse', 'HEAD'], cwd=reference).strip()
 folder = reference / 'src/main/java/dev/dubhe/anvilcraft/porting'
-modes = {'--geometry': 'RuinsGeometry', '--fluid': 'RuinsFluid', '--effects': 'RuinsEffects'}
+modes = {'--finish': 'RuinsFinish', '--geometry': 'RuinsGeometry', '--fluid': 'RuinsFluid', '--effects': 'RuinsEffects'}
 name = next((name for flag, name in modes.items() if flag in sys.argv), 'Ruins')
 scene = (root / f'dev/porting/java/dev/dubhe/anvilcraft/porting/{name}ClientScene.java').read_text(encoding='utf-8')
-scene = re.sub(r'^\s*Ruins(?:Fluid|Geometry)Probe\.[^\n]+\n', '', scene, flags=re.M)
+scene = re.sub(r'^\s*Ruins(?:Fluid|Geometry|Face)Probe\.[^\n]+\n', '', scene, flags=re.M)
 scene = scene.replace('ruins-fluid-26.1-', 'ruins-fluid-1.21-').replace('ruins-geometry-26.1-', 'ruins-geometry-1.21-')
+scene = scene.replace('ruins-finish-26.1-', 'ruins-finish-1.21-')
+scene = scene.replace('client.level.setTimeFromServer(phase)', 'client.level.setGameTime(phase)')
+scene = scene.replace('.translate(positions[index] + offset, 120)', '.translate(positions[index] + offset, 120, 0)')
+scene = scene.replace('.scale(scales[index], scales[index])', '.scale(scales[index], scales[index], scales[index])')
 scene = scene.replace('.item.block.RuinsBlockItem', '.block.item.RuinsBlockItem')
 scene = scene.replace('client.resizeGui()', 'client.resizeDisplay()')
+scene = scene.replace('client.getDeltaTracker()', 'client.getTimer()')
 scene = scene.replace('client.getMainRenderTarget(), 1,', 'client.getMainRenderTarget(),')
 scene = scene.replace('GuiGraphicsExtractor', 'GuiGraphics').replace('extractRenderState(', 'render(')
 scene = scene.replace('.pushMatrix()', '.pushPose()').replace('.popMatrix()', '.popPose()')

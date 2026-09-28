@@ -10,7 +10,6 @@ import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.blockentity.AbstractEndPortalRenderer;
 import net.minecraft.client.renderer.rendertype.RenderSetup;
 import net.minecraft.client.renderer.rendertype.RenderType;
-import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.client.renderer.rendertype.TextureTransform;
 import net.minecraft.util.ARGB;
 import org.joml.Matrix4f;
@@ -23,12 +22,17 @@ import org.joml.Vector3f;
 @SuppressWarnings("DuplicatedCode")
 public class CelestialBodyRenderer {
 
+    private static final RenderType END_GATEWAY_BODY = RenderType.create("anvilcraft_end_gateway",
+        RenderSetup.builder(ModRenderPipelines.CELESTIAL_GATEWAY)
+            .withTexture("Sampler0", AbstractEndPortalRenderer.END_SKY_LOCATION)
+            .withTexture("Sampler1", AbstractEndPortalRenderer.END_PORTAL_LOCATION)
+            .createRenderSetup());
     private static final Vector3f LIGHT_DIR = new Vector3f(0.7f, 0.5f, 0.5f).normalize();
 
     public static void submitEndGatewayBody(PoseStack pose, SubmitNodeCollector collector) {
         Matrix4f projection = GatewayGuiProjection.current();
         if (projection != null) submitEndGatewayPreview(pose, collector, projection);
-        else AbstractEndPortalRenderer.submitSpecial(RenderTypes.endGateway(), pose, collector);
+        else AbstractEndPortalRenderer.submitSpecial(END_GATEWAY_BODY, pose, collector);
     }
 
     public static void submitEndGatewayPreview(PoseStack pose, SubmitNodeCollector collector, Matrix4f guiProjection) {

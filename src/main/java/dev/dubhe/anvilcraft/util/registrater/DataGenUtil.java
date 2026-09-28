@@ -331,18 +331,18 @@ public class DataGenUtil {
     public static <T extends Item> NonNullBiConsumer<DataGenContext<Item, T>, RegistrumItemModelGenerator> specialBlockItem(
         SpecialModelRenderer.Unbaked<?> renderer, boolean oversized
     ) {
-        return DataGenUtil.specialModel(renderer, oversized, "block/");
+        return DataGenUtil.specialModel(renderer, new ClientItem.Properties(oversized, oversized, 1.0F), "block/");
     }
 
     public static <T extends Item> NonNullBiConsumer<DataGenContext<Item, T>, RegistrumItemModelGenerator> specialItem(
         SpecialModelRenderer.Unbaked<?> renderer, boolean oversized
     ) {
-        return DataGenUtil.specialModel(renderer, oversized, "item/");
+        return DataGenUtil.specialModel(renderer, new ClientItem.Properties(true, oversized, 1.0F), "item/");
     }
 
     private static <T extends Item> NonNullBiConsumer<DataGenContext<Item, T>, RegistrumItemModelGenerator> specialModel(
         SpecialModelRenderer.Unbaked<?> renderer,
-        boolean oversized,
+        ClientItem.Properties properties,
         String prefix
     ) {
         return new NonNullBiConsumer<>() {
@@ -351,7 +351,7 @@ public class DataGenUtil {
                 generator.itemModelOutput.accept(
                     ctx.get(),
                     ItemModelUtils.specialModel(ctx.getId().withPrefix(prefix), renderer),
-                    new ClientItem.Properties(oversized, oversized, 1.0F)
+                    properties
                 );
             }
         };

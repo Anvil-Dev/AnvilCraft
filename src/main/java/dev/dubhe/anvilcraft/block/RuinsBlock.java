@@ -121,6 +121,11 @@ public class RuinsBlock extends BaseEntityBlock implements IMoveableEntityBlock 
             ? ruins.getDisplayState().getCollisionShape(new RuinsBlockView(level), pos, context) : Shapes.empty();
     }
 
+    public static BlockState disguisedState(BlockGetter level, BlockPos pos, BlockState state) {
+        return state.getBlock() instanceof RuinsBlock && level.getBlockEntity(pos) instanceof RuinsBlockEntity ruins
+            ? ruins.getDisplayState() : state;
+    }
+
     public static BlockState connectedDisplayState(BlockGetter level, BlockPos pos, BlockState state) {
         if (state.getBlock() instanceof RedstoneWireBlock wire) return wire.connectionState(level, pos, state);
         if (state.getBlock() instanceof RedStoneWireBlock wire) {

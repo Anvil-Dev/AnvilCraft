@@ -252,7 +252,12 @@ public class ModRenderPipelines {
         .withLocation(AnvilCraft.of("pipeline/planet_atmosphere"))
         .build();
 
-    public static final RenderPipeline CELESTIAL_GATEWAY_PREVIEW = RenderPipelines.END_GATEWAY.toBuilder()
+    public static final RenderPipeline CELESTIAL_GATEWAY = RenderPipelines.END_GATEWAY.toBuilder()
+        .withLocation(AnvilCraft.of("pipeline/celestial_gateway"))
+        .withFragmentShader(AnvilCraft.of("core/celestial_gateway"))
+        .build();
+
+    public static final RenderPipeline CELESTIAL_GATEWAY_PREVIEW = CELESTIAL_GATEWAY.toBuilder()
         .withLocation(AnvilCraft.of("pipeline/celestial_gateway_preview"))
         .withVertexShader(AnvilCraft.of("core/celestial_gateway_preview"))
         .build();
@@ -331,6 +336,7 @@ public class ModRenderPipelines {
         event.registerPipeline(ModRenderPipelines.CELESTIAL_ATMOSPHERE);
         event.registerPipeline(ModRenderPipelines.PLANET_ATMOSPHERE);
         event.registerPipeline(ModRenderPipelines.PLANET_ATMOSPHERE_INSIDE);
+        event.registerPipeline(ModRenderPipelines.CELESTIAL_GATEWAY);
         event.registerPipeline(ModRenderPipelines.CELESTIAL_GATEWAY_PREVIEW);
         event.registerPipeline(ModRenderPipelines.STELLAR_SURFACE);
         event.registerPipeline(ModRenderPipelines.STELLAR_CORONA);
