@@ -3167,14 +3167,16 @@
   },
   "ruins_block": {
     "source_commit": "07eb60b47f14439375da10e78f4d4770f3a83256",
-    "status": "foundation_verified_advanced_rendering_pending",
+    "status": "foundation_entity_visuals_and_particles_verified_fluid_geometry_pending",
     "ported": [
       "Creative item conversion snapshots original states and block entity data; multipart groups convert atomically without spilling container contents.",
       "Configured named or inline loot, inert/fragile interaction, multipart single-drop cleanup and creative no-drop removal.",
       "Creative held-tool and reach authorization, validated loot table editor, suggestions and mode-only inline loot editing.",
       "Original collision, emission, shade, cached native skylight/dampening and piston movement rules; display entities remain client-only.",
       "World-lit static model snapshots share the existing WIP geometry path; basic child block entity rendering and animated gateway item rendering.",
-      "Registration, creative entry, source model transforms, translations and native data generation."
+      "Registration, creative entry, source model transforms, translations and native data generation.",
+      "Display block entities run their original client visual ticker once per game tick; celestial forging anvils share their visual-only timer path without amplifier preview registration.",
+      "Native ClientLevel hit/destroy effects use the original disguise state, shape, sprite and tint; removed entities retain the source bounded short-lived particle cache."
     ],
     "verification": {
       "compile_data_focused": "build/porting/tests-ruins-3.log",
@@ -3212,15 +3214,36 @@
     },
     "pending": [
       "Fluid rendering",
-      "Visual-only entity ticking",
       "Dynamic selection and expanded culling bounds",
-      "Disguised particles and neighbor face culling",
-      "Animated effect pixel comparison"
+      "Neighbor face culling",
+      "Gateway item animation pixel comparison"
     ],
     "limits": [
-      "This checkpoint does not complete the Ruins feature: full fluid, animated entity, selection, culling and particle fidelity still require implementation and validation.",
+      "Ruins still requires fluid rendering, dynamic selection, expanded bounds, neighbor face culling and further animation comparison.",
       "Retain vanilla 26.1 terrain, atmosphere and lighting as requested; native/source world pixels are not expected to be identical.",
       "The focused data/test run succeeded but its first style check failed; all remaining style issues were fixed and the subsequent full run passed."
-    ]
+    ],
+    "effects_verification": {
+      "compile_style_native_client": "build/porting/client-ruins-effects-3.log",
+      "source_client": "build/porting/client-ruins-effects-reference-2.log",
+      "focused_server_tests": "build/porting/tests-ruins-effects.log",
+      "focused_tests_passed": 7,
+      "report": "build/porting/ruins-effects-report.json",
+      "checks": [
+        "The real disguised enchanting table opens toward a nearby player and advances across game ticks.",
+        "Twenty additional render preparations during one game tick do not advance its animation.",
+        "A disguised celestial forging anvil advances rotation once per game tick without registering amplifier previews.",
+        "Grass destruction emits 64 original terrain particles; slab destruction emits 32; a grass hit emits one.",
+        "Every emitted particle uses the original sprite and RGB tint; ordinary stone particles remain unchanged.",
+        "After server destruction and client removal, the original grass sprite and count remain available through the cache."
+      ],
+      "visual_review": "Paired native/source world screenshots inspected: normal and disguised enchanting tables both display open animated books.",
+      "limits": [
+        "Paired book screenshots require visual review; randomized page flips are not phase-synchronized.",
+        "This verifies particle sprite, tint and count through actual client effect calls, not every possible block effect.",
+        "Vanilla 26.1 terrain and atmospheric rendering is retained.",
+        "The focused server test run passed its tests but caught an empty catch in the new development probe; the final combined compile/style/client run passed after correction."
+      ]
+    }
   }
 }

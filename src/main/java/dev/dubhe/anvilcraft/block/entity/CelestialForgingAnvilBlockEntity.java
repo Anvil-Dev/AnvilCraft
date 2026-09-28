@@ -759,6 +759,10 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity
                 else LargeBlockPlacePreviewEventListener.removeMissingAmplifierAnvil(this.worldPosition);
             }
         }
+        this.tickRuinsVisuals();
+    }
+
+    public void tickRuinsVisuals() {
         if (this.rotation >= 360) this.rotation -= 360;
         this.preRotation = this.rotation;
         // 红石信号越大星环越大 → 转速越慢

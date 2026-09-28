@@ -216,7 +216,8 @@
     "compat.JeiJadeItemTooltipMixin",
     "client.ClientTextTooltipAccessor",
     "compat.SodiumBlockOcclusionCacheMixin",
-    "RuinsRenderLevelMixin"
+    "RuinsRenderLevelMixin",
+    "RuinsParticleEffectsMixin"
   ],
   "plugin": "dev.dubhe.anvilcraft.mixin.plugin.AnvilCraftMixinPlugin",
   "mixinextras": {
