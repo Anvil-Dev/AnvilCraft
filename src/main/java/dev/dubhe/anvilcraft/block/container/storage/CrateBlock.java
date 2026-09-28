@@ -132,16 +132,6 @@ public class CrateBlock extends Block implements EntityBlock, IHammerRemovable {
     }
 
     @Override
-    public BlockState playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player) {
-        BlockEntity blockEntity = level.getBlockEntity(pos);
-        if (blockEntity instanceof CrateBlockEntity be) {
-            be.playerWillDestroy(level, pos, state, player);
-        }
-
-        return super.playerWillDestroy(level, pos, state, player);
-    }
-
-    @Override
     protected InteractionResult useItemOn(
         ItemStack itemStack,
         BlockState state,

@@ -34,6 +34,7 @@
     "CreativePocketPacketMixin",
     "CelestialAnvilPickDataMixin",
     "StoragePickMixin",
+    "StorageRemovalMixin",
     "EquipmentPocketLockMixin",
     "AtmosphereLivingMixin",
     "EquipmentLiquidBlockMixin",

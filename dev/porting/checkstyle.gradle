@@ -152,6 +152,7 @@ allprojects {
             include '**/TerminalSessions.java', '**/TerminalItem.java', '**/*TerminalItem.java', '**/TerminalBinding.java'
             include '**/StorageTerminal*Stub.java', '**/BalanceMode.java', '**/HyperdimensionStorageStationBlock.java'
             include '**/OverflowDisposalItemStacksResourceHandler.java', '**/CrateBlockEntity.java', '**/CrateStorage.java', '**/CrateClientProvider.java'
+            include '**/StorageRemovalMixin.java', '**/ShulkerContainerBlockEntity.java'
             include '**/StorageComparatorManager.java', '**/StoragePickMixin.java', '**/block/container/storage/*.java', '**/LargeCrateBlockEntity.java'
             include '**/TerminalSourceManager.java', '**/block/entity/storage/StorageBlockEntity.java'
             include '**/event/LevelEventListener.java', '**/event/ServerLifecycleEventListener.java'

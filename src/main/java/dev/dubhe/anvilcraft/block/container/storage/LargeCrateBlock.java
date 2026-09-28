@@ -98,16 +98,6 @@ public class LargeCrateBlock
     }
 
     @Override
-    public BlockState playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player) {
-        BlockEntity blockEntity = level.getBlockEntity(this.getMainPartPos(pos, state));
-        if (blockEntity instanceof LargeCrateBlockEntity be) {
-            be.playerWillDestroy(level, pos, state, player);
-        }
-
-        return super.playerWillDestroy(level, pos, state, player);
-    }
-
-    @Override
     protected InteractionResult useItemOn(
         ItemStack itemStack,
         BlockState state,

@@ -20,6 +20,15 @@
               }
             }
           ],
+          "functions": [
+            {
+              "function": "minecraft:copy_components",
+              "include": [
+                "anvilcraft:storage"
+              ],
+              "source": "block_entity"
+            }
+          ],
           "name": "anvilcraft:hyperdimension_storage_station"
         }
       ],

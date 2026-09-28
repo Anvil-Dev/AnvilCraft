@@ -3620,7 +3620,7 @@
       "Comparator tracking uses loaded ServerLevel instances, no forced chunk loads, and world/server cleanup."
     ],
     "pending": [
-      "Source removal/drop lifecycle for crates and empty shulker/hyperdimension containers, including upgrades and crafting unlock materials."
+      "Crate merge origin search, consumed-crate recovery and crafting unlock propagation."
     ],
     "limits": [
       "This milestone verifies storage interactions only; full feature-port goal remains active.",
@@ -3690,8 +3690,48 @@
       "26.1 Screen.title is final, so StorageScreen caches the dynamic display title and exposes it through getTitle, including narration."
     ],
     "remaining": [
-      "Crate and large-crate removal contents/drop lifecycle; empty shulker/hyperdimension drop normalization.",
       "Source overflow-disposal fluid tank feature remains to be audited and ported separately."
+    ]
+  },
+  "storage_removal_lifecycle": {
+    "source_commit": "e0dedd6e8f1dd8667090eae161ba372c4da10bc2",
+    "status": "ported_and_verified",
+    "verification": {
+      "source_commit": "e0dedd6e8f1dd8667090eae161ba372c4da10bc2",
+      "full_required_tests": 708,
+      "focused_tests": 7,
+      "actual_player_break_cases": 34,
+      "dropped_container_replacements": 20,
+      "source_loot_exact_matches": [
+        "src/generated/resources/data/anvilcraft/loot_table/blocks/shulker_container.json",
+        "src/generated/resources/data/anvilcraft/loot_table/blocks/hyperdimension_storage_station.json"
+      ],
+      "contracts": [
+        "Crate and large-crate removal spills contents and crafting unlock materials exactly once, without dangling storage.",
+        "Creative crate destruction emits contents but no crate reference item; survival emits the ordinary crate item.",
+        "Both player modes and main/child destruction paths clean up multipart blocks.",
+        "Empty, unupgraded advanced containers drop default components in survival and nothing in creative, deleting empty storage.",
+        "Filled, crafting-unlocked, and upgraded containers preserve storage reference, contents and state after replacement.",
+        "Large-crate movement/upgrade flags retain storage without spill; full suite also covers the actual upgrade chain and Ruins conversion."
+      ],
+      "limits": [
+        "This milestone changes server lifecycle and loot data; it adds no textures, models or visual effects.",
+        "Player removal is tested through ServerPlayerGameMode; no additional client screenshot run was needed for the unchanged item rendering.",
+        "Crate merging still needs the source's origin search, consumed-crate recovery and crafting-unlock propagation."
+      ]
+    },
+    "logs": {
+      "full": "build/porting/tests-storage-removal-all.log",
+      "focused": "build/porting/tests-storage-removal-1.log",
+      "data": "build/porting/data-storage-removal-2.log"
+    },
+    "adaptation": [
+      "26.1 preRemoveSideEffects replaces the old block onRemove callback; large-crate movement flag remains exempt.",
+      "Shared loot generator copies STORAGE only from the main part; shared empty-container cleanup preserves upgraded shulker containers.",
+      "Clearing a storage ID unregisters loaded-source/comparator tracking before resetting it."
+    ],
+    "remaining": [
+      "Crate merging must search valid 3x3x3 origins independently of clicked face, return the 27 consumed crates into storage, and propagate crafting unlock."
     ]
   }
 }
