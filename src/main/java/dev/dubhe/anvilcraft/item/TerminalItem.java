@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.item;
 
 import dev.anvilcraft.lib.v2.util.InventoryUtil;
+import dev.dubhe.anvilcraft.api.item.ICannotFitInStationItem;
 import dev.dubhe.anvilcraft.inventory.PocketInventory;
 import dev.dubhe.anvilcraft.rpc.StorageServerStub;
 import net.minecraft.server.level.ServerPlayer;
@@ -20,7 +21,7 @@ import java.util.UUID;
  * 点击交互直接把物品放入 / 取出终端连接的存储站
  * （本地终端→大型板条箱、潜影终端→潜影目标、超维终端→绑定存储站）。
  */
-public abstract class TerminalItem extends BundleLikeItem {
+public abstract class TerminalItem extends BundleLikeItem implements ICannotFitInStationItem {
     protected TerminalItem(Properties properties) {
         super(properties);
     }
