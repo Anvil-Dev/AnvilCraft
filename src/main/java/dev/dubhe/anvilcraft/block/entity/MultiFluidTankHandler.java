@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.block.entity;
 
+import dev.dubhe.anvilcraft.api.fluid.GasDisplayFillProvider;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -16,7 +17,7 @@ import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import java.util.ArrayList;
 import java.util.List;
 
-final class MultiFluidTankHandler implements IFluidHandler, INBTSerializable<CompoundTag> {
+final class MultiFluidTankHandler implements IFluidHandler, INBTSerializable<CompoundTag>, GasDisplayFillProvider {
     private static final String TAG_FLUIDS = "Fluids";
     private static final String TAG_FLUID = "Fluid";
     private static final String TAG_ENHANCED = "Enhanced";
@@ -145,6 +146,27 @@ final class MultiFluidTankHandler implements IFluidHandler, INBTSerializable<Com
             amount += stored.fluid().getAmount();
         }
         return amount;
+    }
+
+    /**
+     * 与大型储罐渲染器完全相同的显示口径：增强态按 {@code max(总存量, 无限阈值)}、
+     * 普通态按基础容量换算该气体的填充率。
+     *
+     * <p>不能用"该气体存量 / 各储罐容量之和"代替：增强态的 {@link #getTanks()} 会多报一个
+     * 接纳新流体的空槽，容量求和为 {@code (流体种数 + 1) × 无限阈值}，会把管道内的气体
+     * 渲染得比储罐里更透明（单种无限气体为 0.5 对 1.0）。
+     */
+    @Override
+    public float gasDisplayFill(FluidStack gas) {
+        long renderAmount = this.enhanced
+            ? Math.max(this.getTotalAmount(), this.infinityThreshold)
+            : this.baseCapacity;
+        if (renderAmount <= 0) {
+            return 0.0f;
+        }
+        int index = this.findFluid(gas);
+        int stored = index < 0 ? 0 : this.fluids.get(index).fluid().getAmount();
+        return (float) Math.min(1.0, (double) stored / renderAmount);
     }
 
     boolean isEnhanced() {

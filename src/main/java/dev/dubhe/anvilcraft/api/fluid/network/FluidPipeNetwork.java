@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.api.fluid.network;
 
+import dev.dubhe.anvilcraft.api.fluid.GasDisplayFillProvider;
 import dev.dubhe.anvilcraft.api.fluidtank.InfinityFluidTank;
 import dev.dubhe.anvilcraft.block.entity.fluid.AbstractPipeCheckValveBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.fluid.GlassPipeBlockEntity;
@@ -403,6 +404,10 @@ public class FluidPipeNetwork {
     /**
      * 计算气体扩散系内参与端点的平均填充率（0..1），
      * 使玻璃管道内气体的透明度与扩散系内储罐的气体透明度保持一致。
+     *
+     * <p>优先采用容器自报的显示口径（{@link GasDisplayFillProvider}）：增强态储罐与创造流体
+     * 储罐的渲染口径无法由 {@code IFluidHandler} 的容量推导，退回通用估算会与储罐里的观感不符。
+     * 其余容器沿用"该气体存量 / 该容器各储罐容量之和"，对单槽容器与普通多方块储罐这与渲染器等价。
      */
     private static float avgGasAlphaFill(List<FluidEndpoint> candidates, FluidStack gasType) {
         double totalRatio = 0;
@@ -413,14 +418,20 @@ public class FluidPipeNetwork {
             if (storage[0] <= 0) {
                 continue;
             }
-            int totalCapacity = 0;
-            for (int i = 0; i < handler.getTanks(); i++) {
-                totalCapacity += handler.getTankCapacity(i);
+            double ratio;
+            if (handler instanceof GasDisplayFillProvider provider) {
+                ratio = Math.clamp(provider.gasDisplayFill(gasType), 0.0f, 1.0f);
+            } else {
+                int totalCapacity = 0;
+                for (int i = 0; i < handler.getTanks(); i++) {
+                    totalCapacity += handler.getTankCapacity(i);
+                }
+                if (totalCapacity <= 0) {
+                    continue;
+                }
+                ratio = (double) storage[0] / totalCapacity;
             }
-            if (totalCapacity <= 0) {
-                continue;
-            }
-            totalRatio += (double) storage[0] / totalCapacity;
+            totalRatio += ratio;
             counted++;
         }
         if (counted == 0) {
@@ -461,7 +472,12 @@ public class FluidPipeNetwork {
         return result;
     }
 
-    /** Endpoints that can hold this gas: current holders or containers with free slots. */
+    /**
+     * Endpoints that can hold this gas: current holders, or containers whose effective capacity
+     * for this gas is non-zero. Note this includes <b>full</b> holders — {@code gasStorage}[1] is
+     * {@code stored + freeSpace}, not free space alone, so any endpoint already holding the gas
+     * always passes. Callers wanting only holders must filter on {@code gasStorage(...)[0] > 0}.
+     */
     private List<FluidEndpoint> gasCandidates(FluidStack fluidType) {
         List<FluidEndpoint> candidates = new ArrayList<>();
         for (FluidEndpoint ep : endpoints) {
