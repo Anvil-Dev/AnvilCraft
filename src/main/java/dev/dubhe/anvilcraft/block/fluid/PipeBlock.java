@@ -10,7 +10,6 @@ import dev.dubhe.anvilcraft.block.entity.fluid.GlassPipeBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.fluid.PipeCheckValveBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
-import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -573,19 +572,15 @@ public abstract class PipeBlock extends Block
     }
 
     /**
-     * 管道通用的物品交互：
-     * <ul>
-     *   <li>手持止逆阀物品点击臂：该面无阀 → 加阀（Shift 反向，消耗物品）；该面已有阀 → 取消止逆阀（退还物品）；</li>
-     *   <li>手持扳手点击有阀的臂 → 移除该面阀并掉落物品（无阀时放行给子类扳手逻辑）；</li>
-     * </ul>
+     * 管道通用的止逆阀物品交互：手持止逆阀点击某条臂 → 无阀则该面装阀（Shift 反向，消耗物品），
+     * 已有阀则拆下并退还（见 {@link #useWithoutItem} 的说明：拆卸还允许主手为空时进行）。
+     *
+     * <p>手持其它物品（扳手、铁砧锤等）点击已装阀的臂不再拆卸，而是放行给默认交互。
      */
     protected ItemInteractionResult handleCheckValveInteraction(
         ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult
     ) {
-        boolean isValveItem = stack.is(ModItems.CHECK_VALVE.get());
-        boolean isWrench = stack.is(Tags.Items.TOOLS_WRENCH);
-        boolean isHammer = stack.is(ModItemTags.ANVIL_HAMMER);
-        if (!isValveItem && !isWrench && !isHammer) {
+        if (!stack.is(ModItems.CHECK_VALVE.get())) {
             return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
         }
 
@@ -595,22 +590,8 @@ public abstract class PipeBlock extends Block
         }
 
         AbstractPipeCheckValveBlockEntity be = getCheckValve(level, pos);
-        boolean hasValveHere = be != null && be.hasValveOn(arm);
-
-        // 扳手 / 铁砧锤：仅当该面已有阀才拦截（取下），否则放行给子类逻辑
-        if (isWrench || isHammer) {
-            if (!hasValveHere) {
-                return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
-            }
-            if (level.isClientSide) {
-                return ItemInteractionResult.sidedSuccess(true);
-            }
-            detachCheckValve(level, pos, state, arm, player);
-            return ItemInteractionResult.sidedSuccess(false);
-        }
-
-        // 止逆阀物品：该面已有阀 → 取消（退还一个物品）；无阀 → 添加（Shift 反向，消耗物品）
-        if (hasValveHere) {
+        if (be != null && be.hasValveOn(arm)) {
+            // 该面已有阀：手持止逆阀取下并退还一个
             if (level.isClientSide) {
                 return ItemInteractionResult.sidedSuccess(true);
             }
@@ -669,10 +650,18 @@ public abstract class PipeBlock extends Block
     }
 
     /**
-     * 空手右键：命中的臂若装有止逆阀则取下（退还物品）。
+     * 空手右键：命中的臂若装有止逆阀则取下（退还物品）。这是取下止逆阀的途径之一
+     * （另一条是手持止逆阀点击，见 {@link #handleCheckValveInteraction}）。
+     *
+     * <p>只要求<b>主手为空</b>，副手持物不影响。加这道校验是因为铁砧锤等物品在自身交互
+     * 失败后会代调 {@code useWithoutItem}（见 {@code AnvilHammerItem#interactWithBlock}），
+     * 若不校验，手持铁砧锤/扳手也能把止逆阀拆掉。
      */
     @Override
     protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
+        if (!player.getMainHandItem().isEmpty()) {
+            return super.useWithoutItem(state, level, pos, player, hitResult);
+        }
         Direction arm = getArmDirection(pos, hitResult);
         if (arm != null && hasArmToward(state, arm)) {
             AbstractPipeCheckValveBlockEntity be = getCheckValve(level, pos);
