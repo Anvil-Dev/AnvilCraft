@@ -806,7 +806,7 @@ public final class StorageServerStub {
     @RemoteCallable(validator = StorageAccessValidator.class)
     public static boolean craftingAvailable(UUID playerId, long sourcePos) {
         StorageView view = StorageServerStub.getView(StorageServerStub.getAndClear(), playerId, sourcePos);
-        return view.primary().isCraftingUnlocked();
+        return view.primary().getRecipeBases() != null;
     }
 
     @RemoteCallable(validator = StorageAccessValidator.class)
@@ -2381,7 +2381,7 @@ public final class StorageServerStub {
         ServerPlayer player = StorageServerStub.getServerPlayer(playerId);
         StorageServerStub.CraftingTarget target = StorageServerStub.resolveCraftingTarget(player, sourcePos);
         CraftingStorage crafting = target.read();
-        if (target.view() == null || !target.view().primary().isCraftingUnlocked()) return false;
+        if (target.view() == null || target.view().primary().getRecipeBases() == null) return false;
         Inventory inventory = player.getInventory();
         crafting = StorageServerStub.clearCrafting(target, crafting);
         if (stonecutter) {

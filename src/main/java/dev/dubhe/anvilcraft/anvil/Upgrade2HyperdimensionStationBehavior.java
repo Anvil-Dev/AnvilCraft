@@ -152,7 +152,7 @@ public class Upgrade2HyperdimensionStationBehavior implements IAnvilBehavior {
             station.setId(id);
         }
         HyperdimensionStorage newStorage = Storages.get().getOrCreate(id, HyperdimensionStorage.class);
-        newStorage.setCraftingUnlocked(oldStorage.isCraftingUnlocked());
+        newStorage.setRecipeBases(oldStorage.getRecipeBases());
         newStorage.setCrafting(oldStorage.getCrafting());
         UnlimitedItemStacksResourceHandler newItems = newStorage.getItems();
         UnlimitedItemStacksResourceHandler oldItems = oldStorage.getItems();
