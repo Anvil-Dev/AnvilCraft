@@ -1,4 +1,4 @@
-package dev.dubhe.anvilcraft.integration;
+package dev.dubhe.anvilcraft.integration.jei;
 
 import java.lang.reflect.Method;
 import java.util.Objects;

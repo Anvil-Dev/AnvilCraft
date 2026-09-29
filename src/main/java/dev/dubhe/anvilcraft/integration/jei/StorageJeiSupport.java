@@ -5,7 +5,6 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.client.gui.screen.StorageMenu;
 import dev.dubhe.anvilcraft.client.gui.screen.StorageScreen;
 import dev.dubhe.anvilcraft.client.rpc.StorageClientStub;
-import dev.dubhe.anvilcraft.integration.StorageJeiBridge;
 import dev.dubhe.anvilcraft.rpc.StorageServerStub;
 import dev.dubhe.anvilcraft.saved.storage.CraftingStorage;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
@@ -214,7 +213,8 @@ public final class StorageJeiSupport {
         if (content.isEmpty()) {
             return false;
         }
-        if (StorageJeiSupport.lacksFluidFor(screen.getFluids(), variant)) {
+        List<StorageServerStub.FluidEntry> fluids = StorageJeiSupport.storageFluids(screen);
+        if (StorageJeiSupport.lacksFluidFor(fluids, variant)) {
             return false;
         }
         ItemStack emptyContainer = StorageJeiSupport.emptyContainerOf(variant);
@@ -229,7 +229,7 @@ public final class StorageJeiSupport {
         }
         // 稀有到极致的流体可能不够再盛一桶
         int availableFluid = 0;
-        for (StorageServerStub.FluidEntry entry : screen.getFluids()) {
+        for (StorageServerStub.FluidEntry entry : fluids) {
             if (FluidStack.isSameFluidSameComponents(entry.icon(), content)) {
                 availableFluid = entry.amount();
                 break;
@@ -276,10 +276,11 @@ public final class StorageJeiSupport {
      *
      * <p>界面缓存 {@code screen.getContents()} 只含通过筛选的条目，用它判定会把被筛掉的
      * 物品当成不存在，JEI 便认为缺料而拒绝转移。故优先用未过滤快照；快照不可用时
-     * （尚未拉取到或版本已过期）回退到界面缓存。</p>
+     * （尚未拉取到或版本已过期）回退到界面缓存，并触发一次拉取，使下一次判定改用快照。</p>
      */
     private static long storedCount(StorageScreen screen, ItemStack target) {
         if (!screen.hasUnfilteredContents()) {
+            screen.ensureUnfilteredSnapshot();
             long count = 0;
             for (UnlimitedItemStack stack : screen.getContents().values()) {
                 if (!stack.isEmpty() && ItemStack.isSameItemSameComponents(stack.toStack(), target)) {
@@ -364,6 +365,7 @@ public final class StorageJeiSupport {
                     StorageJeiSupport.addAvailable(item, availableItemStacks);
                 }
             } else {
+                screen.ensureUnfilteredSnapshot();
                 for (UnlimitedItemStack stack : screen.getContents().values()) {
                     if (stack.isEmpty()) {
                         continue;
@@ -453,7 +455,7 @@ public final class StorageJeiSupport {
         IRecipeSlotsView recipeSlots,
         Map<Slot, ItemStack> availableItemStacks
     ) {
-        List<StorageServerStub.FluidEntry> fluids = screen.getFluids();
+        List<StorageServerStub.FluidEntry> fluids = StorageJeiSupport.storageFluids(screen);
         if (fluids.isEmpty()) {
             return;
         }
@@ -478,6 +480,21 @@ public final class StorageJeiSupport {
                 break;
             }
         }
+    }
+
+    /**
+     * JEI 判定用的仓储流体列表：优先未过滤快照，不可用时（尚未拉取到或版本已过期）
+     * 退回界面缓存并触发一次拉取，使下一次判定改用快照。
+     *
+     * <p>界面缓存 {@code screen.getFluids()} 只随 sync 更新，而配方界面覆盖本界面时
+     * sync 既不发起、回调也会被丢弃，刚打开界面就进 JEI 会一直读到空列表。</p>
+     */
+    private static List<StorageServerStub.FluidEntry> storageFluids(StorageScreen screen) {
+        if (screen.hasUnfilteredFluids()) {
+            return screen.getUnfilteredFluids();
+        }
+        screen.ensureUnfilteredSnapshot();
+        return screen.getFluids();
     }
 
     /**
