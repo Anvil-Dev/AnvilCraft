@@ -8,14 +8,14 @@
         " E "
       ],
       [
-        "BFD",
-        "BCD",
-        "BGD"
+        "AAA",
+        "FCG",
+        "EEE"
       ],
       [
-        "AAA",
-        "HCI",
-        "EEE"
+        "BHD",
+        "BCD",
+        "BID"
       ]
     ],
     "mapping": {
@@ -63,7 +63,7 @@
         "blocks": "anvilcraft:ruby_prism",
         "properties": [
           {
-            "facing": "south"
+            "facing": "east"
           }
         ]
       },
@@ -71,7 +71,7 @@
         "blocks": "anvilcraft:ruby_prism",
         "properties": [
           {
-            "facing": "north"
+            "facing": "west"
           }
         ]
       },
@@ -79,7 +79,7 @@
         "blocks": "anvilcraft:ruby_prism",
         "properties": [
           {
-            "facing": "east"
+            "facing": "south"
           }
         ]
       },
@@ -87,7 +87,7 @@
         "blocks": "anvilcraft:ruby_prism",
         "properties": [
           {
-            "facing": "west"
+            "facing": "north"
           }
         ]
       }

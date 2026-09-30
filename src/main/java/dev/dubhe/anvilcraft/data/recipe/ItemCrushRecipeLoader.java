@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.data.recipe;
 
 import dev.anvilcraft.lib.v2.recipe.outcome.SpawnItem;
 import dev.anvilcraft.lib.v2.registrum.providers.generators.RegistrumRecipeProvider;
+import dev.anvilcraft.lib.v2.util.predicate.ItemIngredientPredicate;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.data.recipe.util.RecipeLoaderUtil;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
@@ -9,11 +10,15 @@ import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTriggers;
 import dev.dubhe.anvilcraft.recipe.anvil.builder.ExtendInWorldRecipeBuilder;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.ItemCrushRecipe;
+import net.minecraft.advancements.criterion.DataComponentMatchers;
 import net.minecraft.core.HolderGetter;
+import net.minecraft.core.component.DataComponentExactPredicate;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.component.ItemContainerContents;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.storage.loot.providers.number.UniformGenerator;
 import net.neoforged.neoforge.common.Tags;
@@ -47,6 +52,23 @@ public class ItemCrushRecipeLoader {
             .result(ModItems.SAPPHIRE.get(), 0.25F)
             .result(ModItems.RUBY.get(), 0.25F)
             .save(provider, AnvilCraft.of("item_crush/geode_gems"));
+
+        ItemCrushRecipe.builder()
+            .requires(Items.AMETHYST_CLUSTER)
+            .result(Items.AMETHYST_SHARD, 8)
+            .save(provider, AnvilCraft.of("item_crush/amethyst_shard_from_amethyst_cluster"));
+        ItemCrushRecipe.builder()
+            .requires(Items.LARGE_AMETHYST_BUD)
+            .result(Items.AMETHYST_SHARD, 4)
+            .save(provider, AnvilCraft.of("item_crush/amethyst_shard_from_large_amethyst_bud"));
+        ItemCrushRecipe.builder()
+            .requires(Items.MEDIUM_AMETHYST_BUD)
+            .result(Items.AMETHYST_SHARD, 2)
+            .save(provider, AnvilCraft.of("item_crush/amethyst_shard_from_medium_amethyst_bud"));
+        ItemCrushRecipe.builder()
+            .requires(Items.SMALL_AMETHYST_BUD)
+            .result(Items.AMETHYST_SHARD)
+            .save(provider, AnvilCraft.of("item_crush/amethyst_shard_from_small_amethyst_bud"));
 
         ExtendInWorldRecipeBuilder.extendCompatible(ModRecipeTriggers.ON_ANVIL_FALL_ON)
             .group("item_crush")
@@ -157,6 +179,18 @@ public class ItemCrushRecipeLoader {
             .result(ModItems.CAPACITOR, 8)
             .result(Items.GUNPOWDER)
             .save(provider);
+
+        ItemCrushRecipe.builder()
+            .requires(ItemIngredientPredicate.Builder.item()
+                .of(Items.SHULKER_BOX)
+                .hasComponents(DataComponentMatchers.Builder.components().exact(DataComponentExactPredicate.builder()
+                    .expect(DataComponents.CONTAINER, ItemContainerContents.EMPTY)
+                    .build()).build())
+                .build()
+            )
+            .result(Items.SHULKER_SHELL)
+            .result(Items.SHULKER_SHELL, 0.5F)
+            .save(provider, AnvilCraft.of("item_crush/shulker_shell_from_shulker_box"));
     }
 
     private static void tool(RegistrumRecipeProvider provider, ItemLike tool, ItemLike result) {

@@ -1,0 +1,14 @@
+{
+  "type": "anvilcraft:item_crush",
+  "ingredients": [
+    {
+      "items": "minecraft:medium_amethyst_bud"
+    }
+  ],
+  "results": [
+    {
+      "count": 2,
+      "id": "minecraft:amethyst_shard"
+    }
+  ]
+}

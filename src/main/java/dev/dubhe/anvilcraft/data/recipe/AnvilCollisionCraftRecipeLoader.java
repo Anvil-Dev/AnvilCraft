@@ -29,6 +29,11 @@ public class AnvilCollisionCraftRecipeLoader {
             .outputItem(ModItems.MULTIPHASE_MATTER.get(), 4)
             .save(provider);
         AnvilCollisionCraftRecipe.builder()
+            .anvil(ModBlocks.FROST_ANVIL.get())
+            .hitBlock(ModBlocks.EMBER_METAL_BLOCK.get())
+            .outputItem(ModItems.MULTIPHASE_MATTER.get(), 4)
+            .save(provider);
+        AnvilCollisionCraftRecipe.builder()
             .anvil(blocks, ModBlockTags.ANVIL_TIER_0)
             .hitBlock(ModBlocks.CORRUPTED_BEACON.get())
             .transformBlock(

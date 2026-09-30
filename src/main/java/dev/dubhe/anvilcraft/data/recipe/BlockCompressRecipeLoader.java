@@ -13,6 +13,7 @@ import net.minecraft.world.level.block.Blocks;
 
 public class BlockCompressRecipeLoader {
     public static void init(RegistrumRecipeProvider provider) {
+        BlockCompressRecipeLoader.recipe(provider, Blocks.MOSS_BLOCK, Blocks.DIRT, Blocks.GRASS_BLOCK);
         BlockCompressRecipeLoader.recipe(
             provider,
             Blocks.STONE,

@@ -5983,5 +5983,65 @@
       ]
     },
     "remaining": "Continue the complete recipe/resource/registry audit, including amethyst and shulker crushing, grass compression, tank clearing, scanner alternative and other non-cauldron differences; whole-port completion remains unproven."
+  },
+  "recipe_catalogue_missing_parity_2026_09_30": {
+    "source_commit": "cca4b2aac5328926fa88bc01d958d007ff6bfc2a",
+    "status": "implemented_and_verified",
+    "implementation": [
+      "Add amethyst cluster/large/medium/small bud crushing yields 8/4/2/1 and undyed empty-shulker crushing with one guaranteed and one 50% shell.",
+      "Add moss/dirt compression into grass, frost-anvil/ember-metal collision producing four multiphase matter at speed 32, and single/large tank clearing crafting recipes.",
+      "Restore the source shaped lectern/ender-eye scanner recipe and tagged glass-pane alternative under source canonical recipe IDs.",
+      "Restore the large laser input layer order and prism directions while retaining the native multiblock_conversion/large_laser recipe ID; all input/output cells equal source multiblock_conversion/air."
+    ],
+    "validation": {
+      "focused_required_tests": 7,
+      "full_required_tests": 817,
+      "source_recipe_definitions_compared": 12,
+      "commands": [
+        "./gradlew.bat -PportValidation compileJava runData --console=plain",
+        "./gradlew.bat -PportValidation -I dev/porting/catalogue-gap.gradle -I dev/porting/checkstyle.gradle compileJava runGameTestServer checkPortJava --console=plain",
+        "./gradlew.bat -PportValidation -I dev/porting/checkstyle.gradle compileJava runGameTestServer checkPortJava --console=plain",
+        "python dev/porting/verify_catalogue_gap.py",
+        "python dev/porting/audit_recipe_catalogue.py",
+        "git diff --check"
+      ],
+      "logs": {
+        "datagen": "build/porting/data-catalogue-gap-3.log",
+        "focused": "build/porting/tests-catalogue-gap-focused-3.log",
+        "full": "build/porting/tests-catalogue-gap-all-final.log",
+        "comparison": "build/porting/catalogue-gap-comparison.json",
+        "remaining_audit": "build/porting/recipe-audit-current.json"
+      },
+      "coverage": [
+        "Execute actual crushing with all four amethyst stages and verify consumption/output counts; reject filled and dyed shulker boxes while leaving contents intact.",
+        "Craft from genuinely filled small and multi-fluid large tanks; verify one empty result, no stored fluid NBT, input immutability and rejection of extra ingredients.",
+        "Verify scanner shape and stained-glass tag acceptance, real moss/dirt world conversion, and the collision listener output at source speed.",
+        "Load an ignored exact source laser recipe fixture; test all four horizontal rotations, rejection of a missing central prism and conversion into all 27 large-laser parts."
+      ],
+      "limits": [
+        "Initial collision fixture assumed a below-threshold impact preserves the block; existing source/native fallback explosion may destroy it. Corrected the assertion to require no crafting output and restored the target before the speed-32 case.",
+        "Initial focused behavior passed with line-length violations; final full validation follows formatting corrections.",
+        "Recipe generators and generated resources changed; existing shared renderers remain in use. Verification artifacts and all new tests remain local and ignored."
+      ]
+    },
+    "remaining_audit": {
+      "source_recipes": 1605,
+      "target_recipes": 1681,
+      "same_id_normalized_equal": 1381,
+      "equivalent_other_ids": 102,
+      "same_id_differences_to_classify": 119,
+      "apparent_missing": "Three source stamping_unique_items IDs correspond to the already ported native stamping_diff recipes; no newly discovered absent recipe remains in this namespace audit.",
+      "confirmed_next_differences": [
+        "processor ingredients/pattern",
+        "crate count/category",
+        "dyson sphere component pattern",
+        "supercapacitor inputs",
+        "storage fluid port inputs/output count",
+        "multiphase transcendium arrangement",
+        "trident materials",
+        "procedural netherite heater predicate"
+      ],
+      "scope": "Catalogue findings do not prove complete functionality, rendering or whole-port parity. Continue source/resource/runtime audits."
+    }
   }
 }

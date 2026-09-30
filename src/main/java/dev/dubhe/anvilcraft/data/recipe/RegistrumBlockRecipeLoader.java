@@ -1106,23 +1106,29 @@ public class RegistrumBlockRecipeLoader {
 
     public static <T extends Block> void structureScanner(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
         HolderGetter<Item> lookup = provider.getItems();
-        ShapelessRecipeBuilder.shapeless(lookup, RecipeCategory.REDSTONE, ctx.get())
-            .requires(Blocks.LECTERN)
-            .requires(Items.ENDER_EYE)
+        ShapedRecipeBuilder.shaped(lookup, RecipeCategory.REDSTONE, ctx.get())
+            .pattern("AB")
+            .define('A', Blocks.LECTERN)
+            .define('B', Items.ENDER_EYE)
             .unlockedBy(AnvilCraftDatagen.hasItem(Blocks.LECTERN), AnvilCraftDatagen.has(lookup, Blocks.LECTERN))
             .unlockedBy(AnvilCraftDatagen.hasItem(Items.ENDER_EYE), AnvilCraftDatagen.has(lookup, Items.ENDER_EYE))
-            .save(provider, AnvilCraft.recipe("structure_scanner_from_lectern"));
+            .save(provider);
+
         ShapedRecipeBuilder.shaped(lookup, RecipeCategory.REDSTONE, ctx.get())
             .pattern("AB")
             .pattern("CD")
-            .define('A', Items.GLASS_PANE)
+            .define('A', Tags.Items.GLASS_PANES)
             .define('B', ModItems.PROCESSOR)
             .define('C', Blocks.LECTERN)
             .define('D', ModBlocks.RUBY_LASER)
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(Tags.Items.GLASS_PANES),
+                AnvilCraftDatagen.has(lookup, Tags.Items.GLASS_PANES)
+            )
             .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.PROCESSOR), AnvilCraftDatagen.has(lookup, ModItems.PROCESSOR))
-            .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.RUBY_LASER), AnvilCraftDatagen.has(lookup, ModBlocks.RUBY_LASER))
             .unlockedBy(AnvilCraftDatagen.hasItem(Blocks.LECTERN), AnvilCraftDatagen.has(lookup, Blocks.LECTERN))
-            .save(provider);
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.RUBY_LASER), AnvilCraftDatagen.has(lookup, ModBlocks.RUBY_LASER))
+            .save(provider, AnvilCraft.recipe("structure_scanner_alternative"));
     }
 
     public static <T extends Block> void blockDevourer(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {

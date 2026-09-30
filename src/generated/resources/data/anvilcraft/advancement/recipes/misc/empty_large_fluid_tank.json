@@ -1,21 +1,11 @@
 {
   "parent": "minecraft:recipes/root",
   "criteria": {
-    "has_ender_eye": {
+    "has_large_fluid_tank": {
       "conditions": {
         "items": [
           {
-            "items": "minecraft:ender_eye"
-          }
-        ]
-      },
-      "trigger": "minecraft:inventory_changed"
-    },
-    "has_lectern": {
-      "conditions": {
-        "items": [
-          {
-            "items": "minecraft:lectern"
+            "items": "anvilcraft:large_fluid_tank"
           }
         ]
       },
@@ -23,7 +13,7 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "anvilcraft:structure_scanner"
+        "recipe": "anvilcraft:empty_large_fluid_tank"
       },
       "trigger": "minecraft:recipe_unlocked"
     }
@@ -31,13 +21,12 @@
   "requirements": [
     [
       "has_the_recipe",
-      "has_lectern",
-      "has_ender_eye"
+      "has_large_fluid_tank"
     ]
   ],
   "rewards": {
     "recipes": [
-      "anvilcraft:structure_scanner"
+      "anvilcraft:empty_large_fluid_tank"
     ]
   }
 }
