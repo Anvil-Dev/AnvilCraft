@@ -1268,6 +1268,7 @@
   "jei.anvilcraft.info.royal_steel_upgrade_smithing_template_1": "可以在村庄武器匠小屋的箱子中找到它。",
   "jei.anvilcraft.info.royal_steel_upgrade_smithing_template_2": "或者与珠宝商交易来获取。",
   "jei.anvilcraft.tooltip.not_consumed": "不消耗",
+  "jei.anvilcraft.tooltip.stamping.templates": "需要 %s 种不同的锻造模板",
   "key.anvilcraft.switch_phase": "切换相位",
   "key.anvilcraft.switch_resonate_mode": "切换共振模式",
   "key.anvilcraft.switch_tool_mode": "切换工具模式",

@@ -51,16 +51,15 @@ public class UnpackCategory extends AbstractProgressCategory<UnpackRecipe> {
         this.arrowIn.draw(graphics, 54, 30);
         this.arrowOutFromBelow.draw(graphics, 92, 29);
 
-        RenderSupport.renderBlock(graphics, Blocks.IRON_TRAPDOOR.defaultBlockState().setValue(TrapDoorBlock.HALF, Half.TOP), 71, 35, 20);
+        RenderSupport.renderBlockAt(graphics,
+            Blocks.IRON_TRAPDOOR.defaultBlockState().setValue(TrapDoorBlock.HALF, Half.TOP), 81, 40, 12);
         int anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(this.timer);
-        RenderSupport.renderBlock(graphics, Blocks.ANVIL.defaultBlockState(), 71, 17 + anvilYOffset, 20);
+        RenderSupport.renderBlockAt(graphics, Blocks.ANVIL.defaultBlockState(), 81, 22 + anvilYOffset, 12);
 
         JeiSlotUtil.drawDefaultInputSlots(graphics, this.slotDefault, recipe.getInputItems().size());
-        if (JeiRecipeUtil.isChance(recipe.getResultItems())) {
-            JeiSlotUtil.drawDefaultOutputSlots(graphics, this.slotProbability, recipe.getResultItems().size());
-        } else {
-            JeiSlotUtil.drawDefaultOutputSlots(graphics, this.slotDefault, recipe.getResultItems().size());
-        }
+        JeiSlotUtil.drawDefaultOutputSlots(graphics,
+            JeiRecipeUtil.outputSlotFor(recipe.getResultItems(), this.slotDefault, this.slotProbability),
+            recipe.getResultItems().size());
     }
 
     public static void registerRecipes(IRecipeRegistration registration) {

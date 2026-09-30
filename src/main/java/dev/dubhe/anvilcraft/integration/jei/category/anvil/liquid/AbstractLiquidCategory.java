@@ -163,7 +163,7 @@ public abstract class AbstractLiquidCategory<T extends AbstractProcessRecipe<?>>
             }
         }
         // 输出物品（子类可重写）
-        IDrawable slot = JeiRecipeUtil.isChance(recipe.getResultItems()) ? this.slotProbability : this.slotDefault;
+        var slot = JeiRecipeUtil.outputSlotFor(recipe.getResultItems(), this.slotDefault, this.slotProbability);
         if (hasOutputItems) {
             if (outputMixed) {
                 JeiSlotUtil.drawItemOutputSlots(graphics, slot, recipe.getResultItems().size());

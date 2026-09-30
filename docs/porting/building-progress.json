@@ -6089,5 +6089,70 @@
       ]
     },
     "remaining": "Continue classifying the 111 remaining raw same-ID recipe differences: many use native ItemStackTemplate or component codec representations; spawner output and custom terminal behavior still require semantic review. Whole-port functionality/resource/rendering audit remains active."
+  },
+  "jei_probability_and_processing_parity_2026_10_01": {
+    "source_commit": "cca4b2aac5328926fa88bc01d958d007ff6bfc2a",
+    "status": "implemented_and_verified",
+    "implementation": [
+      "Reuse the shared per-output slot selector for crushing, unpacking, stamping, item injection, liquid processing and anvil collision; guaranteed outputs keep ordinary backgrounds.",
+      "Restore source fixed model anchors, scales and arrows, including full giant-anvil model-holder states.",
+      "Restore one counted 2/4/8-template input slot and the localized different-template requirement while retaining native StampingDiffRecipe gameplay.",
+      "Use a GUI stratum above the explosion sprite for collision models to preserve source overlap in native deferred PIP rendering.",
+      "Regenerate English and upside-down English and add the exact Chinese template requirement."
+    ],
+    "validation": {
+      "full_required_tests": 821,
+      "paired_live_client_cases": 15,
+      "commands": [
+        "./gradlew.bat -PportValidation -I dev/porting/checkstyle.gradle compileJava runData checkPortJava --console=plain",
+        "./gradlew.bat -PportValidation -I dev/porting/checkstyle.gradle compileJava runGameTestServer checkPortJava --console=plain",
+        "./gradlew.bat -PportValidation -I dev/porting/checkstyle.gradle -I dev/porting/jei-probability-client.gradle compileJava checkPortJava runClient --console=plain",
+        "git diff --check"
+      ],
+      "logs": {
+        "data": "build/porting/data-jei-probability.log",
+        "full": "build/porting/tests-jei-probability-all-2.log",
+        "native_client": "build/porting/client-jei-probability-layer-final.log",
+        "source_client": "build/porting/client-jei-probability-reference-2.log",
+        "comparison": "build/porting/jei-probability-comparison.json"
+      },
+      "coverage": [
+        "Mixed guaranteed/probability outputs across six categories, item/block/giant injection, item/block/mixed collision and giant hit block, actual empty-shulker recipe and 2/4/8 template recipes.",
+        "All 15 layouts match source item/count/role metadata after sorting tag alternatives; template inputs have the same 27 variants and required counts.",
+        "Paired screenshots verify geometry, probability backgrounds, template text and collision layering; native lighting and unsynchronized animated textures/ingredient cycling remain."
+      ],
+      "limits": [
+        "All 821 server tests and clean shutdown passed. A later style warning on one long local fixture line was repaired before final successful compile/style/client validation.",
+        "Screenshot review caught a wrong crushing arrow and explosion-over-model layering; final client screenshots verify both repairs.",
+        "All tests, fixtures, scripts, screenshots and logs remain local and ignored."
+      ]
+    }
+  },
+  "recipe_serialization_audit_2026_10_01": {
+    "source_commit": "cca4b2aac5328926fa88bc01d958d007ff6bfc2a",
+    "scope": "Serialized definitions only; not proof of complete gameplay, rendering or whole-port parity.",
+    "source_recipes": 1605,
+    "target_recipes": 1681,
+    "same_id_normalized_equal": 1493,
+    "equivalent_other_ids": 102,
+    "normalizations": [
+      "Default counts and item ingredients",
+      "Native item-stack templates and nested permutation outputs",
+      "Enchantment levels and stored-energy wrappers",
+      "Saved-entity lists and component matchers",
+      "Single weighted portal output",
+      "Multiblock symbols resolved to cell predicates",
+      "Known block/item renames"
+    ],
+    "unique_stamping": "Three source IDs correspond to native stamping_diff, verified in de2b88882; source JEI display restored in this node.",
+    "explicit_review_cases": {
+      "building_rod": "Native default properties supply zero stored energy.",
+      "filter": "Native default properties supply 18 empty filter slots and false flags.",
+      "canned_food_and_pill": "Native CustomRecipe codecs omit the old category; final recipe-book audit remains.",
+      "three_terminal_recipes": "Existing native upgrade/unbind adapters retain embedded crafting contents and settings. Source uses vanilla serializers; retain tested native protection pending final source behavior review."
+    },
+    "spawner": "Source and native input/output cells and post-action match; apparent raw differences were palette symbol reassignment.",
+    "report": "build/porting/recipe-audit-current.json",
+    "remaining": "Complete adapter/default checks and broader source-only Java, registry, resource, runtime and rendering audits."
   }
 }
