@@ -46,12 +46,17 @@ public class RegistrumBlockRecipeLoader {
             .define('M', ModBlocks.MAGNETO_ELECTRIC_CORE_BLOCK)
             .define('R', ModItems.ROYAL_STEEL_INGOT)
             .define('T', ModBlocks.FLUID_TANK)
-            .unlockedBy(AnvilCraftDatagen.hasItem(Items.ENCHANTING_TABLE), AnvilCraftDatagen.has(provider.getItems(), Items.ENCHANTING_TABLE))
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(Items.ENCHANTING_TABLE), AnvilCraftDatagen.has(provider.getItems(), Items.ENCHANTING_TABLE)
+            )
             .unlockedBy(
                 AnvilCraftDatagen.hasItem(ModBlocks.MAGNETO_ELECTRIC_CORE_BLOCK),
                 AnvilCraftDatagen.has(provider.getItems(), ModBlocks.MAGNETO_ELECTRIC_CORE_BLOCK)
             )
-            .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.ROYAL_STEEL_INGOT), AnvilCraftDatagen.has(provider.getItems(), ModItems.ROYAL_STEEL_INGOT))
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(ModItems.ROYAL_STEEL_INGOT),
+                AnvilCraftDatagen.has(provider.getItems(), ModItems.ROYAL_STEEL_INGOT)
+            )
             .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.FLUID_TANK), AnvilCraftDatagen.has(provider.getItems(), ModBlocks.FLUID_TANK))
             .save(provider);
     }
@@ -2149,7 +2154,10 @@ public class RegistrumBlockRecipeLoader {
             .pattern("BA")
             .define('A', ModBlocks.BLACK_CHOCOLATE_BLOCK)
             .define('B', ModBlocks.WHITE_CHOCOLATE_BLOCK)
-            .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.BLACK_CHOCOLATE_BLOCK), AnvilCraftDatagen.has(lookup, ModBlocks.BLACK_CHOCOLATE_BLOCK))
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(ModBlocks.BLACK_CHOCOLATE_BLOCK),
+                AnvilCraftDatagen.has(lookup, ModBlocks.BLACK_CHOCOLATE_BLOCK)
+            )
             .save(provider);
     }
 
@@ -2486,7 +2494,7 @@ public class RegistrumBlockRecipeLoader {
             200
         )
             .unlockedBy(AnvilCraftDatagen.hasItem(ctx.get()), AnvilCraftDatagen.has(lookup, ctx.get()))
-            .save(provider, AnvilCraft.recipe("netherrack"));
+            .save(provider);
     }
 
     public static <T extends Block> void flintBlock(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
@@ -2707,6 +2715,34 @@ public class RegistrumBlockRecipeLoader {
                 AnvilCraftDatagen.has(lookup, ModBlocks.FLUID_TANK)
             )
             .save(provider);
+        ShapedRecipeBuilder.shaped(lookup, RecipeCategory.MISC, ctx.get())
+            .pattern("ABA")
+            .pattern("BCB")
+            .pattern("ADA")
+            .define('A', ModItems.ROYAL_STEEL_INGOT)
+            .define('B', ModBlocks.PUMP)
+            .define('C', ModBlocks.ITEM_COLLECTOR)
+            .define('D', ModBlocks.FLUID_TANK)
+            .unlockedBy("has_royal_steel", AnvilCraftDatagen.has(lookup, ModItems.ROYAL_STEEL_INGOT))
+            .unlockedBy("has_pump", AnvilCraftDatagen.has(lookup, ModBlocks.PUMP))
+            .unlockedBy("has_item_collector", AnvilCraftDatagen.has(lookup, ModBlocks.ITEM_COLLECTOR))
+            .unlockedBy("has_fluid_tank", AnvilCraftDatagen.has(lookup, ModBlocks.FLUID_TANK))
+            .save(provider, AnvilCraft.recipe("exp_collector_alt"));
+    }
+
+    public static <T extends Block> void infiniteCollector(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
+        HolderGetter<Item> lookup = provider.getItems();
+        ShapedRecipeBuilder.shaped(lookup, RecipeCategory.MISC, ctx.get())
+            .pattern(" C ")
+            .pattern("CHC")
+            .pattern("TTT")
+            .define('C', ModBlocks.CHARGE_COLLECTOR)
+            .define('H', ModBlocks.HEAT_COLLECTOR)
+            .define('T', ModItems.TRANSCENDIUM_INGOT)
+            .unlockedBy("has_charge_collector", AnvilCraftDatagen.has(lookup, ModBlocks.CHARGE_COLLECTOR))
+            .unlockedBy("has_heat_collector", AnvilCraftDatagen.has(lookup, ModBlocks.HEAT_COLLECTOR))
+            .unlockedBy("has_transcendium", AnvilCraftDatagen.has(lookup, ModItems.TRANSCENDIUM_INGOT))
+            .save(provider);
     }
 
     public static <T extends Block> void tradingStation(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
@@ -2767,7 +2803,10 @@ public class RegistrumBlockRecipeLoader {
             .pattern("AAA")
             .pattern("AAA")
             .define('A', ModItems.ENCHANTED_GOLD_INGOT)
-            .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.ENCHANTED_GOLD_INGOT), AnvilCraftDatagen.has(provider.getItems(), ModItems.ENCHANTED_GOLD_INGOT))
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(ModItems.ENCHANTED_GOLD_INGOT),
+                AnvilCraftDatagen.has(provider.getItems(), ModItems.ENCHANTED_GOLD_INGOT)
+            )
             .save(provider);
     }
 }

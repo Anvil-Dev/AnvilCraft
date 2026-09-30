@@ -1288,6 +1288,7 @@ public class ModBlocks {
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .item(InfiniteCollectorBlockItem::new)
         .build()
+        .recipe(RegistrumBlockRecipeLoader::infiniteCollector)
         .register();
 
     public static final BlockEntry<HeliostatsBlock> HELIOSTATS = REGISTRUM.block("heliostats", HeliostatsBlock::new)

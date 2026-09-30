@@ -438,6 +438,14 @@ public class RegistrumItemRecipeLoader {
                 AnvilCraftDatagen.has(lookup, ModItems.FROST_ANVIL_HAMMER)
             )
             .save(provider);
+        SmithingTransformRecipeBuilder.smithing(
+            Ingredient.of(ModItems.FROST_METAL_UPGRADE_SMITHING_TEMPLATE),
+            Ingredient.of(ModItems.ROYAL_DRAGON_ROD),
+            Ingredient.of(ModBlocks.FROST_METAL_BLOCK),
+            RecipeCategory.TOOLS,
+            ctx.get()
+        ).unlocks("hasitem", AnvilCraftDatagen.has(lookup, ModBlocks.FROST_METAL_BLOCK))
+            .save(provider, ctx.getId().withPrefix("smithing/").toString());
     }
 
     public static <T extends Item> void energyWeaponPlatform(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
@@ -595,7 +603,7 @@ public class RegistrumItemRecipeLoader {
         ShapelessRecipeBuilder.shapeless(lookup, RecipeCategory.TOOLS, ctx.get())
             .requires(ModItems.DISK)
             .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.DISK), AnvilCraftDatagen.has(lookup, ModItems.DISK))
-            .save(provider);
+            .save(provider, AnvilCraft.recipe("disk_to_structure_disk"));
         ShapelessRecipeBuilder.shapeless(lookup, RecipeCategory.TOOLS, ModItems.DISK.get())
             .requires(ctx.get())
             .unlockedBy(AnvilCraftDatagen.hasItem(ctx.get()), AnvilCraftDatagen.has(lookup, ctx.get()))

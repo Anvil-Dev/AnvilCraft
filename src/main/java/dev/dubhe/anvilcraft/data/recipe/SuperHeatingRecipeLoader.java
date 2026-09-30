@@ -31,6 +31,13 @@ public class SuperHeatingRecipeLoader {
             .requires(ModItems.LIME_POWDER)
             .save(provider, AnvilCraft.of("super_heating/lava_from_stone"));
 
+        SuperHeatingRecipe.builder()
+            .fluid(Blocks.LAVA_CAULDRON)
+            .consume(250)
+            .requires(Blocks.NETHERITE_BLOCK)
+            .result(ModBlocks.HEATED_NETHERITE_BLOCK)
+            .save(provider);
+
         // Royal Steel Ingot Recipes
         SuperHeatingRecipe.builder()
             .requires(Items.IRON_INGOT, 2)

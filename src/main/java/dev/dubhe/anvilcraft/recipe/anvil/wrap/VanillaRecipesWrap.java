@@ -13,7 +13,6 @@ import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.crafting.BlastingRecipe;
@@ -263,17 +262,11 @@ public class VanillaRecipesWrap {
     }
 
     private static String process(Ingredient ingredient) {
-        return ingredient.getValues().unwrap()
-            .map(TagKey::location, holder -> BuiltInRegistries.ITEM.getKey(holder.getFirst().value()))
-            .toShortString()
-            .replace(':', '_')
-            .replace('/', '_');
+        var items = ingredient.getValues().stream().map(Holder::value).distinct().toList();
+        return items.isEmpty() ? "empty" : BuiltInRegistries.ITEM.getKey(items.getLast()).getPath();
     }
 
     private static String process(ItemStackTemplate stack) {
-        return stack.typeHolder().getKey().identifier()
-            .toShortString()
-            .replace(':', '_')
-            .replace('/', '_');
+        return stack.typeHolder().getKey().identifier().getPath();
     }
 }

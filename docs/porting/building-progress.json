@@ -5347,5 +5347,64 @@
       "minecraft:netherrack"
     ],
     "remaining": "Port or reconcile the eleven native-only recipe references from the real-client audit, continue complete recipe catalogue comparison, and restore guide framework font/layout/structure-export behavior. Native Ageratum Maven latest remains build.117; source uses build.121."
+  },
+  "handbook_recipe_gap_restoration_2026_09_30": {
+    "source_commit": "cca4b2aac5328926fa88bc01d958d007ff6bfc2a",
+    "status": "eight_references_restored_jewel_crafting_migration_pending",
+    "implementation": [
+      "Generate source iron-block charging, alternate experience collector, infinite collector, frost dragon rod smithing and heated netherite super-heating recipes.",
+      "Restore canonical disk_to_structure_disk and minecraft:netherrack recipe IDs and remove the obsolete generated recipe/advancement paths.",
+      "Use source resolved-item naming for automatic vanilla recipe wrappers: last distinct input item path and result item path, restoring smoking_warp_dough_2_bread."
+    ],
+    "validation": {
+      "focused_required_tests": 5,
+      "full_required_tests": 775,
+      "source_matching_generated_recipes": 7,
+      "restored_handbook_references": [
+        "anvilcraft:charger_charging/magnet_block",
+        "anvilcraft:disk_to_structure_disk",
+        "anvilcraft:exp_collector_alt",
+        "anvilcraft:infinite_collector",
+        "anvilcraft:smithing/frost_dragon_rod",
+        "anvilcraft:smoking_warp_dough_2_bread",
+        "anvilcraft:super_heating/heated_netherite_block",
+        "minecraft:netherrack"
+      ],
+      "commands": [
+        "./gradlew.bat -PportValidation compileJava runData --console=plain",
+        "./gradlew.bat -PportValidation -I dev/porting/handbook-recipe-gaps.gradle -I dev/porting/checkstyle.gradle compileJava runGameTestServer checkPortJava --console=plain",
+        "./gradlew.bat -PportValidation -I dev/porting/handbook-pages-client.gradle -I dev/porting/checkstyle.gradle compileJava runGameTestServer runClient checkPortJava --console=plain",
+        "./gradlew.bat -PportValidation -I dev/porting/checkstyle.gradle compileJava checkPortJava --console=plain",
+        "python dev/porting/verify_handbook_recipe_gaps.py",
+        "python dev/porting/verify_handbook_resources.py",
+        "git diff --check"
+      ],
+      "logs": {
+        "data": "build/porting/data-handbook-recipe-gaps-2.log",
+        "focused": "build/porting/tests-handbook-recipe-gaps-focused-3.log",
+        "full_and_client": "build/porting/tests-handbook-recipe-gaps-all-client.log",
+        "final_compile_style": "build/porting/checks-handbook-recipe-gaps-final.log"
+      },
+      "report": "build/porting/handbook-recipe-gaps-comparison.json",
+      "coverage": [
+        "Compare all seven generated recipes with source after normalizing the native ingredient representation and omitted count=1.",
+        "Match and assemble collector crafting patterns, frost smithing and both canonical conversion recipes; reject incorrect ingredients.",
+        "Check exact charger power/time/output values and execute the heated-netherite recipe against a heater/cauldron/item scene.",
+        "Rebuild the dough wrapper and verify its source ID and input/output.",
+        "Full server suite passes; live handbook audit still parses 416 pages/4816 components and finds all eight restored IDs with no missing item references."
+      ],
+      "limits": [
+        "Focused/full combined Gradle runs completed their tests/client successfully but initially failed final Checkstyle on long lines. The separate final compile/style run passed after formatting-only repairs.",
+        "The heater fixture sets its working block state; charger values and assembly are tested without repeating the existing powered-machine timing suite.",
+        "This closes eight of the eleven native-only references from the handbook audit, not the complete recipe catalogue or goal."
+      ]
+    },
+    "remaining_missing_handbook_references": [
+      "anvilcraft:jei/solid_liquid/enchanted_gold_ingot",
+      "anvilcraft:jewel_crafting/generated/minecraft_flower_banner_pattern_from_minecraft_flower_banner_pattern_for_banner_patterns",
+      "anvilcraft:jewel_crafting/generated/minecraft_music_disc_creator_from_minecraft_music_disc_creator_for_music_discs",
+      "anvilcraft:jewel_crafting/generated/minecraft_silence_armor_trim_smithing_template_from_minecraft_silence_armor_trim_smithing_template_for_trim_templates"
+    ],
+    "remaining": "Port jewel-crafting recipe format, output selection, vanishing-curse semantics, generated banner/music/trim families and connected UI/entity consumers as a coherent subsystem. Continue the broader recipe catalogue and handbook font/layout/export audits."
   }
 }
