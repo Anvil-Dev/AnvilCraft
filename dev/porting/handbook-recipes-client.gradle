@@ -1,9 +1,0 @@
-gradle.projectsEvaluated {
-    rootProject.tasks.named('runClient') {
-        systemProperty 'anvilcraft.portVisualScene', 'true'
-        systemProperty 'anvilcraft.portCfaItemScene', 'true'
-        systemProperty 'anvilcraft.portHandbookRecipeScene', 'true'
-        systemProperty 'anvilcraft.portHandbookNewAfterGallery', 'true'
-        args '--width', '1280', '--height', '720'
-    }
-}

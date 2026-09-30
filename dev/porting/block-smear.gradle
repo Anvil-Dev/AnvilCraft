@@ -1,5 +1,0 @@
-gradle.projectsEvaluated {
-    rootProject.tasks.named('runGameTestServer') {
-        args '--tests', 'anvilcraft:port_smear*'
-    }
-}

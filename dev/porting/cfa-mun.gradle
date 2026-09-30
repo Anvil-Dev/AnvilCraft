@@ -1,8 +1,0 @@
-gradle.projectsEvaluated {
-    rootProject.tasks.named('runClient') {
-        systemProperty 'anvilcraft.portVisualScene', 'true'
-        systemProperty 'anvilcraft.portCfaItemScene', 'true'
-        systemProperty 'anvilcraft.portCelestialTravelScene', 'true'
-        systemProperty 'anvilcraft.portCfaMunScene', 'true'
-    }
-}

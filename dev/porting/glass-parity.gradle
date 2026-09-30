@@ -1,8 +1,0 @@
-gradle.projectsEvaluated {
-    rootProject.sourceSets.main.resources.srcDir(rootProject.file('build/porting/glass-parity-target-assets'))
-    rootProject.tasks.named('runClient') {
-        systemProperty 'anvilcraft.portVisualScene', 'true'
-        systemProperty 'anvilcraft.portGlassParityScene', 'true'
-        args '--width', '1280', '--height', '720'
-    }
-}

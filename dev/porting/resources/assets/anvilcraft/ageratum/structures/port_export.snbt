@@ -1,6 +1,0 @@
-{
- size:[3,3,2],
- palette:[{Name:"minecraft:stone"},{Name:"minecraft:chest",Properties:{facing:"north",type:"single",waterlogged:"false"}}],
- blocks:[{pos:[0,0,0],state:0},{pos:[1,2,0],state:1,nbt:{id:"minecraft:chest",Items:[]}}],
- entities:[{pos:[0.5d,1.0d,1.5d],blockPos:[0,1,1],nbt:{id:"minecraft:armor_stand",NoGravity:1b}}]
-}

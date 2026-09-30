@@ -1,7 +1,0 @@
-{
-  "type": "anvilcraft:laser_hit",
-  "input": {"blocks": "minecraft:dirt"},
-  "laser_strength": 1,
-  "hit_time": 1,
-  "result_items": [{"id": "minecraft:diamond", "count": 2}]
-}

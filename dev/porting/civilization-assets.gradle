@@ -1,5 +1,0 @@
-gradle.projectsEvaluated {
-    rootProject.tasks.named('runClient') {
-        systemProperty 'anvilcraft.portCivilizationAssets', 'true'
-    }
-}
