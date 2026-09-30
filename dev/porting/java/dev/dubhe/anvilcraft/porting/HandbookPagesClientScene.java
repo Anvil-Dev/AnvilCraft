@@ -54,7 +54,11 @@ public final class HandbookPagesClientScene {
             message -> client.execute(() -> {
                 capturing = false;
                 if (++index < DIRECTORIES.size()) open(client);
-                else {
+                else if (index == DIRECTORIES.size()) {
+                    REPORT.put("style", HandbookStyleProbe.begin(client, DIRECTORIES.get(0), DIRECTORIES.get(1)));
+                    next = System.currentTimeMillis() + 500;
+                } else {
+                    HandbookStyleProbe.restore();
                     done = true;
                     try {
                         Files.writeString(client.gameDirectory.toPath().resolve("handbook-pages-26.1.json"),

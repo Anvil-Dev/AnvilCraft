@@ -5499,5 +5499,86 @@
       ]
     },
     "remaining": "Continue the full recipe catalogue and handbook framework font/layout/structure-export audit. The inherited anvilcraft:jei/solid_liquid/enchanted_gold_ingot handbook reference is still not a server recipe. Whole-goal completion remains unproven."
+  },
+  "handbook_font_layout_2026_09_30": {
+    "source_commit": "cca4b2aac5328926fa88bc01d958d007ff6bfc2a",
+    "status": "implemented_and_verified",
+    "implementation": [
+      "Route Ageratum handbook text overloads through the native Minecraft font, restoring source typography and legacy section-sign color handling without changing global font preferences.",
+      "Restore source dark link color and use the same font for generated directory bullets.",
+      "Bundle source build.121 guide and label textures; restore 256-pixel page geometry, 128-pixel labels, matching texture coordinates and bookmark text placement.",
+      "Keep drawing and hit testing consistent through the guide fields and scaling methods."
+    ],
+    "validation": {
+      "paired_captures": 7,
+      "documents": 416,
+      "components": 4816,
+      "source_assets": 4,
+      "layout": {
+        "contentWidth": 331,
+        "bookmarks": 1,
+        "contentHeight": 286,
+        "labelWidth": 128
+      },
+      "commands": [
+        "./gradlew.bat -PportValidation -I dev/porting/handbook-pages-client.gradle -I dev/porting/checkstyle.gradle compileJava runClient checkPortJava --console=plain",
+        "python dev/porting/prepare_handbook_pages_reference.py",
+        "./gradlew.bat runClient --console=plain (reference checkout)",
+        "./gradlew.bat -PportValidation -I dev/porting/checkstyle.gradle compileJava checkPortJava --console=plain",
+        "python dev/porting/verify_handbook_style.py",
+        "git diff --check"
+      ],
+      "logs": {
+        "native_client": "build/porting/client-handbook-style-2.log",
+        "source_client": "build/porting/client-handbook-style-reference.log",
+        "final_compile_style": "build/porting/checks-handbook-style-final.log"
+      },
+      "report": "build/porting/handbook-style-comparison.json",
+      "coverage": [
+        "Six bilingual directory pages retain source component counts, anchors and real directory navigation.",
+        "Real add-bookmark button and visible bookmark click navigate between documents; pre-existing bookmark state is restored afterward.",
+        "Both clients report content width 331, content height 286 and label width 128 at the shared fixture scale.",
+        "Four copied texture assets match the source dependency bytes exactly.",
+        "Every captured page contains source RGB 7,93,127 link pixels; content-region mean RGB error remains below 2/255 in all seven comparisons.",
+        "Visual inspection confirms source-style text and colored labels rather than literal section-sign formatting codes."
+      ],
+      "content_metrics": {
+        "0": {
+          "content_mean_rgb_error": 0.2691895523380473,
+          "different_pixels": 22636
+        },
+        "1": {
+          "content_mean_rgb_error": 0.5860217142945963,
+          "different_pixels": 17574
+        },
+        "2": {
+          "content_mean_rgb_error": 0.5512577728383932,
+          "different_pixels": 23172
+        },
+        "3": {
+          "content_mean_rgb_error": 0.22822029309893707,
+          "different_pixels": 9840
+        },
+        "4": {
+          "content_mean_rgb_error": 1.4777101634746326,
+          "different_pixels": 17896
+        },
+        "5": {
+          "content_mean_rgb_error": 1.3118772338410019,
+          "different_pixels": 11857
+        },
+        "6": {
+          "content_mean_rgb_error": 1.949101886896728,
+          "different_pixels": 25154
+        }
+      },
+      "limits": [
+        "Native client rendering/interaction passed before a fixture-only brace style repair; the separate final compile/style command passed afterward.",
+        "Native glyph assets and antialiasing can still differ; full-screen/world pixels are not an equality requirement.",
+        "Sidebar folding/pinned-row scrolling and structure projection/export require their own remaining framework audits.",
+        "These are static UI assets and client-only compatibility hooks, so datagen and the unchanged 781-test server baseline were not rerun."
+      ]
+    },
+    "remaining": "Continue source handbook sidebar behavior and structure projection/export parity, plus the broader recipe/gameplay/rendering completion audit."
   }
 }

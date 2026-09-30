@@ -1,8 +1,5 @@
 package dev.dubhe.anvilcraft.integration.ageratum.component;
 
-import dev.anvilcraft.lib.v2.font.AnvilLibFont;
-import dev.anvilcraft.lib.v2.font.extension.GuiGraphicsExtractorExtension;
-import dev.anvilcraft.resource.ageratum.client.constants.AgeratumConstants;
 import dev.anvilcraft.resource.ageratum.client.feat.markdown.MDDocument;
 import dev.anvilcraft.resource.ageratum.client.feat.markdown.component.MDBlockComponent;
 import dev.anvilcraft.resource.ageratum.client.feat.markdown.component.MDComponent;
@@ -65,7 +62,7 @@ public final class MDDirectoryComponent extends MDComponent {
 
     private record Heading(int level, String title) {
         private FormattedText link() {
-            Style style = Style.EMPTY.withUnderlined(true).withColor(AgeratumConstants.GuideScreenUI.Colors.LINK_COLOR)
+            Style style = Style.EMPTY.withUnderlined(true).withColor(0x075D7F)
                 .withClickEvent(new ClickEvent.OpenUrl(URI.create("#" + anchor(this.title))));
             return MDComponent.textFormat(this.title, style);
         }
@@ -95,7 +92,7 @@ public final class MDDirectoryComponent extends MDComponent {
                 graphics.fill(level * 10, y, level * 10 + 9, y + lineHeight,
                     LEVEL_LINE_COLORS[level % LEVEL_LINE_COLORS.length] | 0x55000000);
             }
-            ((GuiGraphicsExtractorExtension) graphics).anvillib$text(AnvilLibFont.getSelectFont(), BULLETS[item.level() % BULLETS.length],
+            graphics.text(minecraft.font, BULLETS[item.level() % BULLETS.length],
                 item.level() * 10, y, 0xFF000000, false);
         }
     }
