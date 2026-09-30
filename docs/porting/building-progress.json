@@ -5644,5 +5644,76 @@
     },
     "new_confirmed_gap": "Ageratum 117 MDCraftingTableRecipeComponent sets resultItem to null and returns an empty ingredient list (TODOs). The real Processing Table page consequently draws an empty crafting frame. Restore native shaped/shapeless recipe extraction and rendered items in a subsequent node.",
     "remaining": "Restore standard handbook crafting-recipe visuals, continue structure projection/export parity and the broader recipe/gameplay/rendering completion audit."
+  },
+  "handbook_standard_recipe_rendering_2026_09_30": {
+    "source_commit": "cca4b2aac5328926fa88bc01d958d007ff6bfc2a",
+    "status": "implemented_and_verified",
+    "implementation": [
+      "Replace the incomplete crafting proxy component with native shaped/shapeless extraction, preserving source 3x3 slot positions and Optional empty cells.",
+      "Restore cooking and stonecutting input/result fields from native recipes and obtain cooking device icons through the native furnaceIcon implementation.",
+      "Retain recipe alignment, ingredient cycling, result counts and source hover regions through the existing handbook component base."
+    ],
+    "validation": {
+      "paired_cases": 10,
+      "controlled_development_recipes": 9,
+      "commands": [
+        "./gradlew.bat -PportValidation -I dev/porting/handbook-vanilla-client.gradle -I dev/porting/checkstyle.gradle compileJava runClient checkPortJava --console=plain",
+        "python dev/porting/prepare_handbook_vanilla_reference.py",
+        "./gradlew.bat runClient --console=plain (reference checkout)",
+        "python dev/porting/verify_handbook_vanilla.py",
+        "git diff --check"
+      ],
+      "logs": {
+        "native": "build/porting/client-handbook-vanilla-native-final.log",
+        "source": "build/porting/client-handbook-vanilla-reference-final.log"
+      },
+      "report": "build/porting/handbook-vanilla-comparison.json",
+      "metrics": {
+        "sparse": {
+          "widget_mean_rgb_error": 0.0
+        },
+        "column": {
+          "widget_mean_rgb_error": 0.0
+        },
+        "row": {
+          "widget_mean_rgb_error": 0.0
+        },
+        "shapeless": {
+          "widget_mean_rgb_error": 0.0
+        },
+        "smelting": {
+          "widget_mean_rgb_error": 0.8011482007575758
+        },
+        "blasting": {
+          "widget_mean_rgb_error": 0.30064709595959593
+        },
+        "smoking": {
+          "widget_mean_rgb_error": 0.28487215909090907
+        },
+        "campfire_cooking": {
+          "widget_mean_rgb_error": 0.0
+        },
+        "stonecutting": {
+          "widget_mean_rgb_error": 0.7458451704545455
+        },
+        "stamping_platform": {
+          "widget_mean_rgb_error": 0.5353811553030303
+        }
+      },
+      "coverage": [
+        "Ten paired live-client fixtures cover sparse 2x2, 1x3, 3x1, shapeless, all four cooking devices, stonecutting and the real stamping-platform recipe.",
+        "Input alternatives, exact slot indices, output IDs/counts, device icons and hover tooltip counts match source.",
+        "The four controlled crafting widgets have zero pixel error in the compared recipe region.",
+        "The real stamping-platform page now has visible input items and output rather than an empty frame.",
+        "Compilation and Checkstyle pass. Development cooking inputs are independent of normal cooking inputs to avoid replacing ordinary generated wrappers."
+      ],
+      "limits": [
+        "Native item lighting/sampling remains active; nonzero visual differences for some block-item icons are recorded.",
+        "Static standard crafting previews are covered; dynamic special-recipe outputs are not guessed.",
+        "A first client failed on an inherited-field shadow; it was replaced with the public alignment getter, and the failed test process was terminated after confirming its identity and crash log.",
+        "Changes are client adapters plus development-only fixtures, so production datagen and the unchanged 781-test server baseline were not rerun."
+      ]
+    },
+    "remaining": "Continue standard recipe edge-case and framework structure projection/export audits, then the broader branch completion audit. This node does not establish whole-goal completion."
   }
 }

@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "ABC"
+  ],
+  "key": {
+    "A": "minecraft:diamond",
+    "B": "minecraft:emerald",
+    "C": "minecraft:redstone"
+  },
+  "result": {
+    "id": "minecraft:redstone",
+    "count": 4
+  }
+}

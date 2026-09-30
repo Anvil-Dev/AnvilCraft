@@ -3,11 +3,13 @@ package dev.dubhe.anvilcraft.mixin.client;
 import dev.anvilcraft.resource.ageratum.client.feat.markdown.MDRenderContext;
 import dev.anvilcraft.resource.ageratum.client.feat.markdown.component.MDComponent;
 import dev.anvilcraft.resource.ageratum.client.feat.markdown.component.extend.MDRecipeComponent;
+import dev.dubhe.anvilcraft.client.markdown.recipe.MDVanillaCraftingComponent;
 import dev.dubhe.anvilcraft.recipe.sync.RecipesRecord;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.item.crafting.CraftingRecipe;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeMap;
@@ -37,6 +39,14 @@ abstract class HandbookRecipeMixin {
 
     @Shadow
     public abstract <T extends Recipe<?>> boolean setComponent(RecipeHolder<?> holder);
+
+    @Inject(method = "setComponent", at = @At("HEAD"), cancellable = true)
+    private void anvilcraft$crafting(RecipeHolder<?> holder, CallbackInfoReturnable<Boolean> cir) {
+        if (Minecraft.getInstance().level != null && holder.value() instanceof CraftingRecipe recipe) {
+            this.component = new MDVanillaCraftingComponent(recipe, ((MDRecipeComponent) (Object) this).isEnableAlignCenter());
+            cir.setReturnValue(true);
+        }
+    }
 
     @Unique
     private void anvilcraft$resolve(Minecraft minecraft) {
