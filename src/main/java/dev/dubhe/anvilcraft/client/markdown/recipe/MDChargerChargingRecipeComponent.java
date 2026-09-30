@@ -42,7 +42,7 @@ public class MDChargerChargingRecipeComponent extends MDRecipeComponent {
         Component power = Component.translatable(keyPower, Math.abs(this.recipe.power()));
         AgeratumUtil.renderText(graphics, power, 10, 8);
 
-        Component time = Component.translatable(MDChargerChargingRecipeComponent.KEY_TIME, 0.05 * this.recipe.power());
+        Component time = Component.translatable(MDChargerChargingRecipeComponent.KEY_TIME, 0.05 * this.recipe.time());
         AgeratumUtil.renderText(graphics, time, 10, 48);
     }
 }

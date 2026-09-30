@@ -40,6 +40,14 @@ public interface IMultiPartBlockModelHolder {
         return original;
     }
 
+    default BlockState getModelHolderState(BlockState original) {
+        return original;
+    }
+
+    static BlockState modelHolderState(BlockState state) {
+        return state.getBlock() instanceof IMultiPartBlockModelHolder holder ? holder.getModelHolderState(state) : state;
+    }
+
     default BlockPos mapRealModelHolderBlockPos(
         Level level,
         BlockPos blockPos,

@@ -156,6 +156,11 @@ public class CelestialForgingAnvilAmplifierBlock
 
     @Override
     public BlockState mapRealModelHolderBlock(Level level, BlockPos blockPos, BlockState original) {
+        return this.getModelHolderState(original);
+    }
+
+    @Override
+    public BlockState getModelHolderState(BlockState original) {
         Direction direction = original.getValue(FACING);
         return switch (direction) {
             case NORTH -> original.setValue(HALF, DirectionCube232PartHalf.MID_PART);

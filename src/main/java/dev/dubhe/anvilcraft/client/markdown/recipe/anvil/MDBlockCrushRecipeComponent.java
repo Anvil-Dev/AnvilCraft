@@ -22,15 +22,15 @@ public class MDBlockCrushRecipeComponent extends MDBaseAnvilRecipeComponent {
     }
 
     @Override
-    protected void extractRecipeRenderState(MDRenderContext context, float mouseX, float mouseY) {
-        super.extractRecipeRenderState(context, mouseX, mouseY);
-        for (int i = 0; i < this.inputBlocks.size(); i++) {
+    protected void extractAnvilRecipeRenderState(MDRenderContext context, float mouseX, float mouseY) {
+        super.extractAnvilRecipeRenderState(context, mouseX, mouseY);
+        for (int i = this.inputBlocks.size() - 1; i >= 0; i--) {
             List<BlockState> states = this.inputBlocks.get(i).constructStatesForRender();
             if (!states.isEmpty()) {
                 BlockState blockState = states.get(RecipeUtil.getDisplayIndex(states.size()));
                 AgeratumUtil.renderBlock(
-                    context, blockState, mouseX, mouseY, MDBaseAnvilRecipeComponent.INPUT_BLOCK_X, MDBaseAnvilRecipeComponent.BLOCK_Y
-                                                                                                   + i * AgeratumUtil.BLOCK_SIZE
+                    context, blockState, mouseX, mouseY, MDBaseAnvilRecipeComponent.INPUT_BLOCK_X,
+                    AgeratumUtil.getRenderY(MDBaseAnvilRecipeComponent.BLOCK_Y, i)
                 );
             }
         }

@@ -77,8 +77,15 @@ public class RenderSupport {
         pose.rotate(Axis.YP.rotationDegrees(225));
         float left = x - size / 2;
         float top = y + scale * (fittedScale * 0.5F - 7.25F);
+        float resolution = Math.max(1, Math.max(
+            (float) Math.hypot(graphics.pose().m00(), graphics.pose().m01()),
+            (float) Math.hypot(graphics.pose().m10(), graphics.pose().m11())));
+        left *= resolution;
+        top *= resolution;
+        size *= resolution;
         float alignedTop = (float) Math.floor(top);
         graphics.pose().pushMatrix();
+        graphics.pose().scale(1 / resolution, 1 / resolution);
         graphics.pose().translate(0, top - alignedTop);
         GuiRenderExtras.tessellateBlock(graphics, block, null, null, left, alignedTop, left + size, alignedTop + size,
             -1, Minecraft.getInstance().options.ambientOcclusion().get(), pose);

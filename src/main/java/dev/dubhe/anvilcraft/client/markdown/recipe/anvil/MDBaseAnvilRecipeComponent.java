@@ -41,7 +41,15 @@ public abstract class MDBaseAnvilRecipeComponent extends MDRecipeComponent {
     }
 
     @Override
-    protected void extractRecipeRenderState(MDRenderContext context, float mouseX, float mouseY) {
+    protected final void extractRecipeRenderState(MDRenderContext context, float mouseX, float mouseY) {
+        this.extractAnvilRecipeRenderState(context, mouseX, mouseY);
+        // 渲染加工环境方块
+        int anvilY = MDBaseAnvilRecipeComponent.BLOCK_Y - 2 * AgeratumUtil.BLOCK_SIZE;
+        AgeratumUtil.renderBlock(
+            context, Blocks.ANVIL.defaultBlockState(), mouseX, mouseY, MDBaseAnvilRecipeComponent.INPUT_BLOCK_X, anvilY);
+    }
+
+    protected void extractAnvilRecipeRenderState(MDRenderContext context, float mouseX, float mouseY) {
         GuiGraphicsExtractor g = context.graphics();
 
         // 渲染输入物品
@@ -52,13 +60,9 @@ public abstract class MDBaseAnvilRecipeComponent extends MDRecipeComponent {
             AgeratumUtil.renderArrow(g, 86, 40);
         }
 
-        // 渲染加工环境方块
-        int anvilY = MDBaseAnvilRecipeComponent.BLOCK_Y - 2 * AgeratumUtil.BLOCK_SIZE;
-        AgeratumUtil.renderBlock(
-            context, Blocks.ANVIL.defaultBlockState(), mouseX, mouseY, MDBaseAnvilRecipeComponent.INPUT_BLOCK_X, anvilY);
-
-        for (int i = 0; i < this.getInputBlockStates().size(); i++) {
-            BlockState inputBlock = this.getInputBlockStates().get(i);
+        List<BlockState> inputBlocks = this.getInputBlockStates();
+        for (int i = inputBlocks.size() - 1; i >= 0; i--) {
+            BlockState inputBlock = inputBlocks.get(i);
             if (inputBlock.isAir()) continue;
             int y = AgeratumUtil.getRenderY(MDBaseAnvilRecipeComponent.BLOCK_Y, i);
             AgeratumUtil.renderBlock(context, inputBlock, mouseX, mouseY, MDBaseAnvilRecipeComponent.INPUT_BLOCK_X, y);

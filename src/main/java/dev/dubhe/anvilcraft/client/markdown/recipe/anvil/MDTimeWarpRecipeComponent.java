@@ -49,8 +49,8 @@ public class MDTimeWarpRecipeComponent extends MDBaseAnvilRecipeComponent {
     }
 
     @Override
-    protected void extractRecipeRenderState(MDRenderContext context, float mouseX, float mouseY) {
-        super.extractRecipeRenderState(context, mouseX, mouseY);
+    protected void extractAnvilRecipeRenderState(MDRenderContext context, float mouseX, float mouseY) {
+        super.extractAnvilRecipeRenderState(context, mouseX, mouseY);
         GuiGraphicsExtractor graphics = context.graphics();
 
         if (this.recipe.isConsumeFluid()) {

@@ -4638,5 +4638,55 @@
       "Restore source block anchors, dimensions, stacking, multipart model-holder mapping and charger time formatting; compare in both real clients.",
       "Audit remaining handbook pages/resources/links, directory and server structure-export framework support."
     ]
+  },
+  "handbook_common_rendering_2026_09_30": {
+    "source_commit": "a3a037f17876b2e7036779baee71898978c5d4be",
+    "status": "common_recipe_rendering_complete_remaining_handbook_port_paused_by_user",
+    "changes": [
+      "Use the textured GUI pipeline overload for arrows, slots and collision explosions; interpret arrow rotations as degrees.",
+      "Restore source block size 16, vertical spacing 14, tooltip size 20 and anchored block rendering.",
+      "Restore common multipart model-holder queries, including all giant-anvil parts and four amplifier facings; JEI uses the same query.",
+      "Draw stacked inputs back to front and the environment anvil after recipe content so giant input models do not cover it.",
+      "Use the existing transparent-item renderer for collision trails and show charger duration from time rather than power.",
+      "Render anchored block previews at the resolution required by the parent GUI transform instead of enlarging a lower-resolution image."
+    ],
+    "validation": {
+      "recipe_factories": 20,
+      "pages_per_client": 5,
+      "model_holder_states": 150,
+      "fixed_regions": 14,
+      "fixed_region_silhouette_iou": 1.0,
+      "pixel_identical_assets": [
+        "four arrow rotations",
+        "collision explosion"
+      ],
+      "required_game_tests": 749,
+      "commands": [
+        "./gradlew.bat -PportValidation -I dev/porting/checkstyle.gradle compileJava runGameTestServer checkPortJava --console=plain",
+        "./gradlew.bat -PportValidation -I dev/porting/handbook-recipes-client.gradle -I dev/porting/checkstyle.gradle compileJava runClient checkPortJava --console=plain",
+        "python dev/porting/prepare_handbook_reference.py; reference checkout: ./gradlew.bat runClient --console=plain",
+        "python dev/porting/verify_handbook_visual.py",
+        "git diff --check"
+      ],
+      "logs": {
+        "full_server": "build/porting/checks-handbook-visual-final.log",
+        "native_client": "build/porting/client-handbook-visual-4.log",
+        "source_client": "build/porting/client-handbook-reference-2.log"
+      },
+      "report": "build/porting/handbook-visual-report.json",
+      "limits": [
+        "Native 26.1 lighting, texture sampling and item colors remain enabled. Fixed model-region RGB mean differences range from about 7.28 to 29.03 / 255; this is not pixel-identical 3D shading.",
+        "Source helper background is moved behind negative-depth geometry. Its original z=0 background clipped faces; both versions now expose the complete model for geometry comparison.",
+        "Recipe gallery ingredients cycle independently. Exact image assertions use fixed helper content, while gallery pages verify the real registered components and the corrected environment-anvil overlap.",
+        "The full 749-test server run preceded the final client-only draw-order and GUI resolution adjustments. The final native client run passed compilation and Checkstyle after those adjustments.",
+        "No recipe data or assets changed; runData is not applicable. Validation does not cover every handbook page, GUI transform, shader pack or remote multiplayer context."
+      ]
+    },
+    "remaining": [
+      "Add handbook components for block_processing, block_smear, mineral_fountain, mineral_fountain_chance and procedural_process.",
+      "Continue handbook page/resource/link parity audit and framework directory/structure-export port.",
+      "Keep vanilla 26.1 rendering; source-comparison work must not replace global terrain rendering.",
+      "Goal pauses after this commit at the user request; the complete branch port is not finished."
+    ]
   }
 }

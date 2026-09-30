@@ -1,11 +1,11 @@
 package dev.dubhe.anvilcraft.block.workstation;
 
-import dev.dubhe.anvilcraft.api.event.GiantAnvilEvent;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import dev.anvilcraft.lib.v2.util.ShapeUtil;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.event.AnvilEvent;
+import dev.dubhe.anvilcraft.api.event.GiantAnvilEvent;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.api.power.IPowerComponent;
 import dev.dubhe.anvilcraft.block.multipart.SimpleMultiPartBlock;
@@ -224,6 +224,11 @@ public class GiantAnvilBlock extends SimpleMultiPartBlock<Cube3x3PartHalf> imple
     public BlockState placedState(Cube3x3PartHalf part, BlockState state) {
         return super.placedState(part, state)
             .setValue(GiantAnvilBlock.CUBE, part == Cube3x3PartHalf.MID_CENTER ? GiantAnvilCube.CENTER : GiantAnvilCube.CORNER);
+    }
+
+    @Override
+    public BlockState getModelHolderState(BlockState original) {
+        return original.setValue(GiantAnvilBlock.HALF, Cube3x3PartHalf.MID_CENTER).setValue(GiantAnvilBlock.CUBE, GiantAnvilCube.CENTER);
     }
 
     @Override

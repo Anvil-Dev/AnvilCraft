@@ -36,7 +36,7 @@ public final class HandbookRecipeClientScene {
     private static long deadline;
 
     public static void frame(Minecraft client) {
-        if (started && page * 6 >= COMPONENTS.size()) return;
+        if (started && page > (COMPONENTS.size() + 5) / 6) return;
         if (deadline == 0) deadline = System.currentTimeMillis() + 180000;
         if (System.currentTimeMillis() > deadline) throw new IllegalStateException("Handbook recipe timeout");
         if (client.getOverlay() != null || capturing || System.currentTimeMillis() < next) return;
@@ -54,7 +54,7 @@ public final class HandbookRecipeClientScene {
         Screenshot.grab(client.gameDirectory, "handbook-recipes-26.1-" + page + ".png", client.getMainRenderTarget(), 1,
             message -> client.execute(() -> {
                 capturing = false;
-                if (++page * 6 < COMPONENTS.size()) {
+                if (++page <= (COMPONENTS.size() + 5) / 6) {
                     next = System.currentTimeMillis() + 500;
                     return;
                 }
@@ -91,6 +91,7 @@ public final class HandbookRecipeClientScene {
                 LABELS.add(name.toString());
                 RESULT.put(name.toString(), Map.of("recipe", holder.id().identifier().toString(), "width", width, "height", height));
             }
+            RESULT.put("helpers", HandbookHelperPreview.report());
             require(!COMPONENTS.isEmpty(), "Factory registry empty");
             var probe = COMPONENTS.getFirst();
             Object old = resolved(probe);
@@ -167,6 +168,10 @@ public final class HandbookRecipeClientScene {
 
         @Override
         public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
+            if (page == (COMPONENTS.size() + 5) / 6) {
+                HandbookHelperPreview.draw(graphics, this.width, this.height);
+                return;
+            }
             graphics.fill(0, 0, this.width, this.height, 0xFFF1E6CD);
             for (int cell = 0; cell < 6 && page * 6 + cell < COMPONENTS.size(); cell++) {
                 int index = page * 6 + cell;
