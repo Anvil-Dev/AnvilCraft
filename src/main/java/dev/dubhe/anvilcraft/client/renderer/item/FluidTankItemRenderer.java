@@ -49,7 +49,7 @@ public class FluidTankItemRenderer extends BaseBlockItemRenderer<FluidTankItemRe
         boolean hasFoil,
         int outlineColor
     ) {
-        this.submitShell(poseStack, collector, lightCoords, overlayCoords, outlineColor);
+        this.submitShell(poseStack, collector, lightCoords, overlayCoords, hasFoil, outlineColor);
         if (argument == null) return;
         FluidResource resource = argument.getResource();
         if (resource == null || resource.isEmpty()) return;

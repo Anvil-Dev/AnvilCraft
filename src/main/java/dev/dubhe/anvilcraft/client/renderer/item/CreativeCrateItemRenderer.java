@@ -47,7 +47,7 @@ public class CreativeCrateItemRenderer extends BaseBlockItemRenderer<ItemStackRe
         @Nullable ItemStackRenderState item, PoseStack pose, SubmitNodeCollector collector,
         int lightCoords, int overlayCoords, boolean hasFoil, int outlineColor
     ) {
-        this.submitShell(pose, collector, lightCoords, overlayCoords, outlineColor);
+        this.submitShell(pose, collector, lightCoords, overlayCoords, hasFoil, outlineColor);
         if (item != null) CreativeCrateRenderUtil.submit(item, pose, collector, lightCoords, overlayCoords, outlineColor);
     }
 

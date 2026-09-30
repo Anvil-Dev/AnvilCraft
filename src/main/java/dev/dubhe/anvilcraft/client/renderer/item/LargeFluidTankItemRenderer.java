@@ -51,7 +51,7 @@ public class LargeFluidTankItemRenderer extends BaseBlockItemRenderer<FluidTankI
         boolean hasFoil,
         int outlineColor
     ) {
-        this.submitShell(poseStack, collector, lightCoords, overlayCoords, outlineColor);
+        this.submitShell(poseStack, collector, lightCoords, overlayCoords, hasFoil, outlineColor);
         if (argument == null) return;
         for (var layer : argument.getLayers()) {
             LargeFluidTankRenderUtil.submit(layer, false, poseStack, collector, lightCoords, FluidTankItemRenderState.FLUID_RENDER_TYPE);

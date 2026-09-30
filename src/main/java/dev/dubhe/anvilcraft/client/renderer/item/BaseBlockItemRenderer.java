@@ -2,10 +2,12 @@ package dev.dubhe.anvilcraft.client.renderer.item;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.Sheets;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.block.BlockAndTintGetter;
 import net.minecraft.client.renderer.block.BlockModelRenderState;
 import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
+import net.minecraft.client.renderer.feature.ItemFeatureRenderer;
 import net.minecraft.client.renderer.special.SpecialModelRenderer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.RandomSource;
@@ -37,6 +39,7 @@ abstract class BaseBlockItemRenderer<T> implements SpecialModelRenderer<T> {
         SubmitNodeCollector collector,
         int lightCoords,
         int overlayCoords,
+        boolean hasFoil,
         int outlineColor
     ) {
         BlockStateModel model = Minecraft.getInstance()
@@ -55,6 +58,10 @@ abstract class BaseBlockItemRenderer<T> implements SpecialModelRenderer<T> {
             this.shellModel = model;
         }
         this.shellRenderState.submit(poseStack, collector, lightCoords, overlayCoords, outlineColor);
+        if (hasFoil) {
+            this.shellRenderState.submitModel(ItemFeatureRenderer.getFoilRenderType(Sheets.cutoutBlockSheet(), true),
+                poseStack, collector, lightCoords, overlayCoords, 0);
+        }
     }
 
     @Override

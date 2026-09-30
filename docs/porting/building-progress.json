@@ -6378,5 +6378,45 @@
       ]
     },
     "remaining": "Continue broader registered-block/resource behavior audits and remaining special-item rendering contexts, including outer-shell foil and nested displays. Whole-port completion remains unproven."
+  },
+  "special_item_shell_foil_parity_2026_10_01": {
+    "source_commit": "cca4b2aac5328926fa88bc01d958d007ff6bfc2a",
+    "status": "implemented_and_verified",
+    "implementation": [
+      "Forward special-model hasFoil through creative crate, creative fluid tank, fluid tank and large fluid tank renderers.",
+      "Add the missing shell glint pass in the shared cached block-item renderer using the native ItemFeatureRenderer foil render-type selection. Reuse the same shell model and pose, and leave outline rendering on the normal pass.",
+      "Retain native vanilla lighting and glint behavior; do not modify global terrain sampling or replace the rendering backend."
+    ],
+    "validation": {
+      "paired_plain_foil_cases": 8,
+      "static_plain_pixel_identical_cases": 5,
+      "capture_frames_per_version": 3,
+      "commands": [
+        "./gradlew.bat -PportValidation -I dev/porting/checkstyle.gradle compileJava checkPortJava --console=plain",
+        "./gradlew.bat -PportValidation -I dev/porting/shell-foil-client.gradle -I dev/porting/checkstyle.gradle compileJava runClient checkPortJava --console=plain",
+        "python dev/porting/compare_shell_foil.py",
+        "git diff --check"
+      ],
+      "logs": {
+        "before": "build/porting/client-shell-foil-before.log",
+        "source": "build/porting/client-shell-foil-reference-2.log",
+        "compile_style": "build/porting/verify-shell-foil-style.log",
+        "final": "build/porting/client-shell-foil-final-2.log",
+        "comparison": "build/porting/shell-foil-comparison.json"
+      },
+      "coverage": [
+        "Actual source and native GUI captures cover four empty shell types, crate containing a pickaxe, crate containing an enchanted crate, crate containing an enchanted sword, and creative tank containing water.",
+        "All eight outer-shell foil cases differ from their plain equivalents, animate between frames, and retain glint after resource reload.",
+        "Inner enchanted crate and enchanted sword animate even when the outer crate is not enchanted.",
+        "Five static plain cases are pixel-identical to native captures before the change. Native and source images were visually inspected."
+      ],
+      "limits": [
+        "The first source nested fixture omitted the block-entity id required for serializing an inner crate; its local NBT fixture was corrected before successful source capture.",
+        "The validation directory had glint speed zero from an earlier fixed-frame scene. Explicit speed one resolved the apparent frozen animation; no production workaround was added.",
+        "Native vanilla lighting and unsynchronized glint phases differ from source. This node verifies GUI/nested display/reload and does not claim new shader-pack or all-world-context coverage.",
+        "All scenes, screenshots, comparison scripts and logs remain local and ignored. No generated resources changed."
+      ]
+    },
+    "remaining": "Continue broader registered-block/resource behavior audits and remaining item/world rendering contexts. Whole-port completion remains unproven."
   }
 }
