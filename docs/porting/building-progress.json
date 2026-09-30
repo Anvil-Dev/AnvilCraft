@@ -6468,5 +6468,51 @@
       ]
     },
     "remaining": "Resolve remaining block-tag memberships and sound differences against their source consumers; continue non-default state and wider source-only Java/resource/rendering audits. Whole-port completion remains unproven."
+  },
+  "block_tag_consumer_parity_2026_10_01": {
+    "source_commit": "cca4b2aac5328926fa88bc01d958d007ff6bfc2a",
+    "status": "implemented_and_verified",
+    "implementation": [
+      "Restore source block-tag memberships for the crafting matrix, large-cake preview, burning-heater cauldron classification, jukebox hammer removal, six multipart Mekanism cardboard exclusions, scanner iron-tool tier and plywood stairs/slabs.",
+      "Restore Transcendium block enchantment power ten and enchantment-power-provider membership, plus nine chute/pipe/pump/valve transmitter memberships.",
+      "Expose the source anvil_hammer_denylist tag and use it in hammer/server and client consumers. Include the existing native anvil_hammer_blacklist tag so older data-pack additions remain effective; restore the missing CFA amplifier exclusion.",
+      "Restore resin_shock_compatible and use it for both actual shock behavior and resin sound selection, allowing data-pack-defined compatible bases.",
+      "Restore the source landing_no_recipe tag and its English, upside-down English and Chinese description; no new landing handler beyond the source implementation was invented."
+    ],
+    "validation": {
+      "source_tag_definitions": 143,
+      "source_blocks_with_membership_parity": 416,
+      "focused_required_tests": 4,
+      "commands": [
+        "./gradlew.bat -PportValidation compileJava runData --console=plain",
+        "./gradlew.bat -PportValidation -I dev/porting/block-tags.gradle -I dev/porting/checkstyle.gradle compileJava runGameTestServer checkPortJava --console=plain",
+        "./gradlew.bat -PportValidation -I dev/porting/block-defaults-client.gradle runClient --console=plain",
+        "python dev/porting/audit_block_tag_definitions.py",
+        "python dev/porting/verify_block_tag_membership.py",
+        "git diff --check"
+      ],
+      "logs": {
+        "data": "build/porting/data-block-tags-2.log",
+        "focused": "build/porting/verify-block-tags-focused.log",
+        "client": "build/porting/client-block-tags-final.log",
+        "definitions": "build/porting/block-tag-definition-audit-final.json",
+        "options": "build/porting/block-tag-options-audit.json",
+        "membership": "build/porting/block-tag-membership-parity.json"
+      },
+      "coverage": [
+        "All 143 source repository block-tag definitions retain their expanded members after concrete-ID and hammer-tag normalization. Native minecraft:anvil is resolved from its actual vanilla data to verify the three ordinary anvils. Optional entries and replace flags show no differences.",
+        "Final actual client registry snapshot has every source tag membership for all 416 mod blocks; native extra memberships and the legacy hammer alias remain.",
+        "A local built-in test data pack adds slime blocks to resin compatibility, furnaces to the new hammer denylist and smokers to the legacy blacklist. Actual giant-anvil landing launches a placed anvil above the compatible base, and actual hammer eligibility rejects both extension paths.",
+        "Vanilla enchanting-table validity recognizes Transcendium through all nine restored transmitter blocks; the block supplies ten power. Matrix predicate, scanner tool tier and restored classification/integration memberships are checked.",
+        "Final compile, focused tests, Checkstyle, generated-data inspection and normal client capture pass. The client does not activate the local extension test pack."
+      ],
+      "limits": [
+        "One initial compile caught the native GUNPOWER_BLOCK field spelling; the registry ID remains gunpowder_block. No runtime workaround was introduced.",
+        "Mekanism cardboard behavior was verified through its exported tag, not a Mekanism installation. New large-cake preview pixels were not captured in this node.",
+        "External tag references other than the inspected native anvil tag remain symbolic in definition expansion; mod-block runtime membership supplies independent evidence.",
+        "All test code, extension-pack fixtures, scripts and snapshots remain local and ignored."
+      ]
+    },
+    "remaining": "Continue the 110 default block-sound differences, non-default and context-dependent block states, and broader source-only Java/resource/rendering audits. Whole-port completion remains unproven."
   }
 }

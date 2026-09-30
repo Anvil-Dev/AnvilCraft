@@ -55,6 +55,9 @@ public class ModBlockTags {
     public static final TagKey<Block> GIANT_ANVIL = ModBlockTags.bind("giant_anvil");
     public static final TagKey<Block> SLIDING_RAIL_STOP_LIKE = ModBlockTags.bind("sliding_rail_stop_like");
 
+    public static final TagKey<Block> RESIN_SHOCK_COMPATIBLE = ModBlockTags.bind("resin_shock_compatible");
+    public static final TagKey<Block> LANDING_NO_RECIPE = ModBlockTags.bind("landing_no_recipe");
+
     public static final TagKey<Block> PLACEMENT_PREVIEW = ModBlockTags.bind("placement_preview");
 
     // common tags
@@ -112,6 +115,7 @@ public class ModBlockTags {
     public static final TagKey<Block> NEEDS_NETHERITE_TOOL = ModBlockTags.bind("needs_netherite_tool");
     public static final TagKey<Block> NEEDS_TRANSCENDIUM_TOOL = ModBlockTags.bind("needs_transcendium_tool");
 
+    public static final TagKey<Block> ANVIL_HAMMER_DENYLIST = ModBlockTags.bind("anvil_hammer_denylist");
     public static final TagKey<Block> ANVIL_HAMMER_BLACKLIST = ModBlockTags.bind("anvil_hammer_blacklist");
     public static final TagKey<Block> DEVOUR_DENYLIST = ModBlockTags.bind("devour_denylist");
 

@@ -50,6 +50,7 @@ public class BlockTagLoader {
             .addElement(BlockTagLoader.findId(Blocks.DETECTOR_RAIL))
             .addElement(BlockTagLoader.findId(Blocks.POWERED_RAIL))
             .addElement(BlockTagLoader.findId(Blocks.NOTE_BLOCK))
+            .addElement(BlockTagLoader.findId(Blocks.JUKEBOX))
             .addElement(BlockTagLoader.findId(Blocks.OBSERVER))
             .addElement(BlockTagLoader.findId(Blocks.HOPPER))
             .addElement(BlockTagLoader.findId(Blocks.DROPPER))
@@ -119,6 +120,7 @@ public class BlockTagLoader {
             .addTag(BlockTags.CAMPFIRES.location())
             .addElement(BlockTagLoader.findId(Blocks.MAGMA_BLOCK))
             .addElement(ModBlocks.HEATER.getId())
+            .addElement(ModBlocks.BURNING_HEATER.getId())
             .addElement(ModBlocks.CORRUPTED_BEACON.getId());
 
         provider.rawBuilder(ModBlockTags.BLOCK_DEVOURER_CHAIN_DEVOURING)
@@ -200,6 +202,7 @@ public class BlockTagLoader {
 
         provider.rawBuilder(ModBlockTags.CRAFTING_MATRIX_ELEMENT)
             .addElement(ModBlocks.SPACE_OVERCOMPRESSOR.getId())
+            .addElement(ModBlocks.SPACETIME_SUPERCOMPUTER.getId())
             .addTag(Tags.Blocks.PLAYER_WORKSTATIONS_CRAFTING_TABLES.location());
 
         // mekanism integration
@@ -210,7 +213,16 @@ public class BlockTagLoader {
             .addElement(ModBlocks.TESLA_TOWER.getId())
             .addElement(ModBlocks.OVERSEER.getId())
             .addElement(ModBlocks.ACCELERATION_RING.getId())
-            .addElement(ModBlocks.DEFLECTION_RING.getId());
+            .addElement(ModBlocks.DEFLECTION_RING.getId())
+            .addElement(ModBlocks.SHULKER_CONTAINER.getId())
+            .addElement(ModBlocks.LARGE_FLUID_TANK.getId())
+            .addElement(ModBlocks.LARGE_LASER.getId())
+            .addElement(ModBlocks.CELESTIAL_FORGING_ANVIL.getId())
+            .addElement(ModBlocks.CELESTIAL_FORGING_ANVIL_AMPLIFIER.getId())
+            .addElement(ModBlocks.TRADING_STATION.getId());
+
+        provider.rawBuilder(ModBlockTags.ANVIL_HAMMER_DENYLIST)
+            .addTag(ModBlockTags.ANVIL_HAMMER_BLACKLIST.location());
 
         provider.rawBuilder(ModBlockTags.ANVIL_HAMMER_BLACKLIST)
             .addElement(ModBlocks.MONOLITH.getId())
@@ -225,6 +237,7 @@ public class BlockTagLoader {
             .addElement(BlockTagLoader.findId(Blocks.ATTACHED_MELON_STEM))
             .addElement(BlockTagLoader.findId(Blocks.ATTACHED_PUMPKIN_STEM))
             .addElement(ModBlocks.CELESTIAL_FORGING_ANVIL_INTERFACE_PLACEHOLDER.getId())
+            .addElement(ModBlocks.CELESTIAL_FORGING_ANVIL_AMPLIFIER.getId())
             .addTag(BlockTags.BEDS.location())
             .addTag(BlockTags.ALL_SIGNS.location())
             .addTag(Tags.Blocks.CHESTS.location())
@@ -433,7 +446,16 @@ public class BlockTagLoader {
             .addElement(ModBlocks.CELESTIAL_FORGING_ANVIL_FLUID_INTERFACE.getId())
             .addElement(ModBlocks.CELESTIAL_FORGING_ANVIL_PORTAL.getId());
 
+        provider.rawBuilder(ModBlockTags.RESIN_SHOCK_COMPATIBLE)
+            .addElement(ModBlocks.RESIN_BLOCK.getId());
+
+        provider.rawBuilder(ModBlockTags.LANDING_NO_RECIPE)
+            .addElement(ModBlocks.PIEZOELECTRIC_CRYSTAL.getId())
+            .addElement(ModBlocks.SUGAR_BLOCK.getId())
+            .addElement(ModBlocks.GUNPOWER_BLOCK.getId());
+
         provider.rawBuilder(ModBlockTags.PLACEMENT_PREVIEW)
+            .addElement(ModBlocks.LARGE_CAKE.getId())
             .addElement(ModBlocks.OVERFLOW_CHUTE.getId())
             .addElement(ModBlocks.ITEM_SPLITTER.getId())
             .addElement(ModBlocks.CHUTE.getId())

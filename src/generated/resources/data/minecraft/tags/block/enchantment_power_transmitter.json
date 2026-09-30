@@ -1,8 +1,17 @@
 {
   "values": [
+    "anvilcraft:pipe_straight",
+    "anvilcraft:pipe_corner",
+    "anvilcraft:pipe_node",
     "anvilcraft:glass_pipe_straight",
     "anvilcraft:glass_pipe_corner",
     "anvilcraft:glass_pipe_node",
+    "anvilcraft:pump",
+    "anvilcraft:control_valve",
+    "anvilcraft:chute",
+    "anvilcraft:magnetic_chute",
+    "anvilcraft:simple_chute",
+    "anvilcraft:simple_magnetic_chute",
     "anvilcraft:overflow_chute"
   ]
 }

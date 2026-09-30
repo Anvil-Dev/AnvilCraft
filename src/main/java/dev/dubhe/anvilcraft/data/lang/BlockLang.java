@@ -4,6 +4,8 @@ import dev.anvilcraft.lib.v2.registrum.providers.RegistrumLangProvider;
 
 public class BlockLang {
     public static void init(RegistrumLangProvider provider) {
+        provider.add("tag.block.anvilcraft.landing_no_recipe",
+            "When an anvil lands on one of these blocks, it won't trigger recipe handling.");
         provider.add("block.anvilcraft.overflow_disposal_fluid_tank", "Overflow Disposal Fluid Tank");
         provider.add("block.anvilcraft.overflow_disposal_crate", "Overflow Disposal Crate");
         provider.add("screen.anvilcraft.ruins.title", "Ruins Block");
