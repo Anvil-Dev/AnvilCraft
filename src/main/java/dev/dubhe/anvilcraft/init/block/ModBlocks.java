@@ -313,6 +313,7 @@ import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.ColorRGBA;
+import net.minecraft.util.Unit;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
@@ -1017,6 +1018,10 @@ public class ModBlocks {
         .initialProperties(() -> new Item.Properties().fireResistant())
         .properties(properties -> properties.component(ModComponents.ETERNAL, Eternal.DEFAULT))
         .tag(ItemTags.ANVIL, ModItemTags.EXPLOSION_PROOF)
+        .properties(properties -> properties
+            .rarity(Rarity.EPIC)
+            .component(DataComponents.UNBREAKABLE, Unit.INSTANCE)
+        )
         .build()
         .register();
 
@@ -1043,6 +1048,10 @@ public class ModBlocks {
         .initialProperties(() -> new Item.Properties().fireResistant())
         .properties(properties -> properties.component(ModComponents.ETERNAL, Eternal.DEFAULT))
         .tag(ModItemTags.EXPLOSION_PROOF)
+        .properties(properties -> properties
+            .rarity(Rarity.EPIC)
+            .component(DataComponents.UNBREAKABLE, Unit.INSTANCE)
+        )
         .build()
         .register();
 
@@ -1070,6 +1079,10 @@ public class ModBlocks {
         .initialProperties(() -> new Item.Properties().fireResistant())
         .properties(properties -> properties.component(ModComponents.ETERNAL, Eternal.DEFAULT))
         .tag(ModItemTags.EXPLOSION_PROOF)
+        .properties(properties -> properties
+            .rarity(Rarity.EPIC)
+            .component(DataComponents.UNBREAKABLE, Unit.INSTANCE)
+        )
         .build()
         .register();
 
@@ -1222,6 +1235,9 @@ public class ModBlocks {
         .blockstate(DataGenUtil::noExtraModelOrState)
         .item()
         .model(DataGenUtil::noExtraModelOrState)
+        .properties(properties -> properties
+            .rarity(Rarity.EPIC)
+        )
         .build()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .register();
@@ -1293,6 +1309,11 @@ public class ModBlocks {
                 )))
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .item(InfiniteCollectorBlockItem::new)
+        .properties(properties -> properties
+            .rarity(Rarity.EPIC)
+            .component(ModComponents.ETERNAL, Eternal.DEFAULT)
+            .fireResistant()
+        )
         .build()
         .recipe(RegistrumBlockRecipeLoader::infiniteCollector)
         .register();
@@ -2035,6 +2056,10 @@ public class ModBlocks {
         .item(CelestialForgingAnvilAmplifierBlockItem::new)
         .properties(properties -> properties.stacksTo(16))
         .model(DataGenUtil::oversizedItem)
+        .properties(properties -> properties
+            .rarity(Rarity.EPIC)
+            .component(ModComponents.ETERNAL, Eternal.DEFAULT)
+        )
         .build()
         .blockstate(DataGenUtil::noExtraModelOrState)
         .tag((BlockTags.MINEABLE_WITH_PICKAXE))
@@ -2056,6 +2081,9 @@ public class ModBlocks {
             .explosionResistance(1200)
             .emissiveRendering(ModBlocks::always))
         .item(CelestialForgingAnvilInterfaceBlockItem::new)
+        .properties(properties -> properties
+            .rarity(Rarity.EPIC)
+        )
         .build()
         .tag((BlockTags.MINEABLE_WITH_PICKAXE))
         .register();
@@ -2076,6 +2104,9 @@ public class ModBlocks {
             .explosionResistance(1200)
             .emissiveRendering(ModBlocks::always))
         .item(CelestialForgingAnvilInterfaceBlockItem::new)
+        .properties(properties -> properties
+            .rarity(Rarity.EPIC)
+        )
         .build()
         .tag((BlockTags.MINEABLE_WITH_PICKAXE))
         .register();
@@ -2096,6 +2127,9 @@ public class ModBlocks {
             .explosionResistance(1200)
             .emissiveRendering(ModBlocks::always))
         .item(CelestialForgingAnvilInterfaceBlockItem::new)
+        .properties(properties -> properties
+            .rarity(Rarity.EPIC)
+        )
         .build()
         .tag((BlockTags.MINEABLE_WITH_PICKAXE))
         .register();
@@ -2114,6 +2148,9 @@ public class ModBlocks {
             .emissiveRendering(ModBlocks::always)
         )
         .item(CelestialForgingAnvilInterfaceBlockItem::new)
+        .properties(properties -> properties
+            .rarity(Rarity.EPIC)
+        )
         .build()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.WITHER_IMMUNE, BlockTags.DRAGON_IMMUNE)
         .register();
@@ -2158,6 +2195,10 @@ public class ModBlocks {
                 generator.createWithExistingModel(ctx.get(), AnvilCraft.of("block/celestial_forging_anvil_gate"));
             }
         })
+        .properties(properties -> properties
+            .rarity(Rarity.EPIC)
+            .component(ModComponents.ETERNAL, Eternal.DEFAULT)
+        )
         .build()
         .recipe(RegistrumBlockRecipeLoader::celestialForgingAnvilPortal)
         .register();
@@ -2610,6 +2651,9 @@ public class ModBlocks {
         .item()
         .properties(Item.Properties::fireResistant)
         .tag(ModItemTags.EXPLOSION_PROOF, Tags.Items.STORAGE_BLOCKS, ModItemTags.STORAGE_BLOCKS_TRANSCENDIUM)
+        .properties(properties -> properties
+            .rarity(Rarity.EPIC)
+        )
         .build()
         .recipe(RegistrumBlockRecipeLoader::transcendiumBlock)
         .register();
@@ -4442,6 +4486,9 @@ public class ModBlocks {
         .item()
         .initialProperties(() -> new Item.Properties().fireResistant())
         .tag(ModItemTags.EXPLOSION_PROOF)
+        .properties(properties -> properties
+            .rarity(Rarity.EPIC)
+        )
         .build()
         .register();
 
@@ -4455,6 +4502,9 @@ public class ModBlocks {
         .item()
         .initialProperties(() -> new Item.Properties().fireResistant())
         .tag(ModItemTags.EXPLOSION_PROOF)
+        .properties(properties -> properties
+            .rarity(Rarity.EPIC)
+        )
         .build()
         .register();
 
@@ -4468,6 +4518,9 @@ public class ModBlocks {
         .item()
         .initialProperties(() -> new Item.Properties().fireResistant())
         .tag(ModItemTags.EXPLOSION_PROOF)
+        .properties(properties -> properties
+            .rarity(Rarity.EPIC)
+        )
         .build()
         .register();
 
@@ -4481,6 +4534,9 @@ public class ModBlocks {
         .item()
         .initialProperties(() -> new Item.Properties().fireResistant())
         .tag(ModItemTags.EXPLOSION_PROOF)
+        .properties(properties -> properties
+            .rarity(Rarity.EPIC)
+        )
         .build()
         .register();
 
@@ -4494,6 +4550,9 @@ public class ModBlocks {
         .item(SuperHeavyBlockItem::new)
         .initialProperties(() -> new Item.Properties().fireResistant().stacksTo(16))
         .tag(ModItemTags.EXPLOSION_PROOF)
+        .properties(properties -> properties
+            .rarity(Rarity.EPIC)
+        )
         .build()
         .recipe(RegistrumBlockRecipeLoader::confinedNeutroniumIngotBlock)
         .register();
@@ -4531,6 +4590,9 @@ public class ModBlocks {
         .item(SingularityCrystalItem::new)
         .initialProperties(() -> new Item.Properties().fireResistant().stacksTo(1))
         .tag(ModItemTags.EXPLOSION_PROOF)
+        .properties(properties -> properties
+            .rarity(Rarity.EPIC)
+        )
         .build()
         .recipe(RegistrumBlockRecipeLoader::singularityCrystal)
         .register();
@@ -4998,14 +5060,22 @@ public class ModBlocks {
         .initialProperties(() -> Blocks.OBSIDIAN)
         .properties(p -> p.strength(10000.0F, 10000.0F).lightLevel(state -> 15).emissiveRendering(ModBlocks::always))
         .blockstate(DataGenUtil::noExtraModelOrState)
-        .simpleItem()
+        .item()
+        .properties(properties -> properties
+            .rarity(Rarity.EPIC)
+        )
+        .build()
         .register();
 
     public static final BlockEntry<WhiteHoleBlock> WHITE_HOLE = REGISTRUM.block("white_hole", WhiteHoleBlock::new)
         .initialProperties(() -> Blocks.OBSIDIAN)
         .properties(p -> p.strength(10000.0F, 10000.0F).lightLevel(state -> 15).emissiveRendering(ModBlocks::always))
         .blockstate(DataGenUtil::noExtraModelOrState)
-        .simpleItem()
+        .item()
+        .properties(properties -> properties
+            .rarity(Rarity.EPIC)
+        )
+        .build()
         .register();
 
     public static final BlockEntry<? extends Block> MONOLITH = REGISTRUM.block("monolith", Block::new)

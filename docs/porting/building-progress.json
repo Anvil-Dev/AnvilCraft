@@ -6293,5 +6293,51 @@
       ]
     },
     "remaining": "Continue registry/default-property and source-only resource audits. Broader special-item contexts, including outer-shell foil and nested special displays, remain part of the rendering completion audit."
+  },
+  "item_default_properties_parity_2026_10_01": {
+    "source_commit": "cca4b2aac5328926fa88bc01d958d007ff6bfc2a",
+    "status": "implemented_and_verified",
+    "implementation": [
+      "Compare live default stacks for all 578 source items against 584 native items, resolving known concrete color ID renames.",
+      "Restore epic rarity on 31 item registrations, missing eternal components on five parts, eleven explicit unbreakable defaults and intrinsic fire resistance on Infinite Collector.",
+      "Fix Frost Dragon Rod initial devour range to three; the source constructor value nine is enchantment value, which remains nine.",
+      "Restore heavy-halberd tier drop restrictions, ordinary mining speed one and two durability per mined block while retaining native vanilla sword rules.",
+      "Restore guide-book main-hand attack damage three and melee-weapon tag; restore dark/white chocolate Speed II while keeping ordinary chocolate Speed IV and their extra effects."
+    ],
+    "validation": {
+      "source_items": 578,
+      "native_items": 584,
+      "matched_source_ids": 578,
+      "focused_required_tests": 5,
+      "full_required_tests": 840,
+      "commands": [
+        "./gradlew.bat -PportValidation compileJava runData --console=plain",
+        "./gradlew.bat -PportValidation -I dev/porting/item-defaults.gradle -I dev/porting/checkstyle.gradle compileJava runGameTestServer checkPortJava --console=plain",
+        "./gradlew.bat -PportValidation -I dev/porting/checkstyle.gradle -I dev/porting/item-defaults-client.gradle compileJava runGameTestServer checkPortJava runClient --console=plain",
+        "git diff --check"
+      ],
+      "logs": {
+        "source_capture": "build/porting/client-item-defaults-reference.log",
+        "native_capture": "build/porting/client-item-defaults-native.log",
+        "data": "build/porting/data-item-defaults-final.log",
+        "focused": "build/porting/tests-item-defaults-focused.log",
+        "final": "build/porting/verify-item-defaults-final.log",
+        "comparison": "build/porting/item-defaults-parity-result.json",
+        "changes": "build/porting/item-default-property-changes.json"
+      },
+      "coverage": [
+        "Every source registered item has a native counterpart; final runtime rarity/max-stack/max-damage have no differences. Eternal, unbreakable and fire-resistance presence match source.",
+        "All mod-owned default components match after documented record/enum/field-name normalization; native trident mode equals the source absent-custom-model-data default.",
+        "Actual dropped eternal items resist cactus, lava and void damage; Infinite Collector also resists lava after removing the eternal component.",
+        "Actual eating checks effect amplifier/duration; real rod use cycles 3/5/7/9; block mining consumes two durability; guide attribute enumeration applies only in main hand."
+      ],
+      "limits": [
+        "Source empty Fluid Tank and Large Fluid Tank BLOCK_ENTITY_DATA defaults fail the old encoder because they lack an id; the native snapshot has no encoding errors. Their functional empty tank behavior was validated in earlier tank nodes.",
+        "Source armor and claw modifiers are supplied by older accessor/event APIs rather than default components; their effective-attribute comparison remains part of the wider audit.",
+        "Native consumable/remainder, enchantment and custom-model-data formats differ from 1.21 and are not blindly copied. Native vanilla sword instant-mining and creative-break rules remain.",
+        "All comparison dumps, scripts and tests remain local and ignored."
+      ]
+    },
+    "remaining": "Continue effective equipment-attribute and registry/resource behavior audits, then remaining rendering contexts including special-model foil. Whole-port completion remains unproven."
   }
 }

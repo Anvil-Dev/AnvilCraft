@@ -128,8 +128,9 @@ public abstract class HeavyHalberdItem extends Item implements ProjectileItem, I
         rules.add(Tool.Rule.minesAndDrops(HolderSet.direct(Blocks.COBWEB.builtInRegistryHolder()), 15.0F));
         rules.add(Tool.Rule.overrideSpeed(lookup.getOrThrow(BlockTags.SWORD_INSTANTLY_MINES), Float.MAX_VALUE));
         rules.add(Tool.Rule.overrideSpeed(lookup.getOrThrow(BlockTags.SWORD_EFFICIENT), 1.5F));
+        rules.add(Tool.Rule.deniesDrops(lookup.getOrThrow(material.incorrectBlocksForDrops())));
         rules.add(Tool.Rule.minesAndDrops(lookup.getOrThrow(BlockTags.MINEABLE_WITH_AXE), material.speed()));
-        return new Tool(rules, material.speed(), 1, false);
+        return new Tool(rules, 1.0F, 2, false);
     }
 
     public static HeavyHalberdMode getMode(ItemInstance stack) {
