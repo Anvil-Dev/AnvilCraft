@@ -4952,5 +4952,87 @@
       "Audit block-smear recipe IDs and runtime generation: source has 122 static JSON files, native has 63, with 38 filename matches. Identify actual behavior gaps before interpreting source-only files as missing recipes.",
       "Continue remaining gameplay/API and broader rendering compatibility/fidelity checks; this is not full-goal completion."
     ]
+  },
+  "block_smear_source_audit_2026_09_30": {
+    "source_commit": "cca4b2aac5328926fa88bc01d958d007ff6bfc2a",
+    "status": "source_grinding_recipes_and_complete_door_previews_ported",
+    "changes": [
+      "Add ceiling-mounted vanilla/ember/frost/royal/transcendence grindstone recipes for dewaxing, one-stage deoxidizing and log/wood stripping.",
+      "Generate transformations from native wax, weathering and axe-stripping mappings so 26.1 copper and wood additions participate.",
+      "Remove the source-removed moss/dirt grass conversion and its generated advancement.",
+      "Render closed upper and lower door halves together in the shared anchored preview, including correct block states in the model cache."
+    ],
+    "verification": {
+      "source_recipe_json_equal": 122,
+      "native_recipe_count": 190,
+      "native_additional_ids": 68,
+      "new_grinding_recipes": {
+        "dewax": 60,
+        "deoxidize": 45,
+        "strip": 23
+      },
+      "generated_added_recipes": 128,
+      "generated_added_advancements": 128,
+      "generated_removed_files": 2,
+      "focused_required_tests": 3,
+      "full_required_tests": 763,
+      "orientation_operation_cases": 180,
+      "commands": [
+        "./gradlew.bat -PportValidation -I dev/porting/checkstyle.gradle compileJava runData checkPortJava --console=plain",
+        "./gradlew.bat -PportValidation -I dev/porting/block-smear.gradle -I dev/porting/checkstyle.gradle compileJava runGameTestServer checkPortJava --console=plain",
+        "./gradlew.bat -PportValidation -I dev/porting/handbook-recipes-client.gradle -I dev/porting/checkstyle.gradle compileJava runGameTestServer runClient checkPortJava --console=plain",
+        "python dev/porting/verify_block_smear.py",
+        "python dev/porting/verify_handbook_visual.py",
+        "python dev/porting/verify_handbook_new.py",
+        "git diff --check"
+      ],
+      "logs": {
+        "data": "build/porting/data-block-smear-port.log",
+        "focused": "build/porting/tests-block-smear-focused-2.log",
+        "full": "build/porting/tests-block-smear-all-client.log",
+        "final_native_client": "build/porting/client-smear-preview-verified.log",
+        "source_client": "build/porting/client-smear-preview-reference.log"
+      },
+      "reports": [
+        "build/porting/block-smear-comparison.json",
+        "build/porting/handbook-visual-report.json",
+        "build/porting/handbook-new-comparison.json"
+      ],
+      "door_metrics": {
+        "door_lower": {
+          "native_pixels": 1481,
+          "source_pixels": 1477,
+          "silhouette_iou": 0.9972991222147198,
+          "mean_rgb_error": 21.194913346837723,
+          "different_pixels": 1481
+        },
+        "door_open": {
+          "native_pixels": 1481,
+          "source_pixels": 1477,
+          "silhouette_iou": 0.9972991222147198,
+          "mean_rgb_error": 21.194913346837723,
+          "different_pixels": 1481
+        },
+        "door_upper": {
+          "native_pixels": 1481,
+          "source_pixels": 1477,
+          "silhouette_iou": 0.9972991222147198,
+          "mean_rgb_error": 21.194913346837723,
+          "different_pixels": 1481
+        }
+      },
+      "coverage": [
+        "Every native grinding mapping is loaded, has all five ceiling-only tool alternatives and has its advancement.",
+        "Execute 180 tool/facing/operation combinations; reject floor and wall attachment without consuming inputs.",
+        "Real anvil event dispatch removes wax on the first landing and one oxidation stage on the next, retaining the grinder.",
+        "Door lower/upper/open input states produce identical complete closed previews in both versions; prior shared preview and WIP/handbook comparisons remain passing."
+      ],
+      "limits": [
+        "The full server suite preceded the final client-only batching/cache refinement; the final client run passed compilation and Checkstyle afterward.",
+        "Door silhouette IoU is about 0.9973: four boundary pixels differ, constrained to a one-pixel edge tolerance. Native shading/sampling remains unchanged globally.",
+        "The tests verify the source result block types and tool preservation; they do not introduce new block-property preservation semantics into recipe outcomes."
+      ]
+    },
+    "remaining": "Continue the global handbook page/framework audit and other unverified branch differences; the previously identified static block-smear recipe gap is resolved."
   }
 }

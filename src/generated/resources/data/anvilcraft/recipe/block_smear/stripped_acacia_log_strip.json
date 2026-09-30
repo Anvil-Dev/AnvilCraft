@@ -1,0 +1,25 @@
+{
+  "type": "anvilcraft:block_smear",
+  "inputs": [
+    {
+      "blocks": [
+        "minecraft:grindstone",
+        "anvilcraft:ember_grindstone",
+        "anvilcraft:frost_grindstone",
+        "anvilcraft:royal_grindstone",
+        "anvilcraft:transcendence_grindstone"
+      ],
+      "properties": [
+        {
+          "face": "ceiling"
+        }
+      ]
+    },
+    {
+      "blocks": "minecraft:acacia_log"
+    }
+  ],
+  "result": {
+    "block": "minecraft:stripped_acacia_log"
+  }
+}

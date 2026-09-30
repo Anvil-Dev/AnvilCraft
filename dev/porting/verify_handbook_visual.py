@@ -26,6 +26,9 @@ regions = {
     "anvil_trail": (900, 30, 1010, 110),
     "slots_and_items": (60, 450, 400, 580),
     "stacked_blocks": (500, 430, 630, 580),
+    "door_lower": (710, 425, 810, 575),
+    "door_open": (870, 425, 970, 575),
+    "door_upper": (1030, 425, 1130, 575),
 }
 for index, name in enumerate(["stone", "anvil", "scaffolding", "cauldron", "giant_anvil", "amplifier_north",
                               "amplifier_east", "amplifier_south", "amplifier_west"]):
@@ -47,10 +50,22 @@ for name, (left, top, right, bottom) in regions.items():
         "different_pixels": int(np.any(first != second, axis=2).sum()),
     }
     report["regions"][name] = metrics
-    assert np.array_equal(first_mask, second_mask), (name, metrics)
+    if name.startswith("door_"):
+        assert metrics["silhouette_iou"] >= 0.995, (name, metrics)
+        def expanded(mask):
+            padded = np.pad(mask, 1)
+            return np.logical_or.reduce([padded[dy:dy + mask.shape[0], dx:dx + mask.shape[1]]
+                                         for dy in range(3) for dx in range(3)])
+        assert np.all(~first_mask | expanded(second_mask)) and np.all(~second_mask | expanded(first_mask)), name
+    else:
+        assert np.array_equal(first_mask, second_mask), (name, metrics)
     if name in ("arrows", "explosion"):
         assert np.array_equal(first, second), (name, metrics)
+for image in (x, y):
+    assert np.array_equal(image[425:575, 710:810], image[425:575, 870:970])
+    assert np.array_equal(image[425:575, 710:810], image[425:575, 1030:1130])
 report["limits"] = [
+    "Door silhouettes allow only a one-pixel boundary difference with IoU at least 0.995; lower, upper and open input states must produce identical closed two-half previews.",
     "3D lighting, texture sampling and item colors retain the native renderer; RGB errors are reported, not hidden.",
     "The source helper background is placed behind negative-depth geometry; the original flat z=0 fixture clipped model faces.",
     "Recipe-gallery ingredients can cycle independently; exact screenshot assertions use the fixed helper page.",

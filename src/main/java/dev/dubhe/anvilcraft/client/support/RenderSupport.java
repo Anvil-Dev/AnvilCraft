@@ -12,6 +12,7 @@ import lombok.NoArgsConstructor;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.block.BlockAndTintGetter;
 import net.minecraft.client.renderer.block.BlockModelRenderState;
 import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
@@ -21,14 +22,17 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.util.LightCoordsUtil;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.level.block.DoorBlock;
 import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import org.joml.Matrix4f;
 import org.jspecify.annotations.Nullable;
 
 import java.util.LinkedHashMap;
 import java.util.Optional;
+import java.util.function.BiConsumer;
 
 // TODO:
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -78,6 +82,26 @@ public class RenderSupport {
 
     /** Draw a preview at an anchor with a fixed number of GUI pixels per block. */
     public static void renderBlockAt(GuiGraphicsExtractor graphics, BlockState block, float x, float y, float scale) {
+        if (block.getBlock() instanceof DoorBlock) {
+            BlockState closed = block.setValue(DoorBlock.OPEN, false);
+            var models = Minecraft.getInstance().getModelManager().getBlockStateModelSet();
+            BlockState lowerBlock = closed.setValue(DoorBlock.HALF, DoubleBlockHalf.LOWER);
+            BlockState upperBlock = closed.setValue(DoorBlock.HALF, DoubleBlockHalf.UPPER);
+            final var lower = RenderSupport.previewModel(models.get(lowerBlock), lowerBlock, false);
+            final var upper = RenderSupport.previewModel(models.get(upperBlock), upperBlock, false);
+            RenderSupport.renderModelsAt(graphics, x, y, scale, (collector, pose) -> {
+                pose.pushPose();
+                pose.translate(0, -1, 0);
+                lower.submitMultiLayer(pose, collector, LightCoordsUtil.FULL_BRIGHT, OverlayTexture.NO_OVERLAY, 0);
+                pose.popPose();
+                upper.submitMultiLayer(pose, collector, LightCoordsUtil.FULL_BRIGHT, OverlayTexture.NO_OVERLAY, 0);
+            });
+        } else {
+            RenderSupport.renderSingleBlockAt(graphics, block, x, y, scale);
+        }
+    }
+
+    private static void renderSingleBlockAt(GuiGraphicsExtractor graphics, BlockState block, float x, float y, float scale) {
         float size = 8 * scale;
         float fittedScale = 8 / (1 + (float) Math.sqrt(2) / 2);
         PoseStack.Pose pose = new PoseStack.Pose();
@@ -174,8 +198,18 @@ public class RenderSupport {
         var key = displayedModel == null ? null : WipBlockEntityRenderer.getModelKey(displayedModel);
         var body = key == null ? null : manager.getStandaloneModel(key);
         var shell = manager.getBlockStateModelSet().get(ModBlocks.WIP_BLOCK.getDefaultState());
-        final BlockModelRenderState bodyState = body == null ? null : RenderSupport.previewModel(body, false);
-        final BlockModelRenderState shellState = RenderSupport.previewModel(shell, true);
+        final BlockModelRenderState bodyState = body == null ? null
+            : RenderSupport.previewModel(body, ModBlocks.WIP_BLOCK.getDefaultState(), false);
+        final BlockModelRenderState shellState = RenderSupport.previewModel(shell, ModBlocks.WIP_BLOCK.getDefaultState(), true);
+        RenderSupport.renderModelsAt(graphics, x, y, scale, (collector, pose) -> {
+            if (bodyState != null) bodyState.submitMultiLayer(pose, collector, LightCoordsUtil.FULL_BRIGHT, OverlayTexture.NO_OVERLAY, 0);
+            shellState.submitMultiLayer(pose, collector, LightCoordsUtil.FULL_BRIGHT, OverlayTexture.NO_OVERLAY, 0);
+        });
+    }
+
+    private static void renderModelsAt(
+        GuiGraphicsExtractor graphics, float x, float y, float scale, BiConsumer<SubmitNodeCollector, PoseStack> draw
+    ) {
         PoseStack pose = new PoseStack();
         pose.scale(-1, 1, -1);
         pose.translate(-0.5, -0.5, 0);
@@ -192,29 +226,24 @@ public class RenderSupport {
         graphics.pose().scale(1 / resolution, 1 / resolution);
         GuiRenderExtras.submitStructure(graphics, BlockAndTintGetter.EMPTY, BlockPos.ZERO, BlockPos.ZERO,
             (x - extent) * resolution, (y - extent) * resolution, (x + extent) * resolution, (y + extent) * resolution,
-            scale * resolution, false, false, pose, (collector, modelPose) -> {
-                if (bodyState != null) {
-                    bodyState.submitMultiLayer(modelPose, collector, LightCoordsUtil.FULL_BRIGHT, OverlayTexture.NO_OVERLAY, 0);
-                }
-                shellState.submitMultiLayer(modelPose, collector, LightCoordsUtil.FULL_BRIGHT, OverlayTexture.NO_OVERLAY, 0);
-            });
+            scale * resolution, false, false, pose, draw);
         graphics.pose().popMatrix();
     }
 
-    private static BlockModelRenderState previewModel(BlockStateModel model, boolean translucent) {
-        PreviewModelKey key = new PreviewModelKey(model, translucent);
+    private static BlockModelRenderState previewModel(BlockStateModel model, BlockState state, boolean translucent) {
+        PreviewModelKey key = new PreviewModelKey(model, state, translucent);
         if (!RenderSupport.PREVIEW_MODELS.containsKey(key) && RenderSupport.PREVIEW_MODELS.size() >= RenderSupport.MAX_CACHE_SIZE) {
             RenderSupport.PREVIEW_MODELS.pollFirstEntry();
         }
         return RenderSupport.PREVIEW_MODELS.computeIfAbsent(key, entry -> {
             BlockModelRenderState result = new BlockModelRenderState();
-            entry.model().collectParts(BlockAndTintGetter.EMPTY, BlockPos.ZERO, ModBlocks.WIP_BLOCK.getDefaultState(),
+            entry.model().collectParts(BlockAndTintGetter.EMPTY, BlockPos.ZERO, entry.state(),
                 RandomSource.create(42), result.setupModel(new Matrix4f(), entry.translucent()));
             return result;
         });
     }
 
-    private record PreviewModelKey(BlockStateModel model, boolean translucent) {
+    private record PreviewModelKey(BlockStateModel model, BlockState state, boolean translucent) {
     }
 
     /** Draw a recipe preview using the source animation's anchor, scale and rotation. */

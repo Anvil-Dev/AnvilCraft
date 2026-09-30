@@ -15,7 +15,9 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.DoorBlock;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -65,6 +67,9 @@ public final class HandbookHelperPreview {
         block(context, Blocks.STONE.defaultBlockState(), 280, AgeratumUtil.getRenderY(232, 2));
         block(context, Blocks.GOLD_BLOCK.defaultBlockState(), 280, AgeratumUtil.getRenderY(232, 1));
         block(context, Blocks.DIAMOND_BLOCK.defaultBlockState(), 280, 232);
+        block(context, Blocks.COPPER_DOOR.defaultBlockState(), 380, 232);
+        block(context, Blocks.COPPER_DOOR.defaultBlockState().setValue(DoorBlock.OPEN, true), 460, 232);
+        block(context, Blocks.COPPER_DOOR.defaultBlockState().setValue(DoorBlock.HALF, DoubleBlockHalf.UPPER), 540, 232);
         graphics.pose().popMatrix();
     }
 
