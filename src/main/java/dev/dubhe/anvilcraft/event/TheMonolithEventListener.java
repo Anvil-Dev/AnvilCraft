@@ -4,6 +4,7 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.entity.celestial.CelestialTravelManager;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.entity.ModVillagers;
+import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.worldgen.TheMonolith;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
@@ -13,6 +14,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.ai.village.poi.PoiManager;
 import net.minecraft.world.entity.ai.village.poi.PoiRecord;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.portal.DimensionTransition;
@@ -92,6 +94,11 @@ public class TheMonolithEventListener {
         BlockState state = event.getLevel().getBlockState(event.getPos());
         if (!state.is(ModBlocks.MONOLITH.get()) && !state.is(ModBlocks.MONOLITH_LINE.get())
             && !state.is(ModBlocks.GIANT_MONOLITH_LINE.get())) return;
+        if (event.getEntity() instanceof Player player && player.isShiftKeyDown()) {
+            boolean mainEmpty = player.getMainHandItem().isEmpty();
+            boolean offEmpty = player.getOffhandItem().isEmpty() || player.getOffhandItem().is(ModItems.CRAB_CLAW.get());
+            if (!mainEmpty || !offEmpty) return;
+        }
         event.setCanceled(true);
         event.setCancellationResult(InteractionResult.SUCCESS);
         if (!(event.getEntity() instanceof ServerPlayer player) || !player.isAlive()) return;
