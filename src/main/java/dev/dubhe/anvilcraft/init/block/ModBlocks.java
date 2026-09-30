@@ -251,6 +251,7 @@ import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.item.SingularityCrystalItem;
 import dev.dubhe.anvilcraft.item.block.ChuteBlockItem;
+import dev.dubhe.anvilcraft.item.block.ConfinementChamberItem;
 import dev.dubhe.anvilcraft.item.block.CreativeContainerBlockItem;
 import dev.dubhe.anvilcraft.item.block.CursedBlockItem;
 import dev.dubhe.anvilcraft.item.block.EnchantedGoldBlockItem;
@@ -4497,10 +4498,16 @@ public class ModBlocks {
             ConfinementChamberBlock::new
         )
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.DRAGON_IMMUNE, BlockTags.WITHER_IMMUNE, ModBlockTags.COLLISION_IMMUNE)
-        .properties(PropertiesProviderUtil::confinedAnvilon)
+        .properties(properties -> PropertiesProviderUtil.confinedAnvilon(properties).pushReaction(PushReaction.DESTROY))
         .blockstate(DataGenUtil::onlyState)
-        .item()
-        .initialProperties(() -> new Item.Properties().fireResistant())
+        .loot((tables, block) -> tables.add(block, LootTable.lootTable()
+            .withPool(tables.applyExplosionCondition(block, LootPool.lootPool()
+                .setRolls(ConstantValue.exactly(1.0F))
+                .add(LootItem.lootTableItem(block)
+                    .apply(CopyComponentsFunction.copyComponentsFromBlockEntity(LootContextParams.BLOCK_ENTITY)
+                        .include(DataComponents.CONTAINER)))))))
+        .item(ConfinementChamberItem::new)
+        .initialProperties(() -> new Item.Properties().fireResistant().rarity(Rarity.EPIC))
         .tag(ModItemTags.EXPLOSION_PROOF)
         .build()
         .recipe(RegistrumBlockRecipeLoader::confinementChamber)

@@ -1,11 +1,13 @@
 package dev.dubhe.anvilcraft.client.init;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.client.gui.tooltip.ClientConfinementChamberTooltip;
 import dev.dubhe.anvilcraft.client.gui.tooltip.ClientCreativeContainerTooltip;
 import dev.dubhe.anvilcraft.client.gui.tooltip.ClientFilterTooltip;
 import dev.dubhe.anvilcraft.client.gui.tooltip.ClientFluidTankTooltip;
 import dev.dubhe.anvilcraft.client.gui.tooltip.ClientStoragePortTooltip;
 import dev.dubhe.anvilcraft.client.gui.tooltip.ClientStorageTooltip;
+import dev.dubhe.anvilcraft.inventory.tooltip.ConfinementChamberTooltip;
 import dev.dubhe.anvilcraft.inventory.tooltip.CreativeContainerTooltip;
 import dev.dubhe.anvilcraft.inventory.tooltip.FilterTooltip;
 import dev.dubhe.anvilcraft.inventory.tooltip.FluidTankTooltip;
@@ -22,6 +24,7 @@ public class ModTooltipComponents {
     @SubscribeEvent
     public static void register(RegisterClientTooltipComponentFactoriesEvent event) {
         event.register(FilterTooltip.class, ClientFilterTooltip::new);
+        event.register(ConfinementChamberTooltip.class, ClientConfinementChamberTooltip::new);
         event.register(CreativeContainerTooltip.class, ClientCreativeContainerTooltip::new);
         event.register(StoragePortTooltip.class, ClientStoragePortTooltip::new);
         event.register(StorageTooltip.class, ClientStorageTooltip::new);

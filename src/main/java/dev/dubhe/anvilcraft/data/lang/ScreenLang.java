@@ -835,5 +835,6 @@ public class ScreenLang {
         provider.add("tooltip.anvilcraft.shulker_container.hyperdimension.3", "This process is irreversible");
 
         provider.add("tooltip.anvilcraft.waiting", "Waiting for syncing");
+        provider.add("tooltip.anvilcraft.creative_crate.item", "Item:");
     }
 }

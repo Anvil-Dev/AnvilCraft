@@ -2474,6 +2474,7 @@
   "stat.anvilcraft.enter_power_grid": "电网进入次数",
   "stat.anvilcraft.place_power_component": "电网组件放置次数",
   "tooltip.anvilcraft.burning_heater.jade.burn_time": "燃烧时间：%s",
+  "tooltip.anvilcraft.creative_crate.item": "物品：",
   "tooltip.anvilcraft.creative_container.content": "内容：%s",
   "tooltip.anvilcraft.infinity": "无限",
   "tooltip.anvilcraft.jade.infinity": "∞",

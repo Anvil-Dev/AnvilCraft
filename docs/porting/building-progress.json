@@ -6203,5 +6203,51 @@
       ]
     },
     "remaining": "Continue the full source-only Java, registry, resource and runtime/rendering audits. This advancement node does not establish completion of the entire port."
+  },
+  "confinement_chamber_source_parity_2026_10_01": {
+    "source_commit": "cca4b2aac5328926fa88bc01d958d007ff6bfc2a",
+    "status": "implemented_and_verified",
+    "implementation": [
+      "Preserve chamber slot zero through CONTAINER components, survival/creative loot and placement, retaining count and item components. Remove the old loose-content removal path and irrelevant shulker-box loot override.",
+      "Restore source piston destruction behavior and epic item rarity.",
+      "Persist handler changes and provide inventory block updates, update tags and packets for initial client chunk loading.",
+      "Restore source item tooltip data/factory and the blue Item header with 16px icon, gray name and count; hide only the native duplicate container text.",
+      "Share Jade mod-name preparation between normal Screen tooltips and JEI, leaving final de-duplication and optional-mod gating intact; guide hints follow the mod name as in source."
+    ],
+    "validation": {
+      "focused_required_tests": 7,
+      "full_required_tests": 835,
+      "paired_client_tooltips": 3,
+      "commands": [
+        "./gradlew.bat -PportValidation compileJava runData --console=plain",
+        "./gradlew.bat -PportValidation -I dev/porting/confinement.gradle -I dev/porting/checkstyle.gradle compileJava runGameTestServer checkPortJava --console=plain",
+        "./gradlew.bat -PportValidation -I dev/porting/checkstyle.gradle compileJava runGameTestServer checkPortJava --console=plain",
+        "./gradlew.bat -PportValidation -I dev/porting/checkstyle.gradle -I dev/porting/confinement-client.gradle compileJava checkPortJava runClient --console=plain",
+        "./gradlew.bat -PportValidation -I dev/porting/checkstyle.gradle -I dev/porting/confinement-client.gradle -I dev/porting/no-jade.gradle compileJava checkPortJava runClient --console=plain",
+        "./gradlew.bat -PportValidation -I dev/porting/checkstyle.gradle compileJava runData checkPortJava --console=plain",
+        "git diff --check"
+      ],
+      "logs": {
+        "focused": "build/porting/tests-confinement-focused.log",
+        "full": "build/porting/tests-confinement-all-final.log",
+        "native_client": "build/porting/client-confinement-tooltip-final.log",
+        "source_client": "build/porting/client-confinement-reference.log",
+        "without_jade": "build/porting/client-confinement-no-jade.log",
+        "final_data": "build/porting/data-confinement-final.log",
+        "comparison": "build/porting/confinement-comparison.json"
+      },
+      "coverage": [
+        "Actual survival/creative player removal, empty creative removal, piston destruction, block-item placement, save/load, packet/update-tag round trips, tooltip snapshot isolation and slot-zero behavior.",
+        "Exactly one packed chamber and no loose duplicate contents; custom name/count survive removal and placement. Loot JSON equals source.",
+        "Paired empty/named-stack/named-tool screenshots and tooltip text/dimensions/rarity match source. Initial chunk content is verified by storing at a distant untracked position and teleporting into range.",
+        "A real client without the Jade runtime jar still loads, synchronizes the stored content and shows tooltips."
+      ],
+      "limits": [
+        "Focused behavior passed before import-order and local fixture line-length corrections; final full checks passed.",
+        "Tooltip screenshot comparison exposed ordinary Jade/Ageratum footer order. The shared compatibility fix was then verified in full and no-Jade clients.",
+        "The native vanilla item renderer is retained. All tests, fixtures, screenshots, scripts and logs remain local and ignored."
+      ]
+    },
+    "remaining": "Continue the confirmed creative-crate and creative-fluid-tank tooltip layout differences and inspect their item-renderer counterparts, then continue the broader source-only Java/resource/runtime audit."
   }
 }

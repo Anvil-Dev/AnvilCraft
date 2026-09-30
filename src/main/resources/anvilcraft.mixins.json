@@ -232,6 +232,7 @@
     "accessor.MultiPlayerGameModeAccessor",
     "accessor.ScreenAccessor",
     "compat.JadeTooltipMixin",
+    "compat.JadeScreenTooltipMixin",
     "compat.JeiJadeItemTooltipMixin",
     "client.ClientTextTooltipAccessor",
     "compat.SodiumBlockOcclusionCacheMixin",
