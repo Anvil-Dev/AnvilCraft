@@ -145,18 +145,24 @@ public class LargeCauldronBlockEntityRenderer implements BlockEntityRenderer<Lar
         MultiBufferSource buffers,
         int light
     ) {
-        List<FluidStack> layers = new ArrayList<>();
+        List<FluidStack> liquids = new ArrayList<>();
+        List<FluidStack> gases = new ArrayList<>();
         for (int tank = 0; tank < handler.getTanks(); tank++) {
             FluidStack fluid = handler.getFluidInTank(tank);
-            if (!fluid.isEmpty()) layers.add(fluid);
+            if (fluid.isEmpty()) continue;
+            if (fluid.getFluidType().isLighterThanAir()) {
+                gases.add(fluid);
+            } else {
+                liquids.add(fluid);
+            }
         }
 
-        float minY = MIN_Y;
         float totalCapacity = LargeCauldronFluidHandler.TANK_COUNT * LargeCauldronFluidHandler.TANK_CAPACITY;
-        for (FluidStack layer : layers) {
-            float maxY = minY + CONTENT_HEIGHT * layer.getAmount() / totalCapacity;
+        float minY = MIN_Y;
+        for (FluidStack liquid : liquids) {
+            float maxY = minY + CONTENT_HEIGHT * liquid.getAmount() / totalCapacity;
             FluidRenderHelper.INSTANCE.renderFluidBox(
-                layer,
+                liquid,
                 MIN_XZ,
                 minY,
                 MIN_XZ,
@@ -170,6 +176,31 @@ public class LargeCauldronBlockEntityRenderer implements BlockEntityRenderer<Lar
                 false
             );
             minY = maxY;
+        }
+        // 气体浮于液面之上：均分剩余空间成带，各自独立，储量由透明度表达（与储罐一致）
+        float contentTop = MIN_Y + CONTENT_HEIGHT;
+        if (!gases.isEmpty() && minY < contentTop) {
+            float bandHeight = (contentTop - minY) / gases.size();
+            float bandBottom = minY;
+            for (int i = 0; i < gases.size(); i++) {
+                FluidStack gas = gases.get(i);
+                float bandTop = Math.min(contentTop, bandBottom + bandHeight);
+                FluidRenderHelper.INSTANCE.renderFluidBox(
+                    gas,
+                    MIN_XZ,
+                    bandBottom,
+                    MIN_XZ,
+                    MAX_XZ,
+                    bandTop,
+                    MAX_XZ,
+                    buffers,
+                    pose,
+                    light,
+                    i == 0 && liquids.isEmpty(),
+                    (float) (gas.getAmount() / totalCapacity)
+                );
+                bandBottom = bandTop;
+            }
         }
         if (buffers instanceof MultiBufferSource.BufferSource source) source.endBatch();
     }

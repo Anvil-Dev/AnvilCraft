@@ -324,7 +324,7 @@ public class PipeNodeBlock extends PipeBlock {
         InteractionHand hand,
         BlockHitResult hitResult
     ) {
-        // 先处理止逆阀交互（加阀/翻转/在有阀臂上用扳手移除）
+        // 先处理止逆阀交互（手持止逆阀加阀/拆阀；主手为空时由 PipeBlock#useWithoutItem 拆阀）
         ItemInteractionResult valveResult = handleCheckValveInteraction(stack, state, level, pos, player, hitResult);
         if (valveResult != ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION) {
             return valveResult;
