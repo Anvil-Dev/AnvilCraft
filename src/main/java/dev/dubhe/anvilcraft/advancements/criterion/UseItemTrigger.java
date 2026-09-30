@@ -8,6 +8,7 @@ import net.minecraft.advancements.criterion.ContextAwarePredicate;
 import net.minecraft.advancements.criterion.EntityPredicate;
 import net.minecraft.advancements.criterion.ItemPredicate;
 import net.minecraft.advancements.criterion.SimpleCriterionTrigger;
+import net.minecraft.core.HolderGetter;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.Item;
 
@@ -31,6 +32,11 @@ public class UseItemTrigger extends SimpleCriterionTrigger<UseItemTrigger.Trigge
 
         public static Criterion<TriggerInstance> useItem() {
             return ModCriterionTriggers.USE_ITEM.get().createCriterion(new TriggerInstance(Optional.empty(), Optional.empty()));
+        }
+
+        public static Criterion<TriggerInstance> useItem(HolderGetter<Item> items, Item item) {
+            return ModCriterionTriggers.USE_ITEM.get().createCriterion(new TriggerInstance(
+                Optional.empty(), Optional.of(ItemPredicate.Builder.item().of(items, item).build())));
         }
 
         public boolean matches(Item item) {

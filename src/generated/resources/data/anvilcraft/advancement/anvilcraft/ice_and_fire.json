@@ -1,24 +1,59 @@
 {
   "parent": "anvilcraft:anvilcraft/forged_over_eons",
   "criteria": {
-    "frost_and_ember_workstations": {
+    "has_ember_anvil": {
       "conditions": {
         "items": [
           {
             "items": "anvilcraft:ember_anvil"
-          },
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_ember_grindstone": {
+      "conditions": {
+        "items": [
           {
             "items": "anvilcraft:ember_grindstone"
-          },
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_ember_smithing_table": {
+      "conditions": {
+        "items": [
           {
             "items": "anvilcraft:ember_smithing_table"
-          },
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_frost_anvil": {
+      "conditions": {
+        "items": [
           {
             "items": "anvilcraft:frost_anvil"
-          },
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_frost_grindstone": {
+      "conditions": {
+        "items": [
           {
             "items": "anvilcraft:frost_grindstone"
-          },
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_frost_smithing_table": {
+      "conditions": {
+        "items": [
           {
             "items": "anvilcraft:frost_smithing_table"
           }
@@ -31,6 +66,7 @@
     "description": {
       "translate": "advancements.anvilcraft.ice_and_fire.description"
     },
+    "frame": "challenge",
     "icon": {
       "id": "anvilcraft:ember_anvil"
     },
@@ -40,7 +76,22 @@
   },
   "requirements": [
     [
-      "frost_and_ember_workstations"
+      "has_ember_smithing_table"
+    ],
+    [
+      "has_ember_grindstone"
+    ],
+    [
+      "has_ember_anvil"
+    ],
+    [
+      "has_frost_smithing_table"
+    ],
+    [
+      "has_frost_grindstone"
+    ],
+    [
+      "has_frost_anvil"
     ]
   ],
   "sends_telemetry_event": true

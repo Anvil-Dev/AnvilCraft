@@ -7,7 +7,7 @@
           "items": "anvilcraft:geode"
         }
       },
-      "trigger": "minecraft:consume_item"
+      "trigger": "anvilcraft:use_item"
     }
   },
   "display": {

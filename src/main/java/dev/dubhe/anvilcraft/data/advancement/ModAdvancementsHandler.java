@@ -3,7 +3,6 @@ package dev.dubhe.anvilcraft.data.advancement;
 import dev.anvilcraft.lib.v2.registrum.providers.RegistrumAdvancementProvider;
 import dev.anvilcraft.lib.v2.util.predicate.BlockStatePredicate;
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.advancements.criterion.ConnectFluidContainersTrigger;
 import dev.dubhe.anvilcraft.api.advancement.AdvancementLineHelper;
 import dev.dubhe.anvilcraft.block.entity.HeatCollectorBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlockTags;
@@ -96,7 +95,7 @@ public class ModAdvancementsHandler {
                 Component.translatable("advancements.anvilcraft.geode.description"),
                 AdvancementType.TASK
             )
-            .consumeItem("use_geode", itemLookup, ModItems.GEODE)
+            .useItem("use_geode", itemLookup, ModItems.GEODE)
             .save(provider, "geode");
         AdvancementHolder amethystPickaxe = geodeLine.next()
             .display(
@@ -114,7 +113,7 @@ public class ModAdvancementsHandler {
                 Component.translatable("advancements.anvilcraft.topaz.description"),
                 AdvancementType.GOAL
             )
-            .consumeItem("use_topaz", itemLookup, ModItems.TOPAZ)
+            .useItem("use_topaz", itemLookup, ModItems.TOPAZ)
             .save(provider, "topaz");
         AdvancementHolder liftingAnvil = geodeLine.next()
             .display(
@@ -370,7 +369,7 @@ public class ModAdvancementsHandler {
                 Component.translatable("advancements.anvilcraft.water_flows_downhill.description"),
                 AdvancementType.TASK
             )
-            .addCriterion("connect_fluid_containers", ConnectFluidContainersTrigger.TriggerInstance.connectFluidContainers())
+            .pipeConnectContainers("pipe_connect_containers")
             .save(provider, "water_flows_downhill");
 
         AdvancementHolder nobleMetal = mainLine.next()
@@ -395,6 +394,7 @@ public class ModAdvancementsHandler {
             .save(provider, "overseer");
 
         AdvancementHolder smithingTable = mainLine.next()
+            .parent(overseer)
             .display(
                 ModBlocks.ROYAL_SMITHING_TABLE,
                 Component.translatable("advancements.anvilcraft.smithing_table.title"),
@@ -517,18 +517,14 @@ public class ModAdvancementsHandler {
                 ModBlocks.EMBER_ANVIL,
                 Component.translatable("advancements.anvilcraft.ice_and_fire.title"),
                 Component.translatable("advancements.anvilcraft.ice_and_fire.description"),
-                AdvancementType.TASK
+                AdvancementType.CHALLENGE
             )
-            .requireAny()
-            .hasItems(
-                "frost_and_ember_workstations",
-                ModBlocks.EMBER_ANVIL,
-                ModBlocks.EMBER_GRINDSTONE,
-                ModBlocks.EMBER_SMITHING_TABLE,
-                ModBlocks.FROST_ANVIL,
-                ModBlocks.FROST_GRINDSTONE,
-                ModBlocks.FROST_SMITHING_TABLE
-            )
+            .hasItems("has_ember_smithing_table", ModBlocks.EMBER_SMITHING_TABLE)
+            .hasItems("has_ember_grindstone", ModBlocks.EMBER_GRINDSTONE)
+            .hasItems("has_ember_anvil", ModBlocks.EMBER_ANVIL)
+            .hasItems("has_frost_smithing_table", ModBlocks.FROST_SMITHING_TABLE)
+            .hasItems("has_frost_grindstone", ModBlocks.FROST_GRINDSTONE)
+            .hasItems("has_frost_anvil", ModBlocks.FROST_ANVIL)
             .save(provider, "ice_and_fire");
 
         AdvancementHolder selfInFlaming = emberLine.next()
@@ -591,7 +587,7 @@ public class ModAdvancementsHandler {
                 ModBlocks.HEAT_COLLECTOR,
                 Component.translatable("advancements.anvilcraft.nuclear_power_10a.title"),
                 Component.translatable("advancements.anvilcraft.nuclear_power_10a.description"),
-                AdvancementType.GOAL
+                AdvancementType.CHALLENGE
             )
             .heatCollectOn("collect_overheated", BlockStatePredicate.builder().of(blockLookup, ModBlockTags.OVERHEATED_BLOCKS))
             .save(provider, "nuclear_power_10a");
@@ -633,7 +629,7 @@ public class ModAdvancementsHandler {
                 Component.translatable("advancements.anvilcraft.void_generate_energy.description"),
                 AdvancementType.TASK
             )
-            .voidCollectorWork("void_collector_work")
+            .voidEnergyCollectorWorking("void_energy_collector_working")
             .save(provider, "void_generate_energy");
 
         AdvancementLineHelper mengerSpongeLine = oreLine.createBranch();
@@ -646,6 +642,12 @@ public class ModAdvancementsHandler {
             )
             .hasItems("has_menger_sponge", ModBlocks.MENGER_SPONGE)
             .save(provider, "saikou_scrubber");
+        mengerSpongeLine.createBranch().next()
+            .display(ModBlocks.MENGER_SPONGE,
+                Component.translatable("advancements.anvilcraft.understand_fractals.title"),
+                Component.translatable("advancements.anvilcraft.understand_fractals.description"), AdvancementType.TASK, true)
+            .inWorldRecipeAnc("menger_sponge_2", "multiblock/menger_sponge_2")
+            .save(provider, "understand_fractals");
         AdvancementHolder infinityCapacity = mengerSpongeLine.next()
             .display(
                 ModBlocks.LARGE_FLUID_TANK,
@@ -653,7 +655,7 @@ public class ModAdvancementsHandler {
                 Component.translatable("advancements.anvilcraft.infinity_capacity.description"),
                 AdvancementType.CHALLENGE
             )
-            .hasItems("has_menger_sponge", ModBlocks.MENGER_SPONGE)
+            .multiBlockForm("multi_block_form")
             .save(provider, "infinity_capacity");
 
         AdvancementLineHelper neutronLine = oreLine.createBranch();
@@ -664,7 +666,7 @@ public class ModAdvancementsHandler {
                 Component.translatable("advancements.anvilcraft.shulker_box_within_shulker_box.description"),
                 AdvancementType.TASK
             )
-            .hasItems("has_menger_sponge", ModBlocks.MENGER_SPONGE)
+            .hasItems("has_space_overcompressor", ModBlocks.SPACE_OVERCOMPRESSOR)
             .save(provider, "shulker_box_within_shulker_box");
         AdvancementHolder spoonOfNeutronStar = neutronLine.next()
             .display(
@@ -673,7 +675,7 @@ public class ModAdvancementsHandler {
                 Component.translatable("advancements.anvilcraft.spoon_of_neutron_star.description"),
                 AdvancementType.GOAL
             )
-            .hasItems("has_menger_sponge", ModBlocks.MENGER_SPONGE)
+            .hasItems("has_neutronium_ingot", ModItems.NEUTRONIUM_INGOT)
             .save(provider, "spoon_of_neutron_star");
 
         AdvancementHolder giantAge = mainLine.next()
@@ -751,7 +753,7 @@ public class ModAdvancementsHandler {
 
         AdvancementHolder electricAllergy = mainLine.createBranch().next()
             .display(
-                ModBlocks.TRANSCENDENCE_ANVIL,
+                ModBlocks.CELESTIAL_FORGING_ANVIL,
                 Component.translatable("advancements.anvilcraft.electric_allergy.title"),
                 Component.translatable("advancements.anvilcraft.electric_allergy.description"),
                 AdvancementType.CHALLENGE

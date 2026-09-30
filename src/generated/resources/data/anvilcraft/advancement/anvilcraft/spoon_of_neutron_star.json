@@ -1,11 +1,11 @@
 {
   "parent": "anvilcraft:anvilcraft/shulker_box_within_shulker_box",
   "criteria": {
-    "has_menger_sponge": {
+    "has_neutronium_ingot": {
       "conditions": {
         "items": [
           {
-            "items": "anvilcraft:menger_sponge"
+            "items": "anvilcraft:neutronium_ingot"
           }
         ]
       },
@@ -26,7 +26,7 @@
   },
   "requirements": [
     [
-      "has_menger_sponge"
+      "has_neutronium_ingot"
     ]
   ],
   "sends_telemetry_event": true

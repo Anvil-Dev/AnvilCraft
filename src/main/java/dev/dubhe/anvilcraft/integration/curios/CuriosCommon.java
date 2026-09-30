@@ -4,6 +4,7 @@ import dev.anvilcraft.lib.v2.integration.Integration;
 import dev.anvilcraft.lib.v2.integration.IntegrationHook;
 import dev.anvilcraft.lib.v2.util.InventoryUtil;
 import dev.dubhe.anvilcraft.api.event.AmuletEvent;
+import dev.dubhe.anvilcraft.event.PlayerWearAnvilHammerEventListener;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.item.armor.IonoCraftBackpackItem;
@@ -17,6 +18,7 @@ import net.neoforged.neoforge.common.NeoForge;
 import top.theillusivec4.curios.api.CuriosApi;
 import top.theillusivec4.curios.api.CuriosCapability;
 import top.theillusivec4.curios.api.SlotResult;
+import top.theillusivec4.curios.api.event.CurioChangeEvent;
 import top.theillusivec4.curios.api.type.capability.ICuriosItemHandler;
 
 import java.util.List;
@@ -28,6 +30,8 @@ public class CuriosCommon {
         modEventBus.addListener(this::setup);
         modEventBus.addListener(this::registerCapabilities);
         NeoForge.EVENT_BUS.addListener(this::findFromCurios);
+        NeoForge.EVENT_BUS.addListener((CurioChangeEvent.Item event) -> this.onPlayerWearAnvilHammerInCurioSlot(event));
+        NeoForge.EVENT_BUS.addListener((CurioChangeEvent.State event) -> this.onPlayerWearAnvilHammerInCurioSlot(event));
     }
 
     private void setup(FMLCommonSetupEvent event) {
@@ -60,6 +64,10 @@ public class CuriosCommon {
             ModItems.TRANSCENDENCE_ANVIL_HAMMER,
             ModItems.IONOCRAFT_BACKPACK
         );
+    }
+
+    private void onPlayerWearAnvilHammerInCurioSlot(CurioChangeEvent event) {
+        PlayerWearAnvilHammerEventListener.tryTrigger(event.getEntity(), event.getTo());
     }
 
     private void findFromCurios(AmuletEvent.Find event) {

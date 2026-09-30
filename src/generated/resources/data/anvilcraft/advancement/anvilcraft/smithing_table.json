@@ -1,5 +1,5 @@
 {
-  "parent": "anvilcraft:anvilcraft/noble_metal",
+  "parent": "anvilcraft:anvilcraft/overseer",
   "criteria": {
     "craft_smithing": {
       "conditions": {

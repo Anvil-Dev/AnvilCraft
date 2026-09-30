@@ -12,6 +12,7 @@ import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.block.ModMultiblockDefinitions;
 import dev.dubhe.anvilcraft.util.BlockEntityItemUtil;
 import dev.dubhe.anvilcraft.util.TankUtil;
+import dev.dubhe.anvilcraft.util.TriggerUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
@@ -230,6 +231,7 @@ public class LargeFluidTankBlock
     @Override
     public void onFormed(Level level, MultiblockState state) {
         if (!TankUtil.isMengerStructure(level, state.getControllerPos(), 9)) return;
+        TriggerUtil.multiBlockForm(level, state.getControllerPos());
         level.getBlockEntity(state.getControllerPos(), ModBlockEntities.LARGE_FLUID_TANK.get())
             .ifPresent(LargeFluidTankBlockEntity::onFormed);
     }

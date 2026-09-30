@@ -21,10 +21,15 @@ import dev.dubhe.anvilcraft.advancements.criterion.InWorldRecipeTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.MagnetLiftingAnvilTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.MilkTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.MineralFountainCreateTrigger;
+import dev.dubhe.anvilcraft.advancements.criterion.MultiBlockFormTrigger;
+import dev.dubhe.anvilcraft.advancements.criterion.PipeConnectContainersTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.PlacerPlaceTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.PlacerShuttleTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.PlayerKilledEntityByAnvilHammerTrigger;
+import dev.dubhe.anvilcraft.advancements.criterion.PlayerWearAnvilHammerTrigger;
+import dev.dubhe.anvilcraft.advancements.criterion.UseItemTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.VoidCollectorTrigger;
+import dev.dubhe.anvilcraft.advancements.criterion.VoidEnergyCollectorWorkingTrigger;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.advancements.AdvancementHolder;
 import net.minecraft.advancements.AdvancementRequirements;
@@ -95,6 +100,11 @@ public class AdvancementLineHelper {
             this.lineHelper = lineHelper;
             this.current = Advancement.Builder.advancement();
             if (lineHelper.parent != null) this.current.parent(lineHelper.parent);
+        }
+
+        public AdvancementHelper parent(AdvancementHolder parent) {
+            this.current.parent(parent);
+            return this;
         }
 
         public AdvancementHelper display(
@@ -243,6 +253,26 @@ public class AdvancementLineHelper {
                 );
             }
             return this;
+        }
+
+        public AdvancementHelper multiBlockForm(String key) {
+            return this.addCriterion(key, MultiBlockFormTrigger.TriggerInstance.form());
+        }
+
+        public AdvancementHelper playerWearAnvilHammer(String key) {
+            return this.addCriterion(key, PlayerWearAnvilHammerTrigger.TriggerInstance.wear());
+        }
+
+        public AdvancementHelper pipeConnectContainers(String key) {
+            return this.addCriterion(key, PipeConnectContainersTrigger.TriggerInstance.connect());
+        }
+
+        public AdvancementHelper voidEnergyCollectorWorking(String key) {
+            return this.addCriterion(key, VoidEnergyCollectorWorkingTrigger.TriggerInstance.collect());
+        }
+
+        public AdvancementHelper useItem(String key, HolderGetter<Item> items, ItemLike item) {
+            return this.addCriterion(key, UseItemTrigger.TriggerInstance.useItem(items, item.asItem()));
         }
 
         public AdvancementHelper consumeItem(String key, HolderGetter<Item> items, ItemLike item) {

@@ -49,6 +49,7 @@
     "BeaconMenuMixin",
     "BlockBehaviourMixin",
     "BlockItemMixin",
+    "ItemMixin",
     "BlockMixin",
     "BlockPlaceContextMixin",
     "BlockStateMixin",

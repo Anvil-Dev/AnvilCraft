@@ -143,6 +143,7 @@ public class TriggerUtil {
         if (!level.isClientSide()) {
             for (ServerPlayer player : PlayerUtil.searchPlayerByPos(level, pos, 5)) {
                 ModCriterionTriggers.CONNECT_FLUID_CONTAINERS.get().trigger(player);
+                ModCriterionTriggers.PIPE_CONNECT_CONTAINERS.get().trigger(player);
             }
         }
     }
@@ -167,6 +168,7 @@ public class TriggerUtil {
         if (!level.isClientSide()) {
             for (ServerPlayer player : PlayerUtil.searchPlayerByPos(level, pos, 7)) {
                 ModCriterionTriggers.VOID_COLLECTOR_COLLECT.get().trigger(player);
+                ModCriterionTriggers.VOID_ENERGY_COLLECTOR_WORKING.get().trigger(player);
             }
         }
     }
@@ -194,4 +196,37 @@ public class TriggerUtil {
             }
         }
     }
+
+    public static void playerWearAnvilHammer(Level level, BlockPos pos) {
+        if (!level.isClientSide()) {
+            for (ServerPlayer player : PlayerUtil.searchPlayerByPos(level, pos, 5)) {
+                ModCriterionTriggers.PLAYER_WEAR_ANVIL_HAMMER.get().trigger(player);
+            }
+        }
+    }
+
+    public static void pipeConnectContainers(Level level, BlockPos pos) {
+        if (!level.isClientSide()) {
+            for (ServerPlayer player : PlayerUtil.searchPlayerByPos(level, pos, 5)) {
+                ModCriterionTriggers.PIPE_CONNECT_CONTAINERS.get().trigger(player);
+            }
+        }
+    }
+
+    public static void voidEnergyCollectorWorking(Level level, BlockPos pos) {
+        if (!level.isClientSide()) {
+            for (ServerPlayer player : PlayerUtil.searchPlayerByPos(level, pos, 7)) {
+                ModCriterionTriggers.VOID_ENERGY_COLLECTOR_WORKING.get().trigger(player);
+            }
+        }
+    }
+
+    public static void multiBlockForm(Level level, BlockPos pos) {
+        if (!level.isClientSide()) {
+            for (ServerPlayer player : PlayerUtil.searchPlayerByPos(level, pos, 7)) {
+                ModCriterionTriggers.MULTI_BLOCK_FORM.get().trigger(player);
+            }
+        }
+    }
+
 }
