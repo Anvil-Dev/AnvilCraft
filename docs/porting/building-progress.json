@@ -6249,5 +6249,49 @@
       ]
     },
     "remaining": "Continue the confirmed creative-crate and creative-fluid-tank tooltip layout differences and inspect their item-renderer counterparts, then continue the broader source-only Java/resource/runtime audit."
+  },
+  "creative_container_display_parity_2026_10_01": {
+    "source_commit": "cca4b2aac5328926fa88bc01d958d007ff6bfc2a",
+    "status": "implemented_and_verified",
+    "implementation": [
+      "Register a native creative-crate special item model that renders the shell and stored item on all six faces.",
+      "Share the exact source face translations, 0.8 scale and rotations between item and block-entity rendering; restore source world-level model context and seed.",
+      "Generalize the existing cached block-shell renderer for creative crates and the three existing fluid-tank renderers without changing fluid shell geometry.",
+      "Restore blue Item/Fluid headers, 16px icons, gray names and infinity marks using native stored-item/fluid components; retain multiple native fluid entries and handle untinted fluid icons.",
+      "Restore source epic rarity for both creative containers. The iron-tool block tag was inspected and already aligned."
+    ],
+    "validation": {
+      "full_required_tests": 835,
+      "paired_gui_items": 5,
+      "paired_tooltips": 3,
+      "paired_world_faces": 6,
+      "commands": [
+        "./gradlew.bat -PportValidation compileJava runData --console=plain",
+        "./gradlew.bat -PportValidation -I dev/porting/checkstyle.gradle -I dev/porting/creative-display-client.gradle compileJava checkPortJava runClient --console=plain",
+        "./gradlew.bat -PportValidation -I dev/porting/checkstyle.gradle -I dev/porting/creative-display-client.gradle -I dev/porting/creative-display-reload.gradle compileJava checkPortJava runClient --console=plain",
+        "./gradlew.bat -PportValidation -I dev/porting/checkstyle.gradle -I dev/porting/creative-display-client.gradle -I dev/porting/creative-display-tips.gradle compileJava runGameTestServer checkPortJava runClient --console=plain",
+        "git diff --check"
+      ],
+      "logs": {
+        "data": "build/porting/data-creative-display-final.log",
+        "native_client": "build/porting/client-creative-display-native-2.log",
+        "source_client": "build/porting/client-creative-display-reference.log",
+        "reload": "build/porting/client-creative-display-reload.log",
+        "final": "build/porting/verify-creative-display-final-2.log",
+        "comparison": "build/porting/creative-display-comparison.json"
+      },
+      "coverage": [
+        "Paired GUI gallery includes empty crate, pickaxe crate, stone crate, water tank and lava tank.",
+        "Actual world screenshots from north/south/east/west/top/bottom match source stored-item orientation and size.",
+        "Three content tooltip dimensions and text match source except the native Shift modifier label; final client verifies epic rarity.",
+        "Resource reload preserves identical pixels in the three static crate gallery regions; shell cache/model rebaking remains functional."
+      ],
+      "limits": [
+        "Native vanilla lighting, sky and animated fluid frames remain; the native modifier label is Shift while source says Left Shift.",
+        "An initial local preview read the next scene index during a screen transition; storing the screen index repaired the fixture. A reload-fixture line-length violation was corrected before final successful validation.",
+        "All tests, fixtures, screenshots and comparison artifacts remain local and ignored. No shader-pack or universal item-context compatibility claim is made."
+      ]
+    },
+    "remaining": "Continue registry/default-property and source-only resource audits. Broader special-item contexts, including outer-shell foil and nested special displays, remain part of the rendering completion audit."
   }
 }

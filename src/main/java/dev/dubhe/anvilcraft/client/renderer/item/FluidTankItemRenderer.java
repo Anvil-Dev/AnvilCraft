@@ -16,7 +16,7 @@ import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import org.jspecify.annotations.Nullable;
 
 /// 在物品形态的流体储罐里额外渲染出内部流体
-public class FluidTankItemRenderer extends BaseFluidTankItemRenderer {
+public class FluidTankItemRenderer extends BaseBlockItemRenderer<FluidTankItemRenderState> {
     public FluidTankItemRenderer() {
         super(ModBlocks.FLUID_TANK.get().defaultBlockState(), 0.0F, 1.0F);
     }

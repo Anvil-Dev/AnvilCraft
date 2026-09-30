@@ -1,6 +1,9 @@
 {
   "model": {
-    "type": "minecraft:model",
-    "model": "anvilcraft:block/creative_crate"
+    "type": "minecraft:special",
+    "base": "anvilcraft:block/creative_crate",
+    "model": {
+      "type": "anvilcraft:creative_crate"
+    }
   }
 }

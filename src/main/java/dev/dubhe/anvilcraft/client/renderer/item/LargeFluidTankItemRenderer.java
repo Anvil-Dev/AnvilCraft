@@ -15,7 +15,7 @@ import net.minecraft.world.item.ItemStack;
 import org.jspecify.annotations.Nullable;
 
 /// 在物品形态的大型储罐里按高度分层渲染多种流体
-public class LargeFluidTankItemRenderer extends BaseFluidTankItemRenderer {
+public class LargeFluidTankItemRenderer extends BaseBlockItemRenderer<FluidTankItemRenderState> {
     public LargeFluidTankItemRenderer() {
         super(
             ModBlocks.LARGE_FLUID_TANK.get().defaultBlockState()

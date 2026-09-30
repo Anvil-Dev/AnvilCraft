@@ -239,6 +239,7 @@ import dev.dubhe.anvilcraft.block.workstation.frost.FrostSmithingTableBlock;
 import dev.dubhe.anvilcraft.block.workstation.royal.RoyalAnvilBlock;
 import dev.dubhe.anvilcraft.block.workstation.royal.RoyalGrindstoneBlock;
 import dev.dubhe.anvilcraft.block.workstation.royal.RoyalSmithingTableBlock;
+import dev.dubhe.anvilcraft.client.renderer.item.CreativeCrateItemRenderer;
 import dev.dubhe.anvilcraft.client.renderer.item.CreativeFluidTankItemRenderer;
 import dev.dubhe.anvilcraft.client.renderer.item.FluidTankItemRenderer;
 import dev.dubhe.anvilcraft.client.renderer.item.LargeFluidTankItemRenderer;
@@ -576,6 +577,7 @@ public class ModBlocks {
             )
         ))
         .item(CreativeContainerBlockItem::new)
+        .properties(properties -> properties.rarity(Rarity.EPIC))
         .model(() -> (ctx, generator) -> generator.itemModelOutput.accept(ctx.get(),
             ItemModelUtils.specialModel(ctx.getId().withPrefix("block/"), CreativeFluidTankItemRenderer.Unbaked.INSTANCE)))
         .build()
@@ -665,6 +667,9 @@ public class ModBlocks {
                 BlockModelGenerators.plainVariant(ctx.getId().withPrefix("block/"))
             )))
         .item(CreativeContainerBlockItem::new)
+        .properties(properties -> properties.rarity(Rarity.EPIC))
+        .model(() -> (ctx, generator) -> generator.itemModelOutput.accept(ctx.get(),
+            ItemModelUtils.specialModel(ctx.getId().withPrefix("block/"), CreativeCrateItemRenderer.Unbaked.INSTANCE)))
         .build()
         .register();
 

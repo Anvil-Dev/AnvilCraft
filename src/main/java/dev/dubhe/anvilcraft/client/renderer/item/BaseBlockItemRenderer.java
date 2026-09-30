@@ -1,7 +1,6 @@
 package dev.dubhe.anvilcraft.client.renderer.item;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import dev.dubhe.anvilcraft.client.renderer.item.state.FluidTankItemRenderState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.block.BlockAndTintGetter;
@@ -18,7 +17,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.function.Consumer;
 
-abstract class BaseFluidTankItemRenderer implements SpecialModelRenderer<FluidTankItemRenderState> {
+abstract class BaseBlockItemRenderer<T> implements SpecialModelRenderer<T> {
     private static final long MODEL_SEED = 42L;
 
     private final BlockState shellState;
@@ -27,7 +26,7 @@ abstract class BaseFluidTankItemRenderer implements SpecialModelRenderer<FluidTa
     private final BlockModelRenderState shellRenderState = new BlockModelRenderState();
     private @Nullable BlockStateModel shellModel;
 
-    protected BaseFluidTankItemRenderer(BlockState shellState, float minExtent, float maxExtent) {
+    protected BaseBlockItemRenderer(BlockState shellState, float minExtent, float maxExtent) {
         this.shellState = shellState;
         this.minExtent = minExtent;
         this.maxExtent = maxExtent;
@@ -50,7 +49,7 @@ abstract class BaseFluidTankItemRenderer implements SpecialModelRenderer<FluidTa
                 BlockAndTintGetter.EMPTY,
                 BlockPos.ZERO,
                 this.shellState,
-                RandomSource.create(BaseFluidTankItemRenderer.MODEL_SEED),
+                RandomSource.create(BaseBlockItemRenderer.MODEL_SEED),
                 this.shellRenderState.setupModel(new Matrix4f(), false)
             );
             this.shellModel = model;
