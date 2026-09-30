@@ -5077,5 +5077,138 @@
       "visual_review": "Both final screenshots show one complete negative enchanting-power row. Source panel is 137x38 GUI units; native panel is 133x34, retaining native Jade padding."
     },
     "remaining": "Continue the global handbook page/framework audit, source sliding-extension API audit, and other visual/gameplay gaps. Honey fog remains a confirmed source/native difference."
+  },
+  "fluid_fog_source_parity_2026_09_30": {
+    "source_commit": "cca4b2aac5328926fa88bc01d958d007ff6bfc2a",
+    "status": "implemented_and_verified",
+    "implementation": [
+      "Restore source honey fog RGB 0xFFB82E and range 2.0 instead of the old native RGB 0xFFC200 and range 1.0.",
+      "Apply custom fluid fog range to native skyEnd and cloudEnd as well as cylindrical render distance, preventing clear sky/clouds from leaking through opaque fluid fog.",
+      "Keep no-fog, spectator and null-camera-entity bypasses unchanged."
+    ],
+    "validation": {
+      "registered_extensions": 29,
+      "paired_client_scenes": 7,
+      "callback_cases_per_version": 203,
+      "commands": [
+        "./gradlew.bat -PportValidation -I dev/porting/fluid-fog-client.gradle -I dev/porting/checkstyle.gradle compileJava runClient checkPortJava --console=plain",
+        "python dev/porting/prepare_fluid_fog_reference.py",
+        "./gradlew.bat runClient --console=plain (reference checkout)",
+        "python dev/porting/verify_fluid_fog.py",
+        "git diff --check"
+      ],
+      "logs": {
+        "native": "build/porting/client-fluid-fog-native-final.log",
+        "source": "build/porting/client-fluid-fog-reference.log"
+      },
+      "report": "build/porting/fluid-fog-comparison.json",
+      "coverage": [
+        "Compare real registered color and distance callbacks for all 29 extensions across seven paired camera scenes.",
+        "Assert native sky/cloud distances and preserve sentinel values for no-fog and spectator cases.",
+        "Paired screenshots cover honey, oil, experience, molten gem, no-fog, spectator and honey after resource reload.",
+        "Fully fogged far-wall and sky-gap pixels match source within one channel value; honey plateau is exactly RGB 255,184,46.",
+        "Inspect final honey screenshots: the clear native sky stripe seen before the shared-layer fix is gone."
+      ],
+      "metrics": {
+        "honey": {
+          "mean_rgb_error": 1.359521484375,
+          "far_wall_native_rgb": [
+            255.0,
+            184.0,
+            46.0
+          ],
+          "far_wall_source_rgb": [
+            255.0,
+            184.0,
+            46.0
+          ]
+        },
+        "oil": {
+          "mean_rgb_error": 0.0,
+          "far_wall_native_rgb": [
+            27.0,
+            6.0,
+            31.0
+          ],
+          "far_wall_source_rgb": [
+            27.0,
+            6.0,
+            31.0
+          ]
+        },
+        "experience": {
+          "mean_rgb_error": 0.0,
+          "far_wall_native_rgb": [
+            193.0,
+            232.0,
+            169.0
+          ],
+          "far_wall_source_rgb": [
+            193.0,
+            232.0,
+            169.0
+          ]
+        },
+        "melt-gem": {
+          "mean_rgb_error": 1.3491019241898148,
+          "far_wall_native_rgb": [
+            183.0,
+            238.0,
+            222.0
+          ],
+          "far_wall_source_rgb": [
+            183.0,
+            238.0,
+            222.0
+          ]
+        },
+        "no-fog": {
+          "mean_rgb_error": 51.77818793402778,
+          "far_wall_native_rgb": [
+            180.25891666666666,
+            165.1275,
+            161.317
+          ],
+          "far_wall_source_rgb": [
+            102.15191666666666,
+            93.41566666666667,
+            91.053
+          ]
+        },
+        "spectator": {
+          "mean_rgb_error": 48.88301938657408,
+          "far_wall_native_rgb": [
+            183.05133333333333,
+            170.06425,
+            164.8455
+          ],
+          "far_wall_source_rgb": [
+            103.34441666666666,
+            95.95625,
+            93.37425
+          ]
+        },
+        "honey-reloaded": {
+          "mean_rgb_error": 1.1844574652777777,
+          "far_wall_native_rgb": [
+            255.0,
+            184.0,
+            46.0
+          ],
+          "far_wall_source_rgb": [
+            255.0,
+            184.0,
+            46.0
+          ]
+        }
+      },
+      "limits": [
+        "Honey is unplaceable in both versions. The development-only scene invokes real fluid extension hooks at viewport events; this is not a natural honey-submersion gameplay test.",
+        "1.21 fog.glsl uses smoothstep while 26.1 uses linear interpolation. Native fog interpolation and world lighting remain intact; near-wall pixels differ.",
+        "No-fog and spectator screenshots retain native world/sky rendering and are not pixel-equality gates.",
+        "No generated resources changed, so runData was not needed. This client-only change uses client checks; the latest full server baseline remains 764 from the preceding node."
+      ]
+    },
+    "remaining": "Continue global handbook pages/framework, sliding-extension APIs, and remaining gameplay/rendering audits."
   }
 }

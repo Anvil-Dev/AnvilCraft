@@ -172,6 +172,10 @@ public final class PortVisualScene {
             if (prepared) LargeTankLayersClientScene.frame(client);
             return;
         }
+        if (Boolean.getBoolean("anvilcraft.portFluidFogScene")) {
+            if (prepared) FluidFogClientScene.frame(client);
+            return;
+        }
         if (Boolean.getBoolean("anvilcraft.portCursedGoldScene")) {
             if (prepared) CursedGoldClientScene.frame(client);
             return;

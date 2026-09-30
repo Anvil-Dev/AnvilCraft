@@ -378,7 +378,7 @@ public class ModFluids {
             );
         }
         e.registerFluidType(new ModClientFluidTypeExtensionImpl(0xB7EEDE, 2.0F), ModFluids.MELT_GEM_TYPE);
-        e.registerFluidType(new ModClientFluidTypeExtensionImpl(0xFFC200, 1.0F), ModFluids.HONEY_TYPE);
+        e.registerFluidType(new ModClientFluidTypeExtensionImpl(0xFFB82E, 2.0F), ModFluids.HONEY_TYPE);
         e.registerFluidType(new ModClientFluidTypeExtensionImpl(0xE6CFFF, 0.5F), ModFluids.PRIMORDIAL_MATTER_TYPE);
         e.registerFluidType(new ModClientFluidTypeExtensionImpl(0xC9E4F7, 2.0F), ModFluids.HYDROGEN_TYPE);
         e.registerFluidType(new ModClientFluidTypeExtensionImpl(0x9CCCF8, 2.0F), ModFluids.OXYGEN_TYPE);

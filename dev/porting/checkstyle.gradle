@@ -25,6 +25,7 @@ allprojects {
             include '**/HoneyCakeBlock.java', '**/HoneyCreamBlock.java', '**/MatchaCakeBlock.java', '**/MatchaCreamBlock.java'
             include '**/CookieBlock.java', '**/CookiePillarBlock.java', '**/StepEffectBlock.java'
             include '**/GasDisplayFillProvider.java', '**/MultiFluidTankHandler.java', '**/ModFluids.java'
+            include '**/ModClientFluidTypeExtensionImpl.java'
             include '**/GasFluid.java', '**/PrimordialMatterFluid.java', '**/ModelProviderUtil.java', '**/FluidLang.java'
             include '**/ModFluidBucketModelMixin.java', '**/FluidBucketGeometry.java'
             include '**/PowerConverter*.java', '**/BasePowerConverterBlock.java'
