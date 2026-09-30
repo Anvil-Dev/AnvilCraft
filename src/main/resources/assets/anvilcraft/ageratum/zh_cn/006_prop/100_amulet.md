@@ -17,19 +17,17 @@ items:
   - anvilcraft:armadillo_amulet
 ---
 
-<directory>
-
 # 获取
 
 - 获取第一个护符需要<ref item="anvilcraft:amulet_box"/>：
-  1. 背包内有<ref item="anvilcraft:amulet_box"/>，且盒内有不死图腾
+  1. 副手内有<ref item="anvilcraft:amulet_box"/>，且盒内有不死图腾
   2. 受到特定致命伤害并消耗不死图腾抵挡
   3. 20%的概率获得相应护符，若失败，每次额外叠加10%，直到成功
 - 之后可在<ref item="anvilcraft:jewelcrafting_table"/>中仿制，必须先得到第一个才可仿制
 
 # 生效
 
-- 主副手持有的护符生效（两手都有就生效两个）
+- 主副手持有的护符才生效
 - [护符盒](100_amulet_box.md)可以容纳护符，主副手持有护符盒，盒中的护符可以生效
 - 饰品栏模组的饰品栏中的护符可以生效
 
@@ -55,7 +53,7 @@ items:
 
 **获取方式**：受到火焰、熔岩、岩浆块等烫脚方块、激光的致命伤害
 
-**效果**：获得抗火效果；获得力量1效果，自身燃烧时获得力量2效果
+**效果**：获得抗火和力量I效果，自身燃烧时获得力量2效果
 
 <recipe id="anvilcraft:jewel_crafting/ruby_amulet"/>
 
