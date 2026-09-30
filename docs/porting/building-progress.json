@@ -5034,5 +5034,48 @@
       ]
     },
     "remaining": "Continue the global handbook page/framework audit and other unverified branch differences; the previously identified static block-smear recipe gap is resolved."
+  },
+  "cursed_gold_enchant_power_2026_09_30": {
+    "source_commit": "cca4b2aac5328926fa88bc01d958d007ff6bfc2a",
+    "status": "implemented_and_verified",
+    "implementation": [
+      "Register CursedGoldBlock and retain source minus-one enchanting power using the native BlockGetter API.",
+      "Register the source Jade negative-power provider and preserve its UID, themed number, and translation key.",
+      "Add matching en_us, en_ud, and zh_cn Jade configuration labels."
+    ],
+    "validation": {
+      "focused_required_tests": 10,
+      "full_required_tests": 764,
+      "commands": [
+        "./gradlew.bat -PportValidation -I dev/porting/cursed-gold.gradle -I dev/porting/checkstyle.gradle compileJava runGameTestServer checkPortJava --console=plain",
+        "./gradlew.bat -PportValidation -I dev/porting/checkstyle.gradle compileJava runData runGameTestServer checkPortJava --console=plain",
+        "./gradlew.bat -PportValidation -I dev/porting/checkstyle.gradle compileJava checkPortJava --console=plain",
+        "./gradlew.bat -PportValidation -I dev/porting/cursed-gold-client.gradle runClient --console=plain",
+        "python dev/porting/prepare_cursed_gold_reference.py",
+        "./gradlew.bat runClient --console=plain (reference checkout)",
+        "python dev/porting/verify_cursed_gold.py",
+        "git diff --check"
+      ],
+      "logs": {
+        "focused": "build/porting/tests-cursed-gold-focused.log",
+        "full_and_data": "build/porting/tests-cursed-gold-all-data.log",
+        "final_compile_style": "build/porting/checks-cursed-gold-verified.log",
+        "native_client": "build/porting/client-cursed-gold-native-verified.log",
+        "source_client": "build/porting/client-cursed-gold-reference-verified.log"
+      },
+      "coverage": [
+        "Registered negative-power block participates in vanilla bookshelf validity checks.",
+        "Automatic enchanting table sums three positive and one negative power to two, ignores obstructed negative power, preserves a negative-only total, and returns to zero after removal.",
+        "Live Jade collection and in-viewport rendering before and after resource reload in each version; exactly one minus-one tooltip line.",
+        "Generated data diff consists only of the two English language entries; Chinese entry matches source."
+      ],
+      "limits": [
+        "Native world shading and Jade framework padding remain native; full screenshots are not required to match pixel for pixel.",
+        "The full server suite preceded final fixture-only viewport fixes and import/line-wrap cleanup; final compilation and style checks cover those changes."
+      ],
+      "report": "build/porting/cursed-gold-comparison.json",
+      "visual_review": "Both final screenshots show one complete negative enchanting-power row. Source panel is 137x38 GUI units; native panel is 133x34, retaining native Jade padding."
+    },
+    "remaining": "Continue the global handbook page/framework audit, source sliding-extension API audit, and other visual/gameplay gaps. Honey fog remains a confirmed source/native difference."
   }
 }

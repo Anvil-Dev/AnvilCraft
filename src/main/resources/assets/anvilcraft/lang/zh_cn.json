@@ -632,6 +632,7 @@
   "command.anvilcraft.powergrid.info.total_generate": "总发电：%s",
   "command.anvilcraft.powergrid.info.transmitter": "%1$s 位于 %2$s, %3$s, %4$s（范围：%5$s）",
   "command.anvilcraft.universe.no_id": "没有提供 ID，也无法从手持物品中找到 ID",
+  "config.jade.plugin_anvilcraft.cursed_gold_enchant_power": "附魔能力",
   "config.jade.plugin_anvilcraft.heatable_block_provider": "可加热方块",
   "config.jade.plugin_anvilcraft.item_detector": "物品探测器",
   "config.jade.plugin_anvilcraft.power_provider": "铁砧工艺电网信息",

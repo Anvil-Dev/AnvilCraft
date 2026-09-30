@@ -201,6 +201,8 @@ allprojects {
             include '**/PowerGridHUD.java', '**/PowerGrid.java', '**/IPowerProducer.java'
             include '**/PowerGridSupport.java', '**/SubmitGeometryEventListener.java'
             include '**/CannedFoodItem.java', '**/StoredItem.java', '**/ItemDefaultComponentsEventListener.java'
+            include '**/CursedGoldBlock.java', '**/CursedGoldEnchantPowerProvider.java'
+            include '**/JadeLang.java', '**/AnvilCraftJadePlugin.java', '**/ModBlocks.java'
             include '**/CursedGoldenAppleItem.java', '**/ModFoodItems.java', '**/ModFoods.java'
             include '**/init/item/tabs/*.java', '**/ModItemGroups.java', '**/CreativeTabLang.java'
             include '**/FishTankEvent.java', '**/LargeCauldronEvent.java'

@@ -10,18 +10,18 @@ import dev.anvilcraft.lib.v2.registrum.util.entry.BlockEntry;
 import dev.anvilcraft.lib.v2.util.nullness.NonNullBiConsumer;
 import dev.anvilcraft.lib.v2.util.nullness.NonNullFunction;
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.block.EnchantedGoldBlock;
-import dev.dubhe.anvilcraft.item.block.EnchantedGoldBlockItem;
-import dev.dubhe.anvilcraft.block.GiantMonolithCoreBlock;
-import dev.dubhe.anvilcraft.block.MonolithCoreBlock;
-import dev.dubhe.anvilcraft.block.MonolithBlock;
 import dev.dubhe.anvilcraft.api.power.IPowerComponent.Switch;
 import dev.dubhe.anvilcraft.api.power.IPowerConsumer;
 import dev.dubhe.anvilcraft.block.AutoEnchantingTableBlock;
 import dev.dubhe.anvilcraft.block.CelestialBackGateBlock;
-import dev.dubhe.anvilcraft.block.LargeCauldronBlock;
+import dev.dubhe.anvilcraft.block.CursedGoldBlock;
+import dev.dubhe.anvilcraft.block.EnchantedGoldBlock;
+import dev.dubhe.anvilcraft.block.GiantMonolithCoreBlock;
 import dev.dubhe.anvilcraft.block.HypercubeBlock;
 import dev.dubhe.anvilcraft.block.HyperdimensionUploaderBlock;
+import dev.dubhe.anvilcraft.block.LargeCauldronBlock;
+import dev.dubhe.anvilcraft.block.MonolithBlock;
+import dev.dubhe.anvilcraft.block.MonolithCoreBlock;
 import dev.dubhe.anvilcraft.block.RedstoneWireBlock;
 import dev.dubhe.anvilcraft.block.RuinsBlock;
 import dev.dubhe.anvilcraft.block.SingularityCrystalBlock;
@@ -104,8 +104,8 @@ import dev.dubhe.anvilcraft.block.heatable.OverheatedEmberMetalBlock;
 import dev.dubhe.anvilcraft.block.heatable.RedhotBlock;
 import dev.dubhe.anvilcraft.block.item.RedstoneWireBlockItem;
 import dev.dubhe.anvilcraft.block.item.TradingStationBlockItem;
-import dev.dubhe.anvilcraft.block.laser.LargeLaserBlock;
 import dev.dubhe.anvilcraft.block.laser.CreativeLaserBlock;
+import dev.dubhe.anvilcraft.block.laser.LargeLaserBlock;
 import dev.dubhe.anvilcraft.block.laser.LaserReceiverBlock;
 import dev.dubhe.anvilcraft.block.laser.LensBlock;
 import dev.dubhe.anvilcraft.block.laser.PropelPistonBlock;
@@ -146,9 +146,9 @@ import dev.dubhe.anvilcraft.block.power.batch.BatchCutterBlock;
 import dev.dubhe.anvilcraft.block.power.consumer.DischargerBlock;
 import dev.dubhe.anvilcraft.block.power.consumer.ExpCollectorBlock;
 import dev.dubhe.anvilcraft.block.power.consumer.HeaterBlock;
-import dev.dubhe.anvilcraft.block.power.consumer.MassEnergyInverterBlock;
 import dev.dubhe.anvilcraft.block.power.consumer.InductionLightBlock;
 import dev.dubhe.anvilcraft.block.power.consumer.ItemCollectorBlock;
+import dev.dubhe.anvilcraft.block.power.consumer.MassEnergyInverterBlock;
 import dev.dubhe.anvilcraft.block.power.consumer.SmartBlockPlacerBlock;
 import dev.dubhe.anvilcraft.block.power.consumer.TeslaTowerBlock;
 import dev.dubhe.anvilcraft.block.power.converter.PowerConverterBigBlock;
@@ -253,6 +253,7 @@ import dev.dubhe.anvilcraft.item.SingularityCrystalItem;
 import dev.dubhe.anvilcraft.item.block.ChuteBlockItem;
 import dev.dubhe.anvilcraft.item.block.CreativeContainerBlockItem;
 import dev.dubhe.anvilcraft.item.block.CursedBlockItem;
+import dev.dubhe.anvilcraft.item.block.EnchantedGoldBlockItem;
 import dev.dubhe.anvilcraft.item.block.EndDustBlockItem;
 import dev.dubhe.anvilcraft.item.block.FishTankBlockItem;
 import dev.dubhe.anvilcraft.item.block.FlexibleMultiPartBlockItem;
@@ -351,9 +352,10 @@ import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.level.storage.loot.predicates.LootItemRandomChanceWithEnchantedBonusCondition;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import net.neoforged.neoforge.common.Tags;
-import static dev.dubhe.anvilcraft.AnvilCraft.REGISTRUM;
 
 import java.util.function.Supplier;
+
+import static dev.dubhe.anvilcraft.AnvilCraft.REGISTRUM;
 
 @SuppressWarnings({
     "unused",
@@ -2786,7 +2788,7 @@ public class ModBlocks {
         .build()
         .register();
 
-    public static final BlockEntry<? extends Block> CURSED_GOLD_BLOCK = REGISTRUM.block("cursed_gold_block", Block::new)
+    public static final BlockEntry<CursedGoldBlock> CURSED_GOLD_BLOCK = REGISTRUM.block("cursed_gold_block", CursedGoldBlock::new)
         .lang("Block of Cursed Gold")
         .initialProperties(() -> Blocks.GOLD_BLOCK)
         .item(CursedBlockItem::new)

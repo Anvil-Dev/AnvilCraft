@@ -50,7 +50,8 @@ public final class AutoEnchantingTests {
         "port_auto_enchant_limits", AutoEnchantingTests::limits,
         "port_auto_enchant_container", AutoEnchantingTests::container,
         "port_auto_enchant_removal", AutoEnchantingTests::removal,
-        "port_auto_enchant_overlimit", AutoEnchantingTests::overlimit
+        "port_auto_enchant_overlimit", AutoEnchantingTests::overlimit,
+        "port_auto_enchant_cursed_gold", AutoEnchantingTests::cursedGold
     );
 
     @SubscribeEvent
@@ -64,6 +65,36 @@ public final class AutoEnchantingTests {
         TESTS.forEach((name, test) -> event.registerTest(AnvilCraft.of(name), new FunctionGameTestInstance(
             ResourceKey.create(Registries.TEST_FUNCTION, AnvilCraft.of(name)),
             new TestData<>(environment, AnvilCraft.of("port_logistics_empty"), 100, 0, true))));
+    }
+
+    private static void cursedGold(GameTestHelper helper) {
+        var machine = machine(helper);
+        var level = helper.getLevel();
+        var pos = machine.getBlockPos();
+        for (BlockPos offset : EnchantingTableBlock.BOOKSHELF_OFFSETS) {
+            level.setBlockAndUpdate(pos.offset(offset), Blocks.AIR.defaultBlockState());
+        }
+        BlockPos positive = pos.offset(-2, 0, 0);
+        BlockPos negative = pos.offset(2, 0, 0);
+        level.setBlockAndUpdate(positive, ModBlocks.ENCHANTED_GOLD_BLOCK.getDefaultState());
+        level.setBlockAndUpdate(negative, ModBlocks.CURSED_GOLD_BLOCK.getDefaultState());
+        helper.assertTrue(level.getBlockState(negative).getEnchantPowerBonus(level, negative) == -1,
+            "Registered cursed gold contributes minus one enchanting power");
+        helper.assertTrue(EnchantingTableBlock.isValidBookShelf(level, pos, new BlockPos(2, 0, 0)),
+            "Vanilla enchanting table accepts negative power through air");
+        tick(machine, 1);
+        helper.assertTrue(machine.getShelfLevel() == 2, "Three positive power minus one cursed gold equals two");
+        level.setBlockAndUpdate(pos.offset(1, 0, 0), Blocks.STONE.defaultBlockState());
+        tick(machine, 1);
+        helper.assertTrue(machine.getShelfLevel() == 3, "Blocked transmission prevents negative power");
+        level.setBlockAndUpdate(pos.offset(1, 0, 0), Blocks.AIR.defaultBlockState());
+        level.setBlockAndUpdate(positive, Blocks.AIR.defaultBlockState());
+        tick(machine, 1);
+        helper.assertTrue(machine.getShelfLevel() == -1, "Negative-only shelf total retains source semantics");
+        level.setBlockAndUpdate(negative, Blocks.AIR.defaultBlockState());
+        tick(machine, 1);
+        helper.assertTrue(machine.getShelfLevel() == 0, "Removing cursed gold restores the shelf total");
+        helper.succeed();
     }
 
     private static AutoEnchantingTableBlockEntity machine(GameTestHelper helper) {
