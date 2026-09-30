@@ -1,0 +1,15 @@
+{
+  "type": "anvilcraft:deformation",
+  "inputs": [
+    "anvilcraft:ember_anvil",
+    "anvilcraft:ember_grindstone",
+    "anvilcraft:ember_smithing_table"
+  ],
+  "material": {
+    "type": "anvilcraft:custom",
+    "predicate": {
+      "count": 3,
+      "items": "anvilcraft:ember_metal_ingot"
+    }
+  }
+}
