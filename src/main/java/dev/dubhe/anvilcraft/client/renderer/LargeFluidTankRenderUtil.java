@@ -41,6 +41,14 @@ public final class LargeFluidTankRenderUtil {
         return List.copyOf(layers);
     }
 
+    public static List<FluidRenderLayers.Layer> worldLayers(List<FluidStack> contents, boolean enhanced) {
+        List<FluidStack> fluids = FluidRenderLayers.sorted(contents);
+        long total = fluids.stream().mapToLong(FluidStack::getAmount).sum();
+        long capacity = enhanced ? Math.max(total, LargeFluidTankBlockEntity.INFINITY_THRESHOLD)
+            : LargeFluidTankBlockEntity.BASE_CAPACITY;
+        return FluidRenderLayers.create(fluids, capacity);
+    }
+
     public static void submit(
         Layer layer, boolean expandGas, PoseStack pose, SubmitNodeCollector collector, int light, RenderType translucent
     ) {

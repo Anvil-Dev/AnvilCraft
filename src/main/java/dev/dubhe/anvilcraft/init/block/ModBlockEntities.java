@@ -110,6 +110,7 @@ import dev.dubhe.anvilcraft.client.renderer.blockentity.BatchCraftingRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.BigRedButtonBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.CFARenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.ChargeCollectorRenderer;
+import dev.dubhe.anvilcraft.client.renderer.blockentity.CelestialForgingAnvilFluidInterfaceBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.ChargerRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.ConfinementChamberRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.ControlValveBlockEntityRenderer;
@@ -578,6 +579,7 @@ public class ModBlockEntities {
     public static final BlockEntityEntry<CelestialForgingAnvilFluidInterfaceBlockEntity> CELESTIAL_FORGING_ANVIL_FLUID_INTERFACE = REGISTRUM
         .blockEntity("celestial_forging_anvil_fluid_interface", CelestialForgingAnvilFluidInterfaceBlockEntity::createBlockEntity)
         .validBlock(ModBlocks.CELESTIAL_FORGING_ANVIL_FLUID_INTERFACE)
+        .renderer(() -> CelestialForgingAnvilFluidInterfaceBlockEntityRenderer::new)
         .register();
 
     public static final BlockEntityEntry<CelestialForgingAnvilLaserInterfaceBlockEntity> CELESTIAL_FORGING_ANVIL_LASER_INTERFACE = REGISTRUM

@@ -4839,5 +4839,63 @@
       "Preserve source item/world distinctions: source LargeFluidTankItemRenderer still draws amount-proportional layers; new gas bands apply to the world renderer.",
       "Validate liquid/gas mixtures, multiple gas bands, bottom-face suppression, fill opacity, reload and relevant item regressions in both clients."
     ]
+  },
+  "source_update_cca4b2aac_rendering": {
+    "source_commit": "cca4b2aac5328926fa88bc01d958d007ff6bfc2a",
+    "status": "source_renderer_delta_ported_and_paired_client_verified",
+    "changes": [
+      "Shared FluidRenderLayers builds liquid layers followed by equal-height gas bands in the remaining space; gas amount controls opacity.",
+      "Suppress gas bottom faces over liquids or previous gas bands to match the source and avoid coplanar surfaces.",
+      "Apply the shared snapshot layout to large world tanks, large cauldrons and the newly registered CFA fluid-interface renderer.",
+      "Fish tanks and auto-enchanting-table windows display gas over the full available height with fill-scaled opacity.",
+      "Preserve source ordering, enhanced tank denominator, CFA display capacity/facing transform/bounds and native resource-state extraction.",
+      "Keep large-tank item rendering amount-proportional, as it remains in the source item renderer."
+    ],
+    "verification": {
+      "required_server_tests": 760,
+      "world_scenes_per_version": 22,
+      "large_tank_item_cases": 6,
+      "reload_cases": 1,
+      "comparison_cases": 29,
+      "matching_vertices": 5368,
+      "max_geometry_error": 0.0,
+      "matching_fields": [
+        "positions",
+        "RGBA including opacity",
+        "normals",
+        "light coordinates",
+        "empty-state cleanup",
+        "CFA reload output"
+      ],
+      "commands": [
+        "./gradlew.bat -PportValidation -I dev/porting/checkstyle.gradle compileJava runGameTestServer checkPortJava --console=plain",
+        "./gradlew.bat -PportValidation -I dev/porting/gas-container-client.gradle -I dev/porting/checkstyle.gradle compileJava runClient checkPortJava --console=plain",
+        "python dev/porting/prepare_gas_containers_reference.py; reference checkout: ./gradlew.bat runClient --console=plain",
+        "python dev/porting/verify_gas_containers.py",
+        "git diff --check"
+      ],
+      "logs": {
+        "server": "build/porting/tests-gas-containers-all.log",
+        "native_client": "build/porting/client-gas-containers-2.log",
+        "source_client": "build/porting/client-gas-containers-reference-1.log"
+      },
+      "report": "build/porting/gas-container-comparison.json",
+      "coverage": [
+        "Single/quarter/full gas, liquid controls, two gases and liquid/gas mixtures.",
+        "Milk cutout material alongside translucent gas and enhanced large-tank single/mixed contents.",
+        "All four CFA interface facings, an isolated gas and resource reload.",
+        "Every world case clears the container and confirms no residual fluid geometry in the reused native render state.",
+        "Reviewed paired world screenshots for mixed large tanks, auto-enchanting windows and CFA interface orientation."
+      ],
+      "limits": [
+        "Native vanilla terrain lighting and sky/fog remain unchanged; whole screenshots are not asserted pixel-identical.",
+        "Book animation phase is not synchronized in the auto-enchanting screenshots; vertex comparisons isolate fluid rendering.",
+        "The source reference checkout was advanced from a3a037f to cca4b2aac while preserving its task-owned build configuration and fixtures.",
+        "The first native run detected that the test fixture had not actually cleared CFA tank slots on empty-tag load. Explicit slot clearing corrected the fixture; the final reused-state assertions pass.",
+        "No data or assets changed; runData is not applicable."
+      ]
+    },
+    "remaining_source_updates": [],
+    "remaining_full_goal": "Continue the handbook/new recipe components, remaining gameplay/API differences and broader compatibility/fidelity audit; this source-update completion is not full-goal completion."
   }
 }

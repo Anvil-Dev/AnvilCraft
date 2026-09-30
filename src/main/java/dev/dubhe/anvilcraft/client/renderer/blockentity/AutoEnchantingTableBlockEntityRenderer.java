@@ -86,13 +86,14 @@ public final class AutoEnchantingTableBlockEntityRenderer
         var model = FluidRenderHelper.getModel(Minecraft.getInstance().getModelManager().getFluidStateModelSet(), state.fluid.getFluid());
         int color = model.fluidTintSource() == null ? -1 : model.fluidTintSource().colorAsStack(state.fluid.toStack(1));
         var sprite = model.stillMaterial().sprite();
+        boolean gas = state.fluid.getFluidType().isLighterThanAir();
         collector.submitCustomGeometry(pose, BaseFluidHandlerHolderRenderer.FLUID_RENDER_TYPE, (fluidPose, vertices) -> {
             float minY = 0.3135F;
-            float maxY = 0.3115F + 0.375F * state.fill;
+            float maxY = 0.3115F + 0.375F * (gas ? 1 : state.fill);
             for (float[] box : FLUID_BOXES) {
                 FluidRenderHelper.INSTANCE.renderFluidBox(sprite, state.fluid,
                     box[0] + 0.001F, minY, box[1] + 0.001F, box[2] - 0.001F, maxY, box[3] - 0.001F,
-                    color, vertices, fluidPose, state.lightCoords, true, false);
+                    color, vertices, fluidPose, state.lightCoords, true, false, gas ? state.fill : 1);
             }
         });
     }

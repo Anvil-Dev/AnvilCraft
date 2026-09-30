@@ -5,11 +5,10 @@ import com.mojang.math.Axis;
 import dev.anvilcraft.lib.v2.util.ClientTickRecorder;
 import dev.dubhe.anvilcraft.api.fluid.LargeCauldronFluidHandler;
 import dev.dubhe.anvilcraft.block.entity.LargeCauldronBlockEntity;
+import dev.dubhe.anvilcraft.client.renderer.FluidRenderLayers;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.state.LargeCauldronRenderState;
-import dev.dubhe.anvilcraft.client.renderer.blockentity.state.LargeCauldronRenderState.FluidLayerRenderState;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.state.LargeCauldronRenderState.ItemRenderState;
 import dev.dubhe.anvilcraft.client.support.FeatureRendererSupport;
-import dev.dubhe.anvilcraft.client.support.FluidRenderHelper;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
@@ -25,11 +24,13 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.client.model.standalone.StandaloneModelKey;
+import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import org.jspecify.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class LargeCauldronBlockEntityRenderer
@@ -90,13 +91,15 @@ public class LargeCauldronBlockEntityRenderer
         );
         float bob = fill > 0 ? Mth.sin(ClientTickRecorder.getTicks() / 12.0F) * 0.025F : 0.0F;
         this.extractItems(cauldron, state, itemY + bob);
+        List<FluidStack> contents = new ArrayList<>();
         for (int layer = 0; layer < fluids.size(); layer++) {
             FluidResource resource = fluids.getResource(layer);
             int amount = fluids.getAmountAsInt(layer);
             if (!resource.isEmpty() && amount > 0) {
-                state.getFluids().add(new FluidLayerRenderState(resource, amount));
+                contents.add(resource.toStack(amount));
             }
         }
+        state.getFluids().addAll(FluidRenderLayers.create(contents, LargeCauldronFluidHandler.TOTAL_CAPACITY));
         if (cauldron.isIgnited() && LargeCauldronRenderHooks.showVanillaFire(cauldron)) {
             state.setFire(FeatureRendererSupport.createTessellation(LargeCauldronBlockEntityRenderer.FIRE, false));
         }
@@ -178,14 +181,11 @@ public class LargeCauldronBlockEntityRenderer
         PoseStack poseStack,
         SubmitNodeCollector submitNodeCollector
     ) {
-        float minY = LargeCauldronBlockEntityRenderer.MIN_Y;
-        for (FluidLayerRenderState layer : state.getFluids()) {
-            float maxY = minY + LargeCauldronBlockEntityRenderer.CONTENT_HEIGHT * layer.amount() / LargeCauldronFluidHandler.TOTAL_CAPACITY;
-            FluidRenderHelper.submitFluidBox(layer.resource(), layer.amount(),
-                LargeCauldronBlockEntityRenderer.MIN_XZ, minY, LargeCauldronBlockEntityRenderer.MIN_XZ,
-                LargeCauldronBlockEntityRenderer.MAX_XZ, maxY, LargeCauldronBlockEntityRenderer.MAX_XZ,
-                1, poseStack, submitNodeCollector, state.lightCoords, BaseFluidHandlerHolderRenderer.FLUID_RENDER_TYPE);
-            minY = maxY;
+        for (var layer : state.getFluids()) {
+            FluidRenderLayers.submit(layer,
+                LargeCauldronBlockEntityRenderer.MIN_XZ, LargeCauldronBlockEntityRenderer.MIN_Y, LargeCauldronBlockEntityRenderer.MIN_XZ,
+                LargeCauldronBlockEntityRenderer.MAX_XZ, LargeCauldronBlockEntityRenderer.MAX_Y, LargeCauldronBlockEntityRenderer.MAX_XZ,
+                poseStack, submitNodeCollector, state.lightCoords, BaseFluidHandlerHolderRenderer.FLUID_RENDER_TYPE);
         }
     }
 

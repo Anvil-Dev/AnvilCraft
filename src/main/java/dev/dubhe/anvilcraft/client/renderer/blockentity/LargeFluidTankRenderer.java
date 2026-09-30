@@ -17,6 +17,7 @@ package dev.dubhe.anvilcraft.client.renderer.blockentity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import dev.dubhe.anvilcraft.block.entity.LargeFluidTankBlockEntity;
+import dev.dubhe.anvilcraft.client.renderer.FluidRenderLayers;
 import dev.dubhe.anvilcraft.client.renderer.LargeFluidTankRenderUtil;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.state.LayeredFluidTankRenderState;
 import net.minecraft.client.renderer.SubmitNodeCollector;
@@ -50,14 +51,15 @@ public class LargeFluidTankRenderer implements BlockEntityRenderer<LargeFluidTan
         Vec3 cameraPosition, ModelFeatureRenderer.@Nullable CrumblingOverlay breakProgress
     ) {
         BlockEntityRenderer.super.extractRenderState(be, state, partialTicks, cameraPosition, breakProgress);
-        state.layers = be.isMainPart() ? LargeFluidTankRenderUtil.layers(be.getStoredFluids(), be.isEnhanced()) : List.of();
+        state.layers = be.isMainPart() ? LargeFluidTankRenderUtil.worldLayers(be.getStoredFluids(), be.isEnhanced()) : List.of();
     }
 
     @Override
     public void submit(LayeredFluidTankRenderState state, PoseStack pose, SubmitNodeCollector collector, CameraRenderState camera) {
         for (var layer : state.layers) {
-            LargeFluidTankRenderUtil.submit(layer, true, pose, collector, state.lightCoords,
-                BaseFluidHandlerHolderRenderer.FLUID_RENDER_TYPE);
+            float inset = LargeFluidTankRenderUtil.INSET;
+            FluidRenderLayers.submit(layer, inset - 1, inset - 1, inset - 1, 2 - inset, 2 - inset, 2 - inset,
+                pose, collector, state.lightCoords, BaseFluidHandlerHolderRenderer.FLUID_RENDER_TYPE);
         }
     }
 

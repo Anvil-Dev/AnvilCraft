@@ -76,8 +76,10 @@ public abstract class BaseFluidHandlerHolderRenderer<B extends BlockEntity & IFl
         FluidResource resource = state.getResource();
         if (resource == null) return;
         float minY = state.getMinY();
-        float maxY = minY + (state.getMaxY() - minY) * state.getFill();
+        boolean gas = resource.getFluidType().isLighterThanAir();
+        float maxY = gas ? state.getMaxY() : minY + (state.getMaxY() - minY) * state.getFill();
         FluidRenderHelper.submitFluidBox(resource, state.getAmount(), state.getMinX(), minY, state.getMinZ(),
-            state.getMaxX(), maxY, state.getMaxZ(), 1, poseStack, submitNodeCollector, state.lightCoords, FLUID_RENDER_TYPE);
+            state.getMaxX(), maxY, state.getMaxZ(), gas ? state.getFill() : 1,
+            poseStack, submitNodeCollector, state.lightCoords, FLUID_RENDER_TYPE);
     }
 }

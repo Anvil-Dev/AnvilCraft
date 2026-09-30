@@ -156,6 +156,7 @@ allprojects {
             include '**/FishTankRenderHooks.java', '**/FishTankRenderState.java', '**/FeatureRendererSupport.java'
             include '**/FluidTankRenderUtil.java', '**/FluidTankRenderer.java', '**/CreativeFluidTankRenderer.java'
             include '**/CreativeFluidTankItemRenderer.java', '**/BaseFluidHandlerHolderRenderer.java', '**/FluidHandlerRenderState.java'
+            include '**/FluidRenderLayers.java', '**/CelestialForgingAnvilFluidInterfaceBlockEntityRenderer.java'
             include '**/LargeFluidTankRenderUtil.java', '**/LayeredFluidTankRenderState.java', '**/LargeFluidTankRenderer.java'
             include '**/LargeFluidTankProvider.java', '**/LargeFluidTankClientProvider.java'
             include '**/ExpCollectorBlockEntity.java', '**/ExperienceOrbMixin.java'

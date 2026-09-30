@@ -124,6 +124,10 @@ public final class PortVisualScene {
             HandbookRecipeClientScene.frame(client);
             return;
         }
+        if (Boolean.getBoolean("anvilcraft.portGasContainerScene")) {
+            GasContainerRenderScene.frame(client);
+            return;
+        }
         if (Boolean.getBoolean("anvilcraft.portPowerSyncScene")) {
             PowerSyncClientScene.frame(client);
             return;
