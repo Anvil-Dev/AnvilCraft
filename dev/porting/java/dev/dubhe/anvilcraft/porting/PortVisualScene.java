@@ -132,6 +132,10 @@ public final class PortVisualScene {
             HandbookVanillaScene.frame(client);
             return;
         }
+        if (Boolean.getBoolean("anvilcraft.portHandbookExportScene")) {
+            HandbookExportClientScene.frame(client);
+            return;
+        }
         if (Boolean.getBoolean("anvilcraft.portHandbookPagesScene")) {
             HandbookPagesClientScene.frame(client);
             return;

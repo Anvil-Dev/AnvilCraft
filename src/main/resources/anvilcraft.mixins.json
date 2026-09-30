@@ -161,6 +161,7 @@
     "client.HandbookCookingAccessor",
     "client.HandbookFurnaceMixin",
     "client.HandbookStonecutterMixin",
+    "client.HandbookStructureExportMixin",
     "client.ModFluidBucketModelMixin",
     "client.LaserBloomCaptureMixin",
     "MunSurfacePassMixin",

@@ -1,0 +1,8 @@
+{
+  "tooltip.ageratum.structure_export": "导出完整结构到当前服务端存档的 data/ageratum 文件夹",
+  "system.ageratum.structure_export.sending": "正在向服务端发送结构导出请求……",
+  "system.ageratum.structure_export.success": "结构已导出到当前存档：%s",
+  "system.ageratum.structure_export.failed": "结构导出失败，请查看游戏或服务端日志。",
+  "system.ageratum.structure_export.too_large": "结构导出的压缩大小超过 8 MiB 限制。",
+  "system.ageratum.structure_export.busy": "请等待两秒后再导出结构。"
+}

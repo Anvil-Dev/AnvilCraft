@@ -5715,5 +5715,75 @@
       ]
     },
     "remaining": "Continue standard recipe edge-case and framework structure projection/export audits, then the broader branch completion audit. This node does not establish whole-goal completion."
+  },
+  "handbook_structure_export_2026_09_30": {
+    "source_commit": "cca4b2aac5328926fa88bc01d958d007ff6bfc2a",
+    "status": "implemented_and_verified",
+    "implementation": [
+      "Restore the source structure export button and localized feedback, serializing the full cached template rather than the visible preview layer.",
+      "Send bounded 24 KiB packets up to 8 MiB compressed through the native serverbound packet API.",
+      "Reassemble on the server thread with source offset/identity/size checks, two-second cooldown, 30-second timeout and logout cleanup.",
+      "Read with the source 64 MiB NBT quota and write complete structure data under the current server save data/ageratum directory.",
+      "Preserve existing files with CREATE_NEW and numbered suffixes, use namespace-prefixed basenames, and remove only newly created partial files after write failures."
+    ],
+    "validation": {
+      "focused_required_tests": 4,
+      "full_required_tests": 785,
+      "commands": [
+        "./gradlew.bat -PportValidation -I dev/porting/handbook-export.gradle -I dev/porting/checkstyle.gradle compileJava runGameTestServer checkPortJava --console=plain",
+        "./gradlew.bat -PportValidation -I dev/porting/handbook-export-client.gradle -I dev/porting/checkstyle.gradle compileJava runClient checkPortJava --console=plain",
+        "python dev/porting/prepare_handbook_export_reference.py",
+        "./gradlew.bat runClient --console=plain (reference checkout)",
+        "./gradlew.bat -PportValidation -I build/porting/mun-light-export-check.gradle runGameTestServer --console=plain",
+        "./gradlew.bat -PportValidation -I dev/porting/checkstyle.gradle compileJava runGameTestServer checkPortJava --console=plain",
+        "python dev/porting/verify_handbook_export.py",
+        "git diff --check"
+      ],
+      "logs": {
+        "focused": "build/porting/tests-handbook-export-focused.log",
+        "native_client": "build/porting/client-handbook-export-native.log",
+        "source_client": "build/porting/client-handbook-export-reference.log",
+        "light_recheck": "build/porting/tests-handbook-export-mun-light.log",
+        "full_final": "build/porting/tests-handbook-export-all-final.log"
+      },
+      "report": "build/porting/handbook-export-comparison.json",
+      "coverage": [
+        "Server tests cover exact NBT round-trip, basename isolation, collision suffixes, no partial output, multi-packet assembly, cooldown, malformed sizes/offsets/identities, timeout and logout cleanup.",
+        "Wire decoding rejects an oversized chunk; a forged oversized NBT array hits the memory quota before reading its body.",
+        "Both real clients export a two-block/one-entity template with 80 KB of block-entity metadata while the preview is restricted to one layer.",
+        "Each server-save output equals the complete pre-export template. Two same-name exports create original and _1 files without replacement.",
+        "Export-button crop has zero RGB difference against source."
+      ],
+      "native_export": {
+        "bytes": 80457,
+        "blocks": 2,
+        "entities": 1,
+        "visibleLayers": 1,
+        "files": [
+          "anvilcraft_port_export.nbt",
+          "anvilcraft_port_export_1.nbt"
+        ],
+        "directory": "C:\\Users\\a1810\\IdeaProjects\\AnvilCraft\\run\\port-validation\\client\\.\\saves\\anvilcraft-port-visual-1790758476427\\.\\data\\ageratum"
+      },
+      "source_export": {
+        "entities": 1,
+        "blocks": 2,
+        "bytes": 80457,
+        "directory": "C:\\Users\\a1810\\IdeaProjects\\AnvilCraft\\build\\porting\\reference-mun-1.21\\run\\mun-reference\\.\\saves\\mun-surface-reference-1790758626033\\.\\data\\ageratum",
+        "files": [
+          "anvilcraft_port_export.nbt",
+          "anvilcraft_port_export_1.nbt"
+        ],
+        "visibleLayers": 1
+      },
+      "limits": [
+        "The first full run failed the pre-existing moon world-light check. That check passed alone and the complete 785-test rerun passed; no lighting code was changed.",
+        "Initial client/focused commands passed their export checks but failed style formatting; the final full command passed compile and Checkstyle after repairs.",
+        "Real transport was exercised against integrated servers. No separate remote dedicated-server client session was launched.",
+        "Chinese and English export messages are copied from the source dependency; console decoding artifacts were not treated as source-text corruption.",
+        "Projection and preview fitting/layer controls remain separate work; export success is not evidence that those rendering features are complete."
+      ]
+    },
+    "remaining": "Restore source structure preview fitting and layer buttons, re-enable and migrate projection, and continue the broader branch completion audit."
   }
 }

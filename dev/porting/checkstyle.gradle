@@ -201,7 +201,7 @@ allprojects {
             include '**/IMultiPartBlockModelHolder.java', '**/FlexibleMultiPartBlock.java', '**/GiantAnvilBlock.java'
             include '**/CelestialForgingAnvilAmplifierBlock.java', '**/JeiBlockIngredientUtil.java'
             include '**/StorageUnlockCraftingEvent.java', '**/ICannotFitInStationItem.java'
-            include '**/Handbook*Mixin.java', '**/Handbook*Accessor.java', '**/MDVanillaCraftingComponent.java', '**/HandbookSidebarState.java', '**/MDDirectoryComponent.java', '**/AnvilCraftClient.java'
+            include '**/Handbook*Mixin.java', '**/Handbook*Accessor.java', '**/MDVanillaCraftingComponent.java', '**/HandbookSidebarState.java', '**/HandbookStructureExport*.java', '**/MDDirectoryComponent.java', '**/AnvilCraftClient.java'
             include '**/PowerGridHUD.java', '**/PowerGrid.java', '**/IPowerProducer.java'
             include '**/PowerGridSupport.java', '**/SubmitGeometryEventListener.java'
             include '**/CannedFoodItem.java', '**/StoredItem.java', '**/ItemDefaultComponentsEventListener.java'

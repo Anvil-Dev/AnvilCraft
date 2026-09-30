@@ -1,0 +1,8 @@
+{
+  "system.ageratum.structure_export.busy": "Please wait two seconds between structure exports.",
+  "system.ageratum.structure_export.failed": "Structure export failed. Check the game/server log.",
+  "system.ageratum.structure_export.sending": "Sending structure export to the server...",
+  "system.ageratum.structure_export.success": "Structure exported to the current world: %s",
+  "system.ageratum.structure_export.too_large": "Structure export exceeds the 8 MiB compressed size limit.",
+  "tooltip.ageratum.structure_export": "Export the full structure to the current server world's data/ageratum folder"
+}
