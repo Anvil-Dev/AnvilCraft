@@ -5580,5 +5580,69 @@
       ]
     },
     "remaining": "Continue source handbook sidebar behavior and structure projection/export parity, plus the broader recipe/gameplay/rendering completion audit."
+  },
+  "handbook_sidebar_2026_09_30": {
+    "source_commit": "cca4b2aac5328926fa88bc01d958d007ff6bfc2a",
+    "status": "implemented_and_verified",
+    "implementation": [
+      "Restore ordinary parent-label click to toggle the group and open its index page.",
+      "Preserve inherited collapsed groups and viewport state across label navigation and subsequent screen initialization.",
+      "Choose pinned parents from the visible scroll position, route pinned and regular row clicks consistently, and allow the final row to remain reachable.",
+      "Align scroll limits and tooltip row ranges with the source pinned-row model; scope these interaction changes to AnvilCraft guides."
+    ],
+    "validation": {
+      "paired_scenarios": 8,
+      "commands": [
+        "./gradlew.bat -PportValidation -I dev/porting/handbook-sidebar-client.gradle -I dev/porting/checkstyle.gradle compileJava runClient checkPortJava --console=plain",
+        "python dev/porting/prepare_handbook_sidebar_reference.py",
+        "./gradlew.bat runClient --console=plain (reference checkout)",
+        "python dev/porting/verify_handbook_sidebar.py",
+        "git diff --check"
+      ],
+      "logs": {
+        "native": "build/porting/client-handbook-sidebar-native-final.log",
+        "source": "build/porting/client-handbook-sidebar-reference-final.log"
+      },
+      "report": "build/porting/handbook-sidebar-comparison.json",
+      "coverage": [
+        "Real mouse clicks and wheel input cover initial child page, parent collapse/open, expansion, pinned viewport, child navigation, bottom scroll, last-row selection and resize.",
+        "All eight snapshots match source exactly for document location, visible/full indices, collapsed groups, pinned index, shown rows and scroll position.",
+        "Native compilation, client run and Checkstyle completed successfully; source client completed successfully.",
+        "Paired screenshots retain layout evidence; world and glyph pixels remain native."
+      ],
+      "pixel_metrics": {
+        "0": {
+          "sidebar_mean_rgb_error": 2.8938963720842916
+        },
+        "1": {
+          "sidebar_mean_rgb_error": 4.442452402183946
+        },
+        "2": {
+          "sidebar_mean_rgb_error": 2.382565979881416
+        },
+        "3": {
+          "sidebar_mean_rgb_error": 2.872811752006383
+        },
+        "4": {
+          "sidebar_mean_rgb_error": 2.7908981398914285
+        },
+        "5": {
+          "sidebar_mean_rgb_error": 2.7723830978864537
+        },
+        "6": {
+          "sidebar_mean_rgb_error": 2.877587177922748
+        },
+        "7": {
+          "sidebar_mean_rgb_error": 2.877587177922748
+        }
+      },
+      "limits": [
+        "These are client-only sidebar changes; no datagen or unchanged server-suite rerun was required.",
+        "Remote GitHub guide behavior and non-AnvilCraft namespaces retain the existing framework path.",
+        "Tooltip rows are aligned, but the source framework itself does not finish submitting its computed parent-label tooltip in drawLabelTooltip."
+      ]
+    },
+    "new_confirmed_gap": "Ageratum 117 MDCraftingTableRecipeComponent sets resultItem to null and returns an empty ingredient list (TODOs). The real Processing Table page consequently draws an empty crafting frame. Restore native shaped/shapeless recipe extraction and rendered items in a subsequent node.",
+    "remaining": "Restore standard handbook crafting-recipe visuals, continue structure projection/export parity and the broader recipe/gameplay/rendering completion audit."
   }
 }

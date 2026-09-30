@@ -124,6 +124,10 @@ public final class PortVisualScene {
             JewelClientScene.frame(client);
             return;
         }
+        if (Boolean.getBoolean("anvilcraft.portHandbookSidebarScene")) {
+            HandbookSidebarScene.frame(client);
+            return;
+        }
         if (Boolean.getBoolean("anvilcraft.portHandbookPagesScene")) {
             HandbookPagesClientScene.frame(client);
             return;
