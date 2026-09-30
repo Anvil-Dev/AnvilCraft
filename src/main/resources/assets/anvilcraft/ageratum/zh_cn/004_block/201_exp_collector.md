@@ -7,8 +7,10 @@ items:
 ---
 
 # <ref item="anvilcraft:exp_collector"/>
+
 <row halign="center">
 <recipe id="anvilcraft:exp_collector"/>
+<recipe id="anvilcraft:exp_collector_alt"/>
 </row>
 
 - 与<ref item="anvilcraft:item_collector"/>类似，范围搜集经验球

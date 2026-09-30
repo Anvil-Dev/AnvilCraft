@@ -1,10 +1,10 @@
 ---
 navigation:
-  title: "强制刷怪笼工作"
+  title: "立即尝试刷怪"
   icon: "minecraft:spawner"
 ---
 
-# 强制刷怪笼工作
+# 立即尝试刷怪
 
 <row halign="center">
 <item id="minecraft:spawner"/>

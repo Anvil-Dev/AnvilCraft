@@ -16,8 +16,8 @@ items:
 ## Function
 
 - A special smithing table that does not consume any smithing templates
-- Only usable for multi-to-one recipes
-- Usually needs to be used with <ref item="anvilcraft:four_to_one_smithing_template"/> and other multi-to-one templates
+- Usually used with *multi-to-one smithing templates* to perform multi-to-one smithing
+- Can access smithing templates in adjacent containers
 
 # Multi-to-One Smithing Templates
 
@@ -42,8 +42,8 @@ Used at the [Ember Smithing Table](../004_block/221_ember_smithing_table.md) to 
 # Template Dissociation
 
 1. Destroy an enchanted <ref item="anvilcraft:eight_to_one_smithing_template"/> item entity by any means
-2. Randomly select one enchantment (selection may repeat) and generate a new item according to the list below
-3. At most 4 selections (i.e. at most 4 new templates produced this way)
+2. Randomly select one enchantment of the <ref item="anvilcraft:eight_to_one_smithing_template"/> (selection may repeat) and generate a new item according to the list below
+3. At most 4 selections, i.e. at most 4 new templates produced this way
 
 <row halign="center" valign="center">
 <item id="minecraft:snout_armor_trim_smithing_template"/>
@@ -94,7 +94,3 @@ Used at the [Ember Smithing Table](../004_block/221_ember_smithing_table.md) to 
 <item id="minecraft:shaper_armor_trim_smithing_template"/>
 ->  Other Enchantments
 </row>
-
-<info>
-If 4 selections are made and all 4 results (the newly generated templates) are different, an additional <ref item="anvilcraft:transcendium_upgrade_smithing_template"/> is generated
-</info>

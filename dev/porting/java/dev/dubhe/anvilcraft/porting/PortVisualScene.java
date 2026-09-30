@@ -120,6 +120,10 @@ public final class PortVisualScene {
             if (prepared) UploaderClientScene.frame(client);
             return;
         }
+        if (Boolean.getBoolean("anvilcraft.portHandbookPagesScene")) {
+            HandbookPagesClientScene.frame(client);
+            return;
+        }
         if (Boolean.getBoolean("anvilcraft.portHandbookNewScene")) {
             HandbookNewRecipeScene.frame(client);
             return;

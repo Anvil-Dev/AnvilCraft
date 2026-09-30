@@ -14,7 +14,7 @@ A sponge with infinite surface area
 
 ## Acquisition
 
-- Relies on [multi-block crafting](210_giant_anvil.md#function)
+- Obtained through [multi-block crafting](210_giant_anvil.md#function)
 
 <tip>
 Recommended: [mass-produce sponges](../008_recipe/002_sponge_gemmule.md)
@@ -30,6 +30,11 @@ Recommended: [mass-produce sponges](../008_recipe/002_sponge_gemmule.md)
 - When <ref item="anvilcraft:fluid_tank"/> is at the center of a 3x3x3 <ref item="anvilcraft:menger_sponge"/> structure, its capacity becomes 12800B. Once full, it accepts and supplies fluid infinitely; breaking the structure clears that state and restores its 16B capacity
 
 - A <ref item="anvilcraft:large_fluid_tank"/> normally stores any number of fluid types with a shared 512B capacity. At the center of a 9x9x9 <ref item="anvilcraft:menger_sponge"/> structure, its total capacity is unlimited; each fluid independently becomes infinite after reaching 12800B
+
+<warning>
+- The infinite state is removed when the structure is broken
+- When the tank itself is broken, only its original capacity worth of fluid is retained; any excess fluid is lost entirely
+</warning>
 
 ### Structure Requirements
 

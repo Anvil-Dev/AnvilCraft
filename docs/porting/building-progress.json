@@ -5252,5 +5252,100 @@
       ]
     },
     "remaining": "Continue global handbook pages/framework and remaining gameplay/rendering source audits; whole-goal completion remains unproven."
+  },
+  "handbook_resources_directory_2026_09_30": {
+    "source_commit": "cca4b2aac5328926fa88bc01d958d007ff6bfc2a",
+    "status": "resources_and_directory_verified_recipe_and_framework_gaps_remain",
+    "implementation": [
+      "Synchronize the source handbook resource tree: 494 files including 416 Chinese/English Markdown pages, images and structure templates; remove superseded paths.",
+      "Adapt vanilla iron-chain and native colored reinforced-concrete identifiers, fix the heater processing-page link, and normalize flagged source whitespace.",
+      "Backport automatic directory placeholders, heading levels, source anchor normalization and formatted clickable list entries using the existing block-component renderer.",
+      "Preserve full URI targets when GuideScreen dispatches clicks, including fragments and explicit namespaces.",
+      "Repair Ageratum 117 smithing component slot allocation; all three slots are allocated before its constructor writes recipe ingredients."
+    ],
+    "validation": {
+      "resource_files": 494,
+      "documents": 416,
+      "components": 4816,
+      "paired_directory_pages": 6,
+      "commands": [
+        "./gradlew.bat -PportValidation -I dev/porting/handbook-pages-client.gradle -I dev/porting/checkstyle.gradle compileJava runClient checkPortJava --console=plain",
+        "python dev/porting/prepare_handbook_pages_reference.py",
+        "./gradlew.bat runClient --console=plain (reference checkout)",
+        "python dev/porting/verify_handbook_resources.py",
+        "git diff --check"
+      ],
+      "logs": {
+        "native": "build/porting/client-handbook-pages-native-final.log",
+        "source": "build/porting/client-handbook-pages-reference-final.log"
+      },
+      "report": "build/porting/handbook-resources-comparison.json",
+      "adapted_files": [
+        "en_us/001_feature/201_properties.md",
+        "en_us/002_material/122_cruse_gold.md",
+        "en_us/002_material/210_liquid_enchantment.md",
+        "en_us/004_block/215_large_cauldron.md",
+        "en_us/004_block/402_teleportation.md",
+        "en_us/008_recipe/005_concrete.md",
+        "zh_cn/000_process/004.md",
+        "zh_cn/000_process/010.md",
+        "zh_cn/001_feature/201_properties.md",
+        "zh_cn/001_feature/402_gamma_laser.md",
+        "zh_cn/002_material/122_cruse_gold.md",
+        "zh_cn/002_material/210_liquid_enchantment.md",
+        "zh_cn/004_block/100_heater.md",
+        "zh_cn/004_block/311_transcendence_smithing_table.md",
+        "zh_cn/004_block/402_teleportation.md",
+        "zh_cn/005_tool/101_dragon_rod.md",
+        "zh_cn/008_recipe/001_auto_recipe.md",
+        "zh_cn/008_recipe/005_concrete.md"
+      ],
+      "coverage": [
+        "Parse and lay out all 416 pages in each real client; component counts and all six directory anchor lists match.",
+        "Real mouse clicks navigate a long document through bare, self-closing and namespaced directory tags, including a Unicode heading.",
+        "All item references collected from ref/item tags resolve in the native registry after native ID adaptation.",
+        "All relative file/image references resolve; every resource matches source bytes after the explicit adaptations.",
+        "Inspect actual six-page gallery captures in both clients with guide scale 1 and GUI scale 2."
+      ],
+      "limits": [
+        "The source compact self-closing directory spelling is swallowed by its tag regex; the source fixture uses the equivalent spaced spelling, while native accepts both.",
+        "Native and source guide fonts/chrome differ. Native screenshot labels expose legacy formatting codes and the page is wider; this visual framework gap remains open.",
+        "This is a resource and directory milestone, not complete handbook or whole-goal acceptance. Missing recipe references below still render placeholders.",
+        "Structure rendering/export parity and exhaustive page scrolling are not covered by this gallery.",
+        "No datagen-owned files changed. runData and the full server suite were not repeated for these client-only framework/resource changes; latest server baseline remains 770."
+      ]
+    },
+    "native_missing_recipes": [
+      "anvilcraft:charger_charging/magnet_block",
+      "anvilcraft:disk_to_structure_disk",
+      "anvilcraft:exp_collector_alt",
+      "anvilcraft:infinite_collector",
+      "anvilcraft:jei/solid_liquid/enchanted_gold_ingot",
+      "anvilcraft:jewel_crafting/generated/minecraft_flower_banner_pattern_from_minecraft_flower_banner_pattern_for_banner_patterns",
+      "anvilcraft:jewel_crafting/generated/minecraft_music_disc_creator_from_minecraft_music_disc_creator_for_music_discs",
+      "anvilcraft:jewel_crafting/generated/minecraft_silence_armor_trim_smithing_template_from_minecraft_silence_armor_trim_smithing_template_for_trim_templates",
+      "anvilcraft:smithing/frost_dragon_rod",
+      "anvilcraft:smoking_warp_dough_2_bread",
+      "anvilcraft:super_heating/heated_netherite_block",
+      "minecraft:netherrack"
+    ],
+    "source_missing_recipes": [
+      "anvilcraft:jei/solid_liquid/enchanted_gold_ingot",
+      "anvilcraft:time_warp/oil_from_foods/raw_porkchop"
+    ],
+    "native_only_missing_recipes": [
+      "anvilcraft:charger_charging/magnet_block",
+      "anvilcraft:disk_to_structure_disk",
+      "anvilcraft:exp_collector_alt",
+      "anvilcraft:infinite_collector",
+      "anvilcraft:jewel_crafting/generated/minecraft_flower_banner_pattern_from_minecraft_flower_banner_pattern_for_banner_patterns",
+      "anvilcraft:jewel_crafting/generated/minecraft_music_disc_creator_from_minecraft_music_disc_creator_for_music_discs",
+      "anvilcraft:jewel_crafting/generated/minecraft_silence_armor_trim_smithing_template_from_minecraft_silence_armor_trim_smithing_template_for_trim_templates",
+      "anvilcraft:smithing/frost_dragon_rod",
+      "anvilcraft:smoking_warp_dough_2_bread",
+      "anvilcraft:super_heating/heated_netherite_block",
+      "minecraft:netherrack"
+    ],
+    "remaining": "Port or reconcile the eleven native-only recipe references from the real-client audit, continue complete recipe catalogue comparison, and restore guide framework font/layout/structure-export behavior. Native Ageratum Maven latest remains build.117; source uses build.121."
   }
 }

@@ -31,4 +31,4 @@ items:
 
 - 可以被活塞推拉
 - 世界基质方块如 <ref item="minecraft:stone"/> 、 <ref item="minecraft:netherrack"/> 等只有极少概率掉落
-- 更廉价的方块破坏器可以使用[铁砧+切石机](../007_struct/000_block_processing.md)
+- 更廉价的方块破坏器可以使用[铁砧+切石机](../007_struct/000_anvil_processing.md)

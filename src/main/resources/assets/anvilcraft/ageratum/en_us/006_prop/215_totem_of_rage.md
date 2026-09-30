@@ -13,8 +13,10 @@ items:
 ## Totem of Rage
 
 - Similar to a Totem of Undying, triggers when the player takes fatal damage
-- When consumed, first removes all existing effects from the player, restores all health and hunger, then grants the following effects for 1 minute:
+- Clears all effects from the holder
+- Restores the holder's health and hunger to full
+- Grants the holder the following effects for 1 minute:
   - Strength 5, Speed 3, Haste 3
   - Rage: during the duration, no new effects can be applied, and this effect cannot be removed by normal means such as milk; it can only be removed via commands or by waiting for the duration to expire
   - Invulnerable: immune to all normal damage except the /kill command (like Creative mode)
-- After the one-minute duration ends, the player dies. This death cannot be prevented by any totem. Creative and Spectator mode players are treated as a special case and will not die
+- After the one-minute duration ends, the holder will meet their fated death. This death cannot be prevented by any totem

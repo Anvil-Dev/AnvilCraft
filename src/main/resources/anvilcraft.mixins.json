@@ -150,6 +150,9 @@
   ],
   "client": [
     "client.HandbookRecipeMixin",
+    "client.HandbookDirectoryMixin",
+    "client.HandbookLinkMixin",
+    "client.HandbookSmithingMixin",
     "client.ModFluidBucketModelMixin",
     "client.LaserBloomCaptureMixin",
     "MunSurfacePassMixin",

@@ -4,7 +4,7 @@ navigation:
   icon: "anvilcraft:crushing_table"
 ---
 
-相比直接在<ref item="minecraft:crafting_table"/>合成，通过[铁砧加工](../007_struct/000_item_processing.md)能获得更多材料
+相比直接在<ref item="minecraft:crafting_table"/>合成，通过[铁砧加工](../007_struct/000_anvil_processing.md)能获得更多材料
 
 <row halign="center">
 <recipe id="anvilcraft:item_crush/flower/red_dye_from_poppy"/>

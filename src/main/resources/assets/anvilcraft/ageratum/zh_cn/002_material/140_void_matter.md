@@ -23,6 +23,8 @@ items:
 # 功能
 
 - 可用于制作<ref item="anvilcraft:void_energy_collector"/>
+- 放置在<ref item="anvilcraft:crate"/>旁时，可使其具有溢出销毁功能
+- 虚空物质块可通过溜槽等方块接收物品，输入物品会被直接销毁
 
 # 特性
 

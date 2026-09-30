@@ -11,7 +11,7 @@ items:
 <recipe id="anvilcraft:block_devourer"/>
 
 <info>
-Killing the Ender Dragon with Decapitation III enchantment guarantees a 100% dragon head drop
+Killing the Ender Dragon with Beheading III enchantment guarantees a 100% dragon head drop
 </info>
 
 # Function
@@ -31,4 +31,4 @@ Killing the Ender Dragon with Decapitation III enchantment guarantees a 100% dra
 
 - Can be pushed and pulled by pistons
 - World matrix blocks such as <ref item="minecraft:stone"/>, <ref item="minecraft:netherrack"/>, etc. have a very low drop rate
-- A cheaper block destroyer can use [Anvil + Stonecutter](../007_struct/000_block_processing.md)
+- A cheaper block destroyer can use [Anvil + Stonecutter](../007_struct/000_anvil_processing.md)

@@ -13,6 +13,7 @@ items:
 # Function
 
 - An advanced smithing table that does not consume any smithing templates
+- Can access smithing templates in adjacent containers
 
 <info>
 This should be the first item upgraded with Royal Steel, because once you have it, smithing no longer consumes any smithing templates

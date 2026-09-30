@@ -33,15 +33,15 @@ The height at which the <ref item="anvilcraft:mineral_fountain"/> is generated i
 The generated structure will replace blocks other than <ref item="minecraft:bedrock"/>
 </warning>
 
-### <ref item="anvilcraft:sturdy_deepslate"/>
-
-Very hard stone, not very useful
-
 ## Properties
 
 - Hard and blast-resistant
 - Extremely difficult to mine
 - No drops when broken
+
+### <ref item="anvilcraft:sturdy_deepslate"/>
+
+Very hard stone, not very useful
 
 # Function
 
@@ -51,9 +51,14 @@ Very hard stone, not very useful
 
 ## Ore Generation
 
-<structure id="../../structures/mineral_fountain/raw_mineral.snbt"/>
+<row halign="center">
 
-- If all four sides of the <ref item="anvilcraft:mineral_fountain"/> are **the same type of raw ore block**, it will convert the <ref item="minecraft:deepslate"/> above into the corresponding **deepslate ore**
+<recipe id="anvilcraft:mineral_fountain/deepslate_gold_ore"/>
+<recipe id="anvilcraft:mineral_fountain_chance/void_stone_from_overworld"/>
+
+</row>
+
+- If all four sides of the <ref item="anvilcraft:mineral_fountain"/> are **the same type of raw ore block**, it will convert the <ref item="minecraft:deepslate"/> above into the corresponding **deepslate ore** (without consuming the **raw ore block**)
 - There is a chance to instead generate <ref item="anvilcraft:earth_core_shard_ore"/> or <ref item="anvilcraft:void_stone"/>
 
 <info>
@@ -89,4 +94,3 @@ Raw ore blocks can be obtained through <ref item="anvilcraft:corrupted_beacon"/>
 <structure id="../../structures/mineral_fountain/cinerite.snbt"/>
 
 - When no other structure conditions are met, the <ref item="anvilcraft:mineral_fountain"/> generates <ref item="anvilcraft:cinerite"/> above it, which can be used for [ore meshing](../008_recipe/001_basic_minerals.md)
-

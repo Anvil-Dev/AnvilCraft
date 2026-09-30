@@ -2,8 +2,6 @@
 navigation:
   title: "§2龙杖"
   icon: "anvilcraft:dragon_rod"
-categories:
-  - tools
 items:
   - anvilcraft:dragon_rod
   - anvilcraft:royal_dragon_rod

@@ -13,21 +13,22 @@ items:
 
 # Acquisition
 
-- Mining Budding Amethyst (Fortune does not work)
+- Mining <ref item="minecraft:budding_amethyst"/>
 - Trading with a [Jeweler](../001_feature/001_jeweler.md)
 - Starting bonus chest (must enable the bonus chest option when creating a world)
 
 # Function
 
-- When used, can locate nearby Amethyst Geodes (world features)
-- Used in crafting recipes
+- Locates nearby Amethyst Geodes
 
 # Crafting Usage
 
-- When a Geode undergoes [Item Stamping](../007_struct/000_item_processing.md#stamping) or [Item Crushing](../007_struct/000_item_processing.md#crushing), it always yields 4 <ref item="minecraft:amethyst_shard"/>, with a chance to yield [Topaz, Sapphire, and Ruby](../002_material/000_gems.md)
-- Using Time Warp on a Geode can craft <ref item="minecraft:budding_amethyst"/>
+- When a <ref item="anvilcraft:geode"/> undergoes [Item Stamping](../007_struct/000_anvil_processing.md#stamping) or [Item Crushing](../007_struct/000_anvil_processing.md#crushing), it always yields 4 <ref item="minecraft:amethyst_shard"/>, with a chance to yield <ref item="anvilcraft:topaz"/>, <ref item="anvilcraft:ruby"/>, and <ref item="anvilcraft:sapphire"/>
 
-<row halign="center">
 <recipe id="anvilcraft:stamping/geode_gems"/>
+
+# Return to the Mother Rock
+
+- After some progression, once you obtain a <ref item="anvilcraft:corrupted_beacon"/>, you can turn a <ref item="anvilcraft:geode"/> back into <ref item="minecraft:budding_amethyst"/>, but that is a story for later.
+
 <recipe id="anvilcraft:time_warp/budding_amethyst"/>
-</row>

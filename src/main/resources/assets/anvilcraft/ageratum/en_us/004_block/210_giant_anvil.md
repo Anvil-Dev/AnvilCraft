@@ -9,6 +9,8 @@ items:
 
 # Giant Anvil
 
+> super~big~anvil~
+
 <row halign="center">
 <item id="anvilcraft:giant_anvil"/>
 <item id="anvilcraft:transparent_crafting_table"/>
@@ -28,6 +30,10 @@ You can use <ref item="anvilcraft:resin_block"/> to capture zombies
 <warning>
 **Giant Zombie** has been given AI by this mod and is extremely powerful. Make sure to surround it with blocks to trap it beforehand, or defeat it as a PVE expert
 </warning>
+
+# Magnetic Attraction
+
+It is too large to be attracted by ordinary magnets, so you need to use <ref item="anvilcraft:acceleration_ring"/> or <ref item="anvilcraft:deflection_ring"/>
 
 # Convenient Crafting
 
