@@ -118,7 +118,7 @@ public class Upgrade2ShulkerContainerBehavior implements IAnvilBehavior {
             scBe.setId(id);
         }
         ShulkerContainerStorage sc = Storages.get().getOrCreate(id, ShulkerContainerStorage.class);
-        sc.setCraftingUnlocked(storage.isCraftingUnlocked());
+        sc.setRecipeBases(storage.getRecipeBases());
         sc.setCrafting(storage.getCrafting());
         TypeLimitItemStacksResourceHandler scItems = sc.getItems();
         UnlimitedItemStacksResourceHandler items = storage.getItems();

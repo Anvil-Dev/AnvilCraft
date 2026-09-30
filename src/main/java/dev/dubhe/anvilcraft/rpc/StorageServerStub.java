@@ -10,11 +10,11 @@ import dev.anvilcraft.lib.v2.util.stack.UnlimitedItemStack;
 import dev.dubhe.anvilcraft.api.StorageComparatorManager;
 import dev.dubhe.anvilcraft.api.StoragePortManager;
 import dev.dubhe.anvilcraft.api.TerminalSourceManager;
+import dev.dubhe.anvilcraft.api.item.ICannotFitInStationItem;
 import dev.dubhe.anvilcraft.api.itemhandler.unlimited.SpaceSizeItemStacksResourceHandler;
 import dev.dubhe.anvilcraft.api.itemhandler.unlimited.TypeLimitItemStacksResourceHandler;
 import dev.dubhe.anvilcraft.api.itemhandler.unlimited.UnlimitedItemStacksResourceHandler;
 import dev.dubhe.anvilcraft.block.container.storage.CrateBlock;
-import dev.dubhe.anvilcraft.block.container.storage.HyperdimensionStorageStationBlock;
 import dev.dubhe.anvilcraft.block.entity.storage.CrateBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.storage.LargeCrateBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.storage.ShulkerContainerBlockEntity;
@@ -68,7 +68,6 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.inventory.Slot;
-import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.CraftingInput;
@@ -78,7 +77,6 @@ import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.item.crafting.SingleRecipeInput;
 import net.minecraft.world.item.crafting.StonecutterRecipe;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.ShulkerBoxBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.LevelChunk;
@@ -130,6 +128,9 @@ public final class StorageServerStub {
     @SuppressWarnings("unused")
     public static final StreamCodec<RegistryFriendlyByteBuf, List<ItemStack>> ITEM_STACK_LIST_STREAM_CODEC =
         ItemStack.OPTIONAL_STREAM_CODEC.apply(ByteBufCodecs.list());
+    @SuppressWarnings("unused")
+    public static final StreamCodec<RegistryFriendlyByteBuf, List<FluidEntry>> FLUID_ENTRY_LIST_STREAM_CODEC =
+        FluidEntry.STREAM_CODEC.apply(ByteBufCodecs.list());
     private static final Multimap<UUID, StorageServerStub> STUBS = ArrayListMultimap.create();
     private static final Map<UUID, Map<Long, RemoteTarget>> REMOTE_STORAGES = new HashMap<>();
     /** Shift 连续合成会话（按玩家 × 源位置）：跨分块 RPC 保持锁定配方与本次点击剩余合成次数，防止残料漂移。 */
@@ -298,6 +299,22 @@ public final class StorageServerStub {
             page.add(view.resource(index).copyWithCount((int) Math.min(amount, Integer.MAX_VALUE)));
         }
         return page;
+    }
+
+    /**
+     * 读取存储端口中的流体快照（不做分类过滤），供 JEI 判定「空容器 + 流体现场盛装」。
+     *
+     * <p>界面上的 {@code fluids} 只随 {@link #sync} 更新，而配方界面覆盖仓储界面时 sync
+     * 既不 tick 发起、回调也会被丢弃，故 JEI 另取一份可独立拉取的快照。流体种类远少于
+     * 物品类型，无需分页。</p>
+     *
+     * @return 端口中的流体条目，同种流体合并数量，被取空的端口以 0 数量占位
+     */
+    @CallableParam(clazz = StorageServerStub.class, field = "FLUID_ENTRY_LIST_STREAM_CODEC")
+    @RemoteCallable(validator = StorageAccessValidator.class)
+    public static List<FluidEntry> craftingStorageFluids(UUID playerId, long sourcePos) {
+        StorageView view = StorageServerStub.getView(StorageServerStub.getAndClear(), playerId, sourcePos);
+        return StoragePortManager.collect(view.primary().getId());
     }
 
     @RemoteCallable(validator = StorageAccessValidator.class)
@@ -789,7 +806,7 @@ public final class StorageServerStub {
     @RemoteCallable(validator = StorageAccessValidator.class)
     public static boolean craftingAvailable(UUID playerId, long sourcePos) {
         StorageView view = StorageServerStub.getView(StorageServerStub.getAndClear(), playerId, sourcePos);
-        return view.primary().isCraftingUnlocked();
+        return view.primary().getRecipeBases() != null;
     }
 
     @RemoteCallable(validator = StorageAccessValidator.class)
@@ -2364,7 +2381,7 @@ public final class StorageServerStub {
         ServerPlayer player = StorageServerStub.getServerPlayer(playerId);
         StorageServerStub.CraftingTarget target = StorageServerStub.resolveCraftingTarget(player, sourcePos);
         CraftingStorage crafting = target.read();
-        if (target.view() == null || !target.view().primary().isCraftingUnlocked()) return false;
+        if (target.view() == null || target.view().primary().getRecipeBases() == null) return false;
         Inventory inventory = player.getInventory();
         crafting = StorageServerStub.clearCrafting(target, crafting);
         if (stonecutter) {
@@ -3636,11 +3653,7 @@ public final class StorageServerStub {
     private static boolean canStore(BaseStorage<?> storage, ItemStack stack) {
         Holder<IStorageType<?>> type = storage.getTypeHolder();
         if (type.is(ModStorageTypes.SHULKER_CONTAINER.getKey()) || type.is(ModStorageTypes.HYPERDIMENSION.getKey())) {
-            return !(stack.getItem() instanceof ShulkerContainerBlockItem)
-                   && !(stack.getItem() instanceof BlockItem blockItem
-                        && (blockItem.getBlock() instanceof HyperdimensionStorageStationBlock
-                            || blockItem.getBlock() instanceof ShulkerBoxBlock))
-                   && !stack.is(ModItems.HYPERDIMENSION_TERMINAL);
+            return !(stack.getItem() instanceof ICannotFitInStationItem);
         }
         return true;
     }

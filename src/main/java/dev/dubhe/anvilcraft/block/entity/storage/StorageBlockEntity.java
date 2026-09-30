@@ -21,7 +21,6 @@ import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
@@ -29,6 +28,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 
+import java.util.List;
 import java.util.UUID;
 import javax.annotation.Nullable;
 
@@ -168,7 +168,9 @@ public class StorageBlockEntity extends BlockEntity {
 
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     public boolean isCraftingUnlocked() {
-        return this.id != null && Storages.get().get(this.id).map(BaseStorage::isCraftingUnlocked).orElse(false);
+        return this.id != null && Storages.get().get(this.id)
+            .map(storage -> storage.getRecipeBases() != null)
+            .orElse(false);
     }
 
     public long getTotalCount() {
@@ -193,18 +195,25 @@ public class StorageBlockEntity extends BlockEntity {
             Storages.get().get(this.id).ifPresent(storage -> {
                 UnlimitedItemStacksResourceHandler items = storage.getItems();
                 for (int i = 0; i < items.size(); i++) {
-                    ItemStack stack = items.getUnlimitedStackInSlot(i).toStack();
-                    if (stack.isEmpty()) continue;
-                    while (!stack.isEmpty()) {
-                        Block.popResource(level, pos, stack.split(Math.min(64, stack.getCount())));
-                    }
+                    StorageBlockEntity.dropStack(level, pos, items.getUnlimitedStackInSlot(i).toStack());
                 }
-                if (storage.isCraftingUnlocked()) {
-                    Block.popResource(level, pos, new ItemStack(Items.CRAFTING_TABLE));
-                    Block.popResource(level, pos, new ItemStack(Items.STONECUTTER));
+                List<ItemStack> recipeBases = storage.getRecipeBases();
+                if (recipeBases != null) {
+                    for (ItemStack base : recipeBases) {
+                        StorageBlockEntity.dropStack(level, pos, base.copy());
+                    }
                 }
                 Storages.get().remove(this.id);
             });
+        }
+    }
+
+    /**
+     * 掉落实物，堆叠数量超过一组时按组分批掉落。
+     */
+    private static void dropStack(Level level, BlockPos pos, ItemStack stack) {
+        while (!stack.isEmpty()) {
+            Block.popResource(level, pos, stack.split(Math.min(64, stack.getCount())));
         }
     }
 

@@ -239,6 +239,16 @@ public final class StorageClientStub {
         );
     }
 
+    /** 读取存储流体快照（不做分类过滤），供 JEI 判定桶装流体能否现场盛装。 */
+    public static CompletableFuture<List<StorageServerStub.FluidEntry>> craftingStorageFluids(BlockPos sourcePos) {
+        return RPC.invoke(
+            RpcTarget.server(),
+            StorageServerStub::craftingStorageFluids,
+            StorageClientStub.playerId(),
+            sourcePos.asLong()
+        );
+    }
+
     /** 读取仓储合成面板数据（① 切石机输入、② 合成 9 宫格、切石机选中配方）。 */
     public static CompletableFuture<CraftingStorage> craftingGet(BlockPos sourcePos) {
         return RPC.invoke(
