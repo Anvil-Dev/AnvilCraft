@@ -10,6 +10,7 @@ import dev.dubhe.anvilcraft.recipe.EnergyWeaponMakeRecipe;
 import dev.dubhe.anvilcraft.recipe.FluidMixingRecipe;
 import dev.dubhe.anvilcraft.recipe.JewelCraftingRecipe;
 import dev.dubhe.anvilcraft.recipe.LaserHitRecipe;
+import dev.dubhe.anvilcraft.recipe.NeutroniumChargingRecipe;
 import dev.dubhe.anvilcraft.recipe.PillRecipe;
 import dev.dubhe.anvilcraft.recipe.PortalConversionRecipe;
 import dev.dubhe.anvilcraft.recipe.TerminalUnbindRecipe;
@@ -75,6 +76,10 @@ public class ModRecipeSerializers {
 
     public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<ShapedRecipe>> TERMINAL_UPGRADE = DF.register(
         "terminal_upgrade", () -> TerminalUpgradeRecipe.SERIALIZER
+    );
+
+    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<ShapedRecipe>> NEUTRONIUM_CHARGING = DF.register(
+        "neutronium_charging", () -> NeutroniumChargingRecipe.SERIALIZER
     );
 
     public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<BlockCrushRecipe>> BLOCK_CRUSH = DF.register(

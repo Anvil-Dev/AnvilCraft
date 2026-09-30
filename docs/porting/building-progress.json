@@ -5866,5 +5866,42 @@
       ]
     },
     "remaining": "Continue full recipe catalogue parity, continuous/multiplayer timing, remaining jet/black-hole edges and compatibility audit."
+  },
+  "neutronium_charging_source_parity_2026_09_30": {
+    "source_commit": "cca4b2aac5328926fa88bc01d958d007ff6bfc2a",
+    "status": "implemented_and_verified",
+    "implementation": [
+      "Register the source neutronium_charging shaped serializer and use the uncharged-neutronium tag so both ordinary and stable ingots can be charged.",
+      "Share source enchantment-only inheritance between crafting and charger recipe assembly, preserving fresh output templates and unrelated input components.",
+      "Complete real charger processing through assemble instead of the static output template, retaining occupied-output behavior.",
+      "Restore both charge and discharge recipe durations to 3600 ticks while retaining -4000/+3200 power values."
+    ],
+    "validation": {
+      "focused_required_tests": 4,
+      "full_required_tests": 789,
+      "commands": [
+        "./gradlew.bat -PportValidation -I dev/porting/checkstyle.gradle compileJava runData checkPortJava --console=plain",
+        "./gradlew.bat -PportValidation -I dev/porting/neutronium-charging.gradle -I dev/porting/checkstyle.gradle compileJava runGameTestServer checkPortJava --console=plain",
+        "./gradlew.bat -PportValidation -I dev/porting/checkstyle.gradle compileJava runGameTestServer checkPortJava --console=plain",
+        "git diff --check"
+      ],
+      "logs": {
+        "data": "build/porting/data-neutronium-source.log",
+        "focused": "build/porting/tests-neutronium-focused.log",
+        "full": "build/porting/tests-neutronium-all-final.log"
+      },
+      "coverage": [
+        "Both tagged ingots, enchanted and plain results, invalid charged input, input immutability and no output-template contamination.",
+        "JSON and network decoding retain the custom shaped recipe and its enchantment inheritance.",
+        "Actual charger completion retains the work stack while output is occupied, then transfers enchantments and clears the processing slot.",
+        "All three regenerated recipe JSON files match source after native ingredient/count normalization."
+      ],
+      "limits": [
+        "Initial local fixture compilation required the native typed getBlockEntity helper; focused behavior then passed with two fixture formatting violations. Final full validation passed.",
+        "No client rendering code changed; verification uses the real server recipe and block-entity output paths.",
+        "All added tests remain local and ignored."
+      ]
+    },
+    "remaining": "Continue complete recipe catalogue audit; component-aware cauldron inputs/multiple fluid outputs and unique-template stamping are confirmed remaining gaps."
   }
 }

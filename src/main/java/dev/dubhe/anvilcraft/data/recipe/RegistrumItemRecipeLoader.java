@@ -14,6 +14,7 @@ import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.item.property.component.StoredEnergy;
 import dev.dubhe.anvilcraft.recipe.JewelCraftingRecipe;
+import dev.dubhe.anvilcraft.recipe.NeutroniumChargingRecipe;
 import dev.dubhe.anvilcraft.recipe.TerminalUpgradeRecipe;
 import net.minecraft.core.HolderGetter;
 import net.minecraft.core.component.DataComponentPatch;
@@ -1564,13 +1565,13 @@ public class RegistrumItemRecipeLoader {
     public static <T extends Item> void chargedNeutroniumIngot(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
         HolderGetter<Item> lookup = provider.getItems();
         ShapedRecipeBuilder.shaped(lookup, RecipeCategory.MISC, ctx.get())
-            .pattern("CCC")
-            .pattern("CNC")
-            .pattern("CCC")
-            .define('C', ModItems.SUPER_CAPACITOR)
-            .define('N', ModItems.NEUTRONIUM_INGOT)
+            .pattern("SSS")
+            .pattern("SNS")
+            .pattern("SSS")
+            .define('S', ModItems.SUPER_CAPACITOR)
+            .define('N', ModItemTags.UNCHARGED_NEUTRONIUM_INGOTS)
             .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.SUPER_CAPACITOR), AnvilCraftDatagen.has(lookup, ModItems.SUPER_CAPACITOR))
-            .save(provider);
+            .save(NeutroniumChargingRecipe.output(provider));
     }
 
     public static <T extends Item> void cocoaLiquor(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
