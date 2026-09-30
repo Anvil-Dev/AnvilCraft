@@ -355,6 +355,13 @@ public final class FluidNetworkScanner {
         }
         ResourceHandler<FluidResource> handler = container.handler();
         if (!seenHandlers.add(handler)) {
+            for (Map.Entry<BlockPos, FluidEndpoint> registered : endpoints.entrySet()) {
+                if (registered.getValue().handler().equals(handler)) {
+                    endpoints.put(registered.getKey(), registered.getValue().withEntry(
+                        attachPipePos.immutable(), sideToPipe, effectiveHeight));
+                    return;
+                }
+            }
             return;
         }
         endpoints.put(immutablePos, new FluidEndpoint(

@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.api.fluid.network;
 
+import dev.dubhe.anvilcraft.api.fluid.GasDisplayFillProvider;
 import dev.dubhe.anvilcraft.api.fluidtank.CreativeFluidHandler;
 import dev.dubhe.anvilcraft.block.entity.fluid.AbstractPipeBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.fluid.GlassPipeBlockEntity;
@@ -9,6 +10,7 @@ import dev.dubhe.anvilcraft.util.TriggerUtil;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -174,7 +176,7 @@ public class FluidPipeNetwork {
     public void tick() {
         this.transferredThisTick = false;
         this.expireGlassDisplays();
-        // 气体扩散显示：仅当存在气体扩散体系时，连接参与扩散端点的玻璃管道才持续充满
+        this.reachabilityCache.clear();
         this.updateGasDisplay();
         if (this.endpoints.size() < 2) {
             return;
@@ -182,7 +184,6 @@ public class FluidPipeNetwork {
         if (this.canTickEndpoints()) {
             return;
         }
-        this.reachabilityCache.clear();
         // 每 tick 分配前重置各阀门预算（实时读取阀门当前流速设置）
         if (!this.valves.isEmpty()) {
             for (ValveState valve : this.valves.values()) {
@@ -285,7 +286,7 @@ public class FluidPipeNetwork {
      * pressure is derived from fill ratio plus the pump's pressure bias.
      */
     private void equilibrateGases() {
-        Set<FluidStack> gasTypes = this.collectNetworkGasTypes();
+        List<FluidStack> gasTypes = this.collectNetworkGasTypes();
         int[] budget = new int[]{GAS_EQUILIBRIUM_BUDGET};
         for (FluidStack gasType : gasTypes) {
             List<FluidEndpoint> candidates = this.gasCandidates(gasType);
@@ -297,25 +298,26 @@ public class FluidPipeNetwork {
     }
 
     /** 收集网络内所有端点当前搭载的气体类型。 */
-    private Set<FluidStack> collectNetworkGasTypes() {
-        Set<FluidStack> gasTypes = new HashSet<>();
+    private List<FluidStack> collectNetworkGasTypes() {
+        List<FluidStack> gasTypes = new ArrayList<>();
         for (FluidEndpoint ep : this.endpoints) {
             if (this.isEndpointConnected(ep)) {
                 continue;
             }
             for (FluidStack stored : distinctFluidTypes(ep.handler())) {
                 if (!stored.isEmpty() && stored.getFluid().getFluidType().isLighterThanAir()) {
-                    gasTypes.add(stored.copyWithAmount(1));
+                    boolean present = gasTypes.stream().anyMatch(gas -> FluidStack.isSameFluidSameComponents(gas, stored));
+                    if (!present) gasTypes.add(stored.copyWithAmount(1));
                 }
             }
         }
+        gasTypes.sort(Comparator.comparing((FluidStack gas) -> BuiltInRegistries.FLUID.getKey(gas.getFluid()).toString())
+            .thenComparingInt(FluidStack::hashFluidAndComponents));
         return gasTypes;
     }
 
     /**
-     * 气体扩散显示：仅当某种气体在至少两个端点间形成扩散体系时，
-     * 连接这些参与扩散端点的玻璃管道才持续充满该气体（表现气体会扩散）。
-     * 无扩散体系的气体不渲染；扩散体系消失后清除对应玻璃管道的气体显示。
+     * 持有气体的端点沿允许输出的方向点亮玻璃管道；不要求存在压力差或第二个端点。
      */
     private void updateGasDisplay() {
         if (this.level.isClientSide() || this.glassPipePositions.isEmpty()) {
@@ -324,12 +326,10 @@ public class FluidPipeNetwork {
         Map<BlockPos, FluidStack> gasPipes = new HashMap<>();
         Map<BlockPos, Float> pipeAlphas = new HashMap<>();
         for (FluidStack gasType : this.collectNetworkGasTypes()) {
-            List<FluidEndpoint> candidates = this.gasCandidates(gasType);
-            if (candidates.size() < 2) {
-                continue;
-            }
-            float alphaFill = avgGasAlphaFill(candidates, gasType);
-            for (BlockPos pos : this.diffusionPipeSet(candidates)) {
+            Set<BlockPos> diffusionPipes = this.diffusionPipeSet(gasType);
+            if (diffusionPipes.isEmpty()) continue;
+            float alphaFill = avgGasAlphaFill(this.gasCandidates(gasType), gasType);
+            for (BlockPos pos : diffusionPipes) {
                 gasPipes.put(pos, gasType);
                 pipeAlphas.put(pos, alphaFill);
             }
@@ -367,14 +367,18 @@ public class FluidPipeNetwork {
             if (storage[0] <= 0) {
                 continue;
             }
-            int totalCapacity = 0;
-            for (int i = 0; i < handler.size(); i++) {
-                totalCapacity += handler.getCapacityAsInt(i, FluidResource.of(gasType));
+            double ratio;
+            if (handler instanceof GasDisplayFillProvider provider) {
+                ratio = Math.clamp(provider.gasDisplayFill(gasType), 0.0F, 1.0F);
+            } else {
+                long totalCapacity = 0;
+                for (int i = 0; i < handler.size(); i++) {
+                    totalCapacity += handler.getCapacityAsLong(i, FluidResource.of(gasType));
+                }
+                if (totalCapacity <= 0) continue;
+                ratio = (double) storage[0] / totalCapacity;
             }
-            if (totalCapacity <= 0) {
-                continue;
-            }
-            totalRatio += (double) storage[0] / totalCapacity;
+            totalRatio += ratio;
             counted++;
         }
         if (counted == 0) {
@@ -384,41 +388,18 @@ public class FluidPipeNetwork {
     }
 
     /**
-     * 计算处于扩散路径上的玻璃管道：从每个参与扩散端点的接入管道出发 BFS，
-     * 能被至少两个不同扩散端点到达的玻璃管道即为连接这些端点的扩散管道。
+     * 从实际持有气体的端点出发，复用分配过程的阀门与泵方向约束。
      */
-    private Set<BlockPos> diffusionPipeSet(List<FluidEndpoint> candidates) {
-        List<BlockPos> seeds = new ArrayList<>();
-        for (FluidEndpoint ep : candidates) {
-            for (FluidEndpoint.Entry entry : ep.entries()) {
-                BlockPos seed = entry.fromPipePos();
-                if (!seeds.contains(seed)) {
-                    seeds.add(seed);
-                }
-            }
-        }
-        Map<BlockPos, Set<BlockPos>> reachableBySeed = new HashMap<>();
-        for (BlockPos seed : seeds) {
-            Set<BlockPos> visited = new HashSet<>();
-            Deque<BlockPos> queue = new ArrayDeque<>();
-            visited.add(seed);
-            queue.add(seed);
-            while (!queue.isEmpty()) {
-                BlockPos cur = queue.poll();
-                if (this.glassPipePositions.contains(cur)) {
-                    reachableBySeed.computeIfAbsent(cur, key -> new HashSet<>()).add(seed);
-                }
-                for (BlockPos next : this.adjacency.getOrDefault(cur, List.of())) {
-                    if (visited.add(next)) {
-                        queue.add(next);
-                    }
-                }
-            }
-        }
+    private Set<BlockPos> diffusionPipeSet(FluidStack gasType) {
         Set<BlockPos> result = new HashSet<>();
-        for (Map.Entry<BlockPos, Set<BlockPos>> entry : reachableBySeed.entrySet()) {
-            if (entry.getValue().size() >= 2) {
-                result.add(entry.getKey());
+        for (FluidEndpoint source : this.endpoints) {
+            if (this.isEndpointConnected(source) || gasStorage(source.handler(), gasType)[0] <= 0) continue;
+            for (FluidEndpoint.Entry entry : source.entries()) {
+                if (!this.canDrainFromEntry(entry)) continue;
+                Reachability reach = this.computeReachableCached(entry.fromPipePos(), gasType);
+                for (BlockPos pos : reach.pathValves().keySet()) {
+                    if (this.glassPipePositions.contains(pos)) result.add(pos);
+                }
             }
         }
         return result;

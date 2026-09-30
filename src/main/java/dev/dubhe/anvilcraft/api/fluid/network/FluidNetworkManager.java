@@ -253,17 +253,12 @@ public final class FluidNetworkManager {
                 d.containers.remove(containerPos); // 已失效 → 注销
                 continue;
             }
-            BlockPos seed = findUnindexedAdjacentPipe(level, containerPos, d.partIndex);
-            if (seed == null) {
-                continue; // 无相邻管道，或相邻管道所属网络已在本次重建中建好
-            }
-            FluidPipeNetwork network = FluidNetworkScanner.scan(level, seed);
-            if (network == null) {
-                continue;
-            }
-            d.networks.add(network);
-            for (BlockPos part : network.getParts()) {
-                d.partIndex.put(part, network);
+            BlockPos seed;
+            while ((seed = findUnindexedAdjacentPipe(level, containerPos, d.partIndex)) != null) {
+                FluidPipeNetwork network = FluidNetworkScanner.scan(level, seed);
+                if (network == null) break;
+                d.networks.add(network);
+                for (BlockPos part : network.getParts()) d.partIndex.put(part, network);
             }
         }
 

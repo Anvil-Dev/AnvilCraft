@@ -4792,5 +4792,52 @@
     "remaining_source_updates": [
       "cca4b2aac gas rendering, pipe network and interactions"
     ]
+  },
+  "source_update_cca4b2aac_network": {
+    "source_commit": "cca4b2aac5328926fa88bc01d958d007ff6bfc2a",
+    "status": "network_bucket_and_interaction_delta_ported_container_rendering_pending",
+    "changes": [
+      "Scan every unindexed adjacent pipe branch of each container and merge duplicate multipart-handler entrances into the same endpoint.",
+      "Display stationary gas from a single holder without requiring transfer or a second endpoint; use the transfer reachability rules for face check valves, pump directions and control-valve filters.",
+      "Clear reachability caches before display each tick, deduplicate gas identities and sort them deterministically by registry ID and component hash.",
+      "Add GasDisplayFillProvider to enhanced multi-fluid tanks and the native creative handler so pipe opacity follows the actual display denominator.",
+      "Expose deferred bucket suppliers for all six gas fluids, enabling ordinary empty-bucket refilling. Add primordial matter bucket fill/empty sounds.",
+      "Only a check-valve item or empty main hand removes a check valve. Hammer fallback no longer counts as an empty hand; an occupied offhand does not prevent removal."
+    ],
+    "adaptations": [
+      "Use native ResourceHandler/FluidResource APIs and the existing CreativeFluidHandler in place of the source creative InfinityFluidTank.",
+      "Generic capacity accumulation uses long native capacities to avoid integer overflow.",
+      "Preserve existing deferred third-party capability discovery and unloaded-chunk guards."
+    ],
+    "verification": {
+      "focused_required_tests": 9,
+      "full_required_tests": 760,
+      "commands": [
+        "./gradlew.bat -PportValidation -I dev/porting/gas-network-cca.gradle -I dev/porting/checkstyle.gradle compileJava runGameTestServer checkPortJava --console=plain",
+        "./gradlew.bat -PportValidation -I dev/porting/checkstyle.gradle compileJava runGameTestServer runData checkPortJava --console=plain",
+        "git diff --check"
+      ],
+      "focused_log": "build/porting/tests-gas-network-cca-focused-3.log",
+      "full_log": "build/porting/tests-gas-network-cca-all.log",
+      "generated_changes": 0,
+      "coverage": [
+        "Six disconnected physical branches all display the gas in their common tank.",
+        "A real large tank scanned through two parts retains both entrances on one shared endpoint.",
+        "Single-endpoint static gas obeys check-valve and pump direction, source-side blocking and mutable control filters.",
+        "Creative sources display at full opacity; normal and enhanced large tanks expose the correct ratios, including multiple infinite gases.",
+        "Gas selection remains stable across 20 ticks; all seven contained fluids fill and drain registered buckets atomically.",
+        "Check-valve item install/removal and empty-main-hand versus hammer/offhand behavior are verified."
+      ],
+      "limits": [
+        "The new assertions validate network state and display data on the server. The new container geometry and opacity still require the renderer port and paired live-client validation.",
+        "The first focused run failed fixture compilation, the second passed runtime cases but failed fixture formatting; the final focused and full runs passed all checks."
+      ]
+    },
+    "remaining": [
+      "Port the cca4b2aac rendering changes for AutoEnchantingTable, FishTank, LargeCauldron, LargeFluidTank and CelestialForgingAnvilFluidInterface.",
+      "The native CFA fluid-interface block entity currently has no renderer implementation/registration; add the full source renderer as part of this step.",
+      "Preserve source item/world distinctions: source LargeFluidTankItemRenderer still draws amount-proportional layers; new gas bands apply to the world renderer.",
+      "Validate liquid/gas mixtures, multiple gas bands, bottom-face suppression, fill opacity, reload and relevant item regressions in both clients."
+    ]
   }
 }

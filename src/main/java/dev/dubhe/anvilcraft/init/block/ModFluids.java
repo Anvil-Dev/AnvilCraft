@@ -120,7 +120,7 @@ public class ModFluids {
         "hydrogen", () -> ModFluids.HYDROGEN_FLUID_TYPE
     );
     public static final DeferredHolder<Fluid, GasFluid> HYDROGEN = FLUIDS.register(
-        "hydrogen", () -> new GasFluid(ModFluids.HYDROGEN_FLUID_TYPE)
+        "hydrogen", () -> new GasFluid(ModFluids.HYDROGEN_FLUID_TYPE, ModItems.HYDROGEN_BUCKET)
     );
 
     public static final FluidType OXYGEN_FLUID_TYPE = gasType("oxygen");
@@ -128,7 +128,7 @@ public class ModFluids {
         "oxygen", () -> ModFluids.OXYGEN_FLUID_TYPE
     );
     public static final DeferredHolder<Fluid, GasFluid> OXYGEN = FLUIDS.register(
-        "oxygen", () -> new GasFluid(ModFluids.OXYGEN_FLUID_TYPE)
+        "oxygen", () -> new GasFluid(ModFluids.OXYGEN_FLUID_TYPE, ModItems.OXYGEN_BUCKET)
     );
 
     public static final FluidType HELIUM_FLUID_TYPE = gasType("helium");
@@ -136,7 +136,7 @@ public class ModFluids {
         "helium", () -> ModFluids.HELIUM_FLUID_TYPE
     );
     public static final DeferredHolder<Fluid, GasFluid> HELIUM = FLUIDS.register(
-        "helium", () -> new GasFluid(ModFluids.HELIUM_FLUID_TYPE)
+        "helium", () -> new GasFluid(ModFluids.HELIUM_FLUID_TYPE, ModItems.HELIUM_BUCKET)
     );
 
     public static final FluidType DEUTERIUM_FLUID_TYPE = gasType("deuterium");
@@ -144,7 +144,7 @@ public class ModFluids {
         "deuterium", () -> ModFluids.DEUTERIUM_FLUID_TYPE
     );
     public static final DeferredHolder<Fluid, GasFluid> DEUTERIUM = FLUIDS.register(
-        "deuterium", () -> new GasFluid(ModFluids.DEUTERIUM_FLUID_TYPE)
+        "deuterium", () -> new GasFluid(ModFluids.DEUTERIUM_FLUID_TYPE, ModItems.DEUTERIUM_BUCKET)
     );
 
     public static final FluidType XENON_FLUID_TYPE = gasType("xenon");
@@ -152,7 +152,7 @@ public class ModFluids {
         "xenon", () -> ModFluids.XENON_FLUID_TYPE
     );
     public static final DeferredHolder<Fluid, GasFluid> XENON = FLUIDS.register(
-        "xenon", () -> new GasFluid(ModFluids.XENON_FLUID_TYPE)
+        "xenon", () -> new GasFluid(ModFluids.XENON_FLUID_TYPE, ModItems.XENON_BUCKET)
     );
 
     public static final FluidType KRYPTON_FLUID_TYPE = gasType("krypton");
@@ -160,7 +160,7 @@ public class ModFluids {
         "krypton", () -> ModFluids.KRYPTON_FLUID_TYPE
     );
     public static final DeferredHolder<Fluid, GasFluid> KRYPTON = FLUIDS.register(
-        "krypton", () -> new GasFluid(ModFluids.KRYPTON_FLUID_TYPE)
+        "krypton", () -> new GasFluid(ModFluids.KRYPTON_FLUID_TYPE, ModItems.KRYPTON_BUCKET)
     );
 
     private static FluidType gasType(String name) {

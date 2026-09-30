@@ -17,6 +17,7 @@ import net.minecraft.gametest.framework.FunctionGameTestInstance;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.gametest.framework.TestData;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.item.BucketItem;
 import net.minecraft.world.item.Items;
@@ -27,6 +28,7 @@ import net.minecraft.world.level.storage.TagValueInput;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.common.SoundActions;
 import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.event.RegisterGameTestsEvent;
 import net.neoforged.neoforge.registries.RegisterEvent;
@@ -79,8 +81,7 @@ public final class GasFluidTests {
         var player = helper.makeMockPlayer(GameType.SURVIVAL);
         for (Fluid fluid : fluids()) {
             var state = fluid.defaultFluidState();
-            boolean primordial = fluid == ModFluids.PRIMORDIAL_MATTER.get();
-            helper.assertTrue(fluid.getBucket() == (primordial ? ModItems.PRIMORDIAL_MATTER_BUCKET.get() : Items.AIR)
+            helper.assertTrue(fluid.getBucket() == bucketItems().get(fluids().indexOf(fluid))
                 && fluid.getFluidType().isLighterThanAir() && state.isSource() && state.getAmount() == 8
                 && state.getOwnHeight() == 0 && state.createLegacyBlock().isAir()
                 && state.getShape(helper.getLevel(), BlockPos.ZERO).isEmpty(), "Non-placeable source fluid semantics are preserved");
@@ -89,6 +90,9 @@ public final class GasFluidTests {
             helper.assertTrue(type.isLighterThanAir() && type.getDensity() == -1000 && type.getViscosity() == 100
                 && type.getFallDistanceModifier(player) == 0, "All six gases retain the source physical profile");
         }
+        var primordialType = ModFluids.PRIMORDIAL_MATTER.get().getFluidType();
+        helper.assertTrue(primordialType.getSound(SoundActions.BUCKET_FILL) == SoundEvents.BUCKET_FILL
+            && primordialType.getSound(SoundActions.BUCKET_EMPTY) == SoundEvents.BUCKET_EMPTY, "Primordial bucket sounds match source");
         helper.succeed();
     }
 
@@ -117,15 +121,13 @@ public final class GasFluidTests {
             }
             helper.assertTrue(items.getResource(0).is(Items.BUCKET) && items.getAmountAsInt(0) == 1,
                 "Drain returns exactly one empty bucket");
-            if (fluid == ModFluids.PRIMORDIAL_MATTER.get()) {
-                var emptyBucket = ItemAccess.forHandlerIndexStrict(items, 0).getCapability(Capabilities.Fluid.ITEM);
-                try (Transaction tx = Transaction.openRoot()) {
-                    helper.assertTrue(emptyBucket.insert(FluidResource.of(fluid), 1000, tx) == 1000,
-                        "Primordial matter can fill an empty bucket as in source");
-                    tx.commit();
-                }
-                helper.assertTrue(items.getResource(0).is(bucket), "Primordial matter refilling returns its registered bucket");
+            var emptyBucket = ItemAccess.forHandlerIndexStrict(items, 0).getCapability(Capabilities.Fluid.ITEM);
+            try (Transaction tx = Transaction.openRoot()) {
+                helper.assertTrue(emptyBucket.insert(FluidResource.of(fluid), 1000, tx) == 1000,
+                    "Every gas can fill an empty bucket through its registered supplier");
+                tx.commit();
             }
+            helper.assertTrue(items.getResource(0).is(bucket), "Refilling returns the corresponding registered bucket");
             helper.assertTrue(!bucket.emptyContents(player, helper.getLevel(), pos, null)
                 && helper.getLevel().getBlockState(pos).isAir(), "These fluids cannot place or erase world blocks");
         }

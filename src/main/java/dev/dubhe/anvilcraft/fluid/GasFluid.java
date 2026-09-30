@@ -3,7 +3,6 @@ package dev.dubhe.anvilcraft.fluid;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Blocks;
@@ -14,16 +13,20 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.neoforge.fluids.FluidType;
 
+import java.util.function.Supplier;
+
 public class GasFluid extends Fluid {
     private final FluidType type;
+    private final Supplier<? extends Item> bucket;
 
-    public GasFluid(FluidType type) {
+    public GasFluid(FluidType type, Supplier<? extends Item> bucket) {
         this.type = type;
+        this.bucket = bucket;
     }
 
     @Override
     public Item getBucket() {
-        return Items.AIR;
+        return this.bucket.get();
     }
 
     @Override

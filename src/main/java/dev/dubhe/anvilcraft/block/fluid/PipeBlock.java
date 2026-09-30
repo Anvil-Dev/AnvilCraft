@@ -9,7 +9,6 @@ import dev.dubhe.anvilcraft.block.entity.fluid.AbstractPipeBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.fluid.GlassPipeBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
-import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -566,18 +565,13 @@ public abstract class PipeBlock extends Block
      * 管道通用的物品交互：
      * <ul>
      *   <li>手持止逆阀物品点击臂：该面无阀 → 加阀（Shift 反向，消耗物品）；该面已有阀 → 取消止逆阀（退还物品）；</li>
-     *   <li>手持扳手点击有阀的臂 → 移除该面阀并掉落物品（无阀时放行给子类扳手逻辑）；</li>
+     *   <li>扳手和铁砧锤不触发拆阀，交由对应工具逻辑处理。</li>
      * </ul>
      */
     protected InteractionResult handleCheckValveInteraction(
         ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult
     ) {
-        boolean isValveItem = stack.is(ModItems.CHECK_VALVE.get());
-        boolean isWrench = stack.is(Tags.Items.TOOLS_WRENCH);
-        boolean isHammer = stack.is(ModItemTags.ANVIL_HAMMER);
-        if (!isValveItem && !isWrench && !isHammer) {
-            return InteractionResult.TRY_WITH_EMPTY_HAND;
-        }
+        if (!stack.is(ModItems.CHECK_VALVE.get())) return InteractionResult.TRY_WITH_EMPTY_HAND;
 
         Direction arm = getArmDirection(pos, hitResult);
         if (arm == null || !this.hasArmToward(state, arm)) {
@@ -585,22 +579,7 @@ public abstract class PipeBlock extends Block
         }
 
         AbstractPipeBlockEntity be = getCheckValve(level, pos);
-        boolean hasValveHere = be != null && be.hasValveOn(arm);
-
-        // 扳手 / 铁砧锤：仅当该面已有阀才拦截（取下），否则放行给子类逻辑
-        if (isWrench || isHammer) {
-            if (!hasValveHere) {
-                return InteractionResult.TRY_WITH_EMPTY_HAND;
-            }
-            if (level.isClientSide()) {
-                return InteractionResult.SUCCESS;
-            }
-            this.detachCheckValve(level, pos, state, arm, player);
-            return InteractionResult.CONSUME;
-        }
-
-        // 止逆阀物品：该面已有阀 → 取消（退还一个物品）；无阀 → 添加（Shift 反向，消耗物品）
-        if (hasValveHere) {
+        if (be != null && be.hasValveOn(arm)) {
             if (level.isClientSide()) {
                 return InteractionResult.SUCCESS;
             }
@@ -663,6 +642,7 @@ public abstract class PipeBlock extends Block
      */
     @Override
     protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
+        if (!player.getMainHandItem().isEmpty()) return super.useWithoutItem(state, level, pos, player, hitResult);
         Direction arm = getArmDirection(pos, hitResult);
         if (arm != null && this.hasArmToward(state, arm)) {
             AbstractPipeBlockEntity be = getCheckValve(level, pos);
