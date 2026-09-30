@@ -4,11 +4,13 @@ import dev.anvilcraft.lib.v2.util.predicate.ChanceItemStack;
 import dev.anvilcraft.lib.v2.util.predicate.ItemIngredientPredicate;
 import dev.dubhe.anvilcraft.block.power.consumer.HeaterBlock;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
+import dev.dubhe.anvilcraft.recipe.anvil.predicate.block.HasCauldron;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.SuperHeatingRecipe;
 import dev.dubhe.anvilcraft.util.CauldronUtil;
 import lombok.Getter;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
+import net.neoforged.neoforge.fluids.FluidStackTemplate;
 
 import java.util.List;
 
@@ -44,12 +46,15 @@ public class MDSuperHeatingRecipeComponent extends MDBaseAnvilRecipeComponent {
     }
 
     public static BlockState getInputCauldron(SuperHeatingRecipe recipe) {
-        Block material = recipe.getHasCauldron().getFluidCauldron();
+        Block material = HasCauldron.getDefaultCauldron(recipe.getHasCauldron().fluid());
         return CauldronUtil.fullState(material);
     }
 
     public static BlockState getResultCauldron(SuperHeatingRecipe recipe) {
-        Block result = recipe.getHasCauldron().getTransformCauldron();
+        List<FluidStackTemplate> transforms = recipe.getHasCauldron().transforms();
+        Block result = transforms.isEmpty()
+                       ? HasCauldron.getDefaultCauldron(recipe.getHasCauldron().fluid())
+                       : HasCauldron.getDefaultCauldron(getDisplayedElement(transforms).fluid().value());
         if (recipe.isConsumeFluid()) {
             return CauldronUtil.getStateFromContentAndLevel(result, CauldronUtil.maxLevel(result) - 1);
         } else if (recipe.isProduceFluid()) {

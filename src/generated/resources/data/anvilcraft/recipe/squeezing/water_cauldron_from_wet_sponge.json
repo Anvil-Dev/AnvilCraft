@@ -1,12 +1,14 @@
 {
   "type": "anvilcraft:squeezing",
-  "fluid": "minecraft:null",
+  "fluid": [],
   "ingredient": {
     "blocks": "minecraft:wet_sponge"
   },
-  "produce": 250,
   "result": {
     "block": "minecraft:sponge"
   },
-  "transform": "minecraft:water"
+  "transform": {
+    "amount": 250,
+    "id": "minecraft:water"
+  }
 }

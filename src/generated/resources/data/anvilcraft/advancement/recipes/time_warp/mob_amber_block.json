@@ -1,6 +1,16 @@
 {
   "parent": "minecraft:recipes/root",
   "criteria": {
+    "has_resin_block": {
+      "conditions": {
+        "items": [
+          {
+            "items": "anvilcraft:resin_block"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
     "has_the_recipe": {
       "conditions": {
         "recipe": "anvilcraft:mob_amber_block"
@@ -10,7 +20,8 @@
   },
   "requirements": [
     [
-      "has_the_recipe"
+      "has_the_recipe",
+      "has_resin_block"
     ]
   ],
   "rewards": {

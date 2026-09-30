@@ -13,6 +13,7 @@ import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.IntFunction;
 
 public class JeiSlotUtil {
     public static final int OFFSET = 19;
@@ -24,61 +25,94 @@ public class JeiSlotUtil {
     public static final int DEFAULT_Y = 22;
 
     /**
-     * 使用默认的居中位置绘制输入槽。
+     * 默认的居中位置
      */
-    public static void drawDefaultInputSlots(GuiGraphicsExtractor graphics, IDrawable slot, int inputSize) {
-        JeiSlotUtil.drawSlots(graphics, slot, inputSize, JeiSlotUtil.INPUT_X - 1, JeiSlotUtil.DEFAULT_Y - 1);
+    public static void drawDefaultInputSlots(GuiGraphicsExtractor guiGraphics, IDrawable slot, int inputSize) {
+        drawSlots(guiGraphics, slot, inputSize, INPUT_X - 1, DEFAULT_Y - 1);
     }
 
     /**
-     * 存在流体时将物品输入槽向上偏移。
+     * 存在流体时物品位置向上偏移
      */
-    public static void drawItemInputSlots(GuiGraphicsExtractor graphics, IDrawable slot, int inputSize) {
-        JeiSlotUtil.drawSlots(graphics, slot, inputSize, JeiSlotUtil.INPUT_X - 1, JeiSlotUtil.ITEM_Y - 1);
+    public static void drawItemInputSlots(GuiGraphicsExtractor guiGraphics, IDrawable slot, int inputSize) {
+        drawSlots(guiGraphics, slot, inputSize, INPUT_X - 1, ITEM_Y - 1);
     }
 
     /**
-     * 存在物品时将流体输入槽向下偏移。
+     * 存在物品时流体位置向下偏移
      */
-    public static void drawFluidInputSlots(GuiGraphicsExtractor graphics, IDrawable slot, int inputSize) {
-        JeiSlotUtil.drawSlots(graphics, slot, inputSize, JeiSlotUtil.INPUT_X - 1, JeiSlotUtil.FLUID_Y - 1);
+    public static void drawFluidInputSlots(GuiGraphicsExtractor guiGraphics, IDrawable slot, int inputSize) {
+        drawSlots(guiGraphics, slot, inputSize, INPUT_X - 1, FLUID_Y - 1);
     }
 
     /**
-     * 使用默认的居中位置绘制输出槽。
+     * 默认的居中位置
      */
-    public static void drawDefaultOutputSlots(GuiGraphicsExtractor graphics, IDrawable slot, int outputSize) {
-        JeiSlotUtil.drawSlots(graphics, slot, outputSize, JeiSlotUtil.OUTPUT_X - 1, JeiSlotUtil.DEFAULT_Y - 1);
+    public static void drawDefaultOutputSlots(GuiGraphicsExtractor guiGraphics, IDrawable slot, int outputSize) {
+        drawSlots(guiGraphics, slot, outputSize, OUTPUT_X - 1, DEFAULT_Y - 1);
     }
 
     /**
-     * 存在流体时将物品输出槽向上偏移。
+     * 默认的居中位置，逐个产出各自决定槽位样式。
+     *
+     * <p>用于同一组产出中既有必定掉落又有概率掉落的情形：
+     * 必定掉落用普通槽位，概率掉落用虚影槽位。
+     *
+     * @param slotFor 按产出下标返回该格使用的槽位贴图
      */
-    public static void drawItemOutputSlots(GuiGraphicsExtractor graphics, IDrawable slot, int outputSize) {
-        JeiSlotUtil.drawSlots(graphics, slot, outputSize, JeiSlotUtil.OUTPUT_X - 1, JeiSlotUtil.ITEM_Y - 1);
+    public static void drawDefaultOutputSlots(
+        GuiGraphicsExtractor guiGraphics,
+        IntFunction<IDrawable> slotFor,
+        int outputSize
+    ) {
+        drawSlots(guiGraphics, slotFor, outputSize, OUTPUT_X - 1, DEFAULT_Y - 1);
     }
 
     /**
-     * 存在物品时将流体输出槽向下偏移。
+     * 存在流体时物品位置向上偏移
      */
-    public static void drawFluidOutputSlots(GuiGraphicsExtractor graphics, IDrawable slot, int outputSize) {
-        JeiSlotUtil.drawSlots(graphics, slot, outputSize, JeiSlotUtil.OUTPUT_X - 1, JeiSlotUtil.FLUID_Y - 1);
+    public static void drawItemOutputSlots(GuiGraphicsExtractor guiGraphics, IDrawable slot, int outputSize) {
+        drawSlots(guiGraphics, slot, outputSize, OUTPUT_X - 1, ITEM_Y - 1);
+    }
+
+    /**
+     * 存在流体时物品位置向上偏移，逐个产出各自决定槽位样式。
+     *
+     * @param slotFor 按产出下标返回该格使用的槽位贴图
+     */
+    public static void drawItemOutputSlots(
+        GuiGraphicsExtractor guiGraphics,
+        IntFunction<IDrawable> slotFor,
+        int outputSize
+    ) {
+        drawSlots(guiGraphics, slotFor, outputSize, OUTPUT_X - 1, ITEM_Y - 1);
+    }
+
+    /**
+     * 存在物品时流体位置向下偏移
+     */
+    public static void drawFluidOutputSlots(GuiGraphicsExtractor guiGraphics, IDrawable slot, int inputSize) {
+        drawSlots(guiGraphics, slot, inputSize, OUTPUT_X - 1, FLUID_Y - 1);
+    }
+
+    public static void drawSlots(GuiGraphicsExtractor guiGraphics, IDrawable slot, int size, int centerX, int centerY) {
+        drawSlots(guiGraphics, ignored -> slot, size, centerX, centerY);
     }
 
     public static void drawSlots(
-        GuiGraphicsExtractor graphics,
-        IDrawable slot,
+        GuiGraphicsExtractor guiGraphics,
+        IntFunction<IDrawable> slotFor,
         int size,
         int centerX,
         int centerY
     ) {
         if (size == 0) return;
-        int columns = (int) Math.ceil(Math.sqrt(size));
-        int rows = Math.ceilDiv(size, columns);
-        int startX = centerX - (columns - 1) * JeiSlotUtil.OFFSET / 2;
-        int startY = centerY - (rows - 1) * JeiSlotUtil.OFFSET / 2;
+        int cols = (int) Math.ceil(Math.sqrt(size));
+        int rows = Math.ceilDiv(size, cols);
+        int startX = centerX - (cols - 1) * OFFSET / 2;
+        int startY = centerY - (rows - 1) * OFFSET / 2;
         for (int i = 0; i < size; i++) {
-            slot.draw(graphics, startX + (i % columns) * JeiSlotUtil.OFFSET, startY + (i / columns) * JeiSlotUtil.OFFSET);
+            slotFor.apply(i).draw(guiGraphics, startX + (i % cols) * OFFSET, startY + (i / cols) * OFFSET);
         }
     }
 

@@ -11,7 +11,9 @@
       "items": "anvilcraft:cinerite"
     }
   ],
-  "produce": 1000,
   "results": [],
-  "transform": "anvilcraft:gray_cement"
+  "transform": {
+    "amount": 1000,
+    "id": "anvilcraft:gray_cement"
+  }
 }

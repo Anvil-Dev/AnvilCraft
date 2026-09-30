@@ -27,6 +27,9 @@ public class ModItemTags {
     public static final TagKey<Item> RAW_CHICKEN = ModItemTags.bindC("foods/raw_chicken");
     public static final TagKey<Item> RAW_PORKCHOP = ModItemTags.bindC("foods/raw_porkchop");
     public static final TagKey<Item> RAW_RABBIT = ModItemTags.bindC("foods/raw_rabbit");
+    public static final TagKey<Item> SMALL_MEAT = ModItemTags.bind("small_meat");
+    public static final TagKey<Item> MEDIUM_MEAT = ModItemTags.bind("medium_meat");
+    public static final TagKey<Item> LARGE_MEAT = ModItemTags.bind("large_meat");
 
     public static final TagKey<Item> PLATES = ModItemTags.bindC("plates");
     public static final TagKey<Item> GOLD_PLATES = ModItemTags.bindC("plates/gold");

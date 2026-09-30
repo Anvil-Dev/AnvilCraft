@@ -10,6 +10,7 @@ import dev.anvilcraft.lib.v2.recipe.util.InWorldRecipeContext;
 import dev.anvilcraft.lib.v2.recipe.util.InWorldRecipeData;
 import dev.anvilcraft.lib.v2.recipe.util.InWorldRecipeManager;
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.api.block.ICauldron;
 import dev.dubhe.anvilcraft.api.event.AnvilEvent;
 import dev.dubhe.anvilcraft.api.event.LargeCauldronEvent;
 import dev.dubhe.anvilcraft.api.fluid.IFluidResourceHandlerHolder;
@@ -101,7 +102,12 @@ import java.util.Set;
 import java.util.function.Predicate;
 
 public class LargeCauldronBlockEntity extends BlockEntity
-    implements IItemResourceHandlerHolder, ItemResourceHandlerCache, IFluidResourceHandlerHolder {
+    implements IItemResourceHandlerHolder, ItemResourceHandlerCache, IFluidResourceHandlerHolder, ICauldron {
+    @Override
+    public boolean supportsMultipleFluidOutputs() {
+        return true;
+    }
+
     public static final int OUTPUT_SLOTS = 32;
     public static final int MAX_PROCESS_EFFICIENCY = 9;
     private static final int[][] INPUT_SLOT_OFFSETS = {
@@ -536,6 +542,7 @@ public class LargeCauldronBlockEntity extends BlockEntity
                     if (execution.damageAnvil()) event.setAnvilDamage(true);
                     processed++;
                     madeProgress = true;
+                    break;
                 }
             } while (madeProgress && processed < LargeCauldronBlockEntity.MAX_PROCESS_EFFICIENCY);
             if (processed >= LargeCauldronBlockEntity.MAX_PROCESS_EFFICIENCY) break;
@@ -1442,61 +1449,30 @@ public class LargeCauldronBlockEntity extends BlockEntity
     }
 
     private static boolean applyFluidPredicate(List<FluidStack> fluids, HasCauldron predicate) {
-        int source = LargeCauldronBlockEntity.findSourceTank(fluids, predicate);
-        if (predicate.fluid().equals(HasCauldron.EMPTY) && source < 0) return false;
-        if (predicate.hasCheck() && !predicate.fluid().equals(HasCauldron.EMPTY) && source < 0) return false;
+        int source = findSourceTank(fluids, predicate);
+        if (predicate.hasCheck() && source < 0) return false;
         int sourceAmount = source < 0 ? 0 : fluids.get(source).getAmount();
         if (predicate.consume() > sourceAmount) return false;
-
-        Optional<Identifier> sourceId = source < 0
-            ? Optional.empty()
-            : Optional.of(BuiltInRegistries.FLUID.getKey(fluids.get(source).getFluid()));
-        Optional<Identifier> targetId = HasCauldron.isNotEmpty(predicate.transform())
-            ? Optional.of(predicate.transform())
-            : sourceId.isPresent()
-                ? sourceId
-                : HasCauldron.isNotEmpty(predicate.fluid())
-                    ? Optional.of(predicate.fluid())
-                    : Optional.empty();
-
-        if (predicate.consume() == 0 && predicate.produce() == 0) {
-            if (source < 0 || targetId.isEmpty() || targetId.equals(sourceId)) return true;
-            Identifier targetIdentifier = targetId.orElseThrow();
-            int target = LargeCauldronBlockEntity.findTank(fluids, targetIdentifier);
-            int targetAmount = target < 0 ? 0 : fluids.get(target).getAmount();
-            if (targetAmount + sourceAmount > LargeCauldronFluidHandler.TANK_CAPACITY) return false;
-            if (target < 0) target = LargeCauldronBlockEntity.findEmptyTankAfterRemoving(fluids, source);
-            if (target < 0) return false;
-            FluidStack transformed = fluids.get(target).isEmpty()
-                ? new FluidStack(BuiltInRegistries.FLUID.getValue(targetIdentifier), targetAmount + sourceAmount)
-                : fluids.get(target).copyWithAmount(targetAmount + sourceAmount);
-            fluids.set(source, FluidStack.EMPTY);
-            fluids.set(target, transformed);
-            return true;
-        }
 
         if (source >= 0 && predicate.consume() > 0) {
             int remaining = sourceAmount - predicate.consume();
             fluids.set(source, remaining == 0 ? FluidStack.EMPTY : fluids.get(source).copyWithAmount(remaining));
         }
-        if (predicate.produce() == 0) return true;
-        if (targetId.isEmpty()) return false;
-
-        Identifier targetIdentifier = targetId.orElseThrow();
-        int target = LargeCauldronBlockEntity.findTank(fluids, targetIdentifier);
-        int targetAmount = target < 0 ? 0 : fluids.get(target).getAmount();
-        if (targetAmount + predicate.produce() > LargeCauldronFluidHandler.TANK_CAPACITY) return false;
-        if (target < 0) target = LargeCauldronBlockEntity.findEmptyTank(fluids);
-        if (target < 0) return false;
-        FluidStack produced = fluids.get(target).isEmpty()
-            ? new FluidStack(BuiltInRegistries.FLUID.getValue(targetIdentifier), targetAmount + predicate.produce())
-            : fluids.get(target).copyWithAmount(targetAmount + predicate.produce());
-        fluids.set(target, produced);
+        for (var template : predicate.transforms()) {
+            FluidStack transform = template.create();
+            int target = findTank(fluids, transform);
+            int targetAmount = target < 0 ? 0 : fluids.get(target).getAmount();
+            if (targetAmount + transform.getAmount() > LargeCauldronFluidHandler.TANK_CAPACITY) return false;
+            if (target < 0) target = findEmptyTank(fluids);
+            if (target < 0) return false;
+            FluidStack produced = transform.copyWithAmount(targetAmount + transform.getAmount());
+            fluids.set(target, produced);
+        }
         return true;
     }
 
     private static int findSourceTank(List<FluidStack> fluids, HasCauldron predicate) {
-        if (predicate.fluid().equals(HasCauldron.EMPTY)) {
+        if (predicate.requiresEmptyCauldron()) {
             for (FluidStack fluid : fluids) {
                 if (!fluid.isEmpty()) return -1;
             }
@@ -1505,15 +1481,12 @@ public class LargeCauldronBlockEntity extends BlockEntity
         if (!predicate.hasCheck()) return -1;
         for (int i = 0; i < fluids.size(); i++) {
             FluidStack fluid = fluids.get(i);
-            if (fluid.isEmpty()) continue;
-            Identifier id = BuiltInRegistries.FLUID.getKey(fluid.getFluid());
-            if (predicate.matchesFluid(id)) return i;
+            if (predicate.matchesFluid(fluid)) return i;
         }
         return -1;
     }
 
-    private static int findTank(List<FluidStack> fluids, Identifier id) {
-        FluidStack target = new FluidStack(BuiltInRegistries.FLUID.getValue(id), 1);
+    private static int findTank(List<FluidStack> fluids, FluidStack target) {
         for (int i = 0; i < fluids.size(); i++) {
             FluidStack fluid = fluids.get(i);
             if (FluidStack.isSameFluidSameComponents(fluid, target)) return i;
@@ -1526,11 +1499,6 @@ public class LargeCauldronBlockEntity extends BlockEntity
             if (fluids.get(i).isEmpty()) return i;
         }
         return -1;
-    }
-
-    private static int findEmptyTankAfterRemoving(List<FluidStack> fluids, int source) {
-        int empty = LargeCauldronBlockEntity.findEmptyTank(fluids);
-        return empty >= 0 ? empty : source;
     }
 
     private static List<FluidStack> copyFluids(List<FluidStack> fluids) {

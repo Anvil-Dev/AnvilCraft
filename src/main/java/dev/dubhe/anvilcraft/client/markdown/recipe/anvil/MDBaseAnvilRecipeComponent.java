@@ -40,6 +40,11 @@ public abstract class MDBaseAnvilRecipeComponent extends MDRecipeComponent {
         return Blocks.AIR.defaultBlockState();
     }
 
+    protected static <T> T getDisplayedElement(List<T> elements) {
+        int index = (int) ((System.currentTimeMillis() / 1000) % elements.size());
+        return elements.get(index);
+    }
+
     @Override
     protected final void extractRecipeRenderState(MDRenderContext context, float mouseX, float mouseY) {
         this.extractAnvilRecipeRenderState(context, mouseX, mouseY);

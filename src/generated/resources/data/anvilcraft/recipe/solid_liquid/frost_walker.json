@@ -1,0 +1,25 @@
+{
+  "type": "anvilcraft:solid_liquid",
+  "consume": 2,
+  "fluid": {
+    "components": {
+      "patch": {
+        "!anvilcraft:liquid_enchantment": {}
+      }
+    },
+    "fluids": "anvilcraft:liquid_enchantment"
+  },
+  "ingredients": [
+    {
+      "items": "anvilcraft:sapphire"
+    }
+  ],
+  "results": [],
+  "transform": {
+    "amount": 2,
+    "components": {
+      "anvilcraft:liquid_enchantment": "minecraft:frost_walker"
+    },
+    "id": "anvilcraft:liquid_enchantment"
+  }
+}

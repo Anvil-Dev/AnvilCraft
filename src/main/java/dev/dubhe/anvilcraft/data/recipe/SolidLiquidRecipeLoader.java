@@ -1,22 +1,31 @@
 package dev.dubhe.anvilcraft.data.recipe;
 
 import dev.anvilcraft.lib.v2.registrum.providers.generators.RegistrumRecipeProvider;
-import dev.anvilcraft.lib.v2.util.predicate.ItemIngredientPredicate;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.state.Color;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.block.ModFluids;
+import dev.dubhe.anvilcraft.init.enchantment.ModEnchantments;
+import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.SolidLiquidRecipe;
+import dev.dubhe.anvilcraft.util.FluidStackPredicate;
 import dev.dubhe.anvilcraft.util.VanillaConstants;
+import dev.dubhe.anvilcraft.util.dummy.DummyHolder;
+import net.minecraft.core.component.DataComponentPatch;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.enchantment.Enchantment;
+import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.material.Fluids;
 import net.neoforged.neoforge.common.NeoForgeMod;
+import net.neoforged.neoforge.fluids.FluidStackTemplate;
 
 public class SolidLiquidRecipeLoader {
     public static void init(RegistrumRecipeProvider provider) {
@@ -33,28 +42,30 @@ public class SolidLiquidRecipeLoader {
         SolidLiquidRecipeLoader.solidLiquid(provider, ModItemTags.FLOUR, ModItems.DOUGH);
         SolidLiquidRecipeLoader.solidLiquid(provider, Items.DRIED_KELP, Items.KELP);
 
-        VanillaConstants.CONCRETE_POWDERS.forEach(block -> SolidLiquidRecipeLoader.solidLiquid(provider, block, block.concrete));
+        SolidLiquidRecipe.builder()
+            .cauldron(FluidStackPredicate.builder().fluid(Fluids.WATER).min(1000).build())
+            .requires(Items.AZALEA_LEAVES)
+            .result(Items.FLOWERING_AZALEA_LEAVES)
+            .save(provider);
+        SolidLiquidRecipe.builder()
+            .cauldron(FluidStackPredicate.builder().fluid(Fluids.WATER).min(1000).build())
+            .requires(Items.AZALEA)
+            .result(Items.FLOWERING_AZALEA)
+            .save(provider);
+
+        VanillaConstants.CONCRETE_POWDERS.forEach(block -> solidLiquid(provider, block, block.concrete));
 
         VanillaConstants.WEATHERING_COPPERS.forEach(weatheringCopper -> {
             if (!(weatheringCopper instanceof Block block)) return;
             weatheringCopper.getNext(block.defaultBlockState()).ifPresent(
-                state -> SolidLiquidRecipeLoader.solidLiquid(provider, block, state.getBlock())
+                state -> solidLiquid(provider, block, state.getBlock())
             );
         });
 
         SolidLiquidRecipe.builder()
-            .cauldron(ModFluids.HONEY.getId())
-            .consume(250)
-            .requires(provider.getItems(), ModItemTags.CREAM, 4)
-            .requires(Items.SUGAR)
-            .result(ModBlocks.HONEY_CREAM_BLOCK)
-            .save(provider);
-
-        SolidLiquidRecipe.builder()
             .cauldron(Blocks.WATER_CAULDRON)
             .consume(1000)
-            .transform(ModBlocks.CEMENT_CAULDRONS.get(Color.GRAY).get())
-            .produce(1000)
+            .transform(ModBlocks.CEMENT_CAULDRONS.get(Color.GRAY).get(), 1000)
             .requires(ModItems.LIME_POWDER, 4)
             .requires(ModBlocks.CINERITE)
             .save(provider, AnvilCraft.of("solid_liquid/cement_cauldron"));
@@ -73,36 +84,91 @@ public class SolidLiquidRecipeLoader {
             .save(provider);
 
         SolidLiquidRecipe.builder()
-            .cauldron(ModFluids.EXP_FLUID.getId())
+            .cauldron(ModFluids.EXP_FLUID.get())
             .consume(1000)
             .result(ModItems.EXP_GEM)
             .save(provider);
 
         SolidLiquidRecipe.builder()
-            .cauldron(ModFluids.EXP_FLUID.getId())
+            .cauldron(ModFluids.EXP_FLUID.get())
             .consume(2000)
-            .transform(ModFluids.LIQUID_ENCHANTMENT.getId())
-            .produce(1)
+            .transform(ModFluids.LIQUID_ENCHANTMENT.get(), 1)
             .requires(Items.LAPIS_LAZULI, 3)
             .save(provider, AnvilCraft.of("solid_liquid/liquid_enchantment"));
 
         SolidLiquidRecipe.builder()
-            .cauldron(NeoForgeMod.MILK.getId())
+            .cauldron(NeoForgeMod.MILK.get())
             .consume(1000)
             .result(ModItems.CREAM, 4)
             .save(provider, AnvilCraft.of("solid_liquid/cream_from_milk"));
 
         SolidLiquidRecipe.builder()
-            .cauldron(ModFluids.HONEY.getId())
+            .cauldron(ModFluids.HONEY.get())
             .consume(1000)
             .result(Items.HONEY_BLOCK)
             .save(provider, AnvilCraft.of("solid_liquid/honey_block"));
 
         SolidLiquidRecipe.builder()
+            .cauldron(ModFluids.HONEY.get())
+            .consume(250)
+            .requires(provider.getItems(), ModItemTags.CREAM, 4)
+            .requires(Items.SUGAR)
+            .result(ModBlocks.HONEY_CREAM_BLOCK)
+            .save(provider);
+
+        SolidLiquidRecipe.builder()
             .cauldron(Blocks.WATER_CAULDRON)
-            .transform(ModBlocks.EXP_FLUID_CAULDRON.get())
+            .consume(1000)
+            .transform(ModBlocks.EXP_FLUID_CAULDRON.get(), 1000)
             .requires(ModItems.EXP_GEM)
             .save(provider, AnvilCraft.of("solid_liquid/exp_fluid_cauldron"));
+
+        SolidLiquidRecipeLoader.liquidEnchantment(provider, ModItems.ROYAL_STEEL_INGOT, 1, Enchantments.SILK_TOUCH);
+        SolidLiquidRecipeLoader.liquidEnchantment(provider, ModItems.FROST_METAL_INGOT, 1, ModEnchantments.DISINTEGRATION_KEY);
+        SolidLiquidRecipeLoader.liquidEnchantment(provider, ModItems.EMBER_METAL_INGOT, 16, ModEnchantments.SMELTING_KEY);
+        SolidLiquidRecipeLoader.liquidEnchantment(provider, ModItems.TRANSCENDIUM_INGOT, 128, Enchantments.FORTUNE, Enchantments.LOOTING);
+        SolidLiquidRecipeLoader.liquidEnchantment(provider, Items.EMERALD, 1, Enchantments.MENDING);
+        SolidLiquidRecipeLoader.liquidEnchantment(provider, ModItems.RUBY, 8, Enchantments.FIRE_PROTECTION);
+        SolidLiquidRecipeLoader.liquidEnchantment(provider, ModItems.SAPPHIRE, 2, Enchantments.FROST_WALKER);
+        SolidLiquidRecipeLoader.liquidEnchantment(provider, ModItems.TOPAZ, 1, Enchantments.CHANNELING);
+        SolidLiquidRecipeLoader.liquidEnchantment(
+            provider,
+            Items.AMETHYST_BLOCK,
+            12,
+            ModEnchantments.FELLING_KEY,
+            ModEnchantments.HARVEST_KEY,
+            ModEnchantments.BEHEADING_KEY
+        );
+
+        // 消失诅咒：9 诅咒金块 + 虚空物质 + 1mB 空白液态魔咒
+
+        SolidLiquidRecipe.builder()
+            .cauldron(
+                FluidStackPredicate.builder()
+                    .fluid(ModFluids.LIQUID_ENCHANTMENT)
+                    .component(b -> b.expectNull(ModComponents.LIQUID_ENCHANTMENT))
+                    .build()
+            )
+            .consume(1)
+            .requires(ModBlocks.CURSED_GOLD_BLOCK, 9)
+            .requires(ModItems.VOID_MATTER)
+            .transform(SolidLiquidRecipeLoader.curseFluid(Enchantments.VANISHING_CURSE))
+            .save(provider, AnvilCraft.of("solid_liquid/vanishing_curse"));
+
+        // 绑定诅咒：9 诅咒金块 + 链 + 1mB 空白液态魔咒
+
+        SolidLiquidRecipe.builder()
+            .cauldron(
+                FluidStackPredicate.builder()
+                    .fluid(ModFluids.LIQUID_ENCHANTMENT)
+                    .component(b -> b.expectNull(ModComponents.LIQUID_ENCHANTMENT))
+                    .build()
+            )
+            .consume(1)
+            .requires(ModBlocks.CURSED_GOLD_BLOCK, 9)
+            .requires(Items.IRON_CHAIN)
+            .transform(SolidLiquidRecipeLoader.curseFluid(Enchantments.BINDING_CURSE))
+            .save(provider, AnvilCraft.of("solid_liquid/binding_curse"));
     }
 
     private static void solidLiquid(RegistrumRecipeProvider provider, ItemLike input, ItemLike result, int consume) {
@@ -122,7 +188,7 @@ public class SolidLiquidRecipeLoader {
     private static void solidLiquid(RegistrumRecipeProvider provider, TagKey<Item> input, ItemLike result, int consume) {
         SolidLiquidRecipe.builder()
             .cauldron(Blocks.WATER_CAULDRON)
-            .requires(ItemIngredientPredicate.of(provider.getItems(), input).build())
+            .requires(provider.getItems(), input)
             .result(result)
             .consume(consume)
             .save(provider);
@@ -133,4 +199,41 @@ public class SolidLiquidRecipeLoader {
         SolidLiquidRecipeLoader.solidLiquid(provider, input, result, 0);
     }
 
+    @SafeVarargs
+    @SuppressWarnings("SameParameterValue")
+    private static void liquidEnchantment(
+        RegistrumRecipeProvider provider,
+        ItemLike input,
+        int amount,
+        ResourceKey<Enchantment>... enchantments
+    ) {
+        SolidLiquidRecipe.Builder builder = SolidLiquidRecipe.builder()
+            .cauldron(
+                FluidStackPredicate.builder()
+                    .fluid(ModFluids.LIQUID_ENCHANTMENT)
+                    .component(b -> b.expectNull(ModComponents.LIQUID_ENCHANTMENT))
+                    .build()
+            )
+            .consume(amount)
+            .requires(input);
+        int each = amount / enchantments.length;
+        StringBuilder idBuilder = new StringBuilder();
+        for (ResourceKey<Enchantment> enchantment : enchantments) {
+            FluidStackTemplate stack = new FluidStackTemplate(ModFluids.LIQUID_ENCHANTMENT.get(), each,
+                DataComponentPatch.builder().set(ModComponents.LIQUID_ENCHANTMENT,
+                    new DummyHolder<>(enchantment)).build());
+            builder.transform(stack);
+            idBuilder.append(enchantment.identifier().getPath());
+            idBuilder.append("_and_");
+        }
+        String id = idBuilder.substring(0, idBuilder.length() - 5);
+        builder.save(provider, AnvilCraft.of("solid_liquid/" + id));
+    }
+
+    /** 构建带指定诅咒的液态魔咒产物。*/
+    private static FluidStackTemplate curseFluid(ResourceKey<Enchantment> curse) {
+        return new FluidStackTemplate(ModFluids.LIQUID_ENCHANTMENT.get(), 1,
+            DataComponentPatch.builder().set(ModComponents.LIQUID_ENCHANTMENT,
+                new DummyHolder<>(curse)).build());
+    }
 }

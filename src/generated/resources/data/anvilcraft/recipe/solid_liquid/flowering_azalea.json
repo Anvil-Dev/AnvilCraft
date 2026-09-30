@@ -1,0 +1,19 @@
+{
+  "type": "anvilcraft:solid_liquid",
+  "fluid": {
+    "amount": {
+      "min": 1000
+    },
+    "fluids": "minecraft:water"
+  },
+  "ingredients": [
+    {
+      "items": "minecraft:azalea"
+    }
+  ],
+  "results": [
+    {
+      "id": "minecraft:flowering_azalea"
+    }
+  ]
+}

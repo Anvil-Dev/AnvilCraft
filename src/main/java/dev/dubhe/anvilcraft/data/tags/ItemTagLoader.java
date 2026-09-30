@@ -255,6 +255,20 @@ public class ItemTagLoader {
         provider.rawBuilder(ModItemTags.RAW_RABBIT)
             .addElement(ItemTagLoader.findId(Items.RABBIT));
 
+        provider.rawBuilder(ModItemTags.SMALL_MEAT)
+            .addTag(ModItemTags.RAW_CHICKEN.location())
+            .addTag(Tags.Items.FOODS_RAW_FISH.location())
+            .addElement(ItemTagLoader.findId(Items.ROTTEN_FLESH))
+            .addElement(ItemTagLoader.findId(Items.SPIDER_EYE));
+        provider.rawBuilder(ModItemTags.MEDIUM_MEAT)
+            .addTag(ModItemTags.RAW_BEEF.location())
+            .addTag(ModItemTags.RAW_PORKCHOP.location())
+            .addTag(ModItemTags.RAW_MUTTON.location())
+            .addTag(ModItemTags.RAW_RABBIT.location());
+        provider.rawBuilder(ModItemTags.LARGE_MEAT)
+            .addElement(ItemTagLoader.findId(Items.ZOMBIE_HEAD))
+            .addElement(ItemTagLoader.findId(Items.PIGLIN_HEAD));
+
         provider.rawBuilder(ModItemTags.DISINTEGRATION_SUPPORTED)
             .addTag(ItemTags.MINING_LOOT_ENCHANTABLE.location())
             .addElement(ModItems.LASER_GUN.getId())

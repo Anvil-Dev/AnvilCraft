@@ -7,10 +7,8 @@ import dev.dubhe.anvilcraft.recipe.anvil.predicate.block.HasCauldron;
 import dev.dubhe.anvilcraft.util.CompatUtil;
 import dev.dubhe.anvilcraft.util.UnitUtil;
 import net.minecraft.ChatFormatting;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.neoforged.neoforge.fluids.FluidStack;
@@ -120,10 +118,9 @@ public class LargeCauldronTooltipProvider extends ITooltipProvider.BlockEntityTo
         FluidStack fluid
     ) {
         Set<String> result = new LinkedHashSet<>();
-        Identifier fluidId = BuiltInRegistries.FLUID.getKey(fluid.getFluid());
         for (LargeCauldronBlockEntity.RecipePreview preview : previews) {
             for (HasCauldron predicate : preview.fluidPredicates()) {
-                if (predicate.hasCheck() && predicate.matchesFluid(fluidId)) {
+                if (predicate.hasCheck() && predicate.matchesFluid(fluid)) {
                     result.add(preview.categoryPath());
                     break;
                 }

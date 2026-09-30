@@ -6,12 +6,13 @@ import dev.anvilcraft.lib.v2.util.predicate.ChanceBlockState;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.recipe.anvil.builder.AbstractRecipeBuilder;
 import dev.dubhe.anvilcraft.recipe.anvil.predicate.block.HasAnvil;
-import dev.dubhe.anvilcraft.recipe.anvil.predicate.block.HasCauldron;
 import dev.dubhe.anvilcraft.recipe.anvil.util.WrapUtils;
 import dev.dubhe.anvilcraft.recipe.component.HasCauldronSimple;
 import lombok.Getter;
+import net.minecraft.core.Holder;
 import net.minecraft.core.HolderGetter;
 import net.minecraft.core.Vec3i;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.Identifier;
 import net.minecraft.tags.TagKey;
@@ -19,6 +20,9 @@ import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.material.Fluid;
+import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.FluidStackTemplate;
 
 import java.util.function.Consumer;
 
@@ -101,11 +105,84 @@ public class SqueezingRecipe extends AbstractProcessRecipe<SqueezingRecipe> {
     /// @return 如果产生流体返回true，否则返回false
     public boolean isProduceFluid() {
         HasCauldronSimple hasCauldron = this.getHasCauldron();
-        return HasCauldron.isNotEmpty(hasCauldron.transform()) && this.getHasCauldron().produce() > 0;
+        return !hasCauldron.transforms().isEmpty();
     }
 
     /// 压榨配方构建器
     public static class Builder extends AbstractRecipeBuilder<SqueezingRecipe> {
+        public Builder cauldron(Fluid fluid) {
+            this.hasCauldron.fluid(fluid);
+            return this;
+        }
+
+        public Builder cauldron(Holder<Fluid> fluid) {
+            this.hasCauldron.fluid(fluid);
+            return this;
+        }
+
+        /// 设置炼药锅流体
+        ///
+        /// @param fluid 流体ID
+        ///
+        /// @return 构建器实例
+        public Builder cauldron(Identifier fluid) {
+            this.hasCauldron.fluid(fluid);
+            return this;
+        }
+
+        /// 设置炼药锅方块
+        ///
+        /// @param cauldron 炼药锅方块
+        ///
+        /// @return 构建器实例
+        public Builder cauldron(Block cauldron) {
+            return this.cauldron(BuiltInRegistries.FLUID.getValue(WrapUtils.cauldron2Fluid(cauldron)));
+        }
+
+        public Builder transform(Fluid transform, int produce) {
+            this.hasCauldron.transform(transform, produce);
+            return this;
+        }
+
+        public Builder transform(Holder<Fluid> transform, int produce) {
+            this.hasCauldron.transform(transform, produce);
+            return this;
+        }
+
+        public Builder transform(Block transform, int produce) {
+            return this.transform(BuiltInRegistries.FLUID.getValue(WrapUtils.cauldron2Fluid(transform)), produce);
+        }
+
+        public Builder transform(FluidStackTemplate transform) {
+            this.hasCauldron.transform(transform);
+            return this;
+        }
+
+        public Builder transform(FluidStack transform) {
+            this.hasCauldron.transform(transform);
+            return this;
+        }
+
+        /// 设置转换后的流体
+        ///
+        /// @param transform 转换后的流体ID
+        ///
+        /// @return 构建器实例
+        public Builder transform(Identifier transform) {
+            this.hasCauldron.transform(transform);
+            return this;
+        }
+
+        /// 设置转换后的炼药锅方块
+        ///
+        /// @param transform 转换后的炼药锅方块
+        ///
+        /// @return 构建器实例
+        public Builder transform(Block transform) {
+            this.hasCauldron.transform(WrapUtils.cauldron2Fluid(transform));
+            return this;
+        }
+
         /// 原料列表
         private BlockStatePredicate ingredient = null;
 
@@ -173,46 +250,6 @@ public class SqueezingRecipe extends AbstractProcessRecipe<SqueezingRecipe> {
         /// @return 构建器实例
         public Builder result(Block result) {
             return this.result(result, 1.0F);
-        }
-
-        /// 设置炼药锅流体
-        ///
-        /// @param fluid 流体ID
-        ///
-        /// @return 构建器实例
-        public Builder cauldron(Identifier fluid) {
-            this.hasCauldron.fluid(fluid);
-            return this;
-        }
-
-        /// 设置炼药锅方块
-        ///
-        /// @param cauldron 炼药锅方块
-        ///
-        /// @return 构建器实例
-        public Builder cauldron(Block cauldron) {
-            this.cauldron(WrapUtils.cauldron2Fluid(cauldron));
-            return this;
-        }
-
-        /// 设置转换后的流体
-        ///
-        /// @param transform 转换后的流体ID
-        ///
-        /// @return 构建器实例
-        public Builder transform(Identifier transform) {
-            this.hasCauldron.transform(transform);
-            return this;
-        }
-
-        /// 设置转换后的炼药锅方块
-        ///
-        /// @param transform 转换后的炼药锅方块
-        ///
-        /// @return 构建器实例
-        public Builder transform(Block transform) {
-            this.hasCauldron.transform(WrapUtils.cauldron2Fluid(transform));
-            return this;
         }
 
         /// 设置是否产生流体

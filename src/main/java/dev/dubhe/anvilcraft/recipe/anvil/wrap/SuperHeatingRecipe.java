@@ -12,19 +12,25 @@ import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.recipe.anvil.outcome.ConsumeBurningHeaterFuel;
 import dev.dubhe.anvilcraft.recipe.anvil.outcome.RoyalPreferenceOutcome;
-import dev.dubhe.anvilcraft.recipe.anvil.predicate.block.HasCauldron;
 import dev.dubhe.anvilcraft.recipe.anvil.util.WrapUtils;
 import dev.dubhe.anvilcraft.recipe.component.HasCauldronSimple;
+import dev.dubhe.anvilcraft.util.FluidStackPredicate;
 import lombok.Getter;
+import net.minecraft.core.Holder;
 import net.minecraft.core.Vec3i;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.Identifier;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.FluidStackTemplate;
 
 import java.util.List;
 
@@ -136,7 +142,7 @@ public class SuperHeatingRecipe extends AbstractProcessRecipe<SuperHeatingRecipe
     /// @return 如果消耗流体返回true，否则返回false
     public boolean isConsumeFluid() {
         HasCauldronSimple hasCauldron = this.getHasCauldron();
-        return HasCauldron.isNotEmpty(hasCauldron.fluid()) && this.getHasCauldron().consume() > 0;
+        return hasCauldron.hasFluid() && hasCauldron.consume() > 0;
     }
 
     /// 是否产生流体
@@ -144,13 +150,30 @@ public class SuperHeatingRecipe extends AbstractProcessRecipe<SuperHeatingRecipe
     /// @return 如果产生流体返回true，否则返回false
     public boolean isProduceFluid() {
         HasCauldronSimple hasCauldron = this.getHasCauldron();
-        return HasCauldron.isNotEmpty(hasCauldron.transform()) && this.getHasCauldron().produce() > 0;
+        return !hasCauldron.transforms().isEmpty();
     }
 
     /// 超级加热配方构建器
     public static class Builder extends SimpleAbstractBuilder<SuperHeatingRecipe, Builder> {
-        /// 炼药锅条件构建器
-        HasCauldronSimple.Builder hasCauldron = HasCauldronSimple.empty();
+        public Builder fluid(Fluid fluid) {
+            this.hasCauldron.fluid(fluid);
+            return this;
+        }
+
+        public Builder fluid(Holder<Fluid> fluid) {
+            this.hasCauldron.fluid(fluid);
+            return this;
+        }
+
+        public Builder fluid(FluidStackPredicate fluid) {
+            this.hasCauldron.fluid(fluid);
+            return this;
+        }
+
+        public Builder fluid(TagKey<Fluid> fluid) {
+            this.hasCauldron.fluid(fluid);
+            return this;
+        }
 
         /// 设置流体
         ///
@@ -168,7 +191,30 @@ public class SuperHeatingRecipe extends AbstractProcessRecipe<SuperHeatingRecipe
         ///
         /// @return 构建器实例
         public Builder fluid(Block cauldron) {
-            this.fluid(WrapUtils.cauldron2Fluid(cauldron));
+            return this.fluid(BuiltInRegistries.FLUID.getValue(WrapUtils.cauldron2Fluid(cauldron)));
+        }
+
+        public Builder transform(Fluid transform, int produce) {
+            this.hasCauldron.transform(transform, produce);
+            return this;
+        }
+
+        public Builder transform(Holder<Fluid> transform, int produce) {
+            this.hasCauldron.transform(transform, produce);
+            return this;
+        }
+
+        public Builder transform(Block cauldron, int produce) {
+            return this.transform(BuiltInRegistries.FLUID.getValue(WrapUtils.cauldron2Fluid(cauldron)), produce);
+        }
+
+        public Builder transform(FluidStackTemplate transform) {
+            this.hasCauldron.transform(transform);
+            return this;
+        }
+
+        public Builder transform(FluidStack transform) {
+            this.hasCauldron.transform(transform);
             return this;
         }
 
@@ -191,6 +237,9 @@ public class SuperHeatingRecipe extends AbstractProcessRecipe<SuperHeatingRecipe
             this.transform(WrapUtils.cauldron2Fluid(cauldron));
             return this;
         }
+
+        /// 炼药锅条件构建器
+        HasCauldronSimple.Builder hasCauldron = HasCauldronSimple.empty();
 
         /// 设置消耗量
         ///
@@ -219,7 +268,7 @@ public class SuperHeatingRecipe extends AbstractProcessRecipe<SuperHeatingRecipe
 
         @Override
         public void validate(Identifier id) {
-            if (this.itemIngredients.isEmpty()) {
+            if (itemIngredients.isEmpty()) {
                 throw new IllegalArgumentException("Recipe ingredients must not be empty, RecipeId: " + id);
             }
         }

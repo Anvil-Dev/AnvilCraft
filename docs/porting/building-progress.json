@@ -5938,5 +5938,50 @@
       ]
     },
     "remaining": "Port component-aware cauldron fluid predicates, multiple fluid outputs and linked recipe/UI consumers; continue other catalogue differences and rendering compatibility audit."
+  },
+  "cauldron_component_recipe_parity_2026_09_30": {
+    "source_commit": "cca4b2aac5328926fa88bc01d958d007ff6bfc2a",
+    "status": "implemented_and_verified",
+    "implementation": [
+      "Port fluid predicates with component patches, absence/negation and amount bounds; use native FluidStackTemplate outputs and native bounds stream codecs.",
+      "Restore multiple component-preserving outputs and priority restart in the large cauldron, with transactional native fluid handling, capacity checks and rollback.",
+      "Restore entity cauldron selection hooks and cached live candidates; retain legacy native builder overloads.",
+      "Regenerate component-aware liquid enchantment, cement staining, large-volume metal, honey and meat-tag recipes; align 396 recipes across six cauldron families.",
+      "Restore separate solid/liquid and fluid reaction JEI categories with shared large-cauldron layout, source small-cauldron selection and five special enchantment recipes.",
+      "Restore component-aware fluid slots, output cycling, squeezing anvil/probability rendering, handbook output display and Jade recipe category matching."
+    ],
+    "validation": {
+      "focused_required_tests": 15,
+      "full_required_tests": 810,
+      "source_recipes_compared": 396,
+      "live_jei_layouts_constructed": 290,
+      "commands": [
+        "./gradlew.bat -PportValidation compileJava runData --console=plain",
+        "./gradlew.bat -PportValidation -I dev/porting/cauldron-model.gradle -I dev/porting/checkstyle.gradle compileJava runGameTestServer checkPortJava --console=plain",
+        "./gradlew.bat -PportValidation -I dev/porting/checkstyle.gradle -I dev/porting/cauldron-client.gradle compileJava checkPortJava runClient --console=plain",
+        "./gradlew.bat -PportValidation -I dev/porting/checkstyle.gradle compileJava runGameTestServer checkPortJava --console=plain",
+        "python dev/porting/verify_cauldron_catalogue.py",
+        "git diff --check"
+      ],
+      "logs": {
+        "focused": "build/porting/validate-cauldron-categories.log",
+        "full": "build/porting/tests-cauldron-all-final-2.log",
+        "client": "build/porting/client-cauldron-categories-2.log",
+        "reference_client": "build/porting/client-cauldron-model-reference.log",
+        "catalogue": "build/porting/cauldron-catalogue-comparison.json"
+      },
+      "coverage": [
+        "Real giant-anvil crafting, priority impact budget, exact component consumption/production, fish tank transformations, capacity and slot failure, rollback, empty/ANY distinction, network bounds and entity selector caching.",
+        "All 285 solid/liquid recipes and five special recipes construct live JEI layouts; six paired client cases match fluid IDs, amounts, enchantments and slot names.",
+        "Paired screenshots confirm source large/small cauldron geometry, anvil position, multi-output slot layout, squeezing and handbook preview; native vanilla lighting is retained."
+      ],
+      "limits": [
+        "Native templates replace source mutable stacks for datagen registry binding; amber result defaults are verified against native item prototypes.",
+        "Client verification caught exact-zero bounds network encoding and zero-rounded probability conversion failures; both were repaired before successful final client validation.",
+        "Two existing local tests compared old Identifier fluid values; updated to assert real predicate matching, after which all 810 tests passed.",
+        "Tests, fixtures, screenshots and logs remain local and ignored. General shader, multiplayer and platform parity audits remain separate."
+      ]
+    },
+    "remaining": "Continue the complete recipe/resource/registry audit, including amethyst and shulker crushing, grass compression, tank clearing, scanner alternative and other non-cauldron differences; whole-port completion remains unproven."
   }
 }

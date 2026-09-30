@@ -8,7 +8,9 @@
       "items": "minecraft:lapis_lazuli"
     }
   ],
-  "produce": 1,
   "results": [],
-  "transform": "anvilcraft:liquid_enchantment"
+  "transform": {
+    "amount": 1,
+    "id": "anvilcraft:liquid_enchantment"
+  }
 }

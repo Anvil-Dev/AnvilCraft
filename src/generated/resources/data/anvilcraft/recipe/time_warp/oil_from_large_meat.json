@@ -1,0 +1,13 @@
+{
+  "type": "anvilcraft:time_warp",
+  "fluid": [],
+  "ingredients": [
+    {
+      "items": "#anvilcraft:large_meat"
+    }
+  ],
+  "transform": {
+    "amount": 250,
+    "id": "anvilcraft:oil"
+  }
+}

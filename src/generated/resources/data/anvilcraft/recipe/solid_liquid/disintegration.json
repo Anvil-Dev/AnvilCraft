@@ -1,0 +1,25 @@
+{
+  "type": "anvilcraft:solid_liquid",
+  "consume": 1,
+  "fluid": {
+    "components": {
+      "patch": {
+        "!anvilcraft:liquid_enchantment": {}
+      }
+    },
+    "fluids": "anvilcraft:liquid_enchantment"
+  },
+  "ingredients": [
+    {
+      "items": "anvilcraft:frost_metal_ingot"
+    }
+  ],
+  "results": [],
+  "transform": {
+    "amount": 1,
+    "components": {
+      "anvilcraft:liquid_enchantment": "anvilcraft:disintegration"
+    },
+    "id": "anvilcraft:liquid_enchantment"
+  }
+}

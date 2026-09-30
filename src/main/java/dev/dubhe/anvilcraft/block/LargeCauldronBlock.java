@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.block;
 
+import dev.dubhe.anvilcraft.api.block.ICauldron;
 import dev.dubhe.anvilcraft.api.block.ICauldronGeometry;
 import dev.dubhe.anvilcraft.api.event.LargeCauldronEvent;
 import dev.dubhe.anvilcraft.api.fluid.FluidInteractionItems;
@@ -56,7 +57,12 @@ import java.util.Map;
 
 public class LargeCauldronBlock
     extends SimpleMultiPartBlock<Cube3x3PartHalf>
-    implements MultiPartBlockEntity<Cube3x3PartHalf, LargeCauldronBlock>, IHammerRemovable, ICauldronGeometry {
+    implements MultiPartBlockEntity<Cube3x3PartHalf, LargeCauldronBlock>, IHammerRemovable, ICauldronGeometry, ICauldron {
+    @Override
+    public boolean supportsMultipleFluidOutputs() {
+        return true;
+    }
+
     public static final EnumProperty<Cube3x3PartHalf> HALF = EnumProperty.create("half", Cube3x3PartHalf.class);
     private static final double WALL_THICKNESS = 0.25;
     private static final double BOTTOM_WALL_MIN_Y = 0.5;
