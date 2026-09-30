@@ -287,64 +287,64 @@ public class RegisterAdditionalEventListener {
         // WIP block models for procedural process
         event.register(
             WipBlockEntityRenderer.SPACETIME_SUPERCOMPUTER_WIP,
-            SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/spacetime_supercomputer_wip"))
+            SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/wip_display/spacetime_supercomputer_wip"))
         );
         event.register(
             WipBlockEntityRenderer.ANCIENT_DEBRIS_WIP,
-            SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/ancient_debris_wip"))
+            SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/wip_display/ancient_debris_wip"))
         );
         event.register(
             WipBlockEntityRenderer.NETHERITE_BLOCK_WIP,
-            SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/netherite_block_wip"))
+            SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/wip_display/netherite_block_wip"))
         );
         event.register(
             WipBlockEntityRenderer.HEAVY_IRON_BLOCK_WIP,
-            SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/heavy_iron_block_wip"))
+            SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/wip_display/heavy_iron_block_wip"))
         );
         event.register(
             WipBlockEntityRenderer.ANCIENT_SEA_REEF_WIP,
-            SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/ancient_sea_reef_wip"))
+            SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/wip_display/ancient_sea_reef_wip"))
         );
         event.register(
             WipBlockEntityRenderer.NESTING_SHULKER_BOX,
-            SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/nesting_shulker_box"))
+            SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/wip_display/nesting_shulker_box"))
         );
         event.register(
             WipBlockEntityRenderer.OVER_NESTING_SHULKER_BOX,
-            SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/over_nesting_shulker_box"))
+            SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/wip_display/over_nesting_shulker_box"))
         );
         event.register(
             WipBlockEntityRenderer.SUPERCRITICAL_NESTING_SHULKER_BOX,
-            SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/supercritical_nesting_shulker_box"))
+            SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/wip_display/supercritical_nesting_shulker_box"))
         );
         event.register(
             WipBlockEntityRenderer.SPACETIME_SUPERCOMPUTER_WIP_2,
-            SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/spacetime_supercomputer_wip_2"))
+            SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/wip_display/spacetime_supercomputer_wip_2"))
         );
         event.register(
             WipBlockEntityRenderer.SPACETIME_SUPERCOMPUTER_WIP_3,
-            SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/spacetime_supercomputer_wip_3"))
+            SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/wip_display/spacetime_supercomputer_wip_3"))
         );
         event.register(
             WipBlockEntityRenderer.NETHERITE_BLOCK_WIP_2,
-            SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/netherite_block_wip_2"))
+            SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/wip_display/netherite_block_wip_2"))
         );
         event.register(
             WipBlockEntityRenderer.HEAVY_IRON_BLOCK_WIP_2,
-            SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/heavy_iron_block_wip_2"))
+            SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/wip_display/heavy_iron_block_wip_2"))
         );
         event.register(
             WipBlockEntityRenderer.ANCIENT_SEA_REEF_WIP_2,
-            SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/ancient_sea_reef_wip_2"))
+            SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/wip_display/ancient_sea_reef_wip_2"))
         );
         event.register(
             WipBlockEntityRenderer.SHULKER_BOX_WIP,
-            SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/shulker_box_wip"))
+            SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/wip_display/shulker_box_wip"))
         );
         event.register(HypercubeBERenderer.MODEL, SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/hypercube")));
         event.register(
             WipBlockEntityRenderer.SHULKER_BOX_WIP_2,
-            SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/shulker_box_wip_2"))
+            SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/wip_display/shulker_box_wip_2"))
         );
         event.register(
             WipBlockEntityRenderer.MASS_ENERGY_INVERTER_WIP,

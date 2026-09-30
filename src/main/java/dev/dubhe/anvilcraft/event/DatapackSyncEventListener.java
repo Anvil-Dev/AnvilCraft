@@ -17,6 +17,7 @@ public class DatapackSyncEventListener {
             ModRecipeTypes.ANVIL_COLLISION_CRAFT.get(),
             ModRecipeTypes.BLOCK_COMPRESS.get(),
             ModRecipeTypes.BLOCK_CRUSH.get(),
+            ModRecipeTypes.BLOCK_PROCESSING.get(),
             ModRecipeTypes.BLOCK_SMEAR.get(),
             ModRecipeTypes.CHARGER_CHARGING.get(),
             ModRecipeTypes.DEFORMATION.get(),

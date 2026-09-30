@@ -4897,5 +4897,60 @@
     },
     "remaining_source_updates": [],
     "remaining_full_goal": "Continue the handbook/new recipe components, remaining gameplay/API differences and broader compatibility/fidelity audit; this source-update completion is not full-goal completion."
+  },
+  "handbook_new_recipe_components_2026_09_30": {
+    "source_commit": "cca4b2aac5328926fa88bc01d958d007ff6bfc2a",
+    "status": "five_recipe_factories_ported_handbook_pages_and_framework_audit_pending",
+    "changes": [
+      "Register block_processing, block_smear, mineral_fountain, mineral_fountain_chance and procedural_process handbook factories.",
+      "Include standalone block-processing recipes in native datapack synchronization so the handbook proxy can resolve them.",
+      "Restore source fountain surroundings, chance/dimension tooltip and label, process layout, 1500 ms loop switching and subsequent-loop first-step substitution.",
+      "Render WIP previews at source anchors with both intermediate model and translucent shell, full-bright lighting independent of the live world, and a bounded baked-model cache.",
+      "Copy the three source process-diagram textures and 15 canonical wip_display models; update registrations and eight generated recipes to source model paths.",
+      "Retain legacy WIP model ID lookup and existing legacy model resources."
+    ],
+    "verification": {
+      "recipe_factories": 25,
+      "gallery_pages_per_client": 6,
+      "detail_cases_per_client": 12,
+      "required_server_tests": 760,
+      "commands": [
+        "./gradlew.bat -PportValidation -I dev/porting/checkstyle.gradle compileJava runData checkPortJava --console=plain",
+        "./gradlew.bat -PportValidation -I dev/porting/handbook-recipes-client.gradle -I dev/porting/checkstyle.gradle compileJava runGameTestServer runClient checkPortJava --console=plain",
+        "python dev/porting/prepare_handbook_reference.py; reference checkout: ./gradlew.bat runClient --console=plain",
+        "python dev/porting/verify_handbook_visual.py",
+        "python dev/porting/verify_handbook_new.py",
+        "git diff --check"
+      ],
+      "logs": {
+        "data": "build/porting/data-handbook-components-models.log",
+        "native_full": "build/porting/checks-handbook-components-final.log",
+        "source_client": "build/porting/client-handbook-components-reference-final.log"
+      },
+      "reports": [
+        "build/porting/handbook-visual-report.json",
+        "build/porting/handbook-new-comparison.json"
+      ],
+      "coverage": [
+        "All 25 factories resolve through real synchronized recipe proxies, including a development-only standalone block-processing recipe.",
+        "Compare exact preferred dimensions, tooltip strings, loop phase, step types and intermediate-model references in 12 detail cases.",
+        "Capture all three loops for mass-first and energy-first inverter recipes, including replacement first steps.",
+        "WIP probe verifies body/shell submissions, full-bright light coordinates, world-independent preview access and legacy model-key aliases for the exercised recipe models.",
+        "Resource reload occurs between the general gallery and detail cases in both clients.",
+        "Static arrow/cycle pixels and source asset/model definitions match; prior fixed helper silhouette checks also pass.",
+        "Datagen changes only eight procedural recipe model paths; model geometry itself equals the source definitions."
+      ],
+      "limits": [
+        "Whole detail images are not asserted pixel-identical: ingredient cycling, animated WIP shell phase and native block sampling/lighting can differ. Image metrics are preserved in the report.",
+        "Early client runs exposed the missing BLOCK_PROCESSING synchronization entry; subsequent actual packet-based resolution passed.",
+        "Block-processing has no ordinary built-in standalone recipe, so its public factory is exercised using a development resource copied from an actual procedural step.",
+        "The source and native smear example use the common mossy_cobblestone recipe; the native-only grass_block example is not used as a source baseline."
+      ]
+    },
+    "remaining": [
+      "Audit and port the complete handbook page/resource/link set and framework directory/structure-export functionality.",
+      "Audit block-smear recipe IDs and runtime generation: source has 122 static JSON files, native has 63, with 38 filename matches. Identify actual behavior gaps before interpreting source-only files as missing recipes.",
+      "Continue remaining gameplay/API and broader rendering compatibility/fidelity checks; this is not full-goal completion."
+    ]
   }
 }

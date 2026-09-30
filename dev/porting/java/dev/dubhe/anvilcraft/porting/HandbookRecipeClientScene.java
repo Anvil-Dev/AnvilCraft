@@ -32,10 +32,15 @@ public final class HandbookRecipeClientScene {
     private static int page;
     private static boolean started;
     private static boolean capturing;
+    private static boolean details;
     private static long next;
     private static long deadline;
 
     public static void frame(Minecraft client) {
+        if (details) {
+            HandbookNewRecipeScene.frame(client);
+            return;
+        }
         if (started && page > (COMPONENTS.size() + 5) / 6) return;
         if (deadline == 0) deadline = System.currentTimeMillis() + 180000;
         if (System.currentTimeMillis() > deadline) throw new IllegalStateException("Handbook recipe timeout");
@@ -67,7 +72,14 @@ public final class HandbookRecipeClientScene {
                 }
                 AnvilCraft.LOGGER.info("PORT_HANDBOOK_RECIPES_PASSED: {} factories, layout/cache lifecycle and {} pages",
                     LABELS.size(), page);
-                client.stop();
+                if (Boolean.getBoolean("anvilcraft.portHandbookNewAfterGallery")) {
+                    client.reloadResourcePacks().whenComplete((ignored, error) -> client.execute(() -> {
+                        if (error != null) throw new IllegalStateException(error);
+                        details = true;
+                    }));
+                } else {
+                    client.stop();
+                }
             }));
     }
 
@@ -79,6 +91,8 @@ public final class HandbookRecipeClientScene {
                 var name = AgeratumRegistries.RECIPE_COMPONENT_FACTORY_REGISTRY.getKey(factory);
                 if (!name.getNamespace().equals(AnvilCraft.MOD_ID)) continue;
                 var holder = original.values().stream().filter(value -> factory.type().contains(value.value().getType()))
+                    .filter(value -> !name.getPath().equals("block_smear")
+                        || value.id().identifier().equals(AnvilCraft.of("block_smear/mossy_cobblestone")))
                     .findFirst().orElseThrow(() -> new IllegalStateException("No fixture for " + name));
                 var proxy = parse(holder.id().identifier());
                 int width = proxy.getPreferredWidth(client, 380, 240);

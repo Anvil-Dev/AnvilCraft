@@ -35,45 +35,45 @@ public class WipBlockEntityRenderer
     private static final Map<Identifier, StandaloneModelKey<BlockStateModel>> MODEL_KEYS = new HashMap<>();
 
     public static final StandaloneModelKey<BlockStateModel> SPACETIME_SUPERCOMPUTER_WIP = WipBlockEntityRenderer.registerModel(
-        "block/spacetime_supercomputer_wip"
+        "block/wip_display/spacetime_supercomputer_wip"
     );
     public static final StandaloneModelKey<BlockStateModel> ANCIENT_DEBRIS_WIP = WipBlockEntityRenderer.registerModel(
-        "block/ancient_debris_wip");
+        "block/wip_display/ancient_debris_wip");
     public static final StandaloneModelKey<BlockStateModel> NETHERITE_BLOCK_WIP = WipBlockEntityRenderer.registerModel(
-        "block/netherite_block_wip");
+        "block/wip_display/netherite_block_wip");
     public static final StandaloneModelKey<BlockStateModel> HEAVY_IRON_BLOCK_WIP = WipBlockEntityRenderer.registerModel(
-        "block/heavy_iron_block_wip");
+        "block/wip_display/heavy_iron_block_wip");
     public static final StandaloneModelKey<BlockStateModel> ANCIENT_SEA_REEF_WIP = WipBlockEntityRenderer.registerModel(
-        "block/ancient_sea_reef_wip");
+        "block/wip_display/ancient_sea_reef_wip");
     public static final StandaloneModelKey<BlockStateModel> NESTING_SHULKER_BOX = WipBlockEntityRenderer.registerModel(
-        "block/nesting_shulker_box"
+        "block/wip_display/nesting_shulker_box"
     );
     public static final StandaloneModelKey<BlockStateModel> OVER_NESTING_SHULKER_BOX = WipBlockEntityRenderer.registerModel(
-        "block/over_nesting_shulker_box"
+        "block/wip_display/over_nesting_shulker_box"
     );
     public static final StandaloneModelKey<BlockStateModel> SUPERCRITICAL_NESTING_SHULKER_BOX = WipBlockEntityRenderer.registerModel(
-        "block/supercritical_nesting_shulker_box"
+        "block/wip_display/supercritical_nesting_shulker_box"
     );
     public static final StandaloneModelKey<BlockStateModel> SPACETIME_SUPERCOMPUTER_WIP_2 = WipBlockEntityRenderer.registerModel(
-        "block/spacetime_supercomputer_wip_2"
+        "block/wip_display/spacetime_supercomputer_wip_2"
     );
     public static final StandaloneModelKey<BlockStateModel> SPACETIME_SUPERCOMPUTER_WIP_3 = WipBlockEntityRenderer.registerModel(
-        "block/spacetime_supercomputer_wip_3"
+        "block/wip_display/spacetime_supercomputer_wip_3"
     );
     public static final StandaloneModelKey<BlockStateModel> NETHERITE_BLOCK_WIP_2 = WipBlockEntityRenderer.registerModel(
-        "block/netherite_block_wip_2"
+        "block/wip_display/netherite_block_wip_2"
     );
     public static final StandaloneModelKey<BlockStateModel> HEAVY_IRON_BLOCK_WIP_2 = WipBlockEntityRenderer.registerModel(
-        "block/heavy_iron_block_wip_2"
+        "block/wip_display/heavy_iron_block_wip_2"
     );
     public static final StandaloneModelKey<BlockStateModel> ANCIENT_SEA_REEF_WIP_2 = WipBlockEntityRenderer.registerModel(
-        "block/ancient_sea_reef_wip_2"
+        "block/wip_display/ancient_sea_reef_wip_2"
     );
     public static final StandaloneModelKey<BlockStateModel> SHULKER_BOX_WIP = WipBlockEntityRenderer.registerModel(
-        "block/shulker_box_wip"
+        "block/wip_display/shulker_box_wip"
     );
     public static final StandaloneModelKey<BlockStateModel> SHULKER_BOX_WIP_2 = WipBlockEntityRenderer.registerModel(
-        "block/shulker_box_wip_2"
+        "block/wip_display/shulker_box_wip_2"
     );
 
     public static final StandaloneModelKey<BlockStateModel> MASS_ENERGY_INVERTER_WIP = WipBlockEntityRenderer.registerModel(
@@ -94,7 +94,12 @@ public class WipBlockEntityRenderer
     }
 
     public static @Nullable StandaloneModelKey<BlockStateModel> getModelKey(Identifier id) {
-        return WipBlockEntityRenderer.MODEL_KEYS.get(id);
+        StandaloneModelKey<BlockStateModel> key = WipBlockEntityRenderer.MODEL_KEYS.get(id);
+        if (key == null && id.getNamespace().equals(AnvilCraft.MOD_ID) && id.getPath().startsWith("block/")
+            && !id.getPath().startsWith("block/wip_display/")) {
+            key = WipBlockEntityRenderer.MODEL_KEYS.get(id.withPath("block/wip_display/" + id.getPath().substring(6)));
+        }
+        return key;
     }
 
     private final ModelBlockRenderer ambientRenderer;

@@ -4,6 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import dev.anvilcraft.lib.v2.rendering.gui.GuiRenderExtras;
 import dev.dubhe.anvilcraft.block.entity.WipBlockEntity;
+import dev.dubhe.anvilcraft.client.renderer.blockentity.WipBlockEntityRenderer;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.util.LevelLike;
 import lombok.AccessLevel;
@@ -11,12 +12,19 @@ import lombok.NoArgsConstructor;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.renderer.block.BlockAndTintGetter;
+import net.minecraft.client.renderer.block.BlockModelRenderState;
+import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
+import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.Identifier;
+import net.minecraft.util.LightCoordsUtil;
 import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import org.joml.Matrix4f;
 import org.jspecify.annotations.Nullable;
 
 import java.util.LinkedHashMap;
@@ -39,6 +47,7 @@ public class RenderSupport {
     private static final float WIP_PREVIEW_SCALE = 0.6F;
     private static final LinkedHashMap<BlockState, BlockEntity> BLOCK_ENTITY_CACHE = new LinkedHashMap<>();
     private static final LinkedHashMap<WipPreviewKey, LevelLike> WIP_LEVEL_CACHE = new LinkedHashMap<>();
+    private static final LinkedHashMap<PreviewModelKey, BlockModelRenderState> PREVIEW_MODELS = new LinkedHashMap<>();
     // private static final RandomSource RANDOM = RandomSource.createThreadLocalInstance();
     // public static final Vector3f L1 = new Vector3f(0.4F, 0.0F, 1.0F).normalize();
     // public static final Vector3f L2 = new Vector3f(-0.4F, 1.0F, -0.2F).normalize();
@@ -156,6 +165,56 @@ public class RenderSupport {
             false,
             poseStack
         );
+    }
+
+    public static void renderWipBlockAt(
+        GuiGraphicsExtractor graphics, @Nullable Identifier displayedModel, float x, float y, float scale
+    ) {
+        var manager = Minecraft.getInstance().getModelManager();
+        var key = displayedModel == null ? null : WipBlockEntityRenderer.getModelKey(displayedModel);
+        var body = key == null ? null : manager.getStandaloneModel(key);
+        var shell = manager.getBlockStateModelSet().get(ModBlocks.WIP_BLOCK.getDefaultState());
+        final BlockModelRenderState bodyState = body == null ? null : RenderSupport.previewModel(body, false);
+        final BlockModelRenderState shellState = RenderSupport.previewModel(shell, true);
+        PoseStack pose = new PoseStack();
+        pose.scale(-1, 1, -1);
+        pose.translate(-0.5, -0.5, 0);
+        pose.mulPose(Axis.XP.rotationDegrees(-30));
+        pose.translate(0.5, 0, -0.5);
+        pose.mulPose(Axis.YP.rotationDegrees(45));
+        pose.translate(-0.5, 0, 0.5);
+        pose.translate(0.5, 0.5, -0.5);
+        float resolution = Math.max(1, Math.max(
+            (float) Math.hypot(graphics.pose().m00(), graphics.pose().m01()),
+            (float) Math.hypot(graphics.pose().m10(), graphics.pose().m11())));
+        float extent = scale * 4;
+        graphics.pose().pushMatrix();
+        graphics.pose().scale(1 / resolution, 1 / resolution);
+        GuiRenderExtras.submitStructure(graphics, BlockAndTintGetter.EMPTY, BlockPos.ZERO, BlockPos.ZERO,
+            (x - extent) * resolution, (y - extent) * resolution, (x + extent) * resolution, (y + extent) * resolution,
+            scale * resolution, false, false, pose, (collector, modelPose) -> {
+                if (bodyState != null) {
+                    bodyState.submitMultiLayer(modelPose, collector, LightCoordsUtil.FULL_BRIGHT, OverlayTexture.NO_OVERLAY, 0);
+                }
+                shellState.submitMultiLayer(modelPose, collector, LightCoordsUtil.FULL_BRIGHT, OverlayTexture.NO_OVERLAY, 0);
+            });
+        graphics.pose().popMatrix();
+    }
+
+    private static BlockModelRenderState previewModel(BlockStateModel model, boolean translucent) {
+        PreviewModelKey key = new PreviewModelKey(model, translucent);
+        if (!RenderSupport.PREVIEW_MODELS.containsKey(key) && RenderSupport.PREVIEW_MODELS.size() >= RenderSupport.MAX_CACHE_SIZE) {
+            RenderSupport.PREVIEW_MODELS.pollFirstEntry();
+        }
+        return RenderSupport.PREVIEW_MODELS.computeIfAbsent(key, entry -> {
+            BlockModelRenderState result = new BlockModelRenderState();
+            entry.model().collectParts(BlockAndTintGetter.EMPTY, BlockPos.ZERO, ModBlocks.WIP_BLOCK.getDefaultState(),
+                RandomSource.create(42), result.setupModel(new Matrix4f(), entry.translucent()));
+            return result;
+        });
+    }
+
+    private record PreviewModelKey(BlockStateModel model, boolean translucent) {
     }
 
     /** Draw a recipe preview using the source animation's anchor, scale and rotation. */

@@ -2,12 +2,17 @@
 from pathlib import Path
 import re
 import subprocess
+import sys
 
 root = Path(__file__).resolve().parents[2]
 reference = root / "build/porting/reference-mun-1.21"
 assert subprocess.check_output(["git", "rev-parse", "dev/1.21/1.6"], cwd=root).strip() == subprocess.check_output(
     ["git", "rev-parse", "HEAD"], cwd=reference).strip()
+subprocess.run([sys.executable, str(root / "dev/porting/prepare_handbook_new_reference.py")], check=True)
 folder = reference / "src/main/java/dev/dubhe/anvilcraft/porting"
+recipe = reference / "src/main/resources/data/anvilcraft/recipe/port_handbook/block_processing.json"
+recipe.parent.mkdir(parents=True, exist_ok=True)
+recipe.write_bytes((root / "dev/porting/resources/data/anvilcraft/recipe/port_handbook/block_processing.json").read_bytes())
 scene = (root / "dev/porting/java/dev/dubhe/anvilcraft/porting/HandbookRecipeClientScene.java").read_text(encoding="utf-8")
 start = scene.index("    private static void verify(")
 end = scene.index("    private static MDComponent parse(", start)
@@ -68,5 +73,5 @@ input_path.parent.mkdir(parents=True, exist_ok=True)
 input_path.write_bytes((root / "run/port-validation/client/handbook-recipes-26.1.json").read_bytes())
 p = reference / "build.gradle"
 s = re.sub(r"(systemProperty 'anvilcraft\.port[^']+', )'true'", r"\1'false'", p.read_text(encoding="utf-8"))
-s += "\nneoForge.runs.client { systemProperty 'anvilcraft.portHandbookRecipeScene', 'true' }\n"
+s += "\nneoForge.runs.client { systemProperty 'anvilcraft.portHandbookRecipeScene', 'true'; systemProperty 'anvilcraft.portHandbookNewAfterGallery', 'true' }\n"
 p.write_text(s, encoding="utf-8", newline="\r\n")

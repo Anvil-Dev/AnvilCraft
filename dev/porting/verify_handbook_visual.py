@@ -11,14 +11,14 @@ source = root / "build/porting/reference-mun-1.21/run/mun-reference"
 a = json.loads((native / "handbook-recipes-26.1.json").read_text(encoding="utf-8"))
 b = json.loads((source / "handbook-recipes-1.21.json").read_text(encoding="utf-8"))
 assert a["helpers"] == b["helpers"], "Model-holder mappings or block metrics differ"
-assert a["pages"] == b["pages"] == 5
+assert a["pages"] == b["pages"] == 6
 keys = [key for key in a if key.startswith("anvilcraft:")]
-assert len(keys) == 20 and all(key in b for key in keys)
+assert len(keys) == 25 and all(key in b for key in keys)
 for key in keys:
     assert a[key]["width"] > 0 and a[key]["height"] > 0, key
 
-x = np.asarray(Image.open(native / "screenshots/handbook-recipes-26.1-4.png").convert("RGB"), dtype=np.int16)
-y = np.asarray(Image.open(source / "screenshots/handbook-recipes-1.21-4.png").convert("RGB"), dtype=np.int16)
+x = np.asarray(Image.open(native / "screenshots/handbook-recipes-26.1-5.png").convert("RGB"), dtype=np.int16)
+y = np.asarray(Image.open(source / "screenshots/handbook-recipes-1.21-5.png").convert("RGB"), dtype=np.int16)
 assert x.shape == y.shape == (720, 1280, 3)
 regions = {
     "arrows": (60, 25, 650, 110),
