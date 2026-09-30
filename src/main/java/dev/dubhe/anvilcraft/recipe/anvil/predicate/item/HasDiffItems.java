@@ -8,17 +8,20 @@ import dev.anvilcraft.lib.v2.recipe.cache.ItemCache;
 import dev.anvilcraft.lib.v2.recipe.cache.item.ICacheElement;
 import dev.anvilcraft.lib.v2.recipe.cache.item.ICacheInput;
 import dev.anvilcraft.lib.v2.recipe.cache.item.ICacheInputOutputImpl;
+import dev.anvilcraft.lib.v2.recipe.cache.item.ItemResourceHandlerCacheElement;
 import dev.anvilcraft.lib.v2.recipe.cache.item.operation.InputOutputOperation;
 import dev.anvilcraft.lib.v2.recipe.predicate.IRecipePredicate;
 import dev.anvilcraft.lib.v2.recipe.predicate.function.IPredicateFunction;
 import dev.anvilcraft.lib.v2.recipe.util.InWorldRecipeContext;
 import dev.anvilcraft.lib.v2.recipe.util.InWorldRecipeData;
+import dev.anvilcraft.lib.v2.recipe.util.Range;
 import dev.anvilcraft.lib.v2.util.Util;
 import dev.anvilcraft.lib.v2.util.predicate.ItemIngredientPredicate;
+import dev.dubhe.anvilcraft.block.entity.StampingPlatformBlockEntity;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipePredicateTypes;
 import dev.dubhe.anvilcraft.mixin.accessor.ICacheInputOutputImplAccessor;
-import it.unimi.dsi.fastutil.ints.IntArrayList;
-import it.unimi.dsi.fastutil.ints.IntList;
+import dev.dubhe.anvilcraft.mixin.accessor.ItemResourceHandlerCacheElementAccessor;
+import net.minecraft.core.BlockPos;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -47,24 +50,16 @@ public record HasDiffItems(
     @Override
     public boolean test(InWorldRecipeContext context) {
         ICacheInput input = this.getItem(context);
+        if (!(input instanceof ICacheInputOutputImpl impl)) return false;
+        ICacheInputOutputImplAccessor accessor = Util.cast(impl);
+        Set<ICacheElement> elements = accessor.getElements();
+        if (elements.size() != this.item.count()) return false;
         Set<Item> items = new HashSet<>();
-        IntList counts = new IntArrayList();
-        input.apply(stack -> items.add(stack.getItem().asItem()));
-        // noinspection StatementWithEmptyBody
-        if (input instanceof ICacheInputOutputImpl impl) {
-            ICacheInputOutputImplAccessor accessor = Util.cast(impl);
-            for (ICacheElement element : accessor.getElements()) {
-                counts.add(element.getCount());
-            }
-        } else {
-            // TODO: 找到不使用ICacheInputOutputImpl也能获取所有元素的数量列表的方法
-            // input.apply(stack -> counts.add(stack.count()));
+        for (ICacheElement element : elements) {
+            if (element.getCount() != 1 || !element.is(this.item.testIgnoreCount())) return false;
+            element.apply(stack -> items.add(stack.getItem()));
         }
-        if (counts.size() != this.item.count() || counts.size() != items.size()) return false;
-        for (int count : counts) {
-            if (count < 1) return false;
-        }
-        return true;
+        return items.size() == elements.size();
     }
 
     @Override
@@ -117,7 +112,15 @@ public record HasDiffItems(
             AnvilLibRecipe.of("item_cache_input/%s".formatted(this.hashCode())),
             (ctx, _) -> {
                 ItemCache itemCache = ctx.get(ItemCache.ITEM_CACHE);
-                return itemCache.getInput(this.item.testIgnoreCount(), context.getPos().add(this.offset), this.range);
+                Vec3 pos = ctx.getPos().add(this.offset);
+                ICacheInput input = itemCache.getInput(stack -> !stack.isEmpty(), pos, this.range);
+                if (!(ctx.getLevel().getBlockEntity(BlockPos.containing(pos)) instanceof StampingPlatformBlockEntity platform)
+                    || !(input instanceof ICacheInputOutputImpl impl)) return input;
+                ICacheInputOutputImplAccessor accessor = Util.cast(impl);
+                var elements = accessor.getElements().stream().filter(element ->
+                    element instanceof ItemResourceHandlerCacheElement
+                        && ((ItemResourceHandlerCacheElementAccessor) element).getItemHandler() == platform.getInput()).toList();
+                return new ICacheInputOutputImpl(this, itemCache, pos, Range.of(pos, this.range), elements);
             });
         return context.computeIfAbsent(cacheInput);
     }

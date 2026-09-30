@@ -5903,5 +5903,40 @@
       ]
     },
     "remaining": "Continue complete recipe catalogue audit; component-aware cauldron inputs/multiple fluid outputs and unique-template stamping are confirmed remaining gaps."
+  },
+  "unique_stamping_source_parity_2026_09_30": {
+    "source_commit": "cca4b2aac5328926fa88bc01d958d007ff6bfc2a",
+    "status": "implemented_and_verified",
+    "implementation": [
+      "Audit native StampingDiffRecipe as the existing counterpart of source StampingUniqueItemsRecipe; retain native serializer and recipe IDs.",
+      "Require the complete input set to contain the exact number of different item types, each with count one, and validate every ingredient.",
+      "Scope platform matching and consumption to cache elements owned by that platform input handler; nearby item entities and inventories do not supply unique-template recipes.",
+      "Reuse the native cache snapshot, rollback and accept flow without adding a separate processing engine."
+    ],
+    "validation": {
+      "focused_required_tests": 6,
+      "full_required_tests": 795,
+      "commands": [
+        "./gradlew.bat -PportValidation -I dev/porting/unique-stamping.gradle -I dev/porting/checkstyle.gradle compileJava runGameTestServer checkPortJava --console=plain",
+        "./gradlew.bat -PportValidation -I dev/porting/checkstyle.gradle compileJava runGameTestServer checkPortJava --console=plain",
+        "git diff --check"
+      ],
+      "logs": {
+        "focused": "build/porting/tests-unique-stamping-focused-final.log",
+        "full": "build/porting/tests-unique-stamping-all-final.log"
+      },
+      "coverage": [
+        "Real two/four/eight-template recipes match and consume each platform ingredient exactly once, producing one expected output.",
+        "Reject repeated item types even with different names, stacks larger than one, and extra foreign items.",
+        "Reject loose-item-only inputs and leave nearby loose items unchanged when valid platform inputs craft.",
+        "Matching does not mutate inventory before accept; normal source unique-stamping animation state is preserved."
+      ],
+      "limits": [
+        "An initial fixture expected the ordinary stamping animation; source ItemStampingBehavior and event listeners confirm unique stamping does not trigger it. The fixture was corrected without changing production animation behavior.",
+        "Focused behavior passed before a local fixture line-length repair; final full compilation, GameTests and Checkstyle passed.",
+        "All new verification files remain ignored locally."
+      ]
+    },
+    "remaining": "Port component-aware cauldron fluid predicates, multiple fluid outputs and linked recipe/UI consumers; continue other catalogue differences and rendering compatibility audit."
   }
 }
