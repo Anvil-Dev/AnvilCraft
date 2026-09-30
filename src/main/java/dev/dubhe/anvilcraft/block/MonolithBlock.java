@@ -17,9 +17,8 @@ import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import java.util.Map;
 
 /**
- * 普通石碑方块，采用类似原版蘑菇块的六面独立纹理机制。
- * 与任意石碑类方块（核心、竖线等）相邻的面显示 monolith_inner.png，
- * 否则显示 monolith.png。
+ * 普通石碑方块，采用类似原版蘑菇块的六面独立纹理机制
+ * 与任意石碑类方块接触过的面转化为 monolith_inner
  */
 public class MonolithBlock extends Block {
     public static final BooleanProperty NORTH = BooleanProperty.create("north");

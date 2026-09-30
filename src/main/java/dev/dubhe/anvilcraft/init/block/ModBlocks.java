@@ -331,6 +331,7 @@ import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
 import net.minecraft.world.level.storage.loot.functions.CopyComponentsFunction;
 import net.minecraft.world.level.storage.loot.functions.SetItemCountFunction;
+import net.minecraft.world.level.storage.loot.predicates.LootItemRandomChanceCondition;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import net.neoforged.neoforge.client.model.generators.BlockModelBuilder;
 import net.neoforged.neoforge.client.model.generators.ConfiguredModel;
@@ -5065,19 +5066,27 @@ public class ModBlocks {
         .register();
 
     public static final BlockEntry<? extends Block> MONOLITH = REGISTRUM.block("monolith", MonolithBlock::new)
-        .initialProperties(() -> Blocks.BEDROCK)
-        .properties(properties -> properties.destroyTime(55.0F).pushReaction(PushReaction.BLOCK))
+        .initialProperties(() -> Blocks.REINFORCED_DEEPSLATE)
+        .properties(properties -> properties.pushReaction(PushReaction.BLOCK))
         .tag(BlockTags.WITHER_IMMUNE, BlockTags.DRAGON_IMMUNE)
         .lang("Monolith")
         .blockstate(DataGenUtil::noExtraModelOrState)
+        .loot((tables, block) -> tables.add(block, LootTable.lootTable()
+            .withPool(tables.applyExplosionCondition(block, LootPool.lootPool()
+                .setRolls(ConstantValue.exactly(1.0F))
+                .add(LootItem.lootTableItem(block))))
+            .withPool(LootPool.lootPool()
+                .setRolls(ConstantValue.exactly(1.0F))
+                .add(LootItem.lootTableItem(ModItems.LEGACY_ESSENCE.get())
+                    .when(LootItemRandomChanceCondition.randomChance(0.05F))))))
         .item()
         .model((ctx, provider) -> provider.withExistingParent(ctx.getName(), AnvilCraft.of("block/monolith")))
         .build()
         .register();
 
     public static final BlockEntry<MonolithCoreBlock> MONOLITH_CORE = REGISTRUM.block("monolith_core", MonolithCoreBlock::new)
-        .initialProperties(() -> Blocks.BEDROCK)
-        .properties(properties -> properties.destroyTime(55.0F).pushReaction(PushReaction.BLOCK))
+        .initialProperties(() -> Blocks.REINFORCED_DEEPSLATE)
+        .properties(properties -> properties.pushReaction(PushReaction.BLOCK))
         .tag(BlockTags.WITHER_IMMUNE, BlockTags.DRAGON_IMMUNE)
         .loot((tables, block) -> DataGenUtil.dropOtherAndSelfWhenSilkTouch(tables, block, MONOLITH))
         .properties(properties -> properties.lightLevel(state -> 10).noOcclusion())
@@ -5086,11 +5095,12 @@ public class ModBlocks {
         .item()
         .model((ctx, provider) -> provider.withExistingParent(ctx.getName(), AnvilCraft.of("block/monolith_core")))
         .build()
+        .recipe(RegistrumBlockRecipeLoader::monolithCore)
         .register();
 
     public static final BlockEntry<MonolithLineBlock> MONOLITH_LINE = REGISTRUM.block("monolith_line", MonolithLineBlock::new)
-        .initialProperties(() -> Blocks.BEDROCK)
-        .properties(properties -> properties.destroyTime(55.0F).pushReaction(PushReaction.BLOCK))
+        .initialProperties(() -> Blocks.REINFORCED_DEEPSLATE)
+        .properties(properties -> properties.pushReaction(PushReaction.BLOCK))
         .tag(BlockTags.WITHER_IMMUNE, BlockTags.DRAGON_IMMUNE)
         .loot((tables, block) -> DataGenUtil.dropOtherAndSelfWhenSilkTouch(tables, block, MONOLITH))
         .properties(properties -> properties.lightLevel(state -> 10).noOcclusion())
@@ -5099,14 +5109,15 @@ public class ModBlocks {
         .item()
         .model((ctx, provider) -> provider.withExistingParent(ctx.getName(), AnvilCraft.of("block/monolith_line")))
         .build()
+        .recipe(RegistrumBlockRecipeLoader::monolithLine)
         .register();
 
     public static final BlockEntry<GiantMonolithCoreBlock> GIANT_MONOLITH_CORE = REGISTRUM.block(
             "giant_monolith_core",
             GiantMonolithCoreBlock::new
         )
-        .initialProperties(() -> Blocks.BEDROCK)
-        .properties(properties -> properties.destroyTime(55.0F).pushReaction(PushReaction.BLOCK))
+        .initialProperties(() -> Blocks.REINFORCED_DEEPSLATE)
+        .properties(properties -> properties.pushReaction(PushReaction.BLOCK))
         .tag(BlockTags.WITHER_IMMUNE, BlockTags.DRAGON_IMMUNE)
         .loot(GiantMonolithCoreBlock::loot)
         .properties(properties -> properties.lightLevel(state -> 10).noOcclusion().noCollission())
@@ -5118,8 +5129,8 @@ public class ModBlocks {
         .register();
 
     public static final BlockEntry<MonolithLineBlock> GIANT_MONOLITH_LINE = REGISTRUM.block("giant_monolith_line", MonolithLineBlock::new)
-        .initialProperties(() -> Blocks.BEDROCK)
-        .properties(properties -> properties.destroyTime(55.0F).pushReaction(PushReaction.BLOCK))
+        .initialProperties(() -> Blocks.REINFORCED_DEEPSLATE)
+        .properties(properties -> properties.pushReaction(PushReaction.BLOCK))
         .tag(BlockTags.WITHER_IMMUNE, BlockTags.DRAGON_IMMUNE)
         .loot((tables, block) -> DataGenUtil.dropOtherAndSelfWhenSilkTouch(tables, block, MONOLITH))
         .properties(properties -> properties.lightLevel(state -> 10).noOcclusion().noCollission())

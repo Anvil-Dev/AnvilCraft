@@ -259,7 +259,12 @@ public class BlockTagLoader {
             .addTag(Tags.Blocks.CHESTS_WOODEN);
         provider.addTag(ModBlockTags.DEVOUR_DENYLIST)
             .add(ModBlocks.MINERAL_FOUNTAIN.getKey())
-            .add(ModBlocks.STURDY_DEEPSLATE.getKey());
+            .add(ModBlocks.STURDY_DEEPSLATE.getKey())
+            .add(ModBlocks.MONOLITH.getKey())
+            .add(ModBlocks.MONOLITH_CORE.getKey())
+            .add(ModBlocks.MONOLITH_LINE.getKey())
+            .add(ModBlocks.GIANT_MONOLITH_CORE.getKey())
+            .add(ModBlocks.GIANT_MONOLITH_LINE.getKey());
 
         provider.addTag(ModBlockTags.FELLING_APPLICABLE)
             .addTag(BlockTags.LOGS)

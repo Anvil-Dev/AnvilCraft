@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "A": {
+      "item": "minecraft:anvil"
+    },
+    "M": {
+      "item": "anvilcraft:monolith"
+    }
+  },
+  "pattern": [
+    "MAM",
+    " M "
+  ],
+  "result": {
+    "count": 1,
+    "id": "anvilcraft:monolith_core"
+  }
+}
