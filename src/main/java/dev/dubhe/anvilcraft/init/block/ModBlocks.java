@@ -117,6 +117,7 @@ import dev.dubhe.anvilcraft.block.MineralFountainBlock;
 import dev.dubhe.anvilcraft.block.MobAmberBlock;
 import dev.dubhe.anvilcraft.block.MonolithBlock;
 import dev.dubhe.anvilcraft.block.MonolithCoreBlock;
+import dev.dubhe.anvilcraft.block.MonolithLineBlock;
 import dev.dubhe.anvilcraft.block.NegativeMatterBlock;
 import dev.dubhe.anvilcraft.block.NeoforgeBlock;
 import dev.dubhe.anvilcraft.block.NeutronIrradiatorBlock;
@@ -5063,7 +5064,7 @@ public class ModBlocks {
         .tag(BlockTags.MINEABLE_WITH_SHOVEL)
         .register();
 
-    public static final BlockEntry<? extends Block> MONOLITH = REGISTRUM.block("monolith", Block::new)
+    public static final BlockEntry<? extends Block> MONOLITH = REGISTRUM.block("monolith", MonolithBlock::new)
         .initialProperties(() -> Blocks.BEDROCK)
         .properties(properties -> properties.destroyTime(55.0F).pushReaction(PushReaction.BLOCK))
         .tag(BlockTags.WITHER_IMMUNE, BlockTags.DRAGON_IMMUNE)
@@ -5087,7 +5088,7 @@ public class ModBlocks {
         .build()
         .register();
 
-    public static final BlockEntry<MonolithBlock> MONOLITH_LINE = REGISTRUM.block("monolith_line", MonolithBlock::new)
+    public static final BlockEntry<MonolithLineBlock> MONOLITH_LINE = REGISTRUM.block("monolith_line", MonolithLineBlock::new)
         .initialProperties(() -> Blocks.BEDROCK)
         .properties(properties -> properties.destroyTime(55.0F).pushReaction(PushReaction.BLOCK))
         .tag(BlockTags.WITHER_IMMUNE, BlockTags.DRAGON_IMMUNE)
@@ -5116,7 +5117,7 @@ public class ModBlocks {
         .blockstate(DataGenUtil::noExtraModelOrState)
         .register();
 
-    public static final BlockEntry<MonolithBlock> GIANT_MONOLITH_LINE = REGISTRUM.block("giant_monolith_line", MonolithBlock::new)
+    public static final BlockEntry<MonolithLineBlock> GIANT_MONOLITH_LINE = REGISTRUM.block("giant_monolith_line", MonolithLineBlock::new)
         .initialProperties(() -> Blocks.BEDROCK)
         .properties(properties -> properties.destroyTime(55.0F).pushReaction(PushReaction.BLOCK))
         .tag(BlockTags.WITHER_IMMUNE, BlockTags.DRAGON_IMMUNE)

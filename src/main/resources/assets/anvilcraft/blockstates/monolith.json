@@ -1,7 +1,62 @@
 {
-  "variants": {
-    "": {
-      "model": "anvilcraft:block/monolith"
+  "multipart": [
+    {
+      "apply": {
+        "model": "anvilcraft:block/monolith"
+      }
+    },
+    {
+      "when": {
+        "down": "false"
+      },
+      "apply": {
+        "model": "anvilcraft:block/monolith_inner",
+        "x": 90
+      }
+    },
+    {
+      "when": {
+        "up": "false"
+      },
+      "apply": {
+        "model": "anvilcraft:block/monolith_inner",
+        "x": -90
+      }
+    },
+    {
+      "when": {
+        "north": "false"
+      },
+      "apply": {
+        "model": "anvilcraft:block/monolith_inner"
+      }
+    },
+    {
+      "when": {
+        "south": "false"
+      },
+      "apply": {
+        "model": "anvilcraft:block/monolith_inner",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "west": "false"
+      },
+      "apply": {
+        "model": "anvilcraft:block/monolith_inner",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "east": "false"
+      },
+      "apply": {
+        "model": "anvilcraft:block/monolith_inner",
+        "y": 90
+      }
     }
-  }
+  ]
 }
