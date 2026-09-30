@@ -5210,5 +5210,47 @@
       ]
     },
     "remaining": "Continue global handbook pages/framework, sliding-extension APIs, and remaining gameplay/rendering audits."
+  },
+  "sliding_extension_source_parity_2026_09_30": {
+    "source_commit": "cca4b2aac5328926fa88bc01d958d007ff6bfc2a",
+    "status": "implemented_and_verified",
+    "implementation": [
+      "Port SlidingStructureExtension, SlidingStructureHooks and SlidingRailLoad exactly from the source branch.",
+      "Expose resolver level, addBlockLine and addBranchingBlocks; run expansion on successful resolution and route destruction decisions through reaction hooks.",
+      "Allow retracted ordinary/sticky piston bases in forward block lines while rejecting extended bases and piston heads.",
+      "Post source Start/Stop lifecycle events with original structure payload and completed restoration timing.",
+      "Use extensible block/item load checks in detector rails and clear the supplied moving block entity on restoration."
+    ],
+    "validation": {
+      "focused_required_tests": 8,
+      "new_tests": 6,
+      "full_required_tests": 770,
+      "commands": [
+        "./gradlew.bat -PportValidation -I dev/porting/sliding-extension.gradle -I dev/porting/checkstyle.gradle compileJava runGameTestServer checkPortJava --console=plain",
+        "./gradlew.bat -PportValidation -I dev/porting/checkstyle.gradle compileJava runGameTestServer checkPortJava --console=plain",
+        "Compare all three public sliding hook/load API files against the current source checkout.",
+        "git diff --check"
+      ],
+      "logs": {
+        "focused": "build/porting/tests-sliding-extension-focused.log",
+        "full": "build/porting/tests-sliding-extension-all.log"
+      },
+      "coverage": [
+        "Reaction hooks compose in registration order and route a following normal block to the destroy list without mutating the world.",
+        "Expansion adds a branch through public resolver methods; veto short-circuits later extensions and prevents real rail movement.",
+        "24 ordinary/sticky piston facing/extension combinations, plus piston-head and obsidian rejection.",
+        "Real ISlidingRail.moveBlocks dispatch publishes exactly one Start and Stop with original positions and restored world state.",
+        "Vanilla sliding entity, item, extra-carrier, empty-load and exact above-block query-box cases.",
+        "Detector preserves redstone/comparator output under an extra carrier, clears on departure, and resets the supplied detached block entity.",
+        "Existing sliding persistence and stored-content restoration tests remain passing."
+      ],
+      "source_timing_note": "The source event Javadoc does not match its actual callers: ISlidingRail clears blocks before construction/Start, and SlidingBlockSection.setBlock discards before Stop. Runtime order is preserved, and the new API comment describes actual boundaries without claiming pre-removal timing.",
+      "limits": [
+        "The existing native wrong-block-state guard in detector notifyMoved is retained; valid detector moves use the source supplied-entity reset behavior.",
+        "This node changes server behavior and public APIs, without changing renderers or resources. No new client visual pass or runData was required.",
+        "Third-party addon integration is represented by scoped test extensions; no external addon client was launched."
+      ]
+    },
+    "remaining": "Continue global handbook pages/framework and remaining gameplay/rendering source audits; whole-goal completion remains unproven."
   }
 }

@@ -16,6 +16,7 @@ import java.util.List;
 /// No-pistonPos-Check PistonStructureResolver
 public class SlidingBlockStructureResolver {
     public static int MAX_PUSH_DEPTH = 12;
+    @Getter
     private final Level level;
     private final boolean extending;
     private final BlockPos startPos;
@@ -52,9 +53,9 @@ public class SlidingBlockStructureResolver {
         this.toDestroy.clear();
         BlockState blockstate = this.level.getBlockState(this.startPos);
         if (!PistonBaseBlock.isPushable(blockstate, this.level, this.startPos, this.pushDirection, false, this.pistonDirection)) {
-            if (!this.extending || blockstate.getPistonPushReaction() != PushReaction.DESTROY) return false;
+            if (!this.extending || this.pushReactionAt(this.startPos, blockstate) != PushReaction.DESTROY) return false;
             this.toDestroy.add(this.startPos);
-            return true;
+            return SlidingStructureHooks.expand(this);
         } else if (!this.addBlockLine(this.startPos, this.pushDirection)) {
             return false;
         } else {
@@ -64,12 +65,12 @@ public class SlidingBlockStructureResolver {
                 BlockPos blockpos = this.toPush.get(i);
                 if (this.level.getBlockState(blockpos).isStickyBlock() && !this.addBranchingBlocks(blockpos)) return false;
             }
-            return true;
+            return SlidingStructureHooks.expand(this);
         }
     }
 
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
-    private boolean addBlockLine(BlockPos originPos, Direction direction) {
+    public boolean addBlockLine(BlockPos originPos, Direction direction) {
         if (this.ignorePositions.contains(originPos)) return true;
         BlockState nowState = this.level.getBlockState(originPos);
         if (
@@ -127,7 +128,9 @@ public class SlidingBlockStructureResolver {
 
             nowState = this.level.getBlockState(addingPos);
             if (nowState.isAir()) return true;
-            if (nowState.is(Blocks.PISTON) || nowState.is(Blocks.STICKY_PISTON) || nowState.is(Blocks.PISTON_HEAD)) {
+            if (nowState.is(Blocks.PISTON_HEAD)
+                || ((nowState.is(Blocks.PISTON) || nowState.is(Blocks.STICKY_PISTON))
+                    && nowState.getValue(PistonBaseBlock.EXTENDED))) {
                 return false;
             }
 
@@ -138,7 +141,7 @@ public class SlidingBlockStructureResolver {
                 return false;
             }
 
-            if (nowState.getPistonPushReaction() == PushReaction.DESTROY) {
+            if (this.pushReactionAt(addingPos, nowState) == PushReaction.DESTROY) {
                 this.toDestroy.add(addingPos);
                 return true;
             }
@@ -165,7 +168,7 @@ public class SlidingBlockStructureResolver {
     }
 
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
-    private boolean addBranchingBlocks(BlockPos fromPos) {
+    public boolean addBranchingBlocks(BlockPos fromPos) {
         BlockState fromState = this.level.getBlockState(fromPos);
 
         for (Direction dir : Direction.values()) {
@@ -186,4 +189,9 @@ public class SlidingBlockStructureResolver {
         return true;
     }
 
+    private PushReaction pushReactionAt(BlockPos pos, BlockState state) {
+        return SlidingStructureHooks.modifyPushReaction(
+            this.level, pos, state, state.getPistonPushReaction(), this.pushDirection
+        );
+    }
 }

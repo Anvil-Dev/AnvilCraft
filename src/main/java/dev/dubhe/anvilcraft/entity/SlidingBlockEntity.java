@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.entity;
 
 import dev.anvilcraft.lib.v2.util.Util;
+import dev.dubhe.anvilcraft.api.event.SlidingBlockEvent;
 import dev.dubhe.anvilcraft.api.sliding.SlidingBlockSection;
 import dev.dubhe.anvilcraft.block.logistics.sliding.ISlidingRail;
 import dev.dubhe.anvilcraft.init.block.ModBlockTags;
@@ -29,6 +30,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.apache.commons.lang3.tuple.Triple;
 import org.jspecify.annotations.Nullable;
@@ -70,6 +72,7 @@ public class SlidingBlockEntity extends Entity {
         this.zo = bottomCenter.z;
         this.setStartPos(pos);
         this.moveDirection = moveDirection;
+        NeoForge.EVENT_BUS.post(new SlidingBlockEvent.Start(this, level, pos, moveDirection, infos));
     }
 
     @SuppressWarnings("UnusedReturnValue")
@@ -159,6 +162,7 @@ public class SlidingBlockEntity extends Entity {
     public void stop() {
         if (this.level().isClientSide()) return;
         this.section.setBlock(this.level(), this.blockPosition(), this);
+        NeoForge.EVENT_BUS.post(new SlidingBlockEvent.Stop(this));
         this.discard();
     }
 
