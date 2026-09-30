@@ -1,17 +1,18 @@
 package dev.dubhe.anvilcraft.util.dummy;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.animal.Cat;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import javax.annotation.Nullable;
 
 public class DummyCat extends Cat {
     private static final Map<UUID, DummyCat> CACHE = new HashMap<>();
@@ -20,21 +21,23 @@ public class DummyCat extends Cat {
         super(EntityType.CAT, level);
     }
 
-    public static @Nullable DummyCat fromPlayer(Level level, @Nullable Player player) {
-        if (player == null) return null;
-        UUID id = player.getGameProfile().getId();
+    public static @Nullable DummyCat fromEntity(@Nullable LivingEntity entity) {
+        if (entity == null) return null;
+
+        UUID id = entity.getUUID();
         DummyCat cache = DummyCat.CACHE.get(id);
-        if (cache == null) {
-            DummyCat dummy = new DummyCat(level);
-            dummy.setPos(player.position());
-            DummyCat.CACHE.put(id, dummy);
-            cache = dummy;
+        if (cache != null) {
+            cache.setPos(entity.position());
+            return cache;
         }
+        cache = new DummyCat(entity.level());
+        cache.setPos(entity.position());
+        DummyCat.CACHE.put(id, cache);
         return cache;
     }
 
-    public static void clear(Player player) {
-        DummyCat.CACHE.remove(player.getGameProfile().getId());
+    public static void clear(Entity entity) {
+        DummyCat.CACHE.remove(entity.getUUID());
     }
 
     @Override
@@ -64,6 +67,11 @@ public class DummyCat extends Cat {
 
     @Override
     public boolean mayInteract(Level level, BlockPos pos) {
+        return false;
+    }
+
+    @Override
+    public boolean mayBeLeashed() {
         return false;
     }
 }

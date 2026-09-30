@@ -15,7 +15,7 @@ import net.neoforged.fml.common.EventBusSubscriber;
 public class AmuletEventListener {
     @SubscribeEvent
     public static void on(AmuletEvent.Find event) {
-        Player player = event.getPlayer();
+        if (!(event.getEntity() instanceof Player player)) return;
         event.provide(player.getMainHandItem());
         event.provide(player.getOffhandItem());
         PocketInventory.items(player).forEach(event::provide);
@@ -32,6 +32,13 @@ public class AmuletEventListener {
                     event.provide(stack.copy());
                 }
             }
+        }
+    }
+
+    @SubscribeEvent
+    public static void on(AmuletEvent.EntityCheck event) {
+        if (event.getEntity() instanceof Player) {
+            event.pass();
         }
     }
 }

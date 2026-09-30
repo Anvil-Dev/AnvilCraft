@@ -27,8 +27,6 @@ import dev.dubhe.anvilcraft.rpc.StorageServerStub;
 import dev.dubhe.anvilcraft.util.DevourUtil;
 import dev.dubhe.anvilcraft.util.GravityManager;
 import dev.dubhe.anvilcraft.util.InfiniteFluidTankBreakProtection;
-import dev.dubhe.anvilcraft.util.dummy.DummyCat;
-import dev.dubhe.anvilcraft.util.dummy.DummyWolf;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -65,8 +63,6 @@ public class PlayerEventListener {
     @SubscribeEvent
     public static void loggedOut(PlayerEvent.PlayerLoggedOutEvent event) {
         Player player = event.getEntity();
-        DummyCat.clear(player);
-        DummyWolf.clear(player);
         InfiniteFluidTankBreakProtection.clear(player);
         BundleLikeServerStub.clear(player.getUUID());
         StorageServerStub.clearInvertedBucketAction(player.getUUID());
@@ -197,14 +193,6 @@ public class PlayerEventListener {
             event.setCanceled(true);
         }
         AmuletManager.get(player.registryAccess()).tryRaffle(player, event.getSource());
-    }
-
-    @SubscribeEvent
-    public static void onPlayerHurt(LivingIncomingDamageEvent event) {
-        if (!(event.getEntity() instanceof ServerPlayer player)) return;
-        if (AmuletManager.get(player.registryAccess()).shouldImmune(player, event.getSource())) {
-            event.setCanceled(true);
-        }
     }
 
     @SubscribeEvent(priority = EventPriority.LOWEST)

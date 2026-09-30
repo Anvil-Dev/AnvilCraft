@@ -21,7 +21,7 @@ import dev.dubhe.anvilcraft.client.rpc.StorageClientStub;
 import dev.dubhe.anvilcraft.client.support.GuiRenderSupport;
 import dev.dubhe.anvilcraft.constant.Constant;
 import dev.dubhe.anvilcraft.constant.SharedTextures;
-import dev.dubhe.anvilcraft.integration.StorageJeiBridge;
+import dev.dubhe.anvilcraft.integration.jei.StorageJeiBridge;
 import dev.dubhe.anvilcraft.rpc.StorageInput;
 import dev.dubhe.anvilcraft.rpc.StorageServerStub;
 import dev.dubhe.anvilcraft.saved.setting.StorageSetting;
@@ -306,6 +306,17 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
     private long unfilteredVersion = Long.MIN_VALUE;
     /** 未过滤快照请求是否在途，避免同版本并发重复请求。 */
     private boolean unfilteredPending;
+    /**
+     * 未经过滤的流体快照，仅供 JEI 判定「空容器 + 存储流体现场盛装」。
+     *
+     * <p>{@link #fluids} 只随 sync 更新，而配方界面覆盖本界面时 sync 既不 tick 发起、
+     * 回调也会被 {@link #screenExecutor} 丢弃，故 JEI 另取一份与界面生命周期无关的快照。</p>
+     */
+    private List<StorageServerStub.FluidEntry> unfilteredFluids = List.of();
+    /** {@link #unfilteredFluids} 对应的存储版本，避免同版本重复请求。 */
+    private long unfilteredFluidVersion = Long.MIN_VALUE;
+    /** 未过滤流体快照请求是否在途，避免同版本并发重复请求。 */
+    private boolean unfilteredFluidPending;
     /** 上次播放切石机取走音效的游戏 tick（与方块侧一致，同一 tick 只播一次）。 */
     private long lastStonecutterTakeSoundTick = -1;
     /** 上一次播放合成补货拾取音效的游戏 tick（同一 tick 只播一次）。*/
@@ -4116,6 +4127,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
         this.metadataPending = true;
         this.metadataCooldown = StorageScreen.METADATA_REFRESH_INTERVAL;
         this.refreshUnfilteredContents();
+        this.refreshUnfilteredFluids();
         StorageClientStub.loadMetadata(this.sourcePos).whenCompleteAsync(
             (metadata, error) -> {
                 this.metadataPending = false;
@@ -4158,7 +4170,51 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
     }
 
     /**
+     * 按需刷新未过滤快照（内容与流体），供 JEI 在配方界面覆盖本界面、
+     * {@link #containerTick()} 不执行时调用。
+     */
+    public void ensureUnfilteredSnapshot() {
+        this.refreshUnfilteredContents();
+        this.refreshUnfilteredFluids();
+    }
+
+    /**
+     * 拉取未经过滤的流体快照，供 JEI 判定桶装流体能否现场盛装。
+     *
+     * <p>与 {@link #refreshUnfilteredContents()} 同样按存储版本去重，回调同样固定回
+     * 客户端主线程执行：配方界面覆盖本界面时 {@link #screenExecutor} 会丢弃任务。</p>
+     */
+    private void refreshUnfilteredFluids() {
+        if (this.unfilteredFluidPending || this.unfilteredFluidVersion == this.version) {
+            return;
+        }
+        this.unfilteredFluidPending = true;
+        long requested = this.version;
+        StorageClientStub.craftingStorageFluids(this.sourcePos).whenCompleteAsync(
+            (fluids, error) -> {
+                if (error != null) {
+                    this.unfilteredFluidPending = false;
+                    return;
+                }
+                // 版本已前进：丢弃本批，下个刷新周期会针对新版本重新拉取
+                if (this.version != requested) {
+                    this.unfilteredFluidPending = false;
+                    return;
+                }
+                this.unfilteredFluids = List.copyOf(fluids);
+                this.unfilteredFluidVersion = requested;
+                this.unfilteredFluidPending = false;
+            },
+            Minecraft.getInstance()
+        );
+    }
+
+    /**
      * 拉取未过滤快照的一页；收齐后写入缓存。
+     *
+     * <p>回调固定回客户端主线程执行：{@link #screenExecutor} 在本界面被 JEI 配方界面等
+     * 覆盖时会丢弃任务，快照便卡在 {@link #unfilteredPending} 上再也拉不到；此场景下
+     * {@code closed} 为真，但快照正是此时供 JEI 使用，故不因此丢弃整批。</p>
      *
      * @param requested 发起时的存储版本，回调期间版本前进则整批作废
      * @param offset    下一页起始偏移（已收条目数）
@@ -4167,7 +4223,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
     private void fetchUnfilteredPage(long requested, int offset, List<ItemStack> collected) {
         StorageClientStub.craftingStorageContents(this.sourcePos, offset).whenCompleteAsync(
             (page, error) -> {
-                if (error != null || this.closed) {
+                if (error != null) {
                     this.unfilteredPending = false;
                     return;
                 }
@@ -4185,7 +4241,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
                 this.unfilteredVersion = requested;
                 this.unfilteredPending = false;
             },
-            this.screenExecutor
+            Minecraft.getInstance()
         );
     }
 
@@ -4205,6 +4261,19 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
      */
     public boolean hasUnfilteredContents() {
         return this.unfilteredVersion == this.version;
+    }
+
+    /**
+     * 未经过滤的流体快照；存储内容与当前版本不一致时返回空列表，
+     * 与 {@link #getUnfilteredContents()} 同样退回保守判定。
+     */
+    public List<StorageServerStub.FluidEntry> getUnfilteredFluids() {
+        return this.hasUnfilteredFluids() ? this.unfilteredFluids : List.of();
+    }
+
+    /** 未过滤流体快照是否为当前版本。 */
+    public boolean hasUnfilteredFluids() {
+        return this.unfilteredFluidVersion == this.version;
     }
 
     private int getMaxScrollRow() {

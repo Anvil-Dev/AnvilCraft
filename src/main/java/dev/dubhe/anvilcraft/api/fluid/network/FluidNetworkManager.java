@@ -253,17 +253,20 @@ public final class FluidNetworkManager {
                 d.containers.remove(containerPos); // 已失效 → 注销
                 continue;
             }
-            BlockPos seed = findUnindexedAdjacentPipe(level, containerPos, d.partIndex);
-            if (seed == null) {
-                continue; // 无相邻管道，或相邻管道所属网络已在本次重建中建好
-            }
-            FluidPipeNetwork network = FluidNetworkScanner.scan(level, seed);
-            if (network == null) {
-                continue;
-            }
-            d.networks.add(network);
-            for (BlockPos part : network.getParts()) {
-                d.partIndex.put(part, network);
+            // 同一容器可能在多个面各引出一条互不连通的管道支路：必须把每个相邻的未归网管道
+            // 都作为种子扫一遍。只取第一个种子会让其余支路永远不成网络——既不参与流体分配，
+            // 也不会被 updateGasDisplay 点亮（小储罐单方块六面引管时只有一面有表现即由此而来）。
+            // 每次扫描会把整张网络写入 partIndex，因此下一轮只会返回仍未归网的支路，循环必然收敛。
+            BlockPos seed;
+            while ((seed = findUnindexedAdjacentPipe(level, containerPos, d.partIndex)) != null) {
+                FluidPipeNetwork network = FluidNetworkScanner.scan(level, seed);
+                if (network == null) {
+                    break; // 种子校验失败：中止本容器的展开，避免死循环
+                }
+                d.networks.add(network);
+                for (BlockPos part : network.getParts()) {
+                    d.partIndex.put(part, network);
+                }
             }
         }
 

@@ -7,6 +7,7 @@ import dev.dubhe.anvilcraft.block.entity.ExpCollectorBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModFluids;
 import dev.dubhe.anvilcraft.util.AtmosphereManager;
 import dev.dubhe.anvilcraft.util.GravityManager;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.ExperienceOrb;
@@ -57,45 +58,40 @@ abstract class ExperienceOrbMixin extends Entity implements IExperienceOrbExtens
                 && !collector.getBlockState().getValue(ExpCollectorBlock.POWERED)
                 && collector.shape().contains(this.position())
                 && !collector.isRemoved()) {
-                int count = this.count;
-                int value = this.value;
-                int expFluid = value * 20;
-                int totalExpFluid = value * count * 20;
-                if (collector.getFluidTank().getCapacity() - collector.getFluidTank().getFluidAmount() >= totalExpFluid) {
-                    collector.getFluidTank().internalFill(
-                        new FluidStack(ModFluids.EXP_FLUID, totalExpFluid),
-                        IFluidHandler.FluidAction.EXECUTE
-                    );
-                    level.sendBlockUpdated(
-                        collector.getBlockPos(),
-                        collector.getBlockState(),
-                        collector.getBlockState(),
-                        Block.UPDATE_ALL
-                    );
+                if (this.value <= 0) {
                     this.remove(Entity.RemovalReason.DISCARDED);
                     this.discard();
                     anvilcraft$discarded = true;
                     break;
+                }
+                if (this.count <= 0) this.count = 1;
+                int totalExp = this.value * this.count;
+                int acceptableExp = (collector.getFluidTank().getCapacity() - collector.getFluidTank().getFluidAmount()) / 20;
+                if (acceptableExp == 0) continue;
+                int expToAbsorb = Math.min(totalExp, acceptableExp);
+                collector.getFluidTank().internalFill(
+                    new FluidStack(ModFluids.EXP_FLUID, expToAbsorb * 20),
+                    IFluidHandler.FluidAction.EXECUTE
+                );
+                level.sendBlockUpdated(
+                    collector.getBlockPos(),
+                    collector.getBlockState(),
+                    collector.getBlockState(),
+                    Block.UPDATE_ALL
+                );
+                int remainingExp = totalExp - expToAbsorb;
+                int newCount = remainingExp / this.value;
+                int expToReturn = remainingExp % this.value;
+                if (expToReturn > 0 && level instanceof ServerLevel serverLevel) {
+                    ExperienceOrb.award(serverLevel, this.position(), expToReturn);
+                }
+                if (newCount > 0) {
+                    this.count = newCount;
                 } else {
-                    while (collector.getFluidTank().getCapacity() - collector.getFluidTank().getFluidAmount() >= expFluid) {
-                        collector.getFluidTank().internalFill(
-                            new FluidStack(ModFluids.EXP_FLUID, expFluid),
-                            IFluidHandler.FluidAction.EXECUTE
-                        );
-                        level.sendBlockUpdated(
-                            collector.getBlockPos(),
-                            collector.getBlockState(),
-                            collector.getBlockState(),
-                            Block.UPDATE_ALL
-                        );
-                        this.count--;
-                        if (this.count < 1) {
-                            this.remove(Entity.RemovalReason.DISCARDED);
-                            this.discard();
-                            anvilcraft$discarded = true;
-                            break;
-                        }
-                    }
+                    this.remove(Entity.RemovalReason.DISCARDED);
+                    this.discard();
+                    anvilcraft$discarded = true;
+                    break;
                 }
             }
         }

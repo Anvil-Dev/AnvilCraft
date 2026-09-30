@@ -24,6 +24,7 @@ import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.ExperienceOrb;
@@ -198,24 +199,30 @@ public class ExpCollectorBlockEntity extends BlockEntity
             .stream().sorted(Comparator.comparing(ExperienceOrb::getValue))
             .toList();
         for (ExperienceOrb experienceOrb : experienceOrbs) {
-            int count = experienceOrb.count;
-            int value = experienceOrb.value;
-            int expFluid = value * 20;
-            int totalExpFluid = value * count * 20;
-            if (this.fluidTank.getCapacity() - this.fluidTank.getFluidAmount() >= totalExpFluid) {
-                this.fluidTank.internalFill(new FluidStack(ModFluids.EXP_FLUID, totalExpFluid), IFluidHandler.FluidAction.EXECUTE);
-                level.sendBlockUpdated(getBlockPos(), state, state, Block.UPDATE_ALL);
+            if (experienceOrb.value <= 0) {
                 experienceOrb.discard();
+                continue;
+            }
+            if (experienceOrb.count <= 0) experienceOrb.count = 1;
+            int totalExp = experienceOrb.value * experienceOrb.count;
+            int acceptableExp = (this.fluidTank.getCapacity() - this.fluidTank.getFluidAmount()) / 20;
+            if (acceptableExp == 0) break;
+            int expToAbsorb = Math.min(totalExp, acceptableExp);
+            this.fluidTank.internalFill(
+                new FluidStack(ModFluids.EXP_FLUID, expToAbsorb * 20),
+                IFluidHandler.FluidAction.EXECUTE
+            );
+            level.sendBlockUpdated(getBlockPos(), state, state, Block.UPDATE_ALL);
+            int remainingExp = totalExp - expToAbsorb;
+            int newCount = remainingExp / experienceOrb.value;
+            int expToReturn = remainingExp % experienceOrb.value;
+            if (expToReturn > 0 && level instanceof ServerLevel serverLevel) {
+                ExperienceOrb.award(serverLevel, experienceOrb.position(), expToReturn);
+            }
+            if (newCount > 0) {
+                experienceOrb.count = newCount;
             } else {
-                while (this.fluidTank.getCapacity() - this.fluidTank.getFluidAmount() >= expFluid) {
-                    this.fluidTank.internalFill(new FluidStack(ModFluids.EXP_FLUID, expFluid), IFluidHandler.FluidAction.EXECUTE);
-                    level.sendBlockUpdated(getBlockPos(), state, state, Block.UPDATE_ALL);
-                    experienceOrb.count--;
-                    if (experienceOrb.count < 1) {
-                        experienceOrb.discard();
-                        break;
-                    }
-                }
+                experienceOrb.discard();
             }
         }
         this.resetCooldown();

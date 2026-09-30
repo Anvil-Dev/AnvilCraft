@@ -265,14 +265,20 @@ public class CrateBlock extends Block implements EntityBlock, IHammerRemovable {
 
         Set<UUID> sourceIds = new HashSet<>();
         List<UnlimitedItemStack> toTransfer = new ArrayList<>();
-        boolean craftingUnlocked = target.isCraftingUnlocked();
+        List<List<ItemStack>> recipeBases = new ArrayList<>();
+        if (target.getRecipeBases() != null) {
+            recipeBases.add(target.getRecipeBases());
+        }
         for (CrateBlockEntity crate : crates) {
             UUID sourceId = crate.getId();
             if (sourceId == null || !sourceIds.add(sourceId)) continue;
             Optional<BaseStorage<?>> sourceOp = Storages.get().get(sourceId);
             if (sourceOp.isEmpty()) continue;
             BaseStorage<?> source = sourceOp.get();
-            craftingUnlocked |= source.isCraftingUnlocked();
+            List<ItemStack> sourceRecipeBases = source.getRecipeBases();
+            if (sourceRecipeBases != null) {
+                recipeBases.add(sourceRecipeBases);
+            }
             UnlimitedItemStacksResourceHandler items = source.getItems();
             for (int i = 0; i < items.size(); i++) {
                 UnlimitedItemStack stack = items.getUnlimitedStackInSlot(i);
@@ -283,12 +289,20 @@ public class CrateBlock extends Block implements EntityBlock, IHammerRemovable {
                 toTransfer.add(stack);
             }
         }
+
+        if (!recipeBases.isEmpty()) {
+            target.setRecipeBases(recipeBases.removeFirst());
+        }
         for (UnlimitedItemStack stack : toTransfer) {
-            targetItems.insertItem(stack.toStack(), false);
+            CrateBlock.insertInto(level, origin, targetItems, stack.toStack());
         }
         targetItems.insertItem(ModBlocks.CRATE.asStack(27), false);
+        for (List<ItemStack> stacks : recipeBases) {
+            for (ItemStack stack : stacks) {
+                CrateBlock.insertInto(level, origin, targetItems, stack);
+            }
+        }
 
-        target.setCraftingUnlocked(craftingUnlocked);
         Storages.get().put(target);
         for (UUID sourceId : sourceIds) {
             Storages.get().remove(sourceId);
@@ -342,5 +356,11 @@ public class CrateBlock extends Block implements EntityBlock, IHammerRemovable {
             }
         }
         return null;
+    }
+
+    private static void insertInto(Level level, BlockPos pos, SpaceSizeItemStacksResourceHandler target, ItemStack stack) {
+        ItemStack remain = target.insertItem(stack, false);
+        if (remain.isEmpty()) return;
+        Block.popResourceFromFace(level, pos.above(), Direction.UP, remain);
     }
 }

@@ -31,6 +31,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.client.model.data.ModelData;
+import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.capability.templates.FluidTank;
 import net.neoforged.neoforge.items.ItemStackHandler;
 import org.joml.Quaternionf;
@@ -214,8 +215,29 @@ public class FishTankBlockEntityRenderer implements BlockEntityRenderer<FishTank
 
     private static void drawFluidInTank(PoseStack pose, MultiBufferSource source, int light, FluidTank fluid, float minY, float maxY) {
         if (fluid.isEmpty()) return;
+        FluidStack stack = fluid.getFluid();
+        if (stack.getFluidType().isLighterThanAir()) {
+            // 气体充满整个鱼缸，储量由透明度表达（与大型储罐一致）
+            float fill = Mth.clamp((float) fluid.getFluidAmount() / fluid.getCapacity(), 0.0F, 1.0F);
+            FluidRenderHelper.INSTANCE.renderFluidBox(
+                stack,
+                TANK_W,
+                TANK_W,
+                TANK_W,
+                1 - TANK_W,
+                1 - TANK_W,
+                1 - TANK_W,
+                source,
+                pose,
+                light,
+                true,
+                fill
+            );
+            if (source instanceof MultiBufferSource.BufferSource buffer) buffer.endBatch();
+            return;
+        }
         FluidRenderHelper.INSTANCE.renderFluidBox(
-            fluid.getFluid(),
+            stack,
             TANK_W,
             minY,
             TANK_W,

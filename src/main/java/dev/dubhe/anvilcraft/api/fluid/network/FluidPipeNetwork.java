@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.api.fluid.network;
 
+import dev.dubhe.anvilcraft.api.fluid.GasDisplayFillProvider;
 import dev.dubhe.anvilcraft.api.fluidtank.InfinityFluidTank;
 import dev.dubhe.anvilcraft.block.entity.fluid.AbstractPipeCheckValveBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.fluid.GlassPipeBlockEntity;
@@ -9,6 +10,7 @@ import dev.dubhe.anvilcraft.util.TriggerUtil;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -172,15 +174,16 @@ public class FluidPipeNetwork {
     public void tick() {
         this.transferredThisTick = false;
         this.expireGlassDisplays();
+        // 可达缓存在气体扩散显示之前重建：显示与随后的分配共用同一套本 tick 方向约束（止逆阀/泵/控制阀）。
+        reachabilityCache.clear();
         // 气体扩散显示：仅当存在气体扩散体系时，连接参与扩散端点的玻璃管道才持续充满
         this.updateGasDisplay();
         if (endpoints.size() < 2) {
             return;
         }
-        if (!canTickEndpoints()) {
+        if (canTickEndpoints()) {
             return;
         }
-        reachabilityCache.clear();
         // 每 tick 分配前重置各阀门预算（实时读取阀门当前流速设置）
         if (!valves.isEmpty()) {
             for (ValveState valve : valves.values()) {
@@ -189,7 +192,7 @@ public class FluidPipeNetwork {
         }
         // 源已按等效高度降序预排序：高处先流，一 tick 内可级联下泄
         for (FluidEndpoint source : sourcesByHeightDesc) {
-            if (!isEndpointConnected(source)) {
+            if (isEndpointConnected(source)) {
                 continue;
             }
             distributeFromSource(source);
@@ -281,7 +284,7 @@ public class FluidPipeNetwork {
     public void pushFromExternalSource(
         IFluidHandler srcHandler, BlockPos srcPos, BlockPos entryPipePos, int sourceEffectiveHeight
     ) {
-        if (endpoints.isEmpty() || !canTickEndpoints()) {
+        if (endpoints.isEmpty() || canTickEndpoints()) {
             return;
         }
         reachabilityCache.clear();
@@ -299,7 +302,7 @@ public class FluidPipeNetwork {
      * pressure is derived from fill ratio plus the pump's pressure bias.
      */
     private void equilibrateGases() {
-        Set<FluidStack> gasTypes = collectNetworkGasTypes();
+        List<FluidStack> gasTypes = collectNetworkGasTypes();
         int[] budget = new int[]{GAS_EQUILIBRIUM_BUDGET};
         for (FluidStack gasType : gasTypes) {
             List<FluidEndpoint> candidates = gasCandidates(gasType);
@@ -310,26 +313,53 @@ public class FluidPipeNetwork {
         }
     }
 
-    /** 收集网络内所有端点当前搭载的气体类型。 */
-    private Set<FluidStack> collectNetworkGasTypes() {
-        Set<FluidStack> gasTypes = new HashSet<>();
+    /**
+     * 收集网络内所有端点当前搭载的气体类型，按"流体注册名 + 组件哈希"稳定排序后返回。
+     *
+     * <p><b>为什么不能返回 {@link Set}：</b>{@link FluidStack} 没有重写 {@code equals}/{@code hashCode}
+     * （NeoForge 另提供 {@link FluidStack#isSameFluidSameComponents} 与
+     * {@link FluidStack#hashFluidAndComponents}），因此 {@code HashSet<FluidStack>} 退化为<b>身份</b>比较：
+     * 同一气体存于不同储罐会被当作多个元素，而每 tick 新建的 {@link FluidStack} 身份哈希各不相同，
+     * 会令集合的迭代顺序逐 tick 变化。{@link #updateGasDisplay} 在多种气体竞争同一根管道时
+     * 按迭代顺序决出唯一渲染的气体，顺序一变就逐 tick 换色（表现为管道内气体不断闪烁）。
+     * 这里显式去重并按注册名排序，保证同一世界状态下顺序恒定。
+     */
+    private List<FluidStack> collectNetworkGasTypes() {
+        List<FluidStack> gasTypes = new ArrayList<>();
         for (FluidEndpoint ep : endpoints) {
-            if (!isEndpointConnected(ep)) {
+            if (isEndpointConnected(ep)) {
                 continue;
             }
             for (FluidStack stored : distinctFluidTypes(ep.handler())) {
-                if (!stored.isEmpty() && stored.getFluid().getFluidType().isLighterThanAir()) {
-                    gasTypes.add(stored.copyWithAmount(1));
+                if (stored.isEmpty() || !stored.getFluid().getFluidType().isLighterThanAir()) {
+                    continue;
+                }
+                FluidStack gasType = stored.copyWithAmount(1);
+                boolean seen = false;
+                for (FluidStack existing : gasTypes) {
+                    if (FluidStack.isSameFluidSameComponents(existing, gasType)) {
+                        seen = true;
+                        break;
+                    }
+                }
+                if (!seen) {
+                    gasTypes.add(gasType);
                 }
             }
         }
+        gasTypes.sort(Comparator
+            .comparing((FluidStack gas) -> BuiltInRegistries.FLUID.getKey(gas.getFluid()).toString())
+            .thenComparingInt(FluidStack::hashFluidAndComponents));
         return gasTypes;
     }
 
     /**
-     * 气体扩散显示：仅当某种气体在至少两个端点间形成扩散体系时，
-     * 连接这些参与扩散端点的玻璃管道才持续充满该气体（表现气体会扩散）。
-     * 无扩散体系的气体不渲染；扩散体系消失后清除对应玻璃管道的气体显示。
+     * 气体扩散显示：存在气体的玻璃管道持续充满该气体（气体静止沉积在管道里也看得见）。
+     * 没有气体可达的管道清除显示。
+     *
+     * <p>参与显示的管道完全由 {@link #diffusionPipeSet} 按方向约束（止逆阀/泵/控制阀）决定，
+     * 因此气体只渲染到止逆阀前，不会穿过不放行的阀面。与气压差无关：等量储罐之间的气体
+     * 同样显示，因为气体确实存在于这些管段中。
      */
     private void updateGasDisplay() {
         if (level.isClientSide() || glassPipePositions.isEmpty()) {
@@ -338,12 +368,15 @@ public class FluidPipeNetwork {
         Map<BlockPos, FluidStack> gasPipes = new HashMap<>();
         Map<BlockPos, Float> pipeAlphas = new HashMap<>();
         for (FluidStack gasType : collectNetworkGasTypes()) {
-            List<FluidEndpoint> candidates = gasCandidates(gasType);
-            if (candidates.size() < 2) {
+            Set<BlockPos> diffusionPipes = diffusionPipeSet(gasType);
+            if (diffusionPipes.isEmpty()) {
                 continue;
             }
-            float alphaFill = avgGasAlphaFill(candidates, gasType);
-            for (BlockPos pos : diffusionPipeSet(candidates)) {
+            float alphaFill = avgGasAlphaFill(gasCandidates(gasType), gasType);
+            for (BlockPos pos : diffusionPipes) {
+                // 多种气体可达同一根管道时管道只能显示一种（GlassPipeBlockEntity 只存一个气体字段），
+                // 这里由 collectNetworkGasTypes 的稳定排序保证"后者覆盖前者"的结果是确定的，
+                // 不会逐 tick 换色闪烁。
                 gasPipes.put(pos, gasType);
                 pipeAlphas.put(pos, alphaFill);
             }
@@ -371,6 +404,10 @@ public class FluidPipeNetwork {
     /**
      * 计算气体扩散系内参与端点的平均填充率（0..1），
      * 使玻璃管道内气体的透明度与扩散系内储罐的气体透明度保持一致。
+     *
+     * <p>优先采用容器自报的显示口径（{@link GasDisplayFillProvider}）：增强态储罐与创造流体
+     * 储罐的渲染口径无法由 {@code IFluidHandler} 的容量推导，退回通用估算会与储罐里的观感不符。
+     * 其余容器沿用"该气体存量 / 该容器各储罐容量之和"，对单槽容器与普通多方块储罐这与渲染器等价。
      */
     private static float avgGasAlphaFill(List<FluidEndpoint> candidates, FluidStack gasType) {
         double totalRatio = 0;
@@ -381,14 +418,20 @@ public class FluidPipeNetwork {
             if (storage[0] <= 0) {
                 continue;
             }
-            int totalCapacity = 0;
-            for (int i = 0; i < handler.getTanks(); i++) {
-                totalCapacity += handler.getTankCapacity(i);
+            double ratio;
+            if (handler instanceof GasDisplayFillProvider provider) {
+                ratio = Math.clamp(provider.gasDisplayFill(gasType), 0.0f, 1.0f);
+            } else {
+                int totalCapacity = 0;
+                for (int i = 0; i < handler.getTanks(); i++) {
+                    totalCapacity += handler.getTankCapacity(i);
+                }
+                if (totalCapacity <= 0) {
+                    continue;
+                }
+                ratio = (double) storage[0] / totalCapacity;
             }
-            if (totalCapacity <= 0) {
-                continue;
-            }
-            totalRatio += (double) storage[0] / totalCapacity;
+            totalRatio += ratio;
             counted++;
         }
         if (counted == 0) {
@@ -398,51 +441,47 @@ public class FluidPipeNetwork {
     }
 
     /**
-     * 计算处于扩散路径上的玻璃管道：从每个参与扩散端点的接入管道出发 BFS，
-     * 能被至少两个不同扩散端点到达的玻璃管道即为连接这些端点的扩散管道。
+     * 计算气体扩散显示涉及的玻璃管道：从每个持有该气体的端点出发，按与 {@link #equilibrateGasType}
+     * 相同的方向约束（管道面止逆阀、泵的二极管方向、控制阀过滤）做方向感知可达 BFS，
+     * 把可达的玻璃管道计入其中。
+     *
+     * <p>不要求存在气压差：气体静止沉积在管道里同样要看得见。但止逆阀不放行的方向不会被点亮，
+     * 因此气体始终只渲染到阀前，不会穿过止逆阀。
+     *
+     * <p>种子取"持有该气体的端点"而不是 {@code gasCandidates}（后者要求容器还有余量），
+     * 否则装满了的无限气体源会因为自身没有空余空间而不参与显示。
      */
-    private Set<BlockPos> diffusionPipeSet(List<FluidEndpoint> candidates) {
-        List<BlockPos> seeds = new ArrayList<>();
-        for (FluidEndpoint ep : candidates) {
-            for (FluidEndpoint.Entry entry : ep.entries()) {
-                BlockPos seed = entry.fromPipePos();
-                if (!seeds.contains(seed)) {
-                    seeds.add(seed);
-                }
+    private Set<BlockPos> diffusionPipeSet(FluidStack gasType) {
+        Set<BlockPos> result = new HashSet<>();
+        for (FluidEndpoint source : endpoints) {
+            if (isEndpointConnected(source) || gasStorage(source.handler(), gasType)[0] <= 0) {
+                continue;
             }
-        }
-        Map<BlockPos, Set<BlockPos>> reachableBySeed = new HashMap<>();
-        for (BlockPos seed : seeds) {
-            Set<BlockPos> visited = new HashSet<>();
-            Deque<BlockPos> queue = new ArrayDeque<>();
-            visited.add(seed);
-            queue.add(seed);
-            while (!queue.isEmpty()) {
-                BlockPos cur = queue.poll();
-                if (glassPipePositions.contains(cur)) {
-                    reachableBySeed.computeIfAbsent(cur, key -> new HashSet<>()).add(seed);
+            for (FluidEndpoint.Entry entry : source.entries()) {
+                if (!canDrainFromEntry(entry)) {
+                    continue;
                 }
-                for (BlockPos next : adjacency.getOrDefault(cur, List.of())) {
-                    if (visited.add(next)) {
-                        queue.add(next);
+                Reachability reach = computeReachableCached(entry.fromPipePos(), gasType);
+                for (BlockPos pos : reach.pathValves().keySet()) {
+                    if (glassPipePositions.contains(pos)) {
+                        result.add(pos);
                     }
                 }
-            }
-        }
-        Set<BlockPos> result = new HashSet<>();
-        for (Map.Entry<BlockPos, Set<BlockPos>> entry : reachableBySeed.entrySet()) {
-            if (entry.getValue().size() >= 2) {
-                result.add(entry.getKey());
             }
         }
         return result;
     }
 
-    /** Endpoints that can hold this gas: current holders or containers with free slots. */
+    /**
+     * Endpoints that can hold this gas: current holders, or containers whose effective capacity
+     * for this gas is non-zero. Note this includes <b>full</b> holders — {@code gasStorage}[1] is
+     * {@code stored + freeSpace}, not free space alone, so any endpoint already holding the gas
+     * always passes. Callers wanting only holders must filter on {@code gasStorage(...)[0] > 0}.
+     */
     private List<FluidEndpoint> gasCandidates(FluidStack fluidType) {
         List<FluidEndpoint> candidates = new ArrayList<>();
         for (FluidEndpoint ep : endpoints) {
-            if (!isEndpointConnected(ep)) {
+            if (isEndpointConnected(ep)) {
                 continue;
             }
             if (gasStorage(ep.handler(), fluidType)[1] > 0) {
@@ -471,7 +510,7 @@ public class FluidPipeNetwork {
                 if (hiSc[0] <= 0 || hiSc[1] <= 0) {
                     continue;
                 }
-                if (!canDrainFromEndpoint(hi)) {
+                if (canDrainFromEndpoint(hi)) {
                     continue;
                 }
                 FluidStack hiStored = matchingFluid(hi.handler(), fluidType);
@@ -503,6 +542,9 @@ public class FluidPipeNetwork {
                     }
                     int[] loSc = gasStorage(lo.handler(), fluidType);
                     if (loSc[0] >= loSc[1]) {
+                        continue;
+                    }
+                    if (!canAcceptGas(lo, fluidType)) {
                         continue;
                     }
                     long loPressure = gasPressure(lo, fluidType);
@@ -554,8 +596,9 @@ public class FluidPipeNetwork {
         if (isInfiniteGasSink(lo.handler())) {
             // 空创造流体储罐（无限汇）：吸收源端全部可转移气体，至源排空或被阀门限制
             want = Math.min(hiStored, valveLimit);
-        } else if (isInfiniteGasSource(hi.handler(), fluidType)) {
-            // 无限气体源：不受源存量限制，直接尽可能填满目标（受阀门限流）
+        } else if (isInfiniteGasSource(hi.handler(), fluidType)
+                   || isInfiniteGasPressureSource(hi, fluidType)) {
+            // 无限气体源/无穷大气压源：不受源存量限制，直接尽可能填满目标（受阀门限流）
             want = Math.min(loFree, valveLimit);
         } else {
             int hiBias = (hi.effectiveHeight() - hi.containerPos().getY()) * GAS_PRESSURE_PER_LIFT;
@@ -564,7 +607,7 @@ public class FluidPipeNetwork {
                 - (double) (loBias - hiBias) * hiCap * loCap / GAS_PRESSURE_SCALE;
             double x = num / (double) (hiCap + loCap);
             int equalAmt = Math.max(0, (int) Math.round(x));
-            if (equalAmt <= 0) {
+            if (equalAmt == 0) {
                 return 0;
             }
             want = Math.min(equalAmt, Math.min(hiStored, loFree));
@@ -595,7 +638,7 @@ public class FluidPipeNetwork {
             hi.handler().fill(
                 drained.copyWithAmount(drained.getAmount() - actuallyFilled), IFluidHandler.FluidAction.EXECUTE);
         }
-        if (actuallyFilled > 0 && loEntry != null) {
+        if (actuallyFilled > 0) {
             deductValves(pathValves.get(loEntry.fromPipePos()), actuallyFilled);
             showFluidAlongPipePath(drained, hi, lo, reach);
             onTransferred(hi);
@@ -635,6 +678,9 @@ public class FluidPipeNetwork {
         if (isInfiniteGasSource(endpoint.handler(), fluidType)) {
             return GAS_INFINITE_PRESSURE;
         }
+        if (isInfiniteGasPressureSource(endpoint, fluidType)) {
+            return GAS_INFINITE_PRESSURE;
+        }
         if (isInfiniteGasSink(endpoint.handler())) {
             return GAS_INFINITE_SINK_PRESSURE;
         }
@@ -642,9 +688,22 @@ public class FluidPipeNetwork {
         if (sc[1] <= 0) {
             return 0;
         }
-        long bias = (endpoint.effectiveHeight() - endpoint.containerPos().getY()) * GAS_PRESSURE_PER_LIFT;
+        long bias = (long) (endpoint.effectiveHeight() - endpoint.containerPos().getY()) * GAS_PRESSURE_PER_LIFT;
         return (long) sc[0] * GAS_PRESSURE_SCALE * GAS_PRESSURE_RESOLUTION / sc[1]
             + bias * GAS_PRESSURE_RESOLUTION;
+    }
+
+    /**
+     * 目标是否真的收得下该气体——按 1 mB 模拟填充判定，与重力分配 {@link #canTarget} 同一套准入。
+     *
+     * <p>气体候选只按"还有余量"收集（见 {@link #gasCandidates}），但有余量不等于会被接受：
+     * 主动（输出）模式下的锻星砧流体接口会拒绝输入。这种端点存量空、压强被 {@link #gasPressure}
+     * 判为 0，看上去是最低压的目标，实际 {@code fill} 返回 0——若不在这里剔除，它会把每轮转移
+     * 都吸走却什么也不接收，{@code progressed} 恒为 false，均衡循环直接 break，
+     * 同一网络里的被动接口就再也灌不进气体（并联主动接口时表现为完全泵不动）。
+     */
+    private static boolean canAcceptGas(FluidEndpoint target, FluidStack fluidType) {
+        return target.handler().fill(fluidType.copyWithAmount(1), IFluidHandler.FluidAction.SIMULATE) > 0;
     }
 
     /**
@@ -659,6 +718,16 @@ public class FluidPipeNetwork {
     }
 
     /**
+     * 无穷大气压源：处理器实现 {@link InfiniteGasPressureSource} 且当前生效，并且它确实存有该气体时，
+     * 视为气压无穷大的源。储量仍然有限——被抽空后与普通端点无异。
+     */
+    private static boolean isInfiniteGasPressureSource(FluidEndpoint endpoint, FluidStack fluidType) {
+        return endpoint.handler() instanceof InfiniteGasPressureSource source
+            && source.isSupplyingInfiniteGasPressure()
+            && !matchingFluid(endpoint.handler(), fluidType).isEmpty();
+    }
+
+    /**
      * 空创造流体储罐（InfinityFluidTank 且未搭载任何流体）视为无限气体汇：
      * 压力无穷小，任意相连的源都会把气体扩散进去并被销毁。
      */
@@ -669,7 +738,7 @@ public class FluidPipeNetwork {
     /** 从单个源端点向所有更低的端点分配其持有的流体。 */
     private void distributeFromSource(FluidEndpoint source) {
         // 源接管口朝本源容器那一面若装止逆阀，其允许方向必须朝网络（背离容器），否则本源无法向网络排液
-        if (!canDrainFromEndpoint(source)) {
+        if (canDrainFromEndpoint(source)) {
             showFluidBlockedAtSource(source);
             return;
         }
@@ -872,10 +941,10 @@ public class FluidPipeNetwork {
         int sourceHeight
     ) {
         for (FluidEndpoint higher : sourcesByHeightDesc) {
-            if (!isEndpointConnected(higher)) {
+            if (isEndpointConnected(higher)) {
                 continue;
             }
-            if (higher.handler().equals(source.handler()) || !canDrainFromEndpoint(higher)) {
+            if (higher.handler().equals(source.handler()) || canDrainFromEndpoint(higher)) {
                 continue;
             }
             IFluidHandler higherHandler = higher.handler();
@@ -889,9 +958,12 @@ public class FluidPipeNetwork {
                 if (higherHeight <= sourceHeight) {
                     return false;
                 }
-                Reachability higherReach = directionalConstraints
-                    ? computeReachableCached(higherEntry.fromPipePos(), higherStored)
-                    : null;
+                Reachability higherReach = null;
+                if (higherEntry != null) {
+                    higherReach = directionalConstraints
+                        ? computeReachableCached(higherEntry.fromPipePos(), higherStored)
+                        : null;
+                }
                 if (canTarget(higher, higherStored, source, higherStored, higherReach, higherHeight)) {
                     return true;
                 }
@@ -928,8 +1000,8 @@ public class FluidPipeNetwork {
         FluidEndpoint source, FluidStack fluidType, FluidEndpoint target, FluidStack stored,
         Reachability reach, int sourceHeight
     ) {
-        if (!isEndpointConnected(source)
-            || !isEndpointConnected(target)
+        if (isEndpointConnected(source)
+            || isEndpointConnected(target)
             || target == source) {
             return false;
         }
@@ -952,7 +1024,7 @@ public class FluidPipeNetwork {
     }
 
     private boolean canDrainFromEndpoint(FluidEndpoint source) {
-        return source.entries().stream().anyMatch(this::canDrainFromEntry);
+        return source.entries().stream().noneMatch(this::canDrainFromEntry);
     }
 
     private boolean isCauldron(FluidEndpoint endpoint) {
@@ -1006,7 +1078,7 @@ public class FluidPipeNetwork {
                 continue;
             }
             if (!level.isLoaded(endpoint.containerPos())) {
-                return false;
+                return true;
             }
             FluidContainerLookup.Result container = endpoint.entries().stream()
                 .map(entry -> FluidContainerLookup.find(
@@ -1019,14 +1091,14 @@ public class FluidPipeNetwork {
                 .orElse(null);
             if (container == null || !container.cauldron()) {
                 FluidNetworkManager.INSTANCE.markDirty(level);
-                return false;
+                return true;
             }
         }
-        return true;
+        return false;
     }
 
     private boolean isEndpointConnected(FluidEndpoint endpoint) {
-        return !disconnectedEntityEndpoints.contains(endpoint);
+        return disconnectedEntityEndpoints.contains(endpoint);
     }
 
     private boolean fillFirstWholeCauldronTarget(
@@ -1262,20 +1334,20 @@ public class FluidPipeNetwork {
         while (!queue.isEmpty()) {
             BlockedSearchState state = queue.poll();
             List<BlockPos> path = state.path();
-            BlockPos current = path.get(path.size() - 1);
+            BlockPos current = path.getLast();
             BlockPos previous = path.size() < 2 ? null : path.get(path.size() - 2);
             BlockedPath blockedEndpoint = blockedEndpointPath(path, targets, current);
             if (blockedEndpoint != null) {
                 return blockedEndpoint;
             }
             for (BlockPos next : adjacency.getOrDefault(current, List.of())) {
-                BlockedFaceValve blocked = !canPassFaceValve(current, next)
+                BlockedFaceValve blocked = canPassFaceValve(current, next)
                     ? blockedFaceValve(current, next)
                     : null;
                 if (blocked == null) {
                     blocked = blockedControlValve(current, next, fluid);
                 }
-                if (!canLeaveDiode(current, previous, next)) {
+                if (canLeaveDiode(current, previous, next)) {
                     continue;
                 }
                 if (blocked == null && valvesAt(next, fluid, List.of()) == null) {
@@ -1318,8 +1390,8 @@ public class FluidPipeNetwork {
     private boolean canTargetIgnoringReachability(
         FluidEndpoint source, FluidStack fluidType, FluidEndpoint target, FluidStack stored
     ) {
-        if (!isEndpointConnected(source)
-            || !isEndpointConnected(target)
+        if (isEndpointConnected(source)
+            || isEndpointConnected(target)
             || target == source
             || target.effectiveHeight() >= source.effectiveHeight()) {
             return false;
@@ -1374,11 +1446,11 @@ public class FluidPipeNetwork {
     @Nullable
     private BlockedFaceValve blockedControlValve(BlockPos cur, BlockPos next, FluidStack fluid) {
         ValveState nextValve = valves.get(next);
-        if (nextValve != null && !passesValve(nextValve, fluid)) {
+        if (nextValve != null && passesValve(nextValve, fluid)) {
             return valveBlockedAt(cur, next);
         }
         ValveState curValve = valves.get(cur);
-        if (curValve != null && !passesValve(curValve, fluid)) {
+        if (curValve != null && passesValve(curValve, fluid)) {
             return valveBlockedAt(cur, next);
         }
         return null;
@@ -1386,7 +1458,7 @@ public class FluidPipeNetwork {
 
     /** 阀门是否放行 {@code fluid}：白名单允许且本 tick 剩余预算 > 0。 */
     private static boolean passesValve(ValveState valve, FluidStack fluid) {
-        return valve.allows(fluid) && valve.remaining() > 0;
+        return !valve.allows(fluid) || valve.remaining() <= 0;
     }
 
     @Nullable
@@ -1523,7 +1595,7 @@ public class FluidPipeNetwork {
         queue.add(List.of(start));
         while (!queue.isEmpty()) {
             List<BlockPos> path = queue.poll();
-            BlockPos current = path.get(path.size() - 1);
+            BlockPos current = path.getLast();
             if (current.equals(target)) {
                 return path;
             }
@@ -1626,7 +1698,7 @@ public class FluidPipeNetwork {
             if (!reach.pathValves().containsKey(pipe)) {
                 continue;
             }
-            if (!canLeaveDiode(pipe, reach.cameFrom().get(pipe), target.containerPos())) {
+            if (canLeaveDiode(pipe, reach.cameFrom().get(pipe), target.containerPos())) {
                 continue;
             }
             if (entry.sideToPipe() != null) {
@@ -1709,11 +1781,11 @@ public class FluidPipeNetwork {
                     continue;
                 }
                 // 二极管：若 cur 是泵，只能沿"进液侧→另一侧"离开
-                if (!canLeaveDiode(cur, cameFrom.get(cur), next)) {
+                if (canLeaveDiode(cur, cameFrom.get(cur), next)) {
                     continue;
                 }
                 // 面止逆阀：cur→next 这条边两端的止逆阀方向校验
-                if (!canPassFaceValve(cur, next)) {
+                if (canPassFaceValve(cur, next)) {
                     continue;
                 }
                 List<ValveState> nextPath = valvesAt(next, fluid, curPath);
@@ -1752,21 +1824,21 @@ public class FluidPipeNetwork {
         Direction d = Direction.fromDelta(
             next.getX() - cur.getX(), next.getY() - cur.getY(), next.getZ() - cur.getZ());
         if (d == null) {
-            return true;
+            return false;
         }
         Map<Direction, Direction> fc = faceFlow.get(cur);
         if (fc != null) {
             Direction allowed = fc.get(d);
             if (allowed != null && allowed != d) {
-                return false;
+                return true;
             }
         }
         Map<Direction, Direction> fn = faceFlow.get(next);
         if (fn != null) {
             Direction allowed = fn.get(d.getOpposite());
-            return allowed == null || allowed == d;
+            return allowed != null && allowed != d;
         }
-        return true;
+        return false;
     }
 
     /**
@@ -1781,15 +1853,15 @@ public class FluidPipeNetwork {
     private boolean canLeaveDiode(BlockPos cur, BlockPos from, BlockPos to) {
         Direction inflowDir = diodes.get(cur);
         if (inflowDir == null) {
-            return true; // 非二极管
+            return false; // 非二极管
         }
         BlockPos highSide = cur.relative(inflowDir);              // 进液侧，上游
         BlockPos lowSide = cur.relative(inflowDir.getOpposite()); // 另一侧，下游
         // 只允许 从上游(进液侧)进入、向下游离开；起点恰为二极管时（from==null）也只能朝下游走
         if (!to.equals(lowSide)) {
-            return false;
+            return true;
         }
-        return from == null || from.equals(highSide);
+        return from != null && !from.equals(highSide);
     }
 
     /**

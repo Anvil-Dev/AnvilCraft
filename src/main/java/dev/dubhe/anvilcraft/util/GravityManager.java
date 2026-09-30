@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.util;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.amulet.AmuletManager;
+import dev.dubhe.anvilcraft.api.amulet.ctx.AmuletEffectContext;
 import dev.dubhe.anvilcraft.api.entity.IAnvilCraftEntityExtension;
 import dev.dubhe.anvilcraft.api.injection.entity.IEntityExtension;
 import dev.dubhe.anvilcraft.block.BlackHoleBlock;
@@ -12,7 +13,7 @@ import dev.dubhe.anvilcraft.entity.LevitatingBlockEntity;
 import dev.dubhe.anvilcraft.entity.StandableFallingBlockEntity;
 import dev.dubhe.anvilcraft.entity.StandableLevitatingBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
-import dev.dubhe.anvilcraft.init.item.ModAmulets;
+import dev.dubhe.anvilcraft.init.item.ModAmuletEffectContextKeys;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.network.GravitySourcesSyncPacket;
 import net.minecraft.core.BlockPos;
@@ -159,8 +160,11 @@ public final class GravityManager {
     }
 
     private static boolean ignoresCelestialGravity(Entity entity) {
-        return entity instanceof Player player && (player.isShiftKeyDown()
-            || AmuletManager.get(player.registryAccess()).hasAmuletInInventory(player, ModAmulets.ANVIL.getKey()));
+        if (!(entity instanceof LivingEntity living)) return false;
+        AmuletEffectContext ctx = new AmuletEffectContext();
+        AmuletManager.get(living.registryAccess()).trigger(living, ctx);
+        return ctx.getOrDefault(ModAmuletEffectContextKeys.IGNORE_GRAVITY, false)
+               || living instanceof Player player && player.isShiftKeyDown();
     }
 
     public static Vec3 getGravityVector(Entity entity) {

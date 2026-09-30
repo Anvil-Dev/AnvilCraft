@@ -173,11 +173,13 @@ public class AutoEnchantingTableBlockEntityRenderer
 
     private void renderFluid(FluidStack stack, PoseStack pose, MultiBufferSource ms, float fill, int packedLight) {
         float minY = 0.3125F;
-        float maxY = minY + 0.375F * fill;
-        this.renderSingleFluid(stack, pose, ms, 0.375F, minY, 0.0F, 0.625F, maxY, 0.125F, packedLight);
-        this.renderSingleFluid(stack, pose, ms, 0.0F, minY, 0.375F, 0.125F, maxY, 0.625F, packedLight);
-        this.renderSingleFluid(stack, pose, ms, 0.375F, minY, 0.875F, 0.625F, maxY, 1.0F, packedLight);
-        this.renderSingleFluid(stack, pose, ms, 0.875F, minY, 0.375F, 1.0F, maxY, 0.625F, packedLight);
+        boolean gas = stack.getFluidType().isLighterThanAir();
+        // 气体充满窗口、储量由透明度表达；液体按液面高度
+        float maxY = gas ? minY + 0.375F : minY + 0.375F * fill;
+        this.renderSingleFluid(stack, pose, ms, 0.375F, minY, 0.0F, 0.625F, maxY, 0.125F, packedLight, gas, fill);
+        this.renderSingleFluid(stack, pose, ms, 0.0F, minY, 0.375F, 0.125F, maxY, 0.625F, packedLight, gas, fill);
+        this.renderSingleFluid(stack, pose, ms, 0.375F, minY, 0.875F, 0.625F, maxY, 1.0F, packedLight, gas, fill);
+        this.renderSingleFluid(stack, pose, ms, 0.875F, minY, 0.375F, 1.0F, maxY, 0.625F, packedLight, gas, fill);
     }
 
     private void renderSingleFluid(
@@ -190,8 +192,27 @@ public class AutoEnchantingTableBlockEntityRenderer
         float maxX,
         float maxY,
         float maxZ,
-        int packedLight
+        int packedLight,
+        boolean gas,
+        float alphaFill
     ) {
+        if (gas) {
+            FluidRenderHelper.INSTANCE.renderFluidBox(
+                stack,
+                minX + 0.001F,
+                minY + 0.001F,
+                minZ + 0.001F,
+                maxX - 0.001F,
+                maxY - 0.001F,
+                maxZ - 0.001F,
+                ms,
+                pose,
+                packedLight,
+                true,
+                alphaFill
+            );
+            return;
+        }
         FluidRenderHelper.INSTANCE.renderFluidBox(
             stack,
             minX + 0.001F,

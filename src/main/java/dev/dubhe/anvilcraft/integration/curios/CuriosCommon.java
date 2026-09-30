@@ -73,9 +73,9 @@ public class CuriosCommon {
     }
 
     private void findFromCurios(AmuletEvent.Find event) {
-        Player player = event.getPlayer();
-        if (CuriosApi.getCuriosInventory(player).isPresent()) {
-            List<SlotResult> results = CuriosApi.getCuriosInventory(player).get()
+        LivingEntity entity = event.getEntity();
+        if (CuriosApi.getCuriosInventory(entity).isPresent()) {
+            List<SlotResult> results = CuriosApi.getCuriosInventory(entity).get()
                 .findCurios(stack -> stack.is(ModItemTags.AMULET));
             for (SlotResult result : results) {
                 event.provide(result.stack());

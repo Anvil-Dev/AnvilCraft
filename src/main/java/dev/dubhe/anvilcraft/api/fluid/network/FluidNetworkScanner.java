@@ -354,6 +354,17 @@ public final class FluidNetworkScanner {
         }
         IFluidHandler handler = container.handler();
         if (!seenHandlers.add(handler)) {
+            // 该处理器已由其它 part 注册过——多方块储罐的每个 part 都暴露同一个处理器实例
+            // （见 CapabilitiesEventListener 对 LARGE_FLUID_TANK 的注册）。
+            // 此时必须把本入口并入既有端点，而不能直接丢弃：否则该面引出的管段既不参与
+            // 方向可达判定，也不会显示流体，表现为同一储罐的若干面管道有流体、其余为空。
+            for (Map.Entry<BlockPos, FluidEndpoint> registered : endpoints.entrySet()) {
+                if (registered.getValue().handler().equals(handler)) {
+                    endpoints.put(registered.getKey(), registered.getValue().withEntry(
+                        attachPipePos.immutable(), sideToPipe, effectiveHeight));
+                    return;
+                }
+            }
             return;
         }
         endpoints.put(immutablePos, new FluidEndpoint(
