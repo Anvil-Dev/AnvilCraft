@@ -515,7 +515,7 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity
     @Getter
     private float supernovaScale = 1.0f;
     /** 超新星闪光总时长，与加速器触发值一致。 */
-    public static final int SUPERNOVA_FLASH_TICKS = 10;
+    public static final int SUPERNOVA_FLASH_TICKS = 24;
 
     /**
      * 在服务端触发超新星闪光并同步客户端。

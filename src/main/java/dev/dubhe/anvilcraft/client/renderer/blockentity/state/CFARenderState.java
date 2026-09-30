@@ -124,6 +124,8 @@ public class CFARenderState extends BlockEntityRenderState {
     private double supernovaLocalCenterY;
     private float supernovaScale;
     @Nullable
+    private StellarEventProfile supernovaProfile;
+    @Nullable
     private Identifier supernovaFrameTexture;
     private float supernovaFlashAlpha;
     private float supernovaFlashRadius;

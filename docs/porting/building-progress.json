@@ -5824,5 +5824,47 @@
       ]
     },
     "remaining": "Continue profile-driven instantaneous stellar flash/rays and the full recipe/gameplay/rendering completion audit."
+  },
+  "supernova_event_visuals_2026_09_30": {
+    "source_commit": "cca4b2aac5328926fa88bc01d958d007ff6bfc2a",
+    "status": "implemented_and_verified",
+    "implementation": [
+      "Restore source 24-tick instantaneous flash duration instead of the old 10 ticks.",
+      "Capture the event profile and event seed in native render state, including position-seed fallback.",
+      "Use profile palette, radius, capped ray count, configured ray length and asymmetric length distribution.",
+      "Restore source fallback ray color/intensity and expand culling bounds from the event profile."
+    ],
+    "validation": {
+      "commands": [
+        "./gradlew.bat -PportValidation -I dev/porting/supernova-client.gradle -I dev/porting/checkstyle.gradle compileJava runGameTestServer runClient checkPortJava --console=plain",
+        "python dev/porting/prepare_supernova_reference.py build/porting/reference-mun-1.21",
+        "./gradlew.bat compileJava runClient --console=plain (reference checkout, separate invocations)",
+        "python dev/porting/verify_supernova.py",
+        "git diff --check"
+      ],
+      "required_tests_passed": 785,
+      "paired_geometry_cases": 90,
+      "paired_vertices": 9432,
+      "max_position_normal_difference": 4.000000000559112e-06,
+      "colors_lights_and_culling_bounds": "exact source match",
+      "live_scenes_per_version": 6,
+      "logs": {
+        "native": "build/porting/validate-supernova-all-final.log",
+        "source": "build/porting/client-supernova-reference-final.log"
+      },
+      "report": "build/porting/supernova-comparison.json",
+      "coverage": [
+        "All eight built-in profiles plus missing-profile fallback, two event seeds and five phases including start and fade boundary.",
+        "Zero-ray events, the source 24-ray cap, stable seeded directions, palette colors, local event center and scale, and event-dependent culling bounds.",
+        "Live SUPERNOVA, PPISN_PULSE, PISN, DIRECT_COLLAPSE, HELIUM_FLASH and fallback captures."
+      ],
+      "limits": [
+        "Fixed-stage effects were compared; world terrain, fog and clouds retain native rendering and the fixture backgrounds differ.",
+        "A source comparison caught the inherited 10-vs-24 tick discrepancy; both clients were rerun after correcting it.",
+        "The first native client passed behavior checks but failed style on local fixture formatting; final compile, client and Checkstyle passed.",
+        "All new fixtures remain ignored locally and are not committed."
+      ]
+    },
+    "remaining": "Continue full recipe catalogue parity, continuous/multiplayer timing, remaining jet/black-hole edges and compatibility audit."
   }
 }

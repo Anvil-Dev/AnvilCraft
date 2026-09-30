@@ -540,12 +540,16 @@ public class CFARenderer implements BlockEntityRenderer<CelestialForgingAnvilBlo
     private void extractSupernova(CelestialForgingAnvilBlockEntity be, CFARenderState state, float partialTicks) {
         int ticks = be.getSupernovaFlashTicks();
         state.setSupernovaFlashTicks(ticks);
+        state.setSupernovaProfile(null);
         if (ticks <= 0) return;
         int total = CelestialForgingAnvilBlockEntity.SUPERNOVA_FLASH_TICKS;
         float elapsed = (total - ticks + partialTicks);
         float t = Math.clamp(elapsed / total, 0.0f, 1.0f);
         state.setSupernovaProgress(t);
-        state.setSupernovaSeed(be.getBlockPos().asLong() ^ 0x5DEECE66DL);
+        long eventSeed = be.getSupernovaEventSeed();
+        state.setSupernovaSeed(eventSeed == 0L ? be.getBlockPos().asLong() ^ 0x5DEECE66DL : eventSeed);
+        var profile = be.getMegastructureManager().getAcceleratorHandler().getEventProfile(be.getSupernovaProfileId());
+        state.setSupernovaProfile(profile);
 
         float scale = be.getSupernovaScale();
         if (scale <= 0f) scale = 1.0f;
@@ -555,7 +559,8 @@ public class CFARenderer implements BlockEntityRenderer<CelestialForgingAnvilBlo
         int frame = Math.clamp((int) (t * 8.0f), 0, 7);
         state.setSupernovaFrameTexture(dev.dubhe.anvilcraft.AnvilCraft.of("textures/particle/supernova_" + frame + ".png"));
         float expand = (float) Math.sqrt(t);
-        state.setSupernovaFlashRadius(SUPERNOVA_MAX_RADIUS * expand * scale);
+        float profileRadius = profile == null ? SUPERNOVA_MAX_RADIUS : Math.max(2.0f, profile.rayLength() * 0.65f);
+        state.setSupernovaFlashRadius(profileRadius * expand * scale);
         state.setSupernovaFlashAlpha(t > 0.75f ? (1.0f - (t - 0.75f) / 0.25f) : 1.0f);
     }
 
@@ -1222,24 +1227,29 @@ public class CFARenderer implements BlockEntityRenderer<CelestialForgingAnvilBlo
         float alpha = state.getSupernovaFlashAlpha();
         Identifier tex = state.getSupernovaFrameTexture();
         double localCenterY = state.getSupernovaLocalCenterY();
+        var profile = state.getSupernovaProfile();
+        float t = state.getSupernovaProgress();
+        if (tex == null || radius < 0.01f || alpha <= 0.01f) return;
 
-        if (tex != null && radius >= 0.01f && alpha > 0.01f) {
-            pose.pushPose();
-            pose.translate(0.5, localCenterY, 0.5);
-            float r = radius;
-            float a = alpha;
-            collector.submitCustomGeometry(
-                pose, ModRenderTypes.SUPERNOVA_FLASH.apply(tex),
-                (last, consumer) -> emitFlatQuad(consumer, last, r, a, LightCoordsUtil.FULL_BRIGHT)
-            );
-            pose.popPose();
-        }
+        pose.pushPose();
+        pose.translate(0.5, localCenterY, 0.5);
+        float r = radius;
+        float a = alpha;
+        int color = profile == null ? 0xFFFFFF : profile.color(t);
+        collector.submitCustomGeometry(
+            pose, ModRenderTypes.SUPERNOVA_FLASH.apply(tex),
+            (last, consumer) -> emitFlatQuad(consumer, last, r,
+                ((color >> 16) & 0xFF) / 255.0f, ((color >> 8) & 0xFF) / 255.0f, (color & 0xFF) / 255.0f,
+                a, LightCoordsUtil.FULL_BRIGHT)
+        );
+        pose.popPose();
 
         // 绘制类似末影龙死亡效果的向外放射光束。
-        float t = state.getSupernovaProgress();
         float grow = (float) Math.sqrt(t);
         float scale = state.getSupernovaScale();
-        float length = SUPERNOVA_RAY_LENGTH * grow * scale;
+        int rayCount = profile == null ? SUPERNOVA_RAY_COUNT : Math.min(SUPERNOVA_RAY_COUNT, profile.rayCount());
+        float configuredLength = profile == null ? SUPERNOVA_RAY_LENGTH : Math.max(1.0f, profile.rayLength());
+        float length = configuredLength * grow * scale;
         float intensity = t > 0.6f ? (1.0f - (t - 0.6f) / 0.4f) : 1.0f;
         if (length < 0.01f || intensity <= 0.01f) return;
 
@@ -1249,23 +1259,28 @@ public class CFARenderer implements BlockEntityRenderer<CelestialForgingAnvilBlo
         float baseWidth = 0.25f * scale;
         float rayLen = length;
         float rayIntensity = intensity;
+        float asymmetry = profile == null ? 0.0f : profile.asymmetry();
+        int rayColor = profile == null ? 0xB8E8FF : profile.color(t);
+        float rayR = ((rayColor >> 16) & 0xFF) / 255.0f;
+        float rayG = ((rayColor >> 8) & 0xFF) / 255.0f;
+        float rayB = (rayColor & 0xFF) / 255.0f;
         collector.submitCustomGeometry(
             pose, ModRenderTypes.STELLAR_BEAM, (last, consumer) -> {
                 Matrix4f matrix = last.pose();
                 RandomSource rand = this.supernovaRandom;
                 rand.setSeed(seed);
-                for (int i = 0; i < SUPERNOVA_RAY_COUNT; i++) {
+                for (int i = 0; i < rayCount; i++) {
                     float u = rand.nextFloat() * 2.0f - 1.0f;
                     float theta = rand.nextFloat() * (float) (Math.PI * 2.0);
                     float s = (float) Math.sqrt(1.0f - u * u);
                     float dx = s * (float) Math.cos(theta);
                     float dy = u;
                     float dz = s * (float) Math.sin(theta);
-                    float len = rayLen * (0.7f + 0.6f * rand.nextFloat());
+                    float len = rayLen * (1.0f - asymmetry * 0.3f + (0.6f + asymmetry * 0.6f) * rand.nextFloat());
                     float rayI = rayIntensity * (0.5f + 0.5f * rand.nextFloat());
                     emitRay(
                         consumer, matrix, dx, dy, dz, len, baseWidth,
-                        0.12f * rayI, 0.22f * rayI, 0.26f * rayI
+                        rayR * rayI, rayG * rayI, rayB * rayI
                     );
                 }
             }
@@ -1369,30 +1384,33 @@ public class CFARenderer implements BlockEntityRenderer<CelestialForgingAnvilBlo
         VertexConsumer vc,
         PoseStack.Pose pose,
         float r,
+        float red,
+        float green,
+        float blue,
         float alpha,
         int light
     ) {
         int overlay = OverlayTexture.NO_OVERLAY;
         vc.addVertex(pose, -r, 0f, -r)
-            .setColor(1.0f, 1.0f, 1.0f, alpha)
+            .setColor(red, green, blue, alpha)
             .setUv(0f, 0f)
             .setOverlay(overlay)
             .setLight(light)
             .setNormal(pose, 0f, 1f, 0f);
         vc.addVertex(pose, -r, 0f, r)
-            .setColor(1.0f, 1.0f, 1.0f, alpha)
+            .setColor(red, green, blue, alpha)
             .setUv(0f, 1f)
             .setOverlay(overlay)
             .setLight(light)
             .setNormal(pose, 0f, 1f, 0f);
         vc.addVertex(pose, r, 0f, r)
-            .setColor(1.0f, 1.0f, 1.0f, alpha)
+            .setColor(red, green, blue, alpha)
             .setUv(1f, 1f)
             .setOverlay(overlay)
             .setLight(light)
             .setNormal(pose, 0f, 1f, 0f);
         vc.addVertex(pose, r, 0f, -r)
-            .setColor(1.0f, 1.0f, 1.0f, alpha)
+            .setColor(red, green, blue, alpha)
             .setUv(1f, 0f)
             .setOverlay(overlay)
             .setLight(light)
@@ -1538,7 +1556,9 @@ public class CFARenderer implements BlockEntityRenderer<CelestialForgingAnvilBlo
         float maxHorizontal = Math.max(be.isAmplify() ? 3 : 1, reach * 1.5F);
         if (be.getSupernovaFlashTicks() > 0) {
             float explosionScale = Math.max(1.0f, be.getSupernovaScale());
-            float flashReach = Math.max(SUPERNOVA_MAX_RADIUS, SUPERNOVA_RAY_LENGTH)
+            var profile = be.getMegastructureManager().getAcceleratorHandler().getEventProfile(be.getSupernovaProfileId());
+            float profileRayLength = profile == null ? SUPERNOVA_RAY_LENGTH : profile.rayLength();
+            float flashReach = Math.max(SUPERNOVA_MAX_RADIUS, profileRayLength)
                 * explosionScale * 1.5f + 2;
             double cy = be.getSupernovaCenterY();
             return new AABB(
