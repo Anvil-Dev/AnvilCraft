@@ -11,6 +11,10 @@ public class PropertiesProviderUtil {
             .requiresCorrectToolForDrops()
             .strength(1.5F, 6.0F)
             .explosionResistance(1200)
-            .emissiveRendering(ModBlocks::always);
+            .emissiveRendering(ModBlocks::always)
+            .isValidSpawn(ModBlocks::never)
+            .isRedstoneConductor(ModBlocks::never)
+            .isSuffocating(ModBlocks::never)
+            .isViewBlocking(ModBlocks::never);
     }
 }

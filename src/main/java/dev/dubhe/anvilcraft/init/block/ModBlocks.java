@@ -12,6 +12,7 @@ import dev.anvilcraft.lib.v2.util.nullness.NonNullFunction;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.power.IPowerComponent.Switch;
 import dev.dubhe.anvilcraft.api.power.IPowerConsumer;
+import dev.dubhe.anvilcraft.block.AncientSeaReefBlock;
 import dev.dubhe.anvilcraft.block.AutoEnchantingTableBlock;
 import dev.dubhe.anvilcraft.block.CelestialBackGateBlock;
 import dev.dubhe.anvilcraft.block.CursedGoldBlock;
@@ -22,6 +23,7 @@ import dev.dubhe.anvilcraft.block.HyperdimensionUploaderBlock;
 import dev.dubhe.anvilcraft.block.LargeCauldronBlock;
 import dev.dubhe.anvilcraft.block.MonolithBlock;
 import dev.dubhe.anvilcraft.block.MonolithCoreBlock;
+import dev.dubhe.anvilcraft.block.RadioactiveBlock;
 import dev.dubhe.anvilcraft.block.RedstoneWireBlock;
 import dev.dubhe.anvilcraft.block.RuinsBlock;
 import dev.dubhe.anvilcraft.block.SingularityCrystalBlock;
@@ -1102,9 +1104,8 @@ public class ModBlocks {
     public static final BlockEntry<BurningHeaterBlock> BURNING_HEATER = REGISTRUM.block("burning_heater", BurningHeaterBlock::new)
         .initialProperties(ModBlocks.MAGNET_BLOCK)
         .properties(properties -> properties
-            .noOcclusion()
-            .lightLevel(state -> state.getValue(BurningHeaterBlock.LEVEL) >= 2 ? 15
-                                                                               : state.getValue(BurningHeaterBlock.LEVEL) >= 1 ? 7 : 0)
+            .isValidSpawn(Blocks::never)
+            .lightLevel(state -> state.getValue(BurningHeaterBlock.LEVEL) > 0 ? 15 : 0)
         )
         .simpleItem()
         .blockstate(() -> (ctx, generator) -> generator.blockStateOutput.accept(
@@ -1232,7 +1233,7 @@ public class ModBlocks {
     public static final BlockEntry<CreativeGeneratorBlock> CREATIVE_GENERATOR = REGISTRUM
         .block("creative_generator", CreativeGeneratorBlock::new)
         .initialProperties(ModBlocks.MAGNET_BLOCK)
-        .properties(BlockBehaviour.Properties::noOcclusion)
+        .properties(p -> p.noOcclusion().explosionResistance(Float.MAX_VALUE).isValidSpawn(Blocks::never))
         .blockstate(DataGenUtil::noExtraModelOrState)
         .item()
         .model(DataGenUtil::noExtraModelOrState)
@@ -1296,8 +1297,9 @@ public class ModBlocks {
             "infinite_collector",
             InfiniteCollectorBlock::new
         )
-        .initialProperties(() -> Blocks.IRON_BLOCK)
-        .properties(BlockBehaviour.Properties::noOcclusion)
+        .initialProperties(() -> Blocks.NETHERITE_BLOCK)
+        .properties(p -> p.noOcclusion().isValidSpawn(Blocks::never)
+            .lightLevel(state -> 7).emissiveRendering(ModBlocks::always).strength(50.0F, 1200.0F))
         .blockstate(() -> (ctx, generator) -> generator.blockStateOutput.accept(
             MultiVariantGenerator.dispatch(ctx.get())
                 .with(PropertyDispatchWrap.initial(InfiniteCollectorBlock.POWERED)
@@ -1308,7 +1310,8 @@ public class ModBlocks {
                     )
                     .dispatch()
                 )))
-        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.WITHER_IMMUNE, BlockTags.DRAGON_IMMUNE,
+            Tags.Blocks.NEEDS_NETHERITE_TOOL, ModBlockTags.COLLISION_IMMUNE)
         .item(InfiniteCollectorBlockItem::new)
         .properties(properties -> properties
             .rarity(Rarity.EPIC)
@@ -1593,7 +1596,7 @@ public class ModBlocks {
     public static final BlockEntry<SmartBlockPlacerBlock> SMART_BLOCK_PLACER = REGISTRUM
         .block("smart_block_placer", SmartBlockPlacerBlock::new)
         .initialProperties(() -> Blocks.IRON_BLOCK)
-        .properties(p -> p.noOcclusion().isValidSpawn(Blocks::never))
+        .properties(p -> p.strength(1.5F, 6.0F).noOcclusion().isValidSpawn(Blocks::never))
         .blockstate(() -> (ctx, generator) -> {
             Identifier bottom = ctx.getId().withPrefix("block/").withSuffix("_bottom");
             Identifier off = ctx.getId().withPrefix("block/").withSuffix("_bottom_off");
@@ -2053,6 +2056,7 @@ public class ModBlocks {
             .noOcclusion()
             .isValidSpawn(Blocks::never)
             .explosionResistance(1200)
+            .pushReaction(PushReaction.BLOCK)
             .emissiveRendering(ModBlocks::always))
         .item(CelestialForgingAnvilAmplifierBlockItem::new)
         .properties(properties -> properties.stacksTo(16))
@@ -2280,7 +2284,8 @@ public class ModBlocks {
         .register();
 
     public static final BlockEntry<WipBlock> WIP_BLOCK = REGISTRUM.block("wip_block", WipBlock::new)
-        .properties(p -> p.noOcclusion().lightLevel(bs -> 1))
+        .properties(p -> p.noOcclusion().lightLevel(bs -> 1).isValidSpawn(ModBlocks::never)
+            .isRedstoneConductor(ModBlocks::never).isSuffocating(ModBlocks::never).isViewBlocking(ModBlocks::never))
         .loot((tables, block) -> tables.add(block, LootTable.lootTable()))
         .blockstate(DataGenUtil::noExtraModelOrState)
         .register();
@@ -2811,7 +2816,7 @@ public class ModBlocks {
 
     public static final BlockEntry<HeavyIronDoorBlock> HEAVY_IRON_DOOR = REGISTRUM.block("heavy_iron_door", HeavyIronDoorBlock::new)
         .initialProperties(() -> Blocks.IRON_DOOR)
-        .properties(properties -> properties.strength(5.0F, 1200F))
+        .properties(properties -> properties.strength(5.0F, 1200F).requiresCorrectToolForDrops())
         .loot((l, b) -> {
             l.add(b, l.createDoorTable(b));
         })
@@ -2933,7 +2938,8 @@ public class ModBlocks {
         .recipe(RegistrumBlockRecipeLoader::silverBlock)
         .register();
 
-    public static final BlockEntry<? extends Block> URANIUM_BLOCK = REGISTRUM.block("uranium_block", Block::new)
+    public static final BlockEntry<? extends Block> URANIUM_BLOCK = REGISTRUM
+        .block("uranium_block", properties -> new RadioactiveBlock(properties, ModBlocks.LEAD_BLOCK))
         .lang("Block of Uranium")
         .initialProperties(() -> Blocks.IRON_BLOCK)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.BEACON_BASE_BLOCKS, Tags.Blocks.STORAGE_BLOCKS, ModBlockTags.STORAGE_BLOCKS_URANIUM)
@@ -2943,7 +2949,8 @@ public class ModBlocks {
         .recipe(RegistrumBlockRecipeLoader::uraniumBlock)
         .register();
 
-    public static final BlockEntry<? extends Block> PLUTONIUM_BLOCK = REGISTRUM.block("plutonium_block", Block::new)
+    public static final BlockEntry<? extends Block> PLUTONIUM_BLOCK = REGISTRUM
+        .block("plutonium_block", properties -> new RadioactiveBlock(properties, ModBlocks.URANIUM_BLOCK))
         .lang("Block of Plutonium")
         .initialProperties(() -> Blocks.IRON_BLOCK)
         .tag(
@@ -4545,7 +4552,7 @@ public class ModBlocks {
             "confined_neutronium_ingot",
             SimpleConfinementAnvilonBlock::new
         )
-        .tag(BlockTags.MINEABLE_WITH_PICKAXE, ModBlockTags.COLLISION_IMMUNE)
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.DRAGON_IMMUNE, BlockTags.WITHER_IMMUNE, ModBlockTags.COLLISION_IMMUNE)
         .properties(PropertiesProviderUtil::confinedAnvilon)
         .blockstate(DataGenUtil::onlyState)
         .item(SuperHeavyBlockItem::new)
@@ -4587,7 +4594,8 @@ public class ModBlocks {
             .noOcclusion()
             .strength(50F, 1200.0F)
             .requiresCorrectToolForDrops())
-        .tag(BlockTags.MINEABLE_WITH_PICKAXE, ModBlockTags.NEEDS_TRANSCENDIUM_TOOL, ModBlockTags.COLLISION_IMMUNE)
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.WITHER_IMMUNE,
+            ModBlockTags.NEEDS_TRANSCENDIUM_TOOL, ModBlockTags.COLLISION_IMMUNE)
         .item(SingularityCrystalItem::new)
         .initialProperties(() -> new Item.Properties().fireResistant().stacksTo(1))
         .tag(ModItemTags.EXPLOSION_PROOF)
@@ -4888,8 +4896,8 @@ public class ModBlocks {
         .recipe(RegistrumBlockRecipeLoader::advancedComparator)
         .register();
 
-    public static final BlockEntry<Block> ANCIENT_SEA_REEF = REGISTRUM
-        .block("ancient_sea_reef", Block::new)
+    public static final BlockEntry<AncientSeaReefBlock> ANCIENT_SEA_REEF = REGISTRUM
+        .block("ancient_sea_reef", AncientSeaReefBlock::new)
         .initialProperties(() -> Blocks.STONE)
         .properties(p -> p
             .noOcclusion()

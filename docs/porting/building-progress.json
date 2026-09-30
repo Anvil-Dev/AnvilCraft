@@ -6418,5 +6418,55 @@
       ]
     },
     "remaining": "Continue broader registered-block/resource behavior audits and remaining item/world rendering contexts. Whole-port completion remains unproven."
+  },
+  "block_registry_physical_parity_2026_10_01": {
+    "source_commit": "cca4b2aac5328926fa88bc01d958d007ff6bfc2a",
+    "status": "implemented_and_verified",
+    "implementation": [
+      "Capture all 416 registered source/native block defaults, including strength, resistance, friction, speed/jump factors, tool requirement, light, ticking, piston reaction, collision/selection shapes, culling predicates, sound and tags. No registered source block is missing.",
+      "Restore RadioactiveBlock for uranium and plutonium: six radioactive neighbors produce lava; otherwise R >= 3 + L decays uranium to lead and plutonium to uranium. Pressure plates inherit only the random-tick flag, not decay behavior.",
+      "Restore Ancient Sea Reef waterlogging, placement in water, source fluid exposure, bucket pickup/refill and scheduled water updates.",
+      "Restore Infinite Collector netherite base properties, hardness 50, resistance 1200, light 7, emissive rendering, spawn exclusion, netherite tool requirement and collision/wither/dragon immunity.",
+      "Restore creative generator maximum blast resistance, smart placer hardness 1.5, heavy iron door correct-tool requirement, burning heater source occlusion and active light 15, and dry deflection-ring default.",
+      "Restore confined-block spawn/conductor/suffocation/view predicates in the shared property helper, confined-anvilon piston destruction, amplifier piston blocking, WIP non-solid predicates and missing confined-neutronium/singularity boss-immunity tags.",
+      "Restore all four CFA interface-placeholder selection/collision shapes and hollow magnet full selection cube with hollow collision/occlusion shape."
+    ],
+    "validation": {
+      "source_blocks": 416,
+      "native_blocks": 416,
+      "focused_required_tests": 5,
+      "decay_neighbor_combinations": 56,
+      "full_required_tests": 847,
+      "commands": [
+        "./gradlew.bat -PportValidation compileJava runData --console=plain",
+        "./gradlew.bat -PportValidation -I dev/porting/block-registry.gradle -I dev/porting/checkstyle.gradle compileJava runGameTestServer checkPortJava --console=plain",
+        "./gradlew.bat -PportValidation -I dev/porting/checkstyle.gradle -I dev/porting/block-defaults-client.gradle compileJava runGameTestServer checkPortJava runClient --console=plain",
+        "python dev/porting/verify_block_physical_parity.py",
+        "git diff --check"
+      ],
+      "logs": {
+        "data": "build/porting/data-block-registry-2.log",
+        "focused": "build/porting/verify-block-registry-focused.log",
+        "final": "build/porting/verify-block-registry-final.log",
+        "source_capture": "build/porting/client-block-defaults-reference.log",
+        "comparison": "build/porting/block-physical-parity-result.json",
+        "remaining_differences": "build/porting/block-defaults-diff.json"
+      },
+      "coverage": [
+        "Actual random ticks exercise all feasible R/L neighbor-count combinations for both radioactive storage blocks, mixed uranium/plutonium neighbors and exclusion of raw uranium.",
+        "Actual reef placement state, water bucket pickup/refill, lava rejection and scheduled water ticks are exercised.",
+        "Actual tool predicates reject diamond and accept netherite for Infinite Collector; a powered piston destroys confined neutronium; shape checks retain hollow passage and rotated placeholder height.",
+        "Final live snapshot has no unexplained differences in the captured physical default fields. Trading-station enum toString case and extra native Ruins light/skylight block states are documented API adapters.",
+        "Datagen changes only the four expected collision, dragon, wither and netherite-tool tag files; full 847-test regression, final compile, Checkstyle and client capture pass."
+      ],
+      "limits": [
+        "Initial local audit code needed native state/tag query API adaptation, and the local test used protected level.random before switching to getRandom(). Neither issue required production workarounds.",
+        "Focused behavior passed before one extra fixture blank line was corrected; final compile/style/full test run passed.",
+        "Sound differences on 110 blocks and tag differences on 102 blocks remain under audit, including new vanilla tags, tag renames and genuinely missing source memberships. Counts are not unresolved feature counts.",
+        "This snapshot covers defaults; non-default/context-dependent states and in-game visual acceptance remain part of the overall completion audit. No new paired lighting screenshots are claimed for this node.",
+        "All test code, snapshots, scripts and logs remain local and ignored."
+      ]
+    },
+    "remaining": "Resolve remaining block-tag memberships and sound differences against their source consumers; continue non-default state and wider source-only Java/resource/rendering audits. Whole-port completion remains unproven."
   }
 }

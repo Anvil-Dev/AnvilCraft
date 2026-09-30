@@ -68,6 +68,7 @@ public class DeflectionRingBlock
             .any()
             .setValue(DeflectionRingBlock.HALF, DirectionCube3x3PartHalf.BOTTOM_CENTER)
             .setValue(DeflectionRingBlock.FACING, Direction.NORTH)
+            .setValue(WATERLOGGED, false)
             .setValue(DeflectionRingBlock.OVERLOAD, true)
             .setValue(DeflectionRingBlock.SWITCH, IPowerComponent.Switch.ON));
     }
