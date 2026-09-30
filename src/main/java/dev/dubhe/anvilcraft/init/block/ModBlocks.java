@@ -103,6 +103,7 @@ import dev.dubhe.anvilcraft.block.heatable.NormalBlock;
 import dev.dubhe.anvilcraft.block.heatable.OverheatedEmberMetalBlock;
 import dev.dubhe.anvilcraft.block.heatable.RedhotBlock;
 import dev.dubhe.anvilcraft.block.item.RedstoneWireBlockItem;
+import dev.dubhe.anvilcraft.block.item.SmartBlockPlacerBlockItem;
 import dev.dubhe.anvilcraft.block.item.TradingStationBlockItem;
 import dev.dubhe.anvilcraft.block.laser.CreativeLaserBlock;
 import dev.dubhe.anvilcraft.block.laser.LargeLaserBlock;
@@ -1617,7 +1618,7 @@ public class ModBlocks {
                             .with(v -> v.withXRot(isUpsideDown ? Quadrant.R180 : Quadrant.R0).withYRot(yrot));
                     })));
         })
-        .item()
+        .item(SmartBlockPlacerBlockItem::new)
         .model(DataGenUtil::oversizedItem)
         .build()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)

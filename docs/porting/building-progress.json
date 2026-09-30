@@ -6339,5 +6339,44 @@
       ]
     },
     "remaining": "Continue effective equipment-attribute and registry/resource behavior audits, then remaining rendering contexts including special-model foil. Whole-port completion remains unproven."
+  },
+  "effective_equipment_parity_2026_10_01": {
+    "source_commit": "cca4b2aac5328926fa88bc01d958d007ff6bfc2a",
+    "status": "implemented_and_verified",
+    "implementation": [
+      "Enumerate effective attribute modifiers in all six player equipment slots for 578 source and 584 native registered item defaults; normalize renamed vanilla attribute IDs and known concrete item IDs.",
+      "Restore Smart Block Placer as head equipment with iron equip sound and two armor; restore right-click wear behavior with one item consumed in survival, none consumed in creative, and rejection of occupied head slots.",
+      "Reconcile crab-claw reach after equipment changes so removing either of two claws does not remove the remaining claw bonus. Run this before existing building-rod reach reconciliation to avoid stacking the shared three-block bonus.",
+      "Retain native HAND attribute components for normal equipment and tooltip integration; the source claw implements the same effective bonus using transient server-tick modifiers."
+    ],
+    "validation": {
+      "source_items": 578,
+      "native_items": 584,
+      "focused_required_tests": 7,
+      "commands": [
+        "./gradlew.bat -PportValidation -I dev/porting/item-defaults.gradle -I dev/porting/checkstyle.gradle -I dev/porting/item-defaults-client.gradle compileJava runGameTestServer checkPortJava runClient --console=plain",
+        "./gradlew.bat -PportValidation -I dev/porting/checkstyle.gradle compileJava checkPortJava --console=plain",
+        "python dev/porting/compare_effective_attributes.py",
+        "git diff --check"
+      ],
+      "logs": {
+        "source_capture": "build/porting/client-item-effective-reference.log",
+        "focused_and_native_capture": "build/porting/verify-equipment-final-2.log",
+        "final_style": "build/porting/verify-equipment-style-final.log",
+        "comparison": "build/porting/item-effective-attributes-final.json"
+      },
+      "coverage": [
+        "Final item-effective snapshot matches every source item except the documented claw component/transient API adaptation; source armor, toughness, knockback resistance and weapon attributes match.",
+        "Actual player doTick verifies two armor when wearing the placer and removal on unequip; survival/creative counts and occupied helmet rejection are exercised.",
+        "Actual equipment transitions main to dual to off to dual to main to empty preserve exactly three extra block/entity range. Carrying a building rod with zero, one or two claws does not duplicate the bonus, and removing everything restores base reach.",
+        "The client successfully captures all 584 native defaults. Smart placer model display transforms remain equal to source."
+      ],
+      "limits": [
+        "Initial fake-player tick was a no-op and was replaced with doTick before evaluating equipment behavior. The dual-claw removal regression then reproduced and was fixed.",
+        "The combined validation passed all seven tests and client capture but reported two formatting violations; braces and a fixture separator were corrected and final compile/style were rerun separately.",
+        "No generated assets changed; no new visual screenshot or remote multiplayer acceptance is claimed for this node. Tests, fixtures and dumps remain local and ignored."
+      ]
+    },
+    "remaining": "Continue broader registered-block/resource behavior audits and remaining special-item rendering contexts, including outer-shell foil and nested displays. Whole-port completion remains unproven."
   }
 }

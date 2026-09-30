@@ -8,6 +8,7 @@ import dev.dubhe.anvilcraft.item.property.component.Eternal;
 import dev.dubhe.anvilcraft.item.property.component.Ferocious;
 import dev.dubhe.anvilcraft.item.property.component.Merciless;
 import dev.dubhe.anvilcraft.item.tool.DragonRodItem;
+import dev.dubhe.anvilcraft.item.utility.CrabClawItem;
 import dev.dubhe.anvilcraft.item.weapon.LaserGunItem;
 import dev.dubhe.anvilcraft.network.PlayerSettingsSyncPacket;
 import dev.dubhe.anvilcraft.rpc.BundleLikeServerStub;
@@ -47,6 +48,7 @@ public class PlayerTickEventHandler {
     @SubscribeEvent
     public static void onPlayerTick(PlayerTickEvent.Post event) {
         IonoCraftBackpackItem.applySlowFalling(event.getEntity());
+        CrabClawItem.updateReach(event.getEntity());
         BuildingRodItem.updateReach(event.getEntity());
         if (event.getEntity() instanceof ServerPlayer serverPlayer) {
             PlayerTickEventHandler.applyPowerGrid(serverPlayer);
