@@ -183,7 +183,9 @@ public class CrateBlock extends Block implements EntityBlock, IHammerRemovable {
             .orElseGet(() -> new LargeCrateStorage(targetId));
         UnlimitedItemStacksResourceHandler targetItems = target.getItems();
         Set<UUID> sourceIds = new HashSet<>();
-        boolean craftingUnlocked = target.isCraftingUnlocked();
+        List<List<ItemStack>> recipeBases = new ArrayList<>();
+        if (target.getRecipeBases() != null) recipeBases.add(target.getRecipeBases());
+        List<ItemStack> overflow = new ArrayList<>();
         try (Transaction root = Transaction.openRoot()) {
             try (Transaction transaction = Transaction.open(root)) {
                 for (CrateBlockEntity crate : crates) {
@@ -192,17 +194,22 @@ public class CrateBlock extends Block implements EntityBlock, IHammerRemovable {
                     Optional<BaseStorage<?>> sourceOp = Storages.get().get(sourceId);
                     if (sourceOp.isEmpty()) continue;
                     BaseStorage<?> source = sourceOp.get();
-                    craftingUnlocked |= source.isCraftingUnlocked();
+                    if (source.getRecipeBases() != null) recipeBases.add(source.getRecipeBases());
                     UnlimitedItemStacksResourceHandler items = source.getItems();
                     for (int i = 0; i < items.size(); i++) {
                         long amountAsLong = items.getAmountAsLong(i);
                         if (amountAsLong <= 0) continue;
                         ItemResource resource = items.getResource(i);
                         int amount = Math.toIntExact(amountAsLong);
-                        if (targetItems.insert(resource, amount, transaction) != amount) return InteractionResult.FAIL;
+                        CrateBlock.insertOrCollectOverflow(targetItems, resource, amount, transaction, overflow);
                     }
                 }
-                if (targetItems.insert(ItemResource.of(ModBlocks.CRATE.asItem()), 27, transaction) != 27) return InteractionResult.FAIL;
+                CrateBlock.insertOrCollectOverflow(targetItems, ItemResource.of(ModBlocks.CRATE.asItem()), 27, transaction, overflow);
+                for (int index = 1; index < recipeBases.size(); index++) {
+                    for (ItemStack base : recipeBases.get(index)) {
+                        CrateBlock.insertOrCollectOverflow(targetItems, ItemResource.of(base), base.getCount(), transaction, overflow);
+                    }
+                }
                 transaction.commit();
             }
             Storages.get().put(target);
@@ -218,10 +225,18 @@ public class CrateBlock extends Block implements EntityBlock, IHammerRemovable {
             largeCrate.setPlacedBy(level, origin, mainState, player, ItemStack.EMPTY);
             root.commit();
         }
-        target.setCraftingUnlocked(craftingUnlocked);
+        if (!recipeBases.isEmpty()) target.setRecipeBases(recipeBases.getFirst());
+        for (ItemStack stack : overflow) Block.popResourceFromFace(level, origin.above(), Direction.UP, stack);
         if (level.getBlockEntity(origin) instanceof StorageBlockEntity storage) storage.setId(target.getId());
         if (!player.hasInfiniteMaterials()) largeCrateStack.shrink(1);
         return InteractionResult.SUCCESS_SERVER;
+    }
+
+    private static void insertOrCollectOverflow(
+        UnlimitedItemStacksResourceHandler items, ItemResource resource, int amount, Transaction transaction, List<ItemStack> overflow
+    ) {
+        int remaining = amount - items.insert(resource, amount, transaction);
+        if (remaining > 0) overflow.add(resource.toStack(remaining));
     }
 
     private static @Nullable BlockPos findLargeCrateOrigin(Level level, BlockPos center) {

@@ -4688,5 +4688,57 @@
       "Keep vanilla 26.1 rendering; source-comparison work must not replace global terrain rendering.",
       "Goal pauses after this commit at the user request; the complete branch port is not finished."
     ]
+  },
+  "source_update_e1fde8102": {
+    "source_commit": "e1fde8102eb7e2231068505d57451293a58e2cff",
+    "latest_observed_source": "cca4b2aac5328926fa88bc01d958d007ff6bfc2a",
+    "status": "storage_source_delta_ported_and_verified",
+    "changes": [
+      "Add ICannotFitInStationItem to all terminal variants and both station/container block items; enforce it in uploader, storage handlers and server insertion paths.",
+      "Hyperdimension station items reject nesting in item containers. Unmarked vanilla shulker boxes follow the updated source acceptance contract.",
+      "Add cancellable StorageUnlockCraftingEvent with extra consumed slots. Native transactions roll back canceled, invalid and insufficient duplicate-slot requests.",
+      "Record exact consumed recipe bases, including item components. Copy them through upgrades and encode them in save/network state.",
+      "Legacy crafting_unlocked saves restore the vanilla workbench/stonecutter bases; an empty recipe_bases list remains unlocked without synthetic refunds.",
+      "Crate merging retains one basis list, returns other lists as real items and spills insertion overflow; destruction refunds only the retained list once."
+    ],
+    "native_equivalents_retained": [
+      "StorageScreen already refreshes versioned unfiltered item and fluid snapshots from the client executor while JEI is its active parent.",
+      "The existing ContentsPage RPC includes unfiltered fluids on the first page. No redundant source-only fluid RPC or duplicate snapshot cache is added.",
+      "Upgrade paths already share copyCraftingFrom; they now preserve the basis record through that shared method.",
+      "Retain setCraftingUnlocked as a compatibility helper and the legacy boolean codec field while using recipe_bases as the authoritative state.",
+      "Overflow handling also preserves all 27 recovered crate items when the bound target has insufficient space."
+    ],
+    "verification": {
+      "focused_tests_passed": 5,
+      "full_required_tests_passed": 755,
+      "commands": [
+        "./gradlew.bat -PportValidation -I dev/porting/storage-source-update.gradle -I dev/porting/checkstyle.gradle compileJava runGameTestServer checkPortJava --console=plain",
+        "./gradlew.bat -PportValidation -PportStorageUnfilteredScene -I dev/porting/checkstyle.gradle compileJava runGameTestServer runClient checkPortJava --console=plain",
+        "git diff --check"
+      ],
+      "focused_log": "build/porting/tests-storage-e1fde-focused-2.log",
+      "final_log": "build/porting/tests-storage-e1fde-all-client-2.log",
+      "client_marker": "PORT_UNFILTERED_CONTENTS_PASSED",
+      "client_screenshot": "run/port-validation/client/screenshots/storage-unfiltered-26.1-fluid.png",
+      "coverage": [
+        "Save and stream codecs for all four storage types, legacy fallback, empty unlocked records and upgrade copies.",
+        "Custom named workbench, batch cutter and extension-provided basis; cancellation, invalid indices, duplicate insufficient consumption and repeated unlock.",
+        "All three terminal variants and both storage block items rejected by uploader and direct station handlers.",
+        "27 independently unlocked crates merged into a bound unlocked target retain components, refund all extra bases and do not duplicate refunds on repeated destruction.",
+        "A full bound target preserves existing stock, transfers source stock and retains/drops exactly 27 recovered crates.",
+        "Live JEI tests cover pagination, search/category-hidden items, storage changes while JEI is open, stale-version invalidation and real transfer.",
+        "Hidden water changes from 750 to 1000 mB while JEI covers the storage screen, enabling transfer; filling a water bucket consumes exactly 1000 mB once."
+      ],
+      "limits": [
+        "The first broad client run hit an outdated parent fixture that waited for an unlocked crafting screen without unlocking its storage. The dedicated unfiltered scene now initializes that prerequisite explicitly.",
+        "Existing StorageSourceUpdateTests remains intact; the new cases use the distinct StorageE1fdeUpdateTests class and the final suite contains all 755 tests.",
+        "Client transport validation uses an integrated server, not a remote dedicated multiplayer deployment.",
+        "No generated recipes or assets changed; runData is not applicable."
+      ]
+    },
+    "remaining_source_updates": [
+      "3e8080006 civilization catalyst resources",
+      "cca4b2aac gas rendering, pipe network and interactions"
+    ]
   }
 }

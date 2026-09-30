@@ -55,7 +55,8 @@ public final class CrateMergeTests {
     private static final Map<String, Consumer<GameTestHelper>> TESTS = Map.of(
         "port_crate_merge_targets", CrateMergeTests::targets,
         "port_crate_merge_aliases", CrateMergeTests::aliases,
-        "port_crate_merge_rollback", CrateMergeTests::rollback,
+        "port_crate_merge_overflow", CrateMergeTests::overflow,
+        "port_crate_merge_recipe_bases", CrateMergeTests::recipeBases,
         "port_crate_merge_ambiguous", CrateMergeTests::ambiguous
     );
 
@@ -185,7 +186,7 @@ public final class CrateMergeTests {
         h.succeed();
     }
 
-    private static void rollback(GameTestHelper h) {
+    private static void overflow(GameTestHelper h) {
         BlockPos origin = h.absolutePos(new BlockPos(6, 3, 6));
         var ids = place(h, origin);
         var source = Storages.get().get(ids.getFirst()).orElseThrow();
@@ -197,19 +198,55 @@ public final class CrateMergeTests {
         var held = ModBlocks.LARGE_CRATE.asStack();
         held.set(ModComponents.STORAGE, new StorageRef(StorageType.LARGE_CRATE, target.getId()));
         var player = player(h);
-        h.assertTrue(merge(h, player, origin, Direction.UP, held) == InteractionResult.FAIL,
-            "Reserve capacity for all 27 recovered crates");
-        h.assertTrue(count(target, Items.STONE) == 65410 && count(target, Items.DIAMOND) == 0
-            && count(target, ModBlocks.CRATE.asItem()) == 0 && !target.isCraftingUnlocked(),
-            "Rollback target inventory and unlock");
-        h.assertTrue(count(source, Items.DIAMOND) == 100 && held.getCount() == 1, "Rollback source and held item");
-        for (var part : Cube3x3PartHalf.values()) {
-            h.assertTrue(h.getLevel().getBlockState(origin.offset(part.getOffset())).is(ModBlocks.CRATE),
-                "Failed merge leaves every source block");
-        }
+        h.assertTrue(merge(h, player, origin, Direction.UP, held).consumesAction(), "Merge full target without losing overflow");
+        long droppedCrates = h.getLevel().getEntitiesOfClass(ItemEntity.class, new AABB(origin).inflate(4)).stream()
+            .map(ItemEntity::getItem).filter(stack -> stack.is(ModBlocks.CRATE.asItem())).mapToLong(ItemStack::getCount).sum();
+        h.assertTrue(count(target, Items.STONE) == 65410 && count(target, Items.DIAMOND) == 100
+            && count(target, ModBlocks.CRATE.asItem()) + droppedCrates == 27 && droppedCrates > 0 && target.isCraftingUnlocked(),
+            "Keep all existing items, transferred items, physical crates and the retained recipe bases");
+        h.assertTrue(held.isEmpty() && ids.stream().allMatch(id -> Storages.get().get(id).isEmpty()), "Consume and unlink once");
+        clear(h, origin, target);
+        place(h, origin);
+        held = ModBlocks.LARGE_CRATE.asStack();
         BlockPos missing = origin.above(2).east().south();
         h.getLevel().setBlockAndUpdate(missing, Blocks.AIR.defaultBlockState());
         h.assertTrue(merge(h, player, origin, Direction.SOUTH, held) == InteractionResult.FAIL, "Incomplete cube cannot merge");
+        h.succeed();
+    }
+
+    private static void recipeBases(GameTestHelper h) {
+        BlockPos origin = h.absolutePos(new BlockPos(6, 3, 6));
+        var ids = place(h, origin);
+        for (UUID id : ids) {
+            var basis = new ItemStack(Items.DIAMOND);
+            basis.set(net.minecraft.core.component.DataComponents.CUSTOM_NAME,
+                net.minecraft.network.chat.Component.literal(id.toString()));
+            Storages.get().get(id).orElseThrow().setRecipeBases(List.of(basis));
+        }
+        var target = new LargeCrateStorage(UUID.randomUUID());
+        target.setRecipeBases(List.of(new ItemStack(Items.EMERALD)));
+        Storages.get().put(target);
+        var held = ModBlocks.LARGE_CRATE.asStack();
+        held.set(ModComponents.STORAGE, new StorageRef(StorageType.LARGE_CRATE, target.getId()));
+        h.assertTrue(merge(h, player(h), origin, Direction.UP, held).consumesAction(), "Merge 27 independently unlocked crates");
+        var merged = result(h, origin);
+        h.assertTrue(merged.getRecipeBases().size() == 1 && merged.getRecipeBases().getFirst().is(Items.EMERALD)
+            && count(merged, Items.DIAMOND) == 27, "Retain target bases and refund every source basis");
+        for (int slot = 0; slot < merged.getItems().size(); slot++) {
+            var resource = merged.getItems().getResource(slot);
+            if (!resource.is(Items.DIAMOND)) continue;
+            h.assertTrue(ids.stream().anyMatch(id -> resource.toStack().getHoverName().getString().equals(id.toString())),
+                "Refund original basis components");
+        }
+        var be = (StorageBlockEntity) h.getLevel().getBlockEntity(origin);
+        be.dropContents(h.getLevel(), origin);
+        be.dropContents(h.getLevel(), origin);
+        var drops = h.getLevel().getEntitiesOfClass(ItemEntity.class, new AABB(origin).inflate(4));
+        long diamonds = drops.stream().map(ItemEntity::getItem).filter(stack -> stack.is(Items.DIAMOND))
+            .mapToLong(ItemStack::getCount).sum();
+        long emeralds = drops.stream().map(ItemEntity::getItem).filter(stack -> stack.is(Items.EMERALD))
+            .mapToLong(ItemStack::getCount).sum();
+        h.assertTrue(diamonds == 27 && emeralds == 1, "Destroying the result cannot refund any basis twice");
         h.succeed();
     }
 

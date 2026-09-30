@@ -10,17 +10,15 @@ import dev.anvilcraft.lib.v2.util.UnlimitedItemStack;
 import dev.dubhe.anvilcraft.api.StorageComparatorManager;
 import dev.dubhe.anvilcraft.api.StoragePortManager;
 import dev.dubhe.anvilcraft.api.TerminalSessions;
+import dev.dubhe.anvilcraft.api.item.ICannotFitInStationItem;
 import dev.dubhe.anvilcraft.api.itemhandler.unlimited.SpaceSizeItemStacksResourceHandler;
 import dev.dubhe.anvilcraft.api.itemhandler.unlimited.TypeLimitItemStacksResourceHandler;
 import dev.dubhe.anvilcraft.api.itemhandler.unlimited.UnlimitedItemStacksResourceHandler;
 import dev.dubhe.anvilcraft.block.container.storage.CrateBlock;
-import dev.dubhe.anvilcraft.block.container.storage.HyperdimensionStorageStationBlock;
-import dev.dubhe.anvilcraft.block.container.storage.ShulkerContainerBlock;
 import dev.dubhe.anvilcraft.block.entity.storage.CrateBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.storage.ShulkerContainerBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.storage.StorageBlockEntity;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
-import dev.dubhe.anvilcraft.item.HyperdimensionTerminalItem;
 import dev.dubhe.anvilcraft.item.TerminalItem;
 import dev.dubhe.anvilcraft.item.property.component.StorageRef;
 import dev.dubhe.anvilcraft.saved.setting.PlayerSetting;
@@ -64,7 +62,6 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.inventory.Slot;
-import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.CraftingInput;
@@ -73,7 +70,6 @@ import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.item.crafting.SingleRecipeInput;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.ShulkerBoxBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.common.CommonHooks;
@@ -2884,10 +2880,7 @@ public final class StorageServerStub {
 
         private static boolean canStore(BaseStorage<?> storage, ItemResource resource) {
             if (!(storage instanceof HyperdimensionStorage || storage instanceof ShulkerContainerStorage)) return true;
-            Item item = resource.toStack().getItem();
-            if (item instanceof HyperdimensionTerminalItem) return false;
-            return !(item instanceof BlockItem block && (block.getBlock() instanceof HyperdimensionStorageStationBlock
-                || block.getBlock() instanceof ShulkerContainerBlock || block.getBlock() instanceof ShulkerBoxBlock));
+            return !(resource.getItem() instanceof ICannotFitInStationItem);
         }
 
         private static boolean contains(UnlimitedItemStacksResourceHandler items, ItemResource resource) {

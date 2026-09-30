@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.item;
 import dev.anvilcraft.lib.v2.util.DistExecutor;
 import dev.anvilcraft.lib.v2.util.InventoryUtil;
 import dev.dubhe.anvilcraft.api.TerminalSessions;
+import dev.dubhe.anvilcraft.api.item.ICannotFitInStationItem;
 import dev.dubhe.anvilcraft.client.rpc.StorageTerminalClientStub;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.inventory.PocketInventory;
@@ -20,7 +21,7 @@ import org.jspecify.annotations.Nullable;
 import java.util.List;
 import java.util.UUID;
 
-public abstract class TerminalItem extends BundleLikeItem {
+public abstract class TerminalItem extends BundleLikeItem implements ICannotFitInStationItem {
     public enum Kind {
         LOCAL, SHULKER, HYPERDIMENSION
     }

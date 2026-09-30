@@ -1,11 +1,13 @@
 package dev.dubhe.anvilcraft.porting;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.block.entity.StorageFluidPortBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.storage.StorageBlockEntity;
 import dev.dubhe.anvilcraft.client.gui.component.category.CategoryList;
 import dev.dubhe.anvilcraft.client.gui.screen.StorageScreen;
 import dev.dubhe.anvilcraft.client.rpc.SettingClientStub;
 import dev.dubhe.anvilcraft.client.rpc.StorageClientStub;
+import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.rpc.StorageServerStub;
 import dev.dubhe.anvilcraft.saved.setting.mode.SearchMode;
 import dev.dubhe.anvilcraft.saved.storage.BaseStorage;
@@ -30,6 +32,9 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.GameType;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.material.Fluids;
+import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import net.neoforged.neoforge.transfer.transaction.Transaction;
 
@@ -48,11 +53,13 @@ public final class StorageUnfilteredScene {
     private static long deadline;
     private static boolean capturing;
     private static boolean versionChecked;
+    private static volatile StorageFluidPortBlockEntity fluidPort;
+    private static volatile boolean fluidTransferVerified;
 
     public static void frame(Minecraft client) {
         if (!started) {
             started = true;
-            client.screen.onClose();
+            if (client.screen != null) client.screen.onClose();
             nextAction = System.currentTimeMillis() + 1000;
             deadline = nextAction + 150000;
         }
@@ -210,9 +217,72 @@ public final class StorageUnfilteredScene {
             case 14 -> {
                 if (!versionChecked || !screen.hasUnfilteredContents()
                     || screen.getTransferMaterials().getOrDefault(ItemResource.of(Items.DIAMOND), 0L) != 10) return;
+                prepared = false;
+                client.getSingleplayerServer().execute(() -> {
+                    try {
+                        var level = client.getSingleplayerServer().overworld();
+                        BlockPos pos = CORE.west(2);
+                        level.setBlock(pos, ModBlocks.STORAGE_FLUID_PORT.getDefaultState(), Block.UPDATE_ALL);
+                        fluidPort = (StorageFluidPortBlockEntity) level.getBlockEntity(pos);
+                        fluidPort.getTank().set(0, FluidResource.of(Fluids.WATER), 750);
+                        fluidPort.tickServer();
+                        try (Transaction tx = Transaction.openRoot()) {
+                            storage.getItems().insert(ItemResource.of(Items.BUCKET), 1, tx);
+                            storage.getItems().insert(ItemResource.of(Items.SAND), 1, tx);
+                            tx.commit();
+                        }
+                        prepared = true;
+                    } catch (Throwable problem) {
+                        failure = problem;
+                    }
+                });
+                search().setValue("@missing_namespace");
+                advance(15);
+            }
+            case 15 -> {
+                if (!prepared) return;
+                showRecipe("anvilcraft:port_terminal_water");
+                advance(16);
+            }
+            case 16 -> {
+                if (screen.getTransferFluids().stream().noneMatch(entry -> entry.icon().is(Fluids.WATER) && entry.amount() == 750)) return;
+                require(!active(client), "Less than one bucket must keep JEI transfer disabled");
+                client.getSingleplayerServer().execute(() -> fluidPort.getTank().set(0, FluidResource.of(Fluids.WATER), 1000));
+                advance(17);
+            }
+            case 17 -> {
+                if (!active(client)) return;
+                require(screen.getTransferFluids().stream().anyMatch(entry -> entry.icon().is(Fluids.WATER) && entry.amount() == 1000),
+                    "Fluid-only version changes must refresh while JEI covers the storage screen");
+                require(display().isEmpty(), "Hidden stock must remain hidden while fluid transfer becomes available");
+                capture(client, "fluid", 18);
+            }
+            case 18 -> {
+                clickTransfer(client);
+                advance(19);
+            }
+            case 19 -> {
+                if (client.screen != screen || !screen.canTransferRecipe()
+                    || !((ItemStack) field(screen, "craftingResult")).is(Items.CLAY_BALL)) return;
+                var crafting = (CraftingStorage) field(screen, "crafting");
+                require(crafting.craftingInput().stream().anyMatch(stack -> stack.is(Items.WATER_BUCKET)),
+                    "JEI must fill the empty container from storage fluid");
+                client.getSingleplayerServer().execute(() -> {
+                    if (fluidPort.getTank().getAmountAsInt(0) != 0) {
+                        failure = new IllegalStateException("Fluid was not consumed exactly once");
+                    }
+                    fluidTransferVerified = true;
+                });
+                advance(20);
+            }
+            case 20 -> {
+                if (!fluidTransferVerified) return;
                 AnvilCraft.LOGGER.info(
-                    "PORT_UNFILTERED_CONTENTS_PASSED: pagination, hidden materials, live JEI, category, transfer, sync version");
+                    "PORT_UNFILTERED_CONTENTS_PASSED: pagination, hidden items and fluids, live JEI, category, transfer, sync version");
+                advance(21);
                 client.stop();
+            }
+            case 21 -> {
             }
             default -> throw new IllegalStateException("Unknown unfiltered stage " + stage);
         }
@@ -227,10 +297,14 @@ public final class StorageUnfilteredScene {
     }
 
     private static void showRecipe() {
+        showRecipe("minecraft:diamond_block");
+    }
+
+    private static void showRecipe(String id) {
         var runtime = Internal.getJeiRuntime();
         var manager = runtime.getRecipeManager();
         var recipe = manager.createRecipeLookup(RecipeTypes.CRAFTING).get()
-            .filter(holder -> holder.id().identifier().toString().equals("minecraft:diamond_block")).findFirst().orElseThrow();
+            .filter(holder -> holder.id().identifier().toString().equals(id)).findFirst().orElseThrow();
         runtime.getRecipesGui().showRecipes(manager.getRecipeCategory(RecipeTypes.CRAFTING), List.of(recipe), List.of());
     }
 

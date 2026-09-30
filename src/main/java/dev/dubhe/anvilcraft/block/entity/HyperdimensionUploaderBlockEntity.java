@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.block.entity;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.api.item.ICannotFitInStationItem;
 import dev.dubhe.anvilcraft.api.itemhandler.IItemResourceHandlerHolder;
 import dev.dubhe.anvilcraft.api.itemhandler.ItemHandlerUtil;
 import dev.dubhe.anvilcraft.config.AnvilCraftServerConfig;
@@ -48,6 +49,7 @@ public class HyperdimensionUploaderBlockEntity extends BlockEntity implements II
     private final ItemStacksResourceHandler buffer = new ItemStacksResourceHandler(HyperdimensionUploaderBlockEntity.BUFFER_SLOTS) {
         @Override
         public boolean isValid(int slot, ItemResource resource) {
+            if (resource.getItem() instanceof ICannotFitInStationItem) return false;
             // 每格只允许同一种物品：空格可放入任意物品，已占用格只接受与自身相同的物品
             ItemResource existing = this.getResource(slot);
             return existing.isEmpty() || existing.equals(resource);

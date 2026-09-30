@@ -3,11 +3,13 @@ package dev.dubhe.anvilcraft.saved.storage;
 import com.mojang.serialization.MapCodec;
 import dev.anvilcraft.lib.v2.codec.CodecUtil;
 import dev.anvilcraft.lib.v2.util.UnlimitedItemStack;
+import dev.dubhe.anvilcraft.api.item.ICannotFitInStationItem;
 import dev.dubhe.anvilcraft.api.itemhandler.unlimited.TypeLimitItemStacksResourceHandler;
 import it.unimi.dsi.fastutil.ints.IntObjectBiConsumer;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
+import net.neoforged.neoforge.transfer.item.ItemResource;
 
 import java.util.UUID;
 
@@ -43,6 +45,11 @@ public class ShulkerContainerStorage extends BaseStorage<TypeLimitItemStacksReso
     @Override
     protected TypeLimitItemStacksResourceHandler constructItemHandler(IntObjectBiConsumer<UnlimitedItemStack> onContentsChanged) {
         return new TypeLimitItemStacksResourceHandler(DEFAULT_TYPE_LIMIT, 65536) {
+            @Override
+            public boolean isValid(int slot, ItemResource resource) {
+                return !(resource.getItem() instanceof ICannotFitInStationItem) && super.isValid(slot, resource);
+            }
+
             @Override
             protected void onContentsChanged(int index, UnlimitedItemStack original) {
                 onContentsChanged.accept(index, original);

@@ -164,6 +164,9 @@ public final class TerminalScene {
                     stock(hyper, Items.DIAMOND, 8);
                     stock(hyper, Items.CRAFTING_TABLE, 1);
                     stock(hyper, Items.STONECUTTER, 1);
+                    if (Boolean.getBoolean("anvilcraft.portStorageUnfilteredScene")) {
+                        require(Storages.get().get(hyper.getId()).orElseThrow().unlockCrafting(), "Unlock JEI fixture storage");
+                    }
                     stock(place(level, LOCAL, ModBlocks.LARGE_CRATE.get()), Items.IRON_INGOT, 5);
                     stock(place(level, SHULKER, ModBlocks.SHULKER_CONTAINER.get()), Items.EMERALD, 6);
                     var player = server.getPlayerList().getPlayers().getFirst();
@@ -189,6 +192,11 @@ public final class TerminalScene {
         if (System.currentTimeMillis() > deadline) throw new IllegalStateException("终端客户端超时：" + stage);
         client.getToastManager().clear();
         if (!prepared || capturing || System.currentTimeMillis() < nextAction) return;
+        if (Boolean.getBoolean("anvilcraft.portStorageUnfilteredScene")) {
+            unfilteredTesting = true;
+            StorageUnfilteredScene.frame(client);
+            return;
+        }
         switch (stage) {
             case 0 -> {
                 if (!clientLoaded) {

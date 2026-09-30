@@ -119,6 +119,7 @@ public final class StorageCraftingStateTests {
             assertState(helper, restored.getCrafting());
             tag.remove("crafting");
             tag.remove("crafting_unlocked");
+            tag.remove("recipe_bases");
             var legacy = BaseStorage.CODEC.codec().parse(ops, tag).getOrThrow();
             helper.assertTrue(!legacy.isCraftingUnlocked() && legacy.getCrafting().craftingInput().stream().allMatch(ItemStack::isEmpty),
                 "缺少新字段的旧存储必须正常加载默认状态");

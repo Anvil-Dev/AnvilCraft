@@ -23,7 +23,6 @@ import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
@@ -197,9 +196,11 @@ public class StorageBlockEntity extends BlockEntity {
                     remaining -= count;
                 }
             }
-            if (storage.isCraftingUnlocked()) {
-                Block.popResource(level, pos, new ItemStack(Items.CRAFTING_TABLE));
-                Block.popResource(level, pos, new ItemStack(Items.STONECUTTER));
+            if (storage.getRecipeBases() != null) {
+                for (ItemStack base : storage.getRecipeBases()) {
+                    ItemStack remaining = base.copy();
+                    while (!remaining.isEmpty()) Block.popResource(level, pos, remaining.split(Math.min(64, remaining.getCount())));
+                }
             }
             Storages.get().remove(storageId);
         });

@@ -192,6 +192,7 @@ allprojects {
             include '**/AgeratumUtil.java', '**/client/markdown/recipe/**/*.java'
             include '**/IMultiPartBlockModelHolder.java', '**/FlexibleMultiPartBlock.java', '**/GiantAnvilBlock.java'
             include '**/CelestialForgingAnvilAmplifierBlock.java', '**/JeiBlockIngredientUtil.java'
+            include '**/StorageUnlockCraftingEvent.java', '**/ICannotFitInStationItem.java'
             include '**/HandbookRecipeMixin.java', '**/AnvilCraftClient.java'
             include '**/PowerGridHUD.java', '**/PowerGrid.java', '**/IPowerProducer.java'
             include '**/PowerGridSupport.java', '**/SubmitGeometryEventListener.java'
