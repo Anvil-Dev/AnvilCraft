@@ -1,6 +1,6 @@
 {
   "type": "minecraft:crafting_shaped",
-  "category": "misc",
+  "category": "building",
   "key": {
     "A": "#minecraft:planks",
     "B": "anvilcraft:resin"
@@ -11,6 +11,7 @@
     "AAA"
   ],
   "result": {
+    "count": 2,
     "id": "anvilcraft:crate"
   }
 }

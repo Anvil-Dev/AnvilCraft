@@ -1029,14 +1029,17 @@ public class RegistrumItemRecipeLoader {
     public static <T extends Item> void processor(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
         HolderGetter<Item> lookup = provider.getItems();
         ShapedRecipeBuilder.shaped(lookup, RecipeCategory.MISC, ctx.get())
-            .pattern("   ")
-            .pattern("CAC")
+            .pattern("CDC")
+            .pattern("DCD")
             .pattern("BBB")
-            .define('A', Items.COMPARATOR)
             .define('B', ModItems.HARDEND_RESIN)
             .define('C', ModItemTags.COPPER_NUGGETS)
+            .define('D', Tags.Items.GEMS_QUARTZ)
             .group(ctx.getId().toString())
-            .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.HARDEND_RESIN), AnvilCraftDatagen.has(lookup, ModItems.HARDEND_RESIN))
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(ModItems.HARDEND_RESIN),
+                AnvilCraftDatagen.has(lookup, ModItems.HARDEND_RESIN)
+            )
             .save(provider);
     }
 
@@ -1510,16 +1513,19 @@ public class RegistrumItemRecipeLoader {
 
     public static <T extends Item> void multiphaseTranscendium(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
         HolderGetter<Item> lookup = provider.getItems();
-        ShapelessRecipeBuilder.shapeless(lookup, RecipeCategory.MISC, ctx.get())
-            .requires(ModItems.MULTIPHASE_MATTER)
-            .requires(ModItems.TRANSCENDIUM_INGOT)
+        ShapedRecipeBuilder.shaped(lookup, RecipeCategory.MISC, ctx.get())
+            .pattern("NNN")
+            .pattern("NMN")
+            .pattern("NNN")
+            .define('M', ModItems.MULTIPHASE_MATTER)
+            .define('N', ModItems.TRANSCENDIUM_NUGGET)
             .unlockedBy(
                 AnvilCraftDatagen.hasItem(ModItems.MULTIPHASE_MATTER),
                 AnvilCraftDatagen.has(lookup, ModItems.MULTIPHASE_MATTER)
             )
             .unlockedBy(
-                AnvilCraftDatagen.hasItem(ModItems.TRANSCENDIUM_INGOT),
-                AnvilCraftDatagen.has(lookup, ModItems.TRANSCENDIUM_INGOT)
+                AnvilCraftDatagen.hasItem(ModItems.TRANSCENDIUM_NUGGET),
+                AnvilCraftDatagen.has(lookup, ModItems.TRANSCENDIUM_NUGGET)
             )
             .save(provider);
     }
@@ -1732,15 +1738,25 @@ public class RegistrumItemRecipeLoader {
 
     public static <T extends Item> void dysonSphereComponent(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
         HolderGetter<Item> lookup = provider.getItems();
-        // 余烬金属锭 超限合金锭 余烬金属锭 / 集热器 集热器 集热器 / 超限合金锭 余烬金属锭 超限合金锭 → 4个
         ShapedRecipeBuilder.shaped(lookup, RecipeCategory.MISC, ctx.get(), 4)
             .pattern("ABA")
             .pattern("CCC")
-            .pattern("BAB")
+            .pattern("ABA")
             .define('A', ModItems.EMBER_METAL_INGOT)
             .define('B', ModItems.TRANSCENDIUM_INGOT)
             .define('C', ModBlocks.HEAT_COLLECTOR)
-            .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.EMBER_METAL_INGOT), AnvilCraftDatagen.has(lookup, ModItems.EMBER_METAL_INGOT))
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(ModItems.EMBER_METAL_INGOT),
+                AnvilCraftDatagen.has(lookup, ModItems.EMBER_METAL_INGOT)
+            )
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(ModItems.TRANSCENDIUM_INGOT),
+                AnvilCraftDatagen.has(lookup, ModItems.TRANSCENDIUM_INGOT)
+            )
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(ModBlocks.HEAT_COLLECTOR.asItem()),
+                AnvilCraftDatagen.has(lookup, ModBlocks.HEAT_COLLECTOR)
+            )
             .save(provider);
     }
 

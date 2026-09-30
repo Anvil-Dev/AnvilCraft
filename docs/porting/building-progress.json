@@ -6043,5 +6043,51 @@
       ],
       "scope": "Catalogue findings do not prove complete functionality, rendering or whole-port parity. Continue source/resource/runtime audits."
     }
+  },
+  "recipe_material_contracts_2026_09_30": {
+    "source_commit": "cca4b2aac5328926fa88bc01d958d007ff6bfc2a",
+    "status": "implemented_and_verified",
+    "implementation": [
+      "Restore processor copper/quartz arrangement, two-crate yield, symmetric Dyson component arrangement, eight-nugget multiphase transcendium crafting, four storage-fluid ports, prismarine/sapphire trident and plain-glass magnetoelectric core.",
+      "Use two copper blocks in both capacitor processing recipes and the independent JEI recipe.",
+      "Combine the saved-creeper and not-powered-creeper component predicates in one native matcher so neither condition overwrites the other.",
+      "Restore procedural super-heating with unpowered/non-overloaded electric heater or level-two burning heater.",
+      "Port ItemCompressCategory input samples from actual entity predicates, a 50% special capacitor result, per-output probability slots, source arrows and fixed model anchors."
+    ],
+    "validation": {
+      "focused_required_tests": 4,
+      "full_required_tests": 821,
+      "source_recipe_definitions_compared": 10,
+      "paired_client_layouts": 3,
+      "commands": [
+        "./gradlew.bat -PportValidation compileJava runData --console=plain",
+        "./gradlew.bat -PportValidation -I dev/porting/recipe-contract.gradle -I dev/porting/checkstyle.gradle compileJava runGameTestServer checkPortJava --console=plain",
+        "./gradlew.bat -PportValidation -I dev/porting/checkstyle.gradle -I dev/porting/recipe-contract-client.gradle compileJava checkPortJava runClient --console=plain",
+        "./gradlew.bat -PportValidation -I dev/porting/checkstyle.gradle compileJava runGameTestServer checkPortJava --console=plain",
+        "python dev/porting/verify_recipe_contracts.py",
+        "git diff --check"
+      ],
+      "logs": {
+        "data": "build/porting/data-recipe-contracts.log",
+        "focused": "build/porting/tests-recipe-contract-focused-3.log",
+        "full": "build/porting/tests-recipe-contract-all-final.log",
+        "native_client": "build/porting/client-recipe-contract.log",
+        "reference_client": "build/porting/client-recipe-contract-reference.log",
+        "comparison": "build/porting/recipe-contract-comparison.json"
+      },
+      "coverage": [
+        "Actual crafting matching/output quantities for seven changed crafting recipes with wrong-material rejection.",
+        "Real cauldron matching distinguishes normal creeper, powered creeper, other mob and absent entity; rejects old iron plates and insufficient copper; normal crafting consumes both inputs for one empty capacitor.",
+        "Real procedural processing step checks five electric/burning heater states.",
+        "Source/native capacitor, empty capacitor and mixed guaranteed/probabilistic output layouts produce equal item/count/role metadata; paired screenshots confirm source geometry and slot styling."
+      ],
+      "limits": [
+        "Native component matcher JSON and saved-entity entity-list field differ from source serialization; comparisons normalize those representations and runtime tests verify behavior.",
+        "Initial local fixture/API imports and missing whitespace were repaired before final validation; focused behavior and final full checks passed.",
+        "Native vanilla lighting is retained. The known AnvilLib optional compute-shader compatibility messages still require separate rendering audit.",
+        "All tests, fixtures, comparison scripts, screenshots and logs remain local and ignored."
+      ]
+    },
+    "remaining": "Continue classifying the 111 remaining raw same-ID recipe differences: many use native ItemStackTemplate or component codec representations; spawner output and custom terminal behavior still require semantic review. Whole-port functionality/resource/rendering audit remains active."
   }
 }

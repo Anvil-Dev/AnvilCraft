@@ -62,14 +62,22 @@ public class RegistrumBlockRecipeLoader {
     }
 
     public static <T extends Block> void storageFluidPort(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-        ShapedRecipeBuilder.shaped(provider.getItems(), RecipeCategory.BUILDING_BLOCKS, ModBlocks.STORAGE_FLUID_PORT, 1)
+        HolderGetter<Item> lookup = provider.getItems();
+        ShapedRecipeBuilder.shaped(lookup, RecipeCategory.BUILDING_BLOCKS, ModBlocks.STORAGE_FLUID_PORT, 4)
             .pattern(" A ")
-            .pattern("BBB")
+            .pattern("BCD")
             .pattern(" A ")
             .define('A', Items.SHULKER_SHELL)
-            .define('B', ModBlocks.FLUID_TANK)
-            .unlockedBy(AnvilCraftDatagen.hasItem(Items.SHULKER_SHELL), AnvilCraftDatagen.has(provider.getItems(), Items.SHULKER_SHELL))
-            .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.FLUID_TANK), AnvilCraftDatagen.has(provider.getItems(), ModBlocks.FLUID_TANK))
+            .define('B', ModBlocks.PUMP)
+            .define('C', ModBlocks.FLUID_TANK)
+            .define('D', ModBlocks.ADVANCED_COMPARATOR)
+            .unlockedBy(AnvilCraftDatagen.hasItem(Items.SHULKER_SHELL), AnvilCraftDatagen.has(lookup, Items.SHULKER_SHELL))
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.PUMP), AnvilCraftDatagen.has(lookup, ModBlocks.PUMP))
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.FLUID_TANK), AnvilCraftDatagen.has(lookup, ModBlocks.FLUID_TANK))
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(ModBlocks.ADVANCED_COMPARATOR),
+                AnvilCraftDatagen.has(lookup, ModBlocks.ADVANCED_COMPARATOR)
+            )
             .save(provider);
     }
 
@@ -1269,7 +1277,7 @@ public class RegistrumBlockRecipeLoader {
 
     public static <T extends Block> void crate(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
         HolderGetter<Item> lookup = provider.getItems();
-        ShapedRecipeBuilder.shaped(lookup, RecipeCategory.TRANSPORTATION, ctx.get())
+        ShapedRecipeBuilder.shaped(lookup, RecipeCategory.BUILDING_BLOCKS, ctx.get(), 2)
             .pattern("AAA")
             .pattern("ABA")
             .pattern("AAA")
@@ -1428,7 +1436,7 @@ public class RegistrumBlockRecipeLoader {
             .pattern("BCB")
             .pattern("ABA")
             .define('A', Tags.Items.INGOTS_COPPER)
-            .define('B', Tags.Items.GLASS_BLOCKS)
+            .define('B', Blocks.GLASS)
             .define('C', ModBlocks.HOLLOW_MAGNET_BLOCK)
             .unlockedBy(
                 AnvilCraftDatagen.hasItem(ModBlocks.HOLLOW_MAGNET_BLOCK),

@@ -1,11 +1,12 @@
 package dev.dubhe.anvilcraft.integration.jei.category.anvil;
 
+import dev.anvilcraft.lib.v2.util.predicate.ChanceItemStack;
 import dev.anvilcraft.lib.v2.util.predicate.ItemIngredientPredicate;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.client.support.RenderSupport;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
-import dev.dubhe.anvilcraft.init.item.ModItemTags;
+import dev.dubhe.anvilcraft.init.item.ModDataComponentPredicates;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.integration.jei.AnvilCraftJeiPlugin;
@@ -15,7 +16,9 @@ import dev.dubhe.anvilcraft.integration.jei.util.JeiRecipeUtil;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiRenderHelper;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiSlotUtil;
 import dev.dubhe.anvilcraft.item.property.component.SavedEntity;
+import dev.dubhe.anvilcraft.item.property.predicate.ItemSavedEntityPredicate;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.ItemCompressRecipe;
+import dev.dubhe.anvilcraft.recipe.transform.NumericTagValuePredicate;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
 import mezz.jei.api.helpers.IGuiHelper;
@@ -24,27 +27,22 @@ import mezz.jei.api.recipe.RecipeIngredientRole;
 import mezz.jei.api.recipe.types.IRecipeHolderType;
 import mezz.jei.api.registration.IRecipeCatalystRegistration;
 import mezz.jei.api.registration.IRecipeRegistration;
-import mezz.jei.common.util.RegistryUtil;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
-import net.minecraft.core.HolderGetter;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.block.Blocks;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class ItemCompressCategory extends AbstractProgressCategory<ItemCompressRecipe> {
-    private static final String SUPERCAPACITOR = "item_compress/supercapacitor";
-    private static final String EMPTY_SUPERCAPACITOR = "item_compress/supercapacitor_empty";
-
     public ItemCompressCategory(IGuiHelper helper) {
         super(
             helper,
@@ -65,54 +63,60 @@ public class ItemCompressCategory extends AbstractProgressCategory<ItemCompressR
         IFocusGroup focuses
     ) {
         ItemCompressRecipe recipe = recipeHolder.value();
-        boolean powered = recipeHolder.id().identifier().getPath().equals(ItemCompressCategory.SUPERCAPACITOR);
-        boolean normal = recipeHolder.id().identifier().getPath().equals(ItemCompressCategory.EMPTY_SUPERCAPACITOR);
-        if (!powered && !normal) {
-            super.setRecipe(builder, recipeHolder, focuses);
-            return;
-        }
         List<ItemIngredientPredicate> inputs = recipe.getInputItems();
-        int inputSlotStartX = JeiSlotUtil.INPUT_X - JeiSlotUtil.OFFSET / 2;
-        JeiSlotUtil.addSlotWithCount(builder, inputSlotStartX, JeiSlotUtil.DEFAULT_Y, inputs.getFirst());
-        builder.addSlot(RecipeIngredientRole.INPUT, inputSlotStartX + JeiSlotUtil.OFFSET, JeiSlotUtil.DEFAULT_Y)
-            .add(ItemCompressCategory.resinWithCreeper(powered))
-            .addRichTooltipCallback((slotView, tooltip) ->
-                tooltip.add(Component.translatable(powered
-                                                   ? "gui.anvilcraft.category.item_compress.supercapacitor.resin"
-                                                   : "gui.anvilcraft.category.item_compress.supercapacitor_empty.resin")));
-        if (powered) {
-            builder.addSlot(RecipeIngredientRole.OUTPUT, JeiSlotUtil.OUTPUT_X, JeiSlotUtil.DEFAULT_Y)
-                .add(ModItems.SUPER_CAPACITOR.asStack())
-                .addRichTooltipCallback((slotView, tooltip) ->
-                    tooltip.add(Component.translatable("gui.anvilcraft.category.item_compress.supercapacitor.chance")));
-        } else {
-            JeiItemUtil.addDefaultOutputSlots(builder, recipe.getResultItems());
+        int size = inputs.size();
+        if (size > 0) {
+            int cols = (int) Math.ceil(Math.sqrt(size));
+            int rows = Math.ceilDiv(size, cols);
+            int startX = JeiSlotUtil.INPUT_X - (cols - 1) * JeiSlotUtil.OFFSET / 2;
+            int startY = JeiSlotUtil.DEFAULT_Y - (rows - 1) * JeiSlotUtil.OFFSET / 2;
+            for (int i = 0; i < size; i++) {
+                int x = startX + (i % cols) * JeiSlotUtil.OFFSET;
+                int y = startY + (i / cols) * JeiSlotUtil.OFFSET;
+                ItemIngredientPredicate input = inputs.get(i);
+                // getItems() 只保留 items/count/components，子谓词（如树脂块需封存苦力怕）无法表达，
+                // 这里按配方实际携带的子谓词补充示例物品与说明，而不是按配方 id 硬编码。
+                ItemStack sample = savedEntitySample(input);
+                if (sample == null) {
+                    builder.addSlot(RecipeIngredientRole.INPUT, x, y)
+                        .addItemStacks(java.util.Arrays.stream(input.getItems()).map(ItemStackTemplate::create).toList());
+                    continue;
+                }
+                boolean powered = isPoweredCreeperSample(input);
+                builder.addSlot(RecipeIngredientRole.INPUT, x, y)
+                    .add(sample)
+                    .addRichTooltipCallback((slotView, tooltip) ->
+                        tooltip.add(Component.translatable(powered
+                            ? "gui.anvilcraft.category.item_compress.supercapacitor.resin"
+                            : "gui.anvilcraft.category.item_compress.supercapacitor_empty.resin")));
+            }
         }
+        JeiItemUtil.addDefaultOutputSlots(builder, recipe.getResultItems());
     }
 
     @Override
     public void draw(
         RecipeHolder<ItemCompressRecipe> recipeHolder,
-        IRecipeSlotsView view,
-        GuiGraphicsExtractor graphics,
+        IRecipeSlotsView recipeSlotsView,
+        GuiGraphicsExtractor guiGraphics,
         double mouseX,
         double mouseY
     ) {
         final ItemCompressRecipe recipe = recipeHolder.value();
-        int anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(this.timer);
-        RenderSupport.renderBlock(graphics, Blocks.CAULDRON.defaultBlockState(), 71, 35, 20);
-        RenderSupport.renderBlock(graphics, Blocks.ANVIL.defaultBlockState(), 71, 17 + anvilYOffset, 20);
+        float anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(this.timer);
+        RenderSupport.renderBlockAt(guiGraphics, Blocks.CAULDRON.defaultBlockState(), 81, 40, 12);
+        RenderSupport.renderBlockAt(guiGraphics, Blocks.ANVIL.defaultBlockState(), 81, 22 + anvilYOffset, 12);
 
-        this.arrowIn.draw(graphics, 54, 30);
-        this.arrowOutFromBelow.draw(graphics, 92, 29);
+        this.arrowIn.draw(guiGraphics, 54, 30);
+        this.arrowOut.draw(guiGraphics, 92, 29);
 
-        JeiSlotUtil.drawDefaultInputSlots(graphics, this.slotDefault, recipe.getInputItems().size());
-        if (recipeHolder.id().identifier().getPath().equals(ItemCompressCategory.SUPERCAPACITOR)
-            || JeiRecipeUtil.isChance(recipe.getResultItems())) {
-            JeiSlotUtil.drawDefaultOutputSlots(graphics, this.slotProbability, recipe.getResultItems().size());
-        } else {
-            JeiSlotUtil.drawDefaultOutputSlots(graphics, this.slotDefault, recipe.getResultItems().size());
-        }
+        JeiSlotUtil.drawDefaultInputSlots(guiGraphics, this.slotDefault, recipe.getInputItems().size());
+        List<ChanceItemStack> results = recipe.getResultItems();
+        JeiSlotUtil.drawDefaultOutputSlots(
+            guiGraphics,
+            JeiRecipeUtil.outputSlotFor(results, this.slotDefault, this.slotProbability),
+            results.size()
+        );
     }
 
     public static void registerRecipes(IRecipeRegistration registration) {
@@ -120,22 +124,53 @@ public class ItemCompressCategory extends AbstractProgressCategory<ItemCompressR
             JeiRecipeUtil.getRecipeHoldersFromType(ModRecipeTypes.ITEM_COMPRESS.get())
         );
         recipes.add(new RecipeHolder<>(
-            ResourceKey.create(Registries.RECIPE, AnvilCraft.of(ItemCompressCategory.SUPERCAPACITOR)),
-            ItemCompressCategory.specialSupercapacitorRecipe()
+            ResourceKey.create(Registries.RECIPE, AnvilCraft.of("item_compress/supercapacitor")),
+            specialSupercapacitorRecipe()
         ));
         registration.addRecipes(
-            AnvilCraftJeiPlugin.ITEM_COMPRESS,
-            recipes
-        );
+            AnvilCraftJeiPlugin.ITEM_COMPRESS, recipes);
     }
 
     private static ItemCompressRecipe specialSupercapacitorRecipe() {
-        HolderGetter<Item> items = RegistryUtil.getRegistryAccess().lookupOrThrow(Registries.ITEM);
         return ItemCompressRecipe.builder()
-            .requires(items, ModItemTags.IRON_PLATES, 2)
-            .requires(ItemStackTemplate.fromNonEmptyStack(ItemCompressCategory.resinWithCreeper(true)))
-            .result(ModItems.SUPER_CAPACITOR)
+            .requires(Blocks.COPPER_BLOCK, 2)
+            .requires(ItemStackTemplate.fromNonEmptyStack(resinWithCreeper(true)))
+            // 数据配方中充能超电容是 in_world 配方（铁砧落下 50% 概率爆炸 / 50% 产出），
+            // 该 JEI 分类无法直接收集，这里以概率结果表达
+            .result(ModItems.SUPER_CAPACITOR, 0.5f)
             .buildRecipe();
+    }
+
+    /**
+     * 若配方输入要求树脂块封存指定生物（子谓词无法由 JEI 通用物品槽表达），
+     * 构造一个带封存实体组件的示例物品；否则返回 {@code null} 走通用渲染。
+     */
+    private static @Nullable ItemStack savedEntitySample(ItemIngredientPredicate input) {
+        var sub = input.components().partial().get(ModDataComponentPredicates.SAVED_ENTITY.get());
+        if (!(sub instanceof ItemSavedEntityPredicate savedEntity)) return null;
+        if (savedEntity.entities().isEmpty()) return null;
+        EntityType<?> type = savedEntity.entities().getFirst();
+        ItemStackTemplate[] items = input.getItems();
+        if (items.length == 0) return null;
+        ItemStack sample = items[0].create();
+        CompoundTag entityTag = new CompoundTag();
+        boolean powered = savedEntity.predicates().stream().anyMatch(predicate ->
+            predicate.tagKeyPath().equals("powered")
+                && predicate.requirement() == NumericTagValuePredicate.ValueFunction.GREATER_OR_EQUAL
+                && predicate.expected() >= 1);
+        entityTag.putBoolean("powered", powered);
+        sample.set(ModComponents.SAVED_ENTITY, new SavedEntity(type, entityTag, true));
+        sample.setCount(items[0].count());
+        return sample;
+    }
+
+    private static boolean isPoweredCreeperSample(ItemIngredientPredicate input) {
+        var sub = input.components().partial().get(ModDataComponentPredicates.SAVED_ENTITY.get());
+        if (!(sub instanceof ItemSavedEntityPredicate savedEntity)) return false;
+        return savedEntity.predicates().stream().anyMatch(predicate ->
+            predicate.tagKeyPath().equals("powered")
+                && predicate.requirement() == NumericTagValuePredicate.ValueFunction.GREATER_OR_EQUAL
+                && predicate.expected() >= 1);
     }
 
     private static ItemStack resinWithCreeper(boolean powered) {
