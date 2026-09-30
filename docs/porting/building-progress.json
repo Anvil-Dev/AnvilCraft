@@ -5406,5 +5406,98 @@
       "anvilcraft:jewel_crafting/generated/minecraft_silence_armor_trim_smithing_template_from_minecraft_silence_armor_trim_smithing_template_for_trim_templates"
     ],
     "remaining": "Port jewel-crafting recipe format, output selection, vanishing-curse semantics, generated banner/music/trim families and connected UI/entity consumers as a coherent subsystem. Continue the broader recipe catalogue and handbook font/layout/export audits."
+  },
+  "jewel_crafting_source_parity_2026_09_30": {
+    "source_commit": "cca4b2aac5328926fa88bc01d958d007ff6bfc2a",
+    "status": "implemented_and_verified",
+    "implementation": [
+      "Port fixed recipe outputs, repeated vanilla ingredients grouped into at most four material slots, and the source has_vanishing_curse field with default true.",
+      "Select recipes by prototype item; assemble fresh declared outputs without cloning prototype count, custom name or components. Apply the curse only when the selected recipe requests it.",
+      "Restore source grouped input filtering, material deduction and autofill from partial inventory stacks; keep prototypes unconsumed.",
+      "Restore generated banner-pattern, music-disc, pottery-sherd and armor-trim-template recipe families without vanishing curse.",
+      "Resolve native trim templates from actual SmithingTrimRecipe inputs, since 26.1 no longer stores the old template-item link in TrimPattern.",
+      "Generate after item components bind at finalizeRecipeLoading, preserving existing recipe IDs and avoiding duplicate insertion.",
+      "Update static data, JEI slots and handbook components to use declared outputs and grouped ingredient counts; remove source-removed golden-apple and generic duplication recipes."
+    ],
+    "validation": {
+      "focused_required_tests": 6,
+      "full_required_tests": 781,
+      "source_matching_static_recipes": 18,
+      "paired_menu_cases": 12,
+      "commands": [
+        "./gradlew.bat -PportValidation -I dev/porting/jewel-source.gradle compileJava runData runGameTestServer --console=plain",
+        "./gradlew.bat -PportValidation -I dev/porting/jewel-client.gradle -I dev/porting/checkstyle.gradle compileJava runGameTestServer runClient checkPortJava --console=plain",
+        "python dev/porting/prepare_jewel_reference.py",
+        "./gradlew.bat runClient --console=plain (reference checkout)",
+        "./gradlew.bat -PportValidation -I dev/porting/handbook-pages-client.gradle runClient --console=plain",
+        "./gradlew.bat -PportValidation runData --console=plain",
+        "python dev/porting/verify_jewel_source.py",
+        "python dev/porting/verify_handbook_resources.py",
+        "git diff --check"
+      ],
+      "logs": {
+        "focused": "build/porting/tests-jewel-source-focused-4.log",
+        "full_and_client": "build/porting/tests-jewel-all-client.log",
+        "source_client": "build/porting/client-jewel-source-reference.log",
+        "handbook": "build/porting/client-jewel-handbook.log",
+        "final_data": "build/porting/data-jewel-source-final.log"
+      },
+      "report": "build/porting/jewel-source-comparison.json",
+      "coverage": [
+        "All 18 generated static recipe definitions match source after native ingredient/count-format normalization.",
+        "Generated-family availability, template/material distinction, stable unique generator IDs, unordered matching and insufficient materials.",
+        "JSON default/explicit curse flags and network round-trip of output, grouped ingredients and curse state.",
+        "Real server menus retain the prototype, reject unrelated recipe selection, avoid prototype-data copying, apply default curses and consume exact batch costs.",
+        "Autofill combines two partial stacks for each 64-block heavy-core ingredient.",
+        "Two real clients show six representative recipes in empty-hint and filled-output states; all 12 metadata records match exactly.",
+        "Menu and handbook GUI texture bytes match source. Paired screenshots inspected; RGB panel metrics retained in the report.",
+        "Full handbook audit now has no native-only missing recipe or item references; only the inherited JEI pseudo-recipe reference remains."
+      ],
+      "panel_metrics": {
+        "0": {
+          "panel_mean_rgb_error": 0.3818341548010223
+        },
+        "1": {
+          "panel_mean_rgb_error": 0.713319185834246
+        },
+        "2": {
+          "panel_mean_rgb_error": 0.06560332238043082
+        },
+        "3": {
+          "panel_mean_rgb_error": 0.07834748083242059
+        },
+        "4": {
+          "panel_mean_rgb_error": 0.059989959839357426
+        },
+        "5": {
+          "panel_mean_rgb_error": 0.06878650967506389
+        },
+        "6": {
+          "panel_mean_rgb_error": 0.06086847389558233
+        },
+        "7": {
+          "panel_mean_rgb_error": 0.06850127783862724
+        },
+        "8": {
+          "panel_mean_rgb_error": 0.0685212440671778
+        },
+        "9": {
+          "panel_mean_rgb_error": 0.12429832968236583
+        },
+        "10": {
+          "panel_mean_rgb_error": 0.3499366785323111
+        },
+        "11": {
+          "panel_mean_rgb_error": 0.13734483388097846
+        }
+      },
+      "limits": [
+        "The focused command passed six tests but initially failed style checks in fixtures; the later full combined run passed compilation, tests, client and Checkstyle.",
+        "Native vanilla prototype stack limits apply; the batch test checks retention of the accepted count rather than forcing an invalid oversized banner-pattern stack.",
+        "Actual JEI category clicking/transfer is not covered by the menu screenshots. Native item lighting, ghost rendering and glint can differ from source pixels.",
+        "Native component/trim-recipe-based discovery replaces source-only Java APIs while retaining source generation intent; broader third-party integration is not claimed."
+      ]
+    },
+    "remaining": "Continue the full recipe catalogue and handbook framework font/layout/structure-export audit. The inherited anvilcraft:jei/solid_liquid/enchanted_gold_ingot handbook reference is still not a server recipe. Whole-goal completion remains unproven."
   }
 }

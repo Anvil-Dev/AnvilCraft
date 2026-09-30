@@ -10,6 +10,7 @@ import dev.anvilcraft.resource.ageratum.client.feat.markdown.MDRenderContext;
 import dev.anvilcraft.resource.ageratum.util.RecipeUtil;
 import dev.dubhe.anvilcraft.block.multipart.IMultiPartBlockModelHolder;
 import dev.dubhe.anvilcraft.client.support.RenderSupport;
+import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.renderer.RenderPipelines;
@@ -178,6 +179,13 @@ public class AgeratumUtil {
         int y
     ) {
         AgeratumUtil.renderItemWithoutSlot(context, displaying.create(), mouseX, mouseY, x, y);
+    }
+
+    public static void renderItemWithoutSlot(
+        MDRenderContext context, Object2IntMap.Entry<Ingredient> displaying, float mouseX, float mouseY, int x, int y
+    ) {
+        AgeratumUtil.renderItemWithoutSlot(context,
+            RecipeUtil.getDisplayItem(displaying.getKey()).copyWithCount(displaying.getIntValue()), mouseX, mouseY, x, y);
     }
 
     public static void renderItemWithoutSlot(MDRenderContext context, Ingredient displaying, float mouseX, float mouseY, int x, int y) {

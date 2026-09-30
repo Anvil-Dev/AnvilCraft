@@ -206,6 +206,7 @@ allprojects {
             include '**/PowerGridSupport.java', '**/SubmitGeometryEventListener.java'
             include '**/CannedFoodItem.java', '**/StoredItem.java', '**/ItemDefaultComponentsEventListener.java'
             include '**/CursedGoldBlock.java', '**/CursedGoldEnchantPowerProvider.java'
+            include '**/Jewel*.java', '**/MDJewelCraftingRecipeComponent.java', '**/RecipeManagerMixin.java'
             include '**/JadeLang.java', '**/AnvilCraftJadePlugin.java', '**/ModBlocks.java'
             include '**/CursedGoldenAppleItem.java', '**/ModFoodItems.java', '**/ModFoods.java'
             include '**/init/item/tabs/*.java', '**/ModItemGroups.java', '**/CreativeTabLang.java'

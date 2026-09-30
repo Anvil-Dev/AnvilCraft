@@ -1,11 +1,11 @@
 package dev.dubhe.anvilcraft.mixin;
 
-import com.llamalad7.mixinextras.sugar.Local;
 import dev.dubhe.anvilcraft.recipe.anvil.procedural.ProceduralProcessStepManager;
 import dev.dubhe.anvilcraft.recipe.generate.JewelCraftingRecipeGeneratingCache;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.util.profiling.ProfilerFiller;
+import net.minecraft.world.flag.FeatureFlagSet;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.item.crafting.RecipeMap;
@@ -15,9 +15,9 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import java.util.List;
+import java.util.ArrayList;
+import java.util.HashSet;
 
 @Mixin(RecipeManager.class)
 abstract class RecipeManagerMixin {
@@ -25,22 +25,19 @@ abstract class RecipeManagerMixin {
     @Final
     private HolderLookup.Provider registries;
 
-    @Inject(
-        method = "prepare("
-                 + "Lnet/minecraft/server/packs/resources/ResourceManager;"
-                 + "Lnet/minecraft/util/profiling/ProfilerFiller;)"
-                 + "Lnet/minecraft/world/item/crafting/RecipeMap;",
-        at = @At(value = "INVOKE", target = "Ljava/util/SortedMap;forEach(Ljava/util/function/BiConsumer;)V")
-    )
-    private void beforeBuildRecipe(
-        ResourceManager manager,
-        ProfilerFiller profiler,
-        CallbackInfoReturnable<RecipeMap> cir,
-        @Local(name = "recipeHolders") List<RecipeHolder<?>> recipeHolders
-    ) {
-        new JewelCraftingRecipeGeneratingCache(this.registries)
-            .buildRecipes()
-            .ifPresent(recipeHolders::addAll);
+    @Shadow
+    private RecipeMap recipes;
+
+    @Inject(method = "finalizeRecipeLoading", at = @At("HEAD"))
+    private void appendJewelRecipes(FeatureFlagSet flags, CallbackInfo ci) {
+        var values = new ArrayList<RecipeHolder<?>>(this.recipes.values());
+        var ids = new HashSet<>(values.stream().map(RecipeHolder::id).toList());
+        new JewelCraftingRecipeGeneratingCache(this.registries, values).buildRecipes().ifPresent(generated -> {
+            for (var recipe : generated) {
+                if (ids.add(recipe.id())) values.add(recipe);
+            }
+        });
+        this.recipes = RecipeMap.create(values);
     }
 
     @Inject(

@@ -1,19 +1,29 @@
 {
   "type": "anvilcraft:jewel_crafting",
   "ingredients": [
-    {
-      "items": "anvilcraft:silver_ingot"
-    },
-    {
-      "count": 16,
-      "items": "minecraft:spider_eye"
-    },
-    {
-      "count": 4,
-      "items": "minecraft:armadillo_scute"
-    }
+    "anvilcraft:silver_ingot",
+    "minecraft:spider_eye",
+    "minecraft:spider_eye",
+    "minecraft:spider_eye",
+    "minecraft:spider_eye",
+    "minecraft:spider_eye",
+    "minecraft:spider_eye",
+    "minecraft:spider_eye",
+    "minecraft:spider_eye",
+    "minecraft:spider_eye",
+    "minecraft:spider_eye",
+    "minecraft:spider_eye",
+    "minecraft:spider_eye",
+    "minecraft:spider_eye",
+    "minecraft:spider_eye",
+    "minecraft:spider_eye",
+    "minecraft:spider_eye",
+    "minecraft:armadillo_scute",
+    "minecraft:armadillo_scute",
+    "minecraft:armadillo_scute",
+    "minecraft:armadillo_scute"
   ],
-  "source": {
-    "items": "anvilcraft:armadillo_amulet"
+  "result": {
+    "id": "anvilcraft:armadillo_amulet"
   }
 }

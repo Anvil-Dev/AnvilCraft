@@ -1,25 +1,27 @@
 package dev.dubhe.anvilcraft.client.markdown.recipe;
 
-import dev.anvilcraft.lib.v2.util.predicate.ItemIngredientPredicate;
 import dev.anvilcraft.resource.ageratum.client.feat.markdown.MDRenderContext;
 import dev.anvilcraft.resource.ageratum.client.feat.markdown.component.extend.MDRecipeComponent;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.recipe.JewelCraftingRecipe;
 import dev.dubhe.anvilcraft.util.AgeratumUtil;
+import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import net.minecraft.resources.Identifier;
+import net.minecraft.world.item.ItemStackTemplate;
+import net.minecraft.world.item.crafting.Ingredient;
 
 import java.util.List;
 
 public class MDJewelCraftingRecipeComponent extends MDRecipeComponent {
     public static final Identifier TEXTURE = AnvilCraft.of("textures/gui/ageratum/jewelcrafting_table.png");
 
-    private final ItemIngredientPredicate result;
-    private final List<ItemIngredientPredicate> ingredients;
+    private final ItemStackTemplate result;
+    private final List<Object2IntMap.Entry<Ingredient>> ingredients;
 
     public MDJewelCraftingRecipeComponent(JewelCraftingRecipe recipe, boolean enableAlignCenter) {
         super(MDJewelCraftingRecipeComponent.TEXTURE, 142, 62, enableAlignCenter);
-        this.result = recipe.source();
-        this.ingredients = recipe.ingredients();
+        this.result = recipe.result();
+        this.ingredients = recipe.mergedIngredients();
     }
 
     @Override

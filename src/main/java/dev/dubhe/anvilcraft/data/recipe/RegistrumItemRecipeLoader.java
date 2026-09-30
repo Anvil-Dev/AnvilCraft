@@ -699,7 +699,7 @@ public class RegistrumItemRecipeLoader {
         return (ctx, provider) -> {
             JewelCraftingRecipe.Builder builder = JewelCraftingRecipe.builder(provider.getItems())
                 .requires(ModItems.SILVER_INGOT, 1)
-                .source(ctx.get());
+                .result(ctx.get());
             builderConsumer.accept(builder);
             builder.save(provider, ctx.getName());
         };

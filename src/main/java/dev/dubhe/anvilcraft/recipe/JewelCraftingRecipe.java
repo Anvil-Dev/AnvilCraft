@@ -1,22 +1,24 @@
 package dev.dubhe.anvilcraft.recipe;
 
+import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import dev.anvilcraft.lib.v2.util.predicate.ItemIngredientPredicate;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.recipe.anvil.builder.AbstractRecipeBuilder;
 import dev.dubhe.anvilcraft.recipe.anvil.input.IItemsInput;
+import dev.dubhe.anvilcraft.util.RecipeUtil;
+import it.unimi.dsi.fastutil.objects.Object2IntMap;
+import lombok.Getter;
 import lombok.Setter;
-import lombok.SneakyThrows;
 import lombok.experimental.Accessors;
 import net.minecraft.core.HolderGetter;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.Identifier;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemStackTemplate;
+import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.PlacementInfo;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeBookCategories;
@@ -27,43 +29,44 @@ import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.common.conditions.ICondition;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public record JewelCraftingRecipe(
-    List<ICondition> conditions,
-    ItemIngredientPredicate source,
-    List<ItemIngredientPredicate> ingredients
-) implements Recipe<JewelCraftingRecipe.Input> {
+@Getter
+@Accessors(fluent = true)
+public final class JewelCraftingRecipe implements Recipe<JewelCraftingRecipe.Input> {
+    private final List<ICondition> conditions;
+    private final List<Ingredient> ingredients;
+    private final ItemStackTemplate result;
+    private final boolean hasVanishingCurse;
+    private final List<Object2IntMap.Entry<Ingredient>> mergedIngredients;
+
     public static final RecipeSerializer<JewelCraftingRecipe> SERIALIZER = new RecipeSerializer<>(
-        RecordCodecBuilder.mapCodec(ins -> ins.group(
-            ICondition.LIST_CODEC
-                .optionalFieldOf("neoforge:conditions", new ArrayList<>())
-                .forGetter(JewelCraftingRecipe::conditions),
-            ItemIngredientPredicate.CODEC
-                .fieldOf("source")
-                .forGetter(JewelCraftingRecipe::source),
-            ItemIngredientPredicate.CODEC
-                .listOf(0, 4)
-                .fieldOf("ingredients")
-                .forGetter(JewelCraftingRecipe::ingredients)
-        ).apply(ins, JewelCraftingRecipe::new)),
+        RecordCodecBuilder.mapCodec(instance -> instance.group(
+            ICondition.LIST_CODEC.optionalFieldOf("neoforge:conditions", List.of()).forGetter(JewelCraftingRecipe::conditions),
+            Ingredient.CODEC.listOf(1, 256).fieldOf("ingredients").forGetter(JewelCraftingRecipe::ingredients),
+            ItemStackTemplate.CODEC.fieldOf("result").forGetter(JewelCraftingRecipe::result),
+            Codec.BOOL.optionalFieldOf("has_vanishing_curse", true).forGetter(JewelCraftingRecipe::hasVanishingCurse)
+        ).apply(instance, JewelCraftingRecipe::new)),
         StreamCodec.composite(
-            ItemIngredientPredicate.STREAM_CODEC,
-            JewelCraftingRecipe::source,
-            ItemIngredientPredicate.STREAM_CODEC.apply(ByteBufCodecs.list(4)),
-            JewelCraftingRecipe::ingredients,
-            JewelCraftingRecipe::new
+            Ingredient.CONTENTS_STREAM_CODEC.apply(ByteBufCodecs.list(256)), JewelCraftingRecipe::ingredients,
+            ItemStackTemplate.STREAM_CODEC, JewelCraftingRecipe::result,
+            ByteBufCodecs.BOOL, JewelCraftingRecipe::hasVanishingCurse,
+            (ingredients, result, curse) -> new JewelCraftingRecipe(List.of(), ingredients, result, curse)
         )
     );
 
-    public JewelCraftingRecipe {
-        if (ingredients.size() > 4) throw new IllegalArgumentException("Too many different ingredients");
-    }
-
-    public JewelCraftingRecipe(ItemIngredientPredicate source, List<ItemIngredientPredicate> ingredients) {
-        this(List.of(), source, ingredients);
+    public JewelCraftingRecipe(List<ICondition> conditions, List<Ingredient> ingredients, ItemStackTemplate result, boolean curse) {
+        this.conditions = List.copyOf(conditions);
+        this.ingredients = List.copyOf(ingredients);
+        this.result = result;
+        this.hasVanishingCurse = curse;
+        this.mergedIngredients = RecipeUtil.mergeIngredient(ingredients);
+        if (ingredients.isEmpty() || ingredients.size() > 256 || this.mergedIngredients.size() > 4) {
+            throw new IllegalArgumentException("Jewel recipes require 1-256 ingredients in at most four groups");
+        }
     }
 
     public static Builder builder(HolderGetter<Item> items) {
@@ -87,25 +90,17 @@ public record JewelCraftingRecipe(
 
     @Override
     public RecipeSerializer<JewelCraftingRecipe> getSerializer() {
-        return JewelCraftingRecipe.SERIALIZER;
+        return SERIALIZER;
     }
 
     @Override
     public ItemStack assemble(Input input) {
-        return input.source;
+        return this.result.create();
     }
 
     @Override
     public boolean matches(Input input, Level level) {
-        if (!this.source.test(input.source)) return false;
-        if (input.size() < this.ingredients.size()) return false;
-        for (int i = 0; i < this.ingredients.size(); i++) {
-            if (!this.ingredients.get(i).test(input.getItem(i))) return false;
-        }
-        for (int i = this.ingredients.size(); i < input.size(); i++) {
-            if (!input.getItem(i).isEmpty()) return false;
-        }
-        return true;
+        return RecipeUtil.getMaxCraftTime(input, this.ingredients) >= 1;
     }
 
     @Override
@@ -140,8 +135,9 @@ public record JewelCraftingRecipe(
     public static class Builder extends AbstractRecipeBuilder<JewelCraftingRecipe> {
         private final HolderGetter<Item> items;
         private final List<ICondition> conditions = new ArrayList<>();
-        private ItemIngredientPredicate source = null;
-        private final List<ItemIngredientPredicate> ingredients = new ArrayList<>();
+        private final List<Ingredient> ingredients = new ArrayList<>();
+        private @Nullable ItemStackTemplate result;
+        private boolean hasVanishingCurse = true;
 
         public Builder(HolderGetter<Item> items) {
             this.items = items;
@@ -152,13 +148,17 @@ public record JewelCraftingRecipe(
             return this;
         }
 
-        public Builder requires(ItemIngredientPredicate.Builder ingredient) {
-            this.ingredients.add(ingredient.build());
+        public Builder requires(Ingredient ingredient, int count) {
+            for (int i = 0; i < count; i++) this.ingredients.add(ingredient);
             return this;
         }
 
+        public Builder requires(Ingredient ingredient) {
+            return this.requires(ingredient, 1);
+        }
+
         public Builder requires(ItemLike item, int count) {
-            return this.requires(ItemIngredientPredicate.of(item).withCount(count));
+            return this.requires(Ingredient.of(item), count);
         }
 
         public Builder requires(ItemLike item) {
@@ -166,35 +166,31 @@ public record JewelCraftingRecipe(
         }
 
         public Builder requires(TagKey<Item> tag, int count) {
-            return this.requires(ItemIngredientPredicate.of(this.items, tag).withCount(count));
+            return this.requires(Ingredient.of(this.items.getOrThrow(tag)), count);
         }
 
         public Builder requires(TagKey<Item> tag) {
             return this.requires(tag, 1);
         }
 
-        public Builder source(ItemIngredientPredicate.Builder source) {
-            this.source = source.build();
+        public Builder result(ItemStack stack) {
+            this.result = ItemStackTemplate.fromNonEmptyStack(stack);
             return this;
         }
 
-        public Builder source(ItemLike... sources) {
-            return this.source(ItemIngredientPredicate.of(sources));
+        public Builder result(ItemLike item) {
+            this.result = new ItemStackTemplate(item.asItem());
+            return this;
         }
 
         @Override
         public JewelCraftingRecipe buildRecipe() {
-            return new JewelCraftingRecipe(this.conditions, this.source, this.ingredients);
+            return new JewelCraftingRecipe(this.conditions, this.ingredients, this.getResult(), this.hasVanishingCurse);
         }
 
         @Override
         public void validate(Identifier id) {
-            if (this.source == null) {
-                throw new IllegalArgumentException("Recipe result must not be empty, RecipeId: " + id);
-            }
-            if (this.ingredients.isEmpty() || this.ingredients.size() > 4) {
-                throw new IllegalArgumentException("Recipe ingredients size must in 1-4, RecipeId: " + id);
-            }
+            this.buildRecipe();
         }
 
         @Override
@@ -203,16 +199,9 @@ public record JewelCraftingRecipe(
         }
 
         @Override
-        @SneakyThrows
         public ItemStackTemplate getResult() {
-            throw new IllegalAccessException("Could not invoke 'JewelCraftingRecipe$Builder#getResult()'");
-        }
-
-        @Override
-        @SneakyThrows
-        public ResourceKey<Recipe<?>> defaultId() {
-            throw new IllegalAccessException("Could not invoke 'JewelCraftingRecipe$Builder#defaultId()'");
+            if (this.result == null) throw new IllegalStateException("Jewel recipe result must not be empty");
+            return this.result;
         }
     }
-
 }
