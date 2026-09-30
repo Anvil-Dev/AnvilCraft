@@ -1,9 +1,18 @@
 package dev.dubhe.anvilcraft.util.registrater;
 
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
+import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 
 public class PropertiesProviderUtil {
+    public static BlockBehaviour.Properties metalSound(BlockBehaviour.Properties properties) {
+        return properties.sound(SoundType.METAL);
+    }
+
+    public static SoundType metalSound(SoundType sound) {
+        return sound == SoundType.IRON ? SoundType.METAL : sound;
+    }
+
     public static BlockBehaviour.Properties confinedAnvilon(BlockBehaviour.Properties properties) {
         return properties
             .lightLevel(_ -> 15)

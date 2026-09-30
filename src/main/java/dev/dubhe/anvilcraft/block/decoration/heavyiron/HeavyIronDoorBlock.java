@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.block.decoration.heavyiron;
 
 import dev.dubhe.anvilcraft.api.hammer.IHammerChangeable;
 import dev.dubhe.anvilcraft.item.tool.AnvilHammerItem;
+import dev.dubhe.anvilcraft.util.registrater.PropertiesProviderUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.sounds.SoundSource;
@@ -13,6 +14,7 @@ import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.DoorBlock;
+import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockSetType;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
@@ -25,6 +27,11 @@ import org.jspecify.annotations.Nullable;
 public class HeavyIronDoorBlock extends DoorBlock implements IHammerChangeable {
     public HeavyIronDoorBlock(Properties properties) {
         super(BlockSetType.IRON, properties);
+    }
+
+    @Override
+    protected SoundType getSoundType(BlockState state) {
+        return PropertiesProviderUtil.metalSound(super.getSoundType(state));
     }
 
     @Override

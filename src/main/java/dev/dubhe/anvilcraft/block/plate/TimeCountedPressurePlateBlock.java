@@ -2,11 +2,13 @@ package dev.dubhe.anvilcraft.block.plate;
 
 import dev.dubhe.anvilcraft.block.entity.plate.TimeCountedPressurePlateBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
+import dev.dubhe.anvilcraft.util.registrater.PropertiesProviderUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.PressurePlateBlock;
+import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -29,6 +31,11 @@ public class TimeCountedPressurePlateBlock extends PressurePlateBlock implements
                 .setValue(TimeCountedPressurePlateBlock.POWER, 0)
                 .setValue(BlockStateProperties.POWERED, false)
         );
+    }
+
+    @Override
+    protected SoundType getSoundType(BlockState state) {
+        return PropertiesProviderUtil.metalSound(super.getSoundType(state));
     }
 
     @Override

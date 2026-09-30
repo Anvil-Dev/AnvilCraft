@@ -6514,5 +6514,43 @@
       ]
     },
     "remaining": "Continue the 110 default block-sound differences, non-default and context-dependent block states, and broader source-only Java/resource/rendering audits. Whole-port completion remains unproven."
+  },
+  "block_base_sound_parity_2026_10_01": {
+    "source_commit": "cca4b2aac5328926fa88bc01d958d007ff6bfc2a",
+    "status": "implemented_and_verified",
+    "implementation": [
+      "Restore the source generic metal sound for mod iron-based block registrations using the shared PropertiesProviderUtil mapping; derived mod blocks inherit the corrected default.",
+      "Apply the same sound mapping to heavy iron doors/trapdoors and both pressure-plate bases because vanilla constructors replace the supplied property sound with BlockSetType sound.",
+      "Keep original BlockSetType identity, interaction flags, opening/closing/click events and vanilla blocks unchanged; only mod base surface sound selection is adjusted."
+    ],
+    "validation": {
+      "source_blocks": 416,
+      "native_blocks": 416,
+      "restored_sound_configurations": 110,
+      "commands": [
+        "./gradlew.bat -PportValidation -I dev/porting/checkstyle.gradle -I dev/porting/block-defaults-client.gradle compileJava checkPortJava runClient --console=plain",
+        "python dev/porting/verify_block_sound_parity.py",
+        "python dev/porting/verify_block_physical_parity.py",
+        "git diff --check"
+      ],
+      "logs": {
+        "final": "build/porting/verify-block-sound-final-2.log",
+        "sound_comparison": "build/porting/block-sound-parity-result.json",
+        "assets": "build/porting/metal-sound-assets-parity.json",
+        "physical_comparison": "build/porting/block-physical-parity-result.json"
+      },
+      "coverage": [
+        "Actual client registry snapshots match all five base sound event IDs plus volume and pitch for all 416 source blocks; 110 previous metal-to-iron differences are resolved.",
+        "Physical default parity remains intact, with the previously documented Ruins and trading-station state adapters.",
+        "Asset indexes 17 and 30 select the same sound-choice lists for the five metal events. Native OGG assets and the added native fall subtitle are retained.",
+        "Final compile, Checkstyle and normal client capture pass; no generated resources changed."
+      ],
+      "limits": [
+        "The first client pass isolated four copper pressure plates on the separate TimeCountedPressurePlateBlock path; the final pass covers that base too. Two import-order warnings were corrected before final validation.",
+        "Vanilla audio file hashes differ between versions, so byte-identical audio or a listening comparison is not claimed. This restores mod sound event selection and parameters while using native game audio resources.",
+        "All comparison scripts and captures remain local and ignored; no new tests were committed."
+      ]
+    },
+    "remaining": "Continue non-default/context-dependent block-state behavior and broader source-only Java/resource/rendering audits. Whole-port completion remains unproven."
   }
 }
