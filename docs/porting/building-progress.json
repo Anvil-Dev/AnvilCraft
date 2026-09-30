@@ -4740,5 +4740,57 @@
       "3e8080006 civilization catalyst resources",
       "cca4b2aac gas rendering, pipe network and interactions"
     ]
+  },
+  "source_update_3e8080006_assets": {
+    "source_commit": "3e80800061a28dbf639ccd013408e3a6b3e71b77",
+    "status": "source_resources_copied_and_native_bake_reload_verified",
+    "resources": [
+      "models/block/celestial_forging_anvil_ring_1_monolith.json",
+      "textures/block/celestial_forging_anvil_rings.png",
+      "textures/item/civilization_catalyst.png"
+    ],
+    "scope": "The source commit adds assets only. The catalyst texture and monolith ring have no gameplay registration or code consumer in the observed source branch; this node preserves that scope.",
+    "verification": {
+      "source_resources_byte_identical": 3,
+      "baked_monolith_ring_faces": 136,
+      "resource_loads": 2,
+      "shared_ring_texture_changed_pixels": 88,
+      "texture_dimensions": {
+        "rings": [
+          64,
+          64
+        ],
+        "catalyst": [
+          16,
+          16
+        ]
+      },
+      "commands": [
+        "./gradlew.bat -PportValidation runData --console=plain",
+        "./gradlew.bat -PportValidation -PportCfaItemScene -I dev/porting/civilization-assets.gradle -I dev/porting/checkstyle.gradle compileJava runClient checkPortJava --console=plain",
+        "python dev/porting/verify_civilization_assets.py",
+        "git diff --check"
+      ],
+      "data_log": "build/porting/data-civilization-assets.log",
+      "client_log": "build/porting/client-civilization-assets.log",
+      "client_report": "run/port-validation/client/civilization-assets-26.1.json",
+      "client_markers": [
+        "PORT_CIVILIZATION_ASSETS_PASSED",
+        "PORT_CFA_ITEM_RENDER_PASSED"
+      ],
+      "generated_resource_changes": 0,
+      "coverage": [
+        "All three packaged resources match the source bytes after initial load and reload.",
+        "Both PNGs decode; the new model bakes all expected faces with valid shared-ring/top materials.",
+        "Existing CFA item gallery, main/offhand, head context, resource reload and fallback-atmosphere scenes complete with the updated shared ring texture."
+      ],
+      "limits": [
+        "The unreferenced new model is registered for baking only in the development probe; no new gameplay feature is invented.",
+        "CFA screenshots are native-renderer regressions, not a new whole-image 1.21 parity claim."
+      ]
+    },
+    "remaining_source_updates": [
+      "cca4b2aac gas rendering, pipe network and interactions"
+    ]
   }
 }
