@@ -4,6 +4,7 @@ import dev.dubhe.anvilcraft.api.anvil.IAnvilBehavior;
 import dev.dubhe.anvilcraft.api.event.AnvilEvent;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModItems;
+import dev.dubhe.anvilcraft.util.TriggerUtil;
 import it.unimi.dsi.fastutil.ints.Int2DoubleOpenHashMap;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
@@ -52,6 +53,7 @@ public class BeaconConversionBehavior implements IAnvilBehavior {
                     if (beaconLevel == i) {
                         if (level.getRandom().nextDouble() < BeaconConversionBehavior.map.get(i)) {
                             level.setBlockAndUpdate(hitBlockPos, ModBlocks.CORRUPTED_BEACON.getDefaultState());
+                            TriggerUtil.convertBeacon(level, hitBlockPos);
                             return true;
                         }
                     }
