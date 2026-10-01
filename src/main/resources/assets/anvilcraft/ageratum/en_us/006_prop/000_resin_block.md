@@ -23,6 +23,10 @@ e.g., villagers can be captured; zombies need the Weakness effect applied to be 
 Creatures inside a <ref item="minecraft:spawner"/> can be captured, but cannot be released back
 </warning>
 
+<info>
+If the capture fails, the target creature will be pulled slightly
+</info>
+
 - Can be automated using a <ref item="minecraft:dispenser"/>
 
 # Resentment Value

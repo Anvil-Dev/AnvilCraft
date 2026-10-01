@@ -53,7 +53,7 @@ public class AnvilCraftClientConfig {
     @Comment("Fold 16-color item families into one representative item with a right-click variant picker in the creative inventory")
     public boolean creativeVariantPickerEnabled = false;
 
-    @Comment("Enable ground heave shockwave particles and sound when giant anvil triggers shock mechanism")
+    @Comment("Enable ground heave shockwave particles and block bounce animation when giant anvil triggers shock mechanism")
     public boolean groundHeaveParticlesEnabled = true;
 
     @Comment("Number of particles per block spawned by ground heave effect")
@@ -67,6 +67,9 @@ public class AnvilCraftClientConfig {
     @SerializedName("Display Redstone EMP Particles")
     @Comment("Enable redstone EMP particle effects")
     public boolean displayRedstoneEmpParticles = true;
+
+    @Comment("Should show anvil levitate animation")
+    public boolean displayAnvilAnimation = true;
 
     @Comment("Render lines between power transmitters")
     public boolean renderPowerTransmitterLines = true;

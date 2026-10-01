@@ -22,8 +22,12 @@ items:
 
 1. Craft <ref item="anvilcraft:impact_pile"/>
 2. Place <ref item="anvilcraft:impact_pile"/> on <ref item="minecraft:bedrock"/> or <ref item="minecraft:deepslate"/>, and ensure its position is **no higher than** 8 blocks above the world bottom
-3. Drop a **fully intact** <ref item="minecraft:anvil"/> from a height of at least 20 blocks onto it
+3. Strike it with any *anvil* dropped from a height of at least 20 blocks
 4. Eventually, both <ref item="anvilcraft:impact_pile"/> and <ref item="minecraft:anvil"/> will disappear, and a structure containing <ref item="anvilcraft:mineral_fountain"/>, <ref item="anvilcraft:sturdy_deepslate"/>, and lava will be generated
+
+<info>
+Generally, do not use a <ref item="minecraft:damaged_anvil"/>; it will disappear immediately
+</info>
 
 <info>
 The height at which the <ref item="anvilcraft:mineral_fountain"/> is generated is fixed at world minimum height + 5
@@ -78,6 +82,10 @@ Raw ore blocks can be obtained through <ref item="anvilcraft:corrupted_beacon"/>
 <structure id="../../structures/mineral_fountain/lava.snbt"/>
 
 - A <ref item="anvilcraft:mineral_fountain"/> surrounded on all four sides by **lava** can generate **lava**
+
+<tip>
+You can place a <ref item="anvilcraft:drain"/> directly above the <ref item="anvilcraft:mineral_fountain"/> to collect lava
+</tip>
 
 ---
 

@@ -51,6 +51,12 @@ items:
 
 <structure id="../../structures/pump.nbt"/>
 
+<tip>
+
+并不能从<ref item="minecraft:bee_nest"/>里把蜜抽出来，但是本模组有[其他方法](../007_struct/000_anvil_processing.md#方块--炼药锅方块压榨)自动提取蜂蜜
+
+</tip>
+
 ## 矿车
 
 <recipe id="anvilcraft:unpack/fluid_tank_minecart"/>

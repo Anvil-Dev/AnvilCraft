@@ -13,6 +13,7 @@ import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FastColor;
+import net.neoforged.neoforge.client.event.RegisterRenderBuffersEvent;
 
 import java.util.OptionalDouble;
 import java.util.function.Function;
@@ -28,6 +29,7 @@ import static net.minecraft.client.renderer.RenderStateShard.COLOR_WRITE;
 import static net.minecraft.client.renderer.RenderStateShard.CULL;
 import static net.minecraft.client.renderer.RenderStateShard.GLINT_TEXTURING;
 import static net.minecraft.client.renderer.RenderStateShard.GLINT_TRANSPARENCY;
+import static net.minecraft.client.renderer.RenderStateShard.ITEM_ENTITY_TARGET;
 import static net.minecraft.client.renderer.RenderStateShard.LEQUAL_DEPTH_TEST;
 import static net.minecraft.client.renderer.RenderStateShard.LIGHTMAP;
 import static net.minecraft.client.renderer.RenderStateShard.NO_CULL;
@@ -92,6 +94,26 @@ public class ModRenderTypes {
 
             }
         };
+    }
+
+    public static final RenderType FISH_TANK_FLUID = RenderType.create(
+        "anvilcraft:fish_tank_fluid",
+        DefaultVertexFormat.BLOCK,
+        VertexFormat.Mode.QUADS,
+        1536,
+        true,
+        true,
+        RenderType.CompositeState.builder()
+            .setLightmapState(LIGHTMAP)
+            .setShaderState(RENDERTYPE_TRANSLUCENT_SHADER)
+            .setTextureState(BLOCK_SHEET_MIPPED)
+            .setTransparencyState(TRANSLUCENT_TRANSPARENCY)
+            .setOutputState(ITEM_ENTITY_TARGET)
+            .createCompositeState(true)
+    );
+
+    public static void registerBuffers(RegisterRenderBuffersEvent event) {
+        event.registerRenderBuffer(FISH_TANK_FLUID);
     }
 
     public static final RenderType TRANSLUCENT_COLORED_OVERLAY = RenderType.create(
@@ -349,6 +371,22 @@ public class ModRenderTypes {
             .setCullState(NO_CULL)
             .setDepthTestState(LEQUAL_DEPTH_TEST)
             .setWriteMaskState(COLOR_WRITE)
+            .createCompositeState(false)
+    );
+
+    public static final RenderType CORRUPTED_BEACON_BEAM_CORE = RenderType.create(
+        "anvilcraft:corrupted_beacon_beam_core",
+        DefaultVertexFormat.POSITION_COLOR,
+        VertexFormat.Mode.TRIANGLES,
+        1536,
+        false,
+        false,
+        RenderType.CompositeState.builder()
+            .setShaderState(RenderStateShard.POSITION_COLOR_SHADER)
+            .setTransparencyState(NO_TRANSPARENCY)
+            .setCullState(NO_CULL)
+            .setDepthTestState(LEQUAL_DEPTH_TEST)
+            .setWriteMaskState(COLOR_DEPTH_WRITE)
             .createCompositeState(false)
     );
 

@@ -17,6 +17,7 @@ public class AnvilCraftMixinPlugin implements IMixinConfigPlugin {
     private static boolean hasCerbonBetterBeacons = false;
     private static boolean hasJei = false;
     private static boolean hasEmi = false;
+    private static boolean hasSophisticatedCore = false;
     private static boolean hasArchitectury = false;
     private static boolean hasSodium = false;
     private static boolean hasEmbeddium = false;
@@ -33,6 +34,8 @@ public class AnvilCraftMixinPlugin implements IMixinConfigPlugin {
         hasCreate = this.isLoaded("com/simibubi/create/Create.class");
         hasAE2 = LoadingModList.get().getMods().stream().anyMatch(it -> it.getModId().equals("ae2"));
         hasCerbonBetterBeacons = this.isLoaded("com/cerbon/better_beacons/BetterBeacons.class");
+        hasSophisticatedCore = LoadingModList.get().getMods().stream()
+            .anyMatch(it -> it.getModId().equals("sophisticatedcore"));
         hasJei = LoadingModList.get().getMods().stream().anyMatch(it -> it.getModId().equals("jei"));
         hasEmi = LoadingModList.get().getMods().stream().anyMatch(it -> it.getModId().equals("emi"));
         hasArchitectury = this.isLoaded("dev/architectury/neoforge/ArchitecturyNeoForge");
@@ -54,6 +57,7 @@ public class AnvilCraftMixinPlugin implements IMixinConfigPlugin {
         if (mixinClassName.contains("AE2")) return hasAE2;
         if (mixinClassName.contains("Cerbon")) return hasCerbonBetterBeacons;
         if (mixinClassName.endsWith("JemiPluginMixin")) return hasJei && hasEmi;
+        if (mixinClassName.contains("SophisticatedJei")) return hasJei && hasSophisticatedCore;
         if (mixinClassName.contains("Jei")) return hasJei;
         if (mixinClassName.contains("Architectury")) return hasArchitectury;
         if (mixinClassName.contains("Sodium")) return hasSodium;

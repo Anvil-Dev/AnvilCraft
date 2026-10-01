@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.init;
 
 import dev.dubhe.anvilcraft.api.block.BlockPlacementRules;
 import dev.dubhe.anvilcraft.block.placement.FacingOnlyPlacementRule;
+import dev.dubhe.anvilcraft.block.placement.LensBlockPlacementRule;
 import dev.dubhe.anvilcraft.block.placement.SlabBlockPlacementRule;
 import dev.dubhe.anvilcraft.block.placement.StairBlockPlacementRule;
 import dev.dubhe.anvilcraft.block.placement.TrapDoorBlockPlacementRule;
@@ -14,6 +15,7 @@ public final class ModBlockPlacementFallbacks {
     }
 
     public static void register() {
+        BlockPlacementRules.registerFallback(LensBlockPlacementRule.INSTANCE);
         BlockPlacementRules.registerFallback(SlabBlockPlacementRule.INSTANCE);
         BlockPlacementRules.registerFallback(StairBlockPlacementRule.INSTANCE);
         BlockPlacementRules.registerFallback(TrapDoorBlockPlacementRule.INSTANCE);

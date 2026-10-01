@@ -43,7 +43,9 @@ items:
 
 Carrying 18 stacks of any plutonium or uranium items will apply the **Wither** effect
 
-# Radioactive Decay
 
-- <ref item="anvilcraft:plutonium_block"/> shares the [Radioactive Decay](301_uranium.md#radioactive-decay) property
-- <ref item="anvilcraft:plutonium_block"/> decays into <ref item="anvilcraft:uranium_block"/>
+# Meltdown
+
+- <ref item="anvilcraft:plutonium_block"/> is a *radioactive block*
+- When all six sides are free of water or waterlogged blocks, <ref item="anvilcraft:plutonium_block"/> melts down into <ref item="minecraft:magma_block"/>
+- If any side touches water or a waterlogged block, <ref item="anvilcraft:plutonium_block"/> will not melt down

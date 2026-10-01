@@ -491,7 +491,8 @@ public class ClientEventListener {
     }
 
     @SubscribeEvent
-    public static void renderContainerScreenEvent(ContainerScreenEvent.Render.Background event) {
+    public static void renderContainerScreenEvent(ContainerScreenEvent.Render.Foreground event) {
+        // 槽位和标签渲染完成后，模组界面的悬停槽位索引才会更新。
         AbstractContainerScreen<?> screen = event.getContainerScreen();
         Slot slot = screen.getSlotUnderMouse();
         ItemStack item = slot != null ? slot.getItem() : ItemStack.EMPTY;

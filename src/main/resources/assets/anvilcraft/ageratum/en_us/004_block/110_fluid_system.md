@@ -48,6 +48,12 @@ items:
 
 <structure id="../../structures/pump.nbt"/>
 
+<tip>
+
+Honey cannot be pumped out of a <ref item="minecraft:bee_nest"/>, but this mod provides [another method](../007_struct/000_anvil_processing.md#block--cauldron-block-squeezing) to extract honey automatically.
+
+</tip>
+
 ## Minecart
 
 <recipe id="anvilcraft:unpack/fluid_tank_minecart"/>

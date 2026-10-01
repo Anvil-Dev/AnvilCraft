@@ -26,6 +26,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import javax.annotation.Nullable;
 
 /**
  * 终端支持的 JEI 配方转移补全逻辑（与具体 Handler 解耦）：
@@ -56,8 +57,32 @@ public final class TerminalJeiTransferSupport {
      * @return null 表示"+"可用（存储可补足，或缓存未就绪时的乐观判定——点击后由
      *         补库 + 重试给出真实结果）；否则返回缺失错误（只高亮真正缺的槽）
      */
-    public static IRecipeTransferError checkSatisfies(
+    public static @Nullable IRecipeTransferError checkSatisfies(
         AbstractContainerMenu container,
+        IRecipeSlotsView recipeSlots,
+        Player player,
+        IStackHelper stackHelper,
+        IRecipeTransferHandlerHelper helper
+    ) {
+        return TerminalJeiTransferSupport.checkSatisfies(
+            container.slots, container.getCarried(), recipeSlots, player, stackHelper, helper
+        );
+    }
+
+    /** 使用 Handler 的实际配方与物品栏槽，兼容不在菜单 slots 中的升级合成格。 */
+    public static @Nullable IRecipeTransferError checkSatisfies(
+        List<Slot> slots,
+        IRecipeSlotsView recipeSlots,
+        Player player,
+        IStackHelper stackHelper,
+        IRecipeTransferHandlerHelper helper
+    ) {
+        return TerminalJeiTransferSupport.checkSatisfies(slots, ItemStack.EMPTY, recipeSlots, player, stackHelper, helper);
+    }
+
+    private static @Nullable IRecipeTransferError checkSatisfies(
+        List<Slot> slots,
+        ItemStack carried,
         IRecipeSlotsView recipeSlots,
         Player player,
         IStackHelper stackHelper,
@@ -80,7 +105,7 @@ public final class TerminalJeiTransferSupport {
                 TerminalJeiTransferSupport.mergeItem(merged, item);
             }
         }
-        return TerminalJeiTransferSupport.findMissingError(container, merged, recipeSlots, stackHelper, helper);
+        return TerminalJeiTransferSupport.findMissingError(slots, carried, merged, recipeSlots, stackHelper, helper);
     }
 
     /**
@@ -109,8 +134,8 @@ public final class TerminalJeiTransferSupport {
             return false;
         }
         List<ItemStack> missing = TerminalJeiTransferSupport.collectMissing(
-            container,
             craftingSlots,
+            inventorySlots,
             recipeSlots,
             stackHelper,
             maxTransfer
@@ -138,8 +163,14 @@ public final class TerminalJeiTransferSupport {
         StorageTerminalClientStub.withdrawToInventory(storageIds, missing).whenComplete((withdrawn, error) ->
             Minecraft.getInstance().execute(() -> {
                 try {
-                    if (error != null) {
-                        return; // 补库调用本身失败：保持现状，走原逻辑的"缺少材料"提示
+                    if (error != null || Minecraft.getInstance().player != player) {
+                        return;
+                    }
+                    if (player.containerMenu != container) {
+                        if (withdrawn != null && !withdrawn.isEmpty()) {
+                            StorageTerminalClientStub.returnExcess(storageIds, withdrawn);
+                        }
+                        return;
                     }
                     if (withdrawn == null || withdrawn.isEmpty()) {
                         // 没有实际补入（存储为空/不足）：重试原逻辑，让它给出真实的
@@ -201,8 +232,9 @@ public final class TerminalJeiTransferSupport {
      *
      * @return null 表示无缺口（"+" 可用）；否则为缺失错误
      */
-    private static IRecipeTransferError findMissingError(
-        AbstractContainerMenu container,
+    private static @Nullable IRecipeTransferError findMissingError(
+        List<Slot> slots,
+        ItemStack carried,
         List<ItemStack> storageItems,
         IRecipeSlotsView recipeSlots,
         IStackHelper stackHelper,
@@ -210,7 +242,7 @@ public final class TerminalJeiTransferSupport {
     ) {
         // 该槽满足与否的统计：按 uid 合并「背包+合成格+存储」的可得量
         Map<Object, Integer> availableByUid = new HashMap<>();
-        TerminalJeiTransferSupport.collectAvailable(container, storageItems, stackHelper, availableByUid);
+        TerminalJeiTransferSupport.collectAvailable(slots, carried, storageItems, stackHelper, availableByUid);
         List<IRecipeSlotView> missingSlots = new ArrayList<>();
         for (IRecipeSlotView slotView : recipeSlots.getSlotViews(RecipeIngredientRole.INPUT)) {
             Map<Object, Integer> requiredByUid = TerminalJeiTransferSupport.requiredCountsByUid(slotView, stackHelper);
@@ -246,8 +278,8 @@ public final class TerminalJeiTransferSupport {
      * 传输阶段会重试原逻辑给出真实结果。
      */
     private static List<ItemStack> collectMissing(
-        AbstractContainerMenu container,
         List<Slot> craftingSlots,
+        List<Slot> inventorySlots,
         IRecipeSlotsView recipeSlots,
         IStackHelper stackHelper,
         boolean maxTransfer
@@ -255,7 +287,9 @@ public final class TerminalJeiTransferSupport {
         List<IRecipeSlotView> inputViews = recipeSlots.getSlotViews(RecipeIngredientRole.INPUT);
         // 背包/合成格中每种 uid 的可得量
         Map<Object, Integer> containerByUid = new HashMap<>();
-        TerminalJeiTransferSupport.collectAvailable(container, List.of(), stackHelper, containerByUid);
+        List<Slot> availableSlots = new ArrayList<>(craftingSlots);
+        availableSlots.addAll(inventorySlots);
+        TerminalJeiTransferSupport.collectAvailable(availableSlots, ItemStack.EMPTY, List.of(), stackHelper, containerByUid);
         // 按 uid 汇总全部输入槽的需求总量
         Map<Object, Integer> requiredByUid = new HashMap<>();
         for (int i = 0; i < inputViews.size(); i++) {
@@ -376,12 +410,13 @@ public final class TerminalJeiTransferSupport {
 
     /** 汇总「背包 + 合成格 + 存储」中每种 uid 的总量。 */
     private static void collectAvailable(
-        AbstractContainerMenu container,
+        List<Slot> slots,
+        ItemStack carried,
         List<ItemStack> storageItems,
         IStackHelper stackHelper,
         Map<Object, Integer> availableByUid
     ) {
-        for (Slot slot : container.slots) {
+        for (Slot slot : slots) {
             if (slot.isFake()) {
                 continue;
             }
@@ -391,7 +426,6 @@ public final class TerminalJeiTransferSupport {
                 availableByUid.merge(uid, stack.getCount(), Integer::sum);
             }
         }
-        ItemStack carried = container.getCarried();
         if (!carried.isEmpty()) {
             Object uid = stackHelper.getUidForStack(carried, UidContext.Recipe);
             availableByUid.merge(uid, carried.getCount(), Integer::sum);

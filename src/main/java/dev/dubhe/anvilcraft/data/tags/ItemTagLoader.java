@@ -211,6 +211,17 @@ public class ItemTagLoader {
             .add(findResourceKey(ModItems.MAGNET.get()));
 
         provider.addTag(ModItemTags.COMPRESS_ITEM)
+            .add(findResourceKey(Items.AMETHYST_BLOCK))
+            .add(findResourceKey(Items.BRICKS))
+            .add(findResourceKey(Items.CLAY))
+            .add(findResourceKey(Items.DRIPSTONE_BLOCK))
+            .add(findResourceKey(Items.GLOWSTONE))
+            .add(findResourceKey(Items.HONEYCOMB_BLOCK))
+            .add(findResourceKey(Items.NETHER_BRICKS))
+            .add(findResourceKey(Items.PRISMARINE))
+            .add(findResourceKey(Items.QUARTZ_BLOCK))
+            .add(findResourceKey(Items.RED_SANDSTONE))
+            .add(findResourceKey(Items.SANDSTONE))
             .add(findResourceKey(Items.SNOW_BLOCK))
             .add(findResourceKey(Items.WHITE_WOOL))
             .add(findResourceKey(Items.MAGMA_BLOCK))

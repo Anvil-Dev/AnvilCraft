@@ -113,9 +113,6 @@ public class AnvilCraftServerConfig {
     @BoundedDiscrete(max = 24, min = 2)
     public int fellingBlockPerLevel = 4;
 
-    @Comment("Should show anvil levitate animation")
-    public boolean displayAnvilAnimation = true;
-
     @Comment("Maximum cooldown of load monitor")
     @BoundedDiscrete(max = 60, min = 1)
     public int loadMonitor = 10;

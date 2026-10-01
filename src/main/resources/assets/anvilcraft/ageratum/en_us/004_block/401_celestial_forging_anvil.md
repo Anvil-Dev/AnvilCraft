@@ -97,7 +97,8 @@ The original star's mass determines what type of stellar remnant it becomes
 |:----------------:|:---------------:|
 |      [1,54]      |   White Dwarf   |
 |     [55,58]      |  Neutron Star   |
-|     [59,64]      |   Black Hole    |
+|     [59,63]      |   Black Hole    |
+|       {64}       |    Blown Up     |
 
 # Seed Items
 

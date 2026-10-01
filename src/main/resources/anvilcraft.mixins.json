@@ -170,6 +170,7 @@
     "compat.SodiumBlockOcclusionCacheMixin",
     "compat.SodiumChunkBuilderMeshingTaskMixin",
     "compat.SodiumItemRendererMixin",
+    "compat.SophisticatedJeiRecipeTransferMixin",
     "mun.MunEntityShadowMixin",
     "mun.MunModelDataMixin",
     "mun.MunShadowChunkMixin",

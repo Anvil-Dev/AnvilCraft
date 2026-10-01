@@ -91,9 +91,16 @@ public class CorruptedBeaconRenderer implements BlockEntityRenderer<CorruptedBea
         int beamTopY = blockEntity.getBeamHeight();
         int posY = blockEntity.getBlockPos().getY();
         if (beamTopY > posY + 1) {
-            VertexConsumer beamConsumer = buffer.getBuffer(ModRenderTypes.CORRUPTED_BEACON_BEAM);
             float beamHeight = (float) (beamTopY - posY) - BEAM_BASE_Y;
-            renderBeam(beamConsumer, poseStack.last(), 0.5f, BEAM_BASE_Y, 0.5f, beamHeight);
+            emitBeamPyramid(
+                buffer.getBuffer(ModRenderTypes.CORRUPTED_BEACON_BEAM_CORE), poseStack.last(),
+                0.5f, BEAM_BASE_Y, 0.5f, BEAM_INNER_HALF, BEAM_BASE_Y + beamHeight,
+                BEAM_R, BEAM_G, BEAM_B, 1.0f, 1.0f
+            );
+            renderBeamGlow(
+                buffer.getBuffer(ModRenderTypes.CORRUPTED_BEACON_BEAM), poseStack.last(),
+                0.5f, BEAM_BASE_Y, 0.5f, beamHeight, 1.0f
+            );
         }
     }
 
@@ -117,6 +124,22 @@ public class CorruptedBeaconRenderer implements BlockEntityRenderer<CorruptedBea
         float length,
         float glowSpreadScale
     ) {
+        renderBeamGlow(vc, pose, centerX, baseY, centerZ, length, glowSpreadScale);
+        emitBeamPyramid(
+            vc, pose, centerX, baseY, centerZ, BEAM_INNER_HALF, baseY + length,
+            BEAM_R, BEAM_G, BEAM_B, 0.82f, 0.25f
+        );
+    }
+
+    private static void renderBeamGlow(
+        VertexConsumer vc,
+        PoseStack.Pose pose,
+        float centerX,
+        float baseY,
+        float centerZ,
+        float length,
+        float glowSpreadScale
+    ) {
         float apexY = baseY + length;
         for (int layer = BEAM_GLOW_LAYERS; layer >= 1; layer--) {
             float half = BEAM_INNER_HALF + BEAM_GLOW_HALF_STEP * layer * glowSpreadScale;
@@ -129,10 +152,6 @@ public class CorruptedBeaconRenderer implements BlockEntityRenderer<CorruptedBea
                 BEAM_R, BEAM_G, BEAM_B, alpha, tipFade
             );
         }
-        emitBeamPyramid(
-            vc, pose, centerX, baseY, centerZ, BEAM_INNER_HALF, apexY,
-            BEAM_R, BEAM_G, BEAM_B, 0.82f, 0.25f
-        );
     }
 
     private static void emitBeamPyramid(
