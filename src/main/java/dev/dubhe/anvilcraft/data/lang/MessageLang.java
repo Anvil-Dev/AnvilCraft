@@ -27,8 +27,8 @@ public class MessageLang {
         provider.add("message.anvilcraft.hyperdimension_uploader.bound", "Hyperdimension Uploader bound");
         provider.add("message.anvilcraft.local_terminal.not_found", "No large crate within 32 blocks");
         provider.add("message.anvilcraft.shulker_terminal.not_found", "No shulker container or shulker box found");
-        provider.add("message.anvilcraft.monolith.joke.chute_steal", "Chutes can steal items from players and villagers");
-        provider.add("message.anvilcraft.monolith.joke.reinforced_concrete", "The drop of reinforced concrete is a cauldron");
+        provider.add("message.anvilcraft.monolith.joke.chute_steal", "Chutes used to be able to steal items from players and villagers");
+        provider.add("message.anvilcraft.monolith.joke.reinforced_concrete", "Reinforced concrete was initially not blast-resistant, and it dropped a cauldron when broken.");
         provider.add("message.anvilcraft.monolith.knowledge.celestial_forging_anvil_gravity", "You can press shift to escape when sucked by the Celestial Forging Anvil's gravity");
         provider.add("message.anvilcraft.monolith.knowledge.celestial_forging_anvil_portal", "Celestial Forging Anvil portals can transport water");
         provider.add("message.anvilcraft.monolith.knowledge.corrupted_beacon", "Corrupted Beacons can only use Cursed Gold Blocks as bases");

@@ -26,9 +26,11 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.EntityLeaveLevelEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import net.neoforged.neoforge.event.level.ChunkEvent;
-import net.neoforged.neoforge.event.level.LevelEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
+import net.neoforged.neoforge.event.tick.ServerTickEvent;
 
+import java.time.LocalDate;
+import java.time.Month;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -44,23 +46,45 @@ public class TheMonolithEventListener {
     private static final int RETURN_CONFIRMATION_TICKS = 60;
     private static final Map<ServerPlayer, Map<BlockPos, Integer>> PROGRESS = new WeakHashMap<>();
     private static final Map<ServerPlayer, Long> RETURN_TOUCHES = new WeakHashMap<>();
-
-    @SubscribeEvent(receiveCanceled = true)
-    public static void onCreateSpawnPosition(LevelEvent.CreateSpawnPosition event) {
-        if (event.getLevel() instanceof ServerLevel level && Level.OVERWORLD.equals(level.dimension())
-            && !event.getSettings().isInitialized()) {
-            NEW_WORLDS.add(level.getServer());
-        }
-    }
+    private static final String[] JOKES = {
+        "message.anvilcraft.monolith.joke.chute_steal",
+        "message.anvilcraft.monolith.joke.reinforced_concrete"
+    };
+    private static final String[] KNOWLEDGE = {
+        "message.anvilcraft.monolith.knowledge.celestial_forging_anvil_gravity",
+        "message.anvilcraft.monolith.knowledge.celestial_forging_anvil_portal",
+        "message.anvilcraft.monolith.knowledge.corrupted_beacon",
+        "message.anvilcraft.monolith.knowledge.crab_claw",
+        "message.anvilcraft.monolith.knowledge.ember_metal",
+        "message.anvilcraft.monolith.knowledge.filter",
+        "message.anvilcraft.monolith.knowledge.fish_tank",
+        "message.anvilcraft.monolith.knowledge.flying_anvil_hammer",
+        "message.anvilcraft.monolith.knowledge.heater",
+        "message.anvilcraft.monolith.knowledge.horizontal_anvil_damage",
+        "message.anvilcraft.monolith.knowledge.melt_gem",
+        "message.anvilcraft.monolith.knowledge.menger_sponge",
+        "message.anvilcraft.monolith.knowledge.player_acceleration",
+        "message.anvilcraft.monolith.knowledge.projectile_acceleration",
+        "message.anvilcraft.monolith.knowledge.rocket_jump",
+        "message.anvilcraft.monolith.knowledge.vault_reset",
+        "message.anvilcraft.monolith.knowledge.villager_reset",
+        "message.anvilcraft.monolith.knowledge.waterlogged_acceleration_ring"
+    };
 
     @SubscribeEvent
-    public static void onChunckLoad(ChunkEvent.Load event) {
+    public static void onChunkLoad(ChunkEvent.Load event) {
         if (!event.isNewChunk()) return;
         if (!(event.getLevel() instanceof ServerLevel level)) return;
         if (!Level.OVERWORLD.equals(level.dimension())) return;
         ChunkPos spawnChunk = new ChunkPos(level.getSharedSpawnPos());
         if (!spawnChunk.equals(event.getChunk().getPos())) return;
-        SmallMonolith.generate(level);
+        NEW_WORLDS.add(level.getServer());
+    }
+
+    @SubscribeEvent
+    public static void onServerTick(ServerTickEvent.Post event) {
+        if (!NEW_WORLDS.remove(event.getServer())) return;
+        SmallMonolith.generate(event.getServer().overworld());
     }
 
     @SubscribeEvent
@@ -107,37 +131,13 @@ public class TheMonolithEventListener {
         if (!(event.getEntity() instanceof ServerPlayer player) || !player.isAlive()) return;
         if (event.getHand() != InteractionHand.MAIN_HAND) return;
         if (!event.getLevel().dimension().equals(CelestialTravelManager.MUN_LEVEL)) {
-            java.time.LocalDate now = java.time.LocalDate.now();
-            boolean isAprilFools = now.getMonth() == java.time.Month.APRIL && now.getDayOfMonth() == 1;
+            LocalDate now = LocalDate.now();
+            boolean isAprilFools = now.getMonth() == Month.APRIL && now.getDayOfMonth() == 1;
             String key;
             if (isAprilFools) {
-                String[] jokes = {
-                    "message.anvilcraft.monolith.joke.chute_steal",
-                    "message.anvilcraft.monolith.joke.reinforced_concrete"
-                };
-                key = jokes[event.getLevel().random.nextInt(jokes.length)];
+                key = JOKES[event.getLevel().random.nextInt(JOKES.length)];
             } else {
-                String[] knowledge = {
-                    "message.anvilcraft.monolith.knowledge.celestial_forging_anvil_gravity",
-                    "message.anvilcraft.monolith.knowledge.celestial_forging_anvil_portal",
-                    "message.anvilcraft.monolith.knowledge.corrupted_beacon",
-                    "message.anvilcraft.monolith.knowledge.crab_claw",
-                    "message.anvilcraft.monolith.knowledge.ember_metal",
-                    "message.anvilcraft.monolith.knowledge.filter",
-                    "message.anvilcraft.monolith.knowledge.fish_tank",
-                    "message.anvilcraft.monolith.knowledge.flying_anvil_hammer",
-                    "message.anvilcraft.monolith.knowledge.heater",
-                    "message.anvilcraft.monolith.knowledge.horizontal_anvil_damage",
-                    "message.anvilcraft.monolith.knowledge.melt_gem",
-                    "message.anvilcraft.monolith.knowledge.menger_sponge",
-                    "message.anvilcraft.monolith.knowledge.player_acceleration",
-                    "message.anvilcraft.monolith.knowledge.projectile_acceleration",
-                    "message.anvilcraft.monolith.knowledge.rocket_jump",
-                    "message.anvilcraft.monolith.knowledge.vault_reset",
-                    "message.anvilcraft.monolith.knowledge.villager_reset",
-                    "message.anvilcraft.monolith.knowledge.waterlogged_acceleration_ring"
-                };
-                key = knowledge[event.getLevel().random.nextInt(knowledge.length)];
+                key = KNOWLEDGE[event.getLevel().random.nextInt(KNOWLEDGE.length)];
             }
             player.sendSystemMessage(Component.translatable(key));
             return;
