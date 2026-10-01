@@ -11,7 +11,6 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.SnowyDirtBlock;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.chunk.status.ChunkStatus;
 import net.minecraft.world.level.levelgen.FlatLevelSource;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
@@ -59,16 +58,6 @@ public final class SmallMonolith {
         StructurePlaceSettings settings = new StructurePlaceSettings().setRotation(placement.rotation());
         if (!template.placeInWorld(level, placement.corner(), placement.corner(), settings, random, 2 | 16)) return null;
         return placement.boundingBox();
-    }
-
-    static boolean isUngenerated(ServerLevel level, BoundingBox bounds) {
-        // 高度查询会生成地形，须先检查碑体及告示牌覆盖的所有区块，避免改写旧存档。
-        for (int cx = (bounds.minX() - 2) >> 4; cx <= bounds.maxX() >> 4; cx++) {
-            for (int cz = bounds.minZ() >> 4; cz <= bounds.maxZ() >> 4; cz++) {
-                if (level.getChunk(cx, cz, ChunkStatus.EMPTY).getPersistedStatus() != ChunkStatus.EMPTY) return false;
-            }
-        }
-        return true;
     }
 
     static @Nullable BlockPos findSmallMonolithGround(ServerLevel level, StructureTemplate template, BlockPos origin) {
