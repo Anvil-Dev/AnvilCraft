@@ -13,8 +13,8 @@ anvillib-multiblock = "2.0.0+snapshot.541"
 anvillib-math = "2.0.0+snapshot.541"
 anvillib-registrum = "2.0.0+snapshot.541"
 ageratum = "0.0.1+build.125"
-sodium = "0.9.1+mc26.1.2"
-iris = "1.10.9+26.1-neoforge"
+sodium = "0.9.2+mc26.1.2"
+iris = "1.11.4+26.1-neoforge"
 curios = "15.0.0+26.1.2"
 
 [libraries]
