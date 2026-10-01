@@ -3,15 +3,21 @@ package dev.dubhe.anvilcraft.item.weapon;
 import dev.dubhe.anvilcraft.api.item.ICapacitorChargeable;
 import dev.dubhe.anvilcraft.api.item.IFullCapacitor;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
+import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.item.property.component.StoredEnergy;
 import dev.dubhe.anvilcraft.util.ColorUtil;
 import net.minecraft.ChatFormatting;
+import net.minecraft.core.Holder;
+import net.minecraft.core.HolderSet;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
+import net.minecraft.tags.ItemTags;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomModelData;
+import net.minecraft.world.item.enchantment.Enchantment;
+import net.minecraft.world.item.enchantment.Enchantments;
 
 public abstract class EnergyWeaponItem extends Item implements ICapacitorChargeable {
     public static final int MAX_ENERGY = 640_000_000;
@@ -26,6 +32,23 @@ public abstract class EnergyWeaponItem extends Item implements ICapacitorChargea
             .component(ModComponents.STORED_ENERGY, new StoredEnergy(MAX_ENERGY))
             .component(DataComponents.CUSTOM_MODEL_DATA, CustomModelData.EMPTY));
         this.minimumEnergy = minimumEnergy;
+    }
+
+    @Override
+    public boolean supportsEnchantment(ItemStack stack, Holder<Enchantment> enchantment) {
+        if (super.supportsEnchantment(stack, enchantment)) return true;
+        return stack.is(ModItemTags.SWORD_ENCHANTABLE)
+            && (enchantment.is(Enchantments.LOOTING) || enchantment.is(Enchantments.KNOCKBACK))
+            && enchantment.value().definition().supportedItems().unwrapKey().filter(ItemTags.MELEE_WEAPON_ENCHANTABLE::equals).isPresent();
+    }
+
+    @Override
+    public boolean isPrimaryItemFor(ItemStack stack, Holder<Enchantment> enchantment) {
+        if (super.isPrimaryItemFor(stack, enchantment)) return true;
+        return stack.is(ModItemTags.SWORD_ENCHANTABLE) && enchantment.is(Enchantments.FIRE_ASPECT)
+            && this.supportsEnchantment(stack, enchantment)
+            && enchantment.value().definition().primaryItems().flatMap(HolderSet::unwrapKey)
+                .filter(ItemTags.MELEE_WEAPON_ENCHANTABLE::equals).isPresent();
     }
 
     public boolean canFire(Player player, ItemStack weapon) {

@@ -175,6 +175,9 @@ public class ModItemTags {
     public static final TagKey<Item> AMULET = ModItemTags.bind("amulet");
     public static final TagKey<Item> ANVIL_HAMMER = ModItemTags.bind("tools/anvil_hammer");
     public static final TagKey<Item> TEMPLATES = ModItemTags.bind("templates");
+    public static final TagKey<Item> TRIM_TEMPLATES = TagKey.create(Registries.ITEM, Identifier.withDefaultNamespace("trim_templates"));
+    public static final TagKey<Item> SWORD_ENCHANTABLE =
+        TagKey.create(Registries.ITEM, Identifier.withDefaultNamespace("enchantable/sword"));
     public static final TagKey<Item> MULTIPLE_TO_ONE_SMITHING_TEMPLATES = ModItemTags.bind("multiple_to_one_smithing_templates");
     public static final TagKey<Item> DRAGON_ROD = ModItemTags.bind("tools/dragon_rod");
     public static final TagKey<Item> HEAVY_HALBERD = ModItemTags.bind("tools/heavy_halberd");

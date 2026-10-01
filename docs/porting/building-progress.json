@@ -6666,5 +6666,54 @@
       ]
     },
     "remaining": "Continue broader source-only Java, runtime state, resource and rendering completion audits. Whole-port completion remains unproven."
+  },
+  "item_tag_enchantment_curios_parity_2026_10_01": {
+    "source_commit": "cca4b2aac5328926fa88bc01d958d007ff6bfc2a",
+    "status": "implemented_and_verified",
+    "implementation": [
+      "Restore negative-matter compression membership, normal netherite block classification, Infinite Collector explosion-proof membership, food ingredient/crafting-table classification and plywood item slab/stair tags.",
+      "Restore legacy minecraft:trim_templates and minecraft:enchantable/sword tag entry points, retaining data-pack extension through those source tag IDs.",
+      "Restore three terminal charm memberships and Curios item capabilities while preserving existing backpack/hammer integration.",
+      "Restore the source Twilight Forest restrictions: thirty uncraftable items and seventeen forbidden recovered ingredients.",
+      "Restore energy-weapon Fire Aspect, Sweeping Edge and Beheading through the appropriate tags/definition; add narrow common EnergyWeaponItem hooks for Looting/Knockback support and Fire Aspect primary eligibility only when the native melee-tag definitions are in use.",
+      "Keep energy weapons out of the general sword/melee classification to avoid introducing Sharpness eligibility. Restore Smite/Bane support on ember and frost anvil hammers."
+    ],
+    "validation": {
+      "source_repository_item_tag_definitions": 243,
+      "source_mod_items": 578,
+      "focused_required_tests": 4,
+      "commands": [
+        "./gradlew.bat -PportValidation compileJava runData --console=plain",
+        "./gradlew.bat -PportValidation -I dev/porting/item-tags.gradle -I dev/porting/item-tags-client.gradle -I dev/porting/checkstyle.gradle compileJava runGameTestServer checkPortJava runClient --console=plain",
+        "./gradlew.bat -PportValidation -I dev/porting/checkstyle.gradle compileJava checkPortJava --console=plain",
+        "python dev/porting/audit_item_tag_definitions.py",
+        "python dev/porting/verify_item_tag_parity.py",
+        "git diff --check"
+      ],
+      "logs": {
+        "data": "build/porting/data-item-tags.log",
+        "focused_and_client": "build/porting/verify-item-tags-final.log",
+        "final_style": "build/porting/verify-item-tags-style-final.log",
+        "source_client": "build/porting/client-item-enchantments-reference-final.log",
+        "membership_and_eligibility": "build/porting/item-tags-parity-result.json",
+        "definitions": "build/porting/item-tag-definition-audit.json",
+        "options": "build/porting/item-tag-options-audit.json"
+      },
+      "coverage": [
+        "All source mod-item memberships and supported/primary enchantment eligibility are present in final live snapshots for all 578 source items, using actual ItemStack enchantment hooks rather than only raw definition predicates.",
+        "Source repository tag definitions retain expanded members after concrete-ID adaptation and inspected legacy/native tag expansion; optional members and replace flags show no differences.",
+        "All four energy weapons accept the five missing source enchantments and remain ineligible for Sharpness; both hammer damage enchantments are supported.",
+        "Real Curios charm slots accept all three terminals, capabilities are present, and TerminalItem.getAll discovers equipped terminals and stops discovering them after removal.",
+        "A dropped Infinite Collector remains explosion-proof after removing Eternal; material/classification and Twilight Forest tag boundaries are checked.",
+        "Final compile, focused tests, client capture, data inspection and Checkstyle pass. The final behavioral pass preceded only a constant-declaration line wrap."
+      ],
+      "limits": [
+        "The first enchantment pass exposed Fire Aspect primary-item filtering in addition to its supported-item tag; the final shared hook covers it without reclassifying the weapons.",
+        "Eight items retain additional native enchantment eligibility already present before this change, including heavy-halberd native mace/lunge support.",
+        "Twilight Forest behavior is validated through exported memberships, without a Twilight Forest installation. No new inventory/enchantment GUI screenshot is claimed.",
+        "All tests, probes, snapshots and scripts remain local and ignored."
+      ]
+    },
+    "remaining": "Continue remaining registry/resource, world-context and rendering completion audits. Whole-port completion remains unproven."
   }
 }
