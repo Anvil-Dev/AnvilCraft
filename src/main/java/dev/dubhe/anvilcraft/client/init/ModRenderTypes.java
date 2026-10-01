@@ -352,6 +352,22 @@ public class ModRenderTypes {
             .createCompositeState(false)
     );
 
+    public static final RenderType CORRUPTED_BEACON_BEAM_CORE = RenderType.create(
+        "anvilcraft:corrupted_beacon_beam_core",
+        DefaultVertexFormat.POSITION_COLOR,
+        VertexFormat.Mode.TRIANGLES,
+        1536,
+        false,
+        false,
+        RenderType.CompositeState.builder()
+            .setShaderState(RenderStateShard.POSITION_COLOR_SHADER)
+            .setTransparencyState(NO_TRANSPARENCY)
+            .setCullState(NO_CULL)
+            .setDepthTestState(LEQUAL_DEPTH_TEST)
+            .setWriteMaskState(COLOR_DEPTH_WRITE)
+            .createCompositeState(false)
+    );
+
     public static final RenderType CORRUPTED_BEACON_BEAM = RenderType.create(
         "anvilcraft:corrupted_beacon_beam",
         DefaultVertexFormat.POSITION_COLOR,
