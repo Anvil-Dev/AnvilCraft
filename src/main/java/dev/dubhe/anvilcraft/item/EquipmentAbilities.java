@@ -31,6 +31,7 @@ import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
 import net.neoforged.neoforge.event.entity.living.MobEffectEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 
+import java.util.Collections;
 import java.util.Map;
 import java.util.WeakHashMap;
 
@@ -52,7 +53,7 @@ public final class EquipmentAbilities {
     /** 停止蓄力那一刻锁定的蓄力值，衰减以此为基础线性下降。 */
     private static final Map<Player, Integer> CHARGE_RELEASE_START = new WeakHashMap<>();
     private static final Map<Player, MobEffectInstance> HELMET_NIGHT_VISION = new WeakHashMap<>();
-    private static final Map<Player, Boolean> SUBMERGING = new WeakHashMap<>();
+    private static final Map<Player, Boolean> SUBMERGING = Collections.synchronizedMap(new WeakHashMap<>());
 
     private EquipmentAbilities() {
     }
