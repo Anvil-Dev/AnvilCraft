@@ -23,12 +23,14 @@ public class MDProceduralProcessRecipeComponent extends MDRecipeComponent {
     public static final Identifier CYCLE = AnvilCraft.of("textures/gui/ageratum/cycle.png");
     public static final Identifier ARROW_LONG = AnvilCraft.of("textures/gui/ageratum/arrow_long.png");
     public static final int WIDTH = 384;
-    public static final int HEIGHT = 128;
+    public static final int HEIGHT = 110;
     public static final int STEPS_LENGTH = 210;
     public static final int STEP_X = (WIDTH - STEPS_LENGTH) / 2;
-    public static final int STEP_Y = 5;
     public static final int STEP_LENGTH = 30;
-    public static final int ANVIL_Y = STEP_Y + 16;
+    public static final int ANVIL_Y = 18;
+    public static final int BLOCK_ROW = 3;
+    public static final int FLOW_Y = 90;
+    public static final int ITEM_Y_OFFSET = 8;
     public static final int ARROW_LONG_LENGTH = 64;
     private static final long LOOP_CYCLE_MILLIS = 1500L;
     private final ProceduralProcessRecipe recipe;
@@ -51,7 +53,7 @@ public class MDProceduralProcessRecipeComponent extends MDRecipeComponent {
     @Override
     protected void extractRecipeRenderState(MDRenderContext context, float mouseX, float mouseY) {
         var graphics = context.graphics();
-        int blockY = AgeratumUtil.getRenderY(ANVIL_Y, 3);
+        int blockY = AgeratumUtil.getRenderY(ANVIL_Y, BLOCK_ROW);
         AgeratumUtil.renderBlock(context, this.initialBlock, mouseX, mouseY, STEP_X - 20, blockY);
         int displayedLoop = getDisplayedLoop(this.recipe);
         for (int index = 0; index < this.stepSize; index++) {
@@ -62,11 +64,11 @@ public class MDProceduralProcessRecipeComponent extends MDRecipeComponent {
         }
         if (this.recipe.loop() > 1) {
             Component text = Component.literal((displayedLoop + 1) + "/" + this.recipe.loop()).withColor(0xB08E82);
-            AgeratumUtil.renderText(graphics, text, STEP_X + 140, 100, 1.2F);
-            graphics.blit(RenderPipelines.GUI_TEXTURED, CYCLE, STEP_X + 122, 96, 0, 0, 16, 16, 16, 16);
-            renderArrowLong(graphics, WIDTH / 2 - ARROW_LONG_LENGTH / 2 - 20, 96);
+            AgeratumUtil.renderText(graphics, text, STEP_X + 140, FLOW_Y + 4, 1.2F);
+            graphics.blit(RenderPipelines.GUI_TEXTURED, CYCLE, STEP_X + 122, FLOW_Y, 0, 0, 16, 16, 16, 16);
+            renderArrowLong(graphics, WIDTH / 2 - ARROW_LONG_LENGTH / 2 - 20, FLOW_Y);
         } else {
-            renderArrowLong(graphics, WIDTH / 2 - ARROW_LONG_LENGTH / 2 - 10, 96);
+            renderArrowLong(graphics, WIDTH / 2 - ARROW_LONG_LENGTH / 2 - 10, FLOW_Y);
         }
         AgeratumUtil.renderBlock(context, this.recipe.resultBlock(), mouseX, mouseY, STEP_X + STEPS_LENGTH + 10, blockY);
     }
@@ -78,11 +80,12 @@ public class MDProceduralProcessRecipeComponent extends MDRecipeComponent {
     protected void renderStep(
         MDRenderContext context, float mouseX, float mouseY, AbstractProcessRecipe<?> recipe, int index, int displayedLoop
     ) {
+        int anchor = RenderSupport.processAnchorIndex(recipe);
         int blockSize = Math.min(recipe.getInputBlocks().size(), 2);
         int blockX = this.getStepX(index, true);
         for (int block = blockSize - 1; block >= 0; block--) {
             var input = recipe.getInputBlocks().get(block);
-            int blockY = AgeratumUtil.getRenderY(ANVIL_Y, block + 3);
+            int blockY = AgeratumUtil.getRenderY(ANVIL_Y, BLOCK_ROW + block - anchor);
             if (isWip(input)) {
                 if (input.constructStatesForRender().isEmpty()) continue;
                 RenderSupport.renderWipBlockAt(context.graphics(),
@@ -96,7 +99,7 @@ public class MDProceduralProcessRecipeComponent extends MDRecipeComponent {
         AgeratumUtil.renderBlock(context, Blocks.ANVIL.defaultBlockState(), mouseX, mouseY, blockX, ANVIL_Y);
         if (!recipe.getInputItems().isEmpty()) {
             AgeratumUtil.renderItem(context, recipe.getInputItems().getFirst(), mouseX, mouseY,
-                this.getStepX(index, false), AgeratumUtil.getRenderY(ANVIL_Y, 1) + 8);
+                this.getStepX(index, false), AgeratumUtil.getRenderY(ANVIL_Y, 1) + ITEM_Y_OFFSET);
         }
     }
 

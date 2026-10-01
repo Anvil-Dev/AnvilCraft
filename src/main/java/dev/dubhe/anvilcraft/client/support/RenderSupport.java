@@ -6,6 +6,7 @@ import dev.anvilcraft.lib.v2.rendering.gui.GuiRenderExtras;
 import dev.dubhe.anvilcraft.block.entity.WipBlockEntity;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.WipBlockEntityRenderer;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
+import dev.dubhe.anvilcraft.recipe.anvil.wrap.AbstractProcessRecipe;
 import dev.dubhe.anvilcraft.util.LevelLike;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
@@ -16,6 +17,8 @@ import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.block.BlockAndTintGetter;
 import net.minecraft.client.renderer.block.BlockModelRenderState;
 import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
+import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
+import net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.Identifier;
@@ -24,6 +27,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.DoorBlock;
 import net.minecraft.world.level.block.EntityBlock;
+import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
@@ -64,6 +68,13 @@ public class RenderSupport {
         RenderSupport.BLOCK_DISPLAY_POSE.rotate(Axis.YP.rotationDegrees(45));
     }
 
+    public static int processAnchorIndex(AbstractProcessRecipe<?> recipe) {
+        double inputY = recipe.getProperty().getBlockInputOffset().y;
+        double outputY = recipe.getProperty().getBlockOutputOffset().y;
+        int index = (int) Math.round(inputY - outputY);
+        return Math.clamp(index, 0, Math.max(recipe.getInputBlocks().size() - 1, 0));
+    }
+
     public static void renderBlock(GuiGraphicsExtractor graphics, BlockState block, float x, float y, float size) {
         GuiRenderExtras.tessellateBlock(
             graphics,
@@ -96,9 +107,30 @@ public class RenderSupport {
                 pose.popPose();
                 upper.submitMultiLayer(pose, collector, LightCoordsUtil.FULL_BRIGHT, OverlayTexture.NO_OVERLAY, 0);
             });
-        } else {
+        } else if (!RenderSupport.renderBlockEntityAt(graphics, block, x, y, scale)) {
             RenderSupport.renderSingleBlockAt(graphics, block, x, y, scale);
         }
+    }
+
+    private static boolean renderBlockEntityAt(GuiGraphicsExtractor graphics, BlockState block, float x, float y, float scale) {
+        Minecraft client = Minecraft.getInstance();
+        if (client.level == null) return false;
+        BlockEntity entity = RenderSupport.getCachedBlockEntity(block).orElse(null);
+        if (entity == null) return false;
+        BlockEntityRenderer<BlockEntity, BlockEntityRenderState> renderer = client.getBlockEntityRenderDispatcher().getRenderer(entity);
+        if (renderer == null) return false;
+        BlockEntityRenderState state = renderer.createRenderState();
+        var camera = client.gameRenderer.getGameRenderState().levelRenderState.cameraRenderState;
+        entity.setLevel(client.level);
+        renderer.extractRenderState(entity, state, client.getDeltaTracker().getGameTimeDeltaPartialTick(true), camera.pos, null);
+        state.lightCoords = LightCoordsUtil.FULL_BRIGHT;
+        BlockModelRenderState model = block.getRenderShape() == RenderShape.MODEL
+            ? RenderSupport.previewModel(client.getModelManager().getBlockStateModelSet().get(block), block, false) : null;
+        RenderSupport.renderModelsAt(graphics, x, y, scale, (collector, pose) -> {
+            if (model != null) model.submitMultiLayer(pose, collector, LightCoordsUtil.FULL_BRIGHT, OverlayTexture.NO_OVERLAY, 0);
+            renderer.submit(state, pose, collector, camera);
+        });
+        return true;
     }
 
     private static void renderSingleBlockAt(GuiGraphicsExtractor graphics, BlockState block, float x, float y, float scale) {

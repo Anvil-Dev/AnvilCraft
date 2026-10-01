@@ -1976,6 +1976,8 @@
   "entity.anvilcraft.railgun_anvil": "轨道炮铁砧",
   "entity.anvilcraft.weapon_beam": "武器光束",
   "gui.anvilcraft.category.energy_weapon": "能量武器",
+  "gui.anvilcraft.category.procedural_process.materials": "所需材料：",
+  "gui.anvilcraft.category.procedural_process.materials.overflow": "还有 %s 项",
   "gui.anvilcraft.category.procedural_process": "方块序列加工",
   "item.anvilcraft.ancient_sea_reef": "远古海礁",
   "item.anvilcraft.burning_heater": "燃烧加热器",
