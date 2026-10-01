@@ -58,7 +58,7 @@ public record GiantAnvilShockEffectPacket(BlockPos centerPos, int radius, boolea
                     ModSoundEvents.GIANT_ANVIL_RESIN_SHOCK.get(),
                     SoundSource.BLOCKS,
                     2.0f,
-                    0.8f + player.level().random.nextFloat() * 0.4f
+                    this.pitch
                 );
             } else {
                 player.level().playSound(
@@ -67,7 +67,7 @@ public record GiantAnvilShockEffectPacket(BlockPos centerPos, int radius, boolea
                     ModSoundEvents.GIANT_ANVIL_SHOCK.get(),
                     SoundSource.BLOCKS,
                     1.8f,
-                    1.2f + player.level().random.nextFloat() * 0.2f
+                    this.pitch
                 );
             }
         }

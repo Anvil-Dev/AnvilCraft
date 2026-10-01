@@ -40,7 +40,7 @@ public class WeatherproofChestplateHUD {
         List<ItemStack> inventory = PocketInventory.carriedItems(player);
         int capacitorCount = count(inventory, ModItems.CAPACITOR.asStack());
         int superCapacitorCount = count(inventory, ModItems.SUPER_CAPACITOR.asStack());
-        renderBackpack &= capacitorCount > 0 || superCapacitorCount > 0;
+        renderCapacitors &= capacitorCount > 0 || superCapacitorCount > 0;
         if (!renderBackpack && !renderCapacitors) {
             return;
         }
