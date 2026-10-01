@@ -8,6 +8,9 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 
 @Mixin(ItemResourceHandlerCacheElement.class)
 public interface ItemResourceHandlerCacheElementAccessor {
+    @Accessor("slot")
+    int getSlot();
+
     @Accessor("iItemHandler")
     ResourceHandler<ItemResource> getItemHandler();
 }

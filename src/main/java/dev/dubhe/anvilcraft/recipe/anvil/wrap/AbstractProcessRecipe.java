@@ -753,10 +753,8 @@ public abstract class AbstractProcessRecipe<T extends InWorldRecipe> extends InW
                     predicates.add(new HasItemIngredient(this.itemInputOffset, this.itemInputRange, ingredient, functions));
                 }
             }
-            if (this.diffInputItems != null) {
-                for (ItemIngredientPredicate ingredient : this.diffInputItems) {
-                    predicates.add(HasDiffItems.fromPredicate(ingredient, this.itemInputOffset, this.itemInputRange));
-                }
+            if (this.diffInputItems != null && !this.diffInputItems.isEmpty()) {
+                predicates.add(HasDiffItems.fromPredicates(this.diffInputItems, this.itemInputOffset, this.itemInputRange));
             }
             return predicates;
         }

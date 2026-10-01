@@ -1,5 +1,7 @@
 package dev.dubhe.anvilcraft.recipe.anvil.predicate.item;
 
+import com.mojang.datafixers.util.Either;
+import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.anvilcraft.lib.v2.codec.StreamCodecUtil;
@@ -29,16 +31,35 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Function;
 
 public record HasDiffItems(
     Vec3 offset,
     Vec3 range,
-    ItemIngredientPredicate item,
+    List<ItemIngredientPredicate> ingredients,
     List<IPredicateFunction<?>> functions
 ) implements IRecipePredicate<HasDiffItems> {
+    public HasDiffItems {
+        ingredients = List.copyOf(ingredients);
+        functions = List.copyOf(functions);
+    }
+
+    public HasDiffItems(Vec3 offset, Vec3 range, ItemIngredientPredicate item, List<IPredicateFunction<?>> functions) {
+        this(offset, range, List.of(item), functions);
+    }
+
+    public ItemIngredientPredicate item() {
+        return this.ingredients.getFirst();
+    }
+
+    public static HasDiffItems fromPredicates(List<ItemIngredientPredicate> predicates, Vec3 offset, Vec3 range) {
+        return new HasDiffItems(offset, range, predicates, List.of());
+    }
+
     /// 构造一个物品原料条件谓词
     ///
     /// @param offset    偏移量
@@ -53,11 +74,20 @@ public record HasDiffItems(
         if (!(input instanceof ICacheInputOutputImpl impl)) return false;
         ICacheInputOutputImplAccessor accessor = Util.cast(impl);
         Set<ICacheElement> elements = accessor.getElements();
-        if (elements.size() != this.item.count()) return false;
+        if (this.ingredients.isEmpty() || this.ingredients.stream().anyMatch(ingredient -> ingredient.count() <= 0)) return false;
+        long count = this.ingredients.stream().mapToLong(ItemIngredientPredicate::count).sum();
+        if (elements.size() != count) return false;
+        List<ICacheElement> ordered = elements.stream().sorted(Comparator.comparingInt(element ->
+            element instanceof ItemResourceHandlerCacheElement
+                ? ((ItemResourceHandlerCacheElementAccessor) element).getSlot() : Integer.MAX_VALUE)).toList();
         Set<Item> items = new HashSet<>();
-        for (ICacheElement element : elements) {
-            if (element.getCount() != 1 || !element.is(this.item.testIgnoreCount())) return false;
-            element.apply(stack -> items.add(stack.getItem()));
+        int index = 0;
+        for (ItemIngredientPredicate ingredient : this.ingredients) {
+            for (int i = 0; i < ingredient.count(); i++) {
+                ICacheElement element = ordered.get(index++);
+                if (element.getCount() != 1 || !element.is(ingredient.testIgnoreCount())) return false;
+                element.apply(stack -> items.add(stack.getItem()));
+            }
         }
         return items.size() == elements.size();
     }
@@ -131,6 +161,11 @@ public record HasDiffItems(
     }
 
     public static class Type implements IRecipePredicate.Type<HasDiffItems> {
+        private static final MapCodec<List<ItemIngredientPredicate>> INGREDIENTS_CODEC = Codec.mapEither(
+            ItemIngredientPredicate.CODEC.fieldOf("ingredient"),
+            ItemIngredientPredicate.CODEC.listOf().fieldOf("ingredients")
+        ).xmap(either -> either.map(List::of, Function.identity()), ingredients -> ingredients.size() == 1
+            ? Either.left(ingredients.getFirst()) : Either.right(ingredients));
         public static final MapCodec<HasDiffItems> CODEC = RecordCodecBuilder.mapCodec(inst -> inst.group(
             Vec3.CODEC
                 .fieldOf("offset")
@@ -138,9 +173,7 @@ public record HasDiffItems(
             Vec3.CODEC
                 .fieldOf("range")
                 .forGetter(HasDiffItems::range),
-            ItemIngredientPredicate.CODEC
-                .fieldOf("ingredient")
-                .forGetter(HasDiffItems::item),
+            Type.INGREDIENTS_CODEC.forGetter(HasDiffItems::ingredients),
             IPredicateFunction.CODEC
                 .listOf()
                 .optionalFieldOf("functions", List.of())
@@ -151,8 +184,8 @@ public record HasDiffItems(
             HasDiffItems::offset,
             Vec3.STREAM_CODEC,
             HasDiffItems::range,
-            ItemIngredientPredicate.STREAM_CODEC,
-            HasDiffItems::item,
+            ItemIngredientPredicate.STREAM_CODEC.apply(ByteBufCodecs.list()),
+            HasDiffItems::ingredients,
             StreamCodecUtil.codec2Stream(IPredicateFunction.CODEC).apply(ByteBufCodecs.list()),
             HasDiffItems::functions,
             HasDiffItems::new
