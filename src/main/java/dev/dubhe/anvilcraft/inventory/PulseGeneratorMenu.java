@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.inventory;
 
+import dev.dubhe.anvilcraft.api.menu.MenuBlockEntityLookup;
 import dev.dubhe.anvilcraft.block.entity.PulseGeneratorBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import lombok.Getter;
@@ -28,12 +29,20 @@ public class PulseGeneratorMenu extends AbstractContainerMenu {
     }
 
     public PulseGeneratorMenu(@Nullable MenuType<?> menuType, int containerId, Inventory inventory, FriendlyByteBuf extraData) {
-        this(
-            menuType, containerId, inventory,
-            Objects.requireNonNull(
-                inventory.player.level().getBlockEntity(extraData.readBlockPos()) instanceof PulseGeneratorBlockEntity repeater
-                    ? repeater.readDataNbt(Objects.requireNonNull(extraData.readNbt())) : null
-            ));
+        this(menuType, containerId, inventory, readGenerator(inventory, extraData));
+    }
+
+    private static PulseGeneratorBlockEntity readGenerator(Inventory inventory, FriendlyByteBuf extraData) {
+        BlockEntity found = MenuBlockEntityLookup.find(
+            inventory.player.level(),
+            extraData.readBlockPos(),
+            PulseGeneratorBlockEntity.class
+        );
+        return Objects.requireNonNull(
+            found instanceof PulseGeneratorBlockEntity repeater
+                ? repeater.readDataNbt(Objects.requireNonNull(extraData.readNbt()))
+                : null
+        );
     }
 
     @Override

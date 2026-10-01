@@ -5,6 +5,7 @@ import dev.dubhe.anvilcraft.api.behavior.BehaviorTree;
 import dev.dubhe.anvilcraft.api.behavior.TreeNode;
 import dev.dubhe.anvilcraft.api.event.AnvilEvent;
 import dev.dubhe.anvilcraft.api.giantanvil.IShockEntity;
+import dev.dubhe.anvilcraft.api.giantanvil.IShockFixedBlock;
 import dev.dubhe.anvilcraft.api.giantanvil.ShockAnvilBehavior;
 import dev.dubhe.anvilcraft.entity.FallingSpectralBlockEntity;
 import dev.dubhe.anvilcraft.init.ModSoundEvents;
@@ -114,6 +115,7 @@ public class GiantAnvilShockEventListener {
                 Level level = it.unwrap().level();
                 for (BlockPos pos : it.unwrap().rangePosList()) {
                     BlockState state = level.getBlockState(pos);
+                    if (state.getBlock() instanceof IShockFixedBlock fixed && fixed.anvilcraft$isFixedDuringShockBounce(state)) continue;
                     if (state.is(ModBlocks.SPECTRAL_ANVIL.get())) {
                         FallingSpectralBlockEntity entity = FallingSpectralBlockEntity.fall(level, pos, state, false, true);
                         entity.setDeltaMovement(0, ShockContext.bounceVelocityForHeight(1.0D), 0);

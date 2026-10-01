@@ -26,6 +26,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * 结构磁盘预览支持类
@@ -41,6 +42,18 @@ import java.util.UUID;
  * </ul>
  */
 public class StructureDiskPreviewSupport {
+    private static final List<PreviewHandler> PREVIEW_HANDLERS = new CopyOnWriteArrayList<>();
+
+    /** 返回 true 表示接管预览，仅客户端调用。 */
+    public static void registerPreviewHandler(PreviewHandler handler) {
+        PREVIEW_HANDLERS.add(handler);
+    }
+
+    @FunctionalInterface
+    public interface PreviewHandler {
+        boolean render(GuiGraphicsExtractor graphics, ItemStack stack, int mouseX, int mouseY);
+    }
+
     private static final int PREVIEW_SIZE = 80;
 
     /**
@@ -72,6 +85,9 @@ public class StructureDiskPreviewSupport {
      * 在指定位置渲染预览
      */
     public static void renderPreviewAt(GuiGraphicsExtractor graphics, ItemStack diskStack, int mouseX, int mouseY) {
+        for (PreviewHandler handler : PREVIEW_HANDLERS) {
+            if (handler.render(graphics, diskStack, mouseX, mouseY)) return;
+        }
         Minecraft minecraft = Minecraft.getInstance();
         if (minecraft.level == null) return;
 
