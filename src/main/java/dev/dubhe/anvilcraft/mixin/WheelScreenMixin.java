@@ -52,7 +52,7 @@ public abstract class WheelScreenMixin implements IHasHammerEffect {
         float scale = AnvilCraft.CLIENT_CONFIG.anvilHammerRadialMenuScale;
         args.set(4, 55 * scale);
         args.set(5, 105 * scale);
-        args.set(7, Math.round(args.<Integer>get(7) * scale));
+        args.set(7, (int) (15 * scale));
     }
 
     @Inject(method = "rebuildWheelWidget", at = @At("TAIL"))
