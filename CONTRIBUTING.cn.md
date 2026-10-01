@@ -5,16 +5,19 @@
 1. 导入 Java 代码样式配置（必须）
     - [此处查看](https://gist.github.com/Gu-ZT/c3dfd97991daea73d1a5316e0974778f)
     - `设置` -> `编辑器` -> `代码样式` -> `Java` -> `方案` -> `导入方案`
-2. 导入配色方案（可选）
+2. 导入 Java 代码检查配置（必须）
+   - [此处查看](https://gist.github.com/QiuShui1012/edf689d2b0bc4d893589477a8ebb5387)
+   - `设置` -> `编辑器` -> `检查` -> `方案` -> `导入方案`
+3. 导入配色方案（可选）
     - [此处查看](https://gist.github.com/Gu-ZT/2410fd75cf9b5da09d0b77a57c1caaf7)
     - `设置` -> `编辑器` -> `配色方案` -> `导入方案`
-3. 添加 `CheckStyle-IDEA` 插件（可选）
+4. 添加 `CheckStyle-IDEA` 插件（可选）
     - [此处查看](https://plugins.jetbrains.com/plugin/1065-checkstyle-idea)
     - `插件` -> `Marketplace`
     - 搜索由 `Jamie Shiell` 制作的 `CheckStyle-IDEA` 插件并应用
     - `设置` -> `工具` -> `CheckStyle` -> `Configuration File` -> `+`/`添加` -> 选择项目根目录下的 `style.xml` 文件
     - `设置` -> `工具` -> `CheckStyle` -> `Configuration File` -> 将除刚添加的条目外的其它条目取消勾选
-4. 添加 `Minecraft Development` 插件（推荐）
+5. 添加 `Minecraft Development` 插件（推荐）
     - [此处查看](https://plugins.jetbrains.com/plugin/8327-minecraft-development)
     - `插件` -> `Marketplace` -> 搜索 `Minecraft Development` 并应用
 
