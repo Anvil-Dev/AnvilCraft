@@ -8,7 +8,6 @@ import dev.dubhe.anvilcraft.api.giantanvil.IShockEntity;
 import dev.dubhe.anvilcraft.api.giantanvil.IShockFixedBlock;
 import dev.dubhe.anvilcraft.api.giantanvil.ShockAnvilBehavior;
 import dev.dubhe.anvilcraft.entity.FallingSpectralBlockEntity;
-import dev.dubhe.anvilcraft.init.ModSoundEvents;
 import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.entity.ModDamageTypes;
@@ -17,7 +16,6 @@ import dev.dubhe.anvilcraft.network.ScreenShakePacket;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.TickTask;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -251,10 +249,19 @@ public class GiantAnvilShockEventListener {
 
         // 发送震波效果包到附近所有玩家
         if (level instanceof ServerLevel serverLevel) {
+            boolean isResin = context.testCorner(ModBlockTags.RESIN_SHOCK_COMPATIBLE)
+                              && context.testBorder(ModBlockTags.RESIN_SHOCK_COMPATIBLE);
             PacketDistributor.sendToPlayersTrackingChunk(
                 serverLevel,
                 new ChunkPos(event.getPos()),
-                new GiantAnvilShockEffectPacket(shockCenter, radius)
+                new GiantAnvilShockEffectPacket(
+                    shockCenter,
+                    radius,
+                    isResin,
+                    isResin
+                    ? 0.8f + level.random.nextFloat() * 0.4f
+                    : 1.2f + level.random.nextFloat() * 0.2f
+                )
             );
             // 屏幕震动（幅度小、结束快，仅玩家站在地面上才震），范围与撼地一致
             PacketDistributor.sendToPlayersTrackingChunk(
@@ -266,30 +273,6 @@ public class GiantAnvilShockEventListener {
                     ScreenShakePacket.ShakeType.GIANT_ANVIL_SHOCK
                 )
             );
-        }
-
-        if (level.isClientSide && AnvilCraft.CLIENT_CONFIG.effects.playGiantAnvilShockSound) {
-            boolean isResin = context.testCorner(ModBlockTags.RESIN_SHOCK_COMPATIBLE)
-                              && context.testBorder(ModBlockTags.RESIN_SHOCK_COMPATIBLE);
-            if (isResin) {
-                level.playSound(
-                    null,
-                    event.getPos(),
-                    ModSoundEvents.GIANT_ANVIL_RESIN_SHOCK.get(),
-                    SoundSource.BLOCKS,
-                    2.0f,
-                    0.8f + level.random.nextFloat() * 0.4f
-                );
-            } else {
-                level.playSound(
-                    null,
-                    event.getPos(),
-                    ModSoundEvents.GIANT_ANVIL_SHOCK.get(),
-                    SoundSource.BLOCKS,
-                    1.8f,
-                    1.2f + level.random.nextFloat() * 0.2f
-                );
-            }
         }
     }
 }
