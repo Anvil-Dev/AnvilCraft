@@ -47,23 +47,35 @@ import java.util.Map;
 public class ProceduralProcessCategory implements IRecipeCategory<RecipeHolder<ProceduralProcessRecipe>> {
     private static final String INITIAL_BLOCK = "initial_block";
     public static final int WIDTH = 162;
-    /** 步骤图区域的高度，材料清单紧接其下方 */
-    public static final int CONTENT_HEIGHT = 90;
-    public static final int MATERIALS_LABEL_Y = CONTENT_HEIGHT;
-    public static final int MATERIALS_Y = CONTENT_HEIGHT + 12;
+    /** 步骤图区域的高度，至少容纳到流程行（长箭头与循环图标）的底边 */
+    public static final int CONTENT_HEIGHT = 82;
+    /** 材料清单相对步骤图底边上移的像素数。标签在流程行左侧、槽位在流程行下方，上移后仍不相撞。 */
+    public static final int MATERIALS_RAISE = 10;
+    public static final int MATERIALS_LABEL_Y = CONTENT_HEIGHT - MATERIALS_RAISE;
+    public static final int MATERIALS_Y = MATERIALS_LABEL_Y + 12;
     /** 材料清单单行最多展示的材料种类数 */
     public static final int MATERIALS_SLOTS = 9;
     public static final int HEIGHT = MATERIALS_Y + 18 + 4;
 
     public static final int STEPS_LENGTH = 120;
     public static final int STEP_X = (WIDTH - STEPS_LENGTH) / 2 + 10;
-    public static final int STEP_Y = 4;
     public static final int STEP_LENGTH = 20;
 
-    public static final int ANVIL_Y = STEP_Y;
-    public static final int ITEM_Y = 20;
-    public static final int BLOCK_Y = 50;
-    public static final int FLOW_Y = 72;
+    /** 铁砧顶端。整体下移，使铁砧贴图完整落在类目内，不再溢到标题区白占高度。 */
+    public static final int ANVIL_Y = 10;
+    /**
+     * 物品槽顶端，紧贴铁砧下方。
+     *
+     * <p>物品槽与主线上方那行必然互斥：只有物品注入配方带物品输入，而它的输入方块恒为一个、
+     * 主体就落在主线上，会占上方那行的是方块压缩与方块处理（其配方不含物品）。因此两者可以
+     * 重叠，无需为其预留独立高度。</p>
+     */
+    public static final int ITEM_Y = 23;
+    /** 显示主线：主体方块固定画在这一行，上方一行留「从上面砸进去」的方块，下方一行留垫底方块。 */
+    public static final int BLOCK_Y = 48;
+    /** 相邻输入方块之间的行距。 */
+    public static final int BLOCK_ROW_DY = 10;
+    public static final int FLOW_Y = 69;
     private static final long LOOP_CYCLE_MILLIS = 1500L;
     private static final int CYCLE_SIZE = 16;
 
@@ -131,8 +143,11 @@ public class ProceduralProcessCategory implements IRecipeCategory<RecipeHolder<P
                 slot.addIngredients(Ingredient.of(ingredient.getItems()));
             }
 
+            // 槽位跟随主线之外的偏移，与 draw 中的方块渲染保持一致
+            int anchor = anchorIndex(stepRecipe);
             for (int j = 0; j < stepRecipe.getInputBlocks().size(); j++) {
-                int y = j == 0 ? BLOCK_Y - 6 : BLOCK_Y + 12 + 10 * (j - 1);
+                int blockY = BLOCK_Y + BLOCK_ROW_DY * (j - anchor);
+                int y = blockY + (j == 0 ? -6 : 2);
                 int height = j == 0 ? 18 : 10;
                 JeiBlockIngredientUtil.addInputSlot(
                     builder,
@@ -221,18 +236,22 @@ public class ProceduralProcessCategory implements IRecipeCategory<RecipeHolder<P
             }
 
             // block
+            // 主体（产出方块落点所在的那个输入）固定占主线行，其余输入按与它的世界上下
+            // 关系向上/下偏移，使各步的主线始终对齐。
+            int anchor = anchorIndex(stepRecipe);
             for (int j = stepRecipe.getInputBlocks().size() - 1; j >= 0; j--) {
                 List<BlockState> input = stepRecipe.getInputBlocks().get(j).constructStatesForRender();
                 if (input.isEmpty()) continue;
                 BlockState renderedState = JeiBlockIngredientUtil
                     .getDisplayedState(recipeSlotsView, stepBlockSlotName(i, j), input)
                     .orElse(input.getFirst());
+                int blockY = BLOCK_Y + BLOCK_ROW_DY * (j - anchor);
                 if (renderedState.getBlock() instanceof WipBlock) {
                     RenderSupport.renderBlock(
                         guiGraphics,
                         renderedState,
                         stepX + i * stepDx,
-                        BLOCK_Y + 10 * j,
+                        blockY,
                         10 - 10 * j,
                         12,
                         RenderSupport.wipDisplay(recipe, displayedLoop * recipe.getSteps().size() + i)
@@ -242,7 +261,7 @@ public class ProceduralProcessCategory implements IRecipeCategory<RecipeHolder<P
                     guiGraphics,
                     renderedState,
                     stepX + i * stepDx,
-                    BLOCK_Y + 10 * j,
+                    blockY,
                     10 - 10 * j,
                     12,
                     RenderSupport.SINGLE_BLOCK
@@ -318,6 +337,23 @@ public class ProceduralProcessCategory implements IRecipeCategory<RecipeHolder<P
 
     private static String stepBlockSlotName(int step, int block) {
         return "step_" + step + "_block_" + block;
+    }
+
+    /**
+     * 该步骤的显示主线落在第几个输入方块上。
+     *
+     * <p>主线即该步骤正在被加工的主体，也就是产出方块落点所在的那格输入：下标 {@code i} 的
+     * 输入位于 {@code blockInputOffset} 往下 {@code i} 格，产出位于 {@code blockOutputOffset}，
+     * 两者重合的那个下标就是主体。方块压缩把两块压成一块、产物落在再下一格（偏移 -2），
+     * 主体是下面那块、上面那块是从上面砸进去的；方块处理与物品注入原地成型（偏移 -1），
+     * 主体就是铁砧正下方那块。主体固定在 {@link #BLOCK_Y} 上渲染，其余输入按它在世界里的
+     * 相对高度向上或向下偏移，避免主体在各步之间上下跳动。</p>
+     */
+    private static int anchorIndex(AbstractProcessRecipe<?> stepRecipe) {
+        double inputY = stepRecipe.getProperty().getBlockInputOffset().y;
+        double outputY = stepRecipe.getProperty().getBlockOutputOffset().y;
+        int index = (int) Math.round(inputY - outputY);
+        return Math.clamp(index, 0, Math.max(stepRecipe.getInputBlocks().size() - 1, 0));
     }
 
     private static int getDisplayedLoop(ProceduralProcessRecipe recipe) {
