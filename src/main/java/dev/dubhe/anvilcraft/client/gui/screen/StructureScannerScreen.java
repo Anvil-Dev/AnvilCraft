@@ -124,7 +124,6 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
     private float previewRotationX = -30.0f;
     private static final float MIN_ROTATION_X = -60.0f;
     private static final float MAX_ROTATION_X = 0.0f;
-    private static final float ROTATION_SENSITIVITY = 0.5f;
 
     // 鼠标拖拽状态
     private boolean isPreviewDragging = false;
@@ -1353,10 +1352,10 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
             float deltaY = currentMouseY - this.lastMouseY;
 
             // 水平移动 -> Y轴旋转
-            this.previewRotationY += deltaX * ROTATION_SENSITIVITY;
+            this.previewRotationY += deltaX * AnvilCraft.CLIENT_CONFIG.controls.previewRotationSensitivity;
 
             // 垂直移动 -> X轴旋转（有限制，反转方向）
-            this.previewRotationX -= deltaY * ROTATION_SENSITIVITY;
+            this.previewRotationX -= deltaY * AnvilCraft.CLIENT_CONFIG.controls.previewRotationSensitivity;
             this.previewRotationX = Math.clamp(this.previewRotationX, MIN_ROTATION_X, MAX_ROTATION_X);
 
             this.lastMouseX = currentMouseX;

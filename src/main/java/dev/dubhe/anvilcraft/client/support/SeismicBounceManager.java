@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.client.support;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import dev.dubhe.anvilcraft.AnvilCraft;
 import lombok.Getter;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -23,8 +24,6 @@ public class SeismicBounceManager {
 
     private static final SeismicBounceManager INSTANCE = new SeismicBounceManager();
 
-    private static final int BOUNCE_DURATION_TICKS = 16;
-    private static final float MAX_AMPLITUDE = 0.85f;
     private static final int CENTER_EXCLUSION_RADIUS = 1;
 
     /**
@@ -69,7 +68,7 @@ public class SeismicBounceManager {
                 if (!state.isAir() && !SeismicBounceManager.isAttachmentBlock(state) && state.getRenderShape() == RenderShape.MODEL
                     && level.isEmptyBlock(pos.above()) && level.getBlockEntity(pos) == null) {
                     // 振幅随机扰动 0.8~1.2 倍，使弹跳高度有自然差异
-                    float amplitude = SeismicBounceManager.MAX_AMPLITUDE
+                    float amplitude = AnvilCraft.CLIENT_CONFIG.effects.giantAnvilShockBounceAmplitude
                                       * (1.0f - (float) dist / radius)
                                       * (0.8f + this.tesselateRandom.nextFloat() * 0.4f);
                     amplitude = Math.max(amplitude, 0.15f);
@@ -193,9 +192,9 @@ public class SeismicBounceManager {
         }
 
         void reset(float newAmplitude, int newStartDelay) {
-            this.totalTicks = SeismicBounceManager.BOUNCE_DURATION_TICKS;
+            this.totalTicks = AnvilCraft.CLIENT_CONFIG.effects.giantAnvilShockBounceDurationTicks;
             this.startDelay = newStartDelay;
-            this.remainingTicks = SeismicBounceManager.BOUNCE_DURATION_TICKS + newStartDelay;
+            this.remainingTicks = AnvilCraft.CLIENT_CONFIG.effects.giantAnvilShockBounceDurationTicks + newStartDelay;
             this.amplitude = newAmplitude;
         }
 

@@ -129,6 +129,10 @@ public class AnvilCraftClientConfig {
             @BoundedDiscrete(min = 2, max = 256)
             public int maxHoleCount = 8;
 
+            @Comment("Controls the maximum distance at which Black/White Holes render gravitational lensing (in blocks)")
+            @BoundedDiscrete(min = 16, max = 512)
+            public int maxDistance = 256;
+
             @SerializedName("Gravitational Lensing Strength")
             @Comment("Controls the lens distortion strength around Black/White Holes (higher values distort light more; default: 0.002)")
             public double strength = 1.0 / 512.0;
@@ -168,6 +172,18 @@ public class AnvilCraftClientConfig {
 
         @Comment("Controls whether to always vertically displays items in item frames on horizontal surfaces")
         public boolean renderVerticalModelsInHorizontalItemFrame = false;
+
+        @Comment("Controls how long the affect-range outline stays visible after looking away (in ticks)")
+        @BoundedDiscrete(min = 0, max = 600)
+        public int affectRangeOutlinePersistTicks = 100;
+
+        @Comment("Controls the maximum brightness of stellar coronas")
+        @BoundedDiscrete(min = 1.0, max = 64.0)
+        public float stellarMaxExposure = 24.0f;
+
+        @Comment("Controls how far the sky darkens at the peak of a visual eclipse")
+        @BoundedDiscrete(min = 0.0, max = 1.0)
+        public float overworldLikeEclipseDarken = 0.72f;
     }
 
     @SerializedName("Effects & Sounds")
@@ -242,6 +258,22 @@ public class AnvilCraftClientConfig {
         @Comment("Controls the opacity of the outline preview when placing multipart blocks")
         @BoundedDiscrete(min = 0.0, max = 1.0)
         public double multiPartPreviewOutlineOpacity = 0.5;
+
+        @Comment("Controls the volume of energy weapons' firing sounds (multiplier)")
+        @BoundedDiscrete(min = 0.0, max = 2.0)
+        public float energyWeaponSoundVolume = 1.0f;
+
+        @Comment("Controls the maximum number of particles per ring in the Redstone EMP shockwave")
+        @BoundedDiscrete(min = 8, max = 64)
+        public int redstoneEmpMaxRingParticles = 48;
+
+        @Comment("Controls the duration of the block bounce animation in Giant Anvil's shockwaves (in ticks)")
+        @BoundedDiscrete(min = 1, max = 100)
+        public int giantAnvilShockBounceDurationTicks = 16;
+
+        @Comment("Controls the maximum bounce height of blocks in Giant Anvil's shockwaves")
+        @BoundedDiscrete(min = 0.0, max = 2.0)
+        public float giantAnvilShockBounceAmplitude = 0.85f;
     }
 
     @SerializedName("UI & HUD")
@@ -304,6 +336,30 @@ public class AnvilCraftClientConfig {
         @Comment("Controls whether to display charged capacitor counts in HUD")
         public boolean displayCapacitorCountInHud = true;
 
+        @Comment("Controls the display cycle of recipe preview animations (in milliseconds)")
+        @BoundedDiscrete(min = 200, max = 10000)
+        public int recipePreviewCycleMillis = 1500;
+
+        @Comment("Controls how long the Storage Terminal's missing station flyout stays visible (in ticks)")
+        @BoundedDiscrete(min = 0, max = 100)
+        public int storageFlyoutHoldTicks = 25;
+
+        @Comment("Controls how fast the Filter item cycles through its stored items (in milliseconds)")
+        @BoundedDiscrete(min = 100, max = 5000)
+        public int filterItemDisplayIntervalMillis = 1000;
+
+        @SerializedName("Apply Changes When Closing Category Settings")
+        @Comment("Controls whether closing a category settings screen applies or discards the changes")
+        public ExitBehaviourMode exitCategorySettingBehaviour = ExitBehaviourMode.CANCEL;
+
+        public enum ExitBehaviourMode implements TranslatableEnum {
+            @SerializedName("Apply Changes")
+            CONFIRM,
+
+            @SerializedName("Discard Changes")
+            CANCEL
+        }
+
         @SerializedName("Weatherproof Chestplate HUD")
         @CollapsibleObject
         public WeatherproofChestplateHud weatherproofChestplateHud = new WeatherproofChestplateHud();
@@ -340,6 +396,10 @@ public class AnvilCraftClientConfig {
             "Controls whether to swap the fluid port bucket actions in the storage screen so that left-click stores and right-click pours"
         )
         public boolean invertFluidPortBucketActions = false;
+
+        @Comment("Controls the mouse sensitivity when rotating 3D structure previews")
+        @BoundedDiscrete(min = 0.1, max = 2.0)
+        public float previewRotationSensitivity = 0.5f;
 
         @SerializedName("Building Rod Blueprint Key Set Type")
         @Comment("Controls the key set type used by the Building Rod blueprint mode")

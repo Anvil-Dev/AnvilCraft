@@ -102,7 +102,7 @@ public class AnvilParticleManager {
 
         @Override
         public void spawnRing(ClientLevel level, int ring) {
-            int count = Math.clamp((int) (Math.PI * ring * 1.5), 8, 48);
+            int count = Math.clamp((int) (Math.PI * ring * 1.5), 8, AnvilCraft.CLIENT_CONFIG.effects.redstoneEmpMaxRingParticles);
             double angleOffset = ring * 0.7;
             DustParticleOptions particle = ring < this.radius * 0.4 ? AnvilParticleManager.RED_DUST : AnvilParticleManager.ORANGE_DUST;
             for (int i = 0; i < count; i += 2) {

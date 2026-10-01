@@ -196,7 +196,6 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
     private static final int CRAFTING_POP_TICKS = 5;
     /** 缺失工作台/切石机提示浮窗：0.25s 淡入 + 1.25s 停留 + 0.25s 淡出。 */
     private static final int FLYOUT_FADE_IN_TICKS = 5;
-    private static final int FLYOUT_HOLD_TICKS = 25;
     private static final int FLYOUT_FADE_OUT_TICKS = 5;
     /**
      * 浮层的 z。界面内各层的 z：物品图标 150、耐久条与数量数字 200、本浮层 300、
@@ -989,10 +988,10 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
             return this.flyoutTimer / (float) StorageScreen.FLYOUT_FADE_IN_TICKS;
         }
         int elapsed = this.flyoutTimer - StorageScreen.FLYOUT_FADE_IN_TICKS;
-        if (elapsed < StorageScreen.FLYOUT_HOLD_TICKS) {
+        if (elapsed < AnvilCraft.CLIENT_CONFIG.ui.storageFlyoutHoldTicks) {
             return 1.0F;
         }
-        elapsed -= StorageScreen.FLYOUT_HOLD_TICKS;
+        elapsed -= AnvilCraft.CLIENT_CONFIG.ui.storageFlyoutHoldTicks;
         if (elapsed < StorageScreen.FLYOUT_FADE_OUT_TICKS) {
             return 1.0F - elapsed / (float) StorageScreen.FLYOUT_FADE_OUT_TICKS;
         }
@@ -1007,7 +1006,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
         if (
             this.flyoutVisible
             && this.flyoutTimer < StorageScreen.FLYOUT_FADE_IN_TICKS
-            + StorageScreen.FLYOUT_HOLD_TICKS
+            + AnvilCraft.CLIENT_CONFIG.ui.storageFlyoutHoldTicks
             + StorageScreen.FLYOUT_FADE_OUT_TICKS
         ) {
             this.flyoutTimer++;
