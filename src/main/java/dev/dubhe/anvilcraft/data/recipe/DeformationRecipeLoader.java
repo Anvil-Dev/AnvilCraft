@@ -1,7 +1,10 @@
 package dev.dubhe.anvilcraft.data.recipe;
 
 import dev.anvilcraft.lib.v2.registrum.providers.generators.RegistrumRecipeProvider;
+import dev.anvilcraft.lib.v2.util.predicate.ItemIngredientPredicate;
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.init.item.ModItems;
+import dev.dubhe.anvilcraft.recipe.frost.CustomFrostMaterialPredicate;
 import dev.dubhe.anvilcraft.recipe.frost.DeformationRecipe;
 import dev.dubhe.anvilcraft.recipe.frost.EmptyFrostMaterialPredicate;
 import dev.dubhe.anvilcraft.recipe.frost.RepairMaterialFrostMaterialPredicate;
@@ -9,6 +12,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.ItemLike;
 
 import java.util.List;
 
@@ -18,6 +22,11 @@ public class DeformationRecipeLoader {
         "chestplate",
         "leggings",
         "boots"
+    );
+    private static final List<String> WORKSTATIONS = List.of(
+        "anvil",
+        "grindstone",
+        "smithing_table"
     );
     private static final Identifier WOODEN = Identifier.withDefaultNamespace("wooden");
     private static final Identifier STONE = Identifier.withDefaultNamespace("stone");
@@ -30,6 +39,10 @@ public class DeformationRecipeLoader {
     private static final Identifier ROYAL_STEEL = AnvilCraft.of("royal_steel");
     private static final Identifier FROST_METAL = AnvilCraft.of("frost_metal");
     private static final Identifier EMBER_METAL = AnvilCraft.of("ember_metal");
+    private static final Identifier ROYAL = AnvilCraft.of("royal");
+    private static final Identifier EMBER = AnvilCraft.of("ember");
+    private static final Identifier FROST = AnvilCraft.of("frost");
+    private static final Identifier TRANSCENDENCE = AnvilCraft.of("transcendence");
 
     public static void init(RegistrumRecipeProvider provider) {
         DeformationRecipeLoader.registerTools(provider, DeformationRecipeLoader.WOODEN);
@@ -48,6 +61,11 @@ public class DeformationRecipeLoader {
         DeformationRecipeLoader.registerArmors(provider, DeformationRecipeLoader.GOLDEN);
         DeformationRecipeLoader.registerArmors(provider, DeformationRecipeLoader.DIAMOND);
         DeformationRecipeLoader.registerArmors(provider, DeformationRecipeLoader.NETHERITE);
+
+        DeformationRecipeLoader.registerWorkstations(provider, DeformationRecipeLoader.ROYAL, ModItems.ROYAL_STEEL_INGOT);
+        DeformationRecipeLoader.registerWorkstations(provider, DeformationRecipeLoader.EMBER, ModItems.EMBER_METAL_INGOT);
+        DeformationRecipeLoader.registerWorkstations(provider, DeformationRecipeLoader.FROST, ModItems.FROST_METAL_INGOT);
+        DeformationRecipeLoader.registerWorkstations(provider, DeformationRecipeLoader.TRANSCENDENCE, ModItems.TRANSCENDIUM_INGOT);
 
         DeformationRecipe.builder()
             .material(new EmptyFrostMaterialPredicate())
@@ -72,6 +90,19 @@ public class DeformationRecipeLoader {
             2,
             prefix.getPath() + "_armors"
         );
+    }
+
+    private static void registerWorkstations(
+        RegistrumRecipeProvider provider,
+        Identifier prefix,
+        ItemLike material
+    ) {
+        DeformationRecipe.Builder builder = DeformationRecipe.builder()
+            .material(CustomFrostMaterialPredicate.of(
+                ItemIngredientPredicate.of(material).withCount(3).build()
+            ));
+        DeformationRecipeLoader.items(prefix, DeformationRecipeLoader.WORKSTATIONS).forEach(builder::input);
+        builder.save(provider, prefix.getPath() + "_workstations");
     }
 
     /**

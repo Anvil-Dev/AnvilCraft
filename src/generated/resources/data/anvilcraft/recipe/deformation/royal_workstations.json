@@ -1,0 +1,21 @@
+{
+  "type": "anvilcraft:deformation",
+  "inputs": [
+    {
+      "id": "anvilcraft:royal_anvil"
+    },
+    {
+      "id": "anvilcraft:royal_grindstone"
+    },
+    {
+      "id": "anvilcraft:royal_smithing_table"
+    }
+  ],
+  "material": {
+    "type": "anvilcraft:custom",
+    "predicate": {
+      "count": 3,
+      "items": "anvilcraft:royal_steel_ingot"
+    }
+  }
+}

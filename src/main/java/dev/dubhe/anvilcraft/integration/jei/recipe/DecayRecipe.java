@@ -46,14 +46,6 @@ public record DecayRecipe(
     }
 
     public static List<DecayRecipe> getAllRecipes() {
-        List<Block> radioactiveBlocks = List.of(
-            ModBlocks.PLUTONIUM_BLOCK.get(),
-            ModBlocks.URANIUM_BLOCK.get()
-        );
-        List<Block> decayProducts = List.of(
-            ModBlocks.URANIUM_BLOCK.get(),
-            ModBlocks.LEAD_BLOCK.get()
-        );
         return List.of(
             new DecayRecipe(
                 AnvilCraft.of("decay/void_matter"),
@@ -64,27 +56,11 @@ public record DecayRecipe(
                 Map.of()
             ),
             new DecayRecipe(
-                AnvilCraft.of("decay/radioactive_three_sides"),
-                radioactiveBlocks,
-                decayProducts,
+                AnvilCraft.of("decay/plutonium_meltdown"),
+                List.of(ModBlocks.PLUTONIUM_BLOCK.get()),
+                List.of(Blocks.MAGMA_BLOCK),
                 null,
-                List.of(DecayRecipe.UP, DecayRecipe.DOWN, DecayRecipe.LEFT),
-                Map.of()
-            ),
-            new DecayRecipe(
-                AnvilCraft.of("decay/radioactive_four_sides_with_lead"),
-                radioactiveBlocks,
-                decayProducts,
-                null,
-                List.of(DecayRecipe.UP, DecayRecipe.DOWN, DecayRecipe.LEFT, DecayRecipe.RIGHT),
-                Map.of(DecayRecipe.FRONT, ModBlocks.LEAD_BLOCK.get())
-            ),
-            new DecayRecipe(
-                AnvilCraft.of("decay/radioactive_six_sides"),
-                radioactiveBlocks,
-                List.of(Blocks.LAVA, Blocks.LAVA),
-                null,
-                List.of(DecayRecipe.UP, DecayRecipe.DOWN, DecayRecipe.LEFT, DecayRecipe.RIGHT, DecayRecipe.FRONT, DecayRecipe.BACK),
+                List.of(),
                 Map.of()
             ),
             new DecayRecipe(

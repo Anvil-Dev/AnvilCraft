@@ -229,18 +229,18 @@ public class ItemTooltipManager {
         ItemTooltipManager.NORMAL.put(ModItems.TIN_INGOT.get(), "A soft and corrosion-resistant metal");
         ItemTooltipManager.NORMAL.put(ModBlocks.TIN_BLOCK.asItem(), "A large block of soft, corrosion-resistant metal");
         ItemTooltipManager.NORMAL.put(ModItems.LEAD_INGOT.get(), "A dense and heavy metal");
-        ItemTooltipManager.NORMAL.put(ModBlocks.LEAD_BLOCK.asItem(), "A large block of dense, heavy metal that absorbs radiation and slows the decay of radioactive blocks");
+        ItemTooltipManager.NORMAL.put(ModBlocks.LEAD_BLOCK.asItem(), "A large block of dense, heavy metal that absorbs radiation");
         ItemTooltipManager.NORMAL.put(ModItems.SILVER_INGOT.get(), "A highly reflective metal");
         ItemTooltipManager.NORMAL.put(ModBlocks.SILVER_BLOCK.asItem(), "A large block of highly reflective metal");
         ItemTooltipManager.NORMAL.put(ModItems.URANIUM_INGOT.get(), "Radioactive - handle with care");
-        ItemTooltipManager.NORMAL.put(ModBlocks.URANIUM_BLOCK.asItem(), "A large block of radioactive material that continuously releases heat but decays when multiple blocks are adjacent");
+        ItemTooltipManager.NORMAL.put(ModBlocks.URANIUM_BLOCK.asItem(), "A large block of radioactive material that continuously releases heat and does not decay");
         ItemTooltipManager.NORMAL.put(
             ModItems.PLUTONIUM_INGOT.get(),
             "Highly radioactive - cannot be mined naturally, obtained from uranium transmutation"
         );
         ItemTooltipManager.NORMAL.put(
             ModBlocks.PLUTONIUM_BLOCK.asItem(),
-            "A large block of highly radioactive material obtained only by transmuting uranium; continuously releases heat but decays when multiple blocks are adjacent"
+            "A large block of highly radioactive material obtained only by transmuting uranium; continuously releases heat and melts down when all six sides are free of water"
         );
         ItemTooltipManager.NORMAL.put(ModItems.BRONZE_INGOT.get(), "A durable copper-tin alloy");
         ItemTooltipManager.NORMAL.put(ModBlocks.BRONZE_BLOCK.asItem(), "A large block of durable copper-tin alloy");

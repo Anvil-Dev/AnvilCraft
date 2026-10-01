@@ -1,5 +1,16 @@
 {
   "values": [
+    "minecraft:amethyst_block",
+    "minecraft:bricks",
+    "minecraft:clay",
+    "minecraft:dripstone_block",
+    "minecraft:glowstone",
+    "minecraft:honeycomb_block",
+    "minecraft:nether_bricks",
+    "minecraft:prismarine",
+    "minecraft:quartz_block",
+    "minecraft:red_sandstone",
+    "minecraft:sandstone",
     "anvilcraft:negative_matter",
     "minecraft:snow_block",
     "minecraft:white_wool",

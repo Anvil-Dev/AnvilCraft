@@ -3016,7 +3016,7 @@ public class ModBlocks {
         .register();
 
     public static final BlockEntry<? extends Block> URANIUM_BLOCK = REGISTRUM
-        .block("uranium_block", properties -> new RadioactiveBlock(properties, ModBlocks.LEAD_BLOCK))
+        .block("uranium_block", properties -> new RadioactiveBlock(properties, false))
         .lang("Block of Uranium")
         .initialProperties(() -> Blocks.IRON_BLOCK)
         .properties(PropertiesProviderUtil::metalSound)
@@ -3028,7 +3028,7 @@ public class ModBlocks {
         .register();
 
     public static final BlockEntry<? extends Block> PLUTONIUM_BLOCK = REGISTRUM
-        .block("plutonium_block", properties -> new RadioactiveBlock(properties, ModBlocks.URANIUM_BLOCK))
+        .block("plutonium_block", properties -> new RadioactiveBlock(properties, true))
         .lang("Block of Plutonium")
         .initialProperties(() -> Blocks.IRON_BLOCK)
         .properties(PropertiesProviderUtil::metalSound)
