@@ -2862,5 +2862,10 @@
   "tooltip.anvilcraft.item.weatherproof_spacesuit_leggings": "有 12 个口袋槽位\n可使用口袋键与副手交换\n清空口袋才能卸下护腿\n全套：免疫除虚空外的环境伤害；防止坠入虚空",
   "message.anvilcraft.building_rod.contents_missing": "缺少匹配的容器内容物，请在 3 秒内再次右键点击，以放置空容器",
   "screen.anvilcraft.structure_scanner.normalized": "蓝图已修复：添加了 %s 个部分，移除了 %s 格无源头的流体",
-  "screen.anvilcraft.building_rod.selection_size": "%s × %s × %s"
+  "screen.anvilcraft.building_rod.selection_size": "%s × %s × %s",
+  "message.anvilcraft.building_rod.undo_conflict": "无法安全处理发生变化的资源；撤销已取消，区域未更改",
+  "message.anvilcraft.building_rod.undo_missing_containers": "没有充足的流体存储空间，请腾出空间并再次撤销",
+  "message.anvilcraft.building_rod.undo_partial": "区域已恢复；部分实体或物品返还仍待处理。请收回已退回的物品并再次撤销",
+  "message.anvilcraft.building_rod.unsupported_type": "蓝图对象没有受支持的材料：%s",
+  "message.anvilcraft.building_rod.undo_missing_materials": "恢复原始区域需要缺失的材料或流体；请补充它们并再次撤销"
 }
