@@ -347,8 +347,8 @@ public class PlasmaJetsBlockEntity extends BlockEntity {
         for (int i = 0; i < 5; i++) {
             level.addParticle(
                 particle,
-                false,
                 true,
+                false,
                 start.x, start.y, start.z,
                 (random.nextIntBetweenInclusive(0, 20) - 10) / 100.0,
                 vector.y * 0.13,

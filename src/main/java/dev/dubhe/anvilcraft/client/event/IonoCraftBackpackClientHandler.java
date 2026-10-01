@@ -150,8 +150,8 @@ public class IonoCraftBackpackClientHandler {
             for (int i = 0; i < 2; i++) {
                 level.addParticle(
                     ModParticles.IONOCRAFT_BACKPACK_EXHAUST.get(),
-                    false,
                     true,
+                    false,
                     worldX + random.nextGaussian() * 0.08,
                     worldY + random.nextGaussian() * 0.05,
                     worldZ + random.nextGaussian() * 0.08,
