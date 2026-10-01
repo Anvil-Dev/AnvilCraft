@@ -5,8 +5,6 @@ import dev.dubhe.anvilcraft.api.tooltip.providers.ITooltipProvider;
 import dev.dubhe.anvilcraft.block.entity.FishTankBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.FluidTankBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.LargeFluidTankBlockEntity;
-import dev.dubhe.anvilcraft.client.AnvilCraftClient;
-import dev.dubhe.anvilcraft.util.CompatUtil;
 import dev.dubhe.anvilcraft.util.UnitUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
@@ -29,8 +27,6 @@ public class FluidTankTooltipProvider extends ITooltipProvider.BlockEntityToolti
 
     @Override
     public List<Component> tooltip(BlockEntity value) {
-        if (CompatUtil.HAS_JADE.get() && AnvilCraftClient.CONFIG.doNotShowTooltipWhenJadePresent) return List.of();
-
         final List<Component> lines = new ArrayList<>();
         if (value instanceof IFluidHandlerHolder tank) {
             boolean original = false;

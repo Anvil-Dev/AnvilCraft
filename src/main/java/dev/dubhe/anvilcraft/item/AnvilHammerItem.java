@@ -384,7 +384,7 @@ public class AnvilHammerItem extends Item implements Equipable {
     @OnlyIn(Dist.CLIENT)
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     public static boolean shouldRenderEffect(Player player) {
-        return switch (AnvilCraftClient.CONFIG.goggleMode) {
+        return switch (AnvilCraftClient.CONFIG.ui.goggleInfoActivationMode) {
             case ALWAYS_SHOW -> true;
             case WEARING_HAMMER -> AnvilHammerItem.isWearing(player);
             case HOLDING_HAMMER -> AnvilHammerItem.isHolding(player);

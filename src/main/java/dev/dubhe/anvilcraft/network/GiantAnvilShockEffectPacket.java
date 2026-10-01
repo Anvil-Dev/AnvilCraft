@@ -21,7 +21,6 @@ import net.minecraft.world.entity.player.Player;
  * </p>
  */
 public record GiantAnvilShockEffectPacket(BlockPos centerPos, int radius) implements IClientboundPacket {
-
     public static final Type<GiantAnvilShockEffectPacket> TYPE =
         IPacket.type(AnvilCraft.of("giant_anvil_shock_effect"));
 
@@ -35,13 +34,16 @@ public record GiantAnvilShockEffectPacket(BlockPos centerPos, int radius) implem
 
     @Override
     public Type<? extends CustomPacketPayload> type() {
-        return TYPE;
+        return GiantAnvilShockEffectPacket.TYPE;
     }
 
     @Override
     public void handleOnClient(Player player) {
-        if (!AnvilCraft.CLIENT_CONFIG.groundHeaveParticlesEnabled) return;
-        SeismicBounceManager.getInstance().triggerShock(this.centerPos, this.radius);
-        AnvilParticleManager.groundHeave((ClientLevel) player.level(), this.centerPos, this.radius);
+        if (AnvilCraft.CLIENT_CONFIG.effects.displayGiantAnvilShockBlockBounceAnimation) {
+            SeismicBounceManager.getInstance().triggerShock(this.centerPos, this.radius);
+        }
+        if (AnvilCraft.CLIENT_CONFIG.effects.displayGiantAnvilShockParticles) {
+            AnvilParticleManager.giantAnvilShock((ClientLevel) player.level(), this.centerPos, this.radius);
+        }
     }
 }

@@ -2467,7 +2467,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
      * 否则会出现「界面走了存桶分支但服务端按倒液处理」的错配。</p>
      */
     private static int bucketActionButton() {
-        return AnvilCraftClient.CONFIG.invertFluidPortBucketAction ? 1 : 0;
+        return AnvilCraftClient.CONFIG.controls.invertFluidPortBucketActions ? 1 : 0;
     }
 
     private void moveSameToStorage(int slot, int button) {

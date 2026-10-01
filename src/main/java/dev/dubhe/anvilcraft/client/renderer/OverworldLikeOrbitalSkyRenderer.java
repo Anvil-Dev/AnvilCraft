@@ -38,7 +38,7 @@ public final class OverworldLikeOrbitalSkyRenderer {
 
     @SuppressWarnings("checkstyle:VariableDeclarationUsageDistance")
     public static void render(RenderLevelStageEvent event) {
-        if (event.getStage() != RenderLevelStageEvent.Stage.AFTER_SKY || !AnvilCraftClient.CONFIG.renderOverworldLikeSky) {
+        if (event.getStage() != RenderLevelStageEvent.Stage.AFTER_SKY || !AnvilCraftClient.CONFIG.graphics.renderOverworldLikeSkyRings) {
             return;
         }
         Minecraft minecraft = Minecraft.getInstance();

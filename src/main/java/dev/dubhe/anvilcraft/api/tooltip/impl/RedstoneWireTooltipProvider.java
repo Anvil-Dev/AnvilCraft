@@ -3,9 +3,7 @@ package dev.dubhe.anvilcraft.api.tooltip.impl;
 import dev.dubhe.anvilcraft.api.tooltip.providers.ITooltipProvider;
 import dev.dubhe.anvilcraft.block.RedstoneWireBlock;
 import dev.dubhe.anvilcraft.block.RedstoneWireNetworkManager;
-import dev.dubhe.anvilcraft.client.AnvilCraftClient;
 import dev.dubhe.anvilcraft.network.RedstoneWirePowerRequestPacket;
-import dev.dubhe.anvilcraft.util.CompatUtil;
 import it.unimi.dsi.fastutil.longs.Long2IntOpenHashMap;
 import it.unimi.dsi.fastutil.longs.Long2LongOpenHashMap;
 import net.minecraft.ChatFormatting;
@@ -47,10 +45,6 @@ public class RedstoneWireTooltipProvider extends ITooltipProvider.BlockTooltipPr
 
     @Override
     public List<Component> tooltip(Level level, BlockPos pos, BlockState state) {
-        if (CompatUtil.HAS_JADE.get() && AnvilCraftClient.CONFIG.doNotShowTooltipWhenJadePresent) {
-            // 遵守统一兼容配置，避免 Jade 与铁砧锤 HUD 在同一位置重复显示信息。
-            return List.of();
-        }
         ensureLevel(level);
         long packedPos = pos.asLong();
         long gameTime = level.getGameTime();

@@ -32,7 +32,9 @@ import dev.dubhe.anvilcraft.api.tooltip.impl.SpaceOvercompressorTooltipProvider;
 import dev.dubhe.anvilcraft.api.tooltip.providers.IAffectRangeProvider;
 import dev.dubhe.anvilcraft.api.tooltip.providers.IHandHeldItemTooltipProvider;
 import dev.dubhe.anvilcraft.api.tooltip.providers.ITooltipProvider;
+import dev.dubhe.anvilcraft.client.AnvilCraftClient;
 import dev.dubhe.anvilcraft.init.item.ModItems;
+import dev.dubhe.anvilcraft.util.CompatUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
@@ -137,7 +139,11 @@ public class HudTooltipManager {
             return;
         }
         List<Component> tooltip = currentProvider.tooltip(level, pos, state);
-        if (tooltip == null || tooltip.isEmpty()) {
+        if (
+            CompatUtil.HAS_JADE.get() && !AnvilCraftClient.CONFIG.ui.showGoggleTooltipWhenJadePresent
+            || tooltip == null
+            || tooltip.isEmpty()
+        ) {
             return;
         }
         renderTooltipWithItemIcon(
@@ -168,7 +174,11 @@ public class HudTooltipManager {
             return;
         }
         List<Component> tooltip = currentProvider.tooltip(entity);
-        if (tooltip == null || tooltip.isEmpty()) {
+        if (
+            CompatUtil.HAS_JADE.get() && !AnvilCraftClient.CONFIG.ui.showGoggleTooltipWhenJadePresent
+            || tooltip == null
+            || tooltip.isEmpty()
+        ) {
             return;
         }
         renderTooltipWithItemIcon(

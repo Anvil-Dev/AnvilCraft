@@ -65,7 +65,7 @@ public record StorageRef(Holder<IStorageType<?>> type, Optional<UUID> id) implem
 
     @Override
     public void addToTooltip(Item.TooltipContext context, Consumer<Component> builder, TooltipFlag flag) {
-        if (!AnvilCraft.CLIENT_CONFIG.showStorageStoredId) {
+        if (!AnvilCraft.CLIENT_CONFIG.ui.showStorageStoredId) {
             return;
         }
         builder.accept(Component.translatable(

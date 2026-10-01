@@ -431,18 +431,11 @@ public class AutoEnchantingTableScreen extends AbstractContainerScreen<AutoEncha
     }
 
     /**
-     * 液态魔咒模式下等级文字：≤10 级始终罗马数字；>10 级是否罗马数字由客户端配置决定。
+     * 液态魔咒模式下等级文字：≤配置等级为罗马数字；>配置等级为阿拉伯数字。
      */
     private static Component getLiquidLevelText(int level) {
-        if (level <= 10) {
-            return Component.translatable("enchantment.level." + level);
-        }
-        if (AnvilCraft.CLIENT_CONFIG.liquidEnchantmentRomanNumerals) {
-            // 11-15 级已有翻译（XI-XV），更高等级回退为代码计算的罗马数字
-            if (level <= 15) {
-                return Component.translatable("enchantment.level." + level);
-            }
-            return Component.literal(AutoEnchantingTableScreen.toRomanNumeral(level));
+        if (level <= AnvilCraft.CLIENT_CONFIG.ui.liquidEnchantmentLevelRomanNumeralLimit) {
+            return Component.translatableWithFallback("enchantment.level." + level, AutoEnchantingTableScreen.toRomanNumeral(level));
         }
         return Component.literal(String.valueOf(level));
     }

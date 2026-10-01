@@ -5,8 +5,6 @@ import dev.anvilcraft.lib.v2.rpc.RpcTarget;
 import dev.dubhe.anvilcraft.api.heat.HeatRecorder;
 import dev.dubhe.anvilcraft.api.tooltip.providers.ITooltipProvider;
 import dev.dubhe.anvilcraft.block.entity.heatable.HeatableBlockEntity;
-import dev.dubhe.anvilcraft.client.AnvilCraftClient;
-import dev.dubhe.anvilcraft.util.CompatUtil;
 import dev.dubhe.anvilcraft.util.FormattingUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
@@ -33,7 +31,6 @@ public class HeatableBlockTooltipProvider extends ITooltipProvider.BlockEntityTo
 
     @Override
     public List<Component> tooltip(BlockEntity entity) {
-        if (CompatUtil.HAS_JADE.get() && AnvilCraftClient.CONFIG.doNotShowTooltipWhenJadePresent) return null;
         List<Component> components = new ArrayList<>();
         Level level = entity.getLevel();
         if (level == null) return components;

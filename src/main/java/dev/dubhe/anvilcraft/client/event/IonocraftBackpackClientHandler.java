@@ -89,7 +89,7 @@ public class IonocraftBackpackClientHandler {
             return;
         }
         if (minecraft.isPaused()) return;
-        if (!AnvilCraftClient.CONFIG.ionocraftBackpackExhaustParticlesEnabled) return;
+        if (!AnvilCraftClient.CONFIG.effects.displayIonocraftBackpackExhaustParticles) return;
 
         ClientLevel level = minecraft.level;
         LocalPlayer localPlayer = minecraft.player;

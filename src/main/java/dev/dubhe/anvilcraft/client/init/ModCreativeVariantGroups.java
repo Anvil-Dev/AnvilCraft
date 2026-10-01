@@ -15,7 +15,7 @@ public final class ModCreativeVariantGroups {
     }
 
     public static void register() {
-        BooleanSupplier enabled = () -> AnvilCraft.CLIENT_CONFIG.creativeVariantPickerEnabled;
+        BooleanSupplier enabled = () -> AnvilCraft.CLIENT_CONFIG.ui.enableCreativeVariantPicker;
         CreativeVariantPickerRegistry.register(enabled, itemsOf(ModBlocks.REINFORCED_CONCRETES));
         CreativeVariantPickerRegistry.register(enabled, itemsOf(ModBlocks.REINFORCED_CONCRETE_SLABS));
         CreativeVariantPickerRegistry.register(enabled, itemsOf(ModBlocks.REINFORCED_CONCRETE_STAIRS));

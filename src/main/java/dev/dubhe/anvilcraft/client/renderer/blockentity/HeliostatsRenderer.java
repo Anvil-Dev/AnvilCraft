@@ -34,7 +34,7 @@ public class HeliostatsRenderer implements BlockEntityRenderer<HeliostatsBlockEn
 
     private ModelResourceLocation getHeadModel(HeliostatsBlockEntity blockEntity) {
         return Optional.of(blockEntity)
-                   .filter(ignore -> AnvilCraftClient.CONFIG.heliostatsSunflowerModel)
+                   .filter(ignore -> AnvilCraftClient.CONFIG.graphics.heliostatsSunflowerModel)
                    .filter(be -> be.getLevel() != null)
                    .map(be -> be.getLevel().getBiome(be.getBlockPos()))
                    .map(biome -> biome.is(Biomes.SUNFLOWER_PLAINS))
@@ -90,6 +90,6 @@ public class HeliostatsRenderer implements BlockEntityRenderer<HeliostatsBlockEn
 
     @Override
     public int getViewDistance() {
-        return AnvilCraft.CLIENT_CONFIG.heliostatsRenderDistance;
+        return AnvilCraft.CLIENT_CONFIG.graphics.heliostatsRenderDistance;
     }
 }

@@ -31,26 +31,12 @@ public class SeismicBounceManager {
      * 黑名单方块
      */
     private static boolean isAttachmentBlock(BlockState state) {
-        return state.is(BlockTags.BUTTONS)
-            || state.is(BlockTags.PRESSURE_PLATES)
-            || state.is(BlockTags.ALL_SIGNS)
-            || state.is(BlockTags.BANNERS)
-            || state.is(BlockTags.FLOWERS)
-            || state.is(BlockTags.SAPLINGS)
-            || state.is(BlockTags.CROPS)
-            || state.is(BlockTags.RAILS)
-            || state.is(BlockTags.CLIMBABLE)
-            || state.is(BlockTags.CANDLES)
-            || state.is(BlockTags.WOOL_CARPETS)
-            || state.is(BlockTags.FIRE)
-            || state.is(BlockTags.WALL_POST_OVERRIDE)
-            || state.is(BlockTags.CAVE_VINES)
-            || state.is(BlockTags.FLOWER_POTS)
-            || state.is(BlockTags.CANDLE_CAKES)
-            || state.is(BlockTags.ANVIL)
-            || state.is(Blocks.BEDROCK)
-            || state.is(Blocks.REDSTONE_WIRE)
-            || state.is(Blocks.REPEATER);
+        return state.is(BlockTags.BUTTONS) || state.is(BlockTags.PRESSURE_PLATES) || state.is(BlockTags.ALL_SIGNS)
+               || state.is(BlockTags.BANNERS) || state.is(BlockTags.FLOWERS) || state.is(BlockTags.SAPLINGS) || state.is(BlockTags.CROPS)
+               || state.is(BlockTags.RAILS) || state.is(BlockTags.CLIMBABLE) || state.is(BlockTags.CANDLES)
+               || state.is(BlockTags.WOOL_CARPETS) || state.is(BlockTags.FIRE) || state.is(BlockTags.WALL_POST_OVERRIDE) || state.is(
+            BlockTags.CAVE_VINES) || state.is(BlockTags.FLOWER_POTS) || state.is(BlockTags.CANDLE_CAKES) || state.is(BlockTags.ANVIL)
+               || state.is(Blocks.BEDROCK) || state.is(Blocks.REDSTONE_WIRE) || state.is(Blocks.REPEATER);
     }
 
     private final Map<BlockPos, BounceData> activeBounces = new ConcurrentHashMap<>();
@@ -61,7 +47,7 @@ public class SeismicBounceManager {
     }
 
     public static SeismicBounceManager getInstance() {
-        return INSTANCE;
+        return SeismicBounceManager.INSTANCE;
     }
 
     public void triggerShock(BlockPos center, int radius) {
@@ -71,78 +57,71 @@ public class SeismicBounceManager {
         for (int dx = -radius; dx <= radius; dx++) {
             for (int dz = -radius; dz <= radius; dz++) {
                 // 跳过中心 3×3 区域，避免铁砧正下方方块弹跳
-                if (Math.abs(dx) <= CENTER_EXCLUSION_RADIUS && Math.abs(dz) <= CENTER_EXCLUSION_RADIUS) continue;
+                if (Math.abs(dx) <= SeismicBounceManager.CENTER_EXCLUSION_RADIUS
+                    && Math.abs(dz) <= SeismicBounceManager.CENTER_EXCLUSION_RADIUS) {
+                    continue;
+                }
 
                 int dist = Math.max(Math.abs(dx), Math.abs(dz));
                 BlockPos pos = center.offset(dx, 0, dz);
                 BlockState state = level.getBlockState(pos);
 
-                if (!state.isAir()
-                    && !isAttachmentBlock(state)
-                    && state.getRenderShape() == RenderShape.MODEL
-                    && level.isEmptyBlock(pos.above())
-                    && level.getBlockEntity(pos) == null) {
+                if (!state.isAir() && !SeismicBounceManager.isAttachmentBlock(state) && state.getRenderShape() == RenderShape.MODEL
+                    && level.isEmptyBlock(pos.above()) && level.getBlockEntity(pos) == null) {
                     // 振幅随机扰动 0.8~1.2 倍，使弹跳高度有自然差异
-                    float amplitude = MAX_AMPLITUDE * (1.0f - (float) dist / radius)
-                        * (0.8f + tesselateRandom.nextFloat() * 0.4f);
+                    float amplitude = SeismicBounceManager.MAX_AMPLITUDE
+                                      * (1.0f - (float) dist / radius)
+                                      * (0.8f + this.tesselateRandom.nextFloat() * 0.4f);
                     amplitude = Math.max(amplitude, 0.15f);
                     // 同圈延迟增加随机偏移 -1~+1 tick，让波纹更自然
-                    int delay = (dist - 2) + tesselateRandom.nextInt(3) - 1;
-                    startBounce(pos, amplitude, Math.max(delay, 0));
+                    int delay = (dist - 2) + this.tesselateRandom.nextInt(3) - 1;
+                    this.startBounce(pos, amplitude, Math.max(delay, 0));
                 }
             }
         }
     }
 
     public void startBounce(BlockPos pos, float amplitude, int startDelay) {
-        BounceData existing = activeBounces.get(pos);
+        BounceData existing = this.activeBounces.get(pos);
         if (existing != null) {
             existing.reset(amplitude, startDelay);
         } else {
-            activeBounces.put(pos, new BounceData(amplitude, startDelay));
+            this.activeBounces.put(pos, new BounceData(amplitude, startDelay));
         }
     }
 
     public void startResonance(BlockPos pos, int durationTicks) {
-        activeResonances.put(pos.immutable(), new ResonanceData(durationTicks));
+        this.activeResonances.put(pos.immutable(), new ResonanceData(durationTicks));
     }
 
     public void stopResonance(BlockPos pos) {
-        activeResonances.remove(pos);
+        this.activeResonances.remove(pos);
     }
 
     public void tick() {
-        if (activeBounces.isEmpty() && activeResonances.isEmpty()) return;
+        if (this.activeBounces.isEmpty() && this.activeResonances.isEmpty()) return;
 
-        activeBounces.values().forEach(data -> data.remainingTicks--);
-        activeBounces.entrySet().removeIf(entry -> entry.getValue().remainingTicks <= 0);
-        activeResonances.values().forEach(data -> data.remainingTicks--);
-        activeResonances.entrySet().removeIf(entry -> entry.getValue().remainingTicks <= 0);
+        this.activeBounces.values().forEach(data -> data.remainingTicks--);
+        this.activeBounces.entrySet().removeIf(entry -> entry.getValue().remainingTicks <= 0);
+        this.activeResonances.values().forEach(data -> data.remainingTicks--);
+        this.activeResonances.entrySet().removeIf(entry -> entry.getValue().remainingTicks <= 0);
     }
 
     public void render(PoseStack poseStack, MultiBufferSource bufferSource, float partialTick, double camX, double camY, double camZ) {
-        if (activeBounces.isEmpty() && activeResonances.isEmpty()) return;
+        if (this.activeBounces.isEmpty() && this.activeResonances.isEmpty()) return;
 
         Level level = Minecraft.getInstance().level;
         if (level == null) return;
 
         BlockRenderDispatcher dispatcher = Minecraft.getInstance().getBlockRenderer();
         BlockPos.MutableBlockPos lightPos = new BlockPos.MutableBlockPos();
-        renderEntries(activeBounces, level, dispatcher, lightPos, poseStack, bufferSource, partialTick, camX, camY, camZ);
-        renderEntries(activeResonances, level, dispatcher, lightPos, poseStack, bufferSource, partialTick, camX, camY, camZ);
+        this.renderEntries(this.activeBounces, level, dispatcher, lightPos, poseStack, bufferSource, partialTick, camX, camY, camZ);
+        this.renderEntries(this.activeResonances, level, dispatcher, lightPos, poseStack, bufferSource, partialTick, camX, camY, camZ);
     }
 
     private void renderEntries(
-        Map<BlockPos, ? extends RenderOffset> entries,
-        Level level,
-        BlockRenderDispatcher dispatcher,
-        BlockPos.MutableBlockPos lightPos,
-        PoseStack poseStack,
-        MultiBufferSource bufferSource,
-        float partialTick,
-        double camX,
-        double camY,
-        double camZ
+        Map<BlockPos, ? extends RenderOffset> entries, Level level, BlockRenderDispatcher dispatcher, BlockPos.MutableBlockPos lightPos,
+        PoseStack poseStack, MultiBufferSource bufferSource, float partialTick, double camX, double camY, double camZ
     ) {
         for (Map.Entry<BlockPos, ? extends RenderOffset> entry : entries.entrySet()) {
             RenderOffset data = entry.getValue();
@@ -159,11 +138,7 @@ public class SeismicBounceManager {
             lightPos.set(pos.getX(), pos.getY() + Math.max(1, Math.round(offsetY)), pos.getZ());
 
             poseStack.pushPose();
-            poseStack.translate(
-                pos.getX() - camX + offsetX,
-                pos.getY() - camY + offsetY,
-                pos.getZ() - camZ + offsetZ
-            );
+            poseStack.translate(pos.getX() - camX + offsetX, pos.getY() - camY + offsetY, pos.getZ() - camZ + offsetZ);
 
             // 微扩 0.1% 避免与原方块 z-fighting
             poseStack.translate(0.5, 0.5, 0.5);
@@ -181,7 +156,7 @@ public class SeismicBounceManager {
                     poseStack,
                     bufferSource.getBuffer(RenderTypeHelper.getMovingBlockRenderType(renderType)),
                     false,
-                    tesselateRandom,
+                    this.tesselateRandom,
                     seed,
                     OverlayTexture.NO_OVERLAY,
                     ModelData.EMPTY,
@@ -218,34 +193,31 @@ public class SeismicBounceManager {
         }
 
         void reset(float newAmplitude, int newStartDelay) {
-            this.totalTicks = BOUNCE_DURATION_TICKS;
+            this.totalTicks = SeismicBounceManager.BOUNCE_DURATION_TICKS;
             this.startDelay = newStartDelay;
-            this.remainingTicks = BOUNCE_DURATION_TICKS + newStartDelay;
+            this.remainingTicks = SeismicBounceManager.BOUNCE_DURATION_TICKS + newStartDelay;
             this.amplitude = newAmplitude;
         }
 
         public float getProgress() {
-            int elapsed = (totalTicks + startDelay) - remainingTicks;
-            int active = elapsed - startDelay;
+            int elapsed = (this.totalTicks + this.startDelay) - this.remainingTicks;
+            int active = elapsed - this.startDelay;
             if (active <= 0) return 0f;
-            return Math.min((float) active / totalTicks, 1.0f);
+            return Math.min((float) active / this.totalTicks, 1.0f);
         }
 
         public float getRenderOffsetY(float partialTick) {
-            int elapsed = (totalTicks + startDelay) - remainingTicks;
-            int active = elapsed - startDelay;
+            int elapsed = (this.totalTicks + this.startDelay) - this.remainingTicks;
+            int active = elapsed - this.startDelay;
             if (active < 0) return 0f;
 
-            float progress = (float) active / totalTicks;
-            progress += partialTick / totalTicks;
+            float progress = (float) active / this.totalTicks;
+            progress += partialTick / this.totalTicks;
             progress = Math.min(progress, 1.0f);
 
-            float bounce = (float) (
-                Math.sin(progress * Math.PI)
-                * Math.pow(1.0 - progress, 0.5)
-            );
+            float bounce = (float) (Math.sin(progress * Math.PI) * Math.pow(1.0 - progress, 0.5));
 
-            return amplitude * bounce;
+            return this.amplitude * bounce;
         }
     }
 
@@ -260,21 +232,21 @@ public class SeismicBounceManager {
 
         @Override
         public float getRenderOffsetX(float partialTick) {
-            return (float) Math.sin(elapsed(partialTick) * 10.7f) * 0.025f;
+            return (float) Math.sin(this.elapsed(partialTick) * 10.7f) * 0.025f;
         }
 
         @Override
         public float getRenderOffsetY(float partialTick) {
-            return (float) Math.sin(elapsed(partialTick) * 13.1f + 2.1f) * 0.02f;
+            return (float) Math.sin(this.elapsed(partialTick) * 13.1f + 2.1f) * 0.02f;
         }
 
         @Override
         public float getRenderOffsetZ(float partialTick) {
-            return (float) Math.sin(elapsed(partialTick) * 12.3f + 4.2f) * 0.025f;
+            return (float) Math.sin(this.elapsed(partialTick) * 12.3f + 4.2f) * 0.025f;
         }
 
         private float elapsed(float partialTick) {
-            return totalTicks - remainingTicks + partialTick;
+            return this.totalTicks - this.remainingTicks + partialTick;
         }
     }
 }
