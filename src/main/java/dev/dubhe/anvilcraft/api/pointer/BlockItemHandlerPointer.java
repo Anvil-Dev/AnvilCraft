@@ -82,7 +82,7 @@ public class BlockItemHandlerPointer implements ITargetPointer {
     public boolean matches(Level level, BlockState requiredState) {
         if (ProcessingTablePlacement.isConverted(requiredState)) {
             IItemHandler handler = this.resolveHandler(level);
-            return ProcessingTablePlacement.matches(this.stack) && handler != null
+            return ProcessingTablePlacement.matches(this.stack, requiredState) && handler != null
                 && ProcessingTablePlacement.upgradeSlot(handler, requiredState) >= 0;
         }
         return BlockPlacementRules.getPlacementItemCount(level.registryAccess(), requiredState, this.stack) > 0;

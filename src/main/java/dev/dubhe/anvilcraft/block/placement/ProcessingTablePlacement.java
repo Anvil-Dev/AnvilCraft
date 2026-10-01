@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.block.placement;
 
+import dev.dubhe.anvilcraft.block.LensBlock;
 import dev.dubhe.anvilcraft.block.UseItemOnBlock;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.util.BlockPlacementUtil;
@@ -16,7 +17,7 @@ import net.neoforged.neoforge.items.ItemHandlerHelper;
 
 import javax.annotation.Nullable;
 
-/** 加工台变体的物品建造路径与玩家升级冲压台消耗相同的两件材料。 */
+/** 改装方块的物品建造路径与玩家交互消耗相同的基础物品和改装材料。 */
 public final class ProcessingTablePlacement {
     private ProcessingTablePlacement() {
     }
@@ -26,18 +27,23 @@ public final class ProcessingTablePlacement {
     }
 
     public static ItemStack baseMaterial(BlockState state) {
-        return isConverted(state) ? ModBlocks.STAMPING_PLATFORM.asStack() : new ItemStack(state.getBlock().asItem());
+        return isConverted(state) && !(state.getBlock() instanceof LensBlock)
+            ? ModBlocks.STAMPING_PLATFORM.asStack() : new ItemStack(state.getBlock().asItem());
     }
 
     public static boolean matches(ItemStack stack) {
         return stack.is(ModBlocks.STAMPING_PLATFORM.asItem());
     }
 
+    public static boolean matches(ItemStack stack, BlockState state) {
+        return stack.is(baseMaterial(state).getItem());
+    }
+
     public static boolean placeFromHandler(
         ServerLevel level, BlockPos target, BlockState state, IItemHandler handler, int slot,
         ItemStack expected, BlockPos source, @Nullable Direction facing
     ) {
-        if (!matches(expected) || !BlockPlacementUtil.isTargetAvailable(level, target)) return false;
+        if (!matches(expected, state) || !BlockPlacementUtil.isTargetAvailable(level, target)) return false;
         ItemStack simulated = handler.extractItem(slot, 1, true);
         if (simulated.getCount() != 1 || !ItemStack.isSameItemSameComponents(simulated, expected)) return false;
         int upgradeSlot = upgradeSlot(handler, state);
@@ -84,7 +90,7 @@ public final class ProcessingTablePlacement {
     public static boolean placeFromEntities(
         ServerLevel level, BlockPos target, BlockState state, ItemEntity base, @Nullable Direction facing
     ) {
-        if (!matches(base.getItem()) || !BlockPlacementUtil.isTargetAvailable(level, target)) return false;
+        if (!matches(base.getItem(), state) || !BlockPlacementUtil.isTargetAvailable(level, target)) return false;
         ItemEntity upgrade = upgradeEntity(level, base, state);
         if (upgrade == null) return false;
         ItemStack baseItem = base.getItem().copyWithCount(1);

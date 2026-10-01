@@ -17,7 +17,7 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.BlockHitResult;
 
 /**
- * 加工台系列方块之间的转化逻辑。
+ * 方块交互改装所需的材料与加工台系列方块之间的转化逻辑。
  *
  * <p>上表面用于放入/取出物品；其余面使用转化道具会把冲压平台改装为对应加工台并消耗道具，
  * 手持铁砧锤右键侧面会把三种加工台还原为冲压平台。
@@ -100,6 +100,7 @@ public final class UseItemOnBlock {
     }
 
     public static ItemStack materialFor(BlockState state) {
+        if (state.getBlock() instanceof LensBlock) return LensBlock.getGlassItem(state.getValue(LensBlock.TYPE));
         if (state.is(ModBlocks.CRUSHING_TABLE.get())) return new ItemStack(Items.GRINDSTONE);
         if (state.is(ModBlocks.SIFTING_TABLE.get())) return new ItemStack(Blocks.SCAFFOLDING.asItem());
         if (state.is(ModBlocks.UNPACKING_TABLE.get())) return new ItemStack(Items.IRON_TRAPDOOR);

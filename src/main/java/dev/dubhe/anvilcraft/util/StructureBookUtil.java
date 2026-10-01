@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.util;
 
 import dev.dubhe.anvilcraft.api.block.BlockPlacementRules;
+import dev.dubhe.anvilcraft.block.LensBlock;
 import dev.dubhe.anvilcraft.block.entity.SmartBlockPlacerBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -55,6 +56,7 @@ public class StructureBookUtil {
                 continue;
             }
             requiredBlocks.merge(block, stackCount, Integer::sum);
+            countLensGlass(state, requiredBlocks);
         }
 
         // 第二步: 统计世界中已放置的方块数量
@@ -99,7 +101,7 @@ public class StructureBookUtil {
 
             if (isBlueprintMoveMode) {
                 // 蓝图move模式：检查源位置的方块
-                available = countBlockAtSourcePosition(level, placerPos, block);
+                available = countBlockAtSourcePosition(level, placerPos, block, blockEntity);
             } else {
                 // 蓝图pickup模式或普通模式：检查容器中的方块
                 available = countBlockInContainer(level, placerPos, block);
@@ -213,6 +215,10 @@ public class StructureBookUtil {
                     continue;
                 }
                 placedBlocks.merge(worldBlock, placedCount, Integer::sum);
+                if (worldBlock instanceof LensBlock
+                    && worldState.getValue(LensBlock.TYPE) == expectedState.getValue(LensBlock.TYPE)) {
+                    countLensGlass(worldState, placedBlocks);
+                }
                 totalPlaced++;
             }
         }
@@ -220,6 +226,12 @@ public class StructureBookUtil {
         LOGGER.debug("Structure check: {} blocks placed out of {} total", totalPlaced, totalChecked);
 
         return placedBlocks;
+    }
+
+    private static void countLensGlass(BlockState state, Map<Block, Integer> materials) {
+        if (!(state.getBlock() instanceof LensBlock)) return;
+        ItemStack glass = LensBlock.getGlassItem(state.getValue(LensBlock.TYPE));
+        if (!glass.isEmpty()) materials.merge(Block.byItem(glass.getItem()), glass.getCount(), Integer::sum);
     }
 
     /**
@@ -274,7 +286,9 @@ public class StructureBookUtil {
     /**
      * 计算源位置指定方块的数量（用于蓝图move模式）
      */
-    private static int countBlockAtSourcePosition(Level level, BlockPos placerPos, Block targetBlock) {
+    private static int countBlockAtSourcePosition(
+        Level level, BlockPos placerPos, Block targetBlock, SmartBlockPlacerBlockEntity blockEntity
+    ) {
         // 获取放置器朝向
         BlockState state = level.getBlockState(placerPos);
         if (!state.hasProperty(net.minecraft.world.level.block.HorizontalDirectionalBlock.FACING)) {
@@ -286,11 +300,26 @@ public class StructureBookUtil {
 
         // 检查源位置的方块是否匹配
         BlockState sourceState = level.getBlockState(sourcePos);
+        if (sourceState.getBlock() instanceof LensBlock) {
+            if (!hasPendingLens(level, blockEntity, sourceState)) return 0;
+            return sourceState.is(targetBlock)
+                || LensBlock.getGlassItem(sourceState.getValue(LensBlock.TYPE)).is(targetBlock.asItem()) ? 1 : 0;
+        }
         if (!sourceState.isAir() && sourceState.getBlock() == targetBlock) {
             return 1;  // 源位置只有一个方块
         }
-
         return 0;
+    }
+
+    private static boolean hasPendingLens(Level level, SmartBlockPlacerBlockEntity blockEntity, BlockState sourceState) {
+        for (int index = 0; index < blockEntity.getBlueprint().states().length; index++) {
+            BlockState expected = blockEntity.getBlueprintStateForPlacement(index);
+            if (expected.is(sourceState.getBlock()) && expected.getValue(LensBlock.TYPE) == sourceState.getValue(LensBlock.TYPE)
+                && !BlockPlacementUtil.isBlueprintStatePresent(level, blockEntity.getBlueprintPosition(index), expected)) {
+                return true;
+            }
+        }
+        return false;
     }
 
 }

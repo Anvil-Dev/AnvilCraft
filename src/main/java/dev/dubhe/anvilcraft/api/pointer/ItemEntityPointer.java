@@ -103,7 +103,7 @@ public class ItemEntityPointer implements ITargetPointer {
     public boolean matches(Level level, BlockState requiredState) {
         if (ProcessingTablePlacement.isConverted(requiredState)) {
             ItemEntity entity = this.getEntity(level);
-            return ProcessingTablePlacement.matches(this.stack) && level instanceof ServerLevel serverLevel && entity != null
+            return ProcessingTablePlacement.matches(this.stack, requiredState) && level instanceof ServerLevel serverLevel && entity != null
                 && ProcessingTablePlacement.upgradeEntity(serverLevel, entity, requiredState) != null;
         }
         return BlockPlacementRules.getPlacementItemCount(level.registryAccess(), requiredState, this.stack) > 0;

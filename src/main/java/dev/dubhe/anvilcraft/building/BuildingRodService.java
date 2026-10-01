@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.building;
 
 import dev.dubhe.anvilcraft.block.LargeCakeBlock;
+import dev.dubhe.anvilcraft.block.LensBlock;
 import dev.dubhe.anvilcraft.block.RedstoneWireBlock;
 import dev.dubhe.anvilcraft.block.RedstoneWireNetworkManager;
 import dev.dubhe.anvilcraft.block.UseItemOnBlock;
@@ -512,6 +513,10 @@ public final class BuildingRodService {
                         return false;
                     }
                     if (!material.isEmpty()) group.materials.add(material);
+                    if (moved.getBlock() instanceof LensBlock) {
+                        ItemStack glass = UseItemOnBlock.materialFor(moved);
+                        if (!glass.isEmpty()) group.materials.add(glass);
+                    }
                 }
                 continue;
             }
