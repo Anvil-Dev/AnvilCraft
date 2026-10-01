@@ -152,6 +152,7 @@
     "accessor.RedStoneWireBlockAccessor"
   ],
   "client": [
+    "ItemFrameRendererMixin",
     "client.HandbookRecipeMixin",
     "client.HandbookDirectoryMixin",
     "client.HandbookLinkMixin",

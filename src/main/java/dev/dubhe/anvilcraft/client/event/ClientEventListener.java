@@ -1,8 +1,6 @@
 package dev.dubhe.anvilcraft.client.event;
 
 import com.mojang.blaze3d.platform.InputConstants;
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Axis;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.sound.SoundHelper;
 import dev.dubhe.anvilcraft.api.thought.ThoughtManager;
@@ -36,7 +34,6 @@ import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.client.resources.model.sprite.AtlasManager;
-import net.minecraft.core.Direction;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.api.distmarker.Dist;
@@ -48,7 +45,6 @@ import net.neoforged.neoforge.client.event.ContainerScreenEvent;
 import net.neoforged.neoforge.client.event.InputEvent;
 import net.neoforged.neoforge.client.event.RegisterTextureAtlasesEvent;
 import net.neoforged.neoforge.client.event.RenderBlockScreenEffectEvent;
-import net.neoforged.neoforge.client.event.RenderItemInFrameEvent;
 import net.neoforged.neoforge.client.event.RenderTooltipEvent;
 import net.neoforged.neoforge.client.event.ScreenEvent;
 import net.neoforged.neoforge.client.event.SubmitCustomGeometryEvent;
@@ -69,18 +65,6 @@ public class ClientEventListener {
             event.getPoseStack(),
             event.getLevelRenderState().cameraRenderState
         );
-    }
-
-    @SubscribeEvent
-    public static void on(RenderItemInFrameEvent event) {
-        PoseStack poseStack = event.getPoseStack();
-        if (!AnvilCraftClient.CONFIG.verticalItemFrame) return;
-        Direction direction = event.getItemFrameRenderState().direction;
-        if (direction == Direction.UP) {
-            poseStack.mulPose(Axis.XP.rotationDegrees(-90.0F));
-        } else if (direction == Direction.DOWN) {
-            poseStack.mulPose(Axis.XP.rotationDegrees(90.0F));
-        }
     }
 
     @SubscribeEvent
