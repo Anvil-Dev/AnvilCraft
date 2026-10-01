@@ -6,6 +6,7 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.UseItemOnBlock;
 import dev.dubhe.anvilcraft.block.cauldron.CementCauldronBlock;
 import dev.dubhe.anvilcraft.block.cauldron.Layered4LevelCauldronBlock;
+import dev.dubhe.anvilcraft.block.laser.LensBlock;
 import dev.dubhe.anvilcraft.block.multipart.AbstractMultiPartBlock;
 import dev.dubhe.anvilcraft.block.placement.BlockPlacementRuleSet;
 import dev.dubhe.anvilcraft.block.placement.BlockPlacementRuleSet.StateRule;
@@ -127,7 +128,8 @@ public final class ModBlockPlacementRuleProvider implements DataProvider {
      * 已由代码回退类或运行时 {@link SimpleBlockPlacementRule} 处理的方块不生成数据包规则。
      */
     private static boolean shouldSkipDataPack(Block block) {
-        if (block instanceof SlabBlock
+        if (block instanceof LensBlock
+            || block instanceof SlabBlock
             || block instanceof StairBlock
             || block instanceof TrapDoorBlock
             || isFacingOnly(block)) {

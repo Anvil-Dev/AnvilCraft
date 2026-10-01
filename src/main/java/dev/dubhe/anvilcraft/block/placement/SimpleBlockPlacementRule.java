@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.block.placement;
 
 import dev.dubhe.anvilcraft.api.block.IBlockPlacementRule;
+import dev.dubhe.anvilcraft.block.laser.LensBlock;
 import dev.dubhe.anvilcraft.block.multipart.AbstractMultiPartBlock;
 import dev.dubhe.anvilcraft.util.BlockPlacementUtil;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -70,7 +71,8 @@ public final class SimpleBlockPlacementRule implements IBlockPlacementRule {
         if (block instanceof SlabBlock || block instanceof StairBlock || block instanceof TrapDoorBlock) {
             return true;
         }
-        if (block instanceof CropBlock
+        if (block instanceof LensBlock
+            || block instanceof CropBlock
             || block instanceof FlowerPotBlock
             || block instanceof GrowingPlantBodyBlock
             || block instanceof CandleCakeBlock) {

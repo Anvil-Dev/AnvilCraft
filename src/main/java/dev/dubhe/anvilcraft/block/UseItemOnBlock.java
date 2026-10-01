@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.block;
 
+import dev.dubhe.anvilcraft.block.laser.LensBlock;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.item.tool.AnvilHammerItem;
 import net.minecraft.core.BlockPos;
@@ -18,7 +19,7 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.BlockHitResult;
 
 /**
- * 加工台系列方块之间的转化逻辑。
+ * 方块交互改装所需的材料与加工台系列方块之间的转化逻辑。
  *
  * <p>上表面用于放入/取出物品；其余面使用转化道具会把冲压平台改装为对应加工台并消耗道具，
  * 手持铁砧锤右键侧面会把三种加工台还原为冲压平台。
@@ -101,6 +102,7 @@ public final class UseItemOnBlock {
     }
 
     public static ItemStack materialFor(BlockState state) {
+        if (state.getBlock() instanceof LensBlock) return LensBlock.getGlassItem(state.getValue(LensBlock.TYPE));
         Item item = upgradeItem(state);
         return item == Items.AIR ? ItemStack.EMPTY : new ItemStack(item);
     }
