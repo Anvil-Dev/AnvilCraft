@@ -19,6 +19,7 @@ import net.minecraft.world.level.block.StandingSignBlock;
 import net.minecraft.world.level.block.entity.SignBlockEntity;
 import net.minecraft.world.level.block.entity.SignText;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.chunk.status.ChunkStatus;
 import net.minecraft.world.level.levelgen.FlatLevelSource;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
@@ -61,6 +62,7 @@ public final class TheMonolith {
         int x = spawn.getX() + (giant ? 32 : 16);
         int z = spawn.getZ();
         StructureTemplate template = level.getServer().getStructureManager().getOrCreate(giant ? TEMPLATE : SMALL_TEMPLATE);
+        if (giant && !isUngenerated(level, placement(template, new BlockPos(x, 0, z)).boundingBox())) return null;
         BlockPos surface = giant ? new BlockPos(x, CelestialTravelManager.findSurfaceY(level, x, z), z)
             : findSmallMonolithGround(level, template, new BlockPos(x, 0, z));
         if (surface == null) {
@@ -76,6 +78,16 @@ public final class TheMonolith {
             placeDevelopmentSign(level, placement.boundingBox());
         }
         return placement.boundingBox();
+    }
+
+    static boolean isUngenerated(ServerLevel level, BoundingBox bounds) {
+        // 高度查询会生成地形，须先检查碑体及告示牌覆盖的所有区块，避免改写旧存档。
+        for (int cx = (bounds.minX() - 2) >> 4; cx <= bounds.maxX() >> 4; cx++) {
+            for (int cz = bounds.minZ() >> 4; cz <= bounds.maxZ() >> 4; cz++) {
+                if (level.getChunk(cx, cz, ChunkStatus.EMPTY).getPersistedStatus() != ChunkStatus.EMPTY) return false;
+            }
+        }
+        return true;
     }
 
     static @Nullable BlockPos findSmallMonolithGround(ServerLevel level, StructureTemplate template, BlockPos origin) {

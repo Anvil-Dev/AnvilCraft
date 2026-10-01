@@ -52,8 +52,7 @@ public class TheMonolithEventListener {
     @SubscribeEvent
     public static void onServerStarted(ServerStartedEvent event) {
         MinecraftServer server = event.getServer();
-        if (!NEW_WORLDS.remove(server)) return;
-        TheMonolith.ensureGenerated(server.overworld());
+        if (NEW_WORLDS.remove(server)) TheMonolith.ensureGenerated(server.overworld());
         ServerLevel mun = server.getLevel(CelestialTravelManager.MUN_LEVEL);
         if (mun != null) TheMonolith.ensureGenerated(mun);
     }
