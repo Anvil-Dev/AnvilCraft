@@ -6,6 +6,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.blaze3d.vertex.VertexFormat;
+import dev.anvilcraft.lib.v2.rendering.ALRPostEffects;
 import dev.anvilcraft.lib.v2.rendering.gui.renderer.StructurePipRenderer;
 import dev.anvilcraft.lib.v2.rendering.gui.state.StructurePipRenderingState;
 import dev.dubhe.anvilcraft.client.init.ModRenderPipelines;
@@ -87,7 +88,8 @@ public final class SmartPlacerPreviewRenderer extends PictureInPictureRenderer<S
             if (range != null) this.drawRangeOverlay(range);
             if (state.structure().glitched()) {
                 int scale = Minecraft.getInstance().gameRenderer.getGameRenderState().windowRenderState.guiScale;
-                this.structures.applyGlitchEffect((state.x1() - state.x0()) * scale, (state.y1() - state.y0()) * scale);
+                this.structures.applyScanEffect((state.x1() - state.x0()) * scale, (state.y1() - state.y0()) * scale,
+                    state.background() == null);
             }
         } finally {
             SCAN_SCOPE.set(previousScan);
@@ -125,16 +127,23 @@ public final class SmartPlacerPreviewRenderer extends PictureInPictureRenderer<S
         int guiScale = client.gameRenderer.getGameRenderState().windowRenderState.guiScale;
         float width = (state.x1() - state.x0()) * guiScale;
         float height = (state.y1() - state.y0()) * guiScale;
-        var format = DefaultVertexFormat.POSITION_TEX_COLOR;
+        var format = state.background() == null ? DefaultVertexFormat.POSITION_COLOR : DefaultVertexFormat.POSITION_TEX_COLOR;
         var builder = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, format);
         float u0 = 136.0F / 256;
         float v0 = 18.0F / 256;
         float u1 = 248.0F / 256;
         float v1 = 106.0F / 256;
-        builder.addVertex(0, 0, 0).setUv(u0, v0).setColor(-1);
-        builder.addVertex(0, height, 0).setUv(u0, v1).setColor(-1);
-        builder.addVertex(width, height, 0).setUv(u1, v1).setColor(-1);
-        builder.addVertex(width, 0, 0).setUv(u1, v0).setColor(-1);
+        if (state.background() == null) {
+            builder.addVertex(0, 0, 0).setColor(state.backgroundColor());
+            builder.addVertex(0, height, 0).setColor(state.backgroundColor());
+            builder.addVertex(width, height, 0).setColor(state.backgroundColor());
+            builder.addVertex(width, 0, 0).setColor(state.backgroundColor());
+        } else {
+            builder.addVertex(0, 0, 0).setUv(u0, v0).setColor(-1);
+            builder.addVertex(0, height, 0).setUv(u0, v1).setColor(-1);
+            builder.addVertex(width, height, 0).setUv(u1, v1).setColor(-1);
+            builder.addVertex(width, 0, 0).setUv(u1, v0).setColor(-1);
+        }
         var data = builder.buildOrThrow();
         var vertices = format.uploadImmediateVertexBuffer(data.vertexBuffer());
         int count = data.drawState().indexCount();
@@ -143,12 +152,16 @@ public final class SmartPlacerPreviewRenderer extends PictureInPictureRenderer<S
         var indexBuffer = indices.getBuffer(count);
         var transform = RenderSystem.getDynamicUniforms().writeTransform(
             new Matrix4f(), new Vector4f(1, 1, 1, 1), new Vector3f(), new Matrix4f());
-        var texture = client.getTextureManager().getTexture(state.background());
         try (var pass = RenderSystem.getDevice().createCommandEncoder().createRenderPass(
             () -> "Smart placer preview background", RenderSystem.outputColorTextureOverride, OptionalInt.empty()
         )) {
-            pass.setPipeline(RenderPipelines.GUI_TEXTURED);
-            pass.bindTexture("Sampler0", texture.getTextureView(), texture.getSampler());
+            if (state.background() == null) {
+                pass.setPipeline(RenderPipelines.GUI);
+            } else {
+                var texture = client.getTextureManager().getTexture(state.background());
+                pass.setPipeline(RenderPipelines.GUI_TEXTURED);
+                pass.bindTexture("Sampler0", texture.getTextureView(), texture.getSampler());
+            }
             pass.setVertexBuffer(0, vertices);
             pass.setIndexBuffer(indexBuffer, indices.type());
             pass.setUniform("DynamicTransforms", transform);
@@ -193,13 +206,55 @@ public final class SmartPlacerPreviewRenderer extends PictureInPictureRenderer<S
             }
         }
 
+        private void applyScanEffect(int width, int height, boolean opaque) {
+            if (!opaque) {
+                this.applyGlitchEffect(width, height);
+                return;
+            }
+            var effect = ALRPostEffects.getGlitchPostEffect();
+            final var texture = effect.process(RenderSystem.outputColorTextureOverride, width, height);
+            float u1 = (float) width / effect.getGlitchOutputTarget().width;
+            float v1 = (float) height / effect.getGlitchOutputTarget().height;
+            var format = DefaultVertexFormat.POSITION_TEX_COLOR;
+            var builder = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, format);
+            builder.addVertex(0, 0, 100).setUv(0, 0).setColor(-1);
+            builder.addVertex(0, height, 100).setUv(0, v1).setColor(-1);
+            builder.addVertex(width, height, 100).setUv(u1, v1).setColor(-1);
+            builder.addVertex(width, 0, 100).setUv(u1, 0).setColor(-1);
+            var data = builder.buildOrThrow();
+            var vertices = format.uploadImmediateVertexBuffer(data.vertexBuffer());
+            int count = data.drawState().indexCount();
+            data.close();
+            var indices = RenderSystem.getSequentialBuffer(VertexFormat.Mode.QUADS);
+            var indexBuffer = indices.getBuffer(count);
+            // 源版磁盘后处理直接覆盖屏幕颜色；抵消扫描透明度，避免画中画再次混入未处理的模型。
+            var transform = RenderSystem.getDynamicUniforms().writeTransform(
+                new Matrix4f(), new Vector4f(1, 1, 1, 1 / 0.85F), new Vector3f(), new Matrix4f());
+            try (var pass = RenderSystem.getDevice().createCommandEncoder().createRenderPass(
+                () -> "Structure disk scan", RenderSystem.outputColorTextureOverride, OptionalInt.of(0)
+            )) {
+                pass.setPipeline(RenderPipelines.GUI_TEXTURED);
+                pass.bindTexture("Sampler0", texture, effect.getSampler());
+                pass.setVertexBuffer(0, vertices);
+                pass.setIndexBuffer(indexBuffer, indices.type());
+                pass.setUniform("DynamicTransforms", transform);
+                RenderSystem.bindDefaultUniforms(pass);
+                pass.drawIndexed(0, 0, count, 1);
+            }
+        }
+
         @Override
         public void applyGlitchEffect(int width, int height) {
             if (!this.deferGlitch) super.applyGlitchEffect(width, height);
         }
     }
 
-    public record State(StructurePipRenderingState structure, Identifier background) implements PictureInPictureRenderState {
+    public record State(StructurePipRenderingState structure, @Nullable Identifier background, int backgroundColor)
+        implements PictureInPictureRenderState {
+        public State(StructurePipRenderingState structure, Identifier background) {
+            this(structure, background, 0);
+        }
+
         public State(StructurePipRenderingState structure) {
             this(structure, SharedTextures.bg("machine", "smart_block_placer"));
         }

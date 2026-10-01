@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.client.support;
 
+import dev.dubhe.anvilcraft.client.AnvilCraftClient;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.item.property.component.StructureDiskData;
 import dev.dubhe.anvilcraft.util.LevelLike;
@@ -8,16 +9,14 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtUtils;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.HorizontalDirectionalBlock;
+import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -115,33 +114,15 @@ public class StructureDiskPreviewSupport {
             previewY + StructureDiskPreviewSupport.PREVIEW_SIZE + 2, 0xF0100010
         );
 
-        graphics.fill(previewX - 2, previewY - 2, previewX + StructureDiskPreviewSupport.PREVIEW_SIZE + 2, previewY - 1, 0x505000ff);
-        graphics.fill(
-            previewX - 2, previewY + StructureDiskPreviewSupport.PREVIEW_SIZE + 2, previewX + StructureDiskPreviewSupport.PREVIEW_SIZE + 2,
-            previewY + StructureDiskPreviewSupport.PREVIEW_SIZE
-            + 3, 0x505000ff
-        );
-        graphics.fill(previewX - 2, previewY - 1, previewX - 1, previewY + StructureDiskPreviewSupport.PREVIEW_SIZE + 3, 0x505000ff);
-        graphics.fill(
-            previewX + StructureDiskPreviewSupport.PREVIEW_SIZE + 1, previewY - 1, previewX + StructureDiskPreviewSupport.PREVIEW_SIZE + 2,
-            previewY + StructureDiskPreviewSupport.PREVIEW_SIZE
-            + 3, 0x505000ff
-        );
-
-        int maxDim = Math.max(
-            cache.structureData.diskData.sizeX(),
-            Math.max(
-                cache.structureData.diskData.sizeY(),
-                cache.structureData.diskData.sizeZ()
-            )
-        );
-        int scale = Math.max(1, 30 / maxDim);
+        graphics.fill(previewX - 2, previewY - 2, previewX + PREVIEW_SIZE + 2, previewY - 1, 0x505000ff);
+        graphics.fill(previewX - 2, previewY + PREVIEW_SIZE + 1, previewX + PREVIEW_SIZE + 2, previewY + PREVIEW_SIZE + 2, 0x505000ff);
+        graphics.fill(previewX - 2, previewY - 1, previewX - 1, previewY + PREVIEW_SIZE + 1, 0x505000ff);
+        graphics.fill(previewX + PREVIEW_SIZE + 1, previewY - 1, previewX + PREVIEW_SIZE + 2, previewY + PREVIEW_SIZE + 1, 0x505000ff);
 
         StructureDiskData diskData = diskStack.get(ModComponents.STRUCTURE_DISK_DATA);
-        RenderSupport.renderLevelLike(
-            cache.levelLike, graphics, previewX, previewY,
-            StructureDiskPreviewSupport.PREVIEW_SIZE, scale, diskData == null || diskData.autoRotate() ? 2.0f : 0.0f, false
-        );
+        RenderSupport.renderLevelLikeAt(cache.levelLike, graphics,
+            previewX + PREVIEW_SIZE / 2, previewY + PREVIEW_SIZE / 2, 60,
+            diskData == null || diskData.autoRotate() ? 2 : 0, PREVIEW_SIZE, AnvilCraftClient.CONFIG.renderScanPreviewEffect);
     }
 
     /**
@@ -248,62 +229,6 @@ public class StructureDiskPreviewSupport {
         return result;
     }
 
-    /**
-     * 构建LevelLike用于渲染
-     */
-    private static StructureLoadUtil.StructureData rotateStructureDataForPreview(
-        StructureLoadUtil.StructureData originalData
-    ) {
-        Direction scannerFacing = originalData.diskData.direction();
-
-        if (scannerFacing == Direction.NORTH) {
-            return originalData;
-        }
-
-        StructureLoadUtil.StructureData result = new StructureLoadUtil.StructureData(originalData.diskData);
-        for (var bp : originalData.blocks) {
-            BlockState rotatedState = StructureDiskPreviewSupport.rotateBlockStateForPreview(bp.state(), scannerFacing);
-            result.blocks.add(new StructureLoadUtil.BlockPosition(bp.x(), bp.y(), bp.z(), rotatedState));
-        }
-
-        return result;
-    }
-
-    /**
-     * 根据 Scanner 朝向旋转方块状态（与 StructureScannerScreen 保持一致）
-     */
-    private static BlockState rotateBlockStateForPreview(BlockState state, Direction scannerFacing) {
-        if (state.hasProperty(BlockStateProperties.HORIZONTAL_FACING)) {
-            Direction blockFacing = state.getValue(BlockStateProperties.HORIZONTAL_FACING);
-            Direction rotatedFacing = StructureDiskPreviewSupport.rotateDirectionForPreview(blockFacing, scannerFacing);
-            return state.setValue(BlockStateProperties.HORIZONTAL_FACING, rotatedFacing);
-        }
-
-        if (state.hasProperty(HorizontalDirectionalBlock.FACING)) {
-            Direction blockFacing = state.getValue(HorizontalDirectionalBlock.FACING);
-            Direction rotatedFacing = StructureDiskPreviewSupport.rotateDirectionForPreview(blockFacing, scannerFacing);
-            return state.setValue(HorizontalDirectionalBlock.FACING, rotatedFacing);
-        }
-
-        if (state.hasProperty(BlockStateProperties.FACING)) {
-            Direction blockFacing = state.getValue(BlockStateProperties.FACING);
-            if (blockFacing == Direction.UP || blockFacing == Direction.DOWN) return state;
-            Direction rotatedFacing = StructureDiskPreviewSupport.rotateDirectionForPreview(blockFacing, scannerFacing);
-            return state.setValue(BlockStateProperties.FACING, rotatedFacing);
-        }
-
-        return state;
-    }
-
-    private static Direction rotateDirectionForPreview(Direction blockFacing, Direction scannerFacing) {
-        return switch (scannerFacing) {
-            case SOUTH -> blockFacing.getOpposite();
-            case WEST -> blockFacing.getClockWise();
-            case EAST -> blockFacing.getCounterClockWise();
-            default -> blockFacing;
-        };
-    }
-
     @Nullable
     private static LevelLike buildLevelLike(StructureLoadUtil.StructureData data) {
         if (data.isEmpty()) return null;
@@ -313,25 +238,15 @@ public class StructureDiskPreviewSupport {
 
         LevelLike levelLike = new LevelLike(minecraft.level);
 
-        StructureLoadUtil.StructureData rotatedData =
-            StructureDiskPreviewSupport.rotateStructureDataForPreview(data);
-
-        int sizeX = data.diskData.sizeX();
-        int sizeY = data.diskData.sizeY();
-        int sizeZ = data.diskData.sizeZ();
-        int offsetX = sizeX / 2;
-        int offsetY = sizeY / 2;
-        int offsetZ = sizeZ / 2;
-
-        for (StructureLoadUtil.BlockPosition blockPos : rotatedData.blocks) {
-            levelLike.setBlockState(
-                new BlockPos(
-                    blockPos.x() - offsetX,
-                    blockPos.y() - offsetY,
-                    blockPos.z() - offsetZ
-                ),
-                blockPos.state()
-            );
+        Rotation rotation = switch (data.diskData.direction()) {
+            case SOUTH -> Rotation.CLOCKWISE_180;
+            case WEST -> Rotation.CLOCKWISE_90;
+            case EAST -> Rotation.COUNTERCLOCKWISE_90;
+            default -> Rotation.NONE;
+        };
+        for (StructureLoadUtil.BlockPosition block : data.blocks) {
+            int y = data.diskData.upsideDown() ? data.diskData.sizeY() - 1 - block.y() : block.y();
+            levelLike.setBlockState(new BlockPos(block.x(), y, block.z()), block.state().rotate(rotation));
         }
 
         return levelLike;

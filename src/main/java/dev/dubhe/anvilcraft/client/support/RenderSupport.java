@@ -3,7 +3,9 @@ package dev.dubhe.anvilcraft.client.support;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import dev.anvilcraft.lib.v2.rendering.gui.GuiRenderExtras;
+import dev.anvilcraft.lib.v2.rendering.gui.state.StructurePipRenderingState;
 import dev.dubhe.anvilcraft.block.entity.WipBlockEntity;
+import dev.dubhe.anvilcraft.client.gui.screen.SmartPlacerPreviewRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.WipBlockEntityRenderer;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.AbstractProcessRecipe;
@@ -31,6 +33,7 @@ import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
+import org.joml.Matrix3x2f;
 import org.joml.Matrix4f;
 import org.jspecify.annotations.Nullable;
 
@@ -292,6 +295,13 @@ public class RenderSupport {
         float scaleFactor,
         float rotationSpeed
     ) {
+        RenderSupport.renderLevelLikeAt(level, graphics, posX, posY, scaleFactor, rotationSpeed, Mth.ceil(scaleFactor) * 2, false);
+    }
+
+    public static void renderLevelLikeAt(
+        LevelLike level, GuiGraphicsExtractor graphics, int posX, int posY, float scaleFactor, float rotationSpeed,
+        int previewSize, boolean scanEffect
+    ) {
         var min = level.getMinPos();
         var max = level.getMaxPos();
         var minecraft = Minecraft.getInstance();
@@ -315,9 +325,18 @@ public class RenderSupport {
         // StructurePipRenderer subtracts half a block before tessellation.
         pose.translate(0.5F, 0.5F, -0.5F);
         int extent = Mth.ceil(scaleFactor);
-        GuiRenderExtras.submitStructure(graphics, level, visibleLayerPos(level, min.get()), visibleLayerPos(level, max.get()),
-            posX - extent, posY - extent, posX + extent, posY + extent,
-            scale, true, false, pose);
+        var state = new StructurePipRenderingState(level, visibleLayerPos(level, min.get()), visibleLayerPos(level, max.get()),
+            posX - extent, posY - extent, posX + extent, posY + extent, scale, true, false, pose.last().copy(),
+            new Matrix3x2f(graphics.pose()), graphics.peekScissorStack());
+        graphics.submitPictureInPictureRenderState(state);
+        if (scanEffect) {
+            int scanExtent = previewSize / 2;
+            var scanState = new StructurePipRenderingState(level, state.startPos(), state.endPos(),
+                posX - scanExtent, posY - scanExtent, posX + scanExtent, posY + scanExtent, scale, true, true, pose.last().copy(),
+                new Matrix3x2f(graphics.pose()), graphics.peekScissorStack());
+            graphics.nextStratum();
+            graphics.submitPictureInPictureRenderState(new SmartPlacerPreviewRenderer.State(scanState, null, 0xF0100010));
+        }
     }
 
     public static void renderLevelLike(
