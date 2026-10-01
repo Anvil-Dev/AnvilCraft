@@ -166,6 +166,7 @@
     "compat.EmbItemRendererMixin",
     "compat.IrisItemPreviewMixin",
     "compat.IrisStellarMixin",
+    "compat.JemiPluginMixin",
     "compat.SodiumBlockOcclusionCacheMixin",
     "compat.SodiumChunkBuilderMeshingTaskMixin",
     "compat.SodiumItemRendererMixin",
