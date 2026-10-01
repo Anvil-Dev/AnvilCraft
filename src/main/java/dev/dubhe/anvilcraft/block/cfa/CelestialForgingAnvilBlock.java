@@ -272,7 +272,7 @@ public class CelestialForgingAnvilBlock
 
     @Override
     public BlockPos correctPos(ServerLevel level, BlockPos pos, BlockState state) {
-        return pos.offset(state.getValue(HALF).getOffset()).offset(this.getMainPartOffset());
+        return this.getMainPartPos(pos, state);
     }
 
     @Override
