@@ -136,7 +136,7 @@ public class BeaconConversionCategory implements IRecipeCategory<BeaconConversio
                 for (int j = i; j <= 2 * layers - i; j++) {
                     for (int k = i; k <= 2 * layers - i; k++) {
                         beaconBase.setBlockState(
-                            new BlockPos(j - layers / 2, i - layers / 2, k - layers / 2),
+                            new BlockPos(j, i, k),
                             ModBlocks.CURSED_GOLD_BLOCK.getDefaultState()
                         );
                     }
@@ -148,14 +148,14 @@ public class BeaconConversionCategory implements IRecipeCategory<BeaconConversio
                 .defaultBlockState()
                 .trySetValue(BlockStateProperties.WATERLOGGED, false);
             beaconBase.setBlockState(
-                new BlockPos(layers - layers / 2, layers - layers / 2, layers - layers / 2),
+                new BlockPos(layers, layers, layers),
                 block
             );
             this.cache.put(recipe, beaconBase);
             level = beaconBase;
         }
 
-        RenderSupport.renderLevelLike(level, graphics, 24, 0, 120, layers == 1 ? 15 : 20 / layers, 0, false);
+        RenderSupport.renderLevelLikeAt(level, graphics, 84, 54, 90, 0);
 
         this.slotDefault.draw(graphics, 47, 7);
         this.slotDefault.draw(graphics, 9, 109);
