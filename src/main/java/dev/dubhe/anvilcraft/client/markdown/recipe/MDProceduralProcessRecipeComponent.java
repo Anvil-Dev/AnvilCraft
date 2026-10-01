@@ -24,13 +24,28 @@ public class MDProceduralProcessRecipeComponent extends MDRecipeComponent {
     public static final ResourceLocation ARROW_LONG = AnvilCraft.of("textures/gui/ageratum/arrow_long.png");
 
     public static final int WIDTH = 384;
-    public static final int HEIGHT = 128;
+    /**
+     * 组件高度。底图完全透明，尺寸只用于在手册页面里占位。按内容实际高度取值，
+     * 同时在各组元素之间留出便于分辨的间距。
+     */
+    public static final int HEIGHT = 110;
     public static final int STEPS_LENGTH = 210;
     public static final int STEP_X = (WIDTH - STEPS_LENGTH) / 2;
-    public static final int STEP_Y = 5;
     public static final int STEP_LENGTH = 30;
 
-    public static final int ANVIL_Y = STEP_Y + 16;
+    public static final int ANVIL_Y = 18;
+
+    /**
+     * 显示主线所在的行号：主体方块固定画在这一行，上方一行留给「从上面砸进去」的方块，
+     * 下方一行留给垫底的方块（辐照器、加热器、腐化信标等）。
+     */
+    public static final int BLOCK_ROW = 3;
+
+    /** 循环图标与长箭头所在的行。 */
+    public static final int FLOW_Y = 90;
+
+    /** 物品槽（图标与其底板）相对铁砧下方那行的纵向微调，决定物品与铁砧之间的间距。 */
+    public static final int ITEM_Y_OFFSET = 8;
 
     public static final int ARROW_LONG_LENGTH = 64;
 
@@ -61,7 +76,7 @@ public class MDProceduralProcessRecipeComponent extends MDRecipeComponent {
         GuiGraphics graphics = context.graphics();
 
         // input
-        int blockY = AgeratumUtil.getRenderY(ANVIL_Y, 3);
+        int blockY = AgeratumUtil.getRenderY(ANVIL_Y, BLOCK_ROW);
         AgeratumUtil.renderBlock(context, this.initialBlock, mouseX, mouseY, STEP_X - 20, blockY, 0);
 
         // step
@@ -76,11 +91,11 @@ public class MDProceduralProcessRecipeComponent extends MDRecipeComponent {
         // loop
         if (recipe.getLoop() > 1) {
             Component text = Component.literal((displayedLoop + 1) + "/" + recipe.getLoop()).withColor(0xB08E82);
-            AgeratumUtil.renderText(graphics, text, STEP_X + 140, 100, 1.2f);
-            graphics.blit(CYCLE, STEP_X + 122, 96, 0, 0, 16, 16, 16, 16);
-            renderArrowLong(graphics, WIDTH / 2 - ARROW_LONG_LENGTH / 2 - 20, 96);
+            AgeratumUtil.renderText(graphics, text, STEP_X + 140, FLOW_Y + 4, 1.2f);
+            graphics.blit(CYCLE, STEP_X + 122, FLOW_Y, 0, 0, 16, 16, 16, 16);
+            renderArrowLong(graphics, WIDTH / 2 - ARROW_LONG_LENGTH / 2 - 20, FLOW_Y);
         } else {
-            renderArrowLong(graphics, WIDTH / 2 - ARROW_LONG_LENGTH / 2 - 10, 96);
+            renderArrowLong(graphics, WIDTH / 2 - ARROW_LONG_LENGTH / 2 - 10, FLOW_Y);
         }
 
         // result
@@ -107,11 +122,14 @@ public class MDProceduralProcessRecipeComponent extends MDRecipeComponent {
         AgeratumUtil.renderBlock(context, Blocks.ANVIL.defaultBlockState(), mouseX, mouseY, this.getStepX(idx, true), ANVIL_Y, 100);
 
         // Block
+        // 主体（产出方块落点所在的那个输入）固定占主线行，其余输入按与它的世界上下
+        // 关系向上/下偏移，使各步的主线始终对齐。
+        int anchor = anchorIndex(stepRecipe);
         int blockSize = Math.min(stepRecipe.getInputBlocks().size(), 2);
         for (int i = 0; i < blockSize; i++) {
             BlockStatePredicate inputBlock = stepRecipe.getInputBlocks().get(i);
             int blockX = this.getStepX(idx, true);
-            int blockY = AgeratumUtil.getRenderY(ANVIL_Y, i + 3);
+            int blockY = AgeratumUtil.getRenderY(ANVIL_Y, BLOCK_ROW + i - anchor);
             int z = (blockSize - i) * 10;
             // WIP 中间态的外观取自配方的 displayedModels，与其自身 blockstate 无关。
             // 步数取该圈已完成的步数，与运行时一致。
@@ -130,7 +148,7 @@ public class MDProceduralProcessRecipeComponent extends MDRecipeComponent {
         int itemSize = Math.min(stepRecipe.getInputItems().size(), 1);
         for (int i = 0; i < itemSize; i++) {
             ItemIngredientPredicate inputItem = stepRecipe.getInputItems().get(i);
-            int itemY = AgeratumUtil.getRenderY(ANVIL_Y, 1) + 8;
+            int itemY = AgeratumUtil.getRenderY(ANVIL_Y, 1) + ITEM_Y_OFFSET;
             AgeratumUtil.renderItem(context, inputItem, mouseX, mouseY, this.getStepX(idx, false), itemY);
         }
     }
@@ -142,6 +160,23 @@ public class MDProceduralProcessRecipeComponent extends MDRecipeComponent {
     /** 该方块谓词是否只指向进程方块（WIP 中间态）。 */
     private static boolean isWip(BlockStatePredicate predicate) {
         return predicate.getBlocks().stream().allMatch(holder -> holder.value() instanceof WipBlock);
+    }
+
+    /**
+     * 该步骤的显示主线落在第几个输入方块上。
+     *
+     * <p>主线即该步骤正在被加工的主体，也就是产出方块落点所在的那格输入：下标 {@code i} 的
+     * 输入位于 {@code blockInputOffset} 往下 {@code i} 格，产出位于 {@code blockOutputOffset}，
+     * 两者重合的那个下标就是主体。方块压缩把两块压成一块、产物落在再下一格（偏移 -2），
+     * 主体是下面那块、上面那块是从上面砸进去的；方块处理与物品注入原地成型（偏移 -1），
+     * 主体就是铁砧正下方那块。主体固定在主线行上不动，其余输入按它在世界里的相对高度
+     * 向上或向下偏移，避免主体在各步之间上下跳动。</p>
+     */
+    private static int anchorIndex(AbstractProcessRecipe<?> stepRecipe) {
+        double inputY = stepRecipe.getProperty().getBlockInputOffset().y;
+        double outputY = stepRecipe.getProperty().getBlockOutputOffset().y;
+        int index = (int) Math.round(inputY - outputY);
+        return Math.clamp(index, 0, Math.max(stepRecipe.getInputBlocks().size() - 1, 0));
     }
 
     /**
