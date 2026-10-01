@@ -4,9 +4,9 @@
 #moj_import <minecraft:dynamictransforms.glsl>
 
 #ifdef OVERLAY_COLOR
-const vec4 color = vec4(OVERLAY_COLOR_R, OVERLAY_COLOR_G, OVERLAY_COLOR_B, OVERLAY_COLOR_A);
+const vec4 overlayColor = vec4(OVERLAY_COLOR_R, OVERLAY_COLOR_G, OVERLAY_COLOR_B, OVERLAY_COLOR_A);
 #else
-const vec4 color = vec4(1, 1, 1, 1);
+const vec4 overlayColor = vec4(1, 1, 1, 1);
 #endif
 
 uniform sampler2D Sampler0;
@@ -26,6 +26,6 @@ void main() {
     }
     #endif
     color = apply_fog(color, sphericalVertexDistance, cylindricalVertexDistance, FogEnvironmentalStart, FogEnvironmentalEnd, FogRenderDistanceStart, FogRenderDistanceEnd, FogColor);
-    color = mix(color, OverlayColor);
+    color = mix(color, overlayColor, 0.3);
     fragColor = color;
 }

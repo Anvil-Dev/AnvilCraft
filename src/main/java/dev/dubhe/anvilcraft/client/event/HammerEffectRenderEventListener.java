@@ -9,6 +9,8 @@ import lombok.extern.slf4j.Slf4j;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.BlockModelRenderState;
 import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
+import net.minecraft.client.renderer.block.dispatch.BlockStateModelPart;
+import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.client.renderer.state.level.LevelRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
@@ -16,6 +18,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.util.LightCoordsUtil;
 import net.minecraft.util.RandomSource;
 import net.minecraft.util.context.ContextKey;
 import net.minecraft.world.level.block.state.BlockState;
@@ -26,7 +29,9 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ExtractLevelRenderStateEvent;
 import net.neoforged.neoforge.client.event.SubmitCustomGeometryEvent;
 import net.neoforged.neoforge.client.model.standalone.StandaloneModelKey;
-import org.joml.Matrix4f;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Slf4j
 @EventBusSubscriber(Dist.CLIENT)
@@ -35,7 +40,7 @@ public class HammerEffectRenderEventListener {
     public static final StandaloneModelKey<BlockStateModel> MODEL = new StandaloneModelKey<>(
         () -> "AnvilCraft: Axis Block Model"
     );
-    private static final ContextKey<BlockModelRenderState> HAMMER_STATE = new ContextKey<>(AnvilCraft.of("hammer_state"));
+    private static final ContextKey<HammerRenderState> HAMMER_STATE = new ContextKey<>(AnvilCraft.of("hammer_state"));
 
     static {
         Pair<Direction, Component>[] texts = Util.cast(new Pair[Direction.values().length - 2]);
@@ -52,41 +57,40 @@ public class HammerEffectRenderEventListener {
     @SubscribeEvent
     public static void onExtract(ExtractLevelRenderStateEvent event) {
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof IHasHammerEffect hasHammerEffect)) return;
-        if (!hasHammerEffect.shouldRender()) return;
-        BlockModelRenderState model = new BlockModelRenderState();
-        BlockState state = hasHammerEffect.renderingBlockState();
+        if (mc.level == null || !(mc.screen instanceof IHasHammerEffect effect) || !effect.shouldRender()) return;
+        BlockState state = effect.renderingBlockState();
+        BlockPos pos = effect.renderingBlockPos().immutable();
+        List<BlockStateModelPart> parts = new ArrayList<>();
         mc.getModelManager().getBlockStateModelSet().get(state).collectParts(
-            mc.level,
-            hasHammerEffect.renderingBlockPos(),
-            state,
-            RandomSource.create(),
-            model.setupModel(new Matrix4f(), false)
-        );
-        event.getRenderState().setRenderData(HammerEffectRenderEventListener.HAMMER_STATE, model);
+            mc.level, pos, state, RandomSource.create(42), parts);
+        List<BlockStateModelPart> axes = new ArrayList<>();
+        BlockStateModel axisModel = mc.getModelManager().getStandaloneModel(HammerEffectRenderEventListener.MODEL);
+        if (axisModel != null) axisModel.collectParts(mc.level, pos, state, RandomSource.create(42), axes);
+        event.getRenderState().setRenderData(HammerEffectRenderEventListener.HAMMER_STATE,
+            new HammerRenderState(pos, effect.renderType(), List.copyOf(parts), List.copyOf(axes)));
     }
 
-
-    // TODO: use custom render type for colored overlay
     @SubscribeEvent
     public static void onRender(SubmitCustomGeometryEvent event) {
-        Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof IHasHammerEffect hasHammerEffect)) return;
-        if (!hasHammerEffect.shouldRender()) return;
-        BlockPos pos = hasHammerEffect.renderingBlockPos();
+        LevelRenderState renderState = event.getLevelRenderState();
+        HammerRenderState state = renderState.getRenderData(HammerEffectRenderEventListener.HAMMER_STATE);
+        if (state == null) return;
+        BlockPos pos = state.pos();
         PoseStack poseStack = event.getPoseStack();
         poseStack.pushPose();
-        LevelRenderState renderState = event.getLevelRenderState();
         CameraRenderState camera = renderState.cameraRenderState;
         Vec3 cameraPos = camera.pos;
-        poseStack.translate(
-            pos.getX() - cameraPos.x - 0.0005,
-            pos.getY() - cameraPos.y - 0.0005,
-            pos.getZ() - cameraPos.z - 0.0005
-        );
+        poseStack.translate(pos.getX() - cameraPos.x - 0.0005, pos.getY() - cameraPos.y - 0.0005, pos.getZ() - cameraPos.z - 0.0005);
         poseStack.scale(1.001F, 1.001F, 1.001F);
-        BlockModelRenderState model = renderState.getRenderData(HammerEffectRenderEventListener.HAMMER_STATE);
-        model.submit(poseStack, event.getSubmitNodeCollector(), 1, OverlayTexture.NO_OVERLAY, 0);
+        var collector = event.getSubmitNodeCollector();
+        collector.submitBlockModel(poseStack, state.renderType(), state.parts(), BlockModelRenderState.EMPTY_TINTS,
+            LightCoordsUtil.pack(15, 0), OverlayTexture.NO_OVERLAY, 0);
+        collector.submitBlockModel(poseStack, state.renderType(), state.axes(), BlockModelRenderState.EMPTY_TINTS,
+            LightCoordsUtil.FULL_BRIGHT, OverlayTexture.NO_OVERLAY, 0);
         poseStack.popPose();
+    }
+
+    private record HammerRenderState(BlockPos pos, RenderType renderType, List<BlockStateModelPart> parts,
+                                     List<BlockStateModelPart> axes) {
     }
 }

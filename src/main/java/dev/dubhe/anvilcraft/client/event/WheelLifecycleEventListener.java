@@ -13,6 +13,7 @@ import dev.dubhe.anvilcraft.block.multipart.FlexibleMultiPartBlock;
 import dev.dubhe.anvilcraft.block.multipart.IMultiPartBlockModelHolder;
 import dev.dubhe.anvilcraft.block.multipart.IMultiPartBlockModelHolder.ModelRenderTarget;
 import dev.dubhe.anvilcraft.client.init.ModKeyMappings;
+import dev.dubhe.anvilcraft.client.support.HammerPreviewState;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.item.armor.EquipmentArmorItem;
@@ -88,6 +89,7 @@ public class WheelLifecycleEventListener {
     private static long hammerKeyTime = -1L;
     private static boolean hammerKeyWasDown = false;
     private static @Nullable Optional<WheelMenuModel> hammerWheelCache = null;
+    private static @Nullable HammerPreviewState hammerPreview;
     
     private static @Nullable Supplier<Boolean> hammerInteraction = null;
 
@@ -117,6 +119,10 @@ public class WheelLifecycleEventListener {
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     public static boolean isHammerWheelModel(WheelMenuModel model) {
         return WheelLifecycleEventListener.hammerWheelCache != null && WheelLifecycleEventListener.hammerWheelCache.orElse(null) == model;
+    }
+
+    public static @Nullable HammerPreviewState hammerPreview(WheelMenuModel model) {
+        return WheelLifecycleEventListener.isHammerWheelModel(model) ? WheelLifecycleEventListener.hammerPreview : null;
     }
 
     @SubscribeEvent
@@ -278,6 +284,7 @@ public class WheelLifecycleEventListener {
     ) {
         Level level = Objects.requireNonNull(Minecraft.getInstance().level);
         BlockState initialState = level.getBlockState(targetPos);
+        WheelLifecycleEventListener.hammerPreview = new HammerPreviewState(targetPos, initialState, possibleStates);
         WheelMenuBuilder builder = WheelMenuBuilder.create().slotsPerPage(possibleStates.size());
         possibleStates
             .forEach(state -> {
@@ -293,6 +300,7 @@ public class WheelLifecycleEventListener {
                         pose.translate(0, 0, 0);
                         pose.mulPose(Axis.XP.rotationDegrees(camera.x));
                         pose.mulPose(Axis.YP.rotationDegrees(camera.y + 180F));
+                        graphics.nextStratum();
                         GuiRenderExtras.tessellateBlock(graphics, modelTarget.state(), -15f, -5, pose);
                     },
                     _ -> WheelLifecycleEventListener.sendHammerChangeBlockPacketToServer(state, targetPos)
@@ -646,6 +654,7 @@ public class WheelLifecycleEventListener {
             WheelLifecycleEventListener.hammerKeyWasDown = false;
             WheelLifecycleEventListener.hammerKeyTime = -1L;
             WheelLifecycleEventListener.hammerWheelCache = null;
+            WheelLifecycleEventListener.hammerPreview = null;
 
             WheelLifecycleEventListener.hammerInteraction = null;
             return;

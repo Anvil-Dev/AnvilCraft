@@ -7,17 +7,25 @@ import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.renderer.Sheets;
 import net.minecraft.client.renderer.feature.ItemFeatureRenderer;
 import net.minecraft.client.renderer.rendertype.LayeringTransform;
-import net.minecraft.client.renderer.rendertype.TextureTransform;
-import net.minecraft.client.renderer.rendertype.RenderSetup;
 import net.minecraft.client.renderer.rendertype.OutputTarget;
+import net.minecraft.client.renderer.rendertype.RenderSetup;
 import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
+import net.minecraft.client.renderer.rendertype.TextureTransform;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.Util;
 
 import java.util.function.Function;
 
 public class ModRenderTypes {
+    public static final RenderType TRANSLUCENT_COLORED_OVERLAY = RenderType.create(
+        "anvilcraft:translucent_colored_overlay",
+        RenderSetup.builder(ModRenderPipelines.COLORED_OVERLAY)
+            .useLightmap().sortOnUpload()
+            .withTexture("Sampler0", Sheets.BLOCKS_MAPPER.sheet())
+            .setOutputTarget(OutputTarget.ITEM_ENTITY_TARGET)
+            .createRenderSetup()
+    );
 
     public static final RenderType HYPERCUBE = RenderType.create(
         "anvilcraft:hypercube",

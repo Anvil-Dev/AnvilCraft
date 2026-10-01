@@ -117,10 +117,9 @@ public class ModRenderPipelines {
 
     public static final RenderPipeline COLORED_OVERLAY = RenderPipeline.builder(RenderPipelines.BLOCK_SNIPPET)
         .withColorTargetState(new ColorTargetState(BlendFunction.TRANSLUCENT))
-        .withShaderDefine("ALPHA_CUTOUT", 0.01F)
         .withFragmentShader(AnvilCraft.of("core/rendertype_translucent_colored_overlay"))
         .withShaderDefine("OVERLAY_COLOR")
-        .withShaderDefine("OVERLAY_COLOR_A", 0.866f)
+        .withShaderDefine("OVERLAY_COLOR_A", 221.0F / 255.0F)
         .withShaderDefine("OVERLAY_COLOR_R", 0.4f)
         .withShaderDefine("OVERLAY_COLOR_G", 0.8f)
         .withShaderDefine("OVERLAY_COLOR_B", 1f)
@@ -328,6 +327,7 @@ public class ModRenderPipelines {
         event.registerPipeline(ModRenderPipelines.STELLAR_BEAM);
         event.registerPipeline(ModRenderPipelines.CORRUPTED_BEACON_BEAM);
         event.registerPipeline(ModRenderPipelines.STAR_COLOR_OVERLAY);
+        event.registerPipeline(ModRenderPipelines.COLORED_OVERLAY);
         event.registerPipeline(ModRenderPipelines.CELESTIAL_COLOR_SHELL);
         event.registerPipeline(ModRenderPipelines.SLOT_GHOST_OVERLAY);
         event.registerPipeline(ModRenderPipelines.CFA_PREVIEW_TRANSLUCENT);
