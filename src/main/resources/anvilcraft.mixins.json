@@ -48,6 +48,7 @@
     "BaseSpawnerMixin",
     "BeaconMenuMixin",
     "BlockBehaviourMixin",
+    "BlockCacheMixin",
     "BlockItemMixin",
     "ItemMixin",
     "BlockMixin",
