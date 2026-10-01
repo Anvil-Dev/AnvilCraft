@@ -1,6 +1,5 @@
 package dev.dubhe.anvilcraft.entity;
 
-import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.init.entity.ModEntities;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
@@ -135,7 +134,6 @@ public class AnimateAscendingBlockEntity extends Entity {
 
     /// 动画
     public static void animate(Level level, BlockPos startPos, BlockState blockState, BlockPos endPos) {
-        if (!AnvilCraft.CONFIG.displayAnvilAnimation) return;
         AnimateAscendingBlockEntity entity = new AnimateAscendingBlockEntity(
             level,
             startPos.getX() + 0.5,

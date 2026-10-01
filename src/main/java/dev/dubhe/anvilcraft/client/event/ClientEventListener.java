@@ -14,6 +14,7 @@ import dev.dubhe.anvilcraft.client.rpc.StorageTerminalClientStub;
 import dev.dubhe.anvilcraft.client.rpc.TerminalJeiStorageCache;
 import dev.dubhe.anvilcraft.client.rpc.TerminalReachabilityCache;
 import dev.dubhe.anvilcraft.client.support.AmuletSelectorSupport;
+import dev.dubhe.anvilcraft.client.support.AnvilParticleManager;
 import dev.dubhe.anvilcraft.client.support.BoxSelectionTarget;
 import dev.dubhe.anvilcraft.client.support.FilterSelectorSupport;
 import dev.dubhe.anvilcraft.client.support.ScreenShakeManager;
@@ -131,10 +132,16 @@ public class ClientEventListener {
     }
 
     @SubscribeEvent
-    public static void onClientTick(ClientTickEvent.Post event) {
-        ClientEventListener.handleAttackKeyRelease();
+    public static void onAnvilEffectTick(ClientTickEvent.Pre event) {
+        AnvilParticleManager.tick();
+        if (Minecraft.getInstance().isPaused()) return;
         SeismicBounceManager.getInstance().tick();
         ScreenShakeManager.getInstance().tick();
+    }
+
+    @SubscribeEvent
+    public static void onClientTick(ClientTickEvent.Post event) {
+        ClientEventListener.handleAttackKeyRelease();
         long lastThoughtTime = ThoughtManager.getLastThoughtTime();
         if (lastThoughtTime < 0) {
             return;

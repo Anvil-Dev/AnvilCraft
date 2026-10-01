@@ -114,7 +114,7 @@ public class AnvilCraftClientConfig {
         public double lensDirection = 1.0;
     }
 
-    @Comment("Enable ground heave shockwave particles and sound when giant anvil triggers shock mechanism")
+    @Comment("Enable ground heave shockwave particles and block bounce animation when giant anvil triggers shock mechanism")
     public boolean groundHeaveParticlesEnabled = true;
 
     @Comment("Number of particles per block spawned by ground heave effect")
@@ -124,6 +124,12 @@ public class AnvilCraftClientConfig {
     @Comment("Probability (0.0-1.0) each block spawns ground heave particles")
     @BoundedDiscrete(max = 1, min = 0)
     public double groundHeaveParticleChance = 0.8;
+
+    @Comment("Enable redstone EMP particle effects")
+    public boolean displayRedstoneEmpParticles = true;
+
+    @Comment("Should show anvil levitate animation")
+    public boolean displayAnvilAnimation = true;
 
     @Comment("Render block-state items in sifting and unpacking tables with the enlarged block model pick")
     public boolean siftingUnpackingBlockRenderEnabled = true;
