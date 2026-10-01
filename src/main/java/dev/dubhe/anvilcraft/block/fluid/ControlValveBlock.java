@@ -6,6 +6,7 @@ import dev.dubhe.anvilcraft.api.fluid.network.FluidNetworkManager;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.block.better.BetterBaseEntityBlock;
 import dev.dubhe.anvilcraft.block.entity.fluid.ControlValveBlockEntity;
+import dev.dubhe.anvilcraft.block.item.PipeBlockItem;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.network.ControlValveInitPacket;
 import net.minecraft.core.BlockPos;
@@ -175,6 +176,9 @@ public class ControlValveBlock extends BetterBaseEntityBlock
         InteractionHand hand,
         BlockHitResult hitResult
     ) {
+        if (stack.getItem() instanceof PipeBlockItem) {
+            return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+        }
         if (!level.isClientSide && player instanceof ServerPlayer serverPlayer
             && level.getBlockEntity(pos) instanceof ControlValveBlockEntity be) {
             serverPlayer.openMenu(be, pos);
