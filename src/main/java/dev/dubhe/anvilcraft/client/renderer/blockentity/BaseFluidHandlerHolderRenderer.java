@@ -42,6 +42,10 @@ public abstract class BaseFluidHandlerHolderRenderer<B extends BlockEntity & IFl
         ModelFeatureRenderer.@Nullable CrumblingOverlay breakProgress
     );
 
+    protected RenderType fluidRenderType() {
+        return FLUID_RENDER_TYPE;
+    }
+
     protected float minimumFill() {
         return 0;
     }
@@ -80,6 +84,6 @@ public abstract class BaseFluidHandlerHolderRenderer<B extends BlockEntity & IFl
         float maxY = gas ? state.getMaxY() : minY + (state.getMaxY() - minY) * state.getFill();
         FluidRenderHelper.submitFluidBox(resource, state.getAmount(), state.getMinX(), minY, state.getMinZ(),
             state.getMaxX(), maxY, state.getMaxZ(), gas ? state.getFill() : 1,
-            poseStack, submitNodeCollector, state.lightCoords, FLUID_RENDER_TYPE);
+            poseStack, submitNodeCollector, state.lightCoords, this.fluidRenderType());
     }
 }

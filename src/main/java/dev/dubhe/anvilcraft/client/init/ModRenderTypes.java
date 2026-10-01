@@ -14,10 +14,25 @@ import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.client.renderer.rendertype.TextureTransform;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.Util;
+import net.neoforged.neoforge.client.event.RegisterRenderBuffersEvent;
 
 import java.util.function.Function;
 
 public class ModRenderTypes {
+    public static final RenderType FISH_TANK_FLUID = RenderType.create(
+        "anvilcraft:fish_tank_fluid",
+        RenderSetup.builder(RenderPipelines.TRANSLUCENT_BLOCK)
+            .useLightmap().sortOnUpload().affectsCrumbling()
+            .withTexture("Sampler0", Sheets.BLOCKS_MAPPER.sheet())
+            .setOutputTarget(OutputTarget.ITEM_ENTITY_TARGET)
+            .bufferSize(1536)
+            .createRenderSetup()
+    );
+
+    public static void registerBuffers(RegisterRenderBuffersEvent event) {
+        event.registerRenderBuffer(ModRenderTypes.FISH_TANK_FLUID);
+    }
+
     public static final RenderType TRANSLUCENT_COLORED_OVERLAY = RenderType.create(
         "anvilcraft:translucent_colored_overlay",
         RenderSetup.builder(ModRenderPipelines.COLORED_OVERLAY)

@@ -7,6 +7,7 @@ import dev.anvilcraft.lib.v2.util.ClientTickRecorder;
 import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.api.itemhandler.ItemHandlerUtil;
 import dev.dubhe.anvilcraft.block.entity.FishTankBlockEntity;
+import dev.dubhe.anvilcraft.client.init.ModRenderTypes;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.state.FishTankRenderState;
 import dev.dubhe.anvilcraft.client.support.FeatureRendererSupport;
 import dev.dubhe.anvilcraft.mixin.accessor.EntityAccessor;
@@ -19,6 +20,7 @@ import net.minecraft.client.renderer.entity.state.EntityRenderState;
 import net.minecraft.client.renderer.entity.state.ItemClusterRenderState;
 import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
 import net.minecraft.client.renderer.item.ItemModelResolver;
+import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.util.LightCoordsUtil;
@@ -57,6 +59,11 @@ public class FishTankRenderer extends BaseFluidHandlerHolderRenderer<FishTankBlo
     public FishTankRenderer(BlockEntityRendererProvider.Context ctx) {
         this.resolver = ctx.itemModelResolver();
         this.renderer = ctx.entityRenderer();
+    }
+
+    @Override
+    protected RenderType fluidRenderType() {
+        return ModRenderTypes.FISH_TANK_FLUID;
     }
 
     @Override
@@ -263,7 +270,8 @@ public class FishTankRenderer extends BaseFluidHandlerHolderRenderer<FishTankBlo
             float x = 0.5F + sourceCos(angle) * radius;
             float z = 0.5F + sourceSin(angle) * radius;
 
-            float y = FishTankRenderer.TANK_W + height * (0.5F + sourceSin(ticks * 0.07F + i) * 0.07F + sourceSin(ticks * 0.19F + i) * 0.19F);
+            float y = FishTankRenderer.TANK_W
+                + height * (0.5F + sourceSin(ticks * 0.07F + i) * 0.07F + sourceSin(ticks * 0.19F + i) * 0.19F);
 
             float yawDeg = -(angle * Mth.RAD_TO_DEG);
 

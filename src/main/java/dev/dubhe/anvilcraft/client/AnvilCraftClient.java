@@ -9,6 +9,7 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.client.init.ModCreativeVariantGroups;
 import dev.dubhe.anvilcraft.client.init.ModModelLayers;
 import dev.dubhe.anvilcraft.client.init.ModPostEffects;
+import dev.dubhe.anvilcraft.client.init.ModRenderTypes;
 import dev.dubhe.anvilcraft.client.particle.IonoCraftBackpackExhaustParticle;
 import dev.dubhe.anvilcraft.client.particle.OverseerTrailParticle;
 import dev.dubhe.anvilcraft.client.particle.PlasmaJetsParticle;
@@ -74,6 +75,7 @@ public class AnvilCraftClient {
             AnvilCraft.of("model_selection_blacklist"),
             state -> ModelSelectionBlacklist.usesOriginalPicking(state.getBlock())
         );
+        modBus.addListener(ModRenderTypes::registerBuffers);
         AnvilCraftClient.modEventBus = modBus;
         AnvilCraftClient.modContainer = container;
         AnvilCraftRecipeComponentFactories.RECIPE_COMPONENT_FACTORIES.register(modBus);
