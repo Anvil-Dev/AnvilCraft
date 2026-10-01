@@ -6715,5 +6715,53 @@
       ]
     },
     "remaining": "Continue remaining registry/resource, world-context and rendering completion audits. Whole-port completion remains unproven."
+  },
+  "plain_texture_marker_asset_parity_2026_10_01": {
+    "source_commit": "cca4b2aac5328926fa88bc01d958d007ff6bfc2a",
+    "status": "implemented_and_verified",
+    "implementation": [
+      "Restore thirteen source albedo textures: five instruction markers, three cream blocks, three HD storage-interface textures, simple magnetic chute and nature amulet.",
+      "Restore the matching five marker models, including source UV layout and arrow item-display orientation, plus their five source specular-map sidecars.",
+      "Keep the native simple-magnetic-chute model up-face culling correction: its texture UVs match source and only the existing cullface fix differs."
+    ],
+    "validation": {
+      "source_assets_restored": 23,
+      "gui_cases": 13,
+      "world_cases": 4,
+      "commands": [
+        "./gradlew.bat -PportValidation compileJava runData --console=plain",
+        "./gradlew.bat -PportValidation -I dev/porting/checkstyle.gradle -I dev/porting/asset-gallery-client.gradle compileJava checkPortJava runClient --console=plain",
+        "./gradlew.bat -PportValidation -I dev/porting/asset-gallery-client.gradle compileJava runClient --console=plain",
+        "python dev/porting/compare_asset_gallery.py",
+        "git diff --check"
+      ],
+      "logs": {
+        "data": "build/porting/data-plain-assets.log",
+        "compile_style_client": "build/porting/client-asset-gallery-final.log",
+        "final_native_variants": "build/porting/client-asset-gallery-hd-verified.log",
+        "final_source_variants": "build/porting/client-asset-gallery-hd-reference-verified.log",
+        "manifest": "build/porting/plain-asset-port-manifest.json",
+        "gallery": "build/porting/asset-gallery-comparison.json",
+        "world": "build/porting/asset-gallery-world-comparison.json",
+        "initial_inventory": "build/porting/asset-audit-current.json",
+        "aliases": "build/porting/missing-texture-aliases.json"
+      },
+      "coverage": [
+        "All twenty-three files match the source branch and actual source reference checkout: binary equality for PNGs, JSON structural equality for models while preserving native line endings.",
+        "Paired GUI screenshots cover cream blocks, normal storage interfaces, a plain-chute control, nature amulet and five markers. After correcting source fixture scaling, mean RGB error stays below 0.5/255 for every cell; the control mask IoU is 0.99917 and other masks are identical.",
+        "Paired world screenshots cover the block-only simple magnetic chute and three explicit HD storage-interface states. Foreground mask IoU is 1.0 in all four cases; mean RGB error ranges from 3.48 to 5.97/255 with native terrain rendering retained.",
+        "The native static gallery is pixel-identical across resource reload; the unmodified chute control is pixel-identical before/after the port. Screenshots were visually inspected.",
+        "Compile, datagen and Checkstyle pass. Datagen produces no unrelated generated diff."
+      ],
+      "limits": [
+        "The simple and simple magnetic chutes have no independent item registry entries; the fixture was corrected to use a normal-chute item control and a separate world view.",
+        "The initial source GUI fixture scaled depth differently from width/height, producing artificial lighting differences. Uniform scaling corrected this before accepting color comparison results.",
+        "HD consolidator load logic initially reverted the test state; final captures explicitly wait for the client to confirm the requested HD variant.",
+        "Specular resources are restored, but no shader-pack compatibility or all-world-context claim is made. Native terrain rendering remains unchanged.",
+        "The initial missing-texture inventory found 102 of 128 paths have exact-content native aliases. Remaining GUI atlases, sidecars and rendering resources require further audit; initial inventory counts are not unresolved feature counts.",
+        "All scenes, screenshots, scripts and comparison artifacts stay local and ignored."
+      ]
+    },
+    "remaining": "Continue GUI atlas/layout differences, unresolved texture aliases and shader/resource consumers, then the wider completion audit. Whole-port completion remains unproven."
   }
 }
