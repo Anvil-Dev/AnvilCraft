@@ -155,6 +155,7 @@
     "accessor.RedStoneWireBlockAccessor"
   ],
   "client": [
+    "HumanoidModelMixin",
     "accessor.AbstractContainerMenuSlotsAccessor",
     "ItemFrameRendererMixin",
     "client.HandbookRecipeMixin",
