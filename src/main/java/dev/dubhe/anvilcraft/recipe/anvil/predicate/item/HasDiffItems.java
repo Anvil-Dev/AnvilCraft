@@ -28,7 +28,7 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.Comparator;
@@ -95,11 +95,20 @@ public record HasDiffItems(
     @Override
     @SuppressWarnings("unchecked")
     public void accept(InWorldRecipeContext context) {
-        ICacheInput item1 = this.getItem(context);
-        item1.apply(itemStack -> {
+        ICacheInput input = this.getItem(context);
+        ItemCache cache = context.computeIfAbsent(ItemCache.ITEM_CACHE);
+        Vec3 outputPos = BlockPos.containing(context.getPos().add(this.offset)).getBottomCenter();
+        input.apply(itemStack -> {
+            ItemStackTemplate remainder = itemStack.getCraftingRemainder();
+            if (remainder != null) {
+                var remainingStack = remainder.create();
+                cache.getOutput(remainingStack, outputPos).grow(remainingStack, true);
+            }
+            if (this.functions.isEmpty()) return;
+            ItemStackTemplate consumed = ItemStackTemplate.fromNonEmptyStack(itemStack);
             for (IPredicateFunction<?> function : this.functions) {
-                IPredicateFunction<ItemStack> function1 = (IPredicateFunction<ItemStack>) function;
-                itemStack = function1.apply(context, itemStack);
+                IPredicateFunction<ItemStackTemplate> itemFunction = (IPredicateFunction<ItemStackTemplate>) function;
+                consumed = itemFunction.apply(context, consumed);
             }
         });
         context.putAcceptor(ItemCache.ITEM_CACHE.location(), ItemCache.DEFAULT_ACCEPTOR);
