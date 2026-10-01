@@ -36,16 +36,15 @@ public class ModTradeSets {
             context.lookup(Registries.VILLAGER_TRADE).getOrThrow(ModVillagerTrades.AMBER_FOR_EMERALD)
         ));
 
-        // Level 3: 2 random gem trades; the template trade is added separately
-        ModTradeSets.register(context, ModTradeSets.JEWELER_LEVEL_3, HolderSet.direct(
+        // Level 3: one random gem trade and the guaranteed template trade
+        ModTradeSets.register(context, ModTradeSets.JEWELER_LEVEL_3, 1, HolderSet.direct(
             context.lookup(Registries.VILLAGER_TRADE).getOrThrow(ModVillagerTrades.TOPAZ_BLOCK_FOR_EMERALD),
             context.lookup(Registries.VILLAGER_TRADE).getOrThrow(ModVillagerTrades.SAPPHIRE_BLOCK_FOR_EMERALD),
             context.lookup(Registries.VILLAGER_TRADE).getOrThrow(ModVillagerTrades.RUBY_BLOCK_FOR_EMERALD)
         ));
 
-        // Level 4: 3 trades
-        ModTradeSets.register(context, ModTradeSets.JEWELER_LEVEL_4, HolderSet.direct(
-            context.lookup(Registries.VILLAGER_TRADE).getOrThrow(ModVillagerTrades.NAUTILUS_SHELL_FOR_EMERALD),
+        // Level 4: one random amber trade and the guaranteed nautilus-shell trade
+        ModTradeSets.register(context, ModTradeSets.JEWELER_LEVEL_4, 1, HolderSet.direct(
             context.lookup(Registries.VILLAGER_TRADE).getOrThrow(ModVillagerTrades.MOB_AMBER_FOR_EMERALD),
             context.lookup(Registries.VILLAGER_TRADE).getOrThrow(ModVillagerTrades.RESENTFUL_AMBER_FOR_EMERALD)
         ));
@@ -62,9 +61,18 @@ public class ModTradeSets {
         ResourceKey<TradeSet> key,
         HolderSet<VillagerTrade> trades
     ) {
+        ModTradeSets.register(context, key, 2, trades);
+    }
+
+    private static void register(
+        BootstrapContext<TradeSet> context,
+        ResourceKey<TradeSet> key,
+        int count,
+        HolderSet<VillagerTrade> trades
+    ) {
         context.register(key, new TradeSet(
             trades,
-            ConstantValue.exactly(2.0F),
+            ConstantValue.exactly(count),
             false,
             Optional.of(key.identifier().withPrefix("trade_set/"))
         ));

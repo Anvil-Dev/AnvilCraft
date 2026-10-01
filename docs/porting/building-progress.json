@@ -6596,5 +6596,40 @@
       ]
     },
     "remaining": "Continue world-context behavior, entity/item state contracts and the broader source-only Java/resource/rendering completion audit. Whole-port completion remains unproven."
+  },
+  "jeweler_trade_selection_parity_2026_10_01": {
+    "source_commit": "cca4b2aac5328926fa88bc01d958d007ff6bfc2a",
+    "status": "implemented_and_verified",
+    "implementation": [
+      "Restore level-three jeweler selection to exactly one uniformly selected gem-block buy offer followed by the guaranteed royal-steel template offer; the prior port selected two gems plus the template.",
+      "Restore level-four selection to the guaranteed nautilus-shell buy offer followed by one of two amber buys; the prior port sampled two of all three and could omit the shell.",
+      "Keep native data-driven VillagerTrade definitions and random-sequence handling. Wrap both vanilla selection paths to add guaranteed offers in source order; skip absent or condition-rejected guaranteed offers instead of inserting null.",
+      "Retain all source trade costs, results, stock limits, XP and reputation multipliers; leave other professions and levels unchanged."
+    ],
+    "validation": {
+      "focused_required_tests": 4,
+      "source_trade_variants": 13,
+      "composition_samples_per_level": 128,
+      "commands": [
+        "./gradlew.bat -PportValidation compileJava runData --console=plain",
+        "./gradlew.bat -PportValidation -I dev/porting/jeweler-trades.gradle -I dev/porting/checkstyle.gradle compileJava runGameTestServer checkPortJava --console=plain",
+        "git diff --check"
+      ],
+      "logs": {
+        "data": "build/porting/data-jeweler-trades.log",
+        "final": "build/porting/verify-jeweler-trades.log"
+      },
+      "coverage": [
+        "Actual Villager.getOffers generation samples 128 villagers at each of five levels: exactly two offers per level, all three gem and both amber alternatives reachable, guaranteed offers and order preserved.",
+        "A separate generation sweep verifies all thirteen source offer signatures, including both costs, output count, max uses, XP and price multiplier.",
+        "Actual career advancement retains existing offer identity/order and accumulates 2/4/6/8/10 offers. An ordinary farmer control receives no jeweler additions.",
+        "Compile, four focused tests and Checkstyle pass. Datagen changes only level_3 and level_4 trade-set JSON."
+      ],
+      "limits": [
+        "Native random-sequence mechanics remain; no cross-version per-seed byte-identical sequence is claimed. The source uniform candidate groups and deterministic required offers are restored.",
+        "This node validates generated offers, not a new client trading-screen screenshot. All fixtures remain local and ignored."
+      ]
+    },
+    "remaining": "Continue the reload-listener ordering audit: RoyalPreference initialization currently runs before its reload barrier, unlike the source. Continue broader source-only Java, world-context and rendering completion work. Whole-port completion remains unproven."
   }
 }
