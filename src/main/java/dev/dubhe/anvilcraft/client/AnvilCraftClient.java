@@ -7,6 +7,7 @@ import dev.dubhe.anvilcraft.client.event.GuiLayerRegistrationEventListener;
 import dev.dubhe.anvilcraft.client.init.ModCreativeVariantGroups;
 import dev.dubhe.anvilcraft.client.init.ModKeyMappings;
 import dev.dubhe.anvilcraft.client.init.ModModelLayers;
+import dev.dubhe.anvilcraft.client.init.ModRenderTypes;
 import dev.dubhe.anvilcraft.client.init.ModShaders;
 import dev.dubhe.anvilcraft.client.init.ModTooltipComponents;
 import dev.dubhe.anvilcraft.client.particle.IonocraftBackpackExhaustParticle;
@@ -77,6 +78,7 @@ public class AnvilCraftClient {
         modBus.addListener(AnvilCraftClient::registerCustomItemDecorations);
         modBus.addListener(AnvilCraftClient::registerParticleProviders);
         modBus.addListener(ModShaders::register);
+        modBus.addListener(ModRenderTypes::registerBuffers);
         modBus.addListener(ModModelLayers::register);
         modBus.addListener(ModModelLayers::createModel);
         modBus.addListener(ModTooltipComponents::register);
