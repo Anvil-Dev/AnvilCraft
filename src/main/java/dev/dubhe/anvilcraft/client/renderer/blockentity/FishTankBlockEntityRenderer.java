@@ -7,6 +7,7 @@ import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.itemhandler.ItemHandlerUtil;
 import dev.dubhe.anvilcraft.block.entity.FishTankBlockEntity;
+import dev.dubhe.anvilcraft.client.init.ModRenderTypes;
 import dev.dubhe.anvilcraft.client.support.FluidRenderHelper;
 import dev.dubhe.anvilcraft.mixin.accessor.EntityAccessor;
 import net.minecraft.client.Minecraft;
@@ -210,12 +211,15 @@ public class FishTankBlockEntityRenderer implements BlockEntityRenderer<FishTank
             itemCount--;
         }
         pose.popPose();
-        if (source instanceof MultiBufferSource.BufferSource buffer) buffer.endBatch();
     }
 
     private static void drawFluidInTank(PoseStack pose, MultiBufferSource source, int light, FluidTank fluid, float minY, float maxY) {
         if (fluid.isEmpty()) return;
         FluidStack stack = fluid.getFluid();
+        // Keep translucent fluid queued until the level renderer has drawn the tank's items and fish.
+        MultiBufferSource fluidSource = renderType -> source.getBuffer(
+            renderType == RenderType.translucent() ? ModRenderTypes.FISH_TANK_FLUID : renderType
+        );
         if (stack.getFluidType().isLighterThanAir()) {
             // 气体充满整个鱼缸，储量由透明度表达（与大型储罐一致）
             float fill = Mth.clamp((float) fluid.getFluidAmount() / fluid.getCapacity(), 0.0F, 1.0F);
@@ -227,13 +231,12 @@ public class FishTankBlockEntityRenderer implements BlockEntityRenderer<FishTank
                 1 - TANK_W,
                 1 - TANK_W,
                 1 - TANK_W,
-                source,
+                fluidSource,
                 pose,
                 light,
                 true,
                 fill
             );
-            if (source instanceof MultiBufferSource.BufferSource buffer) buffer.endBatch();
             return;
         }
         FluidRenderHelper.INSTANCE.renderFluidBox(
@@ -244,13 +247,12 @@ public class FishTankBlockEntityRenderer implements BlockEntityRenderer<FishTank
             1 - TANK_W,
             maxY,
             1 - TANK_W,
-            source,
+            fluidSource,
             pose,
             light,
             true,
             false
         );
-        if (source instanceof MultiBufferSource.BufferSource buffer) buffer.endBatch();
     }
 
     private void drawTropicalFishInTank(
