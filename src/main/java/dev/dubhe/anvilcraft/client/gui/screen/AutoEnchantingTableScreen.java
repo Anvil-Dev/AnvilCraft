@@ -192,7 +192,8 @@ public class AutoEnchantingTableScreen extends AbstractContainerScreen<AutoEncha
             RenderSupport.renderItemWithTransparency(this.ghostOutput, guiGraphics.pose(), ghostX, ghostY, 0.52f);
         }
         int progressPassed = Mth.ceil(
-            14 * (1 - ((this.menu.getBlockEntity().getCooldownTicks() + partialTick) / AnvilCraft.CONFIG.autoEnchantingTableInterval))
+            14 * (1 - ((this.menu.getBlockEntity().getCooldownTicks() + partialTick)
+                / AnvilCraft.CONFIG.equipment.autoEnchantingTableInterval))
         );
         guiGraphics.blit(
             AutoEnchantingTableScreen.PROGRESS,

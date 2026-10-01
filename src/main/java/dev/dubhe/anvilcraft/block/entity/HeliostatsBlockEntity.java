@@ -194,7 +194,7 @@ public class HeliostatsBlockEntity extends BlockEntity {
      */
     public void tick() {
         if (level == null) return;
-        if (level.getGameTime() % (AnvilCraft.CONFIG.heliostatsDetectionInterval + 1) != 0) return;
+        if (level.getGameTime() % (AnvilCraft.CONFIG.machines.heliostatsDetectionInterval + 1) != 0) return;
         if (irritatePos == null && level.isClientSide) {
             PacketDistributor.sendToServer(new HeliostatsIrradiationPacket(getBlockPos(), irritatePos));
         }

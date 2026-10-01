@@ -79,7 +79,7 @@ public abstract class BaseSlidingRailBlock extends Block implements ISlidingRail
     @Override
     public boolean anvilcraft$canStickTo(BlockPos pos, BlockState state, BlockPos otherPos, BlockState other) {
         if (otherPos.equals(pos.above())) return false;
-        if (!AnvilCraft.CONFIG.slidingRailStickToEachOther) {
+        if (!AnvilCraft.CONFIG.world.slidingRailStickToEachOther) {
             return other.isStickyBlock() && !(other.getBlock() instanceof BaseSlidingRailBlock);
         }
         if (!other.is(ModBlockTags.STICKABLE_WITH_SLIDING_RAILS)) return other.isStickyBlock();

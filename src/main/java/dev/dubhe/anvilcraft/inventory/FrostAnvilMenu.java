@@ -17,7 +17,7 @@ import javax.annotation.Nullable;
 
 public class FrostAnvilMenu extends AnvilMenu implements HammerOpenedAnvilMenu {
     public final AnvilMenuResult result = AnvilMenuResult.builder()
-        .allowBeyondMaxLevel(AnvilCraft.CONFIG.frostAnvilBeyondMaxLevel)
+        .allowBeyondMaxLevel(AnvilCraft.CONFIG.equipment.frostAnvilBeyondMaxLevel)
         .allowUsingFrostMetalToRepair()
         .noCostInRenaming()
         .noTaxInRepairUsingItem()

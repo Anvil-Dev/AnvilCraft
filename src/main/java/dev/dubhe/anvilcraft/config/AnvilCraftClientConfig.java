@@ -30,6 +30,7 @@ public class AnvilCraftClientConfig {
         @Comment("Controls whether to render the shared orbital rings in the overworld-like dimension")
         public boolean renderOverworldLikeSkyRings = true;
 
+        @SerializedName("Overworld Celestial Bodies")
         @Comment(
             """
             Controls the render mode of Overworld sky
@@ -78,6 +79,7 @@ public class AnvilCraftClientConfig {
             }
         }
 
+        @SerializedName("Stellar Emission Rendering")
         @Comment(
             """
             Controls the render mode of stellar
@@ -89,6 +91,7 @@ public class AnvilCraftClientConfig {
         )
         public CelestialRenderMode stellarRenderMode = CelestialRenderMode.STANDARD;
 
+        @SerializedName("Planet Atmosphere Rendering")
         @Comment(
             """
             Controls the render mode of planet atmosphere
@@ -107,24 +110,33 @@ public class AnvilCraftClientConfig {
             STANDARD,
         }
 
-        @Comment("Adjusts settings related to gravitational lens")
+        @SerializedName("Render Gravitational Lensing Effects")
+        @Comment("Adjusts settings related to the gravitational lensing effect of Black/White Holes")
         @CollapsibleObject
         public GravitationalLens gravitationalLens = new GravitationalLens();
 
         public static class GravitationalLens {
-            @Comment("Controls whether to render the gravitational lensing post-processing effect near Black Holes")
+            @Comment("Controls whether to render the gravitational lensing post-processing effect near Black/White Holes")
             public boolean enabled = false;
 
-            @Comment("Controls the maximum number of Black/White Holes rendered (2-256)")
+            @SerializedName("Maximum Render Count")
+            @Comment(
+                """
+                Controls the maximum number of Black/White Holes rendered (2-256)
+                Higher values render more effects, lower values improve performance
+                """
+            )
             @BoundedDiscrete(min = 2, max = 256)
             public int maxHoleCount = 8;
 
-            @Comment("Controls the lens distortion strength")
+            @SerializedName("Gravitational Lensing Strength")
+            @Comment("Controls the lens distortion strength around Black/White Holes (higher values distort light more; default: 0.002)")
             public double strength = 1.0 / 512.0;
 
-            @Comment("Controls the event horizon radius in screen UV units")
+            @Comment("Controls the event horizon radius of Black/White Holes in screen UV units (default: 0.083)")
             public double eventHorizonRadius = 1.0 / 12.0;
 
+            @SerializedName("Gravitational Lensing Perspective Scale")
             @Comment(
                 """
                 Controls the reference distance for perspective scaling
@@ -134,6 +146,7 @@ public class AnvilCraftClientConfig {
             )
             public double perspectiveScale = 10.0;
 
+            @SerializedName("Gravitational Lensing Direction")
             @Comment(
                 """
                 Controls the lens direction
@@ -144,7 +157,13 @@ public class AnvilCraftClientConfig {
             public double direction = 1.0;
         }
 
-        @Comment("Render block-state items in sifting and unpacking tables with the enlarged block model pick")
+        @SerializedName("Enlarged Block Rendering in Sifting/Unpacking Tables")
+        @Comment(
+            """
+            Controls whether to render block-state items in sifting and unpacking tables
+            with the enlarged block model pick instead of regular scattered item rendering
+            """
+        )
         public boolean renderBlockModelInSiftingAndUnpacking = true;
 
         @Comment("Controls whether to always vertically displays items in item frames on horizontal surfaces")
@@ -157,6 +176,7 @@ public class AnvilCraftClientConfig {
     public EffectsSettings effects = new EffectsSettings();
 
     public static class EffectsSettings {
+        @SerializedName("Render Power Transmission Line Bloom")
         @Comment("Controls whether to apply the bloom effect to lasers and power transmitter lines")
         public boolean renderBloomEffect = false;
 
@@ -257,11 +277,23 @@ public class AnvilCraftClientConfig {
         @Comment("Controls whether to add a tooltip line that shows the stored storage ID")
         public boolean showStorageStoredId = false;
 
-        @Comment("Controls whether to use the legacy flat creative inventory layout instead of the sectioned layout with banners")
+        @SerializedName("Use Legacy Creative Inventory")
+        @Comment(
+            """
+            Controls whether to use the legacy flat creative inventory layout instead of the sectioned layout with banners
+            Requires restart to take effect
+            """
+        )
         // @NeedRestart(RestartType.GAME)
         public boolean useLegacyCreativeTab = false;
 
-        @Comment("Controls whether to fold 16-color item families into one representative item with a right-click variant picker in the creative inventory")
+        @SerializedName("Fold Colored Item Variants")
+        @Comment(
+            """
+            Controls whether to fold 16-color item families into one representative item with a right-click variant picker
+            Applies to both creative inventory layouts (requires restart)
+            """
+        )
         public boolean enableCreativeVariantPicker = false;
 
         @Comment("Controls the minimum liquid enchantment level (included) displayed as Roman numerals in Auto Enchanting Table's Liquid Enchantment mode")
@@ -309,6 +341,7 @@ public class AnvilCraftClientConfig {
         )
         public boolean invertFluidPortBucketActions = false;
 
+        @SerializedName("Building Rod Blueprint Key Set Type")
         @Comment("Controls the key set type used by the Building Rod blueprint mode")
         public BuildingRodKeySetType buildingRodKeySet = BuildingRodKeySetType.OPTIMIZED;
 

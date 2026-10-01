@@ -103,7 +103,7 @@ public class MagnetBlock extends Block implements IHammerRemovable {
         if (level.isClientSide()) return;
         if (!(state.getBlock() instanceof MagnetBlock) || state.getValue(LIT)) return;
         if (level.getBlockState(magnetPos.below()).is(BlockTags.ANVIL)) return;
-        int distance = AnvilCraft.CONFIG.magnetAttractsDistance;
+        int distance = AnvilCraft.CONFIG.equipment.magnetAttractsDistance;
         if (distance <= 0) return;
         BlockPos bottomPos = magnetPos.below(distance);
         List<FallingBlockEntity> entities = level.getEntitiesOfClass(
@@ -164,7 +164,7 @@ public class MagnetBlock extends Block implements IHammerRemovable {
         if (movedByPiston && !state.getValue(LIT)) {
             chargeFromCopper(level, magnetPos);
         }
-        int distance = AnvilCraft.CONFIG.magnetAttractsDistance;
+        int distance = AnvilCraft.CONFIG.equipment.magnetAttractsDistance;
         BlockPos currentPos = magnetPos;
         for (int i = 0; i < distance; i++) {
             currentPos = currentPos.below();

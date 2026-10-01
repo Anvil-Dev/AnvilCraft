@@ -98,7 +98,7 @@ public class FireCauldronBlock extends Layered4LevelCauldronBlock implements IHa
     @Override
     public OptionalInt consumeOnce(BlockCache cache, BlockPos pos, boolean simulate) {
         BlockState state = cache.getBlockState(pos);
-        int remaining = state.getValue(FireCauldronBlock.LEVEL) - AnvilCraft.CONFIG.plasmaJetsCauldronConsumeAmount;
+        int remaining = state.getValue(FireCauldronBlock.LEVEL) - AnvilCraft.CONFIG.machines.plasmaJets.cauldronConsumeAmount;
         if (remaining < 0) {
             return OptionalInt.empty();
         }
@@ -109,6 +109,6 @@ public class FireCauldronBlock extends Layered4LevelCauldronBlock implements IHa
                 cache.setBlock(pos, state.setValue(FireCauldronBlock.LEVEL, remaining));
             }
         }
-        return OptionalInt.of(AnvilCraft.CONFIG.plasmaJetsCauldronExtraDuration);
+        return OptionalInt.of(AnvilCraft.CONFIG.machines.plasmaJets.cauldronExtraDuration);
     }
 }

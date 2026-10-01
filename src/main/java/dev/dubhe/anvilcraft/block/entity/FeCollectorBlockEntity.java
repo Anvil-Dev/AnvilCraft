@@ -150,8 +150,8 @@ public class FeCollectorBlockEntity extends BlockEntity implements IPowerProduce
             final int prev = this.outputPower;
             this.energy -= FE_PER_TICK;
             this.outputPower = (int) (FE_PER_TICK
-                * (1 - AnvilCraft.CONFIG.powerConverter.powerConverterLoss)
-                / AnvilCraft.CONFIG.powerConverter.powerConverterEfficiency);
+                * (1 - AnvilCraft.CONFIG.machines.powerConverter.loss)
+                / AnvilCraft.CONFIG.machines.powerConverter.efficiency);
             this.time++;
             setChanged();
             clientSyncDirty = true;

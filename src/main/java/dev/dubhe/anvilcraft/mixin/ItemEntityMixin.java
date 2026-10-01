@@ -339,7 +339,7 @@ abstract class ItemEntityMixin extends Entity implements IItemEntityExtension {
 
     @Override
     protected void onBelowWorld() {
-        if (this.getItem().has(ModComponents.ETERNAL) && !AnvilCraft.CONFIG.eternalItemsVoidKillable) {
+        if (this.getItem().has(ModComponents.ETERNAL) && !AnvilCraft.CONFIG.equipment.eternalItemsVoidKillable) {
             return;
         }
         super.onBelowWorld();

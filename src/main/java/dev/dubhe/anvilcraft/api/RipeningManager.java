@@ -42,7 +42,7 @@ public class RipeningManager {
      * @param ripened 在本轮催熟中，已经被催熟过的位置
      */
     private void doRipen(BlockPos pos, HashSet<BlockPos> ripened) {
-        int radius = AnvilCraft.CONFIG.inductionLightBlockRipeningRange / 2;
+        int radius = AnvilCraft.CONFIG.machines.inductionLightBlockRipeningRange / 2;
         for (BlockPos plantPos : BlockPos.betweenClosed(pos.offset(radius, radius, radius), pos.offset(-radius, -radius, -radius))) {
             if (ripened.contains(plantPos)) continue;
             BlockState state = level.getBlockState(plantPos);
@@ -102,7 +102,7 @@ public class RipeningManager {
             lastTickRipen = curTime - 1;
             return false;
         }
-        if (ticksBeforeLastRipen >= AnvilCraft.CONFIG.inductionLightBlockRipeningCooldown) {
+        if (ticksBeforeLastRipen >= AnvilCraft.CONFIG.machines.inductionLightBlockRipeningCooldown) {
             lastTickRipen = curTime;
             ripened.clear();
             return true;

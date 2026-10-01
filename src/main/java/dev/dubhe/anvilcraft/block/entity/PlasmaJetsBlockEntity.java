@@ -275,7 +275,7 @@ public class PlasmaJetsBlockEntity extends BlockEntity {
         this.duration--;
         if (this.cauldronPos != null) {
             OptionalInt extra = PlasmaJetsBlock.tryConsumeOnce(level, this.cauldronPos, true);
-            if (extra.isPresent() && this.duration + extra.getAsInt() < AnvilCraft.CONFIG.plasmaJetsMaxDuration) {
+            if (extra.isPresent() && this.duration + extra.getAsInt() < AnvilCraft.CONFIG.machines.plasmaJets.maxDuration) {
                 this.duration += PlasmaJetsBlock.tryConsumeOnce(level, this.cauldronPos, false).orElse(0);
             }
         }

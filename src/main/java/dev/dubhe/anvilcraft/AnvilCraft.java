@@ -219,9 +219,9 @@ public class AnvilCraft {
                     "Apothic Enchanting found. Set royalAnvilBeyondMaxLevel, "
                     + "emberAnvilBeyondMaxLevel and transcendenceAnvilBeyondMaxLevel to true."
                 );
-                CONFIG.royalAnvilBeyondMaxLevel = true;
-                CONFIG.emberAnvilBeyondMaxLevel = true;
-                CONFIG.transcendenceAnvilBeyondMaxLevel = true;
+                CONFIG.equipment.royalAnvilBeyondMaxLevel = true;
+                CONFIG.equipment.emberAnvilBeyondMaxLevel = true;
+                CONFIG.equipment.transcendenceAnvilBeyondMaxLevel = true;
             }
         });
     }

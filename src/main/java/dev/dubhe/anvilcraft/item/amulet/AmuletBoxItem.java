@@ -88,7 +88,7 @@ public class AmuletBoxItem extends BundleLikeItem {
                 }
                 playInsertSound(player);
                 box.set(ModComponents.BOX_CONTENTS, mutable.immutable());
-            } else if (AnvilCraft.CONFIG.amuletBoxTakeOutAllTotem) {
+            } else if (AnvilCraft.CONFIG.equipment.amuletBoxTakeOutAllTotem) {
                 boolean dropped = false;
                 for (int i = 0; i < contents.totems().size(); i++) {
                     ItemStack stack = mutable.popTotem();

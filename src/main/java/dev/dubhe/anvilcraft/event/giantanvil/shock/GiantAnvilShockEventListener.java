@@ -158,7 +158,7 @@ public class GiantAnvilShockEventListener {
                     entity.hurtMarked = true;
                 }
                 // 让范围内的生物原地弹跳
-                int radius = (int) Math.min(Math.ceil(it.unwrap().fallDistance()), AnvilCraft.CONFIG.giantAnvilMaxShockRadius);
+                int radius = (int) Math.min(Math.ceil(it.unwrap().fallDistance()), AnvilCraft.CONFIG.world.giantAnvilMaxShockRadius);
                 AABB aabb = AABB.ofSize(
                     Vec3.atCenterOf(it.unwrap().centerPos().above()),
                     radius * 2 + 1,
@@ -204,7 +204,7 @@ public class GiantAnvilShockEventListener {
             })
         ).executes(it -> {
             if (it.has(GiantAnvilShockEventListener.NO_HURT)) return;
-            int radius = (int) Math.min(Math.ceil(it.unwrap().fallDistance()), AnvilCraft.CONFIG.giantAnvilMaxShockRadius);
+            int radius = (int) Math.min(Math.ceil(it.unwrap().fallDistance()), AnvilCraft.CONFIG.world.giantAnvilMaxShockRadius);
             AABB aabb = AABB.ofSize(
                 Vec3.atCenterOf(it.unwrap().centerPos().above()),
                 radius * 2 + 1,
@@ -244,7 +244,7 @@ public class GiantAnvilShockEventListener {
         }
 
         float fallDistance = event.getFallDistance();
-        int radius = (int) Math.min(Math.ceil(fallDistance), AnvilCraft.CONFIG.giantAnvilMaxShockRadius);
+        int radius = (int) Math.min(Math.ceil(fallDistance), AnvilCraft.CONFIG.world.giantAnvilMaxShockRadius);
         BlockPos shockCenter = event.getPos().below(2);
 
         // 发送震波效果包到附近所有玩家

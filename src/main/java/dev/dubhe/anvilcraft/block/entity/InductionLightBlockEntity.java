@@ -24,7 +24,7 @@ import org.jetbrains.annotations.Nullable;
 @Getter
 public class InductionLightBlockEntity extends BlockEntity implements IPowerConsumer, IHasAffectRange {
     @Getter(AccessLevel.NONE)
-    private int ripeningRangeCache = AnvilCraft.CONFIG.inductionLightBlockRipeningRange;
+    private int ripeningRangeCache = AnvilCraft.CONFIG.machines.inductionLightBlockRipeningRange;
     private AABB ripeningArea;
     private AABB blockingArea;
     private PowerGrid grid;
@@ -85,8 +85,8 @@ public class InductionLightBlockEntity extends BlockEntity implements IPowerCons
     }
 
     public AABB getRipeningArea() {
-        if (this.ripeningRangeCache != AnvilCraft.CONFIG.inductionLightBlockRipeningRange) {
-            this.ripeningRangeCache = AnvilCraft.CONFIG.inductionLightBlockRipeningRange;
+        if (this.ripeningRangeCache != AnvilCraft.CONFIG.machines.inductionLightBlockRipeningRange) {
+            this.ripeningRangeCache = AnvilCraft.CONFIG.machines.inductionLightBlockRipeningRange;
         }
         if (this.ripeningArea == null) {
             this.ripeningArea = AABB.ofSize(

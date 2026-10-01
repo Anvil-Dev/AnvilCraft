@@ -289,11 +289,11 @@ public final class GravityManager {
                 && entity.getBoundingBox().getCenter().equals(orbit.origin)) {
                 double scalar = getGravityType(entity).getScalar();
                 double baseGravity = GravitySourceManager.getEntityG(entity);
-                double lightSpeed = Math.clamp(AnvilCraft.CONFIG.orbitalSpeedOfLight, 16, 4096);
-                double inverseLightSpeedSquared = AnvilCraft.CONFIG.relativisticPrecession
+                double lightSpeed = Math.clamp(AnvilCraft.CONFIG.world.orbitalSpeedOfLight, 16, 4096);
+                double inverseLightSpeedSquared = AnvilCraft.CONFIG.world.relativisticPrecession
                     ? 1.0 / (lightSpeed * lightSpeed) : 0;
                 OrbitalIntegrator.Step step = OrbitalIntegrator.integrate(
-                    orbit.origin, movement, Math.clamp(AnvilCraft.CONFIG.orbitIntegrationSubsteps, 2, 64),
+                    orbit.origin, movement, Math.clamp(AnvilCraft.CONFIG.world.orbitIntegrationSubsteps, 2, 64),
                     (position, velocity) -> GravitySourceManager.calculateOrbitalGravity(
                         entity.level(), position, velocity, baseGravity, scalar, inverseLightSpeedSquared
                     )
@@ -368,7 +368,7 @@ public final class GravityManager {
     private static boolean canIntegrateOrbit(Entity entity) {
         // These entities apply gravity before SELF movement. Living entities and projectiles use different tick orders.
         if (!(entity instanceof ItemEntity || entity instanceof FallingBlockEntity)
-            || AnvilCraft.CONFIG.orbitIntegrationSubsteps <= 1
+            || AnvilCraft.CONFIG.world.orbitIntegrationSubsteps <= 1
             || entity.isNoGravity() || entity.noPhysics || entity.isSpectator() || entity.isPassenger()
             || entity.onGround() || entity.horizontalCollision || entity.verticalCollision
             || entity.isInWater() || entity.isInLava() || AccelerateManager.isControlledByRing(entity)) {

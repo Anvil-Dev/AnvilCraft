@@ -89,7 +89,7 @@ public abstract class MagnetUtil {
     ) {
         if (player.isShiftKeyDown()) return InteractionResultHolder.pass(player.getItemInHand(usedHand));
         ItemStack itemStack = player.getItemInHand(usedHand);
-        double radius = AnvilCraft.CONFIG.magnetItemAttractsRadius;
+        double radius = AnvilCraft.CONFIG.equipment.magnetItemAttractsRadius;
         UseMagnetEvent event = new UseMagnetEvent(level, player, radius);
         ModLoader.postEvent(event);
         if (event.isCanceled()) return InteractionResultHolder.pass(itemStack);

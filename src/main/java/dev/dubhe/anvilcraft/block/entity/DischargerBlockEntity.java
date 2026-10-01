@@ -412,8 +412,8 @@ public class DischargerBlockEntity extends BlockEntity
                             int extracted = storage.extractEnergy(
                                 Math.min(FE_EXTRACT_PER_TICK, currentEnergy), false);
                             powerValue = (int) (extracted
-                                * (1 - AnvilCraft.CONFIG.powerConverter.powerConverterLoss)
-                                / AnvilCraft.CONFIG.powerConverter.powerConverterEfficiency);
+                                * (1 - AnvilCraft.CONFIG.machines.powerConverter.loss)
+                                / AnvilCraft.CONFIG.machines.powerConverter.efficiency);
                             timeLeft = currentEnergy - extracted;
                             timeTotalCache = storage.getMaxEnergyStored();
                         }

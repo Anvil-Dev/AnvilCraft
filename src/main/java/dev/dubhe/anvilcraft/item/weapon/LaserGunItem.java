@@ -132,7 +132,7 @@ public class LaserGunItem extends EnergyWeaponItem {
             }
             state.idleTicks = 0;
             state.miningAnchor = origin.immutable();
-            state.vein.addAll(findVein(level, origin, ore, AnvilCraft.CONFIG.laserOreClusterMaxSize, player.position()));
+            state.vein.addAll(findVein(level, origin, ore, AnvilCraft.CONFIG.equipment.laserOreClusterMaxSize, player.position()));
         }
         state.miningTicks++;
         if (state.miningTicks % miningPeriod(level, stack) != 0 || state.vein.isEmpty()) return;

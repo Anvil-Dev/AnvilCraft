@@ -42,7 +42,7 @@ public class PowerConverterBlockEntity extends BlockEntity implements IPowerCons
 
     int getMaxEnergy() {
         long maxEnergy = (long) inputPower
-            * AnvilCraft.CONFIG.powerConverter.powerConverterEfficiency
+            * AnvilCraft.CONFIG.machines.powerConverter.efficiency
             * 20
             * 5;
         return (int) Math.min(maxEnergy, Integer.MAX_VALUE);
@@ -111,8 +111,8 @@ public class PowerConverterBlockEntity extends BlockEntity implements IPowerCons
         }
         if (getBlockState().getValue(BasePowerConverterBlock.OVERLOAD)) return;
         int amountTick = (int) (inputPower
-                * AnvilCraft.CONFIG.powerConverter.powerConverterEfficiency
-                * (1 - AnvilCraft.CONFIG.powerConverter.powerConverterLoss)
+                * AnvilCraft.CONFIG.machines.powerConverter.efficiency
+                * (1 - AnvilCraft.CONFIG.machines.powerConverter.loss)
         );
         int amount = amountTick * PowerGrid.GRID_TICK;
         this.energy = (int) Math.min((long) this.energy + amount, getMaxEnergy());

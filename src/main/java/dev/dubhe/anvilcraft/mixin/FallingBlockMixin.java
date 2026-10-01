@@ -136,7 +136,7 @@ public abstract class FallingBlockMixin extends Block {
                 FallingBlockEntity entity = FallingGiantAnvilEntity.fall(
                     level, mainPartPos, mainPartState, false
                 );
-                entity.setHurtsEntities(10.0F, AnvilCraft.CONFIG.giantAnvilFallDamageMax);
+                entity.setHurtsEntities(10.0F, AnvilCraft.CONFIG.world.giantAnvilMaxFallDamage);
             } else {
                 FallingBlockEntity entity = FallingBlockEntity.fall(level, pos, state);
                 ((FallingBlock) (Object) this).falling(entity);
