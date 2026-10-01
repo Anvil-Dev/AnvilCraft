@@ -5,6 +5,7 @@ import dev.dubhe.anvilcraft.api.block.BlockPlacementRules;
 import dev.dubhe.anvilcraft.api.entity.fakeplayer.AnvilCraftFakePlayers;
 import dev.dubhe.anvilcraft.api.item.IBlockItem;
 import dev.dubhe.anvilcraft.block.LargeCakeBlock;
+import dev.dubhe.anvilcraft.block.LensBlock;
 import dev.dubhe.anvilcraft.block.fluid.PipeBlock;
 import dev.dubhe.anvilcraft.block.item.LargeCakeBlockItem;
 import dev.dubhe.anvilcraft.block.item.PipeBlockItem;
@@ -250,7 +251,9 @@ public final class BlockPlacementUtil {
 
     public static boolean isBlueprintStatePresent(Level level, BlockPos pos, BlockState requiredState) {
         BlockState worldState = level.getBlockState(pos);
-        if (!worldState.is(requiredState.getBlock())) {
+        if (!worldState.is(requiredState.getBlock())
+            || worldState.getBlock() instanceof LensBlock
+                && worldState.getValue(LensBlock.TYPE) != requiredState.getValue(LensBlock.TYPE)) {
             return false;
         }
         BlockState contextualState = Block.updateFromNeighbourShapes(worldState, level, pos);
