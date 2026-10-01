@@ -74,6 +74,8 @@
     "EnchantmentPredicateMixin",
     "EnchantmentsPredicateMixin",
     "EntityMixin",
+    "EntityTypePredicateMixin",
+    "accessor.EntityTypeAccessor",
     "ExperienceOrbMixin",
     "FallingBlockEntityMixin",
     "FallingBlockMixin",
