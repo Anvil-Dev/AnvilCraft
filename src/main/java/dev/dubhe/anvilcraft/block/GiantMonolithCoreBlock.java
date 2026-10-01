@@ -68,19 +68,6 @@ public class GiantMonolithCoreBlock extends SimpleMultiPartBlock<Cube3x3PartHalf
             .setValue(AXIS, Direction.Axis.Z));
     }
 
-    public static void loot(RegistrumBlockLootTables tables, GiantMonolithCoreBlock block) {
-        tables.add(block, LootTable.lootTable()
-            .withPool(tables.applyExplosionCondition(block, LootPool.lootPool()
-                .setRolls(ConstantValue.exactly(1.0F))
-                .when(LootItemBlockStatePropertyCondition.hasBlockStateProperties(block)
-                    .setProperties(StatePropertiesPredicate.Builder.properties()
-                        .hasProperty(HALF, Cube3x3PartHalf.MID_CENTER)))
-                .add(LootItem.lootTableItem(block)
-                    .when(DataGenUtil.hasSilkTouch(tables.getRegistries()))
-                    .otherwise(LootItem.lootTableItem(ModBlocks.MONOLITH)
-                        .apply(SetItemCountFunction.setCount(ConstantValue.exactly(27.0F))))))));
-    }
-
     @Override
     public BlockState playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player) {
         if (!level.isClientSide && !player.isCreative() && !this.isMainPart(state)) {
