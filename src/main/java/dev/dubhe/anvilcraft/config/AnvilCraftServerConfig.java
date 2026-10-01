@@ -578,6 +578,25 @@ public class AnvilCraftServerConfig {
         @Comment("Controls the base cooldown of the Tesla Gun (in ticks, shortened by Quick Charge)")
         @BoundedDiscrete(min = 1, max = 1200)
         public int teslaGunCooldown = 80;
+        @Comment("Controls how long the Charged Jump ability takes to charge (in ticks)")
+        @BoundedDiscrete(min = 1, max = 200)
+        public int chargedJumpChargeTicks = 20;
+
+        @Comment("Controls how long the Charged Jump bar holds its progress after releasing (in ticks)")
+        @BoundedDiscrete(min = 0, max = 200)
+        public int chargedJumpChargeHoldTicks = 20;
+
+        @Comment("Controls how long the Charged Jump bar takes to decay after holding (in ticks)")
+        @BoundedDiscrete(min = 1, max = 200)
+        public int chargedJumpChargeDecayTicks = 10;
+
+        @Comment("Controls the jump height multiplier of a fully charged jump")
+        @BoundedDiscrete(min = 1.0, max = 10.0)
+        public double chargedJumpMaxHeightMultiplier = 3.5;
+
+        @Comment("Controls how often the helmet refreshes Night Vision (in ticks, above the 200 tick flicker threshold)")
+        @BoundedDiscrete(min = 200, max = 2400)
+        public int nightVisionRefreshTicks = 210;
     }
 
     @SerializedName("Commands")

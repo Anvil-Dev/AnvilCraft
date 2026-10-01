@@ -37,15 +37,6 @@ import java.util.WeakHashMap;
 
 @EventBusSubscriber(modid = AnvilCraft.MOD_ID)
 public final class EquipmentAbilities {
-    public static final int CHARGE_TICKS = 20;
-    /** 停止蓄力后，蓄力条在当前进度上停留的时间（tick）。 */
-    public static final int CHARGE_HOLD_TICKS = 20;
-    /** 停留结束到蓄力条归零的线性衰减时间（tick）。 */
-    public static final int CHARGE_DECAY_TICKS = 10;
-    /** 满蓄力的跳跃高度相对普通跳跃的倍率。 */
-    private static final double MAX_JUMP_HEIGHT_MULTIPLIER = 3.5;
-    /** 高于 HUD 与夜视的 200 tick 闪烁阈值，预留客户端倒计时余量。 */
-    private static final int NIGHT_VISION_REFRESH_TICKS = 210;
     private static final ResourceLocation FLIGHT_STABILITY = AnvilCraft.of("flight_stability");
     private static final Map<Player, Integer> CHARGE = new WeakHashMap<>();
     /** 停止蓄力起的经过 tick 数；有记录即表示处于停留 / 衰减阶段。 */
@@ -112,10 +103,10 @@ public final class EquipmentAbilities {
     }
 
     /**
-     * 当前蓄力值，用于 HUD 显示；等于 {@link #CHARGE_TICKS} 表示已蓄满。
+     * 当前蓄力值，用于 HUD 显示；等于配置的蓄力上限表示已蓄满。
      *
-     * <p>松开潜行后不会立刻归零：先在当前进度停留 {@link #CHARGE_HOLD_TICKS}，
-     * 再线性衰减 {@link #CHARGE_DECAY_TICKS} 归零。停留期内仍可起跳，
+     * <p>松开潜行后不会立刻归零：先在当前进度停留一段时间，
+     * 再线性衰减归零。停留期内仍可起跳，
      * 因此构成一段输入缓冲窗口。</p>
      */
     public static int chargeTicks(Player player) {
@@ -126,7 +117,7 @@ public final class EquipmentAbilities {
      * 蓄力条当前应有的填充比例（0..1），已含停留与衰减阶段。
      */
     public static float chargeProgress(Player player) {
-        return Math.clamp(chargeTicks(player) / (float) CHARGE_TICKS, 0, 1);
+        return Math.clamp(chargeTicks(player) / (float) AnvilCraft.CONFIG.equipment.chargedJumpChargeTicks, 0, 1);
     }
 
     /**
@@ -136,12 +127,12 @@ public final class EquipmentAbilities {
      */
     public static boolean isChargeHeld(Player player) {
         Integer released = CHARGE_RELEASE.get(player);
-        return released != null && released <= CHARGE_HOLD_TICKS;
+        return released != null && released <= AnvilCraft.CONFIG.equipment.chargedJumpChargeHoldTicks;
     }
 
     /**
      * 消耗当前蓄力并返回本次的跳跃速度：按蓄力进度线性提升跳跃高度，
-     * 进度 0 为普通跳跃，满蓄力为 {@link #MAX_JUMP_HEIGHT_MULTIPLIER} 倍高度。
+     * 进度 0 为普通跳跃，满蓄力为 {@link #AnvilCraft.CONFIG.equipment.chargedJumpMaxHeightMultiplier} 倍高度。
      *
      * <p>读取进度与清空蓄力在同一次调用内完成。若拆成「先清空再算速度」两步，
      * 调用方很容易在取值前就把进度归零，强化会静默失效。</p>
@@ -156,10 +147,10 @@ public final class EquipmentAbilities {
         if (progress <= 0) return normal;
         double gravity = Math.max(0.001, player.getAttributeValue(Attributes.GRAVITY));
         double drag = AtmosphereManager.drag(player, 0.9800000190734863);
-        double multiplier = 1 + (MAX_JUMP_HEIGHT_MULTIPLIER - 1) * progress;
+        double multiplier = 1 + (AnvilCraft.CONFIG.equipment.chargedJumpMaxHeightMultiplier - 1) * progress;
         double target = jumpHeight(normal, gravity, drag) * multiplier;
         double low = normal;
-        double high = normal * MAX_JUMP_HEIGHT_MULTIPLIER + gravity;
+        double high = normal * AnvilCraft.CONFIG.equipment.chargedJumpMaxHeightMultiplier + gravity;
         for (int iteration = 0; iteration < 32; iteration++) {
             double middle = (low + high) / 2;
             if (jumpHeight(middle, gravity, drag) < target) low = middle;
@@ -193,16 +184,17 @@ public final class EquipmentAbilities {
             // 衰减途中重新蓄力：从当前显示值继续，而不是跳回松开时的起点
             CHARGE_RELEASE.remove(player);
             CHARGE_RELEASE_START.remove(player);
-            CHARGE.put(player, Math.min(CHARGE_TICKS, chargeTicks(player) + 1));
+            CHARGE.put(player, Math.min(AnvilCraft.CONFIG.equipment.chargedJumpChargeTicks, chargeTicks(player) + 1));
             return;
         }
         // 停留 / 衰减阶段：按计时推进，与当前蓄力值无关
         if (CHARGE_RELEASE.containsKey(player)) {
             int released = CHARGE_RELEASE.merge(player, 1, Integer::sum);
-            if (released <= CHARGE_HOLD_TICKS) return;
-            int start = CHARGE_RELEASE_START.getOrDefault(player, CHARGE_TICKS);
-            int elapsed = released - CHARGE_HOLD_TICKS;
-            int decayed = Math.round(start * (CHARGE_DECAY_TICKS - elapsed) / (float) CHARGE_DECAY_TICKS);
+            if (released <= AnvilCraft.CONFIG.equipment.chargedJumpChargeHoldTicks) return;
+            int start = CHARGE_RELEASE_START.getOrDefault(player, AnvilCraft.CONFIG.equipment.chargedJumpChargeTicks);
+            int elapsed = released - AnvilCraft.CONFIG.equipment.chargedJumpChargeHoldTicks;
+            int decayTicks = AnvilCraft.CONFIG.equipment.chargedJumpChargeDecayTicks;
+            int decayed = Math.round(start * (decayTicks - elapsed) / (float) decayTicks);
             if (decayed <= 0) {
                 clearCharge(player);
                 return;
@@ -306,8 +298,9 @@ public final class EquipmentAbilities {
             HELMET_NIGHT_VISION.remove(player);
             return;
         }
-        if (current != null && !current.endsWithin(NIGHT_VISION_REFRESH_TICKS)) return;
-        MobEffectInstance refreshed = new MobEffectInstance(MobEffects.NIGHT_VISION, NIGHT_VISION_REFRESH_TICKS, 0, false, false, true);
+        int refreshTicks = AnvilCraft.CONFIG.equipment.nightVisionRefreshTicks;
+        if (current != null && !current.endsWithin(refreshTicks)) return;
+        MobEffectInstance refreshed = new MobEffectInstance(MobEffects.NIGHT_VISION, refreshTicks, 0, false, false, true);
         HELMET_NIGHT_VISION.put(player, refreshed);
         player.addEffect(refreshed);
         current = player.getEffect(MobEffects.NIGHT_VISION);
