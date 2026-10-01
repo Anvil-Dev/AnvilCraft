@@ -1,8 +1,5 @@
 package dev.dubhe.anvilcraft.client.event;
 
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Axis;
-import dev.anvilcraft.lib.v2.rendering.gui.GuiRenderExtras;
 import dev.anvilcraft.lib.v2.util.Util;
 import dev.anvilcraft.lib.v2.wheel.api.WheelMenuBuilder;
 import dev.anvilcraft.lib.v2.wheel.api.WheelMenuModel;
@@ -14,6 +11,7 @@ import dev.dubhe.anvilcraft.block.multipart.IMultiPartBlockModelHolder;
 import dev.dubhe.anvilcraft.block.multipart.IMultiPartBlockModelHolder.ModelRenderTarget;
 import dev.dubhe.anvilcraft.client.init.ModKeyMappings;
 import dev.dubhe.anvilcraft.client.support.HammerPreviewState;
+import dev.dubhe.anvilcraft.client.support.HammerWheelIconRenderer;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.item.armor.EquipmentArmorItem;
@@ -291,18 +289,12 @@ public class WheelLifecycleEventListener {
                 ModelRenderTarget modelTarget = state.getBlock() instanceof IMultiPartBlockModelHolder holder
                                                 ? holder.getModelRenderTarget(level, targetPos, initialState, state)
                                                 : new ModelRenderTarget(targetPos, state);
+                HammerWheelIconRenderer icon = new HammerWheelIconRenderer(Minecraft.getInstance().level, modelTarget, state);
                 String name = property.getName(Util.cast(state.getValue(property)));
                 builder.action(
                     name,
                     Component.literal(name),
-                    (graphics, _, _, _) -> {
-                        PoseStack pose = new PoseStack();
-                        pose.translate(0, 0, 0);
-                        pose.mulPose(Axis.XP.rotationDegrees(camera.x));
-                        pose.mulPose(Axis.YP.rotationDegrees(camera.y + 180F));
-                        graphics.nextStratum();
-                        GuiRenderExtras.tessellateBlock(graphics, modelTarget.state(), -15f, -5, pose);
-                    },
+                    (graphics, _, _, _) -> icon.render(graphics, camera),
                     _ -> WheelLifecycleEventListener.sendHammerChangeBlockPacketToServer(state, targetPos)
                 );
             });
