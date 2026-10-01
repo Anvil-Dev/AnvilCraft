@@ -1,25 +1,35 @@
 package dev.dubhe.anvilcraft.client.renderer.blockentity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.QuadInstance;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import dev.dubhe.anvilcraft.block.entity.CorruptedBeaconBlockEntity;
 import dev.dubhe.anvilcraft.block.workstation.CorruptedBeaconBlock;
 import dev.dubhe.anvilcraft.client.init.ModRenderTypes;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.state.CorruptedBeaconRenderState;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.client.renderer.block.dispatch.BlockStateModelPart;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
+import net.minecraft.client.resources.model.geometry.BakedQuad;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
 import org.jspecify.annotations.Nullable;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class CorruptedBeaconRenderer implements BlockEntityRenderer<CorruptedBeaconBlockEntity, CorruptedBeaconRenderState> {
 
+    private static final int GLASS_COLOR = 0x4C6D01CE;
     private static final float BEAM_BASE_Y = 0.5f;
     private static final float BEAM_INNER_HALF = 0.08f;
     private static final int BEAM_GLOW_LAYERS = 4;
@@ -45,8 +55,20 @@ public class CorruptedBeaconRenderer implements BlockEntityRenderer<CorruptedBea
         ModelFeatureRenderer.@Nullable CrumblingOverlay breakProgress
     ) {
         BlockEntityRenderer.super.extractRenderState(be, state, partialTicks, cameraPosition, breakProgress);
+        List<BakedQuad> quads = new ArrayList<>();
+        var client = Minecraft.getInstance();
+        if (client.level != null && be.getLevel() != null) {
+            BlockState white = Blocks.WHITE_CONCRETE.defaultBlockState();
+            var model = client.getModelManager().getBlockStateModelSet().get(white);
+            List<BlockStateModelPart> parts = new ArrayList<>();
+            model.collectParts(client.level, be.getBlockPos(), white, client.level.getRandom(), parts);
+            for (BlockStateModelPart part : parts) {
+                for (Direction direction : Direction.values()) quads.addAll(part.getQuads(direction));
+            }
+        }
+        state.setGlassQuads(List.copyOf(quads));
         BlockState blockState = be.getBlockState();
-        boolean lit = blockState.hasProperty(CorruptedBeaconBlock.LIT)
+        boolean lit = be.getLevel() != null && blockState.hasProperty(CorruptedBeaconBlock.LIT)
             && blockState.getValue(CorruptedBeaconBlock.LIT);
         state.setLit(lit);
         int beamTopY = be.getBeamHeight();
@@ -61,6 +83,20 @@ public class CorruptedBeaconRenderer implements BlockEntityRenderer<CorruptedBea
         SubmitNodeCollector collector,
         CameraRenderState camera
     ) {
+        var quads = state.getGlassQuads();
+        int light = state.lightCoords;
+        if (!quads.isEmpty()) {
+            pose.pushPose();
+            pose.translate(0.005f, 0.005f, 0.005f);
+            pose.scale(0.99f, 0.99f, 0.99f);
+            collector.submitCustomGeometry(pose, ModRenderTypes.BEACON_GLASS, (last, consumer) -> {
+                QuadInstance instance = new QuadInstance();
+                instance.setColor(GLASS_COLOR);
+                instance.setLightCoords(light);
+                quads.forEach(quad -> consumer.putBakedQuad(last, quad, instance));
+            });
+            pose.popPose();
+        }
         if (!state.isLit()) return;
         float beamHeight = state.getBeamHeight();
         if (beamHeight <= 0.5f) return;

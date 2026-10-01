@@ -170,6 +170,11 @@ public class ModRenderPipelines {
         .withLocation(AnvilCraft.of("pipeline/stellar_beam"))
         .build();
     
+    public static final RenderPipeline BEACON_GLASS = RenderPipelines.TRANSLUCENT_BLOCK.toBuilder()
+        .withDepthStencilState(new DepthStencilState(CompareOp.LESS_THAN_OR_EQUAL, false))
+        .withLocation(AnvilCraft.of("pipeline/beacon_glass"))
+        .build();
+
     public static final RenderPipeline CORRUPTED_BEACON_BEAM_CORE = RenderPipeline.builder(RenderPipelines.DEBUG_FILLED_SNIPPET)
         .withColorTargetState(ColorTargetState.DEFAULT)
         .withVertexFormat(DefaultVertexFormat.POSITION_COLOR, VertexFormat.Mode.TRIANGLES)
@@ -333,6 +338,7 @@ public class ModRenderPipelines {
         event.registerPipeline(ModRenderPipelines.LIGHTNING);
         event.registerPipeline(ModRenderPipelines.SUPERNOVA_BEAM);
         event.registerPipeline(ModRenderPipelines.STELLAR_BEAM);
+        event.registerPipeline(ModRenderPipelines.BEACON_GLASS);
         event.registerPipeline(ModRenderPipelines.CORRUPTED_BEACON_BEAM_CORE);
         event.registerPipeline(ModRenderPipelines.CORRUPTED_BEACON_BEAM);
         event.registerPipeline(ModRenderPipelines.STAR_COLOR_OVERLAY);

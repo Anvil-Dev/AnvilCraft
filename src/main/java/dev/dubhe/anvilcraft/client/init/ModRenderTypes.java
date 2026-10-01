@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.client.init;
 import dev.anvilcraft.lib.v2.rendering.extension.ALRRenderTypeExtension;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.client.renderer.post.LaserBloomPostEffect;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.renderer.Sheets;
 import net.minecraft.client.renderer.feature.ItemFeatureRenderer;
@@ -117,6 +118,17 @@ public class ModRenderTypes {
         "anvilcraft:stellar_beam",
         RenderSetup.builder(ModRenderPipelines.STELLAR_BEAM)
             .sortOnUpload()
+            .createRenderSetup()
+    );
+
+    public static final RenderType BEACON_GLASS = RenderType.create(
+        "anvilcraft:beacon_glass",
+        RenderSetup.builder(ModRenderPipelines.BEACON_GLASS)
+            .useLightmap().sortOnUpload().affectsCrumbling()
+            .withTexture("Sampler0", Sheets.BLOCKS_MAPPER.sheet())
+            .setOutputTarget(new OutputTarget(
+                "anvilcraft:beacon_glass", () -> Minecraft.getInstance().levelRenderer.getTranslucentTarget()))
+            .bufferSize(786432)
             .createRenderSetup()
     );
 
