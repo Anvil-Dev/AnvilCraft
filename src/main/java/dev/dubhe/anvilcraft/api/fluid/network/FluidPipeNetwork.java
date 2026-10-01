@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.api.fluid.network;
 
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.fluid.GasDisplayFillProvider;
 import dev.dubhe.anvilcraft.api.fluidtank.InfinityFluidTank;
 import dev.dubhe.anvilcraft.block.entity.fluid.AbstractPipeCheckValveBlockEntity;
@@ -40,8 +41,8 @@ import java.util.TreeMap;
  * <ul>
  *   <li>按等效高度从高到低取源容器；源只向<b>严格更低</b>的容器排液，同高之间不主动分配。</li>
  *   <li>目标按等效高度<b>升序分组</b>，从最低组开始填，<b>本组填满才溢到上一组</b></li>
- *   <li>每组流速按高度差<b>线性增长</b>：每格 {@value #HEIGHT_RATE} mB/tick，
- *       {@value #FULL_SPEED_HEIGHT} 格达上限 {@value #MAX_SPEED} mB/tick（见 {@link #speedForHeightDiff}）。</li>
+ *   <li>每组流速按高度差<b>线性增长</b>：每格 {@link #heightRate()} mB/tick，
+ *       {@link #fullSpeedHeight()} 格达上限 {@link #maxSpeed()} mB/tick（见 {@link #speedForHeightDiff}）。</li>
  *   <li>组内对活跃目标做"基础均分 + 余量轮转"，使同高容器均匀进水。</li>
  *   <li>炼药锅仅在满锅时输出、空锅时输入，并以整锅为单位按组内优先顺序转移。</li>
  * </ul>
@@ -49,12 +50,20 @@ import java.util.TreeMap;
  * <p>等效高度 = 容器 Y + 沿管道路径累计的泵势场偏移（见 {@link FluidNetworkScanner}）。
  */
 public class FluidPipeNetwork {
-    /** 每格高度差提供的流速（mB/tick） */
-    public static final int HEIGHT_RATE = 50;
-    /** 高度差达到 {@value #FULL_SPEED_HEIGHT} 格时的流速上限（mB/tick） */
-    public static final int MAX_SPEED = 2000;
-    /** 达到流速上限所需的高度差（格）= MAX_SPEED / HEIGHT_RATE = 40 */
-    public static final int FULL_SPEED_HEIGHT = MAX_SPEED / HEIGHT_RATE;
+    /** 每格高度差提供的流速（mB/tick）。 */
+    public static int heightRate() {
+        return AnvilCraft.CONFIG.machines.pipeFlowPerHeight;
+    }
+
+    /** 高度差达到 {@link #fullSpeedHeight()} 格时的流速上限（mB/tick）。 */
+    public static int maxSpeed() {
+        return AnvilCraft.CONFIG.machines.pipeMaxFlowRate;
+    }
+
+    /** 达到流速上限所需的高度差（格）。 */
+    public static int fullSpeedHeight() {
+        return Math.max(1, maxSpeed() / heightRate());
+    }
     /** 气体满罐时的压力标度：气体压力 = 填充率(0..1) × 该值 + 泵气压偏置。 */
     private static final int GAS_PRESSURE_SCALE = 1000;
     /** 气体压力排序的分辨率（在 GAS_PRESSURE_SCALE 基础上进一步细化，避免整除产生的死区）。 */
@@ -65,8 +74,6 @@ public class FluidPipeNetwork {
     private static final long GAS_INFINITE_PRESSURE = Long.MAX_VALUE / 4;
     /** 空创造流体储罐的压力杠标：无穷小，确保任意气体都能浇入并被销毁。 */
     private static final long GAS_INFINITE_SINK_PRESSURE = Long.MIN_VALUE / 4;
-    /** 气体每 tick 全网气体转移的总预算（mB），由所有气体类型共享。*/
-    private static final int GAS_EQUILIBRIUM_BUDGET = MAX_SPEED;
     /** 判定气压已均衡的差值阈值（低于该值不再转移）。 */
     private static final long GAS_PRESSURE_EPSILON = 1;
     /** 气体均衡每 tick 的最大轮数，限制 O(n²) 遍历成本。 */
@@ -76,15 +83,15 @@ public class FluidPipeNetwork {
      * 按高度差计算流速（线性增长）：
      * <ul>
      *   <li>高度差 ≤ 0 → 0</li>
-     *   <li>高度差 1~{@value #FULL_SPEED_HEIGHT} 格 → {@code h × }{@value #HEIGHT_RATE} mB/tick（50~2000）</li>
-     *   <li>{@value #FULL_SPEED_HEIGHT} 格及以上 → 上限 {@value #MAX_SPEED} mB/tick</li>
+     *   <li>高度差 1~{@link #fullSpeedHeight()} 格 → {@code h × }{@link #heightRate()} mB/tick</li>
+     *   <li>{@link #fullSpeedHeight()} 格及以上 → 上限 {@link #maxSpeed()} mB/tick</li>
      * </ul>
      */
     public static int speedForHeightDiff(int heightDiff) {
         if (heightDiff <= 0) {
             return 0;
         }
-        return Math.min(heightDiff * HEIGHT_RATE, MAX_SPEED);
+        return Math.min(heightDiff * heightRate(), maxSpeed());
     }
 
     private final Level level;
@@ -303,7 +310,8 @@ public class FluidPipeNetwork {
      */
     private void equilibrateGases() {
         List<FluidStack> gasTypes = collectNetworkGasTypes();
-        int[] budget = new int[]{GAS_EQUILIBRIUM_BUDGET};
+        // 气体每 tick 全网气体转移的总预算（mB），由所有气体类型共享。
+        int[] budget = new int[]{maxSpeed()};
         for (FluidStack gasType : gasTypes) {
             List<FluidEndpoint> candidates = gasCandidates(gasType);
             if (candidates.size() < 2) {
@@ -1631,12 +1639,12 @@ public class FluidPipeNetwork {
         return true;
     }
 
-    /** 路径上所有阀门的剩余预算取最小；无阀门则不限（返回 {@link #MAX_SPEED}）。 */
+    /** 路径上所有阀门的剩余预算取最小；无阀门则不限（返回 {@link #maxSpeed()}）。 */
     private static int minValveRemaining(List<ValveState> valvePath) {
         if (valvePath == null || valvePath.isEmpty()) {
-            return MAX_SPEED;
+            return maxSpeed();
         }
-        int min = MAX_SPEED;
+        int min = maxSpeed();
         for (ValveState v : valvePath) {
             min = Math.min(min, v.remaining());
         }

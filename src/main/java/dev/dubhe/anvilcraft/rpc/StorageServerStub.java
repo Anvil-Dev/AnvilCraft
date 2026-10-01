@@ -7,6 +7,7 @@ import dev.anvilcraft.lib.v2.rpc.CallableParam;
 import dev.anvilcraft.lib.v2.rpc.IRemoteCallableValidator;
 import dev.anvilcraft.lib.v2.rpc.RemoteCallable;
 import dev.anvilcraft.lib.v2.util.stack.UnlimitedItemStack;
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.StorageComparatorManager;
 import dev.dubhe.anvilcraft.api.StoragePortManager;
 import dev.dubhe.anvilcraft.api.TerminalSourceManager;
@@ -116,7 +117,6 @@ import javax.annotation.Nullable;
 public final class StorageServerStub {
     private static final int MAX_PLAYER_STUBS = 5;
     private static final int MAX_SYNC_SLOTS = 256;
-    private static final int MAX_UNDO_RECORDS = 4;
     private static final ThreadLocal<HolderLookup.Provider> REGISTRIES = new ThreadLocal<>();
     @SuppressWarnings("unused")
     public static final StreamCodec<ByteBuf, IntList> ORDER_STREAM_CODEC = ByteBufCodecs.VAR_INT
@@ -137,9 +137,7 @@ public final class StorageServerStub {
     private static final Map<UUID, Map<Long, TakeAllSession>> TAKE_ALL_RECIPE_LOCKS = new HashMap<>();
 
     /** 本地终端自动连接大型板条箱的搜索半径（格）。 */
-    private static final int LOCAL_TERMINAL_RANGE = 32;
     /** 潜影终端自动连接世界潜影集装箱的搜索半径（格）。 */
-    private static final int SHULKER_TERMINAL_RANGE = 64;
     /**
      * 连续合成（Shift 点击③/④ 结果槽）单次 RPC 内最多合成的次数。
      * 单次调用在服务端线程同步执行，分块后客户端循环调用直到 {@code done}，
@@ -3717,7 +3715,7 @@ public final class StorageServerStub {
 
     private static void pushUndo(StorageServerStub stub, Map<ItemStack, Integer> moved) {
         stub.undoRecords.addFirst(new UndoRecord(new HashMap<>(moved)));
-        while (stub.undoRecords.size() > StorageServerStub.MAX_UNDO_RECORDS) {
+        while (stub.undoRecords.size() > AnvilCraft.CONFIG.machines.storageUndoDepth) {
             stub.undoRecords.removeLast();
         }
     }
@@ -4361,13 +4359,13 @@ public final class StorageServerStub {
             player.getX(),
             player.getY(),
             player.getZ(),
-            StorageServerStub.LOCAL_TERMINAL_RANGE
+            AnvilCraft.CONFIG.machines.localTerminalRange
         );
         if (mainPos != null && level.getBlockEntity(mainPos) instanceof LargeCrateBlockEntity be) {
             return Optional.of(StorageServerStub.ensureStorageId(be));
         }
         // 注册表缺失或条目过期：回退扫描并补录
-        return StorageServerStub.scanNearestPos(player, StorageServerStub.LOCAL_TERMINAL_RANGE, LargeCrateBlockEntity.class)
+        return StorageServerStub.scanNearestPos(player, AnvilCraft.CONFIG.machines.localTerminalRange, LargeCrateBlockEntity.class)
             .flatMap(pos -> {
                 if (!(level.getBlockEntity(pos) instanceof LargeCrateBlockEntity crate)) {
                     return Optional.empty();
@@ -4435,13 +4433,13 @@ public final class StorageServerStub {
             player.getX(),
             player.getY(),
             player.getZ(),
-            StorageServerStub.SHULKER_TERMINAL_RANGE
+            AnvilCraft.CONFIG.machines.shulkerTerminalRange
         );
         if (mainPos != null && level.getBlockEntity(mainPos) instanceof ShulkerContainerBlockEntity be) {
             return Optional.of(StorageServerStub.ensureStorageId(be));
         }
         // 注册表缺失或条目过期：回退扫描并补录
-        return StorageServerStub.scanNearestPos(player, StorageServerStub.SHULKER_TERMINAL_RANGE, ShulkerContainerBlockEntity.class)
+        return StorageServerStub.scanNearestPos(player, AnvilCraft.CONFIG.machines.shulkerTerminalRange, ShulkerContainerBlockEntity.class)
             .flatMap(pos -> {
                 if (!(level.getBlockEntity(pos) instanceof ShulkerContainerBlockEntity shulker)) {
                     return Optional.empty();

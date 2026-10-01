@@ -397,6 +397,30 @@ public class AnvilCraftServerConfig {
         @Comment("Controls how long the Infinite Fluid Tank asks for confirmation before it can be broken (in ticks)")
         @BoundedDiscrete(min = 1, max = 1200)
         public int infiniteTankBreakConfirmDurationTicks = 200;
+
+        @Comment("Controls the fluid flow a fluid pipe gains per block of height difference (in mB/tick)")
+        @BoundedDiscrete(min = 1, max = 1000)
+        public int pipeFlowPerHeight = 50;
+
+        @Comment("Controls the maximum fluid flow of a fluid pipe (in mB/tick)")
+        @BoundedDiscrete(min = 1, max = 100000)
+        public int pipeMaxFlowRate = 2000;
+
+        @Comment("Controls how many stacks the Large Cauldron accepts per input slot")
+        @BoundedDiscrete(min = 1, max = 64)
+        public int largeCauldronInputStackMultiplier = 9;
+
+        @Comment("Controls the range of the Local Storage Terminal (in blocks)")
+        @BoundedDiscrete(min = 1, max = 256)
+        public int localTerminalRange = 32;
+
+        @Comment("Controls the range of the Shulker Storage Terminal (in blocks)")
+        @BoundedDiscrete(min = 1, max = 512)
+        public int shulkerTerminalRange = 64;
+
+        @Comment("Controls how many storage operations can be undone")
+        @BoundedDiscrete(min = 0, max = 64)
+        public int storageUndoDepth = 4;
     }
 
     @SerializedName("Equipment & Enchanting")
@@ -522,6 +546,14 @@ public class AnvilCraftServerConfig {
         @Comment("Controls how much durability Fire Reforging restores per tick")
         @BoundedDiscrete(min = 1, max = 1000)
         public int fireReforgingRepairPerTick = 10;
+
+        @Comment("Controls the chance that Providence grants an extra roll")
+        @BoundedDiscrete(min = 0.0, max = 1.0)
+        public float providenceExtraRollChance = 0.25f;
+
+        @Comment("Controls the chance that Providence grants a third roll")
+        @BoundedDiscrete(min = 0.0, max = 1.0)
+        public float providenceThirdRollChance = 0.05f;
     }
 
     @SerializedName("Commands")
@@ -544,5 +576,9 @@ public class AnvilCraftServerConfig {
 
         @Comment("Controls whether to allow the /tick sprint command")
         public boolean allowTickSprintCommand = true;
+
+        @Comment("Controls how many power grid entries the power grid command shows")
+        @BoundedDiscrete(min = 1, max = 4096)
+        public int powergridInfoLimit = 256;
     }
 }
