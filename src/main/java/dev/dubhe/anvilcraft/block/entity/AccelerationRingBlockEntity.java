@@ -38,9 +38,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class AccelerationRingBlockEntity extends BlockEntity implements IPowerConsumer {
-    private static final HashMap<Level, AccelerationIndex> LEVEL_ACCELERATION_INDEX = new HashMap<>();
+    private static final Map<Level, AccelerationIndex> LEVEL_ACCELERATION_INDEX = new ConcurrentHashMap<>();
     @Getter
     @Setter
     private @Nullable PowerGrid grid;

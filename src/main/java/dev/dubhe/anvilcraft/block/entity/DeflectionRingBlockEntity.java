@@ -41,16 +41,17 @@ import net.neoforged.neoforge.network.PacketDistributor;
 import org.joml.Vector2d;
 import org.jspecify.annotations.Nullable;
 
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class DeflectionRingBlockEntity extends BlockEntity implements IPowerConsumer {
     private static final double DEFLECTION_RADIUS_SQR = 0.56747 * 0.56747;
     // A 0.98-block-wide falling anvil needs a small gap from the ring's block boundary.
     private static final double DEFLECTION_EXIT_OFFSET = 1.01;
-    private static final HashMap<Level, RingIndex> LEVEL_DEFLECTION_BLOCK_MAP = new HashMap<>();
+    private static final Map<Level, RingIndex> LEVEL_DEFLECTION_BLOCK_MAP = new ConcurrentHashMap<>();
     @Getter
     @Setter
     private @Nullable PowerGrid grid;
