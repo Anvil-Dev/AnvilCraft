@@ -252,7 +252,7 @@ public class SpacetimeSupercomputerBlockEntity extends BlockEntity implements IP
         if (cmd.startsWith("/")) {
             cmd = cmd.substring(1);
         }
-        if (cmd.startsWith("locate") || cmd.startsWith("time add") || cmd.startsWith("tick sprint")) {
+        if (SpacetimeSupercomputerBlockEntity.isCommandEnabled(cmd)) {
             if (this.chargingProgress >= 20f) {
                 if (cmd.startsWith("time add")) {
                     int timeAddConsumeProcess = SpacetimeSupercomputerBlockEntity.getTimeAddConsumeProcess(cmd);
@@ -305,6 +305,20 @@ public class SpacetimeSupercomputerBlockEntity extends BlockEntity implements IP
                 Component.translatable("block.anvilcraft.spacetime_supercomputer.no_supported_command")
             );
         }
+    }
+
+    private static boolean isCommandEnabled(String command) {
+        String[] parts = command.split(" ", 3);
+        if (parts.length < 2) return false;
+        var config = AnvilCraft.CONFIG.spacetimeSupercomputerCommand;
+        return switch (parts[0] + " " + parts[1]) {
+            case "locate biome" -> config.allowLocateBiomeCommand;
+            case "locate structure" -> config.allowLocateStructureCommand;
+            case "locate poi" -> config.allowLocatePoiCommand;
+            case "time add" -> config.allowTimeAddCommand;
+            case "tick sprint" -> config.allowTickSprintCommand;
+            default -> false;
+        };
     }
 
     private CommandSourceStack createCommandSource(@Nullable Player player) {
@@ -490,6 +504,10 @@ public class SpacetimeSupercomputerBlockEntity extends BlockEntity implements IP
         MinecraftServer server = this.level.getServer();
         if (server == null) return;
         String command = this.pendingTickSprintCommand;
+        if (!AnvilCraft.CONFIG.spacetimeSupercomputerCommand.allowTickSprintCommand) {
+            this.cancelTickSprintCountdown();
+            return;
+        }
         String normalizedCommand = command.startsWith("/") ? command.substring(1) : command;
         ServerPlayer player = this.pendingTickSprintPlayer == null
             ? null
