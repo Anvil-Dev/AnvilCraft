@@ -1,10 +1,12 @@
 package dev.dubhe.anvilcraft.client.renderer.entity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.entity.AnimateAscendingBlockEntity;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.block.BlockRenderDispatcher;
+import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.texture.OverlayTexture;
@@ -27,6 +29,11 @@ public class AscendingBlockRenderer extends EntityRenderer<AnimateAscendingBlock
         super(context);
         this.shadowRadius = 0.5F;
         this.dispatcher = context.getBlockRenderDispatcher();
+    }
+
+    @Override
+    public boolean shouldRender(AnimateAscendingBlockEntity entity, Frustum frustum, double camX, double camY, double camZ) {
+        return AnvilCraft.CLIENT_CONFIG.displayAnvilAnimation && super.shouldRender(entity, frustum, camX, camY, camZ);
     }
 
     @Override
