@@ -9,7 +9,7 @@ import org.spongepowered.asm.mixin.injection.ModifyConstant;
     "dev.anvilcraft.resource.ageratum.client.registries.BuiltinInlineComponents"
 }, remap = false)
 abstract class HandbookPaletteMixin {
-    @ModifyConstant(method = "*", constant = @Constant(intValue = 0x66CCFF))
+    @ModifyConstant(method = "*", constant = @Constant(intValue = 0x66CCFF), require = 0)
     private static int anvilcraft$linkColor(int color) {
         return 0x075D7F;
     }
