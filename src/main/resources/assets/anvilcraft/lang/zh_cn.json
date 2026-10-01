@@ -2964,5 +2964,17 @@
   "tooltip.anvilcraft.item.cursed_golden_apple": "吃下后传送\n主世界 <-> 下界\n末地 -> 重生点",
   "tag.block.anvilcraft.landing_no_recipe": "当铁砧下落到这些方块上时，不会触发配方判断",
   "screen.anvilcraft.spacetime_supercomputer.available_commands": "可用命令",
-  "screen.anvilcraft.spacetime_supercomputer.history_commands": "历史命令"
+  "screen.anvilcraft.spacetime_supercomputer.history_commands": "历史命令",
+  "command.anvilcraft.storage.bind.success": "成功将存储%1$s绑定到%2$s",
+  "command.anvilcraft.storage.info.item": "存储%s信息",
+  "command.anvilcraft.storage.info.none": "无",
+  "command.anvilcraft.storage.info.ref": "类型：%1$s，ID：%2$s",
+  "command.anvilcraft.storage.info.terminal": "已绑定存储：%s",
+  "command.anvilcraft.storage.invalid_id": "无效的存储 ID",
+  "command.anvilcraft.storage.invalid_type": "无效的存储类型",
+  "command.anvilcraft.storage.list.entry": "类型：%1$s，ID：%2$s",
+  "command.anvilcraft.storage.list.head": "存储（%1$s）：",
+  "command.anvilcraft.storage.no_hand_item": "主手未手持物品",
+  "command.anvilcraft.storage.no_storage": "手持的物品没有引用存储",
+  "command.anvilcraft.storage.unbind.success": "成功解绑存储"
 }
