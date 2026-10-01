@@ -146,7 +146,13 @@ public record RoyalPreferenceOutcome(ChanceItemStack result) implements IRecipeO
         public static boolean isRoyalPreferred(ServerLevel level, ItemStack stack) {
             if (RoyalPreference.preferredGem == null) RoyalPreference.initRoyalPreferredGem(() -> new Random(level.getSeed()));
             if (RoyalPreference.preferredGemBlock == null) RoyalPreference.initRoyalPreferredGemBlock(() -> new Random(level.getSeed()));
-            return stack.is(RoyalPreference.preferredGem.orElseThrow()) || stack.is(RoyalPreference.preferredGemBlock.orElseThrow());
+            return RoyalPreference.preferredGem.map(stack::is).orElse(false)
+                || RoyalPreference.preferredGemBlock.map(stack::is).orElse(false);
+        }
+
+        public static void clear() {
+            RoyalPreference.preferredGem = null;
+            RoyalPreference.preferredGemBlock = null;
         }
 
         public static void initRoyalPreference(long seed) {
@@ -162,7 +168,10 @@ public record RoyalPreferenceOutcome(ChanceItemStack result) implements IRecipeO
                     gems.add(holder.value());
                 }
             }
-            if (gems.isEmpty()) return;
+            if (gems.isEmpty()) {
+                RoyalPreference.preferredGem = Optional.empty();
+                return;
+            }
             Random random = randomFactory.get();
             RoyalPreference.preferredGem = Optional.of(gems.get(random.nextInt(gems.size())));
         }
@@ -174,7 +183,10 @@ public record RoyalPreferenceOutcome(ChanceItemStack result) implements IRecipeO
                     gemBlocks.add(holder.value());
                 }
             }
-            if (gemBlocks.isEmpty()) return;
+            if (gemBlocks.isEmpty()) {
+                RoyalPreference.preferredGemBlock = Optional.empty();
+                return;
+            }
             Random random = randomFactory.get();
             RoyalPreference.preferredGemBlock = Optional.of(gemBlocks.get(random.nextInt(gemBlocks.size())));
         }

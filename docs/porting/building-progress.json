@@ -6631,5 +6631,40 @@
       ]
     },
     "remaining": "Continue the reload-listener ordering audit: RoyalPreference initialization currently runs before its reload barrier, unlike the source. Continue broader source-only Java, world-context and rendering completion work. Whole-port completion remains unproven."
+  },
+  "royal_preference_reload_parity_2026_10_01": {
+    "source_commit": "cca4b2aac5328926fa88bc01d958d007ff6bfc2a",
+    "status": "implemented_and_verified",
+    "implementation": [
+      "Invalidate cached royal gem/block preferences on the native server-tags-updated event, after static tag bindings are applied. Recompute lazily using the querying server world seed and current tags.",
+      "Remove the prepare-phase initialization that sampled old tags before the reload barrier and before native tag application.",
+      "Represent empty or emerald-only candidate groups as an empty preference, preventing stale selections or exceptions while allowing either remaining nonempty group to work."
+    ],
+    "validation": {
+      "focused_required_tests": 1,
+      "real_tag_reload_cases": 6,
+      "commands": [
+        "./gradlew.bat -PportValidation -I dev/porting/royal-reload.gradle compileJava runGameTestServer --console=plain",
+        "./gradlew.bat -PportValidation -I dev/porting/royal-reload.gradle -I dev/porting/checkstyle.gradle compileJava runGameTestServer checkPortJava --console=plain",
+        "git diff --check"
+      ],
+      "logs": {
+        "reproduction": "build/porting/royal-reload-before.log",
+        "final": "build/porting/royal-reload-final.log"
+      },
+      "coverage": [
+        "The original implementation failed a real reload replacing gem tags with a diamond-only pack; its preference remained from the previous tags.",
+        "The corrected implementation passes real MinecraftServer.reloadResources cycles for diamond, lapis, empty tags, only gem-block candidates, only gem candidates and emerald-only tags.",
+        "Each reload creates a new nonnull AnvilLib in-world recipe manager; current snapshot.541 already rebuilds recipe matching state through its datapack-sync listener, so no duplicate library invalidation was added.",
+        "The test restores the originally selected packs in finally. It runs only with its explicit local validation flag to avoid mutating tags during unrelated tests.",
+        "Final compile, regression case and Checkstyle pass; no generated data changed."
+      ],
+      "limits": [
+        "Validation uses actual server reloads in the isolated GameTest world. No new remote multiplayer or client screenshot coverage is claimed.",
+        "Only server tag updates invalidate this server-side preference cache; ordinary client tag-packet events do not participate.",
+        "All test code, temporary packs and logs remain local and ignored."
+      ]
+    },
+    "remaining": "Continue broader source-only Java, runtime state, resource and rendering completion audits. Whole-port completion remains unproven."
   }
 }
