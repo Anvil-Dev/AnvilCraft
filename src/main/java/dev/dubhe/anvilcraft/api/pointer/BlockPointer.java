@@ -9,6 +9,7 @@ import dev.anvilcraft.lib.v2.codec.StreamCodecUtil;
 import dev.anvilcraft.lib.v2.piston.IMoveableEntityBlock;
 import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.api.block.BlockPlacementRules;
+import dev.dubhe.anvilcraft.block.LensBlock;
 import dev.dubhe.anvilcraft.init.registry.ModRegistries;
 import dev.dubhe.anvilcraft.init.registry.ModRegistryKeys;
 import dev.dubhe.anvilcraft.util.BlockPlacementUtil;
@@ -90,7 +91,9 @@ public class BlockPointer implements ITargetPointer {
 
     @Override
     public boolean matches(Level level, BlockState requiredState) {
-        return this.state.is(requiredState.getBlock());
+        return this.state.is(requiredState.getBlock())
+            && (!(this.state.getBlock() instanceof LensBlock)
+                || this.state.getValue(LensBlock.TYPE) == requiredState.getValue(LensBlock.TYPE));
     }
 
     @Override

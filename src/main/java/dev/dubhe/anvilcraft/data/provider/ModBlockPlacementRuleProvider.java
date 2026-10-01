@@ -5,6 +5,7 @@ import com.mojang.serialization.JsonOps;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.CementCauldronBlock;
 import dev.dubhe.anvilcraft.block.Layered4LevelCauldronBlock;
+import dev.dubhe.anvilcraft.block.LensBlock;
 import dev.dubhe.anvilcraft.block.UseItemOnBlock;
 import dev.dubhe.anvilcraft.block.multipart.AbstractMultiPartBlock;
 import dev.dubhe.anvilcraft.block.placement.BlockPlacementRuleSet;
@@ -133,7 +134,8 @@ public final class ModBlockPlacementRuleProvider implements DataProvider {
      * dynamically generated {@link SimpleBlockPlacementRule}.
      */
     private static boolean shouldSkipDataPack(Block block) {
-        if (block instanceof SlabBlock
+        if (block instanceof LensBlock
+            || block instanceof SlabBlock
             || block instanceof StairBlock
             || block instanceof TrapDoorBlock
             || isFacingOnly(block)) {

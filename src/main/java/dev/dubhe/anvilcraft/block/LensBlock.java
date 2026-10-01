@@ -256,7 +256,7 @@ public class LensBlock extends BaseLaserBlock implements IHammerRemovable, IMove
         return null;
     }
 
-    private static ItemStack getGlassItem(LensType type) {
+    public static ItemStack getGlassItem(LensType type) {
         return switch (type) {
             case ROYAL -> new ItemStack(ModBlocks.TEMPERING_GLASS);
             case FROST -> new ItemStack(ModBlocks.FROST_GLASS);
