@@ -20,6 +20,7 @@ import dev.dubhe.anvilcraft.item.property.component.Multiphase;
 import dev.dubhe.anvilcraft.item.property.component.OverLimitItemContainerContents;
 import dev.dubhe.anvilcraft.item.property.component.PillBoxContents;
 import dev.dubhe.anvilcraft.item.property.component.SavedEntity;
+import dev.dubhe.anvilcraft.item.property.component.SignedPlayers;
 import dev.dubhe.anvilcraft.item.property.component.StorageRef;
 import dev.dubhe.anvilcraft.item.property.component.StoredEnergy;
 import dev.dubhe.anvilcraft.item.property.component.StoredFluids;
@@ -98,6 +99,10 @@ public class ModComponents {
     public static final DataComponentType<StoredItem> DISPLAY_ITEM = ModComponents.register(
         "display_item",
         b -> b.persistent(StoredItem.CODEC).networkSynchronized(StoredItem.STREAM_CODEC)
+    );
+
+    public static final DataComponentType<SignedPlayers> SIGNED_PLAYERS = ModComponents.register(
+        "signed_player", b -> b.persistent(SignedPlayers.CODEC).networkSynchronized(SignedPlayers.STREAM_CODEC)
     );
 
     public static final DataComponentType<FlightTime> FLIGHT_TIME = ModComponents.register(
