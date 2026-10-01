@@ -187,6 +187,13 @@ public class PulseGeneratorBlockEntity extends BlockEntity implements MenuProvid
     }
 
     @ApiStatus.Internal
+    public void setInputtingSignal(boolean inputtingSignal) {
+        if (this.isInputtingSignal == inputtingSignal) return;
+        this.isInputtingSignal = inputtingSignal;
+        this.setChanged();
+    }
+
+    @ApiStatus.Internal
     public void setState(State state) {
         if (this.state == state) return;
         this.state = state;
@@ -229,7 +236,8 @@ public class PulseGeneratorBlockEntity extends BlockEntity implements MenuProvid
         this.startMode = Mode.fromIndex(mode % 3);
         if (this.startMode != Mode.LOOP) {
             this.isLocked = false;
-        } else if (!this.isInputtingSignal && this.level != null) {
+        }
+        if (this.level != null) {
             Util.castSafely(this.getBlockState().getBlock(), PulseGeneratorBlock.class)
                 .ifPresent(block -> block.update(this.level, this.getBlockPos(), this::getBlockState));
         }

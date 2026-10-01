@@ -233,8 +233,10 @@ public abstract class BaseChuteBlockEntity
             this.getInputDirection().getOpposite(),
             this.level
         );
-        if (source != null) {
-            resetCD |= ItemHandlerUtil.importFromTarget(this.getItemHandler(), 64, (_, _) -> true, source);
+        boolean imported = source != null
+            && ItemHandlerUtil.importFromTarget(this.getItemHandler(), 64, (_, _) -> true, source);
+        if (imported) {
+            resetCD = true;
         } else {
             List<ItemEntity> itemEntities = Objects.requireNonNull(this.getLevel()).getEntitiesOfClass(
                 ItemEntity.class,

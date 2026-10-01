@@ -47,6 +47,7 @@ import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.level.material.Fluids;
+import net.minecraft.world.level.redstone.Orientation;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.CollisionContext;
@@ -221,6 +222,15 @@ public class ChuteBlock extends BetterBaseEntityBlock implements HammerRotateBeh
         }
         state = this.checkPoweredState(level, pos, state);
         return state;
+    }
+
+    @Override
+    protected void neighborChanged(
+        BlockState state, Level level, BlockPos pos, Block block, @Nullable Orientation orientation, boolean movedByPiston
+    ) {
+        if (level.isClientSide()) return;
+        BlockState poweredState = this.checkPoweredState(level, pos, state);
+        if (poweredState != state) level.setBlock(pos, poweredState, Block.UPDATE_CLIENTS);
     }
 
     private BlockState checkPoweredState(LevelReader level, BlockPos pos, BlockState state) {

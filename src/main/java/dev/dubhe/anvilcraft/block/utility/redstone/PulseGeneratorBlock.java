@@ -4,6 +4,8 @@ import com.mojang.serialization.MapCodec;
 import dev.anvilcraft.lib.v2.piston.IMoveableEntityBlock;
 import dev.dubhe.anvilcraft.api.hammer.IHammerChangeable;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
+import dev.dubhe.anvilcraft.block.RedstoneWireBlock;
+import dev.dubhe.anvilcraft.block.RedstoneWireNetworkManager;
 import dev.dubhe.anvilcraft.block.entity.PulseGeneratorBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.item.ModItems;
@@ -146,14 +148,20 @@ public class PulseGeneratorBlock extends HorizontalDirectionalBlock implements I
 
         BlockEntity blockentity = level.getBlockEntity(pos);
         if (!(blockentity instanceof PulseGeneratorBlockEntity generator)) return;
+        BlockState state = stateGetter.get();
+        BlockPos inputPos = pos.relative(state.getValue(HorizontalDirectionalBlock.FACING));
+        if (level.getBlockState(inputPos).getBlock() instanceof RedstoneWireBlock
+            && !RedstoneWireNetworkManager.isPowerReady(level, inputPos)) {
+            return;
+        }
         boolean lastInputting = generator.isInputtingSignal();
-        boolean nowInputting = PulseGeneratorBlock.getInputSignal(level, pos, stateGetter.get()) > 0;
+        boolean nowInputting = PulseGeneratorBlock.getInputSignal(level, pos, state) > 0;
         Supplier<BlockState> currentStateGetter = () -> level.getBlockState(pos);
         generator.setInputtingSignal(nowInputting);
         boolean canStart = switch (generator.getStartMode()) {
             case RISING_EDGE -> !lastInputting && nowInputting;
             case FALLING_EDGE -> lastInputting && !nowInputting;
-            case LOOP -> allowLoopStart
+            case LOOP -> (allowLoopStart || lastInputting && !nowInputting)
                          && !nowInputting
                          && !generator.isLocked()
                          && generator.getState() == PulseGeneratorBlockEntity.State.DEFAULT;
