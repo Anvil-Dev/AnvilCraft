@@ -29,6 +29,7 @@ abstract class EquipmentLiquidBlockMixin {
         if (!(context instanceof EntityCollisionContext entityContext)
             || !(entityContext.getEntity() instanceof LivingEntity entity)) return;
         FluidState fluid = this.getFluidState();
+        if (fluid.isEmpty()) return;
         if (!EquipmentAbilities.canStandOnFluid(entity, fluid) || !level.getFluidState(pos.above()).isEmpty()) return;
         VoxelShape surface = Shapes.box(0, 0, 0, 1, fluid.getHeight(level, pos), 1);
         if (context.isAbove(surface, pos, false)) cir.setReturnValue(Shapes.or(cir.getReturnValue(), surface));
