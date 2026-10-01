@@ -182,6 +182,25 @@ public class AnvilCraftServerConfig {
         @Comment("Controls how many times an Enchanted Gold Ingot makes Piglins barter")
         @BoundedDiscrete(min = 1, max = 16)
         public int enchantedGoldBarterMultiplier = 4;
+        @Comment("Controls how long the Monolith hint stays before it fades (in ticks)")
+        @BoundedDiscrete(min = 1, max = 1200)
+        public int monolithHintTicks = 100;
+
+        @Comment("Controls the radius the Monolith hint searches for players (in blocks)")
+        @BoundedDiscrete(min = 1, max = 32)
+        public int monolithHintRange = 5;
+
+        @Comment("Controls how long the Monolith return confirmation lasts (in ticks)")
+        @BoundedDiscrete(min = 1, max = 1200)
+        public int monolithReturnConfirmationTicks = 60;
+
+        @Comment("Controls how long the Monolith Core takes to accept an offering (in ticks)")
+        @BoundedDiscrete(min = 1, max = 1200)
+        public int monolithOfferingTicks = 100;
+
+        @Comment("Controls how long the Monolith Core takes to dissolve an offering (in ticks)")
+        @BoundedDiscrete(min = 1, max = 1200)
+        public int monolithDissolveTicks = 60;
     }
 
     @SerializedName("Machines & Logistics")
