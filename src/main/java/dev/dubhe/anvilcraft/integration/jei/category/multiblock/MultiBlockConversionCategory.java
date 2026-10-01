@@ -269,7 +269,7 @@ public class MultiBlockConversionCategory implements IRecipeCategory<RecipeHolde
                 pose.scale(0.03F, 0.03F);
                 this.conversion.draw(graphics, 2375, 875);
                 pose.popMatrix();
-                int anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(this.timer) / 3;
+                float anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(this.timer) / 3;
                 graphics.nextStratum();
                 RenderSupport.renderBlockAt(graphics,
                     JeiBlockIngredientUtil.getRenderablePreviewState(ModBlocks.GIANT_ANVIL.getDefaultState()),

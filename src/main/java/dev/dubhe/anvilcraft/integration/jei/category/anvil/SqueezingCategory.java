@@ -178,7 +178,7 @@ public class SqueezingCategory implements IRecipeCategory<RecipeHolder<Squeezing
         RenderSupport.renderBlockAt(graphics, Blocks.CAULDRON.defaultBlockState(), 50, 40, 12);
         RenderSupport.renderBlockAt(graphics, renderedState, 50, 30, 12);
         
-        int anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(this.timer);
+        float anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(this.timer);
         RenderSupport.renderBlockAt(graphics, SqueezingCategory.getRenderedAnvilState(recipe), 50, 12 + anvilYOffset, 12);
 
         this.arrowDefault.draw(graphics, 73, 28);

@@ -10,12 +10,12 @@ import org.joml.Matrix3x2fStack;
 
 public class JeiRenderHelper {
     // Animation
-    public static int getAnvilAnimationOffset(ITickTimer timer) {
-        return timer.getValue() < 30 ? JeiRenderHelper.getAnvilAnimationOffset(timer.getValue()) : 8;
+    public static float getAnvilAnimationOffset(ITickTimer timer) {
+        return timer.getValue() < 30 ? JeiRenderHelper.getAnvilAnimationOffset(timer.getValue()) : -8;
     }
 
-    public static int getAnvilAnimationOffset(float time) {
-        return (int) Math.round(Math.sin(time / 30d * 2d * Math.PI + Math.PI / 2) * 8);
+    public static float getAnvilAnimationOffset(float time) {
+        return -(float) Math.sin(time / 30d * 2d * Math.PI + Math.PI / 2) * 8;
     }
 
     // Arrow

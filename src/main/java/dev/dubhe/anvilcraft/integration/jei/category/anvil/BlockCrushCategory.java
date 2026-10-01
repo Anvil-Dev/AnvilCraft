@@ -119,7 +119,7 @@ public class BlockCrushCategory implements IRecipeCategory<RecipeHolder<BlockCru
                 .orElse(input.getFirst());
             RenderSupport.renderBlock(graphics, renderedState, 40, 40, 20);
         }
-        int anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(this.timer);
+        float anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(this.timer);
         RenderSupport.renderBlock(graphics, Blocks.ANVIL.defaultBlockState(), 40, 22 + anvilYOffset, 20);
 
         RenderSupport.renderBlock(graphics, recipe.getFirstResultBlock().state(), 100, 40, 20);

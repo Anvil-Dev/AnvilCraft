@@ -182,7 +182,7 @@ public class MultiBlockCraftingCategory implements IRecipeCategory<RecipeHolder<
         this.conversion.draw(graphics);
         pose.popMatrix();
 
-        int anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(this.timer) / 3;
+        float anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(this.timer) / 3;
         graphics.nextStratum();
         RenderSupport.renderBlockAt(graphics,
             JeiBlockIngredientUtil.getRenderablePreviewState(ModBlocks.GIANT_ANVIL.getDefaultState()),

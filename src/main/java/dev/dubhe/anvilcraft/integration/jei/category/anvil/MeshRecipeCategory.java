@@ -97,7 +97,7 @@ public class MeshRecipeCategory implements IRecipeCategory<MeshRecipeGroup> {
         double mouseX,
         double mouseY
     ) {
-        int anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(this.timer);
+        float anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(this.timer);
         RenderSupport.renderBlock(graphics, Blocks.SCAFFOLDING.defaultBlockState(), 71, 25, 20);
         RenderSupport.renderBlock(graphics, Blocks.ANVIL.defaultBlockState(), 71, 7 + anvilYOffset, 20);
 

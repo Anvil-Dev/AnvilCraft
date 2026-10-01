@@ -136,7 +136,7 @@ public abstract class AbstractLiquidCategory<T extends AbstractProcessRecipe<?>>
     ) {
 
         // 加工图例及箭头
-        int anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(this.timer);
+        float anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(this.timer);
         RenderSupport.renderBlockAt(graphics, this.getProcessBlock(), 81, 40, 12);
         RenderSupport.renderBlockAt(graphics, Blocks.CAULDRON.defaultBlockState(), 81, 30, 12);
         RenderSupport.renderBlockAt(graphics, Blocks.ANVIL.defaultBlockState(), 81, 12 + anvilYOffset, 12);

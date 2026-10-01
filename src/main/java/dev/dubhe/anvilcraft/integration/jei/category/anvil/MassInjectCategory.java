@@ -127,7 +127,7 @@ public class MassInjectCategory implements IRecipeCategory<RecipeHolder<MassInje
         double mouseY
     ) {
         final MassInjectRecipe recipe = recipeHolder.value();
-        int anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(this.timer);
+        float anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(this.timer);
         RenderSupport.renderBlock(graphics, ModBlocks.SPACE_OVERCOMPRESSOR.getDefaultState(), 71, 35, 20);
         RenderSupport.renderBlock(graphics, Blocks.ANVIL.defaultBlockState(), 71, 17 + anvilYOffset, 20);
 

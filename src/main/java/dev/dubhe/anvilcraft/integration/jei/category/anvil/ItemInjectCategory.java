@@ -170,7 +170,7 @@ public class ItemInjectCategory implements IRecipeCategory<RecipeHolder<ItemInje
         boolean giantAnvil = renderedState.getBlock() instanceof GiantAnvilBlock;
         int inputScale = giantAnvil ? 8 : JeiBlockIngredientUtil.getRenderablePreviewScale(renderedState, 12);
         RenderSupport.renderBlockAt(graphics, renderedState, 81, giantAnvil ? 44 : 40, inputScale);
-        int anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(this.timer);
+        float anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(this.timer);
         RenderSupport.renderBlockAt(graphics, Blocks.ANVIL.defaultBlockState(), 81, 22 + anvilYOffset, 12);
 
         this.arrowIn.draw(graphics, 54, 30);
