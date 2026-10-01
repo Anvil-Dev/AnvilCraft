@@ -1,7 +1,5 @@
 package dev.dubhe.anvilcraft.init;
 
-import static dev.dubhe.anvilcraft.AnvilCraft.REGISTRUM;
-
 import dev.anvilcraft.lib.v2.registrum.util.entry.MenuEntry;
 import dev.dubhe.anvilcraft.client.gui.screen.ActiveSilencerScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.AdvancedComparatorScreen;
@@ -79,6 +77,8 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.inventory.AnvilMenu;
+
+import static dev.dubhe.anvilcraft.AnvilCraft.REGISTRUM;
 
 @SuppressWarnings("DataFlowIssue")
 public class ModMenuTypes {

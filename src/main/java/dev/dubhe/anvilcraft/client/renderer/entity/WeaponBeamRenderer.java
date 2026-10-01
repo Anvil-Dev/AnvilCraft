@@ -116,7 +116,8 @@ public class WeaponBeamRenderer extends EntityRenderer<WeaponBeamEntity, WeaponB
             pose.last().normal().set(compensation.normal().mul(pose.last().normal(), new Matrix3f()));
         }
         pose.translate(state.getOriginOffset().x, state.getOriginOffset().y, state.getOriginOffset().z);
-        if (state.isFirstPersonLocalBeam() && (state.getStyle() == WeaponBeamEntity.CORRUPTED || state.getStyle() == WeaponBeamEntity.LASER)) {
+        if (state.isFirstPersonLocalBeam()
+            && (state.getStyle() == WeaponBeamEntity.CORRUPTED || state.getStyle() == WeaponBeamEntity.LASER)) {
             EnergyWeaponFirstPersonRenderer.captureBeam(pose, end, state.getFramePartialTick());
         }
         if (state.getStyle() == WeaponBeamEntity.CORRUPTED) {

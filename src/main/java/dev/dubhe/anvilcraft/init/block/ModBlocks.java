@@ -594,8 +594,16 @@ public class ModBlocks {
         .item(CreativeContainerBlockItem::new)
         .transform(PropertiesProviderUtil::blockItem)
         .properties(properties -> properties.rarity(Rarity.EPIC))
-        .model(() -> (ctx, generator) -> generator.itemModelOutput.accept(ctx.get(),
-            ItemModelUtils.specialModel(ctx.getId().withPrefix("block/"), CreativeFluidTankItemRenderer.Unbaked.INSTANCE)))
+        .model(() -> new NonNullBiConsumer<>() {
+            @Override
+            public void accept(
+                DataGenContext<Item, CreativeContainerBlockItem> ctx,
+                RegistrumItemModelGenerator generator
+            ) {
+                generator.itemModelOutput.accept(ctx.get(),
+                    ItemModelUtils.specialModel(ctx.getId().withPrefix("block/"), CreativeFluidTankItemRenderer.Unbaked.INSTANCE));
+            }
+        })
         .build()
         .register();
 
@@ -691,8 +699,16 @@ public class ModBlocks {
         .item(CreativeContainerBlockItem::new)
         .transform(PropertiesProviderUtil::blockItem)
         .properties(properties -> properties.rarity(Rarity.EPIC))
-        .model(() -> (ctx, generator) -> generator.itemModelOutput.accept(ctx.get(),
-            ItemModelUtils.specialModel(ctx.getId().withPrefix("block/"), CreativeCrateItemRenderer.Unbaked.INSTANCE)))
+        .model(() -> new NonNullBiConsumer<>() {
+            @Override
+            public void accept(
+                DataGenContext<Item, CreativeContainerBlockItem> ctx,
+                RegistrumItemModelGenerator generator
+            ) {
+                generator.itemModelOutput.accept(ctx.get(),
+                    ItemModelUtils.specialModel(ctx.getId().withPrefix("block/"), CreativeCrateItemRenderer.Unbaked.INSTANCE));
+            }
+        })
         .build()
         .register();
 
@@ -2388,8 +2404,18 @@ public class ModBlocks {
         .loot((tables, block) -> tables.add(block, LootTable.lootTable()))
         .item(RuinsBlockItem::new)
         .transform(PropertiesProviderUtil::blockItem)
-        .model(() -> DataGenUtil.specialItem(
-            dev.dubhe.anvilcraft.client.renderer.item.RuinsBlockItemRenderer.Unbaked.INSTANCE, false))
+        .model(() -> new NonNullBiConsumer<>() {
+            @Override
+            public void accept(
+                DataGenContext<Item, RuinsBlockItem> ctx,
+                RegistrumItemModelGenerator generator
+            ) {
+                DataGenUtil.<RuinsBlockItem>specialItem(
+                    dev.dubhe.anvilcraft.client.renderer.item.RuinsBlockItemRenderer.Unbaked.INSTANCE,
+                    false
+                ).accept(ctx, generator);
+            }
+        })
         .build()
         .register();
 

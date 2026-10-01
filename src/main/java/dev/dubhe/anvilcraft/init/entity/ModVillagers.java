@@ -28,7 +28,8 @@ public class ModVillagers {
             java.util.stream.Stream.concat(
                 ModBlocks.MONOLITH_CORE.get().getStateDefinition().getPossibleStates().stream(),
                 ModBlocks.GIANT_MONOLITH_CORE.get().getStateDefinition().getPossibleStates().stream()
-                    .filter(state -> state.getValue(dev.dubhe.anvilcraft.block.GiantMonolithCoreBlock.HALF) == dev.dubhe.anvilcraft.block.state.Cube3x3PartHalf.MID_CENTER)
+                    .filter(state -> state.getValue(dev.dubhe.anvilcraft.block.GiantMonolithCoreBlock.HALF)
+                        == dev.dubhe.anvilcraft.block.state.Cube3x3PartHalf.MID_CENTER)
             ).collect(java.util.stream.Collectors.toSet()),
             0,
             1

@@ -1,6 +1,5 @@
 package dev.dubhe.anvilcraft.entity;
 
-import net.neoforged.neoforge.common.NeoForge;
 import dev.dubhe.anvilcraft.api.event.GiantAnvilEvent;
 import dev.dubhe.anvilcraft.block.workstation.GiantAnvilBlock;
 import dev.dubhe.anvilcraft.init.entity.ModEntities;
@@ -28,6 +27,7 @@ import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.common.NeoForge;
 
 public class FallingGiantAnvilEntity extends FallingBlockEntity {
     private float fallDistance = 0;

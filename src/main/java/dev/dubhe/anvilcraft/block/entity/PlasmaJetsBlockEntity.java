@@ -200,7 +200,7 @@ public class PlasmaJetsBlockEntity extends BlockEntity {
     @OnlyIn(Dist.CLIENT)
     private void clientTick(Level level) {
         this.refreshCauldronPos(level);
-        this.summonParticles((ClientLevel) level);
+        ClientParticles.tick(this, level);
     }
 
     protected void tryIgniteValidCauldron(Level level) {
@@ -337,22 +337,33 @@ public class PlasmaJetsBlockEntity extends BlockEntity {
 
     @OnlyIn(Dist.CLIENT)
     protected void summonParticles(ClientLevel level) {
-        Vec3 start = this.getParticleStartPos(level);
-        Vec3 vector = start.vectorTo(this.getParticleEndPos());
-        RandomSource random = level.getRandom();
-        ParticleOptions particle = PlasmaJetHooks.particle(this, ModParticles.PLASMA_JETS.get());
-        for (int i = 0; i < 5; i++) {
-            level.addParticle(
-                particle,
-                true,
-                false,
-                start.x, start.y, start.z,
-                (random.nextIntBetweenInclusive(0, 20) - 10) / 100.0,
-                vector.y * 0.13,
-                (random.nextIntBetweenInclusive(0, 20) - 10) / 100.0
-            );
+        ClientParticles.summonParticles(this, level);
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    private static class ClientParticles {
+        private static void tick(PlasmaJetsBlockEntity entity, Level level) {
+            entity.summonParticles((ClientLevel) level);
         }
-        PlasmaJetHooks.extraParticles(this, level);
+
+        private static void summonParticles(PlasmaJetsBlockEntity entity, ClientLevel level) {
+            Vec3 start = entity.getParticleStartPos(level);
+            Vec3 vector = start.vectorTo(entity.getParticleEndPos());
+            RandomSource random = level.getRandom();
+            ParticleOptions particle = PlasmaJetHooks.particle(entity, ModParticles.PLASMA_JETS.get());
+            for (int i = 0; i < 5; i++) {
+                level.addParticle(
+                    particle,
+                    true,
+                    false,
+                    start.x, start.y, start.z,
+                    (random.nextIntBetweenInclusive(0, 20) - 10) / 100.0,
+                    vector.y * 0.13,
+                    (random.nextIntBetweenInclusive(0, 20) - 10) / 100.0
+                );
+            }
+            PlasmaJetHooks.extraParticles(entity, level);
+        }
     }
 
     protected void refreshCauldronPos(Level level) {
