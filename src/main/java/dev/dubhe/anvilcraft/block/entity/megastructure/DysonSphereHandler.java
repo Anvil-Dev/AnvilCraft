@@ -9,7 +9,10 @@ import dev.dubhe.anvilcraft.block.entity.celestial.PlanetaryResourceSet;
 import dev.dubhe.anvilcraft.block.entity.celestial.StarData;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.world.level.Level;
+
+import java.util.Arrays;
 
 /** Power production and primordial-matter processing for all Dyson spheres. */
 public class DysonSphereHandler extends BaseMegastructureHandler {
@@ -25,8 +28,7 @@ public class DysonSphereHandler extends BaseMegastructureHandler {
 
     private int cachedGridConsumption;
     private final String name;
-    private int stableSupplyTicks;
-    private int stableSupplyTier;
+    private final int[] stableSupplyTicks = new int[4];
     private long accumulatedExcessMatter;
 
     public DysonSphereHandler(String name) {
@@ -156,15 +158,23 @@ public class DysonSphereHandler extends BaseMegastructureHandler {
 
     private void writeState(CompoundTag tag) {
         String prefix = statePrefix();
-        tag.putInt(prefix + "StableTicks", stableSupplyTicks);
-        tag.putInt(prefix + "StableTier", stableSupplyTier);
+        tag.putIntArray(prefix + "StableTicksByTier", stableSupplyTicks.clone());
         tag.putLong(prefix + "ExcessMatter", accumulatedExcessMatter);
     }
 
     private void readState(CompoundTag tag) {
         String prefix = statePrefix();
-        stableSupplyTicks = Math.clamp(tag.getInt(prefix + "StableTicks"), 0, STABLE_SUPPLY_TICKS);
-        stableSupplyTier = Math.clamp(tag.getInt(prefix + "StableTier"), 0, 4);
+        Arrays.fill(stableSupplyTicks, 0);
+        if (tag.contains(prefix + "StableTicksByTier", Tag.TAG_INT_ARRAY)) {
+            int[] ticks = tag.getIntArray(prefix + "StableTicksByTier");
+            for (int i = 0; i < Math.min(ticks.length, stableSupplyTicks.length); i++) {
+                stableSupplyTicks[i] = Math.clamp(ticks[i], 0, STABLE_SUPPLY_TICKS);
+            }
+        } else {
+            int ticks = Math.clamp(tag.getInt(prefix + "StableTicks"), 0, STABLE_SUPPLY_TICKS);
+            int tier = Math.clamp(tag.getInt(prefix + "StableTier"), 0, stableSupplyTicks.length);
+            Arrays.fill(stableSupplyTicks, 0, tier, ticks);
+        }
         accumulatedExcessMatter = Math.max(tag.getLong(prefix + "ExcessMatter"), 0L);
     }
 
@@ -194,18 +204,15 @@ public class DysonSphereHandler extends BaseMegastructureHandler {
 
     private void updateSupplyState(int tier, CelestialForgingAnvilBlockEntity be) {
         int oldActiveTier = activeSupplyTier();
-        int oldStableTicks = stableSupplyTicks;
-        int oldStableTier = stableSupplyTier;
-        if (tier <= 0) {
-            stableSupplyTicks = 0;
-            stableSupplyTier = 0;
-        } else if (tier != stableSupplyTier) {
-            stableSupplyTier = tier;
-            stableSupplyTicks = 1;
-        } else {
-            stableSupplyTicks = Math.min(stableSupplyTicks + 1, STABLE_SUPPLY_TICKS);
+        boolean changed = false;
+        for (int i = 0; i < stableSupplyTicks.length; i++) {
+            int ticks = i < tier ? Math.min(stableSupplyTicks[i] + 1, STABLE_SUPPLY_TICKS) : 0;
+            if (stableSupplyTicks[i] != ticks) {
+                stableSupplyTicks[i] = ticks;
+                changed = true;
+            }
         }
-        if (oldStableTicks != stableSupplyTicks || oldStableTier != stableSupplyTier) {
+        if (changed) {
             be.setChanged();
         }
         if (oldActiveTier != activeSupplyTier()) {
@@ -214,7 +221,10 @@ public class DysonSphereHandler extends BaseMegastructureHandler {
     }
 
     private int activeSupplyTier() {
-        return stableSupplyTicks >= STABLE_SUPPLY_TICKS ? stableSupplyTier : 0;
+        for (int i = stableSupplyTicks.length - 1; i >= 0; i--) {
+            if (stableSupplyTicks[i] >= STABLE_SUPPLY_TICKS) return i + 1;
+        }
+        return 0;
     }
 
     private long applyBoost(long basePower, CelestialForgingAnvilBlockEntity be) {
@@ -266,8 +276,7 @@ public class DysonSphereHandler extends BaseMegastructureHandler {
 
     private void resetSupplyState() {
         cachedGridConsumption = 0;
-        stableSupplyTicks = 0;
-        stableSupplyTier = 0;
+        Arrays.fill(stableSupplyTicks, 0);
         accumulatedExcessMatter = 0L;
     }
 
