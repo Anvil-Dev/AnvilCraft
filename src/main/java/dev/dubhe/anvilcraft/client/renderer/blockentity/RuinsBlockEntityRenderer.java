@@ -11,7 +11,7 @@ import dev.dubhe.anvilcraft.block.multipart.AbstractMultiPartBlock;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.state.RuinsRenderState;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.state.WorldFluidRenderState;
 import dev.dubhe.anvilcraft.client.selection.ModelBlockSelection;
-import dev.dubhe.anvilcraft.client.selection.ModelSelectionBlacklist;
+import dev.dubhe.anvilcraft.client.selection.ModelSelectionDenylist;
 import dev.dubhe.anvilcraft.client.selection.ModelSelectionRenderer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -122,7 +122,7 @@ public class RuinsBlockEntityRenderer implements BlockEntityRenderer<RuinsBlockE
         if (level == null) return;
         try (var ignored = RuinsRenderContext.enter(level)) {
             BlockEntity display = this.prepareDisplay(ruins);
-            if (display != null && !ModelSelectionBlacklist.excludesBlockEntity(display.getBlockState().getBlock())) {
+            if (display != null && !ModelSelectionDenylist.excludesBlockEntity(display.getBlockState().getBlock())) {
                 output.addAll(ModelBlockSelection.rendererParts(display, partialTick));
             }
         }

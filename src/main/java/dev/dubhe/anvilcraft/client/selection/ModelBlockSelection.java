@@ -77,7 +77,7 @@ public final class ModelBlockSelection {
 
     @SubscribeEvent
     public static void prepare(ModelEvent.ModifyBakingResult event) {
-        ModelSelectionBlacklist.reload(Minecraft.getInstance().getResourceManager());
+        ModelSelectionDenylist.reload(Minecraft.getInstance().getResourceManager());
         pending = new ModelSelectionBakery(ModelSelectionCapture.take()).bake(event.getBakingResult());
     }
 
@@ -199,7 +199,7 @@ public final class ModelBlockSelection {
     static List<SelectionPart> dynamic(ClientLevel level, BlockPos pos, float partialTick) {
         return DYNAMIC.computeIfAbsent(pos.immutable(), key -> {
             BlockEntity entity = level.getBlockEntity(key);
-            if (entity == null || ModelSelectionBlacklist.excludesBlockEntity(entity.getBlockState().getBlock())) return List.of();
+            if (entity == null || ModelSelectionDenylist.excludesBlockEntity(entity.getBlockState().getBlock())) return List.of();
             return rendererParts(entity, partialTick);
         });
     }
@@ -286,8 +286,8 @@ public final class ModelBlockSelection {
         Minecraft minecraft = Minecraft.getInstance();
         Block block = state.getBlock();
         if (minecraft.options.hideGui || !AnvilCraft.MOD_ID.equals(BuiltInRegistries.BLOCK.getKey(block).getNamespace())) return false;
-        if (ModelSelectionBlacklist.usesOriginalOutline(block)) return false;
-        if (!ModelSelectionBlacklist.usesOriginalPicking(block) && !CubeSelection.isEnabled(block)) return false;
+        if (ModelSelectionDenylist.usesOriginalOutline(block)) return false;
+        if (!ModelSelectionDenylist.usesOriginalPicking(block) && !CubeSelection.isEnabled(block)) return false;
         ClientLevel level = event.getLevel();
         BlockPos pos = event.getBlockPos().immutable();
         float partialTick = event.getCamera().getCameraEntityPartialTicks(minecraft.getDeltaTracker());
