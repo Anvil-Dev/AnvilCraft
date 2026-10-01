@@ -10,6 +10,7 @@ import dev.dubhe.anvilcraft.anvil.HitCrabTrapBehavior;
 import dev.dubhe.anvilcraft.anvil.HitSpawnerBehavior;
 import dev.dubhe.anvilcraft.anvil.ImpactPileBehavior;
 import dev.dubhe.anvilcraft.anvil.ItemSplitterBehavior;
+import dev.dubhe.anvilcraft.anvil.ItemStampingBehavior;
 import dev.dubhe.anvilcraft.anvil.MagnetBlockBehavior;
 import dev.dubhe.anvilcraft.anvil.MassInjectBehavior;
 import dev.dubhe.anvilcraft.anvil.RedstoneEMPBehavior;
@@ -17,9 +18,9 @@ import dev.dubhe.anvilcraft.anvil.ResetVaultBehavior;
 import dev.dubhe.anvilcraft.anvil.SugarBlockBehavior;
 import dev.dubhe.anvilcraft.anvil.TimeWarpPlayerBehavior;
 import dev.dubhe.anvilcraft.anvil.TranscendiumBehavior;
+import dev.dubhe.anvilcraft.anvil.Upgrade2HyperdimensionStationBehavior;
 import dev.dubhe.anvilcraft.anvil.Upgrade2ShulkerContainerBehavior;
 import dev.dubhe.anvilcraft.anvil.UpgradeShulkerContainerBehavior;
-import dev.dubhe.anvilcraft.anvil.Upgrade2HyperdimensionStationBehavior;
 import dev.dubhe.anvilcraft.api.event.AnvilBehaviorRegisterEvent;
 import dev.dubhe.anvilcraft.block.storage.GunpowderBlock;
 import dev.dubhe.anvilcraft.block.storage.SugarBlock;
@@ -36,6 +37,7 @@ import net.neoforged.fml.common.EventBusSubscriber;
 public class ModAnvilBehaviors {
     @SubscribeEvent
     public static void register(AnvilBehaviorRegisterEvent event) {
+        event.registerBehavior(ModBlocks.STAMPING_PLATFORM.get(), new ItemStampingBehavior());
         event.registerBehavior(state -> state.is(Blocks.REDSTONE_BLOCK), new RedstoneEMPBehavior());
         event.registerBehavior(
             state -> state.is(Blocks.BEEHIVE) || state.is(Blocks.BEE_NEST),

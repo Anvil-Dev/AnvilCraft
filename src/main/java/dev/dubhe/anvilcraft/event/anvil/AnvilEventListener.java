@@ -21,6 +21,7 @@ import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTriggers;
 import dev.dubhe.anvilcraft.recipe.anvil.outcome.DamageAnvil;
 import dev.dubhe.anvilcraft.recipe.anvil.procedural.ProceduralProcessStepManager;
+import dev.dubhe.anvilcraft.recipe.anvil.wrap.StampingDiffRecipe;
 import dev.dubhe.anvilcraft.util.AnvilUtil;
 import dev.dubhe.anvilcraft.util.BlockMiningEffect;
 import dev.dubhe.anvilcraft.util.BreakBlockUtil;
@@ -118,6 +119,7 @@ public class AnvilEventListener {
         FallingBlockEntity entity = event.getEntity();
         InWorldRecipeManager manager = level.recipeAccess().anvillib$getInWorldRecipeManager();
         InWorldRecipeContext context = new InWorldRecipeContext(level, pos.getCenter().subtract(0.0, 0.5, 0.0), entity);
+        context.put(StampingDiffRecipe.DEFER_TO_PLATFORM_BEHAVIOR, true);
         FishTankBlockEntity fishTank = level.getBlockEntity(pos.below(), ModBlockEntities.FISH_TANK.get()).orElse(null);
         if (fishTank != null) fishTank.beginRecipeProcessing();
         try {
