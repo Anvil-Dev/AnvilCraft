@@ -4,6 +4,7 @@ import dev.anvilcraft.lib.v2.util.InventoryUtil;
 import dev.dubhe.anvilcraft.api.item.ICannotFitInStationItem;
 import dev.dubhe.anvilcraft.inventory.PocketInventory;
 import dev.dubhe.anvilcraft.rpc.StorageServerStub;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -11,6 +12,8 @@ import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.items.IItemHandler;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,20 +41,37 @@ public abstract class TerminalItem extends BundleLikeItem implements ICannotFitI
 
     public abstract void openStorage(Player player, ItemStack stack);
 
-    /** 按物品栏槽位顺序查找终端，再补充饰品等兼容槽中的原始物品栈。 */
+    /** 按物品栏、饰品等兼容槽顺序查找终端，也检查实际随身携带的精妙背包。 */
     public static List<ItemStack> getAll(Player player) {
         List<ItemStack> terminals = new ArrayList<>();
         for (ItemStack stack : PocketInventory.carriedItems(player)) {
-            if (stack.getItem() instanceof TerminalItem) {
-                terminals.add(stack);
-            }
+            TerminalItem.collectTerminals(stack, terminals);
         }
         for (ItemStack stack : InventoryUtil.getCompatItems(player)) {
-            if (stack.getItem() instanceof TerminalItem) {
-                terminals.add(stack);
-            }
+            TerminalItem.collectTerminals(stack, terminals);
         }
         return terminals;
+    }
+
+    private static void collectTerminals(ItemStack stack, List<ItemStack> terminals) {
+        if (stack.getItem() instanceof TerminalItem) {
+            terminals.add(stack);
+            return;
+        }
+        if (!BuiltInRegistries.ITEM.getKey(stack.getItem()).getNamespace().equals("sophisticatedbackpacks")) {
+            return;
+        }
+        // 两端都从随身背包的实际内容重新查询，不以打开的菜单或客户端上报的存储 ID 作为持有凭据。
+        IItemHandler inventory = stack.getCapability(Capabilities.ItemHandler.ITEM);
+        if (inventory == null) {
+            return;
+        }
+        for (int slot = 0; slot < inventory.getSlots(); slot++) {
+            ItemStack nested = inventory.getStackInSlot(slot);
+            if (nested.getItem() instanceof TerminalItem) {
+                terminals.add(nested);
+            }
+        }
     }
 
     @Override
