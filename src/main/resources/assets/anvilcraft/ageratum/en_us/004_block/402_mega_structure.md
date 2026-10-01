@@ -12,7 +12,7 @@ items:
   - anvilcraft:stellar_evolution_accelerator_component
 ---
 
-<directory>
+<directory />
 
 # Mega Structures
 
@@ -102,7 +102,7 @@ Providing an item at night is not recommended, as a blessing or punishment must 
 ### Primordial Matter Amplification
 
 - A Dyson Sphere around a brown dwarf can consume primordial matter from a fluid interface to increase its power generation. The more it is supplied, the more power it generates—at 2 B/t, its power output reaches the maximum 5× increase.
-- If a brown dwarf receives more than 2 B/t, the excess gradually converts into brown dwarf mass. After accumulating 12,800 B, the brown dwarf becomes a red dwarf, requiring *amplifiers* to display and operate.
+- If a brown dwarf receives more than 2 B/t, the excess gradually converts into brown dwarf mass. After accumulating 12,800 B, the brown dwarf becomes a red dwarf.
 - Some small stars with a Dyson Sphere can also consume primordial matter to increase power generation:
   - Red dwarf: a fixed 2 B/gt; power generation ×2 (including red dwarfs transformed from brown dwarfs)
   - Orange dwarf: a fixed 2 B/gt; power generation ×1.5

@@ -22,8 +22,12 @@ items:
 
 1. 制作<ref item="anvilcraft:impact_pile"/>
 2. 将<ref item="anvilcraft:impact_pile"/>放置在<ref item="minecraft:bedrock"/>或<ref item="minecraft:deepslate"/>上，并确保其位置**不高于**世界底部 8 格
-3. 用至少 20 格的高度下落的**完好的**<ref item="minecraft:anvil"/>砸击它
+3. 用至少 20 格的高度下落的任意*铁砧*砸击它
 4. 最终<ref item="anvilcraft:impact_pile"/>和<ref item="minecraft:anvil"/>都会消失，并生成一个包含<ref item="anvilcraft:mineral_fountain"/>、<ref item="anvilcraft:sturdy_deepslate"/>和熔岩的结构
+
+<info>
+一般不使用<ref item="minecraft:damaged_anvil"/>，它会直接消失
+</info>
 
 <info>
 生成<ref item="anvilcraft:mineral_fountain"/>的高度固定为世界最低高度+5
@@ -78,6 +82,10 @@ items:
 <structure id="../../structures/mineral_fountain/lava.snbt"/>
 
 - 四周被**熔岩**环绕的<ref item="anvilcraft:mineral_fountain"/>可以生成**熔岩**
+
+<tip>
+可以直接将<ref item="anvilcraft:drain"/>放在<ref item="anvilcraft:mineral_fountain"/>上方收集熔岩
+</tip>
 
 ---
 

@@ -4,7 +4,7 @@ navigation:
   icon: "minecraft:anvil"
 ---
 
-<directory>
+<directory />
 
 # 物品加工
 
@@ -175,7 +175,7 @@ navigation:
 - ...
 
 <info>
-本模组改进：当炼药锅集满4层蜂蜜时，可以用漏斗等物流方块取出蜂蜜块
+本模组改进：当<ref item="minecraft:cauldron"/>集满4层蜂蜜时，可以用漏斗等物流方块取出<ref item="minecraft:honey_block"/>
 </info>
 
 # 方块流程处理
