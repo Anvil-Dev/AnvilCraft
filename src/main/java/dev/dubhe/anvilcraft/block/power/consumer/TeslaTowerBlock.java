@@ -198,7 +198,7 @@ public class TeslaTowerBlock
             if (blockEntity instanceof TeslaTowerBlockEntity teslaTowerBlockEntity && player instanceof ServerPlayer sp) {
                 if (sp.gameMode.getGameModeForPlayer() == GameType.SPECTATOR) return InteractionResult.PASS;
                 ModMenuTypes.open(sp, teslaTowerBlockEntity, mainPartPos);
-                PacketDistributor.sendToPlayer(sp, TeslaFilterSyncPacket.create(teslaTowerBlockEntity.getWhiteList()));
+                PacketDistributor.sendToPlayer(sp, TeslaFilterSyncPacket.create(teslaTowerBlockEntity.getAllowList()));
                 return InteractionResult.SUCCESS;
             }
         }
