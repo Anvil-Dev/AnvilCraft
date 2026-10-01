@@ -205,7 +205,7 @@
   "anvilcraft.configuration.ground_heave_particle_count": "Ground Heave Particle Count",
   "anvilcraft.configuration.ground_heave_particle_count.tooltip": "Number of particles per block spawned by ground heave effect",
   "anvilcraft.configuration.ground_heave_particles_enabled": "Show Ground Heave Particles",
-  "anvilcraft.configuration.ground_heave_particles_enabled.tooltip": "Enable ground heave shockwave particles and sound when giant anvil triggers shock mechanism",
+  "anvilcraft.configuration.ground_heave_particles_enabled.tooltip": "Enable ground heave shockwave particles and block bounce animation when giant anvil triggers shock mechanism",
   "anvilcraft.configuration.heliostats_detection_interval": "Heliostats Detection Interval",
   "anvilcraft.configuration.heliostats_detection_interval.tooltip": "The number of ticks between heliostat detections",
   "anvilcraft.configuration.heliostats_render_distance": "Heliostats Render Distance",
