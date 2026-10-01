@@ -242,14 +242,7 @@ public class RenderSupport {
     private static void renderModelsAt(
         GuiGraphicsExtractor graphics, float x, float y, float scale, BiConsumer<SubmitNodeCollector, PoseStack> draw
     ) {
-        PoseStack pose = new PoseStack();
-        pose.scale(-1, 1, -1);
-        pose.translate(-0.5, -0.5, 0);
-        pose.mulPose(Axis.XP.rotationDegrees(-30));
-        pose.translate(0.5, 0, -0.5);
-        pose.mulPose(Axis.YP.rotationDegrees(45));
-        pose.translate(-0.5, 0, 0.5);
-        pose.translate(0.5, 0.5, -0.5);
+        PoseStack pose = RenderSupport.previewPose();
         float resolution = Math.max(1, Math.max(
             (float) Math.hypot(graphics.pose().m00(), graphics.pose().m01()),
             (float) Math.hypot(graphics.pose().m10(), graphics.pose().m11())));
@@ -260,6 +253,18 @@ public class RenderSupport {
             (x - extent) * resolution, (y - extent) * resolution, (x + extent) * resolution, (y + extent) * resolution,
             scale * resolution, false, false, pose, draw);
         graphics.pose().popMatrix();
+    }
+
+    static PoseStack previewPose() {
+        PoseStack pose = new PoseStack();
+        pose.scale(-1, 1, -1);
+        pose.translate(-0.5, -0.5, 0);
+        pose.mulPose(Axis.XP.rotationDegrees(-30));
+        pose.translate(0.5, 0, -0.5);
+        pose.mulPose(Axis.YP.rotationDegrees(45));
+        pose.translate(-0.5, 0, 0.5);
+        pose.translate(0.5, 0.5, -0.5);
+        return pose;
     }
 
     private static BlockModelRenderState previewModel(BlockStateModel model, BlockState state, boolean translucent) {
