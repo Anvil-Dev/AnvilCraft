@@ -96,16 +96,10 @@ public class JeiRenderHelper {
     ) {
         Matrix3x2fStack pose = graphics.pose();
         pose.pushMatrix();
-        pose.translate(x, y + 0.5F);
+        pose.translate(x, y);
         slot.draw(graphics);
-        // FIXME: Non-transparent blocks are rendered behind the slot
-        RenderSupport.renderBlock(
-            graphics,
-            state,
-            0,
-            1,
-            18
-        );
+        graphics.nextStratum();
+        RenderSupport.renderBlockAt(graphics, state, 9, 5.5F, 11.5F);
         pose.popMatrix();
     }
 }
