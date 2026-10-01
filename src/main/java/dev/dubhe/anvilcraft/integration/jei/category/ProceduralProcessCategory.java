@@ -39,6 +39,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jspecify.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -218,24 +219,20 @@ public class ProceduralProcessCategory implements IRecipeCategory<RecipeHolder<P
             // 主体（产出方块落点所在的那个输入）固定占主线行，其余输入按与它的世界上下
             // 关系向上/下偏移，使各步的主线始终对齐。
             int anchor = RenderSupport.processAnchorIndex(stepRecipe);
+            List<ProcessOverlayRenderer.PreviewBlock> blocks = new ArrayList<>();
             for (int j = stepRecipe.getInputBlocks().size() - 1; j >= 0; j--) {
                 List<BlockState> input = stepRecipe.getInputBlocks().get(j).constructStatesForRender();
                 if (input.isEmpty()) continue;
                 BlockState renderedState = JeiBlockIngredientUtil
                     .getDisplayedState(recipeSlotsView, stepBlockSlotName(i, j), input)
                     .orElse(input.getFirst());
-                int blockY = BLOCK_Y + BLOCK_ROW_DY * (j - anchor);
-                if (renderedState.getBlock() instanceof WipBlock) {
-                    RenderSupport.renderWipBlockAt(
-                        guiGraphics, recipe.getDisplayedModelForStep(displayedLoop * recipe.steps().size() + i).orElse(null),
-                        stepX + i * stepDx, blockY, BLOCK_SCALE
-                    );
-                } else {
-                    RenderSupport.renderBlockAt(guiGraphics, renderedState, stepX + i * stepDx, blockY, BLOCK_SCALE);
-                }
+                var displayedModel = recipe.getDisplayedModelForStep(displayedLoop * recipe.steps().size() + i).orElse(null);
+                float height = (float) (-BLOCK_ROW_DY * j / (BLOCK_SCALE * Math.cos(Math.toRadians(30))));
+                blocks.add(new ProcessOverlayRenderer.PreviewBlock(
+                    height, RenderSupport.extractProcessBlock(renderedState, displayedModel)));
             }
             this.drawStepOverlay(guiGraphics, recipeSlotsView, stepRecipe, i, stepX + i * stepDx,
-                BLOCK_Y - BLOCK_ROW_DY * anchor);
+                BLOCK_Y - BLOCK_ROW_DY * anchor, blocks);
         }
 
         // loop
@@ -281,7 +278,8 @@ public class ProceduralProcessCategory implements IRecipeCategory<RecipeHolder<P
     }
 
     private void drawStepOverlay(
-        GuiGraphicsExtractor graphics, IRecipeSlotsView slots, AbstractProcessRecipe<?> recipe, int step, int x, int y
+        GuiGraphicsExtractor graphics, IRecipeSlotsView slots, AbstractProcessRecipe<?> recipe, int step, int x, int y,
+        List<ProcessOverlayRenderer.PreviewBlock> blocks
     ) {
         ItemStack stack = ItemStack.EMPTY;
         if (!recipe.getInputItems().isEmpty()) {
@@ -290,7 +288,7 @@ public class ProceduralProcessCategory implements IRecipeCategory<RecipeHolder<P
                 .orElse(ItemStack.EMPTY).copyWithCount(Math.max(ingredient.count(), 1));
         }
         float lift = (8 - JeiRenderHelper.getAnvilAnimationOffset(this.timer)) / BLOCK_SCALE;
-        ProcessOverlayRenderer.extract(graphics, stack, x, y, BLOCK_SCALE, lift, step);
+        ProcessOverlayRenderer.extract(graphics, stack, x, y, BLOCK_SCALE, lift, step, blocks);
     }
 
     public static void registerRecipes(IRecipeRegistration registration) {

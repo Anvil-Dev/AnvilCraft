@@ -9,6 +9,7 @@ import dev.dubhe.anvilcraft.client.support.ScaledGuiItemAtlases;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.navigation.ScreenRectangle;
+import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
 import net.minecraft.client.renderer.item.TrackingItemStackRenderState;
 import net.minecraft.client.renderer.state.gui.GuiItemRenderState;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -30,6 +31,11 @@ abstract class ScaledGuiItemExtractionMixin {
         Operation<GuiItemRenderState> original, @Local(argsOnly = true) ItemStack stack
     ) {
         var screen = Minecraft.getInstance().screen;
+        if (screen instanceof CreativeModeInventoryScreen) {
+            var slot = new ScreenRectangle(x, y, 16, 16).transformMaxBounds(pose);
+            scissor = scissor == null ? slot : java.util.Objects.requireNonNullElse(
+                scissor.intersection(slot), new ScreenRectangle(0, 0, 0, 0));
+        }
         if (BuiltInRegistries.ITEM.getKey(stack.getItem()).getNamespace().equals(AnvilCraft.MOD_ID)
             || screen != null && screen.getClass().getName().startsWith("dev.dubhe.anvilcraft.")) {
             state.appendModelIdentityElement(ScaledGuiItemAtlases.OWNED_ITEM);

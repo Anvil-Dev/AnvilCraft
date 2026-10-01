@@ -45,6 +45,17 @@ public class CreativeCrateBlockEntity extends BlockEntity implements IItemResour
     @Override
     public void loadAdditional(ValueInput input) {
         super.loadAdditional(input);
+        var legacyItems = input.childOrEmpty("item").childrenList("Items");
+        if (legacyItems.isPresent()) {
+            this.itemHandler.setStack(ItemStack.EMPTY);
+            for (ValueInput entry : legacyItems.orElseThrow()) {
+                if (entry.getIntOr("Slot", -1) == 0) {
+                    this.itemHandler.setStack(entry.read(ItemStack.MAP_CODEC).orElse(ItemStack.EMPTY));
+                    break;
+                }
+            }
+            return;
+        }
         this.itemHandler.setStack(
             input.read("item", ItemStack.CODEC).orElse(ItemStack.EMPTY)
         );

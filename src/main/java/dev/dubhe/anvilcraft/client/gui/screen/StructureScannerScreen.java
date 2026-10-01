@@ -39,7 +39,6 @@ import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderPipelines;
-import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.client.sounds.SoundManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -1015,11 +1014,8 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
                         dispatcher.submit(state, camera, entity.getX(), entity.getY(), entity.getZ(), modelPose, collector);
                     }
                     if (border) {
-                        collector.submitCustomGeometry(modelPose, RenderTypes.lines(), (linePose, vertices) -> {
-                            PoseStack lines = new PoseStack();
-                            lines.last().set(linePose);
-                            net.minecraft.client.renderer.ShapeRenderer.renderShape(lines, vertices, shape, 0, 0, 0, 0xFF00FFCC, 2.5F);
-                        });
+                        SmartPlacerPreviewRenderer.captureRangeBox(
+                            new org.joml.Matrix4f(modelPose.last().pose()), 0, 0, shape);
                     }
                 }), BACKGROUND));
         graphics.disableScissor();

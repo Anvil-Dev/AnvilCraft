@@ -116,12 +116,19 @@ public class RenderSupport {
     }
 
     private static boolean renderBlockEntityAt(GuiGraphicsExtractor graphics, BlockState block, float x, float y, float scale) {
+        var draw = extractBlockEntity(block);
+        if (draw == null) return false;
+        renderModelsAt(graphics, x, y, scale, draw);
+        return true;
+    }
+
+    private static @Nullable BiConsumer<SubmitNodeCollector, PoseStack> extractBlockEntity(BlockState block) {
         Minecraft client = Minecraft.getInstance();
-        if (client.level == null) return false;
+        if (client.level == null) return null;
         BlockEntity entity = RenderSupport.getCachedBlockEntity(block).orElse(null);
-        if (entity == null) return false;
+        if (entity == null) return null;
         BlockEntityRenderer<BlockEntity, BlockEntityRenderState> renderer = client.getBlockEntityRenderDispatcher().getRenderer(entity);
-        if (renderer == null) return false;
+        if (renderer == null) return null;
         BlockEntityRenderState state = renderer.createRenderState();
         var camera = client.gameRenderer.getGameRenderState().levelRenderState.cameraRenderState;
         entity.setLevel(client.level);
@@ -129,11 +136,10 @@ public class RenderSupport {
         state.lightCoords = LightCoordsUtil.FULL_BRIGHT;
         BlockModelRenderState model = block.getRenderShape() == RenderShape.MODEL
             ? RenderSupport.previewModel(client.getModelManager().getBlockStateModelSet().get(block), block, false) : null;
-        RenderSupport.renderModelsAt(graphics, x, y, scale, (collector, pose) -> {
+        return (collector, pose) -> {
             if (model != null) model.submitMultiLayer(pose, collector, LightCoordsUtil.FULL_BRIGHT, OverlayTexture.NO_OVERLAY, 0);
             renderer.submit(state, pose, collector, camera);
-        });
-        return true;
+        };
     }
 
     private static void renderSingleBlockAt(GuiGraphicsExtractor graphics, BlockState block, float x, float y, float scale) {
@@ -229,6 +235,10 @@ public class RenderSupport {
     public static void renderWipBlockAt(
         GuiGraphicsExtractor graphics, @Nullable Identifier displayedModel, float x, float y, float scale
     ) {
+        renderModelsAt(graphics, x, y, scale, extractWipBlock(displayedModel));
+    }
+
+    private static BiConsumer<SubmitNodeCollector, PoseStack> extractWipBlock(@Nullable Identifier displayedModel) {
         var manager = Minecraft.getInstance().getModelManager();
         var key = displayedModel == null ? null : WipBlockEntityRenderer.getModelKey(displayedModel);
         var body = key == null ? null : manager.getStandaloneModel(key);
@@ -236,10 +246,18 @@ public class RenderSupport {
         final BlockModelRenderState bodyState = body == null ? null
             : RenderSupport.previewModel(body, ModBlocks.WIP_BLOCK.getDefaultState(), false);
         final BlockModelRenderState shellState = RenderSupport.previewModel(shell, ModBlocks.WIP_BLOCK.getDefaultState(), true);
-        RenderSupport.renderModelsAt(graphics, x, y, scale, (collector, pose) -> {
+        return (collector, pose) -> {
             if (bodyState != null) bodyState.submitMultiLayer(pose, collector, LightCoordsUtil.FULL_BRIGHT, OverlayTexture.NO_OVERLAY, 0);
             shellState.submitMultiLayer(pose, collector, LightCoordsUtil.FULL_BRIGHT, OverlayTexture.NO_OVERLAY, 0);
-        });
+        };
+    }
+
+    public static BiConsumer<SubmitNodeCollector, PoseStack> extractProcessBlock(BlockState block, @Nullable Identifier displayedModel) {
+        if (block.is(ModBlocks.WIP_BLOCK)) return extractWipBlock(displayedModel);
+        var entity = extractBlockEntity(block);
+        if (entity != null) return entity;
+        var model = previewModel(Minecraft.getInstance().getModelManager().getBlockStateModelSet().get(block), block, false);
+        return (collector, pose) -> model.submitMultiLayer(pose, collector, LightCoordsUtil.FULL_BRIGHT, OverlayTexture.NO_OVERLAY, 0);
     }
 
     private static void renderModelsAt(

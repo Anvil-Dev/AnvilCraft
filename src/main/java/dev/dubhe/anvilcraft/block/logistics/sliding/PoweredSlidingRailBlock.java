@@ -53,6 +53,7 @@ public class PoweredSlidingRailBlock extends BaseSlidingRailBlock implements IHa
             Block.box(11, 6, 0, 16, 16, 16),
             Block.box(0, 6, 0, 5, 16, 16)
         ).reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR)).get();
+    private static final int[] UPDATE_POS = {-1, 1};
     public static final EnumProperty<Direction> FACING = BlockStateProperties.HORIZONTAL_FACING;
     public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
 
@@ -174,7 +175,21 @@ public class PoweredSlidingRailBlock extends BaseSlidingRailBlock implements IHa
         @Nullable Orientation orientation,
         boolean movedByPiston
     ) {
-        super.neighborChanged(state, level, pos, block, orientation, movedByPiston);
+        if (!this.updateRail(level, pos, state) || level.isClientSide()) return;
+        Direction.Axis axis = state.getValue(FACING).getAxis();
+        for (int step : UPDATE_POS) {
+            BlockPos neighbor = pos.relative(axis, step);
+            while (level.hasChunkAt(neighbor)) {
+                BlockState neighborState = level.getBlockState(neighbor);
+                if (!(neighborState.getBlock() instanceof PoweredSlidingRailBlock rail)
+                    || neighborState.getValue(FACING).getAxis() != axis) break;
+                if (!rail.updateRail(level, neighbor, neighborState)) break;
+                neighbor = neighbor.relative(axis, step);
+            }
+        }
+    }
+
+    private boolean updateRail(Level level, BlockPos pos, BlockState state) {
         boolean wasPowered = state.getValue(PoweredSlidingRailBlock.POWERED);
         boolean powered = this.updatePower(level, pos, state);
 
@@ -205,13 +220,14 @@ public class PoweredSlidingRailBlock extends BaseSlidingRailBlock implements IHa
                 info.isSourcePiston = false;
             } else ISlidingRail.MOVING_PISTON_MAP.put(pos, ppi);
         }
-        if (level.isClientSide()) return;
-        if (!powered) return;
-        if (!ISlidingRail.MOVING_PISTON_MAP.containsKey(pos)) return;
+        if (level.isClientSide()) return powered;
+        if (!powered) return false;
+        if (!ISlidingRail.MOVING_PISTON_MAP.containsKey(pos)) return true;
         BlockPos checkPos = ISlidingRail.MOVING_PISTON_MAP.get(pos) instanceof PistonPushInfo info ? info.fromPos : above;
         BlockState blockState = level.getBlockState(checkPos);
-        if (blockState.is(Blocks.MOVING_PISTON) || blockState.isAir()) return;
+        if (blockState.is(Blocks.MOVING_PISTON) || blockState.isAir()) return true;
         level.scheduleTick(pos, this, 2);
+        return true;
     }
 
     private boolean isPowered(Level level, BlockPos pos, Direction facing) {

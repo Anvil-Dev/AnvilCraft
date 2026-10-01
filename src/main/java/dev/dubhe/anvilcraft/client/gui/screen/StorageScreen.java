@@ -678,8 +678,8 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
         StorageClientStub.craftingUnlock(this.sourcePos).whenCompleteAsync((available, error) -> {
             this.interactionPending = false;
             if (error != null || !available) {
-                this.flyoutClickX = this.sx(100);
-                this.flyoutClickY = this.top + 114;
+                this.flyoutClickX = this.sx(287);
+                this.flyoutClickY = this.top + 195;
                 this.showNotice(Component.translatable("tooltip.anvilcraft.storage.missing_workbench"));
                 return;
             }

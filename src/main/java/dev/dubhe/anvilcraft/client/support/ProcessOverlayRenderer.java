@@ -16,6 +16,7 @@ import net.minecraft.client.gui.navigation.ScreenRectangle;
 import net.minecraft.client.gui.render.pip.PictureInPictureRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.SubmitNodeStorage;
 import net.minecraft.client.renderer.block.BlockAndTintGetter;
 import net.minecraft.client.renderer.block.BlockModelRenderState;
@@ -45,6 +46,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.BiConsumer;
 
 /** 在同一深度缓冲中绘制工序的材料、落地阴影与铁砧。 */
 public final class ProcessOverlayRenderer extends PictureInPictureRenderer<ProcessOverlayRenderer.State> {
@@ -63,6 +65,13 @@ public final class ProcessOverlayRenderer extends PictureInPictureRenderer<Proce
 
     public static void extract(
         GuiGraphicsExtractor graphics, ItemStack stack, float x, float y, float scale, float anvilLift, int seed
+    ) {
+        extract(graphics, stack, x, y, scale, anvilLift, seed, List.of());
+    }
+
+    public static void extract(
+        GuiGraphicsExtractor graphics, ItemStack stack, float x, float y, float scale, float anvilLift, int seed,
+        List<PreviewBlock> blocks
     ) {
         Minecraft client = Minecraft.getInstance();
         if (client.level == null) return;
@@ -106,7 +115,8 @@ public final class ProcessOverlayRenderer extends PictureInPictureRenderer<Proce
         int x1 = Mth.ceil((x + extent) * resolution);
         int y1 = Mth.ceil((y + extent) * resolution);
         float rotation = (client.level.getGameTime() + client.getDeltaTracker().getGameTimeDeltaPartialTick(true)) * 2;
-        graphics.submitPictureInPictureRenderState(new State(item, List.copyOf(offsets), bottom, rotation, anvil, anvilLift,
+        graphics.submitPictureInPictureRenderState(new State(
+            item, List.copyOf(offsets), bottom, rotation, anvil, anvilLift, List.copyOf(blocks),
             x0, y0, x1, y1, scale * resolution, new Matrix3x2f(graphics.pose()), graphics.peekScissorStack()));
         graphics.pose().popMatrix();
     }
@@ -125,8 +135,15 @@ public final class ProcessOverlayRenderer extends PictureInPictureRenderer<Proce
         pose.scale(state.scale() * guiScale, -state.scale() * guiScale, state.scale() * guiScale);
         pose.mulPose(RenderSupport.previewPose().last().pose());
         pose.translate(-0.5, -0.5, -0.5);
-        pose.translate(0, 1, 0);
         client.gameRenderer.getLighting().setupFor(Lighting.Entry.ITEMS_3D);
+        for (PreviewBlock block : state.blocks()) {
+            pose.pushPose();
+            pose.translate(0, block.y(), 0);
+            block.draw().accept(this.nodes, pose);
+            pose.popPose();
+        }
+        this.flush(false);
+        pose.translate(0, 1, 0);
         if (!state.offsets().isEmpty()) {
             float radius = 0.15F * ITEM_SCALE;
             VertexConsumer shadow = this.buffers.getBuffer(SHADOW);
@@ -136,7 +153,7 @@ public final class ProcessOverlayRenderer extends PictureInPictureRenderer<Proce
             shadowVertex(shadow, pose.last(), 0.5F + radius, 0.5F - radius, 1, 0);
             this.buffers.endBatch();
             pose.pushPose();
-            pose.translate(0.5F, -state.bottom() * ITEM_SCALE, 0.5F);
+            pose.translate(0.5F, 0.012F - state.bottom() * ITEM_SCALE, 0.5F);
             pose.scale(ITEM_SCALE, ITEM_SCALE, ITEM_SCALE);
             pose.mulPose(Axis.YP.rotationDegrees(state.rotation()));
             for (Vector3f offset : state.offsets()) {
@@ -225,8 +242,12 @@ public final class ProcessOverlayRenderer extends PictureInPictureRenderer<Proce
         }
     }
 
+    public record PreviewBlock(float y, BiConsumer<SubmitNodeCollector, PoseStack> draw) {
+    }
+
     public record State(
-        ItemStackRenderState item, List<Vector3f> offsets, float bottom, float rotation, BlockModelRenderState anvil, float anvilLift,
+        ItemStackRenderState item, List<Vector3f> offsets, float bottom, float rotation, BlockModelRenderState anvil,
+        float anvilLift, List<PreviewBlock> blocks,
         int x0, int y0, int x1, int y1, float scale, Matrix3x2f pose, @Nullable ScreenRectangle scissorArea
     ) implements PictureInPictureRenderState {
         @Override

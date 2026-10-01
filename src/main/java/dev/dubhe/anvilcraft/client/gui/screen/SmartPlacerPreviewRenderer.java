@@ -19,6 +19,7 @@ import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.renderer.state.gui.pip.PictureInPictureRenderState;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import org.joml.Matrix3x2f;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
@@ -33,7 +34,7 @@ public final class SmartPlacerPreviewRenderer extends PictureInPictureRenderer<S
     private static final ThreadLocal<RangeBox> RANGE_BOX = new ThreadLocal<>();
     private final StructureRenderer structures;
 
-    private record RangeBox(Matrix4f pose, int originX, int originY) {
+    private record RangeBox(Matrix4f pose, int originX, int originY, VoxelShape shape) {
     }
 
     public SmartPlacerPreviewRenderer(MultiBufferSource.BufferSource buffer) {
@@ -46,13 +47,17 @@ public final class SmartPlacerPreviewRenderer extends PictureInPictureRenderer<S
     }
 
     public static void captureRangeBox(Matrix4f pose, int originX, int originY) {
-        RANGE_BOX.set(new RangeBox(pose, originX, originY));
+        captureRangeBox(pose, originX, originY, Shapes.create(0, 0, 0, 5, 5, 5));
     }
 
-    private static void drawRangeBox(Matrix4f pose, VertexConsumer vertices, int originX, int originY) {
+    public static void captureRangeBox(Matrix4f pose, int originX, int originY, VoxelShape shape) {
+        RANGE_BOX.set(new RangeBox(pose, originX, originY, shape));
+    }
+
+    private static void drawRangeBox(Matrix4f pose, VertexConsumer vertices, int originX, int originY, VoxelShape shape) {
         // Vanilla line shaders use the main window size, so extrude in this preview's pixel coordinates instead.
         float shrink = (1.0F - 1.0F / 256.0F) * 0.99975586F;
-        Shapes.create(0, 0, 0, 5, 5, 5).forAllEdges((x0, y0, z0, x1, y1, z1) -> {
+        shape.forAllEdges((x0, y0, z0, x1, y1, z1) -> {
             var start = pose.transformPosition(new Vector3f((float) x0, (float) y0, (float) z0));
             var end = pose.transformPosition(new Vector3f((float) x1, (float) y1, (float) z1));
             start.mul(shrink).add(-originX * (1.0F - shrink), -originY * (1.0F - shrink), 0);
@@ -101,7 +106,7 @@ public final class SmartPlacerPreviewRenderer extends PictureInPictureRenderer<S
     private void drawRangeOverlay(RangeBox range) {
         var format = DefaultVertexFormat.POSITION_COLOR;
         var builder = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, format);
-        drawRangeBox(range.pose(), builder, range.originX(), range.originY());
+        drawRangeBox(range.pose(), builder, range.originX(), range.originY(), range.shape());
         var data = builder.buildOrThrow();
         var vertices = format.uploadImmediateVertexBuffer(data.vertexBuffer());
         int count = data.drawState().indexCount();
