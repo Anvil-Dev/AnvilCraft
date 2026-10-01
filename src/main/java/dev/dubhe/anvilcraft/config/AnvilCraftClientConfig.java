@@ -278,6 +278,21 @@ public class AnvilCraftClientConfig {
         @Comment("Controls the maximum bounce height of blocks in Giant Anvil's shockwaves")
         @BoundedDiscrete(min = 0.0, max = 2.0)
         public float giantAnvilShockBounceAmplitude = 0.85f;
+        @Comment("Controls the shortest silence before the first Mun music track (in seconds)")
+        @BoundedDiscrete(min = 0, max = 3600)
+        public int munMusicFirstSilenceMinSeconds = 30;
+
+        @Comment("Controls the longest silence before the first Mun music track (in seconds)")
+        @BoundedDiscrete(min = 0, max = 3600)
+        public int munMusicFirstSilenceMaxSeconds = 90;
+
+        @Comment("Controls the shortest silence between Mun music tracks (in seconds)")
+        @BoundedDiscrete(min = 0, max = 3600)
+        public int munMusicNextSilenceMinSeconds = 60;
+
+        @Comment("Controls the longest silence between Mun music tracks (in seconds)")
+        @BoundedDiscrete(min = 0, max = 3600)
+        public int munMusicNextSilenceMaxSeconds = 180;
     }
 
     @SerializedName("UI & HUD")

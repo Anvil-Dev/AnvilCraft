@@ -42,7 +42,11 @@ public final class MunMusicHandler {
 
         if (selectedMusic == null) {
             selectedMusic = music(RANDOM.nextBoolean());
-            silenceTicks = Mth.nextInt(RANDOM, 30 * 20, 90 * 20);
+            int firstMinSeconds = AnvilCraft.CLIENT_CONFIG.effects.munMusicFirstSilenceMinSeconds;
+            int firstMaxSeconds = AnvilCraft.CLIENT_CONFIG.effects.munMusicFirstSilenceMaxSeconds;
+            int firstMinTicks = Math.min(firstMinSeconds, firstMaxSeconds) * 20;
+            int firstMaxTicks = Math.max(firstMinSeconds, firstMaxSeconds) * 20;
+            silenceTicks = Mth.nextInt(RANDOM, firstMinTicks, firstMaxTicks);
         }
 
         if (playingMusic != null && isMunMusic(playingMusic)) {
@@ -51,7 +55,11 @@ public final class MunMusicHandler {
                 return;
             }
             selectedMusic = music(!playingMusic.getLocation().equals(ModSoundEvents.ABOVE_THE_MOON_DUST.get().getLocation()));
-            silenceTicks = Mth.nextInt(RANDOM, 60 * 20, 180 * 20);
+            int nextMinSeconds = AnvilCraft.CLIENT_CONFIG.effects.munMusicNextSilenceMinSeconds;
+            int nextMaxSeconds = AnvilCraft.CLIENT_CONFIG.effects.munMusicNextSilenceMaxSeconds;
+            int nextMinTicks = Math.min(nextMinSeconds, nextMaxSeconds) * 20;
+            int nextMaxTicks = Math.max(nextMinSeconds, nextMaxSeconds) * 20;
+            silenceTicks = Mth.nextInt(RANDOM, nextMinTicks, nextMaxTicks);
         }
 
         if (silenceTicks > 0) {
