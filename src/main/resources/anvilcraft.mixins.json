@@ -68,6 +68,7 @@
     "DispenseItemWaterBottleBehaviorMixin",
     "DispenserBlockMixin",
     "DistanceManagerMixin",
+    "EnchantCommandMixin",
     "EnchantmentHelperMixin",
     "EmptyCauldronMixin",
     "EnchantmentPredicateMixin",
