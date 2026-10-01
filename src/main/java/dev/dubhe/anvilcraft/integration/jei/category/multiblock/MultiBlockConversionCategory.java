@@ -1,14 +1,12 @@
 package dev.dubhe.anvilcraft.integration.jei.category.multiblock;
 
-import dev.dubhe.anvilcraft.block.state.Cube3x3PartHalf;
-import dev.dubhe.anvilcraft.block.state.GiantAnvilCube;
-import dev.dubhe.anvilcraft.block.workstation.GiantAnvilBlock;
 import dev.dubhe.anvilcraft.client.support.LevelLikeDisplaySupport;
 import dev.dubhe.anvilcraft.client.support.RenderSupport;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.integration.jei.AnvilCraftJeiPlugin;
 import dev.dubhe.anvilcraft.integration.jei.drawable.JeiButton;
+import dev.dubhe.anvilcraft.integration.jei.util.JeiBlockIngredientUtil;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiRecipeUtil;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiRenderHelper;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiTextures;
@@ -53,6 +51,8 @@ public class MultiBlockConversionCategory implements IRecipeCategory<RecipeHolde
         Component.translatable("gui.anvilcraft.category.multiblock.all_layers");
     private final Map<RecipeHolder<MultiblockConversionRecipe>, LevelLike> cacheInput = new HashMap<>();
     private final Map<RecipeHolder<MultiblockConversionRecipe>, LevelLike> cacheOutput = new HashMap<>();
+    private final Map<RecipeHolder<MultiblockConversionRecipe>, LevelLike> overviewInput = new HashMap<>();
+    private final Map<RecipeHolder<MultiblockConversionRecipe>, LevelLike> overviewOutput = new HashMap<>();
 
     private static final Comparator<ItemStack> BY_COUNT_DECREASING =
         Comparator.comparing(ItemStack::getCount).thenComparing(stack -> stack.getItem().getDescriptionId()).reversed();
@@ -176,7 +176,8 @@ public class MultiBlockConversionCategory implements IRecipeCategory<RecipeHolde
             it -> LevelLikeDisplaySupport.asLevelLike(it.value().getOutputPattern())
         );
 
-        List<ItemStack> inputItems = MultiblockUtil.ingredientList(recipe.value().getInputPattern(), Minecraft.getInstance().level.registryAccess());
+        List<ItemStack> inputItems = MultiblockUtil.ingredientList(
+            recipe.value().getInputPattern(), Minecraft.getInstance().level.registryAccess());
         inputItems.sort(MultiBlockConversionCategory.BY_COUNT_DECREASING);
 
         for (int i = 0; i < inputItems.size(); i++) {
@@ -189,7 +190,8 @@ public class MultiBlockConversionCategory implements IRecipeCategory<RecipeHolde
             choices.forEach(slot::add);
         }
 
-        List<ItemStack> outputItems = MultiblockUtil.ingredientList(recipe.value().getOutputPattern(), Minecraft.getInstance().level.registryAccess());
+        List<ItemStack> outputItems = MultiblockUtil.ingredientList(
+            recipe.value().getOutputPattern(), Minecraft.getInstance().level.registryAccess());
         outputItems.sort(MultiBlockConversionCategory.BY_COUNT_DECREASING);
 
         for (int i = 0; i < outputItems.size(); i++) {
@@ -250,18 +252,14 @@ public class MultiBlockConversionCategory implements IRecipeCategory<RecipeHolde
                         drawable.setPosition(this.outputSlotPosX(i) + 1, this.slotPosY(i) + 1);
                     }
                 }
-                final boolean modifiedInput = !input.isAllLayersVisible();
-                final boolean modifiedOutput = !output.isAllLayersVisible();
-                input.setAllLayersVisible(true);
-                output.setAllLayersVisible(true);
-                RenderSupport.renderLevelLike(input, graphics, 8, 16, MultiBlockConversionCategory.SCALE_FAC_OVERVIEW, 8, 2.0F, false);
-                RenderSupport.renderLevelLike(output, graphics, 92, 16, MultiBlockConversionCategory.SCALE_FAC_OVERVIEW, 8, 2.0F, false);
-                if (modifiedInput) {
-                    input.setAllLayersVisible(false);
-                }
-                if (modifiedOutput) {
-                    output.setAllLayersVisible(false);
-                }
+                LevelLike fullInput = this.overviewInput.computeIfAbsent(
+                    recipe, it -> LevelLikeDisplaySupport.asLevelLike(it.value().getInputPattern()));
+                LevelLike fullOutput = this.overviewOutput.computeIfAbsent(
+                    recipe, it -> LevelLikeDisplaySupport.asLevelLike(it.value().getOutputPattern()));
+                LevelLikeDisplaySupport.cycleTags(fullInput);
+                LevelLikeDisplaySupport.cycleTags(fullOutput);
+                RenderSupport.renderLevelLikeAt(fullInput, graphics, 36, 44, MultiBlockConversionCategory.SCALE_FAC_OVERVIEW, 2.0F);
+                RenderSupport.renderLevelLikeAt(fullOutput, graphics, 120, 44, MultiBlockConversionCategory.SCALE_FAC_OVERVIEW, 2.0F);
                 for (int i = 0; i < 12; i++) {
                     this.slot.draw(graphics, this.inputSlotPosX(i), this.slotPosY(i));
                     this.slot.draw(graphics, this.outputSlotPosX(i), this.slotPosY(i));
@@ -272,16 +270,10 @@ public class MultiBlockConversionCategory implements IRecipeCategory<RecipeHolde
                 this.conversion.draw(graphics, 2375, 875);
                 pose.popMatrix();
                 int anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(this.timer) / 3;
-                // FIXME: The giant anvil is rendered behind the conversion graphics
-                RenderSupport.render3x3Block(
-                    graphics,
-                    ModBlocks.GIANT_ANVIL.getDefaultState()
-                        .trySetValue(GiantAnvilBlock.HALF, Cube3x3PartHalf.MID_CENTER)
-                        .trySetValue(GiantAnvilBlock.CUBE, GiantAnvilCube.CENTER),
-                    70,
-                    10 + anvilYOffset,
-                    20
-                );
+                graphics.nextStratum();
+                RenderSupport.renderBlockAt(graphics,
+                    JeiBlockIngredientUtil.getRenderablePreviewState(ModBlocks.GIANT_ANVIL.getDefaultState()),
+                    80, 19.8F + anvilYOffset, 5);
                 pose.pushMatrix();
                 pose.scale(0.8F, 0.8F);
                 int size = recipe.value().getSize();
@@ -300,6 +292,8 @@ public class MultiBlockConversionCategory implements IRecipeCategory<RecipeHolde
             case OUTPUT:
                 rendered = output;
                 break;
+            default:
+                throw new IllegalStateException("Unexpected multiblock display mode: " + this.displayMode);
         }
 
         for (IRecipeSlotView slotView : recipeSlotsView.getSlotViews()) {
@@ -307,7 +301,7 @@ public class MultiBlockConversionCategory implements IRecipeCategory<RecipeHolde
                 drawable.setPosition(-1000, -1000);
             }
         }
-        RenderSupport.renderLevelLike(rendered, graphics, 32, 38, MultiBlockConversionCategory.SCALE_FAC_LARGE, 14, 2.0F, false);
+        RenderSupport.renderLevelLikeAt(rendered, graphics, 80, 86, MultiBlockConversionCategory.SCALE_FAC_LARGE, 2.0F);
         Component component = this.layerTooltip(rendered);
         pose.pushMatrix();
         pose.scale(0.8F, 0.8F);

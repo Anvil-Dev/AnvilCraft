@@ -1,18 +1,13 @@
 package dev.dubhe.anvilcraft.integration.jei.category.multiblock;
 
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Axis;
-import dev.anvilcraft.lib.v2.rendering.gui.GuiRenderExtras;
 import dev.anvilcraft.lib.v2.util.MathUtil;
-import dev.dubhe.anvilcraft.block.state.Cube3x3PartHalf;
-import dev.dubhe.anvilcraft.block.state.GiantAnvilCube;
-import dev.dubhe.anvilcraft.block.workstation.GiantAnvilBlock;
 import dev.dubhe.anvilcraft.client.support.LevelLikeDisplaySupport;
 import dev.dubhe.anvilcraft.client.support.RenderSupport;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.integration.jei.AnvilCraftJeiPlugin;
 import dev.dubhe.anvilcraft.integration.jei.drawable.JeiButton;
+import dev.dubhe.anvilcraft.integration.jei.util.JeiBlockIngredientUtil;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiRecipeUtil;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiRenderHelper;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiTextures;
@@ -128,7 +123,8 @@ public class MultiBlockCraftingCategory implements IRecipeCategory<RecipeHolder<
         this.cache.computeIfAbsent(recipe, it -> LevelLikeDisplaySupport.asLevelLike(it.value().getPattern()));
         builder.addSlot(RecipeIngredientRole.OUTPUT, 130, 70).add(recipe.value().getResult().create());
 
-        List<ItemStack> ingredientList = MultiblockUtil.ingredientList(recipe.value().getPattern(), Minecraft.getInstance().level.registryAccess());
+        List<ItemStack> ingredientList = MultiblockUtil.ingredientList(
+            recipe.value().getPattern(), Minecraft.getInstance().level.registryAccess());
         ingredientList.sort(MultiBlockCraftingCategory.BY_COUNT_DECREASING);
 
         for (int i = 0; i < ingredientList.size(); i++) {
@@ -162,16 +158,7 @@ public class MultiBlockCraftingCategory implements IRecipeCategory<RecipeHolder<
         LevelLikeDisplaySupport.cycleTags(level);
         final boolean renderAllLayers = level.isAllLayersVisible();
         final int visibleLayer = level.getCurrentVisibleLayer();
-        RenderSupport.renderLevelLike(
-            level,
-            graphics,
-            8,
-            8,
-            80,
-            16,
-            4.0F,
-            false
-        );
+        RenderSupport.renderLevelLikeAt(level, graphics, 45, 50, MultiBlockCraftingCategory.SCALE_FAC, 2.0F);
         final Minecraft minecraft = Minecraft.getInstance();
         int sizeY = level.verticalSize();
         Component component;
@@ -195,32 +182,17 @@ public class MultiBlockCraftingCategory implements IRecipeCategory<RecipeHolder<
         this.conversion.draw(graphics);
         pose.popMatrix();
 
-        PoseStack poseStack = new PoseStack();
-        poseStack.mulPose(Axis.XP.rotationDegrees(30));
-        poseStack.mulPose(Axis.YP.rotationDegrees(45));
-        poseStack.scale(0.3f, 0.3f, 0.3f);
         int anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(this.timer) / 3;
-        GuiRenderExtras.tessellateBlock(
-            graphics,
-            ModBlocks.GIANT_ANVIL.getDefaultState()
-                .trySetValue(GiantAnvilBlock.HALF, Cube3x3PartHalf.MID_CENTER)
-                .trySetValue(GiantAnvilBlock.CUBE, GiantAnvilCube.CENTER),
-            null,
-            null,
-            122,
-            26 + anvilYOffset,
-            122 + 32,
-            26 + anvilYOffset + 32,
-            -1,
-            true,
-            poseStack.last()
-        );
+        graphics.nextStratum();
+        RenderSupport.renderBlockAt(graphics,
+            JeiBlockIngredientUtil.getRenderablePreviewState(ModBlocks.GIANT_ANVIL.getDefaultState()),
+            138, 44.8F + anvilYOffset, 5);
 
         pose.pushMatrix();
         pose.scale(0.8F, 0.8F);
         int textX = Math.round(MultiBlockCraftingCategory.WIDTH / 0.8F - minecraft.font.width(component) - 5);
         graphics.text(minecraft.font, component, textX, 0, 0xFF000000, false);
-        int size = dev.anvilcraft.lib.v2.multiblock.dynamic.definition.DefinitionSerialization.fromDefinition(recipe.value().getPattern()).grid().length;
+        int size = MultiblockUtil.size(recipe.value().getPattern());
         graphics.text(
             minecraft.font,
             Component.translatable("gui.anvilcraft.category.multiblock.size", size, size),
