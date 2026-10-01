@@ -32,6 +32,7 @@ import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
 import net.neoforged.neoforge.event.entity.living.MobEffectEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 
+import java.util.Collections;
 import java.util.Map;
 import java.util.WeakHashMap;
 
@@ -42,10 +43,11 @@ public final class EquipmentAbilities {
     public static final int CHARGE_HOLD_TICKS = 20;
     public static final int CHARGE_DECAY_TICKS = 10;
     private static final double MAX_JUMP_HEIGHT_MULTIPLIER = 3.5;
+    private static final int NIGHT_VISION_REFRESH_TICKS = 210;
     private static final Map<Player, Integer> CHARGE = new WeakHashMap<>();
     private static final Map<Player, Integer> CHARGE_RELEASE = new WeakHashMap<>();
     private static final Map<Player, Integer> CHARGE_RELEASE_START = new WeakHashMap<>();
-    private static final Map<Player, Boolean> SUBMERGING = new WeakHashMap<>();
+    private static final Map<Player, Boolean> SUBMERGING = Collections.synchronizedMap(new WeakHashMap<>());
     private static final Map<Player, MobEffectInstance> HELMET_NIGHT_VISION = new WeakHashMap<>();
 
     private EquipmentAbilities() {
@@ -114,8 +116,8 @@ public final class EquipmentAbilities {
             HELMET_NIGHT_VISION.remove(player);
             return;
         }
-        if (current != null && !current.endsWithin(200)) return;
-        MobEffectInstance refreshed = new MobEffectInstance(MobEffects.NIGHT_VISION, 200, 0, false, false, true);
+        if (current != null && !current.endsWithin(NIGHT_VISION_REFRESH_TICKS)) return;
+        MobEffectInstance refreshed = new MobEffectInstance(MobEffects.NIGHT_VISION, NIGHT_VISION_REFRESH_TICKS, 0, false, false, true);
         HELMET_NIGHT_VISION.put(player, refreshed);
         player.addEffect(refreshed);
         current = player.getEffect(MobEffects.NIGHT_VISION);
