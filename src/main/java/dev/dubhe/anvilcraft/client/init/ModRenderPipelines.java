@@ -170,9 +170,17 @@ public class ModRenderPipelines {
         .withLocation(AnvilCraft.of("pipeline/stellar_beam"))
         .build();
     
+    public static final RenderPipeline CORRUPTED_BEACON_BEAM_CORE = RenderPipeline.builder(RenderPipelines.DEBUG_FILLED_SNIPPET)
+        .withColorTargetState(ColorTargetState.DEFAULT)
+        .withVertexFormat(DefaultVertexFormat.POSITION_COLOR, VertexFormat.Mode.TRIANGLES)
+        .withDepthStencilState(DepthStencilState.DEFAULT)
+        .withCull(false)
+        .withLocation(AnvilCraft.of("pipeline/corrupted_beacon_beam_core"))
+        .build();
+
     /**
-     * 腐化信标使用纯顶点色半透明管线，使深色顶点通过常规透明混合压暗背景。
-     * 不采样激光图集，避免贴图透明度冲淡黑紫色核心和外围暗光。
+     * 腐化信标外层与武器光束使用纯顶点色半透明管线，不写入深度。
+     * 不采样激光图集，避免贴图透明度冲淡黑紫色光束。
      */
     public static final RenderPipeline CORRUPTED_BEACON_BEAM = RenderPipeline.builder(
         RenderPipelines.DEBUG_FILLED_SNIPPET
@@ -325,6 +333,7 @@ public class ModRenderPipelines {
         event.registerPipeline(ModRenderPipelines.LIGHTNING);
         event.registerPipeline(ModRenderPipelines.SUPERNOVA_BEAM);
         event.registerPipeline(ModRenderPipelines.STELLAR_BEAM);
+        event.registerPipeline(ModRenderPipelines.CORRUPTED_BEACON_BEAM_CORE);
         event.registerPipeline(ModRenderPipelines.CORRUPTED_BEACON_BEAM);
         event.registerPipeline(ModRenderPipelines.STAR_COLOR_OVERLAY);
         event.registerPipeline(ModRenderPipelines.COLORED_OVERLAY);

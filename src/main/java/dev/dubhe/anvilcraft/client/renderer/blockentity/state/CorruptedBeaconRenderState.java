@@ -10,6 +10,6 @@ import net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState;
 public class CorruptedBeaconRenderState extends BlockEntityRenderState {
     /// 是否点亮（渲染光束）
     private boolean lit;
-    /// 光束的局部高度（世界顶端 Y - 方块 Y - BEAM_BASE_Y），> 0 时才绘制
+    /// 光束的局部高度（世界顶端 Y - 方块 Y - BEAM_BASE_Y），> 0.5 时才绘制
     private float beamHeight;
 }

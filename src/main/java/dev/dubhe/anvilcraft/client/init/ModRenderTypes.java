@@ -105,11 +105,14 @@ public class ModRenderTypes {
             .createRenderSetup()
     );
 
+    public static final RenderType CORRUPTED_BEACON_BEAM_CORE = RenderType.create(
+        "anvilcraft:corrupted_beacon_beam_core",
+        RenderSetup.builder(ModRenderPipelines.CORRUPTED_BEACON_BEAM_CORE).createRenderSetup()
+    );
+
     public static final RenderType CORRUPTED_BEACON_BEAM = RenderType.create(
-            "anvilcraft:corrupted_beacon_beam",
-            RenderSetup.builder(ModRenderPipelines.CORRUPTED_BEACON_BEAM)
-                    .sortOnUpload()
-                    .createRenderSetup()
+        "anvilcraft:corrupted_beacon_beam",
+        RenderSetup.builder(ModRenderPipelines.CORRUPTED_BEACON_BEAM).createRenderSetup()
     );
 
     private static final Identifier WHITE_TEXTURE = AnvilCraft.of("textures/misc/white.png");
