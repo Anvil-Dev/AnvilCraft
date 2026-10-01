@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.item.weapon;
 
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.entity.RailgunAnvilEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
@@ -36,7 +37,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class AnvilRailgunItem extends EnergyWeaponItem {
-    private static final int MAX_AMMO = 16;
     private static final int MIN_SHOT_ENERGY = 2_000_000;
     private static final float MIN_FIRE_CHARGE_PROGRESS = 0.2F;
 
@@ -87,7 +87,7 @@ public class AnvilRailgunItem extends EnergyWeaponItem {
 
     public static boolean isLoading(Player player, ItemStack weapon, InteractionHand hand) {
         List<ItemStack> ammo = ammo(weapon);
-        if (ammo.size() >= MAX_AMMO) return false;
+        if (ammo.size() >= AnvilCraft.CONFIG.equipment.anvilRailgunMaxAmmo) return false;
         ItemStack supplied = otherHand(player, hand);
         if (ammo.isEmpty()) return isValidAnvil(supplied) || findNormalAnvil(player) >= 0;
         return isValidAnvil(supplied) && ItemStack.isSameItemSameComponents(ammo.getFirst(), supplied);
@@ -103,7 +103,8 @@ public class AnvilRailgunItem extends EnergyWeaponItem {
             source = player.getInventory().getItem(inventorySlot);
         }
         boolean infinity = enchantmentLevel(player.level(), weapon, Enchantments.INFINITY) > 0 && source.is(Items.ANVIL);
-        int amount = infinity ? MAX_AMMO - loaded.size() : Math.min(source.getCount(), MAX_AMMO - loaded.size());
+        int maxAmmo = AnvilCraft.CONFIG.equipment.anvilRailgunMaxAmmo;
+        int amount = infinity ? maxAmmo - loaded.size() : Math.min(source.getCount(), maxAmmo - loaded.size());
         int infiniteAmmoMask = infiniteAmmoMask(weapon, loaded.size());
         for (int i = 0; i < amount; i++) loaded.add(source.copyWithCount(1));
         if (infinity) infiniteAmmoMask |= ammoMask(amount) << (loaded.size() - amount);
@@ -218,7 +219,7 @@ public class AnvilRailgunItem extends EnergyWeaponItem {
     }
 
     private static int ammoMask(int ammoSize) {
-        return (1 << Math.min(ammoSize, MAX_AMMO)) - 1;
+        return (1 << Math.min(ammoSize, AnvilCraft.CONFIG.equipment.anvilRailgunMaxAmmo)) - 1;
     }
 
     @Override

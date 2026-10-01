@@ -174,6 +174,14 @@ public class AnvilCraftServerConfig {
         @Comment("Controls how long the effects of Chocolate Blocks last (in ticks)")
         @BoundedDiscrete(min = 1, max = 24000)
         public int chocolateBlockEffectDuration = 180;
+
+        @Comment("Controls the chance that overheated Ember Metal turns into a Netherite Block")
+        @BoundedDiscrete(min = 0.0, max = 1.0)
+        public double overheatedEmberMetalNetheriteChance = 0.05;
+
+        @Comment("Controls how many times an Enchanted Gold Ingot makes Piglins barter")
+        @BoundedDiscrete(min = 1, max = 16)
+        public int enchantedGoldBarterMultiplier = 4;
     }
 
     @SerializedName("Machines & Logistics")
@@ -554,6 +562,22 @@ public class AnvilCraftServerConfig {
         @Comment("Controls the chance that Providence grants a third roll")
         @BoundedDiscrete(min = 0.0, max = 1.0)
         public float providenceThirdRollChance = 0.05f;
+
+        @Comment("Controls how long the Resonator takes to mine a block by resonance (in ticks)")
+        @BoundedDiscrete(min = 1, max = 200)
+        public int resonatorMiningTicks = 20;
+
+        @Comment("Controls the durability the Resonator consumes per resonance mining operation")
+        @BoundedDiscrete(min = 1, max = 10000)
+        public int resonatorDurabilityCost = 128;
+
+        @Comment("Controls how many Anvil Railgun rounds can be loaded (at most 30 to fit the ammo bitmask)")
+        @BoundedDiscrete(min = 1, max = 30)
+        public int anvilRailgunMaxAmmo = 16;
+
+        @Comment("Controls the base cooldown of the Tesla Gun (in ticks, shortened by Quick Charge)")
+        @BoundedDiscrete(min = 1, max = 1200)
+        public int teslaGunCooldown = 80;
     }
 
     @SerializedName("Commands")

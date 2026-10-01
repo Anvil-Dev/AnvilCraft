@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.item.weapon;
 
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.entity.WeaponBeamEntity;
 import dev.dubhe.anvilcraft.init.ModSoundEvents;
 import net.minecraft.core.BlockPos;
@@ -60,7 +61,7 @@ public class TeslaGunItem extends EnergyWeaponItem {
         if (!consumeEnergy(player, stack, SHOT_ENERGY)) return;
         int quickCharge = stack.getEnchantmentLevel(
             level.holderLookup(Registries.ENCHANTMENT).getOrThrow(Enchantments.QUICK_CHARGE));
-        player.getCooldowns().addCooldown(this, 80 - Math.min(60, quickCharge * 5));
+        player.getCooldowns().addCooldown(this, AnvilCraft.CONFIG.equipment.teslaGunCooldown - Math.min(60, quickCharge * 5));
         Vec3 start = player.getEyePosition().add(player.getViewVector(1.0F).scale(0.5));
         if (target.entity() != null) {
             strikeChain(serverLevel, player, stack, start, target.entity());

@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.client.gui.tooltip;
 
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.inventory.tooltip.FluidTankTooltip;
 import dev.dubhe.anvilcraft.util.UnitUtil;
 import net.minecraft.ChatFormatting;
@@ -39,7 +40,6 @@ public class ClientFluidTankTooltip implements ClientTooltipComponent {
     private static final int ICON_SIZE = 16;
     private static final int LINE_HEIGHT = 10;
     private static final int ICON_GAP = 1;
-    private static final int MAX_VISIBLE_FLUIDS = 5;
 
     private final int capacity;
     private final boolean infiniteCapacity;
@@ -67,7 +67,7 @@ public class ClientFluidTankTooltip implements ClientTooltipComponent {
                     fluid = FluidStack.parseOptional(registries, entry.getCompound(TAG_FLUID));
                 }
                 if (fluid != null && fluid.isEmpty()) continue;
-                if (fluids.size() < MAX_VISIBLE_FLUIDS) {
+                if (fluids.size() < AnvilCraft.CLIENT_CONFIG.ui.fluidTankTooltipMaxVisibleFluids) {
                     fluids.add(fluid);
                     infiniteFlags.add(enhanced && entry.getBoolean(TAG_INFINITE));
                 } else {

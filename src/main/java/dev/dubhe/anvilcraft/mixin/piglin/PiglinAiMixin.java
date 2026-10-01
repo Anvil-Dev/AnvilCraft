@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.mixin.piglin;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.init.ModDataAttachments;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.item.abnormal.IEnchantedGold;
@@ -66,7 +67,7 @@ public abstract class PiglinAiMixin {
         }
         piglin.setData(ModDataAttachments.ENCHANTED_GOLD_BARTER, false);
         List<ItemStack> items = new ArrayList<>();
-        for (int i = 0; i < 4; i++) {
+        for (int i = 0; i < AnvilCraft.CONFIG.world.enchantedGoldBarterMultiplier; i++) {
             items.addAll(original.call(piglin));
         }
         return items;

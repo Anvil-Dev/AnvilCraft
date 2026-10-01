@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.client.gui.tooltip;
 
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.inventory.tooltip.StorageTooltip;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.Font;
@@ -17,7 +18,6 @@ public class ClientStorageTooltip implements ClientTooltipComponent {
     private static final int LINE_HEIGHT = 10;
     private static final int ICON_SIZE = 16;
     private static final int ICON_GAP = 2;
-    private static final int MAX_VISIBLE_TYPES = 9;
 
     private final int usedTypes;
     private final int typeLimit;
@@ -49,7 +49,7 @@ public class ClientStorageTooltip implements ClientTooltipComponent {
             font.width(this.typesLine())
         );
         if (!this.types.isEmpty()) {
-            int visible = Math.min(this.types.size(), ClientStorageTooltip.MAX_VISIBLE_TYPES);
+            int visible = Math.min(this.types.size(), AnvilCraft.CLIENT_CONFIG.ui.storageTooltipMaxVisibleTypes);
             int iconsWidth = visible * (ClientStorageTooltip.ICON_SIZE + ClientStorageTooltip.ICON_GAP)
                 - ClientStorageTooltip.ICON_GAP;
             if (this.hasMore()) {
@@ -107,7 +107,7 @@ public class ClientStorageTooltip implements ClientTooltipComponent {
             return;
         }
         int iconY = y + ClientStorageTooltip.LINE_HEIGHT * 2;
-        int visible = Math.min(this.types.size(), ClientStorageTooltip.MAX_VISIBLE_TYPES);
+        int visible = Math.min(this.types.size(), AnvilCraft.CLIENT_CONFIG.ui.storageTooltipMaxVisibleTypes);
         for (int i = 0; i < visible; i++) {
             guiGraphics.renderItem(
                 this.types.get(i),

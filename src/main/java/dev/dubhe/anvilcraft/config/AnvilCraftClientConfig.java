@@ -184,6 +184,10 @@ public class AnvilCraftClientConfig {
         @Comment("Controls how far the sky darkens at the peak of a visual eclipse")
         @BoundedDiscrete(min = 0.0, max = 1.0)
         public float overworldLikeEclipseDarken = 0.72f;
+
+        @Comment("Controls the scale of the shared orbital rings in the overworld-like dimension")
+        @BoundedDiscrete(min = 100.0, max = 10000.0)
+        public float overworldLikeSkyRingScale = 1200.0f;
     }
 
     @SerializedName("Effects & Sounds")
@@ -348,6 +352,17 @@ public class AnvilCraftClientConfig {
         @BoundedDiscrete(min = 100, max = 5000)
         public int filterItemDisplayIntervalMillis = 1000;
 
+        @Comment("Controls how many item types the Storage Terminal tooltip shows at once")
+        @BoundedDiscrete(min = 1, max = 64)
+        public int storageTooltipMaxVisibleTypes = 9;
+
+        @Comment("Controls how many fluids the fluid tank tooltip shows at once")
+        @BoundedDiscrete(min = 1, max = 64)
+        public int fluidTankTooltipMaxVisibleFluids = 5;
+
+        @Comment("Controls how quickly 3D building rod previews follow the player view")
+        @BoundedDiscrete(min = 1.0, max = 100.0)
+        public double buildingRodPreviewFollowRate = 18.0;
         @SerializedName("Apply Changes When Closing Category Settings")
         @Comment("Controls whether closing a category settings screen applies or discards the changes")
         public ExitBehaviourMode exitCategorySettingBehaviour = ExitBehaviourMode.CANCEL;
