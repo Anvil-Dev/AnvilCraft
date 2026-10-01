@@ -7,7 +7,7 @@
     - `Settings` -> `Editor` -> `Code Style` -> `Java` -> `Scheme` -> `Import Scheme`
 2. Import Java code inspection configuration (must)
    - [HERE TO VIEW](https://gist.github.com/QiuShui1012/edf689d2b0bc4d893589477a8ebb5387)
-   - `Settings` -> `Editor` -> `Inspections` -> `Scheme` -> `Import Scheme`
+   - `Settings` -> `Editor` -> `Inspections` -> `Profile` -> `Import Profile`
 3. Import color scheme (optional)
     - [HERE TO VIEW](https://gist.github.com/Gu-ZT/2410fd75cf9b5da09d0b77a57c1caaf7)
     - `Settings` -> `Editor` -> `Color Scheme` -> `Import Scheme`
