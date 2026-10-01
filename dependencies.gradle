@@ -19,6 +19,9 @@ dependencies {
     compileClasspath(libs.jei.neoforge) { transitive = false }
     runtimeClasspath(libs.jei.neoforge) { transitive = false }
 
+    // EMI optional integration
+    compileOnly(libs.emi) { transitive = false }
+
     // Sodium, Iris
     compileClasspath(libs.sodium.api)
     compileClasspath(libs.sodium.mod)

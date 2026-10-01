@@ -16,6 +16,7 @@ public class AnvilCraftMixinPlugin implements IMixinConfigPlugin {
     private static boolean hasAE2 = false;
     private static boolean hasCerbonBetterBeacons = false;
     private static boolean hasJei = false;
+    private static boolean hasEmi = false;
     private static boolean hasSophisticatedCore = false;
     private static boolean hasJade = false;
     private static boolean hasArchitectury = false;
@@ -35,6 +36,8 @@ public class AnvilCraftMixinPlugin implements IMixinConfigPlugin {
         AnvilCraftMixinPlugin.hasCerbonBetterBeacons = this.isLoaded("com/cerbon/better_beacons/BetterBeacons.class");
         AnvilCraftMixinPlugin.hasJei = FMLLoader.getCurrent().getLoadingModList().getMods().stream()
             .anyMatch(it -> it.getModId().equals("jei"));
+        AnvilCraftMixinPlugin.hasEmi = FMLLoader.getCurrent().getLoadingModList().getMods().stream()
+            .anyMatch(it -> it.getModId().equals("emi"));
         AnvilCraftMixinPlugin.hasSophisticatedCore = this.isLoaded(
             "net/p3pp3rf1y/sophisticatedcore/inventory/ITrackedContentsItemResourceHandler.class");
         AnvilCraftMixinPlugin.hasJade = FMLLoader.getCurrent().getLoadingModList().getMods().stream()
@@ -62,6 +65,7 @@ public class AnvilCraftMixinPlugin implements IMixinConfigPlugin {
         if (mixinClassName.contains("Sophisticated")) {
             return AnvilCraftMixinPlugin.hasSophisticatedCore && (!mixinClassName.contains("Jei") || AnvilCraftMixinPlugin.hasJei);
         }
+        if (mixinClassName.contains("Jemi")) return AnvilCraftMixinPlugin.hasJei && AnvilCraftMixinPlugin.hasEmi;
         if (mixinClassName.contains("Jei")) return AnvilCraftMixinPlugin.hasJei;
         if (mixinClassName.contains("Architectury")) return AnvilCraftMixinPlugin.hasArchitectury;
         if (mixinClassName.contains("Sodium")) return AnvilCraftMixinPlugin.hasSodium;

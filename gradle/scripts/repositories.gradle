@@ -1,4 +1,11 @@
 repositories {
+    maven { // Optional EMI 26.1 API
+        name = "Curse Maven"
+        url = "https://www.cursemaven.com/"
+        content {
+            includeModule "curse.maven", "emi-unofficial-port-unstable-1544558"
+        }
+    }
     mavenLocal()
     exclusiveContent {
         forRepositories(

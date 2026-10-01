@@ -156,6 +156,8 @@
     "accessor.RedStoneWireBlockAccessor"
   ],
   "client": [
+    "compat.JemiPluginMixin",
+    "compat.JemiUtilMixin",
     "compat.SophisticatedJeiRecipeTransferMixin",
     "HumanoidModelMixin",
     "accessor.AbstractContainerMenuSlotsAccessor",

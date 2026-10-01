@@ -2,6 +2,7 @@
 minecraft = "26.1.2"
 neoForge = "26.1.2.75"
 jei = "29.6.2.31"
+emi = "8630349"
 jade = "26.1.1+neoforge"
 modDevGradle = "2.0.141"
 lombok = "8.7.1"
@@ -17,6 +18,7 @@ iris = "1.10.9+26.1-neoforge"
 curios = "15.0.0+26.1.2"
 
 [libraries]
+emi = { group = "curse.maven", name = "emi-unofficial-port-unstable-1544558", version.ref = "emi" }
 anvillib-registrum = { group = "dev.anvilcraft.lib", name = "anvillib-registrum-neoforge-26.1", version.ref = "anvillib-registrum" }
 anvillib-math = { group = "dev.anvilcraft.lib", name = "anvillib-math-neoforge-26.1", version.ref = "anvillib-math" }
 anvillib-multiblock = { group = "dev.anvilcraft.lib", name = "anvillib-multiblock-neoforge-26.1", version.ref = "anvillib-multiblock" }
