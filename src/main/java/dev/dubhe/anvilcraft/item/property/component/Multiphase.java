@@ -8,6 +8,7 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.dubhe.anvilcraft.client.init.ModKeyMappings;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
+import dev.dubhe.anvilcraft.util.ComponentCodecs;
 import dev.dubhe.anvilcraft.util.EnchantmentUtil;
 import net.minecraft.core.component.DataComponentGetter;
 import net.minecraft.core.component.DataComponents;
@@ -172,8 +173,10 @@ public record Multiphase(List<Phase> phases, int activePhase) implements Tooltip
 
     public record Phase(Optional<Component> customName, int repairCost, ItemEnchantments enchantments) {
         public static final Phase EMPTY = new Phase(Optional.empty(), 0, ItemEnchantments.EMPTY);
+        private static final Codec<Component> NAME_CODEC = Codec.either(ComponentCodecs.FLAT_CODEC, ComponentSerialization.CODEC)
+            .xmap(either -> either.map(component -> component, component -> component), Either::left);
         public static final MapCodec<Phase> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
-            ComponentSerialization.flatRestrictedCodec(Integer.MAX_VALUE).optionalFieldOf("custom_name").forGetter(Phase::customName),
+            Phase.NAME_CODEC.optionalFieldOf("custom_name").forGetter(Phase::customName),
             Codec.INT.fieldOf("repair_cost").forGetter(Phase::repairCost),
             ItemEnchantments.CODEC.fieldOf("enchantments").forGetter(Phase::enchantments)
         ).apply(instance, Phase::new));
