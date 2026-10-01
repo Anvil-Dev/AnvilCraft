@@ -10,6 +10,8 @@ public class ScreenLang {
      */
     @SuppressWarnings("checkstyle:LineLength")
     public static void init(RegistrumLangProvider provider) {
+        provider.add("screen.anvilcraft.spacetime_supercomputer.available_commands", "Available Commands");
+        provider.add("screen.anvilcraft.spacetime_supercomputer.history_commands", "History Commands");
         provider.add("tooltip.anvilcraft.storage.types", "Types:");
         provider.add("tooltip.anvilcraft.storage.types.value", "  %s / %s");
         provider.add("tooltip.anvilcraft.storage.types.value.infinite", "  %s / ∞");

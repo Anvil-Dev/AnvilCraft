@@ -6763,5 +6763,67 @@
       ]
     },
     "remaining": "Continue GUI atlas/layout differences, unresolved texture aliases and shader/resource consumers, then the wider completion audit. Whole-port completion remains unproven."
+  },
+  "supercomputer_ui_parity_2026_10_01": {
+    "source_commit": "5d948d0af7eb0efc5a0d3a18e33ecd5d49256249",
+    "status": "implemented_and_verified",
+    "implementation": [
+      "Restore two 120-pixel command panels with five rows each, the bottom command-input area, source action-button placement and matching background.",
+      "Restore the six-by-fifty-two charging texture and bottom-anchored vertical fill; align list scrolling, scrollbar hit areas and drag range with the new layout.",
+      "Restore translated centered list titles and complete command-suggestion grammar, including unavailable command families, while retaining disabled-row click rejection.",
+      "Port the shared CommandEntry clipped hover scrolling and preserve command selection, history ordering, resize and cancel behavior through native input/extraction APIs.",
+      "Use explicit opaque ARGB for the main title because the old RGB value is transparent in native GUI extraction."
+    ],
+    "validation": {
+      "paired_screen_states": 6,
+      "commands": [
+        "./gradlew.bat -PportValidation compileJava runData --console=plain",
+        "./gradlew.bat -PportValidation -I dev/porting/checkstyle.gradle compileJava checkPortJava --console=plain",
+        "./gradlew.bat -PportValidation -I dev/porting/supercomputer-ui-client.gradle runClient --console=plain",
+        "python dev/porting/compare_supercomputer_ui.py",
+        "git diff --check"
+      ],
+      "logs": {
+        "data": "build/porting/data-supercomputer-ui.log",
+        "final_compile_style": "build/porting/check-supercomputer-ui-title.log",
+        "native_client": "build/porting/client-supercomputer-ui-title-final.log",
+        "source_client": "build/porting/client-supercomputer-ui-reference-final.log",
+        "comparison": "build/porting/supercomputer-ui-comparison.json"
+      },
+      "coverage": [
+        "Actual client screens verify five rows per panel, source input geometry, disabled-row rejection, command insertion, newest-first history, resize preservation, suggestion grammar, both wheel regions, scrollbar dragging and cancel.",
+        "Progress 0/50/100 maps to heights 0/26/52. English, Chinese, scrolled and long-command-hover states are captured in both versions.",
+        "Interaction/state reports match exactly. Five static panel captures are pixel-identical; the hovered capture is pixel-identical outside the animated text row, whose scrolling branch is separately verified.",
+        "Final compile, datagen, Checkstyle and paired client runs pass. Generated changes are only the two list-title translations in English and upside-down English."
+      ],
+      "limits": [
+        "The scene uses a client-side block-entity fixture for deterministic state coverage; command execution/save packets were not newly exercised in this UI node.",
+        "Native world-background rendering is retained and excluded from panel comparison. No all-screen or all-resolution claim is made.",
+        "All scenes, screenshots and scripts remain local and ignored."
+      ]
+    },
+    "remaining": "Port the newly detected source commits through 5d948d0af, then resume Smart Block Placer GUI atlas/state differences and the wider completion audit."
+  },
+  "source_update_5d948d0af_detected_2026_10_01": {
+    "previous_source_commit": "cca4b2aac5328926fa88bc01d958d007ff6bfc2a",
+    "source_commit": "5d948d0af7eb0efc5a0d3a18e33ecd5d49256249",
+    "status": "detected_pending_port",
+    "commits": [
+      "d0311c65d",
+      "5d948d0af"
+    ],
+    "pending_groups": [
+      "Monolith and monolith-inner texture updates.",
+      "Four workstation deformation recipes, their recipe advancements and expanded four-to-one compression-item membership.",
+      "Resin failed-capture horizontal pull, scaled by mob size.",
+      "Replace prior radioactive neighbor-count decay with the latest rules: uranium is stable; plutonium becomes magma without adjacent water or waterlogged blocks.",
+      "Matching JEI decay displays, item tooltips and generated language changes.",
+      "Handbook updates, scanner page rename and new scanner illustration."
+    ],
+    "notes": [
+      "The task-owned 1.21 reference worktree was advanced to the new source tip while preserving its build settings and local fixtures.",
+      "The current supercomputer UI files were unchanged by these two source commits and were verified against the new tip.",
+      "Earlier milestone evidence is tied to its recorded source commit; these new changes are not yet claimed implemented."
+    ]
   }
 }

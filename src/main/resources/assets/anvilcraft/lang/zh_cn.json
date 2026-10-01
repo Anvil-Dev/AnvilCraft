@@ -2962,5 +2962,7 @@
   "anvilcraft.creative.section.items.combat": "战斗",
   "item.anvilcraft.cursed_golden_apple": "诅咒金苹果",
   "tooltip.anvilcraft.item.cursed_golden_apple": "吃下后传送\n主世界 <-> 下界\n末地 -> 重生点",
-  "tag.block.anvilcraft.landing_no_recipe": "当铁砧下落到这些方块上时，不会触发配方判断"
+  "tag.block.anvilcraft.landing_no_recipe": "当铁砧下落到这些方块上时，不会触发配方判断",
+  "screen.anvilcraft.spacetime_supercomputer.available_commands": "可用命令",
+  "screen.anvilcraft.spacetime_supercomputer.history_commands": "历史命令"
 }
