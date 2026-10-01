@@ -5080,7 +5080,7 @@ public class ModBlocks {
                 .add(LootItem.lootTableItem(ModItems.LEGACY_ESSENCE.get())
                     .when(LootItemRandomChanceCondition.randomChance(0.05F))))))
         .item()
-        .model((ctx, provider) -> provider.withExistingParent(ctx.getName(), AnvilCraft.of("block/monolith")))
+        .model((ctx, provider) -> provider.withExistingParent(ctx.getName(), AnvilCraft.of("block/monolith_inventory")))
         .build()
         .register();
 

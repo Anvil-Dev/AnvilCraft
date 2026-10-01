@@ -10,7 +10,7 @@
     "distance": 1,
     "spread": 1,
     "count": 1,
-    "preferred_biomes": [],
+    "preferred_biomes": ["anvilcraft:mun"],
     "salt": 0
   }
 }

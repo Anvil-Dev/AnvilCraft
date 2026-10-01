@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:block/template_single_face",
   "textures": {
-    "texture": "anvilcraft:block/monolith_inner"
+    "texture": "anvilcraft:block/monolith"
   }
 }

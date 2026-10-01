@@ -3,7 +3,9 @@
   "start_pool": "anvilcraft:the_monolith_pool",
   "size": 1,
   "max_distance_from_center": 80,
-  "biomes": "anvilcraft:mun",
+  "biomes": [
+    "anvilcraft:mun"
+  ],
   "step": "surface_structures",
   "terrain_adaptation": "beard_thin",
   "start_height": {
