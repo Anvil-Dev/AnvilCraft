@@ -5,6 +5,7 @@ import dev.anvilcraft.lib.v2.registrum.util.CreativeVariantPickerRegistry;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.inventory.PocketInventory;
 import dev.dubhe.anvilcraft.inventory.PocketSlot;
+import dev.dubhe.anvilcraft.mixin.accessor.AbstractContainerMenuSlotsAccessor;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
@@ -13,18 +14,24 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.ContainerInput;
+import net.minecraft.world.inventory.RemoteSlot;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.ItemStack;
 import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyArgs;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.invoke.arg.Args;
+
+import java.util.List;
+import java.util.function.Supplier;
 
 @Mixin(CreativeModeInventoryScreen.class)
 abstract class CreativePocketScreenMixin extends AbstractContainerScreen<CreativeModeInventoryScreen.ItemPickerMenu> {
@@ -69,6 +76,22 @@ abstract class CreativePocketScreenMixin extends AbstractContainerScreen<Creativ
             args.set(2, pocket.x < 0 ? pocket.x : pocket.x + 19);
             args.set(3, pocket.y - 30);
         }
+    }
+
+    @Inject(method = "selectTab", at = @At("TAIL"))
+    private void anvilcraft$resyncSlotLists(CallbackInfo ci) {
+        var accessor = (AbstractContainerMenuSlotsAccessor) this.menu;
+        int size = this.menu.slots.size();
+        CreativePocketScreenMixin.anvilcraft$resizeSlots(accessor.anvilcraft$getLastSlots(), size, () -> ItemStack.EMPTY);
+        var synchronizer = accessor.anvilcraft$getSynchronizer();
+        CreativePocketScreenMixin.anvilcraft$resizeSlots(accessor.anvilcraft$getRemoteSlots(), size,
+            synchronizer == null ? () -> RemoteSlot.PLACEHOLDER : synchronizer::createSlot);
+    }
+
+    @Unique
+    private static <T> void anvilcraft$resizeSlots(List<T> slots, int size, Supplier<T> empty) {
+        while (slots.size() < size) slots.add(empty.get());
+        while (slots.size() > size) slots.removeLast();
     }
 
     @Inject(method = "slotClicked", at = @At("HEAD"), cancellable = true)
