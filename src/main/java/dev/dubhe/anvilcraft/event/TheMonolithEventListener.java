@@ -11,6 +11,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.ai.village.poi.PoiManager;
 import net.minecraft.world.entity.ai.village.poi.PoiRecord;
@@ -93,7 +94,6 @@ public class TheMonolithEventListener {
 
     @SubscribeEvent
     public static void onRightClickBlock(PlayerInteractEvent.RightClickBlock event) {
-        if (!event.getLevel().dimension().equals(CelestialTravelManager.MUN_LEVEL)) return;
         BlockState state = event.getLevel().getBlockState(event.getPos());
         if (!state.is(ModBlocks.MONOLITH.get()) && !state.is(ModBlocks.MONOLITH_LINE.get())
             && !state.is(ModBlocks.GIANT_MONOLITH_LINE.get())) return;
@@ -105,6 +105,43 @@ public class TheMonolithEventListener {
         event.setCanceled(true);
         event.setCancellationResult(InteractionResult.SUCCESS);
         if (!(event.getEntity() instanceof ServerPlayer player) || !player.isAlive()) return;
+        if (event.getHand() != InteractionHand.MAIN_HAND) return;
+        if (!event.getLevel().dimension().equals(CelestialTravelManager.MUN_LEVEL)) {
+            java.time.LocalDate now = java.time.LocalDate.now();
+            boolean isAprilFools = now.getMonth() == java.time.Month.APRIL && now.getDayOfMonth() == 1;
+            String key;
+            if (isAprilFools) {
+                String[] jokes = {
+                    "message.anvilcraft.monolith.joke.chute_steal",
+                    "message.anvilcraft.monolith.joke.reinforced_concrete"
+                };
+                key = jokes[event.getLevel().random.nextInt(jokes.length)];
+            } else {
+                String[] knowledge = {
+                    "message.anvilcraft.monolith.knowledge.celestial_forging_anvil_gravity",
+                    "message.anvilcraft.monolith.knowledge.celestial_forging_anvil_portal",
+                    "message.anvilcraft.monolith.knowledge.corrupted_beacon",
+                    "message.anvilcraft.monolith.knowledge.crab_claw",
+                    "message.anvilcraft.monolith.knowledge.ember_metal",
+                    "message.anvilcraft.monolith.knowledge.filter",
+                    "message.anvilcraft.monolith.knowledge.fish_tank",
+                    "message.anvilcraft.monolith.knowledge.flying_anvil_hammer",
+                    "message.anvilcraft.monolith.knowledge.heater",
+                    "message.anvilcraft.monolith.knowledge.horizontal_anvil_damage",
+                    "message.anvilcraft.monolith.knowledge.melt_gem",
+                    "message.anvilcraft.monolith.knowledge.menger_sponge",
+                    "message.anvilcraft.monolith.knowledge.player_acceleration",
+                    "message.anvilcraft.monolith.knowledge.projectile_acceleration",
+                    "message.anvilcraft.monolith.knowledge.rocket_jump",
+                    "message.anvilcraft.monolith.knowledge.vault_reset",
+                    "message.anvilcraft.monolith.knowledge.villager_reset",
+                    "message.anvilcraft.monolith.knowledge.waterlogged_acceleration_ring"
+                };
+                key = knowledge[event.getLevel().random.nextInt(knowledge.length)];
+            }
+            player.sendSystemMessage(Component.translatable(key));
+            return;
+        }
         long now = player.serverLevel().getGameTime();
         Long firstTouch = RETURN_TOUCHES.get(player);
         if (firstTouch == null || now < firstTouch || now - firstTouch > RETURN_CONFIRMATION_TICKS) {
