@@ -43,6 +43,8 @@ public final class EquipmentAbilities {
     public static final int CHARGE_DECAY_TICKS = 10;
     /** 满蓄力的跳跃高度相对普通跳跃的倍率。 */
     private static final double MAX_JUMP_HEIGHT_MULTIPLIER = 3.5;
+    /** 高于 HUD 与夜视的 200 tick 闪烁阈值，预留客户端倒计时余量。 */
+    private static final int NIGHT_VISION_REFRESH_TICKS = 210;
     private static final ResourceLocation FLIGHT_STABILITY = AnvilCraft.of("flight_stability");
     private static final Map<Player, Integer> CHARGE = new WeakHashMap<>();
     /** 停止蓄力起的经过 tick 数；有记录即表示处于停留 / 衰减阶段。 */
@@ -303,8 +305,8 @@ public final class EquipmentAbilities {
             HELMET_NIGHT_VISION.remove(player);
             return;
         }
-        if (current != null && !current.endsWithin(200)) return;
-        MobEffectInstance refreshed = new MobEffectInstance(MobEffects.NIGHT_VISION, 200, 0, false, false, true);
+        if (current != null && !current.endsWithin(NIGHT_VISION_REFRESH_TICKS)) return;
+        MobEffectInstance refreshed = new MobEffectInstance(MobEffects.NIGHT_VISION, NIGHT_VISION_REFRESH_TICKS, 0, false, false, true);
         HELMET_NIGHT_VISION.put(player, refreshed);
         player.addEffect(refreshed);
         current = player.getEffect(MobEffects.NIGHT_VISION);
