@@ -92,7 +92,10 @@
         <!-- 树遍历器 -->
         <module name="OuterTypeFilename"/>
         <!-- 外部类型文件名检查 -->
-        <module name="RequireThis"/>
+        <module name="RequireThis">
+            <!-- 检查所有实例方法和变量 -->
+            <property name="validateOnlyOverlapping" value="false"/>
+        </module>
         <!-- 需要 THIS -->
         <module name="MatchXpath">
             <!-- XPath匹配 -->
