@@ -31,7 +31,7 @@ items:
 # 发电
 
 - 每个<ref item="anvilcraft:plutonium_block"/>为<ref item="anvilcraft:heat_collector"/>提供 8kW 的发电量
-- 时移<ref item="anvilcraft:plutonium_block"/>会在一瞬间爆发出通常需要数万年才能释放的能量，将与锅水平相邻的[可加热方块](../001_feature/101_heated_block.md#可加热方块)加热为<color=#ee7744>白炽</color>并持续10min，合计 1024kW
+- 时移<ref item="anvilcraft:plutonium_block"/>会在一瞬间爆发出通常需要数万年才能释放的能量，将水平相邻的[可加热方块](../001_feature/101_heated_block.md#可加热方块)加热为<color=#ee7744>白炽</color>并持续10min，合计 1024kW
 - 通过铁砧撞击<ref item="anvilcraft:plutonium_block"/>，加热至多16个<ref item="anvilcraft:overheated_ember_metal_block"/>并持续60s，合计 16384kW
 
 <row halign="center">
@@ -39,12 +39,11 @@ items:
 <recipe id="anvilcraft:anvil_collision/anvil_tier_2_and_plutonium_block_256"/>
 </row>
 
-
 # 核辐射
 
-携带18组任意 钚或铀 物品会受到**凋零**效果
+携带18组任意钚或铀物品会受到**凋零**效果
 
-# 放射性衰变
+# 熔毁
 
-- <ref item="anvilcraft:plutonium_block"/>拥有[放射性衰变](301_uranium.md#放射性衰变)特性
-- <ref item="anvilcraft:plutonium_block"/>会衰变为<ref item="anvilcraft:uranium_block"/>
+- <ref item="anvilcraft:plutonium_block"/>属于 *放射性方块*
+- 六面均未接触水或含水方块时，<ref item="anvilcraft:plutonium_block"/>会熔毁为<ref item="minecraft:magma_block"/>
