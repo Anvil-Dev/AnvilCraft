@@ -11,6 +11,17 @@ import net.neoforged.fml.config.ModConfig;
 
 @Config(name = AnvilCraft.MOD_ID, type = ModConfig.Type.CLIENT)
 public class AnvilCraftClientConfig {
+    @Comment("In the storage screen, swap the fluid port bucket actions: by default left-click pours the held "
+        + "fluid bucket into a fluid port and right-click stores the bucket as a normal item; enable this to swap them")
+    public boolean invertFluidPortBucketAction = false;
+
+    @Comment("Add a tooltip line that shows storage stored ID")
+    public boolean showStorageStoredId = false;
+
+    @Comment("Vanilla keeps the original Overworld sky. Special replaces only the sun and moon with models, "
+        + "including libration and a continuous eight-day lunar phase cycle. World lighting is unchanged.")
+    public OverworldSkyMode overworldSkyMode = OverworldSkyMode.VANILLA;
+
     @Comment("Use the legacy flat creative inventory layout instead of the sectioned layout with banners")
     public boolean useLegacyCreativeTab = false;
 
@@ -30,6 +41,13 @@ public class AnvilCraftClientConfig {
         + "Vanilla uses the vanilla rendering pipeline without Mun shaders, retaining the cloudless Mun sky, Overworld and moving stars. "
         + "Rendering failures switch this setting to Vanilla. Shadow range is limited by render distance.")
     public MunLightingQuality munLightingQuality = MunLightingQuality.STANDARD;
+
+    public enum OverworldSkyMode implements TranslatableEnum {
+        @SerializedName("Vanilla")
+        VANILLA,
+        @SerializedName("Special")
+        SPECIAL
+    }
 
     public enum MunLightingQuality implements TranslatableEnum {
         @SerializedName("Potato")

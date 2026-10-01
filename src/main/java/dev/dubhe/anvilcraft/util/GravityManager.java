@@ -4,6 +4,7 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.amulet.AmuletManager;
 import dev.dubhe.anvilcraft.api.amulet.ctx.AmuletEffectContext;
 import dev.dubhe.anvilcraft.api.entity.IAnvilCraftEntityExtension;
+import dev.dubhe.anvilcraft.api.injection.entity.IEntityExtension;
 import dev.dubhe.anvilcraft.block.entity.CelestialForgingAnvilBlockEntity;
 import dev.dubhe.anvilcraft.block.special.BlackHoleBlock;
 import dev.dubhe.anvilcraft.block.special.WhiteHoleBlock;
@@ -21,6 +22,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.item.FallingBlockEntity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
@@ -266,11 +268,125 @@ public final class GravityManager {
      * 处理实体与可见天体的碰撞，并对相邻两次常规采样之间被完整穿过的引力场进行积分。
      */
     public static Vec3 applyMovementEffects(Entity entity, Vec3 movement) {
+        return applyMovementEffects(entity, MoverType.SELF, movement);
+    }
+
+    public static Vec3 applyMovementEffects(Entity entity, MoverType moverType, Vec3 movement) {
+        return applyMovementEffects(entity, moverType, movement, true);
+    }
+
+    private static Vec3 applyMovementEffects(Entity entity, MoverType moverType, Vec3 movement, boolean legacyEffects) {
         boolean flyingPlayer = entity instanceof Player player && player.getAbilities().flying;
+        OrbitalMotion orbit = getOrbitalMotion(entity);
+        if (orbit != null && orbit.enabled && !orbit.handled) {
+            orbit.handled = true;
+            if (moverType == MoverType.SELF && canIntegrateOrbit(entity)
+                && entity.getBoundingBox().getCenter().equals(orbit.origin)) {
+                double scalar = getGravityType(entity).getScalar();
+                double baseGravity = GravitySourceManager.getEntityG(entity);
+                double lightSpeed = Math.clamp(AnvilCraft.CONFIG.orbitalSpeedOfLight, 16, 4096);
+                double inverseLightSpeedSquared = AnvilCraft.CONFIG.relativisticPrecession
+                    ? 1.0 / (lightSpeed * lightSpeed) : 0;
+                OrbitalIntegrator.Step step = OrbitalIntegrator.integrate(
+                    orbit.origin, movement, Math.clamp(AnvilCraft.CONFIG.orbitIntegrationSubsteps, 2, 64),
+                    (position, velocity) -> GravitySourceManager.calculateOrbitalGravity(
+                        entity.level(), position, velocity, baseGravity, scalar, inverseLightSpeedSquared
+                    )
+                );
+                if (step != null) {
+                    entity.setDeltaMovement(entity.getDeltaMovement().add(step.velocity().subtract(movement)));
+                    return GravitySourceManager.clipMovementToBodies(entity, step.movement());
+                }
+            }
+            // A mid-tick teleport, collision-mode change or failed integration must not lose the deferred kick.
+            if (moverType == MoverType.SELF) movement = movement.add(orbit.deferredGravity);
+            entity.setDeltaMovement(entity.getDeltaMovement().add(orbit.deferredGravity));
+            orbit.enabled = false;
+        }
+        if (!legacyEffects) return movement;
         Vec3 collisionResolvedMovement = entity.noPhysics || entity.isSpectator() || flyingPlayer
             ? movement
             : GravitySourceManager.clipMovementToBodies(entity, movement);
         return applySweptGravity(entity, collisionResolvedMovement, flyingPlayer);
+    }
+
+    public static Vec3 applyOrbitalMovementEffects(Entity entity, MoverType moverType, Vec3 movement) {
+        return applyMovementEffects(entity, moverType, movement, false);
+    }
+
+    /** Defers only the registered field; dimension gravity and extension gravity keep their original timing. */
+    public static double deferVerticalGravity(Entity entity, double gravity, double baseGravity) {
+        OrbitalMotion orbit = prepareOrbitalMotion(entity);
+        if (orbit == null || !orbit.enabled || orbit.handled) return gravity;
+        if (Math.abs(baseGravity) != GravitySourceManager.getEntityG(entity)) {
+            entity.setDeltaMovement(entity.getDeltaMovement().add(orbit.deferredGravity));
+            orbit.enabled = false;
+            return gravity;
+        }
+        Vec3 local = GravitySourceManager.calculateGravityVector(
+            entity.level(), entity.getBoundingBox().getCenter(), Math.abs(baseGravity)
+        ).scale(getGravityType(entity).getScalar());
+        orbit.deferredGravity = orbit.deferredGravity.add(0, local.y, 0);
+        return gravity + local.y;
+    }
+
+    public static Vec3 deferHorizontalGravity(Entity entity, Vec3 gravity) {
+        OrbitalMotion orbit = prepareOrbitalMotion(entity);
+        if (orbit == null || !orbit.enabled) return gravity;
+        Vec3 local = GravitySourceManager.calculateGravityVector(
+            entity.level(), entity.getBoundingBox().getCenter(), GravitySourceManager.getEntityG(entity)
+        ).scale(getGravityType(entity).getScalar());
+        if (!orbit.handled) orbit.deferredGravity = orbit.deferredGravity.add(local.x, 0, local.z);
+        return gravity.subtract(local.x, 0, local.z);
+    }
+
+    private static @Nullable OrbitalMotion getOrbitalMotion(Entity entity) {
+        if (!(entity instanceof IEntityExtension extension)) return null;
+        OrbitalMotion orbit = extension.anvilcraft$getOrbitalMotion();
+        return orbit != null && orbit.tick == entity.tickCount ? orbit : null;
+    }
+
+    private static @Nullable OrbitalMotion prepareOrbitalMotion(Entity entity) {
+        if (!(entity instanceof IEntityExtension extension)) return null;
+        OrbitalMotion orbit = extension.anvilcraft$getOrbitalMotion();
+        if (orbit == null) return null;
+        if (orbit.tick != entity.tickCount) {
+            orbit.tick = entity.tickCount;
+            orbit.enabled = canIntegrateOrbit(entity);
+            orbit.handled = false;
+            orbit.origin = entity.getBoundingBox().getCenter();
+            orbit.deferredGravity = Vec3.ZERO;
+        }
+        return orbit;
+    }
+
+    private static boolean canIntegrateOrbit(Entity entity) {
+        // These entities apply gravity before SELF movement. Living entities and projectiles use different tick orders.
+        if (!(entity instanceof ItemEntity || entity instanceof FallingBlockEntity)
+            || AnvilCraft.CONFIG.orbitIntegrationSubsteps <= 1
+            || entity.isNoGravity() || entity.noPhysics || entity.isSpectator() || entity.isPassenger()
+            || entity.onGround() || entity.horizontalCollision || entity.verticalCollision
+            || entity.isInWater() || entity.isInLava() || AccelerateManager.isControlledByRing(entity)) {
+            return false;
+        }
+        GravityFieldIndex index = GRAVITY_FIELDS.get(entity.level());
+        if (index == null) return false;
+        Vec3 position = entity.getBoundingBox().getCenter();
+        for (GravitySource source : index.sourcesAt(position)) {
+            if (source.type().strength() != 0 && position.distanceToSqr(source.center()) <= source.type().radiusSqr()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /** Per-entity, per-tick state also covers falling blocks whose horizontal kick occurs after movement. */
+    public static final class OrbitalMotion {
+        private int tick = Integer.MIN_VALUE;
+        private boolean enabled;
+        private boolean handled;
+        private Vec3 origin = Vec3.ZERO;
+        private Vec3 deferredGravity = Vec3.ZERO;
     }
 
     public static void applyBodyContactEffects(Entity entity) {
@@ -478,6 +594,24 @@ public final class GravityManager {
                 factor = (g * source.type().strength()) / (Math.max(radiusSquare, 1.0) * dist);
             }
             return offset.scale(factor);
+        }
+
+        private static Vec3 calculateOrbitalGravity(
+            Level level, Vec3 position, Vec3 velocity, double baseGravity, double scalar, double inverseLightSpeedSquared
+        ) {
+            GravityFieldIndex index = GRAVITY_FIELDS.get(level);
+            if (index == null) return Vec3.ZERO;
+            Vec3 gravity = Vec3.ZERO;
+            for (GravitySource source : index.sourcesAt(position)) {
+                Vec3 force = calculateGravityVector(source, position, baseGravity).scale(scalar);
+                Vec3 offset = source.center().subtract(position);
+                if (source.type().strength() >= 10 && scalar > 0
+                    && offset.lengthSqr() >= source.type().bodyRadius() * source.type().bodyRadius()) {
+                    force = force.scale(OrbitalIntegrator.relativisticFactor(offset, velocity, inverseLightSpeedSquared));
+                }
+                gravity = gravity.add(force);
+            }
+            return gravity;
         }
 
         private static Vec3 clipMovementToBodies(Entity entity, Vec3 movement) {

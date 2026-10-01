@@ -68,7 +68,6 @@ public class PlasmaJetsParticle extends SingleQuadParticle {
         this.setColor(r, g, b);
     }
 
-    // @OnlyIn(Dist.CLIENT)
     public static class Provider implements ParticleProvider<SimpleParticleType> {
         private final SpriteSet sprites;
 

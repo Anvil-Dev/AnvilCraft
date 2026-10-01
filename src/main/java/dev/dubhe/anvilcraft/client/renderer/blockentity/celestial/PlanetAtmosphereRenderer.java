@@ -6,6 +6,7 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.client.init.ModRenderPipelines;
 import dev.dubhe.anvilcraft.client.init.ModRenderTypes;
 import dev.dubhe.anvilcraft.config.AnvilCraftClientConfig.CelestialRenderingMode;
+import dev.dubhe.anvilcraft.integration.iris.CelestialIrisRenderer;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.rendertype.RenderSetup;
 import net.minecraft.client.renderer.rendertype.RenderType;
@@ -57,7 +58,7 @@ public final class PlanetAtmosphereRenderer {
         final float red = color[0];
         final float green = color[1];
         final float blue = color[2];
-        collector.submitCustomGeometry(pose, type, (matrix, vertices) -> {
+        CelestialIrisRenderer.submit(pose, collector, type, (matrix, vertices) -> {
             Vector3f point = new Vector3f();
             for (int axis = 0; axis < 3; axis++) {
                 for (int side = -1; side <= 1; side += 2) {
@@ -71,7 +72,7 @@ public final class PlanetAtmosphereRenderer {
                     }
                 }
             }
-        });
+        }, true);
     }
 
     private static boolean ready() {
@@ -93,9 +94,9 @@ public final class PlanetAtmosphereRenderer {
         pose.translate(0.5, 0.5, 0.5);
         pose.scale(1.125F, 1.125F, 1.125F);
         pose.translate(-0.5, -0.5, -0.5);
-        collector.submitCustomGeometry(pose, ModRenderTypes.CELESTIAL_ATMOSPHERE,
+        CelestialIrisRenderer.submit(pose, collector, ModRenderTypes.CELESTIAL_ATMOSPHERE,
             (matrix, vertices) -> CelestialBodyRenderer.renderAtmosphereCube(matrix, vertices, color, 0.2F,
-                LightCoordsUtil.FULL_BRIGHT, OverlayTexture.NO_OVERLAY));
+                LightCoordsUtil.FULL_BRIGHT, OverlayTexture.NO_OVERLAY), true);
         pose.popPose();
     }
 

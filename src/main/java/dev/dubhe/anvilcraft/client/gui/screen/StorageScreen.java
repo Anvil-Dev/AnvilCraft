@@ -379,7 +379,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
             20,
             18,
             40,
-            _ -> this.deposit(true, this.minecraft.hasShiftDown())
+            _ -> this.deposit(this.fluidPourButton() == 0, this.minecraft.hasShiftDown())
         ));
         this.addRenderableWidget(new TexturedButton(
             this.sx(278),
@@ -1241,7 +1241,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
         this.lastCraftingClickSlot = -1;
         if (event.button() == 1 && MathUtil.isInRange(event.x(), event.y(),
             this.sx(278), this.top + 139, this.sx(296), this.top + 159)) {
-            this.deposit(false, event.hasShiftDown());
+            this.deposit(this.fluidPourButton() == 1, event.hasShiftDown());
             return true;
         }
         if (this.dispatchMouseClicked(event, doubleClick)) {
@@ -1251,7 +1251,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
         if (event.button() == 0 || event.button() == 1) {
             Integer fluidSlot = this.getFluidSlotAt(event.x(), event.y());
             if (fluidSlot != null && this.minecraft.gameMode != null) {
-                if (event.button() == 1) {
+                if (event.button() != this.fluidPourButton()) {
                     if (!this.carried.isEmpty()) this.interactWithStorage(fluidSlot, event.button(), StorageInput.PICKUP);
                     return true;
                 }
@@ -1278,7 +1278,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
             ItemStack clickedItem = this.player.getInventory().getItem(slot);
             if (!clickedItem.isEmpty()) this.lastQuickMoved = clickedItem.copy();
             if (event.hasAltDown()) {
-                this.moveSameToStorage(slot, event.button() == 0);
+                this.moveSameToStorage(slot, event.button() == this.fluidPourButton());
                 return true;
             }
             boolean inventoryDoubleClick = event.button() == 0 && this.isInventoryDoubleClick(slot);
@@ -1286,7 +1286,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
             if (event.hasShiftDown()) {
                 if (inventoryDoubleClick) {
                     int target = this.findInventorySlotWith(this.lastQuickMoved);
-                    if (target >= 0) this.moveSameToStorage(target, true);
+                    if (target >= 0) this.moveSameToStorage(target, this.fluidPourButton() == 0);
                     return true;
                 }
                 if (event.button() == 0 && this.carried.isEmpty()) {
@@ -2173,6 +2173,10 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
         graphics.nextStratum();
         graphics.blitSprite(RenderPipelines.GUI_TEXTURED, StorageScreen.FLYOUT_BACK, x, y, width, height, color);
         graphics.text(this.font, this.flyoutMessage.copy().withColor(0xEE0000), x + 3, y + 3, color, false);
+    }
+
+    private int fluidPourButton() {
+        return AnvilCraft.CLIENT_CONFIG.invertFluidPortBucketAction ? 1 : 0;
     }
 
     private void deposit(boolean pour, boolean all) {

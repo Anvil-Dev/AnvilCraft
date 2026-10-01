@@ -10,6 +10,23 @@ import net.neoforged.fml.config.ModConfig;
 
 @Config(name = AnvilCraft.MOD_ID, type = ModConfig.Type.SERVER)
 public class AnvilCraftServerConfig {
+    @Comment("Orbital integration substeps per tick for freely falling items and blocks; 1 restores legacy motion")
+    @BoundedDiscrete(min = 1, max = 64)
+    public int orbitIntegrationSubsteps = 8;
+
+    @Comment("Enable weak Schwarzschild periapsis advance around attractive gravity sources of strength at least 10")
+    public boolean relativisticPrecession = true;
+
+    @Comment("Effective speed of light in blocks per tick for orbital precession; larger values weaken the effect")
+    @BoundedDiscrete(min = 16, max = 4096)
+    public int orbitalSpeedOfLight = 64;
+
+    @Comment("Block Devourer will not devour containers (blocks that can store items) when enabled")
+    public boolean blockDevourerProtectContainers = false;
+
+    @Comment("Allow eternal items to be killed by the void (falling out of the world)")
+    public boolean eternalItemsVoidKillable = false;
+
     @Comment("Maximum selectable level in auto enchanting table's liquid enchantment mode")
     @BoundedDiscrete(min = 1, max = 15)
     public int liquidEnchantmentMaxLevel = 15;

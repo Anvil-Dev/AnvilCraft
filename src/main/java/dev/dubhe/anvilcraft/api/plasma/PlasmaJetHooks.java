@@ -7,7 +7,6 @@ import com.mojang.serialization.MapLike;
 import com.mojang.serialization.RecordBuilder;
 import dev.dubhe.anvilcraft.api.heat.HeaterInfo;
 import dev.dubhe.anvilcraft.block.entity.PlasmaJetsBlockEntity;
-import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.particles.ParticleOptions;
@@ -181,7 +180,7 @@ public final class PlasmaJetHooks {
         return result;
     }
 
-    public static void extraParticles(PlasmaJetsBlockEntity jet, ClientLevel level) {
+    public static void extraParticles(PlasmaJetsBlockEntity jet, Level level) {
         for (PlasmaJetBehavior behavior : BEHAVIORS) {
             behavior.extraParticles(jet, level);
         }

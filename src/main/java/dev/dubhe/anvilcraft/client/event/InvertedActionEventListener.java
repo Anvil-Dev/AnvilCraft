@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.client.event;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.client.AnvilCraftClient;
 import dev.dubhe.anvilcraft.client.rpc.BundleLikeClientStub;
+import dev.dubhe.anvilcraft.client.rpc.StorageClientStub;
 import dev.dubhe.anvilcraft.rpc.BundleLikeServerStub;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientPacketListener;
@@ -17,6 +18,7 @@ import org.jspecify.annotations.Nullable;
 public final class InvertedActionEventListener {
     private static @Nullable ClientPacketListener lastConnection;
     private static boolean lastInverted;
+    private static boolean lastBucketInverted;
 
     private InvertedActionEventListener() {
     }
@@ -32,6 +34,11 @@ public final class InvertedActionEventListener {
         if (client.player == null || connection == null) return;
         boolean inverted = isInverted();
         BundleLikeServerStub.setClientInverted(inverted);
+        boolean bucketInverted = AnvilCraftClient.CONFIG.invertFluidPortBucketAction;
+        if (lastConnection != connection || lastBucketInverted != bucketInverted) {
+            StorageClientStub.updateInvertedBucketAction(bucketInverted);
+            lastBucketInverted = bucketInverted;
+        }
         if (lastConnection != connection || lastInverted != inverted) {
             BundleLikeClientStub.updateInverted(inverted);
             lastConnection = connection;

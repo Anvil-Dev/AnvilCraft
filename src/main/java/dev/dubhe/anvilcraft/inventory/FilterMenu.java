@@ -97,7 +97,6 @@ public class FilterMenu extends AbstractContainerMenu {
         super.setSynchronizer(synchronizer);
     }
 
-    // @OnlyIn(Dist.CLIENT)
     public void sync() {
         this.container.sync();
     }

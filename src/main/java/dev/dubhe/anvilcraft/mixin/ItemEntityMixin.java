@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.mixin;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.event.ItemEntityEvent;
 import dev.dubhe.anvilcraft.api.injection.entity.IItemEntityExtension;
 import dev.dubhe.anvilcraft.block.entity.ItemCollectorBlockEntity;
@@ -90,7 +91,8 @@ abstract class ItemEntityMixin extends Entity implements IItemEntityExtension {
 
     @Inject(method = "tick", at = @At(value = "HEAD"))
     private void voidResistant(CallbackInfo ci) {
-        if (!this.getItem().is(ModItemTags.VOID_RESISTANT) && !this.getItem().has(ModComponents.ETERNAL)) return;
+        if (!this.getItem().is(ModItemTags.VOID_RESISTANT)
+            && (!this.getItem().has(ModComponents.ETERNAL) || AnvilCraft.CONFIG.eternalItemsVoidKillable)) return;
         if (this.getY() < this.level().getMinY() + 5) {
             double dy = (this.level().getMinY() + 4 - this.getY()) * 0.01;
             dy += this.getDeltaMovement().y * -0.1;
@@ -179,6 +181,12 @@ abstract class ItemEntityMixin extends Entity implements IItemEntityExtension {
     }
 
     @Override
+    protected void onBelowWorld() {
+        if (this.getItem().has(ModComponents.ETERNAL) && !AnvilCraft.CONFIG.eternalItemsVoidKillable) return;
+        super.onBelowWorld();
+    }
+
+    @Override
     public PushReaction getPistonPushReaction() {
         if (this.getItem().is(ModItems.NEUTRONIUM_INGOT)) return PushReaction.IGNORE;
         return super.getPistonPushReaction();
@@ -191,6 +199,7 @@ abstract class ItemEntityMixin extends Entity implements IItemEntityExtension {
     })
     @Unique
     private void anvilcraft$neutroniumMove(MoverType moverType, Vec3 motion) {
+        motion = GravityManager.applyOrbitalMovementEffects(this, moverType, motion);
 
         // 代替原版move方法中的collide调用
         AABB box = this.getBoundingBox().expandTowards(motion);

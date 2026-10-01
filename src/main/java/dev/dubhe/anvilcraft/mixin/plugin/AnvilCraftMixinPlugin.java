@@ -19,6 +19,7 @@ public class AnvilCraftMixinPlugin implements IMixinConfigPlugin {
     private static boolean hasEmi = false;
     private static boolean hasSophisticatedCore = false;
     private static boolean hasJade = false;
+    private static boolean hasIris = false;
     private static boolean hasArchitectury = false;
     private static boolean hasSodium = false;
 
@@ -40,6 +41,7 @@ public class AnvilCraftMixinPlugin implements IMixinConfigPlugin {
             .anyMatch(it -> it.getModId().equals("emi"));
         AnvilCraftMixinPlugin.hasSophisticatedCore = this.isLoaded(
             "net/p3pp3rf1y/sophisticatedcore/inventory/ITrackedContentsItemResourceHandler.class");
+        AnvilCraftMixinPlugin.hasIris = this.isLoaded("net/irisshaders/iris/pipeline/IrisRenderingPipeline.class");
         AnvilCraftMixinPlugin.hasJade = FMLLoader.getCurrent().getLoadingModList().getMods().stream()
             .anyMatch(it -> it.getModId().equals("jade"));
         AnvilCraftMixinPlugin.hasArchitectury = this.isLoaded("dev/architectury/neoforge/ArchitecturyNeoForge");
@@ -68,6 +70,7 @@ public class AnvilCraftMixinPlugin implements IMixinConfigPlugin {
         if (mixinClassName.contains("Jemi")) return AnvilCraftMixinPlugin.hasJei && AnvilCraftMixinPlugin.hasEmi;
         if (mixinClassName.contains("Jei")) return AnvilCraftMixinPlugin.hasJei;
         if (mixinClassName.contains("Architectury")) return AnvilCraftMixinPlugin.hasArchitectury;
+        if (mixinClassName.contains("Iris")) return AnvilCraftMixinPlugin.hasIris;
         if (mixinClassName.contains("Sodium")) return AnvilCraftMixinPlugin.hasSodium;
         return true;
     }

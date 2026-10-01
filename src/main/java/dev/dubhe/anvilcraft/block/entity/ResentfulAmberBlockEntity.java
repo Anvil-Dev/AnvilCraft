@@ -30,7 +30,6 @@ public class ResentfulAmberBlockEntity extends MobAmberBlockEntity {
         return new ResentfulAmberBlockEntity(type, pos, blockState);
     }
 
-    // @OnlyIn(Dist.CLIENT)
     public void clientTick(Level level, BlockPos blockPos) {
         Entity displayEntity = this.getOrCreateDisplayEntity(level);
         if (displayEntity == null) return;

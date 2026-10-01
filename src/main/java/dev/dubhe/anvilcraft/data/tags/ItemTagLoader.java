@@ -268,6 +268,7 @@ public class ItemTagLoader {
             .addElement(ItemTagLoader.findId(Items.DRIPSTONE_BLOCK))
             .addElement(ItemTagLoader.findId(Items.GLOWSTONE))
             .addElement(ItemTagLoader.findId(Items.HONEYCOMB_BLOCK))
+            .addElement(ItemTagLoader.findId(Items.LEATHER))
             .addElement(ItemTagLoader.findId(Items.NETHER_BRICKS))
             .addElement(ItemTagLoader.findId(Items.PRISMARINE))
             .addElement(ItemTagLoader.findId(Items.QUARTZ_BLOCK))

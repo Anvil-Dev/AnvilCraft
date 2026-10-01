@@ -17,6 +17,10 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 public final class StorageClientStub {
+    public static void updateInvertedBucketAction(boolean inverted) {
+        RPC.call(RpcTarget.server(), StorageServerStub::updateInvertedBucketAction, playerId(), inverted);
+    }
+
     public static CompletableFuture<StorageServerStub.StorageUsage> loadUsage(UUID storageId) {
         return RPC.invoke(RpcTarget.server(), StorageServerStub::getStorageUsage, StorageClientStub.playerId(), storageId);
     }

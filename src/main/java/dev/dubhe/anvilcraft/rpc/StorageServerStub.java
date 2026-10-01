@@ -110,6 +110,17 @@ import java.util.function.Function;
 public final class StorageServerStub {
     public static final StreamCodec<RegistryFriendlyByteBuf, List<ItemStack>> ITEM_STACK_LIST_STREAM_CODEC =
         ItemStack.OPTIONAL_STREAM_CODEC.apply(ByteBufCodecs.list());
+    private static final Map<UUID, Boolean> INVERTED_BUCKET_ACTION = new HashMap<>();
+
+    @RemoteCallable(validator = BundleLikeServerStub.OwnActionValidator.class)
+    public static void updateInvertedBucketAction(UUID playerId, boolean inverted) {
+        INVERTED_BUCKET_ACTION.put(playerId, inverted);
+    }
+
+    private static boolean shouldPourFluid(UUID playerId, int button) {
+        return button == (Boolean.TRUE.equals(INVERTED_BUCKET_ACTION.get(playerId)) ? 1 : 0);
+    }
+
     private static final int MAX_PLAYER_STUBS = 5;
     private static final int MAX_UNDO_RECORDS = 4;
     private static final int MAX_SYNC_SLOTS = 256;
@@ -235,7 +246,7 @@ public final class StorageServerStub {
         boolean changed = false;
         FluidNotice notice = FluidNotice.NONE;
         if (action == StorageInput.QUICK_MOVE_TO_STORAGE) {
-            changed = StorageServerStub.moveInventoryStackToStorage(player, view, slot, button == 0);
+            changed = StorageServerStub.moveInventoryStackToStorage(player, view, slot, shouldPourFluid(playerId, button));
         } else if (action == StorageInput.CLONE) {
             if (
                 player.hasInfiniteMaterials()
@@ -264,7 +275,7 @@ public final class StorageServerStub {
             }
         } else if (!carried.isEmpty()) {
             int amount = button == 0 ? carried.getCount() : 1;
-            int poured = button == 0 ? StorageServerStub.pourIntoFluidPort(player, view, carried, amount) : 0;
+            int poured = shouldPourFluid(playerId, button) ? StorageServerStub.pourIntoFluidPort(player, view, carried, amount) : 0;
             if (poured > 0) {
                 if (carried.isEmpty()) player.inventoryMenu.setCarried(ItemStack.EMPTY);
                 changed = true;
@@ -351,7 +362,7 @@ public final class StorageServerStub {
         boolean changed = false;
         for (int slot : slots) {
             if (slot < 0 || slot >= Inventory.INVENTORY_SIZE || !visited.add(slot)) continue;
-            changed |= StorageServerStub.moveInventoryStackToStorage(player, view, slot, true, moved) > 0;
+            changed |= StorageServerStub.moveInventoryStackToStorage(player, view, slot, shouldPourFluid(playerId, 0), moved) > 0;
         }
         if (changed) {
             StorageServerStub.recordUndo(stub, moved);
@@ -1523,12 +1534,14 @@ public final class StorageServerStub {
 
     public static void remove(UUID playerId) {
         StorageServerStub.STUBS.removeAll(playerId);
+        INVERTED_BUCKET_ACTION.remove(playerId);
         CRAFTING_BATCHES.keySet().removeIf(key -> key.player.equals(playerId));
         TerminalSessions.clear(playerId);
     }
 
     public static void clear() {
         StorageServerStub.STUBS.clear();
+        INVERTED_BUCKET_ACTION.clear();
         CRAFTING_BATCHES.clear();
         TerminalSessions.clear();
     }

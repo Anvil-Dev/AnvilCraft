@@ -30,7 +30,6 @@ public class MobAmberBlockEntity extends HasMobBlockEntity {
         return new MobAmberBlockEntity(type, pos, blockState);
     }
 
-    // @OnlyIn(Dist.CLIENT)
     public void clientTick(Level level, BlockPos blockPos) {
         BlockState state = level.getBlockState(blockPos);
         Entity entity = this.getOrCreateDisplayEntity(level);

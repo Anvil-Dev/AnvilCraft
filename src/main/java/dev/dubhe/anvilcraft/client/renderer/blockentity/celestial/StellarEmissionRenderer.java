@@ -11,6 +11,7 @@ import dev.dubhe.anvilcraft.block.entity.celestial.StarData;
 import dev.dubhe.anvilcraft.block.entity.celestial.StellarVisualState;
 import dev.dubhe.anvilcraft.client.init.ModRenderPipelines;
 import dev.dubhe.anvilcraft.config.AnvilCraftClientConfig.CelestialRenderingMode;
+import dev.dubhe.anvilcraft.integration.iris.CelestialIrisRenderer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.OrderedSubmitNodeCollector;
 import net.minecraft.client.renderer.Sheets;
@@ -111,13 +112,13 @@ public final class StellarEmissionRenderer {
     }
 
     static void drawModel(BlockStateModel model, PoseStack pose, OrderedSubmitNodeCollector collector, RenderType type, int tint) {
-        collector.submitCustomGeometry(pose, type, (matrix, vertices) ->
+        CelestialIrisRenderer.submit(pose, collector, type, (matrix, vertices) ->
             BlockStateModelRenderer.INSTANCE.getTessellatorNoLighting().tesselateBlock((x, y, z, quad, instance) -> {
                 instance.setColor(tint);
                 instance.setLightCoords(LightCoordsUtil.FULL_BRIGHT);
                 instance.setOverlayCoords(OverlayTexture.NO_OVERLAY);
                 vertices.putBakedQuad(matrix, quad, instance);
-            }, 0, 0, 0, BlockAndTintGetter.EMPTY, BlockPos.ZERO, Blocks.AIR.defaultBlockState(), model, 42));
+            }, 0, 0, 0, BlockAndTintGetter.EMPTY, BlockPos.ZERO, Blocks.AIR.defaultBlockState(), model, 42), false);
     }
 
     private static void submitCorona(
@@ -127,7 +128,7 @@ public final class StellarEmissionRenderer {
         TextureAtlasSprite sprite = Minecraft.getInstance().getModelManager().getBlockStateModelSet().get(block)
             .particleMaterial(BlockAndTintGetter.EMPTY, BlockPos.ZERO, block).sprite();
         Vector3f camera = new Matrix4f(pose.last().pose()).invert().transformPosition(new Vector3f());
-        collector.submitCustomGeometry(pose, Layers.CORONA, (matrix, vertices) -> {
+        CelestialIrisRenderer.submit(pose, collector, Layers.CORONA, (matrix, vertices) -> {
             for (int corner = 0; corner < 8; corner++) {
                 for (int axis = 0; axis < 3; axis++) {
                     if ((corner & (1 << axis)) != 0 || !StellarRadiance.silhouetteEdge(camera, corner, axis)) continue;
@@ -148,7 +149,7 @@ public final class StellarEmissionRenderer {
                     }
                 }
             }
-        });
+        }, false);
     }
 
     private static void haloVertex(

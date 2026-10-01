@@ -21,7 +21,6 @@ import dev.dubhe.anvilcraft.init.block.ModFluidTags;
 import dev.dubhe.anvilcraft.init.entity.ModDamageTypes;
 import lombok.Getter;
 import lombok.Setter;
-import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
@@ -46,8 +45,6 @@ import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.neoforge.fluids.FluidType;
 import org.jspecify.annotations.Nullable;
 
@@ -197,7 +194,6 @@ public class PlasmaJetsBlockEntity extends BlockEntity {
         PlasmaJetHooks.onServerTickTail(this, level);
     }
 
-    @OnlyIn(Dist.CLIENT)
     private void clientTick(Level level) {
         this.refreshCauldronPos(level);
         ClientParticles.tick(this, level);
@@ -335,18 +331,16 @@ public class PlasmaJetsBlockEntity extends BlockEntity {
         }
     }
 
-    @OnlyIn(Dist.CLIENT)
-    protected void summonParticles(ClientLevel level) {
+    protected void summonParticles(Level level) {
         ClientParticles.summonParticles(this, level);
     }
 
-    @OnlyIn(Dist.CLIENT)
     private static class ClientParticles {
         private static void tick(PlasmaJetsBlockEntity entity, Level level) {
-            entity.summonParticles((ClientLevel) level);
+            entity.summonParticles(level);
         }
 
-        private static void summonParticles(PlasmaJetsBlockEntity entity, ClientLevel level) {
+        private static void summonParticles(PlasmaJetsBlockEntity entity, Level level) {
             Vec3 start = entity.getParticleStartPos(level);
             Vec3 vector = start.vectorTo(entity.getParticleEndPos());
             RandomSource random = level.getRandom();

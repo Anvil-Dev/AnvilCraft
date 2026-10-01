@@ -488,7 +488,7 @@ abstract class FallingBlockEntityMixin extends Entity implements IFallingBlockEn
     private void anvilcraft$applyFallingBlockHorizontalGravity(CallbackInfo ci) {
         if (this.anvilcraft$discardLevitationPowderAboveBuildHeight()) return;
         if (this.isNoGravity() || AccelerateManager.isControlledByRing(this)) return;
-        Vec3 gravityVector = GravityManager.getGravityVector(this);
+        Vec3 gravityVector = GravityManager.deferHorizontalGravity(this, GravityManager.getGravityVector(this));
         this.setDeltaMovement(this.getDeltaMovement().add(gravityVector.x, 0, gravityVector.z));
     }
 

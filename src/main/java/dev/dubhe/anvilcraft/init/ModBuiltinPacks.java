@@ -14,12 +14,20 @@ import java.util.function.UnaryOperator;
 
 @EventBusSubscriber(modid = AnvilCraft.MOD_ID)
 public class ModBuiltinPacks {
-    public static final PackSource BUILT_IN = PackSource.create(ModBuiltinPacks.decorateWithSource("pack.result.builtin"), false);
+    public static final PackSource BUILT_IN = PackSource.create(ModBuiltinPacks.decorateWithSource("pack.source.builtin"), false);
 
     @SubscribeEvent
     public static void packSetup(AddPackFindersEvent event) {
         event.addPackFinders(
             AnvilCraft.of("resourcepacks/transparent_cauldron"),
+            PackType.CLIENT_RESOURCES,
+            Component.translatable("pack.anvilcraft.builtin_pack"),
+            ModBuiltinPacks.BUILT_IN,
+            false,
+            Pack.Position.TOP
+        );
+        event.addPackFinders(
+            AnvilCraft.of("resourcepacks/old_resonator_heavy_halberd"),
             PackType.CLIENT_RESOURCES,
             Component.translatable("pack.anvilcraft.builtin_pack"),
             ModBuiltinPacks.BUILT_IN,

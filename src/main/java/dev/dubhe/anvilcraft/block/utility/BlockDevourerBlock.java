@@ -240,6 +240,10 @@ public class BlockDevourerBlock extends DirectionalBlock implements HammerRotate
         BlockState devourBlockState = level.getBlockState(devourBlockPos);
         if (devourBlockState.isAir()) return;
         if (!BlockDevourerBlock.canDevour(devourBlockState)) return;
+        if (AnvilCraft.CONFIG.blockDevourerProtectContainers
+            && level.getCapability(Capabilities.Item.BLOCK, devourBlockPos, null) != null) {
+            return;
+        }
         BlockMiningEffect miningEffect = BlockMiningEffect.fromAnvil(anvil).orElse(BlockMiningEffect.NORMAL);
         if (
             !miningEffect.isDisintegration()

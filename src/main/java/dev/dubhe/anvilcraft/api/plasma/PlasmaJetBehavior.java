@@ -2,7 +2,6 @@ package dev.dubhe.anvilcraft.api.plasma;
 
 import dev.dubhe.anvilcraft.api.heat.HeaterInfo;
 import dev.dubhe.anvilcraft.block.entity.PlasmaJetsBlockEntity;
-import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.nbt.CompoundTag;
@@ -48,7 +47,7 @@ public interface PlasmaJetBehavior {
         return ordinary;
     }
 
-    default void extraParticles(PlasmaJetsBlockEntity jet, ClientLevel level) {
+    default void extraParticles(PlasmaJetsBlockEntity jet, Level level) {
     }
 
     default void onRemoved(PlasmaJetsBlockEntity jet) {

@@ -94,7 +94,6 @@ public class FilterContainer implements Container {
     public void clearContent() {
     }
 
-    // @OnlyIn(Dist.CLIENT)
     public void sync() {
         ClientPacketDistributor.sendToServer(new FilterContentSyncPacket(this.position, this.content));
     }

@@ -83,7 +83,6 @@ public class LevelLikeDisplaySupport {
         return levelLike;
     }
 
-    // @OnlyIn(Dist.CLIENT)
     public static LevelLike asLevelLike(BlockPattern pattern) {
         @SuppressWarnings("DataFlowIssue")
         LevelLike levelLike = new LevelLike(Minecraft.getInstance().level);
