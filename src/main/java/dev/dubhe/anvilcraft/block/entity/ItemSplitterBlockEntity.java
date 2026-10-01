@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.block.entity;
 
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.itemhandler.IItemHandlerHolder;
 import dev.dubhe.anvilcraft.block.ItemSplitterBlock;
 import lombok.Getter;
@@ -28,7 +29,7 @@ import java.util.List;
  * 物品分配器的方块实体。
  *
  * <p>内部有 {@value #SLOT_COUNT} 格容量且只能容纳同一种物品。正前方有容器时每
- * {@value #SPLIT_INTERVAL} gt 把内部物品按方块均分给前方连成一线的容器；
+ * 8 gt 把内部物品按方块均分给前方连成一线的容器；
  * 正前方没有容器时被铁砧砸到，则按铁砧下落高度均分到前方没有遮挡的空间中。</p>
  *
  * <p>两种均分都采用严格计算，除不尽的余数留在自身内部。</p>
@@ -41,11 +42,9 @@ public class ItemSplitterBlockEntity extends BlockEntity implements IItemHandler
     /**
      * 主动均分间隔（gt）
      */
-    public static final int SPLIT_INTERVAL = 8;
     /**
      * 均分时最远选取距离（方块）
      */
-    public static final int MAX_DISTANCE = 16;
 
     @Getter
     private final ItemStackHandler itemHandler = new ItemStackHandler(SLOT_COUNT) {
@@ -91,7 +90,7 @@ public class ItemSplitterBlockEntity extends BlockEntity implements IItemHandler
     }
 
     /**
-     * 每 {@value #SPLIT_INTERVAL} gt 尝试向正前方的容器均分一次。
+     * 每 8 gt 尝试向正前方的容器均分一次。
      */
     public void tick() {
         if (this.level == null || this.level.isClientSide) return;
@@ -99,7 +98,7 @@ public class ItemSplitterBlockEntity extends BlockEntity implements IItemHandler
             this.cooldown--;
         }
         if (this.cooldown > 0) return;
-        this.cooldown = SPLIT_INTERVAL;
+        this.cooldown = AnvilCraft.CONFIG.machines.itemSplitterInterval;
         this.splitToContainers();
     }
 
@@ -128,7 +127,7 @@ public class ItemSplitterBlockEntity extends BlockEntity implements IItemHandler
     /**
      * 把内部物品均分到正前方没有遮挡的空间中（铁砧砸到时触发）。
      *
-     * <p>份数即铁砧下落高度；遇到遮挡就往前顺延，最远 {@value #MAX_DISTANCE} 格，
+     * <p>份数即铁砧下落高度；遇到遮挡就往前顺延，最远 16 格，
      * 未能落位的份额留在自身内部。</p>
      *
      * @param shares 均分份数
@@ -162,7 +161,7 @@ public class ItemSplitterBlockEntity extends BlockEntity implements IItemHandler
         List<BlockPos> targets = new ArrayList<>();
         Direction facing = this.getFacing();
         BlockPos origin = this.getBlockPos();
-        for (int i = 1; i <= MAX_DISTANCE; i++) {
+        for (int i = 1; i <= AnvilCraft.CONFIG.machines.itemSplitterMaxDistance; i++) {
             BlockPos target = origin.relative(facing, i);
             if (this.getItemHandlerAt(target) == null) break;
             targets.add(target);
@@ -180,7 +179,7 @@ public class ItemSplitterBlockEntity extends BlockEntity implements IItemHandler
         List<BlockPos> targets = new ArrayList<>();
         Direction facing = this.getFacing();
         BlockPos origin = this.getBlockPos();
-        for (int i = 1; i <= MAX_DISTANCE && targets.size() < shares; i++) {
+        for (int i = 1; i <= AnvilCraft.CONFIG.machines.itemSplitterMaxDistance && targets.size() < shares; i++) {
             BlockPos target = origin.relative(facing, i);
             // 有遮挡则往前顺延
             if (!this.isUnobstructed(target)) continue;

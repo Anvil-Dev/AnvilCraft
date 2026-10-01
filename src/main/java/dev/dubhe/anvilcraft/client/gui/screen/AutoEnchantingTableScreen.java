@@ -608,7 +608,7 @@ public class AutoEnchantingTableScreen extends AbstractContainerScreen<AutoEncha
             return false;
         }
         // 消耗经验流体不能超过罐内最大储量
-        if (newTotal * AutoEnchantingTableBlockEntity.EXP_COST_PER_SHELF
+        if (newTotal * AnvilCraft.CONFIG.equipment.autoEnchantingTableExpCostPerShelf
             > AutoEnchantingTableBlockEntity.FLUID_CAPACITY) {
             this.showWarning(index,
                 Component.translatable("screen.anvilcraft.auto_enchanting_table.warning.fluid_capacity"));
@@ -648,7 +648,7 @@ public class AutoEnchantingTableScreen extends AbstractContainerScreen<AutoEncha
             totalLevel += holder.value().getMaxLevel();
         }
         if (totalLevel > be.getShelfLevel()) return null;
-        int cost = totalLevel * AutoEnchantingTableBlockEntity.EXP_COST_PER_SHELF;
+        int cost = totalLevel * AnvilCraft.CONFIG.equipment.autoEnchantingTableExpCostPerShelf;
         if (cost <= 0 || cost > AutoEnchantingTableBlockEntity.FLUID_CAPACITY) return null;
         FluidStack fluid = be.getFluidHandler().getFluidInTank(0);
         if (!fluid.is(ModFluids.EXP_FLUID) || fluid.getAmount() < cost) return null;

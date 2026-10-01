@@ -30,7 +30,6 @@ import java.util.Optional;
 public class AmuletBoxItem extends BundleLikeItem {
     private static final int FULL_BAR_COLOR = 0xFF5454FF;
     private static final int BAR_COLOR = 0x7087FFFF;
-    public static final int CAPACITY = 16;
 
     public AmuletBoxItem(Properties properties) {
         super(properties.component(ModComponents.BOX_CONTENTS, BoxContents.EMPTY));
@@ -41,7 +40,8 @@ public class AmuletBoxItem extends BundleLikeItem {
         super.appendHoverText(stack, context, tooltip, flag);
         BoxContents contents = stack.getOrDefault(ModComponents.BOX_CONTENTS, BoxContents.EMPTY);
         tooltip.add(Component.empty());
-        tooltip.add(Component.translatable("tooltip.anvilcraft.item.amulet_box.fullness", contents.usage(), CAPACITY)
+        int capacity = AnvilCraft.CONFIG.equipment.amuletBoxCapacity;
+        tooltip.add(Component.translatable("tooltip.anvilcraft.item.amulet_box.fullness", contents.usage(), capacity)
             .withStyle(ChatFormatting.GRAY));
     }
 
@@ -116,13 +116,13 @@ public class AmuletBoxItem extends BundleLikeItem {
     @Override
     public int getBarWidth(ItemStack itemStack) {
         BoxContents contents = itemStack.getOrDefault(ModComponents.BOX_CONTENTS, BoxContents.EMPTY);
-        return (int) (Math.clamp(contents.usage() / (float) CAPACITY, 0f, 1f) * 13);
+        return (int) (Math.clamp(contents.usage() / (float) AnvilCraft.CONFIG.equipment.amuletBoxCapacity, 0f, 1f) * 13);
     }
 
     @Override
     public int getBarColor(ItemStack itemStack) {
         BoxContents contents = itemStack.getOrDefault(ModComponents.BOX_CONTENTS, BoxContents.EMPTY);
-        return ColorUtil.lerpColor(contents.usage() / (float) CAPACITY, BAR_COLOR, FULL_BAR_COLOR);
+        return ColorUtil.lerpColor(contents.usage() / (float) AnvilCraft.CONFIG.equipment.amuletBoxCapacity, BAR_COLOR, FULL_BAR_COLOR);
     }
 
     @Override

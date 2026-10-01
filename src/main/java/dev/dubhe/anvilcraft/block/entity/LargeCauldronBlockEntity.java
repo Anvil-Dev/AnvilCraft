@@ -98,7 +98,6 @@ import java.util.Set;
 public class LargeCauldronBlockEntity extends BlockEntity
     implements ICauldron, IItemHandlerHolder, IItemHandlerCache, IFluidHandlerHolder {
     public static final int OUTPUT_SLOTS = 32;
-    public static final int MAX_PROCESS_EFFICIENCY = 9;
     private static final int[][] INPUT_SLOT_OFFSETS = {
         {-1, 0}, {1, 0}, {0, -1}, {0, 1}, {-1, -1}, {-1, 1}, {1, -1}, {1, 1}
     };
@@ -501,9 +500,10 @@ public class LargeCauldronBlockEntity extends BlockEntity
         for (int slot = 0; slot < main.output.getSlots(); slot++) {
             if (!main.output.getStackInSlot(slot).isEmpty()) initialOutputSlots.add(slot);
         }
+        int maxProcessEfficiency = AnvilCraft.CONFIG.machines.largeCauldronMaxProcessEfficiency;
         int processed = 0;
         Set<Integer> specialRecipeSlots = new HashSet<>();
-        for (int slot = 0; slot < main.input.getSlots() && processed < MAX_PROCESS_EFFICIENCY; slot++) {
+        for (int slot = 0; slot < main.input.getSlots() && processed < maxProcessEfficiency; slot++) {
             if (!main.tryProcessLiquidEnchantmentRecipe(serverLevel, base, slot)) continue;
             specialRecipeSlots.add(slot);
             processed++;
@@ -514,7 +514,7 @@ public class LargeCauldronBlockEntity extends BlockEntity
                 madeProgress = false;
                 // Slot order must not override recipe priority when ingredients occupy different cauldron cells.
                 for (int slot : orderedInputSlots(serverLevel, main.input, recipePass)) {
-                    if (processed >= MAX_PROCESS_EFFICIENCY) break;
+                    if (processed >= maxProcessEfficiency) break;
                     if (specialRecipeSlots.contains(slot)) continue;
                     BlockPos slotPos = positionForInputSlot(base, slot);
                     List<BlockPos> candidates = helpers.isEmpty()
@@ -535,8 +535,8 @@ public class LargeCauldronBlockEntity extends BlockEntity
                     madeProgress = true;
                     break;
                 }
-            } while (madeProgress && processed < MAX_PROCESS_EFFICIENCY);
-            if (processed >= MAX_PROCESS_EFFICIENCY) break;
+            } while (madeProgress && processed < maxProcessEfficiency);
+            if (processed >= maxProcessEfficiency) break;
         }
 
         List<BlockPos> centerCandidates = helpers.isEmpty()
@@ -544,7 +544,7 @@ public class LargeCauldronBlockEntity extends BlockEntity
             : orderedHelpers(base, helpers, base);
         for (RecipePass recipePass : itemRecipePasses) {
             for (int slot : initialOutputSlots) {
-                if (processed >= MAX_PROCESS_EFFICIENCY) break;
+                if (processed >= maxProcessEfficiency) break;
                 if (main.output.getStackInSlot(slot).isEmpty()) continue;
                 RecipeExecution execution = main.tryProcessItemGroup(
                     serverLevel,
@@ -559,11 +559,11 @@ public class LargeCauldronBlockEntity extends BlockEntity
                 if (execution.damageAnvil()) event.setAnvilDamage(true);
                 processed++;
             }
-            if (processed >= MAX_PROCESS_EFFICIENCY) break;
+            if (processed >= maxProcessEfficiency) break;
         }
 
         if (sameFluids(initialFluids, main.fluids.copyFluids())) {
-            while (processed < MAX_PROCESS_EFFICIENCY) {
+            while (processed < maxProcessEfficiency) {
                 if (main.tryProcessFluidMixingRecipe(serverLevel)) {
                     processed++;
                     continue;

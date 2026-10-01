@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.api.tooltip.impl;
 
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.power.IPowerComponent;
 import dev.dubhe.anvilcraft.api.power.PowerComponentInfo;
 import dev.dubhe.anvilcraft.api.power.PowerComponentType;
@@ -80,7 +81,7 @@ public class PowerComponentTooltipProvider extends ITooltipProvider.BlockEntityT
             lines.add(Component.translatable(
                     "tooltip.anvilcraft.fe_collector.energy",
                     fe.getEnergyStored() / 1000,
-                    FeCollectorBlockEntity.MAX_ENERGY / 1000
+                    AnvilCraft.CONFIG.machines.feCollectorMaxEnergy / 1000
                 )
                 .setStyle(Style.EMPTY.applyFormat(ChatFormatting.GRAY)));
             if (!e.getBlockState().getValue(BlockStateProperties.POWERED)) {

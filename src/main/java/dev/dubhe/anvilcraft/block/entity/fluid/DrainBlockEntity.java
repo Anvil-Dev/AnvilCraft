@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.block.entity.fluid;
 
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.fluid.IFluidHandlerHolder;
 import dev.dubhe.anvilcraft.api.fluid.network.FluidNetworkManager;
 import it.unimi.dsi.fastutil.longs.Long2LongOpenHashMap;
@@ -39,24 +40,22 @@ import org.jetbrains.annotations.Nullable;
  * 向下把内部流体铺放到世界、或从上方抽取流体入内部。
  *
  * <h3>向下填充</h3>
- * 内部流体 &gt; 1B 且下方有空间时，每 {@value #INTERVAL} gt 消耗 1B，在下方 flood-fill 区域内
+ * 内部流体 &gt; 1B 且下方有空间时，每 5 gt 消耗 1B，在下方 flood-fill 区域内
  * 由最低层、就近位置起放置<b>真实源方块</b>，逐层填满直到排水口正下方一层。
  *
  * <h3>向上抽取</h3>
- * 内部 &lt; 3B 且上方有同种流体（或内部为空、上方任意流体）时，每 {@value #INTERVAL} gt 从上方
+ * 内部 &lt; 3B 且上方有同种流体（或内部为空、上方任意流体）时，每 5 gt 从上方
  * 流体的最上层起清除 1B 并填充自身。
  *
  * <h3>同层无限生成</h3>
  * 排水口<b>同层</b>（同 Y）水平四邻若存在能形成无限源的流体源（无限水、开启对应游戏规则的岩浆、
- * 或模组注册的可无限流体），则每 {@value #INTERVAL} gt 在自身内部凭空 +1B 该流体。
+ * 或模组注册的可无限流体），则每 5 gt 在自身内部凭空 +1B 该流体。
  * 判定复刻原版 {@code getNewLiquid} 的无限源成因：相邻源格自身两侧≥2 个可转化源邻居且下方为
  * 实体/同种源。只认同层紧邻，不做 flood-fill。
  */
 @Getter
 public class DrainBlockEntity extends BlockEntity implements IFluidHandlerHolder {
-    public static final int CAPACITY = 4 * FluidType.BUCKET_VOLUME; // 4B
     private static final int UNIT = FluidType.BUCKET_VOLUME;        // 每次操作 1B
-    private static final int INTERVAL = 5;                          // 每 5gt 一次
     private static final int FILL_THRESHOLD = FluidType.BUCKET_VOLUME;      // >1B 才向下填充
     private static final int DRAIN_THRESHOLD = 3 * FluidType.BUCKET_VOLUME; // <3B 才向上抽取
     /** 单次 tick 的 flood-fill 节点预算；未完成的搜索会在后续 tick 续扫。 */
@@ -67,7 +66,7 @@ public class DrainBlockEntity extends BlockEntity implements IFluidHandlerHolder
     private static final int FILL_SEARCH_REBUILD_INTERVAL = 256;
     private static final long EXHAUSTED_SEARCH_TTL = 100;
 
-    private final FluidTank tank = new FluidTank(CAPACITY) {
+    private final FluidTank tank = new FluidTank(AnvilCraft.CONFIG.machines.drainCapacity) {
         @Override
         protected void onContentsChanged() {
             DrainBlockEntity.this.setChanged();
@@ -139,7 +138,7 @@ public class DrainBlockEntity extends BlockEntity implements IFluidHandlerHolder
         if (level.isClientSide()) {
             return;
         }
-        if (level.getGameTime() % INTERVAL != 0) {
+        if (level.getGameTime() % AnvilCraft.CONFIG.machines.drainInterval != 0) {
             return;
         }
         // 连抽带排：向下填充与向上抽取同一 tick 各执行一次，互不阻断
@@ -356,7 +355,7 @@ public class DrainBlockEntity extends BlockEntity implements IFluidHandlerHolder
         if (!(level instanceof ServerLevel serverLevel)) {
             return;
         }
-        if (tank.getFluidAmount() >= CAPACITY) {
+        if (tank.getFluidAmount() >= AnvilCraft.CONFIG.machines.drainCapacity) {
             return;
         }
         for (Direction d : Direction.Plane.HORIZONTAL) {
@@ -525,7 +524,7 @@ public class DrainBlockEntity extends BlockEntity implements IFluidHandlerHolder
                 fluid,
                 start.getY(),
                 topY,
-                level.getGameTime() / INTERVAL
+                level.getGameTime() / AnvilCraft.CONFIG.machines.drainInterval
             );
         }
         return drainSearch.advance(level);
@@ -621,7 +620,7 @@ public class DrainBlockEntity extends BlockEntity implements IFluidHandlerHolder
                     long entry = BlockPos.asLong(BlockPos.getX(drainPos), currentY, BlockPos.getZ(drainPos));
                     layerSearch = new FillLayerSearch(drainPos, entry, fluid);
                 }
-                SearchResult result = layerSearch.advance(level, level.getGameTime() / INTERVAL);
+                SearchResult result = layerSearch.advance(level, level.getGameTime() / AnvilCraft.CONFIG.machines.drainInterval);
                 if (result.pending() || result.target() != null) {
                     exhaustedAt = Long.MIN_VALUE;
                     return result;

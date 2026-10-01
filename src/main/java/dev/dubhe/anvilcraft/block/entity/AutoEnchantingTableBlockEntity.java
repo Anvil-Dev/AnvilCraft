@@ -84,7 +84,6 @@ public class AutoEnchantingTableBlockEntity extends BlockEntity
     /// 内部流体容量：32 桶
     public static final int FLUID_CAPACITY = 32 * FluidType.BUCKET_VOLUME;
     /// 每个书架消耗的经验流体（mB）
-    public static final int EXP_COST_PER_SHELF = 400;
     /// 液态魔咒模式下物品每多一条已有附魔增加的功耗
     public static final int LIQUID_POWER_PER_ENCHANTMENT = 64;
 
@@ -355,7 +354,7 @@ public class AutoEnchantingTableBlockEntity extends BlockEntity
         return switch (this.workMode) {
             case ENCHANTING -> {
                 int shelfLevel = Math.min(this.shelfLevel, AnvilCraft.CONFIG.equipment.autoEnchantingTableMaxBookshelf);
-                int cost = Math.min(shelfLevel * EXP_COST_PER_SHELF, FLUID_CAPACITY);
+                int cost = Math.min(shelfLevel * AnvilCraft.CONFIG.equipment.autoEnchantingTableExpCostPerShelf, FLUID_CAPACITY);
                 if (cost <= 0) yield false;
                 FluidStack fluid = this.fluidTank.getFluid();
                 yield fluid.is(ModFluids.EXP_FLUID) && fluid.getAmount() >= cost;
@@ -363,7 +362,7 @@ public class AutoEnchantingTableBlockEntity extends BlockEntity
             case PRIMER -> {
                 int totalLevel = this.getSelectedTotalLevel();
                 if (this.selectedEnchantments.isEmpty() || totalLevel > this.shelfLevel) yield false;
-                int cost = totalLevel * EXP_COST_PER_SHELF;
+                int cost = totalLevel * AnvilCraft.CONFIG.equipment.autoEnchantingTableExpCostPerShelf;
                 if (cost <= 0 || cost > FLUID_CAPACITY) yield false;
                 FluidStack fluid = this.fluidTank.getFluid();
                 yield fluid.is(ModFluids.EXP_FLUID) && fluid.getAmount() >= cost;
@@ -581,7 +580,7 @@ public class AutoEnchantingTableBlockEntity extends BlockEntity
         if (!this.itemHandler.getStackInSlot(SLOT_OUTPUT).isEmpty()) return;
 
         int shelfLevel = Math.min(this.shelfLevel, AnvilCraft.CONFIG.equipment.autoEnchantingTableMaxBookshelf);
-        int cost = Math.min(shelfLevel * EXP_COST_PER_SHELF, FLUID_CAPACITY);
+        int cost = Math.min(shelfLevel * AnvilCraft.CONFIG.equipment.autoEnchantingTableExpCostPerShelf, FLUID_CAPACITY);
         if (cost <= 0) return;
 
         // 经验流体不足则本次附魔取消，等待下一轮
@@ -624,7 +623,7 @@ public class AutoEnchantingTableBlockEntity extends BlockEntity
         int totalLevel = this.getSelectedTotalLevel();
         if (totalLevel > this.shelfLevel) return;
 
-        int cost = totalLevel * EXP_COST_PER_SHELF;
+        int cost = totalLevel * AnvilCraft.CONFIG.equipment.autoEnchantingTableExpCostPerShelf;
         if (cost <= 0 || cost > FLUID_CAPACITY) return;
 
         FluidStack fluid = this.fluidTank.getFluid();

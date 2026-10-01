@@ -22,8 +22,6 @@ import java.util.List;
 
 @EventBusSubscriber(modid = AnvilCraft.MOD_ID)
 public class GiantAnvilLandingEventListener {
-    private static final int MIN_MULTIBLOCK_SIZE = 3;
-    private static final int MAX_MULTIBLOCK_SIZE = 15;
 
     @SubscribeEvent
     public static void handleMultiblock(AnvilEvent.GiantOnLand event) {
@@ -34,7 +32,9 @@ public class GiantAnvilLandingEventListener {
         BlockPos landPos = event.getPos().below(2);
 
         int size = GiantAnvilLandingEventListener.findCraftingTableSize(landPos, level);
-        if (size < MIN_MULTIBLOCK_SIZE || size > MAX_MULTIBLOCK_SIZE) {
+        int minSize = AnvilCraft.CONFIG.world.giantAnvilMultiblockMinSize;
+        int maxSize = AnvilCraft.CONFIG.world.giantAnvilMultiblockMaxSize;
+        if (size < minSize || size > maxSize) {
             return;
         }
 
@@ -115,7 +115,9 @@ public class GiantAnvilLandingEventListener {
 
     private static int findCraftingTableSize(BlockPos centerPos, Level level) {
         int maxSize = 0;
-        for (int size = MIN_MULTIBLOCK_SIZE; size <= MAX_MULTIBLOCK_SIZE; size += 2) {
+        int minSize = AnvilCraft.CONFIG.world.giantAnvilMultiblockMinSize;
+        int limit = AnvilCraft.CONFIG.world.giantAnvilMultiblockMaxSize;
+        for (int size = minSize; size <= limit; size += 2) {
             boolean flag = true;
             for (int x = -size / 2; x <= size / 2 && flag; x++) {
                 for (int z = -size / 2; z <= size / 2 && flag; z++) {

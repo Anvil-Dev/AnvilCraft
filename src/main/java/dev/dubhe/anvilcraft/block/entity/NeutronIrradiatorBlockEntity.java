@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.block.entity;
 
 import com.google.common.collect.ImmutableMap;
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.NeutronIrradiatorBlock;
 import dev.dubhe.anvilcraft.block.RadioactiveBlock;
 import dev.dubhe.anvilcraft.block.state.IrradiatorType;
@@ -35,8 +36,6 @@ public class NeutronIrradiatorBlockEntity extends BlockEntity {
         ModBlocks.CONFINED_TIME_ANVILON.get(), ModParticles.ANVILON_TIME
     );
 
-    public static final int TYPE_CHECK_THRESHOLD = 6;
-    private static final int RADIATION_THRESHOLD = 40;
 
     private int radiationTick = 0;
 
@@ -62,7 +61,7 @@ public class NeutronIrradiatorBlockEntity extends BlockEntity {
                     }
                 }
             }
-            if (count >= TYPE_CHECK_THRESHOLD) {
+            if (count >= AnvilCraft.CONFIG.machines.neutronIrradiatorTypeThreshold) {
                 baseType = false;
                 if (state.getValue(NeutronIrradiatorBlock.TYPE) != type) {
                     this.level.setBlockAndUpdate(pos, state.setValue(NeutronIrradiatorBlock.TYPE, type));
@@ -78,7 +77,7 @@ public class NeutronIrradiatorBlockEntity extends BlockEntity {
         BlockState aboveState = this.level.getBlockState(abovePos);
         if (aboveState.getBlock() instanceof RadioactiveBlock) {
             radiationTick++;
-            if (radiationTick >= RADIATION_THRESHOLD) {
+            if (radiationTick >= AnvilCraft.CONFIG.machines.neutronIrradiatorRadiationInterval) {
                 radiationTick = 0;
                 this.level.explode(
                     null,

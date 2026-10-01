@@ -93,7 +93,7 @@ public final class BuildingRodRenderer {
         if (bounds != null) {
             AABB box = AABB.of(bounds).move(-camera.x, -camera.y, -camera.z);
             boolean valid = BuildingRodClient.snapshot == null ? (long) bounds.getXSpan() * bounds.getYSpan() * bounds.getZSpan()
-                                                                 <= BuildingRodService.MAX_BLOCKS
+                                                                 <= AnvilCraft.CONFIG.equipment.buildingRodMaxBlocks
                                                                : !BuildingRodClient.blueprintPlacements().isEmpty();
             var buffers = mc.renderBuffers().bufferSource();
             LevelRenderer.renderLineBox(pose, buffers.getBuffer(RenderType.lines()), box, valid ? 0.2f : 1, valid ? 1 : 0.2f, 0.8f, 1);

@@ -92,7 +92,7 @@ public class PlasmaJetsBlockEntity extends BlockEntity {
     }
 
     private boolean tryRaise() {
-        if (this.tubeWalls.size() >= 4) return false;
+        if (this.tubeWalls.size() >= AnvilCraft.CONFIG.machines.plasmaJets.maxTubeHeight) return false;
         if (PlasmaJetHooks.shouldStopRaising(this)) return false;
         if (this.level != null) {
             HeaterManager.removeProducer(this.getBlockPos(), level, ModHeaterInfos.NO_MAGNET_PLASMA_JETS);
@@ -325,7 +325,7 @@ public class PlasmaJetsBlockEntity extends BlockEntity {
     }
 
     protected void provideCharge(Level level) {
-        if (level.getGameTime() % (ChargeCollectorBlockEntity.INPUT_COOLDOWN * 20) != 0) return;
+        if (level.getGameTime() % (AnvilCraft.CONFIG.machines.chargeCollectorInputCooldown * 20) != 0) return;
         for (TubeWallLayer layer : this.tubeWalls) {
             Pair<BlockPos, BlockPos> posPair = switch (layer.isMagnet(level)) {
                 case TRUE -> layer.first;

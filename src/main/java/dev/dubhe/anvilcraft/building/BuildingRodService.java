@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.building;
 
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.LargeCakeBlock;
 import dev.dubhe.anvilcraft.block.LensBlock;
 import dev.dubhe.anvilcraft.block.RedstoneWireBlock;
@@ -84,7 +85,6 @@ import java.util.WeakHashMap;
 import javax.annotation.Nullable;
 
 public final class BuildingRodService {
-    public static final int MAX_BLOCKS = 4000;
     private static final Map<ServerPlayer, Selection> SELECTIONS = new WeakHashMap<>();
     private static final Map<ServerPlayer, Confirmation> CONFIRMATIONS = new WeakHashMap<>();
 
@@ -197,7 +197,7 @@ public final class BuildingRodService {
                 return;
             }
         }
-        if (volume(first, last) > MAX_BLOCKS) {
+        if (volume(first, last) > AnvilCraft.CONFIG.equipment.buildingRodMaxBlocks) {
             message(player, "too_many");
             return;
         }
@@ -221,7 +221,8 @@ public final class BuildingRodService {
     public static List<Cell> preview(Player player, BlockPos first, BlockPos last, Direction face,
                                      @Nullable BlockHitResult hit, long seed) {
         ItemStack held = BuildingRodItem.material(player);
-        if (!BuildingRodItem.isPlacementMaterial(held) || volume(first, last) > MAX_BLOCKS) return List.of();
+        if (!BuildingRodItem.isPlacementMaterial(held)
+            || volume(first, last) > AnvilCraft.CONFIG.equipment.buildingRodMaxBlocks) return List.of();
         if (!(held.getItem() instanceof BlockItem) && !held.is(ModItems.FILTER)) {
             return BuildingRodFluids.preview(player, first, last);
         }
@@ -284,7 +285,7 @@ public final class BuildingRodService {
                 planned.put(cell.pos(), cell);
             }
             unique.add(group);
-            if (planned.size() > MAX_BLOCKS) {
+            if (planned.size() > AnvilCraft.CONFIG.equipment.buildingRodMaxBlocks) {
                 return null;
             }
         }
@@ -312,7 +313,7 @@ public final class BuildingRodService {
         int countX = Math.abs(last.getX() - first.getX()) / width + 1;
         int countY = Math.abs(last.getY() - first.getY()) / height + 1;
         int countZ = Math.abs(last.getZ() - first.getZ()) / depth + 1;
-        if ((long) countX * countY * countZ * template.cells.size() > MAX_BLOCKS) return null;
+        if ((long) countX * countY * countZ * template.cells.size() > AnvilCraft.CONFIG.equipment.buildingRodMaxBlocks) return null;
         int anchorX = face == Direction.EAST ? minX : face == Direction.WEST ? maxX : (minX + maxX) / 2;
         int anchorY = face == Direction.DOWN ? maxY : minY;
         int anchorZ = face == Direction.SOUTH ? minZ : face == Direction.NORTH ? maxZ : (minZ + maxZ) / 2;
@@ -690,7 +691,7 @@ public final class BuildingRodService {
             message(player, "undo_partial");
             return false;
         }
-        if (!quiet && groups.stream().mapToInt(group -> group.cells.size()).sum() > MAX_BLOCKS) {
+        if (!quiet && groups.stream().mapToInt(group -> group.cells.size()).sum() > AnvilCraft.CONFIG.equipment.buildingRodMaxBlocks) {
             message(player, "too_many");
             return false;
         }

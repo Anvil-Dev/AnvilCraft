@@ -74,6 +74,34 @@ public class AnvilCraftServerConfig {
 
         @Comment("Controls whether pushing or pulling a sliding rail chains to other rails")
         public boolean slidingRailStickToEachOther = false;
+
+        @Comment("Controls the range in which the Active Silencer mutes sounds (in blocks)")
+        @BoundedDiscrete(min = 3, max = 64)
+        public int activeSilencerRange = 31;
+
+        @Comment("Controls the minimum size of the crafting table multiblock the Giant Anvil can craft")
+        @BoundedDiscrete(min = 3, max = 15)
+        public int giantAnvilMultiblockMinSize = 3;
+
+        @Comment("Controls the maximum size of the crafting table multiblock the Giant Anvil can craft")
+        @BoundedDiscrete(min = 3, max = 31)
+        public int giantAnvilMultiblockMaxSize = 15;
+
+        @Comment("Controls the safe fall distance in the Mun dimension (in blocks)")
+        @BoundedDiscrete(min = 0, max = 512)
+        public float munSafeFallDistance = 20.0f;
+
+        @Comment("Controls the blocks per damage point of fall damage in the Mun dimension")
+        @BoundedDiscrete(min = 0.5, max = 64)
+        public float munBlocksPerDamage = 6.0f;
+
+        @Comment("Controls the delay before an Overworld-like dimension collapses (in ticks)")
+        @BoundedDiscrete(min = 1, max = 1200)
+        public int overworldLikeCollapseDelayTicks = 40;
+
+        @Comment("Controls the bonus Neutronium Ingot chance per enchantment level when transcending (in %)")
+        @BoundedDiscrete(min = 0, max = 100)
+        public int transcendiumBonusIngotChancePerEnchantment = 10;
     }
 
     @SerializedName("Machines & Logistics")
@@ -117,6 +145,97 @@ public class AnvilCraftServerConfig {
         @BoundedDiscrete(min = 2, max = 1200)
         public int mineralFountainInterval = 20;
 
+        @Comment("Controls the maximum distance between Heliostats and the block irradiating them (in blocks)")
+        @BoundedDiscrete(min = 1, max = 256)
+        public int heliostatsMaxIrradiationDistance = 64;
+
+        @Comment("Controls the cooldown between Tesla Tower strikes (in ticks)")
+        @BoundedDiscrete(min = 1, max = 1200)
+        public int teslaTowerStrikeCooldown = 80;
+
+        @Comment("Controls the FE extracted per tick by the Discharger")
+        @BoundedDiscrete(min = 1, max = 1000000)
+        public int dischargerFePerTick = 10000;
+
+        @Comment("Controls the FE capacity of the Fe Collector")
+        @BoundedDiscrete(min = 1000, max = 1000000000)
+        public int feCollectorMaxEnergy = 1000000;
+
+        @Comment("Controls the FE converted per tick by the Fe Collector")
+        @BoundedDiscrete(min = 1, max = 1000000)
+        public int feCollectorFePerTick = 10000;
+
+        @Comment("Controls the interval at which the Item Splitter distributes items (in ticks)")
+        @BoundedDiscrete(min = 1, max = 200)
+        public int itemSplitterInterval = 8;
+
+        @Comment("Controls the maximum distance the Item Splitter distributes items to")
+        @BoundedDiscrete(min = 1, max = 64)
+        public int itemSplitterMaxDistance = 16;
+
+        @Comment("Controls the charge the Charge Collector accepts per incoming window")
+        @BoundedDiscrete(min = 1, max = 1024)
+        public double chargeCollectorMaxPowerPerIncoming = 128;
+
+        @Comment("Controls the input sampling cooldown of the Charge Collector (in ticks)")
+        @BoundedDiscrete(min = 1, max = 20)
+        public int chargeCollectorInputCooldown = 2;
+
+        @Comment("Controls the output cooldown of the Charge Collector (in ticks)")
+        @BoundedDiscrete(min = 1, max = 200)
+        public int chargeCollectorOutputCooldown = 10;
+
+        @Comment("Controls the base output power of the Infinite Collector")
+        @BoundedDiscrete(min = 0, max = 4096)
+        public int infiniteCollectorBasePower = 256;
+
+        @Comment("Controls the range in which the Infinite Collector collects charges")
+        @BoundedDiscrete(min = 1, max = 8)
+        public int infiniteCollectorRange = 3;
+
+        @Comment("Controls the power consumed by the Mass Energy Inverter")
+        @BoundedDiscrete(min = 1, max = 65536)
+        public int massEnergyInverterPower = 1024;
+
+        @Comment("Controls the mass injected per tick by the Mass Energy Inverter")
+        @BoundedDiscrete(min = 1, max = 1000)
+        public int massEnergyInverterMassPerTick = 5;
+
+        @Comment("Controls the maximum output of the Space Overcompressor per conversion")
+        @BoundedDiscrete(min = 1, max = 6400)
+        public int spaceOvercompressorMaxOutputPerTime = 640;
+
+        @Comment("Controls how many items the Large Cauldron processes in parallel")
+        @BoundedDiscrete(min = 1, max = 24)
+        public int largeCauldronMaxProcessEfficiency = 9;
+
+        @Comment("Controls how many tropical fish a Fish Tank can hold")
+        @BoundedDiscrete(min = 1, max = 16)
+        public int fishTankMaxTropicalFish = 4;
+
+        @Comment("Controls the interval between radiation explosions of the Neutron Irradiator (in ticks)")
+        @BoundedDiscrete(min = 1, max = 1200)
+        public int neutronIrradiatorRadiationInterval = 40;
+
+        @Comment("Controls how many Anvilons the Neutron Irradiator needs to select a type")
+        @BoundedDiscrete(min = 1, max = 9)
+        public int neutronIrradiatorTypeThreshold = 6;
+
+        @Comment("Controls the FE capacity of the Propel Piston")
+        @BoundedDiscrete(min = 1000000, max = 1600000000)
+        public int propelPistonMaxEnergy = 160000000;
+
+        @Comment("Controls the fluid output of megastructures such as the Extractor per tick (in mB)")
+        @BoundedDiscrete(min = 1, max = 10000)
+        public int megastructureFluidPerTick = 250;
+
+        @Comment("Controls the fluid capacity of the Drain (in mB)")
+        @BoundedDiscrete(min = 250, max = 64000)
+        public int drainCapacity = 4000;
+
+        @Comment("Controls the interval between Drain operations (in ticks)")
+        @BoundedDiscrete(min = 1, max = 100)
+        public int drainInterval = 5;
         @Comment("Adjusts settings related to Plasma Jets")
         @CollapsibleObject
         public PlasmaJets plasmaJets = new PlasmaJets();
@@ -141,6 +260,10 @@ public class AnvilCraftServerConfig {
             @Comment("Controls the extended duration of a single consumption of Fish Tank-based Plasma Jets (in ticks)")
             @BoundedDiscrete(min = 1, max = 12 * 60 * 60 * 20)
             public int fishTankExtraDuration = 24;
+
+            @Comment("Controls the maximum height of the Plasma Jets' chimney walls")
+            @BoundedDiscrete(min = 1, max = 8)
+            public int maxTubeHeight = 4;
         }
 
         @Comment("Controls the power grid range of Power Transmitters")
@@ -218,6 +341,10 @@ public class AnvilCraftServerConfig {
         @BoundedDiscrete(min = 1, max = 80)
         public int autoEnchantingTableMaxBookshelf = 15;
 
+        @Comment("Controls the liquid XP cost per bookshelf level of the Auto Enchanting Table (in mB)")
+        @BoundedDiscrete(min = 0, max = 10000)
+        public int autoEnchantingTableExpCostPerShelf = 400;
+
         @Comment("Controls the maximum selectable level of the Auto Enchanting Table's Liquid Enchantment mode")
         @BoundedDiscrete(min = 1, max = 15)
         public int liquidEnchantmentMaxLevel = 15;
@@ -273,8 +400,16 @@ public class AnvilCraftServerConfig {
         @Comment("Controls whether pressing shift and right-clicking takes out all totems stored in the Amulet Box")
         public boolean amuletBoxTakeOutAllTotem = true;
 
+        @Comment("Controls how many totems the Amulet Box can store")
+        @BoundedDiscrete(min = 1, max = 64)
+        public int amuletBoxCapacity = 16;
+
         @Comment("Controls whether eternal items can be killed by the void (falling out of the world)")
         public boolean eternalItemsVoidKillable = false;
+
+        @Comment("Controls the maximum number of blocks a single Building Rod operation may place")
+        @BoundedDiscrete(min = 1, max = 65536)
+        public int buildingRodMaxBlocks = 4000;
     }
 
     @SerializedName("Commands")
