@@ -71,6 +71,11 @@ public class HeliostatsBlock extends BaseEntityBlock implements IHammerRemovable
         return HeliostatsBlock.COLLISION_SHAPE;
     }
 
+    @Override
+    protected boolean propagatesSkylightDown(BlockState state) {
+        return false;
+    }
+
     @Nullable
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(

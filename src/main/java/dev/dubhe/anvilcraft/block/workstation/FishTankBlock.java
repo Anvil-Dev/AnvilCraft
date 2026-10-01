@@ -127,6 +127,11 @@ public class FishTankBlock extends Block implements IMoveableEntityBlock, Hammer
     }
 
     @Override
+    protected int getLightDampening(BlockState state) {
+        return 0;
+    }
+
+    @Override
     protected float getShadeBrightness(BlockState state, BlockGetter level, BlockPos pos) {
         return 1.0F;
     }

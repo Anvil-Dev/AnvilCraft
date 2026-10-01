@@ -1107,7 +1107,7 @@ public class ModBlocks {
         .initialProperties(ModBlocks.MAGNET_BLOCK)
         .properties(properties -> properties.isValidSpawn(Blocks::never)
             .noOcclusion()
-            .lightLevel(state -> state.getValue(IPowerConsumer.OVERLOAD) ? 0 : 15))
+            .lightLevel(state -> state.getValue(IPowerConsumer.OVERLOAD) || state.getValue(BlockStateProperties.POWERED) ? 0 : 15))
         .lang("Electric Heater")
         .blockstate(DataGenUtil::noExtraModelOrState)
         .simpleItem()

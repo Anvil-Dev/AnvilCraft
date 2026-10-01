@@ -6552,5 +6552,49 @@
       ]
     },
     "remaining": "Continue non-default/context-dependent block-state behavior and broader source-only Java/resource/rendering audits. Whole-port completion remains unproven."
+  },
+  "block_state_light_parity_2026_10_01": {
+    "source_commit": "cca4b2aac5328926fa88bc01d958d007ff6bfc2a",
+    "status": "implemented_and_verified",
+    "implementation": [
+      "Restore electric-heater emission zero when powered by redstone or overloaded, and fifteen only while enabled.",
+      "Restore source skylight blocking for both batch machines through their common base and for heliostats.",
+      "Restore fish-tank light dampening zero, matching the source runtime cached value with empty, water and lava contents; retain the existing auxiliary emission system."
+    ],
+    "validation": {
+      "source_blocks": 416,
+      "native_blocks": 416,
+      "source_states": 29036,
+      "native_states": 29098,
+      "focused_required_tests": 4,
+      "commands": [
+        "./gradlew.bat -PportValidation -I dev/porting/block-light.gradle -I dev/porting/checkstyle.gradle compileJava runGameTestServer checkPortJava --console=plain",
+        "./gradlew.bat -PportValidation -I dev/porting/checkstyle.gradle -I dev/porting/block-light-client.gradle compileJava checkPortJava runClient --console=plain",
+        "python dev/porting/verify_block_states.py",
+        "git diff --check"
+      ],
+      "logs": {
+        "focused": "build/porting/verify-block-light-final-focused.log",
+        "final_compile_style_client": "build/porting/client-block-light-final.log",
+        "source_client": "build/porting/client-block-light-reference-2.log",
+        "source_states": "build/porting/client-block-states-reference.log",
+        "state_comparison": "build/porting/block-states-parity-result.json",
+        "paired_client_light": "build/porting/block-light-comparison.json"
+      },
+      "coverage": [
+        "All 29,036 source states have counterparts with equal compared shape, collision, active occlusion, light, fluid and redstone fields in EmptyBlockGetter context. There are no sampling errors or missing states; 62 extra native Ruins states encode existing light/skylight adaptation.",
+        "Final focused tests cover every batch/heater switch state, heliostats, fish-tank fluid amounts and replacement, aborted/committed transfers and save/load.",
+        "Two source/native enclosed-world screenshots were visually inspected. Actual client emission, dampening and adjacent block-light readings match exactly at all four positions before and after disabling the heater and replacing lava with water.",
+        "Lit heater and lava tank emit 15 with adjacent light 14; disabled heater and water tank emit zero, and both sources disappear after the state/content changes.",
+        "Final compile, Checkstyle, client capture and state comparison pass. The focused behavior passed before a local fixture line-length correction; no generated resources changed."
+      ],
+      "limits": [
+        "Source fish-tank code suggests dynamic fluid-dependent dampening, but actual cached BlockState queries return zero even for a full lava tank. Paired runtime evidence rejected an intermediate new-state-cache approach; no added fish-tank state property or block-entity mutation remains.",
+        "The initial source fixture used FluidTank.setFluid, which does not notify content changes in 1.21. It was corrected to actual fill/drain execution before accepting the paired transition evidence.",
+        "Inactive occlusion shapes are excluded only when canOcclude is false; Ruins extra cached light states are projected to their source empty-context equivalents. World-neighbor and block-entity-dependent behavior beyond the focused scene is not claimed complete.",
+        "Native terrain rendering and lighting appearance remain. All tests, scenes, screenshots and dumps stay local and ignored."
+      ]
+    },
+    "remaining": "Continue world-context behavior, entity/item state contracts and the broader source-only Java/resource/rendering completion audit. Whole-port completion remains unproven."
   }
 }
