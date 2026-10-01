@@ -10,8 +10,11 @@ import dev.dubhe.anvilcraft.api.itemhandler.IItemHandlerHolder;
 import dev.dubhe.anvilcraft.api.pointer.ITargetPointer;
 import dev.dubhe.anvilcraft.api.power.IPowerConsumer;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
+import dev.dubhe.anvilcraft.block.LensBlock;
 import dev.dubhe.anvilcraft.block.SmartBlockPlacerBlock;
+import dev.dubhe.anvilcraft.block.UseItemOnBlock;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
+import dev.dubhe.anvilcraft.init.ModTargetPointers;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItems;
@@ -239,7 +242,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
                 this.currentHeldBlock = this.createHeldBlock(level, blueprintTarget.state());
                 return found;
             }
-            this.updateMissingBlock(level, this.createDisplayedBlock(level, blueprintTarget.state()));
+            this.updateMissingBlock(level, this.createMissingBlock(level, blueprintTarget.state()));
             if (this.placement == BlueprintPlacementMode.WAIT) {
                 return null;
             }
@@ -551,6 +554,23 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
     private void advanceBlueprintIndex(int orderIndex) {
         this.currentPlacementIndex = orderIndex + 1;
         this.setChanged();
+    }
+
+    private Either<ItemStack, BlockState> createMissingBlock(ServerLevel level, BlockState state) {
+        ItemStack upgrade = UseItemOnBlock.materialFor(state);
+        if (this.operation == OperationMode.PICKUP && state.getBlock() instanceof LensBlock && !upgrade.isEmpty()) {
+            BlockState baseState = state.getBlock().defaultBlockState();
+            ITargetPointer basePointer = ModTargetPointers.BLOCK_ITEM_HANDLER_ONLY_BLOCK_ITEM.get()
+                .point(level, this.getSourcePos(), this.getFacing(), baseState);
+            if (basePointer == null) {
+                basePointer = ModTargetPointers.ITEM_ENTITY_ONLY_BLOCK_ITEM.get()
+                    .point(level, this.getSourcePos(), this.getFacing(), baseState);
+            }
+            if (basePointer != null && !basePointer.matches(level, state)) {
+                return Either.left(upgrade);
+            }
+        }
+        return this.createDisplayedBlock(level, state);
     }
 
     private Either<ItemStack, BlockState> createDisplayedBlock(Level level, BlockState state) {
