@@ -4,6 +4,7 @@
   "package": "dev.dubhe.anvilcraft.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
+    "compat.SophisticatedItemInventoryMixin",
     "piglin.PiglinAiMixin",
     "piglin.PiglinBruteAiMixin",
     "IntegrationManagerMixin",
@@ -155,6 +156,7 @@
     "accessor.RedStoneWireBlockAccessor"
   ],
   "client": [
+    "compat.SophisticatedJeiRecipeTransferMixin",
     "HumanoidModelMixin",
     "accessor.AbstractContainerMenuSlotsAccessor",
     "ItemFrameRendererMixin",

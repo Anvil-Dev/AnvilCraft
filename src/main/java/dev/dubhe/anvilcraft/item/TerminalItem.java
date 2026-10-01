@@ -6,9 +6,12 @@ import dev.dubhe.anvilcraft.api.TerminalSessions;
 import dev.dubhe.anvilcraft.api.item.ICannotFitInStationItem;
 import dev.dubhe.anvilcraft.client.rpc.StorageTerminalClientStub;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
+import dev.dubhe.anvilcraft.integration.TerminalItemInventory;
 import dev.dubhe.anvilcraft.inventory.PocketInventory;
 import dev.dubhe.anvilcraft.item.property.component.TerminalBinding;
 import dev.dubhe.anvilcraft.rpc.StorageServerStub;
+import dev.dubhe.anvilcraft.saved.storage.CraftingStorage;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -16,8 +19,11 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.neoforged.api.distmarker.Dist;
+import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.transfer.access.ItemAccess;
 import org.jspecify.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -64,7 +70,39 @@ public abstract class TerminalItem extends BundleLikeItem implements ICannotFitI
     }
 
     public static List<ItemStack> getAll(Player player) {
-        return carriedItems(player).stream().filter(stack -> stack.getItem() instanceof TerminalItem).toList();
+        List<ItemStack> terminals = new ArrayList<>();
+        for (ItemStack stack : carriedItems(player)) {
+            if (stack.getItem() instanceof TerminalItem) terminals.add(stack);
+            TerminalItemInventory inventory = backpackInventory(stack);
+            if (inventory == null) continue;
+            for (int slot = 0; slot < inventory.size(); slot++) {
+                ItemStack contained = inventory.getStackInSlot(slot);
+                if (contained.getItem() instanceof TerminalItem) terminals.add(contained);
+            }
+        }
+        return terminals;
+    }
+
+    public static ItemStack setCrafting(Player player, ItemStack terminal, CraftingStorage crafting) {
+        for (ItemStack stack : carriedItems(player)) {
+            TerminalItemInventory inventory = backpackInventory(stack);
+            if (inventory == null) continue;
+            for (int slot = 0; slot < inventory.size(); slot++) {
+                if (inventory.getStackInSlot(slot) != terminal) continue;
+                ItemStack updated = terminal.copy();
+                updated.set(ModComponents.CRAFTING, crafting);
+                inventory.setStackInSlot(slot, updated);
+                return updated;
+            }
+        }
+        terminal.set(ModComponents.CRAFTING, crafting);
+        return terminal;
+    }
+
+    private static @Nullable TerminalItemInventory backpackInventory(ItemStack stack) {
+        if (!BuiltInRegistries.ITEM.getKey(stack.getItem()).getNamespace().equals("sophisticatedbackpacks")) return null;
+        var handler = stack.getCapability(Capabilities.Item.ITEM, ItemAccess.forStack(stack));
+        return handler instanceof TerminalItemInventory inventory ? inventory : null;
     }
 
     @Override

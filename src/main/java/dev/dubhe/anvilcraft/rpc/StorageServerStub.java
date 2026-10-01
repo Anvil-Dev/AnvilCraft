@@ -361,7 +361,17 @@ public final class StorageServerStub {
         return changed;
     }
 
-    private record CraftingTarget(StorageView view, ServerPlayer player, @Nullable ItemStack terminal) {
+    private static final class CraftingTarget {
+        private final StorageView view;
+        private final ServerPlayer player;
+        private @Nullable ItemStack terminal;
+
+        private CraftingTarget(StorageView view, ServerPlayer player, @Nullable ItemStack terminal) {
+            this.view = view;
+            this.player = player;
+            this.terminal = terminal;
+        }
+
         CraftingStorage read() {
             return this.terminal == null ? this.view.primary().getCrafting()
                 : this.terminal.getOrDefault(ModComponents.CRAFTING, CraftingStorage.EMPTY);
@@ -370,7 +380,7 @@ public final class StorageServerStub {
         void write(CraftingStorage crafting) {
             if (this.terminal == null) this.view.primary().setCrafting(crafting);
             else {
-                this.terminal.set(ModComponents.CRAFTING, crafting);
+                this.terminal = TerminalItem.setCrafting(this.player, this.terminal, crafting);
                 this.player.getInventory().setChanged();
             }
             this.player.inventoryMenu.broadcastChanges();
@@ -671,7 +681,7 @@ public final class StorageServerStub {
     }
 
     private static void applyCraftOperation(CraftingTarget target, CraftOperation operation, boolean storageFirst) {
-        ServerPlayer player = target.player();
+        ServerPlayer player = target.player;
         operation.result.onCraftedBy(player, operation.result.getCount());
         if (operation.recipe.value() instanceof CraftingRecipe) {
             EventHooks.firePlayerCraftingEvent(player, operation.result, new SimpleContainer(operation.inputs.toArray(ItemStack[]::new)));
@@ -1154,7 +1164,7 @@ public final class StorageServerStub {
         StorageServerStub.CraftingTarget target = StorageServerStub.resolveCraftingTarget(player, sourcePos);
         cancelCraftingBatch(playerId, sourcePos);
         CraftingStorage crafting = target.read();
-        StorageView view = target.view();
+        StorageView view = target.view;
         if (view == null) {
             return false;
         }
