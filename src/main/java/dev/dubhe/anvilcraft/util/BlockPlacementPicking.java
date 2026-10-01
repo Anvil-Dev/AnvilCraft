@@ -80,6 +80,7 @@ public final class BlockPlacementPicking {
             && hit.getLocation().distanceToSqr(context.getClickLocation()) <= HIT_EPSILON * HIT_EPSILON) return context;
         if (!allowed(context.getLevel(), player, context.getItemInHand(), hit)) {
             hit = BlockHitResult.miss(hit.getLocation(), hit.getDirection(), hit.getBlockPos());
+            return new RejectedPlacementContext(context, hit);
         }
         return new UseOnContext(context.getLevel(), player, context.getHand(), context.getItemInHand(), hit);
     }
@@ -109,6 +110,21 @@ public final class BlockPlacementPicking {
             && player.isWithinBlockInteractionRange(hit.getBlockPos(), 0)
             && level.mayInteract(player, hit.getBlockPos())
             && (player.getAbilities().mayBuild || stack.canPlaceOnBlockInAdventureMode(new BlockInWorld(level, hit.getBlockPos(), false)));
+    }
+
+    public interface PlacementRejection {
+        boolean anvilcraft$isPlacementRejected();
+    }
+
+    private static final class RejectedPlacementContext extends UseOnContext implements PlacementRejection {
+        private RejectedPlacementContext(UseOnContext context, BlockHitResult hit) {
+            super(context.getLevel(), context.getPlayer(), context.getHand(), context.getItemInHand(), hit);
+        }
+
+        @Override
+        public boolean anvilcraft$isPlacementRejected() {
+            return true;
+        }
     }
 
     public interface PlayerClick {
