@@ -1,0 +1,16 @@
+{
+  "structures": [
+    {
+      "structure": "anvilcraft:the_monolith",
+      "weight": 1
+    }
+  ],
+  "placement": {
+    "type": "minecraft:concentric_rings",
+    "distance": 1,
+    "spread": 1,
+    "count": 1,
+    "preferred_biomes": [],
+    "salt": 0
+  }
+}
