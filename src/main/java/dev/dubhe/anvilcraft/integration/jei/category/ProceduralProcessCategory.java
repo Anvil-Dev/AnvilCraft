@@ -12,8 +12,8 @@ import dev.dubhe.anvilcraft.integration.jei.util.JeiRenderHelper;
 import dev.dubhe.anvilcraft.recipe.anvil.procedural.ProceduralProcessRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.procedural.ProceduralProcessStep;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.AbstractProcessRecipe;
+import mezz.jei.api.gui.ITickTimer;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
-import mezz.jei.api.gui.builder.IRecipeSlotBuilder;
 import mezz.jei.api.gui.builder.ITooltipBuilder;
 import mezz.jei.api.gui.drawable.IDrawable;
 import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
@@ -33,7 +33,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -48,7 +47,7 @@ public class ProceduralProcessCategory implements IRecipeCategory<RecipeHolder<P
     private static final String INITIAL_BLOCK = "initial_block";
     public static final int WIDTH = 162;
     /** 步骤图区域的高度，至少容纳到流程行（长箭头与循环图标）的底边 */
-    public static final int CONTENT_HEIGHT = 82;
+    public static final int CONTENT_HEIGHT = 70;
     /** 材料清单相对步骤图底边上移的像素数。标签在流程行左侧、槽位在流程行下方，上移后仍不相撞。 */
     public static final int MATERIALS_RAISE = 10;
     public static final int MATERIALS_LABEL_Y = CONTENT_HEIGHT - MATERIALS_RAISE;
@@ -61,21 +60,14 @@ public class ProceduralProcessCategory implements IRecipeCategory<RecipeHolder<P
     public static final int STEP_X = (WIDTH - STEPS_LENGTH) / 2 + 10;
     public static final int STEP_LENGTH = 20;
 
-    /** 铁砧顶端。整体下移，使铁砧贴图完整落在类目内，不再溢到标题区白占高度。 */
-    public static final int ANVIL_Y = 10;
-    /**
-     * 物品槽顶端，紧贴铁砧下方。
-     *
-     * <p>物品槽与主线上方那行必然互斥：只有物品注入配方带物品输入，而它的输入方块恒为一个、
-     * 主体就落在主线上，会占上方那行的是方块压缩与方块处理（其配方不含物品）。因此两者可以
-     * 重叠，无需为其预留独立高度。</p>
-     */
-    public static final int ITEM_Y = 23;
     /** 显示主线：主体方块固定画在这一行，上方一行留「从上面砸进去」的方块，下方一行留垫底方块。 */
-    public static final int BLOCK_Y = 48;
+    public static final int BLOCK_Y = 40;
+    private static final int ITEM_Y = BLOCK_Y - 12;
+    private static final int ITEM_PREVIEW_SIZE = 12;
+    private static final int BLOCK_SCALE = 12;
     /** 相邻输入方块之间的行距。 */
     public static final int BLOCK_ROW_DY = 10;
-    public static final int FLOW_Y = 69;
+    public static final int FLOW_Y = 57;
     private static final long LOOP_CYCLE_MILLIS = 1500L;
     private static final int CYCLE_SIZE = 16;
 
@@ -84,6 +76,7 @@ public class ProceduralProcessCategory implements IRecipeCategory<RecipeHolder<P
     private final IDrawable arrowLong;
     private final IDrawable icon;
     private final Component title;
+    private final ITickTimer timer;
 
     public ProceduralProcessCategory(IGuiHelper helper) {
         this.slotDefault = JeiRenderHelper.getSlotDefault(helper);
@@ -91,6 +84,7 @@ public class ProceduralProcessCategory implements IRecipeCategory<RecipeHolder<P
         this.arrowLong = JeiRenderHelper.getArrowLong(helper);
         this.icon = helper.createDrawableItemLike(Blocks.ANVIL);
         this.title = Component.translatable("gui.anvilcraft.category.procedural_process");
+        this.timer = helper.createTickTimer(30, 60, true);
     }
 
     @Override
@@ -139,8 +133,16 @@ public class ProceduralProcessCategory implements IRecipeCategory<RecipeHolder<P
 
             if (!stepRecipe.getInputItems().isEmpty()) {
                 ItemIngredientPredicate ingredient = stepRecipe.getInputItems().getFirst();
-                IRecipeSlotBuilder slot = builder.addSlot(RecipeIngredientRole.INPUT, stepX + i * stepDx - 8, ITEM_Y + 1);
-                slot.addIngredients(Ingredient.of(ingredient.getItems()));
+                JeiBlockIngredientUtil.addSlot(
+                    builder,
+                    RecipeIngredientRole.INPUT,
+                    stepItemSlotName(i),
+                    stepX + i * stepDx - ITEM_PREVIEW_SIZE / 2,
+                    ITEM_Y,
+                    ITEM_PREVIEW_SIZE,
+                    ITEM_PREVIEW_SIZE,
+                    List.of(ingredient.getItems())
+                );
             }
 
             // 槽位跟随主线之外的偏移，与 draw 中的方块渲染保持一致
@@ -202,7 +204,7 @@ public class ProceduralProcessCategory implements IRecipeCategory<RecipeHolder<P
         List<BlockState> initialStates = recipe.getInitialBlock().constructStatesForRender();
         JeiBlockIngredientUtil.getDisplayedState(recipeSlotsView, INITIAL_BLOCK, initialStates).ifPresent(blockState ->
             RenderSupport.renderBlock(
-                guiGraphics, blockState, STEP_X - 20, BLOCK_Y, 10, 12, RenderSupport.SINGLE_BLOCK
+                guiGraphics, blockState, STEP_X - 20, BLOCK_Y, 10, BLOCK_SCALE, RenderSupport.SINGLE_BLOCK
             )
         );
 
@@ -217,23 +219,6 @@ public class ProceduralProcessCategory implements IRecipeCategory<RecipeHolder<P
         for (int i = 0; i < size; i++) {
             ProceduralProcessStep step = getDisplayedStep(recipe, i, displayedLoop);
             if (!(step.getContent() instanceof AbstractProcessRecipe<?> stepRecipe)) continue;
-
-            // anvil
-            RenderSupport.renderBlock(
-                guiGraphics,
-                Blocks.ANVIL.defaultBlockState(),
-                stepX + i * stepDx,
-                ANVIL_Y,
-                20,
-                12,
-                RenderSupport.SINGLE_BLOCK
-            );
-
-            // item
-
-            if (!stepRecipe.getInputItems().isEmpty()) {
-                this.slotDefault.draw(guiGraphics, stepX + i * stepDx - 9, ITEM_Y);
-            }
 
             // block
             // 主体（产出方块落点所在的那个输入）固定占主线行，其余输入按与它的世界上下
@@ -253,7 +238,7 @@ public class ProceduralProcessCategory implements IRecipeCategory<RecipeHolder<P
                         stepX + i * stepDx,
                         blockY,
                         10 - 10 * j,
-                        12,
+                        BLOCK_SCALE,
                         RenderSupport.wipDisplay(recipe, displayedLoop * recipe.getSteps().size() + i)
                     );
                 }
@@ -263,10 +248,18 @@ public class ProceduralProcessCategory implements IRecipeCategory<RecipeHolder<P
                     stepX + i * stepDx,
                     blockY,
                     10 - 10 * j,
-                    12,
+                    BLOCK_SCALE,
                     RenderSupport.SINGLE_BLOCK
                 );
             }
+            drawStepOverlay(
+                guiGraphics,
+                recipeSlotsView,
+                stepRecipe,
+                i,
+                stepX + i * stepDx,
+                BLOCK_Y - BLOCK_ROW_DY * anchor
+            );
         }
 
         // loop
@@ -278,7 +271,7 @@ public class ProceduralProcessCategory implements IRecipeCategory<RecipeHolder<P
 
         // result
         RenderSupport.renderBlock(
-            guiGraphics, recipe.getResultBlock().state(), STEP_X + STEPS_LENGTH, BLOCK_Y, 0, 12, RenderSupport.SINGLE_BLOCK
+            guiGraphics, recipe.getResultBlock().state(), STEP_X + STEPS_LENGTH, BLOCK_Y, 0, BLOCK_SCALE, RenderSupport.SINGLE_BLOCK
         );
 
         // 材料清单：标签 + 槽位底板
@@ -313,6 +306,41 @@ public class ProceduralProcessCategory implements IRecipeCategory<RecipeHolder<P
         }
     }
 
+    private void drawStepOverlay(
+        GuiGraphics guiGraphics,
+        IRecipeSlotsView recipeSlotsView,
+        AbstractProcessRecipe<?> stepRecipe,
+        int stepIndex,
+        int x,
+        int y
+    ) {
+        ItemStack displayedItem = ItemStack.EMPTY;
+        if (!stepRecipe.getInputItems().isEmpty()) {
+            ItemIngredientPredicate ingredient = stepRecipe.getInputItems().getFirst();
+            displayedItem = JeiBlockIngredientUtil.getDisplayedItemStack(recipeSlotsView, stepItemSlotName(stepIndex))
+                .orElse(ItemStack.EMPTY)
+                .copyWithCount(Math.max(ingredient.count(), 1));
+        }
+        ItemStack stack = displayedItem;
+        float anvilLift = (8 - JeiRenderHelper.getAnvilAnimationOffset(this.timer)) / BLOCK_SCALE;
+        RenderSupport.renderBlock(
+            guiGraphics,
+            Blocks.ANVIL.defaultBlockState(),
+            x,
+            y,
+            10,
+            BLOCK_SCALE,
+            (state, pose, buffers) -> {
+                pose.pushPose();
+                pose.translate(0, 1, 0);
+                RenderSupport.renderGroundItemPreview(stack, pose, buffers, 1.5F, stepIndex);
+                pose.translate(0, anvilLift, 0);
+                RenderSupport.SINGLE_BLOCK.renderBlock(state, pose, buffers);
+                pose.popPose();
+            }
+        );
+    }
+
     @Override
     public void getTooltip(
         ITooltipBuilder tooltip,
@@ -333,6 +361,10 @@ public class ProceduralProcessCategory implements IRecipeCategory<RecipeHolder<P
 
     public static void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
         AnvilCraftJeiPlugin.addAnvilProcessingCatalysts(registration, AnvilCraftJeiPlugin.PROCEDURAL_PROCESS);
+    }
+
+    private static String stepItemSlotName(int step) {
+        return "step_" + step + "_item";
     }
 
     private static String stepBlockSlotName(int step, int block) {

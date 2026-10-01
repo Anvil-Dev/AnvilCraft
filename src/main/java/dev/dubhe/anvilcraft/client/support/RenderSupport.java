@@ -2,12 +2,15 @@ package dev.dubhe.anvilcraft.client.support;
 
 import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.SheetedDecalTextureGenerator;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.blaze3d.vertex.VertexMultiConsumer;
 import com.mojang.math.Axis;
 import com.mojang.math.MatrixUtil;
+import dev.dubhe.anvilcraft.client.renderer.blockentity.BaseShowItemRenderer;
 import dev.dubhe.anvilcraft.recipe.anvil.procedural.ProceduralProcessRecipe;
 import dev.dubhe.anvilcraft.util.LevelLike;
 import dev.dubhe.anvilcraft.util.VertexConsumerWithPose;
@@ -16,10 +19,12 @@ import lombok.NoArgsConstructor;
 import net.minecraft.CrashReport;
 import net.minecraft.CrashReportCategory;
 import net.minecraft.ReportedException;
+import net.minecraft.Util;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -66,11 +71,16 @@ import org.joml.Vector3f;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 import javax.annotation.Nullable;
 
 @SuppressWarnings("deprecation")
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class RenderSupport {
+    private static final RenderType ITEM_SHADOW = RenderType.entityShadow(
+        ResourceLocation.withDefaultNamespace("textures/misc/shadow.png")
+    );
+    private static final Function<RenderType, RenderType> FULL_BRIGHT_ITEM_TYPES = Util.memoize(RenderSupport::fullBrightItemType);
     private static final int MAX_CACHE_SIZE = 64;
     private static final LinkedHashMap<BlockState, BlockEntity> BLOCK_ENTITY_CACHE = new LinkedHashMap<>();
     private static final RandomSource RANDOM = RandomSource.createNewThreadLocalInstance();
@@ -556,6 +566,58 @@ public class RenderSupport {
         } catch (Exception ignored) {
             // do nothing
         }
+    }
+
+    public static void renderGroundItemPreview(
+        ItemStack stack, PoseStack pose, MultiBufferSource.BufferSource buffers, float scale, int seed
+    ) {
+        Minecraft minecraft = Minecraft.getInstance();
+        if (minecraft.level == null || stack.isEmpty()) return;
+        float radius = 0.15F * scale;
+        VertexConsumer shadow = buffers.getBuffer(ITEM_SHADOW);
+        PoseStack.Pose surface = pose.last();
+        shadowVertex(shadow, surface, 0.5F - radius, 0.5F - radius, 0, 0);
+        shadowVertex(shadow, surface, 0.5F - radius, 0.5F + radius, 0, 1);
+        shadowVertex(shadow, surface, 0.5F + radius, 0.5F + radius, 1, 1);
+        shadowVertex(shadow, surface, 0.5F + radius, 0.5F - radius, 1, 0);
+        buffers.endBatch(ITEM_SHADOW);
+
+        pose.pushPose();
+        float bottom = FittedItemRenderer.getGroundItemBottom(stack, seed);
+        pose.translate(0.5F, -bottom * scale, 0.5F);
+        pose.scale(scale, scale, scale);
+        pose.translate(-0.5F, 0, -0.5F);
+        BaseShowItemRenderer.renderItem(
+            minecraft.level, stack, 0.5F, 0, 0.5F, minecraft.getItemRenderer(), pose,
+            type -> buffers.getBuffer(FULL_BRIGHT_ITEM_TYPES.apply(type)), LightTexture.FULL_BRIGHT, getPartialTick(), seed
+        );
+        pose.popPose();
+        buffers.endBatch();
+    }
+
+    private static void shadowVertex(VertexConsumer vertices, PoseStack.Pose surface, float x, float z, float u, float v) {
+        vertices.addVertex(surface, x, 0.002F, z).setColor(255, 255, 255, 128).setUv(u, v)
+            .setOverlay(OverlayTexture.NO_OVERLAY).setLight(LightTexture.FULL_BRIGHT).setNormal(surface, 0, 1, 0);
+    }
+
+    private static RenderType fullBrightItemType(RenderType original) {
+        if (original.format() == DefaultVertexFormat.NEW_ENTITY
+            && original instanceof RenderType.CompositeRenderType composite
+            && composite.state().textureState instanceof RenderStateShard.TextureStateShard textureState) {
+            Optional<ResourceLocation> texture = textureState.texture;
+            if (texture.isPresent()) {
+                return RenderType.create(
+                    "anvilcraft:full_bright_item", DefaultVertexFormat.POSITION_TEX_COLOR, VertexFormat.Mode.QUADS, 1536, false, true,
+                    RenderType.CompositeState.builder()
+                        .setShaderState(new RenderStateShard.ShaderStateShard(GameRenderer::getPositionTexColorShader))
+                        .setTextureState(new RenderStateShard.TextureStateShard(texture.get(), false, false))
+                        .setTransparencyState(composite.state().transparencyState)
+                        .setWriteMaskState(RenderStateShard.COLOR_DEPTH_WRITE)
+                        .createCompositeState(false)
+                );
+            }
+        }
+        return original;
     }
 
     public static void renderItemWithTransparency(ItemStack stack, PoseStack poseStack, int x, int y, float alpha) {
