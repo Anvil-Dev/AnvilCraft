@@ -101,14 +101,18 @@ public final class JeiBlockIngredientUtil {
         }
     }
 
+    public static Optional<ItemStack> getDisplayedItemStack(IRecipeSlotsView recipeSlotsView, String slotName) {
+        return recipeSlotsView.findSlotByName(SLOT_PREFIX + slotName)
+            .flatMap(IRecipeSlotView::getDisplayedItemStack);
+    }
+
     public static Optional<BlockState> getDisplayedState(
         IRecipeSlotsView recipeSlotsView,
         String slotName,
         List<BlockState> states
     ) {
         if (states.isEmpty()) return Optional.empty();
-        Optional<Block> displayedBlock = recipeSlotsView.findSlotByName(SLOT_PREFIX + slotName)
-            .flatMap(IRecipeSlotView::getDisplayedItemStack)
+        Optional<Block> displayedBlock = getDisplayedItemStack(recipeSlotsView, slotName)
             .map(ItemStack::getItem)
             .filter(BlockItem.class::isInstance)
             .map(BlockItem.class::cast)

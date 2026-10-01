@@ -14,6 +14,7 @@ import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.blaze3d.vertex.VertexSorting;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.client.init.ModShaders;
+import dev.dubhe.anvilcraft.client.renderer.blockentity.BaseShowItemRenderer;
 import dev.dubhe.anvilcraft.mixin.accessor.RenderSystemAccessor;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
@@ -48,6 +49,7 @@ public final class FittedItemRenderer {
     private static final int MAX_ICONS = 64;
     private static final int PADDING = 2;
     private static final Map<IconKey, Icon> ICONS = new LinkedHashMap<>(16, 0.75F, true);
+    private static final Map<IconKey, GroundBounds> GROUND_BOUNDS = new LinkedHashMap<>(16, 0.75F, true);
     private static int nextTexture;
     private static int captureDepth;
 
@@ -92,6 +94,29 @@ public final class FittedItemRenderer {
         vertex(vertices, pose, -x, -y, minU, 1 - minV, light, overlay);
         vertex(vertices, pose, x, -y, 1 - minU, 1 - minV, light, overlay);
         vertex(vertices, pose, x, y, 1 - minU, minV, light, overlay);
+    }
+
+    public static float getGroundItemBottom(ItemStack stack, int seed) {
+        Minecraft minecraft = Minecraft.getInstance();
+        ItemRenderer renderer = minecraft.getItemRenderer();
+        BakedModel model = renderer.getModel(stack, minecraft.level, null, seed);
+        IconKey key = new IconKey(stack.copyWithCount(1));
+        GroundBounds cached = GROUND_BOUNDS.get(key);
+        if (cached != null && cached.model == model && cached.count == stack.getCount()) return cached.bottom;
+        Bounds bounds = new Bounds();
+        ItemStack measured = stack.copy();
+        measured.set(DataComponents.ENCHANTMENT_GLINT_OVERRIDE, false);
+        if (minecraft.level == null) return 0;
+        BaseShowItemRenderer.renderItem(
+            minecraft.level, measured, 0.5F, 0, 0.5F, renderer, new PoseStack(), type -> bounds,
+            LightTexture.FULL_BRIGHT, 0, seed
+        );
+        float bottom = Float.isFinite(bounds.minY) ? bounds.minY : 0;
+        GROUND_BOUNDS.put(key, new GroundBounds(model, bottom, stack.getCount()));
+        if (GROUND_BOUNDS.size() > MAX_ICONS) {
+            GROUND_BOUNDS.remove(GROUND_BOUNDS.keySet().iterator().next());
+        }
+        return bottom;
     }
 
     private static void vertex(
@@ -231,6 +256,9 @@ public final class FittedItemRenderer {
         public boolean equals(Object other) {
             return other instanceof IconKey key && ItemStack.isSameItemSameComponents(this.stack, key.stack);
         }
+    }
+
+    private record GroundBounds(BakedModel model, float bottom, int count) {
     }
 
     private record Icon(

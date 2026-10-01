@@ -11,11 +11,11 @@ import net.minecraft.world.level.block.state.BlockState;
 public class JeiRenderHelper {
     // Animation
     public static float getAnvilAnimationOffset(ITickTimer timer) {
-        return timer.getValue() < 30 ? getAnvilAnimationOffset(timer.getValue()) : 8;
+        return timer.getValue() < 30 ? getAnvilAnimationOffset(timer.getValue()) : -8;
     }
 
     public static float getAnvilAnimationOffset(float time) {
-        return (float) Math.sin(time / 30d * 2d * Math.PI + Math.PI / 2) * 8;
+        return -(float) Math.sin(time / 30d * 2d * Math.PI + Math.PI / 2) * 8;
     }
 
     // Arrow
