@@ -55,7 +55,6 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.OptionalInt;
 import java.util.Set;
-import java.util.function.BiConsumer;
 
 public class PlasmaJetsBlockEntity extends BlockEntity {
     public static final int MAX_DURATION = 10 * 60 * 20;
@@ -165,13 +164,11 @@ public class PlasmaJetsBlockEntity extends BlockEntity {
         return new Pair<>(noMagnet, magnet);
     }
 
-    private static final BiConsumer<PlasmaJetsBlockEntity, Level> CLIENT_TICK = (entity, level) -> entity.clientTick((ClientLevel) level);
-
     public static void tick(Level level, BlockPos ignored, BlockState ignored1, PlasmaJetsBlockEntity entity) {
         if (level instanceof ServerLevel serverLevel) {
             entity.serverTick(serverLevel);
         } else if (level.isClientSide()) {
-            CLIENT_TICK.accept(entity, level);
+            entity.clientTick(level);
         }
     }
 
@@ -201,9 +198,9 @@ public class PlasmaJetsBlockEntity extends BlockEntity {
     }
 
     @OnlyIn(Dist.CLIENT)
-    private void clientTick(ClientLevel level) {
+    private void clientTick(Level level) {
         this.refreshCauldronPos(level);
-        this.summonParticles(level);
+        this.summonParticles((ClientLevel) level);
     }
 
     protected void tryIgniteValidCauldron(Level level) {
