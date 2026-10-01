@@ -2980,5 +2980,7 @@
   "command.anvilcraft.storage.list.head": "存储（%1$s）：",
   "command.anvilcraft.storage.no_hand_item": "主手未手持物品",
   "command.anvilcraft.storage.no_storage": "手持的物品没有引用存储",
-  "command.anvilcraft.storage.unbind.success": "成功解绑存储"
+  "command.anvilcraft.storage.unbind.success": "成功解绑存储",
+  "screen.anvilcraft.filter.deny_list": "拦截列表",
+  "screen.anvilcraft.filter.allow_list": "放行列表"
 }

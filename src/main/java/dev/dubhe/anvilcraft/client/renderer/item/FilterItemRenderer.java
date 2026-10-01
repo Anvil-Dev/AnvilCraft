@@ -38,7 +38,7 @@ public class FilterItemRenderer implements SpecialModelRenderer<FilterItemRender
         ItemStack item = selectDisplayed(content, Util.getMillis());
         if (item.isEmpty()) return null;
         var icon = FittedItemRenderer.prepare(item);
-        var barrier = content.blackList() ? FittedItemRenderer.prepare(Items.BARRIER.getDefaultInstance()) : null;
+        var barrier = content.denyList() ? FittedItemRenderer.prepare(Items.BARRIER.getDefaultInstance()) : null;
         return new Argument(icon, barrier, item.hasFoil(), FittedItemRenderer.frontZ(stack), item.hasFoil() ? System.nanoTime() : 0);
     }
 
