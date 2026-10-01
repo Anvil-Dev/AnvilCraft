@@ -11,7 +11,6 @@ items:
   - anvilcraft:topaz_block
   - anvilcraft:sapphire_block
   - anvilcraft:ruby_block
-  - anvilcraft:melt_gem_bucket
 ---
 
 # 更多宝石

@@ -6,7 +6,7 @@ navigation:
 
 # Determining the Correct Parameter Combination
 
-![star-info](../../textures/star_info.png)
+![star-info](../../textures/structure_scanner_2.png)
 
 1. The left, top, right, and bottom axes represent the four parameters of the celestial body
 2. The parameter groups form 3 focal points at the top-left, top-right, and bottom

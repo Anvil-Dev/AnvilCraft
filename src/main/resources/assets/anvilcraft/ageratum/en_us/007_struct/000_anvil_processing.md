@@ -4,7 +4,7 @@ navigation:
   icon: "minecraft:anvil"
 ---
 
-<directory>
+<directory />
 
 # Anvil: Item Processing
 
@@ -175,7 +175,7 @@ Converts the block and generates resources in the cauldron
 - ...
 
 <info>
-Mod Improvement: When the cauldron is filled with 4 layers of honey, you can extract honey blocks using hoppers and other logistics blocks.
+Mod Improvement: When the <ref item="minecraft:cauldron"/> is filled with 4 layers of honey, you can extract <ref item="minecraft:honey_block"/> using hoppers and other logistics blocks.
 </info>
 
 # Block Procedural Processing

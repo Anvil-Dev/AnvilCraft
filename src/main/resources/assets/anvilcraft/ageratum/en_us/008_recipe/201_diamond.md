@@ -4,7 +4,7 @@ navigation:
   icon: "minecraft:diamond"
 ---
 
-# Lava Regeneration
+# Mass Production of Diamonds
 
 <row halign="center">
 <item id="minecraft:oak_log"/>

@@ -23,6 +23,10 @@ eg:村民可以抓取;僵尸需要对其施加虚弱效果才能抓取;铁傀儡
 可以抓取<ref item="minecraft:spawner"/>中的生物，但不能放回去
 </warning>
 
+<info>
+如果抓捕失败，会小幅度的拉动目标生物
+</info>
+
 - 可以通过<ref item="minecraft:dispenser"/>自动化操作
 
 # 怨恨值

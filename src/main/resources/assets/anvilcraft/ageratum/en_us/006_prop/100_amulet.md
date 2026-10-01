@@ -17,19 +17,17 @@ items:
   - anvilcraft:armadillo_amulet
 ---
 
-<directory>
-
 # Acquisition
 
 - To obtain your first amulet, you need an <ref item="anvilcraft:amulet_box"/>:
-  1. Have an <ref item="anvilcraft:amulet_box"/> in your inventory with a Totem of Undying inside
+  1. Have an <ref item="anvilcraft:amulet_box"/> in your offhand with a Totem of Undying inside
   2. Take specific fatal damage and have the Totem of Undying consumed to block it
   3. 20% chance to obtain the corresponding amulet; each failure adds an additional 10% until it succeeds
 - Afterwards, amulets can be replicated in the <ref item="anvilcraft:jewelcrafting_table"/>; you must obtain the first one before replication
 
 # Activation
 
-- Amulets held in the main hand or offhand are active (holding two activates both)
+- Only amulets held in the main hand or offhand are active
 - The [Amulet Box](100_amulet_box.md) can hold amulets; holding an Amulet Box in your main hand or offhand activates all amulets inside
 - Amulets in curio/accessory slots from accessory mods are active
 
@@ -55,7 +53,7 @@ items:
 
 **Acquisition**: Fatal damage from fire, lava, magma blocks and other hot-floor blocks, or lasers
 
-**Effect**: Grants Fire Resistance; grants Strength I, or Strength II while burning
+**Effect**: Grants Fire Resistance and Strength I, or Strength II while burning
 
 <recipe id="anvilcraft:jewel_crafting/ruby_amulet"/>
 

@@ -6,7 +6,7 @@ navigation:
 
 # 确定正确的参数组合
 
-![star-info](../../textures/star_info.png)
+![star-info](../../textures/structure_scanner_2.png)
 
 1. 左、上、右、下四个轴依次表示天体的四个参数
 2. 参数组会在左上、右上、左下构成3个焦点

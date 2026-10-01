@@ -237,13 +237,13 @@ public class ItemTooltipManager {
         NORMAL.put(ModItems.TIN_INGOT.get(), "A piece of soft, corrosion-resistant metal");
         NORMAL.put(ModBlocks.TIN_BLOCK.asItem(), "A large block of soft, corrosion-resistant metal");
         NORMAL.put(ModItems.LEAD_INGOT.get(), "A piece of dense, heavy metal");
-        NORMAL.put(ModBlocks.LEAD_BLOCK.asItem(), "A large block of dense, heavy metal that absorbs radiation and slows the decay of radioactive blocks");
+        NORMAL.put(ModBlocks.LEAD_BLOCK.asItem(), "A large block of dense, heavy metal that absorbs radiation");
         NORMAL.put(ModItems.SILVER_INGOT.get(), "A piece of highly reflective metal");
         NORMAL.put(ModBlocks.SILVER_BLOCK.asItem(), "A large block of highly reflective metal");
         NORMAL.put(ModItems.URANIUM_INGOT.get(), "A piece of radioactive material — handle with care");
-        NORMAL.put(ModBlocks.URANIUM_BLOCK.asItem(), "A large block of radioactive material that continuously releases heat but decays when multiple blocks are adjacent");
+        NORMAL.put(ModBlocks.URANIUM_BLOCK.asItem(), "A large block of radioactive material that continuously releases heat and does not decay");
         NORMAL.put(ModItems.PLUTONIUM_INGOT.get(), "A piece of highly radioactive material — cannot be mined naturally, obtained from uranium transmutation");
-        NORMAL.put(ModBlocks.PLUTONIUM_BLOCK.asItem(), "A large block of highly radioactive material obtained only by transmuting uranium; continuously releases heat but decays when multiple blocks are adjacent");
+        NORMAL.put(ModBlocks.PLUTONIUM_BLOCK.asItem(), "A large block of highly radioactive material obtained only by transmuting uranium; continuously releases heat and melts down when all six sides are free of water");
         NORMAL.put(ModItems.BRONZE_INGOT.get(), "A piece of durable copper-tin alloy");
         NORMAL.put(ModBlocks.BRONZE_BLOCK.asItem(), "A large block of durable copper-tin alloy");
         NORMAL.put(ModItems.BRASS_INGOT.get(), "A piece of corrosion-resistant copper-zinc alloy");

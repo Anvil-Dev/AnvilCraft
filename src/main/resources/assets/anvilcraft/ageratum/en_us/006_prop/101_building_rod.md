@@ -28,9 +28,13 @@ Enabled when the <ref item="anvilcraft:building_rod"/> is held in one hand and a
 - Right-click to confirm the first position; keep holding right-click and release at another position to confirm the second position, then attempt to fill the selected cuboid with the block from the other hand
 - Each placed block consumes 100 FE, up to 4,000 blocks per placement
 
-<tip>
+<info>
+While selecting the second position, you can hold Ctrl to select a position in midair
+</info>
+
+<info>
 When placing infinite fluids such as water, at most two buckets of water are consumed at a time
-</tip>
+</info>
 
 ### Placement Behavior
 
