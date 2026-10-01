@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.fluid;
 
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.state.Color;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
@@ -29,14 +30,12 @@ import javax.annotation.Nullable;
  *   <li>只要水泥——源头或流动部分都算——判断出自己可以向下淌，就把附近最近的源头挪到该格
  *       下方，于是源头顺着建筑逐格下沉，而不是像原版那样留在原处、只把流动部分送下去。
  *       下沉由计划刻驱动，与随机刻无关；</li>
- *   <li>下不去的源头被随机刻选中时，有 {@value #SOLIDIFY_CHANCE} 概率连同紧贴它的两层
+ *   <li>下不去的源头被随机刻选中时，会按配置的凝固概率连同紧贴它的两层
  *       流动水泥一起凝固成对应颜色的原版混凝土；</li>
  *   <li>接触糖块的源头不凝固；接触粘液块的源头不下移；接触蜂蜜块的源头两者都不。</li>
  * </ul>
  */
 public abstract class CementFluid extends BaseFlowingFluid {
-    /** 源头静止时凝固的概率。 */
-    private static final float SOLIDIFY_CHANCE = 0.1F;
     /**
      * 会跟随源头一起凝固的两圈流动水泥，以流体自身的 amount 表示。
      *
@@ -236,7 +235,7 @@ public abstract class CementFluid extends BaseFlowingFluid {
         if (!this.isMoveBlocked(level, pos) && this.canFlowDown(level, pos)) {
             return;
         }
-        if (!this.isSolidifyBlocked(level, pos) && random.nextFloat() < SOLIDIFY_CHANCE) {
+        if (!this.isSolidifyBlocked(level, pos) && random.nextFloat() < AnvilCraft.CONFIG.world.cementSolidifyChance) {
             this.solidify(level, pos);
         }
     }
@@ -245,7 +244,7 @@ public abstract class CementFluid extends BaseFlowingFluid {
      * 记录并识别「同一游戏刻、同一位置」的重复随机刻派发。
      *
      * <p>不去重的话，凝固判定每刻会被掷两次，实际概率变成
-     * {@code 1 - (1 - SOLIDIFY_CHANCE)^2}，明显偏高。</p>
+     * {@code 1 - (1 - p)^2}（p 为配置的凝固概率），明显偏高。</p>
      *
      * @return 本次是否属于重复派发
      */

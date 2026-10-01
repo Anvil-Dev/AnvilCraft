@@ -240,7 +240,7 @@ public class BlockDevourerBlock extends DirectionalBlock implements HammerRotate
         if (
             !miningEffect.isDisintegration()
             && devourBlockState.is(ModBlockTags.BLOCK_DEVOURER_PROBABILITY_DROPPING)
-            && level.random.nextDouble() > 0.05
+            && level.random.nextDouble() > AnvilCraft.CONFIG.world.blockDevourerDropSuppressionChance
         ) {
             level.destroyBlock(devourBlockPos, false);
             return;

@@ -54,7 +54,7 @@ public abstract class MagnetUtil {
             )) {
                 IAnvilCraftEntityExtension extension = (IAnvilCraftEntityExtension) entity;
                 if (extension.anvilcraft$acceptMagnetization(player, context.getItemInHand())) {
-                    player.getCooldowns().addCooldown(item, 5);
+                    player.getCooldowns().addCooldown(item, AnvilCraft.CONFIG.equipment.magnetItemCooldown);
                     return InteractionResult.sidedSuccess(level.isClientSide());
                 }
             }
@@ -70,14 +70,14 @@ public abstract class MagnetUtil {
         )) {
             if (entity.blockPos.equals(pos)) {
                 entity.discard();
-                player.getCooldowns().addCooldown(item, 5);
+                player.getCooldowns().addCooldown(item, AnvilCraft.CONFIG.equipment.magnetItemCooldown);
                 return InteractionResult.sidedSuccess(level.isClientSide());
             }
         }
         Vec3 nodePos = pos.getBottomCenter().add(0, maxY, 0);
         MagnetizedNodeEntity magnetizedNodeEntity = new MagnetizedNodeEntity(level, nodePos, pos);
         level.addFreshEntity(magnetizedNodeEntity);
-        player.getCooldowns().addCooldown(item, 5);
+        player.getCooldowns().addCooldown(item, AnvilCraft.CONFIG.equipment.magnetItemCooldown);
         return InteractionResult.sidedSuccess(level.isClientSide());
     }
 
@@ -103,7 +103,7 @@ public abstract class MagnetUtil {
         }).sum();
         if (totalXp > 0 && level instanceof ServerLevel serverLevel) ExperienceOrb.award(serverLevel, player.position(), totalXp);
         itemStack.hurtAndBreak(1, player, LivingEntity.getSlotForHand(usedHand));
-        player.getCooldowns().addCooldown(item, 5);
+        player.getCooldowns().addCooldown(item, AnvilCraft.CONFIG.equipment.magnetItemCooldown);
         return InteractionResultHolder.sidedSuccess(itemStack, level.isClientSide());
     }
 }

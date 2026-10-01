@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.util;
 
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.entity.FluidTankBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.LargeFluidTankBlockEntity;
 import net.minecraft.ChatFormatting;
@@ -19,7 +20,6 @@ import java.util.UUID;
 
 /** 含无限液体储罐的玩家破坏保护。 */
 public final class InfiniteFluidTankBreakProtection {
-    private static final int CONFIRMATION_DURATION = 20 * 10;
     private static final int MODIFIER_AUTHORIZATION_DURATION = 5;
     private static final double INTERACTION_DISTANCE_TOLERANCE = 2.0;
     private static final Map<UUID, TimedTarget> CONFIRMATIONS = new HashMap<>();
@@ -82,7 +82,7 @@ public final class InfiniteFluidTankBreakProtection {
             new TimedTarget(
                 level.dimension(),
                 protectedTarget.get(),
-                gameTime + CONFIRMATION_DURATION
+                gameTime + AnvilCraft.CONFIG.machines.infiniteTankBreakConfirmDurationTicks
             )
         );
         String message = previouslyConfirmed

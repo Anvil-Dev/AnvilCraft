@@ -1,7 +1,7 @@
 package dev.dubhe.anvilcraft.item;
 
 import dev.anvilcraft.lib.v2.util.Util;
-import dev.dubhe.anvilcraft.block.ExpFluidBlock;
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.mixin.accessor.VillagerAccessor;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -16,8 +16,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 
 public class ExpGemItem extends Item {
-    public static final int VILLAGER_XP = 20;
-    public static final int AGE_ADDITION = 2 * 60;
 
     public ExpGemItem(Properties properties) {
         super(properties);
@@ -31,7 +29,7 @@ public class ExpGemItem extends Item {
     ) {
         ItemStack itemStack = player.getItemInHand(usedHand);
         int count = player.isShiftKeyDown() ? itemStack.getCount() : 1;
-        player.giveExperiencePoints(ExpFluidBlock.XP_POINTS * count);
+        player.giveExperiencePoints(AnvilCraft.CONFIG.world.expFluidXpPerBlock * count);
         itemStack.consume(count, player);
         player.getCooldowns().addCooldown(this, 5);
         return InteractionResultHolder.sidedSuccess(itemStack, level.isClientSide());
@@ -50,7 +48,7 @@ public class ExpGemItem extends Item {
             stack.consume(1, player);
             return InteractionResult.SUCCESS;
         } else {
-            villager.ageUp(AGE_ADDITION, true);
+            villager.ageUp(AnvilCraft.CONFIG.equipment.expGemAgeAddition, true);
             stack.consume(1, player);
             return InteractionResult.SUCCESS;
         }
@@ -64,7 +62,7 @@ public class ExpGemItem extends Item {
     }
 
     public static void updateVillager(Villager villager) {
-        int villagerXp = villager.getVillagerXp() + VILLAGER_XP;
+        int villagerXp = villager.getVillagerXp() + AnvilCraft.CONFIG.equipment.expGemVillagerXp;
         villager.setVillagerXp(villagerXp);
 
         VillagerAccessor accessor = Util.cast(villager);

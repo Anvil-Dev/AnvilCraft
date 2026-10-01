@@ -11,7 +11,6 @@ import dev.dubhe.anvilcraft.api.fluid.network.FluidNetworkManager;
 import dev.dubhe.anvilcraft.api.itemhandler.IItemHandlerHolder;
 import dev.dubhe.anvilcraft.api.itemhandler.ItemHandlerUtil;
 import dev.dubhe.anvilcraft.api.itemhandler.PollableItemHandler;
-import dev.dubhe.anvilcraft.block.ExpFluidBlock;
 import dev.dubhe.anvilcraft.block.FishTankBlock;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.block.ModFluidTags;
@@ -378,7 +377,7 @@ public class FishTankBlockEntity extends BlockEntity implements IItemHandlerHold
         for (int slot = 0; slot < entity.input.getSlots(); slot++) {
             changed |= FireReforgingUtil.repair(
                 entity.input.getStackInSlot(slot),
-                FireReforgingUtil.LAVA_REPAIR_PER_TICK,
+                AnvilCraft.CONFIG.equipment.fireReforgingRepairPerTick,
                 level,
                 pos
             );
@@ -941,7 +940,7 @@ public class FishTankBlockEntity extends BlockEntity implements IItemHandlerHold
             int capacity = this.fluidHandler.getCapacity();
             FluidStack drained = this.fluidHandler.drain(capacity, IFluidHandler.FluidAction.SIMULATE);
             if (drained.getAmount() != capacity) return;
-            player.giveExperiencePoints(ExpFluidBlock.XP_POINTS);
+            player.giveExperiencePoints(AnvilCraft.CONFIG.world.expFluidXpPerBlock);
             this.fluidHandler.drain(capacity, IFluidHandler.FluidAction.EXECUTE);
         }
     }

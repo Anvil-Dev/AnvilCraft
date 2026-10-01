@@ -102,6 +102,78 @@ public class AnvilCraftServerConfig {
         @Comment("Controls the bonus Neutronium Ingot chance per enchantment level when transcending (in %)")
         @BoundedDiscrete(min = 0, max = 100)
         public int transcendiumBonusIngotChancePerEnchantment = 10;
+
+        @Comment("Controls the experience points granted per block of Liquid Experience")
+        @BoundedDiscrete(min = 0, max = 1000)
+        public int expFluidXpPerBlock = 50;
+
+        @Comment("Controls how many neighbouring Void Matter blocks are needed for Void Matter to decay")
+        @BoundedDiscrete(min = 1, max = 6)
+        public int voidMatterDecayThreshold = 5;
+
+        @Comment("Controls the chance that a settled source of Cement solidifies per random tick")
+        @BoundedDiscrete(min = 0.0, max = 1.0)
+        public double cementSolidifyChance = 0.1;
+
+        @Comment("Controls the chance that a Hollow Magnet converts the block it pulls")
+        @BoundedDiscrete(min = 0.0, max = 1.0)
+        public double hollowMagnetConvertChance = 0.005;
+
+        @Comment("Controls the chance that the Block Devourer suppresses the drops of the block it eats")
+        @BoundedDiscrete(min = 0.0, max = 1.0)
+        public double blockDevourerDropSuppressionChance = 0.05;
+
+        @Comment("Controls the chance that Redhot blocks absorb water")
+        @BoundedDiscrete(min = 0.0, max = 1.0)
+        public double redhotWaterAbsorbChance = 0.5;
+
+        @Comment("Controls the chance that Ember blocks absorb water")
+        @BoundedDiscrete(min = 0.0, max = 1.0)
+        public double emberBlockWaterAbsorptionChance = 0.5;
+
+        @Comment("Controls the damage a falling Anvil deals per block fallen")
+        @BoundedDiscrete(min = 0.0, max = 100.0)
+        public float anvilFallDamagePerBlock = 2.0f;
+
+        @Comment("Controls the damage a falling Giant Anvil deals per block fallen")
+        @BoundedDiscrete(min = 0.0, max = 1000.0)
+        public float giantAnvilFallDamagePerBlock = 10.0f;
+
+        @Comment("Controls the speed a powered Sliding Rail launches entities with")
+        @BoundedDiscrete(min = 0.0, max = 10.0)
+        public float slidingRailLaunchSpeed = 0.35f;
+
+        @Comment("Controls the strength an unpowered Sliding Rail pulls entities with")
+        @BoundedDiscrete(min = 0.0, max = 10.0)
+        public float slidingRailPullStrength = 0.15f;
+
+        @Comment("Controls how much of an entity's motion a Sliding Rail preserves")
+        @BoundedDiscrete(min = 0.0, max = 1.0)
+        public float slidingRailDamping = 0.8f;
+
+        @Comment("Controls how long a Detector Sliding Rail stays powered (in ticks)")
+        @BoundedDiscrete(min = 1, max = 200)
+        public int detectorSlidingRailHoldTicks = 20;
+
+        @Comment("Controls the damage dealt by Heaters")
+        @BoundedDiscrete(min = 0.0, max = 100.0)
+        public float heaterDamage = 4.0f;
+
+        @Comment("Controls the chance that using an item on a Chipped Anvil repairs it")
+        @BoundedDiscrete(min = 0.0, max = 1.0)
+        public double chippedAnvilRepairChance = 0.9;
+
+        @Comment("Controls the chance that using an item on a Damaged Anvil repairs it")
+        @BoundedDiscrete(min = 0.0, max = 1.0)
+        public double damagedAnvilRepairChance = 0.2;
+
+        @Comment("Controls how often Chocolate Blocks apply their effects (in ticks)")
+        @BoundedDiscrete(min = 1, max = 1200)
+        public int chocolateBlockEffectPeriod = 80;
+
+        @Comment("Controls how long the effects of Chocolate Blocks last (in ticks)")
+        @BoundedDiscrete(min = 1, max = 24000)
+        public int chocolateBlockEffectDuration = 180;
     }
 
     @SerializedName("Machines & Logistics")
@@ -321,6 +393,10 @@ public class AnvilCraftServerConfig {
             @BoundedDiscrete(min = 1, max = 1024)
             public int maxItemsPerScan = 64;
         }
+
+        @Comment("Controls how long the Infinite Fluid Tank asks for confirmation before it can be broken (in ticks)")
+        @BoundedDiscrete(min = 1, max = 1200)
+        public int infiniteTankBreakConfirmDurationTicks = 200;
     }
 
     @SerializedName("Equipment & Enchanting")
@@ -410,6 +486,42 @@ public class AnvilCraftServerConfig {
         @Comment("Controls the maximum number of blocks a single Building Rod operation may place")
         @BoundedDiscrete(min = 1, max = 65536)
         public int buildingRodMaxBlocks = 4000;
+
+        @Comment("Controls the item cooldown applied when a Magnet is used (in ticks)")
+        @BoundedDiscrete(min = 1, max = 200)
+        public int magnetItemCooldown = 5;
+
+        @Comment("Controls how much durability a Frost Metal Ingot restores when repairing an item")
+        @BoundedDiscrete(min = 1, max = 10000)
+        public int frostMetalIngotRepairAmount = 1080;
+
+        @Comment("Controls how much durability a Frost Metal Nugget restores when repairing an item")
+        @BoundedDiscrete(min = 1, max = 1000)
+        public int frostMetalNuggetRepairAmount = 120;
+
+        @Comment("Controls how long the Totem of Rage keeps its owner alive (in ticks)")
+        @BoundedDiscrete(min = 20, max = 24000)
+        public int totemOfRageDuration = 1200;
+
+        @Comment("Controls the experience a villager gains when an Experience Gem is used on it")
+        @BoundedDiscrete(min = 0, max = 1000)
+        public int expGemVillagerXp = 20;
+
+        @Comment("Controls how much a villager ages up when an Experience Gem is used on it (in ticks)")
+        @BoundedDiscrete(min = 1, max = 24000)
+        public int expGemAgeAddition = 120;
+
+        @Comment("Controls how long the Portable Anvil takes to use (in ticks)")
+        @BoundedDiscrete(min = 1, max = 200)
+        public int portableAnvilUseTicks = 40;
+
+        @Comment("Controls the radius in which the Cursed Golden Apple affects villagers")
+        @BoundedDiscrete(min = 1, max = 64)
+        public int cursedGoldenAppleSearchRadius = 16;
+
+        @Comment("Controls how much durability Fire Reforging restores per tick")
+        @BoundedDiscrete(min = 1, max = 1000)
+        public int fireReforgingRepairPerTick = 10;
     }
 
     @SerializedName("Commands")

@@ -1322,7 +1322,7 @@ public class LargeCauldronBlockEntity extends BlockEntity
                 slot,
                 stack -> FireReforgingUtil.repair(
                     stack,
-                    FireReforgingUtil.LAVA_REPAIR_PER_TICK,
+                    AnvilCraft.CONFIG.equipment.fireReforgingRepairPerTick,
                     level,
                     this.worldPosition
                 )
