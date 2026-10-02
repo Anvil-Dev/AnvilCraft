@@ -259,7 +259,7 @@ public class FeCollectorBlockEntity extends BlockEntity implements IPowerProduce
 
         public int receiveEnergy(int maxReceive, boolean simulate) {
             if (!canReceive()) return 0;
-            int r = Math.min(AnvilCraft.CONFIG.machines.feCollectorMaxEnergy - energy, maxReceive);
+            int r = Math.min(AnvilCraft.CONFIG.machines.feCollectorMaxEnergy - FeCollectorBlockEntity.this.energy, maxReceive);
             if (!simulate) {
                 energy += r;
                 if (side != null && lastInputSide != side) {
@@ -295,7 +295,7 @@ public class FeCollectorBlockEntity extends BlockEntity implements IPowerProduce
         }
 
         public boolean canReceive() {
-            return isInputSide() && energy < AnvilCraft.CONFIG.machines.feCollectorMaxEnergy;
+            return this.isInputSide() && FeCollectorBlockEntity.this.energy < AnvilCraft.CONFIG.machines.feCollectorMaxEnergy;
         }
     }
 }

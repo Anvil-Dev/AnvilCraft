@@ -90,7 +90,7 @@ public class PropelPistonBlockEntity extends BaseLaserBlockEntity {
             power = laserLevel * 30000;
         }
         if (!changed) {
-            if (storedEnergy < AnvilCraft.CONFIG.machines.propelPistonMaxEnergy) {
+            if (this.storedEnergy < AnvilCraft.CONFIG.machines.propelPistonMaxEnergy) {
                 delay++;
                 if (delay >= 20) {
                     delay = 0;

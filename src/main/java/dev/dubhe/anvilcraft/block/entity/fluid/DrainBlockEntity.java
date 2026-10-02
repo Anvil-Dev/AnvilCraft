@@ -355,7 +355,7 @@ public class DrainBlockEntity extends BlockEntity implements IFluidHandlerHolder
         if (!(level instanceof ServerLevel serverLevel)) {
             return;
         }
-        if (tank.getFluidAmount() >= AnvilCraft.CONFIG.machines.drainCapacity) {
+        if (this.tank.getFluidAmount() >= AnvilCraft.CONFIG.machines.drainCapacity) {
             return;
         }
         for (Direction d : Direction.Plane.HORIZONTAL) {
@@ -620,7 +620,7 @@ public class DrainBlockEntity extends BlockEntity implements IFluidHandlerHolder
                     long entry = BlockPos.asLong(BlockPos.getX(drainPos), currentY, BlockPos.getZ(drainPos));
                     layerSearch = new FillLayerSearch(drainPos, entry, fluid);
                 }
-                SearchResult result = layerSearch.advance(level, level.getGameTime() / AnvilCraft.CONFIG.machines.drainInterval);
+                SearchResult result = this.layerSearch.advance(level, level.getGameTime() / AnvilCraft.CONFIG.machines.drainInterval);
                 if (result.pending() || result.target() != null) {
                     exhaustedAt = Long.MIN_VALUE;
                     return result;

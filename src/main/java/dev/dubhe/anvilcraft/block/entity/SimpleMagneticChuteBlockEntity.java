@@ -171,7 +171,7 @@ public class SimpleMagneticChuteBlockEntity extends BlockEntity implements IItem
         if (level != null) {
             level.updateNeighbourForOutputSignal(getBlockPos(), getBlockState().getBlock());
         }
-        if (resetCD) cooldown = AnvilCraft.CONFIG.machines.chuteMaxCooldown;
+        if (resetCD) this.cooldown = AnvilCraft.CONFIG.machines.chuteMaxCooldown;
     }
 
     private boolean isTargetEmpty(BlockEntity blockEntity) {

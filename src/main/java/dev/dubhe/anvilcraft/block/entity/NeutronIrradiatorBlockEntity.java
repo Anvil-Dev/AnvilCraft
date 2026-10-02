@@ -77,7 +77,7 @@ public class NeutronIrradiatorBlockEntity extends BlockEntity {
         BlockState aboveState = this.level.getBlockState(abovePos);
         if (aboveState.getBlock() instanceof RadioactiveBlock) {
             radiationTick++;
-            if (radiationTick >= AnvilCraft.CONFIG.machines.neutronIrradiatorRadiationInterval) {
+            if (this.radiationTick >= AnvilCraft.CONFIG.machines.neutronIrradiatorRadiationInterval) {
                 radiationTick = 0;
                 this.level.explode(
                     null,

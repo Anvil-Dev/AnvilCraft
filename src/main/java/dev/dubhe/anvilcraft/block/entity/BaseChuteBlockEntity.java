@@ -259,7 +259,7 @@ public abstract class BaseChuteBlockEntity
 
         }
         level.updateNeighbourForOutputSignal(getBlockPos(), getBlockState().getBlock());
-        if (resetCD) cooldown = AnvilCraft.CONFIG.machines.chuteMaxCooldown;
+        if (resetCD) this.cooldown = AnvilCraft.CONFIG.machines.chuteMaxCooldown;
     }
 
     /**

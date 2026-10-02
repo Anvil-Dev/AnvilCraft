@@ -62,7 +62,7 @@ public class ActiveSilencerBlockEntity
     public ActiveSilencerBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState);
         int muteRange = AnvilCraft.CONFIG.world.activeSilencerRange;
-        range = AABB.ofSize(Vec3.atCenterOf(pos), muteRange, muteRange, muteRange);
+        this.range = AABB.ofSize(Vec3.atCenterOf(pos), muteRange, muteRange, muteRange);
     }
 
     @Override
