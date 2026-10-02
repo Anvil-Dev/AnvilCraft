@@ -121,6 +121,6 @@ public class ModSoundDefinitionsProvider extends SoundDefinitionsProvider {
         );
         this.add(ModSoundEvents.QUENCHED_OUT.get(), SoundDefinitionsProvider.definition()
             .subtitle("subtitles.anvilcraft.quenched_out")
-            .with(SoundDefinitionsProvider.sound(AnvilCraft.of("quenched_out"))));
+            .with(SoundDefinitionsProvider.sound(AnvilCraft.of("quenched_out")).attenuationDistance(64)));
     }
 }
