@@ -25,6 +25,7 @@ import dev.dubhe.anvilcraft.advancements.criterion.PipeConnectContainersTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.PlacerPlaceTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.PlacerShuttleTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.PlanetDetonationTrigger;
+import dev.dubhe.anvilcraft.advancements.criterion.PlanetaryCollapseDeathTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.PlayerKilledEntityByAnvilHammerTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.PlayerWearAnvilHammerTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.UseItemTrigger;
@@ -691,6 +692,10 @@ public class AdvancementLineHelper {
 
         public AdvancementHelper planetDetonation(String key) {
             return this.addCriterion(key, PlanetDetonationTrigger.TriggerInstance.detonated());
+        }
+
+        public AdvancementHelper planetaryCollapseDeath(String key) {
+            return this.addCriterion(key, PlanetaryCollapseDeathTrigger.TriggerInstance.died());
         }
 
         public AdvancementHolder build(String id) {

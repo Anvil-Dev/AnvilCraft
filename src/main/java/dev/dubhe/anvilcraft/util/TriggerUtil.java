@@ -217,4 +217,9 @@ public class TriggerUtil {
             }
         }
     }
+
+    /** 死亡事件只涉及当事玩家，不需要按位置搜索。 */
+    public static void planetaryCollapseDeath(ServerPlayer player) {
+        ModCriterionTriggers.PLANETARY_COLLAPSE_DEATH.get().trigger(player);
+    }
 }

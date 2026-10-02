@@ -1,27 +1,27 @@
 {
   "parent": "anvilcraft:anvilcraft/the_start",
   "criteria": {
-    "efficiency": {
-      "trigger": "anvilcraft:planet_detonation"
+    "cannon_fodder": {
+      "trigger": "anvilcraft:planetary_collapse_death"
     }
   },
   "display": {
     "description": {
-      "translate": "advancements.anvilcraft.efficiency.description"
+      "translate": "advancements.anvilcraft.cannon_fodder.description"
     },
     "frame": "challenge",
     "hidden": true,
     "icon": {
       "count": 1,
-      "id": "anvilcraft:earth_core_shard"
+      "id": "minecraft:player_head"
     },
     "title": {
-      "translate": "advancements.anvilcraft.efficiency.title"
+      "translate": "advancements.anvilcraft.cannon_fodder.title"
     }
   },
   "requirements": [
     [
-      "efficiency"
+      "cannon_fodder"
     ]
   ],
   "sends_telemetry_event": true

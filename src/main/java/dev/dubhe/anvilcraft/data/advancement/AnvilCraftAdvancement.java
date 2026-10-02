@@ -432,9 +432,13 @@ public class AnvilCraftAdvancement {
             .hasItems("has_celestial_forging_anvil", ModBlocks.CELESTIAL_FORGING_ANVIL)
             .save("the_start");
         industrialLine.createBranch().next()
-            .challenge(ModItems.EARTH_CORE_SHARD, "efficiency")
+            .challenge(ModItems.EARTH_CORE_SHARD, "efficiency", true)
             .planetDetonation("efficiency")
             .save("efficiency");
+        industrialLine.createBranch().next()
+            .challenge(Items.PLAYER_HEAD, "cannon_fodder", true)
+            .planetaryCollapseDeath("cannon_fodder")
+            .save("cannon_fodder");
         industrialLine.next()
             .challenge(ModItems.STELLAR_EVOLUTION_ACCELERATOR_COMPONENT, "no_remnant", true)
             .celestialEvolution("no_remnant", MinMaxBounds.Ints.exactly(64))

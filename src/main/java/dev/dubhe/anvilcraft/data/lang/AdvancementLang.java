@@ -162,6 +162,9 @@ public class AdvancementLang {
         provider.add("advancements.anvilcraft.efficiency.title", "We called it... efficiency");
         provider.add("advancements.anvilcraft.efficiency.description", "Feed a gamma laser into the planet excavator and blow the planet apart");
 
+        provider.add("advancements.anvilcraft.cannon_fodder.title", "Cannon Fodder");
+        provider.add("advancements.anvilcraft.cannon_fodder.description", "Die to a planetary collapse inside an Overworld-Like planet");
+
         provider.add("advancements.anvilcraft.nuclear_power_10a.title", "Nuclear power, piece of cake!");
         provider.add("advancements.anvilcraft.nuclear_power_10a.description", "Using heat collector to collect overheated blocks' heat");
 
