@@ -45,6 +45,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.WeakHashMap;
+import java.util.function.BooleanSupplier;
 import javax.annotation.Nullable;
 
 /** 保留区域快照，撤销时按实际收回与恢复的资源结算。 */
@@ -53,6 +54,7 @@ public final class BuildingRodUndo {
     private static final Map<ServerPlayer, BuildingRodUndo> HISTORY = new WeakHashMap<>();
     private final ServerLevel level;
     private final BuildingRegionSnapshot region;
+    private final Map<BlockPos, BuildingRegionSnapshot> landedBlocks = new LinkedHashMap<>();
     private final List<Receipt> receipts = new ArrayList<>();
     private final Map<EntityBuildAdapter.Planned, Receipt> entityReceipts = new IdentityHashMap<>();
     private final Map<UUID, Entity> auxiliary = new LinkedHashMap<>();
@@ -125,10 +127,40 @@ public final class BuildingRodUndo {
         this.auxiliary.put(entity.getUUID(), entity);
     }
 
+    private boolean contains(BlockPos pos) {
+        return this.region.contains(pos) || this.landedBlocks.containsKey(pos);
+    }
+
+    public static boolean placeFallingBlock(FallingBlockEntity entity, BlockPos pos, BooleanSupplier placement) {
+        Map<BuildingRodUndo, BuildingRegionSnapshot> snapshots = new IdentityHashMap<>();
+        for (BuildingRodUndo undo : HISTORY.values()) {
+            if (undo.level != entity.level() || undo.restoring || undo.restored || undo.contains(pos)) continue;
+            UUID uuid = entity.getUUID();
+            if (undo.derived.containsKey(uuid) || undo.region.containsEntity(uuid)
+                || undo.receipts.stream().anyMatch(receipt -> receipt.entities.containsKey(uuid) || receipt.drops.containsKey(uuid))) {
+                snapshots.put(undo, new BuildingRegionSnapshot(undo.level, pos));
+            }
+        }
+        BlockPos target = pos.immutable();
+        snapshots.forEach((undo, snapshot) -> undo.landedBlocks.put(target, snapshot));
+        boolean placed = false;
+        try {
+            placed = placement.getAsBoolean();
+            return placed;
+        } finally {
+            if (!placed) {
+                snapshots.forEach((undo, snapshot) -> {
+                    undo.landedBlocks.remove(target, snapshot);
+                    undo.changedPositions.remove(target);
+                });
+            }
+        }
+    }
+
     public static void replaced(Level level, BlockPos pos, BlockState before, BlockState after) {
         if (level.isClientSide || before.getBlock() == after.getBlock()) return;
         for (BuildingRodUndo undo : HISTORY.values()) {
-            if (undo.level == level && !undo.restoring && !undo.restored && undo.region.contains(pos)) {
+            if (undo.level == level && !undo.restoring && !undo.restored && undo.contains(pos)) {
                 undo.changedPositions.add(pos.immutable());
             }
         }
@@ -152,7 +184,7 @@ public final class BuildingRodUndo {
     @SubscribeEvent
     public static void blockDrops(BlockDropsEvent event) {
         for (BuildingRodUndo undo : HISTORY.values()) {
-            if (undo.level != event.getLevel() || undo.restoring || undo.restored || !undo.region.contains(event.getPos())) continue;
+            if (undo.level != event.getLevel() || undo.restoring || undo.restored || !undo.contains(event.getPos())) continue;
             event.getDrops().forEach(drop -> undo.derived.put(drop.getUUID(), drop));
         }
     }
@@ -248,7 +280,7 @@ public final class BuildingRodUndo {
         Set<UUID> storages = new LinkedHashSet<>();
         this.receipts.forEach(receipt -> receipt.fluids.forEach(payment -> storages.add(payment.storage())));
         storages.addAll(StorageServerStub.buildingFluidSources(player));
-        storages.removeIf(storage -> StoragePortManager.positions(storage).stream().anyMatch(this.region::contains));
+        storages.removeIf(storage -> StoragePortManager.positions(storage).stream().anyMatch(this::contains));
         Set<IFluidHandler> used = Collections.newSetFromMap(new IdentityHashMap<>());
         this.pendingFluids.clear();
         for (FluidStack fluid : fluids) {
@@ -300,17 +332,19 @@ public final class BuildingRodUndo {
             return;
         }
         Map<UUID, Entity> owned = undo.owned();
-        if (!undo.region.canRestore(player) || !undo.canRemove(player, owned)) {
+        if (!undo.region.canRestore(player) || undo.landedBlocks.values().stream().anyMatch(snapshot -> !snapshot.canRestore(player))
+            || !undo.canRemove(player, owned)) {
             BuildingRodService.message(player, "blocked");
             return;
         }
         BuildingUndoResources recovered = new BuildingUndoResources();
         BuildingUndoResources required = new BuildingUndoResources();
         BuildingMaterials recovery = new BuildingMaterials(player, false);
-        recovery.excludeFluidSources(undo.region::contains);
+        recovery.excludeFluidSources(undo::contains);
         if (!undo.creative) {
             try {
                 undo.region.resources(recovered, required);
+                undo.landedBlocks.values().forEach(snapshot -> snapshot.resources(recovered, required));
                 undo.entityResources(owned, recovered);
                 BuildingUndoResources.cancel(recovered, required);
             } catch (RuntimeException exception) {
@@ -336,6 +370,7 @@ public final class BuildingRodUndo {
         try {
             undo.remove(owned);
             undo.region.restore();
+            undo.landedBlocks.values().forEach(BuildingRegionSnapshot::restore);
             undo.restored = true;
             for (Entity original : undo.auxiliary.values()) {
                 Entity knot = BuildingRegionSnapshot.find(undo.level, original.getUUID());

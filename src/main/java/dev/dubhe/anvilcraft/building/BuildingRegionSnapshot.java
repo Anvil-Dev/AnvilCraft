@@ -45,24 +45,34 @@ final class BuildingRegionSnapshot {
     }
 
     BuildingRegionSnapshot(ServerPlayer player, BoundingBox bounds) {
-        this.level = player.serverLevel();
-        this.bounds = BoundingBox.fromCorners(new BlockPos(bounds.minX(), bounds.minY(), bounds.minZ()),
-            new BlockPos(bounds.maxX(), bounds.maxY(), bounds.maxZ()));
-        this.capturedAt = this.level.getGameTime();
-        for (BlockPos cursor : BlockPos.betweenClosed(bounds.minX(), bounds.minY(), bounds.minZ(),
-            bounds.maxX(), bounds.maxY(), bounds.maxZ())) {
-            BlockPos pos = cursor.immutable();
-            if (!BuildingRodService.canModify(player, pos)) throw new IllegalArgumentException("Undo area is unavailable");
-            BlockEntity entity = this.level.getBlockEntity(pos);
-            this.blocks.add(new SavedBlock(pos, this.level.getBlockState(pos),
-                entity == null ? null : entity.saveWithFullMetadata(this.level.registryAccess())));
-        }
+        this(player.serverLevel(), bounds, player);
         for (Entity entity : this.level.getEntities((Entity) null, AABB.of(bounds), entity -> !(entity instanceof Player))) {
             CompoundTag tag = new CompoundTag();
             if (!BlueprintLeashes.save(entity, tag)) continue;
             tag.remove("Passengers");
             if (entity.getVehicle() != null) tag.putUUID(BlueprintEntities.VEHICLE, entity.getVehicle().getUUID());
             this.entities.add(new SavedEntity(entity.getUUID(), tag, entity));
+        }
+    }
+
+    BuildingRegionSnapshot(ServerLevel level, BlockPos pos) {
+        this(level, new BoundingBox(pos), null);
+    }
+
+    private BuildingRegionSnapshot(ServerLevel level, BoundingBox bounds, @Nullable ServerPlayer player) {
+        this.level = level;
+        this.bounds = BoundingBox.fromCorners(new BlockPos(bounds.minX(), bounds.minY(), bounds.minZ()),
+            new BlockPos(bounds.maxX(), bounds.maxY(), bounds.maxZ()));
+        this.capturedAt = this.level.getGameTime();
+        for (BlockPos cursor : BlockPos.betweenClosed(bounds.minX(), bounds.minY(), bounds.minZ(),
+            bounds.maxX(), bounds.maxY(), bounds.maxZ())) {
+            BlockPos pos = cursor.immutable();
+            if (player != null && !BuildingRodService.canModify(player, pos)) {
+                throw new IllegalArgumentException("Undo area is unavailable");
+            }
+            BlockEntity entity = this.level.getBlockEntity(pos);
+            this.blocks.add(new SavedBlock(pos, this.level.getBlockState(pos),
+                entity == null ? null : entity.saveWithFullMetadata(this.level.registryAccess())));
         }
         this.ticks = BlueprintTicks.capture(this.level, bounds);
         this.events = ((BlueprintBlockEventsAccessor) this.level).anvilcraft$getBlockEvents().stream()
