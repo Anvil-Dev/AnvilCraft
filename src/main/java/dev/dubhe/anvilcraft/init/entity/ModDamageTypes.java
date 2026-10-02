@@ -47,6 +47,18 @@ public class ModDamageTypes {
         Registries.DAMAGE_TYPE,
         AnvilCraft.of("planetary_collapse")
     );
+    public static final ResourceKey<DamageType> STAR_CONTACT = ResourceKey.create(
+        Registries.DAMAGE_TYPE,
+        AnvilCraft.of("star_contact")
+    );
+    public static final ResourceKey<DamageType> PLANET_CONTACT = ResourceKey.create(
+        Registries.DAMAGE_TYPE,
+        AnvilCraft.of("planet_contact")
+    );
+    public static final ResourceKey<DamageType> BLACK_HOLE_CONTACT = ResourceKey.create(
+        Registries.DAMAGE_TYPE,
+        AnvilCraft.of("black_hole_contact")
+    );
 
     @ApiStatus.Internal
     public static void bootstrap(BootstrapContext<DamageType> ctx) {
@@ -66,6 +78,10 @@ public class ModDamageTypes {
                 DeathMessageType.DEFAULT
             )
         );
+        /// 天体接触伤害沿用被替换的原版伤害表现（恒星=燃烧、行星=摔落），只换死亡提示。
+        ctx.register(STAR_CONTACT, new DamageType("anvilcraft.star_contact", 0.1f, DamageEffects.BURNING));
+        ctx.register(PLANET_CONTACT, new DamageType("anvilcraft.planet_contact", 0.0f, DamageEffects.HURT));
+        ctx.register(BLACK_HOLE_CONTACT, new DamageType("anvilcraft.black_hole_contact", 0.1f));
     }
 
     public static DamageSource laser(Level level) {
@@ -102,6 +118,18 @@ public class ModDamageTypes {
 
     public static DamageSource planetaryCollapse(Level level) {
         return ModDamageTypes.source(ModDamageTypes.PLANETARY_COLLAPSE, level);
+    }
+
+    public static DamageSource starContact(Level level) {
+        return ModDamageTypes.source(ModDamageTypes.STAR_CONTACT, level);
+    }
+
+    public static DamageSource planetContact(Level level) {
+        return ModDamageTypes.source(ModDamageTypes.PLANET_CONTACT, level);
+    }
+
+    public static DamageSource blackHoleContact(Level level) {
+        return ModDamageTypes.source(ModDamageTypes.BLACK_HOLE_CONTACT, level);
     }
 
     private static DamageSource source(ResourceKey<DamageType> key, LevelReader level) {

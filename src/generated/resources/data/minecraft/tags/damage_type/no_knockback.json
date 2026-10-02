@@ -11,6 +11,10 @@
     {
       "id": "anvilcraft:planetary_collapse",
       "required": false
+    },
+    {
+      "id": "anvilcraft:black_hole_contact",
+      "required": false
     }
   ]
 }

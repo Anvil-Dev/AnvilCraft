@@ -11,6 +11,10 @@
     {
       "id": "anvilcraft:laser",
       "required": false
+    },
+    {
+      "id": "anvilcraft:star_contact",
+      "required": false
     }
   ]
 }
