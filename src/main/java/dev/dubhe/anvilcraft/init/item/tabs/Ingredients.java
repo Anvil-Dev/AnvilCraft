@@ -66,6 +66,7 @@ public class Ingredients extends DisplayItemsGenerator {
         this.plain(ModItems.EXP_GEM);
         this.plain(ModItems.CIRCUIT_BOARD);
         this.plain(ModItems.PROCESSOR);
+        this.plain(ModItems.LEGACY_ESSENCE);
 
         // Smithing templates.
         this.plain(ModItems.ROYAL_STEEL_UPGRADE_SMITHING_TEMPLATE);
@@ -88,6 +89,7 @@ public class Ingredients extends DisplayItemsGenerator {
         this.plain(ModItems.STELLAR_RING_COMPONENT);
         this.plain(ModItems.MAGNETAR_COIL_COMPONENT);
         this.plain(ModItems.STELLAR_EVOLUTION_ACCELERATOR_COMPONENT);
+        this.plain(ModItems.CIVILIZATION_CATALYST);
 
         // Void matter and neutronium.
         this.plain(ModItems.VOID_MATTER);

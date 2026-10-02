@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.data.advancement;
 import dev.anvilcraft.lib.v2.registrum.providers.RegistrumAdvancementProvider;
 import dev.anvilcraft.lib.v2.util.predicate.BlockStatePredicate;
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.advancements.criterion.AnvilHammerHurtEntityTrigger;
 import dev.dubhe.anvilcraft.api.advancement.AdvancementLineHelper;
 import dev.dubhe.anvilcraft.block.entity.HeatCollectorBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.celestial.StellarTerminal;
@@ -11,6 +12,9 @@ import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.init.loot.ModLootTables;
+import net.minecraft.advancements.AdvancementRewards;
+import net.minecraft.advancements.CriteriaTriggers;
+import net.minecraft.advancements.critereon.ImpossibleTrigger;
 import net.minecraft.advancements.critereon.MinMaxBounds;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.Items;
@@ -159,7 +163,7 @@ public class AnvilCraftAdvancement {
             .save("hammer");
         killingLine.next()
             .challenge(ModItems.ROYAL_ANVIL_HAMMER, "super_kill")
-            .hammerHurt("super_kill", 80)
+            .addCriterion("super_kill", AnvilHammerHurtEntityTrigger.TriggerInstance.hurtEntity(80, ModItems.ROYAL_ANVIL_HAMMER.get()))
             .save("super_kill");
 
         AdvancementLineHelper elecLine = mainLine.createBranch();
@@ -456,5 +460,10 @@ public class AnvilCraftAdvancement {
             .challenge(ModItems.STELLAR_EVOLUTION_ACCELERATOR_COMPONENT, "no_remnant", true)
             .celestialEvolution("no_remnant", MinMaxBounds.Ints.exactly(64))
             .save("no_remnant");
+        industrialLine.next()
+            .challenge(ModItems.CIVILIZATION_CATALYST, "new_cycle", true)
+            .addCriterion("new_cycle", CriteriaTriggers.IMPOSSIBLE.createCriterion(new ImpossibleTrigger.TriggerInstance()))
+            .rewards(AdvancementRewards.Builder.experience(1395))
+            .save("new_cycle");
     }
 }

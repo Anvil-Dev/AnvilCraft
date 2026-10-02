@@ -1290,6 +1290,25 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
         this.searchHistoryController.add(data, resources);
     }
 
+    /** Applies a monolith outcome and invalidates its previous resource snapshot in search history. */
+    public void completeMonolithDeployment(@Nullable PlanetaryResourceSet resources) {
+        if (this.level == null || this.level.isClientSide() || this.celestialBodyData == null) return;
+        CelestialBodyData body = this.celestialBodyData;
+        this.clearMegastructure();
+        this.searchHistoryController.remove(body);
+        this.planetaryResourceSet = resources;
+        if (resources == null) {
+            this.celestialBodyData = null;
+            this.stellarMass = 0;
+            this.locked = false;
+            this.removeGravitySource();
+        } else {
+            this.addToSearchHistory(body, resources);
+        }
+        this.setChanged();
+        this.level.sendBlockUpdated(this.worldPosition, this.getBlockState(), this.getBlockState(), Block.UPDATE_CLIENTS);
+    }
+
     public void clearSearchHistory() {
         this.searchHistoryController.clear();
     }

@@ -13,6 +13,7 @@ import dev.dubhe.anvilcraft.block.multipart.SimpleMultiPartBlock;
 import dev.dubhe.anvilcraft.block.state.Cube3x3PartHalf;
 import dev.dubhe.anvilcraft.block.state.DirectionCube3x3PartHalf;
 import dev.dubhe.anvilcraft.block.state.GiantAnvilCube;
+import dev.dubhe.anvilcraft.building.BuildingRodUndo;
 import dev.dubhe.anvilcraft.entity.FallingGiantAnvilEntity;
 import dev.dubhe.anvilcraft.init.ModSoundEvents;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
@@ -286,7 +287,7 @@ public class GiantAnvilBlock extends SimpleMultiPartBlock<Cube3x3PartHalf> imple
             ItemEntity itemEntity = new ItemEntity(
                 level, belowPos.getX(), belowPos.getY(), belowPos.getZ(), ModBlocks.GIANT_ANVIL.asStack());
             itemEntity.setDefaultPickUpDelay();
-            level.addFreshEntity(itemEntity);
+            if (level.addFreshEntity(itemEntity)) BuildingRodUndo.spawnedBy(fallingBlock, itemEntity);
             return;
         }
         for (Cube3x3PartHalf part : this.getParts()) {

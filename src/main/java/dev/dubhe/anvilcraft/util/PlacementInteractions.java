@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.util;
 
+import dev.dubhe.anvilcraft.api.itemhandler.IItemHandlerHolder;
 import dev.dubhe.anvilcraft.block.entity.StoragePortBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.StoragePortConsolidatorBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.storage.StorageBlockEntity;
@@ -22,6 +23,7 @@ import net.minecraft.world.level.block.FenceGateBlock;
 import net.minecraft.world.level.block.LeverBlock;
 import net.minecraft.world.level.block.NoteBlock;
 import net.minecraft.world.level.block.RepeaterBlock;
+import net.neoforged.neoforge.capabilities.Capabilities;
 
 /** 只读判断交互优先级，预览阶段不能调用 use 方法打开界面或改变世界。 */
 public final class PlacementInteractions {
@@ -35,6 +37,13 @@ public final class PlacementInteractions {
         if (context.getHand() == InteractionHand.OFF_HAND && player.getMainHandItem().getUseAnimation() != UseAnim.NONE) return false;
         if (context.getItemInHand().getItem() instanceof ChuteBlockItem && ChuteBlockItem.isStorageInteraction(context)) return false;
         if (player.isSecondaryUseActive()) return true;
+        if (context.getHand() == InteractionHand.MAIN_HAND && context.getItemInHand().getItem() instanceof ChuteBlockItem
+            && (context.getLevel().getBlockEntity(context.getClickedPos()) instanceof IItemHandlerHolder
+                || context.getLevel().getCapability(
+                    Capabilities.ItemHandler.BLOCK, context.getClickedPos(), context.getClickedFace()
+                ) != null)) {
+            return true;
+        }
         var state = context.getLevel().getBlockState(context.getClickedPos());
         var block = state.getBlock();
         BlockPos menuPos = block instanceof AbstractMultiPartBlock<?> multipart

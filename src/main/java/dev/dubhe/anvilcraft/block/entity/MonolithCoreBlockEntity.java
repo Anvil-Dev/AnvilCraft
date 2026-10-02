@@ -2,7 +2,7 @@ package dev.dubhe.anvilcraft.block.entity;
 
 import dev.dubhe.anvilcraft.block.GiantAnvilBlock;
 import dev.dubhe.anvilcraft.block.GiantMonolithCoreBlock;
-import dev.dubhe.anvilcraft.block.MonolithBlock;
+import dev.dubhe.anvilcraft.block.MonolithLineBlock;
 import dev.dubhe.anvilcraft.block.state.Cube3x3PartHalf;
 import dev.dubhe.anvilcraft.block.state.GiantAnvilCube;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
@@ -70,7 +70,7 @@ public class MonolithCoreBlockEntity extends BlockEntity {
         Block lineBlock = this.isGiant() ? ModBlocks.GIANT_MONOLITH_LINE.get() : ModBlocks.MONOLITH_LINE.get();
         while (serverLevel.hasChunkAt(line) && line.getY() < serverLevel.getMaxBuildHeight()) {
             BlockState state = serverLevel.getBlockState(line);
-            if (!state.is(lineBlock) || state.getValue(MonolithBlock.AXIS) != this.getAxis()) break;
+            if (!state.is(lineBlock) || state.getValue(MonolithLineBlock.AXIS) != this.getAxis()) break;
             this.lineHeight++;
             line.move(Direction.UP);
         }
@@ -98,7 +98,7 @@ public class MonolithCoreBlockEntity extends BlockEntity {
     }
 
     public Direction.Axis getAxis() {
-        return this.getBlockState().getValue(this.isGiant() ? GiantMonolithCoreBlock.AXIS : MonolithBlock.AXIS);
+        return this.getBlockState().getValue(this.isGiant() ? GiantMonolithCoreBlock.AXIS : MonolithLineBlock.AXIS);
     }
 
     public float getAnimationAge(float partialTick) {

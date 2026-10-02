@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.data.recipe;
 
 import dev.anvilcraft.lib.v2.registrum.providers.RegistrumRecipeProvider;
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.init.item.ModItems;
@@ -21,6 +22,12 @@ public class ChargerChargingRecipeLoader {
             .power(-20)
             .time(20 * 4)
             .save(provider);
+        ChargerChargingRecipe.builder()
+            .requires(ModBlocks.FERRITE_CORE_MAGNET_BLOCK)
+            .result(ModBlocks.MAGNET_BLOCK)
+            .power(-4)
+            .time(20 * 2)
+            .save(provider, AnvilCraft.of("charger_charging/magnet_block_from_ferrite_core_magnet_block"));
         ChargerChargingRecipe.builder()
             .requires(ModItems.CAPACITOR_EMPTY)
             .result(ModItems.CAPACITOR)

@@ -6,8 +6,11 @@ import dev.dubhe.anvilcraft.init.ModCriterionTriggers;
 import net.minecraft.advancements.Criterion;
 import net.minecraft.advancements.critereon.ContextAwarePredicate;
 import net.minecraft.advancements.critereon.EntityPredicate;
+import net.minecraft.advancements.critereon.ItemPredicate;
 import net.minecraft.advancements.critereon.SimpleCriterionTrigger;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.Items;
 
 import java.util.Optional;
 
@@ -18,14 +21,27 @@ public class AnvilHammerHurtEntityTrigger extends SimpleCriterionTrigger<AnvilHa
     }
 
     public void trigger(ServerPlayer player, Float damage) {
-        this.trigger(player, (instance) -> instance.matches(damage));
+        this.trigger(player, damage, Items.AIR);
     }
 
-    public record TriggerInstance(Optional<ContextAwarePredicate> player, Optional<Float> damage) implements SimpleInstance {
+    public void trigger(ServerPlayer player, Float damage, Item item) {
+        this.trigger(player, (instance) -> instance.matches(damage, item));
+    }
+
+    public record TriggerInstance(
+        Optional<ContextAwarePredicate> player,
+        Optional<Float> damage,
+        Optional<ItemPredicate> item
+    ) implements SimpleInstance {
         public static final Codec<TriggerInstance> CODEC = RecordCodecBuilder.create((instance) -> instance.group(
             EntityPredicate.ADVANCEMENT_CODEC.optionalFieldOf("player").forGetter(TriggerInstance::player),
-            Codec.FLOAT.optionalFieldOf("damage").forGetter(TriggerInstance::damage)
+            Codec.FLOAT.optionalFieldOf("damage").forGetter(TriggerInstance::damage),
+            ItemPredicate.CODEC.optionalFieldOf("item").forGetter(TriggerInstance::item)
         ).apply(instance, TriggerInstance::new));
+
+        public TriggerInstance(Optional<ContextAwarePredicate> player, Optional<Float> damage) {
+            this(player, damage, Optional.empty());
+        }
 
         public static Criterion<TriggerInstance> hurtEntity() {
             return ModCriterionTriggers.ANVIL_HAMMER_HURT_ENTITY.get().createCriterion(
@@ -39,12 +55,19 @@ public class AnvilHammerHurtEntityTrigger extends SimpleCriterionTrigger<AnvilHa
             );
         }
 
+        public static Criterion<TriggerInstance> hurtEntity(float damage, Item item) {
+            return ModCriterionTriggers.ANVIL_HAMMER_HURT_ENTITY.get().createCriterion(
+                new TriggerInstance(Optional.empty(), Optional.of(damage), Optional.of(ItemPredicate.Builder.item().of(item).build()))
+            );
+        }
+
         public boolean matches(Float damage) {
-            if (damage().isPresent()) {
-                return damage >= this.damage.get();
-            } else {
-                return true;
-            }
+            return this.matches(damage, Items.AIR);
+        }
+
+        public boolean matches(Float damage, Item item) {
+            return (this.damage.isEmpty() || damage >= this.damage.get())
+                && (this.item.isEmpty() || this.item.get().test(item.getDefaultInstance()));
         }
     }
 }

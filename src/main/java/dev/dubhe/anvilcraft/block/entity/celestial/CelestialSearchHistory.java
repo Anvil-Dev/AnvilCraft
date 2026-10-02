@@ -41,6 +41,13 @@ public final class CelestialSearchHistory {
         this.resetBrowsing();
     }
 
+    /** Removes stale versions of a transformed or vanished body without discarding other discoveries. */
+    public void remove(CelestialBodyData body) {
+        CompoundTag identity = body.toTag();
+        this.entries.removeIf(entry -> entry.body().toTag().equals(identity));
+        this.resetBrowsing();
+    }
+
     public boolean hasPrevious() {
         return this.entries.size() > 1 && this.browseIndex < this.entries.size();
     }

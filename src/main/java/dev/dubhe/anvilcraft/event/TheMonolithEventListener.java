@@ -4,15 +4,19 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.entity.celestial.CelestialTravelManager;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.entity.ModVillagers;
-import dev.dubhe.anvilcraft.worldgen.TheMonolith;
+import dev.dubhe.anvilcraft.init.item.ModItems;
+import dev.dubhe.anvilcraft.worldgen.SmallMonolith;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.ai.village.poi.PoiManager;
 import net.minecraft.world.entity.ai.village.poi.PoiRecord;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.portal.DimensionTransition;
@@ -21,10 +25,12 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.EntityLeaveLevelEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
-import net.neoforged.neoforge.event.level.LevelEvent;
-import net.neoforged.neoforge.event.server.ServerStartedEvent;
+import net.neoforged.neoforge.event.level.ChunkEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
+import net.neoforged.neoforge.event.tick.ServerTickEvent;
 
+import java.time.LocalDate;
+import java.time.Month;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -40,21 +46,45 @@ public class TheMonolithEventListener {
     private static final int RETURN_CONFIRMATION_TICKS = 60;
     private static final Map<ServerPlayer, Map<BlockPos, Integer>> PROGRESS = new WeakHashMap<>();
     private static final Map<ServerPlayer, Long> RETURN_TOUCHES = new WeakHashMap<>();
+    private static final String[] JOKES = {
+        "message.anvilcraft.monolith.joke.chute_steal",
+        "message.anvilcraft.monolith.joke.reinforced_concrete"
+    };
+    private static final String[] KNOWLEDGE = {
+        "message.anvilcraft.monolith.knowledge.celestial_forging_anvil_gravity",
+        "message.anvilcraft.monolith.knowledge.celestial_forging_anvil_portal",
+        "message.anvilcraft.monolith.knowledge.corrupted_beacon",
+        "message.anvilcraft.monolith.knowledge.crab_claw",
+        "message.anvilcraft.monolith.knowledge.ember_metal",
+        "message.anvilcraft.monolith.knowledge.filter",
+        "message.anvilcraft.monolith.knowledge.fish_tank",
+        "message.anvilcraft.monolith.knowledge.flying_anvil_hammer",
+        "message.anvilcraft.monolith.knowledge.heater",
+        "message.anvilcraft.monolith.knowledge.horizontal_anvil_damage",
+        "message.anvilcraft.monolith.knowledge.melt_gem",
+        "message.anvilcraft.monolith.knowledge.menger_sponge",
+        "message.anvilcraft.monolith.knowledge.player_acceleration",
+        "message.anvilcraft.monolith.knowledge.projectile_acceleration",
+        "message.anvilcraft.monolith.knowledge.rocket_jump",
+        "message.anvilcraft.monolith.knowledge.vault_reset",
+        "message.anvilcraft.monolith.knowledge.villager_reset",
+        "message.anvilcraft.monolith.knowledge.waterlogged_acceleration_ring"
+    };
 
-    @SubscribeEvent(receiveCanceled = true)
-    public static void onCreateSpawnPosition(LevelEvent.CreateSpawnPosition event) {
-        if (event.getLevel() instanceof ServerLevel level && Level.OVERWORLD.equals(level.dimension())
-            && !event.getSettings().isInitialized()) {
-            NEW_WORLDS.add(level.getServer());
-        }
+    @SubscribeEvent
+    public static void onChunkLoad(ChunkEvent.Load event) {
+        if (!event.isNewChunk()) return;
+        if (!(event.getLevel() instanceof ServerLevel level)) return;
+        if (!Level.OVERWORLD.equals(level.dimension())) return;
+        ChunkPos spawnChunk = new ChunkPos(level.getSharedSpawnPos());
+        if (!spawnChunk.equals(event.getChunk().getPos())) return;
+        NEW_WORLDS.add(level.getServer());
     }
 
     @SubscribeEvent
-    public static void onServerStarted(ServerStartedEvent event) {
-        MinecraftServer server = event.getServer();
-        if (NEW_WORLDS.remove(server)) TheMonolith.ensureGenerated(server.overworld());
-        ServerLevel mun = server.getLevel(CelestialTravelManager.MUN_LEVEL);
-        if (mun != null) TheMonolith.ensureGenerated(mun);
+    public static void onServerTick(ServerTickEvent.Post event) {
+        if (!NEW_WORLDS.remove(event.getServer())) return;
+        SmallMonolith.generate(event.getServer().overworld());
     }
 
     @SubscribeEvent
@@ -88,13 +118,30 @@ public class TheMonolithEventListener {
 
     @SubscribeEvent
     public static void onRightClickBlock(PlayerInteractEvent.RightClickBlock event) {
-        if (!event.getLevel().dimension().equals(CelestialTravelManager.MUN_LEVEL)) return;
         BlockState state = event.getLevel().getBlockState(event.getPos());
         if (!state.is(ModBlocks.MONOLITH.get()) && !state.is(ModBlocks.MONOLITH_LINE.get())
             && !state.is(ModBlocks.GIANT_MONOLITH_LINE.get())) return;
+        if (event.getEntity() instanceof Player player && player.isShiftKeyDown()) {
+            boolean mainEmpty = player.getMainHandItem().isEmpty();
+            boolean offEmpty = player.getOffhandItem().isEmpty() || player.getOffhandItem().is(ModItems.CRAB_CLAW.get());
+            if (!mainEmpty || !offEmpty) return;
+        }
         event.setCanceled(true);
         event.setCancellationResult(InteractionResult.SUCCESS);
         if (!(event.getEntity() instanceof ServerPlayer player) || !player.isAlive()) return;
+        if (event.getHand() != InteractionHand.MAIN_HAND) return;
+        if (!event.getLevel().dimension().equals(CelestialTravelManager.MUN_LEVEL)) {
+            LocalDate now = LocalDate.now();
+            boolean isAprilFools = now.getMonth() == Month.APRIL && now.getDayOfMonth() == 1;
+            String key;
+            if (isAprilFools) {
+                key = JOKES[event.getLevel().random.nextInt(JOKES.length)];
+            } else {
+                key = KNOWLEDGE[event.getLevel().random.nextInt(KNOWLEDGE.length)];
+            }
+            player.sendSystemMessage(Component.translatable(key));
+            return;
+        }
         long now = player.serverLevel().getGameTime();
         Long firstTouch = RETURN_TOUCHES.get(player);
         if (firstTouch == null || now < firstTouch || now - firstTouch > RETURN_CONFIRMATION_TICKS) {

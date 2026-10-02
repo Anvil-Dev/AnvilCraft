@@ -259,7 +259,12 @@ public class BlockTagLoader {
             .addTag(Tags.Blocks.CHESTS_WOODEN);
         provider.addTag(ModBlockTags.DEVOUR_DENYLIST)
             .add(ModBlocks.MINERAL_FOUNTAIN.getKey())
-            .add(ModBlocks.STURDY_DEEPSLATE.getKey());
+            .add(ModBlocks.STURDY_DEEPSLATE.getKey())
+            .add(ModBlocks.MONOLITH.getKey())
+            .add(ModBlocks.MONOLITH_CORE.getKey())
+            .add(ModBlocks.MONOLITH_LINE.getKey())
+            .add(ModBlocks.GIANT_MONOLITH_CORE.getKey())
+            .add(ModBlocks.GIANT_MONOLITH_LINE.getKey());
 
         provider.addTag(ModBlockTags.FELLING_APPLICABLE)
             .addTag(BlockTags.LOGS)
@@ -344,6 +349,13 @@ public class BlockTagLoader {
         provider.addTag(ModBlockTags.OVERHEATABLE)
             .add(ModBlocks.OVERHEATED_EMBER_METAL_BLOCK.getKey())
             .add(ModBlocks.EMBER_METAL_BLOCK.getKey());
+
+        provider.addTag(ModBlockTags.MONOLITH_BLOCKS)
+            .add(ModBlocks.MONOLITH.getKey())
+            .add(ModBlocks.MONOLITH_CORE.getKey())
+            .add(ModBlocks.MONOLITH_LINE.getKey())
+            .add(ModBlocks.GIANT_MONOLITH_CORE.getKey())
+            .add(ModBlocks.GIANT_MONOLITH_LINE.getKey());
 
         /*
         tier 0：原版三种铁砧以及下列所有;

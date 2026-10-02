@@ -45,6 +45,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.WeakHashMap;
+import java.util.function.BooleanSupplier;
 import javax.annotation.Nullable;
 
 /** 保留区域快照，撤销时按实际收回与恢复的资源结算。 */
@@ -123,6 +124,35 @@ public final class BuildingRodUndo {
 
     void recordAuxiliary(Entity entity) {
         this.auxiliary.put(entity.getUUID(), entity);
+    }
+
+    public static boolean placeFallingBlock(FallingBlockEntity entity, BlockPos pos, BooleanSupplier placement) {
+        return placeFallingBlock(entity, List.of(pos), placement);
+    }
+
+    public static boolean placeFallingBlock(FallingBlockEntity entity, List<BlockPos> positions, BooleanSupplier placement) {
+        Map<BuildingRodUndo, List<BlockPos>> captured = new IdentityHashMap<>();
+        boolean placed = false;
+        try {
+            for (BuildingRodUndo undo : HISTORY.values()) {
+                if (undo.level != entity.level() || undo.restoring || undo.restored) continue;
+                UUID uuid = entity.getUUID();
+                if (undo.derived.containsKey(uuid) || undo.region.containsEntity(uuid)
+                    || undo.receipts.stream().anyMatch(receipt -> receipt.entities.containsKey(uuid) || receipt.drops.containsKey(uuid))) {
+                    List<BlockPos> added = undo.region.captureBlocks(positions);
+                    if (!added.isEmpty()) captured.put(undo, added);
+                }
+            }
+            placed = placement.getAsBoolean();
+            return placed;
+        } finally {
+            if (!placed) {
+                captured.forEach((undo, added) -> {
+                    undo.region.removeCapturedBlocks(added);
+                    undo.changedPositions.removeAll(added);
+                });
+            }
+        }
     }
 
     public static void replaced(Level level, BlockPos pos, BlockState before, BlockState after) {
@@ -302,6 +332,10 @@ public final class BuildingRodUndo {
         Map<UUID, Entity> owned = undo.owned();
         if (!undo.region.canRestore(player) || !undo.canRemove(player, owned)) {
             BuildingRodService.message(player, "blocked");
+            return;
+        }
+        if (!undo.region.hasCompletePlants()) {
+            BuildingRodService.message(player, "undo_conflict");
             return;
         }
         BuildingUndoResources recovered = new BuildingUndoResources();

@@ -173,6 +173,8 @@ public class AdvancementLang {
 
         provider.add("advancements.anvilcraft.neutron_star.title", "A Teaspoon Weighs a Mountain");
         provider.add("advancements.anvilcraft.neutron_star.description", "Drive a star's evolution to the end and leave a neutron star behind");
+        provider.add("advancements.anvilcraft.new_cycle.title", "A New Cycle");
+        provider.add("advancements.anvilcraft.new_cycle.description", "Witness a civilization disappear from the Celestial Forging Anvil");
 
         provider.add("advancements.anvilcraft.nuclear_power_10a.title", "Nuclear power, piece of cake!");
         provider.add("advancements.anvilcraft.nuclear_power_10a.description", "Using heat collector to collect overheated blocks' heat");

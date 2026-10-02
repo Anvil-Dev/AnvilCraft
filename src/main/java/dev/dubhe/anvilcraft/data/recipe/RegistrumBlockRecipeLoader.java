@@ -267,6 +267,13 @@ public class RegistrumBlockRecipeLoader {
             .define('A', ModItems.MAGNET_INGOT)
             .unlockedBy("hasitem", RegistrumRecipeProvider.has(ModItems.MAGNET_INGOT))
             .save(provider);
+        ShapedRecipeBuilder.shaped(RecipeCategory.REDSTONE, ctx.get(), 8)
+            .pattern("AAA")
+            .pattern("AAA")
+            .pattern("AAA")
+            .define('A', ModBlocks.HOLLOW_MAGNET_BLOCK)
+            .unlockedBy("has_hollow_magnet_block", RegistrumRecipeProvider.has(ModBlocks.HOLLOW_MAGNET_BLOCK))
+            .save(provider, AnvilCraft.of("magnet_block_from_hollow_magnet_block"));
     }
 
     public static <T extends Block> void hollowMagnetBlock(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
@@ -277,6 +284,13 @@ public class RegistrumBlockRecipeLoader {
             .define('A', ModItems.MAGNET_INGOT)
             .unlockedBy("hasitem", RegistrumRecipeProvider.has(ModItems.MAGNET_INGOT))
             .save(provider);
+        ShapedRecipeBuilder.shaped(RecipeCategory.REDSTONE, ctx.get(), 9)
+            .pattern("AAA")
+            .pattern("A A")
+            .pattern("AAA")
+            .define('A', ModBlocks.MAGNET_BLOCK)
+            .unlockedBy("has_magnet_block", RegistrumRecipeProvider.has(ModBlocks.MAGNET_BLOCK))
+            .save(provider, AnvilCraft.of("hollow_magnet_block_from_magnet_block"));
     }
 
     public static <T extends Block> void ferriteCoreMagnetBlock(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
@@ -2326,6 +2340,27 @@ public class RegistrumBlockRecipeLoader {
             .define('C', ModItemTags.COPPER_NUGGETS)
             .define('R', Items.REDSTONE)
             .unlockedBy(AnvilCraftDatagen.hasItem(Items.REDSTONE), RegistrumRecipeProvider.has(Items.REDSTONE))
+            .save(provider);
+    }
+
+    public static <T extends Block> void monolithCore(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
+            .pattern("MAM")
+            .pattern(" M ")
+            .define('M', ModBlocks.MONOLITH)
+            .define('A', Blocks.ANVIL)
+            .unlockedBy("has_monolith", RegistrumRecipeProvider.has(ModBlocks.MONOLITH))
+            .unlockedBy("has_anvil", RegistrumRecipeProvider.has(Blocks.ANVIL))
+            .save(provider);
+    }
+
+    public static <T extends Block> void monolithLine(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get(), 10)
+            .pattern("M M")
+            .pattern("M M")
+            .pattern("M M")
+            .define('M', ModBlocks.MONOLITH)
+            .unlockedBy("has_monolith", RegistrumRecipeProvider.has(ModBlocks.MONOLITH))
             .save(provider);
     }
 }
