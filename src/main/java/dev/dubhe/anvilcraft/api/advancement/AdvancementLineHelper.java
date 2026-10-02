@@ -8,6 +8,7 @@ import dev.dubhe.anvilcraft.advancements.criterion.AnvilHitPiezoelectricCrystalT
 import dev.dubhe.anvilcraft.advancements.criterion.AnvilLootingTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.AnvilOnGroundTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.BlockComparatorTurnOverTrigger;
+import dev.dubhe.anvilcraft.advancements.criterion.CelestialEvolutionTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.ConvertBeaconTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.DevourerDevourTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.DispenserRepairIronGolem;
@@ -23,10 +24,14 @@ import dev.dubhe.anvilcraft.advancements.criterion.MultiBlockFormTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.PipeConnectContainersTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.PlacerPlaceTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.PlacerShuttleTrigger;
+import dev.dubhe.anvilcraft.advancements.criterion.PlanetDetonationTrigger;
+import dev.dubhe.anvilcraft.advancements.criterion.PlanetaryCollapseDeathTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.PlayerKilledEntityByAnvilHammerTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.PlayerWearAnvilHammerTrigger;
+import dev.dubhe.anvilcraft.advancements.criterion.StarContactDeathTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.UseItemTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.VoidEnergyCollectorWorkingTrigger;
+import dev.dubhe.anvilcraft.block.entity.celestial.StellarTerminal;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.advancements.AdvancementHolder;
 import net.minecraft.advancements.AdvancementRequirements;
@@ -681,6 +686,26 @@ public class AdvancementLineHelper {
 
         public AdvancementHelper multiBlockForm(String key) {
             return this.addCriterion(key, MultiBlockFormTrigger.TriggerInstance.form());
+        }
+
+        public AdvancementHelper celestialEvolution(String key, MinMaxBounds.Ints massAnvils) {
+            return this.addCriterion(key, CelestialEvolutionTrigger.TriggerInstance.evolved(massAnvils));
+        }
+
+        public AdvancementHelper celestialEvolution(String key, StellarTerminal.Kind terminal) {
+            return this.addCriterion(key, CelestialEvolutionTrigger.TriggerInstance.evolved(terminal));
+        }
+
+        public AdvancementHelper planetDetonation(String key) {
+            return this.addCriterion(key, PlanetDetonationTrigger.TriggerInstance.detonated());
+        }
+
+        public AdvancementHelper planetaryCollapseDeath(String key) {
+            return this.addCriterion(key, PlanetaryCollapseDeathTrigger.TriggerInstance.died());
+        }
+
+        public AdvancementHelper starContactDeath(String key) {
+            return this.addCriterion(key, StarContactDeathTrigger.TriggerInstance.died());
         }
 
         public AdvancementHolder build(String id) {

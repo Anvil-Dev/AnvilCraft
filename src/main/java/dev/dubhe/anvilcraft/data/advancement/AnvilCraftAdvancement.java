@@ -6,6 +6,7 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.advancements.criterion.AnvilHammerHurtEntityTrigger;
 import dev.dubhe.anvilcraft.api.advancement.AdvancementLineHelper;
 import dev.dubhe.anvilcraft.block.entity.HeatCollectorBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.celestial.StellarTerminal;
 import dev.dubhe.anvilcraft.constant.SharedTextures;
 import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
@@ -435,6 +436,30 @@ public class AnvilCraftAdvancement {
             .challenge(ModBlocks.CELESTIAL_FORGING_ANVIL, "the_start")
             .hasItems("has_celestial_forging_anvil", ModBlocks.CELESTIAL_FORGING_ANVIL)
             .save("the_start");
+        industrialLine.createBranch().next()
+            .challenge(ModItems.EARTH_CORE_SHARD, "efficiency", true)
+            .planetDetonation("efficiency")
+            .save("efficiency");
+        industrialLine.createBranch().next()
+            .challenge(Items.PLAYER_HEAD, "cannon_fodder", true)
+            .planetaryCollapseDeath("cannon_fodder")
+            .save("cannon_fodder");
+        industrialLine.createBranch().next()
+            .challenge(ModBlocks.BLACK_HOLE, "black_hole")
+            .celestialEvolution("black_hole", StellarTerminal.Kind.BLACK_HOLE)
+            .save("black_hole");
+        industrialLine.createBranch().next()
+            .challenge(ModItems.MAGNETAR_COIL_COMPONENT, "neutron_star")
+            .celestialEvolution("neutron_star", StellarTerminal.Kind.NEUTRON_STAR)
+            .save("neutron_star");
+        industrialLine.createBranch().next()
+            .task(ModBlocks.CELESTIAL_FORGING_ANVIL, "come_at_night", true)
+            .starContactDeath("come_at_night")
+            .save("come_at_night");
+        industrialLine.next()
+            .challenge(ModItems.STELLAR_EVOLUTION_ACCELERATOR_COMPONENT, "no_remnant", true)
+            .celestialEvolution("no_remnant", MinMaxBounds.Ints.exactly(64))
+            .save("no_remnant");
         industrialLine.next()
             .challenge(ModItems.CIVILIZATION_CATALYST, "new_cycle", true)
             .addCriterion("new_cycle", CriteriaTriggers.IMPOSSIBLE.createCriterion(new ImpossibleTrigger.TriggerInstance()))

@@ -156,6 +156,23 @@ public class AdvancementLang {
         provider.add("advancements.anvilcraft.the_start.title", "The start");
         provider.add("advancements.anvilcraft.the_start.description", "Obtain celestial forging anvil");
 
+        provider.add("advancements.anvilcraft.no_remnant.title", "Nothing Left Behind");
+        provider.add("advancements.anvilcraft.no_remnant.description", "Evolve a celestial body forged with 64 mass anvils to the end and watch it leave no remnant");
+
+        provider.add("advancements.anvilcraft.efficiency.title", "We called it... efficiency");
+        provider.add("advancements.anvilcraft.efficiency.description", "Feed a gamma laser into the planet excavator and blow the planet apart");
+
+        provider.add("advancements.anvilcraft.cannon_fodder.title", "Cannon Fodder");
+        provider.add("advancements.anvilcraft.cannon_fodder.description", "Die to a planetary collapse inside an Overworld-Like planet");
+
+        provider.add("advancements.anvilcraft.come_at_night.title", "You Should Come At Night");
+        provider.add("advancements.anvilcraft.come_at_night.description", "Get killed by a star");
+
+        provider.add("advancements.anvilcraft.black_hole.title", "Not Even Light Escapes");
+        provider.add("advancements.anvilcraft.black_hole.description", "Drive a star's evolution to the end and collapse it into a black hole");
+
+        provider.add("advancements.anvilcraft.neutron_star.title", "A Teaspoon Weighs a Mountain");
+        provider.add("advancements.anvilcraft.neutron_star.description", "Drive a star's evolution to the end and leave a neutron star behind");
         provider.add("advancements.anvilcraft.new_cycle.title", "A New Cycle");
         provider.add("advancements.anvilcraft.new_cycle.description", "Witness a civilization disappear from the Celestial Forging Anvil");
 

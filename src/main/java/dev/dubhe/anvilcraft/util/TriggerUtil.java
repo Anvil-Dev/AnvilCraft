@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.util;
 
+import dev.dubhe.anvilcraft.block.entity.celestial.StellarTerminal;
 import dev.dubhe.anvilcraft.init.ModCriterionTriggers;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
@@ -205,5 +206,32 @@ public class TriggerUtil {
                 ModCriterionTriggers.MULTI_BLOCK_FORM.get().trigger(player);
             }
         }
+    }
+
+    /** 演化终局伴随超新星爆发，玩家多在爆炸范围外观察，因此搜索半径对齐震屏半径。 */
+    public static void celestialEvolution(Level level, BlockPos pos, int massAnvils, StellarTerminal.Kind terminal) {
+        if (!level.isClientSide) {
+            for (ServerPlayer player : PlayerUtil.searchPlayerByPos(level, pos, 32)) {
+                ModCriterionTriggers.CELESTIAL_EVOLUTION.get().trigger(player, massAnvils, terminal);
+            }
+        }
+    }
+
+    public static void planetDetonation(Level level, BlockPos pos) {
+        if (!level.isClientSide) {
+            for (ServerPlayer player : PlayerUtil.searchPlayerByPos(level, pos, 7)) {
+                ModCriterionTriggers.PLANET_DETONATION.get().trigger(player);
+            }
+        }
+    }
+
+    /** 死亡事件只涉及当事玩家，不需要按位置搜索。 */
+    public static void planetaryCollapseDeath(ServerPlayer player) {
+        ModCriterionTriggers.PLANETARY_COLLAPSE_DEATH.get().trigger(player);
+    }
+
+    /** 死亡事件只涉及当事玩家，不需要按位置搜索。 */
+    public static void starContactDeath(ServerPlayer player) {
+        ModCriterionTriggers.STAR_CONTACT_DEATH.get().trigger(player);
     }
 }

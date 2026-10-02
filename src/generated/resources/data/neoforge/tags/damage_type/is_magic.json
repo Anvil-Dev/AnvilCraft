@@ -3,6 +3,10 @@
     {
       "id": "anvilcraft:lost_in_time",
       "required": false
+    },
+    {
+      "id": "anvilcraft:black_hole_contact",
+      "required": false
     }
   ]
 }

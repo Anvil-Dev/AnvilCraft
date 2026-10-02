@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.mixin;
 
 import dev.anvilcraft.lib.v2.util.Util;
+import dev.dubhe.anvilcraft.init.entity.ModDamageTypes;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.item.AnvilHammerItem;
 import net.minecraft.server.level.ServerPlayer;
@@ -57,7 +58,9 @@ public abstract class PlayerHitEntityMixin extends LivingEntity {
             cir.setReturnValue(false);
             cir.cancel();
         } else {
-            if (source.type().equals(level().damageSources().fall().type())) {
+            /// 行星接触伤害原为原版摔落类型，改用专属类型后仍需在此保持相同表现。
+            if (source.type().equals(level().damageSources().fall().type())
+                || source.is(ModDamageTypes.PLANET_CONTACT)) {
                 for (LivingEntity entity : entities) {
                     entity.hurt(damageSources().playerAttack(thiS), hurtAmount);
                     anvilcraft$damageItem(thiS, this.getItemBySlot(EquipmentSlot.HEAD));

@@ -9,6 +9,7 @@ import dev.dubhe.anvilcraft.block.entity.celestial.RockyPlanetData;
 import dev.dubhe.anvilcraft.block.entity.celestial.ShatteredPlanet;
 import dev.dubhe.anvilcraft.block.entity.celestial.SpecialCelestialBodyData;
 import dev.dubhe.anvilcraft.util.BreakBlockUtil;
+import dev.dubhe.anvilcraft.util.TriggerUtil;
 import dev.dubhe.anvilcraft.worldgen.OverworldLikeResetManager;
 import lombok.Getter;
 import net.minecraft.core.HolderLookup;
@@ -162,6 +163,7 @@ public class ExcavatorHandler extends BaseMegastructureHandler {
         be.setPlanetaryResourceSet(ShatteredPlanet.createResources());
         be.setAgeAnvilCount(ShatteredPlanet.AGE_ANVIL_COUNT);
         be.setStellarMass(ShatteredPlanet.MASS_ANVIL_COUNT);
+        TriggerUtil.planetDetonation(be.getLevel(), be.getBlockPos());
         be.setChanged();
         be.getLevel().sendBlockUpdated(be.getBlockPos(), be.getBlockState(), be.getBlockState(), Block.UPDATE_ALL);
         be.getLevel().explode(

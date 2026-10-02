@@ -133,12 +133,12 @@ final class CfaGravityController {
     ) {
         if (body instanceof StarData star) {
             if (star.bodyClass() == CelestialBodyClass.BLACK_HOLE) {
-                living.hurt(ModDamageTypes.lostInTime(level), Float.MAX_VALUE);
+                living.hurt(ModDamageTypes.blackHoleContact(level), Float.MAX_VALUE);
             } else {
-                living.hurt(level.damageSources().inFire(), STAR_CONTACT_DAMAGE);
+                living.hurt(ModDamageTypes.starContact(level), STAR_CONTACT_DAMAGE);
             }
         } else {
-            living.hurt(level.damageSources().fall(), PLANET_CONTACT_DAMAGE);
+            living.hurt(ModDamageTypes.planetContact(level), PLANET_CONTACT_DAMAGE);
         }
     }
 

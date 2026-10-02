@@ -17,6 +17,7 @@ import dev.dubhe.anvilcraft.block.entity.celestial.StellarTrackLibrary;
 import dev.dubhe.anvilcraft.block.entity.celestial.StellarVisualState;
 import dev.dubhe.anvilcraft.init.ModMegastructures;
 import dev.dubhe.anvilcraft.network.QuenchedOutMusicPacket;
+import dev.dubhe.anvilcraft.util.TriggerUtil;
 import lombok.Getter;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -596,6 +597,7 @@ public class AcceleratorHandler extends BaseMegastructureHandler {
                 // KEEP 的冷却外观继续从快照采样。
             }
         }
+        TriggerUtil.celestialEvolution(be.getLevel(), be.getBlockPos(), evolutionState.initialMass(), terminal.kind());
         finishAccelerator(be);
         syncToClient(be);
     }
