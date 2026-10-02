@@ -6,6 +6,7 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.advancements.criterion.AnvilHammerHurtEntityTrigger;
 import dev.dubhe.anvilcraft.api.advancement.AdvancementLineHelper;
 import dev.dubhe.anvilcraft.block.entity.HeatCollectorBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.celestial.StellarTerminal;
 import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModItems;
@@ -785,6 +786,64 @@ public class ModAdvancementsHandler {
             )
             .hasItems("has_celestial_forging_anvil", ModBlocks.CELESTIAL_FORGING_ANVIL)
             .save(provider, "the_start");
+        mainLine.createBranch().next()
+            .display(
+                ModItems.EARTH_CORE_SHARD,
+                Component.translatable("advancements.anvilcraft.efficiency.title"),
+                Component.translatable("advancements.anvilcraft.efficiency.description"),
+                AdvancementType.CHALLENGE,
+                true
+            )
+            .planetDetonation("efficiency")
+            .save(provider, "efficiency");
+        mainLine.createBranch().next()
+            .display(
+                Items.PLAYER_HEAD,
+                Component.translatable("advancements.anvilcraft.cannon_fodder.title"),
+                Component.translatable("advancements.anvilcraft.cannon_fodder.description"),
+                AdvancementType.CHALLENGE,
+                true
+            )
+            .planetaryCollapseDeath("cannon_fodder")
+            .save(provider, "cannon_fodder");
+        mainLine.createBranch().next()
+            .display(
+                ModBlocks.BLACK_HOLE,
+                Component.translatable("advancements.anvilcraft.black_hole.title"),
+                Component.translatable("advancements.anvilcraft.black_hole.description"),
+                AdvancementType.CHALLENGE
+            )
+            .celestialEvolution("black_hole", StellarTerminal.Kind.BLACK_HOLE)
+            .save(provider, "black_hole");
+        mainLine.createBranch().next()
+            .display(
+                ModItems.MAGNETAR_COIL_COMPONENT,
+                Component.translatable("advancements.anvilcraft.neutron_star.title"),
+                Component.translatable("advancements.anvilcraft.neutron_star.description"),
+                AdvancementType.CHALLENGE
+            )
+            .celestialEvolution("neutron_star", StellarTerminal.Kind.NEUTRON_STAR)
+            .save(provider, "neutron_star");
+        mainLine.createBranch().next()
+            .display(
+                ModBlocks.CELESTIAL_FORGING_ANVIL,
+                Component.translatable("advancements.anvilcraft.come_at_night.title"),
+                Component.translatable("advancements.anvilcraft.come_at_night.description"),
+                AdvancementType.TASK,
+                true
+            )
+            .starContactDeath("come_at_night")
+            .save(provider, "come_at_night");
+        mainLine.next()
+            .display(
+                ModItems.STELLAR_EVOLUTION_ACCELERATOR_COMPONENT,
+                Component.translatable("advancements.anvilcraft.no_remnant.title"),
+                Component.translatable("advancements.anvilcraft.no_remnant.description"),
+                AdvancementType.CHALLENGE,
+                true
+            )
+            .celestialEvolution("no_remnant", MinMaxBounds.Ints.exactly(64))
+            .save(provider, "no_remnant");
         mainLine.next()
             .display(
                 ModItems.CIVILIZATION_CATALYST,

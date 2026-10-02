@@ -5,6 +5,10 @@
       "required": false
     },
     {
+      "id": "anvilcraft:star_contact",
+      "required": false
+    },
+    {
       "id": "anvilcraft:plasma_jet",
       "required": false
     },

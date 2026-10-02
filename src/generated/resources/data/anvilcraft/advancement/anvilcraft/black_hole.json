@@ -1,0 +1,29 @@
+{
+  "parent": "anvilcraft:anvilcraft/the_start",
+  "criteria": {
+    "black_hole": {
+      "conditions": {
+        "terminal": "black_hole"
+      },
+      "trigger": "anvilcraft:celestial_evolution"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.anvilcraft.black_hole.description"
+    },
+    "frame": "challenge",
+    "icon": {
+      "id": "anvilcraft:black_hole"
+    },
+    "title": {
+      "translate": "advancements.anvilcraft.black_hole.title"
+    }
+  },
+  "requirements": [
+    [
+      "black_hole"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

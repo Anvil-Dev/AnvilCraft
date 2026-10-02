@@ -8,6 +8,7 @@ import dev.dubhe.anvilcraft.advancements.criterion.AnvilHitPiezoelectricCrystalT
 import dev.dubhe.anvilcraft.advancements.criterion.AnvilLootingTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.AnvilOnGroundTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.BlockComparatorTurnOverTrigger;
+import dev.dubhe.anvilcraft.advancements.criterion.CelestialEvolutionTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.ConnectFluidContainersTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.ConvertBeaconTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.DevourerDevourTrigger;
@@ -24,8 +25,11 @@ import dev.dubhe.anvilcraft.advancements.criterion.MultiBlockFormTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.PipeConnectContainersTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.PlacerPlaceTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.PlacerShuttleTrigger;
+import dev.dubhe.anvilcraft.advancements.criterion.PlanetDetonationTrigger;
+import dev.dubhe.anvilcraft.advancements.criterion.PlanetaryCollapseDeathTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.PlayerKilledEntityByAnvilHammerTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.PlayerWearAnvilHammerTrigger;
+import dev.dubhe.anvilcraft.advancements.criterion.StarContactDeathTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.UseItemTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.VoidCollectorTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.VoidEnergyCollectorWorkingTrigger;
@@ -174,6 +178,18 @@ public class ModCriterionTriggers {
 
     public static final DeferredHolder<CriterionTrigger<?>, VoidEnergyCollectorWorkingTrigger> VOID_ENERGY_COLLECTOR_WORKING =
         ModCriterionTriggers.REGISTER.register("void_energy_collector_working", VoidEnergyCollectorWorkingTrigger::new);
+
+    public static final DeferredHolder<CriterionTrigger<?>, CelestialEvolutionTrigger> CELESTIAL_EVOLUTION =
+        REGISTER.register("celestial_evolution", CelestialEvolutionTrigger::new);
+
+    public static final DeferredHolder<CriterionTrigger<?>, PlanetDetonationTrigger> PLANET_DETONATION =
+        REGISTER.register("planet_detonation", PlanetDetonationTrigger::new);
+
+    public static final DeferredHolder<CriterionTrigger<?>, PlanetaryCollapseDeathTrigger> PLANETARY_COLLAPSE_DEATH =
+        REGISTER.register("planetary_collapse_death", PlanetaryCollapseDeathTrigger::new);
+
+    public static final DeferredHolder<CriterionTrigger<?>, StarContactDeathTrigger> STAR_CONTACT_DEATH =
+        REGISTER.register("star_contact_death", StarContactDeathTrigger::new);
 
     public static void register(IEventBus eventBus) {
         ModCriterionTriggers.REGISTER.register(eventBus);

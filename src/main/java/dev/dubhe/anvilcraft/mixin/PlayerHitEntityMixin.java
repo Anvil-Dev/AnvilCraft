@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.mixin;
 
 import dev.anvilcraft.lib.v2.util.Util;
+import dev.dubhe.anvilcraft.init.entity.ModDamageTypes;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.item.tool.AnvilHammerItem;
 import dev.dubhe.anvilcraft.util.EntityUtil;
@@ -58,7 +59,8 @@ public abstract class PlayerHitEntityMixin extends LivingEntity {
             cir.setReturnValue(false);
             cir.cancel();
         } else {
-            if (source.type().equals(this.level().damageSources().fall().type())) {
+            if (source.type().equals(this.level().damageSources().fall().type())
+                || source.is(ModDamageTypes.PLANET_CONTACT)) {
                 for (LivingEntity entity : entities) {
                     EntityUtil.hurt(entity, this.damageSources().playerAttack(thiS), hurtAmount);
                     PlayerHitEntityMixin.anvilcraft$damageItem(thiS, this.getItemBySlot(EquipmentSlot.HEAD));

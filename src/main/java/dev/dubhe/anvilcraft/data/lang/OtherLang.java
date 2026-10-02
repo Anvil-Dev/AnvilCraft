@@ -66,6 +66,12 @@ public class OtherLang {
         provider.add("subtitles.anvilcraft.smart_block_placer_shulker_open", "Smart Block Placer whirs");
         provider.add("subtitles.anvilcraft.anvil_hammer_rotate_block", "Anvil Hammer rotates block");
         provider.add("death.attack.anvilcraft.planetary_collapse", "%1$s was consumed by planetary collapse");
+        provider.add("death.attack.anvilcraft.star_contact",
+            "%1$s is now part of the corona");
+        provider.add("death.attack.anvilcraft.planet_contact",
+            "%1$s discovered the Roche limit, in pieces");
+        provider.add("death.attack.anvilcraft.black_hole_contact",
+            "%1$s thought they could outrun light");
         provider.add("death.attack.anvilcraft.laser", "%1$s was pierced by laser");
         provider.add("death.attack.anvilcraft.lost_in_time", "%1$s was lost in the river of time");
         provider.add("death.attack.anvilcraft.heater_burn", "%1$s was well done by the heater");

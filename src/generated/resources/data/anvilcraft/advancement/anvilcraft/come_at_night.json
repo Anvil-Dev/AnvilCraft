@@ -1,0 +1,26 @@
+{
+  "parent": "anvilcraft:anvilcraft/the_start",
+  "criteria": {
+    "come_at_night": {
+      "trigger": "anvilcraft:star_contact_death"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.anvilcraft.come_at_night.description"
+    },
+    "hidden": true,
+    "icon": {
+      "id": "anvilcraft:celestial_forging_anvil"
+    },
+    "title": {
+      "translate": "advancements.anvilcraft.come_at_night.title"
+    }
+  },
+  "requirements": [
+    [
+      "come_at_night"
+    ]
+  ],
+  "sends_telemetry_event": true
+}
