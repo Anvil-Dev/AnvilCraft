@@ -279,19 +279,21 @@ public class ItemSplitterBlockEntity extends BlockEntity implements IItemHandler
     private void dropAt(BlockPos target, ItemStack stack) {
         if (this.level == null) return;
         Vec3 center = target.getCenter();
-        // 显式传 0,0,0：5 参数构造器会自带随机动量与向上初速
-        ItemEntity itemEntity = new ItemEntity(
-            this.level,
-            center.x,
-            center.y,
-            center.z,
-            stack,
-            0,
-            0,
-            0
-        );
-        itemEntity.setDefaultPickUpDelay();
-        this.level.addFreshEntity(itemEntity);
+        while (!stack.isEmpty()) {
+            // 显式传 0,0,0：5 参数构造器会自带随机动量与向上初速
+            ItemEntity itemEntity = new ItemEntity(
+                this.level,
+                center.x,
+                center.y,
+                center.z,
+                stack.split(stack.getMaxStackSize()),
+                0,
+                0,
+                0
+            );
+            itemEntity.setDefaultPickUpDelay();
+            this.level.addFreshEntity(itemEntity);
+        }
     }
 
     /**
