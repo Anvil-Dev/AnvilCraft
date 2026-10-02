@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.entity;
 
 import dev.dubhe.anvilcraft.api.event.GiantAnvilEvent;
 import dev.dubhe.anvilcraft.block.GiantAnvilBlock;
+import dev.dubhe.anvilcraft.building.BuildingRodUndo;
 import dev.dubhe.anvilcraft.init.entity.ModEntities;
 import dev.dubhe.anvilcraft.util.AccelerateManager;
 import dev.dubhe.anvilcraft.util.GravityManager;
@@ -166,7 +167,9 @@ public class FallingGiantAnvilEntity extends FallingBlockEntity {
                                 this.blockState = this.blockState.setValue(BlockStateProperties.WATERLOGGED, true);
                             }
 
-                            if (this.level().setBlock(blockPos, this.blockState, 3)) {
+                            if (BuildingRodUndo.placeFallingBlock(this, BlockPos.betweenClosedStream(
+                                blockPos.offset(-1, -1, -1), blockPos.offset(1, 1, 1)).map(BlockPos::immutable).toList(),
+                                () -> this.level().setBlock(blockPos, this.blockState, 3))) {
                                 ((ServerLevel) this.level())
                                     .getChunkSource()
                                     .chunkMap
