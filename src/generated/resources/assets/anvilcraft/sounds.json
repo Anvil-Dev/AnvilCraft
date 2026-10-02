@@ -99,7 +99,10 @@
   },
   "quenched_out": {
     "sounds": [
-      "anvilcraft:quenched_out"
+      {
+        "attenuation_distance": 64,
+        "name": "anvilcraft:quenched_out"
+      }
     ],
     "subtitle": "subtitles.anvilcraft.quenched_out"
   },
