@@ -431,7 +431,7 @@ public class AnvilHammerItem extends Item {
                 TriggerUtil.killedEntityByAnvilHammer(serverLevel, BlockPos.containing(target.position()), target);
             }
         }
-        TriggerUtil.anvilHammerHurtEntity(level, BlockPos.containing(target.position()), damageBonus);
+        TriggerUtil.anvilHammerHurtEntity(level, BlockPos.containing(target.position()), damageBonus, this);
     }
 
     @Override

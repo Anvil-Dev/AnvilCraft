@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.data.advancement;
 import dev.anvilcraft.lib.v2.registrum.providers.RegistrumAdvancementProvider;
 import dev.anvilcraft.lib.v2.util.predicate.BlockStatePredicate;
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.advancements.criterion.AnvilHammerHurtEntityTrigger;
 import dev.dubhe.anvilcraft.api.advancement.AdvancementLineHelper;
 import dev.dubhe.anvilcraft.block.entity.HeatCollectorBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlockTags;
@@ -300,7 +301,8 @@ public class ModAdvancementsHandler {
                 Component.translatable("advancements.anvilcraft.super_kill.description"),
                 AdvancementType.CHALLENGE
             )
-            .hammerHurt("super_kill", 80)
+            .addCriterion("super_kill",
+                AnvilHammerHurtEntityTrigger.TriggerInstance.hurtEntity(itemLookup, 80, ModItems.ROYAL_ANVIL_HAMMER.get()))
             .save(provider, "super_kill");
 
         AdvancementLineHelper electLine = mainLine.createBranch();

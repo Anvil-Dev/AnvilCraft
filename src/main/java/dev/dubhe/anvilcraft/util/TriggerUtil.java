@@ -8,7 +8,9 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -92,9 +94,13 @@ public class TriggerUtil {
     }
 
     public static void anvilHammerHurtEntity(Level level, BlockPos pos, float damage) {
+        anvilHammerHurtEntity(level, pos, damage, Items.AIR);
+    }
+
+    public static void anvilHammerHurtEntity(Level level, BlockPos pos, float damage, Item item) {
         if (!level.isClientSide()) {
             for (ServerPlayer player : PlayerUtil.searchPlayerByPos(level, pos, 5)) {
-                ModCriterionTriggers.ANVIL_HAMMER_HURT_ENTITY.get().trigger(player, damage);
+                ModCriterionTriggers.ANVIL_HAMMER_HURT_ENTITY.get().trigger(player, damage, item);
             }
         }
     }
