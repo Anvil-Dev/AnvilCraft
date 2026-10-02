@@ -20,9 +20,9 @@ import dev.dubhe.anvilcraft.config.AnvilCraftClientConfig;
 import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.item.BuildingRodItem;
-import dev.dubhe.anvilcraft.item.block.ChuteBlockItem;
 import dev.dubhe.anvilcraft.item.block.PlaceInWaterBlockItem;
 import dev.dubhe.anvilcraft.util.BlockPlacementPicking;
+import dev.dubhe.anvilcraft.util.PlacementInteractions;
 import dev.dubhe.anvilcraft.util.SegmentedActuator;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.client.Minecraft;
@@ -172,7 +172,7 @@ public class LargeBlockPlacePreviewEventListener {
                 useContext = new UseOnContext(mc.level, player, hand, item, hit);
             } else {
                 useContext = new UseOnContext(player, hand, target);
-                if (blockItem instanceof ChuteBlockItem && ChuteBlockItem.isStorageInteraction(useContext)) {
+                if (!PlacementInteractions.allowsPlacement(useContext)) {
                     return;
                 }
                 useContext = BlockPlacementPicking.forPlacement(useContext);
