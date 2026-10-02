@@ -473,6 +473,9 @@ public class AnvilCraftServerConfig {
         @Comment("Controls how many storage operations can be undone")
         @BoundedDiscrete(min = 0, max = 64)
         public int storageUndoDepth = 4;
+        @Comment("Controls how much heat the Heat Collector can accumulate (the super_heat advancement requires 4096)")
+        @BoundedDiscrete(min = 1, max = 1048576)
+        public int heatCollectorMaxOutputPower = 4096;
     }
 
     @SerializedName("Equipment & Enchanting")
@@ -660,6 +663,13 @@ public class AnvilCraftServerConfig {
         @Comment("Controls the energy the Spectral Weapon Launcher consumes per shot (in FE)")
         @BoundedDiscrete(min = 1, max = 2000000000)
         public int spectralLauncherShotEnergy = 1600000;
+        @Comment("Controls the maximum energy of the Weatherproof Chestplate (in FE)")
+        @BoundedDiscrete(min = 1, max = 2000000000)
+        public int weatherproofChestplateMaxEnergy = 160000000;
+
+        @Comment("Controls the energy the Weatherproof Chestplate consumes per tick of flight (in FE)")
+        @BoundedDiscrete(min = 1, max = 1000000)
+        public int weatherproofChestplateFlightConsumption = 5000;
     }
 
     @SerializedName("Commands")

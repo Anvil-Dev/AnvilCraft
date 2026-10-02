@@ -257,7 +257,7 @@ public class CapabilitiesEventListener {
 
         event.registerItem(
             Capabilities.EnergyStorage.ITEM,
-            (stack, ctx) -> new ItemFEStorage(stack, WeatherproofChestplateItem.MAX_ENERGY),
+            (stack, ctx) -> new ItemFEStorage(stack, WeatherproofChestplateItem.maxEnergy()),
             ModItems.WEATHERPROOF_SPACESUIT_CHESTPLATE.get()
         );
 

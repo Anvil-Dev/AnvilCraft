@@ -65,7 +65,7 @@ public class WeatherproofChestplateHUD {
         PoseStack poseStack = guiGraphics.pose();
         poseStack.pushPose();
         int energy = WeatherproofChestplateItem.getEnergyStored(backpack);
-        int percent = Math.round((float) energy / WeatherproofChestplateItem.MAX_ENERGY * 100);
+        int percent = Math.round((float) energy / WeatherproofChestplateItem.maxEnergy() * 100);
         guiGraphics.renderItem(backpack, 0, 0);
 
         poseStack.translate(20, 4, 0);
