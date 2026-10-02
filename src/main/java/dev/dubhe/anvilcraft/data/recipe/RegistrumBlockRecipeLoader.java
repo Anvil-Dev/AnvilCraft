@@ -267,6 +267,13 @@ public class RegistrumBlockRecipeLoader {
             .define('A', ModItems.MAGNET_INGOT)
             .unlockedBy("hasitem", RegistrumRecipeProvider.has(ModItems.MAGNET_INGOT))
             .save(provider);
+        ShapedRecipeBuilder.shaped(RecipeCategory.REDSTONE, ctx.get(), 8)
+            .pattern("AAA")
+            .pattern("AAA")
+            .pattern("AAA")
+            .define('A', ModBlocks.HOLLOW_MAGNET_BLOCK)
+            .unlockedBy("has_hollow_magnet_block", RegistrumRecipeProvider.has(ModBlocks.HOLLOW_MAGNET_BLOCK))
+            .save(provider, AnvilCraft.of("magnet_block_from_hollow_magnet_block"));
     }
 
     public static <T extends Block> void hollowMagnetBlock(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
@@ -277,6 +284,13 @@ public class RegistrumBlockRecipeLoader {
             .define('A', ModItems.MAGNET_INGOT)
             .unlockedBy("hasitem", RegistrumRecipeProvider.has(ModItems.MAGNET_INGOT))
             .save(provider);
+        ShapedRecipeBuilder.shaped(RecipeCategory.REDSTONE, ctx.get(), 9)
+            .pattern("AAA")
+            .pattern("A A")
+            .pattern("AAA")
+            .define('A', ModBlocks.MAGNET_BLOCK)
+            .unlockedBy("has_magnet_block", RegistrumRecipeProvider.has(ModBlocks.MAGNET_BLOCK))
+            .save(provider, AnvilCraft.of("hollow_magnet_block_from_magnet_block"));
     }
 
     public static <T extends Block> void ferriteCoreMagnetBlock(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
