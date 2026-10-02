@@ -11,6 +11,7 @@ import org.jspecify.annotations.Nullable;
 public class FluidHandlerRenderState extends BlockEntityRenderState {
     private @Nullable FluidResource resource;
     private float fill;
+    private int amount;
     private float minX;
     private float minY;
     private float minZ;

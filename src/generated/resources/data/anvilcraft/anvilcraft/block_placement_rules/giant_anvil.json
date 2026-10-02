@@ -1,0 +1,12 @@
+{
+  "rules": [
+    {
+      "item": "anvilcraft:giant_anvil",
+      "properties": "half=mid_center"
+    },
+    {
+      "item": {},
+      "properties": "!half=mid_center"
+    }
+  ]
+}

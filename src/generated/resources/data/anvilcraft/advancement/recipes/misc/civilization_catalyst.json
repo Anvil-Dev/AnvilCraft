@@ -1,0 +1,54 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_corrupted_beacon": {
+      "conditions": {
+        "items": [
+          {
+            "items": "anvilcraft:corrupted_beacon"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_legacy_essence": {
+      "conditions": {
+        "items": [
+          {
+            "items": "anvilcraft:legacy_essence"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_monolith": {
+      "conditions": {
+        "items": [
+          {
+            "items": "anvilcraft:monolith"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "anvilcraft:civilization_catalyst"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_monolith",
+      "has_legacy_essence",
+      "has_corrupted_beacon"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "anvilcraft:civilization_catalyst"
+    ]
+  }
+}

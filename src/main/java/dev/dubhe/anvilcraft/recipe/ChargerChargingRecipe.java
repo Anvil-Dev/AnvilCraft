@@ -96,7 +96,7 @@ public record ChargerChargingRecipe(Ingredient ingredient, ItemStackTemplate res
 
     @Override
     public ItemStack assemble(SingleRecipeInput input) {
-        return this.result.create();
+        return NeutroniumChargingRecipe.preserveEnchantments(input.getItem(0), this.result.create());
     }
 
     @Override

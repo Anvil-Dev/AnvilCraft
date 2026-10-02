@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.block.special;
 import com.mojang.serialization.MapCodec;
 import dev.anvilcraft.lib.v2.recipe.cache.BlockCache;
 import dev.dubhe.anvilcraft.api.block.IIgnitableCauldron;
+import dev.dubhe.anvilcraft.api.plasma.PlasmaJetHooks;
 import dev.dubhe.anvilcraft.block.entity.PlasmaJetsBlockEntity;
 import dev.dubhe.anvilcraft.block.power.consumer.HeaterBlock;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
@@ -13,16 +14,16 @@ import net.minecraft.core.Direction;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseEntityBlock;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
-import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jspecify.annotations.Nullable;
+
+import java.util.OptionalInt;
 
 public class PlasmaJetsBlock extends BaseEntityBlock {
     public PlasmaJetsBlock(Properties properties) {
@@ -31,7 +32,7 @@ public class PlasmaJetsBlock extends BaseEntityBlock {
 
     @Override
     protected MapCodec<? extends BaseEntityBlock> codec() {
-        return BlockBehaviour.simpleCodec(PlasmaJetsBlock::new);
+        return simpleCodec(PlasmaJetsBlock::new);
     }
 
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
@@ -44,13 +45,23 @@ public class PlasmaJetsBlock extends BaseEntityBlock {
         ) {
             return false;
         }
-        BlockCache cache = new BlockCache(level);
-        if (cache.getBlockState(pos.below()).getBlock() instanceof IIgnitableCauldron cauldron
-            && cauldron.getFluidAmount(cache, pos.below()) < 250) {
-            return false;
+        Integer hookedAmount = PlasmaJetHooks.fuelAmount(level, pos.below());
+        if (hookedAmount != null) {
+            if (hookedAmount < 250) {
+                return false;
+            }
+        } else {
+            BlockCache cache = new BlockCache(level);
+            if (
+                cache.getBlockState(pos.below()).getBlock() instanceof IIgnitableCauldron cauldron
+                && cauldron.getFluidAmount(cache, pos.below()) < 250
+            ) {
+                return false;
+            }
         }
         for (int i = 0; i < 8; i++) {
-            if (!level.getBlockState(pos.above(i)).isAir()) {
+            BlockState above = level.getBlockState(pos.above(i));
+            if (!above.isAir() && (i == 0 || !PlasmaJetHooks.isPassThrough(above))) {
                 return false;
             }
         }
@@ -72,8 +83,8 @@ public class PlasmaJetsBlock extends BaseEntityBlock {
     }
 
     @Override
-    public @Nullable <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
-        return BaseEntityBlock.createTickerHelper(type, ModBlockEntities.PLASMA_JETS.get(), PlasmaJetsBlockEntity::tick);
+    public <T extends BlockEntity> @Nullable BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
+        return createTickerHelper(type, ModBlockEntities.PLASMA_JETS.get(), PlasmaJetsBlockEntity::tick);
     }
 
     @Override
@@ -83,6 +94,7 @@ public class PlasmaJetsBlock extends BaseEntityBlock {
 
     @SuppressWarnings("deprecation")
     public static boolean isIgnitedOilCauldron(Level level, BlockPos pos) {
+        if (PlasmaJetHooks.isIgnitedFuel(level, pos)) return true;
         BlockCache cache = new BlockCache(level);
         if (!(cache.getBlockState(pos).getBlock() instanceof IIgnitableCauldron cauldron)) return false;
         return cauldron.isIgnited(cache, pos) && cauldron.getFluid(cache, pos).is(ModFluidTags.OIL);
@@ -90,32 +102,20 @@ public class PlasmaJetsBlock extends BaseEntityBlock {
 
     @SuppressWarnings("deprecation")
     public static boolean isValidBaseCauldron(Level level, BlockPos pos) {
-        BlockCache cache = new BlockCache(level);
-        BlockState state = cache.getBlockState(pos);
-        if (state.is(Blocks.CAULDRON)) return true;
-        if (!(state.getBlock() instanceof IIgnitableCauldron cauldron)) return false;
-        return cauldron.getFluid(cache, pos).is(ModFluidTags.OIL) || cauldron.isEmpty(cache, pos);
-    }
-
-    public static boolean tryConsumeOnce(Level level, BlockPos pos) {
+        Boolean override = PlasmaJetHooks.isValidBaseOverride(level, pos);
+        if (override != null) return override;
         BlockCache cache = new BlockCache(level);
         if (!(cache.getBlockState(pos).getBlock() instanceof IIgnitableCauldron cauldron)) return false;
-        if (!cauldron.consumeOnce(cache, pos)) return false;
-        cache.accept();
-        return true;
+        return cauldron.isEmpty(cache, pos) || cauldron.getFluid(cache, pos).is(ModFluidTags.OIL);
     }
 
-    public static boolean usesContinuousFuel(Level level, BlockPos pos) {
+    public static OptionalInt tryConsumeOnce(Level level, BlockPos pos, boolean simulate) {
+        OptionalInt override = PlasmaJetHooks.tryConsumeOnceOverride(level, pos, simulate);
+        if (override.isPresent()) return override;
         BlockCache cache = new BlockCache(level);
-        if (!(cache.getBlockState(pos).getBlock() instanceof IIgnitableCauldron cauldron)) return false;
-        return cauldron.usesContinuousPlasmaJetFuel(cache, pos);
-    }
-
-    public static boolean tryConsumeContinuousFuel(Level level, BlockPos pos, int amount) {
-        BlockCache cache = new BlockCache(level);
-        if (!(cache.getBlockState(pos).getBlock() instanceof IIgnitableCauldron cauldron)) return false;
-        if (!cauldron.consumeContinuousPlasmaJetFuel(cache, pos, amount)) return false;
-        cache.accept();
-        return true;
+        if (!(cache.getBlockState(pos).getBlock() instanceof IIgnitableCauldron cauldron)) return OptionalInt.empty();
+        OptionalInt extraDuration = cauldron.consumeOnce(cache, pos, simulate);
+        if (!simulate) cache.accept();
+        return extraDuration;
     }
 }

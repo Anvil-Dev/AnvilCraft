@@ -25,6 +25,7 @@ import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.util.ProblemReporter;
 import net.minecraft.util.TriState;
@@ -264,7 +265,7 @@ public class ExpCollectorBlockEntity extends BlockEntity
             .sorted(Comparator.comparingInt(ExperienceOrb::getValue))
             .toList();
         for (ExperienceOrb orb : orbs) {
-            this.acceptExperienceOrb(orb);
+            if (this.acceptExperienceOrb(orb) == TriState.FALSE) break;
         }
         this.resetCooldown();
     }
@@ -279,20 +280,29 @@ public class ExpCollectorBlockEntity extends BlockEntity
             || this.isRemoved()) {
             return TriState.FALSE;
         }
-        int amountPerOrb = orb.getValue() * 20;
-        if (amountPerOrb <= 0) return TriState.FALSE;
+        int value = orb.getValue();
+        if (value <= 0) {
+            orb.discard();
+            return TriState.TRUE;
+        }
+        if (orb.count <= 0) orb.count = 1;
         FluidResource experience = FluidResource.of(ModFluids.EXP_FLUID);
-        int remaining = this.tank.getCapacityAsInt(0, experience) - this.tank.getAmountAsInt(0);
-        int absorbedCount = Math.min(orb.count, remaining / amountPerOrb);
-        if (absorbedCount <= 0) return TriState.FALSE;
-        int requested = absorbedCount * amountPerOrb;
+        int remainingCapacity = this.tank.getCapacityAsInt(0, experience) - this.tank.getAmountAsInt(0);
+        int acceptableExp = remainingCapacity / 20;
+        if (acceptableExp <= 0) return TriState.FALSE;
+        long totalExp = (long) value * orb.count;
+        int absorbedExp = (int) Math.min(totalExp, acceptableExp);
+        int requested = absorbedExp * 20;
         try (Transaction transaction = Transaction.openRoot()) {
-            int inserted = this.tank.insert(experience, requested, transaction);
-            absorbedCount = inserted / amountPerOrb;
-            if (absorbedCount <= 0) return TriState.FALSE;
+            if (this.tank.insert(experience, requested, transaction) != requested) return TriState.FALSE;
             transaction.commit();
         }
-        orb.count -= absorbedCount;
+        long remainingExp = totalExp - absorbedExp;
+        orb.count = (int) (remainingExp / value);
+        int expToReturn = (int) (remainingExp % value);
+        if (expToReturn > 0 && this.level instanceof ServerLevel serverLevel) {
+            ExperienceOrb.award(serverLevel, orb.position(), expToReturn);
+        }
         if (orb.count <= 0) {
             orb.discard();
             return TriState.TRUE;

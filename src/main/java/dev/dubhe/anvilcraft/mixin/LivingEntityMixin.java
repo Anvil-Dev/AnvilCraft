@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.mixin;
 
+import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.sugar.Local;
 import com.llamalad7.mixinextras.sugar.Share;
 import com.llamalad7.mixinextras.sugar.ref.LocalRef;
@@ -9,8 +10,11 @@ import dev.dubhe.anvilcraft.api.injection.entity.ILivingEntityExtension;
 import dev.dubhe.anvilcraft.block.workstation.TranscendenceAnvilBlock;
 import dev.dubhe.anvilcraft.block.workstation.ember.EmberAnvilBlock;
 import dev.dubhe.anvilcraft.block.workstation.frost.FrostAnvilBlock;
+import dev.dubhe.anvilcraft.event.AmuletAbilitiesEventListener;
 import dev.dubhe.anvilcraft.init.ModMobEffects;
 import dev.dubhe.anvilcraft.init.loot.ModLootTables;
+import dev.dubhe.anvilcraft.item.EquipmentAbilities;
+import dev.dubhe.anvilcraft.item.amulet.AmuletBoxItem;
 import dev.dubhe.anvilcraft.item.property.consume.PreventShrinkingConsumeEffect;
 import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceKey;
@@ -24,9 +28,12 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.NeutralMob;
 import net.minecraft.world.entity.item.FallingBlockEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.DeathProtection;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -47,6 +54,19 @@ import java.util.function.Consumer;
 
 @Mixin(LivingEntity.class)
 public abstract class LivingEntityMixin extends Entity implements ILivingEntityExtension {
+    @Inject(method = "setLastHurtByMob", at = @At("HEAD"), cancellable = true)
+    private void anvilcraft$ignoreProtectedAttacker(@Nullable LivingEntity attacker, CallbackInfo ci) {
+        LivingEntity thiz = Util.cast(this);
+        if (
+            thiz instanceof NeutralMob neutral
+            && neutral instanceof Mob mob
+            && attacker instanceof Player player
+            && AmuletAbilitiesEventListener.shouldIgnoreTarget(player, mob)
+        ) {
+            ci.cancel();
+        }
+    }
+
     @Unique
     private boolean anvilcraft$raged = false;
 
@@ -223,5 +243,25 @@ public abstract class LivingEntityMixin extends Entity implements ILivingEntityE
                 cir.setReturnValue(false);
             }
         }
+    }
+
+    @ModifyExpressionValue(method = "jumpFromGround", at = @At(value = "INVOKE",
+        target = "Lnet/minecraft/world/entity/LivingEntity;getJumpPower()F"))
+    private float anvilcraft$chargedJump(float normal) {
+        return (Object) this instanceof Player player ? EquipmentAbilities.consumeChargedJump(player, normal) : normal;
+    }
+
+    @Inject(method = "checkTotemDeathProtection", at = @At("RETURN"), cancellable = true)
+    private void anvilcraft$usePocketTotem(DamageSource damage, CallbackInfoReturnable<Boolean> callback) {
+        if (!callback.getReturnValue() && (Object) this instanceof ServerPlayer player
+            && AmuletBoxItem.tryUsePocketTotem(player, damage)) callback.setReturnValue(true);
+    }
+
+    @ModifyExpressionValue(method = "checkTotemDeathProtection", at = @At(value = "INVOKE",
+        target = "Lnet/neoforged/neoforge/common/CommonHooks;onLivingUseTotem(Lnet/minecraft/world/entity/LivingEntity;"
+            + "Lnet/minecraft/world/damagesource/DamageSource;Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/InteractionHand;)Z"))
+    private boolean anvilcraft$discardCanceledTotem(boolean allowed, @Local LocalRef<DeathProtection> protection) {
+        if (!allowed) protection.set(null);
+        return allowed;
     }
 }

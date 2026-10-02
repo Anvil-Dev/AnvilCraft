@@ -1,6 +1,18 @@
 {
   "model": {
-    "type": "minecraft:model",
-    "model": "anvilcraft:item/disk"
+    "type": "minecraft:composite",
+    "models": [
+      {
+        "type": "minecraft:model",
+        "model": "anvilcraft:item/disk"
+      },
+      {
+        "type": "minecraft:special",
+        "base": "anvilcraft:item/disk",
+        "model": {
+          "type": "anvilcraft:disk"
+        }
+      }
+    ]
   }
 }

@@ -13,7 +13,6 @@ items:
   - anvilcraft:royal_steel_shovel
   - anvilcraft:royal_steel_hoe
   - anvilcraft:royal_steel_sword
-  - anvilcraft:royal_dragon_rod
 ---
 
 # Royal Steel
@@ -23,6 +22,8 @@ items:
 <item id="anvilcraft:royal_steel_ingot"/>
 <item id="anvilcraft:royal_steel_nugget"/>
 </row>
+
+<gradient start="#418814" end="#7fffa3"> Lord Cucumber Steel </gradient>
 
 # Crafting
 

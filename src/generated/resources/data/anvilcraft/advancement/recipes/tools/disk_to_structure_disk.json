@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_disk": {
+      "conditions": {
+        "items": [
+          {
+            "items": "anvilcraft:disk"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "anvilcraft:disk_to_structure_disk"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_disk"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "anvilcraft:disk_to_structure_disk"
+    ]
+  }
+}

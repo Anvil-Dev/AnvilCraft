@@ -12,7 +12,7 @@ Anvil Mining is a concept. The following behaviors all implement this concept an
 
 # Implementation
 
-- Destroy a single block via [Stonecutter + Anvil](../007_struct/000_block_processing.md)
+- Destroy a single block via [Stonecutter + Anvil](../007_struct/000_anvil_processing.md)
 - Destroy blocks in an area via [Anvil-triggered Block Devourer](../004_block/101_block_devourer.md)
 - Destroy blocks in a large area via [Giant Anvil Ground Pound](../004_block/210_giant_anvil.md)
 

@@ -11,6 +11,8 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.block.entity.IConvertableBlockEntity;
 import dev.dubhe.anvilcraft.api.event.BlockEntityEvent;
 import dev.dubhe.anvilcraft.block.entity.BaseLaserBlockEntity;
+import dev.dubhe.anvilcraft.util.EnchantedGoldBlockPositions;
+import dev.dubhe.anvilcraft.util.MonolithBlockPositions;
 import dev.dubhe.anvilcraft.util.mixin.ConvertableBlockEntityEntry;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
@@ -24,6 +26,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.Map;
 
@@ -163,4 +166,16 @@ public abstract class LevelChunkMixin {
             convertable.remove();
         }
     }
+
+    @Inject(method = "setBlockState", at = @At("RETURN"))
+    private void anvilcraft$trackEnchantedGold(
+        BlockPos pos, BlockState state, int flags, CallbackInfoReturnable<BlockState> cir
+    ) {
+        BlockState previous = cir.getReturnValue();
+        if (this.getLevel().isClientSide() && previous != null) {
+            EnchantedGoldBlockPositions.onBlockChanged(pos, previous, state);
+            MonolithBlockPositions.onBlockChanged(pos, previous, state);
+        }
+    }
+
 }

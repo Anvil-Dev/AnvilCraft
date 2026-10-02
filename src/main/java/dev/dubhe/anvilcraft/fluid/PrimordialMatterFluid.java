@@ -1,10 +1,10 @@
 package dev.dubhe.anvilcraft.fluid;
 
-import dev.dubhe.anvilcraft.init.block.ModFluids;
+import dev.dubhe.anvilcraft.init.item.ModItems;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Blocks;
@@ -13,18 +13,22 @@ import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import net.neoforged.neoforge.common.SoundActions;
 import net.neoforged.neoforge.fluids.FluidType;
 
-/// 原始物质流体——不可放置，仅存在于储罐/管道中。
+/// 原始物质流体——不可放置，可通过桶在储罐/管道间转移。
 public class PrimordialMatterFluid extends Fluid {
 
     public static final FluidType TYPE = new FluidType(FluidType.Properties.create()
         .descriptionId("block.anvilcraft.primordial_matter")
+        .density(-1000)
+        .sound(SoundActions.BUCKET_FILL, SoundEvents.BUCKET_FILL)
+        .sound(SoundActions.BUCKET_EMPTY, SoundEvents.BUCKET_EMPTY)
     );
 
     @Override
     public Item getBucket() {
-        return Items.AIR;
+        return ModItems.PRIMORDIAL_MATTER_BUCKET.get();
     }
 
     @Override
@@ -79,6 +83,6 @@ public class PrimordialMatterFluid extends Fluid {
 
     @Override
     public FluidType getFluidType() {
-        return ModFluids.PRIMORDIAL_MATTER_TYPE.get();
+        return TYPE;
     }
 }

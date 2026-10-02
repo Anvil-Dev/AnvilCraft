@@ -1,0 +1,40 @@
+{
+  "type": "anvilcraft:permutation",
+  "input": {
+    "items": "anvilcraft:royal_steel_hoe"
+  },
+  "options": [
+    {
+      "material": {
+        "type": "anvilcraft:empty"
+      },
+      "result": {
+        "id": "minecraft:diamond_hoe"
+      }
+    },
+    {
+      "material": {
+        "type": "anvilcraft:empty"
+      },
+      "result": {
+        "id": "minecraft:iron_hoe"
+      }
+    },
+    {
+      "material": {
+        "type": "anvilcraft:empty"
+      },
+      "result": {
+        "id": "minecraft:golden_hoe"
+      }
+    },
+    {
+      "material": {
+        "type": "anvilcraft:empty"
+      },
+      "result": {
+        "id": "anvilcraft:amethyst_hoe"
+      }
+    }
+  ]
+}

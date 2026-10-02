@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.api.power;
 import dev.dubhe.anvilcraft.network.PowerGridRemovePacket;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.neoforged.neoforge.network.PacketDistributor;
 
 import java.util.Collection;
@@ -57,6 +58,7 @@ public class PowerGridManager {
             Map.Entry<Level, IPowerComponent> entry = this.addQueue.poll();
             if (entry == null) continue;
             IPowerComponent component = entry.getValue();
+            if (component instanceof BlockEntity entity && entity.isRemoved()) continue;
             if (component.getComponentType() == PowerComponentType.INVALID) continue;
             AtomicReference<PowerGrid> grid = new AtomicReference<>(null);
             Set<PowerGrid> grids = this.getGridSet(entry.getKey());

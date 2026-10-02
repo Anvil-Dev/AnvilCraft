@@ -6,7 +6,9 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.cauldron.CementCauldronBlock;
 import dev.dubhe.anvilcraft.block.state.Color;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
+import dev.dubhe.anvilcraft.init.block.ModFluids;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.SolidLiquidRecipe;
+import dev.dubhe.anvilcraft.util.FluidStackPredicate;
 import net.minecraft.core.HolderGetter;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.Identifier;
@@ -14,8 +16,10 @@ import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.material.Fluid;
 import net.neoforged.neoforge.common.Tags;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -67,17 +71,27 @@ public class ConcreteRecipeLoader {
     }
 
     private static void initCementStaining(RegistrumRecipeProvider provider) {
-        Identifier cementTag = Identifier.fromNamespaceAndPath("c", "cement");
         for (Color color : Color.values()) {
+            FluidStackPredicate inputCements = FluidStackPredicate.builder()
+                .fluid(Arrays.stream(Color.values())
+                    .filter(other -> other != color)
+                    .map(other -> ModFluids.SOURCE_CEMENTS.get(other).get())
+                    .toArray(Fluid[]::new))
+                .build();
+            Identifier targetCement = AnvilCraft.of("%s_cement".formatted(color.getSerializedName()));
             SolidLiquidRecipe.builder()
-                .fluidTag(cementTag)
-                .transform(AnvilCraft.of("%s_cement".formatted(color.getSerializedName())))
+                .cauldron(inputCements)
+                .consume(1000)
+                .transform(BuiltInRegistries.FLUID.getValue(targetCement), 1000)
                 .requires(color.dyeItem())
                 .maxEfficiency(1)
                 .save(provider, AnvilCraft.of("solid_liquid/cement_staining/%s".formatted(color.getSerializedName())));
         }
     }
 
+    /**
+     * Uses colored cement as a reusable dye bath for common color-variant item families.
+     */
     private static void initCementDyeing(RegistrumRecipeProvider provider) {
         HolderGetter<Item> items = provider.getItems();
         for (Color color : Color.values()) {

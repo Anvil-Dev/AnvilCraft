@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.block.entity;
 
 import com.mojang.serialization.Codec;
+import dev.dubhe.anvilcraft.api.fluid.GasDisplayFillProvider;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.neoforged.neoforge.common.util.ValueIOSerializable;
@@ -15,7 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-final class MultiFluidTankHandler implements ResourceHandler<FluidResource>, ValueIOSerializable {
+final class MultiFluidTankHandler implements ResourceHandler<FluidResource>, ValueIOSerializable, GasDisplayFillProvider {
     private static final Codec<List<FluidStack>> FLUIDS_CODEC = FluidStack.OPTIONAL_CODEC.listOf();
     private static final Codec<List<Boolean>> FLAGS_CODEC = Codec.BOOL.listOf();
 
@@ -135,6 +136,15 @@ final class MultiFluidTankHandler implements ResourceHandler<FluidResource>, Val
         long amount = 0;
         for (StoredFluid stored : this.fluids) amount += stored.fluid().getAmount();
         return amount;
+    }
+
+    @Override
+    public float gasDisplayFill(FluidStack gas) {
+        long renderAmount = this.enhanced ? Math.max(this.getTotalAmount(), this.infinityThreshold) : this.baseCapacity;
+        if (renderAmount <= 0) return 0;
+        int index = this.findFluid(FluidResource.of(gas));
+        int stored = index < 0 ? 0 : this.fluids.get(index).fluid().getAmount();
+        return (float) Math.min(1, (double) stored / renderAmount);
     }
 
     boolean isEnhanced() {

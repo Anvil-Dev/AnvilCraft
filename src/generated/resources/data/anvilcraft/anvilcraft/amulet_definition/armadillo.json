@@ -1,0 +1,11 @@
+{
+  "type": "anvilcraft:normal",
+  "amulet": {
+    "id": "anvilcraft:armadillo_amulet"
+  },
+  "obtains": {
+    "source_entity": {
+      "type": "#anvilcraft:amulet_valid/armadillo"
+    }
+  }
+}

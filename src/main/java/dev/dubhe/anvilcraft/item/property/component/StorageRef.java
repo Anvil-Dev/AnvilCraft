@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.item.property.component;
 
 import com.mojang.serialization.MapCodec;
 import dev.anvilcraft.lib.v2.codec.CodecUtil;
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.saved.storage.StorageType;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.UUIDUtil;
@@ -63,6 +64,7 @@ public record StorageRef(StorageType type, Optional<UUID> id) implements Tooltip
 
     @Override
     public void addToTooltip(Item.TooltipContext context, Consumer<Component> builder, TooltipFlag flag, DataComponentGetter components) {
+        if (!AnvilCraft.CLIENT_CONFIG.showStorageStoredId) return;
         builder.accept(Component.translatable(
             "tooltip.anvilcraft.property.storage.id",
             this.id.map(id -> Component.literal(id.toString()))

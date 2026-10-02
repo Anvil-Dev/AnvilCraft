@@ -3,7 +3,9 @@ package dev.dubhe.anvilcraft.client.renderer.blockentity;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import dev.dubhe.anvilcraft.block.entity.fluid.AbstractPipeBlockEntity;
+import dev.dubhe.anvilcraft.block.fluid.PipeBlock;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.state.PipeCheckValveRenderState;
+import dev.dubhe.anvilcraft.client.selection.ModelSelectionRenderer;
 import dev.dubhe.anvilcraft.client.support.FeatureRendererSupport;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
@@ -21,7 +23,8 @@ import org.jspecify.annotations.Nullable;
 import java.util.EnumMap;
 import java.util.Map;
 
-public class PipeCheckValveBERenderer<T extends AbstractPipeBlockEntity> implements BlockEntityRenderer<T, PipeCheckValveRenderState> {
+public class PipeCheckValveBERenderer<T extends AbstractPipeBlockEntity>
+    implements BlockEntityRenderer<T, PipeCheckValveRenderState>, ModelSelectionRenderer<T> {
     public static final StandaloneModelKey<BlockStateModel> ARM = new StandaloneModelKey<>(
         () -> "AnvilCraft: Check Valve Arm Model"
     );
@@ -60,7 +63,18 @@ public class PipeCheckValveBERenderer<T extends AbstractPipeBlockEntity> impleme
             return;
         }
 
-        for (Map.Entry<Direction, Direction> entry : state.getFlows().entrySet()) {
+        emitArms(state.getFlows(), poseStack, (model, pose) ->
+            state.getArm().submit(pose, submitNodeCollector, state.lightCoords, OverlayTexture.NO_OVERLAY, 0));
+    }
+
+    @Override
+    public void collectSelectionModels(T be, float partialTick, PoseStack pose, ModelConsumer consumer) {
+        if (be.getLevel() == null || !be.getBlockState().getValue(PipeBlock.HAS_CHECK_VALVE)) return;
+        emitArms(be.effectiveFlows(), pose, consumer);
+    }
+
+    private static void emitArms(Map<Direction, Direction> flows, PoseStack poseStack, ModelConsumer consumer) {
+        for (Map.Entry<Direction, Direction> entry : flows.entrySet()) {
             Direction face = entry.getKey();
 
             poseStack.pushPose();
@@ -71,13 +85,7 @@ public class PipeCheckValveBERenderer<T extends AbstractPipeBlockEntity> impleme
                 poseStack.mulPose(Axis.XP.rotationDegrees(180));
             }
             poseStack.translate(-0.5, -0.5, -0.5);
-            state.getArm().submit(
-                poseStack,
-                submitNodeCollector,
-                state.lightCoords,
-                OverlayTexture.NO_OVERLAY,
-                0
-            );
+            consumer.accept(ARM, poseStack);
             poseStack.popPose();
         }
     }

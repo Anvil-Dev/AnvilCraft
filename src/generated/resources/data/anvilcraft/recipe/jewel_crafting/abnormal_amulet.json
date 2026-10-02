@@ -1,18 +1,26 @@
 {
   "type": "anvilcraft:jewel_crafting",
   "ingredients": [
-    {
-      "items": "anvilcraft:silver_ingot"
-    },
-    {
-      "items": "anvilcraft:cursed_gold_ingot"
-    },
-    {
-      "count": 16,
-      "items": "anvilcraft:levitation_powder"
-    }
+    "anvilcraft:silver_ingot",
+    "anvilcraft:cursed_gold_ingot",
+    "anvilcraft:levitation_powder",
+    "anvilcraft:levitation_powder",
+    "anvilcraft:levitation_powder",
+    "anvilcraft:levitation_powder",
+    "anvilcraft:levitation_powder",
+    "anvilcraft:levitation_powder",
+    "anvilcraft:levitation_powder",
+    "anvilcraft:levitation_powder",
+    "anvilcraft:levitation_powder",
+    "anvilcraft:levitation_powder",
+    "anvilcraft:levitation_powder",
+    "anvilcraft:levitation_powder",
+    "anvilcraft:levitation_powder",
+    "anvilcraft:levitation_powder",
+    "anvilcraft:levitation_powder",
+    "anvilcraft:levitation_powder"
   ],
-  "source": {
-    "items": "anvilcraft:abnormal_amulet"
+  "result": {
+    "id": "anvilcraft:abnormal_amulet"
   }
 }

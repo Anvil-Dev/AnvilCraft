@@ -6,6 +6,7 @@ import dev.dubhe.anvilcraft.block.entity.OverseerBlockEntity;
 import dev.dubhe.anvilcraft.block.state.Vertical3PartHalf;
 import dev.dubhe.anvilcraft.block.utility.OverseerBlock;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.state.OverseerRenderState;
+import dev.dubhe.anvilcraft.client.selection.ModelSelectionRenderer;
 import dev.dubhe.anvilcraft.client.support.FeatureRendererSupport;
 import dev.dubhe.anvilcraft.init.ModParticles;
 import net.minecraft.client.renderer.SubmitNodeCollector;
@@ -26,7 +27,8 @@ import org.jspecify.annotations.Nullable;
 import java.util.Map;
 import java.util.WeakHashMap;
 
-public class OverseerBlockEntityRenderer implements BlockEntityRenderer<OverseerBlockEntity, OverseerRenderState> {
+public class OverseerBlockEntityRenderer
+    implements BlockEntityRenderer<OverseerBlockEntity, OverseerRenderState>, ModelSelectionRenderer<OverseerBlockEntity> {
     private static final float HEAD_ROTATION_DEGREES_PER_TICK = 0.6F;
     private static final float HEAD_BOB_AMPLITUDE = 0.035F;
     private static final float HEAD_BOB_ANGULAR_SPEED = (float) (Math.PI * 2.0 / 160.0);
@@ -78,9 +80,7 @@ public class OverseerBlockEntityRenderer implements BlockEntityRenderer<Overseer
         if (model == null) return;
 
         poseStack.pushPose();
-        poseStack.translate(0.5, state.getBobOffset(), 0.5);
-        poseStack.mulPose(Axis.YP.rotationDegrees(state.getTime() * OverseerBlockEntityRenderer.HEAD_ROTATION_DEGREES_PER_TICK));
-        poseStack.translate(-0.5, 0, -0.5);
+        applyHeadPose(poseStack, state.getTime());
         model.submit(
             poseStack,
             submitNodeCollector,
@@ -89,6 +89,24 @@ public class OverseerBlockEntityRenderer implements BlockEntityRenderer<Overseer
             0
         );
         poseStack.popPose();
+    }
+
+    @Override
+    public void collectSelectionModels(OverseerBlockEntity be, float partialTick, PoseStack pose, ModelConsumer consumer) {
+        Level level = be.getLevel();
+        BlockState state = be.getBlockState();
+        if (level == null || state.getValue(OverseerBlock.HALF) != Vertical3PartHalf.MID
+            || state.getValue(OverseerBlock.LEVEL) != OverseerBlock.MAX_LEVEL) return;
+        pose.pushPose();
+        applyHeadPose(pose, level.getGameTime() + partialTick);
+        consumer.accept(state, pose);
+        pose.popPose();
+    }
+
+    private static void applyHeadPose(PoseStack pose, float time) {
+        pose.translate(0.5, getHeadBobOffset(time), 0.5);
+        pose.mulPose(Axis.YP.rotationDegrees(time * HEAD_ROTATION_DEGREES_PER_TICK));
+        pose.translate(-0.5, 0, -0.5);
     }
 
     private static float getHeadBobOffset(float time) {

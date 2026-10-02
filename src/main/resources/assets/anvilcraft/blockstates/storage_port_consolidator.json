@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "type=hd": {
+      "model": "anvilcraft:block/hd_storage_port_consolidator"
+    },
+    "type=sc": {
+      "model": "anvilcraft:block/storage_port_consolidator"
+    }
+  }
+}

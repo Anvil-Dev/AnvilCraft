@@ -1,0 +1,14 @@
+{
+  "layers": {
+    "humanoid": [
+      {
+        "texture": "anvilcraft:spacesuit"
+      }
+    ],
+    "humanoid_leggings": [
+      {
+        "texture": "anvilcraft:spacesuit"
+      }
+    ]
+  }
+}

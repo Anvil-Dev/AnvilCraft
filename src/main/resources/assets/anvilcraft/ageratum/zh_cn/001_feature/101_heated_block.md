@@ -85,3 +85,6 @@ items:
 |                   <ref item="anvilcraft:heliostats"/>                   |            可变             | 4       |
 |                   <ref item="anvilcraft:ruby_laser"/>                   |            可变             | 0.1     |
 |                [等离子喷流](../007_struct/201_plasma_jets.md)                | <color=#cc5533>炽热</color> | 0.1 / 1 |
+|                                 超温加热配方                                  | <color=#661111>高温</color> | -       |
+
+<recipe id="anvilcraft:super_heating/heated_netherite_block"/>

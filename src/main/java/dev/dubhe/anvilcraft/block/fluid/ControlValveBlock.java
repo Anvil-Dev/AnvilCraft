@@ -8,6 +8,7 @@ import dev.dubhe.anvilcraft.block.better.BetterBaseEntityBlock;
 import dev.dubhe.anvilcraft.block.entity.fluid.ControlValveBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
+import dev.dubhe.anvilcraft.item.block.PipeBlockItem;
 import dev.dubhe.anvilcraft.network.ControlValveInitPacket;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -23,6 +24,7 @@ import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.state.BlockBehaviour;
@@ -186,6 +188,9 @@ public class ControlValveBlock extends BetterBaseEntityBlock
         InteractionHand hand,
         BlockHitResult hitResult
     ) {
+        if (player.getItemInHand(hand).getItem() instanceof PipeBlockItem) {
+            return InteractionResult.PASS;
+        }
         if (!level.isClientSide() && player instanceof ServerPlayer serverPlayer
             && level.getBlockEntity(pos) instanceof ControlValveBlockEntity be) {
             serverPlayer.openMenu(be, pos);
@@ -245,6 +250,18 @@ public class ControlValveBlock extends BetterBaseEntityBlock
 
     @Override
     public BlockState rotate(BlockState state, Rotation rotation) {
+        return switch (rotation) {
+            case CLOCKWISE_90, COUNTERCLOCKWISE_90 -> switch (state.getValue(AXIS)) {
+                case X -> state.setValue(AXIS, Direction.Axis.Z);
+                case Z -> state.setValue(AXIS, Direction.Axis.X);
+                default -> state;
+            };
+            default -> state;
+        };
+    }
+
+    @Override
+    public BlockState mirror(BlockState state, Mirror mirror) {
         return state;
     }
 

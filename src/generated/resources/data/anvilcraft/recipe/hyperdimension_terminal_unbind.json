@@ -1,0 +1,11 @@
+{
+  "type": "anvilcraft:terminal_unbind",
+  "category": "misc",
+  "group": "anvilcraft:hyperdimension_terminal",
+  "ingredients": [
+    "anvilcraft:hyperdimension_terminal"
+  ],
+  "result": {
+    "id": "anvilcraft:hyperdimension_terminal"
+  }
+}

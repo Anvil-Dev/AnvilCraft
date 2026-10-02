@@ -1,8 +1,14 @@
 package dev.dubhe.anvilcraft.block.entity.storage;
 
+import dev.dubhe.anvilcraft.api.StorageComparatorManager;
+import dev.dubhe.anvilcraft.api.TerminalSourceManager;
+import dev.dubhe.anvilcraft.api.itemhandler.unlimited.SpaceSizeItemStacksResourceHandler;
+import dev.dubhe.anvilcraft.block.multipart.AbstractMultiPartBlock;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.item.property.component.StorageRef;
+import dev.dubhe.anvilcraft.saved.storage.BaseStorage;
 import dev.dubhe.anvilcraft.saved.storage.StorageType;
+import dev.dubhe.anvilcraft.saved.storage.Storages;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
@@ -14,16 +20,20 @@ import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
-import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.world.level.storage.loot.LootParams;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
+import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.Nullable;
 
 import java.util.UUID;
@@ -44,10 +54,19 @@ public class StorageBlockEntity extends BlockEntity {
         }
         this.id = id;
         this.setChanged();
+        TerminalSourceManager.registerIfApplicable(this);
+        StorageComparatorManager.registerIfApplicable(this);
         if (this.level != null) {
             BlockState state = this.getBlockState();
             this.level.sendBlockUpdated(this.getBlockPos(), state, state, Block.UPDATE_ALL);
         }
+    }
+
+    public void clearId() {
+        TerminalSourceManager.unregisterIfApplicable(this);
+        StorageComparatorManager.unregisterIfApplicable(this);
+        this.id = null;
+        this.setChanged();
     }
 
     @Override
@@ -59,8 +78,32 @@ public class StorageBlockEntity extends BlockEntity {
 
     @Override
     protected void loadAdditional(ValueInput input) {
+        StorageComparatorManager.unregisterIfApplicable(this);
         // 信任加载的数据
         input.read("storage_id", UUIDUtil.CODEC).ifPresent(id -> this.id = id);
+        TerminalSourceManager.registerIfApplicable(this);
+        StorageComparatorManager.registerIfApplicable(this);
+    }
+
+    @Override
+    public void onLoad() {
+        super.onLoad();
+        TerminalSourceManager.registerIfApplicable(this);
+        StorageComparatorManager.registerIfApplicable(this);
+    }
+
+    @Override
+    public void onChunkUnloaded() {
+        TerminalSourceManager.unregisterIfApplicable(this);
+        StorageComparatorManager.unregisterIfApplicable(this);
+        super.onChunkUnloaded();
+    }
+
+    @Override
+    public void setRemoved() {
+        TerminalSourceManager.unregisterIfApplicable(this);
+        StorageComparatorManager.unregisterIfApplicable(this);
+        super.setRemoved();
     }
 
     @Override
@@ -97,13 +140,86 @@ public class StorageBlockEntity extends BlockEntity {
         components.set(ModComponents.STORAGE, new StorageRef(this.storageType, this.id));
     }
 
+    public int getComparatorSignal() {
+        if (this.level == null || this.level.isClientSide() || this.id == null) return 0;
+        var storage = Storages.get().get(this.id).orElse(null);
+        return storage != null && storage.getItems() instanceof SpaceSizeItemStacksResourceHandler items
+            ? (int) Math.ceil(items.getFullness() * 15.0) : 0;
+    }
+
+    public void refreshComparatorSignal() {
+        if (this.level != null && !this.level.isClientSide()) {
+            this.level.updateNeighbourForOutputSignal(this.getBlockPos(), this.getBlockState().getBlock());
+        }
+    }
+
+    public static void applyPickStorageId(
+        ItemStack stack, LevelReader level, BlockPos pos, BlockState state, boolean includeData
+    ) {
+        if (!includeData) return;
+        BlockPos mainPos = state.getBlock() instanceof AbstractMultiPartBlock<?> block
+            ? block.getMainPartPos(pos, state) : pos;
+        if (level.hasChunk(mainPos.getX() >> 4, mainPos.getZ() >> 4)
+            && level.getBlockEntity(mainPos) instanceof StorageBlockEntity storage && storage.id != null) {
+            stack.set(ModComponents.STORAGE, new StorageRef(storage.storageType, storage.id));
+        }
+    }
+
+    public boolean isCraftingUnlocked() {
+        return this.id != null && Storages.get().get(this.id).map(BaseStorage::isCraftingUnlocked).orElse(false);
+    }
+
+    public long getTotalCount() {
+        if (this.id == null) return 0;
+        return Storages.get().get(this.id).map(storage -> {
+            long total = 0;
+            var items = storage.getItems();
+            for (int index = 0; index < items.size(); index++) total += items.getAmountAsLong(index);
+            return total;
+        }).orElse(0L);
+    }
+
+    public boolean isEmpty() {
+        return this.getTotalCount() == 0;
+    }
+
+    public void dropContents(Level level, BlockPos pos) {
+        if (level.isClientSide() || this.id == null) return;
+        UUID storageId = this.id;
+        Storages.get().get(storageId).ifPresent(storage -> {
+            var items = storage.getItems();
+            for (int index = 0; index < items.size(); index++) {
+                long remaining = items.getAmountAsLong(index);
+                while (remaining > 0) {
+                    int count = (int) Math.min(64, remaining);
+                    Block.popResource(level, pos, items.getResource(index).toStack(count));
+                    remaining -= count;
+                }
+            }
+            if (storage.getRecipeBases() != null) {
+                for (ItemStack base : storage.getRecipeBases()) {
+                    ItemStack remaining = base.copy();
+                    while (!remaining.isEmpty()) Block.popResource(level, pos, remaining.split(Math.min(64, remaining.getCount())));
+                }
+            }
+            Storages.get().remove(storageId);
+        });
+    }
+
     public void playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player) {
-        if (!level.isClientSide() && player.preventsBlockDrops() && this.getId() != null) {
-            ItemStack itemStack = new ItemStack(state.getBlock());
-            itemStack.applyComponents(this.collectComponents());
-            ItemEntity entity = new ItemEntity(level, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, itemStack);
-            entity.setDefaultPickUpDelay();
-            level.addFreshEntity(entity);
+        if (!(level instanceof ServerLevel serverLevel)) return;
+        if (this.isEmpty() && !this.isCraftingUnlocked()) {
+            UUID storageId = this.id;
+            this.clearId();
+            if (storageId != null) Storages.get().remove(storageId);
+        } else if (player.hasInfiniteMaterials()) {
+            LootParams.Builder builder = new LootParams.Builder(serverLevel)
+                .withParameter(LootContextParams.ORIGIN, Vec3.atCenterOf(this.getBlockPos()))
+                .withParameter(LootContextParams.TOOL, player.getMainHandItem())
+                .withOptionalParameter(LootContextParams.BLOCK_ENTITY, this);
+            for (ItemStack stack : this.getBlockState().getDrops(builder)) {
+                Block.popResource(serverLevel, this.getBlockPos(), stack);
+            }
         }
     }
 }

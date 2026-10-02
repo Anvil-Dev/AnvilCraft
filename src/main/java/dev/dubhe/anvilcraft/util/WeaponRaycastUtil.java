@@ -25,9 +25,9 @@ import java.util.List;
 import java.util.function.Predicate;
 
 public final class WeaponRaycastUtil {
-    public static final double MUZZLE_FORWARD_OFFSET = 0.25;
-    public static final double MUZZLE_RIGHT_OFFSET = 0.13;
-    public static final double MUZZLE_DOWN_OFFSET = 0.1;
+    public static final double MUZZLE_FORWARD_OFFSET = 0.8;
+    public static final double MUZZLE_RIGHT_OFFSET = 0.22;
+    public static final double MUZZLE_DOWN_OFFSET = 0.16;
 
     private WeaponRaycastUtil() {
     }

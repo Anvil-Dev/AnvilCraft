@@ -2,19 +2,82 @@ package dev.dubhe.anvilcraft.client.init;
 
 import dev.anvilcraft.lib.v2.rendering.extension.ALRRenderTypeExtension;
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.client.renderer.post.LaserBloomPostEffect;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.renderer.Sheets;
+import net.minecraft.client.renderer.feature.ItemFeatureRenderer;
+import net.minecraft.client.renderer.rendertype.LayeringTransform;
+import net.minecraft.client.renderer.rendertype.OutputTarget;
 import net.minecraft.client.renderer.rendertype.RenderSetup;
 import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
+import net.minecraft.client.renderer.rendertype.TextureTransform;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.Util;
+import net.neoforged.neoforge.client.event.RegisterRenderBuffersEvent;
 
 import java.util.function.Function;
 
 public class ModRenderTypes {
+    public static final RenderType FISH_TANK_FLUID = RenderType.create(
+        "anvilcraft:fish_tank_fluid",
+        RenderSetup.builder(RenderPipelines.TRANSLUCENT_BLOCK)
+            .useLightmap().sortOnUpload().affectsCrumbling()
+            .withTexture("Sampler0", Sheets.BLOCKS_MAPPER.sheet())
+            .setOutputTarget(OutputTarget.ITEM_ENTITY_TARGET)
+            .bufferSize(1536)
+            .createRenderSetup()
+    );
 
-    public static final RenderType LINE_BLOOM = ALRRenderTypeExtension.copyWithBloom(RenderTypes.LINES);
+    public static void registerBuffers(RegisterRenderBuffersEvent event) {
+        event.registerRenderBuffer(ModRenderTypes.FISH_TANK_FLUID);
+    }
+
+    public static final RenderType TRANSLUCENT_COLORED_OVERLAY = RenderType.create(
+        "anvilcraft:translucent_colored_overlay",
+        RenderSetup.builder(ModRenderPipelines.COLORED_OVERLAY)
+            .useLightmap().sortOnUpload()
+            .withTexture("Sampler0", Sheets.BLOCKS_MAPPER.sheet())
+            .setOutputTarget(OutputTarget.ITEM_ENTITY_TARGET)
+            .createRenderSetup()
+    );
+
+    public static final RenderType HYPERCUBE = RenderType.create(
+        "anvilcraft:hypercube",
+        RenderSetup.builder(ModRenderPipelines.HYPERCUBE)
+            .useLightmap().sortOnUpload().affectsCrumbling()
+            .withTexture("Sampler0", Sheets.BLOCKS_MAPPER.sheet())
+            .setOutputTarget(OutputTarget.ITEM_ENTITY_TARGET)
+            .bufferSize(786432)
+            .createRenderSetup()
+    );
+
+    public static final RenderType OVERWORLD_LIKE_SKY_RING = RenderType.create(
+        "anvilcraft:overworld_like_sky_ring",
+        RenderSetup.builder(ModRenderPipelines.OVERWORLD_LIKE_SKY_RING)
+            .useLightmap()
+            .withTexture("Sampler0", Sheets.BLOCKS_MAPPER.sheet())
+            .bufferSize(786432)
+            .createRenderSetup()
+    );
+
+    public static final RenderType PLACEMENT_GHOST = RenderType.create(
+        "anvilcraft:placement_ghost",
+        RenderSetup.builder(ModRenderPipelines.PLACEMENT_GHOST)
+            .useLightmap()
+            .sortOnUpload()
+            .withTexture("Sampler0", Sheets.BLOCKS_MAPPER.sheet())
+            .createRenderSetup()
+    );
+
+    public static final RenderType LINE_BLOOM = RenderType.create(
+        "anvilcraft:line_bloom",
+        RenderSetup.builder(RenderPipelines.LINES)
+            .setLayeringTransform(LayeringTransform.VIEW_OFFSET_Z_LAYERING)
+            .setOutputTarget(new OutputTarget("anvilcraft:line_bloom", LaserBloomPostEffect::lineTarget))
+            .createRenderSetup()
+    );
 
     public static final RenderType LASER_TRANSLUCENT = RenderType.create(
         "anvilcraft:laser_translucent",
@@ -29,7 +92,7 @@ public class ModRenderTypes {
 
     public static final RenderType LASER_SOLID = RenderType.create(
         "anvilcraft:laser_solid",
-        RenderSetup.builder(RenderPipelines.SOLID_BLOCK)
+        RenderSetup.builder(ModRenderPipelines.LASER_SOLID)
             .useLightmap()
             .withTexture("Sampler0", ModTextureAtlases.LOCATION_LASER)
             .createRenderSetup()
@@ -58,11 +121,25 @@ public class ModRenderTypes {
             .createRenderSetup()
     );
 
+    public static final RenderType BEACON_GLASS = RenderType.create(
+        "anvilcraft:beacon_glass",
+        RenderSetup.builder(ModRenderPipelines.BEACON_GLASS)
+            .useLightmap().sortOnUpload().affectsCrumbling()
+            .withTexture("Sampler0", Sheets.BLOCKS_MAPPER.sheet())
+            .setOutputTarget(new OutputTarget(
+                "anvilcraft:beacon_glass", () -> Minecraft.getInstance().levelRenderer.getTranslucentTarget()))
+            .bufferSize(786432)
+            .createRenderSetup()
+    );
+
+    public static final RenderType CORRUPTED_BEACON_BEAM_CORE = RenderType.create(
+        "anvilcraft:corrupted_beacon_beam_core",
+        RenderSetup.builder(ModRenderPipelines.CORRUPTED_BEACON_BEAM_CORE).createRenderSetup()
+    );
+
     public static final RenderType CORRUPTED_BEACON_BEAM = RenderType.create(
-            "anvilcraft:corrupted_beacon_beam",
-            RenderSetup.builder(ModRenderPipelines.CORRUPTED_BEACON_BEAM)
-                    .sortOnUpload()
-                    .createRenderSetup()
+        "anvilcraft:corrupted_beacon_beam",
+        RenderSetup.builder(ModRenderPipelines.CORRUPTED_BEACON_BEAM).createRenderSetup()
     );
 
     private static final Identifier WHITE_TEXTURE = AnvilCraft.of("textures/misc/white.png");
@@ -87,7 +164,9 @@ public class ModRenderTypes {
     );
 
     public static final Function<Identifier, RenderType> STAR_CUTOUT =
-            Util.memoize((Identifier tex) -> RenderTypes.entityCutout(tex));
+            Util.memoize(tex -> RenderType.create("anvilcraft:celestial_planet_cutout",
+                RenderSetup.builder(ModRenderPipelines.CELESTIAL_PLANET_CUTOUT)
+                    .withTexture("Sampler0", tex).useLightmap().createRenderSetup()));
 
     /**
      * 天体环使用独立的方块半透明管线，以保持与 1.21 相同的深度和混合行为。
@@ -135,6 +214,24 @@ public class ModRenderTypes {
                             .sortOnUpload()
                             .createRenderSetup()
             )
+    );
+
+    public static final RenderType ENCHANTED_GOLD_GLINT = RenderType.create(
+        "anvilcraft:enchanted_gold_glint",
+        RenderSetup.builder(ModRenderPipelines.ENCHANTED_GOLD_GLINT)
+            .withTexture("Sampler0", ItemFeatureRenderer.ENCHANTED_GLINT_ITEM)
+            .setTextureTransform(TextureTransform.GLINT_TEXTURING)
+            .setLayeringTransform(LayeringTransform.VIEW_OFFSET_Z_LAYERING)
+            .createRenderSetup()
+    );
+
+    public static final RenderType GLASS_PIPE_FLUID = RenderType.create(
+        "anvilcraft:glass_pipe_fluid",
+        RenderSetup.builder(ModRenderPipelines.GLASS_PIPE_FLUID)
+            .withTexture("Sampler0", Sheets.BLOCKS_MAPPER.sheet())
+            .useLightmap()
+            .sortOnUpload()
+            .createRenderSetup()
     );
 
     public static final RenderType CUTOUT_BLOCK = ModRenderTypes.CUTOUT_NO_LIGHTING.apply(Sheets.BLOCKS_MAPPER.sheet());

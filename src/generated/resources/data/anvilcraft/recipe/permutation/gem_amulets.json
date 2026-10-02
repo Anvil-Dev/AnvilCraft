@@ -1,20 +1,57 @@
 {
   "type": "anvilcraft:permutation",
-  "inputs": [
+  "input": {
+    "items": [
+      "anvilcraft:emerald_amulet",
+      "anvilcraft:topaz_amulet",
+      "anvilcraft:ruby_amulet",
+      "anvilcraft:sapphire_amulet"
+    ]
+  },
+  "options": [
     {
-      "id": "anvilcraft:emerald_amulet"
+      "material": {
+        "type": "anvilcraft:custom",
+        "predicate": {
+          "items": "anvilcraft:chromatic_stone"
+        }
+      },
+      "result": {
+        "id": "anvilcraft:emerald_amulet"
+      }
     },
     {
-      "id": "anvilcraft:topaz_amulet"
+      "material": {
+        "type": "anvilcraft:custom",
+        "predicate": {
+          "items": "anvilcraft:chromatic_stone"
+        }
+      },
+      "result": {
+        "id": "anvilcraft:topaz_amulet"
+      }
     },
     {
-      "id": "anvilcraft:ruby_amulet"
+      "material": {
+        "type": "anvilcraft:custom",
+        "predicate": {
+          "items": "anvilcraft:chromatic_stone"
+        }
+      },
+      "result": {
+        "id": "anvilcraft:ruby_amulet"
+      }
     },
     {
-      "id": "anvilcraft:sapphire_amulet"
+      "material": {
+        "type": "anvilcraft:custom",
+        "predicate": {
+          "items": "anvilcraft:chromatic_stone"
+        }
+      },
+      "result": {
+        "id": "anvilcraft:sapphire_amulet"
+      }
     }
-  ],
-  "material": {
-    "items": "anvilcraft:chromatic_stone"
-  }
+  ]
 }

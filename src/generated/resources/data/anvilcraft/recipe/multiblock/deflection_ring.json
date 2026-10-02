@@ -1,11 +1,11 @@
 {
   "type": "anvilcraft:multiblock",
   "pattern": {
-    "layers": [
+    "grid": [
       [
-        "ABA",
-        "BAB",
-        "ABA"
+        "0A0",
+        "A0A",
+        "0A0"
       ],
       [
         "   ",
@@ -13,17 +13,17 @@
         "   "
       ],
       [
-        "ABA",
-        "BAB",
-        "ABA"
+        "0A0",
+        "A0A",
+        "0A0"
       ]
     ],
-    "symbols": {
-      "A": {
-        "block": "anvilcraft:magnetoelectric_core"
+    "mapping": {
+      "0": {
+        "blocks": "anvilcraft:magnetoelectric_core"
       },
-      "B": {
-        "block": "anvilcraft:heavy_iron_block"
+      "A": {
+        "blocks": "anvilcraft:heavy_iron_block"
       }
     }
   },

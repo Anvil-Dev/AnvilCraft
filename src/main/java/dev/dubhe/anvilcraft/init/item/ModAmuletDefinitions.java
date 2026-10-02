@@ -31,6 +31,7 @@ public class ModAmuletDefinitions {
     public static final ResourceKey<IAmuletDefinition> ANVIL = ModAmuletDefinitions.key("anvil");
     public static final ResourceKey<IAmuletDefinition> COMRADE = ModAmuletDefinitions.key("comrade");
     public static final ResourceKey<IAmuletDefinition> FEATHER = ModAmuletDefinitions.key("feather");
+    public static final ResourceKey<IAmuletDefinition> ARMADILLO = ModAmuletDefinitions.key("armadillo");
     public static final ResourceKey<IAmuletDefinition> CAT = ModAmuletDefinitions.key("cat");
     public static final ResourceKey<IAmuletDefinition> DOG = ModAmuletDefinitions.key("dog");
     public static final ResourceKey<IAmuletDefinition> SILENCE = ModAmuletDefinitions.key("silence");
@@ -90,6 +91,12 @@ public class ModAmuletDefinitions {
             ModAmuletDefinitions.FEATHER,
             AmuletDefinition.builder(ModItems.FEATHER_AMULET)
                 .obtain(ModDamageTypeTags.FEATHER_AMULET_VALID)
+                .build()
+        );
+        ctx.register(
+            ModAmuletDefinitions.ARMADILLO,
+            AmuletDefinition.builder(ModItems.ARMADILLO_AMULET)
+                .obtain(entityTypes, ModEntityTypeTags.ARMADILLO_AMULET_VALID)
                 .build()
         );
         ctx.register(

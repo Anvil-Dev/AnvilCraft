@@ -3,9 +3,10 @@ package dev.dubhe.anvilcraft.util.dummy;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.animal.wolf.Wolf;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
@@ -22,25 +23,27 @@ public class DummyWolf extends Wolf {
         super(EntityType.WOLF, level);
     }
 
-    public static @Nullable DummyWolf fromPlayer(Level level, @Nullable Player player) {
-        if (player == null) return null;
-        UUID id = player.getGameProfile().id();
+    public static @Nullable DummyWolf fromEntity(@Nullable LivingEntity entity) {
+        if (entity == null) return null;
+
+        UUID id = entity.getUUID();
         DummyWolf cache = DummyWolf.CACHE.get(id);
-        if (cache == null) {
-            DummyWolf dummy = new DummyWolf(level);
-            DummyWolf.CACHE.put(id, dummy);
-            cache = dummy;
+        if (cache != null && cache.level() == entity.level()) {
+            cache.setPos(entity.position());
+            return cache;
         }
-        cache.setPos(player.position());
+        cache = new DummyWolf(entity.level());
+        cache.setPos(entity.position());
+        DummyWolf.CACHE.put(id, cache);
         return cache;
     }
 
-    public static void clear(Player player) {
-        DummyWolf.CACHE.remove(player.getGameProfile().id());
+    public static void clear(Level level) {
+        CACHE.values().removeIf(dummy -> dummy.level() == level);
     }
 
-    public static void clear(Level level) {
-        DummyWolf.CACHE.values().removeIf(wolf -> wolf.level() == level);
+    public static void clear(Entity entity) {
+        DummyWolf.CACHE.remove(entity.getUUID());
     }
 
     @Override
@@ -75,6 +78,11 @@ public class DummyWolf extends Wolf {
 
     @Override
     public boolean mayInteract(ServerLevel level, BlockPos pos) {
+        return false;
+    }
+
+    @Override
+    public boolean mayBeLeashed() {
         return false;
     }
 }

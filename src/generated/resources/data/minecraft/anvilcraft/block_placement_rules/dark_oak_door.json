@@ -1,0 +1,12 @@
+{
+  "rules": [
+    {
+      "item": "minecraft:dark_oak_door",
+      "properties": "half=lower"
+    },
+    {
+      "item": {},
+      "properties": "half=upper"
+    }
+  ]
+}

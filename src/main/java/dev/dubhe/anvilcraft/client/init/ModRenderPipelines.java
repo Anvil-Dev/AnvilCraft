@@ -10,6 +10,7 @@ import com.mojang.blaze3d.platform.SourceFactor;
 import com.mojang.blaze3d.shaders.UniformType;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormat;
+import com.mojang.blaze3d.vertex.VertexFormatElement;
 import dev.anvilcraft.lib.v2.rendering.ALRPipelines;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import net.minecraft.client.renderer.RenderPipelines;
@@ -21,6 +22,78 @@ import net.neoforged.neoforge.client.event.RegisterRenderPipelinesEvent;
 
 @EventBusSubscriber(value = Dist.CLIENT, modid = AnvilCraft.MOD_ID)
 public class ModRenderPipelines {
+
+    public static final RenderPipeline HYPERCUBE = RenderPipeline.builder(RenderPipelines.BLOCK_SNIPPET)
+        .withLocation(AnvilCraft.of("pipeline/hypercube"))
+        .withColorTargetState(new ColorTargetState(BlendFunction.TRANSLUCENT))
+        .withDepthStencilState(new DepthStencilState(CompareOp.LESS_THAN_OR_EQUAL, false))
+        .build();
+
+    public static final RenderPipeline ENCHANTED_GOLD_GLINT = RenderPipeline.builder(
+        RenderPipelines.MATRICES_PROJECTION_SNIPPET, RenderPipelines.FOG_SNIPPET, RenderPipelines.GLOBALS_SNIPPET)
+        .withLocation(AnvilCraft.of("pipeline/enchanted_gold_glint"))
+        .withVertexShader("core/glint")
+        .withFragmentShader("core/glint")
+        .withSampler("Sampler0")
+        .withCull(false)
+        .withColorTargetState(new ColorTargetState(BlendFunction.GLINT))
+        .withVertexFormat(DefaultVertexFormat.POSITION_TEX, VertexFormat.Mode.QUADS)
+        .withDepthStencilState(new DepthStencilState(CompareOp.LESS_THAN_OR_EQUAL, false))
+        .build();
+
+    public static final RenderPipeline GLASS_PIPE_FLUID = RenderPipeline.builder(RenderPipelines.BLOCK_SNIPPET)
+        .withColorTargetState(new ColorTargetState(BlendFunction.TRANSLUCENT))
+        .withLocation(AnvilCraft.of("pipeline/glass_pipe_fluid"))
+        .build();
+
+    public static final RenderPipeline SMART_PLACER_RANGE = RenderPipeline.builder(RenderPipelines.GUI_SNIPPET)
+        .withCull(false)
+        .withLocation(AnvilCraft.of("pipeline/smart_placer_range"))
+        .build();
+
+    public static final RenderPipeline EQUIPMENT_CHARGE = RenderPipeline.builder(RenderPipelines.GUI_TEXTURED_SNIPPET)
+        .withLocation(AnvilCraft.of("pipeline/equipment_charge"))
+        .withFragmentShader(AnvilCraft.of("core/equipment_charge"))
+        .build();
+
+    public static final RenderPipeline FITTED_ITEM = RenderPipeline.builder(RenderPipelines.ENTITY_SNIPPET)
+        .withSampler("Sampler1")
+        .withColorTargetState(new ColorTargetState(new BlendFunction(
+            SourceFactor.ONE, DestFactor.ONE_MINUS_SRC_ALPHA, SourceFactor.ONE, DestFactor.ONE_MINUS_SRC_ALPHA)))
+        .withDepthStencilState(DepthStencilState.DEFAULT)
+        .withShaderDefine("ALPHA_CUTOUT", 0.001F)
+        .withCull(false)
+        .withLocation(AnvilCraft.of("pipeline/fitted_item"))
+        .build();
+
+    public static final RenderPipeline SCAN_PREVIEW_ITEM = RenderPipeline.builder(RenderPipelines.ENTITY_SNIPPET)
+        .withSampler("Sampler1")
+        .withColorTargetState(new ColorTargetState(new BlendFunction(
+            SourceFactor.ONE, DestFactor.ONE_MINUS_SRC_ALPHA, SourceFactor.ONE, DestFactor.ONE_MINUS_SRC_ALPHA)))
+        .withDepthStencilState(DepthStencilState.DEFAULT)
+        .withCull(false)
+        .withFragmentShader(AnvilCraft.of("core/scan_preview_item"))
+        .withLocation(AnvilCraft.of("pipeline/scan_preview_item"))
+        .build();
+
+    public static final RenderPipeline BUILDING_ROD_GHOST = RenderPipeline.builder(RenderPipelines.BLOCK_SNIPPET)
+        .withColorTargetState(new ColorTargetState(BlendFunction.TRANSLUCENT))
+        .withFragmentShader(AnvilCraft.of("core/building_rod_ghost"))
+        .withLocation(AnvilCraft.of("pipeline/building_rod_ghost"))
+        .build();
+
+    public static final RenderPipeline OVERWORLD_LIKE_SKY_RING = RenderPipeline.builder(RenderPipelines.BLOCK_SNIPPET)
+        .withShaderDefine("ALPHA_CUTOUT", 0.5F)
+        .withDepthStencilState(new DepthStencilState(CompareOp.LESS_THAN_OR_EQUAL, false))
+        .withCull(false)
+        .withLocation(AnvilCraft.of("pipeline/overworld_like_sky_ring"))
+        .build();
+
+    public static final RenderPipeline PLACEMENT_GHOST = RenderPipeline.builder(RenderPipelines.BLOCK_SNIPPET)
+        .withColorTargetState(new ColorTargetState(BlendFunction.TRANSLUCENT))
+        .withDepthStencilState(new DepthStencilState(CompareOp.LESS_THAN_OR_EQUAL, false))
+        .withLocation(AnvilCraft.of("pipeline/placement_ghost"))
+        .build();
 
     public static final BlendFunction LASER_BLEND = new BlendFunction(
         SourceFactor.SRC_COLOR,
@@ -45,10 +118,9 @@ public class ModRenderPipelines {
 
     public static final RenderPipeline COLORED_OVERLAY = RenderPipeline.builder(RenderPipelines.BLOCK_SNIPPET)
         .withColorTargetState(new ColorTargetState(BlendFunction.TRANSLUCENT))
-        .withShaderDefine("ALPHA_CUTOUT", 0.01F)
         .withFragmentShader(AnvilCraft.of("core/rendertype_translucent_colored_overlay"))
         .withShaderDefine("OVERLAY_COLOR")
-        .withShaderDefine("OVERLAY_COLOR_A", 0.866f)
+        .withShaderDefine("OVERLAY_COLOR_A", 221.0F / 255.0F)
         .withShaderDefine("OVERLAY_COLOR_R", 0.4f)
         .withShaderDefine("OVERLAY_COLOR_G", 0.8f)
         .withShaderDefine("OVERLAY_COLOR_B", 1f)
@@ -56,7 +128,13 @@ public class ModRenderPipelines {
         .withLocation(AnvilCraft.of("pipeline/colored_overlay_block"))
         .build();
 
+    public static final RenderPipeline LASER_SOLID = RenderPipelines.SOLID_BLOCK.toBuilder()
+        .withVertexShader(AnvilCraft.of("core/laser"))
+        .withLocation(AnvilCraft.of("pipeline/solid_laser"))
+        .build();
+
     public static final RenderPipeline LASER_TRANSLUCENT = RenderPipeline.builder(RenderPipelines.BLOCK_SNIPPET)
+        .withVertexShader(AnvilCraft.of("core/laser"))
         .withColorTargetState(new ColorTargetState(ModRenderPipelines.LASER_BLEND))
         .withShaderDefine("ALPHA_CUTOUT", 0.01F)
         .withDepthStencilState(DepthStencilState.DEFAULT)
@@ -93,9 +171,22 @@ public class ModRenderPipelines {
         .withLocation(AnvilCraft.of("pipeline/stellar_beam"))
         .build();
     
+    public static final RenderPipeline BEACON_GLASS = RenderPipelines.TRANSLUCENT_BLOCK.toBuilder()
+        .withDepthStencilState(new DepthStencilState(CompareOp.LESS_THAN_OR_EQUAL, false))
+        .withLocation(AnvilCraft.of("pipeline/beacon_glass"))
+        .build();
+
+    public static final RenderPipeline CORRUPTED_BEACON_BEAM_CORE = RenderPipeline.builder(RenderPipelines.DEBUG_FILLED_SNIPPET)
+        .withColorTargetState(ColorTargetState.DEFAULT)
+        .withVertexFormat(DefaultVertexFormat.POSITION_COLOR, VertexFormat.Mode.TRIANGLES)
+        .withDepthStencilState(DepthStencilState.DEFAULT)
+        .withCull(false)
+        .withLocation(AnvilCraft.of("pipeline/corrupted_beacon_beam_core"))
+        .build();
+
     /**
-     * 腐化信标使用纯顶点色半透明管线，使深色顶点通过常规透明混合压暗背景。
-     * 不采样激光图集，避免贴图透明度冲淡黑紫色核心和外围暗光。
+     * 腐化信标外层与武器光束使用纯顶点色半透明管线，不写入深度。
+     * 不采样激光图集，避免贴图透明度冲淡黑紫色光束。
      */
     public static final RenderPipeline CORRUPTED_BEACON_BEAM = RenderPipeline.builder(
         RenderPipelines.DEBUG_FILLED_SNIPPET
@@ -114,12 +205,112 @@ public class ModRenderPipelines {
         .withLocation(AnvilCraft.of("pipeline/star_color_overlay"))
         .build();
 
+    public static final RenderPipeline SLOT_GHOST_OVERLAY = RenderPipeline.builder(RenderPipelines.MATRICES_PROJECTION_SNIPPET)
+        .withVertexShader("core/position_color")
+        .withFragmentShader("core/position_color")
+        .withVertexFormat(DefaultVertexFormat.POSITION_COLOR, VertexFormat.Mode.QUADS)
+        .withColorTargetState(new ColorTargetState(BlendFunction.TRANSLUCENT))
+        .withDepthStencilState(new DepthStencilState(CompareOp.LESS_THAN_OR_EQUAL, false))
+        .withCull(false)
+        .withLocation(AnvilCraft.of("pipeline/slot_ghost_overlay"))
+        .build();
+
+    public static final RenderPipeline CELESTIAL_PLANET_CUTOUT = RenderPipeline.builder(RenderPipelines.BLOCK_SNIPPET)
+        .withShaderDefine("ALPHA_CUTOUT", 0.1F)
+        .withLocation(AnvilCraft.of("pipeline/celestial_planet_cutout"))
+        .build();
+
+    public static final RenderPipeline CFA_PREVIEW_CUTOUT = CELESTIAL_PLANET_CUTOUT.toBuilder()
+        .withFragmentShader(AnvilCraft.of("core/cfa_preview_cutout"))
+        .withLocation(AnvilCraft.of("pipeline/cfa_preview_cutout"))
+        .build();
+
+    public static final RenderPipeline CFA_PREVIEW_TRANSLUCENT = RenderPipeline.builder(RenderPipelines.BLOCK_SNIPPET)
+        .withColorTargetState(new ColorTargetState(BlendFunction.TRANSLUCENT))
+        .withDepthStencilState(DepthStencilState.DEFAULT)
+        .withLocation(AnvilCraft.of("pipeline/cfa_preview_translucent"))
+        .build();
+
+    public static final RenderPipeline CELESTIAL_COLOR_SHELL = RenderPipeline.builder(RenderPipelines.BLOCK_SNIPPET)
+        .withColorTargetState(new ColorTargetState(ModRenderPipelines.MULTIPLY_BLEND))
+        .withDepthStencilState(new DepthStencilState(CompareOp.LESS_THAN_OR_EQUAL, false))
+        .withLocation(AnvilCraft.of("pipeline/celestial_color_shell"))
+        .build();
+
+    public static final RenderPipeline STELLAR_SURFACE = RenderPipeline.builder(RenderPipelines.MATRICES_FOG_SNIPPET)
+        .withVertexShader(AnvilCraft.of("core/stellar_surface"))
+        .withFragmentShader(AnvilCraft.of("core/stellar_surface"))
+        .withSampler("Sampler0")
+        .withVertexFormat(DefaultVertexFormat.ENTITY, VertexFormat.Mode.QUADS)
+        .withDepthStencilState(DepthStencilState.DEFAULT)
+        .withLocation(AnvilCraft.of("pipeline/stellar_surface"))
+        .build();
+
+    public static final RenderPipeline STELLAR_CORONA = STELLAR_SURFACE.toBuilder()
+        .withFragmentShader(AnvilCraft.of("core/stellar_corona"))
+        .withColorTargetState(new ColorTargetState(new BlendFunction(
+            SourceFactor.SRC_ALPHA, DestFactor.ONE, SourceFactor.ZERO, DestFactor.ONE)))
+        .withDepthStencilState(new DepthStencilState(CompareOp.LESS_THAN_OR_EQUAL, false))
+        .withCull(false)
+        .withLocation(AnvilCraft.of("pipeline/stellar_corona"))
+        .build();
+
+    public static final RenderPipeline PLANET_ATMOSPHERE = RenderPipeline.builder(RenderPipelines.MATRICES_FOG_SNIPPET)
+        .withVertexShader(AnvilCraft.of("core/planet_atmosphere"))
+        .withFragmentShader(AnvilCraft.of("core/planet_atmosphere"))
+        .withVertexFormat(DefaultVertexFormat.POSITION_COLOR, VertexFormat.Mode.QUADS)
+        .withColorTargetState(new ColorTargetState(BlendFunction.TRANSLUCENT))
+        .withDepthStencilState(new DepthStencilState(CompareOp.LESS_THAN_OR_EQUAL, false))
+        .withCull(false)
+        .withLocation(AnvilCraft.of("pipeline/planet_atmosphere"))
+        .build();
+
+    public static final RenderPipeline MONOLITH_SURFACE = RenderPipeline.builder(RenderPipelines.MATRICES_FOG_SNIPPET)
+        .withLocation(AnvilCraft.of("pipeline/monolith_surface"))
+        .withVertexShader(AnvilCraft.of("core/monolith_surface"))
+        .withFragmentShader(AnvilCraft.of("core/monolith_surface"))
+        .withSampler("Sampler0")
+        .withVertexFormat(VertexFormat.builder()
+            .add("Position", VertexFormatElement.POSITION)
+            .add("SpriteOrigin", VertexFormatElement.UV0)
+            .add("SpriteSize", VertexFormatElement.UV2)
+            .build(), VertexFormat.Mode.QUADS)
+        .withDepthStencilState(DepthStencilState.DEFAULT)
+        .build();
+
+    public static final RenderPipeline MONOLITH_SURFACE_GUI = MONOLITH_SURFACE.toBuilder()
+        .withLocation(AnvilCraft.of("pipeline/monolith_surface_gui"))
+        .withShaderDefine("GUI_PROJECTION")
+        .build();
+
+    public static final RenderPipeline CELESTIAL_GATEWAY = RenderPipelines.END_GATEWAY.toBuilder()
+        .withLocation(AnvilCraft.of("pipeline/celestial_gateway"))
+        .withFragmentShader(AnvilCraft.of("core/celestial_gateway"))
+        .build();
+
+    public static final RenderPipeline CELESTIAL_GATEWAY_PREVIEW = CELESTIAL_GATEWAY.toBuilder()
+        .withLocation(AnvilCraft.of("pipeline/celestial_gateway_preview"))
+        .withVertexShader(AnvilCraft.of("core/celestial_gateway_preview"))
+        .build();
+
+    public static final RenderPipeline PLANET_ATMOSPHERE_INSIDE = PLANET_ATMOSPHERE.toBuilder()
+        .withDepthStencilState(new DepthStencilState(CompareOp.ALWAYS_PASS, false))
+        .withLocation(AnvilCraft.of("pipeline/planet_atmosphere_inside"))
+        .build();
+
     public static final RenderPipeline CELESTIAL_ATMOSPHERE = RenderPipeline.builder(RenderPipelines.BLOCK_SNIPPET)
         .withColorTargetState(new ColorTargetState(BlendFunction.TRANSLUCENT))
         .withShaderDefine("ALPHA_CUTOUT", 0.01F)
         .withDepthStencilState(new DepthStencilState(CompareOp.LESS_THAN_OR_EQUAL, false))
         .withCull(false)
         .withLocation(AnvilCraft.of("pipeline/celestial_atmosphere"))
+        .build();
+
+    public static final RenderPipeline STELLAR_ENVELOPE = RenderPipeline.builder(RenderPipelines.BLOCK_SNIPPET)
+        .withColorTargetState(new ColorTargetState(BlendFunction.TRANSLUCENT))
+        .withDepthStencilState(new DepthStencilState(CompareOp.LESS_THAN_OR_EQUAL, false))
+        .withCull(true)
+        .withLocation(AnvilCraft.of("pipeline/stellar_envelope"))
         .build();
 
     /**
@@ -151,13 +342,41 @@ public class ModRenderPipelines {
 
     @SubscribeEvent
     public static void on(RegisterRenderPipelinesEvent event) {
+        event.registerPipeline(ModRenderPipelines.ENCHANTED_GOLD_GLINT);
+        event.registerPipeline(ModRenderPipelines.HYPERCUBE);
+        event.registerPipeline(ModRenderPipelines.GLASS_PIPE_FLUID);
+        event.registerPipeline(ModRenderPipelines.SMART_PLACER_RANGE);
+        event.registerPipeline(ModRenderPipelines.EQUIPMENT_CHARGE);
+        event.registerPipeline(ModRenderPipelines.FITTED_ITEM);
+        event.registerPipeline(ModRenderPipelines.SCAN_PREVIEW_ITEM);
+        event.registerPipeline(ModRenderPipelines.PLACEMENT_GHOST);
+        event.registerPipeline(ModRenderPipelines.OVERWORLD_LIKE_SKY_RING);
+        event.registerPipeline(ModRenderPipelines.BUILDING_ROD_GHOST);
         event.registerPipeline(ModRenderPipelines.LASER_TRANSLUCENT);
+        event.registerPipeline(ModRenderPipelines.LASER_SOLID);
         event.registerPipeline(ModRenderPipelines.LIGHTNING);
         event.registerPipeline(ModRenderPipelines.SUPERNOVA_BEAM);
         event.registerPipeline(ModRenderPipelines.STELLAR_BEAM);
+        event.registerPipeline(ModRenderPipelines.BEACON_GLASS);
+        event.registerPipeline(ModRenderPipelines.CORRUPTED_BEACON_BEAM_CORE);
         event.registerPipeline(ModRenderPipelines.CORRUPTED_BEACON_BEAM);
         event.registerPipeline(ModRenderPipelines.STAR_COLOR_OVERLAY);
+        event.registerPipeline(ModRenderPipelines.COLORED_OVERLAY);
+        event.registerPipeline(ModRenderPipelines.CELESTIAL_COLOR_SHELL);
+        event.registerPipeline(ModRenderPipelines.SLOT_GHOST_OVERLAY);
+        event.registerPipeline(ModRenderPipelines.CFA_PREVIEW_TRANSLUCENT);
+        event.registerPipeline(ModRenderPipelines.CELESTIAL_PLANET_CUTOUT);
+        event.registerPipeline(ModRenderPipelines.CFA_PREVIEW_CUTOUT);
         event.registerPipeline(ModRenderPipelines.CELESTIAL_ATMOSPHERE);
+        event.registerPipeline(ModRenderPipelines.PLANET_ATMOSPHERE);
+        event.registerPipeline(ModRenderPipelines.PLANET_ATMOSPHERE_INSIDE);
+        event.registerPipeline(ModRenderPipelines.MONOLITH_SURFACE);
+        event.registerPipeline(ModRenderPipelines.MONOLITH_SURFACE_GUI);
+        event.registerPipeline(ModRenderPipelines.CELESTIAL_GATEWAY);
+        event.registerPipeline(ModRenderPipelines.CELESTIAL_GATEWAY_PREVIEW);
+        event.registerPipeline(ModRenderPipelines.STELLAR_SURFACE);
+        event.registerPipeline(ModRenderPipelines.STELLAR_CORONA);
+        event.registerPipeline(ModRenderPipelines.STELLAR_ENVELOPE);
         event.registerPipeline(ModRenderPipelines.CELESTIAL_RING);
         event.registerPipeline(ModRenderPipelines.SUPERNOVA_FLASH);
         event.registerPipeline(ModRenderPipelines.GRAVITATIONAL_LENS);

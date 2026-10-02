@@ -14,6 +14,15 @@ public class ModSoundDefinitionsProvider extends SoundDefinitionsProvider {
 
     @Override
     public void registerSounds() {
+        this.add(ModSoundEvents.ABOVE_THE_MOON_DUST.get(), SoundDefinitionsProvider.definition()
+            .with(SoundDefinitionsProvider.sound(AnvilCraft.of("music/mun/above_the_moon_dust_loop")).stream()));
+        this.add(ModSoundEvents.FAR_SIDE_GLOW.get(), SoundDefinitionsProvider.definition()
+            .with(SoundDefinitionsProvider.sound(AnvilCraft.of("music/mun/far_side_glow_loop")).stream()));
+
+        this.add(ModSoundEvents.AUTO_ENCHANTING_TABLE_USE.get(), SoundDefinitionsProvider.definition()
+            .subtitle("subtitles.anvilcraft.auto_enchanting_table.use")
+            .with(SoundDefinitionsProvider.sound(Identifier.withDefaultNamespace("block.enchantment_table.use"),
+                SoundDefinition.SoundType.EVENT)));
         this.add(
             ModSoundEvents.PLASMA_JET.get(), SoundDefinitionsProvider.definition()
                 .subtitle("subtitles.anvilcraft.plasma_jet")
@@ -110,5 +119,8 @@ public class ModSoundDefinitionsProvider extends SoundDefinitionsProvider {
                     SoundDefinitionsProvider.sound(
                         Identifier.withDefaultNamespace("block.copper_bulb.turn_on"), SoundDefinition.SoundType.EVENT))
         );
+        this.add(ModSoundEvents.QUENCHED_OUT.get(), SoundDefinitionsProvider.definition()
+            .subtitle("subtitles.anvilcraft.quenched_out")
+            .with(SoundDefinitionsProvider.sound(AnvilCraft.of("quenched_out"))));
     }
 }

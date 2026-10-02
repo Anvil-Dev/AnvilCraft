@@ -7,6 +7,7 @@ import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.api.entity.fakeplayer.AnvilCraftFakePlayers;
 import dev.dubhe.anvilcraft.block.workstation.TranscendenceAnvilBlock;
 import dev.dubhe.anvilcraft.block.workstation.ember.EmberAnvilBlock;
+import dev.dubhe.anvilcraft.item.EquipmentAbilities;
 import dev.dubhe.anvilcraft.item.armor.IonoCraftBackpackItem;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -40,7 +41,7 @@ abstract class PlayerMixin extends LivingEntity {
     private boolean modifyOnGround(boolean original) {
         Player player = Util.cast(this);
         boolean noDiggingPenalty = !IonoCraftBackpackItem.getByPlayer(player).isEmpty() && player.getAbilities().flying;
-        return noDiggingPenalty || original;
+        return noDiggingPenalty || original || (EquipmentAbilities.canBreathe(this) && this.isInWater());
     }
 
     @ModifyVariable(method = "die", at = @At("HEAD"), argsOnly = true, name = "source")
@@ -64,10 +65,22 @@ abstract class PlayerMixin extends LivingEntity {
         return source;
     }
 
+    @ModifyExpressionValue(method = "getDestroySpeed(Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/core/BlockPos;)F",
+        at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/player/Player;isEyeInFluid(Lnet/minecraft/tags/TagKey;)Z"))
+    private boolean anvilcraft$underwaterMining(boolean original) {
+        return original && !EquipmentAbilities.canBreathe(this);
+    }
+
     @Inject(method = "die", at = @At("RETURN"))
     private void disableKiller(DamageSource source, CallbackInfo ci, @Share("killer") LocalRef<@Nullable ServerPlayer> killerRef) {
         ServerPlayer player = killerRef.get();
         if (player == null) return;
         AnvilCraftFakePlayers.getKiller().disable(player);
+    }
+
+    @ModifyExpressionValue(method = "causeFallDamage", at = @At(value = "INVOKE",
+        target = "Lnet/minecraft/world/entity/player/Player;mayFly()Z"))
+    private boolean anvilcraft$backpackRequiresActiveFlight(boolean original) {
+        return original && IonoCraftBackpackItem.protectsFromFalling((Player) (Object) this);
     }
 }

@@ -5,8 +5,11 @@ import dev.dubhe.anvilcraft.block.entity.AccelerationRingBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.ActivatorSlidingRailBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.ActiveSilencerBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.AdvancedComparatorBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.AutoEnchantingTableBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.BigRedButtonBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.BlackHoleBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.BurningHeaterBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.CelestialBackGateBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.CelestialForgingAnvilBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.CelestialForgingAnvilFluidInterfaceBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.CelestialForgingAnvilLaserInterfaceBlockEntity;
@@ -20,6 +23,8 @@ import dev.dubhe.anvilcraft.block.entity.CorruptedBeaconBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.CreativeCrateBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.CreativeFluidTankBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.CreativeGeneratorBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.CreativeLaserBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.CrushingTableBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.DeflectionRingBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.DetectorSlidingRailBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.DischargerBlockEntity;
@@ -30,10 +35,13 @@ import dev.dubhe.anvilcraft.block.entity.FluidTankBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.HeatCollectorBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.HeaterBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.HeliostatsBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.HypercubeBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.HyperdimensionUploaderBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.InductionLightBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.InfiniteCollectorBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.ItemCollectorBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.ItemDetectorBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.ItemSplitterBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.LargeCauldronBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.LargeFluidTankBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.LargeLaserBlockEntity;
@@ -41,27 +49,38 @@ import dev.dubhe.anvilcraft.block.entity.LaserReceiverBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.LensBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.LoadMonitorBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.MagneticChuteBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.MassEnergyInverterBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.MineralFountainBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.MobAmberBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.MonolithCoreBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.NeutronIrradiatorBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.OverflowChuteBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.OverseerBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.PlasmaJetsBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.PowerConverterBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.PropelPistonBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.PulseGeneratorBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.RedstoneDiceBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.RemoteTransmissionPoleBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.ResentfulAmberBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.RubyLaserBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.RubyPrismBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.RuinsBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.SiftingTableBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.SimpleChuteBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.SimpleMagneticChuteBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.SmartBlockPlacerBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.SpaceOvercompressorBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.SpacetimeSupercomputerBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.StampingPlatformBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.StorageFluidPortBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.StoragePortBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.StoragePortConsolidatorBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.StructureScannerBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.TeslaTowerBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.TradingStationBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.TransmissionPoleBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.UnpackingTableBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.VoidEnergyCollectorBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.WhiteHoleBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.WipBlockEntity;
@@ -69,6 +88,7 @@ import dev.dubhe.anvilcraft.block.entity.batch.BatchCrafterBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.batch.BatchCutterBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.fluid.ControlValveBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.fluid.DrainBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.fluid.GlassPipeBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.fluid.PipeBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.fluid.PipeNodeBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.fluid.PumpBlockEntity;
@@ -84,7 +104,9 @@ import dev.dubhe.anvilcraft.block.entity.storage.LargeCrateBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.storage.ShulkerContainerBlockEntity;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.AdvancedComparatorRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.BatchCraftingRenderer;
+import dev.dubhe.anvilcraft.client.renderer.blockentity.BigRedButtonBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.CFARenderer;
+import dev.dubhe.anvilcraft.client.renderer.blockentity.CelestialForgingAnvilFluidInterfaceBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.ChargeCollectorRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.ChargerRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.ConfinementChamberRenderer;
@@ -93,33 +115,52 @@ import dev.dubhe.anvilcraft.client.renderer.blockentity.CorruptedBeaconRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.CreativeCrateRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.CreativeFluidTankRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.CreativeGeneratorRenderer;
+import dev.dubhe.anvilcraft.client.renderer.blockentity.CrushingTableBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.DischargerRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.DrainBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.ExpCollectorBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.FeCollectorRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.FishTankRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.FluidTankRenderer;
+import dev.dubhe.anvilcraft.client.renderer.blockentity.GlassPipeBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.HasMobBlockRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.HeatCollectorRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.HeliostatsRenderer;
+import dev.dubhe.anvilcraft.client.renderer.blockentity.HypercubeBERenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.IncandescentBlockRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.InfiniteCollectorRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.LargeCauldronBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.LargeFluidTankRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.LaserBlockEntityRenderer;
+import dev.dubhe.anvilcraft.client.renderer.blockentity.MonolithCoreBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.OverseerBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.PipeCheckValveBERenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.PulseGeneratorBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.PumpBlockEntityRenderer;
+import dev.dubhe.anvilcraft.client.renderer.blockentity.RedstoneDiceBlockEntityRenderer;
+import dev.dubhe.anvilcraft.client.renderer.blockentity.RuinsBlockEntityRenderer;
+import dev.dubhe.anvilcraft.client.renderer.blockentity.SiftingTableBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.SmartBlockPlacerRenderer;
+import dev.dubhe.anvilcraft.client.renderer.blockentity.SpacetimeSupercomputerBlockEntityRenderer;
+import dev.dubhe.anvilcraft.client.renderer.blockentity.StampingPlatformBlockEntityRenderer;
+import dev.dubhe.anvilcraft.client.renderer.blockentity.StorageFluidPortBlockEntityRenderer;
+import dev.dubhe.anvilcraft.client.renderer.blockentity.StoragePortBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.TeslaTowerRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.TradingStationBlockEntityRenderer;
+import dev.dubhe.anvilcraft.client.renderer.blockentity.UnpackingTableBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.VoidEnergyCollectorRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.WipBlockEntityRenderer;
 
 import static dev.dubhe.anvilcraft.AnvilCraft.REGISTRUM;
 
 public class ModBlockEntities {
+    public static final BlockEntityEntry<AutoEnchantingTableBlockEntity> AUTO_ENCHANTING_TABLE = REGISTRUM.blockEntity(
+        "auto_enchanting_table",
+        AutoEnchantingTableBlockEntity::createBlockEntity
+    ).validBlock(ModBlocks.AUTO_ENCHANTING_TABLE)
+        .renderer(() -> dev.dubhe.anvilcraft.client.renderer.blockentity.AutoEnchantingTableBlockEntityRenderer::new)
+        .register();
+
     public static final BlockEntityEntry<BatchCrafterBlockEntity> BATCH_CRAFTER = REGISTRUM
         .blockEntity("batch_crafter", BatchCrafterBlockEntity::new)
         .renderer(() -> BatchCraftingRenderer::new)
@@ -227,7 +268,8 @@ public class ModBlockEntities {
 
     public static final BlockEntityEntry<PowerConverterBlockEntity> POWER_CONVERTER = REGISTRUM
         .blockEntity("power_converter", PowerConverterBlockEntity::createBlockEntity)
-        .validBlocks(ModBlocks.POWER_CONVERTER_SMALL, ModBlocks.POWER_CONVERTER_MIDDLE, ModBlocks.POWER_CONVERTER_BIG)
+        .validBlocks(ModBlocks.POWER_CONVERTER_SMALL, ModBlocks.POWER_CONVERTER_MIDDLE, ModBlocks.POWER_CONVERTER_BIG,
+            ModBlocks.POWER_CONVERTER_SUPER_BIG, ModBlocks.POWER_CONVERTER_EXTREMELY_BIG)
         .register();
 
     public static final BlockEntityEntry<RemoteTransmissionPoleBlockEntity> REMOTE_TRANSMISSION_POLE = REGISTRUM
@@ -273,6 +315,18 @@ public class ModBlockEntities {
         .renderer(() -> LaserBlockEntityRenderer::new)
         .validBlock(ModBlocks.RUBY_PRISM)
         .register();
+    public static final BlockEntityEntry<HypercubeBlockEntity> HYPERCUBE = REGISTRUM
+        .blockEntity("hypercube", HypercubeBlockEntity::new)
+        .validBlock(ModBlocks.HYPERCUBE)
+        .renderer(() -> HypercubeBERenderer::new)
+        .register();
+
+    public static final BlockEntityEntry<CreativeLaserBlockEntity> CREATIVE_LASER = REGISTRUM
+        .blockEntity("creative_laser", CreativeLaserBlockEntity::createBlockEntity)
+        .renderer(() -> LaserBlockEntityRenderer::new)
+        .validBlock(ModBlocks.CREATIVE_LASER)
+        .register();
+
     public static final BlockEntityEntry<RubyLaserBlockEntity> RUBY_LASER = REGISTRUM
         .blockEntity("ruby_laser", RubyLaserBlockEntity::createBlockEntity)
         .renderer(() -> LaserBlockEntityRenderer::new)
@@ -300,6 +354,11 @@ public class ModBlockEntities {
         .blockEntity("tesla_tower", TeslaTowerBlockEntity::createBlockEntity)
         .renderer(() -> TeslaTowerRenderer::new)
         .validBlocks(ModBlocks.TESLA_TOWER)
+        .register();
+
+    public static final BlockEntityEntry<MassEnergyInverterBlockEntity> MASS_ENERGY_INVERTER = REGISTRUM
+        .blockEntity("mass_energy_inverter", MassEnergyInverterBlockEntity::createBlockEntity)
+        .validBlocks(ModBlocks.MASS_ENERGY_INVERTER)
         .register();
 
     public static final BlockEntityEntry<SpaceOvercompressorBlockEntity> SPACE_OVERCOMPRESSOR = REGISTRUM
@@ -348,6 +407,40 @@ public class ModBlockEntities {
         .renderer(() -> VoidEnergyCollectorRenderer::new)
         .validBlocks(ModBlocks.VOID_ENERGY_COLLECTOR)
         .register();
+
+    public static final BlockEntityEntry<StorageFluidPortBlockEntity> STORAGE_FLUID_PORT = REGISTRUM
+        .blockEntity("storage_fluid_port", StorageFluidPortBlockEntity::new)
+        .validBlocks(ModBlocks.STORAGE_FLUID_PORT).renderer(() -> StorageFluidPortBlockEntityRenderer::new).register();
+
+    public static final BlockEntityEntry<StoragePortConsolidatorBlockEntity> STORAGE_PORT_CONSOLIDATOR = REGISTRUM
+        .blockEntity("storage_port_consolidator", StoragePortConsolidatorBlockEntity::new)
+        .validBlocks(ModBlocks.STORAGE_PORT_CONSOLIDATOR)
+        .register();
+
+    public static final BlockEntityEntry<HyperdimensionUploaderBlockEntity> HYPERDIMENSION_UPLOADER = REGISTRUM
+        .blockEntity("hyperdimension_uploader", HyperdimensionUploaderBlockEntity::new)
+        .validBlocks(ModBlocks.HYPERDIMENSION_UPLOADER)
+        .register();
+
+    public static final BlockEntityEntry<StoragePortBlockEntity> STORAGE_PORT = REGISTRUM
+        .blockEntity("storage_port", StoragePortBlockEntity::new)
+        .validBlocks(ModBlocks.STORAGE_PORT).renderer(() -> StoragePortBlockEntityRenderer::new).register();
+
+    public static final BlockEntityEntry<OverflowChuteBlockEntity> OVERFLOW_CHUTE = REGISTRUM
+        .blockEntity("overflow_chute", OverflowChuteBlockEntity::new)
+        .validBlocks(ModBlocks.OVERFLOW_CHUTE).register();
+
+    public static final BlockEntityEntry<ItemSplitterBlockEntity> ITEM_SPLITTER = REGISTRUM
+        .blockEntity("item_splitter", ItemSplitterBlockEntity::new)
+        .validBlocks(ModBlocks.ITEM_SPLITTER).register();
+
+    public static final BlockEntityEntry<RedstoneDiceBlockEntity> REDSTONE_DICE = REGISTRUM.<RedstoneDiceBlockEntity>blockEntity(
+        "redstone_dice", (type, pos, state) -> new RedstoneDiceBlockEntity(pos, state)
+    ).validBlocks(ModBlocks.REDSTONE_DICE).renderer(() -> RedstoneDiceBlockEntityRenderer::new).register();
+
+    public static final BlockEntityEntry<BigRedButtonBlockEntity> BIG_RED_BUTTON = REGISTRUM.<BigRedButtonBlockEntity>blockEntity(
+        "big_red_button", (type, pos, state) -> new BigRedButtonBlockEntity(pos, state)
+    ).validBlocks(ModBlocks.BIG_RED_BUTTON).renderer(() -> BigRedButtonBlockEntityRenderer::new).register();
 
     public static final BlockEntityEntry<PulseGeneratorBlockEntity> PULSE_GENERATOR = REGISTRUM
         .blockEntity("pulse_generator", PulseGeneratorBlockEntity::createBlockEntity)
@@ -465,6 +558,11 @@ public class ModBlockEntities {
     /// 传送门的门体模型由 blockstate 在 MID_CENTER 渲染，激光束由
     /// CachedLaserBlockEntityRenderer 渲染（在 AnvilCraftClient.clientSetup 注册），
     /// 因此此处不再注册专用 BlockEntityRenderer。
+    public static final BlockEntityEntry<CelestialBackGateBlockEntity> CELESTIAL_BACK_GATE = REGISTRUM
+        .blockEntity("celestial_back_gate", CelestialBackGateBlockEntity::new)
+        .validBlock(ModBlocks.CELESTIAL_BACK_GATE)
+        .register();
+
     public static final BlockEntityEntry<CelestialForgingAnvilPortalBlockEntity> CELESTIAL_FORGING_ANVIL_PORTAL = REGISTRUM
         .blockEntity("celestial_forging_anvil_portal", CelestialForgingAnvilPortalBlockEntity::new)
         .validBlock(ModBlocks.CELESTIAL_FORGING_ANVIL_PORTAL)
@@ -482,11 +580,36 @@ public class ModBlockEntities {
     public static final BlockEntityEntry<CelestialForgingAnvilFluidInterfaceBlockEntity> CELESTIAL_FORGING_ANVIL_FLUID_INTERFACE = REGISTRUM
         .blockEntity("celestial_forging_anvil_fluid_interface", CelestialForgingAnvilFluidInterfaceBlockEntity::createBlockEntity)
         .validBlock(ModBlocks.CELESTIAL_FORGING_ANVIL_FLUID_INTERFACE)
+        .renderer(() -> CelestialForgingAnvilFluidInterfaceBlockEntityRenderer::new)
         .register();
 
     public static final BlockEntityEntry<CelestialForgingAnvilLaserInterfaceBlockEntity> CELESTIAL_FORGING_ANVIL_LASER_INTERFACE = REGISTRUM
         .blockEntity("celestial_forging_anvil_laser_interface", CelestialForgingAnvilLaserInterfaceBlockEntity::createBlockEntity)
         .validBlock(ModBlocks.CELESTIAL_FORGING_ANVIL_LASER_INTERFACE)
+        .register();
+
+    public static final BlockEntityEntry<StampingPlatformBlockEntity> STAMPING_PLATFORM = REGISTRUM
+        .blockEntity("stamping_platform", StampingPlatformBlockEntity::new)
+        .validBlocks(ModBlocks.STAMPING_PLATFORM)
+        .renderer(() -> StampingPlatformBlockEntityRenderer::new)
+        .register();
+
+    public static final BlockEntityEntry<CrushingTableBlockEntity> CRUSHING_TABLE = REGISTRUM
+        .blockEntity("crushing_table", CrushingTableBlockEntity::new)
+        .validBlocks(ModBlocks.CRUSHING_TABLE)
+        .renderer(() -> CrushingTableBlockEntityRenderer::new)
+        .register();
+
+    public static final BlockEntityEntry<SiftingTableBlockEntity> SIFTING_TABLE = REGISTRUM
+        .blockEntity("sifting_table", SiftingTableBlockEntity::new)
+        .validBlocks(ModBlocks.SIFTING_TABLE)
+        .renderer(() -> SiftingTableBlockEntityRenderer::new)
+        .register();
+
+    public static final BlockEntityEntry<UnpackingTableBlockEntity> UNPACKING_TABLE = REGISTRUM
+        .blockEntity("unpacking_table", UnpackingTableBlockEntity::new)
+        .validBlocks(ModBlocks.UNPACKING_TABLE)
+        .renderer(() -> UnpackingTableBlockEntityRenderer::new)
         .register();
 
     public static final BlockEntityEntry<FishTankBlockEntity> FISH_TANK = REGISTRUM
@@ -531,6 +654,12 @@ public class ModBlockEntities {
         .renderer(() -> PipeCheckValveBERenderer::new)
         .register();
 
+    public static final BlockEntityEntry<GlassPipeBlockEntity> GLASS_PIPE = REGISTRUM
+        .blockEntity("glass_pipe", GlassPipeBlockEntity::new)
+        .validBlocks(ModBlocks.GLASS_PIPE_STRAIGHT, ModBlocks.GLASS_PIPE_CORNER, ModBlocks.GLASS_PIPE_NODE)
+        .renderer(() -> GlassPipeBlockEntityRenderer::new)
+        .register();
+
     public static final BlockEntityEntry<PumpBlockEntity> PUMP = REGISTRUM
         .blockEntity("pump", PumpBlockEntity::create)
         .validBlock(ModBlocks.PUMP)
@@ -563,13 +692,26 @@ public class ModBlockEntities {
 
     public static final BlockEntityEntry<SpacetimeSupercomputerBlockEntity> SPACETIME_SUPERCOMPUTER = REGISTRUM
         .blockEntity("spacetime_supercomputer", SpacetimeSupercomputerBlockEntity::new)
+        .renderer(() -> SpacetimeSupercomputerBlockEntityRenderer::new)
         .validBlock(ModBlocks.SPACETIME_SUPERCOMPUTER)
+        .register();
+
+    public static final BlockEntityEntry<RuinsBlockEntity> RUINS_BLOCK = REGISTRUM
+        .blockEntity("ruins_block", RuinsBlockEntity::new)
+        .validBlock(ModBlocks.RUINS_BLOCK)
+        .renderer(() -> RuinsBlockEntityRenderer::new)
         .register();
 
     public static final BlockEntityEntry<WipBlockEntity> WIP_BLOCK = REGISTRUM
         .blockEntity("wip_block", WipBlockEntity::new)
         .renderer(() -> WipBlockEntityRenderer::new)
         .validBlock(ModBlocks.WIP_BLOCK)
+        .register();
+
+    public static final BlockEntityEntry<MonolithCoreBlockEntity> MONOLITH_CORE = REGISTRUM
+        .blockEntity("monolith_core", MonolithCoreBlockEntity::new)
+        .validBlocks(ModBlocks.MONOLITH_CORE, ModBlocks.GIANT_MONOLITH_CORE)
+        .renderer(() -> MonolithCoreBlockEntityRenderer::new)
         .register();
 
     public static void register() {

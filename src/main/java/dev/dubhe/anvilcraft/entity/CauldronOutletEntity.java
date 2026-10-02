@@ -335,13 +335,20 @@ public class CauldronOutletEntity extends Entity {
 
     @Override
     protected void readAdditionalSaveData(ValueInput compoundTag) {
-        this.setCauldronPos(compoundTag.read("cauldron_pos", BlockPos.CODEC).orElse(BlockPos.ZERO));
-        this.setAttachedDirection(Direction.from3DDataValue(compoundTag.getIntOr("attached_direction", 0)));
-        this.setCauldronState(compoundTag.read("cauldron_state", BlockState.CODEC).orElse(Blocks.AIR.defaultBlockState()));
+        this.setCauldronPos(compoundTag.read("cauldron_pos", BlockPos.CODEC)
+            .or(() -> compoundTag.read("CauldronPos", BlockPos.CODEC)).orElse(BlockPos.ZERO));
+        this.setAttachedDirection(Direction.from3DDataValue(
+            compoundTag.getIntOr("attached_direction", compoundTag.getIntOr("AttachedDirection", 0))));
+        this.setCauldronState(compoundTag.read("cauldron_state", BlockState.CODEC)
+            .or(() -> compoundTag.read("CauldronState", BlockState.CODEC)).orElse(Blocks.AIR.defaultBlockState()));
+        this.wasMoving = compoundTag.getBooleanOr("WasMoving", false);
+        this.targetPos = compoundTag.read("TargetPos", BlockPos.CODEC).orElse(null);
     }
 
     @Override
     protected void addAdditionalSaveData(ValueOutput compoundTag) {
+        compoundTag.putBoolean("WasMoving", this.wasMoving);
+        if (this.targetPos != null) compoundTag.store("TargetPos", BlockPos.CODEC, this.targetPos);
         compoundTag.store("cauldron_state", BlockState.CODEC, this.getCauldronState());
         compoundTag.store("cauldron_pos", BlockPos.CODEC, this.getCauldronPos());
         compoundTag.putInt("attached_direction", this.getAttachedDirection().get3DDataValue());

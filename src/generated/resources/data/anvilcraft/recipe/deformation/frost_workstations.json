@@ -1,0 +1,21 @@
+{
+  "type": "anvilcraft:deformation",
+  "inputs": [
+    {
+      "id": "anvilcraft:frost_anvil"
+    },
+    {
+      "id": "anvilcraft:frost_grindstone"
+    },
+    {
+      "id": "anvilcraft:frost_smithing_table"
+    }
+  ],
+  "material": {
+    "type": "anvilcraft:custom",
+    "predicate": {
+      "count": 3,
+      "items": "anvilcraft:frost_metal_ingot"
+    }
+  }
+}

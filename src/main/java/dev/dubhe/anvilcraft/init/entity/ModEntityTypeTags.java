@@ -11,6 +11,7 @@ public class ModEntityTypeTags {
     public static final TagKey<EntityType<?>> EMERALD_AMULET_VALID = ModEntityTypeTags.bind("amulet_valid/emerald");
     public static final TagKey<EntityType<?>> SAPPHIRE_AMULET_VALID = ModEntityTypeTags.bind("amulet_valid/sapphire");
     public static final TagKey<EntityType<?>> ANVIL_AMULET_VALID = ModEntityTypeTags.bind("amulet_valid/anvil");
+    public static final TagKey<EntityType<?>> ARMADILLO_AMULET_VALID = ModEntityTypeTags.bind("amulet_valid/armadillo");
     public static final TagKey<EntityType<?>> CAT_AMULET_VALID = ModEntityTypeTags.bind("amulet_valid/cat");
     public static final TagKey<EntityType<?>> DOG_AMULET_VALID = ModEntityTypeTags.bind("amulet_valid/dog");
     public static final TagKey<EntityType<?>> SILENCE_AMULET_VALID = ModEntityTypeTags.bind("amulet_valid/silence");

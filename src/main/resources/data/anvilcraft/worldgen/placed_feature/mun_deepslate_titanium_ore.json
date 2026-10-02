@@ -1,0 +1,27 @@
+{
+  "feature": "anvilcraft:mun_deepslate_titanium_ore",
+  "placement": [
+    {
+      "type": "minecraft:count",
+      "count": 24
+    },
+    {
+      "type": "minecraft:in_square"
+    },
+    {
+      "type": "minecraft:height_range",
+      "height": {
+        "type": "minecraft:uniform",
+        "max_inclusive": {
+          "absolute": 40
+        },
+        "min_inclusive": {
+          "absolute": -64
+        }
+      }
+    },
+    {
+      "type": "minecraft:biome"
+    }
+  ]
+}

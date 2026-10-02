@@ -8,6 +8,7 @@ import dev.anvilcraft.lib.v2.util.predicate.ChanceItemStack;
 import dev.dubhe.anvilcraft.recipe.sync.RecipesRecord;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.builder.IRecipeSlotBuilder;
+import mezz.jei.api.gui.drawable.IDrawable;
 import mezz.jei.api.recipe.RecipeIngredientRole;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
@@ -24,6 +25,7 @@ import net.minecraft.world.level.storage.loot.providers.number.UniformGenerator;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.IntFunction;
 
 public class JeiRecipeUtil {
     private static final DecimalFormat FORMATTER = new DecimalFormat();
@@ -132,6 +134,32 @@ public class JeiRecipeUtil {
             }
         }
         return false;
+    }
+
+    /**
+     * 单个产出是否为概率产出（非必定掉落）。
+     *
+     * <p>必定掉落指数量为 {@link ConstantValue}；二项分布或其他波动数量都视为概率产出。
+     */
+    public static boolean isChance(ChanceItemStack chanceItemStack) {
+        NumberProvider provider = chanceItemStack.count();
+        return provider instanceof BinomialDistributionGenerator || provider.getClass() != ConstantValue.class;
+    }
+
+    /**
+     * 按产出逐个选择槽位样式：必定掉落用普通槽，概率掉落用虚影槽。
+     *
+     * <p>整组产出只要有一个带概率便全部画成虚影会误导玩家，故逐格判断。
+     *
+     * @param guaranteed 必定掉落使用的槽位贴图
+     * @param chance     概率掉落使用的槽位贴图
+     */
+    public static IntFunction<IDrawable> outputSlotFor(
+        List<ChanceItemStack> results,
+        IDrawable guaranteed,
+        IDrawable chance
+    ) {
+        return index -> isChance(results.get(index)) ? chance : guaranteed;
     }
 
     private static double getMin(NumberProvider provider) {

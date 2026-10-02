@@ -1,0 +1,66 @@
+{
+  "type": "anvilcraft:permutation",
+  "input": {
+    "items": "anvilcraft:ember_metal_hoe"
+  },
+  "options": [
+    {
+      "material": {
+        "type": "anvilcraft:empty"
+      },
+      "result": {
+        "modifiers": [
+          {
+            "type": "anvilcraft:remove_data",
+            "types": [
+              "anvilcraft:reforging"
+            ]
+          }
+        ],
+        "result": {
+          "id": "anvilcraft:royal_steel_hoe"
+        }
+      }
+    },
+    {
+      "material": {
+        "type": "anvilcraft:empty"
+      },
+      "result": {
+        "modifiers": [
+          {
+            "type": "anvilcraft:remove_data",
+            "types": [
+              "anvilcraft:reforging"
+            ]
+          }
+        ],
+        "result": {
+          "id": "minecraft:netherite_hoe"
+        }
+      }
+    },
+    {
+      "material": {
+        "type": "anvilcraft:custom",
+        "predicate": {
+          "count": 3,
+          "items": "anvilcraft:frost_metal_nugget"
+        }
+      },
+      "result": {
+        "modifiers": [
+          {
+            "type": "anvilcraft:remove_data",
+            "types": [
+              "anvilcraft:reforging"
+            ]
+          }
+        ],
+        "result": {
+          "id": "anvilcraft:frost_metal_hoe"
+        }
+      }
+    }
+  ]
+}

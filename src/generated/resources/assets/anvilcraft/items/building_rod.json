@@ -1,0 +1,14 @@
+{
+  "model": {
+    "type": "minecraft:condition",
+    "on_false": {
+      "type": "minecraft:model",
+      "model": "anvilcraft:item/building_rod"
+    },
+    "on_true": {
+      "type": "minecraft:model",
+      "model": "anvilcraft:item/building_rod_off"
+    },
+    "property": "anvilcraft:stored_energy_empty"
+  }
+}

@@ -9,21 +9,19 @@ import dev.dubhe.anvilcraft.block.entity.storage.LargeCrateBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.storage.ShulkerContainerBlockEntity;
 import dev.dubhe.anvilcraft.block.state.Cube3x3PartHalf;
 import dev.dubhe.anvilcraft.block.state.OpenedCube3x3PartHalf;
-import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.saved.storage.BaseStorage;
 import dev.dubhe.anvilcraft.saved.storage.ShulkerContainerStorage;
 import dev.dubhe.anvilcraft.saved.storage.Storages;
+import dev.dubhe.anvilcraft.util.AabbUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.AABB;
-import net.neoforged.neoforge.transfer.item.ItemResource;
-import net.neoforged.neoforge.transfer.transaction.Transaction;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,12 +34,15 @@ public class Upgrade2ShulkerContainerBehavior implements IAnvilBehavior {
         if (!hitBlockState.is(ModBlocks.LARGE_CRATE)) {
             return false;
         }
+        ServerLevel serverLevel = level;
 
-        List<ItemEntity> entities = level.getEntitiesOfClass(ItemEntity.class, new AABB(hitBlockPos.above()));
         ItemEntity spaceOvercompressor = null;
         List<ItemEntity> netheriteBlock = new ArrayList<>();
         int count = 0;
-        for (ItemEntity entity : entities) {
+        for (ItemEntity entity : serverLevel.getEntitiesOfClass(
+            ItemEntity.class,
+            AabbUtil.createInclusive(hitBlockPos, hitBlockPos.above())
+        )) {
             ItemStack stack = entity.getItem();
             if (stack.is(ModBlocks.SPACE_OVERCOMPRESSOR.asItem())) {
                 spaceOvercompressor = entity;
@@ -53,6 +54,8 @@ public class Upgrade2ShulkerContainerBehavior implements IAnvilBehavior {
         if (spaceOvercompressor == null || netheriteBlock.isEmpty() || count < 6) {
             return false;
         }
+        // 只消耗 6 个下界合金块，多余的保留
+        count = 6;
 
         ItemStack stack = spaceOvercompressor.getItem();
         stack.shrink(1);
@@ -76,23 +79,22 @@ public class Upgrade2ShulkerContainerBehavior implements IAnvilBehavior {
         }
 
         BlockPos mainPart = ModBlocks.LARGE_CRATE.get().getMainPartPos(hitBlockPos, hitBlockState);
-        final Optional<LargeCrateBlockEntity> beOp = level.getBlockEntity(mainPart, ModBlockEntities.LARGE_CRATE.get());
-
-        for (Cube3x3PartHalf half : Cube3x3PartHalf.values()) {
-            level.setBlock(mainPart.offset(half.getOffset()), Blocks.AIR.defaultBlockState(), Block.UPDATE_NONE);
-        }
-
-        level.setBlock(
-            mainPart,
-            ModBlocks.SHULKER_CONTAINER.getDefaultState().setValue(ShulkerContainerBlock.HALF, OpenedCube3x3PartHalf.BOTTOM_CENTER),
-            Block.UPDATE_CLIENTS
-        );
-        level.getBlockState(mainPart).getBlock().setPlacedBy(level, mainPart, level.getBlockState(mainPart), null, ItemStack.EMPTY);
-
-        if (beOp.isEmpty()) {
+        BlockEntity blockEntity = serverLevel.getBlockEntity(mainPart);
+        if (!(blockEntity instanceof LargeCrateBlockEntity be)) {
             return true;
         }
-        LargeCrateBlockEntity be = beOp.get();
+
+        for (Cube3x3PartHalf half : Cube3x3PartHalf.values()) {
+            serverLevel.setBlock(mainPart.offset(half.getOffset()), Blocks.AIR.defaultBlockState(), Block.UPDATE_MOVE_BY_PISTON);
+        }
+
+        serverLevel.setBlock(
+            mainPart,
+            ModBlocks.SHULKER_CONTAINER.get().defaultBlockState().setValue(ShulkerContainerBlock.HALF, OpenedCube3x3PartHalf.BOTTOM_CENTER),
+            Block.UPDATE_CLIENTS
+        );
+        BlockState placedState = serverLevel.getBlockState(mainPart);
+        placedState.getBlock().setPlacedBy(serverLevel, mainPart, placedState, null, ItemStack.EMPTY);
         if (be.getId() == null) {
             return true;
         }
@@ -102,38 +104,20 @@ public class Upgrade2ShulkerContainerBehavior implements IAnvilBehavior {
         }
         BaseStorage<?> storage = storageOp.get();
 
-        Optional<ShulkerContainerBlockEntity> scBeOp = level.getBlockEntity(mainPart, ModBlockEntities.SHULKER_CONTAINER.get());
-        if (scBeOp.isEmpty()) {
+        BlockEntity scBlockEntity = serverLevel.getBlockEntity(mainPart);
+        if (!(scBlockEntity instanceof ShulkerContainerBlockEntity scBe)) {
             return true;
         }
-        ShulkerContainerBlockEntity scBe = scBeOp.get();
         UUID id = scBe.getId();
         if (id == null) {
             id = UUID.randomUUID();
             scBe.setId(id);
         }
         ShulkerContainerStorage sc = Storages.get().getOrCreate(id, ShulkerContainerStorage.class);
+        sc.copyCraftingFrom(storage);
         TypeLimitItemStacksResourceHandler scItems = sc.getItems();
-        try (Transaction root = Transaction.openRoot()) {
-            UnlimitedItemStacksResourceHandler items = storage.getItems();
-            for (int i = 0; i < items.size(); i++) {
-                try (Transaction transaction = Transaction.open(root)) {
-                    long amountAsLong = items.getAmountAsLong(i);
-                    if (amountAsLong <= 0) continue;
-                    ItemResource resource = items.getResource(i);
-                    int amount = Math.toIntExact(amountAsLong);
-                    int inserted = scItems.insert(resource, amount, transaction);
-                    if (inserted <= amount) {
-                        int diff = amount - inserted;
-                        for (int j = 0; j < diff; j -= Math.min(resource.getMaxStackSize(), j)) {
-                            Block.popResource(level, mainPart.above(3), resource.toStack(j));
-                        }
-                    }
-                    transaction.commit();
-                }
-            }
-            root.commit();
-        }
+        UnlimitedItemStacksResourceHandler items = storage.getItems();
+        scItems.retainIgnoringTypeLimit(items.copyToList());
         Storages.get().remove(storage.getId());
 
         return true;

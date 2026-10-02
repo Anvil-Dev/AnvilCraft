@@ -5,34 +5,48 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.power.IPowerConsumer;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
 import dev.dubhe.anvilcraft.model.CommandInfo;
+import dev.dubhe.anvilcraft.recipe.multiblock.Multiblock4DRecipe;
+import dev.dubhe.anvilcraft.recipe.sync.RecipesRecord;
+import dev.dubhe.anvilcraft.util.AnvilUtil;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.Connection;
 import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.permissions.LevelBasedPermissionSet;
+import net.minecraft.util.ProblemReporter;
 import net.minecraft.util.Util;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.TagValueOutput;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
@@ -77,6 +91,16 @@ public class SpacetimeSupercomputerBlockEntity extends BlockEntity implements IP
         }
     );
 
+    @Getter
+    private @Nullable RecipeHolder<Multiblock4DRecipe> processingRecipe = null;
+    @Getter
+    private int processingStep = -1;
+    @Getter
+    private int processingSize = -1;
+    private int processingTotal = -1;
+    private final List<ItemStack> pendingDrops = new ArrayList<>();
+    private @Nullable String pendingRecipeId;
+
     public SpacetimeSupercomputerBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState);
     }
@@ -106,13 +130,31 @@ public class SpacetimeSupercomputerBlockEntity extends BlockEntity implements IP
     @Override
     protected void saveAdditional(ValueOutput output) {
         super.saveAdditional(output);
-        if (!this.command.isBlank()) {
+        this.saveCommandState(output, false);
+        this.saveProcessing(output);
+        if (!this.pendingDrops.isEmpty()) output.store("pendingDrops", ItemStack.CODEC.listOf(), this.pendingDrops);
+    }
+
+    @Override
+    protected void loadAdditional(ValueInput input) {
+        super.loadAdditional(input);
+        input.getString("command").ifPresent((command) -> this.command = command);
+        this.chargingProgress = input.getFloatOr("chargingProgress", this.chargingProgress);
+        input.childrenList("historyCommands").ifPresent(commands -> {
+            this.historyCommands.clear();
+            for (ValueInput command : commands) command.getString("command").ifPresent(this.historyCommands::add);
+        });
+        this.loadProcessing(input);
+    }
+
+    private void saveCommandState(ValueOutput output, boolean includeDefaults) {
+        if (includeDefaults || !this.command.isBlank()) {
             output.putString("command", this.command);
         }
-        if (this.chargingProgress > 0) {
+        if (includeDefaults || this.chargingProgress > 0) {
             output.putFloat("chargingProgress", this.chargingProgress);
         }
-        if (!this.historyCommands.isEmpty()) {
+        if (includeDefaults || !this.historyCommands.isEmpty()) {
             ValueOutput.ValueOutputList historyCommands1 = output.childrenList("historyCommands");
             for (String historyCommand : this.historyCommands) {
                 ValueOutput valueOutput = historyCommands1.addChild();
@@ -121,14 +163,74 @@ public class SpacetimeSupercomputerBlockEntity extends BlockEntity implements IP
         }
     }
 
-    @Override
-    protected void loadAdditional(ValueInput input) {
-        super.loadAdditional(input);
-        input.getString("command").ifPresent((command) -> this.command = command);
-        this.chargingProgress = input.getFloatOr("chargingProgress", 0);
-        for (ValueInput command : input.childrenListOrEmpty("historyCommands")) {
-            command.getString("command").ifPresent(this.historyCommands::add);
+    private void saveProcessing(ValueOutput output) {
+        if (this.processingRecipe != null) {
+            ValueOutput processing = output.child("processing");
+            processing.putString("recipe", this.processingRecipe.id().identifier().toString());
+            processing.putInt("step", this.processingStep);
+            processing.putInt("size", this.processingSize);
+            processing.putInt("total", this.processingTotal);
         }
+    }
+
+    private void loadProcessing(ValueInput input) {
+        input.child("processing").ifPresentOrElse(processing -> {
+            this.pendingRecipeId = processing.getStringOr("recipe", "");
+            this.processingStep = processing.getIntOr("step", -1);
+            this.processingSize = processing.getIntOr("size", -1);
+            this.processingTotal = processing.getIntOr("total", -1);
+        }, () -> {
+            this.pendingRecipeId = null;
+            this.processingRecipe = null;
+            this.processingStep = -1;
+            this.processingSize = -1;
+            this.processingTotal = -1;
+        });
+        this.pendingDrops.clear();
+        this.pendingDrops.addAll(input.read("pendingDrops", ItemStack.CODEC.listOf()).orElse(List.of()));
+        this.resolvePendingRecipe();
+    }
+
+    @Override
+    public void setLevel(Level level) {
+        super.setLevel(level);
+        this.resolvePendingRecipe();
+    }
+
+    private void resolvePendingRecipe() {
+        if (this.pendingRecipeId == null || this.level == null) return;
+        var recipes = RecipesRecord.getRecipes(this.level);
+        if (recipes == null) return;
+        String recipeId = this.pendingRecipeId;
+        this.pendingRecipeId = null;
+        RecipeHolder<?> holder = recipes.byKey(ResourceKey.create(Registries.RECIPE, Identifier.parse(recipeId)));
+        this.processingRecipe = holder != null && holder.value() instanceof Multiblock4DRecipe
+            ? castProcessingRecipe(holder) : null;
+        if (this.processingRecipe == null) this.dropProcessingInputs();
+    }
+
+    @SuppressWarnings("unchecked")
+    private static RecipeHolder<Multiblock4DRecipe> castProcessingRecipe(RecipeHolder<?> holder) {
+        return (RecipeHolder<Multiblock4DRecipe>) holder;
+    }
+
+    @Override
+    public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
+        TagValueOutput output = TagValueOutput.createWithContext(ProblemReporter.DISCARDING, registries);
+        this.saveCommandState(output, true);
+        this.saveProcessing(output);
+        return output.buildResult();
+    }
+
+    @Override
+    public void onDataPacket(Connection connection, ValueInput input) {
+        this.loadAdditional(input);
+    }
+
+    @Override
+    public void preRemoveSideEffects(BlockPos pos, BlockState state) {
+        this.dropProcessingInputs();
+        super.preRemoveSideEffects(pos, state);
     }
 
     public void runCommand(@Nullable Player player) {
@@ -150,7 +252,7 @@ public class SpacetimeSupercomputerBlockEntity extends BlockEntity implements IP
         if (cmd.startsWith("/")) {
             cmd = cmd.substring(1);
         }
-        if (cmd.startsWith("locate") || cmd.startsWith("time add") || cmd.startsWith("tick sprint")) {
+        if (SpacetimeSupercomputerBlockEntity.isCommandEnabled(cmd)) {
             if (this.chargingProgress >= 20f) {
                 if (cmd.startsWith("time add")) {
                     int timeAddConsumeProcess = SpacetimeSupercomputerBlockEntity.getTimeAddConsumeProcess(cmd);
@@ -203,6 +305,20 @@ public class SpacetimeSupercomputerBlockEntity extends BlockEntity implements IP
                 Component.translatable("block.anvilcraft.spacetime_supercomputer.no_supported_command")
             );
         }
+    }
+
+    private static boolean isCommandEnabled(String command) {
+        String[] parts = command.split(" ", 3);
+        if (parts.length < 2) return false;
+        var config = AnvilCraft.CONFIG.spacetimeSupercomputerCommand;
+        return switch (parts[0] + " " + parts[1]) {
+            case "locate biome" -> config.allowLocateBiomeCommand;
+            case "locate structure" -> config.allowLocateStructureCommand;
+            case "locate poi" -> config.allowLocatePoiCommand;
+            case "time add" -> config.allowTimeAddCommand;
+            case "tick sprint" -> config.allowTickSprintCommand;
+            default -> false;
+        };
     }
 
     private CommandSourceStack createCommandSource(@Nullable Player player) {
@@ -388,6 +504,10 @@ public class SpacetimeSupercomputerBlockEntity extends BlockEntity implements IP
         MinecraftServer server = this.level.getServer();
         if (server == null) return;
         String command = this.pendingTickSprintCommand;
+        if (!AnvilCraft.CONFIG.spacetimeSupercomputerCommand.allowTickSprintCommand) {
+            this.cancelTickSprintCountdown();
+            return;
+        }
         String normalizedCommand = command.startsWith("/") ? command.substring(1) : command;
         ServerPlayer player = this.pendingTickSprintPlayer == null
             ? null
@@ -505,5 +625,93 @@ public class SpacetimeSupercomputerBlockEntity extends BlockEntity implements IP
                 this.chargingProgress += Math.clamp(0.01667f, 0f, 100.0f);
             }
         }
+    }
+
+    public void setProcessingRecipe(@Nullable RecipeHolder<Multiblock4DRecipe> processingRecipe) {
+        this.processingRecipe = processingRecipe;
+        this.processingTotal = processingRecipe == null ? -1 : processingRecipe.value().getDefinitions().size();
+        this.onChange();
+    }
+
+    public void setProcessingStep(int processingStep) {
+        this.processingStep = processingStep;
+        this.onChange();
+    }
+
+    public void setProcessingSize(int processingSize) {
+        this.processingSize = processingSize;
+        this.onChange();
+    }
+
+    /**
+     * 批量更新处理状态并只触发一次 {@link #onChange()}，避免连续多个 setter 各自
+     * sendBlockUpdated + 逐玩家发包造成扇出。
+     */
+    public void setProcessingState(@Nullable RecipeHolder<Multiblock4DRecipe> recipe, int step, int size) {
+        this.processingRecipe = recipe;
+        this.processingStep = step;
+        this.processingSize = size;
+        this.processingTotal = recipe == null ? -1 : recipe.value().getDefinitions().size();
+        this.onChange();
+    }
+
+    /**
+     * 当前已成功合成的步数，尚未开始时为 0。
+     */
+    public int getProcessingProgress() {
+        this.resolvePendingRecipe();
+        return this.processingRecipe == null ? 0 : Math.max(0, this.processingStep);
+    }
+
+    /**
+     * 四维合成总步数。优先使用已同步的 total（客户端可能无法解析配方 holder），
+     * 否则从配方定义推断。
+     */
+    public int getProcessingTotal() {
+        this.resolvePendingRecipe();
+        if (this.processingTotal > 0) {
+            return this.processingTotal;
+        }
+        if (this.processingRecipe != null) {
+            return this.processingRecipe.value().getDefinitions().size();
+        }
+        return 0;
+    }
+
+    public void addPendingDrops(List<ItemStack> drops) {
+        if (drops.isEmpty()) {
+            return;
+        }
+        this.pendingDrops.addAll(drops);
+        this.setChanged();
+    }
+
+    public void clearPendingDrops() {
+        if (this.pendingDrops.isEmpty()) {
+            return;
+        }
+        this.pendingDrops.clear();
+        this.setChanged();
+    }
+
+    /**
+     * 拆除时空超算时调用：将已消耗步骤的材料以掉落物形式释放。
+     */
+    public void dropProcessingInputs() {
+        if (this.level == null || this.level.isClientSide()) {
+            return;
+        }
+        if (!(this.level instanceof ServerLevel serverLevel)) {
+            return;
+        }
+        List<ItemStack> drops = new ArrayList<>(this.pendingDrops);
+        this.pendingDrops.clear();
+
+        AnvilUtil.dropItems(drops, serverLevel, this.getBlockPos().below().getCenter());
+        this.processingRecipe = null;
+        this.processingStep = -1;
+        this.processingSize = -1;
+        this.processingTotal = -1;
+        this.onChange();
     }
 }

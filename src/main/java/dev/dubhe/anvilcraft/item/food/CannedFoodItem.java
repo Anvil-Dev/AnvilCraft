@@ -1,16 +1,23 @@
 package dev.dubhe.anvilcraft.item.food;
 
 import dev.dubhe.anvilcraft.api.item.IExtraItemDisplay;
+import dev.dubhe.anvilcraft.api.tooltip.providers.IItemTooltipProvider;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
+import dev.dubhe.anvilcraft.init.item.ModConsumables;
 import dev.dubhe.anvilcraft.item.property.component.StoredItem;
 import lombok.Getter;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.component.TooltipDisplay;
+
+import java.util.function.Consumer;
 
 @Getter
-public class CannedFoodItem extends Item implements IExtraItemDisplay {
+public class CannedFoodItem extends Item implements IExtraItemDisplay, IItemTooltipProvider {
     public CannedFoodItem(Properties properties) {
         super(properties);
     }
@@ -29,6 +36,7 @@ public class CannedFoodItem extends Item implements IExtraItemDisplay {
         canStack.set(ModComponents.DISPLAY_ITEM, new StoredItem(displayStack));
         FoodProperties copiedFood = displayStack.get(DataComponents.FOOD);
         if (copiedFood != null) {
+            canStack.set(DataComponents.CONSUMABLE, ModConsumables.FAST_FOOD);
             int nutrition = copiedFood.nutrition();
             float magnification = switch (foodStack.getCount()) {
                 case 1 -> 1;
@@ -45,6 +53,13 @@ public class CannedFoodItem extends Item implements IExtraItemDisplay {
             ));
         }
         return canStack;
+    }
+
+    @Override
+    public void appendItemTooltip(
+        ItemStack stack, TooltipContext context, TooltipDisplay display, Consumer<Component> builder, TooltipFlag flag
+    ) {
+        stack.addToTooltip(ModComponents.DISPLAY_ITEM, context, display, builder, flag);
     }
 
     @Override

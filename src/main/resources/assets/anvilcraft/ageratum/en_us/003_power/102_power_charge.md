@@ -32,8 +32,8 @@ items:
 
 <row halign="center">
 <recipe id="anvilcraft:charger_charging/magnet_ingot"/>
+<recipe id="anvilcraft:charger_charging/magnet_block"/>
 </row>
-
 
 # Input and Output Energy
 

@@ -1,0 +1,12 @@
+{
+  "rules": [
+    {
+      "item": "minecraft:small_dripleaf",
+      "properties": "half=lower"
+    },
+    {
+      "item": {},
+      "properties": "half=upper"
+    }
+  ]
+}

@@ -1,15 +1,21 @@
 package dev.dubhe.anvilcraft.util;
 
 import dev.dubhe.anvilcraft.block.entity.StructureScannerBlockEntity;
+import dev.dubhe.anvilcraft.building.BlueprintCapture;
+import dev.dubhe.anvilcraft.building.BlueprintNormalizer;
+import dev.dubhe.anvilcraft.building.ScannerDiskNormalizer;
+import dev.dubhe.anvilcraft.building.StructureSnapshot;
+import dev.dubhe.anvilcraft.building.StructureSnapshotCodec;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
+import dev.dubhe.anvilcraft.init.item.ModItems;
+import dev.dubhe.anvilcraft.item.property.component.StoredItem;
 import dev.dubhe.anvilcraft.item.property.component.StructureDiskData;
-import net.minecraft.SharedConstants;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.Vec3i;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.IntTag;
-import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtIo;
-import net.minecraft.nbt.NbtUtils;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
@@ -24,6 +30,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
@@ -45,34 +52,42 @@ public class StructureSaveUtil {
      * @param structureName 结构名称
      */
     public static void saveStructureToDisk(Level level, StructureScannerBlockEntity blockEntity, String structureName) {
+        saveStructureToDisk(level, blockEntity, structureName, true, ItemStack.EMPTY);
+    }
+
+    public static void saveStructureToDisk(
+        Level level, StructureScannerBlockEntity blockEntity, String structureName, boolean autoRotate, ItemStack marker
+    ) {
+        if (!blockEntity.isScanComplete() || !blockEntity.getOutputInventory().isEmpty()
+            || !blockEntity.getDiskInventory().getItem(0).is(ModItems.STRUCTURE_DISK)) return;
         if (level.isClientSide()) {
-            StructureSaveUtil.LOGGER.error("Failed to save structure: level is null or on client side");
+            LOGGER.error("Failed to save structure: level is null or on client side");
             return;
         }
 
         List<StructureScannerBlockEntity.CachedBlockData> scannedBlocks = blockEntity.getScannedBlocks();
         if (scannedBlocks.isEmpty()) {
-            StructureSaveUtil.LOGGER.warn("Cannot save structure: no blocks scanned");
+            LOGGER.warn("Cannot save structure: no blocks scanned");
             return;
         }
 
         try {
             // 构建结构NBT
-            final CompoundTag structureTag = StructureSaveUtil.buildStructureNBT(blockEntity, scannedBlocks);
+            final CompoundTag structureTag = buildStructureNBT(blockEntity, scannedBlocks);
 
             // 从输入槽取出磁盘
-            ItemStack diskStack = blockEntity.getDiskStack();
+            ItemStack diskStack = blockEntity.getDiskInventory().getItem(0);
             if (diskStack.isEmpty()) {
-                StructureSaveUtil.LOGGER.error("No structure disk in input slot");
+                LOGGER.error("No structure disk in input slot");
                 return;
             }
 
             // Sanitize and validate structure name to prevent path traversal
-            String sanitizedName = StructureSaveUtil.sanitizeStructureName(structureName);
+            String sanitizedName = sanitizeStructureName(structureName);
 
             // Handle null case: use a safe default name if sanitization fails
             if (sanitizedName == null || sanitizedName.trim().isEmpty()) {
-                StructureSaveUtil.LOGGER.warn("Invalid structure name '{}', using default name 'unnamed_structure'", structureName);
+                LOGGER.warn("Invalid structure name '{}', using default name 'unnamed_structure'", structureName);
                 sanitizedName = "unnamed_structure";
             }
 
@@ -81,102 +96,79 @@ public class StructureSaveUtil {
             String fileName = "%s_%s.nbt".formatted(sanitizedName, uuid);
 
             // 保存文件
-            Path baseDir = StructureSaveUtil.getStructureDirectory(level);
+            Path baseDir = getStructureDirectory(level);
             Path structureFile = baseDir.resolve(fileName);
 
             // Validate the resolved path stays within the intended directory
-            if (StructureSaveUtil.isPathOutsideBaseDirectory(structureFile, baseDir)) {
-                StructureSaveUtil.LOGGER.error("Path traversal attempt detected: {}", structureFile);
+            if (!isPathWithinBaseDirectory(structureFile, baseDir)) {
+                LOGGER.error("Path traversal attempt detected: {}", structureFile);
                 return;
             }
 
-            StructureSaveUtil.saveNbtFile(structureTag, structureFile);
+            saveNbtFile(structureTag, structureFile);
 
             // 获取扫描器的朝向
             Direction scannerFacing = blockEntity.getDirection();
+            var size = structureTag.getListOrEmpty("size");
 
             // 创建磁盘副本并附加结构信息
-            final ItemStack outputDisk = diskStack.copy();
+            final ItemStack outputDisk = diskStack.copyWithCount(1);
             StructureDiskData data = new StructureDiskData(
                 fileName,
                 structureName,
                 uuid,
                 scannerFacing,
-                blockEntity.getRangeX().get(),
-                blockEntity.getRangeY().get(),
-                blockEntity.getRangeZ().get()
+                size.getIntOr(0, 0),
+                size.getIntOr(1, 0),
+                size.getIntOr(2, 0),
+                false,
+                autoRotate
             );
             outputDisk.set(ModComponents.STRUCTURE_DISK_DATA, data);
+            if (marker.isEmpty()) outputDisk.remove(ModComponents.DISPLAY_ITEM);
+            else outputDisk.set(ModComponents.DISPLAY_ITEM, new StoredItem(marker.copyWithCount(1)));
 
             // 放入输出槽，清空输入槽和扫描结果
-            blockEntity.setOutputStack(outputDisk);
-            blockEntity.setDiskStack(ItemStack.EMPTY);
-            blockEntity.getScannedBlocks().clear();
-            blockEntity.setChanged();
+            blockEntity.getOutputInventory().setItem(0, outputDisk);
+            blockEntity.getDiskInventory().removeItem(0, 1);
+            blockEntity.clearScan();
 
-            StructureSaveUtil.LOGGER.info("Structure saved to disk: {} -> {} ({} blocks)", structureName, fileName, scannedBlocks.size());
+            LOGGER.info("Structure saved to disk: {} -> {} ({} blocks)", structureName, fileName, scannedBlocks.size());
 
         } catch (IOException e) {
-            StructureSaveUtil.LOGGER.error("Failed to save structure to disk: {}", e.getMessage(), e);
+            LOGGER.error("Failed to save structure to disk: {}", e.getMessage(), e);
         }
     }
 
     /**
      * 构建结构NBT数据（手动构建原版格式）
      */
-    private static CompoundTag buildStructureNBT(
+    public static CompoundTag buildStructureNBT(
         StructureScannerBlockEntity blockEntity,
         List<StructureScannerBlockEntity.CachedBlockData> scannedBlocks
     ) {
-        final int rangeX = blockEntity.getRangeX().get();
-        final int rangeY = blockEntity.getRangeY().get();
-        final int rangeZ = blockEntity.getRangeZ().get();
+        return StructureSnapshotCodec.write(buildSnapshot(blockEntity, scannedBlocks).snapshot());
+    }
 
-        CompoundTag tag = new CompoundTag();
-        tag.putInt("DataVersion", SharedConstants.getCurrentVersion().dataVersion().version());
-        tag.putString("author", "AnvilCraft Structure Scanner");
-
-        // size 字段
-        ListTag sizeTag = new ListTag();
-        sizeTag.add(IntTag.valueOf(rangeX));
-        sizeTag.add(IntTag.valueOf(rangeY));
-        sizeTag.add(IntTag.valueOf(rangeZ));
-        tag.put("size", sizeTag);
-
-        // palette 字段
+    public static BlueprintNormalizer.Result buildSnapshot(
+        StructureScannerBlockEntity blockEntity, List<StructureScannerBlockEntity.CachedBlockData> scannedBlocks
+    ) {
+        if (blockEntity.getLevel() instanceof ServerLevel serverLevel) {
+            return BlueprintCapture.capture(serverLevel, blockEntity.getScanBounds());
+        }
         List<BlockState> palette = new ArrayList<>();
-        ListTag paletteTag = new ListTag();
-
-        for (StructureScannerBlockEntity.CachedBlockData data : scannedBlocks) {
-            if (!palette.contains(data.state())) {
-                palette.add(data.state());
-                paletteTag.add(NbtUtils.writeBlockState(data.state()));
-            }
+        List<StructureSnapshot.BlockEntry> blocks = new ArrayList<>();
+        for (var data : scannedBlocks) {
+            if (!palette.contains(data.state())) palette.add(data.state());
+            blocks.add(new StructureSnapshot.BlockEntry(new BlockPos(data.x(), data.y(), data.z() - 1),
+                palette.indexOf(data.state()), Optional.ofNullable(data.nbt()).map(CompoundTag::copy)));
         }
-        tag.put("palette", paletteTag);
-
-        // blocks 字段
-        ListTag blocksTag = new ListTag();
-        for (StructureScannerBlockEntity.CachedBlockData data : scannedBlocks) {
-            final CompoundTag blockTag = new CompoundTag();
-
-            ListTag posTag = new ListTag();
-            posTag.add(IntTag.valueOf(data.x()));
-            posTag.add(IntTag.valueOf(data.y()));
-            posTag.add(IntTag.valueOf(data.z() - 1));
-            blockTag.put("pos", posTag);
-
-            int paletteIndex = palette.indexOf(data.state());
-            if (paletteIndex >= 0) {
-                blockTag.putInt("state", paletteIndex);
-            }
-
-            blocksTag.add(blockTag);
-        }
-        tag.put("blocks", blocksTag);
-        tag.put("entities", new ListTag());
-
-        return tag;
+        List<StructureSnapshot.EntityEntry> entities = blockEntity.captureEntities().stream().map(entity ->
+            new StructureSnapshot.EntityEntry(entity.pos(), entity.blockPos(), entity.nbt())).toList();
+        Vec3i size = new Vec3i(blockEntity.getRangeX().get(), blockEntity.getRangeY().get(), blockEntity.getRangeZ().get());
+        StructureSnapshot raw = new StructureSnapshot(size, palette, blocks, entities);
+        return BlueprintNormalizer.normalize(ScannerDiskNormalizer.normalize(raw,
+            blockEntity.getDirection(), blockEntity.isScannerUpsideDown()));
     }
 
     /**
@@ -213,12 +205,12 @@ public class StructureSaveUtil {
         }
 
         // Check length
-        if (name.length() > StructureSaveUtil.MAX_STRUCTURE_NAME_LENGTH) {
+        if (name.length() > MAX_STRUCTURE_NAME_LENGTH) {
             return null;
         }
 
-        // Validate against whitelist pattern
-        if (!StructureSaveUtil.VALID_STRUCTURE_NAME.matcher(name).matches()) {
+        // Validate against allowlist pattern
+        if (!VALID_STRUCTURE_NAME.matcher(name).matches()) {
             return null;
         }
 
@@ -233,19 +225,19 @@ public class StructureSaveUtil {
     }
 
     /**
-     * Validate that the resolved path escapes the base directory
+     * Validate that the resolved path stays within the base directory
      * Prevents path traversal attacks using sequences
      */
-    private static boolean isPathOutsideBaseDirectory(Path resolvedPath, Path baseDir) {
+    private static boolean isPathWithinBaseDirectory(Path resolvedPath, Path baseDir) {
         try {
             Path normalizedResolved = resolvedPath.toAbsolutePath().normalize();
             Path normalizedBase = baseDir.toAbsolutePath().normalize();
 
-            // Check if the resolved path escapes the base directory
-            return !normalizedResolved.startsWith(normalizedBase);
+            // Check if the resolved path starts with the base directory
+            return normalizedResolved.startsWith(normalizedBase);
         } catch (Exception e) {
-            StructureSaveUtil.LOGGER.error("Error validating path: {}", e.getMessage());
-            return true;
+            LOGGER.error("Error validating path: {}", e.getMessage());
+            return false;
         }
     }
 }

@@ -59,12 +59,21 @@ public class HollowMagnetBlock extends MagnetBlock implements SimpleWaterloggedB
     }
 
     @Override
-
     public VoxelShape getShape(
         BlockState blockState,
         BlockGetter blockGetter,
         BlockPos blockPos,
         CollisionContext collisionContext) {
+        return Shapes.block();
+    }
+
+    @Override
+    protected VoxelShape getCollisionShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+        return HollowMagnetBlock.AABB;
+    }
+
+    @Override
+    protected VoxelShape getOcclusionShape(BlockState state) {
         return HollowMagnetBlock.AABB;
     }
 

@@ -1,0 +1,15 @@
+{
+  "type": "anvilcraft:super_heating",
+  "consume": 250,
+  "fluid": "minecraft:lava",
+  "ingredients": [
+    {
+      "items": "minecraft:netherite_block"
+    }
+  ],
+  "results": [
+    {
+      "id": "anvilcraft:heated_netherite_block"
+    }
+  ]
+}

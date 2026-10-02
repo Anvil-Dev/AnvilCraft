@@ -1,0 +1,13 @@
+{
+  "type": "anvilcraft:laser_hit",
+  "hit_time": 480,
+  "input": {
+    "blocks": "minecraft:ancient_debris"
+  },
+  "laser_strength": 4,
+  "priority": -70,
+  "result_block": {
+    "Name": "minecraft:netherrack"
+  },
+  "use_block_loot": true
+}

@@ -1,35 +1,42 @@
 package dev.dubhe.anvilcraft.client.renderer.blockentity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.QuadInstance;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import dev.dubhe.anvilcraft.block.entity.CorruptedBeaconBlockEntity;
 import dev.dubhe.anvilcraft.block.workstation.CorruptedBeaconBlock;
 import dev.dubhe.anvilcraft.client.init.ModRenderTypes;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.state.CorruptedBeaconRenderState;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.client.renderer.block.dispatch.BlockStateModelPart;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
+import net.minecraft.client.resources.model.geometry.BakedQuad;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
 import org.jspecify.annotations.Nullable;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class CorruptedBeaconRenderer implements BlockEntityRenderer<CorruptedBeaconBlockEntity, CorruptedBeaconRenderState> {
 
+    private static final int GLASS_COLOR = 0x4C6D01CE;
     private static final float BEAM_BASE_Y = 0.5f;
     private static final float BEAM_INNER_HALF = 0.08f;
     private static final int BEAM_GLOW_LAYERS = 4;
-    private static final float BEAM_GLOW_HALF_STEP = 0.02f;
-    private static final float CORE_R = 0.008f;
-    private static final float CORE_G = 0.0f;
-    private static final float CORE_B = 0.018f;
-    private static final float GLOW_R = 0.055f;
-    private static final float GLOW_G = 0.004f;
-    private static final float GLOW_B = 0.095f;
+    private static final float BEAM_GLOW_HALF_STEP = 0.06f;
+    private static final float BEAM_R = 0.02f;
+    private static final float BEAM_G = 0.0f;
+    private static final float BEAM_B = 0.05f;
 
     public CorruptedBeaconRenderer(BlockEntityRendererProvider.Context ignored) {
     }
@@ -48,8 +55,20 @@ public class CorruptedBeaconRenderer implements BlockEntityRenderer<CorruptedBea
         ModelFeatureRenderer.@Nullable CrumblingOverlay breakProgress
     ) {
         BlockEntityRenderer.super.extractRenderState(be, state, partialTicks, cameraPosition, breakProgress);
+        List<BakedQuad> quads = new ArrayList<>();
+        var client = Minecraft.getInstance();
+        if (client.level != null && be.getLevel() != null) {
+            BlockState white = Blocks.WHITE_CONCRETE.defaultBlockState();
+            var model = client.getModelManager().getBlockStateModelSet().get(white);
+            List<BlockStateModelPart> parts = new ArrayList<>();
+            model.collectParts(client.level, be.getBlockPos(), white, client.level.getRandom(), parts);
+            for (BlockStateModelPart part : parts) {
+                for (Direction direction : Direction.values()) quads.addAll(part.getQuads(direction));
+            }
+        }
+        state.setGlassQuads(List.copyOf(quads));
         BlockState blockState = be.getBlockState();
-        boolean lit = blockState.hasProperty(CorruptedBeaconBlock.LIT)
+        boolean lit = be.getLevel() != null && blockState.hasProperty(CorruptedBeaconBlock.LIT)
             && blockState.getValue(CorruptedBeaconBlock.LIT);
         state.setLit(lit);
         int beamTopY = be.getBeamHeight();
@@ -64,82 +83,68 @@ public class CorruptedBeaconRenderer implements BlockEntityRenderer<CorruptedBea
         SubmitNodeCollector collector,
         CameraRenderState camera
     ) {
+        var quads = state.getGlassQuads();
+        int light = state.lightCoords;
+        if (!quads.isEmpty()) {
+            pose.pushPose();
+            pose.translate(0.005f, 0.005f, 0.005f);
+            pose.scale(0.99f, 0.99f, 0.99f);
+            collector.submitCustomGeometry(pose, ModRenderTypes.BEACON_GLASS, (last, consumer) -> {
+                QuadInstance instance = new QuadInstance();
+                instance.setColor(GLASS_COLOR);
+                instance.setLightCoords(light);
+                quads.forEach(quad -> consumer.putBakedQuad(last, quad, instance));
+            });
+            pose.popPose();
+        }
         if (!state.isLit()) return;
         float beamHeight = state.getBeamHeight();
-        if (beamHeight <= 0.01f) return;
+        if (beamHeight <= 0.5f) return;
+        collector.submitCustomGeometry(
+            pose,
+            ModRenderTypes.CORRUPTED_BEACON_BEAM_CORE,
+            (last, consumer) -> CorruptedBeaconRenderer.emitBeamPyramid(
+                consumer, last.pose(), CorruptedBeaconRenderer.BEAM_INNER_HALF,
+                CorruptedBeaconRenderer.BEAM_BASE_Y + beamHeight,
+                CorruptedBeaconRenderer.BEAM_R, CorruptedBeaconRenderer.BEAM_G, CorruptedBeaconRenderer.BEAM_B, 1.0f, 1.0f)
+        );
         collector.submitCustomGeometry(
             pose,
             ModRenderTypes.CORRUPTED_BEACON_BEAM,
-            (last, consumer) -> CorruptedBeaconRenderer.emitBeaconBeam(consumer, last.pose(), beamHeight)
+            (last, consumer) -> CorruptedBeaconRenderer.renderBeamGlow(
+                consumer, last.pose(), 0.5f, CorruptedBeaconRenderer.BEAM_BASE_Y, 0.5f, beamHeight, 1.0f)
         );
     }
 
     public static void renderWeaponBeam(VertexConsumer consumer, Matrix4f matrix, float length) {
-        for (int layer = CorruptedBeaconRenderer.BEAM_GLOW_LAYERS; layer >= 1; layer--) {
-            float half = CorruptedBeaconRenderer.BEAM_INNER_HALF + CorruptedBeaconRenderer.BEAM_GLOW_HALF_STEP * layer * 0.5F;
-            float falloff = 1.0F / (layer + 1);
-            float alpha = 0.65F * falloff;
-            CorruptedBeaconRenderer.emitBeamPyramid(
-                consumer,
-                matrix,
-                0.0F,
-                0.0F,
-                0.0F,
-                half,
-                length,
-                CorruptedBeaconRenderer.GLOW_R,
-                CorruptedBeaconRenderer.GLOW_G,
-                CorruptedBeaconRenderer.GLOW_B,
-                alpha,
-                0.24F * falloff
-            );
-        }
+        CorruptedBeaconRenderer.renderBeamGlow(consumer, matrix, 0.0f, 0.0f, 0.0f, length, 0.5f);
         CorruptedBeaconRenderer.emitBeamPyramid(
-            consumer,
-            matrix,
-            0.0F,
-            0.0F,
-            0.0F,
-            CorruptedBeaconRenderer.BEAM_INNER_HALF,
-            length,
-            CorruptedBeaconRenderer.CORE_R,
-            CorruptedBeaconRenderer.CORE_G,
-            CorruptedBeaconRenderer.CORE_B,
-            0.94F,
-            0.22F
+            consumer, matrix, 0.0f, 0.0f, 0.0f, CorruptedBeaconRenderer.BEAM_INNER_HALF, length,
+            CorruptedBeaconRenderer.BEAM_R, CorruptedBeaconRenderer.BEAM_G, CorruptedBeaconRenderer.BEAM_B, 0.82f, 0.25f
         );
     }
 
-    private static void emitBeaconBeam(VertexConsumer consumer, Matrix4f matrix, float beamHeight) {
-        float apexY = CorruptedBeaconRenderer.BEAM_BASE_Y + beamHeight;
+    private static void renderBeamGlow(
+        VertexConsumer consumer,
+        Matrix4f matrix,
+        float centerX,
+        float baseY,
+        float centerZ,
+        float length,
+        float glowSpreadScale
+    ) {
+        float apexY = baseY + length;
         for (int layer = CorruptedBeaconRenderer.BEAM_GLOW_LAYERS; layer >= 1; layer--) {
-            float half = CorruptedBeaconRenderer.BEAM_INNER_HALF + CorruptedBeaconRenderer.BEAM_GLOW_HALF_STEP * layer;
+            float half = CorruptedBeaconRenderer.BEAM_INNER_HALF
+                + CorruptedBeaconRenderer.BEAM_GLOW_HALF_STEP * layer * glowSpreadScale;
             float falloff = 1.0f / (layer + 1);
-            float alpha = 0.65f * falloff;
-            float tipFade = 0.24f * falloff;
+            falloff *= falloff;
             CorruptedBeaconRenderer.emitBeamPyramid(
-                consumer,
-                matrix,
-                half,
-                apexY,
-                CorruptedBeaconRenderer.GLOW_R,
-                CorruptedBeaconRenderer.GLOW_G,
-                CorruptedBeaconRenderer.GLOW_B,
-                alpha,
-                tipFade
+                consumer, matrix, centerX, baseY, centerZ, half, apexY,
+                CorruptedBeaconRenderer.BEAM_R, CorruptedBeaconRenderer.BEAM_G, CorruptedBeaconRenderer.BEAM_B,
+                0.45f * falloff, 0.3f * falloff
             );
         }
-        CorruptedBeaconRenderer.emitBeamPyramid(
-            consumer,
-            matrix,
-            CorruptedBeaconRenderer.BEAM_INNER_HALF,
-            apexY,
-            CorruptedBeaconRenderer.CORE_R,
-            CorruptedBeaconRenderer.CORE_G,
-            CorruptedBeaconRenderer.CORE_B,
-            0.94f,
-            0.22f
-        );
     }
 
     private static void emitBeamPyramid(

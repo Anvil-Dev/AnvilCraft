@@ -14,7 +14,7 @@
     "description": {
       "translate": "advancements.anvilcraft.nuclear_power_10a.description"
     },
-    "frame": "goal",
+    "frame": "challenge",
     "icon": {
       "id": "anvilcraft:heat_collector"
     },

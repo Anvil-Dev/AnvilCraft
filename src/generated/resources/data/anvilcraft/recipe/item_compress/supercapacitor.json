@@ -6,7 +6,7 @@
       "type": "anvillib_recipe:has_item_ingredient",
       "item": {
         "count": 2,
-        "items": "#c:plates/iron"
+        "items": "minecraft:copper_block"
       },
       "offset": [
         0.0,
@@ -58,6 +58,9 @@
   "non_conflicting": [
     {
       "type": "anvilcraft:has_cauldron",
+      "fluid": {
+        "amount": 0
+      },
       "offset": [
         0.0,
         -1.0,

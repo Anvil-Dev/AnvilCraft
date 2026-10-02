@@ -128,3 +128,25 @@ reference/
 
 libs/
 /AGENT.md
+
+# Python cache from port validation tools
+/dev/porting/__pycache__/
+
+# Local tests and port-validation fixtures (never publish or commit)
+/dev/porting/
+**/src/test/
+**/src/testFixtures/
+**/src/gameTest/
+**/src/gametest/
+**/src/clientTest/
+**/src/integrationTest/
+**/test/
+**/tests/
+**/gametest/
+**/gametests/
+**/test-results/
+**/test-reports/
+**/*Test.java
+**/*Tests.java
+**/data/*/test_instance/
+**/data/*/test_environment/

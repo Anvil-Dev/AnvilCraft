@@ -1,0 +1,8 @@
+{
+  "rules": [
+    {
+      "item": "minecraft:cocoa_beans",
+      "properties": "age=0"
+    }
+  ]
+}

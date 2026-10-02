@@ -20,11 +20,15 @@ import dev.dubhe.anvilcraft.advancements.criterion.InWorldRecipeTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.MagnetLiftingAnvilTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.MilkTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.MineralFountainCreateTrigger;
+import dev.dubhe.anvilcraft.advancements.criterion.MultiBlockFormTrigger;
+import dev.dubhe.anvilcraft.advancements.criterion.PipeConnectContainersTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.PlacerPlaceTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.PlacerShuttleTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.PlayerKilledEntityByAnvilHammerTrigger;
+import dev.dubhe.anvilcraft.advancements.criterion.PlayerWearAnvilHammerTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.UseItemTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.VoidCollectorTrigger;
+import dev.dubhe.anvilcraft.advancements.criterion.VoidEnergyCollectorWorkingTrigger;
 import net.minecraft.advancements.CriterionTrigger;
 import net.minecraft.core.registries.Registries;
 import net.neoforged.bus.api.IEventBus;
@@ -158,6 +162,18 @@ public class ModCriterionTriggers {
 
     public static final DeferredHolder<CriterionTrigger<?>, BlockComparatorTurnOverTrigger> BLOCK_COMPARATOR_TURN_OVER =
         ModCriterionTriggers.REGISTER.register("block_comparator_turn_over", BlockComparatorTurnOverTrigger::new);
+
+    public static final DeferredHolder<CriterionTrigger<?>, MultiBlockFormTrigger> MULTI_BLOCK_FORM =
+        ModCriterionTriggers.REGISTER.register("multi_block_form", MultiBlockFormTrigger::new);
+
+    public static final DeferredHolder<CriterionTrigger<?>, PlayerWearAnvilHammerTrigger> PLAYER_WEAR_ANVIL_HAMMER =
+        ModCriterionTriggers.REGISTER.register("player_wear_anvil_hammer", PlayerWearAnvilHammerTrigger::new);
+
+    public static final DeferredHolder<CriterionTrigger<?>, PipeConnectContainersTrigger> PIPE_CONNECT_CONTAINERS =
+        ModCriterionTriggers.REGISTER.register("pipe_connect_containers", PipeConnectContainersTrigger::new);
+
+    public static final DeferredHolder<CriterionTrigger<?>, VoidEnergyCollectorWorkingTrigger> VOID_ENERGY_COLLECTOR_WORKING =
+        ModCriterionTriggers.REGISTER.register("void_energy_collector_working", VoidEnergyCollectorWorkingTrigger::new);
 
     public static void register(IEventBus eventBus) {
         ModCriterionTriggers.REGISTER.register(eventBus);

@@ -17,6 +17,7 @@ import net.minecraft.world.entity.EntityProcessor;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -27,8 +28,11 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.entity.SpawnerBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.Vec3;
 
 public class ResinBlockItem extends HasMobBlockItem {
+    private static final double PULL_DISTANCE = 0.75;
+
     public ResinBlockItem(Block block, Properties properties) {
         super(block, properties);
     }
@@ -82,11 +86,25 @@ public class ResinBlockItem extends HasMobBlockItem {
 
     /// 右键实体
     public static InteractionResult useEntity(Player player, Entity target, ItemStack stack) {
-        if (!(target instanceof Mob mob && HasMobBlockItem.canMobBeSaved(mob, player, stack))) {
-            return InteractionResult.PASS;
+        if (!(target instanceof Mob mob)) return InteractionResult.PASS;
+        if (HasMobBlockItem.canMobBeSaved(mob, player, stack)) {
+            ResinBlockItem.saveMobInItem(player.level(), mob, player, stack);
+            return InteractionResult.SUCCESS;
         }
-        ResinBlockItem.saveMobInItem(player.level(), mob, player, stack);
+        if (ResinBlockItem.hasMob(stack)) return InteractionResult.PASS;
+        if (!player.level().isClientSide()) {
+            ResinBlockItem.pullMobTowardPlayer(player, mob);
+        }
         return InteractionResult.SUCCESS;
+    }
+
+    private static void pullMobTowardPlayer(Player player, Mob mob) {
+        Vec3 toward = player.position().subtract(mob.position());
+        Vec3 offset = new Vec3(toward.x, 0.0, toward.z);
+        if (offset.lengthSqr() < 1.0E-6) return;
+        float size = Math.max(mob.getBbWidth(), mob.getBbHeight());
+        double distance = ResinBlockItem.PULL_DISTANCE / Math.max(1.0, size);
+        mob.move(MoverType.SELF, offset.normalize().scale(distance));
     }
 
     @SuppressWarnings("deprecation")

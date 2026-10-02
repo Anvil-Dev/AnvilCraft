@@ -127,7 +127,7 @@ public class BlockCompressCategory implements IRecipeCategory<RecipeHolder<Block
                 .orElse(input.getFirst());
             RenderSupport.renderBlock(graphics, renderedState, 40, 30 + 10 * i, 20);
         }
-        int anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(this.timer);
+        float anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(this.timer);
         RenderSupport.renderBlock(graphics, Blocks.ANVIL.defaultBlockState(), 40, 12 + anvilYOffset, 20);
 
         RenderSupport.renderBlock(graphics, recipe.getFirstResultBlock().state(), 100, 40, 20);

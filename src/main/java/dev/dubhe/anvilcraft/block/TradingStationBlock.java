@@ -182,6 +182,11 @@ public class TradingStationBlock
 
     @Override
     protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+        return this.getPartShape(state);
+    }
+
+    @Override
+    public VoxelShape getPartShape(BlockState state) {
         if (state.getValue(TradingStationBlock.HALF) == DirectionVertical2PartHalf.TOP) return Shapes.empty();
         return switch (state.getValue(TradingStationBlock.FACING)) {
             case NORTH -> TradingStationBlock.NORTH;

@@ -29,7 +29,7 @@ public class IonoCraftBackpackExhaustParticle extends SingleQuadParticle {
         this.rCol = 1.0F;
         this.gCol = 1.0F;
         this.bCol = 1.0F;
-        this.quadSize = 0.15F * (this.random.nextFloat() * 0.5F + 0.5F);
+        this.quadSize = 0.08F * (this.random.nextFloat() * 0.5F + 0.5F);
         this.lifetime = (int) (20.0 / ((double) this.random.nextFloat() * 0.5 + 0.5));
         this.setSpriteFromAge(sprites);
         this.alpha = 0.6F;
@@ -48,7 +48,7 @@ public class IonoCraftBackpackExhaustParticle extends SingleQuadParticle {
         float progress = (float) this.age / (float) this.lifetime;
         this.alpha = 0.6F * (1.0F - progress);
         // 粒子逐渐变大
-        this.quadSize += 0.002F;
+        this.quadSize += 0.001F;
     }
 
     public static class Provider implements ParticleProvider<SimpleParticleType> {

@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.api.fluid.network;
 
+import dev.dubhe.anvilcraft.block.entity.StorageFluidPortBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.fluid.AbstractPipeBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.fluid.ControlValveBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.fluid.PumpBlockEntity;
@@ -10,17 +11,22 @@ import dev.dubhe.anvilcraft.block.fluid.PumpBlock;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
 import java.util.EnumMap;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * 从一个种子管道位置出发，flood-fill 出整张流体管道网络：
@@ -40,20 +46,25 @@ public final class FluidNetworkScanner {
     private FluidNetworkScanner() {
     }
 
-    /**
-     * 判断一个方块是否为管道部件（直管/弯管/节点/泵/控制阀）。
-     */
+    /** 判断一个方块是否为管道部件（直管/弯管/节点/泵/控制阀）。 */
     public static boolean isPipePart(BlockState state) {
         return state.getBlock() instanceof PipeBlock
-               || state.getBlock() instanceof PumpBlock
-               || state.getBlock() instanceof ControlValveBlock;
+            || state.getBlock() instanceof PumpBlock
+            || state.getBlock() instanceof ControlValveBlock;
     }
 
-    /**
-     * 判断某位置是否为流体容器（提供 ResourceHandler<FluidResource> 且非管道部件）。供管理器剔除失效容器用。
-     */
+    /** 判断某位置是否为流体容器（提供 ResourceHandler<FluidResource> 且非管道部件）。供管理器剔除失效容器用。 */
     public static boolean isContainer(Level level, BlockPos pos) {
-        return !FluidNetworkScanner.isPipePart(level.getBlockState(pos)) && FluidContainerLookup.find(level, pos, null) != null;
+        return isContainer(level, pos, level.getBlockEntity(pos));
+    }
+
+    /** 使用指定的方块实体判断容器，避免在实体加载事件中重复查找。 */
+    public static boolean isContainer(Level level, BlockPos pos, @Nullable BlockEntity blockEntity) {
+        BlockState state = blockEntity == null ? level.getBlockState(pos) : blockEntity.getBlockState();
+        if (isPipePart(state)) {
+            return false;
+        }
+        return FluidContainerLookup.findAny(level, pos, blockEntity) != null;
     }
 
     /**
@@ -76,15 +87,29 @@ public final class FluidNetworkScanner {
     }
 
     /**
-     * 泵当前提供的单侧扬程势场：通电工作时为 {@value #PUMP_HALF_LIFT}，断电/过载/红石关闭时为 0
-     * （此时泵仍是二极管单向连通，只是不主动提供扬程）。
+     * 泵当前是否作为有向势能边工作。关闭/断电/过载时泵只是普通连通管段，
+     * 不提供扬程也不参与单向约束。
+     */
+    static boolean isPumpWorking(Level level, BlockPos pumpPos) {
+        BlockState state = level.getBlockState(pumpPos);
+        if (!(state.getBlock() instanceof PumpBlock)) {
+            return false;
+        }
+        return !state.getValue(PumpBlock.POWERED)
+            && !state.getValue(PumpBlock.OVERLOAD)
+            && level.getBlockEntity(pumpPos) instanceof PumpBlockEntity pbe
+            && pbe.canPump();
+    }
+
+    /**
+     * 泵当前提供的单侧扬程势场：通电工作时为 {@value #PUMP_HALF_LIFT}，断电/过载/红石关闭时为 0。
      */
     private static int pumpHalfLift(Level level, BlockPos pumpPos) {
-        return level.getBlockEntity(pumpPos) instanceof PumpBlockEntity pbe && pbe.canPump() ? FluidNetworkScanner.PUMP_HALF_LIFT : 0;
+        return isPumpWorking(level, pumpPos) ? PUMP_HALF_LIFT : 0;
     }
 
     private static FluidContainerLookup.Result container(Level level, BlockPos pos, Direction sideToPipe) {
-        if (FluidNetworkScanner.isPipePart(level.getBlockState(pos))) {
+        if (isPipePart(level.getBlockState(pos))) {
             return null;
         }
         return FluidContainerLookup.find(level, pos, sideToPipe);
@@ -96,7 +121,7 @@ public final class FluidNetworkScanner {
      * @return 网络对象；种子非管道部件时返回 {@code null}
      */
     public static FluidPipeNetwork scan(Level level, BlockPos seed) {
-        if (!FluidNetworkScanner.isPipePart(level.getBlockState(seed))) {
+        if (!isPipePart(level.getBlockState(seed))) {
             return null;
         }
 
@@ -105,8 +130,9 @@ public final class FluidNetworkScanner {
         Map<BlockPos, ValveState> valves = new HashMap<>();
         Map<BlockPos, Direction> diodes = new HashMap<>();
         Map<BlockPos, Map<Direction, Direction>> faceFlow = new HashMap<>();
-        List<FluidEndpoint> endpoints = new ArrayList<>();
-        Map<ResourceHandler<FluidResource>, Boolean> seenHandlers = new HashMap<>();
+        Set<BlockPos> glassPipePositions = new HashSet<>();
+        Map<BlockPos, FluidEndpoint> endpoints = new LinkedHashMap<>();
+        Set<ResourceHandler<FluidResource>> seenHandlers = new HashSet<>();
         Deque<BlockPos> queue = new ArrayDeque<>();
 
         potential.put(seed, 0);
@@ -117,153 +143,108 @@ public final class FluidNetworkScanner {
             int phi = potential.get(pos);
             BlockState state = level.getBlockState(pos);
 
-            if (state.getBlock() instanceof ControlValveBlock && level.getBlockEntity(pos) instanceof ControlValveBlockEntity valveBe) {
+            if (state.getBlock() instanceof ControlValveBlock
+                && level.getBlockEntity(pos) instanceof ControlValveBlockEntity valveBe) {
                 valves.putIfAbsent(pos, new ValveState(valveBe));
-                FluidNetworkScanner.expandAxial(
-                    level,
-                    pos,
-                    state.getValue(ControlValveBlock.AXIS),
-                    phi,
-                    false,
-                    potential,
-                    adjacency,
-                    queue,
-                    endpoints,
-                    seenHandlers
-                );
+                expandAxial(level, pos, state.getValue(ControlValveBlock.AXIS), phi, false,
+                    potential, adjacency, queue, endpoints, seenHandlers);
             } else if (state.getBlock() instanceof PumpBlock) {
-                // 记录泵的进液侧（二极管：仅允许 进液侧→另一侧 通过流体）
-                diodes.put(pos.immutable(), state.getValue(PumpBlock.ORIENTATION).getDirection());
-                FluidNetworkScanner.expandPump(level, pos, state, phi, potential, adjacency, queue, endpoints, seenHandlers);
-            } else if (state.getBlock() instanceof PipeBlock) {
-                // 管道面止逆阀（HAS_CHECK_VALVE 属性需后续添加到 PipeBlock）
-                // TODO: re-enable when PipeBlock gets HAS_CHECK_VALVE property
-                if (state.getValue(PipeBlock.HAS_CHECK_VALVE)
-                    && level.getBlockEntity(pos) instanceof AbstractPipeBlockEntity pipe) {
-                    Map<Direction, Direction> flows = pipe.effectiveFlows();
-                    if (!flows.isEmpty()) {
-                        faceFlow.put(pos.immutable(), new EnumMap<>(flows));
-                    }
+                // 仅工作中的泵作为二极管参与方向约束；关闭/断电的泵是普通连通管段。
+                // 否则关闭泵后普通输入路径也会被这个单向约束卡住（见 #4349 的并联回路）。
+                if (isPumpWorking(level, pos)) {
+                    // getDirection() 是泵的源/吸入侧，二极管只允许源侧 → 对侧。
+                    diodes.put(pos.immutable(), state.getValue(PumpBlock.ORIENTATION).getDirection());
                 }
-                FluidNetworkScanner.expandPipe(level, pos, state, phi, potential, adjacency, queue, endpoints, seenHandlers);
+                expandPump(level, pos, state, phi, potential, adjacency, queue, endpoints, seenHandlers);
+            } else if (state.getBlock() instanceof PipeBlock pipe) {
+                if (pipe.isGlassPipe()) {
+                    glassPipePositions.add(pos.immutable());
+                }
+                // 记录管道面止逆阀约束（若有）
+                if (state.getValue(PipeBlock.HAS_CHECK_VALVE)
+                    && level.getBlockEntity(pos) instanceof AbstractPipeBlockEntity cv
+                    && !cv.isEmpty()) {
+                    faceFlow.put(pos.immutable(), new EnumMap<>(cv.effectiveFlows()));
+                }
+                expandPipe(level, pos, state, phi, potential, adjacency, queue, endpoints, seenHandlers);
             }
         }
 
-        return new FluidPipeNetwork(level, potential.keySet(), adjacency, valves, diodes, faceFlow, endpoints);
+        return new FluidPipeNetwork(
+            level, potential.keySet(), adjacency, valves, diodes, faceFlow,
+            glassPipePositions, new ArrayList<>(endpoints.values()));
     }
 
-    /**
-     * 记录一条 part↔part 无向邻接边。
-     */
+    /** 记录一条 part↔part 无向邻接边。 */
     private static void link(Map<BlockPos, List<BlockPos>> adjacency, BlockPos a, BlockPos b) {
         BlockPos immutableA = a.immutable();
         BlockPos immutableB = b.immutable();
-        List<BlockPos> fromA = adjacency.computeIfAbsent(immutableA, _ -> new ArrayList<>());
-        if (!fromA.contains(immutableB)) fromA.add(immutableB);
-        List<BlockPos> fromB = adjacency.computeIfAbsent(immutableB, _ -> new ArrayList<>());
-        if (!fromB.contains(immutableA)) fromB.add(immutableA);
+        List<BlockPos> fromA = adjacency.computeIfAbsent(immutableA, k -> new ArrayList<>());
+        if (!fromA.contains(immutableB)) {
+            fromA.add(immutableB);
+        }
+        List<BlockPos> fromB = adjacency.computeIfAbsent(immutableB, k -> new ArrayList<>());
+        if (!fromB.contains(immutableA)) {
+            fromB.add(immutableA);
+        }
     }
 
-    /**
-     * 展开直管/弯管/节点的所有连接方向。
-     */
+    /** 展开直管/弯管/节点的所有连接方向。 */
     private static void expandPipe(
-        Level level,
-        BlockPos pos,
-        BlockState state,
-        int phi,
-        Map<BlockPos, Integer> potential,
-        Map<BlockPos, List<BlockPos>> adjacency,
-        Deque<BlockPos> queue,
-        List<FluidEndpoint> endpoints,
-        Map<ResourceHandler<FluidResource>, Boolean> seenHandlers
+        Level level, BlockPos pos, BlockState state, int phi,
+        Map<BlockPos, Integer> potential, Map<BlockPos, List<BlockPos>> adjacency,
+        Deque<BlockPos> queue, Map<BlockPos, FluidEndpoint> endpoints, Set<ResourceHandler<FluidResource>> seenHandlers
     ) {
         for (Direction dir : Direction.values()) {
-            if (!FluidNetworkScanner.hasAnyConnectionToward(state, dir)) {
+            if (!hasAnyConnectionToward(state, dir)) {
                 continue;
             }
-            FluidNetworkScanner.visitNeighbor(level, pos, dir, phi, potential, adjacency, queue, endpoints, seenHandlers);
+            visitNeighbor(level, pos, dir, phi, potential, adjacency, queue, endpoints, seenHandlers);
         }
     }
 
-    /**
-     * 展开泵的两个轴端（通电时带 ±扬程势场，断电时 ±0 但仍连通）。
-     */
+    /** 展开泵的两个轴端（通电时带 ±扬程势场，断电时 ±0 但仍连通）。 */
     private static void expandPump(
-        Level level,
-        BlockPos pos,
-        BlockState state,
-        int phi,
-        Map<BlockPos, Integer> potential,
-        Map<BlockPos, List<BlockPos>> adjacency,
-        Deque<BlockPos> queue,
-        List<FluidEndpoint> endpoints,
-        Map<ResourceHandler<FluidResource>, Boolean> seenHandlers
+        Level level, BlockPos pos, BlockState state, int phi,
+        Map<BlockPos, Integer> potential, Map<BlockPos, List<BlockPos>> adjacency,
+        Deque<BlockPos> queue, Map<BlockPos, FluidEndpoint> endpoints, Set<ResourceHandler<FluidResource>> seenHandlers
     ) {
         Direction outputDir = state.getValue(PumpBlock.ORIENTATION).getDirection();
-        int lift = FluidNetworkScanner.pumpHalfLift(level, pos);
-        for (Direction side : new Direction[]{
-            outputDir,
-            outputDir.getOpposite()
-        }) {
+        int lift = pumpHalfLift(level, pos);
+        for (Direction side : new Direction[]{outputDir, outputDir.getOpposite()}) {
             int neighborPhi = phi + (side == outputDir ? lift : -lift);
-            FluidNetworkScanner.visitNeighborWithPhi(level, pos, side, neighborPhi, potential, adjacency, queue, endpoints, seenHandlers);
+            visitNeighborWithPhi(level, pos, side, neighborPhi, potential, adjacency, queue, endpoints, seenHandlers);
         }
     }
 
-    /**
-     * 展开控制阀（或任意沿单轴连接的部件）的两个轴端；不改势场。
-     */
+    /** 展开控制阀（或任意沿单轴连接的部件）的两个轴端；不改势场。 */
     private static void expandAxial(
-        Level level,
-        BlockPos pos,
-        Direction.Axis axis,
-        int phi,
-        boolean unusedFlag,
-        Map<BlockPos, Integer> potential,
-        Map<BlockPos, List<BlockPos>> adjacency,
-        Deque<BlockPos> queue,
-        List<FluidEndpoint> endpoints,
-        Map<ResourceHandler<FluidResource>, Boolean> seenHandlers
+        Level level, BlockPos pos, Direction.Axis axis, int phi, boolean unusedFlag,
+        Map<BlockPos, Integer> potential, Map<BlockPos, List<BlockPos>> adjacency,
+        Deque<BlockPos> queue, Map<BlockPos, FluidEndpoint> endpoints, Set<ResourceHandler<FluidResource>> seenHandlers
     ) {
         for (Direction side : new Direction[]{
             Direction.get(Direction.AxisDirection.POSITIVE, axis),
             Direction.get(Direction.AxisDirection.NEGATIVE, axis)
         }) {
-            FluidNetworkScanner.visitNeighbor(level, pos, side, phi, potential, adjacency, queue, endpoints, seenHandlers);
+            visitNeighbor(level, pos, side, phi, potential, adjacency, queue, endpoints, seenHandlers);
         }
     }
 
-    /**
-     * 邻居访问（同势场）。
-     */
+    /** 邻居访问（同势场）。 */
     private static void visitNeighbor(
-        Level level,
-        BlockPos pos,
-        Direction dir,
-        int phi,
-        Map<BlockPos, Integer> potential,
-        Map<BlockPos, List<BlockPos>> adjacency,
-        Deque<BlockPos> queue,
-        List<FluidEndpoint> endpoints,
-        Map<ResourceHandler<FluidResource>, Boolean> seenHandlers
+        Level level, BlockPos pos, Direction dir, int phi,
+        Map<BlockPos, Integer> potential, Map<BlockPos, List<BlockPos>> adjacency,
+        Deque<BlockPos> queue, Map<BlockPos, FluidEndpoint> endpoints, Set<ResourceHandler<FluidResource>> seenHandlers
     ) {
-        FluidNetworkScanner.visitNeighborWithPhi(level, pos, dir, phi, potential, adjacency, queue, endpoints, seenHandlers);
+        visitNeighborWithPhi(level, pos, dir, phi, potential, adjacency, queue, endpoints, seenHandlers);
     }
 
-    /**
-     * 邻居访问（邻居势场由调用方给出，用于泵）。
-     */
+    /** 邻居访问（邻居势场由调用方给出，用于泵）。 */
     private static void visitNeighborWithPhi(
-        Level level,
-        BlockPos pos,
-        Direction dir,
-        int neighborPhi,
-        Map<BlockPos, Integer> potential,
-        Map<BlockPos, List<BlockPos>> adjacency,
-        Deque<BlockPos> queue,
-        List<FluidEndpoint> endpoints,
-        Map<ResourceHandler<FluidResource>, Boolean> seenHandlers
+        Level level, BlockPos pos, Direction dir, int neighborPhi,
+        Map<BlockPos, Integer> potential, Map<BlockPos, List<BlockPos>> adjacency,
+        Deque<BlockPos> queue, Map<BlockPos, FluidEndpoint> endpoints, Set<ResourceHandler<FluidResource>> seenHandlers
     ) {
         BlockPos neighborPos = pos.relative(dir);
         if (!level.isLoaded(neighborPos)) {
@@ -273,31 +254,35 @@ public final class FluidNetworkScanner {
         Direction faceBack = dir.getOpposite();
 
         // 可连接泵（无论通/断电）→ 穿过（二极管；扬程由 enqueuePump 按通电状态决定）
-        if (FluidNetworkScanner.isConnectablePump(neighborState, faceBack)) {
-            FluidNetworkScanner.link(adjacency, pos, neighborPos);
-            FluidNetworkScanner.enqueuePump(level, neighborPos, neighborState, pos, potential, queue);
+        if (isConnectablePump(neighborState, faceBack)) {
+            link(adjacency, pos, neighborPos);
+            enqueuePump(level, neighborPos, neighborState, pos, potential, queue);
             return;
         }
         // 控制阀：连接面正对本部件 → 门控透传
-        if (neighborState.getBlock() instanceof ControlValveBlock && ControlValveBlock.isConnectableFace(neighborState, faceBack)) {
-            FluidNetworkScanner.link(adjacency, pos, neighborPos);
-            FluidNetworkScanner.enqueuePart(neighborPos, neighborPhi, potential, queue);
+        if (neighborState.getBlock() instanceof ControlValveBlock
+            && ControlValveBlock.isConnectableFace(neighborState, faceBack)) {
+            link(adjacency, pos, neighborPos);
+            enqueuePart(neighborPos, neighborPhi, potential, queue);
             return;
         }
         // 对准本部件的另一管道 → 同势场（用 hasAnyConnectionToward：节点认 PIPE+END，
         // 否则节点朝泵/容器的 END 方向会被漏读，导致泵紧邻节点时抽不到液体）
-        if (neighborState.getBlock() instanceof PipeBlock && FluidNetworkScanner.hasAnyConnectionToward(neighborState, faceBack)) {
-            FluidNetworkScanner.link(adjacency, pos, neighborPos);
-            FluidNetworkScanner.enqueuePart(neighborPos, neighborPhi, potential, queue);
+        if (neighborState.getBlock() instanceof PipeBlock
+            && hasAnyConnectionToward(neighborState, faceBack)) {
+            link(adjacency, pos, neighborPos);
+            enqueuePart(neighborPos, neighborPhi, potential, queue);
             return;
         }
         // 容器 → 端点
-        FluidNetworkScanner.addEndpointIfContainer(level, neighborPos, faceBack, neighborPhi, pos, endpoints, seenHandlers);
+        addEndpointIfContainer(level, neighborPos, faceBack, neighborPhi, pos, endpoints, seenHandlers);
     }
 
     private static void enqueuePart(BlockPos pos, int phi, Map<BlockPos, Integer> potential, Deque<BlockPos> queue) {
         Integer old = potential.get(pos);
         if (old != null) {
+            // 取最小势场：当节点通过多条路径可达时（如有泵支路和自然支路），
+            // 使用较低的势场值，防止泵的输入侧偏高势场通过共享节点泄露到其他支路
             if (phi < old) {
                 potential.put(pos.immutable(), phi);
             }
@@ -308,16 +293,12 @@ public final class FluidNetworkScanner {
     }
 
     private static void enqueuePump(
-        Level level,
-        BlockPos pumpPos,
-        BlockState pumpState,
-        BlockPos fromPos,
-        Map<BlockPos, Integer> potential,
-        Deque<BlockPos> queue
+        Level level, BlockPos pumpPos, BlockState pumpState, BlockPos fromPos,
+        Map<BlockPos, Integer> potential, Deque<BlockPos> queue
     ) {
         Direction outputDir = pumpState.getValue(PumpBlock.ORIENTATION).getDirection();
         int fromPhi = potential.get(fromPos);
-        int lift = FluidNetworkScanner.pumpHalfLift(level, pumpPos);
+        int lift = pumpHalfLift(level, pumpPos);
         int pumpPhi;
         if (fromPos.equals(pumpPos.relative(outputDir))) {
             pumpPhi = fromPhi - lift;      // fromPos 在输出侧：fromPhi = pumpPhi + lift
@@ -337,35 +318,56 @@ public final class FluidNetworkScanner {
         queue.add(pumpPos.immutable());
     }
 
+    /**
+     * 容器自身的等效高度偏置（格）；只有仓储流体端口会给出非 0 值。
+     *
+     * @param level        世界
+     * @param containerPos 容器位置
+     * @return 偏置格数
+     */
+    private static int heightBiasAt(Level level, BlockPos containerPos) {
+        return level.getBlockEntity(containerPos) instanceof StorageFluidPortBlockEntity port
+            ? port.getHeightBias()
+            : 0;
+    }
+
     private static void addEndpointIfContainer(
-        Level level,
-        BlockPos containerPos,
-        Direction sideToPipe,
-        int phi,
-        BlockPos attachPipePos,
-        List<FluidEndpoint> endpoints,
-        Map<ResourceHandler<FluidResource>, Boolean> seenHandlers
+        Level level, BlockPos containerPos, Direction sideToPipe, int phi, BlockPos attachPipePos,
+        Map<BlockPos, FluidEndpoint> endpoints, Set<ResourceHandler<FluidResource>> seenHandlers
     ) {
         if (!level.isLoaded(containerPos)) {
             return;
         }
+        // 仓储流体端口会自行调整等效高度以把水位维持在目标区间；
+        // 该偏置同时驱动气体（网络用 effectiveHeight - Y 推导气压）
+        int effectiveHeight = containerPos.getY() + phi + heightBiasAt(level, containerPos);
         BlockPos immutablePos = containerPos.immutable();
-        if (endpoints.stream().anyMatch(endpoint -> endpoint.containerPos().equals(immutablePos))) return;
-        FluidContainerLookup.Result container = FluidNetworkScanner.container(level, containerPos, sideToPipe);
+        FluidEndpoint existing = endpoints.get(immutablePos);
+        if (existing != null) {
+            // 同一容器可能同时接入泵输出侧和普通输入管：保留所有入口，
+            // 方向可达判定时任一入口通过即可（否则关闭泵后普通入口也会被泵入口锁死）。
+            endpoints.put(immutablePos, existing.withEntry(attachPipePos.immutable(), sideToPipe, effectiveHeight));
+            return;
+        }
+        FluidContainerLookup.Result container = container(level, containerPos, sideToPipe);
         if (container == null) {
             return;
         }
         ResourceHandler<FluidResource> handler = container.handler();
-        if (seenHandlers.putIfAbsent(handler, Boolean.TRUE) != null) {
+        if (!seenHandlers.add(handler)) {
+            for (Map.Entry<BlockPos, FluidEndpoint> registered : endpoints.entrySet()) {
+                if (registered.getValue().handler().equals(handler)) {
+                    endpoints.put(registered.getKey(), registered.getValue().withEntry(
+                        attachPipePos.immutable(), sideToPipe, effectiveHeight));
+                    return;
+                }
+            }
             return;
         }
-        int effectiveHeight = containerPos.getY() + phi;
-        endpoints.add(new FluidEndpoint(
+        endpoints.put(immutablePos, new FluidEndpoint(
             immutablePos,
-            attachPipePos.immutable(),
-            sideToPipe,
+            new FluidEndpoint.Entry(attachPipePos.immutable(), sideToPipe, effectiveHeight),
             handler,
-            effectiveHeight,
             container.cauldron(),
             container.entity()
         ));

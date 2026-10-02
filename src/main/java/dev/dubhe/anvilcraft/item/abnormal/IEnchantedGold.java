@@ -1,0 +1,56 @@
+package dev.dubhe.anvilcraft.item.abnormal;
+
+import dev.dubhe.anvilcraft.init.item.ModItemTags;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import org.jspecify.annotations.Nullable;
+
+/**
+ * 附魔金物品
+ */
+public interface IEnchantedGold {
+    default void inventoryTick(ItemStack ignored, ServerLevel level, Entity entity, @Nullable EquipmentSlot slot) {
+        if (level.isClientSide()) return;
+        if (!(entity instanceof Player player)) return;
+        if (player.getAbilities().instabuild || player.getAbilities().invulnerable) return;
+        if (getEnchantedGoldCount(player) >= 64) {
+            player.addEffect(IAbnormal.makeEffectInstance(MobEffects.LUCK, 0));
+        }
+        player.removeEffect(MobEffects.WEAKNESS);
+        player.removeEffect(MobEffects.SLOWNESS);
+        player.removeEffect(MobEffects.HUNGER);
+    }
+
+    /**
+     * 玩家是否手持附魔金
+     */
+    static boolean isHoldingEnchantedGold(Player player) {
+        return player.isHolding(stack -> stack.is(ModItemTags.ENCHANTED_GOLD));
+    }
+
+    /**
+     * 玩家是否携带附魔金
+     */
+    static boolean isCarryingEnchantedGold(Player player) {
+        return getEnchantedGoldCount(player) > 0;
+    }
+
+    /**
+     * 统计玩家携带的附魔金数量
+     */
+    static int getEnchantedGoldCount(Player player) {
+        Inventory inventory = player.getInventory();
+        int count = 0;
+        for (int i = 0; i < inventory.getContainerSize(); ++i) {
+            ItemStack itemStack = inventory.getItem(i);
+            if (!itemStack.is(ModItemTags.ENCHANTED_GOLD)) continue;
+            count += itemStack.getCount();
+        }
+        return count;
+    }
+}

@@ -1,35 +1,35 @@
 {
   "type": "anvilcraft:multiblock",
   "pattern": {
-    "layers": [
+    "grid": [
       [
-        "ABA",
-        "B B",
-        "ABA"
+        "0A0",
+        "A A",
+        "0A0"
       ],
       [
-        "CDC",
-        "D D",
-        "CDC"
+        "BCB",
+        "C C",
+        "BCB"
       ],
       [
-        "ABA",
-        "B B",
-        "ABA"
+        "0A0",
+        "A A",
+        "0A0"
       ]
     ],
-    "symbols": {
+    "mapping": {
+      "0": {
+        "blocks": "minecraft:copper_block"
+      },
       "A": {
-        "block": "minecraft:copper_block"
+        "blocks": "anvilcraft:heavy_iron_block"
       },
       "B": {
-        "block": "anvilcraft:heavy_iron_block"
+        "blocks": "anvilcraft:magnetoelectric_core"
       },
       "C": {
-        "block": "anvilcraft:magnetoelectric_core"
-      },
-      "D": {
-        "block": "anvilcraft:tungsten_block"
+        "blocks": "anvilcraft:tungsten_block"
       }
     }
   },

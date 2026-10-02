@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.api.fluidtank;
 
+import dev.dubhe.anvilcraft.api.fluid.GasDisplayFillProvider;
 import net.minecraft.core.NonNullList;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
@@ -10,13 +11,18 @@ import java.util.List;
 
 /**
  * 创造模式流体内核：无限存储/供给指定流体。
- * insert 永远返回全部（接受所有流体），
+ * insert 接受并丢弃流体，不改变玩家配置的流体种类；
  * extract 永远返回请求量（无限供给已设定的流体）。
  */
-public class CreativeFluidHandler extends FluidStacksResourceHandler {
+public class CreativeFluidHandler extends FluidStacksResourceHandler implements GasDisplayFillProvider {
 
     public CreativeFluidHandler() {
         super(NonNullList.of(FluidStack.EMPTY, FluidStack.EMPTY), Integer.MAX_VALUE);
+    }
+
+    @Override
+    public float gasDisplayFill(FluidStack gas) {
+        return !this.getResource(0).isEmpty() && this.getResource(0).equals(FluidResource.of(gas)) ? 1 : 0;
     }
 
     public List<FluidStack> getStacks() {
@@ -32,13 +38,13 @@ public class CreativeFluidHandler extends FluidStacksResourceHandler {
     }
 
     @Override
+    public int insert(FluidResource resource, int amount, TransactionContext transaction) {
+        return resource.isEmpty() ? 0 : Math.max(0, amount);
+    }
+
+    @Override
     public int insert(int index, FluidResource resource, int amount, TransactionContext transaction) {
-        // 不管当前存了什么，直接覆盖为指定流体
-        FluidStack existing = this.stacks.get(index);
-        if (existing.isEmpty() || !FluidResource.of(existing).equals(resource)) {
-            this.stacks.set(index, resource.toStack(amount));
-        }
-        return amount;
+        return this.insert(resource, amount, transaction);
     }
 
     @Override
@@ -51,7 +57,7 @@ public class CreativeFluidHandler extends FluidStacksResourceHandler {
 
     @Override
     public long getAmountAsLong(int index) {
-        // 创造模式储罐永远显示满箱
-        return this.capacity;
+        // 已配置的流体保持满量，空储罐保持为空汇。
+        return this.getResource(index).isEmpty() ? 0 : this.capacity;
     }
 }

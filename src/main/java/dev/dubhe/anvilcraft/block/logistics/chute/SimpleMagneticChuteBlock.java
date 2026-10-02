@@ -118,7 +118,7 @@ public class SimpleMagneticChuteBlock
         for (Direction dir : Direction.values()) {
             BlockState neighborState = level.getBlockState(pos.relative(dir));
             if ((neighborState.is(ModBlocks.MAGNETIC_CHUTE.get()) || neighborState.is(ModBlocks.SIMPLE_MAGNETIC_CHUTE.get()))
-                && ChuteBlock.getFacing(neighborState) == dir.getOpposite()) {
+                && ChuteBlock.outputsToward(neighborState, dir.getOpposite())) {
                 return true;
             }
         }
@@ -269,7 +269,7 @@ public class SimpleMagneticChuteBlock
         };
         BlockState facingState = level.getBlockState(pos.relative(newFacing));
         if (ChuteBlock.isChuteBlock(facingState)
-            && ChuteBlock.getFacing(facingState) == newFacing.getOpposite()) {
+            && ChuteBlock.outputsToward(facingState, newFacing.getOpposite())) {
             level.setBlock(pos, Blocks.AIR.defaultBlockState(), 3);
             level.levelEvent(2001, pos, Block.getId(oldState));
             Block.dropResources(oldState, level, pos);

@@ -1,0 +1,12 @@
+{
+  "rules": [
+    {
+      "item": "minecraft:lilac",
+      "properties": "half=lower"
+    },
+    {
+      "item": {},
+      "properties": "half=upper"
+    }
+  ]
+}

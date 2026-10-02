@@ -1,6 +1,8 @@
 package dev.dubhe.anvilcraft.data.recipe;
 
 import dev.anvilcraft.lib.v2.registrum.providers.generators.RegistrumRecipeProvider;
+import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.recipe.ChargerChargingRecipe;
@@ -17,6 +19,18 @@ public class ChargerChargingRecipeLoader {
             .power(-4)
             .time(20 * 2)
             .save(provider);
+        ChargerChargingRecipe.builder(items)
+            .requires(Items.IRON_BLOCK)
+            .result(ModBlocks.MAGNET_BLOCK)
+            .power(-20)
+            .time(80)
+            .save(provider);
+        ChargerChargingRecipe.builder(items)
+            .requires(ModBlocks.FERRITE_CORE_MAGNET_BLOCK)
+            .result(ModBlocks.MAGNET_BLOCK)
+            .power(-4)
+            .time(20 * 2)
+            .save(provider, AnvilCraft.of("charger_charging/magnet_block_from_ferrite_core_magnet_block"));
         ChargerChargingRecipe.builder(items)
             .requires(ModItems.CAPACITOR_EMPTY)
             .result(ModItems.CAPACITOR)
@@ -45,13 +59,13 @@ public class ChargerChargingRecipeLoader {
             .requires(ModItemTags.UNCHARGED_NEUTRONIUM_INGOTS)
             .result(ModItems.CHARGED_NEUTRONIUM_INGOT)
             .power(-4000)
-            .time(20 * 300)
+            .time(20 * 180)
             .save(provider);
         ChargerChargingRecipe.builder(items)
             .requires(ModItems.CHARGED_NEUTRONIUM_INGOT)
             .result(ModItems.NEUTRONIUM_INGOT)
             .power(3200)
-            .time(20 * 300)
+            .time(20 * 180)
             .save(provider);
     }
 }

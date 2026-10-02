@@ -13,7 +13,6 @@ import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.crafting.BlastingRecipe;
@@ -77,38 +76,30 @@ public class VanillaRecipesWrap {
         List<Ingredient> ingredients = recipe.placementInfo().ingredients();
         if (ingredients.isEmpty()) return;
         Ingredient first = ingredients.getFirst();
-        if (first.isEmpty() || first.isCustom()) return;
+        if (first.isEmpty()) return;
         ItemStackTemplate result = recipe.result;
         // noinspection ConstantValue
         if (result == null) return;
-        if (ingredients.size() == 1 && result.count() > 1) {
+        if (ingredients.size() == 1 && result.count() > 1 && !first.isCustom()) {
             VanillaRecipesWrap.wrapUnpack(first, result);
         }
         if (ingredients.size() != 4 && ingredients.size() != 9) return;
-        for (Ingredient ingredient : ingredients) {
-            if (!ingredient.equals(first)) return;
-        }
-        VanillaRecipesWrap.wrapItemCompress(first, ingredients.size(), result);
+        Ingredient common = compressionIngredients(ingredients);
+        if (common != null) VanillaRecipesWrap.wrapItemCompress(common, ingredients.size(), result);
     }
 
     public static void wrap(@Nullable ShapedRecipe recipe) {
         if (recipe == null) return;
         if (recipe.getHeight() != recipe.getWidth()) return;
         List<Optional<Ingredient>> ingredients = recipe.getIngredients();
-        if (ingredients.isEmpty()) return;
-        Optional<Ingredient> firstOp = ingredients.getFirst();
-        if (firstOp.isEmpty()) return;
-        Ingredient first = firstOp.get();
-        if (first.isEmpty() || first.isCustom()) return;
         if (ingredients.size() <= 1) return;
         ItemStackTemplate result = recipe.result;
         // noinspection ConstantValue
         if (result == null) return;
         if (!result.is(ModItemTags.COMPRESS_ITEM)) return;
-        for (Optional<Ingredient> ingredient : ingredients) {
-            if (!ingredient.map(i -> i.equals(first)).orElse(false)) return;
-        }
-        VanillaRecipesWrap.wrapItemCompress(first, ingredients.size(), result);
+        if (ingredients.stream().anyMatch(Optional::isEmpty)) return;
+        Ingredient common = compressionIngredients(ingredients.stream().map(Optional::orElseThrow).toList());
+        if (common != null) VanillaRecipesWrap.wrapItemCompress(common, ingredients.size(), result);
     }
 
     public static void wrap(@Nullable BlastingRecipe recipe) {
@@ -241,6 +232,16 @@ public class VanillaRecipesWrap {
         VanillaRecipesWrap.recipes.add(new RecipeHolder<>(key, recipe));
     }
 
+    private static @Nullable Ingredient compressionIngredients(List<Ingredient> ingredients) {
+        if (ingredients.isEmpty() || ingredients.stream().anyMatch(ingredient -> !ingredient.isSimple())) return null;
+        Item[] items = ingredients.getFirst().getValues().stream()
+            .filter(item -> ingredients.stream().allMatch(ingredient -> ingredient.test(item.value().getDefaultInstance())))
+            .map(Holder::value)
+            .distinct()
+            .toArray(Item[]::new);
+        return items.length == 0 ? null : Ingredient.of(items);
+    }
+
     private static void wrapItemCompress(Ingredient first, int count, ItemStackTemplate result) {
         if (!result.is(Tags.Items.STORAGE_BLOCKS) && !result.is(ModItemTags.COMPRESS_ITEM)) return;
         ItemCompressRecipe recipe = ItemCompressRecipe.builder()
@@ -251,8 +252,8 @@ public class VanillaRecipesWrap {
             ))
             .result(result)
             .buildRecipe();
-        String ingredient = VanillaRecipesWrap.process(first);
-        String res = VanillaRecipesWrap.process(result);
+        String ingredient = BuiltInRegistries.ITEM.getKey(first.getValues().get(first.getValues().size() - 1).value()).getPath();
+        String res = result.typeHolder().getKey().identifier().getPath();
         ResourceKey<Recipe<?>> key = ResourceKey.create(
             Registries.RECIPE,
             AnvilCraft.of("compress_warp_%s_2_%s".formatted(ingredient, res))
@@ -261,17 +262,11 @@ public class VanillaRecipesWrap {
     }
 
     private static String process(Ingredient ingredient) {
-        return ingredient.getValues().unwrap()
-            .map(TagKey::location, holder -> BuiltInRegistries.ITEM.getKey(holder.getFirst().value()))
-            .toShortString()
-            .replace(':', '_')
-            .replace('/', '_');
+        var items = ingredient.getValues().stream().map(Holder::value).distinct().toList();
+        return items.isEmpty() ? "empty" : BuiltInRegistries.ITEM.getKey(items.getLast()).getPath();
     }
 
     private static String process(ItemStackTemplate stack) {
-        return stack.typeHolder().getKey().identifier()
-            .toShortString()
-            .replace(':', '_')
-            .replace('/', '_');
+        return stack.typeHolder().getKey().identifier().getPath();
     }
 }

@@ -16,6 +16,10 @@ public class AnvilCraftMixinPlugin implements IMixinConfigPlugin {
     private static boolean hasAE2 = false;
     private static boolean hasCerbonBetterBeacons = false;
     private static boolean hasJei = false;
+    private static boolean hasEmi = false;
+    private static boolean hasSophisticatedCore = false;
+    private static boolean hasJade = false;
+    private static boolean hasIris = false;
     private static boolean hasArchitectury = false;
     private static boolean hasSodium = false;
 
@@ -33,6 +37,13 @@ public class AnvilCraftMixinPlugin implements IMixinConfigPlugin {
         AnvilCraftMixinPlugin.hasCerbonBetterBeacons = this.isLoaded("com/cerbon/better_beacons/BetterBeacons.class");
         AnvilCraftMixinPlugin.hasJei = FMLLoader.getCurrent().getLoadingModList().getMods().stream()
             .anyMatch(it -> it.getModId().equals("jei"));
+        AnvilCraftMixinPlugin.hasEmi = FMLLoader.getCurrent().getLoadingModList().getMods().stream()
+            .anyMatch(it -> it.getModId().equals("emi"));
+        AnvilCraftMixinPlugin.hasSophisticatedCore = this.isLoaded(
+            "net/p3pp3rf1y/sophisticatedcore/inventory/ITrackedContentsItemResourceHandler.class");
+        AnvilCraftMixinPlugin.hasIris = this.isLoaded("net/irisshaders/iris/pipeline/IrisRenderingPipeline.class");
+        AnvilCraftMixinPlugin.hasJade = FMLLoader.getCurrent().getLoadingModList().getMods().stream()
+            .anyMatch(it -> it.getModId().equals("jade"));
         AnvilCraftMixinPlugin.hasArchitectury = this.isLoaded("dev/architectury/neoforge/ArchitecturyNeoForge");
         AnvilCraftMixinPlugin.hasSodium = this.isLoaded(
             "net/caffeinemc/mods/sodium/client/render/model/AbstractBlockRenderContext.class"
@@ -51,8 +62,15 @@ public class AnvilCraftMixinPlugin implements IMixinConfigPlugin {
         if (mixinClassName.contains("Create")) return AnvilCraftMixinPlugin.hasCreate;
         if (mixinClassName.contains("AE2")) return AnvilCraftMixinPlugin.hasAE2;
         if (mixinClassName.contains("Cerbon")) return AnvilCraftMixinPlugin.hasCerbonBetterBeacons;
+        if (mixinClassName.endsWith("JeiJadeItemTooltipMixin")) return AnvilCraftMixinPlugin.hasJei && AnvilCraftMixinPlugin.hasJade;
+        if (mixinClassName.contains("Jade")) return AnvilCraftMixinPlugin.hasJade;
+        if (mixinClassName.contains("Sophisticated")) {
+            return AnvilCraftMixinPlugin.hasSophisticatedCore && (!mixinClassName.contains("Jei") || AnvilCraftMixinPlugin.hasJei);
+        }
+        if (mixinClassName.contains("Jemi")) return AnvilCraftMixinPlugin.hasJei && AnvilCraftMixinPlugin.hasEmi;
         if (mixinClassName.contains("Jei")) return AnvilCraftMixinPlugin.hasJei;
         if (mixinClassName.contains("Architectury")) return AnvilCraftMixinPlugin.hasArchitectury;
+        if (mixinClassName.contains("Iris")) return AnvilCraftMixinPlugin.hasIris;
         if (mixinClassName.contains("Sodium")) return AnvilCraftMixinPlugin.hasSodium;
         return true;
     }

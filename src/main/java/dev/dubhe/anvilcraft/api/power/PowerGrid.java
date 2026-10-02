@@ -1,8 +1,9 @@
 package dev.dubhe.anvilcraft.api.power;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.item.armor.WeatherproofChestplateItem;
 import dev.dubhe.anvilcraft.network.PowerGridRemovePacket;
-import dev.dubhe.anvilcraft.network.PowerGridSyncPacket;
+import dev.dubhe.anvilcraft.network.PowerGridSyncChunkPacket;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
@@ -76,11 +77,7 @@ public class PowerGrid {
 
     public void update(boolean forced) {
         if (forced || this.changed) {
-            PacketDistributor.sendToPlayersTrackingChunk(
-                (ServerLevel) this.level,
-                this.level.getChunkAt(Objects.requireNonNull(this.getPos())).getPos(),
-                new PowerGridSyncPacket(this)
-            );
+            PowerGridSyncChunkPacket.send(this);
         }
     }
 
@@ -174,17 +171,29 @@ public class PowerGrid {
             this.consume += consumer.getInputPower();
         }
 
+        int players = 0;
         for (DynamicPowerComponent dynamicComponent : new ArrayList<>(this.dynamicComponents)) {
             Entity owner = dynamicComponent.getOwner();
             if (owner.level() != this.level || !this.collideFast(dynamicComponent.boundingBox())) {
-                this.notifyLeaving(dynamicComponent);
+                dynamicComponent.switchTo(null);
                 continue;
+            }
+            if (owner instanceof ServerPlayer) {
+                WeatherproofChestplateItem.clearGridDemand(dynamicComponent);
+                players++;
             }
             int power = dynamicComponent.getPowerConsumption();
             if (power > 0) {
                 this.consume += power;
             } else {
                 this.generate += power;
+            }
+        }
+
+        long chargingPowerPerPlayer = this.getRemaining() / Math.max(1, players);
+        for (DynamicPowerComponent dynamicComponent : this.dynamicComponents) {
+            if (dynamicComponent.getOwner() instanceof ServerPlayer player) {
+                this.consume += WeatherproofChestplateItem.refreshGridDemand(player, chargingPowerPerPlayer);
             }
         }
 
@@ -325,7 +334,7 @@ public class PowerGrid {
         for (PowerGrid powerGrid : affectedGrids) {
             powerGrid.flush();
             powerGrid.changed = false;
-            PacketDistributor.sendToAllPlayers(new PowerGridSyncPacket(powerGrid));
+            PowerGridSyncChunkPacket.sendToAllPlayers(powerGrid);
         }
     }
 
@@ -445,7 +454,7 @@ public class PowerGrid {
     }
 
     void syncToPlayer(ServerPlayer player) {
-        PacketDistributor.sendToPlayer(player, new PowerGridSyncPacket(this));
+        PowerGridSyncChunkPacket.sendToPlayer(this, player);
     }
 
     public static Optional<PowerGrid> findPowerGridContains(Level level, Vec3 vec3) {

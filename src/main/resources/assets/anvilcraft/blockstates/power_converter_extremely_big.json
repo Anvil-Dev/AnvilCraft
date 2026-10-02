@@ -1,0 +1,82 @@
+{
+    "variants": {
+        "powered=false,overload=false,facing=down": {
+            "model": "anvilcraft:block/power_converter_extremely_big"
+        },
+        "powered=false,overload=false,facing=up": {
+            "model": "anvilcraft:block/power_converter_extremely_big",
+            "x": 180
+        },
+        "powered=false,overload=false,facing=north": {
+            "model": "anvilcraft:block/power_converter_extremely_big",
+            "x": 270
+        },
+        "powered=false,overload=false,facing=east": {
+            "model": "anvilcraft:block/power_converter_extremely_big",
+            "x": 270,
+            "y": 90
+        },
+        "powered=false,overload=false,facing=south": {
+            "model": "anvilcraft:block/power_converter_extremely_big",
+            "x": 270,
+            "y": 180
+        },
+        "powered=false,overload=false,facing=west": {
+            "model": "anvilcraft:block/power_converter_extremely_big",
+            "x": 270,
+            "y": 270
+        },
+        "powered=true,overload=false,facing=down": {
+            "model": "anvilcraft:block/power_converter_overload_extremely_big"
+        },
+        "powered=true,overload=false,facing=up": {
+            "model": "anvilcraft:block/power_converter_overload_extremely_big",
+            "x": 180
+        },
+        "powered=true,overload=false,facing=north": {
+            "model": "anvilcraft:block/power_converter_overload_extremely_big",
+            "x": 270
+        },
+        "powered=true,overload=false,facing=east": {
+            "model": "anvilcraft:block/power_converter_overload_extremely_big",
+            "x": 270,
+            "y": 90
+        },
+        "powered=true,overload=false,facing=south": {
+            "model": "anvilcraft:block/power_converter_overload_extremely_big",
+            "x": 270,
+            "y": 180
+        },
+        "powered=true,overload=false,facing=west": {
+            "model": "anvilcraft:block/power_converter_overload_extremely_big",
+            "x": 270,
+            "y": 270
+        },
+        "overload=true,facing=down": {
+            "model": "anvilcraft:block/power_converter_overload_extremely_big"
+        },
+        "overload=true,facing=up": {
+            "model": "anvilcraft:block/power_converter_overload_extremely_big",
+            "x": 180
+        },
+        "overload=true,facing=north": {
+            "model": "anvilcraft:block/power_converter_overload_extremely_big",
+            "x": 270
+        },
+        "overload=true,facing=east": {
+            "model": "anvilcraft:block/power_converter_overload_extremely_big",
+            "x": 270,
+            "y": 90
+        },
+        "overload=true,facing=south": {
+            "model": "anvilcraft:block/power_converter_overload_extremely_big",
+            "x": 270,
+            "y": 180
+        },
+        "overload=true,facing=west": {
+            "model": "anvilcraft:block/power_converter_overload_extremely_big",
+            "x": 270,
+            "y": 270
+        }
+    }
+}

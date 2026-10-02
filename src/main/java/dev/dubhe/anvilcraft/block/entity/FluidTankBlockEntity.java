@@ -1,7 +1,9 @@
 package dev.dubhe.anvilcraft.block.entity;
 
+import dev.dubhe.anvilcraft.api.fluid.FluidBottleInteraction;
 import dev.dubhe.anvilcraft.api.fluid.IFluidResourceHandlerHolder;
 import dev.dubhe.anvilcraft.api.fluid.network.FluidNetworkManager;
+import dev.dubhe.anvilcraft.block.container.FluidTankBlock;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.util.TankUtil;
@@ -57,6 +59,7 @@ public class FluidTankBlockEntity extends BlockEntity implements IFluidResourceH
     public void onLoad() {
         super.onLoad();
         if (this.level != null && !this.level.isClientSide()) {
+            this.refreshDispose();
             FluidNetworkManager.INSTANCE.addContainer(this.level, this.getBlockPos());
         }
     }
@@ -190,8 +193,12 @@ public class FluidTankBlockEntity extends BlockEntity implements IFluidResourceH
     }
 
     public boolean onPlayerUse(Player player, InteractionHand hand) {
+        if (this.level != null
+            && FluidBottleInteraction.tryInteract(player, hand, this.getFluidHandler(), this.level, this.getBlockPos())) {
+            return true;
+        }
         try (Transaction transaction = Transaction.openRoot()) {
-            boolean success = FluidUtil.interactWithFluidHandler(player, hand, this.getBlockPos(), this.tank, transaction);
+            boolean success = FluidUtil.interactWithFluidHandler(player, hand, this.getBlockPos(), this.getFluidHandler(), transaction);
             if (success) transaction.commit();
             return success;
         }
@@ -206,7 +213,13 @@ public class FluidTankBlockEntity extends BlockEntity implements IFluidResourceH
 
     @Override
     public ResourceHandler<FluidResource> getFluidHandler() {
+        this.refreshDispose();
         return this.tank;
+    }
+
+    public void refreshDispose() {
+        if (this.level == null || this.level.isClientSide()) return;
+        this.tank.setDispose(FluidTankBlock.hasAdjacentMengerSponge(this.level, this.getBlockPos()));
     }
 
     public boolean isInfinite() {

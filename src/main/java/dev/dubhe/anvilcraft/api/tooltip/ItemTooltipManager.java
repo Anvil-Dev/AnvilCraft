@@ -1,21 +1,37 @@
 package dev.dubhe.anvilcraft.api.tooltip;
 
 import com.google.common.collect.Maps;
+import dev.dubhe.anvilcraft.block.power.converter.PowerConverterBigBlock;
+import dev.dubhe.anvilcraft.block.power.converter.PowerConverterExtremelyBigBlock;
+import dev.dubhe.anvilcraft.block.power.converter.PowerConverterMiddleBlock;
+import dev.dubhe.anvilcraft.block.power.converter.PowerConverterSmallBlock;
+import dev.dubhe.anvilcraft.block.power.converter.PowerConverterSuperBigBlock;
+import dev.dubhe.anvilcraft.client.rpc.StorageClientStub;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
+import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModFoodItems;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.init.item.ModItems;
+import dev.dubhe.anvilcraft.inventory.tooltip.StorageTooltip;
+import dev.dubhe.anvilcraft.item.property.component.StorageRef;
+import dev.dubhe.anvilcraft.rpc.StorageServerStub;
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.resources.language.I18n;
+import net.minecraft.client.Minecraft;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
+import net.minecraft.world.inventory.tooltip.TooltipComponent;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 
 public class ItemTooltipManager {
@@ -23,10 +39,60 @@ public class ItemTooltipManager {
         "tooltip.anvilcraft.press_key",
         Component.literal("Shift").withStyle(ChatFormatting.WHITE)
     ).withStyle(ChatFormatting.DARK_GRAY);
+    private static final Map<UUID, StorageServerStub.StorageUsage> STORAGE_USAGE = new ConcurrentHashMap<>();
+    private static final Map<UUID, Long> STORAGE_USAGE_TIMES = new ConcurrentHashMap<>();
+    private static final Set<UUID> STORAGE_USAGE_PENDING = ConcurrentHashMap.newKeySet();
+    private static final long STORAGE_USAGE_REFRESH_INTERVAL = 2000L;
+    private static int storageUsageGeneration;
     private static final Map<Item, String> NORMAL = Maps.newHashMap();
+    private static final Map<Item, Object[]> NORMAL_ARGUMENTS = Maps.newHashMap();
     private static final Map<Item, String> SHIFT = Maps.newHashMap();
 
     static {
+        NORMAL.put(ModFoodItems.CURSED_GOLDEN_APPLE.get(), """
+            Eating teleports:
+            Overworld <-> Nether
+            End -> respawn point""");
+        NORMAL.put(ModBlocks.HYPERDIMENSION_UPLOADER.asItem(), "Can interact with hoppers or chutes to upload items to the Hyperdimension Storage Station");
+        SHIFT.put(ModBlocks.HYPERDIMENSION_UPLOADER.asItem(), """
+            Right-click a placed Singularity Crystal with a bound Hyperdimension Terminal to create it
+            Buffered items are uploaded into the bound storage station, rate-limited by the server config
+            Right-click it with another bound Hyperdimension Terminal to rebind""");
+
+        NORMAL.put(ModBlocks.LARGE_CRATE.asItem(), "A large crate, stores more items");
+        SHIFT.put(
+            ModBlocks.LARGE_CRATE.asItem(), """
+                Can contain 65536 unit of items
+                Breaking it drops the contents
+                When it holds more than 1000 items, hold Shift to break it
+                Hold Shift and right-click to replace a 3×3×3 cube of crates with a large crate, preserving all contents
+                Can update to Shulker Container"""
+        );
+        NORMAL.put(ModBlocks.SHULKER_CONTAINER.asItem(), "A space-folding container upgraded from a Large Crate");
+        SHIFT.put(
+            ModBlocks.SHULKER_CONTAINER.asItem(), """
+                Can contain 1024 types of items by default, each type with 65536 unit of items by default
+                Breaking it drops the container with its items stored inside
+                Drop Space Overcompressors on top and strike with an anvil to expand capacity
+                Each one doubles both the type limit and the space per type (up to 4 times)
+                Can update to Hyperdimension Storage Station"""
+        );
+        NORMAL.put(ModBlocks.HYPERDIMENSION_STORAGE_STATION.asItem(), "An infinite container upgraded from a Shulker Container");
+        SHIFT.put(
+            ModBlocks.HYPERDIMENSION_STORAGE_STATION.asItem(), """
+                Can contain infinite items
+                Breaking it drops the container with its items stored inside"""
+        );
+        ItemTooltipManager.NORMAL.put(ModItems.LOCAL_TERMINAL.asItem(), "Link to nearest Large Crate (32-block range)");
+        ItemTooltipManager.NORMAL.put(ModItems.SHULKER_TERMINAL.asItem(), "Link to Shulker-like storages in world or inventory");
+        ItemTooltipManager.NORMAL.put(
+            ModItems.HYPERDIMENSION_TERMINAL.asItem(), "A portable port of the binding Hyperdimension Storage Station"
+        );
+        ItemTooltipManager.SHIFT.put(ModItems.SHULKER_TERMINAL.asItem(), """
+            Automatically links to the first Shulker Container in your inventory.
+            Otherwise, links to the nearest Shulker Container within 64 blocks.""");
+        ItemTooltipManager.NORMAL.put(ModItems.BUILDING_ROD.get(),
+            "Place blocks in bulk and build blueprints quickly; increases reach while carried");
         ItemTooltipManager.NORMAL.put(ModItems.MAGNET.get(), "Attract surrounding items when use");
         ItemTooltipManager.NORMAL.put(ModItems.GEODE.get(), "Find the surrounding Amethyst Geode when using it");
         ItemTooltipManager.NORMAL.put(ModItems.ANVIL_HAMMER.get(), "It's a hammer, an anvil, a wrench, goggles, and a mace");
@@ -37,6 +103,10 @@ public class ItemTooltipManager {
         ItemTooltipManager.NORMAL.put(ModBlocks.CURSED_GOLD_BLOCK.asItem(), "Carriers will be cursed");
         ItemTooltipManager.NORMAL.put(ModItems.CURSED_GOLD_INGOT.get(), "Carriers will be cursed");
         ItemTooltipManager.NORMAL.put(ModItems.CURSED_GOLD_NUGGET.get(), "Carriers will be cursed");
+        ItemTooltipManager.NORMAL.put(ModBlocks.ENCHANTED_GOLD_BLOCK.asItem(), "Carrying enchanted gold cancels cursed gold debuffs");
+        ItemTooltipManager.NORMAL.put(ModItems.ENCHANTED_GOLD_INGOT.get(),
+            "Carrying enchanted gold cancels cursed gold debuffs\nPiglins barter with it four times");
+        ItemTooltipManager.NORMAL.put(ModItems.ENCHANTED_GOLD_NUGGET.get(), "Carrying enchanted gold cancels cursed gold debuffs");
         ItemTooltipManager.NORMAL.put(ModItems.TOPAZ.get(), "Containing the power of lightning");
         ItemTooltipManager.NORMAL.put(ModItems.RUBY.get(), "Containing the power of fire");
         ItemTooltipManager.NORMAL.put(ModItems.SAPPHIRE.get(), "Containing the power of frost");
@@ -62,9 +132,21 @@ public class ItemTooltipManager {
         ItemTooltipManager.NORMAL.put(ModBlocks.TRANSMISSION_POLE.asItem(), "Build a power grid with a transmission length of 8");
         ItemTooltipManager.NORMAL.put(ModBlocks.CHARGE_COLLECTOR.asItem(), "Collecting charges to generate power");
         ItemTooltipManager.NORMAL.put(ModBlocks.FE_COLLECTOR.asItem(), "Collecting FE to generate power");
-        ItemTooltipManager.NORMAL.put(ModBlocks.POWER_CONVERTER_SMALL.asItem(), "Convert power into FE, consumes 1 kW");
-        ItemTooltipManager.NORMAL.put(ModBlocks.POWER_CONVERTER_MIDDLE.asItem(), "Convert power into FE, consumes 16 kW");
-        ItemTooltipManager.NORMAL.put(ModBlocks.POWER_CONVERTER_BIG.asItem(), "Convert power into FE, consumes 256 kW");
+        ItemTooltipManager.NORMAL.put(ModBlocks.POWER_CONVERTER_SMALL.asItem(), "Convert power into FE, consumes %d kW");
+        ItemTooltipManager.NORMAL_ARGUMENTS.put(ModBlocks.POWER_CONVERTER_SMALL.asItem(),
+            new Object[]{PowerConverterSmallBlock.INPUT_TIME});
+        ItemTooltipManager.NORMAL.put(ModBlocks.POWER_CONVERTER_MIDDLE.asItem(), "Convert power into FE, consumes %d kW");
+        ItemTooltipManager.NORMAL_ARGUMENTS.put(ModBlocks.POWER_CONVERTER_MIDDLE.asItem(),
+            new Object[]{PowerConverterMiddleBlock.INPUT_TIME});
+        ItemTooltipManager.NORMAL.put(ModBlocks.POWER_CONVERTER_BIG.asItem(), "Convert power into FE, consumes %d kW");
+        ItemTooltipManager.NORMAL_ARGUMENTS.put(ModBlocks.POWER_CONVERTER_BIG.asItem(),
+            new Object[]{PowerConverterBigBlock.INPUT_TIME});
+        ItemTooltipManager.NORMAL.put(ModBlocks.POWER_CONVERTER_SUPER_BIG.asItem(), "Convert power into FE, consumes %d kW");
+        ItemTooltipManager.NORMAL_ARGUMENTS.put(ModBlocks.POWER_CONVERTER_SUPER_BIG.asItem(),
+            new Object[]{PowerConverterSuperBigBlock.INPUT_TIME});
+        ItemTooltipManager.NORMAL.put(ModBlocks.POWER_CONVERTER_EXTREMELY_BIG.asItem(), "Convert power into FE, consumes %d kW");
+        ItemTooltipManager.NORMAL_ARGUMENTS.put(ModBlocks.POWER_CONVERTER_EXTREMELY_BIG.asItem(),
+            new Object[]{PowerConverterExtremelyBigBlock.INPUT_TIME});
         ItemTooltipManager.NORMAL.put(ModBlocks.PIEZOELECTRIC_CRYSTAL.asItem(), "Charge generated by an anvil fall on it");
         ItemTooltipManager.NORMAL.put(
             ModBlocks.MAGNET_BLOCK.asItem(),
@@ -147,18 +229,18 @@ public class ItemTooltipManager {
         ItemTooltipManager.NORMAL.put(ModItems.TIN_INGOT.get(), "A soft and corrosion-resistant metal");
         ItemTooltipManager.NORMAL.put(ModBlocks.TIN_BLOCK.asItem(), "A large block of soft, corrosion-resistant metal");
         ItemTooltipManager.NORMAL.put(ModItems.LEAD_INGOT.get(), "A dense and heavy metal");
-        ItemTooltipManager.NORMAL.put(ModBlocks.LEAD_BLOCK.asItem(), "A large block of dense, heavy metal that absorbs radiation and slows the decay of radioactive blocks");
+        ItemTooltipManager.NORMAL.put(ModBlocks.LEAD_BLOCK.asItem(), "A large block of dense, heavy metal that absorbs radiation");
         ItemTooltipManager.NORMAL.put(ModItems.SILVER_INGOT.get(), "A highly reflective metal");
         ItemTooltipManager.NORMAL.put(ModBlocks.SILVER_BLOCK.asItem(), "A large block of highly reflective metal");
         ItemTooltipManager.NORMAL.put(ModItems.URANIUM_INGOT.get(), "Radioactive - handle with care");
-        ItemTooltipManager.NORMAL.put(ModBlocks.URANIUM_BLOCK.asItem(), "A large block of radioactive material that continuously releases heat but decays when multiple blocks are adjacent");
+        ItemTooltipManager.NORMAL.put(ModBlocks.URANIUM_BLOCK.asItem(), "A large block of radioactive material that continuously releases heat and does not decay");
         ItemTooltipManager.NORMAL.put(
             ModItems.PLUTONIUM_INGOT.get(),
             "Highly radioactive - cannot be mined naturally, obtained from uranium transmutation"
         );
         ItemTooltipManager.NORMAL.put(
             ModBlocks.PLUTONIUM_BLOCK.asItem(),
-            "A large block of highly radioactive material obtained only by transmuting uranium; continuously releases heat but decays when multiple blocks are adjacent"
+            "A large block of highly radioactive material obtained only by transmuting uranium; continuously releases heat and melts down when all six sides are free of water"
         );
         ItemTooltipManager.NORMAL.put(ModItems.BRONZE_INGOT.get(), "A durable copper-tin alloy");
         ItemTooltipManager.NORMAL.put(ModBlocks.BRONZE_BLOCK.asItem(), "A large block of durable copper-tin alloy");
@@ -254,6 +336,15 @@ public class ItemTooltipManager {
         ItemTooltipManager.NORMAL.put(ModItems.RECOVERY_PEARL.get(), "Right-click to teleport to last death point");
         ItemTooltipManager.NORMAL.put(ModBlocks.HEAT_COLLECTOR.asItem(), "Generates power from heat");
         ItemTooltipManager.NORMAL.put(ModBlocks.VOID_ENERGY_COLLECTOR.asItem(), "Generates power from Void energy");
+        ItemTooltipManager.NORMAL.put(ModBlocks.MASS_ENERGY_INVERTER.asItem(), "Doubles the mass growth of adjacent Space Overcompressors, consumes 1024 kW");
+        ItemTooltipManager.SHIFT.put(
+            ModBlocks.MASS_ENERGY_INVERTER.asItem(), """
+                Injects 5 mass per tick into adjacent Space Overcompressors
+                Doubles the mass gained by adjacent Space Overcompressors from anvil mass injection"""
+        );
+
+        ItemTooltipManager.NORMAL.put(ModBlocks.CREATIVE_LASER.asItem(), "Emits a laser beam");
+        ItemTooltipManager.SHIFT.put(ModBlocks.CREATIVE_LASER.asItem(), "Adjustable laser level, lens and gamma mode, can be turned off by redstone");
         ItemTooltipManager.NORMAL.put(ModBlocks.RUBY_LASER.asItem(), "Emits a laser beam when powered");
         ItemTooltipManager.NORMAL.put(ModBlocks.RUBY_PRISM.asItem(), "Deflects or converges laser beams");
         ItemTooltipManager.NORMAL.put(ModBlocks.TRANSPARENT_CRAFTING_TABLE.asItem(), "Aesthetic, connectable Crafting Table");
@@ -266,20 +357,41 @@ public class ItemTooltipManager {
         ItemTooltipManager.NORMAL.put(ModBlocks.PROPEL_PISTON.asItem(), "Integrated piston worm, requires Capacitor or Laser power");
         ItemTooltipManager.NORMAL.put(ModBlocks.PULSE_GENERATOR.asItem(), "Customizes pulse delay and duration");
         ItemTooltipManager.NORMAL.put(ModBlocks.ADVANCED_COMPARATOR.asItem(), "Supports Hysteresis and Window comparison modes");
-        ItemTooltipManager.NORMAL.put(ModItems.EMERALD_AMULET.get(), "Grants Hero of the Village");
-        ItemTooltipManager.NORMAL.put(ModItems.TOPAZ_AMULET.get(), "Grants immunity to lightning damage");
-        ItemTooltipManager.NORMAL.put(ModItems.RUBY_AMULET.get(), "Grants Fire Resistance");
-        ItemTooltipManager.NORMAL.put(ModItems.SAPPHIRE_AMULET.get(), "Grants Conduit Power");
-        ItemTooltipManager.NORMAL.put(ModItems.ANVIL_AMULET.get(), "Grants immunity to anvil damage");
-        ItemTooltipManager.NORMAL.put(ModItems.FEATHER_AMULET.get(), "Grants immunity to fall damage");
-        ItemTooltipManager.NORMAL.put(ModItems.CAT_AMULET.get(), "Scares away Creepers and Phantoms");
-        ItemTooltipManager.NORMAL.put(ModItems.DOG_AMULET.get(), "Scares away Skeletons");
-        ItemTooltipManager.NORMAL.put(ModItems.SILENCE_AMULET.get(), "Silences the wearer");
-        ItemTooltipManager.NORMAL.put(
-            ModItems.ABNORMAL_AMULET.get(),
-            "Prevents damage from carrying Uranium, Plutonium, Floating Powder, Cursed Gold items"
-        );
-        ItemTooltipManager.NORMAL.put(ModItems.NATURE_AMULET.get(), "Combines Silence, Cat, Dog, and Feather Amulet effects");
+        ItemTooltipManager.NORMAL.put(ModItems.IONOCRAFT_BACKPACK.get(), "Allows creative flight while equipped in a powered grid");
+        ItemTooltipManager.SHIFT.put(ModItems.IONOCRAFT_BACKPACK.get(),
+            "Leaving the grid while flying grants slow falling until landing or reentry\nDouble-tap Jump to toggle slow falling during this descent");
+        ItemTooltipManager.NORMAL.put(ModItems.WEATHERPROOF_SPACESUIT_CHESTPLATE.get(),
+            "Uses 100 kFE per second\nRechargeable from grids or capacitors");
+        final String pockets = "%s pocket slots\nUse the pocket key to swap with your offhand\nEmpty pockets before removing leggings";
+        ItemTooltipManager.NORMAL.put(ModItems.POCKETS_LEGGINGS.get(), pockets.formatted(6));
+        ItemTooltipManager.NORMAL.put(ModItems.WEATHERPROOF_SPACESUIT_LEGGINGS.get(), pockets.formatted(12));
+        final String boots = "Immune to fall damage\nHold sneak to charge a jump, up to 4 blocks height";
+        ItemTooltipManager.NORMAL.put(ModItems.BUFFER_BOOTS.get(), boots);
+        ItemTooltipManager.NORMAL.put(ModItems.WEATHERPROOF_SPACESUIT_BOOTS.get(), boots
+            + "\nWalk on still fluid surfaces; sneak to submerge, hold sneak to descend faster");
+        ItemTooltipManager.NORMAL.put(ModItems.BREATHING_HELMET.get(), "Supplies oxygen underwater and in vacuum\nRemoves underwater mining penalties");
+        ItemTooltipManager.NORMAL.put(ModItems.WEATHERPROOF_SPACESUIT_HELMET.get(),
+            "Supplies oxygen underwater and in vacuum\nRemoves underwater mining penalties\n"
+                + "Clear vision in all fluids\nEndermen remain calm when stared at\n%s");
+        ItemTooltipManager.NORMAL_ARGUMENTS.put(ModItems.WEATHERPROOF_SPACESUIT_HELMET.get(),
+            new Object[]{Component.translatable("effect.minecraft.night_vision")});
+        final String fullSuit = "\nFull suit: immune to environmental damage except the void; prevents falling into the void";
+        for (Item armor : List.of(ModItems.WEATHERPROOF_SPACESUIT_HELMET.get(), ModItems.WEATHERPROOF_SPACESUIT_CHESTPLATE.get(),
+            ModItems.WEATHERPROOF_SPACESUIT_LEGGINGS.get(), ModItems.WEATHERPROOF_SPACESUIT_BOOTS.get())) {
+            ItemTooltipManager.NORMAL.merge(armor, fullSuit, String::concat);
+        }
+        ItemTooltipManager.NORMAL.put(ModItems.EMERALD_AMULET.get(), "Villagers offer discounts; Iron Golems never become hostile to the wearer");
+        ItemTooltipManager.NORMAL.put(ModItems.TOPAZ_AMULET.get(), "Grants immunity to lightning damage and Haste I");
+        ItemTooltipManager.NORMAL.put(ModItems.RUBY_AMULET.get(), "Grants Fire Resistance and Strength I; Strength II while on fire");
+        ItemTooltipManager.NORMAL.put(ModItems.SAPPHIRE_AMULET.get(), "Grants Conduit Power; Resistance I in water or with a Breathing Helmet or Weatherproof Spacesuit Helmet");
+        ItemTooltipManager.NORMAL.put(ModItems.ANVIL_AMULET.get(), "Grants immunity to anvil damage, knockback, Levitation, and celestial gravity from the Celestial Forging Anvil");
+        ItemTooltipManager.NORMAL.put(ModItems.FEATHER_AMULET.get(), "Grants immunity to fall damage and Slow Falling; holding Shift removes Slow Falling");
+        ItemTooltipManager.NORMAL.put(ModItems.ARMADILLO_AMULET.get(), "Scares away Spiders; grants Resistance II while holding Shift");
+        ItemTooltipManager.NORMAL.put(ModItems.CAT_AMULET.get(), "Scares away Creepers and Phantoms; tame wild Cats with one empty-hand interaction");
+        ItemTooltipManager.NORMAL.put(ModItems.DOG_AMULET.get(), "Scares away Skeletons; tame wild Wolves with one empty-hand interaction");
+        ItemTooltipManager.NORMAL.put(ModItems.SILENCE_AMULET.get(), "Silences the wearer and grants immunity to Darkness");
+        ItemTooltipManager.NORMAL.put(ModItems.ABNORMAL_AMULET.get(), "Prevents harmful effects from food and from carrying Uranium, Plutonium, Floating Powder, or Cursed Gold items");
+        ItemTooltipManager.NORMAL.put(ModItems.NATURE_AMULET.get(), "Combines Silence, Cat, Dog, and Armadillo Amulet effects");
         ItemTooltipManager.NORMAL.put(ModItems.GEM_AMULET.get(), "Combines effects of all four Gem Amulets");
         ItemTooltipManager.NORMAL.put(ModItems.CAPACITOR.asItem(), "8 MFE stored");
         ItemTooltipManager.NORMAL.put(ModItems.CAPACITOR_EMPTY.asItem(), "8 MFE capacity");
@@ -357,7 +469,12 @@ public class ItemTooltipManager {
         ItemTooltipManager.NORMAL.put(ModItems.PILL_BOX.asItem(), "Store pills for quick use");
         ItemTooltipManager.NORMAL.put(ModItems.AMULET_BOX.asItem(), "Stores multiple active amulets or totems");
         ItemTooltipManager.NORMAL.put(ModBlocks.CELESTIAL_FORGING_ANVIL.asItem(), "Forge celestial bodies, build megastructures");
-        ItemTooltipManager.NORMAL.put(ModItems.PIPE.get(), "Transports fluids between containers, gravity-driven flow");
+        ItemTooltipManager.NORMAL.put(ModItems.PIPE.get(), """
+            Transports fluids between containers, gravity-driven flow
+            Right-click with Glass Pane to turn it into Glass Pipe""");
+        ItemTooltipManager.NORMAL.put(ModItems.GLASS_PIPE.get(), """
+            Creative mode only
+            Use an Anvil Hammer to convert it into normal Pipe""");
         ItemTooltipManager.NORMAL.put(ModItems.TRANSCENDIUM_INGOT.get(), "A piece of strong-interaction matter sustained by magic, immune to most forms of destruction");
         ItemTooltipManager.NORMAL.put(ModBlocks.TRANSCENDIUM_BLOCK.asItem(), "A large block of strong-interaction matter sustained by magic, immune to most forms of destruction");
         ItemTooltipManager.NORMAL.put(ModItems.TRANSCENDIUM_NUGGET.get(), "A small piece of strong-interaction matter sustained by magic, immune to most forms of destruction");
@@ -410,6 +527,12 @@ public class ItemTooltipManager {
         ItemTooltipManager.NORMAL.put(ModBlocks.CAKE_BASE_BLOCK.asItem(), "A block of cake base, use a shovel as a spoon to eat it");
         ItemTooltipManager.NORMAL.put(ModBlocks.CREAM_BLOCK.asItem(), "A block of cream, use a shovel as a spoon to eat it");
         ItemTooltipManager.NORMAL.put(ModBlocks.BERRY_CREAM_BLOCK.asItem(), "A block of berry cream, use a shovel as a spoon to eat it");
+        ItemTooltipManager.NORMAL.put(ModBlocks.MATCHA_CREAM_BLOCK.asItem(), "A block of matcha cream, use a shovel as a spoon to eat it");
+        ItemTooltipManager.NORMAL.put(ModBlocks.MATCHA_CAKE_BLOCK.asItem(), "A block of matcha cake, use a shovel as a spoon to eat it");
+        ItemTooltipManager.NORMAL.put(ModBlocks.COOKIE_BLOCK.asItem(), "A placeable giant cookie!");
+        ItemTooltipManager.NORMAL.put(ModBlocks.COOKIE_PILLAR.asItem(), " A hollow cookie block!");
+        ItemTooltipManager.NORMAL.put(ModBlocks.BLACK_WHITE_CHOCOLATE_BLOCK.asItem(),
+            "Made by mixing white and dark chocolate, step on it to gain Haste and Jump Boost");
         ItemTooltipManager.NORMAL.put(ModBlocks.CHOCOLATE_CREAM_BLOCK.asItem(), "A block of chocolate cream, use a shovel as a spoon to eat it");
         ItemTooltipManager.NORMAL.put(ModBlocks.CAKE_BLOCK.asItem(), "A block of cream cake, use a shovel as a spoon to eat it");
         ItemTooltipManager.NORMAL.put(ModBlocks.BERRY_CAKE_BLOCK.asItem(), "A block of berry cake, use a shovel as a spoon to eat it");
@@ -489,6 +612,62 @@ public class ItemTooltipManager {
         ItemTooltipManager.NORMAL.put(ModBlocks.LOAD_MONITOR.asItem(), "Monitor the grid load condition, can output a signal by redstone comparator");
         ItemTooltipManager.NORMAL.put(ModBlocks.CHUTE.asItem(), "An advanced Hopper, can transfer a full stack of items at a time");
         ItemTooltipManager.NORMAL.put(ModBlocks.MAGNETIC_CHUTE.asItem(), "An advanced Chute, with the ability to transport items vertically");
+        ItemTooltipManager.NORMAL.put(
+            ModBlocks.OVERFLOW_CHUTE.asItem(),
+            "An advanced Magnetic Chute, throws items out of the overflow port when the output is blocked"
+        );
+        ItemTooltipManager.SHIFT.put(
+            ModBlocks.OVERFLOW_CHUTE.asItem(), """
+                The output items will be launched with speed
+                Right‑click a side face with an Anvil Hammer to open or close it as an overflow port
+                Items leave through the output while it can accept them, and are thrown out of the overflow ports once it is blocked
+                The input and output faces can never become overflow ports"""
+        );
+        ItemTooltipManager.NORMAL.put(ModBlocks.STORAGE_FLUID_PORT.asItem(), "External fluid storage of the Shulker Container or the Hyperdimension Storage Station.");
+        ItemTooltipManager.SHIFT.put(
+            ModBlocks.STORAGE_FLUID_PORT.asItem(), """
+                Stores 128 B of a single fluid
+                Works even when linked to no storage
+                Right-click with a bucket or a bottle to fill or drain it
+                Right-click with a Menger Sponge to clear it
+                Keeps its fluid when broken""");
+
+        ItemTooltipManager.SHIFT.put(ModBlocks.PUMP.asItem(), """
+                Provides 10 blocks of headlift on both input and output sides (including the pump itself)
+                Also functions as check valve, allowing liquid to flow through only in the pump's direction
+                A redstone signal disables the pump""");
+
+        ItemTooltipManager.SHIFT.put(
+            ModBlocks.CREATIVE_CRATE.asItem(), """
+                Provides infinite items of a set type: place items inside to configure
+                Items will not be consumed when taken out
+                Destroys all input items when no item is configured
+                Creative players left-click to clear the configuration
+                Survival players left-click to take out items"""
+        );
+        ItemTooltipManager.NORMAL.put(
+            ModBlocks.STORAGE_PORT_CONSOLIDATOR.asItem(),
+            "Exposes the contents of the connected Storage Ports and Fluid Ports to external logistics"
+        );
+        ItemTooltipManager.SHIFT.put(ModBlocks.STORAGE_PORT_CONSOLIDATOR.asItem(), """
+                Exposes the contents of connected storage ports to storage buses
+                Inputs are prioritized into ports with matching filters
+                Right-click with a fluid bucket to pour fluid into the corresponding fluid port""");
+
+        ItemTooltipManager.NORMAL.put(ModBlocks.STORAGE_PORT.asItem(), "External input/output ports of the Shulker Container or the Hyperdimension Storage Station.");
+        ItemTooltipManager.SHIFT.put(ModBlocks.STORAGE_PORT.asItem(), """
+                Right‑click with an item in hand to mark a port
+                A marked port will always keep one stack of items inside
+                Left‑click to take items out, right‑click to put items in
+                Hold right-click on a marked port with Anvil Hammer can remove the mark""");
+        ItemTooltipManager.NORMAL.put(ModBlocks.ITEM_SPLITTER.asItem(), "Evenly splits the stored items among the containers in front");
+        ItemTooltipManager.SHIFT.put(
+            ModBlocks.ITEM_SPLITTER.asItem(), """
+                Holds 16 slots, but accepts only one item type at a time
+                Every 8 game ticks, evenly splits its contents among the containers lined up in front
+                With no container in front, let a falling anvil strike it: the fall height decides how many shares are made, thrown past obstacles up to 16 blocks ahead
+                Always divides strictly, the remainder stays inside"""
+        );
 
         ItemTooltipManager.SHIFT.put(
             ModItems.LASER_GUN.get(), """
@@ -745,14 +924,46 @@ public class ItemTooltipManager {
         }
     }
 
-    private static void addTranslatedTooltip(Consumer<Component> builder, String key) {
-        for (String line : I18n.get(key).split("\n")) {
+    public static Optional<TooltipComponent> getStorageTooltip(ItemStack stack) {
+        StorageRef ref = stack.get(ModComponents.STORAGE);
+        if (ref == null || ref.id().isEmpty()) return Optional.empty();
+        UUID storageId = ref.id().get();
+        StorageServerStub.StorageUsage usage = STORAGE_USAGE.get(storageId);
+        if (System.currentTimeMillis() - STORAGE_USAGE_TIMES.getOrDefault(storageId, 0L) > STORAGE_USAGE_REFRESH_INTERVAL) {
+            ItemTooltipManager.requestStorageUsage(storageId);
+        }
+        return usage == null || usage.typeLimit() < 0 ? Optional.empty()
+            : Optional.of(new StorageTooltip(usage.usedTypes(), usage.typeLimit(), usage.types()));
+    }
+
+    private static void requestStorageUsage(UUID storageId) {
+        Minecraft client = Minecraft.getInstance();
+        if (client.player == null || !STORAGE_USAGE_PENDING.add(storageId)) return;
+        int generation = storageUsageGeneration;
+        STORAGE_USAGE_TIMES.put(storageId, System.currentTimeMillis());
+        StorageClientStub.loadUsage(storageId).whenCompleteAsync((usage, error) -> {
+            if (generation != storageUsageGeneration) return;
+            STORAGE_USAGE_PENDING.remove(storageId);
+            if (error == null && usage != null && usage.typeLimit() >= 0) STORAGE_USAGE.put(storageId, usage);
+        }, client);
+    }
+
+    public static void clearStorageTooltips() {
+        storageUsageGeneration++;
+        STORAGE_USAGE.clear();
+        STORAGE_USAGE_TIMES.clear();
+        STORAGE_USAGE_PENDING.clear();
+    }
+
+    private static void addTranslatedTooltip(Consumer<Component> builder, String key, Object... arguments) {
+        for (String line : Component.translatable(key, arguments).getString().split("\n")) {
             builder.accept(Component.literal(line).withStyle(ChatFormatting.GRAY));
         }
     }
 
     private static void addNormalTooltip(Consumer<Component> builder, Item item) {
-        ItemTooltipManager.addTranslatedTooltip(builder, ItemTooltipManager.getTranslationKey(item));
+        ItemTooltipManager.addTranslatedTooltip(builder, ItemTooltipManager.getTranslationKey(item),
+            NORMAL_ARGUMENTS.getOrDefault(item, new Object[0]));
     }
 
     private static void addShiftTooltip(Consumer<Component> builder, Item item) {

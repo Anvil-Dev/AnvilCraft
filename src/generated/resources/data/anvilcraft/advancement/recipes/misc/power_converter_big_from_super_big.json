@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_super_big": {
+      "conditions": {
+        "items": [
+          {
+            "items": "anvilcraft:power_converter_super_big"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "anvilcraft:power_converter_big_from_super_big"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_super_big"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "anvilcraft:power_converter_big_from_super_big"
+    ]
+  }
+}

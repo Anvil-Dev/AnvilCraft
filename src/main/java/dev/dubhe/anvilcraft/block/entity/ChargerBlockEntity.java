@@ -20,7 +20,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.Containers;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.SingleRecipeInput;
 import net.minecraft.world.level.Level;
@@ -210,8 +209,8 @@ public class ChargerBlockEntity extends BlockEntity
                 // 非配方物品直接移回输入槽
                 this.itemHandler.set(0, resource, 1);
             } else {
-                ItemStackTemplate transformed = recipe.result();
-                this.itemHandler.set(2, ItemResource.of(transformed), transformed.count());
+                ItemStack transformed = recipe.assemble(new SingleRecipeInput(resource.toStack()));
+                this.itemHandler.set(2, ItemResource.of(transformed), transformed.getCount());
             }
         }
         this.itemHandler.set(1, ItemResource.EMPTY, 0);

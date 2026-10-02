@@ -1,0 +1,21 @@
+{
+  "values": [
+    "anvilcraft:transcendence_anvil_hammer",
+    "anvilcraft:transcendence_dragon_rod",
+    "anvilcraft:transcendence_heavy_halberd",
+    "anvilcraft:transcendence_resonator",
+    "anvilcraft:transcendium_ingot",
+    "anvilcraft:transcendium_nugget",
+    "anvilcraft:multiphase_transcendium",
+    "anvilcraft:transcendence_anvil",
+    "anvilcraft:transcendence_grindstone",
+    "anvilcraft:transcendence_smithing_table",
+    "anvilcraft:transcendium_block",
+    "anvilcraft:transcendence_deco_block",
+    "anvilcraft:transcendence_deco_outline",
+    "anvilcraft:capacitor",
+    "anvilcraft:capacitor_empty",
+    "anvilcraft:supercapacitor",
+    "anvilcraft:supercapacitor_empty"
+  ]
+}

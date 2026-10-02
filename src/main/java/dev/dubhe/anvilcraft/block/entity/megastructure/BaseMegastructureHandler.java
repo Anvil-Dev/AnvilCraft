@@ -5,6 +5,7 @@ import dev.dubhe.anvilcraft.block.entity.CelestialForgingAnvilFluidInterfaceBloc
 import dev.dubhe.anvilcraft.block.entity.CelestialForgingAnvilLaserInterfaceBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.CelestialForgingAnvilLogisticsInterfaceBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.CfaInterfaceScanner;
+import dev.dubhe.anvilcraft.init.block.ModFluids;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -70,6 +71,14 @@ public abstract class BaseMegastructureHandler implements IMegastructureHandler 
         CelestialForgingAnvilBlockEntity be
     ) {
         return CfaInterfaceScanner.findFluidInterfaces(Objects.requireNonNull(be.getLevel()), be.getBlockPos());
+    }
+
+    protected int consumePrimordialMatter(CelestialForgingAnvilBlockEntity be) {
+        long consumed = 0L;
+        for (CelestialForgingAnvilFluidInterfaceBlockEntity fluidInterface : this.findFluidInterfaces(be)) {
+            consumed += fluidInterface.drainFluid(ModFluids.PRIMORDIAL_MATTER.get());
+        }
+        return (int) Math.min(consumed, Integer.MAX_VALUE);
     }
 
     protected CfaInterfaceScanner.PrioritizedInterfaces<ResourceHandler<ItemResource>> findOutputLogisticsInterfaces(

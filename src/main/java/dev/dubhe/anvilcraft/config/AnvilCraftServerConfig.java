@@ -10,6 +10,55 @@ import net.neoforged.fml.config.ModConfig;
 
 @Config(name = AnvilCraft.MOD_ID, type = ModConfig.Type.SERVER)
 public class AnvilCraftServerConfig {
+    @Comment("Orbital integration substeps per tick for freely falling items and blocks; 1 restores legacy motion")
+    @BoundedDiscrete(min = 1, max = 64)
+    public int orbitIntegrationSubsteps = 8;
+
+    @Comment("Enable weak Schwarzschild periapsis advance around attractive gravity sources of strength at least 10")
+    public boolean relativisticPrecession = true;
+
+    @Comment("Effective speed of light in blocks per tick for orbital precession; larger values weaken the effect")
+    @BoundedDiscrete(min = 16, max = 4096)
+    public int orbitalSpeedOfLight = 64;
+
+    @Comment("Block Devourer will not devour containers (blocks that can store items) when enabled")
+    public boolean blockDevourerProtectContainers = false;
+
+    @Comment("Allow eternal items to be killed by the void (falling out of the world)")
+    public boolean eternalItemsVoidKillable = false;
+
+    @Comment("Maximum selectable level in auto enchanting table's liquid enchantment mode")
+    @BoundedDiscrete(min = 1, max = 15)
+    public int liquidEnchantmentMaxLevel = 15;
+
+    @Comment("Working interval of the auto enchanting table (in ticks)")
+    @BoundedDiscrete(min = 1, max = 1000)
+    public int autoEnchantingTableInterval = 80;
+
+    @Comment("Maximum valid bookshelves of the auto enchanting table")
+    @BoundedDiscrete(min = 1, max = 80)
+    public int autoEnchantingTableMaxBookshelf = 15;
+
+    @Comment("Maximum duration of Plasma Jets (in ticks)")
+    @BoundedDiscrete(min = 10 * 20, max = 24 * 60 * 60 * 20)
+    public int plasmaJetsMaxDuration = 10 * 60 * 20;
+
+    @Comment("Amount of fuel consumed per cycle by Plasma Jets based on Cauldrons (in Layer)")
+    @BoundedDiscrete(min = 1, max = dev.dubhe.anvilcraft.block.cauldron.FireCauldronBlock.MAX_LEVEL)
+    public int plasmaJetsCauldronConsumeAmount = 1;
+
+    @Comment("Extended duration of a single consumption of Plasma Jets based on Cauldrons (in ticks)")
+    @BoundedDiscrete(min = 5 * 20, max = 12 * 60 * 60 * 20)
+    public int plasmaJetsCauldronExtraDuration = 5 * 60 * 20;
+
+    @Comment("Amount of fuel consumed per cycle by Plasma Jets based on Fish Tanks (in mB)")
+    @BoundedDiscrete(min = 1, max = net.neoforged.neoforge.fluids.FluidType.BUCKET_VOLUME)
+    public int plasmaJetsFishTankConsumeAmount = 1;
+
+    @Comment("Extended duration of a single consumption of Plasma Jets based on Fish Tanks (in ticks)")
+    @BoundedDiscrete(min = 1, max = 12 * 60 * 60 * 20)
+    public int plasmaJetsFishTankExtraDuration = 24;
+
     @Comment("Maximum radius of giant anvil's shock behavior")
     @BoundedDiscrete(max = 16, min = 4)
     public int giantAnvilMaxShockRadius = 16;
@@ -78,9 +127,6 @@ public class AnvilCraftServerConfig {
     @Comment("The maximum number of logs that can be cut per level of Felling enchantment")
     @BoundedDiscrete(max = 24, min = 2)
     public int fellingBlockPerLevel = 2;
-
-    @Comment("Should show anvil levitate animation")
-    public boolean displayAnvilAnimation = true;
 
     @Comment("Maximum cooldown of load monitor")
     @BoundedDiscrete(max = 60, min = 1)
@@ -157,7 +203,7 @@ public class AnvilCraftServerConfig {
 
         @Comment("Energy efficiency of energy converters (1 kW => xx FE/t)")
         @BoundedDiscrete(min = 1, max = 1000)
-        public int powerConverterEfficiency = 80;
+        public int powerConverterEfficiency = 100;
 
         @Comment("Power loss of energy converters")
         public double powerConverterLoss = 0.1;
@@ -174,6 +220,19 @@ public class AnvilCraftServerConfig {
 
     @Comment("Whether to clean fluid after updating Menger Sponge")
     public boolean cleanFluidAfterUpdateMengerSponge = false;
+
+    @CollapsibleObject
+    public HyperdimensionUploader hyperdimensionUploader = new HyperdimensionUploader();
+
+    public static class HyperdimensionUploader {
+        @Comment("Working interval of the hyperdimension uploader (in ticks)")
+        @BoundedDiscrete(min = 1, max = 1200)
+        public int workInterval = 5;
+
+        @Comment("Maximum items the hyperdimension uploader moves to the bound storage per scan")
+        @BoundedDiscrete(min = 1, max = 1024)
+        public int maxItemsPerScan = 64;
+    }
 
     public static class SpacetimeSupercomputerCommand {
         @Comment("Allow /locate biome command")
@@ -197,4 +256,17 @@ public class AnvilCraftServerConfig {
 
     @Comment("The max size of the entries in storages' recover station")
     public int storageRecoverMaxSize = 20;
+
+    @CollapsibleObject
+    public StoragePort storagePort = new StoragePort();
+
+    public static class StoragePort {
+        @Comment("Working interval of the storage port (in ticks): the performance wall that limits how often it scans and moves items")
+        @BoundedDiscrete(min = 1, max = 1200)
+        public int workInterval = 5;
+
+        @Comment("Maximum items the storage port moves per scan")
+        @BoundedDiscrete(min = 1, max = 1024)
+        public int maxItemsPerScan = 64;
+    }
 }

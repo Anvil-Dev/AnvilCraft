@@ -13,6 +13,7 @@
 - Follow nearby project patterns and existing APIs before introducing new abstractions.
 - Preserve unrelated working-tree changes. Do not revert, clean up, or reformat files outside the requested scope.
 - Do not broaden a file-specific request into a repository-wide refactor unless explicitly asked.
+- Do not write manual
 
 ## Code Style
 

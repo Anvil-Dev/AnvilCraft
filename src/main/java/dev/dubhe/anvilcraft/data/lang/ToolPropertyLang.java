@@ -15,6 +15,9 @@ public class ToolPropertyLang {
         provider.add("tooltip.anvilcraft.property.multiphase.suffix.1", "-β");
         provider.add("tooltip.anvilcraft.property.multiphase.suffix.2", "-γ");
         provider.add("tooltip.anvilcraft.property.multiphase.suffix.3", "-δ");
+        provider.add("tooltip.anvilcraft.property.protect_containers", "Container Protection [ALT]: %1$s");
+        provider.add("tooltip.anvilcraft.property.protect_containers.on", "On");
+        provider.add("tooltip.anvilcraft.property.protect_containers.off", "Off");
         provider.add("tooltip.anvilcraft.property.merciless", "Merciless: disable all enchantments and convert them into attack damage and mining efficiency");
         provider.add("tooltip.anvilcraft.property.ferocious", "Ferocious: enhance attack damage and mining efficiency based on the level of all enchantments");
         provider.add("tooltip.anvilcraft.property.eternal", "Eternal: unbreakable, immune fire, explode, cactus, even the time and the void");

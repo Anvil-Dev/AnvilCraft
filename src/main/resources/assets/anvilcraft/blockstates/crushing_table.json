@@ -1,7 +1,10 @@
 {
   "variants": {
-    "": {
-      "model": "anvilcraft:block/crushing_table"
+    "waterlogged=false": {
+      "model": "anvilcraft:block/processing_table_crushing_border"
+    },
+    "waterlogged=true": {
+      "model": "anvilcraft:block/processing_table_crushing_border"
     }
   }
 }

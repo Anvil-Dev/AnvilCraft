@@ -102,6 +102,7 @@ public class DiskItem extends Item implements IItemTooltipProvider {
                 new ProblemReporter.ScopedCollector(DiskItem.log), level.registryAccess());
             output.store("StoredFrom", BuiltInRegistries.BLOCK_ENTITY_TYPE.byNameCodec(), blockEntity.getType());
             diskCloneable.storeDiskData(output);
+            output.store("StoredBlock", BuiltInRegistries.BLOCK.byNameCodec(), level.getBlockState(clickedPos).getBlock());
             CompoundTag tag = output.buildResult();
             DiskItem.saveCompatibleGroups(tag, diskCloneable.getDiskCompatibleGroups());
             stack.set(ModComponents.DISK_DATA, new DiskData(tag));

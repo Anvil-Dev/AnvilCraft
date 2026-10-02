@@ -1,9 +1,11 @@
 package dev.dubhe.anvilcraft.api.fluid.network;
 
+import dev.dubhe.anvilcraft.block.entity.fluid.GlassPipeBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -32,13 +34,9 @@ import java.util.Set;
 public final class FluidNetworkManager {
     public static final FluidNetworkManager INSTANCE = new FluidNetworkManager();
 
-    /**
-     * 连续无转移达到此 tick 数则进入空闲降频
-     */
+    /** 连续无转移达到此 tick 数则进入空闲降频 */
     public static final int IDLE_THRESHOLD = 1200;
-    /**
-     * 空闲网络的分配间隔（tick）
-     */
+    /** 空闲网络的分配间隔（tick） */
     public static final int IDLE_INTERVAL = 20;
 
     private final Map<Level, LevelData> byLevel = Collections.synchronizedMap(new HashMap<>());
@@ -46,25 +44,23 @@ public final class FluidNetworkManager {
     private FluidNetworkManager() {
     }
 
-    /**
-     * 每个世界的网络缓存与容器登记。
-     */
+    /** 每个世界的网络缓存与容器登记。 */
     private static final class LevelData {
         final Set<BlockPos> containers = Collections.synchronizedSet(new HashSet<>());
         List<FluidPipeNetwork> networks = new ArrayList<>();
         final Map<BlockPos, FluidPipeNetwork> partIndex = new HashMap<>();
         boolean dirty = true;
+        /** 方块实体刚加载时，等待其首次 tick 刷新能力后再重建网络。 */
+        boolean deferRebuild;
     }
 
     private LevelData data(Level level) {
-        return this.byLevel.computeIfAbsent(level, _ -> new LevelData());
+        return this.byLevel.computeIfAbsent(level, k -> new LevelData());
     }
 
-    // ---- 容器登记（容器 BE 的 onLoad/setRemoved 调用） ----
+    // ---- 容器登记（自有容器生命周期与服务端方块实体事件共同调用） ----
 
-    /**
-     * 容器加载时注册。管道部件不注册（它们无 BlockEntity）。
-     */
+    /** 容器加载时注册。管道部件不注册（它们无 BlockEntity）。 */
     public void addContainer(Level level, BlockPos pos) {
         if (level.isClientSide()) {
             return;
@@ -75,8 +71,20 @@ public final class FluidNetworkManager {
     }
 
     /**
-     * 容器移除时注销。
+     * 登记刚加载的方块实体候选位置，并把容器检测与网络重建延后一轮。
+     *
+     * <p>能力查询可能通过多方块代理同步请求其他区块，因此加载回调中不能检测能力。
+     * 重建时会剔除非容器；延后一轮也可等待首次 tick 完成流体处理器初始化。</p>
      */
+    public void addContainerAfterLoad(Level level, BlockPos pos) {
+        if (level.isClientSide()) {
+            return;
+        }
+        this.addContainer(level, pos);
+        this.data(level).deferRebuild = true;
+    }
+
+    /** 容器移除时注销。 */
     public void removeContainer(Level level, BlockPos pos) {
         if (level.isClientSide()) {
             return;
@@ -86,6 +94,74 @@ public final class FluidNetworkManager {
             d.containers.remove(pos);
             d.dirty = true;
         }
+    }
+
+    /**
+     * 查询本容器端点与同网最高其他端点之间的<b>等效高度差</b>。
+     *
+     * <p>仓储流体端口用它在停止抽入时把自身高度对齐到最高的供给方，从而真正止住进液：
+     * 网络只在目标等效高度<b>严格低于</b>源时才转移（见 {@link FluidPipeNetwork} 的目标筛选中
+     * 对等效高度的严格比较），高度相等即互不流动。</p>
+     *
+     * <p>取最高而非其它端点，是因为要止住的是「从上方进液」；对齐更高的容器同样能挡住
+     * 所有更低的容器。</p>
+     *
+     * <p>返回<b>差值</b>而不是绝对高度：端点的 {@code effectiveHeight} 含累积扬程 phi，
+     * 而 phi 以扫描种子为零点，种子从 {@code HashSet} 里任意选出——同一套结构换一次重扫，
+     * phi 就可能整体平移一个泵扬程。调用方若拿到绝对高度再减去自身 Y，会漏算自己的
+     * phi，误差恰为 {@code phi_self}，对齐后仍可能低 10 格而继续进液；相减则 phi 自行抵消，
+     * 结果与种子、与多入口都无关。</p>
+     *
+     * @param level        世界
+     * @param containerPos 本容器位置
+     * @return 最高同网端点的等效高度减去本容器端点的等效高度；未接入管网、本容器不在网内
+     *     或网内没有其他端点时为 {@code null}
+     */
+    public @Nullable Integer heightDeltaToHighestPeer(Level level, BlockPos containerPos) {
+        if (level.isClientSide()) {
+            return null;
+        }
+        LevelData d = this.byLevel.get(level);
+        if (d == null) {
+            return null;
+        }
+        FluidPipeNetwork network = networkAt(level, containerPos, d);
+        if (network == null) {
+            return null;
+        }
+        Integer self = null;
+        Integer highestPeer = null;
+        for (FluidEndpoint endpoint : network.getEndpoints()) {
+            int height = endpoint.effectiveHeight();
+            if (endpoint.containerPos().equals(containerPos)) {
+                self = height;
+                continue;
+            }
+            if (highestPeer == null || height > highestPeer) {
+                highestPeer = height;
+            }
+        }
+        if (self == null || highestPeer == null) {
+            return null;
+        }
+        return highestPeer - self;
+    }
+
+    /**
+     * 取与某容器相邻的那张网络。
+     *
+     * <p>容器自身不在 {@code partIndex} 里（该索引只收管道部件），故从其六个相邻方向取
+     * 第一个已建立索引的管道所属网络。</p>
+     */
+    private static @Nullable FluidPipeNetwork networkAt(Level level, BlockPos containerPos, LevelData d) {
+        for (Direction direction : Direction.values()) {
+            BlockPos neighbor = containerPos.relative(direction);
+            FluidPipeNetwork network = d.partIndex.get(neighbor);
+            if (network != null) {
+                return network;
+            }
+        }
+        return null;
     }
 
     /**
@@ -100,28 +176,28 @@ public final class FluidNetworkManager {
     }
 
     public void addAdjacentContainers(Level level, BlockPos pipePos) {
-        if (level.isClientSide()) return;
-        LevelData data = this.data(level);
+        if (level.isClientSide()) {
+            return;
+        }
+        LevelData d = this.data(level);
         boolean changed = false;
-        for (Direction direction : Direction.values()) {
-            BlockPos pos = pipePos.relative(direction);
+        for (Direction dir : Direction.values()) {
+            BlockPos pos = pipePos.relative(dir);
             if (!level.isLoaded(pos)) continue;
             if (FluidNetworkScanner.isContainer(level, pos)) {
-                if (data.containers.add(pos.immutable())) changed = true;
-            } else if (data.containers.remove(pos)) {
+                if (d.containers.add(pos.immutable())) changed = true;
+            } else if (d.containers.remove(pos)) {
                 changed = true;
             }
         }
         if (changed) {
-            data.dirty = true;
+            d.dirty = true;
         }
     }
 
     // ---- tick ----
 
-    /**
-     * 每服务器 tick 调用：必要时重扫网络，然后按活跃度分配。
-     */
+    /** 每服务器 tick 调用：必要时重扫网络，然后按活跃度分配。 */
     public void tick() {
         synchronized (this.byLevel) {
             for (Map.Entry<Level, LevelData> entry : this.byLevel.entrySet()) {
@@ -136,13 +212,17 @@ public final class FluidNetworkManager {
             return;
         }
         if (d.dirty) {
+            if (d.deferRebuild) {
+                d.deferRebuild = false;
+                return;
+            }
             this.rebuild(level, d);
             d.dirty = false;
         }
         long gameTime = level.getGameTime();
         for (FluidPipeNetwork network : d.networks) {
             // #4 空闲降频：连续 IDLE_THRESHOLD tick 无转移后，每 IDLE_INTERVAL tick 才分配一次
-            if (network.getIdleTicks() >= FluidNetworkManager.IDLE_THRESHOLD && gameTime % FluidNetworkManager.IDLE_INTERVAL != 0) {
+            if (network.getIdleTicks() >= IDLE_THRESHOLD && gameTime % IDLE_INTERVAL != 0) {
                 continue;
             }
             network.tick();
@@ -156,6 +236,11 @@ public final class FluidNetworkManager {
      * 顺带剔除已失效（方块不在或不再是容器）的登记项。
      */
     private void rebuild(Level level, LevelData d) {
+        // 重建前收集旧网络仍显示中的玻璃管道，供重建后迁移活跃状态或清除掉出网络者
+        Set<BlockPos> oldActiveDisplays = new HashSet<>();
+        for (FluidPipeNetwork network : d.networks) {
+            oldActiveDisplays.addAll(network.activeDisplayPositions());
+        }
         d.networks = new ArrayList<>();
         d.partIndex.clear();
 
@@ -168,17 +253,24 @@ public final class FluidNetworkManager {
                 d.containers.remove(containerPos); // 已失效 → 注销
                 continue;
             }
-            BlockPos seed = FluidNetworkManager.findUnindexedAdjacentPipe(level, containerPos, d.partIndex);
-            if (seed == null) {
-                continue; // 无相邻管道，或相邻管道所属网络已在本次重建中建好
+            BlockPos seed;
+            while ((seed = findUnindexedAdjacentPipe(level, containerPos, d.partIndex)) != null) {
+                FluidPipeNetwork network = FluidNetworkScanner.scan(level, seed);
+                if (network == null) break;
+                d.networks.add(network);
+                for (BlockPos part : network.getParts()) d.partIndex.put(part, network);
             }
-            FluidPipeNetwork network = FluidNetworkScanner.scan(level, seed);
-            if (network == null) {
-                continue;
-            }
-            d.networks.add(network);
-            for (BlockPos part : network.getParts()) {
-                d.partIndex.put(part, network);
+        }
+
+        // 活跃显示管道归属变化处理：
+        // 仍属于某新网络 → 重新登记到该网络（继续由其每 tick 过期检测负责清除）；
+        // 已不在任何网络 → 立即清除显示并同步客户端，避免流体残留在玻璃管道内。
+        for (BlockPos pos : oldActiveDisplays) {
+            FluidPipeNetwork network = d.partIndex.get(pos);
+            if (network != null) {
+                network.reacquireActiveDisplay(pos);
+            } else if (level.getBlockEntity(pos) instanceof GlassPipeBlockEntity pipe) {
+                pipe.clearDisplay();
             }
         }
     }

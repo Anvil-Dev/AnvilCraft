@@ -2,6 +2,8 @@ package dev.dubhe.anvilcraft.block.entity;
 
 import dev.dubhe.anvilcraft.api.itemhandler.FilteredItemStackHandler;
 import dev.dubhe.anvilcraft.block.workstation.StructureScannerBlock;
+import dev.dubhe.anvilcraft.building.BlueprintCapture;
+import dev.dubhe.anvilcraft.building.BlueprintMultiblocks;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.inventory.StructureScannerMenu;
@@ -19,6 +21,8 @@ import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.SimpleContainer;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.decoration.painting.Painting;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -30,12 +34,16 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.TagValueOutput;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class StructureScannerBlockEntity extends BaseMachineBlockEntity implements MenuProvider {
     // 物品栏处理器: 槽位0=磁盘输入, 槽位1=输出
@@ -231,7 +239,14 @@ public class StructureScannerBlockEntity extends BaseMachineBlockEntity implemen
     /**
      * 缓存的方块数据
      */
-    public record CachedBlockData(int x, int y, int z, BlockState state) {}
+    public record CachedBlockData(int x, int y, int z, BlockState state, @Nullable CompoundTag nbt) {
+        public CachedBlockData(int x, int y, int z, BlockState state) {
+            this(x, y, z, state, null);
+        }
+    }
+
+    public record CapturedEntityData(Vec3 pos, BlockPos blockPos, CompoundTag nbt) {
+    }
     
     /**
      * 是否正在扫描或已完成扫描
@@ -244,7 +259,7 @@ public class StructureScannerBlockEntity extends BaseMachineBlockEntity implemen
      * 是否完成所有扫描
      */
     public boolean isScanComplete() {
-        return !this.isScanning && !this.scannedBlocks.isEmpty();
+        return !this.isScanning && this.currentScanLayer >= this.rangeY.get() && !this.scannedBlocks.isEmpty();
     }
     
     /**
@@ -394,14 +409,24 @@ public class StructureScannerBlockEntity extends BaseMachineBlockEntity implemen
         final int rangeZ = this.rangeZ.get();
         final int halfRangeX = rangeX / 2;
         
+        Set<BlockPos> captured = new HashSet<>();
+        for (CachedBlockData data : this.scannedBlocks) captured.add(new BlockPos(data.x(), data.y(), data.z()));
         // 扫描当前层的所有方块
         for (int x = 0; x < rangeX; x++) {
             for (int z = 1; z < rangeZ + 1; z++) {
                 BlockPos worldPos = this.calculateWorldPos(x, this.currentScanLayer, z - 1, halfRangeX);
-                BlockState blockState = this.level.getBlockState(worldPos);
+                net.minecraft.world.level.block.state.BlockState blockState = this.level.getBlockState(worldPos);
                 
-                if (!blockState.isAir()) {
-                    this.scannedBlocks.add(new CachedBlockData(x, this.currentScanLayer, z, blockState));
+                if (!blockState.isAir() && BlueprintMultiblocks.shouldRecord(blockState)) {
+                    BlueprintMultiblocks.forEachPart(worldPos, blockState, (partPos, generated) -> {
+                        BlockPos preview = this.worldBlockToPreview(partPos, halfRangeX).offset(0, 0, 1);
+                        if (!captured.add(preview)) return;
+                        BlockState actual = this.level.getBlockState(partPos);
+                        BlockState recorded = actual.isAir() ? generated : actual;
+                        var entity = this.level.getBlockEntity(partPos);
+                        CompoundTag nbt = entity == null ? null : entity.saveWithFullMetadata(this.level.registryAccess());
+                        this.scannedBlocks.add(new CachedBlockData(preview.getX(), preview.getY(), preview.getZ(), recorded, nbt));
+                    });
                 }
             }
         }
@@ -409,15 +434,10 @@ public class StructureScannerBlockEntity extends BaseMachineBlockEntity implemen
         this.lastScanTick = this.level.getGameTime();
         this.setChanged();
 
-        // 移动到下一层
         this.currentScanLayer++;
+        if (this.currentScanLayer >= rangeY) this.isScanning = false;
 
-        // 检查是否完成所有层（在发送同步包之前更新状态）
-        if (this.currentScanLayer >= rangeY) {
-            this.isScanning = false;
-        }
-
-        // 每扫描一层就同步到客户端（此时 isScanning 已处于最终状态）
+        // 每扫描一层就同步到客户端
         if (this.level != null && !this.level.isClientSide()) {
             this.level.sendBlockUpdated(this.getBlockPos(), this.getBlockState(), this.getBlockState(), 3);
         }
@@ -426,6 +446,151 @@ public class StructureScannerBlockEntity extends BaseMachineBlockEntity implemen
     /**
      * 计算世界坐标
      */
+    public void clearScan() {
+        this.isScanning = false;
+        this.currentScanLayer = 0;
+        this.scannedBlocks.clear();
+        this.pendingAutoSave = false;
+        this.autoSaveStructureName = "";
+        this.setChanged();
+        if (this.level != null && !this.level.isClientSide()) {
+            this.level.sendBlockUpdated(this.getBlockPos(), this.getBlockState(), this.getBlockState(), 3);
+        }
+    }
+
+    public AABB getScanBounds() {
+        final int halfRangeX = this.rangeX.get() / 2;
+        BlockPos cornerA = this.calculateWorldPos(0, 0, 0, halfRangeX);
+        BlockPos cornerB = this.calculateWorldPos(
+            this.rangeX.get() - 1, this.rangeY.get() - 1, this.rangeZ.get() - 1, halfRangeX
+        );
+        BlockPos minCorner = new BlockPos(
+            Math.min(cornerA.getX(), cornerB.getX()),
+            Math.min(cornerA.getY(), cornerB.getY()),
+            Math.min(cornerA.getZ(), cornerB.getZ())
+        );
+        BlockPos maxCorner = new BlockPos(
+            Math.max(cornerA.getX(), cornerB.getX()),
+            Math.max(cornerA.getY(), cornerB.getY()),
+            Math.max(cornerA.getZ(), cornerB.getZ())
+        );
+        return AABB.encapsulatingFullBlocks(minCorner, maxCorner);
+    }
+
+    public List<CapturedEntityData> captureEntities() {
+        List<CapturedEntityData> captured = new ArrayList<>();
+        if (this.level == null) {
+            return captured;
+        }
+        final int halfRangeX = this.rangeX.get() / 2;
+        List<Entity> entities = this.level.getEntitiesOfClass(
+            Entity.class,
+            this.getScanBounds(),
+            entity -> !(entity instanceof Player)
+        );
+        for (Entity entity : entities) {
+            CompoundTag entityNbt = BlueprintCapture.captureEntity(entity);
+            if (entityNbt == null) continue;
+            Vec3 previewPos = this.worldToPreview(entity.position(), halfRangeX);
+            BlockPos previewBlockPos = entity instanceof Painting painting
+                ? this.worldBlockToPreview(painting.getPos(), halfRangeX)
+                : BlockPos.containing(previewPos);
+            captured.add(new CapturedEntityData(previewPos, previewBlockPos, entityNbt.copy()));
+        }
+        return captured;
+    }
+
+    public boolean isScannerUpsideDown() {
+        if (this.level == null) {
+            return false;
+        }
+        var blockState = this.level.getBlockState(this.getBlockPos());
+        return blockState.hasProperty(StructureScannerBlock.UPSIDE_DOWN)
+            && blockState.getValue(StructureScannerBlock.UPSIDE_DOWN);
+    }
+
+    private Vec3 worldToPreview(Vec3 worldPos, int halfRangeX) {
+        BlockPos scannerPos = this.getBlockPos();
+        if (this.level == null) {
+            return Vec3.ZERO;
+        }
+        var blockState = this.level.getBlockState(scannerPos);
+        Direction scannerFacing = blockState.getValue(net.minecraft.world.level.block.HorizontalDirectionalBlock.FACING);
+        boolean upsideDown = blockState.hasProperty(StructureScannerBlock.UPSIDE_DOWN)
+            && blockState.getValue(StructureScannerBlock.UPSIDE_DOWN);
+
+        double previewY = upsideDown
+            ? (scannerPos.getY() + 1) - worldPos.y
+            : worldPos.y - scannerPos.getY();
+        double previewX;
+        double previewZ;
+        switch (scannerFacing) {
+            case SOUTH -> {
+                previewX = (scannerPos.getX() + halfRangeX + 1) - worldPos.x;
+                previewZ = (scannerPos.getZ() - 1) - worldPos.z;
+            }
+            case WEST -> {
+                previewX = (scannerPos.getZ() + halfRangeX + 1) - worldPos.z;
+                previewZ = worldPos.x - scannerPos.getX() - 2;
+            }
+            case EAST -> {
+                previewX = worldPos.z - scannerPos.getZ() + halfRangeX;
+                previewZ = (scannerPos.getX() - 1) - worldPos.x;
+            }
+            case NORTH -> {
+                previewX = worldPos.x - scannerPos.getX() + halfRangeX;
+                previewZ = worldPos.z - scannerPos.getZ() - 2;
+            }
+            // DOWN、UP 与 calculateWorldPos 的防御分支对应
+            default -> {
+                previewX = worldPos.x - scannerPos.getX() + halfRangeX;
+                previewZ = worldPos.z - scannerPos.getZ();
+            }
+        }
+        return new Vec3(previewX, previewY, previewZ);
+    }
+
+    private BlockPos worldBlockToPreview(BlockPos worldPos, int halfRangeX) {
+        BlockPos scannerPos = this.getBlockPos();
+        if (this.level == null) {
+            return BlockPos.ZERO;
+        }
+        var blockState = this.level.getBlockState(scannerPos);
+        Direction scannerFacing = blockState.getValue(net.minecraft.world.level.block.HorizontalDirectionalBlock.FACING);
+        boolean upsideDown = blockState.hasProperty(StructureScannerBlock.UPSIDE_DOWN)
+            && blockState.getValue(StructureScannerBlock.UPSIDE_DOWN);
+
+        int previewY = upsideDown
+            ? scannerPos.getY() - worldPos.getY()
+            : worldPos.getY() - scannerPos.getY();
+        int previewX;
+        int previewZ;
+        switch (scannerFacing) {
+            case SOUTH -> {
+                previewX = scannerPos.getX() + halfRangeX - worldPos.getX();
+                previewZ = scannerPos.getZ() - 2 - worldPos.getZ();
+            }
+            case WEST -> {
+                previewX = scannerPos.getZ() + halfRangeX - worldPos.getZ();
+                previewZ = worldPos.getX() - scannerPos.getX() - 2;
+            }
+            case EAST -> {
+                previewX = worldPos.getZ() - scannerPos.getZ() + halfRangeX;
+                previewZ = scannerPos.getX() - 2 - worldPos.getX();
+            }
+            case NORTH -> {
+                previewX = worldPos.getX() - scannerPos.getX() + halfRangeX;
+                previewZ = worldPos.getZ() - scannerPos.getZ() - 2;
+            }
+            // DOWN、UP 与 calculateWorldPos 的防御分支对应
+            default -> {
+                previewX = worldPos.getX() - scannerPos.getX() + halfRangeX;
+                previewZ = worldPos.getZ() - scannerPos.getZ();
+            }
+        }
+        return new BlockPos(previewX, previewY, previewZ);
+    }
+
     private BlockPos calculateWorldPos(int previewX, int previewY, int previewZ, int halfRangeX) {
         BlockPos scannerPos = this.getBlockPos();
         if (this.level == null) {
@@ -543,6 +708,7 @@ public class StructureScannerBlockEntity extends BaseMachineBlockEntity implemen
                 blockOutput.putInt("y", data.y());
                 blockOutput.putInt("z", data.z());
                 blockOutput.store("state", BlockState.CODEC, data.state());
+                if (data.nbt() != null) blockOutput.store("nbt", CompoundTag.CODEC, data.nbt());
             }
         }
         output.putBoolean("pendingAutoSave", this.pendingAutoSave);
@@ -575,7 +741,8 @@ public class StructureScannerBlockEntity extends BaseMachineBlockEntity implemen
             int y = blockInput.getIntOr("y", 0);
             int z = blockInput.getIntOr("z", 0);
             blockInput.read("state", BlockState.CODEC)
-                .ifPresent(state -> this.scannedBlocks.add(new CachedBlockData(x, y, z, state)));
+                .ifPresent(state -> this.scannedBlocks.add(new CachedBlockData(x, y, z, state,
+                    blockInput.read("nbt", CompoundTag.CODEC).orElse(null))));
         }
         this.pendingAutoSave = input.getBooleanOr("pendingAutoSave", false);
         this.autoSaveStructureName = input.getStringOr("autoSaveStructureName", "");

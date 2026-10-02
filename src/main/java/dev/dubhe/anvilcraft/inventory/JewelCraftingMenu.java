@@ -1,6 +1,5 @@
 package dev.dubhe.anvilcraft.inventory;
 
-import dev.anvilcraft.lib.v2.util.predicate.ItemIngredientPredicate;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.inventory.component.jewel.JewelInputSlot;
@@ -22,6 +21,7 @@ import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.ResultContainer;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.inventory.TransientCraftingContainer;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.enchantment.Enchantments;
@@ -30,7 +30,6 @@ import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import org.jspecify.annotations.Nullable;
 
-import java.util.List;
 import java.util.Optional;
 
 public class JewelCraftingMenu extends AbstractContainerMenu {
@@ -59,7 +58,7 @@ public class JewelCraftingMenu extends AbstractContainerMenu {
         this.player = inventory.player;
 
         // result
-        this.addSlot(new JewelResultSlot(this.resultContainer, this.craftingContainer, this.resultContainer, 0, 134, 51));
+        this.addSlot(new JewelResultSlot(this.sourceContainer, this.craftingContainer, this.resultContainer, 0, 134, 51));
 
         // result
         this.addSlot(new Slot(this.sourceContainer, 0, 80, 19) {
@@ -67,7 +66,7 @@ public class JewelCraftingMenu extends AbstractContainerMenu {
             public boolean mayPlace(ItemStack stack) {
                 return RecipesRecord.getRecipes(inventory.player.level()).byType(ModRecipeTypes.JEWEL_CRAFTING.get())
                     .stream()
-                    .anyMatch(holder -> holder.value().source().test(stack));
+                    .anyMatch(holder -> holder.value().result().is(stack.getItem()));
             }
         });
 
@@ -194,7 +193,7 @@ public class JewelCraftingMenu extends AbstractContainerMenu {
     public @Nullable RecipeHolder<JewelCraftingRecipe> findRecipeBySource(ItemStack source) {
         return RecipesRecord.getRecipes(this.player.level()).byType(ModRecipeTypes.JEWEL_CRAFTING.get())
             .stream()
-            .filter(holder -> holder.value().source().test(source))
+            .filter(holder -> holder.value().result().is(source.getItem()))
             .findFirst()
             .orElse(null);
     }
@@ -229,22 +228,19 @@ public class JewelCraftingMenu extends AbstractContainerMenu {
         ItemStack itemStack = ItemStack.EMPTY;
         ServerPlayer serverPlayer = (ServerPlayer) player;
         var input = new JewelCraftingRecipe.Input(sourceContainer.getItem(0), craftingContainer.getItems());
-        Optional<RecipeHolder<JewelCraftingRecipe>> recipeOp = RecipesRecord.getRecipes(level).getRecipesFor(
-            ModRecipeTypes.JEWEL_CRAFTING.get(),
-            input,
-            serverPlayer.level()
-        ).findAny();
-        if (recipeOp.isPresent()) {
-            RecipeHolder<JewelCraftingRecipe> holder = recipeOp.get();
+        RecipeHolder<JewelCraftingRecipe> holder = sourceContainer.getRecipe();
+        if (holder != null) {
             JewelCraftingRecipe recipe = holder.value();
             if (recipe.matches(input, level)) {
                 if (resultContainer.setRecipeUsed(serverPlayer, holder)) {
                     ItemStack result = recipe.assemble(input);
                     if (result.isItemEnabled(level.enabledFeatures())) {
                         itemStack = result;
-                        ItemEnchantments.Mutable enchantments = new ItemEnchantments.Mutable(ItemEnchantments.EMPTY);
-                        enchantments.set(level.registryAccess().holderOrThrow(Enchantments.VANISHING_CURSE), 1);
-                        itemStack.set(DataComponents.ENCHANTMENTS, enchantments.toImmutable());
+                        if (recipe.hasVanishingCurse()) {
+                            ItemEnchantments.Mutable enchantments = new ItemEnchantments.Mutable(ItemEnchantments.EMPTY);
+                            enchantments.set(level.registryAccess().holderOrThrow(Enchantments.VANISHING_CURSE), 1);
+                            itemStack.set(DataComponents.ENCHANTMENTS, enchantments.toImmutable());
+                        }
                     }
                 }
             }
@@ -272,17 +268,17 @@ public class JewelCraftingMenu extends AbstractContainerMenu {
             .orElse(null);
         if (recipe == null) return;
 
-        List<ItemIngredientPredicate> ingredients = recipe.ingredients();
+        var ingredients = recipe.mergedIngredients();
         for (int i = 0; i < Math.min(ingredients.size(), 4); i++) {
             this.quickMoveStack(this.player, JewelCraftingMenu.CRAFT_SLOT_START + i);
-            this.moveInvItemTo(ingredients.get(i), JewelCraftingMenu.CRAFT_SLOT_START + i);
+            this.moveInvItemTo(ingredients.get(i).getKey().getValues().get(0).value(), JewelCraftingMenu.CRAFT_SLOT_START + i);
         }
     }
 
-    protected void moveInvItemTo(ItemIngredientPredicate needItem, int targetIndex) {
+    protected void moveInvItemTo(Item needItem, int targetIndex) {
         for (int i = JewelCraftingMenu.INV_SLOT_START; i < JewelCraftingMenu.USE_ROW_SLOT_END; i++) {
             Slot slot = this.slots.get(i);
-            if (!needItem.test(slot.getItem())) continue;
+            if (!slot.getItem().is(needItem)) continue;
             if (!this.moveItemStackTo(slot.getItem(), targetIndex, targetIndex + 1, false)) {
                 return;
             }

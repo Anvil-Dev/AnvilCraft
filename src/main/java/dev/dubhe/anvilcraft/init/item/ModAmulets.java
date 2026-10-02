@@ -1,49 +1,164 @@
 package dev.dubhe.anvilcraft.init.item;
 
+import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.api.amulet.Amulet;
+import dev.dubhe.anvilcraft.api.amulet.effect.ActAsScarecrowAmuletEffect;
+import dev.dubhe.anvilcraft.api.amulet.effect.AttributeAmuletEffect;
+import dev.dubhe.anvilcraft.api.amulet.effect.DiscountAmuletEffect;
+import dev.dubhe.anvilcraft.api.amulet.effect.GiveMobEffectAmuletEffect;
+import dev.dubhe.anvilcraft.api.amulet.effect.IgnoreGravityAmuletEffect;
+import dev.dubhe.anvilcraft.api.amulet.effect.IgnoreMobTargetAmuletEffect;
+import dev.dubhe.anvilcraft.api.amulet.effect.ImmuneAbnormalItemAmuletEffect;
+import dev.dubhe.anvilcraft.api.amulet.effect.ImmuneEatEffectAmuletEffect;
+import dev.dubhe.anvilcraft.api.amulet.effect.ImmuneEntityAnvilDamageAmuletEffect;
+import dev.dubhe.anvilcraft.api.amulet.effect.ImmuneFriendlyDamageAmuletEffect;
+import dev.dubhe.anvilcraft.api.amulet.effect.ImmuneKnockbackAmuletEffect;
+import dev.dubhe.anvilcraft.api.amulet.effect.ImmuneMobEffectAmuletEffect;
+import dev.dubhe.anvilcraft.api.amulet.effect.ImmuneTypedDamageAmuletEffect;
+import dev.dubhe.anvilcraft.api.amulet.effect.ImmuneVibrationAmuletEffect;
+import dev.dubhe.anvilcraft.api.amulet.effect.ScarePhantomAmuletEffect;
+import dev.dubhe.anvilcraft.api.amulet.effect.TameAnimalAmuletEffect;
+import dev.dubhe.anvilcraft.api.amulet.effect.WrapOtherAmuletEffect;
 import dev.dubhe.anvilcraft.init.entity.ModDamageTypeTags;
-import dev.dubhe.anvilcraft.item.property.component.amulet.AnvilAmulet;
-import dev.dubhe.anvilcraft.item.property.component.amulet.ComradeAmulet;
-import dev.dubhe.anvilcraft.item.property.component.amulet.DiscountAmulet;
-import dev.dubhe.anvilcraft.item.property.component.amulet.DoNothingAmulet;
-import dev.dubhe.anvilcraft.item.property.component.amulet.GiveEffectAmulet;
-import dev.dubhe.anvilcraft.item.property.component.amulet.ImmuneDamageAmulet;
-import dev.dubhe.anvilcraft.item.property.component.amulet.WrappedOthersAmulet;
-import net.minecraft.advancements.criterion.MinMaxBounds;
-import net.minecraft.world.effect.MobEffectInstance;
+import dev.dubhe.anvilcraft.init.registry.ModRegistryKeys;
+import dev.dubhe.anvilcraft.util.Impersonators;
+import net.minecraft.advancements.criterion.EntityTypePredicate;
+import net.minecraft.advancements.criterion.TagPredicate;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.neoforge.registries.DeferredHolder;
+import net.neoforged.neoforge.registries.DeferredRegister;
+
+import java.util.List;
 
 public class ModAmulets {
-    public static final DiscountAmulet EMERALD = new DiscountAmulet(0.3F);
-    public static final ImmuneDamageAmulet TOPAZ = ImmuneDamageAmulet.builder()
-        .immune(ModDamageTypeTags.TOPAZ_AMULET_VALID)
-        .build();
-    public static final GiveEffectAmulet RUBY = GiveEffectAmulet.inLava(
-        new MobEffectInstance(MobEffects.FIRE_RESISTANCE, 3, 0, false, false),
-        MinMaxBounds.Ints.atMost(3600)
+    public static final int SMALL_AMULET_WEIGHT = 6;
+    public static final int BIG_AMULET_WEIGHT = 9;
+    private static final Identifier ANVIL_KNOCKBACK_RESISTANCE = AnvilCraft.of("anvil_amulet_knockback_resistance");
+    private static final DeferredRegister<Amulet> REGISTER = DeferredRegister.create(
+        ModRegistryKeys.AMULET,
+        AnvilCraft.MOD_ID
     );
-    public static final GiveEffectAmulet SAPPHIRE = GiveEffectAmulet.inWater(
-        new MobEffectInstance(MobEffects.CONDUIT_POWER, 3, 0, false, false),
-        MinMaxBounds.Ints.atMost(3600)
+
+    public static final DeferredHolder<Amulet, Amulet> EMERALD = REGISTER.register(
+        "emerald",
+        () -> Amulet.of(
+            new DiscountAmuletEffect(0.3F),
+            new IgnoreMobTargetAmuletEffect(List.of(EntityTypePredicate.of(BuiltInRegistries.ENTITY_TYPE, EntityType.IRON_GOLEM)))
+        )
     );
-    public static final AnvilAmulet ANVIL = new AnvilAmulet();
-    public static final ComradeAmulet COMRADE = ComradeAmulet.empty();
-    public static final ImmuneDamageAmulet FEATHER = ImmuneDamageAmulet.builder()
-        .immune(ModDamageTypeTags.FEATHER_AMULET_VALID)
-        .build();
-    public static final DoNothingAmulet CAT = new DoNothingAmulet();
-    public static final DoNothingAmulet DOG = new DoNothingAmulet();
-    public static final DoNothingAmulet SILENCE = new DoNothingAmulet();
-    public static final DoNothingAmulet ABNORMAL = new DoNothingAmulet();
-    public static final WrappedOthersAmulet GEM = WrappedOthersAmulet.of(
-        ModAmulets.EMERALD,
-        ModAmulets.TOPAZ,
-        ModAmulets.RUBY,
-        ModAmulets.SAPPHIRE
+    public static final DeferredHolder<Amulet, Amulet> TOPAZ = REGISTER.register(
+        "topaz",
+        () -> Amulet.of(
+            new ImmuneTypedDamageAmuletEffect(List.of(TagPredicate.is(ModDamageTypeTags.TOPAZ_AMULET_VALID))),
+            GiveMobEffectAmuletEffect.always(MobEffects.HASTE, 0)
+        )
     );
-    public static final WrappedOthersAmulet NATURE = WrappedOthersAmulet.of(
-        ModAmulets.FEATHER,
-        ModAmulets.CAT,
-        ModAmulets.DOG,
-        ModAmulets.SILENCE
+    public static final DeferredHolder<Amulet, Amulet> RUBY = REGISTER.register(
+        "ruby",
+        () -> Amulet.of(
+            GiveMobEffectAmuletEffect.always(MobEffects.FIRE_RESISTANCE, 0),
+            GiveMobEffectAmuletEffect.onFire(MobEffects.STRENGTH, 1),
+            GiveMobEffectAmuletEffect.notOnFire(MobEffects.STRENGTH, 0)
+        )
     );
+    public static final DeferredHolder<Amulet, Amulet> SAPPHIRE = REGISTER.register(
+        "sapphire",
+        () -> Amulet.of(
+            GiveMobEffectAmuletEffect.always(MobEffects.CONDUIT_POWER, 0),
+            GiveMobEffectAmuletEffect.inWaterOrBreathing(MobEffects.RESISTANCE, 0)
+        )
+    );
+    public static final DeferredHolder<Amulet, Amulet> ANVIL = REGISTER.register(
+        "anvil",
+        () -> Amulet.of(
+            ImmuneTypedDamageAmuletEffect.of(ModDamageTypeTags.ANVIL_AMULET_VALID),
+            ImmuneEntityAnvilDamageAmuletEffect.INSTANCE,
+            ImmuneMobEffectAmuletEffect.of(MobEffects.LEVITATION),
+            new AttributeAmuletEffect(
+                Attributes.KNOCKBACK_RESISTANCE,
+                ModAmulets.ANVIL_KNOCKBACK_RESISTANCE,
+                1,
+                AttributeModifier.Operation.ADD_VALUE
+            ),
+            ImmuneKnockbackAmuletEffect.INSTANCE,
+            IgnoreGravityAmuletEffect.INSTANCE
+        )
+    );
+    public static final DeferredHolder<Amulet, Amulet> COMRADE = REGISTER.register(
+        "comrade",
+        () -> Amulet.of(ImmuneFriendlyDamageAmuletEffect.INSTANCE)
+    );
+    public static final DeferredHolder<Amulet, Amulet> FEATHER = REGISTER.register(
+        "feather",
+        () -> Amulet.of(
+            new ImmuneTypedDamageAmuletEffect(List.of(TagPredicate.is(ModDamageTypeTags.FEATHER_AMULET_VALID))),
+            ImmuneMobEffectAmuletEffect.whileSneaking(MobEffects.SLOW_FALLING),
+            GiveMobEffectAmuletEffect.notSneaking(MobEffects.SLOW_FALLING, 0)
+        )
+    );
+    public static final DeferredHolder<Amulet, Amulet> ARMADILLO = REGISTER.register(
+        "armadillo",
+        () -> Amulet.of(
+            new ActAsScarecrowAmuletEffect<>(Impersonators.ARMADILLO),
+            GiveMobEffectAmuletEffect.sneaking(MobEffects.RESISTANCE, 1)
+        )
+    );
+    public static final DeferredHolder<Amulet, Amulet> CAT = REGISTER.register(
+        "cat",
+        () -> Amulet.of(
+            new ActAsScarecrowAmuletEffect<>(Impersonators.CAT),
+            ScarePhantomAmuletEffect.INSTANCE,
+            new TameAnimalAmuletEffect(List.of(EntityTypePredicate.of(BuiltInRegistries.ENTITY_TYPE, EntityType.CAT)))
+        )
+    );
+    public static final DeferredHolder<Amulet, Amulet> DOG = REGISTER.register(
+        "dog",
+        () -> Amulet.of(
+            new ActAsScarecrowAmuletEffect<>(Impersonators.WOLF),
+            new TameAnimalAmuletEffect(List.of(EntityTypePredicate.of(BuiltInRegistries.ENTITY_TYPE, EntityType.WOLF)))
+        )
+    );
+    public static final DeferredHolder<Amulet, Amulet> SILENCE = REGISTER.register(
+        "silence",
+        () -> Amulet.of(
+            ImmuneMobEffectAmuletEffect.of(MobEffects.DARKNESS),
+            ImmuneVibrationAmuletEffect.INSTANCE
+        )
+    );
+    public static final DeferredHolder<Amulet, Amulet> ABNORMAL = REGISTER.register(
+        "abnormal",
+        () -> Amulet.of(
+            new ImmuneEatEffectAmuletEffect(MobEffectCategory.HARMFUL),
+            ImmuneAbnormalItemAmuletEffect.INSTANCE
+        )
+    );
+    public static final DeferredHolder<Amulet, Amulet> GEM = REGISTER.register(
+        "gem",
+        () -> Amulet.of(new WrapOtherAmuletEffect(List.of(
+            ModAmulets.EMERALD.getKey(),
+            ModAmulets.TOPAZ.getKey(),
+            ModAmulets.RUBY.getKey(),
+            ModAmulets.SAPPHIRE.getKey()
+        )))
+    );
+    public static final DeferredHolder<Amulet, Amulet> NATURE = REGISTER.register(
+        "nature",
+        () -> Amulet.of(new WrapOtherAmuletEffect(List.of(
+            ModAmulets.ARMADILLO.getKey(),
+            ModAmulets.CAT.getKey(),
+            ModAmulets.DOG.getKey(),
+            ModAmulets.SILENCE.getKey()
+        )))
+    );
+
+    public static void register(IEventBus modEventBus) {
+        REGISTER.register(modEventBus);
+    }
 }

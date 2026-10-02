@@ -32,12 +32,12 @@ public interface IPowerProducer extends IPowerComponent {
             0,
             this.getRange(),
             this.getShape(),
-            PowerComponentType.PRODUCER
+            PowerComponentType.PRODUCER,
+            this.isInfinitePower()
         );
     }
 
     /// 实际电量
-    // @OnlyIn(Dist.CLIENT)
     default int getServerPower() {
         Optional<SimplePowerGrid> s = SimplePowerGrid.findPowerGrid(this.getPos());
         if (s.isPresent()) {

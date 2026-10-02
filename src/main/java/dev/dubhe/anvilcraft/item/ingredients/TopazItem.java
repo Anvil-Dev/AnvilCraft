@@ -1,6 +1,6 @@
 package dev.dubhe.anvilcraft.item.ingredients;
 
-import net.minecraft.advancements.CriteriaTriggers;
+import dev.dubhe.anvilcraft.init.ModCriterionTriggers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ItemParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
@@ -34,8 +34,8 @@ public class TopazItem extends Item {
             Player player = context.getPlayer();
             lightningBolt.setPos(clickedPos.getCenter());
             level.addFreshEntity(lightningBolt);
-            if (!level.isClientSide()) {
-                CriteriaTriggers.CONSUME_ITEM.trigger((ServerPlayer) player, itemInHand);
+            if (player instanceof ServerPlayer serverPlayer) {
+                ModCriterionTriggers.USE_ITEM.get().trigger(serverPlayer, this);
             }
             if (player != null && player.getAbilities().instabuild) return InteractionResult.SUCCESS;
             if (player != null) this.breakItem(player, itemInHand);

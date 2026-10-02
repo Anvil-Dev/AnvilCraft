@@ -1,0 +1,12 @@
+{
+  "rules": [
+    {
+      "item": "minecraft:light_gray_bed",
+      "properties": "part=foot"
+    },
+    {
+      "item": {},
+      "properties": "part=head"
+    }
+  ]
+}

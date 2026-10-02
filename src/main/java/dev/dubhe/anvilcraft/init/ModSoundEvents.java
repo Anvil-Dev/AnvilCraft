@@ -12,6 +12,11 @@ public class ModSoundEvents {
     private static final DeferredRegister<SoundEvent> REGISTER =
         DeferredRegister.create(Registries.SOUND_EVENT, AnvilCraft.MOD_ID);
 
+    public static final Supplier<SoundEvent> AUTO_ENCHANTING_TABLE_USE = REGISTER.register(
+        "block.anvilcraft.auto_enchanting_table.use",
+        () -> SoundEvent.createVariableRangeEvent(AnvilCraft.of("block.anvilcraft.auto_enchanting_table.use"))
+    );
+
     public static final Supplier<SoundEvent> PLASMA_JET = ModSoundEvents.REGISTER.register(
         "plasma_jet", () -> SoundEvent.createFixedRangeEvent(AnvilCraft.of("plasma_jet"), 16.0f)
     );
@@ -57,6 +62,18 @@ public class ModSoundEvents {
 
     public static final Supplier<SoundEvent> ANVIL_HAMMER_ROTATE_BLOCK = ModSoundEvents.REGISTER.register(
         "anvil_hammer_rotate_block", () -> SoundEvent.createVariableRangeEvent(AnvilCraft.of("anvil_hammer_rotate_block"))
+    );
+
+    public static final Supplier<SoundEvent> QUENCHED_OUT = ModSoundEvents.REGISTER.register(
+        "quenched_out", () -> SoundEvent.createFixedRangeEvent(AnvilCraft.of("quenched_out"), 64.0F)
+    );
+
+    public static final Supplier<SoundEvent> ABOVE_THE_MOON_DUST = REGISTER.register(
+        "music.mun.above_the_moon_dust", () -> SoundEvent.createVariableRangeEvent(AnvilCraft.of("music.mun.above_the_moon_dust"))
+    );
+
+    public static final Supplier<SoundEvent> FAR_SIDE_GLOW = REGISTER.register(
+        "music.mun.far_side_glow", () -> SoundEvent.createVariableRangeEvent(AnvilCraft.of("music.mun.far_side_glow"))
     );
 
     public static void register(IEventBus modBus) {

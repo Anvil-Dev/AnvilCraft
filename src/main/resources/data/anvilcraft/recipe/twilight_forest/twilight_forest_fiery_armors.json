@@ -1,0 +1,27 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:mod_loaded",
+      "modid": "twilightforest"
+    }
+  ],
+  "type": "anvilcraft:deformation",
+  "material": {
+    "type": "anvilcraft:repair_material",
+    "cost": 2
+  },
+  "inputs": [
+    {
+      "id": "twilightforest:fiery_helmet"
+    },
+    {
+      "id": "twilightforest:fiery_chestplate"
+    },
+    {
+      "id": "twilightforest:fiery_leggings"
+    },
+    {
+      "id": "twilightforest:fiery_boots"
+    }
+  ]
+}

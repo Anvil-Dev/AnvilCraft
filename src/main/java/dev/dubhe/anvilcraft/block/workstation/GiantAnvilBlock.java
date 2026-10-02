@@ -5,6 +5,7 @@ import com.google.common.collect.ImmutableMap;
 import dev.anvilcraft.lib.v2.util.ShapeUtil;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.event.AnvilEvent;
+import dev.dubhe.anvilcraft.api.event.GiantAnvilEvent;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.api.power.IPowerComponent;
 import dev.dubhe.anvilcraft.block.multipart.SimpleMultiPartBlock;
@@ -13,6 +14,7 @@ import dev.dubhe.anvilcraft.block.power.ring.DeflectionRingBlock;
 import dev.dubhe.anvilcraft.block.state.Cube3x3PartHalf;
 import dev.dubhe.anvilcraft.block.state.DirectionCube3x3PartHalf;
 import dev.dubhe.anvilcraft.block.state.GiantAnvilCube;
+import dev.dubhe.anvilcraft.building.BuildingRodUndo;
 import dev.dubhe.anvilcraft.entity.FallingGiantAnvilEntity;
 import dev.dubhe.anvilcraft.init.ModSoundEvents;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
@@ -57,7 +59,6 @@ import net.minecraft.world.level.pathfinder.PathComputationType;
 import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.neoforge.common.NeoForge;
@@ -198,12 +199,7 @@ public class GiantAnvilBlock extends SimpleMultiPartBlock<Cube3x3PartHalf> imple
     }
 
     @Override
-    public VoxelShape getShape(
-        BlockState state,
-        BlockGetter level,
-        BlockPos pos,
-        CollisionContext context
-    ) {
+    public VoxelShape getPartShape(BlockState state) {
         return switch (state.getValue(GiantAnvilBlock.HALF)) {
             case MID_E -> GiantAnvilBlock.MID_E;
             case MID_W -> GiantAnvilBlock.MID_W;
@@ -229,6 +225,11 @@ public class GiantAnvilBlock extends SimpleMultiPartBlock<Cube3x3PartHalf> imple
     public BlockState placedState(Cube3x3PartHalf part, BlockState state) {
         return super.placedState(part, state)
             .setValue(GiantAnvilBlock.CUBE, part == Cube3x3PartHalf.MID_CENTER ? GiantAnvilCube.CENTER : GiantAnvilCube.CORNER);
+    }
+
+    @Override
+    public BlockState getModelHolderState(BlockState original) {
+        return original.setValue(GiantAnvilBlock.HALF, Cube3x3PartHalf.MID_CENTER).setValue(GiantAnvilBlock.CUBE, GiantAnvilCube.CENTER);
     }
 
     @Override
@@ -275,7 +276,7 @@ public class GiantAnvilBlock extends SimpleMultiPartBlock<Cube3x3PartHalf> imple
             ItemEntity itemEntity = new ItemEntity(
                 level, belowPos.getX(), belowPos.getY(), belowPos.getZ(), ModBlocks.GIANT_ANVIL.asStack());
             itemEntity.setDefaultPickUpDelay();
-            level.addFreshEntity(itemEntity);
+            if (level.addFreshEntity(itemEntity)) BuildingRodUndo.spawnedBy(fallingBlock, itemEntity);
             return;
         }
         for (Cube3x3PartHalf part : this.getParts()) {
@@ -314,6 +315,7 @@ public class GiantAnvilBlock extends SimpleMultiPartBlock<Cube3x3PartHalf> imple
         BlockPos pos,
         RandomSource random
     ) {
+        if (NeoForge.EVENT_BUS.post(new GiantAnvilEvent.BlockTick(this, state, level, pos, random)).isCanceled()) return;
         BlockState ringState = level.getBlockState(pos.subtract(state.getValue(GiantAnvilBlock.HALF).getOffset()).above(3));
 
         boolean isHeldByAcceleration = ringState.getBlock() instanceof AccelerationRingBlock

@@ -19,6 +19,8 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
+import net.minecraft.world.level.block.Mirror;
+import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -94,6 +96,16 @@ public class StructureScannerBlock extends BaseEntityBlock implements IHammerRem
             .setValue(StructureScannerBlock.FACING, horizontalFacing)
             .setValue(StructureScannerBlock.UPSIDE_DOWN, upsideDown)
             .setValue(StructureScannerBlock.POWERED, context.getLevel().hasNeighborSignal(context.getClickedPos()));
+    }
+
+    @Override
+    protected BlockState rotate(BlockState state, Rotation rotation) {
+        return state.setValue(StructureScannerBlock.FACING, rotation.rotate(state.getValue(StructureScannerBlock.FACING)));
+    }
+
+    @Override
+    protected BlockState mirror(BlockState state, Mirror mirror) {
+        return state.setValue(StructureScannerBlock.FACING, mirror.mirror(state.getValue(StructureScannerBlock.FACING)));
     }
 
     @Override

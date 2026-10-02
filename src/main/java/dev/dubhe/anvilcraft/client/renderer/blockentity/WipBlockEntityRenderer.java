@@ -4,79 +4,86 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.entity.WipBlockEntity;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.state.WipBlockRenderState;
+import dev.dubhe.anvilcraft.client.selection.ModelSelectionRenderer;
+import dev.dubhe.anvilcraft.client.selection.SelectionModel;
 import dev.dubhe.anvilcraft.recipe.anvil.procedural.ProceduralProcessRecipe;
 import dev.dubhe.anvilcraft.recipe.sync.RecipesRecord;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.SubmitNodeCollector;
-import net.minecraft.client.renderer.block.BlockModelRenderState;
+import net.minecraft.client.renderer.block.ModelBlockRenderer;
 import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
-import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.util.RandomSource;
-import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.client.model.standalone.StandaloneModelKey;
-import org.joml.Matrix4f;
 import org.jspecify.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
-public class WipBlockEntityRenderer implements BlockEntityRenderer<WipBlockEntity, WipBlockRenderState> {
+public class WipBlockEntityRenderer
+    implements BlockEntityRenderer<WipBlockEntity, WipBlockRenderState>, ModelSelectionRenderer<WipBlockEntity> {
 
     private static final Map<Identifier, StandaloneModelKey<BlockStateModel>> MODEL_KEYS = new HashMap<>();
 
     public static final StandaloneModelKey<BlockStateModel> SPACETIME_SUPERCOMPUTER_WIP = WipBlockEntityRenderer.registerModel(
-        "block/spacetime_supercomputer_wip"
+        "block/wip_display/spacetime_supercomputer_wip"
     );
     public static final StandaloneModelKey<BlockStateModel> ANCIENT_DEBRIS_WIP = WipBlockEntityRenderer.registerModel(
-        "block/ancient_debris_wip");
+        "block/wip_display/ancient_debris_wip");
     public static final StandaloneModelKey<BlockStateModel> NETHERITE_BLOCK_WIP = WipBlockEntityRenderer.registerModel(
-        "block/netherite_block_wip");
+        "block/wip_display/netherite_block_wip");
     public static final StandaloneModelKey<BlockStateModel> HEAVY_IRON_BLOCK_WIP = WipBlockEntityRenderer.registerModel(
-        "block/heavy_iron_block_wip");
+        "block/wip_display/heavy_iron_block_wip");
     public static final StandaloneModelKey<BlockStateModel> ANCIENT_SEA_REEF_WIP = WipBlockEntityRenderer.registerModel(
-        "block/ancient_sea_reef_wip");
+        "block/wip_display/ancient_sea_reef_wip");
     public static final StandaloneModelKey<BlockStateModel> NESTING_SHULKER_BOX = WipBlockEntityRenderer.registerModel(
-        "block/nesting_shulker_box"
+        "block/wip_display/nesting_shulker_box"
     );
     public static final StandaloneModelKey<BlockStateModel> OVER_NESTING_SHULKER_BOX = WipBlockEntityRenderer.registerModel(
-        "block/over_nesting_shulker_box"
+        "block/wip_display/over_nesting_shulker_box"
     );
     public static final StandaloneModelKey<BlockStateModel> SUPERCRITICAL_NESTING_SHULKER_BOX = WipBlockEntityRenderer.registerModel(
-        "block/supercritical_nesting_shulker_box"
+        "block/wip_display/supercritical_nesting_shulker_box"
     );
     public static final StandaloneModelKey<BlockStateModel> SPACETIME_SUPERCOMPUTER_WIP_2 = WipBlockEntityRenderer.registerModel(
-        "block/spacetime_supercomputer_wip_2"
+        "block/wip_display/spacetime_supercomputer_wip_2"
     );
     public static final StandaloneModelKey<BlockStateModel> SPACETIME_SUPERCOMPUTER_WIP_3 = WipBlockEntityRenderer.registerModel(
-        "block/spacetime_supercomputer_wip_3"
+        "block/wip_display/spacetime_supercomputer_wip_3"
     );
     public static final StandaloneModelKey<BlockStateModel> NETHERITE_BLOCK_WIP_2 = WipBlockEntityRenderer.registerModel(
-        "block/netherite_block_wip_2"
+        "block/wip_display/netherite_block_wip_2"
     );
     public static final StandaloneModelKey<BlockStateModel> HEAVY_IRON_BLOCK_WIP_2 = WipBlockEntityRenderer.registerModel(
-        "block/heavy_iron_block_wip_2"
+        "block/wip_display/heavy_iron_block_wip_2"
     );
     public static final StandaloneModelKey<BlockStateModel> ANCIENT_SEA_REEF_WIP_2 = WipBlockEntityRenderer.registerModel(
-        "block/ancient_sea_reef_wip_2"
+        "block/wip_display/ancient_sea_reef_wip_2"
     );
     public static final StandaloneModelKey<BlockStateModel> SHULKER_BOX_WIP = WipBlockEntityRenderer.registerModel(
-        "block/shulker_box_wip"
+        "block/wip_display/shulker_box_wip"
     );
     public static final StandaloneModelKey<BlockStateModel> SHULKER_BOX_WIP_2 = WipBlockEntityRenderer.registerModel(
-        "block/shulker_box_wip_2"
+        "block/wip_display/shulker_box_wip_2"
+    );
+
+    public static final StandaloneModelKey<BlockStateModel> MASS_ENERGY_INVERTER_WIP = WipBlockEntityRenderer.registerModel(
+        "block/wip_display/mass_energy_inverter_wip"
+    );
+    public static final StandaloneModelKey<BlockStateModel> MASS_ENERGY_INVERTER_WIP_2 = WipBlockEntityRenderer.registerModel(
+        "block/wip_display/mass_energy_inverter_wip_2"
+    );
+    public static final StandaloneModelKey<BlockStateModel> MASS_ENERGY_INVERTER_WIP_3 = WipBlockEntityRenderer.registerModel(
+        "block/wip_display/mass_energy_inverter_wip_3"
     );
 
     private static StandaloneModelKey<BlockStateModel> registerModel(String path) {
@@ -87,10 +94,20 @@ public class WipBlockEntityRenderer implements BlockEntityRenderer<WipBlockEntit
     }
 
     public static @Nullable StandaloneModelKey<BlockStateModel> getModelKey(Identifier id) {
-        return WipBlockEntityRenderer.MODEL_KEYS.get(id);
+        StandaloneModelKey<BlockStateModel> key = WipBlockEntityRenderer.MODEL_KEYS.get(id);
+        if (key == null && id.getNamespace().equals(AnvilCraft.MOD_ID) && id.getPath().startsWith("block/")
+            && !id.getPath().startsWith("block/wip_display/")) {
+            key = WipBlockEntityRenderer.MODEL_KEYS.get(id.withPath("block/wip_display/" + id.getPath().substring(6)));
+        }
+        return key;
     }
 
+    private final ModelBlockRenderer ambientRenderer;
+    private final ModelBlockRenderer flatRenderer;
+
     public WipBlockEntityRenderer(BlockEntityRendererProvider.Context context) {
+        this.ambientRenderer = new ModelBlockRenderer(true, false, Minecraft.getInstance().getBlockColors());
+        this.flatRenderer = new ModelBlockRenderer(false, false, Minecraft.getInstance().getBlockColors());
     }
 
     @Override
@@ -107,50 +124,47 @@ public class WipBlockEntityRenderer implements BlockEntityRenderer<WipBlockEntit
         ModelFeatureRenderer.@Nullable CrumblingOverlay breakProgress
     ) {
         BlockEntityRenderer.super.extractRenderState(be, state, partialTicks, cameraPosition, breakProgress);
+        state.clearQuads();
         Minecraft mc = Minecraft.getInstance();
         ClientLevel level = mc.level;
         if (level == null) return;
-
         BlockStateModel model = this.getDisplayedModel(be, level, mc);
-        BlockModelRenderState blockModelState = new BlockModelRenderState();
-        if (model != null) {
-            model.collectParts(
-                level,
-                be.getBlockPos(),
-                be.getBlockState(),
-                RandomSource.create(be.getInitialBlock().getSeed(be.getBlockPos())),
-                blockModelState.setupModel(new Matrix4f(), false)
-            );
-        }
-        state.setBlockModel(blockModelState);
+        if (model == null) return;
+        ModelBlockRenderer renderer = mc.options.ambientOcclusion().get() ? this.ambientRenderer : this.flatRenderer;
+        var initial = be.getInitialBlock();
+        renderer.tesselateBlock(state::addQuad, 0, 0, 0, level, be.getBlockPos(), initial, model, initial.getSeed(be.getBlockPos()));
     }
 
     private @Nullable BlockStateModel getDisplayedModel(WipBlockEntity be, Level level, Minecraft mc) {
-        // Try to get standalone model from recipe's displayedModel field
-        Optional<Identifier> displayedModelId = Optional.ofNullable(be.getRecipeId())
-            .map(recipeId -> {
-                ResourceKey<Recipe<?>> key = ResourceKey.create(Registries.RECIPE, recipeId);
-                RecipeHolder<?> holder = RecipesRecord.getRecipes(level).byKey(key);
-                if (holder != null && holder.value() instanceof ProceduralProcessRecipe ppr) {
-                    return ppr.getDisplayedModelForStep(be.getStepCount()).orElse(null);
-                }
-                return null;
-            });
-        if (displayedModelId.isPresent()) {
-            StandaloneModelKey<BlockStateModel> modelKey = WipBlockEntityRenderer.getModelKey(displayedModelId.get());
-            if (modelKey != null) {
-                BlockStateModel standaloneModel = mc.getModelManager().getStandaloneModel(modelKey);
-                if (standaloneModel != null) {
-                    return standaloneModel;
-                }
+        SelectionModel selected = this.getDisplayedSelection(be, level);
+        if (selected instanceof SelectionModel.State state && state.state().isAir()) return null;
+        return switch (selected) {
+            case SelectionModel.Standalone standalone -> mc.getModelManager().getStandaloneModel(
+                WipBlockEntityRenderer.getModelKeyForSelection(standalone));
+            case SelectionModel.State state -> mc.getModelManager().getBlockStateModelSet().get(state.state());
+        };
+    }
+
+    @SuppressWarnings("unchecked")
+    private static StandaloneModelKey<BlockStateModel> getModelKeyForSelection(SelectionModel.Standalone model) {
+        return (StandaloneModelKey<BlockStateModel>) model.key();
+    }
+
+    private SelectionModel getDisplayedSelection(WipBlockEntity be, Level level) {
+        Identifier recipeId = be.getRecipeId();
+        if (recipeId != null) {
+            RecipeHolder<?> holder = RecipesRecord.getRecipes(level).byKey(ResourceKey.create(Registries.RECIPE, recipeId));
+            if (holder != null && holder.value() instanceof ProceduralProcessRecipe recipe) {
+                var modelKey = recipe.getDisplayedModelForStep(be.getStepCount()).map(WipBlockEntityRenderer::getModelKey).orElse(null);
+                if (modelKey != null) return SelectionModel.standalone(modelKey);
             }
         }
-        // Fallback: render the initial block's model
-        BlockState initialState = be.getInitialBlock();
-        if (!initialState.isAir()) {
-            return mc.getModelManager().getBlockStateModelSet().get(initialState);
-        }
-        return null;
+        return new SelectionModel.State(be.getInitialBlock());
+    }
+
+    @Override
+    public void collectSelectionModels(WipBlockEntity be, float partialTick, PoseStack pose, ModelConsumer consumer) {
+        if (be.getLevel() != null) consumer.accept(this.getDisplayedSelection(be, be.getLevel()), pose);
     }
 
     @Override
@@ -160,8 +174,6 @@ public class WipBlockEntityRenderer implements BlockEntityRenderer<WipBlockEntit
         SubmitNodeCollector collector,
         CameraRenderState camera
     ) {
-        pose.pushPose();
-        state.getBlockModel().submit(pose, collector, state.lightCoords, OverlayTexture.NO_OVERLAY, 0);
-        pose.popPose();
+        state.submitGeometry(pose, collector);
     }
 }

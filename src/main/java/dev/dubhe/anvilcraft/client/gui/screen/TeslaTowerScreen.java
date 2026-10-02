@@ -129,7 +129,7 @@ public class TeslaTowerScreen extends AbstractContainerScreen<TeslaTowerMenu> {
         this.refreshFilterList();
     }
 
-    private void onWhiteListFilterButtonClick(int selectedIndex) {
+    private void onAllowListFilterButtonClick(int selectedIndex) {
         int actualIndex = selectedIndex;
         actualIndex += this.rightScrollOff;
         if (this.whiteFilters.isEmpty() || actualIndex >= this.whiteFilters.size()) return;
@@ -219,7 +219,7 @@ public class TeslaTowerScreen extends AbstractContainerScreen<TeslaTowerMenu> {
                 TeslaTowerScreen.SOUND_MUTED,
                 b -> {
                     if (b instanceof TeslaTowerButton silencerButton) {
-                        this.onWhiteListFilterButtonClick(silencerButton.getIndex());
+                        this.onAllowListFilterButtonClick(silencerButton.getIndex());
                     }
                 },
                 this,

@@ -4,6 +4,7 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.hammer.IHammerChangeable;
 import dev.dubhe.anvilcraft.block.entity.CreativeCrateBlockEntity;
 import dev.dubhe.anvilcraft.block.power.batch.BaseBatchCraftingBlock;
+import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.item.tool.AnvilHammerItem;
 import net.minecraft.core.BlockPos;
@@ -44,6 +45,11 @@ public class BlockEventListener {
 
     public static void clearCreativeCrateAttack(Player player, BlockPos pos) {
         BlockEventListener.CREATIVE_CRATE_ATTACKS.remove(player.getUUID(), pos);
+    }
+
+    @SubscribeEvent
+    public static void useRuinsBlock(PlayerInteractEvent.RightClickBlock event) {
+        if (event.getLevel().getBlockState(event.getPos()).is(ModBlocks.RUINS_BLOCK)) event.setUseBlock(TriState.TRUE);
     }
 
     /// 侦听左键方块事件

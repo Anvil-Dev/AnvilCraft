@@ -3,7 +3,7 @@
   "category": "misc",
   "key": {
     "A": "#c:ingots/copper",
-    "B": "#c:glass_blocks",
+    "B": "minecraft:glass",
     "C": "anvilcraft:hollow_magnet_block"
   },
   "pattern": [

@@ -19,6 +19,7 @@ import dev.dubhe.anvilcraft.block.entity.megastructure.ExtractorHandler;
 import dev.dubhe.anvilcraft.block.entity.megastructure.GiantExtractorHandler;
 import dev.dubhe.anvilcraft.block.entity.megastructure.MagnetarCoilHandler;
 import dev.dubhe.anvilcraft.block.entity.megastructure.MatterDecompressorHandler;
+import dev.dubhe.anvilcraft.block.entity.megastructure.MonolithDeployerHandler;
 import dev.dubhe.anvilcraft.block.entity.megastructure.PenroseSphereHandler;
 import dev.dubhe.anvilcraft.block.entity.megastructure.TempleHandler;
 import dev.dubhe.anvilcraft.block.entity.megastructure.WormholeStabilizerHandler;
@@ -77,8 +78,19 @@ public final class ModMegastructures {
                 && (context.resources() == null || context.resources().hasCivilization()))
             .ring(1)
             .model(1, ringModel(1, "temple"))
-            .material(Items.GOLD_BLOCK, 64)
+            .material(ModBlocks.ENCHANTED_GOLD_BLOCK.asItem(), 64)
             .handler(TempleHandler::new)
+            .build()
+    );
+    public static final DeferredHolder<Megastructure, Megastructure> MONOLITH_DEPLOYER = register(
+        "monolith_deployer",
+        id -> Megastructure.builder(id, "monolith_deployer")
+            .prerequisite(context -> isPlanet(context) && !isErrorPlanet(context)
+                && MonolithDeployerHandler.canDeploy(context.resources()))
+            .ring(1)
+            .model(1, ringModel(1, "monolith"))
+            .material(ModItems.CIVILIZATION_CATALYST.get(), 1)
+            .handler(MonolithDeployerHandler::new)
             .build()
     );
     public static final DeferredHolder<Megastructure, Megastructure> GIANT_PLANET_EXTRACTOR = register(
@@ -91,10 +103,21 @@ public final class ModMegastructures {
             .handler(GiantExtractorHandler::new)
             .build()
     );
+    public static final DeferredHolder<Megastructure, Megastructure> DYSON_SPHERE_BROWN_DWARF = register(
+        "dyson_sphere_brown_dwarf",
+        id -> Megastructure.builder(id, "dyson_sphere_brown_dwarf")
+            .prerequisite(ModMegastructures::isBrownDwarf)
+            .ring(2)
+            .rotation(ModMegastructures::bodySynchronizedRotation)
+            .model(2, ringModel(2, "dyson_sphere"))
+            .material(ModItems.DYSON_SPHERE_COMPONENT, 8)
+            .handler(() -> new DysonSphereHandler("dyson_sphere_brown_dwarf"))
+            .build()
+    );
     public static final DeferredHolder<Megastructure, Megastructure> STELLAR_RING_COLLIDER = register(
         "stellar_ring_collider",
         id -> Megastructure.builder(id, "stellar_ring_collider")
-            .prerequisite(context -> context.body() instanceof StarData star && star.size() < 48
+            .prerequisite(context -> context.body() instanceof StarData star && !star.usesLargeStellarRings()
                 && star.bodyClass() != CelestialBodyClass.NEUTRON_STAR
                 && star.bodyClass() != CelestialBodyClass.BLACK_HOLE)
             .ring(4)
@@ -173,10 +196,11 @@ public final class ModMegastructures {
         "stellar_evolution_accelerator",
         id -> Megastructure.builder(id, "stellar_evolution_accelerator")
             .prerequisite(context -> context.body() instanceof StarData star
+                && !star.specialRedDwarf()
                 && star.bodyClass() != CelestialBodyClass.WHITE_DWARF
                 && star.bodyClass() != CelestialBodyClass.NEUTRON_STAR
                 && star.bodyClass() != CelestialBodyClass.BLACK_HOLE)
-            .ring(context -> context.body().size() >= 48 ? 6 : 5)
+            .ring(context -> context.body().usesLargeStellarRings() ? 6 : 5)
             .model(5, ringModel(5, "stellar_evolution_accelerator"))
             .model(6, ringModel(6, "stellar_evolution_accelerator"))
             .material(ModItems.STELLAR_EVOLUTION_ACCELERATOR_COMPONENT, 8)
@@ -231,9 +255,13 @@ public final class ModMegastructures {
 
     private static boolean isOrdinaryStar(Megastructure.Context context, boolean large) {
         return context.body() instanceof StarData star
-            && (star.size() >= 48) == large
+            && star.usesLargeStellarRings() == large
             && star.bodyClass() != CelestialBodyClass.NEUTRON_STAR
             && star.bodyClass() != CelestialBodyClass.BLACK_HOLE;
+    }
+
+    private static boolean isBrownDwarf(Megastructure.Context context) {
+        return !context.amplified() && context.body() instanceof GiantPlanetData brown && brown.brownDwarf();
     }
 
     private static boolean isBlackHole(Megastructure.Context context) {

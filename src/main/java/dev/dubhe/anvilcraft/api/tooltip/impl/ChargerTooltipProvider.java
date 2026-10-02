@@ -49,18 +49,22 @@ public class ChargerTooltipProvider extends ITooltipProvider.BlockEntityTooltipP
         }
         if (type == PowerComponentType.PRODUCER) {
             lines.add(Component.translatable("tooltip.anvilcraft.grid_information.producer_stats").withStyle(ChatFormatting.BLUE));
-            lines.add(Component.translatable("tooltip.anvilcraft.grid_information.output_power", componentInfo.produces())
+            lines.add(Component.translatable("tooltip.anvilcraft.grid_information.output_power",
+                    UnitUtil.electricityUnit(componentInfo.produces(), false, componentInfo.infinitePower()))
                 .withStyle(ChatFormatting.GRAY));
         } else if (type == PowerComponentType.CONSUMER) {
             lines.add(Component.translatable("tooltip.anvilcraft.grid_information.consumer_stats").withStyle(ChatFormatting.BLUE));
-            lines.add(Component.translatable("tooltip.anvilcraft.grid_information.input_power", componentInfo.consumes())
+            lines.add(Component.translatable("tooltip.anvilcraft.grid_information.input_power",
+                    UnitUtil.electricityUnit(componentInfo.consumes(), false))
                 .withStyle(ChatFormatting.GRAY));
         }
 
         lines.add(Component.translatable("tooltip.anvilcraft.grid_information.title").withStyle(ChatFormatting.BLUE));
-        lines.add(Component.translatable("tooltip.anvilcraft.grid_information.total_consumed", grid.getConsume())
+        lines.add(Component.translatable("tooltip.anvilcraft.grid_information.total_consumed",
+                    UnitUtil.electricityUnit(grid.getConsume(), false))
             .withStyle(ChatFormatting.GRAY));
-        lines.add(Component.translatable("tooltip.anvilcraft.grid_information.total_generated", grid.getGenerate())
+        lines.add(Component.translatable("tooltip.anvilcraft.grid_information.total_generated",
+                    UnitUtil.electricityUnit(grid.getGenerate(), false, grid.isInfinitePower()))
             .withStyle(ChatFormatting.GRAY));
 
         double progress = charger.getProgress();

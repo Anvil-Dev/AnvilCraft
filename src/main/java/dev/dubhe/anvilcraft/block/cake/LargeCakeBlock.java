@@ -1,15 +1,11 @@
 package dev.dubhe.anvilcraft.block.cake;
 
-import dev.dubhe.anvilcraft.block.multipart.SimpleMultiPartBlock;
 import dev.dubhe.anvilcraft.block.state.Cube3x3PartHalf;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.tags.BlockTags;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.entity.monster.piglin.PiglinAi;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
@@ -23,7 +19,6 @@ import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
-import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.pathfinder.PathComputationType;
 import net.minecraft.world.phys.BlockHitResult;
@@ -34,7 +29,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 
 import java.util.stream.Stream;
 
-public class LargeCakeBlock extends SimpleMultiPartBlock<Cube3x3PartHalf> {
+public class LargeCakeBlock extends Block {
     public static final EnumProperty<Cube3x3PartHalf> HALF = EnumProperty.create("half", Cube3x3PartHalf.class);
 
     protected static final VoxelShape BASE_ANGLE_NW = Stream.of(
@@ -189,16 +184,6 @@ public class LargeCakeBlock extends SimpleMultiPartBlock<Cube3x3PartHalf> {
     }
 
     @Override
-    public Property<Cube3x3PartHalf> getPart() {
-        return LargeCakeBlock.HALF;
-    }
-
-    @Override
-    public Cube3x3PartHalf[] getParts() {
-        return Cube3x3PartHalf.values();
-    }
-
-    @Override
     public float getShadeBrightness(BlockState state, BlockGetter level, BlockPos pos) {
         return 1.0F;
     }
@@ -206,22 +191,6 @@ public class LargeCakeBlock extends SimpleMultiPartBlock<Cube3x3PartHalf> {
     @Override
     protected boolean propagatesSkylightDown(BlockState state) {
         return true;
-    }
-
-    @Override
-    public void onPlace(
-        BlockState state,
-        Level level,
-        BlockPos pos,
-        BlockState oldState,
-        boolean movedByPiston
-    ) {
-        if (state.getValue(LargeCakeBlock.HALF) != Cube3x3PartHalf.BOTTOM_CENTER) return;
-        for (Cube3x3PartHalf part : this.getParts()) {
-            if (part == Cube3x3PartHalf.BOTTOM_CENTER) continue;
-            BlockState newState = state.setValue(LargeCakeBlock.HALF, part);
-            level.setBlockAndUpdate(pos.offset(part.getOffset()), newState);
-        }
     }
 
     @Override
@@ -239,36 +208,24 @@ public class LargeCakeBlock extends SimpleMultiPartBlock<Cube3x3PartHalf> {
     }
 
     @Override
-    public BlockState playerWillDestroy(
-        Level level,
-        BlockPos pos,
-        BlockState state,
-        Player player
-    ) {
-        this.spawnDestroyParticles(level, player, pos, state);
-        if (level instanceof ServerLevel && state.is(BlockTags.GUARDED_BY_PIGLINS)) {
-            PiglinAi.angerNearbyPiglins((ServerLevel) level, player, false);
-        }
-
-        level.gameEvent(GameEvent.BLOCK_DESTROY, pos, GameEvent.Context.of(player, state));
-        return state;
-    }
-
-    @Override
     @SuppressWarnings("deprecation")
     public boolean canSurvive(BlockState state, LevelReader level, BlockPos pos) {
         return level.getBlockState(pos.below()).isSolid();
     }
 
     @Override
-    public InteractionResult use(
-        BlockState state,
-        Level level,
-        BlockPos pos,
-        Player player,
-        InteractionHand hand,
-        BlockHitResult hit
+    protected InteractionResult useItemOn(
+        ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit
     ) {
+        return this.use(level, pos, player, hand).consumesAction() ? InteractionResult.SUCCESS : InteractionResult.TRY_WITH_EMPTY_HAND;
+    }
+
+    @Override
+    protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hit) {
+        return this.use(level, pos, player, InteractionHand.MAIN_HAND);
+    }
+
+    private InteractionResult use(Level level, BlockPos pos, Player player, InteractionHand hand) {
         ItemStack itemStack = player.getItemInHand(hand);
         if (level.isClientSide()) {
             if (LargeCakeBlock.eat(level, pos, player).consumesAction()) {
@@ -288,20 +245,10 @@ public class LargeCakeBlock extends SimpleMultiPartBlock<Cube3x3PartHalf> {
             return InteractionResult.PASS;
         } else {
             player.getFoodData().eat(15, 0.8F);
-            LargeCakeBlock.removeFromTop(level, pos, player);
+            level.removeBlock(pos, false);
+            level.gameEvent(player, GameEvent.BLOCK_DESTROY, pos);
             return InteractionResult.SUCCESS;
         }
-    }
-
-    private static void removeFromTop(Level level, BlockPos pos, Player player) {
-        BlockState aboveState = level.getBlockState(pos.above());
-        if (aboveState.getBlock() instanceof LargeCakeBlock
-            && aboveState.getValue(LargeCakeBlock.HALF).getOffsetY() != 0) {
-            LargeCakeBlock.removeFromTop(level, pos.above(), player);
-            return;
-        }
-        level.removeBlock(pos, false);
-        level.gameEvent(player, GameEvent.BLOCK_DESTROY, pos);
     }
 
     @Override

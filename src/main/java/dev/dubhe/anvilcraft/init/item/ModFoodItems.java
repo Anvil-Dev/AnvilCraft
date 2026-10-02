@@ -1,11 +1,16 @@
 package dev.dubhe.anvilcraft.init.item;
 
 import dev.anvilcraft.lib.v2.registrum.util.entry.ItemEntry;
+import dev.dubhe.anvilcraft.data.AnvilCraftDatagen;
 import dev.dubhe.anvilcraft.data.recipe.RegistrumItemRecipeLoader;
+import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.item.food.CannedFoodItem;
+import dev.dubhe.anvilcraft.item.food.CursedGoldenAppleItem;
 import dev.dubhe.anvilcraft.item.food.UtusanItem;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.StampingRecipe;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.data.recipes.RecipeCategory;
+import net.minecraft.data.recipes.ShapedRecipeBuilder;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.alchemy.PotionContents;
@@ -15,6 +20,21 @@ import static dev.dubhe.anvilcraft.AnvilCraft.REGISTRUM;
 
 @SuppressWarnings("CodeBlock2Expr")
 public class ModFoodItems {
+    public static final ItemEntry<CursedGoldenAppleItem> CURSED_GOLDEN_APPLE = REGISTRUM
+        .item("cursed_golden_apple", properties -> new CursedGoldenAppleItem(properties.food(ModFoods.CURSED_GOLDEN_APPLE)))
+        .lang("Cursed Golden Apple")
+        .tag(Tags.Items.FOODS)
+        .recipe((ctx, provider) -> ShapedRecipeBuilder.shaped(provider.getItems(), RecipeCategory.FOOD, ctx.get())
+            .pattern("AAA")
+            .pattern("ABA")
+            .pattern("AAA")
+            .define('A', ModBlocks.CURSED_GOLD_BLOCK)
+            .define('B', Items.APPLE)
+            .unlockedBy("has_cursed_gold_block", AnvilCraftDatagen.has(provider.getItems(), ModBlocks.CURSED_GOLD_BLOCK))
+            .unlockedBy("has_apple", AnvilCraftDatagen.has(provider.getItems(), Items.APPLE))
+            .save(provider))
+        .register();
+
     public static final ItemEntry<Item> CHOCOLATE = REGISTRUM
         .item("chocolate", Item::new)
         .properties(properties -> properties

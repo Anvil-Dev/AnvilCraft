@@ -7,13 +7,8 @@
     },
     "on_true": {
       "type": "minecraft:model",
-      "model": "anvilcraft:item/ionocraft_backpack_exhausted"
+      "model": "anvilcraft:item/ionocraft_backpack_on"
     },
-    "predicate": "anvilcraft:integer_component",
-    "property": "minecraft:component",
-    "value": {
-      "type": "anvilcraft:flight_time",
-      "value": 0
-    }
+    "property": "anvilcraft:equipment_powered"
   }
 }

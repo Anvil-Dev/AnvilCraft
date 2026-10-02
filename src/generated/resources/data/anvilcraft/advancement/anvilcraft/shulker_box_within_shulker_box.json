@@ -1,11 +1,11 @@
 {
   "parent": "anvilcraft:anvilcraft/mining_void",
   "criteria": {
-    "has_menger_sponge": {
+    "has_space_overcompressor": {
       "conditions": {
         "items": [
           {
-            "items": "anvilcraft:menger_sponge"
+            "items": "anvilcraft:space_overcompressor"
           }
         ]
       },
@@ -25,7 +25,7 @@
   },
   "requirements": [
     [
-      "has_menger_sponge"
+      "has_space_overcompressor"
     ]
   ],
   "sends_telemetry_event": true

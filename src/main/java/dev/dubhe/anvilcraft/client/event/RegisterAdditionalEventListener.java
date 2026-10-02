@@ -1,30 +1,44 @@
 package dev.dubhe.anvilcraft.client.event;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.client.gui.screen.SmartPlacerPreviewRenderer;
 import dev.dubhe.anvilcraft.client.gui.screen.cfa.CfaPreviewPipRenderer;
 import dev.dubhe.anvilcraft.client.init.ModRenderTypes;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.AdvancedComparatorRenderer;
+import dev.dubhe.anvilcraft.client.renderer.blockentity.BigRedButtonBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.CFARenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.ChargeCollectorRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.ControlValveBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.CreativeGeneratorRenderer;
+import dev.dubhe.anvilcraft.client.renderer.blockentity.CrushingTableBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.FeCollectorRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.FishTankRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.HeatCollectorRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.HeliostatsRenderer;
+import dev.dubhe.anvilcraft.client.renderer.blockentity.HypercubeBERenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.InfiniteCollectorRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.LargeCauldronBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.PipeCheckValveBERenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.PulseGeneratorBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.PumpBlockEntityRenderer;
+import dev.dubhe.anvilcraft.client.renderer.blockentity.RedstoneDiceBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.SmartBlockPlacerRenderer;
+import dev.dubhe.anvilcraft.client.renderer.blockentity.StampingPlatformBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.VoidEnergyCollectorRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.WipBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.item.CrabClawItemInHandRenderer;
+import dev.dubhe.anvilcraft.client.renderer.item.CreativeCrateItemRenderer;
+import dev.dubhe.anvilcraft.client.renderer.item.CreativeFluidTankItemRenderer;
+import dev.dubhe.anvilcraft.client.renderer.item.DiskItemRenderer;
+import dev.dubhe.anvilcraft.client.renderer.item.FilterItemRenderer;
 import dev.dubhe.anvilcraft.client.renderer.item.FluidTankItemRenderer;
 import dev.dubhe.anvilcraft.client.renderer.item.LargeFluidTankItemRenderer;
+import dev.dubhe.anvilcraft.client.renderer.item.MonolithItemRenderer;
+import dev.dubhe.anvilcraft.client.renderer.item.RuinsBlockItemRenderer;
 import dev.dubhe.anvilcraft.client.renderer.item.SpectralSlingshotRenderer;
 import dev.dubhe.anvilcraft.client.renderer.item.SpectralWeaponLauncherRenderer;
+import dev.dubhe.anvilcraft.client.renderer.item.StorageFluidPortItemRenderer;
+import dev.dubhe.anvilcraft.client.renderer.item.StoragePortItemRenderer;
 import dev.dubhe.anvilcraft.init.registry.ModRegistries;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.Identifier;
@@ -53,13 +67,14 @@ public class RegisterAdditionalEventListener {
     @SubscribeEvent
     public static void registerModels(ModelEvent.RegisterStandalone event) {
         event.register(
-            CrabClawItemInHandRenderer.HOLDING_BLOCK,
-            SimpleUnbakedStandaloneModel.quadCollection(AnvilCraft.of("item/crab_claw_holding_block"))
+            RedstoneDiceBlockEntityRenderer.DICE,
+            SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/redstone_dice_dice"))
         );
         event.register(
-            CrabClawItemInHandRenderer.HOLDING_ITEM,
-            SimpleUnbakedStandaloneModel.quadCollection(AnvilCraft.of("item/crab_claw_holding_item"))
+            BigRedButtonBlockEntityRenderer.CAP,
+            SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/big_red_button_cap"))
         );
+        CrabClawItemInHandRenderer.registerModels(event);
         event.register(
             HeliostatsRenderer.HEAD,
             SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/heliostats_head"))
@@ -221,12 +236,20 @@ public class RegisterAdditionalEventListener {
         RegisterAdditionalEventListener.registerCelestialBodyModels(event);
         event.register(
             FishTankRenderer.FIRE,
-            SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/oil_cauldron_fire4"))
+            SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/fire_cauldron_fire4"))
         );
         event.register(
             LargeCauldronBlockEntityRenderer.FIRE,
             SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/fire_cauldron_fire4"))
         );
+        event.register(StampingPlatformBlockEntityRenderer.DOOR_LEFT,
+            SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/processing_table_door_left")));
+        event.register(StampingPlatformBlockEntityRenderer.DOOR_RIGHT,
+            SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/processing_table_door_right")));
+        event.register(CrushingTableBlockEntityRenderer.WHEEL_LEFT,
+            SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/processing_table_crushing_wheel_left")));
+        event.register(CrushingTableBlockEntityRenderer.WHEEL_RIGHT,
+            SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/processing_table_crushing_wheel_right")));
         event.register(
             SmartBlockPlacerRenderer.BASE_MODEL,
             SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/smart_block_placer_base"))
@@ -266,63 +289,76 @@ public class RegisterAdditionalEventListener {
         // WIP block models for procedural process
         event.register(
             WipBlockEntityRenderer.SPACETIME_SUPERCOMPUTER_WIP,
-            SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/spacetime_supercomputer_wip"))
+            SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/wip_display/spacetime_supercomputer_wip"))
         );
         event.register(
             WipBlockEntityRenderer.ANCIENT_DEBRIS_WIP,
-            SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/ancient_debris_wip"))
+            SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/wip_display/ancient_debris_wip"))
         );
         event.register(
             WipBlockEntityRenderer.NETHERITE_BLOCK_WIP,
-            SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/netherite_block_wip"))
+            SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/wip_display/netherite_block_wip"))
         );
         event.register(
             WipBlockEntityRenderer.HEAVY_IRON_BLOCK_WIP,
-            SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/heavy_iron_block_wip"))
+            SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/wip_display/heavy_iron_block_wip"))
         );
         event.register(
             WipBlockEntityRenderer.ANCIENT_SEA_REEF_WIP,
-            SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/ancient_sea_reef_wip"))
+            SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/wip_display/ancient_sea_reef_wip"))
         );
         event.register(
             WipBlockEntityRenderer.NESTING_SHULKER_BOX,
-            SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/nesting_shulker_box"))
+            SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/wip_display/nesting_shulker_box"))
         );
         event.register(
             WipBlockEntityRenderer.OVER_NESTING_SHULKER_BOX,
-            SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/over_nesting_shulker_box"))
+            SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/wip_display/over_nesting_shulker_box"))
         );
         event.register(
             WipBlockEntityRenderer.SUPERCRITICAL_NESTING_SHULKER_BOX,
-            SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/supercritical_nesting_shulker_box"))
+            SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/wip_display/supercritical_nesting_shulker_box"))
         );
         event.register(
             WipBlockEntityRenderer.SPACETIME_SUPERCOMPUTER_WIP_2,
-            SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/spacetime_supercomputer_wip_2"))
+            SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/wip_display/spacetime_supercomputer_wip_2"))
         );
         event.register(
             WipBlockEntityRenderer.SPACETIME_SUPERCOMPUTER_WIP_3,
-            SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/spacetime_supercomputer_wip_3"))
+            SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/wip_display/spacetime_supercomputer_wip_3"))
         );
         event.register(
             WipBlockEntityRenderer.NETHERITE_BLOCK_WIP_2,
-            SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/netherite_block_wip_2"))
+            SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/wip_display/netherite_block_wip_2"))
         );
         event.register(
             WipBlockEntityRenderer.HEAVY_IRON_BLOCK_WIP_2,
-            SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/heavy_iron_block_wip_2"))
+            SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/wip_display/heavy_iron_block_wip_2"))
         );
         event.register(
             WipBlockEntityRenderer.ANCIENT_SEA_REEF_WIP_2,
-            SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/ancient_sea_reef_wip_2"))
+            SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/wip_display/ancient_sea_reef_wip_2"))
         );
         event.register(
             WipBlockEntityRenderer.SHULKER_BOX_WIP,
-            SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/shulker_box_wip"))
+            SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/wip_display/shulker_box_wip"))
         );
+        event.register(HypercubeBERenderer.MODEL, SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/hypercube")));
         event.register(
             WipBlockEntityRenderer.SHULKER_BOX_WIP_2,
-            SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/shulker_box_wip_2"))
+            SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/wip_display/shulker_box_wip_2"))
+        );
+        event.register(
+            WipBlockEntityRenderer.MASS_ENERGY_INVERTER_WIP,
+            SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/wip_display/mass_energy_inverter_wip"))
+        );
+        event.register(
+            WipBlockEntityRenderer.MASS_ENERGY_INVERTER_WIP_2,
+            SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/wip_display/mass_energy_inverter_wip_2"))
+        );
+        event.register(
+            WipBlockEntityRenderer.MASS_ENERGY_INVERTER_WIP_3,
+            SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/wip_display/mass_energy_inverter_wip_3"))
         );
     }
 
@@ -348,15 +384,30 @@ public class RegisterAdditionalEventListener {
 
     @SubscribeEvent
     public static void registerSpecialRenderers(RegisterSpecialModelRendererEvent event) {
+        event.register(AnvilCraft.of("celestial_forging_anvil"),
+            dev.dubhe.anvilcraft.client.renderer.item.CelestialForgingAnvilItemRenderer.Unbaked.CODEC);
+        event.register(AnvilCraft.of("filter"), FilterItemRenderer.Unbaked.CODEC);
+        event.register(AnvilCraft.of("disk"), DiskItemRenderer.Unbaked.CODEC);
         event.register(AnvilCraft.of("spectral_slingshot"), SpectralSlingshotRenderer.Unbaked.CODEC);
         event.register(AnvilCraft.of("spectral_weapon_launcher"), SpectralWeaponLauncherRenderer.Unbaked.CODEC);
+        event.register(AnvilCraft.of("creative_crate"), CreativeCrateItemRenderer.Unbaked.CODEC);
+        event.register(AnvilCraft.of("creative_fluid_tank"), CreativeFluidTankItemRenderer.Unbaked.CODEC);
         event.register(AnvilCraft.of("fluid_tank"), FluidTankItemRenderer.Unbaked.CODEC);
         event.register(AnvilCraft.of("large_fluid_tank"), LargeFluidTankItemRenderer.Unbaked.CODEC);
+        event.register(AnvilCraft.of("storage_port"), StoragePortItemRenderer.Unbaked.CODEC);
+        event.register(AnvilCraft.of("storage_fluid_port"), StorageFluidPortItemRenderer.Unbaked.CODEC);
+        event.register(AnvilCraft.of("ruins_block"), RuinsBlockItemRenderer.Unbaked.CODEC);
+        event.register(AnvilCraft.of("monolith"), MonolithItemRenderer.Unbaked.CODEC);
     }
 
     /** 注册锻星砧界面使用的画中画渲染器。 */
     @SubscribeEvent
     public static void registerPictureInPictureRenderers(RegisterPictureInPictureRenderersEvent event) {
         event.register(CfaPreviewPipRenderer.State.class, CfaPreviewPipRenderer::new);
+        event.register(SmartPlacerPreviewRenderer.State.class, SmartPlacerPreviewRenderer::new);
+        event.register(dev.dubhe.anvilcraft.client.support.ProcessOverlayRenderer.State.class,
+            dev.dubhe.anvilcraft.client.support.ProcessOverlayRenderer::new);
+        event.register(dev.dubhe.anvilcraft.client.support.TransparentItemRenderer.State.class,
+            dev.dubhe.anvilcraft.client.support.TransparentItemRenderer::new);
     }
 }

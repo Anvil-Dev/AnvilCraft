@@ -1,0 +1,17 @@
+{
+  "variants": {
+    "cube=center,axis=x": {
+      "model": "anvilcraft:block/giant_monolith_core",
+      "y": 90
+    },
+    "cube=center,axis=z": {
+      "model": "anvilcraft:block/giant_monolith_core"
+    },
+    "cube=corner,axis=x": {
+      "model": "anvilcraft:block/giant_monolith_core_part"
+    },
+    "cube=corner,axis=z": {
+      "model": "anvilcraft:block/giant_monolith_core_part"
+    }
+  }
+}

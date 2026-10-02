@@ -1,5 +1,7 @@
 package dev.dubhe.anvilcraft.inventory.tooltip;
 
+import dev.dubhe.anvilcraft.util.UnitUtil;
+import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.inventory.tooltip.TooltipComponent;
 import net.minecraft.world.item.ItemStack;
@@ -23,7 +25,7 @@ public record CreativeContainerTooltip(List<Entry> entries) implements TooltipCo
         }
 
         private static Component contentText(Component content) {
-            return Component.translatable("tooltip.anvilcraft.creative_container.content", content);
+            return Component.empty().append(content).append(" " + UnitUtil.INFINITE_POWER).withStyle(ChatFormatting.GRAY);
         }
     }
 }

@@ -3,13 +3,13 @@
   "category": "misc",
   "group": "anvilcraft:processor",
   "key": {
-    "A": "minecraft:comparator",
     "B": "anvilcraft:hardend_resin",
-    "C": "#c:nuggets/copper"
+    "C": "#c:nuggets/copper",
+    "D": "#c:gems/quartz"
   },
   "pattern": [
-    "   ",
-    "CAC",
+    "CDC",
+    "DCD",
     "BBB"
   ],
   "result": {

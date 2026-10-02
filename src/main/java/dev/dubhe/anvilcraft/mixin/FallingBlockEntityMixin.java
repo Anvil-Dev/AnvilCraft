@@ -6,8 +6,10 @@ import com.llamalad7.mixinextras.sugar.Local;
 import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.api.event.AnvilEvent;
 import dev.dubhe.anvilcraft.api.injection.entity.IFallingBlockEntityExtension;
+import dev.dubhe.anvilcraft.building.BuildingRodUndo;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.util.AccelerateManager;
+import dev.dubhe.anvilcraft.util.AtmosphereManager;
 import dev.dubhe.anvilcraft.util.EntityUtil;
 import dev.dubhe.anvilcraft.util.GravityManager;
 import net.minecraft.core.BlockPos;
@@ -36,8 +38,10 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Constant;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyArgs;
+import org.spongepowered.asm.mixin.injection.ModifyConstant;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.asm.mixin.injection.invoke.arg.Args;
@@ -168,6 +172,15 @@ abstract class FallingBlockEntityMixin extends Entity implements IFallingBlockEn
             }
         }
         return true;
+    }
+
+    @WrapOperation(
+        method = "tick",
+        at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/Level;setBlock("
+            + "Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;I)Z")
+    )
+    private boolean anvilcraft$trackBlueprintLanding(Level level, BlockPos pos, BlockState state, int flags, Operation<Boolean> original) {
+        return BuildingRodUndo.placeFallingBlock(Util.cast(this), pos, () -> original.call(level, pos, state, flags));
     }
 
     @ModifyArgs(
@@ -485,7 +498,7 @@ abstract class FallingBlockEntityMixin extends Entity implements IFallingBlockEn
     private void anvilcraft$applyFallingBlockHorizontalGravity(CallbackInfo ci) {
         if (this.anvilcraft$discardLevitationPowderAboveBuildHeight()) return;
         if (this.isNoGravity() || AccelerateManager.isControlledByRing(this)) return;
-        Vec3 gravityVector = GravityManager.getGravityVector(this);
+        Vec3 gravityVector = GravityManager.deferHorizontalGravity(this, GravityManager.getGravityVector(this));
         this.setDeltaMovement(this.getDeltaMovement().add(gravityVector.x, 0, gravityVector.z));
     }
 
@@ -523,5 +536,10 @@ abstract class FallingBlockEntityMixin extends Entity implements IFallingBlockEn
         }
         this.discard();
         return true;
+    }
+
+    @ModifyConstant(method = "tick", constant = @Constant(doubleValue = 0.98))
+    private double anvilcraft$verticalAtmosphereDrag(double drag) {
+        return AtmosphereManager.drag(this.level(), drag);
     }
 }

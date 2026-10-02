@@ -13,6 +13,10 @@
       "required": false
     },
     {
+      "id": "#anvilcraft:amulet_valid/armadillo",
+      "required": false
+    },
+    {
       "id": "#anvilcraft:amulet_valid/cat",
       "required": false
     },

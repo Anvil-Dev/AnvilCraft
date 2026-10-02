@@ -1,9 +1,11 @@
 package dev.dubhe.anvilcraft.integration.jade;
 
+import dev.dubhe.anvilcraft.block.CursedGoldBlock;
 import dev.dubhe.anvilcraft.block.LargeCauldronBlock;
 import dev.dubhe.anvilcraft.block.WipBlock;
 import dev.dubhe.anvilcraft.block.container.FluidTankBlock;
 import dev.dubhe.anvilcraft.block.container.LargeFluidTankBlock;
+import dev.dubhe.anvilcraft.block.container.storage.CrateBlock;
 import dev.dubhe.anvilcraft.block.entity.CreativeCrateBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.CreativeFluidTankBlockEntity;
 import dev.dubhe.anvilcraft.block.multipart.AbstractMultiPartBlock;
@@ -14,6 +16,7 @@ import dev.dubhe.anvilcraft.integration.jade.provider.ChargerProvider;
 import dev.dubhe.anvilcraft.integration.jade.provider.CrabTrapBlockStateProvider;
 import dev.dubhe.anvilcraft.integration.jade.provider.CreativeCrateProvider;
 import dev.dubhe.anvilcraft.integration.jade.provider.CreativeFluidTankProvider;
+import dev.dubhe.anvilcraft.integration.jade.provider.CursedGoldEnchantPowerProvider;
 import dev.dubhe.anvilcraft.integration.jade.provider.DischargerProvider;
 import dev.dubhe.anvilcraft.integration.jade.provider.HeatableBlockProvider;
 import dev.dubhe.anvilcraft.integration.jade.provider.ItemDetectorProvider;
@@ -27,6 +30,7 @@ import dev.dubhe.anvilcraft.integration.jade.provider.WipBlockProvider;
 import dev.dubhe.anvilcraft.integration.jade.provider.client.BurningHeaterClientProvider;
 import dev.dubhe.anvilcraft.integration.jade.provider.client.ChargerClientProvider;
 import dev.dubhe.anvilcraft.integration.jade.provider.client.CrabTrapBlockStateClientProvider;
+import dev.dubhe.anvilcraft.integration.jade.provider.client.CrateClientProvider;
 import dev.dubhe.anvilcraft.integration.jade.provider.client.CreativeCrateClientProvider;
 import dev.dubhe.anvilcraft.integration.jade.provider.client.CreativeFluidTankClientProvider;
 import dev.dubhe.anvilcraft.integration.jade.provider.client.DischargerClientProvider;
@@ -34,6 +38,7 @@ import dev.dubhe.anvilcraft.integration.jade.provider.client.HeatableBlockClient
 import dev.dubhe.anvilcraft.integration.jade.provider.client.ItemDetectorClientProvider;
 import dev.dubhe.anvilcraft.integration.jade.provider.client.LargeFluidTankClientProvider;
 import dev.dubhe.anvilcraft.integration.jade.provider.client.MengerSpongeClientProvider;
+import dev.dubhe.anvilcraft.integration.jade.provider.client.OverflowDisposalTankClientProvider;
 import dev.dubhe.anvilcraft.integration.jade.provider.client.PowerBlockClientProvider;
 import dev.dubhe.anvilcraft.integration.jade.provider.client.RubyPrismClientProvider;
 import dev.dubhe.anvilcraft.integration.jade.provider.client.SmartBlockPlacerClientProvider;
@@ -51,6 +56,8 @@ import snownee.jade.api.WailaPlugin;
 public class AnvilCraftJadePlugin implements IWailaPlugin {
     @Override
     public void register(IWailaCommonRegistration registration) {
+        registration.registerBlockDataProvider(dev.dubhe.anvilcraft.integration.jade.provider.AutoEnchantingTableProvider.INSTANCE,
+            dev.dubhe.anvilcraft.block.entity.AutoEnchantingTableBlockEntity.class);
         registration.registerBlockDataProvider(PowerBlockProvider.INSTANCE, Block.class);
         registration.registerBlockDataProvider(RubyPrismProvider.INSTANCE, BlockEntity.class);
         registration.registerBlockDataProvider(ItemDetectorProvider.INSTANCE, BlockEntity.class);
@@ -72,6 +79,12 @@ public class AnvilCraftJadePlugin implements IWailaPlugin {
 
     @Override
     public void registerClient(IWailaClientRegistration registration) {
+        registration.registerBlockComponent(CursedGoldEnchantPowerProvider.INSTANCE, CursedGoldBlock.class);
+        registration.registerBlockComponent(OverflowDisposalTankClientProvider.INSTANCE, FluidTankBlock.class);
+        registration.registerBlockComponent(CrateClientProvider.INSTANCE, CrateBlock.class);
+        registration.registerBlockComponent(
+            dev.dubhe.anvilcraft.integration.jade.provider.client.AutoEnchantingTableClientProvider.INSTANCE,
+            dev.dubhe.anvilcraft.block.AutoEnchantingTableBlock.class);
         registration.registerBlockComponent(PowerBlockClientProvider.INSTANCE, Block.class);
         registration.registerBlockComponent(BurningHeaterClientProvider.INSTANCE, Block.class);
         registration.registerBlockComponent(RubyPrismClientProvider.INSTANCE, Block.class);

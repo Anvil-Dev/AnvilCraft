@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.client.renderer.item.state;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.client.renderer.LargeFluidTankRenderUtil;
 import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.client.renderer.RenderPipelines;
@@ -28,9 +29,6 @@ public class FluidTankItemRenderState {
 
     private @Nullable FluidResource resource;
     private float fill;
-    private List<Layer> layers = List.of();
-
-    /// 大型储罐里按高度分层展示的单层流体
-    public record Layer(FluidResource resource, float bottom, float top) {
-    }
+    private int amount;
+    private List<LargeFluidTankRenderUtil.Layer> layers = List.of();
 }

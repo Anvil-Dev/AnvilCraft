@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "key": {
+    "A": "minecraft:shulker_shell",
+    "B": "anvilcraft:pump",
+    "C": "anvilcraft:fluid_tank",
+    "D": "anvilcraft:advanced_comparator"
+  },
+  "pattern": [
+    " A ",
+    "BCD",
+    " A "
+  ],
+  "result": {
+    "count": 4,
+    "id": "anvilcraft:storage_fluid_port"
+  }
+}

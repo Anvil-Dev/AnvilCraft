@@ -20,7 +20,6 @@ import dev.dubhe.anvilcraft.init.recipe.ModRecipeTriggers;
 import dev.dubhe.anvilcraft.recipe.anvil.builder.AbstractRecipeBuilder;
 import dev.dubhe.anvilcraft.recipe.anvil.outcome.ProduceHeat;
 import dev.dubhe.anvilcraft.recipe.anvil.predicate.block.HasAnvil;
-import dev.dubhe.anvilcraft.recipe.anvil.predicate.block.HasCauldron;
 import dev.dubhe.anvilcraft.recipe.anvil.predicate.item.HasDiffItems;
 import dev.dubhe.anvilcraft.recipe.component.HasCauldronSimple;
 import lombok.Getter;
@@ -711,8 +710,8 @@ public abstract class AbstractProcessRecipe<T extends InWorldRecipe> extends InW
         private int getHasCauldronPriority() {
             if (this.hasCauldron == null) return 0;
             int priority = 1;
-            if (HasCauldron.isNotEmpty(this.hasCauldron.fluid())) priority++;
-            if (HasCauldron.isNotEmpty(this.hasCauldron.transform())) priority++;
+            if (this.hasCauldron.hasFluid()) priority++;
+            if (!this.hasCauldron.transforms().isEmpty()) priority++;
             return priority;
         }
 
@@ -754,10 +753,8 @@ public abstract class AbstractProcessRecipe<T extends InWorldRecipe> extends InW
                     predicates.add(new HasItemIngredient(this.itemInputOffset, this.itemInputRange, ingredient, functions));
                 }
             }
-            if (this.diffInputItems != null) {
-                for (ItemIngredientPredicate ingredient : this.diffInputItems) {
-                    predicates.add(HasDiffItems.fromPredicate(ingredient, this.itemInputOffset, this.itemInputRange));
-                }
+            if (this.diffInputItems != null && !this.diffInputItems.isEmpty()) {
+                predicates.add(HasDiffItems.fromPredicates(this.diffInputItems, this.itemInputOffset, this.itemInputRange));
             }
             return predicates;
         }

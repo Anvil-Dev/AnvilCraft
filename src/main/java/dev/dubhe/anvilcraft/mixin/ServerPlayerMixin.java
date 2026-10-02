@@ -10,8 +10,8 @@ import dev.dubhe.anvilcraft.api.power.IDynamicPowerComponentHolder;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
 import dev.dubhe.anvilcraft.block.workstation.TranscendenceAnvilBlock;
 import dev.dubhe.anvilcraft.block.workstation.ember.EmberAnvilBlock;
+import dev.dubhe.anvilcraft.init.ModDataAttachments;
 import dev.dubhe.anvilcraft.init.ModStats;
-import dev.dubhe.anvilcraft.item.armor.IonoCraftBackpackItem;
 import dev.dubhe.anvilcraft.util.TriggerUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.MinecraftServer;
@@ -38,8 +38,6 @@ public abstract class ServerPlayerMixin extends Player implements IDynamicPowerC
     @SuppressWarnings("NotNullFieldNotInitialized")
     @Unique
     private DynamicPowerComponent anvilcraft$component;
-    @Unique
-    private boolean anvilcraft$lastTickGridExist;
 
     public ServerPlayerMixin(Level level, GameProfile gameProfile) {
         super(level, gameProfile);
@@ -66,39 +64,22 @@ public abstract class ServerPlayerMixin extends Player implements IDynamicPowerC
 
     @Override
     public void anvilcraft$gridTick() {
-        ItemStack stack = IonoCraftBackpackItem.getByPlayer(this);
-        if (IonoCraftBackpackItem.canModify(
-            stack,
-            this.anvilcraft$component
-        ) && IonoCraftBackpackItem.getEnergyStored(stack) < IonoCraftBackpackItem.MAX_ENERGY) {
-            PowerGrid powerGrid = this.anvilcraft$component.getPowerGrid();
-            if (powerGrid != null && powerGrid.isWorking()) {
-                int chargeAmount = 0;
-                int consumption = this.anvilcraft$component.getPowerConsumption();
-
-                if (consumption >= 512) {
-                    chargeAmount = 192;
-                } else if (consumption >= 256) {
-                    chargeAmount = 96;
-                } else if (consumption >= 128) {
-                    chargeAmount = 48;
-                } else if (consumption >= 64) {
-                    chargeAmount = 24;
-                }
-
-                IonoCraftBackpackItem.addEnergy(stack, chargeAmount * IonoCraftBackpackItem.FLIGHT_CONSUMPTION);
-            }
+        PowerGrid grid = this.anvilcraft$component.getPowerGrid();
+        boolean overloaded = grid != null && !grid.isWorking();
+        if (this.getData(ModDataAttachments.POWER_GRID_OVERLOADED) != overloaded) {
+            this.setData(ModDataAttachments.POWER_GRID_OVERLOADED, overloaded);
         }
     }
 
     @Override
     public void anvilcraft$switchTo(@Nullable PowerGrid grid) {
-        if (!this.anvilcraft$lastTickGridExist && grid != null) {
-            this.anvilcraft$lastTickGridExist = true;
+        this.anvilcraft$gridTick();
+        boolean inPowerGrid = grid != null;
+        if (this.getData(ModDataAttachments.IN_POWER_GRID) == inPowerGrid) return;
+        this.setData(ModDataAttachments.IN_POWER_GRID, inPowerGrid);
+        if (inPowerGrid) {
             this.awardStat(ModStats.ENTER_POWER_GRID);
             TriggerUtil.enterPowerGrid(this.level(), BlockPos.containing(this.position()));
-        } else if (this.anvilcraft$lastTickGridExist && grid == null) {
-            this.anvilcraft$lastTickGridExist = false;
         }
     }
 

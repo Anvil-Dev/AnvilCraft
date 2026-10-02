@@ -1,0 +1,12 @@
+{
+  "rules": [
+    {
+      "item": "minecraft:sunflower",
+      "properties": "half=lower"
+    },
+    {
+      "item": {},
+      "properties": "half=upper"
+    }
+  ]
+}

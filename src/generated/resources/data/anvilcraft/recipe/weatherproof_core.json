@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "L": "#c:ingots/lead",
+    "M": "anvilcraft:multiphase_matter",
+    "T": "#c:ingots/titanium"
+  },
+  "pattern": [
+    "LTL",
+    "TMT",
+    "LTL"
+  ],
+  "result": {
+    "id": "anvilcraft:weatherproof_core"
+  }
+}

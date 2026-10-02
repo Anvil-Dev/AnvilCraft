@@ -144,6 +144,25 @@ public class WormholeStabilizerHandler extends BaseMegastructureHandler {
         this.cleanupWormholeChunkLoading(be.getLevel());
     }
 
+    @Override
+    public void onUnload(CelestialForgingAnvilBlockEntity be) {
+        if (this.registered && be.getLevel() != null && !be.getLevel().isClientSide()) {
+            WormholeNetwork.get().unregister(be.getLevel(), be.getBlockPos());
+        }
+        this.registered = false;
+        this.lastFluidSnapshot.clear();
+        this.stopLocalLaserOutputs(be);
+        this.cleanupWormholeChunkLoading(be.getLevel());
+    }
+
+    private void stopLocalLaserOutputs(CelestialForgingAnvilBlockEntity be) {
+        Map<BlockPos, CelestialForgingAnvilLaserInterfaceBlockEntity> laserMap = getLaserInterfacesMap(be);
+        for (var entry : laserMap.entrySet()) {
+            CelestialForgingAnvilLaserInterfaceBlockEntity localBe = entry.getValue();
+            localBe.setWormholeLaserOutput(0, false);
+        }
+    }
+
     public boolean addPortal(Cube323PartHalf side, BlockPos portalPos, CelestialForgingAnvilBlockEntity be) {
         if (side != Cube323PartHalf.BOTTOM_N && side
                                                 != Cube323PartHalf.BOTTOM_S && side

@@ -5,21 +5,21 @@ import dev.dubhe.anvilcraft.api.behavior.BehaviorTree;
 import dev.dubhe.anvilcraft.api.behavior.TreeNode;
 import dev.dubhe.anvilcraft.api.event.AnvilEvent;
 import dev.dubhe.anvilcraft.api.giantanvil.IShockEntity;
+import dev.dubhe.anvilcraft.api.giantanvil.IShockFixedBlock;
 import dev.dubhe.anvilcraft.api.giantanvil.ShockAnvilBehavior;
 import dev.dubhe.anvilcraft.entity.FallingSpectralBlockEntity;
 import dev.dubhe.anvilcraft.init.ModSoundEvents;
+import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.entity.ModDamageTypes;
 import dev.dubhe.anvilcraft.network.GiantAnvilShockEffectPacket;
 import dev.dubhe.anvilcraft.network.ScreenShakePacket;
 import dev.dubhe.anvilcraft.util.EntityUtil;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.TickTask;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.BlockTags;
-import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
@@ -110,11 +110,12 @@ public class GiantAnvilShockEventListener {
             )
         ).then(
             TreeNode.<ShockContext>predicatedExecutable(it ->
-                it.unwrap().testCorner(ModBlocks.RESIN_BLOCK) && it.unwrap().testBorder(ModBlocks.RESIN_BLOCK)
+                it.unwrap().testCorner(ModBlockTags.RESIN_SHOCK_COMPATIBLE) && it.unwrap().testBorder(ModBlockTags.RESIN_SHOCK_COMPATIBLE)
             ).executes(it -> {
                 Level level = it.unwrap().level();
                 for (BlockPos pos : it.unwrap().rangePosList()) {
                     BlockState state = level.getBlockState(pos);
+                    if (state.getBlock() instanceof IShockFixedBlock fixed && fixed.anvilcraft$isFixedDuringShockBounce(state)) continue;
                     if (state.is(ModBlocks.SPECTRAL_ANVIL.get())) {
                         FallingSpectralBlockEntity entity = FallingSpectralBlockEntity.fall(level, pos, state, false, true);
                         entity.setDeltaMovement(0, ShockContext.bounceVelocityForHeight(1.0D), 0);
@@ -250,70 +251,14 @@ public class GiantAnvilShockEventListener {
                 );
             }
 
-            // 音效与粒子
-            if (AnvilCraft.CLIENT_CONFIG.groundHeaveParticlesEnabled) {
-                boolean isResin = context.testCorner(ModBlocks.RESIN_BLOCK.get())
-                    && context.testBorder(ModBlocks.RESIN_BLOCK.get());
-                if (isResin) {
-                    event.getLevel().playSound(null, event.getPos(), ModSoundEvents.GIANT_ANVIL_RESIN_SHOCK.get(),
-                        SoundSource.BLOCKS, 2.0f, 0.8f + event.getLevel().getRandom().nextFloat() * 0.4f);
-                } else {
-                    event.getLevel().playSound(null, event.getPos(), ModSoundEvents.GIANT_ANVIL_SHOCK.get(),
-                        SoundSource.BLOCKS, 1.8f, 1.2f + event.getLevel().getRandom().nextFloat() * 0.2f);
-                }
-                GiantAnvilShockEventListener.spawnGroundHeave(event);
-            }
-        }
-    }
-
-    private static void spawnGroundHeave(AnvilEvent.GiantOnLand event) {
-        if (!AnvilCraft.CLIENT_CONFIG.groundHeaveParticlesEnabled) return;
-
-        Level level = event.getLevel();
-        if (!(level instanceof ServerLevel serverLevel)) return;
-
-        float fallDistance = event.getFallDistance();
-        int radius = (int) Math.min(Math.ceil(fallDistance), AnvilCraft.CONFIG.giantAnvilMaxShockRadius);
-        BlockPos centerPos = event.getPos();
-        var server = serverLevel.getServer();
-        RandomSource random = level.getRandom();
-
-        for (int dx = -radius; dx <= radius; dx++) {
-            for (int dz = -radius; dz <= radius; dz++) {
-                if (Math.abs(dx) <= 1 && Math.abs(dz) <= 1) continue;
-
-                BlockPos pos = centerPos.below(2).offset(dx, 0, dz);
-                if (level.getBlockState(pos).isAir()) continue;
-
-                int ring = Math.max(Math.abs(dx), Math.abs(dz));
-                double ratio = (double) ring / radius;
-                // 粒子弹跳高度：整体降低约 50%
-                // 旧公式：0.3 + (1.0 - ratio)  → 范围 [1.3, 0.3]
-                // 新公式：0.15 + (1.0 - ratio) * 0.5 → 范围 [0.65, 0.15]
-                // 减缓粒子过高飞散，更贴近地面效果
-                double jumpHeight = 0.15 + (1.0 - ratio) * 0.5;
-                int particleCount = AnvilCraft.CLIENT_CONFIG.groundHeaveParticleCount;
-                double speed = 0.15 + jumpHeight * 0.2;
-
-                // 概率触发粒子
-                if (random.nextFloat() >= AnvilCraft.CLIENT_CONFIG.groundHeaveParticleChance) continue;
-
-                // 方形圈延迟，同一圈同时发射
-                long delayMs = ring * 30L;
-                Thread.startVirtualThread(() -> {
-                    try {
-                        Thread.sleep(delayMs);
-                    } catch (InterruptedException ignored) {
-                        return;
-                    }
-                    server.execute(() -> serverLevel.sendParticles(
-                        ParticleTypes.POOF,
-                        pos.getX() + 0.5, pos.getY() + 1.3, pos.getZ() + 0.5,
-                        particleCount,
-                        0.15, jumpHeight * 0.2, 0.15,
-                        speed
-                    ));
-                });
+            boolean isResin = context.testCorner(ModBlockTags.RESIN_SHOCK_COMPATIBLE)
+                && context.testBorder(ModBlockTags.RESIN_SHOCK_COMPATIBLE);
+            if (isResin) {
+                event.getLevel().playSound(null, event.getPos(), ModSoundEvents.GIANT_ANVIL_RESIN_SHOCK.get(),
+                    SoundSource.BLOCKS, 2.0f, 0.8f + event.getLevel().getRandom().nextFloat() * 0.4f);
+            } else {
+                event.getLevel().playSound(null, event.getPos(), ModSoundEvents.GIANT_ANVIL_SHOCK.get(),
+                    SoundSource.BLOCKS, 1.8f, 1.2f + event.getLevel().getRandom().nextFloat() * 0.2f);
             }
         }
     }

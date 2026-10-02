@@ -3,7 +3,7 @@ package dev.dubhe.anvilcraft.event;
 import dev.dubhe.anvilcraft.block.TradingStationBlock;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
-import dev.dubhe.anvilcraft.item.tool.trascendence.TranscendenceResonatorItem;
+import dev.dubhe.anvilcraft.item.tool.ResonatorItem;
 import dev.dubhe.anvilcraft.util.InfiniteFluidTankBreakProtection;
 import dev.dubhe.anvilcraft.util.ModEnchantmentHelper;
 import net.minecraft.ChatFormatting;
@@ -28,7 +28,7 @@ public class BreakBlockEventListener {
         BlockPos pos = event.getPos();
         ServerLevel level = player.level();
         if (!InfiniteFluidTankBreakProtection.isProtected(level, pos)) return;
-        if (TranscendenceResonatorItem.isResonanceMining(level, player, pos)) {
+        if (ResonatorItem.isResonanceMining(level, player, pos)) {
             InfiniteFluidTankBreakProtection.clear(player);
             return;
         }

@@ -13,6 +13,7 @@ import net.minecraft.world.level.block.Blocks;
 
 public class BlockCompressRecipeLoader {
     public static void init(RegistrumRecipeProvider provider) {
+        BlockCompressRecipeLoader.recipe(provider, Blocks.MOSS_BLOCK, Blocks.DIRT, Blocks.GRASS_BLOCK);
         BlockCompressRecipeLoader.recipe(
             provider,
             Blocks.STONE,
@@ -63,6 +64,10 @@ public class BlockCompressRecipeLoader {
             ModBlocks.CAKE_BASE_BLOCK.get(),
             ModBlocks.CHOCOLATE_CAKE_BLOCK.get()
         );
+        BlockCompressRecipeLoader.recipe(provider, ModBlocks.HONEY_CREAM_BLOCK.get(), ModBlocks.CAKE_BASE_BLOCK.get(),
+            ModBlocks.HONEY_CAKE_BLOCK.get());
+        BlockCompressRecipeLoader.recipe(provider, ModBlocks.MATCHA_CREAM_BLOCK.get(), ModBlocks.CAKE_BASE_BLOCK.get(),
+            ModBlocks.MATCHA_CAKE_BLOCK.get());
         BlockCompressRecipeLoader.recipe(
             provider,
             BlockTags.LEAVES,

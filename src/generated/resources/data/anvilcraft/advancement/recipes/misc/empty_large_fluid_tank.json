@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_large_fluid_tank": {
+      "conditions": {
+        "items": [
+          {
+            "items": "anvilcraft:large_fluid_tank"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "anvilcraft:empty_large_fluid_tank"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_large_fluid_tank"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "anvilcraft:empty_large_fluid_tank"
+    ]
+  }
+}

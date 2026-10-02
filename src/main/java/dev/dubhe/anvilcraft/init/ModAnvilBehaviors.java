@@ -9,6 +9,8 @@ import dev.dubhe.anvilcraft.anvil.HitBeeNestBehavior;
 import dev.dubhe.anvilcraft.anvil.HitCrabTrapBehavior;
 import dev.dubhe.anvilcraft.anvil.HitSpawnerBehavior;
 import dev.dubhe.anvilcraft.anvil.ImpactPileBehavior;
+import dev.dubhe.anvilcraft.anvil.ItemSplitterBehavior;
+import dev.dubhe.anvilcraft.anvil.ItemStampingBehavior;
 import dev.dubhe.anvilcraft.anvil.MagnetBlockBehavior;
 import dev.dubhe.anvilcraft.anvil.MassInjectBehavior;
 import dev.dubhe.anvilcraft.anvil.RedstoneEMPBehavior;
@@ -16,6 +18,7 @@ import dev.dubhe.anvilcraft.anvil.ResetVaultBehavior;
 import dev.dubhe.anvilcraft.anvil.SugarBlockBehavior;
 import dev.dubhe.anvilcraft.anvil.TimeWarpPlayerBehavior;
 import dev.dubhe.anvilcraft.anvil.TranscendiumBehavior;
+import dev.dubhe.anvilcraft.anvil.Upgrade2HyperdimensionStationBehavior;
 import dev.dubhe.anvilcraft.anvil.Upgrade2ShulkerContainerBehavior;
 import dev.dubhe.anvilcraft.anvil.UpgradeShulkerContainerBehavior;
 import dev.dubhe.anvilcraft.api.event.AnvilBehaviorRegisterEvent;
@@ -34,6 +37,7 @@ import net.neoforged.fml.common.EventBusSubscriber;
 public class ModAnvilBehaviors {
     @SubscribeEvent
     public static void register(AnvilBehaviorRegisterEvent event) {
+        event.registerBehavior(ModBlocks.STAMPING_PLATFORM.get(), new ItemStampingBehavior());
         event.registerBehavior(state -> state.is(Blocks.REDSTONE_BLOCK), new RedstoneEMPBehavior());
         event.registerBehavior(
             state -> state.is(Blocks.BEEHIVE) || state.is(Blocks.BEE_NEST),
@@ -50,6 +54,7 @@ public class ModAnvilBehaviors {
         event.registerBehavior(state -> state.getBlock() instanceof BlockPlacerBlock, new BlockPlacerBehavior());
         event.registerBehavior(state -> state.getBlock() instanceof GunpowderBlock, new GunpowderBlockBehavior());
         event.registerBehavior(state -> state.is(ModBlocks.IMPACT_PILE), new ImpactPileBehavior());
+        event.registerBehavior(state -> state.is(ModBlocks.ITEM_SPLITTER), new ItemSplitterBehavior());
         event.registerBehavior(state -> state.getBlock() instanceof SugarBlock, new SugarBlockBehavior());
         event.registerBehavior(state -> state.is(BlockTags.CAULDRONS), new TimeWarpPlayerBehavior());
         event.registerBehavior(Blocks.BEACON, new BeaconConversionBehavior());
@@ -59,6 +64,7 @@ public class ModAnvilBehaviors {
             new MagnetBlockBehavior()
         );
         event.registerBehavior(ModBlocks.LARGE_CRATE.get(), new Upgrade2ShulkerContainerBehavior());
+        event.registerBehavior(ModBlocks.SHULKER_CONTAINER.get(), new Upgrade2HyperdimensionStationBehavior());
         event.registerBehavior(ModBlocks.SHULKER_CONTAINER.get(), new UpgradeShulkerContainerBehavior());
     }
 }

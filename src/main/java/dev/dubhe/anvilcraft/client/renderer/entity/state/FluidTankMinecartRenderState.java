@@ -12,4 +12,5 @@ import org.jspecify.annotations.Nullable;
 public class FluidTankMinecartRenderState extends MinecartRenderState {
     private @Nullable FluidResource resource;
     private float fill;
+    private int amount;
 }

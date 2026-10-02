@@ -10,12 +10,12 @@ import org.joml.Matrix3x2fStack;
 
 public class JeiRenderHelper {
     // Animation
-    public static int getAnvilAnimationOffset(ITickTimer timer) {
-        return timer.getValue() < 30 ? JeiRenderHelper.getAnvilAnimationOffset(timer.getValue()) : 8;
+    public static float getAnvilAnimationOffset(ITickTimer timer) {
+        return timer.getValue() < 30 ? JeiRenderHelper.getAnvilAnimationOffset(timer.getValue()) : -8;
     }
 
-    public static int getAnvilAnimationOffset(float time) {
-        return (int) Math.round(Math.sin(time / 30d * 2d * Math.PI + Math.PI / 2) * 8);
+    public static float getAnvilAnimationOffset(float time) {
+        return -(float) Math.sin(time / 30d * 2d * Math.PI + Math.PI / 2) * 8;
     }
 
     // Arrow
@@ -96,16 +96,10 @@ public class JeiRenderHelper {
     ) {
         Matrix3x2fStack pose = graphics.pose();
         pose.pushMatrix();
-        pose.translate(x, y + 0.5F);
+        pose.translate(x, y);
         slot.draw(graphics);
-        // FIXME: Non-transparent blocks are rendered behind the slot
-        RenderSupport.renderBlock(
-            graphics,
-            state,
-            0,
-            1,
-            18
-        );
+        graphics.nextStratum();
+        RenderSupport.renderBlockAt(graphics, state, 9, 5.5F, 11.5F);
         pose.popMatrix();
     }
 }

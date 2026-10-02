@@ -19,13 +19,13 @@ public class ModConsumables {
         .build();
     public static final Consumable CHOCOLATE_BLACK = ModConsumables.fastFood()
         .onConsume(new ApplyStatusEffectsConsumeEffect(List.of(
-            new MobEffectInstance(MobEffects.SPEED, 600, 3),
+            new MobEffectInstance(MobEffects.SPEED, 600, 1),
             new MobEffectInstance(MobEffects.HASTE, 600, 2)
         )))
         .build();
     public static final Consumable CHOCOLATE_WHITE = ModConsumables.fastFood()
         .onConsume(new ApplyStatusEffectsConsumeEffect(List.of(
-            new MobEffectInstance(MobEffects.SPEED, 600, 3),
+            new MobEffectInstance(MobEffects.SPEED, 600, 1),
             new MobEffectInstance(MobEffects.JUMP_BOOST, 600, 3)
         )))
         .build();

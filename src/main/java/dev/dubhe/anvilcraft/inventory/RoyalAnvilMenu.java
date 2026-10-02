@@ -19,9 +19,10 @@ import net.minecraft.world.level.Level;
 import org.jspecify.annotations.Nullable;
 
 public class RoyalAnvilMenu extends AnvilMenu implements HammerOpenedAnvilMenu {
-    public final AnvilMenuResult result = AnvilMenuResult.builder()
+    public static final java.util.function.Supplier<AnvilMenuResult> RESULT = () -> AnvilMenuResult.builder()
         .allowBeyondMaxLevel(AnvilCraft.CONFIG.royalAnvilBeyondMaxLevel)
         .create();
+    public final AnvilMenuResult result = RESULT.get();
     private final Inventory playerInventory;
     private final DataSlot openedHammerSlot = DataSlot.standalone();
     private final @Nullable OpenedHammerSource openedHammerSource;

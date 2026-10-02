@@ -9,7 +9,7 @@
   "pattern": [
     "ABA",
     "CCC",
-    "BAB"
+    "ABA"
   ],
   "result": {
     "count": 4,

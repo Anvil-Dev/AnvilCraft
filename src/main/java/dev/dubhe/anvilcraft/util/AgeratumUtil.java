@@ -8,9 +8,12 @@ import dev.anvilcraft.lib.v2.util.predicate.WeightedChanceBlockStates;
 import dev.anvilcraft.resource.ageratum.Ageratum;
 import dev.anvilcraft.resource.ageratum.client.feat.markdown.MDRenderContext;
 import dev.anvilcraft.resource.ageratum.util.RecipeUtil;
+import dev.dubhe.anvilcraft.block.multipart.IMultiPartBlockModelHolder;
 import dev.dubhe.anvilcraft.client.support.RenderSupport;
+import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
@@ -26,9 +29,9 @@ import java.util.Optional;
 
 public class AgeratumUtil {
     public static final int SLOT_SIZE = 19;
-    public static final int BLOCK_SIZE = 20;
-    public static final int BLOCK_HEIGHT = 18;
-    public static final int BLOCK_TOOLTIP_SIZE = 24;
+    public static final int BLOCK_SIZE = 16;
+    public static final int BLOCK_HEIGHT = 14;
+    public static final int BLOCK_TOOLTIP_SIZE = 20;
     public static final Identifier SLOT = Ageratum.location("textures/gui/component/slot.png");
     public static final Identifier ARROW = Ageratum.location("textures/gui/component/arrow.png");
 
@@ -58,8 +61,8 @@ public class AgeratumUtil {
         Matrix3x2fStack pose = g.pose();
         pose.pushMatrix();
         pose.translate(x + 16, y + 16);
-        pose.rotate(rotation);
-        g.blit(AgeratumUtil.ARROW, -16, -16, 0, 0, 32, 32, 32, 32);
+        pose.rotate((float) Math.toRadians(rotation));
+        g.blit(RenderPipelines.GUI_TEXTURED, AgeratumUtil.ARROW, -16, -16, 0, 0, 32, 32, 32, 32);
         pose.popMatrix();
     }
 
@@ -103,8 +106,9 @@ public class AgeratumUtil {
     }
 
     public static void renderBlock(MDRenderContext context, BlockState blockState, float mouseX, float mouseY, int x, int y) {
-        RenderSupport.renderBlock(context.graphics(), blockState, x, y, AgeratumUtil.BLOCK_SIZE);
-        AgeratumUtil.renderTooltip(context, blockState, mouseX, mouseY, x, y);
+        BlockState modelState = IMultiPartBlockModelHolder.modelHolderState(blockState);
+        RenderSupport.renderBlockAt(context.graphics(), modelState, x, y, AgeratumUtil.BLOCK_SIZE);
+        AgeratumUtil.renderTooltip(context, modelState, mouseX, mouseY, x, y);
     }
 
     public static <T> void renderItems(
@@ -163,7 +167,7 @@ public class AgeratumUtil {
     }
 
     private static void renderSlot(MDRenderContext context, int x, int y) {
-        context.graphics().blit(AgeratumUtil.SLOT, x - 8, y - 8, 0, 0, 32, 32, 32, 32);
+        context.graphics().blit(RenderPipelines.GUI_TEXTURED, AgeratumUtil.SLOT, x - 8, y - 8, 0, 0, 32, 32, 32, 32);
     }
 
     public static void renderItemWithoutSlot(
@@ -175,6 +179,13 @@ public class AgeratumUtil {
         int y
     ) {
         AgeratumUtil.renderItemWithoutSlot(context, displaying.create(), mouseX, mouseY, x, y);
+    }
+
+    public static void renderItemWithoutSlot(
+        MDRenderContext context, Object2IntMap.Entry<Ingredient> displaying, float mouseX, float mouseY, int x, int y
+    ) {
+        AgeratumUtil.renderItemWithoutSlot(context,
+            RecipeUtil.getDisplayItem(displaying.getKey()).copyWithCount(displaying.getIntValue()), mouseX, mouseY, x, y);
     }
 
     public static void renderItemWithoutSlot(MDRenderContext context, Ingredient displaying, float mouseX, float mouseY, int x, int y) {

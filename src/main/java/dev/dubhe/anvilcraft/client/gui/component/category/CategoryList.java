@@ -25,17 +25,19 @@ public class CategoryList extends AbstractContainerWidget {
     public static final Identifier SMALL_SLIDER = SharedTextures.textureGui("misc/storage_station/slider_small");
     private final List<CategoryButton> categoryButtons;
     private final Button.OnPress categoryOnPress;
-    private final TexturedButton settingButton;
+    private TexturedButton settingButton;
+    private final Button.OnPress openSetting;
+    private boolean compact;
 
     private final Scrollable scrollable = new Scrollable() {
         @Override
         public int row() {
-            return 8;
+            return CategoryList.this.compact ? 3 : 8;
         }
 
         @Override
         public int column() {
-            return 1;
+            return CategoryList.this.compact ? 4 : 1;
         }
 
         @Override
@@ -54,6 +56,7 @@ public class CategoryList extends AbstractContainerWidget {
         super(x, y, 92, 160, Component.empty(), AbstractScrollArea.defaultSettings(1));
 
         this.categoryButtons = new ArrayList<>();
+        this.openSetting = openSetting;
         this.categoryOnPress = categoryOnPress;
 
         this.settingButton = new TexturedButton(
@@ -73,10 +76,12 @@ public class CategoryList extends AbstractContainerWidget {
 
     public void rebuild(PlayerSetting setting) {
         this.categoryButtons.clear();
+        this.cache.clear();
         List<CategoryEntry> listed = setting.listed();
         for (int i = 0; i < listed.size(); i++) {
             CategoryEntry entry = listed.get(i);
             this.categoryButtons.add(new CategoryButton(this.getX(), setting, i, entry.getMode(), this.categoryOnPress));
+            this.categoryButtons.getLast().setCompact(this.compact);
         }
         this.scrollable.scrollTo();
     }
@@ -87,7 +92,13 @@ public class CategoryList extends AbstractContainerWidget {
             this.scrollable.scrolling();
             return true;
         }
-        return super.mouseClicked(event, doubleClick);
+        int end = Math.min(this.children().size(), this.head + this.scrollable.column() * this.scrollable.row());
+        for (int i = this.head; i < end; i++) {
+            Button button = this.children().get(i);
+            this.positionButton(button, i - this.head);
+            if (button.isMouseOver(event.x(), event.y()) && button.mouseClicked(event, doubleClick)) return true;
+        }
+        return false;
     }
 
     @Override
@@ -104,7 +115,7 @@ public class CategoryList extends AbstractContainerWidget {
     public boolean mouseDragged(MouseButtonEvent event, double dx, double dy) {
         if (this.scrollable.isScrolling()) {
             int top = this.getY();
-            this.scrollable.scrollOnDrag(10, event.y(), top, top + 160);
+            this.scrollable.scrollOnDrag(10, event.y(), top, top + this.getHeight());
             return true;
         }
         return super.mouseDragged(event, dx, dy);
@@ -112,7 +123,7 @@ public class CategoryList extends AbstractContainerWidget {
 
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
-        if (!this.scrollable.canScroll()) {
+        if (!this.isMouseOver(mouseX, mouseY) || !this.scrollable.canScroll()) {
             return false;
         } else {
             this.scrollable.scrollOnScroll(scrollY / 1.2);
@@ -133,7 +144,7 @@ public class CategoryList extends AbstractContainerWidget {
             Button button = ListUtil.safelyGet(this.children(), i).orElse(null);
             if (button == null) continue;
             button.active = true;
-            button.setPosition(this.getX(), this.getY() + (i - this.head) * 20);
+            this.positionButton(button, i - this.head);
             button.extractRenderState(graphics, mouseX, mouseY, a);
         }
         this.extractScrollbar(graphics, mouseX, mouseY);
@@ -181,5 +192,20 @@ public class CategoryList extends AbstractContainerWidget {
         int right = left + 4;
         int bottom = top + this.getHeight();
         return MathUtil.isInRange(mouseX, mouseY, left, top, right, bottom);
+    }
+
+    private void positionButton(Button button, int index) {
+        button.setPosition(this.getX() + (this.compact ? index % 4 * 22 : 0),
+            this.getY() + (this.compact ? index / 4 : index) * 20);
+    }
+
+    public void setCompact(boolean compact, PlayerSetting setting) {
+        this.compact = compact;
+        this.height = compact ? 60 : 160;
+        this.head = 0;
+        this.settingButton = new TexturedButton(this.getX(), this.getY(), compact ? 20 : 86, 20,
+            compact ? SharedTextures.textureGui("misc/storage_station/category_setting_small") : SETTING_BUTTON_BACKGROUND,
+            20, compact ? 20 : 86, 40, this.openSetting);
+        this.rebuild(setting);
     }
 }

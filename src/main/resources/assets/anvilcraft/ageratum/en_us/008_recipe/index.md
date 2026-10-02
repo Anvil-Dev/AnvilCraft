@@ -1,7 +1,7 @@
 ---
 navigation:
   title: "Processing Recipes"
-  icon: "anvilcraft:sea_heart_shell"
+  icon: "anvilcraft:ancient_sea_reef"
 ---
 
 Introduces some production recipes not covered in other chapters

@@ -22,16 +22,16 @@ items:
 
 ## 可集热方块
 
-|                                             方块                                              |                      转化结果                      | 提供能量(kW) |
-|:-------------------------------------------------------------------------------------------:|:----------------------------------------------:|:--------:|
-|                       <ref item="minecraft:magma_block"/>                        | <ref item="minecraft:netherrack"/>  |    2     |
-|                         <ref item="minecraft:campfire"/>                         | 熄灭的<ref item="minecraft:campfire"/> |    4     |
-|                                             熔岩                                              |  <ref item="minecraft:obsidian"/>   |    4     |
-| <ref item="anvilcraft:ember_metal_block"/> |                       不变                       |    4     |
-|            <color=#661111>高温</color>的[可加热方块](../001_feature/101_heated_block.md)            |                       不变                       |    4     |  
-|            <color=#aa2222>红热</color>的[可加热方块](../001_feature/101_heated_block.md)            |                       不变                       |    16    |
-|            <color=#cc5533>炽热</color>的[可加热方块](../001_feature/101_heated_block.md)            |                       不变                       |    64    |
-|            <color=#ee7744>白炽</color>的[可加热方块](../001_feature/101_heated_block.md)            |                       不变                       |   256    |
+|                                  方块                                   |                转化结果                 | 提供能量(kW) |
+|:---------------------------------------------------------------------:|:-----------------------------------:|:--------:|
+|                  <ref item="minecraft:magma_block"/>                  | <ref item="minecraft:netherrack"/>  |    2     |
+|                   <ref item="minecraft:campfire"/>                    | 熄灭的<ref item="minecraft:campfire"/> |    4     |
+|                                  熔岩                                   |  <ref item="minecraft:obsidian"/>   |    4     |
+|              <ref item="anvilcraft:ember_metal_block"/>               |                 不变                  |    4     |
+| <color=#661111>高温</color>的[可加热方块](../001_feature/101_heated_block.md) |                 不变                  |    4     |
+| <color=#aa2222>红热</color>的[可加热方块](../001_feature/101_heated_block.md) |                 不变                  |    16    |
+| <color=#cc5533>炽热</color>的[可加热方块](../001_feature/101_heated_block.md) |                 不变                  |    64    |
+| <color=#ee7744>白炽</color>的[可加热方块](../001_feature/101_heated_block.md) |                 不变                  |   256    |
 
 # 发电方法
 
@@ -42,6 +42,10 @@ items:
 - 通过<ref item="anvilcraft:heliostats"/>将太阳能收集到可加热方块上，集热器再吸收热能发电
 - 优点：耗材简单，且无须后续投入
 - 缺点：占地较大，且光路上不可有方块阻挡
+
+<tip>
+由于转换过程是先将光能转化为热能，再将热能转化为电能，而被加热的方块在夜间仍会缓慢放热，因此这套设备昼夜均可稳定发电
+</tip>
 
 ## 油离子发电
 

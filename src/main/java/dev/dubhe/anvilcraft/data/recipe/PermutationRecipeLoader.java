@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.data.recipe;
 
 import dev.anvilcraft.lib.v2.registrum.providers.generators.RegistrumRecipeProvider;
+import dev.anvilcraft.lib.v2.util.predicate.ItemIngredientPredicate;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.recipe.data.ItemEnchantmentsData;
 import dev.dubhe.anvilcraft.api.recipe.result.RecipeResult;
@@ -9,14 +10,15 @@ import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.item.property.component.Merciless;
+import dev.dubhe.anvilcraft.recipe.frost.CustomFrostMaterialPredicate;
 import dev.dubhe.anvilcraft.recipe.frost.PermutationRecipe;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.ItemLike;
 
 import java.util.List;
-import java.util.function.BiFunction;
 
 public class PermutationRecipeLoader {
     static final List<String> WEAPONS_AND_TOOLS = List.of(
@@ -26,133 +28,196 @@ public class PermutationRecipeLoader {
         "shovel",
         "hoe"
     );
-    static final List<String> ANC_WEAPONS_AND_TOOLS = List.of(
-        "heavy_halberd",
-        "resonator"
-    );
     private static final List<String> WORKSTATIONS = List.of(
         "anvil",
         "grindstone",
         "smithing_table"
     );
+    private static final Identifier DIAMOND = Identifier.withDefaultNamespace("diamond");
+    private static final Identifier IRON = Identifier.withDefaultNamespace("iron");
+    private static final Identifier GOLDEN = Identifier.withDefaultNamespace("golden");
+    private static final Identifier NETHERITE = Identifier.withDefaultNamespace("netherite");
+    private static final Identifier AMETHYST = AnvilCraft.of("amethyst");
+    private static final Identifier ROYAL_STEEL = AnvilCraft.of("royal_steel");
+    private static final Identifier FROST_METAL = AnvilCraft.of("frost_metal");
+    private static final Identifier EMBER_METAL = AnvilCraft.of("ember_metal");
 
     public static void init(RegistrumRecipeProvider provider) {
-        PermutationRecipeLoader.register(
-            provider,
-            PermutationRecipeLoader.WEAPONS_AND_TOOLS,
-            ModItems.ROYAL_STEEL_INGOT,
-            Identifier.withDefaultNamespace("diamond"),
-            AnvilCraft.of("royal_steel")
-        );
-
-        PermutationRecipeLoader.register(
-            provider,
-            PermutationRecipeLoader.WEAPONS_AND_TOOLS,
-            ModItems.EMBER_METAL_INGOT,
-            Identifier.withDefaultNamespace("netherite"),
-            AnvilCraft.of("ember_metal"),
-            (netherite, ember) -> PermutationRecipe.builder().input(
-                RecipeResult.builder()
-                    .result(netherite)
-                    .removeData(ModComponents.FIRE_REFORGING)
-            ).input(
-                RecipeResult.builder()
-                    .result(ember)
-            )
-        );
-
-        PermutationRecipeLoader.register(
-            provider,
-            PermutationRecipeLoader.WEAPONS_AND_TOOLS,
-            ModItems.MULTIPHASE_MATTER,
-            AnvilCraft.of("frost_metal"),
-            AnvilCraft.of("ember_metal"),
-            (frost, ember) -> PermutationRecipe.builder().input(
-                RecipeResult.builder()
-                    .result(frost)
-                    .removeData(ModComponents.FIRE_REFORGING)
-            ).input(
-                RecipeResult.builder()
-                    .result(ember)
-                    .removeData(ModComponents.MERCILESS)
-                    .changeDataType(RecipeInputSlot.input(0), ModComponents.MERCILESS_ENCHANTMENTS, ItemEnchantmentsData.enchantments(0))
-                    .removeAttribute(Merciless.MERCILESS_ID)
-            )
-        );
-        PermutationRecipeLoader.register(
-            provider,
-            PermutationRecipeLoader.ANC_WEAPONS_AND_TOOLS,
-            ModItems.MULTIPHASE_MATTER,
-            AnvilCraft.of("frost_metal"),
-            AnvilCraft.of("ember_metal"),
-            (frost, ember) -> PermutationRecipe.builder().input(
-                RecipeResult.builder()
-                    .result(frost)
-                    .removeData(ModComponents.FIRE_REFORGING)
-            ).input(
-                RecipeResult.builder()
-                    .result(ember)
-                    .removeData(ModComponents.MERCILESS)
-                    .changeDataType(RecipeInputSlot.input(0), ModComponents.MERCILESS_ENCHANTMENTS, ItemEnchantmentsData.enchantments(0))
-                    .removeAttribute(Merciless.MERCILESS_ID)
-            )
-        );
-
-        PermutationRecipeLoader.register(
-            provider,
-            PermutationRecipeLoader.WORKSTATIONS,
-            ModBlocks.MULTIPHASE_MATTER_BLOCK,
-            AnvilCraft.of("frost"),
-            AnvilCraft.of("ember")
-        );
+        PermutationRecipeLoader.registerWeaponsAndTools(provider);
+        PermutationRecipeLoader.registerHeavyItems(provider);
 
         PermutationRecipe.builder()
-            .material(ModBlocks.CHROMATIC_STONE)
-            .input(ModItems.EMERALD_AMULET)
-            .input(ModItems.TOPAZ_AMULET)
-            .input(ModItems.RUBY_AMULET)
-            .input(ModItems.SAPPHIRE_AMULET)
+            .input(
+                ModItems.SPECTRAL_WEAPON_LAUNCHER,
+                ModItems.ANVIL_RAILGUN,
+                ModItems.CORRUPTED_BEACON_ACTIVATOR,
+                ModItems.TESLA_GUN,
+                ModItems.LASER_GUN
+            )
+            .options(
+                CustomFrostMaterialPredicate.of(PermutationRecipeLoader.count(ModItems.TRANSCENDIUM_INGOT, 2)),
+                ModItems.SPECTRAL_WEAPON_LAUNCHER,
+                ModItems.ANVIL_RAILGUN,
+                ModItems.CORRUPTED_BEACON_ACTIVATOR,
+                ModItems.TESLA_GUN,
+                ModItems.LASER_GUN
+            )
+            .save(provider, "energy_weapons");
+
+        PermutationRecipe.builder()
+            .input(ModItems.EMERALD_AMULET, ModItems.TOPAZ_AMULET, ModItems.RUBY_AMULET, ModItems.SAPPHIRE_AMULET)
+            .options(
+                CustomFrostMaterialPredicate.of(PermutationRecipeLoader.count(ModBlocks.CHROMATIC_STONE, 1)),
+                ModItems.EMERALD_AMULET,
+                ModItems.TOPAZ_AMULET,
+                ModItems.RUBY_AMULET,
+                ModItems.SAPPHIRE_AMULET
+            )
             .save(provider, "gem_amulets");
+
+        PermutationRecipe.builder()
+            .input(ModItems.SILENCE_AMULET, ModItems.ARMADILLO_AMULET, ModItems.CAT_AMULET, ModItems.DOG_AMULET)
+            .options(
+                CustomFrostMaterialPredicate.of(PermutationRecipeLoader.count(Items.CAKE, 1)),
+                ModItems.SILENCE_AMULET,
+                ModItems.ARMADILLO_AMULET,
+                ModItems.CAT_AMULET,
+                ModItems.DOG_AMULET
+            )
+            .save(provider, "nature_amulets");
     }
 
-    private static void register(
-        RegistrumRecipeProvider provider,
-        List<String> bases,
-        ItemLike material,
-        Identifier idA,
-        Identifier idB
-    ) {
-        for (String base : bases) {
-            Item inputA = BuiltInRegistries.ITEM.getValue(idA.withSuffix("_" + base));
-            Item inputB = BuiltInRegistries.ITEM.getValue(idB.withSuffix("_" + base));
+    private static void registerWeaponsAndTools(RegistrumRecipeProvider provider) {
+        for (String base : PermutationRecipeLoader.WEAPONS_AND_TOOLS) {
+            Item diamond = PermutationRecipeLoader.item(PermutationRecipeLoader.DIAMOND, base);
+            Item iron = PermutationRecipeLoader.item(PermutationRecipeLoader.IRON, base);
+            Item golden = PermutationRecipeLoader.item(PermutationRecipeLoader.GOLDEN, base);
+            Item amethyst = PermutationRecipeLoader.item(PermutationRecipeLoader.AMETHYST, base);
+            Item netherite = PermutationRecipeLoader.item(PermutationRecipeLoader.NETHERITE, base);
+            Item royalSteel = PermutationRecipeLoader.item(PermutationRecipeLoader.ROYAL_STEEL, base);
+            Item frostMetal = PermutationRecipeLoader.item(PermutationRecipeLoader.FROST_METAL, base);
+            Item emberMetal = PermutationRecipeLoader.item(PermutationRecipeLoader.EMBER_METAL, base);
+
             PermutationRecipe.builder()
-                .material(material)
-                .input(inputA)
-                .input(inputB)
-                .save(provider, PermutationRecipeLoader.defaultId(inputA, inputB));
+                .input(royalSteel)
+                .result(diamond)
+                .result(iron)
+                .result(golden)
+                .result(amethyst)
+                .save(provider, PermutationRecipeLoader.id(royalSteel));
+
+            PermutationRecipe.builder()
+                .input(netherite)
+                .result(diamond)
+                .save(provider, PermutationRecipeLoader.id(netherite));
+
+            PermutationRecipe.builder()
+                .input(emberMetal)
+                .result(RecipeResult.builder().result(royalSteel).removeData(ModComponents.FIRE_REFORGING).build())
+                .result(RecipeResult.builder().result(netherite).removeData(ModComponents.FIRE_REFORGING).build())
+                .option(
+                    CustomFrostMaterialPredicate.of(PermutationRecipeLoader.count(ModItems.FROST_METAL_NUGGET, 3)),
+                    RecipeResult.builder().result(frostMetal).removeData(ModComponents.FIRE_REFORGING).build()
+                )
+                .save(provider, PermutationRecipeLoader.id(emberMetal));
+
+            PermutationRecipe.builder()
+                .input(frostMetal)
+                .result(RecipeResult.simple(royalSteel).build())
+                .option(
+                    CustomFrostMaterialPredicate.of(PermutationRecipeLoader.count(ModItems.EMBER_METAL_NUGGET, 3)),
+                    PermutationRecipeLoader.merciless(emberMetal)
+                )
+                .save(provider, PermutationRecipeLoader.id(frostMetal));
         }
     }
 
-    private static void register(
+    private static void registerHeavyItems(RegistrumRecipeProvider provider) {
+        for (String base : PermutationRecipeLoader.WORKSTATIONS) {
+            PermutationRecipeLoader.registerHeavyPair(
+                provider,
+                PermutationRecipeLoader.item(AnvilCraft.of("frost"), base),
+                PermutationRecipeLoader.item(AnvilCraft.of("ember"), base),
+                false
+            );
+        }
+        PermutationRecipeLoader.registerHeavyPair(
+            provider,
+            ModItems.FROST_ANVIL_HAMMER,
+            ModItems.EMBER_ANVIL_HAMMER,
+            true
+        );
+        PermutationRecipeLoader.registerHeavyPair(
+            provider,
+            ModItems.FROST_DRAGON_ROD,
+            ModItems.EMBER_DRAGON_ROD,
+            true
+        );
+        PermutationRecipeLoader.registerHeavyPair(
+            provider,
+            ModItems.FROST_METAL_RESONATOR,
+            ModItems.EMBER_METAL_RESONATOR,
+            true
+        );
+        PermutationRecipeLoader.registerHeavyPair(
+            provider,
+            ModItems.FROST_METAL_HEAVY_HALBERD,
+            ModItems.EMBER_METAL_HEAVY_HALBERD,
+            true
+        );
+    }
+
+    /**
+     * 生成一对浮霜与余烬重型物品之间的嬗变配方。
+     *
+     * @param reforged 余烬物品是否带有火炼与无情数据，工作方块类重型物品没有这些数据
+     */
+    private static void registerHeavyPair(
         RegistrumRecipeProvider provider,
-        List<String> bases,
-        ItemLike material,
-        Identifier idA,
-        Identifier idB,
-        BiFunction<Item, Item, PermutationRecipe.Builder> builderFactory
+        ItemLike frost,
+        ItemLike ember,
+        boolean reforged
     ) {
-        for (String base : bases) {
-            Item inputA = BuiltInRegistries.ITEM.getValue(idA.withSuffix("_" + base));
-            Item inputB = BuiltInRegistries.ITEM.getValue(idB.withSuffix("_" + base));
-            builderFactory.apply(inputA, inputB)
-                .material(material)
-                .save(provider, PermutationRecipeLoader.defaultId(inputA, inputB));
-        }
+        RecipeResult.Builder frostResult = RecipeResult.simple(frost);
+        if (reforged) frostResult.removeData(ModComponents.FIRE_REFORGING);
+        PermutationRecipe.builder()
+            .input(ember)
+            .option(
+                CustomFrostMaterialPredicate.of(PermutationRecipeLoader.count(ModItems.FROST_METAL_INGOT, 3)),
+                frostResult.build()
+            )
+            .save(provider, PermutationRecipeLoader.id(ember.asItem()));
+        PermutationRecipe.builder()
+            .input(frost)
+            .option(
+                CustomFrostMaterialPredicate.of(PermutationRecipeLoader.count(ModItems.EMBER_METAL_INGOT, 3)),
+                reforged ? PermutationRecipeLoader.merciless(ember) : RecipeResult.simple(ember).build()
+            )
+            .save(provider, PermutationRecipeLoader.id(frost.asItem()));
     }
 
-    private static String defaultId(Item inputA, Item inputB) {
-        Identifier inputAId = BuiltInRegistries.ITEM.getKey(inputA);
-        String inputBPath = BuiltInRegistries.ITEM.getKey(inputB).getPath();
-        return inputAId.withSuffix("_and_" + inputBPath).getPath();
+    private static RecipeResult merciless(ItemLike result) {
+        return RecipeResult.builder()
+            .result(result)
+            .removeData(ModComponents.MERCILESS)
+            .changeDataType(
+                RecipeInputSlot.input(0),
+                ModComponents.MERCILESS_ENCHANTMENTS,
+                ItemEnchantmentsData.enchantments(0)
+            )
+            .removeAttribute(Merciless.MERCILESS_ID)
+            .build();
+    }
+
+    private static ItemIngredientPredicate count(ItemLike item, int count) {
+        return ItemIngredientPredicate.of(item).withCount(count).build();
+    }
+
+    private static Item item(Identifier prefix, String base) {
+        return BuiltInRegistries.ITEM.getValue(prefix.withSuffix("_" + base));
+    }
+
+    private static String id(Item item) {
+        return BuiltInRegistries.ITEM.getKey(item).getPath();
     }
 }

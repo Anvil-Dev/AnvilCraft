@@ -48,7 +48,7 @@ public class TypeLimitItemStacksResourceHandler extends UnlimitedItemStacksResou
         );
 
     @Getter
-    private final int typeLimit;
+    private int typeLimit;
     @Getter
     private int spaceSize;
 
@@ -124,7 +124,7 @@ public class TypeLimitItemStacksResourceHandler extends UnlimitedItemStacksResou
         TransferPreconditions.checkNonEmptyNonNegative(resource, amount);
         UnlimitedItemStack stack = this.stacks.get(index);
         int matchingIndex = this.findMatchingSlot(resource);
-        if (stack.isEmpty() && matchingIndex >= 0 && matchingIndex != index) {
+        if (stack.isEmpty() && (this.getTypeCount() >= this.typeLimit || matchingIndex >= 0 && matchingIndex != index)) {
             return 0;
         }
         return super.insert(index, resource, amount, transaction);
@@ -147,6 +147,18 @@ public class TypeLimitItemStacksResourceHandler extends UnlimitedItemStacksResou
             }
         }
         super.set(index, resource, amount);
+    }
+
+    public void addTypeLimit(IntUnaryOperator adder) {
+        int next = checkTypeLimit(adder.applyAsInt(this.typeLimit));
+        if (next >= this.typeLimit) this.typeLimit = next;
+    }
+
+    public void retainIgnoringTypeLimit(List<UnlimitedItemStack> incoming) {
+        var retained = new ArrayList<>(this.copyToList());
+        retained.addAll(incoming);
+        this.setStacks(trim(Integer.MAX_VALUE, this.spaceSize, retained));
+        this.onContentsChanged(-1, UnlimitedItemStack.EMPTY);
     }
 
     public void addSpaceSize(IntUnaryOperator adder) {
@@ -172,13 +184,14 @@ public class TypeLimitItemStacksResourceHandler extends UnlimitedItemStacksResou
         if (this.typeLimit == 0 || this.spaceSize == 0) {
             return 0;
         }
-        return this.getSpace() / ((double) this.typeLimit * this.spaceSize);
+        return Math.min(1.0, this.getSpace() / ((double) this.typeLimit * this.spaceSize));
     }
 
     @Override
     public void sync(UnlimitedItemStacksResourceHandler items) {
         if (items instanceof TypeLimitItemStacksResourceHandler typeHandler) {
             this.spaceSize = Math.max(this.spaceSize, typeHandler.spaceSize);
+            this.typeLimit = Math.max(this.typeLimit, typeHandler.typeLimit);
         }
         this.setStacks(TypeLimitItemStacksResourceHandler.trim(this.typeLimit, this.spaceSize, items.copyToList()));
     }
@@ -196,6 +209,7 @@ public class TypeLimitItemStacksResourceHandler extends UnlimitedItemStacksResou
 
     @Override
     public void deserialize(ValueInput input) {
+        input.getInt(TYPE_LIMIT_KEY).ifPresent(limit -> this.typeLimit = Math.max(this.typeLimit, checkTypeLimit(limit)));
         input.getInt(TypeLimitItemStacksResourceHandler.SPACE_SIZE_KEY)
             .ifPresent(size -> this.spaceSize = Math.max(this.spaceSize, TypeLimitItemStacksResourceHandler.checkSpaceSize(size)));
         input.read(UnlimitedItemStacksResourceHandler.STACKS_KEY, UnlimitedItemStacksResourceHandler.STACKS_CODEC)
@@ -220,12 +234,13 @@ public class TypeLimitItemStacksResourceHandler extends UnlimitedItemStacksResou
     }
 
     protected int findNewSlot() {
+        if (this.getTypeCount() >= this.typeLimit) return -1;
         for (int index = 0; index < this.size(); index++) {
             if (this.stacks.get(index).isEmpty()) {
                 return index;
             }
         }
-        return this.size() < this.typeLimit ? this.size() : -1;
+        return this.size();
     }
 
     private int findMatchingSlot(ItemResource resource) {
@@ -260,10 +275,6 @@ public class TypeLimitItemStacksResourceHandler extends UnlimitedItemStacksResou
             }
 
             int existingIndex = TypeLimitItemStacksResourceHandler.findMatchingSlot(result, input);
-            if (existingIndex < 0 && result.size() >= typeLimit) {
-                continue;
-            }
-
             int capacity = TypeLimitItemStacksResourceHandler.computeCount(input, spaceSize);
             if (existingIndex >= 0) {
                 UnlimitedItemStack existing = result.get(existingIndex);

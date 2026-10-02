@@ -28,9 +28,9 @@ Left-click to adjust position; right-click to adjust angle; PgUp/PgDn to adjust 
 The machine **_must not be rotated_**. Ensure the sapling is in the *northwest corner* of the machine, otherwise the tree cannot grow!
 </warning>
 
-1. *Item Collector* set collection radius: 8
-2. Set the chute below the *Item Collector* to filter: Sapling
-3. Set the chute on the side of the *Item Collector* to filter: Logs, Sticks
+1. <ref item="anvilcraft:item_collector"/> set collection radius: 8
+2. Set the <ref item="anvilcraft:magnetic_chute"/> on the side of the <ref item="anvilcraft:item_collector"/> to filter: Sapling
+3. Set the <ref item="anvilcraft:chute"/> below the <ref item="anvilcraft:item_collector"/> to filter: Logs, Sticks
 
-- All <ref item="minecraft:glass"/> can be replaced with any full block
-- All <ref item="minecraft:smooth_stone"/> can be replaced with any full opaque block
+- All <ref item="minecraft:glass"/> can be replaced with any full opaque block
+- All <ref item="minecraft:smooth_stone"/> can be replaced with any full block

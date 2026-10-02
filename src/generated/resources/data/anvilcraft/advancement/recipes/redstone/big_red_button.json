@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_hardend_resin": {
+      "conditions": {
+        "items": [
+          {
+            "items": "anvilcraft:hardend_resin"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "anvilcraft:big_red_button"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_hardend_resin"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "anvilcraft:big_red_button"
+    ]
+  }
+}

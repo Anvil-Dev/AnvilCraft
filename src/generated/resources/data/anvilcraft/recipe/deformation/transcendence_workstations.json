@@ -1,0 +1,21 @@
+{
+  "type": "anvilcraft:deformation",
+  "inputs": [
+    {
+      "id": "anvilcraft:transcendence_anvil"
+    },
+    {
+      "id": "anvilcraft:transcendence_grindstone"
+    },
+    {
+      "id": "anvilcraft:transcendence_smithing_table"
+    }
+  ],
+  "material": {
+    "type": "anvilcraft:custom",
+    "predicate": {
+      "count": 3,
+      "items": "anvilcraft:transcendium_ingot"
+    }
+  }
+}

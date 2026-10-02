@@ -19,7 +19,6 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
-import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -36,7 +35,6 @@ import net.minecraft.world.level.pathfinder.PathComputationType;
 import net.minecraft.world.level.redstone.Orientation;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.BooleanOp;
-import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.neoforge.network.PacketDistributor;
@@ -96,11 +94,7 @@ public class TeslaTowerBlock
     }
 
     @Override
-    public VoxelShape getShape(
-        BlockState state,
-        BlockGetter level,
-        BlockPos pos,
-        CollisionContext context) {
+    public VoxelShape getPartShape(BlockState state) {
         return switch (state.getValue(TeslaTowerBlock.HALF)) {
             case BOTTOM -> TeslaTowerBlock.BOTTOM_SHAPE;
             case MID_LOWER -> TeslaTowerBlock.LOWER_SHAPE;
@@ -204,7 +198,7 @@ public class TeslaTowerBlock
             if (blockEntity instanceof TeslaTowerBlockEntity teslaTowerBlockEntity && player instanceof ServerPlayer sp) {
                 if (sp.gameMode.getGameModeForPlayer() == GameType.SPECTATOR) return InteractionResult.PASS;
                 ModMenuTypes.open(sp, teslaTowerBlockEntity, mainPartPos);
-                PacketDistributor.sendToPlayer(sp, TeslaFilterSyncPacket.create(teslaTowerBlockEntity.getWhiteList()));
+                PacketDistributor.sendToPlayer(sp, TeslaFilterSyncPacket.create(teslaTowerBlockEntity.getAllowList()));
                 return InteractionResult.SUCCESS;
             }
         }

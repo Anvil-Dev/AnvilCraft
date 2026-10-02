@@ -1,0 +1,10 @@
+{
+  "model": {
+    "type": "minecraft:special",
+    "base": "anvilcraft:block/giant_monolith_core",
+    "model": {
+      "type": "anvilcraft:monolith",
+      "block": "anvilcraft:giant_monolith_core"
+    }
+  }
+}

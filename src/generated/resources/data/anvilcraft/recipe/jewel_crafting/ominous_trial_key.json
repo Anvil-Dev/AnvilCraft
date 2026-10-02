@@ -1,18 +1,14 @@
 {
   "type": "anvilcraft:jewel_crafting",
+  "has_vanishing_curse": false,
   "ingredients": [
-    {
-      "count": 3,
-      "items": "minecraft:polished_tuff"
-    },
-    {
-      "items": "minecraft:oxidized_copper"
-    },
-    {
-      "items": "minecraft:ominous_bottle"
-    }
+    "minecraft:polished_tuff",
+    "minecraft:polished_tuff",
+    "minecraft:polished_tuff",
+    "minecraft:oxidized_copper",
+    "minecraft:ominous_bottle"
   ],
-  "source": {
-    "items": "minecraft:ominous_trial_key"
+  "result": {
+    "id": "minecraft:ominous_trial_key"
   }
 }

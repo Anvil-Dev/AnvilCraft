@@ -1,0 +1,20 @@
+{
+  "type": "anvilcraft:permutation",
+  "input": {
+    "items": "anvilcraft:ember_smithing_table"
+  },
+  "options": [
+    {
+      "material": {
+        "type": "anvilcraft:custom",
+        "predicate": {
+          "count": 3,
+          "items": "anvilcraft:frost_metal_ingot"
+        }
+      },
+      "result": {
+        "id": "anvilcraft:frost_smithing_table"
+      }
+    }
+  ]
+}

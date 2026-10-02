@@ -11,7 +11,6 @@ items:
   - anvilcraft:topaz_block
   - anvilcraft:sapphire_block
   - anvilcraft:ruby_block
-  - anvilcraft:melt_gem_bucket
 ---
 
 # 更多宝石
@@ -37,7 +36,11 @@ items:
 | 代表水元素的<ref item="anvilcraft:sapphire"/> | 站在*水*中使用可以产生<ref item="minecraft:ice"/>；站在*空气*使用可以产生<ref item="minecraft:snow"/> |
 | 代表电元素的<ref item="anvilcraft:topaz"/>    | 对着<ref item="minecraft:lightning_rod"/>使用可以产生*闪电*                                |
 
-它们和<ref item="minecraft:emerald"/>一起，统称为宝石
+<info>
+也可通过<ref item="minecraft:dispenser"/>触发效果
+</info>
+
+它们和<ref item="minecraft:emerald"/>一起，统称为*宝石*
 
 ## 首次获取
 
@@ -50,4 +53,4 @@ items:
 
 ## 量产
 
-拥有<ref item="anvilcraft:corrupted_beacon"/>后，可以[量产宝石](../008_recipe/204_gem.md)。但这是后话了，可以先不看
+拥有<ref item="anvilcraft:corrupted_beacon"/>后，可以[量产宝石](../008_recipe/204_gem.md)，但这是后话了

@@ -12,7 +12,6 @@ import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.item.context.BlockPlaceContext;
-import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.RenderShape;
@@ -26,7 +25,6 @@ import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.level.pathfinder.PathComputationType;
 import net.minecraft.world.level.redstone.Orientation;
-import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jspecify.annotations.Nullable;
@@ -88,16 +86,11 @@ public class TransmissionPoleBlock
     }
 
     @Override
-    public VoxelShape getShape(
-        BlockState state,
-        BlockGetter level,
-        BlockPos pos,
-        CollisionContext context
-    ) {
+    public VoxelShape getPartShape(BlockState state) {
         if (state.getValue(TransmissionPoleBlock.HALF) == Vertical3PartHalf.BOTTOM) return TransmissionPoleBlock.TRANSMISSION_POLE_BASE;
         if (state.getValue(TransmissionPoleBlock.HALF) == Vertical3PartHalf.MID) return TransmissionPoleBlock.TRANSMISSION_POLE_MID;
         if (state.getValue(TransmissionPoleBlock.HALF) == Vertical3PartHalf.TOP) return TransmissionPoleBlock.TRANSMISSION_POLE_TOP;
-        return super.getShape(state, level, pos, context);
+        return super.getPartShape(state);
     }
 
     @Override

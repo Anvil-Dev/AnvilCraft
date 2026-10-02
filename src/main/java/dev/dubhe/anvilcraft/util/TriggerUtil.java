@@ -8,7 +8,9 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -92,9 +94,13 @@ public class TriggerUtil {
     }
 
     public static void anvilHammerHurtEntity(Level level, BlockPos pos, float damage) {
+        anvilHammerHurtEntity(level, pos, damage, Items.AIR);
+    }
+
+    public static void anvilHammerHurtEntity(Level level, BlockPos pos, float damage, Item item) {
         if (!level.isClientSide()) {
             for (ServerPlayer player : PlayerUtil.searchPlayerByPos(level, pos, 5)) {
-                ModCriterionTriggers.ANVIL_HAMMER_HURT_ENTITY.get().trigger(player, damage);
+                ModCriterionTriggers.ANVIL_HAMMER_HURT_ENTITY.get().trigger(player, damage, item);
             }
         }
     }
@@ -143,6 +149,7 @@ public class TriggerUtil {
         if (!level.isClientSide()) {
             for (ServerPlayer player : PlayerUtil.searchPlayerByPos(level, pos, 5)) {
                 ModCriterionTriggers.CONNECT_FLUID_CONTAINERS.get().trigger(player);
+                ModCriterionTriggers.PIPE_CONNECT_CONTAINERS.get().trigger(player);
             }
         }
     }
@@ -167,6 +174,7 @@ public class TriggerUtil {
         if (!level.isClientSide()) {
             for (ServerPlayer player : PlayerUtil.searchPlayerByPos(level, pos, 7)) {
                 ModCriterionTriggers.VOID_COLLECTOR_COLLECT.get().trigger(player);
+                ModCriterionTriggers.VOID_ENERGY_COLLECTOR_WORKING.get().trigger(player);
             }
         }
     }
@@ -194,4 +202,37 @@ public class TriggerUtil {
             }
         }
     }
+
+    public static void playerWearAnvilHammer(Level level, BlockPos pos) {
+        if (!level.isClientSide()) {
+            for (ServerPlayer player : PlayerUtil.searchPlayerByPos(level, pos, 5)) {
+                ModCriterionTriggers.PLAYER_WEAR_ANVIL_HAMMER.get().trigger(player);
+            }
+        }
+    }
+
+    public static void pipeConnectContainers(Level level, BlockPos pos) {
+        if (!level.isClientSide()) {
+            for (ServerPlayer player : PlayerUtil.searchPlayerByPos(level, pos, 5)) {
+                ModCriterionTriggers.PIPE_CONNECT_CONTAINERS.get().trigger(player);
+            }
+        }
+    }
+
+    public static void voidEnergyCollectorWorking(Level level, BlockPos pos) {
+        if (!level.isClientSide()) {
+            for (ServerPlayer player : PlayerUtil.searchPlayerByPos(level, pos, 7)) {
+                ModCriterionTriggers.VOID_ENERGY_COLLECTOR_WORKING.get().trigger(player);
+            }
+        }
+    }
+
+    public static void multiBlockForm(Level level, BlockPos pos) {
+        if (!level.isClientSide()) {
+            for (ServerPlayer player : PlayerUtil.searchPlayerByPos(level, pos, 7)) {
+                ModCriterionTriggers.MULTI_BLOCK_FORM.get().trigger(player);
+            }
+        }
+    }
+
 }

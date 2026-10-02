@@ -147,7 +147,7 @@ public class AnvilHammerItem extends Item {
     public static boolean ableToUseAnvilHammer(Level level, BlockPos blockPos, Player player) {
         if (player.isShiftKeyDown()) return true;
         BlockState state = level.getBlockState(blockPos);
-        if (state.is(ModBlockTags.ANVIL_HAMMER_BLACKLIST)) return false;
+        if (state.is(ModBlockTags.ANVIL_HAMMER_DENYLIST)) return false;
         if (state.getBlock() instanceof IHammerChangeable hammerChangeable) {
             return hammerChangeable.checkBlockState(state);
         }
@@ -165,19 +165,15 @@ public class AnvilHammerItem extends Item {
         if (offhand.isEmpty() || offhand.is(ModItemTags.ANVIL_HAMMER)) return false;
         if (!(offhand.getItem() instanceof BlockItem)) return false;
         BlockState state = level.getBlockState(hit.getBlockPos());
-        if (state.is(BlockTags.CAULDRONS) || state.is(ModBlockTags.ANVIL_HAMMER_BLACKLIST)) return false;
+        if (state.is(BlockTags.CAULDRONS) || state.is(ModBlockTags.ANVIL_HAMMER_DENYLIST)) return false;
         if (state.is(ModBlockTags.HAMMER_REMOVABLE) || state.getBlock() instanceof IHammerRemovable) return false;
         return findModifyableProperty(state) == null;
     }
 
     @Nullable
     public static Property<?> findModifyableProperty(BlockState state) {
-        Property<?> result = null;
         if (state.getBlock() instanceof IHammerChangeable changeable) {
-            result = changeable.getChangeableProperty(state);
-        }
-        if (result != null) {
-            return result;
+            return changeable.getChangeableProperty(state);
         }
         for (Property<?> supportedProperty : AnvilHammerItem.SUPPORTED_PROPERTIES) {
             if (state.hasProperty(supportedProperty)) {
@@ -373,7 +369,6 @@ public class AnvilHammerItem extends Item {
         return false;
     }
 
-    // @OnlyIn(Dist.CLIENT)
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     public static boolean shouldRenderEffect(Player player) {
         return switch (AnvilCraftClient.CONFIG.goggleMode) {
@@ -436,7 +431,7 @@ public class AnvilHammerItem extends Item {
                 TriggerUtil.killedEntityByAnvilHammer(serverLevel, BlockPos.containing(target.position()), target);
             }
         }
-        TriggerUtil.anvilHammerHurtEntity(level, BlockPos.containing(target.position()), damageBonus);
+        TriggerUtil.anvilHammerHurtEntity(level, BlockPos.containing(target.position()), damageBonus, this);
     }
 
     @Override

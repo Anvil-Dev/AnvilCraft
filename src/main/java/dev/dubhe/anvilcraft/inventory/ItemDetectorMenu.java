@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.inventory;
 
+import dev.dubhe.anvilcraft.api.menu.MenuBlockEntityLookup;
 import dev.dubhe.anvilcraft.block.entity.IFilterBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.ItemDetectorBlockEntity;
 import dev.dubhe.anvilcraft.inventory.component.FilterOnlySlot;
@@ -42,10 +43,13 @@ public class ItemDetectorMenu extends AbstractContainerMenu implements IFilterMe
 
         this.addDataSlot(DataSlot.forContainer(this.blockEntity.getDataAccess(), 0));
         this.addDataSlot(DataSlot.forContainer(this.blockEntity.getDataAccess(), 1));
+        this.addDataSlot(DataSlot.forContainer(this.blockEntity.getDataAccess(), ItemDetectorBlockEntity.DATASLOT_ID_OUTPUT_INVERT));
     }
 
     public ItemDetectorMenu(@Nullable MenuType<?> menuType, int containerId, Inventory inventory, FriendlyByteBuf extraData) {
-        this(menuType, containerId, inventory, Objects.requireNonNull(inventory.player.level().getBlockEntity(extraData.readBlockPos())));
+        this(menuType, containerId, inventory, Objects.requireNonNull(MenuBlockEntityLookup.find(
+            inventory.player.level(), extraData.readBlockPos(), ItemDetectorBlockEntity.class
+        )));
     }
 
     private void addPlayerInventory(Inventory playerInventory) {
@@ -123,6 +127,13 @@ public class ItemDetectorMenu extends AbstractContainerMenu implements IFilterMe
             return;
         }
         super.clicked(slotId, button, input, player);
+    }
+
+    @Override
+    public boolean clickMenuButton(Player player, int id) {
+        if (id != 0 && id != 1) return false;
+        this.setData(ItemDetectorBlockEntity.DATASLOT_ID_OUTPUT_INVERT, id);
+        return true;
     }
 
     public void setFilterMode(ItemDetectorBlockEntity.Mode mode) {

@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "A": "anvilcraft:cursed_gold_block",
+    "B": "minecraft:apple"
+  },
+  "pattern": [
+    "AAA",
+    "ABA",
+    "AAA"
+  ],
+  "result": {
+    "id": "anvilcraft:cursed_golden_apple"
+  }
+}

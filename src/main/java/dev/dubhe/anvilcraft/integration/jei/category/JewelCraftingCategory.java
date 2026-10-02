@@ -5,10 +5,9 @@ import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.integration.jei.AnvilCraftJeiPlugin;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiRecipeUtil;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiRenderHelper;
-import dev.dubhe.anvilcraft.integration.jei.util.JeiSlotUtil;
 import dev.dubhe.anvilcraft.recipe.JewelCraftingRecipe;
 import dev.dubhe.anvilcraft.recipe.generate.JewelCraftingRecipeGeneratingCache;
-import dev.dubhe.anvilcraft.util.RecipeUtil;
+import dev.dubhe.anvilcraft.recipe.sync.RecipesRecord;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.drawable.IDrawable;
 import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
@@ -19,10 +18,8 @@ import mezz.jei.api.recipe.category.IRecipeCategory;
 import mezz.jei.api.recipe.types.IRecipeHolderType;
 import mezz.jei.api.registration.IRecipeCatalystRegistration;
 import mezz.jei.api.registration.IRecipeRegistration;
-import mezz.jei.common.util.RegistryUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.ItemStack;
@@ -78,15 +75,13 @@ public class JewelCraftingCategory implements IRecipeCategory<RecipeHolder<Jewel
 
     @Override
     public void setRecipe(IRecipeLayoutBuilder builder, RecipeHolder<JewelCraftingRecipe> recipe, IFocusGroup focuses) {
-        List<ItemStack> source = RecipeUtil.getItems(
-            recipe.value().source(),
-            RegistryUtil.getRegistryAccess().lookupOrThrow(Registries.ITEM)
-        );
-        builder.addSlot(RecipeIngredientRole.INPUT, 59, 11).addItemStacks(source);
-        for (int i = 0; i < recipe.value().ingredients().size(); i++) {
-            JeiSlotUtil.addSlotWithCount(builder, 5 + i * 18, 37, recipe.value().ingredients().get(i));
+        builder.addSlot(RecipeIngredientRole.INPUT, 59, 11).addItemStack(recipe.value().result().create().copyWithCount(1));
+        for (int i = 0; i < recipe.value().mergedIngredients().size(); i++) {
+            var entry = recipe.value().mergedIngredients().get(i);
+            builder.addSlot(RecipeIngredientRole.INPUT, 5 + i * 18, 37).addItemStacks(entry.getKey().getValues().stream()
+                .map(holder -> new ItemStack(holder.value(), entry.getIntValue())).toList());
         }
-        builder.addSlot(RecipeIngredientRole.OUTPUT, 135, 24).addItemStacks(source);
+        builder.addSlot(RecipeIngredientRole.OUTPUT, 135, 24).addItemStack(recipe.value().result().create());
     }
 
     @Override
@@ -116,7 +111,8 @@ public class JewelCraftingCategory implements IRecipeCategory<RecipeHolder<Jewel
         recipes.forEach(recipe -> recipeIds.add(recipe.id()));
         var connection = Minecraft.getInstance().getConnection();
         if (connection != null) {
-            new JewelCraftingRecipeGeneratingCache(connection.registryAccess()).buildRecipes()
+            new JewelCraftingRecipeGeneratingCache(connection.registryAccess(),
+                RecipesRecord.CLIENTSIDE == null ? List.of() : RecipesRecord.CLIENTSIDE.values()).buildRecipes()
                 .ifPresent(generated -> generated.stream()
                     .filter(recipe -> recipeIds.add(recipe.id()))
                     .forEach(recipes::add));

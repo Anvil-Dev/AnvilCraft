@@ -1,0 +1,25 @@
+{
+  "type": "anvilcraft:solid_liquid",
+  "consume": 1,
+  "fluid": {
+    "components": {
+      "patch": {
+        "!anvilcraft:liquid_enchantment": {}
+      }
+    },
+    "fluids": "anvilcraft:liquid_enchantment"
+  },
+  "ingredients": [
+    {
+      "items": "anvilcraft:royal_steel_ingot"
+    }
+  ],
+  "results": [],
+  "transform": {
+    "amount": 1,
+    "components": {
+      "anvilcraft:liquid_enchantment": "minecraft:silk_touch"
+    },
+    "id": "anvilcraft:liquid_enchantment"
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:mod_loaded",
+      "modid": "twilightforest"
+    }
+  ],
+  "type": "anvilcraft:deformation",
+  "material": {
+    "type": "anvilcraft:repair_material",
+    "cost": 1
+  },
+  "inputs": [
+    {
+      "id": "twilightforest:giant_pickaxe"
+    },
+    {
+      "id": "twilightforest:giant_sword"
+    }
+  ]
+}

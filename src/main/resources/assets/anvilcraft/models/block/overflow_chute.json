@@ -1,0 +1,53 @@
+{
+	"format_version": "1.21.11",
+	"credit": "Made by XeKr with Blockbench",
+	"parent": "minecraft:block/block",
+	"render_type": "minecraft:cutout",
+	"textures": {
+		"top": "anvilcraft:block/chute_bottom",
+		"direct": "anvilcraft:block/simple_magnetic_chute",
+		"particle": "anvilcraft:block/overflow_chute",
+		"bottom": "anvilcraft:block/overflow_chute",
+		"side": "anvilcraft:block/magnetic_chute_side",
+		"overflow": "anvilcraft:block/simple_chute_directional"
+	},
+	"elements": [
+		{
+			"from": [2, 0, 2],
+			"to": [14, 8, 14],
+			"faces": {
+				"north": {"uv": [2, 8, 14, 16], "texture": "#side"},
+				"east": {"uv": [2, 8, 14, 16], "texture": "#side"},
+				"south": {"uv": [2, 8, 14, 16], "texture": "#side"},
+				"west": {"uv": [2, 8, 14, 16], "texture": "#side"},
+				"up": {"uv": [2, 2, 14, 14], "texture": "#bottom"},
+				"down": {"uv": [2, 2, 14, 14], "texture": "#bottom", "cullface": "down"}
+			}
+		},
+		{
+			"from": [2.975, 8, 2.975],
+			"to": [13.025, 20.025, 13.025],
+			"rotation": {"angle": 0, "axis": "y", "origin": [0, 7, 0]},
+			"faces": {
+				"north": {"uv": [3, 1, 13, 13], "texture": "#direct"},
+				"east": {"uv": [3, 1, 13, 13], "texture": "#direct"},
+				"south": {"uv": [3, 1, 13, 13], "texture": "#direct"},
+				"west": {"uv": [3, 1, 13, 13], "texture": "#direct"},
+				"up": {"uv": [3, 3, 13.05, 13.05], "texture": "#top"}
+			}
+		},
+		{
+			"from": [3.975, 3.975, -4.025],
+			"to": [12.025, 12.025, 2.975],
+			"rotation": {"angle": 0, "axis": "y", "origin": [8, 8, 8]},
+			"faces": {
+				"north": {"uv": [4, 4, 12, 12], "rotation": 180, "texture": "#top", "cullface": "north"},
+				"east": {"uv": [4, 0, 12, 8], "rotation": 270, "texture": "#overflow"},
+				"west": {"uv": [12, 0, 4, 8], "rotation": 90, "texture": "#overflow"},
+				"up": {"uv": [12, 0, 4, 8], "rotation": 180, "texture": "#overflow"},
+				"down": {"uv": [12, 0, 4, 8], "texture": "#overflow"}
+			}
+		}
+	],
+	"display": {}
+}

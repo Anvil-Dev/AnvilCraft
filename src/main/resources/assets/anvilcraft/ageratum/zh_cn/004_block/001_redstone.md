@@ -7,6 +7,8 @@ items:
   - anvilcraft:pulse_generator
   - anvilcraft:item_detector
   - anvilcraft:advanced_comparator
+  - anvilcraft:redstone_dice
+  - anvilcraft:big_red_button
   - anvilcraft:redstone_wire
 ---
 
@@ -17,6 +19,9 @@ items:
 <item id="anvilcraft:pulse_generator"/>
 <item id="anvilcraft:item_detector"/>
 <item id="anvilcraft:advanced_comparator"/>
+<item id="anvilcraft:redstone_dice"/>
+<item id="anvilcraft:big_red_button"/>
+<item id="anvilcraft:redstone_wire"/>
 </row>
 
 # <ref item="anvilcraft:block_comparator"/>
@@ -47,35 +52,54 @@ items:
 
 <recipe id="anvilcraft:item_detector"/>
 
-- 可检测身后最多8格的**掉落物**
+- 可检测身后最多8格的 **掉落物**或容器中的物品
 
 ## GUI
 
-在GUI中可以设置范围和过滤
+在 GUI 中可设置范围、过滤和反向输出：
 
 - <color=#999922>不设置过滤</color>时，输出红石信号强度随掉落物的数量**线性变化**。数量达到64个时输出满信号强度15
 - <color=#999922>设置过滤</color>时，若过滤的掉落物都不存在，则不输出信号。否则，对**每个**检测到物品的过滤格，分别根据对应掉落物数量计算红石信号(数量达到[64*过滤数量]时计算满信号强度)。最终输出选择所有红石信号的**最小值**输出
+- <color=#999922>过滤模式</color>可设为**全部**或**任意**：前者需要满足所有过滤项，后者满足任一过滤项即可输出红石信号
 
 # <ref item="anvilcraft:advanced_comparator"/>
 
 <recipe id="anvilcraft:advanced_comparator"/>
 
-- 根据从背部放置容器检测到的信号或输入的信号，决定是否输出满信号
-- 默认在信号低于下阈值后无信号；在信号高于上阈值后开始输出信号
+## 运行模式
 
-## GUI
+根据从背部放置容器检测到的信号或输入的信号，决定是否输出满信号
 
-在GUI中可以设置阈值与其他模式
+支持两种模式，可通过 GUI 从上往下<color=#999922>第一个按钮</color>切换：
 
-- 从上往下<color=#999922>第一个按钮</color>可启用窗口模式：在信号位于一定区间时输出信号
+1. **普通阈值模式**（默认）：信号强度高于**上阈值**时输出，低于**下阈值**时停止输出
+2. **窗口模式**：信号强度位于设定的**上下阈值之间**（含边界）时输出，超出该区间则不输出
+
+## 其它调整
+
 - 从上往下<color=#999922>第二个按钮</color>可启用反转模式：在原来不输出信号的时候输出信号，反之亦然
-- 从上往下<color=#999922>第三个按钮</color>启用后，将两侧收到的红石信号作为阈值(不分左右，高者为上阈值)
+- 从上往下<color=#999922>第三个按钮</color>可启用动态阈值，将两侧收到的红石信号作为阈值(不分左右，高者为上阈值)
 
-# <ref item="anvilcraft:redstone_computer"/>
+# <ref item="anvilcraft:big_red_button"/>
 
-<recipe id="anvilcraft:redstone_computer"/>
+<recipe id="anvilcraft:big_red_button"/>
 
-- 输出三个输入端的信号强度之和，最高不超过15
+按钮面积很大，容易按到；长按右键可保持按下并持续输出红石信号，松开后停止
+
+<info>
+即使手持<ref item="anvilcraft:anvil_hammer"/>，长按右键也仍然会按下按钮
+</info>
+
+# <ref item="anvilcraft:redstone_dice"/>
+
+- 受到红石信号时会随机输出一次红石信号
+- 手持<ref item="anvilcraft:anvil_hammer"/>长按右键可选择模式：
+  - 均匀模式：输出信号强度为 0～15 的概率相等
+  - 真实模式：三枚骰子各自以相同概率掷出 1～6 点
+
+<info>
+输出的红石信号强度为三枚骰子点数之和减 3
+</info>
 
 # <ref item="anvilcraft:redstone_wire"/>
 

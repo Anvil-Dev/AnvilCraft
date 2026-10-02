@@ -29,15 +29,6 @@ public record PowerGridSyncPacket(SimplePowerGrid grid) implements IClientboundP
 
     @Override
     public void handleOnClient(Player player) {
-        PowerGridSupport.getGridMap().compute(
-            this.grid.getId(),
-            (_, grid) -> {
-                this.grid.rebuildTransmitterVisualLines(grid);
-                if (grid != null) {
-                    grid.destroy();
-                }
-                return this.grid;
-            }
-        );
+        PowerGridSupport.acceptGrid(this.grid);
     }
 }

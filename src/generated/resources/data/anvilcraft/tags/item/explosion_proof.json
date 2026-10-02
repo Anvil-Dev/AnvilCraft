@@ -1,6 +1,7 @@
 {
   "values": [
     "anvilcraft:shulker_container",
+    "anvilcraft:hyperdimension_uploader",
     "anvilcraft:hyperdimension_storage_station",
     "anvilcraft:transcendence_anvil",
     "anvilcraft:transcendence_grindstone",
@@ -42,6 +43,7 @@
     "anvilcraft:stellar_ring_component",
     "anvilcraft:magnetar_coil_component",
     "anvilcraft:stellar_evolution_accelerator_component",
+    "anvilcraft:infinite_collector",
     "anvilcraft:earth_core_shard_block",
     "anvilcraft:earth_core_shard_ore",
     "anvilcraft:earth_core_shard",

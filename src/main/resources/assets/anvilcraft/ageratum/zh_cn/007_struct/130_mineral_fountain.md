@@ -22,8 +22,12 @@ items:
 
 1. 制作<ref item="anvilcraft:impact_pile"/>
 2. 将<ref item="anvilcraft:impact_pile"/>放置在<ref item="minecraft:bedrock"/>或<ref item="minecraft:deepslate"/>上，并确保其位置**不高于**世界底部 8 格
-3. 用至少 20 格的高度下落的**完好的**<ref item="minecraft:anvil"/>砸击它
+3. 用至少 20 格的高度下落的任意*铁砧*砸击它
 4. 最终<ref item="anvilcraft:impact_pile"/>和<ref item="minecraft:anvil"/>都会消失，并生成一个包含<ref item="anvilcraft:mineral_fountain"/>、<ref item="anvilcraft:sturdy_deepslate"/>和熔岩的结构
+
+<info>
+一般不使用<ref item="minecraft:damaged_anvil"/>，它会直接消失
+</info>
 
 <info>
 生成<ref item="anvilcraft:mineral_fountain"/>的高度固定为世界最低高度+5
@@ -33,15 +37,15 @@ items:
 生成的结构会将除<ref item="minecraft:bedrock"/>外的方块替换
 </warning>
 
-### <ref item="anvilcraft:sturdy_deepslate"/>
-
-很硬的石头，没什么用
-
 ## 特性
 
 - 坚硬抗爆
 - 极难挖掘
 - 破坏没有掉落物
+
+### <ref item="anvilcraft:sturdy_deepslate"/>
+
+很硬的石头，没什么用
 
 # 功能
 
@@ -51,9 +55,14 @@ items:
 
 ## 产矿
 
-<structure id="../../structures/mineral_fountain/raw_mineral.snbt"/>
+<row halign="center">
 
-- 如果<ref item="anvilcraft:mineral_fountain"/>的四面都是**同种粗矿块**，则将上方<ref item="minecraft:deepslate"/>转化为对应的**深层矿**
+<recipe id="anvilcraft:mineral_fountain/deepslate_gold_ore"/>
+<recipe id="anvilcraft:mineral_fountain_chance/void_stone_from_overworld"/>
+
+</row>
+
+- 如果<ref item="anvilcraft:mineral_fountain"/>的四面都是**同种粗矿块**，则将上方<ref item="minecraft:deepslate"/>转化为对应的**深层矿**(不消耗**粗矿块**)
 - 有概率转而生成<ref item="anvilcraft:earth_core_shard_ore"/>或<ref item="anvilcraft:void_stone"/>
 
 <info>
@@ -74,6 +83,10 @@ items:
 
 - 四周被**熔岩**环绕的<ref item="anvilcraft:mineral_fountain"/>可以生成**熔岩**
 
+<tip>
+可以直接将<ref item="anvilcraft:drain"/>放在<ref item="anvilcraft:mineral_fountain"/>上方收集熔岩
+</tip>
+
 ---
 
 ## 加热
@@ -89,4 +102,3 @@ items:
 <structure id="../../structures/mineral_fountain/cinerite.snbt"/>
 
 - 其他结构都不满足时，<ref item="anvilcraft:mineral_fountain"/>在上方生成<ref item="anvilcraft:cinerite"/>，可将其用于[筛矿](../008_recipe/001_basic_minerals.md)
-

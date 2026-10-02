@@ -1,0 +1,9 @@
+{
+  "model": {
+    "type": "minecraft:special",
+    "base": "anvilcraft:item/ruins_block",
+    "model": {
+      "type": "anvilcraft:ruins_block"
+    }
+  }
+}

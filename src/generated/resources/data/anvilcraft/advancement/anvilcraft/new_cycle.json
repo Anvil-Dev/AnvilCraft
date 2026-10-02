@@ -1,0 +1,30 @@
+{
+  "parent": "anvilcraft:anvilcraft/the_start",
+  "criteria": {
+    "new_cycle": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.anvilcraft.new_cycle.description"
+    },
+    "frame": "challenge",
+    "hidden": true,
+    "icon": {
+      "id": "anvilcraft:civilization_catalyst"
+    },
+    "title": {
+      "translate": "advancements.anvilcraft.new_cycle.title"
+    }
+  },
+  "requirements": [
+    [
+      "new_cycle"
+    ]
+  ],
+  "rewards": {
+    "experience": 1395
+  },
+  "sends_telemetry_event": true
+}

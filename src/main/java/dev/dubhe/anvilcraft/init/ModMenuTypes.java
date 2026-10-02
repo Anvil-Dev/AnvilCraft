@@ -3,11 +3,13 @@ package dev.dubhe.anvilcraft.init;
 import dev.anvilcraft.lib.v2.registrum.util.entry.MenuEntry;
 import dev.dubhe.anvilcraft.client.gui.screen.ActiveSilencerScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.AdvancedComparatorScreen;
+import dev.dubhe.anvilcraft.client.gui.screen.AutoEnchantingTableScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.BatchCrafterScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.BatchCutterScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.CelestialForgingAnvilScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.ChuteScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.ControlValveScreen;
+import dev.dubhe.anvilcraft.client.gui.screen.CreativeLaserScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.EmberAnvilScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.EmberGrindstoneScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.EmberSmithingScreen;
@@ -36,11 +38,13 @@ import dev.dubhe.anvilcraft.client.gui.screen.TranscendenceGrindstoneScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.TranscendenceSmithingScreen;
 import dev.dubhe.anvilcraft.inventory.ActiveSilencerMenu;
 import dev.dubhe.anvilcraft.inventory.AdvancedComparatorMenu;
+import dev.dubhe.anvilcraft.inventory.AutoEnchantingTableMenu;
 import dev.dubhe.anvilcraft.inventory.BatchCrafterMenu;
 import dev.dubhe.anvilcraft.inventory.BatchCutterMenu;
 import dev.dubhe.anvilcraft.inventory.CelestialForgingAnvilMenu;
 import dev.dubhe.anvilcraft.inventory.ChuteMenu;
 import dev.dubhe.anvilcraft.inventory.ControlValveMenu;
+import dev.dubhe.anvilcraft.inventory.CreativeLaserMenu;
 import dev.dubhe.anvilcraft.inventory.EmberAnvilMenu;
 import dev.dubhe.anvilcraft.inventory.EmberGrindstoneMenu;
 import dev.dubhe.anvilcraft.inventory.EmberSmithingMenu;
@@ -78,6 +82,10 @@ import static dev.dubhe.anvilcraft.AnvilCraft.REGISTRUM;
 
 @SuppressWarnings("DataFlowIssue")
 public class ModMenuTypes {
+    public static final MenuEntry<AutoEnchantingTableMenu> AUTO_ENCHANTING_TABLE = REGISTRUM
+        .menu("auto_enchanting_table", AutoEnchantingTableMenu::new, () -> AutoEnchantingTableScreen::new)
+        .register();
+
     public static final MenuEntry<AnvilMenu> PORTABLE_ANVIL = REGISTRUM
         .menu("portable_anvil", (type, id, inv) -> new PortableAnvilMenu(id, inv), () -> AnvilScreen::new)
         .register();
@@ -112,6 +120,10 @@ public class ModMenuTypes {
             () -> RoyalSmithingScreen::new
         )
         .register();
+    public static final MenuEntry<CreativeLaserMenu> CREATIVE_LASER = REGISTRUM
+        .menu("creative_laser", CreativeLaserMenu::new, () -> CreativeLaserScreen::new)
+        .register();
+
     public static final MenuEntry<SliderMenu> SLIDER = REGISTRUM
         .menu(
             "slider",

@@ -1,0 +1,34 @@
+{
+  "type": "anvilcraft:solid_liquid",
+  "consume": 128,
+  "fluid": {
+    "components": {
+      "patch": {
+        "!anvilcraft:liquid_enchantment": {}
+      }
+    },
+    "fluids": "anvilcraft:liquid_enchantment"
+  },
+  "ingredients": [
+    {
+      "items": "anvilcraft:transcendium_ingot"
+    }
+  ],
+  "results": [],
+  "transform": [
+    {
+      "amount": 64,
+      "components": {
+        "anvilcraft:liquid_enchantment": "minecraft:fortune"
+      },
+      "id": "anvilcraft:liquid_enchantment"
+    },
+    {
+      "amount": 64,
+      "components": {
+        "anvilcraft:liquid_enchantment": "minecraft:looting"
+      },
+      "id": "anvilcraft:liquid_enchantment"
+    }
+  ]
+}

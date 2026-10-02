@@ -34,22 +34,22 @@ items:
 
 ---
 
-# 用途
+# 发电
 
-## 发电
-
-- 每个<ref item="anvilcraft:uranium_block"/>为<ref item="anvilcraft:heat_collector"/>提供 2kW 的发电量
+- 每个<ref item="anvilcraft:uranium_block"/>可为<ref item="anvilcraft:heat_collector"/>提供 2kW 能量
 - 时移<ref item="anvilcraft:uranium_block"/>会在一瞬间爆发出通常需要数万年才能释放的能量，将与锅水平相邻的[可加热方块](../001_feature/101_heated_block.md#可加热方块)加热为<color=#ee7744>白炽</color>并持续5min，合计 1024kW
-- 通过铁砧撞击<ref item="anvilcraft:uranium_block"/>，加热至多16个<ref item="anvilcraft:overheated_ember_metal_block"/>并持续20s，合计 16384kW
+- 通过铁砧撞击<ref item="anvilcraft:uranium_block"/>，加热至多16个<ref item="anvilcraft:overheated_ember_metal_block"/>并持续20s，合计 32768kW
 
 <row halign="center">
 <recipe id="anvilcraft:time_warp/raw_uranium_from_uranium_block"/>
 <recipe id="anvilcraft:anvil_collision/anvil_tier_2_and_uranium_block_256"/>
 </row>
 
-# 特性
+# 核辐射
 
-- 核辐射：携带18组任意铀物品会受到凋零效果
+携带18组任意铀物品会受到**凋零**效果
+
+# 放射性衰变
 
 - <ref item="anvilcraft:uranium_block"/>属于 *放射性方块*
 - 如果与*放射性方块*六个面相邻的*放射性方块*比<ref item="anvilcraft:lead_block"/>，多3个及以上，概率触发*放射性衰变*

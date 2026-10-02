@@ -11,6 +11,7 @@ public class LangHandler {
         WthitLang.init(provider);
         OtherLang.init(provider);
         MessageLang.init(provider);
+        BuildingRodLang.init(provider);
         ScreenLang.init(provider);
         JeiLang.init(provider);
         EnchantmentDescriptionsLang.init(provider);
@@ -22,6 +23,7 @@ public class LangHandler {
         IntegrationScreenLang.init(provider);
         ScreenTooltipLang.init(provider);
         CategoryLang.init(provider);
+        CreativeTabLang.init(provider);
         BlockLang.init(provider);
         EffectLang.init(provider);
         StatLang.init(provider);

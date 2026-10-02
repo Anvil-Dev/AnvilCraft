@@ -11,6 +11,11 @@ import net.minecraft.world.item.Item;
 
 @SuppressWarnings("unused")
 public class ModItemTags {
+    public static final TagKey<Item> POWER_CONVERTER = bind("power_converter");
+    public static final TagKey<Item> ENCHANTED_GOLD = bind("enchanted_gold");
+    public static final TagKey<Item> AUTO_ENCHANTING_TABLE_PRIMERS = bind("auto_enchanting_table_primers");
+
+    public static final TagKey<Item> PLAYER_WORKSTATIONS_STONECUTTERS = ModItemTags.bindC("player_workstations/stonecutters");
     public static final TagKey<Item> RESIN = ModItemTags.bindC("resin");
     public static final TagKey<Item> WHEAT_FLOUR = ModItemTags.bindC("flour/wheat");
     public static final TagKey<Item> WHEAT_DOUGH = ModItemTags.bindC("dough/wheat");
@@ -22,6 +27,9 @@ public class ModItemTags {
     public static final TagKey<Item> RAW_CHICKEN = ModItemTags.bindC("foods/raw_chicken");
     public static final TagKey<Item> RAW_PORKCHOP = ModItemTags.bindC("foods/raw_porkchop");
     public static final TagKey<Item> RAW_RABBIT = ModItemTags.bindC("foods/raw_rabbit");
+    public static final TagKey<Item> SMALL_MEAT = ModItemTags.bind("small_meat");
+    public static final TagKey<Item> MEDIUM_MEAT = ModItemTags.bind("medium_meat");
+    public static final TagKey<Item> LARGE_MEAT = ModItemTags.bind("large_meat");
 
     public static final TagKey<Item> PLATES = ModItemTags.bindC("plates");
     public static final TagKey<Item> GOLD_PLATES = ModItemTags.bindC("plates/gold");
@@ -140,6 +148,8 @@ public class ModItemTags {
     public static final TagKey<Item> ROYAL_STEEL_HOE_BASE = ModItemTags.bind("royal_steel_hoe_base");
     public static final TagKey<Item> ROYAL_STEEL_SHOVEL_BASE = ModItemTags.bind("royal_steel_shovel_base");
     public static final TagKey<Item> ROYAL_STEEL_SWORD_BASE = ModItemTags.bind("royal_steel_sword_base");
+    public static final TagKey<Item> WEATHERPROOF_REPAIR_MATERIALS = ModItemTags.bind("weatherproof_repair_materials");
+    public static final TagKey<Item> UNIVERSAL_REPAIR_MATERIALS = ModItemTags.bind("universal_repair_materials");
     public static final TagKey<Item> FROST_METAL_PICKAXE_BASE = ModItemTags.bind("frost_metal_pickaxe_base");
     public static final TagKey<Item> FROST_METAL_AXE_BASE = ModItemTags.bind("frost_metal_axe_base");
     public static final TagKey<Item> FROST_METAL_HOE_BASE = ModItemTags.bind("frost_metal_hoe_base");
@@ -165,6 +175,9 @@ public class ModItemTags {
     public static final TagKey<Item> AMULET = ModItemTags.bind("amulet");
     public static final TagKey<Item> ANVIL_HAMMER = ModItemTags.bind("tools/anvil_hammer");
     public static final TagKey<Item> TEMPLATES = ModItemTags.bind("templates");
+    public static final TagKey<Item> TRIM_TEMPLATES = TagKey.create(Registries.ITEM, Identifier.withDefaultNamespace("trim_templates"));
+    public static final TagKey<Item> SWORD_ENCHANTABLE =
+        TagKey.create(Registries.ITEM, Identifier.withDefaultNamespace("enchantable/sword"));
     public static final TagKey<Item> MULTIPLE_TO_ONE_SMITHING_TEMPLATES = ModItemTags.bind("multiple_to_one_smithing_templates");
     public static final TagKey<Item> DRAGON_ROD = ModItemTags.bind("tools/dragon_rod");
     public static final TagKey<Item> HEAVY_HALBERD = ModItemTags.bind("tools/heavy_halberd");

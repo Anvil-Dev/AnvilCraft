@@ -1,38 +1,25 @@
 package dev.dubhe.anvilcraft.util;
 
+import dev.dubhe.anvilcraft.api.block.BlockPlacementRules;
 import dev.dubhe.anvilcraft.block.entity.SmartBlockPlacerBlockEntity;
-import dev.dubhe.anvilcraft.block.power.consumer.SmartBlockPlacerBlock;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
-import net.minecraft.server.network.Filterable;
-import net.minecraft.server.network.FilteredText;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.item.component.WrittenBookContent;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.CandleBlock;
-import net.minecraft.world.level.block.HorizontalDirectionalBlock;
-import net.minecraft.world.level.block.SeaPickleBlock;
-import net.minecraft.world.level.block.TurtleEggBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.entity.EntityTypeTest;
-import net.minecraft.world.phys.AABB;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -42,31 +29,37 @@ public class StructureBookUtil {
     public static final Logger LOGGER = LoggerFactory.getLogger(StructureBookUtil.class);
 
     /**
-     * 生成材料清单到输出书槽位
+     * 生成材料清单
      * 逻辑: 蓝图需求 - 世界中已放置 = 还需要放置
      */
-    public static void generateMaterialListBookToOutput(Level level, BlockPos placerPos, SmartBlockPlacerBlockEntity blockEntity) {
-        var loadedStructure = blockEntity.getLoadedStructure();
-        if (loadedStructure == null || loadedStructure.isEmpty()) {
-            return;
+    public static ItemStack createMaterialListBook(Level level, BlockPos placerPos, SmartBlockPlacerBlockEntity blockEntity) {
+        BlockState[] blueprintStates = blockEntity.getBlueprint().states();
+        if (!blockEntity.hasBlueprint()) {
+            return ItemStack.EMPTY;
         }
 
         // 第一步: 统计蓝图中需要的方块数量
         // 过滤掉多方块方块的次要部件，只统计主体部件（每个多方块结构只需1个方块物品）
         Map<Block, Integer> requiredBlocks = new LinkedHashMap<>();
-        for (var blockPosition : loadedStructure.blocks) {
-            // 跳过多方块方块的次要部件
-            if (StructureLoadUtil.isMultiblockSecondaryPart(blockPosition.state())) {
+        for (BlockState state : blueprintStates) {
+            if (state.isAir()) {
                 continue;
             }
-            Block block = blockPosition.state().getBlock();
+            // 跳过多方块方块的次要部件
+            if (BlockPlacementUtil.isSecondaryBlueprintPart(state)) {
+                continue;
+            }
+            Block block = state.getBlock();
             // 检查是否是可堆叠方块，如果是则累加堆叠数量
-            int stackCount = StructureBookUtil.getStackCountFromState(blockPosition.state());
+            int stackCount = BlockPlacementRules.getPrimaryPlacementItemCount(level.registryAccess(), state);
+            if (stackCount < 0) {
+                continue;
+            }
             requiredBlocks.merge(block, stackCount, Integer::sum);
         }
 
         // 第二步: 统计世界中已放置的方块数量
-        Map<Block, Integer> placedBlocks = StructureBookUtil.countPlacedBlocksInStructure(level, placerPos, loadedStructure, blockEntity);
+        Map<Block, Integer> placedBlocks = countPlacedBlocksInStructure(level, blueprintStates, blockEntity);
 
         // 第三步: 计算还需要的方块 = 需求 - 已放置
         Map<Block, Integer> neededBlocks = new LinkedHashMap<>();
@@ -83,13 +76,12 @@ public class StructureBookUtil {
         // 如果所有方块都已放置完成，输出普通的书
         if (neededBlocks.isEmpty()) {
             ItemStack book = new ItemStack(Items.BOOK);
-            blockEntity.getOutputBookInventory().setItem(0, book);
-            StructureBookUtil.LOGGER.info("Structure complete: {} (all blocks placed), output book", loadedStructure.diskData.name());
-            return;
+            LOGGER.info("Structure complete: {} (all blocks placed), output book", blockEntity.getBlueprint().name());
+            return book;
         }
 
         // 生成书页内容
-        List<Component> pages = new ArrayList<>();
+        java.util.List<net.minecraft.server.network.Filterable<Component>> pages = new java.util.ArrayList<>();
 
         // 第一页开始: 材料详情(只显示缺失的)
         Component currentPage = Component.translatable("book.anvilcraft.material_list.missing_header");
@@ -98,7 +90,7 @@ public class StructureBookUtil {
 
         // 获取是否为蓝图move模式
         boolean isPickupMode = blockEntity.isPickupMode();
-        boolean isBlueprintMode = !blockEntity.getDiskInventory().getItem(0).isEmpty();
+        boolean isBlueprintMode = !blockEntity.getBlueprintItem().isEmpty();
         boolean isBlueprintMoveMode = isBlueprintMode && !isPickupMode;
 
         for (Map.Entry<Block, Integer> entry : neededBlocks.entrySet()) {
@@ -108,10 +100,10 @@ public class StructureBookUtil {
 
             if (isBlueprintMoveMode) {
                 // 蓝图move模式：检查源位置的方块
-                available = StructureBookUtil.countBlockAtSourcePosition(level, placerPos, block);
+                available = countBlockAtSourcePosition(level, placerPos, block);
             } else {
                 // 蓝图pickup模式或普通模式：检查容器中的方块
-                available = StructureBookUtil.countBlockInContainer(level, placerPos, block);
+                available = countBlockInContainer(level, placerPos, block);
             }
 
             int missing = Math.max(0, needed - available);
@@ -127,7 +119,7 @@ public class StructureBookUtil {
 
                 // 检查是否需要分页(每页约14行)
                 if (lineCount >= 13) {
-                    pages.add(currentPage);
+                    pages.add(new net.minecraft.server.network.Filterable<>(currentPage, java.util.Optional.empty()));
                     currentPage = Component.literal("");
                     lineCount = 0;
                 }
@@ -139,41 +131,38 @@ public class StructureBookUtil {
 
         // 添加最后一页（只有当有缺失内容时才添加）
         if (hasMissingContent && lineCount > 0) {
-            pages.add(currentPage);
+            pages.add(new net.minecraft.server.network.Filterable<>(currentPage, java.util.Optional.empty()));
         }
 
         // 如果pages为空（所有需要的方块都有足够存量），输出普通的书
         if (pages.isEmpty()) {
             ItemStack book = new ItemStack(Items.BOOK);
-            blockEntity.getOutputBookInventory().setItem(0, book);
-            StructureBookUtil.LOGGER.info(
-                "Structure material available: {} (all needed blocks available), output book", loadedStructure.diskData.name());
-            return;
+            LOGGER.info(
+                "Structure material available: {} (all needed blocks available), output book",
+                blockEntity.getBlueprint().name()
+            );
+            return book;
         }
 
         // 设置书的专用组件
         final ItemStack writtenBook = new ItemStack(Items.WRITTEN_BOOK);
-        var bookContent = new WrittenBookContent(
-            Filterable.from(
-                FilteredText.passThrough("Material List")),  // title
-            "Smart Block Placer",  // author
+        var bookContent = new net.minecraft.world.item.component.WrittenBookContent(
+            new net.minecraft.server.network.Filterable<>("Material List", java.util.Optional.empty()),  // resolved title
+            "Smart Block Placer",  // owner
             0,  // generation
-            pages.stream()
-                .map(Filterable::passThrough)
-                .toList(),  // pages
-            false  // resolved
+            pages,  // pages
+            false  // filtered
         );
         writtenBook.set(DataComponents.WRITTEN_BOOK_CONTENT, bookContent);
 
-        // 放入输出槽位
-        blockEntity.getOutputBookInventory().setItem(0, writtenBook);
-        StructureBookUtil.LOGGER.info(
+        LOGGER.info(
             "Generated material list book for structure: {} (needed: {}/{} blocks, placed: {})",
-            loadedStructure.diskData.name(),
+            blockEntity.getBlueprint().name(),
             neededBlocks.size(),
             requiredBlocks.size(),
             placedBlocks.values().stream().mapToInt(Integer::intValue).sum()
         );
+        return writtenBook;
     }
 
     /**
@@ -182,40 +171,27 @@ public class StructureBookUtil {
     @SuppressWarnings("unused")
     private static Map<Block, Integer> countPlacedBlocksInStructure(
         Level level,
-        BlockPos placerPos,
-        StructureLoadUtil.StructureData loadedStructure,
+        BlockState[] blueprintStates,
         SmartBlockPlacerBlockEntity blockEntity
     ) {
         Map<Block, Integer> placedBlocks = new LinkedHashMap<>();
-
-        Direction facing = level.getBlockState(placerPos).getValue(HorizontalDirectionalBlock.FACING);
-        boolean upsideDown = level.getBlockState(placerPos).getValue(SmartBlockPlacerBlock.UPSIDE_DOWN);
-
-        // 使用 buildBlueprintPositions 获取所有实际位置
-        List<BlockPos> allPositions = SmartBlockPlacerBlockEntity.buildBlueprintPositions(
-            placerPos,
-            facing,
-            upsideDown,
-            loadedStructure
-        );
-
-        if (allPositions.isEmpty() || loadedStructure.blocks.isEmpty()) {
-            return placedBlocks;
-        }
 
         int totalPlaced = 0;
         int totalChecked = 0;
 
         // 遍历所有位置，检查世界中是否已经放置了正确的方块
-        for (int i = 0; i < loadedStructure.blocks.size() && i < allPositions.size(); i++) {
-            BlockState expectedState = loadedStructure.blocks.get(i).state();
+        for (int index = 0; index < blueprintStates.length; index++) {
+            if (blueprintStates[index].isAir()) {
+                continue;
+            }
+            BlockState expectedState = blockEntity.getBlueprintStateForPlacement(index);
 
             // 跳过多方块方块的次要部件，与需求统计保持一致
-            if (StructureLoadUtil.isMultiblockSecondaryPart(expectedState)) {
+            if (BlockPlacementUtil.isSecondaryBlueprintPart(expectedState)) {
                 continue;
             }
 
-            BlockPos targetPos = allPositions.get(i);
+            BlockPos targetPos = blockEntity.getBlueprintPosition(index);
             BlockState worldState = level.getBlockState(targetPos);
 
             totalChecked++;
@@ -224,13 +200,19 @@ public class StructureBookUtil {
             if (!worldState.isAir() && worldState.getBlock() == expectedState.getBlock()) {
                 Block worldBlock = worldState.getBlock();
                 // 检查是否是可堆叠方块，如果是则累加实际堆叠数量
-                int placedCount = StructureBookUtil.getStackCountFromState(worldState);
+                int placedCount = BlockPlacementRules.getPrimaryPlacementItemCount(
+                    level.registryAccess(),
+                    worldState
+                );
+                if (placedCount < 0) {
+                    continue;
+                }
                 placedBlocks.merge(worldBlock, placedCount, Integer::sum);
                 totalPlaced++;
             }
         }
 
-        StructureBookUtil.LOGGER.debug("Structure check: {} blocks placed out of {} total", totalPlaced, totalChecked);
+        LOGGER.debug("Structure check: {} blocks placed out of {} total", totalPlaced, totalChecked);
 
         return placedBlocks;
     }
@@ -241,11 +223,11 @@ public class StructureBookUtil {
     private static int countBlockInContainer(Level level, BlockPos placerPos, Block targetBlock) {
         // 获取放置器朝向
         BlockState state = level.getBlockState(placerPos);
-        if (!state.hasProperty(HorizontalDirectionalBlock.FACING)) {
+        if (!state.hasProperty(net.minecraft.world.level.block.HorizontalDirectionalBlock.FACING)) {
             return 0;
         }
 
-        Direction facing = state.getValue(HorizontalDirectionalBlock.FACING);
+        Direction facing = state.getValue(net.minecraft.world.level.block.HorizontalDirectionalBlock.FACING);
         BlockPos inputPos = placerPos.relative(facing.getOpposite());
 
         int count = 0;
@@ -255,27 +237,24 @@ public class StructureBookUtil {
 
         if (itemHandler != null) {
             for (int slot = 0; slot < itemHandler.size(); slot++) {
-                ItemResource resource = itemHandler.getResource(slot);
-                if (!resource.isEmpty()) {
-                    ItemStack stack = resource.toStack(itemHandler.getAmountAsInt(slot));
-                    if (stack.getItem() instanceof BlockItem blockItem) {
-                        if (blockItem.getBlock() == targetBlock) {
-                            count += stack.getCount();
-                        }
+                ItemStack stack = itemHandler.getResource(slot).toStack(itemHandler.getAmountAsInt(slot));
+                if (!stack.isEmpty() && stack.getItem() instanceof BlockItem blockItem) {
+                    if (blockItem.getBlock() == targetBlock) {
+                        count += stack.getCount();
                     }
                 }
             }
         }
 
         // 检查掉落物实体
-        AABB aabb = new AABB(inputPos);
-        List<ItemEntity> entities = level.getEntities(
-            EntityTypeTest.forClass(ItemEntity.class),
+        net.minecraft.world.phys.AABB aabb = new net.minecraft.world.phys.AABB(inputPos);
+        java.util.List<net.minecraft.world.entity.item.ItemEntity> entities = level.getEntities(
+            EntityTypeTest.forClass(net.minecraft.world.entity.item.ItemEntity.class),
             aabb,
-            Entity::isAlive
+            net.minecraft.world.entity.Entity::isAlive
         );
 
-        for (ItemEntity entity : entities) {
+        for (net.minecraft.world.entity.item.ItemEntity entity : entities) {
             ItemStack stack = entity.getItem();
             if (!stack.isEmpty() && stack.getItem() instanceof BlockItem blockItem) {
                 if (blockItem.getBlock() == targetBlock) {
@@ -293,11 +272,11 @@ public class StructureBookUtil {
     private static int countBlockAtSourcePosition(Level level, BlockPos placerPos, Block targetBlock) {
         // 获取放置器朝向
         BlockState state = level.getBlockState(placerPos);
-        if (!state.hasProperty(HorizontalDirectionalBlock.FACING)) {
+        if (!state.hasProperty(net.minecraft.world.level.block.HorizontalDirectionalBlock.FACING)) {
             return 0;
         }
 
-        Direction facing = state.getValue(HorizontalDirectionalBlock.FACING);
+        Direction facing = state.getValue(net.minecraft.world.level.block.HorizontalDirectionalBlock.FACING);
         BlockPos sourcePos = placerPos.relative(facing.getOpposite());
 
         // 检查源位置的方块是否匹配
@@ -309,20 +288,4 @@ public class StructureBookUtil {
         return 0;
     }
 
-    /**
-     * 从方块状态中获取堆叠数量
-     *
-     * @param state 方块状态
-     * @return 堆叠数量，1表示不可堆叠
-     */
-    private static int getStackCountFromState(BlockState state) {
-        if (state.is(Blocks.TURTLE_EGG)) {
-            return state.getValue(TurtleEggBlock.EGGS);
-        } else if (state.is(Blocks.SEA_PICKLE)) {
-            return state.getValue(SeaPickleBlock.PICKLES);
-        } else if (state.getBlock() instanceof CandleBlock) {
-            return state.getValue(CandleBlock.CANDLES);
-        }
-        return 1;
-    }
 }

@@ -9,11 +9,14 @@ import dev.dubhe.anvilcraft.api.event.EntityThroughPortalEvent;
 import dev.dubhe.anvilcraft.api.injection.entity.IEntityExtension;
 import dev.dubhe.anvilcraft.api.portal.PortalType;
 import dev.dubhe.anvilcraft.block.entity.DeflectionRingBlockEntity;
+import dev.dubhe.anvilcraft.item.EquipmentAbilities;
 import dev.dubhe.anvilcraft.mixin.accessor.PortalProcessorAccessor;
 import dev.dubhe.anvilcraft.util.AccelerateManager;
+import dev.dubhe.anvilcraft.util.AtmosphereManager;
 import dev.dubhe.anvilcraft.util.GravityManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.PortalProcessor;
 import net.minecraft.world.entity.Pose;
@@ -41,6 +44,39 @@ import java.util.Optional;
 
 @Mixin(Entity.class)
 public abstract class EntityMixin implements IEntityExtension {
+    @Unique
+    private final GravityManager.OrbitalMotion anvilcraft$orbitalMotion = new GravityManager.OrbitalMotion();
+
+    @Override
+    public GravityManager.OrbitalMotion anvilcraft$getOrbitalMotion() {
+        return this.anvilcraft$orbitalMotion;
+    }
+
+    @Shadow
+    protected abstract double getDefaultGravity();
+
+    @WrapOperation(
+        method = "applyGravity",
+        at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/Entity;getGravity()D")
+    )
+    private double anvilcraft$deferOrbitalGravity(Entity entity, Operation<Double> original) {
+        return GravityManager.deferVerticalGravity(entity, original.call(entity), this.getDefaultGravity());
+    }
+
+    @Inject(method = "setAirSupply", at = @At("HEAD"), cancellable = true)
+    private void anvilcraft$preserveAirSupply(int airSupply, CallbackInfo callback) {
+        if (!((Object) this instanceof LivingEntity living)) return;
+        if (EquipmentAbilities.canBreathe(living) && airSupply < living.getAirSupply()
+            || airSupply > living.getAirSupply() && airSupply > 0 && AtmosphereManager.isSuffocating(living)) {
+            callback.cancel();
+        }
+    }
+
+    @ModifyVariable(method = {"onInsideBubbleColumn", "onAboveBubbleColumn"}, at = @At("HEAD"), argsOnly = true)
+    private boolean anvilcraft$sinkInBubbleColumn(boolean downwards) {
+        return downwards || (Object) this instanceof Player player && EquipmentAbilities.shouldSinkInFluid(player);
+    }
+
     @Unique
     public Vec3 anvil$fixedDeltaMovement = Vec3.ZERO;
 
@@ -112,8 +148,8 @@ public abstract class EntityMixin implements IEntityExtension {
     }
 
     @ModifyVariable(method = "move", at = @At("HEAD"), argsOnly = true)
-    private Vec3 anvilcraft$applyGravityMovementEffects(Vec3 movement) {
-        return GravityManager.applyMovementEffects((Entity) (Object) this, movement);
+    private Vec3 anvilcraft$applyGravityMovementEffects(Vec3 movement, MoverType type, Vec3 originalMovement) {
+        return GravityManager.applyMovementEffects((Entity) (Object) this, type, movement);
     }
 
     @WrapOperation(
@@ -328,7 +364,7 @@ public abstract class EntityMixin implements IEntityExtension {
         }
 
         // 应用引力向量的水平分量
-        Vec3 localGravity = GravityManager.getGravityVector(entity);
+        Vec3 localGravity = GravityManager.deferHorizontalGravity(entity, GravityManager.getGravityVector(entity));
         if (localGravity.x != 0 || localGravity.z != 0) {
             entity.setDeltaMovement(entity.getDeltaMovement().add(localGravity.x, 0, localGravity.z));
         }
@@ -337,5 +373,10 @@ public abstract class EntityMixin implements IEntityExtension {
     @Inject(method = "tick", at = @At("HEAD"))
     private void anvilcraft$handleAcceleration(CallbackInfo ci) {
         AccelerateManager.handleAcceleration((Entity) (Object) this);
+    }
+
+    @ModifyVariable(method = "collide", at = @At("HEAD"), argsOnly = true)
+    private Vec3 anvilcraft$collideWithVoidFloor(Vec3 movement) {
+        return (Object) this instanceof Player player ? EquipmentAbilities.collideWithVoidFloor(player, movement) : movement;
     }
 }

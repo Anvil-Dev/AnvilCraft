@@ -1,12 +1,8 @@
 package dev.dubhe.anvilcraft.block.entity;
 
 import dev.anvilcraft.lib.v2.rendering.cachedber.pipeline.CachedBlockEntityRenderingPipeline;
-import dev.dubhe.anvilcraft.api.heat.HeaterManager;
 import dev.dubhe.anvilcraft.block.cfa.interfaces.CelestialForgingAnvilInterfaceBlock;
-import dev.dubhe.anvilcraft.block.multipart.FlexibleMultiPartBlock;
-import dev.dubhe.anvilcraft.init.ModHeaterInfos;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
-import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import dev.dubhe.anvilcraft.network.LaserEmitPacket;
 import dev.dubhe.anvilcraft.util.BlockMiningEffect;
 import lombok.Getter;
@@ -22,9 +18,7 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.tags.BlockTags;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
@@ -34,14 +28,9 @@ import net.neoforged.neoforge.network.PacketDistributor;
 import org.jspecify.annotations.Nullable;
 
 import java.util.EnumSet;
-import java.util.Objects;
 import java.util.Set;
 
-/**
- * 锻星砧激光接口，通过继承 {@link BaseLaserBlockEntity} 接入激光链系统。
- * 被动模式接收外部激光并向锻星砧报告等级；主动模式输出虫洞汇总激光。
- * 彭罗斯球也会借此接口发射伽马激光。
- */
+/// 锻星砧的激光接口。扩展 BaseLaserBlockEntity 以参与激光链系统。被动模式（无红石）：接收传入的激光束，向 CFA 控制器报告等级。主动模式（红石激活）：朝向面向方向发射激光。也被彭罗斯球用于发射伽马激光输出。
 public class CelestialForgingAnvilLaserInterfaceBlockEntity extends BaseLaserBlockEntity {
     @Getter
     private int receivedLaserLevel = 0;
@@ -56,30 +45,18 @@ public class CelestialForgingAnvilLaserInterfaceBlockEntity extends BaseLaserBlo
     @Getter
     private boolean requiredGamma = false;
 
-    // 伽马激光状态，由锻星砧控制器设置以输出彭罗斯球能量。
-    @Getter
+    /// 伽马激光状态（由 CFA 控制器设置，用于彭罗斯球输出）
     private boolean emittingGamma = false;
     @Getter
     private int gammaLevel = 0;
 
-    // 虫洞激光输出，由虫洞稳定器每刻汇总并设置。
+    /** A Penrose handler requests a beam for the next server tick. */
+    private boolean gammaEmissionRequested = false;
+    private int gammaEmissionRequestLevel = 0;
+
+    /// 虫洞激光输出（由 CFA 控制器的 syncWormholeLasers 每 tick 设置）
     private int wormholeOutputLevel = 0;
     private boolean wormholeOutputGamma = false;
-
-    // 伽马激光破坏方块所需的连续照射时长。
-    // [0-3 级禁用，≥4 级 3 秒，≥8 级 1 秒，≥12 级 5 刻，≥16 级 1 刻]
-    private static final int[] GAMMA_EXPOSURE_TICKS = {
-        Integer.MAX_VALUE,
-        60,   // ≥4 级：连续照射 60 刻（3 秒）
-        20,   // ≥8 级：连续照射 20 刻（1 秒）
-        5,    // ≥12 级：连续照射 5 刻
-        1     // ≥16 级：连续照射 1 刻
-    };
-
-    // 记录当前受伽马激光照射的方块及持续时间；目标变化时重新计时。
-    @Nullable
-    private BlockPos gammaIrradiatingPos = null;
-    private int gammaExposureTicks = 0;
 
     public CelestialForgingAnvilLaserInterfaceBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState);
@@ -95,11 +72,11 @@ public class CelestialForgingAnvilLaserInterfaceBlockEntity extends BaseLaserBlo
         return new CelestialForgingAnvilLaserInterfaceBlockEntity(type, pos, state);
     }
 
-    // === BaseLaserBlockEntity 抽象方法 ===
+    /// === BaseLaserBlockEntity 抽象方法 ===
 
     @Override
     public Direction getFacing() {
-        BlockState state = this.getBlockState();
+        BlockState state = getBlockState();
         if (state.hasProperty(CelestialForgingAnvilInterfaceBlock.FACING)) {
             return state.getValue(CelestialForgingAnvilInterfaceBlock.FACING);
         }
@@ -108,9 +85,10 @@ public class CelestialForgingAnvilLaserInterfaceBlockEntity extends BaseLaserBlo
 
     @Override
     protected int getBaseLaserLevel() {
-        BlockState state = this.getBlockState();
+        BlockState state = getBlockState();
         if (state.hasProperty(CelestialForgingAnvilInterfaceBlock.ACTIVE)
             && state.getValue(CelestialForgingAnvilInterfaceBlock.ACTIVE)) {
+            /// 主动模式不再自发发射 1 级激光；仅在有虫洞输出时发射对应等级。
             return this.wormholeOutputLevel;
         }
         return 0;
@@ -120,23 +98,31 @@ public class CelestialForgingAnvilLaserInterfaceBlockEntity extends BaseLaserBlo
     public void syncTo(ServerPlayer player) {
         PacketDistributor.sendToPlayer(
             player,
-            new LaserEmitPacket(this.getLaserLevel(), this.getBlockPos(), this.irradiateBlockPos, this.emittingGamma)
+            new LaserEmitPacket(getLaserLevel(), getBlockPos(), this.irradiateBlockPos, this.isEmittingGamma())
         );
     }
 
-    /// 此激光接口是否处于主动模式（由铁砧锤切换的 ACTIVE 属性，而非红石信号）。
+    /// 此激光接口是否处于主动（红石激活）模式。
     public boolean isActive() {
-        BlockState state = this.getBlockState();
+        BlockState state = getBlockState();
         return state.hasProperty(CelestialForgingAnvilInterfaceBlock.ACTIVE)
             && state.getValue(CelestialForgingAnvilInterfaceBlock.ACTIVE);
     }
 
-    /**
-     * 设置虫洞激光输出等级及是否为伽马激光，由虫洞稳定器每刻调用。
-     */
+    /// 设置虫洞激光输出等级和伽马标志。由 CFA 控制器的 syncWormholeLasers() 每 tick 调用。
     public void setWormholeLaserOutput(int level, boolean gamma) {
-        this.wormholeOutputLevel = level;
+        this.wormholeOutputLevel = Math.max(0, level);
         this.wormholeOutputGamma = gamma;
+    }
+
+    @Override
+    public boolean isEmittingGamma() {
+        return this.emittingGamma;
+    }
+
+    @Override
+    protected boolean isGammaLaserConfigured() {
+        return this.emittingGamma;
     }
 
     @Override
@@ -144,34 +130,23 @@ public class CelestialForgingAnvilLaserInterfaceBlockEntity extends BaseLaserBlo
         return 0.125f;
     }
 
-    @Override
-    public int getLaserColor() {
-        if (this.emittingGamma) {
-            return 0x8040FF; // 伽马激光使用蓝紫色
-        }
-        return super.getLaserColor(); // 普通激光沿用红色
-    }
-
-    /**
-     * 受到外部激光照射时记录等级，供锻星砧控制器查询，但不继续传递激光链。
-     */
+    /// 当被外部激光照射时，追踪接收到的激光等级以供 CFA 控制器查询。不参与激光链。
     @Override
     public void onIrradiated(BaseLaserBlockEntity source) {
         int level = source.getLaserLevel();
-        boolean gamma = source instanceof CelestialForgingAnvilLaserInterfaceBlockEntity cfaSource
-            && cfaSource.isEmittingGamma();
+        boolean gamma = source.isEmittingGamma();
         this.onLaserReceived(level, gamma, source.getMiningEffect());
-        // 接口是接收终点，不调用父类继续传递激光。
+        /// 不进行链式传递——不调用 super.onIrradiated(source)
     }
 
     @Override
     public void onCancelingIrradiation(BaseLaserBlockEntity source) {
         this.resetLaser();
+        /// ACTIVE 模式由铁砧锤切换，不再随红石信号变化，
+        /// 因此此处无需重新同步方块状态。
     }
 
-    /**
-     * 仅接收从接口正面射入的激光，忽略侧面和背面。
-     */
+    /// 仅接受来自正面的激光。侧面和背面的激光将被忽略。
     @Override
     public Set<Direction> getIgnoreFace() {
         EnumSet<Direction> ignore = EnumSet.allOf(Direction.class);
@@ -179,25 +154,27 @@ public class CelestialForgingAnvilLaserInterfaceBlockEntity extends BaseLaserBlo
         return ignore;
     }
 
-    // === 锻星砧激光状态 ===
+    /// === CFA 激光跟踪 ===
 
-    /**
-     * 设置当前巨构对本接口的激光要求。
-     *
-     * @param requiredLevel 最低激光等级，传入 0 表示清除要求
-     * @param gamma         是否要求伽马激光
-     */
+    /// 设置此接口的激光需求，由 CFA 控制器调用。当 requiredLevel > 0 时，传入的激光将根据此需求进行验证。requiredLevel 为所需的最小激光等级，传 0 则清除需求；gamma 表示是否需要伽马激光。
     public void setLaserRequirement(int requiredLevel, boolean gamma) {
-        this.requiredLaserLevel = requiredLevel;
+        final boolean oldValid = this.laserValid;
+        final int oldRequiredLevel = this.requiredLaserLevel;
+        final boolean oldRequiredGamma = this.requiredGamma;
+        this.requiredLaserLevel = Math.max(0, requiredLevel);
         this.requiredGamma = gamma;
-        // 要求变化后立即重新判断已接收激光是否有效。
+        /// 使用新需求重新评估有效性
         if (this.requiredLaserLevel > 0 && this.receivedLaserLevel > 0) {
             this.laserValid = this.receivedLaserLevel >= this.requiredLaserLevel
                 && this.receivedGamma == this.requiredGamma;
         } else {
             this.laserValid = false;
         }
-        this.setChanged();
+        if (oldRequiredLevel != this.requiredLaserLevel
+            || oldRequiredGamma != this.requiredGamma
+            || oldValid != this.laserValid) {
+            this.setChanged();
+        }
     }
 
     public void onLaserReceived(int level, boolean gamma) {
@@ -205,16 +182,27 @@ public class CelestialForgingAnvilLaserInterfaceBlockEntity extends BaseLaserBlo
     }
 
     public void onLaserReceived(int level, boolean gamma, BlockMiningEffect miningEffect) {
+        final boolean oldValid = this.laserValid;
+        final boolean changed = this.receivedLaserLevel != level
+            || this.receivedGamma != gamma
+            || !this.receivedMiningEffect.equals(miningEffect);
         this.receivedLaserLevel = level;
         this.receivedGamma = gamma;
         this.receivedMiningEffect = miningEffect;
-        this.laserValid = (this.requiredLaserLevel > 0
+        boolean newValid = (this.requiredLaserLevel > 0
             && level >= this.requiredLaserLevel
             && gamma == this.requiredGamma);
-        this.setChanged();
+        this.laserValid = newValid;
+        if (changed || oldValid != newValid) this.setChanged();
     }
 
     public void resetLaser() {
+        if (this.receivedLaserLevel == 0
+            && !this.receivedGamma
+            && this.receivedMiningEffect.equals(BlockMiningEffect.NORMAL)
+            && !this.laserValid) {
+            return;
+        }
         this.receivedLaserLevel = 0;
         this.receivedGamma = false;
         this.receivedMiningEffect = BlockMiningEffect.NORMAL;
@@ -222,122 +210,119 @@ public class CelestialForgingAnvilLaserInterfaceBlockEntity extends BaseLaserBlo
         this.setChanged();
     }
 
-    // === 伽马激光，由彭罗斯球控制 ===
+    /// === 伽马激光（由 CFA 设置，用于彭罗斯球输出）===
 
-    /**
-     * 由锻星砧控制器调用，使接口发射指定等级的伽马激光。
-     */
+    /// 由 CFA 控制器调用，使此接口发射伽马激光。
     public void emitGammaLaser(int level) {
-        this.emittingGamma = true;
-        this.gammaLevel = level;
-        this.updateLaserLevel(level);
+        this.gammaEmissionRequestLevel = Math.max(0, level);
+        this.gammaEmissionRequested = this.gammaEmissionRequestLevel > 0;
     }
 
-    // === 游戏刻逻辑 ===
+    @Override
+    protected int getGammaLaserLevel() {
+        return this.gammaLevel;
+    }
 
-    /**
-     * 方块 ticker 调用的服务端逻辑。
-     */
+    /// === Tick ===
+
+    /// 服务器端 tick，由方块 ticker 调用。
     public void serverTick() {
-        if (this.level == null || this.level.isClientSide()) return;
-        BlockState state = this.getBlockState();
+        if (level == null || level.isClientSide()) return;
+        BlockState state = getBlockState();
         if (!state.hasProperty(CelestialForgingAnvilInterfaceBlock.ACTIVE)) return;
 
         boolean active = state.getValue(CelestialForgingAnvilInterfaceBlock.ACTIVE);
 
-        // 只要正在接收外部激光，就始终以接收为优先，不再发射任何激光。
+        /// 如果正在接收传入激光，仅接收——绝不发射，
+        /// 无论主动/被动模式或伽马状态如何。
         if (this.receivedLaserLevel > 0) {
-            // 清除已有输出，避免同一接口同时收发。
-            if (this.irradiateBlockPos != null) {
-                BlockEntity oldBe = this.level.getBlockEntity(this.irradiateBlockPos);
+            this.setGammaOutputState(false, 0);
+            /// 被动模式：清除发射，因为我们正在接收
+            if (irradiateBlockPos != null) {
+                BlockEntity oldBe = level.getBlockEntity(irradiateBlockPos);
                 if (oldBe instanceof BaseLaserBlockEntity lastIrradiated) {
                     lastIrradiated.onCancelingIrradiation(this);
                 }
-                this.updateIrradiateBlockPos(null);
+                updateIrradiateBlockPos(null);
             }
-            this.irradiateSelfLaserBlockSet.clear();
-            this.updateLaserLevel(0); // clear stale emission level for HUD
-        } else if (this.emittingGamma && this.gammaLevel > 0) {
-            // 输出彭罗斯球产生的伽马激光。
+            clearIrradiateSelfLaserBlockSet();
+            updateLaserLevel(0); /// 为 HUD 清除过期的发射等级
+        } else if (this.gammaEmissionRequested && this.gammaEmissionRequestLevel > 0) {
+            /// 发射伽马激光（彭罗斯球输出）
+            this.setGammaOutputState(true, this.gammaEmissionRequestLevel);
             Direction facing = this.getFacing();
-            this.emitGammaLaserBeam(facing);
-            // 发送同步包前保留伽马标记。
+            emitGammaLaserBeam(facing);
         } else if (this.wormholeOutputGamma && this.wormholeOutputLevel > 0 && active) {
-            // 输出虫洞网络汇总的伽马激光。临时借用 gammaLevel，完成后恢复彭罗斯球状态；
-            // emittingGamma 保留到同步包发送结束，再在本方法末尾清除。
-            final int savedGammaLevel = this.gammaLevel;
-            this.gammaLevel = this.wormholeOutputLevel;
-            this.emittingGamma = true;
+            /// 通过虫洞发射伽马激光（来自网络中被动接口的汇总）。借用 gammaLevel 用于发射，但之后恢复它以保留彭罗斯球状态。
+            this.setGammaOutputState(true, this.wormholeOutputLevel);
             Direction facing = this.getFacing();
-            this.emitGammaLaserBeam(facing);
-            this.gammaLevel = savedGammaLevel;
+            emitGammaLaserBeam(facing);
         } else if (active && this.getBaseLaserLevel() > 0) {
-            // 主动模式仅在存在虫洞普通激光输出时发射，不再自发产生 1 级激光。
+            /// 主动模式且有实际输出（虫洞普通激光）时才发射；
+            /// 主动模式自身不再自发发射 1 级激光（仅切换模型）。
+            this.setGammaOutputState(false, 0);
             Direction facing = this.getFacing();
-            // 尚未加入其他激光链时才创建输出链。
-            if (this.irradiateSelfLaserBlockSet.isEmpty()) {
-                this.emitLaser(facing);
+            /// 仅当尚未属于激光链时才发射
+            if (irradiateSelfLaserBlockSet.isEmpty()) {
+                emitLaser(facing);
             }
         } else {
-            // 被动模式或主动但无虫洞输出时，清理残留激光。
-            if (this.irradiateBlockPos != null) {
-                BlockEntity oldBe = this.level.getBlockEntity(this.irradiateBlockPos);
+            /// 被动模式或主动但无输出：清除激光发射
+            this.setGammaOutputState(false, 0);
+            if (irradiateBlockPos != null) {
+                BlockEntity oldBe = level.getBlockEntity(irradiateBlockPos);
                 if (oldBe instanceof BaseLaserBlockEntity lastIrradiated) {
                     lastIrradiated.onCancelingIrradiation(this);
                 }
-                this.updateIrradiateBlockPos(null);
+                updateIrradiateBlockPos(null);
             }
-            this.irradiateSelfLaserBlockSet.clear();
-            this.updateLaserLevel(0); // clear stale emission level for HUD
+            clearIrradiateSelfLaserBlockSet();
+            updateLaserLevel(0); /// 为 HUD 清除过期的发射等级
         }
 
-        // 发送包含伽马标记的激光同步包。
-        this.tickWithGamma(this.level);
+        /// 自定义 tick，发送含伽马信息的数据包
+        this.tickWithGamma(level);
+        this.gammaEmissionRequested = false;
+        this.gammaEmissionRequestLevel = 0;
 
-        // 同步完成后清除本刻的伽马输出标记。
-        if (this.emittingGamma) {
-            this.emittingGamma = false;
-        }
-
-        // 命中可加热方块时注册热源。服务端未调用父类 tick，因此需要在此手动处理。
-        if (this.level instanceof ServerLevel serverLevel
-            && this.irradiateBlockPos != null
-            && serverLevel.getBlockState(this.irradiateBlockPos).is(ModBlockTags.HEATABLE_BLOCKS)) {
-            HeaterManager.addProducer(this.getBlockPos(), serverLevel, ModHeaterInfos.LASER_EMITTER);
-        }
     }
 
-    /**
-     * 客户端沿用父类 tick；服务端逻辑由 {@link #serverTick()} 统一处理。
-     */
+    /// 覆写 tick 以在网络数据包中发送伽马标志。
     @Override
     public void tick(Level level) {
-        // 服务端由 serverTick 处理，客户端仅维护父类渲染状态。
+        /// serverTick 方法处理所有内容；客户端 tick 由 super 处理
         if (level.isClientSide()) {
             super.tick(level);
         }
     }
 
-    /**
-     * 发送带伽马类型标记的激光网络包。
-     */
+    /// 发送含伽马信息网络数据包的自定义 tick。
     private void tickWithGamma(Level level) {
-        if (this.changed) {
+        if (changed) {
             if (level instanceof ServerLevel serverLevel) {
                 PacketDistributor.sendToPlayersTrackingChunk(
                     serverLevel,
-                    level.getChunkAt(this.getBlockPos()).getPos(),
-                    new LaserEmitPacket(this.getLaserLevel(), this.getBlockPos(), this.irradiateBlockPos, this.emittingGamma)
+                    level.getChunkAt(getBlockPos()).getPos(),
+                    new LaserEmitPacket(getLaserLevel(), getBlockPos(), this.irradiateBlockPos, this.isEmittingGamma())
                 );
             }
         }
+        // The CFA interface owns the server-side tick, so BaseLaserBlockEntity.tick()
+        // cannot clear this edge-triggered flag for us.
+        resetState();
         this.tickCount++;
     }
 
-    /**
-     * 更新普通激光的客户端渲染状态。
-     * 始终调用父类，确保目标为空时能够正确清理渲染管线。
-     */
+    private void setGammaOutputState(boolean emitting, int level) {
+        int normalizedLevel = emitting ? Math.max(0, level) : 0;
+        if (this.emittingGamma != emitting || this.gammaLevel != normalizedLevel) {
+            this.markChanged();
+        }
+        this.emittingGamma = emitting;
+        this.gammaLevel = normalizedLevel;
+    }
+
+    /// 普通激光渲染的客户端更新。始终调用 super 以确保 irradiatePos=null 能正确清除渲染管线（例如移除红石信号时）。
     @Override
     public void clientUpdate(@Nullable BlockPos irradiateBlockPos, int laserLevel) {
         this.emittingGamma = false;
@@ -345,120 +330,13 @@ public class CelestialForgingAnvilLaserInterfaceBlockEntity extends BaseLaserBlo
         super.clientUpdate(irradiateBlockPos, laserLevel);
     }
 
-    /**
-     * 更新伽马激光的客户端渲染状态。
-     */
+    /// 伽马激光渲染的客户端更新。
     public void clientUpdateGamma(@Nullable BlockPos irradiateBlockPos, int laserLevel) {
         this.emittingGamma = true;
         this.gammaLevel = laserLevel;
         this.irradiateBlockPos = irradiateBlockPos;
         this.laserLevel = laserLevel;
         CachedBlockEntityRenderingPipeline.getInstance().update(this, true);
-    }
-
-    /**
-     * 发射伽马激光：最大距离 16 格，不穿透玻璃或普通激光透明方块；
-     * 接触时摧毁棱镜，按等级破坏方块并造成高额实体伤害，同时加热截面内的余烬金属。
-     */
-    // 传送门的伽马激光状态机与此处仅部分相同，保持独立流程可避免同步规则互相污染。
-    @SuppressWarnings("DuplicatedCode")
-    private void emitGammaLaserBeam(Direction direction) {
-        if (this.level == null) return;
-        final int originalMaxDistance = this.maxTransmissionDistance;
-        this.maxTransmissionDistance = 16;
-
-        // 伽马激光仅穿过空气或可替换方块，其余方块都会阻挡。
-        BlockPos gammaOrigin = this.getBlockPos();
-        if (this.getBlockState().getBlock() instanceof FlexibleMultiPartBlock<?, ?, ?>) {
-            gammaOrigin = gammaOrigin.relative(direction);
-        }
-        BlockPos tempIrradiateBlockPos = CfaGammaLaserEffects.findTarget(this.level, gammaOrigin, direction);
-
-        // 摧毁光路上的棱镜。
-        CfaGammaLaserEffects.destroyPrisms(this.level, this.getBlockPos(), direction, tempIrradiateBlockPos);
-
-        // 目标改变时通知旧目标停止受照。
-        if (!Objects.equals(tempIrradiateBlockPos, this.irradiateBlockPos)) {
-            if (this.irradiateBlockPos != null) {
-                BlockEntity oldBe = this.level.getBlockEntity(this.irradiateBlockPos);
-                if (oldBe instanceof BaseLaserBlockEntity lastIrradiated) {
-                    lastIrradiated.onCancelingIrradiation(this);
-                }
-            }
-        }
-
-        // 伽马激光可以接入其他激光方块实体，例如另一台锻星砧激光接口。
-        if (
-            this.level.getBlockEntity(tempIrradiateBlockPos) instanceof BaseLaserBlockEntity irradiatedLaserBlockEntity
-            && !this.isInIrradiateSelfLaserBlockSet(irradiatedLaserBlockEntity)
-        ) {
-            if (irradiatedLaserBlockEntity.getIgnoreFace().isEmpty()) {
-                this.level.updateNeighborsAt(tempIrradiateBlockPos, this.getBlockState().getBlock());
-                irradiatedLaserBlockEntity.onIrradiated(this);
-            } else {
-                for (Direction dir : irradiatedLaserBlockEntity.getIgnoreFace()) {
-                    if (direction != dir) {
-                        this.level.updateNeighborsAt(tempIrradiateBlockPos, this.getBlockState().getBlock());
-                        irradiatedLaserBlockEntity.onIrradiated(this);
-                    }
-                }
-            }
-        }
-        this.updateIrradiateBlockPos(tempIrradiateBlockPos);
-        this.updateLaserLevel(this.gammaLevel);
-
-        if (!(this.level instanceof ServerLevel)) {
-            this.maxTransmissionDistance = originalMaxDistance;
-            return;
-        }
-
-        CfaGammaLaserEffects.damageEntities(
-            this.level, this.getBlockPos(), this.irradiateBlockPos, direction, this.gammaLevel
-        );
-
-        // 按方块位置累计连续照射时间，达到阈值后破坏。
-        BlockState irradiateBlock = this.level.getBlockState(this.irradiateBlockPos);
-        int requiredExposure = CelestialForgingAnvilLaserInterfaceBlockEntity.GAMMA_EXPOSURE_TICKS[Math.clamp(this.gammaLevel / 4, 0, 4)];
-
-        // 照射目标变化时重新计时。
-        BlockPos currentTarget = this.irradiateBlockPos.immutable();
-        if (!currentTarget.equals(this.gammaIrradiatingPos)) {
-            this.gammaIrradiatingPos = currentTarget;
-            this.gammaExposureTicks = 0;
-        }
-
-        boolean canBreak = !irradiateBlock.is(BlockTags.WITHER_IMMUNE)
-            && !irradiateBlock.isAir()
-            && irradiateBlock.getDestroySpeed(this.level, this.irradiateBlockPos) >= 0;
-
-        if (canBreak) {
-            this.gammaExposureTicks++;
-            if (this.gammaExposureTicks >= requiredExposure) {
-                this.gammaExposureTicks = 0;
-                // 多方块结构定位到主部件后整体破坏。
-                BlockPos breakPos = this.irradiateBlockPos;
-                if (irradiateBlock.getBlock() instanceof FlexibleMultiPartBlock<?, ?, ?> multiPartBlock) {
-                    breakPos = multiPartBlock.getMainPartPos(this.irradiateBlockPos, irradiateBlock);
-                }
-                if (this.gammaLevel >= 16) {
-                    // ≥16 级：无掉落地摧毁整个多方块结构。
-                    this.level.destroyBlock(breakPos, false);
-                } else {
-                    // 4-15 级：破坏命中方块并产生掉落。
-                    this.level.destroyBlock(this.irradiateBlockPos, true);
-                }
-            }
-        } else {
-            this.gammaExposureTicks = 0;
-        }
-
-        // 加热区域随等级扩大：≥4 为 1×1×1，≥8 为 3×3×1，
-        // ≥12 为 5×5×2，≥16 为 7×7×3。
-        CfaGammaLaserEffects.heatEmberMetal(
-            this.level, this.irradiateBlockPos, direction, this.gammaLevel, Block.UPDATE_CLIENTS
-        );
-
-        this.maxTransmissionDistance = originalMaxDistance;
     }
 
     // === 持久化：26.1 使用 ValueOutput / ValueInput ===

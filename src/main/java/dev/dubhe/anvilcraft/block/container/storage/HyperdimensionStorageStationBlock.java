@@ -2,22 +2,28 @@ package dev.dubhe.anvilcraft.block.container.storage;
 
 import dev.anvilcraft.lib.v2.util.DistExecutor;
 import dev.anvilcraft.lib.v2.util.ShapeUtil;
+import dev.dubhe.anvilcraft.api.block.ITranscendiumBlock;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.block.entity.storage.HyperdimensionStorageStationBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.storage.StorageBlockEntity;
 import dev.dubhe.anvilcraft.block.multipart.MultiPartBlockEntity;
 import dev.dubhe.anvilcraft.block.multipart.SimpleMultiPartBlock;
 import dev.dubhe.anvilcraft.block.state.Cube3x3PartHalf;
 import dev.dubhe.anvilcraft.client.gui.screen.StorageScreen;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
+import dev.dubhe.anvilcraft.item.HyperdimensionTerminalItem;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -26,18 +32,24 @@ import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.api.distmarker.Dist;
 
 public class HyperdimensionStorageStationBlock
     extends SimpleMultiPartBlock<Cube3x3PartHalf>
-    implements MultiPartBlockEntity<Cube3x3PartHalf, HyperdimensionStorageStationBlock>, IHammerRemovable {
+    implements MultiPartBlockEntity<Cube3x3PartHalf, HyperdimensionStorageStationBlock>, IHammerRemovable, ITranscendiumBlock {
     public static final EnumProperty<Cube3x3PartHalf> HALF = EnumProperty.create("half", Cube3x3PartHalf.class);
 
     public HyperdimensionStorageStationBlock(Properties properties) {
         super(properties);
+    }
+
+    @Override
+    public ItemStack getCloneItemStack(LevelReader level, BlockPos pos, BlockState state, boolean includeData, Player player) {
+        ItemStack stack = super.getCloneItemStack(level, pos, state, includeData, player);
+        StorageBlockEntity.applyPickStorageId(stack, level, pos, state, includeData);
+        return stack;
     }
 
     @Override
@@ -98,9 +110,18 @@ public class HyperdimensionStorageStationBlock
         BlockEntity blockEntity = level.getBlockEntity(this.getMainPartPos(pos, state));
         if (blockEntity instanceof HyperdimensionStorageStationBlockEntity entity) {
             if (player.isSpectator()) return InteractionResult.PASS;
+            if (itemStack.getItem() instanceof HyperdimensionTerminalItem terminal) {
+                if (player instanceof ServerPlayer serverPlayer) {
+                    HyperdimensionTerminalItem.bindToStation(serverPlayer, itemStack, entity);
+                    return InteractionResult.SUCCESS_SERVER;
+                }
+                if (terminal.targetId(player, itemStack) != null) terminal.use(level, player, hand);
+                return InteractionResult.SUCCESS;
+            }
             if (player instanceof ServerPlayer) {
                 return InteractionResult.SUCCESS_SERVER;
             } else if (level.isClientSide()) {
+                level.playSound(player, pos, SoundEvents.ENDER_CHEST_OPEN, SoundSource.BLOCKS, 1.0F, 1.0F);
                 DistExecutor.run(Dist.CLIENT, () -> () -> StorageScreen.openScreen(entity.getBlockPos()));
                 return InteractionResult.SUCCESS;
             }
@@ -108,9 +129,17 @@ public class HyperdimensionStorageStationBlock
         return super.useItemOn(itemStack, state, level, pos, player, hand, hitResult);
     }
 
+    public static int getLightLevel(BlockState state) {
+        return switch (state.getValue(HyperdimensionStorageStationBlock.HALF)) {
+            case BOTTOM_CENTER, MID_N, MID_E, MID_S, MID_W, MID_CENTER, TOP_CENTER -> 2;
+            case BOTTOM_WN, BOTTOM_EN, BOTTOM_ES, BOTTOM_WS, TOP_WN, TOP_EN, TOP_ES, TOP_WS -> 8;
+            default -> 6;
+        };
+    }
+
     // region VoxelShapes
     @Override
-    protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+    public VoxelShape getPartShape(BlockState state) {
         return switch (state.getValue(HyperdimensionStorageStationBlock.HALF)) {
             case BOTTOM_CENTER -> HyperdimensionStorageStationBlock.BOTTOM_CENTER;
             case BOTTOM_W -> HyperdimensionStorageStationBlock.BOTTOM_W;

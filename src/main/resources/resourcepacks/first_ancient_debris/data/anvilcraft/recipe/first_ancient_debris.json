@@ -8,15 +8,9 @@
     "XGX"
   ],
   "key": {
-    "G": {
-      "tag": "c:plates/tungsten"
-    },
-    "X": {
-      "item": "minecraft:nether_star"
-    },
-    "K": {
-      "item": "minecraft:magma_block"
-    }
+    "G": "#c:plates/tungsten",
+    "X": "minecraft:nether_star",
+    "K": "minecraft:magma_block"
   },
   "result": {
     "count": 1,

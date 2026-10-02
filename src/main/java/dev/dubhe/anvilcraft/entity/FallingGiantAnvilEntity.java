@@ -1,6 +1,8 @@
 package dev.dubhe.anvilcraft.entity;
 
+import dev.dubhe.anvilcraft.api.event.GiantAnvilEvent;
 import dev.dubhe.anvilcraft.block.workstation.GiantAnvilBlock;
+import dev.dubhe.anvilcraft.building.BuildingRodUndo;
 import dev.dubhe.anvilcraft.init.entity.ModEntities;
 import dev.dubhe.anvilcraft.util.AccelerateManager;
 import dev.dubhe.anvilcraft.util.GravityManager;
@@ -26,6 +28,7 @@ import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.common.NeoForge;
 
 public class FallingGiantAnvilEntity extends FallingBlockEntity {
     private float fallDistance = 0;
@@ -76,6 +79,7 @@ public class FallingGiantAnvilEntity extends FallingBlockEntity {
 
     @Override
     public void tick() {
+        if (NeoForge.EVENT_BUS.post(new GiantAnvilEvent.FallingTick(this)).isCanceled()) return;
         if (this.blockState.isAir()) {
             this.discard();
         } else {
@@ -159,7 +163,9 @@ public class FallingGiantAnvilEntity extends FallingBlockEntity {
                                 this.blockState = this.blockState.setValue(BlockStateProperties.WATERLOGGED, true);
                             }
 
-                            if (this.level().setBlock(blockPos, this.blockState, 3)) {
+                            if (BuildingRodUndo.placeFallingBlock(this, BlockPos.betweenClosedStream(
+                                blockPos.offset(-1, -1, -1), blockPos.offset(1, 1, 1)).map(BlockPos::immutable).toList(),
+                                () -> this.level().setBlock(blockPos, this.blockState, 3))) {
                                 serverLevel.getChunkSource().chunkMap.sendToTrackingPlayers(
                                     this,
                                     new ClientboundBlockUpdatePacket(blockPos, this.level().getBlockState(blockPos))

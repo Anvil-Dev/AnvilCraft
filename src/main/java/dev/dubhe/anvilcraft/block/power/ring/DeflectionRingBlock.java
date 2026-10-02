@@ -11,6 +11,7 @@ import dev.dubhe.anvilcraft.block.multipart.MultiPartBlockEntity;
 import dev.dubhe.anvilcraft.block.multipart.WaterloggedFlexibleMultiPartBlock;
 import dev.dubhe.anvilcraft.block.state.DirectionCube3x3PartHalf;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
+import dev.dubhe.anvilcraft.util.BlockPlacementPicking;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.entity.player.Player;
@@ -67,6 +68,7 @@ public class DeflectionRingBlock
             .any()
             .setValue(DeflectionRingBlock.HALF, DirectionCube3x3PartHalf.BOTTOM_CENTER)
             .setValue(DeflectionRingBlock.FACING, Direction.NORTH)
+            .setValue(WATERLOGGED, false)
             .setValue(DeflectionRingBlock.OVERLOAD, true)
             .setValue(DeflectionRingBlock.SWITCH, IPowerComponent.Switch.ON));
     }
@@ -220,14 +222,14 @@ public class DeflectionRingBlock
         BlockPos pos,
         CollisionContext context
     ) {
-        if (context.isHoldingItem(state.getBlock().asItem())) {
+        if (BlockPlacementPicking.hasFullPlacementShape(state, context)) {
             return Shapes.block();
         }
-        return DeflectionRingBlock.getPreciseShape(state);
+        return super.getShape(state, level, pos, context);
     }
 
     @Override
-    protected VoxelShape getCollisionShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+    public VoxelShape getPartShape(BlockState state) {
         return DeflectionRingBlock.getPreciseShape(state);
     }
 

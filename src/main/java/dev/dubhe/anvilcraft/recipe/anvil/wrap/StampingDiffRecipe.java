@@ -1,9 +1,12 @@
 package dev.dubhe.anvilcraft.recipe.anvil.wrap;
 
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.anvilcraft.lib.v2.recipe.util.InWorldRecipeContext;
+import dev.anvilcraft.lib.v2.recipe.util.InWorldRecipeData;
 import dev.anvilcraft.lib.v2.util.predicate.BlockStatePredicate;
 import dev.anvilcraft.lib.v2.util.predicate.ChanceItemStack;
 import dev.anvilcraft.lib.v2.util.predicate.ItemIngredientPredicate;
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import net.minecraft.core.Vec3i;
@@ -11,11 +14,15 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.List;
 
 public class StampingDiffRecipe extends BaseStampingRecipe<StampingDiffRecipe> {
+    public static final InWorldRecipeData<Boolean> DEFER_TO_PLATFORM_BEHAVIOR = InWorldRecipeData.of(
+        AnvilCraft.of("defer_unique_stamping"), (_, _) -> false
+    );
     public static final RecipeSerializer<StampingDiffRecipe> SERIALIZER = new RecipeSerializer<>(
         RecordCodecBuilder.mapCodec(instance -> instance.group(
             ItemIngredientPredicate.CODEC.listOf()
@@ -47,7 +54,7 @@ public class StampingDiffRecipe extends BaseStampingRecipe<StampingDiffRecipe> {
                 .setItemInputOffset(new Vec3(0.0, -0.125, 0.0))
                 .setItemInputRange(new Vec3(0.75, 0.25, 0.75))
                 .setDiffInputItems(diffItemIngredients)
-                .setItemOutputOffset(new Vec3(0.0, -0.375, 0.0))
+                .setItemOutputOffset(new Vec3(0.0, -1.0, 0.0))
                 .setResultItems(results)
                 .setBlockInputOffset(new Vec3i(0, -1, 0))
                 .setInputBlocks(
@@ -56,6 +63,11 @@ public class StampingDiffRecipe extends BaseStampingRecipe<StampingDiffRecipe> {
                         .build()
                 )
         );
+    }
+
+    @Override
+    public boolean matches(InWorldRecipeContext context, Level level) {
+        return !context.get(StampingDiffRecipe.DEFER_TO_PLATFORM_BEHAVIOR) && super.matches(context, level);
     }
 
     @Override

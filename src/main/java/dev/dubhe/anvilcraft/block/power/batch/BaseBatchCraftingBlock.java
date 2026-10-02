@@ -144,7 +144,7 @@ public abstract class BaseBatchCraftingBlock extends BetterBaseEntityBlock imple
 
     @Override
     protected boolean propagatesSkylightDown(BlockState state) {
-        return true;
+        return false;
     }
 
     @Override

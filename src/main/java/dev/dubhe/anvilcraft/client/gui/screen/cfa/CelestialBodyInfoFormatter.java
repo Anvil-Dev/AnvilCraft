@@ -72,7 +72,7 @@ public final class CelestialBodyInfoFormatter {
     }
 
     private static void addSpecialBodyLines(List<Component> lines, SpecialCelestialBodyData body) {
-        if (body.isErrorPlanet()) {
+        if (body.isErrorPlanet() || body.isPlayerHead()) {
             for (String name : List.of("temp", "atmos", "liquid", "mag", "spin", "tilt")) {
                 lines.add(CelestialBodyInfoFormatter.measurement(name, "???"));
             }
@@ -143,8 +143,8 @@ public final class CelestialBodyInfoFormatter {
     }
 
     private static Component temperatureText(@Nullable Temperature temperature) {
-        String key = temperature == null ? CelestialBodyInfoFormatter.PREFIX + "none"
-                                         : CelestialBodyInfoFormatter.PREFIX + "temp." + temperature.getSerializedName();
+        if (temperature == null) return CelestialBodyInfoFormatter.measurement("temp", "???");
+        String key = CelestialBodyInfoFormatter.PREFIX + "temp." + temperature.getSerializedName();
         return Component.translatable(CelestialBodyInfoFormatter.PREFIX + "temp", Component.translatable(key));
     }
 
@@ -156,8 +156,8 @@ public final class CelestialBodyInfoFormatter {
     }
 
     private static Component liquidText(@Nullable LiquidCoverage coverage) {
-        String key = coverage == null ? CelestialBodyInfoFormatter.PREFIX + "none"
-                                      : CelestialBodyInfoFormatter.PREFIX + "liquid." + coverage.getSerializedName();
+        String key = CelestialBodyInfoFormatter.PREFIX + "liquid."
+            + (coverage == null ? LiquidCoverage.NONE : coverage).getSerializedName();
         return Component.translatable(CelestialBodyInfoFormatter.PREFIX + "liquid", Component.translatable(key));
     }
 

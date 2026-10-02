@@ -1,15 +1,8 @@
 {
   "parent": "anvilcraft:anvilcraft/saikou_scrubber",
   "criteria": {
-    "has_menger_sponge": {
-      "conditions": {
-        "items": [
-          {
-            "items": "anvilcraft:menger_sponge"
-          }
-        ]
-      },
-      "trigger": "minecraft:inventory_changed"
+    "multi_block_form": {
+      "trigger": "anvilcraft:multi_block_form"
     }
   },
   "display": {
@@ -26,7 +19,7 @@
   },
   "requirements": [
     [
-      "has_menger_sponge"
+      "multi_block_form"
     ]
   ],
   "sends_telemetry_event": true

@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.block.plate;
 import com.google.common.collect.Sets;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.dubhe.anvilcraft.util.registrater.PropertiesProviderUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundSource;
@@ -14,6 +15,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BasePressurePlateBlock;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
@@ -39,6 +41,11 @@ public class PowerLevelPressurePlateBlock extends BasePressurePlateBlock {
     public PowerLevelPressurePlateBlock(BlockSetType type, Properties properties) {
         super(properties, type);
         this.registerDefaultState(this.stateDefinition.any().setValue(PowerLevelPressurePlateBlock.POWER, 0));
+    }
+
+    @Override
+    protected SoundType getSoundType(BlockState state) {
+        return PropertiesProviderUtil.metalSound(super.getSoundType(state));
     }
 
     @Override

@@ -5,6 +5,7 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.decoration.heavyiron.HeavyIronBeamBlock;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.recipe.multiblock.BlockPredicateWithState;
+import dev.dubhe.anvilcraft.recipe.multiblock.Multiblock4DRecipe;
 import dev.dubhe.anvilcraft.recipe.multiblock.MultiblockRecipe;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderGetter;
@@ -270,13 +271,30 @@ public class MultiBlockRecipeLoader {
 
         MultiblockRecipe.builder(ModBlocks.CELESTIAL_FORGING_ANVIL, 1)
             .layer("AAA", "ABA", "AAA")
-            .layer("CCC", "CCC", "CCC")
+            .layer("CCC", "CFC", "CCC")
             .layer("DED", "E E", "DED")
             .symbol('A', ModBlocks.TRANSCENDIUM_BLOCK)
             .symbol('B', ModBlocks.SPACETIME_SUPERCOMPUTER)
-            .symbol('C', Blocks.GOLD_BLOCK)
+            .symbol('C', ModBlocks.ENCHANTED_GOLD_BLOCK)
             .symbol('D', ModBlocks.CONFINEMENT_CHAMBER)
             .symbol('E', ModBlocks.NEGATIVE_MATTER_BLOCK)
+            .symbol('F', ModBlocks.MASS_ENERGY_INVERTER)
+            .save(provider);
+        Multiblock4DRecipe.builder("anvilcraft:hypercube", 1)
+            .layer("AAA", "AAA", "AAA")
+            .layer("AAA", "AAA", "AAA")
+            .layer("AAA", "AAA", "AAA")
+            .symbol('A', "anvilcraft:tempering_glass")
+            .next()
+            .layer("AAA", "AAA", "AAA")
+            .layer("AAA", "AAA", "AAA")
+            .layer("AAA", "AAA", "AAA")
+            .symbol('A', "anvilcraft:tempering_glass")
+            .next()
+            .layer("AAA", "AAA", "AAA")
+            .layer("AAA", "AAA", "AAA")
+            .layer("AAA", "AAA", "AAA")
+            .symbol('A', "anvilcraft:tempering_glass")
             .save(provider);
     }
 }

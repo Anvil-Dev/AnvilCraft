@@ -1,7 +1,6 @@
 package dev.dubhe.anvilcraft.api.tooltip.impl;
 
 import dev.dubhe.anvilcraft.api.power.IPowerComponent;
-import dev.dubhe.anvilcraft.api.power.IPowerProducer;
 import dev.dubhe.anvilcraft.api.power.PowerComponentInfo;
 import dev.dubhe.anvilcraft.api.power.PowerComponentType;
 import dev.dubhe.anvilcraft.api.power.SimplePowerGrid;
@@ -75,12 +74,11 @@ public class PowerComponentTooltipProvider extends ITooltipProvider.BlockEntityT
             }
         }
         if (type == PowerComponentType.PRODUCER) {
-            boolean infinitePower = e instanceof IPowerProducer producer && producer.isInfinitePower();
             lines.add(Component.translatable("tooltip.anvilcraft.grid_information.producer_stats")
                 .setStyle(Style.EMPTY.applyFormat(ChatFormatting.BLUE)));
             lines.add(Component.translatable(
                     "tooltip.anvilcraft.grid_information.output_power",
-                    UnitUtil.electricityUnit(componentInfo.produces(), original, infinitePower)
+                    UnitUtil.electricityUnit(componentInfo.produces(), original, componentInfo.infinitePower())
                 )
                 .setStyle(Style.EMPTY.applyFormat(ChatFormatting.GRAY)));
         } else if (type == PowerComponentType.CONSUMER) {

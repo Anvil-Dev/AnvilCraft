@@ -165,17 +165,13 @@ public class ItemInjectCategory implements IRecipeCategory<RecipeHolder<ItemInje
 
         List<BlockState> input = recipe.getFirstInputBlock().constructStatesForRender();
         if (input.isEmpty()) return;
-        BlockState renderedState = JeiBlockIngredientUtil.getDisplayedState(view, ItemInjectCategory.INPUT_BLOCK, input)
-            .orElse(input.getFirst());
-        if (renderedState.getBlock() instanceof GiantAnvilBlock) {
-            RenderSupport.render3x3Block(graphics, renderedState, 61, 24, 40);
-        } else {
-            int inputScale = JeiBlockIngredientUtil.getRenderablePreviewScale(renderedState, 20);
-            RenderSupport.renderBlock(graphics, renderedState, 71, 35, inputScale);
-        }
-        
-        int anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(this.timer);
-        RenderSupport.renderBlock(graphics, Blocks.ANVIL.defaultBlockState(), 71, 17 + anvilYOffset, 20);
+        BlockState renderedState = JeiBlockIngredientUtil.getRenderablePreviewState(
+            JeiBlockIngredientUtil.getDisplayedState(view, ItemInjectCategory.INPUT_BLOCK, input).orElse(input.getFirst()));
+        boolean giantAnvil = renderedState.getBlock() instanceof GiantAnvilBlock;
+        int inputScale = giantAnvil ? 8 : JeiBlockIngredientUtil.getRenderablePreviewScale(renderedState, 12);
+        RenderSupport.renderBlockAt(graphics, renderedState, 81, giantAnvil ? 44 : 40, inputScale);
+        float anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(this.timer);
+        RenderSupport.renderBlockAt(graphics, Blocks.ANVIL.defaultBlockState(), 81, 22 + anvilYOffset, 12);
 
         this.arrowIn.draw(graphics, 54, 30);
         this.arrowOut.draw(graphics, 92, 29);
@@ -185,25 +181,23 @@ public class ItemInjectCategory implements IRecipeCategory<RecipeHolder<ItemInje
         if (transcendiumTier >= 0) {
             this.drawTranscendiumOutputSlots(graphics, transcendiumTier);
         } else if (!recipe.getResultItems().isEmpty()) {
-            IDrawable outputSlot = JeiRecipeUtil.isChance(recipe.getResultItems())
-                                   ? this.slotProbability
-                                   : this.slotDefault;
+            var outputSlot = JeiRecipeUtil.outputSlotFor(recipe.getResultItems(), this.slotDefault, this.slotProbability);
             if (recipe.getResultBlocks().isEmpty()) {
                 JeiSlotUtil.drawDefaultOutputSlots(graphics, outputSlot, recipe.getResultItems().size());
             } else {
                 for (int i = 0; i < recipe.getResultItems().size(); i++) {
-                    outputSlot.draw(graphics, 106 + i * 19, 14);
+                    outputSlot.apply(i).draw(graphics, 106 + i * 19, 14);
                 }
             }
         }
 
         if (!recipe.getResultBlocks().isEmpty()) {
             BlockState resultState = JeiBlockIngredientUtil.getRenderablePreviewState(recipe.getFirstResultBlock().state());
-            int resultScale = JeiBlockIngredientUtil.getRenderablePreviewScale(resultState, 20);
+            int resultScale = JeiBlockIngredientUtil.getRenderablePreviewScale(resultState, 12);
             int resultY = transcendiumTier >= 0
-                          ? 39
-                          : recipe.getResultItems().isEmpty() ? 24 : 43;
-            RenderSupport.renderBlock(graphics, resultState, 122, resultY, resultScale);
+                          ? 45
+                          : recipe.getResultItems().isEmpty() ? 30 : 49;
+            RenderSupport.renderBlockAt(graphics, resultState, 133, resultY, resultScale);
         }
     }
 

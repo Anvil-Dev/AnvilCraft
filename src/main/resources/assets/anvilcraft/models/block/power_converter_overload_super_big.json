@@ -1,0 +1,8 @@
+{
+	"parent": "anvilcraft:block/power_converter_super_big",
+	"textures": {
+		"0": "anvilcraft:block/power_converter_overload",
+		"1": "anvilcraft:block/power_converter_large_overload",
+		"particle": "anvilcraft:block/power_converter_overload"
+	}
+}

@@ -5,6 +5,7 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.entity.HeliostatsBlockEntity;
 import dev.dubhe.anvilcraft.client.AnvilCraftClient;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.state.HeliostatsRenderState;
+import dev.dubhe.anvilcraft.client.selection.ModelSelectionRenderer;
 import dev.dubhe.anvilcraft.client.support.FeatureRendererSupport;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
@@ -21,9 +22,12 @@ import org.joml.Quaternionf;
 import org.joml.Vector3f;
 import org.jspecify.annotations.Nullable;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
-public class HeliostatsRenderer implements BlockEntityRenderer<HeliostatsBlockEntity, HeliostatsRenderState> {
+public class HeliostatsRenderer
+    implements BlockEntityRenderer<HeliostatsBlockEntity, HeliostatsRenderState>, ModelSelectionRenderer<HeliostatsBlockEntity> {
     public static final StandaloneModelKey<BlockStateModel> HEAD = new StandaloneModelKey<>(
         () -> "AnvilCraft: Heliostats Head Model"
     );
@@ -50,18 +54,20 @@ public class HeliostatsRenderer implements BlockEntityRenderer<HeliostatsBlockEn
     ) {
         BlockEntityRenderer.super.extractRenderState(be, state, partialTicks, cameraPosition, breakProgress);
         state.setHead(FeatureRendererSupport.initialize(this.getHeadModel(be), be));
-        if (
-            be.getWorkResult() != HeliostatsBlockEntity.WorkResult.NO_ROTATION_ANGLE
-            && !be.getNormalVector3f().equals(new Vector3f())
-            && !be.getNormalVector3f().equals(new Vector3f(Float.NaN))
-        ) {
-            state.addRotation(new Quaternionf().rotateY(
-                this.getHorizontalAngle(be.getNormalVector3f().x, be.getNormalVector3f().z)
-            ));
-            state.addRotation(new Quaternionf().rotateX(
+        state.getRotation().clear();
+        state.getRotation().addAll(this.rotations(be));
+    }
+
+    private List<Quaternionf> rotations(HeliostatsBlockEntity be) {
+        List<Quaternionf> rotations = new ArrayList<>(2);
+        if (be.getWorkResult() != HeliostatsBlockEntity.WorkResult.NO_ROTATION_ANGLE
+            && !be.getNormalVector3f().equals(new Vector3f()) && !be.getNormalVector3f().equals(new Vector3f(Float.NaN))) {
+            rotations.add(new Quaternionf().rotateY(this.getHorizontalAngle(be.getNormalVector3f().x, be.getNormalVector3f().z)));
+            rotations.add(new Quaternionf().rotateX(
                 (float) Math.atan(Math.hypot(be.getNormalVector3f().z, be.getNormalVector3f().x) / be.getNormalVector3f().y)
             ));
         }
+        return rotations;
     }
 
     private float getHorizontalAngle(float x, float z) {
@@ -79,19 +85,24 @@ public class HeliostatsRenderer implements BlockEntityRenderer<HeliostatsBlockEn
     }
 
     @Override
-    public void submit(
-        HeliostatsRenderState state,
-        PoseStack pose,
-        SubmitNodeCollector collector,
-        CameraRenderState camera
-    ) {
+    public void submit(HeliostatsRenderState state, PoseStack pose, SubmitNodeCollector collector, CameraRenderState camera) {
         pose.pushPose();
-        pose.translate(0.5, 1.3, 0.5);
-        for (Quaternionf rotation : state.getRotation()) {
-            pose.mulPose(rotation);
-        }
+        applyHeadPose(pose, state.getRotation());
         state.getHead().submit(pose, collector, state.lightCoords, OverlayTexture.NO_OVERLAY, 0);
         pose.popPose();
+    }
+
+    @Override
+    public void collectSelectionModels(HeliostatsBlockEntity be, float partialTick, PoseStack pose, ModelConsumer consumer) {
+        pose.pushPose();
+        applyHeadPose(pose, this.rotations(be));
+        consumer.accept(this.getHeadModel(be), pose);
+        pose.popPose();
+    }
+
+    private static void applyHeadPose(PoseStack pose, List<Quaternionf> rotations) {
+        pose.translate(0.5, 1.3, 0.5);
+        for (Quaternionf rotation : rotations) pose.mulPose(rotation);
     }
 
     @Override

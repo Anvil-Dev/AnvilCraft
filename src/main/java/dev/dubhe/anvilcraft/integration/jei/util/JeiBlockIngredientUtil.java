@@ -2,9 +2,7 @@ package dev.dubhe.anvilcraft.integration.jei.util;
 
 import dev.anvilcraft.lib.v2.util.predicate.BlockStatePredicate;
 import dev.dubhe.anvilcraft.block.cfa.CelestialForgingAnvilAmplifierBlock;
-import dev.dubhe.anvilcraft.block.state.Cube3x3PartHalf;
-import dev.dubhe.anvilcraft.block.state.DirectionCube232PartHalf;
-import dev.dubhe.anvilcraft.block.state.GiantAnvilCube;
+import dev.dubhe.anvilcraft.block.multipart.IMultiPartBlockModelHolder;
 import dev.dubhe.anvilcraft.block.workstation.GiantAnvilBlock;
 import mezz.jei.api.constants.VanillaTypes;
 import mezz.jei.api.gui.builder.IIngredientAcceptor;
@@ -101,14 +99,18 @@ public final class JeiBlockIngredientUtil {
         }
     }
 
+    public static Optional<ItemStack> getDisplayedItemStack(IRecipeSlotsView recipeSlotsView, String slotName) {
+        return recipeSlotsView.findSlotByName(JeiBlockIngredientUtil.SLOT_PREFIX + slotName)
+            .flatMap(IRecipeSlotView::getDisplayedItemStack);
+    }
+
     public static Optional<BlockState> getDisplayedState(
         IRecipeSlotsView recipeSlotsView,
         String slotName,
         List<BlockState> states
     ) {
         if (states.isEmpty()) return Optional.empty();
-        Optional<Block> displayedBlock = recipeSlotsView.findSlotByName(JeiBlockIngredientUtil.SLOT_PREFIX + slotName)
-            .flatMap(IRecipeSlotView::getDisplayedItemStack)
+        Optional<Block> displayedBlock = JeiBlockIngredientUtil.getDisplayedItemStack(recipeSlotsView, slotName)
             .map(ItemStack::getItem)
             .filter(BlockItem.class::isInstance)
             .map(BlockItem.class::cast)
@@ -120,22 +122,7 @@ public final class JeiBlockIngredientUtil {
     }
 
     public static BlockState getRenderablePreviewState(BlockState state) {
-        if (state.getBlock() instanceof GiantAnvilBlock) {
-            return state
-                .setValue(GiantAnvilBlock.HALF, Cube3x3PartHalf.MID_CENTER)
-                .setValue(GiantAnvilBlock.CUBE, GiantAnvilCube.CENTER);
-        }
-        if (state.getBlock() instanceof CelestialForgingAnvilAmplifierBlock) {
-            DirectionCube232PartHalf modelPart = switch (state.getValue(CelestialForgingAnvilAmplifierBlock.FACING)) {
-                case NORTH -> DirectionCube232PartHalf.MID_PART;
-                case EAST -> DirectionCube232PartHalf.MID_W;
-                case SOUTH -> DirectionCube232PartHalf.MID_WS;
-                case WEST -> DirectionCube232PartHalf.MID_S;
-                default -> DirectionCube232PartHalf.MID_PART;
-            };
-            return state.setValue(CelestialForgingAnvilAmplifierBlock.HALF, modelPart);
-        }
-        return state;
+        return IMultiPartBlockModelHolder.modelHolderState(state);
     }
 
     public static int getRenderablePreviewScale(BlockState state, int defaultScale) {

@@ -3,135 +3,85 @@ package dev.dubhe.anvilcraft.block.cauldron;
 import dev.anvilcraft.lib.v2.recipe.cache.BlockCache;
 import dev.dubhe.anvilcraft.api.block.IIgnitableCauldron;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
-import dev.dubhe.anvilcraft.block.power.consumer.HeaterBlock;
-import dev.dubhe.anvilcraft.block.special.PlasmaJetsBlock;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.block.ModFluids;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.util.ModInteractionMap;
 import net.minecraft.core.BlockPos;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.util.RandomSource;
+import net.minecraft.core.cauldron.CauldronInteraction;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.InsideBlockEffectApplier;
 import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.StateDefinition;
-import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.material.Fluid;
-import net.minecraft.world.level.redstone.Orientation;
-import org.jspecify.annotations.Nullable;
+import net.minecraft.world.phys.BlockHitResult;
 
 public class OilCauldronBlock extends Layered4LevelCauldronBlock implements IHammerRemovable, IIgnitableCauldron {
-    public static final BooleanProperty IGNITED = BooleanProperty.create("ignited");
-
     public OilCauldronBlock(Properties properties) {
         super(properties, ModInteractionMap.OIL);
-        this.registerDefaultState(
-            this.stateDefinition.any()
-                .setValue(Layered4LevelCauldronBlock.LEVEL, 1)
-                .setValue(OilCauldronBlock.IGNITED, false)
-        );
     }
 
-    public static void ignite(LevelAccessor level, BlockPos pos) {
-        level.setBlock(pos, level.getBlockState(pos).setValue(OilCauldronBlock.IGNITED, true), 3);
+    public static void ignite(LevelAccessor level, BlockPos pos, BlockState beforeConvert) {
+        level.setBlock(pos, ModBlocks.FIRE_CAULDRON.get().copyLevelFrom(beforeConvert), 3);
     }
 
     @Override
     protected void entityInside(
-        BlockState state,
-        Level level,
-        BlockPos pos,
-        Entity entity,
-        InsideBlockEffectApplier effectApplier,
-        boolean isPrecise
+        BlockState state, Level level, BlockPos pos, Entity entity, InsideBlockEffectApplier effects, boolean precise
     ) {
         if (level.isClientSide()) return;
+        if (!this.isEntityInsideContent(state, pos, entity)) return;
         if (entity.getType().equals(EntityType.ARROW) && entity.isOnFire()) {
-            OilCauldronBlock.ignite(level, pos);
+            ignite(level, pos, state);
             return;
         }
         if (!(entity instanceof ItemEntity itemEntity)) return;
         if (itemEntity.getItem().is(ModItemTags.FIRE_STARTER)) {
-            OilCauldronBlock.ignite(level, pos);
+            ignite(level, pos, state);
             itemEntity.getItem().setCount(itemEntity.getItem().getCount() - 1);
             return;
         }
         if (itemEntity.getItem().is(ModItemTags.UNBROKEN_FIRE_STARTER)) {
-            OilCauldronBlock.ignite(level, pos);
+            ignite(level, pos, state);
         }
     }
 
     @Override
-    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        super.createBlockStateDefinition(builder);
-        builder.add(OilCauldronBlock.IGNITED);
-    }
-
-    @Override
-    public void onPlace(BlockState state, Level level, BlockPos pos, BlockState oldState, boolean movedByPiston) {
-        if (this.isIgnited(new BlockCache(level), pos) && level.getBlockState(pos.below()).is(ModBlocks.HEATER)) {
-            level.scheduleTick(pos, this, 2);
-        }
-    }
-
-    @Override
-    protected void neighborChanged(
+    public InteractionResult useItemOn(
+        ItemStack stack,
         BlockState state,
         Level level,
         BlockPos pos,
-        Block block,
-        @Nullable Orientation orientation,
-        boolean movedByPiston
+        Player player,
+        InteractionHand hand,
+        BlockHitResult hitResult
     ) {
-        if (this.isIgnited(new BlockCache(level), pos) && level.getBlockState(pos.below()).is(ModBlocks.HEATER)) {
-            level.scheduleTick(pos, this, 2);
+        CauldronInteraction interaction = this.interactions.get(stack);
+        if (interaction == null) {
+            return InteractionResult.TRY_WITH_EMPTY_HAND;
         }
-    }
-
-    @Override
-    protected void tick(BlockState cauldronState, ServerLevel level, BlockPos pos, RandomSource random) {
-        BlockState below = level.getBlockState(pos.below());
-        if (below.is(ModBlocks.HEATER) && !below.getValue(HeaterBlock.OVERLOAD) && !PlasmaJetsBlock.trySpawn(pos.above(), level)) {
-            level.scheduleTick(pos, this, 10);
-        }
-    }
-
-    @Override
-    public boolean isIgnited(BlockCache cache, BlockPos pos) {
-        return cache.getBlockState(pos).getValue(OilCauldronBlock.IGNITED);
+        return interaction.interact(state, level, pos, player, hand, stack);
     }
 
     @Override
     public void setIgnited(BlockCache cache, BlockPos pos, boolean ignited) {
-        cache.setBlock(pos, cache.getBlockState(pos).setValue(OilCauldronBlock.IGNITED, ignited));
+        if (!ignited) return;
+        cache.setBlock(
+            pos,
+            ModBlocks.FIRE_CAULDRON.getDefaultState()
+                .setValue(FireCauldronBlock.LEVEL, cache.getBlockState(pos).getValue(OilCauldronBlock.LEVEL))
+        );
     }
 
     @Override
     public Fluid getFluid(BlockCache cache, BlockPos pos) {
         return ModFluids.OIL.get();
-    }
-
-    @Override
-    public int getFluidAmount(BlockCache cache, BlockPos pos) {
-        return cache.getBlockState(pos).getValue(OilCauldronBlock.LEVEL) * 250;
-    }
-
-    @Override
-    public boolean consumeOnce(BlockCache cache, BlockPos pos) {
-        BlockState state = cache.getBlockState(pos);
-        int layer = state.getValue(OilCauldronBlock.LEVEL) - 1;
-        if (layer <= 0) {
-            cache.setBlock(pos, Blocks.CAULDRON);
-            return true;
-        }
-        cache.setBlock(pos, state.setValue(OilCauldronBlock.LEVEL, layer));
-        return true;
     }
 }

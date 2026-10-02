@@ -1,0 +1,19 @@
+{
+  "type": "anvilcraft:solid_liquid",
+  "consume": 250,
+  "fluid": "anvilcraft:honey",
+  "ingredients": [
+    {
+      "count": 4,
+      "items": "#c:foods/cream"
+    },
+    {
+      "items": "minecraft:sugar"
+    }
+  ],
+  "results": [
+    {
+      "id": "anvilcraft:honey_cream_block"
+    }
+  ]
+}

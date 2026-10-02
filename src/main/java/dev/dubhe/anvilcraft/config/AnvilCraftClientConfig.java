@@ -1,14 +1,84 @@
 package dev.dubhe.anvilcraft.config;
 
+import com.google.gson.annotations.SerializedName;
 import dev.anvilcraft.lib.v2.config.BoundedDiscrete;
 import dev.anvilcraft.lib.v2.config.CollapsibleObject;
 import dev.anvilcraft.lib.v2.config.Comment;
 import dev.anvilcraft.lib.v2.config.Config;
+import dev.anvilcraft.lib.v2.config.util.TranslatableEnum;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import net.neoforged.fml.config.ModConfig;
 
 @Config(name = AnvilCraft.MOD_ID, type = ModConfig.Type.CLIENT)
 public class AnvilCraftClientConfig {
+    @Comment("In the storage screen, swap the fluid port bucket actions: by default left-click pours the held "
+        + "fluid bucket into a fluid port and right-click stores the bucket as a normal item; enable this to swap them")
+    public boolean invertFluidPortBucketAction = false;
+
+    @Comment("Add a tooltip line that shows storage stored ID")
+    public boolean showStorageStoredId = false;
+
+    @Comment("Vanilla keeps the original Overworld sky. Special replaces only the sun and moon with models, "
+        + "including libration and a continuous eight-day lunar phase cycle. World lighting is unchanged.")
+    public OverworldSkyMode overworldSkyMode = OverworldSkyMode.VANILLA;
+
+    @Comment("Use the legacy flat creative inventory layout instead of the sectioned layout with banners")
+    public boolean useLegacyCreativeTab = false;
+
+    @Comment("Fold 16-color item families into one representative item with a right-click variant picker in the creative inventory")
+    public boolean creativeVariantPickerEnabled = false;
+
+    @Comment("Vanilla restores the original translucent atmosphere shell; Standard enables a thicker volume atmosphere. "
+        + "Rendering failures fall back to Vanilla until resources reload. Changes take effect immediately.")
+    public CelestialRenderingMode planetAtmosphereRenderingMode = CelestialRenderingMode.STANDARD;
+
+    @Comment("Vanilla restores the original stellar shells; Standard enables emissive surfaces and an exterior corona. "
+        + "Rendering failures fall back to Vanilla until resources reload. Changes take effect immediately.")
+    public CelestialRenderingMode stellarRenderingMode = CelestialRenderingMode.STANDARD;
+
+    @Comment("Mun lighting: Potato uses Standard lighting and ambient occlusion without custom shadows, retaining vanilla entity shadows; "
+        + "Standard adds terrain, animated entity, and colored translucent shadows; "
+        + "Vanilla uses the vanilla rendering pipeline without Mun shaders, retaining the cloudless Mun sky, Overworld and moving stars. "
+        + "Rendering failures switch this setting to Vanilla. Shadow range is limited by render distance.")
+    public MunLightingQuality munLightingQuality = MunLightingQuality.STANDARD;
+
+    public enum OverworldSkyMode implements TranslatableEnum {
+        @SerializedName("Vanilla")
+        VANILLA,
+        @SerializedName("Special")
+        SPECIAL
+    }
+
+    public enum MunLightingQuality implements TranslatableEnum {
+        @SerializedName("Potato")
+        POTATO,
+        @SerializedName("Standard")
+        STANDARD,
+        @SerializedName("Off")
+        OFF
+    }
+
+    public enum CelestialRenderingMode implements TranslatableEnum {
+        @SerializedName("Vanilla")
+        VANILLA,
+        @SerializedName("Standard")
+        STANDARD
+    }
+
+    @Comment("Show levels above 10 as Roman numerals in auto enchanting table's liquid enchantment mode")
+    public boolean liquidEnchantmentRomanNumerals = true;
+
+    @Comment("Building rod blueprint controls")
+    public BuildingRodControls buildingRodControls = BuildingRodControls.OPTIMIZED;
+
+    public enum BuildingRodControls implements TranslatableEnum {
+        TRADITIONAL,
+        OPTIMIZED
+    }
+
+    @Comment("Swap insert/collect to left-click and keep extract/place on right-click (Left Collect, Right Place)")
+    public boolean invertOverrideAction = false;
+
     @Comment("The mode of the anvil hammer goggle info")
     public GoggleMode goggleMode = GoggleMode.WEARING_OR_HOLDING_HAMMER;
 
@@ -35,6 +105,9 @@ public class AnvilCraftClientConfig {
     @Comment("Scanline post-processing effect on 3D structure previews.")
     public boolean renderScanPreviewEffect = true;
 
+    @Comment("Render the shared orbital rings in the overworld-like dimension")
+    public boolean renderOverworldLikeSky = true;
+
     @CollapsibleObject
     public GravitationalLens gravitationalLens = new GravitationalLens();
 
@@ -59,7 +132,7 @@ public class AnvilCraftClientConfig {
         public double lensDirection = 1.0;
     }
 
-    @Comment("Enable ground heave shockwave particles and sound when giant anvil triggers shock mechanism")
+    @Comment("Enable ground heave shockwave particles and block bounce animation when giant anvil triggers shock mechanism")
     public boolean groundHeaveParticlesEnabled = true;
 
     @Comment("Number of particles per block spawned by ground heave effect")
@@ -70,6 +143,15 @@ public class AnvilCraftClientConfig {
     @BoundedDiscrete(max = 1, min = 0)
     public double groundHeaveParticleChance = 0.8;
 
+    @Comment("Enable redstone EMP particle effects")
+    public boolean displayRedstoneEmpParticles = true;
+
+    @Comment("Should show anvil levitate animation")
+    public boolean displayAnvilAnimation = true;
+
+    @Comment("Render block-state items in sifting and unpacking tables with the enlarged block model pick")
+    public boolean siftingUnpackingBlockRenderEnabled = true;
+
     @Comment("A vertical item frame vertically displays items")
     public boolean verticalItemFrame = false;
 
@@ -77,13 +159,14 @@ public class AnvilCraftClientConfig {
     public boolean ionoCraftBackpackExhaustParticlesEnabled = true;
 
     @CollapsibleObject
-    public IonoCraftBackpackHud ionoCraftBackpackHud = new IonoCraftBackpackHud();
+    @SerializedName(value = "weatherproofChestplateHud", alternate = "ionoCraftBackpackHud")
+    public WeatherproofChestplateHud weatherproofChestplateHud = new WeatherproofChestplateHud();
 
     @Comment("Toggle the behaviour when exiting the Category Setting menu")
     public ExitBehaviourMode exitCategorySettingBehaviour = ExitBehaviourMode.CONFIRM;
 
-    public static class IonoCraftBackpackHud {
-        @Comment("If true, will show Ionocraft Backpack current power in hud")
+    public static class WeatherproofChestplateHud {
+        @Comment("If true, will show Weatherproof Chestplate current power in hud")
         public boolean enabled = true;
 
         @Comment("If true, will show charged capacitor counts in hud")
@@ -98,6 +181,26 @@ public class AnvilCraftClientConfig {
 
         @Comment("The gui hud y position")
         public int hudY = 8;
+    }
+
+    @Comment("Preview mode when placing multipart blocks (large crate, hyperdimension storage station...)")
+    public MultiPartPreviewMode multiPartPreviewMode = MultiPartPreviewMode.OUTLINE;
+
+    @Comment("Opacity of the ghost (solid) preview when placing multipart blocks")
+    @BoundedDiscrete(min = 0.0, max = 1.0)
+    public double multiPartPreviewGhostOpacity = 0.3;
+
+    @Comment("Opacity of the outline preview when placing multipart blocks")
+    @BoundedDiscrete(min = 0.0, max = 1.0)
+    public double multiPartPreviewOutlineOpacity = 0.5;
+
+    public enum MultiPartPreviewMode implements TranslatableEnum {
+        @SerializedName("Ghost")
+        GHOST,
+        @SerializedName("Outline")
+        OUTLINE,
+        @SerializedName("Off")
+        OFF
     }
 
     public enum GoggleMode {

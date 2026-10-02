@@ -63,7 +63,7 @@ abstract class HolderReferenceMixin<T> {
         if (Util.cast(this) instanceof HeavyHalberdItem.HeavyHalberdHolder holder) {
             return holder.is(HeavyHalberdItem.getMode(stored), Util.cast(tag));
         } else if (Util.cast(this) instanceof ResonatorItem.ResonatorHolder holder) {
-            return holder.is(stored.get(ModComponents.RESONATE_MODE), Util.cast(tag));
+            return holder.is(ResonatorItem.getMode(stored), Util.cast(tag));
         } else if (Util.cast(this) instanceof MultitoolItem.MultitoolHolder holder) {
             return holder.is(stored.get(ModComponents.MULTITOOL_MODE), Util.cast(tag));
         } else {

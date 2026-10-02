@@ -4,6 +4,8 @@ import dev.anvilcraft.lib.v2.registrum.providers.RegistrumLangProvider;
 
 public class FluidLang {
     public static void init(RegistrumLangProvider provider) {
+        provider.add("tooltip.anvilcraft.fluid.flowing", "%s (Flowing)");
+        provider.add("tooltip.anvilcraft.fluid.amount", "%s / %s");
         provider.add("fluid.anvilcraft.fire", "Burning Oil (The content of Fire Cauldron)");
 
         // Non-placeable fluids
@@ -12,5 +14,11 @@ public class FluidLang {
         provider.add("block.anvilcraft.primordial_matter", "Primordial Matter");
         provider.add("block.anvilcraft.liquid_enchantment", "Liquid Enchantment");
         provider.add("block.anvilcraft.liquid_enchantment.enchanted", "Liquid Enchantment (%s)");
+        provider.add("block.anvilcraft.hydrogen", "Hydrogen");
+        provider.add("block.anvilcraft.oxygen", "Oxygen");
+        provider.add("block.anvilcraft.helium", "Helium");
+        provider.add("block.anvilcraft.deuterium", "Deuterium");
+        provider.add("block.anvilcraft.xenon", "Xenon");
+        provider.add("block.anvilcraft.krypton", "Krypton");
     }
 }

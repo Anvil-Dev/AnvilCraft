@@ -1,4 +1,7 @@
 {
+  "net/minecraft/world/level/block/CauldronBlock": [
+    "dev/dubhe/anvilcraft/api/block/IEmptyCauldron"
+  ],
   "net/minecraft/world/level/block/Block": [
     "dev/dubhe/anvilcraft/api/injection/block/IBlockExtension"
   ],

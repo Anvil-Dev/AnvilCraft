@@ -23,6 +23,8 @@ items:
 # Functions
 
 - Can be used to craft <ref item="anvilcraft:void_energy_collector"/>
+- When placed next to a <ref item="anvilcraft:crate"/>, it enables overflow disposal
+- Void Matter Blocks can receive items from chutes and similar blocks, destroying the input items directly
 
 # Properties
 

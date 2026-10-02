@@ -8,6 +8,7 @@ import dev.dubhe.anvilcraft.recipe.ChargerChargingRecipe;
 import dev.dubhe.anvilcraft.recipe.EnergyWeaponMakeRecipe;
 import dev.dubhe.anvilcraft.recipe.FluidMixingRecipe;
 import dev.dubhe.anvilcraft.recipe.JewelCraftingRecipe;
+import dev.dubhe.anvilcraft.recipe.LaserHitRecipe;
 import dev.dubhe.anvilcraft.recipe.PortalConversionRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.MassInjectRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.collision.AnvilCollisionCraftRecipe;
@@ -33,6 +34,7 @@ import dev.dubhe.anvilcraft.recipe.frost.DeformationRecipe;
 import dev.dubhe.anvilcraft.recipe.frost.PermutationRecipe;
 import dev.dubhe.anvilcraft.recipe.mineral.MineralFountainChanceRecipe;
 import dev.dubhe.anvilcraft.recipe.mineral.MineralFountainRecipe;
+import dev.dubhe.anvilcraft.recipe.multiblock.Multiblock4DRecipe;
 import dev.dubhe.anvilcraft.recipe.multiblock.MultiblockConversionRecipe;
 import dev.dubhe.anvilcraft.recipe.multiblock.MultiblockRecipe;
 import dev.dubhe.anvilcraft.recipe.multiple.BaseMultipleToOneSmithingRecipe;
@@ -47,6 +49,10 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 
 public class ModRecipeTypes {
     private static final DeferredRegister<RecipeType<?>> DF = DeferredRegister.create(Registries.RECIPE_TYPE, AnvilCraft.MOD_ID);
+
+    public static final DeferredHolder<RecipeType<?>, RecipeType<Multiblock4DRecipe>> MULTIBLOCK_4D = registerType("4d_multiblock");
+
+    public static final DeferredHolder<RecipeType<?>, RecipeType<LaserHitRecipe>> LASER_HIT = registerType("laser_hit");
 
     public static final DeferredHolder<RecipeType<?>, RecipeType<BlockCrushRecipe>> BLOCK_CRUSH = registerType("block_crush");
     public static final DeferredHolder<RecipeType<?>, RecipeType<ItemCrushRecipe>> ITEM_CRUSH = registerType("item_crush");

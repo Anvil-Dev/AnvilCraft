@@ -24,6 +24,7 @@ import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.transfer.energy.EnergyHandler;
+import net.neoforged.neoforge.transfer.transaction.SnapshotJournal;
 import net.neoforged.neoforge.transfer.transaction.Transaction;
 import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 import org.jspecify.annotations.Nullable;
@@ -33,7 +34,7 @@ public class PowerConverterBlockEntity extends BlockEntity implements IPowerCons
     @Setter
     private @Nullable PowerGrid grid = null;
     private int inputPower;
-    private int cooldown = 0;
+    private final EnergyJournal energyJournal = new EnergyJournal();
     int energy = 0;
 
     public PowerConverterBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
@@ -70,7 +71,6 @@ public class PowerConverterBlockEntity extends BlockEntity implements IPowerCons
     protected void saveAdditional(ValueOutput output) {
         super.saveAdditional(output);
         output.putInt("InputPower", this.inputPower);
-        output.putInt("Cooldown", this.cooldown);
         output.putInt("Energy", this.energy);
     }
 
@@ -78,7 +78,6 @@ public class PowerConverterBlockEntity extends BlockEntity implements IPowerCons
     public void loadAdditional(ValueInput input) {
         super.loadAdditional(input);
         this.inputPower = input.getIntOr("InputPower", 0);
-        this.cooldown = input.getIntOr("Cooldown", 0);
         this.energy = input.getIntOr("Energy", 0);
     }
 
@@ -108,29 +107,29 @@ public class PowerConverterBlockEntity extends BlockEntity implements IPowerCons
         return this.getMaxEnergy();
     }
 
-    /// tick
+    @Override
+    public void gridTick() {
+        if (this.level != null) {
+            this.flushState(this.level, this.getBlockPos());
+            if (this.getBlockState().getValue(BasePowerConverterBlock.POWERED)) return;
+        }
+        if (this.getBlockState().getValue(BasePowerConverterBlock.OVERLOAD)) return;
+        int amountTick = (int) (this.inputPower
+            * AnvilCraft.CONFIG.powerConverter.powerConverterEfficiency
+            * (1 - AnvilCraft.CONFIG.powerConverter.powerConverterLoss));
+        int amount = amountTick * PowerGrid.GRID_TICK;
+        this.energy = (int) Math.min((long) this.energy + amount, this.getMaxEnergy());
+        this.setChanged();
+    }
+
     public void tick() {
         if (this.level != null) {
             this.flushState(this.level, this.getBlockPos());
             if (this.getBlockState().getValue(BasePowerConverterBlock.POWERED)) return;
         }
-        if (this.cooldown == 0) {
-            this.cooldown = AnvilCraft.CONFIG.powerConverter.powerConverterCountdown;
-            if (this.getBlockState().getValue(BasePowerConverterBlock.OVERLOAD)) return;
-            int amountTick = (int) (
-                this.inputPower
-                * AnvilCraft.CONFIG.powerConverter.powerConverterEfficiency
-                * (1 - AnvilCraft.CONFIG.powerConverter.powerConverterLoss)
-            );
-            int amount = amountTick * AnvilCraft.CONFIG.powerConverter.powerConverterCountdown;
-            this.energy = Math.min(this.energy + amount, this.getMaxEnergy());
-            this.setChanged();
-        } else {
-            this.cooldown--;
-        }
         this.pushEnergy();
         if (this.level != null && this.level.getGameTime() % 20 == 0) {
-            this.level.sendBlockUpdated(this.getBlockPos(), this.getBlockState(), this.getBlockState(), Block.UPDATE_ALL);
+            this.level.sendBlockUpdated(this.getBlockPos(), this.getBlockState(), this.getBlockState(), Block.UPDATE_CLIENTS);
         }
     }
 
@@ -183,13 +182,30 @@ public class PowerConverterBlockEntity extends BlockEntity implements IPowerCons
 
         @Override
         public int extract(int maxExtract, TransactionContext transaction) {
-            if (PowerConverterBlockEntity.this.energy <= 0) return 0;
+            if (maxExtract <= 0 || PowerConverterBlockEntity.this.energy <= 0) return 0;
             int r = Math.min(PowerConverterBlockEntity.this.energy, maxExtract);
             if (r > 0) {
+                PowerConverterBlockEntity.this.energyJournal.updateSnapshots(transaction);
                 PowerConverterBlockEntity.this.energy -= r;
-                PowerConverterBlockEntity.this.setChanged();
             }
             return r;
+        }
+    }
+
+    private class EnergyJournal extends SnapshotJournal<Integer> {
+        @Override
+        protected Integer createSnapshot() {
+            return PowerConverterBlockEntity.this.energy;
+        }
+
+        @Override
+        protected void revertToSnapshot(Integer snapshot) {
+            PowerConverterBlockEntity.this.energy = snapshot;
+        }
+
+        @Override
+        protected void onRootCommit(Integer originalState) {
+            PowerConverterBlockEntity.this.setChanged();
         }
     }
 }

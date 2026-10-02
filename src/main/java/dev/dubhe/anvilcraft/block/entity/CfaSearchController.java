@@ -200,6 +200,7 @@ final class CfaSearchController {
             ? PlanetaryResourceSet.fromTag(tag.getCompoundOrEmpty("planetaryResources"))
             : null;
         owner.setPlanetaryResourceSet(resources);
+        owner.getMegastructureManager().getAcceleratorHandler().restoreSnapshot(owner, tag);
         if (owner.getCelestialBodyData() != null) {
             owner.addToSearchHistory(owner.getCelestialBodyData(), resources);
         }

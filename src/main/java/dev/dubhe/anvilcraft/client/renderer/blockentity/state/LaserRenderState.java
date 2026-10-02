@@ -19,6 +19,7 @@ public class LaserRenderState extends CachedBlockEntityRenderState {
     public float length;
     public float offset;
     public int color;
+    public int coreColor;
     public int laserLevel;
     public Quaternionf rotation;
     public TextureAtlasSprite laserAtlasSprite;
@@ -45,6 +46,7 @@ public class LaserRenderState extends CachedBlockEntityRenderState {
         this.length = length;
         this.offset = blockEntity.getLaserOffset();
         this.color = blockEntity.getLaserColor();
+        this.coreColor = blockEntity.isEmittingGamma() ? 0x9919FF : 0xFF0C0C;
         this.laserLevel = blockEntity.getLaserLevel();
         this.rotation = blockEntity.getFacing().getRotation();
         this.laserAtlasSprite = atlas.getSprite(LaserRenderState.LASER_TEXTURE);

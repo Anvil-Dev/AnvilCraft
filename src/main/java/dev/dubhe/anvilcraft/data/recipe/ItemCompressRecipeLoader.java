@@ -59,7 +59,19 @@ public class ItemCompressRecipeLoader {
             .save(provider);
 
         ItemCompressRecipe.builder()
-            .requires(items, ModItemTags.IRON_PLATES, 2)
+            .requires(items, ModItemTags.CREAM, 4)
+            .requires(Items.SUGAR)
+            .requires(Items.AZALEA_LEAVES)
+            .result(ModBlocks.MATCHA_CREAM_BLOCK)
+            .save(provider);
+
+        ItemCompressRecipe.builder()
+            .requires(Items.COOKIE, 9)
+            .result(ModBlocks.COOKIE_BLOCK)
+            .save(provider);
+
+        ItemCompressRecipe.builder()
+            .requires(Items.COPPER_BLOCK, 2)
             .requires(
                 ItemIngredientPredicate
                     .of(ModBlocks.RESIN_BLOCK.asItem())
@@ -67,12 +79,7 @@ public class ItemCompressRecipeLoader {
                         DataComponentExactPredicate.builder().build(),
                         Map.of(
                             ModDataComponentPredicates.SAVED_ENTITY.get(),
-                            ItemSavedEntityPredicate.of(EntityType.CREEPER)
-                        )
-                    ))
-                    .hasComponents(new DataComponentMatchers(
-                        DataComponentExactPredicate.builder().build(),
-                        Map.of(
+                            ItemSavedEntityPredicate.of(EntityType.CREEPER),
                             LibDataComponentPredicates.NOT.get(),
                             NotPredicate.of(
                                 ModDataComponentPredicates.SAVED_ENTITY.get(),
@@ -93,7 +100,7 @@ public class ItemCompressRecipeLoader {
 
         ExtendInWorldRecipeBuilder.extendCompatible(ModRecipeTriggers.ON_ANVIL_FALL_ON)
             .hasItemIngredient(builder -> builder
-                .of(items, ModItemTags.IRON_PLATES)
+                .of(Items.COPPER_BLOCK)
                 .count(2)
                 .offset(0.0, -0.375, 0.0)
                 .range(0.75, 0.75, 0.75)

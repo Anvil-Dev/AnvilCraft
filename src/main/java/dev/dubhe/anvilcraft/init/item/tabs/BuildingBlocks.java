@@ -73,6 +73,7 @@ public class BuildingBlocks extends DisplayItemsGenerator {
 
         // Standard metal blocks.
         this.plain(ModBlocks.CURSED_GOLD_BLOCK);
+        this.plain(ModBlocks.ENCHANTED_GOLD_BLOCK);
         this.plain(ModBlocks.ZINC_BLOCK);
         this.plain(ModBlocks.TIN_BLOCK);
         this.plain(ModBlocks.TITANIUM_BLOCK);
@@ -111,6 +112,13 @@ public class BuildingBlocks extends DisplayItemsGenerator {
         this.plain(ModBlocks.CONTROLLABLE_SAND);
         this.plain(ModBlocks.NETHER_DUST);
         this.plain(ModBlocks.END_DUST);
+        this.plain(ModBlocks.LUNAR_ROCK);
+        this.plain(ModBlocks.LUNAR_SOIL);
+        this.plain(ModBlocks.MONOLITH);
+        this.plain(ModBlocks.MONOLITH_CORE);
+        this.plain(ModBlocks.MONOLITH_LINE);
+        this.plain(ModBlocks.GIANT_MONOLITH_CORE);
+        this.plain(ModBlocks.GIANT_MONOLITH_LINE);
         this.plain(ModBlocks.RAW_ZINC_BLOCK);
         this.plain(ModBlocks.RAW_TIN_BLOCK);
         this.plain(ModBlocks.RAW_TITANIUM_BLOCK);
@@ -138,6 +146,7 @@ public class BuildingBlocks extends DisplayItemsGenerator {
         this.plain(ModBlocks.NEGATIVE_MATTER_BLOCK);
 
         this.plain(ModBlocks.SINGULARITY_CRYSTAL);
+        this.plain(ModBlocks.HYPERCUBE);
 
         // Heated and incandescent metal variants.
         this.plain(ModBlocks.HEATED_NETHERITE_BLOCK);
@@ -170,20 +179,27 @@ public class BuildingBlocks extends DisplayItemsGenerator {
         this.plain(ModBlocks.CAKE_BASE_BLOCK);
         this.plain(ModBlocks.CREAM_BLOCK);
         this.plain(ModBlocks.BERRY_CREAM_BLOCK);
+        this.plain(ModBlocks.HONEY_CREAM_BLOCK);
+        this.plain(ModBlocks.MATCHA_CREAM_BLOCK);
         this.plain(ModBlocks.CHOCOLATE_CREAM_BLOCK);
         this.plain(ModBlocks.CAKE_BLOCK);
         this.plain(ModBlocks.BERRY_CAKE_BLOCK);
         this.plain(ModBlocks.CHOCOLATE_CAKE_BLOCK);
+        this.plain(ModBlocks.HONEY_CAKE_BLOCK);
+        this.plain(ModBlocks.MATCHA_CAKE_BLOCK);
         this.plain(ModBlocks.LARGE_CAKE);
         this.plain(ModBlocks.CHOCOLATE_BLOCK);
         this.plain(ModBlocks.BLACK_CHOCOLATE_BLOCK);
         this.plain(ModBlocks.WHITE_CHOCOLATE_BLOCK);
+        this.plain(ModBlocks.BLACK_WHITE_CHOCOLATE_BLOCK);
         this.plain(ModBlocks.CHOCOLATE_SLAB);
         this.plain(ModBlocks.BLACK_CHOCOLATE_SLAB);
         this.plain(ModBlocks.WHITE_CHOCOLATE_SLAB);
         this.plain(ModBlocks.CHOCOLATE_STAIRS);
         this.plain(ModBlocks.BLACK_CHOCOLATE_STAIRS);
         this.plain(ModBlocks.WHITE_CHOCOLATE_STAIRS);
+        this.plain(ModBlocks.COOKIE_BLOCK);
+        this.plain(ModBlocks.COOKIE_PILLAR);
         this.plain(ModBlocks.SUGAR_BLOCK);
         this.plain(ModBlocks.GUNPOWER_BLOCK);
         this.plain(ModBlocks.ROTTEN_FLESH_BLOCK);

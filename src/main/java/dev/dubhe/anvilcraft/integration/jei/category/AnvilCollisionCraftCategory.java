@@ -189,6 +189,7 @@ public class AnvilCollisionCraftCategory implements IRecipeCategory<RecipeHolder
 
         // explosion
         this.explosion.draw(graphics, 72, 16);
+        graphics.nextStratum();
 
         List<BlockState> hitBlockStates = recipe.hitBlock().constructStatesForRender();
         if (!hitBlockStates.isEmpty()) {
@@ -199,8 +200,9 @@ public class AnvilCollisionCraftCategory implements IRecipeCategory<RecipeHolder
             // 建议下次写类似大铁砧的方块的时候 把registerDefaultState注册成有材质的中心位置
             // 当然也可以不RenderHelper.renderBlock 直接加进setRecipe的输入输出槽当物品看
             int scale = JeiBlockIngredientUtil.getRenderablePreviewScale(renderedState, 12);
+            renderedState = JeiBlockIngredientUtil.getRenderablePreviewState(renderedState);
 
-            RenderSupport.renderBlock(
+            RenderSupport.renderBlockAt(
                 graphics,
                 renderedState,
                 80,
@@ -220,12 +222,12 @@ public class AnvilCollisionCraftCategory implements IRecipeCategory<RecipeHolder
                     BlockState inputBlockRenderedState = JeiBlockIngredientUtil
                         .getDisplayedState(recipeSlotsView, AnvilCollisionCraftCategory.TRANSFORM_INPUT_BLOCK, inputBlockStates)
                         .orElse(inputBlockStates.getFirst());
-                    RenderSupport.renderBlock(
+                    RenderSupport.renderBlockAt(
                         graphics,
                         inputBlockRenderedState,
-                        110,
-                        0,
-                        20
+                        120,
+                        5,
+                        12
                     );
 
                     List<BlockState> outputBlockStates = recipe.transformBlocks().stream()
@@ -234,12 +236,12 @@ public class AnvilCollisionCraftCategory implements IRecipeCategory<RecipeHolder
                     BlockState outputBlockState = JeiBlockIngredientUtil
                         .getDisplayedState(recipeSlotsView, AnvilCollisionCraftCategory.TRANSFORM_OUTPUT_BLOCK, outputBlockStates)
                         .orElse(outputBlockStates.getFirst());
-                    RenderSupport.renderBlock(
+                    RenderSupport.renderBlockAt(
                         graphics,
                         outputBlockState,
-                        110,
-                        43,
-                        20
+                        120,
+                        48,
+                        12
                     );
 
                     this.blockConversion.draw(graphics, 113, 19);
@@ -268,7 +270,7 @@ public class AnvilCollisionCraftCategory implements IRecipeCategory<RecipeHolder
                     BlockState inputBlockRenderedState = JeiBlockIngredientUtil
                         .getDisplayedState(recipeSlotsView, AnvilCollisionCraftCategory.TRANSFORM_INPUT_BLOCK, inputBlockStates)
                         .orElse(inputBlockStates.getFirst());
-                    RenderSupport.renderBlock(
+                    RenderSupport.renderBlockAt(
                         graphics,
                         inputBlockRenderedState,
                         110,
@@ -282,7 +284,7 @@ public class AnvilCollisionCraftCategory implements IRecipeCategory<RecipeHolder
                     BlockState outputBlockState = JeiBlockIngredientUtil
                         .getDisplayedState(recipeSlotsView, AnvilCollisionCraftCategory.TRANSFORM_OUTPUT_BLOCK, outputBlockStates)
                         .orElse(outputBlockStates.getFirst());
-                    RenderSupport.renderBlock(
+                    RenderSupport.renderBlockAt(
                         graphics,
                         outputBlockState,
                         110,
@@ -313,11 +315,9 @@ public class AnvilCollisionCraftCategory implements IRecipeCategory<RecipeHolder
         // 绘制输入输出槽
         JeiSlotUtil.drawDefaultInputSlots(graphics, this.slotDefault, 1);
         if (!recipe.outputItems().isEmpty()) {
-            if (JeiRecipeUtil.isChance(recipe.outputItems())) {
-                JeiSlotUtil.drawDefaultOutputSlots(graphics, this.slotProbability, recipe.outputItems().size());
-            } else {
-                JeiSlotUtil.drawDefaultOutputSlots(graphics, this.slotDefault, recipe.outputItems().size());
-            }
+            JeiSlotUtil.drawDefaultOutputSlots(graphics,
+                JeiRecipeUtil.outputSlotFor(recipe.outputItems(), this.slotDefault, this.slotProbability),
+                recipe.outputItems().size());
         }
 
         // 添加消耗/速度的信息

@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.saved.storage;
 import com.mojang.serialization.MapCodec;
 import dev.anvilcraft.lib.v2.codec.CodecUtil;
 import dev.anvilcraft.lib.v2.util.UnlimitedItemStack;
+import dev.dubhe.anvilcraft.api.itemhandler.unlimited.OverflowDisposalItemStacksResourceHandler;
 import dev.dubhe.anvilcraft.api.itemhandler.unlimited.SpaceSizeItemStacksResourceHandler;
 import it.unimi.dsi.fastutil.ints.IntObjectBiConsumer;
 import net.minecraft.core.UUIDUtil;
@@ -11,22 +12,23 @@ import net.minecraft.network.codec.StreamCodec;
 
 import java.util.UUID;
 
-public class CrateStorage extends BaseStorage<SpaceSizeItemStacksResourceHandler> {
-    public static final MapCodec<CrateStorage> CODEC = CodecUtil.mapCodec(
+public class CrateStorage extends BaseStorage<OverflowDisposalItemStacksResourceHandler> {
+    public static final MapCodec<CrateStorage> CODEC = BaseStorage.withCrafting(CodecUtil.mapCodec(
         UUIDUtil.CODEC
             .fieldOf("storage_id")
             .forGetter(CrateStorage::getId),
         SpaceSizeItemStacksResourceHandler.CODEC
             .forGetter(CrateStorage::getItems),
         CrateStorage::of
-    );
-    public static final StreamCodec<RegistryFriendlyByteBuf, CrateStorage> STREAM_CODEC = StreamCodec.composite(
+    ));
+    public static final StreamCodec<RegistryFriendlyByteBuf, CrateStorage> STREAM_CODEC =
+        BaseStorage.withCrafting(StreamCodec.composite(
         UUIDUtil.STREAM_CODEC,
         CrateStorage::getId,
         SpaceSizeItemStacksResourceHandler.STREAM_CODEC,
         CrateStorage::getItems,
         CrateStorage::of
-    );
+    ));
 
     public CrateStorage(UUID id) {
         super(id);
@@ -39,8 +41,8 @@ public class CrateStorage extends BaseStorage<SpaceSizeItemStacksResourceHandler
     }
 
     @Override
-    protected SpaceSizeItemStacksResourceHandler constructItemHandler(IntObjectBiConsumer<UnlimitedItemStack> onContentsChanged) {
-        return new SpaceSizeItemStacksResourceHandler(2048) {
+    protected OverflowDisposalItemStacksResourceHandler constructItemHandler(IntObjectBiConsumer<UnlimitedItemStack> onContentsChanged) {
+        return new OverflowDisposalItemStacksResourceHandler(2048) {
             @Override
             protected void onContentsChanged(int index, UnlimitedItemStack original) {
                 onContentsChanged.accept(index, original);

@@ -1,0 +1,24 @@
+{
+  "type": "anvilcraft:special_celestial_body",
+  "axial_tilt": 0.0,
+  "can_be_shattered": false,
+  "energy": 14,
+  "landing": {
+    "coordinate_rule": {
+      "type": "fixed_surface"
+    },
+    "dimension": "anvilcraft:mun"
+  },
+  "liquid_coverage": "none",
+  "magnetic_field": 0,
+  "mass": 1,
+  "model": "planet_atmosphereless",
+  "name": "mun",
+  "resources": {},
+  "rotation_speed": 0,
+  "seed_items": [
+    "anvilcraft:lunar_rock"
+  ],
+  "space": 4,
+  "time": 34
+}

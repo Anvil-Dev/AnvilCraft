@@ -1,9 +1,14 @@
 {
   "sources": [
     {
-      "type": "minecraft:directory",
-      "prefix": "laser/",
-      "source": "laser"
+      "type": "minecraft:single",
+      "resource": "anvilcraft:laser/beam",
+      "sprite": "anvilcraft:laser/beam"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "minecraft:block/white_concrete",
+      "sprite": "anvilcraft:laser/solid"
     }
   ]
 }

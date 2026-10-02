@@ -2,18 +2,23 @@ package dev.dubhe.anvilcraft.client;
 
 import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.vertex.PoseStack;
+import dev.anvilcraft.lib.v2.cube.client.CubeSelection;
 import dev.anvilcraft.lib.v2.integration.IntegrationHook;
 import dev.anvilcraft.lib.v2.rendering.cachedber.renderer.CachedBlockEntityRenderDispatcher;
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.client.init.ModCreativeVariantGroups;
 import dev.dubhe.anvilcraft.client.init.ModModelLayers;
 import dev.dubhe.anvilcraft.client.init.ModPostEffects;
+import dev.dubhe.anvilcraft.client.init.ModRenderTypes;
 import dev.dubhe.anvilcraft.client.particle.IonoCraftBackpackExhaustParticle;
 import dev.dubhe.anvilcraft.client.particle.OverseerTrailParticle;
 import dev.dubhe.anvilcraft.client.particle.PlasmaJetsParticle;
 import dev.dubhe.anvilcraft.client.renderer.RenderState;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.CFARenderer;
 import dev.dubhe.anvilcraft.client.renderer.item.ItemUseAnimationTransform;
+import dev.dubhe.anvilcraft.client.renderer.item.decoration.TerminalInsertionDecoration;
 import dev.dubhe.anvilcraft.client.renderer.laser.CachedLaserBlockEntityRenderer;
+import dev.dubhe.anvilcraft.client.selection.ModelSelectionDenylist;
 import dev.dubhe.anvilcraft.client.support.InspectionSupport;
 import dev.dubhe.anvilcraft.client.support.PillSelectorSupport;
 import dev.dubhe.anvilcraft.config.AnvilCraftClientConfig;
@@ -21,10 +26,11 @@ import dev.dubhe.anvilcraft.init.ModParticles;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.block.ModFluids;
 import dev.dubhe.anvilcraft.init.item.ModItems;
+import dev.dubhe.anvilcraft.item.armor.EquipmentArmorItem;
 import dev.dubhe.anvilcraft.item.armor.IonoCraftBackpackItem;
 import dev.dubhe.anvilcraft.item.tool.HeavyHalberdItem;
 import dev.dubhe.anvilcraft.item.tool.HeavyHalberdMode;
-import dev.dubhe.anvilcraft.item.tool.trascendence.TranscendenceResonatorItem;
+import dev.dubhe.anvilcraft.item.tool.ResonatorItem;
 import dev.dubhe.anvilcraft.item.weapon.AnvilRailgunItem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.HumanoidModel;
@@ -64,10 +70,17 @@ public class AnvilCraftClient {
     public static PillSelectorSupport pillSelectorSupport = PillSelectorSupport.INSTANCE;
 
     public AnvilCraftClient(IEventBus modBus, ModContainer container) {
+        CubeSelection.enableNamespace(AnvilCraft.MOD_ID);
+        CubeSelection.registerTargetExclusion(
+            AnvilCraft.of("model_selection_denylist"),
+            state -> ModelSelectionDenylist.usesOriginalPicking(state.getBlock())
+        );
+        modBus.addListener(ModRenderTypes::registerBuffers);
         AnvilCraftClient.modEventBus = modBus;
         AnvilCraftClient.modContainer = container;
+        AnvilCraftRecipeComponentFactories.RECIPE_COMPONENT_FACTORIES.register(modBus);
         InspectionSupport.initializeClient();
-        
+
         IntegrationHook.setModEventBus(modBus);
         IntegrationHook.setModContainer(container);
         AnvilCraft.getINTEGRATION_MANAGER().loadAllClientIntegrations();
@@ -75,7 +88,12 @@ public class AnvilCraftClient {
 
     @SubscribeEvent
     public static void clientSetup(FMLClientSetupEvent event) {
+        ModCreativeVariantGroups.register();
         event.enqueueWork(() -> {
+            CachedBlockEntityRenderDispatcher.INSTANCE.registerRenderer(
+                ModBlockEntities.CREATIVE_LASER.get(),
+                new CachedLaserBlockEntityRenderer<>()
+            );
             CachedBlockEntityRenderDispatcher.INSTANCE.registerRenderer(
                 ModBlockEntities.RUBY_LASER.get(),
                 new CachedLaserBlockEntityRenderer<>()
@@ -105,9 +123,13 @@ public class AnvilCraftClient {
 
     @SubscribeEvent
     public static void registerClientExtensions(RegisterClientExtensionsEvent e) {
+        e.registerItem(new dev.dubhe.anvilcraft.client.renderer.item.CelestialAnvilItemExtensions(),
+            dev.dubhe.anvilcraft.init.block.ModBlocks.CELESTIAL_FORGING_ANVIL.asItem());
         ModFluids.onRegisterFluidType(e);
         ItemExtensionImpl itemExtensionInstance = new ItemExtensionImpl();
-        e.registerItem(itemExtensionInstance, ModItems.IONOCRAFT_BACKPACK);
+        e.registerItem(itemExtensionInstance, ModItems.IONOCRAFT_BACKPACK, ModItems.BREATHING_HELMET,
+            ModItems.WEATHERPROOF_SPACESUIT_HELMET, ModItems.BUFFER_BOOTS, ModItems.WEATHERPROOF_SPACESUIT_BOOTS,
+            ModItems.POCKETS_LEGGINGS, ModItems.WEATHERPROOF_SPACESUIT_LEGGINGS, ModItems.WEATHERPROOF_SPACESUIT_CHESTPLATE);
         e.registerItem(
             new EnergyWeaponExtensionImpl(),
             ModItems.ANVIL_RAILGUN,
@@ -121,12 +143,18 @@ public class AnvilCraftClient {
             ModItems.EMBER_METAL_HEAVY_HALBERD,
             ModItems.TRANSCENDENCE_HEAVY_HALBERD
         );
-        e.registerItem(new TranscendenceResonatorExtensionImpl(), ModItems.TRANSCENDENCE_RESONATOR);
+        e.registerItem(new ResonatorExtensionImpl(),
+            ModItems.TRANSCENDENCE_RESONATOR, ModItems.EMBER_METAL_RESONATOR, ModItems.FROST_METAL_RESONATOR);
     }
 
     @SubscribeEvent
     public static void registerCustomItemDecorations(RegisterItemDecorationsEvent e) {
-        // IonocraftBackpackDecoration has been removed - decoration was migrated to armor renderer
+        e.register(ModItems.WEATHERPROOF_SPACESUIT_CHESTPLATE.get(),
+            new dev.dubhe.anvilcraft.client.renderer.item.decoration.WeatherproofChestplateDecoration());
+        var terminal = new TerminalInsertionDecoration();
+        e.register(ModItems.LOCAL_TERMINAL, terminal);
+        e.register(ModItems.SHULKER_TERMINAL, terminal);
+        e.register(ModItems.HYPERDIMENSION_TERMINAL, terminal);
     }
 
     @SubscribeEvent
@@ -185,6 +213,14 @@ public class AnvilCraftClient {
         public Model<?> getHumanoidArmorModel(
             ItemStack itemStack, EquipmentClientInfo.LayerType layerType, Model original
         ) {
+            if (itemStack.getItem() instanceof EquipmentArmorItem equipment) {
+                return switch (equipment.getEquipmentSlot()) {
+                    case CHEST -> ModModelLayers.getEquipmentChestModel(original);
+                    case FEET -> ModModelLayers.getEquipmentBootsModel(original);
+                    case LEGS -> ModModelLayers.getEquipmentLeggingsModel(original);
+                    default -> ModModelLayers.getEquipmentHelmetModel(original);
+                };
+            }
             if (itemStack.is(ModItems.IONOCRAFT_BACKPACK)) {
                 return Objects.requireNonNull(ModModelLayers.getIonocraftBackpackModel());
             }
@@ -198,12 +234,8 @@ public class AnvilCraftClient {
             EquipmentClientInfo.Layer layer,
             Identifier defaultId
         ) {
-            if (itemStack.is(ModItems.IONOCRAFT_BACKPACK)) {
-                if (IonoCraftBackpackItem.getEnergyStored(itemStack) > 0) {
-                    return IonoCraftBackpackItem.TEXTURE;
-                }
-                return IonoCraftBackpackItem.TEXTURE_OFF;
-            }
+            if (itemStack.getItem() instanceof IonoCraftBackpackItem backpack) return backpack.getArmorTexture(itemStack, false);
+            if (itemStack.getItem() instanceof EquipmentArmorItem armor) return armor.getArmorTexture();
             return IClientItemExtensions.super.getArmorTexture(itemStack, type, layer, defaultId);
         }
     }
@@ -245,7 +277,7 @@ public class AnvilCraftClient {
         }
     }
 
-    public static class TranscendenceResonatorExtensionImpl implements IClientItemExtensions {
+    public static class ResonatorExtensionImpl implements IClientItemExtensions {
         @Override
         public boolean applyForgeHandTransform(
             PoseStack poseStack,
@@ -263,7 +295,7 @@ public class AnvilCraftClient {
                 stack,
                 partialTick,
                 equipProgress,
-                TranscendenceResonatorItem.RESONANCE_MINING_TICKS
+                ((ResonatorItem) stack.getItem()).resonanceMiningTicks()
             );
         }
     }

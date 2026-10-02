@@ -86,8 +86,9 @@ public class BlockProcessingRecipe extends AbstractProcessRecipe<BlockProcessing
         public Builder fakeSuperHeating(Block input) {
             this.inputs.add(BlockStatePredicate.builder().of(input).build());
             this.inputs.add(BlockStatePredicate.builder()
-                .of(ModBlocks.HEATER.get())
+                .of(ModBlocks.HEATER.get(), ModBlocks.BURNING_HEATER.get())
                 .with(HeaterBlock.OVERLOAD, false)
+                .with(HeaterBlock.POWERED, false)
                 .or()
                 .with(BurningHeaterBlock.LEVEL, 2)
                 .build());

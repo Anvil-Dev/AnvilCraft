@@ -50,6 +50,7 @@ public class BlockTagLoader {
             .addElement(BlockTagLoader.findId(Blocks.DETECTOR_RAIL))
             .addElement(BlockTagLoader.findId(Blocks.POWERED_RAIL))
             .addElement(BlockTagLoader.findId(Blocks.NOTE_BLOCK))
+            .addElement(BlockTagLoader.findId(Blocks.JUKEBOX))
             .addElement(BlockTagLoader.findId(Blocks.OBSERVER))
             .addElement(BlockTagLoader.findId(Blocks.HOPPER))
             .addElement(BlockTagLoader.findId(Blocks.DROPPER))
@@ -119,6 +120,7 @@ public class BlockTagLoader {
             .addTag(BlockTags.CAMPFIRES.location())
             .addElement(BlockTagLoader.findId(Blocks.MAGMA_BLOCK))
             .addElement(ModBlocks.HEATER.getId())
+            .addElement(ModBlocks.BURNING_HEATER.getId())
             .addElement(ModBlocks.CORRUPTED_BEACON.getId());
 
         provider.rawBuilder(ModBlockTags.BLOCK_DEVOURER_CHAIN_DEVOURING)
@@ -200,6 +202,7 @@ public class BlockTagLoader {
 
         provider.rawBuilder(ModBlockTags.CRAFTING_MATRIX_ELEMENT)
             .addElement(ModBlocks.SPACE_OVERCOMPRESSOR.getId())
+            .addElement(ModBlocks.SPACETIME_SUPERCOMPUTER.getId())
             .addTag(Tags.Blocks.PLAYER_WORKSTATIONS_CRAFTING_TABLES.location());
 
         // mekanism integration
@@ -210,24 +213,41 @@ public class BlockTagLoader {
             .addElement(ModBlocks.TESLA_TOWER.getId())
             .addElement(ModBlocks.OVERSEER.getId())
             .addElement(ModBlocks.ACCELERATION_RING.getId())
-            .addElement(ModBlocks.DEFLECTION_RING.getId());
+            .addElement(ModBlocks.DEFLECTION_RING.getId())
+            .addElement(ModBlocks.SHULKER_CONTAINER.getId())
+            .addElement(ModBlocks.LARGE_FLUID_TANK.getId())
+            .addElement(ModBlocks.LARGE_LASER.getId())
+            .addElement(ModBlocks.CELESTIAL_FORGING_ANVIL.getId())
+            .addElement(ModBlocks.CELESTIAL_FORGING_ANVIL_AMPLIFIER.getId())
+            .addElement(ModBlocks.TRADING_STATION.getId());
+
+        provider.rawBuilder(ModBlockTags.ANVIL_HAMMER_DENYLIST)
+            .addTag(ModBlockTags.ANVIL_HAMMER_BLACKLIST.location());
 
         provider.rawBuilder(ModBlockTags.ANVIL_HAMMER_BLACKLIST)
+            .addElement(ModBlocks.MONOLITH.getId())
+            .addElement(ModBlocks.MONOLITH_CORE.getId())
+            .addElement(ModBlocks.MONOLITH_LINE.getId())
+            .addElement(ModBlocks.GIANT_MONOLITH_CORE.getId())
+            .addElement(ModBlocks.GIANT_MONOLITH_LINE.getId())
             .addElement(BlockTagLoader.findId(Blocks.NETHER_PORTAL))
+            .addElement(ModBlocks.CELESTIAL_FORGING_ANVIL_PORTAL.getId())
             .addElement(BlockTagLoader.findId(Blocks.PISTON_HEAD))
             .addElement(BlockTagLoader.findId(Blocks.END_PORTAL_FRAME))
             .addElement(BlockTagLoader.findId(Blocks.ATTACHED_MELON_STEM))
             .addElement(BlockTagLoader.findId(Blocks.ATTACHED_PUMPKIN_STEM))
             .addElement(ModBlocks.CELESTIAL_FORGING_ANVIL_INTERFACE_PLACEHOLDER.getId())
+            .addElement(ModBlocks.CELESTIAL_FORGING_ANVIL_AMPLIFIER.getId())
             .addTag(BlockTags.BEDS.location())
             .addTag(BlockTags.ALL_SIGNS.location())
             .addTag(Tags.Blocks.CHESTS.location())
             .addTag(Tags.Blocks.CHESTS_ENDER.location())
             .addTag(Tags.Blocks.CHESTS_TRAPPED.location())
             .addTag(Tags.Blocks.CHESTS_WOODEN.location());
-        provider.rawBuilder(ModBlockTags.DEVOUR_BLACKLIST)
-            .addTag(Tags.Blocks.CHESTS_TRAPPED.location())
-            .addTag(Tags.Blocks.CHESTS_WOODEN.location());
+        provider.rawBuilder(ModBlockTags.DEVOUR_DENYLIST)
+            .addElement(ModBlocks.MINERAL_FOUNTAIN.getId())
+            .addElement(ModBlocks.STURDY_DEEPSLATE.getId())
+            .addTag(ModBlockTags.MONOLITH_BLOCKS.location());
 
         provider.rawBuilder(ModBlockTags.FELLING_APPLICABLE)
             .addTag(BlockTags.LOGS.location())
@@ -302,6 +322,13 @@ public class BlockTagLoader {
         provider.rawBuilder(ModBlockTags.OVERHEATABLE)
             .addElement(ModBlocks.OVERHEATED_EMBER_METAL_BLOCK.getId())
             .addElement(ModBlocks.EMBER_METAL_BLOCK.getId());
+
+        provider.rawBuilder(ModBlockTags.MONOLITH_BLOCKS)
+            .addElement(ModBlocks.MONOLITH.getId())
+            .addElement(ModBlocks.MONOLITH_CORE.getId())
+            .addElement(ModBlocks.MONOLITH_LINE.getId())
+            .addElement(ModBlocks.GIANT_MONOLITH_CORE.getId())
+            .addElement(ModBlocks.GIANT_MONOLITH_LINE.getId());
 
         // tier 0：所有铁砧以及下列所有;
         // tier 1：皇家铁砧以及下列所有;
@@ -426,5 +453,37 @@ public class BlockTagLoader {
             .addElement(ModBlocks.CELESTIAL_FORGING_ANVIL_LASER_INTERFACE.getId())
             .addElement(ModBlocks.CELESTIAL_FORGING_ANVIL_FLUID_INTERFACE.getId())
             .addElement(ModBlocks.CELESTIAL_FORGING_ANVIL_PORTAL.getId());
+
+        provider.rawBuilder(ModBlockTags.RESIN_SHOCK_COMPATIBLE)
+            .addElement(ModBlocks.RESIN_BLOCK.getId());
+
+        provider.rawBuilder(ModBlockTags.LANDING_NO_RECIPE)
+            .addElement(ModBlocks.PIEZOELECTRIC_CRYSTAL.getId())
+            .addElement(ModBlocks.SUGAR_BLOCK.getId())
+            .addElement(ModBlocks.GUNPOWER_BLOCK.getId());
+
+        provider.rawBuilder(ModBlockTags.PLACEMENT_PREVIEW)
+            .addElement(ModBlocks.LARGE_CAKE.getId())
+            .addElement(ModBlocks.OVERFLOW_CHUTE.getId())
+            .addElement(ModBlocks.ITEM_SPLITTER.getId())
+            .addElement(ModBlocks.CHUTE.getId())
+            .addElement(ModBlocks.MAGNETIC_CHUTE.getId())
+            .addElement(ModBlocks.SLIDING_RAIL.getId())
+            .addElement(ModBlocks.POWERED_SLIDING_RAIL.getId())
+            .addElement(ModBlocks.ACTIVATOR_SLIDING_RAIL.getId())
+            .addElement(ModBlocks.DETECTOR_SLIDING_RAIL.getId())
+            .addElement(ModBlocks.PULSE_GENERATOR.getId())
+            .addElement(ModBlocks.ADVANCED_COMPARATOR.getId())
+            .addElement(ModBlocks.BLOCK_COMPARATOR.getId())
+            .addElement(ModBlocks.ITEM_DETECTOR.getId())
+            .addElement(ModBlocks.PUMP.getId())
+            .addElement(ModBlocks.BLOCK_PLACER.getId())
+            .addElement(ModBlocks.BLOCK_DEVOURER.getId())
+            .addElement(ModBlocks.SMART_BLOCK_PLACER.getId())
+            .addElement(ModBlocks.STRUCTURE_SCANNER.getId())
+            .addElement(ModBlocks.RUBY_LASER.getId())
+            .addElement(ModBlocks.RUBY_PRISM.getId())
+            .addElement(ModBlocks.LASER_RECEIVER.getId())
+            .addElement(ModBlocks.CRAB_TRAP.getId());
     }
 }

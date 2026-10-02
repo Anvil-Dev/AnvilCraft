@@ -1,6 +1,8 @@
 package dev.dubhe.anvilcraft.block;
 
+import dev.dubhe.anvilcraft.api.block.ICauldron;
 import dev.dubhe.anvilcraft.api.block.ICauldronGeometry;
+import dev.dubhe.anvilcraft.api.event.LargeCauldronEvent;
 import dev.dubhe.anvilcraft.api.fluid.FluidInteractionItems;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.block.entity.LargeCauldronBlockEntity;
@@ -12,6 +14,7 @@ import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.item.block.SimpleMultiPartBlockItem;
+import dev.dubhe.anvilcraft.util.BlockPlacementPicking;
 import dev.dubhe.anvilcraft.util.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -45,6 +48,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import net.neoforged.neoforge.common.NeoForge;
 import org.jspecify.annotations.Nullable;
 
 import java.util.EnumMap;
@@ -53,7 +57,12 @@ import java.util.Map;
 
 public class LargeCauldronBlock
     extends SimpleMultiPartBlock<Cube3x3PartHalf>
-    implements MultiPartBlockEntity<Cube3x3PartHalf, LargeCauldronBlock>, IHammerRemovable, ICauldronGeometry {
+    implements MultiPartBlockEntity<Cube3x3PartHalf, LargeCauldronBlock>, IHammerRemovable, ICauldronGeometry, ICauldron {
+    @Override
+    public boolean supportsMultipleFluidOutputs() {
+        return true;
+    }
+
     public static final EnumProperty<Cube3x3PartHalf> HALF = EnumProperty.create("half", Cube3x3PartHalf.class);
     private static final double WALL_THICKNESS = 0.25;
     private static final double BOTTOM_WALL_MIN_Y = 0.5;
@@ -148,11 +157,15 @@ public class LargeCauldronBlock
 
     @Override
     public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
-        Cube3x3PartHalf part = state.getValue(LargeCauldronBlock.HALF);
-        if (part.getOffsetY() == 2 && context.isHoldingItem(ModBlocks.GIANT_ANVIL.asItem())) {
+        if (BlockPlacementPicking.hasFullPlacementShape(state, context)) {
             return Shapes.block();
         }
-        return LargeCauldronBlock.SHAPES.get(part);
+        return this.getPartShape(state);
+    }
+
+    @Override
+    public VoxelShape getPartShape(BlockState state) {
+        return LargeCauldronBlock.SHAPES.get(state.getValue(LargeCauldronBlock.HALF));
     }
 
     @Override
@@ -247,6 +260,8 @@ public class LargeCauldronBlock
         InteractionHand hand,
         BlockHitResult hit
     ) {
+        var event = NeoForge.EVENT_BUS.post(new LargeCauldronEvent.UseItem(level, pos, state, player, hand, hit, stack));
+        if (event.isCanceled()) return event.getResult();
         if (stack.is(ModItemTags.ANVIL_HAMMER)) return InteractionResult.SUCCESS;
         LargeCauldronBlockEntity cauldron = LargeCauldronBlockEntity.getMain(level, pos, state);
         if (cauldron == null) return InteractionResult.PASS;
@@ -339,6 +354,7 @@ public class LargeCauldronBlock
         InsideBlockEffectApplier effectApplier,
         boolean isPrecise
     ) {
+        NeoForge.EVENT_BUS.post(new LargeCauldronEvent.EntityInside(level, pos, state, entity));
         if (level.isClientSide() || !(entity instanceof ItemEntity item)) return;
         LargeCauldronBlockEntity cauldron = LargeCauldronBlockEntity.getMain(level, pos, state);
         if (cauldron != null) {

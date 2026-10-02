@@ -34,23 +34,22 @@ items:
 
 ---
 
-# Uses
-
-## Power Generation
+# Power Generation
 
 - Each <ref item="anvilcraft:uranium_block"/> provides 2kW of power to <ref item="anvilcraft:heat_collector"/>
 - Time-warping <ref item="anvilcraft:uranium_block"/> will release in an instant the energy that would normally take tens of thousands of years, heating horizontally adjacent [Heatable Blocks](../001_feature/101_heated_block.md#heatable-blocks) to <color=#ee7744>Incandescent</color> for 5min, totaling 1024kW
-- Collide an anvil with <ref item="anvilcraft:uranium_block"/> to heat up to 16 <ref item="anvilcraft:overheated_ember_metal_block"/> for 20s, totaling 16384kW
+- Collide an anvil with <ref item="anvilcraft:uranium_block"/> to heat up to 16 <ref item="anvilcraft:overheated_ember_metal_block"/> for 20s, totaling 32768kW
 
 <row halign="center">
 <recipe id="anvilcraft:time_warp/raw_uranium_from_uranium_block"/>
 <recipe id="anvilcraft:anvil_collision/anvil_tier_2_and_uranium_block_256"/>
 </row>
 
-# Properties
+# Nuclear Radiation
 
-- Nuclear Radiation: Carrying 18 stacks of any uranium items will apply the Wither effect
+Carrying 18 stacks of any uranium items will apply the **Wither** effect
+
+# Radioactivity and Meltdown
+
 - <ref item="anvilcraft:uranium_block"/> is a *radioactive block*
-- If the number of *radioactive blocks* adjacent to a *radioactive block* exceeds that of <ref item="anvilcraft:lead_block"/> by 3 or more, *radioactive decay* may be triggered randomly
-- <ref item="anvilcraft:uranium_block"/> decays into <ref item="anvilcraft:lead_block"/>
-- If all six sides are adjacent to radioactive blocks, the *radioactive block* turns into lava
+- <ref item="anvilcraft:uranium_block"/> never decays or melts down

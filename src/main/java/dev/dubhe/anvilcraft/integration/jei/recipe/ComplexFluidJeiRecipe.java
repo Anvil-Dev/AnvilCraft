@@ -4,8 +4,10 @@ import dev.anvilcraft.lib.v2.util.predicate.ChanceItemStack;
 import dev.anvilcraft.lib.v2.util.predicate.ItemIngredientPredicate;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.block.ModFluids;
+import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.init.item.ModItems;
+import dev.dubhe.anvilcraft.integration.jei.util.JeiFluidUtil;
 import dev.dubhe.anvilcraft.recipe.FluidMixingRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.predicate.block.HasCauldron;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.SolidLiquidRecipe;
@@ -19,6 +21,7 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.enchantment.Enchantment;
+import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.material.Fluid;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.FluidType;
@@ -67,21 +70,19 @@ public final class ComplexFluidJeiRecipe extends FluidMixingRecipe {
 
     public static ComplexFluidJeiRecipe fromSolidLiquid(SolidLiquidRecipe recipe) {
         HasCauldronSimple cauldron = recipe.getHasCauldron();
-        List<FluidStack> inputs = ComplexFluidJeiRecipe.createFluidStacks(
+        List<FluidStack> inputs = JeiFluidUtil.getDisplayFluids(
             cauldron.fluid(),
-            cauldron.fluidTag(),
-            ComplexFluidJeiRecipe.displayAmount(cauldron.consume())
+            displayAmount(cauldron.consume())
         );
-        List<FluidStack> results = ComplexFluidJeiRecipe.createFluidStacks(
-            cauldron.transform(),
-            null,
-            ComplexFluidJeiRecipe.displayAmount(cauldron.produce())
-        );
+        List<List<FluidStack>> results = cauldron.transforms().stream()
+            .map(fluid -> JeiFluidUtil.getDisplayFluids(fluid, displayAmount(fluid.amount())))
+            .filter(group -> !group.isEmpty())
+            .toList();
         return new ComplexFluidJeiRecipe(
             recipe.getInputItems(),
             recipe.getResultItems(),
-            ComplexFluidJeiRecipe.asGroup(inputs),
-            ComplexFluidJeiRecipe.asGroup(results),
+            asGroup(inputs),
+            results,
             false,
             false
         );
@@ -112,6 +113,27 @@ public final class ComplexFluidJeiRecipe extends FluidMixingRecipe {
             List.of(),
             List.of(LiquidEnchantmentJeiRecipeUtil.createFluidStacks(enchantments, 8)),
             List.of(List.of(new FluidStack(ModFluids.LIQUID_ENCHANTMENT.get(), 8))),
+            false,
+            false
+        );
+    }
+
+    public static ComplexFluidJeiRecipe enchantGoldIngot() {
+        List<FluidStack> fluids = new ArrayList<>();
+        fluids.add(new FluidStack(ModFluids.LIQUID_ENCHANTMENT.get(), 16));
+        FluidStack mending = new FluidStack(ModFluids.LIQUID_ENCHANTMENT.get(), 4);
+        mending.set(ModComponents.LIQUID_ENCHANTMENT,
+            RegistryUtil.getRegistryAccess().lookupOrThrow(Registries.ENCHANTMENT).getOrThrow(Enchantments.MENDING));
+        fluids.add(mending);
+        FluidStack fortune = new FluidStack(ModFluids.LIQUID_ENCHANTMENT.get(), 1);
+        fortune.set(ModComponents.LIQUID_ENCHANTMENT,
+            RegistryUtil.getRegistryAccess().lookupOrThrow(Registries.ENCHANTMENT).getOrThrow(Enchantments.FORTUNE));
+        fluids.add(fortune);
+        return new ComplexFluidJeiRecipe(
+            List.of(ItemIngredientPredicate.of(Items.GOLD_INGOT).build()),
+            List.of(ChanceItemStack.of(ModItems.ENCHANTED_GOLD_INGOT, 1)),
+            List.of(fluids),
+            List.of(),
             false,
             false
         );
@@ -182,6 +204,7 @@ public final class ComplexFluidJeiRecipe extends FluidMixingRecipe {
 
     private static List<ItemStackTemplate> toItemStacks(List<ChanceItemStack> results) {
         return results.stream()
+            .filter(result -> result.getMaxCount() > 0)
             .map(result -> result.stack().withCount(result.getMaxCount()))
             .toList();
     }

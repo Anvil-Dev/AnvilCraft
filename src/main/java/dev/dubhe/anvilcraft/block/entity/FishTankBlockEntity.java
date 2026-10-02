@@ -6,6 +6,7 @@ import dev.anvilcraft.lib.v2.codec.CodecUtil;
 import dev.anvilcraft.lib.v2.recipe.cache.ItemResourceHandlerCache;
 import dev.anvilcraft.lib.v2.util.MathUtil;
 import dev.anvilcraft.lib.v2.util.Util;
+import dev.dubhe.anvilcraft.api.event.FishTankEvent;
 import dev.dubhe.anvilcraft.api.fluid.FluidStackResourceHandler;
 import dev.dubhe.anvilcraft.api.fluid.IFluidResourceHandlerHolder;
 import dev.dubhe.anvilcraft.api.fluid.network.FluidNetworkManager;
@@ -20,6 +21,7 @@ import dev.dubhe.anvilcraft.init.block.ModFluids;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.mixin.accessor.StacksResourceHandlerAccessor;
 import dev.dubhe.anvilcraft.util.AnvilUtil;
+import dev.dubhe.anvilcraft.util.EntityUtil;
 import dev.dubhe.anvilcraft.util.FireReforgingUtil;
 import io.netty.buffer.ByteBuf;
 import lombok.Getter;
@@ -72,6 +74,7 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.common.world.AuxiliaryLightManager;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.transfer.ResourceHandler;
@@ -300,6 +303,7 @@ public class FishTankBlockEntity extends BlockEntity implements IItemResourceHan
         }
 
         void checkAutoOutput(int index) {
+            if (FishTankBlockEntity.this.processingRecipe) return;
             Level level = FishTankBlockEntity.this.level;
             if (level == null || level.isClientSide()) return;
             BlockState state = FishTankBlockEntity.this.getBlockState();
@@ -345,7 +349,9 @@ public class FishTankBlockEntity extends BlockEntity implements IItemResourceHan
             }
         }
     };
+    private boolean processingRecipe;
     private boolean processingOutput;
+    private ItemStack @Nullable [] processingInputSnapshot;
     private long lastRecipeProcessingGameTime = Long.MIN_VALUE;
     private boolean ignited = false;
 
@@ -354,6 +360,9 @@ public class FishTankBlockEntity extends BlockEntity implements IItemResourceHan
     }
 
     public static void serverTick(Level level, BlockPos pos, BlockState state, FishTankBlockEntity entity) {
+        if (level instanceof ServerLevel serverLevel) {
+            NeoForge.EVENT_BUS.post(new FishTankEvent.ServerTick(serverLevel, pos, entity));
+        }
         if (!entity.fluidHandler.getStack().is(Fluids.LAVA)) return;
         boolean changed = false;
         for (int slot = 0; slot < entity.input.size(); slot++) {
@@ -449,16 +458,47 @@ public class FishTankBlockEntity extends BlockEntity implements IItemResourceHan
 
     /// 输入槽为空时，允许本 tick 把输出槽中的产物当作原料再加工一次
     public void beginRecipeProcessing() {
+        this.processingRecipe = true;
         boolean hasInput = !FishTankBlockEntity.isEmpty(this.input);
         long gameTime = this.level == null ? Long.MIN_VALUE + 1 : this.level.getGameTime();
         this.processingOutput = !hasInput
             && !FishTankBlockEntity.isEmpty(this.output)
             && gameTime != this.lastRecipeProcessingGameTime;
         if (hasInput || this.processingOutput) this.lastRecipeProcessingGameTime = gameTime;
+        if (hasInput) {
+            ItemStack[] snapshot = new ItemStack[this.input.size()];
+            for (int slot = 0; slot < this.input.size(); slot++) {
+                snapshot[slot] = this.input.getResource(slot).toStack(this.input.getAmountAsInt(slot));
+            }
+            this.processingInputSnapshot = snapshot;
+        }
     }
 
     public void finishRecipeProcessing() {
         this.processingOutput = false;
+        this.processingInputSnapshot = null;
+        this.processingRecipe = false;
+        if (this.getBlockState().getValue(FishTankBlock.OUTLET)) this.tryAutoOutputResults();
+    }
+
+    public ItemStack insertRecipeOutputReturningCatalyst(ItemStack stack) {
+        ItemStack[] snapshot = this.processingInputSnapshot;
+        if (snapshot == null) return this.insertRecipeOutput(stack);
+        ItemStack remaining = stack.copy();
+        for (int slot = 0; slot < this.input.size() && !remaining.isEmpty(); slot++) {
+            ItemStack before = snapshot[slot];
+            if (before.isEmpty()) continue;
+            int consumed = before.getCount() - this.input.getAmountAsInt(slot);
+            if (consumed <= 0 || !ItemStack.isSameItemSameComponents(before, remaining)) continue;
+            int refund = Math.min(consumed, remaining.getCount());
+            ItemStack left = ItemHandlerUtil.insertItem(this.input, remaining.copyWithCount(refund), false);
+            int accepted = refund - left.getCount();
+            if (accepted > 0) {
+                snapshot[slot].shrink(accepted);
+                remaining.shrink(accepted);
+            }
+        }
+        return remaining.isEmpty() ? ItemStack.EMPTY : this.insertRecipeOutput(remaining);
     }
 
     public ItemStack insertRecipeOutput(ItemStack stack) {
@@ -665,6 +705,7 @@ public class FishTankBlockEntity extends BlockEntity implements IItemResourceHan
     }
 
     public void tryAutoOutputResults() {
+        if (this.processingRecipe) return;
         Level level = this.level;
         if (level == null || level.isClientSide()) return;
         BlockPos pos = this.getBlockPos();
@@ -960,7 +1001,14 @@ public class FishTankBlockEntity extends BlockEntity implements IItemResourceHan
 
         FluidStack stack = this.fluidHandler.getStack();
         if (this.isIgnited()) {
-            effectApplier.apply(InsideBlockEffectType.FIRE_IGNITE);
+            effectApplier.runAfter(InsideBlockEffectType.FIRE_IGNITE, target -> {
+                if (!target.fireImmune()) {
+                    target.setRemainingFireTicks(target.getRemainingFireTicks() + 1);
+                    if (target.getRemainingFireTicks() == 0) target.igniteForSeconds(8.0F);
+                }
+                EntityUtil.hurt(target, level.damageSources().inFire(),
+                    NeoForge.EVENT_BUS.post(new FishTankEvent.FluidDamage(level, pos, this, stack, 4.0F)).getDamage());
+            });
         } else if (stack.is(Fluids.LAVA)) {
             effectApplier.apply(InsideBlockEffectType.LAVA_IGNITE);
         } else if (entity.canFluidExtinguish(stack.getFluidType()) && entity.isOnFire()) {
@@ -1180,7 +1228,6 @@ public class FishTankBlockEntity extends BlockEntity implements IItemResourceHan
 
     @Override
     public void preRemoveSideEffects(BlockPos pos, BlockState state) {
-        if (SmartBlockPlacerBlockEntity.isBlockBeingMovedByPlacer()) return;
         ResourceHandler<ItemResource> handler = this.getItemHandler();
         for (int slot = 0; slot < handler.size(); slot++) {
             try (Transaction transaction = Transaction.openRoot()) {

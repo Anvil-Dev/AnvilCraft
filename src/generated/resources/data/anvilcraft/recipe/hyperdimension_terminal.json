@@ -1,0 +1,19 @@
+{
+  "type": "anvilcraft:terminal_upgrade",
+  "category": "misc",
+  "group": "anvilcraft:hyperdimension_terminal",
+  "key": {
+    "A": "anvilcraft:transcendium_ingot",
+    "B": "anvilcraft:singularity_crystal",
+    "C": "anvilcraft:shulker_terminal",
+    "D": "anvilcraft:hypercube"
+  },
+  "pattern": [
+    " B ",
+    "ACA",
+    " D "
+  ],
+  "result": {
+    "id": "anvilcraft:hyperdimension_terminal"
+  }
+}

@@ -1,8 +1,8 @@
 {
   "parent": "anvilcraft:anvilcraft/mining_void",
   "criteria": {
-    "void_collector_work": {
-      "trigger": "anvilcraft:void_collector_collect"
+    "void_energy_collector_working": {
+      "trigger": "anvilcraft:void_energy_collector_working"
     }
   },
   "display": {
@@ -18,7 +18,7 @@
   },
   "requirements": [
     [
-      "void_collector_work"
+      "void_energy_collector_working"
     ]
   ],
   "sends_telemetry_event": true

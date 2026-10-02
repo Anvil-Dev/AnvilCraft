@@ -1,0 +1,12 @@
+{
+  "rules": [
+    {
+      "item": "anvilcraft:remote_transmission_pole",
+      "properties": "half=bottom"
+    },
+    {
+      "item": {},
+      "properties": "!half=bottom"
+    }
+  ]
+}

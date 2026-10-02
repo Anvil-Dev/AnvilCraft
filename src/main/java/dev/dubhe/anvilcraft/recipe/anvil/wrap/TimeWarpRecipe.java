@@ -9,19 +9,23 @@ import dev.dubhe.anvilcraft.block.workstation.CorruptedBeaconBlock;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.recipe.anvil.outcome.ProduceHeat;
-import dev.dubhe.anvilcraft.recipe.anvil.predicate.block.HasCauldron;
 import dev.dubhe.anvilcraft.recipe.anvil.util.Distance;
 import dev.dubhe.anvilcraft.recipe.anvil.util.WrapUtils;
 import dev.dubhe.anvilcraft.recipe.component.HasCauldronSimple;
 import lombok.Getter;
+import net.minecraft.core.Holder;
 import net.minecraft.core.Vec3i;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.FluidStackTemplate;
 
 import java.util.List;
 
@@ -110,7 +114,7 @@ public class TimeWarpRecipe extends AbstractProcessRecipe<TimeWarpRecipe> {
     /// @return 如果消耗流体返回true，否则返回false
     public boolean isConsumeFluid() {
         HasCauldronSimple hasCauldron = this.getHasCauldron();
-        return HasCauldron.isNotEmpty(hasCauldron.fluid()) && this.getHasCauldron().consume() > 0;
+        return hasCauldron.hasFluid() && hasCauldron.consume() > 0;
     }
 
     /// 是否产生流体
@@ -118,11 +122,84 @@ public class TimeWarpRecipe extends AbstractProcessRecipe<TimeWarpRecipe> {
     /// @return 如果产生流体返回true，否则返回false
     public boolean isProduceFluid() {
         HasCauldronSimple hasCauldron = this.getHasCauldron();
-        return HasCauldron.isNotEmpty(hasCauldron.transform()) && this.getHasCauldron().produce() > 0;
+        return !hasCauldron.transforms().isEmpty();
     }
 
     /// 时移配方构建器
     public static class Builder extends SimpleAbstractBuilder<TimeWarpRecipe, Builder> {
+        public Builder fluid(Fluid fluid) {
+            this.hasCauldron.fluid(fluid);
+            return this;
+        }
+
+        public Builder fluid(Holder<Fluid> fluid) {
+            this.hasCauldron.fluid(fluid);
+            return this;
+        }
+
+        /// 设置流体
+        ///
+        /// @param fluid 流体ID
+        ///
+        /// @return 构建器实例
+        public Builder fluid(Identifier fluid) {
+            this.hasCauldron.fluid(fluid);
+            return this;
+        }
+
+        /// 设置炼药锅方块
+        ///
+        /// @param cauldron 炼药锅方块
+        ///
+        /// @return 构建器实例
+        public Builder fluid(Block cauldron) {
+            return this.fluid(BuiltInRegistries.FLUID.getValue(WrapUtils.cauldron2Fluid(cauldron)));
+        }
+
+        public Builder transform(Fluid transform, int produce) {
+            this.hasCauldron.transform(transform, produce);
+            return this;
+        }
+
+        public Builder transform(Holder<Fluid> transform, int produce) {
+            this.hasCauldron.transform(transform, produce);
+            return this;
+        }
+
+        public Builder transform(Block cauldron, int produce) {
+            return this.transform(BuiltInRegistries.FLUID.getValue(WrapUtils.cauldron2Fluid(cauldron)), produce);
+        }
+
+        public Builder transform(FluidStackTemplate transform) {
+            this.hasCauldron.transform(transform);
+            return this;
+        }
+
+        public Builder transform(FluidStack transform) {
+            this.hasCauldron.transform(transform);
+            return this;
+        }
+
+        /// 设置转换后的流体
+        ///
+        /// @param transform 转换后的流体ID
+        ///
+        /// @return 构建器实例
+        public Builder transform(Identifier transform) {
+            this.hasCauldron.transform(transform);
+            return this;
+        }
+
+        /// 设置转换后的炼药锅方块
+        ///
+        /// @param cauldron 转换后的炼药锅方块
+        ///
+        /// @return 构建器实例
+        public Builder transform(Block cauldron) {
+            this.transform(WrapUtils.cauldron2Fluid(cauldron));
+            return this;
+        }
+
         /// 炼药锅条件构建器
         HasCauldronSimple.Builder hasCauldron = HasCauldronSimple.empty();
 
@@ -279,46 +356,6 @@ public class TimeWarpRecipe extends AbstractProcessRecipe<TimeWarpRecipe> {
             return this;
         }
 
-        /// 设置流体
-        ///
-        /// @param fluid 流体ID
-        ///
-        /// @return 构建器实例
-        public Builder fluid(Identifier fluid) {
-            this.hasCauldron.fluid(fluid);
-            return this;
-        }
-
-        /// 设置炼药锅方块
-        ///
-        /// @param cauldron 炼药锅方块
-        ///
-        /// @return 构建器实例
-        public Builder fluid(Block cauldron) {
-            this.fluid(WrapUtils.cauldron2Fluid(cauldron));
-            return this;
-        }
-
-        /// 设置转换后的流体
-        ///
-        /// @param transform 转换后的流体ID
-        ///
-        /// @return 构建器实例
-        public Builder transform(Identifier transform) {
-            this.hasCauldron.transform(transform);
-            return this;
-        }
-
-        /// 设置转换后的炼药锅方块
-        ///
-        /// @param cauldron 转换后的炼药锅方块
-        ///
-        /// @return 构建器实例
-        public Builder transform(Block cauldron) {
-            this.transform(WrapUtils.cauldron2Fluid(cauldron));
-            return this;
-        }
-
         /// 设置消耗量
         ///
         /// @param consume 消耗量
@@ -355,9 +392,7 @@ public class TimeWarpRecipe extends AbstractProcessRecipe<TimeWarpRecipe> {
         @Override
         public void validate(Identifier id) {
             HasCauldronSimple hasCauldronSimple = this.hasCauldron.build();
-            if (this.itemIngredients.isEmpty()
-                && (hasCauldronSimple.fluid().equals(HasCauldron.EMPTY)
-                    || hasCauldronSimple.fluid().equals(HasCauldron.NULL))) {
+            if (itemIngredients.isEmpty() && !hasCauldronSimple.hasFluid()) {
                 throw new IllegalArgumentException("Recipe input must not be empty, RecipeId: " + id);
             }
         }

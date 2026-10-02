@@ -1,0 +1,12 @@
+{
+  "rules": [
+    {
+      "item": "minecraft:pitcher_plant",
+      "properties": "half=lower"
+    },
+    {
+      "item": {},
+      "properties": "half=upper"
+    }
+  ]
+}

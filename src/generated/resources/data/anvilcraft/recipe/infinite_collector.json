@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "C": "anvilcraft:charge_collector",
+    "H": "anvilcraft:heat_collector",
+    "T": "anvilcraft:transcendium_ingot"
+  },
+  "pattern": [
+    " C ",
+    "CHC",
+    "TTT"
+  ],
+  "result": {
+    "id": "anvilcraft:infinite_collector"
+  }
+}

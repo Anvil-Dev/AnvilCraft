@@ -91,7 +91,7 @@ public class ModEnchantments {
             ModEnchantments.BEHEADING_KEY,
             Enchantment.enchantment(
                 Enchantment.definition(
-                    itemHolderGetter.getOrThrow(ItemTags.SWORDS),
+                    itemHolderGetter.getOrThrow(ModItemTags.SWORD_ENCHANTABLE),
                     5,
                     3,
                     Enchantment.dynamicCost(1, 10),

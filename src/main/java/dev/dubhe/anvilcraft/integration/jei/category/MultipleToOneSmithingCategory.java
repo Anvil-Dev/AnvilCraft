@@ -81,7 +81,7 @@ public class MultipleToOneSmithingCategory implements IRecipeCategory<RecipeHold
     @Override
     public void setRecipe(IRecipeLayoutBuilder builder, RecipeHolder<BaseMultipleToOneSmithingRecipe> recipe, IFocusGroup focuses) {
         BaseMultipleToOneSmithingRecipe smithingRecipe = recipe.value();
-        builder.addSlot(RecipeIngredientRole.INPUT, TEMPLATE_X, TEMPLATE_Y)
+        builder.addSlot(RecipeIngredientRole.CRAFTING_STATION, TEMPLATE_X, TEMPLATE_Y)
             .addItemStacks(Arrays.stream(smithingRecipe.getTemplate().getItems()).map(ItemStackTemplate::create).toList())
             .addRichTooltipCallback((_, tooltip) -> tooltip.add(TOOLTIP_NOT_CONSUMED));
         builder.addSlot(RecipeIngredientRole.INPUT, CENTER_INPUT_X, CENTER_INPUT_Y)

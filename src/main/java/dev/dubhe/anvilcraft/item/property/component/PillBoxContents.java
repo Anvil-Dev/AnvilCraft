@@ -44,7 +44,7 @@ public record PillBoxContents(int index, List<ItemStack> pills) {
 
         public Mutable(PillBoxContents contents) {
             this.index = contents.index;
-            this.pills = new ObjectArrayList<>(contents.pills);
+            this.pills = new ObjectArrayList<>(contents.pills.stream().map(ItemStack::copy).toList());
         }
 
         public void setDefaultIndex() {

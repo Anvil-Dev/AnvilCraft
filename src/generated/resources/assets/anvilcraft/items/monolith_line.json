@@ -1,0 +1,10 @@
+{
+  "model": {
+    "type": "minecraft:special",
+    "base": "anvilcraft:block/monolith_line",
+    "model": {
+      "type": "anvilcraft:monolith",
+      "block": "anvilcraft:monolith_line"
+    }
+  }
+}

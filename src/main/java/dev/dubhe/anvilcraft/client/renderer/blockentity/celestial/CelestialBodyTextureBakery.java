@@ -58,6 +58,7 @@ public class CelestialBodyTextureBakery {
 
     @Nullable
     public static Identifier getOrBakeBody(CelestialBodyData data) {
+        if (data instanceof SpecialCelestialBodyData special && special.usesEndGatewayModel()) return null;
         return CelestialBodyTextureBakery.CACHE.computeIfAbsent(
             CelestialBodyTextureBakery.cacheKey(data), k -> CelestialBodyTextureBakery.bakeBody(data, k));
     }
@@ -190,15 +191,15 @@ public class CelestialBodyTextureBakery {
 
     public static float[] starColor(StarData star) {
         return new float[]{
-            star.colorR() / 255f,
-            star.colorG() / 255f,
-            star.colorB() / 255f
+            Math.clamp(star.colorR() / 255f, 0.0f, 1.0f),
+            Math.clamp(star.colorG() / 255f, 0.0f, 1.0f),
+            Math.clamp(star.colorB() / 255f, 0.0f, 1.0f)
         };
     }
 
     @Nullable
     private static Identifier bakeSpecial(String key, SpecialCelestialBodyData special) {
-        String filename = special.textureName() + ".png";
+        String filename = special.model() + ".png";
         NativeImage img = CelestialBodyTextureBakery.loadImage(filename);
         if (img == null) return null;
         return CelestialBodyTextureBakery.registerTexture(key, img);

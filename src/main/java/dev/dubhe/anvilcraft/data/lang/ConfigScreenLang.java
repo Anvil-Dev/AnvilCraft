@@ -10,6 +10,64 @@ public class ConfigScreenLang {
     ///
     /// @param provider 提供器
     public static void init(RegistrumLangProvider provider) {
+        addOverride(provider, "anvilcraft.configuration.display_redstone_emp_particles", "Display Redstone EMP Particles");
+        addOverride(provider, "anvilcraft.configuration.use_legacy_creative_tab", "Use Legacy Creative Inventory");
+        addOverride(provider, "anvilcraft.configuration.use_legacy_creative_tab.tooltip",
+            "Uses the flat legacy creative inventory layout instead of the sectioned layout with banners (requires restart)");
+        addOverride(provider, "anvilcraft.configuration.building_rod_controls", "Building Rod Blueprint Controls");
+        addOverride(provider,
+            "anvillib.configuration.enum.dev.dubhe.anvilcraft.config.anvil_craft_client_config.building_rod_controls.traditional",
+            "Traditional");
+        addOverride(provider,
+            "anvillib.configuration.enum.dev.dubhe.anvilcraft.config.anvil_craft_client_config.building_rod_controls.optimized",
+            "Optimized");
+        addOverride(provider, "anvilcraft.configuration.sifting_unpacking_block_render_enabled",
+            "Enlarged Block Rendering in Sifting/Unpacking Tables");
+        addOverride(provider, "anvilcraft.configuration.sifting_unpacking_block_render_enabled.tooltip",
+            "Renders block-state items inside sifting and unpacking tables with the enlarged block model pick"
+                + " instead of regular scattered item rendering");
+
+        addOverride(provider, "anvilcraft.configuration.block_devourer_protect_containers",
+            "Block Devourer Protect Containers");
+        addOverride(provider, "anvilcraft.configuration.block_devourer_protect_containers.tooltip",
+            "Block Devourer will not devour containers (blocks that can store items) when enabled");
+        addOverride(provider, "anvilcraft.configuration.eternal_items_void_killable",
+            "Eternal Items Void Killable");
+        addOverride(provider, "anvilcraft.configuration.eternal_items_void_killable.tooltip",
+            "Allow eternal items to be killed by the void (falling out of the world)");
+        addOverride(provider, "anvilcraft.configuration.invert_fluid_port_bucket_action",
+            "Invert Fluid Port Bucket Action");
+        addOverride(provider, "anvilcraft.configuration.invert_fluid_port_bucket_action.tooltip",
+            "In the storage screen, swap the fluid port bucket actions: by default left-click pours the held fluid bucket "
+                + "into a fluid port and right-click stores the bucket as a normal item; enable this to swap them");
+        addOverride(provider, "anvilcraft.configuration.orbit_integration_substeps",
+            "Orbit Integration Substeps");
+        addOverride(provider, "anvilcraft.configuration.orbit_integration_substeps.tooltip",
+            "Orbital integration substeps per tick for freely falling items and blocks; 1 restores legacy motion");
+        addOverride(provider, "anvilcraft.configuration.orbital_speed_of_light",
+            "Orbital Speed Of Light");
+        addOverride(provider, "anvilcraft.configuration.orbital_speed_of_light.tooltip",
+            "Effective speed of light in blocks per tick for orbital precession; larger values weaken the effect");
+        addOverride(provider, "anvilcraft.configuration.overworld_sky_mode",
+            "Overworld Celestial Bodies");
+        addOverride(provider, "anvilcraft.configuration.overworld_sky_mode.tooltip",
+            "Vanilla keeps the original Overworld sky. Special replaces only the sun and moon with models, "
+                + "including libration and a continuous eight-day lunar phase cycle. World lighting is unchanged.");
+        addOverride(provider, "anvilcraft.configuration.relativistic_precession",
+            "Relativistic Precession");
+        addOverride(provider, "anvilcraft.configuration.relativistic_precession.tooltip",
+            "Enable weak Schwarzschild periapsis advance around attractive gravity sources of strength at least 10");
+        addOverride(provider, "anvilcraft.configuration.show_storage_stored_id",
+            "Show Storage Stored ID");
+        addOverride(provider, "anvilcraft.configuration.show_storage_stored_id.tooltip",
+            "Add a tooltip line that shows storage stored ID");
+        addOverride(provider,
+            "anvillib.configuration.enum.dev.dubhe.anvilcraft.config.anvil_craft_client_config.overworld_sky_mode.special",
+            "Special");
+        addOverride(provider,
+            "anvillib.configuration.enum.dev.dubhe.anvilcraft.config.anvil_craft_client_config.overworld_sky_mode.vanilla",
+            "Vanilla");
+
         ConfigScreenLang.addOverrides(provider);
         ConfigData.readConfigClass(provider, AnvilCraftServerConfig.class);
         ConfigData.readConfigClass(provider, AnvilCraftClientConfig.class);
@@ -17,6 +75,9 @@ public class ConfigScreenLang {
 
     @SuppressWarnings("checkstyle:LineLength")
     private static void addOverrides(RegistrumLangProvider provider) {
+        ConfigScreenLang.addOverride(provider, "anvilcraft.configuration.weatherproof_chestplate_hud", "Weatherproof Chestplate HUD");
+        ConfigScreenLang.addOverride(provider, "anvilcraft.configuration.weatherproof_chestplate_hud.button", "Open HUD Settings");
+        ConfigScreenLang.addOverride(provider, "anvilcraft.configuration.weatherproof_chestplate_hud.tooltip", "Chestplate power and capacitor display");
         ConfigScreenLang.addOverride(provider, "anvilcraft.configuration.anvil_collision_craft_speed", "Anvil Collision Explosion Speed Threshold");
         ConfigScreenLang.addOverride(
             provider,
@@ -137,6 +198,10 @@ public class ConfigScreenLang {
             "anvilcraft.configuration.laser_ore_cluster_max_size.tooltip",
             "Maximum ore vein size searched while mining with a laser gun; ore beyond this limit is not chain-mined (default: 64)"
         );
+        ConfigScreenLang.addOverride(provider, "anvilcraft.configuration.creative_variant_picker_enabled", "Fold Colored Item Variants");
+        ConfigScreenLang.addOverride(provider, "anvilcraft.configuration.creative_variant_picker_enabled.tooltip",
+            "Folds 16-color families into a single representative item and enables the right-click variant picker; "
+                + "applies to both creative inventory layouts (requires restart)");
     }
 
     private static void addOverride(RegistrumLangProvider provider, String key, String value) {

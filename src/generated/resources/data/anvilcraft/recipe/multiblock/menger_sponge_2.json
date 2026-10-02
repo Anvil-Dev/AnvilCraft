@@ -1,110 +1,110 @@
 {
   "type": "anvilcraft:multiblock",
   "pattern": {
-    "layers": [
+    "grid": [
       [
-        "AAAAAAAAA",
-        "A AA AA A",
-        "AAAAAAAAA",
-        "AAA   AAA",
-        "A A   A A",
-        "AAA   AAA",
-        "AAAAAAAAA",
-        "A AA AA A",
-        "AAAAAAAAA"
+        "000000000",
+        "0 00 00 0",
+        "000000000",
+        "000   000",
+        "0 0   0 0",
+        "000   000",
+        "000000000",
+        "0 00 00 0",
+        "000000000"
       ],
       [
-        "A AA AA A",
+        "0 00 00 0",
         "         ",
-        "A AA AA A",
-        "A A   A A",
+        "0 00 00 0",
+        "0 0   0 0",
         "         ",
-        "A A   A A",
-        "A AA AA A",
+        "0 0   0 0",
+        "0 00 00 0",
         "         ",
-        "A AA AA A"
+        "0 00 00 0"
       ],
       [
-        "AAAAAAAAA",
-        "A AA AA A",
-        "AAAAAAAAA",
-        "AAA   AAA",
-        "A A   A A",
-        "AAA   AAA",
-        "AAAAAAAAA",
-        "A AA AA A",
-        "AAAAAAAAA"
+        "000000000",
+        "0 00 00 0",
+        "000000000",
+        "000   000",
+        "0 0   0 0",
+        "000   000",
+        "000000000",
+        "0 00 00 0",
+        "000000000"
       ],
       [
-        "AAA   AAA",
-        "A A   A A",
-        "AAA   AAA",
+        "000   000",
+        "0 0   0 0",
+        "000   000",
         "         ",
         "         ",
         "         ",
-        "AAA   AAA",
-        "A A   A A",
-        "AAA   AAA"
+        "000   000",
+        "0 0   0 0",
+        "000   000"
       ],
       [
-        "A A   A A",
+        "0 0   0 0",
         "         ",
-        "A A   A A",
+        "0 0   0 0",
         "         ",
         "         ",
         "         ",
-        "A A   A A",
+        "0 0   0 0",
         "         ",
-        "A A   A A"
+        "0 0   0 0"
       ],
       [
-        "AAA   AAA",
-        "A A   A A",
-        "AAA   AAA",
+        "000   000",
+        "0 0   0 0",
+        "000   000",
         "         ",
         "         ",
         "         ",
-        "AAA   AAA",
-        "A A   A A",
-        "AAA   AAA"
+        "000   000",
+        "0 0   0 0",
+        "000   000"
       ],
       [
-        "AAAAAAAAA",
-        "A AA AA A",
-        "AAAAAAAAA",
-        "AAA   AAA",
-        "A A   A A",
-        "AAA   AAA",
-        "AAAAAAAAA",
-        "A AA AA A",
-        "AAAAAAAAA"
+        "000000000",
+        "0 00 00 0",
+        "000000000",
+        "000   000",
+        "0 0   0 0",
+        "000   000",
+        "000000000",
+        "0 00 00 0",
+        "000000000"
       ],
       [
-        "A AA AA A",
+        "0 00 00 0",
         "         ",
-        "A AA AA A",
-        "A A   A A",
+        "0 00 00 0",
+        "0 0   0 0",
         "         ",
-        "A A   A A",
-        "A AA AA A",
+        "0 0   0 0",
+        "0 00 00 0",
         "         ",
-        "A AA AA A"
+        "0 00 00 0"
       ],
       [
-        "AAAAAAAAA",
-        "A AA AA A",
-        "AAAAAAAAA",
-        "AAA   AAA",
-        "A A   A A",
-        "AAA   AAA",
-        "AAAAAAAAA",
-        "A AA AA A",
-        "AAAAAAAAA"
+        "000000000",
+        "0 00 00 0",
+        "000000000",
+        "000   000",
+        "0 0   0 0",
+        "000   000",
+        "000000000",
+        "0 00 00 0",
+        "000000000"
       ]
     ],
-    "symbols": {
-      "A": {
-        "block": "anvilcraft:menger_sponge"
+    "mapping": {
+      "0": {
+        "blocks": "anvilcraft:menger_sponge"
       }
     }
   },

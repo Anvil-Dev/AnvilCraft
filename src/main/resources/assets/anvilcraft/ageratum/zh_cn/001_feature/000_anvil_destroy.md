@@ -12,7 +12,7 @@ navigation:
 
 # 实现
 
-- 通过[切石机配合铁砧](../007_struct/000_block_processing.md)破坏单个方块
+- 通过[切石机配合铁砧](../007_struct/000_anvil_processing.md)破坏单个方块
 - 通过[铁砧触发方块吞噬器](../004_block/101_block_devourer.md)破坏范围内方块
 - 通过[巨型铁砧撼地](../004_block/210_giant_anvil.md)破坏大范围内方块
 

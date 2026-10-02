@@ -9,6 +9,8 @@ items:
 
 # 巨型铁砧
 
+> super~big~anvil~
+
 <row halign="center">
 <item id="anvilcraft:giant_anvil"/>
 <item id="anvilcraft:transparent_crafting_table"/>
@@ -19,7 +21,7 @@ items:
 - 手持<ref item="minecraft:anvil"/>右键僵尸，将铁砧塞到它手上
 - 使得持有铁砧的僵尸被<ref item="anvilcraft:corrupted_beacon"/>照射
 - 僵尸有 [手持铁砧数量*5%] 的概率变为拿着<ref item="anvilcraft:giant_anvil"/>的**巨人僵尸**
-- 击杀**巨人僵尸**，就可以<ref item="anvilcraft:giant_anvil"/>
+- 击杀**巨人僵尸**即可获得<ref item="anvilcraft:giant_anvil"/>
 
 <tip>
 可以使用<ref item="anvilcraft:resin_block"/>抓捕僵尸
@@ -28,6 +30,10 @@ items:
 <warning>
 **巨人僵尸**被本模组添加了AI，极其强大，请确保周围提前围好方块困住它，或是作为PVE高手战胜它
 </warning>
+
+# 磁铁吸引
+
+过于巨大而无法使用寻常磁铁吸引，需要使用<ref item="anvilcraft:acceleration_ring"/>或<ref item="anvilcraft:deflection_ring"/>
 
 # 便捷合成
 

@@ -3,10 +3,10 @@ package dev.dubhe.anvilcraft.block.storage;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.entity.IAnvilCraftEntityExtension;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
-import dev.dubhe.anvilcraft.entity.AnimateAscendingBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModItems;
+import dev.dubhe.anvilcraft.util.MagnetUtil;
 import dev.dubhe.anvilcraft.util.TriggerUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
@@ -104,7 +104,7 @@ public class MagnetBlock extends Block implements IHammerRemovable {
                 level.setBlockAndUpdate(magnetPos.below(), state1);
                 level.setBlockAndUpdate(currentPos, Blocks.AIR.defaultBlockState());
 
-                AnimateAscendingBlockEntity.animate(level, currentPos, state1, magnetPos.below());
+                MagnetUtil.animateAnvil(level, currentPos.getBottomCenter(), state1, magnetPos.below());
                 TriggerUtil.liftingAnvil(level, currentPos);
                 break;
             }
@@ -117,7 +117,7 @@ public class MagnetBlock extends Block implements IHammerRemovable {
                     level.destroyBlock(magnetPos.below(), true);
                     level.setBlockAndUpdate(magnetPos.below(), state2);
                     entity.discard();
-                    AnimateAscendingBlockEntity.animate(level, currentPos, state2, magnetPos.below());
+                    MagnetUtil.animateAnvil(level, entity.position(), state2, magnetPos.below(), entity.getId());
                     TriggerUtil.liftingAnvil(level, currentPos);
                     break checkAnvil;
                 }
@@ -130,27 +130,6 @@ public class MagnetBlock extends Block implements IHammerRemovable {
         }
     }
     
-    @Override
-    protected void affectNeighborsAfterRemoval(
-        BlockState state,
-        ServerLevel level,
-        BlockPos magnetPos,
-        boolean movedByPiston
-    ) {
-        super.affectNeighborsAfterRemoval(state, level, magnetPos, movedByPiston);
-        int distance = AnvilCraft.CONFIG.magnetAttractsDistance;
-        BlockPos currentPos = magnetPos;
-        for (int i = 0; i < distance; i++) {
-            currentPos = currentPos.below();
-            List<AnimateAscendingBlockEntity> entities =
-                level.getEntitiesOfClass(AnimateAscendingBlockEntity.class, new AABB(currentPos));
-            for (AnimateAscendingBlockEntity entity : entities) {
-                entity.discard();
-            }
-            if (!level.isEmptyBlock(currentPos)) return;
-        }
-    }
-
     @Override
     public void tick(
         BlockState state,

@@ -16,6 +16,7 @@ items:
 
 - A special smithing table that does not consume any smithing templates
 - Usually needs to be used with <ref item="anvilcraft:permutation_smithing_template"/> or <ref item="anvilcraft:deformation_smithing_template"/>
+- Can automatically access smithing templates in adjacent containers
 
 # Permutation Smithing
 

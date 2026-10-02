@@ -1,10 +1,10 @@
 ---
 navigation:
-  title: "Forced Spawner Activation"
+  title: "Immediate Spawn Attempt"
   icon: "minecraft:spawner"
 ---
 
-# Forced Spawner Activation
+# Immediate Spawn Attempt
 
 <row halign="center">
 <item id="minecraft:spawner"/>

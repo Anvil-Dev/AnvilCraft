@@ -4,6 +4,13 @@ import dev.anvilcraft.lib.v2.registrum.providers.RegistrumLangProvider;
 
 public class JeiLang {
     public static void init(RegistrumLangProvider provider) {
+        provider.add("gui.anvilcraft.category.use_item_on_block", "Use Item on Block");
+        provider.add("gui.anvilcraft.category.use_item_on_block.convert", "Right-click the block with item to convert it");
+        provider.add("gui.anvilcraft.category.container_upgrade", "Container Upgrade");
+        provider.add("gui.anvilcraft.category.container_upgrade.drop_on_top", "Drop these items onto the container");
+        provider.add("gui.anvilcraft.category.container_upgrade.strike", "Strike with an anvil to upgrade the container");
+        provider.add("gui.anvilcraft.category.container_upgrade.requires_expansion", "Requires 4 Space Over-compressor Expansions");
+        provider.add("gui.anvilcraft.multiblock_4d.progress", "Crafting Progress: %1$d / %2$d");
         provider.add("gui.anvilcraft.category.chance", "Chance: %s%%");
         provider.add("gui.anvilcraft.category.average_output", "Average: %s");
         provider.add("gui.anvilcraft.category.min_output", "Min: %s");
@@ -57,6 +64,9 @@ public class JeiLang {
         provider.add("gui.anvilcraft.category.neutron_irradiation", "Neutron Irradiation");
         provider.add("gui.anvilcraft.category.neutron_irradiation.explosion", "Explodes");
 
+        provider.add("gui.anvilcraft.category.4d_multiblock", "4D Multiblock Crafting");
+        provider.add("gui.anvilcraft.category.4d_multiblock.step", "Time Step: %1$d of %2$d");
+
         provider.add("gui.anvilcraft.category.multiblock", "Multiblock Crafting");
         provider.add("gui.anvilcraft.category.multiblock.all_layers", "All Layers Visible");
         provider.add("gui.anvilcraft.category.multiblock.single_layer", "Visible Layer: %1$d of %2$d");
@@ -97,6 +107,7 @@ public class JeiLang {
         provider.add("gui.anvilcraft.category.energy_weapon", "Energy Weapon");
 
         provider.add("jei.anvilcraft.tooltip.not_consumed", "Not Consumed");
+        provider.add("jei.anvilcraft.tooltip.stamping.templates", "Requires %s different smithing templates");
 
         provider.add("gui.anvilcraft.category.anvil_collision", "Anvil Collision");
         provider.add("gui.anvilcraft.category.anvil_collision.maxcount", "Max Count: %s");
@@ -104,6 +115,8 @@ public class JeiLang {
         provider.add("gui.anvilcraft.category.anvil_collision.speed", "Need Speed: %s");
 
         provider.add("gui.anvilcraft.category.procedural_process", "Block Sequence Processing");
+        provider.add("gui.anvilcraft.category.procedural_process.materials", "Materials:");
+        provider.add("gui.anvilcraft.category.procedural_process.materials.overflow", "+%s more");
 
         provider.add("gui.anvilcraft.category.item_compress.supercapacitor.resin", "Resin block containing a lightning-charged Creeper");
         provider.add("gui.anvilcraft.category.item_compress.supercapacitor_empty.resin", "Resin block containing an uncharged Creeper");

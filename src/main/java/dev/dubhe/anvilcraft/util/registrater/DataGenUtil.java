@@ -10,6 +10,7 @@ import dev.anvilcraft.lib.v2.registrum.util.CreativeModeTabModifier;
 import dev.anvilcraft.lib.v2.util.nullness.NonNullBiConsumer;
 import dev.anvilcraft.lib.v2.util.nullness.NonNullFunction;
 import dev.dubhe.anvilcraft.api.item.property.IIntegerComponent;
+import dev.dubhe.anvilcraft.block.multipart.AbstractMultiPartBlock;
 import dev.dubhe.anvilcraft.block.plate.PowerLevelPressurePlateBlock;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModDataComponentPredicates;
@@ -24,6 +25,7 @@ import net.minecraft.advancements.criterion.DataComponentMatchers;
 import net.minecraft.advancements.criterion.EnchantmentPredicate;
 import net.minecraft.advancements.criterion.ItemPredicate;
 import net.minecraft.advancements.criterion.MinMaxBounds;
+import net.minecraft.advancements.criterion.StatePropertiesPredicate;
 import net.minecraft.client.data.models.BlockModelGenerators;
 import net.minecraft.client.data.models.MultiVariant;
 import net.minecraft.client.data.models.blockstates.MultiVariantGenerator;
@@ -49,6 +51,7 @@ import net.minecraft.core.component.predicates.DataComponentPredicates;
 import net.minecraft.core.component.predicates.EnchantmentsPredicate;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
+import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -61,7 +64,10 @@ import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.entries.AlternativesEntry;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
+import net.minecraft.world.level.storage.loot.functions.CopyComponentsFunction;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.level.storage.loot.predicates.ExplosionCondition;
+import net.minecraft.world.level.storage.loot.predicates.LootItemBlockStatePropertyCondition;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 import net.minecraft.world.level.storage.loot.predicates.MatchTool;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
@@ -71,6 +77,22 @@ import java.util.List;
 @SuppressWarnings("Convert2Lambda")
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class DataGenUtil {
+    public static <P extends Enum<P> & StringRepresentable> void storageContainerLoot(
+        RegistrumBlockLootTables tables, AbstractMultiPartBlock<P> block
+    ) {
+        for (P part : block.getParts()) {
+            if (!block.isMainPart(block.defaultBlockState().setValue(block.getPart(), part))) continue;
+            tables.add(block, LootTable.lootTable()
+                .withPool(tables.applyExplosionCondition(block, LootPool.lootPool().setRolls(ConstantValue.exactly(1.0F)))
+                    .add(LootItem.lootTableItem(block)
+                        .when(LootItemBlockStatePropertyCondition.hasBlockStateProperties(block)
+                            .setProperties(StatePropertiesPredicate.Builder.properties().hasProperty(block.getPart(), part)))
+                        .apply(CopyComponentsFunction.copyComponentsFromBlockEntity(LootContextParams.BLOCK_ENTITY)
+                            .include(ModComponents.STORAGE)))));
+            break;
+        }
+    }
+
     public static <T extends Item> void energy(DataGenContext<Item, T> ctx, CreativeModeTabModifier modifier) {
         ItemStack stack = ctx.get().getDefaultInstance();
         stack.set(ModComponents.STORED_ENERGY, StoredEnergy.EMPTY);
@@ -225,11 +247,48 @@ public class DataGenUtil {
     }
 
     public static <T extends Item> NonNullBiConsumer<DataGenContext<Item, T>, RegistrumItemModelGenerator> ionocraftBackpack() {
-        return DataGenUtil.exhaustable(ModComponents.FLIGHT_TIME);
+        return DataGenUtil.poweredEquipment();
+    }
+
+    public static <T extends Item> NonNullBiConsumer<DataGenContext<Item, T>, RegistrumItemModelGenerator> poweredEquipment() {
+        return new NonNullBiConsumer<>() {
+            @Override
+            public void accept(DataGenContext<Item, T> ctx, RegistrumItemModelGenerator generator) {
+                Item item = ctx.get();
+                Identifier model = ModelLocationUtils.getModelLocation(item);
+                ModelTemplates.FLAT_ITEM.create(model,
+                    TextureMapping.layer0(new Material(ctx.getId().withPrefix("item/").withSuffix("_off"))), generator.modelOutput);
+                ModelTemplates.FLAT_ITEM.create(model.withSuffix("_on"),
+                    TextureMapping.layer0(new Material(ctx.getId().withPrefix("item/"))), generator.modelOutput);
+                generator.itemModelOutput.accept(item, ItemModelUtils.conditional(
+                    dev.dubhe.anvilcraft.client.renderer.item.EquipmentPoweredProperty.INSTANCE,
+                    ItemModelUtils.plainModel(model.withSuffix("_on")), ItemModelUtils.plainModel(model)));
+            }
+        };
+    }
+
+    public static <T extends Item> NonNullBiConsumer<DataGenContext<Item, T>, RegistrumItemModelGenerator> buildingRod() {
+        return new NonNullBiConsumer<>() {
+            @Override
+            public void accept(DataGenContext<Item, T> ctx, RegistrumItemModelGenerator generator) {
+                generator.itemModelOutput.accept(ctx.get(), ItemModelUtils.conditional(
+                    dev.dubhe.anvilcraft.client.renderer.item.StoredEnergyEmptyProperty.INSTANCE,
+                    ItemModelUtils.plainModel(ModelLocationUtils.getModelLocation(ctx.get()).withSuffix("_off")),
+                    ItemModelUtils.plainModel(ModelLocationUtils.getModelLocation(ctx.get()))));
+            }
+        };
     }
 
     public static <T extends Item> NonNullBiConsumer<DataGenContext<Item, T>, RegistrumItemModelGenerator> energyWeapon() {
-        return DataGenUtil.exhaustable(ModComponents.STORED_ENERGY);
+        return new NonNullBiConsumer<>() {
+            @Override
+            public void accept(DataGenContext<Item, T> ctx, RegistrumItemModelGenerator generator) {
+                generator.itemModelOutput.accept(ctx.get(), ItemModelUtils.conditional(
+                    dev.dubhe.anvilcraft.client.renderer.item.EnergyWeaponExhaustedProperty.INSTANCE,
+                    ItemModelUtils.plainModel(ModelLocationUtils.getModelLocation(ctx.get()).withSuffix("_exhausted")),
+                    ItemModelUtils.plainModel(ModelLocationUtils.getModelLocation(ctx.get()))));
+            }
+        };
     }
 
     public static <T extends Item> NonNullBiConsumer<DataGenContext<Item, T>, RegistrumItemModelGenerator> exhaustable(
@@ -267,13 +326,40 @@ public class DataGenUtil {
         };
     }
 
+    public static <T extends Item> NonNullBiConsumer<DataGenContext<Item, T>, RegistrumItemModelGenerator> celestialAnvilItem() {
+        return new NonNullBiConsumer<>() {
+            @Override
+            public void accept(DataGenContext<Item, T> ctx, RegistrumItemModelGenerator generator) {
+                Identifier base = ctx.getId().withPrefix("item/");
+                var plain = ItemModelUtils.plainModel(base);
+                var body = ItemModelUtils.specialModel(base,
+                    new dev.dubhe.anvilcraft.client.renderer.item.CelestialForgingAnvilItemRenderer.Unbaked(false));
+                var gui = new net.minecraft.client.renderer.item.CompositeModel.Unbaked(
+                    java.util.List.of(plain, body), java.util.Optional.empty());
+                var held = new net.minecraft.client.renderer.item.CompositeModel.Unbaked(java.util.List.of(plain, body),
+                    java.util.Optional.of(new com.mojang.math.Transformation(new org.joml.Vector3f(0, 1, 0), null, null, null)));
+                var head = ItemModelUtils.specialModel(base,
+                    new dev.dubhe.anvilcraft.client.renderer.item.CelestialForgingAnvilItemRenderer.Unbaked(true));
+                generator.itemModelOutput.accept(ctx.get(), ItemModelUtils.select(
+                    new net.minecraft.client.renderer.item.properties.select.DisplayContext(), held,
+                    ItemModelUtils.when(net.minecraft.world.item.ItemDisplayContext.GUI, gui),
+                    ItemModelUtils.when(net.minecraft.world.item.ItemDisplayContext.HEAD, head)),
+                    new ClientItem.Properties(true, true, 1.0F));
+            }
+        };
+    }
+
     public static <T extends Item> NonNullBiConsumer<DataGenContext<Item, T>, RegistrumItemModelGenerator> oversizedItem() {
+        return DataGenUtil.oversizedItem("");
+    }
+
+    public static <T extends Item> NonNullBiConsumer<DataGenContext<Item, T>, RegistrumItemModelGenerator> oversizedItem(String suffix) {
         return new NonNullBiConsumer<>() {
             @Override
             public void accept(DataGenContext<Item, T> ctx, RegistrumItemModelGenerator generator) {
                 generator.itemModelOutput.accept(
                     ctx.get(),
-                    ItemModelUtils.plainModel(ctx.getId().withPrefix("block/")),
+                    ItemModelUtils.plainModel(ctx.getId().withPrefix("block/").withSuffix(suffix)),
                     new ClientItem.Properties(true, true, 1.0F)
                 );
             }
@@ -282,16 +368,29 @@ public class DataGenUtil {
 
     /// 生成带自定义特殊渲染器的方块物品模型
     public static <T extends Item> NonNullBiConsumer<DataGenContext<Item, T>, RegistrumItemModelGenerator> specialBlockItem(
+        SpecialModelRenderer.Unbaked<?> renderer, boolean oversized
+    ) {
+        return DataGenUtil.specialModel(renderer, new ClientItem.Properties(oversized, oversized, 1.0F), "block/");
+    }
+
+    public static <T extends Item> NonNullBiConsumer<DataGenContext<Item, T>, RegistrumItemModelGenerator> specialItem(
+        SpecialModelRenderer.Unbaked<?> renderer, boolean oversized
+    ) {
+        return DataGenUtil.specialModel(renderer, new ClientItem.Properties(true, oversized, 1.0F), "item/");
+    }
+
+    private static <T extends Item> NonNullBiConsumer<DataGenContext<Item, T>, RegistrumItemModelGenerator> specialModel(
         SpecialModelRenderer.Unbaked<?> renderer,
-        boolean oversized
+        ClientItem.Properties properties,
+        String prefix
     ) {
         return new NonNullBiConsumer<>() {
             @Override
             public void accept(DataGenContext<Item, T> ctx, RegistrumItemModelGenerator generator) {
                 generator.itemModelOutput.accept(
                     ctx.get(),
-                    ItemModelUtils.specialModel(ctx.getId().withPrefix("block/"), renderer),
-                    new ClientItem.Properties(oversized, oversized, 1.0F)
+                    ItemModelUtils.specialModel(ctx.getId().withPrefix(prefix), renderer),
+                    properties
                 );
             }
         };

@@ -1,13 +1,14 @@
 package dev.dubhe.anvilcraft.client.markdown.recipe;
 
-import dev.anvilcraft.lib.v2.rendering.gui.GuiRenderExtras;
 import dev.anvilcraft.resource.ageratum.client.feat.markdown.MDRenderContext;
 import dev.anvilcraft.resource.ageratum.client.feat.markdown.component.extend.MDRecipeComponent;
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.client.support.RenderSupport;
 import dev.dubhe.anvilcraft.recipe.anvil.collision.AnvilCollisionCraftRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.collision.BlockTransform;
 import dev.dubhe.anvilcraft.util.AgeratumUtil;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
@@ -65,9 +66,9 @@ public class MDAnvilCollisionCraftRecipeComponent extends MDRecipeComponent {
         AgeratumUtil.renderItemWithoutSlot(
             context, anvil, mouseX, mouseY, MDAnvilCollisionCraftRecipeComponent.ANVIL_X, MDAnvilCollisionCraftRecipeComponent.ANVIL_Y);
         for (int i = 0; i < 7; i++) {
-            GuiRenderExtras.itemWithTransparency(
-                guiGraphics,
+            RenderSupport.renderItemWithTransparency(
                 new ItemStack(Blocks.ANVIL),
+                guiGraphics,
                 MDAnvilCollisionCraftRecipeComponent.MOVING_ANVIL_X - i * MDAnvilCollisionCraftRecipeComponent.MOVING_ANVIL_X_DELTA,
                 MDAnvilCollisionCraftRecipeComponent.MOVING_ANVIL_Y,
                 1f - (float) i / 10
@@ -82,7 +83,7 @@ public class MDAnvilCollisionCraftRecipeComponent extends MDRecipeComponent {
         );
 
         guiGraphics.blit(
-            MDAnvilCollisionCraftRecipeComponent.EXPLOSION, MDAnvilCollisionCraftRecipeComponent.EXPLOSION_X,
+            RenderPipelines.GUI_TEXTURED, MDAnvilCollisionCraftRecipeComponent.EXPLOSION, MDAnvilCollisionCraftRecipeComponent.EXPLOSION_X,
             MDAnvilCollisionCraftRecipeComponent.EXPLOSION_Y, 0, 0, 32, 32, 32, 32
         );
 

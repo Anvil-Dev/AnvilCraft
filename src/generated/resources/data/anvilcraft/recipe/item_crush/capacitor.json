@@ -1,0 +1,17 @@
+{
+  "type": "anvilcraft:item_crush",
+  "ingredients": [
+    {
+      "items": "anvilcraft:supercapacitor"
+    }
+  ],
+  "results": [
+    {
+      "count": 8,
+      "id": "anvilcraft:capacitor"
+    },
+    {
+      "id": "minecraft:gunpowder"
+    }
+  ]
+}

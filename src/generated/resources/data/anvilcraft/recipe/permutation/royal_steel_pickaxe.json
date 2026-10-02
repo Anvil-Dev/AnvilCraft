@@ -1,0 +1,40 @@
+{
+  "type": "anvilcraft:permutation",
+  "input": {
+    "items": "anvilcraft:royal_steel_pickaxe"
+  },
+  "options": [
+    {
+      "material": {
+        "type": "anvilcraft:empty"
+      },
+      "result": {
+        "id": "minecraft:diamond_pickaxe"
+      }
+    },
+    {
+      "material": {
+        "type": "anvilcraft:empty"
+      },
+      "result": {
+        "id": "minecraft:iron_pickaxe"
+      }
+    },
+    {
+      "material": {
+        "type": "anvilcraft:empty"
+      },
+      "result": {
+        "id": "minecraft:golden_pickaxe"
+      }
+    },
+    {
+      "material": {
+        "type": "anvilcraft:empty"
+      },
+      "result": {
+        "id": "anvilcraft:amethyst_pickaxe"
+      }
+    }
+  ]
+}

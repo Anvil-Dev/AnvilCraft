@@ -20,6 +20,7 @@ final class SingleFluidTankHandler implements ResourceHandler<FluidResource>, Va
     private FluidStack fluid = FluidStack.EMPTY;
     private boolean enhanced;
     private boolean infinite;
+    private boolean dispose;
 
     SingleFluidTankHandler(int baseCapacity, int infinityThreshold, Runnable changeListener) {
         this.baseCapacity = baseCapacity;
@@ -66,7 +67,14 @@ final class SingleFluidTankHandler implements ResourceHandler<FluidResource>, Va
         int stored = this.fluid.getAmount();
         int capacity = this.enhanced ? this.infinityThreshold : this.baseCapacity;
         int space = capacity - stored;
-        if (space <= 0) return 0;
+        if (space <= 0) {
+            if (this.enhanced && amount > 0) {
+                this.snapshotJournal.updateSnapshots(transaction);
+                this.infinite = true;
+                return amount;
+            }
+            return this.dispose ? amount : 0;
+        }
         this.snapshotJournal.updateSnapshots(transaction);
         if (this.enhanced && amount >= space) {
             this.fluid = resource.toStack(this.infinityThreshold);
@@ -76,7 +84,7 @@ final class SingleFluidTankHandler implements ResourceHandler<FluidResource>, Va
 
         int inserted = Math.min(amount, space);
         this.fluid = resource.toStack(stored + inserted);
-        return inserted;
+        return this.dispose ? amount : inserted;
     }
 
     @Override
@@ -92,6 +100,10 @@ final class SingleFluidTankHandler implements ResourceHandler<FluidResource>, Va
         int remaining = this.fluid.getAmount() - extracted;
         this.fluid = remaining == 0 ? FluidStack.EMPTY : resource.toStack(remaining);
         return extracted;
+    }
+
+    void setDispose(boolean dispose) {
+        this.dispose = dispose;
     }
 
     void setEnhanced(boolean enhanced) {

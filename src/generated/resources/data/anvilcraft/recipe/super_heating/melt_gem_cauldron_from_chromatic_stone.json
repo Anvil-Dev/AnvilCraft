@@ -1,11 +1,13 @@
 {
   "type": "anvilcraft:super_heating",
-  "fluid": "minecraft:null",
+  "fluid": [],
   "ingredients": [
     {
       "items": "anvilcraft:chromatic_stone"
     }
   ],
-  "produce": 1000,
-  "transform": "anvilcraft:melt_gem"
+  "transform": {
+    "amount": 1000,
+    "id": "anvilcraft:melt_gem"
+  }
 }

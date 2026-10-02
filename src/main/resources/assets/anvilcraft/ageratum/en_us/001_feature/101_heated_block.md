@@ -86,3 +86,6 @@ items:
 |    <ref item="anvilcraft:heliostats"/>    |                 Variable                  | 4       |
 |    <ref item="anvilcraft:ruby_laser"/>    |                 Variable                  | 0.1     |
 |       [Plasma Jets](../007_struct/201_plasma_jets.md)       | <color=#cc5533>Glowing</color> | 0.1 / 1 |
+|                                  Super-Heating Recipe                                  | <color=#661111>Heated</color> | -       |
+
+<recipe id="anvilcraft:super_heating/heated_netherite_block"/>

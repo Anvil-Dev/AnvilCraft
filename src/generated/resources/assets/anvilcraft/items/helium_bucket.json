@@ -1,0 +1,15 @@
+{
+  "model": {
+    "type": "neoforge:fluid_container",
+    "flip_gas": true,
+    "fluid": "anvilcraft:helium",
+    "force_opaque_fluid": false,
+    "textures": {
+      "base": {
+        "force_translucent": true,
+        "sprite": "anvilcraft:block/bucket"
+      },
+      "fluid": "neoforge:item/mask/bucket_fluid_drip"
+    }
+  }
+}

@@ -6,42 +6,81 @@ items:
   - anvilcraft:fluid_tank
   - anvilcraft:pipe
   - anvilcraft:pump
+  - anvilcraft:drain
+  - anvilcraft:control_valve
+  - anvilcraft:check_valve
+  - anvilcraft:fluid_tank_minecart
 ---
 
-# <ref item="anvilcraft:fluid_tank"/>
+# 蓄流于内
 
-- 可以存放 16B 液体
+<recipe id="anvilcraft:fluid_tank"/>
 
-# <ref item="anvilcraft:pipe"/>
+- <ref item="anvilcraft:fluid_tank"/>可以存放 16B 流体
+- 被破坏时，物品形式可以保存流体
+
+# 顺流而下
 
 <recipe id="anvilcraft:pipe"/>
 
-- 可以转移液体
-- 受重力影响，会将液体从位置更高的容器转移到位置更低的容器
+- <ref item="anvilcraft:pipe"/>可以转移流体
+- 受重力影响，会将流体从位置更高的容器转移到位置更低的容器
 - 高度差越大，转移速度越快，每格提供50mB/gt的速度，最大速度为2000mB/gt
 
 <structure id="../../structures/gravity_pipe.nbt"/>
 
-## 管道节点
+## 玻璃管道
 
-<block id="anvilcraft:pipe_node"/>
-
-- 一条管道有3个或更多方向被连接时，自身会变为*节点*
-- 节点在管道系统中被视为容器，可以自然接受高处的流体，向低处排放流体，不能向同层传输流体
-
-<structure id="../../structures/pipe_node.nbt"/>
+- 手持<ref item="minecraft:glass_pane"/>右击<ref item="anvilcraft:pipe"/>，可将其切换为<ref item="anvilcraft:glass_pipe"/>
+- 手持<ref item="anvilcraft:anvil_hammer"/>右击<ref item="anvilcraft:glass_pipe"/>，可将其切换为<ref item="anvilcraft:pipe"/>
 
 ## <ref item="minecraft:cauldron"/>支持
 
-- 管道支持<ref item="minecraft:cauldron"/>，但是<ref item="minecraft:cauldron"/>较为特殊，只能一次输入或输出一整桶液体（1000mB）
+- 管道支持<ref item="minecraft:cauldron"/>，但是<ref item="minecraft:cauldron"/>较为特殊，只能一次输入或输出一整桶流体（1000mB）
 
-# <ref item="anvilcraft:pump"/>
+# 逆流而上
+
+## 泵
 
 <recipe id="anvilcraft:pump"/>
 
-- 耗电 32kW 
+- <ref item="anvilcraft:pump"/>耗电 32kW
 - 可被红石信号关闭
-- 工作时对液体施加10格高的*扬程*
-- 可以将多个<ref item="anvilcraft:pump"/>串联以叠加*扬程*
+- 拥有 20 格高的*扬程*，可将流体泵送到更高处
+- 可以将多个<ref item="anvilcraft:pump"/>串联，以叠加*扬程*
 
 <structure id="../../structures/pump.nbt"/>
+
+<tip>
+
+并不能从<ref item="minecraft:bee_nest"/>里把蜜抽出来，但是本模组有[其他方法](../007_struct/000_anvil_processing.md#方块--炼药锅方块压榨)自动提取蜂蜜
+
+</tip>
+
+## 矿车
+
+<recipe id="anvilcraft:unpack/fluid_tank_minecart"/>
+
+如果没有电，也可以试试用<ref item="anvilcraft:fluid_tank_minecart"/>储存和运输流体。
+
+# 释流于外
+
+<recipe id="anvilcraft:drain"/>
+
+- <ref item="anvilcraft:drain"/>可以将输入的流体排放到下方
+- 也可以反过来使用，吸纳**上方**的流体
+- 对于同层流体<ref item="anvilcraft:drain"/>不进行操作；但如果同层流体可以自身形成无限流体，排水口会不断被该流体填满
+
+<structure id="../../structures/drain.nbt"/>
+
+> 问：小明对一个100m³的游泳池以7L/s的速度排入水，同时以5L/s的速度排出水，经过多久可以装满泳池？
+
+# 引流之主
+
+<row>
+<recipe id="anvilcraft:control_valve"/>
+<recipe id="anvilcraft:check_valve"/>
+</row>
+
+- <ref item="anvilcraft:control_valve"/> 限制流体的*种类*和*流速*，接受红石信号时**断开**
+- <ref item="anvilcraft:check_valve"/> 控制流体只能单向流动，接受红石信号时**反向**

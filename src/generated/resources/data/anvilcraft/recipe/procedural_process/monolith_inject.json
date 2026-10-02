@@ -1,0 +1,70 @@
+{
+  "type": "anvilcraft:procedural_process",
+  "displayed_models": [
+    "anvilcraft:block/wip_display/monolith_wip",
+    "anvilcraft:block/wip_display/monolith_wip"
+  ],
+  "icon": {
+    "id": "anvilcraft:monolith"
+  },
+  "initial_block": {
+    "blocks": "minecraft:blackstone"
+  },
+  "loop": 1,
+  "result_block": {
+    "block": "anvilcraft:monolith"
+  },
+  "steps": [
+    {
+      "content": {
+        "type": "anvilcraft:item_inject",
+        "block_ingredient": {
+          "blocks": "minecraft:blackstone"
+        },
+        "block_result": {
+          "block": "anvilcraft:wip_block"
+        },
+        "ingredients": [
+          {
+            "items": "minecraft:book"
+          }
+        ]
+      },
+      "index": 0
+    },
+    {
+      "content": {
+        "type": "anvilcraft:item_inject",
+        "block_ingredient": {
+          "blocks": "anvilcraft:wip_block"
+        },
+        "block_result": {
+          "block": "anvilcraft:wip_block"
+        },
+        "ingredients": [
+          {
+            "items": "anvilcraft:disk"
+          }
+        ]
+      },
+      "index": 1
+    },
+    {
+      "content": {
+        "type": "anvilcraft:item_inject",
+        "block_ingredient": {
+          "blocks": "anvilcraft:wip_block"
+        },
+        "block_result": {
+          "block": "anvilcraft:monolith"
+        },
+        "ingredients": [
+          {
+            "items": "anvilcraft:legacy_essence"
+          }
+        ]
+      },
+      "index": 2
+    }
+  ]
+}

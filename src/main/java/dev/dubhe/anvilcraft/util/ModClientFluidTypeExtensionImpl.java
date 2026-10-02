@@ -56,5 +56,7 @@ public class ModClientFluidTypeExtensionImpl implements IClientFluidTypeExtensio
         if (entity == null || entity.isSpectator() || this.noFog) return;
         fogData.renderDistanceStart = 0;
         fogData.renderDistanceEnd = this.fogDistance;
+        fogData.skyEnd = this.fogDistance;
+        fogData.cloudEnd = this.fogDistance;
     }
 }

@@ -1,5 +1,12 @@
 package dev.dubhe.anvilcraft.util;
 
+import dev.dubhe.anvilcraft.building.BlueprintBlockConfiguration;
+import dev.dubhe.anvilcraft.building.BlueprintBlockEntities;
+import dev.dubhe.anvilcraft.building.BlueprintMultiblocks;
+import dev.dubhe.anvilcraft.building.BlueprintPlacement;
+import dev.dubhe.anvilcraft.building.BuildingEntityTransform;
+import dev.dubhe.anvilcraft.building.EntityBuildAdapters;
+import dev.dubhe.anvilcraft.building.StructureSnapshot;
 import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.client.Minecraft;
@@ -7,6 +14,7 @@ import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.block.BlockAndTintGetter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.CardinalLighting;
 import net.minecraft.world.level.ColorResolver;
 import net.minecraft.world.level.LightLayer;
@@ -19,9 +27,12 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.lighting.LevelLightEngine;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
+import net.minecraft.world.phys.AABB;
 import org.jspecify.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -31,6 +42,9 @@ public class LevelLike implements BlockAndTintGetter {
     private final Map<BlockPos, BlockState> blocks = new HashMap<>();
     private final Map<BlockPos, BlockEntity> blockEntities = new HashMap<>();
     private final ClientLevel parent;
+    @Getter
+    private final List<Entity> entities = new ArrayList<>();
+    private final java.util.Set<BlockPos> alwaysRendered = new java.util.HashSet<>();
 
     @Getter
     private int currentVisibleLayer = 0;
@@ -41,6 +55,32 @@ public class LevelLike implements BlockAndTintGetter {
 
     public LevelLike(ClientLevel parent) {
         this.parent = parent;
+    }
+
+    public void addBlueprint(StructureSnapshot snapshot, BlueprintPlacement placement) {
+        BlockPos sourceOrigin = BlueprintBlockConfiguration.sourceOrigin(snapshot);
+        for (var block : BlueprintMultiblocks.expand(snapshot, placement, -1)) {
+            var data = block.nbt().map(tag -> {
+                var transformed = tag.copy();
+                BlueprintBlockConfiguration.transform(transformed, placement, sourceOrigin, snapshot);
+                return transformed;
+            }).orElse(null);
+            BlockEntity entity = BlueprintBlockEntities.create(this.parent, block.pos(), block.state(), data);
+            this.blocks.put(block.pos().immutable(), block.state());
+            this.blockEntities.remove(block.pos());
+            if (entity != null) this.blockEntities.put(block.pos().immutable(), entity);
+        }
+        for (var entry : snapshot.entities()) {
+            EntityBuildAdapters.create(BuildingEntityTransform.transform(entry, placement), this.parent)
+                .filter(entity -> !EntityBuildAdapters.isTransient(entity)).ifPresent(this.entities::add);
+        }
+    }
+
+    public AABB getRenderBounds() {
+        AABB bounds = new AABB(BlockPos.ZERO);
+        for (BlockPos pos : this.blocks.keySet()) bounds = bounds.minmax(new AABB(pos));
+        for (Entity entity : this.entities) bounds = bounds.minmax(entity.getBoundingBox());
+        return bounds;
     }
 
     public Optional<BlockPos> getMinPos() {
@@ -126,8 +166,19 @@ public class LevelLike implements BlockAndTintGetter {
         }
     }
 
+    public void setCurrentVisibleLayer(int layer) {
+        this.currentVisibleLayer = layer;
+    }
+
+    public void setBlockStateAlwaysRender(BlockPos pos, BlockState state) {
+        this.setBlockState(pos, state);
+        this.alwaysRendered.add(pos.immutable());
+    }
+
     public BlockState getBlockState(BlockPos pos) {
-        if (!this.allLayersVisible && pos.getY() != this.currentVisibleLayer) return Blocks.AIR.defaultBlockState();
+        if (!this.allLayersVisible && !this.alwaysRendered.contains(pos) && pos.getY() != this.currentVisibleLayer) {
+            return Blocks.AIR.defaultBlockState();
+        }
         return this.blocks.getOrDefault(pos, Blocks.AIR.defaultBlockState());
     }
 

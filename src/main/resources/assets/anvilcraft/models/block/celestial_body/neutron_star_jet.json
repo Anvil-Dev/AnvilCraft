@@ -2,7 +2,7 @@
 	"format_version": "1.9.0",
 	"credit": "Made by XeKr with Blockbench",
 	"parent": "minecraft:block/cube",
-	"render_type": "minecraft:translucent",
+	"render_type": "minecraft:cutout",
 	"texture_size": [64, 64],
 	"textures": {
 		"0": "anvilcraft:block/celestial_body/neutron_star_jet",

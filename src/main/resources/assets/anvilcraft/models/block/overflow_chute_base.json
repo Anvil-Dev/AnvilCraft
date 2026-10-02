@@ -1,0 +1,25 @@
+{
+	"format_version": "1.21.11",
+	"credit": "Made by XeKr with Blockbench",
+	"parent": "minecraft:block/block",
+	"render_type": "minecraft:cutout",
+	"textures": {
+		"top": "anvilcraft:block/chute_bottom",
+		"particle": "anvilcraft:block/simple_chute_directional",
+		"overflow": "anvilcraft:block/simple_chute_directional"
+	},
+	"elements": [
+		{
+			"from": [3.975, 3.975, -4.025],
+			"to": [12.025, 12.025, 2.975],
+			"rotation": {"angle": 0, "axis": "y", "origin": [8, 8, 8]},
+			"faces": {
+				"north": {"uv": [4, 4, 12, 12], "rotation": 180, "texture": "#top", "cullface": "north"},
+				"east": {"uv": [4, 0, 12, 8], "rotation": 270, "texture": "#overflow"},
+				"west": {"uv": [12, 0, 4, 8], "rotation": 90, "texture": "#overflow"},
+				"up": {"uv": [12, 0, 4, 8], "rotation": 180, "texture": "#overflow"},
+				"down": {"uv": [12, 0, 4, 8], "texture": "#overflow"}
+			}
+		}
+	]
+}

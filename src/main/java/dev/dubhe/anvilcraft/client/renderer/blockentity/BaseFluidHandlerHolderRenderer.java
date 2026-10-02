@@ -5,17 +5,14 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.fluid.IFluidResourceHandlerHolder;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.state.FluidHandlerRenderState;
 import dev.dubhe.anvilcraft.client.support.FluidRenderHelper;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.renderer.SubmitNodeCollector;
-import net.minecraft.client.renderer.block.FluidModel;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
 import net.minecraft.client.renderer.rendertype.RenderSetup;
 import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.client.renderer.texture.TextureAtlas;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.transfer.ResourceHandler;
@@ -45,6 +42,14 @@ public abstract class BaseFluidHandlerHolderRenderer<B extends BlockEntity & IFl
         ModelFeatureRenderer.@Nullable CrumblingOverlay breakProgress
     );
 
+    protected RenderType fluidRenderType() {
+        return FLUID_RENDER_TYPE;
+    }
+
+    protected float minimumFill() {
+        return 0;
+    }
+
     public float getFill(ResourceHandler<FluidResource> tank) {
         return (float) tank.getAmountAsLong(0) / tank.getCapacityAsLong(0, tank.getResource(0));
     }
@@ -64,8 +69,9 @@ public abstract class BaseFluidHandlerHolderRenderer<B extends BlockEntity & IFl
         FluidResource resource = tank.getResource(0);
         if (resource.isEmpty()) return;
         state.setResource(resource);
+        state.setAmount(tank.getAmountAsInt(0));
         state.setFill(this.getFill(tank));
-        if (state.getFill() <= 0.025) state.setFill(0.025F);
+        state.setFill(Math.max(this.minimumFill(), state.getFill()));
         this.updateTankW(be, state, partialTicks, cameraPosition, breakProgress);
     }
 
@@ -73,34 +79,11 @@ public abstract class BaseFluidHandlerHolderRenderer<B extends BlockEntity & IFl
     public void submit(S state, PoseStack poseStack, SubmitNodeCollector submitNodeCollector, CameraRenderState camera) {
         FluidResource resource = state.getResource();
         if (resource == null) return;
-        FluidModel model = FluidRenderHelper.getModel(
-            Minecraft.getInstance().getModelManager().getFluidStateModelSet(),
-            resource.getFluid()
-        );
-        var tintSource = model.fluidTintSource();
-        int tintColor = tintSource != null ? tintSource.colorAsStack(resource.toStack(1)) : -1;
-        TextureAtlasSprite sprite = model.stillMaterial().sprite();
         float minY = state.getMinY();
-        float maxY = minY + (state.getMaxY() - minY) * state.getFill();
-        submitNodeCollector.submitCustomGeometry(
-            poseStack,
-            BaseFluidHandlerHolderRenderer.FLUID_RENDER_TYPE,
-            (pose, buffer) -> FluidRenderHelper.INSTANCE.renderFluidBox(
-                sprite,
-                resource,
-                state.getMinX(),
-                minY,
-                state.getMinZ(),
-                state.getMaxX(),
-                maxY,
-                state.getMaxZ(),
-                tintColor,
-                buffer,
-                pose,
-                state.lightCoords,
-                true,
-                false
-            )
-        );
+        boolean gas = resource.getFluidType().isLighterThanAir();
+        float maxY = gas ? state.getMaxY() : minY + (state.getMaxY() - minY) * state.getFill();
+        FluidRenderHelper.submitFluidBox(resource, state.getAmount(), state.getMinX(), minY, state.getMinZ(),
+            state.getMaxX(), maxY, state.getMaxZ(), gas ? state.getFill() : 1,
+            poseStack, submitNodeCollector, state.lightCoords, this.fluidRenderType());
     }
 }

@@ -6,6 +6,12 @@
     "anvilcraft:tesla_tower",
     "anvilcraft:overseer",
     "anvilcraft:acceleration_ring",
-    "anvilcraft:deflection_ring"
+    "anvilcraft:deflection_ring",
+    "anvilcraft:shulker_container",
+    "anvilcraft:large_fluid_tank",
+    "anvilcraft:large_laser",
+    "anvilcraft:celestial_forging_anvil",
+    "anvilcraft:celestial_forging_anvil_amplifier",
+    "anvilcraft:trading_station"
   ]
 }

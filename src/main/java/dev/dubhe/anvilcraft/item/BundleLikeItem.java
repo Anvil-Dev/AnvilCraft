@@ -1,0 +1,199 @@
+package dev.dubhe.anvilcraft.item;
+
+import dev.dubhe.anvilcraft.rpc.BundleLikeServerStub;
+import lombok.Data;
+import lombok.RequiredArgsConstructor;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.SlotAccess;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.ClickAction;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import org.jspecify.annotations.Nullable;
+
+public abstract class BundleLikeItem extends Item {
+    public BundleLikeItem(Properties properties) {
+        super(properties);
+    }
+
+    /**
+     * 是否允许本物品进行 BundleLike 交互。四个分支（{@link #overrideStackedOnOther} 的
+     * 取出/放入与 {@link #overrideOtherStackedOnMe} 的取出/放入）都会先经过此判定。
+     * 默认允许；子类可按 {@link TransferState#getType()} 与玩家状态细化
+     * （如终端类物品仅在浮窗内选中物品时才允许空手点击终端槽取出）。
+     */
+    protected boolean canRemoveOne(TransferState state) {
+        return true;
+    }
+
+    /**
+     * 手拿物品点击槽内本物品时是否允许把物品放入（vanilla 语义为交换）。
+     * 默认允许（收纳类物品放入）；终端类物品不本地存储内容，覆写为 false
+     * 放行 vanilla 交换。
+     */
+    protected boolean canInsertInto(TransferState state) {
+        return true;
+    }
+
+    /**
+     * 内容是否完全存放在物品自身组件中，因而客户端可独立完成交互。
+     * 药盒、护符盒为 {@code true}；终端类内容在服务端存储中，客户端无法预知能否
+     * 取出/放入，返回 {@code false}。
+     *
+     * <p>影响 {@link #overrideStackedOnOther}：为 {@code true} 时客户端也执行完整交互
+     * （创造模式物品栏的 INVENTORY 标签页只做本地 {@code menu.clicked}、不发点击包，
+     * 若客户端只做预测就完全没有效果）；为 {@code false} 时客户端只做预测，真实处理
+     * 依赖生存模式点击包送达服务端后的 {@code clicked}。
+     */
+    protected boolean storesContentsLocally() {
+        return false;
+    }
+
+    protected abstract void removeOne(TransferState state);
+
+    protected abstract void insertOne(TransferState state);
+
+    protected abstract void updateStack(ItemStack stack, TransferState state);
+
+    @Override
+    public boolean overrideStackedOnOther(ItemStack stack, Slot slot, ClickAction action, Player player) {
+        if (!slot.isActive() || !slot.allowModification(player)) return false;
+        if (!(player instanceof ServerPlayer) && !this.storesContentsLocally()) {
+            // 客户端预测执行（Render thread）：真实处理在服务端 clicked 中执行。
+            // 仅当本次操作确实是 BundleLike 且子类允许（如终端有绑定且存储有物品可取出）
+            // 时才放行（返回 true 阻止 vanilla fallback 把终端放回槽、避免点击包携带的
+            // carried 变空导致服务端无法执行）；其余按键（放回/交换）交给 vanilla fallback，
+            // 无绑定/无物品可取时）返回 false 交给 vanilla fallback，与 BundleItem 语义一致。
+            ItemStack other = slot.getItem();
+            TransferState state = new TransferState(TransferType.BUNDLE_HOVER_ITEM, player, slot, other.copy(), stack.copy());
+            if (other.isEmpty()) {
+                return action == ClickAction.SECONDARY && this.canRemoveOne(state);
+            }
+            return action == BundleLikeItem.insertAction(player);
+        }
+        ItemStack other = slot.getItem();
+        TransferState state = new TransferState(TransferType.BUNDLE_HOVER_ITEM, player, slot, other.copy(), stack.copy());
+        if (other.isEmpty()) {
+            if (!this.canRemoveOne(state)) return false;
+            if (action != ClickAction.SECONDARY) return false;
+            this.removeOne(state);
+            ItemStack removed = state.output;
+            if (removed == null || removed.isEmpty()) return false;
+            slot.set(removed);
+            this.playRemoveOneSound(player);
+        } else {
+            if (action != BundleLikeItem.insertAction(player)) return false;
+            this.insertOne(state);
+            ItemStack remain = state.output;
+            if (remain == null) return false;
+            slot.set(remain);
+            this.playInsertSound(player);
+        }
+        this.updateStack(stack, state);
+        return true;
+    }
+
+    @Override
+    public boolean overrideOtherStackedOnMe(
+        ItemStack stack,
+        ItemStack other,
+        Slot slot,
+        ClickAction action,
+        Player player,
+        SlotAccess access
+    ) {
+        if (!slot.allowModification(player)) return false;
+        TransferState state = new TransferState(TransferType.ITEM_HOVER_BUNDLE, player, slot, other.copy(), stack.copy());
+        if (other.isEmpty()) {
+            if (!this.canRemoveOne(state)) return false;
+            if (action != ClickAction.SECONDARY) return false;
+            this.removeOne(state);
+            ItemStack removed = state.output;
+            if (removed == null || removed.isEmpty()) return false;
+            access.set(removed);
+            this.playRemoveOneSound(player);
+            this.broadcastChangesOnContainerMenu(player);
+        } else {
+            // 手拿物品：默认放入（收纳类）；终端类放行 vanilla 交换
+            if (!this.canInsertInto(state)) return false;
+            if (action != BundleLikeItem.insertAction(player)) return false;
+            this.insertOne(state);
+            ItemStack remain = state.output;
+            if (remain == null) return false;
+            access.set(remain);
+            this.playInsertSound(player);
+            this.broadcastChangesOnContainerMenu(player);
+        }
+        this.updateStack(stack, state);
+        return true;
+    }
+
+    protected void playRemoveOneSound(Entity entity) {
+        if (this.storesContentsLocally()) {
+            entity.playSound(SoundEvents.BUNDLE_REMOVE_ONE, 0.8F, 0.8F + entity.level().getRandom().nextFloat() * 0.4F);
+        } else {
+            playSound(entity, SoundEvents.BUNDLE_REMOVE_ONE);
+        }
+    }
+
+    protected void playInsertSound(Entity entity) {
+        if (this.storesContentsLocally()) {
+            entity.playSound(SoundEvents.BUNDLE_INSERT, 0.8F, 0.8F + entity.level().getRandom().nextFloat() * 0.4F);
+        } else {
+            playSound(entity, SoundEvents.BUNDLE_INSERT);
+        }
+    }
+
+    /**
+     * 播放音效：服务端 {@code Player.playSound} 会排除玩家本人（听不到），
+     * 这里改用 {@code level.playSound(null, ...)} 广播给附近所有玩家（含操作者）。
+     */
+    protected static void playSound(Entity entity, SoundEvent sound) {
+        entity.level().playSound(
+            null,
+            entity,
+            sound,
+            entity.getSoundSource(),
+            0.8F,
+            0.8F + entity.level().getRandom().nextFloat() * 0.4F
+        );
+    }
+
+    protected void broadcastChangesOnContainerMenu(Player player) {
+        player.containerMenu.slotsChanged(player.getInventory());
+    }
+
+    /** 放入（收纳）的按键：默认右键，反转时左键。取出（放置）始终为右键。 */
+    protected static ClickAction insertAction(Player player) {
+        return BundleLikeItem.isInvertedAction(player) ? ClickAction.PRIMARY : ClickAction.SECONDARY;
+    }
+
+    protected static boolean isInvertedAction(Player player) {
+        return BundleLikeServerStub.isInvertedAction(player);
+    }
+
+    @RequiredArgsConstructor
+    @Data
+    protected static class TransferState {
+        private final TransferType type;
+        private final Player player;
+        private final Slot slot;
+        private final ItemStack other;
+        private ItemStack stack;
+        private @Nullable ItemStack output;
+
+        public TransferState(TransferType type, Player player, Slot slot, ItemStack other, ItemStack stack) {
+            this(type, player, slot, other);
+            this.stack = stack;
+        }
+    }
+
+    protected enum TransferType {
+        BUNDLE_HOVER_ITEM,
+        ITEM_HOVER_BUNDLE,
+    }
+}

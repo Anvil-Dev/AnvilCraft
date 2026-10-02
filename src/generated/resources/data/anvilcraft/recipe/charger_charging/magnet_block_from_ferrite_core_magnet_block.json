@@ -1,0 +1,9 @@
+{
+  "type": "anvilcraft:charger_charging",
+  "ingredient": "anvilcraft:ferrite_core_magnet_block",
+  "power": -4,
+  "result": {
+    "id": "anvilcraft:magnet_block"
+  },
+  "time": 40
+}

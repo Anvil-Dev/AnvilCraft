@@ -7,7 +7,6 @@ import dev.dubhe.anvilcraft.integration.jei.util.JeiItemUtil;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiRecipeUtil;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiRenderHelper;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiSlotUtil;
-import dev.dubhe.anvilcraft.recipe.anvil.predicate.block.HasCauldron;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.AbstractProcessRecipe;
 import dev.dubhe.anvilcraft.recipe.component.HasCauldronSimple;
 import mezz.jei.api.gui.ITickTimer;
@@ -82,8 +81,8 @@ public abstract class AbstractLiquidCategory<T extends AbstractProcessRecipe<?>>
         HasCauldronSimple cauldron = recipe.getHasCauldron();
         final boolean hasInputItems = !recipe.getInputItems().isEmpty();
         final boolean hasOutputItems = !recipe.getResultItems().isEmpty();
-        final boolean hasInputFluid = cauldron.fluidTag() != null || HasCauldron.isNotEmpty(cauldron.fluid());
-        final boolean hasOutputFluid = HasCauldron.isNotEmpty(cauldron.transform());
+        final boolean hasInputFluid = cauldron.hasFluid();
+        final boolean hasOutputFluid = !cauldron.transforms().isEmpty();
 
         final boolean inputMixed = hasInputItems && hasInputFluid;
         final boolean outputMixed = hasOutputItems && hasOutputFluid;
@@ -114,9 +113,9 @@ public abstract class AbstractLiquidCategory<T extends AbstractProcessRecipe<?>>
         }
         if (hasOutputFluid) {
             if (outputMixed) {
-                JeiFluidUtil.addFluidOutputSlot(builder, AbstractLiquidCategory.OUTPUT_FLUID, 16, 16, cauldron);
+                JeiFluidUtil.addFluidOutputSlots(builder, AbstractLiquidCategory.OUTPUT_FLUID, 16, 16, cauldron);
             } else {
-                JeiFluidUtil.addDefaultOutputSlot(builder, AbstractLiquidCategory.OUTPUT_FLUID, 16, 16, cauldron);
+                JeiFluidUtil.addDefaultOutputSlots(builder, AbstractLiquidCategory.OUTPUT_FLUID, 16, 16, cauldron);
             }
         }
     }
@@ -137,10 +136,10 @@ public abstract class AbstractLiquidCategory<T extends AbstractProcessRecipe<?>>
     ) {
 
         // 加工图例及箭头
-        int anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(this.timer);
-        RenderSupport.renderBlock(graphics, this.getProcessBlock(), 71, 38, 20);
-        RenderSupport.renderBlock(graphics, Blocks.CAULDRON.defaultBlockState(), 71, 28, 20);
-        RenderSupport.renderBlock(graphics, Blocks.ANVIL.defaultBlockState(), 71, 10 + anvilYOffset, 20);
+        float anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(this.timer);
+        RenderSupport.renderBlockAt(graphics, this.getProcessBlock(), 81, 40, 12);
+        RenderSupport.renderBlockAt(graphics, Blocks.CAULDRON.defaultBlockState(), 81, 30, 12);
+        RenderSupport.renderBlockAt(graphics, Blocks.ANVIL.defaultBlockState(), 81, 12 + anvilYOffset, 12);
         this.arrowIn.draw(graphics, 54, 22);
         this.arrowOut.draw(graphics, 92, 22);
 
@@ -149,8 +148,8 @@ public abstract class AbstractLiquidCategory<T extends AbstractProcessRecipe<?>>
 
         final boolean hasInputItems = !recipe.getInputItems().isEmpty();
         final boolean hasOutputItems = !recipe.getResultItems().isEmpty();
-        final boolean hasInputFluid = cauldron.fluidTag() != null || HasCauldron.isNotEmpty(cauldron.fluid());
-        final boolean hasOutputFluid = HasCauldron.isNotEmpty(cauldron.transform());
+        final boolean hasInputFluid = cauldron.hasFluid();
+        final boolean hasOutputFluid = !cauldron.transforms().isEmpty();
 
         final boolean inputMixed = hasInputItems && hasInputFluid;
         final boolean outputMixed = hasOutputItems && hasOutputFluid;
@@ -164,7 +163,7 @@ public abstract class AbstractLiquidCategory<T extends AbstractProcessRecipe<?>>
             }
         }
         // 输出物品（子类可重写）
-        IDrawable slot = JeiRecipeUtil.isChance(recipe.getResultItems()) ? this.slotProbability : this.slotDefault;
+        var slot = JeiRecipeUtil.outputSlotFor(recipe.getResultItems(), this.slotDefault, this.slotProbability);
         if (hasOutputItems) {
             if (outputMixed) {
                 JeiSlotUtil.drawItemOutputSlots(graphics, slot, recipe.getResultItems().size());
@@ -183,10 +182,11 @@ public abstract class AbstractLiquidCategory<T extends AbstractProcessRecipe<?>>
         }
         // 输出流体
         if (hasOutputFluid) {
+            IDrawable fluidSlot = cauldron.chance() < 1.0f ? this.slotProbability : this.slotDefault;
             if (outputMixed) {
-                JeiSlotUtil.drawFluidOutputSlots(graphics, this.slotDefault, 1);
+                JeiSlotUtil.drawFluidOutputSlots(graphics, fluidSlot, cauldron.transforms().size());
             } else {
-                JeiSlotUtil.drawDefaultOutputSlots(graphics, this.slotDefault, 1);
+                JeiSlotUtil.drawDefaultOutputSlots(graphics, fluidSlot, cauldron.transforms().size());
             }
         }
 

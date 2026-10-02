@@ -8,6 +8,7 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.dubhe.anvilcraft.client.init.ModKeyMappings;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
+import dev.dubhe.anvilcraft.util.ComponentCodecs;
 import dev.dubhe.anvilcraft.util.EnchantmentUtil;
 import net.minecraft.core.component.DataComponentGetter;
 import net.minecraft.core.component.DataComponents;
@@ -85,6 +86,10 @@ public record Multiphase(List<Phase> phases, int activePhase) implements Tooltip
         return name.copy().append(Multiphase.makeSuffix(0));
     }
 
+    public static Component itemName(Item item, int phaseIndex) {
+        return Component.translatable(item.getDescriptionId()).append(Multiphase.makeSuffix(phaseIndex));
+    }
+
     public Component phaseDisplayName(int index) {
         return this.phases.get(index).customName().isPresent()
             ? this.phases.get(index).customName().get().copy()
@@ -149,7 +154,7 @@ public record Multiphase(List<Phase> phases, int activePhase) implements Tooltip
         this.phases.get(this.activePhase).applyToStack(stack);
         stack.set(
             DataComponents.ITEM_NAME,
-            stack.getItem().getName(stack.getItem().getDefaultInstance()).copy().append(Multiphase.makeSuffix(this.activePhase))
+            Multiphase.itemName(stack.getItem(), this.activePhase)
         );
     }
 
@@ -168,8 +173,10 @@ public record Multiphase(List<Phase> phases, int activePhase) implements Tooltip
 
     public record Phase(Optional<Component> customName, int repairCost, ItemEnchantments enchantments) {
         public static final Phase EMPTY = new Phase(Optional.empty(), 0, ItemEnchantments.EMPTY);
+        private static final Codec<Component> NAME_CODEC = Codec.either(ComponentCodecs.FLAT_CODEC, ComponentSerialization.CODEC)
+            .xmap(either -> either.map(component -> component, component -> component), Either::left);
         public static final MapCodec<Phase> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
-            ComponentSerialization.flatRestrictedCodec(Integer.MAX_VALUE).optionalFieldOf("custom_name").forGetter(Phase::customName),
+            Phase.NAME_CODEC.optionalFieldOf("custom_name").forGetter(Phase::customName),
             Codec.INT.fieldOf("repair_cost").forGetter(Phase::repairCost),
             ItemEnchantments.CODEC.fieldOf("enchantments").forGetter(Phase::enchantments)
         ).apply(instance, Phase::new));

@@ -6,6 +6,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.anvilcraft.lib.v2.recipe.predicate.IRecipePredicate;
 import dev.anvilcraft.lib.v2.recipe.util.InWorldRecipeContext;
 import dev.anvilcraft.lib.v2.util.predicate.BlockStatePredicate;
+import dev.dubhe.anvilcraft.api.entity.IGenericAnvilEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipePredicateTypes;
 import net.minecraft.core.HolderGetter;
@@ -16,6 +17,7 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.entity.item.FallingBlockEntity;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Optional;
@@ -77,8 +79,20 @@ public record HasAnvil(Optional<BlockStatePredicate> anvil, boolean inverted) im
         if (!(ctx.getEntity() instanceof FallingBlockEntity falling)) return this.inverted;
         BlockStatePredicate anvil = this.anvil
             .orElse(HasAnvil.getDefaultPredicate(ctx.getLevel().registryAccess().lookupOrThrow(Registries.BLOCK)));
+        if (falling instanceof IGenericAnvilEntity generic && generic.anvilcraft$isGenericAnvil()
+            && anvil.getProperties().isEmpty() && anvil.getNbts().isEmpty() && isUnrestrictedAnvil(anvil)) {
+            return !this.inverted;
+        }
         if (!anvil.test(ctx.getLevel(), falling.getBlockState(), null)) return this.inverted;
         return !this.inverted;
+    }
+
+    private static boolean isUnrestrictedAnvil(BlockStatePredicate predicate) {
+        if (predicate.getBlocks().size() == 0) return true;
+        return predicate.getBlocks().unwrap().map(
+            BlockTags.ANVIL::equals,
+            holders -> holders.size() == 1 && holders.getFirst().value() == Blocks.ANVIL
+        );
     }
 
     public static class Type implements IRecipePredicate.Type<HasAnvil> {

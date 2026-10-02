@@ -8,14 +8,17 @@ import net.minecraft.world.item.enchantment.Enchantments;
 public class ToolsAndUtilities extends DisplayItemsGenerator {
     @Override
     public void accept() {
+        // Guides, exploration and utility tools.
         this.plain(ModItems.GUIDE_BOOK);
         this.plain(ModItems.GEODE);
         this.plain(ModItems.MAGNET);
         this.plain(ModItems.CRAB_CLAW);
+        if (this.output != null) this.output.accept(ModItems.BUILDING_ROD.get().creativeStack());
         this.plain(ModItems.DISK);
         this.plain(ModItems.STRUCTURE_DISK);
         this.plain(ModItems.FILTER);
 
+        // Anvil hammers and enchanted starter tools.
         this.plain(ModItems.ANVIL_HAMMER);
         this.plain(ModItems.ROYAL_ANVIL_HAMMER);
         this.plain(ModItems.FROST_ANVIL_HAMMER);
@@ -27,6 +30,7 @@ public class ToolsAndUtilities extends DisplayItemsGenerator {
         this.enchanting(ModItems.AMETHYST_HOE, ModEnchantments.HARVEST_KEY, 1);
         this.enchanting(ModItems.AMETHYST_SWORD, ModEnchantments.BEHEADING_KEY, 1);
 
+        // Tool sets are grouped by material and use the same tool order.
         this.plain(ModItems.ROYAL_STEEL_PICKAXE);
         this.plain(ModItems.ROYAL_STEEL_AXE);
         this.plain(ModItems.ROYAL_STEEL_SHOVEL);
@@ -44,6 +48,7 @@ public class ToolsAndUtilities extends DisplayItemsGenerator {
         this.plain(ModItems.EMBER_METAL_SWORD);
         this.plain(ModItems.MULTITOOL_ITEM);
 
+        // Specialized melee and resonance tools.
         this.plain(ModItems.DRAGON_ROD);
         this.plain(ModItems.ROYAL_DRAGON_ROD);
         this.plain(ModItems.FROST_DRAGON_ROD);
@@ -56,6 +61,7 @@ public class ToolsAndUtilities extends DisplayItemsGenerator {
         this.plain(ModItems.EMBER_METAL_HEAVY_HALBERD);
         this.plain(ModItems.TRANSCENDENCE_HEAVY_HALBERD);
 
+        // Ranged and energy weapons.
         this.plain(ModItems.SPECTRAL_SLINGSHOT);
         this.plain(ModItems.ENERGY_WEAPON_PLATFORM);
         this.plain(ModItems.SPECTRAL_WEAPON_LAUNCHER);
@@ -65,7 +71,21 @@ public class ToolsAndUtilities extends DisplayItemsGenerator {
         this.plain(ModItems.LASER_GUN);
         this.plain(ModItems.IONOCRAFT);
         this.plain(ModItems.IONOCRAFT_BACKPACK);
+        this.plain(ModItems.BREATHING_HELMET);
+        this.plain(ModItems.POCKETS_LEGGINGS);
+        this.plain(ModItems.BUFFER_BOOTS);
+        this.plain(ModItems.WEATHERPROOF_SPACESUIT_HELMET);
+        if (this.output != null) this.output.accept(ModItems.WEATHERPROOF_SPACESUIT_CHESTPLATE.get().creativeStack());
+        this.plain(ModItems.WEATHERPROOF_SPACESUIT_LEGGINGS);
+        this.plain(ModItems.WEATHERPROOF_SPACESUIT_BOOTS);
+        this.plain(ModItems.WEATHERPROOF_CORE);
 
+        // Storage terminals.
+        this.plain(ModItems.LOCAL_TERMINAL); // 本地终端
+        this.plain(ModItems.SHULKER_TERMINAL); // 潜影终端
+        this.plain(ModItems.HYPERDIMENSION_TERMINAL); // 超维终端
+
+        // Energy storage.
         this.plain(ModItems.CAPACITOR);
         this.plain(ModItems.CAPACITOR_EMPTY);
         this.plain(ModItems.SUPER_CAPACITOR);
@@ -73,6 +93,7 @@ public class ToolsAndUtilities extends DisplayItemsGenerator {
 
         this.plain(ModItems.FLUID_TANK_MINECART); // 流体储罐矿车
 
+        // Recovery items and amulets.
         this.plain(ModItems.RECOVERY_PEARL);
         this.plain(ModItems.TOTEM_OF_RECOVERY);
         this.plain(ModItems.TOTEM_OF_RAGE);
@@ -83,6 +104,7 @@ public class ToolsAndUtilities extends DisplayItemsGenerator {
         this.plain(ModItems.ANVIL_AMULET);
         this.plain(ModItems.COMRADE_AMULET);
         this.plain(ModItems.FEATHER_AMULET);
+        this.plain(ModItems.ARMADILLO_AMULET);
         this.plain(ModItems.CAT_AMULET);
         this.plain(ModItems.DOG_AMULET);
         this.plain(ModItems.SILENCE_AMULET);
@@ -91,12 +113,13 @@ public class ToolsAndUtilities extends DisplayItemsGenerator {
         this.plain(ModItems.NATURE_AMULET);
         this.plain(ModItems.AMULET_BOX);
 
+        // Food and consumables. Ingredient foods also appear in Ingredients.
+        this.plain(ModFoodItems.CURSED_GOLDEN_APPLE);
         this.plain(ModFoodItems.CHOCOLATE);
         this.plain(ModFoodItems.CHOCOLATE_BLACK);
         this.plain(ModFoodItems.CHOCOLATE_WHITE);
         this.plain(ModFoodItems.CREAMY_BREAD_ROLL);
         this.plain(ModFoodItems.BEEF_MUSHROOM_STEW);
-        this.plain(ModFoodItems.UTUSAN);
         this.plain(ModFoodItems.PILL);
         this.plain(ModItems.PILL_BOX);
         this.plain(ModItems.TIN_CAN);

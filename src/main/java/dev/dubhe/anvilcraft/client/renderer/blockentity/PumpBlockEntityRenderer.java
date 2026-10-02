@@ -6,9 +6,9 @@ import dev.dubhe.anvilcraft.block.entity.fluid.PumpBlockEntity;
 import dev.dubhe.anvilcraft.block.fluid.PumpBlock;
 import dev.dubhe.anvilcraft.block.state.Orientation;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.state.PumpRenderState;
+import dev.dubhe.anvilcraft.client.selection.ModelSelectionRenderer;
 import dev.dubhe.anvilcraft.client.support.FeatureRendererSupport;
 import net.minecraft.client.renderer.SubmitNodeCollector;
-import net.minecraft.client.renderer.block.BlockModelRenderState;
 import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
@@ -26,7 +26,8 @@ import org.jspecify.annotations.Nullable;
  * 在工作状态时渲染两个活塞模型（pump_piston_1, pump_piston_2），
  * 交替上下运动。
  */
-public class PumpBlockEntityRenderer implements BlockEntityRenderer<PumpBlockEntity, PumpRenderState> {
+public class PumpBlockEntityRenderer
+    implements BlockEntityRenderer<PumpBlockEntity, PumpRenderState>, ModelSelectionRenderer<PumpBlockEntity> {
 
     public static final StandaloneModelKey<BlockStateModel> PUMP_PISTON_1 =
         new StandaloneModelKey<>(() -> "AnvilCraft: Pump Piston 1 Model");
@@ -55,6 +56,7 @@ public class PumpBlockEntityRenderer implements BlockEntityRenderer<PumpBlockEnt
         BlockEntityRenderer.super.extractRenderState(be, state, partialTicks, cameraPosition, breakProgress);
         BlockState blockState = be.getBlockState();
         if (!(blockState.getBlock() instanceof PumpBlock)) return;
+        state.setOrientation(null);
         if (!be.isWorking()) return;
 
         Level level = be.getLevel();
@@ -85,28 +87,47 @@ public class PumpBlockEntityRenderer implements BlockEntityRenderer<PumpBlockEnt
         Orientation orientation = state.getOrientation();
         if (orientation == null) return;
 
-        poseStack.pushPose();
-        poseStack.translate(0.5, 0.5, 0.5);
-        poseStack.mulPose(Axis.YP.rotationDegrees(-orientation.getYRotation()));
-        poseStack.mulPose(Axis.XP.rotationDegrees(orientation.getXRotation()));
-        poseStack.translate(-0.5, -0.5, -0.5);
-        poseStack.translate(0, -2.0f / 16.0f, 0);
+        emitPistons(orientation, state.getPiston1Offset(), state.getPiston2Offset(), poseStack, (model, pose) -> {
+            var piston = model.equals(dev.dubhe.anvilcraft.client.selection.SelectionModel.standalone(PUMP_PISTON_1))
+                ? state.getPiston1() : state.getPiston2();
+            piston.submit(pose, submitNodeCollector, state.lightCoords, 655360, 0);
+        });
+    }
 
-        BlockModelRenderState piston1 = state.getPiston1();
-        float piston1Offset = state.getPiston1Offset();
-        poseStack.pushPose();
-        poseStack.translate(0, piston1Offset, 0);
-        piston1.submit(poseStack, submitNodeCollector, state.lightCoords, 655360, 0);
-        poseStack.popPose();
+    @Override
+    public void collectSelectionModels(PumpBlockEntity be, float partialTick, PoseStack pose, ModelConsumer consumer) {
+        if (!be.isWorking() || be.getLevel() == null) return;
+        float cycle = ((be.getLevel().getGameTime() + partialTick) % 20.0F) / 20.0F;
+        collectPistons(be.getBlockState(), cycle, pose, consumer);
+    }
 
-        BlockModelRenderState piston2 = state.getPiston2();
-        float piston2Offset = state.getPiston2Offset();
-        poseStack.pushPose();
-        poseStack.translate(0, piston2Offset, 0);
-        piston2.submit(poseStack, submitNodeCollector, state.lightCoords, 655360, 0);
-        poseStack.popPose();
+    @Override
+    public void collectPreviewModels(PumpBlockEntity be, float partialTick, PoseStack pose, ModelConsumer consumer) {
+        collectPistons(be.getBlockState(), 0, pose, consumer);
+    }
 
-        poseStack.popPose();
+    private static void collectPistons(BlockState state, float cycle, PoseStack pose, ModelConsumer consumer) {
+        float angle = cycle * 2.0F * (float) Math.PI;
+        emitPistons(state.getValue(PumpBlock.ORIENTATION), (float) Math.sin(angle) * MAX_PISTON_OFFSET,
+            (float) Math.cos(angle) * MAX_PISTON_OFFSET, pose, consumer);
+    }
+
+    private static void emitPistons(Orientation orientation, float first, float second, PoseStack pose, ModelConsumer consumer) {
+        pose.pushPose();
+        pose.translate(0.5, 0.5, 0.5);
+        pose.mulPose(Axis.YP.rotationDegrees(-orientation.getYRotation()));
+        pose.mulPose(Axis.XP.rotationDegrees(orientation.getXRotation()));
+        pose.translate(-0.5, -0.5, -0.5);
+        pose.translate(0, -2.0F / 16.0F, 0);
+        pose.pushPose();
+        pose.translate(0, first, 0);
+        consumer.accept(PUMP_PISTON_1, pose);
+        pose.popPose();
+        pose.pushPose();
+        pose.translate(0, second, 0);
+        consumer.accept(PUMP_PISTON_2, pose);
+        pose.popPose();
+        pose.popPose();
     }
 
     @Override

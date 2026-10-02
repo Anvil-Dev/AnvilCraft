@@ -1,11 +1,12 @@
 {
   "type": "anvilcraft:special_celestial_body",
   "axial_tilt": 0.0,
+  "can_be_shattered": false,
   "energy": 64,
-  "has_atmosphere": false,
   "liquid_coverage": "none",
   "magnetic_field": -1,
   "mass": 64,
+  "model": "planet_error",
   "name": "error_planet",
   "needs_custom_model": true,
   "resources": {},
@@ -14,6 +15,5 @@
     "anvilcraft:creative_generator"
   ],
   "space": 64,
-  "texture": "planet_error",
   "time": 64
 }

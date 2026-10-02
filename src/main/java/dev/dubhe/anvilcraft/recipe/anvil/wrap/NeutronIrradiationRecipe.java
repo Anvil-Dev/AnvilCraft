@@ -9,14 +9,19 @@ import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.recipe.anvil.util.WrapUtils;
 import dev.dubhe.anvilcraft.recipe.component.HasCauldronSimple;
 import lombok.Getter;
+import net.minecraft.core.Holder;
 import net.minecraft.core.Vec3i;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.FluidStackTemplate;
 
 import java.util.List;
 
@@ -82,7 +87,15 @@ public class NeutronIrradiationRecipe extends AbstractProcessRecipe<NeutronIrrad
     }
 
     public static class Builder extends SimpleAbstractBuilder<NeutronIrradiationRecipe, Builder> {
-        HasCauldronSimple.Builder hasCauldron = HasCauldronSimple.empty();
+        public Builder fluid(Fluid fluid) {
+            this.hasCauldron.fluid(fluid);
+            return this;
+        }
+
+        public Builder fluid(Holder<Fluid> fluid) {
+            this.hasCauldron.fluid(fluid);
+            return this;
+        }
 
         public Builder fluid(Identifier fluid) {
             this.hasCauldron.fluid(fluid);
@@ -90,7 +103,30 @@ public class NeutronIrradiationRecipe extends AbstractProcessRecipe<NeutronIrrad
         }
 
         public Builder fluid(Block cauldron) {
-            this.fluid(WrapUtils.cauldron2Fluid(cauldron));
+            return this.fluid(BuiltInRegistries.FLUID.getValue(WrapUtils.cauldron2Fluid(cauldron)));
+        }
+
+        public Builder transform(Fluid transform, int produce) {
+            this.hasCauldron.transform(transform, produce);
+            return this;
+        }
+
+        public Builder transform(Holder<Fluid> transform, int produce) {
+            this.hasCauldron.transform(transform, produce);
+            return this;
+        }
+
+        public Builder transform(Block cauldron, int produce) {
+            return this.transform(BuiltInRegistries.FLUID.getValue(WrapUtils.cauldron2Fluid(cauldron)), produce);
+        }
+
+        public Builder transform(FluidStackTemplate transform) {
+            this.hasCauldron.transform(transform);
+            return this;
+        }
+
+        public Builder transform(FluidStack transform) {
+            this.hasCauldron.transform(transform);
             return this;
         }
 
@@ -103,6 +139,8 @@ public class NeutronIrradiationRecipe extends AbstractProcessRecipe<NeutronIrrad
             this.transform(WrapUtils.cauldron2Fluid(cauldron));
             return this;
         }
+
+        HasCauldronSimple.Builder hasCauldron = HasCauldronSimple.empty();
 
         public Builder consume(int consume) {
             this.hasCauldron.consume(consume);

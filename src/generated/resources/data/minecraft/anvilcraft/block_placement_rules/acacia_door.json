@@ -1,0 +1,12 @@
+{
+  "rules": [
+    {
+      "item": "minecraft:acacia_door",
+      "properties": "half=lower"
+    },
+    {
+      "item": {},
+      "properties": "half=upper"
+    }
+  ]
+}

@@ -47,11 +47,83 @@ public class ProceduralProcessRecipeLoader {
             .result(ModBlocks.SPACE_OVERCOMPRESSOR)
             .icon(new ItemStackTemplate(ModBlocks.SPACE_OVERCOMPRESSOR.asItem()))
             .displayedModels(
-                AnvilCraft.of("block/nesting_shulker_box"),
-                AnvilCraft.of("block/over_nesting_shulker_box"),
-                AnvilCraft.of("block/supercritical_nesting_shulker_box")
+                AnvilCraft.of("block/wip_display/nesting_shulker_box"),
+                AnvilCraft.of("block/wip_display/over_nesting_shulker_box"),
+                AnvilCraft.of("block/wip_display/supercritical_nesting_shulker_box")
             )
             .save(provider);
+
+        // 能质逆变器
+        ProceduralProcessRecipeBuilder.of(ModBlocks.LASER_RECEIVER.get())
+            .addStep(
+                BlockProcessingRecipe.builder()
+                    .fakeNeutronIrradiation(ModBlocks.LASER_RECEIVER.get(), IrradiatorType.MASS)
+                    .result(ModBlocks.WIP_BLOCK.get())
+                    .buildRecipe()
+            )
+            .addStep(
+                BlockProcessingRecipe.builder()
+                    .fakeNeutronIrradiation(ModBlocks.WIP_BLOCK.get(), IrradiatorType.ENERGY)
+                    .result(ModBlocks.WIP_BLOCK.get())
+                    .buildRecipe()
+            )
+            .addStep(
+                ItemInjectRecipe.builder()
+                    .inputBlock(ModBlocks.WIP_BLOCK.get())
+                    .requires(ModItems.TRANSCENDIUM_NUGGET)
+                    .resultBlock(ModBlocks.WIP_BLOCK)
+                    .buildRecipe()
+            )
+            .result(ModBlocks.MASS_ENERGY_INVERTER)
+            .icon(new ItemStackTemplate(ModBlocks.MASS_ENERGY_INVERTER.asItem()))
+            .displayedModels(
+                AnvilCraft.of("block/wip_display/mass_energy_inverter_wip"),
+                AnvilCraft.of("block/wip_display/mass_energy_inverter_wip_2"),
+                AnvilCraft.of("block/wip_display/mass_energy_inverter_wip_3")
+            )
+            .loop(3)
+            .multipleLoopFirstStep(
+                BlockProcessingRecipe.builder()
+                    .fakeNeutronIrradiation(ModBlocks.WIP_BLOCK.get(), IrradiatorType.MASS)
+                    .result(ModBlocks.WIP_BLOCK.get())
+                    .buildRecipe()
+            )
+            .save(provider, "mass_energy_inverter_mass_first");
+        ProceduralProcessRecipeBuilder.of(ModBlocks.LASER_RECEIVER.get())
+            .addStep(
+                BlockProcessingRecipe.builder()
+                    .fakeNeutronIrradiation(ModBlocks.LASER_RECEIVER.get(), IrradiatorType.ENERGY)
+                    .result(ModBlocks.WIP_BLOCK.get())
+                    .buildRecipe()
+            )
+            .addStep(
+                BlockProcessingRecipe.builder()
+                    .fakeNeutronIrradiation(ModBlocks.WIP_BLOCK.get(), IrradiatorType.MASS)
+                    .result(ModBlocks.WIP_BLOCK.get())
+                    .buildRecipe()
+            )
+            .addStep(
+                ItemInjectRecipe.builder()
+                    .inputBlock(ModBlocks.WIP_BLOCK.get())
+                    .requires(ModItems.TRANSCENDIUM_NUGGET)
+                    .resultBlock(ModBlocks.WIP_BLOCK)
+                    .buildRecipe()
+            )
+            .result(ModBlocks.MASS_ENERGY_INVERTER)
+            .icon(new ItemStackTemplate(ModBlocks.MASS_ENERGY_INVERTER.asItem()))
+            .displayedModels(
+                AnvilCraft.of("block/wip_display/mass_energy_inverter_wip"),
+                AnvilCraft.of("block/wip_display/mass_energy_inverter_wip_2"),
+                AnvilCraft.of("block/wip_display/mass_energy_inverter_wip_3")
+            )
+            .loop(3)
+            .multipleLoopFirstStep(
+                BlockProcessingRecipe.builder()
+                    .fakeNeutronIrradiation(ModBlocks.WIP_BLOCK.get(), IrradiatorType.ENERGY)
+                    .result(ModBlocks.WIP_BLOCK.get())
+                    .buildRecipe()
+            )
+            .save(provider, "mass_energy_inverter_energy_first");
 
         ProceduralProcessRecipeBuilder.of(Blocks.PURPUR_BLOCK)
             .addStep(
@@ -78,8 +150,8 @@ public class ProceduralProcessRecipeLoader {
             .result(Blocks.SHULKER_BOX)
             .icon(new ItemStackTemplate(Items.SHULKER_BOX))
             .displayedModels(
-                AnvilCraft.of("block/shulker_box_wip"),
-                AnvilCraft.of("block/shulker_box_wip_2")
+                AnvilCraft.of("block/wip_display/shulker_box_wip"),
+                AnvilCraft.of("block/wip_display/shulker_box_wip_2")
             )
             .save(provider);
 
@@ -98,9 +170,9 @@ public class ProceduralProcessRecipeLoader {
             .result(ModBlocks.SPACETIME_SUPERCOMPUTER)
             .icon(new ItemStackTemplate(ModBlocks.SPACETIME_SUPERCOMPUTER.asItem()))
             .displayedModels(
-                AnvilCraft.of("block/spacetime_supercomputer_wip"),
-                AnvilCraft.of("block/spacetime_supercomputer_wip_2"),
-                AnvilCraft.of("block/spacetime_supercomputer_wip_3")
+                AnvilCraft.of("block/wip_display/spacetime_supercomputer_wip"),
+                AnvilCraft.of("block/wip_display/spacetime_supercomputer_wip_2"),
+                AnvilCraft.of("block/wip_display/spacetime_supercomputer_wip_3")
             )
             .loop(3)
             .multipleLoopFirstStep(BlockProcessingRecipe.builder()
@@ -122,9 +194,9 @@ public class ProceduralProcessRecipeLoader {
             .result(ModBlocks.SPACETIME_SUPERCOMPUTER)
             .icon(new ItemStackTemplate(ModBlocks.SPACETIME_SUPERCOMPUTER.asItem()))
             .displayedModels(
-                AnvilCraft.of("block/spacetime_supercomputer_wip"),
-                AnvilCraft.of("block/spacetime_supercomputer_wip_2"),
-                AnvilCraft.of("block/spacetime_supercomputer_wip_3")
+                AnvilCraft.of("block/wip_display/spacetime_supercomputer_wip"),
+                AnvilCraft.of("block/wip_display/spacetime_supercomputer_wip_2"),
+                AnvilCraft.of("block/wip_display/spacetime_supercomputer_wip_3")
             )
             .loop(3)
             .multipleLoopFirstStep(BlockProcessingRecipe.builder()
@@ -142,7 +214,7 @@ public class ProceduralProcessRecipeLoader {
                 .result(ModBlocks.WIP_BLOCK.get()).buildRecipe())
             .result(Blocks.ANCIENT_DEBRIS)
             .icon(new ItemStackTemplate(Blocks.ANCIENT_DEBRIS.asItem()))
-            .displayedModels(AnvilCraft.of("block/ancient_debris_wip"))
+            .displayedModels(AnvilCraft.of("block/wip_display/ancient_debris_wip"))
             .save(provider);
 
         // 下界合金块
@@ -159,8 +231,8 @@ public class ProceduralProcessRecipeLoader {
             .result(Blocks.NETHERITE_BLOCK)
             .icon(new ItemStackTemplate(Blocks.NETHERITE_BLOCK.asItem()))
             .displayedModels(
-                AnvilCraft.of("block/netherite_block_wip"),
-                AnvilCraft.of("block/netherite_block_wip_2")
+                AnvilCraft.of("block/wip_display/netherite_block_wip"),
+                AnvilCraft.of("block/wip_display/netherite_block_wip_2")
             )
             .loop(2)
             .multipleLoopFirstStep(BlockCompressRecipe.builder()
@@ -179,8 +251,8 @@ public class ProceduralProcessRecipeLoader {
             .result(ModBlocks.HEAVY_IRON_BLOCK)
             .icon(new ItemStackTemplate(ModBlocks.HEAVY_IRON_BLOCK.asItem()))
             .displayedModels(
-                AnvilCraft.of("block/heavy_iron_block_wip"),
-                AnvilCraft.of("block/heavy_iron_block_wip_2")
+                AnvilCraft.of("block/wip_display/heavy_iron_block_wip"),
+                AnvilCraft.of("block/wip_display/heavy_iron_block_wip_2")
             )
             .loop(2)
             .multipleLoopFirstStep(BlockCompressRecipe.builder()
@@ -202,9 +274,62 @@ public class ProceduralProcessRecipeLoader {
             .result(ModBlocks.ANCIENT_SEA_REEF)
             .icon(new ItemStackTemplate(ModBlocks.ANCIENT_SEA_REEF.asItem()))
             .displayedModels(
-                AnvilCraft.of("block/ancient_sea_reef_wip"),
-                AnvilCraft.of("block/ancient_sea_reef_wip_2")
+                AnvilCraft.of("block/wip_display/ancient_sea_reef_wip"),
+                AnvilCraft.of("block/wip_display/ancient_sea_reef_wip_2")
             )
             .save(provider);
+
+        // 石碑方块
+        ProceduralProcessRecipeBuilder.of(Blocks.BLACKSTONE)
+            .addStep(
+                ItemInjectRecipe.builder()
+                    .inputBlock(Blocks.BLACKSTONE)
+                    .requires(Items.BOOK)
+                    .resultBlock(ModBlocks.WIP_BLOCK)
+                    .buildRecipe()
+            )
+            .addStep(
+                ItemInjectRecipe.builder()
+                    .inputBlock(ModBlocks.WIP_BLOCK)
+                    .requires(ModItems.DISK)
+                    .resultBlock(ModBlocks.WIP_BLOCK)
+                    .buildRecipe()
+            )
+            .addStep(
+                ItemInjectRecipe.builder()
+                    .inputBlock(ModBlocks.WIP_BLOCK)
+                    .requires(ModItems.LEGACY_ESSENCE)
+                    .resultBlock(ModBlocks.MONOLITH)
+                    .buildRecipe()
+            )
+            .result(ModBlocks.MONOLITH)
+            .icon(new ItemStackTemplate(ModBlocks.MONOLITH.asItem()))
+            .displayedModels(
+                AnvilCraft.of("block/wip_display/monolith_wip"),
+                AnvilCraft.of("block/wip_display/monolith_wip")
+            )
+            .save(provider, "monolith_inject");
+
+        ProceduralProcessRecipeBuilder.of(Blocks.BLACKSTONE)
+            .addStep(
+                BlockCompressRecipe.builder()
+                    .input(ModBlocks.SPACETIME_SUPERCOMPUTER.get())
+                    .input(Blocks.BLACKSTONE)
+                    .result(ModBlocks.WIP_BLOCK.get())
+                    .buildRecipe()
+            )
+            .addStep(
+                BlockCompressRecipe.builder()
+                    .input(ModBlocks.MASS_ENERGY_INVERTER.get())
+                    .input(ModBlocks.WIP_BLOCK.get())
+                    .result(ModBlocks.MONOLITH.get())
+                    .buildRecipe()
+            )
+            .result(ModBlocks.MONOLITH)
+            .icon(new ItemStackTemplate(ModBlocks.MONOLITH.asItem()))
+            .displayedModels(
+                AnvilCraft.of("block/wip_display/monolith_wip")
+            )
+            .save(provider, "monolith_compress");
     }
 }

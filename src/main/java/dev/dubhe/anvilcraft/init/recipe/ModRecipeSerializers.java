@@ -9,8 +9,12 @@ import dev.dubhe.anvilcraft.recipe.ChargerChargingRecipe;
 import dev.dubhe.anvilcraft.recipe.EnergyWeaponMakeRecipe;
 import dev.dubhe.anvilcraft.recipe.FluidMixingRecipe;
 import dev.dubhe.anvilcraft.recipe.JewelCraftingRecipe;
+import dev.dubhe.anvilcraft.recipe.LaserHitRecipe;
+import dev.dubhe.anvilcraft.recipe.NeutroniumChargingRecipe;
 import dev.dubhe.anvilcraft.recipe.PillRecipe;
 import dev.dubhe.anvilcraft.recipe.PortalConversionRecipe;
+import dev.dubhe.anvilcraft.recipe.TerminalUnbindRecipe;
+import dev.dubhe.anvilcraft.recipe.TerminalUpgradeRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.MassInjectRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.collision.AnvilCollisionCraftRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.procedural.ProceduralProcessRecipe;
@@ -36,6 +40,7 @@ import dev.dubhe.anvilcraft.recipe.frost.DeformationRecipe;
 import dev.dubhe.anvilcraft.recipe.frost.PermutationRecipe;
 import dev.dubhe.anvilcraft.recipe.mineral.MineralFountainChanceRecipe;
 import dev.dubhe.anvilcraft.recipe.mineral.MineralFountainRecipe;
+import dev.dubhe.anvilcraft.recipe.multiblock.Multiblock4DRecipe;
 import dev.dubhe.anvilcraft.recipe.multiblock.MultiblockConversionRecipe;
 import dev.dubhe.anvilcraft.recipe.multiblock.MultiblockRecipe;
 import dev.dubhe.anvilcraft.recipe.multiple.EightToOneSmithingRecipe;
@@ -45,6 +50,8 @@ import dev.dubhe.anvilcraft.recipe.transform.MobTransformRecipe;
 import dev.dubhe.anvilcraft.recipe.transform.MobTransformWithItemRecipe;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.item.crafting.RecipeSerializer;
+import net.minecraft.world.item.crafting.ShapedRecipe;
+import net.minecraft.world.item.crafting.ShapelessRecipe;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
@@ -53,6 +60,26 @@ public class ModRecipeSerializers {
     private static final DeferredRegister<RecipeSerializer<?>> DF = DeferredRegister.create(
         Registries.RECIPE_SERIALIZER,
         AnvilCraft.MOD_ID
+    );
+
+    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<Multiblock4DRecipe>> MULTIBLOCK_4D = DF.register(
+        "4d_multiblock", () -> Multiblock4DRecipe.SERIALIZER
+    );
+
+    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<LaserHitRecipe>> LASER_HIT = DF.register(
+        "laser_hit", () -> LaserHitRecipe.SERIALIZER
+    );
+
+    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<ShapelessRecipe>> TERMINAL_UNBIND = DF.register(
+        "terminal_unbind", () -> TerminalUnbindRecipe.SERIALIZER
+    );
+
+    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<ShapedRecipe>> TERMINAL_UPGRADE = DF.register(
+        "terminal_upgrade", () -> TerminalUpgradeRecipe.SERIALIZER
+    );
+
+    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<ShapedRecipe>> NEUTRONIUM_CHARGING = DF.register(
+        "neutronium_charging", () -> NeutroniumChargingRecipe.SERIALIZER
     );
 
     public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<BlockCrushRecipe>> BLOCK_CRUSH = DF.register(

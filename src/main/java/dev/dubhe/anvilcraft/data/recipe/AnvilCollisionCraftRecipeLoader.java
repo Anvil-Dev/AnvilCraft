@@ -29,6 +29,11 @@ public class AnvilCollisionCraftRecipeLoader {
             .outputItem(ModItems.MULTIPHASE_MATTER.get(), 4)
             .save(provider);
         AnvilCollisionCraftRecipe.builder()
+            .anvil(ModBlocks.FROST_ANVIL.get())
+            .hitBlock(ModBlocks.EMBER_METAL_BLOCK.get())
+            .outputItem(ModItems.MULTIPHASE_MATTER.get(), 4)
+            .save(provider);
+        AnvilCollisionCraftRecipe.builder()
             .anvil(blocks, ModBlockTags.ANVIL_TIER_0)
             .hitBlock(ModBlocks.CORRUPTED_BEACON.get())
             .transformBlock(
@@ -155,6 +160,14 @@ public class AnvilCollisionCraftRecipeLoader {
             .outputItem(ModBlocks.MULTIPHASE_MATTER_BLOCK.asItem(), 4)
             .outputItem(ModBlocks.NEGATIVE_MATTER_BLOCK.asItem(), 2)
             .outputItem(ModItems.NEUTRONIUM_INGOT.get(), 1)
+            .speed(256)
+            .save(provider);
+
+        AnvilCollisionCraftRecipe.builder()
+            .anvil(blocks, ModBlockTags.ANVIL_TIER_0)
+            .consume(false)
+            .hitBlock(ModBlocks.MONOLITH.get())
+            .outputItem(ModItems.LEGACY_ESSENCE.get(), 64)
             .speed(256)
             .save(provider);
     }

@@ -16,6 +16,7 @@ import java.util.OptionalInt;
 import java.util.concurrent.CompletableFuture;
 
 public class ShulkerContainerTooltipProvider extends ITooltipProvider.BlockEntityTooltipProvider {
+    private static final int UPGRADES_TO_MAX = 4;
     private static final int INITIAL_SPACE_SIZE = 65536;
     private static final int METADATA_REFRESH_INTERVAL = 10;
     private @Nullable BlockEntity target;
@@ -46,17 +47,28 @@ public class ShulkerContainerTooltipProvider extends ITooltipProvider.BlockEntit
         }
         this.refreshUpgradeCount(value);
         Object upgradeCount = this.upgradeCount < 0
-                              ? Component.translatable("tooltip.anvilcraft.waiting")
+                              ? Component.translatable("tooltip.anvilcraft.shulker_container.6.waiting")
                               : this.upgradeCount;
-        return ImmutableList.of(
-            Component.translatable("tooltip.anvilcraft.shulker_container.0"),
-            Component.translatable("tooltip.anvilcraft.shulker_container.1"),
-            Component.translatable("tooltip.anvilcraft.shulker_container.2"),
-            Component.translatable("tooltip.anvilcraft.shulker_container.3"),
-            Component.translatable("tooltip.anvilcraft.shulker_container.4"),
-            Component.translatable("tooltip.anvilcraft.shulker_container.5"),
-            Component.translatable("tooltip.anvilcraft.shulker_container.6", upgradeCount)
-        );
+        ImmutableList.Builder<Component> builder = ImmutableList.builder();
+        if (this.upgradeCount < ShulkerContainerTooltipProvider.UPGRADES_TO_MAX) {
+            builder.add(
+                Component.translatable("tooltip.anvilcraft.shulker_container.0"),
+                Component.translatable("tooltip.anvilcraft.shulker_container.1"),
+                Component.translatable("tooltip.anvilcraft.shulker_container.2"),
+                Component.translatable("tooltip.anvilcraft.shulker_container.3"),
+                Component.translatable("tooltip.anvilcraft.shulker_container.4"),
+                Component.translatable("tooltip.anvilcraft.shulker_container.5"),
+                Component.translatable("tooltip.anvilcraft.shulker_container.6", upgradeCount)
+            );
+        } else {
+            builder.add(
+                Component.translatable("tooltip.anvilcraft.shulker_container.hyperdimension.0"),
+                Component.translatable("tooltip.anvilcraft.shulker_container.hyperdimension.1"),
+                Component.translatable("tooltip.anvilcraft.shulker_container.hyperdimension.2"),
+                Component.translatable("tooltip.anvilcraft.shulker_container.hyperdimension.3")
+            );
+        }
+        return builder.build();
     }
 
     private void refreshUpgradeCount(BlockEntity value) {

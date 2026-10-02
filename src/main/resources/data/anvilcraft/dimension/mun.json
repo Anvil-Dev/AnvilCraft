@@ -1,0 +1,11 @@
+{
+  "type": "anvilcraft:mun",
+  "generator": {
+    "type": "minecraft:noise",
+    "biome_source": {
+      "type": "minecraft:fixed",
+      "biome": "anvilcraft:mun"
+    },
+    "settings": "anvilcraft:mun"
+  }
+}

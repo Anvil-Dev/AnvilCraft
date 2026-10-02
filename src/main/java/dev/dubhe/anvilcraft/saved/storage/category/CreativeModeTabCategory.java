@@ -36,7 +36,7 @@ public record CreativeModeTabCategory(ItemStackTemplate icon, Component name, Re
             ItemStackTemplate.CODEC
                 .fieldOf("icon")
                 .forGetter(CreativeModeTabCategory::icon),
-            ComponentSerialization.flatRestrictedCodec(Integer.MAX_VALUE)
+            ICategory.NAME_CODEC
                 .fieldOf("name")
                 .forGetter(CreativeModeTabCategory::name),
             ResourceKey.codec(Registries.CREATIVE_MODE_TAB)

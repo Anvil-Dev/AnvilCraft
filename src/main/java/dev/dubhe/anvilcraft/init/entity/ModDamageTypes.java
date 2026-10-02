@@ -6,8 +6,10 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.damagesource.DamageEffects;
+import net.minecraft.world.damagesource.DamageScaling;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageType;
+import net.minecraft.world.damagesource.DeathMessageType;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
@@ -40,14 +42,23 @@ public class ModDamageTypes {
         AnvilCraft.of("plasma_jet")
     );
 
+    public static final ResourceKey<DamageType> PLANETARY_COLLAPSE = ResourceKey.create(
+        Registries.DAMAGE_TYPE, AnvilCraft.of("planetary_collapse"));
+
     @ApiStatus.Internal
     public static void bootstrap(BootstrapContext<DamageType> ctx) {
+        ctx.register(PLANETARY_COLLAPSE, new DamageType("anvilcraft.planetary_collapse", DamageScaling.NEVER, 0.0F,
+            DamageEffects.HURT, DeathMessageType.DEFAULT));
         ctx.register(ModDamageTypes.LASER, new DamageType("anvilcraft.laser", 0.1F, DamageEffects.BURNING));
         ctx.register(ModDamageTypes.LOST_IN_TIME, new DamageType("anvilcraft.lost_in_time", 0.1F));
         ctx.register(ModDamageTypes.FALLING_GIANT_ANVIL, new DamageType("anvilcraft.falling_giant_anvil", 0.1F));
         ctx.register(ModDamageTypes.HEATER_BURN, new DamageType("anvilcraft.heater_burn", 0.1F, DamageEffects.BURNING));
         ctx.register(ModDamageTypes.GAMMA_LASER, new DamageType("anvilcraft.gamma_laser", 0.1F, DamageEffects.BURNING));
         ctx.register(ModDamageTypes.PLASMA_JET, new DamageType("anvilcraft.plasma_jet", 0.1F, DamageEffects.BURNING));
+    }
+
+    public static DamageSource planetaryCollapse(Level level) {
+        return source(PLANETARY_COLLAPSE, level);
     }
 
     public static DamageSource laser(Level level) {

@@ -102,7 +102,6 @@ public class IonocraftEntity extends VehicleEntity {
         }
     }
 
-    // @OnlyIn(Dist.CLIENT)
     private Optional<SimplePowerGrid> clientFindPowerGridContains(AABB aabb) {
         Collection<SimplePowerGrid> powerGrids = PowerGridSupport.getGridMap().values();
         for (SimplePowerGrid it : powerGrids) {
@@ -113,7 +112,6 @@ public class IonocraftEntity extends VehicleEntity {
         return Optional.empty();
     }
 
-    // @OnlyIn(Dist.CLIENT)
     private void clientCompute() {
         SimplePowerGrid powerGrid = this.clientFindPowerGridContains(this.getPowerSupplyingBoundingBox()).orElse(null);
         SimplePowerGrid findSmaller = this.clientFindPowerGridContains(this.getBoundingBox()).orElse(null);

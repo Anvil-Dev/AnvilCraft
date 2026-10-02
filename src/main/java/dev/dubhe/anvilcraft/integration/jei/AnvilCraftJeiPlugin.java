@@ -11,21 +11,24 @@ import dev.dubhe.anvilcraft.client.gui.screen.ItemCollectorScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.ItemDetectorScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.JewelCraftingScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.StorageScreen;
-import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.integration.jei.category.AnvilCollisionCraftCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.BeaconConversionCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.ChargerChargingCategory;
+import dev.dubhe.anvilcraft.integration.jei.category.ContainerUpgradeCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.DecayCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.EnergyWeaponCategory;
-import dev.dubhe.anvilcraft.integration.jei.category.FluidMixingCategory;
+import dev.dubhe.anvilcraft.integration.jei.category.FluidReactionCategory;
+import dev.dubhe.anvilcraft.integration.jei.category.FrostSmithingCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.JewelCraftingCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.MineralFountainCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.MobTransformCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.MultipleToOneSmithingCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.PortalConversionCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.ProceduralProcessCategory;
+import dev.dubhe.anvilcraft.integration.jei.category.SolidLiquidCategory;
+import dev.dubhe.anvilcraft.integration.jei.category.UseItemOnBlockCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.anvil.BlockCompressCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.anvil.BlockCrushCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.anvil.BlockSmearCategory;
@@ -40,20 +43,23 @@ import dev.dubhe.anvilcraft.integration.jei.category.anvil.UnpackCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.anvil.liquid.AbstractLiquidCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.anvil.liquid.FastCookingCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.anvil.liquid.NeutronIrradiationCategory;
-import dev.dubhe.anvilcraft.integration.jei.category.anvil.liquid.SolidLiquidCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.anvil.liquid.SuperHeatingCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.anvil.liquid.TimeWarpCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.extension.CanningFoodExtension;
 import dev.dubhe.anvilcraft.integration.jei.category.extension.PillRecipeExtension;
+import dev.dubhe.anvilcraft.integration.jei.category.multiblock.MultiBlock4DCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.multiblock.MultiBlockConversionCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.multiblock.MultiBlockCraftingCategory;
 import dev.dubhe.anvilcraft.integration.jei.handlers.GhostIngredientHandler;
 import dev.dubhe.anvilcraft.integration.jei.recipe.BeaconConversionRecipe;
+import dev.dubhe.anvilcraft.integration.jei.recipe.ContainerUpgradeRecipe;
 import dev.dubhe.anvilcraft.integration.jei.recipe.DecayRecipe;
 import dev.dubhe.anvilcraft.integration.jei.recipe.MeshRecipeGroup;
 import dev.dubhe.anvilcraft.integration.jei.recipe.MineralFountainJeiRecipe;
 import dev.dubhe.anvilcraft.integration.jei.recipe.MobTransformJeiRecipe;
-import dev.dubhe.anvilcraft.inventory.RoyalSmithingMenu;
+import dev.dubhe.anvilcraft.integration.jei.recipe.UseItemOnBlockRecipe;
+import dev.dubhe.anvilcraft.integration.jei.transfer.SmithingRecipeTransferHandler;
+import dev.dubhe.anvilcraft.integration.jei.transfer.StructureScannerRecipeTransferHandler;
 import dev.dubhe.anvilcraft.recipe.CanningFoodRecipe;
 import dev.dubhe.anvilcraft.recipe.ChargerChargingRecipe;
 import dev.dubhe.anvilcraft.recipe.EnergyWeaponMakeRecipe;
@@ -73,11 +79,11 @@ import dev.dubhe.anvilcraft.recipe.anvil.wrap.ItemCompressRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.ItemCrushRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.ItemInjectRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.NeutronIrradiationRecipe;
-import dev.dubhe.anvilcraft.recipe.anvil.wrap.SolidLiquidRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.SqueezingRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.SuperHeatingRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.TimeWarpRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.UnpackRecipe;
+import dev.dubhe.anvilcraft.recipe.multiblock.Multiblock4DRecipe;
 import dev.dubhe.anvilcraft.recipe.multiblock.MultiblockConversionRecipe;
 import dev.dubhe.anvilcraft.recipe.multiblock.MultiblockRecipe;
 import dev.dubhe.anvilcraft.recipe.multiple.BaseMultipleToOneSmithingRecipe;
@@ -98,6 +104,7 @@ import mezz.jei.api.registration.IRecipeRegistration;
 import mezz.jei.api.registration.IRecipeTransferRegistration;
 import mezz.jei.api.registration.IVanillaCategoryExtensionRegistration;
 import mezz.jei.api.runtime.IClickableIngredient;
+import mezz.jei.api.runtime.IJeiRuntime;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.Rect2i;
@@ -135,6 +142,10 @@ public class AnvilCraftJeiPlugin implements IModPlugin {
     public static final IRecipeType<MeshRecipeGroup> MESH = createRecipeType("mesh", MeshRecipeGroup.class);
     public static final IRecipeType<BeaconConversionRecipe> BEACON_CONVERSION =
         createRecipeType("beacon_conversion", BeaconConversionRecipe.class);
+    public static final IRecipeType<UseItemOnBlockRecipe> USE_ITEM_ON_BLOCK =
+        createRecipeType("use_item_on_block", UseItemOnBlockRecipe.class);
+    public static final IRecipeType<ContainerUpgradeRecipe> CONTAINER_UPGRADE =
+        createRecipeType("container_upgrade", ContainerUpgradeRecipe.class);
     public static final IRecipeType<DecayRecipe> DECAY = createRecipeType("decay", DecayRecipe.class);
 
     public static final IRecipeHolderType<BlockCompressRecipe> BLOCK_COMPRESS = createHolderType("block_compress");
@@ -149,11 +160,12 @@ public class AnvilCraftJeiPlugin implements IModPlugin {
     public static final IRecipeHolderType<BaseStampingRecipe<?>> STAMPING = createHolderType("stamping");
     public static final IRecipeHolderType<SuperHeatingRecipe> SUPER_HEATING = createHolderType("super_heating");
     public static final IRecipeHolderType<SqueezingRecipe> SQUEEZING = createHolderType("squeezing");
-    public static final IRecipeHolderType<SolidLiquidRecipe> SOLID_LIQUID = createHolderType("solid_liquid");
-    public static final IRecipeHolderType<FluidMixingRecipe> FLUID_MIXING = createHolderType("fluid_mixing");
+    public static final IRecipeHolderType<FluidMixingRecipe> SOLID_LIQUID = createHolderType("solid_liquid");
+    public static final IRecipeHolderType<FluidMixingRecipe> FLUID_REACTION = createHolderType("fluid_reaction");
     public static final IRecipeHolderType<TimeWarpRecipe> TIME_WARP = createHolderType("time_warp");
     public static final IRecipeHolderType<NeutronIrradiationRecipe> NEUTRON_IRRADIATION = createHolderType("neutron_irradiation");
 
+    public static final IRecipeHolderType<Multiblock4DRecipe> MULTIBLOCK_4D = createHolderType("4d_multiblock");
     public static final IRecipeHolderType<MultiblockRecipe> MULTIBLOCK_CRAFTING = createHolderType("multiblock");
     public static final IRecipeHolderType<MultiblockConversionRecipe> MULTIBLOCK_CONVERSION = createHolderType("multiblock_conversion");
 
@@ -162,6 +174,8 @@ public class AnvilCraftJeiPlugin implements IModPlugin {
     public static final IRecipeHolderType<BaseMultipleToOneSmithingRecipe> MULTIPLE_TO_ONE_SMITHING = createHolderType(
         "multiple_to_one_smithing"
     );
+    public static final IRecipeType<FrostSmithingCategory.Display> FROST_SMITHING
+        = createRecipeType("frost_smithing", FrostSmithingCategory.Display.class);
     public static final IRecipeHolderType<PortalConversionRecipe> PORTAL_CONVERSION = createHolderType("portal_conversion");
 
     public static final IRecipeType<MobTransformJeiRecipe> MOB_TRANSFORM =
@@ -196,17 +210,21 @@ public class AnvilCraftJeiPlugin implements IModPlugin {
         StampingCategory.registerRecipes(registration);
         SuperHeatingCategory.registerRecipes(registration);
         SolidLiquidCategory.registerRecipes(registration);
-        FluidMixingCategory.registerRecipes(registration);
+        FluidReactionCategory.registerRecipes(registration);
         TimeWarpCategory.registerRecipes(registration);
         NeutronIrradiationCategory.registerRecipes(registration);
         MultiBlockCraftingCategory.registerRecipes(registration);
+        MultiBlock4DCategory.registerRecipes(registration);
         MultiBlockConversionCategory.registerRecipes(registration);
         JewelCraftingCategory.registerRecipes(registration);
         PortalConversionCategory.registerRecipes(registration);
         BeaconConversionCategory.registerRecipes(registration);
+        ContainerUpgradeCategory.registerRecipes(registration);
+        UseItemOnBlockCategory.registerRecipes(registration);
         DecayCategory.registerRecipes(registration);
         ChargerChargingCategory.registerRecipes(registration);
         MultipleToOneSmithingCategory.registerRecipes(registration);
+        FrostSmithingCategory.registerRecipes(registration);
         MobTransformCategory.registerRecipes(registration);
         AnvilCollisionCraftCategory.registerRecipes(registration);
         ProceduralProcessCategory.registerRecipes(registration);
@@ -228,15 +246,19 @@ public class AnvilCraftJeiPlugin implements IModPlugin {
         UnpackCategory.registerRecipeCatalysts(registration);
         StampingCategory.registerRecipeCatalysts(registration);
         this.liquidCategories.forEach(cat -> cat.registerRecipeCatalysts(registration));
-        FluidMixingCategory.registerRecipeCatalysts(registration);
+        SolidLiquidCategory.registerRecipeCatalysts(registration);
+        FluidReactionCategory.registerRecipeCatalysts(registration);
         MultiBlockCraftingCategory.registerRecipeCatalysts(registration);
+        MultiBlock4DCategory.registerRecipeCatalysts(registration);
         MultiBlockConversionCategory.registerRecipeCatalysts(registration);
         JewelCraftingCategory.registerRecipeCatalysts(registration);
         PortalConversionCategory.registerRecipeCatalysts(registration);
         BeaconConversionCategory.registerRecipeCatalysts(registration);
+        ContainerUpgradeCategory.registerRecipeCatalysts(registration);
         DecayCategory.registerRecipeCatalysts(registration);
         ChargerChargingCategory.registerRecipeCatalysts(registration);
         MultipleToOneSmithingCategory.registerRecipeCatalysts(registration);
+        FrostSmithingCategory.registerRecipeCatalysts(registration);
         MobTransformCategory.registerRecipeCatalysts(registration);
         AnvilCollisionCraftCategory.registerRecipeCatalysts(registration);
         ProceduralProcessCategory.registerRecipeCatalysts(registration);
@@ -272,19 +294,23 @@ public class AnvilCraftJeiPlugin implements IModPlugin {
         this.liquidCategories.add(new FastCookingCategory(guiHelper));
         registration.addRecipeCategories(new StampingCategory(guiHelper));
         this.liquidCategories.add(new SuperHeatingCategory(guiHelper));
-        this.liquidCategories.add(new SolidLiquidCategory(guiHelper));
-        registration.addRecipeCategories(new FluidMixingCategory(guiHelper));
+        registration.addRecipeCategories(new SolidLiquidCategory(guiHelper));
+        registration.addRecipeCategories(new FluidReactionCategory(guiHelper));
         this.liquidCategories.add(new TimeWarpCategory(guiHelper));
         this.liquidCategories.add(new NeutronIrradiationCategory(guiHelper));
         this.liquidCategories.forEach(registration::addRecipeCategories);
         registration.addRecipeCategories(new MultiBlockCraftingCategory(guiHelper));
+        registration.addRecipeCategories(new MultiBlock4DCategory(guiHelper));
         registration.addRecipeCategories(new MultiBlockConversionCategory(guiHelper));
         registration.addRecipeCategories(new JewelCraftingCategory(guiHelper));
         registration.addRecipeCategories(new PortalConversionCategory(guiHelper));
         registration.addRecipeCategories(new BeaconConversionCategory(guiHelper));
+        registration.addRecipeCategories(new ContainerUpgradeCategory(guiHelper));
+        registration.addRecipeCategories(new UseItemOnBlockCategory(guiHelper));
         registration.addRecipeCategories(new DecayCategory(guiHelper));
         registration.addRecipeCategories(new ChargerChargingCategory(guiHelper));
         registration.addRecipeCategories(new MultipleToOneSmithingCategory(guiHelper));
+        registration.addRecipeCategories(new FrostSmithingCategory(guiHelper));
         registration.addRecipeCategories(new MobTransformCategory(guiHelper));
         registration.addRecipeCategories(new AnvilCollisionCraftCategory(guiHelper));
         registration.addRecipeCategories(new ProceduralProcessCategory(guiHelper));
@@ -293,17 +319,28 @@ public class AnvilCraftJeiPlugin implements IModPlugin {
     }
 
     @Override
+    public void onRuntimeAvailable(IJeiRuntime jeiRuntime) {
+        StorageJeiSupport.onRuntimeAvailable(jeiRuntime);
+    }
+
+    @Override
+    public void onRuntimeUnavailable() {
+        StorageJeiSupport.onRuntimeUnavailable();
+    }
+
+    @Override
     public void registerRecipeTransferHandlers(IRecipeTransferRegistration registration) {
-        registration.addRecipeTransferHandler(
-            RoyalSmithingMenu.class,
-            ModMenuTypes.ROYAL_SMITHING.get(),
-            RecipeTypes.SMITHING,
-            0, 3, 4, 36
-        );
+        StorageJeiSupport.registerRecipeTransferHandlers(registration);
+        SmithingRecipeTransferHandler.register(registration);
+        StructureScannerRecipeTransferHandler.register(registration);
     }
 
     @Override
     public void registerGuiHandlers(IGuiHandlerRegistration registration) {
+        registration.addGuiContainerHandler(net.minecraft.client.gui.screens.inventory.InventoryScreen.class,
+            new dev.dubhe.anvilcraft.integration.jei.util.PocketGuiHandler<>());
+        registration.addGuiContainerHandler(net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen.class,
+            new dev.dubhe.anvilcraft.integration.jei.util.PocketGuiHandler<>());
         registration.addGuiScreenHandler(
             StorageScreen.class,
             screen -> screen.width > 0 && screen.height > 0 ? new IGuiProperties() {

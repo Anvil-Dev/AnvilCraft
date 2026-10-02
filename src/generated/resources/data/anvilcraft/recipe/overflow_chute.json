@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "anvilcraft:magnetic_chute",
+    "anvilcraft:chute"
+  ],
+  "result": {
+    "id": "anvilcraft:overflow_chute"
+  }
+}

@@ -4,6 +4,7 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.event.AmuletEvent;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItems;
+import dev.dubhe.anvilcraft.inventory.PocketInventory;
 import dev.dubhe.anvilcraft.item.property.component.BoxContents;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -14,9 +15,10 @@ import net.neoforged.fml.common.EventBusSubscriber;
 public class AmuletEventListener {
     @SubscribeEvent
     public static void on(AmuletEvent.Find event) {
-        Player player = event.getPlayer();
+        if (!(event.getEntity() instanceof Player player)) return;
         event.provide(player.getMainHandItem());
         event.provide(player.getOffhandItem());
+        PocketInventory.items(player).forEach(event::provide);
     }
 
     @SubscribeEvent
@@ -30,6 +32,13 @@ public class AmuletEventListener {
                     event.provide(stack.copy());
                 }
             }
+        }
+    }
+
+    @SubscribeEvent
+    public static void on(AmuletEvent.EntityCheck event) {
+        if (event.getEntity() instanceof Player) {
+            event.pass();
         }
     }
 }

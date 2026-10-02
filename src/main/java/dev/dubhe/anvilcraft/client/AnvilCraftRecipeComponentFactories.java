@@ -7,10 +7,14 @@ import dev.dubhe.anvilcraft.client.markdown.recipe.MDAnvilCollisionCraftRecipeCo
 import dev.dubhe.anvilcraft.client.markdown.recipe.MDChargerChargingRecipeComponent;
 import dev.dubhe.anvilcraft.client.markdown.recipe.MDEnergyWeaponMakeRecipeComponent;
 import dev.dubhe.anvilcraft.client.markdown.recipe.MDJewelCraftingRecipeComponent;
+import dev.dubhe.anvilcraft.client.markdown.recipe.MDMineralFountainRecipeComponent;
 import dev.dubhe.anvilcraft.client.markdown.recipe.MDMultipleToOneSmithingRecipeComponent;
 import dev.dubhe.anvilcraft.client.markdown.recipe.MDPortalConversionRecipeComponent;
+import dev.dubhe.anvilcraft.client.markdown.recipe.MDProceduralProcessRecipeComponent;
 import dev.dubhe.anvilcraft.client.markdown.recipe.anvil.MDBlockCompressRecipeComponent;
 import dev.dubhe.anvilcraft.client.markdown.recipe.anvil.MDBlockCrushRecipeComponent;
+import dev.dubhe.anvilcraft.client.markdown.recipe.anvil.MDBlockProcessingRecipeComponent;
+import dev.dubhe.anvilcraft.client.markdown.recipe.anvil.MDBlockSmearRecipeComponent;
 import dev.dubhe.anvilcraft.client.markdown.recipe.anvil.MDFastCookingRecipeComponent;
 import dev.dubhe.anvilcraft.client.markdown.recipe.anvil.MDItemCompressRecipeComponent;
 import dev.dubhe.anvilcraft.client.markdown.recipe.anvil.MDItemCrushRecipeComponent;
@@ -189,6 +193,46 @@ public class AnvilCraftRecipeComponentFactories {
         "energy_weapon_make", () -> MDRecipeComponent.RecipeComponentFactory.create(
             ModRecipeTypes.ENERGY_WEAPON_MAKE.get(),
             MDEnergyWeaponMakeRecipeComponent::new
+        )
+    );
+
+    public static final DeferredHolder<MDRecipeComponent.RecipeComponentFactory<?>, MDRecipeComponent.RecipeComponentFactory<?>>
+        BLOCK_PROCESSING = RECIPE_COMPONENT_FACTORIES.register(
+        "block_processing", () -> MDRecipeComponent.RecipeComponentFactory.create(
+            ModRecipeTypes.BLOCK_PROCESSING.get(),
+            MDBlockProcessingRecipeComponent::new
+        )
+    );
+
+    public static final DeferredHolder<MDRecipeComponent.RecipeComponentFactory<?>, MDRecipeComponent.RecipeComponentFactory<?>>
+        BLOCK_SMEAR = RECIPE_COMPONENT_FACTORIES.register(
+        "block_smear", () -> MDRecipeComponent.RecipeComponentFactory.create(
+            ModRecipeTypes.BLOCK_SMEAR.get(),
+            MDBlockSmearRecipeComponent::new
+        )
+    );
+
+    public static final DeferredHolder<MDRecipeComponent.RecipeComponentFactory<?>, MDRecipeComponent.RecipeComponentFactory<?>>
+        MINERAL_FOUNTAIN = RECIPE_COMPONENT_FACTORIES.register(
+        "mineral_fountain", () -> MDRecipeComponent.RecipeComponentFactory.create(
+            ModRecipeTypes.MINERAL_FOUNTAIN.get(),
+            MDMineralFountainRecipeComponent::new
+        )
+    );
+
+    public static final DeferredHolder<MDRecipeComponent.RecipeComponentFactory<?>, MDRecipeComponent.RecipeComponentFactory<?>>
+        MINERAL_FOUNTAIN_CHANCE = RECIPE_COMPONENT_FACTORIES.register(
+        "mineral_fountain_chance", () -> MDRecipeComponent.RecipeComponentFactory.create(
+            ModRecipeTypes.MINERAL_FOUNTAIN_CHANCE.get(),
+            MDMineralFountainRecipeComponent::new
+        )
+    );
+
+    public static final DeferredHolder<MDRecipeComponent.RecipeComponentFactory<?>, MDRecipeComponent.RecipeComponentFactory<?>>
+        PROCEDURAL_PROCESS = RECIPE_COMPONENT_FACTORIES.register(
+        "procedural_process", () -> MDRecipeComponent.RecipeComponentFactory.create(
+            ModRecipeTypes.PROCEDURAL_PROCESS.get(),
+            MDProceduralProcessRecipeComponent::new
         )
     );
 

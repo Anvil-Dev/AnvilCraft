@@ -7,11 +7,12 @@ import dev.anvilcraft.lib.v2.util.predicate.ChanceItemStack;
 import dev.anvilcraft.lib.v2.util.predicate.ItemIngredientPredicate;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeSerializers;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
-import dev.dubhe.anvilcraft.recipe.anvil.predicate.block.HasCauldron;
 import dev.dubhe.anvilcraft.recipe.anvil.util.WrapUtils;
 import dev.dubhe.anvilcraft.recipe.component.HasCauldronSimple;
 import lombok.Getter;
+import net.minecraft.core.Holder;
 import net.minecraft.core.Vec3i;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -21,7 +22,9 @@ import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.CampfireBlock;
+import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.fluids.FluidStack;
 
 import java.util.List;
 
@@ -88,16 +91,24 @@ public class FastCookingRecipe extends AbstractProcessRecipe<FastCookingRecipe> 
 
     public boolean isConsumeFluid() {
         HasCauldronSimple hasCauldron = this.getHasCauldron();
-        return HasCauldron.isNotEmpty(hasCauldron.fluid()) && hasCauldron.consume() > 0;
+        return hasCauldron.hasFluid() && hasCauldron.consume() > 0;
     }
 
     public boolean isProduceFluid() {
         HasCauldronSimple hasCauldron = this.getHasCauldron();
-        return HasCauldron.isNotEmpty(hasCauldron.transform()) && hasCauldron.produce() > 0;
+        return !hasCauldron.transforms().isEmpty();
     }
 
     public static class Builder extends SimpleAbstractBuilder<FastCookingRecipe, Builder> {
-        private final HasCauldronSimple.Builder hasCauldron = HasCauldronSimple.empty();
+        public Builder cauldron(Fluid fluid) {
+            this.hasCauldron.fluid(fluid);
+            return this;
+        }
+
+        public Builder cauldron(Holder<Fluid> fluid) {
+            this.hasCauldron.fluid(fluid);
+            return this;
+        }
 
         public Builder cauldron(Identifier fluid) {
             this.hasCauldron.fluid(fluid);
@@ -105,7 +116,25 @@ public class FastCookingRecipe extends AbstractProcessRecipe<FastCookingRecipe> 
         }
 
         public Builder cauldron(Block cauldron) {
-            this.hasCauldron.fluid(WrapUtils.cauldron2Fluid(cauldron));
+            return this.cauldron(BuiltInRegistries.FLUID.getValue(WrapUtils.cauldron2Fluid(cauldron)));
+        }
+
+        public Builder transform(Fluid fluid, int produce) {
+            this.hasCauldron.transform(fluid, produce);
+            return this;
+        }
+
+        public Builder transform(Holder<Fluid> fluid, int produce) {
+            this.hasCauldron.transform(fluid, produce);
+            return this;
+        }
+
+        public Builder transform(Block cauldron, int produce) {
+            return this.transform(BuiltInRegistries.FLUID.getValue(WrapUtils.cauldron2Fluid(cauldron)), produce);
+        }
+
+        public Builder transform(FluidStack fluid) {
+            this.hasCauldron.transform(fluid);
             return this;
         }
 
@@ -113,6 +142,8 @@ public class FastCookingRecipe extends AbstractProcessRecipe<FastCookingRecipe> 
             this.hasCauldron.transform(fluid);
             return this;
         }
+
+        private final HasCauldronSimple.Builder hasCauldron = HasCauldronSimple.empty();
 
         public Builder consume(int amount) {
             this.hasCauldron.consume(amount);

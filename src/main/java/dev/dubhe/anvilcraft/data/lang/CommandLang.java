@@ -4,6 +4,19 @@ import dev.anvilcraft.lib.v2.registrum.providers.RegistrumLangProvider;
 
 public class CommandLang {
     public static void init(RegistrumLangProvider provider) {
+        provider.add("command.anvilcraft.storage.no_hand_item", "No item in main hand");
+        provider.add("command.anvilcraft.storage.no_storage", "The held item does not reference a storage");
+        provider.add("command.anvilcraft.storage.invalid_type", "Invalid storage type");
+        provider.add("command.anvilcraft.storage.invalid_id", "Invalid storage ID");
+        provider.add("command.anvilcraft.storage.info.item", "Storage info of %s");
+        provider.add("command.anvilcraft.storage.info.none", "none");
+        provider.add("command.anvilcraft.storage.info.terminal", "Bound storage: %s");
+        provider.add("command.anvilcraft.storage.info.ref", "Type: %1$s, ID: %2$s");
+        provider.add("command.anvilcraft.storage.list.head", "Storages (%1$s):");
+        provider.add("command.anvilcraft.storage.list.entry", "Type: %1$s, ID: %2$s");
+        provider.add("command.anvilcraft.storage.bind.success", "Bound %1$s storage to %2$s");
+        provider.add("command.anvilcraft.storage.unbind.success", "Unbound storage");
+
         provider.add("command.anvilcraft.powergrid.info.total_generate", "Total power generate: %s");
         provider.add("command.anvilcraft.powergrid.info.total_consume", "Total power consume: %s");
         provider.add("command.anvilcraft.powergrid.info.components", "Components of power grid:");

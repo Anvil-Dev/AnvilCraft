@@ -225,7 +225,7 @@ public class SimpleChuteBlock
         };
         BlockState facingState = level.getBlockState(pos.relative(newFacing));
         if (ChuteBlock.isChuteBlock(facingState)
-            && ChuteBlock.getFacing(facingState) == newFacing.getOpposite()) {
+            && ChuteBlock.outputsToward(facingState, newFacing.getOpposite())) {
             level.setBlock(pos, Blocks.AIR.defaultBlockState(), 3);
             level.levelEvent(2001, pos, Block.getId(oldState));
             Block.dropResources(oldState, level, pos);
@@ -262,7 +262,7 @@ public class SimpleChuteBlock
             BlockPos neighborPos = pos.relative(dir);
             BlockState neighborState = level.getBlockState(neighborPos);
             if (ChuteBlock.isChuteBlock(neighborState)) {
-                if (ChuteBlock.getFacing(neighborState) == dir.getOpposite()) {
+                if (ChuteBlock.outputsToward(neighborState, dir.getOpposite())) {
                     success = true;
                     if (dir == Direction.UP) {
                         tall = !neighborState.is(ModBlocks.MAGNETIC_CHUTE.get());

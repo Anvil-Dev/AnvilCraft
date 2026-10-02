@@ -4,6 +4,7 @@ import dev.anvilcraft.lib.v2.util.DistExecutor;
 import dev.anvilcraft.lib.v2.util.ShapeUtil;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.block.entity.storage.LargeCrateBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.storage.StorageBlockEntity;
 import dev.dubhe.anvilcraft.block.multipart.MultiPartBlockEntity;
 import dev.dubhe.anvilcraft.block.multipart.SimpleMultiPartBlock;
 import dev.dubhe.anvilcraft.block.state.Cube3x3PartHalf;
@@ -12,12 +13,15 @@ import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -38,6 +42,24 @@ public class LargeCrateBlock
 
     public LargeCrateBlock(Properties properties) {
         super(properties);
+    }
+
+    @Override
+    public ItemStack getCloneItemStack(LevelReader level, BlockPos pos, BlockState state, boolean includeData, Player player) {
+        ItemStack stack = super.getCloneItemStack(level, pos, state, includeData, player);
+        StorageBlockEntity.applyPickStorageId(stack, level, pos, state, includeData);
+        return stack;
+    }
+
+    @Override
+    public boolean hasAnalogOutputSignal(BlockState state) {
+        return true;
+    }
+
+    @Override
+    protected int getAnalogOutputSignal(BlockState state, Level level, BlockPos pos, Direction direction) {
+        return level.getBlockEntity(this.getMainPartPos(pos, state)) instanceof StorageBlockEntity storage
+            ? storage.getComparatorSignal() : 0;
     }
 
     @Override
@@ -76,16 +98,6 @@ public class LargeCrateBlock
     }
 
     @Override
-    public BlockState playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player) {
-        BlockEntity blockEntity = level.getBlockEntity(this.getMainPartPos(pos, state));
-        if (blockEntity instanceof LargeCrateBlockEntity be) {
-            be.playerWillDestroy(level, pos, state, player);
-        }
-
-        return super.playerWillDestroy(level, pos, state, player);
-    }
-
-    @Override
     protected InteractionResult useItemOn(
         ItemStack itemStack,
         BlockState state,
@@ -101,6 +113,7 @@ public class LargeCrateBlock
             if (player instanceof ServerPlayer) {
                 return InteractionResult.SUCCESS_SERVER;
             } else if (level.isClientSide()) {
+                level.playSound(player, pos, SoundEvents.BARREL_OPEN, SoundSource.BLOCKS, 1.0F, 1.0F);
                 DistExecutor.run(Dist.CLIENT, () -> () -> StorageScreen.openScreen(entity.getBlockPos()));
                 return InteractionResult.SUCCESS;
             }
@@ -110,7 +123,12 @@ public class LargeCrateBlock
 
     // region VoxelShapes
     @Override
-    protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+    protected VoxelShape getCollisionShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+        return Shapes.block();
+    }
+
+    @Override
+    public VoxelShape getPartShape(BlockState state) {
         return switch (state.getValue(LargeCrateBlock.HALF)) {
             case BOTTOM_CENTER -> LargeCrateBlock.BOTTOM_CENTER;
             case BOTTOM_W -> LargeCrateBlock.BOTTOM_W;
@@ -144,7 +162,7 @@ public class LargeCrateBlock
 
     protected static final VoxelShape MID_CENTER = Shapes.block();
 
-    protected static final VoxelShape BOTTOM_CENTER = Block.box(0, 2, 0, 16, 16, 16);
+    protected static final VoxelShape BOTTOM_CENTER = Block.box(0, 4, 0, 16, 16, 16);
     protected static final VoxelShape TOP_CENTER = ShapeUtil.rotate(Direction.Axis.X, 180, LargeCrateBlock.BOTTOM_CENTER);
     protected static final VoxelShape MID_N = ShapeUtil.rotate(Direction.Axis.X, 270, LargeCrateBlock.BOTTOM_CENTER);
     protected static final VoxelShape MID_W = ShapeUtil.rotate(Direction.Axis.Y, 90, LargeCrateBlock.MID_N);
@@ -152,7 +170,7 @@ public class LargeCrateBlock
     protected static final VoxelShape MID_E = ShapeUtil.rotate(Direction.Axis.Y, 270, LargeCrateBlock.MID_N);
 
     protected static final VoxelShape BOTTOM_N = ShapeUtil.merge(
-        new AABB(0, 2, 2, 16, 16, 16),
+        new AABB(0, 4, 4, 16, 16, 16),
         new AABB(0, 0, 0, 16, 7, 7)
     );
     protected static final VoxelShape BOTTOM_W = ShapeUtil.rotate(Direction.Axis.Y, 90, LargeCrateBlock.BOTTOM_N);
@@ -161,9 +179,9 @@ public class LargeCrateBlock
 
     protected static final VoxelShape BOTTOM_NW = ShapeUtil.cut(
         new AABB(0, 0, 0, 16, 16, 16),
-        new AABB(7, 7, 0, 16, 16, 2),
-        new AABB(7, 0, 7, 16, 2, 16),
-        new AABB(0, 7, 7, 2, 16, 16)
+        new AABB(7, 7, 0, 16, 16, 4),
+        new AABB(7, 0, 7, 16, 4, 16),
+        new AABB(0, 7, 7, 4, 16, 16)
     );
     protected static final VoxelShape BOTTOM_SW = ShapeUtil.rotate(Direction.Axis.Y, 90, LargeCrateBlock.BOTTOM_NW);
     protected static final VoxelShape BOTTOM_SE = ShapeUtil.rotate(Direction.Axis.Y, 180, LargeCrateBlock.BOTTOM_NW);
