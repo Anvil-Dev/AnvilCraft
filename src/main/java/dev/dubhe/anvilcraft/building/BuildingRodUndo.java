@@ -334,6 +334,10 @@ public final class BuildingRodUndo {
             BuildingRodService.message(player, "blocked");
             return;
         }
+        if (!undo.region.hasCompletePlants()) {
+            BuildingRodService.message(player, "undo_conflict");
+            return;
+        }
         BuildingUndoResources recovered = new BuildingUndoResources();
         BuildingUndoResources required = new BuildingUndoResources();
         BuildingMaterials recovery = new BuildingMaterials(player, false);

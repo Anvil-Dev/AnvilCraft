@@ -125,19 +125,9 @@ final class BuildingRegionSnapshot {
     }
 
     boolean canRestore(ServerPlayer player) {
-        Map<BlockPos, BlockState> original = new LinkedHashMap<>();
-        this.blocks.forEach(block -> original.put(block.pos(), block.state()));
         for (SavedBlock block : this.blocks) {
             if (!BuildingRodService.canModify(player, block.pos())) return false;
             BlockState current = this.level.getBlockState(block.pos());
-            if (current != block.state() && block.state().getBlock() instanceof DoublePlantBlock) {
-                DoubleBlockHalf half = block.state().getValue(DoublePlantBlock.HALF);
-                BlockPos other = half == DoubleBlockHalf.LOWER ? block.pos().above() : block.pos().below();
-                BlockState otherState = original.get(other);
-                if (otherState == null || !otherState.is(block.state().getBlock()) || otherState.getValue(DoublePlantBlock.HALF) == half) {
-                    return false;
-                }
-            }
             if (current != block.state() && !current.isAir() && CommonHooks.fireBlockBreak(this.level,
                 player.gameMode.getGameModeForPlayer(), player, block.pos(), current).isCanceled()) {
                 return false;
@@ -150,6 +140,22 @@ final class BuildingRegionSnapshot {
             } else {
                 Entity.RemovalReason reason = saved.original().getRemovalReason();
                 if (reason == null || !reason.shouldDestroy()) return false;
+            }
+        }
+        return true;
+    }
+
+    boolean hasCompletePlants() {
+        Map<BlockPos, BlockState> original = new LinkedHashMap<>();
+        this.blocks.forEach(block -> original.put(block.pos(), block.state()));
+        for (SavedBlock block : this.blocks) {
+            if (!(block.state().getBlock() instanceof DoublePlantBlock)
+                || this.level.getBlockState(block.pos()) == block.state()) continue;
+            DoubleBlockHalf half = block.state().getValue(DoublePlantBlock.HALF);
+            BlockPos other = half == DoubleBlockHalf.LOWER ? block.pos().above() : block.pos().below();
+            BlockState otherState = original.get(other);
+            if (otherState == null || !otherState.is(block.state().getBlock()) || otherState.getValue(DoublePlantBlock.HALF) == half) {
+                return false;
             }
         }
         return true;
