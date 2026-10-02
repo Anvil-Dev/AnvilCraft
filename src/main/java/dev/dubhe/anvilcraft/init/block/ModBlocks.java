@@ -247,6 +247,7 @@ import dev.dubhe.anvilcraft.client.renderer.item.CreativeCrateItemRenderer;
 import dev.dubhe.anvilcraft.client.renderer.item.CreativeFluidTankItemRenderer;
 import dev.dubhe.anvilcraft.client.renderer.item.FluidTankItemRenderer;
 import dev.dubhe.anvilcraft.client.renderer.item.LargeFluidTankItemRenderer;
+import dev.dubhe.anvilcraft.client.renderer.item.MonolithItemRenderer;
 import dev.dubhe.anvilcraft.client.renderer.item.StorageFluidPortItemRenderer;
 import dev.dubhe.anvilcraft.client.renderer.item.StoragePortItemRenderer;
 import dev.dubhe.anvilcraft.data.generator.RedstoneWireBlockStateGenerator;
@@ -5397,7 +5398,8 @@ public class ModBlocks {
         .item()
         .transform(PropertiesProviderUtil::blockItem)
         .model(() -> (ctx, provider) -> provider.itemModelOutput.accept(ctx.get(),
-            ItemModelUtils.plainModel(AnvilCraft.of("block/monolith_core"))))
+            ItemModelUtils.specialModel(AnvilCraft.of("block/monolith_core"),
+                new MonolithItemRenderer.Unbaked(ctx.get().getBlock()))))
         .build()
         .recipe(RegistrumBlockRecipeLoader::monolithCore)
         .register();
@@ -5414,7 +5416,8 @@ public class ModBlocks {
         .item()
         .transform(PropertiesProviderUtil::blockItem)
         .model(() -> (ctx, provider) -> provider.itemModelOutput.accept(ctx.get(),
-            ItemModelUtils.plainModel(AnvilCraft.of("block/monolith_line"))))
+            ItemModelUtils.specialModel(AnvilCraft.of("block/monolith_line"),
+                new MonolithItemRenderer.Unbaked(ctx.get().getBlock()))))
         .build()
         .recipe(RegistrumBlockRecipeLoader::monolithLine)
         .register();
@@ -5435,6 +5438,9 @@ public class ModBlocks {
         .transform(PropertiesProviderUtil::blockItem)
         .properties(properties -> properties.stacksTo(16).useBlockDescriptionPrefix())
         .setData(ProviderType.LANG, (_, _) -> {})
+        .model(() -> (ctx, provider) -> provider.itemModelOutput.accept(ctx.get(),
+            ItemModelUtils.specialModel(AnvilCraft.of("block/giant_monolith_core"),
+                new MonolithItemRenderer.Unbaked(ctx.get().getBlock()))))
         .build()
         .blockstate(DataGenUtil::noExtraModelOrState)
         .register();
@@ -5451,7 +5457,8 @@ public class ModBlocks {
         .item()
         .transform(PropertiesProviderUtil::blockItem)
         .model(() -> (ctx, provider) -> provider.itemModelOutput.accept(ctx.get(),
-            ItemModelUtils.plainModel(AnvilCraft.of("block/giant_monolith_line"))))
+            ItemModelUtils.specialModel(AnvilCraft.of("block/giant_monolith_line"),
+                new MonolithItemRenderer.Unbaked(ctx.get().getBlock()))))
         .build()
         .register();
 

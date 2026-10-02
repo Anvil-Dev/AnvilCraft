@@ -10,6 +10,7 @@ import com.mojang.blaze3d.platform.SourceFactor;
 import com.mojang.blaze3d.shaders.UniformType;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormat;
+import com.mojang.blaze3d.vertex.VertexFormatElement;
 import dev.anvilcraft.lib.v2.rendering.ALRPipelines;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import net.minecraft.client.renderer.RenderPipelines;
@@ -264,6 +265,24 @@ public class ModRenderPipelines {
         .withLocation(AnvilCraft.of("pipeline/planet_atmosphere"))
         .build();
 
+    public static final RenderPipeline MONOLITH_SURFACE = RenderPipeline.builder(RenderPipelines.MATRICES_FOG_SNIPPET)
+        .withLocation(AnvilCraft.of("pipeline/monolith_surface"))
+        .withVertexShader(AnvilCraft.of("core/monolith_surface"))
+        .withFragmentShader(AnvilCraft.of("core/monolith_surface"))
+        .withSampler("Sampler0")
+        .withVertexFormat(VertexFormat.builder()
+            .add("Position", VertexFormatElement.POSITION)
+            .add("SpriteOrigin", VertexFormatElement.UV0)
+            .add("SpriteSize", VertexFormatElement.UV2)
+            .build(), VertexFormat.Mode.QUADS)
+        .withDepthStencilState(DepthStencilState.DEFAULT)
+        .build();
+
+    public static final RenderPipeline MONOLITH_SURFACE_GUI = MONOLITH_SURFACE.toBuilder()
+        .withLocation(AnvilCraft.of("pipeline/monolith_surface_gui"))
+        .withShaderDefine("GUI_PROJECTION")
+        .build();
+
     public static final RenderPipeline CELESTIAL_GATEWAY = RenderPipelines.END_GATEWAY.toBuilder()
         .withLocation(AnvilCraft.of("pipeline/celestial_gateway"))
         .withFragmentShader(AnvilCraft.of("core/celestial_gateway"))
@@ -351,6 +370,8 @@ public class ModRenderPipelines {
         event.registerPipeline(ModRenderPipelines.CELESTIAL_ATMOSPHERE);
         event.registerPipeline(ModRenderPipelines.PLANET_ATMOSPHERE);
         event.registerPipeline(ModRenderPipelines.PLANET_ATMOSPHERE_INSIDE);
+        event.registerPipeline(ModRenderPipelines.MONOLITH_SURFACE);
+        event.registerPipeline(ModRenderPipelines.MONOLITH_SURFACE_GUI);
         event.registerPipeline(ModRenderPipelines.CELESTIAL_GATEWAY);
         event.registerPipeline(ModRenderPipelines.CELESTIAL_GATEWAY_PREVIEW);
         event.registerPipeline(ModRenderPipelines.STELLAR_SURFACE);

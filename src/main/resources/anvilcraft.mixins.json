@@ -249,6 +249,7 @@
     "compat.JeiJadeItemTooltipMixin",
     "client.ClientTextTooltipAccessor",
     "compat.SodiumBlockOcclusionCacheMixin",
+    "compat.SodiumMagnetAnvilMixin",
     "compat.SodiumRuinsMeshingMixin",
     "RuinsRenderLevelMixin",
     "RuinsRenderFaceMixin",

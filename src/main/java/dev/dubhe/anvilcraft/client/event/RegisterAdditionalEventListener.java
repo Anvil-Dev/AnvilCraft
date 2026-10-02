@@ -33,6 +33,7 @@ import dev.dubhe.anvilcraft.client.renderer.item.DiskItemRenderer;
 import dev.dubhe.anvilcraft.client.renderer.item.FilterItemRenderer;
 import dev.dubhe.anvilcraft.client.renderer.item.FluidTankItemRenderer;
 import dev.dubhe.anvilcraft.client.renderer.item.LargeFluidTankItemRenderer;
+import dev.dubhe.anvilcraft.client.renderer.item.MonolithItemRenderer;
 import dev.dubhe.anvilcraft.client.renderer.item.RuinsBlockItemRenderer;
 import dev.dubhe.anvilcraft.client.renderer.item.SpectralSlingshotRenderer;
 import dev.dubhe.anvilcraft.client.renderer.item.SpectralWeaponLauncherRenderer;
@@ -396,6 +397,7 @@ public class RegisterAdditionalEventListener {
         event.register(AnvilCraft.of("storage_port"), StoragePortItemRenderer.Unbaked.CODEC);
         event.register(AnvilCraft.of("storage_fluid_port"), StorageFluidPortItemRenderer.Unbaked.CODEC);
         event.register(AnvilCraft.of("ruins_block"), RuinsBlockItemRenderer.Unbaked.CODEC);
+        event.register(AnvilCraft.of("monolith"), MonolithItemRenderer.Unbaked.CODEC);
     }
 
     /** 注册锻星砧界面使用的画中画渲染器。 */

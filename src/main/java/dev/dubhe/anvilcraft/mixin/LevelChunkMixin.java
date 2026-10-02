@@ -12,6 +12,7 @@ import dev.dubhe.anvilcraft.api.block.entity.IConvertableBlockEntity;
 import dev.dubhe.anvilcraft.api.event.BlockEntityEvent;
 import dev.dubhe.anvilcraft.block.entity.BaseLaserBlockEntity;
 import dev.dubhe.anvilcraft.util.EnchantedGoldBlockPositions;
+import dev.dubhe.anvilcraft.util.MonolithBlockPositions;
 import dev.dubhe.anvilcraft.util.mixin.ConvertableBlockEntityEntry;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
@@ -173,6 +174,7 @@ public abstract class LevelChunkMixin {
         BlockState previous = cir.getReturnValue();
         if (this.getLevel().isClientSide() && previous != null) {
             EnchantedGoldBlockPositions.onBlockChanged(pos, previous, state);
+            MonolithBlockPositions.onBlockChanged(pos, previous, state);
         }
     }
 
