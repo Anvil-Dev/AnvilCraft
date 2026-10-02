@@ -159,6 +159,9 @@ public class AdvancementLang {
         provider.add("advancements.anvilcraft.no_remnant.title", "Nothing Left Behind");
         provider.add("advancements.anvilcraft.no_remnant.description", "Evolve a celestial body forged with 64 mass anvils to the end and watch it leave no remnant");
 
+        provider.add("advancements.anvilcraft.efficiency.title", "We called it... efficiency");
+        provider.add("advancements.anvilcraft.efficiency.description", "Feed a gamma laser into the planet excavator and blow the planet apart");
+
         provider.add("advancements.anvilcraft.nuclear_power_10a.title", "Nuclear power, piece of cake!");
         provider.add("advancements.anvilcraft.nuclear_power_10a.description", "Using heat collector to collect overheated blocks' heat");
 

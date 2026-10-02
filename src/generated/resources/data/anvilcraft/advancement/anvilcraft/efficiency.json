@@ -1,0 +1,27 @@
+{
+  "parent": "anvilcraft:anvilcraft/the_start",
+  "criteria": {
+    "efficiency": {
+      "trigger": "anvilcraft:planet_detonation"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.anvilcraft.efficiency.description"
+    },
+    "frame": "challenge",
+    "icon": {
+      "count": 1,
+      "id": "anvilcraft:earth_core_shard"
+    },
+    "title": {
+      "translate": "advancements.anvilcraft.efficiency.title"
+    }
+  },
+  "requirements": [
+    [
+      "efficiency"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

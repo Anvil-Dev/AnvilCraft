@@ -23,6 +23,7 @@ import dev.dubhe.anvilcraft.advancements.criterion.MultiBlockFormTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.PipeConnectContainersTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.PlacerPlaceTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.PlacerShuttleTrigger;
+import dev.dubhe.anvilcraft.advancements.criterion.PlanetDetonationTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.PlayerKilledEntityByAnvilHammerTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.PlayerWearAnvilHammerTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.UseItemTrigger;
@@ -142,6 +143,9 @@ public class ModCriterionTriggers {
 
     public static final DeferredHolder<CriterionTrigger<?>, CelestialEvolutionTrigger> CELESTIAL_EVOLUTION =
         REGISTER.register("celestial_evolution", CelestialEvolutionTrigger::new);
+
+    public static final DeferredHolder<CriterionTrigger<?>, PlanetDetonationTrigger> PLANET_DETONATION =
+        REGISTER.register("planet_detonation", PlanetDetonationTrigger::new);
 
     public static void register(IEventBus eventBus) {
         REGISTER.register(eventBus);

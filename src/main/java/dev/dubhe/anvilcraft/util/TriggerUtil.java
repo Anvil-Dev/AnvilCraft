@@ -209,4 +209,12 @@ public class TriggerUtil {
             }
         }
     }
+
+    public static void planetDetonation(Level level, BlockPos pos) {
+        if (!level.isClientSide) {
+            for (ServerPlayer player : PlayerUtil.searchPlayerByPos(level, pos, 7)) {
+                ModCriterionTriggers.PLANET_DETONATION.get().trigger(player);
+            }
+        }
+    }
 }

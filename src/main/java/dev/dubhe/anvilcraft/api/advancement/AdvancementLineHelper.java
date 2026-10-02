@@ -24,6 +24,7 @@ import dev.dubhe.anvilcraft.advancements.criterion.MultiBlockFormTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.PipeConnectContainersTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.PlacerPlaceTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.PlacerShuttleTrigger;
+import dev.dubhe.anvilcraft.advancements.criterion.PlanetDetonationTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.PlayerKilledEntityByAnvilHammerTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.PlayerWearAnvilHammerTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.UseItemTrigger;
@@ -686,6 +687,10 @@ public class AdvancementLineHelper {
 
         public AdvancementHelper celestialEvolution(String key, MinMaxBounds.Ints massAnvils) {
             return this.addCriterion(key, CelestialEvolutionTrigger.TriggerInstance.evolved(massAnvils));
+        }
+
+        public AdvancementHelper planetDetonation(String key) {
+            return this.addCriterion(key, PlanetDetonationTrigger.TriggerInstance.detonated());
         }
 
         public AdvancementHolder build(String id) {
