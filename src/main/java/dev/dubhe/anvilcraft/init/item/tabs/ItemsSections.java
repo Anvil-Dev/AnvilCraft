@@ -241,6 +241,7 @@ public class ItemsSections extends DisplayItemsGenerator {
                 content.accept(ModItems.SPONGE_GEMMULE);
                 content.accept(ModItems.LIME_POWDER);
                 content.accept(ModItems.LEVITATION_POWDER);
+                content.accept(ModItems.LEGACY_ESSENCE);
             }
         );
         sections.section(

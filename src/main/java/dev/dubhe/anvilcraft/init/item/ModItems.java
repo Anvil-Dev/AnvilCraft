@@ -1513,6 +1513,10 @@ public class ModItems {
         .recipe(RegistrumItemRecipeLoader::chargedNeutroniumIngot)
         .register();
 
+    public static final ItemEntry<Item> LEGACY_ESSENCE = REGISTRUM.item("legacy_essence", Item::new)
+        .lang("Legacy Essence")
+        .register();
+
     public static final ItemEntry<BucketItem> EXP_BUCKET = REGISTRUM
         .item("exp_bucket", p -> new BucketItem(ModFluids.EXP_FLUID.get(), p))
         .tag(ModItemTags.EXP_BUCKETS, Tags.Items.BUCKETS)

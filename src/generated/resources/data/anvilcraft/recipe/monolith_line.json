@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "M": "anvilcraft:monolith"
+  },
+  "pattern": [
+    "M M",
+    "M M",
+    "M M"
+  ],
+  "result": {
+    "count": 10,
+    "id": "anvilcraft:monolith_line"
+  }
+}

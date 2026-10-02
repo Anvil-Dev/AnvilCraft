@@ -18,7 +18,7 @@ import net.minecraft.world.phys.BlockHitResult;
 
 import javax.annotation.Nullable;
 
-public class MonolithCoreBlock extends MonolithBlock implements EntityBlock {
+public class MonolithCoreBlock extends MonolithLineBlock implements EntityBlock {
     public MonolithCoreBlock(Properties properties) {
         super(properties);
     }

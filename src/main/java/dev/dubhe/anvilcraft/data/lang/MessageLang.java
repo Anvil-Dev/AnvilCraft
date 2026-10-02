@@ -43,5 +43,55 @@ public class MessageLang {
         provider.add("message.anvilcraft.trading_station.break.time", "Time: %s");
         provider.add("message.anvilcraft.trading_station.break.onliners", "Online Players: ");
         provider.add("message.anvilcraft.trading_station.break.closest", "Closest Player: %s");
+        provider.add("message.anvilcraft.monolith.joke.chute_steal", "Chutes used to be able to steal items from players and villagers");
+        provider.add(
+            "message.anvilcraft.monolith.joke.reinforced_concrete",
+            "Reinforced concrete was initially not blast-resistant, and it dropped a cauldron when broken."
+        );
+        provider.add(
+            "message.anvilcraft.monolith.knowledge.celestial_forging_anvil_gravity",
+            "You can press shift to escape when sucked by the Celestial Forging Anvil's gravity"
+        );
+        provider.add(
+            "message.anvilcraft.monolith.knowledge.celestial_forging_anvil_portal",
+            "Celestial Forging Anvil portals can transport water"
+        );
+        provider.add(
+            "message.anvilcraft.monolith.knowledge.corrupted_beacon",
+            "Corrupted Beacons can only use Cursed Gold Blocks as bases"
+        );
+        provider.add("message.anvilcraft.monolith.knowledge.crab_claw", "Crab Claws can pry open Shulkers");
+        provider.add("message.anvilcraft.monolith.knowledge.ember_metal", "Making Ember Metal does not require heating Netherite");
+        provider.add("message.anvilcraft.monolith.knowledge.filter", "Filter slots can adjust item stack limits");
+        provider.add("message.anvilcraft.monolith.knowledge.fish_tank", "Fish Tanks can be used to raise fish");
+        provider.add(
+            "message.anvilcraft.monolith.knowledge.flying_anvil_hammer",
+            "Wearing an Anvil Hammer while flying and colliding with mobs deals massive damage"
+        );
+        provider.add("message.anvilcraft.monolith.knowledge.heater", "Heaters can heat Tungsten Blocks and Netherite Blocks");
+        provider.add(
+            "message.anvilcraft.monolith.knowledge.horizontal_anvil_damage",
+            "Anvils moving horizontally at high speed can deal impact damage"
+        );
+        provider.add(
+            "message.anvilcraft.monolith.knowledge.melt_gem",
+            "Melt Gem reacting with water generates diorite, granite, or andesite"
+        );
+        provider.add("message.anvilcraft.monolith.knowledge.menger_sponge", "Menger Sponges can act as fluid trash cans");
+        provider.add("message.anvilcraft.monolith.knowledge.player_acceleration", "Players can also be accelerated by Acceleration Rings");
+        provider.add("message.anvilcraft.monolith.knowledge.projectile_acceleration", "Acceleration Rings can accelerate all projectiles");
+        provider.add(
+            "message.anvilcraft.monolith.knowledge.rocket_jump",
+            "Right-clicking the ground with an Anvil Hammer and Firework Rockets performs a rocket jump"
+        );
+        provider.add("message.anvilcraft.monolith.knowledge.vault_reset", "Smashing a Lead Block into a Vault resets it");
+        provider.add(
+            "message.anvilcraft.monolith.knowledge.villager_reset",
+            "Villagers can be struck by anvils to cause amnesia and reset trades, but they might get dazed"
+        );
+        provider.add(
+            "message.anvilcraft.monolith.knowledge.waterlogged_acceleration_ring",
+            "Waterlogged Acceleration Rings accelerate anvils at a very slow speed"
+        );
     }
 }

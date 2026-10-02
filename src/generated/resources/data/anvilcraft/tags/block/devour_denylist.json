@@ -1,6 +1,7 @@
 {
   "values": [
     "anvilcraft:mineral_fountain",
-    "anvilcraft:sturdy_deepslate"
+    "anvilcraft:sturdy_deepslate",
+    "#anvilcraft:monolith_blocks"
   ]
 }

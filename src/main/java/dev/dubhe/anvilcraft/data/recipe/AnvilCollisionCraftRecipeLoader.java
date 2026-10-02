@@ -162,6 +162,14 @@ public class AnvilCollisionCraftRecipeLoader {
             .outputItem(ModItems.NEUTRONIUM_INGOT.get(), 1)
             .speed(256)
             .save(provider);
+
+        AnvilCollisionCraftRecipe.builder()
+            .anvil(blocks, ModBlockTags.ANVIL_TIER_0)
+            .consume(false)
+            .hitBlock(ModBlocks.MONOLITH.get())
+            .outputItem(ModItems.LEGACY_ESSENCE.get(), 64)
+            .speed(256)
+            .save(provider);
     }
 
     private static void forEachAnvil(Consumer<Block> block, Block... anvils) {

@@ -1,16 +1,12 @@
 package dev.dubhe.anvilcraft.block;
 
-import dev.anvilcraft.lib.v2.registrum.providers.loot.RegistrumBlockLootTables;
 import dev.dubhe.anvilcraft.block.entity.MonolithCoreBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.celestial.SpecialCelestialBodyRecipe;
 import dev.dubhe.anvilcraft.block.multipart.SimpleMultiPartBlock;
 import dev.dubhe.anvilcraft.block.state.Cube3x3PartHalf;
 import dev.dubhe.anvilcraft.block.state.GiantAnvilCube;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
-import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
-import dev.dubhe.anvilcraft.util.registrater.DataGenUtil;
-import net.minecraft.advancements.criterion.StatePropertiesPredicate;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
@@ -39,12 +35,6 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.block.state.properties.Property;
-import net.minecraft.world.level.storage.loot.LootPool;
-import net.minecraft.world.level.storage.loot.LootTable;
-import net.minecraft.world.level.storage.loot.entries.LootItem;
-import net.minecraft.world.level.storage.loot.functions.SetItemCountFunction;
-import net.minecraft.world.level.storage.loot.predicates.LootItemBlockStatePropertyCondition;
-import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import net.minecraft.world.phys.BlockHitResult;
 
 import java.util.List;
@@ -66,19 +56,6 @@ public class GiantMonolithCoreBlock extends SimpleMultiPartBlock<Cube3x3PartHalf
             .setValue(HALF, Cube3x3PartHalf.BOTTOM_CENTER)
             .setValue(CUBE, GiantAnvilCube.CORNER)
             .setValue(AXIS, Direction.Axis.Z));
-    }
-
-    public static void loot(RegistrumBlockLootTables tables, GiantMonolithCoreBlock block) {
-        tables.add(block, LootTable.lootTable()
-            .withPool(tables.applyExplosionCondition(block, LootPool.lootPool()
-                .setRolls(ConstantValue.exactly(1.0F))
-                .when(LootItemBlockStatePropertyCondition.hasBlockStateProperties(block)
-                    .setProperties(StatePropertiesPredicate.Builder.properties()
-                        .hasProperty(HALF, Cube3x3PartHalf.MID_CENTER)))
-                .add(LootItem.lootTableItem(block)
-                    .when(DataGenUtil.hasSilkTouch(tables.getRegistries()))
-                    .otherwise(LootItem.lootTableItem(ModBlocks.MONOLITH)
-                        .apply(SetItemCountFunction.setCount(ConstantValue.exactly(27.0F))))))));
     }
 
     @Override

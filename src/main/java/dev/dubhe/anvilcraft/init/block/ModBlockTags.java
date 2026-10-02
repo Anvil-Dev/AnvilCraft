@@ -15,6 +15,7 @@ public class ModBlockTags {
     private static final String MEKANISM_MODID = "mekanism";
     private static final String AE2_MODID = "ae2";
     // mod tags
+    public static final TagKey<Block> MONOLITH_BLOCKS = ModBlockTags.bind("monolith_blocks");
     public static final TagKey<Block> UNDER_CAULDRON = ModBlockTags.bind("under_cauldron");
     public static final TagKey<Block> MAGNET = ModBlockTags.bind("magnet");
     public static final TagKey<Block> REDSTONE_TORCH = ModBlockTags.bind("redstone_torch");

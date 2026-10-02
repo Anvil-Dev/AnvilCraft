@@ -246,7 +246,8 @@ public class BlockTagLoader {
             .addTag(Tags.Blocks.CHESTS_WOODEN.location());
         provider.rawBuilder(ModBlockTags.DEVOUR_DENYLIST)
             .addElement(ModBlocks.MINERAL_FOUNTAIN.getId())
-            .addElement(ModBlocks.STURDY_DEEPSLATE.getId());
+            .addElement(ModBlocks.STURDY_DEEPSLATE.getId())
+            .addTag(ModBlockTags.MONOLITH_BLOCKS.location());
 
         provider.rawBuilder(ModBlockTags.FELLING_APPLICABLE)
             .addTag(BlockTags.LOGS.location())
@@ -321,6 +322,13 @@ public class BlockTagLoader {
         provider.rawBuilder(ModBlockTags.OVERHEATABLE)
             .addElement(ModBlocks.OVERHEATED_EMBER_METAL_BLOCK.getId())
             .addElement(ModBlocks.EMBER_METAL_BLOCK.getId());
+
+        provider.rawBuilder(ModBlockTags.MONOLITH_BLOCKS)
+            .addElement(ModBlocks.MONOLITH.getId())
+            .addElement(ModBlocks.MONOLITH_CORE.getId())
+            .addElement(ModBlocks.MONOLITH_LINE.getId())
+            .addElement(ModBlocks.GIANT_MONOLITH_CORE.getId())
+            .addElement(ModBlocks.GIANT_MONOLITH_LINE.getId());
 
         // tier 0：所有铁砧以及下列所有;
         // tier 1：皇家铁砧以及下列所有;

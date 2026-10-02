@@ -2823,4 +2823,25 @@ public class RegistrumBlockRecipeLoader {
             )
             .save(provider);
     }
+
+    public static <T extends Block> void monolithCore(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
+        ShapedRecipeBuilder.shaped(provider.getItems(), RecipeCategory.MISC, ctx.get())
+            .pattern("MAM")
+            .pattern(" M ")
+            .define('M', ModBlocks.MONOLITH)
+            .define('A', Blocks.ANVIL)
+            .unlockedBy("has_monolith", AnvilCraftDatagen.has(provider.getItems(), ModBlocks.MONOLITH))
+            .unlockedBy("has_anvil", AnvilCraftDatagen.has(provider.getItems(), Blocks.ANVIL))
+            .save(provider);
+    }
+
+    public static <T extends Block> void monolithLine(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
+        ShapedRecipeBuilder.shaped(provider.getItems(), RecipeCategory.MISC, ctx.get(), 10)
+            .pattern("M M")
+            .pattern("M M")
+            .pattern("M M")
+            .define('M', ModBlocks.MONOLITH)
+            .unlockedBy("has_monolith", AnvilCraftDatagen.has(provider.getItems(), ModBlocks.MONOLITH))
+            .save(provider);
+    }
 }

@@ -278,5 +278,58 @@ public class ProceduralProcessRecipeLoader {
                 AnvilCraft.of("block/wip_display/ancient_sea_reef_wip_2")
             )
             .save(provider);
+
+        // 石碑方块
+        ProceduralProcessRecipeBuilder.of(Blocks.BLACKSTONE)
+            .addStep(
+                ItemInjectRecipe.builder()
+                    .inputBlock(Blocks.BLACKSTONE)
+                    .requires(Items.BOOK)
+                    .resultBlock(ModBlocks.WIP_BLOCK)
+                    .buildRecipe()
+            )
+            .addStep(
+                ItemInjectRecipe.builder()
+                    .inputBlock(ModBlocks.WIP_BLOCK)
+                    .requires(ModItems.DISK)
+                    .resultBlock(ModBlocks.WIP_BLOCK)
+                    .buildRecipe()
+            )
+            .addStep(
+                ItemInjectRecipe.builder()
+                    .inputBlock(ModBlocks.WIP_BLOCK)
+                    .requires(ModItems.LEGACY_ESSENCE)
+                    .resultBlock(ModBlocks.MONOLITH)
+                    .buildRecipe()
+            )
+            .result(ModBlocks.MONOLITH)
+            .icon(new ItemStackTemplate(ModBlocks.MONOLITH.asItem()))
+            .displayedModels(
+                AnvilCraft.of("block/wip_display/monolith_wip"),
+                AnvilCraft.of("block/wip_display/monolith_wip")
+            )
+            .save(provider, "monolith_inject");
+
+        ProceduralProcessRecipeBuilder.of(Blocks.BLACKSTONE)
+            .addStep(
+                BlockCompressRecipe.builder()
+                    .input(ModBlocks.SPACETIME_SUPERCOMPUTER.get())
+                    .input(Blocks.BLACKSTONE)
+                    .result(ModBlocks.WIP_BLOCK.get())
+                    .buildRecipe()
+            )
+            .addStep(
+                BlockCompressRecipe.builder()
+                    .input(ModBlocks.MASS_ENERGY_INVERTER.get())
+                    .input(ModBlocks.WIP_BLOCK.get())
+                    .result(ModBlocks.MONOLITH.get())
+                    .buildRecipe()
+            )
+            .result(ModBlocks.MONOLITH)
+            .icon(new ItemStackTemplate(ModBlocks.MONOLITH.asItem()))
+            .displayedModels(
+                AnvilCraft.of("block/wip_display/monolith_wip")
+            )
+            .save(provider, "monolith_compress");
     }
 }

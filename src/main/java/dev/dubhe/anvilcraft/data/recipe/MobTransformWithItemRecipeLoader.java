@@ -15,5 +15,17 @@ public class MobTransformWithItemRecipeLoader {
             EntityType.GIANT,
             new ItemStackTemplate(ModBlocks.GIANT_ANVIL.asItem())
         ).setItemChancePercentagePerItem(5).save(provider);
+        MobTransformWithItemRecipe.from(
+            EntityType.ZOMBIE,
+            ModBlocks.MONOLITH_CORE,
+            EntityType.GIANT,
+            new ItemStackTemplate(ModBlocks.GIANT_MONOLITH_CORE.asItem())
+        ).setItemChancePercentagePerItem(5).save(provider);
+        MobTransformWithItemRecipe.from(
+            EntityType.ZOMBIE,
+            ModBlocks.MONOLITH_LINE,
+            EntityType.GIANT,
+            new ItemStackTemplate(ModBlocks.GIANT_MONOLITH_LINE.asItem())
+        ).setItemChancePercentagePerItem(5).save(provider);
     }
 }
