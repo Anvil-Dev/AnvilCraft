@@ -3,7 +3,10 @@
   "criteria": {
     "super_kill": {
       "conditions": {
-        "damage": 80.0
+        "damage": 80.0,
+        "item": {
+          "items": "anvilcraft:royal_anvil_hammer"
+        }
       },
       "trigger": "anvilcraft:anvil_hammer_hurt_entity"
     }
