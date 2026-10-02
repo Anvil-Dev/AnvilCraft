@@ -5,6 +5,8 @@ import dev.dubhe.anvilcraft.block.LargeCakeBlock;
 import dev.dubhe.anvilcraft.block.UseItemOnBlock;
 import dev.dubhe.anvilcraft.block.entity.storage.StorageBlockEntity;
 import dev.dubhe.anvilcraft.block.item.LargeCakeBlockItem;
+import dev.dubhe.anvilcraft.entity.FallingSpectralBlockEntity;
+import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.Registries;
@@ -150,6 +152,10 @@ final class BuildingUndoResources {
         if (plan.unsupported()) throw new IllegalArgumentException("Unknown entity resources");
         if (probe instanceof Mob && plan.material().isEmpty()) throw new IllegalArgumentException("Missing creature material");
         ItemStack material = supplied.isEmpty() ? plan.material().copy() : supplied.copyWithCount(1);
+        if (probe instanceof FallingSpectralBlockEntity falling && falling.getBlockState().is(ModBlocks.SPECTRAL_ANVIL)
+            && (!copy.contains("Ghost") || copy.getBoolean("Ghost")) && !falling.dropItem) {
+            material = ItemStack.EMPTY;
+        }
         if (!material.isEmpty() && !(probe instanceof ItemEntity)) {
             if (probe.getCustomName() == null) material.remove(DataComponents.CUSTOM_NAME);
             else material.set(DataComponents.CUSTOM_NAME, probe.getCustomName());
