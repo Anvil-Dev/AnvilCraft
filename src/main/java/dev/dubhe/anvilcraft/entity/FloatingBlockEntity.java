@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.entity;
 
+import dev.dubhe.anvilcraft.building.BuildingRodUndo;
 import dev.dubhe.anvilcraft.init.entity.ModEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -90,7 +91,9 @@ public class FloatingBlockEntity extends FallingBlockEntity {
                                     this.blockState = this.blockState.setValue(BlockStateProperties.WATERLOGGED, true);
                                 }
 
-                                if (this.level().setBlock(blockPos, this.blockState, 3)) {
+                                BlockPos landingPos = blockPos;
+                                if (BuildingRodUndo.placeFallingBlock(this, landingPos,
+                                    () -> this.level().setBlock(landingPos, this.blockState, 3))) {
                                     ((ServerLevel) this.level()).getChunkSource().chunkMap.broadcast(
                                         this,
                                         new ClientboundBlockUpdatePacket(
