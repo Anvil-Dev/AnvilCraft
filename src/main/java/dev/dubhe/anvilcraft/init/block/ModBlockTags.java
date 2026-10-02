@@ -49,6 +49,7 @@ public class ModBlockTags {
     public static final TagKey<Block> SLIDING_RAIL_STOP_LIKE = bind("sliding_rail_stop_like");
     public static final TagKey<Block> RESIN_SHOCK_COMPATIBLE = bind("resin_shock_compatible");
     public static final TagKey<Block> LANDING_NO_RECIPE = bind("landing_no_recipe");
+    public static final TagKey<Block> MONOLITH_BLOCKS = bind("monolith_blocks");
     /**
      * 需要放置预览的方块。
      *

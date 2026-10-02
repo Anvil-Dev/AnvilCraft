@@ -1,11 +1,9 @@
 {
   "type": "minecraft:jigsaw",
-  "start_pool": "anvilcraft:the_monolith_pool",
+  "start_pool": "anvilcraft:small_monolith_pool",
   "size": 1,
   "max_distance_from_center": 80,
-  "biomes": [
-    "anvilcraft:mun"
-  ],
+  "biomes": "#minecraft:is_savanna",
   "step": "surface_structures",
   "terrain_adaptation": "beard_thin",
   "start_height": {

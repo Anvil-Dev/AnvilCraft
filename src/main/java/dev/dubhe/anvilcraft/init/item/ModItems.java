@@ -1265,6 +1265,10 @@ public class ModItems {
         .properties(properties -> properties.fireResistant().stacksTo(1))
         .register();
 
+    public static final ItemEntry<Item> LEGACY_ESSENCE = REGISTRUM.item("legacy_essence", Item::new)
+        .lang("Legacy Essence")
+        .register();
+
     public static final ItemEntry<BucketItem> EXP_BUCKET = REGISTRUM.item("exp_bucket", ModItems.bucket(() -> ModFluids.EXP_FLUID))
         .tag(ModItemTags.EXP_BUCKETS, Tags.Items.BUCKETS)
         .lang("EXP Bucket")

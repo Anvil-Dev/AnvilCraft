@@ -1,0 +1,22 @@
+{
+  "type": "anvilcraft:anvil_collision",
+  "anvil": {
+    "blocks": "#anvilcraft:anvil_tier_0"
+  },
+  "consume": false,
+  "hitBlock": {
+    "blocks": "anvilcraft:monolith"
+  },
+  "output_items": [
+    {
+      "count": {
+        "type": "minecraft:binomial",
+        "n": 64.0,
+        "p": 1.0
+      },
+      "id": "anvilcraft:legacy_essence"
+    }
+  ],
+  "speed": 256,
+  "transform_blocks": []
+}

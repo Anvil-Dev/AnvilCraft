@@ -1,0 +1,53 @@
+{
+  "type": "anvilcraft:procedural_process",
+  "displayed_models": [
+    "anvilcraft:block/wip_display/monolith_wip"
+  ],
+  "icon": {
+    "count": 1,
+    "id": "anvilcraft:monolith"
+  },
+  "initial_block": {
+    "blocks": "minecraft:blackstone"
+  },
+  "loop": 1,
+  "result_block": {
+    "block": "anvilcraft:monolith"
+  },
+  "steps": [
+    {
+      "content": {
+        "type": "anvilcraft:block_compress",
+        "inputs": [
+          {
+            "blocks": "anvilcraft:spacetime_supercomputer"
+          },
+          {
+            "blocks": "minecraft:blackstone"
+          }
+        ],
+        "result": {
+          "block": "anvilcraft:wip_block"
+        }
+      },
+      "index": 0
+    },
+    {
+      "content": {
+        "type": "anvilcraft:block_compress",
+        "inputs": [
+          {
+            "blocks": "anvilcraft:mass_energy_inverter"
+          },
+          {
+            "blocks": "anvilcraft:wip_block"
+          }
+        ],
+        "result": {
+          "block": "anvilcraft:monolith"
+        }
+      },
+      "index": 1
+    }
+  ]
+}

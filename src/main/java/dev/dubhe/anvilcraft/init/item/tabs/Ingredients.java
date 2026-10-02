@@ -66,6 +66,7 @@ public class Ingredients extends DisplayItemsGenerator {
         this.plain(ModItems.EXP_GEM);
         this.plain(ModItems.CIRCUIT_BOARD);
         this.plain(ModItems.PROCESSOR);
+        this.plain(ModItems.LEGACY_ESSENCE);
 
         // Smithing templates.
         this.plain(ModItems.ROYAL_STEEL_UPGRADE_SMITHING_TEMPLATE);

@@ -1,0 +1,18 @@
+{
+  "type": "anvilcraft:mob_transform_with_item",
+  "chance_percent_per_item": 5,
+  "ingredients": [
+    {
+      "items": "anvilcraft:monolith_core"
+    }
+  ],
+  "input": "minecraft:zombie",
+  "item_result": {
+    "count": 1,
+    "id": "anvilcraft:giant_monolith_core"
+  },
+  "special_result": {
+    "probability": 1.0,
+    "result_entity_type": "minecraft:giant"
+  }
+}
