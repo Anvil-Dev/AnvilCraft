@@ -444,6 +444,7 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.cfa.megastructure.planet_exctractor", "Planet Exctractor"); // 行星抽取器
         provider.add("screen.anvilcraft.cfa.megastructure.eco_station", "Ecological Station"); // 生态站
         provider.add("screen.anvilcraft.cfa.megastructure.temple", "Temple"); // 神庙
+        provider.add("screen.anvilcraft.cfa.megastructure.monolith_deployer", "Monolith Deployer"); // 石碑投放器
         provider.add("screen.anvilcraft.cfa.megastructure.giant_planet_exctractor", "Giant Planet Exctractor"); // 巨行星抽取器
         provider.add("screen.anvilcraft.cfa.megastructure.stellar_ring_collider", "Stellar Ring Collider"); // 星环对撞机
         provider.add("screen.anvilcraft.cfa.megastructure.dyson_sphere_brown_dwarf", "Brown Dwarf Dyson Sphere"); // 戴森球（褐矮星）
@@ -474,6 +475,7 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.cfa.megastructure.planet_exctractor.description", "Extracting fluid resources from the planet, and this may damage the planet's ecology");
         provider.add("screen.anvilcraft.cfa.megastructure.eco_station.description", "Cultivate creatures on the planet and harvest biological resources");
         provider.add("screen.anvilcraft.cfa.megastructure.temple.description", "Bestow blessings or mete out punishments to inferior civilization, and reap the resources they offer in homage");
+        provider.add("screen.anvilcraft.cfa.megastructure.monolith_deployer.description", "Project monoliths onto the planet and slightly accelerate its evolution");
         provider.add("screen.anvilcraft.cfa.megastructure.giant_planet_exctractor.description", "Extracting resources from the atmosphere of giant planet. In addition to gases and liquids, solid products may also be produced");
         provider.add("screen.anvilcraft.cfa.megastructure.stellar_ring_collider.description", "Utilizing the gravitational and magnetic fields of star to accelerate the anvil to higher speeds or to frequently impact and manufacture items in batches");
         provider.add("screen.anvilcraft.cfa.megastructure.dyson_sphere_small.description", "Collecting light energy from star, generate a large amount of electricity");
@@ -544,6 +546,16 @@ public class ScreenLang {
                 ———————
                 Side Effects:
                 §7None§r"""
+        );
+        provider.add("screen.anvilcraft.cfa.megastructure.monolith_deployer.usage",
+            """
+                Requires:
+                §fRocky planet with at least 3 types of biological item resources, or a primitive civilization§r
+                ———————
+                Effects after 10 seconds:
+                §fCreates a primitive civilization on a planet with biological resources§r
+                §fExisting primitive civilizations have a 50% chance to become a wasteland planet and a 50% chance to disappear§r
+                §fThe deployer is consumed§r"""
         );
         provider.add("screen.anvilcraft.cfa.megastructure.giant_planet_exctractor.usage",
             """

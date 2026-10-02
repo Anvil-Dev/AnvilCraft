@@ -1517,6 +1517,11 @@ public class ModItems {
         .lang("Legacy Essence")
         .register();
 
+    public static final ItemEntry<Item> CIVILIZATION_CATALYST = REGISTRUM.item("civilization_catalyst", Item::new)
+        .lang("Civilization Catalyst")
+        .recipe(RegistrumItemRecipeLoader::civilizationCatalyst)
+        .register();
+
     public static final ItemEntry<BucketItem> EXP_BUCKET = REGISTRUM
         .item("exp_bucket", p -> new BucketItem(ModFluids.EXP_FLUID.get(), p))
         .tag(ModItemTags.EXP_BUCKETS, Tags.Items.BUCKETS)

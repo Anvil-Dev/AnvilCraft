@@ -221,6 +221,9 @@ public class AdvancementLang {
 
         provider.add("advancements.anvilcraft.the_start.title", "The start");
         provider.add("advancements.anvilcraft.the_start.description", "Obtain celestial forging anvil");
+
+        provider.add("advancements.anvilcraft.new_cycle.title", "A New Cycle");
+        provider.add("advancements.anvilcraft.new_cycle.description", "Witness a civilization disappear from the Celestial Forging Anvil");
         // endregion
 
         // region automation line

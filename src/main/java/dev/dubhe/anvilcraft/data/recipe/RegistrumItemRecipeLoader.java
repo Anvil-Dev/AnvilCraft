@@ -1868,6 +1868,21 @@ public class RegistrumItemRecipeLoader {
             .save(provider);
     }
 
+    public static <T extends Item> void civilizationCatalyst(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
+        HolderGetter<Item> lookup = provider.getItems();
+        ShapedRecipeBuilder.shaped(lookup, RecipeCategory.MISC, ctx.get(), 4)
+            .pattern("MEM")
+            .pattern("MBM")
+            .pattern("MEM")
+            .define('M', ModBlocks.MONOLITH)
+            .define('E', ModItems.LEGACY_ESSENCE)
+            .define('B', ModBlocks.CORRUPTED_BEACON)
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.MONOLITH), AnvilCraftDatagen.has(lookup, ModBlocks.MONOLITH))
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.LEGACY_ESSENCE), AnvilCraftDatagen.has(lookup, ModItems.LEGACY_ESSENCE))
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.CORRUPTED_BEACON), AnvilCraftDatagen.has(lookup, ModBlocks.CORRUPTED_BEACON))
+            .save(provider);
+    }
+
     public static <T extends Item> void checkValve(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
         HolderGetter<Item> lookup = provider.getItems();
         ShapelessRecipeBuilder.shapeless(lookup, RecipeCategory.MISC, ctx.get())

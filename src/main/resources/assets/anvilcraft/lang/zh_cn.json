@@ -1,5 +1,11 @@
 {
+  "advancements.anvilcraft.new_cycle.description": "见证一个文明从锻星砧中消失",
+  "advancements.anvilcraft.new_cycle.title": "新轮回",
   "block.anvilcraft.ruins_block": "遗迹方块",
+  "item.anvilcraft.civilization_catalyst": "文明催化器",
+  "screen.anvilcraft.cfa.megastructure.monolith_deployer": "石碑投放器",
+  "screen.anvilcraft.cfa.megastructure.monolith_deployer.description": "向星球投射石碑，并稍微加速其演化",
+  "screen.anvilcraft.cfa.megastructure.monolith_deployer.usage": "需求：\n§f具有至少3种生物掉落物资源，或已有原始文明的岩石行星§r\n———————\n10秒后生效：\n§f使具有生物资源的星球产生原始文明§r\n§f已有原始文明的星球有50%概率成为废土星球，50%概率消失§r\n§f石碑投放器在生效后消失§r",
   "screen.anvilcraft.ruins.fragile": "交互即碎",
   "screen.anvilcraft.ruins.inert": "交互无响应",
   "screen.anvilcraft.ruins.loot_table": "战利品表",

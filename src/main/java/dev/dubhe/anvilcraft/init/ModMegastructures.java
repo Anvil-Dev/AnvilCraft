@@ -19,6 +19,7 @@ import dev.dubhe.anvilcraft.block.entity.megastructure.ExtractorHandler;
 import dev.dubhe.anvilcraft.block.entity.megastructure.GiantExtractorHandler;
 import dev.dubhe.anvilcraft.block.entity.megastructure.MagnetarCoilHandler;
 import dev.dubhe.anvilcraft.block.entity.megastructure.MatterDecompressorHandler;
+import dev.dubhe.anvilcraft.block.entity.megastructure.MonolithDeployerHandler;
 import dev.dubhe.anvilcraft.block.entity.megastructure.PenroseSphereHandler;
 import dev.dubhe.anvilcraft.block.entity.megastructure.TempleHandler;
 import dev.dubhe.anvilcraft.block.entity.megastructure.WormholeStabilizerHandler;
@@ -79,6 +80,17 @@ public final class ModMegastructures {
             .model(1, ringModel(1, "temple"))
             .material(ModBlocks.ENCHANTED_GOLD_BLOCK.asItem(), 64)
             .handler(TempleHandler::new)
+            .build()
+    );
+    public static final DeferredHolder<Megastructure, Megastructure> MONOLITH_DEPLOYER = register(
+        "monolith_deployer",
+        id -> Megastructure.builder(id, "monolith_deployer")
+            .prerequisite(context -> isPlanet(context) && !isErrorPlanet(context)
+                && MonolithDeployerHandler.canDeploy(context.resources()))
+            .ring(1)
+            .model(1, ringModel(1, "monolith"))
+            .material(ModItems.CIVILIZATION_CATALYST.get(), 1)
+            .handler(MonolithDeployerHandler::new)
             .build()
     );
     public static final DeferredHolder<Megastructure, Megastructure> GIANT_PLANET_EXTRACTOR = register(
