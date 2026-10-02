@@ -145,6 +145,7 @@ final class BuildingRegionSnapshot {
         return true;
     }
 
+    /** 只校验已变化的植物；未记录的配对方块不会被还原，可按现场状态判断。 */
     boolean hasCompletePlants() {
         Map<BlockPos, BlockState> original = new LinkedHashMap<>();
         this.blocks.forEach(block -> original.put(block.pos(), block.state()));
@@ -154,6 +155,7 @@ final class BuildingRegionSnapshot {
             DoubleBlockHalf half = block.state().getValue(DoublePlantBlock.HALF);
             BlockPos other = half == DoubleBlockHalf.LOWER ? block.pos().above() : block.pos().below();
             BlockState otherState = original.get(other);
+            if (otherState == null && this.level.isInWorldBounds(other)) otherState = this.level.getBlockState(other);
             if (otherState == null || !otherState.is(block.state().getBlock()) || otherState.getValue(DoublePlantBlock.HALF) == half) {
                 return false;
             }
