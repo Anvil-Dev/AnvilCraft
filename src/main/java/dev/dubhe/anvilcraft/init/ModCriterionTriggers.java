@@ -27,6 +27,7 @@ import dev.dubhe.anvilcraft.advancements.criterion.PlanetDetonationTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.PlanetaryCollapseDeathTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.PlayerKilledEntityByAnvilHammerTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.PlayerWearAnvilHammerTrigger;
+import dev.dubhe.anvilcraft.advancements.criterion.StarContactDeathTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.UseItemTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.VoidEnergyCollectorWorkingTrigger;
 import net.minecraft.advancements.CriterionTrigger;
@@ -150,6 +151,9 @@ public class ModCriterionTriggers {
 
     public static final DeferredHolder<CriterionTrigger<?>, PlanetaryCollapseDeathTrigger> PLANETARY_COLLAPSE_DEATH =
         REGISTER.register("planetary_collapse_death", PlanetaryCollapseDeathTrigger::new);
+
+    public static final DeferredHolder<CriterionTrigger<?>, StarContactDeathTrigger> STAR_CONTACT_DEATH =
+        REGISTER.register("star_contact_death", StarContactDeathTrigger::new);
 
     public static void register(IEventBus eventBus) {
         REGISTER.register(eventBus);

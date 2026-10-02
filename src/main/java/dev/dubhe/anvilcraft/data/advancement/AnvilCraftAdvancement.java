@@ -448,6 +448,10 @@ public class AnvilCraftAdvancement {
             .challenge(ModItems.MAGNETAR_COIL_COMPONENT, "neutron_star")
             .celestialEvolution("neutron_star", StellarTerminal.Kind.NEUTRON_STAR)
             .save("neutron_star");
+        industrialLine.createBranch().next()
+            .task(ModBlocks.CELESTIAL_FORGING_ANVIL, "come_at_night", true)
+            .starContactDeath("come_at_night")
+            .save("come_at_night");
         industrialLine.next()
             .challenge(ModItems.STELLAR_EVOLUTION_ACCELERATOR_COMPONENT, "no_remnant", true)
             .celestialEvolution("no_remnant", MinMaxBounds.Ints.exactly(64))

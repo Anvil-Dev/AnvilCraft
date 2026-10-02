@@ -28,6 +28,7 @@ import dev.dubhe.anvilcraft.advancements.criterion.PlanetDetonationTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.PlanetaryCollapseDeathTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.PlayerKilledEntityByAnvilHammerTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.PlayerWearAnvilHammerTrigger;
+import dev.dubhe.anvilcraft.advancements.criterion.StarContactDeathTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.UseItemTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.VoidEnergyCollectorWorkingTrigger;
 import dev.dubhe.anvilcraft.block.entity.celestial.StellarTerminal;
@@ -701,6 +702,10 @@ public class AdvancementLineHelper {
 
         public AdvancementHelper planetaryCollapseDeath(String key) {
             return this.addCriterion(key, PlanetaryCollapseDeathTrigger.TriggerInstance.died());
+        }
+
+        public AdvancementHelper starContactDeath(String key) {
+            return this.addCriterion(key, StarContactDeathTrigger.TriggerInstance.died());
         }
 
         public AdvancementHolder build(String id) {

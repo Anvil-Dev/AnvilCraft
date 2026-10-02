@@ -223,4 +223,9 @@ public class TriggerUtil {
     public static void planetaryCollapseDeath(ServerPlayer player) {
         ModCriterionTriggers.PLANETARY_COLLAPSE_DEATH.get().trigger(player);
     }
+
+    /** 死亡事件只涉及当事玩家，不需要按位置搜索。 */
+    public static void starContactDeath(ServerPlayer player) {
+        ModCriterionTriggers.STAR_CONTACT_DEATH.get().trigger(player);
+    }
 }

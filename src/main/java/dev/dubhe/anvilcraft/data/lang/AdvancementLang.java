@@ -165,6 +165,9 @@ public class AdvancementLang {
         provider.add("advancements.anvilcraft.cannon_fodder.title", "Cannon Fodder");
         provider.add("advancements.anvilcraft.cannon_fodder.description", "Die to a planetary collapse inside an Overworld-Like planet");
 
+        provider.add("advancements.anvilcraft.come_at_night.title", "You Should Come At Night");
+        provider.add("advancements.anvilcraft.come_at_night.description", "Get killed by a star");
+
         provider.add("advancements.anvilcraft.black_hole.title", "Not Even Light Escapes");
         provider.add("advancements.anvilcraft.black_hole.description", "Drive a star's evolution to the end and collapse it into a black hole");
 

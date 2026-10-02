@@ -60,6 +60,14 @@ public class OverworldLikeEventListener {
     }
 
     @SubscribeEvent
+    public static void onStarContactDeath(LivingDeathEvent event) {
+        if (!event.getSource().is(ModDamageTypes.STAR_CONTACT)) return;
+        if (event.getEntity() instanceof ServerPlayer player) {
+            TriggerUtil.starContactDeath(player);
+        }
+    }
+
+    @SubscribeEvent
     public static void onServerStopped(ServerStoppedEvent event) {
         OverworldLikeGenerationBootstrap.clear(event.getServer());
     }
