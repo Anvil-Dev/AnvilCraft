@@ -39,7 +39,7 @@ public class FluidTankBlockItem extends BlockItem {
         return FluidTankItemTooltip.singleFluidTooltipImage(
             stack,
             FluidTankBlockEntity.BASE_CAPACITY,
-            FluidTankBlockEntity.INFINITY_THRESHOLD
+            FluidTankBlockEntity.infinityThreshold()
         );
     }
 

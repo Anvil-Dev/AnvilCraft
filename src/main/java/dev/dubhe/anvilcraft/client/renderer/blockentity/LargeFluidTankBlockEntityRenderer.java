@@ -59,7 +59,7 @@ public class LargeFluidTankBlockEntityRenderer implements BlockEntityRenderer<La
 
         long totalAmount = fluids.stream().mapToLong(FluidStack::getAmount).sum();
         long renderAmount = tank.isEnhanced()
-            ? Math.max(totalAmount, LargeFluidTankBlockEntity.INFINITY_THRESHOLD)
+            ? Math.max(totalAmount, LargeFluidTankBlockEntity.infinityThreshold())
             : LargeFluidTankBlockEntity.BASE_CAPACITY;
 
         List<FluidStack> liquids = new ArrayList<>();

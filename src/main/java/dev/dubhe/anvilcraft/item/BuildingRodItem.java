@@ -28,7 +28,12 @@ import net.neoforged.neoforge.fluids.FluidUtil;
 import javax.annotation.Nullable;
 
 public class BuildingRodItem extends Item implements ICapacitorChargeable {
-    public static final int MAX_ENERGY = CapacitorItem.ENERGY;
+    /**
+     * 能量上限，运行时读取配置。
+     */
+    public static int maxEnergy() {
+        return AnvilCraft.CONFIG.equipment.buildingRodMaxEnergy;
+    }
 
     public BuildingRodItem(Properties properties) {
         super(properties.stacksTo(1).component(ModComponents.STORED_ENERGY, 0));
@@ -36,7 +41,7 @@ public class BuildingRodItem extends Item implements ICapacitorChargeable {
 
     public ItemStack creativeStack() {
         ItemStack stack = this.getDefaultInstance();
-        stack.set(ModComponents.STORED_ENERGY, MAX_ENERGY);
+        stack.set(ModComponents.STORED_ENERGY, maxEnergy());
         return stack;
     }
 
@@ -141,7 +146,7 @@ public class BuildingRodItem extends Item implements ICapacitorChargeable {
 
     @Override
     public int getBarWidth(ItemStack stack) {
-        return Math.round(13f * stack.getOrDefault(ModComponents.STORED_ENERGY, 0) / MAX_ENERGY);
+        return Math.round(13f * stack.getOrDefault(ModComponents.STORED_ENERGY, 0) / maxEnergy());
     }
 
     @Override

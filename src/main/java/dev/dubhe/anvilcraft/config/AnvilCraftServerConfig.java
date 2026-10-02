@@ -226,6 +226,9 @@ public class AnvilCraftServerConfig {
         @Comment("Controls how many blocks a sliding structure may push at most (also scales the detector rail signal)")
         @BoundedDiscrete(min = 1, max = 256)
         public int slidingRailMaxPushDepth = 12;
+        @Comment("Controls the chance that a falling NeoForge anvil takes damage on impact")
+        @BoundedDiscrete(min = 0.0, max = 1.0)
+        public double neoforgeAnvilDamageChance = 0.01;
     }
 
     @SerializedName("Machines & Logistics")
@@ -486,6 +489,9 @@ public class AnvilCraftServerConfig {
         @Comment("Controls the capacity of each Large Cauldron tank (in mB)")
         @BoundedDiscrete(min = 1000, max = 1000000)
         public int largeCauldronTankCapacity = 64000;
+        @Comment("Controls the amount at which a fluid tank counts as infinite (in mB)")
+        @BoundedDiscrete(min = 1000, max = 2000000000)
+        public int fluidTankInfinityThreshold = 12800000;
     }
 
     @SerializedName("Equipment & Enchanting")
@@ -683,6 +689,9 @@ public class AnvilCraftServerConfig {
         @Comment("Controls the energy the Weatherproof Chestplate consumes per tick of flight (in FE)")
         @BoundedDiscrete(min = 1, max = 1000000)
         public int weatherproofChestplateFlightConsumption = 5000;
+        @Comment("Controls the maximum energy of the Building Rod (in FE)")
+        @BoundedDiscrete(min = 1, max = 2000000000)
+        public int buildingRodMaxEnergy = 8000000;
     }
 
     @SerializedName("Commands")

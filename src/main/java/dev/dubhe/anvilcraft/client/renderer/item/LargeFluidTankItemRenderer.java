@@ -103,7 +103,7 @@ public class LargeFluidTankItemRenderer extends BlockEntityWithoutLevelRenderer 
         boolean enhanced = tankTag.getBoolean(TAG_ENHANCED);
         long totalAmount = fluids.stream().mapToLong(FluidStack::getAmount).sum();
         long renderAmount = enhanced
-            ? Math.max(totalAmount, LargeFluidTankBlockEntity.INFINITY_THRESHOLD)
+            ? Math.max(totalAmount, LargeFluidTankBlockEntity.infinityThreshold())
             : LargeFluidTankBlockEntity.BASE_CAPACITY;
 
         float tankW = 4 / 16f + 0.001f;

@@ -80,7 +80,7 @@ public class FluidTankItemRenderer extends BlockEntityWithoutLevelRenderer {
         FluidStack fluid = FluidStack.parseOptional(registries, tankTag.getCompound(TAG_FLUID));
         if (fluid.isEmpty()) return;
         int capacity = tankTag.getBoolean(TAG_ENHANCED)
-            ? FluidTankBlockEntity.INFINITY_THRESHOLD
+            ? FluidTankBlockEntity.infinityThreshold()
             : FluidTankBlockEntity.BASE_CAPACITY;
         float fill = Mth.clamp((float) fluid.getAmount() / capacity, 0.0F, 1.0F);
         FluidTankRenderUtil.drawFluidInTank(poseStack, buffer, packedLight, fluid, fill);

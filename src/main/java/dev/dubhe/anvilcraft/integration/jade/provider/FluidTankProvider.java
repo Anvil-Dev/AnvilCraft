@@ -40,7 +40,7 @@ public class FluidTankProvider extends FluidStorageProvider.ForBlock {
             }
             case LargeFluidTankBlockEntity tank -> {
                 int capacity = tank.isEnhanced()
-                               ? LargeFluidTankBlockEntity.INFINITY_THRESHOLD
+                               ? LargeFluidTankBlockEntity.infinityThreshold()
                                : LargeFluidTankBlockEntity.BASE_CAPACITY;
                 fluids = tank.getStoredFluids().stream()
                     .map(fluid -> new FluidEntry(fluid, capacity, tank.isInfinite(fluid)))

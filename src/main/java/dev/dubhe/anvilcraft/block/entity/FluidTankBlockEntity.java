@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.block.entity;
 
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.fluid.FluidHandlerWrapper;
 import dev.dubhe.anvilcraft.api.fluid.IFluidHandlerHolder;
 import dev.dubhe.anvilcraft.api.fluid.network.FluidNetworkManager;
@@ -34,13 +35,18 @@ import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 
 public class FluidTankBlockEntity extends BlockEntity implements IFluidHandlerHolder {
     public static final int BASE_CAPACITY = 16 * FluidType.BUCKET_VOLUME;
-    public static final int INFINITY_THRESHOLD = 12800 * FluidType.BUCKET_VOLUME;
+    /**
+     * 储罐被视为无限的容量阈值（mB），运行时读取配置。
+     */
+    public static int infinityThreshold() {
+        return AnvilCraft.CONFIG.machines.fluidTankInfinityThreshold;
+    }
     private static final int CHECK_INTERVAL = 100;
     private static final String TAG_TANK = "Tank";
 
     private final SingleFluidTankHandler tank = new SingleFluidTankHandler(
         BASE_CAPACITY,
-        INFINITY_THRESHOLD,
+        infinityThreshold(),
         this::onTankChanged
     );
     private int tickCounter;
@@ -169,7 +175,7 @@ public class FluidTankBlockEntity extends BlockEntity implements IFluidHandlerHo
 
         SingleFluidTankHandler itemTank = new SingleFluidTankHandler(
             BASE_CAPACITY,
-            INFINITY_THRESHOLD,
+            infinityThreshold(),
             () -> {}
         );
         if (itemTank.fill(fluid, IFluidHandler.FluidAction.EXECUTE) != fluid.getAmount()) {
@@ -186,7 +192,7 @@ public class FluidTankBlockEntity extends BlockEntity implements IFluidHandlerHo
     private static SingleFluidTankHandler readItemTank(ItemStack stack, HolderLookup.Provider registries) {
         SingleFluidTankHandler itemTank = new SingleFluidTankHandler(
             BASE_CAPACITY,
-            INFINITY_THRESHOLD,
+            infinityThreshold(),
             () -> {}
         );
         itemTank.readFromNBT(registries, getItemData(stack).getCompound(TAG_TANK));
@@ -225,6 +231,6 @@ public class FluidTankBlockEntity extends BlockEntity implements IFluidHandlerHo
     }
 
     public boolean containsInfiniteFluid() {
-        return this.tank.getFluidAmount() >= INFINITY_THRESHOLD;
+        return this.tank.getFluidAmount() >= infinityThreshold();
     }
 }

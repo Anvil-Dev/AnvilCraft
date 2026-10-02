@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.block.entity;
 
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.fluid.FluidHandlerWrapper;
 import dev.dubhe.anvilcraft.api.fluid.IFluidHandlerHolder;
 import dev.dubhe.anvilcraft.api.fluid.network.FluidNetworkManager;
@@ -37,13 +38,18 @@ import java.util.List;
 
 public class LargeFluidTankBlockEntity extends BlockEntity implements IFluidHandlerHolder {
     public static final int BASE_CAPACITY = 512 * FluidType.BUCKET_VOLUME;
-    public static final int INFINITY_THRESHOLD = 12800 * FluidType.BUCKET_VOLUME;
+    /**
+     * 储罐被视为无限的容量阈值（mB），运行时读取配置。
+     */
+    public static int infinityThreshold() {
+        return AnvilCraft.CONFIG.machines.fluidTankInfinityThreshold;
+    }
     private static final int CHECK_INTERVAL = 100;
     private static final String TAG_TANK = "Tank";
 
     private final MultiFluidTankHandler tank = new MultiFluidTankHandler(
         BASE_CAPACITY,
-        INFINITY_THRESHOLD,
+        infinityThreshold(),
         this::onTankChanged
     );
     private int tickCounter;
@@ -127,7 +133,7 @@ public class LargeFluidTankBlockEntity extends BlockEntity implements IFluidHand
         for (FluidStack stack : this.tank.copyFluids()) {
             lightLevel = Math.max(lightLevel, stack.getFluidType().getLightLevel(stack));
         }
-        long renderCapacity = this.tank.isEnhanced() ? INFINITY_THRESHOLD : BASE_CAPACITY;
+        long renderCapacity = this.tank.isEnhanced() ? infinityThreshold() : BASE_CAPACITY;
         double fill = Math.min(1, (double) this.tank.getTotalAmount() / renderCapacity);
         return (int) Math.ceil(lightLevel * fill);
     }
@@ -187,7 +193,7 @@ public class LargeFluidTankBlockEntity extends BlockEntity implements IFluidHand
 
         MultiFluidTankHandler itemTank = new MultiFluidTankHandler(
             BASE_CAPACITY,
-            INFINITY_THRESHOLD,
+            infinityThreshold(),
             () -> {}
         );
         for (FluidStack fluid : fluids) {
@@ -207,7 +213,7 @@ public class LargeFluidTankBlockEntity extends BlockEntity implements IFluidHand
     private static MultiFluidTankHandler readItemTank(ItemStack stack, HolderLookup.Provider registries) {
         MultiFluidTankHandler itemTank = new MultiFluidTankHandler(
             BASE_CAPACITY,
-            INFINITY_THRESHOLD,
+            infinityThreshold(),
             () -> {}
         );
         itemTank.deserializeNBT(registries, getItemData(stack).getCompound(TAG_TANK));
@@ -236,7 +242,7 @@ public class LargeFluidTankBlockEntity extends BlockEntity implements IFluidHand
     public int getRedstoneSignal() {
         MultiFluidTankHandler tank = this.getMainPart().tank;
         long amount = tank.getTotalAmount();
-        int capacity = tank.isEnhanced() ? INFINITY_THRESHOLD : BASE_CAPACITY;
+        int capacity = tank.isEnhanced() ? infinityThreshold() : BASE_CAPACITY;
         int strength = amount == 0 ? 0 : (int) (Math.min(amount, capacity)
             * (Redstone.SIGNAL_MAX - 1) / capacity) + 1;
         strength = Mth.clamp(strength, Redstone.SIGNAL_MIN, Redstone.SIGNAL_MAX);
@@ -271,7 +277,7 @@ public class LargeFluidTankBlockEntity extends BlockEntity implements IFluidHand
 
     public boolean containsInfiniteFluid() {
         return this.getMainPart().tank.copyFluids().stream()
-            .anyMatch(fluid -> fluid.getAmount() >= INFINITY_THRESHOLD);
+            .anyMatch(fluid -> fluid.getAmount() >= infinityThreshold());
     }
 
     public List<FluidStack> getStoredFluids() {
