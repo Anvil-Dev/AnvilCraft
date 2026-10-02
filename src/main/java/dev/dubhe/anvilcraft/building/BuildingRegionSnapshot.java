@@ -14,8 +14,10 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockEventData;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.DoublePlantBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.phys.AABB;
 import net.neoforged.neoforge.common.CommonHooks;
@@ -74,9 +76,21 @@ final class BuildingRegionSnapshot {
         return this.bounds.isInside(pos) || this.addedPositions.contains(pos);
     }
 
-    /** 只补记落地覆盖的方块，避免重建已落地实体或回滚附近的无关实体。 */
+    /** 只补记落地覆盖的方块及其双格植物配对方块，避免回滚附近的无关实体。 */
     List<BlockPos> captureBlocks(List<BlockPos> positions) {
-        List<BlockPos> added = positions.stream().filter(pos -> !this.contains(pos) && this.level.isInWorldBounds(pos))
+        List<BlockPos> expanded = new ArrayList<>(positions);
+        for (BlockPos pos : positions) {
+            if (!this.level.isInWorldBounds(pos)) continue;
+            BlockState state = this.level.getBlockState(pos);
+            if (!(state.getBlock() instanceof DoublePlantBlock)) continue;
+            BlockPos other = state.getValue(DoublePlantBlock.HALF) == DoubleBlockHalf.LOWER ? pos.above() : pos.below();
+            if (!this.level.isInWorldBounds(other)) continue;
+            BlockState otherState = this.level.getBlockState(other);
+            if (otherState.is(state.getBlock()) && otherState.getValue(DoublePlantBlock.HALF) != state.getValue(DoublePlantBlock.HALF)) {
+                expanded.add(other);
+            }
+        }
+        List<BlockPos> added = expanded.stream().filter(pos -> !this.contains(pos) && this.level.isInWorldBounds(pos))
             .map(BlockPos::immutable).distinct().toList();
         if (added.isEmpty()) return added;
         List<SavedBlock> captured = new ArrayList<>();
@@ -126,6 +140,24 @@ final class BuildingRegionSnapshot {
             } else {
                 Entity.RemovalReason reason = saved.original().getRemovalReason();
                 if (reason == null || !reason.shouldDestroy()) return false;
+            }
+        }
+        return true;
+    }
+
+    /** 只校验已变化的植物；未记录的配对方块不会被还原，可按现场状态判断。 */
+    boolean hasCompletePlants() {
+        Map<BlockPos, BlockState> original = new LinkedHashMap<>();
+        this.blocks.forEach(block -> original.put(block.pos(), block.state()));
+        for (SavedBlock block : this.blocks) {
+            if (!(block.state().getBlock() instanceof DoublePlantBlock)
+                || this.level.getBlockState(block.pos()) == block.state()) continue;
+            DoubleBlockHalf half = block.state().getValue(DoublePlantBlock.HALF);
+            BlockPos other = half == DoubleBlockHalf.LOWER ? block.pos().above() : block.pos().below();
+            BlockState otherState = original.get(other);
+            if (otherState == null && this.level.isInWorldBounds(other)) otherState = this.level.getBlockState(other);
+            if (otherState == null || !otherState.is(block.state().getBlock()) || otherState.getValue(DoublePlantBlock.HALF) == half) {
+                return false;
             }
         }
         return true;
