@@ -431,5 +431,9 @@ public class AnvilCraftAdvancement {
             .challenge(ModBlocks.CELESTIAL_FORGING_ANVIL, "the_start")
             .hasItems("has_celestial_forging_anvil", ModBlocks.CELESTIAL_FORGING_ANVIL)
             .save("the_start");
+        industrialLine.next()
+            .challenge(ModItems.STELLAR_EVOLUTION_ACCELERATOR_COMPONENT, "no_remnant", true)
+            .celestialEvolution("no_remnant", MinMaxBounds.Ints.exactly(64))
+            .save("no_remnant");
     }
 }

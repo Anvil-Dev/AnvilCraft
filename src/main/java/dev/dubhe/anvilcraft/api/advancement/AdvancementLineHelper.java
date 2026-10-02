@@ -8,6 +8,7 @@ import dev.dubhe.anvilcraft.advancements.criterion.AnvilHitPiezoelectricCrystalT
 import dev.dubhe.anvilcraft.advancements.criterion.AnvilLootingTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.AnvilOnGroundTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.BlockComparatorTurnOverTrigger;
+import dev.dubhe.anvilcraft.advancements.criterion.CelestialEvolutionTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.ConvertBeaconTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.DevourerDevourTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.DispenserRepairIronGolem;
@@ -681,6 +682,10 @@ public class AdvancementLineHelper {
 
         public AdvancementHelper multiBlockForm(String key) {
             return this.addCriterion(key, MultiBlockFormTrigger.TriggerInstance.form());
+        }
+
+        public AdvancementHelper celestialEvolution(String key, MinMaxBounds.Ints massAnvils) {
+            return this.addCriterion(key, CelestialEvolutionTrigger.TriggerInstance.evolved(massAnvils));
         }
 
         public AdvancementHolder build(String id) {

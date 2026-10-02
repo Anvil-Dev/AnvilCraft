@@ -7,6 +7,7 @@ import dev.dubhe.anvilcraft.advancements.criterion.AnvilHitPiezoelectricCrystalT
 import dev.dubhe.anvilcraft.advancements.criterion.AnvilLootingTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.AnvilOnGroundTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.BlockComparatorTurnOverTrigger;
+import dev.dubhe.anvilcraft.advancements.criterion.CelestialEvolutionTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.ConvertBeaconTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.DevourerDevourTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.DispenserRepairIronGolem;
@@ -138,6 +139,9 @@ public class ModCriterionTriggers {
 
     public static final DeferredHolder<CriterionTrigger<?>, MultiBlockFormTrigger> MULTI_BLOCK_FORM =
         REGISTER.register("multi_block_form", MultiBlockFormTrigger::new);
+
+    public static final DeferredHolder<CriterionTrigger<?>, CelestialEvolutionTrigger> CELESTIAL_EVOLUTION =
+        REGISTER.register("celestial_evolution", CelestialEvolutionTrigger::new);
 
     public static void register(IEventBus eventBus) {
         REGISTER.register(eventBus);

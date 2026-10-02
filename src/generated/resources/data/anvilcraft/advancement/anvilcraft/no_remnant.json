@@ -1,0 +1,31 @@
+{
+  "parent": "anvilcraft:anvilcraft/the_start",
+  "criteria": {
+    "no_remnant": {
+      "conditions": {
+        "mass_anvils": 64
+      },
+      "trigger": "anvilcraft:celestial_evolution"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.anvilcraft.no_remnant.description"
+    },
+    "frame": "challenge",
+    "hidden": true,
+    "icon": {
+      "count": 1,
+      "id": "anvilcraft:stellar_evolution_accelerator_component"
+    },
+    "title": {
+      "translate": "advancements.anvilcraft.no_remnant.title"
+    }
+  },
+  "requirements": [
+    [
+      "no_remnant"
+    ]
+  ],
+  "sends_telemetry_event": true
+}
