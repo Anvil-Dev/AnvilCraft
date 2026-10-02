@@ -635,7 +635,7 @@ public final class GravityManager {
             for (GravitySource source : index.sourcesAt(position)) {
                 Vec3 force = calculateGravityVector(source, position, baseGravity).scale(scalar);
                 Vec3 offset = source.center().subtract(position);
-                if (source.type().strength() >= 10 && scalar > 0
+                if (source.type().strength() >= AnvilCraft.CONFIG.world.relativisticPrecessionMinStrength && scalar > 0
                     && offset.lengthSqr() >= source.type().bodyRadius() * source.type().bodyRadius()) {
                     force = force.scale(OrbitalIntegrator.relativisticFactor(offset, velocity, inverseLightSpeedSquared));
                 }

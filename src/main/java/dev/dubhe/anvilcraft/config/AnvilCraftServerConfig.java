@@ -22,8 +22,11 @@ public class AnvilCraftServerConfig {
         @BoundedDiscrete(min = 1, max = 64)
         public int orbitIntegrationSubsteps = 8;
 
-        @Comment("Controls whether to enable Schwarzschild periapsis advance around attractive gravity sources of strength at least 10")
+        @Comment("Controls whether to enable Schwarzschild periapsis advance around attractive gravity sources")
         public boolean relativisticPrecession = true;
+        @Comment("Controls the minimum strength a gravity source needs to produce relativistic precession")
+        @BoundedDiscrete(min = 0.0, max = 1000.0)
+        public double relativisticPrecessionMinStrength = 10.0;
 
         @Comment("Controls the effective speed of light in blocks per tick used by orbital precession; larger values weaken the effect")
         @BoundedDiscrete(min = 16, max = 4096)
@@ -159,13 +162,23 @@ public class AnvilCraftServerConfig {
         @BoundedDiscrete(min = 0.0, max = 100.0)
         public float heaterDamage = 4.0f;
 
-        @Comment("Controls the chance that using an item on a Chipped Anvil repairs it")
+        @Comment(
+            """
+            Controls the chance that using an item on a Chipped Anvil repairs it
+            Higher rolls consume the item without repairing anything
+            """
+        )
         @BoundedDiscrete(min = 0.0, max = 1.0)
         public double chippedAnvilRepairChance = 0.9;
 
-        @Comment("Controls the chance that using an item on a Damaged Anvil repairs it")
+        @Comment(
+            """
+            Controls the chance that using an item on a Damaged Anvil repairs it to a full Anvil
+            Rolls between this chance and the chipped anvil repair chance degrade it to a Chipped Anvil instead
+            """
+        )
         @BoundedDiscrete(min = 0.0, max = 1.0)
-        public double damagedAnvilRepairChance = 0.2;
+        public double damagedAnvilRepairChance = 0.1;
 
         @Comment("Controls how often Chocolate Blocks apply their effects (in ticks)")
         @BoundedDiscrete(min = 1, max = 1200)
@@ -223,7 +236,12 @@ public class AnvilCraftServerConfig {
         @BoundedDiscrete(min = 0.0, max = 1.0)
         public double cutEmberMetalBlockWaterAbsorptionChance = 0.1;
 
-        @Comment("Controls how many blocks a sliding structure may push at most (also scales the detector rail signal)")
+        @Comment(
+            """
+            Controls how many blocks a sliding structure may push at most (also scales the detector rail signal)
+            A piston push limit changed by another mod takes precedence over this value
+            """
+        )
         @BoundedDiscrete(min = 1, max = 256)
         public int slidingRailMaxPushDepth = 12;
         @Comment("Controls the chance that a falling NeoForge anvil takes damage on impact")

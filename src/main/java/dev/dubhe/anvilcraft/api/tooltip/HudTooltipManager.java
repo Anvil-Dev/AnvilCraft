@@ -140,7 +140,7 @@ public class HudTooltipManager {
         }
         List<Component> tooltip = currentProvider.tooltip(level, pos, state);
         if (
-            CompatUtil.HAS_JADE.get() && !AnvilCraftClient.CONFIG.ui.showGoggleTooltipWhenJadePresent
+            (CompatUtil.HAS_JADE.get() && !AnvilCraftClient.CONFIG.ui.showGoggleTooltipWhenJadePresent)
             || tooltip == null
             || tooltip.isEmpty()
         ) {
@@ -175,7 +175,7 @@ public class HudTooltipManager {
         }
         List<Component> tooltip = currentProvider.tooltip(entity);
         if (
-            CompatUtil.HAS_JADE.get() && !AnvilCraftClient.CONFIG.ui.showGoggleTooltipWhenJadePresent
+            (CompatUtil.HAS_JADE.get() && !AnvilCraftClient.CONFIG.ui.showGoggleTooltipWhenJadePresent)
             || tooltip == null
             || tooltip.isEmpty()
         ) {

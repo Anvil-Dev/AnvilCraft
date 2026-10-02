@@ -132,7 +132,7 @@ public final class EquipmentAbilities {
 
     /**
      * 消耗当前蓄力并返回本次的跳跃速度：按蓄力进度线性提升跳跃高度，
-     * 进度 0 为普通跳跃，满蓄力为 {@link #AnvilCraft.CONFIG.equipment.chargedJumpMaxHeightMultiplier} 倍高度。
+     * 进度 0 为普通跳跃，满蓄力为 {@code AnvilCraft.CONFIG.equipment.chargedJumpMaxHeightMultiplier} 倍高度。
      *
      * <p>读取进度与清空蓄力在同一次调用内完成。若拆成「先清空再算速度」两步，
      * 调用方很容易在取值前就把进度归零，强化会静默失效。</p>

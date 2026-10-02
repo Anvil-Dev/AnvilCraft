@@ -297,7 +297,7 @@ public class AnvilCraftClientConfig {
     }
 
     @SerializedName("UI & HUD")
-    @Comment("Adjusts settings related to sky, lighting, models, and world rendering")
+    @Comment("Adjusts settings related to the interface, HUD elements, and tooltips")
     @CollapsibleObject
     public UISettings ui = new UISettings();
 
@@ -318,7 +318,7 @@ public class AnvilCraftClientConfig {
             TOGGLE_WITH_KEY,
         }
 
-        @Comment("Do not render power component tooltip when jade present")
+        @Comment("Controls whether to render power component tooltips when Jade is present")
         public boolean showGoggleTooltipWhenJadePresent = true;
 
         @Comment("Controls the scale of the Anvil Hammer wheel")
@@ -336,7 +336,6 @@ public class AnvilCraftClientConfig {
             Requires restart to take effect
             """
         )
-        // @NeedRestart(RestartType.GAME)
         public boolean useLegacyCreativeTab = false;
 
         @SerializedName("Fold Colored Item Variants")
@@ -348,7 +347,12 @@ public class AnvilCraftClientConfig {
         )
         public boolean enableCreativeVariantPicker = false;
 
-        @Comment("Controls the minimum liquid enchantment level (included) displayed as Roman numerals in Auto Enchanting Table's Liquid Enchantment mode")
+        @Comment(
+            """
+            Controls the maximum liquid enchantment level (included) displayed as Roman numerals
+            in Auto Enchanting Table's Liquid Enchantment mode
+            """
+        )
         @BoundedDiscrete(min = 0, max = 255)
         public int liquidEnchantmentLevelRomanNumeralLimit = 10;
 
