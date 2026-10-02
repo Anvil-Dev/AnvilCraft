@@ -692,6 +692,9 @@ public class AnvilCraftServerConfig {
         @Comment("Controls the maximum energy of the Building Rod (in FE)")
         @BoundedDiscrete(min = 1, max = 2000000000)
         public int buildingRodMaxEnergy = 8000000;
+        @Comment("Controls how long the mob effect an amulet grants lasts while its condition holds (in ticks)")
+        @BoundedDiscrete(min = 1, max = 100000)
+        public int amuletEffectRefreshTicks = 210;
     }
 
     @SerializedName("Commands")

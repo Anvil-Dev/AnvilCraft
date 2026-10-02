@@ -221,6 +221,8 @@
   "anvilcraft.configuration.equipment.amulet_box_capacity.tooltip": "Controls how many totems the Amulet Box can store",
   "anvilcraft.configuration.equipment.amulet_box_take_out_all_totem": "Amulet Box Take Out All Totem",
   "anvilcraft.configuration.equipment.amulet_box_take_out_all_totem.tooltip": "Controls whether pressing shift and right-clicking takes out all totems stored in the Amulet Box",
+  "anvilcraft.configuration.equipment.amulet_effect_refresh_ticks": "Amulet Effect Refresh Ticks",
+  "anvilcraft.configuration.equipment.amulet_effect_refresh_ticks.tooltip": "Controls how long the mob effect an amulet grants lasts while its condition holds (in ticks)",
   "anvilcraft.configuration.equipment.anvil_railgun_max_ammo": "Anvil Railgun Max Ammo",
   "anvilcraft.configuration.equipment.anvil_railgun_max_ammo.tooltip": "Controls how many Anvil Railgun rounds can be loaded (at most 30 to fit the ammo bitmask)",
   "anvilcraft.configuration.equipment.anvil_railgun_min_shot_energy": "Anvil Railgun Min Shot Energy",
