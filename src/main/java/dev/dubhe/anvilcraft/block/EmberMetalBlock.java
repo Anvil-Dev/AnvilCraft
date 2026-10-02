@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.block;
 
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.block.IEmberBlock;
 import lombok.Getter;
 import lombok.Setter;
@@ -10,15 +11,18 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 
 public class EmberMetalBlock extends Block implements IEmberBlock {
-    private final double waterAbsorptionChance;
+    private final boolean cut;
 
     @Getter
     @Setter
     private BlockState checkBlockState;
 
-    public EmberMetalBlock(Properties properties, double waterAbsorptionChance) {
+    /**
+     * @param cut 是否为切割变体，用于选择对应的吸水概率配置
+     */
+    public EmberMetalBlock(Properties properties, boolean cut) {
         super(properties);
-        this.waterAbsorptionChance = waterAbsorptionChance;
+        this.cut = cut;
     }
 
     @Override
@@ -33,7 +37,10 @@ public class EmberMetalBlock extends Block implements IEmberBlock {
         BlockPos pos,
         RandomSource random
     ) {
-        if (random.nextDouble() <= waterAbsorptionChance) {
+        double chance = cut
+            ? AnvilCraft.CONFIG.world.cutEmberMetalBlockWaterAbsorptionChance
+            : AnvilCraft.CONFIG.world.emberBlockWaterAbsorptionChance;
+        if (random.nextDouble() <= chance) {
             tryAbsorbWater(level, pos);
         }
     }

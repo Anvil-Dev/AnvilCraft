@@ -16,6 +16,8 @@ import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModAmuletEffectContextKeys;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.network.GravitySourcesSyncPacket;
+import java.util.function.DoubleSupplier;
+import java.util.function.IntSupplier;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceKey;
@@ -72,8 +74,16 @@ public final class GravityManager {
     private static final Map<ResourceKey<Level>, Double> DIMENSION_GRAVITY_MAP = new HashMap<>();
 
     static {
-        GravitySourceManager.registerSourceType(BlackHoleBlock.class, 7, 10);
-        GravitySourceManager.registerSourceType(WhiteHoleBlock.class, 7, -10);
+        GravitySourceManager.registerSourceType(
+            BlackHoleBlock.class,
+            () -> AnvilCraft.CONFIG.world.blackHoleRadius,
+            () -> AnvilCraft.CONFIG.world.blackHoleStrength
+        );
+        GravitySourceManager.registerSourceType(
+            WhiteHoleBlock.class,
+            () -> AnvilCraft.CONFIG.world.whiteHoleRadius,
+            () -> AnvilCraft.CONFIG.world.whiteHoleStrength
+        );
         registerDimensionGravity(CelestialTravelManager.VOID_PLANET_LEVEL, 0.0);
         registerDimensionGravity(CelestialTravelManager.MUN_LEVEL, 1.0 / 6.0);
     }
@@ -505,17 +515,32 @@ public final class GravityManager {
     }
 
     public static final class GravitySourceManager {
-        private static final Map<Class<? extends Block>, GravitySourceType> REGISTRY = new HashMap<>();
+        private static final Map<Class<? extends Block>, SourceTypeFactory> REGISTRY = new HashMap<>();
 
         private GravitySourceManager() {
         }
 
-        public static void registerSourceType(Class<? extends Block> blockClass, int radius, double strength) {
-            REGISTRY.put(blockClass, new GravitySourceType(strength, radius));
+        /**
+         * 注册重力源类型；半径与强度在运行时读取，配置改动后立即生效。
+         *
+         * @param radius 重力场半径提供者
+         * @param strength 重力场强度提供者
+         */
+        public static void registerSourceType(
+            Class<? extends Block> blockClass, IntSupplier radius, DoubleSupplier strength
+        ) {
+            REGISTRY.put(blockClass, new SourceTypeFactory(radius, strength));
         }
 
         public static @Nullable GravitySourceType getType(Block block) {
-            return REGISTRY.get(block.getClass());
+            SourceTypeFactory factory = REGISTRY.get(block.getClass());
+            return factory == null ? null : factory.create();
+        }
+
+        private record SourceTypeFactory(IntSupplier radius, DoubleSupplier strength) {
+            GravitySourceType create() {
+                return new GravitySourceType(strength.getAsDouble(), radius.getAsInt());
+            }
         }
 
         public static void addSource(Level level, BlockPos pos, GravitySourceType type) {

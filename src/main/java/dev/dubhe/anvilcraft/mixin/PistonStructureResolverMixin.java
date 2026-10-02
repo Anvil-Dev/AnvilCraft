@@ -50,7 +50,7 @@ abstract class PistonStructureResolverMixin {
 
     @ModifyConstant(method = "addBlockLine", constant = @Constant(intValue = 12, ordinal = 0))
     private int updateMaxPushDepth(int constant) {
-        SlidingBlockStructureResolver.MAX_PUSH_DEPTH = constant;
+        SlidingBlockStructureResolver.syncPistonPushDepth(constant);
         return constant;
     }
 

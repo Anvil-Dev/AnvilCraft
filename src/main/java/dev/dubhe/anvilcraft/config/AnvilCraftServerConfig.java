@@ -202,6 +202,29 @@ public class AnvilCraftServerConfig {
         @Comment("Controls how long the Monolith Core takes to dissolve an offering (in ticks)")
         @BoundedDiscrete(min = 1, max = 1200)
         public int monolithDissolveTicks = 60;
+        @Comment("Controls the radius of the Black Hole's gravity field (in blocks)")
+        @BoundedDiscrete(min = 1, max = 64)
+        public int blackHoleRadius = 7;
+
+        @Comment("Controls the strength of the Black Hole's gravity field")
+        @BoundedDiscrete(min = -1000.0, max = 1000.0)
+        public double blackHoleStrength = 10.0;
+
+        @Comment("Controls the radius of the White Hole's gravity field (in blocks)")
+        @BoundedDiscrete(min = 1, max = 64)
+        public int whiteHoleRadius = 7;
+
+        @Comment("Controls the strength of the White Hole's gravity field")
+        @BoundedDiscrete(min = -1000.0, max = 1000.0)
+        public double whiteHoleStrength = -10.0;
+
+        @Comment("Controls the water absorption chance of Cut Ember Metal Blocks")
+        @BoundedDiscrete(min = 0.0, max = 1.0)
+        public double cutEmberMetalBlockWaterAbsorptionChance = 0.1;
+
+        @Comment("Controls how many blocks a sliding structure may push at most (also scales the detector rail signal)")
+        @BoundedDiscrete(min = 1, max = 256)
+        public int slidingRailMaxPushDepth = 12;
     }
 
     @SerializedName("Machines & Logistics")

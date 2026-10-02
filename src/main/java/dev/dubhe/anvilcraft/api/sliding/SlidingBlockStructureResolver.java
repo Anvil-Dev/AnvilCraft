@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.api.sliding;
 
 import com.google.common.collect.Lists;
+import dev.dubhe.anvilcraft.AnvilCraft;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -17,7 +18,27 @@ import java.util.List;
  * No-pistonPos-Check PistonStructureResolver
  */
 public class SlidingBlockStructureResolver {
-    public static int MAX_PUSH_DEPTH = 12;
+    /** 原版活塞推动深度的编译期默认值。 */
+    private static final int VANILLA_PUSH_DEPTH = 12;
+    /** 由活塞解析同步过来的推动深度；等于默认值时改用配置值。 */
+    private static int pistonPushDepth = VANILLA_PUSH_DEPTH;
+
+    /**
+     * 当前允许的最大推动深度：默认读取配置，若其他模组改动了原版活塞上限则优先沿用该上限。
+     */
+    public static int maxPushDepth() {
+        return pistonPushDepth == VANILLA_PUSH_DEPTH
+            ? AnvilCraft.CONFIG.world.slidingRailMaxPushDepth
+            : pistonPushDepth;
+    }
+
+    /**
+     * 由活塞解析同步原版推动上限。
+     */
+    public static void syncPistonPushDepth(int depth) {
+        pistonPushDepth = depth;
+    }
+
     @Getter
     private final Level level;
     private final boolean extending;
@@ -87,7 +108,7 @@ public class SlidingBlockStructureResolver {
         }
 
         int toPushSize = 1;
-        if (toPushSize + this.toPush.size() > MAX_PUSH_DEPTH) return false;
+        if (toPushSize + this.toPush.size() > maxPushDepth()) return false;
 
         BlockState oldState;
         while (nowState.isStickyBlock()) {
@@ -105,7 +126,7 @@ public class SlidingBlockStructureResolver {
                 break;
             }
 
-            if (++toPushSize + this.toPush.size() > MAX_PUSH_DEPTH) return false;
+            if (++toPushSize + this.toPush.size() > maxPushDepth()) return false;
         }
 
         int addedCount = 0;
@@ -155,7 +176,7 @@ public class SlidingBlockStructureResolver {
                 return true;
             }
 
-            if (this.toPush.size() >= MAX_PUSH_DEPTH) return false;
+            if (this.toPush.size() >= maxPushDepth()) return false;
 
             this.toPush.add(addingPos);
             addedCount++;
