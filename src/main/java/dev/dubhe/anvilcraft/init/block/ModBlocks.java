@@ -5397,9 +5397,14 @@ public class ModBlocks {
         .blockstate(DataGenUtil::noExtraModelOrState)
         .item()
         .transform(PropertiesProviderUtil::blockItem)
-        .model(() -> (ctx, provider) -> provider.itemModelOutput.accept(ctx.get(),
-            ItemModelUtils.specialModel(AnvilCraft.of("block/monolith_core"),
-                new MonolithItemRenderer.Unbaked(ctx.get().getBlock()))))
+        .model(() -> new NonNullBiConsumer<>() {
+            @Override
+            public void accept(DataGenContext<Item, BlockItem> ctx, RegistrumItemModelGenerator generator) {
+                generator.itemModelOutput.accept(ctx.get(),
+                    ItemModelUtils.specialModel(AnvilCraft.of("block/monolith_core"),
+                        new MonolithItemRenderer.Unbaked(ctx.get().getBlock())));
+            }
+        })
         .build()
         .recipe(RegistrumBlockRecipeLoader::monolithCore)
         .register();
@@ -5415,9 +5420,14 @@ public class ModBlocks {
         .blockstate(DataGenUtil::noExtraModelOrState)
         .item()
         .transform(PropertiesProviderUtil::blockItem)
-        .model(() -> (ctx, provider) -> provider.itemModelOutput.accept(ctx.get(),
-            ItemModelUtils.specialModel(AnvilCraft.of("block/monolith_line"),
-                new MonolithItemRenderer.Unbaked(ctx.get().getBlock()))))
+        .model(() -> new NonNullBiConsumer<>() {
+            @Override
+            public void accept(DataGenContext<Item, BlockItem> ctx, RegistrumItemModelGenerator generator) {
+                generator.itemModelOutput.accept(ctx.get(),
+                    ItemModelUtils.specialModel(AnvilCraft.of("block/monolith_line"),
+                        new MonolithItemRenderer.Unbaked(ctx.get().getBlock())));
+            }
+        })
         .build()
         .recipe(RegistrumBlockRecipeLoader::monolithLine)
         .register();
@@ -5438,9 +5448,17 @@ public class ModBlocks {
         .transform(PropertiesProviderUtil::blockItem)
         .properties(properties -> properties.stacksTo(16).useBlockDescriptionPrefix())
         .setData(ProviderType.LANG, (_, _) -> {})
-        .model(() -> (ctx, provider) -> provider.itemModelOutput.accept(ctx.get(),
-            ItemModelUtils.specialModel(AnvilCraft.of("block/giant_monolith_core"),
-                new MonolithItemRenderer.Unbaked(ctx.get().getBlock()))))
+        .model(() -> new NonNullBiConsumer<>() {
+            @Override
+            public void accept(
+                DataGenContext<Item, SimpleMultiPartBlockItem<Cube3x3PartHalf>> ctx,
+                RegistrumItemModelGenerator generator
+            ) {
+                generator.itemModelOutput.accept(ctx.get(),
+                    ItemModelUtils.specialModel(AnvilCraft.of("block/giant_monolith_core"),
+                        new MonolithItemRenderer.Unbaked(ctx.get().getBlock())));
+            }
+        })
         .build()
         .blockstate(DataGenUtil::noExtraModelOrState)
         .register();
@@ -5456,9 +5474,14 @@ public class ModBlocks {
         .blockstate(DataGenUtil::noExtraModelOrState)
         .item()
         .transform(PropertiesProviderUtil::blockItem)
-        .model(() -> (ctx, provider) -> provider.itemModelOutput.accept(ctx.get(),
-            ItemModelUtils.specialModel(AnvilCraft.of("block/giant_monolith_line"),
-                new MonolithItemRenderer.Unbaked(ctx.get().getBlock()))))
+        .model(() -> new NonNullBiConsumer<>() {
+            @Override
+            public void accept(DataGenContext<Item, BlockItem> ctx, RegistrumItemModelGenerator generator) {
+                generator.itemModelOutput.accept(ctx.get(),
+                    ItemModelUtils.specialModel(AnvilCraft.of("block/giant_monolith_line"),
+                        new MonolithItemRenderer.Unbaked(ctx.get().getBlock())));
+            }
+        })
         .build()
         .register();
 
