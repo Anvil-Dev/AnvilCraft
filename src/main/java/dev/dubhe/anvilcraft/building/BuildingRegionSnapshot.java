@@ -25,23 +25,26 @@ import net.neoforged.neoforge.common.CommonHooks;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
 import java.util.function.Function;
 
 final class BuildingRegionSnapshot {
     private final ServerLevel level;
     private final BoundingBox bounds;
-    private final long capturedAt;
+    private final Set<BlockPos> addedPositions = new HashSet<>();
     private final List<SavedBlock> blocks = new ArrayList<>();
     private final List<SavedEntity> entities = new ArrayList<>();
     private final List<BlueprintTicks.Entry> ticks;
     private final List<BlockEventData> events;
 
-    private record SavedBlock(BlockPos pos, BlockState state, @Nullable CompoundTag data) implements BuildingCommit.PlacedCell {
+    private record SavedBlock(BlockPos pos, BlockState state, @Nullable CompoundTag data, long capturedAt)
+        implements BuildingCommit.PlacedCell {
     }
 
     private record SavedEntity(UUID uuid, CompoundTag data, Entity original) {
@@ -51,14 +54,13 @@ final class BuildingRegionSnapshot {
         this.level = player.level();
         this.bounds = BoundingBox.fromCorners(new BlockPos(bounds.minX(), bounds.minY(), bounds.minZ()),
             new BlockPos(bounds.maxX(), bounds.maxY(), bounds.maxZ()));
-        this.capturedAt = this.level.getGameTime();
         for (BlockPos cursor : BlockPos.betweenClosed(bounds.minX(), bounds.minY(), bounds.minZ(),
             bounds.maxX(), bounds.maxY(), bounds.maxZ())) {
             BlockPos pos = cursor.immutable();
             if (!BuildingCommit.canModify(player, pos)) throw new IllegalArgumentException("Undo area is unavailable");
             BlockEntity entity = this.level.getBlockEntity(pos);
             this.blocks.add(new SavedBlock(pos, this.level.getBlockState(pos),
-                entity == null ? null : entity.saveWithFullMetadata(this.level.registryAccess())));
+                entity == null ? null : entity.saveWithFullMetadata(this.level.registryAccess()), this.level.getGameTime()));
         }
         for (Entity entity : this.level.getEntities((Entity) null, AABB.of(bounds), entity -> !(entity instanceof Player))) {
             CompoundTag tag = new CompoundTag();
@@ -68,12 +70,44 @@ final class BuildingRegionSnapshot {
             this.entities.add(new SavedEntity(entity.getUUID(), tag, entity));
         }
         this.ticks = BlueprintTicks.capture(this.level, bounds);
-        this.events = ((BlueprintBlockEventsAccessor) this.level).anvilcraft$getBlockEvents().stream()
-            .filter(event -> bounds.isInside(event.pos())).toList();
+        this.events = new ArrayList<>(((BlueprintBlockEventsAccessor) this.level).anvilcraft$getBlockEvents().stream()
+            .filter(event -> bounds.isInside(event.pos())).toList());
     }
 
     boolean contains(BlockPos pos) {
-        return this.bounds.isInside(pos);
+        return this.bounds.isInside(pos) || this.addedPositions.contains(pos);
+    }
+
+    /** 只补记落地覆盖的方块，避免重建已落地实体或回滚附近的无关实体。 */
+    List<BlockPos> captureBlocks(List<BlockPos> positions) {
+        List<BlockPos> added = positions.stream().filter(pos -> !this.contains(pos) && this.level.isInWorldBounds(pos))
+            .map(BlockPos::immutable).distinct().toList();
+        if (added.isEmpty()) return added;
+        List<SavedBlock> captured = new ArrayList<>();
+        for (BlockPos pos : added) {
+            BlockEntity entity = this.level.getBlockEntity(pos);
+            captured.add(new SavedBlock(pos, this.level.getBlockState(pos),
+                entity == null ? null : entity.saveWithFullMetadata(this.level.registryAccess()), this.level.getGameTime()));
+        }
+        Set<BlockPos> targets = new HashSet<>(added);
+        BoundingBox area = BoundingBox.encapsulatingPositions(added).orElseThrow();
+        List<BlueprintTicks.Entry> capturedTicks = BlueprintTicks.capture(this.level, area).stream()
+            .filter(tick -> targets.contains(tick.pos())).toList();
+        List<BlockEventData> capturedEvents = ((BlueprintBlockEventsAccessor) this.level).anvilcraft$getBlockEvents().stream()
+            .filter(event -> targets.contains(event.pos())).toList();
+        this.blocks.addAll(captured);
+        this.ticks.addAll(capturedTicks);
+        this.events.addAll(capturedEvents);
+        this.addedPositions.addAll(added);
+        return added;
+    }
+
+    void removeCapturedBlocks(List<BlockPos> positions) {
+        Set<BlockPos> removed = new HashSet<>(positions);
+        this.blocks.removeIf(block -> removed.contains(block.pos()));
+        this.ticks.removeIf(tick -> removed.contains(tick.pos()));
+        this.events.removeIf(event -> removed.contains(event.pos()));
+        this.addedPositions.removeAll(removed);
     }
 
     boolean containsEntity(UUID uuid) {
@@ -164,6 +198,12 @@ final class BuildingRegionSnapshot {
         this.level.clearBlockEvents(this.bounds);
         this.level.getBlockTicks().clearArea(this.bounds);
         this.level.getFluidTicks().clearArea(this.bounds);
+        for (BlockPos pos : this.addedPositions) {
+            BoundingBox area = new BoundingBox(pos);
+            this.level.clearBlockEvents(area);
+            this.level.getBlockTicks().clearArea(area);
+            this.level.getFluidTicks().clearArea(area);
+        }
         BuildingCommit.quietly(this.level, () -> {
             for (SavedBlock block : this.blocks) {
                 this.level.removeBlockEntity(block.pos());
@@ -172,7 +212,7 @@ final class BuildingRegionSnapshot {
             for (SavedBlock block : this.blocks) {
                 if (block.data() == null) continue;
                 CompoundTag data = block.data().copy();
-                BlueprintRuntimeData.rebase(data, this.capturedAt, this.level.getGameTime());
+                BlueprintRuntimeData.rebase(data, block.capturedAt(), this.level.getGameTime());
                 BlockEntity entity = BlueprintBlockEntities.create(this.level, block.pos(), block.state(), data);
                 if (entity != null) {
                     this.level.setBlockEntity(entity);

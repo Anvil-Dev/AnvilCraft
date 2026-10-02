@@ -6,6 +6,7 @@ import com.llamalad7.mixinextras.sugar.Local;
 import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.api.event.AnvilEvent;
 import dev.dubhe.anvilcraft.api.injection.entity.IFallingBlockEntityExtension;
+import dev.dubhe.anvilcraft.building.BuildingRodUndo;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.util.AccelerateManager;
 import dev.dubhe.anvilcraft.util.AtmosphereManager;
@@ -171,6 +172,15 @@ abstract class FallingBlockEntityMixin extends Entity implements IFallingBlockEn
             }
         }
         return true;
+    }
+
+    @WrapOperation(
+        method = "tick",
+        at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/Level;setBlock("
+            + "Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;I)Z")
+    )
+    private boolean anvilcraft$trackBlueprintLanding(Level level, BlockPos pos, BlockState state, int flags, Operation<Boolean> original) {
+        return BuildingRodUndo.placeFallingBlock(Util.cast(this), pos, () -> original.call(level, pos, state, flags));
     }
 
     @ModifyArgs(
