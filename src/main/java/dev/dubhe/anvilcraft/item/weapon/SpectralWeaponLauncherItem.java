@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.item.weapon;
 
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.item.ICapacitorChargeable;
 import dev.dubhe.anvilcraft.api.item.IFullCapacitor;
 import dev.dubhe.anvilcraft.client.renderer.item.SpectralWeaponLauncherRenderer;
@@ -27,11 +28,15 @@ import org.jetbrains.annotations.Nullable;
 import java.util.function.Consumer;
 
 public class SpectralWeaponLauncherItem extends SpectralSlingshotItem implements ICapacitorChargeable {
-    public static final int SHOOT_CONSUME = 1_600_000;
     public static final int EXHAUSTED_MODEL = 1;
     private static final int FULL_BAR_COLOR = 0xFF5454FF;
     private static final int BAR_COLOR = 0x7087FFFF;
     public static final int MAX_ENERGY = 640_000_000;
+
+    /** 能量上限，运行时读取配置；构造器中的组件默认值仍使用 {@link #MAX_ENERGY}。 */
+    public static int maxEnergy() {
+        return AnvilCraft.CONFIG.equipment.energyWeaponMaxEnergy;
+    }
 
     public SpectralWeaponLauncherItem(Properties properties) {
         super(
@@ -50,7 +55,7 @@ public class SpectralWeaponLauncherItem extends SpectralSlingshotItem implements
 
     @Override
     public boolean unableToUse(ItemStack stack) {
-        return stack.getOrDefault(ModComponents.STORED_ENERGY, 0) < SpectralWeaponLauncherItem.SHOOT_CONSUME;
+        return stack.getOrDefault(ModComponents.STORED_ENERGY, 0) < AnvilCraft.CONFIG.equipment.spectralLauncherShotEnergy;
     }
 
     @Override
@@ -83,7 +88,7 @@ public class SpectralWeaponLauncherItem extends SpectralSlingshotItem implements
         if (weapon.getOrDefault(DataComponents.CHARGED_PROJECTILES, ChargedProjectiles.EMPTY).isEmpty()) return;
         super.performShooting(level, shooter, hand, weapon, velocity, inaccuracy, target);
         if (shooter.hasInfiniteMaterials()) return;
-        int newEnergy = weapon.getOrDefault(ModComponents.STORED_ENERGY, 0) - SpectralWeaponLauncherItem.SHOOT_CONSUME;
+        int newEnergy = weapon.getOrDefault(ModComponents.STORED_ENERGY, 0) - AnvilCraft.CONFIG.equipment.spectralLauncherShotEnergy;
         weapon.set(ModComponents.STORED_ENERGY, newEnergy);
         updateExhaustedModel(weapon);
     }
@@ -96,7 +101,8 @@ public class SpectralWeaponLauncherItem extends SpectralSlingshotItem implements
 
     private static void updateExhaustedModel(ItemStack stack) {
         CustomModelData model = stack.getOrDefault(DataComponents.CUSTOM_MODEL_DATA, CustomModelData.DEFAULT);
-        CustomModelData expected = stack.getOrDefault(ModComponents.STORED_ENERGY, 0) < SHOOT_CONSUME
+        int shotEnergy = AnvilCraft.CONFIG.equipment.spectralLauncherShotEnergy;
+        CustomModelData expected = stack.getOrDefault(ModComponents.STORED_ENERGY, 0) < shotEnergy
             ? new CustomModelData(EXHAUSTED_MODEL)
             : CustomModelData.DEFAULT;
         if (!model.equals(expected)) {
@@ -132,13 +138,13 @@ public class SpectralWeaponLauncherItem extends SpectralSlingshotItem implements
     @Override
     public int getBarWidth(ItemStack stack) {
         int energy = stack.getOrDefault(ModComponents.STORED_ENERGY, 0);
-        return energy <= 0 ? 0 : Math.max(1, Math.round(Math.clamp((float) energy / MAX_ENERGY, 0, 1) * 13));
+        return energy <= 0 ? 0 : Math.max(1, Math.round(Math.clamp((float) energy / maxEnergy(), 0, 1) * 13));
     }
 
     @Override
     public int getBarColor(ItemStack stack) {
         float energy = stack.getOrDefault(ModComponents.STORED_ENERGY, 0);
-        return ColorUtil.lerpColor(energy / SpectralWeaponLauncherItem.MAX_ENERGY, BAR_COLOR, FULL_BAR_COLOR);
+        return ColorUtil.lerpColor(energy / maxEnergy(), BAR_COLOR, FULL_BAR_COLOR);
     }
 
     @Override

@@ -37,17 +37,21 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class AnvilRailgunItem extends EnergyWeaponItem {
-    private static final int MIN_SHOT_ENERGY = 2_000_000;
     private static final float MIN_FIRE_CHARGE_PROGRESS = 0.2F;
 
     public AnvilRailgunItem(Properties properties) {
-        super(properties.component(ModComponents.RAILGUN_AMMO, ChargedProjectiles.EMPTY), MIN_SHOT_ENERGY);
+        super(properties.component(ModComponents.RAILGUN_AMMO, ChargedProjectiles.EMPTY));
+    }
+
+    @Override
+    protected int minimumEnergy() {
+        return AnvilCraft.CONFIG.equipment.anvilRailgunMinShotEnergy;
     }
 
     @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
         ItemStack weapon = player.getItemInHand(hand);
-        if (!canStartUsing(player, weapon, MIN_SHOT_ENERGY)) return InteractionResultHolder.fail(weapon);
+        if (!canStartUsing(player, weapon, minimumEnergy())) return InteractionResultHolder.fail(weapon);
         if (ammo(weapon).isEmpty() && !isValidAnvil(otherHand(player, hand)) && findNormalAnvil(player) < 0) {
             return InteractionResultHolder.fail(weapon);
         }

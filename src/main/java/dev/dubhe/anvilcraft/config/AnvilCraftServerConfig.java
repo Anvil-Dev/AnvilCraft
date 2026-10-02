@@ -182,6 +182,7 @@ public class AnvilCraftServerConfig {
         @Comment("Controls how many times an Enchanted Gold Ingot makes Piglins barter")
         @BoundedDiscrete(min = 1, max = 16)
         public int enchantedGoldBarterMultiplier = 4;
+
         @Comment("Controls how long the Monolith hint stays before it fades (in ticks)")
         @BoundedDiscrete(min = 1, max = 1200)
         public int monolithHintTicks = 100;
@@ -335,6 +336,7 @@ public class AnvilCraftServerConfig {
         @Comment("Controls the interval between Drain operations (in ticks)")
         @BoundedDiscrete(min = 1, max = 100)
         public int drainInterval = 5;
+
         @Comment("Adjusts settings related to Plasma Jets")
         @CollapsibleObject
         public PlasmaJets plasmaJets = new PlasmaJets();
@@ -616,6 +618,25 @@ public class AnvilCraftServerConfig {
         @Comment("Controls how often the helmet refreshes Night Vision (in ticks, above the 200 tick flicker threshold)")
         @BoundedDiscrete(min = 200, max = 2400)
         public int nightVisionRefreshTicks = 210;
+        @Comment("Controls the maximum energy of energy weapons (in FE, the item component default stays 640M)")
+        @BoundedDiscrete(min = 1, max = 2000000000)
+        public int energyWeaponMaxEnergy = 640000000;
+
+        @Comment("Controls the energy the Tesla Gun consumes per shot (in FE)")
+        @BoundedDiscrete(min = 1, max = 2000000000)
+        public int teslaGunShotEnergy = 4000000;
+
+        @Comment("Controls the energy the Corrupted Beacon Activator consumes per pulse (in FE)")
+        @BoundedDiscrete(min = 1, max = 2000000000)
+        public int corruptedBeaconPulseEnergy = 200000;
+
+        @Comment("Controls the minimum energy the Anvil Railgun needs to fire (in FE)")
+        @BoundedDiscrete(min = 1, max = 2000000000)
+        public int anvilRailgunMinShotEnergy = 2000000;
+
+        @Comment("Controls the energy the Spectral Weapon Launcher consumes per shot (in FE)")
+        @BoundedDiscrete(min = 1, max = 2000000000)
+        public int spectralLauncherShotEnergy = 1600000;
     }
 
     @SerializedName("Commands")

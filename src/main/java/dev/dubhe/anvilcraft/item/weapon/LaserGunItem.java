@@ -44,7 +44,12 @@ public class LaserGunItem extends EnergyWeaponItem {
     private static final int[] VISUAL_LEVEL = {1, 2, 4, 8, 16};
 
     public LaserGunItem(Properties properties) {
-        super(properties, ENERGY[0]);
+        super(properties);
+    }
+
+    @Override
+    protected int minimumEnergy() {
+        return ENERGY[0];
     }
 
     @Override

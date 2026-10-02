@@ -95,7 +95,8 @@ public class HeliostatsBlockEntity extends BlockEntity {
         if (this.level == null) return WorkResult.UNKNOWN;
         if (this.level.isClientSide && Minecraft.getInstance().player == null) return WorkResult.UNKNOWN;
         if (irritatePos == null) return WorkResult.UNSPECIFIED_IRRADIATION_BLOCK;
-        if (getBlockPos().getCenter().distanceTo(irritatePos.getCenter()) > 64) {
+        int maxDistance = AnvilCraft.CONFIG.machines.heliostatsMaxIrradiationDistance;
+        if (getBlockPos().getCenter().distanceTo(irritatePos.getCenter()) > maxDistance) {
             return WorkResult.TOO_FAR;
         }
 

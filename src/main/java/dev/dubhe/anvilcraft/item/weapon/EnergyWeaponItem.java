@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.item.weapon;
 
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.item.ICapacitorChargeable;
 import dev.dubhe.anvilcraft.api.item.IFullCapacitor;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
@@ -13,26 +14,32 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomModelData;
 
 public abstract class EnergyWeaponItem extends Item implements ICapacitorChargeable {
+    /** 仅用于注册期声明组件默认值的编译期常量；运行时上限请使用 {@link #maxEnergy()}。 */
     public static final int MAX_ENERGY = 640_000_000;
     private static final int FULL_BAR_COLOR = 0xFF5454FF;
     private static final int BAR_COLOR = 0x7087FFFF;
     private static final Component INSUFFICIENT_POWER = Component.translatable("screen.anvilcraft.cfa.power_fail")
         .withStyle(ChatFormatting.RED);
-    private final int minimumEnergy;
-
-    protected EnergyWeaponItem(Properties properties, int minimumEnergy) {
+    protected EnergyWeaponItem(Properties properties) {
         super(properties
             .component(ModComponents.STORED_ENERGY, MAX_ENERGY)
             .component(DataComponents.CUSTOM_MODEL_DATA, CustomModelData.DEFAULT));
-        this.minimumEnergy = minimumEnergy;
     }
 
+    /** 能量上限，运行时读取配置。 */
+    public static int maxEnergy() {
+        return AnvilCraft.CONFIG.equipment.energyWeaponMaxEnergy;
+    }
+
+    /** 每次射击所需的最低能量，运行时读取配置。 */
+    protected abstract int minimumEnergy();
+
     public boolean canFire(Player player, ItemStack weapon) {
-        return hasEnergyAvailable(weapon, this.minimumEnergy);
+        return hasEnergyAvailable(weapon, minimumEnergy());
     }
 
     protected boolean canContinueUsing(Player player, ItemStack weapon) {
-        if (hasEnergyAvailable(weapon, this.minimumEnergy)) return true;
+        if (hasEnergyAvailable(weapon, minimumEnergy())) return true;
         stopForInsufficientPower(player, weapon);
         return false;
     }
@@ -97,13 +104,13 @@ public abstract class EnergyWeaponItem extends Item implements ICapacitorChargea
     @Override
     public int getBarWidth(ItemStack stack) {
         int energy = stack.getOrDefault(ModComponents.STORED_ENERGY, 0);
-        return energy <= 0 ? 0 : Math.max(1, Math.round(Math.clamp((float) energy / MAX_ENERGY, 0, 1) * 13));
+        return energy <= 0 ? 0 : Math.max(1, Math.round(Math.clamp((float) energy / maxEnergy(), 0, 1) * 13));
     }
 
     @Override
     public int getBarColor(ItemStack stack) {
         float energy = stack.getOrDefault(ModComponents.STORED_ENERGY, 0);
-        return ColorUtil.lerpColor(energy / MAX_ENERGY, BAR_COLOR, FULL_BAR_COLOR);
+        return ColorUtil.lerpColor(energy / maxEnergy(), BAR_COLOR, FULL_BAR_COLOR);
     }
 
     @Override
