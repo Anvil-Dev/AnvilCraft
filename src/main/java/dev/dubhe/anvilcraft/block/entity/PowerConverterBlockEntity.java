@@ -114,7 +114,7 @@ public class PowerConverterBlockEntity extends BlockEntity implements IPowerCons
                 * AnvilCraft.CONFIG.machines.powerConverter.efficiency
                 * (1 - AnvilCraft.CONFIG.machines.powerConverter.loss)
         );
-        int amount = amountTick * PowerGrid.GRID_TICK;
+        int amount = amountTick * PowerGrid.gridInterval();
         this.energy = (int) Math.min((long) this.energy + amount, getMaxEnergy());
         setChanged();
     }

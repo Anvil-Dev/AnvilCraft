@@ -278,6 +278,7 @@ public class AnvilCraftClientConfig {
         @Comment("Controls the maximum bounce height of blocks in Giant Anvil's shockwaves")
         @BoundedDiscrete(min = 0.0, max = 2.0)
         public float giantAnvilShockBounceAmplitude = 0.85f;
+
         @Comment("Controls the shortest silence before the first Mun music track (in seconds)")
         @BoundedDiscrete(min = 0, max = 3600)
         public int munMusicFirstSilenceMinSeconds = 30;
@@ -378,6 +379,10 @@ public class AnvilCraftClientConfig {
         @Comment("Controls how quickly 3D building rod previews follow the player view")
         @BoundedDiscrete(min = 1.0, max = 100.0)
         public double buildingRodPreviewFollowRate = 18.0;
+
+        @Comment("Controls how long a thought tooltip stays visible at most (in seconds)")
+        @BoundedDiscrete(min = 0.1, max = 10.0)
+        public double thoughtMaxSeconds = 1.0;
         @SerializedName("Apply Changes When Closing Category Settings")
         @Comment("Controls whether closing a category settings screen applies or discards the changes")
         public ExitBehaviourMode exitCategorySettingBehaviour = ExitBehaviourMode.CANCEL;

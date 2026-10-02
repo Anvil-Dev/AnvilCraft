@@ -294,7 +294,7 @@ public class LargeCauldronBlockEntity extends BlockEntity
         LargeCauldronBlockEntity main = this.getMainPart();
         double minY = main.worldPosition.getY() - 0.5;
         double fraction = Math.clamp((hit.getLocation().y - minY) / CONTENT_HEIGHT, 0.0, 1.0);
-        int accessible = Math.max(1, (int) Math.ceil(fraction * LargeCauldronFluidHandler.TOTAL_CAPACITY));
+        int accessible = Math.max(1, (int) Math.ceil(fraction * LargeCauldronFluidHandler.totalCapacity()));
         IFluidHandler handler = main.fluids.sideAccess(accessible);
         if (FluidHandlerWrapper.tryInteractWithBottle(player, hand, handler, this.level, this.worldPosition)) return true;
         if (FluidUtil.interactWithFluidHandler(player, hand, handler)) return true;
@@ -419,7 +419,7 @@ public class LargeCauldronBlockEntity extends BlockEntity
             if (!fluid.isEmpty()) maxLight = Math.max(maxLight, fluid.getFluidType().getLightLevel(fluid));
         }
         float fill = (float) handler.getTotalAmount()
-                     / (LargeCauldronFluidHandler.TANK_COUNT * LargeCauldronFluidHandler.TANK_CAPACITY);
+                     / (LargeCauldronFluidHandler.TANK_COUNT * LargeCauldronFluidHandler.tankCapacity());
         return Math.round(maxLight * fill);
     }
 
@@ -1244,7 +1244,7 @@ public class LargeCauldronBlockEntity extends BlockEntity
 
         AABB contentArea = this.contentArea();
         double fluidTop = contentArea.minY
-                          + CONTENT_HEIGHT * totalAmount / LargeCauldronFluidHandler.TOTAL_CAPACITY;
+                          + CONTENT_HEIGHT * totalAmount / LargeCauldronFluidHandler.totalCapacity();
         AABB fluidArea = new AABB(
             contentArea.minX,
             contentArea.minY,
@@ -1275,7 +1275,7 @@ public class LargeCauldronBlockEntity extends BlockEntity
             for (FluidStack fluid : layers) {
                 if (fluid.isEmpty()) continue;
                 double layerMaxY = layerMinY
-                                   + CONTENT_HEIGHT * fluid.getAmount() / LargeCauldronFluidHandler.TOTAL_CAPACITY;
+                                   + CONTENT_HEIGHT * fluid.getAmount() / LargeCauldronFluidHandler.totalCapacity();
                 AABB layerArea = new AABB(
                     contentArea.minX,
                     layerMinY,
@@ -1445,7 +1445,7 @@ public class LargeCauldronBlockEntity extends BlockEntity
         for (FluidStack transform : predicate.transforms()) {
             int target = findTank(fluids, transform);
             int targetAmount = target < 0 ? 0 : fluids.get(target).getAmount();
-            if (targetAmount + transform.getAmount() > LargeCauldronFluidHandler.TANK_CAPACITY) return false;
+            if (targetAmount + transform.getAmount() > LargeCauldronFluidHandler.tankCapacity()) return false;
             if (target < 0) target = findEmptyTank(fluids);
             if (target < 0) return false;
             FluidStack produced = transform.copyWithAmount(targetAmount + transform.getAmount());

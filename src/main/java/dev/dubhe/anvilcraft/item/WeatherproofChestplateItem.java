@@ -80,7 +80,7 @@ public class WeatherproofChestplateItem extends IonocraftBackpackItem implements
     }
 
     private static void chargeFromGrid(ServerPlayer player, ItemStack stack) {
-        if (player.level().getGameTime() % PowerGrid.GRID_TICK != 0) return;
+        if (player.level().getGameTime() % PowerGrid.gridInterval() != 0) return;
         DynamicPowerComponent component = IDynamicPowerComponentHolder.of(player).anvilcraft$getPowerComponent();
         PowerGrid grid = component.getPowerGrid();
         if (grid == null || !grid.isWorking()) return;

@@ -28,7 +28,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-import static dev.dubhe.anvilcraft.api.power.PowerGrid.GRID_TICK;
+import static dev.dubhe.anvilcraft.api.power.PowerGrid.gridInterval;
 
 public class HeatCollectorManager {
     private static final Map<Level, HeatCollectorManager> INSTANCES = new HashMap<>();
@@ -137,7 +137,7 @@ public class HeatCollectorManager {
         if (level.isClientSide) {
             return;
         }
-        if (this.level.getGameTime() % GRID_TICK != 0) return;
+        if (this.level.getGameTime() % gridInterval() != 0) return;
         List<IHeatCollector> collectors = this.getCollectorsFromNWToSE();
         Map<Entry, Double2ObjectMap<IHeatCollector>> heatSources = new HashMap<>();
         for (IHeatCollector collector : collectors) {

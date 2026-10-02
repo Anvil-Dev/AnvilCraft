@@ -202,6 +202,7 @@ public class AnvilCraftServerConfig {
         @Comment("Controls how long the Monolith Core takes to dissolve an offering (in ticks)")
         @BoundedDiscrete(min = 1, max = 1200)
         public int monolithDissolveTicks = 60;
+
         @Comment("Controls the radius of the Black Hole's gravity field (in blocks)")
         @BoundedDiscrete(min = 1, max = 64)
         public int blackHoleRadius = 7;
@@ -473,9 +474,18 @@ public class AnvilCraftServerConfig {
         @Comment("Controls how many storage operations can be undone")
         @BoundedDiscrete(min = 0, max = 64)
         public int storageUndoDepth = 4;
+
         @Comment("Controls how much heat the Heat Collector can accumulate (the super_heat advancement requires 4096)")
         @BoundedDiscrete(min = 1, max = 1048576)
         public int heatCollectorMaxOutputPower = 4096;
+
+        @Comment("Controls the interval of power grid logic in ticks; it is also the unit of the FE/t accounting")
+        @BoundedDiscrete(min = 1, max = 200)
+        public int powerGridTick = 20;
+
+        @Comment("Controls the capacity of each Large Cauldron tank (in mB)")
+        @BoundedDiscrete(min = 1000, max = 1000000)
+        public int largeCauldronTankCapacity = 64000;
     }
 
     @SerializedName("Equipment & Enchanting")
@@ -625,6 +635,7 @@ public class AnvilCraftServerConfig {
         @Comment("Controls the base cooldown of the Tesla Gun (in ticks, shortened by Quick Charge)")
         @BoundedDiscrete(min = 1, max = 1200)
         public int teslaGunCooldown = 80;
+
         @Comment("Controls how long the Charged Jump ability takes to charge (in ticks)")
         @BoundedDiscrete(min = 1, max = 200)
         public int chargedJumpChargeTicks = 20;
@@ -644,6 +655,7 @@ public class AnvilCraftServerConfig {
         @Comment("Controls how often the helmet refreshes Night Vision (in ticks, above the 200 tick flicker threshold)")
         @BoundedDiscrete(min = 200, max = 2400)
         public int nightVisionRefreshTicks = 210;
+
         @Comment("Controls the maximum energy of energy weapons (in FE, the item component default stays 640M)")
         @BoundedDiscrete(min = 1, max = 2000000000)
         public int energyWeaponMaxEnergy = 640000000;
@@ -663,6 +675,7 @@ public class AnvilCraftServerConfig {
         @Comment("Controls the energy the Spectral Weapon Launcher consumes per shot (in FE)")
         @BoundedDiscrete(min = 1, max = 2000000000)
         public int spectralLauncherShotEnergy = 1600000;
+
         @Comment("Controls the maximum energy of the Weatherproof Chestplate (in FE)")
         @BoundedDiscrete(min = 1, max = 2000000000)
         public int weatherproofChestplateMaxEnergy = 160000000;

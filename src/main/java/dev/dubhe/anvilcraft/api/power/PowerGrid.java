@@ -33,7 +33,12 @@ import java.util.Set;
 public class PowerGrid {
     public static boolean isServerClosing = false;
     public static final PowerGridManager MANAGER = new PowerGridManager();
-    public static final int GRID_TICK = 20;
+    /**
+     * 电网逻辑的运行间隔（tick），同时是能量记账单位；运行时读取配置。
+     */
+    public static int gridInterval() {
+        return AnvilCraft.CONFIG.machines.powerGridTick;
+    }
 
     @Getter
     public boolean markedRemoval = false;
@@ -113,7 +118,7 @@ public class PowerGrid {
      * 电力刻
      */
     protected void tick() {
-        if (this.level.getGameTime() % GRID_TICK != 0) return;
+        if (this.level.getGameTime() % gridInterval() != 0) return;
         if (this.isMarkedRemoval()) return;
         if (this.flush()) return;
         if (this.isWorking()) {
