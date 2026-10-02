@@ -10,6 +10,9 @@ import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.init.loot.ModLootTables;
+import net.minecraft.advancements.AdvancementRewards;
+import net.minecraft.advancements.CriteriaTriggers;
+import net.minecraft.advancements.critereon.ImpossibleTrigger;
 import net.minecraft.advancements.critereon.MinMaxBounds;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.Items;
@@ -431,5 +434,10 @@ public class AnvilCraftAdvancement {
             .challenge(ModBlocks.CELESTIAL_FORGING_ANVIL, "the_start")
             .hasItems("has_celestial_forging_anvil", ModBlocks.CELESTIAL_FORGING_ANVIL)
             .save("the_start");
+        industrialLine.next()
+            .challenge(ModItems.CIVILIZATION_CATALYST, "new_cycle", true)
+            .addCriterion("new_cycle", CriteriaTriggers.IMPOSSIBLE.createCriterion(new ImpossibleTrigger.TriggerInstance()))
+            .rewards(AdvancementRewards.Builder.experience(1395))
+            .save("new_cycle");
     }
 }

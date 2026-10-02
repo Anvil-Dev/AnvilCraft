@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "B": {
+      "item": "anvilcraft:corrupted_beacon"
+    },
+    "E": {
+      "item": "anvilcraft:legacy_essence"
+    },
+    "M": {
+      "item": "anvilcraft:monolith"
+    }
+  },
+  "pattern": [
+    "MEM",
+    "MBM",
+    "MEM"
+  ],
+  "result": {
+    "count": 4,
+    "id": "anvilcraft:civilization_catalyst"
+  }
+}

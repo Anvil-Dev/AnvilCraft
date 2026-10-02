@@ -123,6 +123,32 @@ public final class PlanetResourceGenerator {
         return set;
     }
 
+    /** Advances existing life, preserving all resources if the target recipe is unavailable. */
+    public static PlanetaryResourceSet advanceCivilization(PlanetaryResourceSet current, Level level, long seed) {
+        PlanetaryResourceSet result = new PlanetaryResourceSet();
+        current.getMinerals().forEach(result::addMineral);
+        current.getFluids().forEach(result::addFluid);
+        RandomSource random = RandomSource.create(seed);
+        PlanetResourceRecipe.Category category = current.hasCivilization()
+            ? PlanetResourceRecipe.Category.WASTELAND : PlanetResourceRecipe.Category.OFFERING;
+        PlanetResourceRecipe recipe = level.getRecipeManager()
+            .getAllRecipesFor(ModRecipeTypes.PLANET_RESOURCE_TYPE.get()).stream()
+            .map(RecipeHolder::value)
+            .filter(candidate -> candidate.category() == category)
+            .findFirst().orElse(null);
+        if (recipe == null) return current;
+        if (current.hasCivilization()) {
+            if (recipe.wastelandData() == null) return current;
+            result.setWasteland();
+            generateWasteland(result, recipe.wastelandData(), random);
+        } else {
+            if (recipe.offeringData() == null) return current;
+            result.setHasCivilization();
+            generateOfferings(result, recipe.offeringData(), random);
+        }
+        return result;
+    }
+
     /// === 矿物 ===
 
     private static void generateMinerals(
@@ -284,7 +310,16 @@ public final class PlanetResourceGenerator {
         if (ageAnvilCount < od.ageMin() || ageAnvilCount > od.ageMax()) return false;
         if (random.nextInt(100) >= od.civilizationChance()) return false;
 
-        for (PlanetResourceRecipe.WeightedEntry entry : od.entries()) {
+        generateOfferings(set, od, random);
+        return true;
+    }
+
+    private static void generateOfferings(
+        PlanetaryResourceSet set,
+        PlanetResourceRecipe.OfferingData data,
+        RandomSource random
+    ) {
+        for (PlanetResourceRecipe.WeightedEntry entry : data.entries()) {
             ResourceLocation id = entry.select(random);
             // Keep accepting the old 1.21 pseudo entries when an existing
             // datapack has not yet been regenerated to the nested-choice form.
@@ -302,7 +337,6 @@ public final class PlanetResourceGenerator {
                 set.addOffering(new PlanetaryResourceSet.WeightedItemStack(id, entry.weight()));
             }
         }
-        return true;
     }
 
     /// === 生物资源（调用方已确认存在生命） ===
@@ -400,7 +434,15 @@ public final class PlanetResourceGenerator {
         if (random.nextInt(100) >= wd.wastelandChance()) return;
 
         set.setWasteland();
-        for (PlanetResourceRecipe.WeightedEntry entry : wd.entries()) {
+        generateWasteland(set, wd, random);
+    }
+
+    private static void generateWasteland(
+        PlanetaryResourceSet set,
+        PlanetResourceRecipe.WastelandData data,
+        RandomSource random
+    ) {
+        for (PlanetResourceRecipe.WeightedEntry entry : data.entries()) {
             set.addWastelandItem(new PlanetaryResourceSet.WeightedItemStack(
                 entry.select(random), entry.weight()
             ));

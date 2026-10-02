@@ -265,6 +265,7 @@ public class ItemsSections extends DisplayItemsGenerator {
                 content.accept(ModItems.STELLAR_RING_COMPONENT);
                 content.accept(ModItems.MAGNETAR_COIL_COMPONENT);
                 content.accept(ModItems.STELLAR_EVOLUTION_ACCELERATOR_COMPONENT);
+                content.accept(ModItems.CIVILIZATION_CATALYST);
             }
         );
         sections.section(
