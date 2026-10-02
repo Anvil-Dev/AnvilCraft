@@ -367,6 +367,9 @@ public final class BuildingRodUndo {
         if (!undo.region.canRestore(player) || !undo.canRemove(player, owned)) {
             return Result.BLOCKED;
         }
+        if (!undo.region.hasCompletePlants()) {
+            return Result.CONFLICT;
+        }
         BuildingUndoResources recovered = new BuildingUndoResources();
         BuildingUndoResources required = new BuildingUndoResources();
         BuildingMaterials recovery = new BuildingMaterials(player, ItemStack.EMPTY, false);
