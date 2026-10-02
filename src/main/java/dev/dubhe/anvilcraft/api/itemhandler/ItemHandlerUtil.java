@@ -70,7 +70,7 @@ public class ItemHandlerUtil {
                 if (resource.isEmpty() || !selected.isEmpty() && !selected.equals(resource)) continue;
                 int available;
                 try (Transaction simulation = Transaction.open(root)) {
-                    available = source.extract(slot, resource, source.getAmountAsInt(slot), simulation);
+                    available = source.extract(slot, resource, Integer.MAX_VALUE, simulation);
                 }
                 if (available <= 0 || !predicate.test(resource, available)) continue;
                 if (selected.isEmpty()) {
