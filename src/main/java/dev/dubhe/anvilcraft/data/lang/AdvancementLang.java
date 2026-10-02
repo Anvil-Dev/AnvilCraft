@@ -165,6 +165,12 @@ public class AdvancementLang {
         provider.add("advancements.anvilcraft.cannon_fodder.title", "Cannon Fodder");
         provider.add("advancements.anvilcraft.cannon_fodder.description", "Die to a planetary collapse inside an Overworld-Like planet");
 
+        provider.add("advancements.anvilcraft.black_hole.title", "Not Even Light Escapes");
+        provider.add("advancements.anvilcraft.black_hole.description", "Drive a star's evolution to the end and collapse it into a black hole");
+
+        provider.add("advancements.anvilcraft.neutron_star.title", "A Teaspoon Weighs a Mountain");
+        provider.add("advancements.anvilcraft.neutron_star.description", "Drive a star's evolution to the end and leave a neutron star behind");
+
         provider.add("advancements.anvilcraft.nuclear_power_10a.title", "Nuclear power, piece of cake!");
         provider.add("advancements.anvilcraft.nuclear_power_10a.description", "Using heat collector to collect overheated blocks' heat");
 

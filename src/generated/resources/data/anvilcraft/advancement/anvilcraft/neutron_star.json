@@ -1,0 +1,30 @@
+{
+  "parent": "anvilcraft:anvilcraft/the_start",
+  "criteria": {
+    "neutron_star": {
+      "conditions": {
+        "terminal": "neutron_star"
+      },
+      "trigger": "anvilcraft:celestial_evolution"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.anvilcraft.neutron_star.description"
+    },
+    "frame": "challenge",
+    "icon": {
+      "count": 1,
+      "id": "anvilcraft:magnetar_coil_component"
+    },
+    "title": {
+      "translate": "advancements.anvilcraft.neutron_star.title"
+    }
+  },
+  "requirements": [
+    [
+      "neutron_star"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

@@ -5,6 +5,7 @@ import dev.anvilcraft.lib.v2.util.predicate.BlockStatePredicate;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.advancement.AdvancementLineHelper;
 import dev.dubhe.anvilcraft.block.entity.HeatCollectorBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.celestial.StellarTerminal;
 import dev.dubhe.anvilcraft.constant.SharedTextures;
 import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
@@ -439,6 +440,14 @@ public class AnvilCraftAdvancement {
             .challenge(Items.PLAYER_HEAD, "cannon_fodder", true)
             .planetaryCollapseDeath("cannon_fodder")
             .save("cannon_fodder");
+        industrialLine.createBranch().next()
+            .challenge(ModBlocks.BLACK_HOLE, "black_hole")
+            .celestialEvolution("black_hole", StellarTerminal.Kind.BLACK_HOLE)
+            .save("black_hole");
+        industrialLine.createBranch().next()
+            .challenge(ModItems.MAGNETAR_COIL_COMPONENT, "neutron_star")
+            .celestialEvolution("neutron_star", StellarTerminal.Kind.NEUTRON_STAR)
+            .save("neutron_star");
         industrialLine.next()
             .challenge(ModItems.STELLAR_EVOLUTION_ACCELERATOR_COMPONENT, "no_remnant", true)
             .celestialEvolution("no_remnant", MinMaxBounds.Ints.exactly(64))

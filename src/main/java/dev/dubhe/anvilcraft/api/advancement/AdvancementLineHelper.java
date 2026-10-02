@@ -30,6 +30,7 @@ import dev.dubhe.anvilcraft.advancements.criterion.PlayerKilledEntityByAnvilHamm
 import dev.dubhe.anvilcraft.advancements.criterion.PlayerWearAnvilHammerTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.UseItemTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.VoidEnergyCollectorWorkingTrigger;
+import dev.dubhe.anvilcraft.block.entity.celestial.StellarTerminal;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.advancements.AdvancementHolder;
 import net.minecraft.advancements.AdvancementRequirements;
@@ -688,6 +689,10 @@ public class AdvancementLineHelper {
 
         public AdvancementHelper celestialEvolution(String key, MinMaxBounds.Ints massAnvils) {
             return this.addCriterion(key, CelestialEvolutionTrigger.TriggerInstance.evolved(massAnvils));
+        }
+
+        public AdvancementHelper celestialEvolution(String key, StellarTerminal.Kind terminal) {
+            return this.addCriterion(key, CelestialEvolutionTrigger.TriggerInstance.evolved(terminal));
         }
 
         public AdvancementHelper planetDetonation(String key) {

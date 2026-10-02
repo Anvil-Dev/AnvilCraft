@@ -597,7 +597,7 @@ public class AcceleratorHandler extends BaseMegastructureHandler {
                 // KEEP 的冷却外观继续从快照采样。
             }
         }
-        TriggerUtil.celestialEvolution(be.getLevel(), be.getBlockPos(), evolutionState.initialMass());
+        TriggerUtil.celestialEvolution(be.getLevel(), be.getBlockPos(), evolutionState.initialMass(), terminal.kind());
         finishAccelerator(be);
         syncToClient(be);
     }

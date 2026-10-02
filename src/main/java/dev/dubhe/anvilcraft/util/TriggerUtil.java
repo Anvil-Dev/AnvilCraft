@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.util;
 
+import dev.dubhe.anvilcraft.block.entity.celestial.StellarTerminal;
 import dev.dubhe.anvilcraft.init.ModCriterionTriggers;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
@@ -202,10 +203,10 @@ public class TriggerUtil {
     }
 
     /** 演化终局伴随超新星爆发，玩家多在爆炸范围外观察，因此搜索半径对齐震屏半径。 */
-    public static void celestialEvolution(Level level, BlockPos pos, int massAnvils) {
+    public static void celestialEvolution(Level level, BlockPos pos, int massAnvils, StellarTerminal.Kind terminal) {
         if (!level.isClientSide) {
             for (ServerPlayer player : PlayerUtil.searchPlayerByPos(level, pos, 32)) {
-                ModCriterionTriggers.CELESTIAL_EVOLUTION.get().trigger(player, massAnvils);
+                ModCriterionTriggers.CELESTIAL_EVOLUTION.get().trigger(player, massAnvils, terminal);
             }
         }
     }
