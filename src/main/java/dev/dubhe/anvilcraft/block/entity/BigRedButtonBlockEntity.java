@@ -37,12 +37,13 @@ public class BigRedButtonBlockEntity extends BlockEntity {
         }
     }
 
-    public void press(Player player) {
+    public boolean press(Player player) {
         if (this.level == null || this.level.isClientSide || !player.isAlive() || player.isSpectator() || player.isShiftKeyDown()
-            || player.getMainHandItem().is(ModItems.BUILDING_ROD)) return;
+            || player.getMainHandItem().is(ModItems.BUILDING_ROD)) return false;
         this.holders.put(player.getUUID(), this.level.getGameTime());
         this.setPressed(true);
         this.level.scheduleTick(this.worldPosition, this.getBlockState().getBlock(), 1);
+        return true;
     }
 
     public void release(Player player) {
