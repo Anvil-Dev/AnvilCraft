@@ -15,6 +15,7 @@ import dev.dubhe.anvilcraft.block.entity.megastructure.GiantExtractorHandler;
 import dev.dubhe.anvilcraft.block.entity.megastructure.IMegastructureHandler;
 import dev.dubhe.anvilcraft.block.entity.megastructure.MagnetarCoilHandler;
 import dev.dubhe.anvilcraft.block.entity.megastructure.MatterDecompressorHandler;
+import dev.dubhe.anvilcraft.block.entity.megastructure.MonolithDeployerHandler;
 import dev.dubhe.anvilcraft.block.entity.megastructure.PenroseSphereHandler;
 import dev.dubhe.anvilcraft.block.entity.megastructure.TempleHandler;
 import dev.dubhe.anvilcraft.block.entity.megastructure.WormholeStabilizerHandler;
@@ -78,6 +79,7 @@ public class CfaMegastructureManager {
         this.registerLegacy(new WormholeStabilizerHandler());
         this.registerLegacy(new EcoStationHandler());
         this.registerLegacy(new TempleHandler());
+        this.registerLegacy(new MonolithDeployerHandler());
         this.registerLegacy(new AcceleratorHandler());
     }
 
