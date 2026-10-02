@@ -38,9 +38,11 @@ public class FluidTankBlockEntity extends BlockEntity implements IFluidHandlerHo
     /**
      * 储罐被视为无限的容量阈值（mB），运行时读取配置。
      */
+
     public static int infinityThreshold() {
         return AnvilCraft.CONFIG.machines.fluidTankInfinityThreshold;
     }
+
     private static final int CHECK_INTERVAL = 100;
     private static final String TAG_TANK = "Tank";
 

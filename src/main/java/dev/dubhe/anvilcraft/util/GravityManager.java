@@ -16,8 +16,6 @@ import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModAmuletEffectContextKeys;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.network.GravitySourcesSyncPacket;
-import java.util.function.DoubleSupplier;
-import java.util.function.IntSupplier;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceKey;
@@ -56,6 +54,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.DoubleSupplier;
+import java.util.function.IntSupplier;
 import javax.annotation.Nullable;
 
 @EventBusSubscriber(modid = AnvilCraft.MOD_ID)
@@ -493,21 +493,21 @@ public final class GravityManager {
         }
 
         public boolean isValid() {
-            return Double.isFinite(strength)
-                && Math.abs(strength) <= MAX_SOURCE_STRENGTH
-                && radius > 0
-                && radius <= MAX_SOURCE_RADIUS
-                && Double.isFinite(bodyRadius)
-                && bodyRadius >= 0
-                && bodyRadius <= radius;
+            return Double.isFinite(this.strength)
+                && Math.abs(this.strength) <= MAX_SOURCE_STRENGTH
+                && this.radius > 0
+                && this.radius <= MAX_SOURCE_RADIUS
+                && Double.isFinite(this.bodyRadius)
+                && this.bodyRadius >= 0
+                && this.bodyRadius <= this.radius;
         }
 
         double radiusSqr() {
-            return (double) radius * radius;
+            return (double) this.radius * this.radius;
         }
 
         double bodyRadiusCubed() {
-            return bodyRadius * bodyRadius * bodyRadius;
+            return this.bodyRadius * this.bodyRadius * this.bodyRadius;
         }
     }
 
@@ -539,7 +539,7 @@ public final class GravityManager {
 
         private record SourceTypeFactory(IntSupplier radius, DoubleSupplier strength) {
             GravitySourceType create() {
-                return new GravitySourceType(strength.getAsDouble(), radius.getAsInt());
+                return new GravitySourceType(this.strength.getAsDouble(), this.radius.getAsInt());
             }
         }
 
@@ -811,22 +811,22 @@ public final class GravityManager {
         private final Map<Long, Set<GravitySource>> sourcesByChunk = new HashMap<>();
 
         GravitySource upsert(GravitySource source) {
-            GravitySource old = sourcesById.put(source.id(), source);
+            GravitySource old = this.sourcesById.put(source.id(), source);
             if (source.equals(old)) return old;
-            if (old != null) removeFromChunks(old);
-            addToChunks(source);
+            if (old != null) this.removeFromChunks(old);
+            this.addToChunks(source);
             return old;
         }
 
         @Nullable GravitySource remove(BlockPos id) {
-            GravitySource removed = sourcesById.remove(id);
-            if (removed != null) removeFromChunks(removed);
+            GravitySource removed = this.sourcesById.remove(id);
+            if (removed != null) this.removeFromChunks(removed);
             return removed;
         }
 
         List<BlockPos> idsOwnedByChunk(ChunkPos chunkPos) {
             List<BlockPos> result = new ArrayList<>();
-            for (GravitySource source : sourcesById.values()) {
+            for (GravitySource source : this.sourcesById.values()) {
                 if (new ChunkPos(source.id()).equals(chunkPos)) {
                     result.add(source.id());
                 }
@@ -835,13 +835,13 @@ public final class GravityManager {
         }
 
         Collection<GravitySource> allSources() {
-            return List.copyOf(sourcesById.values());
+            return List.copyOf(this.sourcesById.values());
         }
 
         Collection<GravitySource> sourcesAt(Vec3 position) {
             int chunkX = ((int) Math.floor(position.x)) >> 4;
             int chunkZ = ((int) Math.floor(position.z)) >> 4;
-            return sourcesByChunk.getOrDefault(ChunkPos.asLong(chunkX, chunkZ), Set.of());
+            return this.sourcesByChunk.getOrDefault(ChunkPos.asLong(chunkX, chunkZ), Set.of());
         }
 
         Collection<GravitySource> sourcesIntersecting(AABB box) {
@@ -852,7 +852,7 @@ public final class GravityManager {
             int maxChunkZ = ((int) Math.floor(box.maxZ)) >> 4;
             for (int chunkX = minChunkX; chunkX <= maxChunkX; chunkX++) {
                 for (int chunkZ = minChunkZ; chunkZ <= maxChunkZ; chunkZ++) {
-                    result.addAll(sourcesByChunk.getOrDefault(ChunkPos.asLong(chunkX, chunkZ), Set.of()));
+                    result.addAll(this.sourcesByChunk.getOrDefault(ChunkPos.asLong(chunkX, chunkZ), Set.of()));
                 }
             }
             return result;
@@ -877,7 +877,7 @@ public final class GravityManager {
 
             int remaining = Math.abs(endX - x) + Math.abs(endZ - z) + 1;
             while (remaining-- > 0) {
-                result.addAll(sourcesByChunk.getOrDefault(ChunkPos.asLong(x, z), Set.of()));
+                result.addAll(this.sourcesByChunk.getOrDefault(ChunkPos.asLong(x, z), Set.of()));
                 if (x == endX && z == endZ) break;
                 if (tmaxx < tmaxz) {
                     x += stepX;
@@ -891,8 +891,8 @@ public final class GravityManager {
         }
 
         void clear() {
-            sourcesById.clear();
-            sourcesByChunk.clear();
+            this.sourcesById.clear();
+            this.sourcesByChunk.clear();
         }
 
         private void addToChunks(GravitySource source) {
@@ -903,16 +903,16 @@ public final class GravityManager {
             int maxChunkZ = ((int) Math.floor(source.center().z + radius)) >> 4;
             for (int x = minChunkX; x <= maxChunkX; x++) {
                 for (int z = minChunkZ; z <= maxChunkZ; z++) {
-                    sourcesByChunk.computeIfAbsent(ChunkPos.asLong(x, z), ignored -> new HashSet<>()).add(source);
+                    this.sourcesByChunk.computeIfAbsent(ChunkPos.asLong(x, z), ignored -> new HashSet<>()).add(source);
                 }
             }
         }
 
         private void removeFromChunks(GravitySource source) {
-            for (Set<GravitySource> sources : sourcesByChunk.values()) {
+            for (Set<GravitySource> sources : this.sourcesByChunk.values()) {
                 sources.remove(source);
             }
-            sourcesByChunk.values().removeIf(Set::isEmpty);
+            this.sourcesByChunk.values().removeIf(Set::isEmpty);
         }
     }
 

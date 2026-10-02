@@ -26,6 +26,7 @@ public class WeatherproofChestplateItem extends IonocraftBackpackItem implements
     private static int gridEnergyPerKw() {
         return 24 * flightConsumption() / 64;
     }
+
     private static final DynamicPowerComponent.PowerConsumption[] CHARGING_POWER = {
         new DynamicPowerComponent.PowerConsumption(64), new DynamicPowerComponent.PowerConsumption(128),
         new DynamicPowerComponent.PowerConsumption(256), new DynamicPowerComponent.PowerConsumption(512)

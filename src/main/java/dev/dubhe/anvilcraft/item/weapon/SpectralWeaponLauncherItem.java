@@ -62,7 +62,7 @@ public class SpectralWeaponLauncherItem extends SpectralSlingshotItem implements
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
         updateExhaustedModel(stack);
-        if (unableToUse(stack)) {
+        if (this.unableToUse(stack)) {
             EnergyWeaponItem.showInsufficientPower(player);
             return InteractionResultHolder.fail(stack);
         }
@@ -80,7 +80,7 @@ public class SpectralWeaponLauncherItem extends SpectralSlingshotItem implements
         @Nullable LivingEntity target
     ) {
         if (!(level instanceof ServerLevel)) return;
-        if (unableToUse(weapon)) {
+        if (this.unableToUse(weapon)) {
             updateExhaustedModel(weapon);
             if (shooter instanceof Player player) EnergyWeaponItem.showInsufficientPower(player);
             return;

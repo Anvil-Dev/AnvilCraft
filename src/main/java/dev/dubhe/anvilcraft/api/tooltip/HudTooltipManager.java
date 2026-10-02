@@ -95,19 +95,19 @@ public class HudTooltipManager {
     }
 
     public void registerAffectRange(AffectRangeProviderImpl affectRangeProvider) {
-        affectRangeProviders.add(affectRangeProvider);
+        this.affectRangeProviders.add(affectRangeProvider);
     }
 
     public void registerBlockTooltip(ITooltipProvider.BlockTooltipProvider provider) {
-        blockProviders.add(provider);
+        this.blockProviders.add(provider);
     }
 
     public void registerBlockEntityTooltip(ITooltipProvider.BlockEntityTooltipProvider provider) {
-        blockEntityProviders.add(provider);
+        this.blockEntityProviders.add(provider);
     }
 
     public void registerHandHeldItemTooltip(IHandHeldItemTooltipProvider provider) {
-        handItemProviders.add(provider);
+        this.handItemProviders.add(provider);
     }
 
     public void resetClientState() {
@@ -134,7 +134,7 @@ public class HudTooltipManager {
         final int tooltipPosX = screenWidth / 2 + 10;
         final int tooltipPosY = screenHeight / 2 + 10;
         Font font = Minecraft.getInstance().font;
-        ITooltipProvider.BlockTooltipProvider currentProvider = determineBlockTooltipProvider(level, pos, state);
+        ITooltipProvider.BlockTooltipProvider currentProvider = this.determineBlockTooltipProvider(level, pos, state);
         if (currentProvider == null) {
             return;
         }
@@ -169,7 +169,7 @@ public class HudTooltipManager {
         final int tooltipPosX = screenWidth / 2 + 10;
         final int tooltipPosY = screenHeight / 2 + 10;
         Font font = Minecraft.getInstance().font;
-        ITooltipProvider.BlockEntityTooltipProvider currentProvider = determineBlockEntityTooltipProvider(entity);
+        ITooltipProvider.BlockEntityTooltipProvider currentProvider = this.determineBlockEntityTooltipProvider(entity);
         if (currentProvider == null) {
             return;
         }
@@ -205,7 +205,7 @@ public class HudTooltipManager {
         double camY,
         double camZ
     ) {
-        IHandHeldItemTooltipProvider pv = determineHandHeldItemTooltipProvider(itemStack);
+        IHandHeldItemTooltipProvider pv = this.determineHandHeldItemTooltipProvider(itemStack);
         if (pv == null) {
             return;
         }
@@ -222,7 +222,7 @@ public class HudTooltipManager {
         int screenWidth,
         int screenHeight
     ) {
-        IHandHeldItemTooltipProvider pv = determineHandHeldItemTooltipProvider(itemStack);
+        IHandHeldItemTooltipProvider pv = this.determineHandHeldItemTooltipProvider(itemStack);
         if (pv == null) {
             return;
         }
@@ -237,7 +237,7 @@ public class HudTooltipManager {
         if (entity == null) {
             return null;
         }
-        IAffectRangeProvider currentProvider = determineAffectRangeProvider(entity);
+        IAffectRangeProvider currentProvider = this.determineAffectRangeProvider(entity);
         if (currentProvider == null) {
             return null;
         }
@@ -249,7 +249,7 @@ public class HudTooltipManager {
         if (itemStack == null || itemStack.isEmpty()) {
             return null;
         }
-        return handItemProviders.stream()
+        return this.handItemProviders.stream()
             .filter(it -> it.accepts(itemStack))
             .min(Comparator.comparingInt(IHandHeldItemTooltipProvider::priority))
             .orElse(null);
@@ -260,7 +260,7 @@ public class HudTooltipManager {
         if (state == null) {
             return null;
         }
-        return blockProviders.stream()
+        return this.blockProviders.stream()
             .filter(it -> it.accepts(level, pos, state))
             .min(Comparator.comparingInt(ITooltipProvider::priority))
             .orElse(null);
@@ -271,7 +271,7 @@ public class HudTooltipManager {
         if (entity == null) {
             return null;
         }
-        return blockEntityProviders.stream()
+        return this.blockEntityProviders.stream()
             .filter(it -> it.accepts(entity))
             .min(Comparator.comparingInt(ITooltipProvider::priority))
             .orElse(null);
@@ -282,7 +282,7 @@ public class HudTooltipManager {
         if (entity == null) {
             return null;
         }
-        return affectRangeProviders.stream()
+        return this.affectRangeProviders.stream()
             .filter(it -> it.accepts(entity))
             .min(Comparator.comparingInt(IAffectRangeProvider::priority))
             .orElse(null);

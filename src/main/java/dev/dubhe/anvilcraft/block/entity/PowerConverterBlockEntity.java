@@ -41,7 +41,7 @@ public class PowerConverterBlockEntity extends BlockEntity implements IPowerCons
     }
 
     int getMaxEnergy() {
-        long maxEnergy = (long) inputPower
+        long maxEnergy = (long) this.inputPower
             * AnvilCraft.CONFIG.machines.powerConverter.efficiency
             * 20
             * 5;
@@ -57,22 +57,22 @@ public class PowerConverterBlockEntity extends BlockEntity implements IPowerCons
     @Override
     protected void saveAdditional(CompoundTag tag, HolderLookup.Provider provider) {
         super.saveAdditional(tag, provider);
-        tag.putInt("InputPower", inputPower);
-        tag.putInt("Energy", energy);
+        tag.putInt("InputPower", this.inputPower);
+        tag.putInt("Energy", this.energy);
     }
 
     @Override
     public void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
         super.loadAdditional(tag, provider);
-        inputPower = tag.getInt("InputPower");
-        energy = tag.getInt("Energy");
+        this.inputPower = tag.getInt("InputPower");
+        this.energy = tag.getInt("Energy");
     }
 
     @Override
     public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
         CompoundTag tag = super.getUpdateTag(registries);
-        tag.putInt("Energy", energy);
-        tag.putInt("InputPower", inputPower);
+        tag.putInt("Energy", this.energy);
+        tag.putInt("InputPower", this.inputPower);
         return tag;
     }
 
@@ -92,7 +92,7 @@ public class PowerConverterBlockEntity extends BlockEntity implements IPowerCons
     public void onDataPacket(Connection connection, ClientboundBlockEntityDataPacket packet, HolderLookup.Provider registries) {
         super.onDataPacket(connection, packet, registries);
         CompoundTag tag = packet.getTag();
-        handleUpdateTag(tag, registries);
+        this.handleUpdateTag(tag, registries);
     }
 
     public int getEnergyStored() {
@@ -100,7 +100,7 @@ public class PowerConverterBlockEntity extends BlockEntity implements IPowerCons
     }
 
     public int getMaxEnergyStored() {
-        return getMaxEnergy();
+        return this.getMaxEnergy();
     }
 
     @Override
@@ -110,12 +110,12 @@ public class PowerConverterBlockEntity extends BlockEntity implements IPowerCons
             if (this.getBlockState().getValue(BasePowerConverterBlock.POWERED)) return;
         }
         if (getBlockState().getValue(BasePowerConverterBlock.OVERLOAD)) return;
-        int amountTick = (int) (inputPower
+        int amountTick = (int) (this.inputPower
                 * AnvilCraft.CONFIG.machines.powerConverter.efficiency
                 * (1 - AnvilCraft.CONFIG.machines.powerConverter.loss)
         );
         int amount = amountTick * PowerGrid.gridInterval();
-        this.energy = (int) Math.min((long) this.energy + amount, getMaxEnergy());
+        this.energy = (int) Math.min((long) this.energy + amount, this.getMaxEnergy());
         setChanged();
     }
 
@@ -128,7 +128,7 @@ public class PowerConverterBlockEntity extends BlockEntity implements IPowerCons
             flushState(this.level, getBlockPos());
             if (this.getBlockState().getValue(BasePowerConverterBlock.POWERED)) return;
         }
-        pushEnergy();
+        this.pushEnergy();
         if (this.level != null && level.getGameTime() % 20 == 0) {
             level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), Block.UPDATE_CLIENTS);
         }
@@ -153,7 +153,7 @@ public class PowerConverterBlockEntity extends BlockEntity implements IPowerCons
 
     @Override
     public int getInputPower() {
-        return this.getBlockState().getValue(BasePowerConverterBlock.POWERED) ? 0 : inputPower;
+        return this.getBlockState().getValue(BasePowerConverterBlock.POWERED) ? 0 : this.inputPower;
     }
 
     @Override
@@ -173,7 +173,7 @@ public class PowerConverterBlockEntity extends BlockEntity implements IPowerCons
 
     @Override
     public @Nullable PowerGrid getGrid() {
-        return grid;
+        return this.grid;
     }
 
     class PowerConverterEnergyStore implements IEnergyStorage {
@@ -184,9 +184,9 @@ public class PowerConverterBlockEntity extends BlockEntity implements IPowerCons
 
         @Override
         public int extractEnergy(int maxExtract, boolean simulate) {
-            int r = Math.min(energy, maxExtract);
+            int r = Math.min(PowerConverterBlockEntity.this.energy, maxExtract);
             if (!simulate) {
-                energy -= r;
+                PowerConverterBlockEntity.this.energy -= r;
                 setChanged();
             }
             return r;
@@ -194,12 +194,12 @@ public class PowerConverterBlockEntity extends BlockEntity implements IPowerCons
 
         @Override
         public int getEnergyStored() {
-            return energy;
+            return PowerConverterBlockEntity.this.energy;
         }
 
         @Override
         public int getMaxEnergyStored() {
-            return getMaxEnergy();
+            return PowerConverterBlockEntity.this.getMaxEnergy();
         }
 
         @Override

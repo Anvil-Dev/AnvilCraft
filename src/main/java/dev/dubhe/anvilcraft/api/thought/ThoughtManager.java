@@ -13,6 +13,7 @@ public class ThoughtManager {
     /**
      * 思考提示的最长显示时间（秒），运行时读取配置。
      */
+
     public static double maxSeconds() {
         return AnvilCraft.CLIENT_CONFIG.ui.thoughtMaxSeconds;
     }

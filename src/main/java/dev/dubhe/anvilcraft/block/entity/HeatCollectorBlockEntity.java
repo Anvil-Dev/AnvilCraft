@@ -69,7 +69,7 @@ public class HeatCollectorBlockEntity extends BlockEntity implements IPowerProdu
         if (!this.isWorking()) {
             this.outputPower = 0;
             this.inputtingPower = 0;
-            if (this.outputPower != oldPower && grid != null) grid.markChanged();
+            if (this.outputPower != oldPower && this.grid != null) this.grid.markChanged();
             return;
         }
         this.outputPower = this.inputtingPower;
@@ -77,7 +77,7 @@ public class HeatCollectorBlockEntity extends BlockEntity implements IPowerProdu
             collector.activate(this.level, this.getBlockPos(), this.getBlockState());
             TriggerUtil.heatCollectorOutput(this.level, this.getBlockPos(), this.outputPower);
         }
-        if (this.outputPower != oldPower && grid != null) grid.markChanged();
+        if (this.outputPower != oldPower && this.grid != null) this.grid.markChanged();
         this.inputtingPower = 0;
         this.time++;
     }
@@ -105,7 +105,7 @@ public class HeatCollectorBlockEntity extends BlockEntity implements IPowerProdu
 
     public void clientTick() {
         if (!this.isWorking()) return;
-        rotation += (float) (Math.log(getServerPower() + 1) * 2.5);
+        this.rotation += (float) (Math.log(getServerPower() + 1) * 2.5);
     }
 
     public boolean isWorking() {

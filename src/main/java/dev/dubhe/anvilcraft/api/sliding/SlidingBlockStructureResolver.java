@@ -97,7 +97,7 @@ public class SlidingBlockStructureResolver {
 
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     public boolean addBlockLine(BlockPos originPos, Direction direction) {
-        if (ignorePositions.contains(originPos)) return true;
+        if (this.ignorePositions.contains(originPos)) return true;
         BlockState nowState = this.level.getBlockState(originPos);
         if (
             nowState.isAir()
@@ -204,7 +204,7 @@ public class SlidingBlockStructureResolver {
         for (Direction dir : Direction.values()) {
             if (dir.getAxis() != this.pushDirection.getAxis()) {
                 BlockPos branchPos = fromPos.relative(dir);
-                if (ignorePositions.contains(branchPos)) continue;
+                if (this.ignorePositions.contains(branchPos)) continue;
                 BlockState branchState = this.level.getBlockState(branchPos);
                 if (
                     branchState.anvilcraft$canStickTo(branchPos, fromPos, fromState)

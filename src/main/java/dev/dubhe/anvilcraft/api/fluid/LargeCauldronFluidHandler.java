@@ -18,6 +18,7 @@ public class LargeCauldronFluidHandler implements IFluidHandler, INBTSerializabl
     /**
      * 每个储罐的容量（mB），运行时读取配置。
      */
+
     public static int tankCapacity() {
         return AnvilCraft.CONFIG.machines.largeCauldronTankCapacity;
     }
@@ -28,6 +29,7 @@ public class LargeCauldronFluidHandler implements IFluidHandler, INBTSerializabl
     public static int totalCapacity() {
         return TANK_COUNT * tankCapacity();
     }
+
     private final Runnable changeListener;
     private final FluidTank[] tanks = new FluidTank[TANK_COUNT];
     private boolean suppressChanges;

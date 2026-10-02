@@ -51,7 +51,7 @@ public class AnvilRailgunItem extends EnergyWeaponItem {
     @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
         ItemStack weapon = player.getItemInHand(hand);
-        if (!canStartUsing(player, weapon, minimumEnergy())) return InteractionResultHolder.fail(weapon);
+        if (!canStartUsing(player, weapon, this.minimumEnergy())) return InteractionResultHolder.fail(weapon);
         if (ammo(weapon).isEmpty() && !isValidAnvil(otherHand(player, hand)) && findNormalAnvil(player) < 0) {
             return InteractionResultHolder.fail(weapon);
         }
@@ -67,11 +67,11 @@ public class AnvilRailgunItem extends EnergyWeaponItem {
             WeaponChargeProgressPacket.sync(player, weapon, 0, 0, false);
             return;
         }
-        int elapsed = getUseDuration(weapon, user) - remaining;
+        int elapsed = this.getUseDuration(weapon, user) - remaining;
         int fullTicks = fullChargeTicks(level, weapon);
         WeaponChargeProgressPacket.sync(player, weapon, elapsed, fullTicks, true);
         if (elapsed > 0 && elapsed % fullTicks == 0) {
-            fire((ServerLevel) level, player, weapon, 1.0F);
+            this.fire((ServerLevel) level, player, weapon, 1.0F);
             if (ammo(weapon).isEmpty()) player.releaseUsingItem();
         }
     }
@@ -79,14 +79,14 @@ public class AnvilRailgunItem extends EnergyWeaponItem {
     @Override
     public void releaseUsing(ItemStack weapon, Level level, LivingEntity user, int remaining) {
         if (!(user instanceof ServerPlayer player) || !(level instanceof ServerLevel serverLevel)) return;
-        int elapsed = getUseDuration(weapon, user) - remaining;
+        int elapsed = this.getUseDuration(weapon, user) - remaining;
         InteractionHand hand = player.getUsedItemHand();
         if (isLoading(player, weapon, hand)) {
             if (elapsed >= loadTicks(level, weapon)) load(player, weapon, hand);
             return;
         }
         float progress = chargeProgress(level, weapon, elapsed, 0.0F);
-        if (progress >= MIN_FIRE_CHARGE_PROGRESS) fire(serverLevel, player, weapon, progress);
+        if (progress >= MIN_FIRE_CHARGE_PROGRESS) this.fire(serverLevel, player, weapon, progress);
     }
 
     public static boolean isLoading(Player player, ItemStack weapon, InteractionHand hand) {

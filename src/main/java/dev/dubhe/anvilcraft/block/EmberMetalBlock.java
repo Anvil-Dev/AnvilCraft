@@ -18,6 +18,8 @@ public class EmberMetalBlock extends Block implements IEmberBlock {
     private BlockState checkBlockState;
 
     /**
+     * 余烬金属方块，切割变体使用另一条吸水概率配置。
+     *
      * @param cut 是否为切割变体，用于选择对应的吸水概率配置
      */
     public EmberMetalBlock(Properties properties, boolean cut) {
@@ -37,7 +39,7 @@ public class EmberMetalBlock extends Block implements IEmberBlock {
         BlockPos pos,
         RandomSource random
     ) {
-        double chance = cut
+        double chance = this.cut
             ? AnvilCraft.CONFIG.world.cutEmberMetalBlockWaterAbsorptionChance
             : AnvilCraft.CONFIG.world.emberBlockWaterAbsorptionChance;
         if (random.nextDouble() <= chance) {

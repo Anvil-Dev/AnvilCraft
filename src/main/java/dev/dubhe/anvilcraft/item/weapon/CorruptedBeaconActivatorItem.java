@@ -34,7 +34,7 @@ public class CorruptedBeaconActivatorItem extends EnergyWeaponItem {
     @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
-        if (!canStartUsing(player, stack, minimumEnergy())) return InteractionResultHolder.fail(stack);
+        if (!canStartUsing(player, stack, this.minimumEnergy())) return InteractionResultHolder.fail(stack);
         player.startUsingItem(hand);
         return InteractionResultHolder.consume(stack);
     }
@@ -43,7 +43,7 @@ public class CorruptedBeaconActivatorItem extends EnergyWeaponItem {
     public void onUseTick(Level level, LivingEntity user, ItemStack stack, int remaining) {
         if (!(user instanceof Player usingPlayer) || !canContinueUsing(usingPlayer, stack)) return;
         if (!(user instanceof Player player) || !(level instanceof ServerLevel serverLevel)) return;
-        int elapsed = getUseDuration(stack, user) - remaining;
+        int elapsed = this.getUseDuration(stack, user) - remaining;
         int quickCharge = stack.getEnchantmentLevel(
             level.holderLookup(Registries.ENCHANTMENT).getOrThrow(Enchantments.QUICK_CHARGE));
         int period = 20 - Math.min(quickCharge, 10);

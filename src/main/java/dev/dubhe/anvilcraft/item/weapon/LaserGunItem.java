@@ -223,15 +223,15 @@ public class LaserGunItem extends EnergyWeaponItem {
         private final Deque<BlockPos> vein = new ArrayDeque<>();
 
         private void resetTarget() {
-            target = null;
-            targetTicks = 0;
+            this.target = null;
+            this.targetTicks = 0;
         }
 
         private void resetMining() {
-            miningTicks = 0;
-            idleTicks = 0;
-            miningAnchor = null;
-            vein.clear();
+            this.miningTicks = 0;
+            this.idleTicks = 0;
+            this.miningAnchor = null;
+            this.vein.clear();
         }
     }
 }

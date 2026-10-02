@@ -20,6 +20,7 @@ public abstract class EnergyWeaponItem extends Item implements ICapacitorChargea
     private static final int BAR_COLOR = 0x7087FFFF;
     private static final Component INSUFFICIENT_POWER = Component.translatable("screen.anvilcraft.cfa.power_fail")
         .withStyle(ChatFormatting.RED);
+
     protected EnergyWeaponItem(Properties properties) {
         super(properties
             .component(ModComponents.STORED_ENERGY, MAX_ENERGY)
@@ -35,12 +36,12 @@ public abstract class EnergyWeaponItem extends Item implements ICapacitorChargea
     protected abstract int minimumEnergy();
 
     public boolean canFire(Player player, ItemStack weapon) {
-        return hasEnergyAvailable(weapon, minimumEnergy());
+        return this.hasEnergyAvailable(weapon, this.minimumEnergy());
     }
 
     protected boolean canContinueUsing(Player player, ItemStack weapon) {
-        if (hasEnergyAvailable(weapon, minimumEnergy())) return true;
-        stopForInsufficientPower(player, weapon);
+        if (this.hasEnergyAvailable(weapon, this.minimumEnergy())) return true;
+        this.stopForInsufficientPower(player, weapon);
         return false;
     }
 
@@ -48,22 +49,22 @@ public abstract class EnergyWeaponItem extends Item implements ICapacitorChargea
         int energy = weapon.getOrDefault(ModComponents.STORED_ENERGY, 0);
         if (energy < amount) {
             weapon.set(ModComponents.STORED_ENERGY, energy);
-            stopForInsufficientPower(player, weapon);
+            this.stopForInsufficientPower(player, weapon);
             return false;
         }
         energy -= amount;
         weapon.set(ModComponents.STORED_ENERGY, energy);
-        if (hasEnergyAvailable(weapon, amount)) {
+        if (this.hasEnergyAvailable(weapon, amount)) {
             setExhausted(weapon, false);
         } else {
-            stopForInsufficientPower(player, weapon);
+            this.stopForInsufficientPower(player, weapon);
         }
         return true;
     }
 
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     protected boolean canStartUsing(Player player, ItemStack weapon, int minimumEnergy) {
-        if (hasEnergyAvailable(weapon, minimumEnergy)) {
+        if (this.hasEnergyAvailable(weapon, minimumEnergy)) {
             setExhausted(weapon, false);
             return true;
         }
