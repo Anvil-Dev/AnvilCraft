@@ -29,6 +29,7 @@ import java.util.WeakHashMap;
 
 public class OverseerBlockEntityRenderer
     implements BlockEntityRenderer<OverseerBlockEntity, OverseerRenderState>, ModelSelectionRenderer<OverseerBlockEntity> {
+    private static final long HEAD_ANIMATION_PERIOD = 2400L;
     private static final float HEAD_ROTATION_DEGREES_PER_TICK = 0.6F;
     private static final float HEAD_BOB_AMPLITUDE = 0.035F;
     private static final float HEAD_BOB_ANGULAR_SPEED = (float) (Math.PI * 2.0 / 160.0);
@@ -62,7 +63,7 @@ public class OverseerBlockEntityRenderer
             return;
         }
 
-        float time = level.getGameTime() + partialTicks;
+        float time = level.getGameTime() % HEAD_ANIMATION_PERIOD + partialTicks;
         state.setTime(time);
         state.setBobOffset(OverseerBlockEntityRenderer.getHeadBobOffset(time));
         state.setModel(FeatureRendererSupport.initialize(blockState, blockEntity));
@@ -98,7 +99,7 @@ public class OverseerBlockEntityRenderer
         if (level == null || state.getValue(OverseerBlock.HALF) != Vertical3PartHalf.MID
             || state.getValue(OverseerBlock.LEVEL) != OverseerBlock.MAX_LEVEL) return;
         pose.pushPose();
-        applyHeadPose(pose, level.getGameTime() + partialTick);
+        applyHeadPose(pose, level.getGameTime() % HEAD_ANIMATION_PERIOD + partialTick);
         consumer.accept(state, pose);
         pose.popPose();
     }
@@ -118,8 +119,8 @@ public class OverseerBlockEntityRenderer
         Long previousParticleTick = this.lastParticleTicks.put(blockEntity, gameTime);
         if (previousParticleTick != null && previousParticleTick == gameTime) return;
 
-        float currentBob = OverseerBlockEntityRenderer.getHeadBobOffset(gameTime);
-        float previousBob = OverseerBlockEntityRenderer.getHeadBobOffset(gameTime - 1.0F);
+        float currentBob = OverseerBlockEntityRenderer.getHeadBobOffset(gameTime % HEAD_ANIMATION_PERIOD);
+        float previousBob = OverseerBlockEntityRenderer.getHeadBobOffset(gameTime % HEAD_ANIMATION_PERIOD - 1.0F);
         float movement = currentBob - previousBob;
         if (Math.abs(movement) < 0.0001F) return;
 

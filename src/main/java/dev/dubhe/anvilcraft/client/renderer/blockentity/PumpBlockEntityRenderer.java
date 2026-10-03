@@ -65,9 +65,8 @@ public class PumpBlockEntityRenderer
         Orientation orientation = blockState.getValue(PumpBlock.ORIENTATION);
         state.setOrientation(orientation);
 
-        float speed = 1.0f;
         long gameTime = level.getGameTime();
-        float cycle = ((gameTime + partialTicks) * speed) % 20.0f / 20.0f;
+        float cycle = (gameTime % 20L + partialTicks) / 20.0f;
 
         float angle = cycle * 2.0f * (float) Math.PI;
         state.setPiston1Offset((float) Math.sin(angle) * PumpBlockEntityRenderer.MAX_PISTON_OFFSET);
@@ -97,7 +96,7 @@ public class PumpBlockEntityRenderer
     @Override
     public void collectSelectionModels(PumpBlockEntity be, float partialTick, PoseStack pose, ModelConsumer consumer) {
         if (!be.isWorking() || be.getLevel() == null) return;
-        float cycle = ((be.getLevel().getGameTime() + partialTick) % 20.0F) / 20.0F;
+        float cycle = (be.getLevel().getGameTime() % 20L + partialTick) / 20.0F;
         collectPistons(be.getBlockState(), cycle, pose, consumer);
     }
 
