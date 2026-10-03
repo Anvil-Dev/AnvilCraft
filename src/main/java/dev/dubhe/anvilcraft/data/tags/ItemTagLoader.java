@@ -212,8 +212,6 @@ public class ItemTagLoader {
             .addElement(ModItems.SHULKER_TERMINAL.getId())
             .addElement(ModItems.HYPERDIMENSION_TERMINAL.getId())
             .addTag(ModItemTags.AMULET.location());
-        provider.rawBuilder(ModItemTags.CURIOS_IONOCRAFT_BACKPACK)
-            .addElement(ModItems.IONOCRAFT_BACKPACK.getId());
 
         provider.rawBuilder(ModItemTags.TOTEM)
             .addElement(ItemTagLoader.findId(Items.TOTEM_OF_UNDYING));

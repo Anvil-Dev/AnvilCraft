@@ -5,7 +5,6 @@ import dev.anvilcraft.lib.v2.integration.IntegrationHook;
 import dev.anvilcraft.lib.v2.integration.IntegrationType;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.integration.curios.client.renderer.GogglesCurioRenderer;
-import dev.dubhe.anvilcraft.integration.curios.client.renderer.IonocraftBackpackCurioRenderer;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
@@ -27,7 +26,6 @@ public class CuriosClient {
         ICurioRenderer.register(ModItems.FROST_ANVIL_HAMMER.get(), GogglesCurioRenderer::new);
         ICurioRenderer.register(ModItems.EMBER_ANVIL_HAMMER.get(), GogglesCurioRenderer::new);
         ICurioRenderer.register(ModItems.TRANSCENDENCE_ANVIL_HAMMER.get(), GogglesCurioRenderer::new);
-        ICurioRenderer.register(ModItems.IONOCRAFT_BACKPACK.get(), IonocraftBackpackCurioRenderer::new);
     }
 
     private void onLayerRegister(final EntityRenderersEvent.@NotNull RegisterLayerDefinitions event) {

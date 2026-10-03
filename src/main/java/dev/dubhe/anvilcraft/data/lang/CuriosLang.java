@@ -4,6 +4,5 @@ import dev.anvilcraft.lib.v2.registrum.providers.RegistrumLangProvider;
 
 public class CuriosLang {
     public static void init(RegistrumLangProvider provider) {
-        provider.add("curios.identifier.ionocraft_backpack", "Ionocraft Backpack");
     }
 }
