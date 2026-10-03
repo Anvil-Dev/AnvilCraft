@@ -7,6 +7,7 @@ import dev.dubhe.anvilcraft.block.entity.BurningHeaterBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.util.HeaterUtil;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
@@ -118,6 +119,19 @@ public class BurningHeaterBlock extends BaseEntityBlock implements IHammerRemova
         }
 
         return InteractionResult.PASS;
+    }
+
+    @Override
+    protected boolean hasAnalogOutputSignal(BlockState state) {
+        return true;
+    }
+
+    @Override
+    protected int getAnalogOutputSignal(BlockState state, Level level, BlockPos pos, Direction direction) {
+        if (level.getBlockEntity(pos) instanceof BurningHeaterBlockEntity be) {
+            return Math.min(15, (be.getBurnTime() * 15) / BurningHeaterBlockEntity.REFUEL_THRESHOLD);
+        }
+        return 0;
     }
 
     @Override

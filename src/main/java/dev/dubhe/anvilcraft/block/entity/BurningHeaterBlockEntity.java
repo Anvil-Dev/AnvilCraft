@@ -18,6 +18,7 @@ import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.ProblemReporter;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.Containers;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -97,11 +98,13 @@ public class BurningHeaterBlockEntity extends BlockEntity implements IItemResour
 
     public void tick(Level level, BlockPos pos, BlockState state) {
         if (!level.isClientSide()) {
+            boolean needsUpdate = false;
             int oldBurnTime = this.burnTime;
             int oldLevel = state.getValue(BurningHeaterBlock.LEVEL);
 
             if (this.burnTime > 0) {
                 this.burnTime--;
+                needsUpdate = this.burnTime % 20 == 0;
             }
 
             this.tryConsumeFuel();
@@ -112,8 +115,12 @@ public class BurningHeaterBlockEntity extends BlockEntity implements IItemResour
                 || oldLevel != newLevel;
 
             if (bigChange) {
-                this.setChanged();
                 level.sendBlockUpdated(pos, state, state, 3);
+                needsUpdate = true;
+            }
+
+            if (needsUpdate) {
+                this.setChanged();
                 level.updateNeighbourForOutputSignal(pos, state.getBlock());
             }
 
@@ -155,6 +162,16 @@ public class BurningHeaterBlockEntity extends BlockEntity implements IItemResour
     }
 
     @Override
+    public void preRemoveSideEffects(BlockPos pos, BlockState state) {
+        super.preRemoveSideEffects(pos, state);
+        Level level = this.level;
+        if (level != null) {
+            Containers.dropContents(level, pos, this.itemHandler.copyToList());
+            level.updateNeighbourForOutputSignal(pos, state.getBlock());
+        }
+    }
+
+    @Override
     public void onLoad() {
         super.onLoad();
         if (this.level != null) {
@@ -180,12 +197,8 @@ public class BurningHeaterBlockEntity extends BlockEntity implements IItemResour
         super.loadAdditional(input);
         this.burnTime = input.getIntOr("BurnTime", 0);
         // 从磁盘加载燃料物品
-        input.read("FuelItem", ItemStack.CODEC).ifPresent(stack -> {
-            if (!stack.isEmpty()) {
-                ItemResource resource = ItemResource.of(stack.getItem(), stack.getComponentsPatch());
-                this.itemHandler.set(0, resource, stack.getCount());
-            }
-        });
+        ItemStack stack = input.read("FuelItem", ItemStack.CODEC).orElse(ItemStack.EMPTY);
+        this.itemHandler.set(0, ItemResource.of(stack), stack.getCount());
         if (this.level != null) {
             this.lastSyncGameTime = this.level.getGameTime();
         }
