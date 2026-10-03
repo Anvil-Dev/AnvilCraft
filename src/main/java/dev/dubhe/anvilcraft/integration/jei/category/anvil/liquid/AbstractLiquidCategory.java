@@ -79,7 +79,7 @@ public abstract class AbstractLiquidCategory<T extends AbstractProcessRecipe<?>>
         IRecipeLayoutBuilder builder, RecipeHolder<T> recipeHolder, IFocusGroup focuses) {
         T recipe = recipeHolder.value();
         HasCauldronSimple cauldron = recipe.getHasCauldron();
-        final boolean hasInputItems = !recipe.getInputItems().isEmpty();
+        final boolean hasInputItems = !recipe.getDisplayInputItems().isEmpty();
         final boolean hasOutputItems = !recipe.getResultItems().isEmpty();
         final boolean hasInputFluid = cauldron.hasFluid();
         final boolean hasOutputFluid = !cauldron.transforms().isEmpty();
@@ -89,11 +89,8 @@ public abstract class AbstractLiquidCategory<T extends AbstractProcessRecipe<?>>
 
         // 输入 — 仅存在一种时居中，二者皆有则分上下
         if (hasInputItems) {
-            if (inputMixed) {
-                JeiItemUtil.addItemInputSlots(builder, recipe.getInputItems());
-            } else {
-                JeiItemUtil.addDefaultInputSlots(builder, recipe.getInputItems());
-            }
+            JeiItemUtil.addInputSlots(builder, recipe.getInputItems(), recipe.getCatalysts(), JeiSlotUtil.INPUT_X,
+                inputMixed ? JeiSlotUtil.ITEM_Y : JeiSlotUtil.DEFAULT_Y);
         }
         if (hasInputFluid) {
             if (inputMixed) {
@@ -146,7 +143,7 @@ public abstract class AbstractLiquidCategory<T extends AbstractProcessRecipe<?>>
         T recipe = recipeHolder.value();
         HasCauldronSimple cauldron = recipe.getHasCauldron();
 
-        final boolean hasInputItems = !recipe.getInputItems().isEmpty();
+        final boolean hasInputItems = !recipe.getDisplayInputItems().isEmpty();
         final boolean hasOutputItems = !recipe.getResultItems().isEmpty();
         final boolean hasInputFluid = cauldron.hasFluid();
         final boolean hasOutputFluid = !cauldron.transforms().isEmpty();
@@ -157,9 +154,9 @@ public abstract class AbstractLiquidCategory<T extends AbstractProcessRecipe<?>>
         // 输入物品
         if (hasInputItems) {
             if (inputMixed) {
-                JeiSlotUtil.drawItemInputSlots(guiGraphics, slotDefault, recipe.getInputItems().size());
+                JeiSlotUtil.drawItemInputSlots(guiGraphics, slotDefault, recipe.getDisplayInputItems().size());
             } else {
-                JeiSlotUtil.drawDefaultInputSlots(guiGraphics, slotDefault, recipe.getInputItems().size());
+                JeiSlotUtil.drawDefaultInputSlots(guiGraphics, slotDefault, recipe.getDisplayInputItems().size());
             }
         }
         // 输出物品（子类可重写）

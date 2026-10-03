@@ -5,11 +5,13 @@ import dev.anvilcraft.lib.v2.util.predicate.ItemIngredientPredicate;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.builder.IRecipeSlotBuilder;
 import mezz.jei.api.recipe.RecipeIngredientRole;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 
 import java.util.List;
+import java.util.stream.Stream;
 
 public class JeiItemUtil {
     /**
@@ -36,6 +38,25 @@ public class JeiItemUtil {
             mergedIngredients.size(), centerX, centerY,
             (x, y, i) -> addSlotWithCount(builder, x, y, mergedIngredients.get(i))
         );
+    }
+
+    public static void addInputSlots(
+        IRecipeLayoutBuilder builder,
+        List<ItemIngredientPredicate> ingredients,
+        List<ItemIngredientPredicate> catalysts,
+        int centerX,
+        int centerY
+    ) {
+        List<ItemIngredientPredicate> all = Stream.concat(ingredients.stream(), catalysts.stream()).toList();
+        addSlots(all.size(), centerX, centerY, (x, y, index) -> {
+            boolean catalyst = index >= ingredients.size();
+            RecipeIngredientRole role = catalyst ? RecipeIngredientRole.CATALYST : RecipeIngredientRole.INPUT;
+            IRecipeSlotBuilder slot = builder.addSlot(role, x, y);
+            slot.addIngredients(Ingredient.of(all.get(index).getItems()));
+            if (catalyst) {
+                slot.addRichTooltipCallback((view, tooltip) -> tooltip.add(Component.translatable("gui.anvilcraft.category.catalyst")));
+            }
+        });
     }
 
     /**

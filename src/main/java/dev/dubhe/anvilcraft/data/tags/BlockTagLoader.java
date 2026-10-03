@@ -123,6 +123,7 @@ public class BlockTagLoader {
             .add(findResourceKey(Blocks.MAGMA_BLOCK))
             .add(ModBlocks.HEATER.getKey())
             .add(ModBlocks.BURNING_HEATER.getKey())
+            .add(ModBlocks.NEUTRON_IRRADIATOR.getKey())
             .add(ModBlocks.CORRUPTED_BEACON.getKey());
 
         provider.addTag(ModBlockTags.BLOCK_DEVOURER_CHAIN_DEVOURING)

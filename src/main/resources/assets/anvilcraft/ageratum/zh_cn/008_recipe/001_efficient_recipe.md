@@ -8,7 +8,7 @@ navigation:
 
 <row halign="center">
 <recipe id="anvilcraft:item_crush/flower/red_dye_from_poppy"/>
-<recipe id="anvilcraft:heating_warp_cactus_2_green_dye"/>
+<recipe id="anvilcraft:generated/vanilla/smelting/source/minecraft/green_dye"/>
 </row>
 
 <info>

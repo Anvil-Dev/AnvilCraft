@@ -34,7 +34,7 @@ public class MeshRecipeGeneratingCache extends BaseGeneratingCache<MeshRecipe> {
 
     public MeshRecipeGeneratingCache(HolderLookup.Provider registries) {
         super(registries, "mesh", "mesh recipe");
-        Table<String, Item, List<Item>> treeIdAndLeavesAndSaplings = HashBasedTable.create();
+        Table<ResourceLocation, Item, List<Item>> treeIdAndLeavesAndSaplings = HashBasedTable.create();
         for (Holder<Item> holder : registries.lookupOrThrow(Registries.ITEM).listElements().toList()) {
             if (holder.value() instanceof BlockItem blockItem && blockItem.getBlock() instanceof LeavesBlock block) {
                 ResourceLocation leavesId = BuiltInRegistries.ITEM.getKey(blockItem);
@@ -51,7 +51,7 @@ public class MeshRecipeGeneratingCache extends BaseGeneratingCache<MeshRecipe> {
                 ResourceLocation saplingId = BuiltInRegistries.ITEM.getKey(blockItem);
                 logger.debug(
                     "Add a sapling {} for generating mesh recipes", saplingId);
-                String treeId = getTreeId(blockItem.getBlock(), saplingId);
+                ResourceLocation treeId = getTreeId(blockItem.getBlock(), saplingId);
                 if (treeIdAndLeavesAndSaplings.containsRow(treeId)) {
                     treeIdAndLeavesAndSaplings.row(treeId).values().forEach(list -> list.add(blockItem));
                 }
@@ -81,16 +81,16 @@ public class MeshRecipeGeneratingCache extends BaseGeneratingCache<MeshRecipe> {
                 recipeBuilder.result(sapling.getDefaultInstance(), 0.2f);
             }
             ResourceLocation leavesId = leavesKey.get().location();
-            ResourceLocation newId = AnvilCraft.of("mesh/generated/%s".formatted(leavesId.toString().replace(':', '_')));
+            ResourceLocation newId = AnvilCraft.of("mesh/generated/%s/%s".formatted(leavesId.getNamespace(), leavesId.getPath()));
             recipeHolders.add(new RecipeHolder<>(newId, recipeBuilder.buildRecipe()));
         }
 
         return Optional.of(recipeHolders);
     }
 
-    private static String getTreeId(Block source, ResourceLocation idFull) {
+    private static ResourceLocation getTreeId(Block source, ResourceLocation idFull) {
         int lastUnderscore = idFull.getPath().trim().lastIndexOf('_');
-        if (lastUnderscore == -1 || (source instanceof BushBlock && !idFull.getPath().contains("sapling"))) return idFull.getPath();
-        return idFull.getPath().trim().substring(0, lastUnderscore);
+        if (lastUnderscore == -1 || (source instanceof BushBlock && !idFull.getPath().contains("sapling"))) return idFull;
+        return idFull.withPath(idFull.getPath().trim().substring(0, lastUnderscore));
     }
 }
