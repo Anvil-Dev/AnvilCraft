@@ -4,7 +4,6 @@
     "anvilcraft:royal_steel_axe",
     "anvilcraft:frost_metal_axe",
     "anvilcraft:ember_metal_axe",
-    "#anvilcraft:tools/resonator",
-    "#anvilcraft:tools/heavy_halberd"
+    "#anvilcraft:tools/resonator"
   ]
 }

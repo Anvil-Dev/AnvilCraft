@@ -194,8 +194,7 @@ public class ItemTagLoader {
         provider.addTag(ItemTags.SWORDS)
             .addTag(ModItemTags.HEAVY_HALBERD);
         provider.addTag(ItemTags.AXES)
-            .addTag(ModItemTags.RESONATOR)
-            .addTag(ModItemTags.HEAVY_HALBERD);
+            .addTag(ModItemTags.RESONATOR);
         provider.addTag(ItemTags.SHOVELS)
             .addTag(ModItemTags.RESONATOR);
         provider.addTag(ItemTags.HOES)

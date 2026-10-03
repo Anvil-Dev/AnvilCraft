@@ -25,7 +25,6 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
-import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.Mth;
@@ -68,7 +67,7 @@ import net.neoforged.neoforge.common.ItemAbilities;
 import net.neoforged.neoforge.common.ItemAbility;
 import org.jetbrains.annotations.Range;
 
-import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Consumer;
 import javax.annotation.Nullable;
 
@@ -82,7 +81,7 @@ public abstract class HeavyHalberdItem extends TieredItem implements ProjectileI
         super(
             tier,
             properties
-                .component(DataComponents.TOOL, createToolProperties(tier))
+                .component(DataComponents.TOOL, createToolProperties(TRIDENT_MODE))
                 .rarity(Rarity.EPIC)
         );
     }
@@ -115,11 +114,8 @@ public abstract class HeavyHalberdItem extends TieredItem implements ProjectileI
         return 2.0;
     }
 
-    public static Tool createToolProperties(Tier tier) {
-        ArrayList<Tool.Rule> rules = new ArrayList<>();
-        rules.addAll(SwordItem.createToolProperties().rules());
-        rules.addAll(tier.createToolProperties(BlockTags.MINEABLE_WITH_AXE).rules());
-        return new Tool(rules, 1.0F, 2);
+    public static Tool createToolProperties(int mode) {
+        return mode == SWORD_MODE ? SwordItem.createToolProperties() : new Tool(List.of(), 1.0F, 2);
     }
 
     public static int getMode(ItemStack stack) {
@@ -134,6 +130,7 @@ public abstract class HeavyHalberdItem extends TieredItem implements ProjectileI
         ItemStack heavyHalberd = player.getItemInHand(hand);
         if (!(heavyHalberd.getItem() instanceof HeavyHalberdItem)) return;
         heavyHalberd.set(DataComponents.CUSTOM_MODEL_DATA, new CustomModelData(Math.clamp(mode, TRIDENT_MODE, MACE_MODE)));
+        updateToolProperties(heavyHalberd);
     }
 
     public static void checkTooDamaged(Tier tier, ItemStack stack) {
@@ -170,9 +167,6 @@ public abstract class HeavyHalberdItem extends TieredItem implements ProjectileI
                 }
                 stack.set(DataComponents.ATTRIBUTE_MODIFIERS, builder.build());
             }
-            if (stack.has(DataComponents.TOOL)) {
-                stack.remove(DataComponents.TOOL);
-            }
         } else {
             if (stack.has(ModComponents.DISABLED_ENCHANTMENTS)) {
                 ItemEnchantments disabledEnchs = stack.getOrDefault(ModComponents.DISABLED_ENCHANTMENTS, ItemEnchantments.EMPTY);
@@ -196,10 +190,35 @@ public abstract class HeavyHalberdItem extends TieredItem implements ProjectileI
                     );
                 stack.set(DataComponents.ATTRIBUTE_MODIFIERS, modifiers);
             }
-            if (!stack.has(DataComponents.TOOL)) {
-                stack.set(DataComponents.TOOL, createToolProperties(tier));
-            }
         }
+        updateToolProperties(stack);
+    }
+
+    private static void updateToolProperties(ItemStack stack) {
+        if (!stack.has(DataComponents.UNBREAKABLE) && isTooDamagedToUse(stack)) {
+            stack.remove(DataComponents.TOOL);
+            return;
+        }
+        Tool tool = createToolProperties(getMode(stack));
+        if (!tool.equals(stack.get(DataComponents.TOOL))) stack.set(DataComponents.TOOL, tool);
+    }
+
+    @Override
+    public void verifyComponentsAfterLoad(ItemStack stack) {
+        super.verifyComponentsAfterLoad(stack);
+        updateToolProperties(stack);
+    }
+
+    @Override
+    public float getDestroySpeed(ItemStack stack, BlockState state) {
+        updateToolProperties(stack);
+        return super.getDestroySpeed(stack, state);
+    }
+
+    @Override
+    public boolean isCorrectToolForDrops(ItemStack stack, BlockState state) {
+        updateToolProperties(stack);
+        return super.isCorrectToolForDrops(stack, state);
     }
 
     @Override
@@ -234,6 +253,7 @@ public abstract class HeavyHalberdItem extends TieredItem implements ProjectileI
     public void inventoryTick(ItemStack stack, Level level, Entity entity, int slotId, boolean isSelected) {
         super.inventoryTick(stack, level, entity, slotId, isSelected);
         if (!stack.has(DataComponents.UNBREAKABLE)) checkTooDamaged(this.getTier(), stack);
+        else updateToolProperties(stack);
     }
 
     @Override
