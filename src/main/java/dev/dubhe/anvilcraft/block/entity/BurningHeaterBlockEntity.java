@@ -5,6 +5,8 @@ import dev.dubhe.anvilcraft.api.itemhandler.IItemResourceHandlerHolder;
 import dev.dubhe.anvilcraft.block.workstation.BurningHeaterBlock;
 import dev.dubhe.anvilcraft.init.ModHeaterInfos;
 import dev.dubhe.anvilcraft.init.ModSoundEvents;
+import it.unimi.dsi.fastutil.objects.Object2LongMap;
+import it.unimi.dsi.fastutil.objects.Object2LongOpenHashMap;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
@@ -16,6 +18,7 @@ import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.ProblemReporter;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
@@ -32,16 +35,22 @@ import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
 import net.neoforged.neoforge.transfer.transaction.Transaction;
 import org.jspecify.annotations.Nullable;
 
+import java.util.UUID;
+
 @SuppressWarnings("deprecation")
 public class BurningHeaterBlockEntity extends BlockEntity implements IItemResourceHandlerHolder {
     public static final int MAX_BURN_TIME = 1200 * 20;
     public static final int LIT_THRESHOLD = 240 * 20;
+    public static final int REFUEL_THRESHOLD = 500 * 20;
+    private static final long DOUBLE_CLICK_INTERVAL = 5;
 
     @Getter
     private int burnTime = 0;
 
     /** 客户端上次同步到 burnTime 时的游戏时间 */
     private long lastSyncGameTime = 0;
+
+    private final Object2LongMap<UUID> lastRightClickTicks = new Object2LongOpenHashMap<>();
 
     @Getter
     private final ItemStacksResourceHandler itemHandler = new ItemStacksResourceHandler(1) {
@@ -64,6 +73,15 @@ public class BurningHeaterBlockEntity extends BlockEntity implements IItemResour
         BlockEntityType<?> type, BlockPos pos, BlockState blockState
     ) {
         return new BurningHeaterBlockEntity(type, pos, blockState);
+    }
+
+    public boolean isDoubleClick(Player player) {
+        if (this.level == null) return false;
+        long now = this.level.getGameTime();
+        UUID uuid = player.getUUID();
+        long last = this.lastRightClickTicks.getLong(uuid);
+        this.lastRightClickTicks.put(uuid, now);
+        return last != 0 && now - last <= BurningHeaterBlockEntity.DOUBLE_CLICK_INTERVAL;
     }
 
     /**
@@ -206,22 +224,18 @@ public class BurningHeaterBlockEntity extends BlockEntity implements IItemResour
     }
 
     private void tryConsumeFuel() {
-        if (this.burnTime >= BurningHeaterBlockEntity.MAX_BURN_TIME) return;
+        if (this.burnTime >= BurningHeaterBlockEntity.REFUEL_THRESHOLD) return;
 
         ItemResource fuelResource = this.itemHandler.getResource(0);
         if (fuelResource.isEmpty()) return;
-        int fuelCount = this.itemHandler.getAmountAsInt(0);
         int burnTimePerItem = BurningHeaterBlockEntity.getItemBurnTime(fuelResource.toStack());
         if (burnTimePerItem <= 0) return;
 
-        int itemsToConsume = Math.min(fuelCount, (BurningHeaterBlockEntity.MAX_BURN_TIME - this.burnTime) / burnTimePerItem);
-        if (itemsToConsume <= 0) return;
-
-        this.burnTime += itemsToConsume * burnTimePerItem;
         try (Transaction tx = Transaction.openRoot()) {
-            this.itemHandler.extract(0, fuelResource, itemsToConsume, tx);
+            if (this.itemHandler.extract(0, fuelResource, 1, tx) != 1) return;
             tx.commit();
         }
+        this.burnTime += burnTimePerItem;
         var remainder = fuelResource.toStack().getCraftingRemainder();
         if (remainder != null && this.itemHandler.getResource(0).isEmpty()) {
             ItemStack remainderStack = remainder.create();
