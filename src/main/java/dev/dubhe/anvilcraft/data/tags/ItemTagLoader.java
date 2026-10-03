@@ -243,8 +243,7 @@ public class ItemTagLoader {
         provider.rawBuilder(ItemTags.SWORDS)
             .addTag(ModItemTags.HEAVY_HALBERD.location());
         provider.rawBuilder(ItemTags.AXES)
-            .addTag(ModItemTags.RESONATOR.location())
-            .addTag(ModItemTags.HEAVY_HALBERD.location());
+            .addTag(ModItemTags.RESONATOR.location());
         provider.rawBuilder(ItemTags.SHOVELS)
             .addTag(ModItemTags.RESONATOR.location());
         provider.rawBuilder(ItemTags.HOES)
