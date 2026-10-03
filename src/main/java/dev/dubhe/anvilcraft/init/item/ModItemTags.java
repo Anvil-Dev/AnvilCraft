@@ -200,7 +200,6 @@ public class ModItemTags {
     public static final TagKey<Item> SUPER_HEATING_BOOST_PRODUCTION = ModItemTags.bind("super_heating_boost_production");
 
     public static final TagKey<Item> CURIOS_HEAD = ModItemTags.bindCurios("head");
-    public static final TagKey<Item> CURIOS_IONOCRAFT_BACKPACK = ModItemTags.bindCurios("ionocraft_backpack");
     public static final TagKey<Item> CURIOS_CHARM = ModItemTags.bindCurios("charm");
 
     public static final TagKey<Item> TOTEM = ModItemTags.bind("totem");

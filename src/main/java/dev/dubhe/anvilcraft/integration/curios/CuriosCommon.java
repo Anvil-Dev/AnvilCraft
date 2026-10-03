@@ -7,10 +7,8 @@ import dev.dubhe.anvilcraft.api.event.AmuletEvent;
 import dev.dubhe.anvilcraft.event.PlayerWearAnvilHammerEventListener;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.init.item.ModItems;
-import dev.dubhe.anvilcraft.item.armor.IonoCraftBackpackItem;
 import dev.dubhe.anvilcraft.item.tool.AnvilHammerItem;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.item.ItemStack;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
@@ -40,11 +38,6 @@ public class CuriosCommon {
                 .map(CuriosCommon::isAnvilHammerWearing)
                 .orElse(false)
         );
-        IonoCraftBackpackItem.addStackProvider(
-            player -> CuriosApi.getCuriosInventory(player)
-                .map(CuriosCommon::getIonocraftBackpackWearing)
-                .orElse(ItemStack.EMPTY)
-        );
         InventoryUtil.compatConsumer = InventoryUtil.compatConsumer.andThen(
             (items, living) -> CuriosApi.getCuriosInventory(living).ifPresent(
                 handler -> handler.findCurios(stack -> true)
@@ -62,7 +55,6 @@ public class CuriosCommon {
             ModItems.FROST_ANVIL_HAMMER,
             ModItems.EMBER_ANVIL_HAMMER,
             ModItems.TRANSCENDENCE_ANVIL_HAMMER,
-            ModItems.IONOCRAFT_BACKPACK,
             ModItems.LOCAL_TERMINAL,
             ModItems.SHULKER_TERMINAL,
             ModItems.HYPERDIMENSION_TERMINAL
@@ -86,13 +78,5 @@ public class CuriosCommon {
 
     private static boolean isAnvilHammerWearing(ICuriosItemHandler handler) {
         return !handler.findCurios(it -> it.getItem() instanceof AnvilHammerItem).isEmpty();
-    }
-
-    private static ItemStack getIonocraftBackpackWearing(ICuriosItemHandler handler) {
-        List<SlotResult> curios = handler.findCurios(it -> it.getItem() instanceof IonoCraftBackpackItem);
-        if (!curios.isEmpty()) {
-            return curios.getFirst().stack();
-        }
-        return ItemStack.EMPTY;
     }
 }

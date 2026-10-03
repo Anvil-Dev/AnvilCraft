@@ -23,17 +23,12 @@ import net.minecraft.world.item.equipment.ArmorType;
 import net.neoforged.neoforge.common.NeoForgeMod;
 import net.neoforged.neoforge.network.PacketDistributor;
 
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
 import java.util.WeakHashMap;
-import java.util.function.Function;
 
 public class IonoCraftBackpackItem extends EquipmentArmorItem implements IInventoryCarriedAware {
-    private static final Set<Function<Player, ItemStack>> STACK_PROVIDERS = new LinkedHashSet<>();
-
     public static final DynamicPowerComponent.PowerConsumption FLIGHT_POWER = new DynamicPowerComponent.PowerConsumption(8);
     private static final Identifier SLOW_FALLING_ID = AnvilCraft.of("ionocraft_backpack_slow_falling");
     private static final AttributeModifier SLOW_FALLING = new AttributeModifier(
@@ -108,12 +103,7 @@ public class IonoCraftBackpackItem extends EquipmentArmorItem implements IInvent
 
     public static ItemStack getByPlayer(Player player) {
         ItemStack stack = player.getItemBySlot(EquipmentSlot.CHEST);
-        if (stack.getItem() instanceof IonoCraftBackpackItem) return stack;
-        for (Function<Player, ItemStack> provider : STACK_PROVIDERS) {
-            ItemStack provided = provider.apply(player);
-            if (provided.getItem() instanceof IonoCraftBackpackItem) return provided;
-        }
-        return ItemStack.EMPTY;
+        return stack.getItem() instanceof IonoCraftBackpackItem ? stack : ItemStack.EMPTY;
     }
 
     public static void refreshPower(ServerPlayer player) {
@@ -217,10 +207,6 @@ public class IonoCraftBackpackItem extends EquipmentArmorItem implements IInvent
     public void onCarriedUpdate(HashedStack itemStack, ServerPlayer serverPlayer) {
         refreshPower(serverPlayer);
         refreshFlight(serverPlayer);
-    }
-
-    public static void addStackProvider(Function<Player, ItemStack> provider) {
-        STACK_PROVIDERS.add(provider);
     }
 
     public static void onPlayerLoggedOut(UUID id) {
