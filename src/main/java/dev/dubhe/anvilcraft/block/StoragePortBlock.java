@@ -77,6 +77,7 @@ public class StoragePortBlock extends AbstractStoragePortBlock {
         // 中键克隆（或其它拾取路径）也保留缓存与标记，保证物品模型与 tooltip 有数据可显示
         if (
             level instanceof Level realLevel
+            && realLevel.isClientSide
             && realLevel.getBlockEntity(pos) instanceof StoragePortBlockEntity port
             && Screen.hasControlDown()
         ) {
