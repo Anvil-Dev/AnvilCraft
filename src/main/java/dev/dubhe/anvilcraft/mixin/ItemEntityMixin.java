@@ -13,6 +13,7 @@ import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.init.item.ModItems;
+import dev.dubhe.anvilcraft.recipe.anvil.util.RecipeOutputTracker;
 import dev.dubhe.anvilcraft.util.AtmosphereManager;
 import dev.dubhe.anvilcraft.util.FireReforgingUtil;
 import dev.dubhe.anvilcraft.util.GravityManager;
@@ -76,6 +77,7 @@ abstract class ItemEntityMixin extends Entity implements IItemEntityExtension {
 
     @Inject(method = "tick", at = @At("RETURN"))
     private void tickReturn(CallbackInfo ci) {
+        if (!this.level().isClientSide()) RecipeOutputTracker.getOrigin((ItemEntity) (Object) this);
         BlockPos blockPos = BlockPos.containing(this.position());
         if (!blockPos.equals(this.anvilcraft$blockPos)) {
             NeoForge.EVENT_BUS.post(new ItemEntityEvent.InToBlock(
@@ -260,6 +262,11 @@ abstract class ItemEntityMixin extends Entity implements IItemEntityExtension {
         if (this.anvilcraft$mergeCooldown <= 0) return true;
         this.anvilcraft$mergeCooldown--;
         return false;
+    }
+
+    @Inject(method = "tryToMerge", at = @At("HEAD"), cancellable = true)
+    private void keepRecipeOutputSeparate(ItemEntity other, CallbackInfo ci) {
+        if (!RecipeOutputTracker.canMerge((ItemEntity) (Object) this, other)) ci.cancel();
     }
 
     @Override

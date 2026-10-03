@@ -106,7 +106,7 @@ When placed on a <ref item="minecraft:cauldron"/> and a <ref item="minecraft:cam
 
 - Automatically compatible with all smoker recipes and campfire recipes; water is not required in these cases
 
-<recipe id="anvilcraft:smoking_warp_beef_2_cooked_beef"/>
+<recipe id="anvilcraft:generated/vanilla/smoking/source/minecraft/cooked_beef_from_smoking"/>
 
 # Anvil: Block Processing
 

@@ -11,6 +11,7 @@ import dev.dubhe.anvilcraft.block.entity.LargeCauldronBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.StampingPlatformBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
+import dev.dubhe.anvilcraft.recipe.anvil.util.RecipeOutputTracker;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.MeshRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.VanillaRecipesWrap;
 import dev.dubhe.anvilcraft.recipe.generate.MeshRecipeGeneratingCache;
@@ -18,6 +19,7 @@ import dev.dubhe.anvilcraft.util.TriggerUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeHolder;
@@ -64,9 +66,20 @@ public class InWorldRecipeEventListener {
     }
 
     @SubscribeEvent
+    public static void selectRecipeOutput(ItemCacheEvent.SelectOutput event) {
+        if (!(event.getElement().getSource() instanceof ItemEntity entity) || event.getElement().isGeneratedOutput()) return;
+        BlockPos pos = BlockPos.containing(event.getPos());
+        if (event.getCache().getLevel().getBlockState(pos).is(BlockTags.CAULDRONS)
+            && !RecipeOutputTracker.isOutputOf(entity, pos)) {
+            event.setCanceled(true);
+        }
+    }
+
+    @SubscribeEvent
     public static void spawnItemEntity(ItemCacheEvent.SpawnItemEntity event) {
         ItemEntity entity = event.getEntity();
         entity.anvilcraft$setIsAdsorbable(false);
+        RecipeOutputTracker.mark(entity);
         BlockPos pos = entity.blockPosition();
         LargeCauldronBlockEntity cauldron = LargeCauldronBlockEntity.getMain(
             entity.level(),

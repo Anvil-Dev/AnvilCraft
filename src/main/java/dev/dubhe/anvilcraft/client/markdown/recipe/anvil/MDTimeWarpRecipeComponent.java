@@ -34,7 +34,7 @@ public class MDTimeWarpRecipeComponent extends MDBaseAnvilRecipeComponent {
 
     public MDTimeWarpRecipeComponent(TimeWarpRecipe recipe, boolean enableAlignCenter) {
         super(enableAlignCenter);
-        this.ingredients = recipe.getInputItems();
+        this.ingredients = recipe.getDisplayInputItems();
         this.resultItems = recipe.getResultItems();
         this.inputBlockStates = List.of(
             MDTimeWarpRecipeComponent.getInputCauldron(recipe),
@@ -54,6 +54,11 @@ public class MDTimeWarpRecipeComponent extends MDBaseAnvilRecipeComponent {
     protected void extractAnvilRecipeRenderState(MDRenderContext context, float mouseX, float mouseY) {
         super.extractAnvilRecipeRenderState(context, mouseX, mouseY);
         GuiGraphicsExtractor graphics = context.graphics();
+
+        if (!this.recipe.getCatalysts().isEmpty()) {
+            AgeratumUtil.renderText(graphics, Component.translatable("gui.anvilcraft.category.catalyst"),
+                MDTimeWarpRecipeComponent.INFO_X, MDTimeWarpRecipeComponent.INFO_Y - 10);
+        }
 
         if (this.recipe.isConsumeFluid()) {
             Component text = Component.translatable(

@@ -128,8 +128,6 @@
     "accessor.CropBlockAccessor",
     "accessor.EntityAccessor",
     "accessor.GrowingPlantAccessor",
-    "accessor.ICacheInputOutputImplAccessor",
-    "accessor.ItemResourceHandlerCacheElementAccessor",
     "accessor.PortalProcessorAccessor",
     "accessor.ShapedRecipePatternAccessor",
     "accessor.StacksResourceHandlerAccessor",

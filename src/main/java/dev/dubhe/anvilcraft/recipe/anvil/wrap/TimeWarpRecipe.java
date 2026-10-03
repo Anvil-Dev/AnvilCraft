@@ -14,19 +14,24 @@ import dev.dubhe.anvilcraft.recipe.anvil.util.WrapUtils;
 import dev.dubhe.anvilcraft.recipe.component.HasCauldronSimple;
 import lombok.Getter;
 import net.minecraft.core.Holder;
+import net.minecraft.core.HolderGetter;
 import net.minecraft.core.Vec3i;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.Identifier;
+import net.minecraft.tags.TagKey;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.FluidStackTemplate;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /// 时移配方类
@@ -45,7 +50,10 @@ public class TimeWarpRecipe extends AbstractProcessRecipe<TimeWarpRecipe> {
             HasCauldronSimple.CODEC
                 .forGetter(TimeWarpRecipe::getHasCauldron),
             ProduceHeat.Type.MAP_CODEC
-                .forGetter(TimeWarpRecipe::getProduceHeat)
+                .forGetter(TimeWarpRecipe::getProduceHeat),
+            ItemIngredientPredicate.CODEC.listOf()
+                .optionalFieldOf("catalysts", List.of())
+                .forGetter(TimeWarpRecipe::getCatalysts)
         ).apply(instance, TimeWarpRecipe::new)),
         StreamCodec.composite(
             ItemIngredientPredicate.STREAM_CODEC.apply(ByteBufCodecs.list()),
@@ -56,6 +64,8 @@ public class TimeWarpRecipe extends AbstractProcessRecipe<TimeWarpRecipe> {
             TimeWarpRecipe::getHasCauldron,
             ProduceHeat.Type.STREAM_CODEC,
             TimeWarpRecipe::getProduceHeat,
+            ItemIngredientPredicate.STREAM_CODEC.apply(ByteBufCodecs.list()),
+            TimeWarpRecipe::getCatalysts,
             TimeWarpRecipe::new
         )
     );
@@ -72,11 +82,22 @@ public class TimeWarpRecipe extends AbstractProcessRecipe<TimeWarpRecipe> {
         HasCauldronSimple hasCauldron,
         ProduceHeat produceHeat
     ) {
+        this(itemIngredients, results, hasCauldron, produceHeat, List.of());
+    }
+
+    public TimeWarpRecipe(
+        List<ItemIngredientPredicate> itemIngredients,
+        List<ChanceItemStack> results,
+        HasCauldronSimple hasCauldron,
+        ProduceHeat produceHeat,
+        List<ItemIngredientPredicate> catalysts
+    ) {
         super(
             new Property()
                 .setItemInputOffset(new Vec3(0.0, -0.375, 0.0))
                 .setItemInputRange(new Vec3(0.75, 0.75, 0.75))
                 .setInputItems(itemIngredients)
+                .setCatalysts(catalysts)
                 .setItemOutputOffset(new Vec3(0.0, -0.75, 0.0))
                 .setResultItems(results)
                 .setCauldronOffset(new Vec3i(0, -1, 0))
@@ -127,6 +148,25 @@ public class TimeWarpRecipe extends AbstractProcessRecipe<TimeWarpRecipe> {
 
     /// 时移配方构建器
     public static class Builder extends SimpleAbstractBuilder<TimeWarpRecipe, Builder> {
+        private final List<ItemIngredientPredicate> catalysts = new ArrayList<>();
+
+        public Builder catalyst(ItemIngredientPredicate catalyst) {
+            this.catalysts.add(catalyst);
+            return this;
+        }
+
+        public Builder catalyst(ItemLike catalyst) {
+            return this.catalyst(catalyst, 1);
+        }
+
+        public Builder catalyst(ItemLike catalyst, int count) {
+            return this.catalyst(ItemIngredientPredicate.of(catalyst).withCount(count).build());
+        }
+
+        public Builder catalyst(HolderGetter<Item> items, TagKey<Item> catalyst, int count) {
+            return this.catalyst(ItemIngredientPredicate.of(items, catalyst).withCount(count).build());
+        }
+
         public Builder fluid(Fluid fluid) {
             this.hasCauldron.fluid(fluid);
             return this;
@@ -386,7 +426,7 @@ public class TimeWarpRecipe extends AbstractProcessRecipe<TimeWarpRecipe> {
 
         @Override
         protected TimeWarpRecipe of(List<ItemIngredientPredicate> itemIngredients, List<ChanceItemStack> results) {
-            return new TimeWarpRecipe(itemIngredients, results, this.hasCauldron.build(), this.produceHeat.build());
+            return new TimeWarpRecipe(itemIngredients, results, this.hasCauldron.build(), this.produceHeat.build(), this.catalysts);
         }
 
         @Override
