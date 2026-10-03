@@ -168,7 +168,8 @@ public class BlockTagLoader {
             .add(findResourceKey(Blocks.STRUCTURE_BLOCK))
             .add(findResourceKey(Blocks.JIGSAW))
             .add(ModBlocks.END_DUST.getKey())
-            .add(ModBlocks.NEGATIVE_MATTER_BLOCK.getKey());
+            .add(ModBlocks.NEGATIVE_MATTER_BLOCK.getKey())
+            .add(ModBlocks.NEUTRON_IRRADIATOR.getKey());
 
         provider.addTag(ModBlockTags.VOID_DECAY_PRODUCTS)
             .add(ModBlocks.FLINT_BLOCK.getKey())
