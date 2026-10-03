@@ -37,6 +37,7 @@ import java.util.WeakHashMap;
 @OnlyIn(Dist.CLIENT)
 public class AutoEnchantingTableBlockEntityRenderer
     implements BlockEntityRenderer<AutoEnchantingTableBlockEntity>, ModelSelectionRenderer<AutoEnchantingTableBlockEntity> {
+    private static final double BOOK_ANIMATION_PERIOD = Math.PI * 100.0;
     @SuppressWarnings("deprecation")
     private static final Material BOOK_LOCATION = new Material(
         TextureAtlas.LOCATION_BLOCKS,
@@ -125,7 +126,7 @@ public class AutoEnchantingTableBlockEntityRenderer
         float target = be.getItemHandler().getStackInSlot(0).isEmpty() ? 0 : 1;
         be.setBookOpen(Mth.approach(previous, target, 0.06F));
         Level level = be.getLevel();
-        float time = level == null ? 0 : level.getGameTime() + partialTick;
+        float time = level == null ? 0 : (float) (level.getGameTime() % BOOK_ANIMATION_PERIOD + partialTick);
         BookPose result = new BookPose(ModelBlockSelection.frame(), time, Mth.lerp(partialTick, previous, be.getBookOpen()));
         this.bookPoses.put(be, result);
         return result;

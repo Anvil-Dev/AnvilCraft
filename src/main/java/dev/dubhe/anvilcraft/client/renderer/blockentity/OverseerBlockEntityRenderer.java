@@ -29,6 +29,7 @@ import java.util.Map;
 import java.util.WeakHashMap;
 
 public class OverseerBlockEntityRenderer implements BlockEntityRenderer<OverseerBlockEntity>, ModelSelectionRenderer<OverseerBlockEntity> {
+    private static final long HEAD_ANIMATION_PERIOD = 2400L;
     private static final float HEAD_ROTATION_DEGREES_PER_TICK = 0.6f;
     private static final float HEAD_BOB_AMPLITUDE = 0.035f;
     private static final float HEAD_BOB_ANGULAR_SPEED = (float) (Math.PI * 2.0 / 160.0);
@@ -59,7 +60,7 @@ public class OverseerBlockEntityRenderer implements BlockEntityRenderer<Overseer
         spawnTrailParticles(blockEntity, level);
 
         poseStack.pushPose();
-        applyHeadPose(poseStack, level.getGameTime() + partialTick);
+        applyHeadPose(poseStack, level.getGameTime() % HEAD_ANIMATION_PERIOD + partialTick);
 
         BlockRenderDispatcher dispatcher = Minecraft.getInstance().getBlockRenderer();
         BakedModel model = dispatcher.getBlockModel(state);
@@ -88,7 +89,7 @@ public class OverseerBlockEntityRenderer implements BlockEntityRenderer<Overseer
         if (level == null || state.getValue(OverseerBlock.HALF) != Vertical3PartHalf.MID
             || state.getValue(OverseerBlock.LEVEL) != OverseerBlock.MAX_LEVEL) return;
         pose.pushPose();
-        applyHeadPose(pose, level.getGameTime() + partialTick);
+        applyHeadPose(pose, level.getGameTime() % HEAD_ANIMATION_PERIOD + partialTick);
         consumer.accept(BlockModelShaper.stateToModelLocation(state), pose);
         pose.popPose();
     }
@@ -108,8 +109,8 @@ public class OverseerBlockEntityRenderer implements BlockEntityRenderer<Overseer
         Long previousParticleTick = this.lastParticleTicks.put(blockEntity, gameTime);
         if (previousParticleTick != null && previousParticleTick == gameTime) return;
 
-        float currentBob = getHeadBobOffset(gameTime);
-        float previousBob = getHeadBobOffset(gameTime - 1.0f);
+        float currentBob = getHeadBobOffset(gameTime % HEAD_ANIMATION_PERIOD);
+        float previousBob = getHeadBobOffset(gameTime % HEAD_ANIMATION_PERIOD - 1.0f);
         float movement = currentBob - previousBob;
         if (Math.abs(movement) < 0.0001f) return;
 

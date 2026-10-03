@@ -101,7 +101,7 @@ public abstract class BaseShowItemRenderer<B extends BlockEntity> implements Blo
             .scale
             .y();
         pose.translate(x, y * transformedGroundScaleY + 0.15f, z);
-        float rotation = (level.getGameTime() + partialTick) * 2f;
+        float rotation = (level.getGameTime() % 180L + partialTick) * 2f;
         pose.mulPose(Axis.YP.rotationDegrees(rotation));
         @SuppressWarnings("deprecation")
         float groundScaleX = bakedModel.getTransforms().ground.scale.x();
