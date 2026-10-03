@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.block;
 
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -11,7 +12,6 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 
 public class VoidMatterBlock extends Block {
-    public static final int VOID_DECAY_THRESHOLD = 5;
 
     public VoidMatterBlock(Properties properties) {
         super(properties.randomTicks());
@@ -31,7 +31,7 @@ public class VoidMatterBlock extends Block {
             .map(d -> level.getBlockState(pos.relative(d)))
             .filter(b -> b.getBlock() instanceof VoidMatterBlock)
             .count();
-        if (neighborVoidMatterCount >= VOID_DECAY_THRESHOLD) {
+        if (neighborVoidMatterCount >= AnvilCraft.CONFIG.world.voidMatterDecayThreshold) {
             level.setBlockAndUpdate(pos, voidDecay(level, pos, state, random));
         }
     }

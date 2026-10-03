@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.block;
 
 import dev.anvilcraft.lib.v2.util.Util;
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.block.IEmberBlock;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
@@ -96,7 +97,7 @@ public class EmberSmithingTableBlock extends SmithingTableBlock implements IHamm
         ServerLevel level,
         BlockPos pos,
         RandomSource random) {
-        if (random.nextDouble() <= 0.5) {
+        if (random.nextDouble() <= AnvilCraft.CONFIG.world.emberBlockWaterAbsorptionChance) {
             tryAbsorbWater(level, pos);
         }
     }

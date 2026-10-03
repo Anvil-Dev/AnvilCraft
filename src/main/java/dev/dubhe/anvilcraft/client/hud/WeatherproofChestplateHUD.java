@@ -24,8 +24,9 @@ public class WeatherproofChestplateHUD {
     private static final ResourceLocation BATTERY_FULL = SharedTextures.textureGui("misc/battery_display/battery_full");
 
     public static void render(GuiGraphics guiGraphics, DeltaTracker partialTick) {
-        var config = AnvilCraftClient.CONFIG.weatherproofChestplateHud;
-        if (!config.enabled && !config.capacitorCountEnabled) {
+        var config = AnvilCraftClient.CONFIG.ui.weatherproofChestplateHud;
+        boolean renderCapacitors = AnvilCraftClient.CONFIG.ui.displayCapacitorCountInHud;
+        if (!config.enabled && !renderCapacitors) {
             return;
         }
         Minecraft mc = Minecraft.getInstance();
@@ -39,7 +40,7 @@ public class WeatherproofChestplateHUD {
         List<ItemStack> inventory = PocketInventory.carriedItems(player);
         int capacitorCount = count(inventory, ModItems.CAPACITOR.asStack());
         int superCapacitorCount = count(inventory, ModItems.SUPER_CAPACITOR.asStack());
-        boolean renderCapacitors = config.capacitorCountEnabled && (capacitorCount > 0 || superCapacitorCount > 0);
+        renderCapacitors &= capacitorCount > 0 || superCapacitorCount > 0;
         if (!renderBackpack && !renderCapacitors) {
             return;
         }
@@ -47,8 +48,8 @@ public class WeatherproofChestplateHUD {
         PoseStack poseStack = guiGraphics.pose();
         poseStack.pushPose();
 
-        poseStack.scale(config.hudScale, config.hudScale, config.hudScale);
-        poseStack.translate(config.hudX, config.hudY, 0);
+        poseStack.scale(config.scale, config.scale, config.scale);
+        poseStack.translate(config.x, config.y, 0);
         if (renderBackpack) {
             renderBackpack(guiGraphics, mc.font, backpack);
             poseStack.translate(0, ROW_HEIGHT, 0);
@@ -64,7 +65,7 @@ public class WeatherproofChestplateHUD {
         PoseStack poseStack = guiGraphics.pose();
         poseStack.pushPose();
         int energy = WeatherproofChestplateItem.getEnergyStored(backpack);
-        int percent = Math.round((float) energy / WeatherproofChestplateItem.MAX_ENERGY * 100);
+        int percent = Math.round((float) energy / WeatherproofChestplateItem.maxEnergy() * 100);
         guiGraphics.renderItem(backpack, 0, 0);
 
         poseStack.translate(20, 4, 0);

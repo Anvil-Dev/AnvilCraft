@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.block;
 
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.util.ModInteractionMap;
 import net.minecraft.core.BlockPos;
@@ -25,7 +26,7 @@ public class ExpFluidCauldronBlock extends Layered4LevelCauldronBlock implements
         if (!this.isEntityInsideContent(state, pos, entity)) return;
         if (entity instanceof Player player) {
             if (!this.isFull(state)) return;
-            player.giveExperiencePoints(ExpFluidBlock.XP_POINTS);
+            player.giveExperiencePoints(AnvilCraft.CONFIG.world.expFluidXpPerBlock);
             level.setBlock(pos, Blocks.CAULDRON.defaultBlockState(), 3);
         }
     }

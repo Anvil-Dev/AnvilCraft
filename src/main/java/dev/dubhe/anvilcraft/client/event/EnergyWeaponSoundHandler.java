@@ -97,7 +97,7 @@ public final class EnergyWeaponSoundHandler {
             this.type = type;
             this.looping = true;
             this.delay = 0;
-            this.volume = type.volume;
+            this.volume = type.volume * AnvilCraft.CLIENT_CONFIG.effects.energyWeaponSoundVolume;
             this.pitch = type.pitch;
             this.updatePosition();
         }

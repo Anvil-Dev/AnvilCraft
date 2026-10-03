@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.client.support;
 
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.saved.OverworldLikeWorldState;
 import dev.dubhe.anvilcraft.worldgen.OverworldLikeOrbitMath;
 import net.minecraft.client.Minecraft;
@@ -7,7 +8,6 @@ import net.minecraft.client.multiplayer.ClientLevel;
 
 /** Client copy of the global overworld-like sky state. */
 public final class OverworldLikeClientState {
-    private static final float MAX_VISUAL_ECLIPSE_DARKEN = 0.72F;
     private static int generation = -1;
     private static long visualSeed;
     private static long orbitEpochGameTime;
@@ -71,7 +71,7 @@ public final class OverworldLikeClientState {
     }
 
     public static float environmentColorMultiplier(ClientLevel level) {
-        return 1.0F - eclipseFactor(level) * MAX_VISUAL_ECLIPSE_DARKEN;
+        return 1.0F - eclipseFactor(level) * AnvilCraft.CLIENT_CONFIG.graphics.overworldLikeEclipseDarken;
     }
 
     public static void beginCollapse(int elapsedTicks) {

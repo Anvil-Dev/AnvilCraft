@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.util;
 
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.block.IDamagingHeater;
 import dev.dubhe.anvilcraft.init.entity.ModDamageTypes;
 import net.minecraft.world.entity.Entity;
@@ -15,7 +16,7 @@ public class HeaterUtil {
             || !(entity instanceof LivingEntity)) {
             return false;
         }
-        entity.hurt(ModDamageTypes.heaterBurn(level), 4.0F);
+        entity.hurt(ModDamageTypes.heaterBurn(level), AnvilCraft.CONFIG.world.heaterDamage);
         return true;
     }
 }

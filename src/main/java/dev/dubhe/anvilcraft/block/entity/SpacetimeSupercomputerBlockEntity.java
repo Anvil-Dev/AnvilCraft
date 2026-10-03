@@ -78,11 +78,11 @@ public class SpacetimeSupercomputerBlockEntity extends BlockEntity implements IP
     @Getter
     private final List<CommandInfo> availableCommands = net.minecraft.Util.make(
         new ObjectArrayList<>(), (list) -> {
-            list.add(new CommandInfo("/locate biome", AnvilCraft.CONFIG.spacetimeSupercomputerCommand.allowLocateBiomeCommand));
-            list.add(new CommandInfo("/locate structure", AnvilCraft.CONFIG.spacetimeSupercomputerCommand.allowLocateStructureCommand));
-            list.add(new CommandInfo("/locate poi", AnvilCraft.CONFIG.spacetimeSupercomputerCommand.allowLocatePoiCommand));
-            list.add(new CommandInfo("/time add", AnvilCraft.CONFIG.spacetimeSupercomputerCommand.allowTimeAddCommand));
-            list.add(new CommandInfo("/tick sprint", AnvilCraft.CONFIG.spacetimeSupercomputerCommand.allowTickSprintCommand));
+            list.add(new CommandInfo("/locate biome", AnvilCraft.CONFIG.commands.allowLocateBiomeCommand));
+            list.add(new CommandInfo("/locate structure", AnvilCraft.CONFIG.commands.allowLocateStructureCommand));
+            list.add(new CommandInfo("/locate poi", AnvilCraft.CONFIG.commands.allowLocatePoiCommand));
+            list.add(new CommandInfo("/time add", AnvilCraft.CONFIG.commands.allowTimeAddCommand));
+            list.add(new CommandInfo("/tick sprint", AnvilCraft.CONFIG.commands.allowTickSprintCommand));
         }
     );
 
@@ -364,7 +364,7 @@ public class SpacetimeSupercomputerBlockEntity extends BlockEntity implements IP
         if (parts.length < 2) {
             return false;
         }
-        var config = AnvilCraft.CONFIG.spacetimeSupercomputerCommand;
+        var config = AnvilCraft.CONFIG.commands;
         return switch (parts[0] + " " + parts[1]) {
             case "locate biome" -> config.allowLocateBiomeCommand;
             case "locate structure" -> config.allowLocateStructureCommand;
@@ -579,7 +579,7 @@ public class SpacetimeSupercomputerBlockEntity extends BlockEntity implements IP
             return;
         }
         String command = this.pendingTickSprintCommand;
-        if (!AnvilCraft.CONFIG.spacetimeSupercomputerCommand.allowTickSprintCommand) {
+        if (!AnvilCraft.CONFIG.commands.allowTickSprintCommand) {
             this.cancelTickSprintCountdown();
             return;
         }

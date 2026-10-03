@@ -438,8 +438,8 @@ public class ChargerBlockEntity extends BlockEntity
                     if (storage != null) {
                         int powerLevel = getFeChargingPowerLevel();
                         if (powerLevel > 0) {
-                            int countdown = AnvilCraft.CONFIG.powerConverter.powerConverterCountdown;
-                            int efficiency = AnvilCraft.CONFIG.powerConverter.powerConverterEfficiency;
+                            int countdown = AnvilCraft.CONFIG.machines.powerConverter.workInterval;
+                            int efficiency = AnvilCraft.CONFIG.machines.powerConverter.efficiency;
                             int remainingFE = storage.getMaxEnergyStored() - storage.getEnergyStored();
                             if (remainingFE <= 0) {
                                 isFeCharging = false;

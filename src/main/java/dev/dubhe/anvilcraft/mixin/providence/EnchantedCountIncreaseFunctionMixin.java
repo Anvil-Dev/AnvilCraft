@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.mixin.providence;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.init.enchantment.ModEnchantmentTags;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.util.ModEnchantmentHelper;
@@ -67,9 +68,9 @@ public class EnchantedCountIncreaseFunctionMixin {
             return result;
         }
         float random = context.getRandom().nextFloat();
-        if (random >= 0.25f) return result;
+        if (random >= AnvilCraft.CONFIG.equipment.providenceExtraRollChance) return result;
         result += original.call(instance, context);
-        if (random >= 0.05f) return result;
+        if (random >= AnvilCraft.CONFIG.equipment.providenceThirdRollChance) return result;
         result += original.call(instance, context);
         return result;
     }

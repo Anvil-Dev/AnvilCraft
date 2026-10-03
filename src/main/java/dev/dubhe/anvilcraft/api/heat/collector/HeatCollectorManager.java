@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.api.heat.collector;
 
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.entity.HeatCollectorBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.InfiniteCollectorBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlockTags;
@@ -27,7 +28,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-import static dev.dubhe.anvilcraft.api.power.PowerGrid.GRID_TICK;
+import static dev.dubhe.anvilcraft.api.power.PowerGrid.gridInterval;
 
 public class HeatCollectorManager {
     private static final Map<Level, HeatCollectorManager> INSTANCES = new HashMap<>();
@@ -133,10 +134,10 @@ public class HeatCollectorManager {
     }
 
     private void tick() {
-        if (level.isClientSide) {
+        if (this.level.isClientSide) {
             return;
         }
-        if (this.level.getGameTime() % GRID_TICK != 0) return;
+        if (this.level.getGameTime() % gridInterval() != 0) return;
         List<IHeatCollector> collectors = this.getCollectorsFromNWToSE();
         Map<Entry, Double2ObjectMap<IHeatCollector>> heatSources = new HashMap<>();
         for (IHeatCollector collector : collectors) {
@@ -157,7 +158,7 @@ public class HeatCollectorManager {
     private void collectSources(IHeatCollector collector, Map<Entry, Double2ObjectMap<IHeatCollector>> heatSources) {
         BlockPos collectorPos = collector.getCollectorPos();
         int collectorRange = collector.getCollectorRange();
-        int overlapRange = collectorRange + InfiniteCollectorBlockEntity.RANGE;
+        int overlapRange = collectorRange + AnvilCraft.CONFIG.machines.infiniteCollectorRange;
         Map<Entry, Double2ObjectMap<IHeatCollector>> heatSourcesCache = new HashMap<>();
         for (BlockPos pos : BlockPos.betweenClosed(
             collectorPos.above(overlapRange).east(overlapRange).south(overlapRange),
@@ -207,7 +208,7 @@ public class HeatCollectorManager {
 
     private int getCollectorRange(BlockState state) {
         if (state.is(ModBlocks.HEAT_COLLECTOR.get())) return 2;
-        if (state.is(ModBlocks.INFINITE_COLLECTOR.get())) return InfiniteCollectorBlockEntity.RANGE;
+        if (state.is(ModBlocks.INFINITE_COLLECTOR.get())) return AnvilCraft.CONFIG.machines.infiniteCollectorRange;
         return 0;
     }
 

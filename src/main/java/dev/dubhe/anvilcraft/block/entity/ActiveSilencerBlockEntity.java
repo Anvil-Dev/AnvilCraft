@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.block.entity;
 import com.mojang.serialization.Codec;
 import dev.anvilcraft.lib.v2.network.util.NetworkUtil;
 import dev.anvilcraft.lib.v2.util.DistExecutor;
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.item.IDiskCloneable;
 import dev.dubhe.anvilcraft.api.sound.ISoundEventListener;
 import dev.dubhe.anvilcraft.api.sound.SoundHelper;
@@ -60,7 +61,8 @@ public class ActiveSilencerBlockEntity
      */
     public ActiveSilencerBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState);
-        range = AABB.ofSize(Vec3.atCenterOf(pos), 31, 31, 31);
+        int muteRange = AnvilCraft.CONFIG.world.activeSilencerRange;
+        this.range = AABB.ofSize(Vec3.atCenterOf(pos), muteRange, muteRange, muteRange);
     }
 
     @Override

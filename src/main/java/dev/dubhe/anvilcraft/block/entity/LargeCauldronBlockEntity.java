@@ -98,7 +98,6 @@ import java.util.Set;
 public class LargeCauldronBlockEntity extends BlockEntity
     implements ICauldron, IItemHandlerHolder, IItemHandlerCache, IFluidHandlerHolder {
     public static final int OUTPUT_SLOTS = 32;
-    public static final int MAX_PROCESS_EFFICIENCY = 9;
     private static final int[][] INPUT_SLOT_OFFSETS = {
         {-1, 0}, {1, 0}, {0, -1}, {0, 1}, {-1, -1}, {-1, 1}, {1, -1}, {1, 1}
     };
@@ -295,7 +294,7 @@ public class LargeCauldronBlockEntity extends BlockEntity
         LargeCauldronBlockEntity main = this.getMainPart();
         double minY = main.worldPosition.getY() - 0.5;
         double fraction = Math.clamp((hit.getLocation().y - minY) / CONTENT_HEIGHT, 0.0, 1.0);
-        int accessible = Math.max(1, (int) Math.ceil(fraction * LargeCauldronFluidHandler.TOTAL_CAPACITY));
+        int accessible = Math.max(1, (int) Math.ceil(fraction * LargeCauldronFluidHandler.totalCapacity()));
         IFluidHandler handler = main.fluids.sideAccess(accessible);
         if (FluidHandlerWrapper.tryInteractWithBottle(player, hand, handler, this.level, this.worldPosition)) return true;
         if (FluidUtil.interactWithFluidHandler(player, hand, handler)) return true;
@@ -420,7 +419,7 @@ public class LargeCauldronBlockEntity extends BlockEntity
             if (!fluid.isEmpty()) maxLight = Math.max(maxLight, fluid.getFluidType().getLightLevel(fluid));
         }
         float fill = (float) handler.getTotalAmount()
-                     / (LargeCauldronFluidHandler.TANK_COUNT * LargeCauldronFluidHandler.TANK_CAPACITY);
+                     / (LargeCauldronFluidHandler.TANK_COUNT * LargeCauldronFluidHandler.tankCapacity());
         return Math.round(maxLight * fill);
     }
 
@@ -501,9 +500,10 @@ public class LargeCauldronBlockEntity extends BlockEntity
         for (int slot = 0; slot < main.output.getSlots(); slot++) {
             if (!main.output.getStackInSlot(slot).isEmpty()) initialOutputSlots.add(slot);
         }
+        int maxProcessEfficiency = AnvilCraft.CONFIG.machines.largeCauldronMaxProcessEfficiency;
         int processed = 0;
         Set<Integer> specialRecipeSlots = new HashSet<>();
-        for (int slot = 0; slot < main.input.getSlots() && processed < MAX_PROCESS_EFFICIENCY; slot++) {
+        for (int slot = 0; slot < main.input.getSlots() && processed < maxProcessEfficiency; slot++) {
             if (!main.tryProcessLiquidEnchantmentRecipe(serverLevel, base, slot)) continue;
             specialRecipeSlots.add(slot);
             processed++;
@@ -514,7 +514,7 @@ public class LargeCauldronBlockEntity extends BlockEntity
                 madeProgress = false;
                 // Slot order must not override recipe priority when ingredients occupy different cauldron cells.
                 for (int slot : orderedInputSlots(serverLevel, main.input, recipePass)) {
-                    if (processed >= MAX_PROCESS_EFFICIENCY) break;
+                    if (processed >= maxProcessEfficiency) break;
                     if (specialRecipeSlots.contains(slot)) continue;
                     BlockPos slotPos = positionForInputSlot(base, slot);
                     List<BlockPos> candidates = helpers.isEmpty()
@@ -535,8 +535,8 @@ public class LargeCauldronBlockEntity extends BlockEntity
                     madeProgress = true;
                     break;
                 }
-            } while (madeProgress && processed < MAX_PROCESS_EFFICIENCY);
-            if (processed >= MAX_PROCESS_EFFICIENCY) break;
+            } while (madeProgress && processed < maxProcessEfficiency);
+            if (processed >= maxProcessEfficiency) break;
         }
 
         List<BlockPos> centerCandidates = helpers.isEmpty()
@@ -544,7 +544,7 @@ public class LargeCauldronBlockEntity extends BlockEntity
             : orderedHelpers(base, helpers, base);
         for (RecipePass recipePass : itemRecipePasses) {
             for (int slot : initialOutputSlots) {
-                if (processed >= MAX_PROCESS_EFFICIENCY) break;
+                if (processed >= maxProcessEfficiency) break;
                 if (main.output.getStackInSlot(slot).isEmpty()) continue;
                 RecipeExecution execution = main.tryProcessItemGroup(
                     serverLevel,
@@ -559,11 +559,11 @@ public class LargeCauldronBlockEntity extends BlockEntity
                 if (execution.damageAnvil()) event.setAnvilDamage(true);
                 processed++;
             }
-            if (processed >= MAX_PROCESS_EFFICIENCY) break;
+            if (processed >= maxProcessEfficiency) break;
         }
 
         if (sameFluids(initialFluids, main.fluids.copyFluids())) {
-            while (processed < MAX_PROCESS_EFFICIENCY) {
+            while (processed < maxProcessEfficiency) {
                 if (main.tryProcessFluidMixingRecipe(serverLevel)) {
                     processed++;
                     continue;
@@ -1244,7 +1244,7 @@ public class LargeCauldronBlockEntity extends BlockEntity
 
         AABB contentArea = this.contentArea();
         double fluidTop = contentArea.minY
-                          + CONTENT_HEIGHT * totalAmount / LargeCauldronFluidHandler.TOTAL_CAPACITY;
+                          + CONTENT_HEIGHT * totalAmount / LargeCauldronFluidHandler.totalCapacity();
         AABB fluidArea = new AABB(
             contentArea.minX,
             contentArea.minY,
@@ -1275,7 +1275,7 @@ public class LargeCauldronBlockEntity extends BlockEntity
             for (FluidStack fluid : layers) {
                 if (fluid.isEmpty()) continue;
                 double layerMaxY = layerMinY
-                                   + CONTENT_HEIGHT * fluid.getAmount() / LargeCauldronFluidHandler.TOTAL_CAPACITY;
+                                   + CONTENT_HEIGHT * fluid.getAmount() / LargeCauldronFluidHandler.totalCapacity();
                 AABB layerArea = new AABB(
                     contentArea.minX,
                     layerMinY,
@@ -1322,7 +1322,7 @@ public class LargeCauldronBlockEntity extends BlockEntity
                 slot,
                 stack -> FireReforgingUtil.repair(
                     stack,
-                    FireReforgingUtil.LAVA_REPAIR_PER_TICK,
+                    AnvilCraft.CONFIG.equipment.fireReforgingRepairPerTick,
                     level,
                     this.worldPosition
                 )
@@ -1445,7 +1445,7 @@ public class LargeCauldronBlockEntity extends BlockEntity
         for (FluidStack transform : predicate.transforms()) {
             int target = findTank(fluids, transform);
             int targetAmount = target < 0 ? 0 : fluids.get(target).getAmount();
-            if (targetAmount + transform.getAmount() > LargeCauldronFluidHandler.TANK_CAPACITY) return false;
+            if (targetAmount + transform.getAmount() > LargeCauldronFluidHandler.tankCapacity()) return false;
             if (target < 0) target = findEmptyTank(fluids);
             if (target < 0) return false;
             FluidStack produced = transform.copyWithAmount(targetAmount + transform.getAmount());

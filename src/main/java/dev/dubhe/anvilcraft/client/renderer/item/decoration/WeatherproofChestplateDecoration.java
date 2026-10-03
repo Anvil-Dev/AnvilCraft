@@ -14,7 +14,7 @@ public class WeatherproofChestplateDecoration implements IItemDecorator {
     @Override
     public boolean render(GuiGraphics guiGraphics, Font font, ItemStack stack, int offsetX, int offsetY) {
         int energy = WeatherproofChestplateItem.getEnergyStored(stack);
-        float ratio = Math.clamp((float) energy / WeatherproofChestplateItem.MAX_ENERGY, 0, 1);
+        float ratio = Math.clamp((float) energy / WeatherproofChestplateItem.maxEnergy(), 0, 1);
 
         int x = offsetX + 2;
         boolean hasDurability = stack.isBarVisible();

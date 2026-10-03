@@ -8,7 +8,7 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 public interface IPowerTransmitter extends IPowerComponent {
     @Override
     default int getRange() {
-        return AnvilCraft.CONFIG.powerTransmitterRange;
+        return AnvilCraft.CONFIG.machines.powerTransmitterRange;
     }
 
     @Override

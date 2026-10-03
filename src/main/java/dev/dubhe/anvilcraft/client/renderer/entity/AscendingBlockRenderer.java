@@ -33,7 +33,7 @@ public class AscendingBlockRenderer extends EntityRenderer<AnimateAscendingBlock
 
     @Override
     public boolean shouldRender(AnimateAscendingBlockEntity entity, Frustum frustum, double camX, double camY, double camZ) {
-        return AnvilCraft.CLIENT_CONFIG.displayAnvilAnimation && super.shouldRender(entity, frustum, camX, camY, camZ);
+        return AnvilCraft.CLIENT_CONFIG.effects.displayAnvilAnimation && super.shouldRender(entity, frustum, camX, camY, camZ);
     }
 
     @Override

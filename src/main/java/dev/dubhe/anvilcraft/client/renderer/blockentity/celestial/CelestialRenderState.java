@@ -1,6 +1,6 @@
 package dev.dubhe.anvilcraft.client.renderer.blockentity.celestial;
 
-import dev.dubhe.anvilcraft.config.AnvilCraftClientConfig.CelestialRenderingMode;
+import dev.dubhe.anvilcraft.config.AnvilCraftClientConfig.GraphicsSettings.CelestialRenderMode;
 
 /** Independent failure latch for one optional celestial effect. */
 final class CelestialRenderState {
@@ -16,8 +16,8 @@ final class CelestialRenderState {
         if (!this.failed) this.loaded = true;
     }
 
-    boolean standard(CelestialRenderingMode mode, boolean irisShaders) {
-        return mode == CelestialRenderingMode.STANDARD && !this.failed && (this.loaded || irisShaders);
+    boolean standard(CelestialRenderMode mode, boolean irisShaders) {
+        return mode == CelestialRenderMode.STANDARD && !this.failed && (this.loaded || irisShaders);
     }
 
     boolean fail() {

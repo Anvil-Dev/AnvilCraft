@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.building;
 
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.item.property.component.FilterContent;
 import net.minecraft.core.BlockPos;
@@ -82,7 +83,7 @@ final class BuildingRodPattern {
             for (var group : planned) {
                 if (group.cells.stream().anyMatch(cell -> occupied.contains(cell.pos()))) continue;
                 for (var cell : group.cells) occupied.add(cell.pos());
-                if (occupied.size() > BuildingRodService.MAX_BLOCKS) return null;
+                if (occupied.size() > AnvilCraft.CONFIG.equipment.buildingRodMaxBlocks) return null;
                 groups.add(group);
             }
         }

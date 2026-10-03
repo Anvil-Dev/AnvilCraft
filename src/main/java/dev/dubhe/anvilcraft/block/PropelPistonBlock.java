@@ -5,6 +5,7 @@ import com.google.common.collect.Maps;
 import com.mojang.serialization.MapCodec;
 import dev.anvilcraft.lib.v2.piston.IMoveableEntityBlock;
 import dev.anvilcraft.lib.v2.piston.injection.IPistonMovingBlockEntityExtension;
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.hammer.IHammerChangeable;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.api.item.IFullCapacitor;
@@ -102,7 +103,7 @@ public class PropelPistonBlock extends DirectionalBlock implements IMoveableEnti
             int storedEnergy = be.getStoredEnergy();
             if (
                 stack.getItem() instanceof IFullCapacitor capacitor
-                && storedEnergy + capacitor.getEnergyStored(stack) * 0.75 <= PropelPistonBlockEntity.MAX_ENERGY // 允许浪费四分之一电量
+                && storedEnergy + capacitor.getEnergyStored(stack) * 0.75 <= AnvilCraft.CONFIG.machines.propelPistonMaxEnergy // 允许浪费四分之一电量
             ) {
                 be.addEnergy(capacitor.getEnergyStored(stack));
                 ItemStack empty = capacitor.getEmpty(stack);

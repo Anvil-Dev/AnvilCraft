@@ -1,6 +1,6 @@
 package dev.dubhe.anvilcraft.client.renderer.mun;
 
-import dev.dubhe.anvilcraft.config.AnvilCraftClientConfig.MunLightingQuality;
+import dev.dubhe.anvilcraft.config.AnvilCraftClientConfig.GraphicsSettings.MunLightingQuality;
 
 record MunLightingProfile(
     int cascades, int resolution, int distance, int cacheRadius, int chunkVertices, int cacheVertices,

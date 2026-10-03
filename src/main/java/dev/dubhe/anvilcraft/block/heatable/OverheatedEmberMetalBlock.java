@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.block.heatable;
 
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.block.IOverheatedEmberBlock;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
@@ -15,7 +16,9 @@ public class OverheatedEmberMetalBlock extends OverheatedBlock implements IOverh
 
     @Override
     public Optional<BlockState> getPrevTier(Level level, BlockPos pos, BlockState state) {
-        if (level.random.nextFloat() <= 0.05f) return Optional.of(Blocks.NETHERITE_BLOCK.defaultBlockState());
+        if (level.random.nextFloat() <= AnvilCraft.CONFIG.world.overheatedEmberMetalNetheriteChance) {
+            return Optional.of(Blocks.NETHERITE_BLOCK.defaultBlockState());
+        }
         return super.getPrevTier(level, pos, state);
     }
 }

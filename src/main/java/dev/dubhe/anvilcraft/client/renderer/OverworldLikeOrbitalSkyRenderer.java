@@ -5,6 +5,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.entity.celestial.CelestialTravelManager;
 import dev.dubhe.anvilcraft.client.AnvilCraftClient;
 import dev.dubhe.anvilcraft.client.init.ModRenderTypes;
@@ -24,7 +25,6 @@ import javax.annotation.Nullable;
 
 /** Draws the generation-global amplified rings as world-space sky geometry. */
 public final class OverworldLikeOrbitalSkyRenderer {
-    private static final float SKY_SCALE = 1200.0F;
     private static @Nullable BakedModel ring4;
     private static @Nullable BakedModel ring5;
 
@@ -38,7 +38,7 @@ public final class OverworldLikeOrbitalSkyRenderer {
 
     @SuppressWarnings("checkstyle:VariableDeclarationUsageDistance")
     public static void render(RenderLevelStageEvent event) {
-        if (event.getStage() != RenderLevelStageEvent.Stage.AFTER_SKY || !AnvilCraftClient.CONFIG.renderOverworldLikeSky) {
+        if (event.getStage() != RenderLevelStageEvent.Stage.AFTER_SKY || !AnvilCraftClient.CONFIG.graphics.renderOverworldLikeSkyRings) {
             return;
         }
         Minecraft minecraft = Minecraft.getInstance();
@@ -69,7 +69,8 @@ public final class OverworldLikeOrbitalSkyRenderer {
         );
 
         poseStack.pushPose();
-        poseStack.scale(SKY_SCALE, SKY_SCALE, SKY_SCALE);
+        float skyScale = AnvilCraft.CLIENT_CONFIG.graphics.overworldLikeSkyRingScale;
+        poseStack.scale(skyScale, skyScale, skyScale);
         OverworldLikeOrbitMath.RingPose outer = OverworldLikeOrbitMath.ringPose(
             6,
             gameTime,

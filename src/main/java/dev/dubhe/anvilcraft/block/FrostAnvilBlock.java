@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.block;
 
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.block.IFrostBlock;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.block.better.BetterAnvilBlock;
@@ -79,6 +80,6 @@ public class FrostAnvilBlock extends BetterAnvilBlock implements IHammerRemovabl
 
     @Override
     public void falling(FallingBlockEntity entity) {
-        entity.setHurtsEntities(2.0f, 120);
+        entity.setHurtsEntities(AnvilCraft.CONFIG.world.anvilFallDamagePerBlock, 120);
     }
 }

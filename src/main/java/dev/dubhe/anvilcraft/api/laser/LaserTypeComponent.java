@@ -33,7 +33,7 @@ public record LaserTypeComponent(boolean gamma) implements ILaserComponent {
             && direction.getAxis() == state.getValue(LensBlock.AXIS)) {
             return true;
         }
-        if (!AnvilCraft.CONFIG.isLaserDoImpactChecking) return false;
+        if (!AnvilCraft.CONFIG.equipment.laserImpactChecking) return false;
         AABB bounds = switch (direction.getAxis()) {
             case X -> Block.box(0, 7, 7, 16, 9, 9).bounds();
             case Y -> Block.box(7, 0, 7, 9, 16, 9).bounds();

@@ -41,9 +41,6 @@ import java.util.stream.Collectors;
 @EventBusSubscriber(modid = AnvilCraft.MOD_ID)
 public class TheMonolithEventListener {
     private static final Set<MinecraftServer> NEW_WORLDS = Collections.newSetFromMap(new WeakHashMap<>());
-    private static final int HINT_TICKS = 100;
-    private static final int HINT_RANGE = 5;
-    private static final int RETURN_CONFIRMATION_TICKS = 60;
     private static final Map<ServerPlayer, Map<BlockPos, Integer>> PROGRESS = new WeakHashMap<>();
     private static final Map<ServerPlayer, Long> RETURN_TOUCHES = new WeakHashMap<>();
     private static final String[] JOKES = {
@@ -91,13 +88,15 @@ public class TheMonolithEventListener {
     public static void onPlayerTick(PlayerTickEvent.Post event) {
         if (!(event.getEntity() instanceof ServerPlayer player)) return;
         ServerLevel level = player.serverLevel();
+        int hintRange = AnvilCraft.CONFIG.world.monolithHintRange;
+        int hintTicks = AnvilCraft.CONFIG.world.monolithHintTicks;
         Set<BlockPos> nearby = level.getPoiManager().getInRange(
                 type -> type.is(ModVillagers.MONOLITH_CORE_POI.getKey()),
-                player.blockPosition(), HINT_RANGE + 1, PoiManager.Occupancy.ANY
+                player.blockPosition(), hintRange + 1, PoiManager.Occupancy.ANY
             )
             .map(PoiRecord::getPos)
             .filter(level::hasChunkAt)
-            .filter(pos -> pos.distToCenterSqr(player.position()) <= HINT_RANGE * HINT_RANGE)
+            .filter(pos -> pos.distToCenterSqr(player.position()) <= hintRange * hintRange)
             .filter(pos -> level.getBlockState(pos).is(ModBlocks.MONOLITH_CORE.get())
                 || level.getBlockState(pos).is(ModBlocks.GIANT_MONOLITH_CORE.get()))
             .collect(Collectors.toSet());
@@ -108,8 +107,8 @@ public class TheMonolithEventListener {
         Map<BlockPos, Integer> progress = PROGRESS.computeIfAbsent(player, ignored -> new HashMap<>());
         progress.keySet().retainAll(nearby);
         for (BlockPos pos : nearby) {
-            int ticks = progress.compute(pos, (ignored, previous) -> previous == null ? 1 : Math.min(previous + 1, HINT_TICKS + 1));
-            if (ticks != HINT_TICKS) continue;
+            int ticks = progress.compute(pos, (ignored, previous) -> previous == null ? 1 : Math.min(previous + 1, hintTicks + 1));
+            if (ticks != hintTicks) continue;
             String key = level.getBlockState(pos).is(ModBlocks.GIANT_MONOLITH_CORE.get())
                 ? "message.anvilcraft.monolith.giant_offering" : "message.anvilcraft.monolith.offering";
             player.sendSystemMessage(Component.translatable(key));
@@ -144,7 +143,7 @@ public class TheMonolithEventListener {
         }
         long now = player.serverLevel().getGameTime();
         Long firstTouch = RETURN_TOUCHES.get(player);
-        if (firstTouch == null || now < firstTouch || now - firstTouch > RETURN_CONFIRMATION_TICKS) {
+        if (firstTouch == null || now < firstTouch || now - firstTouch > AnvilCraft.CONFIG.world.monolithReturnConfirmationTicks) {
             RETURN_TOUCHES.put(player, now);
             player.sendSystemMessage(Component.translatable("message.anvilcraft.monolith.return_confirmation"));
             return;

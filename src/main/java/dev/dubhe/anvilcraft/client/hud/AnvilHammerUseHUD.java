@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.client.hud;
 
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.item.AnvilHammerItem;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
@@ -21,8 +22,8 @@ public final class AnvilHammerUseHUD {
         float partialTick = deltaTracker.getGameTimeDeltaPartialTick(minecraft.isPaused());
         int remainingTicks = player.getUseItemRemainingTicks();
         float progress = Mth.clamp(
-            (AnvilHammerItem.PORTABLE_ANVIL_USE_TICKS - remainingTicks + partialTick)
-            / AnvilHammerItem.PORTABLE_ANVIL_USE_TICKS,
+            (AnvilCraft.CONFIG.equipment.portableAnvilUseTicks - remainingTicks + partialTick)
+            / AnvilCraft.CONFIG.equipment.portableAnvilUseTicks,
             0.0F,
             1.0F
         );

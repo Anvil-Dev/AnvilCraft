@@ -2,7 +2,7 @@ package dev.dubhe.anvilcraft.client.renderer.mun;
 
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.config.AnvilCraftClientConfig.MunLightingQuality;
+import dev.dubhe.anvilcraft.config.AnvilCraftClientConfig.GraphicsSettings.MunLightingQuality;
 import dev.dubhe.anvilcraft.integration.iris.IrisState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -254,7 +254,7 @@ public final class MunSurfaceRenderer {
     }
 
     private static void updateQuality() {
-        MunLightingQuality configured = AnvilCraft.CLIENT_CONFIG.munLightingQuality;
+        MunLightingQuality configured = AnvilCraft.CLIENT_CONFIG.graphics.munLightingQuality;
         if (configured == quality) return;
         quality = configured;
         profile = MunLightingProfile.of(configured);

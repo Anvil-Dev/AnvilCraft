@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.block;
 
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.block.ITranscendiumBlock;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.block.better.BetterAnvilBlock;
@@ -73,6 +74,6 @@ public class TranscendenceAnvilBlock extends BetterAnvilBlock implements IHammer
 
     @Override
     public void falling(FallingBlockEntity entity) {
-        entity.setHurtsEntities(2.0f, Integer.MAX_VALUE);
+        entity.setHurtsEntities(AnvilCraft.CONFIG.world.anvilFallDamagePerBlock, Integer.MAX_VALUE);
     }
 }

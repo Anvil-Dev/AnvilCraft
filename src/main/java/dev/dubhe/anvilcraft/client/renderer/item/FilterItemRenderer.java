@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.client.renderer.item;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.client.support.FittedItemRenderer;
 import dev.dubhe.anvilcraft.client.support.RenderModelSupport;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
@@ -24,7 +25,6 @@ import javax.annotation.Nullable;
 
 public class FilterItemRenderer extends BlockEntityWithoutLevelRenderer {
     private static final ItemStack BARRIER = Items.BARRIER.getDefaultInstance();
-    private static final long DISPLAY_INTERVAL_MILLIS = 1000;
 
     private boolean renderingDisplay;
 
@@ -106,7 +106,7 @@ public class FilterItemRenderer extends BlockEntityWithoutLevelRenderer {
             if (!filter.isEmpty()) count++;
         }
         if (count == 0) return ItemStack.EMPTY;
-        int selected = (int) Math.floorMod(timeMillis / DISPLAY_INTERVAL_MILLIS, count);
+        int selected = (int) Math.floorMod(timeMillis / AnvilCraft.CLIENT_CONFIG.ui.filterItemDisplayIntervalMillis, count);
         for (ItemStack filter : content.list()) {
             if (!filter.isEmpty() && selected-- == 0) return filter;
         }

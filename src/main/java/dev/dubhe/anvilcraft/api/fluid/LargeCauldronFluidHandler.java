@@ -1,12 +1,12 @@
 package dev.dubhe.anvilcraft.api.fluid;
 
+import dev.dubhe.anvilcraft.AnvilCraft;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.neoforged.neoforge.common.util.INBTSerializable;
 import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.FluidType;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.neoforged.neoforge.fluids.capability.templates.FluidTank;
 
@@ -15,8 +15,21 @@ import java.util.List;
 
 public class LargeCauldronFluidHandler implements IFluidHandler, INBTSerializable<CompoundTag> {
     public static final int TANK_COUNT = 8;
-    public static final int TANK_CAPACITY = 64 * FluidType.BUCKET_VOLUME;
-    public static final int TOTAL_CAPACITY = TANK_COUNT * TANK_CAPACITY;
+    /**
+     * 每个储罐的容量（mB），运行时读取配置。
+     */
+
+    public static int tankCapacity() {
+        return AnvilCraft.CONFIG.machines.largeCauldronTankCapacity;
+    }
+
+    /**
+     * 大锅的总容量（mB）。
+     */
+    public static int totalCapacity() {
+        return TANK_COUNT * tankCapacity();
+    }
+
     private final Runnable changeListener;
     private final FluidTank[] tanks = new FluidTank[TANK_COUNT];
     private boolean suppressChanges;
@@ -24,7 +37,7 @@ public class LargeCauldronFluidHandler implements IFluidHandler, INBTSerializabl
     public LargeCauldronFluidHandler(Runnable changeListener) {
         this.changeListener = changeListener;
         for (int i = 0; i < this.tanks.length; i++) {
-            this.tanks[i] = new FluidTank(TANK_CAPACITY) {
+            this.tanks[i] = new FluidTank(tankCapacity()) {
                 @Override
                 protected void onContentsChanged() {
                     if (!LargeCauldronFluidHandler.this.suppressChanges) {
@@ -47,7 +60,7 @@ public class LargeCauldronFluidHandler implements IFluidHandler, INBTSerializabl
 
     @Override
     public int getTankCapacity(int tank) {
-        return TANK_CAPACITY;
+        return tankCapacity();
     }
 
     @Override
@@ -68,7 +81,7 @@ public class LargeCauldronFluidHandler implements IFluidHandler, INBTSerializabl
         List<FluidStack> layers = this.nonEmptyFluids();
         if (matching < 0 && layers.size() >= TANK_COUNT) return 0;
         int stored = matching < 0 ? 0 : this.tanks[matching].getFluidAmount();
-        int accepted = Math.min(resource.getAmount(), TANK_CAPACITY - stored);
+        int accepted = Math.min(resource.getAmount(), tankCapacity() - stored);
         if (accepted <= 0) return 0;
         if (action.simulate()) return accepted;
 
@@ -90,22 +103,22 @@ public class LargeCauldronFluidHandler implements IFluidHandler, INBTSerializabl
     @Override
     public FluidStack drain(FluidStack resource, FluidAction action) {
         return this.drainFirstMatching(
-            resource, action, this.layerOrder(DrainOrder.TOP, TOTAL_CAPACITY));
+            resource, action, this.layerOrder(DrainOrder.TOP, totalCapacity()));
     }
 
     @Override
     public FluidStack drain(int maxDrain, FluidAction action) {
         if (maxDrain <= 0) return FluidStack.EMPTY;
-        List<Integer> order = this.layerOrder(DrainOrder.TOP, TOTAL_CAPACITY);
+        List<Integer> order = this.layerOrder(DrainOrder.TOP, totalCapacity());
         return order.isEmpty() ? FluidStack.EMPTY : this.drainLayer(order.getFirst(), maxDrain, action);
     }
 
     public IFluidHandler bottomAccess() {
-        return new LayeredView(DrainOrder.BOTTOM, TOTAL_CAPACITY, true);
+        return new LayeredView(DrainOrder.BOTTOM, totalCapacity(), true);
     }
 
     public IFluidHandler topAccess() {
-        return new LayeredView(DrainOrder.TOP, TOTAL_CAPACITY, false);
+        return new LayeredView(DrainOrder.TOP, totalCapacity(), false);
     }
 
     public IFluidHandler sideAccess(int accessibleAmount) {
@@ -206,7 +219,7 @@ public class LargeCauldronFluidHandler implements IFluidHandler, INBTSerializabl
         List<FluidStack> compact = new ArrayList<>(TANK_COUNT);
         for (FluidStack fluid : fluids) {
             if (fluid.isEmpty()) continue;
-            compact.add(fluid.copyWithAmount(Math.min(fluid.getAmount(), TANK_CAPACITY)));
+            compact.add(fluid.copyWithAmount(Math.min(fluid.getAmount(), tankCapacity())));
             if (compact.size() == TANK_COUNT) break;
         }
         this.suppressChanges = true;
@@ -294,7 +307,7 @@ public class LargeCauldronFluidHandler implements IFluidHandler, INBTSerializabl
 
         @Override
         public int getTankCapacity(int tank) {
-            return TANK_CAPACITY;
+            return tankCapacity();
         }
 
         @Override

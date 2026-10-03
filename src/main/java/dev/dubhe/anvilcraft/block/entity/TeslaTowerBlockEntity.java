@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.block.entity;
 
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.event.TeslaStrikeEvent;
 import dev.dubhe.anvilcraft.api.item.IDiskCloneable;
 import dev.dubhe.anvilcraft.api.power.IPowerConsumer;
@@ -69,9 +70,8 @@ import javax.annotation.Nullable;
 @Slf4j
 public class TeslaTowerBlockEntity extends BlockEntity
     implements IPowerConsumer, MenuProvider, IDiskCloneable {
-    private static final int STRIKE_COOLDOWN_TICKS = 4 * 20;
     private final ArrayList<Pair<TeslaFilter, String>> allowList = new ArrayList<>();
-    private int tickCount = STRIKE_COOLDOWN_TICKS;
+    private int tickCount = AnvilCraft.CONFIG.machines.teslaTowerStrikeCooldown;
     private int flashTimer = 0;
     @Getter
     private long lastStrikeTime = 0;
@@ -208,7 +208,7 @@ public class TeslaTowerBlockEntity extends BlockEntity
             }
         }
         if (!this.isGridWorking() || state.getValue(TeslaTowerBlock.SWITCH) == Switch.OFF) {
-            this.tickCount = STRIKE_COOLDOWN_TICKS;
+            this.tickCount = AnvilCraft.CONFIG.machines.teslaTowerStrikeCooldown;
             final boolean hasChanged = this.targetEntity != null || this.targetEntityUUID != null || this.targetLightningRod != null;
             this.targetEntity = null;
             this.targetEntityUUID = null;
@@ -224,7 +224,7 @@ public class TeslaTowerBlockEntity extends BlockEntity
             this.tickCount--;
             return;
         }
-        this.tickCount = STRIKE_COOLDOWN_TICKS;
+        this.tickCount = AnvilCraft.CONFIG.machines.teslaTowerStrikeCooldown;
         this.tickCount--;
         AABB aabb = new AABB(this.getBlockPos().above(3)).expandTowards(8, 8, 8).expandTowards(-8, -8, -8);
         if (this.targetEntity != null) {

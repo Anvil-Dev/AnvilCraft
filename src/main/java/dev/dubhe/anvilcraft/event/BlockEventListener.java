@@ -237,7 +237,7 @@ public class BlockEventListener {
         RandomSource random = level.getRandom();
         double chance = random.nextDouble();
         item.shrink(1);
-        if (chance < 0.1) return;
+        if (chance >= AnvilCraft.CONFIG.world.chippedAnvilRepairChance) return;
         Direction facing = state.getValue(AnvilBlock.FACING);
         BlockState intact = Blocks.ANVIL.defaultBlockState().setValue(AnvilBlock.FACING, facing);
         if (state.is(Blocks.CHIPPED_ANVIL)) {
@@ -245,7 +245,7 @@ public class BlockEventListener {
             level.playSound(null, pos, SoundEvents.ANVIL_USE, SoundSource.BLOCKS, 1.0F, 1.0F);
             ParticleUtils.spawnParticles(level, pos, 10, 1.0, 1.0, true, ParticleTypes.HAPPY_VILLAGER);
         } else if (state.is(Blocks.DAMAGED_ANVIL)) {
-            if (chance < 0.2) {
+            if (chance < AnvilCraft.CONFIG.world.damagedAnvilRepairChance) {
                 level.setBlock(pos, intact, 3);
                 level.playSound(null, pos, SoundEvents.ANVIL_USE, SoundSource.BLOCKS, 1.0F, 1.0F);
                 ParticleUtils.spawnParticles(level, pos, 10, 1.0, 1.0, true, ParticleTypes.HAPPY_VILLAGER);

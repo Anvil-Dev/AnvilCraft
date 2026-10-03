@@ -271,7 +271,7 @@ public class BlockPlacerBlock extends Block implements IHammerRemovable, IHammer
                     }
                     if (itemEntity == null) return;
                 }
-            } while (itemEntity == null && i < AnvilCraft.CONFIG.blockPlacerRecursiveRetrievalDistanceMax);
+            } while (itemEntity == null && i < AnvilCraft.CONFIG.world.blockPlacerMaxRecursiveRetrievalDistance);
         }
         if (placeItem == null) return;
         

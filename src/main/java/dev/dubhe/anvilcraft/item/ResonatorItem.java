@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.item;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.multipart.AbstractMultiPartBlock;
 import dev.dubhe.anvilcraft.client.renderer.item.ItemUseAnimationTransform;
 import dev.dubhe.anvilcraft.init.enchantment.ModEnchantmentTags;
@@ -76,8 +77,6 @@ public abstract class ResonatorItem extends TieredItem {
     public static final int HOE_MODE = 3;
     public static final int PICKAXE_MODE = 4;
     private static final int USE_DURATION = 72000;
-    private static final int STANDARD_RESONANCE_MINING_TICKS = 20;
-    private static final int STANDARD_RESONANCE_MINING_DURABILITY_COST = 128;
 
     private final Map<LivingEntity, MiningTarget> clientMiningTargets = new WeakHashMap<>();
     private final Map<LivingEntity, MiningTarget> serverMiningTargets = new WeakHashMap<>();
@@ -236,11 +235,11 @@ public abstract class ResonatorItem extends TieredItem {
     protected abstract double getBaseAttackDamage();
 
     protected int resonanceMiningTicks() {
-        return STANDARD_RESONANCE_MINING_TICKS;
+        return AnvilCraft.CONFIG.equipment.resonatorMiningTicks;
     }
 
     protected int resonanceMiningDurabilityCost() {
-        return STANDARD_RESONANCE_MINING_DURABILITY_COST;
+        return AnvilCraft.CONFIG.equipment.resonatorDurabilityCost;
     }
 
     @Override

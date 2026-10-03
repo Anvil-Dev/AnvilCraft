@@ -2490,7 +2490,7 @@ public class ModBlocks {
 
     public static final BlockEntry<EmberMetalBlock> EMBER_METAL_BLOCK = REGISTRUM.block(
             "ember_metal_block",
-            properties -> new EmberMetalBlock(properties, 0.5d)
+            properties -> new EmberMetalBlock(properties, false)
         )
         .lang("Block of Ember Metal")
         .initialProperties(() -> Blocks.NETHERITE_BLOCK)
@@ -2518,7 +2518,7 @@ public class ModBlocks {
 
     public static final BlockEntry<EmberMetalBlock> CUT_EMBER_METAL_BLOCK = REGISTRUM.block(
             "cut_ember_metal_block",
-            properties -> new EmberMetalBlock(properties, 0.1d)
+            properties -> new EmberMetalBlock(properties, true)
         )
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.NEEDS_DIAMOND_TOOL, BlockTags.WITHER_IMMUNE, BlockTags.DRAGON_IMMUNE)
         .initialProperties(() -> Blocks.NETHERITE_BLOCK)

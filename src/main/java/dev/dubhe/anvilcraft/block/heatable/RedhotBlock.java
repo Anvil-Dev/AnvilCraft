@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.block.heatable;
 
 import dev.anvilcraft.lib.v2.piston.IMoveableEntityBlock;
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.entity.heatable.HeatableBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import net.minecraft.core.BlockPos;
@@ -67,7 +68,7 @@ public class RedhotBlock extends HeatableBlock implements IMoveableEntityBlock {
 
     @Override
     protected void randomTick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
-        if (random.nextDouble() > 0.5) return;
+        if (random.nextDouble() > AnvilCraft.CONFIG.world.redhotWaterAbsorbChance) return;
         this.tryAbsorbWater(level, pos);
     }
 

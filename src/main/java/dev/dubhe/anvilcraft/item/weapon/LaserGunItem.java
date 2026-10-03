@@ -44,7 +44,12 @@ public class LaserGunItem extends EnergyWeaponItem {
     private static final int[] VISUAL_LEVEL = {1, 2, 4, 8, 16};
 
     public LaserGunItem(Properties properties) {
-        super(properties, ENERGY[0]);
+        super(properties);
+    }
+
+    @Override
+    protected int minimumEnergy() {
+        return ENERGY[0];
     }
 
     @Override
@@ -132,7 +137,7 @@ public class LaserGunItem extends EnergyWeaponItem {
             }
             state.idleTicks = 0;
             state.miningAnchor = origin.immutable();
-            state.vein.addAll(findVein(level, origin, ore, AnvilCraft.CONFIG.laserOreClusterMaxSize, player.position()));
+            state.vein.addAll(findVein(level, origin, ore, AnvilCraft.CONFIG.equipment.laserOreClusterMaxSize, player.position()));
         }
         state.miningTicks++;
         if (state.miningTicks % miningPeriod(level, stack) != 0 || state.vein.isEmpty()) return;
@@ -218,15 +223,15 @@ public class LaserGunItem extends EnergyWeaponItem {
         private final Deque<BlockPos> vein = new ArrayDeque<>();
 
         private void resetTarget() {
-            target = null;
-            targetTicks = 0;
+            this.target = null;
+            this.targetTicks = 0;
         }
 
         private void resetMining() {
-            miningTicks = 0;
-            idleTicks = 0;
-            miningAnchor = null;
-            vein.clear();
+            this.miningTicks = 0;
+            this.idleTicks = 0;
+            this.miningAnchor = null;
+            this.vein.clear();
         }
     }
 }

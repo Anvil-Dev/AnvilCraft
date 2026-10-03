@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.item;
 
+import dev.dubhe.anvilcraft.AnvilCraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.protocol.game.ClientboundLevelEventPacket;
@@ -18,7 +19,6 @@ import net.minecraft.world.phys.Vec3;
 import javax.annotation.Nullable;
 
 public class CursedGoldenAppleItem extends Item {
-    private static final int SEARCH_RADIUS = 16;
 
     public CursedGoldenAppleItem(Properties properties) {
         super(properties);
@@ -73,7 +73,8 @@ public class CursedGoldenAppleItem extends Item {
         WorldBorder worldBorder = level.getWorldBorder();
         int maxPlaceableY = Math.min(level.getMaxBuildHeight(), level.getMinBuildHeight() + level.getLogicalHeight() - 1);
         BlockPos.MutableBlockPos cursor = new BlockPos.MutableBlockPos();
-        for (BlockPos.MutableBlockPos column : BlockPos.spiralAround(origin, SEARCH_RADIUS, Direction.EAST, Direction.SOUTH)) {
+        int searchRadius = AnvilCraft.CONFIG.equipment.cursedGoldenAppleSearchRadius;
+        for (BlockPos.MutableBlockPos column : BlockPos.spiralAround(origin, searchRadius, Direction.EAST, Direction.SOUTH)) {
             if (!worldBorder.isWithinBounds(column)) continue;
             int height = Math.min(maxPlaceableY, level.getHeight(Heightmap.Types.MOTION_BLOCKING, column.getX(), column.getZ()));
             for (int y = height; y >= level.getMinBuildHeight(); y--) {

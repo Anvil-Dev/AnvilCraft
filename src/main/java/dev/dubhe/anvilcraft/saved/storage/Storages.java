@@ -30,7 +30,7 @@ public class Storages extends SavedData {
     private final RecoverStation<BaseStorage<?>> recover;
 
     private Storages() {
-        this.recover = RecoverStation.create(AnvilCraft.CONFIG.storageRecoverMaxSize);
+        this.recover = RecoverStation.create(AnvilCraft.CONFIG.machines.storageRecoverMaxSize);
     }
 
     private Storages(Map<UUID, BaseStorage<?>> storages, RecoverStation<BaseStorage<?>> recover) {
@@ -87,7 +87,7 @@ public class Storages extends SavedData {
         Storages previous = Storages.loading;
         Storages.loading = new Storages();
         try {
-            RecoverStation<BaseStorage<?>> recover = RecoverStation.create(AnvilCraft.CONFIG.storageRecoverMaxSize);
+            RecoverStation<BaseStorage<?>> recover = RecoverStation.create(AnvilCraft.CONFIG.machines.storageRecoverMaxSize);
             if (tag.contains("recover", Tag.TAG_COMPOUND)) {
                 recover.deserializeNBT((id, valueTag) -> BaseStorage.loadFromNbt(id, valueTag, registries), tag.getCompound("recover"));
             }

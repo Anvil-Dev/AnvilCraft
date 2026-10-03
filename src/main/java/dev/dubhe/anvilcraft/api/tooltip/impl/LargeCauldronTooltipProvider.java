@@ -2,9 +2,7 @@ package dev.dubhe.anvilcraft.api.tooltip.impl;
 
 import dev.dubhe.anvilcraft.api.tooltip.providers.ITooltipProvider;
 import dev.dubhe.anvilcraft.block.entity.LargeCauldronBlockEntity;
-import dev.dubhe.anvilcraft.client.AnvilCraftClient;
 import dev.dubhe.anvilcraft.recipe.anvil.predicate.block.HasCauldron;
-import dev.dubhe.anvilcraft.util.CompatUtil;
 import dev.dubhe.anvilcraft.util.UnitUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
@@ -26,7 +24,6 @@ public class LargeCauldronTooltipProvider extends ITooltipProvider.BlockEntityTo
 
     @Override
     public List<Component> tooltip(BlockEntity value) {
-        if (CompatUtil.HAS_JADE.get() && AnvilCraftClient.CONFIG.doNotShowTooltipWhenJadePresent) return List.of();
         LargeCauldronBlockEntity cauldron = ((LargeCauldronBlockEntity) value).getMainPart();
         List<LargeCauldronBlockEntity.RecipePreview> previews = cauldron.getRecipePreviews();
         List<Component> lines = new ArrayList<>();

@@ -175,7 +175,7 @@ public class ClientEventListener {
         Minecraft minecraft = Minecraft.getInstance();
         long curTime = minecraft.gui.getGuiTicks();
         long deltaTime = curTime - lastThoughtTime;
-        if (deltaTime > ThoughtManager.getMAX_SECONDS() * 20) {
+        if (deltaTime > ThoughtManager.maxSeconds() * 20) {
             ThoughtManager.onPostThought();
         }
     }
@@ -559,7 +559,7 @@ public class ClientEventListener {
             AmuletSelectorSupport.setCurrentHoveringItemStack(ItemStack.EMPTY);
         }
     }
-    
+
     @SubscribeEvent
     public static void onScreenClosing(ScreenEvent.Closing event) {
         TerminalRemoteOverlay.setHovering(ItemStack.EMPTY);
@@ -589,19 +589,16 @@ public class ClientEventListener {
         if (slot == null || !slot.hasItem()) {
             return;
         }
-        
         ItemStack itemStack = slot.getItem();
         if (!itemStack.is(ModItems.STRUCTURE_DISK.get())) {
             return;
         }
-        
         // 获取真实鼠标位置
         net.minecraft.client.Minecraft minecraft = net.minecraft.client.Minecraft.getInstance();
         int mouseX = (int) (
             minecraft.mouseHandler.xpos() * minecraft.getWindow().getGuiScaledWidth() / minecraft.getWindow().getScreenWidth());
         int mouseY = (int) (
             minecraft.mouseHandler.ypos() * minecraft.getWindow().getGuiScaledHeight() / minecraft.getWindow().getScreenHeight());
-        
         // 渲染预览窗口
         StructureDiskPreviewSupport.renderPreviewAt(
             event.getGuiGraphics(),

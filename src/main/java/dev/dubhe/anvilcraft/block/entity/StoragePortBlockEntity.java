@@ -11,7 +11,6 @@ import dev.dubhe.anvilcraft.block.StoragePortBlock;
 import dev.dubhe.anvilcraft.block.entity.storage.CrateBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.storage.StorageBlockEntity;
 import dev.dubhe.anvilcraft.block.item.StoragePortBlockItem;
-import dev.dubhe.anvilcraft.config.AnvilCraftServerConfig;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.item.AnvilHammerItem;
 import dev.dubhe.anvilcraft.saved.storage.Storages;
@@ -136,7 +135,7 @@ public class StoragePortBlockEntity extends BlockEntity implements IItemHandlerH
         if (this.workCountdown-- > 0) {
             return;
         }
-        AnvilCraftServerConfig.StoragePort config = AnvilCraft.CONFIG.storagePort;
+        var config = AnvilCraft.CONFIG.machines.storagePort;
         this.workCountdown = config.workInterval;
         this.performTransfer(config.maxItemsPerScan);
     }

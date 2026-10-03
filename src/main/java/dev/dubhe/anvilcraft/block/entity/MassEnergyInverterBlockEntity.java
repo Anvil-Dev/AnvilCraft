@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.block.entity;
 
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.power.IPowerConsumer;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
@@ -14,8 +15,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 
 public class MassEnergyInverterBlockEntity extends BlockEntity implements IPowerConsumer {
-    public static final int POWER_CONSUMPTION = 1024;
-    public static final long MASS_PER_TICK = 5;
 
     @Getter
     @Setter
@@ -41,14 +40,14 @@ public class MassEnergyInverterBlockEntity extends BlockEntity implements IPower
         for (Direction direction : Direction.Plane.HORIZONTAL) {
             BlockPos neighborPos = pos.relative(direction);
             if (level.getBlockEntity(neighborPos) instanceof SpaceOvercompressorBlockEntity compressor) {
-                compressor.injectMass(MASS_PER_TICK);
+                compressor.injectMass(AnvilCraft.CONFIG.machines.massEnergyInverterMassPerTick);
             }
         }
     }
 
     @Override
     public int getInputPower() {
-        return POWER_CONSUMPTION;
+        return AnvilCraft.CONFIG.machines.massEnergyInverterPower;
     }
 
     @Override

@@ -3,9 +3,9 @@ package dev.dubhe.anvilcraft.item.property.component;
 import com.google.common.collect.ImmutableList;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
-import dev.dubhe.anvilcraft.item.amulet.AmuletBoxItem;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -144,7 +144,7 @@ public record BoxContents(List<ItemStack> amulets, List<ItemStack> totems, int s
             if (first.is(ModItemTags.TOTEM)) {
                 this.usage--;
             }
-            this.usage = Math.clamp(this.usage, 0, AmuletBoxItem.CAPACITY);
+            this.usage = Math.clamp(this.usage, 0, AnvilCraft.CONFIG.equipment.amuletBoxCapacity);
             return first;
         }
     }

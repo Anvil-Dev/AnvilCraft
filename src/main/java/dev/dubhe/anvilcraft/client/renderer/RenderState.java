@@ -32,14 +32,14 @@ public class RenderState {
     }
 
     public static boolean isBloomEffectEnabled() {
-        return AnvilCraftClient.CONFIG.renderBloomEffect;
+        return AnvilCraftClient.CONFIG.effects.renderBloomEffect;
     }
 
     public static boolean isScanPreviewEffectEnabled() {
-        return AnvilCraftClient.CONFIG.renderScanPreviewEffect;
+        return AnvilCraftClient.CONFIG.effects.renderScanPreviewExtraEffect;
     }
 
     public static boolean isLensEffectEnabled() {
-        return isEnhancedRenderingAvailable() && AnvilCraftClient.CONFIG.gravitationalLens.renderBlackHoleLensing;
+        return isEnhancedRenderingAvailable() && AnvilCraftClient.CONFIG.graphics.gravitationalLens.enabled;
     }
 }

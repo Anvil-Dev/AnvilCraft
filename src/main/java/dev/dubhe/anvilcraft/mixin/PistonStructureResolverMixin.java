@@ -41,16 +41,16 @@ abstract class PistonStructureResolverMixin {
 
     @Inject(method = "resolve", at = @At("RETURN"))
     private void onPistonResolve(CallbackInfoReturnable<Boolean> cir) {
-        if (level.isClientSide()) {
+        if (this.level.isClientSide()) {
             return;
         }
         if (!cir.getReturnValue()) return;
-        PistonMoveGuard.reserve(level, toPush, toDestroy);
+        PistonMoveGuard.reserve(this.level, this.toPush, this.toDestroy);
     }
 
     @ModifyConstant(method = "addBlockLine", constant = @Constant(intValue = 12, ordinal = 0))
     private int updateMaxPushDepth(int constant) {
-        SlidingBlockStructureResolver.MAX_PUSH_DEPTH = constant;
+        SlidingBlockStructureResolver.syncPistonPushDepth(constant);
         return constant;
     }
 

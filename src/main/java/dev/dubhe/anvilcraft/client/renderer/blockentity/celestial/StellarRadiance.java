@@ -1,14 +1,18 @@
 package dev.dubhe.anvilcraft.client.renderer.blockentity.celestial;
 
+import dev.dubhe.anvilcraft.AnvilCraft;
 import org.joml.Vector3f;
 
 /** Stellar exposure and corona geometry, independent of world lighting and gameplay energy. */
 public final class StellarRadiance {
-    public static final float MAX_EXPOSURE = 24.0f;
     public static final float MAX_HALO_SCALE = 2.4f;
     public static final float BROWN_DWARF_SURFACE_GLOW = 0.05f;
     public static final float BROWN_DWARF_HALO_SCALE = 1.25f;
     public static final float BROWN_DWARF_HALO_ALPHA = 0.12f;
+
+    private static float maxExposure() {
+        return AnvilCraft.CLIENT_CONFIG.graphics.stellarMaxExposure;
+    }
 
     private StellarRadiance() {
     }
@@ -24,11 +28,11 @@ public final class StellarRadiance {
     }
 
     public static float eventExposure(float exposure, float emission) {
-        return Math.clamp(exposure + 2.0f * (float) Math.log1p(finitePositive(emission)), 0.04f, MAX_EXPOSURE);
+        return Math.clamp(exposure + 2.0f * (float) Math.log1p(finitePositive(emission)), 0.04f, maxExposure());
     }
 
     public static float haloScale(float exposure) {
-        return 1.45f + (MAX_HALO_SCALE - 1.45f) * (float) Math.log1p(exposure) / (float) Math.log1p(MAX_EXPOSURE);
+        return 1.45f + (MAX_HALO_SCALE - 1.45f) * (float) Math.log1p(exposure) / (float) Math.log1p(maxExposure());
     }
 
     public static float haloStrength(float exposure) {
@@ -75,7 +79,7 @@ public final class StellarRadiance {
     }
 
     public static float encodeExposure(float exposure) {
-        return (float) (Math.log1p(exposure) / Math.log1p(MAX_EXPOSURE));
+        return (float) (Math.log1p(exposure) / Math.log1p(maxExposure()));
     }
 
     static boolean silhouetteEdge(Vector3f camera, int corner, int axis) {

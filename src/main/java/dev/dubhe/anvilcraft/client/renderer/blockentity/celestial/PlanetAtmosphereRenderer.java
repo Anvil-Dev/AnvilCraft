@@ -86,7 +86,7 @@ public final class PlanetAtmosphereRenderer {
                 return;
             }
         }
-        if (!STATE.standard(AnvilCraft.CLIENT_CONFIG.planetAtmosphereRenderingMode, IrisState.isShaderEnabled())) {
+        if (!STATE.standard(AnvilCraft.CLIENT_CONFIG.graphics.planetAtmosphereRenderMode, IrisState.isShaderEnabled())) {
             VanillaCelestialRenderer.atmosphere(poseStack, buffers, color, overlay);
             return;
         }

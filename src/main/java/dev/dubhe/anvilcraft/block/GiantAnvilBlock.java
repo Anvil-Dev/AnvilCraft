@@ -380,7 +380,9 @@ public class GiantAnvilBlock extends SimpleMultiPartBlock<Cube3x3PartHalf> imple
     }
 
     protected void falling(FallingBlockEntity entity) {
-        entity.setHurtsEntities(10.0F, AnvilCraft.CONFIG.giantAnvilFallDamageMax);
+        entity.setHurtsEntities(
+            AnvilCraft.CONFIG.world.giantAnvilFallDamagePerBlock, AnvilCraft.CONFIG.world.giantAnvilMaxFallDamage
+        );
     }
 
     @Override

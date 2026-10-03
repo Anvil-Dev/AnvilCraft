@@ -68,7 +68,7 @@ public class AnvilHammerScreen extends Screen implements IHasHammerEffect {
     private static final RandomSource RANDOM = RandomSource.createNewThreadLocalInstance();
 
     private final Minecraft minecraft = Minecraft.getInstance();
-    private final float radialMenuScale = AnvilCraft.CLIENT_CONFIG.anvilHammerRadialMenuScale;
+    private final float radialMenuScale = AnvilCraft.CLIENT_CONFIG.ui.anvilHammerWheelScale;
     private final BlockPos targetBlockPos;
     private final BlockState initialBlockState;
     private final ModelRenderTarget initialModelTarget;

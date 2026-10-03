@@ -5,16 +5,19 @@
 1. Import Java code style configuration (must)
     - [HERE TO VIEW](https://gist.github.com/Gu-ZT/c3dfd97991daea73d1a5316e0974778f)
     - `Settings` -> `Editor` -> `Code Style` -> `Java` -> `Scheme` -> `Import Scheme`
-2. Import color scheme (optional)
+2. Import Java code inspection configuration (must)
+   - [HERE TO VIEW](https://gist.github.com/QiuShui1012/edf689d2b0bc4d893589477a8ebb5387)
+   - `Settings` -> `Editor` -> `Inspections` -> `Profile` -> `Import Profile`
+3. Import color scheme (optional)
     - [HERE TO VIEW](https://gist.github.com/Gu-ZT/2410fd75cf9b5da09d0b77a57c1caaf7)
     - `Settings` -> `Editor` -> `Color Scheme` -> `Import Scheme`
-3. Add `CheckStyle-IDEA` plugin (optional)
+4. Add `CheckStyle-IDEA` plugin (optional)
     - [HERE TO VIEW](https://plugins.jetbrains.com/plugin/1065-checkstyle-idea)
     - `Plugins` -> `Marketplace`
     - Search for `CheckStyle-IDEA` plugin, made by `Jamie Shiell` and apply it
     - `Settings` -> `Tools` -> `CheckStyle` -> `Configuration File` -> `+`/`Add` -> Choose the `style.xml` file in the root folder of this project
     - `Settings` -> `Tools` -> `CheckStyle` -> `Configuration File` -> Uncheck other entries except the entry added before
-4. Add `Minecraft Development` plugin (recommended)
+5. Add `Minecraft Development` plugin (recommended)
     - [HERE TO VIEW](https://plugins.jetbrains.com/plugin/8327-minecraft-development)
     - `Plugins` -> `Marketplace` -> Search for `Minecraft Development` and apply it
 

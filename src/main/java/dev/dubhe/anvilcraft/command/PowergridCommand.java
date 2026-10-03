@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.command;
 
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.power.DynamicPowerComponent;
 import dev.dubhe.anvilcraft.api.power.IPowerComponent;
 import net.minecraft.ChatFormatting;
@@ -21,7 +22,6 @@ import static net.minecraft.commands.Commands.literal;
 
 public class PowergridCommand {
 
-    public static final int SHOW_INFO_LIMIT = 256;
 
     private static int showInfo(CommandContext<CommandSourceStack> ctx) {
         BlockPos pos = ctx.getArgument("pos", WorldCoordinates.class).getBlockPos(ctx.getSource());
@@ -55,12 +55,12 @@ public class PowergridCommand {
                         .append(Component.translatable("command.anvilcraft.powergrid.info.components").withStyle(ChatFormatting.WHITE))
                         .append(Component.literal("\n"));
                     p.getGrid().getComponents().stream()
-                        .limit(SHOW_INFO_LIMIT)
+                        .limit(AnvilCraft.CONFIG.commands.powergridInfoLimit)
                         .map(IPowerComponent::getCommandDiscription)
                         .map(component -> component.append("\n"))
                         .forEach(message::append);
                     p.getGrid().getDynamicComponents().stream()
-                        .limit(SHOW_INFO_LIMIT)
+                        .limit(AnvilCraft.CONFIG.commands.powergridInfoLimit)
                         .map(DynamicPowerComponent::getCommandDiscription)
                         .map(component -> component.append("\n"))
                         .forEach(message::append);

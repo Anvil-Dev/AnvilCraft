@@ -1,6 +1,6 @@
 package dev.dubhe.anvilcraft.client.renderer.mun;
 
-import dev.dubhe.anvilcraft.config.AnvilCraftClientConfig.MunLightingQuality;
+import dev.dubhe.anvilcraft.config.AnvilCraftClientConfig.GraphicsSettings.MunLightingQuality;
 
 final class MunRenderState {
     private volatile MunLightingQuality quality = MunLightingQuality.STANDARD;
@@ -8,17 +8,17 @@ final class MunRenderState {
     private volatile boolean loaded;
 
     boolean configure(MunLightingQuality configured) {
-        boolean changed = (this.quality == MunLightingQuality.OFF) != (configured == MunLightingQuality.OFF);
+        boolean changed = (this.quality.isEnabled()) != (configured.isEnabled());
         if (changed) {
             this.loaded = false;
-            if (configured != MunLightingQuality.OFF) this.failed = false;
+            if (configured.isEnabled()) this.failed = false;
         }
         this.quality = configured;
         return changed;
     }
 
     boolean requested() {
-        return !this.failed && this.quality != MunLightingQuality.OFF;
+        return !this.failed && this.quality.isEnabled();
     }
 
     boolean enabled() {

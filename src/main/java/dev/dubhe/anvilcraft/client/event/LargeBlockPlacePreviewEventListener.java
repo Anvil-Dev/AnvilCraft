@@ -16,7 +16,6 @@ import dev.dubhe.anvilcraft.building.BuildingRodService;
 import dev.dubhe.anvilcraft.client.AnvilCraftClient;
 import dev.dubhe.anvilcraft.client.init.ModRenderTypes;
 import dev.dubhe.anvilcraft.client.selection.ModelBlockSelection;
-import dev.dubhe.anvilcraft.config.AnvilCraftClientConfig;
 import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.item.BuildingRodItem;
@@ -75,14 +74,14 @@ public class LargeBlockPlacePreviewEventListener {
     private static int boundColor = 0xffffffff;
     private static List<BlockPos> cachedErrorPosList = new ObjectArrayList<>();
 
-    private static final Runnable changeBoundColorRed = () -> boundColor = 0xffff0000;
-    private static final Runnable changeBoundColorWhite = () -> boundColor = 0xffffffff;
+    private static final Runnable changeBoundColorRed = () -> LargeBlockPlacePreviewEventListener.boundColor = 0xffff0000;
+    private static final Runnable changeBoundColorWhite = () -> LargeBlockPlacePreviewEventListener.boundColor = 0xffffffff;
 
     private static final SegmentedActuator animationActuator = new SegmentedActuator(
-        new SegmentedActuator.Task(20, changeBoundColorRed),
-        new SegmentedActuator.Task(20, changeBoundColorWhite),
-        new SegmentedActuator.Task(20, changeBoundColorRed),
-        new SegmentedActuator.Task(20, changeBoundColorWhite)
+        new SegmentedActuator.Task(20, LargeBlockPlacePreviewEventListener.changeBoundColorRed),
+        new SegmentedActuator.Task(20, LargeBlockPlacePreviewEventListener.changeBoundColorWhite),
+        new SegmentedActuator.Task(20, LargeBlockPlacePreviewEventListener.changeBoundColorRed),
+        new SegmentedActuator.Task(20, LargeBlockPlacePreviewEventListener.changeBoundColorWhite)
     );
 
     private static final ObjectArrayList<RenderEntry> renderEntries = new ObjectArrayList<>();
@@ -93,30 +92,33 @@ public class LargeBlockPlacePreviewEventListener {
         new BlockPos(-2, 0, -2),
         new BlockPos(3, 0, -2),
         new BlockPos(-2, 0, 3),
-        new BlockPos(3, 0, 3),
+        new BlockPos(3, 0, 3)
     };
     private static final Direction[] AMPLIFIER_CORNER_FACINGS = {
         Direction.NORTH,
         Direction.EAST,
         Direction.WEST,
-        Direction.SOUTH,
+        Direction.SOUTH
     };
 
     private record RenderEntry(BlockPos pos, BlockState state) {
     }
 
     public static void offerMissingAmplifierAnvil(BlockPos anvilPos) {
-        missingAmplifierAnvilPositions.put(anvilPos.immutable(), Util.getMillis() + MISSING_AMPLIFIER_PREVIEW_DURATION_MS);
+        LargeBlockPlacePreviewEventListener.missingAmplifierAnvilPositions.put(
+            anvilPos.immutable(),
+            Util.getMillis() + LargeBlockPlacePreviewEventListener.MISSING_AMPLIFIER_PREVIEW_DURATION_MS
+        );
     }
 
     public static void removeMissingAmplifierAnvil(BlockPos anvilPos) {
-        missingAmplifierAnvilPositions.remove(anvilPos);
+        LargeBlockPlacePreviewEventListener.missingAmplifierAnvilPositions.remove(anvilPos);
     }
 
     @SubscribeEvent
     public static void onLevelUnload(LevelEvent.Unload event) {
         if (event.getLevel().isClientSide()) {
-            missingAmplifierAnvilPositions.clear();
+            LargeBlockPlacePreviewEventListener.missingAmplifierAnvilPositions.clear();
         }
     }
 
@@ -126,15 +128,15 @@ public class LargeBlockPlacePreviewEventListener {
         if (player == null || player.isSpectator() || mc.level == null) {
             return;
         }
-        boundColor = 0xffffffff;
-        if (failBoundCooldown > 0) {
-            failBoundCooldown--;
-            animationActuator.execute();
+        LargeBlockPlacePreviewEventListener.boundColor = 0xffffffff;
+        if (LargeBlockPlacePreviewEventListener.failBoundCooldown > 0) {
+            LargeBlockPlacePreviewEventListener.failBoundCooldown--;
+            LargeBlockPlacePreviewEventListener.animationActuator.execute();
         }
-        if (failBoundErrorCooldown > 0) {
-            failBoundErrorCooldown--;
+        if (LargeBlockPlacePreviewEventListener.failBoundErrorCooldown > 0) {
+            LargeBlockPlacePreviewEventListener.failBoundErrorCooldown--;
         }
-        renderEntries.clear();
+        LargeBlockPlacePreviewEventListener.renderEntries.clear();
         Inventory inventory = player.getInventory();
         InteractionHand hand = InteractionHand.MAIN_HAND;
         ItemStack item = inventory.getItem(inventory.selected);
@@ -194,28 +196,33 @@ public class LargeBlockPlacePreviewEventListener {
             cells = BuildingRodService.singlePlacement(useContext);
         }
         if (cells.isEmpty()) return;
-        validateCanRender(item, blockItem, cells.getFirst().pos());
-        for (var cell : cells) renderEntries.add(new RenderEntry(cell.pos(), cell.state()));
+        LargeBlockPlacePreviewEventListener.validateCanRender(item, blockItem, cells.getFirst().pos());
+        for (var cell : cells) {
+            LargeBlockPlacePreviewEventListener.renderEntries.add(new RenderEntry(cell.pos(), cell.state()));
+        }
     }
 
-    /** 该方块是否参与放置预览：多方块方块，或 {@link ModBlockTags#PLACEMENT_PREVIEW} 内的单方块。 */
+    /**
+     * 该方块是否参与放置预览：多方块方块，或 {@link ModBlockTags#PLACEMENT_PREVIEW} 内的单方块。
+     */
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     public static boolean isPreviewable(Block block) {
         return block instanceof AbstractMultiPartBlock<?>
                || block.defaultBlockState().is(ModBlockTags.PLACEMENT_PREVIEW);
     }
 
     private static void expandRenderEntriesForGhost() {
-        RenderEntry base = renderEntries.getFirst();
+        RenderEntry base = LargeBlockPlacePreviewEventListener.renderEntries.getFirst();
         if (!(base.state().getBlock() instanceof AbstractMultiPartBlock<?> block)) {
             return;
         }
         ObjectArrayList<RenderEntry> parts = new ObjectArrayList<>();
         for (Enum<?> part : block.getParts()) {
-            BlockPos partPos = base.pos().offset(block.offsetFrom(base.state(), cast(part)));
-            parts.add(new RenderEntry(partPos, block.placedState(cast(part), base.state())));
+            BlockPos partPos = base.pos().offset(block.offsetFrom(base.state(), LargeBlockPlacePreviewEventListener.cast(part)));
+            parts.add(new RenderEntry(partPos, block.placedState(LargeBlockPlacePreviewEventListener.cast(part), base.state())));
         }
-        renderEntries.clear();
-        renderEntries.addAll(parts);
+        LargeBlockPlacePreviewEventListener.renderEntries.clear();
+        LargeBlockPlacePreviewEventListener.renderEntries.addAll(parts);
     }
 
     @SubscribeEvent
@@ -226,47 +233,47 @@ public class LargeBlockPlacePreviewEventListener {
         Minecraft mc = Minecraft.getInstance();
         LocalPlayer player = mc.player;
         if (player == null || player.isSpectator() || mc.level == null) {
-            renderEntries.clear();
-            missingAmplifierAnvilPositions.clear();
+            LargeBlockPlacePreviewEventListener.renderEntries.clear();
+            LargeBlockPlacePreviewEventListener.missingAmplifierAnvilPositions.clear();
             return;
         }
-        renderMissingAmplifierGhosts(event);
+        LargeBlockPlacePreviewEventListener.renderMissingAmplifierGhosts(event);
         if (BuildingRodItem.isHeld(player)) {
-            renderEntries.clear();
+            LargeBlockPlacePreviewEventListener.renderEntries.clear();
             return;
         }
-        if (AnvilCraftClient.CONFIG.multiPartPreviewMode == AnvilCraftClientConfig.MultiPartPreviewMode.OFF) {
-            renderEntries.clear();
+        if (!AnvilCraftClient.CONFIG.effects.multiPartPreviewMode.isEnabled()) {
+            LargeBlockPlacePreviewEventListener.renderEntries.clear();
             return;
         }
-        updatePreview();
-        if (renderEntries.isEmpty()) {
+        LargeBlockPlacePreviewEventListener.updatePreview();
+        if (LargeBlockPlacePreviewEventListener.renderEntries.isEmpty()) {
             return;
         }
         ItemStack item = player.getInventory().getItem(player.getInventory().selected);
         if (!(item.getItem() instanceof BlockItem)) {
             item = player.getItemInHand(InteractionHand.OFF_HAND);
         }
-        if (!(item.getItem() instanceof BlockItem blockItem) || !isPreviewable(blockItem.getBlock())) {
-            renderEntries.clear();
+        if (!(item.getItem() instanceof BlockItem blockItem) || !LargeBlockPlacePreviewEventListener.isPreviewable(blockItem.getBlock())) {
+            LargeBlockPlacePreviewEventListener.renderEntries.clear();
             return;
         }
         PoseStack poseStack = event.getPoseStack();
         Vec3 camera = event.getCamera().getPosition();
         MultiBufferSource.BufferSource bufferSource = mc.renderBuffers().bufferSource();
-        if (AnvilCraftClient.CONFIG.multiPartPreviewMode == AnvilCraftClientConfig.MultiPartPreviewMode.OUTLINE) {
-            if (renderOutline(poseStack, bufferSource, event.getCamera())) {
+        if (AnvilCraftClient.CONFIG.effects.multiPartPreviewMode.isOutline()) {
+            if (LargeBlockPlacePreviewEventListener.renderOutline(poseStack, bufferSource, event.getCamera())) {
                 return;
             }
-            expandRenderEntriesForGhost();
+            LargeBlockPlacePreviewEventListener.expandRenderEntriesForGhost();
         }
         RenderType renderType = ModRenderTypes.BEACON_GLASS;
-        float alpha = (float) AnvilCraftClient.CONFIG.multiPartPreviewGhostOpacity;
-        int color = boundColor;
+        float alpha = (float) AnvilCraftClient.CONFIG.effects.multiPartPreviewGhostOpacity;
+        int color = LargeBlockPlacePreviewEventListener.boundColor;
         float red = FastColor.ARGB32.red(color) / 255f;
         float green = FastColor.ARGB32.green(color) / 255f;
         float blue = FastColor.ARGB32.blue(color) / 255f;
-        for (RenderEntry entry : renderEntries) {
+        for (RenderEntry entry : LargeBlockPlacePreviewEventListener.renderEntries) {
             poseStack.pushPose();
             poseStack.translate(
                 entry.pos().getX() - camera.x - 0.0005,
@@ -274,11 +281,11 @@ public class LargeBlockPlacePreviewEventListener {
                 entry.pos().getZ() - camera.z - 0.0005
             );
             poseStack.scale(1.001f, 1.001f, 1.001f);
-            renderPart(poseStack, bufferSource, renderType, entry.state(), alpha, red, green, blue);
+            LargeBlockPlacePreviewEventListener.renderPart(poseStack, bufferSource, renderType, entry.state(), alpha, red, green, blue);
             poseStack.popPose();
         }
         // 方块实体模型（如智能方块放置器的机械臂）不属于方块模型，按各自位姿单独渲染
-        RenderEntry base = renderEntries.getFirst();
+        RenderEntry base = LargeBlockPlacePreviewEventListener.renderEntries.getFirst();
         for (ModelBlockSelection.ModelPlacement placement : ModelBlockSelection.previewBerModels(base.state(), base.pos())) {
             poseStack.pushPose();
             poseStack.translate(
@@ -289,7 +296,7 @@ public class LargeBlockPlacePreviewEventListener {
             poseStack.scale(1.001f, 1.001f, 1.001f);
             poseStack.last().pose().mul(placement.pose());
             // 与 BER 一致地传 null 状态，避免对独立模型套用方块着色
-            renderModel(
+            LargeBlockPlacePreviewEventListener.renderModel(
                 poseStack,
                 bufferSource,
                 renderType,
@@ -302,7 +309,7 @@ public class LargeBlockPlacePreviewEventListener {
             );
             poseStack.popPose();
         }
-        renderErrorBound(poseStack, bufferSource, event.getCamera());
+        LargeBlockPlacePreviewEventListener.renderErrorBound(poseStack, bufferSource, event.getCamera());
         bufferSource.endBatch(renderType);
         RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
     }
@@ -311,14 +318,17 @@ public class LargeBlockPlacePreviewEventListener {
         Minecraft mc = Minecraft.getInstance();
         Level level = mc.level;
         if (level == null) {
-            missingAmplifierAnvilPositions.clear();
+            LargeBlockPlacePreviewEventListener.missingAmplifierAnvilPositions.clear();
             return;
         }
         long now = Util.getMillis();
-        missingAmplifierAnvilPositions.entrySet().removeIf(entry -> now >= entry.getValue()
-            || !(level.getBlockEntity(entry.getKey()) instanceof CelestialForgingAnvilBlockEntity anvil)
-            || anvil.isRemoved() || anvil.isAmplifierPresent());
-        if (missingAmplifierAnvilPositions.isEmpty()) {
+        LargeBlockPlacePreviewEventListener.missingAmplifierAnvilPositions.entrySet().removeIf(
+            entry -> now >= entry.getValue()
+                     || !(level.getBlockEntity(entry.getKey()) instanceof CelestialForgingAnvilBlockEntity anvil)
+                     || anvil.isRemoved()
+                     || anvil.isAmplifierPresent()
+        );
+        if (LargeBlockPlacePreviewEventListener.missingAmplifierAnvilPositions.isEmpty()) {
             return;
         }
         PoseStack poseStack = event.getPoseStack();
@@ -326,14 +336,20 @@ public class LargeBlockPlacePreviewEventListener {
         Camera camera = event.getCamera();
         Vec3 cameraPos = camera.getPosition();
         CelestialForgingAnvilAmplifierBlock amplifier = ModBlocks.CELESTIAL_FORGING_ANVIL_AMPLIFIER.get();
-        boolean outlineMode = AnvilCraftClient.CONFIG.multiPartPreviewMode
-            != AnvilCraftClientConfig.MultiPartPreviewMode.GHOST;
+        boolean outlineMode = !AnvilCraftClient.CONFIG.effects.multiPartPreviewMode.isGhost();
         RenderType renderType = outlineMode ? RenderType.lines() : ModRenderTypes.BEACON_GLASS;
         VertexConsumer vertexConsumer = bufferSource.getBuffer(renderType);
         if (outlineMode) {
-            renderMissingAmplifierOutlines(poseStack, vertexConsumer, cameraPos, amplifier, level);
+            LargeBlockPlacePreviewEventListener.renderMissingAmplifierOutlines(poseStack, vertexConsumer, cameraPos, amplifier, level);
         } else {
-            renderMissingAmplifierGlass(poseStack, bufferSource, renderType, cameraPos, amplifier, level);
+            LargeBlockPlacePreviewEventListener.renderMissingAmplifierGlass(
+                poseStack,
+                bufferSource,
+                renderType,
+                cameraPos,
+                amplifier,
+                level
+            );
         }
         bufferSource.endBatch(renderType);
         RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
@@ -346,14 +362,14 @@ public class LargeBlockPlacePreviewEventListener {
         CelestialForgingAnvilAmplifierBlock amplifier,
         Level level
     ) {
-        for (BlockPos anvilPos : missingAmplifierAnvilPositions.keySet()) {
-            for (int i = 0; i < AMPLIFIER_CORNER_OFFSETS.length; i++) {
-                BlockPos mainPos = anvilPos.offset(AMPLIFIER_CORNER_OFFSETS[i]);
+        for (BlockPos anvilPos : LargeBlockPlacePreviewEventListener.missingAmplifierAnvilPositions.keySet()) {
+            for (int i = 0; i < LargeBlockPlacePreviewEventListener.AMPLIFIER_CORNER_OFFSETS.length; i++) {
+                BlockPos mainPos = anvilPos.offset(LargeBlockPlacePreviewEventListener.AMPLIFIER_CORNER_OFFSETS[i]);
                 if (level.getBlockState(mainPos).is(amplifier)) {
                     continue;
                 }
                 BlockState state = amplifier.defaultBlockState()
-                    .setValue(CelestialForgingAnvilAmplifierBlock.FACING, AMPLIFIER_CORNER_FACINGS[i]);
+                    .setValue(CelestialForgingAnvilAmplifierBlock.FACING, LargeBlockPlacePreviewEventListener.AMPLIFIER_CORNER_FACINGS[i]);
                 List<SelectionPart> outline = ModelBlockSelection.multipartOutline(state);
                 if (outline.isEmpty()) {
                     continue;
@@ -367,9 +383,11 @@ public class LargeBlockPlacePreviewEventListener {
                 for (SelectionPart selectionPart : outline) {
                     poseStack.pushPose();
                     selectionPart.apply(poseStack);
-                    OutlineRenderer.render(poseStack, vertexConsumer,
+                    OutlineRenderer.render(
+                        poseStack, vertexConsumer,
                         CubeSelection.outlines().get(selectionPart.geometry()), 1.0f, 1.0f, 1.0f,
-                        (float) AnvilCraftClient.CONFIG.multiPartPreviewOutlineOpacity);
+                        (float) AnvilCraftClient.CONFIG.effects.multiPartPreviewOutlineOpacity
+                    );
                     poseStack.popPose();
                 }
                 poseStack.popPose();
@@ -385,14 +403,14 @@ public class LargeBlockPlacePreviewEventListener {
         CelestialForgingAnvilAmplifierBlock amplifier,
         Level level
     ) {
-        for (BlockPos anvilPos : missingAmplifierAnvilPositions.keySet()) {
-            for (int i = 0; i < AMPLIFIER_CORNER_OFFSETS.length; i++) {
-                BlockPos mainPos = anvilPos.offset(AMPLIFIER_CORNER_OFFSETS[i]);
+        for (BlockPos anvilPos : LargeBlockPlacePreviewEventListener.missingAmplifierAnvilPositions.keySet()) {
+            for (int i = 0; i < LargeBlockPlacePreviewEventListener.AMPLIFIER_CORNER_OFFSETS.length; i++) {
+                BlockPos mainPos = anvilPos.offset(LargeBlockPlacePreviewEventListener.AMPLIFIER_CORNER_OFFSETS[i]);
                 if (level.getBlockState(mainPos).is(amplifier)) {
                     continue;
                 }
                 BlockState state = amplifier.defaultBlockState()
-                    .setValue(CelestialForgingAnvilAmplifierBlock.FACING, AMPLIFIER_CORNER_FACINGS[i]);
+                    .setValue(CelestialForgingAnvilAmplifierBlock.FACING, LargeBlockPlacePreviewEventListener.AMPLIFIER_CORNER_FACINGS[i]);
                 for (DirectionCube232PartHalf part : amplifier.getParts()) {
                     BlockPos pos = mainPos.offset(amplifier.offsetFrom(state, part));
                     poseStack.pushPose();
@@ -403,8 +421,10 @@ public class LargeBlockPlacePreviewEventListener {
                     );
                     poseStack.scale(1.001f, 1.001f, 1.001f);
                     BlockState partState = amplifier.placedState(part, state);
-                    renderPart(poseStack, bufferSource, renderType, partState,
-                        (float) AnvilCraftClient.CONFIG.multiPartPreviewGhostOpacity, 1.0f, 1.0f, 1.0f);
+                    LargeBlockPlacePreviewEventListener.renderPart(
+                        poseStack, bufferSource, renderType, partState,
+                        (float) AnvilCraftClient.CONFIG.effects.multiPartPreviewGhostOpacity, 1.0f, 1.0f, 1.0f
+                    );
                     poseStack.popPose();
                 }
             }
@@ -416,11 +436,14 @@ public class LargeBlockPlacePreviewEventListener {
         MultiBufferSource.BufferSource bufferSource,
         Camera camera
     ) {
-        if (renderEntries.isEmpty()) {
+        if (LargeBlockPlacePreviewEventListener.renderEntries.isEmpty()) {
             return false;
         }
-        RenderEntry base = renderEntries.getFirst();
-        List<RenderEntry> entries = base.state().getBlock() instanceof AbstractMultiPartBlock<?> ? List.of(base) : renderEntries;
+        RenderEntry base = LargeBlockPlacePreviewEventListener.renderEntries.getFirst();
+        List<RenderEntry> entries =
+            base.state().getBlock() instanceof AbstractMultiPartBlock<?>
+            ? List.of(base)
+            : LargeBlockPlacePreviewEventListener.renderEntries;
         Map<RenderEntry, List<SelectionPart>> outlines = new LinkedHashMap<>();
         for (RenderEntry entry : entries) {
             List<SelectionPart> outline = new ArrayList<>(ModelBlockSelection.multipartOutline(entry.state()));
@@ -430,7 +453,7 @@ public class LargeBlockPlacePreviewEventListener {
         }
         Vec3 cameraPos = camera.getPosition();
         VertexConsumer vertexConsumer = bufferSource.getBuffer(RenderType.lines());
-        int color = boundColor;
+        int color = LargeBlockPlacePreviewEventListener.boundColor;
         float red = FastColor.ARGB32.red(color) / 255f;
         float green = FastColor.ARGB32.green(color) / 255f;
         float blue = FastColor.ARGB32.blue(color) / 255f;
@@ -441,14 +464,16 @@ public class LargeBlockPlacePreviewEventListener {
             for (SelectionPart part : entry.getValue()) {
                 poseStack.pushPose();
                 part.apply(poseStack);
-                OutlineRenderer.render(poseStack, vertexConsumer,
+                OutlineRenderer.render(
+                    poseStack, vertexConsumer,
                     CubeSelection.outlines().get(part.geometry()), red, green, blue,
-                    (float) AnvilCraftClient.CONFIG.multiPartPreviewOutlineOpacity);
+                    (float) AnvilCraftClient.CONFIG.effects.multiPartPreviewOutlineOpacity
+                );
                 poseStack.popPose();
             }
             poseStack.popPose();
         }
-        renderErrorBound(poseStack, bufferSource, camera);
+        LargeBlockPlacePreviewEventListener.renderErrorBound(poseStack, bufferSource, camera);
         bufferSource.endBatch(RenderType.lines());
         return true;
     }
@@ -458,12 +483,12 @@ public class LargeBlockPlacePreviewEventListener {
         MultiBufferSource.BufferSource bufferSource,
         Camera camera
     ) {
-        if (failBoundErrorCooldown <= 0) {
+        if (LargeBlockPlacePreviewEventListener.failBoundErrorCooldown <= 0) {
             return;
         }
         Vec3 position = camera.getPosition();
         VertexConsumer vertexConsumer = bufferSource.getBuffer(RenderType.lines());
-        for (BlockPos blockPos : cachedErrorPosList) {
+        for (BlockPos blockPos : LargeBlockPlacePreviewEventListener.cachedErrorPosList) {
             TooltipRenderHelper.renderOutline(
                 poseStack,
                 vertexConsumer,
@@ -487,7 +512,7 @@ public class LargeBlockPlacePreviewEventListener {
         float green,
         float blue
     ) {
-        renderModel(
+        LargeBlockPlacePreviewEventListener.renderModel(
             poseStack,
             bufferSource,
             renderType,
@@ -530,17 +555,17 @@ public class LargeBlockPlacePreviewEventListener {
     }
 
     private static void validateCanRender(ItemStack item, BlockItem blockItem, BlockPos pos) {
-        if (currentItem.isEmpty()) {
-            currentItem = item.copy();
-        } else if (!currentItem.is(blockItem)) {
-            currentItem = ItemStack.EMPTY;
-            failBoundCooldown = 0;
+        if (LargeBlockPlacePreviewEventListener.currentItem.isEmpty()) {
+            LargeBlockPlacePreviewEventListener.currentItem = item.copy();
+        } else if (!LargeBlockPlacePreviewEventListener.currentItem.is(blockItem)) {
+            LargeBlockPlacePreviewEventListener.currentItem = ItemStack.EMPTY;
+            LargeBlockPlacePreviewEventListener.failBoundCooldown = 0;
         }
-        if (currentPos == null) {
-            currentPos = pos;
-        } else if (!currentPos.equals(pos)) {
-            currentPos = null;
-            failBoundCooldown = 0;
+        if (LargeBlockPlacePreviewEventListener.currentPos == null) {
+            LargeBlockPlacePreviewEventListener.currentPos = pos;
+        } else if (!LargeBlockPlacePreviewEventListener.currentPos.equals(pos)) {
+            LargeBlockPlacePreviewEventListener.currentPos = null;
+            LargeBlockPlacePreviewEventListener.failBoundCooldown = 0;
         }
     }
 
@@ -550,12 +575,12 @@ public class LargeBlockPlacePreviewEventListener {
     }
 
     public static void startFailBoundCooldown() {
-        failBoundCooldown = 80;
-        animationActuator.reset();
+        LargeBlockPlacePreviewEventListener.failBoundCooldown = 80;
+        LargeBlockPlacePreviewEventListener.animationActuator.reset();
     }
 
     public static void startFailBoundErrorCooldown(List<BlockPos> errorPosList) {
-        failBoundErrorCooldown = 60;
-        cachedErrorPosList = new ObjectArrayList<>(errorPosList);
+        LargeBlockPlacePreviewEventListener.failBoundErrorCooldown = 60;
+        LargeBlockPlacePreviewEventListener.cachedErrorPosList = new ObjectArrayList<>(errorPosList);
     }
 }

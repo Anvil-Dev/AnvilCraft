@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.block;
 
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.block.IEmberBlock;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.block.better.BetterGrindstoneBlock;
@@ -68,7 +69,7 @@ public class EmberGrindstoneBlock extends BetterGrindstoneBlock implements IHamm
         BlockPos pos,
         RandomSource random
     ) {
-        if (random.nextDouble() <= 0.5) {
+        if (random.nextDouble() <= AnvilCraft.CONFIG.world.emberBlockWaterAbsorptionChance) {
             this.tryAbsorbWater(level, pos);
         }
     }

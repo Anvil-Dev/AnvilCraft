@@ -50,7 +50,6 @@ public class MDProceduralProcessRecipeComponent extends MDRecipeComponent {
     public static final int ARROW_LONG_LENGTH = 64;
 
     /** 多圈配方的展示轮换周期，与 JEI 分类保持一致。 */
-    private static final long LOOP_CYCLE_MILLIS = 1500L;
 
     private final ProceduralProcessRecipe recipe;
     private final BlockStatePredicate initialBlock;
@@ -186,7 +185,7 @@ public class MDProceduralProcessRecipeComponent extends MDRecipeComponent {
      */
     private static int getDisplayedLoop(ProceduralProcessRecipe recipe) {
         if (recipe.getLoop() <= 1) return 0;
-        return (int) ((Util.getMillis() / LOOP_CYCLE_MILLIS) % recipe.getLoop());
+        return (int) ((Util.getMillis() / AnvilCraft.CLIENT_CONFIG.ui.recipePreviewCycleMillis) % recipe.getLoop());
     }
 
     /**

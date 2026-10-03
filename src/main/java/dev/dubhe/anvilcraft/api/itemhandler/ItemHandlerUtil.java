@@ -256,7 +256,7 @@ public class ItemHandlerUtil {
             } else {
                 return getSourceItemHandler(inputPos, context, level);
             }
-        } while (i < AnvilCraft.CONFIG.blockPlacerRecursiveRetrievalDistanceMax);
+        } while (i < AnvilCraft.CONFIG.world.blockPlacerMaxRecursiveRetrievalDistance);
         return null;
     }
 

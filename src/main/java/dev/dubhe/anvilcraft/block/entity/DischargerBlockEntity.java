@@ -45,7 +45,6 @@ public class DischargerBlockEntity extends BlockEntity
     /**
      * 放电器每tick从物品抽取的FE量（与FE收集器一致）
      */
-    static final int FE_EXTRACT_PER_TICK = 10_000;
 
     @Getter
     @Setter
@@ -410,10 +409,10 @@ public class DischargerBlockEntity extends BlockEntity
                             timeTotalCache = 0;
                         } else {
                             int extracted = storage.extractEnergy(
-                                Math.min(FE_EXTRACT_PER_TICK, currentEnergy), false);
+                                Math.min(AnvilCraft.CONFIG.machines.dischargerFePerTick, currentEnergy), false);
                             powerValue = (int) (extracted
-                                * (1 - AnvilCraft.CONFIG.powerConverter.powerConverterLoss)
-                                / AnvilCraft.CONFIG.powerConverter.powerConverterEfficiency);
+                                * (1 - AnvilCraft.CONFIG.machines.powerConverter.loss)
+                                / AnvilCraft.CONFIG.machines.powerConverter.efficiency);
                             timeLeft = currentEnergy - extracted;
                             timeTotalCache = storage.getMaxEnergyStored();
                         }

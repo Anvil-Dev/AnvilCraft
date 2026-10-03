@@ -33,7 +33,13 @@ import java.util.Set;
 public class PowerGrid {
     public static boolean isServerClosing = false;
     public static final PowerGridManager MANAGER = new PowerGridManager();
-    public static final int GRID_TICK = 20;
+    /**
+     * 电网逻辑的运行间隔（tick），同时是能量记账单位；运行时读取配置。
+     */
+
+    public static int gridInterval() {
+        return AnvilCraft.CONFIG.machines.powerGridTick;
+    }
 
     @Getter
     public boolean markedRemoval = false;
@@ -76,7 +82,7 @@ public class PowerGrid {
     }
 
     public void update(boolean forced) {
-        if (forced || changed) {
+        if (forced || this.changed) {
             PowerGridSyncChunkPacket.send(this);
         }
     }
@@ -113,13 +119,13 @@ public class PowerGrid {
      * 电力刻
      */
     protected void tick() {
-        if (this.level.getGameTime() % GRID_TICK != 0) return;
+        if (this.level.getGameTime() % gridInterval() != 0) return;
         if (this.isMarkedRemoval()) return;
         if (this.flush()) return;
         if (this.isWorking()) {
             int remainder = this.generate - this.consume;
-            for (IPowerStorage storage : storages) {
-                if (checkRemove(storage)) return;
+            for (IPowerStorage storage : this.storages) {
+                if (this.checkRemove(storage)) return;
                 remainder = storage.insert(remainder);
                 if (remainder <= 0) break;
             }
@@ -139,12 +145,12 @@ public class PowerGrid {
         }
         this.gridTick();
         this.update(false);
-        changed = false;
+        this.changed = false;
     }
 
     private void gridTick() {
-        components.forEach(IPowerComponent::gridTick);
-        dynamicComponents.forEach(DynamicPowerComponent::gridTick);
+        this.components.forEach(IPowerComponent::gridTick);
+        this.dynamicComponents.forEach(DynamicPowerComponent::gridTick);
     }
 
     private boolean checkRemove(IPowerComponent component) {
@@ -162,13 +168,13 @@ public class PowerGrid {
         this.generate = 0;
         this.consume = 0;
         this.hasInfinitePower = false;
-        for (IPowerTransmitter transmitter : transmitters) {
-            if (checkRemove(transmitter)) {
+        for (IPowerTransmitter transmitter : this.transmitters) {
+            if (this.checkRemove(transmitter)) {
                 return true;
             }
         }
         for (IPowerProducer producer : this.producers) {
-            if (checkRemove(producer)) {
+            if (this.checkRemove(producer)) {
                 return true;
             }
             this.generate += producer.getOutputPower();
@@ -177,7 +183,7 @@ public class PowerGrid {
             }
         }
         for (IPowerConsumer consumer : this.consumers) {
-            if (checkRemove(consumer)) {
+            if (this.checkRemove(consumer)) {
                 return true;
             }
             this.consume += consumer.getInputPower();
@@ -216,11 +222,11 @@ public class PowerGrid {
     }
 
     public boolean inRangeFast(Vec3 pos) {
-        return shape.inRange(pos);
+        return this.shape.inRange(pos);
     }
 
     public boolean collideFast(AABB box) {
-        return shape.intersects(box);
+        return this.shape.intersects(box);
     }
 
     /**
@@ -453,7 +459,7 @@ public class PowerGrid {
         for (DynamicPowerComponent component : new ArrayList<>(grid.dynamicComponents)) {
             component.switchTo(this);
         }
-        changed = true;
+        this.changed = true;
     }
 
     /**

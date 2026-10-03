@@ -14,6 +14,7 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.datafixers.util.Either;
 import com.mojang.math.Axis;
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.tooltip.TooltipRenderHelper;
 import dev.dubhe.anvilcraft.block.SmartBlockPlacerBlock;
 import dev.dubhe.anvilcraft.block.entity.SmartBlockPlacerBlockEntity;
@@ -126,7 +127,6 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
     private float previewRotationX = -30.0f;
     private static final float MIN_ROTATION_X = -60.0f;
     private static final float MAX_ROTATION_X = 0.0f;
-    private static final float ROTATION_SENSITIVITY = 0.5f;
 
     private static final int PREVIEW_BLOCK_SWITCH_INTERVAL = 80;
     private static final int STRUCTURE_INFO_MAX_WIDTH = 80;
@@ -705,10 +705,10 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
 
             // 更新旋转角度
             // 水平移动 -> Y轴旋转（无限制）
-            this.previewRotationY += deltaX * ROTATION_SENSITIVITY;
+            this.previewRotationY += deltaX * AnvilCraft.CLIENT_CONFIG.controls.previewRotationSensitivity;
 
             // 垂直移动 -> X轴旋转（有限制，反转方向）
-            this.previewRotationX -= deltaY * ROTATION_SENSITIVITY;
+            this.previewRotationX -= deltaY * AnvilCraft.CLIENT_CONFIG.controls.previewRotationSensitivity;
             this.previewRotationX = Math.clamp(this.previewRotationX, MIN_ROTATION_X, MAX_ROTATION_X);
 
             this.lastMouseX = currentMouseX;
