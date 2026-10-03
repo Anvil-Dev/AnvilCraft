@@ -8,7 +8,6 @@ import dev.dubhe.anvilcraft.item.property.component.Merciless;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
-import net.minecraft.core.HolderGetter;
 import net.minecraft.core.HolderOwner;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.Position;
@@ -60,14 +59,14 @@ import net.minecraft.world.item.enchantment.EnchantmentEffectComponents;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.ItemEnchantments;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.common.ItemAbilities;
 import net.neoforged.neoforge.common.ItemAbility;
 import org.jspecify.annotations.Nullable;
 
-import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Consumer;
 
 public abstract class HeavyHalberdItem extends Item implements ProjectileItem, IItemTooltipProvider {
@@ -78,7 +77,7 @@ public abstract class HeavyHalberdItem extends Item implements ProjectileItem, I
         super(
             properties
                 .attributes(HeavyHalberdItem.createAttributes(material, attackDamage, attackSpeed))
-                .component(DataComponents.TOOL, HeavyHalberdItem.createToolProperties(material, true))
+                .component(DataComponents.TOOL, HeavyHalberdItem.createToolProperties(HeavyHalberdMode.TRIDENT))
                 .component(DataComponents.WEAPON, new Weapon(1))
                 .component(ModComponents.HEAVY_HALBERD_MODE, HeavyHalberdMode.TRIDENT)
                 .durability(material.durability()).repairable(material.repairItems()).enchantable(material.enchantmentValue())
@@ -119,18 +118,13 @@ public abstract class HeavyHalberdItem extends Item implements ProjectileItem, I
         return 2.0;
     }
 
-    @SuppressWarnings("deprecation")
-    public static Tool createToolProperties(ToolMaterial material, boolean isBootstrap) {
-        HolderGetter<Block> lookup = isBootstrap
-                                     ? BuiltInRegistries.acquireBootstrapRegistrationLookup(BuiltInRegistries.BLOCK)
-                                     : BuiltInRegistries.BLOCK;
-        ArrayList<Tool.Rule> rules = new ArrayList<>();
-        rules.add(Tool.Rule.minesAndDrops(HolderSet.direct(Blocks.COBWEB.builtInRegistryHolder()), 15.0F));
-        rules.add(Tool.Rule.overrideSpeed(lookup.getOrThrow(BlockTags.SWORD_INSTANTLY_MINES), Float.MAX_VALUE));
-        rules.add(Tool.Rule.overrideSpeed(lookup.getOrThrow(BlockTags.SWORD_EFFICIENT), 1.5F));
-        rules.add(Tool.Rule.deniesDrops(lookup.getOrThrow(material.incorrectBlocksForDrops())));
-        rules.add(Tool.Rule.minesAndDrops(lookup.getOrThrow(BlockTags.MINEABLE_WITH_AXE), material.speed()));
-        return new Tool(rules, 1.0F, 2, false);
+    public static Tool createToolProperties(HeavyHalberdMode mode) {
+        if (mode != HeavyHalberdMode.SWORD) return new Tool(List.of(), 1.0F, 2, false);
+        return new Tool(List.of(
+            Tool.Rule.minesAndDrops(HolderSet.direct(Blocks.COBWEB.builtInRegistryHolder()), 15.0F),
+            Tool.Rule.overrideSpeed(BuiltInRegistries.BLOCK.getOrThrow(BlockTags.SWORD_INSTANTLY_MINES), Float.MAX_VALUE),
+            Tool.Rule.overrideSpeed(BuiltInRegistries.BLOCK.getOrThrow(BlockTags.SWORD_EFFICIENT), 1.5F)
+        ), 1.0F, 2, false);
     }
 
     public static HeavyHalberdMode getMode(ItemInstance stack) {
@@ -141,6 +135,7 @@ public abstract class HeavyHalberdItem extends Item implements ProjectileItem, I
         ItemStack stack = player.getItemInHand(hand);
         if (!(stack.getItem() instanceof HeavyHalberdItem)) return;
         stack.set(ModComponents.HEAVY_HALBERD_MODE, mode);
+        updateToolProperties(stack);
         updateModeComponents(stack, mode);
     }
 
@@ -219,9 +214,6 @@ public abstract class HeavyHalberdItem extends Item implements ProjectileItem, I
                 }
                 stack.set(DataComponents.ATTRIBUTE_MODIFIERS, builder.build());
             }
-            if (stack.has(DataComponents.TOOL)) {
-                stack.remove(DataComponents.TOOL);
-            }
         } else {
             if (stack.has(ModComponents.DISABLED_ENCHANTMENTS)) {
                 ItemEnchantments disabledEnchs = stack.getOrDefault(ModComponents.DISABLED_ENCHANTMENTS, ItemEnchantments.EMPTY);
@@ -246,10 +238,29 @@ public abstract class HeavyHalberdItem extends Item implements ProjectileItem, I
                     );
                 stack.set(DataComponents.ATTRIBUTE_MODIFIERS, modifiers);
             }
-            if (!stack.has(DataComponents.TOOL)) {
-                stack.set(DataComponents.TOOL, createToolProperties(material, false));
-            }
         }
+        updateToolProperties(stack);
+    }
+
+    private static void updateToolProperties(ItemStack stack) {
+        if (!stack.has(DataComponents.UNBREAKABLE) && isTooDamagedToUse(stack)) {
+            stack.remove(DataComponents.TOOL);
+            return;
+        }
+        Tool tool = createToolProperties(getMode(stack));
+        if (!tool.equals(stack.get(DataComponents.TOOL))) stack.set(DataComponents.TOOL, tool);
+    }
+
+    @Override
+    public float getDestroySpeed(ItemStack stack, BlockState state) {
+        updateToolProperties(stack);
+        return super.getDestroySpeed(stack, state);
+    }
+
+    @Override
+    public boolean isCorrectToolForDrops(ItemStack stack, BlockState state) {
+        updateToolProperties(stack);
+        return super.isCorrectToolForDrops(stack, state);
     }
 
     @Override
@@ -260,6 +271,7 @@ public abstract class HeavyHalberdItem extends Item implements ProjectileItem, I
             updateModeComponents(stack, mode);
         }
         if (!stack.has(DataComponents.UNBREAKABLE)) HeavyHalberdItem.checkTooDamaged(this.material, stack);
+        else updateToolProperties(stack);
     }
 
     @Override
