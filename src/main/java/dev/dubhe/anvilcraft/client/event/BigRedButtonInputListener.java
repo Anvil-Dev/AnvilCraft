@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.client.event;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.block.utility.redstone.BigRedButtonBlock;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.item.BuildingRodItem;
 import dev.dubhe.anvilcraft.network.BigRedButtonHoldPacket;
@@ -12,6 +13,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -27,6 +29,8 @@ public class BigRedButtonInputListener {
     private static @Nullable BlockPos heldPos;
     private static @Nullable ClientLevel heldLevel;
     private static int heartbeatTicks;
+    private static int holdId;
+    private static boolean confirmed;
     private static final float HELD_SWING_PROGRESS = 0.125f;
     private static @Nullable ClientLevel animationLevel;
     private static float previousSwingProgress;
@@ -36,8 +40,9 @@ public class BigRedButtonInputListener {
     public static void onUse(InputEvent.InteractionKeyMappingTriggered event) {
         if (!event.isUseItem()) return;
         Minecraft minecraft = Minecraft.getInstance();
-        BlockPos pos = targetedButton(minecraft);
-        if (pos == null) return;
+        BlockHitResult hit = targetedButton(minecraft);
+        if (hit == null) return;
+        BlockPos pos = hit.getBlockPos();
         event.setCanceled(true);
         event.setSwingHand(false);
         if (pos.equals(heldPos) && minecraft.level == heldLevel) return;
@@ -45,7 +50,7 @@ public class BigRedButtonInputListener {
         heldPos = pos;
         heldLevel = minecraft.level;
         heartbeatTicks = 0;
-        ClientPacketDistributor.sendToServer(new BigRedButtonHoldPacket(pos, true));
+        ClientPacketDistributor.sendToServer(new BigRedButtonHoldPacket(pos, hit.getLocation(), true, holdId));
     }
 
     @SubscribeEvent
@@ -68,14 +73,15 @@ public class BigRedButtonInputListener {
     public static void onClientTick(ClientTickEvent.Pre event) {
         if (heldPos == null) return;
         Minecraft minecraft = Minecraft.getInstance();
+        BlockHitResult hit = targetedButton(minecraft);
         if (minecraft.level != heldLevel || !minecraft.options.keyUse.isDown()
-            || !heldPos.equals(targetedButton(minecraft))) {
+            || hit == null || !heldPos.equals(hit.getBlockPos())) {
             release();
             return;
         }
         if (++heartbeatTicks >= 5) {
             heartbeatTicks = 0;
-            ClientPacketDistributor.sendToServer(new BigRedButtonHoldPacket(heldPos, true));
+            ClientPacketDistributor.sendToServer(new BigRedButtonHoldPacket(heldPos, hit.getLocation(), true, holdId));
         }
     }
 
@@ -88,7 +94,16 @@ public class BigRedButtonInputListener {
             swingProgress = 0;
         }
         previousSwingProgress = swingProgress;
-        swingProgress = Mth.approach(swingProgress, heldPos == null ? 0 : HELD_SWING_PROGRESS, HELD_SWING_PROGRESS / 2);
+        boolean pressed = confirmed && heldPos != null && minecraft.player != null
+            && minecraft.level == heldLevel && minecraft.level != null
+            && minecraft.level.getBlockState(heldPos).is(ModBlocks.BIG_RED_BUTTON)
+            && minecraft.level.getBlockState(heldPos).getValue(BigRedButtonBlock.PRESSED);
+        swingProgress = Mth.approach(swingProgress, pressed ? HELD_SWING_PROGRESS : 0, HELD_SWING_PROGRESS / 2);
+    }
+
+    public static void handleHoldResult(BlockPos pos, int id, boolean accepted) {
+        if (id != holdId || !pos.equals(heldPos) || Minecraft.getInstance().level != heldLevel) return;
+        confirmed = accepted;
     }
 
     public static float getHandSwingProgress(InteractionHand hand, float partialTick, float vanillaProgress) {
@@ -99,21 +114,23 @@ public class BigRedButtonInputListener {
     }
 
     @Nullable
-    private static BlockPos targetedButton(Minecraft minecraft) {
+    private static BlockHitResult targetedButton(Minecraft minecraft) {
         if (minecraft.level == null || minecraft.player == null || minecraft.screen != null || !minecraft.isWindowActive()
             || !minecraft.player.isAlive() || minecraft.player.isSpectator() || minecraft.player.isShiftKeyDown()
             || BuildingRodItem.isHeld(minecraft.player)) return null;
         if (!(minecraft.hitResult instanceof BlockHitResult hit) || hit.getType() != HitResult.Type.BLOCK) return null;
-        return minecraft.level.getBlockState(hit.getBlockPos()).is(ModBlocks.BIG_RED_BUTTON) ? hit.getBlockPos() : null;
+        return minecraft.level.getBlockState(hit.getBlockPos()).is(ModBlocks.BIG_RED_BUTTON) ? hit : null;
     }
 
     private static void release() {
         Minecraft minecraft = Minecraft.getInstance();
         if (heldPos != null && minecraft.level == heldLevel && minecraft.getConnection() != null) {
-            ClientPacketDistributor.sendToServer(new BigRedButtonHoldPacket(heldPos, false));
+            ClientPacketDistributor.sendToServer(new BigRedButtonHoldPacket(heldPos, Vec3.ZERO, false, holdId));
         }
         heldPos = null;
         heldLevel = null;
+        holdId++;
+        confirmed = false;
         heartbeatTicks = 0;
     }
 }
