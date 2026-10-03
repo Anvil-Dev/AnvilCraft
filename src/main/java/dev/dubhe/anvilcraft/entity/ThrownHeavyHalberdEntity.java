@@ -206,6 +206,7 @@ public abstract class ThrownHeavyHalberdEntity extends AbstractArrow {
         super.readAdditionalSaveData(compound);
         this.dealtDamage = compound.getBooleanOr("DealtDamage", false);
         this.entityData.set(ThrownHeavyHalberdEntity.ID_LOYALTY, this.getLoyaltyFromItem(this.getPickupItemStackOrigin()));
+        this.entityData.set(ThrownHeavyHalberdEntity.ID_FOIL, this.getPickupItemStackOrigin().hasFoil());
     }
 
     @Override
