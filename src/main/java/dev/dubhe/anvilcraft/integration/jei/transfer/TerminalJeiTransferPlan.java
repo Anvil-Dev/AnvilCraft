@@ -53,24 +53,30 @@ public final class TerminalJeiTransferPlan {
             representatives.put(slot.index, stack.copyWithCount(1));
         }
         var operations = RecipeTransferUtil.getRecipeTransferOperations(helper, available, inputs, crafting);
-        Map<Object, Long> required = new LinkedHashMap<>();
+        Map<Integer, ItemStack> requiredBySlot = new LinkedHashMap<>();
         for (var operation : operations.results) {
             ItemStack chosen = representatives.get(operation.inventorySlotId());
-            Slot target = crafting.stream().filter(slot -> slot.index == operation.craftingSlotId()).findFirst().orElseThrow();
-            int amount = maximum ? Math.min(chosen.getMaxStackSize(), target.getMaxStackSize(chosen)) : 1;
-            required.merge(helper.getUidForStack(chosen, UidContext.Recipe), (long) amount, Long::sum);
+            requiredBySlot.merge(operation.craftingSlotId(), chosen.copyWithCount(operation.count()),
+                (first, second) -> first.copyWithCount(first.getCount() + second.getCount()));
+        }
+        Map<Object, Long> required = new LinkedHashMap<>();
+        for (var entry : requiredBySlot.entrySet()) {
+            ItemStack stack = entry.getValue();
+            Slot target = crafting.stream().filter(slot -> slot.index == entry.getKey()).findFirst().orElseThrow();
+            int amount = requiredAmount(stack, target, maximum);
+            required.merge(helper.getUidForStack(stack, UidContext.Recipe), (long) amount, Long::sum);
         }
         // An incomplete snapshot cannot rule out variants outside its scan window.
-        if (!snapshot.complete()) {
-            for (IRecipeSlotView missing : operations.missingItems) {
-                int index = inputs.indexOf(missing);
-                Set<Object> seen = new HashSet<>();
-                missing.getItemStacks().filter(stack -> !stack.isEmpty()).forEach(stack -> {
+        if (!snapshot.complete() && !operations.missingItems.isEmpty()) {
+            for (IRecipeSlotView input : inputs) {
+                int index = inputs.indexOf(input);
+                Map<Object, Long> slotRequired = new LinkedHashMap<>();
+                input.getItemStacks().filter(stack -> !stack.isEmpty()).forEach(stack -> {
                     Object uid = helper.getUidForStack(stack, UidContext.Recipe);
-                    if (!seen.add(uid)) return;
-                    int amount = maximum ? Math.min(stack.getMaxStackSize(), crafting.get(index).getMaxStackSize(stack)) : 1;
-                    required.merge(uid, (long) amount, Long::sum);
+                    int amount = requiredAmount(stack, crafting.get(index), maximum);
+                    slotRequired.merge(uid, (long) amount, Math::max);
                 });
+                slotRequired.forEach((uid, amount) -> required.merge(uid, amount, Long::sum));
             }
         }
         List<ItemStack> desired = new ArrayList<>();
@@ -92,6 +98,13 @@ public final class TerminalJeiTransferPlan {
             }
         }
         return new Result(List.copyOf(desired), List.copyOf(operations.missingItems));
+    }
+
+    private static int requiredAmount(ItemStack stack, Slot target, boolean maximum) {
+        int count = Math.max(1, stack.getCount());
+        if (!maximum) return count;
+        int limit = Math.min(stack.getMaxStackSize(), target.getMaxStackSize(stack));
+        return limit / count * count;
     }
 
     private static void addActual(Slot slot, Map<Slot, ItemStack> available, Map<Integer, ItemStack> representatives,

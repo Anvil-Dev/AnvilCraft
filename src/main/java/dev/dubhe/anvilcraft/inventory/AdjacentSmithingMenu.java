@@ -34,6 +34,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 
 /**
  * 支持从相邻容器临时借用锻造模板的菜单基类。
@@ -90,10 +91,17 @@ public abstract class AdjacentSmithingMenu extends ItemCombinerMenu {
     }
 
     public void runRecipeTransfer(Runnable transfer) {
+        this.runRecipeTransfer(() -> {
+            transfer.run();
+            return null;
+        });
+    }
+
+    public <T> T runRecipeTransfer(Supplier<T> transfer) {
         boolean previous = this.recipeTransferInProgress;
         this.recipeTransferInProgress = true;
         try {
-            transfer.run();
+            return transfer.get();
         } finally {
             this.recipeTransferInProgress = previous;
             if (!previous) {
