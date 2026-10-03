@@ -1787,6 +1787,7 @@
   "tooltip.anvilcraft.jade.power_information": "电网：%s",
   "tooltip.anvilcraft.jade.ruby_prism.power": "激光等级：%d",
   "tooltip.anvilcraft.pill_box": "存储药片，右键时会把存储的药片各吃一片，在物品栏时也可以按 [%s] 使用",
+  "tooltip.anvilcraft.key": "[%s]",
   "tooltip.anvilcraft.press_key": "按住 %s 以查看更多信息",
   "tooltip.anvilcraft.propel_piston.remaining_energy": "  剩余能量：%s",
   "tooltip.anvilcraft.propel_piston.remaining_push": "  剩余推进次数：%s 块·次",

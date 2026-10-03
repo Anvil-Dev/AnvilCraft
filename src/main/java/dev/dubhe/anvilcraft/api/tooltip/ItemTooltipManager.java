@@ -37,7 +37,8 @@ import java.util.function.Consumer;
 public class ItemTooltipManager {
     public static final Component SHIFT_TIP = Component.translatable(
         "tooltip.anvilcraft.press_key",
-        Component.literal("Shift").withStyle(ChatFormatting.WHITE)
+        Component.translatable("tooltip.anvilcraft.key", Component.translatable("key.keyboard.left.shift"))
+            .withStyle(ChatFormatting.WHITE)
     ).withStyle(ChatFormatting.DARK_GRAY);
     private static final Map<UUID, StorageServerStub.StorageUsage> STORAGE_USAGE = new ConcurrentHashMap<>();
     private static final Map<UUID, Long> STORAGE_USAGE_TIMES = new ConcurrentHashMap<>();
