@@ -4,6 +4,7 @@
     "minecraft:magma_block",
     "anvilcraft:heater",
     "anvilcraft:burning_heater",
+    "anvilcraft:neutron_irradiator",
     "anvilcraft:corrupted_beacon"
   ]
 }

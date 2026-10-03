@@ -73,7 +73,14 @@ file="META-INF/accesstransformer.cfg"
 [[dependencies."${mod_id}"]]
     modId="anvillib"
     type="required"
-    versionRange="[2.0.0+snapshot.534,)"
+    versionRange="[${anvillib_version},)"
+    ordering="AFTER"
+    side="BOTH"
+
+[[dependencies."${mod_id}"]]
+    modId="anvillib_recipe"
+    type="required"
+    versionRange="[${anvillib_version},)"
     ordering="AFTER"
     side="BOTH"
 

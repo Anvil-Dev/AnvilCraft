@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.event;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
+import dev.dubhe.anvilcraft.recipe.anvil.util.RecipeOutputTracker;
 import dev.dubhe.anvilcraft.util.mixin.PoachFix;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -14,6 +15,7 @@ public class ItemEntityEventListener {
     @SubscribeEvent
     public static void onItemEntityJoinLevel(EntityJoinLevelEvent event) {
         if (!(event.getEntity() instanceof ItemEntity item)) return;
+        if (RecipeOutputTracker.getOrigin(item) != null) item.anvilcraft$setIsAdsorbable(false);
         if (item.getItem().has(ModComponents.ETERNAL)) {
             item.setUnlimitedLifetime();
         }

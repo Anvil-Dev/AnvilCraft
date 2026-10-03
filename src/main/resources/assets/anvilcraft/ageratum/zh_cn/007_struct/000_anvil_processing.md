@@ -106,7 +106,7 @@ navigation:
 
 - 自动兼容所有烟熏炉配方和营火配方，此时不需要水
 
-<recipe id="anvilcraft:smoking_warp_beef_2_cooked_beef"/>
+<recipe id="anvilcraft:generated/vanilla/smoking/source/minecraft/cooked_beef_from_smoking"/>
 
 # 方块加工
 
