@@ -1,0 +1,7 @@
+{
+  "extends": "ageratum:light",
+  "dark_variant": "ageratum:dark",
+  "colors": {
+    "link": "#075D7F"
+  }
+}

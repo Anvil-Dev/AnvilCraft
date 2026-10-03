@@ -1,4 +1,5 @@
 ---
+layout: "anvilcraft:light"
 navigation:
   title: "介绍"
   icon: "anvilcraft:guide_book"

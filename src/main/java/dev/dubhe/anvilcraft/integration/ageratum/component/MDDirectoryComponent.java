@@ -1,9 +1,11 @@
 package dev.dubhe.anvilcraft.integration.ageratum.component;
 
+import dev.anvilcraft.resource.ageratum.client.constants.AgeratumConstants;
 import dev.anvilcraft.resource.ageratum.client.feat.markdown.MDDocument;
 import dev.anvilcraft.resource.ageratum.client.feat.markdown.component.MDBlockComponent;
 import dev.anvilcraft.resource.ageratum.client.feat.markdown.component.MDComponent;
 import dev.anvilcraft.resource.ageratum.client.feat.markdown.component.MDHeaderComponent;
+import dev.anvilcraft.resource.ageratum.client.gui.GuideScreen;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.ClickEvent;
@@ -62,7 +64,7 @@ public final class MDDirectoryComponent extends MDComponent {
 
     private record Heading(int level, String title) {
         private FormattedText link() {
-            Style style = Style.EMPTY.withUnderlined(true).withColor(0x075D7F)
+            Style style = Style.EMPTY.withUnderlined(true).withColor(AgeratumConstants.GuideScreenUI.Colors.LINK_COLOR)
                 .withClickEvent(new ClickEvent.OpenUrl(URI.create("#" + anchor(this.title))));
             return MDComponent.textFormat(this.title, style);
         }
@@ -92,8 +94,10 @@ public final class MDDirectoryComponent extends MDComponent {
                 graphics.fill(level * 10, y, level * 10 + 9, y + lineHeight,
                     LEVEL_LINE_COLORS[level % LEVEL_LINE_COLORS.length] | 0x55000000);
             }
+            int color = minecraft.screen instanceof GuideScreen screen
+                ? screen.getLayout().color("colors.content_text", 0xFF000000) : 0xFF000000;
             graphics.text(minecraft.font, BULLETS[item.level() % BULLETS.length],
-                item.level() * 10, y, 0xFF000000, false);
+                item.level() * 10, y, color, false);
         }
     }
 }

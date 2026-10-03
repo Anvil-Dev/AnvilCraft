@@ -169,8 +169,6 @@
     "client.HandbookLinkMixin",
     "client.HandbookSmithingMixin",
     "client.HandbookFontMixin",
-    "client.HandbookPaletteMixin",
-    "client.HandbookLayoutMixin",
     "client.HandbookLabelAccessor",
     "client.HandbookSidebarMixin",
     "client.HandbookCookingAccessor",
