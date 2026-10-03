@@ -47,8 +47,7 @@ public class MagnetizedNodeEntity extends Entity {
         this.zo = pos.z;
         this.noPhysics = true;
         this.setInvulnerable(true);
-        this.blockPos = blockPos;
-        this.blockState = level.getBlockState(blockPos);
+        this.setSupport(blockPos, level.getBlockState(blockPos));
     }
 
     @Override
@@ -101,10 +100,22 @@ public class MagnetizedNodeEntity extends Entity {
             .define(MagnetizedNodeEntity.DATA_BLOCK_STATE, Blocks.AIR.defaultBlockState());
     }
 
+    private void setSupport(BlockPos pos, BlockState state) {
+        this.entityData.set(MagnetizedNodeEntity.DATA_BLOCK_POS, pos);
+        this.entityData.set(MagnetizedNodeEntity.DATA_BLOCK_STATE, state);
+    }
+
+    @Override
+    public void onSyncedDataUpdated(EntityDataAccessor<?> key) {
+        super.onSyncedDataUpdated(key);
+        if (MagnetizedNodeEntity.DATA_BLOCK_POS.equals(key)) this.blockPos = this.entityData.get(MagnetizedNodeEntity.DATA_BLOCK_POS);
+        if (MagnetizedNodeEntity.DATA_BLOCK_STATE.equals(key)) this.blockState = this.entityData.get(MagnetizedNodeEntity.DATA_BLOCK_STATE);
+    }
+
     @Override
     protected void readAdditionalSaveData(ValueInput compoundTag) {
-        compoundTag.read("block_pos", BlockPos.CODEC).ifPresent(it -> this.blockPos = it);
-        compoundTag.read("block_state", BlockState.CODEC).ifPresent(it -> this.blockState = it);
+        this.setSupport(compoundTag.read("block_pos", BlockPos.CODEC).orElse(this.blockPos),
+            compoundTag.read("block_state", BlockState.CODEC).orElse(this.blockState));
     }
 
     @Override

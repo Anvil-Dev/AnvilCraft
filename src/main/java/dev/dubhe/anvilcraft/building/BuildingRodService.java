@@ -427,7 +427,7 @@ public final class BuildingRodService {
             BlueprintEntities.scope(plan.entityNbt(), entry.nbt(), identities);
             Group group = null;
             if (probe instanceof MagnetizedNodeEntity || probe instanceof CauldronOutletEntity) {
-                String key = probe instanceof MagnetizedNodeEntity ? "BlockPos" : "CauldronPos";
+                String key = probe instanceof MagnetizedNodeEntity ? "block_pos" : "cauldron_pos";
                 BlockPos support = plan.entityNbt().read(key, BlockPos.CODEC).orElseThrow();
                 BlockState state = declared.get(support);
                 if (state == null) {
