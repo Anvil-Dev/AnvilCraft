@@ -1074,7 +1074,7 @@
   "tooltip.anvilcraft.jade.item_detector": "檢測範圍： %d",
   "tooltip.anvilcraft.jade.power_information": "電網：%s",
   "tooltip.anvilcraft.jade.ruby_prism.power": "雷射等級：%d",
-  "tooltip.anvilcraft.press_key": "按住 [%s] 查看訊息",
+  "tooltip.anvilcraft.press_key": "按住 %s 查看訊息",
   "tooltip.anvilcraft.propel_piston.remaining_energy": "  剩餘能量：%s",
   "tooltip.anvilcraft.propel_piston.remaining_push": "  剩餘推進次數：%s 方塊·次",
   "tooltip.anvilcraft.propel_piston.state": "推進活塞狀態： ",

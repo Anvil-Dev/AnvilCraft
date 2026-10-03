@@ -40,7 +40,8 @@ public class ItemTooltipLang {
 
         provider.add("item.anvilcraft.ionocraft_backpack.flight_time", "Remaining Flight Time: %sm %ss");
 
-        provider.add("tooltip.anvilcraft.press_key", "Hold [%s] for more information");
+        provider.add("tooltip.anvilcraft.press_key", "Hold %s for more information");
+        provider.add("tooltip.anvilcraft.key", "[%s]");
 
         provider.add(
             "tooltip.anvilcraft.pill_box",

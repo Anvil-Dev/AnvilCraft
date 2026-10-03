@@ -477,7 +477,8 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
                 } else {
                     tooltipLines.add(Component.translatable(
                         "tooltip.anvilcraft.press_key",
-                        Component.literal("Shift").withStyle(ChatFormatting.DARK_GRAY)
+                        Component.translatable("tooltip.anvilcraft.key", Component.translatable("key.keyboard.left.shift"))
+                            .withStyle(ChatFormatting.DARK_GRAY)
                     ).withStyle(ChatFormatting.DARK_GRAY));
                 }
                 graphics.setTooltipForNextFrame(this.font, tooltipLines, java.util.Optional.empty(), mouseX, mouseY);
@@ -508,7 +509,8 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
             } else {
                 seedTooltip.add(Component.translatable(
                     "tooltip.anvilcraft.press_key",
-                    Component.literal("[Shift]").withStyle(ChatFormatting.DARK_GRAY)
+                    Component.translatable("tooltip.anvilcraft.key", Component.translatable("key.keyboard.left.shift"))
+                        .withStyle(ChatFormatting.DARK_GRAY)
                 ).withStyle(ChatFormatting.DARK_GRAY));
             }
             graphics.setTooltipForNextFrame(this.font, seedTooltip, java.util.Optional.empty(), mouseX, mouseY);

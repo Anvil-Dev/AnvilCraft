@@ -1074,7 +1074,7 @@
   "tooltip.anvilcraft.jade.item_detector": "檢域：%d",
   "tooltip.anvilcraft.jade.power_information": "電域：%s",
   "tooltip.anvilcraft.jade.ruby_prism.power": "光品：%d",
-  "tooltip.anvilcraft.press_key": "押[%s]以閱訊",
+  "tooltip.anvilcraft.press_key": "押%s以閱訊",
   "tooltip.anvilcraft.propel_piston.remaining_energy": "    餘能：%s",
   "tooltip.anvilcraft.propel_piston.remaining_push": "    餘進：%s塊次",
   "tooltip.anvilcraft.propel_piston.state": "推鞲鞴之態：  ",
