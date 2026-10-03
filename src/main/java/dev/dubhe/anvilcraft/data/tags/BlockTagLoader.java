@@ -158,7 +158,8 @@ public class BlockTagLoader {
             .addElement(BlockTagLoader.findId(Blocks.STRUCTURE_BLOCK))
             .addElement(BlockTagLoader.findId(Blocks.JIGSAW))
             .addElement(ModBlocks.END_DUST.getId())
-            .addElement(ModBlocks.NEGATIVE_MATTER_BLOCK.getId());
+            .addElement(ModBlocks.NEGATIVE_MATTER_BLOCK.getId())
+            .addElement(ModBlocks.NEUTRON_IRRADIATOR.getId());
 
         provider.rawBuilder(ModBlockTags.VOID_DECAY_PRODUCTS)
             .addElement(BlockTagLoader.findId(Blocks.STONE))
