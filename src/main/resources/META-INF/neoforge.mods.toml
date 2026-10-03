@@ -94,7 +94,7 @@ file="META-INF/accesstransformer.cfg"
 [[dependencies."${mod_id}"]]
     modId="jei"
     type="optional"
-    versionRange="[19.19.0.219,)"
+    versionRange="[29.43.0.106,)"
     ordering="NONE"
     side="BOTH"
 

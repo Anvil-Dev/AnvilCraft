@@ -23,6 +23,7 @@ import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.navigation.ScreenPosition;
 import net.minecraft.client.renderer.Rect2i;
 import net.minecraft.network.chat.Component;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -190,6 +191,11 @@ public final class JeiBlockIngredientUtil {
         }
 
         @Override
+        public Stream<ITypedIngredient<?>> getDisplayedIngredients() {
+            return this.delegate.getDisplayedIngredients();
+        }
+
+        @Override
         public RecipeIngredientRole getRole() {
             return this.delegate.getRole();
         }
@@ -205,8 +211,18 @@ public final class JeiBlockIngredientUtil {
         }
 
         @Override
+        public Optional<TagKey<?>> getTagKey() {
+            return this.delegate.getTagKey();
+        }
+
+        @Override
         public void draw(GuiGraphicsExtractor graphics) {
-            this.delegate.draw(graphics);
+            this.draw(graphics, false);
+        }
+
+        @Override
+        public void draw(GuiGraphicsExtractor graphics, boolean hovered) {
+            this.delegate.draw(graphics, false);
         }
 
         @Override
