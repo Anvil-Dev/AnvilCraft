@@ -7,6 +7,6 @@
     "anvilcraft:frost_metal_shovel",
     "anvilcraft:frost_metal_hoe",
     "anvilcraft:frost_metal_sword",
-    "anvilcraft:frost_metal_heavy_halberd"
+    "#anvilcraft:tools/heavy_halberd"
   ]
 }

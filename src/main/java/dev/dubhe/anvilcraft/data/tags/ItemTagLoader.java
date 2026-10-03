@@ -272,7 +272,7 @@ public class ItemTagLoader {
             .add(ModItems.FROST_METAL_SHOVEL.getKey())
             .add(ModItems.FROST_METAL_HOE.getKey())
             .add(ModItems.FROST_METAL_SWORD.getKey())
-            .add(ModItems.FROST_METAL_HEAVY_HALBERD.getKey());
+            .addTag(ModItemTags.HEAVY_HALBERD);
 
         provider.addTag(ModItemTags.SMELTING_SUPPORTED)
             .addTag(ItemTags.MINING_LOOT_ENCHANTABLE)
@@ -282,7 +282,7 @@ public class ItemTagLoader {
             .add(ModItems.EMBER_METAL_SHOVEL.getKey())
             .add(ModItems.EMBER_METAL_HOE.getKey())
             .add(ModItems.EMBER_METAL_SWORD.getKey())
-            .add(ModItems.EMBER_METAL_HEAVY_HALBERD.getKey());
+            .addTag(ModItemTags.HEAVY_HALBERD);
 
         provider.addTag(ModItemTags.PLAYER_WORKSTATIONS_STONECUTTERS)
             .add(findResourceKey(Items.STONECUTTER))
