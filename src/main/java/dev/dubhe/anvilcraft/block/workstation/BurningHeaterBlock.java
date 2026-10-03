@@ -7,6 +7,7 @@ import dev.dubhe.anvilcraft.block.entity.BurningHeaterBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.util.HeaterUtil;
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
@@ -73,7 +74,16 @@ public class BurningHeaterBlock extends BaseEntityBlock implements IHammerRemova
     }
 
     @Override
-    protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
+    protected InteractionResult useItemOn(
+        ItemStack stack,
+        BlockState state,
+        Level level,
+        BlockPos pos,
+        Player player,
+        InteractionHand hand,
+        BlockHitResult hitResult
+    ) {
+        if (hand != InteractionHand.MAIN_HAND) return InteractionResult.PASS;
         if (level.isClientSide()) return InteractionResult.SUCCESS;
         if (!(level.getBlockEntity(pos) instanceof BurningHeaterBlockEntity be)) return InteractionResult.PASS;
         ItemStacksResourceHandler handler = be.getItemHandler();
@@ -81,24 +91,29 @@ public class BurningHeaterBlock extends BaseEntityBlock implements IHammerRemova
         ItemStack held = player.getMainHandItem();
         ItemResource currentResource = handler.getResource(0);
         boolean hasItem = !currentResource.isEmpty();
+        boolean doubleClick = be.isDoubleClick(player);
 
         if (!held.isEmpty() && BurningHeaterBlockEntity.getItemBurnTime(held) > 0) {
             ItemResource heldResource = ItemResource.of(held.getItem(), held.getComponentsPatch());
+            int insertCount = doubleClick ? held.getCount() : 1;
             try (Transaction tx = Transaction.openRoot()) {
-                int inserted = handler.insert(0, heldResource, held.getCount(), tx);
+                int inserted = handler.insert(0, heldResource, insertCount, tx);
+                if (inserted == 0) return InteractionResult.PASS;
                 tx.commit();
-                held.setCount(held.getCount() - inserted);
+                held.shrink(inserted);
             }
+            level.sendBlockUpdated(pos, state, state, 3);
             return InteractionResult.CONSUME;
-        } else if (held.isEmpty() && hasItem) {
+        } else if (held.isEmpty() && hasItem && !doubleClick) {
             int amount = handler.getAmountAsInt(0);
             try (Transaction tx = Transaction.openRoot()) {
                 int extracted = handler.extract(0, currentResource, amount, tx);
                 tx.commit();
                 if (extracted > 0) {
-                    player.setItemInHand(player.getUsedItemHand(), currentResource.toStack(extracted));
+                    player.setItemInHand(InteractionHand.MAIN_HAND, currentResource.toStack(extracted));
                 }
             }
+            level.sendBlockUpdated(pos, state, state, 3);
             return InteractionResult.CONSUME;
         }
 
