@@ -167,6 +167,7 @@
     "compat.IrisItemPreviewMixin",
     "compat.IrisStellarMixin",
     "compat.JemiPluginMixin",
+    "compat.JemiUtilMixin",
     "compat.SodiumBlockOcclusionCacheMixin",
     "compat.SodiumChunkBuilderMeshingTaskMixin",
     "compat.SodiumItemRendererMixin",

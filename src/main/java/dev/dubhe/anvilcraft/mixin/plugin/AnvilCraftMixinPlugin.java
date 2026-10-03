@@ -56,7 +56,7 @@ public class AnvilCraftMixinPlugin implements IMixinConfigPlugin {
         if (mixinClassName.contains("Create")) return hasCreate;
         if (mixinClassName.contains("AE2")) return hasAE2;
         if (mixinClassName.contains("Cerbon")) return hasCerbonBetterBeacons;
-        if (mixinClassName.endsWith("JemiPluginMixin")) return hasJei && hasEmi;
+        if (mixinClassName.contains("Jemi")) return hasJei && hasEmi;
         if (mixinClassName.contains("SophisticatedJei")) return hasJei && hasSophisticatedCore;
         if (mixinClassName.contains("Jei")) return hasJei;
         if (mixinClassName.contains("Architectury")) return hasArchitectury;
