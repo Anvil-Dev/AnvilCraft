@@ -45,6 +45,13 @@ public class ModDamageTypes {
     public static final ResourceKey<DamageType> PLANETARY_COLLAPSE = ResourceKey.create(
         Registries.DAMAGE_TYPE, AnvilCraft.of("planetary_collapse"));
 
+    public static final ResourceKey<DamageType> STAR_CONTACT = ResourceKey.create(
+        Registries.DAMAGE_TYPE, AnvilCraft.of("star_contact"));
+    public static final ResourceKey<DamageType> PLANET_CONTACT = ResourceKey.create(
+        Registries.DAMAGE_TYPE, AnvilCraft.of("planet_contact"));
+    public static final ResourceKey<DamageType> BLACK_HOLE_CONTACT = ResourceKey.create(
+        Registries.DAMAGE_TYPE, AnvilCraft.of("black_hole_contact"));
+
     @ApiStatus.Internal
     public static void bootstrap(BootstrapContext<DamageType> ctx) {
         ctx.register(PLANETARY_COLLAPSE, new DamageType("anvilcraft.planetary_collapse", DamageScaling.NEVER, 0.0F,
@@ -55,6 +62,9 @@ public class ModDamageTypes {
         ctx.register(ModDamageTypes.HEATER_BURN, new DamageType("anvilcraft.heater_burn", 0.1F, DamageEffects.BURNING));
         ctx.register(ModDamageTypes.GAMMA_LASER, new DamageType("anvilcraft.gamma_laser", 0.1F, DamageEffects.BURNING));
         ctx.register(ModDamageTypes.PLASMA_JET, new DamageType("anvilcraft.plasma_jet", 0.1F, DamageEffects.BURNING));
+        ctx.register(STAR_CONTACT, new DamageType("anvilcraft.star_contact", 0.1F, DamageEffects.BURNING));
+        ctx.register(PLANET_CONTACT, new DamageType("anvilcraft.planet_contact", 0.0F, DamageEffects.HURT));
+        ctx.register(BLACK_HOLE_CONTACT, new DamageType("anvilcraft.black_hole_contact", 0.1F));
     }
 
     public static DamageSource planetaryCollapse(Level level) {
@@ -91,6 +101,18 @@ public class ModDamageTypes {
 
     public static DamageSource plasmaJet(Level level) {
         return ModDamageTypes.source(ModDamageTypes.PLASMA_JET, level);
+    }
+
+    public static DamageSource starContact(Level level) {
+        return ModDamageTypes.source(ModDamageTypes.STAR_CONTACT, level);
+    }
+
+    public static DamageSource planetContact(Level level) {
+        return ModDamageTypes.source(ModDamageTypes.PLANET_CONTACT, level);
+    }
+
+    public static DamageSource blackHoleContact(Level level) {
+        return ModDamageTypes.source(ModDamageTypes.BLACK_HOLE_CONTACT, level);
     }
 
     private static DamageSource source(ResourceKey<DamageType> key, LevelReader level) {

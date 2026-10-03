@@ -2,12 +2,14 @@ package dev.dubhe.anvilcraft.event;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.init.entity.ModDamageTypes;
+import dev.dubhe.anvilcraft.util.TriggerUtil;
 import dev.dubhe.anvilcraft.worldgen.OverworldLikeGenerationBootstrap;
 import dev.dubhe.anvilcraft.worldgen.OverworldLikeResetManager;
 import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
 import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.server.ServerStoppedEvent;
@@ -46,6 +48,22 @@ public class OverworldLikeEventListener {
     public static void keepPlanetaryCollapseUnavoidable(LivingIncomingDamageEvent event) {
         if (event.getSource().is(ModDamageTypes.PLANETARY_COLLAPSE)) {
             event.setCanceled(false);
+        }
+    }
+
+    @SubscribeEvent
+    public static void onPlanetaryCollapseDeath(LivingDeathEvent event) {
+        if (!event.getSource().is(ModDamageTypes.PLANETARY_COLLAPSE)) return;
+        if (event.getEntity() instanceof ServerPlayer player) {
+            TriggerUtil.planetaryCollapseDeath(player);
+        }
+    }
+
+    @SubscribeEvent
+    public static void onStarContactDeath(LivingDeathEvent event) {
+        if (!event.getSource().is(ModDamageTypes.STAR_CONTACT)) return;
+        if (event.getEntity() instanceof ServerPlayer player) {
+            TriggerUtil.starContactDeath(player);
         }
     }
 

@@ -67,7 +67,7 @@ public final class QuenchedOutMusicHandler {
     /** 固定在锻星砧位置的单次播放实例，不跟随玩家。 */
     private static final class QuenchedOutSound extends AbstractTickableSoundInstance {
         private QuenchedOutSound(BlockPos pos) {
-            super(ModSoundEvents.QUENCHED_OUT.get(), SoundSource.MUSIC, SoundInstance.createUnseededRandom());
+            super(ModSoundEvents.QUENCHED_OUT.get(), SoundSource.RECORDS, SoundInstance.createUnseededRandom());
             this.looping = false;
             this.delay = 0;
             this.volume = 1.0F;

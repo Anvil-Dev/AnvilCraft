@@ -73,10 +73,11 @@ public class StoragePortBlock extends AbstractStoragePortBlock {
     ) {
         ItemStack stack = super.getCloneItemStack(level, pos, state, includeData, player);
         // 中键克隆（或其它拾取路径）也保留缓存与标记，保证物品模型与 tooltip 有数据可显示
+        // 使用调用方的数据标志，避免服务端拾取或扫描读取客户端按键状态。
         if (
-            level instanceof Level realLevel
+            includeData
+            && level instanceof Level realLevel
             && realLevel.getBlockEntity(pos) instanceof StoragePortBlockEntity port
-            && includeData
         ) {
             port.saveToDrop(stack, realLevel.registryAccess());
         }

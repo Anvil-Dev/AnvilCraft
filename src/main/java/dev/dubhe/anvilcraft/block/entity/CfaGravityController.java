@@ -141,18 +141,18 @@ final class CfaGravityController {
     private static void applyCelestialDamage(Level level, CelestialBodyData body, LivingEntity living) {
         if (body instanceof StarData star) {
             if (star.bodyClass() == CelestialBodyClass.BLACK_HOLE) {
-                EntityUtil.hurtOrSimulate(living, ModDamageTypes.lostInTime(level), Float.MAX_VALUE);
+                EntityUtil.hurtOrSimulate(living, ModDamageTypes.blackHoleContact(level), Float.MAX_VALUE);
             } else {
                 EntityUtil.hurtOrSimulate(
                     living,
-                    level.damageSources().inFire(),
+                    ModDamageTypes.starContact(level),
                     CfaGravityController.STAR_CONTACT_DAMAGE
                 );
             }
         } else {
             EntityUtil.hurtOrSimulate(
                 living,
-                level.damageSources().fall(),
+                ModDamageTypes.planetContact(level),
                 CfaGravityController.PLANET_CONTACT_DAMAGE
             );
         }

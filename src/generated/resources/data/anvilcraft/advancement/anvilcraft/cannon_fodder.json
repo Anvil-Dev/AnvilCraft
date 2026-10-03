@@ -1,0 +1,27 @@
+{
+  "parent": "anvilcraft:anvilcraft/the_start",
+  "criteria": {
+    "cannon_fodder": {
+      "trigger": "anvilcraft:planetary_collapse_death"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.anvilcraft.cannon_fodder.description"
+    },
+    "frame": "challenge",
+    "hidden": true,
+    "icon": {
+      "id": "minecraft:player_head"
+    },
+    "title": {
+      "translate": "advancements.anvilcraft.cannon_fodder.title"
+    }
+  },
+  "requirements": [
+    [
+      "cannon_fodder"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

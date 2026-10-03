@@ -188,9 +188,13 @@ public class ItemSplitterBlockEntity extends BlockEntity implements IItemResourc
     private void dropAt(BlockPos target, ItemStack stack) {
         if (this.level == null) return;
         Vec3 center = target.getCenter();
-        ItemEntity item = new ItemEntity(this.level, center.x, center.y, center.z, stack, 0, 0, 0);
-        item.setDefaultPickUpDelay();
-        this.level.addFreshEntity(item);
+        while (!stack.isEmpty()) {
+            ItemEntity item = new ItemEntity(
+                this.level, center.x, center.y, center.z, stack.split(stack.getMaxStackSize()), 0, 0, 0
+            );
+            item.setDefaultPickUpDelay();
+            this.level.addFreshEntity(item);
+        }
     }
 
     public Direction getFacing() {

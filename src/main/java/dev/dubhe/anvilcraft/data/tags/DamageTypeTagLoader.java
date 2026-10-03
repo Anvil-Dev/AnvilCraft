@@ -21,22 +21,30 @@ public class DamageTypeTagLoader {
         }
 
         provider.rawBuilder(DamageTypeTags.BYPASSES_ARMOR)
+            .addOptionalElement(ModDamageTypes.BLACK_HOLE_CONTACT.identifier())
             .addOptionalElement(ModDamageTypes.LOST_IN_TIME.identifier());
 
         provider.rawBuilder(DamageTypeTags.BYPASSES_RESISTANCE)
+            .addOptionalElement(ModDamageTypes.BLACK_HOLE_CONTACT.identifier())
             .addOptionalElement(ModDamageTypes.LOST_IN_TIME.identifier());
 
         provider.rawBuilder(DamageTypeTags.NO_KNOCKBACK)
+            .addOptionalElement(ModDamageTypes.BLACK_HOLE_CONTACT.identifier())
             .addOptionalElement(ModDamageTypes.LOST_IN_TIME.identifier())
             .addOptionalElement(ModDamageTypes.HEATER_BURN.identifier());
 
         provider.rawBuilder(DamageTypeTags.IS_FIRE)
             .addOptionalElement(ModDamageTypes.HEATER_BURN.identifier())
+            .addOptionalElement(ModDamageTypes.STAR_CONTACT.identifier())
             .addOptionalElement(ModDamageTypes.PLASMA_JET.identifier())
             .addOptionalElement(ModDamageTypes.LASER.identifier());
 
         provider.rawBuilder(Tags.DamageTypes.IS_MAGIC)
+            .addOptionalElement(ModDamageTypes.BLACK_HOLE_CONTACT.identifier())
             .addOptionalElement(ModDamageTypes.LOST_IN_TIME.identifier());
+
+        provider.rawBuilder(DamageTypeTags.IS_FALL)
+            .addOptionalElement(ModDamageTypes.PLANET_CONTACT.identifier());
 
         provider.rawBuilder(ModDamageTypeTags.AMULET_VALID)
             .addOptionalTag(ModDamageTypeTags.TOPAZ_AMULET_VALID.location())
