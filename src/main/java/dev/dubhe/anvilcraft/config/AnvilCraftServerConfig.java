@@ -24,6 +24,7 @@ public class AnvilCraftServerConfig {
 
         @Comment("Controls whether to enable Schwarzschild periapsis advance around attractive gravity sources")
         public boolean relativisticPrecession = true;
+
         @Comment("Controls the minimum strength a gravity source needs to produce relativistic precession")
         @BoundedDiscrete(min = 0.0, max = 1000.0)
         public double relativisticPrecessionMinStrength = 10.0;
@@ -244,6 +245,7 @@ public class AnvilCraftServerConfig {
         )
         @BoundedDiscrete(min = 1, max = 256)
         public int slidingRailMaxPushDepth = 12;
+
         @Comment("Controls the chance that a falling NeoForge anvil takes damage on impact")
         @BoundedDiscrete(min = 0.0, max = 1.0)
         public double neoforgeAnvilDamageChance = 0.01;
@@ -507,6 +509,7 @@ public class AnvilCraftServerConfig {
         @Comment("Controls the capacity of each Large Cauldron tank (in mB)")
         @BoundedDiscrete(min = 1000, max = 1000000)
         public int largeCauldronTankCapacity = 64000;
+
         @Comment("Controls the amount at which a fluid tank counts as infinite (in mB)")
         @BoundedDiscrete(min = 1000, max = 2000000000)
         public int fluidTankInfinityThreshold = 12800000;
@@ -707,9 +710,11 @@ public class AnvilCraftServerConfig {
         @Comment("Controls the energy the Weatherproof Chestplate consumes per tick of flight (in FE)")
         @BoundedDiscrete(min = 1, max = 1000000)
         public int weatherproofChestplateFlightConsumption = 5000;
+
         @Comment("Controls the maximum energy of the Building Rod (in FE)")
         @BoundedDiscrete(min = 1, max = 2000000000)
         public int buildingRodMaxEnergy = 8000000;
+
         @Comment("Controls how long the mob effect an amulet grants lasts while its condition holds (in ticks)")
         @BoundedDiscrete(min = 1, max = 100000)
         public int amuletEffectRefreshTicks = 210;

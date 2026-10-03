@@ -387,6 +387,7 @@ public class AnvilCraftClientConfig {
         @Comment("Controls how long a thought tooltip stays visible at most (in seconds)")
         @BoundedDiscrete(min = 0.1, max = 10.0)
         public double thoughtMaxSeconds = 1.0;
+
         @SerializedName("Apply Changes When Closing Category Settings")
         @Comment("Controls whether closing a category settings screen applies or discards the changes")
         public ExitBehaviourMode exitCategorySettingBehaviour = ExitBehaviourMode.CANCEL;
