@@ -2,8 +2,9 @@
   "format_version": "1.21.6",
   "credit": "Made by XeKr with Blockbench",
   "textures": {
-    "0": "anvilcraft:item/ember_metal_resonator",
-    "particle": "anvilcraft:item/ember_metal_resonator"
+    "0": "#1",
+    "1": "anvilcraft:item/ember_metal_resonator",
+    "particle": "#1"
   },
   "elements": [
     {
