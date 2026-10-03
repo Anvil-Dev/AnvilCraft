@@ -36,6 +36,7 @@ import java.util.WeakHashMap;
 public final class AutoEnchantingTableBlockEntityRenderer
     implements BlockEntityRenderer<AutoEnchantingTableBlockEntity, AutoEnchantingTableBlockEntityRenderer.State>,
     ModelSelectionRenderer<AutoEnchantingTableBlockEntity> {
+    private static final double BOOK_ANIMATION_PERIOD = Math.PI * 100.0;
     private static final float[][] FLUID_BOXES = {{0.375F, 0, 0.625F, 0.125F}, {0, 0.375F, 0.125F, 0.625F},
         {0.375F, 0.875F, 0.625F, 1}, {0.875F, 0.375F, 1, 0.625F}};
     private final SpriteGetter sprites;
@@ -118,7 +119,7 @@ public final class AutoEnchantingTableBlockEntityRenderer
         if (input || !entity.getItem(AutoEnchantingTableBlockEntity.SLOT_OUTPUT).isEmpty()) {
             entity.setBookHeight(Mth.approach(oldHeight, input ? 1 : 1.3F, 0.06F));
         }
-        float time = entity.getLevel() == null ? 0 : entity.getLevel().getGameTime() + partialTick;
+        float time = entity.getLevel() == null ? 0 : (float) (entity.getLevel().getGameTime() % BOOK_ANIMATION_PERIOD + partialTick);
         var result = new BookPose(ModelBlockSelection.frame(), time, Mth.lerp(partialTick, oldOpen, entity.getBookOpen()),
             Mth.lerp(partialTick, oldHeight, entity.getBookHeight()));
         this.poses.put(entity, result);
