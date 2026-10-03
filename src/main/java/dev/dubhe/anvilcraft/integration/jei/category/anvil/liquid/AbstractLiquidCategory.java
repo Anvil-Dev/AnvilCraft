@@ -1,7 +1,11 @@
 package dev.dubhe.anvilcraft.integration.jei.category.anvil.liquid;
 
+import dev.dubhe.anvilcraft.block.LargeCauldronBlock;
+import dev.dubhe.anvilcraft.block.state.Cube3x3PartHalf;
 import dev.dubhe.anvilcraft.client.support.RenderSupport;
+import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.integration.jei.AnvilCraftJeiPlugin;
+import dev.dubhe.anvilcraft.integration.jei.util.JeiBlockIngredientUtil;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiFluidUtil;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiItemUtil;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiRecipeUtil;
@@ -18,12 +22,14 @@ import mezz.jei.api.helpers.IGuiHelper;
 import mezz.jei.api.recipe.IFocusGroup;
 import mezz.jei.api.recipe.category.IRecipeCategory;
 import mezz.jei.api.registration.IRecipeCatalystRegistration;
+import net.minecraft.advancements.criterion.MinMaxBounds;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
+import net.neoforged.neoforge.fluids.FluidType;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -132,16 +138,29 @@ public abstract class AbstractLiquidCategory<T extends AbstractProcessRecipe<?>>
         double mouseY
     ) {
 
-        // 加工图例及箭头
-        float anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(this.timer);
-        RenderSupport.renderBlockAt(graphics, this.getProcessBlock(), 81, 40, 12);
-        RenderSupport.renderBlockAt(graphics, Blocks.CAULDRON.defaultBlockState(), 81, 30, 12);
-        RenderSupport.renderBlockAt(graphics, Blocks.ANVIL.defaultBlockState(), 81, 12 + anvilYOffset, 12);
-        this.arrowIn.draw(graphics, 54, 22);
-        this.arrowOut.draw(graphics, 92, 22);
-
         T recipe = recipeHolder.value();
         HasCauldronSimple cauldron = recipe.getHasCauldron();
+        int requiredAmount = cauldron.fluid().isNegate() ? cauldron.consume() : Math.max(
+            cauldron.consume(), cauldron.fluid().amount().flatMap(MinMaxBounds.Ints::min).orElse(0)
+        );
+        boolean useLargeCauldron = requiredAmount > FluidType.BUCKET_VOLUME;
+        final BlockState anvilState = useLargeCauldron
+                                      ? JeiBlockIngredientUtil.getRenderablePreviewState(ModBlocks.GIANT_ANVIL.getDefaultState())
+                                      : Blocks.ANVIL.defaultBlockState();
+        final BlockState cauldronState = useLargeCauldron
+                                         ? ModBlocks.LARGE_CAULDRON.getDefaultState()
+                                             .setValue(LargeCauldronBlock.HALF, Cube3x3PartHalf.MID_CENTER)
+                                         : Blocks.CAULDRON.defaultBlockState();
+        float modelScale = useLargeCauldron ? 4 : 12;
+
+        // 加工图例及箭头
+        float anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(this.timer);
+        if (useLargeCauldron) anvilYOffset /= 3;
+        RenderSupport.renderBlockAt(graphics, this.getProcessBlock(), 81, 40, 12);
+        RenderSupport.renderBlockAt(graphics, cauldronState, 81, useLargeCauldron ? 24 : 30, modelScale);
+        RenderSupport.renderBlockAt(graphics, anvilState, 81, 12 + anvilYOffset, modelScale);
+        this.arrowIn.draw(graphics, 54, 22);
+        this.arrowOut.draw(graphics, 92, 22);
 
         final boolean hasInputItems = !recipe.getDisplayInputItems().isEmpty();
         final boolean hasOutputItems = !recipe.getResultItems().isEmpty();
