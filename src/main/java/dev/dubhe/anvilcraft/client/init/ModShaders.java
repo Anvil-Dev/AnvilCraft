@@ -32,6 +32,8 @@ public class ModShaders {
     @Getter
     static ShaderInstance ringShader;
     @Getter
+    static ShaderInstance overworldLikeSkyRingShader;
+    @Getter
     static ShaderInstance selectionShader;
     @Getter
     static ShaderInstance blitShader;
@@ -63,6 +65,14 @@ public class ModShaders {
                     DefaultVertexFormat.BLOCK
                 ),
                 it -> renderTypeColoredOverlayShader = it
+            );
+            event.registerShader(
+                new ShaderInstance(
+                    event.getResourceProvider(),
+                    AnvilCraft.of("overworld_like_sky_ring"),
+                    DefaultVertexFormat.BLOCK
+                ),
+                it -> overworldLikeSkyRingShader = it
             );
             event.registerShader(
                 new ShaderInstance(
