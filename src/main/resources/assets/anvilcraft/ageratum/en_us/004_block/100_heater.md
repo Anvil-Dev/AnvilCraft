@@ -47,4 +47,4 @@ Super-Heating is a processing method that can batch-process materials in a cauld
 Cannot cook food. For food processing, see [Item Processing: Cooking](../007_struct/000_anvil_processing.md#fast-cooking)
 </warning>
 
-<recipe id="anvilcraft:super_heating_warp_raw_copper_2_copper_ingot"/>
+<recipe id="anvilcraft:generated/vanilla/blasting/source/minecraft/copper_ingot_from_blasting_raw_copper"/>

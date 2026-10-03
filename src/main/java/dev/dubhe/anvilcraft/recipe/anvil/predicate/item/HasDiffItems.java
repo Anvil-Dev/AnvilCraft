@@ -5,35 +5,28 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.anvilcraft.lib.v2.codec.StreamCodecUtil;
-import dev.anvilcraft.lib.v2.recipe.AnvilLibRecipe;
 import dev.anvilcraft.lib.v2.recipe.cache.ItemCache;
 import dev.anvilcraft.lib.v2.recipe.cache.item.ICacheElement;
 import dev.anvilcraft.lib.v2.recipe.cache.item.ICacheInput;
-import dev.anvilcraft.lib.v2.recipe.cache.item.ICacheInputOutputImpl;
-import dev.anvilcraft.lib.v2.recipe.cache.item.ItemResourceHandlerCacheElement;
-import dev.anvilcraft.lib.v2.recipe.cache.item.operation.InputOutputOperation;
 import dev.anvilcraft.lib.v2.recipe.predicate.IRecipePredicate;
 import dev.anvilcraft.lib.v2.recipe.predicate.function.IPredicateFunction;
 import dev.anvilcraft.lib.v2.recipe.util.InWorldRecipeContext;
-import dev.anvilcraft.lib.v2.recipe.util.InWorldRecipeData;
-import dev.anvilcraft.lib.v2.recipe.util.Range;
-import dev.anvilcraft.lib.v2.util.Util;
 import dev.anvilcraft.lib.v2.util.predicate.ItemIngredientPredicate;
 import dev.dubhe.anvilcraft.block.entity.StampingPlatformBlockEntity;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipePredicateTypes;
-import dev.dubhe.anvilcraft.mixin.accessor.ICacheInputOutputImplAccessor;
-import dev.dubhe.anvilcraft.mixin.accessor.ItemResourceHandlerCacheElementAccessor;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 
@@ -70,26 +63,26 @@ public record HasDiffItems(
 
     @Override
     public boolean test(InWorldRecipeContext context) {
-        ICacheInput input = this.getItem(context);
-        if (!(input instanceof ICacheInputOutputImpl impl)) return false;
-        ICacheInputOutputImplAccessor accessor = Util.cast(impl);
-        Set<ICacheElement> elements = accessor.getElements();
         if (this.ingredients.isEmpty() || this.ingredients.stream().anyMatch(ingredient -> ingredient.count() <= 0)) return false;
+        Map<ICacheElement, Integer> available = this.getItem(context).availableElements().orElse(Map.of());
+        List<ICacheElement> ordered = available.entrySet().stream()
+            .filter(entry -> entry.getValue() > 0)
+            .map(Map.Entry::getKey)
+            .sorted(Comparator.comparingInt(element -> element.getSourceSlot() < 0 ? Integer.MAX_VALUE : element.getSourceSlot()))
+            .toList();
         long count = this.ingredients.stream().mapToLong(ItemIngredientPredicate::count).sum();
-        if (elements.size() != count) return false;
-        List<ICacheElement> ordered = elements.stream().sorted(Comparator.comparingInt(element ->
-            element instanceof ItemResourceHandlerCacheElement
-                ? ((ItemResourceHandlerCacheElementAccessor) element).getSlot() : Integer.MAX_VALUE)).toList();
+        if (ordered.size() != count) return false;
         Set<Item> items = new HashSet<>();
         int index = 0;
         for (ItemIngredientPredicate ingredient : this.ingredients) {
             for (int i = 0; i < ingredient.count(); i++) {
                 ICacheElement element = ordered.get(index++);
-                if (element.getCount() != 1 || !element.is(ingredient.testIgnoreCount())) return false;
-                element.apply(stack -> items.add(stack.getItem()));
+                ItemStack stack = element.getStack();
+                if (stack.getCount() != 1 || !ingredient.testIgnoreCount().test(stack)) return false;
+                items.add(stack.getItem());
             }
         }
-        return items.size() == elements.size();
+        return items.size() == ordered.size();
     }
 
     @Override
@@ -98,7 +91,7 @@ public record HasDiffItems(
         ICacheInput input = this.getItem(context);
         ItemCache cache = context.computeIfAbsent(ItemCache.ITEM_CACHE);
         Vec3 outputPos = BlockPos.containing(context.getPos().add(this.offset)).getBottomCenter();
-        input.apply(itemStack -> {
+        input.getConsumedItems().forEach(itemStack -> {
             ItemStackTemplate remainder = itemStack.getCraftingRemainder();
             if (remainder != null) {
                 var remainingStack = remainder.create();
@@ -111,26 +104,16 @@ public record HasDiffItems(
                 consumed = itemFunction.apply(context, consumed);
             }
         });
+        input.clearConsumedItems();
         context.putAcceptor(ItemCache.ITEM_CACHE.location(), ItemCache.DEFAULT_ACCEPTOR);
     }
 
     @Override
     public void snapshot(InWorldRecipeContext context) {
-        ICacheInput input = this.getItem(context);
-        if (!(input instanceof ICacheInputOutputImpl impl)) {
-            // TODO: 找到不使用ICacheInputOutputImpl也能使所有元素分别减一的方法
-            // input.apply(stack -> stack.shrink(1));
-            return;
+        int count = Math.toIntExact(this.ingredients.stream().mapToLong(ItemIngredientPredicate::count).sum());
+        if (this.getItem(context).shrink(count) != 0) {
+            throw new IllegalStateException("Distinct stamping ingredients changed during reservation");
         }
-        ICacheInputOutputImplAccessor accessor = Util.cast(impl);
-        // region ICacheInputOutputImpl#shrink
-        Set<ICacheElement> elements = new HashSet<>();
-        for (ICacheElement element : accessor.getElements()) {
-            element.shrink(1);
-            elements.add(element);
-        }
-        accessor.getShrinkSimulateStack().push(new InputOutputOperation(elements));
-        // endregion
     }
 
     @Override
@@ -146,22 +129,15 @@ public record HasDiffItems(
     }
 
     public ICacheInput getItem(InWorldRecipeContext context) {
-        context.computeIfAbsent(ItemCache.ITEM_CACHE);
-        final InWorldRecipeData<ICacheInput> cacheInput = InWorldRecipeData.of(
-            AnvilLibRecipe.of("item_cache_input/%s".formatted(this.hashCode())),
-            (ctx, _) -> {
-                ItemCache itemCache = ctx.get(ItemCache.ITEM_CACHE);
-                Vec3 pos = ctx.getPos().add(this.offset);
-                ICacheInput input = itemCache.getInput(stack -> !stack.isEmpty(), pos, this.range);
-                if (!(ctx.getLevel().getBlockEntity(BlockPos.containing(pos)) instanceof StampingPlatformBlockEntity platform)
-                    || !(input instanceof ICacheInputOutputImpl impl)) return input;
-                ICacheInputOutputImplAccessor accessor = Util.cast(impl);
-                var elements = accessor.getElements().stream().filter(element ->
-                    element instanceof ItemResourceHandlerCacheElement
-                        && ((ItemResourceHandlerCacheElementAccessor) element).getItemHandler() == platform.getInput()).toList();
-                return new ICacheInputOutputImpl(this, itemCache, pos, Range.of(pos, this.range), elements);
-            });
-        return context.computeIfAbsent(cacheInput);
+        return context.computeByIdentity(this, () -> {
+            ItemCache itemCache = context.computeIfAbsent(ItemCache.ITEM_CACHE);
+            Vec3 pos = context.getPos().add(this.offset);
+            if (context.getLevel().getBlockEntity(BlockPos.containing(pos)) instanceof StampingPlatformBlockEntity platform) {
+                return itemCache.getInput(stack -> !stack.isEmpty(), pos, this.range,
+                    element -> element.getSource() == platform.getInput());
+            }
+            return itemCache.getInput(stack -> !stack.isEmpty(), pos, this.range);
+        });
     }
 
     @Override

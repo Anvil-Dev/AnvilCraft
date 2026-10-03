@@ -11,7 +11,7 @@ navigation:
 # <ref item="minecraft:netherite_scrap"/>
 
 <recipe id="anvilcraft:procedural_process/ancient_debris"/>
-<recipe id="anvilcraft:super_heating_warp_ancient_debris_2_netherite_scrap"/>
+<recipe id="anvilcraft:generated/vanilla/blasting/source/minecraft/netherite_scrap_from_blasting"/>
 
 # <ref item="minecraft:netherite_ingot"/>
 

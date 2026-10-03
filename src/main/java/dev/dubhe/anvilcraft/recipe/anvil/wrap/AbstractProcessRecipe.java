@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.recipe.anvil.wrap;
 
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.anvilcraft.lib.v2.recipe.InWorldRecipe;
+import dev.anvilcraft.lib.v2.recipe.cache.item.ICacheElement;
 import dev.anvilcraft.lib.v2.recipe.outcome.IRecipeOutcome;
 import dev.anvilcraft.lib.v2.recipe.outcome.SetBlock;
 import dev.anvilcraft.lib.v2.recipe.outcome.SpawnItem;
@@ -11,6 +12,7 @@ import dev.anvilcraft.lib.v2.recipe.predicate.block.HasBlock;
 import dev.anvilcraft.lib.v2.recipe.predicate.block.HasBlockIngredient;
 import dev.anvilcraft.lib.v2.recipe.predicate.function.IPredicateFunction;
 import dev.anvilcraft.lib.v2.recipe.predicate.item.HasItemIngredient;
+import dev.anvilcraft.lib.v2.recipe.util.InWorldRecipeContext;
 import dev.anvilcraft.lib.v2.util.nullness.NonNullBiFunction;
 import dev.anvilcraft.lib.v2.util.predicate.BlockStatePredicate;
 import dev.anvilcraft.lib.v2.util.predicate.ChanceBlockState;
@@ -48,6 +50,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.stream.Stream;
 
 /// 抽象处理配方类
 ///
@@ -94,6 +99,15 @@ public abstract class AbstractProcessRecipe<T extends InWorldRecipe> extends InW
     /// @return 输入物品列表
     public List<ItemIngredientPredicate> getInputItems() {
         return Objects.requireNonNullElseGet(this.property.getInputItems(), List::of);
+    }
+
+    public List<ItemIngredientPredicate> getCatalysts() {
+        return this.property.getCatalysts();
+    }
+
+    public List<ItemIngredientPredicate> getDisplayInputItems() {
+        if (this.getCatalysts().isEmpty()) return this.getInputItems();
+        return Stream.concat(this.getInputItems().stream(), this.getCatalysts().stream()).toList();
     }
 
     /// 获取差异输入物品列表
@@ -403,6 +417,10 @@ public abstract class AbstractProcessRecipe<T extends InWorldRecipe> extends InW
         /// 输入物品列表
         private @Nullable List<ItemIngredientPredicate> inputItems = null;
 
+        private List<ItemIngredientPredicate> catalysts = List.of();
+
+        private @Nullable Function<InWorldRecipeContext, Predicate<ICacheElement>> inputSourceFilter = null;
+
         /// 差异输入物品列表
         private @Nullable List<ItemIngredientPredicate> diffInputItems = null;
 
@@ -510,6 +528,16 @@ public abstract class AbstractProcessRecipe<T extends InWorldRecipe> extends InW
         /// @return 属性实例
         public Property setInputItems(ItemIngredientPredicate... inputItems) {
             return this.setInputItems(Arrays.asList(inputItems));
+        }
+
+        public Property setCatalysts(List<ItemIngredientPredicate> catalysts) {
+            this.catalysts = List.copyOf(catalysts);
+            return this;
+        }
+
+        public Property setInputSourceFilter(Function<InWorldRecipeContext, Predicate<ICacheElement>> sourceFilter) {
+            this.inputSourceFilter = sourceFilter;
+            return this;
         }
 
         /// 设置差异输入物品列表
@@ -700,6 +728,7 @@ public abstract class AbstractProcessRecipe<T extends InWorldRecipe> extends InW
         private int getPriority() {
             if (this.priority != null) return this.priority;
             return (this.inputItems == null ? 0 : this.inputItems.size())
+                   + this.catalysts.size()
                    + (this.resultItems == null ? 0 : this.resultItems.size())
                    + (this.inputBlocks == null ? 0 : this.inputBlocks.size() * 100)
                    + (this.resultBlocks == null ? 0 : this.resultBlocks.size())
@@ -750,8 +779,21 @@ public abstract class AbstractProcessRecipe<T extends InWorldRecipe> extends InW
                 for (int i = 0; i < this.inputItems.size(); i++) {
                     ItemIngredientPredicate ingredient = this.inputItems.get(i);
                     List<IPredicateFunction<?>> functions = this.inputItemFunctions.getOrDefault(i, List.of());
-                    predicates.add(new HasItemIngredient(this.itemInputOffset, this.itemInputRange, ingredient, functions));
+                    if (this.inputSourceFilter == null) {
+                        predicates.add(new HasItemIngredient(this.itemInputOffset, this.itemInputRange, ingredient, functions));
+                    } else {
+                        Function<InWorldRecipeContext, Predicate<ICacheElement>> sourceFilter = this.inputSourceFilter;
+                        predicates.add(new HasItemIngredient(this.itemInputOffset, this.itemInputRange, ingredient, functions) {
+                            @Override
+                            protected Predicate<ICacheElement> getSourceFilter(InWorldRecipeContext context) {
+                                return sourceFilter.apply(context);
+                            }
+                        });
+                    }
                 }
+            }
+            for (ItemIngredientPredicate catalyst : this.catalysts) {
+                predicates.add(new HasItemIngredient(this.itemInputOffset, this.itemInputRange, catalyst, List.of(), false));
             }
             if (this.diffInputItems != null && !this.diffInputItems.isEmpty()) {
                 predicates.add(HasDiffItems.fromPredicates(this.diffInputItems, this.itemInputOffset, this.itemInputRange));

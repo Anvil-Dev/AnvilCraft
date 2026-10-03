@@ -121,6 +121,7 @@ public class BlockTagLoader {
             .addElement(BlockTagLoader.findId(Blocks.MAGMA_BLOCK))
             .addElement(ModBlocks.HEATER.getId())
             .addElement(ModBlocks.BURNING_HEATER.getId())
+            .addElement(ModBlocks.NEUTRON_IRRADIATOR.getId())
             .addElement(ModBlocks.CORRUPTED_BEACON.getId());
 
         provider.rawBuilder(ModBlockTags.BLOCK_DEVOURER_CHAIN_DEVOURING)

@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.recipe.anvil.wrap;
 import dev.anvilcraft.lib.v2.util.predicate.ChanceItemStack;
 import dev.anvilcraft.lib.v2.util.predicate.ItemIngredientPredicate;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
+import dev.dubhe.anvilcraft.recipe.anvil.util.RecipeOutputTracker;
 import dev.dubhe.anvilcraft.recipe.component.HasCauldronSimple;
 import lombok.Getter;
 import net.minecraft.core.Vec3i;
@@ -32,6 +33,7 @@ public class ItemCompressRecipe extends AbstractProcessRecipe<ItemCompressRecipe
                 .setItemInputOffset(new Vec3(0.0, -0.375, 0.0))
                 .setItemInputRange(new Vec3(0.75, 0.75, 0.75))
                 .setInputItems(itemIngredients)
+                .setInputSourceFilter(RecipeOutputTracker::compressionSources)
                 .setItemOutputOffset(new Vec3(0.0, -0.75, 0.0))
                 .setResultItems(results)
                 .setCauldronOffset(new Vec3i(0, -1, 0))

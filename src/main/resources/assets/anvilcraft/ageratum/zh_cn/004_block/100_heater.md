@@ -47,4 +47,4 @@ items:
 不可以烹饪食物，请移步[物品加工：烹饪](../007_struct/000_anvil_processing.md#快速烹饪)
 </warning>
 
-<recipe id="anvilcraft:super_heating_warp_raw_copper_2_copper_ingot"/>
+<recipe id="anvilcraft:generated/vanilla/blasting/source/minecraft/copper_ingot_from_blasting_raw_copper"/>

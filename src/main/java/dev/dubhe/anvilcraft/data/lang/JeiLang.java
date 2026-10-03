@@ -15,6 +15,7 @@ public class JeiLang {
         provider.add("gui.anvilcraft.category.average_output", "Average: %s");
         provider.add("gui.anvilcraft.category.min_output", "Min: %s");
         provider.add("gui.anvilcraft.category.max_output", "Max: %s");
+        provider.add("gui.anvilcraft.category.catalyst", "Catalyst (not consumed)");
 
         provider.add("gui.anvilcraft.category.mesh", "Mesh");
 
