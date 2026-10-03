@@ -66,9 +66,8 @@ public class PumpBlockEntityRenderer implements BlockEntityRenderer<PumpBlockEnt
 
         BlockState state = blockEntity.getBlockState();
         if (!(state.getBlock() instanceof PumpBlock)) return;
-        float speed = 1.0f;
         long gameTime = blockEntity.getLevel().getGameTime();
-        float cycle = ((gameTime + partialTick) * speed) % 20.0f / 20.0f;
+        float cycle = (gameTime % 20L + partialTick) / 20.0f;
         this.emitPistons(state, cycle, poseStack, consumer);
     }
 
