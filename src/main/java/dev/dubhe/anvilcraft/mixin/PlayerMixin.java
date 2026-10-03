@@ -66,9 +66,9 @@ abstract class PlayerMixin extends LivingEntity {
     }
 
     @ModifyExpressionValue(method = "getDestroySpeed(Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/core/BlockPos;)F",
-        at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/player/Player;isEyeInFluid(Lnet/minecraft/tags/TagKey;)Z"))
-    private boolean anvilcraft$underwaterMining(boolean original) {
-        return original && !EquipmentAbilities.canBreathe(this);
+        at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/ai/attributes/AttributeInstance;getValue()D"))
+    private double anvilcraft$underwaterMining(double original) {
+        return EquipmentAbilities.canBreathe(this) ? 1.0 : original;
     }
 
     @Inject(method = "die", at = @At("RETURN"))
