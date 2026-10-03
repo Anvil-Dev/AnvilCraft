@@ -83,6 +83,8 @@ public class ModRenderPipelines {
         .build();
 
     public static final RenderPipeline OVERWORLD_LIKE_SKY_RING = RenderPipeline.builder(RenderPipelines.BLOCK_SNIPPET)
+        .withVertexShader(AnvilCraft.of("core/overworld_like_sky_ring"))
+        .withFragmentShader(AnvilCraft.of("core/overworld_like_sky_ring"))
         .withShaderDefine("ALPHA_CUTOUT", 0.5F)
         .withDepthStencilState(new DepthStencilState(CompareOp.LESS_THAN_OR_EQUAL, false))
         .withCull(false)
