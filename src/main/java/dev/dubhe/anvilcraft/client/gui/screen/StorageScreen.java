@@ -1319,11 +1319,6 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
             this.carried = this.player.inventoryMenu.getCarried();
             return true;
         } else if (event.button() == 2) {
-            if (this.craftingMode && this.player.hasInfiniteMaterials() && !this.carried.isEmpty()
-                && this.getInventorySlot(event.x(), event.y()) >= 0) {
-                this.startCraftingDrag(2);
-                return true;
-            }
             Integer storageSlot = this.getStorageSlot(event.x(), event.y());
             if (
                 storageSlot != null
@@ -1344,14 +1339,18 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
                 return false;
             }
 
-            this.minecraft.gameMode.handleContainerInput(
-                this.player.inventoryMenu.containerId,
-                slot,
-                0,
-                ContainerInput.CLONE,
-                this.player
-            );
-            this.carried = this.player.inventoryMenu.getCarried();
+            if (this.carried.isEmpty()) {
+                this.minecraft.gameMode.handleContainerInput(
+                    this.player.inventoryMenu.containerId,
+                    slot,
+                    0,
+                    ContainerInput.CLONE,
+                    this.player
+                );
+                this.carried = this.player.inventoryMenu.getCarried();
+            } else if (this.player.hasInfiniteMaterials()) {
+                this.startCraftingDrag(event.button());
+            }
             return true;
         }
 
