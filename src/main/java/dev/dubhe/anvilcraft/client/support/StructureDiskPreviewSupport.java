@@ -161,10 +161,9 @@ public class StructureDiskPreviewSupport {
         guiGraphics.renderOutline(previewX - 2, previewY - 2, previewSize + 4, previewSize + 4, 0x505000ff);
 
         // 渲染3D预览
-        StructureDiskData diskData = diskStack.get(ModComponents.STRUCTURE_DISK_DATA);
         RenderSupport.renderLevelLike(
             cache.levelLike, guiGraphics, previewX + previewSize / 2, previewY + previewSize / 2, 60.0f,  // 缩放因子
-            diskData == null || diskData.autoRotate() ? 2.0f : 0.0f
+            2.0f
         );
 
         // 恢复Z轴层级
