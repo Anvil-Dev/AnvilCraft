@@ -169,7 +169,7 @@ public abstract class AbstractLiquidCategory<T extends AbstractProcessRecipe<?>>
         // 加工图例及箭头
         boolean large = useLargeCauldron(cauldron);
         float modelScale = large ? 4 : 12;
-        float anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(timer) / (large ? 3.0F : 1.0F);
+        float anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(this.timer) / (large ? 3.0F : 1.0F);
         RenderSupport.renderBlock(guiGraphics, large ? this.giantAnvil : Blocks.ANVIL.defaultBlockState(),
             81, 12 + anvilYOffset, 20, modelScale, RenderSupport.SINGLE_BLOCK);
         RenderSupport.renderBlock(guiGraphics, large ? this.largeCauldron : Blocks.CAULDRON.defaultBlockState(),
