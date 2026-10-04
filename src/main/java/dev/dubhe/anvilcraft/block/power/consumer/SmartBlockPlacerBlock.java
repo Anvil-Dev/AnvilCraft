@@ -4,7 +4,6 @@ import com.mojang.serialization.MapCodec;
 import dev.anvilcraft.lib.v2.util.ShapeUtil;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.api.power.IPowerComponent;
-import dev.dubhe.anvilcraft.block.better.BetterBaseEntityBlock;
 import dev.dubhe.anvilcraft.block.entity.SmartBlockPlacerBlockEntity;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.init.item.ModItems;
@@ -19,6 +18,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.block.Mirror;
@@ -37,7 +37,7 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jspecify.annotations.Nullable;
 
-public class SmartBlockPlacerBlock extends BetterBaseEntityBlock implements IHammerRemovable {
+public class SmartBlockPlacerBlock extends BaseEntityBlock implements IHammerRemovable {
     public static final BooleanProperty UPSIDE_DOWN = BooleanProperty.create("upside_down");
     public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
     public static final BooleanProperty OVERLOAD = IPowerComponent.OVERLOAD;
@@ -75,7 +75,7 @@ public class SmartBlockPlacerBlock extends BetterBaseEntityBlock implements IHam
     }
 
     @Override
-    protected MapCodec<? extends BetterBaseEntityBlock> codec() {
+    protected MapCodec<? extends BaseEntityBlock> codec() {
         return Block.simpleCodec(SmartBlockPlacerBlock::new);
     }
 
