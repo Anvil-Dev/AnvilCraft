@@ -118,12 +118,16 @@ public final class AtmosphereManager {
     }
 
     public static double drag(Entity entity, double vanillaDrag) {
-        if (entity instanceof Player player && player.isCreative() && player.getAbilities().flying) return vanillaDrag;
+        if (entity instanceof Player player && (player.isCreative() || player.isSpectator()) && player.getAbilities().flying) {
+            return vanillaDrag;
+        }
         return drag(entity.level(), vanillaDrag);
     }
 
     public static float drag(Entity entity, float vanillaDrag) {
-        if (entity instanceof Player player && player.isCreative() && player.getAbilities().flying) return vanillaDrag;
+        if (entity instanceof Player player && (player.isCreative() || player.isSpectator()) && player.getAbilities().flying) {
+            return vanillaDrag;
+        }
         return drag(entity.level(), vanillaDrag);
     }
 
