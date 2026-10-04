@@ -102,7 +102,7 @@ public abstract class AbstractLiquidCategory<T extends AbstractProcessRecipe<?>>
         IRecipeLayoutBuilder builder, RecipeHolder<T> recipeHolder, IFocusGroup focuses) {
         T recipe = recipeHolder.value();
         HasCauldronSimple cauldron = recipe.getHasCauldron();
-        if (useLargeCauldron(cauldron)) {
+        if (useLargeLayout(recipe)) {
             this.setLargeCauldronRecipe(builder, recipe);
             return;
         }
@@ -161,16 +161,19 @@ public abstract class AbstractLiquidCategory<T extends AbstractProcessRecipe<?>>
 
         T recipe = recipeHolder.value();
         HasCauldronSimple cauldron = recipe.getHasCauldron();
-        if (useLargeCauldron(cauldron)) {
+        if (useLargeLayout(recipe)) {
             this.drawLargeCauldron(recipe, guiGraphics);
             return;
         }
 
         // 加工图例及箭头
-        float anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(timer);
-        RenderSupport.renderBlock(guiGraphics, Blocks.ANVIL.defaultBlockState(), 81, 12 + anvilYOffset,
-            20, 12, RenderSupport.SINGLE_BLOCK);
-        RenderSupport.renderBlock(guiGraphics, Blocks.CAULDRON.defaultBlockState(), 81, 30, 10, 12, RenderSupport.SINGLE_BLOCK);
+        boolean large = useLargeCauldron(cauldron);
+        float modelScale = large ? 4 : 12;
+        float anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(timer) / (large ? 3.0F : 1.0F);
+        RenderSupport.renderBlock(guiGraphics, large ? this.giantAnvil : Blocks.ANVIL.defaultBlockState(),
+            81, 12 + anvilYOffset, 20, modelScale, RenderSupport.SINGLE_BLOCK);
+        RenderSupport.renderBlock(guiGraphics, large ? this.largeCauldron : Blocks.CAULDRON.defaultBlockState(),
+            81, large ? 24 : 30, 10, modelScale, RenderSupport.SINGLE_BLOCK);
         RenderSupport.renderBlock(guiGraphics, getProcessBlock(), 81, 40, 0, 12, RenderSupport.SINGLE_BLOCK);
         arrowIn.draw(guiGraphics, 54, 22);
         arrowOut.draw(guiGraphics, 92, 22);
@@ -236,6 +239,13 @@ public abstract class AbstractLiquidCategory<T extends AbstractProcessRecipe<?>>
             cauldron.consume(), cauldron.fluid().amount().flatMap(MinMaxBounds.Ints::min).orElse(0)
         );
         return requiredAmount > FluidType.BUCKET_VOLUME;
+    }
+
+    private static boolean useLargeLayout(AbstractProcessRecipe<?> recipe) {
+        HasCauldronSimple cauldron = recipe.getHasCauldron();
+        int inputCount = recipe.getDisplayInputItems().size() + (cauldron.hasFluid() ? 1 : 0);
+        int outputCount = recipe.getResultItems().size() + cauldron.transforms().size();
+        return useLargeCauldron(cauldron) && inputCount <= 6 && outputCount <= 6;
     }
 
     private static SlotPosition largeInputPosition(int count, int index) {
@@ -328,7 +338,7 @@ public abstract class AbstractLiquidCategory<T extends AbstractProcessRecipe<?>>
         double mouseY
     ) {
         HasCauldronSimple cauldron = recipeHolder.value().getHasCauldron();
-        if (useLargeCauldron(cauldron) && cauldron.ignited()
+        if (useLargeLayout(recipeHolder.value()) && cauldron.ignited()
             && mouseX >= IGNITION_X && mouseX < IGNITION_X + 18
             && mouseY >= IGNITION_Y && mouseY < IGNITION_Y + 18) {
             tooltip.add(Component.translatable("gui.anvilcraft.category.cauldron.need_ignite"));
@@ -336,7 +346,7 @@ public abstract class AbstractLiquidCategory<T extends AbstractProcessRecipe<?>>
     }
 
     protected boolean isProcessBlockHovered(T recipe, double mouseX, double mouseY) {
-        if (useLargeCauldron(recipe.getHasCauldron())) {
+        if (useLargeLayout(recipe)) {
             return mouseX >= PROCESS_X && mouseX < PROCESS_X + 18
                    && mouseY >= PROCESS_Y && mouseY < PROCESS_Y + 18;
         }
