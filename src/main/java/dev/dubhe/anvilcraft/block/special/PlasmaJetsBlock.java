@@ -41,7 +41,7 @@ public class PlasmaJetsBlock extends BaseEntityBlock {
         if (
             !PlasmaJetsBlock.isIgnitedOilCauldron(level, pos.below())
             || !heater.is(ModBlocks.HEATER)
-            || heater.getValue(HeaterBlock.OVERLOAD)
+            || !((HeaterBlock) heater.getBlock()).isActive(heater)
         ) {
             return false;
         }

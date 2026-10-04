@@ -105,6 +105,7 @@ public class SuperHeatingRecipe extends AbstractProcessRecipe<SuperHeatingRecipe
                 BlockStatePredicate.builder()
                     .of(ModBlocks.HEATER.get(), ModBlocks.BURNING_HEATER.get())
                     .with(HeaterBlock.OVERLOAD, false)
+                    .with(HeaterBlock.POWERED, false)
                     .or()
                     .with(BurningHeaterBlock.LEVEL, 2)
                     .build()
