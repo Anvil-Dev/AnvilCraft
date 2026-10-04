@@ -2232,6 +2232,8 @@
   "tooltip.anvilcraft.item.heliostats": "Heats targeted blocks during the day",
   "tooltip.anvilcraft.item.heliostats.shift": "Right‑click a Netherite Block or Tungsten Block with the handheld heliostat to set target block\nAfter placing the heliostat, it will heat the targeted block during the day, as well as the blocks above it\nRight‑click a targeted heliostat to inherit its target",
   "tooltip.anvilcraft.item.hollow_magnet_block": "Attracting the anvil below, when pushed and pulled by the piston, causes adjacent copper blocks to generate charges",
+  "tooltip.anvilcraft.item.honey_cake_block": "A block of honey cake, use a shovel as a spoon to eat it",
+  "tooltip.anvilcraft.item.honey_cream_block": "A block of honey cream, use a shovel as a spoon to eat it",
   "tooltip.anvilcraft.item.hyperdimension_storage_station": "An infinite container upgraded from a Shulker Container",
   "tooltip.anvilcraft.item.hyperdimension_storage_station.shift": "Can contain infinite items\nBreaking it drops the container with its items stored inside",
   "tooltip.anvilcraft.item.hyperdimension_terminal": "A portable port of the binding Hyperdimension Storage Station",
