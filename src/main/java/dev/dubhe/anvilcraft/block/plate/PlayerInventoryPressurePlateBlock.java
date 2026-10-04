@@ -43,7 +43,7 @@ public class PlayerInventoryPressurePlateBlock extends PowerLevelPressurePlateBl
                 }
             }
 
-            float occupiedPercent = (float) occupiedSlots / inventory.getContainerSize();
+            float occupiedPercent = (float) occupiedSlots / inventory.items.size();
             result = Math.max(result, occupiedPercent);
         }
 
