@@ -338,7 +338,7 @@ public class ItemCollectorBlockEntity extends BlockEntity
 
     @Override
     public AABB shape() {
-        if (this.boundingBox == null) {
+        if (this.boundingBox == null || this.level != null && this.level.isClientSide()) {
             this.boundingBox = AABB.ofSize(
                 Vec3.atCenterOf(this.getBlockPos()),
                 this.rangeRadius.get() * 2.0 + 1,
