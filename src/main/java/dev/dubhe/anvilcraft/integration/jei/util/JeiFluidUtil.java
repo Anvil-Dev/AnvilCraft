@@ -86,20 +86,32 @@ public final class JeiFluidUtil {
         int startX = x - (cols - 1) * JeiSlotUtil.OFFSET / 2;
         int startY = y - (rows - 1) * JeiSlotUtil.OFFSET / 2;
         for (int index = 0; index < transforms.size(); index++) {
-            FluidStack transform = transforms.get(index);
-            addSlot(
-                builder,
-                RecipeIngredientRole.OUTPUT,
-                transforms.size() == 1 ? name : name + "/" + index,
+            addOutputSlot(
+                builder, name,
                 startX + index % cols * JeiSlotUtil.OFFSET,
                 startY + index / cols * JeiSlotUtil.OFFSET,
-                width,
-                height,
-                getDisplayFluids(transform, transform.getAmount()),
-                true,
-                cauldron.chance()
+                width, height, cauldron, index
             );
         }
+    }
+
+    public static void addOutputSlot(
+        IRecipeLayoutBuilder builder,
+        String name,
+        int x,
+        int y,
+        int width,
+        int height,
+        HasCauldronSimple cauldron,
+        int index
+    ) {
+        FluidStack transform = cauldron.transforms().get(index);
+        addSlot(
+            builder, RecipeIngredientRole.OUTPUT,
+            cauldron.transforms().size() == 1 ? name : name + "/" + index,
+            x, y, width, height,
+            getDisplayFluids(transform, transform.getAmount()), true, cauldron.chance()
+        );
     }
 
     private static void addSlot(

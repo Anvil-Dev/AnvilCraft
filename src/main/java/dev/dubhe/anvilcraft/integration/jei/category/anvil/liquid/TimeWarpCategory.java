@@ -56,7 +56,8 @@ public class TimeWarpCategory extends AbstractLiquidCategory<TimeWarpRecipe> {
         double mouseX,
         double mouseY
     ) {
-        if (mouseX >= 72 && mouseX <= 90 && mouseY >= 34 && mouseY <= 53) {
+        super.getTooltip(tooltip, recipeHolder, recipeSlotsView, mouseX, mouseY);
+        if (this.isProcessBlockHovered(recipeHolder.value(), mouseX, mouseY)) {
             tooltip.add(ModBlocks.CORRUPTED_BEACON.get().getName());
             tooltip.add(Component.translatable("gui.anvilcraft.category.time_warp.need_activated")
                 .withStyle(ChatFormatting.RED));
