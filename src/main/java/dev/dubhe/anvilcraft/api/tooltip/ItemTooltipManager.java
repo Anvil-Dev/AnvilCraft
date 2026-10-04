@@ -535,9 +535,11 @@ public class ItemTooltipManager {
         ItemTooltipManager.NORMAL.put(ModBlocks.BLACK_WHITE_CHOCOLATE_BLOCK.asItem(),
             "Made by mixing white and dark chocolate, step on it to gain Haste and Jump Boost");
         ItemTooltipManager.NORMAL.put(ModBlocks.CHOCOLATE_CREAM_BLOCK.asItem(), "A block of chocolate cream, use a shovel as a spoon to eat it");
+        ItemTooltipManager.NORMAL.put(ModBlocks.HONEY_CREAM_BLOCK.asItem(), "A block of honey cream, use a shovel as a spoon to eat it");
         ItemTooltipManager.NORMAL.put(ModBlocks.CAKE_BLOCK.asItem(), "A block of cream cake, use a shovel as a spoon to eat it");
         ItemTooltipManager.NORMAL.put(ModBlocks.BERRY_CAKE_BLOCK.asItem(), "A block of berry cake, use a shovel as a spoon to eat it");
         ItemTooltipManager.NORMAL.put(ModBlocks.CHOCOLATE_CAKE_BLOCK.asItem(), "A block of chocolate cake, use a shovel as a spoon to eat it");
+        ItemTooltipManager.NORMAL.put(ModBlocks.HONEY_CAKE_BLOCK.asItem(), "A block of honey cake, use a shovel as a spoon to eat it");
         ItemTooltipManager.NORMAL.put(ModBlocks.CONTROL_VALVE.asItem(), "Controls the type and flow rate of passing fluids and can be locked by redstone");
         ItemTooltipManager.NORMAL.put(ModBlocks.SPACETIME_SUPERCOMPUTER.asItem(), "Consumes power to run certain time commands");
         ItemTooltipManager.NORMAL.put(ModBlocks.CELESTIAL_FORGING_ANVIL_AMPLIFIER.asItem(), "Amplifies the Celestial Forging Anvil to support larger megastructures");
