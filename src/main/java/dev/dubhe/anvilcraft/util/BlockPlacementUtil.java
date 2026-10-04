@@ -18,12 +18,15 @@ import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.BucketItem;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.AbstractCauldronBlock;
+import net.minecraft.world.level.block.AbstractSkullBlock;
 import net.minecraft.world.level.block.BedBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -31,7 +34,9 @@ import net.minecraft.world.level.block.DoorBlock;
 import net.minecraft.world.level.block.DoublePlantBlock;
 import net.minecraft.world.level.block.MultifaceBlock;
 import net.minecraft.world.level.block.Rotation;
+import net.minecraft.world.level.block.SkullBlock;
 import net.minecraft.world.level.block.VineBlock;
+import net.minecraft.world.level.block.WallSkullBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BedPart;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -39,8 +44,10 @@ import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import net.minecraft.world.level.block.state.properties.Half;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.level.block.state.properties.Property;
+import net.minecraft.world.level.block.state.properties.RotationSegment;
 import net.minecraft.world.level.block.state.properties.SlabType;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.Shapes;
 
 import java.util.ArrayList;
@@ -105,6 +112,8 @@ public final class BlockPlacementUtil {
         IBlockItem blockItem = switch (stack.getItem()) {
             case PipeBlockItem item -> (world, target, player, hand) -> item.place(world, target, player, hand, requiredState);
             case IBlockItem item -> item;
+            case BlockItem item when requiredState != null && requiredState.getBlock() instanceof AbstractSkullBlock ->
+                (world, target, player, hand) -> placeSkull(item, world, target, player, hand, requiredState);
             case BlockItem item -> IBlockItem.wrap(item);
             default -> null;
         };
@@ -133,6 +142,35 @@ public final class BlockPlacementUtil {
         } finally {
             AnvilCraftFakePlayers.getBlockPlacer().disable(player);
         }
+    }
+
+    private static boolean placeSkull(
+        BlockItem item, Level level, BlockPos pos, Player player, InteractionHand hand, BlockState requiredState
+    ) {
+        Direction attachmentDirection = requiredState.getBlock() instanceof WallSkullBlock
+            ? requiredState.getValue(WallSkullBlock.FACING).getOpposite()
+            : Direction.DOWN;
+        BlockPlaceContext context = new BlockPlaceContext(
+            level,
+            player,
+            hand,
+            player.getItemInHand(hand),
+            new BlockHitResult(pos.getCenter(), attachmentDirection.getOpposite(), pos, false)
+        ) {
+            @Override
+            public Direction[] getNearestLookingDirections() {
+                // 只尝试蓝图指定的附着面，避免回退到另一种头颅方块后被蓝图校验移除。
+                return new Direction[]{attachmentDirection};
+            }
+
+            @Override
+            public float getRotation() {
+                return requiredState.getBlock() instanceof SkullBlock
+                    ? RotationSegment.convertToDegrees(requiredState.getValue(SkullBlock.ROTATION))
+                    : super.getRotation();
+            }
+        };
+        return context.getClickedPos().equals(pos) && item.place(context).consumesAction();
     }
 
     private static <P extends Enum<P>> BlockPos getMultiblockPlacementPos(
