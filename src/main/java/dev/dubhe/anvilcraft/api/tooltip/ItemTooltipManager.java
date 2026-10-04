@@ -497,10 +497,12 @@ public class ItemTooltipManager {
         NORMAL.put(ModBlocks.CREAM_BLOCK.asItem(), "A block of cream, use a shovel as a spoon to eat it");
         NORMAL.put(ModBlocks.BERRY_CREAM_BLOCK.asItem(), "A block of berry cream, use a shovel as a spoon to eat it");
         NORMAL.put(ModBlocks.CHOCOLATE_CREAM_BLOCK.asItem(), "A block of chocolate cream, use a shovel as a spoon to eat it");
+        NORMAL.put(ModBlocks.HONEY_CREAM_BLOCK.asItem(), "A block of honey cream, use a shovel as a spoon to eat it");
         NORMAL.put(ModBlocks.MATCHA_CREAM_BLOCK.asItem(), "A block of matcha cream, use a shovel as a spoon to eat it");
         NORMAL.put(ModBlocks.CAKE_BLOCK.asItem(), "A block of cream cake, use a shovel as a spoon to eat it");
         NORMAL.put(ModBlocks.BERRY_CAKE_BLOCK.asItem(), "A block of berry cake, use a shovel as a spoon to eat it");
         NORMAL.put(ModBlocks.CHOCOLATE_CAKE_BLOCK.asItem(), "A block of chocolate cake, use a shovel as a spoon to eat it");
+        NORMAL.put(ModBlocks.HONEY_CAKE_BLOCK.asItem(), "A block of honey cake, use a shovel as a spoon to eat it");
         NORMAL.put(ModBlocks.MATCHA_CAKE_BLOCK.asItem(), "A block of matcha cake, use a shovel as a spoon to eat it");
         NORMAL.put(ModBlocks.COOKIE_BLOCK.asItem(), "A placeable giant cookie!");
         NORMAL.put(ModBlocks.COOKIE_PILLAR.asItem(), " A hollow cookie block!");
