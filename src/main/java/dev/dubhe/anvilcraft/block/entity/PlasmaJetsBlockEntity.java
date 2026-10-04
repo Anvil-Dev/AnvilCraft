@@ -230,11 +230,9 @@ public class PlasmaJetsBlockEntity extends BlockEntity {
             }
         }
         boolean cauldronExisting = this.cauldronPos != null && PlasmaJetsBlock.isValidBaseCauldron(level, this.cauldronPos);
-        boolean belowCauldronIsNotHeater = this.cauldronPos != null && !level.getBlockState(this.cauldronPos.below(1))
-            .is(ModBlocks.HEATER);
-        boolean heaterOverload = this.cauldronPos != null && level.getBlockState(this.cauldronPos.below(1))
-            .getOptionalValue(HeaterBlock.OVERLOAD).orElse(true);
-        if (wallBroken || blocked || !cauldronExisting || belowCauldronIsNotHeater || heaterOverload) {
+        @Nullable BlockState heater = this.cauldronPos == null ? null : level.getBlockState(this.cauldronPos.below(1));
+        boolean heaterInactive = heater == null || !heater.is(ModBlocks.HEATER) || !((HeaterBlock) heater.getBlock()).isActive(heater);
+        if (wallBroken || blocked || !cauldronExisting || heaterInactive) {
             level.removeBlockEntity(this.getBlockPos());
             level.removeBlock(this.getBlockPos(), false);
             HeaterManager.removeProducer(this.getBlockPos(), level, ModHeaterInfos.NO_MAGNET_PLASMA_JETS);
@@ -248,7 +246,7 @@ public class PlasmaJetsBlockEntity extends BlockEntity {
         if (!PlasmaJetHooks.isPassThrough(level.getBlockState(jetPos.above()))) return false;
         if (this.cauldronPos == null || !PlasmaJetsBlock.isValidBaseCauldron(level, this.cauldronPos)) return false;
         BlockState heater = level.getBlockState(this.cauldronPos.below(1));
-        if (!heater.is(ModBlocks.HEATER) || heater.getOptionalValue(HeaterBlock.OVERLOAD).orElse(true)) {
+        if (!heater.is(ModBlocks.HEATER) || !((HeaterBlock) heater.getBlock()).isActive(heater)) {
             return false;
         }
         for (Direction direction : Direction.Plane.HORIZONTAL) {

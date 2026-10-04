@@ -640,7 +640,7 @@ public class LargeCauldronBlockEntity extends BlockEntity
     }
 
     private static boolean isActiveHeatingHelper(BlockState state) {
-        if (state.is(ModBlocks.HEATER)) return !state.getValue(HeaterBlock.OVERLOAD);
+        if (state.is(ModBlocks.HEATER)) return ((HeaterBlock) state.getBlock()).isActive(state);
         return state.is(ModBlocks.BURNING_HEATER) && state.getValue(BurningHeaterBlock.LEVEL) == 2;
     }
 
@@ -1222,7 +1222,7 @@ public class LargeCauldronBlockEntity extends BlockEntity
 
     private static boolean isActiveRecipeHelper(BlockState state) {
         if (CampfireBlock.isLitCampfire(state) && state.is(Blocks.CAMPFIRE)) return true;
-        if (state.is(ModBlocks.HEATER)) return !state.getValue(HeaterBlock.OVERLOAD);
+        if (state.is(ModBlocks.HEATER)) return ((HeaterBlock) state.getBlock()).isActive(state);
         if (state.is(ModBlocks.BURNING_HEATER)) return state.getValue(BurningHeaterBlock.LEVEL) == 2;
         if (state.is(ModBlocks.CORRUPTED_BEACON)) return state.getValue(CorruptedBeaconBlock.LIT);
         return state.getBlock() instanceof NeutronIrradiatorBlock;
