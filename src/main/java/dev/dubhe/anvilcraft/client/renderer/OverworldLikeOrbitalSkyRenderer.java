@@ -12,11 +12,15 @@ import dev.dubhe.anvilcraft.client.renderer.blockentity.CelestialForgingAnvilBlo
 import dev.dubhe.anvilcraft.client.support.OverworldLikeClientState;
 import dev.dubhe.anvilcraft.saved.OverworldLikeWorldState;
 import dev.dubhe.anvilcraft.worldgen.OverworldLikeOrbitMath;
+import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.block.ModelBlockRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.level.material.FogType;
 import net.neoforged.neoforge.client.event.ModelEvent;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
 
@@ -50,6 +54,17 @@ public final class OverworldLikeOrbitalSkyRenderer {
             return;
         }
         if (ring4 == null || ring5 == null) return;
+
+        Camera camera = event.getCamera();
+        FogType fogType = camera.getFluidInCamera();
+        // Unlike newer versions, AFTER_SKY is also dispatched when the native sky is hidden.
+        if (fogType == FogType.LAVA || fogType == FogType.POWDER_SNOW
+            || camera.getEntity() instanceof LivingEntity living
+                && (living.hasEffect(MobEffects.BLINDNESS) || living.hasEffect(MobEffects.DARKNESS))
+            || minecraft.level.effects().isFoggyAt(camera.getBlockPosition().getX(), camera.getBlockPosition().getY())
+            || minecraft.gui.getBossOverlay().shouldCreateWorldFog()) {
+            return;
+        }
 
         float partialTick = event.getPartialTick().getGameTimeDeltaPartialTick(minecraft.isPaused());
         long gameTime = minecraft.level.getGameTime();

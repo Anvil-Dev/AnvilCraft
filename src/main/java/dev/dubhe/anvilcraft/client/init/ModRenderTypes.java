@@ -254,7 +254,7 @@ public class ModRenderTypes {
         true,
         RenderType.CompositeState.builder()
             .setLightmapState(LIGHTMAP)
-            .setShaderState(RENDERTYPE_CUTOUT_SHADER)
+            .setShaderState(new RenderStateShard.ShaderStateShard(ModShaders::getOverworldLikeSkyRingShader))
             .setTextureState(BLOCK_SHEET_MIPPED)
             .setTransparencyState(NO_TRANSPARENCY)
             .setDepthTestState(LEQUAL_DEPTH_TEST)
