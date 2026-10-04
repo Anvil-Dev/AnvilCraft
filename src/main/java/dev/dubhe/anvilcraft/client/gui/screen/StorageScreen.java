@@ -76,6 +76,7 @@ import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.item.crafting.SingleRecipeInput;
 import net.neoforged.neoforge.client.ItemDecoratorHandler;
 import net.neoforged.neoforge.client.event.ContainerScreenEvent;
+import net.neoforged.neoforge.client.event.ScreenEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.FluidType;
@@ -973,6 +974,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
         graphics.pose().translate(this.left, this.top);
         NeoForge.EVENT_BUS.post(new ContainerScreenEvent.Render.Foreground(this, graphics, mouseX, mouseY));
         graphics.pose().popMatrix();
+        NeoForge.EVENT_BUS.post(new ScreenEvent.Render.Foreground(this, graphics, mouseX, mouseY, a));
         this.extractCarriedItem(graphics, mouseX, mouseY);
         this.extractFlyout(graphics);
         this.extractTooltip(graphics, mouseX, mouseY);
