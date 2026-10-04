@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.item;
 
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.event.AnvilEvent;
 import dev.dubhe.anvilcraft.api.hammer.HammerManager;
 import dev.dubhe.anvilcraft.api.hammer.IHammerChangeable;
@@ -80,7 +81,6 @@ import java.util.function.Predicate;
 import static dev.dubhe.anvilcraft.util.MultiPartBlockUtil.getChainableMainPartPos;
 
 public class AnvilHammerItem extends Item implements Equipable {
-    public static final int PORTABLE_ANVIL_USE_TICKS = 40;
     public static final Property<?>[] SUPPORTED_PROPERTIES = {
         BlockStateProperties.FACING,
         BlockStateProperties.FACING_HOPPER,
@@ -325,7 +325,7 @@ public class AnvilHammerItem extends Item implements Equipable {
 
     @Override
     public int getUseDuration(ItemStack stack, LivingEntity entity) {
-        return PORTABLE_ANVIL_USE_TICKS;
+        return AnvilCraft.CONFIG.equipment.portableAnvilUseTicks;
     }
 
     @Override
@@ -384,7 +384,7 @@ public class AnvilHammerItem extends Item implements Equipable {
     @OnlyIn(Dist.CLIENT)
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     public static boolean shouldRenderEffect(Player player) {
-        return switch (AnvilCraftClient.CONFIG.goggleMode) {
+        return switch (AnvilCraftClient.CONFIG.ui.goggleInfoActivationMode) {
             case ALWAYS_SHOW -> true;
             case WEARING_HAMMER -> AnvilHammerItem.isWearing(player);
             case HOLDING_HAMMER -> AnvilHammerItem.isHolding(player);

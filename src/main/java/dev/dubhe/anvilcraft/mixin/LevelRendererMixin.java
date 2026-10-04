@@ -228,8 +228,8 @@ public abstract class LevelRendererMixin {
         if (passes.isEmpty()) return;
 
         // Collect visible holes: black holes use positive direction, white holes negative
-        float dir = (float) AnvilCraftClient.CONFIG.gravitationalLens.lensDirection;
-        int maxCount = AnvilCraftClient.CONFIG.gravitationalLens.maxHoleCount;
+        float dir = (float) AnvilCraftClient.CONFIG.graphics.gravitationalLens.direction;
+        int maxCount = AnvilCraftClient.CONFIG.graphics.gravitationalLens.maxHoleCount;
         java.util.List<GravitationalLensManager.HoleProjection> holes =
             GravitationalLensManager.collectVisibleHoles(camera, projectionMatrix, maxCount, dir, -dir);
 
@@ -241,11 +241,11 @@ public abstract class LevelRendererMixin {
 
         pass.getEffect().safeGetUniform("BlackHoleCount").set((float) count);
         pass.getEffect().safeGetUniform("LensStrength")
-            .set((float) AnvilCraftClient.CONFIG.gravitationalLens.lensStrength);
+            .set((float) AnvilCraftClient.CONFIG.graphics.gravitationalLens.strength);
         pass.getEffect().safeGetUniform("EventHorizonRadius")
-            .set((float) AnvilCraftClient.CONFIG.gravitationalLens.eventHorizonRadius);
+            .set((float) AnvilCraftClient.CONFIG.graphics.gravitationalLens.eventHorizonRadius);
         pass.getEffect().safeGetUniform("PerspectiveScale")
-            .set((float) AnvilCraftClient.CONFIG.gravitationalLens.lensPerspectiveScale);
+            .set((float) AnvilCraftClient.CONFIG.graphics.gravitationalLens.perspectiveScale);
 
         // Run the lens post chain (reads main target, writes to result target)
         lensChain.process(RenderSupport.getPartialTick());

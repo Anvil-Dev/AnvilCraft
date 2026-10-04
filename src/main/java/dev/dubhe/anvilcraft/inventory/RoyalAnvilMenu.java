@@ -24,7 +24,7 @@ import java.util.function.Supplier;
 
 public class RoyalAnvilMenu extends AnvilMenu implements HammerOpenedAnvilMenu {
     public static final Supplier<AnvilMenuResult> RESULT = () -> AnvilMenuResult.builder()
-        .allowBeyondMaxLevel(AnvilCraft.CONFIG.royalAnvilBeyondMaxLevel)
+        .allowBeyondMaxLevel(AnvilCraft.CONFIG.equipment.royalAnvilBeyondMaxLevel)
         .create();
     public final AnvilMenuResult result = RoyalAnvilMenu.RESULT.get();
     private final Inventory playerInventory;

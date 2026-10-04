@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.block.entity;
 import com.google.common.collect.ImmutableList;
 import dev.anvilcraft.lib.v2.recipe.cache.IItemHandlerCache;
 import dev.anvilcraft.lib.v2.util.MathUtil;
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.event.FishTankEvent;
 import dev.dubhe.anvilcraft.api.fluid.FluidHandlerWrapper;
 import dev.dubhe.anvilcraft.api.fluid.IFluidHandlerHolder;
@@ -10,7 +11,6 @@ import dev.dubhe.anvilcraft.api.fluid.network.FluidNetworkManager;
 import dev.dubhe.anvilcraft.api.itemhandler.IItemHandlerHolder;
 import dev.dubhe.anvilcraft.api.itemhandler.ItemHandlerUtil;
 import dev.dubhe.anvilcraft.api.itemhandler.PollableItemHandler;
-import dev.dubhe.anvilcraft.block.ExpFluidBlock;
 import dev.dubhe.anvilcraft.block.FishTankBlock;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.block.ModFluidTags;
@@ -72,7 +72,6 @@ import javax.annotation.Nullable;
 public class FishTankBlockEntity extends BlockEntity implements IItemHandlerHolder, IItemHandlerCache, IFluidHandlerHolder {
     private static final double EPSILON = 1.0 / 1024.0;
     public static final int CAPACITY = FluidType.BUCKET_VOLUME;
-    public static final int MAX_TROPICAL_FISH = 4;
     private static final IItemHandler EMPTY_RECIPE_OUTPUT = new ItemStackHandler(0);
 
     private static final Vec3 FLUID_CONTENT_AREA_MIN = new Vec3(0.0625, 0.0625, 0.0625);
@@ -83,7 +82,7 @@ public class FishTankBlockEntity extends BlockEntity implements IItemHandlerHold
     private final List<CompoundTag> tropicalFishData = new ArrayList<>() {
         @Override
         public boolean add(CompoundTag tag) {
-            if (this.size() >= MAX_TROPICAL_FISH) return false;
+            if (this.size() >= AnvilCraft.CONFIG.machines.fishTankMaxTropicalFish) return false;
             FishTankBlockEntity.this.setChanged();
             FishTankBlockEntity.this.sendUpdate();
             return super.add(tag);
@@ -378,7 +377,7 @@ public class FishTankBlockEntity extends BlockEntity implements IItemHandlerHold
         for (int slot = 0; slot < entity.input.getSlots(); slot++) {
             changed |= FireReforgingUtil.repair(
                 entity.input.getStackInSlot(slot),
-                FireReforgingUtil.LAVA_REPAIR_PER_TICK,
+                AnvilCraft.CONFIG.equipment.fireReforgingRepairPerTick,
                 level,
                 pos
             );
@@ -598,7 +597,7 @@ public class FishTankBlockEntity extends BlockEntity implements IItemHandlerHold
         this.tropicalFishData.clear();
         if (tag.contains(TAG_TROPICAL_FISH_DATA, Tag.TAG_LIST)) {
             ListTag list = tag.getList(TAG_TROPICAL_FISH_DATA, Tag.TAG_COMPOUND);
-            for (int i = 0; i < Math.min(MAX_TROPICAL_FISH, list.size()); i++) {
+            for (int i = 0; i < Math.min(AnvilCraft.CONFIG.machines.fishTankMaxTropicalFish, list.size()); i++) {
                 this.tropicalFishData.add(list.getCompound(i).copy());
             }
         }
@@ -941,7 +940,7 @@ public class FishTankBlockEntity extends BlockEntity implements IItemHandlerHold
             int capacity = this.fluidHandler.getCapacity();
             FluidStack drained = this.fluidHandler.drain(capacity, IFluidHandler.FluidAction.SIMULATE);
             if (drained.getAmount() != capacity) return;
-            player.giveExperiencePoints(ExpFluidBlock.XP_POINTS);
+            player.giveExperiencePoints(AnvilCraft.CONFIG.world.expFluidXpPerBlock);
             this.fluidHandler.drain(capacity, IFluidHandler.FluidAction.EXECUTE);
         }
     }
@@ -1043,7 +1042,7 @@ public class FishTankBlockEntity extends BlockEntity implements IItemHandlerHold
     }
 
     public boolean isFullOfFish() {
-        return this.tropicalFishData.size() >= MAX_TROPICAL_FISH;
+        return this.tropicalFishData.size() >= AnvilCraft.CONFIG.machines.fishTankMaxTropicalFish;
     }
 
     public boolean isEmptyOfFish() {

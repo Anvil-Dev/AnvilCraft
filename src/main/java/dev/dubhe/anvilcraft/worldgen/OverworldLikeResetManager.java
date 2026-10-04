@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.worldgen;
 
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.entity.CelestialForgingAnvilBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.celestial.CelestialTravelData;
 import dev.dubhe.anvilcraft.block.entity.celestial.CelestialTravelManager;
@@ -26,7 +27,6 @@ import javax.annotation.Nullable;
 
 /** Coordinates collapse, player evacuation, reset locking, and orbital-lighting access. */
 public final class OverworldLikeResetManager {
-    public static final int COLLAPSE_DELAY_TICKS = 40;
     private static final Map<MinecraftServer, Set<UUID>> QUEUED_DIRECT_ENTRIES = new WeakHashMap<>();
 
     private OverworldLikeResetManager() {
@@ -97,7 +97,7 @@ public final class OverworldLikeResetManager {
             ServerLevel overworldLike = server.getLevel(CelestialTravelManager.OVERWORLD_LIKE_LEVEL);
             long gameTime = overworldLike == null ? server.overworld().getGameTime() : overworldLike.getGameTime();
             long elapsed = Math.max(0L, gameTime - state.collapseStartedAt());
-            if (elapsed >= COLLAPSE_DELAY_TICKS && !state.collapseDamageIssued()) {
+            if (elapsed >= AnvilCraft.CONFIG.world.overworldLikeCollapseDelayTicks && !state.collapseDamageIssued()) {
                 for (ServerPlayer player : server.getPlayerList().getPlayers()) {
                     if (!CelestialTravelManager.isOverworldLike(player.level().dimension())) continue;
                     state.addPendingForcedRespawn(player.getUUID());

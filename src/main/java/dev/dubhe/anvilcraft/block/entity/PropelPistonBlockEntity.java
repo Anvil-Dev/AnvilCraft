@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.block.entity;
 
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.PropelPistonBlock;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.network.UpdatePropelPistonStoredEnergyPacket;
@@ -24,7 +25,6 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Set;
 
 public class PropelPistonBlockEntity extends BaseLaserBlockEntity {
-    public static final int MAX_ENERGY = 160_000_000;
     /**
      * 储存的能量 单位：FE
      */
@@ -49,7 +49,7 @@ public class PropelPistonBlockEntity extends BaseLaserBlockEntity {
     }
 
     public void updateStoredEnergy(Integer energy) {
-        this.storedEnergy = Math.clamp(energy, 0, PropelPistonBlockEntity.MAX_ENERGY);
+        this.storedEnergy = Math.clamp(energy, 0, AnvilCraft.CONFIG.machines.propelPistonMaxEnergy);
         if (level == null || !(level instanceof ServerLevel serverLevel)) {
             return;
         }
@@ -90,7 +90,7 @@ public class PropelPistonBlockEntity extends BaseLaserBlockEntity {
             power = laserLevel * 30000;
         }
         if (!changed) {
-            if (storedEnergy < PropelPistonBlockEntity.MAX_ENERGY) {
+            if (this.storedEnergy < AnvilCraft.CONFIG.machines.propelPistonMaxEnergy) {
                 delay++;
                 if (delay >= 20) {
                     delay = 0;
@@ -138,7 +138,7 @@ public class PropelPistonBlockEntity extends BaseLaserBlockEntity {
     @Override
     protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.saveAdditional(tag, registries);
-        tag.putInt("storedEnergy", Math.min(this.storedEnergy, PropelPistonBlockEntity.MAX_ENERGY));
+        tag.putInt("storedEnergy", Math.min(this.storedEnergy, AnvilCraft.CONFIG.machines.propelPistonMaxEnergy));
     }
 
     @Override

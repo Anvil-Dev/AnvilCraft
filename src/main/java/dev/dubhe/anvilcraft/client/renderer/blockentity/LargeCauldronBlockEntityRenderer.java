@@ -65,7 +65,7 @@ public class LargeCauldronBlockEntityRenderer implements BlockEntityRenderer<Lar
         LargeCauldronFluidHandler fluids = cauldron.getFluids();
         float fill = Mth.clamp(
             (float) fluids.getTotalAmount()
-            / (LargeCauldronFluidHandler.TANK_COUNT * LargeCauldronFluidHandler.TANK_CAPACITY),
+            / (LargeCauldronFluidHandler.TANK_COUNT * LargeCauldronFluidHandler.tankCapacity()),
             0.0F,
             1.0F
         );
@@ -157,7 +157,7 @@ public class LargeCauldronBlockEntityRenderer implements BlockEntityRenderer<Lar
             }
         }
 
-        float totalCapacity = LargeCauldronFluidHandler.TANK_COUNT * LargeCauldronFluidHandler.TANK_CAPACITY;
+        float totalCapacity = LargeCauldronFluidHandler.TANK_COUNT * LargeCauldronFluidHandler.tankCapacity();
         float minY = MIN_Y;
         for (FluidStack liquid : liquids) {
             float maxY = minY + CONTENT_HEIGHT * liquid.getAmount() / totalCapacity;

@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.block;
 
 import com.mojang.serialization.MapCodec;
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.block.better.BetterAnvilBlock;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
@@ -86,7 +87,7 @@ public class NeoforgeBlock extends BetterAnvilBlock implements IHammerRemovable 
 
     @Override
     public void falling(FallingBlockEntity entity) {
-        entity.setHurtsEntities(2.0f, 20);
+        entity.setHurtsEntities(AnvilCraft.CONFIG.world.anvilFallDamagePerBlock, 20);
     }
 
     @Override

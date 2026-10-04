@@ -79,7 +79,7 @@ public abstract class BaseSlidingRailBlock extends Block implements ISlidingRail
     @Override
     public boolean anvilcraft$canStickTo(BlockPos pos, BlockState state, BlockPos otherPos, BlockState other) {
         if (otherPos.equals(pos.above())) return false;
-        if (!AnvilCraft.CONFIG.slidingRailStickToEachOther) {
+        if (!AnvilCraft.CONFIG.world.slidingRailStickToEachOther) {
             return other.isStickyBlock() && !(other.getBlock() instanceof BaseSlidingRailBlock);
         }
         if (!other.is(ModBlockTags.STICKABLE_WITH_SLIDING_RAILS)) return other.isStickyBlock();
@@ -123,16 +123,17 @@ public abstract class BaseSlidingRailBlock extends Block implements ISlidingRail
                 BlockState railState = level.getBlockState(pos);
                 if (railState.getValue(PoweredSlidingRailBlock.POWERED)) {
                     Direction facing = railState.getValue(PoweredSlidingRailBlock.FACING);
-                    entity.setDeltaMovement(Vec3.ZERO.relative(facing, 0.35));
+                    entity.setDeltaMovement(Vec3.ZERO.relative(facing, AnvilCraft.CONFIG.world.slidingRailLaunchSpeed));
                 } else {
                     Vec3 blockPos = pos.getCenter();
                     Vec3 entityPos = entity.position();
                     Vector3f acceleration = blockPos.toVector3f()
                         .sub(entityPos.toVector3f())
-                        .mul(0.15f)
+                        .mul(AnvilCraft.CONFIG.world.slidingRailPullStrength)
                         .div(0.98f)
                         .mul(new Vector3f(1, 0, 1));
-                    entity.setDeltaMovement(entity.getDeltaMovement().multiply(0.8f, 0.8f, 0.8f).add(new Vec3(acceleration)));
+                    double damping = AnvilCraft.CONFIG.world.slidingRailDamping;
+                    entity.setDeltaMovement(entity.getDeltaMovement().multiply(damping, damping, damping).add(new Vec3(acceleration)));
                 }
             }
         }

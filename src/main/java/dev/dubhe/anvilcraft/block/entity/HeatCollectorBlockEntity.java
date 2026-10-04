@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.block.entity;
 
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.heat.collector.HeatCollectorManager;
 import dev.dubhe.anvilcraft.api.heat.collector.IHeatCollector;
 import dev.dubhe.anvilcraft.api.power.IPowerProducer;
@@ -20,6 +21,7 @@ import net.minecraft.world.phys.AABB;
 import org.jetbrains.annotations.Nullable;
 
 public class HeatCollectorBlockEntity extends BlockEntity implements IPowerProducer, IHasAffectRange, IHeatCollector {
+    /** 数据生成使用的默认输出上限；运行时上限由配置决定。 */
     public static final int MAX_OUTPUT_POWER = 4096;
     @Getter
     private int time = 0;
@@ -67,7 +69,7 @@ public class HeatCollectorBlockEntity extends BlockEntity implements IPowerProdu
         if (!this.isWorking()) {
             this.outputPower = 0;
             this.inputtingPower = 0;
-            if (this.outputPower != oldPower && grid != null) grid.markChanged();
+            if (this.outputPower != oldPower && this.grid != null) this.grid.markChanged();
             return;
         }
         this.outputPower = this.inputtingPower;
@@ -75,7 +77,7 @@ public class HeatCollectorBlockEntity extends BlockEntity implements IPowerProdu
             collector.activate(this.level, this.getBlockPos(), this.getBlockState());
             TriggerUtil.heatCollectorOutput(this.level, this.getBlockPos(), this.outputPower);
         }
-        if (this.outputPower != oldPower && grid != null) grid.markChanged();
+        if (this.outputPower != oldPower && this.grid != null) this.grid.markChanged();
         this.inputtingPower = 0;
         this.time++;
     }
@@ -103,7 +105,7 @@ public class HeatCollectorBlockEntity extends BlockEntity implements IPowerProdu
 
     public void clientTick() {
         if (!this.isWorking()) return;
-        rotation += (float) (Math.log(getServerPower() + 1) * 2.5);
+        this.rotation += (float) (Math.log(getServerPower() + 1) * 2.5);
     }
 
     public boolean isWorking() {
@@ -118,7 +120,7 @@ public class HeatCollectorBlockEntity extends BlockEntity implements IPowerProdu
      */
     public int inputtingHeat(int num) {
         if (!this.isWorking()) return num;
-        int overflow = num - (MAX_OUTPUT_POWER - this.inputtingPower);
+        int overflow = num - (AnvilCraft.CONFIG.machines.heatCollectorMaxOutputPower - this.inputtingPower);
         if (overflow < 0) {
             overflow = 0;
         }

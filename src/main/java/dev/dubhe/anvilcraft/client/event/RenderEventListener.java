@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.client.event;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import dev.anvilcraft.lib.v2.util.Util;
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.tooltip.HudTooltipManager;
 import dev.dubhe.anvilcraft.api.tooltip.TooltipRenderHelper;
 import dev.dubhe.anvilcraft.client.renderer.OverworldLikeOrbitalSkyRenderer;
@@ -45,7 +46,6 @@ import javax.annotation.Nullable;
 
 @EventBusSubscriber(value = Dist.CLIENT)
 public class RenderEventListener {
-    private static final int RANGE_OUTLINE_PERSIST_TICKS = 5 * 20;
     private static final int AFFECT_RANGE_COLOR = 0xFF00FFCC;
 
     private record RangeOutline(BlockState blockState, VoxelShape shape, long lastSeenTick) {
@@ -160,7 +160,7 @@ public class RenderEventListener {
                 iterator.remove();
                 continue;
             }
-            if (gameTime > outline.lastSeenTick + RANGE_OUTLINE_PERSIST_TICKS) {
+            if (gameTime > outline.lastSeenTick + AnvilCraft.CLIENT_CONFIG.graphics.affectRangeOutlinePersistTicks) {
                 iterator.remove();
                 continue;
             }

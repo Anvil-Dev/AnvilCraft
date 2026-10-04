@@ -27,8 +27,6 @@ import net.neoforged.neoforge.energy.IEnergyStorage;
 import org.jetbrains.annotations.Nullable;
 
 public class FeCollectorBlockEntity extends BlockEntity implements IPowerProducer, IHasAffectRange {
-    public static final int MAX_ENERGY = 1_000_000;
-    static final int FE_PER_TICK = 10_000;
     public static final int PRODUCE_THRESHOLD = 400_000;
     public static final int STOP_THRESHOLD = 20_000;
     static final int TRANSFER_THRESHOLD = 500_000;
@@ -148,10 +146,10 @@ public class FeCollectorBlockEntity extends BlockEntity implements IPowerProduce
 
         if (this.producing) {
             final int prev = this.outputPower;
-            this.energy -= FE_PER_TICK;
-            this.outputPower = (int) (FE_PER_TICK
-                * (1 - AnvilCraft.CONFIG.powerConverter.powerConverterLoss)
-                / AnvilCraft.CONFIG.powerConverter.powerConverterEfficiency);
+            this.energy -= AnvilCraft.CONFIG.machines.feCollectorFePerTick;
+            this.outputPower = (int) (AnvilCraft.CONFIG.machines.feCollectorFePerTick
+                * (1 - AnvilCraft.CONFIG.machines.powerConverter.loss)
+                / AnvilCraft.CONFIG.machines.powerConverter.efficiency);
             this.time++;
             setChanged();
             clientSyncDirty = true;
@@ -261,7 +259,7 @@ public class FeCollectorBlockEntity extends BlockEntity implements IPowerProduce
 
         public int receiveEnergy(int maxReceive, boolean simulate) {
             if (!canReceive()) return 0;
-            int r = Math.min(MAX_ENERGY - energy, maxReceive);
+            int r = Math.min(AnvilCraft.CONFIG.machines.feCollectorMaxEnergy - FeCollectorBlockEntity.this.energy, maxReceive);
             if (!simulate) {
                 energy += r;
                 if (side != null && lastInputSide != side) {
@@ -289,7 +287,7 @@ public class FeCollectorBlockEntity extends BlockEntity implements IPowerProduce
         }
 
         public int getMaxEnergyStored() {
-            return MAX_ENERGY;
+            return AnvilCraft.CONFIG.machines.feCollectorMaxEnergy;
         }
 
         public boolean canExtract() {
@@ -297,7 +295,7 @@ public class FeCollectorBlockEntity extends BlockEntity implements IPowerProduce
         }
 
         public boolean canReceive() {
-            return isInputSide() && energy < MAX_ENERGY;
+            return this.isInputSide() && FeCollectorBlockEntity.this.energy < AnvilCraft.CONFIG.machines.feCollectorMaxEnergy;
         }
     }
 }

@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.item.weapon;
 
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.entity.WeaponBeamEntity;
 import dev.dubhe.anvilcraft.init.ModSoundEvents;
 import net.minecraft.core.BlockPos;
@@ -33,17 +34,21 @@ import java.util.Optional;
 import java.util.Set;
 
 public class TeslaGunItem extends EnergyWeaponItem {
-    private static final int SHOT_ENERGY = 4_000_000;
     private static final double COS_15_DEGREES = Math.cos(Math.toRadians(15.0));
 
     public TeslaGunItem(Properties properties) {
-        super(properties, SHOT_ENERGY);
+        super(properties);
+    }
+
+    @Override
+    protected int minimumEnergy() {
+        return AnvilCraft.CONFIG.equipment.teslaGunShotEnergy;
     }
 
     @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
-        if (!canStartUsing(player, stack, SHOT_ENERGY)) return InteractionResultHolder.fail(stack);
+        if (!canStartUsing(player, stack, AnvilCraft.CONFIG.equipment.teslaGunShotEnergy)) return InteractionResultHolder.fail(stack);
         player.startUsingItem(hand);
         return InteractionResultHolder.consume(stack);
     }
@@ -57,10 +62,10 @@ public class TeslaGunItem extends EnergyWeaponItem {
         if (target == null) return;
         BlockPos rod = target.rod();
         if (rod != null && !(level.getBlockState(rod).getBlock() instanceof LightningRodBlock)) return;
-        if (!consumeEnergy(player, stack, SHOT_ENERGY)) return;
+        if (!consumeEnergy(player, stack, AnvilCraft.CONFIG.equipment.teslaGunShotEnergy)) return;
         int quickCharge = stack.getEnchantmentLevel(
             level.holderLookup(Registries.ENCHANTMENT).getOrThrow(Enchantments.QUICK_CHARGE));
-        player.getCooldowns().addCooldown(this, 80 - Math.min(60, quickCharge * 5));
+        player.getCooldowns().addCooldown(this, AnvilCraft.CONFIG.equipment.teslaGunCooldown - Math.min(60, quickCharge * 5));
         Vec3 start = player.getEyePosition().add(player.getViewVector(1.0F).scale(0.5));
         if (target.entity() != null) {
             strikeChain(serverLevel, player, stack, start, target.entity());

@@ -20,7 +20,7 @@ import java.util.Objects;
 
 public class TranscendenceAnvilMenu extends AnvilMenu implements HammerOpenedAnvilMenu {
     public final AnvilMenuResult result = AnvilMenuResult.builder()
-        .allowBeyondMaxLevel(AnvilCraft.CONFIG.transcendenceAnvilBeyondMaxLevel)
+        .allowBeyondMaxLevel(AnvilCraft.CONFIG.equipment.transcendenceAnvilBeyondMaxLevel)
         .allowEnchantingMultipleItems()
         .ignoreEnchantmentCompatible()
         .noCostInRenaming()

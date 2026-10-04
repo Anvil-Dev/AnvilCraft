@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.api.thought;
 
+import dev.dubhe.anvilcraft.AnvilCraft;
 import lombok.Getter;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
@@ -9,8 +10,13 @@ public class ThoughtManager {
     private static boolean onThought = false;
     @Getter
     private static long lastThoughtTime = -1L;
-    @Getter
-    private static final double MAX_SECONDS = 1.0;
+    /**
+     * 思考提示的最长显示时间（秒），运行时读取配置。
+     */
+
+    public static double maxSeconds() {
+        return AnvilCraft.CLIENT_CONFIG.ui.thoughtMaxSeconds;
+    }
 
     public static void onThought() {
         boolean checked = ThoughtManager.check();

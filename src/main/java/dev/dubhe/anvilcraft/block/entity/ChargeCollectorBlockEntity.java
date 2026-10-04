@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.block.entity;
 
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.chargecollector.ChargeCollectorManager;
 import dev.dubhe.anvilcraft.api.power.IPowerProducer;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
@@ -25,10 +26,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class ChargeCollectorBlockEntity extends BlockEntity implements IPowerProducer, IHasAffectRange {
-    private static final double MAX_POWER_PER_INCOMING = 128;
     private static final int CHARGE_HISTORY_SIZE = 10;
-    public static final int INPUT_COOLDOWN = 2;
-    public static final int OUTPUT_COOLDOWN = 10;
 
     private int inputCooldownCount = 2;
     private final List<Integer> charges = new LinkedList<>() {
@@ -131,13 +129,13 @@ public class ChargeCollectorBlockEntity extends BlockEntity implements IPowerPro
     public void gridTick() {
         if (level == null || level.isClientSide()) return;
         if (this.inputCooldownCount-- <= 1) {
-            this.inputCooldownCount = INPUT_COOLDOWN;
+            this.inputCooldownCount = AnvilCraft.CONFIG.machines.chargeCollectorInputCooldown;
             this.charges.add((int) Math.floor(this.chargeCount));
             this.chargeCount = 0;
             this.time++;
         }
         if (this.outputCooldownCount-- <= 1) {
-            this.outputCooldownCount = OUTPUT_COOLDOWN;
+            this.outputCooldownCount = AnvilCraft.CONFIG.machines.chargeCollectorOutputCooldown;
             final int oldPower = this.power;
             this.power = 0;
             for (Integer charge : this.charges) {
@@ -171,7 +169,7 @@ public class ChargeCollectorBlockEntity extends BlockEntity implements IPowerPro
      */
     public double incomingCharge(double num, BlockPos srcPos) {
         if (!(num > 0)) return num;
-        double available = Math.max(0, MAX_POWER_PER_INCOMING - this.chargeCount);
+        double available = Math.max(0, AnvilCraft.CONFIG.machines.chargeCollectorMaxPowerPerIncoming - this.chargeCount);
         double acceptableChargeCount = Math.min(num, available);
         double overflow = num - acceptableChargeCount;
         if (acceptableChargeCount <= 0) return overflow;

@@ -4,7 +4,6 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.item.ICannotFitInStationItem;
 import dev.dubhe.anvilcraft.api.itemhandler.IItemHandlerHolder;
 import dev.dubhe.anvilcraft.api.itemhandler.ItemHandlerUtil;
-import dev.dubhe.anvilcraft.config.AnvilCraftServerConfig;
 import dev.dubhe.anvilcraft.saved.storage.HyperdimensionStorage;
 import dev.dubhe.anvilcraft.saved.storage.Storages;
 import lombok.Getter;
@@ -92,7 +91,7 @@ public class HyperdimensionUploaderBlockEntity extends BlockEntity implements II
         if (this.workCountdown-- > 0) {
             return;
         }
-        AnvilCraftServerConfig.HyperdimensionUploader config = AnvilCraft.CONFIG.hyperdimensionUploader;
+        var config = AnvilCraft.CONFIG.machines.hyperdimensionUploader;
         this.workCountdown = config.workInterval;
         this.pushToStorage(config.maxItemsPerScan);
     }

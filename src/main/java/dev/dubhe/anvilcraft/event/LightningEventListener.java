@@ -31,8 +31,8 @@ public class LightningEventListener {
     private static void strikeOnLightningRod(Level level, BlockPos targetPos, BlockState targetState) {
         LightningEventListener.lightningCharge(targetPos, level, targetState);
         if (targetState.is(Blocks.LIGHTNING_ROD)) targetPos = targetPos.below();
-        int depth = AnvilCraft.CONFIG.lightningStrikeDepth;
-        int radius = AnvilCraft.CONFIG.lightningStrikeRadius;
+        int depth = AnvilCraft.CONFIG.world.lightningStrikeDepth;
+        int radius = AnvilCraft.CONFIG.world.lightningStrikeRadius;
         for (BlockPos blockPos : BlockPos.betweenClosed(targetPos.offset(radius, 0, radius), targetPos.offset(-radius, -depth, -radius))) {
             BlockState blockState = level.getBlockState(blockPos);
             if (blockState.is(Blocks.IRON_BLOCK)) {

@@ -144,7 +144,7 @@ public final class StellarEmissionRenderer {
         StarData star, BakedModel model, PoseStack poseStack, MultiBufferSource buffers, int overlay,
         @Nullable StellarVisualState visual, @Nullable StellarEventProfile event, float eventProgress
     ) {
-        if (!STATE.standard(AnvilCraft.CLIENT_CONFIG.stellarRenderingMode, IrisState.isShaderEnabled())) {
+        if (!STATE.standard(AnvilCraft.CLIENT_CONFIG.graphics.stellarRenderMode, IrisState.isShaderEnabled())) {
             VanillaCelestialRenderer.star(star, model, poseStack, buffers, overlay, visual);
             return;
         }
@@ -216,7 +216,7 @@ public final class StellarEmissionRenderer {
     }
 
     public static void renderBrownDwarfGlow(PoseStack poseStack, MultiBufferSource buffers, int overlay) {
-        if (!STATE.standard(AnvilCraft.CLIENT_CONFIG.stellarRenderingMode, IrisState.isShaderEnabled())) {
+        if (!STATE.standard(AnvilCraft.CLIENT_CONFIG.graphics.stellarRenderMode, IrisState.isShaderEnabled())) {
             VanillaCelestialRenderer.brownDwarf(poseStack, buffers, overlay);
             return;
         }

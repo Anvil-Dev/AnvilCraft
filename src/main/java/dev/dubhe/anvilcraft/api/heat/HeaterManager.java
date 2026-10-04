@@ -30,7 +30,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-import static dev.dubhe.anvilcraft.api.power.PowerGrid.GRID_TICK;
+import static dev.dubhe.anvilcraft.api.power.PowerGrid.gridInterval;
 
 public class HeaterManager {
     private static final Map<Level, HeaterManager> INSTANCES = new HashMap<>();
@@ -69,7 +69,7 @@ public class HeaterManager {
 
     public static void tickAll() {
         INSTANCES.forEach((level, manager) -> {
-            if (level.getGameTime() % GRID_TICK != 0) return;
+            if (level.getGameTime() % gridInterval() != 0) return;
             if (level.tickRateManager().isFrozen() && !level.tickRateManager().isSteppingForward()) return;
             manager.tick();
         });

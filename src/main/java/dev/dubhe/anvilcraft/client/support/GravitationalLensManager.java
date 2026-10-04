@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.client.support;
 
+import dev.dubhe.anvilcraft.AnvilCraft;
 import net.minecraft.client.Camera;
 import net.minecraft.core.BlockPos;
 import org.joml.Matrix4f;
@@ -22,7 +23,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import javax.annotation.Nullable;
 
 public class GravitationalLensManager {
-    private static final int MAX_SEARCH_DISTANCE_SQR = 256 * 256;
 
     /**
      * Client-side cache of loaded black hole block positions.
@@ -152,7 +152,8 @@ public class GravitationalLensManager {
             double dy = pos.getY() + 0.5 - cameraPos.y;
             double dz = pos.getZ() + 0.5 - cameraPos.z;
             double distanceSqr = dx * dx + dy * dy + dz * dz;
-            if (distanceSqr > MAX_SEARCH_DISTANCE_SQR) continue;
+            double maxDistance = AnvilCraft.CLIENT_CONFIG.graphics.gravitationalLens.maxDistance;
+            if (distanceSqr > maxDistance * maxDistance) continue;
 
             Vector2f centerUV = worldToScreenUV(
                 pos.getX() + 0.5f, pos.getY() + 0.5f, pos.getZ() + 0.5f, viewProj

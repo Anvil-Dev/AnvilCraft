@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.block.entity;
 
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.chargecollector.ChargeCollectorManager;
 import dev.dubhe.anvilcraft.api.heat.collector.HeatCollectorManager;
 import dev.dubhe.anvilcraft.api.heat.collector.IHeatCollector;
@@ -26,8 +27,6 @@ import org.jetbrains.annotations.Nullable;
 import java.util.LinkedList;
 
 public class InfiniteCollectorBlockEntity extends BlockEntity implements IPowerProducer, IHasAffectRange, IHeatCollector {
-    public static final int BASE_OUTPUT_POWER = 256;
-    public static final int RANGE = 3;
     private static final int CHARGE_HISTORY_SIZE = 10;
 
     @Getter
@@ -38,7 +37,7 @@ public class InfiniteCollectorBlockEntity extends BlockEntity implements IPowerP
     @Getter
     private int outputPower = 0;
     private int inputtingHeatPower = 0;
-    private int inputCooldownCount = ChargeCollectorBlockEntity.INPUT_COOLDOWN;
+    private int inputCooldownCount = AnvilCraft.CONFIG.machines.chargeCollectorInputCooldown;
     private double chargeCount = 0;
     private int chargePower = 0;
     private long lastIncomingParticleTick = Long.MIN_VALUE;
@@ -62,7 +61,7 @@ public class InfiniteCollectorBlockEntity extends BlockEntity implements IPowerP
 
     @Override
     public int getRange() {
-        return RANGE;
+        return AnvilCraft.CONFIG.machines.infiniteCollectorRange;
     }
 
     @Override
@@ -85,7 +84,7 @@ public class InfiniteCollectorBlockEntity extends BlockEntity implements IPowerP
             : tag.getInt("inputtingPower");
         this.inputCooldownCount = tag.getInt("InputCooldownCount");
         if (this.inputCooldownCount <= 0) {
-            this.inputCooldownCount = ChargeCollectorBlockEntity.INPUT_COOLDOWN;
+            this.inputCooldownCount = AnvilCraft.CONFIG.machines.chargeCollectorInputCooldown;
         }
         this.chargeCount = tag.getDouble("ChargeCount");
         this.chargePower = tag.getInt("ChargePower");
@@ -114,12 +113,12 @@ public class InfiniteCollectorBlockEntity extends BlockEntity implements IPowerP
             return;
         }
         if (this.inputCooldownCount-- <= 1) {
-            this.inputCooldownCount = ChargeCollectorBlockEntity.INPUT_COOLDOWN;
+            this.inputCooldownCount = AnvilCraft.CONFIG.machines.chargeCollectorInputCooldown;
             this.addCharge((int) Math.floor(this.chargeCount));
             this.chargeCount = 0;
             this.refreshChargePower();
         }
-        this.outputPower = BASE_OUTPUT_POWER + this.inputtingHeatPower + this.chargePower;
+        this.outputPower = AnvilCraft.CONFIG.machines.infiniteCollectorBasePower + this.inputtingHeatPower + this.chargePower;
         if (this.outputPower > 0 && this.getBlockState().getBlock() instanceof InfiniteCollectorBlock collector) {
             collector.activate(this.level, this.getBlockPos(), this.getBlockState());
         }
@@ -227,7 +226,8 @@ public class InfiniteCollectorBlockEntity extends BlockEntity implements IPowerP
 
     @Override
     public AABB shape() {
-        return AABB.ofSize(getBlockPos().getCenter(), RANGE * 2 + 1, RANGE * 2 + 1, RANGE * 2 + 1);
+        int range = AnvilCraft.CONFIG.machines.infiniteCollectorRange * 2 + 1;
+        return AABB.ofSize(getBlockPos().getCenter(), range, range, range);
     }
 
     @Override

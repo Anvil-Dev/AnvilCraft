@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.api.tooltip.impl;
 
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.power.IPowerComponent;
 import dev.dubhe.anvilcraft.api.power.PowerComponentInfo;
 import dev.dubhe.anvilcraft.api.power.PowerComponentType;
@@ -10,8 +11,6 @@ import dev.dubhe.anvilcraft.block.TransmissionPoleBlock;
 import dev.dubhe.anvilcraft.block.entity.FeCollectorBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.PowerConverterBlockEntity;
 import dev.dubhe.anvilcraft.block.multipart.AbstractMultiPartBlock;
-import dev.dubhe.anvilcraft.client.AnvilCraftClient;
-import dev.dubhe.anvilcraft.util.CompatUtil;
 import dev.dubhe.anvilcraft.util.UnitUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
@@ -44,7 +43,6 @@ public class PowerComponentTooltipProvider extends ITooltipProvider.BlockEntityT
         if (player != null && player.isShiftKeyDown()) {
             original = true;
         }
-        if (CompatUtil.HAS_JADE.get() && AnvilCraftClient.CONFIG.doNotShowTooltipWhenJadePresent) return List.of();
         boolean overloaded = false;
         BlockPos pos;
         BlockState blockState = e.getBlockState();
@@ -83,7 +81,7 @@ public class PowerComponentTooltipProvider extends ITooltipProvider.BlockEntityT
             lines.add(Component.translatable(
                     "tooltip.anvilcraft.fe_collector.energy",
                     fe.getEnergyStored() / 1000,
-                    FeCollectorBlockEntity.MAX_ENERGY / 1000
+                    AnvilCraft.CONFIG.machines.feCollectorMaxEnergy / 1000
                 )
                 .setStyle(Style.EMPTY.applyFormat(ChatFormatting.GRAY)));
             if (!e.getBlockState().getValue(BlockStateProperties.POWERED)) {

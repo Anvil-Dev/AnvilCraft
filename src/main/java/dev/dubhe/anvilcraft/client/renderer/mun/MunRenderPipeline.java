@@ -1,7 +1,7 @@
 package dev.dubhe.anvilcraft.client.renderer.mun;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.config.AnvilCraftClientConfig.MunLightingQuality;
+import dev.dubhe.anvilcraft.config.AnvilCraftClientConfig.GraphicsSettings.MunLightingQuality;
 import net.minecraft.client.Minecraft;
 import net.neoforged.fml.config.ModConfig;
 import net.neoforged.fml.config.ModConfigs;
@@ -21,7 +21,7 @@ public final class MunRenderPipeline {
     }
 
     public static boolean requested() {
-        return AnvilCraft.CLIENT_CONFIG.munLightingQuality != MunLightingQuality.OFF && STATE.requested();
+        return AnvilCraft.CLIENT_CONFIG.graphics.munLightingQuality.isEnabled() && STATE.requested();
     }
 
     public static boolean enabled() {
@@ -29,7 +29,7 @@ public final class MunRenderPipeline {
     }
 
     public static void registerShaders(RegisterShadersEvent event) {
-        STATE.beginReload(AnvilCraft.CLIENT_CONFIG.munLightingQuality);
+        STATE.beginReload(AnvilCraft.CLIENT_CONFIG.graphics.munLightingQuality);
         release(MunSurfaceRenderer::resetShaders);
         MunSkyRenderer.resetShader();
         if (!requested()) return;
@@ -44,14 +44,14 @@ public final class MunRenderPipeline {
 
     public static void fail() {
         if (!STATE.fail()) return;
-        AnvilCraft.CLIENT_CONFIG.munLightingQuality = MunLightingQuality.OFF;
+        AnvilCraft.CLIENT_CONFIG.graphics.munLightingQuality = MunLightingQuality.OFF;
         reloadRequested = true;
         refreshRequested = true;
         saveRequested = true;
     }
 
     public static void tick() {
-        if (STATE.configure(AnvilCraft.CLIENT_CONFIG.munLightingQuality)) {
+        if (STATE.configure(AnvilCraft.CLIENT_CONFIG.graphics.munLightingQuality)) {
             reloadRequested = true;
             refreshRequested = true;
         }

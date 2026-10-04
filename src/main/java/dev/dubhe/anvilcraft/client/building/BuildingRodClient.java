@@ -9,7 +9,6 @@ import dev.dubhe.anvilcraft.building.BuildingRodService;
 import dev.dubhe.anvilcraft.building.ConstructionBlueprintException;
 import dev.dubhe.anvilcraft.building.StructureSnapshot;
 import dev.dubhe.anvilcraft.client.init.ModKeyMappings;
-import dev.dubhe.anvilcraft.config.AnvilCraftClientConfig;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.item.BuildingRodItem;
@@ -124,7 +123,7 @@ public final class BuildingRodClient {
     }
 
     static boolean traditional() {
-        return AnvilCraft.CLIENT_CONFIG.buildingRodControls == AnvilCraftClientConfig.BuildingRodControls.TRADITIONAL;
+        return AnvilCraft.CLIENT_CONFIG.controls.buildingRodKeySet.isTraditional();
     }
 
     @SubscribeEvent

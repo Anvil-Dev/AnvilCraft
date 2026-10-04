@@ -132,7 +132,7 @@ public class HollowMagnetBlock extends MagnetBlock implements SimpleWaterloggedB
             if (item.is(Items.IRON_INGOT) && item.getCount() == 1) {
                 if (itemEntity.getOwner() instanceof ServerPlayer) {
                     itemEntity.addTag(TAG);
-                    if (level.random.nextDouble() <= 0.005) {
+                    if (level.random.nextDouble() <= AnvilCraft.CONFIG.world.hollowMagnetConvertChance) {
                         itemEntity.setItem(new ItemStack(ModItems.MAGNET_INGOT.get()));
                     }
                 }

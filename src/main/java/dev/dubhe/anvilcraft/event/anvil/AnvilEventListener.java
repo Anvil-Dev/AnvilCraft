@@ -99,7 +99,7 @@ public class AnvilEventListener {
         if (handleBehaviors(level, hitBlockPos, hitBlockState, event)) return;
         if (blockState.is(ModBlocks.NEOFORGE)) {
             if (event.getFallDistance() > 1) {
-                if (level.random.nextDouble() < 0.01) {
+                if (level.random.nextDouble() < AnvilCraft.CONFIG.world.neoforgeAnvilDamageChance) {
                     NeoforgeBlock.damage(level, pos);
                 }
             }

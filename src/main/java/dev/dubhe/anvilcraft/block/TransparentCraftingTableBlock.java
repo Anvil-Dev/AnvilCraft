@@ -133,7 +133,7 @@ public class TransparentCraftingTableBlock extends TransparentBlock implements I
      */
     private boolean tryFormMatrix(Level level, BlockPos pos) {
         if (!isValidMatrixBlock(level.getBlockState(pos), false)) return false;
-        int maxSize = AnvilCraft.CONFIG.transparentCraftingTableMaxMatrixSize;
+        int maxSize = AnvilCraft.CONFIG.machines.transparentCraftingTableMaxMatrixSize;
         int x0 = pos.getX();
         int y0 = pos.getY();
         int z0 = pos.getZ();

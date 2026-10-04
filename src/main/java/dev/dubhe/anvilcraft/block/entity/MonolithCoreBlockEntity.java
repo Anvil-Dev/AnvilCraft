@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.block.entity;
 
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.GiantAnvilBlock;
 import dev.dubhe.anvilcraft.block.GiantMonolithCoreBlock;
 import dev.dubhe.anvilcraft.block.MonolithLineBlock;
@@ -29,8 +30,6 @@ import java.util.UUID;
 import javax.annotation.Nullable;
 
 public class MonolithCoreBlockEntity extends BlockEntity {
-    public static final int OFFERING_TICKS = 100;
-    public static final int DISSOLVE_TICKS = 60;
 
     @Getter
     private BlockState offering = Blocks.AIR.defaultBlockState();
@@ -102,12 +101,12 @@ public class MonolithCoreBlockEntity extends BlockEntity {
     }
 
     public float getAnimationAge(float partialTick) {
-        if (this.level == null || this.offering.isAir()) return OFFERING_TICKS;
+        if (this.level == null || this.offering.isAir()) return AnvilCraft.CONFIG.world.monolithOfferingTicks;
         return Math.max(0, this.level.getGameTime() - this.offeringStart + partialTick);
     }
 
     public boolean isCoolingDown() {
-        return this.getAnimationAge(0) < OFFERING_TICKS;
+        return this.getAnimationAge(0) < AnvilCraft.CONFIG.world.monolithOfferingTicks;
     }
 
     @Override

@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.api.itemhandler;
 
 import dev.anvilcraft.lib.v2.util.stack.UnlimitedItemStack;
+import dev.dubhe.anvilcraft.AnvilCraft;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
@@ -15,7 +16,6 @@ import java.util.function.Predicate;
 
 public class LargeCauldronInputHandler implements IItemHandlerModifiable, INBTSerializable<CompoundTag> {
     public static final int SLOT_COUNT = 8;
-    public static final int STACK_MULTIPLIER = 9;
     private final Runnable changeListener;
     private NonNullList<UnlimitedItemStack> stacks = NonNullList.withSize(SLOT_COUNT, UnlimitedItemStack.EMPTY);
 
@@ -51,7 +51,7 @@ public class LargeCauldronInputHandler implements IItemHandlerModifiable, INBTSe
         if (!stack.isEmpty() && !this.isItemValid(slot, stack)) {
             throw new IllegalArgumentException("Duplicate item in large cauldron input slots");
         }
-        int limit = stack.isEmpty() ? 0 : stack.getMaxStackSize() * STACK_MULTIPLIER;
+        int limit = stack.isEmpty() ? 0 : stack.getMaxStackSize() * AnvilCraft.CONFIG.machines.largeCauldronInputStackMultiplier;
         this.stacks.set(slot, stack.isEmpty()
             ? UnlimitedItemStack.EMPTY
             : new UnlimitedItemStack(stack, Math.min(stack.getCount(), limit)));
@@ -66,7 +66,7 @@ public class LargeCauldronInputHandler implements IItemHandlerModifiable, INBTSe
         UnlimitedItemStack existing = this.stacks.get(slot);
         if (!existing.isEmpty() && !existing.isSameItemSameComponents(stack)) return stack;
 
-        int limit = stack.getMaxStackSize() * STACK_MULTIPLIER;
+        int limit = stack.getMaxStackSize() * AnvilCraft.CONFIG.machines.largeCauldronInputStackMultiplier;
         int accepted = Math.min(stack.getCount(), limit - existing.getCount());
         if (accepted <= 0) return stack;
         if (!simulate) {
@@ -100,7 +100,8 @@ public class LargeCauldronInputHandler implements IItemHandlerModifiable, INBTSe
     public int getSlotLimit(int slot) {
         validateSlot(slot);
         UnlimitedItemStack existing = this.stacks.get(slot);
-        return (existing.isEmpty() ? 64 : existing.getStack().getMaxStackSize()) * STACK_MULTIPLIER;
+        int stackSize = existing.isEmpty() ? 64 : existing.getStack().getMaxStackSize();
+        return stackSize * AnvilCraft.CONFIG.machines.largeCauldronInputStackMultiplier;
     }
 
     @Override

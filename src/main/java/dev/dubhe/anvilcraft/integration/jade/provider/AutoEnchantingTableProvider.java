@@ -50,7 +50,7 @@ public enum AutoEnchantingTableProvider implements IBlockComponentProvider, ISer
     public void appendServerData(CompoundTag tag, BlockAccessor accessor) {
         if (!(accessor.getBlockEntity() instanceof AutoEnchantingTableBlockEntity blockEntity)) return;
         int cooldownTicks = blockEntity.getCooldownTicks();
-        int totalTicks = AnvilCraft.CONFIG.autoEnchantingTableInterval;
+        int totalTicks = AnvilCraft.CONFIG.equipment.autoEnchantingTableInterval;
         // 空闲时冷却保持在满值，写入 0 让客户端隐藏进度条（与充电器一致）
         if (cooldownTicks <= 0 || cooldownTicks >= totalTicks) {
             tag.putInt("auto_enchanting_table_cooldown_ticks", 0);

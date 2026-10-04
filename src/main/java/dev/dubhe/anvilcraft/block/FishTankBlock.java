@@ -387,7 +387,7 @@ public class FishTankBlock extends Block implements IMoveableEntityBlock, Hammer
 
     @Override
     public OptionalInt consumeOnce(BlockCache cache, BlockPos pos, boolean simulate) {
-        int amount = AnvilCraft.CONFIG.plasmaJetsFishTankConsumeAmount;
+        int amount = AnvilCraft.CONFIG.machines.plasmaJets.fishTankConsumeAmount;
         Optional<FishTankBlockEntity> beOp = Util.castSafely(cache.getBlockEntity(pos), FishTankBlockEntity.class);
         if (beOp.isEmpty()) return OptionalInt.empty();
         FishTankBlockEntity be = beOp.get();
@@ -396,6 +396,6 @@ public class FishTankBlock extends Block implements IMoveableEntityBlock, Hammer
         if (!simulate) {
             be.getFluidHandler().drain(amount, IFluidHandler.FluidAction.EXECUTE);
         }
-        return OptionalInt.of(AnvilCraft.CONFIG.plasmaJetsFishTankExtraDuration);
+        return OptionalInt.of(AnvilCraft.CONFIG.machines.plasmaJets.fishTankExtraDuration);
     }
 }

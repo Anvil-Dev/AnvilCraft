@@ -20,7 +20,7 @@ public class InvertedActionEventListener {
 
     /** 所有 BundleLike 物品共用的反转状态（与客户端配置一致）。 */
     public static boolean isInverted() {
-        return AnvilCraftClient.CONFIG.invertOverrideAction;
+        return AnvilCraftClient.CONFIG.controls.invertMouseOverrideActions;
     }
 
     /**
@@ -50,13 +50,13 @@ public class InvertedActionEventListener {
         if (connection == null) {
             return;
         }
-        boolean inverted = AnvilCraftClient.CONFIG.invertOverrideAction;
+        boolean inverted = AnvilCraftClient.CONFIG.controls.invertMouseOverrideActions;
         if (inverted != InvertedActionEventListener.lastInverted) {
             BundleLikeClientStub.updateInverted(inverted);
             InvertedActionEventListener.lastInverted = inverted;
         }
         // 流体端口的桶操作翻转在服务端执行（需真正取出流体），客户端配置要同步一份过去
-        boolean bucketInverted = AnvilCraftClient.CONFIG.invertFluidPortBucketAction;
+        boolean bucketInverted = AnvilCraftClient.CONFIG.controls.invertFluidPortBucketActions;
         if (bucketInverted != InvertedActionEventListener.lastBucketInverted) {
             StorageClientStub.updateInvertedBucketAction(bucketInverted);
             InvertedActionEventListener.lastBucketInverted = bucketInverted;

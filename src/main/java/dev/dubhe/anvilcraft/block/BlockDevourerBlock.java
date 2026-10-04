@@ -208,7 +208,9 @@ public class BlockDevourerBlock extends DirectionalBlock implements HammerRotate
                 devourCenterPos,
                 devourerDirection,
                 range,
-                AnvilCraft.CONFIG.blockDevourerUpwardChainDevouring ? AnvilCraft.CONFIG.blockDevourerUpwardChainDevouringDistance : 0
+                AnvilCraft.CONFIG.world.blockDevourerUpwardChainDevouring
+                    ? AnvilCraft.CONFIG.world.blockDevourerUpwardChainDevouringDistance
+                    : 0
         );
 
         final List<BlockPos> filteredBlockPosList = new ArrayList<>();
@@ -229,7 +231,7 @@ public class BlockDevourerBlock extends DirectionalBlock implements HammerRotate
         if (filteredBlockPosList.contains(devourBlockPos)) return;
         BlockState devourBlockState = level.getBlockState(devourBlockPos);
         if (!DevourUtil.shouldDevour(devourBlockState)) return;
-        if (AnvilCraft.CONFIG.blockDevourerProtectContainers
+        if (AnvilCraft.CONFIG.world.blockDevourerProtectContainers
             && level.getCapability(Capabilities.ItemHandler.BLOCK, devourBlockPos, null) != null) {
             return;
         }
@@ -238,7 +240,7 @@ public class BlockDevourerBlock extends DirectionalBlock implements HammerRotate
         if (
             !miningEffect.isDisintegration()
             && devourBlockState.is(ModBlockTags.BLOCK_DEVOURER_PROBABILITY_DROPPING)
-            && level.random.nextDouble() > 0.05
+            && level.random.nextDouble() > AnvilCraft.CONFIG.world.blockDevourerDropSuppressionChance
         ) {
             level.destroyBlock(devourBlockPos, false);
             return;

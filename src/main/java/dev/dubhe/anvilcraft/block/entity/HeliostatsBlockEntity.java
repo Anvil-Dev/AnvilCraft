@@ -55,12 +55,12 @@ public class HeliostatsBlockEntity extends BlockEntity {
     }
 
     private Vec3 getSurfaceVec3(Vec3 vec31, Vec3 vec32) {
-        if (vec31.hashCode() + vec32.hashCode() == surfaceVec3Hash) return surfaceVec3;
+        if (vec31.hashCode() + vec32.hashCode() == this.surfaceVec3Hash) return this.surfaceVec3;
         if (level == null || this.irritatePos == null) return vec31;
-        if (!level.getBlockState(irritatePos.north()).isAir()
-            && !level.getBlockState(irritatePos.south()).isAir()
-            && !level.getBlockState(irritatePos.east()).isAir()
-            && !level.getBlockState(irritatePos.west()).isAir()) {
+        if (!level.getBlockState(this.irritatePos.north()).isAir()
+            && !level.getBlockState(this.irritatePos.south()).isAir()
+            && !level.getBlockState(this.irritatePos.east()).isAir()
+            && !level.getBlockState(this.irritatePos.west()).isAir()) {
             return vec31.add(0, 0, 0);
         }
         Vec2 vec2 = new Vec2((float) (vec32.z - vec31.z), (float) (vec32.x - vec31.x));
@@ -76,8 +76,8 @@ public class HeliostatsBlockEntity extends BlockEntity {
         if (k * x < 0.5 && k * x > -0.5) {
             return vec31.add(k * x, 0, x);
         }
-        surfaceVec3Hash = vec31.hashCode() + vec32.hashCode();
-        surfaceVec3 = vec31;
+        this.surfaceVec3Hash = vec31.hashCode() + vec32.hashCode();
+        this.surfaceVec3 = vec31;
         return vec31;
     }
 
@@ -85,9 +85,9 @@ public class HeliostatsBlockEntity extends BlockEntity {
      * 设置照射坐标
      */
     public boolean setIrritatePos(BlockPos pos) {
-        irritatePos = pos;
+        this.irritatePos = pos;
         this.setChanged();
-        return validatePos(pos).isWorking();
+        return this.validatePos(pos).isWorking();
     }
 
     private WorkResult validatePos(@Nullable BlockPos irritatePos) {
@@ -95,7 +95,8 @@ public class HeliostatsBlockEntity extends BlockEntity {
         if (this.level == null) return WorkResult.UNKNOWN;
         if (this.level.isClientSide && Minecraft.getInstance().player == null) return WorkResult.UNKNOWN;
         if (irritatePos == null) return WorkResult.UNSPECIFIED_IRRADIATION_BLOCK;
-        if (getBlockPos().getCenter().distanceTo(irritatePos.getCenter()) > 64) {
+        int maxDistance = AnvilCraft.CONFIG.machines.heliostatsMaxIrradiationDistance;
+        if (getBlockPos().getCenter().distanceTo(irritatePos.getCenter()) > maxDistance) {
             return WorkResult.TOO_FAR;
         }
 
@@ -174,10 +175,10 @@ public class HeliostatsBlockEntity extends BlockEntity {
 
     @Override
     protected void saveAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        if (irritatePos == null) return;
-        tag.putInt("Ix", irritatePos.getX());
-        tag.putInt("Iy", irritatePos.getY());
-        tag.putInt("Iz", irritatePos.getZ());
+        if (this.irritatePos == null) return;
+        tag.putInt("Ix", this.irritatePos.getX());
+        tag.putInt("Iy", this.irritatePos.getY());
+        tag.putInt("Iz", this.irritatePos.getZ());
     }
 
     @Override
@@ -186,7 +187,7 @@ public class HeliostatsBlockEntity extends BlockEntity {
         int x = tag.getInt("Ix");
         int y = tag.getInt("Iy");
         int z = tag.getInt("Iz");
-        irritatePos = new BlockPos(x, y, z);
+        this.irritatePos = new BlockPos(x, y, z);
     }
 
     /**
@@ -194,12 +195,12 @@ public class HeliostatsBlockEntity extends BlockEntity {
      */
     public void tick() {
         if (level == null) return;
-        if (level.getGameTime() % (AnvilCraft.CONFIG.heliostatsDetectionInterval + 1) != 0) return;
-        if (irritatePos == null && level.isClientSide) {
-            PacketDistributor.sendToServer(new HeliostatsIrradiationPacket(getBlockPos(), irritatePos));
+        if (level.getGameTime() % (AnvilCraft.CONFIG.machines.heliostatsDetectionInterval + 1) != 0) return;
+        if (this.irritatePos == null && level.isClientSide) {
+            PacketDistributor.sendToServer(new HeliostatsIrradiationPacket(getBlockPos(), this.irritatePos));
         }
-        workResult = validatePos(irritatePos);
-        if (workResult.isWorking()) {
+        this.workResult = this.validatePos(this.irritatePos);
+        if (this.workResult.isWorking()) {
             HeaterManager.addProducer(getBlockPos(), Objects.requireNonNull(getLevel()), ModHeaterInfos.HELIOSTATS);
         } else {
             HeaterManager.removeProducer(getBlockPos(), Objects.requireNonNull(getLevel()), ModHeaterInfos.HELIOSTATS);

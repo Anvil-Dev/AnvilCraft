@@ -18,7 +18,7 @@ import java.util.Objects;
 
 public class EmberAnvilMenu extends AnvilMenu implements HammerOpenedAnvilMenu {
     public final AnvilMenuResult result = AnvilMenuResult.builder()
-        .allowBeyondMaxLevel(AnvilCraft.CONFIG.emberAnvilBeyondMaxLevel)
+        .allowBeyondMaxLevel(AnvilCraft.CONFIG.equipment.emberAnvilBeyondMaxLevel)
         .ignoreEnchantmentCompatible()
         .create();
     private final Inventory playerInventory;

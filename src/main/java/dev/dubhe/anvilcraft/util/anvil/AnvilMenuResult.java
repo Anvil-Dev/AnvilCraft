@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.util.anvil;
 
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.item.property.component.Multiphase;
@@ -131,9 +132,9 @@ public class AnvilMenuResult {
                 ToIntFunction<ItemStack> nextComputer;
                 if (this.allowUsingFrostMetalToRepair) {
                     if (inputRight.is(ModItems.FROST_METAL_INGOT)) {
-                        nextComputer = result1 -> 1080;
+                        nextComputer = result1 -> AnvilCraft.CONFIG.equipment.frostMetalIngotRepairAmount;
                     } else if (inputRight.is(ModItems.FROST_METAL_NUGGET)) {
-                        nextComputer = result1 -> 120;
+                        nextComputer = result1 -> AnvilCraft.CONFIG.equipment.frostMetalNuggetRepairAmount;
                     } else {
                         nextComputer = result1 -> result1.getMaxDamage() / 4;
                     }

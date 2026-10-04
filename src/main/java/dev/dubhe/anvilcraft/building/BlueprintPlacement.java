@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.building;
 
+import dev.dubhe.anvilcraft.AnvilCraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
@@ -124,11 +125,11 @@ public record BlueprintPlacement(BlockPos anchor, Rotation rotation, Mirror mirr
         long countX = Math.abs((long) last.getX() - this.anchor.getX()) / width + 1;
         long countY = Math.abs((long) last.getY() - this.anchor.getY()) / height + 1;
         long countZ = Math.abs((long) last.getZ() - this.anchor.getZ()) / depth + 1;
-        if (countX > BuildingRodService.MAX_BLOCKS || countY > BuildingRodService.MAX_BLOCKS
-            || countZ > BuildingRodService.MAX_BLOCKS) return List.of();
+        if (countX > AnvilCraft.CONFIG.equipment.buildingRodMaxBlocks || countY > AnvilCraft.CONFIG.equipment.buildingRodMaxBlocks
+            || countZ > AnvilCraft.CONFIG.equipment.buildingRodMaxBlocks) return List.of();
         long count = countX * countY * countZ;
         long entries = Math.max(1L, (long) snapshot.nonAirBlockCount() + snapshot.entities().size());
-        if (count > 1 && count * entries > BuildingRodService.MAX_BLOCKS) return List.of();
+        if (count > 1 && count * entries > AnvilCraft.CONFIG.equipment.buildingRodMaxBlocks) return List.of();
         int signX = Integer.compare(last.getX(), this.anchor.getX());
         int signY = Integer.compare(last.getY(), this.anchor.getY());
         int signZ = Integer.compare(last.getZ(), this.anchor.getZ());

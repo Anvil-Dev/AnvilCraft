@@ -22,11 +22,8 @@ import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.entity.ModEntities;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.item.WeatherproofChestplateItem;
-import dev.dubhe.anvilcraft.item.weapon.AnvilRailgunItem;
-import dev.dubhe.anvilcraft.item.weapon.CorruptedBeaconActivatorItem;
-import dev.dubhe.anvilcraft.item.weapon.LaserGunItem;
+import dev.dubhe.anvilcraft.item.weapon.EnergyWeaponItem;
 import dev.dubhe.anvilcraft.item.weapon.SpectralWeaponLauncherItem;
-import dev.dubhe.anvilcraft.item.weapon.TeslaGunItem;
 import dev.dubhe.anvilcraft.saved.storage.Storages;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.Items;
@@ -260,34 +257,34 @@ public class CapabilitiesEventListener {
 
         event.registerItem(
             Capabilities.EnergyStorage.ITEM,
-            (stack, ctx) -> new ItemFEStorage(stack, WeatherproofChestplateItem.MAX_ENERGY),
+            (stack, ctx) -> new ItemFEStorage(stack, WeatherproofChestplateItem.maxEnergy()),
             ModItems.WEATHERPROOF_SPACESUIT_CHESTPLATE.get()
         );
 
         // 武器物品注册 FE ITEM capability（电容器保留原有系统）
         event.registerItem(
             Capabilities.EnergyStorage.ITEM,
-            (stack, ctx) -> new ItemFEStorage(stack, LaserGunItem.MAX_ENERGY),
+            (stack, ctx) -> new ItemFEStorage(stack, EnergyWeaponItem.maxEnergy()),
             ModItems.LASER_GUN.get()
         );
         event.registerItem(
             Capabilities.EnergyStorage.ITEM,
-            (stack, ctx) -> new ItemFEStorage(stack, AnvilRailgunItem.MAX_ENERGY),
+            (stack, ctx) -> new ItemFEStorage(stack, EnergyWeaponItem.maxEnergy()),
             ModItems.ANVIL_RAILGUN.get()
         );
         event.registerItem(
             Capabilities.EnergyStorage.ITEM,
-            (stack, ctx) -> new ItemFEStorage(stack, CorruptedBeaconActivatorItem.MAX_ENERGY),
+            (stack, ctx) -> new ItemFEStorage(stack, EnergyWeaponItem.maxEnergy()),
             ModItems.CORRUPTED_BEACON_ACTIVATOR.get()
         );
         event.registerItem(
             Capabilities.EnergyStorage.ITEM,
-            (stack, ctx) -> new ItemFEStorage(stack, TeslaGunItem.MAX_ENERGY),
+            (stack, ctx) -> new ItemFEStorage(stack, EnergyWeaponItem.maxEnergy()),
             ModItems.TESLA_GUN.get()
         );
         event.registerItem(
             Capabilities.EnergyStorage.ITEM,
-            (stack, ctx) -> new ItemFEStorage(stack, SpectralWeaponLauncherItem.MAX_ENERGY),
+            (stack, ctx) -> new ItemFEStorage(stack, SpectralWeaponLauncherItem.maxEnergy()),
             ModItems.SPECTRAL_WEAPON_LAUNCHER.get()
         );
         // 能量武器平台（继承原电容器 320MJ=640kFE 的储存能力）

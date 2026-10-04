@@ -28,8 +28,8 @@ public class RedstoneEMPBehavior implements IAnvilBehavior {
     ) {
         if (!(level instanceof ServerLevel serverLevel)) return false;
         List<BlockPos> affectedTorches = new ArrayList<>();
-        int radius = AnvilCraft.CONFIG.redstoneEmpRadius;
-        int maxRadius = AnvilCraft.CONFIG.redstoneEmpMaxRadius;
+        int radius = AnvilCraft.CONFIG.world.redstoneEmpRadius;
+        int maxRadius = AnvilCraft.CONFIG.world.redstoneEmpMaxRadius;
         int distance = Math.min(((int) Math.ceil(fallDistance)) * radius, maxRadius);
         if (!level.getBlockState(pos.relative(Direction.EAST)).is(Blocks.IRON_TRAPDOOR)) {
             for (int x = 1; x < distance; x++) {

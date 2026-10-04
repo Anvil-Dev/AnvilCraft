@@ -27,12 +27,12 @@ public record RedstoneEmpEffectPacket(BlockPos centerPos, int radius, List<Block
 
     @Override
     public Type<RedstoneEmpEffectPacket> type() {
-        return TYPE;
+        return RedstoneEmpEffectPacket.TYPE;
     }
 
     @Override
     public void handleOnClient(Player player) {
-        if (!AnvilCraft.CLIENT_CONFIG.displayRedstoneEmpParticles) return;
+        if (!AnvilCraft.CLIENT_CONFIG.effects.displayRedstoneEmpParticles) return;
         AnvilParticleManager.redstoneEmp((ClientLevel) player.level(), this.centerPos, this.radius, this.affectedTorches);
     }
 }

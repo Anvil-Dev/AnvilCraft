@@ -77,7 +77,7 @@ public class SimpleChuteBlockEntity extends BlockEntity implements IItemHandlerH
         if (cooldown == 0) {
             for (int i = 0; i < this.itemHandler.getSlots(); i++) {
                 if (!this.itemHandler.getStackInSlot(i).isEmpty()) {
-                    cooldown = AnvilCraft.CONFIG.chuteMaxCooldown + 1;
+                    this.cooldown = AnvilCraft.CONFIG.machines.chuteMaxCooldown + 1;
                     break;
                 }
             }
@@ -162,12 +162,12 @@ public class SimpleChuteBlockEntity extends BlockEntity implements IItemHandlerH
         if (targetBE instanceof BaseChuteBlockEntity chute) {
             int k = 0;
             if (chute.getTickedGameTime() >= this.tickedGameTime) k++;
-            chute.setCooldown(AnvilCraft.CONFIG.chuteMaxCooldown - k);
+            chute.setCooldown(AnvilCraft.CONFIG.machines.chuteMaxCooldown - k);
         }
         if (targetBE instanceof SimpleChuteBlockEntity chute) {
             int k = 0;
             if (chute.getTickedGameTime() >= this.tickedGameTime) k++;
-            chute.setCooldown(AnvilCraft.CONFIG.chuteMaxCooldown - k);
+            chute.setCooldown(AnvilCraft.CONFIG.machines.chuteMaxCooldown - k);
         }
     }
 
