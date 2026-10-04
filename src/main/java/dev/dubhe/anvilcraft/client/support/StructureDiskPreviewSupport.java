@@ -119,10 +119,9 @@ public class StructureDiskPreviewSupport {
         graphics.fill(previewX - 2, previewY - 1, previewX - 1, previewY + PREVIEW_SIZE + 1, 0x505000ff);
         graphics.fill(previewX + PREVIEW_SIZE + 1, previewY - 1, previewX + PREVIEW_SIZE + 2, previewY + PREVIEW_SIZE + 1, 0x505000ff);
 
-        StructureDiskData diskData = diskStack.get(ModComponents.STRUCTURE_DISK_DATA);
         RenderSupport.renderLevelLikeAt(cache.levelLike, graphics,
             previewX + PREVIEW_SIZE / 2, previewY + PREVIEW_SIZE / 2, 60,
-            diskData == null || diskData.autoRotate() ? 2 : 0, PREVIEW_SIZE, AnvilCraftClient.CONFIG.renderScanPreviewEffect);
+            2, PREVIEW_SIZE, AnvilCraftClient.CONFIG.renderScanPreviewEffect);
     }
 
     /**
