@@ -243,8 +243,7 @@ public class ItemTagLoader {
         provider.rawBuilder(ItemTags.SWORDS)
             .addTag(ModItemTags.HEAVY_HALBERD.location());
         provider.rawBuilder(ItemTags.AXES)
-            .addTag(ModItemTags.RESONATOR.location())
-            .addTag(ModItemTags.HEAVY_HALBERD.location());
+            .addTag(ModItemTags.RESONATOR.location());
         provider.rawBuilder(ItemTags.SHOVELS)
             .addTag(ModItemTags.RESONATOR.location());
         provider.rawBuilder(ItemTags.HOES)
@@ -324,7 +323,7 @@ public class ItemTagLoader {
             .addElement(ModItems.FROST_METAL_SHOVEL.getId())
             .addElement(ModItems.FROST_METAL_HOE.getId())
             .addElement(ModItems.FROST_METAL_SWORD.getId())
-            .addElement(ModItems.FROST_METAL_HEAVY_HALBERD.getId());
+            .addTag(ModItemTags.HEAVY_HALBERD.location());
 
         provider.rawBuilder(ModItemTags.SMELTING_SUPPORTED)
             .addTag(ItemTags.MINING_LOOT_ENCHANTABLE.location())
@@ -334,7 +333,7 @@ public class ItemTagLoader {
             .addElement(ModItems.EMBER_METAL_SHOVEL.getId())
             .addElement(ModItems.EMBER_METAL_HOE.getId())
             .addElement(ModItems.EMBER_METAL_SWORD.getId())
-            .addElement(ModItems.EMBER_METAL_HEAVY_HALBERD.getId());
+            .addTag(ModItemTags.HEAVY_HALBERD.location());
 
         provider.rawBuilder(ModItemTags.AMETHYST_TOOL_MATERIALS)
             .addElement(ItemTagLoader.findId(Items.AMETHYST_SHARD));
