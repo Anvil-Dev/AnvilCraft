@@ -5,7 +5,9 @@ package dev.dubhe.anvilcraft.api.block;
  */
 public interface IVoidEnergyAmplifier {
     /**
-     * @return 计入虚空能发电机方块数量时的增幅量，可为负数
+     * 返回该方块提供的虚空能增幅量。
+     *
+     * @return 计入虚空能发电机方块数量时的增幅量，负数为增益
      */
     int getVoidEnergyAmplification();
 }
