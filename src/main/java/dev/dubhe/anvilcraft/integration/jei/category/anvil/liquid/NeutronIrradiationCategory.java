@@ -81,7 +81,8 @@ public class NeutronIrradiationCategory extends AbstractLiquidCategory<NeutronIr
         if (explosionRecipe && mouseX >= 120 && mouseX <= 156 && mouseY >= 12 && mouseY <= 48) {
             tooltip.add(Component.translatable("gui.anvilcraft.category.neutron_irradiation.explosion"));
         }
-        if (mouseX >= 72 && mouseX <= 90 && mouseY >= 34 && mouseY <= 53) {
+        super.getTooltip(tooltip, recipeHolder, recipeSlotsView, mouseX, mouseY);
+        if (this.isProcessBlockHovered(recipeHolder.value(), mouseX, mouseY)) {
             tooltip.add(ModBlocks.NEUTRON_IRRADIATOR.get().getName());
         }
     }
