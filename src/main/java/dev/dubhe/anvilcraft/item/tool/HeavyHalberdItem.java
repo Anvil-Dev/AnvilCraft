@@ -362,6 +362,7 @@ public abstract class HeavyHalberdItem extends Item implements ProjectileItem, I
         }
         HeavyHalberdMode mode = getMode(stack);
         if (mode == HeavyHalberdMode.SPEAR) {
+            updateModeComponents(stack, mode);
             return super.use(level, player, hand);
         }
         if (mode == HeavyHalberdMode.SWORD) {
@@ -475,7 +476,10 @@ public abstract class HeavyHalberdItem extends Item implements ProjectileItem, I
     }
 
     public static boolean isEnchantmentActive(ItemStack stack, Holder<Enchantment> enchantment) {
-        return stack.is(enchantment.value().definition().supportedItems());
+        HolderSet<Item> supportedItems = enchantment.value().definition().supportedItems();
+        return supportedItems.unwrapKey()
+            .map(tag -> HeavyHalberdHolder.isModeEnabled(getMode(stack), tag) && stack.is(tag))
+            .orElseGet(() -> stack.is(supportedItems));
     }
 
     public static class HeavyHalberdHolder extends Holder.Reference<Item> {
