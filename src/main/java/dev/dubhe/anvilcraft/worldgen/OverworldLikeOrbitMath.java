@@ -7,6 +7,8 @@ public final class OverworldLikeOrbitMath {
     private static final double DEGREES_PER_TICK_4 = 0.012D;
     private static final double DEGREES_PER_TICK_5 = -0.008D;
     private static final double DEGREES_PER_TICK_6 = 0.005D;
+    // Common multiple of the 30,000, 45,000 and 72,000 tick rotation periods.
+    private static final long ORBIT_PERIOD_TICKS = 360000L;
     private static final double THICKNESS_4 = 1.55D;
     private static final double THICKNESS_5 = 1.25D;
     private static final double THICKNESS_6 = 1.05D;
@@ -19,7 +21,8 @@ public final class OverworldLikeOrbitMath {
     }
 
     public static RingPose ringPose(int ring, long gameTime, float partialTick, long orbitEpochGameTime, long visualSeed) {
-        double elapsed = gameTime + partialTick - orbitEpochGameTime;
+        double elapsed = Math.floorMod(gameTime, ORBIT_PERIOD_TICKS)
+            - Math.floorMod(orbitEpochGameTime, ORBIT_PERIOD_TICKS) + (double) partialTick;
         double phase4 = phase(4, elapsed, visualSeed);
         double phase5 = phase(5, elapsed, visualSeed);
         double phase6 = phase(6, elapsed, visualSeed);
