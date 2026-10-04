@@ -258,7 +258,7 @@ public abstract class AbstractLiquidReactionCategory implements IRecipeCategory<
         RenderSupport.renderBlockAt(guiGraphics, this.giantAnvil, 81, 23 + anvilYOffset, MODEL_SCALE);
     }
 
-    protected static SlotPosition inputPosition(int count, int index) {
+    public static SlotPosition inputPosition(int count, int index) {
         if (count == 1) return new SlotPosition(15, 23);
         if (count == 2) return new SlotPosition(6 + index * 19, 23);
         if (count == 3) {
@@ -269,11 +269,11 @@ public abstract class AbstractLiquidReactionCategory implements IRecipeCategory<
         return new SlotPosition(6 + index % 2 * 19, 14 + index / 2 * 19);
     }
 
-    protected static SlotPosition itemOutputPosition(int count, int index, boolean splitColumns) {
+    public static SlotPosition itemOutputPosition(int count, int index, boolean splitColumns) {
         return new SlotPosition(splitColumns ? 119 : 129, outputRow(count, index));
     }
 
-    protected static SlotPosition fluidOutputPosition(int count, int index, boolean splitColumns) {
+    public static SlotPosition fluidOutputPosition(int count, int index, boolean splitColumns) {
         return new SlotPosition(splitColumns ? 138 : 129, outputRow(count, index));
     }
 
