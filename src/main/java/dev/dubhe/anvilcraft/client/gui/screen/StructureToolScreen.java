@@ -170,15 +170,18 @@ public class StructureToolScreen extends AbstractContainerScreen<StructureToolMe
                     return;
                 }
                 Path path = Paths.get(pathString);
-                JsonElement json = Recipe.CODEC.encodeStart(JsonOps.INSTANCE, recipe).getOrThrow();
                 try {
+                    JsonElement json = Recipe.CODEC.encodeStart(
+                        this.minecraft.level.registryAccess().createSerializationContext(JsonOps.INSTANCE), recipe
+                    ).getOrThrow(IOException::new);
                     String jsonString = AnvilCraft.GSON.toJson(json);
                     Files.writeString(
                         path,
                         jsonString,
                         StandardCharsets.UTF_8,
                         StandardOpenOption.CREATE,
-                        StandardOpenOption.WRITE
+                        StandardOpenOption.WRITE,
+                        StandardOpenOption.TRUNCATE_EXISTING
                     );
                     this.minecraft.player.sendSystemMessage(
                         Component.translatable("message.anvilcraft.file_saved", pathString)
