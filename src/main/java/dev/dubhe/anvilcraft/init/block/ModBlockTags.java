@@ -28,6 +28,7 @@ public class ModBlockTags {
     public static final TagKey<Block> LASER_CAN_PASS_THROUGH = bind("laser_can_pass_though");
     public static final TagKey<Block> END_PORTAL_UNABLE_CHANGE = bind("end_portal_unable_change");
     public static final TagKey<Block> NEUTRONIUM_CANNOT_PASS_THROUGH = bind("neutronium_cannot_pass_through");
+    public static final TagKey<Block> CONTAINS_VOID_ENERGY = bind("contains_void_energy");
     public static final TagKey<Block> VOID_DECAY_PRODUCTS = bind("void_decay_products");
     public static final TagKey<Block> CRAFTING_MATRIX_ELEMENT = bind("crafting_matrix_element");
     public static final TagKey<Block> SPECTRAL_CAN_THROUGH = bind("spectral_can_through");

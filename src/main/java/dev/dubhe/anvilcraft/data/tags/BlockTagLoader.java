@@ -169,6 +169,10 @@ public class BlockTagLoader {
             .add(ModBlocks.END_DUST.getKey())
             .add(ModBlocks.NEGATIVE_MATTER_BLOCK.getKey());
 
+        provider.addTag(ModBlockTags.CONTAINS_VOID_ENERGY)
+            .add(ModBlocks.VOID_MATTER_BLOCK.getKey())
+            .add(ModBlocks.VOID_ENERGY_COLLECTOR.getKey());
+
         provider.addTag(ModBlockTags.VOID_DECAY_PRODUCTS)
             .add(ModBlocks.FLINT_BLOCK.getKey())
             .add(findResourceKey(Blocks.STONE))
