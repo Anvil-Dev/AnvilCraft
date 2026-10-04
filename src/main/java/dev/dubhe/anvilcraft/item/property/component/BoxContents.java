@@ -97,7 +97,7 @@ public record BoxContents(List<ItemStack> amulets, List<ItemStack> totems, int s
                 int weight = stack.getOrDefault(ModComponents.AMULET_WEIGHT, 0);
                 if (this.usage + weight > BoxContents.CAPACITY) return Optional.empty();
                 for (ItemStack exist : this.amulets) {
-                    if (exist.getOrDefault(ModComponents.AMULET_WEIGHT, 0) > 6) return Optional.empty();
+                    if (weight > 6 || exist.getOrDefault(ModComponents.AMULET_WEIGHT, 0) > 6) return Optional.empty();
                 }
                 this.usage += weight;
                 this.amulets.add(stack.split(1));
