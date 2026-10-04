@@ -6,6 +6,7 @@ import dev.anvilcraft.lib.v2.registrum.util.CreativeModeTabModifier;
 import dev.anvilcraft.lib.v2.registrum.util.entry.ItemEntry;
 import dev.anvilcraft.lib.v2.util.nullness.NonNullBiConsumer;
 import dev.anvilcraft.lib.v2.util.nullness.NonNullConsumer;
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.amulet.Amulet;
 import dev.dubhe.anvilcraft.block.item.CheckValveItem;
 import dev.dubhe.anvilcraft.block.state.Color;
@@ -133,6 +134,7 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.component.predicates.DataComponentPredicate;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
@@ -154,6 +156,7 @@ import net.minecraft.world.item.equipment.ArmorType;
 import net.minecraft.world.item.equipment.Equippable;
 import net.minecraft.world.level.ItemLike;
 import net.neoforged.neoforge.common.Tags;
+import net.neoforged.neoforge.registries.RegisterEvent;
 
 import java.util.Optional;
 import java.util.function.Function;
@@ -1292,10 +1295,6 @@ public class ModItems {
         .tag(ModItemTags.PLUTONIUM_INGOTS, Tags.Items.INGOTS, ModItemTags.RADIATIONS, ItemTags.BEACON_PAYMENT_ITEMS)
         .recipe(RegistrumItemRecipeLoader::plutoniumIngot)
         .register();
-    public static final ItemEntry<Item> COPPER_NUGGET = REGISTRUM.item("copper_nugget", Item::new)
-        .tag(ModItemTags.COPPER_NUGGETS, Tags.Items.NUGGETS)
-        .recipe(RegistrumItemRecipeLoader::copperNugget)
-        .register();
 
     public static final ItemEntry<Item> BRONZE_INGOT = REGISTRUM.item("bronze_ingot", Item::new)
         .tag(ModItemTags.BRONZE_INGOTS, Tags.Items.INGOTS, ItemTags.BEACON_PAYMENT_ITEMS)
@@ -1643,6 +1642,12 @@ public class ModItems {
         .register();
 
     public static void register() {
+    }
+
+    public static void registerAliases(RegisterEvent event) {
+        if (event.getRegistryKey().equals(Registries.ITEM)) {
+            event.getRegistry().addAlias(AnvilCraft.of("copper_nugget"), BuiltInRegistries.ITEM.getKey(Items.COPPER_NUGGET));
+        }
     }
 
     public static ItemStackTemplate enchanted(

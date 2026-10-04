@@ -159,6 +159,7 @@ public class AnvilCraft {
         eventBus.addListener(AnvilCraft::loadComplete);
         eventBus.addListener(ModFluids::registerFluidInteractions);
         eventBus.addListener(ModFluids::registerVanilla);
+        eventBus.addListener(ModItems::registerAliases);
     }
 
     public static Identifier of(String path) {

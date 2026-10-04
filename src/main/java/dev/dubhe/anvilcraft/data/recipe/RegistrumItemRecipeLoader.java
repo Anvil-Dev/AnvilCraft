@@ -1256,18 +1256,6 @@ public class RegistrumItemRecipeLoader {
             .save(provider, AnvilCraft.recipe(BuiltInRegistries.ITEM.getKey(ctx.get()).getPath() + "_from_nuggets"));
     }
 
-    public static <T extends Item> void copperNugget(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
-        HolderGetter<Item> lookup = provider.getItems();
-        ShapelessRecipeBuilder.shapeless(lookup, RecipeCategory.MISC, ctx.get(), 9)
-            .requires(Ingredient.of(Items.COPPER_INGOT))
-            .unlockedBy(AnvilCraftDatagen.hasItem(Items.COPPER_INGOT), AnvilCraftDatagen.has(lookup, Items.COPPER_INGOT))
-            .save(provider);
-        ShapelessRecipeBuilder.shapeless(lookup, RecipeCategory.MISC, Items.COPPER_INGOT)
-            .requires(ctx.get(), 9)
-            .unlockedBy(AnvilCraftDatagen.hasItem(ctx.get()), AnvilCraftDatagen.has(lookup, ctx.get()))
-            .save(provider, AnvilCraft.recipe("copper_ingot_from_nugget"));
-    }
-
     public static <T extends Item> void bronzeIngot(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
         HolderGetter<Item> lookup = provider.getItems();
         ShapelessRecipeBuilder.shapeless(lookup, RecipeCategory.MISC, ctx.get(), 9)

@@ -26,7 +26,7 @@ public class MeshRecipeLoader {
             .requires(Items.RED_SAND)
             .result(Items.RED_SAND, 0.5F)
             .result(Items.GLOWSTONE_DUST, 0.1F)
-            .result(ModItems.COPPER_NUGGET, 0.2F)
+            .result(Items.COPPER_NUGGET, 0.2F)
             .save(provider);
 
         MeshRecipe.builder()
