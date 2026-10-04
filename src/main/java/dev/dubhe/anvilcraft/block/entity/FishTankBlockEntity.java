@@ -19,7 +19,6 @@ import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.block.ModFluidTags;
 import dev.dubhe.anvilcraft.init.block.ModFluids;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
-import dev.dubhe.anvilcraft.mixin.accessor.StacksResourceHandlerAccessor;
 import dev.dubhe.anvilcraft.util.AnvilUtil;
 import dev.dubhe.anvilcraft.util.EntityUtil;
 import dev.dubhe.anvilcraft.util.FireReforgingUtil;
@@ -208,39 +207,16 @@ public class FishTankBlockEntity extends BlockEntity implements IItemResourceHan
         public int insert(int index, ItemResource resource, int amount, TransactionContext transaction) {
             Objects.checkIndex(index, this.size());
             TransferPreconditions.checkNonEmptyNonNegative(resource, amount);
-
-            int currentAmount = this.getAmountAsInt(index);
-
-            if ((currentAmount == 0 || resource.equals(this.getResource(index))) && this.isValid(index, resource)) {
-                int inserted = Math.min(amount, this.getCapacityAsInt(index, resource) - currentAmount);
-
-                if (inserted > 0) {
-                    Util.<StacksResourceHandlerAccessor>cast(this).getSnapshotJournals().get(index).updateSnapshots(transaction);
-                    this.set(index, resource, currentAmount + inserted);
-                    return inserted;
-                }
-            }
-
-            return 0;
+            return index < 8 ? 0 : FishTankBlockEntity.this.input.insert(index - 8, resource, amount, transaction);
         }
 
         @Override
         public int extract(int index, ItemResource resource, int amount, TransactionContext transaction) {
             Objects.checkIndex(index, this.size());
             TransferPreconditions.checkNonEmptyNonNegative(resource, amount);
-
-            if (resource.equals(this.getResource(index))) {
-                int currentAmount = this.getAmountAsInt(index);
-                int extracted = Math.min(amount, currentAmount);
-
-                if (extracted > 0) {
-                    Util.<StacksResourceHandlerAccessor>cast(this).getSnapshotJournals().get(index).updateSnapshots(transaction);
-                    this.set(index, resource, currentAmount - extracted);
-                    return extracted;
-                }
-            }
-
-            return 0;
+            return index < 8
+                ? FishTankBlockEntity.this.output.extract(index, resource, amount, transaction)
+                : FishTankBlockEntity.this.input.extract(index - 8, resource, amount, transaction);
         }
     };
     private final PollableItemHandler input = new PollableItemHandler(8) {
