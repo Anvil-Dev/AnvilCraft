@@ -161,6 +161,10 @@ public class BlockTagLoader {
             .addElement(ModBlocks.NEGATIVE_MATTER_BLOCK.getId())
             .addElement(ModBlocks.NEUTRON_IRRADIATOR.getId());
 
+        provider.rawBuilder(ModBlockTags.CONTAINS_VOID_ENERGY)
+            .addElement(ModBlocks.VOID_MATTER_BLOCK.getId())
+            .addElement(ModBlocks.VOID_ENERGY_COLLECTOR.getId());
+
         provider.rawBuilder(ModBlockTags.VOID_DECAY_PRODUCTS)
             .addElement(BlockTagLoader.findId(Blocks.STONE))
             .addElement(BlockTagLoader.findId(Blocks.DEEPSLATE))

@@ -1,12 +1,13 @@
 package dev.dubhe.anvilcraft.block.entity;
 
+import dev.dubhe.anvilcraft.api.block.IVoidEnergyAmplifier;
 import dev.dubhe.anvilcraft.api.power.IPowerProducer;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
 import dev.dubhe.anvilcraft.api.tooltip.providers.IHasAffectRange;
 import dev.dubhe.anvilcraft.block.power.generator.VoidEnergyCollectorBlock;
-import dev.dubhe.anvilcraft.block.storage.NegativeMatterBlock;
 import dev.dubhe.anvilcraft.block.storage.VoidMatterBlock;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
+import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import dev.dubhe.anvilcraft.util.TriggerUtil;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
@@ -168,12 +169,10 @@ public class VoidEnergyCollectorBlockEntity extends BlockEntity implements IPowe
                     mpos.set(this.getBlockPos()).move(i, j, k);
                     if (this.level.isOutsideBuildHeight(mpos)) continue;
                     BlockState blockState = this.level.getBlockState(mpos);
-                    if (blockState.getBlock() instanceof NegativeMatterBlock) count -= 1;
-                    else if (
-                        !blockState.isAir()
-                        && !(blockState.getBlock() instanceof VoidMatterBlock)
-                        && !(blockState.getBlock() instanceof VoidEnergyCollectorBlock)
-                    ) {
+                    if (blockState.is(ModBlockTags.CONTAINS_VOID_ENERGY)) continue;
+                    if (blockState.getBlock() instanceof IVoidEnergyAmplifier amplifier) {
+                        count += amplifier.getVoidEnergyAmplification();
+                    } else if (!blockState.isAir()) {
                         count += 1;
                     }
                 }
