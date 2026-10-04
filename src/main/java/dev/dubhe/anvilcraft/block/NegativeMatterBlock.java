@@ -1,10 +1,16 @@
 package dev.dubhe.anvilcraft.block;
 
 import dev.dubhe.anvilcraft.api.block.INegativeMatterBlock;
+import dev.dubhe.anvilcraft.api.block.IVoidEnergyAmplifier;
 import net.minecraft.world.level.block.Block;
 
-public class NegativeMatterBlock extends Block implements INegativeMatterBlock {
+public class NegativeMatterBlock extends Block implements INegativeMatterBlock, IVoidEnergyAmplifier {
     public NegativeMatterBlock(Properties properties) {
         super(properties);
+    }
+
+    @Override
+    public int getVoidEnergyAmplification() {
+        return -1;
     }
 }
