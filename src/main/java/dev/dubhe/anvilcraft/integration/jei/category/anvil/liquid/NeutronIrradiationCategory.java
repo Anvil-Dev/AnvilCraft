@@ -77,6 +77,7 @@ public class NeutronIrradiationCategory extends AbstractLiquidCategory<NeutronIr
         double mouseX,
         double mouseY
     ) {
+        super.getTooltip(tooltip, recipeHolder, recipeSlotsView, mouseX, mouseY);
         if (NeutronIrradiationCategory.isExplosionRecipe(recipeHolder)
             && mouseX >= 120 && mouseX <= 156
             && mouseY >= 12 && mouseY <= 48) {
