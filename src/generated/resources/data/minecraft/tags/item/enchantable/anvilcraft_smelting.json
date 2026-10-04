@@ -7,6 +7,6 @@
     "anvilcraft:ember_metal_shovel",
     "anvilcraft:ember_metal_hoe",
     "anvilcraft:ember_metal_sword",
-    "anvilcraft:ember_metal_heavy_halberd"
+    "#anvilcraft:tools/heavy_halberd"
   ]
 }
