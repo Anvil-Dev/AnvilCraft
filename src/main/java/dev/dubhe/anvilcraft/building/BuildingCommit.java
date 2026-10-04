@@ -17,6 +17,7 @@ import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.chunk.LevelChunkSection;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
+import net.minecraft.world.level.lighting.LightEngine;
 
 import java.util.List;
 import java.util.Map;
@@ -134,6 +135,7 @@ public final class BuildingCommit {
             RedstoneWireNetworkManager.wireRemoved(level, pos);
         }
         LevelChunkSection section = chunk.getSection(chunk.getSectionIndex(pos.getY()));
+        final boolean wasEmpty = section.hasOnlyAir();
         int localX = pos.getX() & 15;
         int localY = pos.getY() & 15;
         int localZ = pos.getZ() & 15;
@@ -146,6 +148,13 @@ public final class BuildingCommit {
             .update(localX, pos.getY(), localZ, state);
         chunk.getOrCreateHeightmapUnprimed(Heightmap.Types.OCEAN_FLOOR).update(localX, pos.getY(), localZ, state);
         chunk.getOrCreateHeightmapUnprimed(Heightmap.Types.WORLD_SURFACE).update(localX, pos.getY(), localZ, state);
+        boolean isEmpty = section.hasOnlyAir();
+        if (wasEmpty != isEmpty) {
+            level.getChunkSource().getLightEngine().updateSectionStatus(pos, isEmpty);
+        }
+        if (LightEngine.hasDifferentLightProperties(chunk, pos, previous, state)) {
+            chunk.getSkyLightSources().update(chunk, localX, pos.getY(), localZ);
+        }
         if (state.hasBlockEntity() && chunk.getBlockEntity(pos) == null && state.getBlock() instanceof EntityBlock entityBlock) {
             BlockEntity created = entityBlock.newBlockEntity(pos, state);
             if (created != null) {
