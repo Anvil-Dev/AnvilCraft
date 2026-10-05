@@ -1671,6 +1671,7 @@ public class ModBlocks {
         .recipe(RegistrumBlockRecipeLoader::blockPlacer)
         .register();
 
+    @SuppressWarnings("Convert2Lambda")
     public static final BlockEntry<SmartBlockPlacerBlock> SMART_BLOCK_PLACER = REGISTRUM
         .block("smart_block_placer", SmartBlockPlacerBlock::new)
         .initialProperties(() -> Blocks.IRON_BLOCK)
@@ -1702,9 +1703,15 @@ public class ModBlocks {
         })
         .item(SmartBlockPlacerBlockItem::new)
         .transform(PropertiesProviderUtil::blockItem)
-        .model(() -> (ctx, generator) -> generator.itemModelOutput.accept(
-            ctx.get(), new SmartBlockPlacerItemModel.Unbaked(ctx.getId().withPrefix("block/")),
-            new ClientItem.Properties(true, true, 1.0F)))
+        .model(() -> new NonNullBiConsumer<>() {
+            @Override
+            public void accept(DataGenContext<Item, SmartBlockPlacerBlockItem> ctx, RegistrumItemModelGenerator generator) {
+                generator.itemModelOutput.accept(
+                    ctx.get(), new SmartBlockPlacerItemModel.Unbaked(ctx.getId().withPrefix("block/")),
+                    new ClientItem.Properties(true, true, 1.0F)
+                );
+            }
+        })
         .build()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .recipe(RegistrumBlockRecipeLoader::smartBlockPlacer)
