@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.init.item.tabs;
 
 import dev.dubhe.anvilcraft.init.item.ModFoodItems;
 import dev.dubhe.anvilcraft.init.item.ModItems;
+import net.minecraft.world.item.Items;
 
 public class Ingredients extends DisplayItemsGenerator {
     @Override
@@ -43,7 +44,7 @@ public class Ingredients extends DisplayItemsGenerator {
         this.plain(ModItems.PLUTONIUM_NUGGET);
         this.plain(ModItems.BRONZE_NUGGET);
         this.plain(ModItems.BRASS_NUGGET);
-        this.plain(ModItems.COPPER_NUGGET);
+        this.plain(Items.COPPER_NUGGET);
         this.plain(ModItems.ROYAL_STEEL_NUGGET);
         this.plain(ModItems.FROST_METAL_NUGGET);
         this.plain(ModItems.EMBER_METAL_NUGGET);

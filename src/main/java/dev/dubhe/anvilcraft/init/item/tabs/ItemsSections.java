@@ -197,7 +197,7 @@ public class ItemsSections extends DisplayItemsGenerator {
                 content.accept(ModItems.TUNGSTEN_NUGGET);
                 content.accept(ModItems.BRONZE_NUGGET);
                 content.accept(ModItems.BRASS_NUGGET);
-                content.accept(ModItems.COPPER_NUGGET);
+                content.accept(Items.COPPER_NUGGET);
                 content.accept(ModItems.ROYAL_STEEL_NUGGET);
                 content.accept(ModItems.FROST_METAL_NUGGET);
                 content.accept(ModItems.EMBER_METAL_NUGGET);

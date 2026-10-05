@@ -26,7 +26,7 @@ items:
 <item id="anvilcraft:tin_nugget"/>
 <item id="anvilcraft:lead_nugget"/>
 <item id="anvilcraft:silver_nugget"/>
-<item id="anvilcraft:copper_nugget"/>
+<item id="minecraft:copper_nugget"/>
 <item id="minecraft:iron_nugget"/>
 <item id="minecraft:gold_nugget"/>
 </row>
