@@ -64,6 +64,14 @@ public class SuperHeatingRecipe extends AbstractProcessRecipe<SuperHeatingRecipe
     }
 
     @Override
+    public int priority() {
+        if (!this.hasRoyalPreference) return super.priority();
+        return super.priority() + this.getInputItems().stream()
+            .mapToInt(ingredient -> ingredient.count() - 1)
+            .sum();
+    }
+
+    @Override
     public ItemStack assemble(InWorldRecipeContext context, HolderLookup.Provider registries) {
         if (hasRoyalPreference) {
             context.put(RoyalPreferenceOutcome.IS_ROYAL_STEEL_RECIPE, true);
