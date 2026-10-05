@@ -823,7 +823,7 @@ public abstract class AbstractProcessRecipe<T extends InWorldRecipe> extends InW
          */
         private int getPriority() {
             if (this.priority != null) return this.priority;
-            return (this.inputItems == null ? 0 : this.inputItems.size())
+            return (this.inputItems == null ? 0 : this.inputItems.stream().mapToInt(ItemIngredientPredicate::count).sum())
                    + this.catalysts.size()
                    + (this.resultItems == null ? 0 : this.resultItems.size())
                    + (this.inputBlocks == null ? 0 : this.inputBlocks.size() * 100)
