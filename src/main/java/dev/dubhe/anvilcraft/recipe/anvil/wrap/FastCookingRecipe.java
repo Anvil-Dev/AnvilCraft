@@ -5,6 +5,8 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.anvilcraft.lib.v2.util.predicate.BlockStatePredicate;
 import dev.anvilcraft.lib.v2.util.predicate.ChanceItemStack;
 import dev.anvilcraft.lib.v2.util.predicate.ItemIngredientPredicate;
+import dev.dubhe.anvilcraft.block.workstation.BurningHeaterBlock;
+import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeSerializers;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.recipe.anvil.util.WrapUtils;
@@ -68,8 +70,10 @@ public class FastCookingRecipe extends AbstractProcessRecipe<FastCookingRecipe> 
                 .setBlockInputOffset(new Vec3i(0, -2, 0))
                 .setInputBlocks(
                     BlockStatePredicate.builder()
-                        .of(Blocks.CAMPFIRE)
+                        .of(Blocks.CAMPFIRE, ModBlocks.BURNING_HEATER.get())
                         .with(CampfireBlock.LIT, true)
+                        .or()
+                        .with(BurningHeaterBlock.LEVEL, 1)
                         .build()
                 )
         );
