@@ -248,6 +248,7 @@ import dev.dubhe.anvilcraft.client.renderer.item.CreativeFluidTankItemRenderer;
 import dev.dubhe.anvilcraft.client.renderer.item.FluidTankItemRenderer;
 import dev.dubhe.anvilcraft.client.renderer.item.LargeFluidTankItemRenderer;
 import dev.dubhe.anvilcraft.client.renderer.item.MonolithItemRenderer;
+import dev.dubhe.anvilcraft.client.renderer.item.SmartBlockPlacerItemModel;
 import dev.dubhe.anvilcraft.client.renderer.item.StorageFluidPortItemRenderer;
 import dev.dubhe.anvilcraft.client.renderer.item.StoragePortItemRenderer;
 import dev.dubhe.anvilcraft.data.generator.RedstoneWireBlockStateGenerator;
@@ -1701,7 +1702,9 @@ public class ModBlocks {
         })
         .item(SmartBlockPlacerBlockItem::new)
         .transform(PropertiesProviderUtil::blockItem)
-        .model(DataGenUtil::oversizedItem)
+        .model(() -> (ctx, generator) -> generator.itemModelOutput.accept(
+            ctx.get(), new SmartBlockPlacerItemModel.Unbaked(ctx.getId().withPrefix("block/")),
+            new ClientItem.Properties(true, true, 1.0F)))
         .build()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .recipe(RegistrumBlockRecipeLoader::smartBlockPlacer)

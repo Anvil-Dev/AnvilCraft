@@ -30,6 +30,7 @@ import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemDisplayContext;
@@ -331,6 +332,19 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
             (key, modelPose) -> state.models.get(key).submitModel(
                 ModRenderTypes.CUTOUT_BLOCK, modelPose, collector, state.lightCoords, OverlayTexture.NO_OVERLAY, 0),
             () -> this.submitHeldContent(state, pose, collector, camera));
+        pose.popPose();
+    }
+
+    public void collectDancingModels(double renderTick, PoseStack pose, ModelConsumer consumer) {
+        float lowerArmAngle = Mth.lerp((Mth.sin((float) (renderTick / 4 % (2 * Math.PI))) + 1) / 2, -45, 15);
+        float upperArmAngle = Mth.lerp((Mth.sin((float) (renderTick / 8 % (2 * Math.PI))) + 1) / 4, -45, 95);
+        // Create's dancing angles, adjusted for the baked 22.5-degree forearm and claw rest poses.
+        ArmRenderState state = new ArmRenderState(
+            (float) (renderTick * 10 % 360), lowerArmAngle, upperArmAngle + 22.5f, -lowerArmAngle + 22.5f, 0, false
+        );
+        pose.pushPose();
+        this.applyBaseTransform(pose, Direction.NORTH, false);
+        this.visitArmModels(pose, false, state, consumer, () -> {});
         pose.popPose();
     }
 
