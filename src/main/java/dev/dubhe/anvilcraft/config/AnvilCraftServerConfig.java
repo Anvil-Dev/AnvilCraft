@@ -126,7 +126,7 @@ public class AnvilCraftServerConfig {
 
     @Comment("The maximum number of logs that can be cut per level of Felling enchantment")
     @BoundedDiscrete(max = 24, min = 2)
-    public int fellingBlockPerLevel = 2;
+    public int fellingBlockPerLevel = 4;
 
     @Comment("Maximum cooldown of load monitor")
     @BoundedDiscrete(max = 60, min = 1)
