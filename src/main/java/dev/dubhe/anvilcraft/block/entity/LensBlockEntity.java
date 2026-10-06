@@ -72,6 +72,9 @@ public class LensBlockEntity extends BaseLaserBlockEntity {
             this.enabled = true;
             if (this.emittingDirection == previousDirection) break;
         }
+        if (!this.enabled && !this.irradiateSelfLaserBlockSet.isEmpty()) {
+            this.resetLaserStateAfterMove();
+        }
     }
 
     @Override
