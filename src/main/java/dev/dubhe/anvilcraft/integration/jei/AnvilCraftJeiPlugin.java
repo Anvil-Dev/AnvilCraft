@@ -281,6 +281,8 @@ public class AnvilCraftJeiPlugin implements IModPlugin {
         IJeiHelpers jeiHelpers = registration.getJeiHelpers();
         IGuiHelper guiHelper = jeiHelpers.getGuiHelper();
 
+        // JEI 重载（退出存档后再次进入）会复用插件实例，不清空会重复注册炼药锅类分类。
+        this.liquidCategories.clear();
         registration.addRecipeCategories(new MeshRecipeCategory(guiHelper));
         registration.addRecipeCategories(new BlockCompressCategory(guiHelper));
         registration.addRecipeCategories(new BlockCrushCategory(guiHelper));
