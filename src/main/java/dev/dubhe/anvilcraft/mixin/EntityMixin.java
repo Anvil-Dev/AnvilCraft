@@ -231,10 +231,11 @@ public abstract class EntityMixin implements IEntityExtension {
     public void anvilcraft$cancelCollisionBySable(MoverType type, Vec3 pos, CallbackInfo ci) {
         // Sable 的 mixin 执行其碰撞逻辑后，在 setOnGroundWithMovement 方法被调用前覆盖了 horizontalCollision 字段
         // 铁砧在被加速环控制时，此字段会影响铁砧碰撞结果，因此此处重新将其覆盖回去
-        if (!CompatUtil.HAS_SABLE.get())
+        if (!CompatUtil.HAS_SABLE.get()) {
             return;
-        if (anvil$isMovementFixed) {
-            horizontalCollision = false;
+        }
+        if (this.anvil$isMovementFixed) {
+            this.horizontalCollision = false;
         }
     }
 
