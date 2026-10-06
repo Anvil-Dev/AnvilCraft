@@ -50,8 +50,9 @@ public final class FluidNetworkManager {
         List<FluidPipeNetwork> networks = new ArrayList<>();
         final Map<BlockPos, FluidPipeNetwork> partIndex = new HashMap<>();
         boolean dirty = true;
-        /** 方块实体刚加载时，等待其首次 tick 刷新能力后再重建网络。 */
-        boolean deferRebuild;
+        /** 候选位置分批等待一轮，避免持续加载阻塞已有网络。 */
+        final Set<BlockPos> pendingContainers = new HashSet<>();
+        Set<BlockPos> readyContainers = new HashSet<>();
     }
 
     private LevelData data(Level level) {
@@ -66,6 +67,8 @@ public final class FluidNetworkManager {
             return;
         }
         LevelData d = this.data(level);
+        d.pendingContainers.remove(pos);
+        d.readyContainers.remove(pos);
         d.containers.add(pos.immutable());
         d.dirty = true;
     }
@@ -80,8 +83,9 @@ public final class FluidNetworkManager {
         if (level.isClientSide()) {
             return;
         }
-        this.addContainer(level, pos);
-        this.data(level).deferRebuild = true;
+        LevelData d = this.data(level);
+        d.readyContainers.remove(pos);
+        d.pendingContainers.add(pos.immutable());
     }
 
     /** 容器移除时注销。 */
@@ -91,6 +95,8 @@ public final class FluidNetworkManager {
         }
         LevelData d = this.byLevel.get(level);
         if (d != null) {
+            d.pendingContainers.remove(pos);
+            d.readyContainers.remove(pos);
             d.containers.remove(pos);
             d.dirty = true;
         }
@@ -211,11 +217,8 @@ public final class FluidNetworkManager {
         if (!level.tickRateManager().runsNormally()) {
             return;
         }
+        this.registerLoadedContainers(level, d);
         if (d.dirty) {
-            if (d.deferRebuild) {
-                d.deferRebuild = false;
-                return;
-            }
             this.rebuild(level, d);
             d.dirty = false;
         }
@@ -227,6 +230,20 @@ public final class FluidNetworkManager {
             }
             network.tick();
             network.updateIdle();
+        }
+    }
+
+    private void registerLoadedContainers(Level level, LevelData d) {
+        Set<BlockPos> candidates = d.readyContainers;
+        d.readyContainers = new HashSet<>(d.pendingContainers);
+        d.pendingContainers.clear();
+        for (BlockPos pos : candidates) {
+            if (level.isLoaded(pos)
+                && !FluidNetworkScanner.isPipePart(level.getBlockState(pos))
+                && FluidNetworkScanner.isContainer(level, pos)
+                && d.containers.add(pos)) {
+                d.dirty = true;
+            }
         }
     }
 
