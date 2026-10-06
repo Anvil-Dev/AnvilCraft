@@ -24,7 +24,9 @@ import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.TransferPreconditions;
 import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -36,6 +38,14 @@ import java.util.Set;
 public class SimpleMagneticChuteBlockEntity extends BlockEntity implements IItemResourceHandlerHolder {
     private static final int EJECTED_ITEM_TRACK_TICKS = 20;
     private final SingleStackResourceHandler itemHandler = new SingleStackResourceHandler() {
+        @Override
+        public int insert(int index, ItemResource resource, int amount, TransactionContext transaction) {
+            Objects.checkIndex(index, this.size());
+            TransferPreconditions.checkNonEmptyNonNegative(resource, amount);
+            if (!this.getStack().isEmpty()) return 0;
+            return super.insert(index, resource, amount, transaction);
+        }
+
         @Override
         protected void onContentChanged(ItemStack stack) {
             SimpleMagneticChuteBlockEntity.this.setChanged();

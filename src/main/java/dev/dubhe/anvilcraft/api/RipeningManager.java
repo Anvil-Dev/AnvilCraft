@@ -5,7 +5,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.BonemealableBlock;
@@ -49,7 +48,6 @@ public class RipeningManager {
                 && !(growable instanceof GrassBlock)
                 && !(growable instanceof NyliumBlock)
                 && growable.isValidBonemealTarget(this.level, plantPos, state)
-                && this.level.getBrightness(LightLayer.BLOCK, plantPos) >= 10
             ) {
                 growable.performBonemeal((ServerLevel) this.level, this.level.getRandom(), plantPos, state);
                 this.level.addParticle(

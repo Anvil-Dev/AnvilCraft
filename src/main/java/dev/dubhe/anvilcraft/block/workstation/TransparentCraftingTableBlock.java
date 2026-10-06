@@ -58,7 +58,7 @@ public class TransparentCraftingTableBlock extends TransparentBlock implements I
         if (stack.is(ModBlocks.TRANSPARENT_CRAFTING_TABLE.asItem())) {
             return InteractionResult.FAIL;
         }
-        return InteractionResult.PASS;
+        return InteractionResult.TRY_WITH_EMPTY_HAND;
     }
 
     @Override
