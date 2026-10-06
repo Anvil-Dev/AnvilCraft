@@ -2248,7 +2248,7 @@
   "tooltip.anvilcraft.item.item_collector": "Adjust power consumption based on range and cooling, from 2kW to 32kW",
   "tooltip.anvilcraft.item.item_detector": "Detects specific items behind (drops/containers) to output redstone signal",
   "tooltip.anvilcraft.item.item_splitter": "Evenly splits the stored items among the containers in front",
-  "tooltip.anvilcraft.item.item_splitter.shift": "Holds 16 slots, but accepts only one item type at a time\nEvery 8 game ticks, evenly splits its contents among the containers lined up in front\nWith no container in front, let a falling anvil strike it: the fall height decides how many shares are made, thrown past obstacles up to 16 blocks ahead\nAlways divides strictly, the remainder stays inside",
+  "tooltip.anvilcraft.item.item_splitter.shift": "Holds 16 slots, but accepts only one item type at a time\nEvery 8 game ticks, evenly splits its contents among the containers lined up in front\nCan face up or down; anvil strikes have no effect when facing up\nWith no container in front, let a falling anvil strike it: the fall height decides how many shares are made, thrown past obstacles up to 16 blocks ahead\nAlways divides strictly, the remainder stays inside",
   "tooltip.anvilcraft.item.large_cake": "A cake, a very big cake. 27 bites, each bite fills you up",
   "tooltip.anvilcraft.item.large_crate": "A large crate, stores more items",
   "tooltip.anvilcraft.item.large_crate.shift": "Can contain 65536 unit of items\nBreaking it drops the contents\nWhen it holds more than 1000 items, hold Shift to break it\nHold Shift and right-click to replace a 3×3×3 cube of crates with a large crate, preserving all contents\nCan update to Shulker Container",

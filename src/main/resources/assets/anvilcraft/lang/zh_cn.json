@@ -2601,7 +2601,7 @@
   "anvillib.configuration.enum.dev.dubhe.anvilcraft.config.anvil_craft_client_config.multi_part_preview_mode.off": "关闭",
   "block.anvilcraft.item_splitter": "物品分配器",
   "tooltip.anvilcraft.item.item_splitter": "将存储的物品平均分配到前方的容器中",
-  "tooltip.anvilcraft.item.item_splitter.shift": "拥有 16 个槽位，但只能接受一种物品\n每 8 gt 将其内容平均分配到正前方排成一排的容器中\n若前方没有容器，可用铁砧下砸：下砸高度决定分出多少份，并越过前方最多 16 格内的障碍物抛出\n始终严格均分，余数保留在内部",
+  "tooltip.anvilcraft.item.item_splitter.shift": "拥有 16 个槽位，但只能接受一种物品\n每 8 gt 将其内容平均分配到正前方排成一排的容器中\n可朝上或朝下放置；朝上时铁砧下砸无效\n若前方没有容器，可用铁砧下砸：下砸高度决定分出多少份，并越过前方最多 16 格内的障碍物抛出\n始终严格均分，余数保留在内部",
   "block.anvilcraft.overflow_chute": "溢流溜槽",
   "tooltip.anvilcraft.item.overflow_chute": "高级磁性溜槽，当输出端被堵塞时，会物品从溢流口抛出",
   "tooltip.anvilcraft.item.overflow_chute.shift": "物品输出时带有动量\n用铁砧锤右击侧面，可打开或关闭溢流口\n当输出端还能接收物品时，物品会向输出端输出；一旦输出端被堵塞，物品就会从溢流口抛出\n输入面和输出面永远不能成为溢流口",

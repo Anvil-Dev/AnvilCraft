@@ -1,5 +1,7 @@
 {
     "variants": {
+        "facing=up": { "model": "anvilcraft:block/item_splitter", "x": 270 },
+        "facing=down": { "model": "anvilcraft:block/item_splitter", "x": 90 },
         "facing=north": { "model": "anvilcraft:block/item_splitter" },
         "facing=east": { "model": "anvilcraft:block/item_splitter", "y": 90 },
         "facing=south": { "model": "anvilcraft:block/item_splitter", "y": 180 },
