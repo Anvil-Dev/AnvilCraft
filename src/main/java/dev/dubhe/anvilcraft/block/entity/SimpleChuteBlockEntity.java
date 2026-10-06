@@ -25,8 +25,10 @@ import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.TransferPreconditions;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import net.neoforged.neoforge.transfer.transaction.Transaction;
+import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 
 import java.util.List;
 import java.util.Objects;
@@ -34,6 +36,14 @@ import java.util.Objects;
 @Getter
 public class SimpleChuteBlockEntity extends BlockEntity implements IItemResourceHandlerHolder, IConvertableBlockEntity<ChuteBlockEntity> {
     private final SingleStackResourceHandler itemHandler = new SingleStackResourceHandler() {
+        @Override
+        public int insert(int index, ItemResource resource, int amount, TransactionContext transaction) {
+            Objects.checkIndex(index, this.size());
+            TransferPreconditions.checkNonEmptyNonNegative(resource, amount);
+            if (!this.getStack().isEmpty()) return 0;
+            return super.insert(index, resource, amount, transaction);
+        }
+
         @Override
         protected void onContentChanged(ItemStack stack) {
             SimpleChuteBlockEntity.this.setChanged();
