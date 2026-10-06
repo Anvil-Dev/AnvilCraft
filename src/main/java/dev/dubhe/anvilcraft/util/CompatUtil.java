@@ -24,6 +24,7 @@ import javax.annotation.Nullable;
 
 public class CompatUtil {
     public static final Lazy<Boolean> HAS_JADE = new Lazy<>(() -> Util.isLoaded("jade") || Util.isLoaded("wthit"));
+    public static final Lazy<Boolean> HAS_SABLE = new Lazy<>(() -> Util.isLoaded("sable"));
     /**
      * 用于余烬砂轮和浮霜砂轮。
      * 将会使用列表内的数据组件类型从输入的物品中获取魔咒并加入魔咒备选列表。

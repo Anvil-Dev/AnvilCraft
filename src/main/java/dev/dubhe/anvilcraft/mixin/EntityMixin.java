@@ -12,6 +12,7 @@ import dev.dubhe.anvilcraft.item.EquipmentAbilities;
 import dev.dubhe.anvilcraft.mixin.accessor.PortalProcessorAccessor;
 import dev.dubhe.anvilcraft.util.AccelerateManager;
 import dev.dubhe.anvilcraft.util.AtmosphereManager;
+import dev.dubhe.anvilcraft.util.CompatUtil;
 import dev.dubhe.anvilcraft.util.GravityManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
@@ -218,6 +219,23 @@ public abstract class EntityMixin implements IEntityExtension {
     )
     public boolean anvilcraft$cancelCollision2(double x, double y, Operation<Boolean> original) {
         return anvil$isMovementFixed || original.call(x, y);
+    }
+
+    @Inject(
+        method = "move(Lnet/minecraft/world/entity/MoverType;Lnet/minecraft/world/phys/Vec3;)V", at = @At(
+        value = "INVOKE",
+        target = "Lnet/minecraft/world/entity/Entity;setOnGroundWithMovement(ZLnet/minecraft/world/phys/Vec3;)V",
+        shift = At.Shift.AFTER
+    )
+    )
+    public void anvilcraft$cancelCollisionBySable(MoverType type, Vec3 pos, CallbackInfo ci) {
+        // Sable 的 mixin 执行其碰撞逻辑后，在 setOnGroundWithMovement 方法被调用前覆盖了 horizontalCollision 字段
+        // 铁砧在被加速环控制时，此字段会影响铁砧碰撞结果，因此此处重新将其覆盖回去
+        if (!CompatUtil.HAS_SABLE.get())
+            return;
+        if (anvil$isMovementFixed) {
+            horizontalCollision = false;
+        }
     }
 
     @WrapOperation(
