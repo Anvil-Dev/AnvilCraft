@@ -17,8 +17,6 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.ItemEnchantments;
 
-import java.util.Objects;
-
 @Getter
 @EqualsAndHashCode
 public class ItemEnchantmentsData implements ICustomDataComponent<ItemEnchantments> {
@@ -78,7 +76,7 @@ public class ItemEnchantmentsData implements ICustomDataComponent<ItemEnchantmen
 
     @Override
     public ItemEnchantments make(ResultContext ctx) {
-        return Objects.requireNonNull(ctx.getInput(this.input).get(this.type));
+        return ctx.getInput(this.input).get(this.type);
     }
 
     @Override
