@@ -65,7 +65,13 @@ public class LensBlockEntity extends BaseLaserBlockEntity {
     public void onCancelingIrradiation(BaseLaserBlockEntity source) {
         if (!this.irradiateSelfLaserBlockSet.contains(source)) return;
         super.onCancelingIrradiation(source);
-        this.enabled = this.irradiateSelfLaserBlockSet.stream().anyMatch(this::determineEmissionDirection);
+        Direction previousDirection = this.emittingDirection;
+        this.enabled = false;
+        for (BaseLaserBlockEntity remainingSource : this.irradiateSelfLaserBlockSet) {
+            if (!this.determineEmissionDirection(remainingSource)) continue;
+            this.enabled = true;
+            if (this.emittingDirection == previousDirection) break;
+        }
     }
 
     @Override
