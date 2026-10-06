@@ -7,7 +7,6 @@ import dev.dubhe.anvilcraft.api.itemhandler.ItemHandlerUtil;
 import dev.dubhe.anvilcraft.api.itemhandler.SingleStackResourceHandler;
 import dev.dubhe.anvilcraft.block.logistics.chute.SimpleChuteBlock;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
-import dev.dubhe.anvilcraft.util.AnvilUtil;
 import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.core.BlockPos;
@@ -29,7 +28,6 @@ import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import net.neoforged.neoforge.transfer.transaction.Transaction;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -192,24 +190,12 @@ public class SimpleChuteBlockEntity extends BlockEntity implements IItemResource
     @Override
     public void convertTo(ChuteBlockEntity newBe) {
         SingleStackResourceHandler handler = this.getItemHandler();
-        ItemStack stack = handler.getStack();
-        if (stack.isEmpty()) {
-            return;
-        }
-
-        int count = stack.getCount();
+        ItemResource resource = handler.getResource(0);
+        if (resource.isEmpty()) return;
         try (Transaction transaction = Transaction.openRoot()) {
-            stack.setCount(count - newBe.getItemHandler().insert(ItemResource.of(stack), count, transaction));
+            int inserted = newBe.getItemHandler().insert(resource, handler.getAmountAsInt(0), transaction);
+            if (handler.extract(0, resource, inserted, transaction) != inserted) return;
             transaction.commit();
-        }
-
-        if (stack.isEmpty()) {
-            return;
-        }
-
-        Level level = this.level;
-        if (level != null) {
-            AnvilUtil.dropItems(Collections.singletonList(stack), level, newBe.getBlockPos().getCenter());
         }
     }
 

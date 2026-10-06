@@ -16,6 +16,10 @@ public interface IGhostIngredientScreen {
         return List.of();
     }
 
+    default Collection<Integer> getFluidGhostSlots() {
+        return List.of();
+    }
+
     default Vec2i getSlotSize(int slot) {
         return new Vec2i(16, 16);
     }

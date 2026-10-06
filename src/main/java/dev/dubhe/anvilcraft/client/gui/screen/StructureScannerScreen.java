@@ -915,6 +915,9 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
             input.moveCursor((int) Math.signum(amount) * 3, false);
             return true;
         }
+        for (AbstractWidget widget : this.scanWidgets) {
+            if (widget.mouseScrolled(mouseX, mouseY, scrollX, scrollY)) return true;
+        }
         return super.mouseScrolled(mouseX, mouseY, scrollX, scrollY);
     }
 

@@ -38,7 +38,11 @@ public class CategoryEntry {
     private CategoryMode mode = CategoryMode.UNLIMITED;
 
     public CategoryMode changeMode() {
-        return this.mode = this.mode.next();
+        return this.changeMode(false);
+    }
+
+    public CategoryMode changeMode(boolean inversed) {
+        return this.mode = this.mode.next(inversed);
     }
 
     public CategoryMode changeMode(CategoryMode mode) {

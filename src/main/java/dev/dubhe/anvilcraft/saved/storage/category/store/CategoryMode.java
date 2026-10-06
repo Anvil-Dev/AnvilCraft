@@ -35,10 +35,14 @@ public enum CategoryMode implements StringRepresentable {
     }
 
     public CategoryMode next() {
+        return this.next(false);
+    }
+
+    public CategoryMode next(boolean inversed) {
         return switch (this) {
-            case UNLIMITED -> CategoryMode.ALLOWLIST;
-            case ALLOWLIST -> CategoryMode.BLOCKLIST;
-            case BLOCKLIST -> CategoryMode.UNLIMITED;
+            case UNLIMITED -> inversed ? CategoryMode.BLOCKLIST : CategoryMode.ALLOWLIST;
+            case ALLOWLIST -> inversed ? CategoryMode.UNLIMITED : CategoryMode.BLOCKLIST;
+            case BLOCKLIST -> inversed ? CategoryMode.ALLOWLIST : CategoryMode.UNLIMITED;
         };
     }
 }

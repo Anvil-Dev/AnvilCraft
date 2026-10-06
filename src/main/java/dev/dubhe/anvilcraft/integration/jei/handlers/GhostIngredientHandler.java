@@ -42,7 +42,7 @@ public class GhostIngredientHandler<
                 targets.add(new GhostTarget<>(screen, slot, screen.getSlotSize(slot)));
             }
         } else if (ingredient.getType() == NeoForgeTypes.FLUID_STACK) {
-            for (int slot : screen.getGhostSlots()) {
+            for (int slot : screen.getFluidGhostSlots()) {
                 Rect2i fixedArea = screen.getGhostSlotArea(slot);
                 if (fixedArea == null) continue;
                 targets.add(new GhostTarget<>(screen, slot, fixedArea));

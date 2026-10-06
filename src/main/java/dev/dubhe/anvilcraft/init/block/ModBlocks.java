@@ -246,6 +246,7 @@ import dev.dubhe.anvilcraft.block.workstation.royal.RoyalSmithingTableBlock;
 import dev.dubhe.anvilcraft.client.renderer.item.CreativeCrateItemRenderer;
 import dev.dubhe.anvilcraft.client.renderer.item.CreativeFluidTankItemRenderer;
 import dev.dubhe.anvilcraft.client.renderer.item.FluidTankItemRenderer;
+import dev.dubhe.anvilcraft.client.renderer.item.HasMobBlockItemRenderer;
 import dev.dubhe.anvilcraft.client.renderer.item.LargeFluidTankItemRenderer;
 import dev.dubhe.anvilcraft.client.renderer.item.MonolithItemRenderer;
 import dev.dubhe.anvilcraft.client.renderer.item.SmartBlockPlacerItemModel;
@@ -3347,6 +3348,13 @@ public class ModBlocks {
         .properties(properties -> properties.sound(SoundType.HONEY_BLOCK))
         .item(ResinBlockItem::new)
         .transform(PropertiesProviderUtil::blockItem)
+        .model(() -> new NonNullBiConsumer<>() {
+            @Override
+            public void accept(DataGenContext<Item, ResinBlockItem> ctx, RegistrumItemModelGenerator generator) {
+                DataGenUtil.<ResinBlockItem>specialBlockItem(new HasMobBlockItemRenderer.Unbaked(ctx.get().getBlock()), false)
+                    .accept(ctx, generator);
+            }
+        })
         .tag(Tags.Items.STORAGE_BLOCKS, ModItemTags.STORAGE_BLOCKS_RESIN)
         .build()
         .tag(Tags.Blocks.STORAGE_BLOCKS, ModBlockTags.STORAGE_BLOCKS_RESIN)
@@ -3371,6 +3379,13 @@ public class ModBlocks {
         .blockstate(DataGenUtil::noExtraModelOrState)
         .item(HasMobBlockItem::new)
         .transform(PropertiesProviderUtil::blockItem)
+        .model(() -> new NonNullBiConsumer<>() {
+            @Override
+            public void accept(DataGenContext<Item, HasMobBlockItem> ctx, RegistrumItemModelGenerator generator) {
+                DataGenUtil.<HasMobBlockItem>specialBlockItem(new HasMobBlockItemRenderer.Unbaked(ctx.get().getBlock()), false)
+                    .accept(ctx, generator);
+            }
+        })
         .properties(properties -> properties.component(
             ModComponents.SAVED_ENTITY,
             new SavedEntity(EntityType.MOOSHROOM, new CompoundTag(), false)
@@ -3397,6 +3412,13 @@ public class ModBlocks {
         .blockstate(DataGenUtil::noExtraModelOrState)
         .item(HasMobBlockItem::new)
         .transform(PropertiesProviderUtil::blockItem)
+        .model(() -> new NonNullBiConsumer<>() {
+            @Override
+            public void accept(DataGenContext<Item, HasMobBlockItem> ctx, RegistrumItemModelGenerator generator) {
+                DataGenUtil.<HasMobBlockItem>specialBlockItem(new HasMobBlockItemRenderer.Unbaked(ctx.get().getBlock()), false)
+                    .accept(ctx, generator);
+            }
+        })
         .properties(properties -> properties.component(
             ModComponents.SAVED_ENTITY,
             new SavedEntity(EntityType.ZOMBIE, new CompoundTag(), true)

@@ -25,13 +25,19 @@ abstract class BaseBlockItemRenderer<T> implements SpecialModelRenderer<T> {
     private final BlockState shellState;
     private final float minExtent;
     private final float maxExtent;
+    private final boolean translucent;
     private final BlockModelRenderState shellRenderState = new BlockModelRenderState();
     private @Nullable BlockStateModel shellModel;
 
     protected BaseBlockItemRenderer(BlockState shellState, float minExtent, float maxExtent) {
+        this(shellState, minExtent, maxExtent, false);
+    }
+
+    protected BaseBlockItemRenderer(BlockState shellState, float minExtent, float maxExtent, boolean translucent) {
         this.shellState = shellState;
         this.minExtent = minExtent;
         this.maxExtent = maxExtent;
+        this.translucent = translucent;
     }
 
     protected void submitShell(
@@ -53,7 +59,7 @@ abstract class BaseBlockItemRenderer<T> implements SpecialModelRenderer<T> {
                 BlockPos.ZERO,
                 this.shellState,
                 RandomSource.create(BaseBlockItemRenderer.MODEL_SEED),
-                this.shellRenderState.setupModel(new Matrix4f(), false)
+                this.shellRenderState.setupModel(new Matrix4f(), this.translucent)
             );
             this.shellModel = model;
         }

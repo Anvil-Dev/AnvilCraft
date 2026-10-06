@@ -369,6 +369,15 @@ public class TradingStationScreen extends AbstractContainerScreen<TradingStation
 
     @Override
     public Collection<Integer> getGhostSlots() {
-        return IGhostIngredientScreen.range(36, 48, 1);
+        return IGhostIngredientScreen.range(36, 51, 1);
+    }
+
+    @Override
+    public void acceptGhost(Slot slot, ItemStack ingredient) {
+        if (slot instanceof FilterOnlySlot) {
+            slot.set(ingredient.copyWithCount(1));
+        } else {
+            IFilterScreen.super.acceptGhost(slot, ingredient);
+        }
     }
 }
