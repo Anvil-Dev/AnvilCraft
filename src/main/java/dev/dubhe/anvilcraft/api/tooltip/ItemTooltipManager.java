@@ -668,6 +668,7 @@ public class ItemTooltipManager {
             ModBlocks.ITEM_SPLITTER.asItem(), """
                 Holds 16 slots, but accepts only one item type at a time
                 Every 8 game ticks, evenly splits its contents among the containers lined up in front
+                Can face up or down; anvil strikes have no effect when facing up
                 With no container in front, let a falling anvil strike it: the fall height decides how many shares are made, thrown past obstacles up to 16 blocks ahead
                 Always divides strictly, the remainder stays inside"""
         );

@@ -287,11 +287,9 @@ public class AnvilHammerItem extends Item {
             return true;
         }
         InteractionResult useItemInteractionResult = state.useItemOn(anvilHammer, level, player, hand, result);
-        if (useItemInteractionResult.equals(InteractionResult.TRY_WITH_EMPTY_HAND)) {
-            return state.useWithoutItem(level, player, result) != InteractionResult.PASS;
-        } else {
-            return !useItemInteractionResult.equals(InteractionResult.PASS);
-        }
+        if (useItemInteractionResult != InteractionResult.PASS
+            && useItemInteractionResult != InteractionResult.TRY_WITH_EMPTY_HAND) return true;
+        return state.useWithoutItem(level, player, result) != InteractionResult.PASS;
     }
 
     @Override

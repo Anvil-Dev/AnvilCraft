@@ -114,7 +114,7 @@ public class ItemSplitterBlockEntity extends BlockEntity implements IItemResourc
     }
 
     public boolean splitToSpace(int shares) {
-        if (this.level == null || shares <= 0) return false;
+        if (this.level == null || shares <= 0 || this.getFacing() == Direction.UP) return false;
         if (this.getItemHandlerAt(this.getBlockPos().relative(this.getFacing())) != null) return false;
         List<BlockPos> targets = this.collectSpaceTargets(shares);
         if (targets.isEmpty()) return false;

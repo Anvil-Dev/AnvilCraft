@@ -32,6 +32,7 @@ import dev.dubhe.anvilcraft.client.renderer.item.CreativeFluidTankItemRenderer;
 import dev.dubhe.anvilcraft.client.renderer.item.DiskItemRenderer;
 import dev.dubhe.anvilcraft.client.renderer.item.FilterItemRenderer;
 import dev.dubhe.anvilcraft.client.renderer.item.FluidTankItemRenderer;
+import dev.dubhe.anvilcraft.client.renderer.item.HasMobBlockItemRenderer;
 import dev.dubhe.anvilcraft.client.renderer.item.LargeFluidTankItemRenderer;
 import dev.dubhe.anvilcraft.client.renderer.item.MonolithItemRenderer;
 import dev.dubhe.anvilcraft.client.renderer.item.RuinsBlockItemRenderer;
@@ -393,6 +394,7 @@ public class RegisterAdditionalEventListener {
         event.register(AnvilCraft.of("creative_crate"), CreativeCrateItemRenderer.Unbaked.CODEC);
         event.register(AnvilCraft.of("creative_fluid_tank"), CreativeFluidTankItemRenderer.Unbaked.CODEC);
         event.register(AnvilCraft.of("fluid_tank"), FluidTankItemRenderer.Unbaked.CODEC);
+        event.register(AnvilCraft.of("has_mob_block"), HasMobBlockItemRenderer.Unbaked.CODEC);
         event.register(AnvilCraft.of("large_fluid_tank"), LargeFluidTankItemRenderer.Unbaked.CODEC);
         event.register(AnvilCraft.of("storage_port"), StoragePortItemRenderer.Unbaked.CODEC);
         event.register(AnvilCraft.of("storage_fluid_port"), StorageFluidPortItemRenderer.Unbaked.CODEC);

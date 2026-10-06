@@ -315,13 +315,16 @@ public final class ModelBlockSelection {
             for (int pass = renderState.highContrast() ? 0 : 1; pass < 2; pass++) {
                 boolean secondary = pass == 0;
                 VertexConsumer consumer = buffer.getBuffer(secondary ? RenderTypes.secondaryBlockOutline() : RenderTypes.lines());
-                float color = secondary ? 1 : 0;
-                float alpha = secondary || renderState.highContrast() ? 1 : 0.4F;
+                int color = secondary ? 0xFF000000 : renderState.highContrast() ? 0xFF57FFE1 : 0x66000000;
+                float red = (color >> 16 & 255) / 255F;
+                float green = (color >> 8 & 255) / 255F;
+                float blue = (color & 255) / 255F;
+                float alpha = (color >>> 24) / 255F;
                 for (OutlinePart part : drawing) {
                     pose.pushPose();
                     part.part().apply(pose);
-                    OutlineRenderer.render(pose, consumer, part.outline(), color, color, color, alpha,
-                        SelectionGeometry.MAX_OUTLINE_SEGMENTS, secondary ? lineWidth + 2 : lineWidth);
+                    OutlineRenderer.render(pose, consumer, part.outline(), red, green, blue, alpha,
+                        SelectionGeometry.MAX_OUTLINE_SEGMENTS, secondary ? 7.0F : lineWidth);
                     pose.popPose();
                 }
                 buffer.endLastBatch();

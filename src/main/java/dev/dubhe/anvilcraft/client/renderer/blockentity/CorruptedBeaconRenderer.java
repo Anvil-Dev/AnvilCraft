@@ -117,7 +117,11 @@ public class CorruptedBeaconRenderer implements BlockEntityRenderer<CorruptedBea
     }
 
     public static void renderWeaponBeam(VertexConsumer consumer, Matrix4f matrix, float length) {
-        CorruptedBeaconRenderer.renderBeamGlow(consumer, matrix, 0.0f, 0.0f, 0.0f, length, 0.5f);
+        CorruptedBeaconRenderer.renderBeam(consumer, matrix, length, 0.5f);
+    }
+
+    public static void renderBeam(VertexConsumer consumer, Matrix4f matrix, float length, float glowSpreadScale) {
+        CorruptedBeaconRenderer.renderBeamGlow(consumer, matrix, 0.0f, 0.0f, 0.0f, length, glowSpreadScale);
         CorruptedBeaconRenderer.emitBeamPyramid(
             consumer, matrix, 0.0f, 0.0f, 0.0f, CorruptedBeaconRenderer.BEAM_INNER_HALF, length,
             CorruptedBeaconRenderer.BEAM_R, CorruptedBeaconRenderer.BEAM_G, CorruptedBeaconRenderer.BEAM_B, 0.82f, 0.25f

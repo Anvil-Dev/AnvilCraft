@@ -324,6 +324,11 @@ public class BatchCutterScreen extends BaseMachineScreen<BatchCutterMenu> implem
         return super.mouseScrolled(mouseX, mouseY, scrollX, scrollY);
     }
 
+    @Override
+    public List<Integer> getGhostSlots() {
+        return this.menu.isFilterEnabled() ? List.of(36) : List.of();
+    }
+
     protected boolean insideScrollbar(double mouseX, double mouseY) {
         int left = this.leftPos + 132;
         int top = this.topPos + 23;

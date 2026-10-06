@@ -14,6 +14,9 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.Tooltip;
+import net.minecraft.client.input.InputWithModifiers;
+import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.client.input.MouseButtonInfo;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
@@ -43,16 +46,23 @@ public class CategoryButton extends Button {
             86,
             20,
             Component.empty(),
-            button -> {
-                if (!(button instanceof CategoryButton category)) return;
-                category.mode = category.entry().changeMode();
-                onPress.onPress(button);
-            },
+            onPress,
             Button.DEFAULT_NARRATION
         );
         this.setting = setting;
         this.index = index;
         this.mode = mode;
+    }
+
+    @Override
+    public void onPress(InputWithModifiers input) {
+        this.mode = this.entry().changeMode(input instanceof MouseButtonEvent event && event.button() == 1);
+        super.onPress(input);
+    }
+
+    @Override
+    protected boolean isValidClickButton(MouseButtonInfo button) {
+        return button.button() == 0 || button.button() == 1;
     }
 
     protected CategoryEntry entry() {

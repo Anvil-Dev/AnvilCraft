@@ -5,12 +5,15 @@ import dev.anvilcraft.lib.v2.util.Lazy;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.client.gui.screen.BaseChuteScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.BatchCrafterScreen;
+import dev.dubhe.anvilcraft.client.gui.screen.BatchCutterScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.ControlValveScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.FilterScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.ItemCollectorScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.ItemDetectorScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.JewelCraftingScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.StorageScreen;
+import dev.dubhe.anvilcraft.client.gui.screen.StructureScannerScreen;
+import dev.dubhe.anvilcraft.client.gui.screen.TradingStationScreen;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.integration.jei.category.AnvilCollisionCraftCategory;
@@ -419,6 +422,10 @@ public class AnvilCraftJeiPlugin implements IModPlugin {
             new GhostIngredientHandler<>()
         );
         registration.addGhostIngredientHandler(
+            BatchCutterScreen.class,
+            new GhostIngredientHandler<>()
+        );
+        registration.addGhostIngredientHandler(
             BatchCrafterScreen.class,
             new GhostIngredientHandler<>()
         );
@@ -428,6 +435,14 @@ public class AnvilCraftJeiPlugin implements IModPlugin {
         );
         registration.addGhostIngredientHandler(
             ItemCollectorScreen.class,
+            new GhostIngredientHandler<>()
+        );
+        registration.addGhostIngredientHandler(
+            StructureScannerScreen.class,
+            new GhostIngredientHandler<>()
+        );
+        registration.addGhostIngredientHandler(
+            TradingStationScreen.class,
             new GhostIngredientHandler<>()
         );
         registration.addGhostIngredientHandler(

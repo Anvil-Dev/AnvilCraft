@@ -129,6 +129,7 @@ public class WheelLifecycleEventListener {
         ClientLevel level = client.level;
         if (level == null) return;
         long gameTime = level.getGameTime();
+        WheelLifecycleEventListener.openPendingHammerWheel(client, gameTime);
         WheelLifecycleEventListener.openMultiphaseWheel(gameTime);
         WheelLifecycleEventListener.openResonatorWheel(gameTime);
         WheelLifecycleEventListener.openHeavyHalberdWheel(gameTime);
@@ -147,51 +148,53 @@ public class WheelLifecycleEventListener {
         Supplier<List<BlockState>> possibleStatesFac,
         BlockHitResult hitVec
     ) {
-        if (WheelLifecycleEventListener.hammerKeyTime <= 0) return false;
         Minecraft client = Minecraft.getInstance();
         LocalPlayer player = client.player;
-        WheelLifecycleEventListener.hammerInteraction = () -> {
-            if (player == null) {
-                return false;
-            }
-            boolean interacted = AnvilHammerItem.interactWithBlock(
-                player, targetPos, level, player.getItemInHand(hand), hand, hitVec
-            );
-            boolean canChange = player.getAbilities().mayBuild
-                                && AnvilHammerItem.ableToUseAnvilHammer(level, targetPos, player);
-            if (!interacted && !canChange && AnvilHammerItem.shouldPlaceOffhandBlock(player, level, hitVec)) {
-                return false;
-            }
-            ClientPacketDistributor.sendToServer(new HammerUsePacket(targetPos, hand, hitVec));
-            return interacted || canChange;
-        };
-        if (property == null) {
-            return WheelLifecycleEventListener.hammerInteraction.get();
-        }
         if (player == null) return false;
-        if (WheelLifecycleEventListener.hammerWheelCache == null) {
-            if (player.isShiftKeyDown()) {
-                ClientPacketDistributor.sendToServer(new HammerUsePacket(targetPos, hand, hitVec));
-                return true;
-            }
-            if (!player.getAbilities().mayBuild) return false;
-            if (!AnvilHammerItem.ableToUseAnvilHammer(level, targetPos, player)) return false;
-            List<BlockState> possibleStates = possibleStatesFac.get();
-            if (possibleStates.isEmpty()) return true;
-            if (client.getCameraEntity() == null) return false;
-            WheelLifecycleEventListener.hammerWheelCache = Optional.of(WheelLifecycleEventListener.getHammerWheel(
-                targetPos,
-                property,
-                possibleStates,
-                client.getCameraEntity().getRotationVector()
-            ));
+        if (property == null) {
+            return WheelLifecycleEventListener.interactWithHammer(player, level, targetPos, hand, hitVec);
         }
-        if (gameTime - WheelLifecycleEventListener.hammerKeyTime >= 4) {
-            if (WheelLifecycleEventListener.hammerWheelCache.isEmpty()) return false;
-            WheelLifecycleEventListener.CONTROLLER.onHoldKeyPressed(WheelLifecycleEventListener.hammerWheelCache.get());
-            WheelLifecycleEventListener.hammerKeyWasDown = true;
+        if (!player.getAbilities().mayBuild) return false;
+        if (!AnvilHammerItem.ableToUseAnvilHammer(level, targetPos, player)) return false;
+        if (WheelLifecycleEventListener.hammerWheelCache != null) return true;
+        List<BlockState> possibleStates = possibleStatesFac.get();
+        if (possibleStates.isEmpty()) return true;
+        if (client.getCameraEntity() == null) return false;
+        if (WheelLifecycleEventListener.hammerKeyTime < 0) {
+            WheelLifecycleEventListener.hammerKeyTime = gameTime;
         }
+        WheelLifecycleEventListener.hammerWheelCache = Optional.of(WheelLifecycleEventListener.getHammerWheel(
+            targetPos,
+            property,
+            possibleStates,
+            client.getCameraEntity().getRotationVector()
+        ));
+        WheelLifecycleEventListener.hammerInteraction = () ->
+            WheelLifecycleEventListener.interactWithHammer(player, level, targetPos, hand, hitVec);
         return true;
+    }
+
+    private static boolean interactWithHammer(
+        LocalPlayer player, Level level, BlockPos targetPos, InteractionHand hand, BlockHitResult hitVec
+    ) {
+        boolean interacted = AnvilHammerItem.interactWithBlock(
+            player, targetPos, level, player.getItemInHand(hand), hand, hitVec
+        );
+        boolean canChange = player.getAbilities().mayBuild
+                            && AnvilHammerItem.ableToUseAnvilHammer(level, targetPos, player);
+        if (!interacted && !canChange && AnvilHammerItem.shouldPlaceOffhandBlock(player, level, hitVec)) {
+            return false;
+        }
+        ClientPacketDistributor.sendToServer(new HammerUsePacket(targetPos, hand, hitVec));
+        return interacted || canChange;
+    }
+
+    private static void openPendingHammerWheel(Minecraft client, long gameTime) {
+        if (WheelLifecycleEventListener.hammerKeyWasDown || client.screen != null || !client.options.keyUse.isDown()) return;
+        if (WheelLifecycleEventListener.hammerWheelCache == null || WheelLifecycleEventListener.hammerWheelCache.isEmpty()) return;
+        if (gameTime - WheelLifecycleEventListener.hammerKeyTime < 3) return;
+        WheelLifecycleEventListener.CONTROLLER.onHoldKeyPressed(WheelLifecycleEventListener.hammerWheelCache.get());
+        WheelLifecycleEventListener.hammerKeyWasDown = true;
     }
 
     private static void openMultiphaseWheel(long gameTime) {
@@ -594,6 +597,9 @@ public class WheelLifecycleEventListener {
     public static void onKeyInput(InputEvent.Key event) {
         Minecraft client = Minecraft.getInstance();
         if (client.player == null) return;
+        if (client.options.keyUse.matches(event.getKeyEvent())) {
+            WheelLifecycleEventListener.processHammerPress(client, event.getAction());
+        }
         if (ModKeyMappings.SWITCH_PHASE.get().matches(event.getKeyEvent())) {
             WheelLifecycleEventListener.processMultiphasePress(client, event.getAction());
         }
@@ -636,10 +642,9 @@ public class WheelLifecycleEventListener {
 
             Supplier<Boolean> hammerInteraction = WheelLifecycleEventListener.hammerInteraction;
             if (
-                client.level.getGameTime() - WheelLifecycleEventListener.hammerKeyTime < 4
+                !WheelLifecycleEventListener.hammerKeyWasDown
                 && hammerInteraction != null
             ) {
-                // On single right-click
                 hammerInteraction.get();
             }
 

@@ -13,9 +13,9 @@ import dev.dubhe.anvilcraft.api.event.BlockEntityEvent;
 import dev.dubhe.anvilcraft.block.entity.BaseLaserBlockEntity;
 import dev.dubhe.anvilcraft.util.EnchantedGoldBlockPositions;
 import dev.dubhe.anvilcraft.util.MonolithBlockPositions;
-import dev.dubhe.anvilcraft.util.mixin.ConvertableBlockEntityEntry;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.LevelChunk;
@@ -126,44 +126,45 @@ public abstract class LevelChunkMixin {
         BlockPos pos,
         BlockState state,
         Operation<Void> original,
-        @Share(namespace = AnvilCraft.MOD_ID, value = "convertable") LocalRef<@Nullable ConvertableBlockEntityEntry<?>> entry,
+        @Share(namespace = AnvilCraft.MOD_ID, value = "conversionTarget") LocalRef<@Nullable BlockEntity> target,
         @Local(argsOnly = true) BlockState newState
     ) {
-        if (newState.isAir()) {
-            original.call(instance, pos, state);
-            return;
+        if (instance instanceof IConvertableBlockEntity<?> convertable
+            && convertable.targetTypeHolder().value().isValid(newState) && newState.getBlock() instanceof EntityBlock block) {
+            BlockEntity replacement = block.newBlockEntity(pos, newState);
+            if (replacement != null && convertable.targetTypeHolder().is(replacement.typeHolder().getKey())) {
+                replacement.setLevel(this.getLevel());
+                convertable.convertTo(Util.cast(replacement));
+                target.set(replacement);
+            }
         }
-        if (!(instance instanceof IConvertableBlockEntity<?> convertable)) {
-            original.call(instance, pos, state);
-            return;
-        }
-        entry.set(new ConvertableBlockEntityEntry<>(convertable, pos, state, original));
+        original.call(instance, pos, state);
     }
 
     @WrapOperation(
         method = "setBlockState",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/world/level/chunk/LevelChunk;"
-                + "addAndRegisterBlockEntity(Lnet/minecraft/world/level/block/entity/BlockEntity;)V"
+            target = "Lnet/minecraft/world/level/chunk/LevelChunk;removeBlockEntity(Lnet/minecraft/core/BlockPos;)V"
         )
     )
     private void extendEntityIfValid(
         LevelChunk instance,
-        BlockEntity blockEntity,
+        BlockPos pos,
         Operation<Void> original,
-        @Share(namespace = AnvilCraft.MOD_ID, value = "convertable") LocalRef<@Nullable ConvertableBlockEntityEntry<?>> entry
+        @Share(namespace = AnvilCraft.MOD_ID, value = "conversionTarget") LocalRef<@Nullable BlockEntity> target
     ) {
-        original.call(instance, blockEntity);
-
-        ConvertableBlockEntityEntry<?> convertable = entry.get();
-        if (convertable == null) {
-            return;
-        }
-        if (convertable.convertable().targetTypeHolder().is(blockEntity.typeHolder().getKey())) {
-            convertable.apply(Util.cast(blockEntity));
+        original.call(instance, pos);
+        BlockEntity replacement = target.get();
+        if (replacement == null) return;
+        target.set(null);
+        BlockState state = instance.getBlockState(pos);
+        if (replacement.isValidBlockState(state)) {
+            replacement.setBlockState(state);
+            instance.addAndRegisterBlockEntity(replacement);
         } else {
-            convertable.remove();
+            replacement.setLevel(this.getLevel());
+            replacement.preRemoveSideEffects(pos, replacement.getBlockState());
         }
     }
 

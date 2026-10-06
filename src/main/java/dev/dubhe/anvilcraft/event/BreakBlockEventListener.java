@@ -52,7 +52,7 @@ public class BreakBlockEventListener {
         );
     }
 
-    @SubscribeEvent
+    @SubscribeEvent(priority = EventPriority.HIGHEST)
     public static void preventTradingStationBreak(BreakBlockEvent event) {
         Player player = event.getPlayer();
         if (!(player.level() instanceof ServerLevel level)) return;
@@ -64,8 +64,7 @@ public class BreakBlockEventListener {
             : pos;
         if (level.getBlockEntity(mainPos, ModBlockEntities.TRADING_STATION.get())
             .filter(blockEntity -> blockEntity.isOwner(player))
-            .isPresent()
-            || player.isShiftKeyDown()) {
+            .isPresent()) {
             return;
         }
         player.sendOverlayMessage(

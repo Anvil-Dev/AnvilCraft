@@ -26,11 +26,11 @@ import org.jspecify.annotations.Nullable;
 /**
  * 物品分配器。
  *
- * <p>完整方块，只有东南西北四个朝向。内部有 16 格容量且只能容纳同一种物品，
+ * <p>完整方块，支持六个朝向。内部有 16 格容量且只能容纳同一种物品，
  * 可以用漏斗或溜槽输入输出。</p>
  */
 public class ItemSplitterBlock extends BetterBaseEntityBlock implements IHammerRemovable {
-    public static final EnumProperty<Direction> FACING = BlockStateProperties.HORIZONTAL_FACING;
+    public static final EnumProperty<Direction> FACING = BlockStateProperties.FACING;
 
     public ItemSplitterBlock(Properties properties) {
         super(properties);
@@ -50,7 +50,7 @@ public class ItemSplitterBlock extends BetterBaseEntityBlock implements IHammerR
     @Override
     public @Nullable BlockState getStateForPlacement(BlockPlaceContext context) {
         // 默认背面朝向玩家，潜行时反过来
-        Direction facing = context.getHorizontalDirection();
+        Direction facing = context.getNearestLookingDirection();
         if (context.getPlayer() != null && context.getPlayer().isShiftKeyDown()) {
             facing = facing.getOpposite();
         }

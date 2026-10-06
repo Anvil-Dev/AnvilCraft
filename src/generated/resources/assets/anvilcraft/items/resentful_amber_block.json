@@ -1,6 +1,11 @@
 {
+  "hand_animation_on_swap": false,
   "model": {
-    "type": "minecraft:model",
-    "model": "anvilcraft:block/resentful_amber_block"
+    "type": "minecraft:special",
+    "base": "anvilcraft:block/resentful_amber_block",
+    "model": {
+      "type": "anvilcraft:has_mob_block",
+      "block": "anvilcraft:resentful_amber_block"
+    }
   }
 }

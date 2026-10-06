@@ -4,6 +4,7 @@ import com.google.common.collect.Multimap;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.entity.attribute.EntityReachAttribute;
 import dev.dubhe.anvilcraft.init.item.ModItems;
+import dev.dubhe.anvilcraft.inventory.PocketInventory;
 import dev.dubhe.anvilcraft.util.EntityUtil;
 import net.minecraft.core.Holder;
 import net.minecraft.world.InteractionHand;
@@ -44,7 +45,8 @@ public class CrabClawItem extends Item {
 
     public static void updateReach(Player player) {
         if (player.level().isClientSide()) return;
-        boolean held = player.getMainHandItem().is(ModItems.CRAB_CLAW) || player.getOffhandItem().is(ModItems.CRAB_CLAW);
+        boolean held = player.getMainHandItem().is(ModItems.CRAB_CLAW) || player.getOffhandItem().is(ModItems.CRAB_CLAW)
+            || PocketInventory.items(player).stream().anyMatch(stack -> stack.is(ModItems.CRAB_CLAW));
         CrabClawItem.RANGE_MODIFIER_SUPPLIER.get().forEach((attribute, modifier) -> {
             var instance = player.getAttribute(attribute);
             if (instance == null) return;

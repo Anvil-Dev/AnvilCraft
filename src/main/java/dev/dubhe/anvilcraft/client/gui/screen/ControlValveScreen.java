@@ -206,6 +206,11 @@ public class ControlValveScreen extends AbstractContainerScreen<ControlValveMenu
     }
 
     @Override
+    public Collection<Integer> getFluidGhostSlots() {
+        return this.getGhostSlots();
+    }
+
+    @Override
     public @Nullable Rect2i getGhostSlotArea(int slotIndex) {
         return slotIndex == ControlValveScreen.FILTER_GHOST_ID ? new Rect2i(
             ControlValveScreen.FILTER_X, ControlValveScreen.FILTER_Y, 16, 16) : null;
