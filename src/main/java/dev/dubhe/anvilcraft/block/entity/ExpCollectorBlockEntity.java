@@ -320,15 +320,7 @@ public class ExpCollectorBlockEntity extends BlockEntity
                 ExpCollectorBlockEntity.removePoachingCollector(this);
             }
         }
-        if (this.rangeRadius.get() != this.oldRange || this.boundingBox == null) {
-            this.boundingBox = AABB.ofSize(
-                Vec3.atCenterOf(this.getBlockPos()),
-                this.rangeRadius.get() * 2.0 + 1,
-                this.rangeRadius.get() * 2.0 + 1,
-                this.rangeRadius.get() * 2.0 + 1
-            );
-            this.oldRange = this.rangeRadius.get();
-        }
+        this.shape();
     }
 
     @Override
@@ -410,13 +402,14 @@ public class ExpCollectorBlockEntity extends BlockEntity
 
     @Override
     public AABB shape() {
-        if (this.boundingBox == null) {
+        if (this.boundingBox == null || this.rangeRadius.get() != this.oldRange) {
             this.boundingBox = AABB.ofSize(
                 Vec3.atCenterOf(this.getBlockPos()),
                 this.rangeRadius.get() * 2.0 + 1,
                 this.rangeRadius.get() * 2.0 + 1,
                 this.rangeRadius.get() * 2.0 + 1
             );
+            this.oldRange = this.rangeRadius.get();
         }
         return this.boundingBox;
     }
