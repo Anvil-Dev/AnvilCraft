@@ -1977,6 +1977,7 @@
   "config.jade.plugin_anvilcraft.burning_heater_provider": "燃烧加热器",
   "config.jade.plugin_anvilcraft.charger_provider": "充电进度",
   "config.jade.plugin_anvilcraft.crab_trap": "蟹笼",
+  "config.jade.plugin_anvilcraft.crate": "板条箱",
   "config.jade.plugin_anvilcraft.discharger_provider": "放电进度",
   "config.jade.plugin_anvilcraft.smart_block_placer_provider": "智能方块放置器",
   "config.jade.plugin_anvilcraft.wip_block": "加工中方块",

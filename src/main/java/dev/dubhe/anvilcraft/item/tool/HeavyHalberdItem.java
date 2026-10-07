@@ -476,6 +476,7 @@ public abstract class HeavyHalberdItem extends Item implements ProjectileItem, I
     }
 
     public static boolean isEnchantmentActive(ItemStack stack, Holder<Enchantment> enchantment) {
+        if (!enchantment.isBound()) return false;
         HolderSet<Item> supportedItems = enchantment.value().definition().supportedItems();
         return supportedItems.unwrapKey()
             .map(tag -> HeavyHalberdHolder.isModeEnabled(getMode(stack), tag) && stack.is(tag))

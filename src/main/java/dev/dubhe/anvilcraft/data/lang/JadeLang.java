@@ -7,6 +7,7 @@ public class JadeLang {
         provider.add("tooltip.anvilcraft.infinity", "Infinity");
         provider.add("config.jade.plugin_anvilcraft.overflow_disposal_fluid_tank", "Overflow Disposal Fluid Tank");
         provider.add("config.jade.plugin_anvilcraft.crab_trap", "Crab Trap");
+        provider.add("config.jade.plugin_anvilcraft.crate", "Crate");
         provider.add("config.jade.plugin_anvilcraft.power_provider", "Anvil Craft Power");
         provider.add("config.jade.plugin_anvilcraft.ruby_prism", "Ruby Prism");
         provider.add("config.jade.plugin_anvilcraft.item_detector", "Item Detector");
@@ -15,6 +16,7 @@ public class JadeLang {
         provider.add("config.jade.plugin_anvilcraft.burning_heater_provider", "Burning Heater");
         provider.add("config.jade.plugin_anvilcraft.burning_heater_client_provider", "Burning Heater (Client)");
         provider.add("config.jade.plugin_anvilcraft.charger_provider", "Charging Progress");
+        provider.add("config.jade.plugin_anvilcraft.auto_enchanting_table_provider", "Enchanting Progress");
         provider.add("config.jade.plugin_anvilcraft.charger_client_provider", "Charger (Client)");
         provider.add("config.jade.plugin_anvilcraft.discharger_provider", "Discharging Progress");
         provider.add("config.jade.plugin_anvilcraft.discharger_client_provider", "Discharger (Client)");

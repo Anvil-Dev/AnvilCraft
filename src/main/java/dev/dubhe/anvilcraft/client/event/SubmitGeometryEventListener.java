@@ -47,8 +47,8 @@ public class SubmitGeometryEventListener {
         );
 
         PowerGridSupport.submitEnhancedTransmitterLine(poseStack, nodeCollector, camera);
-        if (Minecraft.getInstance().options.hideGui) return;
         PowerGridSupport.submitTransmitterLine(poseStack, nodeCollector, camera);
+        if (Minecraft.getInstance().options.hideGui) return;
         if (!(Minecraft.getInstance().getCameraEntity() instanceof Player player)) return;
 
         double camX = camera.x();
