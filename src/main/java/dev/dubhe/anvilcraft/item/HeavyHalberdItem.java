@@ -355,7 +355,8 @@ public abstract class HeavyHalberdItem extends TieredItem implements ProjectileI
 
     @Override
     public int getEnchantmentLevel(ItemStack stack, Holder<Enchantment> enchantment) {
-        return isEnchantmentActive(stack, enchantment) ? stack.getTagEnchantments().getLevel(enchantment) : 0;
+        int level = stack.getTagEnchantments().getLevel(enchantment);
+        return level > 0 && isEnchantmentActive(stack, enchantment) ? level : 0;
     }
 
     @Override
@@ -371,6 +372,7 @@ public abstract class HeavyHalberdItem extends TieredItem implements ProjectileI
     }
 
     private static boolean isEnchantmentActive(ItemStack stack, Holder<Enchantment> enchantment) {
+        if (!enchantment.isBound()) return false;
         if (enchantment.is(Enchantments.SWEEPING_EDGE)) {
             // 横扫之刃是剑模式专属附魔，其他模式不生效
             return getMode(stack) == SWORD_MODE && stack.is(enchantment.value().definition().supportedItems());

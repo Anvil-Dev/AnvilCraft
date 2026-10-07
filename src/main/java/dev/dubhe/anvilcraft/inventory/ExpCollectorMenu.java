@@ -14,6 +14,7 @@ import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
 import java.util.Objects;
@@ -70,11 +71,14 @@ public class ExpCollectorMenu extends AbstractContainerMenu implements Container
     @Override
     public void notify(int index, String name) {
         if (name.contentEquals("rangeRadius")) {
-            blockEntity.getRangeRadius().fromIndex(index);
+            this.blockEntity.getRangeRadius().fromIndex(index);
+        } else if (name.contentEquals("cooldown")) {
+            this.blockEntity.getCooldown().fromIndex(index);
         } else {
-            if (name.contentEquals("cooldown")) {
-                blockEntity.getCooldown().fromIndex(index);
-            }
+            return;
         }
+        this.level.sendBlockUpdated(
+            this.blockEntity.getBlockPos(), this.blockEntity.getBlockState(), this.blockEntity.getBlockState(), Block.UPDATE_CLIENTS
+        );
     }
 }
