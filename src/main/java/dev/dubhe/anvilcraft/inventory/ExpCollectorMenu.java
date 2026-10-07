@@ -14,6 +14,7 @@ import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import org.jspecify.annotations.Nullable;
 
@@ -94,6 +95,11 @@ public class ExpCollectorMenu extends AbstractContainerMenu implements Container
             this.blockEntity.getRangeRadius().fromIndex(index);
         } else if (name.contentEquals("cooldown")) {
             this.blockEntity.getCooldown().fromIndex(index);
+        } else {
+            return;
         }
+        this.level.sendBlockUpdated(
+            this.blockEntity.getBlockPos(), this.blockEntity.getBlockState(), this.blockEntity.getBlockState(), Block.UPDATE_CLIENTS
+        );
     }
 }

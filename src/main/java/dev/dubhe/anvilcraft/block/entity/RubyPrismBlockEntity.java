@@ -1,6 +1,10 @@
 package dev.dubhe.anvilcraft.block.entity;
 
+import dev.dubhe.anvilcraft.api.laser.LaserComponentMap;
+import dev.dubhe.anvilcraft.api.laser.LaserComponentTypes;
+import dev.dubhe.anvilcraft.api.laser.LaserMiningComponent;
 import dev.dubhe.anvilcraft.block.laser.RubyPrismBlock;
+import dev.dubhe.anvilcraft.util.BlockMiningEffect;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
@@ -37,6 +41,11 @@ public class RubyPrismBlockEntity extends BaseLaserBlockEntity {
     @Override
     protected int getBaseLaserLevel() {
         return 0;
+    }
+
+    @Override
+    protected void configureLaserComponents(LaserComponentMap components) {
+        components.put(LaserComponentTypes.MINING, new LaserMiningComponent(BlockMiningEffect.NORMAL, false));
     }
 
     @Override

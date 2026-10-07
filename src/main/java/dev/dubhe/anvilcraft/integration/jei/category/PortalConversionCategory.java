@@ -102,7 +102,12 @@ public class PortalConversionCategory implements IRecipeCategory<RecipeHolder<Po
             recipe.getResults().states().stream()
                 .map(result -> new ItemStack(result.state().state().getBlock()))
                 .toList()
-        );
+        ).addRichTooltipCallback((_, tooltip) -> {
+            List<WeightedChanceBlockStates.Entry> results = recipe.getResults().states();
+            if (results.size() == 1) {
+                tooltip.addAll(JeiRecipeUtil.getTooltips(results.getFirst().state().chance()));
+            }
+        });
     }
 
     @Override
