@@ -335,26 +335,6 @@ public class RegistrumItemRecipeLoader {
 
     public static <T extends Item> void frostAnvilHammer(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
         HolderGetter<Item> lookup = provider.getItems();
-        ShapedRecipeBuilder.shaped(lookup, RecipeCategory.TOOLS, ctx.get())
-            .pattern("A")
-            .pattern("B")
-            .pattern("C")
-            .define('A', ModBlocks.FROST_ANVIL)
-            .define('B', Items.LIGHTNING_ROD)
-            .define('C', ModItems.FROST_METAL_INGOT)
-            .unlockedBy(
-                AnvilCraftDatagen.hasItem(ModBlocks.FROST_ANVIL),
-                AnvilCraftDatagen.has(lookup, ModBlocks.FROST_ANVIL)
-            )
-            .unlockedBy(
-                AnvilCraftDatagen.hasItem(Items.LIGHTNING_ROD),
-                AnvilCraftDatagen.has(lookup, Items.LIGHTNING_ROD)
-            )
-            .unlockedBy(
-                AnvilCraftDatagen.hasItem(ModItems.FROST_METAL_INGOT),
-                AnvilCraftDatagen.has(lookup, ModItems.FROST_METAL_INGOT)
-            )
-            .save(provider);
         SmithingTransformRecipeBuilder.smithing(
                 Ingredient.of(ModItems.FROST_METAL_UPGRADE_SMITHING_TEMPLATE),
                 Ingredient.of(ModItems.ROYAL_ANVIL_HAMMER),
