@@ -29,7 +29,13 @@
     "anvilcraft:stamping_platform",
     "anvilcraft:crushing_table",
     "anvilcraft:sifting_table",
-    "anvilcraft:unpacking_table"
+    "anvilcraft:unpacking_table",
+    "anvilcraft:confinement_chamber",
+    "anvilcraft:confined_energy_anvilon",
+    "anvilcraft:confined_mass_anvilon",
+    "anvilcraft:confined_neutronium_ingot",
+    "anvilcraft:confined_space_anvilon",
+    "anvilcraft:confined_time_anvilon"
   ],
   "disable_model_outline": [
     "anvilcraft:large_cauldron",
