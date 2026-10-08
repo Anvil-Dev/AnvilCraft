@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.util.geometry;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -33,6 +34,9 @@ public final class DelaunayTriangulator {
         if (points.size() < 2) return Set.of();
         if (points.size() == 2) {
             return Set.of(new Edge(points.get(0).id(), points.get(1).id()));
+        }
+        if (isCollinear(points)) {
+            return collinearEdges(points);
         }
 
         SuperTriangle superTriangle = DelaunayTriangulator.createSuperTriangle(points);
@@ -89,10 +93,37 @@ public final class DelaunayTriangulator {
             int a = triangles.getVertexA(triangleIndex);
             int b = triangles.getVertexB(triangleIndex);
             int c = triangles.getVertexC(triangleIndex);
-            if (a >= inputSize || b >= inputSize || c >= inputSize) continue;
-            edges.add(new Edge(a, b));
-            edges.add(new Edge(b, c));
-            edges.add(new Edge(c, a));
+            // 含超三角形顶点的三角形也可能携带两个输入点之间的边，这类边是输入点集的凸包边，
+            // 在部分输入点共线时是唯一携带它们的三角形，必须一并收集。
+            if (a < inputSize && b < inputSize) edges.add(new Edge(a, b));
+            if (b < inputSize && c < inputSize) edges.add(new Edge(b, c));
+            if (c < inputSize && a < inputSize) edges.add(new Edge(c, a));
+        }
+        return edges;
+    }
+
+    private static boolean isCollinear(List<Point> points) {
+        Point origin = points.get(0);
+        double dirX = points.get(1).x() - origin.x();
+        double dirY = points.get(1).y() - origin.y();
+        double dirLength = Math.sqrt(dirX * dirX + dirY * dirY);
+        for (int index = 2; index < points.size(); index++) {
+            Point point = points.get(index);
+            double cross = dirX * (point.y() - origin.y()) - dirY * (point.x() - origin.x());
+            if (Math.abs(cross) > EPSILON * dirLength) return false;
+        }
+        return true;
+    }
+
+    private static Set<Edge> collinearEdges(List<Point> points) {
+        Point origin = points.get(0);
+        double dirX = points.get(1).x() - origin.x();
+        double dirY = points.get(1).y() - origin.y();
+        List<Point> sorted = new ArrayList<>(points);
+        sorted.sort(Comparator.comparingDouble(point -> dirX * point.x() + dirY * point.y()));
+        Set<Edge> edges = HashSet.newHashSet(sorted.size() - 1);
+        for (int index = 0; index + 1 < sorted.size(); index++) {
+            edges.add(new Edge(sorted.get(index).id(), sorted.get(index + 1).id()));
         }
         return edges;
     }
