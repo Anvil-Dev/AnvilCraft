@@ -83,7 +83,12 @@ public final class StellarEmissionRenderer {
         StellarRadiance.normalizeColor(color);
         float[] core = StellarRadiance.coreColor(color, temperature, exposure);
         float gain = StellarRadiance.surfaceGain(temperature);
-        int tint = ARGB.colorFromFloat(StellarRadiance.encodeExposure(exposure), core[0] * gain, core[1] * gain, core[2] * gain);
+        int tint = ARGB.colorFromFloat(
+            StellarRadiance.encodeExposure(exposure),
+            core[0] * gain,
+            core[1] * gain,
+            core[2] * gain
+        );
         BlockStateModel baked = Minecraft.getInstance().getModelManager().getStandaloneModel(model.key());
         if (baked == null) return false;
         drawModel(baked, pose, collector, Layers.SURFACE, tint);
@@ -93,8 +98,10 @@ public final class StellarEmissionRenderer {
             pose.scale(0.375F, 0.375F, 0.375F);
             pose.translate(-0.5, -0.5, -0.5);
         }
-        submitCorona(pose, collector, color, StellarRadiance.haloScale(exposure) - 1.0F,
-            StellarRadiance.haloStrength(exposure) * 0.45F, StellarRadiance.rimBoost(temperature, exposure));
+        submitCorona(
+            pose, collector, color, StellarRadiance.haloScale(exposure) - 1.0F,
+            StellarRadiance.haloStrength(exposure) * 0.45F, StellarRadiance.rimBoost(temperature, exposure)
+        );
         pose.popPose();
         return true;
     }
@@ -104,21 +111,35 @@ public final class StellarEmissionRenderer {
         BlockStateModel cube = Minecraft.getInstance().getModelManager().getBlockStateModelSet()
             .get(Blocks.WHITE_CONCRETE.defaultBlockState());
         float[] color = {1.0F, 0.3F, 0.1F};
-        drawModel(cube, pose, collector, Layers.CORONA,
-            ARGB.colorFromFloat(StellarRadiance.BROWN_DWARF_SURFACE_GLOW, color[0], color[1], color[2]));
-        submitCorona(pose, collector, color, StellarRadiance.BROWN_DWARF_HALO_SCALE - 1.0F,
-            StellarRadiance.BROWN_DWARF_HALO_ALPHA, 0.0F);
+        drawModel(
+            cube, pose, collector, Layers.CORONA,
+            ARGB.colorFromFloat(StellarRadiance.BROWN_DWARF_SURFACE_GLOW, color[0], color[1], color[2])
+        );
+        submitCorona(
+            pose, collector, color, StellarRadiance.BROWN_DWARF_HALO_SCALE - 1.0F,
+            StellarRadiance.BROWN_DWARF_HALO_ALPHA, 0.0F
+        );
         return true;
     }
 
-    static void drawModel(BlockStateModel model, PoseStack pose, OrderedSubmitNodeCollector collector, RenderType type, int tint) {
-        CelestialIrisRenderer.submit(pose, collector, type, (matrix, vertices) ->
-            BlockStateModelRenderer.INSTANCE.getTessellatorNoLighting().tesselateBlock((x, y, z, quad, instance) -> {
-                instance.setColor(tint);
-                instance.setLightCoords(LightCoordsUtil.FULL_BRIGHT);
-                instance.setOverlayCoords(OverlayTexture.NO_OVERLAY);
-                vertices.putBakedQuad(matrix, quad, instance);
-            }, 0, 0, 0, BlockAndTintGetter.EMPTY, BlockPos.ZERO, Blocks.AIR.defaultBlockState(), model, 42), false);
+    static void drawModel(
+        BlockStateModel model,
+        PoseStack pose,
+        OrderedSubmitNodeCollector collector,
+        RenderType type,
+        int tint
+    ) {
+        CelestialIrisRenderer.submit(
+            pose, collector, type, (matrix, vertices) ->
+                BlockStateModelRenderer.INSTANCE.getTessellatorNoLighting().tesselateBlock(
+                    (x, y, z, quad, instance) -> {
+                        instance.setColor(tint);
+                        instance.setLightCoords(LightCoordsUtil.FULL_BRIGHT);
+                        instance.setOverlayCoords(OverlayTexture.NO_OVERLAY);
+                        vertices.putBakedQuad(matrix, quad, instance);
+                    }, 0, 0, 0, BlockAndTintGetter.EMPTY, BlockPos.ZERO, Blocks.AIR.defaultBlockState(), model, 42
+                ), false
+        );
     }
 
     private static void submitCorona(
@@ -128,32 +149,42 @@ public final class StellarEmissionRenderer {
         TextureAtlasSprite sprite = Minecraft.getInstance().getModelManager().getBlockStateModelSet().get(block)
             .particleMaterial(BlockAndTintGetter.EMPTY, BlockPos.ZERO, block).sprite();
         Vector3f camera = new Matrix4f(pose.last().pose()).invert().transformPosition(new Vector3f());
-        CelestialIrisRenderer.submit(pose, collector, Layers.CORONA, (matrix, vertices) -> {
-            for (int corner = 0; corner < 8; corner++) {
-                for (int axis = 0; axis < 3; axis++) {
-                    if ((corner & (1 << axis)) != 0 || !StellarRadiance.silhouetteEdge(camera, corner, axis)) continue;
-                    int end = corner | (1 << axis);
-                    for (int band = 0; band < HALO_BANDS; band++) {
-                        float inner = band / (float) HALO_BANDS;
-                        float outer = (band + 1) / (float) HALO_BANDS;
-                        inner *= inner;
-                        outer *= outer;
-                        float innerScale = 1.0F + reach * inner;
-                        float outerScale = 1.0F + reach * outer;
-                        float innerAlpha = StellarRadiance.haloAlpha(edgeAlpha, rimBoost, inner);
-                        float outerAlpha = StellarRadiance.haloAlpha(edgeAlpha, rimBoost, outer);
-                        haloVertex(vertices, matrix, sprite, corner, innerScale, color, innerAlpha);
-                        haloVertex(vertices, matrix, sprite, end, innerScale, color, innerAlpha);
-                        haloVertex(vertices, matrix, sprite, end, outerScale, color, outerAlpha);
-                        haloVertex(vertices, matrix, sprite, corner, outerScale, color, outerAlpha);
+        CelestialIrisRenderer.submit(
+            pose, collector, Layers.CORONA, (matrix, vertices) -> {
+                for (int corner = 0; corner < 8; corner++) {
+                    for (int axis = 0; axis < 3; axis++) {
+                        if ((corner & (1 << axis)) != 0 || !StellarRadiance.silhouetteEdge(camera, corner, axis)) {
+                            continue;
+                        }
+                        int end = corner | (1 << axis);
+                        for (int band = 0; band < HALO_BANDS; band++) {
+                            float inner = band / (float) HALO_BANDS;
+                            float outer = (band + 1) / (float) HALO_BANDS;
+                            inner *= inner;
+                            outer *= outer;
+                            float innerScale = 1.0F + reach * inner;
+                            float outerScale = 1.0F + reach * outer;
+                            float innerAlpha = StellarRadiance.haloAlpha(edgeAlpha, rimBoost, inner);
+                            float outerAlpha = StellarRadiance.haloAlpha(edgeAlpha, rimBoost, outer);
+                            haloVertex(vertices, matrix, sprite, corner, innerScale, color, innerAlpha);
+                            haloVertex(vertices, matrix, sprite, end, innerScale, color, innerAlpha);
+                            haloVertex(vertices, matrix, sprite, end, outerScale, color, outerAlpha);
+                            haloVertex(vertices, matrix, sprite, corner, outerScale, color, outerAlpha);
+                        }
                     }
                 }
-            }
-        }, false);
+            }, false
+        );
     }
 
     private static void haloVertex(
-        VertexConsumer vertices, PoseStack.Pose pose, TextureAtlasSprite sprite, int corner, float scale, float[] color, float alpha
+        VertexConsumer vertices,
+        PoseStack.Pose pose,
+        TextureAtlasSprite sprite,
+        int corner,
+        float scale,
+        float[] color,
+        float alpha
     ) {
         float x = 0.5F + ((corner & 1) - 0.5F) * scale;
         float y = 0.5F + (((corner >> 1) & 1) - 0.5F) * scale;
@@ -164,11 +195,15 @@ public final class StellarEmissionRenderer {
     }
 
     private static final class Layers {
-        private static final RenderType SURFACE = RenderType.create("anvilcraft:stellar_surface",
+        private static final RenderType SURFACE = RenderType.create(
+            "anvilcraft:stellar_surface",
             RenderSetup.builder(ModRenderPipelines.STELLAR_SURFACE)
-                .withTexture("Sampler0", Sheets.BLOCKS_MAPPER.sheet()).createRenderSetup());
-        private static final RenderType CORONA = RenderType.create("anvilcraft:stellar_corona",
+                .withTexture("Sampler0", Sheets.BLOCKS_MAPPER.sheet()).createRenderSetup()
+        );
+        private static final RenderType CORONA = RenderType.create(
+            "anvilcraft:stellar_corona",
             RenderSetup.builder(ModRenderPipelines.STELLAR_CORONA)
-                .withTexture("Sampler0", Sheets.BLOCKS_MAPPER.sheet()).bufferSize(8192).createRenderSetup());
+                .withTexture("Sampler0", Sheets.BLOCKS_MAPPER.sheet()).bufferSize(8192).createRenderSetup()
+        );
     }
 }

@@ -1,5 +1,6 @@
 dependencies {
     // AnvilLib
+    jarJar(libs.anvillib)
     api(libs.anvillib)
     api(libs.anvillib.cube)
     api(libs.anvillib.multiblock) { transitive = false }
@@ -7,7 +8,6 @@ dependencies {
     api(libs.anvillib.registrum) { transitive = false }
     interfaceInjectionData(libs.anvillib.recipe)
     interfaceInjectionData(libs.anvillib.moveableEntityBlock)
-    // jarJar(libs.anvillib)
 
     // Ageratum 藿香
     api(libs.ageratum)

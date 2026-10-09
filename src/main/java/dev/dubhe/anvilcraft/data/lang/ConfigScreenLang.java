@@ -202,6 +202,12 @@ public class ConfigScreenLang {
         ConfigScreenLang.addOverride(provider, "anvilcraft.configuration.creative_variant_picker_enabled.tooltip",
             "Folds 16-color families into a single representative item and enables the right-click variant picker; "
                 + "applies to both creative inventory layouts (requires restart)");
+        ConfigScreenLang.addOverride(provider, "anvilcraft.configuration.cfa_occlusion_culling", "CFA Occlusion Culling");
+        ConfigScreenLang.addOverride(
+            provider,
+            "anvilcraft.configuration.cfa_occlusion_culling.tooltip",
+            "Experimental occlusion culling for the Celestial Forging Anvil; geometry fully hidden behind terrain is skipped. Separately drawn parts (tractor beams, bloom) are not culled and may stay visible."
+        );
     }
 
     private static void addOverride(RegistrumLangProvider provider, String key, String value) {
