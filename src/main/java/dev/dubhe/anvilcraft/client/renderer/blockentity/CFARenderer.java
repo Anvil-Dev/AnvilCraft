@@ -64,11 +64,11 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * 锻星砧的世界内渲染器，将 1.21 的即时渲染实现迁移到 26.1 的提取与提交架构。
+ * 锻星砧的世界内渲染器
  * 负责束星环骨骼层级、红石驱动的平滑缩放、天体自转、动态行星贴图、恒星颜色与光晕、
  * 大气层、天体环、托举光束以及超新星闪光和放射光束。
  */
-@SuppressWarnings("checkstyle:VariableDeclarationUsageDistance")
+@SuppressWarnings({"checkstyle:VariableDeclarationUsageDistance", "UnstableApiUsage"})
 public class CFARenderer implements BlockEntityRenderer<CelestialForgingAnvilBlockEntity, CFARenderState> {
     private final @Nullable SkullModelBase playerHeadModel;
     private final RandomSource supernovaRandom = RandomSource.create();
@@ -107,11 +107,14 @@ public class CFARenderer implements BlockEntityRenderer<CelestialForgingAnvilBlo
         AnvilCraft.of("block/celestial_forging_anvil_ring_4_penrose_sphere"));
     public static final StandaloneModelKey<BlockStateModel> R4_PENROSE_SPHERE_FIX = key("CFA Ring 4 Penrose Fix");
     public static final StandaloneModelKey<BlockStateModel> R4_PENROSE_SPHERE_LASER = key("CFA Ring 4 Penrose Laser");
-    public static final StandaloneModelKey<BlockStateModel> R4_PENROSE_SPHERE_LASER_OFF = key("CFA Ring 4 Penrose Laser Off");
+    public static final StandaloneModelKey<BlockStateModel> R4_PENROSE_SPHERE_LASER_OFF = key(
+        "CFA Ring 4 Penrose Laser Off");
     public static final StandaloneModelKey<BlockStateModel> R4_MATTER_DECOMPRESSOR = getMegastructureModel(
         AnvilCraft.of("block/celestial_forging_anvil_ring_4_matter_decompressor"));
-    public static final StandaloneModelKey<BlockStateModel> R4_MATTER_DECOMPRESSOR_FIX = key("CFA Ring 4 Decompressor Fix");
-    public static final StandaloneModelKey<BlockStateModel> R4_MATTER_DECOMPRESSOR_RING = key("CFA Ring 4 Decompressor Ring");
+    public static final StandaloneModelKey<BlockStateModel> R4_MATTER_DECOMPRESSOR_FIX = key(
+        "CFA Ring 4 Decompressor Fix");
+    public static final StandaloneModelKey<BlockStateModel> R4_MATTER_DECOMPRESSOR_RING = key(
+        "CFA Ring 4 Decompressor Ring");
     public static final StandaloneModelKey<BlockStateModel> R4_WORMHOLE_STABILIZER = getMegastructureModel(
         AnvilCraft.of("block/celestial_forging_anvil_ring_4_wormhole_stabilizer"));
     public static final StandaloneModelKey<BlockStateModel> R5_ACCELERATOR = getMegastructureModel(
@@ -128,11 +131,13 @@ public class CFARenderer implements BlockEntityRenderer<CelestialForgingAnvilBlo
     public static final StandaloneModelKey<BlockStateModel> BODY_PLANET_WET = key("CFA Body Planet Wet");
     public static final StandaloneModelKey<BlockStateModel> BODY_PLANET_BOGGY = key("CFA Body Planet Boggy");
     public static final StandaloneModelKey<BlockStateModel> BODY_PLANET_OCEANIC = key("CFA Body Planet Oceanic");
-    public static final StandaloneModelKey<BlockStateModel> BODY_PLANET_ATMOSPHERELESS = key("CFA Body Planet Atmosphereless");
+    public static final StandaloneModelKey<BlockStateModel> BODY_PLANET_ATMOSPHERELESS = key(
+        "CFA Body Planet Atmosphereless");
     public static final StandaloneModelKey<BlockStateModel> BODY_PLANET_GIANT = key("CFA Body Planet Giant");
     public static final StandaloneModelKey<BlockStateModel> BODY_PLANET_OVERWORLD = key("CFA Body Planet Overworld");
     public static final StandaloneModelKey<BlockStateModel> BODY_PLANET_FLESH = key("CFA Body Planet Flesh");
-    public static final StandaloneModelKey<BlockStateModel> BODY_PLANET_INTELLIGENCE = key("CFA Body Planet Intelligence");
+    public static final StandaloneModelKey<BlockStateModel> BODY_PLANET_INTELLIGENCE = key(
+        "CFA Body Planet Intelligence");
     public static final StandaloneModelKey<BlockStateModel> BODY_PLANET_SHATTERED = key("CFA Body Planet Shattered");
     public static final StandaloneModelKey<BlockStateModel> BODY_PLANET_HOLLOW = key("CFA Body Planet Hollow");
     public static final StandaloneModelKey<BlockStateModel> BODY_PLANET_ERROR = key("CFA Body Planet Error");
@@ -225,7 +230,8 @@ public class CFARenderer implements BlockEntityRenderer<CelestialForgingAnvilBlo
         state.setOcclusionKey(null);
         state.setRenderBounds(null);
         float renderTime = be.getLevel() == null ? 0 : be.getLevel().getGameTime() % 1_200_000L
-            + Minecraft.getInstance().getDeltaTracker().getGameTimeDeltaPartialTick(true);
+                                                       + Minecraft.getInstance().getDeltaTracker().getGameTimeDeltaPartialTick(
+            true);
         float rot = itemDisplay ? renderTime * 3 / (1 + be.getRedstoneSignal() * 0.4F)
             : be.getRotation() + (be.getRotation() - be.getPreRotation()) * partialTicks;
         state.setRotation(rot);
@@ -365,16 +371,12 @@ public class CFARenderer implements BlockEntityRenderer<CelestialForgingAnvilBlo
         state.setOuterRingModel(FeatureRendererSupport.createTessellation(outerKey, false));
         state.setMiddleRingModel(FeatureRendererSupport.createTessellation(middleKey, false));
         state.setInnerRingModel(FeatureRendererSupport.createTessellation(innerKey, false));
-        VisibleRings rings = VisibleRings.of(
-            bodyData,
-            be.getEffectiveBodyDataForRendering(),
-            be.getActiveMegastructureOption(),
-            isAmplify,
-            be.isAcceleratorActive()
-        );
-        state.setHasOuterRing(rings.outer());
-        state.setHasMiddleRing(rings.middle());
-        state.setHasInnerRing(rings.inner());
+        CelestialBodyData effectiveBodyData = be.getEffectiveBodyDataForRendering();
+        boolean hasMechanicalRings = !(effectiveBodyData instanceof SpecialCelestialBodyData special
+            && special.isPlayerHead());
+        state.setHasOuterRing(hasMechanicalRings);
+        state.setHasMiddleRing(hasMechanicalRings);
+        state.setHasInnerRing(hasMechanicalRings);
 
         state.setOuterVisibleNow(isRingVisible(outerIndex, bodyData, isAmplify));
         state.setOuterWasVisible(prevBody == null || isRingVisible(outerIndex, prevBody, isAmplify));
@@ -382,51 +384,30 @@ public class CFARenderer implements BlockEntityRenderer<CelestialForgingAnvilBlo
         state.setMiddleWasVisible(prevBody == null || isRingVisible(middleIndex, prevBody, isAmplify));
         state.setInnerVisibleNow(isRingVisible(innerIndex, bodyData, isAmplify));
         state.setInnerWasVisible(prevBody == null || isRingVisible(innerIndex, prevBody, isAmplify));
-    }
 
-    /// 机械束星环的存在/巨构替代掩码；当前和上一天体的可见性另行计算，以保留淡出过渡。
-    private record VisibleRings(boolean outer, boolean middle, boolean inner) {
-        static VisibleRings of(
-            @Nullable CelestialBodyData bodyData,
-            @Nullable CelestialBodyData effectiveBodyData,
-            @Nullable CelestialRefactorOption option,
-            boolean isAmplify,
-            boolean acceleratorActive
-        ) {
-            if (effectiveBodyData instanceof SpecialCelestialBodyData special && special.isPlayerHead()) {
-                return new VisibleRings(false, false, false);
-            }
-            Identifier id = option == null ? null : option.id();
-            if (!isAmplify) {
-                boolean brownDwarfDyson = ModMegastructures.DYSON_SPHERE_BROWN_DWARF.getId().equals(id);
-                return new VisibleRings(!brownDwarfDyson, !brownDwarfDyson, true);
-            }
-            boolean smallDyson = ModMegastructures.DYSON_SPHERE_SMALL.getId().equals(id);
-            boolean anyDyson = smallDyson || ModMegastructures.DYSON_SPHERE_LARGE.getId().equals(id);
-            boolean penrose = ModMegastructures.PENROSE_SPHERE.getId().equals(id);
-            boolean isSmallStar = bodyData != null && !bodyData.usesLargeStellarRings();
-            boolean outer = !(anyDyson || (penrose && !acceleratorActive));
-            boolean middle = !(anyDyson || (penrose && isSmallStar && !acceleratorActive));
-            boolean inner = !(smallDyson
-                || ModMegastructures.MAGNETAR_COIL.getId().equals(id)
-                || penrose
-                || ModMegastructures.MATTER_DECOMPRESSOR.getId().equals(id));
-            return new VisibleRings(outer, middle, inner);
+        if (!isAmplify && state.isBrownDwarfDysonSphere()) {
+            state.setHasMiddleRing(false);
+            state.setHasOuterRing(false);
         }
-
-        /// 未被巨构替代的机械环的最大模型外接半径（未乘环缩放），单位：格。
-        float maxRadius(boolean isAmplify) {
-            float radius = 0.0f;
-            if (this.inner) {
-                radius = Math.max(radius, ringRadius(isAmplify ? 4 : 1));
+        // 特殊巨构使用随恒星同步的额外渲染层替代机械环时，隐藏骨骼层级中的对应环。
+        if (isAmplify) {
+            boolean anyDyson = state.isDysonSphereR4() || state.isDysonSphereR5();
+            boolean isSmallStar = bodyData != null && !bodyData.usesLargeStellarRings();
+            // 戴森球隐藏外环；彭罗斯球仅在加速器未工作时隐藏外环。
+            boolean hideOuterForPenrose = state.isPenroseSphere() && !state.isAcceleratorActive();
+            if (anyDyson || hideOuterForPenrose) {
+                state.setHasOuterRing(false);
             }
-            if (this.middle) {
-                radius = Math.max(radius, ringRadius(isAmplify ? 5 : 2));
+            // 戴森球隐藏中环；小型恒星的彭罗斯球仅在加速器未工作时隐藏中环。
+            boolean hideMiddleForPenrose = state.isPenroseSphere() && isSmallStar && !state.isAcceleratorActive();
+            if (anyDyson || hideMiddleForPenrose) {
+                state.setHasMiddleRing(false);
             }
-            if (this.outer) {
-                radius = Math.max(radius, ringRadius(isAmplify ? 6 : 3));
+            // 小型戴森球、磁星线圈、彭罗斯球和物质解压器使用恒星同步层替代 R4。
+            if (state.isDysonSphereR4() || state.isMagnetarCoil()
+                || state.isPenroseSphere() || state.isMatterDecompressor()) {
+                state.setHasInnerRing(false);
             }
-            return radius;
         }
     }
 
@@ -445,58 +426,74 @@ public class CFARenderer implements BlockEntityRenderer<CelestialForgingAnvilBlo
         };
     }
 
-    /// 环类图层的保守模型半径（未乘环缩放），保留可能仍在淡出的机械环。
-    private static float maxRingLayerRadius(
+    private static float bodyRadiusFactor(
         CelestialForgingAnvilBlockEntity be,
-        @Nullable CelestialBodyData bodyData,
-        @Nullable CelestialBodyData effectiveBodyData
+        CelestialBodyData body,
+        float partialTicks
     ) {
-        boolean isAmplify = be.isAmplify();
-        CelestialRefactorOption option = be.getActiveMegastructureOption();
-        float radius = VisibleRings.of(
-            bodyData,
-            effectiveBodyData,
-            option,
-            isAmplify,
-            be.isAcceleratorActive()
-        ).maxRadius(isAmplify);
-        if (!isAmplify) {
-            if (option != null && ModMegastructures.DYSON_SPHERE_BROWN_DWARF.getId().equals(option.id())) {
-                radius = Math.max(radius, ringRadius(3));
-            }
-            return radius;
-        }
-
-        // 巨构用同量级的恒星同步层替代其占用的机械环，因此该层半径按对应环模型计入。
-        if (option != null && option.ring() > 0) {
-            radius = Math.max(radius, ringRadius(option.ring()));
-        }
-        // 戴森球还会占用外层环：小型恒星用 R5，其余用 R6（与 extractMegastructureRings 一致）。
-        Identifier id = option == null ? null : option.id();
-        boolean isSmallStar = bodyData != null && !bodyData.usesLargeStellarRings();
-        if (isSmallStar && ModMegastructures.DYSON_SPHERE_SMALL.getId().equals(id)) {
-            radius = Math.max(radius, ringRadius(5));
-        }
-        if (!isSmallStar && ModMegastructures.DYSON_SPHERE_LARGE.getId().equals(id)) {
-            radius = Math.max(radius, ringRadius(6));
-        }
-        return radius;
-    }
-
-    /// 天体在自身缩放空间中的最大外接半径系数，按各天体分支实际提交的模型与光晕尺寸取值。
-    private static float bodyRadiusFactor(CelestialBodyData body) {
-        if (body instanceof SpecialCelestialBodyData) {
-            return SPECIAL_BODY_RADIUS;
+        float cubeRadius = (float) (Math.sqrt(3) / 2);
+        if (body instanceof SpecialCelestialBodyData special) {
+            return special.isPlayerHead() ? PLAYER_HEAD_RADIUS : SPECIAL_BODY_RADIUS;
         }
         if (body instanceof StarData star) {
-            return switch (star.bodyClass()) {
-                case BLACK_HOLE -> 1.414f;
-                case NEUTRON_STAR -> star.rotationSpeed() >= 5 ? 1.503f : 0.406f;
-                default -> 1.386f;
-            };
+            if (star.bodyClass() == CelestialBodyClass.BLACK_HOLE) return 1.414f;
+            boolean neutron = star.bodyClass() == CelestialBodyClass.NEUTRON_STAR;
+            var visual = be.getCelestialBodyData() instanceof StarData && be.getStellarEvolutionState() != null
+                ? be.getStellarVisualState(partialTicks) : null;
+            var event = visual == null ? null : be.getStellarEventProfile();
+            float progress = event == null ? 0 : be.getStellarEventProgress(partialTicks);
+            boolean emissive = StellarEmissionRenderer.standard()
+                && Minecraft.getInstance().getModelManager().getStandaloneModel(getStarModelKey(star)) != null;
+            float factor = neutron ? 0.406f : 1.54f * cubeRadius;
+            if (emissive) {
+                float temperature = visual == null
+                    ? dev.dubhe.anvilcraft.block.entity.celestial.StellarVisualState.temperatureForSurfaceClass(
+                    star.bodyClass(), star.energy()) : visual.temperature();
+                float luminosity = visual == null ? Math.max(0.01f, star.energy() / 32.0f) : visual.luminosity();
+                float exposure = StellarRadiance.exposure(
+                    temperature,
+                    luminosity,
+                    visual == null ? 1 : visual.emission()
+                );
+                float eventEmission = event == null ? 0 : event.emission(progress);
+                if (eventEmission > 0) exposure = StellarRadiance.eventExposure(exposure, eventEmission);
+                factor = Math.max(
+                    neutron ? 0.406f : cubeRadius,
+                    cubeRadius * StellarRadiance.haloScale(exposure) * (neutron ? 0.375f : 1)
+                );
+            }
+            if (neutron) return star.rotationSpeed() >= 5 ? Math.max(factor, 1.503f) : factor;
+            if (visual != null) {
+                float strength = visual.windStrength();
+                boolean convective = "fully_convective_main_sequence".equals(visual.surfaceStyle());
+                boolean radiative = "radiative_core_main_sequence".equals(visual.surfaceStyle());
+                if (strength > 0 || convective || radiative) {
+                    int shells = strength > 0 ? 4 : (convective ? 3 : 1);
+                    for (int shell = 0; shell < shells; shell++) {
+                        float flow = (visual.flowProgress() * (2 + strength * 5) + shell / (float) shells) % 1;
+                        float scale = strength > 0 ? 1.05f + flow * (0.5f + strength) : 1.012f + shell * 0.014f;
+                        factor = Math.max(factor, cubeRadius * scale);
+                    }
+                }
+                if (event != null && Math.max(0, event.ejectaRadius(progress)) > 0.01f) {
+                    float outer = Math.clamp(visual.ejectaRadius() / Math.max(visual.radius(), 0.01f), 1.0f, 12.0f);
+                    factor = Math.max(factor, cubeRadius * outer);
+                }
+            }
+            return factor;
         }
-        // 行星：有环时按程序化天体环（半径 1.0 × 最大倍率 1.4），无环时按大气层立方体（0.866 × 1.125）。
-        return body.ringType() == RingType.NONE ? 1.0f : 1.4f;
+        float factor = cubeRadius;
+        boolean atmosphere = body instanceof RockyPlanetData rocky && rocky.hasAtmosphere();
+        if (atmosphere) {
+            boolean vanilla = AnvilCraft.CLIENT_CONFIG.planetAtmosphereRenderingMode
+                == dev.dubhe.anvilcraft.config.AnvilCraftClientConfig.CelestialRenderingMode.VANILLA;
+            factor = vanilla ? cubeRadius * 1.125f : (float) Math.sqrt(3) * 0.6875f;
+        }
+        if (body instanceof GiantPlanetData giant && giant.brownDwarf()) {
+            float halo = StellarEmissionRenderer.standard() ? StellarRadiance.BROWN_DWARF_HALO_SCALE : 1.15f + 2 / 3.0f * 0.25f;
+            factor = Math.max(factor, cubeRadius * halo);
+        }
+        return factor;
     }
 
     /// 判断指定天体数据下的机械束星环是否可见。
@@ -624,7 +621,12 @@ public class CFARenderer implements BlockEntityRenderer<CelestialForgingAnvilBlo
     }
 
     /// 为提交阶段解析天体模型和动态贴图。
-    private void extractBody(CelestialForgingAnvilBlockEntity be, CFARenderState state, float partialTicks, boolean itemDisplay) {
+    private void extractBody(
+        CelestialForgingAnvilBlockEntity be,
+        CFARenderState state,
+        float partialTicks,
+        boolean itemDisplay
+    ) {
         CelestialBodyData effectiveBodyData = be.getEffectiveBodyDataForRendering();
         state.setEffectiveBodyData(effectiveBodyData);
         boolean canRender = effectiveBodyData != null
@@ -650,7 +652,11 @@ public class CFARenderer implements BlockEntityRenderer<CelestialForgingAnvilBlo
             }
             // 粉碎、空洞、血肉、智慧和错误天体使用独立复杂模型。
             case SpecialCelestialBodyData special when special.needsCustomModel() -> state.setComplexBodyModel(
-                FeatureRendererSupport.createTessellation(getSpecialBodyModel(special.getModelLocation()), false, true));
+                FeatureRendererSupport.createTessellation(
+                    getSpecialBodyModel(special.getModelLocation()),
+                    false,
+                    true
+                ));
             case StarData star -> {
                 boolean translucent = star.bodyClass() == CelestialBodyClass.BLACK_HOLE;
                 state.setBodyModel(FeatureRendererSupport.createTessellation(
@@ -703,7 +709,9 @@ public class CFARenderer implements BlockEntityRenderer<CelestialForgingAnvilBlo
         return BODY_STAR;
     }
 
-    /** 获取资源包天体模型对应的稳定独立模型键。 */
+    /**
+     * 获取资源包天体模型对应的稳定独立模型键。
+     */
     public static StandaloneModelKey<BlockStateModel> getSpecialBodyModel(Identifier modelLocation) {
         return CUSTOM_BODY_MODELS.computeIfAbsent(
             modelLocation,
@@ -717,12 +725,16 @@ public class CFARenderer implements BlockEntityRenderer<CelestialForgingAnvilBlo
     }
 
     public void submitHeadItem(CFARenderState state, PoseStack pose, SubmitNodeCollector collector) {
-        this.submitContents(state, pose, collector,
-            Minecraft.getInstance().gameRenderer.getGameRenderState().levelRenderState.cameraRenderState, true);
+        this.submitContents(
+            state, pose, collector,
+            Minecraft.getInstance().gameRenderer.getGameRenderState().levelRenderState.cameraRenderState, true
+        );
     }
 
-    private void submitContents(CFARenderState state, PoseStack pose, SubmitNodeCollector collector,
-                                CameraRenderState camera, boolean itemDisplay) {
+    private void submitContents(
+        CFARenderState state, PoseStack pose, SubmitNodeCollector collector,
+        CameraRenderState camera, boolean itemDisplay
+    ) {
         OcclusionSubmitNodeStorage storage = itemDisplay ? null : this.beginOcclusionRecord(state, collector);
         try {
             this.submitRecordedContents(state, pose, storage == null ? collector : storage, camera, itemDisplay);
@@ -733,8 +745,10 @@ public class CFARenderer implements BlockEntityRenderer<CelestialForgingAnvilBlo
         }
     }
 
-    private void submitRecordedContents(CFARenderState state, PoseStack pose, SubmitNodeCollector target,
-                                        CameraRenderState camera, boolean itemDisplay) {
+    private void submitRecordedContents(
+        CFARenderState state, PoseStack pose, SubmitNodeCollector target,
+        CameraRenderState camera, boolean itemDisplay
+    ) {
         float rot = state.getRotation();
         float ringScale = state.getRingScale();
         float centerY = state.getCenterY();
@@ -800,8 +814,15 @@ public class CFARenderer implements BlockEntityRenderer<CelestialForgingAnvilBlo
         // 仅记录本帧托举光束，在 AFTER_WEATHER 阶段绘制，确保光束位于云层上方。
         if (state.isCanRenderBody() && state.getBeamHeight() > 0.01f && state.getAnimationProgress() > 0.01f) {
             if (itemDisplay) {
-                target.submitCustomGeometry(pose, ModRenderTypes.STELLAR_BEAM,
-                    (matrix, vertices) -> emitTractorBeam(vertices, matrix.pose(), state.getBeamHeight(), state.getAnimationProgress()));
+                target.submitCustomGeometry(
+                    pose, ModRenderTypes.STELLAR_BEAM,
+                    (matrix, vertices) -> emitTractorBeam(
+                        vertices,
+                        matrix.pose(),
+                        state.getBeamHeight(),
+                        state.getAnimationProgress()
+                    )
+                );
             } else {
                 DEFERRED_TRACTOR_BEAMS.put(
                     state.blockPos,
@@ -1112,7 +1133,13 @@ public class CFARenderer implements BlockEntityRenderer<CelestialForgingAnvilBlo
         pose.popPose();
     }
 
-    public void submitItemBody(CFARenderState state, AABB bounds, long seed, PoseStack pose, SubmitNodeCollector collector) {
+    public void submitItemBody(
+        CFARenderState state,
+        AABB bounds,
+        long seed,
+        PoseStack pose,
+        SubmitNodeCollector collector
+    ) {
         CelestialBodyData body = state.getEffectiveBodyData();
         if (body == null) return;
         float scale = 0.75F / (float) Math.max(bounds.getXsize(), Math.max(bounds.getYsize(), bounds.getZsize()));
@@ -1169,9 +1196,19 @@ public class CFARenderer implements BlockEntityRenderer<CelestialForgingAnvilBlo
             }
             return;
         }
-        boolean emissive = state.getBodyModel() != null
-            && StellarEmissionRenderer.submit(star, state.getBodyModel(), pose, collector, state.getStellarVisual(),
-                state.getStellarEvent() == null ? 0 : state.getStellarEvent().emission(state.getStellarEventProgress()));
+        boolean emissive;
+        if (state.getBodyModel() != null) {
+            emissive = StellarEmissionRenderer.submit(
+                star,
+                state.getBodyModel(),
+                pose,
+                collector,
+                state.getStellarVisual(),
+                state.getStellarEvent() == null ? 0 : state.getStellarEvent().emission(state.getStellarEventProgress())
+            );
+        } else {
+            emissive = false;
+        }
         if (star.bodyClass() == CelestialBodyClass.NEUTRON_STAR) {
             if (!emissive && state.getBodyModel() != null) {
                 this.tessellateModel(state.getBodyModel(), pose, collector);
@@ -1197,11 +1234,24 @@ public class CFARenderer implements BlockEntityRenderer<CelestialForgingAnvilBlo
             this.submitRegularStarCore(state.getBodyModel(), rgb, pose, collector);
             float emission = visual == null ? 1.0F
                 : Math.clamp(0.85F + 0.15F * (float) Math.log10(1.0F + visual.luminosity()), 0.85F, 1.25F);
-            this.submitHalo(pose, collector, rgb[0], rgb[1], rgb[2], 10, 1.0F, 0.6F, 1.2F * emission, 1.125F * emission);
+            this.submitHalo(
+                pose,
+                collector,
+                rgb[0],
+                rgb[1],
+                rgb[2],
+                10,
+                1.0F,
+                0.6F,
+                1.2F * emission,
+                1.125F * emission
+            );
         }
         if (!state.isBodyOnlyItem() && state.getStellarVisual() != null) {
-            StellarEnvelopeRenderer.submit(pose, collector, state.getStellarVisual(), state.getStellarEvent(),
-                state.getStellarEventProgress());
+            StellarEnvelopeRenderer.submit(
+                pose, collector, state.getStellarVisual(), state.getStellarEvent(),
+                state.getStellarEventProgress()
+            );
         }
     }
 
@@ -1288,11 +1338,18 @@ public class CFARenderer implements BlockEntityRenderer<CelestialForgingAnvilBlo
             atmosphere = CelestialBodyRenderer.getAtmosphereColor(special.atmosphereColor());
         }
         if (atmosphere != null) {
-            dev.dubhe.anvilcraft.client.renderer.blockentity.celestial.PlanetAtmosphereRenderer.submit(pose, collector, atmosphere);
+            dev.dubhe.anvilcraft.client.renderer.blockentity.celestial.PlanetAtmosphereRenderer.submit(
+                pose,
+                collector,
+                atmosphere
+            );
         }
 
         // 褐矮星使用较弱的恒星式光晕。
-        if (bodyData instanceof GiantPlanetData gp && gp.brownDwarf() && !StellarEmissionRenderer.submitBrownDwarf(pose, collector)) {
+        if (bodyData instanceof GiantPlanetData gp && gp.brownDwarf() && !StellarEmissionRenderer.submitBrownDwarf(
+            pose,
+            collector
+        )) {
             float[] rgb = {1.0F, 0.3F, 0.1F};
             this.submitHalo(pose, collector, rgb[0], rgb[1], rgb[2], 3, 1.15f, 0.25f, 0.45f, 0.38f);
         }
@@ -1388,6 +1445,7 @@ public class CFARenderer implements BlockEntityRenderer<CelestialForgingAnvilBlo
 
     // ==================== 超新星闪光与放射光束 ====================
 
+    @SuppressWarnings("UnnecessaryLocalVariable")
     private void submitSupernovaFlash(CFARenderState state, PoseStack pose, SubmitNodeCollector collector) {
         float radius = state.getSupernovaFlashRadius();
         float alpha = state.getSupernovaFlashAlpha();
@@ -1399,14 +1457,14 @@ public class CFARenderer implements BlockEntityRenderer<CelestialForgingAnvilBlo
 
         pose.pushPose();
         pose.translate(0.5, localCenterY, 0.5);
-        float r = radius;
-        float a = alpha;
         int color = profile == null ? 0xFFFFFF : profile.color(t);
         collector.submitCustomGeometry(
             pose, ModRenderTypes.SUPERNOVA_FLASH.apply(tex),
-            (last, consumer) -> emitFlatQuad(consumer, last, r,
+            (last, consumer) -> emitFlatQuad(
+                consumer, last, radius,
                 ((color >> 16) & 0xFF) / 255.0f, ((color >> 8) & 0xFF) / 255.0f, (color & 0xFF) / 255.0f,
-                a, LightCoordsUtil.FULL_BRIGHT)
+                alpha, LightCoordsUtil.FULL_BRIGHT
+            )
         );
         pose.popPose();
 
@@ -1531,6 +1589,7 @@ public class CFARenderer implements BlockEntityRenderer<CelestialForgingAnvilBlo
         beamVertex(consumer, matrix, tipX, tipY, tipZ, 0f, 0f, 0f, 1.0f);
     }
 
+    @SuppressWarnings("SameParameterValue")
     private static void beamVertex(
         VertexConsumer consumer,
         Matrix4f matrix,
@@ -1546,6 +1605,7 @@ public class CFARenderer implements BlockEntityRenderer<CelestialForgingAnvilBlo
     }
 
     /// 在 XZ 平面绘制以原点为中心、边长为两倍半径且法线向上的水平四边形。
+    @SuppressWarnings("SameParameterValue")
     private static void emitFlatQuad(
         VertexConsumer vc,
         PoseStack.Pose pose,
@@ -1707,71 +1767,213 @@ public class CFARenderer implements BlockEntityRenderer<CelestialForgingAnvilBlo
         }
         float bodyReach = body instanceof StarData ? fullBodyScale * StellarRadiance.MAX_HALO_SCALE : fullBodyScale;
         if (visual != null) {
-            bodyReach = Math.max(bodyReach, fullBodyScale * Math.max(1 + visual.pulsationAmplitude(), 1.55F + visual.windStrength()));
+            bodyReach = Math.max(
+                bodyReach,
+                fullBodyScale * Math.max(1 + visual.pulsationAmplitude(), 1.55F + visual.windStrength())
+            );
             var event = be.getStellarEventProfile();
             if (event != null) {
-                bodyReach = Math.max(bodyReach, fullBodyScale * Math.max(1, Math.max(event.maxCoreRadius(), event.maxEjectaRadius())));
+                bodyReach = Math.max(
+                    bodyReach,
+                    fullBodyScale * Math.max(1, Math.max(event.maxCoreRadius(), event.maxEjectaRadius()))
+                );
             }
         }
         if (body instanceof SpecialCelestialBodyData special && special.isPlayerHead()) bodyReach *= PLAYER_HEAD_SCALE;
         float ringReach = visual == null ? CelestialBodyData.ringSystemScale(body, be.isAmplify())
             : CelestialBodyData.ringSystemScaleForVisualBodyScale(be.getStellarStructuralBodyScale(1));
         float reach = Math.max(Math.max(bodyReach, ringReach), be.getSmoothRingScale());
-        reach = Math.max(reach, be.getSmoothBodyScale() * (body instanceof StarData ? StellarRadiance.MAX_HALO_SCALE : 1));
+        reach = Math.max(
+            reach,
+            be.getSmoothBodyScale() * (body instanceof StarData ? StellarRadiance.MAX_HALO_SCALE : 1)
+        );
         float maxHeight = Math.max(centerY + reach * 1.5F, be.isAmplify() ? 18.0F : 12.0F);
         float maxHorizontal = Math.max(be.isAmplify() ? 3 : 1, reach * 1.5F);
         if (be.getSupernovaFlashTicks() > 0) {
             float explosionScale = Math.max(1.0f, be.getSupernovaScale());
             var profile = be.getMegastructureManager().getAcceleratorHandler().getEventProfile(be.getSupernovaProfileId());
-            float profileRayLength = profile == null ? SUPERNOVA_RAY_LENGTH : Math.max(1.0f, profile.rayLength());
-            float flashReach = Math.max(SUPERNOVA_MAX_RADIUS, profileRayLength * 1.6f + 0.5f)
-                * explosionScale + 2;
+            float profileRayLength = profile == null ? SUPERNOVA_RAY_LENGTH : profile.rayLength();
+            float flashReach = Math.max(SUPERNOVA_MAX_RADIUS, profileRayLength) * explosionScale * 1.5f + 2;
             double cy = be.getSupernovaCenterY();
-            AABB flashBounds = new AABB(
+            return new AABB(
                 be.getBlockPos().getX() + 0.5, cy, be.getBlockPos().getZ() + 0.5,
                 be.getBlockPos().getX() + 0.5, cy, be.getBlockPos().getZ() + 0.5
             ).inflate(flashReach);
-            AABB bodyBounds = new AABB(be.getBlockPos().offset(state.getValue(CelestialForgingAnvilBlock.HALF).getOffset()))
-                .inflate(maxHorizontal, reach * 1.5F, maxHorizontal);
-            return flashBounds.minmax(bodyBounds.setMaxY(bodyBounds.maxY + maxHeight));
         }
         AABB aabb = new AABB(be.getBlockPos().offset(state.getValue(CelestialForgingAnvilBlock.HALF).getOffset()))
             .inflate(maxHorizontal, reach * 1.5F, maxHorizontal);
         return aabb.setMaxY(aabb.maxY + maxHeight);
     }
 
-    /// 遮挡记录和调试共用的保守边界，合并上游完整效果边界与当前平滑缩放边界。
+    private static float maxRingLayerRadius(CelestialForgingAnvilBlockEntity be, float partialTicks) {
+        CelestialBodyData body = be.getCelestialBodyData();
+        CelestialBodyData previous = be.getAnimationPreviousBodyData();
+        CelestialBodyData effective = be.getEffectiveBodyDataForRendering();
+        boolean amplified = be.isAmplify();
+        CelestialRefactorOption option = be.getActiveMegastructureOption();
+        boolean brownDyson = option != null && ModMegastructures.DYSON_SPHERE_BROWN_DWARF.get() == option.definition();
+        boolean smallDyson = option != null && ModMegastructures.DYSON_SPHERE_SMALL.get() == option.definition();
+        boolean largeDyson = option != null && ModMegastructures.DYSON_SPHERE_LARGE.get() == option.definition();
+        boolean penrose = option != null && ModMegastructures.PENROSE_SPHERE.get() == option.definition();
+        boolean coil = option != null && ModMegastructures.MAGNETAR_COIL.get() == option.definition();
+        boolean decompressor = option != null && ModMegastructures.MATTER_DECOMPRESSOR.get() == option.definition();
+
+        boolean small = body != null && !body.usesLargeStellarRings();
+        float progress = be.getAnimationProgress(partialTicks);
+        float radius = 0;
+        if (!(effective instanceof SpecialCelestialBodyData special && special.isPlayerHead())) {
+            for (int layer = 1; layer <= 3; layer++) {
+                boolean present = amplified ? switch (layer) {
+                    case 1 -> !smallDyson && !penrose && !coil && !decompressor;
+                    case 2 -> !smallDyson && !largeDyson && !(penrose && small && !be.isAcceleratorActive());
+                    default -> !smallDyson && !largeDyson && !(penrose && !be.isAcceleratorActive());
+                } : layer == 1 || !brownDyson;
+                if (!present) continue;
+                int ring = amplified ? layer + 3 : layer;
+                boolean visible = isRingVisible(ring, body, amplified);
+                boolean wasVisible = previous == null || isRingVisible(ring, previous, amplified);
+                float scale;
+                if (be.getAnimationTicks() <= 0) {
+                    scale = visible ? 1 : 0;
+                } else {
+                    if (visible && wasVisible) {
+                        scale = 1;
+                    } else {
+                        if (visible) {
+                            scale = be.isAnimationForward() ? progress : 1 - progress;
+                        } else {
+                            if (wasVisible) {
+                                scale = be.isAnimationForward() ? 1 - progress : progress;
+                            } else {
+                                scale = 0;
+                            }
+                        }
+                    }
+                }
+                if (scale > 0.01f) radius = Math.max(radius, ringRadius(ring) * be.getSmoothRingScale() * scale);
+            }
+        }
+        if (!amplified && brownDyson && body != null && progress >= 0.001f) {
+            float sphereScale = 6 + (CelestialBodyData.ringSystemScale(
+                body,
+                false
+            ) - 6) * (be.getRedstoneSignal() / 15.0f);
+            radius = Math.max(radius, ringRadius(2) * sphereScale);
+            radius = Math.max(radius, ringRadius(3) * be.getSmoothRingScale());
+        } else {
+            if (amplified && body instanceof StarData) {
+                int ring = largeDyson ? 5 : (smallDyson || penrose || coil || decompressor ? 4 : 0);
+                if (smallDyson && small) ring = 5;
+                if (largeDyson && !small) ring = 6;
+                if (ring != 0) radius = Math.max(radius, ringRadius(ring) * be.getSmoothRingScale());
+            }
+        }
+        return radius;
+    }
+
     public AABB getOcclusionBoundingBox(CelestialForgingAnvilBlockEntity be, float partialTicks) {
         BlockPos pos = be.getBlockPos();
-        CelestialBodyData effectiveBody = be.getEffectiveBodyDataForRendering();
-        double centerX = pos.getX() + 0.5;
-        double centerZ = pos.getZ() + 0.5;
-        double centerY = pos.getY() + be.getSmoothCenterY();
-        float half = maxRingLayerRadius(be, be.getCelestialBodyData(), effectiveBody) * be.getSmoothRingScale();
-        if (effectiveBody != null) {
-            float factor = effectiveBody instanceof SpecialCelestialBodyData special && special.isPlayerHead()
-                ? PLAYER_HEAD_RADIUS * PLAYER_HEAD_SCALE : bodyRadiusFactor(effectiveBody);
-            if (effectiveBody instanceof StarData) {
-                factor = Math.max(factor, StellarRadiance.MAX_HALO_SCALE);
-                var visual = be.getStellarVisualState(partialTicks);
-                if (visual != null) {
-                    factor = Math.max(factor, 1.55F + visual.windStrength());
-                    factor = Math.max(factor, Math.clamp(visual.ejectaRadius() / Math.max(visual.radius(), 0.01F), 1.0F, 12.0F));
+        CelestialBodyData body = be.getEffectiveBodyDataForRendering();
+        double x = pos.getX() + 0.5;
+        double z = pos.getZ() + 0.5;
+        double y = pos.getY() + be.getSmoothCenterY();
+        float progress = be.getAnimationProgress(partialTicks);
+        boolean canRender = body != null && (!(body instanceof StarData) || be.isAmplifierPresent());
+        float half = maxRingLayerRadius(be, partialTicks);
+        if (canRender) {
+            float scale = be.getSmoothBodyScale() * progress;
+            float bodyScale = scale;
+            if (body instanceof SpecialCelestialBodyData special) {
+                if (special.isPlayerHead()) {
+                    bodyScale *= PLAYER_HEAD_SCALE;
+                } else {
+                    if (special.isErrorPlanet()) {
+                        bodyScale *= 0.25f;
+                    }
                 }
             }
-            half = Math.max(half, factor * be.getSmoothBodyScale());
+            if (bodyScale >= 0.001f) half = Math.max(half, bodyRadiusFactor(be, body, partialTicks) * bodyScale);
+            if (body.ringType() != RingType.NONE) {
+                float multiplier = body instanceof RockyPlanetData ? 1.35f : (body instanceof GiantPlanetData ? 1.3f : 1.4f);
+                float ringScale = scale * multiplier;
+                if (ringScale >= 0.001f) {
+                    half = Math.max(half, ringScale);
+                }
+            }
         }
-        double maxY = centerY + half;
-        if (effectiveBody != null) {
-            maxY = Math.max(maxY, pos.getY() + BEAM_BASE_Y + be.getSmoothBeamHeight());
+        AABB bounds = new AABB(x - half, y - half, z - half, x + half, y + half, z + half);
+        if (canRender && be.getSmoothBeamHeight() > 0.01f && progress > 0.01f) {
+            float beamHalf = BEAM_INNER_HALF + BEAM_GLOW_HALF_STEP * BEAM_GLOW_LAYERS;
+            double baseY = pos.getY() + BEAM_BASE_Y;
+            bounds = bounds.minmax(new AABB(
+                x - beamHalf, baseY, z - beamHalf,
+                x + beamHalf, baseY + be.getSmoothBeamHeight(), z + beamHalf
+            ));
         }
-        return this.getRenderBoundingBox(be).minmax(new AABB(
-            centerX - half,
-            centerY - half,
-            centerZ - half,
-            centerX + half,
-            maxY,
-            centerZ + half
-        ));
+        return supernovaBounds(be, partialTicks, bounds);
+    }
+
+    private static AABB supernovaBounds(CelestialForgingAnvilBlockEntity be, float partialTicks, AABB bounds) {
+        int ticks = be.getSupernovaFlashTicks();
+        if (ticks <= 0) {
+            return bounds;
+        }
+
+        int total = CelestialForgingAnvilBlockEntity.SUPERNOVA_FLASH_TICKS;
+        float t = Math.clamp((total - ticks + partialTicks) / total, 0.0f, 1.0f);
+        float scale = be.getSupernovaScale() <= 0 ? 1 : be.getSupernovaScale();
+        var profile = be.getMegastructureManager().getAcceleratorHandler().getEventProfile(be.getSupernovaProfileId());
+        float grow = Mth.sqrt(t);
+
+        float radius = (profile == null ? SUPERNOVA_MAX_RADIUS : Math.max(
+            2,
+            profile.rayLength() * 0.65f
+        )) * grow * scale;
+
+        float alpha = t > 0.75f ? 1 - (t - 0.75f) / 0.25f : 1;
+        if (radius < 0.01f || alpha <= 0.01f) {
+            return bounds;
+        }
+
+        double x = be.getBlockPos().getX() + 0.5;
+        double y = be.getSupernovaCenterY();
+        double z = be.getBlockPos().getZ() + 0.5;
+
+        bounds = bounds.minmax(new AABB(x - radius, y, z - radius, x + radius, y, z + radius));
+
+        float length = (profile == null ? SUPERNOVA_RAY_LENGTH : Math.max(1, profile.rayLength())) * grow * scale;
+        float intensity = t > 0.6f ? 1 - (t - 0.6f) / 0.4f : 1;
+        if (length < 0.01f || intensity <= 0.01f) {
+            return bounds;
+        }
+
+        long seed = be.getSupernovaEventSeed();
+        if (seed == 0) {
+            seed = be.getBlockPos().asLong() ^ 0x5DEECE66DL;
+        }
+
+        RandomSource random = RandomSource.create(seed);
+
+        int count = profile == null ? SUPERNOVA_RAY_COUNT : Math.min(SUPERNOVA_RAY_COUNT, profile.rayCount());
+        float asymmetry = profile == null ? 0 : profile.asymmetry();
+        float reach = (float) Math.sqrt(2) * 0.25f * scale;
+        for (int ray = 0; ray < count; ray++) {
+            random.nextFloat();
+            random.nextFloat();
+            float rayLength = length * (1 - asymmetry * 0.3f + (0.6f + asymmetry * 0.6f) * random.nextFloat());
+            random.nextFloat();
+            reach = Math.max(reach, rayLength);
+        }
+        if (count > 0) {
+            bounds = bounds.minmax(new AABB(
+                x - reach,
+                y - reach,
+                z - reach,
+                x + reach,
+                y + reach,
+                z + reach
+            ));
+        }
+        return bounds;
     }
 }
