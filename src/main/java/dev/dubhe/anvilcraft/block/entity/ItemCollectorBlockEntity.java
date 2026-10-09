@@ -249,6 +249,10 @@ public class ItemCollectorBlockEntity extends BlockEntity
             return TriState.FALSE;
         }
         ItemStack itemStack = itemEntity.getItem();
+        if (itemStack.isEmpty()) {
+            itemEntity.discard();
+            return TriState.TRUE;
+        }
         ItemResource resource = ItemResource.of(itemStack);
         boolean inserted = false;
         try (Transaction transaction = Transaction.openRoot()) {
