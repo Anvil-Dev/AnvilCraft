@@ -1073,7 +1073,7 @@
   "tooltip.anvilcraft.jade.item_detector": "检测范围： %d",
   "tooltip.anvilcraft.jade.power_information": "抛瓦网：%s",
   "tooltip.anvilcraft.jade.ruby_prism.power": "激光等级：%d",
-  "tooltip.anvilcraft.press_key": "按住 %s 以查看信息",
+  "tooltip.anvilcraft.press_key": "按住 [%s] 以查看信息",
   "tooltip.anvilcraft.propel_piston.remaining_energy": "  Remaining Energy: %s",
   "tooltip.anvilcraft.propel_piston.remaining_push": "  剩余推进次数：%s 块·次",
   "tooltip.anvilcraft.propel_piston.state": "推进↓↑状态： ",
