@@ -20,7 +20,10 @@ items:
 # Forging Celestial Bodies
 
 - Use <ref item="anvilcraft:confined_time_anvilon"/>, <ref item="anvilcraft:confined_space_anvilon"/>, <ref item="anvilcraft:confined_mass_anvilon"/>, <ref item="anvilcraft:confined_energy_anvilon"/> placed on the left side in sequence, and configure reasonable parameters to search for and forge a celestial body
-- Forging celestial bodies does not consume Anvilons
+
+<tip>
+Forging celestial bodies does **not consume** Anvilons, so you only ever need at most one stack of each of the four Anvilons
+</tip>
 
 <tip>
 Debugging parameters:
@@ -74,6 +77,10 @@ For construction requirements, crafting methods, materials, and functional descr
 <tip>
 To remove a mega structure, simply unbind and rebind the planet
 </tip>
+
+<warning>
+If the <ref item="anvilcraft:celestial_forging_anvil"/> is dismantled, the planet will be kept, but the mega structure will disappear
+</warning>
 
 ## Logistics Interaction
 

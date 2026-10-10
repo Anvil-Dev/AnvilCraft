@@ -34,6 +34,12 @@ items:
 锭和粒以掉落物形式产生；块生成于原方块的位置
 </info>
 
+<warning>
+
+返还的<ref item="anvilcraft:neutronium_ingot"/>会穿过大部分方块，需要防掉措施，比如过滤为仅吸收<ref item="anvilcraft:neutronium_ingot"/>的<ref item="anvilcraft:item_collector"/>
+
+</warning>
+
 # 功能
 
 - 用于合成机器或升级工具
