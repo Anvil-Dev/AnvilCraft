@@ -23,7 +23,7 @@ items:
 
 # Acquisition
 
-Use a Gold Ingot (or Gold Block) on a <ref item="anvilcraft:royal_grindstone"/> to remove its curse enchantments or enchantment penalties and obtain Cursed Gold.
+Obtained through a <ref item="anvilcraft:royal_grindstone"/>
 
 # Piglin Curse
 

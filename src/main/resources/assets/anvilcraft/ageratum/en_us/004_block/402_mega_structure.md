@@ -10,6 +10,7 @@ items:
   - anvilcraft:stellar_ring_component
   - anvilcraft:magnetar_coil_component
   - anvilcraft:stellar_evolution_accelerator_component
+  - anvilcraft:civilization_catalyst
 ---
 
 <directory />
@@ -35,7 +36,6 @@ To remove a mega structure, simply unbind and rebind the planet.
 ## Planetary Miner
 
 - **Construction requirement**: Large satellite or rocky planet
-- **Crafting method**: Select Planetary Miner on the Mega Structures page of the celestial forging anvil and submit materials.
 - **Crafting materials**: <ref item="anvilcraft:ruby_prism"/> × 16
 - **Input**: Level 16 [Laser](201_basic_laser.md#laser)
 - **Output**: Planetary mineral resources
@@ -47,7 +47,6 @@ To remove a mega structure, simply unbind and rebind the planet.
 ## Planetary Extractor
 
 - **Construction requirement**: Rocky planet with **liquids**
-- **Crafting method**: Select Planetary Extractor on the Mega Structures page of the celestial forging anvil and submit materials.
 - **Crafting materials**: <ref item="anvilcraft:pump"/> × 16
 - **Input**: None
 - **Output**: Planetary fluid resources
@@ -56,7 +55,6 @@ To remove a mega structure, simply unbind and rebind the planet.
 ## Ecological Station
 
 - **Construction requirement**: Rocky planet with **biological resources**
-- **Crafting method**: Select Ecological Station on the Mega Structures page of the celestial forging anvil and submit materials.
 - **Crafting materials**: <ref item="anvilcraft:tempering_glass"/> × 64
 - **Input**: Continuous power consumption of 1 MW
 - **Output**: Items and fluids from the planet's biological resources
@@ -67,7 +65,6 @@ To remove a mega structure, simply unbind and rebind the planet.
 ## Temple
 
 - **Construction requirement**: Rocky planet with a **primitive civilization**
-- **Crafting method**: Select Temple on the Mega Structures page of the celestial forging anvil and submit materials.
 - **Crafting materials**: <ref item="anvilcraft:enchanted_gold_block"/> × 64
 - **Input**: Specific items given as divine blessings or punishments
 - **Output**: Offerings from the civilization
@@ -77,10 +74,19 @@ To remove a mega structure, simply unbind and rebind the planet.
 Providing an item at night is not recommended, as a blessing or punishment must be provided again soon afterward, at dawn the next day.
 </tip>
 
+## Monolith Deployer
+
+<recipe id="anvilcraft:civilization_catalyst"/>
+
+- **Construction requirement**: Planet with a **primitive civilization** or **three or more biological resources**
+- **Crafting materials**: <ref item="anvilcraft:civilization_catalyst"/> × 1
+- **Properties**:
+  - One-time structure that is destroyed after ten seconds and deploys monoliths onto the planet, accelerating civilization evolution
+  - Causes a civilization to arise; if one already exists, it may perish (turning the planet into a wasteland) or fly into space (disappearing outright)
+
 ## Gas Giant Extractor
 
 - **Construction requirement**: Gas giant or ice giant
-- **Crafting method**: Select Gas Giant Extractor on the Mega Structures page of the celestial forging anvil and submit materials.
 - **Crafting materials**: <ref item="anvilcraft:pump"/> × 32
 - **Input**: None
 - **Output**: Items and fluids from gas giant resources
@@ -94,7 +100,6 @@ Providing an item at night is not recommended, as a blessing or punishment must 
 <recipe id="anvilcraft:dyson_sphere_component"/>
 
 - **Construction requirement**: Brown dwarf or normal star
-- **Crafting method**: Select Dyson Sphere on the Mega Structures page of the celestial forging anvil and submit materials.
 - **Crafting materials**: <ref item="anvilcraft:dyson_sphere_component"/> × 8 for a brown dwarf, <ref item="anvilcraft:dyson_sphere_component"/> × 16 for a small star, or <ref item="anvilcraft:dyson_sphere_component"/> × 32 for a large star
 - **Input**: None
 - **Output**: Continuously generates power. Power output is positively correlated with the celestial body's *temperature* and *radius*.
@@ -117,7 +122,6 @@ Celestial bodies consume all primordial matter in <ref item="anvilcraft:celestia
 <recipe id="anvilcraft:stellar_ring_component"/>
 
 - **Construction requirement**: Small star
-- **Crafting method**: Select Stellar Ring Collider on the Mega Structures page of the celestial forging anvil and submit materials.
 - **Crafting materials**: <ref item="anvilcraft:stellar_ring_component"/> × 8
 - **Input**: Continuous power consumption of 4 MW, plus collision materials and anvils through a logistics interface
 - **Output**: Performs [Anvil Collision Crafting](215_large_electromagnet.md#anvil-impact-crafting).
@@ -130,7 +134,6 @@ Celestial bodies consume all primordial matter in <ref item="anvilcraft:celestia
 <recipe id="anvilcraft:stellar_evolution_accelerator_component"/>
 
 - **Construction requirement**: Star other than a white dwarf, neutron star, black hole, or special red dwarf
-- **Crafting method**: Select Stellar Evolution Accelerator on the Mega Structures page of the celestial forging anvil and submit materials.
 - **Crafting materials**: <ref item="anvilcraft:stellar_evolution_accelerator_component"/> × 8
 - **Input**: None
 - **Effect**: Accelerates stellar evolution. When a star reaches the end of its life, it becomes a white dwarf or triggers a supernova explosion and becomes a neutron star or black hole.
@@ -149,7 +152,6 @@ During acceleration, if a Dyson Sphere exists, it collects **infinite electrical
 <recipe id="anvilcraft:magnetar_coil_component"/>
 
 - **Construction requirement**: Neutron star
-- **Crafting method**: Select Magnetar Coil on the Mega Structures page of the celestial forging anvil and submit materials.
 - **Crafting materials**: <ref item="anvilcraft:magnetar_coil_component"/> × 4
 - **Input**: None
 - **Output**: Continuously generates power. Power output is positively correlated with the celestial body's *magnetic field strength* and *rotation speed*.
@@ -159,7 +161,6 @@ During acceleration, if a Dyson Sphere exists, it collects **infinite electrical
 <recipe id="anvilcraft:wormhole_stabilizer_component"/>
 
 - **Construction requirement**: Black hole in an amplified state
-- **Crafting method**: Select Wormhole Stabilizer on the Mega Structures page of the celestial forging anvil and submit materials.
 - **Crafting materials**: <ref item="anvilcraft:wormhole_stabilizer_component"/> × 4
 - **Input**: Identical black hole
 - **Output**: [Wormhole](402_teleportation.md)
@@ -169,7 +170,6 @@ During acceleration, if a Dyson Sphere exists, it collects **infinite electrical
 <recipe id="anvilcraft:penrose_sphere_component"/>
 
 - **Construction requirement**: Black hole
-- **Crafting method**: Select Penrose Sphere on the Mega Structures page of the celestial forging anvil and submit materials.
 - **Crafting materials**: <ref item="anvilcraft:penrose_sphere_component"/> × 8
 - **Input**: Laser
 - **Output**: Same-level [Gamma Laser](../001_feature/402_gamma_laser.md)
@@ -185,7 +185,6 @@ Penrose Sphere laser inputs and outputs must be grouped on the left and right si
 <recipe id="anvilcraft:matter_decompressor_component"/>
 
 - **Construction requirement**: Neutron star or black hole
-- **Crafting method**: Select Matter Decompressor on the Mega Structures page of the celestial forging anvil and submit materials.
 - **Crafting materials**: <ref item="anvilcraft:matter_decompressor_component"/> × 2
 - **Input**: *Gamma Laser*; each Gamma Laser level provides 1× working efficiency
 - **Output**:

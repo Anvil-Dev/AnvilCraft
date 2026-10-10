@@ -19,6 +19,10 @@ items:
 1. Touch it to return to the Overworld spawn
 2. Hold a <ref item="anvilcraft:giant_anvil"/> and right-click the monolith core near the Mun spawn, consuming the <ref item="anvilcraft:giant_anvil"/> to obtain information about a random [hidden celestial body](../004_block/401_celestial_forging_anvil.md#hidden-celestial-bodies)
 
+<info>
+Zombies holding a <ref item="anvilcraft:monolith_line"/> or <ref item="anvilcraft:monolith_core"/> that are corrupted into giants have a chance to hold a <ref item="anvilcraft:giant_monolith_line"/> or <ref item="anvilcraft:giant_monolith_core"/>; the chance is calculated the same way as for the <ref item="anvilcraft:giant_anvil"/>
+</info>
+
 # Mun Surface
 
 Biomes where the X and Y coordinates are both less than 1024 and greater than -1024 are on the near side of Mun; all other areas are on the far side

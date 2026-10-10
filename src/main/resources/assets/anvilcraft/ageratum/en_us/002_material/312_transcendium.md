@@ -34,6 +34,12 @@ The number of enchantments on <ref item="anvilcraft:charged_neutronium_ingot"/> 
 Ingots and nuggets are produced as dropped items; blocks are generated at the position of the original block
 </info>
 
+<warning>
+
+The returned <ref item="anvilcraft:neutronium_ingot"/> passes through most blocks, so you need anti-loss measures, such as an <ref item="anvilcraft:item_collector"/> filtered to only pick up <ref item="anvilcraft:neutronium_ingot"/>
+
+</warning>
+
 # Functions
 
 - Used to craft machines or upgrade tools
