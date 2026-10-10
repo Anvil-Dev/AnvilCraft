@@ -74,6 +74,10 @@ public class TranscendenceAnvilBlock extends BetterAnvilBlock implements IHammer
 
     @Override
     public void falling(FallingBlockEntity entity) {
-        entity.setHurtsEntities(AnvilCraft.CONFIG.world.anvilFallDamagePerBlock, Integer.MAX_VALUE);
+        int max = AnvilCraft.CONFIG.world.transcendenceAnvilMaxFallDamage;
+        if (max == -1) {
+            max = Integer.MAX_VALUE;
+        }
+        entity.setHurtsEntities(AnvilCraft.CONFIG.world.transcendenceAnvilFallDamagePerBlock, max);
     }
 }

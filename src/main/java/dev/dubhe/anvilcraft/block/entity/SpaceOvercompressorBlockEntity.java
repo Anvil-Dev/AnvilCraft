@@ -26,7 +26,7 @@ public class SpaceOvercompressorBlockEntity extends BlockEntity {
 
     public static long NEUTRONIUM_INGOT_MASS = 10_000_000;
     public static long DISPLAYED_MASS = NEUTRONIUM_INGOT_MASS / 100;
-    private long storedMass = 0;
+    private long storedMass = 0; // 实际质量值需要除以100
 
     public SpaceOvercompressorBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState);

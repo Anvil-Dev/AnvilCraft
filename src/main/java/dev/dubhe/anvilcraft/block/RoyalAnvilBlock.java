@@ -79,6 +79,10 @@ public class RoyalAnvilBlock extends BetterAnvilBlock implements IHammerRemovabl
 
     @Override
     public void falling(FallingBlockEntity entity) {
-        entity.setHurtsEntities(AnvilCraft.CONFIG.world.anvilFallDamagePerBlock, 80);
+        int max = AnvilCraft.CONFIG.world.royalAnvilMaxFallDamage;
+        if (max == -1) {
+            max = Integer.MAX_VALUE;
+        }
+        entity.setHurtsEntities(AnvilCraft.CONFIG.world.royalAnvilFallDamagePerBlock, max);
     }
 }

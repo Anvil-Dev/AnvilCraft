@@ -44,10 +44,6 @@ public class AnvilCraftServerConfig {
         @BoundedDiscrete(max = 16, min = 4)
         public int giantAnvilMaxShockRadius = 16;
 
-        @Comment("Controls the maximum fall damage dealt by the Giant Anvil")
-        @BoundedDiscrete(max = 100, min = 0)
-        public int giantAnvilMaxFallDamage = 40;
-
         @SerializedName("Anvil Collision Explosion Speed Threshold")
         @Comment("Controls the minimum collision speed at which anvils explode instead of merely stopping (in blocks/tick)")
         public int anvilCollisionCraftSpeed = 16;
@@ -135,13 +131,53 @@ public class AnvilCraftServerConfig {
         @BoundedDiscrete(min = 0.0, max = 1.0)
         public double emberBlockWaterAbsorptionChance = 0.5;
 
-        @Comment("Controls the damage a falling Anvil deals per block fallen")
-        @BoundedDiscrete(min = 0.0, max = 100.0)
-        public float anvilFallDamagePerBlock = 2.0f;
+        @Comment("Controls the damage a falling NeoForge deals per block fallen")
+        @BoundedDiscrete(min = 0.0, max = 1000.0)
+        public float neoforgeFallDamagePerBlock = 2.0f;
+
+        @Comment("Controls the maximum fall damage dealt by the NeoForge (-1 means infinity)")
+        @BoundedDiscrete(min = -1, max = 1000)
+        public int neoforgeMaxFallDamage = 20;
+
+        @Comment("Controls the damage a falling Royal Anvil deals per block fallen")
+        @BoundedDiscrete(min = 0.0, max = 1000.0)
+        public float royalAnvilFallDamagePerBlock = 2.0f;
+
+        @Comment("Controls the maximum fall damage dealt by the Royal Anvil (-1 means infinity)")
+        @BoundedDiscrete(min = -1, max = 1000)
+        public int royalAnvilMaxFallDamage = 80;
+
+        @Comment("Controls the damage a falling Frost Anvil deals per block fallen")
+        @BoundedDiscrete(min = 0.0, max = 1000.0)
+        public float frostAnvilFallDamagePerBlock = 2.0f;
+
+        @Comment("Controls the maximum fall damage dealt by the Frost Anvil (-1 means infinity)")
+        @BoundedDiscrete(min = -1, max = 1000)
+        public int frostAnvilMaxFallDamage = 120;
+
+        @Comment("Controls the damage a falling Ember Anvil deals per block fallen")
+        @BoundedDiscrete(min = 0.0, max = 1000.0)
+        public float emberAnvilFallDamagePerBlock = 2.0f;
+
+        @Comment("Controls the maximum fall damage dealt by the Ember Anvil (-1 means infinity)")
+        @BoundedDiscrete(min = -1, max = 1000)
+        public int emberAnvilMaxFallDamage = 120;
+
+        @Comment("Controls the damage a falling Transcendence Anvil deals per block fallen")
+        @BoundedDiscrete(min = 0.0, max = 1000.0)
+        public float transcendenceAnvilFallDamagePerBlock = 2.0f;
+
+        @Comment("Controls the maximum fall damage dealt by the Transcendence Anvil (-1 means infinity)")
+        @BoundedDiscrete(min = -1, max = 1000)
+        public int transcendenceAnvilMaxFallDamage = -1;
 
         @Comment("Controls the damage a falling Giant Anvil deals per block fallen")
         @BoundedDiscrete(min = 0.0, max = 1000.0)
         public float giantAnvilFallDamagePerBlock = 10.0f;
+
+        @Comment("Controls the maximum fall damage dealt by the Giant Anvil (-1 means infinity)")
+        @BoundedDiscrete(min = -1, max = 1000)
+        public int giantAnvilMaxFallDamage = 40;
 
         @Comment("Controls the speed a powered Sliding Rail launches entities with")
         @BoundedDiscrete(min = 0.0, max = 10.0)
@@ -345,8 +381,8 @@ public class AnvilCraftServerConfig {
         public int massEnergyInverterPower = 1024;
 
         @Comment("Controls the mass injected per tick by the Mass Energy Inverter")
-        @BoundedDiscrete(min = 1, max = 1000)
-        public int massEnergyInverterMassPerTick = 5;
+        @BoundedDiscrete(min = 0.01, max = 1000)
+        public float massEnergyInverterMassPerTick = 5;
 
         @Comment("Controls the maximum output of the Space Overcompressor per conversion")
         @BoundedDiscrete(min = 1, max = 6400)
@@ -559,7 +595,7 @@ public class AnvilCraftServerConfig {
 
         @Comment("Controls the maximum radius a handheld magnet attracts")
         @BoundedDiscrete(max = 16, min = 1)
-        public double magnetItemAttractsRadius = 8;
+        public double handheldMagnetAttractsRadius = 8;
 
         @Comment("Controls whether lasers are blocked by the collision shapes of blocks along their path")
         public boolean laserImpactChecking = true;
@@ -605,7 +641,7 @@ public class AnvilCraftServerConfig {
 
         @Comment("Controls the item cooldown applied when a Magnet is used (in ticks)")
         @BoundedDiscrete(min = 1, max = 200)
-        public int magnetItemCooldown = 5;
+        public int handheldMagnetCooldown = 5;
 
         @Comment("Controls how much durability a Frost Metal Ingot restores when repairing an item")
         @BoundedDiscrete(min = 1, max = 10000)
@@ -726,18 +762,23 @@ public class AnvilCraftServerConfig {
     public CommandsSettings commands = new CommandsSettings();
 
     public static class CommandsSettings {
+        @SerializedName("Allow /locate biome Command")
         @Comment("Controls whether to allow the /locate biome command")
         public boolean allowLocateBiomeCommand = true;
 
+        @SerializedName("Allow /locate structure Command")
         @Comment("Controls whether to allow the /locate structure command")
         public boolean allowLocateStructureCommand = true;
 
+        @SerializedName("Allow /locate poi Command")
         @Comment("Controls whether to allow the /locate poi command")
         public boolean allowLocatePoiCommand = true;
 
+        @SerializedName("Allow /time add Command")
         @Comment("Controls whether to allow the /time add command")
         public boolean allowTimeAddCommand = true;
 
+        @SerializedName("Allow /tick sprint Command")
         @Comment("Controls whether to allow the /tick sprint command")
         public boolean allowTickSprintCommand = true;
 

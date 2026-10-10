@@ -80,6 +80,10 @@ public class FrostAnvilBlock extends BetterAnvilBlock implements IHammerRemovabl
 
     @Override
     public void falling(FallingBlockEntity entity) {
-        entity.setHurtsEntities(AnvilCraft.CONFIG.world.anvilFallDamagePerBlock, 120);
+        int max = AnvilCraft.CONFIG.world.frostAnvilMaxFallDamage;
+        if (max == -1) {
+            max = Integer.MAX_VALUE;
+        }
+        entity.setHurtsEntities(AnvilCraft.CONFIG.world.frostAnvilFallDamagePerBlock, max);
     }
 }
