@@ -393,7 +393,7 @@ public class AnvilCraftServerConfig {
         public int massEnergyInverterPower = 1024;
 
         @Comment("Controls the mass injected by the Mass Energy Inverter (in mass/tick)")
-        @BoundedDiscrete(min = 0.01f, max = 1000)
+        @BoundedDiscrete(min = 1, max = 1000)
         public float massEnergyInverterMassPerTick = 5F;
 
         @Comment("Controls the maximum output of the Space Overcompressor per conversion")
