@@ -8,7 +8,6 @@ import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.util.Mth;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -41,7 +40,7 @@ public class MassEnergyInverterBlockEntity extends BlockEntity implements IPower
         for (Direction direction : Direction.Plane.HORIZONTAL) {
             BlockPos neighborPos = pos.relative(direction);
             if (level.getBlockEntity(neighborPos) instanceof SpaceOvercompressorBlockEntity compressor) {
-                compressor.injectMass(Mth.floor(AnvilCraft.CONFIG.machines.massEnergyInverterMassPerTick * 100));
+                compressor.injectMass(Math.round(AnvilCraft.CONFIG.machines.massEnergyInverterMassPerTick * 100f));
             }
         }
     }

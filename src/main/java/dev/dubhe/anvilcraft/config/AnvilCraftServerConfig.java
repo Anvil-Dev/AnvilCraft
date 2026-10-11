@@ -145,14 +145,17 @@ public class AnvilCraftServerConfig {
         @BoundedDiscrete(min = 0.0, max = 1.0)
         public double overheatedEmberMetalNetheriteChance = 0.05;
 
+        @SerializedName("NeoForge Fall Damage Per Block")
         @Comment("Controls the damage a falling NeoForge deals per block fallen")
         @BoundedDiscrete(min = 0.0, max = 1000.0)
         public float neoforgeFallDamagePerBlock = 2.0f;
 
+        @SerializedName("NeoForge Max Fall Damage")
         @Comment("Controls the maximum fall damage dealt by the NeoForge (-1 means infinity)")
         @BoundedDiscrete(min = -1, max = 1000)
         public int neoforgeMaxFallDamage = 20;
 
+        @SerializedName("NeoForge Damage Chance")
         @Comment("Controls the chance that a falling NeoForge takes damage on impact")
         @BoundedDiscrete(min = 0.0, max = 1.0)
         public double neoforgeAnvilDamageChance = 0.01;
@@ -389,9 +392,9 @@ public class AnvilCraftServerConfig {
         @BoundedDiscrete(min = 1, max = 65536)
         public int massEnergyInverterPower = 1024;
 
-        @Comment("Controls the mass injected per tick by the Mass Energy Inverter")
-        @BoundedDiscrete(min = 0.01, max = 1000)
-        public float massEnergyInverterMassPerTick = 5;
+        @Comment("Controls the mass injected by the Mass Energy Inverter (in mass/tick)")
+        @BoundedDiscrete(min = 0.01f, max = 1000)
+        public float massEnergyInverterMassPerTick = 5F;
 
         @Comment("Controls the maximum output of the Space Overcompressor per conversion")
         @BoundedDiscrete(min = 1, max = 6400)
