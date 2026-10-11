@@ -1,20 +1,31 @@
-name: Check Issue Format
+name: Check Issue Format and Version
 on:
   issues:
     types: [opened, edited, reopened]
 
-# Build numbers reported in issues (`x.x.x+snapshot.N`) match the numbers used by the
-# snapshots published on Modrinth, so `vuISAWPc` is used as the source of the latest version.
+# Reported build numbers are `ci.yml` run numbers: snapshots come from the `dev/<mc>/<mod>`
+# branches and hotfix builds from the matching `releases/<mc>/<mod>` branch, so the version check
+# reads the Actions API with the repository token instead of a release site. Branch names also say
+# which Minecraft line a build belongs to, so `1.21.1` and `26.1.2` are never compared to each
+# other. Pre-release numbers restart with every mod version, so those are dated instead of
+# compared by number.
 jobs:
   check:
     if: ${{ !github.event.issue.pull_request && github.event.issue.state == 'open' }}
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     permissions:
+      actions: read
+      contents: read
       issues: write
+    concurrency:
+      group: issue-check-${{ github.event.issue.number }}
+      cancel-in-progress: true
     steps:
-      - name: Check issue format
+      - name: Check issue format and version
         uses: actions/github-script@v9
         with:
+          github-token: ${{ github.token }}
           script: |
             const { owner, repo } = context.repo;
             const issue = context.payload.issue;
@@ -26,14 +37,34 @@ jobs:
               return;
             }
 
-            const modrinthProject = 'vuISAWPc';
-            const minBuildLag = 50;
+            // Re-opening is the documented way to say "this still matters", and maintainers
+            // routinely keep an issue open on an older build, so their own issues are never
+            // closed automatically.
+            if (['OWNER', 'MEMBER', 'COLLABORATOR'].includes(issue.author_association)) {
+              core.info(`#${number} was opened by a ${issue.author_association}, skipping.`);
+              return;
+            }
 
+            const minBuildLag = 50;
+            const maxRunPages = 12;
+            const marker = '<!-- anvilcraft-issue-check -->';
+            const outdatedLabel = '⏰ Outdated';
+            const invalidLabel = '❌︎ Invalid';
+
+            const reasons = [];
+            const note = (kind, text) => reasons.push({ kind, text });
+
+            // A section body, taken from the last heading that starts with `heading`, so a plain
+            // line written inside an earlier field cannot shadow the real section.
             const sectionText = (text, heading) => {
+              const headingPattern = new RegExp(`^###\\s+${heading}(\\s|$)`);
               const lines = text.split(/\r?\n/);
-              const start = lines.findIndex(
-                (line) => line.replace(/^###\s+/, '').startsWith(heading)
-              );
+              let start = -1;
+              for (let index = 0; index < lines.length; index += 1) {
+                if (headingPattern.test(lines[index])) {
+                  start = index;
+                }
+              }
               if (start === -1) {
                 return '';
               }
@@ -47,14 +78,14 @@ jobs:
               return section.join('\n');
             };
 
-            const buildPattern = /\b(snapshot|hotfix|pre-?release|build)\b[.\-_\s]*(\d{1,6})/gi;
+            const channelPattern = /\b(snapshot|hotfix|pre-?release|build)\b[.\-_\s]*(\d{1,6})/gi;
             const parseBuilds = (text) => {
               const cleaned = text
                 .replace(/<!--[\s\S]*?-->/g, ' ')
                 .replace(/`/g, '')
                 .replace(/\[([^\]]*)\]\([^)]*\)/g, '$1');
               const reported = new Map();
-              for (const match of cleaned.matchAll(buildPattern)) {
+              for (const match of cleaned.matchAll(channelPattern)) {
                 const channel = match[1].toLowerCase().replace(/^prerelease$/, 'pre-release');
                 const build = Number(match[2]);
                 if (build > (reported.get(channel) ?? 0)) {
@@ -64,8 +95,6 @@ jobs:
               return reported;
             };
 
-            const reasons = [];
-
             const admitted = body
               .split(/\r?\n/)
               .some((line) => {
@@ -74,74 +103,176 @@ jobs:
                   && checkbox[1].toLowerCase().includes('i admit that i previously checked all options');
               });
             if (admitted) {
-              reasons.push(
+              note('format',
                 '- The checklist option "I admit that I previously checked all options without thorough verification and directly submitted this Issue" is checked.\n'
-                + '  勾选了「我承认此前未充分核实便勾选了所有选项并直接提交此 Issue ，且同意该 Issue 可被直接关闭。」选项。'
-              );
+                + '  勾选了「我承认此前未充分核实便勾选了所有选项并直接提交此 Issue ，且同意该 Issue 可被直接关闭。」选项。');
             }
 
             const title = issue.title ?? '';
-            if (!/^\[[^\[\]]+\][ \t]+\S/.test(title)) {
-              reasons.push(
+            if (!/^\[[^\[\]]+\]\s+\S/.test(title)) {
+              note('format',
                 '- The title must start with a bracketed prefix, followed by a space and the title text, for example `[Bug] Something is broken`.\n'
-                + '  标题必须以方括号前缀开头，且方括号与后续标题之间需要有一个空格，例如 `[Bug] 某个问题`。'
-              );
+                + '  标题必须以方括号前缀开头，且方括号与后续标题之间需要有一个空格，例如 `[Bug] 某个问题`。');
             }
 
-            const reportedText = sectionText(body, 'Version Details')
-              .split(/\r?\n/)
-              .map((line) => line.trim())
-              .filter((line) => line.length > 0)
-              .join(' ')
-              .slice(0, 200);
-            const reportedBuilds = parseBuilds(reportedText);
+            const versionSection = sectionText(body, 'Version Details');
+            const reportedBuilds = parseBuilds(versionSection);
             if (reportedBuilds.size > 0) {
+              // Only the major/minor pair identifies a line, so `1.21.1` and `1.21` agree.
+              const minecraft = /(\d+)\.(\d+)/.exec(sectionText(body, 'Minecraft Version Details'));
+              const line = minecraft === null ? null : `${minecraft[1]}.${minecraft[2]}`;
               try {
-                const response = await fetch(`https://api.modrinth.com/v2/project/${modrinthProject}/version`, {
-                  headers: { 'User-Agent': 'AnvilCraft-Issue-Format-Check' }
-                });
-                if (!response.ok) {
-                  throw new Error(`Modrinth responded with ${response.status}`);
-                }
-                const released = await response.json();
-                const latestByChannel = new Map();
-                for (const version of released) {
-                  for (const [channel, build] of parseBuilds(version.version_number ?? '')) {
-                    const latest = latestByChannel.get(channel);
-                    if (latest === undefined || build > latest.build) {
-                      latestByChannel.set(channel, { build, version: version.version_number });
+                if (line === null) {
+                  core.warning(`#${number} does not state a Minecraft version, skipping the version check.`);
+                } else {
+                  // A pre-release number only means something inside its own mod version, so the
+                  // tag it refers to is looked up first and later dated against the run history.
+                  let preRelease;
+                  let preReleaseTime = null;
+                  const reportedPreRelease = reportedBuilds.get('pre-release');
+                  if (reportedPreRelease !== undefined) {
+                    const releases = await github.paginate(github.rest.repos.listReleases, {
+                      owner,
+                      repo,
+                      per_page: 100
+                    });
+                    // Several mod versions reuse the same pre-release number, so a tag quoted in
+                    // the issue wins over the newest tag that merely shares the number.
+                    const candidates = releases.filter(
+                      (entry) => new RegExp(`\\+pre-release\\.${reportedPreRelease}$`).test(entry.tag_name)
+                    );
+                    preRelease = candidates.find((entry) => versionSection.includes(entry.tag_name))
+                      ?? candidates.sort((left, right) => new Date(right.published_at) - new Date(left.published_at))[0];
+                    if (preRelease === undefined) {
+                      core.warning(`No release tag matches pre-release.${reportedPreRelease} of #${number}.`);
+                    } else {
+                      preReleaseTime = new Date(preRelease.published_at);
+                    }
+                  }
+
+                  // A branch belongs to the reported line when one of its path segments is that
+                  // line, which tolerates both `dev/1.21/1.6` and `releases/1.5/1.21`. `ci.yml`
+                  // runs keep the branch they ran on even after that branch was deleted, so the
+                  // hotfix chain stays readable once a release branch is cleaned up.
+                  const runs = [];
+                  const onLine = (prefix) => runs
+                    .filter((run) => run.head_branch.startsWith(prefix)
+                      && run.head_branch.split('/').includes(line))
+                    .sort((left, right) => right.run_number - left.run_number);
+
+                  for (let page = 1; page <= maxRunPages; page += 1) {
+                    const response = await github.rest.actions.listWorkflowRuns({
+                      owner,
+                      repo,
+                      workflow_id: 'ci.yml',
+                      per_page: 100,
+                      page
+                    });
+                    runs.push(...response.data.workflow_runs);
+                    if (response.data.workflow_runs.length < 100) {
+                      break;
+                    }
+                    const development = onLine('dev/');
+                    // A hotfix build only needs the newest release run for its line; a
+                    // pre-release needs the development history read back to the day it landed.
+                    const tucked = reportedBuilds.has('hotfix') && onLine('releases/').length === 0;
+                    const undated = preReleaseTime !== null
+                      && (development.length <= minBuildLag
+                        || new Date(development[development.length - 1].created_at) > preReleaseTime);
+                    if (!tucked && !undated) {
+                      break;
+                    }
+                  }
+
+                  // `snapshot` and `build` are development builds, `hotfix` release builds.
+                  const development = onLine('dev/');
+                  for (const channel of ['snapshot', 'build', 'hotfix']) {
+                    const reported = reportedBuilds.get(channel);
+                    if (reported === undefined) {
+                      continue;
+                    }
+                    const chain = channel === 'hotfix' ? onLine('releases/') : development;
+                    if (chain.length === 0) {
+                      core.warning(`No ci.yml runs found for the ${channel} channel of the ${line} line.`);
+                      continue;
+                    }
+                    const latest = chain[0];
+                    const lag = latest.run_number - reported;
+                    if (lag >= minBuildLag) {
+                      note('version',
+                        `- The version reported in \`Version Details\` is \`${channel}.${reported}\`, which is ${lag} builds behind the latest \`${channel}.${latest.run_number}\` of the ${line} line (limit: ${minBuildLag}).\n`
+                        + `  版本信息中反馈的 \`${channel}.${reported}\` 落后 ${line} 线最新的 \`${channel}.${latest.run_number}\` ${lag} 个构建（上限 ${minBuildLag}），请更新到最新版本后再反馈。`);
+                    }
+                  }
+
+                  if (reportedPreRelease !== undefined && preReleaseTime !== null) {
+                    if (development.length <= minBuildLag) {
+                      core.warning(`Too few ci.yml runs to date pre-release.${reportedPreRelease} of #${number}.`);
+                    } else {
+                      // Builds landed after the tag, counted from the development history.
+                      const since = development
+                        .findIndex((run) => new Date(run.created_at) <= preReleaseTime);
+                      if (since === -1 || since >= minBuildLag) {
+                        // `-1` means the tag predates every run read back, so the count is a floor.
+                        const reached = since === -1 ? `${development.length}+` : `${since}`;
+                        note('version',
+                          `- The pre-release \`${preRelease.tag_name}\` was published on ${preRelease.published_at.slice(0, 10)}, and ${reached} builds of the ${line} line have been published since (limit: ${minBuildLag}).\n`
+                          + `  反馈的预发布版本 \`${preRelease.tag_name}\` 发布于 ${preRelease.published_at.slice(0, 10)}，其后 ${line} 线已发布 ${reached} 个构建（上限 ${minBuildLag}），请更新到最新版本后再反馈。`);
+                      }
                     }
                   }
                 }
-                const outdated = [...reportedBuilds]
-                  .map(([channel, build]) => ({ channel, build, latest: latestByChannel.get(channel) }))
-                  .filter((entry) => entry.latest !== undefined)
-                  .map((entry) => ({ ...entry, lag: entry.latest.build - entry.build }));
-                if (outdated.length > 0 && outdated.every((entry) => entry.lag >= minBuildLag)) {
-                  const worst = outdated.reduce((left, right) => (right.lag > left.lag ? right : left));
-                  reasons.push(
-                    `- The reported mod version is \`${reportedText}\`, which is ${worst.lag} ${worst.channel} builds behind the latest \`${worst.latest.version}\` (limit: ${minBuildLag}).\n`
-                    + `  反馈的模组版本为 \`${reportedText}\`，比最新的 \`${worst.latest.version}\` 落后 ${worst.lag} 个版本（上限 ${minBuildLag}），请更新到最新版本后再反馈。`
-                  );
-                }
               } catch (error) {
-                core.warning(`Could not read the latest version from Modrinth: ${error.message}`);
+                core.warning(`Could not verify the reported version of #${number}: ${error.message}`);
               }
             }
 
-            if (reasons.length === 0) {
-              core.info(`Issue #${number} passed the format check.`);
-              return;
-            }
-
-            core.info(`Issue #${number} failed the format check:\n${reasons.join('\n')}`);
-
-            await github.rest.issues.createComment({
+            const comments = await github.paginate(github.rest.issues.listComments, {
               owner,
               repo,
               issue_number: number,
-              body: `This issue was closed automatically because it does not follow the issue format. - 该 Issue 因不符合格式要求已被自动关闭。\n\n${reasons.join('\n')}\n\nPlease fix the problem described above and reopen or recreate the issue. - 请修正以上问题后重新打开或重新提交 Issue。`
+              per_page: 100
             });
+            const previous = comments.find((comment) => (comment.body ?? '').includes(marker));
+            const presentLabels = (issue.labels ?? [])
+              .map((label) => (typeof label === 'string' ? label : label.name));
+            const tagged = presentLabels.some((label) => [outdatedLabel, invalidLabel].includes(label));
+
+            // A later edit can fix the issue, so a passing check withdraws what an earlier one left.
+            if (reasons.length === 0) {
+              if (previous === undefined && !tagged) {
+                core.info(`Issue #${number} passed the check.`);
+                return;
+              }
+              core.info(`Issue #${number} passed the check, withdrawing the previous result.`);
+              if (previous !== undefined) {
+                await github.rest.issues.deleteComment({ owner, repo, comment_id: previous.id });
+              }
+              for (const label of [outdatedLabel, invalidLabel]) {
+                if (presentLabels.includes(label)) {
+                  await github.rest.issues.removeLabel({ owner, repo, issue_number: number, name: label });
+                }
+              }
+              return;
+            }
+
+            core.info(`Issue #${number} failed the check:\n${reasons.map((reason) => reason.text).join('\n')}`);
+
+            const labels = [];
+            if (reasons.some((reason) => reason.kind === 'format')) {
+              labels.push(invalidLabel);
+            }
+            if (reasons.some((reason) => reason.kind === 'version')) {
+              labels.push(outdatedLabel);
+            }
+            await github.rest.issues.addLabels({ owner, repo, issue_number: number, labels });
+
+            const text = `${marker}\nThis issue was closed automatically because it does not follow the issue requirements. - 该 Issue 因不符合要求已被自动关闭。\n\n${reasons.map((reason) => reason.text).join('\n')}\n\nPlease fix the problem described above and reopen or recreate the issue. - 请修正以上问题后重新打开或重新提交 Issue。`;
+            if (previous === undefined) {
+              await github.rest.issues.createComment({ owner, repo, issue_number: number, body: text });
+            } else {
+              await github.rest.issues.updateComment({ owner, repo, comment_id: previous.id, body: text });
+            }
 
             await github.rest.issues.update({
               owner,
