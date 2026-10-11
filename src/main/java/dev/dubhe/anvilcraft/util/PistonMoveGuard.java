@@ -53,7 +53,7 @@ public final class PistonMoveGuard {
 
     /// 登记一个跨刻有效的预留，用于滑轨与推进活塞的移动，返回可刷新/释放的句柄。
     public static TimedReservation reserveUntil(Level level, Iterable<BlockPos> positions, int duration) {
-        TimedReservation reservation = new TimedReservation(level.getGameTime() + Math.max(1, duration));
+        TimedReservation reservation = new TimedReservation(level, Math.max(1, duration));
         reservation.replace(positions);
         PistonMoveGuard.TIMED_RESERVATIONS
             .computeIfAbsent(level, ignored -> new ArrayList<>())
@@ -80,13 +80,16 @@ public final class PistonMoveGuard {
         return false;
     }
 
-    /// 跨刻预留的句柄。载荷移动时刷新坐标，停止时释放。
+    /// 跨刻预留的句柄。载荷移动时刷新坐标并续期，停止时释放。
     public static final class TimedReservation {
-        private final long expiresAt;
+        private final Level level;
+        private final int duration;
         private final Set<BlockPos> positions = new HashSet<>();
+        private long expiresAt;
 
-        private TimedReservation(long expiresAt) {
-            this.expiresAt = expiresAt;
+        private TimedReservation(Level level, int duration) {
+            this.level = level;
+            this.duration = duration;
         }
 
         private boolean isExpired(long now) {
@@ -97,10 +100,11 @@ public final class PistonMoveGuard {
             return this.positions.contains(pos);
         }
 
-        /// 用新坐标集合替换预留范围。
+        /// 替换预留范围并续期；载荷移动时每刻调用，故有效期覆盖整个搬运过程。
         public void replace(Iterable<BlockPos> newPositions) {
             this.positions.clear();
             for (BlockPos pos : newPositions) this.positions.add(pos.immutable());
+            this.expiresAt = this.level.getGameTime() + this.duration;
         }
     }
 

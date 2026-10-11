@@ -250,9 +250,13 @@ public class PropelPistonBlock extends DirectionalBlock implements IMoveableEnti
         if (!pistonstructureresolver.resolve()) {
             return false;
         } else {
-            // 与活塞一致：解析后立即预约，推进活塞的方块跨 tick 才落位
+            // 与活塞一致：解析后立即预约。落位点在下一个方块的坐标上，推进活塞跨 tick 才放回，
+            // 因此源坐标与落位点都要覆盖，否则 TNT 会在落位时被重新点燃。
             List<BlockPos> reserved = Lists.newArrayList(pistonstructureresolver.getToPush());
             reserved.addAll(pistonstructureresolver.getToDestroy());
+            for (BlockPos pushed : pistonstructureresolver.getToPush()) {
+                reserved.add(pushed.relative(facing));
+            }
             PistonMoveGuard.reserveUntil(level, reserved, SlidingBlockEntity.MOVE_RESERVATION_TICKS);
             Map<BlockPos, BlockState> map = Maps.newHashMap();
             List<BlockPos> list = pistonstructureresolver.getToPush();
