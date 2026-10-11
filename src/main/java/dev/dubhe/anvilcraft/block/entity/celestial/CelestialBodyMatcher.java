@@ -388,8 +388,8 @@ public final class CelestialBodyMatcher {
         CelestialBodyClass bodyClass, int energy, int space, RandomSource random
     ) {
         int size = sizeForSpace(space);
-        /// 从star_color_temperature.png中根据能量砧子计数所在行获取颜色
-        int[] rgb = getStarColorFromTempDiagram(energy);
+        /// 主序星/巨星从star_color_temperature.png按能量行取色；白矮星使用共享的黑体温度规则
+        int[] rgb = starColorFor(bodyClass, energy);
         int mag = random.nextFloat() < 0.10f ? 5 : 4;
         int rotSpeed = bodyClass == CelestialBodyClass.BLACK_HOLE ? 0 : randomRotationSpeed(random);
         float axialTilt = 0f;
@@ -553,8 +553,27 @@ public final class CelestialBodyMatcher {
     }
 
     /// 根据能量砧子计数从star_color_temperature.png获取RGB颜色。
-    /// 公开方法，供恒星演化加速器创建残骸时使用。
+    /// 公开方法，仅用于图表覆盖的分类（主序星、巨星）。
     public static int[] getStarColor(int energy) {
         return getStarColorFromTempDiagram(energy);
+    }
+
+    /// star_color_temperature.png 中白矮星占据的能量行区间。
+    public static final int WHITE_DWARF_MIN_ENERGY = 49;
+    public static final int WHITE_DWARF_MAX_ENERGY = 58;
+
+    /// 白矮星的有效能量：继承来源恒星的能量，并钳制到图表白矮星带内。
+    public static int whiteDwarfEnergy(int energy) {
+        return Math.clamp(energy, WHITE_DWARF_MIN_ENERGY, WHITE_DWARF_MAX_ENERGY);
+    }
+
+    /// 恒星本体颜色。白矮星不取图表能量行，改用与渲染相同的表面分类温度规则，
+    /// 这样锻造得到的白矮星和演化得到的白矮星共用同一条颜色规则；其余分类仍查询图表。
+    public static int[] starColorFor(CelestialBodyClass bodyClass, int energy) {
+        if (bodyClass != CelestialBodyClass.WHITE_DWARF) return getStarColorFromTempDiagram(energy);
+        int rgb = StellarVisualState.colorForTemperature(
+            StellarVisualState.temperatureForSurfaceClass(bodyClass, energy)
+        );
+        return new int[] {(rgb >> 16) & 0xFF, (rgb >> 8) & 0xFF, rgb & 0xFF};
     }
 }
