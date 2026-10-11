@@ -2,11 +2,13 @@ package dev.dubhe.anvilcraft.entity;
 
 import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.api.event.SlidingBlockEvent;
+import dev.dubhe.anvilcraft.api.sliding.SlidingBlockInfo;
 import dev.dubhe.anvilcraft.api.sliding.SlidingBlockSection;
 import dev.dubhe.anvilcraft.block.sliding.ISlidingRail;
 import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import dev.dubhe.anvilcraft.init.entity.ModEntities;
 import dev.dubhe.anvilcraft.network.SlidingEntitySyncPacket;
+import dev.dubhe.anvilcraft.util.PistonMoveGuard;
 import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.CrashReportCategory;
@@ -36,6 +38,8 @@ import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.apache.commons.lang3.tuple.Triple;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import javax.annotation.Nullable;
@@ -49,6 +53,9 @@ public class SlidingBlockEntity extends Entity {
     private SlidingBlockSection section;
     @Getter
     private @Nullable Direction moveDirection;
+    /** 承载期间对载荷坐标的保留，避免吞噬器在方块往返途中抢走方块。 */
+    @Nullable
+    private PistonMoveGuard.SlidingScope moveGuard;
     private int time = 0;
 
     public SlidingBlockEntity(EntityType<? extends SlidingBlockEntity> entityType, Level level) {
@@ -73,6 +80,7 @@ public class SlidingBlockEntity extends Entity {
         this.zo = bottomCenter.z;
         this.setStartPos(pos);
         this.moveDirection = moveDirection;
+        this.refreshMoveGuard();
         NeoForge.EVENT_BUS.post(new SlidingBlockEvent.Start(this, level, pos, moveDirection, infos));
     }
 
@@ -81,7 +89,18 @@ public class SlidingBlockEntity extends Entity {
         Level level, BlockPos pos, Direction moveDirection,
         Iterable<Triple<BlockPos, BlockState, Optional<BlockEntity>>> infos
     ) {
+        return slid(level, pos, moveDirection, infos, null);
+    }
+
+    @SuppressWarnings("UnusedReturnValue")
+    public static SlidingBlockEntity slid(
+        Level level, BlockPos pos, Direction moveDirection,
+        Iterable<Triple<BlockPos, BlockState, Optional<BlockEntity>>> infos,
+        @Nullable PistonMoveGuard.SlidingScope moveGuard
+    ) {
         SlidingBlockEntity entity = new SlidingBlockEntity(level, pos, moveDirection, infos);
+        entity.moveGuard = moveGuard;
+        entity.refreshMoveGuard();
         for (var entry : infos) {
             level.setBlock(pos, level.getFluidState(entry.getLeft()).createLegacyBlock(), 3);
         }
@@ -92,6 +111,33 @@ public class SlidingBlockEntity extends Entity {
                 new SlidingEntitySyncPacket(entity.getId(), entity.section.blocks(), Objects.requireNonNull(entity.moveDirection))
             ));
         return entity;
+    }
+
+    /**
+     * 用起点与当前位置两处载荷坐标刷新保留范围。
+     *
+     * <p>滑动期间方块不在世界里，位置随实体移动，吞噬器作用于世界坐标，因此两处都要覆盖；
+     * 起点尤其重要——滑轨站判定失败时载荷会被原地放回。</p>
+     */
+    private void refreshMoveGuard() {
+        if (this.moveGuard == null) return;
+        List<BlockPos> positions = new ArrayList<>();
+        BlockPos center = this.blockPosition();
+        BlockPos start = this.getStartPos();
+        for (SlidingBlockInfo info : this.section.blocks()) {
+            positions.add(info.getPos(center).immutable());
+            positions.add(info.getPos(start).immutable());
+        }
+        this.moveGuard.replace(positions, List.of());
+    }
+
+    @Override
+    public void remove(Entity.RemovalReason reason) {
+        if (this.moveGuard != null) {
+            this.moveGuard.close();
+            this.moveGuard = null;
+        }
+        super.remove(reason);
     }
 
     @Override
@@ -113,6 +159,7 @@ public class SlidingBlockEntity extends Entity {
         }
         Direction.Axis horizontalAnother = Objects.requireNonNull(this.moveDirection).getClockWise().getAxis();
         this.setPos(this.position().with(horizontalAnother, Math.ceil(this.position().get(horizontalAnother)) - 0.5));
+        this.refreshMoveGuard();
 
         if (this.level().isOutsideBuildHeight(pos)) {
             this.stop();
@@ -160,8 +207,7 @@ public class SlidingBlockEntity extends Entity {
 
     public void stop() {
         if (this.level().isClientSide) return;
-        this.section.setBlock(this.level(), this.blockPosition(), this);
-        NeoForge.EVENT_BUS.post(new SlidingBlockEvent.Stop(this));
+        this.section.setBlock(this.level(), this.blockPosition(), this);        NeoForge.EVENT_BUS.post(new SlidingBlockEvent.Stop(this));
         this.discard();
     }
 

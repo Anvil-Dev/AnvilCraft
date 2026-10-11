@@ -4,6 +4,7 @@ import dev.anvilcraft.lib.v2.piston.IMoveableEntityBlock;
 import dev.dubhe.anvilcraft.api.injection.block.IBlockExtension;
 import dev.dubhe.anvilcraft.api.sliding.SlidingBlockStructureResolver;
 import dev.dubhe.anvilcraft.entity.SlidingBlockEntity;
+import dev.dubhe.anvilcraft.util.PistonMoveGuard;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -146,6 +147,9 @@ public interface ISlidingRail extends IBlockExtension {
         List<BlockPos> toDestroys = resolver.getToDestroy();
         List<BlockState> toDestroyStates = new ArrayList<>();
 
+        /// 滑动方块跨 tick 才把载荷放回世界，保留必须活过本次调用，否则吞噬器会先抢走方块
+        PistonMoveGuard.SlidingScope reservation = PistonMoveGuard.beginSliding(level, toPushPoses, toDestroys);
+
         for (int i = toDestroys.size() - 1; i >= 0; i--) {
             BlockPos destroyingPos = toDestroys.get(i);
             BlockState destroyingState = level.getBlockState(destroyingPos);
@@ -186,7 +190,7 @@ public interface ISlidingRail extends IBlockExtension {
             level.updateNeighborsAt(toPushEntry.getLeft(), air.getBlock());
         }
 
-        SlidingBlockEntity.slid(level, pos, facing, toPushes);
+        SlidingBlockEntity.slid(level, pos, facing, toPushes, reservation);
         return true;
     }
 
