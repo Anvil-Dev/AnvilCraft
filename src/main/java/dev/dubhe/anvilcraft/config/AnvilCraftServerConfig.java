@@ -29,18 +29,23 @@ public class AnvilCraftServerConfig {
         @BoundedDiscrete(min = 0.0, max = 1000.0)
         public double relativisticPrecessionMinStrength = 10.0;
 
-        @Comment("Controls the effective speed of light in blocks per tick used by orbital precession; larger values weaken the effect")
+        @Comment(
+            """
+            Controls the effective speed of light used by orbital precession (in blocks/tick)
+            Larger values weaken the effect
+            """
+        )
         @BoundedDiscrete(min = 16, max = 4096)
         public int orbitalSpeedOfLight = 64;
 
-        @Comment("Controls the maximum depth a lightning strike can reach")
+        @Comment("Controls the maximum depth a lightning strike can reach (in blocks)")
         @BoundedDiscrete(min = 1, max = 16)
         public int lightningStrikeDepth = 2;
 
-        @Comment("Controls the maximum radius a lightning strike can reach")
+        @Comment("Controls the maximum radius a lightning strike can reach (in blocks)")
         public int lightningStrikeRadius = 1;
 
-        @Comment("Controls the maximum radius of the Giant Anvil's Shock")
+        @Comment("Controls the maximum radius of the Giant Anvil's Shock (in blocks)")
         @BoundedDiscrete(min = 4, max = 16)
         public int giantAnvilMaxShockRadius = 16;
 
@@ -49,23 +54,23 @@ public class AnvilCraftServerConfig {
         public int anvilCollisionCraftSpeed = 16;
 
         @SerializedName("Redstone EMP Radius Per Block")
-        @Comment("Controls the length of Redstone EMP generated per block dropped by the Anvil")
+        @Comment("Controls the length of Redstone EMP generated per block dropped by the Anvil (in blocks)")
         @BoundedDiscrete(min = 1, max = 64)
         public int redstoneEmpRadius = 6;
 
         @SerializedName("Redstone EMP Max Radius")
-        @Comment("Controls the maximum length of Redstone EMP")
+        @Comment("Controls the maximum length of Redstone EMP (in blocks)")
         @BoundedDiscrete(min = 1, max = 64)
         public int redstoneEmpMaxRadius = 24;
 
-        @Comment("Controls the maximum distance for the Block Placer to recursively retrieve items from containers")
+        @Comment("Controls the maximum distance for the Block Placer to recursively retrieve items from containers (in blocks)")
         @BoundedDiscrete(min = 0, max = 20)
         public int blockPlacerMaxRecursiveRetrievalDistance = 7;
 
         @Comment("Controls whether the Block Devourer devours blocks upward in a chain (see #anvilcraft:block_devourer_chain_devouring)")
         public boolean blockDevourerUpwardChainDevouring = true;
 
-        @Comment("Controls the maximum distance of the Block Devourer's upward chain devouring")
+        @Comment("Controls the maximum distance of the Block Devourer's upward chain devouring (in blocks)")
         @BoundedDiscrete(min = 0, max = 15)
         public int blockDevourerUpwardChainDevouringDistance = 8;
 
@@ -83,11 +88,11 @@ public class AnvilCraftServerConfig {
         @BoundedDiscrete(min = 3, max = 64)
         public int activeSilencerRange = 31;
 
-        @Comment("Controls the minimum size of the Crafting Table multiblock the Giant Anvil can craft")
+        @Comment("Controls the minimum size of the Crafting Table multiblock the Giant Anvil can craft (in blocks)")
         @BoundedDiscrete(min = 3, max = 15)
         public int giantAnvilMultiblockMinSize = 3;
 
-        @Comment("Controls the maximum size of the Crafting Table multiblock the Giant Anvil can craft")
+        @Comment("Controls the maximum size of the Crafting Table multiblock the Giant Anvil can craft (in blocks)")
         @BoundedDiscrete(min = 3, max = 31)
         public int giantAnvilMultiblockMaxSize = 15;
 
@@ -95,7 +100,7 @@ public class AnvilCraftServerConfig {
         @BoundedDiscrete(min = 0, max = 512)
         public float munSafeFallDistance = 20.0f;
 
-        @Comment("Controls the blocks per damage point of fall damage in the Mun dimension")
+        @Comment("Controls the fall distance per damage in the Mun dimension (in blocks/damage)")
         @BoundedDiscrete(min = 0.5, max = 64)
         public float munBlocksPerDamage = 6.0f;
 
@@ -107,7 +112,8 @@ public class AnvilCraftServerConfig {
         @BoundedDiscrete(min = 0, max = 100)
         public int transcendiumBonusIngotChancePerEnchantment = 10;
 
-        @Comment("Controls the experience points granted per block of EXP Fluid")
+        @SerializedName("EXP Fluid XP Per Block")
+        @Comment("Controls the experience points granted per block of EXP Fluid (in XP/block)")
         @BoundedDiscrete(min = 0, max = 1000)
         public int expFluidXpPerBlock = 50;
 
@@ -191,7 +197,7 @@ public class AnvilCraftServerConfig {
         @BoundedDiscrete(min = -1, max = 1000)
         public int giantAnvilMaxFallDamage = 40;
 
-        @Comment("Controls the speed a powered Sliding Rail launches entities with")
+        @Comment("Controls the speed a powered Sliding Rail launches entities with (in blocks/tick)")
         @BoundedDiscrete(min = 0.0, max = 10.0)
         public float slidingRailLaunchSpeed = 0.35f;
 
@@ -316,11 +322,11 @@ public class AnvilCraftServerConfig {
         @Comment("Controls the ripening cooldown of the Induction Light (in ticks)")
         public int inductionLightBlockRipeningCooldown = 400;
 
-        @Comment("Controls the ripening range of the Induction Light")
+        @Comment("Controls the ripening range of the Induction Light (in blocks)")
         @BoundedDiscrete(min = 0, max = 100)
         public int inductionLightBlockRipeningRange = 5;
 
-        @Comment("Controls the number of ticks between Heliostats detections")
+        @Comment("Controls the interval between Heliostats detections (in ticks)")
         @BoundedDiscrete(min = 1, max = 20)
         public int heliostatsDetectionInterval = 4;
 
@@ -336,15 +342,18 @@ public class AnvilCraftServerConfig {
         @BoundedDiscrete(min = 1, max = 1200)
         public int teslaTowerStrikeCooldown = 80;
 
-        @Comment("Controls the FE extracted per tick by the Discharger")
+        @SerializedName("Discharger FE Per Tick")
+        @Comment("Controls the FE extracted per tick by the Discharger (in FE/tick)")
         @BoundedDiscrete(min = 1, max = 1000000)
         public int dischargerFePerTick = 10000;
 
-        @Comment("Controls the FE capacity of the FE Collector")
+        @SerializedName("FE Collector Max Energy")
+        @Comment("Controls the maximum energy of the FE Collector (in FE)")
         @BoundedDiscrete(min = 1000, max = 1000000000)
         public int feCollectorMaxEnergy = 1000000;
 
-        @Comment("Controls the FE converted per tick by the FE Collector")
+        @SerializedName("FE Collector FE Per Tick")
+        @Comment("Controls the FE converted per tick by the FE Collector (in FE/tick)")
         @BoundedDiscrete(min = 1, max = 1000000)
         public int feCollectorFePerTick = 10000;
 
@@ -352,11 +361,11 @@ public class AnvilCraftServerConfig {
         @BoundedDiscrete(min = 1, max = 200)
         public int itemSplitterInterval = 8;
 
-        @Comment("Controls the maximum distance the Item Splitter distributes items to")
+        @Comment("Controls the maximum distance the Item Splitter distributes items to (in blocks)")
         @BoundedDiscrete(min = 1, max = 64)
         public int itemSplitterMaxDistance = 16;
 
-        @Comment("Controls the charge the Charge Collector accepts per incoming window")
+        @Comment("Controls the charge the Charge Collector accepts per incoming window (in kW)")
         @BoundedDiscrete(min = 1, max = 1024)
         public double chargeCollectorMaxPowerPerIncoming = 128;
 
@@ -368,15 +377,15 @@ public class AnvilCraftServerConfig {
         @BoundedDiscrete(min = 1, max = 200)
         public int chargeCollectorOutputCooldown = 10;
 
-        @Comment("Controls the base output power of the Infinite Collector")
+        @Comment("Controls the base output power of the Infinite Collector (in kW)")
         @BoundedDiscrete(min = 0, max = 4096)
         public int infiniteCollectorBasePower = 256;
 
-        @Comment("Controls the range in which the Infinite Collector collects charges")
+        @Comment("Controls the range in which the Infinite Collector collects charges (in blocks)")
         @BoundedDiscrete(min = 1, max = 8)
         public int infiniteCollectorRange = 3;
 
-        @Comment("Controls the power consumed by the Mass Energy Inverter")
+        @Comment("Controls the power consumed by the Mass Energy Inverter (in kW)")
         @BoundedDiscrete(min = 1, max = 65536)
         public int massEnergyInverterPower = 1024;
 
@@ -412,11 +421,11 @@ public class AnvilCraftServerConfig {
         @BoundedDiscrete(min = 1, max = 9)
         public int neutronIrradiatorTypeThreshold = 6;
 
-        @Comment("Controls the FE capacity of the Propel Piston")
+        @Comment("Controls the maximum energy of the Propel Piston (in FE)")
         @BoundedDiscrete(min = 1000000, max = 1600000000)
         public int propelPistonMaxEnergy = 160000000;
 
-        @Comment("Controls the fluid output of megastructures such as the Extractor per tick (in mB)")
+        @Comment("Controls the fluid output of megastructures such as the Extractor per tick (in mB/tick)")
         @BoundedDiscrete(min = 1, max = 10000)
         public int megastructureFluidPerTick = 250;
 
@@ -453,16 +462,16 @@ public class AnvilCraftServerConfig {
             @BoundedDiscrete(min = 1, max = 12 * 60 * 60 * 20)
             public int fishTankExtraDuration = 24;
 
-            @Comment("Controls the maximum height of the Plasma Jets' chimney walls")
+            @Comment("Controls the maximum height of the Plasma Jets' chimney walls (in blocks)")
             @BoundedDiscrete(min = 1, max = 8)
             public int maxTubeHeight = 4;
         }
 
-        @Comment("Controls the power grid range of Transmission Poles")
+        @Comment("Controls the power grid range of Transmission Poles (in blocks)")
         @BoundedDiscrete(min = 1, max = 64)
         public int powerTransmitterRange = 8;
 
-        @Comment("Controls the power grid range of Remote Transmission Poles")
+        @Comment("Controls the power grid range of Remote Transmission Poles (in blocks)")
         @BoundedDiscrete(min = 1, max = 64)
         public int remotePowerTransmitterRange = 16;
 
@@ -491,7 +500,7 @@ public class AnvilCraftServerConfig {
         public StoragePort storagePort = new StoragePort();
 
         public static class StoragePort {
-            @Comment("Controls the working interval of the Storage Port (in ticks), which limits how often it scans and moves items")
+            @Comment("Controls the working interval between the Storage Port's scans and item moves (in ticks)")
             @BoundedDiscrete(min = 1, max = 1200)
             public int workInterval = 5;
 
@@ -542,11 +551,21 @@ public class AnvilCraftServerConfig {
         @BoundedDiscrete(min = 0, max = 64)
         public int storageUndoDepth = 4;
 
-        @Comment("Controls the amount of heat the Heat Collector can accumulate (the super_heat advancement requires 4096)")
+        @Comment(
+            """
+            Controls the maximum heat the Heat Collector can accumulate (in kW)
+            The super_heat advancement requires reaching 4096
+            """
+        )
         @BoundedDiscrete(min = 1, max = 1048576)
         public int heatCollectorMaxOutputPower = 4096;
 
-        @Comment("Controls the interval of power grid logic in ticks; it is also the unit of the FE/t accounting")
+        @Comment(
+            """
+            Controls the interval of power grid logic (in ticks)
+            It is also the unit of the FE/t accounting
+            """
+        )
         @BoundedDiscrete(min = 1, max = 200)
         public int powerGridTick = 20;
     }
@@ -569,6 +588,7 @@ public class AnvilCraftServerConfig {
         @BoundedDiscrete(min = 1, max = 80)
         public int autoEnchantingTableMaxBookshelf = 15;
 
+        @SerializedName("Auto Enchanting Table EXP Cost Per Shelf")
         @Comment("Controls the EXP Fluid cost per bookshelf level of the Auto Enchanting Table (in mB)")
         @BoundedDiscrete(min = 0, max = 10000)
         public int autoEnchantingTableExpCostPerShelf = 400;
@@ -589,11 +609,11 @@ public class AnvilCraftServerConfig {
         @Comment("Controls whether items can be combined with Enchanted Books beyond the maximum level in the Transcendence Anvil")
         public boolean transcendenceAnvilBeyondMaxLevel = true;
 
-        @Comment("Controls the maximum length a Block of Magnet attracts")
+        @Comment("Controls the maximum distance a Block of Magnet attracts (in blocks)")
         @BoundedDiscrete(min = 0, max = 8)
         public int magnetAttractsDistance = 5;
 
-        @Comment("Controls the maximum radius a Handheld Magnet attracts")
+        @Comment("Controls the maximum radius a Handheld Magnet attracts (in blocks)")
         @BoundedDiscrete(min = 1, max = 16)
         public double handheldMagnetAttractsRadius = 8;
 
@@ -615,12 +635,12 @@ public class AnvilCraftServerConfig {
         public int laserOreClusterMaxSize = 64;
 
         @SerializedName("Geode Max Search Radius")
-        @Comment("Controls the maximum search radius of the Geode")
+        @Comment("Controls the maximum search radius of the Geode (in blocks)")
         @BoundedDiscrete(min = 64, max = 512)
         public int geodeRadius = 64;
 
         @SerializedName("Geode Search Interval")
-        @Comment("Controls the search interval of the Geode")
+        @Comment("Controls the search interval of the Geode (in blocks)")
         @BoundedDiscrete(min = 1, max = 8)
         public int geodeInterval = 4;
 
@@ -659,10 +679,12 @@ public class AnvilCraftServerConfig {
         @BoundedDiscrete(min = 20, max = 24000)
         public int totemOfRageDuration = 1200;
 
-        @Comment("Controls the experience a Villager gains when an EXP Gem is used on it")
+        @SerializedName("EXP Gem Villager XP")
+        @Comment("Controls the experience a Villager gains when an EXP Gem is used on it (in XP)")
         @BoundedDiscrete(min = 0, max = 1000)
         public int expGemVillagerXp = 20;
 
+        @SerializedName("EXP Gem Age Addition")
         @Comment("Controls the amount a Villager ages up when an EXP Gem is used on it (in ticks)")
         @BoundedDiscrete(min = 1, max = 24000)
         public int expGemAgeAddition = 120;
@@ -671,7 +693,7 @@ public class AnvilCraftServerConfig {
         @BoundedDiscrete(min = 1, max = 200)
         public int portableAnvilUseTicks = 40;
 
-        @Comment("Controls the radius in which the Cursed Golden Apple affects Villagers")
+        @Comment("Controls the radius in which the Cursed Golden Apple affects Villagers (in blocks)")
         @BoundedDiscrete(min = 1, max = 64)
         public int cursedGoldenAppleSearchRadius = 16;
 
@@ -695,11 +717,16 @@ public class AnvilCraftServerConfig {
         @BoundedDiscrete(min = 1, max = 10000)
         public int resonatorDurabilityCost = 128;
 
-        @Comment("Controls the maximum energy of Energy Weapons (in FE, the item component default stays 640M)")
+        @Comment(
+            """
+            Controls the maximum energy of Energy Weapons (in FE)
+            The default matches the item component value of 640M
+            """
+        )
         @BoundedDiscrete(min = 1, max = 2000000000)
         public int energyWeaponMaxEnergy = 640000000;
 
-        @Comment("Controls the maximum number of Anvil Railgun rounds that can be loaded (at most 30 to fit the ammo bitmask)")
+        @Comment("Controls the maximum number of Anvil Railgun rounds that can be loaded")
         @BoundedDiscrete(min = 1, max = 30)
         public int anvilRailgunMaxAmmo = 16;
 
@@ -707,7 +734,7 @@ public class AnvilCraftServerConfig {
         @BoundedDiscrete(min = 1, max = 2000000000)
         public int anvilRailgunMinShotEnergy = 2000000;
 
-        @Comment("Controls the base cooldown of the Tesla Gun (in ticks, shortened by Quick Charge)")
+        @Comment("Controls the base cooldown of the Tesla Gun, shortened by Quick Charge (in ticks)")
         @BoundedDiscrete(min = 1, max = 1200)
         public int teslaGunCooldown = 80;
 
@@ -757,7 +784,7 @@ public class AnvilCraftServerConfig {
     }
 
     @SerializedName("Commands")
-    @Comment("Adjusts the commands the Spacetime Supercomputer may execute")
+    @Comment("Adjusts settings related to the commands the Spacetime Supercomputer may execute")
     @CollapsibleObject
     public CommandsSettings commands = new CommandsSettings();
 

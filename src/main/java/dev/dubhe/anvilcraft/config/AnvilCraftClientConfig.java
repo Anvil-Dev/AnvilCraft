@@ -17,7 +17,7 @@ public class AnvilCraftClientConfig {
     public GraphicsSettings graphics = new GraphicsSettings();
 
     public static class GraphicsSettings {
-        @Comment("Controls the render distance of the Heliostats' BER")
+        @Comment("Controls the render distance of the Heliostats' BER (in blocks)")
         @BoundedDiscrete(min = 32, max = 512)
         public int heliostatsRenderDistance = 128;
 
@@ -155,7 +155,7 @@ public class AnvilCraftClientConfig {
             @SerializedName("Gravitational Lensing Perspective Scale")
             @Comment(
                 """
-                Controls the reference distance for perspective scaling
+                Controls the reference distance for perspective scaling (in blocks)
                 At this distance, effect = config size
                 Closer = bigger
                 """
@@ -224,7 +224,7 @@ public class AnvilCraftClientConfig {
         @BoundedDiscrete(min = 1, max = 100)
         public int giantAnvilShockBounceDurationTicks = 16;
 
-        @Comment("Controls the maximum bounce height of blocks in the Giant Anvil's Shock")
+        @Comment("Controls the maximum bounce height of blocks in the Giant Anvil's Shock (in blocks)")
         @BoundedDiscrete(min = 0.0, max = 2.0)
         public float giantAnvilShockBounceAmplitude = 0.85f;
 
@@ -235,6 +235,7 @@ public class AnvilCraftClientConfig {
         @Comment("Controls whether to display particles in the Redstone EMP")
         public boolean displayRedstoneEmpParticles = true;
 
+        @SerializedName("Redstone EMP Max Ring Particles")
         @Comment("Controls the maximum number of particles per ring in the Redstone EMP")
         @BoundedDiscrete(min = 8, max = 64)
         public int redstoneEmpMaxRingParticles = 48;
@@ -389,7 +390,12 @@ public class AnvilCraftClientConfig {
         public double thoughtMaxSeconds = 1.0;
 
         @SerializedName("Apply Changes When Closing Category Settings")
-        @Comment("Controls whether closing a category settings screen applies or discards the changes")
+        @Comment(
+            """
+            Controls the action when a category settings screen is closed
+            "Apply Changes" saves the changes, "Discard Changes" reverts them
+            """
+        )
         public ExitBehaviourMode exitCategorySettingBehaviour = ExitBehaviourMode.CANCEL;
 
         public enum ExitBehaviourMode implements TranslatableEnum {
@@ -415,11 +421,11 @@ public class AnvilCraftClientConfig {
             public float scale = 0.75f;
 
             @SerializedName("X Position")
-            @Comment("Controls the HUD x position")
+            @Comment("Controls the HUD x position (in pixels)")
             public int x = 8;
 
             @SerializedName("Y Position")
-            @Comment("Controls the HUD y position")
+            @Comment("Controls the HUD y position (in pixels)")
             public int y = 8;
         }
     }
