@@ -1,0 +1,65 @@
+name: Check Issue Format
+on:
+  issues:
+    types: [opened, edited, reopened]
+
+jobs:
+  check:
+    if: ${{ github.event.issue.state == 'open' }}
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+    steps:
+      - name: Check issue format
+        uses: actions/github-script@v9
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            const issue = context.payload.issue;
+            const number = issue.number;
+
+            const reasons = [];
+
+            const admitted = (issue.body ?? '')
+              .split(/\r?\n/)
+              .some((line) => {
+                const checkbox = line.match(/^\s*[-*]\s*\[[xX]\]\s*(.+)$/);
+                return checkbox !== null
+                  && checkbox[1].toLowerCase().includes('i admit that i previously checked all options');
+              });
+            if (admitted) {
+              reasons.push(
+                '- The checklist option "I admit that I previously checked all options without thorough verification and directly submitted this Issue" is checked.\n'
+                + '  勾选了「我承认此前未充分核实便勾选了所有选项并直接提交此 Issue ，且同意该 Issue 可被直接关闭。」选项。'
+              );
+            }
+
+            const title = issue.title ?? '';
+            if (!/^\[[^\[\]]+\][ \t]+\S/.test(title)) {
+              reasons.push(
+                '- The title must start with a bracketed prefix, followed by a space and the title text, for example `[Bug] Something is broken`.\n'
+                + '  标题必须以方括号前缀开头，且方括号与后续标题之间需要有一个空格，例如 `[Bug] 某个问题`。'
+              );
+            }
+
+            if (reasons.length === 0) {
+              core.info(`Issue #${number} passed the format check.`);
+              return;
+            }
+
+            core.info(`Issue #${number} failed the format check:\n${reasons.join('\n')}`);
+
+            await github.rest.issues.createComment({
+              owner,
+              repo,
+              issue_number: number,
+              body: `This issue was closed automatically because it does not follow the issue format. - 该 Issue 因不符合格式要求已被自动关闭。\n\n${reasons.join('\n')}\n\nPlease fix the problem described above and reopen or recreate the issue. - 请修正以上问题后重新打开或重新提交 Issue。`
+            });
+
+            await github.rest.issues.update({
+              owner,
+              repo,
+              issue_number: number,
+              state: 'closed',
+              state_reason: 'not_planned'
+            });
