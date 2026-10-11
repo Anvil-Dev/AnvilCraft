@@ -1,8 +1,11 @@
 package dev.dubhe.anvilcraft.client.init;
 
+import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.platform.InputConstants.Type;
+import com.mojang.blaze3d.platform.Window;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import net.minecraft.client.KeyMapping;
+import net.minecraft.client.Minecraft;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -78,6 +81,19 @@ public class ModKeyMappings {
         Type.KEYSYM,
         GLFW.GLFW_KEY_A
     );
+
+    /// F3 组合键期间是否应当忽略模组按键。
+    ///
+    /// <p>原版 {@code KeyboardHandler} 只对 `handleDebugKeys` 自己消费掉的按键抑制 `KeyMapping`，
+    /// 而从原始 `InputEvent.Key` 取数的处理器仍会收到按下事件，所以 `F3+G` 会在切换调试信息的同时
+    /// 触发绑定到 G 的模组按键。这里统一判断 F3 是否被按住。</p>
+    ///
+    /// <p>{@code action} 为 {@link InputConstants#RELEASE} 时始终放行，保证已按下的键能正常释放。</p>
+    public static boolean shouldIgnoreForDebugChord(int action) {
+        if (action == InputConstants.RELEASE) return false;
+        Window window = Minecraft.getInstance().getWindow();
+        return window != null && InputConstants.isKeyDown(window, GLFW.GLFW_KEY_F3);
+    }
 
     @SuppressWarnings("SameParameterValue")
     private static Lazy<KeyMapping> register(String name, KeyConflictContext context, Type type, int key) {
