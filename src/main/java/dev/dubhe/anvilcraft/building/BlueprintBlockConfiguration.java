@@ -149,8 +149,14 @@ public final class BlueprintBlockConfiguration {
             remove(source, "disabled_slots", "crafting_ticks_remaining", "triggered");
         }
         if (entity instanceof LecternBlockEntity) integer(source, result, "Page", 0, Integer.MAX_VALUE);
-        if (entity instanceof HeliostatsBlockEntity && (source.get("Ix") instanceof IntTag)) {
-            for (String key : List.of("Ix", "Iy", "Iz")) integer(source, result, key, Integer.MIN_VALUE, Integer.MAX_VALUE);
+        if (entity instanceof HeliostatsBlockEntity) {
+            // 26.1 用 BlockPos 的 INT_STREAM 编码把照射坐标写进 irritate_pos（int[3]），
+            // 不再是 1.21 的 Ix/Iy/Iz 三个整数字段。
+            int[] irritate = source.getIntArray("irritate_pos").orElseGet(() -> new int[0]);
+            if (irritate.length == 3) {
+                result.putIntArray("irritate_pos", irritate);
+                source.remove("irritate_pos");
+            }
         }
         if (entity instanceof AbstractPipeBlockEntity) {
             result.put("Valves", checkValves(BlueprintNbt.list(source, "Valves", Tag.TAG_COMPOUND)));
@@ -329,6 +335,17 @@ public final class BlueprintBlockConfiguration {
             int side = SmartBlockPlacerBlockEntity.POSITION_GRID_SIZE;
             for (int i = 0; i < source.length; i++) mirrored[i - i % side + side - 1 - i % side] = source[i];
             config.putByteArray("layerPositions", mirrored);
+        }
+        // 照射坐标是结构外的绝对世界坐标（定日镜通常指向扫描立方体之外），
+        // 因此只要有源点就必须换算，不能因为落在快照范围外就删除。
+        int[] irritate = config.getIntArray("irritate_pos").orElseGet(() -> new int[0]);
+        if (irritate.length == 3) {
+            if (sourceOrigin == null) {
+                remove(config, "irritate_pos");
+            } else {
+                BlockPos world = placement.worldOf(new BlockPos(irritate[0], irritate[1], irritate[2]).subtract(sourceOrigin));
+                config.putIntArray("irritate_pos", new int[] {world.getX(), world.getY(), world.getZ()});
+            }
         }
         if (!config.contains("Ix")) return;
         BlockPos target = new BlockPos(config.getIntOr("Ix", 0), config.getIntOr("Iy", 0), config.getIntOr("Iz", 0));
