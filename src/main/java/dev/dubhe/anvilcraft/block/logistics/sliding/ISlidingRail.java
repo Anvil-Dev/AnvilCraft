@@ -175,13 +175,13 @@ public interface ISlidingRail extends IBlockExtension {
             level.updateNeighborsAt(toPushEntry.getLeft(), air.getBlock());
         }
 
-        // 滑轨移动跨越多个 tick，而方块吞噬器在之后的 tick 才行动，所以预留必须按刻数存活；
-        // 否则吞噬器会把滑轨正在搬运的方块当成普通方块销毁并掉落，造成方块复制。
+        // 滑轨跨 tick 搬运，预留需存活到落位，否则吞噬器或 TNT 会抢走方块
         List<BlockPos> reserved = new ArrayList<>(toPushPoses);
         reserved.addAll(toDestroys);
-        PistonMoveGuard.reserveUntil(level, reserved, SlidingBlockEntity.MOVE_RESERVATION_TICKS);
+        PistonMoveGuard.TimedReservation reservation =
+            PistonMoveGuard.reserveUntil(level, reserved, SlidingBlockEntity.MOVE_RESERVATION_TICKS);
 
-        SlidingBlockEntity.slid(level, pos, facing, toPushes);
+        SlidingBlockEntity.slid(level, pos, facing, toPushes, reservation);
         return true;
     }
 

@@ -181,8 +181,7 @@ public class HeliostatsBlockEntity extends BlockEntity {
         this.irritatePos = input.read("irritate_pos", BlockPos.CODEC).orElse(null);
     }
 
-    /// 物品携带的照射坐标是隐式组件，只有实现这一对方法才能随物品往返，
-    /// 建筑杖单方块放置路径正是通过 {@code applyComponentsFromItemStack} 恢复它的。
+    /// 照射坐标是隐式组件，实现这一对方法才能随物品往返。
     @Override
     protected void applyImplicitComponents(DataComponentGetter components) {
         super.applyImplicitComponents(components);

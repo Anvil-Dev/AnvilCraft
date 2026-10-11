@@ -543,11 +543,7 @@ public final class CelestialBodyMatcher {
         return CelestialBodyMatcher.getStarColorFromTempDiagram(energy);
     }
 
-    /// 返回某一类天体在给定能量下使用的渲染 RGB。
-    ///
-    /// <p>白矮星在 age_temp_sp 图中只占能量 49..58 这一小段，而演化残骸没有可用的能量值，
-    /// 因此白矮星统一改用黑体温度推导，让锻造与演化两条路径得到同一种颜色。
-    /// 其余类别仍读取 star_color_temperature 星图。</p>
+    /// 天体在给定能量下的渲染 RGB。白矮星统一用黑体温度推导，使锻造与演化颜色一致；其余查星图。
     public static int[] getStarColor(CelestialBodyClass bodyClass, int energy) {
         if (bodyClass == CelestialBodyClass.WHITE_DWARF) {
             int rgb = StellarVisualState.colorForTemperature(

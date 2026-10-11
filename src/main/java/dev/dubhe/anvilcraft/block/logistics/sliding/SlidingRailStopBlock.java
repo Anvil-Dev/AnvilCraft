@@ -149,11 +149,12 @@ public class SlidingRailStopBlock extends BaseSlidingRailBlock {
             level.updateNeighborsAt(toPushEntry.getLeft(), air.getBlock());
         }
 
-        // 同 ISlidingRail.moveBlocks：搬运跨越多个 tick，预约需要按刻数存活到滑动结束。
+        // 同 ISlidingRail.moveBlocks
         List<BlockPos> reserved = new ArrayList<>(toPushPoses);
         reserved.addAll(toDestroys);
-        PistonMoveGuard.reserveUntil(level, reserved, SlidingBlockEntity.MOVE_RESERVATION_TICKS);
+        PistonMoveGuard.TimedReservation reservation =
+            PistonMoveGuard.reserveUntil(level, reserved, SlidingBlockEntity.MOVE_RESERVATION_TICKS);
 
-        SlidingBlockEntity.slid(level, pos.above(), moveToSide, toPushes);
+        SlidingBlockEntity.slid(level, pos.above(), moveToSide, toPushes, reservation);
     }
 }

@@ -82,13 +82,7 @@ public class ModKeyMappings {
         GLFW.GLFW_KEY_A
     );
 
-    /// F3 组合键期间是否应当忽略模组按键。
-    ///
-    /// <p>原版 {@code KeyboardHandler} 只对 `handleDebugKeys` 自己消费掉的按键抑制 `KeyMapping`，
-    /// 而从原始 `InputEvent.Key` 取数的处理器仍会收到按下事件，所以 `F3+G` 会在切换调试信息的同时
-    /// 触发绑定到 G 的模组按键。这里统一判断 F3 是否被按住。</p>
-    ///
-    /// <p>{@code action} 为 {@link InputConstants#RELEASE} 时始终放行，保证已按下的键能正常释放。</p>
+    /// F3 组合键期间忽略模组按键；RELEASE 始终放行，保证已按下的键能释放。
     public static boolean shouldIgnoreForDebugChord(int action) {
         if (action == InputConstants.RELEASE) return false;
         Window window = Minecraft.getInstance().getWindow();

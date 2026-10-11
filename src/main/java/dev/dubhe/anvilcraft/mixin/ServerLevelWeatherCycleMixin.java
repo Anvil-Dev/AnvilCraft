@@ -8,12 +8,8 @@ import net.minecraft.world.level.gamerules.GameRules;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
-/// 26.1 起天气计时器由 `MinecraftServer.weatherData` 全局持有，而 `ServerLevel#advanceWeatherCycle()`
-/// 会对所有 `canHaveWeather()` 为真的维度各扣减一次同一份 `rainTime`/`thunderTime`。
-/// 铁砧工艺额外提供了 mun、void_planet 与 overworld_like 三个可下雨维度，共享计时器因此被扣减四次。
-///
-/// <p>这里只把 `ADVANCE_WEATHER` 规则读取改成对非主世界维度返回 `false`，跳过计时器推进；
-/// 该方法余下的 `rainLevel`/`thunderLevel` 插值与降雨数据包仍按维度各自执行，雨照常渲染。</p>
+/// 26.1 天气计时器为服务端全局，四个可下雨维度各扣减一次导致天气四倍速。
+/// 非主世界维度读到 ADVANCE_WEATHER 为 false 即跳过扣减；插值与降雨包不受影响。
 @Mixin(ServerLevel.class)
 abstract class ServerLevelWeatherCycleMixin {
     @ModifyExpressionValue(

@@ -250,8 +250,7 @@ public class PropelPistonBlock extends DirectionalBlock implements IMoveableEnti
         if (!pistonstructureresolver.resolve()) {
             return false;
         } else {
-            // 与活塞一致：解析完成后立即预约被推动/销毁的方块。推进活塞的方块要等
-            // 移动方块实体结束才落位，而吞噬器可能在之后的 tick 才行动，所以预约按刻数存活。
+            // 与活塞一致：解析后立即预约，推进活塞的方块跨 tick 才落位
             List<BlockPos> reserved = Lists.newArrayList(pistonstructureresolver.getToPush());
             reserved.addAll(pistonstructureresolver.getToDestroy());
             PistonMoveGuard.reserveUntil(level, reserved, SlidingBlockEntity.MOVE_RESERVATION_TICKS);

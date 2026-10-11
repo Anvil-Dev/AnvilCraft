@@ -77,7 +77,7 @@ public class ItemCrushCategory extends AbstractProgressCategory<ItemCrushRecipe>
         );
     }
 
-    /// 异彩石粉碎是 in_world 配方（随机一种宝石 + 3 个下界石英），本分类无法直接收集，这里手工重建。
+    /// 异彩石粉碎是 in_world 配方，本分类收集不到，手工重建一条。
     private static ItemCrushRecipe chromaticStoneRecipe() {
         return ItemCrushRecipe.builder()
             .requires(ModBlocks.CHROMATIC_STONE)

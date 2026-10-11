@@ -31,13 +31,7 @@ abstract class TntBlockMixin extends Block {
         super(properties);
     }
 
-    /// 搬运中的 TNT 不应被点燃。
-    ///
-    /// <p>{@code SlidingBlockSection.setBlock} 会用 {@code UPDATE_ALL} 重新放置方块，并额外调用一次
-    /// 自身的 {@code neighborChanged}（原版 {@code setBlock} 不会调用方块自己的 {@code neighborChanged}）。
-    /// 原版 {@code TntBlock.neighborChanged} 只要收到邻接信号就点燃，于是被滑轨搬运的 TNT 会在每次
-    /// 重新落位时被重复点燃而复制。滑轨与推进活塞在解析完成后会把这些位置登记进
-    /// {@link PistonMoveGuard}，这里据此跳过搬移期间的点燃。</p>
+    /// 滑轨重新落位时会额外自触发一次 neighborChanged，被搬运的 TNT 在此跳过点燃。
     @Inject(method = "neighborChanged", at = @At("HEAD"), cancellable = true)
     private void anvilcraft$skipPrimingWhileMoving(
         BlockState state,
@@ -51,8 +45,7 @@ abstract class TntBlockMixin extends Block {
         if (PistonMoveGuard.isReserved(level, pos)) ci.cancel();
     }
 
-    /// {@code TntBlock.onPlace} 在旧方块不是 TNT 时同样会点燃，滑轨重新落位时旧方块通常是空气，
-    /// 因此放置路径也要一并跳过。
+    /// onPlace 在旧方块不是 TNT 时同样点燃，落位路径也要跳过。
     @Inject(method = "onPlace", at = @At("HEAD"), cancellable = true)
     private void anvilcraft$skipPrimingOnPlaceWhileMoving(
         BlockState state,

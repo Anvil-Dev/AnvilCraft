@@ -15,8 +15,7 @@ import java.util.WeakHashMap;
 
 public final class PistonMoveGuard {
     private static final ThreadLocal<@Nullable Deque<Reservation>> ACTIVE_RESERVATIONS = new ThreadLocal<>();
-    /// 跨多个游戏刻存活的预留，按维度索引并带过期刻数；滑轨与推进活塞的移动会跨越 tick，
-    /// 而方块吞噬器在之后的 tick 才行动，因此调用作用域的预留不足以覆盖。
+    /// 按维度索引的跨 tick 预留，带过期刻数；滑轨与推进活塞跨 tick 移动，调用作用域不够用。
     private static final Map<Level, List<TimedReservation>> TIMED_RESERVATIONS = new WeakHashMap<>();
 
     private PistonMoveGuard() {
@@ -52,41 +51,56 @@ public final class PistonMoveGuard {
         return PistonMoveGuard.isTimedReserved(level, pos);
     }
 
-    /// 登记一个跨越多个游戏刻仍然有效的预留，用于滑轨与推进活塞的移动。
-    ///
-    /// @param level     预留所属维度
-    /// @param positions 计划移动或销毁的方块位置
-    /// @param duration  预留有效的游戏刻数
-    public static void reserveUntil(Level level, Iterable<BlockPos> positions, int duration) {
-        List<TimedReservation> list = PistonMoveGuard.TIMED_RESERVATIONS.computeIfAbsent(level, ignored -> new ArrayList<>());
-        long expiresAt = level.getGameTime() + Math.max(1, duration);
-        TimedReservation reservation = new TimedReservation(expiresAt);
-        for (BlockPos pos : positions) reservation.positions.add(pos.immutable());
-        list.add(reservation);
+    /// 登记一个跨刻有效的预留，用于滑轨与推进活塞的移动，返回可刷新/释放的句柄。
+    public static TimedReservation reserveUntil(Level level, Iterable<BlockPos> positions, int duration) {
+        TimedReservation reservation = new TimedReservation(level.getGameTime() + Math.max(1, duration));
+        reservation.replace(positions);
+        PistonMoveGuard.TIMED_RESERVATIONS
+            .computeIfAbsent(level, ignored -> new ArrayList<>())
+            .add(reservation);
+        return reservation;
     }
 
-    /// 释放某个维度中所有尚未过期的时域预留，供滑轨停止时调用。
-    public static void releaseTimed(Level level) {
-        PistonMoveGuard.TIMED_RESERVATIONS.remove(level);
+    /// 释放单个预留；同维度其他预留不受影响。
+    public static void releaseTimed(Level level, TimedReservation reservation) {
+        List<TimedReservation> list = PistonMoveGuard.TIMED_RESERVATIONS.get(level);
+        if (list == null) return;
+        list.remove(reservation);
+        if (list.isEmpty()) PistonMoveGuard.TIMED_RESERVATIONS.remove(level);
     }
 
     private static boolean isTimedReserved(Level level, BlockPos pos) {
         List<TimedReservation> list = PistonMoveGuard.TIMED_RESERVATIONS.get(level);
         if (list == null || list.isEmpty()) return false;
         long now = level.getGameTime();
-        list.removeIf(reservation -> reservation.expiresAt <= now);
+        list.removeIf(reservation -> reservation.isExpired(now));
         for (TimedReservation reservation : list) {
-            if (reservation.positions.contains(pos)) return true;
+            if (reservation.contains(pos)) return true;
         }
         return false;
     }
 
-    private static final class TimedReservation {
+    /// 跨刻预留的句柄。载荷移动时刷新坐标，停止时释放。
+    public static final class TimedReservation {
         private final long expiresAt;
         private final Set<BlockPos> positions = new HashSet<>();
 
         private TimedReservation(long expiresAt) {
             this.expiresAt = expiresAt;
+        }
+
+        private boolean isExpired(long now) {
+            return this.expiresAt <= now;
+        }
+
+        private boolean contains(BlockPos pos) {
+            return this.positions.contains(pos);
+        }
+
+        /// 用新坐标集合替换预留范围。
+        public void replace(Iterable<BlockPos> newPositions) {
+            this.positions.clear();
+            for (BlockPos pos : newPositions) this.positions.add(pos.immutable());
         }
     }
 

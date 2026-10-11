@@ -395,7 +395,7 @@ public record HasCauldron(
         ResourceHandler<FluidResource> handler = HasCauldron.getFluidHandler(ctx, pos, entityCauldron);
         if (handler == null) return;
         FluidResource resource = handler.getResource(0);
-        // 空锅以 Fluids.EMPTY 注册，而 NeoForge 的 extract 拒绝空资源，此处直接跳过。
+        // 空锅以 Fluids.EMPTY 注册，NeoForge 的 extract 拒绝空资源
         if (resource.isEmpty()) return;
         try (Transaction transaction = Transaction.openRoot()) {
             handler.extract(resource, Integer.MAX_VALUE, transaction);
@@ -441,10 +441,9 @@ public record HasCauldron(
             transaction.commit();
             missing = target - handler.getAmountAsInt(0);
         }
-        // NeoForge 的炼药锅包装器按整层存取并向下取整增量，原版 3 级炼药锅的 250mB 会算作 0 层，
-        // 表现为「什么都没发生」。只有能力接口确实一点都没存入时才按层补齐，代价是一层（333mB）
-        // 而不是请求量；部分存入时不补，否则 4 级炼药锅这类 250mB/层的锅会被多灌一层。
-        // 实体炼药锅的流体不在方块状态里，写方块层会改错目标，因此只对方块炼药锅生效。
+        // 炼药锅按整层存取，250mB 在原版 3 级锅里会向下取整成 0 层。
+        // 仅在能力接口一点都没存入时按层补齐；部分存入时不补，否则 4 级锅会被多灌一层。
+        // 实体炼药锅的流体不在方块状态里，故只对方块炼药锅生效。
         if (entityCauldron == null && deposited == 0 && missing > 0) {
             HasCauldron.fillCauldronLayers(ctx.getLevel(), pos, fluid, missing);
         }
@@ -460,10 +459,7 @@ public record HasCauldron(
         }
     }
 
-    /// 按层补齐 NeoForge 整层替换器向下取整掉的流体余量。
-    ///
-    /// <p>包装器只接受 {@code totalAmount / maxLevel} 的整数倍增量，原版 3 级炼药锅的 250mB 因此算作 0 层。
-    /// 这里按 {@link CauldronUtil} 的层数写入至少一层，粒度是一层而不是请求量。</p>
+    /// 按层补齐被整层取整丢掉的流体余量，粒度为一层。
     private static void fillCauldronLayers(Level level, BlockPos pos, FluidStack fluid, int missing) {
         CauldronFluidContent content = CauldronFluidContent.getForFluid(fluid.getFluid());
         if (content == null) return;

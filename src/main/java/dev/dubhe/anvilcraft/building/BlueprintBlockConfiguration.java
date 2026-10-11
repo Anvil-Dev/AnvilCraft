@@ -150,8 +150,7 @@ public final class BlueprintBlockConfiguration {
         }
         if (entity instanceof LecternBlockEntity) integer(source, result, "Page", 0, Integer.MAX_VALUE);
         if (entity instanceof HeliostatsBlockEntity) {
-            // 26.1 用 BlockPos 的 INT_STREAM 编码把照射坐标写进 irritate_pos（int[3]），
-            // 不再是 1.21 的 Ix/Iy/Iz 三个整数字段。
+            // 26.1 的照射坐标是 irritate_pos（int[3]），不再是 1.21 的 Ix/Iy/Iz
             int[] irritate = source.getIntArray("irritate_pos").orElseGet(() -> new int[0]);
             if (irritate.length == 3) {
                 result.putIntArray("irritate_pos", irritate);
