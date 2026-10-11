@@ -6,6 +6,7 @@ import dev.dubhe.anvilcraft.api.sliding.SlidingBlockStructureResolver;
 import dev.dubhe.anvilcraft.entity.SlidingBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
+import dev.dubhe.anvilcraft.util.PistonMoveGuard;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.entity.Entity;
@@ -147,6 +148,11 @@ public class SlidingRailStopBlock extends BaseSlidingRailBlock {
         for (var toPushEntry : toPushes) {
             level.updateNeighborsAt(toPushEntry.getLeft(), air.getBlock());
         }
+
+        // 同 ISlidingRail.moveBlocks：搬运跨越多个 tick，预约需要按刻数存活到滑动结束。
+        List<BlockPos> reserved = new ArrayList<>(toPushPoses);
+        reserved.addAll(toDestroys);
+        PistonMoveGuard.reserveUntil(level, reserved, SlidingBlockEntity.MOVE_RESERVATION_TICKS);
 
         SlidingBlockEntity.slid(level, pos.above(), moveToSide, toPushes);
     }

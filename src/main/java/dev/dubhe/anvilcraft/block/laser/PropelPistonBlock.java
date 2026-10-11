@@ -8,10 +8,12 @@ import dev.anvilcraft.lib.v2.piston.injection.IPistonMovingBlockEntityExtension;
 import dev.dubhe.anvilcraft.api.hammer.IHammerChangeable;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.block.entity.PropelPistonBlockEntity;
+import dev.dubhe.anvilcraft.entity.SlidingBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.item.property.component.StoredEnergy;
+import dev.dubhe.anvilcraft.util.PistonMoveGuard;
 import lombok.extern.slf4j.Slf4j;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -248,6 +250,11 @@ public class PropelPistonBlock extends DirectionalBlock implements IMoveableEnti
         if (!pistonstructureresolver.resolve()) {
             return false;
         } else {
+            // 与活塞一致：解析完成后立即预约被推动/销毁的方块。推进活塞的方块要等
+            // 移动方块实体结束才落位，而吞噬器可能在之后的 tick 才行动，所以预约按刻数存活。
+            List<BlockPos> reserved = Lists.newArrayList(pistonstructureresolver.getToPush());
+            reserved.addAll(pistonstructureresolver.getToDestroy());
+            PistonMoveGuard.reserveUntil(level, reserved, SlidingBlockEntity.MOVE_RESERVATION_TICKS);
             Map<BlockPos, BlockState> map = Maps.newHashMap();
             List<BlockPos> list = pistonstructureresolver.getToPush();
             List<BlockState> list1 = Lists.newArrayList();

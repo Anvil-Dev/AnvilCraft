@@ -7,6 +7,7 @@ import dev.dubhe.anvilcraft.block.logistics.sliding.ISlidingRail;
 import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import dev.dubhe.anvilcraft.init.entity.ModEntities;
 import dev.dubhe.anvilcraft.network.SlidingEntitySyncPacket;
+import dev.dubhe.anvilcraft.util.PistonMoveGuard;
 import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.CrashReportCategory;
@@ -39,6 +40,8 @@ import java.util.Optional;
 
 public class SlidingBlockEntity extends Entity {
     public static final double DEFAULT_MOVEMENT = 0.35;
+    /// 滑轨搬运期间方块预留的存活刻数，覆盖吞噬器可能到后续 tick 才行动的情况。
+    public static final int MOVE_RESERVATION_TICKS = 40;
     protected static final EntityDataAccessor<BlockPos> DATA_START_POS = SynchedEntityData.defineId(
         SlidingBlockEntity.class, EntityDataSerializers.BLOCK_POS);
     @Getter
@@ -162,6 +165,7 @@ public class SlidingBlockEntity extends Entity {
     public void stop() {
         if (this.level().isClientSide()) return;
         this.section.setBlock(this.level(), this.blockPosition(), this);
+        PistonMoveGuard.releaseTimed(this.level());
         NeoForge.EVENT_BUS.post(new SlidingBlockEvent.Stop(this));
         this.discard();
     }

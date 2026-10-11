@@ -4,6 +4,7 @@ import dev.anvilcraft.lib.v2.piston.IMoveableEntityBlock;
 import dev.dubhe.anvilcraft.api.injection.block.IBlockExtension;
 import dev.dubhe.anvilcraft.api.sliding.SlidingBlockStructureResolver;
 import dev.dubhe.anvilcraft.entity.SlidingBlockEntity;
+import dev.dubhe.anvilcraft.util.PistonMoveGuard;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -173,6 +174,12 @@ public interface ISlidingRail extends IBlockExtension {
         for (var toPushEntry : toPushes) {
             level.updateNeighborsAt(toPushEntry.getLeft(), air.getBlock());
         }
+
+        // 滑轨移动跨越多个 tick，而方块吞噬器在之后的 tick 才行动，所以预留必须按刻数存活；
+        // 否则吞噬器会把滑轨正在搬运的方块当成普通方块销毁并掉落，造成方块复制。
+        List<BlockPos> reserved = new ArrayList<>(toPushPoses);
+        reserved.addAll(toDestroys);
+        PistonMoveGuard.reserveUntil(level, reserved, SlidingBlockEntity.MOVE_RESERVATION_TICKS);
 
         SlidingBlockEntity.slid(level, pos, facing, toPushes);
         return true;
