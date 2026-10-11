@@ -4,11 +4,12 @@ on:
     types: [opened, edited, reopened]
 
 # Reported build numbers are `ci.yml` run numbers: snapshots come from the `dev/<mc>/<mod>`
-# branches and hotfix builds from the matching `releases/<mc>/<mod>` branch, so the version check
-# reads the Actions API with the repository token instead of a release site. Branch names also say
-# which Minecraft line a build belongs to, so `1.21.1` and `26.1.2` are never compared to each
-# other. Pre-release numbers restart with every mod version, so those are dated instead of
-# compared by number.
+# branches and hotfix builds from the matching `releases/<mc>/<mod>` branch (the one with
+# `BUILD_TYPE: hotfix`), so the version check reads the Actions API with the repository token
+# instead of a release site. `run_number` counts runs across the whole repository, so it must not
+# be used as a build lag; branch names say which Minecraft line a run belongs to, and the lag is
+# counted per line, so `1.21.1` and `26.1.2` never inflate each other. Pre-release numbers restart
+# with every mod version, so those are dated instead of compared by number.
 jobs:
   check:
     if: ${{ !github.event.issue.pull_request && github.event.issue.state == 'open' }}
@@ -37,11 +38,16 @@ jobs:
               return;
             }
 
-            // Re-opening is the documented way to say "this still matters", and maintainers
-            // routinely keep an issue open on an older build, so their own issues are never
-            // closed automatically.
+            // Only the author and people with write access can edit or re-open an issue, so any
+            // other actor means a maintainer is curating this issue by hand and the check steps
+            // aside. Re-opening is also the documented way to say "this still matters".
             if (['OWNER', 'MEMBER', 'COLLABORATOR'].includes(issue.author_association)) {
               core.info(`#${number} was opened by a ${issue.author_association}, skipping.`);
+              return;
+            }
+            const actor = context.payload.sender?.login;
+            if (actor !== undefined && actor !== issue.user?.login) {
+              core.info(`#${number} was last changed by ${actor} rather than its author, skipping.`);
               return;
             }
 
@@ -78,10 +84,11 @@ jobs:
               return section.join('\n');
             };
 
-            // The separator must be a real one (`.`, `-`, `_`). Allowing whitespace as well made
-            // ordinary prose such as `(build 7)` or `hotfix 3 times` parse as a version, which
-            // then closed a perfectly current issue. No published version uses that shape.
-            const channelPattern = /\b(snapshot|hotfix|pre-?release|build)\b[.\-_]*(\d{1,6})/gi;
+            // The separator must be a real one (`.`, `-`, `_`); a channel is never followed
+            // directly by a number. Whitespace is excluded as well, because ordinary prose such
+            // as `(build 7)` or `hotfix 3 times` would otherwise parse as a version and close a
+            // perfectly current issue. No published version uses either shape.
+            const channelPattern = /\b(snapshot|hotfix|pre-?release|build)\b[.\-_]+(\d{1,6})/gi;
             const parseBuilds = (text) => {
               const cleaned = text
                 .replace(/<!--[\s\S]*?-->/g, ' ')
@@ -121,11 +128,15 @@ jobs:
             const versionSection = sectionText(body, 'Version Details');
             const reportedBuilds = parseBuilds(versionSection);
             if (reportedBuilds.size > 0) {
-              // Only the major/minor pair identifies a line, so `1.21.1` and `1.21` agree.
-              const minecraft = /(\d+)\.(\d+)/.exec(sectionText(body, 'Minecraft Version Details'));
-              const line = minecraft === null ? null : `${minecraft[1]}.${minecraft[2]}`;
+              // Only a `major.minor` pair identifies a line, so `1.21.1` and `1.21` agree. A field
+              // can also name something else first (a loader version, say), so every pair is kept
+              // as a candidate and the one naming a real line is used.
+              const lineCandidates = [...new Set(
+                [...sectionText(body, 'Minecraft Version Details').matchAll(/(\d+)\.(\d+)/g)]
+                  .map((match) => `${match[1]}.${match[2]}`)
+              )];
               try {
-                if (line === null) {
+                if (lineCandidates.length === 0) {
                   core.warning(`#${number} does not state a Minecraft version, skipping the version check.`);
                 } else {
                   // A pre-release number only means something inside its own mod version, so the
@@ -153,15 +164,60 @@ jobs:
                     }
                   }
 
-                  // A branch belongs to the reported line when one of its path segments is that
-                  // line, which tolerates both `dev/1.21/1.6` and `releases/1.5/1.21`. `ci.yml`
-                  // runs keep the branch they ran on even after that branch was deleted, so the
-                  // hotfix chain stays readable once a release branch is cleaned up.
+                  // Reported numbers are `ci.yml` run numbers, but that counter is shared by every
+                  // branch in the repository, so a gap of N run numbers is not N builds of one
+                  // line. The lag is therefore counted from the line's own builds: a branch
+                  // belongs to a line when one of its path segments is that line, which tolerates
+                  // both `dev/1.21/1.6` and `releases/1.5/1.21`. A run keeps the branch it ran on
+                  // even after that branch was deleted, so deleted release branches stay readable.
                   const runs = [];
-                  const onLine = (prefix) => runs
+                  const onLine = (prefix, target) => runs
                     .filter((run) => run.head_branch.startsWith(prefix)
-                      && run.head_branch.split('/').includes(line))
+                      && run.head_branch.split('/').includes(target))
                     .sort((left, right) => right.run_number - left.run_number);
+                  const newerThan = (chain, reported) => chain.filter((run) => run.run_number > reported);
+
+                  let line = null;
+                  // Reading stops once every reported number is decided, so a current issue costs a
+                  // single request. Runs come newest first, so a channel is decided when either its
+                  // chain reaches back to the reported build (exact count known) or enough newer
+                  // builds were already seen for the threshold to be crossed however far back the
+                  // history goes.
+                  const undecided = () => {
+                    const oldest = Math.min(...runs.map((run) => run.run_number));
+                    const chainOn = (channel) => onLine(channel === 'hotfix' ? 'releases/' : 'dev/', line);
+                    // Release runs live in a closed window, so once the read window reaches the
+                    // newest release run anywhere, a line still holding none will never hold one.
+                    const releaseRuns = runs.filter((run) => run.head_branch.startsWith('releases/'));
+                    const newestRelease = releaseRuns.length === 0
+                      ? null
+                      : Math.max(...releaseRuns.map((run) => run.run_number));
+                    for (const channel of ['snapshot', 'build', 'hotfix']) {
+                      const reported = reportedBuilds.get(channel);
+                      if (reported === undefined) {
+                        continue;
+                      }
+                      const chain = chainOn(channel);
+                      const decided = chain.some((run) => run.run_number <= reported)
+                        || newerThan(chain, reported).length >= minBuildLag
+                        || (channel === 'hotfix'
+                          && chain.length === 0
+                          && newestRelease !== null
+                          && oldest <= newestRelease);
+                      if (!decided) {
+                        return true;
+                      }
+                    }
+                    if (reportedPreRelease !== undefined && preReleaseTime !== null) {
+                      const chain = chainOn('snapshot');
+                      const decided = chain.some((run) => new Date(run.created_at) <= preReleaseTime)
+                        || chain.filter((run) => new Date(run.created_at) > preReleaseTime).length >= minBuildLag;
+                      if (!decided) {
+                        return true;
+                      }
+                    }
+                    return false;
+                  };
 
                   for (let page = 1; page <= maxRunPages; page += 1) {
                     const response = await github.rest.actions.listWorkflowRuns({
@@ -172,47 +228,53 @@ jobs:
                       page
                     });
                     runs.push(...response.data.workflow_runs);
-                    if (response.data.workflow_runs.length < 100) {
+                    // The line is decided by the newest runs, because a live line always has a
+                    // current development branch. Only a hotfix report can name a line whose
+                    // branches are all deleted, so anything else that matches nothing is dropped
+                    // here instead of reading the whole history to prove it.
+                    if (line === null) {
+                      line = lineCandidates.find((candidate) => onLine('dev/', candidate).length > 0
+                        || onLine('releases/', candidate).length > 0) ?? null;
+                    }
+                    if (line === null && !reportedBuilds.has('hotfix')) {
+                      core.warning(`#${number} names no ci.yml branch for ${lineCandidates.join(', ')}, skipping the version check.`);
                       break;
                     }
-                    const development = onLine('dev/');
-                    // A hotfix build only needs the newest release run for its line; a
-                    // pre-release needs the development history read back to the day it landed.
-                    const tucked = reportedBuilds.has('hotfix') && onLine('releases/').length === 0;
-                    const undated = preReleaseTime !== null
-                      && (development.length <= minBuildLag
-                        || new Date(development[development.length - 1].created_at) > preReleaseTime);
-                    if (!tucked && !undated) {
+                    if (response.data.workflow_runs.length < 100
+                      || (line !== null && !undecided())) {
                       break;
                     }
                   }
 
-                  // `snapshot` and `build` are development builds, `hotfix` release builds.
-                  const development = onLine('dev/');
-                  for (const channel of ['snapshot', 'build', 'hotfix']) {
-                    const reported = reportedBuilds.get(channel);
-                    if (reported === undefined) {
-                      continue;
+                  // `snapshot` and `build` are development builds, `hotfix` release builds. The
+                  // lag counts builds of this line published after the reported one, not the raw
+                  // difference of run numbers, which the other line inflates.
+                  if (line === null) {
+                    core.warning(`#${number} names no ci.yml branch for ${lineCandidates.join(', ')}, skipping the version check.`);
+                  } else {
+                    const development = onLine('dev/', line);
+                    for (const channel of ['snapshot', 'build', 'hotfix']) {
+                      const reported = reportedBuilds.get(channel);
+                      if (reported === undefined) {
+                        continue;
+                      }
+                      const chain = channel === 'hotfix' ? onLine('releases/', line) : development;
+                      if (chain.length === 0) {
+                        core.warning(`No ci.yml runs found for the ${channel} channel of the ${line} line.`);
+                        continue;
+                      }
+                      const newer = newerThan(chain, reported);
+                      if (newer.length >= minBuildLag) {
+                        const behind = chain.some((run) => run.run_number <= reported)
+                          ? `${newer.length}`
+                          : `${newer.length}+`;
+                        note('version',
+                          `- The version reported in \`Version Details\` is \`${channel}.${reported}\`, and ${behind} newer \`${channel}\` builds of the ${line} line have been published since, the latest being \`${channel}.${chain[0].run_number}\` (closes when ${minBuildLag} or more builds behind).\n`
+                          + `  版本信息中反馈的 \`${channel}.${reported}\`，其后 ${line} 线已发布 ${behind} 个更新的 \`${channel}\` 构建，最新为 \`${channel}.${chain[0].run_number}\`（落后达到 ${minBuildLag} 个构建即关闭），请更新到最新版本后再反馈。`);
+                      }
                     }
-                    const chain = channel === 'hotfix' ? onLine('releases/') : development;
-                    if (chain.length === 0) {
-                      core.warning(`No ci.yml runs found for the ${channel} channel of the ${line} line.`);
-                      continue;
-                    }
-                    const latest = chain[0];
-                    const lag = latest.run_number - reported;
-                    if (lag >= minBuildLag) {
-                      note('version',
-                        `- The version reported in \`Version Details\` is \`${channel}.${reported}\`, which is ${lag} builds behind the latest \`${channel}.${latest.run_number}\` of the ${line} line (closes when ${minBuildLag} or more builds behind).\n`
-                        + `  版本信息中反馈的 \`${channel}.${reported}\` 落后 ${line} 线最新的 \`${channel}.${latest.run_number}\` ${lag} 个构建（落后达到 ${minBuildLag} 个构建即关闭），请更新到最新版本后再反馈。`);
-                    }
-                  }
 
-                  if (reportedPreRelease !== undefined && preReleaseTime !== null) {
-                    if (development.length <= minBuildLag) {
-                      core.warning(`Too few ci.yml runs to date pre-release.${reportedPreRelease} of #${number}.`);
-                    } else {
-                      // Builds landed after the tag, counted from the development history.
+                    if (reportedPreRelease !== undefined && preReleaseTime !== null) {
                       const since = development
                         .findIndex((run) => new Date(run.created_at) <= preReleaseTime);
                       if (since === -1 || since >= minBuildLag) {
@@ -236,7 +298,11 @@ jobs:
               issue_number: number,
               per_page: 100
             });
-            const previous = comments.find((comment) => (comment.body ?? '').includes(marker));
+            // The marker identifies our own comment, but a user can paste it, so the author has to
+            // be a bot as well before we edit or delete it.
+            const previous = comments.find(
+              (comment) => comment.user?.type === 'Bot' && (comment.body ?? '').includes(marker)
+            );
             const presentLabels = (issue.labels ?? [])
               .map((label) => (typeof label === 'string' ? label : label.name));
 
@@ -271,7 +337,12 @@ jobs:
             await github.rest.issues.addLabels({ owner, repo, issue_number: number, labels });
 
             const text = `${marker}\nThis issue was closed automatically because it does not follow the issue requirements. - 该 Issue 因不符合要求已被自动关闭。\n\n${reasons.map((reason) => reason.text).join('\n')}\n\nPlease fix the problem described above and reopen or recreate the issue. - 请修正以上问题后重新打开或重新提交 Issue。`;
-            if (previous === undefined) {
+            // Editing a comment does not notify anyone, so a re-open that still fails replaces the
+            // old comment with a new one instead of silently rewriting it.
+            if (previous !== undefined && context.payload.action === 'reopened') {
+              await github.rest.issues.deleteComment({ owner, repo, comment_id: previous.id });
+            }
+            if (previous === undefined || context.payload.action === 'reopened') {
               await github.rest.issues.createComment({ owner, repo, issue_number: number, body: text });
             } else {
               await github.rest.issues.updateComment({ owner, repo, comment_id: previous.id, body: text });
