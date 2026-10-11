@@ -389,7 +389,7 @@ public final class CelestialBodyMatcher {
         CelestialBodyClass bodyClass, int energy, int space, RandomSource random
     ) {
         int size = CelestialBodyMatcher.sizeForSpace(space);
-        int[] rgb = CelestialBodyMatcher.getStarColorFromTempDiagram(energy);
+        int[] rgb = CelestialBodyMatcher.getStarColor(bodyClass, energy);
         int mag = random.nextFloat() < 0.10f ? 5 : 4;
         int rotSpeed = bodyClass == CelestialBodyClass.BLACK_HOLE ? 0 : CelestialBodyMatcher.randomRotationSpeed(random);
         float axialTilt = 0f;
@@ -540,6 +540,20 @@ public final class CelestialBodyMatcher {
     }
 
     public static int[] getStarColor(int energy) {
+        return CelestialBodyMatcher.getStarColorFromTempDiagram(energy);
+    }
+
+    /// 返回某一类天体在给定能量下使用的渲染 RGB。
+    ///
+    /// <p>白矮星在 age_temp_sp 图中只占能量 49..58 这一小段，而演化残骸没有可用的能量值，
+    /// 因此白矮星统一改用黑体温度推导，让锻造与演化两条路径得到同一种颜色。
+    /// 其余类别仍读取 star_color_temperature 星图。</p>
+    public static int[] getStarColor(CelestialBodyClass bodyClass, int energy) {
+        if (bodyClass == CelestialBodyClass.WHITE_DWARF) {
+            int rgb = StellarVisualState.colorForTemperature(
+                StellarVisualState.temperatureForSurfaceClass(CelestialBodyClass.WHITE_DWARF, energy));
+            return new int[] {(rgb >> 16) & 0xFF, (rgb >> 8) & 0xFF, rgb & 0xFF};
+        }
         return CelestialBodyMatcher.getStarColorFromTempDiagram(energy);
     }
 }
