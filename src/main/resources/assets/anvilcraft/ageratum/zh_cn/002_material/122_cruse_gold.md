@@ -23,7 +23,7 @@ items:
 
 # 获取
 
-在<ref item="anvilcraft:royal_grindstone"/>上使用金锭（或金块），移除其诅咒魔咒或附魔惩罚后获得诅咒金。
+通过<ref item="anvilcraft:royal_grindstone"/>获取
 
 # 猪灵诅咒
 

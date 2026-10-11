@@ -4,9 +4,6 @@ navigation:
   icon: "anvilcraft:guide_book"
 items:
   - anvilcraft:guide_book
-  - anvilcraft:monolith
-  - anvilcraft:monolith_core
-  - anvilcraft:monolith_line
 ---
 
 # AnvilCraft Guide Book
@@ -17,7 +14,7 @@ items:
 # Acquisition:
 
 1. A player receives an <ref item="anvilcraft:guide_book"/> upon first entering a world.
-2. Hold a <ref item="minecraft:anvil"/> and right-click the monolith core near the Overworld spawn, consuming the <ref item="minecraft:anvil"/> to obtain an <ref item="anvilcraft:guide_book"/>.
+2. Obtain it through the <ref item="anvilcraft:monolith_core"/>.
 
 # Functions:
 

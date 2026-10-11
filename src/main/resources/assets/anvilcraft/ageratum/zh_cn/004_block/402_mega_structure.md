@@ -10,6 +10,7 @@ items:
   - anvilcraft:stellar_ring_component
   - anvilcraft:magnetar_coil_component
   - anvilcraft:stellar_evolution_accelerator_component
+  - anvilcraft:civilization_catalyst
 ---
 
 <directory />
@@ -35,7 +36,6 @@ items:
 ## 星球开采器
 
 - **建造条件**：大型卫星或岩石行星
-- **合成方式**：在锻星砧的巨构页选择星球开采器并提交材料
 - **合成材料**：<ref item="anvilcraft:ruby_prism"/> × 16
 - **输入**：16 级[激光](201_basic_laser.md#激光)
 - **输出**：行星矿物资源
@@ -47,7 +47,6 @@ items:
 ## 行星抽取器
 
 - **建造条件**：存在**液体**的岩石行星
-- **合成方式**：在锻星砧的巨构页选择行星抽取器并提交材料
 - **合成材料**：<ref item="anvilcraft:pump"/> × 16
 - **输入**：无
 - **输出**：行星流体资源
@@ -56,7 +55,6 @@ items:
 ## 生态站
 
 - **建造条件**：存在**生物资源**的岩石行星
-- **合成方式**：在锻星砧的巨构页选择生态站并提交材料
 - **合成材料**：<ref item="anvilcraft:tempering_glass"/> × 64
 - **输入**：持续耗电 1 MW
 - **输出**：行星生物资源中的物品和流体
@@ -67,7 +65,6 @@ items:
 ## 神殿
 
 - **建造条件**：存在**低等文明**的岩石行星
-- **合成方式**：在锻星砧的巨构页选择神殿并提交材料
 - **合成材料**：<ref item="anvilcraft:enchanted_gold_block"/> × 64
 - **输入**：作为神明恩赐或天罚的特定物品
 - **输出**：文明的供奉
@@ -77,10 +74,19 @@ items:
 不建议在夜晚提供物品，否则需要在不久后（也就是第二天凌晨）再次给予恩赐或天罚
 </tip>
 
+## 石碑投放器
+
+<recipe id="anvilcraft:civilization_catalyst"/>
+
+- **建造条件**：存在**低等文明**或拥有**三种及以上生物资源**的行星
+- **合成材料**：<ref item="anvilcraft:civilization_catalyst"/> × 1
+- **特性**：
+  - 一次性建筑，十秒后销毁，并向星球投放石碑，加速文明演化
+  - 使文明产生；若已有文明则其有概率消亡（变为废土星球）或飞向太空（直接消失）
+
 ## 巨行星抽取器
 
 - **建造条件**：气巨星或冰巨星
-- **合成方式**：在锻星砧的巨构页选择巨行星抽取器并提交材料
 - **合成材料**：<ref item="anvilcraft:pump"/> × 32
 - **输入**：无
 - **输出**：巨行星资源中的物品和流体
@@ -94,7 +100,6 @@ items:
 <recipe id="anvilcraft:dyson_sphere_component"/>
 
 - **建造条件**：褐矮星或普通恒星
-- **合成方式**：在锻星砧的巨构页选择戴森球并提交材料
 - **合成材料**：褐矮星需要<ref item="anvilcraft:dyson_sphere_component"/> × 8；小型恒星需要<ref item="anvilcraft:dyson_sphere_component"/> × 16；大型恒星需要<ref item="anvilcraft:dyson_sphere_component"/> × 32
 - **输入**：无
 - **输出**：持续发电，发电量与天体的*温度*和*半径*正相关
@@ -117,7 +122,6 @@ items:
 <recipe id="anvilcraft:stellar_ring_component"/>
 
 - **建造条件**：小型恒星
-- **合成方式**：在锻星砧的巨构页选择星环对撞机并提交材料
 - **合成材料**：<ref item="anvilcraft:stellar_ring_component"/> × 8
 - **输入**：持续耗电 4 MW，并通过物流接口输入对撞原料和铁砧
 - **输出**：执行[铁砧撞击合成](215_large_electromagnet.md#铁砧撞击合成)
@@ -125,13 +129,11 @@ items:
   - 配方恒星的引力和磁场越强，工作越快
   - 配方要求的速度越高，工作越慢
 
-
 ## 恒星演化加速器
 
 <recipe id="anvilcraft:stellar_evolution_accelerator_component"/>
 
 - **建造条件**：除白矮星、中子星、黑洞和特殊红矮星外的恒星
-- **合成方式**：在锻星砧的巨构页选择恒星演化加速器并提交材料
 - **合成材料**：<ref item="anvilcraft:stellar_evolution_accelerator_component"/> × 8
 - **输入**：无
 - **作用**：加速恒星演化恒星结束生命后会成为白矮星，或引发超新星爆发并产生中子星或黑洞
@@ -150,7 +152,6 @@ items:
 <recipe id="anvilcraft:magnetar_coil_component"/>
 
 - **建造条件**：中子星
-- **合成方式**：在锻星砧的巨构页选择磁星线圈并提交材料
 - **合成材料**：<ref item="anvilcraft:magnetar_coil_component"/> × 4
 - **输入**：无
 - **输出**：持续发电，发电量与天体的*磁场强度*和*转速*正相关
@@ -160,7 +161,6 @@ items:
 <recipe id="anvilcraft:wormhole_stabilizer_component"/>
 
 - **建造条件**：处于增幅状态的黑洞
-- **合成方式**：在锻星砧的巨构页选择虫洞稳定器并提交材料
 - **合成材料**：<ref item="anvilcraft:wormhole_stabilizer_component"/> × 4
 - **输入**：全同黑洞
 - **输出**：[虫洞](402_teleportation.md)
@@ -170,7 +170,6 @@ items:
 <recipe id="anvilcraft:penrose_sphere_component"/>
 
 - **建造条件**：黑洞
-- **合成方式**：在锻星砧的巨构页选择彭罗斯球并提交材料
 - **合成材料**：<ref item="anvilcraft:penrose_sphere_component"/> × 8
 - **输入**：激光
 - **输出**：同等级[伽马激光](../001_feature/402_gamma_laser.md)
@@ -186,7 +185,6 @@ items:
 <recipe id="anvilcraft:matter_decompressor_component"/>
 
 - **建造条件**：中子星或黑洞
-- **合成方式**：在锻星砧的巨构页选择物质解压器并提交材料
 - **合成材料**：<ref item="anvilcraft:matter_decompressor_component"/> × 2
 - **输入**：*伽马激光*；每级伽马激光提供 1 倍工作效率
 - **输出**：

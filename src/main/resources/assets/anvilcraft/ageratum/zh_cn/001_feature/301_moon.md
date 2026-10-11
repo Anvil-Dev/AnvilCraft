@@ -19,6 +19,10 @@ items:
 1. 触摸可以回到主世界的出生点
 2. 手持<ref item="anvilcraft:giant_anvil"/>右击月球出生点附近的石碑核心，消耗<ref item="anvilcraft:giant_anvil"/>获得随机一个[隐秘天体](../004_block/401_celestial_forging_anvil.md#隐秘天体)的信息
 
+<info>
+持有<ref item="anvilcraft:monolith_line"/>或<ref item="anvilcraft:monolith_core"/>的僵尸时被腐化变为巨人时，概率手持<ref item="anvilcraft:giant_monolith_line"/>或<ref item="anvilcraft:giant_monolith_core"/>，概率计算与<ref item="anvilcraft:giant_anvil"/>一致
+</info>
+
 # 月面
 
 x和y坐标小于1024，大于-1024的群系为月球正面，其他区域为月球背面

@@ -4,9 +4,6 @@ navigation:
   icon: "anvilcraft:guide_book"
 items:
   - anvilcraft:guide_book
-  - anvilcraft:monolith
-  - anvilcraft:monolith_core
-  - anvilcraft:monolith_line
 ---
 
 # 铁砧工艺指南
@@ -16,7 +13,7 @@ items:
 # 获取方式:
 
 1. 玩家第一次进入游戏可以获得一本<ref item="anvilcraft:guide_book"/>
-2. 手持<ref item="minecraft:anvil"/>右击主世界出生点附近的石碑核心，消耗<ref item="minecraft:anvil"/>获得<ref item="anvilcraft:guide_book"/>
+2. 通过<ref item="anvilcraft:monolith_core"/>获得
 
 # 功能:
 

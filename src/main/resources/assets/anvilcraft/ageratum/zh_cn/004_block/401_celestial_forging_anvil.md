@@ -20,7 +20,10 @@ items:
 # 锻造天体
 
 - 使用<ref item="anvilcraft:confined_time_anvilon"/>、<ref item="anvilcraft:confined_space_anvilon"/>、<ref item="anvilcraft:confined_mass_anvilon"/>、<ref item="anvilcraft:confined_energy_anvilon"/>依次放在左边，并使其构成一个合理的参数，即可搜索并锻造一个天体
-- 锻造天体不消耗砧子
+
+<tip>
+锻造天体**不消耗**砧子，所以四种砧子均最多只需准备一组
+</tip>
 
 <tip>
 调试参数：
@@ -75,6 +78,10 @@ items:
 <tip>
 若要移除巨构，只需解绑再绑定星球
 </tip>
+
+<warning>
+如果<ref item="anvilcraft:celestial_forging_anvil"/>被拆除，虽然星球会被保留，但巨构会消失
+</warning>
 
 ## 物流交互
 
