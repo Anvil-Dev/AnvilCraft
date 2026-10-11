@@ -147,8 +147,8 @@ public interface ISlidingRail extends IBlockExtension {
         List<BlockPos> toDestroys = resolver.getToDestroy();
         List<BlockState> toDestroyStates = new ArrayList<>();
 
-        /// 滑动方块跨 tick 才把载荷放回世界，保留必须活过本次调用，否则吞噬器会先抢走方块
-        PistonMoveGuard.SlidingScope reservation = PistonMoveGuard.beginSliding(level, toPushPoses, toDestroys);
+        /// 跨 tick 保留：滑动方块放回世界前，吞噬器不能抢走载荷
+        final PistonMoveGuard.SlidingScope reservation = PistonMoveGuard.beginSliding(level, toPushPoses, toDestroys);
 
         for (int i = toDestroys.size() - 1; i >= 0; i--) {
             BlockPos destroyingPos = toDestroys.get(i);

@@ -90,10 +90,7 @@ public class ItemCrushCategory extends AbstractProgressCategory<ItemCrushRecipe>
         registration.addRecipes(AnvilCraftJeiPlugin.ITEM_CRUSH, recipes);
     }
 
-    /**
-     * 异彩石粉碎：数据配方是 in_world 配方，落在 anvillib 的 InWorldRecipeManager 中，
-     * 本分类无法通过 {@link ModRecipeTypes#ITEM_CRUSH_TYPE} 收集到，因此手工补一条等价配方。
-     */
+    /// 异彩石粉碎是 in_world 配方，本分类收集不到，手工补一条等价配方。
     private static ItemCrushRecipe chromaticStoneRecipe() {
         return ItemCrushRecipe.builder()
             .requires(ModBlocks.CHROMATIC_STONE)

@@ -29,13 +29,7 @@ abstract class TntBlockMixin extends Block {
         super(properties);
     }
 
-    /**
-     * 被滑动方块接管的 TNT 不再响应邻居信号。
-     *
-     * <p>滑动方块把载荷放回世界时会触发一次自身的 {@code neighborChanged}；若该位置带红石
-     * 信号，TNT 会在此处被点燃，而载荷本身还会被放回世界，于是同一份 TNT 既爆炸又被保留，
-     * 表现为复制。正在被滑动或推进的方块已在 {@link PistonMoveGuard} 中登记，这里直接跳过。</p>
-     */
+    /// 滑动载荷放回世界时会自触发邻居信号，被接管的 TNT 在此跳过点燃，否则会边爆炸边保留。
     @Inject(method = "neighborChanged", at = @At("HEAD"), cancellable = true)
     private void skipPrimingWhileOwned(
         BlockState state,
@@ -49,7 +43,7 @@ abstract class TntBlockMixin extends Block {
         if (PistonMoveGuard.isReserved(level, pos)) ci.cancel();
     }
 
-    /** 同一份载荷在放回瞬间的 {@code onPlace} 也可能立即点燃 TNT。 */
+    /// 放回瞬间的 onPlace 同样会点燃 TNT。
     @Inject(method = "onPlace", at = @At("HEAD"), cancellable = true)
     private void skipPrimingOnPlaceWhileOwned(
         BlockState state,

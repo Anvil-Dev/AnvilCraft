@@ -113,12 +113,7 @@ public class SlidingBlockEntity extends Entity {
         return entity;
     }
 
-    /**
-     * 用起点与当前位置两处载荷坐标刷新保留范围。
-     *
-     * <p>滑动期间方块不在世界里，位置随实体移动，吞噬器作用于世界坐标，因此两处都要覆盖；
-     * 起点尤其重要——滑轨站判定失败时载荷会被原地放回。</p>
-     */
+    /// 用起点与当前位置两处载荷坐标刷新保留范围；滑动期间方块不在世界里，两处都要覆盖。
     private void refreshMoveGuard() {
         if (this.moveGuard == null) return;
         List<BlockPos> positions = new ArrayList<>();
@@ -207,7 +202,8 @@ public class SlidingBlockEntity extends Entity {
 
     public void stop() {
         if (this.level().isClientSide) return;
-        this.section.setBlock(this.level(), this.blockPosition(), this);        NeoForge.EVENT_BUS.post(new SlidingBlockEvent.Stop(this));
+        this.section.setBlock(this.level(), this.blockPosition(), this);
+        NeoForge.EVENT_BUS.post(new SlidingBlockEvent.Stop(this));
         this.discard();
     }
 

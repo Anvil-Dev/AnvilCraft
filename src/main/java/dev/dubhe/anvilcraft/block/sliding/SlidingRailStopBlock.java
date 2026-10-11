@@ -128,8 +128,8 @@ public class SlidingRailStopBlock extends BaseSlidingRailBlock {
 
         List<BlockPos> toDestroys = resolver.getToDestroy();
 
-        /// 与 ISlidingRail.moveBlocks 相同的跨 tick 保留：滑轨站把载荷移出世界后才放回
-        PistonMoveGuard.SlidingScope reservation = PistonMoveGuard.beginSliding(level, toPushPoses, toDestroys);
+        /// 跨 tick 保留，同上
+        final PistonMoveGuard.SlidingScope reservation = PistonMoveGuard.beginSliding(level, toPushPoses, toDestroys);
 
         for (int i = toDestroys.size() - 1; i >= 0; i--) {
             BlockPos destroyingPos = toDestroys.get(i);

@@ -82,26 +82,14 @@ public class ModKeyMappings {
         return Lazy.of(() -> new KeyMapping("key.anvilcraft." + name, context, type, key, "key.categories.anvilcraft"));
     }
 
-    /**
-     * F3 是否被按住。
-     *
-     * <p>1.21.1 的 F3 不是 {@link KeyMapping}（原始键码 292），原版 {@code KeyboardHandler} 只在
-     * {@code handleDebugKeys} 真正消费了按键时才跳过 {@code KeyMapping.set/click}。因此像 F3+G
-     * 这类被原版调试功能接受的组合键，仍会被后续无条件执行的 {@code ClientHooks.onKeyInput}
-     * 依次送进各个模组的 {@code InputEvent.Key} 监听器，让模组按键被误触发。模组监听器需要
-     * 自行查询 F3 的物理状态并忽略按下事件。</p>
-     */
+    /// F3 是否被按住。F3 是原始键码 292，原版不会为它屏蔽模组按键事件。
     public static boolean isDebugModifierHeld() {
         Minecraft minecraft = Minecraft.getInstance();
         return minecraft.getWindow() != null
             && InputConstants.isKeyDown(minecraft.getWindow().getWindow(), GLFW.GLFW_KEY_F3);
     }
 
-    /**
-     * 是否应忽略本次按下事件：F3 组合键期间只放过 RELEASE，保证已按下的键能正常复位。
-     *
-     * @param action GLFW 动作（{@link GLFW#GLFW_PRESS} / {@link GLFW#GLFW_REPEAT} / {@link GLFW#GLFW_RELEASE}）
-     */
+    /// F3 组合键期间忽略按下，但仍放过 RELEASE，保证已按下的键能复位。
     public static boolean shouldIgnorePress(int action) {
         return action != GLFW.GLFW_RELEASE && isDebugModifierHeld();
     }
