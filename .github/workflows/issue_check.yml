@@ -78,7 +78,10 @@ jobs:
               return section.join('\n');
             };
 
-            const channelPattern = /\b(snapshot|hotfix|pre-?release|build)\b[.\-_\s]*(\d{1,6})/gi;
+            // The separator must be a real one (`.`, `-`, `_`). Allowing whitespace as well made
+            // ordinary prose such as `(build 7)` or `hotfix 3 times` parse as a version, which
+            // then closed a perfectly current issue. No published version uses that shape.
+            const channelPattern = /\b(snapshot|hotfix|pre-?release|build)\b[.\-_]*(\d{1,6})/gi;
             const parseBuilds = (text) => {
               const cleaned = text
                 .replace(/<!--[\s\S]*?-->/g, ' ')
@@ -200,8 +203,8 @@ jobs:
                     const lag = latest.run_number - reported;
                     if (lag >= minBuildLag) {
                       note('version',
-                        `- The version reported in \`Version Details\` is \`${channel}.${reported}\`, which is ${lag} builds behind the latest \`${channel}.${latest.run_number}\` of the ${line} line (limit: ${minBuildLag}).\n`
-                        + `  版本信息中反馈的 \`${channel}.${reported}\` 落后 ${line} 线最新的 \`${channel}.${latest.run_number}\` ${lag} 个构建（上限 ${minBuildLag}），请更新到最新版本后再反馈。`);
+                        `- The version reported in \`Version Details\` is \`${channel}.${reported}\`, which is ${lag} builds behind the latest \`${channel}.${latest.run_number}\` of the ${line} line (closes when ${minBuildLag} or more builds behind).\n`
+                        + `  版本信息中反馈的 \`${channel}.${reported}\` 落后 ${line} 线最新的 \`${channel}.${latest.run_number}\` ${lag} 个构建（落后达到 ${minBuildLag} 个构建即关闭），请更新到最新版本后再反馈。`);
                     }
                   }
 
@@ -216,8 +219,8 @@ jobs:
                         // `-1` means the tag predates every run read back, so the count is a floor.
                         const reached = since === -1 ? `${development.length}+` : `${since}`;
                         note('version',
-                          `- The pre-release \`${preRelease.tag_name}\` was published on ${preRelease.published_at.slice(0, 10)}, and ${reached} builds of the ${line} line have been published since (limit: ${minBuildLag}).\n`
-                          + `  反馈的预发布版本 \`${preRelease.tag_name}\` 发布于 ${preRelease.published_at.slice(0, 10)}，其后 ${line} 线已发布 ${reached} 个构建（上限 ${minBuildLag}），请更新到最新版本后再反馈。`);
+                          `- The pre-release \`${preRelease.tag_name}\` was published on ${preRelease.published_at.slice(0, 10)}, and ${reached} builds of the ${line} line have been published since (closes when ${minBuildLag} or more builds behind).\n`
+                          + `  反馈的预发布版本 \`${preRelease.tag_name}\` 发布于 ${preRelease.published_at.slice(0, 10)}，其后 ${line} 线已发布 ${reached} 个构建（落后达到 ${minBuildLag} 个构建即关闭），请更新到最新版本后再反馈。`);
                       }
                     }
                   }
@@ -236,18 +239,18 @@ jobs:
             const previous = comments.find((comment) => (comment.body ?? '').includes(marker));
             const presentLabels = (issue.labels ?? [])
               .map((label) => (typeof label === 'string' ? label : label.name));
-            const tagged = presentLabels.some((label) => [outdatedLabel, invalidLabel].includes(label));
 
-            // A later edit can fix the issue, so a passing check withdraws what an earlier one left.
+            // A later edit can fix the issue, so a passing check withdraws what an earlier check
+            // left. Both labels are ordinary triage labels a maintainer may have applied by hand,
+            // so they are only taken back when our own closing comment proves the last close was
+            // ours.
             if (reasons.length === 0) {
-              if (previous === undefined && !tagged) {
+              if (previous === undefined) {
                 core.info(`Issue #${number} passed the check.`);
                 return;
               }
               core.info(`Issue #${number} passed the check, withdrawing the previous result.`);
-              if (previous !== undefined) {
-                await github.rest.issues.deleteComment({ owner, repo, comment_id: previous.id });
-              }
+              await github.rest.issues.deleteComment({ owner, repo, comment_id: previous.id });
               for (const label of [outdatedLabel, invalidLabel]) {
                 if (presentLabels.includes(label)) {
                   await github.rest.issues.removeLabel({ owner, repo, issue_number: number, name: label });
