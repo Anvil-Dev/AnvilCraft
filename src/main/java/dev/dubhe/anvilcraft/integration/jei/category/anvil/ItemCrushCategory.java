@@ -84,7 +84,7 @@ public class ItemCrushCategory extends AbstractProgressCategory<ItemCrushRecipe>
             JeiRecipeUtil.getRecipeHoldersFromType(ModRecipeTypes.ITEM_CRUSH_TYPE.get())
         );
         recipes.add(new RecipeHolder<>(
-            AnvilCraft.of("item_crush/gem_from_chromatic_stone"),
+            AnvilCraft.of("item_crush/item_crush/gem_from_chromatic_stone"),
             chromaticStoneRecipe()
         ));
         registration.addRecipes(AnvilCraftJeiPlugin.ITEM_CRUSH, recipes);
