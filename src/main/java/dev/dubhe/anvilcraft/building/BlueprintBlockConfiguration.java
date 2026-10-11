@@ -336,8 +336,7 @@ public final class BlueprintBlockConfiguration {
         if (!config.contains("Ix")) return;
         BlockPos target = new BlockPos(config.getInt("Ix"), config.getInt("Iy"), config.getInt("Iz"));
         if (sourceOrigin != null) {
-            /// 照射目标通常落在快照立方体之外（例如加热方块），仍要按同一变换重映射；
-            /// 只按快照边界判断会把这类数据一律删掉，白丢配置。
+            /// 照射目标通常落在快照立方体之外，仍按同一变换重映射，不能按边界丢弃
             BlockPos world = placement.worldOf(target.subtract(sourceOrigin));
             config.putInt("Ix", world.getX());
             config.putInt("Iy", world.getY());
