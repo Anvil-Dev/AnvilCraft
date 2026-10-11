@@ -3,6 +3,8 @@ on:
   issues:
     types: [opened, edited, reopened]
 
+# Build numbers reported in issues (`x.x.x+snapshot.N`) match the numbers used by the
+# snapshots published on Modrinth, so `vuISAWPc` is used as the source of the latest version.
 jobs:
   check:
     if: ${{ github.event.issue.state == 'open' }}
@@ -17,10 +19,49 @@ jobs:
             const { owner, repo } = context.repo;
             const issue = context.payload.issue;
             const number = issue.number;
+            const body = issue.body ?? '';
+
+            const modrinthProject = 'vuISAWPc';
+            const minBuildLag = 50;
+
+            const sectionText = (text, heading) => {
+              const lines = text.split(/\r?\n/);
+              const start = lines.findIndex(
+                (line) => line.replace(/^###\s+/, '').startsWith(heading)
+              );
+              if (start === -1) {
+                return '';
+              }
+              const section = [];
+              for (let index = start + 1; index < lines.length; index += 1) {
+                if (/^###\s/.test(lines[index])) {
+                  break;
+                }
+                section.push(lines[index]);
+              }
+              return section.join('\n');
+            };
+
+            const buildPattern = /\b(snapshot|hotfix|pre-?release|build)\b[.\-_\s]*(\d{1,6})/gi;
+            const parseBuilds = (text) => {
+              const cleaned = text
+                .replace(/<!--[\s\S]*?-->/g, ' ')
+                .replace(/`/g, '')
+                .replace(/\[([^\]]*)\]\([^)]*\)/g, '$1');
+              const reported = new Map();
+              for (const match of cleaned.matchAll(buildPattern)) {
+                const channel = match[1].toLowerCase().replace(/^prerelease$/, 'pre-release');
+                const build = Number(match[2]);
+                if (build > (reported.get(channel) ?? 0)) {
+                  reported.set(channel, build);
+                }
+              }
+              return reported;
+            };
 
             const reasons = [];
 
-            const admitted = (issue.body ?? '')
+            const admitted = body
               .split(/\r?\n/)
               .some((line) => {
                 const checkbox = line.match(/^\s*[-*]\s*\[[xX]\]\s*(.+)$/);
@@ -40,6 +81,47 @@ jobs:
                 '- The title must start with a bracketed prefix, followed by a space and the title text, for example `[Bug] Something is broken`.\n'
                 + '  标题必须以方括号前缀开头，且方括号与后续标题之间需要有一个空格，例如 `[Bug] 某个问题`。'
               );
+            }
+
+            const reportedText = sectionText(body, 'Version Details')
+              .split(/\r?\n/)
+              .map((line) => line.trim())
+              .filter((line) => line.length > 0)
+              .join(' ')
+              .slice(0, 200);
+            const reportedBuilds = parseBuilds(reportedText);
+            if (reportedBuilds.size > 0) {
+              try {
+                const response = await fetch(`https://api.modrinth.com/v2/project/${modrinthProject}/version`, {
+                  headers: { 'User-Agent': 'AnvilCraft-Issue-Format-Check' }
+                });
+                if (!response.ok) {
+                  throw new Error(`Modrinth responded with ${response.status}`);
+                }
+                const released = await response.json();
+                const latestByChannel = new Map();
+                for (const version of released) {
+                  for (const [channel, build] of parseBuilds(version.version_number ?? '')) {
+                    const latest = latestByChannel.get(channel);
+                    if (latest === undefined || build > latest.build) {
+                      latestByChannel.set(channel, { build, version: version.version_number });
+                    }
+                  }
+                }
+                const outdated = [...reportedBuilds]
+                  .map(([channel, build]) => ({ channel, build, latest: latestByChannel.get(channel) }))
+                  .filter((entry) => entry.latest !== undefined)
+                  .map((entry) => ({ ...entry, lag: entry.latest.build - entry.build }));
+                if (outdated.length > 0 && outdated.every((entry) => entry.lag >= minBuildLag)) {
+                  const worst = outdated.reduce((left, right) => (right.lag > left.lag ? right : left));
+                  reasons.push(
+                    `- The reported mod version is \`${reportedText}\`, which is ${worst.lag} ${worst.channel} builds behind the latest \`${worst.latest.version}\` (limit: ${minBuildLag}).\n`
+                    + `  反馈的模组版本为 \`${reportedText}\`，比最新的 \`${worst.latest.version}\` 落后 ${worst.lag} 个版本（上限 ${minBuildLag}），请更新到最新版本后再反馈。`
+                  );
+                }
+              } catch (error) {
+                core.warning(`Could not read the latest version from Modrinth: ${error.message}`);
+              }
             }
 
             if (reasons.length === 0) {
