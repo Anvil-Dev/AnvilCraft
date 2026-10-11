@@ -336,15 +336,13 @@ public final class BlueprintBlockConfiguration {
         if (!config.contains("Ix")) return;
         BlockPos target = new BlockPos(config.getInt("Ix"), config.getInt("Iy"), config.getInt("Iz"));
         if (sourceOrigin != null) {
-            BlockPos local = target.subtract(sourceOrigin);
-            if (local.getX() >= 0 && local.getY() >= 0 && local.getZ() >= 0 && local.getX() < snapshot.size().getX()
-                && local.getY() < snapshot.size().getY() && local.getZ() < snapshot.size().getZ()) {
-                BlockPos world = placement.worldOf(local);
-                config.putInt("Ix", world.getX());
-                config.putInt("Iy", world.getY());
-                config.putInt("Iz", world.getZ());
-                return;
-            }
+            /// 照射目标通常落在快照立方体之外（例如加热方块），仍要按同一变换重映射；
+            /// 只按快照边界判断会把这类数据一律删掉，白丢配置。
+            BlockPos world = placement.worldOf(target.subtract(sourceOrigin));
+            config.putInt("Ix", world.getX());
+            config.putInt("Iy", world.getY());
+            config.putInt("Iz", world.getZ());
+            return;
         }
         remove(config, "Ix", "Iy", "Iz");
     }
