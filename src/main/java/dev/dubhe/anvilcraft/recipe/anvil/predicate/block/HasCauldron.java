@@ -35,6 +35,7 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
@@ -43,6 +44,7 @@ import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.fluids.CauldronFluidContent;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.FluidStackTemplate;
 import net.neoforged.neoforge.transfer.ResourceHandler;
@@ -392,8 +394,11 @@ public record HasCauldron(
     ) {
         ResourceHandler<FluidResource> handler = HasCauldron.getFluidHandler(ctx, pos, entityCauldron);
         if (handler == null) return;
+        FluidResource resource = handler.getResource(0);
+        // 空锅以 Fluids.EMPTY 注册，而 NeoForge 的 extract 拒绝空资源，此处直接跳过。
+        if (resource.isEmpty()) return;
         try (Transaction transaction = Transaction.openRoot()) {
-            handler.extract(handler.getResource(0), Integer.MAX_VALUE, transaction);
+            handler.extract(resource, Integer.MAX_VALUE, transaction);
             transaction.commit();
         }
     }
@@ -417,20 +422,31 @@ public record HasCauldron(
             if (cauldron.isIgnited(cache, pos)) ignited = true;
         }
         if (entityCauldron != null && entityCauldron.anvilcraft$isIgnited()) ignited = true;
+        int target = (int) Math.round(mb);
+        int missing;
+        int deposited;
         try (Transaction transaction = Transaction.openRoot()) {
             FluidResource resource = FluidResource.of(fluid);
             FluidResource handlerResource = handler.getResource(0);
             if (!handlerResource.equals(resource) && !handlerResource.isEmpty()) {
                 handler.extract(handlerResource, Integer.MAX_VALUE, transaction);
             }
-            int amount = (int) Math.round(mb);
-            amount -= handler.getAmountAsInt(0);
+            int amount = target - handler.getAmountAsInt(0);
             if (amount < 0) {
                 handler.extract(resource, -amount, transaction);
+                deposited = 0;
             } else {
-                handler.insert(resource, amount, transaction);
+                deposited = handler.insert(resource, amount, transaction);
             }
             transaction.commit();
+            missing = target - handler.getAmountAsInt(0);
+        }
+        // NeoForge 的炼药锅包装器按整层存取并向下取整增量，原版 3 级炼药锅的 250mB 会算作 0 层，
+        // 表现为「什么都没发生」。只有能力接口确实一点都没存入时才按层补齐，代价是一层（333mB）
+        // 而不是请求量；部分存入时不补，否则 4 级炼药锅这类 250mB/层的锅会被多灌一层。
+        // 实体炼药锅的流体不在方块状态里，写方块层会改错目标，因此只对方块炼药锅生效。
+        if (entityCauldron == null && deposited == 0 && missing > 0) {
+            HasCauldron.fillCauldronLayers(ctx.getLevel(), pos, fluid, missing);
         }
         cache = new BlockCache(ctx.getLevel());
         if (ctx.getLevel().getBlockState(pos).getBlock() instanceof IIgnitableCauldron cauldron) {
@@ -442,6 +458,19 @@ public record HasCauldron(
         if (entityCauldron != null && entityCauldron.anvilcraft$isIgnited() != ignited) {
             entityCauldron.anvilcraft$setIgnited(ignited);
         }
+    }
+
+    /// 按层补齐 NeoForge 整层替换器向下取整掉的流体余量。
+    ///
+    /// <p>包装器只接受 {@code totalAmount / maxLevel} 的整数倍增量，原版 3 级炼药锅的 250mB 因此算作 0 层。
+    /// 这里按 {@link CauldronUtil} 的层数写入至少一层，粒度是一层而不是请求量。</p>
+    private static void fillCauldronLayers(Level level, BlockPos pos, FluidStack fluid, int missing) {
+        CauldronFluidContent content = CauldronFluidContent.getForFluid(fluid.getFluid());
+        if (content == null) return;
+        int perLevel = content.totalAmount / content.maxLevel;
+        if (perLevel <= 0) return;
+        int layers = (missing + perLevel - 1) / perLevel;
+        CauldronUtil.fill(level, pos, content.block, layers, false);
     }
 
     private static @Nullable ResourceHandler<FluidResource> getFluidHandler(
