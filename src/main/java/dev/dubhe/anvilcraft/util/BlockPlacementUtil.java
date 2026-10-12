@@ -470,6 +470,53 @@ public final class BlockPlacementUtil {
         return state;
     }
 
+    /**
+     * 蓝图在存储网格中占用的范围，用于把放置范围收缩到蓝图实际大小。
+     */
+    public record BlueprintExtent(int minRow, int maxRow, int minColumn, int maxColumn, int maxLayer) {
+        /**
+         * 扫描存储网格得到蓝图占用的行列与最高层；全为空气时退化为网格中心的一格。
+         */
+        public static BlueprintExtent of(BlockState[] states, int gridSize) {
+            int positionsPerLayer = gridSize * gridSize;
+            int minRow = gridSize;
+            int maxRow = -1;
+            int minColumn = gridSize;
+            int maxColumn = -1;
+            int maxLayer = -1;
+            for (int index = 0; index < states.length; index++) {
+                if (states[index].isAir()) {
+                    continue;
+                }
+                int position = index % positionsPerLayer;
+                int row = position / gridSize;
+                int column = position % gridSize;
+                minRow = Math.min(minRow, row);
+                maxRow = Math.max(maxRow, row);
+                minColumn = Math.min(minColumn, column);
+                maxColumn = Math.max(maxColumn, column);
+                maxLayer = Math.max(maxLayer, index / positionsPerLayer);
+            }
+            if (maxLayer < 0) {
+                int center = gridSize / 2;
+                return new BlueprintExtent(center, center, center, center, 0);
+            }
+            return new BlueprintExtent(minRow, maxRow, minColumn, maxColumn, maxLayer);
+        }
+
+        public int width() {
+            return this.maxColumn - this.minColumn + 1;
+        }
+
+        public int depth() {
+            return this.maxRow - this.minRow + 1;
+        }
+
+        public int height() {
+            return this.maxLayer + 1;
+        }
+    }
+
     public record BlueprintLayout(
         LevelAccessor level,
         BlockPos placerPos,
@@ -479,37 +526,49 @@ public final class BlockPlacementUtil {
         boolean upsideDown,
         int gridSize,
         int distance,
+        BlueprintExtent extent,
         BlockState[] states
     ) {
         /**
          * 顺序索引按 层（下→上）→ 行（远→近）→ 列（左→右）排列，与普通点位模式的放置顺序保持一致。<br>
-         * 蓝图未自动旋转时网格轴向与放置方向存在夹角，需把顺序中的物理行列换算回网格行列。
+         * 放置范围收缩到蓝图实际大小，且蓝图未自动旋转时网格轴向与放置方向存在夹角，
+         * 因此需按蓝图尺寸把顺序中的物理行列换算回网格行列。
          */
         public int getStorageIndexForOrder(int orderIndex) {
-            int positionsPerLayer = this.gridSize * this.gridSize;
-            int layer = orderIndex / positionsPerLayer;
-            int physical = orderIndex % positionsPerLayer;
-            int physicalRow = physical / this.gridSize;
-            int physicalColumn = physical % this.gridSize;
-            int row = physicalRow;
-            int column = physicalColumn;
+            boolean rotated = this.getLayoutRotation() % 2 == 1;
+            int forwardSpan = rotated ? this.extent.width() : this.extent.depth();
+            int lateralSpan = rotated ? this.extent.depth() : this.extent.width();
+            int perLayer = forwardSpan * lateralSpan;
+            int layer = orderIndex / perLayer;
+            int local = orderIndex % perLayer;
+            int forward = local / lateralSpan;
+            int lateral = local % lateralSpan;
+            int row;
+            int column;
             switch (this.getLayoutRotation()) {
                 case 1 -> {
-                    row = this.gridSize - 1 - physicalColumn;
-                    column = physicalRow;
+                    row = this.extent.maxRow() - lateral;
+                    column = this.extent.minColumn() + forward;
                 }
                 case 2 -> {
-                    row = this.gridSize - 1 - physicalRow;
-                    column = this.gridSize - 1 - physicalColumn;
+                    row = this.extent.maxRow() - forward;
+                    column = this.extent.maxColumn() - lateral;
                 }
                 case 3 -> {
-                    row = physicalColumn;
-                    column = this.gridSize - 1 - physicalRow;
+                    row = this.extent.minRow() + lateral;
+                    column = this.extent.maxColumn() - forward;
                 }
                 default -> {
+                    row = this.extent.minRow() + forward;
+                    column = this.extent.minColumn() + lateral;
                 }
             }
-            return layer * positionsPerLayer + row * this.gridSize + column;
+            return layer * this.gridSize * this.gridSize + row * this.gridSize + column;
+        }
+
+        /** 放置顺序索引的总数，即蓝图占用的格数。 */
+        public int orderCount() {
+            return this.extent.width() * this.extent.depth() * this.extent.height();
         }
 
         /**
@@ -532,14 +591,74 @@ public final class BlockPlacementUtil {
             int position = storageIndex % positionsPerLayer;
             int row = position / this.gridSize;
             int column = position % this.gridSize;
-            Direction layoutFacing = this.getLayoutFacing(targetFacing);
-            Direction right = layoutFacing.getClockWise();
             int gridRadius = this.gridSize / 2;
-            int verticalOffset = upsideDown ? layer - this.gridSize + 1 : layer;
-            return this.placerPos.relative(targetFacing, this.distance)
-                .above(verticalOffset)
-                .relative(right, column - gridRadius)
-                .relative(layoutFacing, gridRadius - row);
+            // 放置范围收缩到蓝图大小：最近的方块与放置器相隔一格，其余方向按蓝图居中
+            int forwardIndex = this.getMaxForwardComponent() - this.getForwardComponent(row, column);
+            int forwardOffset = this.distance - gridRadius + this.getForwardSpan() - 1 - forwardIndex;
+            int lateralOffset = this.getLateralComponent(row, column) - this.getLateralComponentMidpoint();
+            int verticalOffset = upsideDown ? layer - this.extent.maxLayer() : layer;
+            return this.placerPos.relative(targetFacing, forwardOffset)
+                .relative(targetFacing.getClockWise(), lateralOffset)
+                .above(verticalOffset);
+        }
+
+        /**
+         * 以放置方向为基准，蓝图在前后轴上的跨度；旋转 90°/270° 时前后轴对应网格列轴。
+         */
+        private int getForwardSpan() {
+            return this.getLayoutRotation() % 2 == 1 ? this.extent.width() : this.extent.depth();
+        }
+
+        /**
+         * 存储格在放置方向上的前后分量，数值越大离放置器越远。
+         */
+        private int getForwardComponent(int row, int column) {
+            int gridRadius = this.gridSize / 2;
+            return switch (this.getLayoutRotation()) {
+                case 1 -> gridRadius - column;
+                case 2 -> row - gridRadius;
+                case 3 -> column - gridRadius;
+                default -> gridRadius - row;
+            };
+        }
+
+        /**
+         * 存储格在放置方向上的左右分量，数值越大越靠右。
+         */
+        private int getLateralComponent(int row, int column) {
+            int gridRadius = this.gridSize / 2;
+            return switch (this.getLayoutRotation()) {
+                case 1 -> gridRadius - row;
+                case 2 -> gridRadius - column;
+                case 3 -> row - gridRadius;
+                default -> column - gridRadius;
+            };
+        }
+
+        /**
+         * 蓝图占用范围内最远一格的前后分量。
+         */
+        private int getMaxForwardComponent() {
+            int gridRadius = this.gridSize / 2;
+            return switch (this.getLayoutRotation()) {
+                case 1 -> gridRadius - this.extent.minColumn();
+                case 2 -> this.extent.maxRow() - gridRadius;
+                case 3 -> this.extent.maxColumn() - gridRadius;
+                default -> gridRadius - this.extent.minRow();
+            };
+        }
+
+        /**
+         * 蓝图占用范围内左右分量的中点，用于把蓝图左右居中。
+         */
+        private int getLateralComponentMidpoint() {
+            int gridRadius = this.gridSize / 2;
+            return switch (this.getLayoutRotation()) {
+                case 1 -> gridRadius - (this.extent.minRow() + this.extent.maxRow()) / 2;
+                case 2 -> gridRadius - (this.extent.minColumn() + this.extent.maxColumn()) / 2;
+                case 3 -> (this.extent.minRow() + this.extent.maxRow()) / 2 - gridRadius;
+                default -> (this.extent.minColumn() + this.extent.maxColumn()) / 2 - gridRadius;
+            };
         }
 
         private Direction getLayoutFacing(Direction targetFacing) {

@@ -414,7 +414,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
     }
 
     private void applyToBlueprintPosition(ServerLevel level) {
-        int expectedOrderIndex = Math.floorMod(this.currentPlacementIndex, POSITION_COUNT);
+        int expectedOrderIndex = Math.floorMod(this.currentPlacementIndex, this.getBlueprintLayout().orderCount());
         BlueprintTarget blueprintTarget = this.findNextBlueprintTarget(level);
         ITargetPointer pointer = this.pointer;
         if (blueprintTarget == null || pointer == null || !pointer.isStillValid(level)) {
@@ -464,13 +464,14 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
     }
 
     private @Nullable BlueprintTarget findNextBlueprintTarget(ServerLevel level) {
-        if (this.currentPlacementIndex >= POSITION_COUNT) {
+        BlockPlacementUtil.BlueprintLayout blueprintLayout = this.getBlueprintLayout();
+        int orderCount = blueprintLayout.orderCount();
+        if (this.currentPlacementIndex >= orderCount) {
             this.currentPlacementIndex = 0;
             this.setChanged();
             return null;
         }
-        BlockPlacementUtil.BlueprintLayout blueprintLayout = this.getBlueprintLayout();
-        while (this.currentPlacementIndex < POSITION_COUNT) {
+        while (this.currentPlacementIndex < orderCount) {
             int orderIndex = this.currentPlacementIndex;
             int storageIndex = blueprintLayout.getStorageIndexForOrder(orderIndex);
             BlockState storedState = this.blueprint.states()[storageIndex];
@@ -512,7 +513,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
     private boolean isCurrentTargetAvailable(ServerLevel level) {
         if (this.target == TargetMode.BLUEPRINT) {
             BlockPlacementUtil.BlueprintLayout blueprintLayout = this.getBlueprintLayout();
-            int orderIndex = Math.floorMod(this.currentPlacementIndex, POSITION_COUNT);
+            int orderIndex = Math.floorMod(this.currentPlacementIndex, blueprintLayout.orderCount());
             int storageIndex = blueprintLayout.getStorageIndexForOrder(orderIndex);
             if (this.blueprint.states()[storageIndex].isAir()) {
                 return false;
@@ -534,7 +535,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
 
     private void skipCurrentTarget() {
         if (this.target == TargetMode.BLUEPRINT) {
-            this.advanceBlueprintIndex(Math.floorMod(this.currentPlacementIndex, POSITION_COUNT));
+            this.advanceBlueprintIndex(Math.floorMod(this.currentPlacementIndex, this.getBlueprintLayout().orderCount()));
             return;
         }
         List<BlockPos> positions = this.getOrderedPositionTargets();
@@ -695,6 +696,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             this.isUpsideDown(),
             POSITION_GRID_SIZE,
             POSITION_DISTANCE,
+            BlockPlacementUtil.BlueprintExtent.of(this.blueprint.states(), POSITION_GRID_SIZE),
             this.blueprint.states()
         );
     }
@@ -1100,7 +1102,8 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
     public @Nullable BlockPos getCurrentBlueprintTargetPosition() {
         Level level = this.getLevel();
         BlockPlacementUtil.BlueprintLayout blueprintLayout = this.getBlueprintLayout();
-        for (int orderIndex = this.currentPlacementIndex; orderIndex < POSITION_COUNT; orderIndex++) {
+        int orderCount = blueprintLayout.orderCount();
+        for (int orderIndex = this.currentPlacementIndex; orderIndex < orderCount; orderIndex++) {
             int storageIndex = blueprintLayout.getStorageIndexForOrder(orderIndex);
             if (this.blueprint.states()[storageIndex].isAir()) {
                 continue;
