@@ -10,6 +10,7 @@ import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.ARGB;
 import net.neoforged.neoforge.fluids.FluidStack;
@@ -49,7 +50,7 @@ public class ClientFluidTankTooltip implements ClientTooltipComponent {
     private static FluidStack read(CompoundTag tank) {
         var registries = ClientStoragePortTooltip.registries();
         if (registries == null) return FluidStack.EMPTY;
-        return FluidStack.OPTIONAL_CODEC.parse(registries.createSerializationContext(net.minecraft.nbt.NbtOps.INSTANCE),
+        return FluidStack.OPTIONAL_CODEC.parse(registries.createSerializationContext(NbtOps.INSTANCE),
             tank.getCompoundOrEmpty("Fluid")).result().orElse(FluidStack.EMPTY);
     }
 

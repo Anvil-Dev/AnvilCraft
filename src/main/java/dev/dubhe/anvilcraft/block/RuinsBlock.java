@@ -23,6 +23,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.level.material.PushReaction;
 import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
@@ -36,8 +37,8 @@ import org.jspecify.annotations.Nullable;
 import java.util.List;
 
 public class RuinsBlock extends BaseEntityBlock implements IMoveableEntityBlock {
-    public static final net.minecraft.world.level.block.state.properties.IntegerProperty LIGHT_BLOCK =
-        net.minecraft.world.level.block.state.properties.IntegerProperty.create("light_block", 0, 15);
+    public static final IntegerProperty LIGHT_BLOCK =
+        IntegerProperty.create("light_block", 0, 15);
     public static final BooleanProperty SKYLIGHT = BooleanProperty.create("skylight");
     public static final BooleanProperty MOVABLE = BooleanProperty.create("movable");
 

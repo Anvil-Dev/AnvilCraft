@@ -12,6 +12,7 @@ import dev.dubhe.anvilcraft.block.item.CheckValveItem;
 import dev.dubhe.anvilcraft.block.state.Color;
 import dev.dubhe.anvilcraft.client.init.ModEquipmentAssets;
 import dev.dubhe.anvilcraft.client.renderer.item.DiskItemRenderer;
+import dev.dubhe.anvilcraft.client.renderer.item.EnergyWeaponExhaustedProperty;
 import dev.dubhe.anvilcraft.client.renderer.item.FilterItemRenderer;
 import dev.dubhe.anvilcraft.client.renderer.item.SpectralSlingshotRenderer;
 import dev.dubhe.anvilcraft.client.renderer.item.SpectralWeaponLauncherRenderer;
@@ -624,7 +625,7 @@ public class ModItems {
                 generator.itemModelOutput.accept(
                     item,
                     ItemModelUtils.conditional(
-                        dev.dubhe.anvilcraft.client.renderer.item.EnergyWeaponExhaustedProperty.INSTANCE,
+                        EnergyWeaponExhaustedProperty.INSTANCE,
                         ItemModelUtils.composite(
                             ItemModelUtils.plainModel(ModelLocationUtils.getModelLocation(item, "_exhausted")),
                             ItemModelUtils.specialModel(

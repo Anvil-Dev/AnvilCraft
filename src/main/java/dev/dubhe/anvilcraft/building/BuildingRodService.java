@@ -23,6 +23,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtUtils;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
@@ -421,7 +422,7 @@ public final class BuildingRodService {
             }
             plan = new EntityBuildAdapter.Planned(plan.material(), plan.returned(),
                 BuildingEntityTransform.sanitize(probe, plan.entityNbt()), plan.contents(), plan.fluids(), false);
-            if (transformed.get("Motion") instanceof net.minecraft.nbt.ListTag) {
+            if (transformed.get("Motion") instanceof ListTag) {
                 plan.entityNbt().put("Motion", BlueprintNbt.list(transformed, "Motion", Tag.TAG_DOUBLE).copy());
             }
             BlueprintEntities.scope(plan.entityNbt(), entry.nbt(), identities);

@@ -10,6 +10,8 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayOutputStream;
 import java.util.HashMap;
@@ -18,7 +20,7 @@ import java.util.UUID;
 
 @EventBusSubscriber(modid = AnvilCraft.MOD_ID)
 public final class HandbookStructureExportHandler {
-    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(HandbookStructureExportHandler.class);
+    private static final Logger log = LoggerFactory.getLogger(HandbookStructureExportHandler.class);
     private static final Map<UUID, Transfer> TRANSFERS = new HashMap<>();
     private static final Map<UUID, Long> LAST_REQUEST = new HashMap<>();
     private static final long TIMEOUT_NANOS = 30000000000L;

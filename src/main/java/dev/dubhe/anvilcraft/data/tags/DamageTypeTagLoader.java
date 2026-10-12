@@ -9,12 +9,14 @@ import net.minecraft.world.damagesource.DamageType;
 import net.minecraft.world.damagesource.DamageTypes;
 import net.neoforged.neoforge.common.Tags;
 
+import java.util.List;
+
 public class DamageTypeTagLoader {
     /// 初始化伤害类型标签
     ///
     /// @param provider 提供器
     public static void init(RegistrumTagsProvider<DamageType> provider) {
-        for (var tag : java.util.List.of(DamageTypeTags.BYPASSES_ARMOR, DamageTypeTags.BYPASSES_RESISTANCE,
+        for (var tag : List.of(DamageTypeTags.BYPASSES_ARMOR, DamageTypeTags.BYPASSES_RESISTANCE,
             DamageTypeTags.BYPASSES_SHIELD, DamageTypeTags.BYPASSES_INVULNERABILITY, DamageTypeTags.BYPASSES_COOLDOWN,
             DamageTypeTags.BYPASSES_EFFECTS, DamageTypeTags.BYPASSES_ENCHANTMENTS, DamageTypeTags.NO_KNOCKBACK)) {
             provider.rawBuilder(tag).addOptionalElement(ModDamageTypes.PLANETARY_COLLAPSE.identifier());

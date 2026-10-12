@@ -14,14 +14,17 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
+import net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState;
 import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.LightCoordsUtil;
+import net.minecraft.util.profiling.Profiler;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.Vec3;
+import org.jspecify.annotations.Nullable;
 import org.lwjgl.opengl.GL13C;
 import org.lwjgl.opengl.GL30C;
 import org.lwjgl.opengl.GL33C;
@@ -31,7 +34,6 @@ import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import javax.annotation.Nullable;
 
 /** 采集实体和方块实体的实际渲染顶点，每帧只构建一次，供所有阴影级联复用。 */
 final class MunEntityShadows implements MultiBufferSource, AutoCloseable {
@@ -53,7 +55,7 @@ final class MunEntityShadows implements MultiBufferSource, AutoCloseable {
             this.close();
             return;
         }
-        ProfilerFiller profiler = net.minecraft.util.profiling.Profiler.get();
+        ProfilerFiller profiler = Profiler.get();
         profiler.push("munEntityShadows");
         try {
             profiler.push("collect");
@@ -141,7 +143,7 @@ final class MunEntityShadows implements MultiBufferSource, AutoCloseable {
         return renderer == null ? Double.POSITIVE_INFINITY : renderer.getRenderBoundingBox(entity).distanceToSqr(anchor);
     }
 
-    private <E extends BlockEntity, S extends net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState>
+    private <E extends BlockEntity, S extends BlockEntityRenderState>
         void captureBlock(E entity, float partialTick, Vec3 origin, BlockEntityRenderer<E, S> renderer) {
         if (this.features == null) return;
         var camera = Minecraft.getInstance().gameRenderer.getGameRenderState().levelRenderState.cameraRenderState;

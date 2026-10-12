@@ -21,6 +21,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeHolder;
+import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.neoforged.neoforge.transfer.ResourceHandler;
@@ -144,7 +145,7 @@ public class TempleHandler extends BaseMegastructureHandler {
 
         TempleDemandRecipe.Entry entry = candidates.get(be.getLevel().getRandom().nextInt(candidates.size()));
         var item = BuiltInRegistries.ITEM.get(entry.itemResource())
-            .map(h -> (net.minecraft.world.level.ItemLike) h.value())
+            .map(h -> (ItemLike) h.value())
             .orElse(Items.AIR);
         if (item == Items.AIR) return TempleDemandResult.EMPTY;
         return new TempleDemandResult(new ItemStack(item, 1), entry.count());
@@ -197,7 +198,7 @@ public class TempleHandler extends BaseMegastructureHandler {
         }
         if (chosenItem == null) chosenItem = offerings.getFirst().itemId();
 
-        var item = BuiltInRegistries.ITEM.get(chosenItem).map(h -> (net.minecraft.world.level.ItemLike) h.value()).orElse(Items.AIR);
+        var item = BuiltInRegistries.ITEM.get(chosenItem).map(h -> (ItemLike) h.value()).orElse(Items.AIR);
         if (item.asItem() == Items.AIR) return;
         ItemStack output = new ItemStack(item, 1);
 

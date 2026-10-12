@@ -28,6 +28,7 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ExtractLevelRenderStateEvent;
 import net.neoforged.neoforge.client.event.ModelEvent;
 import net.neoforged.neoforge.client.event.RegisterRenderPipelinesEvent;
+import net.neoforged.neoforge.event.GameShuttingDownEvent;
 import org.joml.Matrix4f;
 import org.jspecify.annotations.Nullable;
 import org.lwjgl.system.MemoryStack;
@@ -199,7 +200,7 @@ public final class OverworldSkyRenderer {
     }
 
     @SubscribeEvent
-    public static void shutdown(net.neoforged.neoforge.event.GameShuttingDownEvent event) {
+    public static void shutdown(GameShuttingDownEvent event) {
         close();
     }
 

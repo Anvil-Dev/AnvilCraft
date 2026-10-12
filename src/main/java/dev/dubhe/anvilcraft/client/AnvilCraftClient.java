@@ -15,8 +15,10 @@ import dev.dubhe.anvilcraft.client.particle.OverseerTrailParticle;
 import dev.dubhe.anvilcraft.client.particle.PlasmaJetsParticle;
 import dev.dubhe.anvilcraft.client.renderer.RenderState;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.CFARenderer;
+import dev.dubhe.anvilcraft.client.renderer.item.CelestialAnvilItemExtensions;
 import dev.dubhe.anvilcraft.client.renderer.item.ItemUseAnimationTransform;
 import dev.dubhe.anvilcraft.client.renderer.item.decoration.TerminalInsertionDecoration;
+import dev.dubhe.anvilcraft.client.renderer.item.decoration.WeatherproofChestplateDecoration;
 import dev.dubhe.anvilcraft.client.renderer.laser.CachedLaserBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.selection.ModelSelectionDenylist;
 import dev.dubhe.anvilcraft.client.support.InspectionSupport;
@@ -24,6 +26,7 @@ import dev.dubhe.anvilcraft.client.support.PillSelectorSupport;
 import dev.dubhe.anvilcraft.config.AnvilCraftClientConfig;
 import dev.dubhe.anvilcraft.init.ModParticles;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
+import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.block.ModFluids;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.item.armor.EquipmentArmorItem;
@@ -123,8 +126,8 @@ public class AnvilCraftClient {
 
     @SubscribeEvent
     public static void registerClientExtensions(RegisterClientExtensionsEvent e) {
-        e.registerItem(new dev.dubhe.anvilcraft.client.renderer.item.CelestialAnvilItemExtensions(),
-            dev.dubhe.anvilcraft.init.block.ModBlocks.CELESTIAL_FORGING_ANVIL.asItem());
+        e.registerItem(new CelestialAnvilItemExtensions(),
+            ModBlocks.CELESTIAL_FORGING_ANVIL.asItem());
         ModFluids.onRegisterFluidType(e);
         ItemExtensionImpl itemExtensionInstance = new ItemExtensionImpl();
         e.registerItem(itemExtensionInstance, ModItems.IONOCRAFT_BACKPACK, ModItems.BREATHING_HELMET,
@@ -150,7 +153,7 @@ public class AnvilCraftClient {
     @SubscribeEvent
     public static void registerCustomItemDecorations(RegisterItemDecorationsEvent e) {
         e.register(ModItems.WEATHERPROOF_SPACESUIT_CHESTPLATE.get(),
-            new dev.dubhe.anvilcraft.client.renderer.item.decoration.WeatherproofChestplateDecoration());
+            new WeatherproofChestplateDecoration());
         var terminal = new TerminalInsertionDecoration();
         e.register(ModItems.LOCAL_TERMINAL, terminal);
         e.register(ModItems.SHULKER_TERMINAL, terminal);

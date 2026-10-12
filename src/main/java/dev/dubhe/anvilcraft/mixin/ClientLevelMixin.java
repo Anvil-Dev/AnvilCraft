@@ -3,6 +3,8 @@ package dev.dubhe.anvilcraft.mixin;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import dev.dubhe.anvilcraft.block.multipart.AbstractMultiPartBlock;
+import dev.dubhe.anvilcraft.client.renderer.mun.MunClientSky;
+import dev.dubhe.anvilcraft.client.support.OverworldLikeClientState;
 import dev.dubhe.anvilcraft.client.support.PowerGridSupport;
 import dev.dubhe.anvilcraft.util.EnchantedGoldBlockPositions;
 import dev.dubhe.anvilcraft.util.MonolithBlockPositions;
@@ -49,8 +51,8 @@ abstract class ClientLevelMixin implements LevelReader {
         PowerGridSupport.clearAllGrid();
         EnchantedGoldBlockPositions.clear();
         MonolithBlockPositions.clear();
-        dev.dubhe.anvilcraft.client.support.OverworldLikeClientState.clear();
-        dev.dubhe.anvilcraft.client.renderer.mun.MunClientSky.clear();
+        OverworldLikeClientState.clear();
+        MunClientSky.clear();
     }
 
     @Inject(method = "addBreakingBlockEffect(Lnet/minecraft/core/BlockPos;Lnet/minecraft/core/Direction;"

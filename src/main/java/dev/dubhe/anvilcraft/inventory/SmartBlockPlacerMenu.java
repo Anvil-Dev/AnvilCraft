@@ -4,6 +4,7 @@ import dev.dubhe.anvilcraft.block.entity.SmartBlockPlacerBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.inventory.component.BookOnlySlot;
+import dev.dubhe.anvilcraft.inventory.component.WrittenBookOnlySlot;
 import dev.dubhe.anvilcraft.util.StructureBookUtil;
 import lombok.Getter;
 import net.minecraft.network.FriendlyByteBuf;
@@ -15,6 +16,7 @@ import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.neoforged.neoforge.transfer.item.ResourceHandlerSlot;
@@ -91,7 +93,7 @@ public class SmartBlockPlacerMenu extends AbstractContainerMenu {
         // 添加蓝图模式输出书物品栏槽位（输出，1个槽位，只在蓝图模式下显示）
         int outputBookSlotX = 84;
         int outputBookSlotY = 86;
-        this.addSlot(new dev.dubhe.anvilcraft.inventory.component.WrittenBookOnlySlot(
+        this.addSlot(new WrittenBookOnlySlot(
             this.outputBookInventory,
             0,
             outputBookSlotX,
@@ -172,9 +174,9 @@ public class SmartBlockPlacerMenu extends AbstractContainerMenu {
                         return ItemStack.EMPTY;
                     }
                 } else if (isBlueprintMode
-                    && (originalStack.is(net.minecraft.world.item.Items.WRITTEN_BOOK)
-                    || originalStack.is(net.minecraft.world.item.Items.WRITABLE_BOOK)
-                    || originalStack.is(net.minecraft.world.item.Items.BOOK))) {
+                    && (originalStack.is(Items.WRITTEN_BOOK)
+                    || originalStack.is(Items.WRITABLE_BOOK)
+                    || originalStack.is(Items.BOOK))) {
                     // 蓝图模式下的书尝试移动到Book槽位（输入）
                     if (!this.moveItemStackTo(originalStack,
                         STRUCTURE_DISK_SLOT_COUNT, STRUCTURE_DISK_SLOT_COUNT + BOOK_SLOT_COUNT, false)) {

@@ -25,6 +25,7 @@ import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ServerboundContainerButtonClickPacket;
 import net.minecraft.resources.Identifier;
@@ -40,6 +41,8 @@ import org.jspecify.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
+import java.util.Optional;
 
 public class CelestialForgingAnvilScreen extends AbstractContainerScreen<CelestialForgingAnvilMenu> {
     private static final Identifier BACKGROUND = SharedTextures.bg("machine", "celestial_forging_anvil");
@@ -481,7 +484,7 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
                             .withStyle(ChatFormatting.DARK_GRAY)
                     ).withStyle(ChatFormatting.DARK_GRAY));
                 }
-                graphics.setTooltipForNextFrame(this.font, tooltipLines, java.util.Optional.empty(), mouseX, mouseY);
+                graphics.setTooltipForNextFrame(this.font, tooltipLines, Optional.empty(), mouseX, mouseY);
             }
         }
 
@@ -513,7 +516,7 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
                         .withStyle(ChatFormatting.DARK_GRAY)
                 ).withStyle(ChatFormatting.DARK_GRAY));
             }
-            graphics.setTooltipForNextFrame(this.font, seedTooltip, java.util.Optional.empty(), mouseX, mouseY);
+            graphics.setTooltipForNextFrame(this.font, seedTooltip, Optional.empty(), mouseX, mouseY);
         }
 
         // 砧子槽位的有效数量范围提示。
@@ -622,11 +625,11 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
         var evolution = be.getStellarEvolutionState();
         if (evolution != null) {
             lines.add(Component.translatable("screen.anvilcraft.cfa.evolution.initial_mass",
-                String.format(java.util.Locale.ROOT, "%.3g", evolution.initialSolarMass())));
+                String.format(Locale.ROOT, "%.3g", evolution.initialSolarMass())));
             lines.add(Component.translatable("screen.anvilcraft.cfa.evolution.current_mass",
-                String.format(java.util.Locale.ROOT, "%.3g", evolution.currentSolarMass())));
+                String.format(Locale.ROOT, "%.3g", evolution.currentSolarMass())));
             lines.add(Component.translatable("screen.anvilcraft.cfa.evolution.metallicity",
-                String.format(java.util.Locale.ROOT, "%.3g", evolution.metallicityZ())));
+                String.format(Locale.ROOT, "%.3g", evolution.metallicityZ())));
         }
         /// 剩余时间（使用客户端本地倒计时，每tick递减）
         int displayTicks = this.localAcceleratorTicksRemaining > 0
@@ -770,7 +773,7 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
         items.stream()
             .sorted(Comparator.comparingInt(PlanetaryResourceSet.WeightedItemStack::weight).reversed())
             .forEach(entry -> {
-                var itemHolder = net.minecraft.core.registries.BuiltInRegistries.ITEM.get(entry.itemId());
+                var itemHolder = BuiltInRegistries.ITEM.get(entry.itemId());
                 String name = itemHolder
                     .map(holder -> {
                         Item item = holder.value();
@@ -792,7 +795,7 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
         fluids.stream()
             .sorted(Comparator.comparingInt(PlanetaryResourceSet.WeightedFluidStack::weight).reversed())
             .forEach(entry -> {
-                var fluidHolder = net.minecraft.core.registries.BuiltInRegistries.FLUID.get(entry.fluidId());
+                var fluidHolder = BuiltInRegistries.FLUID.get(entry.fluidId());
                 String name = fluidHolder
                     .map(holder -> holder.value().getFluidType().getDescription().getString())
                     .orElse("???");

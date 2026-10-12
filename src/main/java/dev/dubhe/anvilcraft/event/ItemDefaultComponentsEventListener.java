@@ -9,6 +9,7 @@ import dev.dubhe.anvilcraft.item.property.component.Multiphase;
 import dev.dubhe.anvilcraft.item.property.component.StoredItem;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.world.item.ItemStackTemplate;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -22,7 +23,7 @@ public final class ItemDefaultComponentsEventListener {
             components.set(DataComponents.FOOD, ModFoods.BEEF_MUSHROOM_STEW);
             components.set(DataComponents.CONSUMABLE, ModConsumables.FAST_FOOD);
             components.set(ModComponents.DISPLAY_ITEM,
-                new StoredItem(new net.minecraft.world.item.ItemStackTemplate(ModFoodItems.BEEF_MUSHROOM_STEW.get())));
+                new StoredItem(new ItemStackTemplate(ModFoodItems.BEEF_MUSHROOM_STEW.get())));
         });
     }
 

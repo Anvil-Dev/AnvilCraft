@@ -12,6 +12,7 @@ import dev.dubhe.anvilcraft.util.StructureScannerRecipes;
 import net.minecraft.client.Minecraft;
 import net.minecraft.nbt.NbtAccounter;
 import net.minecraft.nbt.NbtIo;
+import net.minecraft.nbt.StringTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
@@ -68,7 +69,7 @@ public final class BlueprintClientFiles {
             var tag = NbtIo.readCompressed(new ByteArrayInputStream(listDownload.finish()), NbtAccounter.create(16L * 1024 * 1024));
             if (Minecraft.getInstance().screen instanceof StructureScannerScreen screen
                 && screen.getMenu().containerId == listContainerId) {
-                screen.onFilesReceived(tag.getListOrEmpty("files").stream().filter(value -> value instanceof net.minecraft.nbt.StringTag)
+                screen.onFilesReceived(tag.getListOrEmpty("files").stream().filter(value -> value instanceof StringTag)
                     .map(value -> value.asString().orElseThrow()).toList());
             }
         } catch (IOException exception) {

@@ -13,11 +13,11 @@ import org.joml.Matrix4f;
 import org.joml.Matrix4fc;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
+import org.jspecify.annotations.Nullable;
 import org.lwjgl.system.MemoryStack;
 
 import java.util.Objects;
 import java.util.OptionalInt;
-import javax.annotation.Nullable;
 
 /** Reuses native GPU buffers without changing global projection, blend or depth state. */
 final class MunSkyDraw implements AutoCloseable {

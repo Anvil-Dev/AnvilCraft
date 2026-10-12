@@ -9,6 +9,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.DoubleTag;
 import net.minecraft.nbt.IntArrayTag;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.ProblemReporter;
@@ -217,7 +218,7 @@ final class BlueprintEntities {
         for (String key : List.copyOf(tag.keySet())) {
             Tag value = tag.get(key);
             if (value instanceof IntArrayTag array && array.getAsIntArray().length == 4) {
-                UUID target = ids.get(UUIDUtil.CODEC.parse(net.minecraft.nbt.NbtOps.INSTANCE, array).getOrThrow());
+                UUID target = ids.get(UUIDUtil.CODEC.parse(NbtOps.INSTANCE, array).getOrThrow());
                 if (target != null) tag.store(key, UUIDUtil.CODEC, target);
             } else if (value instanceof CompoundTag compound) {
                 remap(compound, ids);

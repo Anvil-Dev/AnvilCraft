@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.util.registrater;
 
 import com.mojang.math.Quadrant;
+import com.mojang.math.Transformation;
 import dev.anvilcraft.lib.v2.registrum.providers.DataGenContext;
 import dev.anvilcraft.lib.v2.registrum.providers.generators.RegistrumBlockModelGenerator;
 import dev.anvilcraft.lib.v2.registrum.providers.generators.RegistrumItemModelGenerator;
@@ -12,6 +13,10 @@ import dev.anvilcraft.lib.v2.util.nullness.NonNullFunction;
 import dev.dubhe.anvilcraft.api.item.property.IIntegerComponent;
 import dev.dubhe.anvilcraft.block.multipart.AbstractMultiPartBlock;
 import dev.dubhe.anvilcraft.block.plate.PowerLevelPressurePlateBlock;
+import dev.dubhe.anvilcraft.client.renderer.item.CelestialForgingAnvilItemRenderer;
+import dev.dubhe.anvilcraft.client.renderer.item.EnergyWeaponExhaustedProperty;
+import dev.dubhe.anvilcraft.client.renderer.item.EquipmentPoweredProperty;
+import dev.dubhe.anvilcraft.client.renderer.item.StoredEnergyEmptyProperty;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModDataComponentPredicates;
 import dev.dubhe.anvilcraft.item.property.component.StoredEnergy;
@@ -37,10 +42,12 @@ import net.minecraft.client.data.models.model.TextureSlot;
 import net.minecraft.client.data.models.model.TexturedModel;
 import net.minecraft.client.renderer.block.dispatch.VariantMutator;
 import net.minecraft.client.renderer.item.ClientItem;
+import net.minecraft.client.renderer.item.CompositeModel;
 import net.minecraft.client.renderer.item.properties.conditional.ComponentMatches;
 import net.minecraft.client.renderer.item.properties.conditional.FishingRodCast;
 import net.minecraft.client.renderer.item.properties.conditional.IsUsingItem;
 import net.minecraft.client.renderer.item.properties.select.ComponentContents;
+import net.minecraft.client.renderer.item.properties.select.DisplayContext;
 import net.minecraft.client.renderer.special.SpecialModelRenderer;
 import net.minecraft.client.resources.model.sprite.Material;
 import net.minecraft.core.Direction;
@@ -54,6 +61,7 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.ItemLike;
@@ -71,8 +79,10 @@ import net.minecraft.world.level.storage.loot.predicates.LootItemBlockStatePrope
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 import net.minecraft.world.level.storage.loot.predicates.MatchTool;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
+import org.joml.Vector3f;
 
 import java.util.List;
+import java.util.Optional;
 
 @SuppressWarnings("Convert2Lambda")
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -261,7 +271,7 @@ public class DataGenUtil {
                 ModelTemplates.FLAT_ITEM.create(model.withSuffix("_on"),
                     TextureMapping.layer0(new Material(ctx.getId().withPrefix("item/"))), generator.modelOutput);
                 generator.itemModelOutput.accept(item, ItemModelUtils.conditional(
-                    dev.dubhe.anvilcraft.client.renderer.item.EquipmentPoweredProperty.INSTANCE,
+                    EquipmentPoweredProperty.INSTANCE,
                     ItemModelUtils.plainModel(model.withSuffix("_on")), ItemModelUtils.plainModel(model)));
             }
         };
@@ -272,7 +282,7 @@ public class DataGenUtil {
             @Override
             public void accept(DataGenContext<Item, T> ctx, RegistrumItemModelGenerator generator) {
                 generator.itemModelOutput.accept(ctx.get(), ItemModelUtils.conditional(
-                    dev.dubhe.anvilcraft.client.renderer.item.StoredEnergyEmptyProperty.INSTANCE,
+                    StoredEnergyEmptyProperty.INSTANCE,
                     ItemModelUtils.plainModel(ModelLocationUtils.getModelLocation(ctx.get()).withSuffix("_off")),
                     ItemModelUtils.plainModel(ModelLocationUtils.getModelLocation(ctx.get()))));
             }
@@ -284,7 +294,7 @@ public class DataGenUtil {
             @Override
             public void accept(DataGenContext<Item, T> ctx, RegistrumItemModelGenerator generator) {
                 generator.itemModelOutput.accept(ctx.get(), ItemModelUtils.conditional(
-                    dev.dubhe.anvilcraft.client.renderer.item.EnergyWeaponExhaustedProperty.INSTANCE,
+                    EnergyWeaponExhaustedProperty.INSTANCE,
                     ItemModelUtils.plainModel(ModelLocationUtils.getModelLocation(ctx.get()).withSuffix("_exhausted")),
                     ItemModelUtils.plainModel(ModelLocationUtils.getModelLocation(ctx.get()))));
             }
@@ -333,17 +343,17 @@ public class DataGenUtil {
                 Identifier base = ctx.getId().withPrefix("item/");
                 var plain = ItemModelUtils.plainModel(base);
                 var body = ItemModelUtils.specialModel(base,
-                    new dev.dubhe.anvilcraft.client.renderer.item.CelestialForgingAnvilItemRenderer.Unbaked(false));
-                var gui = new net.minecraft.client.renderer.item.CompositeModel.Unbaked(
-                    java.util.List.of(plain, body), java.util.Optional.empty());
-                var held = new net.minecraft.client.renderer.item.CompositeModel.Unbaked(java.util.List.of(plain, body),
-                    java.util.Optional.of(new com.mojang.math.Transformation(new org.joml.Vector3f(0, 1, 0), null, null, null)));
+                    new CelestialForgingAnvilItemRenderer.Unbaked(false));
+                var gui = new CompositeModel.Unbaked(
+                    List.of(plain, body), Optional.empty());
+                var held = new CompositeModel.Unbaked(List.of(plain, body),
+                    Optional.of(new Transformation(new Vector3f(0, 1, 0), null, null, null)));
                 var head = ItemModelUtils.specialModel(base,
-                    new dev.dubhe.anvilcraft.client.renderer.item.CelestialForgingAnvilItemRenderer.Unbaked(true));
+                    new CelestialForgingAnvilItemRenderer.Unbaked(true));
                 generator.itemModelOutput.accept(ctx.get(), ItemModelUtils.select(
-                    new net.minecraft.client.renderer.item.properties.select.DisplayContext(), held,
-                    ItemModelUtils.when(net.minecraft.world.item.ItemDisplayContext.GUI, gui),
-                    ItemModelUtils.when(net.minecraft.world.item.ItemDisplayContext.HEAD, head)),
+                    new DisplayContext(), held,
+                    ItemModelUtils.when(ItemDisplayContext.GUI, gui),
+                    ItemModelUtils.when(ItemDisplayContext.HEAD, head)),
                     new ClientItem.Properties(true, true, 1.0F));
             }
         };

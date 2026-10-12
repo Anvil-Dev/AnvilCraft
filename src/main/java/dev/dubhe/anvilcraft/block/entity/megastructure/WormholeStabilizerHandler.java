@@ -22,6 +22,7 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
@@ -263,7 +264,7 @@ public class WormholeStabilizerHandler extends BaseMegastructureHandler {
         }
     }
 
-    private void cleanupWormholeChunkLoading(net.minecraft.world.level.Level level) {
+    private void cleanupWormholeChunkLoading(Level level) {
         if (!(level instanceof ServerLevel serverLevel)) {
             this.loadedChunks.clear();
             return;

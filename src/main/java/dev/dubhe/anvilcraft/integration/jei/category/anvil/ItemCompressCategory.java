@@ -40,6 +40,7 @@ import net.minecraft.world.level.block.Blocks;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class ItemCompressCategory extends AbstractProgressCategory<ItemCompressRecipe> {
@@ -79,7 +80,7 @@ public class ItemCompressCategory extends AbstractProgressCategory<ItemCompressR
                 ItemStack sample = savedEntitySample(input);
                 if (sample == null) {
                     builder.addSlot(RecipeIngredientRole.INPUT, x, y)
-                        .addItemStacks(java.util.Arrays.stream(input.getItems()).map(ItemStackTemplate::create).toList());
+                        .addItemStacks(Arrays.stream(input.getItems()).map(ItemStackTemplate::create).toList());
                     continue;
                 }
                 boolean powered = isPoweredCreeperSample(input);

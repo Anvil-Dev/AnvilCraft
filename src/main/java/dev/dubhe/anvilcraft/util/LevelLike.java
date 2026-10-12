@@ -32,6 +32,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -44,7 +45,7 @@ public class LevelLike implements BlockAndTintGetter {
     private final ClientLevel parent;
     @Getter
     private final List<Entity> entities = new ArrayList<>();
-    private final java.util.Set<BlockPos> alwaysRendered = new java.util.HashSet<>();
+    private final Set<BlockPos> alwaysRendered = new HashSet<>();
 
     @Getter
     private int currentVisibleLayer = 0;

@@ -96,10 +96,12 @@ import java.lang.reflect.Method;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -994,7 +996,7 @@ public final class StorageServerStub {
         returnCraftingStack(target, before.stonecutterInput(), true);
         for (ItemStack stack : before.craftingInput()) returnCraftingStack(target, stack, true);
         CraftingStorage current = before.withStonecutterInput(ItemStack.EMPTY)
-            .withCraftingInput(java.util.Collections.nCopies(CraftingStorage.CRAFTING_GRID_SIZE, ItemStack.EMPTY));
+            .withCraftingInput(Collections.nCopies(CraftingStorage.CRAFTING_GRID_SIZE, ItemStack.EMPTY));
         target.write(current);
         boolean changed = cleared;
         for (int round = 0; round < rounds; round++) {
@@ -1210,7 +1212,7 @@ public final class StorageServerStub {
                 return true;
             }
         }
-        List<ItemStack> emptyGrid = java.util.Collections.nCopies(CraftingStorage.CRAFTING_GRID_SIZE, ItemStack.EMPTY);
+        List<ItemStack> emptyGrid = Collections.nCopies(CraftingStorage.CRAFTING_GRID_SIZE, ItemStack.EMPTY);
         target.write(crafting.withStonecutterInput(ItemStack.EMPTY).withCraftingInput(emptyGrid));
         return true;
     }
@@ -2330,7 +2332,7 @@ public final class StorageServerStub {
         if (player.hasInfiniteMaterials()) return;
         List<BaseStorage<?>> storages = boundStorages(player);
         if (storages.isEmpty()) return;
-        Map<ItemResource, Long> totals = new java.util.LinkedHashMap<>();
+        Map<ItemResource, Long> totals = new LinkedHashMap<>();
         for (int slot = 0; slot < Inventory.INVENTORY_SIZE; slot++) {
             ItemStack stack = player.getInventory().getItem(slot);
             if (!stack.isEmpty()) totals.merge(ItemResource.of(stack), (long) stack.getCount(), Long::sum);
@@ -2485,8 +2487,8 @@ public final class StorageServerStub {
         UUID playerId, @CallableParam(clazz = StorageServerStub.class, field = "TERMINAL_IDS_STREAM_CODEC") List<UUID> targets
     ) {
         ServerPlayer player = getServerPlayer(playerId);
-        Map<ItemResource, Long> counts = new java.util.LinkedHashMap<>();
-        Map<FluidResource, FluidEntry> fluids = new java.util.LinkedHashMap<>();
+        Map<ItemResource, Long> counts = new LinkedHashMap<>();
+        Map<FluidResource, FluidEntry> fluids = new LinkedHashMap<>();
         boolean complete = true;
         for (BaseStorage<?> storage : terminalRecipeStorages(player, targets)) {
             var items = storage.getItems();

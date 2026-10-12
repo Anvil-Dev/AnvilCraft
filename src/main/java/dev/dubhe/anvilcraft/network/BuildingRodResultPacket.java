@@ -5,6 +5,7 @@ import dev.anvilcraft.lib.v2.network.packet.IPacket;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.client.building.BuildingRodClient;
 import dev.dubhe.anvilcraft.client.building.BuildingRodItemRenderer;
+import net.minecraft.client.Minecraft;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -31,7 +32,7 @@ public record BuildingRodResultPacket(boolean complete, ItemStack placed) implem
     public void handleOnClient(Player player) {
         if (this.complete) {
             BuildingRodClient.cancel();
-            net.minecraft.client.Minecraft.getInstance().gui.setOverlayMessage(
+            Minecraft.getInstance().gui.setOverlayMessage(
                 Component.translatable("message.anvilcraft.building_rod.placed"), false);
         } else if (!this.placed.isEmpty()) {
             BuildingRodItemRenderer.placedOffhand(this.placed);

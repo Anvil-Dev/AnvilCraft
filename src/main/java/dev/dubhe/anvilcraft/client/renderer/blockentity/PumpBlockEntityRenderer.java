@@ -7,6 +7,7 @@ import dev.dubhe.anvilcraft.block.fluid.PumpBlock;
 import dev.dubhe.anvilcraft.block.state.Orientation;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.state.PumpRenderState;
 import dev.dubhe.anvilcraft.client.selection.ModelSelectionRenderer;
+import dev.dubhe.anvilcraft.client.selection.SelectionModel;
 import dev.dubhe.anvilcraft.client.support.FeatureRendererSupport;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
@@ -87,7 +88,7 @@ public class PumpBlockEntityRenderer
         if (orientation == null) return;
 
         emitPistons(orientation, state.getPiston1Offset(), state.getPiston2Offset(), poseStack, (model, pose) -> {
-            var piston = model.equals(dev.dubhe.anvilcraft.client.selection.SelectionModel.standalone(PUMP_PISTON_1))
+            var piston = model.equals(SelectionModel.standalone(PUMP_PISTON_1))
                 ? state.getPiston1() : state.getPiston2();
             piston.submit(pose, submitNodeCollector, state.lightCoords, 655360, 0);
         });

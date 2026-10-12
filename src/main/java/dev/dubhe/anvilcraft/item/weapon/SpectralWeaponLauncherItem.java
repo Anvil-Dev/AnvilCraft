@@ -22,6 +22,7 @@ import net.minecraft.world.item.component.CustomModelData;
 import net.minecraft.world.level.Level;
 import org.jspecify.annotations.Nullable;
 
+import java.util.List;
 import java.util.function.Consumer;
 
 public class SpectralWeaponLauncherItem extends SpectralSlingshotItem implements ICapacitorChargeable {
@@ -90,7 +91,7 @@ public class SpectralWeaponLauncherItem extends SpectralSlingshotItem implements
     private static void updateExhaustedModel(ItemStack stack) {
         CustomModelData model = stack.getOrDefault(DataComponents.CUSTOM_MODEL_DATA, CustomModelData.EMPTY);
         CustomModelData expected = stack.getOrDefault(ModComponents.STORED_ENERGY, StoredEnergy.EMPTY).value() < SHOOT_CONSUME
-            ? new CustomModelData(java.util.List.of((float) EXHAUSTED_MODEL), java.util.List.of(), java.util.List.of(), java.util.List.of())
+            ? new CustomModelData(List.of((float) EXHAUSTED_MODEL), List.of(), List.of(), List.of())
             : CustomModelData.EMPTY;
         if (!model.equals(expected)) {
             stack.set(DataComponents.CUSTOM_MODEL_DATA, expected);

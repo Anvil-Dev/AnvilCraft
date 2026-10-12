@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.client.building;
 
+import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
@@ -156,7 +157,7 @@ public final class BuildingRodItemRenderer {
     public static void mouseReleased(InputEvent.MouseButton.Post event) {
         if (event.getAction() == GLFW.GLFW_RELEASE
             && Minecraft.getInstance().options.keyAttack.getKey().equals(
-                com.mojang.blaze3d.platform.InputConstants.Type.MOUSE.getOrCreate(event.getButton()))) {
+                InputConstants.Type.MOUSE.getOrCreate(event.getButton()))) {
             attackCanceled = false;
         }
     }

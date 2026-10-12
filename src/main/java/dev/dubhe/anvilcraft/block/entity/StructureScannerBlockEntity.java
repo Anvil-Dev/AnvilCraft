@@ -415,7 +415,7 @@ public class StructureScannerBlockEntity extends BaseMachineBlockEntity implemen
         for (int x = 0; x < rangeX; x++) {
             for (int z = 1; z < rangeZ + 1; z++) {
                 BlockPos worldPos = this.calculateWorldPos(x, this.currentScanLayer, z - 1, halfRangeX);
-                net.minecraft.world.level.block.state.BlockState blockState = this.level.getBlockState(worldPos);
+                BlockState blockState = this.level.getBlockState(worldPos);
                 
                 if (!blockState.isAir() && BlueprintMultiblocks.shouldRecord(blockState)) {
                     BlueprintMultiblocks.forEachPart(worldPos, blockState, (partPos, generated) -> {
@@ -515,7 +515,7 @@ public class StructureScannerBlockEntity extends BaseMachineBlockEntity implemen
             return Vec3.ZERO;
         }
         var blockState = this.level.getBlockState(scannerPos);
-        Direction scannerFacing = blockState.getValue(net.minecraft.world.level.block.HorizontalDirectionalBlock.FACING);
+        Direction scannerFacing = blockState.getValue(HorizontalDirectionalBlock.FACING);
         boolean upsideDown = blockState.hasProperty(StructureScannerBlock.UPSIDE_DOWN)
             && blockState.getValue(StructureScannerBlock.UPSIDE_DOWN);
 
@@ -556,7 +556,7 @@ public class StructureScannerBlockEntity extends BaseMachineBlockEntity implemen
             return BlockPos.ZERO;
         }
         var blockState = this.level.getBlockState(scannerPos);
-        Direction scannerFacing = blockState.getValue(net.minecraft.world.level.block.HorizontalDirectionalBlock.FACING);
+        Direction scannerFacing = blockState.getValue(HorizontalDirectionalBlock.FACING);
         boolean upsideDown = blockState.hasProperty(StructureScannerBlock.UPSIDE_DOWN)
             && blockState.getValue(StructureScannerBlock.UPSIDE_DOWN);
 

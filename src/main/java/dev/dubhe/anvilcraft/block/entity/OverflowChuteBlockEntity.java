@@ -6,6 +6,7 @@ import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.Containers;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -224,7 +225,7 @@ public class OverflowChuteBlockEntity extends BaseChuteBlockEntity {
         if (this.level == null || this.level.isClientSide()) return;
         ItemStack stack = this.getItemHandler().getResource(0).toStack(this.getItemHandler().getAmountAsInt(0));
         Vec3 center = pos.getCenter();
-        if (!stack.isEmpty()) net.minecraft.world.Containers.dropItemStack(this.level, center.x, center.y, center.z, stack);
+        if (!stack.isEmpty()) Containers.dropItemStack(this.level, center.x, center.y, center.z, stack);
         this.getItemHandler().set(0, ItemResource.EMPTY, 0);
         this.level.updateNeighbourForOutputSignal(pos, state.getBlock());
     }

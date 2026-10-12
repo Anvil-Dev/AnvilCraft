@@ -20,6 +20,7 @@ import dev.dubhe.anvilcraft.util.BlockPlacementPicking;
 import dev.dubhe.anvilcraft.util.StructureLoadUtil;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.input.InputQuirks;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -463,7 +464,7 @@ public final class BuildingRodClient {
         return switch (key.getKeyModifier()) {
             case SHIFT -> (modifiers & GLFW.GLFW_MOD_SHIFT) != 0;
             case CONTROL -> (modifiers & GLFW.GLFW_MOD_CONTROL) != 0;
-            case CONTROL_OR_COMMAND -> (modifiers & (net.minecraft.client.input.InputQuirks.REPLACE_CTRL_KEY_WITH_CMD_KEY
+            case CONTROL_OR_COMMAND -> (modifiers & (InputQuirks.REPLACE_CTRL_KEY_WITH_CMD_KEY
                 ? GLFW.GLFW_MOD_SUPER : GLFW.GLFW_MOD_CONTROL)) != 0;
             case ALT -> (modifiers & GLFW.GLFW_MOD_ALT) != 0;
             case NONE -> true;

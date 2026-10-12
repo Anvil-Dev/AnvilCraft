@@ -25,9 +25,9 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
+import org.jspecify.annotations.Nullable;
 
 import java.util.UUID;
-import javax.annotation.Nullable;
 
 public class MonolithCoreBlockEntity extends BlockEntity {
     public static final int OFFERING_TICKS = 100;

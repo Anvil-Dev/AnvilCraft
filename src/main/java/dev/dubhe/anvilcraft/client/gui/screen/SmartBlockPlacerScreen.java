@@ -41,6 +41,8 @@ import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import org.joml.Matrix3x2f;
+import org.joml.Matrix4f;
+import org.joml.Vector3f;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -1164,7 +1166,7 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
         pose.translate(-2.5F, 0, -1.5F);
         pose.translate(0.5F, 0.5F, -0.5F);
         var outlineOffset = Axis.YP.rotationDegrees(yaw).conjugate()
-            .transform(new org.joml.Vector3f(-0.05F, 0, 0)).add(0.05F, 0, 0);
+            .transform(new Vector3f(-0.05F, 0, 0)).add(0.05F, 0, 0);
         int guiScale = this.minecraft.gameRenderer.getGameRenderState().windowRenderState.guiScale;
         int outlineOriginX = this.previewWindowX * guiScale;
         int outlineOriginY = this.previewWindowY * guiScale;
@@ -1174,7 +1176,7 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
             this.previewWindowY + this.previewWindowHeight, scale, false, AnvilCraftClient.CONFIG.renderScanPreviewEffect,
             pose.last().copy(), graphics.pose().get(new Matrix3x2f()), graphics.peekScissorStack(),
             (collector, modelPose) -> SmartPlacerPreviewRenderer.captureRangeBox(
-                new org.joml.Matrix4f(modelPose.last().pose()).translate(outlineOffset), outlineOriginX, outlineOriginY))));
+                new Matrix4f(modelPose.last().pose()).translate(outlineOffset), outlineOriginX, outlineOriginY))));
     }
 
     /**

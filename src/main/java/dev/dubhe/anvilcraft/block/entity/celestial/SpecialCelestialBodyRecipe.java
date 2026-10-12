@@ -27,6 +27,7 @@ import net.minecraft.world.level.Level;
 import org.jspecify.annotations.Nullable;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.Random;
 
@@ -311,7 +312,7 @@ public record SpecialCelestialBodyRecipe(
         } catch (NumberFormatException exception) {
             return DataResult.error(() -> "Exception parsing color code: " + exception.getMessage());
         }
-    }, color -> String.format(java.util.Locale.ROOT, "#%08X", color.rgba()));
+    }, color -> String.format(Locale.ROOT, "#%08X", color.rgba()));
 
     private static final StreamCodec<ByteBuf, ColorRGBA> ATMOSPHERE_COLOR_STREAM =
         ByteBufCodecs.INT.map(ColorRGBA::new, ColorRGBA::rgba);

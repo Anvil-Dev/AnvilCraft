@@ -2,6 +2,8 @@ package dev.dubhe.anvilcraft.init.entity;
 
 import com.google.common.collect.ImmutableSet;
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.block.GiantMonolithCoreBlock;
+import dev.dubhe.anvilcraft.block.state.Cube3x3PartHalf;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import net.minecraft.core.registries.Registries;
@@ -14,6 +16,9 @@ import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 public class ModVillagers {
 
     public static final DeferredRegister<PoiType> POI_TYPES =
@@ -25,12 +30,12 @@ public class ModVillagers {
     public static final DeferredHolder<PoiType, PoiType> MONOLITH_CORE_POI = POI_TYPES.register(
         "monolith_core",
         () -> new PoiType(
-            java.util.stream.Stream.concat(
+            Stream.concat(
                 ModBlocks.MONOLITH_CORE.get().getStateDefinition().getPossibleStates().stream(),
                 ModBlocks.GIANT_MONOLITH_CORE.get().getStateDefinition().getPossibleStates().stream()
-                    .filter(state -> state.getValue(dev.dubhe.anvilcraft.block.GiantMonolithCoreBlock.HALF)
-                        == dev.dubhe.anvilcraft.block.state.Cube3x3PartHalf.MID_CENTER)
-            ).collect(java.util.stream.Collectors.toSet()),
+                    .filter(state -> state.getValue(GiantMonolithCoreBlock.HALF)
+                        == Cube3x3PartHalf.MID_CENTER)
+            ).collect(Collectors.toSet()),
             0,
             1
         )

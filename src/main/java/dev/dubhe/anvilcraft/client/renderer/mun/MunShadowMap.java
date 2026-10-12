@@ -19,6 +19,7 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
+import org.jspecify.annotations.Nullable;
 import org.lwjgl.opengl.GL11C;
 import org.lwjgl.opengl.GL13C;
 import org.lwjgl.opengl.GL30C;
@@ -31,7 +32,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import javax.annotation.Nullable;
 
 /** 缓存模型网格并生成级联深度贴图，地形采样成本与遮挡模型复杂度无关。 */
 public final class MunShadowMap implements AutoCloseable {
@@ -503,8 +503,8 @@ public final class MunShadowMap implements AutoCloseable {
         private int model;
         private int translucentModel;
         private int fluid;
-        private @Nullable MunShadowMesh.Builder builder;
-        private @Nullable MunShadowMesh.Builder translucentBuilder;
+        private MunShadowMesh.@Nullable Builder builder;
+        private MunShadowMesh.@Nullable Builder translucentBuilder;
 
         private BuildJob(LevelChunk chunk, int height, int limit, boolean translucentShadows) {
             this.chunk = chunk;

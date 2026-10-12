@@ -23,6 +23,7 @@ import org.jetbrains.annotations.Unmodifiable;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
@@ -68,7 +69,7 @@ public record PermutationRecipe(
 
     @Override
     public @Unmodifiable List<ItemStack> possibleInputs() {
-        return java.util.Arrays.stream(this.input.getItems()).map(ItemStackTemplate::create).toList();
+        return Arrays.stream(this.input.getItems()).map(ItemStackTemplate::create).toList();
     }
 
     @Override

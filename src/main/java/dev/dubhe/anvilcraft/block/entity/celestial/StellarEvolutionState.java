@@ -7,6 +7,7 @@ import net.minecraft.nbt.NbtOps;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -310,7 +311,7 @@ public final class StellarEvolutionState {
             state.trackSnapshot.validate();
             state.profileSnapshot = Codec.unboundedMap(Codec.STRING, StellarEventProfile.CODEC)
                 .parse(NbtOps.INSTANCE, tag.getCompoundOrEmpty("stellarProfileSnapshot")).getOrThrow();
-            state.phaseDurations = java.util.Arrays.stream(tag.getIntArray("stellarPhaseDurations").orElseGet(() -> new int[0]))
+            state.phaseDurations = Arrays.stream(tag.getIntArray("stellarPhaseDurations").orElseGet(() -> new int[0]))
                 .boxed().toList();
             state.cachedTrackId = state.trackId;
             state.cachedDurationBudget = state.totalDurationTicks;
@@ -345,9 +346,9 @@ public final class StellarEvolutionState {
             throw new IllegalArgumentException("Invalid result-stage migration timeline");
         }
         nodes.remove(last);
-        int[] remaining = java.util.Arrays.copyOf(durations, durations.length - 1);
+        int[] remaining = Arrays.copyOf(durations, durations.length - 1);
         tag.putIntArray("stellarPhaseDurations", remaining);
-        tag.putInt(TOTAL_DURATION_KEY, java.util.Arrays.stream(remaining).sum());
+        tag.putInt(TOTAL_DURATION_KEY, Arrays.stream(remaining).sum());
         if (tag.getIntOr(PHASE_INDEX_KEY, 0) >= last) {
             CompoundTag finalPhase = nodes.getCompoundOrEmpty(last - 1);
             int finalDuration = remaining[remaining.length - 1];
@@ -411,7 +412,7 @@ public final class StellarEvolutionState {
             ticks[index]++;
             used++;
         }
-        return java.util.Arrays.stream(ticks).boxed().toList();
+        return Arrays.stream(ticks).boxed().toList();
     }
 
     private void validateSnapshot() {

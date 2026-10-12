@@ -28,6 +28,7 @@ import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.List;
 import java.util.Map;
+import java.util.OptionalLong;
 import java.util.WeakHashMap;
 
 /** Prepares and replaces overworld-like generations. */
@@ -182,7 +183,7 @@ public final class OverworldLikeGenerationBootstrap {
     }
 
     public static LevelStem seededStem(MinecraftServer server, LevelStem stem) {
-        return new LevelStem(stem.type(), stem.generator(), java.util.OptionalLong.of(getActiveSeed(server)));
+        return new LevelStem(stem.type(), stem.generator(), OptionalLong.of(getActiveSeed(server)));
     }
 
     private static void unlinkOverworldLikeBorder(MinecraftServer server, ServerLevel level) {

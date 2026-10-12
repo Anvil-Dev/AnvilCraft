@@ -5,6 +5,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
+import dev.anvilcraft.lib.v2.rendering.gui.state.StructurePipRenderingState;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.tooltip.TooltipRenderHelper;
 import dev.dubhe.anvilcraft.block.entity.StructureScannerBlockEntity;
@@ -34,16 +35,19 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.client.input.InputWithModifiers;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.Rect2i;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.sounds.SoundManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
+import net.minecraft.util.LightCoordsUtil;
 import net.minecraft.util.Mth;
 import net.minecraft.util.Util;
 import net.minecraft.world.entity.player.Inventory;
@@ -56,6 +60,8 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.joml.Matrix3f;
+import org.joml.Matrix3x2f;
+import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 import org.jspecify.annotations.Nullable;
 
@@ -337,7 +343,7 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
             // 音效与动作统一在松开时触发。
         }
 
-        private void activate(net.minecraft.client.input.InputWithModifiers input) {
+        private void activate(InputWithModifiers input) {
             super.playDownSound(Minecraft.getInstance().getSoundManager());
             this.onPress(input);
         }
@@ -893,8 +899,8 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
     }
 
     @Override
-    public net.minecraft.client.renderer.Rect2i getGhostSlotArea(int slotIndex) {
-        return new net.minecraft.client.renderer.Rect2i(112, 85, 16, 16);
+    public Rect2i getGhostSlotArea(int slotIndex) {
+        return new Rect2i(112, 85, 16, 16);
     }
 
     @Override
@@ -1002,23 +1008,23 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
         boolean border = imported == null;
         VoxelShape shape = Shapes.create(0, 0, 2, Math.max(1, this.cachedRangeX), Math.max(1, this.cachedRangeY), this.cachedRangeZ + 2);
         graphics.submitPictureInPictureRenderState(new SmartPlacerPreviewRenderer.State(
-            new dev.anvilcraft.lib.v2.rendering.gui.state.StructurePipRenderingState(
+            new StructurePipRenderingState(
                 preview, BlockPos.containing(bounds.minX, bounds.minY, bounds.minZ),
                 BlockPos.containing(bounds.maxX - 1, bounds.maxY - 1, bounds.maxZ - 1),
                 this.previewWindowX, this.previewWindowY, this.previewWindowX + this.previewWindowWidth,
                 this.previewWindowY + this.previewWindowHeight, scale, true, AnvilCraft.CLIENT_CONFIG.renderScanPreviewEffect,
-                pose.last().copy(), graphics.pose().get(new org.joml.Matrix3x2f()), graphics.peekScissorStack(),
+                pose.last().copy(), graphics.pose().get(new Matrix3x2f()), graphics.peekScissorStack(),
                 (collector, modelPose) -> {
                     var dispatcher = Minecraft.getInstance().getEntityRenderDispatcher();
                     var camera = Minecraft.getInstance().gameRenderer.getGameRenderState().levelRenderState.cameraRenderState;
                     for (var entity : preview.getEntities()) {
                         var state = dispatcher.extractEntity(entity, 0);
-                        state.lightCoords = net.minecraft.util.LightCoordsUtil.FULL_BRIGHT;
+                        state.lightCoords = LightCoordsUtil.FULL_BRIGHT;
                         dispatcher.submit(state, camera, entity.getX(), entity.getY(), entity.getZ(), modelPose, collector);
                     }
                     if (border) {
                         SmartPlacerPreviewRenderer.captureRangeBox(
-                            new org.joml.Matrix4f(modelPose.last().pose()), 0, 0, shape);
+                            new Matrix4f(modelPose.last().pose()), 0, 0, shape);
                     }
                 }), BACKGROUND));
         graphics.disableScissor();

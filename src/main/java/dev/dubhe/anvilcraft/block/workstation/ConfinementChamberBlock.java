@@ -7,6 +7,7 @@ import dev.dubhe.anvilcraft.block.entity.ConfinementChamberBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.util.ItemResourceHelper;
+import dev.dubhe.anvilcraft.util.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -55,7 +56,7 @@ public class ConfinementChamberBlock extends BaseEntityBlock implements IHammerR
         if (itemStack.is(handItemStack.getItem())) return ItemInteractionResult.FAIL;
         player.setItemInHand(hand, itemStack.copy());
         confinementChamberBlockEntity.getItemHandler().setStackInSlot(0, handItemStack.copy());
-        return dev.dubhe.anvilcraft.util.Util.sidedSuccess(level);
+        return Util.sidedSuccess(level);
     }*/
 
     @Override

@@ -46,6 +46,7 @@ import net.neoforged.neoforge.common.Tags;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.EnumMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -713,7 +714,7 @@ public abstract class PipeBlock extends Block
             return;
         }
         // 只保留新管型仍存在的臂上的阀；其余掉落物品
-        Map<Direction, Direction> filtered = new java.util.EnumMap<>(Direction.class);
+        Map<Direction, Direction> filtered = new EnumMap<>(Direction.class);
         for (Map.Entry<Direction, Direction> e : saved.entrySet()) {
             if (hasConnectionToward(newState, e.getKey())) {
                 filtered.put(e.getKey(), e.getValue());

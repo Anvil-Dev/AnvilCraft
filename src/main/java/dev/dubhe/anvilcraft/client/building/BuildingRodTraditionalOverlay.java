@@ -4,6 +4,7 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.FormattedCharSequence;
@@ -43,7 +44,7 @@ final class BuildingRodTraditionalOverlay {
         for (int index = 0; index < tools.length; index++) {
             var tool = tools[index];
             int frameV = tool == selected ? SELECTED_FRAME_V : 0;
-            graphics.blit(net.minecraft.client.renderer.RenderPipelines.GUI_TEXTURED, ICONS.get(tool),
+            graphics.blit(RenderPipelines.GUI_TEXTURED, ICONS.get(tool),
                 left + index * ICON_SPACING, top, 0, frameV,
                 ICON_SIZE, ICON_SIZE, ICON_SIZE, ATLAS_HEIGHT);
         }

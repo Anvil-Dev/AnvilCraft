@@ -5,6 +5,7 @@ import dev.dubhe.anvilcraft.block.entity.celestial.CelestialMassTable;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import lombok.Getter;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -359,7 +360,7 @@ public class CelestialForgingAnvilMenu extends AbstractContainerMenu {
 
     public static class CFAAnvilSlot extends Slot {
 
-        public CFAAnvilSlot(net.minecraft.world.Container container, int slot, int x, int y) {
+        public CFAAnvilSlot(Container container, int slot, int x, int y) {
             super(container, slot, x, y);
         }
 
@@ -409,7 +410,7 @@ public class CelestialForgingAnvilMenu extends AbstractContainerMenu {
 
     public static class SeedSlot extends Slot {
 
-        public SeedSlot(net.minecraft.world.Container container, int slot, int x, int y) {
+        public SeedSlot(Container container, int slot, int x, int y) {
             super(container, slot, x, y);
         }
 

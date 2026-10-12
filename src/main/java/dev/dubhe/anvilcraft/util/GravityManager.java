@@ -11,6 +11,7 @@ import dev.dubhe.anvilcraft.block.special.WhiteHoleBlock;
 import dev.dubhe.anvilcraft.entity.LevitatingBlockEntity;
 import dev.dubhe.anvilcraft.entity.StandableFallingBlockEntity;
 import dev.dubhe.anvilcraft.entity.StandableLevitatingBlockEntity;
+import dev.dubhe.anvilcraft.init.ModLevelKeys;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModAmuletEffectContextKeys;
 import dev.dubhe.anvilcraft.init.item.ModItems;
@@ -73,8 +74,8 @@ public final class GravityManager {
     static {
         GravitySourceManager.registerSourceType(BlackHoleBlock.class, 7, 10);
         GravitySourceManager.registerSourceType(WhiteHoleBlock.class, 7, -10);
-        registerDimensionGravity(dev.dubhe.anvilcraft.init.ModLevelKeys.VOID_PLANET, 0.0);
-        registerDimensionGravity(dev.dubhe.anvilcraft.init.ModLevelKeys.MUN, 1.0 / 6.0);
+        registerDimensionGravity(ModLevelKeys.VOID_PLANET, 0.0);
+        registerDimensionGravity(ModLevelKeys.MUN, 1.0 / 6.0);
     }
 
     private GravityManager() {

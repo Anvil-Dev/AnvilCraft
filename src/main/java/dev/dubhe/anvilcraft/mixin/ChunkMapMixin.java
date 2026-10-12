@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.mixin;
 
 import dev.dubhe.anvilcraft.api.world.load.ChunkFeatureManager;
+import net.minecraft.core.SectionPos;
 import net.minecraft.server.level.ChunkMap;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.ChunkPos;
@@ -27,8 +28,8 @@ public abstract class ChunkMapMixin {
             double maxDistanceSqr = (double) ChunkFeatureManager.TRANSCENDIUM_DESPAWN_DISTANCE
                                     * ChunkFeatureManager.TRANSCENDIUM_DESPAWN_DISTANCE;
 
-            double xpos = net.minecraft.core.SectionPos.sectionToBlockCoord(pos.x(), 8);
-            double zpos = net.minecraft.core.SectionPos.sectionToBlockCoord(pos.z(), 8);
+            double xpos = SectionPos.sectionToBlockCoord(pos.x(), 8);
+            double zpos = SectionPos.sectionToBlockCoord(pos.z(), 8);
             double xd = xpos - player.getX();
             double zd = zpos - player.getZ();
 
