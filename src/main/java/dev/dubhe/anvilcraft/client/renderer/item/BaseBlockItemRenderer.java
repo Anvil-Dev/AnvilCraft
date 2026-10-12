@@ -28,7 +28,6 @@ abstract class BaseBlockItemRenderer<T> implements SpecialModelRenderer<T> {
     private final boolean translucent;
     private final BlockModelRenderState shellRenderState = new BlockModelRenderState();
     private @Nullable BlockStateModel shellModel;
-    private boolean shellTranslucent;
 
     protected BaseBlockItemRenderer(BlockState shellState, float minExtent, float maxExtent) {
         this(shellState, minExtent, maxExtent, false);
@@ -49,39 +48,42 @@ abstract class BaseBlockItemRenderer<T> implements SpecialModelRenderer<T> {
         boolean hasFoil,
         int outlineColor
     ) {
-        this.submitShell(poseStack, collector, lightCoords, overlayCoords, hasFoil, outlineColor, this.translucent);
-    }
-
-    /// 指定渲染层提交外壳；外壳贴图整体半透明，不透明层才能避免与身后场景混合而失色。
-    protected void submitShell(
-        PoseStack poseStack,
-        SubmitNodeCollector collector,
-        int lightCoords,
-        int overlayCoords,
-        boolean hasFoil,
-        int outlineColor,
-        boolean translucent
-    ) {
         BlockStateModel model = Minecraft.getInstance()
             .getModelManager()
             .getBlockStateModelSet()
             .get(this.shellState);
-        if (model != this.shellModel || translucent != this.shellTranslucent) {
+        if (model != this.shellModel) {
             this.shellRenderState.clear();
             model.collectParts(
                 BlockAndTintGetter.EMPTY,
                 BlockPos.ZERO,
                 this.shellState,
                 RandomSource.create(BaseBlockItemRenderer.MODEL_SEED),
-                this.shellRenderState.setupModel(new Matrix4f(), translucent)
+                this.shellRenderState.setupModel(new Matrix4f(), this.translucent)
             );
             this.shellModel = model;
-            this.shellTranslucent = translucent;
         }
-        this.shellRenderState.submit(poseStack, collector, lightCoords, overlayCoords, outlineColor);
+        // 这里渲染的是物品，必须用 item 变体的渲染类型：setupModel 会按半透明标记挑 entity 变体，
+        // 而 entity 变体走 core/entity 着色器（只吃 lightmap，且带 overlay 采样器），
+        // 方块模型当物品渲染时原版挑的是 item 变体，见 BakedQuad 里 itemRenderType 的取值。
+        // 用 submitModel 显式指定渲染类型，取代会转发到特殊渲染器的 submit；setupModel 从不安装特殊渲染器。
+        this.shellRenderState.submitModel(
+            this.translucent ? Sheets.translucentBlockItemSheet() : Sheets.cutoutBlockItemSheet(),
+            poseStack,
+            collector,
+            lightCoords,
+            overlayCoords,
+            outlineColor
+        );
         if (hasFoil) {
-            this.shellRenderState.submitModel(ItemFeatureRenderer.getFoilRenderType(Sheets.cutoutBlockSheet(), true),
-                poseStack, collector, lightCoords, overlayCoords, 0);
+            this.shellRenderState.submitModel(
+                ItemFeatureRenderer.getFoilRenderType(Sheets.cutoutBlockItemSheet(), true),
+                poseStack,
+                collector,
+                lightCoords,
+                overlayCoords,
+                0
+            );
         }
     }
 

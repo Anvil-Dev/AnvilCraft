@@ -53,9 +53,7 @@ public final class HasMobBlockItemRenderer extends BaseBlockItemRenderer<EntityR
             Minecraft.getInstance().getEntityRenderDispatcher().submit(argument, this.camera, 0, 0, 0, pose, collector);
             pose.popPose();
         }
-        // 只有装着生物时才需要半透明外壳透出生物；空壳用不透明，
-        // 否则整张 alpha=128 的贴图会与身后场景混合，浅黄色被中和成暗棕。
-        this.submitShell(pose, collector, light, overlay, foil, outlineColor, argument != null);
+        this.submitShell(pose, collector, light, overlay, foil, outlineColor);
     }
 
     public record Unbaked(Block block) implements SpecialModelRenderer.Unbaked<EntityRenderState> {
