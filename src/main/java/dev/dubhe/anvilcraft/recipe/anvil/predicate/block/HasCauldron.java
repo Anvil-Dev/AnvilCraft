@@ -459,7 +459,7 @@ public record HasCauldron(
         }
     }
 
-    /// 按层补齐被整层取整丢掉的流体余量，粒度为一层。
+    /// 按层补齐被整层取整丢掉的流体余量：请求量向上取整到整层，最多多灌不足一层。
     private static void fillCauldronLayers(Level level, BlockPos pos, FluidStack fluid, int missing) {
         CauldronFluidContent content = CauldronFluidContent.getForFluid(fluid.getFluid());
         if (content == null) return;

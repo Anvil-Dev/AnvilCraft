@@ -6,6 +6,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Deque;
 import java.util.HashSet;
 import java.util.List;
@@ -14,9 +15,14 @@ import java.util.Set;
 import java.util.WeakHashMap;
 
 public final class PistonMoveGuard {
+    /// 推进活塞走原版 PistonMovingBlockEntity，TICKS_TO_EXTEND 为 2；留一点余量覆盖同刻的落位自通知。
+    public static final int PISTON_MOVE_RESERVATION_TICKS = 5;
+
     private static final ThreadLocal<@Nullable Deque<Reservation>> ACTIVE_RESERVATIONS = new ThreadLocal<>();
-    /// 按维度索引的跨 tick 预留，带过期刻数；滑轨与推进活塞跨 tick 移动，调用作用域不够用。
-    private static final Map<Level, List<TimedReservation>> TIMED_RESERVATIONS = new WeakHashMap<>();
+    /// 跨刻预留，按维度弱引用索引，载荷在服务端线程登记而 TNT 邻居更新会在客户端线程读取。
+    /// 句柄不持有 {@link Level}，弱键才真正可回收；不加弱引用会在维度卸载后常驻该维度。
+    private static final Map<Level, List<TimedReservation>> TIMED_RESERVATIONS =
+        Collections.synchronizedMap(new WeakHashMap<>());
 
     private PistonMoveGuard() {
     }
@@ -53,8 +59,8 @@ public final class PistonMoveGuard {
 
     /// 登记一个跨刻有效的预留，用于滑轨与推进活塞的移动，返回可刷新/释放的句柄。
     public static TimedReservation reserveUntil(Level level, Iterable<BlockPos> positions, int duration) {
-        TimedReservation reservation = new TimedReservation(level, Math.max(1, duration));
-        reservation.replace(positions);
+        TimedReservation reservation = new TimedReservation(level.getGameTime(), Math.max(1, duration));
+        reservation.replace(level.getGameTime(), positions);
         PistonMoveGuard.TIMED_RESERVATIONS
             .computeIfAbsent(level, ignored -> new ArrayList<>())
             .add(reservation);
@@ -81,15 +87,16 @@ public final class PistonMoveGuard {
     }
 
     /// 跨刻预留的句柄。载荷移动时刷新坐标并续期，停止时释放。
+    ///
+    /// 不持有 {@link Level}：作为 {@link #TIMED_RESERVATIONS} 的值，持键会让弱引用永不失效。
     public static final class TimedReservation {
-        private final Level level;
         private final int duration;
         private final Set<BlockPos> positions = new HashSet<>();
         private long expiresAt;
 
-        private TimedReservation(Level level, int duration) {
-            this.level = level;
+        private TimedReservation(long now, int duration) {
             this.duration = duration;
+            this.expiresAt = now + duration;
         }
 
         private boolean isExpired(long now) {
@@ -100,11 +107,11 @@ public final class PistonMoveGuard {
             return this.positions.contains(pos);
         }
 
-        /// 替换预留范围并续期；载荷移动时每刻调用，故有效期覆盖整个搬运过程。
-        public void replace(Iterable<BlockPos> newPositions) {
+        /// 替换预留范围并按当前时刻续期；载荷移动时每刻调用，故有效期覆盖整个搬运过程。
+        public void replace(long now, Iterable<BlockPos> newPositions) {
             this.positions.clear();
             for (BlockPos pos : newPositions) this.positions.add(pos.immutable());
-            this.expiresAt = this.level.getGameTime() + this.duration;
+            this.expiresAt = now + this.duration;
         }
     }
 

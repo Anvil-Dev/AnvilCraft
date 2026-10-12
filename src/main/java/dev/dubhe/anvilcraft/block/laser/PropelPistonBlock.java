@@ -8,7 +8,6 @@ import dev.anvilcraft.lib.v2.piston.injection.IPistonMovingBlockEntityExtension;
 import dev.dubhe.anvilcraft.api.hammer.IHammerChangeable;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.block.entity.PropelPistonBlockEntity;
-import dev.dubhe.anvilcraft.entity.SlidingBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItems;
@@ -257,7 +256,7 @@ public class PropelPistonBlock extends DirectionalBlock implements IMoveableEnti
             for (BlockPos pushed : pistonstructureresolver.getToPush()) {
                 reserved.add(pushed.relative(facing));
             }
-            PistonMoveGuard.reserveUntil(level, reserved, SlidingBlockEntity.MOVE_RESERVATION_TICKS);
+            PistonMoveGuard.reserveUntil(level, reserved, PistonMoveGuard.PISTON_MOVE_RESERVATION_TICKS);
             Map<BlockPos, BlockState> map = Maps.newHashMap();
             List<BlockPos> list = pistonstructureresolver.getToPush();
             List<BlockState> list1 = Lists.newArrayList();
