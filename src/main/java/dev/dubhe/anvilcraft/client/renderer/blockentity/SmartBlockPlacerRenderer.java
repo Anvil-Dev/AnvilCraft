@@ -267,7 +267,7 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
         
         // 应用变换
         poseStack.pushPose();
-        applyBaseTransform(poseStack, facing, upsideDown);
+        this.applyBaseTransform(poseStack, facing, upsideDown);
 
         // 初始化动画变量
         float baseSwingAngle = 0f;
@@ -284,7 +284,7 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
             entity.setClientRetractSoundPlayed(false);
         } else {
             if (animationTargetPos == null) {
-                animationTargetPos = getNextTargetPosition(entity, level, facing, upsideDown);
+                animationTargetPos = this.getNextTargetPosition(entity, level, facing, upsideDown);
                 if (animationTargetPos != null) {
                     level.playLocalSound(
                         entity.getBlockPos(),
@@ -329,7 +329,7 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
             animationProgress,
             isAnimationPlaying
         );
-        renderArm(entity, level, poseStack, buffer, partialTick, packedLight, packedOverlay, upsideDown, armState);
+        this.renderArm(entity, level, poseStack, buffer, partialTick, packedLight, packedOverlay, upsideDown, armState);
         poseStack.popPose();
     }
 
@@ -343,7 +343,7 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
             (float) (renderTick * 10 % 360), lowerArmAngle, upperArmAngle + 22.5f, -lowerArmAngle + 22.5f, 0, false
         );
         pose.pushPose();
-        applyBaseTransform(pose, Direction.NORTH, false);
+        this.applyBaseTransform(pose, Direction.NORTH, false);
         this.visitArmModels(
             pose, false, state,
             (model, modelPose) -> this.renderModel(modelPose, buffer, model, packedLight, packedOverlay),
@@ -423,7 +423,7 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
         Level level = entity.getLevel();
         BlockPos target = entity.isAnimationActive() ? entity.getClientAnimationTargetPos() : null;
         if (entity.isAnimationActive() && target == null && level != null) {
-            target = getNextTargetPosition(entity, level, facing, upsideDown);
+            target = this.getNextTargetPosition(entity, level, facing, upsideDown);
         }
         float progress = target == null ? 0 : entity.getAnimationProgress(partialTick);
         float[] angles = target == null ? new float[4] : PLACEMENT_ANIMATION.calculateArmAngles(
@@ -431,15 +431,15 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
         );
         ArmRenderState arm = new ArmRenderState(angles[0], angles[1], angles[2], angles[3], progress, target != null);
         pose.pushPose();
-        applyBaseTransform(pose, facing, upsideDown);
-        visitArmModels(pose, upsideDown, arm, consumer, () -> {});
+        this.applyBaseTransform(pose, facing, upsideDown);
+        this.visitArmModels(pose, upsideDown, arm, consumer, () -> {});
         pose.popPose();
     }
 
     private void applyBaseTransform(PoseStack poseStack, Direction facing, boolean upsideDown) {
         poseStack.translate(0.5, 1.5, 0.5);
         if (upsideDown) poseStack.mulPose(Axis.XP.rotationDegrees(180f));
-        applyHorizontalRotation(poseStack, facing, upsideDown);
+        this.applyHorizontalRotation(poseStack, facing, upsideDown);
         poseStack.translate(0, upsideDown ? 0.5 : -1.5, 0);
     }
 
@@ -535,7 +535,7 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
             
             if (!targetState.isAir()) {
                 Block heldBlock = getDisplayedBlock(entity.getCurrentHeldBlock());
-                if (canBeStacked(targetState, heldBlock)) {
+                if (this.canBeStacked(targetState, heldBlock)) {
                     return targetPos;
                 }
             }
