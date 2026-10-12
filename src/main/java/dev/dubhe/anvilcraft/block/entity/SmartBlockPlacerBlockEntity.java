@@ -44,6 +44,7 @@ import net.minecraft.resources.RegistryOps;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.ProblemReporter;
 import net.minecraft.util.StringRepresentable;
+import net.minecraft.world.Containers;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -1356,7 +1357,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
         if (this.level == null || this.level.isClientSide()) return;
         ItemStack disk = this.getBlueprintItem();
         if (disk.isEmpty()) return;
-        net.minecraft.world.Containers.dropItemStack(this.level, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, disk);
+        Containers.dropItemStack(this.level, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, disk);
         this.blueprintItemHandler.set(0, ItemResource.EMPTY, 0);
     }
 

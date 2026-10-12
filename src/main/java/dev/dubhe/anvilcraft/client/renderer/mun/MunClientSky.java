@@ -5,8 +5,7 @@ import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.clock.WorldClocks;
 import net.minecraft.world.phys.Vec3;
-
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 public final class MunClientSky {
     private static @Nullable ClientLevel cachedLevel;

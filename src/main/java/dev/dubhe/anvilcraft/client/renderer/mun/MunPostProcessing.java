@@ -21,12 +21,13 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.RegisterRenderPipelinesEvent;
 import org.joml.Matrix4f;
 import org.joml.Matrix4fc;
+import org.jspecify.annotations.Nullable;
 import org.lwjgl.system.MemoryStack;
 
+import java.nio.ByteBuffer;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.OptionalInt;
-import javax.annotation.Nullable;
 
 @EventBusSubscriber(modid = AnvilCraft.MOD_ID, value = Dist.CLIENT)
 final class MunPostProcessing implements AutoCloseable {
@@ -91,7 +92,7 @@ final class MunPostProcessing implements AutoCloseable {
         }
     }
 
-    private void draw(java.nio.ByteBuffer data, GpuTextureView color, GpuTextureView depth, GpuTextureView output,
+    private void draw(ByteBuffer data, GpuTextureView color, GpuTextureView depth, GpuTextureView output,
                       RenderPipeline pipeline) {
         var encoder = RenderSystem.getDevice().createCommandEncoder();
         var uniforms = Objects.requireNonNull(this.uniforms);

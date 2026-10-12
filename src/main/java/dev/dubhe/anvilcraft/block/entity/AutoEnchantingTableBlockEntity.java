@@ -39,6 +39,8 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.EnchantmentTags;
 import net.minecraft.util.ProblemReporter;
 import net.minecraft.util.StringRepresentable;
+import net.minecraft.world.Containers;
+import net.minecraft.world.ItemStackWithSlot;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -238,7 +240,7 @@ public class AutoEnchantingTableBlockEntity extends BlockEntity
     @Override
     public void preRemoveSideEffects(BlockPos pos, BlockState state) {
         super.preRemoveSideEffects(pos, state);
-        if (this.level != null) net.minecraft.world.Containers.dropContents(this.level, pos, this.itemHandler.copyToList());
+        if (this.level != null) Containers.dropContents(this.level, pos, this.itemHandler.copyToList());
     }
 
     public ItemStack getItem(int slot) {
@@ -774,7 +776,7 @@ public class AutoEnchantingTableBlockEntity extends BlockEntity
                 this.itemHandler.deserialize(inventory);
             } else {
                 for (int slot = 0; slot < this.itemHandler.size(); slot++) this.itemHandler.set(slot, ItemResource.EMPTY, 0);
-                for (var saved : inventory.listOrEmpty("Items", net.minecraft.world.ItemStackWithSlot.CODEC)) {
+                for (var saved : inventory.listOrEmpty("Items", ItemStackWithSlot.CODEC)) {
                     if (saved.isValidInContainer(this.itemHandler.size())) {
                         this.itemHandler.set(saved.slot(), ItemResource.of(saved.stack()), saved.stack().getCount());
                     }

@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.BiPredicate;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 public final class SmithingRecipeTransferHandler<C extends AbstractContainerMenu, R>
@@ -166,7 +167,7 @@ public final class SmithingRecipeTransferHandler<C extends AbstractContainerMenu
     private static Stream<ItemStack> availableTemplates(AbstractContainerMenu menu, Player player) {
         if (menu instanceof AdjacentSmithingMenu smithing) {
             return Stream.concat(Stream.of(selectedTemplate(menu)), Stream.concat(
-                smithing.getAdjacentTemplates().stream(), java.util.stream.IntStream.range(0, 36).mapToObj(player.getInventory()::getItem)
+                smithing.getAdjacentTemplates().stream(), IntStream.range(0, 36).mapToObj(player.getInventory()::getItem)
             ));
         }
         if (menu instanceof TranscendenceSmithingMenu smithing) {

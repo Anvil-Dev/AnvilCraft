@@ -63,6 +63,7 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.ARGB;
 import net.minecraft.util.Mth;
+import net.minecraft.util.Util;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -526,7 +527,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
     }
 
     @Override
-    protected void slotClicked(@javax.annotation.Nullable Slot slot, int slotId, int mouseButton, ContainerInput input) {
+    protected void slotClicked(@Nullable Slot slot, int slotId, int mouseButton, ContainerInput input) {
         // Extensions must not send a second inventory click alongside this screen's own handling.
     }
 
@@ -807,7 +808,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
         int result = this.craftingResultAt(event.x(), event.y());
         if (slot >= 0 || result >= 0) {
             if (slot >= 0 && event.button() == 0 && !event.hasShiftDown()) {
-                long now = net.minecraft.util.Util.getMillis();
+                long now = Util.getMillis();
                 boolean doubleClick = slot == this.lastCraftingClickSlot && now - this.lastCraftingClickTime < 250;
                 if (doubleClick) {
                     this.lastCraftingClickSlot = -1;

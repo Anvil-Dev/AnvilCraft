@@ -7,7 +7,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.AABB;
-import org.jetbrains.annotations.UnknownNullability;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Collections;
@@ -21,7 +20,7 @@ public class DynamicPowerComponent {
     private final Entity owner;
     @Getter
     @Setter
-    private @UnknownNullability PowerGrid powerGrid;
+    private @Nullable PowerGrid powerGrid;
     @Getter
     private final Set<PowerConsumption> powerConsumptions = Collections.newSetFromMap(new IdentityHashMap<>());
     private final Supplier<AABB> aabbSupplier;

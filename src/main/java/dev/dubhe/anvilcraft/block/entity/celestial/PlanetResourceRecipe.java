@@ -24,6 +24,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.material.Fluid;
 import org.jspecify.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -158,7 +159,7 @@ public record PlanetResourceRecipe(
     }
 
     public static final class EntriesBuilder {
-        private final List<WeightedEntry> entries = new java.util.ArrayList<>();
+        private final List<WeightedEntry> entries = new ArrayList<>();
 
         public EntriesBuilder id(String id, int weight) {
             return this.id(Identifier.parse(id), weight);
@@ -194,7 +195,7 @@ public record PlanetResourceRecipe(
     }
 
     public static final class ChoiceBuilder {
-        private final List<WeightedChoice> choices = new java.util.ArrayList<>();
+        private final List<WeightedChoice> choices = new ArrayList<>();
 
         public ChoiceBuilder id(String id, int weight) {
             return this.id(Identifier.parse(id), weight);

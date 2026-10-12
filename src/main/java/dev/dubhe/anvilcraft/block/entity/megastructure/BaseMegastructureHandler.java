@@ -9,6 +9,7 @@ import dev.dubhe.anvilcraft.init.block.ModFluids;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.storage.ValueInput;
@@ -221,7 +222,7 @@ public abstract class BaseMegastructureHandler implements IMegastructureHandler 
 
     protected static void dropItemOnGround(ItemStack stack, Level level, BlockPos pos) {
         if (level == null || stack.isEmpty()) return;
-        net.minecraft.world.entity.item.ItemEntity entity = new net.minecraft.world.entity.item.ItemEntity(
+        ItemEntity entity = new ItemEntity(
             level,
             pos.getX() + 0.5,
             pos.getY() + 1,

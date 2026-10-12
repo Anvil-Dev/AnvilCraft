@@ -19,6 +19,8 @@ import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
+import java.util.Objects;
+
 @Mixin(GuiGraphicsExtractor.class)
 abstract class ScaledGuiItemExtractionMixin {
     @WrapOperation(
@@ -33,7 +35,7 @@ abstract class ScaledGuiItemExtractionMixin {
         var screen = Minecraft.getInstance().screen;
         if (screen instanceof CreativeModeInventoryScreen) {
             var slot = new ScreenRectangle(x, y, 16, 16).transformMaxBounds(pose);
-            scissor = scissor == null ? slot : java.util.Objects.requireNonNullElse(
+            scissor = scissor == null ? slot : Objects.requireNonNullElse(
                 scissor.intersection(slot), new ScreenRectangle(0, 0, 0, 0));
         }
         if (BuiltInRegistries.ITEM.getKey(stack.getItem()).getNamespace().equals(AnvilCraft.MOD_ID)

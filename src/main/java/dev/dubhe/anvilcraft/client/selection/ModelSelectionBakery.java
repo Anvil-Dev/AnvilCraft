@@ -34,6 +34,7 @@ import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 
 final class ModelSelectionBakery {
     private static final long MAX_BYTES = 64L * 1024 * 1024;
@@ -54,7 +55,7 @@ final class ModelSelectionBakery {
         Map<BlockState, List<SelectionPart>> outlines = new IdentityHashMap<>();
         Map<SelectionModel, ModelSelection> models = new HashMap<>();
         int failures = 0;
-        Map<String, Integer> fallbackReasons = new java.util.TreeMap<>();
+        Map<String, Integer> fallbackReasons = new TreeMap<>();
         for (Block block : BuiltInRegistries.BLOCK) {
             if (!AnvilCraft.MOD_ID.equals(BuiltInRegistries.BLOCK.getKey(block).getNamespace())) continue;
             for (BlockState state : block.getStateDefinition().getPossibleStates()) {

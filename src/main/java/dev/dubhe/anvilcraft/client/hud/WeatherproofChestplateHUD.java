@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.client.hud;
 import dev.dubhe.anvilcraft.client.AnvilCraftClient;
 import dev.dubhe.anvilcraft.constant.SharedTextures;
 import dev.dubhe.anvilcraft.init.item.ModItems;
+import dev.dubhe.anvilcraft.inventory.PocketInventory;
 import dev.dubhe.anvilcraft.item.armor.WeatherproofChestplateItem;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
@@ -14,6 +15,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import org.joml.Matrix3x2fStack;
+
+import java.util.List;
 
 public class WeatherproofChestplateHUD {
     private static final int ROW_HEIGHT = 20;
@@ -31,7 +34,7 @@ public class WeatherproofChestplateHUD {
 
         ItemStack backpack = WeatherproofChestplateItem.getByPlayer(player);
         boolean renderBackpack = config.enabled && backpack.is(ModItems.WEATHERPROOF_SPACESUIT_CHESTPLATE);
-        java.util.List<ItemStack> inventory = dev.dubhe.anvilcraft.inventory.PocketInventory.carriedItems(player);
+        List<ItemStack> inventory = PocketInventory.carriedItems(player);
         int capacitorCount = WeatherproofChestplateHUD.count(inventory, ModItems.CAPACITOR.asStack());
         int superCapacitorCount = WeatherproofChestplateHUD.count(inventory, ModItems.SUPER_CAPACITOR.asStack());
         boolean renderCapacitors = config.capacitorCountEnabled && (capacitorCount > 0 || superCapacitorCount > 0);
@@ -118,7 +121,7 @@ public class WeatherproofChestplateHUD {
         );
     }
 
-    private static int count(java.util.List<ItemStack> inventory, ItemStack item) {
+    private static int count(List<ItemStack> inventory, ItemStack item) {
         return inventory.stream()
             .filter(stack -> stack.is(item.getItem()))
             .mapToInt(ItemStack::getCount)

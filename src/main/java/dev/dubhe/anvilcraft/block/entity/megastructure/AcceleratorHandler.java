@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.block.entity.megastructure;
 
+import com.mojang.serialization.MapCodec;
 import dev.dubhe.anvilcraft.block.entity.CelestialForgingAnvilBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.celestial.CelestialBodyClass;
 import dev.dubhe.anvilcraft.block.entity.celestial.CelestialBodyData;
@@ -17,6 +18,7 @@ import dev.dubhe.anvilcraft.block.entity.celestial.StellarTrackLibrary;
 import dev.dubhe.anvilcraft.block.entity.celestial.StellarVisualState;
 import dev.dubhe.anvilcraft.init.ModMegastructures;
 import dev.dubhe.anvilcraft.network.QuenchedOutMusicPacket;
+import dev.dubhe.anvilcraft.network.ScreenShakePacket;
 import dev.dubhe.anvilcraft.util.TriggerUtil;
 import lombok.Getter;
 import net.minecraft.core.HolderLookup;
@@ -25,6 +27,9 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.jspecify.annotations.Nullable;
 
@@ -555,14 +560,14 @@ public class AcceleratorHandler extends BaseMegastructureHandler {
             PacketDistributor.sendToPlayersTrackingChunk(
                 serverLevel,
                 ChunkPos.containing(be.getBlockPos()),
-                dev.dubhe.anvilcraft.network.ScreenShakePacket.of(
-                    new net.minecraft.world.phys.Vec3(
+                ScreenShakePacket.of(
+                    new Vec3(
                         be.getBlockPos().getX() + 0.5,
                         be.getBodyCenterWorldY(),
                         be.getBlockPos().getZ() + 0.5
                     ),
                     SUPERNOVA_SHAKE_RADIUS,
-                    dev.dubhe.anvilcraft.network.ScreenShakePacket.ShakeType.SUPERNOVA
+                    ScreenShakePacket.ShakeType.SUPERNOVA
                 )
             );
         }
@@ -754,15 +759,15 @@ public class AcceleratorHandler extends BaseMegastructureHandler {
     }
 
     @Override
-    public void saveAdditional(net.minecraft.world.level.storage.ValueOutput output) {
+    public void saveAdditional(ValueOutput output) {
         CompoundTag tag = new CompoundTag();
         this.saveState(tag);
         output.store(tag);
     }
 
     @Override
-    public void loadAdditional(net.minecraft.world.level.storage.ValueInput input) {
-        this.loadState(input.read(com.mojang.serialization.MapCodec.assumeMapUnsafe(CompoundTag.CODEC)).orElseGet(CompoundTag::new));
+    public void loadAdditional(ValueInput input) {
+        this.loadState(input.read(MapCodec.assumeMapUnsafe(CompoundTag.CODEC)).orElseGet(CompoundTag::new));
     }
 
     private void saveState(CompoundTag tag) {

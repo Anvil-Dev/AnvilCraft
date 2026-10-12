@@ -12,6 +12,7 @@ import net.minecraft.client.renderer.rendertype.RenderSetup;
 import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.rendertype.TextureTransform;
 import net.minecraft.util.ARGB;
+import net.minecraft.util.ColorRGBA;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
@@ -81,7 +82,7 @@ public class CelestialBodyRenderer {
     }
 
     /** 获取指定温度对应的大气层颜色。 */
-    public static float[] getAtmosphereColor(net.minecraft.util.ColorRGBA color) {
+    public static float[] getAtmosphereColor(ColorRGBA color) {
         int rgb = color.rgba();
         return new float[]{((rgb >> 16) & 255) / 255.0F, ((rgb >> 8) & 255) / 255.0F, (rgb & 255) / 255.0F};
     }

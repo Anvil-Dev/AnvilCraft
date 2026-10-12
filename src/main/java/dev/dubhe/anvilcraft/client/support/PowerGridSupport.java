@@ -12,6 +12,7 @@ import dev.dubhe.anvilcraft.constant.Constant;
 import dev.dubhe.anvilcraft.network.PowerGridSyncChunkPacket;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.world.phys.Vec3;
 
@@ -67,7 +68,7 @@ public class PowerGridSupport {
 
     private static void submitTransmitterLines(
         PoseStack poseStack, SubmitNodeCollector collector, Vec3 camera,
-        net.minecraft.client.renderer.rendertype.RenderType renderType
+        RenderType renderType
     ) {
         if (!AnvilCraftClient.CONFIG.renderPowerTransmitterLines || Minecraft.getInstance().level == null) return;
         String level = Minecraft.getInstance().level.dimension().identifier().toString();

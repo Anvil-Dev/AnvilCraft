@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Function;
 
 public final class StorageTerminalClientStub {
     private static final Map<UUID, CompletableFuture<Long>> VIRTUAL_POSITIONS = new HashMap<>();
@@ -102,7 +103,7 @@ public final class StorageTerminalClientStub {
             Minecraft.getInstance().player.getUUID(), target, menuSlot, extract, expected, terminal);
     }
 
-    private static <T> CompletableFuture<T> invoke(UUID target, java.util.function.Function<Long, CompletableFuture<T>> operation) {
+    private static <T> CompletableFuture<T> invoke(UUID target, Function<Long, CompletableFuture<T>> operation) {
         CompletableFuture<Long> position = ensureVirtualPos(target);
         final int epoch = cacheEpoch;
         return position.thenComposeAsync(token -> {

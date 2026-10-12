@@ -33,17 +33,21 @@ import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.client.event.ModelEvent;
 import net.neoforged.neoforge.common.Tags;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import javax.annotation.Nullable;
 
 /** 阴影网格只保存模型面；几何复杂度受顶点预算限制，与屏幕上的像素数无关。 */
-@net.neoforged.fml.common.EventBusSubscriber(modid = "anvilcraft", value = net.neoforged.api.distmarker.Dist.CLIENT)
+@EventBusSubscriber(modid = "anvilcraft", value = Dist.CLIENT)
 final class MunShadowMesh implements AutoCloseable {
     private static final int MAX_MODEL_QUADS = 1024;
     private static final int[] TRIANGLE_INDICES = {0, 1, 2, 0, 2, 3};
@@ -150,8 +154,8 @@ final class MunShadowMesh implements AutoCloseable {
         return faces == 63;
     }
 
-    @net.neoforged.bus.api.SubscribeEvent
-    public static void reload(net.neoforged.neoforge.client.event.ModelEvent.BakingCompleted event) {
+    @SubscribeEvent
+    public static void reload(ModelEvent.BakingCompleted event) {
         clearCaches();
     }
 

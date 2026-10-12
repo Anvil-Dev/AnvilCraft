@@ -11,6 +11,7 @@ import dev.dubhe.anvilcraft.building.BlueprintNormalizer;
 import dev.dubhe.anvilcraft.building.ConstructionBlueprintException;
 import dev.dubhe.anvilcraft.building.StructureSnapshot;
 import dev.dubhe.anvilcraft.building.StructureSnapshotCodec;
+import dev.dubhe.anvilcraft.client.building.BlueprintClientFiles;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
@@ -163,7 +164,7 @@ public final class DiskDisplaySupport {
 
     @SubscribeEvent
     public static void logout(ClientPlayerNetworkEvent.LoggingOut event) {
-        dev.dubhe.anvilcraft.client.building.BlueprintClientFiles.clear();
+        BlueprintClientFiles.clear();
         PATTERNS.clear();
         RESULTS.invalidateAll();
         recipesLoaded = false;

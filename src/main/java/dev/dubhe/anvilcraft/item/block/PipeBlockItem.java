@@ -35,6 +35,8 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import org.jspecify.annotations.Nullable;
 
+import java.util.function.Supplier;
+
 /**
  * 管道放置物品，负责处理所有管道放置和连接的交互逻辑。
  *
@@ -52,13 +54,13 @@ import org.jspecify.annotations.Nullable;
  * 点击弯管时会根据弯管状态和被点击面对弯管进行转换（→直管/节点/旋转）。
  */
 public class PipeBlockItem extends Item implements IBlockItem {
-    private final java.util.function.Supplier<PipeStraightBlock> straightBlock;
+    private final Supplier<PipeStraightBlock> straightBlock;
 
     public PipeBlockItem(Properties properties) {
         this(properties, ModBlocks.PIPE_STRAIGHT);
     }
 
-    public PipeBlockItem(Properties properties, java.util.function.Supplier<PipeStraightBlock> straightBlock) {
+    public PipeBlockItem(Properties properties, Supplier<PipeStraightBlock> straightBlock) {
         super(properties);
         this.straightBlock = straightBlock;
     }

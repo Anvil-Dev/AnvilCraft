@@ -103,6 +103,7 @@ import dev.dubhe.anvilcraft.block.entity.storage.HyperdimensionStorageStationBlo
 import dev.dubhe.anvilcraft.block.entity.storage.LargeCrateBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.storage.ShulkerContainerBlockEntity;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.AdvancedComparatorRenderer;
+import dev.dubhe.anvilcraft.client.renderer.blockentity.AutoEnchantingTableBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.BatchCraftingRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.BigRedButtonBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.CFARenderer;
@@ -158,7 +159,7 @@ public class ModBlockEntities {
         "auto_enchanting_table",
         AutoEnchantingTableBlockEntity::createBlockEntity
     ).validBlock(ModBlocks.AUTO_ENCHANTING_TABLE)
-        .renderer(() -> dev.dubhe.anvilcraft.client.renderer.blockentity.AutoEnchantingTableBlockEntityRenderer::new)
+        .renderer(() -> AutoEnchantingTableBlockEntityRenderer::new)
         .register();
 
     public static final BlockEntityEntry<BatchCrafterBlockEntity> BATCH_CRAFTER = REGISTRUM

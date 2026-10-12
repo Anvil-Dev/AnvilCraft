@@ -15,11 +15,11 @@ import net.minecraft.client.resources.model.sprite.SpriteId;
 import net.minecraft.resources.Identifier;
 import org.joml.Matrix4f;
 import org.joml.Matrix4fc;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-import javax.annotation.Nullable;
 
 /** 用原版顶点颜色与贴图 shader 绘制月球天空，不分配专用 framebuffer 或 shader。 */
 final class MunVanillaSkyRenderer {

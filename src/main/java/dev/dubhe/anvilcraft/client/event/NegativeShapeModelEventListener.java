@@ -7,6 +7,7 @@ import net.minecraft.client.renderer.block.BlockAndTintGetter;
 import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
 import net.minecraft.client.renderer.block.dispatch.BlockStateModelPart;
 import net.minecraft.client.resources.model.geometry.BakedQuad;
+import net.minecraft.client.resources.model.sprite.Material;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -202,7 +203,7 @@ public class NegativeShapeModelEventListener {
         }
 
         @Override
-        public net.minecraft.client.resources.model.sprite.Material.Baked particleMaterial() {
+        public Material.Baked particleMaterial() {
             return this.originalPart.particleMaterial();
         }
 

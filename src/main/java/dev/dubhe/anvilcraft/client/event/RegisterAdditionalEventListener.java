@@ -26,6 +26,7 @@ import dev.dubhe.anvilcraft.client.renderer.blockentity.SmartBlockPlacerRenderer
 import dev.dubhe.anvilcraft.client.renderer.blockentity.StampingPlatformBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.VoidEnergyCollectorRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.WipBlockEntityRenderer;
+import dev.dubhe.anvilcraft.client.renderer.item.CelestialForgingAnvilItemRenderer;
 import dev.dubhe.anvilcraft.client.renderer.item.CrabClawItemInHandRenderer;
 import dev.dubhe.anvilcraft.client.renderer.item.CreativeCrateItemRenderer;
 import dev.dubhe.anvilcraft.client.renderer.item.CreativeFluidTankItemRenderer;
@@ -40,6 +41,8 @@ import dev.dubhe.anvilcraft.client.renderer.item.SpectralSlingshotRenderer;
 import dev.dubhe.anvilcraft.client.renderer.item.SpectralWeaponLauncherRenderer;
 import dev.dubhe.anvilcraft.client.renderer.item.StorageFluidPortItemRenderer;
 import dev.dubhe.anvilcraft.client.renderer.item.StoragePortItemRenderer;
+import dev.dubhe.anvilcraft.client.support.ProcessOverlayRenderer;
+import dev.dubhe.anvilcraft.client.support.TransparentItemRenderer;
 import dev.dubhe.anvilcraft.init.registry.ModRegistries;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.Identifier;
@@ -386,7 +389,7 @@ public class RegisterAdditionalEventListener {
     @SubscribeEvent
     public static void registerSpecialRenderers(RegisterSpecialModelRendererEvent event) {
         event.register(AnvilCraft.of("celestial_forging_anvil"),
-            dev.dubhe.anvilcraft.client.renderer.item.CelestialForgingAnvilItemRenderer.Unbaked.CODEC);
+            CelestialForgingAnvilItemRenderer.Unbaked.CODEC);
         event.register(AnvilCraft.of("filter"), FilterItemRenderer.Unbaked.CODEC);
         event.register(AnvilCraft.of("disk"), DiskItemRenderer.Unbaked.CODEC);
         event.register(AnvilCraft.of("spectral_slingshot"), SpectralSlingshotRenderer.Unbaked.CODEC);
@@ -407,9 +410,9 @@ public class RegisterAdditionalEventListener {
     public static void registerPictureInPictureRenderers(RegisterPictureInPictureRenderersEvent event) {
         event.register(CfaPreviewPipRenderer.State.class, CfaPreviewPipRenderer::new);
         event.register(SmartPlacerPreviewRenderer.State.class, SmartPlacerPreviewRenderer::new);
-        event.register(dev.dubhe.anvilcraft.client.support.ProcessOverlayRenderer.State.class,
-            dev.dubhe.anvilcraft.client.support.ProcessOverlayRenderer::new);
-        event.register(dev.dubhe.anvilcraft.client.support.TransparentItemRenderer.State.class,
-            dev.dubhe.anvilcraft.client.support.TransparentItemRenderer::new);
+        event.register(ProcessOverlayRenderer.State.class,
+            ProcessOverlayRenderer::new);
+        event.register(TransparentItemRenderer.State.class,
+            TransparentItemRenderer::new);
     }
 }

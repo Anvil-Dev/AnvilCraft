@@ -9,7 +9,7 @@ import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
-import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NonNull;
 import top.theillusivec4.curios.api.client.ICurioRenderer;
 
 @Integration(value = "curios", type = IntegrationType.CLIENT)
@@ -28,7 +28,7 @@ public class CuriosClient {
         ICurioRenderer.register(ModItems.TRANSCENDENCE_ANVIL_HAMMER.get(), GogglesCurioRenderer::new);
     }
 
-    private void onLayerRegister(final EntityRenderersEvent.@NotNull RegisterLayerDefinitions event) {
+    private void onLayerRegister(final EntityRenderersEvent.@NonNull RegisterLayerDefinitions event) {
         event.registerLayerDefinition(
             GogglesCurioRenderer.LAYER,
             () -> LayerDefinition.create(GogglesCurioRenderer.mesh(), 1, 1)

@@ -6,7 +6,9 @@ import dev.anvilcraft.lib.v2.config.CollapsibleObject;
 import dev.anvilcraft.lib.v2.config.Comment;
 import dev.anvilcraft.lib.v2.config.Config;
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.block.cauldron.FireCauldronBlock;
 import net.neoforged.fml.config.ModConfig;
+import net.neoforged.neoforge.fluids.FluidType;
 
 @Config(name = AnvilCraft.MOD_ID, type = ModConfig.Type.SERVER)
 public class AnvilCraftServerConfig {
@@ -44,7 +46,7 @@ public class AnvilCraftServerConfig {
     public int plasmaJetsMaxDuration = 10 * 60 * 20;
 
     @Comment("Amount of fuel consumed per cycle by Plasma Jets based on Cauldrons (in Layer)")
-    @BoundedDiscrete(min = 1, max = dev.dubhe.anvilcraft.block.cauldron.FireCauldronBlock.MAX_LEVEL)
+    @BoundedDiscrete(min = 1, max = FireCauldronBlock.MAX_LEVEL)
     public int plasmaJetsCauldronConsumeAmount = 1;
 
     @Comment("Extended duration of a single consumption of Plasma Jets based on Cauldrons (in ticks)")
@@ -52,7 +54,7 @@ public class AnvilCraftServerConfig {
     public int plasmaJetsCauldronExtraDuration = 5 * 60 * 20;
 
     @Comment("Amount of fuel consumed per cycle by Plasma Jets based on Fish Tanks (in mB)")
-    @BoundedDiscrete(min = 1, max = net.neoforged.neoforge.fluids.FluidType.BUCKET_VOLUME)
+    @BoundedDiscrete(min = 1, max = FluidType.BUCKET_VOLUME)
     public int plasmaJetsFishTankConsumeAmount = 1;
 
     @Comment("Extended duration of a single consumption of Plasma Jets based on Fish Tanks (in ticks)")

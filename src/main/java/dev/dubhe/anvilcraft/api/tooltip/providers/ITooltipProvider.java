@@ -1,7 +1,6 @@
 package dev.dubhe.anvilcraft.api.tooltip.providers;
 
 import com.google.errorprone.annotations.DoNotCall;
-import com.mojang.logging.annotations.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -26,7 +25,6 @@ public interface ITooltipProvider<T> {
 
     int priority();
 
-    @MethodsReturnNonnullByDefault
     abstract class BlockTooltipProvider implements ITooltipProvider<Triple<Level, BlockPos, BlockState>> {
         public BlockTooltipProvider() {
         }
@@ -59,7 +57,6 @@ public interface ITooltipProvider<T> {
         public abstract int priority();
     }
 
-    @MethodsReturnNonnullByDefault
     abstract class BlockEntityTooltipProvider implements ITooltipProvider<BlockEntity> {
         public BlockEntityTooltipProvider() {
         }

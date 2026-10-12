@@ -249,6 +249,7 @@ import dev.dubhe.anvilcraft.client.renderer.item.FluidTankItemRenderer;
 import dev.dubhe.anvilcraft.client.renderer.item.HasMobBlockItemRenderer;
 import dev.dubhe.anvilcraft.client.renderer.item.LargeFluidTankItemRenderer;
 import dev.dubhe.anvilcraft.client.renderer.item.MonolithItemRenderer;
+import dev.dubhe.anvilcraft.client.renderer.item.RuinsBlockItemRenderer;
 import dev.dubhe.anvilcraft.client.renderer.item.SmartBlockPlacerItemModel;
 import dev.dubhe.anvilcraft.client.renderer.item.StorageFluidPortItemRenderer;
 import dev.dubhe.anvilcraft.client.renderer.item.StoragePortItemRenderer;
@@ -316,6 +317,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.TagKey;
@@ -364,6 +366,7 @@ import net.minecraft.world.level.storage.loot.predicates.LootItemRandomChanceWit
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import net.neoforged.neoforge.common.Tags;
 
+import java.util.Optional;
 import java.util.function.Supplier;
 
 import static dev.dubhe.anvilcraft.AnvilCraft.REGISTRUM;
@@ -2425,7 +2428,7 @@ public class ModBlocks {
                 RegistrumItemModelGenerator generator
             ) {
                 DataGenUtil.<RuinsBlockItem>specialItem(
-                    dev.dubhe.anvilcraft.client.renderer.item.RuinsBlockItemRenderer.Unbaked.INSTANCE,
+                    RuinsBlockItemRenderer.Unbaked.INSTANCE,
                     false
                 ).accept(ctx, generator);
             }
@@ -5399,8 +5402,8 @@ public class ModBlocks {
         .initialProperties(() -> Blocks.REINFORCED_DEEPSLATE)
         .properties(properties -> properties.pushReaction(PushReaction.BLOCK))
         .tag(BlockTags.WITHER_IMMUNE, BlockTags.DRAGON_IMMUNE)
-        .properties(properties -> properties.overrideLootTable(java.util.Optional.of(net.minecraft.resources.ResourceKey.create(
-            net.minecraft.core.registries.Registries.LOOT_TABLE, AnvilCraft.of("blocks/monolith")))))
+        .properties(properties -> properties.overrideLootTable(Optional.of(ResourceKey.create(
+            Registries.LOOT_TABLE, AnvilCraft.of("blocks/monolith")))))
         .lang("Monolith")
         .blockstate(DataGenUtil::noExtraModelOrState)
         .loot((tables, block) -> tables.add(block, LootTable.lootTable()
@@ -5423,8 +5426,8 @@ public class ModBlocks {
         .properties(properties -> properties.pushReaction(PushReaction.BLOCK))
         .tag(BlockTags.WITHER_IMMUNE, BlockTags.DRAGON_IMMUNE)
         .properties(properties -> properties.lightLevel(state -> 10).noOcclusion())
-        .properties(properties -> properties.overrideLootTable(java.util.Optional.of(net.minecraft.resources.ResourceKey.create(
-            net.minecraft.core.registries.Registries.LOOT_TABLE, AnvilCraft.of("blocks/monolith_core")))))
+        .properties(properties -> properties.overrideLootTable(Optional.of(ResourceKey.create(
+            Registries.LOOT_TABLE, AnvilCraft.of("blocks/monolith_core")))))
         .lang("Monolith Core")
         .blockstate(DataGenUtil::noExtraModelOrState)
         .item()
@@ -5446,8 +5449,8 @@ public class ModBlocks {
         .properties(properties -> properties.pushReaction(PushReaction.BLOCK))
         .tag(BlockTags.WITHER_IMMUNE, BlockTags.DRAGON_IMMUNE)
         .properties(properties -> properties.lightLevel(state -> 10).noOcclusion())
-        .properties(properties -> properties.overrideLootTable(java.util.Optional.of(net.minecraft.resources.ResourceKey.create(
-            net.minecraft.core.registries.Registries.LOOT_TABLE, AnvilCraft.of("blocks/monolith_line")))))
+        .properties(properties -> properties.overrideLootTable(Optional.of(ResourceKey.create(
+            Registries.LOOT_TABLE, AnvilCraft.of("blocks/monolith_line")))))
         .lang("Monolith Line")
         .blockstate(DataGenUtil::noExtraModelOrState)
         .item()
@@ -5473,8 +5476,8 @@ public class ModBlocks {
         .tag(BlockTags.WITHER_IMMUNE, BlockTags.DRAGON_IMMUNE)
         .loot(SimpleMultiPartBlock::loot)
         .properties(properties -> properties.lightLevel(state -> 10).noOcclusion().noCollision())
-        .properties(properties -> properties.overrideLootTable(java.util.Optional.of(net.minecraft.resources.ResourceKey.create(
-            net.minecraft.core.registries.Registries.LOOT_TABLE, AnvilCraft.of("blocks/giant_monolith_core")))))
+        .properties(properties -> properties.overrideLootTable(Optional.of(ResourceKey.create(
+            Registries.LOOT_TABLE, AnvilCraft.of("blocks/giant_monolith_core")))))
         .lang("Giant Monolith Core")
         .item(SimpleMultiPartBlockItem<Cube3x3PartHalf>::new)
         .transform(PropertiesProviderUtil::blockItem)
@@ -5500,8 +5503,8 @@ public class ModBlocks {
         .properties(properties -> properties.pushReaction(PushReaction.BLOCK))
         .tag(BlockTags.WITHER_IMMUNE, BlockTags.DRAGON_IMMUNE)
         .properties(properties -> properties.lightLevel(state -> 10).noOcclusion().noCollision())
-        .properties(properties -> properties.overrideLootTable(java.util.Optional.of(net.minecraft.resources.ResourceKey.create(
-            net.minecraft.core.registries.Registries.LOOT_TABLE, AnvilCraft.of("blocks/giant_monolith_line")))))
+        .properties(properties -> properties.overrideLootTable(Optional.of(ResourceKey.create(
+            Registries.LOOT_TABLE, AnvilCraft.of("blocks/giant_monolith_line")))))
         .lang("Giant Monolith Line")
         .blockstate(DataGenUtil::noExtraModelOrState)
         .item()

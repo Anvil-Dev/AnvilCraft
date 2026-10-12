@@ -12,6 +12,7 @@ import org.jspecify.annotations.Nullable;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -44,7 +45,7 @@ public final class StellarTrackLibrary {
 
     public static List<StellarTrack> tracks() {
         return library.tracks().values().stream()
-            .sorted(java.util.Comparator.comparingInt(track -> track.definition().massAnvils())).toList();
+            .sorted(Comparator.comparingInt(track -> track.definition().massAnvils())).toList();
     }
 
     public static Map<String, StellarEventProfile> eventProfiles() {

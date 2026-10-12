@@ -6,21 +6,30 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.network.Filterable;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.component.WrittenBookContent;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.entity.EntityTypeTest;
+import net.minecraft.world.phys.AABB;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * 结构材料清单书生成工具
@@ -81,7 +90,7 @@ public class StructureBookUtil {
         }
 
         // 生成书页内容
-        java.util.List<net.minecraft.server.network.Filterable<Component>> pages = new java.util.ArrayList<>();
+        List<Filterable<Component>> pages = new ArrayList<>();
 
         // 第一页开始: 材料详情(只显示缺失的)
         Component currentPage = Component.translatable("book.anvilcraft.material_list.missing_header");
@@ -119,7 +128,7 @@ public class StructureBookUtil {
 
                 // 检查是否需要分页(每页约14行)
                 if (lineCount >= 13) {
-                    pages.add(new net.minecraft.server.network.Filterable<>(currentPage, java.util.Optional.empty()));
+                    pages.add(new Filterable<>(currentPage, Optional.empty()));
                     currentPage = Component.literal("");
                     lineCount = 0;
                 }
@@ -131,7 +140,7 @@ public class StructureBookUtil {
 
         // 添加最后一页（只有当有缺失内容时才添加）
         if (hasMissingContent && lineCount > 0) {
-            pages.add(new net.minecraft.server.network.Filterable<>(currentPage, java.util.Optional.empty()));
+            pages.add(new Filterable<>(currentPage, Optional.empty()));
         }
 
         // 如果pages为空（所有需要的方块都有足够存量），输出普通的书
@@ -146,8 +155,8 @@ public class StructureBookUtil {
 
         // 设置书的专用组件
         final ItemStack writtenBook = new ItemStack(Items.WRITTEN_BOOK);
-        var bookContent = new net.minecraft.world.item.component.WrittenBookContent(
-            new net.minecraft.server.network.Filterable<>("Material List", java.util.Optional.empty()),  // resolved title
+        var bookContent = new WrittenBookContent(
+            new Filterable<>("Material List", Optional.empty()),  // resolved title
             "Smart Block Placer",  // owner
             0,  // generation
             pages,  // pages
@@ -223,11 +232,11 @@ public class StructureBookUtil {
     private static int countBlockInContainer(Level level, BlockPos placerPos, Block targetBlock) {
         // 获取放置器朝向
         BlockState state = level.getBlockState(placerPos);
-        if (!state.hasProperty(net.minecraft.world.level.block.HorizontalDirectionalBlock.FACING)) {
+        if (!state.hasProperty(HorizontalDirectionalBlock.FACING)) {
             return 0;
         }
 
-        Direction facing = state.getValue(net.minecraft.world.level.block.HorizontalDirectionalBlock.FACING);
+        Direction facing = state.getValue(HorizontalDirectionalBlock.FACING);
         BlockPos inputPos = placerPos.relative(facing.getOpposite());
 
         int count = 0;
@@ -247,14 +256,14 @@ public class StructureBookUtil {
         }
 
         // 检查掉落物实体
-        net.minecraft.world.phys.AABB aabb = new net.minecraft.world.phys.AABB(inputPos);
-        java.util.List<net.minecraft.world.entity.item.ItemEntity> entities = level.getEntities(
-            EntityTypeTest.forClass(net.minecraft.world.entity.item.ItemEntity.class),
+        AABB aabb = new AABB(inputPos);
+        List<ItemEntity> entities = level.getEntities(
+            EntityTypeTest.forClass(ItemEntity.class),
             aabb,
-            net.minecraft.world.entity.Entity::isAlive
+            Entity::isAlive
         );
 
-        for (net.minecraft.world.entity.item.ItemEntity entity : entities) {
+        for (ItemEntity entity : entities) {
             ItemStack stack = entity.getItem();
             if (!stack.isEmpty() && stack.getItem() instanceof BlockItem blockItem) {
                 if (blockItem.getBlock() == targetBlock) {
@@ -272,11 +281,11 @@ public class StructureBookUtil {
     private static int countBlockAtSourcePosition(Level level, BlockPos placerPos, Block targetBlock) {
         // 获取放置器朝向
         BlockState state = level.getBlockState(placerPos);
-        if (!state.hasProperty(net.minecraft.world.level.block.HorizontalDirectionalBlock.FACING)) {
+        if (!state.hasProperty(HorizontalDirectionalBlock.FACING)) {
             return 0;
         }
 
-        Direction facing = state.getValue(net.minecraft.world.level.block.HorizontalDirectionalBlock.FACING);
+        Direction facing = state.getValue(HorizontalDirectionalBlock.FACING);
         BlockPos sourcePos = placerPos.relative(facing.getOpposite());
 
         // 检查源位置的方块是否匹配

@@ -15,10 +15,10 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.RegisterRenderPipelinesEvent;
 import org.joml.Vector3fc;
+import org.jspecify.annotations.Nullable;
 import org.lwjgl.opengl.GL20C;
 import org.lwjgl.system.MemoryStack;
 
-import javax.annotation.Nullable;
 
 /** Native shader ownership with direct uniform uploads for the integer shadow framebuffer. */
 @EventBusSubscriber(modid = AnvilCraft.MOD_ID, value = Dist.CLIENT)

@@ -15,6 +15,7 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.Util;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.ArrayList;
@@ -69,7 +70,7 @@ public class LevelLikeDisplaySupport {
             for (int z = 0; z < data.grid()[y].length; z++) {
                 for (int x = 0; x < data.grid()[y][z].length(); x++) {
                     var predicate = data.mapping().get(data.grid()[y][z].charAt(x));
-                    var state = predicate == null ? net.minecraft.world.level.block.Blocks.AIR.defaultBlockState()
+                    var state = predicate == null ? Blocks.AIR.defaultBlockState()
                         : MultiblockUtil.getDefaultState(predicate);
                     var pos = new BlockPos(x, y, z);
                     levelLike.setBlockState(pos, state);

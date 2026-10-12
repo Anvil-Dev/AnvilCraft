@@ -5,9 +5,11 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /** 数据驱动的恒星演化轨道。 */
@@ -206,7 +208,7 @@ public final class StellarTrack {
     /** 检查阶段顺序和数值约束，资源重载时调用。 */
     public void validate() {
         if (this.trackId.isBlank()) throw new IllegalArgumentException("恒星轨道 ID 不能为空");
-        java.util.Set<String> nodeIds = new java.util.HashSet<>();
+        Set<String> nodeIds = new HashSet<>();
         for (PhaseNode node : this.phaseNodes) {
             if (node.nodeId().isBlank() || !nodeIds.add(node.nodeId()) || node.dynamics().points().isEmpty()) {
                 throw new IllegalArgumentException("Missing or duplicate stellar node ID/curve: " + this.trackId);

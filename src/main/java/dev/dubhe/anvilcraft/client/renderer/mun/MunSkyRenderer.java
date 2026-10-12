@@ -21,14 +21,15 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.CustomSkyboxRenderer;
+import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
 import net.neoforged.neoforge.client.event.ExtractLevelRenderStateEvent;
 import net.neoforged.neoforge.client.event.ModelEvent;
 import net.neoforged.neoforge.client.event.RegisterCustomEnvironmentEffectRendererEvent;
+import net.neoforged.neoforge.event.GameShuttingDownEvent;
 import org.joml.Matrix4f;
 import org.joml.Matrix4fc;
 import org.joml.Vector4f;
-
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 @EventBusSubscriber(modid = AnvilCraft.MOD_ID, value = Dist.CLIENT)
 public final class MunSkyRenderer implements CustomSkyboxRenderer {
@@ -59,12 +60,12 @@ public final class MunSkyRenderer implements CustomSkyboxRenderer {
     }
 
     @SubscribeEvent
-    public static void shutdown(net.neoforged.neoforge.event.GameShuttingDownEvent event) {
+    public static void shutdown(GameShuttingDownEvent event) {
         closeBuffers();
     }
 
     @SubscribeEvent
-    public static void logout(net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent.LoggingOut event) {
+    public static void logout(ClientPlayerNetworkEvent.LoggingOut event) {
         MunClientSky.clear();
     }
 

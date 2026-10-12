@@ -21,16 +21,19 @@ import dev.dubhe.anvilcraft.block.entity.celestial.RingType;
 import dev.dubhe.anvilcraft.block.entity.celestial.RockyPlanetData;
 import dev.dubhe.anvilcraft.block.entity.celestial.SpecialCelestialBodyData;
 import dev.dubhe.anvilcraft.block.entity.celestial.StarData;
+import dev.dubhe.anvilcraft.block.entity.celestial.StellarVisualState;
 import dev.dubhe.anvilcraft.client.AnvilCraftClient;
 import dev.dubhe.anvilcraft.client.init.ModRenderTypes;
 import dev.dubhe.anvilcraft.client.renderer.RenderState;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.celestial.CelestialBodyRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.celestial.CelestialBodyTextureBakery;
+import dev.dubhe.anvilcraft.client.renderer.blockentity.celestial.PlanetAtmosphereRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.celestial.StellarEmissionRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.celestial.StellarEnvelopeRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.celestial.StellarRadiance;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.state.CFARenderState;
 import dev.dubhe.anvilcraft.client.support.FeatureRendererSupport;
+import dev.dubhe.anvilcraft.config.AnvilCraftClientConfig;
 import dev.dubhe.anvilcraft.init.ModMegastructures;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.object.skull.SkullModelBase;
@@ -447,7 +450,7 @@ public class CFARenderer implements BlockEntityRenderer<CelestialForgingAnvilBlo
             float factor = neutron ? 0.406f : 1.54f * cubeRadius;
             if (emissive) {
                 float temperature = visual == null
-                    ? dev.dubhe.anvilcraft.block.entity.celestial.StellarVisualState.temperatureForSurfaceClass(
+                    ? StellarVisualState.temperatureForSurfaceClass(
                     star.bodyClass(), star.energy()) : visual.temperature();
                 float luminosity = visual == null ? Math.max(0.01f, star.energy() / 32.0f) : visual.luminosity();
                 float exposure = StellarRadiance.exposure(
@@ -486,7 +489,7 @@ public class CFARenderer implements BlockEntityRenderer<CelestialForgingAnvilBlo
         boolean atmosphere = body instanceof RockyPlanetData rocky && rocky.hasAtmosphere();
         if (atmosphere) {
             boolean vanilla = AnvilCraft.CLIENT_CONFIG.planetAtmosphereRenderingMode
-                == dev.dubhe.anvilcraft.config.AnvilCraftClientConfig.CelestialRenderingMode.VANILLA;
+                == AnvilCraftClientConfig.CelestialRenderingMode.VANILLA;
             factor = vanilla ? cubeRadius * 1.125f : (float) Math.sqrt(3) * 0.6875f;
         }
         if (body instanceof GiantPlanetData giant && giant.brownDwarf()) {
@@ -1121,7 +1124,7 @@ public class CFARenderer implements BlockEntityRenderer<CelestialForgingAnvilBlo
                     this.tessellateModel(state.getComplexBodyModel(), pose, collector);
                 }
                 if (special.atmosphereColor() != null) {
-                    dev.dubhe.anvilcraft.client.renderer.blockentity.celestial.PlanetAtmosphereRenderer.submit(
+                    PlanetAtmosphereRenderer.submit(
                         pose, collector, CelestialBodyRenderer.getAtmosphereColor(special.atmosphereColor()));
                 }
             }
@@ -1338,7 +1341,7 @@ public class CFARenderer implements BlockEntityRenderer<CelestialForgingAnvilBlo
             atmosphere = CelestialBodyRenderer.getAtmosphereColor(special.atmosphereColor());
         }
         if (atmosphere != null) {
-            dev.dubhe.anvilcraft.client.renderer.blockentity.celestial.PlanetAtmosphereRenderer.submit(
+            PlanetAtmosphereRenderer.submit(
                 pose,
                 collector,
                 atmosphere

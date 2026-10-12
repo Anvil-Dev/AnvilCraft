@@ -63,6 +63,7 @@ import dev.dubhe.anvilcraft.integration.jei.recipe.MobTransformJeiRecipe;
 import dev.dubhe.anvilcraft.integration.jei.recipe.UseItemOnBlockRecipe;
 import dev.dubhe.anvilcraft.integration.jei.transfer.SmithingRecipeTransferHandler;
 import dev.dubhe.anvilcraft.integration.jei.transfer.StructureScannerRecipeTransferHandler;
+import dev.dubhe.anvilcraft.integration.jei.util.PocketGuiHandler;
 import dev.dubhe.anvilcraft.recipe.CanningFoodRecipe;
 import dev.dubhe.anvilcraft.recipe.ChargerChargingRecipe;
 import dev.dubhe.anvilcraft.recipe.EnergyWeaponMakeRecipe;
@@ -110,6 +111,8 @@ import mezz.jei.api.runtime.IClickableIngredient;
 import mezz.jei.api.runtime.IJeiRuntime;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
+import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.client.renderer.Rect2i;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
@@ -342,10 +345,10 @@ public class AnvilCraftJeiPlugin implements IModPlugin {
 
     @Override
     public void registerGuiHandlers(IGuiHandlerRegistration registration) {
-        registration.addGuiContainerHandler(net.minecraft.client.gui.screens.inventory.InventoryScreen.class,
-            new dev.dubhe.anvilcraft.integration.jei.util.PocketGuiHandler<>());
-        registration.addGuiContainerHandler(net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen.class,
-            new dev.dubhe.anvilcraft.integration.jei.util.PocketGuiHandler<>());
+        registration.addGuiContainerHandler(InventoryScreen.class,
+            new PocketGuiHandler<>());
+        registration.addGuiContainerHandler(CreativeModeInventoryScreen.class,
+            new PocketGuiHandler<>());
         registration.addGuiScreenHandler(
             StorageScreen.class,
             screen -> screen.width > 0 && screen.height > 0 ? new IGuiProperties() {

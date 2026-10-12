@@ -14,6 +14,8 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Leashable;
 import net.minecraft.world.entity.decoration.LeashFenceKnotEntity;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Mirror;
+import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.storage.TagValueInput;
 import net.minecraft.world.phys.AABB;
 import org.jspecify.annotations.Nullable;
@@ -70,8 +72,8 @@ final class BlueprintLeashes {
             CompoundTag normalized = EntityBuildAdapters.normalizeType(tag);
             if (normalized.contains("Leash") && !normalized.contains(Leashable.LEASH_TAG)) {
                 transform(normalized, BlockPos.ZERO,
-                    new BlueprintPlacement(BlockPos.ZERO, net.minecraft.world.level.block.Rotation.NONE,
-                        net.minecraft.world.level.block.Mirror.NONE));
+                    new BlueprintPlacement(BlockPos.ZERO, Rotation.NONE,
+                        Mirror.NONE));
             }
             return EntityType.create(TagValueInput.create(ProblemReporter.DISCARDING, level.registryAccess(), normalized),
                 level, EntitySpawnReason.LOAD).orElse(null);

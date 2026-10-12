@@ -5,6 +5,7 @@ import com.mojang.serialization.DataResult;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 import java.util.List;
+import java.util.Locale;
 
 /** 新格式节点的曲线、脉冲与玩法策略。 */
 public record StellarNodeDynamics(
@@ -28,7 +29,7 @@ public record StellarNodeDynamics(
                 if (policy.name().equalsIgnoreCase(id)) return DataResult.success(policy);
             }
             return DataResult.error(() -> "Unknown stellar event policy: " + id);
-        }, policy -> policy.name().toLowerCase(java.util.Locale.ROOT));
+        }, policy -> policy.name().toLowerCase(Locale.ROOT));
 
         public boolean destructive() {
             return this == SUPERNOVA || this == PISN;

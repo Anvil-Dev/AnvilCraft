@@ -40,6 +40,7 @@ import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.shapes.BitSetDiscreteVoxelShape;
 import net.minecraft.world.phys.shapes.DiscreteVoxelShape;
+import net.neoforged.neoforge.common.Tags;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Arrays;
@@ -213,7 +214,7 @@ public class MultiblockConversionRecipe implements IMultiblockRecipe, IDatagen {
 
     @Override
     public boolean isValidCenterBlock(Level level, BlockPos pos, BlockState state) {
-        return state.is(net.neoforged.neoforge.common.Tags.Blocks.PLAYER_WORKSTATIONS_CRAFTING_TABLES);
+        return state.is(Tags.Blocks.PLAYER_WORKSTATIONS_CRAFTING_TABLES);
     }
 
     private static BlockPos rotatePos(BlockPos pos, int size, Rotation rotation) {

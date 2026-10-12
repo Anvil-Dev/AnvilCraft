@@ -35,6 +35,7 @@ import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import net.neoforged.neoforge.transfer.transaction.Transaction;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -48,7 +49,6 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.WeakHashMap;
 import java.util.function.BooleanSupplier;
-import javax.annotation.Nullable;
 
 /** 保留区域快照，撤销时按实际收回与恢复的资源结算。 */
 @EventBusSubscriber(modid = AnvilCraft.MOD_ID)

@@ -13,15 +13,21 @@ import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.NbtAccounter;
+import net.minecraft.nbt.NbtIo;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.saveddata.SavedDataType;
+import net.minecraft.world.level.storage.LevelResource;
 import net.neoforged.neoforge.server.ServerLifecycleHooks;
 import org.jspecify.annotations.Nullable;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -61,21 +67,21 @@ public class WormholeNetwork extends BetterSavedData {
 
     private static WormholeNetwork loadLegacy(@Nullable ServerLevel level) {
         if (level == null) return new WormholeNetwork();
-        var file = level.getServer().getWorldPath(net.minecraft.world.level.storage.LevelResource.ROOT)
+        var file = level.getServer().getWorldPath(LevelResource.ROOT)
             .resolve("data/anvilcraft_wormhole_network.dat");
         return loadLegacyFile(file);
     }
 
-    private static WormholeNetwork loadLegacyFile(java.nio.file.Path file) {
+    private static WormholeNetwork loadLegacyFile(Path file) {
         WormholeNetwork network = new WormholeNetwork();
         try {
-            if (java.nio.file.Files.exists(file)) {
-                network.readFromTag(net.minecraft.nbt.NbtIo.readCompressed(file, net.minecraft.nbt.NbtAccounter.unlimitedHeap())
+            if (Files.exists(file)) {
+                network.readFromTag(NbtIo.readCompressed(file, NbtAccounter.unlimitedHeap())
                     .getCompoundOrEmpty("data"));
                 network.setDirty();
             }
             return network;
-        } catch (java.io.IOException exception) {
+        } catch (IOException exception) {
             throw new IllegalStateException("Unable to migrate the legacy wormhole network", exception);
         }
     }

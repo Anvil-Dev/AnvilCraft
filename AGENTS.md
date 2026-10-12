@@ -22,6 +22,7 @@
   exception within the requested scope.
 - Prefer self-explanatory code and avoid comments that merely restate what the code already makes clear.
 - Keep text files UTF-8 encoded and preserve the existing line-ending style of files being edited.
+- FQCN is strictly prohibited, use import if possible.
 
 ## Nullness Annotations
 
@@ -34,6 +35,11 @@
   explicitly requests it.
 - These rules supersede conflicting nullness guidance in the "The use of various annotations" section of
   `CONTRIBUTING.md`.
+
+## Test Authoring
+
+- Do not add or expand automated tests unless the user explicitly requests them or a regression cannot be verified otherwise.
+  Prefer compilation and focused manual validation.
 
 ## Verification
 

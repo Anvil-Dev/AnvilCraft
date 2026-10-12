@@ -7,6 +7,7 @@ import dev.dubhe.anvilcraft.block.state.Cube3x3PartHalf;
 import dev.dubhe.anvilcraft.block.state.GiantAnvilCube;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
+import dev.dubhe.anvilcraft.recipe.sync.RecipesRecord;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
@@ -36,9 +37,9 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.phys.BlockHitResult;
+import org.jspecify.annotations.Nullable;
 
 import java.util.List;
-import javax.annotation.Nullable;
 
 /**
  * 巨型石碑芯（giant_monolith_core）：按 3x3x3 多方块落地（同巨型铁砧），
@@ -105,7 +106,7 @@ public class GiantMonolithCoreBlock extends SimpleMultiPartBlock<Cube3x3PartHalf
         if (!(level.getBlockEntity(mainPos) instanceof MonolithCoreBlockEntity core) || core.isCoolingDown()) {
             return InteractionResult.CONSUME;
         }
-        List<RecipeHolder<SpecialCelestialBodyRecipe>> recipes = dev.dubhe.anvilcraft.recipe.sync.RecipesRecord.getRecipes(serverLevel)
+        List<RecipeHolder<SpecialCelestialBodyRecipe>> recipes = RecipesRecord.getRecipes(serverLevel)
             .byType(ModRecipeTypes.SPECIAL_CELESTIAL_BODY.get()).stream()
             .filter(holder -> !holder.value().excludeFromMonolith())
             .toList();

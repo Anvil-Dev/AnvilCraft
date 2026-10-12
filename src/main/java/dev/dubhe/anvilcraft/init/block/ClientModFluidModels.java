@@ -2,29 +2,32 @@ package dev.dubhe.anvilcraft.init.block;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.state.Color;
+import dev.dubhe.anvilcraft.util.LiquidEnchantmentClientFluidTypeExtension;
 import net.minecraft.client.renderer.block.FluidModel;
 import net.minecraft.client.resources.model.sprite.Material;
 import net.minecraft.resources.Identifier;
+import net.minecraft.world.level.material.FluidState;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.RegisterFluidModelsEvent;
 import net.neoforged.neoforge.client.fluid.FluidTintSource;
+import net.neoforged.neoforge.fluids.FluidStack;
 
 @EventBusSubscriber(modid = AnvilCraft.MOD_ID, value = Dist.CLIENT)
 public class ClientModFluidModels {
     @SubscribeEvent
     public static void registerFluidModel(RegisterFluidModelsEvent event) {
         FluidTintSource tint = _ -> 0xFFFFFFFF;
-        var enchantmentColors = new dev.dubhe.anvilcraft.util.LiquidEnchantmentClientFluidTypeExtension();
+        var enchantmentColors = new LiquidEnchantmentClientFluidTypeExtension();
         FluidTintSource enchantmentTint = new FluidTintSource() {
             @Override
-            public int color(net.minecraft.world.level.material.FluidState state) {
+            public int color(FluidState state) {
                 return 0xFFFFFFFF;
             }
 
             @Override
-            public int colorAsStack(net.neoforged.neoforge.fluids.FluidStack stack) {
+            public int colorAsStack(FluidStack stack) {
                 return enchantmentColors.getTintColor(stack);
             }
         };

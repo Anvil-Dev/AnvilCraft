@@ -27,6 +27,7 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.util.LightCoordsUtil;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.DoorBlock;
 import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.RenderShape;
@@ -44,12 +45,12 @@ import java.util.function.BiConsumer;
 // TODO:
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class RenderSupport {
-    public static void renderItemWithTransparency(net.minecraft.world.item.ItemStack stack, GuiGraphicsExtractor graphics,
+    public static void renderItemWithTransparency(ItemStack stack, GuiGraphicsExtractor graphics,
                                                   int x, int y, float alpha) {
         TransparentItemRenderer.extract(stack, graphics, x, y, alpha);
     }
 
-    public static void renderSlotGhost(net.minecraft.world.item.ItemStack stack, GuiGraphicsExtractor graphics,
+    public static void renderSlotGhost(ItemStack stack, GuiGraphicsExtractor graphics,
                                        int x, int y, float alpha, int overlay) {
         TransparentItemRenderer.extract(stack, graphics, x, y, alpha, overlay);
     }

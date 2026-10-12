@@ -19,6 +19,8 @@ import net.minecraft.world.item.component.CustomModelData;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.Enchantments;
 
+import java.util.List;
+
 public abstract class EnergyWeaponItem extends Item implements ICapacitorChargeable {
     public static final int MAX_ENERGY = 640_000_000;
     private static final int FULL_BAR_COLOR = 0xFF5454FF;
@@ -106,7 +108,7 @@ public abstract class EnergyWeaponItem extends Item implements ICapacitorChargea
 
     protected static void setExhausted(ItemStack stack, boolean exhausted) {
         stack.set(DataComponents.CUSTOM_MODEL_DATA, exhausted
-            ? new CustomModelData(java.util.List.of(1F), java.util.List.of(), java.util.List.of(), java.util.List.of())
+            ? new CustomModelData(List.of(1F), List.of(), List.of(), List.of())
             : CustomModelData.EMPTY);
     }
 

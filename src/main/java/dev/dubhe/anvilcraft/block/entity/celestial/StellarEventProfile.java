@@ -4,6 +4,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.util.StringRepresentable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 import java.util.Objects;
@@ -51,7 +52,7 @@ public final class StellarEventProfile implements StringRepresentable {
             return this.id;
         }
 
-        @org.jspecify.annotations.Nullable
+        @Nullable
         private static RemnantKind fromId(String id) {
             if (id == null) return null;
             for (RemnantKind kind : values()) {

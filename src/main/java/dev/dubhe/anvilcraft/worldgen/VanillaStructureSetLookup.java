@@ -2,8 +2,13 @@ package dev.dubhe.anvilcraft.worldgen;
 
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.HolderSet;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.levelgen.structure.StructureSet;
+
+import java.util.Optional;
+import java.util.stream.Stream;
 
 public final class VanillaStructureSetLookup implements HolderLookup<StructureSet> {
     private final HolderLookup<StructureSet> parent;
@@ -13,24 +18,24 @@ public final class VanillaStructureSetLookup implements HolderLookup<StructureSe
     }
 
     @Override
-    public java.util.Optional<Holder.Reference<StructureSet>> get(ResourceKey<StructureSet> key) {
+    public Optional<Holder.Reference<StructureSet>> get(ResourceKey<StructureSet> key) {
         return this.parent.get(key).filter(VanillaStructureSetLookup::isVanillaOnly);
     }
 
     @Override
-    public java.util.Optional<net.minecraft.core.HolderSet.Named<StructureSet>> get(
-        net.minecraft.tags.TagKey<StructureSet> key
+    public Optional<HolderSet.Named<StructureSet>> get(
+        TagKey<StructureSet> key
     ) {
         return this.parent.get(key);
     }
 
     @Override
-    public java.util.stream.Stream<Holder.Reference<StructureSet>> listElements() {
+    public Stream<Holder.Reference<StructureSet>> listElements() {
         return this.parent.listElements().filter(VanillaStructureSetLookup::isVanillaOnly);
     }
 
     @Override
-    public java.util.stream.Stream<net.minecraft.core.HolderSet.Named<StructureSet>> listTags() {
+    public Stream<HolderSet.Named<StructureSet>> listTags() {
         return this.parent.listTags();
     }
 

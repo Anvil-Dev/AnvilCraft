@@ -21,6 +21,7 @@ import net.neoforged.neoforge.network.PacketDistributor;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
 
 public class RuinsBlockItem extends BlockItem {
     public RuinsBlockItem(Block block, Properties properties) {
@@ -37,7 +38,7 @@ public class RuinsBlockItem extends BlockItem {
         if (level.getBlockEntity(pos) instanceof RuinsBlockEntity ruins) {
             if (context.getPlayer().isShiftKeyDown() && context.getPlayer() instanceof ServerPlayer player) {
                 RuinsBlockEntity main = RuinsStructure.main(level, ruins);
-                List<String> ids = java.util.stream.Stream.concat(java.util.stream.Stream.of(RuinsBlockEntity.EMPTY_DROPS.identifier()),
+                List<String> ids = Stream.concat(Stream.of(RuinsBlockEntity.EMPTY_DROPS.identifier()),
                     player.level().getServer().reloadableRegistries().lookup().lookupOrThrow(Registries.LOOT_TABLE)
                         .listElementIds().map(key -> key.identifier())).map(Object::toString).distinct().sorted().toList();
                 PacketDistributor.sendToPlayer(player,

@@ -13,9 +13,9 @@ import mezz.jei.api.registration.IRecipeTransferRegistration;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.crafting.RecipeHolder;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Optional;
-import javax.annotation.Nullable;
 
 public final class StructureScannerRecipeTransferHandler<R extends RecipeHolder<?>>
     implements IRecipeTransferHandler<StructureScannerMenu, R> {

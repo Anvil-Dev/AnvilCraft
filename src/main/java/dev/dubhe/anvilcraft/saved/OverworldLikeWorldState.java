@@ -17,6 +17,9 @@ import net.minecraft.world.level.saveddata.SavedDataType;
 import net.minecraft.world.level.storage.LevelResource;
 import net.minecraft.world.level.storage.SavedDataStorage;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
@@ -55,16 +58,16 @@ public class OverworldLikeWorldState extends SavedData {
         return state;
     }
 
-    private static OverworldLikeWorldState loadLegacy(java.nio.file.Path worldRoot) {
+    private static OverworldLikeWorldState loadLegacy(Path worldRoot) {
         var file = worldRoot.resolve("data").resolve(DATA_ID + ".dat");
         try {
-            if (java.nio.file.Files.exists(file)) {
+            if (Files.exists(file)) {
                 var state = load(NbtIo.readCompressed(file, NbtAccounter.unlimitedHeap()).getCompoundOrEmpty("data"));
                 state.setDirty();
                 return state;
             }
             return new OverworldLikeWorldState();
-        } catch (java.io.IOException exception) {
+        } catch (IOException exception) {
             throw new IllegalStateException("Unable to migrate overworld-like runtime state", exception);
         }
     }

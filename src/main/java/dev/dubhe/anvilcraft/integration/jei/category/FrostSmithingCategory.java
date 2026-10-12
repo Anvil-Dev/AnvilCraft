@@ -40,6 +40,7 @@ import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.enchantment.Repairable;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -270,7 +271,7 @@ public class FrostSmithingCategory implements IRecipeCategory<FrostSmithingCateg
     public void setRecipe(IRecipeLayoutBuilder builder, Display display, IFocusGroup focuses) {
         builder.addSlot(RecipeIngredientRole.CRAFTING_STATION, 1, 10)
             .setStandardSlotBackground()
-            .addItemStacks(java.util.Arrays.stream(FrostSmithingCategory.templateOf(display.recipe()).getItems())
+            .addItemStacks(Arrays.stream(FrostSmithingCategory.templateOf(display.recipe()).getItems())
                 .map(ItemStackTemplate::create).toList())
             .addRichTooltipCallback((slot, tooltip) -> tooltip.add(
                 Component.translatable("jei.anvilcraft.tooltip.not_consumed").withStyle(ChatFormatting.GOLD)

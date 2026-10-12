@@ -23,13 +23,15 @@ import net.minecraft.util.ARGB;
 import net.minecraft.util.LightCoordsUtil;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.client.model.quad.BakedColors;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
-import javax.annotation.Nullable;
 
 public class MonolithCoreBlockEntityRenderer
     implements BlockEntityRenderer<MonolithCoreBlockEntity, MonolithCoreBlockEntityRenderer.State> {
@@ -45,7 +47,7 @@ public class MonolithCoreBlockEntityRenderer
 
     @Override
     public void extractRenderState(MonolithCoreBlockEntity core, State state, float partialTick, Vec3 camera,
-                                   @Nullable ModelFeatureRenderer.CrumblingOverlay breaking) {
+                                   ModelFeatureRenderer.@Nullable CrumblingOverlay breaking) {
         BlockEntityRenderer.super.extractRenderState(core, state, partialTick, camera, breaking);
         state.offering = core.getOffering();
         state.axis = core.getAxis();
@@ -70,7 +72,7 @@ public class MonolithCoreBlockEntityRenderer
             int tint = source == null ? -1 : source.color(state.offering);
             BakedQuad uncolored = new BakedQuad(quad.position0(), quad.position1(), quad.position2(), quad.position3(),
                 quad.packedUV0(), quad.packedUV1(), quad.packedUV2(), quad.packedUV3(), quad.direction(), quad.materialInfo(),
-                quad.bakedNormals(), net.neoforged.neoforge.client.model.quad.BakedColors.DEFAULT);
+                quad.bakedNormals(), BakedColors.DEFAULT);
             return new ColoredQuad(uncolored, tint);
         }).toList();
     }
@@ -82,7 +84,7 @@ public class MonolithCoreBlockEntityRenderer
     }
 
     public static class State extends BlockEntityRenderState {
-        private BlockState offering = net.minecraft.world.level.block.Blocks.AIR.defaultBlockState();
+        private BlockState offering = Blocks.AIR.defaultBlockState();
         private Direction.Axis axis = Direction.Axis.Z;
         private boolean giant;
         private int lineHeight;
