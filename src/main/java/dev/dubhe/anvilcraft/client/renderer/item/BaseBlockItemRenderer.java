@@ -28,6 +28,7 @@ abstract class BaseBlockItemRenderer<T> implements SpecialModelRenderer<T> {
     private final boolean translucent;
     private final BlockModelRenderState shellRenderState = new BlockModelRenderState();
     private @Nullable BlockStateModel shellModel;
+    private boolean shellTranslucent;
 
     protected BaseBlockItemRenderer(BlockState shellState, float minExtent, float maxExtent) {
         this(shellState, minExtent, maxExtent, false);
@@ -48,20 +49,34 @@ abstract class BaseBlockItemRenderer<T> implements SpecialModelRenderer<T> {
         boolean hasFoil,
         int outlineColor
     ) {
+        this.submitShell(poseStack, collector, lightCoords, overlayCoords, hasFoil, outlineColor, this.translucent);
+    }
+
+    /// 指定渲染层提交外壳；外壳贴图整体半透明，不透明层才能避免与身后场景混合而失色。
+    protected void submitShell(
+        PoseStack poseStack,
+        SubmitNodeCollector collector,
+        int lightCoords,
+        int overlayCoords,
+        boolean hasFoil,
+        int outlineColor,
+        boolean translucent
+    ) {
         BlockStateModel model = Minecraft.getInstance()
             .getModelManager()
             .getBlockStateModelSet()
             .get(this.shellState);
-        if (model != this.shellModel) {
+        if (model != this.shellModel || translucent != this.shellTranslucent) {
             this.shellRenderState.clear();
             model.collectParts(
                 BlockAndTintGetter.EMPTY,
                 BlockPos.ZERO,
                 this.shellState,
                 RandomSource.create(BaseBlockItemRenderer.MODEL_SEED),
-                this.shellRenderState.setupModel(new Matrix4f(), this.translucent)
+                this.shellRenderState.setupModel(new Matrix4f(), translucent)
             );
             this.shellModel = model;
+            this.shellTranslucent = translucent;
         }
         this.shellRenderState.submit(poseStack, collector, lightCoords, overlayCoords, outlineColor);
         if (hasFoil) {
