@@ -6,6 +6,7 @@ import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.tooltip.HudTooltipManager;
 import dev.dubhe.anvilcraft.api.tooltip.TooltipRenderHelper;
+import dev.dubhe.anvilcraft.block.entity.SmartBlockPlacerBlockEntity;
 import dev.dubhe.anvilcraft.client.renderer.OverworldLikeOrbitalSkyRenderer;
 import dev.dubhe.anvilcraft.client.support.EnchantedGoldBlockGlints;
 import dev.dubhe.anvilcraft.client.support.InspectionSupport;
@@ -231,10 +232,15 @@ public class RenderEventListener {
         var blockState = Minecraft.getInstance().level.getBlockState(hitPos);
         if (!blockState.is(ModBlocks.SMART_BLOCK_PLACER.get())) return;
 
+        BlockEntity blockEntity = Minecraft.getInstance().level.getBlockEntity(hitPos);
+        if (blockEntity instanceof SmartBlockPlacerBlockEntity placer) {
+            addRangeOutline(hitPos, blockState, Shapes.create(placer.getPlacementRangeBounds()), gameTime);
+            return;
+        }
+
         Direction placerFacing = blockState.getValue(net.minecraft.world.level.block.HorizontalDirectionalBlock.FACING);
         boolean upsideDown = blockState.getValue(dev.dubhe.anvilcraft.block.SmartBlockPlacerBlock.UPSIDE_DOWN);
         BlockPos basePos = hitPos.relative(placerFacing.getOpposite(), -4);
-
         int yOffset = upsideDown ? -4 : 0;
         VoxelShape rangeShape = Shapes.create(
             basePos.getX() - 2, basePos.getY() + yOffset, basePos.getZ() - 2,

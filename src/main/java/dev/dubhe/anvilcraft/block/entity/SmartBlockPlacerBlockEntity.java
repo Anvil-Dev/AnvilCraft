@@ -20,6 +20,7 @@ import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.inventory.SmartBlockPlacerMenu;
 import dev.dubhe.anvilcraft.item.property.component.StructureDiskData;
+import dev.dubhe.anvilcraft.util.AabbUtil;
 import dev.dubhe.anvilcraft.util.BlockPlacementUtil;
 import dev.dubhe.anvilcraft.util.BlockStateAndEntity;
 import dev.dubhe.anvilcraft.util.StructureLoadUtil;
@@ -54,6 +55,7 @@ import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.AABB;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.ItemStackHandler;
@@ -659,6 +661,28 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
     // endregion
 
     // region Blueprint Placement
+    /**
+     * 放置范围的世界包围盒：蓝图模式为蓝图实际占用的范围，点位模式为固定的 5×5×5 网格。
+     */
+    public AABB getPlacementRangeBounds() {
+        return this.getPlacementRangeBounds(this.getFacing().getOpposite(), this.isUpsideDown());
+    }
+
+    /**
+     * 指定放置方向与倒挂状态下的放置范围包围盒；界面预览以朝北的方向计算。
+     */
+    public AABB getPlacementRangeBounds(Direction targetFacing, boolean upsideDown) {
+        if (this.target == TargetMode.BLUEPRINT) {
+            return this.getBlueprintLayout().getRangeBounds(targetFacing, upsideDown);
+        }
+        BlockPos basePos = this.getBlockPos().relative(targetFacing, POSITION_DISTANCE);
+        int verticalOffset = upsideDown ? 1 - POSITION_GRID_SIZE : 0;
+        return AabbUtil.createInclusive(
+            basePos.offset(-POSITION_GRID_RADIUS, verticalOffset, -POSITION_GRID_RADIUS),
+            basePos.offset(POSITION_GRID_RADIUS, verticalOffset + POSITION_GRID_SIZE - 1, POSITION_GRID_RADIUS)
+        );
+    }
+
     public BlockPos getBlueprintPosition(int storageIndex) {
         return this.getBlueprintLayout().getPosition(storageIndex);
     }

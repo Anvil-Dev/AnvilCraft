@@ -572,6 +572,44 @@ public final class BlockPlacementUtil {
         }
 
         /**
+         * 放置范围的世界包围盒，即蓝图占用格在放置方向、左右方向与垂直方向上的跨度。
+         */
+        public AABB getRangeBounds() {
+            return this.getRangeBounds(this.targetFacing, this.upsideDown);
+        }
+
+        /**
+         * 指定放置方向与倒挂状态下的放置范围包围盒。
+         */
+        public AABB getRangeBounds(Direction targetFacing, boolean upsideDown) {
+            int positionsPerLayer = this.gridSize * this.gridSize;
+            double minX = Double.MAX_VALUE;
+            double minY = Double.MAX_VALUE;
+            double minZ = Double.MAX_VALUE;
+            double maxX = -Double.MAX_VALUE;
+            double maxY = -Double.MAX_VALUE;
+            double maxZ = -Double.MAX_VALUE;
+            for (int layer = 0; layer <= this.extent.maxLayer(); layer++) {
+                for (int row = this.extent.minRow(); row <= this.extent.maxRow(); row++) {
+                    for (int column = this.extent.minColumn(); column <= this.extent.maxColumn(); column++) {
+                        BlockPos pos = this.getPosition(
+                            layer * positionsPerLayer + row * this.gridSize + column,
+                            targetFacing,
+                            upsideDown
+                        );
+                        minX = Math.min(minX, pos.getX());
+                        minY = Math.min(minY, pos.getY());
+                        minZ = Math.min(minZ, pos.getZ());
+                        maxX = Math.max(maxX, pos.getX() + 1.0);
+                        maxY = Math.max(maxY, pos.getY() + 1.0);
+                        maxZ = Math.max(maxZ, pos.getZ() + 1.0);
+                    }
+                }
+            }
+            return new AABB(minX, minY, minZ, maxX, maxY, maxZ);
+        }
+
+        /**
          * 网格行轴相对放置方向的顺时针旋转，0 表示行轴与放置方向同向。
          */
         private int getLayoutRotation() {

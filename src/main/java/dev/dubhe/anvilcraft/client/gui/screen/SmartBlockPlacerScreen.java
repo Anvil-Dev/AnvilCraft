@@ -1310,6 +1310,40 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
     }
 
     /**
+     * 预览用的放置范围形状：蓝图模式收缩到蓝图实际占用的范围，点位模式为固定的 5×5×5 网格。<br>
+     * 预览中放置器始终朝北，故按朝北方向计算范围，再平移到预览坐标系。
+     */
+    private VoxelShape createPlacementRangeShape() {
+        SmartBlockPlacerBlockEntity blockEntity = this.menu.getBlockEntity();
+        if (!this.isBlueprintMode || blockEntity == null) {
+            return Shapes.create(0.0, 0.0, 0.0, 5.0, 5.0, 5.0);
+        }
+        int placerX = 2;
+        int placerZ = 6;
+        boolean upsideDown = this.isUpsideDownPreview();
+        int placerY = upsideDown ? 4 : 0;
+        BlockPos placerPos = blockEntity.getBlockPos();
+        return Shapes.create(blockEntity
+            .getPlacementRangeBounds(Direction.NORTH, upsideDown)
+            .move(
+                placerX - placerPos.getX(),
+                placerY - placerPos.getY(),
+                placerZ - placerPos.getZ()
+            ));
+    }
+
+    private boolean isUpsideDownPreview() {
+        ClientLevel level = this.minecraft == null ? null : this.minecraft.level;
+        SmartBlockPlacerBlockEntity blockEntity = this.menu.getBlockEntity();
+        if (level == null || blockEntity == null) {
+            return false;
+        }
+        BlockState state = level.getBlockState(blockEntity.getBlockPos());
+        return state.getBlock() instanceof SmartBlockPlacerBlock
+            && state.getValue(SmartBlockPlacerBlock.UPSIDE_DOWN);
+    }
+
+    /**
      * 渲染3D放置范围框
      */
     private void renderPlacementRangeBox(GuiGraphics guiGraphics, Minecraft minecraft) {
@@ -1351,8 +1385,8 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
         // 6. 平移Z轴（与方块保持一致，在Z=-1处渲染）
         poseStack.translate(0, 0, -1);
 
-        // 7. 创建范围框（与方块渲染的位置空间一致）
-        final VoxelShape rangeShape = Shapes.create(0.0, 0.0, 0.0, 5.0, 5.0, 5.0);
+        // 7. 创建范围框（与方块渲染的位置空间一致）；蓝图模式下收缩到蓝图实际占用的范围
+        final VoxelShape rangeShape = this.createPlacementRangeShape();
 
         // 8. 渲染范围框（青色，与世界中一致）
         TooltipRenderHelper.renderOutline(poseStack, consumer, 0, 0, 0, BlockPos.ZERO, rangeShape, 0xFF00FFCC);
