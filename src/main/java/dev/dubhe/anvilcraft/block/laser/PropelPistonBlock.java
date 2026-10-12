@@ -256,7 +256,8 @@ public class PropelPistonBlock extends DirectionalBlock implements IMoveableEnti
             for (BlockPos pushed : pistonstructureresolver.getToPush()) {
                 reserved.add(pushed.relative(facing));
             }
-            PistonMoveGuard.reserveUntil(level, reserved, PistonMoveGuard.PISTON_MOVE_RESERVATION_TICKS);
+            final PistonMoveGuard.TimedReservation reservation = PistonMoveGuard.reserveUntil(
+                level, reserved, PistonMoveGuard.PISTON_MOVE_RESERVATION_TICKS);
             Map<BlockPos, BlockState> map = Maps.newHashMap();
             List<BlockPos> list = pistonstructureresolver.getToPush();
             List<BlockState> list1 = Lists.newArrayList();
@@ -320,6 +321,9 @@ public class PropelPistonBlock extends DirectionalBlock implements IMoveableEnti
                     entity.anvillib$setBlockEntity(blockEntity);
                 }
                 level.setBlockEntity(movingBlockEntity);
+                // 载荷由原版实体放回，这条路径拿不到本模组的句柄；按落位坐标登记，
+                // 让它收尾时释放，而不是只等 TTL 到期。
+                PistonMoveGuard.anchor(level, blockPos3, reservation);
                 blockStates[i++] = blockState5;
             }
 

@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.mixin;
 import dev.dubhe.anvilcraft.block.logistics.sliding.ActivatorSlidingRailBlock;
 import dev.dubhe.anvilcraft.block.logistics.sliding.ISlidingRail;
 import dev.dubhe.anvilcraft.init.block.ModBlockTags;
+import dev.dubhe.anvilcraft.util.PistonMoveGuard;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.MinecraftServer;
@@ -59,5 +60,16 @@ abstract class PistonMovingBlockEntityMixin {
             ISlidingRail.MOVING_PISTON_MAP.put(belowPos, p);
         }
         ISlidingRail.MOVING_PISTON_MAP.get(belowPos).isSourcePiston = entity.isSourcePiston();
+    }
+
+    /// 载荷放回完成后释放挂在落位坐标上的预留。
+    ///
+    /// 注入点必须在 setBlock 与 neighborChanged 之后：那次自通知正是需要预留生效的时刻。
+    @Inject(method = "finalTick", at = @At("RETURN"))
+    private void anvilcraft$releaseMoveReservation(CallbackInfo ci) {
+        PistonMovingBlockEntity self = (PistonMovingBlockEntity) (Object) this;
+        Level level = self.getLevel();
+        if (level == null || level.isClientSide()) return;
+        PistonMoveGuard.releaseAnchored(level, self.getBlockPos());
     }
 }
