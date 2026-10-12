@@ -113,23 +113,26 @@ public class SlidingBlockEntity extends Entity {
         return entity;
     }
 
-    /// 用起点与当前位置两处载荷坐标刷新保留范围；滑动期间方块不在世界里，两处都要覆盖。
+    /// 用起点、当前位置以及前一格刷新保留范围并续期；滑动期间方块不在世界里，这些都要覆盖。
     private void refreshMoveGuard() {
         if (this.moveGuard == null) return;
         List<BlockPos> positions = new ArrayList<>();
         BlockPos center = this.blockPosition();
         BlockPos start = this.getStartPos();
+        BlockPos ahead = center.relative(Objects.requireNonNull(this.moveDirection));
         for (SlidingBlockInfo info : this.section.blocks()) {
             positions.add(info.getPos(center).immutable());
             positions.add(info.getPos(start).immutable());
+            // 本刻 move() 之后载荷会前进一格，而下一 tick 的停靠分支可能在刷新前就落位。
+            positions.add(info.getPos(ahead).immutable());
         }
-        this.moveGuard.replace(positions, List.of());
+        this.moveGuard.replace(this.level().getGameTime(), positions, List.of());
     }
 
     @Override
     public void remove(Entity.RemovalReason reason) {
         if (this.moveGuard != null) {
-            this.moveGuard.close();
+            this.moveGuard.close(this.level());
             this.moveGuard = null;
         }
         super.remove(reason);
@@ -146,6 +149,9 @@ public class SlidingBlockEntity extends Entity {
         BlockPos pos = this.blockPosition();
         BlockPos belowPos = pos.below();
         BlockState belowState = this.level().getBlockState(belowPos);
+        // 按当前方块坐标刷新保留：下面几条停靠分支会直接 return，落位就发生在这一格，
+        // 保留必须已包含它；本刻 move() 之后的前进格也一并在 refreshMoveGuard 里覆盖。
+        this.refreshMoveGuard();
         if (belowState.getBlock() instanceof ISlidingRail slidingRail && !this.level().isClientSide) {
             slidingRail.onSlidingAbove(this.level(), belowPos, belowState, this);
         } else if (belowState.is(ModBlockTags.SLIDING_RAIL_STOP_LIKE) && !this.level().isClientSide && this.time > 2) {
@@ -154,7 +160,6 @@ public class SlidingBlockEntity extends Entity {
         }
         Direction.Axis horizontalAnother = Objects.requireNonNull(this.moveDirection).getClockWise().getAxis();
         this.setPos(this.position().with(horizontalAnother, Math.ceil(this.position().get(horizontalAnother)) - 0.5));
-        this.refreshMoveGuard();
 
         if (this.level().isOutsideBuildHeight(pos)) {
             this.stop();
