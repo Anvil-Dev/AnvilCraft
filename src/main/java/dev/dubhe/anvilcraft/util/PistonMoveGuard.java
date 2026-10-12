@@ -19,8 +19,9 @@ public final class PistonMoveGuard {
     public static final int PISTON_MOVE_RESERVATION_TICKS = 5;
 
     private static final ThreadLocal<@Nullable Deque<Reservation>> ACTIVE_RESERVATIONS = new ThreadLocal<>();
-    /// 跨刻预留，按维度弱引用索引，载荷在服务端线程登记而 TNT 邻居更新会在客户端线程读取。
-    /// 句柄不持有 {@link Level}，弱键才真正可回收；不加弱引用会在维度卸载后常驻该维度。
+    /// 跨刻预留，按维度弱引用索引。句柄不持有 {@link Level}，弱键才真正可回收，
+    /// 否则维度卸载后会被该维度常驻。客户端与主世界是不同的 Level 键，同一维度的列表
+    /// 只由该维度的线程访问，因此这里只需在 map 层加同步。
     private static final Map<Level, List<TimedReservation>> TIMED_RESERVATIONS =
         Collections.synchronizedMap(new WeakHashMap<>());
 
