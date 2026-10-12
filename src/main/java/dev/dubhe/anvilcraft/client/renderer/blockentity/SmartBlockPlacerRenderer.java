@@ -294,16 +294,6 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
                         1.3f,
                         false
                     );
-                    if (level.random.nextFloat() < 0.6f) {
-                        level.playLocalSound(
-                            entity.getBlockPos(),
-                            ModSoundEvents.SMART_BLOCK_PLACER_SHULKER_OPEN.get(),
-                            SoundSource.BLOCKS,
-                            0.6f,
-                            1.5f,
-                            false
-                        );
-                    }
                     entity.setClientAnimationTargetPos(animationTargetPos);
                 }
             }

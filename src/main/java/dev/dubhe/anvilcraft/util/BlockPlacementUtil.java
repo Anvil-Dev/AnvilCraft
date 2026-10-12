@@ -482,11 +482,44 @@ public final class BlockPlacementUtil {
         BlockState[] states
     ) {
         /**
-         * 顺序索引与存储索引使用同一约定：层（下→上）→ 行（远→近）→ 列（左→右），
-         * 与普通点位模式的放置顺序保持一致。
+         * 顺序索引按 层（下→上）→ 行（远→近）→ 列（左→右）排列，与普通点位模式的放置顺序保持一致。<br>
+         * 蓝图未自动旋转时网格轴向与放置方向存在夹角，需把顺序中的物理行列换算回网格行列。
          */
         public int getStorageIndexForOrder(int orderIndex) {
-            return orderIndex;
+            int positionsPerLayer = this.gridSize * this.gridSize;
+            int layer = orderIndex / positionsPerLayer;
+            int physical = orderIndex % positionsPerLayer;
+            int physicalRow = physical / this.gridSize;
+            int physicalColumn = physical % this.gridSize;
+            int row = physicalRow;
+            int column = physicalColumn;
+            switch (this.getLayoutRotation()) {
+                case 1 -> {
+                    row = this.gridSize - 1 - physicalColumn;
+                    column = physicalRow;
+                }
+                case 2 -> {
+                    row = this.gridSize - 1 - physicalRow;
+                    column = this.gridSize - 1 - physicalColumn;
+                }
+                case 3 -> {
+                    row = physicalColumn;
+                    column = this.gridSize - 1 - physicalRow;
+                }
+                default -> {
+                }
+            }
+            return layer * positionsPerLayer + row * this.gridSize + column;
+        }
+
+        /**
+         * 网格行轴相对放置方向的顺时针旋转，0 表示行轴与放置方向同向。
+         */
+        private int getLayoutRotation() {
+            return Math.floorMod(
+                this.getLayoutFacing(this.targetFacing).get2DDataValue() - this.targetFacing.get2DDataValue(),
+                4
+            );
         }
 
         public BlockPos getPosition(int storageIndex) {

@@ -2258,7 +2258,6 @@
   "subtitles.anvilcraft.quenched_out": "Quenched out",
   "subtitles.anvilcraft.smart_block_placer_extend": "Smart Block Placer extended",
   "subtitles.anvilcraft.smart_block_placer_retract": "Smart Block Placer retracted",
-  "subtitles.anvilcraft.smart_block_placer_shulker_open": "Smart Block Placer whirs",
   "subtitles.anvilcraft.tesla_tower_strike": "Tesla Tower strikes",
   "tag.block.anvilcraft.landing_no_recipe": "When an anvil lands on one of these blocks, it won't trigger recipe handling.",
   "tooltip.anvilcraft.auto_enchanting_table.jade.working_progress": "Enchanting Progress: %s",

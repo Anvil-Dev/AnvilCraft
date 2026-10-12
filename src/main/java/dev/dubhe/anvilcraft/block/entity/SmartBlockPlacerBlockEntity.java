@@ -295,8 +295,8 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             return;
         }
         if (this.phase == ExecutionPhase.IDLE) {
-            if (this.advancePhaseProgress() && this.refreshPointer(serverLevel) != null) {
-                this.transitionToPhase(serverLevel, pos, ExecutionPhase.PREPARE);
+            if (this.refreshPointer(serverLevel) != null) {
+                this.startPrepare(serverLevel, pos);
             }
         } else if (this.phase == ExecutionPhase.PREPARE) {
             if (this.advancePhaseProgress()) {
@@ -331,6 +331,16 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         }
         this.phaseProgress = Math.min(this.phaseProgress + 1.0F / phaseDuration, 1.0F);
         return this.phaseProgress >= 1.0F;
+    }
+
+    /**
+     * 由 IDLE 进入 PREPARE。<br>
+     * IDLE 只是供客户端复位动画的标记状态，不额外占用一个 tick，
+     * 因此这里把 PREPARE 的首个 tick 一并推进，保证连续放置间隔为 20gt。
+     */
+    private void startPrepare(ServerLevel level, BlockPos pos) {
+        this.transitionToPhase(level, pos, ExecutionPhase.PREPARE);
+        this.advancePhaseProgress();
     }
 
     private void transitionToPhase(ServerLevel level, BlockPos pos, ExecutionPhase nextPhase) {
