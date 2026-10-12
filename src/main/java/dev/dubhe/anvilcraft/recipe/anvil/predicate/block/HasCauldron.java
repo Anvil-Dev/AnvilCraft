@@ -463,6 +463,9 @@ public record HasCauldron(
     private static void fillCauldronLayers(Level level, BlockPos pos, FluidStack fluid, int missing) {
         CauldronFluidContent content = CauldronFluidContent.getForFluid(fluid.getFluid());
         if (content == null) return;
+        // 单层锅（levelProperty 为 null）的一层就是整桶，分数量无从表达；
+        // 补齐会把 250mB 的请求灌成 1000mB，故不参与补齐。
+        if (content.maxLevel <= 1) return;
         int perLevel = content.totalAmount / content.maxLevel;
         if (perLevel <= 0) return;
         int layers = (missing + perLevel - 1) / perLevel;

@@ -135,6 +135,13 @@ public interface ISlidingRail extends IBlockExtension {
         List<BlockPos> toDestroys = resolver.getToDestroy();
         List<BlockState> toDestroyStates = new ArrayList<>();
 
+        // 滑轨跨 tick 搬运，预留需存活到落位，否则吞噬器或 TNT 会抢走方块。
+        // 登记必须在下面任何方块变更之前：移除与邻居更新都会给邻接载荷发 neighborChanged。
+        List<BlockPos> reserved = new ArrayList<>(toPushPoses);
+        reserved.addAll(toDestroys);
+        final PistonMoveGuard.TimedReservation reservation =
+            PistonMoveGuard.reserveUntil(level, reserved, SlidingBlockEntity.MOVE_RESERVATION_TICKS);
+
         for (int i = toDestroys.size() - 1; i >= 0; i--) {
             BlockPos destroyingPos = toDestroys.get(i);
             BlockState destroyingState = level.getBlockState(destroyingPos);
@@ -174,12 +181,6 @@ public interface ISlidingRail extends IBlockExtension {
         for (var toPushEntry : toPushes) {
             level.updateNeighborsAt(toPushEntry.getLeft(), air.getBlock());
         }
-
-        // 滑轨跨 tick 搬运，预留需存活到落位，否则吞噬器或 TNT 会抢走方块
-        List<BlockPos> reserved = new ArrayList<>(toPushPoses);
-        reserved.addAll(toDestroys);
-        PistonMoveGuard.TimedReservation reservation =
-            PistonMoveGuard.reserveUntil(level, reserved, SlidingBlockEntity.MOVE_RESERVATION_TICKS);
 
         SlidingBlockEntity.slid(level, pos, facing, toPushes, reservation);
         return true;
