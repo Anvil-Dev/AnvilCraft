@@ -2,7 +2,6 @@ package dev.dubhe.anvilcraft.client.init;
 
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.platform.InputConstants.Type;
-import com.mojang.blaze3d.platform.Window;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
@@ -82,11 +81,11 @@ public class ModKeyMappings {
         GLFW.GLFW_KEY_A
     );
 
-    /// F3 组合键期间忽略模组按键；RELEASE 始终放行，保证已按下的键能释放。
+    /// 调试修饰键被按住时忽略模组按键；RELEASE 始终放行，保证已按下的键能释放。
+    /// 用原版键位而非写死 F3，玩家改键后仍然正确。
     public static boolean shouldIgnoreForDebugChord(int action) {
         if (action == InputConstants.RELEASE) return false;
-        Window window = Minecraft.getInstance().getWindow();
-        return window != null && InputConstants.isKeyDown(window, GLFW.GLFW_KEY_F3);
+        return Minecraft.getInstance().options.keyDebugModifier.isDown();
     }
 
     @SuppressWarnings("SameParameterValue")

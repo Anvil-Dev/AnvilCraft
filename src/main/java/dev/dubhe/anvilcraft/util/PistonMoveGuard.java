@@ -78,9 +78,14 @@ public final class PistonMoveGuard {
 
     private static boolean isTimedReserved(Level level, BlockPos pos) {
         List<TimedReservation> list = PistonMoveGuard.TIMED_RESERVATIONS.get(level);
-        if (list == null || list.isEmpty()) return false;
+        if (list == null) return false;
         long now = level.getGameTime();
         list.removeIf(reservation -> reservation.isExpired(now));
+        if (list.isEmpty()) {
+            // 过期项清空后一并移除条目，否则推进活塞等只靠 TTL 的登记会留下空列表。
+            PistonMoveGuard.TIMED_RESERVATIONS.remove(level);
+            return false;
+        }
         for (TimedReservation reservation : list) {
             if (reservation.contains(pos)) return true;
         }
