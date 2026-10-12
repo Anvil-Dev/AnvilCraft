@@ -558,15 +558,6 @@ public final class CelestialBodyMatcher {
         return getStarColorFromTempDiagram(energy);
     }
 
-    /// 白矮星在 star_color_temperature.png 中占据的能量行区间。
-    public static final int WHITE_DWARF_MIN_ENERGY = 49;
-    public static final int WHITE_DWARF_MAX_ENERGY = 58;
-
-    /// 白矮星能量，钳制到图表白矮星带内。
-    public static int whiteDwarfEnergy(int energy) {
-        return Math.clamp(energy, WHITE_DWARF_MIN_ENERGY, WHITE_DWARF_MAX_ENERGY);
-    }
-
     /// 恒星颜色。白矮星用渲染同款温度规则，保证锻造与演化结果一致；其余分类查图表。
     public static int[] starColorFor(CelestialBodyClass bodyClass, int energy) {
         if (bodyClass != CelestialBodyClass.WHITE_DWARF) return getStarColorFromTempDiagram(energy);
