@@ -20,6 +20,7 @@ import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.inventory.SmartBlockPlacerMenu;
 import dev.dubhe.anvilcraft.item.property.component.StructureDiskData;
+import dev.dubhe.anvilcraft.util.AabbUtil;
 import dev.dubhe.anvilcraft.util.BlockPlacementUtil;
 import dev.dubhe.anvilcraft.util.BlockStateAndEntity;
 import dev.dubhe.anvilcraft.util.StructureLoadUtil;
@@ -54,6 +55,7 @@ import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.AABB;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.ItemStackHandler;
@@ -295,8 +297,8 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             return;
         }
         if (this.phase == ExecutionPhase.IDLE) {
-            if (this.advancePhaseProgress() && this.refreshPointer(serverLevel) != null) {
-                this.transitionToPhase(serverLevel, pos, ExecutionPhase.PREPARE);
+            if (this.refreshPointer(serverLevel) != null) {
+                this.startPrepare(serverLevel, pos);
             }
         } else if (this.phase == ExecutionPhase.PREPARE) {
             if (this.advancePhaseProgress()) {
@@ -331,6 +333,16 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         }
         this.phaseProgress = Math.min(this.phaseProgress + 1.0F / phaseDuration, 1.0F);
         return this.phaseProgress >= 1.0F;
+    }
+
+    /**
+     * 由 IDLE 进入 PREPARE。<br>
+     * IDLE 只是供客户端复位动画的标记状态，不额外占用一个 tick，
+     * 因此这里把 PREPARE 的首个 tick 一并推进，保证连续放置间隔为 20gt。
+     */
+    private void startPrepare(ServerLevel level, BlockPos pos) {
+        this.transitionToPhase(level, pos, ExecutionPhase.PREPARE);
+        this.advancePhaseProgress();
     }
 
     private void transitionToPhase(ServerLevel level, BlockPos pos, ExecutionPhase nextPhase) {
@@ -404,7 +416,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
     }
 
     private void applyToBlueprintPosition(ServerLevel level) {
-        int expectedOrderIndex = Math.floorMod(this.currentPlacementIndex, POSITION_COUNT);
+        int expectedOrderIndex = Math.floorMod(this.currentPlacementIndex, this.getBlueprintLayout().orderCount());
         BlueprintTarget blueprintTarget = this.findNextBlueprintTarget(level);
         ITargetPointer pointer = this.pointer;
         if (blueprintTarget == null || pointer == null || !pointer.isStillValid(level)) {
@@ -454,13 +466,14 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
     }
 
     private @Nullable BlueprintTarget findNextBlueprintTarget(ServerLevel level) {
-        if (this.currentPlacementIndex >= POSITION_COUNT) {
+        BlockPlacementUtil.BlueprintLayout blueprintLayout = this.getBlueprintLayout();
+        int orderCount = blueprintLayout.orderCount();
+        if (this.currentPlacementIndex >= orderCount) {
             this.currentPlacementIndex = 0;
             this.setChanged();
             return null;
         }
-        BlockPlacementUtil.BlueprintLayout blueprintLayout = this.getBlueprintLayout();
-        while (this.currentPlacementIndex < POSITION_COUNT) {
+        while (this.currentPlacementIndex < orderCount) {
             int orderIndex = this.currentPlacementIndex;
             int storageIndex = blueprintLayout.getStorageIndexForOrder(orderIndex);
             BlockState storedState = this.blueprint.states()[storageIndex];
@@ -502,7 +515,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
     private boolean isCurrentTargetAvailable(ServerLevel level) {
         if (this.target == TargetMode.BLUEPRINT) {
             BlockPlacementUtil.BlueprintLayout blueprintLayout = this.getBlueprintLayout();
-            int orderIndex = Math.floorMod(this.currentPlacementIndex, POSITION_COUNT);
+            int orderIndex = Math.floorMod(this.currentPlacementIndex, blueprintLayout.orderCount());
             int storageIndex = blueprintLayout.getStorageIndexForOrder(orderIndex);
             if (this.blueprint.states()[storageIndex].isAir()) {
                 return false;
@@ -524,7 +537,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
 
     private void skipCurrentTarget() {
         if (this.target == TargetMode.BLUEPRINT) {
-            this.advanceBlueprintIndex(Math.floorMod(this.currentPlacementIndex, POSITION_COUNT));
+            this.advanceBlueprintIndex(Math.floorMod(this.currentPlacementIndex, this.getBlueprintLayout().orderCount()));
             return;
         }
         List<BlockPos> positions = this.getOrderedPositionTargets();
@@ -648,6 +661,36 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
     // endregion
 
     // region Blueprint Placement
+    /**
+     * 放置范围的世界包围盒：蓝图模式为蓝图实际占用的范围，点位模式为固定的 5×5×5 网格。
+     */
+    public AABB getPlacementRangeBounds() {
+        return this.getPlacementRangeBounds(this.getFacing().getOpposite(), this.isUpsideDown());
+    }
+
+    /**
+     * 指定放置方向与倒挂状态下的放置范围包围盒；界面预览以朝北的方向计算。
+     */
+    public AABB getPlacementRangeBounds(Direction targetFacing, boolean upsideDown) {
+        if (this.target == TargetMode.BLUEPRINT) {
+            return this.getBlueprintLayout().getRangeBounds(targetFacing, upsideDown);
+        }
+        return positionModeRangeBounds(this.getBlockPos(), targetFacing, upsideDown);
+    }
+
+    /**
+     * 点位模式的放置范围：以放置方向前方 {@link #POSITION_DISTANCE} 格为中心、边长 {@link #POSITION_GRID_SIZE} 的立方体。<br>
+     * 不依赖方块实体，供渲染回退路径与预览共用。
+     */
+    public static AABB positionModeRangeBounds(BlockPos placerPos, Direction targetFacing, boolean upsideDown) {
+        BlockPos basePos = placerPos.relative(targetFacing, POSITION_DISTANCE);
+        int verticalOffset = upsideDown ? 1 - POSITION_GRID_SIZE : 0;
+        return AabbUtil.createInclusive(
+            basePos.offset(-POSITION_GRID_RADIUS, verticalOffset, -POSITION_GRID_RADIUS),
+            basePos.offset(POSITION_GRID_RADIUS, verticalOffset + POSITION_GRID_SIZE - 1, POSITION_GRID_RADIUS)
+        );
+    }
+
     public BlockPos getBlueprintPosition(int storageIndex) {
         return this.getBlueprintLayout().getPosition(storageIndex);
     }
@@ -685,6 +728,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             this.isUpsideDown(),
             POSITION_GRID_SIZE,
             POSITION_DISTANCE,
+            this.blueprint.extent(),
             this.blueprint.states()
         );
     }
@@ -698,11 +742,25 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
     private record BlueprintTarget(int orderIndex, BlockPos pos, BlockState state) {
     }
 
-    public record StructureBlueprint(String name, BlockState[] states, boolean invalid) {
+    /**
+     * 蓝图内容与其自带的大小信息；extent 记录蓝图在存储网格中的占用范围，无需扫描方块推算。
+     */
+    public record StructureBlueprint(
+        String name,
+        BlockState[] states,
+        boolean invalid,
+        BlockPlacementUtil.BlueprintExtent extent
+    ) {
         private static StructureBlueprint empty() {
             BlockState[] states = new BlockState[POSITION_COUNT];
             Arrays.fill(states, Blocks.AIR.defaultBlockState());
-            return new StructureBlueprint("", states, false);
+            int center = POSITION_GRID_SIZE / 2;
+            return new StructureBlueprint(
+                "",
+                states,
+                false,
+                BlockPlacementUtil.BlueprintExtent.fromSize(1, 1, 1, center, center, 0)
+            );
         }
     }
     // endregion
@@ -872,21 +930,27 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         ItemStack blueprint = this.blueprintItemHandler.getStackInSlot(0);
         StructureDiskData diskData = blueprint.get(ModComponents.STRUCTURE_DISK_DATA);
         if (blueprint.isEmpty() || diskData == null || this.level == null) {
-            this.blueprint = new StructureBlueprint("", this.blueprint.states(), !blueprint.isEmpty());
+            this.blueprint = new StructureBlueprint(
+                "", this.blueprint.states(), !blueprint.isEmpty(), this.blueprint.extent());
             return;
         }
 
         StructureLoadUtil.StructureData structure = StructureLoadUtil.loadStructureFromDisk(this.level, blueprint);
         if (structure == null || structure.isEmpty()) {
-            this.blueprint = new StructureBlueprint(diskData.name(), this.blueprint.states(), true);
+            this.blueprint = new StructureBlueprint(
+                diskData.name(), this.blueprint.states(), true, this.blueprint.extent());
             return;
         }
 
-        int columnOffset = (POSITION_GRID_SIZE - structure.width) / 2;
-        int rowOffset = (POSITION_GRID_SIZE - structure.depth) / 2;
+        // 蓝图自带大小信息；超出存储网格时按旧口径从中心截取，放不下的部分丢弃
+        int width = structure.width;
+        int depth = structure.depth;
+        int height = structure.height;
+        int columnOffset = (POSITION_GRID_SIZE - width) / 2;
+        int rowOffset = (POSITION_GRID_SIZE - depth) / 2;
         for (StructureLoadUtil.BlockPosition block : structure.blocks) {
-            int column = columnOffset + structure.width - block.x() - 1;
-            int row = rowOffset + structure.depth - block.z() - 1;
+            int column = columnOffset + width - block.x() - 1;
+            int row = rowOffset + depth - block.z() - 1;
             int layer = block.y();
             if (!isValidLayer(layer)
                 || column < 0 || column >= POSITION_GRID_SIZE
@@ -897,7 +961,14 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             int position = row * POSITION_GRID_SIZE + column;
             this.blueprint.states()[getPositionIndex(layer, position)] = block.state();
         }
-        this.blueprint = new StructureBlueprint(diskData.name(), this.blueprint.states(), false);
+        this.blueprint = new StructureBlueprint(
+            diskData.name(),
+            this.blueprint.states(),
+            false,
+            BlockPlacementUtil.BlueprintExtent.fromSize(
+                width, depth, height, columnOffset, rowOffset, 0
+            ).clamp(POSITION_GRID_SIZE)
+        );
     }
 
     private void clearBlueprint() {
@@ -919,6 +990,13 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         tag.put("blueprintStates", states);
         tag.putString("loadedStructureName", this.blueprint.name());
         tag.putBoolean("invalidStructure", this.blueprint.invalid());
+        tag.putIntArray("blueprintExtent", new int[]{
+            this.blueprint.extent().minRow(),
+            this.blueprint.extent().maxRow(),
+            this.blueprint.extent().minColumn(),
+            this.blueprint.extent().maxColumn(),
+            this.blueprint.extent().maxLayer()
+        });
         saveDisplayedBlock(tag, "missingBlock", this.missingBlock, registries);
         saveHeldBlock(tag, "currentHeldBlock", this.currentHeldBlock, registries);
     }
@@ -941,7 +1019,8 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         this.blueprint = new StructureBlueprint(
             tag.getString("loadedStructureName"),
             blueprintStates,
-            tag.getBoolean("invalidStructure")
+            tag.getBoolean("invalidStructure"),
+            loadBlueprintExtent(tag, blueprintStates)
         );
         this.missingBlock = loadDisplayedBlock(tag, "missingBlock", registries);
         if (this.missingBlock == null) {
@@ -951,6 +1030,27 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             this.missingBlock = null;
         }
         this.currentHeldBlock = loadHeldBlock(tag, "currentHeldBlock", this.getBlockPos(), registries);
+    }
+
+    /**
+     * 读取蓝图占用范围；旧存档没有该字段时回退为扫描方块推算。
+     */
+    private static BlockPlacementUtil.BlueprintExtent loadBlueprintExtent(CompoundTag tag, BlockState[] states) {
+        int[] stored = tag.getIntArray("blueprintExtent");
+        if (stored.length != 5) {
+            return BlockPlacementUtil.BlueprintExtent.of(states, POSITION_GRID_SIZE);
+        }
+        int minRow = stored[0];
+        int maxRow = stored[1];
+        int minColumn = stored[2];
+        int maxColumn = stored[3];
+        int maxLayer = stored[4];
+        boolean valid = minRow >= 0 && minRow <= maxRow && maxRow < POSITION_GRID_SIZE
+            && minColumn >= 0 && minColumn <= maxColumn && maxColumn < POSITION_GRID_SIZE
+            && maxLayer >= 0 && maxLayer < POSITION_GRID_SIZE;
+        return valid
+            ? new BlockPlacementUtil.BlueprintExtent(minRow, maxRow, minColumn, maxColumn, maxLayer)
+            : BlockPlacementUtil.BlueprintExtent.of(states, POSITION_GRID_SIZE);
     }
 
     private static void saveDisplayedBlock(
@@ -1090,7 +1190,8 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
     public @Nullable BlockPos getCurrentBlueprintTargetPosition() {
         Level level = this.getLevel();
         BlockPlacementUtil.BlueprintLayout blueprintLayout = this.getBlueprintLayout();
-        for (int orderIndex = this.currentPlacementIndex; orderIndex < POSITION_COUNT; orderIndex++) {
+        int orderCount = blueprintLayout.orderCount();
+        for (int orderIndex = this.currentPlacementIndex; orderIndex < orderCount; orderIndex++) {
             int storageIndex = blueprintLayout.getStorageIndexForOrder(orderIndex);
             if (this.blueprint.states()[storageIndex].isAir()) {
                 continue;

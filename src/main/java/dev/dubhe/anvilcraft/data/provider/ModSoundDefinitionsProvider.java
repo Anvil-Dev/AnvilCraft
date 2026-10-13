@@ -60,10 +60,6 @@ public class ModSoundDefinitionsProvider extends SoundDefinitionsProvider {
             .subtitle("subtitles.anvilcraft.smart_block_placer_retract")
             .with(sound(ResourceLocation.withDefaultNamespace("block.piston.contract"), SoundDefinition.SoundType.EVENT)));
 
-        add(ModSoundEvents.SMART_BLOCK_PLACER_SHULKER_OPEN, definition()
-            .subtitle("subtitles.anvilcraft.smart_block_placer_shulker_open")
-            .with(sound(ResourceLocation.withDefaultNamespace("block.shulker_box.open"), SoundDefinition.SoundType.EVENT)));
-
         add(ModSoundEvents.ANVIL_HAMMER_ROTATE_BLOCK, definition()
             .subtitle("subtitles.anvilcraft.anvil_hammer_rotate_block")
             .with(sound(ResourceLocation.withDefaultNamespace("block.copper_bulb.turn_on"), SoundDefinition.SoundType.EVENT)));

@@ -234,6 +234,7 @@ public class StructureLoadUtil {
             }
             data.width = bounds.getXSpan();
             data.depth = bounds.getZSpan();
+            data.height = bounds.getYSpan();
 
             // LOGGER.debug("Structure loaded: {} ({} blocks)", structureName, data.blocks.size());
             return data;
@@ -310,8 +311,8 @@ public class StructureLoadUtil {
     }
 
     /**
-     * Validate structure file name to prevent path traversal attacks
-     * File names must match the pattern: name_uuid.nbt
+     * 验证结构文件名，以防止路径遍历攻击
+     * 文件名必须匹配以下模式：name_uuid.nbt
      */
     public static boolean isValidStructureFile(String fileName) {
         if (fileName.trim().isEmpty()) {
@@ -333,8 +334,7 @@ public class StructureLoadUtil {
     }
 
     /**
-     * Validate that the resolved path stays within the base directory
-     * Prevents path traversal attacks using sequences
+     * 验证解析出的路径是否位于基础目录内，防止路径遍历攻击
      */
     private static boolean isPathWithinBaseDirectory(Path resolvedPath, Path baseDir) {
         try {
@@ -356,16 +356,18 @@ public class StructureLoadUtil {
         public final StructureDiskData diskData;
         public int width;
         public int depth;
+        public int height;
         public final List<BlockPosition> blocks = new ArrayList<>();
 
         public StructureData(StructureDiskData diskData) {
             this.diskData = diskData;
             this.width = diskData.sizeX();
             this.depth = diskData.sizeZ();
+            this.height = diskData.sizeY();
         }
 
         public boolean isEmpty() {
-            return blocks.isEmpty();
+            return this.blocks.isEmpty();
         }
     }
 

@@ -49,16 +49,17 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.neoforge.network.PacketDistributor;
+import org.joml.Quaternionf;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL30;
 
@@ -130,6 +131,15 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
 
     private static final int PREVIEW_BLOCK_SWITCH_INTERVAL = 80;
     private static final int STRUCTURE_INFO_MAX_WIDTH = 80;
+    /** 预览窗口内边距，与结构扫描仪保持一致。 */
+    private static final float PREVIEW_PADDING = 4.0F;
+    /** 预览的偏航角偏移，两种模式共用同一观察角度。 */
+    private static final float PREVIEW_YAW_OFFSET = 135.0F;
+    /** 预览中放置器的位置：朝北摆放，放置范围在其前方（Z 更小处）。 */
+    private static final int PLACER_PREVIEW_X = 2;
+    private static final int PLACER_PREVIEW_Y = 0;
+    private static final int PLACER_PREVIEW_Y_UPSIDE_DOWN = 4;
+    private static final int PLACER_PREVIEW_Z = 6;
 
     // LevelLike 缓存
     private @Nullable LevelLike cachedPreviewLevelLike;
@@ -531,7 +541,7 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
             POSITION_SELECT,
             16,
             16,
-            (btn) -> onPositionButtonClick(btn, positionIndex, tooltipSelected, tooltipUnselected),
+            (btn) -> this.onPositionButtonClick(btn, positionIndex, tooltipSelected, tooltipUnselected),
             selected ? tooltipSelected : tooltipUnselected
         );
         button.setSelected(selected);
@@ -777,7 +787,7 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
             if (!diskStack.isEmpty()) {
                 int diskSlotX = i + 8;
                 int diskSlotY = j + 119;
-                renderMaskedItem(guiGraphics, diskStack, diskSlotX, diskSlotY);
+                this.renderMaskedItem(guiGraphics, diskStack, diskSlotX, diskSlotY);
             }
         }
 
@@ -788,7 +798,7 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
             if (!bookStack.isEmpty()) {
                 int bookSlotX = i + 46;
                 int bookSlotY = j + 86;
-                renderMaskedItem(guiGraphics, bookStack, bookSlotX, bookSlotY);
+                this.renderMaskedItem(guiGraphics, bookStack, bookSlotX, bookSlotY);
             }
         }
     }
@@ -1068,16 +1078,16 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
             (int) (this.previewWindowHeight * guiScaleD)
         );
 
-        this.renderPreviewWithFixedSize(
+        AABB previewBounds = this.getPreviewBounds();
+        float yaw = this.renderPreviewAutoScaled(
             previewLevelLike,
             guiGraphics,
+            previewBounds,
             this.previewWindowX + this.previewWindowWidth / 2,
-            this.previewWindowY + this.previewWindowHeight / 2 + 5,
-            this.previewRotationX,
-            this.previewRotationY
+            this.previewWindowY + this.previewWindowHeight / 2
         );
 
-        this.renderPlacementRangeBox(guiGraphics, minecraft);
+        this.renderPlacementRangeBox(guiGraphics, minecraft, previewBounds, yaw);
 
         RenderSystem.disableScissor();
 
@@ -1295,67 +1305,106 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
     }
 
     /**
-     * 使用固定尺寸渲染预览
+     * 使用自适应尺寸渲染预览：按内容包围盒缩放，行为与结构扫描仪一致。
      */
-    private void renderPreviewWithFixedSize(
+    private float renderPreviewAutoScaled(
         LevelLike level,
         GuiGraphics guiGraphics,
+        AABB bounds,
         int posX,
-        int posY,
-        float rotationX,
-        float rotationY
+        int posY
     ) {
-        float yaw = this.isBlueprintMode ? rotationY + 90.0f : rotationY;
-        RenderSupport.renderLevelLikeWithFixedSize(level, guiGraphics, posX, posY, 80.0f, rotationX, yaw, 5, 5, -0.5f);
+        float yaw = this.previewRotationY + PREVIEW_YAW_OFFSET;
+        RenderSupport.renderLevelLikeAutoScaled(
+            level,
+            guiGraphics,
+            posX,
+            posY,
+            this.previewRotationX,
+            yaw,
+            bounds,
+            this.previewWindowWidth,
+            this.previewWindowHeight,
+            PREVIEW_PADDING
+        );
+        return yaw;
     }
 
     /**
-     * 渲染3D放置范围框
+     * 预览内容与放置范围框共同的包围盒：放置范围并入放置器所在格，使内容与范围框都完整可见。
      */
-    private void renderPlacementRangeBox(GuiGraphics guiGraphics, Minecraft minecraft) {
-        // 获取缓冲区
+    private AABB getPreviewBounds() {
+        boolean upsideDown = this.isUpsideDownPreview();
+        int placerY = upsideDown ? PLACER_PREVIEW_Y_UPSIDE_DOWN : PLACER_PREVIEW_Y;
+        return this.createPlacementRangeShape().bounds()
+            .minmax(new AABB(new BlockPos(PLACER_PREVIEW_X, placerY, PLACER_PREVIEW_Z)));
+    }
+
+    /**
+     * 预览用的放置范围形状：蓝图模式收缩到蓝图实际占用的范围，点位模式为固定的 5×5×5 网格。<br>
+     * 预览中放置器始终朝北，故按朝北方向计算范围，再平移到预览坐标系。
+     */
+    private VoxelShape createPlacementRangeShape() {
+        SmartBlockPlacerBlockEntity blockEntity = this.menu.getBlockEntity();
+        if (!this.isBlueprintMode || blockEntity == null) {
+            return Shapes.create(0.0, 0.0, 0.0, 5.0, 5.0, 5.0);
+        }
+        boolean upsideDown = this.isUpsideDownPreview();
+        BlockPos placerPos = blockEntity.getBlockPos();
+        return Shapes.create(blockEntity
+            .getPlacementRangeBounds(Direction.NORTH, upsideDown)
+            .move(
+                PLACER_PREVIEW_X - placerPos.getX(),
+                (upsideDown ? PLACER_PREVIEW_Y_UPSIDE_DOWN : PLACER_PREVIEW_Y) - placerPos.getY(),
+                PLACER_PREVIEW_Z - placerPos.getZ()
+            ));
+    }
+
+    private boolean isUpsideDownPreview() {
+        ClientLevel level = this.minecraft == null ? null : this.minecraft.level;
+        SmartBlockPlacerBlockEntity blockEntity = this.menu.getBlockEntity();
+        if (level == null || blockEntity == null) {
+            return false;
+        }
+        BlockState state = level.getBlockState(blockEntity.getBlockPos());
+        return state.getBlock() instanceof SmartBlockPlacerBlock
+            && state.getValue(SmartBlockPlacerBlock.UPSIDE_DOWN);
+    }
+
+    /**
+     * 渲染3D放置范围框，变换与预览保持一致。
+     */
+    private void renderPlacementRangeBox(GuiGraphics guiGraphics, Minecraft minecraft, AABB bounds, float yaw) {
         MultiBufferSource.BufferSource buffers = minecraft.renderBuffers().bufferSource();
         final VertexConsumer consumer = buffers.getBuffer(RenderType.lines());
 
-        // 设置PoseStack - 完全复制RenderSupport.renderLevelLikeWithFixedSize的变换顺序
-        PoseStack poseStack = guiGraphics.pose();
-        poseStack.pushPose();
-
-        // 1. 平移到预览窗口中心
-        poseStack.translate(
-            this.previewWindowX + (float) this.previewWindowWidth / 2,
-            this.previewWindowY + (float) this.previewWindowHeight / 2 + 5,
-            100
+        Quaternionf rotation = Axis.XP.rotationDegrees(this.previewRotationX)
+            .mul(Axis.YP.rotationDegrees(yaw));
+        float scale = RenderSupport.autoScale(
+            rotation,
+            bounds,
+            this.previewWindowWidth,
+            this.previewWindowHeight,
+            PREVIEW_PADDING
         );
 
-        // 2. 使用与预览相同的缩放计算
-        float scaleX = 80.0f / (5 * Mth.SQRT_OF_TWO);
-        float scaleY = 80.0f / 5.0f;
-        float scale = Math.min(scaleY, scaleX);
+        PoseStack poseStack = guiGraphics.pose();
+        poseStack.pushPose();
+        poseStack.translate(
+            this.previewWindowX + (float) this.previewWindowWidth / 2,
+            this.previewWindowY + (float) this.previewWindowHeight / 2,
+            100
+        );
         poseStack.scale(-scale, -scale, -scale);
+        poseStack.mulPose(rotation);
+        poseStack.translate(
+            -(bounds.minX + bounds.maxX) / 2,
+            -(bounds.minY + bounds.maxY) / 2,
+            -(bounds.minZ + bounds.maxZ) / 2
+        );
 
-        // 3. 平移到中心（5为奇数，加0.5与RenderSupport保持一致）
-        poseStack.translate(-(float) 5 / 2, -(float) 5 / 2, 0);
-
-        // 4. 先应用X轴旋转
-        poseStack.mulPose(Axis.XP.rotationDegrees(this.previewRotationX));
-
-        // 5. Y轴旋转的中心点 - 固定基于5x5范围计算，忽略放置器
-        // 与RenderSupport.renderLevelLikeWithFixedSize保持一致
-        float offsetX = (float) -5 / 2 + 0.05f;
-        float offsetZ = (float) -5 / 2 + 1;
-        poseStack.translate(-offsetX, 0, -offsetZ);
-        poseStack.mulPose(Axis.YP.rotationDegrees(this.previewRotationY + (this.isBlueprintMode ? 135 : 45)));
-        poseStack.translate(offsetX, 0, offsetZ);
-
-        // 6. 平移Z轴（与方块保持一致，在Z=-1处渲染）
-        poseStack.translate(0, 0, -1);
-
-        // 7. 创建范围框（与方块渲染的位置空间一致）
-        final VoxelShape rangeShape = Shapes.create(0.0, 0.0, 0.0, 5.0, 5.0, 5.0);
-
-        // 8. 渲染范围框（青色，与世界中一致）
-        TooltipRenderHelper.renderOutline(poseStack, consumer, 0, 0, 0, BlockPos.ZERO, rangeShape, 0xFF00FFCC);
+        TooltipRenderHelper.renderOutline(
+            poseStack, consumer, 0, 0, 0, BlockPos.ZERO, this.createPlacementRangeShape(), 0xFF00FFCC);
 
         buffers.endBatch(RenderType.lines());
         poseStack.popPose();
@@ -1424,11 +1473,10 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
             overload = placerState.getValue(SmartBlockPlacerBlock.OVERLOAD);
         }
 
-        // 放置器位置：X居中，Z=6（放置区域后方）
-        // 倒挂时Y=4（顶部），正常时Y=0（底部）
-        int placerX = 2;
-        int placerZ = 6;
-        int placerY = upsideDown ? 4 : 0;
+        // 放置器位置：X居中，Z=6（放置区域后方）；倒挂时Y=4（顶部），正常时Y=0（底部）
+        int placerX = PLACER_PREVIEW_X;
+        int placerZ = PLACER_PREVIEW_Z;
+        int placerY = upsideDown ? PLACER_PREVIEW_Y_UPSIDE_DOWN : PLACER_PREVIEW_Y;
 
         // 放置器始终渲染，不受分层限制，预览窗口中统一朝北
         // 应用实际的 POWERED 和 OVERLOAD 状态以显示正确的贴图

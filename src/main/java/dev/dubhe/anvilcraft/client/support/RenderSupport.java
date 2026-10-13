@@ -62,9 +62,11 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.phys.AABB;
 import net.neoforged.neoforge.client.ClientHooks;
 import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
 import net.neoforged.neoforge.client.model.data.ModelData;
+import org.joml.Matrix3f;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
@@ -338,6 +340,16 @@ public class RenderSupport {
         GuiGraphics guiGraphics,
         int posX,
         int posY,
+        float scale
+    ) {
+        renderLevelLike(level, guiGraphics, posX, posY, scale, 0.0f);
+    }
+
+    public static void renderLevelLike(
+        LevelLike level,
+        GuiGraphics guiGraphics,
+        int posX,
+        int posY,
         float scaleFactor,
         float rotationSpeed
     ) {
@@ -411,15 +423,68 @@ public class RenderSupport {
         pose.popPose();
     }
 
-    public static void renderLevelLike(
+    /**
+     * 按给定包围盒自动缩放渲染 LevelLike：把包围盒投影到预览窗口内并居中，尺寸随内容自适应。<br>
+     * 与 {@link #renderLevelLikeWithFixedSize} 不同，缩放取决于实际内容而非固定网格大小。
+     */
+    public static void renderLevelLikeAutoScaled(
         LevelLike level,
         GuiGraphics guiGraphics,
         int posX,
         int posY,
-        float scale
+        float rotationX,
+        float rotationY,
+        AABB bounds,
+        int windowWidth,
+        int windowHeight,
+        float padding
     ) {
-        renderLevelLike(level, guiGraphics, posX, posY, scale, 0.0f);
+        Quaternionf rotation = Axis.XP.rotationDegrees(rotationX)
+            .mul(Axis.YP.rotationDegrees(rotationY));
+        final float scale = autoScale(rotation, bounds, windowWidth, windowHeight, padding);
+
+        PoseStack pose = guiGraphics.pose();
+        pose.pushPose();
+        RenderSystem.enableBlend();
+        RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
+        pose.translate(posX, posY, 100);
+        pose.scale(-scale, -scale, -scale);
+        pose.mulPose(rotation);
+        pose.translate(
+            -(bounds.minX + bounds.maxX) / 2,
+            -(bounds.minY + bounds.maxY) / 2,
+            -(bounds.minZ + bounds.maxZ) / 2
+        );
+        renderLevelLikeBlocks(level, pose, BlockPos.betweenClosed(
+            BlockPos.containing(bounds.minX, bounds.minY, bounds.minZ),
+            BlockPos.containing(bounds.maxX - 1, bounds.maxY - 1, bounds.maxZ - 1)));
+        pose.popPose();
     }
+
+    /**
+     * 包围盒在该旋转下投影到预览窗口时所需的缩放系数。
+     */
+    public static float autoScale(
+        Quaternionf rotation,
+        AABB bounds,
+        int windowWidth,
+        int windowHeight,
+        float padding
+    ) {
+        Matrix3f matrix = new Matrix3f().rotation(rotation);
+        float sizeX = (float) bounds.getXsize();
+        float sizeY = (float) bounds.getYsize();
+        float sizeZ = (float) bounds.getZsize();
+        float projectedWidth = Math.abs(matrix.m00()) * sizeX
+            + Math.abs(matrix.m10()) * sizeY + Math.abs(matrix.m20()) * sizeZ;
+        float projectedHeight = Math.abs(matrix.m01()) * sizeX
+            + Math.abs(matrix.m11()) * sizeY + Math.abs(matrix.m21()) * sizeZ;
+        return Math.min(
+            (windowWidth - padding * 2) / Math.max(projectedWidth, 1.0e-4f),
+            (windowHeight - padding * 2) / Math.max(projectedHeight, 1.0e-4f)
+        );
+    }
+
     
     /**
      * 渲染LevelLike，支持固定旋转角度和固定尺寸

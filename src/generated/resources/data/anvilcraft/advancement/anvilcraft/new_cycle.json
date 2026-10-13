@@ -1,5 +1,5 @@
 {
-  "parent": "anvilcraft:anvilcraft/the_start",
+  "parent": "anvilcraft:anvilcraft/no_remnant",
   "criteria": {
     "new_cycle": {
       "trigger": "minecraft:impossible"
