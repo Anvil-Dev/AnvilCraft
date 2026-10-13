@@ -353,6 +353,8 @@ public class ChuteBlock extends BetterBaseEntityBlock implements HammerRotateBeh
 
     @Nullable
     BlockState getState(LevelReader level, BlockPos pos, Direction facing) {
+        // 溜槽的 FACING 为 FACING_HOPPER，不含 UP，传入 UP 时按无法放置处理
+        if (facing == Direction.UP) return null;
         boolean success = false;
         boolean tall = false;
         BlockState result = this.defaultBlockState()
@@ -372,7 +374,7 @@ public class ChuteBlock extends BetterBaseEntityBlock implements HammerRotateBeh
                             return null;
                         }
                     } else {
-                        if (facing.getOpposite() == ChuteBlock.getFacing(neighborState)) {
+                        if (facing == dir) {
                             facing = facing.getOpposite();
                         }
                         BlockState backState = level.getBlockState(pos.relative(facing));
