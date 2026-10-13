@@ -228,7 +228,7 @@ public class TeslaTowerBlockEntity extends BlockEntity
         this.tickCount--;
         AABB aabb = new AABB(this.getBlockPos().above(3)).expandTowards(8, 8, 8).expandTowards(-8, -8, -8);
         if (this.targetEntity != null) {
-            if (!targetEntity.isAlive()) {
+            if (!this.targetEntity.isAlive()) {
                 this.clearTargetEntity(state);
             } else {
                 AABB boundingBox = this.targetEntity.getBoundingBox();

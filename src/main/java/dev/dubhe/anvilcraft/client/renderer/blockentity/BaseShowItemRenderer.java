@@ -29,7 +29,7 @@ public abstract class BaseShowItemRenderer<B extends BlockEntity> implements Blo
     private final ItemRenderer itemRenderer;
 
     public BaseShowItemRenderer(BlockEntityRendererProvider.Context context) {
-        itemRenderer = context.getItemRenderer();
+        this.itemRenderer = context.getItemRenderer();
     }
 
     private static int getRenderAmount(ItemStack stack) {

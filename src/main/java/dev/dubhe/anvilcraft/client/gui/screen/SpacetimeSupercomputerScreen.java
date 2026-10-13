@@ -515,7 +515,7 @@ public class SpacetimeSupercomputerScreen extends Screen {
         );
 
         // 渲染充能进度条（自下而上：贴图底边锚定在进度条底部，随充能向上展开）
-        int chargingBarHeight = getChangingProgress();
+        int chargingBarHeight = this.getChangingProgress();
         guiGraphics.blit(
             BUTTON_CHARGING_PROGRESS,
             x + 226, y + 108 + (52 - chargingBarHeight),

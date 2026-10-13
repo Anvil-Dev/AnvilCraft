@@ -21,17 +21,17 @@ public final class ValveState {
 
     /** 每 tick 分配前重置预算为阀门当前有效流速（红石锁定时为 0；实时读取，改流速即时生效）。 */
     public void resetBudget() {
-        this.remaining = be.getEffectiveMaxRate();
+        this.remaining = this.be.getEffectiveMaxRate();
     }
 
     /** 该阀门是否允许此流体通过（白名单实时读取；空过滤=全放行）。 */
     public boolean allows(FluidStack fluid) {
-        return be.allows(fluid);
+        return this.be.allows(fluid);
     }
 
     /** 本 tick 剩余可通过量（mB）。 */
     public int remaining() {
-        return remaining;
+        return this.remaining;
     }
 
     /** 扣减已通过量。 */

@@ -39,15 +39,15 @@ public class GogglesCurioRenderer implements ICurioRenderer {
         float headPitch
     ) {
         // Prepare values for transformation
-        model.setupAnim(slotContext.entity(), limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch);
-        model.prepareMobModel(slotContext.entity(), limbSwing, limbSwingAmount, partialTicks);
-        ICurioRenderer.followHeadRotations(slotContext.entity(), model.head);
+        this.model.setupAnim(slotContext.entity(), limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch);
+        this.model.prepareMobModel(slotContext.entity(), limbSwing, limbSwingAmount, partialTicks);
+        ICurioRenderer.followHeadRotations(slotContext.entity(), this.model.head);
 
         // Translate and rotate with our head
         matrixStack.pushPose();
-        matrixStack.translate(model.head.x / 16.0, model.head.y / 16.0, model.head.z / 16.0);
-        matrixStack.mulPose(Axis.YP.rotation(model.head.yRot));
-        matrixStack.mulPose(Axis.XP.rotation(model.head.xRot));
+        matrixStack.translate(this.model.head.x / 16.0, this.model.head.y / 16.0, this.model.head.z / 16.0);
+        matrixStack.mulPose(Axis.YP.rotation(this.model.head.yRot));
+        matrixStack.mulPose(Axis.XP.rotation(this.model.head.xRot));
 
         // Translate and scale to our head
         matrixStack.translate(0, -0.25, 0);

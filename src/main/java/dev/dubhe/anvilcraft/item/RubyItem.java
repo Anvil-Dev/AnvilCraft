@@ -50,8 +50,8 @@ public class RubyItem extends Item {
     private void processStoneArea(Level level, BlockPos centerPos) {
         if (level.isClientSide) return;
         level.setBlock(centerPos, Blocks.LAVA.defaultBlockState(), 3);
-        playExtinguishSound(level, centerPos);
-        spawnMagmaParticles(level, centerPos);
+        this.playExtinguishSound(level, centerPos);
+        this.spawnMagmaParticles(level, centerPos);
 
         for (int dx = -1; dx <= 1; dx++) {
             for (int dz = -1; dz <= 1; dz++) {
@@ -65,10 +65,10 @@ public class RubyItem extends Item {
 
                     if (roll < 0.10) {
                         level.setBlock(targetPos, Blocks.LAVA.defaultBlockState(), 3);
-                        spawnMagmaParticles(level, targetPos);
+                        this.spawnMagmaParticles(level, targetPos);
                     } else if (roll < 0.75) {
                         level.setBlock(targetPos, Blocks.MAGMA_BLOCK.defaultBlockState(), 3);
-                        spawnMagmaParticles(level, targetPos);
+                        this.spawnMagmaParticles(level, targetPos);
                     }
                 }
             }

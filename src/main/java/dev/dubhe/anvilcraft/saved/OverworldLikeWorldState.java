@@ -74,31 +74,31 @@ public class OverworldLikeWorldState extends SavedData {
     }
 
     private void synchronizeGeneration(OverworldLikeResetManifest manifest, long gameTime) {
-        if (generation == manifest.generation() && generationSeed == manifest.activeSeed()) return;
-        generation = manifest.generation();
-        generationSeed = manifest.activeSeed();
-        visualSeed = visualSeed(generationSeed);
-        orbitEpochGameTime = gameTime;
-        phase = Phase.ACTIVE;
-        collapseStartedAt = -1L;
-        nextGenerationSeed = manifest.nextSeed();
-        collapseDamageIssued = false;
-        generationRequestedByEntry = false;
-        knownOverworldLikePlayers.clear();
-        eclipseCalculatedAt = Long.MIN_VALUE;
+        if (this.generation == manifest.generation() && this.generationSeed == manifest.activeSeed()) return;
+        this.generation = manifest.generation();
+        this.generationSeed = manifest.activeSeed();
+        this.visualSeed = visualSeed(this.generationSeed);
+        this.orbitEpochGameTime = gameTime;
+        this.phase = Phase.ACTIVE;
+        this.collapseStartedAt = -1L;
+        this.nextGenerationSeed = manifest.nextSeed();
+        this.collapseDamageIssued = false;
+        this.generationRequestedByEntry = false;
+        this.knownOverworldLikePlayers.clear();
+        this.eclipseCalculatedAt = Long.MIN_VALUE;
         setDirty();
     }
 
     public int generation() {
-        return generation;
+        return this.generation;
     }
 
     public long generationSeed() {
-        return generationSeed;
+        return this.generationSeed;
     }
 
     public long visualSeed() {
-        return visualSeed;
+        return this.visualSeed;
     }
 
     private static long visualSeed(long seed) {
@@ -110,118 +110,118 @@ public class OverworldLikeWorldState extends SavedData {
     }
 
     public long orbitEpochGameTime() {
-        return orbitEpochGameTime;
+        return this.orbitEpochGameTime;
     }
 
     public Phase phase() {
-        return phase;
+        return this.phase;
     }
 
     public long collapseStartedAt() {
-        return collapseStartedAt;
+        return this.collapseStartedAt;
     }
 
     public long nextGenerationSeed() {
-        return nextGenerationSeed;
+        return this.nextGenerationSeed;
     }
 
     public boolean collapseDamageIssued() {
-        return collapseDamageIssued;
+        return this.collapseDamageIssued;
     }
 
     public int eclipseDarken(long gameTime, long dayTime) {
-        if (eclipseCalculatedAt != gameTime) {
-            eclipseCalculatedAt = gameTime;
-            cachedEclipseDarken = OverworldLikeOrbitMath.additionalSkyDarken(
+        if (this.eclipseCalculatedAt != gameTime) {
+            this.eclipseCalculatedAt = gameTime;
+            this.cachedEclipseDarken = OverworldLikeOrbitMath.additionalSkyDarken(
                 gameTime,
                 dayTime,
-                orbitEpochGameTime,
-                visualSeed
+                this.orbitEpochGameTime,
+                this.visualSeed
             );
         }
-        return cachedEclipseDarken;
+        return this.cachedEclipseDarken;
     }
 
     public boolean beginCollapse(long gameTime, long nextSeed) {
-        if (phase != Phase.ACTIVE) return false;
-        phase = Phase.COLLAPSING;
-        collapseStartedAt = gameTime;
-        nextGenerationSeed = nextSeed;
-        collapseDamageIssued = false;
-        generationRequestedByEntry = false;
+        if (this.phase != Phase.ACTIVE) return false;
+        this.phase = Phase.COLLAPSING;
+        this.collapseStartedAt = gameTime;
+        this.nextGenerationSeed = nextSeed;
+        this.collapseDamageIssued = false;
+        this.generationRequestedByEntry = false;
         setDirty();
         return true;
     }
 
     public void markCollapseDamageIssued() {
-        if (collapseDamageIssued) return;
-        collapseDamageIssued = true;
+        if (this.collapseDamageIssued) return;
+        this.collapseDamageIssued = true;
         setDirty();
     }
 
     public void markResetPending() {
-        if (phase == Phase.RESET_PENDING) return;
-        phase = Phase.RESET_PENDING;
+        if (this.phase == Phase.RESET_PENDING) return;
+        this.phase = Phase.RESET_PENDING;
         setDirty();
     }
 
     public boolean requestGenerationByEntry() {
-        if (phase != Phase.RESET_PENDING) return false;
-        if (!generationRequestedByEntry) {
-            generationRequestedByEntry = true;
+        if (this.phase != Phase.RESET_PENDING) return false;
+        if (!this.generationRequestedByEntry) {
+            this.generationRequestedByEntry = true;
             setDirty();
         }
         return true;
     }
 
     public boolean isGenerationRequestedByEntry() {
-        return generationRequestedByEntry;
+        return this.generationRequestedByEntry;
     }
 
     public void addPendingForcedRespawn(UUID playerId) {
-        if (pendingForcedRespawns.add(playerId)) setDirty();
+        if (this.pendingForcedRespawns.add(playerId)) setDirty();
     }
 
     public boolean hasPendingForcedRespawn(UUID playerId) {
-        return pendingForcedRespawns.contains(playerId);
+        return this.pendingForcedRespawns.contains(playerId);
     }
 
     public void markPlayerInOverworldLike(UUID playerId) {
-        if (knownOverworldLikePlayers.add(playerId)) setDirty();
+        if (this.knownOverworldLikePlayers.add(playerId)) setDirty();
     }
 
     public void removeKnownOverworldLikePlayer(UUID playerId) {
-        if (knownOverworldLikePlayers.remove(playerId)) setDirty();
+        if (this.knownOverworldLikePlayers.remove(playerId)) setDirty();
     }
 
     public void enqueueKnownPlayersForForcedRespawn() {
-        if (pendingForcedRespawns.addAll(knownOverworldLikePlayers)) setDirty();
+        if (this.pendingForcedRespawns.addAll(this.knownOverworldLikePlayers)) setDirty();
     }
 
     public void removePendingForcedRespawn(UUID playerId) {
-        if (pendingForcedRespawns.remove(playerId)) setDirty();
+        if (this.pendingForcedRespawns.remove(playerId)) setDirty();
     }
 
     @Override
     public CompoundTag save(CompoundTag tag, HolderLookup.Provider registries) {
-        tag.putInt("generation", generation);
-        tag.putLong("generationSeed", generationSeed);
-        tag.putLong("visualSeed", visualSeed);
-        tag.putLong("orbitEpochGameTime", orbitEpochGameTime);
-        tag.putString("phase", phase.getSerializedName());
-        tag.putLong("collapseStartedAt", collapseStartedAt);
-        tag.putLong("nextGenerationSeed", nextGenerationSeed);
-        tag.putBoolean("collapseDamageIssued", collapseDamageIssued);
-        tag.putBoolean("generationRequestedByEntry", generationRequestedByEntry);
+        tag.putInt("generation", this.generation);
+        tag.putLong("generationSeed", this.generationSeed);
+        tag.putLong("visualSeed", this.visualSeed);
+        tag.putLong("orbitEpochGameTime", this.orbitEpochGameTime);
+        tag.putString("phase", this.phase.getSerializedName());
+        tag.putLong("collapseStartedAt", this.collapseStartedAt);
+        tag.putLong("nextGenerationSeed", this.nextGenerationSeed);
+        tag.putBoolean("collapseDamageIssued", this.collapseDamageIssued);
+        tag.putBoolean("generationRequestedByEntry", this.generationRequestedByEntry);
         ListTag pending = new ListTag();
-        for (UUID playerId : pendingForcedRespawns) {
+        for (UUID playerId : this.pendingForcedRespawns) {
             CompoundTag player = new CompoundTag();
             player.putUUID("id", playerId);
             pending.add(player);
         }
         tag.put("pendingForcedRespawns", pending);
         ListTag known = new ListTag();
-        for (UUID playerId : knownOverworldLikePlayers) {
+        for (UUID playerId : this.knownOverworldLikePlayers) {
             CompoundTag player = new CompoundTag();
             player.putUUID("id", playerId);
             known.add(player);

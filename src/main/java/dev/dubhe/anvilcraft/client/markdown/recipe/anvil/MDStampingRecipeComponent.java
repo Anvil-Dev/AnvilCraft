@@ -22,9 +22,9 @@ public class MDStampingRecipeComponent extends MDBaseAnvilRecipeComponent {
 
     public MDStampingRecipeComponent(StampingRecipe recipe, boolean enableAlignCenter) {
         super(enableAlignCenter);
-        ingredients = recipe.getInputItems();
-        resultItems = recipe.getResultItems();
-        inputBlockStates = List.of(
+        this.ingredients = recipe.getInputItems();
+        this.resultItems = recipe.getResultItems();
+        this.inputBlockStates = List.of(
             ModBlocks.STAMPING_PLATFORM.getDefaultState()
         );
     }

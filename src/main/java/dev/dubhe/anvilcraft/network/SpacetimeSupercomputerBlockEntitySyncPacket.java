@@ -31,9 +31,9 @@ public record SpacetimeSupercomputerBlockEntitySyncPacket(BlockPos pos) implemen
     @Override
     public void handleOnClient(Player player) {
         Level level = player.level();
-        BlockEntity blockEntity = level.getBlockEntity(pos);
+        BlockEntity blockEntity = level.getBlockEntity(this.pos);
         if (blockEntity instanceof SpacetimeSupercomputerBlockEntity) {
-            updateScreenIfOpen();
+            this.updateScreenIfOpen();
         }
     }
 

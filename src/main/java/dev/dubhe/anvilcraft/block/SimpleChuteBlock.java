@@ -109,7 +109,7 @@ public class SimpleChuteBlock
         BlockState neighborState = level.getBlockState(neighborPos);
         Block neighborBlock1 = neighborState.getBlock();
         if (ChuteBlock.isChuteBlock(neighborBlock) || ChuteBlock.isChuteBlock(neighborBlock1)) {
-            BlockState newState = getState(level, pos, state.getValue(FACING));
+            BlockState newState = this.getState(level, pos, state.getValue(FACING));
             if (newState != state) level.setBlockAndUpdate(pos, newState);
         }
     }

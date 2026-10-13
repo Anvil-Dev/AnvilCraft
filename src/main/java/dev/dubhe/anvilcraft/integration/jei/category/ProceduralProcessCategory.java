@@ -252,7 +252,7 @@ public class ProceduralProcessCategory implements IRecipeCategory<RecipeHolder<P
                     RenderSupport.SINGLE_BLOCK
                 );
             }
-            drawStepOverlay(
+            this.drawStepOverlay(
                 guiGraphics,
                 recipeSlotsView,
                 stepRecipe,

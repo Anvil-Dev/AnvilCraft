@@ -13,6 +13,6 @@ public class PredicateTreeNode<T> extends SetTreeNode<T> {
 
     @Override
     public boolean matches(ExecutionContext<T> context) {
-        return predicate.test(context);
+        return this.predicate.test(context);
     }
 }

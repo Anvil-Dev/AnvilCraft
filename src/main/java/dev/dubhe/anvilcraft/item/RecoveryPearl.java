@@ -41,7 +41,7 @@ public class RecoveryPearl extends Item {
                 ResourceKey<Level> lastDeathDimension = globalPos.dimension();
                 BlockPos lastDeathPos = globalPos.pos();
                 if (currentDimension == lastDeathDimension) {
-                    if (getDistance(currentPos, lastDeathPos) < 12) {
+                    if (this.getDistance(currentPos, lastDeathPos) < 12) {
                         player.changeDimension(dimensionTransition);
                     } else {
                         player.teleportTo(lastDeathPos.getX(), lastDeathPos.getY(), lastDeathPos.getZ());

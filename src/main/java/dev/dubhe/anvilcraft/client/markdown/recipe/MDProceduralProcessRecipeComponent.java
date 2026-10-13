@@ -88,8 +88,8 @@ public class MDProceduralProcessRecipeComponent extends MDRecipeComponent {
         }
 
         // loop
-        if (recipe.getLoop() > 1) {
-            Component text = Component.literal((displayedLoop + 1) + "/" + recipe.getLoop()).withColor(0xB08E82);
+        if (this.recipe.getLoop() > 1) {
+            Component text = Component.literal((displayedLoop + 1) + "/" + this.recipe.getLoop()).withColor(0xB08E82);
             AgeratumUtil.renderText(graphics, text, STEP_X + 140, FLOW_Y + 4, 1.2f);
             graphics.blit(CYCLE, STEP_X + 122, FLOW_Y, 0, 0, 16, 16, 16, 16);
             renderArrowLong(graphics, WIDTH / 2 - ARROW_LONG_LENGTH / 2 - 20, FLOW_Y);

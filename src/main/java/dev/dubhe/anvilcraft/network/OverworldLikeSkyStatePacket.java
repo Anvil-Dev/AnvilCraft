@@ -42,6 +42,6 @@ public record OverworldLikeSkyStatePacket(
 
     @Override
     public void handleOnClient(Player player) {
-        OverworldLikeClientState.update(generation, visualSeed, orbitEpochGameTime, phase);
+        OverworldLikeClientState.update(this.generation, this.visualSeed, this.orbitEpochGameTime, this.phase);
     }
 }

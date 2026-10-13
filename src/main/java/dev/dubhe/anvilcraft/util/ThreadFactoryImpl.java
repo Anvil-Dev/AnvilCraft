@@ -11,18 +11,18 @@ public class ThreadFactoryImpl implements java.util.concurrent.ThreadFactory {
     @SuppressWarnings("removal")
     public ThreadFactoryImpl() {
         SecurityManager s = System.getSecurityManager();
-        group = (s != null)
+        this.group = (s != null)
             ? s.getThreadGroup()
             : Thread.currentThread().getThreadGroup();
-        namePrefix = "AnvilCraftWorker-" + poolNumber.getAndIncrement() + "-thread-";
+        this.namePrefix = "AnvilCraftWorker-" + poolNumber.getAndIncrement() + "-thread-";
     }
 
     @Override
     public Thread newThread(Runnable r) {
         Thread t = new Thread(
-            group,
+            this.group,
             r,
-            namePrefix + threadNumber.getAndIncrement(),
+            this.namePrefix + this.threadNumber.getAndIncrement(),
             0
         );
         t.setDaemon(true);

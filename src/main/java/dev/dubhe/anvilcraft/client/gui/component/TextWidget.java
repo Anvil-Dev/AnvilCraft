@@ -18,7 +18,7 @@ public class TextWidget extends StringWidget {
 
     @Override
     public Component getMessage() {
-        return provider.get();
+        return this.provider.get();
     }
 
     protected void horizontalAlignment(float horizontalAlignment) {

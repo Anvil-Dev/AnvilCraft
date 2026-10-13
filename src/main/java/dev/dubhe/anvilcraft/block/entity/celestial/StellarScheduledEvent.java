@@ -29,6 +29,6 @@ public record StellarScheduledEvent(
     }
 
     public float progress(double elapsed) {
-        return (float) Math.clamp((elapsed - startOffset) / (endOffset - startOffset), 0, 1);
+        return (float) Math.clamp((elapsed - this.startOffset) / (this.endOffset - this.startOffset), 0, 1);
     }
 }

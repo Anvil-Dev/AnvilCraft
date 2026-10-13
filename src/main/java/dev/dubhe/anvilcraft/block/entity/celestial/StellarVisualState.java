@@ -116,23 +116,23 @@ public record StellarVisualState(
     }
 
     public float red() {
-        return ((surfaceColor >> 16) & 0xFF) / 255.0f;
+        return ((this.surfaceColor >> 16) & 0xFF) / 255.0f;
     }
 
     public float green() {
-        return ((surfaceColor >> 8) & 0xFF) / 255.0f;
+        return ((this.surfaceColor >> 8) & 0xFF) / 255.0f;
     }
 
     public float blue() {
-        return (surfaceColor & 0xFF) / 255.0f;
+        return (this.surfaceColor & 0xFF) / 255.0f;
     }
 
     public int surfaceColorRgb() {
-        return surfaceColor;
+        return this.surfaceColor;
     }
 
     public float[] surfaceColorComponents() {
-        return new float[] {red(), green(), blue()};
+        return new float[] {this.red(), this.green(), this.blue()};
     }
 
     /**
@@ -350,40 +350,41 @@ public record StellarVisualState(
      * 旧实现里换阶段出现高频抖动的原因。每个脉冲的峰值逐次降低，末段再收敛回包络。</p>
      */
     public float radiusAt(double phaseProgress) {
-        if (pulsationAmplitude <= 0.0f || pulsationFrequency <= 0.0f) return radius;
+        if (this.pulsationAmplitude <= 0.0f || this.pulsationFrequency <= 0.0f) return this.radius;
         double progress = Double.isFinite(phaseProgress) ? Math.clamp(phaseProgress, 0.0, 1.0) : 0.0;
-        double riseFraction = 1.0 / (pulsationFrequency + 1.0);
+        double riseFraction = 1.0 / (this.pulsationFrequency + 1.0);
         double pulseProgress = Math.clamp((progress - riseFraction) / (1.0 - riseFraction), 0.0, 1.0);
         double exit = Math.clamp((progress - PULSE_EXIT_START) / (1.0 - PULSE_EXIT_START), 0.0, 1.0);
         double hold = 1.0 - exit * exit * (3.0 - 2.0 * exit);
-        double dip = 0.5 - 0.5 * Math.cos(pulseProgress * pulsationFrequency * Math.PI * 2.0);
-        double peak = 1.0 - PULSE_PEAK_DECAY * pulsationAmplitude * pulseProgress * hold;
-        return radius * (float) (peak * (1.0 - pulsationAmplitude * dip * hold));
+        double dip = 0.5 - 0.5 * Math.cos(pulseProgress * this.pulsationFrequency * Math.PI * 2.0);
+        double peak = 1.0 - PULSE_PEAK_DECAY * this.pulsationAmplitude * pulseProgress * hold;
+        return this.radius * (float) (peak * (1.0 - this.pulsationAmplitude * dip * hold));
     }
 
     public StellarVisualState withWind(float strength, float progress) {
-        return new StellarVisualState(radius, temperature, luminosity, surfaceColor, emission, envelopeOpacity,
-            coreRadius, ejectaRadius, pulsationAmplitude, pulsationFrequency, surfaceStyle, strength, progress);
+        return new StellarVisualState(this.radius, this.temperature, this.luminosity, this.surfaceColor, this.emission,
+            this.envelopeOpacity, this.coreRadius, this.ejectaRadius, this.pulsationAmplitude, this.pulsationFrequency,
+            this.surfaceStyle, strength, progress);
     }
 
     /** 返回只替换视觉半径的快照，保持其它物理量和玩法字段不变。 */
     public StellarVisualState withRadius(float newRadius) {
         float safe = Math.max(0.01f, newRadius);
-        float ratio = radius <= 0.01f ? 1.0f : safe / radius;
+        float ratio = this.radius <= 0.01f ? 1.0f : safe / this.radius;
         return new StellarVisualState(
             safe,
-            temperature,
-            luminosity,
-            surfaceColor,
-            emission,
-            envelopeOpacity,
-            coreRadius * ratio,
-            ejectaRadius * ratio,
-            pulsationAmplitude,
-            pulsationFrequency,
-            surfaceStyle,
-            windStrength,
-            flowProgress
+            this.temperature,
+            this.luminosity,
+            this.surfaceColor,
+            this.emission,
+            this.envelopeOpacity,
+            this.coreRadius * ratio,
+            this.ejectaRadius * ratio,
+            this.pulsationAmplitude,
+            this.pulsationFrequency,
+            this.surfaceStyle,
+            this.windStrength,
+            this.flowProgress
         );
     }
 
@@ -391,37 +392,37 @@ public record StellarVisualState(
     public StellarVisualState withVisualRadius(float newRadius) {
         return new StellarVisualState(
             Math.max(0.01f, newRadius),
-            temperature,
-            luminosity,
-            surfaceColor,
-            emission,
-            envelopeOpacity,
-            coreRadius,
-            ejectaRadius,
-            pulsationAmplitude,
-            pulsationFrequency,
-            surfaceStyle,
-            windStrength,
-            flowProgress
+            this.temperature,
+            this.luminosity,
+            this.surfaceColor,
+            this.emission,
+            this.envelopeOpacity,
+            this.coreRadius,
+            this.ejectaRadius,
+            this.pulsationAmplitude,
+            this.pulsationFrequency,
+            this.surfaceStyle,
+            this.windStrength,
+            this.flowProgress
         );
     }
 
     /** 只替换表面颜色，用于从发现时颜色平滑过渡到轨道颜色。 */
     public StellarVisualState withSurfaceColor(int color) {
         return new StellarVisualState(
-            radius,
-            temperature,
-            luminosity,
+            this.radius,
+            this.temperature,
+            this.luminosity,
             color,
-            emission,
-            envelopeOpacity,
-            coreRadius,
-            ejectaRadius,
-            pulsationAmplitude,
-            pulsationFrequency,
-            surfaceStyle,
-            windStrength,
-            flowProgress
+            this.emission,
+            this.envelopeOpacity,
+            this.coreRadius,
+            this.ejectaRadius,
+            this.pulsationAmplitude,
+            this.pulsationFrequency,
+            this.surfaceStyle,
+            this.windStrength,
+            this.flowProgress
         );
     }
 }

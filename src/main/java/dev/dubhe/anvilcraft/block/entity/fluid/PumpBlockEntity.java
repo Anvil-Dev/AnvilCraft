@@ -81,19 +81,19 @@ public class PumpBlockEntity extends AbstractPipeBlockEntity implements IPowerCo
     @Override
     protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.saveAdditional(tag, registries);
-        tag.putBoolean("Working", working);
+        tag.putBoolean("Working", this.working);
     }
 
     @Override
     public void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.loadAdditional(tag, registries);
-        working = tag.getBoolean("Working");
+        this.working = tag.getBoolean("Working");
     }
 
     @Override
     public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
         CompoundTag tag = super.getUpdateTag(registries);
-        tag.putBoolean("Working", working);
+        tag.putBoolean("Working", this.working);
         return tag;
     }
 

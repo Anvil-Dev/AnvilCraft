@@ -425,10 +425,10 @@ final class MunShadowMesh implements AutoCloseable {
             }
 
             private void flush() {
-                if (this.size == 4 && count + 6 <= limit) {
+                if (this.size == 4 && Builder.this.count + 6 <= Builder.this.limit) {
                     for (int vertex : TRIANGLE_INDICES) {
                         int index = vertex * 5;
-                        coloredVertex(this.quad[index], this.quad[index + 1], this.quad[index + 2],
+                        Builder.this.coloredVertex(this.quad[index], this.quad[index + 1], this.quad[index + 2],
                             this.quad[index + 3], this.quad[index + 4], this.colors[vertex]);
                     }
                 }

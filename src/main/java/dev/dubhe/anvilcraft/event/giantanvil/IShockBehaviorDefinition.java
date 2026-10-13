@@ -31,12 +31,12 @@ interface IShockBehaviorDefinition {
 
         @Override
         public boolean cornerMatches(BlockPos centerPos, Level level) {
-            for (int dx : dt) {
-                for (int dz : dt) {
+            for (int dx : this.dt) {
+                for (int dz : this.dt) {
                     BlockPos pos =
                         new BlockPos(dx + centerPos.getX(), centerPos.getY(), dz + centerPos.getZ());
                     BlockState state = level.getBlockState(pos);
-                    if (!blockMatches(state)) return false;
+                    if (!this.blockMatches(state)) return false;
                 }
             }
             return true;
@@ -46,7 +46,7 @@ interface IShockBehaviorDefinition {
 
         @Override
         public void acceptRanges(List<BlockPos> blockPosList, Level level) {
-            rangeAcceptor.accept(blockPosList, level);
+            this.rangeAcceptor.accept(blockPosList, level);
         }
     }
     // spotless:on
@@ -90,7 +90,7 @@ interface IShockBehaviorDefinition {
 
         @Override
         public void acceptRanges(List<BlockPos> blockPosList, Level level) {
-            rangeAcceptor.accept(blockPosList, level);
+            this.rangeAcceptor.accept(blockPosList, level);
         }
 
         @Override

@@ -107,7 +107,7 @@ public class RoyalGrindstoneMenu extends AbstractContainerMenu {
         });
         this.addSlot(new Slot(this.repairMaterialSlots, 0, 35, 21) {
             public boolean mayPlace(ItemStack stack) {
-                return isRepairMaterial(stack);
+                return RoyalGrindstoneMenu.this.isRepairMaterial(stack);
             }
         });
         this.addSlot(new Slot(this.resultToolSlots, 2, 152, 51) {
@@ -117,11 +117,25 @@ public class RoyalGrindstoneMenu extends AbstractContainerMenu {
 
             public void onTake(Player player, ItemStack stack) {
                 player.playSound(SoundEvents.GRINDSTONE_USE);
-                if (currentRecipe != null) {
-                    resultMaterialSlots.setItem(2, new ItemStack(currentRecipe.item, usedGold + resultMaterialSlots.getItem(2).getCount()));
-                    repairMaterialSlots.setItem(0, new ItemStack(repairMaterial, repairMaterialSlots.getItem(0).getCount() - usedGold));
+                if (RoyalGrindstoneMenu.this.currentRecipe != null) {
+                    RoyalGrindstoneMenu.this.resultMaterialSlots.setItem(
+                        2,
+                        new ItemStack(
+                            RoyalGrindstoneMenu.this.currentRecipe.item,
+                            RoyalGrindstoneMenu.this.usedGold
+                                + RoyalGrindstoneMenu.this.resultMaterialSlots.getItem(2).getCount()
+                        )
+                    );
+                    RoyalGrindstoneMenu.this.repairMaterialSlots.setItem(
+                        0,
+                        new ItemStack(
+                            RoyalGrindstoneMenu.this.repairMaterial,
+                            RoyalGrindstoneMenu.this.repairMaterialSlots.getItem(0).getCount()
+                                - RoyalGrindstoneMenu.this.usedGold
+                        )
+                    );
                 }
-                repairToolSlots.setItem(0, ItemStack.EMPTY);
+                RoyalGrindstoneMenu.this.repairToolSlots.setItem(0, ItemStack.EMPTY);
             }
         });
         this.addSlot(new Slot(this.resultMaterialSlots, 2, 35, 45) {
@@ -146,9 +160,9 @@ public class RoyalGrindstoneMenu extends AbstractContainerMenu {
         this.totalCurseCount = 0;
         this.removedRepairCost = 0;
         this.removedCurseCount = 0;
-        final ItemStack repairTool = repairToolSlots.getItem(0);
-        final ItemStack repairMaterialSlotItem = repairMaterialSlots.getItem(0);
-        final ItemStack resultMaterialSlotItem = resultMaterialSlots.getItem(0);
+        final ItemStack repairTool = this.repairToolSlots.getItem(0);
+        final ItemStack repairMaterialSlotItem = this.repairMaterialSlots.getItem(0);
+        final ItemStack resultMaterialSlotItem = this.resultMaterialSlots.getItem(0);
         this.repairMaterial = repairMaterialSlotItem.getItem();
         this.currentRecipe = REPAIR_COST_RECIPES.getOrDefault(repairMaterialSlotItem.getItem(), null);
         if (!resultMaterialSlotItem.isEmpty()
@@ -181,15 +195,15 @@ public class RoyalGrindstoneMenu extends AbstractContainerMenu {
         }
         int repairMaterialUsable = Math.min(
             repairMaterialSlotItem.getCount(),
-            currentRecipe.item.getDefaultMaxStackSize() - resultMaterialSlotItem.getCount()
+            this.currentRecipe.item.getDefaultMaxStackSize() - resultMaterialSlotItem.getCount()
         );
         int perUnitRepair = this.currentRecipe.count;
         int maxUnitsByCost = repairCost / perUnitRepair;
         this.usedGold = Math.min(maxUnitsByCost, repairMaterialUsable);
         int maxRemovable = perUnitRepair * this.usedGold;
         repairMaterialUsable -= this.usedGold;
-        removedRepairCost = Math.min(repairCost, maxRemovable);
-        int remainRepairCost = repairCost - removedRepairCost;
+        this.removedRepairCost = Math.min(repairCost, maxRemovable);
+        int remainRepairCost = repairCost - this.removedRepairCost;
         result.set(DataComponents.REPAIR_COST, remainRepairCost);
         if (repairMaterialSlotItem.is(DEFAULT_REPAIR_MATERIAL)
             && repairMaterialSlotItem.getCount() - this.usedGold >= GOLD_PER_CURSE
@@ -201,7 +215,7 @@ public class RoyalGrindstoneMenu extends AbstractContainerMenu {
                 iterator.remove();
                 this.usedGold += GOLD_PER_CURSE;
                 repairMaterialUsable -= GOLD_PER_CURSE;
-                removedCurseCount += 1;
+                this.removedCurseCount += 1;
             }
             result.set(enchantmentComponent, mutEnch.toImmutable());
             if (result.is(Items.ENCHANTED_BOOK) && !EnchantmentHelper.hasAnyEnchantments(result)) {
@@ -238,14 +252,14 @@ public class RoyalGrindstoneMenu extends AbstractContainerMenu {
                     } else {
                         return ItemStack.EMPTY;
                     }
-                } else if (isRepairMaterial(itemStack)) {
+                } else if (this.isRepairMaterial(itemStack)) {
                     if (!this.getSlot(1).hasItem()) {
                         this.getSlot(1).setByPlayer(itemStack);
                         this.getSlot(index).setByPlayer(ItemStack.EMPTY);
                     } else {
                         ItemStack gold = this.getSlot(1).getItem();
                         if (ItemStack.isSameItemSameComponents(gold, itemStack)
-                            && (isRepairMaterial(itemStack) && isRepairMaterial(gold))
+                            && (this.isRepairMaterial(itemStack) && this.isRepairMaterial(gold))
                             && gold.getCount() < gold.getMaxStackSize()
                         ) {
                             int canSet = gold.getMaxStackSize() - gold.getCount();
@@ -274,7 +288,7 @@ public class RoyalGrindstoneMenu extends AbstractContainerMenu {
         super.slotsChanged(container);
         if (container.equals(this.repairMaterialSlots)
             || container.equals(this.repairToolSlots)) {
-            resultToolSlots.setItem(2, createResult());
+            this.resultToolSlots.setItem(2, this.createResult());
         }
     }
 

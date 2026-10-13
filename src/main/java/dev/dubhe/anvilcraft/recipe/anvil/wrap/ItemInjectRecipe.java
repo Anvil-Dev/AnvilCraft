@@ -207,7 +207,7 @@ public class ItemInjectRecipe extends AbstractProcessRecipe<ItemInjectRecipe> {
 
         @Override
         public Item getResult() {
-            return blockResult == null ? super.getResult() : WrapUtils.getItem(blockResult);
+            return this.blockResult == null ? super.getResult() : WrapUtils.getItem(this.blockResult);
         }
 
         @Override

@@ -92,7 +92,7 @@ public class FrostGrindstoneMenu extends AbstractContainerMenu {
             @Override
             public void set(ItemStack stack) {
                 super.set(stack);
-                refreshEnchantments();
+                FrostGrindstoneMenu.this.refreshEnchantments();
             }
         });
         this.addSlot(new Slot(this.result, 0, 145, 34) {

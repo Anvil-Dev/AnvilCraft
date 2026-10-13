@@ -64,7 +64,7 @@ public class OutputDirectionButton extends Button {
 
     @Override
     public void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-        ResourceLocation location = switch (direction) {
+        ResourceLocation location = switch (this.direction) {
             case UP -> SharedTextures.BUTTON_U;
             case EAST -> SharedTextures.BUTTON_E;
             case WEST -> SharedTextures.BUTTON_W;
@@ -115,6 +115,6 @@ public class OutputDirectionButton extends Button {
             case NORTH -> Direction.UP;
             default -> Direction.EAST;
         };
-        return this.skip.contains(direction1) ? next(direction1) : direction1;
+        return this.skip.contains(direction1) ? this.next(direction1) : direction1;
     }
 }

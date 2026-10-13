@@ -30,7 +30,7 @@ public class MatterDecompressorHandler extends BaseMegastructureHandler {
         if (be.getLevel() == null || be.getLevel().isClientSide()) return;
         if (!be.isAmplifierPresent()) return;
         CelestialRefactorOption option = be.getActiveMegastructureOption();
-        if (option == null || !name().equals(option.megastructure())) return;
+        if (option == null || !this.name().equals(option.megastructure())) return;
         if (!(be.getCelestialBodyData() instanceof StarData star)) return;
 
         CelestialBodyClass bodyClass = star.bodyClass();
@@ -51,7 +51,7 @@ public class MatterDecompressorHandler extends BaseMegastructureHandler {
         if (bodyClass == CelestialBodyClass.BLACK_HOLE) {
             ItemLike voidMatter = dev.dubhe.anvilcraft.init.item.ModItems.VOID_MATTER.get();
             ItemStack output = new ItemStack(voidMatter, efficiency);
-            tryInsert(be, output);
+            this.tryInsert(be, output);
 
             // 激发态虚空物质：概率 = ((B-4)×2)%，最低为0，B是磁场强度
             if (magneticField > 4) {
@@ -59,18 +59,18 @@ public class MatterDecompressorHandler extends BaseMegastructureHandler {
                 if (be.getLevel().random.nextInt(100) < chance) {
                     ItemLike excitedVoidMatter = dev.dubhe.anvilcraft.init.item.ModItems.EXCITED_STATE_VOID_MATTER.get();
                     ItemStack specialOutput = new ItemStack(excitedVoidMatter, 1);
-                    tryInsert(be, specialOutput);
+                    this.tryInsert(be, specialOutput);
                 }
             }
         } else {
-            counter++;
+            this.counter++;
             int interval = NEUTRON_STAR_INTERVAL / efficiency;
             if (interval < 1) interval = 1;
-            if (counter >= interval) {
-                counter = 0;
+            if (this.counter >= interval) {
+                this.counter = 0;
                 ItemLike neutroniumIngot = dev.dubhe.anvilcraft.init.item.ModItems.NEUTRONIUM_INGOT.get();
                 ItemStack output = new ItemStack(neutroniumIngot, 1);
-                tryInsert(be, output);
+                this.tryInsert(be, output);
 
                 // 充能中子锭：概率 = ((B-3)^2)%，最低为0，B是磁场强度
                 if (magneticField > 3) {
@@ -78,7 +78,7 @@ public class MatterDecompressorHandler extends BaseMegastructureHandler {
                     if (be.getLevel().random.nextInt(100) < chance) {
                         ItemLike chargedNeutronium = dev.dubhe.anvilcraft.init.item.ModItems.CHARGED_NEUTRONIUM_INGOT.get();
                         ItemStack specialOutput = new ItemStack(chargedNeutronium, 1);
-                        tryInsert(be, specialOutput);
+                        this.tryInsert(be, specialOutput);
                     }
                 }
             }
@@ -88,9 +88,9 @@ public class MatterDecompressorHandler extends BaseMegastructureHandler {
     private void tryInsert(CelestialForgingAnvilBlockEntity be, ItemStack output) {
         var logistics = findOutputLogisticsInterfaces(be);
         if (logistics.size() == 0) return;
-        ItemOutputResult result = insertOutputItem(logistics, output, logisticsRoundRobin);
+        ItemOutputResult result = insertOutputItem(logistics, output, this.logisticsRoundRobin);
         if (result.remainder().getCount() < output.getCount()) {
-            logisticsRoundRobin = result.nextIndex();
+            this.logisticsRoundRobin = result.nextIndex();
         }
     }
 

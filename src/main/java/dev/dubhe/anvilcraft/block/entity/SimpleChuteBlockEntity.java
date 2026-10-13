@@ -55,15 +55,15 @@ public class SimpleChuteBlockEntity extends BlockEntity implements IItemHandlerH
     @Override
     protected void saveAdditional(CompoundTag tag, HolderLookup.Provider provider) {
         super.saveAdditional(tag, provider);
-        tag.putInt("Cooldown", cooldown);
-        tag.put("Inventory", itemHandler.serializeNBT(provider));
+        tag.putInt("Cooldown", this.cooldown);
+        tag.put("Inventory", this.itemHandler.serializeNBT(provider));
     }
 
     @Override
     public void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
         super.loadAdditional(tag, provider);
-        cooldown = tag.getInt("Cooldown");
-        itemHandler.deserializeNBT(provider, tag.getCompound("Inventory"));
+        this.cooldown = tag.getInt("Cooldown");
+        this.itemHandler.deserializeNBT(provider, tag.getCompound("Inventory"));
     }
 
     /**
@@ -72,9 +72,9 @@ public class SimpleChuteBlockEntity extends BlockEntity implements IItemHandlerH
     @SuppressWarnings({"UnreachableCode", "DuplicatedCode"})
     public void tick() {
         if (level == null) return;
-        if (cooldown > 0) cooldown--;
-        tickedGameTime = level.getGameTime();
-        if (cooldown == 0) {
+        if (this.cooldown > 0) this.cooldown--;
+        this.tickedGameTime = level.getGameTime();
+        if (this.cooldown == 0) {
             for (int i = 0; i < this.itemHandler.getSlots(); i++) {
                 if (!this.itemHandler.getStackInSlot(i).isEmpty()) {
                     this.cooldown = AnvilCraft.CONFIG.machines.chuteMaxCooldown + 1;
@@ -82,15 +82,15 @@ public class SimpleChuteBlockEntity extends BlockEntity implements IItemHandlerH
                 }
             }
         }
-        if (cooldown == 1) {
-            BlockPos targetPos = getBlockPos().relative(getOutputDirection());
+        if (this.cooldown == 1) {
+            BlockPos targetPos = getBlockPos().relative(this.getOutputDirection());
             BlockEntity targetBE = level.getBlockEntity(targetPos);
             boolean isTargetEmpty = false;
-            if (targetBE != null) isTargetEmpty = isTargetEmpty(targetBE);
+            if (targetBE != null) isTargetEmpty = this.isTargetEmpty(targetBE);
             // 尝试向朝向容器输出
             List<IItemHandler> targetList = getTargetItemHandlerList(
                 targetPos,
-                getOutputDirection().getOpposite(),
+                this.getOutputDirection().getOpposite(),
                 level
             );
             if (targetList != null && !targetList.isEmpty()) {
@@ -98,16 +98,16 @@ public class SimpleChuteBlockEntity extends BlockEntity implements IItemHandlerH
                     boolean success = ItemHandlerUtil.exportToTarget(getItemHandler(), 64, stack -> true, target);
                     if (success) {
                         // 特判溜槽cd7gt
-                        if (isTargetEmpty) setChuteCD(targetBE);
+                        if (isTargetEmpty) this.setChuteCD(targetBE);
                         break;
                     }
                 }
             } else {
-                Vec3 center = getBlockPos().relative(getDirection()).getCenter();
+                Vec3 center = getBlockPos().relative(this.getDirection()).getCenter();
                 List<ItemEntity> itemEntities = Objects.requireNonNull(getLevel())
                     .getEntitiesOfClass(
                         ItemEntity.class,
-                        new AABB(getBlockPos().relative(getDirection())).expandTowards(0, -0.5, 0),
+                        new AABB(getBlockPos().relative(this.getDirection())).expandTowards(0, -0.5, 0),
                         itemEntity -> !itemEntity.getItem().isEmpty()
                     );
                 AABB aabb = new AABB(
@@ -182,8 +182,8 @@ public class SimpleChuteBlockEntity extends BlockEntity implements IItemHandlerH
 
     public int getRedstoneSignal() {
         int i = 0;
-        for (int j = 0; j < itemHandler.getSlots(); ++j) {
-            ItemStack itemStack = itemHandler.getStackInSlot(j);
+        for (int j = 0; j < this.itemHandler.getSlots(); ++j) {
+            ItemStack itemStack = this.itemHandler.getStackInSlot(j);
             if (itemStack.isEmpty()) {
                 continue;
             }
@@ -193,12 +193,12 @@ public class SimpleChuteBlockEntity extends BlockEntity implements IItemHandlerH
     }
 
     protected Direction getOutputDirection() {
-        return getDirection();
+        return this.getDirection();
     }
 
     public boolean isEmpty() {
-        for (int i = 0; i < itemHandler.getSlots(); i++) {
-            if (!itemHandler.getStackInSlot(i).isEmpty()) return false;
+        for (int i = 0; i < this.itemHandler.getSlots(); i++) {
+            if (!this.itemHandler.getStackInSlot(i).isEmpty()) return false;
         }
         return true;
     }

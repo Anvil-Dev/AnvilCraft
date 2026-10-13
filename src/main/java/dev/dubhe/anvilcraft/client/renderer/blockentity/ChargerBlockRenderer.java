@@ -36,7 +36,7 @@ public class ChargerBlockRenderer extends BaseShowItemRenderer<ChargerBlockEntit
         int packedLight,
         int packedOverlay
     ) {
-        ItemStack stack = getDisplayItemStack(be);
+        ItemStack stack = this.getDisplayItemStack(be);
         if (stack == null || stack.isEmpty()) return;
 
         poseStack.pushPose();

@@ -22,7 +22,7 @@ public class FullBrightLevel implements BlockAndTintGetter {
 
     @Override
     public float getShade(Direction direction, boolean shade) {
-        return delegate.getShade(direction, shade);
+        return this.delegate.getShade(direction, shade);
     }
 
     @Override
@@ -33,7 +33,7 @@ public class FullBrightLevel implements BlockAndTintGetter {
 
     @Override
     public int getBlockTint(BlockPos blockPos, ColorResolver colorResolver) {
-        return delegate.getBlockTint(blockPos, colorResolver);
+        return this.delegate.getBlockTint(blockPos, colorResolver);
     }
 
     @Override
@@ -48,26 +48,26 @@ public class FullBrightLevel implements BlockAndTintGetter {
 
     @Override
     public @Nullable BlockEntity getBlockEntity(BlockPos pos) {
-        return delegate.getBlockEntity(pos);
+        return this.delegate.getBlockEntity(pos);
     }
 
     @Override
     public BlockState getBlockState(BlockPos pos) {
-        return delegate.getBlockState(pos);
+        return this.delegate.getBlockState(pos);
     }
 
     @Override
     public FluidState getFluidState(BlockPos pos) {
-        return delegate.getFluidState(pos);
+        return this.delegate.getFluidState(pos);
     }
 
     @Override
     public int getHeight() {
-        return delegate.getHeight();
+        return this.delegate.getHeight();
     }
 
     @Override
     public int getMinBuildHeight() {
-        return delegate.getMinBuildHeight();
+        return this.delegate.getMinBuildHeight();
     }
 }

@@ -36,10 +36,10 @@ public class JewelResultSlot extends Slot {
             player.awardStat(Stats.ITEM_CRAFTED.get(stack.getItem()), stack.getCount());
         }
         player.awardStat(Stats.INTERACT_WITH_CRAFTING_TABLE);
-        if (sourceContainer.getRecipe() != null) {
-            for (int i = 0; i < sourceContainer.getRecipe().value().mergedIngredients.size(); i++) {
-                var entry = sourceContainer.getRecipe().value().mergedIngredients.get(i);
-                craftSlots.removeItem(i, entry.getIntValue());
+        if (this.sourceContainer.getRecipe() != null) {
+            for (int i = 0; i < this.sourceContainer.getRecipe().value().mergedIngredients.size(); i++) {
+                var entry = this.sourceContainer.getRecipe().value().mergedIngredients.get(i);
+                this.craftSlots.removeItem(i, entry.getIntValue());
             }
         }
     }

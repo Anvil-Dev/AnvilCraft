@@ -103,7 +103,7 @@ public class WeaponBeamEntity extends Entity {
 
     @Nullable
     public Entity getOwner() {
-        int ownerId = getOwnerId();
+        int ownerId = this.getOwnerId();
         return ownerId < 0 ? null : this.level().getEntity(ownerId);
     }
 
@@ -114,8 +114,8 @@ public class WeaponBeamEntity extends Entity {
     @Override
     public void tick() {
         super.tick();
-        if (this.level().isClientSide && getStyle() != TESLA) return;
-        if (this.tickCount > (getStyle() == TESLA ? 5 : 2)) this.discard();
+        if (this.level().isClientSide && this.getStyle() != TESLA) return;
+        if (this.tickCount > (this.getStyle() == TESLA ? 5 : 2)) this.discard();
     }
 
     @Override

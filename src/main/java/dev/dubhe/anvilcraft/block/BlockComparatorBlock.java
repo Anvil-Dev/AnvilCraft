@@ -143,7 +143,7 @@ public class BlockComparatorBlock extends Block implements IHammerRemovable, IHa
         ) {
             return;
         }
-        boolean newPowered = checkBlocks(level, pos, state);
+        boolean newPowered = this.checkBlocks(level, pos, state);
         level.setBlock(pos, state.setValue(POWERED, newPowered), 3);
         this.updateNeighborsInFront(level, pos, state);
     }
@@ -173,7 +173,7 @@ public class BlockComparatorBlock extends Block implements IHammerRemovable, IHa
             return InteractionResult.PASS;
         } else {
             BlockState newState = state.cycle(PRECISE);
-            level.setBlock(pos, newState.setValue(POWERED, checkBlocks(level, pos, newState)), 2);
+            level.setBlock(pos, newState.setValue(POWERED, this.checkBlocks(level, pos, newState)), 2);
             this.updateNeighborsInFront(level, pos, state);
             return InteractionResult.sidedSuccess(level.isClientSide);
         }
@@ -220,7 +220,7 @@ public class BlockComparatorBlock extends Block implements IHammerRemovable, IHa
 
     @Override
     protected void tick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
-        boolean same = checkBlocks(level, pos, state);
+        boolean same = this.checkBlocks(level, pos, state);
         if (same != state.getValue(POWERED)) {
             level.setBlock(pos, state.setValue(POWERED, same), 2);
             this.updateNeighborsInFront(level, pos, state);
@@ -331,7 +331,7 @@ public class BlockComparatorBlock extends Block implements IHammerRemovable, IHa
 
         @Override
         public String getSerializedName() {
-            return name;
+            return this.name;
         }
 
         public static FacingWithAxis of(Direction facing, Direction.Axis axis) {

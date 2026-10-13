@@ -47,7 +47,7 @@ public class TimeCountedPressurePlateBlockEntity extends BlockEntity {
     }
 
     public int getSignalStrength() {
-        return Math.clamp(tick / (needTick == 0 ? 1 : needTick), 0, 15);
+        return Math.clamp(this.tick / (this.needTick == 0 ? 1 : this.needTick), 0, 15);
     }
 
     public void tick(Level level, BlockPos pos) {
@@ -55,11 +55,11 @@ public class TimeCountedPressurePlateBlockEntity extends BlockEntity {
         if (state.getBlock() instanceof TimeCountedPressurePlateBlock plate) {
             List<LivingEntity> entities = level.getEntities(EntityTypeTest.forClass(LivingEntity.class), new AABB(pos), entity -> true);
             if (!entities.isEmpty()) {
-                if (tick < plate.needTick * 15) {
-                    tick++;
+                if (this.tick < plate.needTick * 15) {
+                    this.tick++;
                 }
-            } else if (tick > 0) {
-                tick--;
+            } else if (this.tick > 0) {
+                this.tick--;
             }
         }
     }

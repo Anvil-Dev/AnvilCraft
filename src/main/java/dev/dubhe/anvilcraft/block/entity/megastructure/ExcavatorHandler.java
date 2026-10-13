@@ -55,15 +55,15 @@ public class ExcavatorHandler extends BaseMegastructureHandler {
     public void serverTick(CelestialForgingAnvilBlockEntity be) {
         if (be.getLevel() == null || be.getLevel().isClientSide()) return;
         CelestialRefactorOption option = be.getActiveMegastructureOption();
-        if (option == null || !name().equals(option.megastructure())) {
-            laserActive = false;
+        if (option == null || !this.name().equals(option.megastructure())) {
+            this.laserActive = false;
             return;
         }
         List<CelestialForgingAnvilLaserInterfaceBlockEntity> laserInterfaces = findLaserInterfaces(be);
-        if (tryShatterPlanet(be, laserInterfaces)) return;
+        if (this.tryShatterPlanet(be, laserInterfaces)) return;
         if (be.isAmplify()) {
-            if (laserActive) {
-                laserActive = false;
+            if (this.laserActive) {
+                this.laserActive = false;
                 be.setChanged();
                 be.getLevel().sendBlockUpdated(be.getBlockPos(), be.getBlockState(), be.getBlockState(), 3);
             }
@@ -71,10 +71,10 @@ public class ExcavatorHandler extends BaseMegastructureHandler {
         }
         if (be.getPlanetaryResourceSet() == null) return;
 
-        List<CelestialForgingAnvilLaserInterfaceBlockEntity> validLasers = findValidLasers(laserInterfaces);
+        List<CelestialForgingAnvilLaserInterfaceBlockEntity> validLasers = this.findValidLasers(laserInterfaces);
         boolean hasValidLaser = !validLasers.isEmpty();
-        if (laserActive != hasValidLaser) {
-            laserActive = hasValidLaser;
+        if (this.laserActive != hasValidLaser) {
+            this.laserActive = hasValidLaser;
             be.setChanged();
             be.getLevel().sendBlockUpdated(be.getBlockPos(), be.getBlockState(), be.getBlockState(), 3);
         }
@@ -108,7 +108,7 @@ public class ExcavatorHandler extends BaseMegastructureHandler {
         Block resourceBlock = Block.byItem(item);
         BlockState resourceState = resourceBlock == Blocks.AIR ? null : resourceBlock.defaultBlockState();
         if (resourceState == null && be.getLevel() instanceof ServerLevel serverLevel) {
-            resourceState = rawMaterialOres.computeIfAbsent(
+            resourceState = this.rawMaterialOres.computeIfAbsent(
                 item,
                 ignored -> BreakBlockUtil.findOreForRawMaterial(serverLevel, be.getBlockPos(), item.getDefaultInstance())
             ).orElse(null);
@@ -133,9 +133,9 @@ public class ExcavatorHandler extends BaseMegastructureHandler {
         if (logistics.size() == 0) return;
 
         for (ItemStack output : outputs) {
-            ItemOutputResult result = insertOutputItem(logistics, output, logisticsRoundRobin);
+            ItemOutputResult result = insertOutputItem(logistics, output, this.logisticsRoundRobin);
             if (result.remainder().getCount() < output.getCount()) {
-                logisticsRoundRobin = result.nextIndex();
+                this.logisticsRoundRobin = result.nextIndex();
             }
         }
     }
@@ -189,7 +189,7 @@ public class ExcavatorHandler extends BaseMegastructureHandler {
 
     @Override
     public void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        tag.putBoolean("excavatorLaserActive", laserActive);
+        tag.putBoolean("excavatorLaserActive", this.laserActive);
     }
 
     @Override
@@ -199,7 +199,7 @@ public class ExcavatorHandler extends BaseMegastructureHandler {
 
     @Override
     public void writeUpdateTag(CompoundTag tag, HolderLookup.Provider registries) {
-        tag.putBoolean("excavatorLaserActive", laserActive);
+        tag.putBoolean("excavatorLaserActive", this.laserActive);
     }
 
     @Override

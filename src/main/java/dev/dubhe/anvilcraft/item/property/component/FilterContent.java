@@ -68,7 +68,7 @@ public record FilterContent(NonNullList<ItemStack> list, boolean includeComponen
 
     public int getNestingLevel() {
         int maxLevel = 0;
-        for (ItemStack stack : list) {
+        for (ItemStack stack : this.list) {
             if (stack.has(ModComponents.FILTER_CONTENT)) {
                 FilterContent content = Objects.requireNonNull(stack.get(ModComponents.FILTER_CONTENT));
                 int nestingLevel = content.getNestingLevel();

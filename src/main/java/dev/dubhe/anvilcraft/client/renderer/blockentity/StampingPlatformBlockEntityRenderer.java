@@ -51,7 +51,7 @@ public class StampingPlatformBlockEntityRenderer
         int light,
         int overlay
     ) {
-        collectSelectionModels(platform, partialTick, pose, (model, partPose) -> Minecraft.getInstance()
+        this.collectSelectionModels(platform, partialTick, pose, (model, partPose) -> Minecraft.getInstance()
             .getBlockRenderer().getModelRenderer().renderModel(
                 partPose.last(), source.getBuffer(RenderType.cutout()), null,
                 Minecraft.getInstance().getModelManager().getModel(model), 0, 0, 0, light, overlay, ModelData.EMPTY, RenderType.cutout()

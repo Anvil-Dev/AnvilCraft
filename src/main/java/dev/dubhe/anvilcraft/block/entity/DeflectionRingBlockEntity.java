@@ -213,7 +213,7 @@ public class DeflectionRingBlockEntity extends BlockEntity implements IPowerCons
         PacketDistributor.sendToPlayersTrackingChunk(
             serverLevel,
             new ChunkPos(getBlockPos()),
-            new DeflectionRingUpdateLastSpeedPacket(getBlockPos(), lastEntitySpeed)
+            new DeflectionRingUpdateLastSpeedPacket(getBlockPos(), this.lastEntitySpeed)
         );
     }
 
@@ -225,7 +225,7 @@ public class DeflectionRingBlockEntity extends BlockEntity implements IPowerCons
     @Override
     protected void saveAdditional(CompoundTag tag, HolderLookup.Provider provider) {
         super.saveAdditional(tag, provider);
-        tag.putDouble("lastEntitySpeed", lastEntitySpeed);
+        tag.putDouble("lastEntitySpeed", this.lastEntitySpeed);
     }
 
     @Override
@@ -268,40 +268,40 @@ public class DeflectionRingBlockEntity extends BlockEntity implements IPowerCons
 
     public void tick() {
         if (level == null) return;
-        if (resetEntitySpeedTickCounter >= 40 && !level.isClientSide) updateLastEntitySpeed(0.0);
-        else resetEntitySpeedTickCounter++;
-        if (overSpeed && overSpeedTick > 1) {
-            overSpeed = false;
-            overSpeedTick = 0;
+        if (this.resetEntitySpeedTickCounter >= 40 && !level.isClientSide) this.updateLastEntitySpeed(0.0);
+        else this.resetEntitySpeedTickCounter++;
+        if (this.overSpeed && this.overSpeedTick > 1) {
+            this.overSpeed = false;
+            this.overSpeedTick = 0;
             BlockState state = getBlockState();
             if (!(state.getBlock() instanceof DeflectionRingBlock block)) return;
             block.updateState(level, getBlockPos(), DeflectionRingBlock.OVERLOAD, state.getValue(DeflectionRingBlock.OVERLOAD), 3);
-        } else if (overSpeed) {
-            overSpeedTick++;
+        } else if (this.overSpeed) {
+            this.overSpeedTick++;
         }
         if (level.isClientSide) {
             if (!getBlockState().getValue(DeflectionRingBlock.HALF).equals(DirectionCube3x3PartHalf.MID_CENTER)) return;
-            if (isWork()) {
-                addSelfToMap();
-                accelerate();
-            } else removeSelfFromMap();
+            if (this.isWork()) {
+                this.addSelfToMap();
+                this.accelerate();
+            } else this.removeSelfFromMap();
         }
-        if (grid == null) return;
+        if (this.grid == null) return;
         BlockState state = getBlockState();
         if (!state.getValue(DeflectionRingBlock.HALF).equals(DirectionCube3x3PartHalf.MID_CENTER)) return;
         if (!(state.getBlock() instanceof DeflectionRingBlock block)) return;
-        if (grid.isWorking() && state.getValue(DeflectionRingBlock.OVERLOAD)) {
+        if (this.grid.isWorking() && state.getValue(DeflectionRingBlock.OVERLOAD)) {
             block.updateState(level, getBlockPos(), DeflectionRingBlock.OVERLOAD, false, 3);
-        } else if (!grid.isWorking() && !state.getValue(DeflectionRingBlock.OVERLOAD)) {
+        } else if (!this.grid.isWorking() && !state.getValue(DeflectionRingBlock.OVERLOAD)) {
             block.updateState(level, getBlockPos(), DeflectionRingBlock.OVERLOAD, true, 3);
         }
-        if (!isWork()) {
-            removeSelfFromMap();
+        if (!this.isWork()) {
+            this.removeSelfFromMap();
             return;
         }
-        addSelfToMap();
-        if (state.getValue(DeflectionRingBlock.FACING).getAxis().equals(Direction.Axis.Y)) attractGianAnvil();
-        accelerate();
+        this.addSelfToMap();
+        if (state.getValue(DeflectionRingBlock.FACING).getAxis().equals(Direction.Axis.Y)) this.attractGianAnvil();
+        this.accelerate();
     }
 
     @SuppressWarnings("SuspiciousNameCombination")
@@ -372,7 +372,7 @@ public class DeflectionRingBlockEntity extends BlockEntity implements IPowerCons
             }
             entity.setDeltaMovement(acceleratedMovement);
             if (level.isClientSide) continue;
-            updateLastEntitySpeed(entity.getDeltaMovement().length());
+            this.updateLastEntitySpeed(entity.getDeltaMovement().length());
         }
     }
 
@@ -461,7 +461,7 @@ public class DeflectionRingBlockEntity extends BlockEntity implements IPowerCons
     @Override
     public void setRemoved() {
         super.setRemoved();
-        removeSelfFromMap();
+        this.removeSelfFromMap();
     }
 
     private static final class RingIndex {
@@ -470,18 +470,18 @@ public class DeflectionRingBlockEntity extends BlockEntity implements IPowerCons
 
         private void add(BlockPos pos) {
             BlockPos immutablePos = pos.immutable();
-            if (!positions.add(immutablePos)) return;
+            if (!this.positions.add(immutablePos)) return;
             long chunkKey = ChunkPos.asLong(immutablePos.getX() >> 4, immutablePos.getZ() >> 4);
-            byChunk.computeIfAbsent(chunkKey, ignored -> new HashSet<>()).add(immutablePos);
+            this.byChunk.computeIfAbsent(chunkKey, ignored -> new HashSet<>()).add(immutablePos);
         }
 
         private void remove(BlockPos pos) {
-            if (!positions.remove(pos)) return;
+            if (!this.positions.remove(pos)) return;
             long chunkKey = ChunkPos.asLong(pos.getX() >> 4, pos.getZ() >> 4);
-            HashSet<BlockPos> chunkPositions = byChunk.get(chunkKey);
+            HashSet<BlockPos> chunkPositions = this.byChunk.get(chunkKey);
             if (chunkPositions == null) return;
             chunkPositions.remove(pos);
-            if (chunkPositions.isEmpty()) byChunk.remove(chunkKey);
+            if (chunkPositions.isEmpty()) this.byChunk.remove(chunkKey);
         }
     }
 }

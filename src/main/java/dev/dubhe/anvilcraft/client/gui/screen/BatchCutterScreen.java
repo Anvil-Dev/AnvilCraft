@@ -71,7 +71,7 @@ public class BatchCutterScreen extends BaseMachineScreen<BatchCutterMenu> implem
     @Override
     protected void init() {
         super.init();
-        this.enableFilterButton = enableFilterButtonSupplier.apply(this.leftPos, this.topPos);
+        this.enableFilterButton = this.enableFilterButtonSupplier.apply(this.leftPos, this.topPos);
         this.addRenderableWidget(this.enableFilterButton);
     }
 

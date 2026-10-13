@@ -130,30 +130,30 @@ public final class OverworldLikeOrbitMath {
             double radians = Math.toRadians(degrees);
             double cosine = Math.cos(radians);
             double sine = Math.sin(radians);
-            return new Vector3(x, y * cosine - z * sine, y * sine + z * cosine);
+            return new Vector3(this.x, this.y * cosine - this.z * sine, this.y * sine + this.z * cosine);
         }
 
         private Vector3 rotateY(double degrees) {
             double radians = Math.toRadians(degrees);
             double cosine = Math.cos(radians);
             double sine = Math.sin(radians);
-            return new Vector3(x * cosine + z * sine, y, -x * sine + z * cosine);
+            return new Vector3(this.x * cosine + this.z * sine, this.y, -this.x * sine + this.z * cosine);
         }
 
         private Vector3 rotateZ(double degrees) {
             double radians = Math.toRadians(degrees);
             double cosine = Math.cos(radians);
             double sine = Math.sin(radians);
-            return new Vector3(x * cosine - y * sine, x * sine + y * cosine, z);
+            return new Vector3(this.x * cosine - this.y * sine, this.x * sine + this.y * cosine, this.z);
         }
 
         private double dot(Vector3 other) {
-            return x * other.x + y * other.y + z * other.z;
+            return this.x * other.x + this.y * other.y + this.z * other.z;
         }
 
         private Vector3 normalize() {
-            double length = Math.sqrt(x * x + y * y + z * z);
-            return length == 0.0D ? this : new Vector3(x / length, y / length, z / length);
+            double length = Math.sqrt(this.x * this.x + this.y * this.y + this.z * this.z);
+            return length == 0.0D ? this : new Vector3(this.x / length, this.y / length, this.z / length);
         }
     }
 }

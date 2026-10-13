@@ -111,50 +111,50 @@ public final class StellarEvolutionState {
 
     @Nullable
     public StellarTrack trackSnapshot() {
-        return trackSnapshot;
+        return this.trackSnapshot;
     }
 
     public String nodeId() {
-        return nodeId;
+        return this.nodeId;
     }
 
     public double initialSolarMass() {
-        return initialSolarMass;
+        return this.initialSolarMass;
     }
 
     public double currentSolarMass() {
-        return currentSolarMass;
+        return this.currentSolarMass;
     }
 
     public double metallicityZ() {
-        return metallicityZ;
+        return this.metallicityZ;
     }
 
     public double metallicityCoordinate() {
-        return metallicityCoordinate;
+        return this.metallicityCoordinate;
     }
 
     public List<StellarScheduledEvent> eventPlan() {
-        return eventPlan;
+        return this.eventPlan;
     }
 
     public Set<String> appliedEvents() {
-        return Set.copyOf(appliedEvents);
+        return Set.copyOf(this.appliedEvents);
     }
 
     public StellarEventProfile eventProfile(String id) {
-        StellarEventProfile profile = profileSnapshot.get(id);
+        StellarEventProfile profile = this.profileSnapshot.get(id);
         if (profile != null) return profile;
         throw new IllegalStateException("Missing frozen event profile: " + id);
     }
 
     @Nullable
     public StellarEventProfile findEventProfile(String id) {
-        return profileSnapshot.get(id);
+        return this.profileSnapshot.get(id);
     }
 
     private StellarTrack effectiveTrack(StellarTrack track) {
-        return trackSnapshot == null ? track : trackSnapshot;
+        return this.trackSnapshot == null ? track : this.trackSnapshot;
     }
 
     private void captureProfiles(StellarTrack track) {
@@ -164,47 +164,47 @@ public final class StellarEvolutionState {
                 profiles.put(node.eventProfileId(), StellarTrackLibrary.eventProfile(node.eventProfileId()));
             }
         }
-        profileSnapshot = Map.copyOf(profiles);
+        this.profileSnapshot = Map.copyOf(profiles);
     }
 
     private void createEventPlan(StellarTrack track) {
         List<StellarScheduledEvent> events = new ArrayList<>();
         int offset = 0;
-        for (int index = scheduleStartIndex; index < track.phaseNodes().size(); index++) {
+        for (int index = this.scheduleStartIndex; index < track.phaseNodes().size(); index++) {
             PhaseNode node = track.phaseNodes().get(index);
-            int duration = durationAt(index);
+            int duration = this.durationAt(index);
             if (node.hasEventProfile()) {
                 int pulses = node.dynamics().pulses();
-                StellarEventProfile profile = eventProfile(node.eventProfileId());
+                StellarEventProfile profile = this.eventProfile(node.eventProfileId());
                 for (int pulse = 0; pulse < pulses; pulse++) {
                     int start = offset + duration * pulse / pulses;
                     int end = offset + duration * (pulse + 1) / pulses;
                     int shock = start + Math.min(end - start - 1,
                         Math.round((end - start) * profile.shockBreakoutTick() / (float) profile.totalTicks()));
-                    events.add(new StellarScheduledEvent(trackId + ":" + node.nodeId() + ":" + pulse,
+                    events.add(new StellarScheduledEvent(this.trackId + ":" + node.nodeId() + ":" + pulse,
                         node.nodeId(), node.eventProfileId(), start, end, shock, pulse,
-                        mixSeed(trackSeed, index * 31L + pulse), node.dynamics().eventPolicy()));
+                        mixSeed(this.trackSeed, index * 31L + pulse), node.dynamics().eventPolicy()));
                 }
             }
             offset += duration;
         }
-        eventPlan = List.copyOf(events);
+        this.eventPlan = List.copyOf(events);
     }
 
     public List<StellarScheduledEvent> dueEvents(long gameTime) {
-        if (terminalApplied) return List.of();
-        long elapsed = elapsedTicks(gameTime);
-        return eventPlan.stream().filter(event -> elapsed >= event.shockOffset()
-            && !appliedEvents.contains(event.instanceId())).toList();
+        if (this.terminalApplied) return List.of();
+        long elapsed = this.elapsedTicks(gameTime);
+        return this.eventPlan.stream().filter(event -> elapsed >= event.shockOffset()
+            && !this.appliedEvents.contains(event.instanceId())).toList();
     }
 
     public void markEventApplied(StellarScheduledEvent event) {
-        appliedEvents.add(event.instanceId());
+        this.appliedEvents.add(event.instanceId());
     }
 
     @Nullable
     private StellarScheduledEvent eventAt(double elapsed) {
-        for (StellarScheduledEvent event : eventPlan) {
+        for (StellarScheduledEvent event : this.eventPlan) {
             if (elapsed >= event.startOffset() && elapsed < event.endOffset()) return event;
         }
         return null;
@@ -362,10 +362,10 @@ public final class StellarEvolutionState {
 
     /** 绑定轨道并重建阶段时长缓存。 */
     public void attachTrack(StellarTrack track) {
-        track = effectiveTrack(track);
-        if (trackSnapshot == null) {
-            trackSnapshot = track;
-            captureProfiles(track);
+        track = this.effectiveTrack(track);
+        if (this.trackSnapshot == null) {
+            this.trackSnapshot = track;
+            this.captureProfiles(track);
         }
         if (!track.trackId().equals(this.trackId) && !this.trackId.isEmpty()) return;
         this.trackId = track.trackId();
@@ -375,7 +375,7 @@ public final class StellarEvolutionState {
             || this.cachedScheduleStartIndex != this.scheduleStartIndex
             || this.phaseDurations.isEmpty()) {
             this.phaseDurations = durationsFrom(track, this.scheduleStartIndex, this.totalDurationTicks);
-            this.totalDurationTicks = phaseDurations.stream().mapToInt(Integer::intValue).sum();
+            this.totalDurationTicks = this.phaseDurations.stream().mapToInt(Integer::intValue).sum();
             this.cachedTrackId = track.trackId();
             this.cachedDurationBudget = this.totalDurationTicks;
             this.cachedScheduleStartIndex = this.scheduleStartIndex;
@@ -414,83 +414,84 @@ public final class StellarEvolutionState {
     }
 
     private void validateSnapshot() {
-        if (trackSnapshot == null) return;
-        if (!trackSnapshot.trackId().equals(trackId)
-            || scheduleStartIndex < 0 || phaseIndex < scheduleStartIndex || phaseIndex >= trackSnapshot.phaseNodes().size()
-            || phaseDurations.size() != trackSnapshot.phaseNodes().size() - scheduleStartIndex
-            || phaseDurations.stream().anyMatch(value -> value < 1)
-            || phaseDurations.stream().mapToLong(Integer::longValue).sum() != totalDurationTicks) {
+        if (this.trackSnapshot == null) return;
+        if (!this.trackSnapshot.trackId().equals(this.trackId)
+            || this.scheduleStartIndex < 0 || this.phaseIndex < this.scheduleStartIndex
+            || this.phaseIndex >= this.trackSnapshot.phaseNodes().size()
+            || this.phaseDurations.size() != this.trackSnapshot.phaseNodes().size() - this.scheduleStartIndex
+            || this.phaseDurations.stream().anyMatch(value -> value < 1)
+            || this.phaseDurations.stream().mapToLong(Integer::longValue).sum() != this.totalDurationTicks) {
             throw new IllegalArgumentException("Invalid saved stellar timeline");
         }
-        if (!trackSnapshot.phaseNodes().get(phaseIndex).nodeId().equals(nodeId)) {
+        if (!this.trackSnapshot.phaseNodes().get(this.phaseIndex).nodeId().equals(this.nodeId)) {
             throw new IllegalArgumentException("Saved stellar node ID/index disagree");
         }
-        if (trackSnapshot.definition().massAnvils() != initialMass
-            || initialSolarMass != CelestialMassTable.at(initialMass).solarMass()
-            || !Double.isFinite(currentSolarMass) || currentSolarMass < 0 || currentSolarMass > initialSolarMass) {
+        if (this.trackSnapshot.definition().massAnvils() != this.initialMass
+            || this.initialSolarMass != CelestialMassTable.at(this.initialMass).solarMass()
+            || !Double.isFinite(this.currentSolarMass) || this.currentSolarMass < 0 || this.currentSolarMass > this.initialSolarMass) {
             throw new IllegalArgumentException("Invalid saved stellar mass");
         }
-        for (PhaseNode node : trackSnapshot.phaseNodes()) {
-            if (node.hasEventProfile() && !profileSnapshot.containsKey(node.eventProfileId())) {
+        for (PhaseNode node : this.trackSnapshot.phaseNodes()) {
+            if (node.hasEventProfile() && !this.profileSnapshot.containsKey(node.eventProfileId())) {
                 throw new IllegalArgumentException("Missing saved event profile");
             }
         }
-        for (Map.Entry<String, StellarEventProfile> entry : profileSnapshot.entrySet()) {
+        for (Map.Entry<String, StellarEventProfile> entry : this.profileSnapshot.entrySet()) {
             if (!entry.getKey().equals(entry.getValue().profileId())) throw new IllegalArgumentException("Mismatched saved event profile");
         }
         Set<String> ids = new LinkedHashSet<>();
-        for (StellarScheduledEvent event : eventPlan) {
-            if (!ids.add(event.instanceId()) || !profileSnapshot.containsKey(event.profileId())
-                || event.endOffset() > totalDurationTicks) throw new IllegalArgumentException("Invalid saved stellar event");
-            trackSnapshot.nodeIndex(event.nodeId());
+        for (StellarScheduledEvent event : this.eventPlan) {
+            if (!ids.add(event.instanceId()) || !this.profileSnapshot.containsKey(event.profileId())
+                || event.endOffset() > this.totalDurationTicks) throw new IllegalArgumentException("Invalid saved stellar event");
+            this.trackSnapshot.nodeIndex(event.nodeId());
         }
-        if (!ids.containsAll(appliedEvents)) throw new IllegalArgumentException("Unknown completed stellar event");
-        List<StellarScheduledEvent> savedPlan = eventPlan;
-        createEventPlan(trackSnapshot);
-        if (!eventPlan.equals(savedPlan)) throw new IllegalArgumentException("Saved stellar event plan disagrees with snapshot");
+        if (!ids.containsAll(this.appliedEvents)) throw new IllegalArgumentException("Unknown completed stellar event");
+        List<StellarScheduledEvent> savedPlan = this.eventPlan;
+        this.createEventPlan(this.trackSnapshot);
+        if (!this.eventPlan.equals(savedPlan)) throw new IllegalArgumentException("Saved stellar event plan disagrees with snapshot");
     }
 
     private int durationAt(int absoluteIndex) {
-        int relative = absoluteIndex - scheduleStartIndex;
-        if (relative < 0 || relative >= phaseDurations.size()) return Math.max(1, phaseDurationTicks);
-        return Math.max(1, phaseDurations.get(relative));
+        int relative = absoluteIndex - this.scheduleStartIndex;
+        if (relative < 0 || relative >= this.phaseDurations.size()) return Math.max(1, this.phaseDurationTicks);
+        return Math.max(1, this.phaseDurations.get(relative));
     }
 
     /** 推进到绝对游戏刻，返回是否发生了阶段边界。 */
     public boolean update(long gameTime, StellarTrack track) {
-        track = effectiveTrack(track);
-        attachTrack(track);
+        track = this.effectiveTrack(track);
+        this.attachTrack(track);
         boolean changed = false;
-        if (track.phaseNodes().isEmpty() || isComplete()) return false;
-        while (phaseIndex < track.phaseNodes().size() - 1
-            && gameTime >= phaseStartGameTime + phaseDurationTicks) {
-            phaseStartGameTime += phaseDurationTicks;
-            phaseIndex++;
-            phaseDurationTicks = durationAt(phaseIndex);
-            phaseId = track.phaseNodes().get(phaseIndex).phaseId().getSerializedName();
+        if (track.phaseNodes().isEmpty() || this.isComplete()) return false;
+        while (this.phaseIndex < track.phaseNodes().size() - 1
+            && gameTime >= this.phaseStartGameTime + this.phaseDurationTicks) {
+            this.phaseStartGameTime += this.phaseDurationTicks;
+            this.phaseIndex++;
+            this.phaseDurationTicks = this.durationAt(this.phaseIndex);
+            this.phaseId = track.phaseNodes().get(this.phaseIndex).phaseId().getSerializedName();
             changed = true;
         }
-        nodeId = track.phaseNodes().get(phaseIndex).nodeId();
-        updateProgress(gameTime);
-        StellarVisualState visual = structuralVisualState(track, gameTime, 0);
+        this.nodeId = track.phaseNodes().get(this.phaseIndex).nodeId();
+        this.updateProgress(gameTime);
+        StellarVisualState visual = this.structuralVisualState(track, gameTime, 0);
         double remnant = track.definition().terminal().solarMass();
-        float initialEnvelope = track.phaseNodes().get(scheduleStartIndex).dynamics().points().getFirst().envelope();
-        currentSolarMass = Math.clamp(remnant + (initialSolarMass - remnant)
-            * Math.clamp(visual.envelopeOpacity() / Math.max(0.001f, initialEnvelope), 0, 1), remnant, initialSolarMass);
-        StellarScheduledEvent event = eventAt(elapsedTicks(gameTime));
-        eventId = event == null ? "" : event.instanceId();
-        eventStartGameTime = event == null ? -1 : totalStartGameTime + event.startOffset();
-        eventSeed = event == null ? 0 : event.seed();
-        eventTriggered = event != null && appliedEvents.contains(event.instanceId());
+        float initialEnvelope = track.phaseNodes().get(this.scheduleStartIndex).dynamics().points().getFirst().envelope();
+        this.currentSolarMass = Math.clamp(remnant + (this.initialSolarMass - remnant)
+            * Math.clamp(visual.envelopeOpacity() / Math.max(0.001f, initialEnvelope), 0, 1), remnant, this.initialSolarMass);
+        StellarScheduledEvent event = this.eventAt(this.elapsedTicks(gameTime));
+        this.eventId = event == null ? "" : event.instanceId();
+        this.eventStartGameTime = event == null ? -1 : this.totalStartGameTime + event.startOffset();
+        this.eventSeed = event == null ? 0 : event.seed();
+        this.eventTriggered = event != null && this.appliedEvents.contains(event.instanceId());
         return changed;
     }
 
     private void updateProgress(long gameTime) {
-        if (phaseDurationTicks <= 0) {
-            phaseProgress = 1.0f;
+        if (this.phaseDurationTicks <= 0) {
+            this.phaseProgress = 1.0f;
         } else {
-            phaseProgress = Math.clamp(
-                (float) (gameTime - phaseStartGameTime) / phaseDurationTicks,
+            this.phaseProgress = Math.clamp(
+                (float) (gameTime - this.phaseStartGameTime) / this.phaseDurationTicks,
                 0.0f,
                 1.0f
             );
@@ -498,169 +499,169 @@ public final class StellarEvolutionState {
     }
 
     public boolean isActive() {
-        return !trackId.isEmpty() && !terminalApplied;
+        return !this.trackId.isEmpty() && !this.terminalApplied;
     }
 
     public boolean isComplete() {
-        if (terminalApplied) return true;
-        if (phaseDurations.isEmpty()) return false;
-        return phaseIndex >= scheduleStartIndex && phaseIndex >= phaseCount() - 1
-            && phaseProgress >= 1.0f;
+        if (this.terminalApplied) return true;
+        if (this.phaseDurations.isEmpty()) return false;
+        return this.phaseIndex >= this.scheduleStartIndex && this.phaseIndex >= this.phaseCount() - 1
+            && this.phaseProgress >= 1.0f;
     }
 
     private int phaseCount() {
-        return scheduleStartIndex + phaseDurations.size();
+        return this.scheduleStartIndex + this.phaseDurations.size();
     }
 
     public String trackId() {
-        return trackId;
+        return this.trackId;
     }
 
     public String phaseId() {
-        return phaseId;
+        return this.phaseId;
     }
 
     public int phaseIndex() {
-        return phaseIndex;
+        return this.phaseIndex;
     }
 
     public int scheduleStartIndex() {
-        return scheduleStartIndex;
+        return this.scheduleStartIndex;
     }
 
     public long phaseStartGameTime() {
-        return phaseStartGameTime;
+        return this.phaseStartGameTime;
     }
 
     public int phaseDurationTicks() {
-        return phaseDurationTicks;
+        return this.phaseDurationTicks;
     }
 
     public List<Integer> phaseDurations(StellarTrack track) {
-        attachTrack(track);
-        return List.copyOf(phaseDurations);
+        this.attachTrack(track);
+        return List.copyOf(this.phaseDurations);
     }
 
     public PhaseNode currentNode(StellarTrack track) {
-        track = effectiveTrack(track);
-        int index = Math.clamp(phaseIndex, 0, track.phaseNodes().size() - 1);
+        track = this.effectiveTrack(track);
+        int index = Math.clamp(this.phaseIndex, 0, track.phaseNodes().size() - 1);
         return track.phaseNodes().get(index);
     }
 
     public float envelopeFraction(StellarTrack track) {
-        return currentNode(track).envelopeFraction();
+        return this.currentNode(track).envelopeFraction();
     }
 
     public float massLossBudget(StellarTrack track) {
-        return currentNode(track).massLossBudget();
+        return this.currentNode(track).massLossBudget();
     }
 
     public long totalStartGameTime() {
-        return totalStartGameTime;
+        return this.totalStartGameTime;
     }
 
     public int totalDurationTicks() {
-        return totalDurationTicks;
+        return this.totalDurationTicks;
     }
 
     public float phaseProgress() {
-        return phaseProgress;
+        return this.phaseProgress;
     }
 
     /** 按绝对时间计算客户端当前阶段进度。 */
     public float phaseProgressAt(StellarTrack track, long gameTime, float partialTick) {
-        track = effectiveTrack(track);
-        attachTrack(track);
-        return sampleAtAbsoluteTime(track, gameTime, partialTick).progress();
+        track = this.effectiveTrack(track);
+        this.attachTrack(track);
+        return this.sampleAtAbsoluteTime(track, gameTime, partialTick).progress();
     }
 
     /** 按绝对时间返回客户端当前阶段 ID。 */
     public StellarEvolutionPhase phaseAt(StellarTrack track, long gameTime, float partialTick) {
-        track = effectiveTrack(track);
-        attachTrack(track);
-        return sampleAtAbsoluteTime(track, gameTime, partialTick).node().phaseId();
+        track = this.effectiveTrack(track);
+        this.attachTrack(track);
+        return this.sampleAtAbsoluteTime(track, gameTime, partialTick).node().phaseId();
     }
 
     public float totalProgress(long gameTime, float partialTick) {
-        if (totalDurationTicks <= 0) return 1.0f;
+        if (this.totalDurationTicks <= 0) return 1.0f;
         float frame = frameFraction(partialTick);
         return Math.clamp(
-            (float) (gameTime - totalStartGameTime + frame) / totalDurationTicks,
+            (float) (gameTime - this.totalStartGameTime + frame) / this.totalDurationTicks,
             0.0f,
             1.0f
         );
     }
 
     public float progressAt(long gameTime, float partialTick) {
-        return totalProgress(gameTime, partialTick);
+        return this.totalProgress(gameTime, partialTick);
     }
 
     public long elapsedTicks(long gameTime) {
-        return Math.max(0L, gameTime - totalStartGameTime);
+        return Math.max(0L, gameTime - this.totalStartGameTime);
     }
 
     public int initialMass() {
-        return initialMass;
+        return this.initialMass;
     }
 
     public int initialEnergy() {
-        return initialEnergy;
+        return this.initialEnergy;
     }
 
     public int initialSize() {
-        return initialSize;
+        return this.initialSize;
     }
 
     public String initialSurfaceClass() {
-        return initialSurfaceClass;
+        return this.initialSurfaceClass;
     }
 
     public int currentMass() {
-        return currentMass;
+        return this.currentMass;
     }
 
     public long trackSeed() {
-        return trackSeed;
+        return this.trackSeed;
     }
 
     public int metallicityVariant() {
-        return metallicityVariant;
+        return this.metallicityVariant;
     }
 
     public int rotationVariant() {
-        return rotationVariant;
+        return this.rotationVariant;
     }
 
     public int binaryVariant() {
-        return binaryVariant;
+        return this.binaryVariant;
     }
 
     public String terminalProfileId() {
-        return terminalProfileId;
+        return this.terminalProfileId;
     }
 
     public String eventId() {
-        return eventId;
+        return this.eventId;
     }
 
     public long eventStartGameTime() {
-        return eventStartGameTime;
+        return this.eventStartGameTime;
     }
 
     public long eventSeed() {
-        return eventSeed;
+        return this.eventSeed;
     }
 
     public boolean eventTriggered() {
-        return eventTriggered;
+        return this.eventTriggered;
     }
 
     public boolean terminalApplied() {
-        return terminalApplied;
+        return this.terminalApplied;
     }
 
     public boolean isRunning() {
-        return isActive();
+        return this.isActive();
     }
 
     public void markTerminalApplied() {
@@ -677,21 +678,21 @@ public final class StellarEvolutionState {
 
     /** 当前阶段是否是会产生视觉 profile 的阶段。 */
     public boolean hasVisualEvent(StellarTrack track) {
-        track = effectiveTrack(track);
-        return phaseIndex >= 0 && phaseIndex < track.phaseNodes().size()
-            && track.phaseNodes().get(phaseIndex).hasEventProfile();
+        track = this.effectiveTrack(track);
+        return this.phaseIndex >= 0 && this.phaseIndex < track.phaseNodes().size()
+            && track.phaseNodes().get(this.phaseIndex).hasEventProfile();
     }
 
     public String currentEventProfileId(StellarTrack track) {
-        if (hasVisualEvent(track)) return track.phaseNodes().get(phaseIndex).eventProfileId();
-        return terminalProfileId;
+        if (this.hasVisualEvent(track)) return track.phaseNodes().get(this.phaseIndex).eventProfileId();
+        return this.terminalProfileId;
     }
 
     /** 按绝对时间返回当前视觉事件，供客户端在网络心跳之间及时显示事件层。 */
     public String eventProfileAt(StellarTrack track, long gameTime, float partialTick) {
-        track = effectiveTrack(track);
-        attachTrack(track);
-        TimedPhaseSample timed = sampleAtAbsoluteTime(track, gameTime, partialTick);
+        track = this.effectiveTrack(track);
+        this.attachTrack(track);
+        TimedPhaseSample timed = this.sampleAtAbsoluteTime(track, gameTime, partialTick);
         return timed.node().hasEventProfile() ? timed.node().eventProfileId() : "";
     }
 
@@ -702,17 +703,17 @@ public final class StellarEvolutionState {
      * 阶段结束时正好到达本节点。脉动按阶段进度叠加在事件核心之后。</p>
      */
     public StellarVisualState visualState(StellarTrack track, long gameTime, float partialTick) {
-        track = effectiveTrack(track);
-        attachTrack(track);
+        track = this.effectiveTrack(track);
+        this.attachTrack(track);
         if (track.phaseNodes().isEmpty()) return StellarVisualState.DEFAULT;
-        TimedPhaseSample timed = sampleAtAbsoluteTime(track, gameTime, partialTick);
+        TimedPhaseSample timed = this.sampleAtAbsoluteTime(track, gameTime, partialTick);
         PhaseNode node = timed.node();
         float progress = timed.progress();
         StellarVisualState state = node.dynamics().sample(node, timed.previousNode(), progress);
         String profileId = node.hasEventProfile() ? node.eventProfileId() : "";
         if (!profileId.isBlank()) {
-            StellarEventProfile profile = eventProfile(profileId);
-            float eventProgress = eventProgressAt(gameTime, frameFraction(partialTick));
+            StellarEventProfile profile = this.eventProfile(profileId);
+            float eventProgress = this.eventProgressAt(gameTime, frameFraction(partialTick));
             int surfaceColor = state.surfaceColor();
             state = applyEvent(state, profile, eventProgress);
             state = state.withSurfaceColor(surfaceColor);
@@ -725,10 +726,10 @@ public final class StellarEvolutionState {
      * 束星环使用此方法即可避免跟随快速的表面效果抖动。
      */
     public StellarVisualState structuralVisualState(StellarTrack track, long gameTime, float partialTick) {
-        track = effectiveTrack(track);
-        attachTrack(track);
+        track = this.effectiveTrack(track);
+        this.attachTrack(track);
         if (track.phaseNodes().isEmpty()) return StellarVisualState.DEFAULT;
-        TimedPhaseSample timed = sampleAtAbsoluteTime(track, gameTime, partialTick);
+        TimedPhaseSample timed = this.sampleAtAbsoluteTime(track, gameTime, partialTick);
         return timed.node().dynamics().sample(timed.node(), timed.previousNode(), timed.progress())
             .withWind(timed.node().dynamics().wind(), timed.progress());
     }
@@ -738,8 +739,8 @@ public final class StellarEvolutionState {
     }
 
     private float eventProgressAt(long gameTime, float partialTick) {
-        StellarScheduledEvent event = eventAt(gameTime - totalStartGameTime + partialTick);
-        return event == null ? 0 : event.progress(gameTime - totalStartGameTime + partialTick);
+        StellarScheduledEvent event = this.eventAt(gameTime - this.totalStartGameTime + partialTick);
+        return event == null ? 0 : event.progress(gameTime - this.totalStartGameTime + partialTick);
     }
 
     /**
@@ -747,21 +748,21 @@ public final class StellarEvolutionState {
      * 这样网络同步仍可保持低频，渲染却能在阶段边界连续前进。
      */
     private TimedPhaseSample sampleAtAbsoluteTime(StellarTrack track, long gameTime, float partialTick) {
-        track = effectiveTrack(track);
-        long elapsed = Math.max(0L, gameTime - totalStartGameTime);
-        long clampedElapsed = Math.min((long) totalDurationTicks, elapsed);
+        track = this.effectiveTrack(track);
+        long elapsed = Math.max(0L, gameTime - this.totalStartGameTime);
+        long clampedElapsed = Math.min((long) this.totalDurationTicks, elapsed);
         float frame = Float.isFinite(partialTick) ? Math.clamp(partialTick, 0.0f, 1.0f) : 0.0f;
         long cursor = 0L;
-        int lastRelative = Math.max(0, phaseDurations.size() - 1);
-        for (int relative = 0; relative < phaseDurations.size(); relative++) {
-            int absolute = scheduleStartIndex + relative;
-            int duration = durationAt(absolute);
+        int lastRelative = Math.max(0, this.phaseDurations.size() - 1);
+        for (int relative = 0; relative < this.phaseDurations.size(); relative++) {
+            int absolute = this.scheduleStartIndex + relative;
+            int duration = this.durationAt(absolute);
             long end = cursor + duration;
             if (clampedElapsed < end || relative == lastRelative) {
                 float progress = Math.clamp((float) (clampedElapsed - cursor + frame) / duration, 0.0f, 1.0f);
                 int index = Math.clamp(absolute, 0, track.phaseNodes().size() - 1);
                 PhaseNode node = track.phaseNodes().get(index);
-                PhaseNode previous = track.phaseNodes().get(Math.max(scheduleStartIndex, index - 1));
+                PhaseNode previous = track.phaseNodes().get(Math.max(this.scheduleStartIndex, index - 1));
                 PhaseNode next = index + 1 < track.phaseNodes().size()
                     ? track.phaseNodes().get(index + 1) : node;
                 return new TimedPhaseSample(index, cursor, duration, progress, previous, node, next);
@@ -770,8 +771,8 @@ public final class StellarEvolutionState {
         }
         int last = Math.max(0, track.phaseNodes().size() - 1);
         PhaseNode node = track.phaseNodes().get(last);
-        PhaseNode previous = track.phaseNodes().get(Math.max(scheduleStartIndex, last - 1));
-        return new TimedPhaseSample(last, cursor, durationAt(last), 1.0f, previous, node, node);
+        PhaseNode previous = track.phaseNodes().get(Math.max(this.scheduleStartIndex, last - 1));
+        return new TimedPhaseSample(last, cursor, this.durationAt(last), 1.0f, previous, node, node);
     }
 
     private record TimedPhaseSample(
@@ -815,73 +816,74 @@ public final class StellarEvolutionState {
         float partialTick,
         StellarEventProfile profile
     ) {
-        attachTrack(track);
-        TimedPhaseSample timed = sampleAtAbsoluteTime(track, gameTime, partialTick);
+        this.attachTrack(track);
+        TimedPhaseSample timed = this.sampleAtAbsoluteTime(track, gameTime, partialTick);
         String profileId = timed.node().hasEventProfile() ? timed.node().eventProfileId() : "";
         if (profileId.isBlank() || !profileId.equalsIgnoreCase(profile.profileId())) return 0.0f;
-        return eventProgressAt(gameTime, frameFraction(partialTick));
+        return this.eventProgressAt(gameTime, frameFraction(partialTick));
     }
 
     /** 返回终局 profile 的冲击突破绝对游戏刻，用于音乐和客户端预告对齐。 */
     public long terminalShockGameTime(StellarTrack track) {
-        track = effectiveTrack(track);
-        attachTrack(track);
-        for (StellarScheduledEvent event : eventPlan) {
-            if (event.policy().destructive()) return totalStartGameTime + event.shockOffset();
+        track = this.effectiveTrack(track);
+        this.attachTrack(track);
+        for (StellarScheduledEvent event : this.eventPlan) {
+            if (event.policy().destructive()) return this.totalStartGameTime + event.shockOffset();
         }
-        return totalStartGameTime + totalDurationTicks;
+        return this.totalStartGameTime + this.totalDurationTicks;
     }
 
     public void save(CompoundTag tag) {
         tag.putInt("stellarFormatVersion", FORMAT_VERSION);
-        tag.putString("stellarNodeId", nodeId);
-        tag.putDouble("stellarInitialSolarMass", initialSolarMass);
-        tag.putDouble("stellarCurrentSolarMass", currentSolarMass);
-        tag.putDouble("stellarMetallicityZ", metallicityZ > 0 ? metallicityZ : StellarMetallicity.DEFAULT.at(metallicityCoordinate));
-        tag.putDouble("stellarMetallicityCoordinate", metallicityCoordinate);
-        if (trackSnapshot != null) {
-            tag.put("stellarTrackSnapshot", StellarTrack.CODEC.encodeStart(NbtOps.INSTANCE, trackSnapshot).getOrThrow());
+        tag.putString("stellarNodeId", this.nodeId);
+        tag.putDouble("stellarInitialSolarMass", this.initialSolarMass);
+        tag.putDouble("stellarCurrentSolarMass", this.currentSolarMass);
+        tag.putDouble("stellarMetallicityZ", this.metallicityZ > 0 ? this.metallicityZ
+            : StellarMetallicity.DEFAULT.at(this.metallicityCoordinate));
+        tag.putDouble("stellarMetallicityCoordinate", this.metallicityCoordinate);
+        if (this.trackSnapshot != null) {
+            tag.put("stellarTrackSnapshot", StellarTrack.CODEC.encodeStart(NbtOps.INSTANCE, this.trackSnapshot).getOrThrow());
             tag.put("stellarProfileSnapshot", Codec.unboundedMap(Codec.STRING, StellarEventProfile.CODEC)
-                .encodeStart(NbtOps.INSTANCE, profileSnapshot).getOrThrow());
-            tag.putIntArray("stellarPhaseDurations", phaseDurations);
-            tag.put("stellarEventPlan", StellarScheduledEvent.CODEC.listOf().encodeStart(NbtOps.INSTANCE, eventPlan).getOrThrow());
+                .encodeStart(NbtOps.INSTANCE, this.profileSnapshot).getOrThrow());
+            tag.putIntArray("stellarPhaseDurations", this.phaseDurations);
+            tag.put("stellarEventPlan", StellarScheduledEvent.CODEC.listOf().encodeStart(NbtOps.INSTANCE, this.eventPlan).getOrThrow());
             tag.put("stellarAppliedEvents", Codec.STRING.listOf()
-                .encodeStart(NbtOps.INSTANCE, List.copyOf(appliedEvents)).getOrThrow());
+                .encodeStart(NbtOps.INSTANCE, List.copyOf(this.appliedEvents)).getOrThrow());
         }
-        tag.putString(TRACK_ID_KEY, trackId);
-        tag.putString(PHASE_ID_KEY, phaseId);
-        tag.putInt(PHASE_INDEX_KEY, phaseIndex);
-        tag.putLong(PHASE_START_KEY, phaseStartGameTime);
-        tag.putInt(PHASE_DURATION_KEY, phaseDurationTicks);
-        tag.putLong(TOTAL_START_KEY, totalStartGameTime);
-        tag.putInt(TOTAL_DURATION_KEY, totalDurationTicks);
-        tag.putFloat(PHASE_PROGRESS_KEY, phaseProgress);
-        tag.putInt(SCHEDULE_START_INDEX_KEY, scheduleStartIndex);
-        tag.putInt(INITIAL_MASS_KEY, initialMass);
-        tag.putInt(INITIAL_ENERGY_KEY, initialEnergy);
-        tag.putInt(INITIAL_SIZE_KEY, initialSize);
-        tag.putString(INITIAL_SURFACE_CLASS_KEY, initialSurfaceClass);
-        tag.putInt(CURRENT_MASS_KEY, currentMass);
-        tag.putLong(TRACK_SEED_KEY, trackSeed);
-        tag.putInt(METALLICITY_VARIANT_KEY, metallicityVariant);
-        tag.putInt(ROTATION_VARIANT_KEY, rotationVariant);
-        tag.putInt(BINARY_VARIANT_KEY, binaryVariant);
-        tag.putString(TERMINAL_PROFILE_KEY, terminalProfileId);
-        tag.putString(EVENT_ID_KEY, eventId);
-        tag.putLong(EVENT_START_KEY, eventStartGameTime);
-        tag.putLong(EVENT_SEED_KEY, eventSeed);
-        tag.putBoolean(EVENT_TRIGGERED_KEY, eventTriggered);
-        tag.putBoolean(TERMINAL_APPLIED_KEY, terminalApplied);
+        tag.putString(TRACK_ID_KEY, this.trackId);
+        tag.putString(PHASE_ID_KEY, this.phaseId);
+        tag.putInt(PHASE_INDEX_KEY, this.phaseIndex);
+        tag.putLong(PHASE_START_KEY, this.phaseStartGameTime);
+        tag.putInt(PHASE_DURATION_KEY, this.phaseDurationTicks);
+        tag.putLong(TOTAL_START_KEY, this.totalStartGameTime);
+        tag.putInt(TOTAL_DURATION_KEY, this.totalDurationTicks);
+        tag.putFloat(PHASE_PROGRESS_KEY, this.phaseProgress);
+        tag.putInt(SCHEDULE_START_INDEX_KEY, this.scheduleStartIndex);
+        tag.putInt(INITIAL_MASS_KEY, this.initialMass);
+        tag.putInt(INITIAL_ENERGY_KEY, this.initialEnergy);
+        tag.putInt(INITIAL_SIZE_KEY, this.initialSize);
+        tag.putString(INITIAL_SURFACE_CLASS_KEY, this.initialSurfaceClass);
+        tag.putInt(CURRENT_MASS_KEY, this.currentMass);
+        tag.putLong(TRACK_SEED_KEY, this.trackSeed);
+        tag.putInt(METALLICITY_VARIANT_KEY, this.metallicityVariant);
+        tag.putInt(ROTATION_VARIANT_KEY, this.rotationVariant);
+        tag.putInt(BINARY_VARIANT_KEY, this.binaryVariant);
+        tag.putString(TERMINAL_PROFILE_KEY, this.terminalProfileId);
+        tag.putString(EVENT_ID_KEY, this.eventId);
+        tag.putLong(EVENT_START_KEY, this.eventStartGameTime);
+        tag.putLong(EVENT_SEED_KEY, this.eventSeed);
+        tag.putBoolean(EVENT_TRIGGERED_KEY, this.eventTriggered);
+        tag.putBoolean(TERMINAL_APPLIED_KEY, this.terminalApplied);
     }
 
     public CompoundTag toTag() {
         CompoundTag tag = new CompoundTag();
-        save(tag);
+        this.save(tag);
         return tag;
     }
 
     public void writeUpdateTag(CompoundTag tag) {
-        save(tag);
+        this.save(tag);
     }
 
     public void readUpdateTag(CompoundTag tag) {

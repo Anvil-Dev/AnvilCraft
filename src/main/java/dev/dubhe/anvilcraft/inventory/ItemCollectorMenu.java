@@ -73,7 +73,7 @@ public class ItemCollectorMenu extends AbstractContainerMenu implements IFilterM
 
     @Override
     public IFilterBlockEntity getFilterBlockEntity() {
-        return blockEntity;
+        return this.blockEntity;
     }
 
     @Override
@@ -106,7 +106,7 @@ public class ItemCollectorMenu extends AbstractContainerMenu implements IFilterM
         // Check if the slot clicked is one of the vanilla container slots
         if (index < VANILLA_FIRST_SLOT_INDEX + VANILLA_SLOT_COUNT) {
             // This is a vanilla container slot so merge the stack into the tile inventory
-            if (moveItemToActiveSlot(sourceStack)) {
+            if (this.moveItemToActiveSlot(sourceStack)) {
                 return ItemStack.EMPTY; // EMPTY_ITEM
             }
         } else if (index < TE_INVENTORY_FIRST_SLOT_INDEX + TE_INVENTORY_SLOT_COUNT) {
@@ -132,7 +132,7 @@ public class ItemCollectorMenu extends AbstractContainerMenu implements IFilterM
         int count = stack.getCount();
         for (int index = TE_INVENTORY_FIRST_SLOT_INDEX; index < 45; index++) {
             // 只有对应槽位可以放入物品时才向槽位里快速移动物品
-            if (canPlace(stack, index)) {
+            if (this.canPlace(stack, index)) {
                 moveItemStackTo(stack, index, index + 1, false);
                 if (stack.isEmpty()) {
                     break;
@@ -158,12 +158,12 @@ public class ItemCollectorMenu extends AbstractContainerMenu implements IFilterM
 
     @Override
     public boolean stillValid(Player player) {
-        return stillValid(ContainerLevelAccess.create(level, blockEntity.getBlockPos()), player, ModBlocks.ITEM_COLLECTOR.get());
+        return stillValid(ContainerLevelAccess.create(this.level, this.blockEntity.getBlockPos()), player, ModBlocks.ITEM_COLLECTOR.get());
     }
 
     @Override
     public void slotChanged(AbstractContainerMenu containerToSend, int dataSlotIndex, ItemStack stack) {
-        onChanged();
+        this.onChanged();
     }
 
     @Override
@@ -183,10 +183,10 @@ public class ItemCollectorMenu extends AbstractContainerMenu implements IFilterM
     @Override
     public void notify(int index, String name) {
         if (name.contentEquals("rangeRadius")) {
-            blockEntity.getRangeRadius().fromIndex(index);
+            this.blockEntity.getRangeRadius().fromIndex(index);
         } else {
             if (name.contentEquals("cooldown")) {
-                blockEntity.getCooldown().fromIndex(index);
+                this.blockEntity.getCooldown().fromIndex(index);
             }
         }
     }

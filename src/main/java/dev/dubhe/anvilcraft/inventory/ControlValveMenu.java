@@ -34,8 +34,8 @@ public class ControlValveMenu extends AbstractContainerMenu {
     public ControlValveMenu(int containerId, Inventory inventory, ControlValveBlockEntity blockEntity) {
         super(ModMenuTypes.CONTROL_VALVE.get(), containerId);
         this.blockEntity = blockEntity;
-        addPlayerInventory(inventory);
-        addPlayerHotbar(inventory);
+        this.addPlayerInventory(inventory);
+        this.addPlayerHotbar(inventory);
     }
 
     /** 客户端 / 注册构造：从 buf 读取阀门位置并解析客户端 BE（用于实时查询红石锁定状态）。 */
@@ -43,8 +43,8 @@ public class ControlValveMenu extends AbstractContainerMenu {
         super(menuType, containerId);
         BlockPos pos = buf.readBlockPos();
         this.blockEntity = inventory.player.level().getBlockEntity(pos) instanceof ControlValveBlockEntity be ? be : null;
-        addPlayerInventory(inventory);
-        addPlayerHotbar(inventory);
+        this.addPlayerInventory(inventory);
+        this.addPlayerHotbar(inventory);
     }
 
     private void addPlayerInventory(Inventory inv) {

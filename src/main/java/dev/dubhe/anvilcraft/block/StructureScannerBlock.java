@@ -182,7 +182,7 @@ public class StructureScannerBlock extends BaseEntityBlock implements IHammerRem
             BlockEntity blockEntity = level.getBlockEntity(pos);
             if (blockEntity instanceof StructureScannerBlockEntity scannerEntity) {
                 // 执行自动扫描和保存
-                autoScanAndSave(level, scannerEntity);
+                this.autoScanAndSave(level, scannerEntity);
             }
         }
     }

@@ -67,7 +67,7 @@ public class BatchCrafterMenu extends BaseMachineMenu implements IFilterMenu, Co
             }
         }
 
-        this.addSlot(resultSlot = new ReadOnlySlot(new SimpleContainer(1), 0, 8 + 7 * 18, 18 + 2 * 18));
+        this.addSlot(this.resultSlot = new ReadOnlySlot(new SimpleContainer(1), 0, 8 + 7 * 18, 18 + 2 * 18));
         this.onChanged();
         this.addSlotListener(this);
     }
@@ -116,7 +116,7 @@ public class BatchCrafterMenu extends BaseMachineMenu implements IFilterMenu, Co
         // Check if the slot clicked is one of the vanilla container slots
         if (index < VANILLA_FIRST_SLOT_INDEX + VANILLA_SLOT_COUNT) {
             // This is a vanilla container slot so merge the stack into the tile inventory
-            if (moveItemToActiveSlot(sourceStack)) {
+            if (this.moveItemToActiveSlot(sourceStack)) {
                 return ItemStack.EMPTY; // EMPTY_ITEM
             }
         } else if (index < TE_INVENTORY_FIRST_SLOT_INDEX + TE_INVENTORY_SLOT_COUNT) {
@@ -147,7 +147,7 @@ public class BatchCrafterMenu extends BaseMachineMenu implements IFilterMenu, Co
         int count = stack.getCount();
         for (int index = BatchCrafterMenu.TE_INVENTORY_FIRST_SLOT_INDEX; index < 45; index++) {
             // 只有对应槽位可以放入物品时才向槽位里快速移动物品
-            if (canPlace(stack, index)) {
+            if (this.canPlace(stack, index)) {
                 moveItemStackTo(stack, index, index + 1, false);
                 if (stack.isEmpty()) {
                     break;
@@ -175,7 +175,7 @@ public class BatchCrafterMenu extends BaseMachineMenu implements IFilterMenu, Co
     @Override
     public boolean stillValid(Player player) {
         return stillValid(
-            ContainerLevelAccess.create(level, blockEntity.getBlockPos()), player, ModBlocks.BATCH_CRAFTER.get());
+            ContainerLevelAccess.create(this.level, this.blockEntity.getBlockPos()), player, ModBlocks.BATCH_CRAFTER.get());
     }
 
     @Override
@@ -211,7 +211,7 @@ public class BatchCrafterMenu extends BaseMachineMenu implements IFilterMenu, Co
     @Override
     public void slotChanged(
         AbstractContainerMenu containerToSend, int dataSlotIndex, ItemStack stack) {
-        onChanged();
+        this.onChanged();
     }
 
     @Override

@@ -151,10 +151,10 @@ public class AccelerationRingBlockEntity extends BlockEntity implements IPowerCo
         BlockState state = getBlockState();
         if (this.level.isClientSide()) {
             if (!state.getValue(AccelerationRingBlock.HALF).equals(DirectionCube3x3PartHalf.MID_CENTER)) return;
-            if (isWork()) {
-                addSelfToMap();
-                accelerate();
-            } else removeSelfFromMap();
+            if (this.isWork()) {
+                this.addSelfToMap();
+                this.accelerate();
+            } else this.removeSelfFromMap();
         }
         if (this.grid == null) return;
         if (!state.getValue(AccelerationRingBlock.HALF).equals(DirectionCube3x3PartHalf.MID_CENTER)) return;
@@ -164,15 +164,15 @@ public class AccelerationRingBlockEntity extends BlockEntity implements IPowerCo
         } else if (!this.grid.isWorking() && !state.getValue(AccelerationRingBlock.OVERLOAD)) {
             block.updateState(this.level, getBlockPos(), AccelerationRingBlock.OVERLOAD, true, 3);
         }
-        if (!isWork()) {
-            removeSelfFromMap();
+        if (!this.isWork()) {
+            this.removeSelfFromMap();
             return;
         }
-        addSelfToMap();
+        this.addSelfToMap();
         if (state.getValue(AccelerationRingBlock.FACING).equals(Direction.UP)) {
-            attractGianAnvil();
+            this.attractGianAnvil();
         }
-        accelerate();
+        this.accelerate();
     }
 
     public void accelerate() {
@@ -204,7 +204,7 @@ public class AccelerationRingBlockEntity extends BlockEntity implements IPowerCo
             }
         }
         if (!found) {
-            removeAccelerationArea();
+            this.removeAccelerationArea();
             return;
         }
         BlockPos aabbStart = getBlockPos().relative(direction.getOpposite(), 1);
@@ -218,7 +218,7 @@ public class AccelerationRingBlockEntity extends BlockEntity implements IPowerCo
             aabbStart = getBlockPos().relative(direction.getOpposite(), 2);
         }
         AABB aabb = AABB.encapsulatingFullBlocks(endRingPos.relative(direction), aabbStart);
-        updateAccelerationArea(aabb);
+        this.updateAccelerationArea(aabb);
         if (level.isClientSide || blockPositions == null) return;
         for (BlockPos pos : blockPositions) {
             BlockState fallState = this.level.getBlockState(pos);
@@ -329,7 +329,7 @@ public class AccelerationRingBlockEntity extends BlockEntity implements IPowerCo
     @Override
     public void setRemoved() {
         super.setRemoved();
-        removeSelfFromMap();
+        this.removeSelfFromMap();
     }
 
     private static final class AccelerationIndex {
@@ -341,30 +341,30 @@ public class AccelerationRingBlockEntity extends BlockEntity implements IPowerCo
 
         private void add(BlockPos pos) {
             BlockPos immutablePos = pos.immutable();
-            if (!positions.add(immutablePos)) return;
-            ringsBySection.computeIfAbsent(SectionPos.asLong(immutablePos), ignored -> new HashSet<>())
+            if (!this.positions.add(immutablePos)) return;
+            this.ringsBySection.computeIfAbsent(SectionPos.asLong(immutablePos), ignored -> new HashSet<>())
                 .add(immutablePos);
         }
 
         private void remove(BlockPos pos) {
-            if (positions.remove(pos)) {
+            if (this.positions.remove(pos)) {
                 long sectionKey = SectionPos.asLong(pos);
-                HashSet<BlockPos> sectionPositions = ringsBySection.get(sectionKey);
+                HashSet<BlockPos> sectionPositions = this.ringsBySection.get(sectionKey);
                 if (sectionPositions != null) {
                     sectionPositions.remove(pos);
-                    if (sectionPositions.isEmpty()) ringsBySection.remove(sectionKey);
+                    if (sectionPositions.isEmpty()) this.ringsBySection.remove(sectionKey);
                 }
             }
-            removeArea(pos);
+            this.removeArea(pos);
         }
 
         private void updateArea(BlockPos pos, AABB area) {
-            AABB previous = areas.get(pos);
+            AABB previous = this.areas.get(pos);
             if (area.equals(previous)) return;
-            removeArea(pos);
+            this.removeArea(pos);
 
             BlockPos immutablePos = pos.immutable();
-            areas.put(immutablePos, area);
+            this.areas.put(immutablePos, area);
             int minSectionX = SectionPos.blockToSectionCoord(area.minX);
             int minSectionY = SectionPos.blockToSectionCoord(area.minY);
             int minSectionZ = SectionPos.blockToSectionCoord(area.minZ);
@@ -380,28 +380,28 @@ public class AccelerationRingBlockEntity extends BlockEntity implements IPowerCo
                     for (int sectionZ = minSectionZ; sectionZ <= maxSectionZ; sectionZ++) {
                         long sectionKey = SectionPos.asLong(sectionX, sectionY, sectionZ);
                         sections.add(sectionKey);
-                        bySection.computeIfAbsent(sectionKey, ignored -> new HashSet<>()).add(immutablePos);
+                        this.bySection.computeIfAbsent(sectionKey, ignored -> new HashSet<>()).add(immutablePos);
                     }
                 }
             }
-            areaSections.put(immutablePos, sections);
+            this.areaSections.put(immutablePos, sections);
         }
 
         private void removeArea(BlockPos pos) {
-            areas.remove(pos);
-            LongArrayList sections = areaSections.remove(pos);
+            this.areas.remove(pos);
+            LongArrayList sections = this.areaSections.remove(pos);
             if (sections == null) return;
             for (int i = 0; i < sections.size(); i++) {
                 long sectionKey = sections.getLong(i);
-                HashSet<BlockPos> sectionPositions = bySection.get(sectionKey);
+                HashSet<BlockPos> sectionPositions = this.bySection.get(sectionKey);
                 if (sectionPositions == null) continue;
                 sectionPositions.remove(pos);
-                if (sectionPositions.isEmpty()) bySection.remove(sectionKey);
+                if (sectionPositions.isEmpty()) this.bySection.remove(sectionKey);
             }
         }
 
         private Iterable<BlockPos> getBlocksAt(Vec3 pos) {
-            HashSet<BlockPos> sectionPositions = bySection.get(SectionPos.asLong(
+            HashSet<BlockPos> sectionPositions = this.bySection.get(SectionPos.asLong(
                 SectionPos.blockToSectionCoord(pos.x),
                 SectionPos.blockToSectionCoord(pos.y),
                 SectionPos.blockToSectionCoord(pos.z)
@@ -410,11 +410,11 @@ public class AccelerationRingBlockEntity extends BlockEntity implements IPowerCo
         }
 
         private Iterable<BlockPos> getBlocksAlongMovement(Vec3 start, Vec3 movement) {
-            return getBlocksAlongMovement(start, movement, bySection);
+            return getBlocksAlongMovement(start, movement, this.bySection);
         }
 
         private Iterable<BlockPos> getRingsAlongMovement(Vec3 start, Vec3 movement) {
-            return getBlocksAlongMovement(start, movement, ringsBySection);
+            return getBlocksAlongMovement(start, movement, this.ringsBySection);
         }
 
         @SuppressWarnings("checkstyle:OverloadMethodsDeclarationOrder")

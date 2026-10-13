@@ -55,19 +55,19 @@ public class OverseerBlockEntity extends BlockEntity {
     public void tick(Level level, BlockPos pos, BlockState state) {
         if (level instanceof ServerLevel serverLevel) {
             // 如果底座上方不是监督者，直接破坏底座，结束方法
-            if (!checkBlocks()) {
+            if (!this.checkBlocks()) {
                 if (LevelLoadManager.checkRegistered(pos, level)) {
                     LevelLoadManager.unregister(pos, level);
                 }
                 return;
             }
-            int newlevel = checkBaseSupportsLevel(level, pos);
+            int newlevel = this.checkBaseSupportsLevel(level, pos);
             boolean newRandomTick = this.waterLoggedBlockCount >= 4;
-            boolean levelChanged = newlevel != oldlevel;
-            if (!levelChanged && newRandomTick == oldRandomTick) {
+            boolean levelChanged = newlevel != this.oldlevel;
+            if (!levelChanged && newRandomTick == this.oldRandomTick) {
                 return;
             }
-            if (levelChanged) updateDisplayedLevel(newlevel);
+            if (levelChanged) this.updateDisplayedLevel(newlevel);
             if (newlevel >= 0) {
                 LevelLoadManager.reload(
                     serverLevel,
@@ -77,8 +77,8 @@ public class OverseerBlockEntity extends BlockEntity {
             } else {
                 LevelLoadManager.unregister(pos, level);
             }
-            oldlevel = newlevel;
-            oldRandomTick = newRandomTick;
+            this.oldlevel = newlevel;
+            this.oldRandomTick = newRandomTick;
         }
     }
 
@@ -105,7 +105,7 @@ public class OverseerBlockEntity extends BlockEntity {
         int waterLoggedBlockCount = 0;
         BlockPos.MutableBlockPos pos = selfPos.mutable().move(Direction.DOWN);
         for (int i = 0; i < 3; i++) {
-            int baseT = checkBaseAt(level, pos);
+            int baseT = this.checkBaseAt(level, pos);
             if (baseT == -1) break;
             waterLoggedBlockCount += baseT;
             supportLevel++;

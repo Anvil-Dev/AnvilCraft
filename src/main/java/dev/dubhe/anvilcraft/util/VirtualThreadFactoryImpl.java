@@ -14,7 +14,7 @@ public class VirtualThreadFactoryImpl implements ThreadFactory {
     @Override
     public Thread newThread(Runnable runnable) {
         return Thread.ofVirtual()
-            .name(namePrefix)
+            .name(this.namePrefix)
             .unstarted(runnable);
     }
 }

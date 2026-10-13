@@ -423,7 +423,7 @@ public abstract class AbstractProcessRecipe<T extends InWorldRecipe> extends InW
 
         @Override
         public Item getResult() {
-            return results.isEmpty() ? Items.ANVIL : results.getFirst().getItem();
+            return this.results.isEmpty() ? Items.ANVIL : this.results.getFirst().getItem();
         }
     }
 

@@ -37,17 +37,17 @@ public class DysonSphereHandler extends BaseMegastructureHandler {
 
     @Override
     public String name() {
-        return name;
+        return this.name;
     }
 
     @Override
     public void onBuild(CelestialForgingAnvilBlockEntity be) {
-        resetSupplyState();
+        this.resetSupplyState();
     }
 
     @Override
     public void onClear(CelestialForgingAnvilBlockEntity be) {
-        resetSupplyState();
+        this.resetSupplyState();
     }
 
     @Override
@@ -55,36 +55,36 @@ public class DysonSphereHandler extends BaseMegastructureHandler {
         Level level = be.getLevel();
         if (level == null || level.isClientSide()) return;
 
-        boolean brownDwarfSphere = isBrownDwarfSphere();
-        boolean smallDwarfSphere = isSmallDwarfSphere(be);
+        boolean brownDwarfSphere = this.isBrownDwarfSphere();
+        boolean smallDwarfSphere = this.isSmallDwarfSphere(be);
         if (!brownDwarfSphere && !smallDwarfSphere) {
-            updateSupplyState(0, be);
+            this.updateSupplyState(0, be);
             return;
         }
 
         int supplied = consumePrimordialMatter(be);
         if (brownDwarfSphere) {
-            updateSupplyState(supplyTier(supplied), be);
+            this.updateSupplyState(supplyTier(supplied), be);
             if (supplied > BROWN_DWARF_TIER_4
                 && be.getCelestialBodyData() instanceof GiantPlanetData brown
                 && brown.brownDwarf()) {
                 this.accumulatedExcessMatter += supplied - BROWN_DWARF_TIER_4;
                 be.setChanged();
                 if (this.accumulatedExcessMatter >= RED_DWARF_MATTER) {
-                    transformToRedDwarf(be, brown);
+                    this.transformToRedDwarf(be, brown);
                 }
             }
-        } else if (isSmallDwarfSphere(be)) {
-            updateSupplyState(supplied >= BROWN_DWARF_TIER_4 ? 1 : 0, be);
+        } else if (this.isSmallDwarfSphere(be)) {
+            this.updateSupplyState(supplied >= BROWN_DWARF_TIER_4 ? 1 : 0, be);
         } else {
-            updateSupplyState(0, be);
+            this.updateSupplyState(0, be);
         }
     }
 
     @Override
     public int getOutputPower(CelestialForgingAnvilBlockEntity be) {
         boolean brownDwarf = false;
-        if (isBrownDwarfSphere()) {
+        if (this.isBrownDwarfSphere()) {
             brownDwarf = be.getCelestialBodyData() instanceof GiantPlanetData brown && brown.brownDwarf();
             if (!brownDwarf) return 0;
         } else if (!(be.getCelestialBodyData() instanceof StarData)) {
@@ -93,7 +93,7 @@ public class DysonSphereHandler extends BaseMegastructureHandler {
         if (!brownDwarf && !be.isAmplifierPresent()) return 0;
 
         if (be.isAcceleratorActive() && be.getAcceleratorStage() == 1 && be.isAmplifierPresent()) {
-            return Math.max(cachedGridConsumption * 2, cachedGridConsumption + 1);
+            return Math.max(this.cachedGridConsumption * 2, this.cachedGridConsumption + 1);
         }
 
         int energy;
@@ -113,7 +113,7 @@ public class DysonSphereHandler extends BaseMegastructureHandler {
         if (energy <= 0 || radius <= 0) return 0;
 
         long basePower = ((long) energy * radius * radius / denominator) * 1_000L;
-        long boostedPower = applyBoost(basePower, be);
+        long boostedPower = this.applyBoost(basePower, be);
         return (int) Math.min(boostedPower, Integer.MAX_VALUE);
     }
 
@@ -135,59 +135,59 @@ public class DysonSphereHandler extends BaseMegastructureHandler {
     @Override
     public void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.saveAdditional(tag, registries);
-        writeState(tag);
+        this.writeState(tag);
     }
 
     @Override
     public void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.loadAdditional(tag, registries);
-        readState(tag);
+        this.readState(tag);
     }
 
     @Override
     public void writeUpdateTag(CompoundTag tag, HolderLookup.Provider registries) {
         super.writeUpdateTag(tag, registries);
-        writeState(tag);
+        this.writeState(tag);
     }
 
     @Override
     public void readUpdateTag(CompoundTag tag, HolderLookup.Provider registries) {
         super.readUpdateTag(tag, registries);
-        readState(tag);
+        this.readState(tag);
     }
 
     private void writeState(CompoundTag tag) {
-        String prefix = statePrefix();
-        tag.putIntArray(prefix + "StableTicksByTier", stableSupplyTicks.clone());
-        tag.putLong(prefix + "ExcessMatter", accumulatedExcessMatter);
+        String prefix = this.statePrefix();
+        tag.putIntArray(prefix + "StableTicksByTier", this.stableSupplyTicks.clone());
+        tag.putLong(prefix + "ExcessMatter", this.accumulatedExcessMatter);
     }
 
     private void readState(CompoundTag tag) {
-        String prefix = statePrefix();
-        Arrays.fill(stableSupplyTicks, 0);
+        String prefix = this.statePrefix();
+        Arrays.fill(this.stableSupplyTicks, 0);
         if (tag.contains(prefix + "StableTicksByTier", Tag.TAG_INT_ARRAY)) {
             int[] ticks = tag.getIntArray(prefix + "StableTicksByTier");
-            for (int i = 0; i < Math.min(ticks.length, stableSupplyTicks.length); i++) {
-                stableSupplyTicks[i] = Math.clamp(ticks[i], 0, STABLE_SUPPLY_TICKS);
+            for (int i = 0; i < Math.min(ticks.length, this.stableSupplyTicks.length); i++) {
+                this.stableSupplyTicks[i] = Math.clamp(ticks[i], 0, STABLE_SUPPLY_TICKS);
             }
         } else {
             int ticks = Math.clamp(tag.getInt(prefix + "StableTicks"), 0, STABLE_SUPPLY_TICKS);
-            int tier = Math.clamp(tag.getInt(prefix + "StableTier"), 0, stableSupplyTicks.length);
-            Arrays.fill(stableSupplyTicks, 0, tier, ticks);
+            int tier = Math.clamp(tag.getInt(prefix + "StableTier"), 0, this.stableSupplyTicks.length);
+            Arrays.fill(this.stableSupplyTicks, 0, tier, ticks);
         }
-        accumulatedExcessMatter = Math.max(tag.getLong(prefix + "ExcessMatter"), 0L);
+        this.accumulatedExcessMatter = Math.max(tag.getLong(prefix + "ExcessMatter"), 0L);
     }
 
     private String statePrefix() {
-        return "dysonSphere_" + name + "_";
+        return "dysonSphere_" + this.name + "_";
     }
 
     private boolean isBrownDwarfSphere() {
-        return BROWN_DWARF_NAME.equals(name);
+        return BROWN_DWARF_NAME.equals(this.name);
     }
 
     private boolean isSmallDwarfSphere(CelestialForgingAnvilBlockEntity be) {
-        if (!SMALL_NAME.equals(name) || !(be.getCelestialBodyData() instanceof StarData star)) return false;
+        if (!SMALL_NAME.equals(this.name) || !(be.getCelestialBodyData() instanceof StarData star)) return false;
         return !star.usesLargeStellarRings()
             && (star.bodyClass() == CelestialBodyClass.M_MAIN
                 || star.bodyClass() == CelestialBodyClass.K_MAIN
@@ -203,35 +203,35 @@ public class DysonSphereHandler extends BaseMegastructureHandler {
     }
 
     private void updateSupplyState(int tier, CelestialForgingAnvilBlockEntity be) {
-        int oldActiveTier = activeSupplyTier();
+        int oldActiveTier = this.activeSupplyTier();
         boolean changed = false;
-        for (int i = 0; i < stableSupplyTicks.length; i++) {
-            int ticks = i < tier ? Math.min(stableSupplyTicks[i] + 1, STABLE_SUPPLY_TICKS) : 0;
-            if (stableSupplyTicks[i] != ticks) {
-                stableSupplyTicks[i] = ticks;
+        for (int i = 0; i < this.stableSupplyTicks.length; i++) {
+            int ticks = i < tier ? Math.min(this.stableSupplyTicks[i] + 1, STABLE_SUPPLY_TICKS) : 0;
+            if (this.stableSupplyTicks[i] != ticks) {
+                this.stableSupplyTicks[i] = ticks;
                 changed = true;
             }
         }
         if (changed) {
             be.setChanged();
         }
-        if (oldActiveTier != activeSupplyTier()) {
+        if (oldActiveTier != this.activeSupplyTier()) {
             markPowerStateChanged(be);
         }
     }
 
     private int activeSupplyTier() {
-        for (int i = stableSupplyTicks.length - 1; i >= 0; i--) {
-            if (stableSupplyTicks[i] >= STABLE_SUPPLY_TICKS) return i + 1;
+        for (int i = this.stableSupplyTicks.length - 1; i >= 0; i--) {
+            if (this.stableSupplyTicks[i] >= STABLE_SUPPLY_TICKS) return i + 1;
         }
         return 0;
     }
 
     private long applyBoost(long basePower, CelestialForgingAnvilBlockEntity be) {
-        int tier = activeSupplyTier();
+        int tier = this.activeSupplyTier();
         if (tier == 0) return basePower;
 
-        if (isBrownDwarfSphere()) {
+        if (this.isBrownDwarfSphere()) {
             return switch (tier) {
                 case 1 -> basePower * 3L / 2L;
                 case 2 -> basePower * 2L;
@@ -239,7 +239,7 @@ public class DysonSphereHandler extends BaseMegastructureHandler {
                 default -> basePower * 5L;
             };
         }
-        if (!isSmallDwarfSphere(be) || !(be.getCelestialBodyData() instanceof StarData star)) return basePower;
+        if (!this.isSmallDwarfSphere(be) || !(be.getCelestialBodyData() instanceof StarData star)) return basePower;
         return switch (star.bodyClass()) {
             case M_MAIN -> basePower * 2L;
             case K_MAIN -> basePower * 3L / 2L;
@@ -275,9 +275,9 @@ public class DysonSphereHandler extends BaseMegastructureHandler {
     }
 
     private void resetSupplyState() {
-        cachedGridConsumption = 0;
-        Arrays.fill(stableSupplyTicks, 0);
-        accumulatedExcessMatter = 0L;
+        this.cachedGridConsumption = 0;
+        Arrays.fill(this.stableSupplyTicks, 0);
+        this.accumulatedExcessMatter = 0L;
     }
 
     private static void markPowerStateChanged(CelestialForgingAnvilBlockEntity be) {

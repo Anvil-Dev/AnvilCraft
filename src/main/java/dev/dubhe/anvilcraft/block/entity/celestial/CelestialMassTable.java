@@ -16,11 +16,11 @@ public final class CelestialMassTable {
 
     public record Definition(double value, Unit unit, String displayValue) {
         public String display() {
-            return displayValue + " " + unit.symbol;
+            return this.displayValue + " " + this.unit.symbol;
         }
 
         public double solarMass() {
-            return unit == Unit.SOLAR ? value : value / 332946.0;
+            return this.unit == Unit.SOLAR ? this.value : this.value / 332946.0;
         }
     }
 

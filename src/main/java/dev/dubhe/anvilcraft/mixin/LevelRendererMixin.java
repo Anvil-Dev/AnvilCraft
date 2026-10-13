@@ -203,7 +203,7 @@ public abstract class LevelRendererMixin {
         Minecraft.getInstance().getMainRenderTarget().copyDepthFrom(ModRenderTargets.getTempTarget());
         RenderSystem.activeTexture(oldTexture);
         RenderSystem.enableDepthTest();
-        minecraft.getMainRenderTarget().bindWrite(false);
+        this.minecraft.getMainRenderTarget().bindWrite(false);
     }
 
     @Inject(

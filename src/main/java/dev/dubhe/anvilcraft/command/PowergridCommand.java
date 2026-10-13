@@ -22,7 +22,6 @@ import static net.minecraft.commands.Commands.literal;
 
 public class PowergridCommand {
 
-
     private static int showInfo(CommandContext<CommandSourceStack> ctx) {
         BlockPos pos = ctx.getArgument("pos", WorldCoordinates.class).getBlockPos(ctx.getSource());
         ServerLevel level = ctx.getSource().getLevel();

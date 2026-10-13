@@ -52,7 +52,7 @@ public class HeliostatsRenderer implements BlockEntityRenderer<HeliostatsBlockEn
         int packedOverlay
     ) {
         Minecraft minecraft = Minecraft.getInstance();
-        collectSelectionModels(blockEntity, partialTick, poseStack, (model, pose) ->
+        this.collectSelectionModels(blockEntity, partialTick, poseStack, (model, pose) ->
             minecraft.getBlockRenderer().getModelRenderer().renderModel(
                 pose.last(), buffer.getBuffer(RenderType.cutout()), null,
                 minecraft.getModelManager().getModel(model), 0, 0, 0, packedLight, packedOverlay
@@ -68,7 +68,7 @@ public class HeliostatsRenderer implements BlockEntityRenderer<HeliostatsBlockEn
             && !blockEntity.getNormalVector3f().equals(new Vector3f())
             && !blockEntity.getNormalVector3f().equals(new Vector3f(Float.NaN))
         ) {
-            poseStack.mulPose(new Quaternionf().rotateY(getHorizontalAngle(
+            poseStack.mulPose(new Quaternionf().rotateY(this.getHorizontalAngle(
                 blockEntity.getNormalVector3f().x,
                 blockEntity.getNormalVector3f().z
             )));

@@ -45,18 +45,18 @@ public class ModInspections {
 
     public void registerCommand(LiteralArgumentBuilder<CommandSourceStack> parent) {
         LiteralArgumentBuilder<CommandSourceStack> commandRoot = literal("inspection");
-        for (ResourceLocation option : inspectionOptions) {
+        for (ResourceLocation option : this.inspectionOptions) {
             commandRoot.then(
                 literal(option.toString())
                     .then(literal("enable")
                         .executes(ctx -> ctx.getSource().isPlayer()
-                            ? changeStateServer(Objects.requireNonNull(ctx.getSource().getPlayer()), option, true)
+                            ? this.changeStateServer(Objects.requireNonNull(ctx.getSource().getPlayer()), option, true)
                             : 0
                         )
                     )
                     .then(literal("disable")
                         .executes(ctx -> ctx.getSource().isPlayer()
-                            ? changeStateServer(Objects.requireNonNull(ctx.getSource().getPlayer()), option, false)
+                            ? this.changeStateServer(Objects.requireNonNull(ctx.getSource().getPlayer()), option, false)
                             : 0
                         )
                     )

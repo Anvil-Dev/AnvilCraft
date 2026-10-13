@@ -49,15 +49,15 @@ public class BeaconConversionCategory implements IRecipeCategory<BeaconConversio
     private final Map<BeaconConversionRecipe, LevelLike> cache = new HashMap<>();
 
     public BeaconConversionCategory(IGuiHelper helper) {
-        slotDefault = JeiRenderHelper.getSlotDefault(helper);
-        slotChoice = JeiRenderHelper.getSlotChoice(helper);
-        title = Component.translatable("gui.anvilcraft.category.beacon_conversion");
-        activateTooltip = Component.translatable("gui.anvilcraft.category.beacon_conversion.activate")
+        this.slotDefault = JeiRenderHelper.getSlotDefault(helper);
+        this.slotChoice = JeiRenderHelper.getSlotChoice(helper);
+        this.title = Component.translatable("gui.anvilcraft.category.beacon_conversion");
+        this.activateTooltip = Component.translatable("gui.anvilcraft.category.beacon_conversion.activate")
             .withStyle(ChatFormatting.GOLD);
-        beaconBaseTooltip = Component.translatable("gui.anvilcraft.category.beacon_conversion.beacon_base")
+        this.beaconBaseTooltip = Component.translatable("gui.anvilcraft.category.beacon_conversion.beacon_base")
             .withStyle(ChatFormatting.GOLD);
-        arrowDefault = JeiRenderHelper.getArrowDefault(helper);
-        arrowIn = JeiRenderHelper.getArrowInput(helper);
+        this.arrowDefault = JeiRenderHelper.getArrowDefault(helper);
+        this.arrowIn = JeiRenderHelper.getArrowInput(helper);
     }
 
     @Override
@@ -67,7 +67,7 @@ public class BeaconConversionCategory implements IRecipeCategory<BeaconConversio
 
     @Override
     public Component getTitle() {
-        return title;
+        return this.title;
     }
 
     @Override
@@ -96,11 +96,11 @@ public class BeaconConversionCategory implements IRecipeCategory<BeaconConversio
         builder.addSlot(RecipeIngredientRole.INPUT, 48, 8)
             .addItemStack(ModItems.CURSED_GOLD_INGOT.asStack())
             .addRichTooltipCallback((recipeSlotView, tooltip) ->
-                tooltip.add(activateTooltip));
+                tooltip.add(this.activateTooltip));
         builder.addSlot(RecipeIngredientRole.CATALYST, 10, 110)
             .addItemStack(ModBlocks.CURSED_GOLD_BLOCK.asStack(recipe.cursedGoldBlockCount))
             .addRichTooltipCallback((recipeSlotView, tooltip) ->
-                tooltip.add(beaconBaseTooltip));
+                tooltip.add(this.beaconBaseTooltip));
         builder.addSlot(RecipeIngredientRole.INPUT, 10, 92)
             .addItemStack(Blocks.BEACON.asItem().getDefaultInstance());
         IRecipeSlotBuilder slot = builder.addSlot(RecipeIngredientRole.OUTPUT, 130, 96)
@@ -120,7 +120,7 @@ public class BeaconConversionCategory implements IRecipeCategory<BeaconConversio
         GuiGraphics guiGraphics,
         double mouseX,
         double mouseY) {
-        LevelLike level = cache.get(recipe);
+        LevelLike level = this.cache.get(recipe);
         if (level == null) {
             LevelLike beaconBase = new LevelLike(Objects.requireNonNull(Minecraft.getInstance().level));
             int layers = recipe.cursedGoldBlockLayers;
@@ -137,24 +137,24 @@ public class BeaconConversionCategory implements IRecipeCategory<BeaconConversio
                 .defaultBlockState()
                 .trySetValue(BlockStateProperties.WATERLOGGED, false);
             beaconBase.setBlockState(new BlockPos(layers, layers, layers), block);
-            cache.put(recipe, beaconBase);
+            this.cache.put(recipe, beaconBase);
             level = beaconBase;
         }
 
         RenderSupport.renderLevelLike(level, guiGraphics, 84, 54, 90);
 
-        slotDefault.draw(guiGraphics, 47, 7);
-        slotDefault.draw(guiGraphics, 9, 109);
-        slotDefault.draw(guiGraphics, 9, 91);
+        this.slotDefault.draw(guiGraphics, 47, 7);
+        this.slotDefault.draw(guiGraphics, 9, 109);
+        this.slotDefault.draw(guiGraphics, 9, 91);
         if (recipe.chance < 1.0f) {
-            slotChoice.draw(guiGraphics, 111, 95);
-            slotChoice.draw(guiGraphics, 129, 95);
+            this.slotChoice.draw(guiGraphics, 111, 95);
+            this.slotChoice.draw(guiGraphics, 129, 95);
         } else {
-            slotDefault.draw(guiGraphics, 129, 95);
+            this.slotDefault.draw(guiGraphics, 129, 95);
         }
 
-        arrowIn.draw(guiGraphics, 66, 14);
-        arrowDefault.draw(guiGraphics, 60, 96);
+        this.arrowIn.draw(guiGraphics, 66, 14);
+        this.arrowDefault.draw(guiGraphics, 60, 96);
     }
 
     public static void registerRecipes(IRecipeRegistration registration) {

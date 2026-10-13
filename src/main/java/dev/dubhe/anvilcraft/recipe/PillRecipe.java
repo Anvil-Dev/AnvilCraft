@@ -63,9 +63,9 @@ public class PillRecipe extends CustomRecipe {
         int pillCount = 0;
         int potionCount = 0;
         for (ItemStack item : items) {
-            if (validatePill(item)) {
+            if (this.validatePill(item)) {
                 pillCount++;
-            } else if (validatePotion(item)) {
+            } else if (this.validatePotion(item)) {
                 potionCount++;
             }
         }

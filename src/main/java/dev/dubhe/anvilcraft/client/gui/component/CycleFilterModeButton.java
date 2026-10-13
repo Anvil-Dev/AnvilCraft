@@ -32,7 +32,7 @@ public class CycleFilterModeButton extends Button {
         super.render(guiGraphics, mouseX, mouseY, partialTick);
         if (this.isHovered()) {
             guiGraphics.renderTooltip(
-                Minecraft.getInstance().font, List.of(getMessage()), Optional.empty(), mouseX, mouseY);
+                Minecraft.getInstance().font, List.of(this.getMessage()), Optional.empty(), mouseX, mouseY);
         }
     }
 

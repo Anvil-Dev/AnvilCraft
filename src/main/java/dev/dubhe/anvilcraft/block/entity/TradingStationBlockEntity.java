@@ -375,16 +375,16 @@ public class TradingStationBlockEntity extends BlockEntity
         if (this.level == null || this.level.isClientSide) return false;
         if (this.filters.getItem(2).isEmpty()) return false;
         if (this.filters.getItem(0).isEmpty() && this.filters.getItem(1).isEmpty()) return false;
-        return findAcceptableOffer(villager).isPresent();
+        return this.findAcceptableOffer(villager).isPresent();
     }
 
     public boolean tryTradingWithVillager(Villager villager) {
         if (!this.villagerAllowed) return false;
         if (this.level == null || this.level.isClientSide) return false;
-        Optional<MerchantOffer> op = findAcceptableOffer(villager);
+        Optional<MerchantOffer> op = this.findAcceptableOffer(villager);
         if (op.isEmpty()) return false;
         MerchantOffer offer = op.get();
-        if (!executeVillagerTrade(offer)) return false;
+        if (!this.executeVillagerTrade(offer)) return false;
         offer.increaseUses();
         villager.setVillagerXp(villager.getVillagerXp() + offer.getXp());
         VillagerAccessor accessor = (VillagerAccessor) villager;
@@ -447,11 +447,11 @@ public class TradingStationBlockEntity extends BlockEntity
     }
 
     private boolean canFulfillOffer(MerchantOffer offer) {
-        return simulateVillagerTrade(offer, false);
+        return this.simulateVillagerTrade(offer, false);
     }
 
     private boolean executeVillagerTrade(MerchantOffer offer) {
-        return simulateVillagerTrade(offer, true);
+        return this.simulateVillagerTrade(offer, true);
     }
 
     private boolean simulateVillagerTrade(MerchantOffer offer, boolean commit) {
@@ -462,7 +462,7 @@ public class TradingStationBlockEntity extends BlockEntity
         if (!removeMatching(offer.getCostA(), snapshot)) return false;
         if (!offer.getCostB().isEmpty() && !removeMatching(offer.getCostB(), snapshot)) return false;
         ItemStack result = offer.getResult();
-        if (!insertMatching(result, snapshot)) return false;
+        if (!this.insertMatching(result, snapshot)) return false;
         if (!commit) return true;
         for (int i = 0; i < snapshot.length; i++) {
             if (!ItemStack.matches(snapshot[i], this.handler.getStackInSlot(i))) {

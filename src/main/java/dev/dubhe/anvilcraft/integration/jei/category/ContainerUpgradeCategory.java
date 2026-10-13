@@ -70,7 +70,7 @@ public class ContainerUpgradeCategory implements IRecipeCategory<ContainerUpgrad
 
     @Override
     public Component getTitle() {
-        return title;
+        return this.title;
     }
 
     @Override
@@ -85,7 +85,7 @@ public class ContainerUpgradeCategory implements IRecipeCategory<ContainerUpgrad
 
     @Override
     public @Nullable IDrawable getIcon() {
-        return icon;
+        return this.icon;
     }
 
     @Override
@@ -95,10 +95,10 @@ public class ContainerUpgradeCategory implements IRecipeCategory<ContainerUpgrad
             case CRATE_TO_CONTAINER -> {
                 builder.addSlot(RecipeIngredientRole.INPUT, 9, 8)
                     .addItemStack(ModBlocks.SPACE_OVERCOMPRESSOR.asStack())
-                    .addRichTooltipCallback((recipeSlotView, tooltip) -> tooltip.add(dropOnTopTooltip));
+                    .addRichTooltipCallback((recipeSlotView, tooltip) -> tooltip.add(this.dropOnTopTooltip));
                 builder.addSlot(RecipeIngredientRole.INPUT, 31, 8)
                     .addItemStack(new ItemStack(Blocks.NETHERITE_BLOCK, NETHERITE_BLOCK_COUNT))
-                    .addRichTooltipCallback((recipeSlotView, tooltip) -> tooltip.add(dropOnTopTooltip));
+                    .addRichTooltipCallback((recipeSlotView, tooltip) -> tooltip.add(this.dropOnTopTooltip));
                 JeiBlockIngredientUtil.addSlot(
                     builder,
                     RecipeIngredientRole.INPUT,
@@ -111,15 +111,15 @@ public class ContainerUpgradeCategory implements IRecipeCategory<ContainerUpgrad
                 );
                 builder.addSlot(RecipeIngredientRole.OUTPUT, 128, 8)
                     .addItemStack(ModBlocks.SHULKER_CONTAINER.asStack())
-                    .addRichTooltipCallback((recipeSlotView, tooltip) -> tooltip.add(strikeTooltip));
+                    .addRichTooltipCallback((recipeSlotView, tooltip) -> tooltip.add(this.strikeTooltip));
             }
             case CONTAINER_TO_STATION -> {
                 builder.addSlot(RecipeIngredientRole.INPUT, 9, 8)
                     .addItemStack(ModBlocks.SINGULARITY_CRYSTAL.asStack())
-                    .addRichTooltipCallback((recipeSlotView, tooltip) -> tooltip.add(dropOnTopTooltip));
+                    .addRichTooltipCallback((recipeSlotView, tooltip) -> tooltip.add(this.dropOnTopTooltip));
                 builder.addSlot(RecipeIngredientRole.INPUT, 31, 8)
                     .addItemStack(new ItemStack(ModBlocks.HYPERCUBE, HYPERCUBE_COUNT))
-                    .addRichTooltipCallback((recipeSlotView, tooltip) -> tooltip.add(dropOnTopTooltip));
+                    .addRichTooltipCallback((recipeSlotView, tooltip) -> tooltip.add(this.dropOnTopTooltip));
                 JeiBlockIngredientUtil.addSlot(
                     builder,
                     RecipeIngredientRole.INPUT,
@@ -132,10 +132,10 @@ public class ContainerUpgradeCategory implements IRecipeCategory<ContainerUpgrad
                 );
                 builder.addSlot(RecipeIngredientRole.OUTPUT, 128, 8)
                     .addItemStack(ModBlocks.HYPERDIMENSION_STORAGE_STATION.asStack())
-                    .addRichTooltipCallback((recipeSlotView, tooltip) -> tooltip.add(strikeTooltip));
+                    .addRichTooltipCallback((recipeSlotView, tooltip) -> tooltip.add(this.strikeTooltip));
                 builder.addSlot(RecipeIngredientRole.INPUT, 31, 41)
                     .addItemStack(ModBlocks.SPACE_OVERCOMPRESSOR.asStack(4))
-                    .addRichTooltipCallback((recipeSlotView, tooltip) -> tooltip.add(requiresExpansion));
+                    .addRichTooltipCallback((recipeSlotView, tooltip) -> tooltip.add(this.requiresExpansion));
             }
             default -> {}
         }
@@ -154,7 +154,7 @@ public class ContainerUpgradeCategory implements IRecipeCategory<ContainerUpgrad
         GuiGraphics guiGraphics,
         double mouseX,
         double mouseY) {
-        float anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(timer);
+        float anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(this.timer);
         RenderSupport.renderBlock(
             guiGraphics,
             Blocks.ANVIL.defaultBlockState(),
@@ -183,17 +183,17 @@ public class ContainerUpgradeCategory implements IRecipeCategory<ContainerUpgrad
                     10,
                     8,
                     RenderSupport.SINGLE_BLOCK);
-                slotDefault.draw(guiGraphics, 30, 40);
+                this.slotDefault.draw(guiGraphics, 30, 40);
             }
             default -> {}
         }
 
-        arrowIn.draw(guiGraphics, 52, 30);
-        arrowOutputFromBelow.draw(guiGraphics, 94, 29);
+        this.arrowIn.draw(guiGraphics, 52, 30);
+        this.arrowOutputFromBelow.draw(guiGraphics, 94, 29);
 
-        slotDefault.draw(guiGraphics, 8, 7);
-        slotDefault.draw(guiGraphics, 30, 7);
-        slotDefault.draw(guiGraphics, 127, 7);
+        this.slotDefault.draw(guiGraphics, 8, 7);
+        this.slotDefault.draw(guiGraphics, 30, 7);
+        this.slotDefault.draw(guiGraphics, 127, 7);
     }
 
     public static void registerRecipes(IRecipeRegistration registration) {

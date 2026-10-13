@@ -103,7 +103,7 @@ public class FilterItem extends Item {
                 ModMenuTypes.FILTER.get(),
                 containerId,
                 playerInventory,
-                new FilterContainer(player, this.position, player.getInventory().getItem(position))
+                new FilterContainer(player, this.position, player.getInventory().getItem(this.position))
             );
         }
 

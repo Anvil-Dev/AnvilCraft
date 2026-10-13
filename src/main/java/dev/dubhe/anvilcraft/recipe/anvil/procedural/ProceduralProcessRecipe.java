@@ -93,13 +93,13 @@ public class ProceduralProcessRecipe implements Recipe<InWorldRecipeContext> {
     }
 
     public Optional<ResourceLocation> getDisplayedModelForStep(int stepCount) {
-        if (stepCount > 0 && !steps.isEmpty()) {
-            int modelIndex = loop > 1 ? (stepCount - 1) / steps.size() : stepCount - 1;
-            if (modelIndex < displayedModels.size()) {
-                return Optional.of(displayedModels.get(modelIndex));
+        if (stepCount > 0 && !this.steps.isEmpty()) {
+            int modelIndex = this.loop > 1 ? (stepCount - 1) / this.steps.size() : stepCount - 1;
+            if (modelIndex < this.displayedModels.size()) {
+                return Optional.of(this.displayedModels.get(modelIndex));
             }
         }
-        return displayedModel;
+        return this.displayedModel;
     }
 
     /**
@@ -147,7 +147,7 @@ public class ProceduralProcessRecipe implements Recipe<InWorldRecipeContext> {
 
     @Override
     public @NotNull ItemStack getResultItem(HolderLookup.@NotNull Provider provider) {
-        BlockState state = resultBlock.state();
+        BlockState state = this.resultBlock.state();
         if (state.isEmpty() || state.isAir()) return Items.AIR.getDefaultInstance();
         Item item = state.getBlock().asItem();
         return item.getDefaultInstance();

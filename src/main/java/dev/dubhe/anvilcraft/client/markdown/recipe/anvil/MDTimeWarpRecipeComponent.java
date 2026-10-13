@@ -34,9 +34,9 @@ public class MDTimeWarpRecipeComponent extends MDBaseAnvilRecipeComponent {
 
     public MDTimeWarpRecipeComponent(TimeWarpRecipe recipe, boolean enableAlignCenter) {
         super(enableAlignCenter);
-        ingredients = recipe.getDisplayInputItems();
-        resultItems = recipe.getResultItems();
-        inputBlockStates = List.of(
+        this.ingredients = recipe.getDisplayInputItems();
+        this.resultItems = recipe.getResultItems();
+        this.inputBlockStates = List.of(
             getInputCauldron(recipe),
             ModBlocks.CORRUPTED_BEACON.getDefaultState()
         );
@@ -44,8 +44,8 @@ public class MDTimeWarpRecipeComponent extends MDBaseAnvilRecipeComponent {
     }
 
     protected BlockState getOutputBlockState() {
-        if (resultItems.isEmpty()) {
-            return getResultCauldron(recipe);
+        if (this.resultItems.isEmpty()) {
+            return getResultCauldron(this.recipe);
         }
         return super.getOutputBlockState();
     }
@@ -59,15 +59,15 @@ public class MDTimeWarpRecipeComponent extends MDBaseAnvilRecipeComponent {
             AgeratumUtil.renderText(graphics, Component.translatable("gui.anvilcraft.category.catalyst"), INFO_X, INFO_Y - 10);
         }
 
-        if (recipe.isConsumeFluid()) {
+        if (this.recipe.isConsumeFluid()) {
             Component text = Component.translatable(
                 "gui.anvilcraft.category.time_warp.consume_fluid",
-                recipe.getHasCauldron().consume(),
-                HasCauldron.getDefaultCauldron(recipe.getHasCauldron().fluid()).getName()
+                this.recipe.getHasCauldron().consume(),
+                HasCauldron.getDefaultCauldron(this.recipe.getHasCauldron().fluid()).getName()
             );
             AgeratumUtil.renderText(graphics, text, INFO_X, INFO_Y);
-        } else if (recipe.isProduceFluid()) {
-            FluidStack transform = getDisplayedElement(recipe.getHasCauldron().transforms());
+        } else if (this.recipe.isProduceFluid()) {
+            FluidStack transform = getDisplayedElement(this.recipe.getHasCauldron().transforms());
             Component text = Component.translatable(
                 "gui.anvilcraft.category.time_warp.produce_fluid",
                 transform.getAmount(),

@@ -30,7 +30,7 @@ public class FilterOnlyContainer implements Container {
 
     @Override
     public int getContainerSize() {
-        return size;
+        return this.size;
     }
 
     @Override
@@ -40,7 +40,7 @@ public class FilterOnlyContainer implements Container {
 
     @Override
     public ItemStack getItem(int slot) {
-        return filterList.get(slot);
+        return this.filterList.get(slot);
     }
 
     @Override
@@ -55,7 +55,7 @@ public class FilterOnlyContainer implements Container {
 
     @Override
     public void setItem(int slot, ItemStack stack) {
-        filterList.set(slot, stack);
+        this.filterList.set(slot, stack);
     }
 
     @Override
@@ -77,28 +77,28 @@ public class FilterOnlyContainer implements Container {
 
     public CompoundTag serializeNBT(HolderLookup.Provider provider) {
         ListTag nbtTagList = new ListTag();
-        for (int i = 0; i < filterList.size(); i++) {
-            if (!filterList.get(i).isEmpty()) {
+        for (int i = 0; i < this.filterList.size(); i++) {
+            if (!this.filterList.get(i).isEmpty()) {
                 CompoundTag itemTag = new CompoundTag();
                 itemTag.putInt("Slot", i);
-                nbtTagList.add(filterList.get(i).save(provider, itemTag));
+                nbtTagList.add(this.filterList.get(i).save(provider, itemTag));
             }
         }
         CompoundTag nbt = new CompoundTag();
         nbt.put("Items", nbtTagList);
-        nbt.putInt("Size", filterList.size());
+        nbt.putInt("Size", this.filterList.size());
         return nbt;
     }
 
     public void deserializeNBT(HolderLookup.Provider provider, CompoundTag nbt) {
-        this.size = nbt.contains("Size", Tag.TAG_INT) ? nbt.getInt("Size") : filterList.size();
+        this.size = nbt.contains("Size", Tag.TAG_INT) ? nbt.getInt("Size") : this.filterList.size();
         this.filterList = NonNullList.withSize(this.size, ItemStack.EMPTY);
         ListTag tagList = nbt.getList("Items", Tag.TAG_COMPOUND);
         for (int i = 0; i < tagList.size(); i++) {
             CompoundTag itemTags = tagList.getCompound(i);
             int slot = itemTags.getInt("Slot");
-            if (slot >= 0 && slot < filterList.size()) {
-                ItemStack.parse(provider, itemTags).ifPresent(stack -> filterList.set(slot, stack));
+            if (slot >= 0 && slot < this.filterList.size()) {
+                ItemStack.parse(provider, itemTags).ifPresent(stack -> this.filterList.set(slot, stack));
             }
         }
     }

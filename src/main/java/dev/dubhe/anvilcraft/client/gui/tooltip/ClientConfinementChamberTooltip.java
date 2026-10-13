@@ -26,14 +26,14 @@ public class ClientConfinementChamberTooltip implements ClientTooltipComponent {
 
     @Override
     public int getHeight() {
-        return item.isEmpty() ? 0 : LINE_HEIGHT + ICON_SIZE;
+        return this.item.isEmpty() ? 0 : LINE_HEIGHT + ICON_SIZE;
     }
 
     @Override
     public int getWidth(Font font) {
-        if (item.isEmpty()) return 0;
+        if (this.item.isEmpty()) return 0;
         int width = font.width(Component.translatable("tooltip.anvilcraft.creative_crate.item"));
-        return Math.max(width, ICON_SIZE + ICON_GAP + font.width(itemLine()));
+        return Math.max(width, ICON_SIZE + ICON_GAP + font.width(this.itemLine()));
     }
 
     @Override
@@ -44,13 +44,13 @@ public class ClientConfinementChamberTooltip implements ClientTooltipComponent {
         Matrix4f matrix,
         MultiBufferSource.BufferSource bufferSource
     ) {
-        if (item.isEmpty()) return;
+        if (this.item.isEmpty()) return;
         font.drawInBatch(
             Component.translatable("tooltip.anvilcraft.creative_crate.item").withStyle(ChatFormatting.BLUE),
             mouseX, mouseY, -1, true, matrix, bufferSource, Font.DisplayMode.NORMAL, 0, 15728880
         );
         font.drawInBatch(
-            itemLine(),
+            this.itemLine(),
             mouseX + ICON_SIZE + ICON_GAP, mouseY + LINE_HEIGHT + (float) (ICON_SIZE - LINE_HEIGHT) / 2,
             -1, true, matrix, bufferSource, Font.DisplayMode.NORMAL, 0, 15728880
         );
@@ -58,15 +58,15 @@ public class ClientConfinementChamberTooltip implements ClientTooltipComponent {
 
     @Override
     public void renderImage(Font font, int x, int y, GuiGraphics guiGraphics) {
-        if (item.isEmpty()) return;
-        guiGraphics.renderItem(item, x, y + LINE_HEIGHT);
+        if (this.item.isEmpty()) return;
+        guiGraphics.renderItem(this.item, x, y + LINE_HEIGHT);
     }
 
     /** 内容物行：名称 + 数量。 */
     private Component itemLine() {
         return Component.literal("")
-            .append(item.getHoverName())
-            .append(Component.literal(" x" + item.getCount()))
+            .append(this.item.getHoverName())
+            .append(Component.literal(" x" + this.item.getCount()))
             .withStyle(ChatFormatting.GRAY);
     }
 }

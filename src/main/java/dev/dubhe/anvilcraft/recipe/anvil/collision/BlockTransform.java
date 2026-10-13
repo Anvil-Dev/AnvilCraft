@@ -77,8 +77,8 @@ public record BlockTransform(
         if (!(level instanceof ServerLevel serverLevel)) return false;
         Map.Entry<BlockState, CompoundTag> output;
         if (
-            inputBlock.test(level, level.getBlockState(pos), level.getBlockEntity(pos))
-            && (output = outputBlock.getResult(serverLevel)) != null
+            this.inputBlock.test(level, level.getBlockState(pos), level.getBlockEntity(pos))
+            && (output = this.outputBlock.getResult(serverLevel)) != null
         ) {
             level.setBlockAndUpdate(pos, output.getKey());
             Optional.ofNullable(level.getBlockEntity(pos))

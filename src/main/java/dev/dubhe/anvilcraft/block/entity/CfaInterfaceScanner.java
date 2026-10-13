@@ -18,11 +18,11 @@ public final class CfaInterfaceScanner {
 
     public record PrioritizedInterfaces<T>(List<T> active, List<T> passive) {
         public List<T> preferred() {
-            return active.isEmpty() ? passive : active;
+            return this.active.isEmpty() ? this.passive : this.active;
         }
 
         public int size() {
-            return preferred().size();
+            return this.preferred().size();
         }
     }
 

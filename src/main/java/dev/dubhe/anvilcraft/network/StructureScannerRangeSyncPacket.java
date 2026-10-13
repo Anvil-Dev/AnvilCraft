@@ -43,9 +43,9 @@ public record StructureScannerRangeSyncPacket(int rangeX, int rangeY, int rangeZ
             }
             
             // 更新客户端的范围值
-            blockEntity.getRangeX().fromIndex(rangeX);
-            blockEntity.getRangeY().fromIndex(rangeY);
-            blockEntity.getRangeZ().fromIndex(rangeZ);
+            blockEntity.getRangeX().fromIndex(this.rangeX);
+            blockEntity.getRangeY().fromIndex(this.rangeY);
+            blockEntity.getRangeZ().fromIndex(this.rangeZ);
         }
     }
 }

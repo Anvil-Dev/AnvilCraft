@@ -39,10 +39,10 @@ public record OverworldLikeResetManifest(int generation, long activeSeed, long n
         Path parent = path.getParent();
         Files.createDirectories(parent);
         CompoundTag tag = new CompoundTag();
-        tag.putInt("generation", generation);
-        tag.putLong("activeSeed", activeSeed);
-        tag.putLong("nextSeed", nextSeed);
-        tag.putBoolean("resetPending", resetPending);
+        tag.putInt("generation", this.generation);
+        tag.putLong("activeSeed", this.activeSeed);
+        tag.putLong("nextSeed", this.nextSeed);
+        tag.putBoolean("resetPending", this.resetPending);
         Path temporary = Files.createTempFile(parent, FILE_NAME, ".tmp");
         try {
             NbtIo.writeCompressed(tag, temporary);
@@ -57,15 +57,15 @@ public record OverworldLikeResetManifest(int generation, long activeSeed, long n
     }
 
     public OverworldLikeResetManifest resetRequested(long seed) {
-        return new OverworldLikeResetManifest(generation, activeSeed, seed, true);
+        return new OverworldLikeResetManifest(this.generation, this.activeSeed, seed, true);
     }
 
     public OverworldLikeResetManifest promoteNextGeneration() {
-        int nextGeneration = generation + 1;
+        int nextGeneration = this.generation + 1;
         return new OverworldLikeResetManifest(
             nextGeneration,
-            nextSeed,
-            nextSeed(nextSeed, nextGeneration),
+            this.nextSeed,
+            nextSeed(this.nextSeed, nextGeneration),
             false
         );
     }

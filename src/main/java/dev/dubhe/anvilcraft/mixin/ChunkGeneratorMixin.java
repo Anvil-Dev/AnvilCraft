@@ -61,24 +61,24 @@ public class ChunkGeneratorMixin {
 
         @Override
         public java.util.Optional<Holder.Reference<StructureSet>> get(ResourceKey<StructureSet> key) {
-            return parent.get(key).filter(VanillaStructureSetLookup::isVanillaOnly);
+            return this.parent.get(key).filter(VanillaStructureSetLookup::isVanillaOnly);
         }
 
         @Override
         public java.util.Optional<net.minecraft.core.HolderSet.Named<StructureSet>> get(
             net.minecraft.tags.TagKey<StructureSet> key
         ) {
-            return parent.get(key);
+            return this.parent.get(key);
         }
 
         @Override
         public java.util.stream.Stream<Holder.Reference<StructureSet>> listElements() {
-            return parent.listElements().filter(VanillaStructureSetLookup::isVanillaOnly);
+            return this.parent.listElements().filter(VanillaStructureSetLookup::isVanillaOnly);
         }
 
         @Override
         public java.util.stream.Stream<net.minecraft.core.HolderSet.Named<StructureSet>> listTags() {
-            return parent.listTags();
+            return this.parent.listTags();
         }
 
         private static boolean isVanillaOnly(Holder.Reference<StructureSet> structureSet) {

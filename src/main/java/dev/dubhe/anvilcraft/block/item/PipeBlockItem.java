@@ -73,7 +73,7 @@ public class PipeBlockItem extends Item implements IBlockItem {
         BlockPlaceContext placeContext = new BlockPlaceContext(context);
         Player player = context.getPlayer();
         if (player != null && !player.isShiftKeyDown()) {
-            if (tryConnectAdjacent(placeContext)) {
+            if (this.tryConnectAdjacent(placeContext)) {
                 return InteractionResult.sidedSuccess(context.getLevel().isClientSide());
             }
         }
@@ -407,12 +407,12 @@ public class PipeBlockItem extends Item implements IBlockItem {
         // 视线模式
         if (shiftDown || (!clickedOnPipe && !clickedOnFluidHandler)) {
             Direction.Axis axis = getLookAxis(player);
-            return makeStraightState(level, placePos, axis, true, true);
+            return this.makeStraightState(level, placePos, axis, true, true);
         }
 
         // 弯管交互
         if (targetBlock instanceof PipeCornerBlock) {
-            return handleCornerPlacement(level, placePos, clickedFace, targetPos, targetState, player);
+            return this.handleCornerPlacement(level, placePos, clickedFace, targetPos, targetState, player);
         }
 
         // 连接模式
@@ -431,14 +431,14 @@ public class PipeBlockItem extends Item implements IBlockItem {
             startIsPipe = level.getBlockState(placePos.relative(startDir)).getBlock() instanceof PipeBlock;
         }
 
-        return makeStraightState(level, placePos, axis, !startIsPipe, !endIsPipe);
+        return this.makeStraightState(level, placePos, axis, !startIsPipe, !endIsPipe);
     }
 
     /**
      * 构造直管方块状态
      */
     private BlockState makeStraightState(Level level, BlockPos pos, Direction.Axis axis, boolean hasEndStart, boolean hasEndEnd) {
-        return straightBlock.get()
+        return this.straightBlock.get()
             .defaultBlockState()
             .setValue(PipeBlock.AXIS, axis)
             .setValue(PipeBlock.HAS_END_START, hasEndStart)
@@ -555,7 +555,7 @@ public class PipeBlockItem extends Item implements IBlockItem {
             startIsPipe = level.getBlockState(placePos.relative(startDir)).getBlock() instanceof PipeBlock;
         }
 
-        return makeStraightState(level, placePos, axis, !startIsPipe, !endIsPipe);
+        return this.makeStraightState(level, placePos, axis, !startIsPipe, !endIsPipe);
     }
 
     /**

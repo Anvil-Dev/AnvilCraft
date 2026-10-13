@@ -45,8 +45,8 @@ public class JewelCraftingScreen extends AbstractContainerScreen<JewelCraftingMe
     @Override
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         super.render(guiGraphics, mouseX, mouseY, partialTick);
-        renderTooltip(guiGraphics, mouseX, mouseY);
-        renderHintItemSlot(guiGraphics);
+        this.renderTooltip(guiGraphics, mouseX, mouseY);
+        this.renderHintItemSlot(guiGraphics);
     }
 
     private void renderHintItemSlot(GuiGraphics guiGraphics) {

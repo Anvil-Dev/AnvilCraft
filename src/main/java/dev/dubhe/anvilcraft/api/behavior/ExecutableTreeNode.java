@@ -19,6 +19,6 @@ public class ExecutableTreeNode<T> extends SetTreeNode<T> {
 
     @Override
     public void run(ExecutionContext<T> context) {
-        executes.accept(context);
+        this.executes.accept(context);
     }
 }

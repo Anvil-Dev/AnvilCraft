@@ -81,8 +81,8 @@ public abstract class PlacementIntervalsBlockItem extends BlockItem {
         Player player = context.getPlayer();
         BlockPos clickedPos = context.getClickedPos();
         Iterable<BlockPos> blockPoss = BlockPos.betweenClosed(
-            clickedPos.offset(getMaxIntervalsRadius(), getMaxIntervalsRadius(), getMaxIntervalsRadius()),
-            clickedPos.offset(-getMaxIntervalsRadius(), -getMaxIntervalsRadius(), -getMaxIntervalsRadius())
+            clickedPos.offset(this.getMaxIntervalsRadius(), this.getMaxIntervalsRadius(), this.getMaxIntervalsRadius()),
+            clickedPos.offset(-this.getMaxIntervalsRadius(), -this.getMaxIntervalsRadius(), -this.getMaxIntervalsRadius())
         );
         for (BlockPos blockPos : blockPoss) {
             BlockState blockState = level.getBlockState(blockPos);

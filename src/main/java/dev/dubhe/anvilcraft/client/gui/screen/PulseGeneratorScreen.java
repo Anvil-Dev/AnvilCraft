@@ -163,14 +163,14 @@ public class PulseGeneratorScreen extends AbstractContainerScreen<PulseGenerator
             this.leftPos + 63,
             this.topPos + 38,
             32, 9,
-            minecraft.font,
+            this.minecraft.font,
             () -> Component.literal(FormattingUtil.toFormattedTime(this.pendingWaitingTime, 5))
         ).setRenderMode(TextWidget.RenderMode.SCALED);
         this.signalDuration = new TextWidget(
             this.leftPos + 115,
             this.topPos + 38,
             32, 9,
-            minecraft.font,
+            this.minecraft.font,
             () -> Component.literal(FormattingUtil.toFormattedTime(this.pendingSignalDuration, 5))
         ).setRenderMode(TextWidget.RenderMode.SCALED);
         startMode.setCurrent(this.pendingStartMode);

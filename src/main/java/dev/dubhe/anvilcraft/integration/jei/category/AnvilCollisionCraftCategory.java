@@ -78,7 +78,7 @@ public class AnvilCollisionCraftCategory implements IRecipeCategory<RecipeHolder
 
     @Override
     public Component getTitle() {
-        return title;
+        return this.title;
     }
 
     @Override
@@ -93,7 +93,7 @@ public class AnvilCollisionCraftCategory implements IRecipeCategory<RecipeHolder
 
     @Override
     public @Nullable IDrawable getIcon() {
-        return icon;
+        return this.icon;
     }
 
     @Override
@@ -184,7 +184,7 @@ public class AnvilCollisionCraftCategory implements IRecipeCategory<RecipeHolder
         AnvilCollisionCraftRecipe recipe = recipeHolder.value();
 
         // explosion
-        explosion.draw(guiGraphics, 72, 16);
+        this.explosion.draw(guiGraphics, 72, 16);
 
         List<BlockState> hitBlockStates = recipe.hitBlock().constructStatesForRender();
         if (!hitBlockStates.isEmpty()) {
@@ -246,7 +246,7 @@ public class AnvilCollisionCraftCategory implements IRecipeCategory<RecipeHolder
                         RenderSupport.SINGLE_BLOCK
                     );
 
-                    blockConversion.draw(guiGraphics, 113, 19);
+                    this.blockConversion.draw(guiGraphics, 113, 19);
 
                     PoseStack pose = guiGraphics.pose();
                     pose.pushPose();
@@ -294,8 +294,8 @@ public class AnvilCollisionCraftCategory implements IRecipeCategory<RecipeHolder
                         8,
                         RenderSupport.SINGLE_BLOCK
                     );
-                    blockConversion.draw(guiGraphics, 86, 6);
-                    arrowDefault.draw(guiGraphics, 98, 26);
+                    this.blockConversion.draw(guiGraphics, 86, 6);
+                    this.arrowDefault.draw(guiGraphics, 98, 26);
                     PoseStack pose = guiGraphics.pose();
                     pose.pushPose();
                     pose.scale(0.8f, 0.8f, 1.0f);
@@ -308,17 +308,17 @@ public class AnvilCollisionCraftCategory implements IRecipeCategory<RecipeHolder
                 }
             }
             if (!recipe.outputItems().isEmpty() && recipe.transformBlocks().isEmpty()) {
-                arrowDefault.draw(guiGraphics, 98, 27);
+                this.arrowDefault.draw(guiGraphics, 98, 27);
             }
         }
 
         // 绘制输入输出槽
-        JeiSlotUtil.drawDefaultInputSlots(guiGraphics, slotDefault, 1);
+        JeiSlotUtil.drawDefaultInputSlots(guiGraphics, this.slotDefault, 1);
         if (!recipe.outputItems().isEmpty()) {
             List<ChanceItemStack> results = recipe.outputItems();
             JeiSlotUtil.drawDefaultOutputSlots(
                 guiGraphics,
-                JeiRecipeUtil.outputSlotFor(results, slotDefault, slotProbability),
+                JeiRecipeUtil.outputSlotFor(results, this.slotDefault, this.slotProbability),
                 results.size()
             );
         }

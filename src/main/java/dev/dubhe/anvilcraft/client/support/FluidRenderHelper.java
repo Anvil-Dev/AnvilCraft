@@ -131,7 +131,7 @@ public final class FluidRenderHelper {
         var renderProps = IClientFluidTypeExtensions.of(fluid.getFluid());
         final TextureAtlasSprite stillTexture = Minecraft.getInstance().getTextureAtlas(InventoryMenu.BLOCK_ATLAS)
             .apply(renderProps.getStillTexture(fluid));
-        renderFluidBox(fluid, minX, minY, minZ, maxX, maxY, maxZ, builder, ms, light,
+        this.renderFluidBox(fluid, minX, minY, minZ, maxX, maxY, maxZ, builder, ms, light,
             skippedSides, invertGasses, stillTexture);
     }
 
@@ -154,7 +154,7 @@ public final class FluidRenderHelper {
         boolean invertGasses,
         TextureAtlasSprite sideTexture
     ) {
-        renderFluidBox(fluid, minX, minY, minZ, maxX, maxY, maxZ, builder, ms, light,
+        this.renderFluidBox(fluid, minX, minY, minZ, maxX, maxY, maxZ, builder, ms, light,
             getSkippedSides(renderBottom), invertGasses, sideTexture);
     }
 

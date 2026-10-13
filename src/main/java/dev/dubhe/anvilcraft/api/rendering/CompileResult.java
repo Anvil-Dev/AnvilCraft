@@ -34,27 +34,27 @@ final class CompileResult {
     }
 
     void upload(VertexBuffer vertexBuffer) {
-        if (freed) return;
-        final VertexFormat.Mode mode = renderType.mode;
+        if (this.freed) return;
+        final VertexFormat.Mode mode = this.renderType.mode;
         vertexBuffer.bind();
         if (vertexBuffer.format != null) {
             vertexBuffer.format.clearBufferState();
         }
         GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, vertexBuffer.vertexBufferId);
-        renderType.format.setupBufferState();
-        vertexBuffer.format = renderType.format;
-        GL15C.nglBufferData(GL15.GL_ARRAY_BUFFER, (long) vertexCount * vertexSize, vertexBufferPtr, GL15.GL_STATIC_DRAW);
+        this.renderType.format.setupBufferState();
+        vertexBuffer.format = this.renderType.format;
+        GL15C.nglBufferData(GL15.GL_ARRAY_BUFFER, (long) this.vertexCount * this.vertexSize, this.vertexBufferPtr, GL15.GL_STATIC_DRAW);
         RenderSystem.AutoStorageIndexBuffer indexBuffer = RenderSystem.getSequentialBuffer(mode);
-        if (indexBuffer != vertexBuffer.sequentialIndices || !indexBuffer.hasStorage(indexCount)) {
-            indexBuffer.bind(indexCount);
+        if (indexBuffer != vertexBuffer.sequentialIndices || !indexBuffer.hasStorage(this.indexCount)) {
+            indexBuffer.bind(this.indexCount);
         }
         vertexBuffer.sequentialIndices = indexBuffer;
         VertexBuffer.unbind();
     }
 
     void free() {
-        if (freed) return;
-        ALLOCATOR.free(vertexBufferPtr);
-        freed = true;
+        if (this.freed) return;
+        ALLOCATOR.free(this.vertexBufferPtr);
+        this.freed = true;
     }
 }

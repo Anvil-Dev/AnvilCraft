@@ -58,12 +58,12 @@ public abstract class BaseSlidingRailBlock extends Block implements ISlidingRail
     @Override
     protected void neighborChanged(BlockState state, Level level, BlockPos pos, Block block, BlockPos fromPos, boolean isMoving) {
         if (level.isClientSide) return;
-        ISlidingRail.whenNeighborChanged(level, self(), pos, fromPos);
+        ISlidingRail.whenNeighborChanged(level, this.self(), pos, fromPos);
     }
 
     @Override
     protected void tick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
-        ISlidingRail.whenTick(level, self(), pos);
+        ISlidingRail.whenTick(level, this.self(), pos);
     }
 
     @Override

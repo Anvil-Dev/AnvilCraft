@@ -117,11 +117,11 @@ public abstract class ServerPlayerMixin extends Player implements IDynamicPowerC
     @Override
     public void remove(Entity.RemovalReason reason) {
         super.remove(reason);
-        anvilcraft$component.switchTo(null);
+        this.anvilcraft$component.switchTo(null);
     }
 
     @Override
     public DynamicPowerComponent anvilcraft$getPowerComponent() {
-        return anvilcraft$component;
+        return this.anvilcraft$component;
     }
 }

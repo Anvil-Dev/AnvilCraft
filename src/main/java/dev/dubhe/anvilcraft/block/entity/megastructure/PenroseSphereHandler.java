@@ -25,10 +25,10 @@ public class PenroseSphereHandler extends BaseMegastructureHandler {
     public void serverTick(CelestialForgingAnvilBlockEntity be) {
         if (be.getLevel() == null || be.getLevel().isClientSide()) return;
         CelestialRefactorOption option = be.getActiveMegastructureOption();
-        if (option == null || !name().equals(option.megastructure())) return;
+        if (option == null || !this.name().equals(option.megastructure())) return;
         if (!be.isAmplifierPresent()) {
-            if (laserActive) {
-                laserActive = false;
+            if (this.laserActive) {
+                this.laserActive = false;
                 be.setChanged();
                 be.getLevel().sendBlockUpdated(be.getBlockPos(), be.getBlockState(), be.getBlockState(), 3);
             }
@@ -41,25 +41,25 @@ public class PenroseSphereHandler extends BaseMegastructureHandler {
 
         boolean anyLaserInput = false;
 
-        anyLaserInput |= processPenroseLaserPair(be,
+        anyLaserInput |= this.processPenroseLaserPair(be,
             new BlockPos(cx - 1, cy, cz - 2),
             new BlockPos(cx + 1, cy, cz - 2)
         );
-        anyLaserInput |= processPenroseLaserPair(be,
+        anyLaserInput |= this.processPenroseLaserPair(be,
             new BlockPos(cx - 1, cy, cz + 2),
             new BlockPos(cx + 1, cy, cz + 2)
         );
-        anyLaserInput |= processPenroseLaserPair(be,
+        anyLaserInput |= this.processPenroseLaserPair(be,
             new BlockPos(cx - 2, cy, cz - 1),
             new BlockPos(cx - 2, cy, cz + 1)
         );
-        anyLaserInput |= processPenroseLaserPair(be,
+        anyLaserInput |= this.processPenroseLaserPair(be,
             new BlockPos(cx + 2, cy, cz - 1),
             new BlockPos(cx + 2, cy, cz + 1)
         );
 
-        if (laserActive != anyLaserInput) {
-            laserActive = anyLaserInput;
+        if (this.laserActive != anyLaserInput) {
+            this.laserActive = anyLaserInput;
             be.setChanged();
             be.getLevel().sendBlockUpdated(be.getBlockPos(), be.getBlockState(), be.getBlockState(), 3);
         }
@@ -77,14 +77,14 @@ public class PenroseSphereHandler extends BaseMegastructureHandler {
 
             if (laserA.getReceivedLaserLevel() > 0) {
                 hasInput = true;
-                if (isLaserInterfaceActive(beB)) {
+                if (this.isLaserInterfaceActive(beB)) {
                     laserB.emitGammaLaser(laserA.getReceivedLaserLevel());
                 }
             }
 
             if (laserB.getReceivedLaserLevel() > 0) {
                 hasInput = true;
-                if (isLaserInterfaceActive(beA)) {
+                if (this.isLaserInterfaceActive(beA)) {
                     laserA.emitGammaLaser(laserB.getReceivedLaserLevel());
                 }
             }
@@ -114,7 +114,7 @@ public class PenroseSphereHandler extends BaseMegastructureHandler {
 
     @Override
     public void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        tag.putBoolean("penroseSphereLaserActive", laserActive);
+        tag.putBoolean("penroseSphereLaserActive", this.laserActive);
     }
 
     @Override
@@ -124,7 +124,7 @@ public class PenroseSphereHandler extends BaseMegastructureHandler {
 
     @Override
     public void writeUpdateTag(CompoundTag tag, HolderLookup.Provider registries) {
-        tag.putBoolean("penroseSphereLaserActive", laserActive);
+        tag.putBoolean("penroseSphereLaserActive", this.laserActive);
     }
 
     @Override

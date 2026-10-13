@@ -59,7 +59,7 @@ public record PlanetResourceRecipe(
         }
 
         public String getSerializedName() {
-            return name;
+            return this.name;
         }
 
         public static Category fromName(String name) {
@@ -271,9 +271,9 @@ public record PlanetResourceRecipe(
 
         public int forTemperature(Temperature temp) {
             return switch (temp) {
-                case COLD -> cold;
-                case HOT -> hot;
-                case MILD -> mild;
+                case COLD -> this.cold;
+                case HOT -> this.hot;
+                case MILD -> this.mild;
                 default -> 0;
             };
         }
@@ -543,11 +543,11 @@ public record PlanetResourceRecipe(
     @Override
     public boolean matches(PlanetResourceInput input, @NotNull Level level) {
         CelestialBodyData body = input.body();
-        return switch (category) {
+        return switch (this.category) {
             case MINERAL -> body instanceof RockyPlanetData;
             case FLUID -> {
                 if (!(body instanceof RockyPlanetData rocky)) yield false;
-                FluidData fd = fluid.orElse(null);
+                FluidData fd = this.fluid.orElse(null);
                 if (fd == null) yield false;
                 if (!fd.planetType.isEmpty() && !fd.planetType.equals(body.type().getSerializedName())) {
                     yield false;
@@ -606,27 +606,27 @@ public record PlanetResourceRecipe(
     /// === 便捷访问器（供生成器使用） ===
 
     public MineralData mineralData() {
-        return mineral.orElse(null);
+        return this.mineral.orElse(null);
     }
 
     public FluidData fluidData() {
-        return fluid.orElse(null);
+        return this.fluid.orElse(null);
     }
 
     public GiantData giantData() {
-        return giant.orElse(null);
+        return this.giant.orElse(null);
     }
 
     public BiologicalData biologicalData() {
-        return biological.orElse(null);
+        return this.biological.orElse(null);
     }
 
     public OfferingData offeringData() {
-        return offering.orElse(null);
+        return this.offering.orElse(null);
     }
 
     public WastelandData wastelandData() {
-        return wasteland.orElse(null);
+        return this.wasteland.orElse(null);
     }
 
     /// === 序列化器 ===

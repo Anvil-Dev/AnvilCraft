@@ -17,7 +17,7 @@ public enum CelestialBodyType implements StringRepresentable {
 
     @Override
     public @NotNull String getSerializedName() {
-        return name;
+        return this.name;
     }
 
     public static CelestialBodyType fromName(String name) {

@@ -130,7 +130,7 @@ public class ItemDetectorBlockEntity extends BlockEntity implements MenuProvider
         super.loadAdditional(tag, registries);
         this.setRange(tag.getInt("Range"));
         if (tag.contains("FilterMode")) this.filterMode = Mode.valueOf(tag.getString("FilterMode"));
-        if (tag.contains("Filter")) filter.deserializeNBT(registries, tag.getCompound("Filter"));
+        if (tag.contains("Filter")) this.filter.deserializeNBT(registries, tag.getCompound("Filter"));
         if (tag.contains("OutputSignal")) this.outputSignal = tag.getInt("OutputSignal");
         if (tag.contains("OutputInvert")) this.outputInvert = tag.getBoolean("OutputInvert");
         this.recalcDetectionRange();
@@ -171,7 +171,7 @@ public class ItemDetectorBlockEntity extends BlockEntity implements MenuProvider
             this.detectionRange,
             entity -> !entity.getItem().isEmpty()
         );
-        int output = getOutput(itemEntities, level, this.detectionRange);
+        int output = this.getOutput(itemEntities, level, this.detectionRange);
         if (this.outputInvert) output = 15 - output;
         if (output == this.outputSignal) return;
         this.outputSignal = output;
@@ -201,7 +201,7 @@ public class ItemDetectorBlockEntity extends BlockEntity implements MenuProvider
                     matchCount += itemEntity.getItem().getCount();
                 }
             }
-            for (BlockPos p : blocksInRange) matchCount += scanContainer(level, p, filterItem);
+            for (BlockPos p : blocksInRange) matchCount += this.scanContainer(level, p, filterItem);
             int lerpedOutput = lerpOutput(matchCount, targetCount);
             if (lerpedOutput > 0) {
                 minNonZeroOutput = Math.min(minNonZeroOutput, lerpedOutput);
@@ -214,7 +214,7 @@ public class ItemDetectorBlockEntity extends BlockEntity implements MenuProvider
         if (!hasFilter) {
             int totalCount = 0;
             for (ItemEntity itemEntity : itemEntities) totalCount += itemEntity.getItem().getCount();
-            for (BlockPos p : blocksInRange) totalCount += scanContainer(level, p, null);
+            for (BlockPos p : blocksInRange) totalCount += this.scanContainer(level, p, null);
             output = lerpOutput(totalCount, 1);
         }
         return output;
@@ -245,11 +245,11 @@ public class ItemDetectorBlockEntity extends BlockEntity implements MenuProvider
     }
 
     public void increaseRange() {
-        this.range = Mth.clamp(range + 1, MIN_RANGE, MAX_RANGE);
+        this.range = Mth.clamp(this.range + 1, MIN_RANGE, MAX_RANGE);
     }
 
     public void decreaseRange() {
-        this.range = Mth.clamp(range - 1, MIN_RANGE, MAX_RANGE);
+        this.range = Mth.clamp(this.range - 1, MIN_RANGE, MAX_RANGE);
     }
 
     public void setRange(int range) {
@@ -371,7 +371,7 @@ public class ItemDetectorBlockEntity extends BlockEntity implements MenuProvider
         this.setRange(data.getInt("Range"));
         this.filterMode = Mode.valueOf(data.getString("FilterMode"));
         this.setOutputInvert(data.getBoolean("OutputInvert"));
-        filter.deserializeNBT(this.level.registryAccess(), data.getCompound("Filter"));
+        this.filter.deserializeNBT(this.level.registryAccess(), data.getCompound("Filter"));
         this.recalcDetectionRange();
     }
 

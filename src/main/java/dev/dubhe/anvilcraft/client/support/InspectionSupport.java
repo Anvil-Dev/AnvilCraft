@@ -66,18 +66,18 @@ public class InspectionSupport {
      * @see ModInspections
      */
     public void registerActionClient(ResourceLocation id, InspectionAction action) {
-        synchronized (inspectionActionMap) {
-            if (inspectionActionMap.containsKey(id)) {
+        synchronized (this.inspectionActionMap) {
+            if (this.inspectionActionMap.containsKey(id)) {
                 throw new IllegalArgumentException("Duplicated inspection action id:" + id);
             }
-            inspectionActionMap.put(id, action);
-            inspectionState.put(id, false);
+            this.inspectionActionMap.put(id, action);
+            this.inspectionState.put(id, false);
         }
     }
 
     public void changeStateClient(ResourceLocation id, boolean state) {
         log.info("{} inspection {}.", state ? "Disabling" : "Enabling", id);
-        inspectionState.put(id, state);
+        this.inspectionState.put(id, state);
     }
 
     public void onRenderInspectionAction(
@@ -86,8 +86,8 @@ public class InspectionSupport {
         Vec3 camera,
         DeltaTracker deltaTracker
     ) {
-        inspectionActionMap.forEach((id, action) -> {
-            if (inspectionState.getOrDefault(id, false)) {
+        this.inspectionActionMap.forEach((id, action) -> {
+            if (this.inspectionState.getOrDefault(id, false)) {
                 action.onRenderInspection(
                     poseStack,
                     renderer,

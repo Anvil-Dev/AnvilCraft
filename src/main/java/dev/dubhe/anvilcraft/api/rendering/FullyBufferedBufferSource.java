@@ -27,19 +27,19 @@ public class FullyBufferedBufferSource extends MultiBufferSource.BufferSource im
     }
 
     private ByteBufferBuilder getByteBuffer(RenderType renderType) {
-        return byteBuffers.computeIfAbsent(renderType, it -> new ByteBufferBuilder(786432));
+        return this.byteBuffers.computeIfAbsent(renderType, it -> new ByteBufferBuilder(786432));
     }
 
     @Override
     public VertexConsumer getBuffer(RenderType renderType) {
-        return bufferBuilders.computeIfAbsent(
+        return this.bufferBuilders.computeIfAbsent(
             renderType,
-            it -> new BufferBuilder(getByteBuffer(it), it.mode, it.format)
+            it -> new BufferBuilder(this.getByteBuffer(it), it.mode, it.format)
         );
     }
 
     public boolean isEmpty() {
-        return !bufferBuilders.isEmpty() && bufferBuilders.values().stream().noneMatch(it -> it.vertices > 0);
+        return !this.bufferBuilders.isEmpty() && this.bufferBuilders.values().stream().noneMatch(it -> it.vertices > 0);
     }
 
     @Override
@@ -50,10 +50,10 @@ public class FullyBufferedBufferSource extends MultiBufferSource.BufferSource im
         Function<RenderType, VertexBuffer> vertexBufferGetter,
         Consumer<Runnable> runner
     ) {
-        for (RenderType renderType : bufferBuilders.keySet()) {
+        for (RenderType renderType : this.bufferBuilders.keySet()) {
             runner.accept(() -> {
-                BufferBuilder bufferBuilder = bufferBuilders.get(renderType);
-                ByteBufferBuilder byteBuffer = byteBuffers.get(renderType);
+                BufferBuilder bufferBuilder = this.bufferBuilders.get(renderType);
+                ByteBufferBuilder byteBuffer = this.byteBuffers.get(renderType);
                 long ptr = byteBuffer.pointer;
                 int compiledVertices = bufferBuilder.vertices * renderType.format.getVertexSize();
                 if (compiledVertices >= 0) {
@@ -70,23 +70,23 @@ public class FullyBufferedBufferSource extends MultiBufferSource.BufferSource im
                         allocated,
                         renderType.mode.indexCount(bufferBuilder.vertices)
                     );
-                    indexCountMap.put(renderType, renderType.mode.indexCount(bufferBuilder.vertices));
+                    this.indexCountMap.put(renderType, renderType.mode.indexCount(bufferBuilder.vertices));
                     compileResult.upload(vertexBufferGetter.apply(renderType));
                     compileResult.free();
                 }
                 byteBuffer.close();
-                bufferBuilders.remove(renderType);
-                byteBuffers.remove(renderType);
+                this.bufferBuilders.remove(renderType);
+                this.byteBuffers.remove(renderType);
             });
         }
     }
 
     public void close(RenderType renderType) {
-        ByteBufferBuilder builder = byteBuffers.get(renderType);
+        ByteBufferBuilder builder = this.byteBuffers.get(renderType);
         builder.close();
     }
 
     public void close() {
-        byteBuffers.keySet().forEach(this::close);
+        this.byteBuffers.keySet().forEach(this::close);
     }
 }

@@ -230,10 +230,10 @@ public class BlockProcessingRecipe extends AbstractProcessRecipe<BlockProcessing
 
         @Override
         public void validate(ResourceLocation id) {
-            if (inputs.isEmpty()) {
+            if (this.inputs.isEmpty()) {
                 throw new IllegalArgumentException("Recipe inputs must not be empty, RecipeId: " + id);
             }
-            if (result == null) {
+            if (this.result == null) {
                 throw new IllegalArgumentException("Recipe result must not be null, RecipeId: " + id);
             }
         }
@@ -245,7 +245,7 @@ public class BlockProcessingRecipe extends AbstractProcessRecipe<BlockProcessing
 
         @Override
         public Item getResult() {
-            return WrapUtils.getItem(result);
+            return WrapUtils.getItem(this.result);
         }
     }
 }

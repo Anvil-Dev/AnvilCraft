@@ -74,15 +74,15 @@ public class SimpleMagneticChuteBlockEntity extends BlockEntity implements IItem
     @Override
     protected void saveAdditional(CompoundTag tag, HolderLookup.Provider provider) {
         super.saveAdditional(tag, provider);
-        tag.putInt("Cooldown", cooldown);
-        tag.put("Inventory", itemHandler.serializeNBT(provider));
+        tag.putInt("Cooldown", this.cooldown);
+        tag.put("Inventory", this.itemHandler.serializeNBT(provider));
     }
 
     @Override
     public void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
         super.loadAdditional(tag, provider);
-        cooldown = tag.getInt("Cooldown");
-        itemHandler.deserializeNBT(provider, tag.getCompound("Inventory"));
+        this.cooldown = tag.getInt("Cooldown");
+        this.itemHandler.deserializeNBT(provider, tag.getCompound("Inventory"));
     }
 
     /**
@@ -100,12 +100,12 @@ public class SimpleMagneticChuteBlockEntity extends BlockEntity implements IItem
     @SuppressWarnings("DuplicatedCode")
     public void tick() {
         if (level == null) return;
-        anvilcraft$tickEjectedItemTracking();
-        if (cooldown > 0) cooldown--;
-        tickedGameTime = level.getGameTime();
-        Direction facing = getDirection();
+        this.anvilcraft$tickEjectedItemTracking();
+        if (this.cooldown > 0) this.cooldown--;
+        this.tickedGameTime = level.getGameTime();
+        Direction facing = this.getDirection();
         boolean resetCD = false;
-        if (cooldown <= 0) {
+        if (this.cooldown <= 0) {
             // 面向方向输出物品
             BlockPos targetPos = getBlockPos().relative(facing);
             List<IItemHandler> targetList = getTargetItemHandlerList(
@@ -116,10 +116,10 @@ public class SimpleMagneticChuteBlockEntity extends BlockEntity implements IItem
             if (targetList != null && !targetList.isEmpty()) {
                 for (IItemHandler target : targetList) {
                     BlockEntity targetBE = level.getBlockEntity(targetPos);
-                    boolean setChuteCD = targetBE != null && isTargetEmpty(targetBE);
+                    boolean setChuteCD = targetBE != null && this.isTargetEmpty(targetBE);
                     boolean success = ItemHandlerUtil.exportToTarget(getItemHandler(), 64, stack -> true, target);
                     if (success) {
-                        if (setChuteCD) setChuteCD(targetBE);
+                        if (setChuteCD) this.setChuteCD(targetBE);
                         resetCD = true;
                         break;
                     }
@@ -159,7 +159,7 @@ public class SimpleMagneticChuteBlockEntity extends BlockEntity implements IItem
                             itemEntity.setDeltaMovement(MagneticChuteBlockEntity.getOutputSpeed(facing));
                             itemEntity.setDefaultPickUpDelay();
                             getLevel().addFreshEntity(itemEntity);
-                            anvilcraft$trackEjectedItem(itemEntity);
+                            this.anvilcraft$trackEjectedItem(itemEntity);
                             this.itemHandler.setStackInSlot(i, stack);
                             resetCD = true;
                             break;
@@ -203,8 +203,8 @@ public class SimpleMagneticChuteBlockEntity extends BlockEntity implements IItem
 
     public int getRedstoneSignal() {
         int i = 0;
-        for (int j = 0; j < itemHandler.getSlots(); ++j) {
-            ItemStack itemStack = itemHandler.getStackInSlot(j);
+        for (int j = 0; j < this.itemHandler.getSlots(); ++j) {
+            ItemStack itemStack = this.itemHandler.getStackInSlot(j);
             if (itemStack.isEmpty()) continue;
             ++i;
         }
@@ -212,8 +212,8 @@ public class SimpleMagneticChuteBlockEntity extends BlockEntity implements IItem
     }
 
     public boolean isEmpty() {
-        for (int i = 0; i < itemHandler.getSlots(); i++) {
-            if (!itemHandler.getStackInSlot(i).isEmpty()) return false;
+        for (int i = 0; i < this.itemHandler.getSlots(); i++) {
+            if (!this.itemHandler.getStackInSlot(i).isEmpty()) return false;
         }
         return true;
     }
@@ -221,12 +221,12 @@ public class SimpleMagneticChuteBlockEntity extends BlockEntity implements IItem
     private void anvilcraft$trackEjectedItem(ItemEntity itemEntity) {
         if (level == null || level.isClientSide) return;
         if (itemEntity.getDeltaMovement().horizontalDistanceSqr() < 1.0E-7) return;
-        anvilcraft$trackedEjectedItems.add(new TrackedEjectedItem(itemEntity));
+        this.anvilcraft$trackedEjectedItems.add(new TrackedEjectedItem(itemEntity));
     }
 
     private void anvilcraft$tickEjectedItemTracking() {
-        if (level == null || level.isClientSide || anvilcraft$trackedEjectedItems.isEmpty()) return;
-        Iterator<TrackedEjectedItem> iterator = anvilcraft$trackedEjectedItems.iterator();
+        if (level == null || level.isClientSide || this.anvilcraft$trackedEjectedItems.isEmpty()) return;
+        Iterator<TrackedEjectedItem> iterator = this.anvilcraft$trackedEjectedItems.iterator();
         while (iterator.hasNext()) {
             TrackedEjectedItem tracked = iterator.next();
             ItemEntity item = tracked.item;

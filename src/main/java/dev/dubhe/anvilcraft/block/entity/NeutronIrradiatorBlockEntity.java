@@ -36,7 +36,6 @@ public class NeutronIrradiatorBlockEntity extends BlockEntity {
         ModBlocks.CONFINED_TIME_ANVILON.get(), ModParticles.ANVILON_TIME
     );
 
-
     private int radiationTick = 0;
 
     public NeutronIrradiatorBlockEntity(BlockPos pos, BlockState blockState) {
@@ -76,9 +75,9 @@ public class NeutronIrradiatorBlockEntity extends BlockEntity {
         BlockPos abovePos = pos.above();
         BlockState aboveState = this.level.getBlockState(abovePos);
         if (aboveState.getBlock() instanceof RadioactiveBlock) {
-            radiationTick++;
+            this.radiationTick++;
             if (this.radiationTick >= AnvilCraft.CONFIG.machines.neutronIrradiatorRadiationInterval) {
-                radiationTick = 0;
+                this.radiationTick = 0;
                 this.level.explode(
                     null,
                     abovePos.getX() + 0.5,
@@ -90,19 +89,19 @@ public class NeutronIrradiatorBlockEntity extends BlockEntity {
                 );
             }
         } else {
-            radiationTick = 0;
+            this.radiationTick = 0;
         }
     }
 
     @Override
     protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.saveAdditional(tag, registries);
-        tag.putInt("RadiationTick", radiationTick);
+        tag.putInt("RadiationTick", this.radiationTick);
     }
 
     @Override
     protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.loadAdditional(tag, registries);
-        radiationTick = tag.getInt("RadiationTick");
+        this.radiationTick = tag.getInt("RadiationTick");
     }
 }

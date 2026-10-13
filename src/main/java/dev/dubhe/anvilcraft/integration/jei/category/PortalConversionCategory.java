@@ -77,7 +77,7 @@ public class PortalConversionCategory implements IRecipeCategory<RecipeHolder<Po
 
     @Override
     public Component getTitle() {
-        return title;
+        return this.title;
     }
 
     @Override

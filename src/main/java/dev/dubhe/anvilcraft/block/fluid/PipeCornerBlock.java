@@ -27,12 +27,12 @@ public class PipeCornerBlock extends PipeBlock {
      */
     public PipeCornerBlock(Properties properties) {
         super(properties);
-        registerDefaultState();
+        this.registerDefaultState();
     }
 
     public PipeCornerBlock(Properties properties, boolean glassPipe) {
         super(properties, glassPipe);
-        registerDefaultState();
+        this.registerDefaultState();
     }
 
     private void registerDefaultState() {

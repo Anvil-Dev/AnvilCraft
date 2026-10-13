@@ -18,7 +18,7 @@ public class IonocraftRenderer extends EntityRenderer<IonocraftEntity> {
 
     public IonocraftRenderer(EntityRendererProvider.Context context) {
         super(context);
-        model = new IonocraftModel<>(context.bakeLayer(ModModelLayers.IONOCRAFT));
+        this.model = new IonocraftModel<>(context.bakeLayer(ModModelLayers.IONOCRAFT));
     }
 
     @Override

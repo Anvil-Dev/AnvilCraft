@@ -16,37 +16,37 @@ public final class LaserComponentMap {
     private List<ILaserComponent> orderedComponents;
 
     public <T extends ILaserComponent> void put(ILaserComponentType<T, ?> type, T instance) {
-        components.put(type, instance);
-        orderedComponents = null;
+        this.components.put(type, instance);
+        this.orderedComponents = null;
     }
 
     @Nullable
     @SuppressWarnings("unchecked")
     public <T extends ILaserComponent> T get(ILaserComponentType<T, ?> type) {
-        return (T) components.get(type);
+        return (T) this.components.get(type);
     }
 
     public void putAll(LaserComponentMap other) {
-        components.putAll(other.components);
-        orderedComponents = null;
+        this.components.putAll(other.components);
+        this.orderedComponents = null;
     }
 
     public List<ILaserComponent> allComponents() {
-        if (orderedComponents != null) return orderedComponents;
-        orderedComponents = components.entrySet().stream()
+        if (this.orderedComponents != null) return this.orderedComponents;
+        this.orderedComponents = this.components.entrySet().stream()
             .sorted(Comparator.comparingInt((Map.Entry<ILaserComponentType<?, ?>, ILaserComponent> entry) -> entry.getKey().priority())
                 .reversed())
             .map(Map.Entry::getValue)
             .toList();
-        return orderedComponents;
+        return this.orderedComponents;
     }
 
     public void onEmitPre(ILaserComponentOwner owner) {
-        for (ILaserComponent component : allComponents()) component.onEmitPre(owner);
+        for (ILaserComponent component : this.allComponents()) component.onEmitPre(owner);
     }
 
     public void onHitBlock(ILaserComponentOwner owner, Level level, BlockPos pos) {
-        for (ILaserComponent component : allComponents()) {
+        for (ILaserComponent component : this.allComponents()) {
             if (!component.onHitBlock(owner, level, pos)) break;
         }
     }
@@ -55,12 +55,12 @@ public final class LaserComponentMap {
     public void replaceWith(LaserComponentMap replacement) {
         Map<ILaserComponentType<?, ?>, ILaserComponent> resolved = new LinkedHashMap<>();
         replacement.components.forEach((type, incoming) -> {
-            ILaserComponent previous = components.get(type);
+            ILaserComponent previous = this.components.get(type);
             resolved.put(type, previous != null && incoming.equals(previous) ? previous : incoming);
         });
-        components.clear();
-        components.putAll(resolved);
-        orderedComponents = null;
+        this.components.clear();
+        this.components.putAll(resolved);
+        this.orderedComponents = null;
     }
 
     public static LaserComponentMap mergeIncoming(List<LaserComponentMap> incoming) {

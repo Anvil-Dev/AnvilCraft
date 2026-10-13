@@ -72,8 +72,8 @@ public class PowerLevelPressurePlateBlock extends BasePressurePlateBlock {
         boolean isActivating = currentSignal > 0;
         boolean needActivate = expectedSignal > 0;
 
-        updateSignal(level, pos, state, currentSignal, expectedSignal);
-        sendEvent(entity, level, pos, needActivate, isActivating);
+        this.updateSignal(level, pos, state, currentSignal, expectedSignal);
+        this.sendEvent(entity, level, pos, needActivate, isActivating);
 
         if (needActivate) {
             level.scheduleTick(new BlockPos(pos), this, this.getPressedTime());
@@ -82,7 +82,7 @@ public class PowerLevelPressurePlateBlock extends BasePressurePlateBlock {
 
     @Override
     protected int getSignalStrength(Level level, BlockPos pos) {
-        return getSignalStrength(level, TOUCH_AABB.move(pos), getEntityClasses());
+        return this.getSignalStrength(level, TOUCH_AABB.move(pos), this.getEntityClasses());
     }
 
     protected int getSignalStrength(Level level, AABB box, Set<Class<? extends Entity>> entityClasses) {

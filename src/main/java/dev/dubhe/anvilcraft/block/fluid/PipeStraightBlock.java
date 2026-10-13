@@ -37,12 +37,12 @@ public class PipeStraightBlock extends PipeBlock {
      */
     public PipeStraightBlock(Properties properties) {
         super(properties);
-        registerDefaultState();
+        this.registerDefaultState();
     }
 
     public PipeStraightBlock(Properties properties, boolean glassPipe) {
         super(properties, glassPipe);
-        registerDefaultState();
+        this.registerDefaultState();
     }
 
     private void registerDefaultState() {

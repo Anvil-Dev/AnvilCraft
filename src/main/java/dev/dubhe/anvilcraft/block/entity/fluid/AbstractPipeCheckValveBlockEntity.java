@@ -49,12 +49,12 @@ public abstract class AbstractPipeCheckValveBlockEntity extends BlockEntity {
 
     /** 该面是否装有止逆阀。 */
     public boolean hasValveOn(Direction face) {
-        return baseFlow.containsKey(face);
+        return this.baseFlow.containsKey(face);
     }
 
     /** 是否一个面都没有（用于判定是否应清除 {@code HAS_CHECK_VALVE}）。 */
     public boolean isEmpty() {
-        return baseFlow.isEmpty();
+        return this.baseFlow.isEmpty();
     }
 
     /**
@@ -64,20 +64,20 @@ public abstract class AbstractPipeCheckValveBlockEntity extends BlockEntity {
      * @param flowOut  无红石信号时允许流出的世界方向
      */
     public void setValve(Direction face, Direction flowOut) {
-        baseFlow.put(face, flowOut);
+        this.baseFlow.put(face, flowOut);
         this.setChanged();
     }
 
     /** 移除某面的止逆阀。 */
     public void removeValve(Direction face) {
-        baseFlow.remove(face);
+        this.baseFlow.remove(face);
         this.setChanged();
     }
 
     /** 某面止逆阀的基准（无红石）允许流出方向；无阀返回 {@code null}。 */
     @Nullable
     public Direction getBaseFlow(Direction face) {
-        return baseFlow.get(face);
+        return this.baseFlow.get(face);
     }
 
     /**
@@ -86,31 +86,31 @@ public abstract class AbstractPipeCheckValveBlockEntity extends BlockEntity {
      */
     @Nullable
     public Direction effectiveFlow(Direction face) {
-        Direction base = baseFlow.get(face);
+        Direction base = this.baseFlow.get(face);
         if (base == null) {
             return null;
         }
-        return powered ? base.getOpposite() : base;
+        return this.powered ? base.getOpposite() : base;
     }
 
     /** 各装阀面的当前实际允许流出方向快照（供网络扫描 / 渲染使用）。 */
     public Map<Direction, Direction> effectiveFlows() {
         Map<Direction, Direction> result = new EnumMap<>(Direction.class);
-        for (Map.Entry<Direction, Direction> entry : baseFlow.entrySet()) {
-            result.put(entry.getKey(), powered ? entry.getValue().getOpposite() : entry.getValue());
+        for (Map.Entry<Direction, Direction> entry : this.baseFlow.entrySet()) {
+            result.put(entry.getKey(), this.powered ? entry.getValue().getOpposite() : entry.getValue());
         }
         return result;
     }
 
     /** 基准面映射的一份拷贝（用于跨管型转换时迁移数据）。 */
     public Map<Direction, Direction> baseFlowCopy() {
-        return new EnumMap<>(baseFlow);
+        return new EnumMap<>(this.baseFlow);
     }
 
     /** 用迁移快照恢复面映射与红石状态。 */
     public void restore(Map<Direction, Direction> saved, boolean powered) {
-        baseFlow.clear();
-        baseFlow.putAll(saved);
+        this.baseFlow.clear();
+        this.baseFlow.putAll(saved);
         this.powered = powered;
         this.setChanged();
     }
@@ -130,28 +130,28 @@ public abstract class AbstractPipeCheckValveBlockEntity extends BlockEntity {
     @Override
     protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.saveAdditional(tag, registries);
-        tag.putBoolean("Powered", powered);
-        tag.put("Valves", writeValves());
+        tag.putBoolean("Powered", this.powered);
+        tag.put("Valves", this.writeValves());
     }
 
     @Override
     public void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.loadAdditional(tag, registries);
         this.powered = tag.getBoolean("Powered");
-        readValves(tag.getList("Valves", Tag.TAG_COMPOUND));
+        this.readValves(tag.getList("Valves", Tag.TAG_COMPOUND));
     }
 
     @Override
     public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
         CompoundTag tag = super.getUpdateTag(registries);
-        tag.putBoolean("Powered", powered);
-        tag.put("Valves", writeValves());
+        tag.putBoolean("Powered", this.powered);
+        tag.put("Valves", this.writeValves());
         return tag;
     }
 
     private ListTag writeValves() {
         ListTag list = new ListTag();
-        for (Map.Entry<Direction, Direction> entry : baseFlow.entrySet()) {
+        for (Map.Entry<Direction, Direction> entry : this.baseFlow.entrySet()) {
             CompoundTag e = new CompoundTag();
             e.putInt("Face", entry.getKey().get3DDataValue());
             e.putInt("Flow", entry.getValue().get3DDataValue());
@@ -161,12 +161,12 @@ public abstract class AbstractPipeCheckValveBlockEntity extends BlockEntity {
     }
 
     private void readValves(ListTag list) {
-        baseFlow.clear();
+        this.baseFlow.clear();
         for (int i = 0; i < list.size(); i++) {
             CompoundTag e = list.getCompound(i);
             Direction face = Direction.from3DDataValue(e.getInt("Face"));
             Direction flow = Direction.from3DDataValue(e.getInt("Flow"));
-            baseFlow.put(face, flow);
+            this.baseFlow.put(face, flow);
         }
     }
 

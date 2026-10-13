@@ -56,7 +56,7 @@ public final class FluidNetworkManager {
     }
 
     private LevelData data(Level level) {
-        return byLevel.computeIfAbsent(level, k -> new LevelData());
+        return this.byLevel.computeIfAbsent(level, k -> new LevelData());
     }
 
     // ---- 容器登记（自有容器生命周期与服务端方块实体事件共同调用） ----
@@ -66,7 +66,7 @@ public final class FluidNetworkManager {
         if (level.isClientSide()) {
             return;
         }
-        LevelData d = data(level);
+        LevelData d = this.data(level);
         d.pendingContainers.remove(pos);
         d.readyContainers.remove(pos);
         d.containers.add(pos.immutable());
@@ -93,7 +93,7 @@ public final class FluidNetworkManager {
         if (level.isClientSide()) {
             return;
         }
-        LevelData d = byLevel.get(level);
+        LevelData d = this.byLevel.get(level);
         if (d != null) {
             d.pendingContainers.remove(pos);
             d.readyContainers.remove(pos);
@@ -127,7 +127,7 @@ public final class FluidNetworkManager {
         if (level.isClientSide()) {
             return null;
         }
-        LevelData d = byLevel.get(level);
+        LevelData d = this.byLevel.get(level);
         if (d == null) {
             return null;
         }
@@ -178,14 +178,14 @@ public final class FluidNetworkManager {
         if (level.isClientSide()) {
             return;
         }
-        data(level).dirty = true;
+        this.data(level).dirty = true;
     }
 
     public void addAdjacentContainers(Level level, BlockPos pipePos) {
         if (level.isClientSide()) {
             return;
         }
-        LevelData d = data(level);
+        LevelData d = this.data(level);
         boolean changed = false;
         for (Direction dir : Direction.values()) {
             BlockPos pos = pipePos.relative(dir);
@@ -205,9 +205,9 @@ public final class FluidNetworkManager {
 
     /** 每服务器 tick 调用：必要时重扫网络，然后按活跃度分配。 */
     public void tick() {
-        synchronized (byLevel) {
-            for (Map.Entry<Level, LevelData> entry : byLevel.entrySet()) {
-                tickLevel(entry.getKey(), entry.getValue());
+        synchronized (this.byLevel) {
+            for (Map.Entry<Level, LevelData> entry : this.byLevel.entrySet()) {
+                this.tickLevel(entry.getKey(), entry.getValue());
             }
         }
     }
@@ -219,7 +219,7 @@ public final class FluidNetworkManager {
         }
         this.registerLoadedContainers(level, d);
         if (d.dirty) {
-            rebuild(level, d);
+            this.rebuild(level, d);
             d.dirty = false;
         }
         long gameTime = level.getGameTime();
@@ -324,6 +324,6 @@ public final class FluidNetworkManager {
     }
 
     public void clear() {
-        byLevel.clear();
+        this.byLevel.clear();
     }
 }

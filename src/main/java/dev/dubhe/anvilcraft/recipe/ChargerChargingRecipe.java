@@ -69,7 +69,7 @@ public class ChargerChargingRecipe implements Recipe<SingleRecipeInput> {
 
     @Override
     public ItemStack getResultItem(HolderLookup.Provider registries) {
-        return result;
+        return this.result;
     }
 
     @Override
@@ -85,7 +85,7 @@ public class ChargerChargingRecipe implements Recipe<SingleRecipeInput> {
 
     @Override
     public boolean matches(SingleRecipeInput input, Level level) {
-        return ingredient.test(input.getItem(0));
+        return this.ingredient.test(input.getItem(0));
     }
 
     public Block getProcessingBlock() {
@@ -145,17 +145,17 @@ public class ChargerChargingRecipe implements Recipe<SingleRecipeInput> {
         private int time = 0;
 
         public ChargerChargingRecipe.Builder requires(ItemLike item) {
-            ingredient = Ingredient.of(item);
+            this.ingredient = Ingredient.of(item);
             return this;
         }
 
         public ChargerChargingRecipe.Builder requires(TagKey<Item> tag) {
-            ingredient = Ingredient.of(tag);
+            this.ingredient = Ingredient.of(tag);
             return this;
         }
 
         public ChargerChargingRecipe.Builder result(ItemLike item) {
-            result = item.asItem().getDefaultInstance();
+            this.result = item.asItem().getDefaultInstance();
             return this;
         }
 
@@ -171,7 +171,7 @@ public class ChargerChargingRecipe implements Recipe<SingleRecipeInput> {
 
         @Override
         public ChargerChargingRecipe buildRecipe() {
-            return new ChargerChargingRecipe(ingredient, result, power, time);
+            return new ChargerChargingRecipe(this.ingredient, this.result, this.power, this.time);
         }
 
         @Override
@@ -197,15 +197,15 @@ public class ChargerChargingRecipe implements Recipe<SingleRecipeInput> {
 
         @Override
         public Item getResult() {
-            return result.getItem();
+            return this.result.getItem();
         }
 
         @Override
         public void save(RecipeOutput recipeOutput) {
             save(
                 recipeOutput,
-                AnvilCraft.of(BuiltInRegistries.ITEM.getKey(getResult()).getPath())
-                    .withPrefix(getType() + "/")
+                AnvilCraft.of(BuiltInRegistries.ITEM.getKey(this.getResult()).getPath())
+                    .withPrefix(this.getType() + "/")
             );
         }
     }

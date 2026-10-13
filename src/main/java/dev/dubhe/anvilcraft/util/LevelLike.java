@@ -93,7 +93,7 @@ public class LevelLike implements BlockAndTintGetter {
     }
 
     public int horizontalSize() {
-        Set<BlockPos> keys = blocks.keySet();
+        Set<BlockPos> keys = this.blocks.keySet();
         return Math.max(
             keys.stream()
                 .map(BlockPos::getX)
@@ -108,7 +108,7 @@ public class LevelLike implements BlockAndTintGetter {
     }
 
     public int verticalSize() {
-        Set<BlockPos> keys = blocks.keySet();
+        Set<BlockPos> keys = this.blocks.keySet();
         return keys.stream()
             .map(BlockPos::getY)
             .max(Integer::compare)
@@ -190,7 +190,7 @@ public class LevelLike implements BlockAndTintGetter {
     }
     
     public Set<BlockPos> getAlwaysRenderBlocks() {
-        return Collections.unmodifiableSet(alwaysRenderBlocks);
+        return Collections.unmodifiableSet(this.alwaysRenderBlocks);
     }
 
     public BlockState getBlockState(BlockPos pos) {
@@ -205,12 +205,12 @@ public class LevelLike implements BlockAndTintGetter {
 
     @Override
     public FluidState getFluidState(BlockPos blockPos) {
-        return getBlockState(blockPos).getFluidState();
+        return this.getBlockState(blockPos).getFluidState();
     }
 
     @Override
     public float getShade(Direction direction, boolean b) {
-        boolean flag = parent.effects().constantAmbientLight();
+        boolean flag = this.parent.effects().constantAmbientLight();
         if (!b) {
             return flag ? 0.9F : 1.0F;
         } else {
@@ -230,7 +230,7 @@ public class LevelLike implements BlockAndTintGetter {
 
     @Override
     public int getBlockTint(BlockPos blockPos, ColorResolver colorResolver) {
-        var plains = parent.registryAccess().registryOrThrow(Registries.BIOME).getOrThrow(Biomes.PLAINS);
+        var plains = this.parent.registryAccess().registryOrThrow(Registries.BIOME).getOrThrow(Biomes.PLAINS);
         return colorResolver.getColor(plains, blockPos.getX(), blockPos.getZ());
     }
 
@@ -255,18 +255,18 @@ public class LevelLike implements BlockAndTintGetter {
     }
 
     public void nextLayer() {
-        if (currentVisibleLayer >= verticalSize() - 1) {
-            currentVisibleLayer = 0;
+        if (this.currentVisibleLayer >= this.verticalSize() - 1) {
+            this.currentVisibleLayer = 0;
         } else {
-            currentVisibleLayer++;
+            this.currentVisibleLayer++;
         }
     }
 
     public void previousLayer() {
-        if (currentVisibleLayer <= 0) {
-            currentVisibleLayer = verticalSize() - 1;
+        if (this.currentVisibleLayer <= 0) {
+            this.currentVisibleLayer = this.verticalSize() - 1;
         } else {
-            currentVisibleLayer--;
+            this.currentVisibleLayer--;
         }
     }
 

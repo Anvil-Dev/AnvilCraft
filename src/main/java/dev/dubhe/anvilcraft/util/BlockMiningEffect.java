@@ -44,9 +44,9 @@ public record BlockMiningEffect(@Nullable ResourceKey<Enchantment> enchantment, 
 
     public ItemStack applyTo(ServerLevel level, ItemStack baseTool) {
         ItemStack tool = baseTool.copy();
-        if (enchantment != null) {
+        if (this.enchantment != null) {
             level.holderLookup(Registries.ENCHANTMENT)
-                .get(enchantment)
+                .get(this.enchantment)
                 .ifPresent(holder -> tool.enchant(holder, this.level));
         }
         return tool;
@@ -57,19 +57,19 @@ public record BlockMiningEffect(@Nullable ResourceKey<Enchantment> enchantment, 
     }
 
     public boolean isDisintegration() {
-        return is(ModEnchantments.DISINTEGRATION_KEY);
+        return this.is(ModEnchantments.DISINTEGRATION_KEY);
     }
 
     public Component getDisplaySuffix() {
-        if (enchantment == null) return Component.empty();
+        if (this.enchantment == null) return Component.empty();
         return Component.literal(" ")
-            .append(Component.translatable(enchantment.location().toLanguageKey("enchantment")));
+            .append(Component.translatable(this.enchantment.location().toLanguageKey("enchantment")));
     }
 
     public int getLaserColor() {
-        if (is(Enchantments.SILK_TOUCH)) return SILK_TOUCH_LASER_COLOR;
-        if (is(ModEnchantments.DISINTEGRATION_KEY)) return DISINTEGRATION_LASER_COLOR;
-        if (is(ModEnchantments.SMELTING_KEY)) return SMELTING_LASER_COLOR;
+        if (this.is(Enchantments.SILK_TOUCH)) return SILK_TOUCH_LASER_COLOR;
+        if (this.is(ModEnchantments.DISINTEGRATION_KEY)) return DISINTEGRATION_LASER_COLOR;
+        if (this.is(ModEnchantments.SMELTING_KEY)) return SMELTING_LASER_COLOR;
         return NORMAL_LASER_COLOR;
     }
 

@@ -45,7 +45,7 @@ public interface IPowerProducer extends IPowerComponent {
                     : powerComponentInfo.consumes())
                 .orElse(1);
         } else {
-            return Math.abs(getOutputPower());
+            return Math.abs(this.getOutputPower());
         }
     }
 }

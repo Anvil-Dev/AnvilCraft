@@ -65,7 +65,7 @@ public class SuperHeatingRecipe extends AbstractProcessRecipe<SuperHeatingRecipe
 
     @Override
     public ItemStack assemble(InWorldRecipeContext context, HolderLookup.Provider registries) {
-        if (hasRoyalPreference) {
+        if (this.hasRoyalPreference) {
             context.put(RoyalPreferenceOutcome.IS_ROYAL_STEEL_RECIPE, true);
         }
         return super.assemble(context, registries);

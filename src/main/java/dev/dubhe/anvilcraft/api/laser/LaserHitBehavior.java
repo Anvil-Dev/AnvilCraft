@@ -27,19 +27,19 @@ public final class LaserHitBehavior implements ILaserComponent {
 
     @Override
     public void onEmissionStopped(ILaserComponentOwner owner) {
-        activeRecipe = null;
-        miningPos = null;
-        miningState = null;
-        miningEffect = null;
-        progress = 0;
-        lastMiningTick = -1;
+        this.activeRecipe = null;
+        this.miningPos = null;
+        this.miningState = null;
+        this.miningEffect = null;
+        this.progress = 0;
+        this.lastMiningTick = -1;
     }
 
     @Override
     public boolean onHitBlock(ILaserComponentOwner owner, Level level, BlockPos blockPos) {
         if (!(level instanceof ServerLevel serverLevel)) return true;
         int tick = owner.getLaserTicks();
-        if (lastMiningTick == tick) return activeRecipe == null;
+        if (this.lastMiningTick == tick) return this.activeRecipe == null;
         BlockState state = level.getBlockState(blockPos);
         LaserMiningComponent mining = owner.getComponent(LaserComponentTypes.MINING);
         LaserHitRecipe.Input input = new LaserHitRecipe.Input(
@@ -48,23 +48,23 @@ public final class LaserHitBehavior implements ILaserComponent {
         );
         Optional<RecipeHolder<LaserHitRecipe>> match = LaserHitRecipe.find(serverLevel, input);
         if (match.isEmpty()) {
-            onEmissionStopped(owner);
+            this.onEmissionStopped(owner);
             return true;
         }
         LaserHitRecipe recipe = match.get().value();
         BlockMiningEffect effect = LaserMiningComponent.getEffect(owner);
-        if (recipe != activeRecipe || !blockPos.equals(miningPos) || state != miningState
-            || !effect.equals(miningEffect) || tick != lastMiningTick + 1) {
-            progress = 0;
+        if (recipe != this.activeRecipe || !blockPos.equals(this.miningPos) || state != this.miningState
+            || !effect.equals(this.miningEffect) || tick != this.lastMiningTick + 1) {
+            this.progress = 0;
         }
-        activeRecipe = recipe;
-        miningPos = blockPos.immutable();
-        miningState = state;
-        miningEffect = effect;
-        lastMiningTick = tick;
-        progress++;
-        if (progress < recipe.getHitTime()) return false;
-        progress = 0;
+        this.activeRecipe = recipe;
+        this.miningPos = blockPos.immutable();
+        this.miningState = state;
+        this.miningEffect = effect;
+        this.lastMiningTick = tick;
+        this.progress++;
+        if (this.progress < recipe.getHitTime()) return false;
+        this.progress = 0;
         List<ItemStack> drops = recipe.createDrops(serverLevel, blockPos, effect);
         if (state != recipe.getResultBlock() && !level.setBlockAndUpdate(blockPos, recipe.getResultBlock())) return false;
         recipe.applyHeat(serverLevel, blockPos);

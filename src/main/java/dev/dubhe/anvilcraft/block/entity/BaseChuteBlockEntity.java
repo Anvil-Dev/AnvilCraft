@@ -89,19 +89,19 @@ public abstract class BaseChuteBlockEntity
     public Direction getDirection() {
         if (this.level == null) return Direction.UP;
         BlockState state = this.level.getBlockState(this.getBlockPos());
-        if (validateBlockState(state)) return state.getValue(getFacingProperty());
+        if (this.validateBlockState(state)) return state.getValue(this.getFacingProperty());
         return Direction.UP;
     }
 
     @Override
     public void setDirection(Direction direction) {
-        if (shouldSkipDirection(direction)) return;
+        if (this.shouldSkipDirection(direction)) return;
         BlockPos pos = this.getBlockPos();
         Level level = this.getLevel();
         if (null == level) return;
         BlockState state = level.getBlockState(pos);
-        if (!validateBlockState(state)) return;
-        level.setBlockAndUpdate(pos, state.setValue(getFacingProperty(), direction));
+        if (!this.validateBlockState(state)) return;
+        level.setBlockAndUpdate(pos, state.setValue(this.getFacingProperty(), direction));
     }
 
     protected abstract boolean shouldSkipDirection(Direction direction);
@@ -118,7 +118,7 @@ public abstract class BaseChuteBlockEntity
 
     @Override
     public FilteredItemStackHandler getFilteredItemStackHandler() {
-        return itemHandler;
+        return this.itemHandler;
     }
 
     @Override
@@ -131,15 +131,15 @@ public abstract class BaseChuteBlockEntity
     @Override
     protected void saveAdditional(CompoundTag tag, HolderLookup.Provider provider) {
         super.saveAdditional(tag, provider);
-        tag.putInt("Cooldown", cooldown);
-        tag.put("Inventory", itemHandler.serializeNBT(provider));
+        tag.putInt("Cooldown", this.cooldown);
+        tag.put("Inventory", this.itemHandler.serializeNBT(provider));
     }
 
     @Override
     protected void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
         super.loadAdditional(tag, provider);
-        cooldown = tag.getInt("Cooldown");
-        itemHandler.deserializeNBT(provider, tag.getCompound("Inventory"));
+        this.cooldown = tag.getInt("Cooldown");
+        this.itemHandler.deserializeNBT(provider, tag.getCompound("Inventory"));
     }
 
     /**
@@ -147,39 +147,39 @@ public abstract class BaseChuteBlockEntity
      */
     public void tick() {
         if (level == null) return;
-        anvilcraft$tickEjectedItemTracking();
-        if (cooldown > 0) cooldown--;
-        tickedGameTime = level.getGameTime();
+        this.anvilcraft$tickEjectedItemTracking();
+        if (this.cooldown > 0) this.cooldown--;
+        this.tickedGameTime = level.getGameTime();
         boolean resetCD = false;
-        if (cooldown <= 0) {
-            if (isEnabled()) {
-                BlockPos targetPos = getBlockPos().relative(getOutputDirection());
+        if (this.cooldown <= 0) {
+            if (this.isEnabled()) {
+                BlockPos targetPos = getBlockPos().relative(this.getOutputDirection());
                 // 尝试向朝向容器输出
                 List<IItemHandler> targetList = ItemHandlerUtil.getTargetItemHandlerList(
                     targetPos,
-                    getOutputDirection().getOpposite(),
+                    this.getOutputDirection().getOpposite(),
                     level
                 );
                 if (targetList != null && !targetList.isEmpty()) {
                     for (IItemHandler target : targetList) {
                         BlockEntity targetBE = level.getBlockEntity(targetPos);
-                        boolean setChuteCD = targetBE != null && isTargetEmpty(targetBE);
+                        boolean setChuteCD = targetBE != null && this.isTargetEmpty(targetBE);
                         boolean success = ItemHandlerUtil.exportToTarget(getItemHandler(), 64, stack -> true, target);
                         if (success) {
                             // 特判溜槽cd7gt
-                            if (setChuteCD) setChuteCD(targetBE);
+                            if (setChuteCD) this.setChuteCD(targetBE);
                             resetCD = true;
                             break;
                         }
                     }
                 } else {
-                    Vec3 center = getBlockPos().relative(getOutputDirection()).getCenter();
+                    Vec3 center = getBlockPos().relative(this.getOutputDirection()).getCenter();
                     AABB aabb = new AABB(center.add(-0.125, -0.125, -0.125), center.add(0.125, 0.125, 0.125));
                     if (Objects.requireNonNull(getLevel()).noCollision(aabb)) {
                         List<ItemEntity> itemEntities = getLevel()
                             .getEntitiesOfClass(
                                 ItemEntity.class,
-                                new AABB(getBlockPos().relative(getOutputDirection()))
+                                new AABB(getBlockPos().relative(this.getOutputDirection()))
                                     .inflate(0.01)
                                     .expandTowards(0, -0.5, 0),
                                 itemEntity -> !itemEntity.getItem().isEmpty());
@@ -210,10 +210,10 @@ public abstract class BaseChuteBlockEntity
                                         0,
                                         0
                                     );
-                                    applySpeed(itemEntity, getOutputDirection());
+                                    this.applySpeed(itemEntity, this.getOutputDirection());
                                     itemEntity.setDefaultPickUpDelay();
                                     getLevel().addFreshEntity(itemEntity);
-                                    anvilcraft$trackEjectedItem(itemEntity);
+                                    this.anvilcraft$trackEjectedItem(itemEntity);
                                     this.itemHandler.setStackInSlot(i, stack);
                                     resetCD = true;
                                     break;
@@ -229,8 +229,8 @@ public abstract class BaseChuteBlockEntity
             if (this.isInputEnabled()) {
                 if (!this.inventoryFull()) {
                     IItemHandler source = ItemHandlerUtil.getSourceItemHandler(
-                        getBlockPos().relative(getInputDirection()),
-                        getInputDirection().getOpposite(),
+                        getBlockPos().relative(this.getInputDirection()),
+                        this.getInputDirection().getOpposite(),
                         level
                     );
                     boolean imported = source != null
@@ -241,7 +241,7 @@ public abstract class BaseChuteBlockEntity
                         List<ItemEntity> itemEntities = Objects.requireNonNull(getLevel())
                             .getEntitiesOfClass(
                                 ItemEntity.class,
-                                new AABB(getBlockPos().relative(getInputDirection())),
+                                new AABB(getBlockPos().relative(this.getInputDirection())),
                                 itemEntity -> !itemEntity.getItem().isEmpty());
                         for (ItemEntity itemEntity : itemEntities) {
                             ItemStack itemStack = itemEntity.getItem();
@@ -312,10 +312,10 @@ public abstract class BaseChuteBlockEntity
      */
     public int getRedstoneSignal() {
         int strength = 0;
-        for (int index = 0; index < itemHandler.getSlots(); index++) {
-            ItemStack itemStack = itemHandler.getStackInSlot(index);
+        for (int index = 0; index < this.itemHandler.getSlots(); index++) {
+            ItemStack itemStack = this.itemHandler.getStackInSlot(index);
             // 槽位为未设置过滤的已禁用槽位
-            if (itemHandler.isSlotDisabled(index) && !itemHandler.isFilterEnabled()) {
+            if (this.itemHandler.isSlotDisabled(index) && !this.itemHandler.isFilterEnabled()) {
                 strength++;
                 continue;
             }
@@ -335,12 +335,12 @@ public abstract class BaseChuteBlockEntity
     private void anvilcraft$trackEjectedItem(ItemEntity itemEntity) {
         if (level == null || level.isClientSide) return;
         if (itemEntity.getDeltaMovement().horizontalDistanceSqr() < 1.0E-7) return;
-        anvilcraft$trackedEjectedItems.add(new TrackedEjectedItem(itemEntity));
+        this.anvilcraft$trackedEjectedItems.add(new TrackedEjectedItem(itemEntity));
     }
 
     private void anvilcraft$tickEjectedItemTracking() {
-        if (level == null || level.isClientSide || anvilcraft$trackedEjectedItems.isEmpty()) return;
-        Iterator<TrackedEjectedItem> iterator = anvilcraft$trackedEjectedItems.iterator();
+        if (level == null || level.isClientSide || this.anvilcraft$trackedEjectedItems.isEmpty()) return;
+        Iterator<TrackedEjectedItem> iterator = this.anvilcraft$trackedEjectedItems.iterator();
         while (iterator.hasNext()) {
             TrackedEjectedItem tracked = iterator.next();
             ItemEntity item = tracked.item;
@@ -367,12 +367,12 @@ public abstract class BaseChuteBlockEntity
 
     @Override
     public void storeDiskData(CompoundTag tag) {
-        tag.put("Filtering", itemHandler.serializeFiltering());
+        tag.put("Filtering", this.itemHandler.serializeFiltering());
     }
 
     @Override
     public void applyDiskData(CompoundTag data) {
-        itemHandler.deserializeFiltering(data.getCompound("Filtering"));
+        this.itemHandler.deserializeFiltering(data.getCompound("Filtering"));
         this.setChanged();
         if (level != null && !level.isClientSide) {
             level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), 3);
@@ -385,15 +385,15 @@ public abstract class BaseChuteBlockEntity
     }
 
     public boolean isEmpty() {
-        for (int i = 0; i < itemHandler.getSlots(); i++) {
-            if (!itemHandler.getStackInSlot(i).isEmpty()) return false;
+        for (int i = 0; i < this.itemHandler.getSlots(); i++) {
+            if (!this.itemHandler.getStackInSlot(i).isEmpty()) return false;
         }
         return true;
     }
 
     private boolean inventoryFull() {
-        for (int i = 0; i < itemHandler.getSlots(); i++) {
-            ItemStack itemstack = itemHandler.getStackInSlot(i);
+        for (int i = 0; i < this.itemHandler.getSlots(); i++) {
+            ItemStack itemstack = this.itemHandler.getStackInSlot(i);
             if (itemstack.isEmpty() || itemstack.getCount() != itemstack.getMaxStackSize()) return false;
         }
         return true;

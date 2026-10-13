@@ -50,7 +50,7 @@ public class ControlValveBlockEntityRenderer
         int packedLight,
         int packedOverlay
     ) {
-        collectSelectionModels(be, partialTick, poseStack, (model, pose) -> Minecraft.getInstance()
+        this.collectSelectionModels(be, partialTick, poseStack, (model, pose) -> Minecraft.getInstance()
             .getBlockRenderer().getModelRenderer().renderModel(
                 pose.last(), buffer.getBuffer(RenderType.cutout()), null,
                 Minecraft.getInstance().getModelManager().getModel(model), 1, 1, 1, packedLight, packedOverlay
@@ -58,12 +58,12 @@ public class ControlValveBlockEntityRenderer
         // --- 在另外三面渲染内部过滤的流体 ---
         FluidStack filterFluid = be.getFilter(0);
         if (!filterFluid.isEmpty()) {
-            renderFluidIndicators(be, filterFluid, poseStack, buffer, packedLight);
+            this.renderFluidIndicators(be, filterFluid, poseStack, buffer, packedLight);
         }
 
         // --- 红石激活时在手轮位置渲染红石粒子 ---
         if (be.isLocked()) {
-            renderRedstoneIndicator(be, poseStack, buffer, packedLight, packedOverlay);
+            this.renderRedstoneIndicator(be, poseStack, buffer, packedLight, packedOverlay);
         }
     }
 

@@ -73,7 +73,7 @@ public class PiezoelectricCrystalBlock extends Block implements IHammerRemovable
         if (distance < 0) return;
         int chargeNum = chargeNums.get(distance);
         ChargeCollectorManager.charge(chargeNum, level, blockPos);
-        pressureConduction(level, blockPos, chargeNum / 2);
+        this.pressureConduction(level, blockPos, chargeNum / 2);
         TriggerUtil.anvilHitPiezoelectricCrystal(level, blockPos);
         level.scheduleTick(blockPos, this, 4);
     }

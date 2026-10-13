@@ -22,14 +22,14 @@ public record StellarMetallicity(double minimum, double maximum, double solarZ) 
     }
 
     public double sample(long seed) {
-        return at(new Random(seed ^ 0x6A09E667F3BCC909L).nextDouble() * 2 - 1);
+        return this.at(new Random(seed ^ 0x6A09E667F3BCC909L).nextDouble() * 2 - 1);
     }
 
     public double at(double coordinate) {
-        return solarZ * Math.exp(Math.log(minimum) + (coordinate + 1) * 0.5 * Math.log(maximum / minimum));
+        return this.solarZ * Math.exp(Math.log(this.minimum) + (coordinate + 1) * 0.5 * Math.log(this.maximum / this.minimum));
     }
 
     public double coordinate(double metallicityZ) {
-        return Math.clamp(2 * Math.log(metallicityZ / solarZ / minimum) / Math.log(maximum / minimum) - 1, -1, 1);
+        return Math.clamp(2 * Math.log(metallicityZ / this.solarZ / this.minimum) / Math.log(this.maximum / this.minimum) - 1, -1, 1);
     }
 }

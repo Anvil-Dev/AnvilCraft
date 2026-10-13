@@ -112,7 +112,7 @@ public class CauldronOutletRenderer extends EntityRenderer<CauldronOutletEntity>
         }
         poseStack.scale(0.73f, 0.73f, 0.73f);
 
-        var consumer = buffer.getBuffer(RenderType.entityCutoutNoCull(getTextureLocation(entity)));
+        var consumer = buffer.getBuffer(RenderType.entityCutoutNoCull(this.getTextureLocation(entity)));
         this.model.renderToBuffer(poseStack, consumer, packedLight, OverlayTexture.NO_OVERLAY, -1);
 
         poseStack.popPose();

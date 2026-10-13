@@ -103,7 +103,7 @@ public class ClientFluidTankTooltip implements ClientTooltipComponent {
 
     private long totalAmount() {
         long amount = 0;
-        for (FluidStack fluid : fluids) {
+        for (FluidStack fluid : this.fluids) {
             amount += fluid.getAmount();
         }
         return amount;
@@ -111,12 +111,12 @@ public class ClientFluidTankTooltip implements ClientTooltipComponent {
 
     @Override
     public int getHeight() {
-        int height = fluids.isEmpty() ? 0 : LINE_HEIGHT;
-        height += fluids.size() * ICON_SIZE;
-        if (remainingFluids > 0) {
+        int height = this.fluids.isEmpty() ? 0 : LINE_HEIGHT;
+        height += this.fluids.size() * ICON_SIZE;
+        if (this.remainingFluids > 0) {
             height += LINE_HEIGHT;
         }
-        if (showCapacity) {
+        if (this.showCapacity) {
             height += LINE_HEIGHT * 2; // 容量标题 + 容量值
         }
         return height;
@@ -125,18 +125,18 @@ public class ClientFluidTankTooltip implements ClientTooltipComponent {
     @Override
     public int getWidth(Font font) {
         int width = 0;
-        if (!fluids.isEmpty()) {
+        if (!this.fluids.isEmpty()) {
             width = Math.max(width, font.width(Component.translatable("tooltip.anvilcraft.fluid_tank.fluid")));
         }
-        for (int i = 0; i < fluids.size(); i++) {
-            width = Math.max(width, ICON_SIZE + ICON_GAP + font.width(fluidLine(i)));
+        for (int i = 0; i < this.fluids.size(); i++) {
+            width = Math.max(width, ICON_SIZE + ICON_GAP + font.width(this.fluidLine(i)));
         }
-        if (remainingFluids > 0) {
-            width = Math.max(width, font.width(moreLine()));
+        if (this.remainingFluids > 0) {
+            width = Math.max(width, font.width(this.moreLine()));
         }
-        if (showCapacity) {
+        if (this.showCapacity) {
             width = Math.max(width, font.width(Component.translatable("tooltip.anvilcraft.fluid_tank.capacity")));
-            width = Math.max(width, font.width(capacityLine()));
+            width = Math.max(width, font.width(this.capacityLine()));
         }
         return width;
     }
@@ -150,36 +150,36 @@ public class ClientFluidTankTooltip implements ClientTooltipComponent {
         MultiBufferSource.BufferSource bufferSource
     ) {
         int rowY = mouseY;
-        if (!fluids.isEmpty()) {
+        if (!this.fluids.isEmpty()) {
             font.drawInBatch(
                 Component.translatable("tooltip.anvilcraft.fluid_tank.fluid").withStyle(ChatFormatting.BLUE),
                 mouseX, rowY, -1, true, matrix, bufferSource, Font.DisplayMode.NORMAL, 0, 15728880
             );
             rowY += LINE_HEIGHT;
         }
-        for (int i = 0; i < fluids.size(); i++) {
+        for (int i = 0; i < this.fluids.size(); i++) {
             font.drawInBatch(
-                fluidLine(i),
+                this.fluidLine(i),
                 mouseX + ICON_SIZE + ICON_GAP, rowY + (float) (ICON_SIZE - LINE_HEIGHT) / 2,
                 -1, true, matrix, bufferSource, Font.DisplayMode.NORMAL, 0, 15728880
             );
             rowY += ICON_SIZE;
         }
-        if (remainingFluids > 0) {
+        if (this.remainingFluids > 0) {
             font.drawInBatch(
-                moreLine(),
+                this.moreLine(),
                 mouseX, rowY, -1, true, matrix, bufferSource, Font.DisplayMode.NORMAL, 0, 15728880
             );
             rowY += LINE_HEIGHT;
         }
-        if (showCapacity) {
+        if (this.showCapacity) {
             font.drawInBatch(
                 Component.translatable("tooltip.anvilcraft.fluid_tank.capacity").withStyle(ChatFormatting.BLUE),
                 mouseX, rowY, -1, true, matrix, bufferSource, Font.DisplayMode.NORMAL, 0, 15728880
             );
             rowY += LINE_HEIGHT;
             font.drawInBatch(
-                capacityLine(),
+                this.capacityLine(),
                 mouseX, rowY, -1, true, matrix, bufferSource, Font.DisplayMode.NORMAL, 0, 15728880
             );
         }
@@ -187,8 +187,8 @@ public class ClientFluidTankTooltip implements ClientTooltipComponent {
 
     @Override
     public void renderImage(Font font, int x, int y, GuiGraphics guiGraphics) {
-        int rowY = y + (fluids.isEmpty() ? 0 : LINE_HEIGHT);
-        for (FluidStack fluid : fluids) {
+        int rowY = y + (this.fluids.isEmpty() ? 0 : LINE_HEIGHT);
+        for (FluidStack fluid : this.fluids) {
             renderFluidIcon(guiGraphics, fluid, x, rowY);
             rowY += ICON_SIZE;
         }
@@ -196,8 +196,8 @@ public class ClientFluidTankTooltip implements ClientTooltipComponent {
 
     /** 第 i 行流体：名称 + 数量（灰色）。 */
     private Component fluidLine(int i) {
-        FluidStack fluid = fluids.get(i);
-        String amount = infiniteFlags.get(i)
+        FluidStack fluid = this.fluids.get(i);
+        String amount = this.infiniteFlags.get(i)
             ? UnitUtil.INFINITE_POWER
             : UnitUtil.fluidUnit(fluid.getAmount(), false);
         return Component.literal("")
@@ -207,20 +207,20 @@ public class ClientFluidTankTooltip implements ClientTooltipComponent {
     }
 
     private Component moreLine() {
-        return Component.translatable("tooltip.anvilcraft.fluid_tank.more", remainingFluids)
+        return Component.translatable("tooltip.anvilcraft.fluid_tank.more", this.remainingFluids)
             .withStyle(ChatFormatting.GRAY);
     }
 
     private Component capacityLine() {
-        Component value = infiniteCapacity
+        Component value = this.infiniteCapacity
             ? Component.translatable(
                 "tooltip.anvilcraft.fluid_tank.capacity.value.infinity",
-                UnitUtil.fluidUnit(totalAmount(), false)
+                UnitUtil.fluidUnit(this.totalAmount(), false)
             )
             : Component.translatable(
                 "tooltip.anvilcraft.fluid_tank.capacity.value",
-                UnitUtil.fluidUnit(totalAmount(), false),
-                UnitUtil.fluidUnit(capacity, false)
+                UnitUtil.fluidUnit(this.totalAmount(), false),
+                UnitUtil.fluidUnit(this.capacity, false)
             );
         return value.copy().withStyle(ChatFormatting.GRAY);
     }

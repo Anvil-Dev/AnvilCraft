@@ -69,23 +69,23 @@ public abstract class BaseLaserBlockEntity extends BlockEntity implements ILaser
 
     @Override
     public int getLaserMaxLength() {
-        return laserMaxLength;
+        return this.laserMaxLength;
     }
 
     @Override
     public void setLaserMaxLength(int value) {
-        laserMaxLength = Math.max(0, value);
+        this.laserMaxLength = Math.max(0, value);
     }
 
     @Override
     public List<ILaserComponent> allComponents() {
-        return laserComponents.allComponents();
+        return this.laserComponents.allComponents();
     }
 
     @Override
     @Nullable
     public <T extends ILaserComponent> T getComponent(ILaserComponentType<T, ?> type) {
-        return laserComponents.get(type);
+        return this.laserComponents.get(type);
     }
 
     @Override
@@ -94,13 +94,13 @@ public abstract class BaseLaserBlockEntity extends BlockEntity implements ILaser
         ILaserComponentType<T, E> type, @Nullable T instance, @Nullable E creationEnvironment
     ) {
         if (instance == null) {
-            instance = getComponent(type);
+            instance = this.getComponent(type);
             if (instance != null || creationEnvironment == null) return instance;
             instance = type.createInstance(creationEnvironment);
         }
-        configuredComponents.put(type, instance);
-        laserComponents.put(type, instance);
-        markChanged();
+        this.configuredComponents.put(type, instance);
+        this.laserComponents.put(type, instance);
+        this.markChanged();
         return instance;
     }
 
@@ -111,22 +111,22 @@ public abstract class BaseLaserBlockEntity extends BlockEntity implements ILaser
 
     @Override
     public BlockPos getLaserOrigin() {
-        return isLaserOriginOffset() ? getBlockPos().relative(laserDirection) : getBlockPos();
+        return this.isLaserOriginOffset() ? getBlockPos().relative(this.laserDirection) : getBlockPos();
     }
 
     @Override
     public Direction getLaserDirection() {
-        return laserDirection;
+        return this.laserDirection;
     }
 
     @Override
     public int getLaserTicks() {
-        return tickCount;
+        return this.tickCount;
     }
 
     @Override
     public void deliverLaserDrops(List<ItemStack> drops, BlockPos sourceBlockPos) {
-        deliverItem(drops, laserDirection, sourceBlockPos);
+        this.deliverItem(drops, this.laserDirection, sourceBlockPos);
     }
 
     protected void configureLaserComponents(LaserComponentMap components) {
@@ -134,10 +134,10 @@ public abstract class BaseLaserBlockEntity extends BlockEntity implements ILaser
 
     private LaserComponentMap createLaserComponents(boolean gamma) {
         List<LaserComponentMap> incoming = new ArrayList<>();
-        irradiateSelfLaserBlockSet.stream()
+        this.irradiateSelfLaserBlockSet.stream()
             .sorted(Comparator.comparing(BaseLaserBlockEntity::getBlockPos))
             .forEach(source -> incoming.add(source.createLaserComponents(source.isGammaLaserConfigured())));
-        int baseStrength = gamma ? getGammaLaserLevel() : getBaseLaserLevel();
+        int baseStrength = gamma ? this.getGammaLaserLevel() : this.getBaseLaserLevel();
         if (baseStrength > 0 || incoming.isEmpty()) {
             LaserComponentMap base = new LaserComponentMap();
             base.put(LaserComponentTypes.STRENGTH, new LaserStrengthComponent(Math.max(0, baseStrength)));
@@ -150,24 +150,24 @@ public abstract class BaseLaserBlockEntity extends BlockEntity implements ILaser
             incoming.add(base);
         }
         LaserComponentMap result = LaserComponentMap.mergeIncoming(incoming);
-        configureLaserComponents(result);
-        result.putAll(configuredComponents);
+        this.configureLaserComponents(result);
+        result.putAll(this.configuredComponents);
         return result;
     }
 
     protected boolean canPassThrough(Direction direction, BlockPos blockPos) {
         if (this.level == null) return false;
-        LaserTypeComponent type = getComponent(LaserComponentTypes.LASER_TYPE);
+        LaserTypeComponent type = this.getComponent(LaserComponentTypes.LASER_TYPE);
         return type != null && type.canPassThrough(this.level, direction, blockPos);
     }
 
     protected void resetLaserComponentState() {
-        for (ILaserComponent component : allComponents()) component.onEmissionStopped(this);
+        for (ILaserComponent component : this.allComponents()) component.onEmissionStopped(this);
     }
 
     public void updateIrradiateBlockPos(@Nullable BlockPos newPos) {
         if (newPos == null) {
-            resetLaserComponentState();
+            this.resetLaserComponentState();
             this.irradiatedLaserTarget = null;
             this.irradiatedLaserTargetRevision = -1;
         }
@@ -204,8 +204,8 @@ public abstract class BaseLaserBlockEntity extends BlockEntity implements ILaser
     }
 
     public boolean isEmittingGamma() {
-        LaserTypeComponent type = getComponent(LaserComponentTypes.LASER_TYPE);
-        return type == null ? isGammaLaserConfigured() : type.gamma();
+        LaserTypeComponent type = this.getComponent(LaserComponentTypes.LASER_TYPE);
+        return type == null ? this.isGammaLaserConfigured() : type.gamma();
     }
 
     protected boolean isGammaLaserConfigured() {
@@ -213,29 +213,29 @@ public abstract class BaseLaserBlockEntity extends BlockEntity implements ILaser
     }
 
     protected int calculateLaserLevel() {
-        LaserStrengthComponent strength = createLaserComponents(isGammaLaserConfigured()).get(LaserComponentTypes.STRENGTH);
+        LaserStrengthComponent strength = this.createLaserComponents(this.isGammaLaserConfigured()).get(LaserComponentTypes.STRENGTH);
         return strength == null ? 0 : strength.strength();
     }
 
     public BlockMiningEffect getMiningEffect() {
-        LaserMiningComponent mining = createLaserComponents(isGammaLaserConfigured()).get(LaserComponentTypes.MINING);
+        LaserMiningComponent mining = this.createLaserComponents(this.isGammaLaserConfigured()).get(LaserComponentTypes.MINING);
         return mining == null ? BlockMiningEffect.NORMAL : mining.effect();
     }
 
     public void syncTo(ServerPlayer player) {
         PacketDistributor.sendToPlayer(
             player,
-            new LaserEmitPacket(getLaserLevel(), getBlockPos(), this.irradiateBlockPos, isEmittingGamma())
+            new LaserEmitPacket(getLaserLevel(), getBlockPos(), this.irradiateBlockPos, this.isEmittingGamma())
         );
     }
 
     public void tick(Level level) {
-        if (changed) {
+        if (this.changed) {
             if (level instanceof ServerLevel serverLevel) {
                 PacketDistributor.sendToPlayersTrackingChunk(
                     serverLevel,
                     level.getChunkAt(getBlockPos()).getPos(),
-                    new LaserEmitPacket(getLaserLevel(), getBlockPos(), this.irradiateBlockPos, isEmittingGamma())
+                    new LaserEmitPacket(getLaserLevel(), getBlockPos(), this.irradiateBlockPos, this.isEmittingGamma())
                 );
             }
         }
@@ -247,13 +247,13 @@ public abstract class BaseLaserBlockEntity extends BlockEntity implements ILaser
      * 发射激光
      */
     public void emitLaser(Direction direction) {
-        emitLaserComponents(direction, isGammaLaserConfigured());
+        this.emitLaserComponents(direction, this.isGammaLaserConfigured());
     }
 
     private void emitLaserComponents(Direction direction, boolean gamma) {
         if (this.level == null) return;
         this.laserDirection = direction;
-        this.laserComponents.replaceWith(createLaserComponents(gamma));
+        this.laserComponents.replaceWith(this.createLaserComponents(gamma));
         this.laserMaxLength = this.maxTransmissionDistance;
         this.laserComponents.onEmitPre(this);
         if (this.laserMaxLength <= 0) {
@@ -284,11 +284,11 @@ public abstract class BaseLaserBlockEntity extends BlockEntity implements ILaser
         int newLaserLevel = LaserStrengthComponent.getStrength(this);
         boolean laserLevelChanged = this.laserLevel != newLaserLevel;
         BlockMiningEffect miningEffect = LaserMiningComponent.getEffect(this);
-        boolean miningEffectChanged = !lastEmittedMiningEffect.equals(miningEffect);
+        boolean miningEffectChanged = !this.lastEmittedMiningEffect.equals(miningEffect);
         boolean emittedGamma = LaserTypeComponent.isGamma(this);
         boolean gammaChanged = this.lastEmittedGamma != emittedGamma;
         this.updateLaserLevel(newLaserLevel);
-        if (gammaChanged || miningEffectChanged) markChanged();
+        if (gammaChanged || miningEffectChanged) this.markChanged();
         if (
             newLaserTarget != null
             && !this.isInIrradiateSelfLaserBlockSet(newLaserTarget)
@@ -316,17 +316,17 @@ public abstract class BaseLaserBlockEntity extends BlockEntity implements ILaser
     public void deliverItem(List<ItemStack> drops, Direction direction, BlockPos sourceBlockPos) {
         if (this.level == null) return;
         Vec3 dropPos = getBlockPos().relative(direction.getOpposite()).getCenter();
-        BlockPos downStreamPos = getBlockPos().relative(getFacing().getOpposite());
+        BlockPos downStreamPos = getBlockPos().relative(this.getFacing().getOpposite());
         if (this.getBlockState().getBlock() instanceof FlexibleMultiPartBlock<?, ?, ?>) {
             dropPos = getBlockPos().relative(direction.getOpposite(), 2).getCenter();
-            downStreamPos = getBlockPos().relative(getFacing().getOpposite(), 2);
+            downStreamPos = getBlockPos().relative(this.getFacing().getOpposite(), 2);
         }
         if (getLevel() == null) return;
         IItemHandler cap = getLevel()
             .getCapability(
                 Capabilities.ItemHandler.BLOCK,
                 downStreamPos,
-                getFacing()
+                this.getFacing()
             );
         if (cap == null
             && this.level.getBlockEntity(downStreamPos) instanceof BaseLaserBlockEntity downStreamBlockEntity
@@ -347,8 +347,8 @@ public abstract class BaseLaserBlockEntity extends BlockEntity implements ILaser
      */
     public boolean isInIrradiateSelfLaserBlockSet(BaseLaserBlockEntity baseLaserBlockEntity) {
         return baseLaserBlockEntity == this
-               || irradiateSelfLaserBlockSet.contains(baseLaserBlockEntity)
-               || irradiateSelfLaserBlockSet.stream()
+               || this.irradiateSelfLaserBlockSet.contains(baseLaserBlockEntity)
+               || this.irradiateSelfLaserBlockSet.stream()
                    .anyMatch(baseLaserBlockEntity1 ->
                        baseLaserBlockEntity1.isInIrradiateSelfLaserBlockSet(baseLaserBlockEntity));
     }
@@ -370,7 +370,7 @@ public abstract class BaseLaserBlockEntity extends BlockEntity implements ILaser
         if (!this.irradiateSelfLaserBlockSet.remove(baseLaserBlockEntity)) return;
         this.markChanged();
         if (!this.irradiateSelfLaserBlockSet.isEmpty()) return;
-        BlockPos tempIrradiateBlockPos = irradiateBlockPos;
+        BlockPos tempIrradiateBlockPos = this.irradiateBlockPos;
         this.updateIrradiateBlockPos(null);
         if (this.level == null) return;
         if (tempIrradiateBlockPos == null) return;
@@ -446,14 +446,14 @@ public abstract class BaseLaserBlockEntity extends BlockEntity implements ILaser
 
     public void updateLaserLevel(int value) {
         if (this.laserLevel != value) {
-            markChanged();
+            this.markChanged();
         }
         this.laserLevel = value;
     }
 
     public void clientUpdateComponents(int strength, boolean gamma) {
-        laserComponents.put(LaserComponentTypes.STRENGTH, new LaserStrengthComponent(Math.max(0, strength)));
-        laserComponents.put(LaserComponentTypes.LASER_TYPE, new LaserTypeComponent(gamma));
+        this.laserComponents.put(LaserComponentTypes.STRENGTH, new LaserStrengthComponent(Math.max(0, strength)));
+        this.laserComponents.put(LaserComponentTypes.LASER_TYPE, new LaserTypeComponent(gamma));
     }
 
     public void clientUpdate(@Nullable BlockPos irradiateBlockPos, int laserLevel) {
@@ -472,6 +472,6 @@ public abstract class BaseLaserBlockEntity extends BlockEntity implements ILaser
     }
 
     protected void emitGammaLaserBeam(Direction direction) {
-        emitLaserComponents(direction, true);
+        this.emitLaserComponents(direction, true);
     }
 }

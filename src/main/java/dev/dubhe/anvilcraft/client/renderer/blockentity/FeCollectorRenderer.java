@@ -33,7 +33,7 @@ public class FeCollectorRenderer implements BlockEntityRenderer<FeCollectorBlock
         int packedOverlay
     ) {
         final VertexConsumer vertexConsumer = buffer.getBuffer(RenderType.cutout());
-        collectSelectionModels(blockEntity, partialTick, poseStack, (model, pose) -> Minecraft.getInstance()
+        this.collectSelectionModels(blockEntity, partialTick, poseStack, (model, pose) -> Minecraft.getInstance()
             .getBlockRenderer().getModelRenderer().renderModel(
                 pose.last(), vertexConsumer, null, Minecraft.getInstance().getModelManager().getModel(model),
                 0, 0, 0, LightTexture.FULL_BLOCK, packedOverlay

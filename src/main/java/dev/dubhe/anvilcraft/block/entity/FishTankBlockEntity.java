@@ -161,9 +161,9 @@ public class FishTankBlockEntity extends BlockEntity implements IItemHandlerHold
         @Override
         protected int getStackLimit(int slot, ItemStack stack) {
             if (slot < 8) {
-                return getSlotLimit(slot);
+                return this.getSlotLimit(slot);
             }
-            return Math.min(getSlotLimit(slot), stack.getMaxStackSize());
+            return Math.min(this.getSlotLimit(slot), stack.getMaxStackSize());
         }
 
         @Override
@@ -287,7 +287,7 @@ public class FishTankBlockEntity extends BlockEntity implements IItemHandlerHold
 
         @Override
         protected int getStackLimit(int slot, ItemStack stack) {
-            return getSlotLimit(slot);
+            return this.getSlotLimit(slot);
         }
 
         @Override
@@ -1012,13 +1012,13 @@ public class FishTankBlockEntity extends BlockEntity implements IItemHandlerHold
 
     public void dropFish() {
         if (level == null) return;
-        for (CompoundTag data : tropicalFishData) {
+        for (CompoundTag data : this.tropicalFishData) {
             ItemStack bucket = FishTankBlockEntity.fishData2bucket(data);
             if (bucket.getItem() instanceof MobBucketItem mobBucket) {
                 mobBucket.checkExtraContent(null, level, bucket, getBlockPos());
             }
         }
-        tropicalFishData.clear();
+        this.tropicalFishData.clear();
     }
 
     public static CompoundTag bucket2fishData(ItemStack stack) {

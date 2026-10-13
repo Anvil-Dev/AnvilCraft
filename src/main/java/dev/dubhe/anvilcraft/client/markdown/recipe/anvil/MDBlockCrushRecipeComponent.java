@@ -17,15 +17,15 @@ public class MDBlockCrushRecipeComponent extends MDBaseAnvilRecipeComponent {
 
     public MDBlockCrushRecipeComponent(BlockCrushRecipe recipe, boolean enableAlignCenter) {
         super(enableAlignCenter);
-        inputBlocks = recipe.getInputBlocks();
-        outputBlockState = recipe.getFirstResultBlock().state();
+        this.inputBlocks = recipe.getInputBlocks();
+        this.outputBlockState = recipe.getFirstResultBlock().state();
     }
 
     @Override
     protected void renderRecipe(MDRenderContext context, float mouseX, float mouseY) {
         super.renderRecipe(context, mouseX, mouseY);
-        for (int i = 0; i < inputBlocks.size(); i++) {
-            List<BlockState> states = inputBlocks.get(i).constructStatesForRender();
+        for (int i = 0; i < this.inputBlocks.size(); i++) {
+            List<BlockState> states = this.inputBlocks.get(i).constructStatesForRender();
             if (!states.isEmpty()) {
                 BlockState blockState = states.get(RecipeUtil.getDisplayIndex(states.size()));
                 AgeratumUtil.renderBlock(context, blockState, mouseX, mouseY, INPUT_BLOCK_X, BLOCK_Y + i * AgeratumUtil.BLOCK_SIZE, 0);

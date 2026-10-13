@@ -113,7 +113,7 @@ public class EmberGrindstoneMenu extends AbstractContainerMenu {
                 player.playSound(SoundEvents.GRINDSTONE_USE);
 
                 ItemStack toolItem = EmberGrindstoneMenu.this.tool.getItem(0);
-                EnchantmentData data = getSelectedEnchantment().orElseThrow();
+                EnchantmentData data = EmberGrindstoneMenu.this.getSelectedEnchantment().orElseThrow();
                 ItemEnchantments.Mutable enchantments = new ItemEnchantments.Mutable(
                     toolItem.getOrDefault(data.type(), ItemEnchantments.EMPTY)
                 );
@@ -124,7 +124,7 @@ public class EmberGrindstoneMenu extends AbstractContainerMenu {
                     AnvilMenu.calculateIncreasedRepairCost(toolItem.getOrDefault(DataComponents.REPAIR_COST, 0))
                 );
                 EmberGrindstoneMenu.this.tool.setItem(0, toolItem);
-                refreshEnchantments();
+                EmberGrindstoneMenu.this.refreshEnchantments();
 
                 ItemStack bookItem = EmberGrindstoneMenu.this.book.getItem(0);
                 bookItem.shrink(1);

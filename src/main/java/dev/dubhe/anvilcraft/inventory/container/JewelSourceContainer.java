@@ -22,7 +22,7 @@ public class JewelSourceContainer extends SimpleContainer {
     @Override
     public void setItem(int index, ItemStack stack) {
         super.setItem(index, stack);
-        recipe = RecipeCaches.getJewelRecipeByResult(stack);
+        this.recipe = RecipeCaches.getJewelRecipeByResult(stack);
         this.menu.slotsChanged(this);
     }
 }

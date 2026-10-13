@@ -70,10 +70,10 @@ public class GhostIngredientHandler<
         @Override
         public void accept(I ingredient) {
             if (ingredient instanceof ItemStack stack) {
-                screen.acceptGhost(screen.getMenu().getSlot(slotIndex), stack);
+                this.screen.acceptGhost(this.screen.getMenu().getSlot(this.slotIndex), stack);
             } else if (ingredient instanceof FluidStack fluid) {
                 // 流体拖入 → 直接以 FluidStack 交给屏幕（兼容无桶流体）
-                screen.acceptFluidGhost(slotIndex, fluid);
+                this.screen.acceptFluidGhost(this.slotIndex, fluid);
             }
         }
     }

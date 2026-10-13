@@ -56,7 +56,7 @@ public final class LaserParticleBehavior implements ILaserComponent {
 
     @Override
     public void onEmissionStopped(ILaserComponentOwner owner) {
-        lastEmitTick = -1;
+        this.lastEmitTick = -1;
     }
 
     @Override
@@ -67,8 +67,8 @@ public final class LaserParticleBehavior implements ILaserComponent {
         // 光束中继元件（透镜、棱镜）不是撞击面：光束由它们继续向下游发射。
         if (isLaserRelay(owner, state)) return true;
         int tick = owner.getLaserTicks();
-        if (lastEmitTick >= 0 && tick - lastEmitTick < EMIT_INTERVAL) return true;
-        lastEmitTick = tick;
+        if (this.lastEmitTick >= 0 && tick - this.lastEmitTick < EMIT_INTERVAL) return true;
+        this.lastEmitTick = tick;
         // 命中面：从方块中心朝激光来向偏移半个方块，使碎屑贴着被照的那一面
         Vec3 normal = Vec3.atLowerCornerOf(owner.getLaserDirection().getOpposite().getNormal());
         Vec3 center = Vec3.atCenterOf(blockPos).add(normal.scale(0.5 + 0.02));

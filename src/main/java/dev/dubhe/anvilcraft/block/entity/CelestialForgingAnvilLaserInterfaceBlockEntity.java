@@ -76,7 +76,7 @@ public class CelestialForgingAnvilLaserInterfaceBlockEntity extends BaseLaserBlo
         if (state.hasProperty(CelestialForgingAnvilInterfaceBlock.ACTIVE)
             && state.getValue(CelestialForgingAnvilInterfaceBlock.ACTIVE)) {
             /// 主动模式不再自发发射 1 级激光；仅在有虫洞输出时发射对应等级。
-            return wormholeOutputLevel;
+            return this.wormholeOutputLevel;
         }
         return 0;
     }
@@ -117,13 +117,13 @@ public class CelestialForgingAnvilLaserInterfaceBlockEntity extends BaseLaserBlo
     public void onIrradiated(BaseLaserBlockEntity source) {
         int level = source.getLaserLevel();
         boolean gamma = source.isEmittingGamma();
-        onLaserReceived(level, gamma, source.getMiningEffect());
+        this.onLaserReceived(level, gamma, source.getMiningEffect());
         /// 不进行链式传递——不调用 super.onIrradiated(source)
     }
 
     @Override
     public void onCancelingIrradiation(BaseLaserBlockEntity source) {
-        resetLaser();
+        this.resetLaser();
         /// ACTIVE 模式由铁砧锤切换，不再随红石信号变化，
         /// 因此此处无需重新同步方块状态。
     }
@@ -132,7 +132,7 @@ public class CelestialForgingAnvilLaserInterfaceBlockEntity extends BaseLaserBlo
     @Override
     public Set<Direction> getIgnoreFace() {
         EnumSet<Direction> ignore = EnumSet.allOf(Direction.class);
-        ignore.remove(getFacing().getOpposite());
+        ignore.remove(this.getFacing().getOpposite());
         return ignore;
     }
 
@@ -147,9 +147,9 @@ public class CelestialForgingAnvilLaserInterfaceBlockEntity extends BaseLaserBlo
         this.requiredLaserLevel = Math.max(0, requiredLevel);
         this.requiredGamma = gamma;
         /// 使用新需求重新评估有效性
-        if (requiredLaserLevel > 0 && receivedLaserLevel > 0) {
-            this.laserValid = receivedLaserLevel >= requiredLaserLevel
-                && receivedGamma == requiredGamma;
+        if (this.requiredLaserLevel > 0 && this.receivedLaserLevel > 0) {
+            this.laserValid = this.receivedLaserLevel >= this.requiredLaserLevel
+                && this.receivedGamma == this.requiredGamma;
         } else {
             this.laserValid = false;
         }
@@ -169,9 +169,9 @@ public class CelestialForgingAnvilLaserInterfaceBlockEntity extends BaseLaserBlo
         this.receivedLaserLevel = level;
         this.receivedGamma = gamma;
         this.receivedMiningEffect = miningEffect;
-        boolean newValid = (requiredLaserLevel > 0
-            && level >= requiredLaserLevel
-            && gamma == requiredGamma);
+        boolean newValid = (this.requiredLaserLevel > 0
+            && level >= this.requiredLaserLevel
+            && gamma == this.requiredGamma);
         this.laserValid = newValid;
         if (changed || oldValid != newValid) this.setChanged();
     }
@@ -216,8 +216,8 @@ public class CelestialForgingAnvilLaserInterfaceBlockEntity extends BaseLaserBlo
 
         /// 如果正在接收传入激光，仅接收——绝不发射，
         /// 无论主动/被动模式或伽马状态如何。
-        if (receivedLaserLevel > 0) {
-            setGammaOutputState(false, 0);
+        if (this.receivedLaserLevel > 0) {
+            this.setGammaOutputState(false, 0);
             /// 被动模式：清除发射，因为我们正在接收
             if (irradiateBlockPos != null) {
                 BlockEntity oldBe = level.getBlockEntity(irradiateBlockPos);
@@ -228,28 +228,28 @@ public class CelestialForgingAnvilLaserInterfaceBlockEntity extends BaseLaserBlo
             }
             clearIrradiateSelfLaserBlockSet();
             updateLaserLevel(0); /// 为 HUD 清除过期的发射等级
-        } else if (gammaEmissionRequested && gammaEmissionRequestLevel > 0) {
+        } else if (this.gammaEmissionRequested && this.gammaEmissionRequestLevel > 0) {
             /// 发射伽马激光（彭罗斯球输出）
-            setGammaOutputState(true, gammaEmissionRequestLevel);
-            Direction facing = getFacing();
+            this.setGammaOutputState(true, this.gammaEmissionRequestLevel);
+            Direction facing = this.getFacing();
             emitGammaLaserBeam(facing);
-        } else if (wormholeOutputGamma && wormholeOutputLevel > 0 && active) {
+        } else if (this.wormholeOutputGamma && this.wormholeOutputLevel > 0 && active) {
             /// 通过虫洞发射伽马激光（来自网络中被动接口的汇总）。借用 gammaLevel 用于发射，但之后恢复它以保留彭罗斯球状态。
-            setGammaOutputState(true, wormholeOutputLevel);
-            Direction facing = getFacing();
+            this.setGammaOutputState(true, this.wormholeOutputLevel);
+            Direction facing = this.getFacing();
             emitGammaLaserBeam(facing);
-        } else if (active && getBaseLaserLevel() > 0) {
+        } else if (active && this.getBaseLaserLevel() > 0) {
             /// 主动模式且有实际输出（虫洞普通激光）时才发射；
             /// 主动模式自身不再自发发射 1 级激光（仅切换模型）。
-            setGammaOutputState(false, 0);
-            Direction facing = getFacing();
+            this.setGammaOutputState(false, 0);
+            Direction facing = this.getFacing();
             /// 仅当尚未属于激光链时才发射
             if (irradiateSelfLaserBlockSet.isEmpty()) {
                 emitLaser(facing);
             }
         } else {
             /// 被动模式或主动但无输出：清除激光发射
-            setGammaOutputState(false, 0);
+            this.setGammaOutputState(false, 0);
             if (irradiateBlockPos != null) {
                 BlockEntity oldBe = level.getBlockEntity(irradiateBlockPos);
                 if (oldBe instanceof BaseLaserBlockEntity lastIrradiated) {
@@ -262,7 +262,7 @@ public class CelestialForgingAnvilLaserInterfaceBlockEntity extends BaseLaserBlo
         }
 
         /// 自定义 tick，发送含伽马信息的数据包
-        tickWithGamma(level);
+        this.tickWithGamma(level);
         this.gammaEmissionRequested = false;
         this.gammaEmissionRequestLevel = 0;
 
@@ -325,45 +325,45 @@ public class CelestialForgingAnvilLaserInterfaceBlockEntity extends BaseLaserBlo
     @Override
     protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.saveAdditional(tag, registries);
-        writeLaserData(tag);
+        this.writeLaserData(tag);
     }
 
     @Override
     protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.loadAdditional(tag, registries);
-        readLaserData(tag);
+        this.readLaserData(tag);
     }
 
     @Override
     public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
         CompoundTag tag = super.getUpdateTag(registries);
-        writeLaserData(tag);
-        tag.putBoolean("gamma", emittingGamma);
-        tag.putInt("gammaLevel", gammaLevel);
+        this.writeLaserData(tag);
+        tag.putBoolean("gamma", this.emittingGamma);
+        tag.putInt("gammaLevel", this.gammaLevel);
         return tag;
     }
 
     @Override
     public void handleUpdateTag(CompoundTag tag, HolderLookup.Provider registries) {
         super.handleUpdateTag(tag, registries);
-        readLaserData(tag);
+        this.readLaserData(tag);
         this.emittingGamma = tag.getBoolean("gamma");
         this.gammaLevel = tag.getInt("gammaLevel");
     }
 
     private void writeLaserData(CompoundTag tag) {
-        tag.putInt("receivedLaserLevel", receivedLaserLevel);
-        tag.putBoolean("receivedGamma", receivedGamma);
-        if (receivedMiningEffect.enchantment() != null) {
-            tag.putString("receivedMiningEnchantment", receivedMiningEffect.enchantment().location().toString());
-            tag.putInt("receivedMiningEnchantmentLevel", receivedMiningEffect.level());
+        tag.putInt("receivedLaserLevel", this.receivedLaserLevel);
+        tag.putBoolean("receivedGamma", this.receivedGamma);
+        if (this.receivedMiningEffect.enchantment() != null) {
+            tag.putString("receivedMiningEnchantment", this.receivedMiningEffect.enchantment().location().toString());
+            tag.putInt("receivedMiningEnchantmentLevel", this.receivedMiningEffect.level());
         } else {
             tag.remove("receivedMiningEnchantment");
             tag.remove("receivedMiningEnchantmentLevel");
         }
-        tag.putInt("requiredLaserLevel", requiredLaserLevel);
-        tag.putBoolean("requiredGamma", requiredGamma);
-        tag.putBoolean("laserValid", laserValid);
+        tag.putInt("requiredLaserLevel", this.requiredLaserLevel);
+        tag.putBoolean("requiredGamma", this.requiredGamma);
+        tag.putBoolean("laserValid", this.laserValid);
     }
 
     private void readLaserData(CompoundTag tag) {
@@ -394,7 +394,7 @@ public class CelestialForgingAnvilLaserInterfaceBlockEntity extends BaseLaserBlo
     public void setChanged() {
         super.setChanged();
         if (level != null && !level.isClientSide()) {
-            syncToClients();
+            this.syncToClients();
         }
     }
 

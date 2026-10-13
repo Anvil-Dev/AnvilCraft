@@ -58,7 +58,7 @@ public class PipeCheckValveBERenderer<T extends AbstractPipeCheckValveBlockEntit
         Level level = be.getLevel();
         if (level == null) return;
         VertexConsumer vertices = buffer.getBuffer(RenderType.cutout());
-        collectSelectionModels(be, partialTick, poseStack, (model, pose) -> renderShaded(
+        this.collectSelectionModels(be, partialTick, poseStack, (model, pose) -> renderShaded(
             pose.last(), vertices, Minecraft.getInstance().getModelManager().getModel(model), packedLight, packedOverlay, level
         ));
     }

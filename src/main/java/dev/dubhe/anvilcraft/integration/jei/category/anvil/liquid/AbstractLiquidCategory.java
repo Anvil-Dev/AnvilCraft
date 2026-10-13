@@ -79,7 +79,7 @@ public abstract class AbstractLiquidCategory<T extends AbstractProcessRecipe<?>>
 
     @Override
     public Component getTitle() {
-        return title;
+        return this.title;
     }
 
     @Override
@@ -94,7 +94,7 @@ public abstract class AbstractLiquidCategory<T extends AbstractProcessRecipe<?>>
 
     @Override
     public @Nullable IDrawable getIcon() {
-        return icon;
+        return this.icon;
     }
 
     @Override
@@ -174,9 +174,9 @@ public abstract class AbstractLiquidCategory<T extends AbstractProcessRecipe<?>>
             81, 12 + anvilYOffset, 20, modelScale, RenderSupport.SINGLE_BLOCK);
         RenderSupport.renderBlock(guiGraphics, large ? this.largeCauldron : Blocks.CAULDRON.defaultBlockState(),
             81, large ? 24 : 30, 10, modelScale, RenderSupport.SINGLE_BLOCK);
-        RenderSupport.renderBlock(guiGraphics, getProcessBlock(), 81, 40, 0, 12, RenderSupport.SINGLE_BLOCK);
-        arrowIn.draw(guiGraphics, 54, 22);
-        arrowOut.draw(guiGraphics, 92, 22);
+        RenderSupport.renderBlock(guiGraphics, this.getProcessBlock(), 81, 40, 0, 12, RenderSupport.SINGLE_BLOCK);
+        this.arrowIn.draw(guiGraphics, 54, 22);
+        this.arrowOut.draw(guiGraphics, 92, 22);
 
         final boolean hasInputItems = !recipe.getDisplayInputItems().isEmpty();
         final boolean hasOutputItems = !recipe.getResultItems().isEmpty();
@@ -189,16 +189,16 @@ public abstract class AbstractLiquidCategory<T extends AbstractProcessRecipe<?>>
         // 输入物品
         if (hasInputItems) {
             if (inputMixed) {
-                JeiSlotUtil.drawItemInputSlots(guiGraphics, slotDefault, recipe.getDisplayInputItems().size());
+                JeiSlotUtil.drawItemInputSlots(guiGraphics, this.slotDefault, recipe.getDisplayInputItems().size());
             } else {
-                JeiSlotUtil.drawDefaultInputSlots(guiGraphics, slotDefault, recipe.getDisplayInputItems().size());
+                JeiSlotUtil.drawDefaultInputSlots(guiGraphics, this.slotDefault, recipe.getDisplayInputItems().size());
             }
         }
         // 输出物品（子类可重写）
         IntFunction<IDrawable> slot = JeiRecipeUtil.outputSlotFor(
             recipe.getResultItems(),
-            slotDefault,
-            slotProbability
+            this.slotDefault,
+            this.slotProbability
         );
         if (hasOutputItems) {
             if (outputMixed) {
@@ -211,14 +211,14 @@ public abstract class AbstractLiquidCategory<T extends AbstractProcessRecipe<?>>
         // 输入流体
         if (hasInputFluid) {
             if (inputMixed) {
-                JeiSlotUtil.drawFluidInputSlots(guiGraphics, slotDefault, 1);
+                JeiSlotUtil.drawFluidInputSlots(guiGraphics, this.slotDefault, 1);
             } else {
-                JeiSlotUtil.drawDefaultInputSlots(guiGraphics, slotDefault, 1);
+                JeiSlotUtil.drawDefaultInputSlots(guiGraphics, this.slotDefault, 1);
             }
         }
         // 输出流体
         if (hasOutputFluid) {
-            IDrawable fluidSlot = cauldron.chance() < 1.0f ? slotProbability : slotDefault;
+            IDrawable fluidSlot = cauldron.chance() < 1.0f ? this.slotProbability : this.slotDefault;
             if (outputMixed) {
                 JeiSlotUtil.drawFluidOutputSlots(guiGraphics, fluidSlot, cauldron.transforms().size());
             } else {

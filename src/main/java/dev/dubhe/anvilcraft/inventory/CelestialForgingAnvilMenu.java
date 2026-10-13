@@ -116,7 +116,7 @@ public class CelestialForgingAnvilMenu extends AbstractContainerMenu {
             for (var i = 0; i <= 64; i++) {
                 var count = getSlot(slotId).getItem().getCount();
                 if (count == button) break;
-                handleAnvilTransfer(slotId, button > count);
+                this.handleAnvilTransfer(slotId, button > count);
                 if (count == getSlot(slotId).getItem().getCount()) break;
             }
             return;
@@ -127,41 +127,41 @@ public class CelestialForgingAnvilMenu extends AbstractContainerMenu {
     @Override
     public boolean clickMenuButton(Player player, int id) {
         if (id == 0) {
-            blockEntity.startSearch();
+            this.blockEntity.startSearch();
             return true;
         }
         /// 滚轮砧子传输：id 1-4 = 添加，5-8 = 移除
         if (id >= 1 && id <= 8) {
             int slot = (id - 1) % 4;
             boolean add = id <= 4;
-            handleAnvilTransfer(slot, add);
+            this.handleAnvilTransfer(slot, add);
             return true;
         }
         /// 巨构建材选项选择：id 9+
         if (id >= 9 && id < 100) {
             int optionIndex = id - 9;
-            blockEntity.configureMaterialSlot(optionIndex);
+            this.blockEntity.configureMaterialSlot(optionIndex);
             return true;
         }
         /// 建造巨构请求：id 100+
         if (id >= 100 && id < 200) {
             int optionIndex = id - 100;
-            blockEntity.buildMegastructure(optionIndex);
+            this.blockEntity.buildMegastructure(optionIndex);
             return true;
         }
         /// 锁定切换：id 200
         if (id == 200) {
-            blockEntity.toggleLocked();
+            this.blockEntity.toggleLocked();
             return true;
         }
         /// 浏览历史前一条：id 201
         if (id == 201) {
-            blockEntity.browseHistoryPrev();
+            this.blockEntity.browseHistoryPrev();
             return true;
         }
         /// 浏览历史后一条：id 202
         if (id == 202) {
-            blockEntity.browseHistoryNext();
+            this.blockEntity.browseHistoryNext();
             return true;
         }
         return super.clickMenuButton(player, id);
@@ -224,14 +224,14 @@ public class CelestialForgingAnvilMenu extends AbstractContainerMenu {
         super.removed(player);
         /// 关闭 UI 时重置建材槽位过滤器，使其下次打开时始终以屏障虚影开始。
         if (!player.level().isClientSide()) {
-            blockEntity.setMaterialFilter(new ItemStack(Items.BARRIER));
-            blockEntity.setMaterialLimit(0);
-            blockEntity.setChanged();
+            this.blockEntity.setMaterialFilter(new ItemStack(Items.BARRIER));
+            this.blockEntity.setMaterialLimit(0);
+            this.blockEntity.setChanged();
             /// 推送到客户端，使下次打开 UI 时看到屏障虚影
-            var level = blockEntity.getLevel();
+            var level = this.blockEntity.getLevel();
             if (level != null) {
-                var state = blockEntity.getBlockState();
-                level.sendBlockUpdated(blockEntity.getBlockPos(), state, state, 3);
+                var state = this.blockEntity.getBlockState();
+                level.sendBlockUpdated(this.blockEntity.getBlockPos(), state, state, 3);
             }
         }
     }
@@ -240,7 +240,7 @@ public class CelestialForgingAnvilMenu extends AbstractContainerMenu {
     public boolean stillValid(Player player) {
         // noinspection DataFlowIssue
         return stillValid(
-            ContainerLevelAccess.create(this.blockEntity.getLevel(), blockEntity.getBlockPos()),
+            ContainerLevelAccess.create(this.blockEntity.getLevel(), this.blockEntity.getBlockPos()),
             player,
             ModBlocks.CELESTIAL_FORGING_ANVIL.get()
         );
@@ -424,14 +424,14 @@ public class CelestialForgingAnvilMenu extends AbstractContainerMenu {
 
         @Override
         public boolean mayPlace(ItemStack stack) {
-            ItemStack filter = blockEntity.getMaterialFilter();
+            ItemStack filter = this.blockEntity.getMaterialFilter();
             if (filter.isEmpty() || filter.is(Items.BARRIER)) return false;
             return ItemStack.isSameItem(filter, stack);
         }
 
         @Override
         public int getMaxStackSize() {
-            int limit = blockEntity.getMaterialLimit();
+            int limit = this.blockEntity.getMaterialLimit();
             return limit > 0 ? limit : 1;
         }
     }

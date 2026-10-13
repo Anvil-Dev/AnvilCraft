@@ -62,6 +62,6 @@ public class IonocraftModel<T extends Entity> extends EntityModel<T> {
 
     @Override
     public void renderToBuffer(PoseStack poseStack, VertexConsumer buffer, int packedLight, int packedOverlay, int color) {
-        modelPart.render(poseStack, buffer, packedLight, packedOverlay, color);
+        this.modelPart.render(poseStack, buffer, packedLight, packedOverlay, color);
     }
 }

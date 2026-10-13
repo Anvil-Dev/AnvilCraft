@@ -57,13 +57,13 @@ public class ConfinementChamberBlockEntity extends BlockEntity implements IItemH
 
     @Override
     public void updateDisplayItem(ItemStack stack) {
-        itemHandler.setStackInSlot(0, stack);
+        this.itemHandler.setStackInSlot(0, stack);
     }
 
     @Override
     protected void collectImplicitComponents(DataComponentMap.Builder components) {
         super.collectImplicitComponents(components);
-        ItemStack stack = itemHandler.getStackInSlot(0);
+        ItemStack stack = this.itemHandler.getStackInSlot(0);
         if (!stack.isEmpty()) {
             components.set(DataComponents.CONTAINER, ItemContainerContents.fromItems(List.of(stack)));
         }
@@ -74,20 +74,20 @@ public class ConfinementChamberBlockEntity extends BlockEntity implements IItemH
         super.applyImplicitComponents(componentInput);
         ItemContainerContents contents = componentInput.getOrDefault(DataComponents.CONTAINER, ItemContainerContents.EMPTY);
         if (!contents.copyOne().isEmpty()) {
-            itemHandler.setStackInSlot(0, contents.getStackInSlot(0));
+            this.itemHandler.setStackInSlot(0, contents.getStackInSlot(0));
         }
     }
 
     @Override
     protected void saveAdditional(CompoundTag tag, HolderLookup.Provider provider) {
         super.saveAdditional(tag, provider);
-        tag.put("Inventory", itemHandler.serializeNBT(provider));
+        tag.put("Inventory", this.itemHandler.serializeNBT(provider));
     }
 
     @Override
     public void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
         super.loadAdditional(tag, provider);
-        itemHandler.deserializeNBT(provider, tag.getCompound("Inventory"));
+        this.itemHandler.deserializeNBT(provider, tag.getCompound("Inventory"));
     }
 
     @Override
@@ -98,7 +98,7 @@ public class ConfinementChamberBlockEntity extends BlockEntity implements IItemH
     @Override
     public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
         CompoundTag tag = new CompoundTag();
-        tag.put("Inventory", itemHandler.serializeNBT(registries));
+        tag.put("Inventory", this.itemHandler.serializeNBT(registries));
         return tag;
     }
 }

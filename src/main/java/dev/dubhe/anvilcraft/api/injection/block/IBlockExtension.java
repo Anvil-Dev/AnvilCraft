@@ -19,6 +19,6 @@ public interface IBlockExtension {
      * @return True to link blocks
      */
     default boolean anvilcraft$canStickTo(BlockPos pos, BlockState state, BlockPos otherPos, BlockState other) {
-        return self().canStickTo(state, other);
+        return this.self().canStickTo(state, other);
     }
 }

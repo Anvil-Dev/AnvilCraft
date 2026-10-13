@@ -46,16 +46,16 @@ public class FluidRateSlider extends AbstractWidget {
     /** 设置值并回调。 */
     public void setValueWithUpdate(int value) {
         this.value = clampSnap(value);
-        update();
+        this.update();
     }
 
     /** 在当前值基础上增减一档（±{@value #STEP}）。 */
     public void step(int direction) {
-        setValueWithUpdate(value + STEP * direction);
+        this.setValueWithUpdate(this.value + STEP * direction);
     }
 
     private void update() {
-        callback.onValueChange(value);
+        this.callback.onValueChange(this.value);
     }
 
     /** 将任意值吸附到最近的合法档位值（{@value #STEP} 的整数倍，钳制到 [0,{@value #MAX}]）。 */
@@ -65,33 +65,34 @@ public class FluidRateSlider extends AbstractWidget {
     }
 
     private double proportion() {
-        return (double) value / MAX;
+        return (double) this.value / MAX;
     }
 
     /** 滑块当前左上角 X（滑块宽 16，在 [posX, posX+length-16] 间移动）。 */
     private int knobX() {
-        return posX + (int) ((length - 16) * proportion());
+        return this.posX + (int) ((this.length - 16) * this.proportion());
     }
 
     /** 鼠标是否落在滑块矩形上。 */
     private boolean isInKnob(double mouseX, double mouseY) {
-        int kx = knobX();
-        return mouseX >= kx && mouseX < kx + 16 && mouseY >= posY && mouseY < posY + 8;
+        int kx = this.knobX();
+        return mouseX >= kx && mouseX < kx + 16 && mouseY >= this.posY && mouseY < this.posY + 8;
     }
 
     // ---- 由屏幕显式转发的鼠标事件 ----
 
     /** 左键按下：命中滑块则进入拖动，同时按位置更新一次。 */
     public void onClick(double mouseX, double mouseY) {
-        if (isInKnob(mouseX, mouseY) || (mouseX >= posX && mouseX < posX + length && mouseY >= posY && mouseY < posY + 8)) {
+        if (this.isInKnob(mouseX, mouseY)
+            || (mouseX >= this.posX && mouseX < this.posX + this.length && mouseY >= this.posY && mouseY < this.posY + 8)) {
             this.scroll = true;
-            applyMouse(mouseX);
+            this.applyMouse(mouseX);
         }
     }
 
     public void onDrag(double mouseX, double mouseY) {
         if (this.scroll) {
-            applyMouse(mouseX);
+            this.applyMouse(mouseX);
         }
     }
 
@@ -102,7 +103,7 @@ public class FluidRateSlider extends AbstractWidget {
     private void applyMouse(double mouseX) {
         double offset = (mouseX - this.posX - 8.0) / (this.length - 16);
         int step = (int) Math.round(Math.max(0.0, Math.min(1.0, offset)) * TOTAL_STEPS);
-        setValueWithUpdate(step * STEP);
+        this.setValueWithUpdate(step * STEP);
     }
 
     @Override
@@ -111,8 +112,8 @@ public class FluidRateSlider extends AbstractWidget {
             return;
         }
         // 仅当悬停在滑块上（或正在拖动）才用高亮贴图（下半张）
-        boolean hover = this.scroll || isInKnob(mouseX, mouseY);
-        guiGraphics.blit(SLIDER, knobX(), posY, 0, hover ? 8 : 0, 16, 8, 16, 16);
+        boolean hover = this.scroll || this.isInKnob(mouseX, mouseY);
+        guiGraphics.blit(SLIDER, this.knobX(), this.posY, 0, hover ? 8 : 0, 16, 8, 16, 16);
     }
 
     @Override

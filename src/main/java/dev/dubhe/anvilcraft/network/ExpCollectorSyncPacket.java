@@ -56,7 +56,7 @@ public record ExpCollectorSyncPacket(BlockPos pos) implements IServerboundPacket
                         carried.setCount(carried.getCount() - 1);
                         expCollectorMenu.setCarried(carried);
                     }
-                    level.playSound(null, pos, SoundEvents.BUCKET_FILL, SoundSource.BLOCKS);
+                    level.playSound(null, this.pos, SoundEvents.BUCKET_FILL, SoundSource.BLOCKS);
                 }
             }
         }

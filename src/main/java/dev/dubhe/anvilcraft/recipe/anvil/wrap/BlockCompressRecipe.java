@@ -177,15 +177,15 @@ public class BlockCompressRecipe extends AbstractProcessRecipe<BlockCompressReci
 
         @Override
         public BlockCompressRecipe buildRecipe() {
-            return new BlockCompressRecipe(inputs, result);
+            return new BlockCompressRecipe(this.inputs, this.result);
         }
 
         @Override
         public void validate(ResourceLocation id) {
-            if (inputs.size() != 2) {
+            if (this.inputs.size() != 2) {
                 throw new IllegalArgumentException("Recipe input list size must in 2, RecipeId: " + id);
             }
-            if (result == null) {
+            if (this.result == null) {
                 throw new IllegalArgumentException("Recipe result must not be empty, RecipeId: " + id);
             }
         }
@@ -197,7 +197,7 @@ public class BlockCompressRecipe extends AbstractProcessRecipe<BlockCompressReci
 
         @Override
         public Item getResult() {
-            return WrapUtils.getItem(result);
+            return WrapUtils.getItem(this.result);
         }
     }
 }

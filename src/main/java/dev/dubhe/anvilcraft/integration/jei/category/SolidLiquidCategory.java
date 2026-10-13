@@ -89,7 +89,7 @@ public class SolidLiquidCategory extends AbstractLiquidReactionCategory {
     ) {
         if (recipeHolder.value() instanceof ComplexFluidJeiRecipe complexRecipe
             && useSmallCauldron(complexRecipe)) {
-            drawSmallCauldron(complexRecipe, guiGraphics);
+            this.drawSmallCauldron(complexRecipe, guiGraphics);
         } else {
             drawBigCauldron(recipeHolder, recipeSlotsView, guiGraphics, mouseX, mouseY);
         }

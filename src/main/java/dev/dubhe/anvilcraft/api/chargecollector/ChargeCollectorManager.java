@@ -57,9 +57,9 @@ public class ChargeCollectorManager {
      */
     public void removeChargeCollector(ChargeCollectorBlockEntity blockEntity) {
         BlockPos blockPos = blockEntity.getBlockPos();
-        if (chargeCollectors.get(blockPos) != blockEntity) return;
-        chargeCollectors.remove(blockPos);
-        removeChargeCollectorFromChunks(blockEntity);
+        if (this.chargeCollectors.get(blockPos) != blockEntity) return;
+        this.chargeCollectors.remove(blockPos);
+        this.removeChargeCollectorFromChunks(blockEntity);
     }
 
     public static void removeInfiniteCollector(Level level, InfiniteCollectorBlockEntity blockEntity) {
@@ -72,9 +72,9 @@ public class ChargeCollectorManager {
      */
     public void removeInfiniteCollector(InfiniteCollectorBlockEntity blockEntity) {
         BlockPos blockPos = blockEntity.getBlockPos();
-        if (infiniteCollectors.get(blockPos) != blockEntity) return;
-        infiniteCollectors.remove(blockPos);
-        removeInfiniteCollectorFromChunks(blockEntity);
+        if (this.infiniteCollectors.get(blockPos) != blockEntity) return;
+        this.infiniteCollectors.remove(blockPos);
+        this.removeInfiniteCollectorFromChunks(blockEntity);
     }
 
     /**
@@ -98,7 +98,7 @@ public class ChargeCollectorManager {
      * @param blockPos  充电的位置
      */
     public void charge(double chargeNum, BlockPos blockPos) {
-        if (!(chargeNum > 0) || (chargeCollectors.isEmpty() && infiniteCollectors.isEmpty())) return;
+        if (!(chargeNum > 0) || (this.chargeCollectors.isEmpty() && this.infiniteCollectors.isEmpty())) return;
         Collection<Entry> chargeCollectorCollection = this.getChargeCandidates(blockPos);
         if (chargeCollectorCollection.isEmpty()) return;
         double surplus = chargeNum;
@@ -121,11 +121,11 @@ public class ChargeCollectorManager {
      */
     public void addChargeCollector(ChargeCollectorBlockEntity blockEntity) {
         BlockPos blockPos = blockEntity.getBlockPos();
-        ChargeCollectorBlockEntity previous = chargeCollectors.put(blockPos, blockEntity);
+        ChargeCollectorBlockEntity previous = this.chargeCollectors.put(blockPos, blockEntity);
         if (previous != null && previous != blockEntity) {
-            removeChargeCollectorFromChunks(previous);
+            this.removeChargeCollectorFromChunks(previous);
         }
-        addChargeCollectorToChunks(blockEntity);
+        this.addChargeCollectorToChunks(blockEntity);
     }
 
     /**
@@ -133,22 +133,22 @@ public class ChargeCollectorManager {
      */
     public void addInfiniteCollector(InfiniteCollectorBlockEntity blockEntity) {
         BlockPos blockPos = blockEntity.getBlockPos();
-        InfiniteCollectorBlockEntity previous = infiniteCollectors.put(blockPos, blockEntity);
+        InfiniteCollectorBlockEntity previous = this.infiniteCollectors.put(blockPos, blockEntity);
         if (previous != null && previous != blockEntity) {
-            removeInfiniteCollectorFromChunks(previous);
+            this.removeInfiniteCollectorFromChunks(previous);
         }
-        addInfiniteCollectorToChunks(blockEntity);
+        this.addInfiniteCollectorToChunks(blockEntity);
     }
 
     /**
      * 获取最近的收集器的List集合(以从近至远排序)
      */
     public List<Entry> getNearestChargeCollect(BlockPos blockPos) {
-        List<Entry> distanceList = new ArrayList<>(chargeCollectors.size() + infiniteCollectors.size());
-        for (Map.Entry<BlockPos, ChargeCollectorBlockEntity> entry : chargeCollectors.entrySet()) {
+        List<Entry> distanceList = new ArrayList<>(this.chargeCollectors.size() + this.infiniteCollectors.size());
+        for (Map.Entry<BlockPos, ChargeCollectorBlockEntity> entry : this.chargeCollectors.entrySet()) {
             distanceList.add(new Entry(distance(entry.getKey(), blockPos), entry.getValue(), null));
         }
-        for (Map.Entry<BlockPos, InfiniteCollectorBlockEntity> entry : infiniteCollectors.entrySet()) {
+        for (Map.Entry<BlockPos, InfiniteCollectorBlockEntity> entry : this.infiniteCollectors.entrySet()) {
             distanceList.add(new Entry(distance(entry.getKey(), blockPos), null, entry.getValue()));
         }
         if (distanceList.size() > 1) distanceList.sort(ENTRY_COMPARATOR);
@@ -157,8 +157,8 @@ public class ChargeCollectorManager {
 
     private List<Entry> getChargeCandidates(BlockPos blockPos) {
         long chunkPos = ChunkPos.asLong(blockPos.getX() >> 4, blockPos.getZ() >> 4);
-        Set<ChargeCollectorBlockEntity> chargeCandidates = chargeCollectorsByChunk.get(chunkPos);
-        Set<InfiniteCollectorBlockEntity> infiniteCandidates = infiniteCollectorsByChunk.get(chunkPos);
+        Set<ChargeCollectorBlockEntity> chargeCandidates = this.chargeCollectorsByChunk.get(chunkPos);
+        Set<InfiniteCollectorBlockEntity> infiniteCandidates = this.infiniteCollectorsByChunk.get(chunkPos);
         if ((chargeCandidates == null || chargeCandidates.isEmpty())
             && (infiniteCandidates == null || infiniteCandidates.isEmpty())) {
             return List.of();

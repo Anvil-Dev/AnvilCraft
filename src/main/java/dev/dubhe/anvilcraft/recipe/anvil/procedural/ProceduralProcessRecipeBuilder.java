@@ -82,7 +82,7 @@ public class ProceduralProcessRecipeBuilder extends AbstractRecipeBuilder<Proced
      * @return 当前构建器实例，支持链式调用
      */
     public ProceduralProcessRecipeBuilder addStep(AbstractProcessRecipe<?> stepContent) {
-        ProceduralProcessStep step = new ProceduralProcessStep(steps.size(), stepContent);
+        ProceduralProcessStep step = new ProceduralProcessStep(this.steps.size(), stepContent);
         return this.addStep(step);
     }
 
@@ -196,7 +196,7 @@ public class ProceduralProcessRecipeBuilder extends AbstractRecipeBuilder<Proced
     @Override
     public @NotNull ProceduralProcessRecipe buildRecipe() {
         if (this.resultBlock == null) {
-            if (steps.getLast().content instanceof AbstractProcessRecipe<?> apr) {
+            if (this.steps.getLast().content instanceof AbstractProcessRecipe<?> apr) {
                 this.resultBlock = apr.getFirstResultBlock();
             } else {
                 this.resultBlock = new ChanceBlockState(Blocks.AIR.defaultBlockState(), 1f);
@@ -219,19 +219,19 @@ public class ProceduralProcessRecipeBuilder extends AbstractRecipeBuilder<Proced
 
     @Override
     public void validate(@NotNull ResourceLocation id) {
-        if (loop <= 0) {
-            throw new IllegalArgumentException("Loop count should be at least 1 (default is 1), got: " + loop);
+        if (this.loop <= 0) {
+            throw new IllegalArgumentException("Loop count should be at least 1 (default is 1), got: " + this.loop);
         }
-        if (steps.isEmpty()) {
+        if (this.steps.isEmpty()) {
             throw new IllegalArgumentException("Procedural Procession must have at least one step, RecipeId: " + id);
         }
-        int displayedModelLimit = loop > 1 ? loop : steps.size();
-        if (displayedModels.size() > displayedModelLimit) {
+        int displayedModelLimit = this.loop > 1 ? this.loop : this.steps.size();
+        if (this.displayedModels.size() > displayedModelLimit) {
             throw new IllegalArgumentException(
                 "Displayed model count must not exceed process stage count, RecipeId: " + id
             );
         }
-        for (ProceduralProcessStep step : steps) {
+        for (ProceduralProcessStep step : this.steps) {
             if (!(step.content instanceof AbstractProcessRecipe<?>)) {
                 throw new IllegalArgumentException("Each step of Procedural Procession must be an Anvil Process Recipe, RecipeId: " + id);
             }
@@ -246,6 +246,6 @@ public class ProceduralProcessRecipeBuilder extends AbstractRecipeBuilder<Proced
 
     @Override
     public @NotNull Item getResult() {
-        return WrapUtils.getItem(resultBlock);
+        return WrapUtils.getItem(this.resultBlock);
     }
 }

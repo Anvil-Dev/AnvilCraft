@@ -96,10 +96,10 @@ public class LaserHitRecipe implements Recipe<LaserHitRecipe.Input> {
 
     @Override
     public boolean matches(Input input, Level level) {
-        return input.strength() >= laserStrength
-            && input.gamma() == (laserType == LaserType.GAMMA)
-            && (!requiresLens || input.lens())
-            && dimension.map(value -> value.equals(level.dimension().location())).orElse(true)
+        return input.strength() >= this.laserStrength
+            && input.gamma() == (this.laserType == LaserType.GAMMA)
+            && (!this.requiresLens || input.lens())
+            && this.dimension.map(value -> value.equals(level.dimension().location())).orElse(true)
             && this.input.test(level, input.state(), level.getBlockEntity(input.pos()));
     }
 
@@ -111,14 +111,14 @@ public class LaserHitRecipe implements Recipe<LaserHitRecipe.Input> {
 
     public List<ItemStack> createDrops(ServerLevel level, BlockPos pos, BlockMiningEffect effect) {
         List<ItemStack> drops = new ArrayList<>();
-        resultItems.forEach(stack -> drops.add(stack.copy()));
-        if (useBlockLoot) drops.addAll(BreakBlockUtil.dropForLaser(level, pos, effect));
+        this.resultItems.forEach(stack -> drops.add(stack.copy()));
+        if (this.useBlockLoot) drops.addAll(BreakBlockUtil.dropForLaser(level, pos, effect));
         return drops;
     }
 
     public void applyHeat(ServerLevel level, BlockPos pos) {
-        if (heatDuration > 0 && level.getBlockEntity(pos) instanceof HeatableBlockEntity heatable) {
-            heatable.addDurationInTick(heatDuration);
+        if (this.heatDuration > 0 && level.getBlockEntity(pos) instanceof HeatableBlockEntity heatable) {
+            heatable.addDurationInTick(this.heatDuration);
             HeaterManager.addHeatableBlock(pos, level);
         }
     }
@@ -136,7 +136,7 @@ public class LaserHitRecipe implements Recipe<LaserHitRecipe.Input> {
 
     @Override
     public ItemStack assemble(Input input, HolderLookup.Provider registries) {
-        return getResultItem(registries);
+        return this.getResultItem(registries);
     }
 
     @Override
@@ -146,7 +146,7 @@ public class LaserHitRecipe implements Recipe<LaserHitRecipe.Input> {
 
     @Override
     public ItemStack getResultItem(HolderLookup.Provider registries) {
-        return resultItems.isEmpty() ? ItemStack.EMPTY : resultItems.getFirst().copy();
+        return this.resultItems.isEmpty() ? ItemStack.EMPTY : this.resultItems.getFirst().copy();
     }
 
     @Override
@@ -172,7 +172,7 @@ public class LaserHitRecipe implements Recipe<LaserHitRecipe.Input> {
         @Override
         public ItemStack getItem(int index) {
             if (index != 0) throw new IndexOutOfBoundsException(index);
-            return new ItemStack(state.getBlock());
+            return new ItemStack(this.state.getBlock());
         }
 
         @Override

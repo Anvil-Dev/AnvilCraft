@@ -22,9 +22,9 @@ public class MDMeshRecipeComponent extends MDBaseAnvilRecipeComponent {
 
     public MDMeshRecipeComponent(MeshRecipe recipe, boolean enableAlignCenter) {
         super(enableAlignCenter);
-        ingredients = recipe.getInputItems();
-        resultItems = recipe.getResultItems();
-        inputBlockStates = List.of(
+        this.ingredients = recipe.getInputItems();
+        this.resultItems = recipe.getResultItems();
+        this.inputBlockStates = List.of(
             Blocks.SCAFFOLDING.defaultBlockState()
         );
     }

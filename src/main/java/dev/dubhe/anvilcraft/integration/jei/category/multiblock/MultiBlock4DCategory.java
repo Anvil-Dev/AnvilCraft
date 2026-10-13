@@ -74,29 +74,29 @@ public class MultiBlock4DCategory implements IRecipeCategory<RecipeHolder<Multib
     private final ITickTimer timer;
 
     public MultiBlock4DCategory(IGuiHelper helper) {
-        icon = helper.createDrawableItemStack(ModBlocks.SPACETIME_SUPERCOMPUTER.asStack());
-        arrowOut = JeiRenderHelper.getArrowInput(helper);
-        slot = JeiRenderHelper.getSlotDefault(helper);
-        timer = helper.createTickTimer(30, 60, true);
-        conversion = helper.drawableBuilder(JeiTextureConstants.BLOCK_4D, 0, 0, 594, 418)
+        this.icon = helper.createDrawableItemStack(ModBlocks.SPACETIME_SUPERCOMPUTER.asStack());
+        this.arrowOut = JeiRenderHelper.getArrowInput(helper);
+        this.slot = JeiRenderHelper.getSlotDefault(helper);
+        this.timer = helper.createTickTimer(30, 60, true);
+        this.conversion = helper.drawableBuilder(JeiTextureConstants.BLOCK_4D, 0, 0, 594, 418)
             .setTextureSize(594, 418)
             .build();
-        layerUp = helper.drawableBuilder(JeiTextureConstants.LAYER_UP, 0, 0, 10, 10)
+        this.layerUp = helper.drawableBuilder(JeiTextureConstants.LAYER_UP, 0, 0, 10, 10)
             .setTextureSize(10, 20)
             .build();
-        layerUpHovered = helper.drawableBuilder(JeiTextureConstants.LAYER_UP, 0, 10, 10, 10)
+        this.layerUpHovered = helper.drawableBuilder(JeiTextureConstants.LAYER_UP, 0, 10, 10, 10)
             .setTextureSize(10, 20)
             .build();
-        layerDown = helper.drawableBuilder(JeiTextureConstants.LAYER_DOWN, 0, 0, 10, 10)
+        this.layerDown = helper.drawableBuilder(JeiTextureConstants.LAYER_DOWN, 0, 0, 10, 10)
             .setTextureSize(10, 20)
             .build();
-        layerDownHovered = helper.drawableBuilder(JeiTextureConstants.LAYER_DOWN, 0, 10, 10, 10)
+        this.layerDownHovered = helper.drawableBuilder(JeiTextureConstants.LAYER_DOWN, 0, 10, 10, 10)
             .setTextureSize(10, 20)
             .build();
-        renderSwitchOff = helper.drawableBuilder(JeiTextureConstants.LAYER_SWITCH, 0, 0, 10, 10)
+        this.renderSwitchOff = helper.drawableBuilder(JeiTextureConstants.LAYER_SWITCH, 0, 0, 10, 10)
             .setTextureSize(10, 20)
             .build();
-        renderSwitchOn = helper.drawableBuilder(JeiTextureConstants.LAYER_SWITCH, 0, 10, 10, 10)
+        this.renderSwitchOn = helper.drawableBuilder(JeiTextureConstants.LAYER_SWITCH, 0, 10, 10, 10)
             .setTextureSize(10, 20)
             .build();
     }
@@ -123,13 +123,13 @@ public class MultiBlock4DCategory implements IRecipeCategory<RecipeHolder<Multib
 
     @Override
     public @Nullable IDrawable getIcon() {
-        return icon;
+        return this.icon;
     }
 
     @Override
     public void setRecipe(IRecipeLayoutBuilder builder, RecipeHolder<Multiblock4DRecipe> recipe, IFocusGroup focuses) {
-        levelCache.computeIfAbsent(recipe, this::buildLevels);
-        sizeCache.computeIfAbsent(recipe, this::maxSize);
+        this.levelCache.computeIfAbsent(recipe, this::buildLevels);
+        this.sizeCache.computeIfAbsent(recipe, this::maxSize);
         builder.addSlot(RecipeIngredientRole.OUTPUT, 117, 70)
             .addItemStack(recipe.value().getResult().copy());
 
@@ -186,9 +186,9 @@ public class MultiBlock4DCategory implements IRecipeCategory<RecipeHolder<Multib
         double mouseX,
         double mouseY
     ) {
-        List<LevelLike> levels = levelCache.computeIfAbsent(recipe, this::buildLevels);
+        List<LevelLike> levels = this.levelCache.computeIfAbsent(recipe, this::buildLevels);
         int count = levels.size();
-        int step = count == 0 ? 0 : Math.floorMod(stepMap.getOrDefault(recipe, 0), count);
+        int step = count == 0 ? 0 : Math.floorMod(this.stepMap.getOrDefault(recipe, 0), count);
         LevelLike level = count == 0 ? null : levels.get(step);
 
         final boolean renderAllLayers = level != null && level.isAllLayersVisible();
@@ -201,11 +201,11 @@ public class MultiBlock4DCategory implements IRecipeCategory<RecipeHolder<Multib
         Component layerComponent;
         if (level == null || renderAllLayers) {
             layerComponent = Component.translatable("gui.anvilcraft.category.multiblock.all_layers");
-            renderSwitchOff.draw(guiGraphics, 125, 10);
+            this.renderSwitchOff.draw(guiGraphics, 125, 10);
         } else {
             layerComponent = Component.translatable(
                 "gui.anvilcraft.category.multiblock.single_layer", visibleLayer + 1, sizeY);
-            renderSwitchOn.draw(guiGraphics, 125, 10);
+            this.renderSwitchOn.draw(guiGraphics, 125, 10);
             this.layerUpButton(mouseX, mouseY).draw(guiGraphics, 137, 10);
             this.layerDownButton(mouseX, mouseY).draw(guiGraphics, 149, 10);
         }
@@ -217,9 +217,9 @@ public class MultiBlock4DCategory implements IRecipeCategory<RecipeHolder<Multib
         pose.pushPose();
         pose.translate(114.5, 50.15, 0);
         pose.scale(0.035f, 0.035f, 1.0f);
-        conversion.draw(guiGraphics, 0, 0);
+        this.conversion.draw(guiGraphics, 0, 0);
         pose.popPose();
-        float anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(timer) / 3;
+        float anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(this.timer) / 3;
         RenderSupport.renderBlock(
             guiGraphics,
             JeiBlockIngredientUtil.getRenderablePreviewState(ModBlocks.GIANT_ANVIL.getDefaultState()),
@@ -238,37 +238,37 @@ public class MultiBlock4DCategory implements IRecipeCategory<RecipeHolder<Multib
             : Component.translatable("gui.anvilcraft.category.4d_multiblock.step", step + 1, count);
         int stepTextX = Math.round(WIDTH / 0.8f - minecraft.font.width(stepComponent) - 5);
         guiGraphics.drawString(minecraft.font, stepComponent, stepTextX, 29, 0xFF000000, false);
-        int size = sizeCache.computeIfAbsent(recipe, this::maxSize);
+        int size = this.sizeCache.computeIfAbsent(recipe, this::maxSize);
         guiGraphics.drawString(
             minecraft.font,
             Component.translatable("gui.anvilcraft.category.multiblock.size", size, size),
             85, 115, 0xFF000000, false
         );
         pose.popPose();
-        arrowOut.draw(guiGraphics, 97, 60);
-        slot.draw(guiGraphics, 116, 69);
+        this.arrowOut.draw(guiGraphics, 97, 60);
+        this.slot.draw(guiGraphics, 116, 69);
 
         for (int i = 0; i < ROWS; i++) {
             for (int j = 0; j < 9; j++) {
-                slot.draw(guiGraphics, j * 18, START_HEIGHT + i * 18);
+                this.slot.draw(guiGraphics, j * 18, START_HEIGHT + i * 18);
             }
         }
     }
 
     private IDrawable layerUpButton(double mouseX, double mouseY) {
-        return (mouseX >= 137 && mouseX < 147 && mouseY >= 10 && mouseY < 20) ? layerUpHovered : layerUp;
+        return (mouseX >= 137 && mouseX < 147 && mouseY >= 10 && mouseY < 20) ? this.layerUpHovered : this.layerUp;
     }
 
     private IDrawable layerDownButton(double mouseX, double mouseY) {
-        return (mouseX >= 149 && mouseX < 159 && mouseY >= 10 && mouseY < 20) ? layerDownHovered : layerDown;
+        return (mouseX >= 149 && mouseX < 159 && mouseY >= 10 && mouseY < 20) ? this.layerDownHovered : this.layerDown;
     }
 
     private IDrawable timeUpButton(double mouseX, double mouseY) {
-        return (mouseX >= 137 && mouseX < 147 && mouseY >= 33 && mouseY < 43) ? layerUpHovered : layerUp;
+        return (mouseX >= 137 && mouseX < 147 && mouseY >= 33 && mouseY < 43) ? this.layerUpHovered : this.layerUp;
     }
 
     private IDrawable timeDownButton(double mouseX, double mouseY) {
-        return (mouseX >= 149 && mouseX < 159 && mouseY >= 33 && mouseY < 43) ? layerDownHovered : layerDown;
+        return (mouseX >= 149 && mouseX < 159 && mouseY >= 33 && mouseY < 43) ? this.layerDownHovered : this.layerDown;
     }
 
     @Override
@@ -279,7 +279,7 @@ public class MultiBlock4DCategory implements IRecipeCategory<RecipeHolder<Multib
             10,
             10,
             it -> {
-                List<LevelLike> levels = levelCache.computeIfAbsent(it, this::buildLevels);
+                List<LevelLike> levels = this.levelCache.computeIfAbsent(it, this::buildLevels);
                 if (levels.isEmpty()) return;
                 boolean value = !levels.getFirst().isAllLayersVisible();
                 levels.forEach(level -> level.setAllLayersVisible(value));
@@ -314,9 +314,9 @@ public class MultiBlock4DCategory implements IRecipeCategory<RecipeHolder<Multib
             33,
             10,
             it -> {
-                int count = levelCache.computeIfAbsent(it, this::buildLevels).size();
+                int count = this.levelCache.computeIfAbsent(it, this::buildLevels).size();
                 if (count == 0) return;
-                stepMap.merge(it, 1, (old, add) -> Math.floorMod(old + add, count));
+                this.stepMap.merge(it, 1, (old, add) -> Math.floorMod(old + add, count));
             },
             recipe
         ));
@@ -326,19 +326,19 @@ public class MultiBlock4DCategory implements IRecipeCategory<RecipeHolder<Multib
             33,
             10,
             it -> {
-                int count = levelCache.computeIfAbsent(it, this::buildLevels).size();
+                int count = this.levelCache.computeIfAbsent(it, this::buildLevels).size();
                 if (count == 0) return;
-                stepMap.merge(it, -1, (old, add) -> Math.floorMod(old + add, count));
+                this.stepMap.merge(it, -1, (old, add) -> Math.floorMod(old + add, count));
             },
             recipe
         ));
     }
 
     private @Nullable LevelLike currentLevel(RecipeHolder<Multiblock4DRecipe> recipe) {
-        List<LevelLike> levels = levelCache.computeIfAbsent(recipe, this::buildLevels);
+        List<LevelLike> levels = this.levelCache.computeIfAbsent(recipe, this::buildLevels);
         int count = levels.size();
         if (count == 0) return null;
-        return levels.get(Math.floorMod(stepMap.getOrDefault(recipe, 0), count));
+        return levels.get(Math.floorMod(this.stepMap.getOrDefault(recipe, 0), count));
     }
 
     private List<LevelLike> buildLevels(RecipeHolder<Multiblock4DRecipe> recipe) {

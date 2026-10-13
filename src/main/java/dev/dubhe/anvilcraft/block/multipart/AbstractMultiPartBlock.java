@@ -129,7 +129,7 @@ public abstract class AbstractMultiPartBlock<P extends Enum<P>> extends Block im
             return super.updateShape(state, direction, neighborState, level, pos, neighborPos);
         }
         Vec3i neighborOffset = neighborPos.subtract(pos);
-        for (P part : getParts()) {
+        for (P part : this.getParts()) {
             Vec3i offset = this.offsetFrom(state, part); // 更新来源偏移值
             if (!offset.equals(neighborOffset)) continue;
             if (!neighborState.is(this)
@@ -174,7 +174,7 @@ public abstract class AbstractMultiPartBlock<P extends Enum<P>> extends Block im
 
     public void removePartsAndUpdate(Level level, BlockPos pos) {
         BlockState baseState = level.getBlockState(pos);
-        for (P part : getParts()) {
+        for (P part : this.getParts()) {
             BlockPos bp = pos.offset(this.offsetFrom(baseState, part));
             BlockState blockState = level.getBlockState(bp);
             level.setBlock(bp, blockState.getFluidState().createLegacyBlock(), 3, 0);

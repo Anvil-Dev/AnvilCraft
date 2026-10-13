@@ -176,7 +176,7 @@ public final class SlidingBlockSection {
     }
 
     public List<SlidingBlockInfo> blocks() {
-        return blocks;
+        return this.blocks;
     }
 
     @Override
@@ -188,6 +188,6 @@ public final class SlidingBlockSection {
 
     @Override
     public int hashCode() {
-        return Objects.hash(blocks);
+        return Objects.hash(this.blocks);
     }
 }

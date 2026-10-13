@@ -35,7 +35,7 @@ public class AdvancedComparatorBlockEntityRender
         int overlay
     ) {
         // noinspection DataFlowIssue
-        collectSelectionModels(blockEntity, tickDelta, poseStack, (model, pose) -> Minecraft.getInstance()
+        this.collectSelectionModels(blockEntity, tickDelta, poseStack, (model, pose) -> Minecraft.getInstance()
             .getBlockRenderer()
             .getModelRenderer()
             .renderModel(
@@ -56,7 +56,7 @@ public class AdvancedComparatorBlockEntityRender
         AdvancedComparatorBlockEntity blockEntity, float partialTick, PoseStack poseStack, ModelConsumer consumer
     ) {
         poseStack.pushPose();
-        poseStack.translate(0, getHeight(blockEntity), 0);
+        poseStack.translate(0, this.getHeight(blockEntity), 0);
         consumer.accept(INDICATOR, poseStack);
         poseStack.popPose();
     }

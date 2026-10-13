@@ -185,8 +185,8 @@ public class ExpCollectorBlockEntity extends BlockEntity
             this.resetCooldown();
             return;
         }
-        if (cd > 1) {
-            cd--;
+        if (this.cd > 1) {
+            this.cd--;
             return;
         }
         AABB box = AABB.ofSize(
@@ -253,10 +253,10 @@ public class ExpCollectorBlockEntity extends BlockEntity
     }
 
     public void updatePoachingMapForThis() {
-        List<ChunkPos> chunkPosListMax = getPoachingMapPositions(8);
-        List<ChunkPos> chunkPosListReal = getPoachingMapPositions(rangeRadius.get());
+        List<ChunkPos> chunkPosListMax = this.getPoachingMapPositions(8);
+        List<ChunkPos> chunkPosListReal = this.getPoachingMapPositions(this.rangeRadius.get());
         for (ChunkPos chunkPos : chunkPosListMax) {
-            if (cooldown.get() == 0 && chunkPosListReal.contains(chunkPos)) {
+            if (this.cooldown.get() == 0 && chunkPosListReal.contains(chunkPos)) {
                 if (!POACHING_COLLECTOR_MAP.containsKey(level)) POACHING_COLLECTOR_MAP.put(level, new HashMap<>());
                 if (!POACHING_COLLECTOR_MAP.get(level).containsKey(chunkPos)) {
                     POACHING_COLLECTOR_MAP.get(level).put(chunkPos, new ArrayList<>());

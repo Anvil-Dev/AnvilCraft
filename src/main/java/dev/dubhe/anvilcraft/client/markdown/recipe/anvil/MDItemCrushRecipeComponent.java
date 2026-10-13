@@ -22,9 +22,9 @@ public class MDItemCrushRecipeComponent extends MDBaseAnvilRecipeComponent {
 
     public MDItemCrushRecipeComponent(ItemCrushRecipe recipe, boolean enableAlignCenter) {
         super(enableAlignCenter);
-        ingredients = recipe.getInputItems();
-        resultItems = recipe.getResultItems();
-        inputBlockStates = List.of(
+        this.ingredients = recipe.getInputItems();
+        this.resultItems = recipe.getResultItems();
+        this.inputBlockStates = List.of(
             ModBlocks.CRUSHING_TABLE.getDefaultState()
         );
     }

@@ -104,7 +104,7 @@ public class StructureDiskPreviewSupport {
         }
 
         boolean isExpired() {
-            return System.currentTimeMillis() - timestamp > CACHE_EXPIRY_MS;
+            return System.currentTimeMillis() - this.timestamp > CACHE_EXPIRY_MS;
         }
     }
 

@@ -38,7 +38,7 @@ public abstract class AbstractRecipeBuilder<T extends Recipe<?>> implements Reci
      */
     @Override
     public RecipeBuilder unlockedBy(String name, Criterion<?> criterion) {
-        criteria.put(name, criterion);
+        this.criteria.put(name, criterion);
         return this;
     }
 
@@ -61,14 +61,14 @@ public abstract class AbstractRecipeBuilder<T extends Recipe<?>> implements Reci
      */
     @Override
     public void save(RecipeOutput output, ResourceLocation id) {
-        validate(id);
+        this.validate(id);
         Advancement.Builder advancement = output
             .advancement()
             .addCriterion("has_the_recipe", RecipeUnlockedTrigger.unlocked(id))
             .rewards(AdvancementRewards.Builder.recipe(id))
             .requirements(AdvancementRequirements.Strategy.OR);
-        criteria.forEach(advancement::addCriterion);
-        T recipe = buildRecipe();
+        this.criteria.forEach(advancement::addCriterion);
+        T recipe = this.buildRecipe();
         output.accept(id, recipe, advancement.build(id.withPrefix("recipes/")));
     }
 
@@ -80,7 +80,7 @@ public abstract class AbstractRecipeBuilder<T extends Recipe<?>> implements Reci
      */
     @Override
     public void save(RecipeOutput output, String id) {
-        save(output, AnvilCraft.of(id).withPrefix(getType() + "/"));
+        this.save(output, AnvilCraft.of(id).withPrefix(this.getType() + "/"));
     }
 
     /**
@@ -90,7 +90,7 @@ public abstract class AbstractRecipeBuilder<T extends Recipe<?>> implements Reci
      */
     @Override
     public void save(RecipeOutput recipeOutput) {
-        save(recipeOutput, BuiltInRegistries.ITEM.getKey(getResult()).getPath());
+        this.save(recipeOutput, BuiltInRegistries.ITEM.getKey(this.getResult()).getPath());
     }
 
     /**

@@ -45,39 +45,41 @@ public class TempleHandler extends BaseMegastructureHandler {
     public void serverTick(CelestialForgingAnvilBlockEntity be) {
         if (be.getLevel() == null || be.getLevel().isClientSide()) return;
         CelestialRefactorOption option = be.getActiveMegastructureOption();
-        if (option == null || !name().equals(option.megastructure())) return;
+        if (option == null || !this.name().equals(option.megastructure())) return;
         if (be.getPlanetaryResourceSet() == null || !be.getPlanetaryResourceSet().hasCivilization()) return;
 
         long currentDay = be.getLevel().getDayTime() / 24000;
-        if (lastDay != currentDay || demandItem.isEmpty()) {
-            lastDay = currentDay;
-            cycleDay = (cycleDay + 1) % 3;
-            demandSatisfied = false;
-            demandProgress = 0;
-            TempleDemandRecipe.Category cat = cycleDay == 2 ? TempleDemandRecipe.Category.PUNISHMENT : TempleDemandRecipe.Category.BLESSING;
-            var demand = pickTempleDemand(be, cat);
-            demandItem = demand.item();
-            demandCount = demand.count();
-            pushTempleDemandToLogistics(be);
+        if (this.lastDay != currentDay || this.demandItem.isEmpty()) {
+            this.lastDay = currentDay;
+            this.cycleDay = (this.cycleDay + 1) % 3;
+            this.demandSatisfied = false;
+            this.demandProgress = 0;
+            TempleDemandRecipe.Category cat = this.cycleDay == 2
+                ? TempleDemandRecipe.Category.PUNISHMENT
+                : TempleDemandRecipe.Category.BLESSING;
+            var demand = this.pickTempleDemand(be, cat);
+            this.demandItem = demand.item();
+            this.demandCount = demand.count();
+            this.pushTempleDemandToLogistics(be);
             be.setChanged();
             be.getLevel().sendBlockUpdated(be.getBlockPos(), be.getBlockState(), be.getBlockState(), 3);
         }
 
-        if (!demandSatisfied && !demandItem.isEmpty()) {
-            if (trySatisfyDemand(be)) {
-                demandSatisfied = true;
-                pushTempleDemandToLogistics(be);
+        if (!this.demandSatisfied && !this.demandItem.isEmpty()) {
+            if (this.trySatisfyDemand(be)) {
+                this.demandSatisfied = true;
+                this.pushTempleDemandToLogistics(be);
                 be.setChanged();
                 be.getLevel().sendBlockUpdated(be.getBlockPos(), be.getBlockState(), be.getBlockState(), 3);
             }
         }
 
-        if (demandSatisfied) {
-            produceTempleOfferings(be);
+        if (this.demandSatisfied) {
+            this.produceTempleOfferings(be);
         }
 
         if (be.getLevel().getGameTime() % 20 == 0) {
-            pushTempleDemandToLogistics(be);
+            this.pushTempleDemandToLogistics(be);
         }
     }
 
@@ -87,10 +89,10 @@ public class TempleHandler extends BaseMegastructureHandler {
             (checkPos) -> {
                 var blockEntity = be.getLevel().getBlockEntity(checkPos);
                 if (blockEntity instanceof CelestialForgingAnvilLogisticsInterfaceBlockEntity logiBe) {
-                    logiBe.setTempleDemandItem(demandSatisfied ? ItemStack.EMPTY : demandItem);
-                    logiBe.setTempleDemandCount(demandSatisfied ? 0 : demandCount);
-                    logiBe.setTempleDemandProgress(demandSatisfied ? 0 : demandProgress);
-                    logiBe.setTempleDemandSatisfied(demandSatisfied);
+                    logiBe.setTempleDemandItem(this.demandSatisfied ? ItemStack.EMPTY : this.demandItem);
+                    logiBe.setTempleDemandCount(this.demandSatisfied ? 0 : this.demandCount);
+                    logiBe.setTempleDemandProgress(this.demandSatisfied ? 0 : this.demandProgress);
+                    logiBe.setTempleDemandSatisfied(this.demandSatisfied);
                 }
             }, be
         );
@@ -139,19 +141,19 @@ public class TempleHandler extends BaseMegastructureHandler {
     }
 
     private boolean trySatisfyDemand(CelestialForgingAnvilBlockEntity be) {
-        if (demandItem.isEmpty() || demandCount <= 0) return false;
-        if (demandProgress >= demandCount) return true;
+        if (this.demandItem.isEmpty() || this.demandCount <= 0) return false;
+        if (this.demandProgress >= this.demandCount) return true;
         List<IItemHandler> logistics = findLogisticsInterfaces(be);
         if (logistics.isEmpty()) return false;
 
-        int needed = demandCount - demandProgress;
+        int needed = this.demandCount - this.demandProgress;
         for (IItemHandler handler : logistics) {
             for (int slot = 0; slot < handler.getSlots() && needed > 0; slot++) {
                 ItemStack contained = handler.getStackInSlot(slot);
-                if (ItemStack.isSameItemSameComponents(contained, demandItem)) {
+                if (ItemStack.isSameItemSameComponents(contained, this.demandItem)) {
                     ItemStack extracted = handler.extractItem(slot, needed, false);
                     int taken = extracted.getCount();
-                    demandProgress += taken;
+                    this.demandProgress += taken;
                     needed -= taken;
                 }
             }
@@ -191,22 +193,22 @@ public class TempleHandler extends BaseMegastructureHandler {
 
         var logistics = findOutputLogisticsInterfaces(be);
         if (logistics.size() == 0) return;
-        ItemOutputResult result = insertOutputItem(logistics, output, logisticsRoundRobin);
+        ItemOutputResult result = insertOutputItem(logistics, output, this.logisticsRoundRobin);
         if (result.remainder().getCount() < output.getCount()) {
-            logisticsRoundRobin = result.nextIndex();
+            this.logisticsRoundRobin = result.nextIndex();
         }
     }
 
     @Override
     public void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        tag.putInt("templeCycleDay", cycleDay);
-        tag.putLong("templeLastDay", lastDay);
-        if (!demandItem.isEmpty()) {
-            tag.put("templeDemand", demandItem.save(registries));
+        tag.putInt("templeCycleDay", this.cycleDay);
+        tag.putLong("templeLastDay", this.lastDay);
+        if (!this.demandItem.isEmpty()) {
+            tag.put("templeDemand", this.demandItem.save(registries));
         }
-        tag.putInt("templeDemandCount", demandCount);
-        tag.putInt("templeDemandProgress", demandProgress);
-        tag.putBoolean("templeDemandSatisfied", demandSatisfied);
+        tag.putInt("templeDemandCount", this.demandCount);
+        tag.putInt("templeDemandProgress", this.demandProgress);
+        tag.putBoolean("templeDemandSatisfied", this.demandSatisfied);
     }
 
     @Override
@@ -225,14 +227,14 @@ public class TempleHandler extends BaseMegastructureHandler {
 
     @Override
     public void writeUpdateTag(CompoundTag tag, HolderLookup.Provider registries) {
-        tag.putInt("templeCycleDay", cycleDay);
-        tag.putLong("templeLastDay", lastDay);
-        if (!demandItem.isEmpty()) {
-            tag.put("templeDemand", demandItem.save(registries));
+        tag.putInt("templeCycleDay", this.cycleDay);
+        tag.putLong("templeLastDay", this.lastDay);
+        if (!this.demandItem.isEmpty()) {
+            tag.put("templeDemand", this.demandItem.save(registries));
         }
-        tag.putInt("templeDemandCount", demandCount);
-        tag.putInt("templeDemandProgress", demandProgress);
-        tag.putBoolean("templeDemandSatisfied", demandSatisfied);
+        tag.putInt("templeDemandCount", this.demandCount);
+        tag.putInt("templeDemandProgress", this.demandProgress);
+        tag.putBoolean("templeDemandSatisfied", this.demandSatisfied);
     }
 
     @Override
@@ -258,6 +260,6 @@ public class TempleHandler extends BaseMegastructureHandler {
         this.demandProgress = 0;
         this.demandSatisfied = false;
         this.logisticsRoundRobin = 0;
-        pushTempleDemandToLogistics(be);
+        this.pushTempleDemandToLogistics(be);
     }
 }

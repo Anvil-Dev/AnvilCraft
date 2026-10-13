@@ -53,13 +53,13 @@ public class ToggleButton extends Button {
         // 计算Y轴偏移:默认=0, 悬停=texHeight
         int yOffset = this.isHovered ? this.texHeight : 0;
         
-        guiGraphics.blit(texture, this.getX(), this.getY(), 0, yOffset, this.width, this.height, this.texWidth, this.texHeight * 2);
+        guiGraphics.blit(this.texture, this.getX(), this.getY(), 0, yOffset, this.width, this.height, this.texWidth, this.texHeight * 2);
     }
 
     @Override
     public void onClick(double mouseX, double mouseY) {
-        if (onPress != null) {
-            onPress.accept(this);
+        if (this.onPress != null) {
+            this.onPress.accept(this);
         }
     }
 }

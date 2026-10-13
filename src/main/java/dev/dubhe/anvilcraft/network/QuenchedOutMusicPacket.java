@@ -38,10 +38,10 @@ public record QuenchedOutMusicPacket(BlockPos pos, boolean start) implements ICl
 
     @Override
     public void handleOnClient(Player player) {
-        if (start) {
-            QuenchedOutMusicHandler.start(pos);
+        if (this.start) {
+            QuenchedOutMusicHandler.start(this.pos);
         } else {
-            QuenchedOutMusicHandler.stop(pos);
+            QuenchedOutMusicHandler.stop(this.pos);
         }
     }
 }

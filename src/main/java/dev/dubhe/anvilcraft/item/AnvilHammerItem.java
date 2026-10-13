@@ -105,9 +105,9 @@ public class AnvilHammerItem extends Item implements Equipable {
      */
     public AnvilHammerItem(Item.Properties properties) {
         super(properties);
-        modifiers = ItemAttributeModifiers.builder().add(
+        this.modifiers = ItemAttributeModifiers.builder().add(
             Attributes.ATTACK_DAMAGE, new AttributeModifier(
-                BASE_ATTACK_DAMAGE_ID, getAttackDamageModifierAmount(),
+                BASE_ATTACK_DAMAGE_ID, this.getAttackDamageModifierAmount(),
                 AttributeModifier.Operation.ADD_VALUE
             ), EquipmentSlotGroup.MAINHAND
         ).add(
@@ -443,7 +443,7 @@ public class AnvilHammerItem extends Item implements Equipable {
     @Override
     public boolean hurtEnemy(ItemStack stack, LivingEntity target, LivingEntity attacker) {
         stack.hurtAndBreak(1, attacker, LivingEntity.getSlotForHand(target.getUsedItemHand()));
-        float damageBonus = calculateFallDamageBonus(attacker.fallDistance);
+        float damageBonus = this.calculateFallDamageBonus(attacker.fallDistance);
         Level level = target.level();
         if (level instanceof ServerLevel serverLevel) {
             EnchantmentHelper.modifyFallBasedDamage(serverLevel, stack, attacker, level.damageSources().anvil(attacker), damageBonus);
@@ -471,7 +471,7 @@ public class AnvilHammerItem extends Item implements Equipable {
 
     @Override
     public ItemAttributeModifiers getDefaultAttributeModifiers(ItemStack stack) {
-        return modifiers;
+        return this.modifiers;
     }
 
     @Override

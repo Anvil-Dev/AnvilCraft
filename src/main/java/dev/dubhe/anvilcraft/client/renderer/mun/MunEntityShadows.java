@@ -278,7 +278,7 @@ final class MunEntityShadows implements MultiBufferSource, AutoCloseable {
 
         private void flush() {
             int[] indices = this.primitiveSize == 4 ? QUAD_INDICES : TRIANGLE_INDICES;
-            if (this.count == this.primitiveSize && this.texture != null && remainingVertices >= indices.length) {
+            if (this.count == this.primitiveSize && this.texture != null && MunEntityShadows.this.remainingVertices >= indices.length) {
                 if (this.vertices == null) {
                     if (this.storage == null) this.storage = new ByteBufferBuilder(4096);
                     this.vertices = new BufferBuilder(this.storage, VertexFormat.Mode.TRIANGLES, DefaultVertexFormat.POSITION_TEX_COLOR);
@@ -289,7 +289,7 @@ final class MunEntityShadows implements MultiBufferSource, AutoCloseable {
                         .setUv(this.primitive[index + 3], this.primitive[index + 4])
                         .setColor(0, 0, 0, (int) this.primitive[index + 5]);
                 }
-                remainingVertices -= indices.length;
+                MunEntityShadows.this.remainingVertices -= indices.length;
             }
             this.count = 0;
         }
@@ -298,7 +298,7 @@ final class MunEntityShadows implements MultiBufferSource, AutoCloseable {
             this.flush();
             if (this.vertices == null || this.texture == null) return;
             if (this.buffer == null) this.buffer = new VertexBuffer(VertexBuffer.Usage.DYNAMIC);
-            meshes.add(new TexturedMesh(this.texture, this.buffer));
+            MunEntityShadows.this.meshes.add(new TexturedMesh(this.texture, this.buffer));
             this.buffer.bind();
             this.buffer.upload(this.vertices.buildOrThrow());
         }

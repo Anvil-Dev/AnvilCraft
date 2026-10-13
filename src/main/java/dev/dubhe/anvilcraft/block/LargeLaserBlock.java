@@ -178,7 +178,7 @@ public class LargeLaserBlock extends FlexibleMultiPartBlock<DirectionCube3x3Part
         BlockPos neighborPos,
         boolean movedByPiston
     ) {
-        boolean isSignal = Arrays.stream(getParts()).anyMatch((half) -> level.hasNeighborSignal(
+        boolean isSignal = Arrays.stream(this.getParts()).anyMatch((half) -> level.hasNeighborSignal(
             pos.subtract(state.getValue(this.getPart()).getOffset()).offset(half.getOffset())
         ));
         if (isSignal && state.getValue(SWITCH) == IPowerComponent.Switch.ON) {

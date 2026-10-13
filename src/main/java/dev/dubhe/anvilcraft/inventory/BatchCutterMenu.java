@@ -108,7 +108,7 @@ public class BatchCutterMenu extends BaseMachineMenu implements IFilterMenu, Con
         // Check if the slot clicked is one of the vanilla container slots
         if (index < VANILLA_FIRST_SLOT_INDEX + VANILLA_SLOT_COUNT) {
             // This is a vanilla container slot so merge the stack into the tile inventory
-            if (moveItemToActiveSlot(sourceStack)) {
+            if (this.moveItemToActiveSlot(sourceStack)) {
                 return ItemStack.EMPTY; // EMPTY_ITEM
             }
         } else if (index < TE_INVENTORY_FIRST_SLOT_INDEX + TE_INVENTORY_SLOT_COUNT) {
@@ -166,7 +166,7 @@ public class BatchCutterMenu extends BaseMachineMenu implements IFilterMenu, Con
 
     @Override
     public boolean stillValid(Player player) {
-        return stillValid(ContainerLevelAccess.create(level, entity.getBlockPos()), player, ModBlocks.BATCH_CUTTER.get());
+        return stillValid(ContainerLevelAccess.create(this.level, this.entity.getBlockPos()), player, ModBlocks.BATCH_CUTTER.get());
     }
 
     @Override

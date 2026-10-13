@@ -109,7 +109,7 @@ public abstract class ResonatorItem extends TieredItem {
                     stack,
                     partialTick,
                     equipProgress,
-                    resonanceMiningTicks()
+                    ResonatorItem.this.resonanceMiningTicks()
                 );
             }
         });
@@ -270,14 +270,14 @@ public abstract class ResonatorItem extends TieredItem {
 
     private boolean canStartResonanceMining(ItemStack stack) {
         if (isTooDamagedToUse(stack)) return false;
-        int durabilityCost = resonanceMiningDurabilityCost();
+        int durabilityCost = this.resonanceMiningDurabilityCost();
         return durabilityCost <= 0 || stack.getMaxDamage() - stack.getDamageValue() > durabilityCost;
     }
 
     @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand usedHand) {
         ItemStack stack = player.getItemInHand(usedHand);
-        if (getMode(stack) == AUTO_MODE && canStartResonanceMining(stack)) {
+        if (getMode(stack) == AUTO_MODE && this.canStartResonanceMining(stack)) {
             return InteractionResultHolder.fail(stack);
         }
         return super.use(level, player, usedHand);
@@ -285,10 +285,10 @@ public abstract class ResonatorItem extends TieredItem {
 
     @Override
     public InteractionResult onItemUseFirst(ItemStack stack, UseOnContext context) {
-        if (getMode(stack) != AUTO_MODE || !canStartResonanceMining(stack)) {
+        if (getMode(stack) != AUTO_MODE || !this.canStartResonanceMining(stack)) {
             return super.onItemUseFirst(stack, context);
         }
-        return startResonanceMining(context);
+        return this.startResonanceMining(context);
     }
 
     @Override
@@ -296,8 +296,8 @@ public abstract class ResonatorItem extends TieredItem {
         ItemStack stack = context.getItemInHand();
         int mode = ResonatorItem.getMode(stack);
         return switch (mode) {
-            case AUTO_MODE -> canStartResonanceMining(stack)
-                ? startResonanceMining(context)
+            case AUTO_MODE -> this.canStartResonanceMining(stack)
+                ? this.startResonanceMining(context)
                 : InteractionResult.PASS;
             case AXE_MODE -> this.useOnAsAxe(context);
             case SHOVEL_MODE -> this.useOnAsShovel(context);
@@ -324,9 +324,9 @@ public abstract class ResonatorItem extends TieredItem {
             context.isInside()
         );
         MiningTarget target = new MiningTarget(hitResult, context.getHand(), getEffectPositions(level, pos));
-        miningTargets(level).put(player, target);
+        this.miningTargets(level).put(player, target);
         player.startUsingItem(context.getHand());
-        sendMiningEffects(level, target.effectPositions(), resonanceMiningTicks() + 2);
+        sendMiningEffects(level, target.effectPositions(), this.resonanceMiningTicks() + 2);
         return InteractionResult.CONSUME;
     }
 
@@ -351,7 +351,7 @@ public abstract class ResonatorItem extends TieredItem {
 
     @Override
     public void onUseTick(Level level, LivingEntity livingEntity, ItemStack stack, int remainingUseDuration) {
-        Map<LivingEntity, MiningTarget> targets = miningTargets(level);
+        Map<LivingEntity, MiningTarget> targets = this.miningTargets(level);
         MiningTarget target = targets.get(livingEntity);
         if (target == null) {
             if (!level.isClientSide) livingEntity.stopUsingItem();
@@ -359,33 +359,33 @@ public abstract class ResonatorItem extends TieredItem {
         }
 
         BlockHitResult hit = getTargetedBlock(livingEntity);
-        if (hit == null || !target.hitPos().equals(hit.getBlockPos()) || !canStartResonanceMining(stack)) {
-            stopResonanceMining(level, livingEntity, target);
+        if (hit == null || !target.hitPos().equals(hit.getBlockPos()) || !this.canStartResonanceMining(stack)) {
+            this.stopResonanceMining(level, livingEntity, target);
             return;
         }
 
         BlockState state = level.getBlockState(target.hitPos());
         if (!canResonanceMine(state, level, target.hitPos())) {
-            stopResonanceMining(level, livingEntity, target);
+            this.stopResonanceMining(level, livingEntity, target);
             return;
         }
 
-        int elapsedTicks = getUseDuration(stack, livingEntity) - remainingUseDuration;
+        int elapsedTicks = this.getUseDuration(stack, livingEntity) - remainingUseDuration;
         if (livingEntity instanceof ServerPlayer player) {
-            WeaponChargeProgressPacket.sync(player, stack, elapsedTicks, resonanceMiningTicks(), false);
+            WeaponChargeProgressPacket.sync(player, stack, elapsedTicks, this.resonanceMiningTicks(), false);
         }
         if (!level.isClientSide && elapsedTicks % 3 == 0) {
             float pitch = 0.75f + 0.04f * elapsedTicks;
             level.playSound(null, target.hitPos(), SoundEvents.AMETHYST_BLOCK_RESONATE, SoundSource.BLOCKS, 0.8f, pitch);
         }
-        if (elapsedTicks < resonanceMiningTicks()) return;
+        if (elapsedTicks < this.resonanceMiningTicks()) return;
 
         int damageBeforeMining = stack.getDamageValue();
         boolean destroyed = livingEntity instanceof ServerPlayer player
             && player.gameMode.destroyBlock(target.hitPos());
         targets.remove(livingEntity);
         if (destroyed) {
-            consumeResonanceMiningDurability(stack, damageBeforeMining);
+            this.consumeResonanceMiningDurability(stack, damageBeforeMining);
             level.playSound(null, target.hitPos(), SoundEvents.AMETHYST_CLUSTER_BREAK, SoundSource.BLOCKS, 1.0f, 0.7f);
         }
         sendMiningEffects(level, target.effectPositions(), 0);
@@ -394,12 +394,12 @@ public abstract class ResonatorItem extends TieredItem {
 
     @Override
     public void releaseUsing(ItemStack stack, Level level, LivingEntity livingEntity, int remainingUseDuration) {
-        MiningTarget target = miningTargets(level).remove(livingEntity);
+        MiningTarget target = this.miningTargets(level).remove(livingEntity);
         if (target == null) return;
 
         sendMiningEffects(level, target.effectPositions(), 0);
-        int elapsedTicks = getUseDuration(stack, livingEntity) - remainingUseDuration;
-        if (elapsedTicks >= resonanceMiningTicks() || !(livingEntity instanceof Player player)) return;
+        int elapsedTicks = this.getUseDuration(stack, livingEntity) - remainingUseDuration;
+        if (elapsedTicks >= this.resonanceMiningTicks() || !(livingEntity instanceof Player player)) return;
 
         BlockHitResult hit = getTargetedBlock(player);
         if (hit == null || !target.hitPos().equals(hit.getBlockPos())) return;
@@ -414,7 +414,7 @@ public abstract class ResonatorItem extends TieredItem {
     }
 
     private void consumeResonanceMiningDurability(ItemStack stack, int damageBeforeMining) {
-        int durabilityCost = resonanceMiningDurabilityCost();
+        int durabilityCost = this.resonanceMiningDurabilityCost();
         if (durabilityCost <= 0) return;
         // 直接写入损伤值，避免耐久附魔改变本次消耗。
         stack.setDamageValue(damageBeforeMining + durabilityCost);
@@ -431,7 +431,7 @@ public abstract class ResonatorItem extends TieredItem {
     }
 
     private void stopResonanceMining(Level level, LivingEntity livingEntity, MiningTarget target) {
-        miningTargets(level).remove(livingEntity);
+        this.miningTargets(level).remove(livingEntity);
         sendMiningEffects(level, target.effectPositions(), 0);
         livingEntity.stopUsingItem();
     }
@@ -624,7 +624,7 @@ public abstract class ResonatorItem extends TieredItem {
         List<BlockPos> effectPositions
     ) {
         private BlockPos hitPos() {
-            return hitResult.getBlockPos();
+            return this.hitResult.getBlockPos();
         }
     }
 

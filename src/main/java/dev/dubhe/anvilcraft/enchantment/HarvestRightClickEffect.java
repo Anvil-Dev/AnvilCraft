@@ -50,13 +50,13 @@ public record HarvestRightClickEffect(int range) implements EnchantmentEntityEff
         if (!itemStack.is(ItemTags.HOES)) {
             return;
         }
-        if (harvestable(state) == null) {
+        if (this.harvestable(state) == null) {
             return;
         }
         Iterable<BlockPos> posIterable = BlockPos.betweenClosed(pos.offset(radius, radius, radius), pos.offset(-radius, -radius, -radius));
         for (BlockPos blockPos : posIterable) {
             BlockState blockState = level.getBlockState(blockPos);
-            Block harvestableBlock = harvestable(blockState);
+            Block harvestableBlock = this.harvestable(blockState);
             if (harvestableBlock == null) {
                 continue;
             }

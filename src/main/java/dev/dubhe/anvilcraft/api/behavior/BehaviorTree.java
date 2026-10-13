@@ -11,7 +11,7 @@ public class BehaviorTree<T> {
 
     public boolean run(T context) {
         AtomicBoolean matches = new AtomicBoolean(false);
-        walkNode(new ExecutionContext<>(context), root, matches);
+        this.walkNode(new ExecutionContext<>(context), this.root, matches);
         return matches.get();
     }
 
@@ -19,7 +19,7 @@ public class BehaviorTree<T> {
         if (node.matches(context)) {
             returns.set(true);
             for (TreeNode<T> child : node.getChildren()) {
-                walkNode(context, child, returns);
+                this.walkNode(context, child, returns);
             }
             node.run(context);
         }

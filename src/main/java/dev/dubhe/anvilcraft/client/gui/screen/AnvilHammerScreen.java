@@ -184,7 +184,7 @@ public class AnvilHammerScreen extends Screen implements IHasHammerEffect {
         float z,
         float scale
     ) {
-        final float partialTick = minecraft.getTimer().getGameTimeDeltaPartialTick(true);
+        final float partialTick = this.minecraft.getTimer().getGameTimeDeltaPartialTick(true);
         poseStack.pushPose();
         poseStack.translate(-7 * this.radialMenuScale, 7 * this.radialMenuScale, 0);
         poseStack.translate(x, y, z);

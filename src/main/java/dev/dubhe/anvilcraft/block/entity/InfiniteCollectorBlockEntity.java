@@ -109,7 +109,7 @@ public class InfiniteCollectorBlockEntity extends BlockEntity implements IPowerP
             this.outputPower = 0;
             this.inputtingHeatPower = 0;
             this.chargeCount = 0;
-            if (this.outputPower != oldPower && grid != null) grid.markChanged();
+            if (this.outputPower != oldPower && this.grid != null) this.grid.markChanged();
             return;
         }
         if (this.inputCooldownCount-- <= 1) {
@@ -122,7 +122,7 @@ public class InfiniteCollectorBlockEntity extends BlockEntity implements IPowerP
         if (this.outputPower > 0 && this.getBlockState().getBlock() instanceof InfiniteCollectorBlock collector) {
             collector.activate(this.level, this.getBlockPos(), this.getBlockState());
         }
-        if (this.outputPower != oldPower && grid != null) grid.markChanged();
+        if (this.outputPower != oldPower && this.grid != null) this.grid.markChanged();
         this.inputtingHeatPower = 0;
         this.time++;
     }
@@ -171,7 +171,7 @@ public class InfiniteCollectorBlockEntity extends BlockEntity implements IPowerP
 
     public void clientTick() {
         if (!this.isWorking()) return;
-        rotation += (float) (Math.log(getServerPower() + 1) * 0.5);
+        this.rotation += (float) (Math.log(getServerPower() + 1) * 0.5);
     }
 
     public boolean isWorking() {

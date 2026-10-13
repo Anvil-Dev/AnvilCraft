@@ -184,13 +184,13 @@ public class PumpBlock extends BetterBaseEntityBlock implements IHammerRemovable
                 Direction.Axis pipeAxis = neighborState.getValue(PipeBlock.AXIS);
                 // 泵贴在直管侧面 → 将直管转为三通节点
                 if (dir.getAxis() != pipeAxis) {
-                    convertPipeToNode(level, neighborPos, neighborState);
+                    this.convertPipeToNode(level, neighborPos, neighborState);
                 }
             } else if (neighborState.getBlock() instanceof PipeCornerBlock) {
                 PipeBlock.CornerEnded corner = neighborState.getValue(PipeBlock.CORNER_ENDED);
                 // 泵贴在弯管非拐角方向的侧面 → 将弯管转为三通节点
                 if (!corner.containsDirection(dir.getOpposite())) {
-                    convertPipeToNode(level, neighborPos, neighborState);
+                    this.convertPipeToNode(level, neighborPos, neighborState);
                 }
             }
         }

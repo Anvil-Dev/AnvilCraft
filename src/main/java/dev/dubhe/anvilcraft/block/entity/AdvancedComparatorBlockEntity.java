@@ -152,7 +152,7 @@ public class AdvancedComparatorBlockEntity extends BlockEntity implements MenuPr
     public void onLoad() {
         super.onLoad();
         if (this.level == null) return;
-        updateInputtingSignal(this.level, this.getBlockPos(), this.getBlockState());
+        this.updateInputtingSignal(this.level, this.getBlockPos(), this.getBlockState());
         // 依据重载后重新采样的真实输入恢复输出状态，避免沿用旧的保存状态
         // 而在重进存档后误发红石信号（见 #4325）
         this.state = this.isWithinThreshold(this.inputtingSignal) ? State.OUTPUT_HIGH : State.OUTPUT_LOW;

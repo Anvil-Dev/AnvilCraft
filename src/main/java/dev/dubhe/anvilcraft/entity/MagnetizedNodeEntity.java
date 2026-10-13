@@ -52,7 +52,7 @@ public class MagnetizedNodeEntity extends Entity {
     @Override
     public void tick() {
         if (this.level().isClientSide()) {
-            rotatingState.startIfStopped(this.tickCount);
+            this.rotatingState.startIfStopped(this.tickCount);
         }
         super.tick();
         if (!this.level().isClientSide && !this.level().getBlockState(this.blockPos).is(this.blockState.getBlock())) {
@@ -62,12 +62,12 @@ public class MagnetizedNodeEntity extends Entity {
                 this.kill();
             }
         }
-        AABB aabb = new AABB(blockPos.getX() - 0.01,
-            blockPos.getY() - 0.01,
-            blockPos.getZ() - 0.01,
-            blockPos.getX() + 1.01,
-            blockPos.getY() + 1.01,
-            blockPos.getZ() + 1.01
+        AABB aabb = new AABB(this.blockPos.getX() - 0.01,
+            this.blockPos.getY() - 0.01,
+            this.blockPos.getZ() - 0.01,
+            this.blockPos.getX() + 1.01,
+            this.blockPos.getY() + 1.01,
+            this.blockPos.getZ() + 1.01
         );
         level()
             .getEntities(EntityType.ITEM, aabb, IItemEntityExtension::anvilcraft$isAdsorbable)

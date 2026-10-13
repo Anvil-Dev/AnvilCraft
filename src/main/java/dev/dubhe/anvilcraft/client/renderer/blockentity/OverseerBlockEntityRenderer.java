@@ -57,7 +57,7 @@ public class OverseerBlockEntityRenderer implements BlockEntityRenderer<Overseer
             return;
         }
 
-        spawnTrailParticles(blockEntity, level);
+        this.spawnTrailParticles(blockEntity, level);
 
         poseStack.pushPose();
         applyHeadPose(poseStack, level.getGameTime() % HEAD_ANIMATION_PERIOD + partialTick);

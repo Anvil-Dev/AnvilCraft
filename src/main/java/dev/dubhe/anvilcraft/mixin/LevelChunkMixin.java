@@ -103,7 +103,7 @@ public abstract class LevelChunkMixin {
     @Inject(method = "removeBlockEntity", at = @At("HEAD"))
     void onBlockEntityRemoved(BlockPos pos, CallbackInfo ci) {
         if (!this.getLevel().isClientSide()) return;
-        BlockEntity be = getBlockEntity(pos);
+        BlockEntity be = this.getBlockEntity(pos);
         if (be instanceof BaseLaserBlockEntity laserStateAccess) {
             CacheableBERenderingPipeline.getInstance().blockRemoved(laserStateAccess);
         }

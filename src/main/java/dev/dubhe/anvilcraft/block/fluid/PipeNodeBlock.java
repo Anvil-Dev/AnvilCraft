@@ -54,12 +54,12 @@ public class PipeNodeBlock extends PipeBlock {
      */
     public PipeNodeBlock(Properties properties) {
         super(properties);
-        registerDefaultState();
+        this.registerDefaultState();
     }
 
     public PipeNodeBlock(Properties properties, boolean glassPipe) {
         super(properties, glassPipe);
-        registerDefaultState();
+        this.registerDefaultState();
     }
 
     private void registerDefaultState() {

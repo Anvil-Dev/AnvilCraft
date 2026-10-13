@@ -71,7 +71,7 @@ public class StructureScannerBlockEntity extends BaseMachineBlockEntity implemen
     };
     
     // Disk物品栏的ItemHandler包装器,带物品验证
-    private final IItemHandlerModifiable diskItemHandler = new InvWrapper(diskInventory) {
+    private final IItemHandlerModifiable diskItemHandler = new InvWrapper(this.diskInventory) {
         @Override
         public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
             // 只允许放入结构磁盘
@@ -95,7 +95,7 @@ public class StructureScannerBlockEntity extends BaseMachineBlockEntity implemen
     };
     
     // 输出物品栏的ItemHandler包装器
-    private final IItemHandlerModifiable outputItemHandler = new InvWrapper(outputInventory) {
+    private final IItemHandlerModifiable outputItemHandler = new InvWrapper(this.outputInventory) {
         @Override
         public ItemStack extractItem(int slot, int amount, boolean simulate) {
             // 允许漏斗等外部设备取出物品
@@ -116,7 +116,7 @@ public class StructureScannerBlockEntity extends BaseMachineBlockEntity implemen
     };
     
     // 组合的ItemHandler
-    private final IItemHandler combinedItemHandler = new CombinedInvWrapper(diskItemHandler, outputItemHandler);
+    private final IItemHandler combinedItemHandler = new CombinedInvWrapper(this.diskItemHandler, this.outputItemHandler);
     
     // 扫描范围 - X轴
     @Getter
@@ -366,7 +366,7 @@ public class StructureScannerBlockEntity extends BaseMachineBlockEntity implemen
         // 扫描当前层的所有方块
         for (int x = 0; x < rangeX; x++) {
             for (int z = 1; z < rangeZ + 1; z++) {
-                BlockPos worldPos = calculateWorldPos(x, this.currentScanLayer, z - 1, halfRangeX);
+                BlockPos worldPos = this.calculateWorldPos(x, this.currentScanLayer, z - 1, halfRangeX);
                 net.minecraft.world.level.block.state.BlockState blockState = this.level.getBlockState(worldPos);
                 
                 if (!blockState.isAir() && BlueprintMultiblocks.shouldRecord(blockState)) {
@@ -397,8 +397,8 @@ public class StructureScannerBlockEntity extends BaseMachineBlockEntity implemen
 
     public AABB getScanBounds() {
         final int halfRangeX = this.rangeX.get() / 2;
-        BlockPos cornerA = calculateWorldPos(0, 0, 0, halfRangeX);
-        BlockPos cornerB = calculateWorldPos(
+        BlockPos cornerA = this.calculateWorldPos(0, 0, 0, halfRangeX);
+        BlockPos cornerB = this.calculateWorldPos(
             this.rangeX.get() - 1, this.rangeY.get() - 1, this.rangeZ.get() - 1, halfRangeX
         );
         BlockPos minCorner = new BlockPos(
@@ -432,9 +432,9 @@ public class StructureScannerBlockEntity extends BaseMachineBlockEntity implemen
         for (Entity entity : entities) {
             CompoundTag entityNbt = BlueprintCapture.captureEntity(entity);
             if (entityNbt == null) continue;
-            Vec3 previewPos = worldToPreview(entity.position(), halfRangeX);
+            Vec3 previewPos = this.worldToPreview(entity.position(), halfRangeX);
             BlockPos previewBlockPos = entity instanceof Painting painting
-                ? worldBlockToPreview(painting.getPos(), halfRangeX)
+                ? this.worldBlockToPreview(painting.getPos(), halfRangeX)
                 : BlockPos.containing(previewPos);
             captured.add(new CapturedEntityData(previewPos, previewBlockPos, entityNbt.copy()));
         }
@@ -597,7 +597,7 @@ public class StructureScannerBlockEntity extends BaseMachineBlockEntity implemen
 
     @Override
     public IItemHandler getItemHandler() {
-        return combinedItemHandler;
+        return this.combinedItemHandler;
     }
 
     @Nullable

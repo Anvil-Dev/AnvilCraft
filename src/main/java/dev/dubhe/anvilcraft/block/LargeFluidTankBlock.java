@@ -92,7 +92,7 @@ public class LargeFluidTankBlock
     }
 
     public @Nullable BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
-        return createBlockEntity(pos, state);
+        return this.createBlockEntity(pos, state);
     }
 
     @Override

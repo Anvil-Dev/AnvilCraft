@@ -21,11 +21,11 @@ public class CacheableBERenderingPipeline {
     private boolean valid = true;
 
     public RenderRegion getRenderRegion(ChunkPos chunkPos) {
-        if (renderRegions.containsKey(chunkPos)) {
-            return renderRegions.get(chunkPos);
+        if (this.renderRegions.containsKey(chunkPos)) {
+            return this.renderRegions.get(chunkPos);
         }
         RenderRegion renderRegion = new RenderRegion(chunkPos, this);
-        renderRegions.put(chunkPos, renderRegion);
+        this.renderRegions.put(chunkPos, renderRegion);
         return renderRegion;
     }
 
@@ -34,11 +34,11 @@ public class CacheableBERenderingPipeline {
     }
 
     public void runTasks() {
-        while (!pendingCompiles.isEmpty() && valid) {
-            pendingCompiles.poll().run();
+        while (!this.pendingCompiles.isEmpty() && this.valid) {
+            this.pendingCompiles.poll().run();
         }
-        while (!pendingUploads.isEmpty() && valid) {
-            pendingUploads.poll().run();
+        while (!this.pendingUploads.isEmpty() && this.valid) {
+            this.pendingUploads.poll().run();
         }
     }
 
@@ -51,32 +51,32 @@ public class CacheableBERenderingPipeline {
 
     public void blockRemoved(BlockEntity be) {
         ChunkPos chunkPos = new ChunkPos(be.getBlockPos());
-        getRenderRegion(chunkPos).blockRemoved(be);
+        this.getRenderRegion(chunkPos).blockRemoved(be);
     }
 
     public void update(BlockEntity be) {
         ChunkPos chunkPos = new ChunkPos(be.getBlockPos());
-        getRenderRegion(chunkPos).update(be);
+        this.getRenderRegion(chunkPos).update(be);
     }
 
     public void submitUploadTask(Runnable task) {
-        pendingUploads.add(task);
+        this.pendingUploads.add(task);
     }
 
     public void submitCompileTask(Runnable task) {
-        pendingCompiles.add(task);
+        this.pendingCompiles.add(task);
     }
 
     public void releaseBuffers() {
-        renderRegions.values().forEach(RenderRegion::releaseBuffers);
-        valid = false;
+        this.renderRegions.values().forEach(RenderRegion::releaseBuffers);
+        this.valid = false;
     }
 
     public void renderBloomed(Matrix4f frustumMatrix, Matrix4f projectionMatrix) {
-        renderRegions.values().forEach(it -> it.renderBloomed(frustumMatrix, projectionMatrix));
+        this.renderRegions.values().forEach(it -> it.renderBloomed(frustumMatrix, projectionMatrix));
     }
 
     public void render(Matrix4f frustumMatrix, Matrix4f projectionMatrix) {
-        renderRegions.values().forEach(it -> it.render(frustumMatrix, projectionMatrix));
+        this.renderRegions.values().forEach(it -> it.render(frustumMatrix, projectionMatrix));
     }
 }

@@ -61,7 +61,7 @@ public class BatchCrafterScreen extends BaseMachineScreen<BatchCrafterMenu> impl
             }
         );
         this.addRenderableWidget(this.recipeCycleButton);
-        this.enableFilterButton = enableFilterButtonSupplier.apply(this.leftPos, this.topPos);
+        this.enableFilterButton = this.enableFilterButtonSupplier.apply(this.leftPos, this.topPos);
         this.addRenderableWidget(this.enableFilterButton);
     }
 

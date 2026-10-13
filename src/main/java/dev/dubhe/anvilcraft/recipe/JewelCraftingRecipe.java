@@ -63,7 +63,7 @@ public class JewelCraftingRecipe implements Recipe<JewelCraftingRecipe.Input> {
         this.result = result;
         this.hasVanishingCurse = hasVanishingCurse;
         this.mergedIngredients = RecipeUtil.mergeIngredient(ingredients);
-        if (mergedIngredients.size() > 4) {
+        if (this.mergedIngredients.size() > 4) {
             throw new IllegalArgumentException("Too many different ingredients");
         }
     }
@@ -90,23 +90,23 @@ public class JewelCraftingRecipe implements Recipe<JewelCraftingRecipe.Input> {
 
     @Override
     public ItemStack getResultItem(HolderLookup.Provider registries) {
-        return result;
+        return this.result;
     }
 
     @Override
     public ItemStack assemble(Input input, HolderLookup.Provider registries) {
-        return result.copy();
+        return this.result.copy();
     }
 
     @Override
     public boolean matches(Input input, Level level) {
-        if (input == cache) {
-            return cacheTimes >= 1;
+        if (input == this.cache) {
+            return this.cacheTimes >= 1;
         }
-        int times = RecipeUtil.getMaxCraftTime(input, ingredients);
-        cache = input;
-        cacheTimes = times;
-        return cacheTimes >= 1;
+        int times = RecipeUtil.getMaxCraftTime(input, this.ingredients);
+        this.cache = input;
+        this.cacheTimes = times;
+        return this.cacheTimes >= 1;
     }
 
     @Override
@@ -118,12 +118,12 @@ public class JewelCraftingRecipe implements Recipe<JewelCraftingRecipe.Input> {
 
         @Override
         public ItemStack getItem(int index) {
-            return items.get(index);
+            return this.items.get(index);
         }
 
         @Override
         public int size() {
-            return items.size();
+            return this.items.size();
         }
     }
 
@@ -192,23 +192,23 @@ public class JewelCraftingRecipe implements Recipe<JewelCraftingRecipe.Input> {
         }
 
         public Builder requires(Ingredient ingredient) {
-            return requires(ingredient, 1);
+            return this.requires(ingredient, 1);
         }
 
         public Builder requires(ItemLike item, int count) {
-            return requires(Ingredient.of(item), count);
+            return this.requires(Ingredient.of(item), count);
         }
 
         public Builder requires(ItemLike item) {
-            return requires(item, 1);
+            return this.requires(item, 1);
         }
 
         public Builder requires(TagKey<Item> tag, int count) {
-            return requires(Ingredient.of(tag), count);
+            return this.requires(Ingredient.of(tag), count);
         }
 
         public Builder requires(TagKey<Item> tag) {
-            return requires(tag, 1);
+            return this.requires(tag, 1);
         }
 
         public Builder hasVanishingCurse(boolean hasVanishingCurse) {
@@ -218,15 +218,15 @@ public class JewelCraftingRecipe implements Recipe<JewelCraftingRecipe.Input> {
 
         @Override
         public JewelCraftingRecipe buildRecipe() {
-            return new JewelCraftingRecipe(conditions, ingredients, result, hasVanishingCurse);
+            return new JewelCraftingRecipe(this.conditions, this.ingredients, this.result, this.hasVanishingCurse);
         }
 
         @Override
         public void validate(ResourceLocation id) {
-            if (ingredients.isEmpty() || ingredients.size() > 256) {
+            if (this.ingredients.isEmpty() || this.ingredients.size() > 256) {
                 throw new IllegalArgumentException("Recipe ingredients size must in 0-256, RecipeId: " + id);
             }
-            if (result.isEmpty()) {
+            if (this.result.isEmpty()) {
                 throw new IllegalArgumentException("Recipe result must not be empty, RecipeId: " + id);
             }
         }
@@ -238,7 +238,7 @@ public class JewelCraftingRecipe implements Recipe<JewelCraftingRecipe.Input> {
 
         @Override
         public Item getResult() {
-            return result.getItem();
+            return this.result.getItem();
         }
     }
 

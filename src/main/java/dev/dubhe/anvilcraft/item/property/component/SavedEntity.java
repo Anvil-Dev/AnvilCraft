@@ -35,12 +35,12 @@ public record SavedEntity(CompoundTag tag, boolean isMonster) {
 
     @Nullable
     public Entity toEntity(Level level) {
-        Optional<EntityType<?>> optional = EntityType.by(tag);
+        Optional<EntityType<?>> optional = EntityType.by(this.tag);
         if (optional.isEmpty()) return null;
         EntityType<?> type = optional.get();
         Entity entity = type.create(level);
         if (entity == null) return null;
-        entity.load(tag);
+        entity.load(this.tag);
         return entity;
     }
 
