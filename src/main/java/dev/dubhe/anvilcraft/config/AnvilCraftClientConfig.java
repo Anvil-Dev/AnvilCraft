@@ -17,25 +17,33 @@ public class AnvilCraftClientConfig {
     public GraphicsSettings graphics = new GraphicsSettings();
 
     public static class GraphicsSettings {
-        @Comment("Controls the render distance of the Heliostats' BER")
+        @Comment("Controls the render distance of the Heliostats' BER (in blocks)")
         @BoundedDiscrete(min = 32, max = 512)
         public int heliostatsRenderDistance = 128;
 
         @Comment("Controls whether to render the sunflower head model for Heliostats in the Sunflower Plains biome")
         public boolean heliostatsSunflowerModel = true;
 
-        @Comment("Controls whether to render lines between power transmitters")
+        @Comment("Controls whether to render lines between Transmission Poles")
         public boolean renderPowerTransmitterLines = true;
 
-        @Comment("Controls whether to render the shared orbital rings in the overworld-like dimension")
+        @Comment("Controls whether to render the shared orbital rings in the Overworld-Like dimension")
         public boolean renderOverworldLikeSkyRings = true;
+
+        @Comment("Controls the sky darkening at the peak of a visual eclipse")
+        @BoundedDiscrete(min = 0.0, max = 1.0)
+        public float overworldLikeEclipseDarken = 0.72f;
+
+        @Comment("Controls the scale of the shared orbital rings in the Overworld-Like dimension")
+        @BoundedDiscrete(min = 100.0, max = 10000.0)
+        public float overworldLikeSkyRingScale = 1200.0f;
 
         @SerializedName("Overworld Celestial Bodies")
         @Comment(
             """
-            Controls the render mode of Overworld sky
+            Controls the render mode of the Overworld sky
             "Vanilla" keeps the original Overworld sky
-            "Special" replaces only the sun and moon with models, including libration and a continuous eight-day lunar phase cycle
+            "Special" replaces only the Sun and Moon with models, including libration and a continuous eight-day lunar phase cycle
             World lighting is unchanged
             """
         )
@@ -82,7 +90,7 @@ public class AnvilCraftClientConfig {
         @SerializedName("Stellar Emission Rendering")
         @Comment(
             """
-            Controls the render mode of stellar
+            Controls the render mode of stellar emission
             "Vanilla" restores the original stellar surface and layered halos
             "Standard" enables temperature-based emission and smooth halos
             On rendering failure, it falls back to "Vanilla" without changing this setting until resources are reloaded
@@ -91,10 +99,14 @@ public class AnvilCraftClientConfig {
         )
         public CelestialRenderMode stellarRenderMode = CelestialRenderMode.STANDARD;
 
+        @Comment("Controls the maximum brightness of stellar coronas")
+        @BoundedDiscrete(min = 1.0, max = 64.0)
+        public float stellarMaxExposure = 24.0f;
+
         @SerializedName("Planet Atmosphere Rendering")
         @Comment(
             """
-            Controls the render mode of planet atmosphere
+            Controls the render mode of the planet atmosphere
             "Vanilla" restores the original translucent atmosphere shell
             "Standard" enables a thicker volume atmosphere
             On rendering failure, it falls back to "Vanilla" without changing this setting until resources are reloaded
@@ -119,7 +131,7 @@ public class AnvilCraftClientConfig {
             @Comment("Controls whether to render the gravitational lensing post-processing effect near Black/White Holes")
             public boolean enabled = false;
 
-            @SerializedName("Maximum Render Count")
+            @SerializedName("Max Render Count")
             @Comment(
                 """
                 Controls the maximum number of Black/White Holes rendered (2-256)
@@ -143,7 +155,7 @@ public class AnvilCraftClientConfig {
             @SerializedName("Gravitational Lensing Perspective Scale")
             @Comment(
                 """
-                Controls the reference distance for perspective scaling
+                Controls the reference distance for perspective scaling (in blocks)
                 At this distance, effect = config size
                 Closer = bigger
                 """
@@ -164,30 +176,18 @@ public class AnvilCraftClientConfig {
         @SerializedName("Enlarged Block Rendering in Sifting/Unpacking Tables")
         @Comment(
             """
-            Controls whether to render block-state items in sifting and unpacking tables
+            Controls whether to render block-state items in Sifting Tables and Unpacking Tables
             with the enlarged block model pick instead of regular scattered item rendering
             """
         )
         public boolean renderBlockModelInSiftingAndUnpacking = true;
 
-        @Comment("Controls whether to always vertically displays items in item frames on horizontal surfaces")
+        @Comment("Controls whether to always display items vertically in Item Frames on horizontal surfaces")
         public boolean renderVerticalModelsInHorizontalItemFrame = false;
 
-        @Comment("Controls how long the affect-range outline stays visible after looking away (in ticks)")
+        @Comment("Controls the time the Affect Range outline stays visible after looking away (in ticks)")
         @BoundedDiscrete(min = 0, max = 600)
         public int affectRangeOutlinePersistTicks = 100;
-
-        @Comment("Controls the maximum brightness of stellar coronas")
-        @BoundedDiscrete(min = 1.0, max = 64.0)
-        public float stellarMaxExposure = 24.0f;
-
-        @Comment("Controls how far the sky darkens at the peak of a visual eclipse")
-        @BoundedDiscrete(min = 0.0, max = 1.0)
-        public float overworldLikeEclipseDarken = 0.72f;
-
-        @Comment("Controls the scale of the shared orbital rings in the overworld-like dimension")
-        @BoundedDiscrete(min = 100.0, max = 10000.0)
-        public float overworldLikeSkyRingScale = 1200.0f;
     }
 
     @SerializedName("Effects & Sounds")
@@ -197,37 +197,50 @@ public class AnvilCraftClientConfig {
 
     public static class EffectsSettings {
         @SerializedName("Render Power Transmission Line Bloom")
-        @Comment("Controls whether to apply the bloom effect to lasers and power transmitter lines")
+        @Comment("Controls whether to apply the bloom effect to Lasers and power transmission lines")
         public boolean renderBloomEffect = false;
 
         @Comment("Controls whether to apply the Scanline post-processing effect to 3D structure previews")
         public boolean renderScanPreviewExtraEffect = true;
 
-        @Comment("Controls whether to display anvil levitate animation")
+        @Comment("Controls whether to display the Ascending Block animation")
         public boolean displayAnvilAnimation = true;
 
-        @Comment("Controls whether to display block bounce animation in Giant Anvil's shockwaves")
+        @Comment("Controls whether to display block bounce animation in the Giant Anvil's Shock")
         public boolean displayGiantAnvilShockBlockBounceAnimation = true;
 
-        @Comment("Controls whether to display particles in Giant Anvil's shockwaves")
+        @Comment("Controls whether to display particles in the Giant Anvil's Shock")
         public boolean displayGiantAnvilShockParticles = true;
 
-        @Comment("Controls the number of particles spawned per block by Giant Anvil's shockwave effects")
+        @Comment("Controls the number of particles spawned per block by the Giant Anvil's Shock")
         @BoundedDiscrete(min = 0, max = 5)
         public int giantAnvilShockParticlesCount = 1;
 
-        @Comment("Controls the probability (0.0-1.0) that each block spawns particles from Giant Anvil's shockwave effects")
+        @Comment("Controls the probability that each block spawns particles from the Giant Anvil's Shock (0.0-1.0)")
         @BoundedDiscrete(min = 0, max = 1)
         public double giantAnvilShockParticlesChance = 0.8;
 
-        @Comment("Controls whether to play sounds when Giant Anvil triggers its shock mechanism")
+        @Comment("Controls the duration of the block bounce animation in the Giant Anvil's Shock (in ticks)")
+        @BoundedDiscrete(min = 1, max = 100)
+        public int giantAnvilShockBounceDurationTicks = 16;
+
+        @Comment("Controls the maximum bounce height of blocks in the Giant Anvil's Shock (in blocks)")
+        @BoundedDiscrete(min = 0.0, max = 2.0)
+        public float giantAnvilShockBounceAmplitude = 0.85f;
+
+        @Comment("Controls whether to play sounds when the Giant Anvil triggers its Shock")
         public boolean playGiantAnvilShockSound = true;
 
         @SerializedName("Display Redstone EMP Particles")
-        @Comment("Controls whether to display particles in redstone EMP")
+        @Comment("Controls whether to display particles in the Redstone EMP")
         public boolean displayRedstoneEmpParticles = true;
 
-        @Comment("Controls whether to display exhaust particles when flying with Ionocraft Backpack")
+        @SerializedName("Redstone EMP Max Ring Particles")
+        @Comment("Controls the maximum number of particles per ring in the Redstone EMP")
+        @BoundedDiscrete(min = 8, max = 64)
+        public int redstoneEmpMaxRingParticles = 48;
+
+        @Comment("Controls whether to display exhaust particles when flying with the Ionocraft Backpack")
         public boolean displayIonocraftBackpackExhaustParticles = true;
 
         @Comment("Controls the preview mode when placing multipart blocks (Giant Anvil, Large Crate, etc.)")
@@ -263,21 +276,9 @@ public class AnvilCraftClientConfig {
         @BoundedDiscrete(min = 0.0, max = 1.0)
         public double multiPartPreviewOutlineOpacity = 0.5;
 
-        @Comment("Controls the volume of energy weapons' firing sounds (multiplier)")
+        @Comment("Controls the volume of Energy Weapons' firing sounds (multiplier)")
         @BoundedDiscrete(min = 0.0, max = 2.0)
         public float energyWeaponSoundVolume = 1.0f;
-
-        @Comment("Controls the maximum number of particles per ring in the Redstone EMP shockwave")
-        @BoundedDiscrete(min = 8, max = 64)
-        public int redstoneEmpMaxRingParticles = 48;
-
-        @Comment("Controls the duration of the block bounce animation in Giant Anvil's shockwaves (in ticks)")
-        @BoundedDiscrete(min = 1, max = 100)
-        public int giantAnvilShockBounceDurationTicks = 16;
-
-        @Comment("Controls the maximum bounce height of blocks in Giant Anvil's shockwaves")
-        @BoundedDiscrete(min = 0.0, max = 2.0)
-        public float giantAnvilShockBounceAmplitude = 0.85f;
 
         @Comment("Controls the shortest silence before the first Mun music track (in seconds)")
         @BoundedDiscrete(min = 0, max = 3600)
@@ -302,7 +303,7 @@ public class AnvilCraftClientConfig {
     public UISettings ui = new UISettings();
 
     public static class UISettings {
-        @Comment("Controls the goggle info activation mode")
+        @Comment("Controls the Goggle info activation mode")
         public GoggleInfoActivationMode goggleInfoActivationMode = GoggleInfoActivationMode.WEARING_OR_HOLDING_HAMMER;
 
         public enum GoggleInfoActivationMode implements TranslatableEnum {
@@ -326,7 +327,7 @@ public class AnvilCraftClientConfig {
         public float anvilHammerWheelScale = 1.0f;
 
         @SerializedName("Show Storage Stored ID")
-        @Comment("Controls whether to add a tooltip line that shows the stored storage ID")
+        @Comment("Controls whether to add a tooltip line that shows the stored Storage ID")
         public boolean showStorageStoredId = false;
 
         @SerializedName("Use Legacy Creative Inventory")
@@ -357,39 +358,44 @@ public class AnvilCraftClientConfig {
         public int liquidEnchantmentLevelRomanNumeralLimit = 10;
 
         @SerializedName("Display Capacitor Count in HUD")
-        @Comment("Controls whether to display charged capacitor counts in HUD")
+        @Comment("Controls whether to display charged Capacitor counts in HUD")
         public boolean displayCapacitorCountInHud = true;
 
         @Comment("Controls the display cycle of recipe preview animations (in milliseconds)")
         @BoundedDiscrete(min = 200, max = 10000)
         public int recipePreviewCycleMillis = 1500;
 
-        @Comment("Controls how long the Storage Terminal's missing station flyout stays visible (in ticks)")
+        @Comment("Controls the time the Storage Screen's missing workbench flyout stays visible (in ticks)")
         @BoundedDiscrete(min = 0, max = 100)
         public int storageFlyoutHoldTicks = 25;
 
-        @Comment("Controls how fast the Filter item cycles through its stored items (in milliseconds)")
+        @Comment("Controls the speed at which the Filter item cycles through its stored items (in milliseconds)")
         @BoundedDiscrete(min = 100, max = 5000)
         public int filterItemDisplayIntervalMillis = 1000;
 
-        @Comment("Controls how many item types the Storage Terminal tooltip shows at once")
+        @Comment("Controls the number of item types a storage's tooltip shows at once")
         @BoundedDiscrete(min = 1, max = 64)
         public int storageTooltipMaxVisibleTypes = 9;
 
-        @Comment("Controls how many fluids the fluid tank tooltip shows at once")
+        @Comment("Controls the number of fluids the Fluid Tank tooltip shows at once")
         @BoundedDiscrete(min = 1, max = 64)
         public int fluidTankTooltipMaxVisibleFluids = 5;
 
-        @Comment("Controls how quickly 3D building rod previews follow the player view")
+        @Comment("Controls the speed at which 3D Building Rod previews follow the player view")
         @BoundedDiscrete(min = 1.0, max = 100.0)
         public double buildingRodPreviewFollowRate = 18.0;
 
-        @Comment("Controls how long a thought tooltip stays visible at most (in seconds)")
+        @Comment("Controls the maximum time a Thought tooltip stays visible (in seconds)")
         @BoundedDiscrete(min = 0.1, max = 10.0)
         public double thoughtMaxSeconds = 1.0;
 
         @SerializedName("Apply Changes When Closing Category Settings")
-        @Comment("Controls whether closing a category settings screen applies or discards the changes")
+        @Comment(
+            """
+            Controls the action when a category settings screen is closed
+            "Apply Changes" saves the changes, "Discard Changes" reverts them
+            """
+        )
         public ExitBehaviourMode exitCategorySettingBehaviour = ExitBehaviourMode.CANCEL;
 
         public enum ExitBehaviourMode implements TranslatableEnum {
@@ -401,6 +407,7 @@ public class AnvilCraftClientConfig {
         }
 
         @SerializedName("Weatherproof Chestplate HUD")
+        @Comment("Adjusts settings related to the Weatherproof Chestplate HUD")
         @CollapsibleObject
         public WeatherproofChestplateHud weatherproofChestplateHud = new WeatherproofChestplateHud();
 
@@ -414,11 +421,11 @@ public class AnvilCraftClientConfig {
             public float scale = 0.75f;
 
             @SerializedName("X Position")
-            @Comment("Controls the HUD x position")
+            @Comment("Controls the HUD x position (in pixels)")
             public int x = 8;
 
             @SerializedName("Y Position")
-            @Comment("Controls the HUD y position")
+            @Comment("Controls the HUD y position (in pixels)")
             public int y = 8;
         }
     }
@@ -433,7 +440,7 @@ public class AnvilCraftClientConfig {
         public boolean invertMouseOverrideActions = false;
 
         @Comment(
-            "Controls whether to swap the fluid port bucket actions in the storage screen so that left-click stores and right-click pours"
+            "Controls whether to swap the Storage Fluid Port bucket actions so that left-click stores and right-click pours"
         )
         public boolean invertFluidPortBucketActions = false;
 

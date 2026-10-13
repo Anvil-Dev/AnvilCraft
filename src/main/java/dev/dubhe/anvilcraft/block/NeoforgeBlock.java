@@ -87,7 +87,11 @@ public class NeoforgeBlock extends BetterAnvilBlock implements IHammerRemovable 
 
     @Override
     public void falling(FallingBlockEntity entity) {
-        entity.setHurtsEntities(AnvilCraft.CONFIG.world.anvilFallDamagePerBlock, 20);
+        int max = AnvilCraft.CONFIG.world.neoforgeMaxFallDamage;
+        if (max == -1) {
+            max = Integer.MAX_VALUE;
+        }
+        entity.setHurtsEntities(AnvilCraft.CONFIG.world.neoforgeFallDamagePerBlock, max);
     }
 
     @Override

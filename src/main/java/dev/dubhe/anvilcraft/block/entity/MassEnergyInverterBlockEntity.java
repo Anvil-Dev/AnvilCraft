@@ -40,7 +40,7 @@ public class MassEnergyInverterBlockEntity extends BlockEntity implements IPower
         for (Direction direction : Direction.Plane.HORIZONTAL) {
             BlockPos neighborPos = pos.relative(direction);
             if (level.getBlockEntity(neighborPos) instanceof SpaceOvercompressorBlockEntity compressor) {
-                compressor.injectMass(AnvilCraft.CONFIG.machines.massEnergyInverterMassPerTick);
+                compressor.injectMass(Math.round(AnvilCraft.CONFIG.machines.massEnergyInverterMassPerTick * 100f));
             }
         }
     }
