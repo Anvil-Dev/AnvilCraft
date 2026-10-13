@@ -1,17 +1,13 @@
 package dev.dubhe.anvilcraft.block;
 
-import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.ItemInteractionResult;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -36,7 +32,6 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 
 public class HollowMagnetBlock extends MagnetBlock implements SimpleWaterloggedBlock {
     public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
-    public static final String TAG = AnvilCraft.MOD_ID + ":hollow_magnet_block";
     private static final VoxelShape REDUCE_AABB = Block.box(5.0, 0.0, 5.0, 11.0, 16.0, 11.0);
     private static final VoxelShape AABB = Shapes.join(Shapes.block(), REDUCE_AABB, BooleanOp.ONLY_FIRST);
     private static final VoxelShape FULL = Shapes.block();
@@ -117,27 +112,6 @@ public class HollowMagnetBlock extends MagnetBlock implements SimpleWaterloggedB
             levelAccessor.scheduleTick(blockPos, Fluids.WATER, Fluids.WATER.getTickDelay(levelAccessor));
         }
         return super.updateShape(blockState, direction, blockState2, levelAccessor, blockPos, blockPos2);
-    }
-
-    @Override
-    protected void entityInside(BlockState state, Level level, BlockPos pos, Entity entity) {
-        if (level.isClientSide) {
-            return;
-        }
-        if (state.getValue(LIT)) {
-            return;
-        }
-        if (entity instanceof ItemEntity itemEntity && !itemEntity.getTags().contains(TAG)) {
-            ItemStack item = itemEntity.getItem();
-            if (item.is(Items.IRON_INGOT) && item.getCount() == 1) {
-                if (itemEntity.getOwner() instanceof ServerPlayer) {
-                    itemEntity.addTag(TAG);
-                    if (level.random.nextDouble() <= AnvilCraft.CONFIG.world.hollowMagnetConvertChance) {
-                        itemEntity.setItem(new ItemStack(ModItems.MAGNET_INGOT.get()));
-                    }
-                }
-            }
-        }
     }
 
     @Override
