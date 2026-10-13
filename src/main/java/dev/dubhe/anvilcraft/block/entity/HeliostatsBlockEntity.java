@@ -6,15 +6,12 @@ import dev.dubhe.anvilcraft.api.entity.fakeplayer.AnvilCraftFakePlayers;
 import dev.dubhe.anvilcraft.api.heat.HeaterManager;
 import dev.dubhe.anvilcraft.init.ModHeaterInfos;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
-import dev.dubhe.anvilcraft.init.item.ModComponents;
-import dev.dubhe.anvilcraft.item.property.component.HeliostatsData;
 import dev.dubhe.anvilcraft.network.HeliostatsIrradiationPacket;
 import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.ClipContext;
@@ -178,32 +175,10 @@ public class HeliostatsBlockEntity extends BlockEntity {
 
     @Override
     protected void saveAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        super.saveAdditional(tag, provider);
         if (this.irritatePos == null) return;
         tag.putInt("Ix", this.irritatePos.getX());
         tag.putInt("Iy", this.irritatePos.getY());
         tag.putInt("Iz", this.irritatePos.getZ());
-    }
-
-    @Override
-    protected void applyImplicitComponents(DataComponentInput componentInput) {
-        super.applyImplicitComponents(componentInput);
-        HeliostatsData data = componentInput.get(ModComponents.HELIOSTATS_DATA);
-        if (data != null) this.irritatePos = data.pos();
-    }
-
-    @Override
-    protected void collectImplicitComponents(DataComponentMap.Builder components) {
-        super.collectImplicitComponents(components);
-        if (this.irritatePos != null) components.set(ModComponents.HELIOSTATS_DATA, new HeliostatsData(this.irritatePos));
-    }
-
-    @Override
-    public void removeComponentsFromTag(CompoundTag tag) {
-        super.removeComponentsFromTag(tag);
-        tag.remove("Ix");
-        tag.remove("Iy");
-        tag.remove("Iz");
     }
 
     @Override

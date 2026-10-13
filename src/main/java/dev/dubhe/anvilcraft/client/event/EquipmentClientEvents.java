@@ -75,7 +75,6 @@ public final class EquipmentClientEvents {
 
     @SubscribeEvent
     public static void key(InputEvent.Key event) {
-        if (ModKeyMappings.shouldIgnorePress(event.getAction())) return;
         press(InputConstants.getKey(event.getKey(), event.getScanCode()), event.getAction());
     }
 

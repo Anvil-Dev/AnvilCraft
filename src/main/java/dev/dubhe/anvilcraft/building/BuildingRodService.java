@@ -505,7 +505,7 @@ public final class BuildingRodService {
                     return false;
                 }
                 CompoundTag config = source.copy();
-                BlueprintBlockConfiguration.transform(config, placement, sourceOrigin);
+                BlueprintBlockConfiguration.transform(config, placement, sourceOrigin, snapshot);
                 group.cells.add(new Cell(pos, state, config, List.of()));
                 if (!moved.is(Blocks.PISTON_HEAD)) {
                     ItemStack material = OrdinaryBlockAdapter.material(moved);
@@ -533,7 +533,7 @@ public final class BuildingRodService {
                 return false;
             }
             blockMaterial = blockMaterial.withConfiguration(state, blockMaterial.config(), player.registryAccess());
-            BlueprintBlockConfiguration.transform(blockMaterial.config(), placement, sourceOrigin);
+            BlueprintBlockConfiguration.transform(blockMaterial.config(), placement, sourceOrigin, snapshot);
             BlueprintRuntimeData.restoreClock(blockMaterial.config(), snapshot,
                 localPositions.getOrDefault(pos, BlockPos.ZERO), player.level().getGameTime());
             group.materials.addAll(BlueprintBlockConfiguration.materials(blockMaterial.config()));

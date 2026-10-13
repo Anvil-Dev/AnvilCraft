@@ -307,7 +307,7 @@ public final class BlueprintBlockConfiguration {
     }
 
     public static void transform(
-        CompoundTag config, BlueprintPlacement placement, @Nullable BlockPos sourceOrigin
+        CompoundTag config, BlueprintPlacement placement, @Nullable BlockPos sourceOrigin, StructureSnapshot snapshot
     ) {
         if ("minecraft:piston".equals(config.getString("id"))) {
             var moved = NbtUtils.readBlockState(BuiltInRegistries.BLOCK.asLookup(), config.getCompound("blockState"));
@@ -333,15 +333,20 @@ public final class BlueprintBlockConfiguration {
             for (int i = 0; i < source.length; i++) mirrored[i - i % side + side - 1 - i % side] = source[i];
             config.putByteArray("layerPositions", mirrored);
         }
-        // 照射目标通常落在快照立方体之外，有源点时按同一变换重映射；
-        // 没有源点时保留原值，与其余字段在同样情况下原样拷贝的约定一致。
-        if (config.contains("Ix") && sourceOrigin != null) {
-            BlockPos target = new BlockPos(config.getInt("Ix"), config.getInt("Iy"), config.getInt("Iz"));
-            BlockPos world = placement.worldOf(target.subtract(sourceOrigin));
-            config.putInt("Ix", world.getX());
-            config.putInt("Iy", world.getY());
-            config.putInt("Iz", world.getZ());
+        if (!config.contains("Ix")) return;
+        BlockPos target = new BlockPos(config.getInt("Ix"), config.getInt("Iy"), config.getInt("Iz"));
+        if (sourceOrigin != null) {
+            BlockPos local = target.subtract(sourceOrigin);
+            if (local.getX() >= 0 && local.getY() >= 0 && local.getZ() >= 0 && local.getX() < snapshot.size().getX()
+                && local.getY() < snapshot.size().getY() && local.getZ() < snapshot.size().getZ()) {
+                BlockPos world = placement.worldOf(local);
+                config.putInt("Ix", world.getX());
+                config.putInt("Iy", world.getY());
+                config.putInt("Iz", world.getZ());
+                return;
+            }
         }
+        remove(config, "Ix", "Iy", "Iz");
     }
 
     @Nullable
