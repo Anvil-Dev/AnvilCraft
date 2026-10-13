@@ -1,8 +1,10 @@
 package dev.dubhe.anvilcraft.client.init;
 
+import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.platform.InputConstants.Type;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import net.minecraft.client.KeyMapping;
+import net.minecraft.client.Minecraft;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -78,6 +80,13 @@ public class ModKeyMappings {
         Type.KEYSYM,
         GLFW.GLFW_KEY_A
     );
+
+    /// 调试修饰键被按住时忽略模组按键；RELEASE 始终放行，保证已按下的键能释放。
+    /// 用原版键位而非写死 F3，玩家改键后仍然正确。
+    public static boolean shouldIgnoreForDebugChord(int action) {
+        if (action == InputConstants.RELEASE) return false;
+        return Minecraft.getInstance().options.keyDebugModifier.isDown();
+    }
 
     @SuppressWarnings("SameParameterValue")
     private static Lazy<KeyMapping> register(String name, KeyConflictContext context, Type type, int key) {

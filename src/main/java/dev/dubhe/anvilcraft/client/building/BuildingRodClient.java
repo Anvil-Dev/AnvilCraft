@@ -420,6 +420,7 @@ public final class BuildingRodClient {
     /** 在 KeyboardHandler 入口处理，避免依赖可能被其他模组取消的 NeoForge 末尾事件。 */
     public static boolean handleKeyboardInput(int key, int scanCode, int action, int modifiers) {
         Minecraft mc = Minecraft.getInstance();
+        if (ModKeyMappings.shouldIgnoreForDebugChord(action)) return false;
         if (first != null && (key == GLFW.GLFW_KEY_LEFT_CONTROL || key == GLFW.GLFW_KEY_RIGHT_CONTROL)) {
             updateTarget();
         }
