@@ -14,6 +14,8 @@ public enum StorageInput {
     THROW(new int[] {0, 1, 2}),
     /** 点击流体格：用背包中的空桶装一桶取出 */
     FLUID_BUCKET,
+    /** 按住空格左击仓储格：一次取出多组物品（或流体格的多桶流体）到玩家物品栏 */
+    QUICK_MOVE_STACKS_FROM_STORAGE(new int[] {0}),
     ;
 
     public static final StreamCodec<ByteBuf, StorageInput> STREAM_CODEC = StreamCodecUtil.enumStreamCodec(StorageInput.class);
