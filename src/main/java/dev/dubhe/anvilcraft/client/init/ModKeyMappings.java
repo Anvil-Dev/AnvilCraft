@@ -1,7 +1,9 @@
 package dev.dubhe.anvilcraft.client.init;
 
+import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.platform.InputConstants.Type;
 import net.minecraft.client.KeyMapping;
+import net.minecraft.client.Minecraft;
 import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
 import net.neoforged.neoforge.client.settings.KeyConflictContext;
 import net.neoforged.neoforge.client.settings.KeyModifier;
@@ -78,6 +80,18 @@ public class ModKeyMappings {
     @SuppressWarnings("SameParameterValue")
     private static Lazy<KeyMapping> register(String name, KeyConflictContext context, Type type, int key) {
         return Lazy.of(() -> new KeyMapping("key.anvilcraft." + name, context, type, key, "key.categories.anvilcraft"));
+    }
+
+    /// F3 是否被按住。F3 是原始键码 292，原版不会为它屏蔽模组按键事件。
+    public static boolean isDebugModifierHeld() {
+        Minecraft minecraft = Minecraft.getInstance();
+        return minecraft.getWindow() != null
+            && InputConstants.isKeyDown(minecraft.getWindow().getWindow(), GLFW.GLFW_KEY_F3);
+    }
+
+    /// F3 组合键期间忽略按下，但仍放过 RELEASE，保证已按下的键能复位。
+    public static boolean shouldIgnorePress(int action) {
+        return action != GLFW.GLFW_RELEASE && isDebugModifierHeld();
     }
 
     public static void register(RegisterKeyMappingsEvent event) {

@@ -388,8 +388,8 @@ public final class CelestialBodyMatcher {
         CelestialBodyClass bodyClass, int energy, int space, RandomSource random
     ) {
         int size = sizeForSpace(space);
-        /// 从star_color_temperature.png中根据能量砧子计数所在行获取颜色
-        int[] rgb = getStarColorFromTempDiagram(energy);
+        /// 白矮星走共享温度规则，其余分类查 star_color_temperature.png
+        int[] rgb = starColorFor(bodyClass, energy);
         int mag = random.nextFloat() < 0.10f ? 5 : 4;
         int rotSpeed = bodyClass == CelestialBodyClass.BLACK_HOLE ? 0 : randomRotationSpeed(random);
         float axialTilt = 0f;
@@ -553,8 +553,17 @@ public final class CelestialBodyMatcher {
     }
 
     /// 根据能量砧子计数从star_color_temperature.png获取RGB颜色。
-    /// 公开方法，供恒星演化加速器创建残骸时使用。
+    /// 公开方法，仅用于图表覆盖的分类（主序星、巨星）。
     public static int[] getStarColor(int energy) {
         return getStarColorFromTempDiagram(energy);
+    }
+
+    /// 恒星颜色。白矮星用渲染同款温度规则，保证锻造与演化结果一致；其余分类查图表。
+    public static int[] starColorFor(CelestialBodyClass bodyClass, int energy) {
+        if (bodyClass != CelestialBodyClass.WHITE_DWARF) return getStarColorFromTempDiagram(energy);
+        int rgb = StellarVisualState.colorForTemperature(
+            StellarVisualState.temperatureForSurfaceClass(bodyClass, energy)
+        );
+        return new int[] {(rgb >> 16) & 0xFF, (rgb >> 8) & 0xFF, rgb & 0xFF};
     }
 }

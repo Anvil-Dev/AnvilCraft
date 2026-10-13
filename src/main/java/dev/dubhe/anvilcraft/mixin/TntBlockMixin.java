@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.mixin;
 
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.item.MultitoolItem;
+import dev.dubhe.anvilcraft.util.PistonMoveGuard;
 import net.minecraft.core.BlockPos;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
@@ -19,12 +20,40 @@ import net.minecraft.world.phys.BlockHitResult;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(TntBlock.class)
 abstract class TntBlockMixin extends Block {
     public TntBlockMixin(Properties properties) {
         super(properties);
+    }
+
+    /// 滑动载荷放回世界时会自触发邻居信号，被接管的 TNT 在此跳过点燃，否则会边爆炸边保留。
+    @Inject(method = "neighborChanged", at = @At("HEAD"), cancellable = true)
+    private void skipPrimingWhileOwned(
+        BlockState state,
+        Level level,
+        BlockPos pos,
+        Block block,
+        BlockPos fromPos,
+        boolean isMoving,
+        CallbackInfo ci
+    ) {
+        if (PistonMoveGuard.isReserved(level, pos)) ci.cancel();
+    }
+
+    /// 放回瞬间的 onPlace 同样会点燃 TNT。
+    @Inject(method = "onPlace", at = @At("HEAD"), cancellable = true)
+    private void skipPrimingOnPlaceWhileOwned(
+        BlockState state,
+        Level level,
+        BlockPos pos,
+        BlockState oldState,
+        boolean isMoving,
+        CallbackInfo ci
+    ) {
+        if (PistonMoveGuard.isReserved(level, pos)) ci.cancel();
     }
 
     @Inject(
