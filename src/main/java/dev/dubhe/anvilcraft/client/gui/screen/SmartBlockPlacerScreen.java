@@ -541,7 +541,7 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
             POSITION_SELECT,
             16,
             16,
-            (btn) -> onPositionButtonClick(btn, positionIndex, tooltipSelected, tooltipUnselected),
+            (btn) -> this.onPositionButtonClick(btn, positionIndex, tooltipSelected, tooltipUnselected),
             selected ? tooltipSelected : tooltipUnselected
         );
         button.setSelected(selected);
@@ -787,7 +787,7 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
             if (!diskStack.isEmpty()) {
                 int diskSlotX = i + 8;
                 int diskSlotY = j + 119;
-                renderMaskedItem(guiGraphics, diskStack, diskSlotX, diskSlotY);
+                this.renderMaskedItem(guiGraphics, diskStack, diskSlotX, diskSlotY);
             }
         }
 
@@ -798,7 +798,7 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
             if (!bookStack.isEmpty()) {
                 int bookSlotX = i + 46;
                 int bookSlotY = j + 86;
-                renderMaskedItem(guiGraphics, bookStack, bookSlotX, bookSlotY);
+                this.renderMaskedItem(guiGraphics, bookStack, bookSlotX, bookSlotY);
             }
         }
     }

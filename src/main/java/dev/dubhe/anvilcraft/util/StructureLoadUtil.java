@@ -368,7 +368,7 @@ public class StructureLoadUtil {
         }
 
         public boolean isEmpty() {
-            return blocks.isEmpty();
+            return this.blocks.isEmpty();
         }
     }
 

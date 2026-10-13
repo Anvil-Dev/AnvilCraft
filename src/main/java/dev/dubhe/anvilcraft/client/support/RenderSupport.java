@@ -10,8 +10,6 @@ import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.blaze3d.vertex.VertexMultiConsumer;
 import com.mojang.math.Axis;
 import com.mojang.math.MatrixUtil;
-import org.joml.Matrix3f;
-import org.joml.Quaternionf;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.BaseShowItemRenderer;
 import dev.dubhe.anvilcraft.recipe.anvil.procedural.ProceduralProcessRecipe;
 import dev.dubhe.anvilcraft.util.LevelLike;
@@ -62,12 +60,13 @@ import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.StainedGlassPaneBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.AABB;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.phys.AABB;
 import net.neoforged.neoforge.client.ClientHooks;
 import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
 import net.neoforged.neoforge.client.model.data.ModelData;
+import org.joml.Matrix3f;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
@@ -341,6 +340,16 @@ public class RenderSupport {
         GuiGraphics guiGraphics,
         int posX,
         int posY,
+        float scale
+    ) {
+        renderLevelLike(level, guiGraphics, posX, posY, scale, 0.0f);
+    }
+
+    public static void renderLevelLike(
+        LevelLike level,
+        GuiGraphics guiGraphics,
+        int posX,
+        int posY,
         float scaleFactor,
         float rotationSpeed
     ) {
@@ -432,7 +441,7 @@ public class RenderSupport {
     ) {
         Quaternionf rotation = Axis.XP.rotationDegrees(rotationX)
             .mul(Axis.YP.rotationDegrees(rotationY));
-        float scale = autoScale(rotation, bounds, windowWidth, windowHeight, padding);
+        final float scale = autoScale(rotation, bounds, windowWidth, windowHeight, padding);
 
         PoseStack pose = guiGraphics.pose();
         pose.pushPose();
@@ -476,15 +485,6 @@ public class RenderSupport {
         );
     }
 
-    public static void renderLevelLike(
-        LevelLike level,
-        GuiGraphics guiGraphics,
-        int posX,
-        int posY,
-        float scale
-    ) {
-        renderLevelLike(level, guiGraphics, posX, posY, scale, 0.0f);
-    }
     
     /**
      * 渲染LevelLike，支持固定旋转角度和固定尺寸
