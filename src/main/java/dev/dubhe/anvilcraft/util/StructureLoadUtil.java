@@ -158,7 +158,7 @@ public class StructureLoadUtil {
 
     /** 纯服务器环境下客户端本地没有结构文件，向服务器发起请求（带冷却，避免每帧重复发包）。 */
     private static void requestStructureFile(Level level, StructureDiskData data) {
-        if (!isValidStructureFile(data.file())) return;
+        if (isValidStructureFile(data.file())) return;
         if (!(level instanceof ClientLevel)) return;
         Minecraft minecraft = Minecraft.getInstance();
         ClientPacketListener connection = minecraft.getConnection();
@@ -196,7 +196,7 @@ public class StructureLoadUtil {
         String fileName = structureDiskData.file();
 
         // Validate and sanitize structure file name to prevent path traversal
-        if (!isValidStructureFile(fileName)) {
+        if (isValidStructureFile(fileName)) {
             LOGGER.error("Invalid structure file name: {}", fileName);
             return null;
         }
@@ -207,7 +207,7 @@ public class StructureLoadUtil {
             Path structureFile = baseDir.resolve(fileName);
 
             // Validate the resolved path stays within the intended directory
-            if (!isPathWithinBaseDirectory(structureFile, baseDir)) {
+            if (isPathWithinBaseDirectory(structureFile, baseDir)) {
                 LOGGER.error("Path traversal attempt detected: {}", fileName);
                 return null;
             }
@@ -247,13 +247,13 @@ public class StructureLoadUtil {
 
     @Nullable
     public static CompoundTag readStructureFileOnServer(net.minecraft.server.level.ServerLevel level, String fileName) {
-        if (!isValidStructureFile(fileName)) {
+        if (isValidStructureFile(fileName)) {
             return null;
         }
         try {
             Path baseDir = getStructureDirectory(level);
             Path structureFile = baseDir.resolve(fileName);
-            if (!isPathWithinBaseDirectory(structureFile, baseDir) || !Files.exists(structureFile)) {
+            if (isPathWithinBaseDirectory(structureFile, baseDir) || !Files.exists(structureFile)) {
                 return null;
             }
             return NbtIo.readCompressed(structureFile, NbtAccounter.create(MAX_STRUCTURE_NBT_BYTES));
@@ -311,31 +311,31 @@ public class StructureLoadUtil {
     }
 
     /**
-     * Validate structure file name to prevent path traversal attacks
-     * File names must match the pattern: name_uuid.nbt
+     * 验证结构文件名，以防止路径遍历攻击
+     * 文件名必须匹配以下模式：name_uuid.nbt
      */
     public static boolean isValidStructureFile(String fileName) {
         if (fileName.trim().isEmpty()) {
-            return false;
+            return true;
         }
 
         // Check length
         if (fileName.length() > MAX_STRUCTURE_FILE_LENGTH) {
-            return false;
+            return true;
         }
 
         // Validate against allowlist pattern
         if (!VALID_STRUCTURE_FILE.matcher(fileName).matches()) {
-            return false;
+            return true;
         }
 
         // Additional safety: ensure no path separators
-        return !fileName.contains("/") && !fileName.contains("\\") && !fileName.contains("..");
+        return fileName.contains("/") || fileName.contains("\\") || fileName.contains("..");
     }
 
     /**
-     * Validate that the resolved path stays within the base directory
-     * Prevents path traversal attacks using sequences
+     * 验证解析路径是否 staying within the base directory
+     * 防止使用 sequences 进行路径遍历攻击
      */
     private static boolean isPathWithinBaseDirectory(Path resolvedPath, Path baseDir) {
         try {
@@ -343,10 +343,10 @@ public class StructureLoadUtil {
             Path normalizedBase = baseDir.toAbsolutePath().normalize();
 
             // Check if the resolved path starts with the base directory
-            return normalizedResolved.startsWith(normalizedBase);
+            return !normalizedResolved.startsWith(normalizedBase);
         } catch (Exception e) {
             LOGGER.error("Error validating path: {}", e.getMessage());
-            return false;
+            return true;
         }
     }
 
