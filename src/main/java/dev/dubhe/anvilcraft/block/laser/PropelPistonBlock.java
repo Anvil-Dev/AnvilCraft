@@ -249,15 +249,20 @@ public class PropelPistonBlock extends DirectionalBlock implements IMoveableEnti
         if (!pistonstructureresolver.resolve()) {
             return false;
         } else {
-            // 与活塞一致：解析后立即预约。落位点在下一个方块的坐标上，推进活塞跨 tick 才放回，
-            // 因此源坐标与落位点都要覆盖，否则 TNT 会在落位时被重新点燃。
-            List<BlockPos> reserved = Lists.newArrayList(pistonstructureresolver.getToPush());
-            reserved.addAll(pistonstructureresolver.getToDestroy());
+            // 与活塞一致：解析后、任何方块变更之前预约。每个载荷各登记一条，只覆盖自己的
+            // 源坐标与落位坐标；这样同 tick 多个载荷先后落位时，先落位的那条只释放自己，
+            // 不会清掉其余载荷的预留。被销毁的方块不落位，没有释放时机，只能靠 TTL。
+            Map<BlockPos, PistonMoveGuard.TimedReservation> reservations = Maps.newHashMap();
             for (BlockPos pushed : pistonstructureresolver.getToPush()) {
-                reserved.add(pushed.relative(facing));
+                BlockPos destination = pushed.relative(facing);
+                reservations.put(destination, PistonMoveGuard.reserveUntil(
+                    level, List.of(pushed, destination), PistonMoveGuard.PISTON_MOVE_RESERVATION_TICKS));
             }
-            final PistonMoveGuard.TimedReservation reservation = PistonMoveGuard.reserveUntil(
-                level, reserved, PistonMoveGuard.PISTON_MOVE_RESERVATION_TICKS);
+            List<BlockPos> toDestroy = pistonstructureresolver.getToDestroy();
+            if (!toDestroy.isEmpty()) {
+                PistonMoveGuard.reserveUntil(
+                    level, toDestroy, PistonMoveGuard.PISTON_MOVE_RESERVATION_TICKS);
+            }
             Map<BlockPos, BlockState> map = Maps.newHashMap();
             List<BlockPos> list = pistonstructureresolver.getToPush();
             List<BlockState> list1 = Lists.newArrayList();
@@ -321,9 +326,10 @@ public class PropelPistonBlock extends DirectionalBlock implements IMoveableEnti
                     entity.anvillib$setBlockEntity(blockEntity);
                 }
                 level.setBlockEntity(movingBlockEntity);
-                // 载荷由原版实体放回，这条路径拿不到本模组的句柄；按落位坐标登记，
-                // 让它收尾时释放，而不是只等 TTL 到期。
-                PistonMoveGuard.anchor(level, blockPos3, reservation);
+                // 载荷由原版实体放回，这条路径拿不到本模组的句柄；按落位坐标登记该载荷自己那条，
+                // 由该实体的落位 tick 释放。
+                PistonMoveGuard.TimedReservation reservation = reservations.get(blockPos3);
+                if (reservation != null) PistonMoveGuard.anchor(level, blockPos3, reservation);
                 blockStates[i++] = blockState5;
             }
 

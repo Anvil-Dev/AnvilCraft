@@ -336,7 +336,8 @@ public final class BlueprintBlockConfiguration {
             config.putByteArray("layerPositions", mirrored);
         }
         // 照射坐标是结构外的绝对世界坐标（定日镜通常指向扫描立方体之外），因此有源点就换算。
-        // 没有源点时保留原值：其余字段在同样情况下也是原样拷贝，只有它能换算时才需要换算。
+        // 没有源点时原样保留，此时它是**源世界**的绝对坐标：蓝图贴到别处后该坐标仍指向源世界
+        // 的位置。其余字段在同样情况下也是原样拷贝，保留总比静默丢弃设置好。
         int[] irritate = config.getIntArray("irritate_pos").orElseGet(() -> new int[0]);
         if (irritate.length == 3 && sourceOrigin != null) {
             BlockPos world = placement.worldOf(new BlockPos(irritate[0], irritate[1], irritate[2]).subtract(sourceOrigin));
