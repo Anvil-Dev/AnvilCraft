@@ -68,7 +68,6 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.neoforge.network.PacketDistributor;
-import org.joml.Matrix3f;
 import org.joml.Quaternionf;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL30;
@@ -423,9 +422,8 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
 
         RangeButton(WatchableCyclingValue<Integer> range, int y, int step) {
             super(StructureScannerScreen.this.leftPos + (step < 0 ? 83 : 121), StructureScannerScreen.this.topPos + y,
-                step < 0 ? "minus" : "add", button -> {
-                    stepRange(range, step);
-                });
+                step < 0 ? "minus" : "add", button -> stepRange(range, step)
+            );
             this.range = range;
             this.step = step;
         }
@@ -569,7 +567,7 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
             if (!diskStack.isEmpty()) {
                 int diskSlotX = i + 8;
                 int diskSlotY = j + 112;
-                renderMaskedItem(guiGraphics, diskStack, diskSlotX, diskSlotY);
+                this.renderMaskedItem(guiGraphics, diskStack, diskSlotX, diskSlotY);
             }
         }
         guiGraphics.flush();
@@ -720,7 +718,6 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
     @SuppressWarnings("checkstyle:VariableDeclarationUsageDistance")
     private void renderInfoPanelWithoutTooltip(GuiGraphics guiGraphics) {
         // 使用缓存数据
-        if (this.cachedBlockEntity == null) return;
 
         // 检查是否有磁盘
         if (!this.cachedHasDisk || this.blueprintVisible) return;
@@ -790,7 +787,6 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
     @Nullable
     private TooltipRenderInfo collectInfoPanelTooltip(int mouseX, int mouseY) {
         // 使用缓存数据
-        if (this.cachedBlockEntity == null) return null;
 
         // 检查是否有磁盘
         if (!this.cachedHasDisk || this.blueprintVisible) return null;
@@ -846,15 +842,15 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
             this.cachedImportedPreview = null;
         }
         boolean visible = imported || this.cachedHasDisk && this.cachedIsScanComplete;
-        if (visible && !imported && !this.blueprintVisible && this.cachedBlockEntity != null) {
+        if (visible && !imported && !this.blueprintVisible) {
             this.marker = DiskDisplaySupport.getScannedDisplay(this.cachedBlockEntity).copy();
         }
         this.blueprintVisible = visible;
         this.blueprintWidgets.forEach(widget -> widget.visible = visible);
         this.scanWidgets.forEach(widget -> {
             widget.visible = !visible;
-            widget.active = !visible && this.cachedBlockEntity != null && !this.cachedBlockEntity.isScanning()
-                && (!(widget instanceof RangeButton button) || button.canStep());
+            widget.active =
+                !visible && !this.cachedBlockEntity.isScanning() && (!(widget instanceof RangeButton button) || button.canStep());
         });
         this.nameInput.setEditable(visible);
         if (!visible && this.nameInput.isFocused()) this.clearInputFocus();
@@ -942,9 +938,6 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
 
     private void updateModeToggleButton() {
         // 使用缓存数据
-        if (this.cachedBlockEntity == null) {
-            return;
-        }
 
         if (this.menu.getImportedStructure() != null) {
             this.isScanMode = true;
@@ -1087,7 +1080,6 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
             preview = this.buildImportedPreview(imported, this.minecraft.level);
             bounds = this.cachedImportedPreviewBounds;
         } else {
-            if (this.cachedBlockEntity == null) return;
             var state = this.minecraft.level.getBlockState(this.cachedBlockEntity.getBlockPos());
             LevelLike scannedPreview = this.buildPreviewLevelLike(state.getValue(HorizontalDirectionalBlock.FACING));
             if (this.blueprintError != null) {
@@ -1114,14 +1106,7 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
     private void applyPreviewTransform(PoseStack pose, AABB bounds, int posX, int posY) {
         Quaternionf rotation = Axis.XP.rotationDegrees(this.previewRotationX)
             .mul(Axis.YP.rotationDegrees(this.previewRotationY + 315.0F));
-        Matrix3f matrix = new Matrix3f().rotation(rotation);
-        float sizeX = (float) bounds.getXsize();
-        float sizeY = (float) bounds.getYsize();
-        float sizeZ = (float) bounds.getZsize();
-        float projectedWidth = Math.abs(matrix.m00()) * sizeX + Math.abs(matrix.m10()) * sizeY + Math.abs(matrix.m20()) * sizeZ;
-        float projectedHeight = Math.abs(matrix.m01()) * sizeX + Math.abs(matrix.m11()) * sizeY + Math.abs(matrix.m21()) * sizeZ;
-        float scale = Math.min((this.previewWindowWidth - 8.0F) / projectedWidth,
-            (this.previewWindowHeight - 8.0F) / projectedHeight);
+        float scale = RenderSupport.autoScale(rotation, bounds, this.previewWindowWidth, this.previewWindowHeight, 4.0F);
         pose.translate(posX, posY, 100);
         pose.scale(-scale, -scale, -scale);
         pose.mulPose(rotation);
@@ -1142,13 +1127,13 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
      * 构建预览用的LevelLike实例（带缓存）
      */
     private @Nullable LevelLike buildPreviewLevelLike(Direction facing) {
-        if (this.cachedBlockEntity == null || this.minecraft == null || this.minecraft.level == null) {
+        if (this.minecraft == null || this.minecraft.level == null) {
             return null;
         }
 
         var scanned = this.cachedBlockEntity.getScannedBlocks();
         long now = this.minecraft.level.getGameTime();
-        if (this.lastPreviewBlockCheck != now || this.cachedPreviewLevelLike == null) {
+        if (this.lastPreviewBlockCheck != now) {
             this.lastPreviewBlockCheck = now;
             if (!scanned.equals(this.cachedPreviewBlocks)) {
                 this.cachedPreviewBlocks = scanned.stream().map(block -> new StructureScannerBlockEntity.CachedBlockData(
@@ -1156,13 +1141,13 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
                 this.cachedPreviewLevelLike = null;
             }
         }
-        if (this.cachedPreviewLevelLike == null || now < this.lastPreviewEntityCheck || now - this.lastPreviewEntityCheck >= 10) {
+        if (now < this.lastPreviewEntityCheck || now - this.lastPreviewEntityCheck >= 10) {
             var captured = this.cachedBlockEntity.captureEntities();
             if (!captured.equals(this.cachedPreviewEntities)) this.cachedPreviewLevelLike = null;
             this.cachedPreviewEntities = captured;
             this.lastPreviewEntityCheck = now;
         }
-        if (this.cachedPreviewLevelLike != null && this.cachedPreviewFacing == facing) return this.cachedPreviewLevelLike;
+        if (this.cachedPreviewFacing == facing) return this.cachedPreviewLevelLike;
 
         ClientLevel level = this.minecraft.level;
         LevelLike previewLevelLike = new LevelLike(level);
@@ -1234,7 +1219,7 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
     }
 
     private void renderScannerBorder(PoseStack pose) {
-        if (this.minecraft == null || this.cachedBlockEntity == null) return;
+        if (this.minecraft == null) return;
         MultiBufferSource.BufferSource buffers = this.minecraft.renderBuffers().bufferSource();
         VertexConsumer consumer = buffers.getBuffer(RenderType.lines());
         VoxelShape border = Shapes.create(0, 0, 2, this.cachedRangeX, this.cachedRangeY, this.cachedRangeZ + 2);

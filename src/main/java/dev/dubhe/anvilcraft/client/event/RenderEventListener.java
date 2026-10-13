@@ -30,6 +30,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.Shapes;
@@ -238,16 +239,12 @@ public class RenderEventListener {
             return;
         }
 
+        // 方块实体尚未同步时按方块状态回退计算，与点位模式的包围盒保持一致
         Direction placerFacing = blockState.getValue(net.minecraft.world.level.block.HorizontalDirectionalBlock.FACING);
         boolean upsideDown = blockState.getValue(dev.dubhe.anvilcraft.block.SmartBlockPlacerBlock.UPSIDE_DOWN);
-        BlockPos basePos = hitPos.relative(placerFacing.getOpposite(), -4);
-        int yOffset = upsideDown ? -4 : 0;
-        VoxelShape rangeShape = Shapes.create(
-            basePos.getX() - 2, basePos.getY() + yOffset, basePos.getZ() - 2,
-            basePos.getX() + 3, basePos.getY() + 5 + yOffset, basePos.getZ() + 3
-        );
-
-        addRangeOutline(hitPos, blockState, rangeShape, gameTime);
+        AABB rangeBounds = SmartBlockPlacerBlockEntity.positionModeRangeBounds(
+            hitPos, placerFacing.getOpposite(), upsideDown);
+        addRangeOutline(hitPos, blockState, Shapes.create(rangeBounds), gameTime);
     }
 
     private static boolean hasScannerHammer(@javax.annotation.Nullable Player player) {

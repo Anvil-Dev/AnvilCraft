@@ -524,6 +524,18 @@ public final class BlockPlacementUtil {
             );
         }
 
+        /**
+         * 把占用范围裁剪到存储网格内；越界的部分会被丢弃，故裁剪后可能只占部分格。
+         */
+        public BlueprintExtent clamp(int gridSize) {
+            int minRow = Math.clamp(this.minRow, 0, gridSize - 1);
+            int maxRow = Math.clamp(this.maxRow, 0, gridSize - 1);
+            int minColumn = Math.clamp(this.minColumn, 0, gridSize - 1);
+            int maxColumn = Math.clamp(this.maxColumn, 0, gridSize - 1);
+            int maxLayer = Math.clamp(this.maxLayer, 0, gridSize - 1);
+            return new BlueprintExtent(minRow, maxRow, minColumn, maxColumn, maxLayer);
+        }
+
         public int width() {
             return this.maxColumn - this.minColumn + 1;
         }

@@ -675,7 +675,15 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         if (this.target == TargetMode.BLUEPRINT) {
             return this.getBlueprintLayout().getRangeBounds(targetFacing, upsideDown);
         }
-        BlockPos basePos = this.getBlockPos().relative(targetFacing, POSITION_DISTANCE);
+        return positionModeRangeBounds(this.getBlockPos(), targetFacing, upsideDown);
+    }
+
+    /**
+     * 点位模式的放置范围：以放置方向前方 {@link #POSITION_DISTANCE} 格为中心、边长 {@link #POSITION_GRID_SIZE} 的立方体。<br>
+     * 不依赖方块实体，供渲染回退路径与预览共用。
+     */
+    public static AABB positionModeRangeBounds(BlockPos placerPos, Direction targetFacing, boolean upsideDown) {
+        BlockPos basePos = placerPos.relative(targetFacing, POSITION_DISTANCE);
         int verticalOffset = upsideDown ? 1 - POSITION_GRID_SIZE : 0;
         return AabbUtil.createInclusive(
             basePos.offset(-POSITION_GRID_RADIUS, verticalOffset, -POSITION_GRID_RADIUS),
@@ -934,10 +942,10 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             return;
         }
 
-        // 蓝图自带大小信息，按其尺寸居中放入存储网格
-        int width = Math.min(structure.width, POSITION_GRID_SIZE);
-        int depth = Math.min(structure.depth, POSITION_GRID_SIZE);
-        int height = Math.min(structure.height, POSITION_GRID_SIZE);
+        // 蓝图自带大小信息；超出存储网格时按旧口径从中心截取，放不下的部分丢弃
+        int width = structure.width;
+        int depth = structure.depth;
+        int height = structure.height;
         int columnOffset = (POSITION_GRID_SIZE - width) / 2;
         int rowOffset = (POSITION_GRID_SIZE - depth) / 2;
         for (StructureLoadUtil.BlockPosition block : structure.blocks) {
@@ -958,7 +966,8 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             this.blueprint.states(),
             false,
             BlockPlacementUtil.BlueprintExtent.fromSize(
-                width, depth, height, columnOffset, rowOffset, 0)
+                width, depth, height, columnOffset, rowOffset, 0
+            ).clamp(POSITION_GRID_SIZE)
         );
     }
 

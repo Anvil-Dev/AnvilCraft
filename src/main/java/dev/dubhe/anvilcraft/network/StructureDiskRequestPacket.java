@@ -45,7 +45,7 @@ public record StructureDiskRequestPacket(String file) implements IServerboundPac
     @Override
     public void handleOnServer(Player player) {
         if (!(player instanceof ServerPlayer serverPlayer)) return;
-        if (StructureLoadUtil.isValidStructureFile(this.file)) return;
+        if (!StructureLoadUtil.isValidStructureFile(this.file)) return;
 
         long now = System.currentTimeMillis();
         Long last = LAST_REQUEST.put(serverPlayer, now);
