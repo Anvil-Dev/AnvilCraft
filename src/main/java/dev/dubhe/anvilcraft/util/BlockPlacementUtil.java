@@ -504,6 +504,26 @@ public final class BlockPlacementUtil {
             return new BlueprintExtent(minRow, maxRow, minColumn, maxColumn, maxLayer);
         }
 
+        /**
+         * 按蓝图自带的大小信息与居中偏移构造占用范围，无需扫描方块。
+         */
+        public static BlueprintExtent fromSize(
+            int width,
+            int depth,
+            int height,
+            int columnOffset,
+            int rowOffset,
+            int layerOffset
+        ) {
+            return new BlueprintExtent(
+                rowOffset,
+                rowOffset + depth - 1,
+                columnOffset,
+                columnOffset + width - 1,
+                layerOffset + height - 1
+            );
+        }
+
         public int width() {
             return this.maxColumn - this.minColumn + 1;
         }

@@ -720,7 +720,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             this.isUpsideDown(),
             POSITION_GRID_SIZE,
             POSITION_DISTANCE,
-            BlockPlacementUtil.BlueprintExtent.of(this.blueprint.states(), POSITION_GRID_SIZE),
+            this.blueprint.extent(),
             this.blueprint.states()
         );
     }
@@ -734,11 +734,25 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
     private record BlueprintTarget(int orderIndex, BlockPos pos, BlockState state) {
     }
 
-    public record StructureBlueprint(String name, BlockState[] states, boolean invalid) {
+    /**
+     * 蓝图内容与其自带的大小信息；extent 记录蓝图在存储网格中的占用范围，无需扫描方块推算。
+     */
+    public record StructureBlueprint(
+        String name,
+        BlockState[] states,
+        boolean invalid,
+        BlockPlacementUtil.BlueprintExtent extent
+    ) {
         private static StructureBlueprint empty() {
             BlockState[] states = new BlockState[POSITION_COUNT];
             Arrays.fill(states, Blocks.AIR.defaultBlockState());
-            return new StructureBlueprint("", states, false);
+            int center = POSITION_GRID_SIZE / 2;
+            return new StructureBlueprint(
+                "",
+                states,
+                false,
+                BlockPlacementUtil.BlueprintExtent.fromSize(1, 1, 1, center, center, 0)
+            );
         }
     }
     // endregion
@@ -908,21 +922,27 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         ItemStack blueprint = this.blueprintItemHandler.getStackInSlot(0);
         StructureDiskData diskData = blueprint.get(ModComponents.STRUCTURE_DISK_DATA);
         if (blueprint.isEmpty() || diskData == null || this.level == null) {
-            this.blueprint = new StructureBlueprint("", this.blueprint.states(), !blueprint.isEmpty());
+            this.blueprint = new StructureBlueprint(
+                "", this.blueprint.states(), !blueprint.isEmpty(), this.blueprint.extent());
             return;
         }
 
         StructureLoadUtil.StructureData structure = StructureLoadUtil.loadStructureFromDisk(this.level, blueprint);
         if (structure == null || structure.isEmpty()) {
-            this.blueprint = new StructureBlueprint(diskData.name(), this.blueprint.states(), true);
+            this.blueprint = new StructureBlueprint(
+                diskData.name(), this.blueprint.states(), true, this.blueprint.extent());
             return;
         }
 
-        int columnOffset = (POSITION_GRID_SIZE - structure.width) / 2;
-        int rowOffset = (POSITION_GRID_SIZE - structure.depth) / 2;
+        // 蓝图自带大小信息，按其尺寸居中放入存储网格
+        int width = Math.min(structure.width, POSITION_GRID_SIZE);
+        int depth = Math.min(structure.depth, POSITION_GRID_SIZE);
+        int height = Math.min(structure.height, POSITION_GRID_SIZE);
+        int columnOffset = (POSITION_GRID_SIZE - width) / 2;
+        int rowOffset = (POSITION_GRID_SIZE - depth) / 2;
         for (StructureLoadUtil.BlockPosition block : structure.blocks) {
-            int column = columnOffset + structure.width - block.x() - 1;
-            int row = rowOffset + structure.depth - block.z() - 1;
+            int column = columnOffset + width - block.x() - 1;
+            int row = rowOffset + depth - block.z() - 1;
             int layer = block.y();
             if (!isValidLayer(layer)
                 || column < 0 || column >= POSITION_GRID_SIZE
@@ -933,7 +953,13 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             int position = row * POSITION_GRID_SIZE + column;
             this.blueprint.states()[getPositionIndex(layer, position)] = block.state();
         }
-        this.blueprint = new StructureBlueprint(diskData.name(), this.blueprint.states(), false);
+        this.blueprint = new StructureBlueprint(
+            diskData.name(),
+            this.blueprint.states(),
+            false,
+            BlockPlacementUtil.BlueprintExtent.fromSize(
+                width, depth, height, columnOffset, rowOffset, 0)
+        );
     }
 
     private void clearBlueprint() {
@@ -955,6 +981,13 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         tag.put("blueprintStates", states);
         tag.putString("loadedStructureName", this.blueprint.name());
         tag.putBoolean("invalidStructure", this.blueprint.invalid());
+        tag.putIntArray("blueprintExtent", new int[]{
+            this.blueprint.extent().minRow(),
+            this.blueprint.extent().maxRow(),
+            this.blueprint.extent().minColumn(),
+            this.blueprint.extent().maxColumn(),
+            this.blueprint.extent().maxLayer()
+        });
         saveDisplayedBlock(tag, "missingBlock", this.missingBlock, registries);
         saveHeldBlock(tag, "currentHeldBlock", this.currentHeldBlock, registries);
     }
@@ -977,7 +1010,8 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         this.blueprint = new StructureBlueprint(
             tag.getString("loadedStructureName"),
             blueprintStates,
-            tag.getBoolean("invalidStructure")
+            tag.getBoolean("invalidStructure"),
+            loadBlueprintExtent(tag, blueprintStates)
         );
         this.missingBlock = loadDisplayedBlock(tag, "missingBlock", registries);
         if (this.missingBlock == null) {
@@ -987,6 +1021,27 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             this.missingBlock = null;
         }
         this.currentHeldBlock = loadHeldBlock(tag, "currentHeldBlock", this.getBlockPos(), registries);
+    }
+
+    /**
+     * 读取蓝图占用范围；旧存档没有该字段时回退为扫描方块推算。
+     */
+    private static BlockPlacementUtil.BlueprintExtent loadBlueprintExtent(CompoundTag tag, BlockState[] states) {
+        int[] stored = tag.getIntArray("blueprintExtent");
+        if (stored.length != 5) {
+            return BlockPlacementUtil.BlueprintExtent.of(states, POSITION_GRID_SIZE);
+        }
+        int minRow = stored[0];
+        int maxRow = stored[1];
+        int minColumn = stored[2];
+        int maxColumn = stored[3];
+        int maxLayer = stored[4];
+        boolean valid = minRow >= 0 && minRow <= maxRow && maxRow < POSITION_GRID_SIZE
+            && minColumn >= 0 && minColumn <= maxColumn && maxColumn < POSITION_GRID_SIZE
+            && maxLayer >= 0 && maxLayer < POSITION_GRID_SIZE;
+        return valid
+            ? new BlockPlacementUtil.BlueprintExtent(minRow, maxRow, minColumn, maxColumn, maxLayer)
+            : BlockPlacementUtil.BlueprintExtent.of(states, POSITION_GRID_SIZE);
     }
 
     private static void saveDisplayedBlock(

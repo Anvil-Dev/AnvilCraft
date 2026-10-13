@@ -234,6 +234,7 @@ public class StructureLoadUtil {
             }
             data.width = bounds.getXSpan();
             data.depth = bounds.getZSpan();
+            data.height = bounds.getYSpan();
 
             // LOGGER.debug("Structure loaded: {} ({} blocks)", structureName, data.blocks.size());
             return data;
@@ -356,12 +357,14 @@ public class StructureLoadUtil {
         public final StructureDiskData diskData;
         public int width;
         public int depth;
+        public int height;
         public final List<BlockPosition> blocks = new ArrayList<>();
 
         public StructureData(StructureDiskData diskData) {
             this.diskData = diskData;
             this.width = diskData.sizeX();
             this.depth = diskData.sizeZ();
+            this.height = diskData.sizeY();
         }
 
         public boolean isEmpty() {
