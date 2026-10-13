@@ -2,13 +2,11 @@ package dev.dubhe.anvilcraft.entity;
 
 import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.api.event.SlidingBlockEvent;
-import dev.dubhe.anvilcraft.api.sliding.SlidingBlockInfo;
 import dev.dubhe.anvilcraft.api.sliding.SlidingBlockSection;
 import dev.dubhe.anvilcraft.block.sliding.ISlidingRail;
 import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import dev.dubhe.anvilcraft.init.entity.ModEntities;
 import dev.dubhe.anvilcraft.network.SlidingEntitySyncPacket;
-import dev.dubhe.anvilcraft.util.PistonMoveGuard;
 import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.CrashReportCategory;
@@ -38,8 +36,6 @@ import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.apache.commons.lang3.tuple.Triple;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import javax.annotation.Nullable;
@@ -53,9 +49,6 @@ public class SlidingBlockEntity extends Entity {
     private SlidingBlockSection section;
     @Getter
     private @Nullable Direction moveDirection;
-    /** 承载期间对载荷坐标的保留，避免吞噬器在方块往返途中抢走方块。 */
-    @Nullable
-    private PistonMoveGuard.SlidingScope moveGuard;
     private int time = 0;
 
     public SlidingBlockEntity(EntityType<? extends SlidingBlockEntity> entityType, Level level) {
@@ -80,7 +73,6 @@ public class SlidingBlockEntity extends Entity {
         this.zo = bottomCenter.z;
         this.setStartPos(pos);
         this.moveDirection = moveDirection;
-        this.refreshMoveGuard();
         NeoForge.EVENT_BUS.post(new SlidingBlockEvent.Start(this, level, pos, moveDirection, infos));
     }
 
@@ -89,18 +81,7 @@ public class SlidingBlockEntity extends Entity {
         Level level, BlockPos pos, Direction moveDirection,
         Iterable<Triple<BlockPos, BlockState, Optional<BlockEntity>>> infos
     ) {
-        return slid(level, pos, moveDirection, infos, null);
-    }
-
-    @SuppressWarnings("UnusedReturnValue")
-    public static SlidingBlockEntity slid(
-        Level level, BlockPos pos, Direction moveDirection,
-        Iterable<Triple<BlockPos, BlockState, Optional<BlockEntity>>> infos,
-        @Nullable PistonMoveGuard.SlidingScope moveGuard
-    ) {
         SlidingBlockEntity entity = new SlidingBlockEntity(level, pos, moveDirection, infos);
-        entity.moveGuard = moveGuard;
-        entity.refreshMoveGuard();
         for (var entry : infos) {
             level.setBlock(pos, level.getFluidState(entry.getLeft()).createLegacyBlock(), 3);
         }
@@ -111,31 +92,6 @@ public class SlidingBlockEntity extends Entity {
                 new SlidingEntitySyncPacket(entity.getId(), entity.section.blocks(), Objects.requireNonNull(entity.moveDirection))
             ));
         return entity;
-    }
-
-    /// 用起点、当前位置以及前一格刷新保留范围并续期；滑动期间方块不在世界里，这些都要覆盖。
-    private void refreshMoveGuard() {
-        if (this.moveGuard == null) return;
-        List<BlockPos> positions = new ArrayList<>();
-        BlockPos center = this.blockPosition();
-        BlockPos start = this.getStartPos();
-        BlockPos ahead = center.relative(Objects.requireNonNull(this.moveDirection));
-        for (SlidingBlockInfo info : this.section.blocks()) {
-            positions.add(info.getPos(center).immutable());
-            positions.add(info.getPos(start).immutable());
-            // 本刻 move() 之后载荷会前进一格，而下一 tick 的停靠分支可能在刷新前就落位。
-            positions.add(info.getPos(ahead).immutable());
-        }
-        this.moveGuard.replace(this.level().getGameTime(), positions, List.of());
-    }
-
-    @Override
-    public void remove(Entity.RemovalReason reason) {
-        if (this.moveGuard != null) {
-            this.moveGuard.close(this.level());
-            this.moveGuard = null;
-        }
-        super.remove(reason);
     }
 
     @Override
@@ -149,9 +105,6 @@ public class SlidingBlockEntity extends Entity {
         BlockPos pos = this.blockPosition();
         BlockPos belowPos = pos.below();
         BlockState belowState = this.level().getBlockState(belowPos);
-        // 按当前方块坐标刷新保留：下面几条停靠分支会直接 return，落位就发生在这一格，
-        // 保留必须已包含它；本刻 move() 之后的前进格也一并在 refreshMoveGuard 里覆盖。
-        this.refreshMoveGuard();
         if (belowState.getBlock() instanceof ISlidingRail slidingRail && !this.level().isClientSide) {
             slidingRail.onSlidingAbove(this.level(), belowPos, belowState, this);
         } else if (belowState.is(ModBlockTags.SLIDING_RAIL_STOP_LIKE) && !this.level().isClientSide && this.time > 2) {
