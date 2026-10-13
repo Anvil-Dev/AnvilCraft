@@ -136,8 +136,6 @@ public final class StorageServerStub {
     /** Shift 连续合成会话（按玩家 × 源位置）：跨分块 RPC 保持锁定配方与本次点击剩余合成次数，防止残料漂移。 */
     private static final Map<UUID, Map<Long, TakeAllSession>> TAKE_ALL_RECIPE_LOCKS = new HashMap<>();
 
-    /** 本地终端自动连接大型板条箱的搜索半径（格）。 */
-    /** 潜影终端自动连接世界潜影集装箱的搜索半径（格）。 */
     /**
      * 连续合成（Shift 点击③/④ 结果槽）单次 RPC 内最多合成的次数。
      * 单次调用在服务端线程同步执行，分块后客户端循环调用直到 {@code done}，
