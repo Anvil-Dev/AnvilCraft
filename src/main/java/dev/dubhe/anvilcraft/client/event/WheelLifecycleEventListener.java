@@ -597,7 +597,6 @@ public class WheelLifecycleEventListener {
     public static void onKeyInput(InputEvent.Key event) {
         Minecraft client = Minecraft.getInstance();
         if (client.player == null) return;
-        if (ModKeyMappings.shouldIgnoreForDebugChord(event.getAction())) return;
         if (client.options.keyUse.matches(event.getKeyEvent())) {
             WheelLifecycleEventListener.processHammerPress(client, event.getAction());
         }

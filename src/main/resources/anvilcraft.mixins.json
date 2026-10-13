@@ -112,7 +112,6 @@
     "ServerLevelFireSpreadMixin",
     "ServerLevelMixin",
     "ServerLevelRandomTickMixin",
-    "ServerLevelWeatherCycleMixin",
     "ServerPlayerContainerListenerMixin",
     "ServerPlayerMixin",
     "StriderMixin",
