@@ -5092,9 +5092,12 @@ public final class StorageServerStub {
     /**
      * 空格左击流体格：一次装出 {@link #SPACE_TAKE_STACKS} 桶流体直接放进玩家背包。
      *
-     * <p>逐桶调用 {@link #fillBucketFromStorage}，每桶都重新按空桶与流体实时余量判定，
-     * 因此空桶用尽或流体不足一桶时自然停下。失败提示只取第一次失败的原因，
-     * 避免前后多次判定互相覆盖。</p>
+     * <p>与物品路径同构：先按背包对成品桶的实际可容纳量定下本次上限，再逐桶调用
+     * {@link #fillBucketFromStorage}。这样背包放不下时不会先把流体抽成桶再塞回仓储
+     * 或掉在地上——取出流体的语义应始终是「进背包」。</p>
+     *
+     * <p>该上限可证明是安全的：每放入一桶恰好消耗 1 点容量，而消耗空桶只会腾出
+     * （或保持）容量，故上限内每次 {@code addItem} 都必然成功。</p>
      *
      * @param player 玩家
      * @param view   当前存储视图
@@ -5106,10 +5109,19 @@ public final class StorageServerStub {
         StorageView view,
         FluidStack fluid
     ) {
+        // 解析不出成品桶（流体不存在 / 不是可装桶的流体）时交给单桶路径给出准确提示
+        ItemStack filledBucket = StorageServerStub.filledBucketOf(view, fluid);
+        if (filledBucket.isEmpty()) {
+            return StorageServerStub.takeFluidBucketIntoInventory(player, view, fluid);
+        }
+        int limit = Math.min(
+            StorageServerStub.SPACE_TAKE_STACKS,
+            StorageServerStub.getInventorySpace(player.getInventory(), filledBucket)
+        );
         FluidNotice notice = FluidNotice.NONE;
         FluidStack taken = FluidStack.EMPTY;
         boolean changed = false;
-        for (int bucket = 0; bucket < StorageServerStub.SPACE_TAKE_STACKS; bucket++) {
+        for (int bucket = 0; bucket < limit; bucket++) {
             FilledBucket filled = StorageServerStub.fillBucketFromStorage(player, view, fluid, true);
             if (filled.stack().isEmpty()) {
                 if (!changed) {
@@ -5126,6 +5138,17 @@ public final class StorageServerStub {
             StorageServerStub.playBucketSound(player, taken, SoundActions.BUCKET_FILL);
         }
         return changed ? FluidOutcome.CHANGED : FluidOutcome.failed(notice);
+    }
+
+    /**
+     * 解析某个流体格装桶后的成品桶。无法解析（流体不存在 / 不是可装桶的流体）时返回空。
+     */
+    private static ItemStack filledBucketOf(StorageView view, FluidStack fluid) {
+        FluidEntry entry = StoragePortManager.find(view.primary().getId(), fluid);
+        if (entry == null) {
+            return ItemStack.EMPTY;
+        }
+        return FluidUtil.getFilledBucket(entry.icon().copyWithAmount(FluidType.BUCKET_VOLUME));
     }
 
     /**

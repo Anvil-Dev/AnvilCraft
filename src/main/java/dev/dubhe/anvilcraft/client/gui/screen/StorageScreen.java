@@ -1941,8 +1941,9 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
                 StorageInput action;
                 if (Screen.hasShiftDown()) {
                     action = StorageInput.QUICK_MOVE_FROM_STORAGE;
-                } else if (this.spacePressed && button == 0) {
-                    // 空格+左键：一次取出多组到背包（与空格连续合成同一倍率）
+                } else if (this.spacePressed && button == 0 && this.carried.isEmpty()) {
+                    // 空格+左键：一次取出多组到背包。指针有物时保持原有语义（存入仓储），
+                    // 与流体格一致：空格按下不应吞掉这一键原本的存入行为
                     action = StorageInput.QUICK_MOVE_STACKS_FROM_STORAGE;
                 } else {
                     action = StorageInput.PICKUP;
