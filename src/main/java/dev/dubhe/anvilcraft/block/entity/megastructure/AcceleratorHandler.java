@@ -615,10 +615,8 @@ public class AcceleratorHandler extends BaseMegastructureHandler {
         StellarTerminal terminal = this.evolutionTrack.definition().terminal();
         int wdSpaceAnvil = terminal.size();
         int wdMassAnvil = terminal.massAnvils();
-        // 颜色与锻造路径共用同一条规则；energy 仍是残骸的既有取值 47，
-        // 该字段还供亮度与戴森球出力使用，改它会连带改变这些行为。
         int wdEnergy = 47;
-        int[] rgb = CelestialBodyMatcher.getStarColor(CelestialBodyClass.WHITE_DWARF, wdEnergy);
+        int[] rgb = CelestialBodyMatcher.getStarColor(wdEnergy);
         int newMag = Math.min(star.magneticFieldStrength() + 1, 5);
         int newRotation = Math.min(star.rotationSpeed() + 1, 5);
         be.setAgeAnvilCount(be.getAgeAnvilCount() + 1);

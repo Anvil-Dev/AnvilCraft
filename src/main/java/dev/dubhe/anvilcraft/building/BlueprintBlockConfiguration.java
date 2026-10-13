@@ -149,13 +149,8 @@ public final class BlueprintBlockConfiguration {
             remove(source, "disabled_slots", "crafting_ticks_remaining", "triggered");
         }
         if (entity instanceof LecternBlockEntity) integer(source, result, "Page", 0, Integer.MAX_VALUE);
-        if (entity instanceof HeliostatsBlockEntity) {
-            // 26.1 的照射坐标是 irritate_pos（int[3]），不再是 1.21 的 Ix/Iy/Iz
-            int[] irritate = source.getIntArray("irritate_pos").orElseGet(() -> new int[0]);
-            if (irritate.length == 3) {
-                result.putIntArray("irritate_pos", irritate);
-                source.remove("irritate_pos");
-            }
+        if (entity instanceof HeliostatsBlockEntity && (source.get("Ix") instanceof IntTag)) {
+            for (String key : List.of("Ix", "Iy", "Iz")) integer(source, result, key, Integer.MIN_VALUE, Integer.MAX_VALUE);
         }
         if (entity instanceof AbstractPipeBlockEntity) {
             result.put("Valves", checkValves(BlueprintNbt.list(source, "Valves", Tag.TAG_COMPOUND)));
@@ -308,7 +303,7 @@ public final class BlueprintBlockConfiguration {
     }
 
     public static void transform(
-        CompoundTag config, BlueprintPlacement placement, @Nullable BlockPos sourceOrigin
+        CompoundTag config, BlueprintPlacement placement, @Nullable BlockPos sourceOrigin, StructureSnapshot snapshot
     ) {
         if ("minecraft:piston".equals(config.getStringOr("id", ""))) {
             var moved = NbtUtils.readBlockState(BuiltInRegistries.BLOCK, config.getCompoundOrEmpty("blockState"));
@@ -335,14 +330,20 @@ public final class BlueprintBlockConfiguration {
             for (int i = 0; i < source.length; i++) mirrored[i - i % side + side - 1 - i % side] = source[i];
             config.putByteArray("layerPositions", mirrored);
         }
-        // 照射坐标是结构外的绝对世界坐标（定日镜通常指向扫描立方体之外），因此有源点就换算。
-        // 没有源点时原样保留，此时它是**源世界**的绝对坐标：蓝图贴到别处后该坐标仍指向源世界
-        // 的位置。其余字段在同样情况下也是原样拷贝，保留总比静默丢弃设置好。
-        int[] irritate = config.getIntArray("irritate_pos").orElseGet(() -> new int[0]);
-        if (irritate.length == 3 && sourceOrigin != null) {
-            BlockPos world = placement.worldOf(new BlockPos(irritate[0], irritate[1], irritate[2]).subtract(sourceOrigin));
-            config.putIntArray("irritate_pos", new int[] {world.getX(), world.getY(), world.getZ()});
+        if (!config.contains("Ix")) return;
+        BlockPos target = new BlockPos(config.getIntOr("Ix", 0), config.getIntOr("Iy", 0), config.getIntOr("Iz", 0));
+        if (sourceOrigin != null) {
+            BlockPos local = target.subtract(sourceOrigin);
+            if (local.getX() >= 0 && local.getY() >= 0 && local.getZ() >= 0 && local.getX() < snapshot.size().getX()
+                && local.getY() < snapshot.size().getY() && local.getZ() < snapshot.size().getZ()) {
+                BlockPos world = placement.worldOf(local);
+                config.putInt("Ix", world.getX());
+                config.putInt("Iy", world.getY());
+                config.putInt("Iz", world.getZ());
+                return;
+            }
         }
+        remove(config, "Ix", "Iy", "Iz");
     }
 
     @Nullable

@@ -63,27 +63,10 @@ abstract class BaseBlockItemRenderer<T> implements SpecialModelRenderer<T> {
             );
             this.shellModel = model;
         }
-        // 这里渲染的是物品，必须用 item 变体的渲染类型：setupModel 会按半透明标记挑 entity 变体，
-        // 而 entity 变体走 core/entity 着色器（只吃 lightmap，且带 overlay 采样器），
-        // 方块模型当物品渲染时原版挑的是 item 变体，见 BakedQuad 里 itemRenderType 的取值。
-        // 用 submitModel 显式指定渲染类型，取代会转发到特殊渲染器的 submit；setupModel 从不安装特殊渲染器。
-        this.shellRenderState.submitModel(
-            this.translucent ? Sheets.translucentBlockItemSheet() : Sheets.cutoutBlockItemSheet(),
-            poseStack,
-            collector,
-            lightCoords,
-            overlayCoords,
-            outlineColor
-        );
+        this.shellRenderState.submit(poseStack, collector, lightCoords, overlayCoords, outlineColor);
         if (hasFoil) {
-            this.shellRenderState.submitModel(
-                ItemFeatureRenderer.getFoilRenderType(Sheets.cutoutBlockItemSheet(), true),
-                poseStack,
-                collector,
-                lightCoords,
-                overlayCoords,
-                0
-            );
+            this.shellRenderState.submitModel(ItemFeatureRenderer.getFoilRenderType(Sheets.cutoutBlockSheet(), true),
+                poseStack, collector, lightCoords, overlayCoords, 0);
         }
     }
 

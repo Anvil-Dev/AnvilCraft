@@ -79,7 +79,6 @@ public class ItemCrushRecipeLoader {
                 .choice(SpawnItem.builder().offset(0, -.6875, 0).item(ModItems.TOPAZ).build(), .25F)
                 .choice(SpawnItem.builder().offset(0, -.6875, 0).item(ModItems.SAPPHIRE).build(), .25F)
                 .choice(SpawnItem.builder().offset(0, -.6875, 0).item(Items.EMERALD).build(), .25F))
-            .spawnItem(builder -> builder.offset(0, -.6875, 0).item(Items.QUARTZ).count(3F))
             .save(provider, AnvilCraft.of("item_crush/gem_from_chromatic_stone"));
 
         ItemCrushRecipe.builder().requires(Items.CREEPER_HEAD).result(Items.GUNPOWDER, 64).save(provider);

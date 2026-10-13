@@ -35,7 +35,6 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
@@ -44,7 +43,6 @@ import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.capabilities.Capabilities;
-import net.neoforged.neoforge.fluids.CauldronFluidContent;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.FluidStackTemplate;
 import net.neoforged.neoforge.transfer.ResourceHandler;
@@ -394,11 +392,8 @@ public record HasCauldron(
     ) {
         ResourceHandler<FluidResource> handler = HasCauldron.getFluidHandler(ctx, pos, entityCauldron);
         if (handler == null) return;
-        FluidResource resource = handler.getResource(0);
-        // 空锅以 Fluids.EMPTY 注册，NeoForge 的 extract 拒绝空资源
-        if (resource.isEmpty()) return;
         try (Transaction transaction = Transaction.openRoot()) {
-            handler.extract(resource, Integer.MAX_VALUE, transaction);
+            handler.extract(handler.getResource(0), Integer.MAX_VALUE, transaction);
             transaction.commit();
         }
     }
@@ -422,30 +417,20 @@ public record HasCauldron(
             if (cauldron.isIgnited(cache, pos)) ignited = true;
         }
         if (entityCauldron != null && entityCauldron.anvilcraft$isIgnited()) ignited = true;
-        int target = (int) Math.round(mb);
-        int missing;
-        int deposited;
         try (Transaction transaction = Transaction.openRoot()) {
             FluidResource resource = FluidResource.of(fluid);
             FluidResource handlerResource = handler.getResource(0);
             if (!handlerResource.equals(resource) && !handlerResource.isEmpty()) {
                 handler.extract(handlerResource, Integer.MAX_VALUE, transaction);
             }
-            int amount = target - handler.getAmountAsInt(0);
+            int amount = (int) Math.round(mb);
+            amount -= handler.getAmountAsInt(0);
             if (amount < 0) {
                 handler.extract(resource, -amount, transaction);
-                deposited = 0;
             } else {
-                deposited = handler.insert(resource, amount, transaction);
+                handler.insert(resource, amount, transaction);
             }
             transaction.commit();
-            missing = target - handler.getAmountAsInt(0);
-        }
-        // 炼药锅按整层存取，250mB 在原版 3 级锅里会向下取整成 0 层。
-        // 仅在能力接口一点都没存入时按层补齐；部分存入时不补，否则 4 级锅会被多灌一层。
-        // 实体炼药锅的流体不在方块状态里，故只对方块炼药锅生效。
-        if (entityCauldron == null && deposited == 0 && missing > 0) {
-            HasCauldron.fillCauldronLayers(ctx.getLevel(), pos, fluid, missing);
         }
         cache = new BlockCache(ctx.getLevel());
         if (ctx.getLevel().getBlockState(pos).getBlock() instanceof IIgnitableCauldron cauldron) {
@@ -457,19 +442,6 @@ public record HasCauldron(
         if (entityCauldron != null && entityCauldron.anvilcraft$isIgnited() != ignited) {
             entityCauldron.anvilcraft$setIgnited(ignited);
         }
-    }
-
-    /// 按层补齐被整层取整丢掉的流体余量：请求量向上取整到整层，最多多灌不足一层。
-    private static void fillCauldronLayers(Level level, BlockPos pos, FluidStack fluid, int missing) {
-        CauldronFluidContent content = CauldronFluidContent.getForFluid(fluid.getFluid());
-        if (content == null) return;
-        // 单层锅（levelProperty 为 null）的一层就是整桶，分数量无从表达；
-        // 补齐会把 250mB 的请求灌成 1000mB，故不参与补齐。
-        if (content.maxLevel <= 1) return;
-        int perLevel = content.totalAmount / content.maxLevel;
-        if (perLevel <= 0) return;
-        int layers = (missing + perLevel - 1) / perLevel;
-        CauldronUtil.fill(level, pos, content.block, layers, false);
     }
 
     private static @Nullable ResourceHandler<FluidResource> getFluidHandler(

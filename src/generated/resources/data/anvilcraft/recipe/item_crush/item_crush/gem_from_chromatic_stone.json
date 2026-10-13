@@ -88,18 +88,8 @@
           "weight": 0.25
         }
       ]
-    },
-    {
-      "type": "anvillib_recipe:spawn_item",
-      "count": 3,
-      "item": "minecraft:quartz",
-      "offset": [
-        0.0,
-        -0.6875,
-        0.0
-      ]
     }
   ],
-  "priority": 5,
+  "priority": 4,
   "trigger": "anvilcraft:on_anvil_fall_on"
 }

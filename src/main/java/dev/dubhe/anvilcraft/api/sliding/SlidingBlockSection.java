@@ -171,7 +171,6 @@ public final class SlidingBlockSection {
                 moveableBlock.notifyMoved(level, pos, state, be);
             }
 
-            // UPDATE_ALL 只通知六个邻居，不会调用方块自身；搬移后需按新邻居重新求值
             level.neighborChanged(pos, state.getBlock(), null);
 
             ((ServerLevel) level)

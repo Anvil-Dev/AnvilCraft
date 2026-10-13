@@ -63,7 +63,7 @@ public class LevelLike implements BlockAndTintGetter {
         for (var block : BlueprintMultiblocks.expand(snapshot, placement, -1)) {
             var data = block.nbt().map(tag -> {
                 var transformed = tag.copy();
-                BlueprintBlockConfiguration.transform(transformed, placement, sourceOrigin);
+                BlueprintBlockConfiguration.transform(transformed, placement, sourceOrigin, snapshot);
                 return transformed;
             }).orElse(null);
             BlockEntity entity = BlueprintBlockEntities.create(this.parent, block.pos(), block.state(), data);
