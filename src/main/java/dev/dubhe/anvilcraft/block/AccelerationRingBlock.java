@@ -193,7 +193,7 @@ public class AccelerationRingBlock extends WaterloggedFlexibleMultiPartBlock<Dir
         BlockPos neighborPos,
         boolean movedByPiston
     ) {
-        boolean isSignal = Arrays.stream(getParts())
+        boolean isSignal = Arrays.stream(this.getParts())
             .anyMatch(it -> level.hasNeighborSignal(
                 pos.subtract(state.getValue(this.getPart()).getOffset())
                     .offset(it.getOffset())

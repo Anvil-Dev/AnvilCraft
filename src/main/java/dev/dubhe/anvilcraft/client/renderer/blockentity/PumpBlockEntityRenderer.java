@@ -54,7 +54,7 @@ public class PumpBlockEntityRenderer implements BlockEntityRenderer<PumpBlockEnt
         int packedLight,
         int packedOverlay
     ) {
-        collectSelectionModels(blockEntity, partialTick, poseStack, (model, pose) -> renderPistonModel(
+        this.collectSelectionModels(blockEntity, partialTick, poseStack, (model, pose) -> this.renderPistonModel(
             pose, buffer, Minecraft.getInstance().getModelManager().getModel(model), packedLight, packedOverlay
         ));
     }

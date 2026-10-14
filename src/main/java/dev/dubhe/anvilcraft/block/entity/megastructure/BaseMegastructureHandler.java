@@ -64,7 +64,7 @@ public abstract class BaseMegastructureHandler implements IMegastructureHandler 
     /** Consumes every Primordial Matter stack exposed by the connected fluid interfaces. */
     protected int consumePrimordialMatter(CelestialForgingAnvilBlockEntity be) {
         long consumed = 0L;
-        for (CelestialForgingAnvilFluidInterfaceBlockEntity fluidInterface : findFluidInterfaces(be)) {
+        for (CelestialForgingAnvilFluidInterfaceBlockEntity fluidInterface : this.findFluidInterfaces(be)) {
             consumed += fluidInterface.drainFluid(ModFluids.PRIMORDIAL_MATTER.get());
         }
         return (int) Math.min(consumed, Integer.MAX_VALUE);
@@ -163,7 +163,7 @@ public abstract class BaseMegastructureHandler implements IMegastructureHandler 
     }
 
     protected int countValidLasers(CelestialForgingAnvilBlockEntity be, int threshold) {
-        List<CelestialForgingAnvilLaserInterfaceBlockEntity> lasers = findLaserInterfaces(be);
+        List<CelestialForgingAnvilLaserInterfaceBlockEntity> lasers = this.findLaserInterfaces(be);
         int count = 0;
         for (CelestialForgingAnvilLaserInterfaceBlockEntity laser : lasers) {
             int level = laser.getReceivedLaserLevel();

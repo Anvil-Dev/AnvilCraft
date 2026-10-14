@@ -23,7 +23,7 @@ public class EnchantedBookFluidHandler implements IFluidHandlerItem {
 
     @Override
     public ItemStack getContainer() {
-        return container;
+        return this.container;
     }
 
     @Override
@@ -33,7 +33,7 @@ public class EnchantedBookFluidHandler implements IFluidHandlerItem {
 
     @Override
     public FluidStack getFluidInTank(int tank) {
-        ItemEnchantments enchantments = container.getOrDefault(
+        ItemEnchantments enchantments = this.container.getOrDefault(
             DataComponents.STORED_ENCHANTMENTS,
             ItemEnchantments.EMPTY
         );

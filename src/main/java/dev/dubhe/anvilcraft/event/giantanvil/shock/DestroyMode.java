@@ -80,7 +80,7 @@ public abstract class DestroyMode {
     public final void dropItems(List<ItemStack> itemStacks, BlockPos pos, ShockContext context) {
         for (ItemStack itemStack : itemStacks) {
             if (itemStack.isEmpty()) continue;
-            dropBehavior.drop(context, pos, itemStack);
+            this.dropBehavior.drop(context, pos, itemStack);
         }
     }
 
@@ -97,6 +97,6 @@ public abstract class DestroyMode {
     public abstract List<ItemStack> apply(BlockState state, BlockPos pos, ShockContext ctx);
 
     public List<ItemStack> apply(BlockState state, BlockPos pos, ShockContext ctx, ItemStack tool) {
-        return apply(state, pos, ctx);
+        return this.apply(state, pos, ctx);
     }
 }

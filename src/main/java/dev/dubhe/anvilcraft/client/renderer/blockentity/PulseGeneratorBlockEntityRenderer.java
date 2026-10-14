@@ -45,7 +45,7 @@ public class PulseGeneratorBlockEntityRenderer
         int packedLight,
         int packedOverlay
     ) {
-        collectSelectionModels(blockEntity, partialTick, poseStack, (model, pose) -> Minecraft.getInstance()
+        this.collectSelectionModels(blockEntity, partialTick, poseStack, (model, pose) -> Minecraft.getInstance()
             .getBlockRenderer().getModelRenderer().renderModel(
                 pose.last(), bufferSource.getBuffer(RenderType.cutout()), null,
                 Minecraft.getInstance().getModelManager().getModel(model), 1, 1, 1, packedLight, packedOverlay

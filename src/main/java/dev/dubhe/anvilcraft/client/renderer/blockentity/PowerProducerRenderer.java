@@ -27,7 +27,7 @@ public abstract class PowerProducerRenderer<T extends BlockEntity & IPowerProduc
         int packedOverlay
     ) {
         final VertexConsumer vertexConsumer = buffer.getBuffer(RenderType.cutout());
-        collectSelectionModels(blockEntity, partialTick, poseStack, (model, pose) -> Minecraft.getInstance()
+        this.collectSelectionModels(blockEntity, partialTick, poseStack, (model, pose) -> Minecraft.getInstance()
             .getBlockRenderer()
             .getModelRenderer()
             .renderModel(
@@ -46,16 +46,16 @@ public abstract class PowerProducerRenderer<T extends BlockEntity & IPowerProduc
     @Override
     public void collectSelectionModels(T blockEntity, float partialTick, PoseStack poseStack, ModelConsumer consumer) {
         poseStack.pushPose();
-        float rotation = rotation(blockEntity, partialTick);
-        poseStack.translate(0.5F, elevation(), 0.5F);
+        float rotation = this.rotation(blockEntity, partialTick);
+        poseStack.translate(0.5F, this.elevation(), 0.5F);
         poseStack.mulPose(Axis.YP.rotationDegrees(rotation));
         poseStack.mulPose(Axis.ZP.rotationDegrees(rotation));
-        consumer.accept(getModel(), poseStack);
+        consumer.accept(this.getModel(), poseStack);
         poseStack.popPose();
     }
 
     protected float rotation(T blockEntity, float partialTick) {
-        return ((float) blockEntity.getTime() + partialTick) * (float) Math.log(blockEntity.getServerPower() + 1) * magic() * 50.0f;
+        return ((float) blockEntity.getTime() + partialTick) * (float) Math.log(blockEntity.getServerPower() + 1) * this.magic() * 50.0f;
     }
 
     protected float elevation() {

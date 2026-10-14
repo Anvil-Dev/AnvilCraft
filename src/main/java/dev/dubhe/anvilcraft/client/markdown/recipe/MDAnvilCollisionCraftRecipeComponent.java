@@ -61,7 +61,7 @@ public class MDAnvilCollisionCraftRecipeComponent extends MDRecipeComponent {
         PoseStack pose = guiGraphics.pose();
         // 此配方需要的铁砧
         Ingredient anvil = Ingredient.of(
-            recipe.anvil().getBlocks().stream()
+            this.recipe.anvil().getBlocks().stream()
                 .map(blockHolder -> new ItemStack(blockHolder.value()))
         );
         AgeratumUtil.renderItemWithoutSlot(context, anvil, mouseX, mouseY, ANVIL_X, ANVIL_Y);
@@ -75,7 +75,7 @@ public class MDAnvilCollisionCraftRecipeComponent extends MDRecipeComponent {
             );
         }
         // 被撞击的方块
-        Ingredient hitBlock = Ingredient.of(recipe.hitBlock().getBlocks().stream()
+        Ingredient hitBlock = Ingredient.of(this.recipe.hitBlock().getBlocks().stream()
             .map(blockHolder -> new ItemStack(blockHolder.value()))
         );
         AgeratumUtil.renderItemWithoutSlot(context, hitBlock, mouseX, mouseY, HIT_BLOCK_X, HIT_BLOCK_Y);
@@ -83,14 +83,14 @@ public class MDAnvilCollisionCraftRecipeComponent extends MDRecipeComponent {
         guiGraphics.blit(EXPLOSION, EXPLOSION_X, EXPLOSION_Y, 0, 0, 32, 32, 32, 32);
 
         // 输出物品
-        if (!recipe.outputItems().isEmpty()) {
+        if (!this.recipe.outputItems().isEmpty()) {
             AgeratumUtil.renderArrow(guiGraphics, OUTPUT_ARROW_X, OUTPUT_ARROW_Y);
-            AgeratumUtil.renderItems(context, recipe.outputItems(), mouseX, mouseY, OUTPUT_ITEM_X, OUTPUT_ITEM_Y);
+            AgeratumUtil.renderItems(context, this.recipe.outputItems(), mouseX, mouseY, OUTPUT_ITEM_X, OUTPUT_ITEM_Y);
         }
 
         // 转换方块
-        if (!recipe.transformBlocks().isEmpty()) {
-            List<BlockTransform> blockTransforms = recipe.transformBlocks();
+        if (!this.recipe.transformBlocks().isEmpty()) {
+            List<BlockTransform> blockTransforms = this.recipe.transformBlocks();
 
             for (BlockTransform blockTransform : blockTransforms) {
                 AgeratumUtil.renderBlock(context, blockTransform.inputBlock(), mouseX, mouseY, TRANSFORM_X, TRANSFORM_INPUT_Y, 20);
@@ -106,13 +106,13 @@ public class MDAnvilCollisionCraftRecipeComponent extends MDRecipeComponent {
 
         AgeratumUtil.renderText(
             guiGraphics,
-            Component.translatable("gui.anvilcraft.category.anvil_collision.consume", recipe.consume()),
+            Component.translatable("gui.anvilcraft.category.anvil_collision.consume", this.recipe.consume()),
             INFO_X, INFO_Y
         );
 
         AgeratumUtil.renderText(
             guiGraphics,
-            Component.translatable("gui.anvilcraft.category.anvil_collision.speed", recipe.speed()),
+            Component.translatable("gui.anvilcraft.category.anvil_collision.speed", this.recipe.speed()),
             INFO_X, INFO_Y + INFO_Y_OFFSET
         );
     }

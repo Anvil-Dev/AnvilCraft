@@ -15,7 +15,7 @@ public enum WindSpeed implements StringRepresentable {
 
     @Override
     public @NotNull String getSerializedName() {
-        return name;
+        return this.name;
     }
 
     public static WindSpeed fromName(String name) {

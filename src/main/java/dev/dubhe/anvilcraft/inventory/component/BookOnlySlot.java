@@ -35,7 +35,7 @@ public class BookOnlySlot extends Slot {
     @Override
     public boolean isActive() {
         // 如果有可见性条件,检查条件;否则默认激活
-        return visibilityCondition == null || visibilityCondition.getAsBoolean();
+        return this.visibilityCondition == null || this.visibilityCondition.getAsBoolean();
     }
 
     @Override

@@ -46,48 +46,48 @@ public class ColliderHandler extends BaseMegastructureHandler {
     public void serverTick(CelestialForgingAnvilBlockEntity be) {
         if (be.getLevel() == null || be.getLevel().isClientSide()) return;
         CelestialRefactorOption option = be.getActiveMegastructureOption();
-        if (option == null || !name().equals(option.megastructure())) return;
+        if (option == null || !this.name().equals(option.megastructure())) return;
         if (be.getPlanetaryResourceSet() == null) return;
         if (!(be.getCelestialBodyData() instanceof StarData star)) return;
         if (star.size() >= 48) return;
 
         boolean starMissing = !be.isAmplifierPresent();
-        boolean isProcessing = cycleRemaining > 0 && !be.isPowerInsufficient();
+        boolean isProcessing = this.cycleRemaining > 0 && !be.isPowerInsufficient();
 
         if (be.getLevel().getGameTime() % 20 == 0) {
-            refreshColliderTargetItems(be);
+            this.refreshColliderTargetItems(be);
         }
 
         if (starMissing) {
-            if (cycleRemaining > 0 || !reservedAnvil.isEmpty() || !reservedHitBlock.isEmpty()) {
-                outputColliderReservedItems(be);
+            if (this.cycleRemaining > 0 || !this.reservedAnvil.isEmpty() || !this.reservedHitBlock.isEmpty()) {
+                this.outputColliderReservedItems(be);
             }
-            broadcastColliderState(be, false, true);
+            this.broadcastColliderState(be, false, true);
             return;
         }
 
-        broadcastColliderState(be, isProcessing, false);
+        this.broadcastColliderState(be, isProcessing, false);
 
         if (be.isPowerInsufficient()) {
-            outputColliderReservedItems(be);
+            this.outputColliderReservedItems(be);
             return;
         }
 
-        if (cooldown > 0) {
-            cooldown--;
+        if (this.cooldown > 0) {
+            this.cooldown--;
             return;
         }
 
-        if (cycleRemaining > 0) {
-            cycleRemaining--;
-            if (cycleRemaining == 0) {
-                completeColliderCycle(be);
-                cooldown = COOLDOWN_TICKS;
+        if (this.cycleRemaining > 0) {
+            this.cycleRemaining--;
+            if (this.cycleRemaining == 0) {
+                this.completeColliderCycle(be);
+                this.cooldown = COOLDOWN_TICKS;
             }
             return;
         }
 
-        tryStartColliderCycle(be);
+        this.tryStartColliderCycle(be);
     }
 
     private void broadcastColliderState(CelestialForgingAnvilBlockEntity be, boolean processing, boolean starMissing) {
@@ -109,14 +109,14 @@ public class ColliderHandler extends BaseMegastructureHandler {
             (checkPos) -> {
                 var blockEntity = be.getLevel().getBlockEntity(checkPos);
                 if (blockEntity instanceof CelestialForgingAnvilLogisticsInterfaceBlockEntity logiBe) {
-                    logiBe.setColliderTargetItems(new ArrayList<>(targetItems));
+                    logiBe.setColliderTargetItems(new ArrayList<>(this.targetItems));
                 }
             }, be
         );
     }
 
     private void refreshColliderTargetItems(CelestialForgingAnvilBlockEntity be) {
-        targetItems.clear();
+        this.targetItems.clear();
         if (be.getLevel() == null) return;
         List<RecipeHolder<AnvilCollisionCraftRecipe>> recipes = be.getLevel()
             .getRecipeManager()
@@ -129,16 +129,16 @@ public class ColliderHandler extends BaseMegastructureHandler {
             for (var state : hitPred.getStatesCache()) {
                 ItemStack item = new ItemStack(state.getBlock().asItem(), 1);
                 boolean has = false;
-                for (ItemStack existing : targetItems) {
+                for (ItemStack existing : this.targetItems) {
                     if (ItemStack.isSameItemSameComponents(existing, item)) {
                         has = true;
                         break;
                     }
                 }
-                if (!has) targetItems.add(item);
+                if (!has) this.targetItems.add(item);
             }
         }
-        broadcastColliderTargets(be);
+        this.broadcastColliderTargets(be);
     }
 
     private record CLogisticsRef(IItemHandler handler, BlockPos pos) {
@@ -232,19 +232,19 @@ public class ColliderHandler extends BaseMegastructureHandler {
         CLogisticsRef anvilSrc = logistics.get(bestAnvil.li);
         CLogisticsRef hitSrc = logistics.get(bestHit.li);
 
-        reservedAnvil = anvilSrc.handler.extractItem(bestAnvil.slot, anvilToTake, false);
-        reservedHitBlock = hitSrc.handler.extractItem(bestHit.slot, hitToTake, false);
+        this.reservedAnvil = anvilSrc.handler.extractItem(bestAnvil.slot, anvilToTake, false);
+        this.reservedHitBlock = hitSrc.handler.extractItem(bestHit.slot, hitToTake, false);
 
-        activeSpeed = bestRecipe.speed();
-        cycleRemaining = t;
-        cooldown = 0;
+        this.activeSpeed = bestRecipe.speed();
+        this.cycleRemaining = t;
+        this.cooldown = 0;
 
-        markLogisticsProcessing(be, anvilSrc.pos, true);
+        this.markLogisticsProcessing(be, anvilSrc.pos, true);
         if (!hitSrc.pos.equals(anvilSrc.pos)) {
-            markLogisticsProcessing(be, hitSrc.pos, true);
+            this.markLogisticsProcessing(be, hitSrc.pos, true);
         }
-        broadcastColliderTargets(be);
-        broadcastColliderState(be, true, false);
+        this.broadcastColliderTargets(be);
+        this.broadcastColliderState(be, true, false);
 
         be.setChanged();
         be.getLevel().sendBlockUpdated(be.getBlockPos(), be.getBlockState(), be.getBlockState(), 3);
@@ -254,7 +254,7 @@ public class ColliderHandler extends BaseMegastructureHandler {
         if (be.getLevel() == null || pos == null) return;
         var blockEntity = be.getLevel().getBlockEntity(pos);
         if (blockEntity instanceof CelestialForgingAnvilLogisticsInterfaceBlockEntity logiBe) {
-            logiBe.setColliderTargetItems(new ArrayList<>(targetItems));
+            logiBe.setColliderTargetItems(new ArrayList<>(this.targetItems));
             logiBe.setColliderProcessing(processing);
         }
     }
@@ -271,9 +271,9 @@ public class ColliderHandler extends BaseMegastructureHandler {
         for (var holder : recipes) {
             AnvilCollisionCraftRecipe recipe = holder.value();
             if (recipe.outputItems().isEmpty()) continue;
-            if (recipe.speed() != activeSpeed) continue;
-            Block anvilBlock = Block.byItem(reservedAnvil.getItem());
-            Block hitBlock = Block.byItem(reservedHitBlock.getItem());
+            if (recipe.speed() != this.activeSpeed) continue;
+            Block anvilBlock = Block.byItem(this.reservedAnvil.getItem());
+            Block hitBlock = Block.byItem(this.reservedHitBlock.getItem());
             if (anvilBlock != Blocks.AIR && hitBlock != Blocks.AIR && recipe.anvil()
                 .test(be.getLevel(), anvilBlock.defaultBlockState(), null) && recipe.hitBlock()
                     .test(be.getLevel(), hitBlock.defaultBlockState(), null)) {
@@ -282,19 +282,19 @@ public class ColliderHandler extends BaseMegastructureHandler {
             }
         }
 
-        int anvilReserved = reservedAnvil.getCount();
-        int hitReserved = reservedHitBlock.getCount();
+        int anvilReserved = this.reservedAnvil.getCount();
+        int hitReserved = this.reservedHitBlock.getCount();
         boolean consumeAnvil = activeRecipe != null && activeRecipe.consume();
         int collisionCount = consumeAnvil ? Math.min(anvilReserved, hitReserved) : hitReserved;
 
         // Return unused hit blocks
         int hitRemaining = hitReserved - collisionCount;
         if (hitRemaining > 0) {
-            ItemStack hitReturn = reservedHitBlock.copyWithCount(hitRemaining);
+            ItemStack hitReturn = this.reservedHitBlock.copyWithCount(hitRemaining);
             if (logistics.size() > 0) {
-                ItemOutputResult result = insertOutputItem(logistics, hitReturn, logisticsRoundRobin);
+                ItemOutputResult result = insertOutputItem(logistics, hitReturn, this.logisticsRoundRobin);
                 if (result.remainder().getCount() < hitReturn.getCount()) {
-                    logisticsRoundRobin = result.nextIndex();
+                    this.logisticsRoundRobin = result.nextIndex();
                 }
                 hitReturn = result.remainder();
             }
@@ -307,11 +307,11 @@ public class ColliderHandler extends BaseMegastructureHandler {
         if (consumeAnvil) {
             int anvilRemaining = anvilReserved - collisionCount;
             if (anvilRemaining > 0) {
-                ItemStack anvilReturn = reservedAnvil.copyWithCount(anvilRemaining);
+                ItemStack anvilReturn = this.reservedAnvil.copyWithCount(anvilRemaining);
                 if (logistics.size() > 0) {
-                    ItemOutputResult result = insertOutputItem(logistics, anvilReturn, logisticsRoundRobin);
+                    ItemOutputResult result = insertOutputItem(logistics, anvilReturn, this.logisticsRoundRobin);
                     if (result.remainder().getCount() < anvilReturn.getCount()) {
-                        logisticsRoundRobin = result.nextIndex();
+                        this.logisticsRoundRobin = result.nextIndex();
                     }
                     anvilReturn = result.remainder();
                 }
@@ -320,16 +320,16 @@ public class ColliderHandler extends BaseMegastructureHandler {
                 }
             }
         } else {
-            if (!reservedAnvil.isEmpty() && logistics.size() > 0) {
-                ItemStack anvilReturn = reservedAnvil.copy();
-                ItemOutputResult result = insertOutputItem(logistics, anvilReturn, logisticsRoundRobin);
+            if (!this.reservedAnvil.isEmpty() && logistics.size() > 0) {
+                ItemStack anvilReturn = this.reservedAnvil.copy();
+                ItemOutputResult result = insertOutputItem(logistics, anvilReturn, this.logisticsRoundRobin);
                 if (result.remainder().getCount() < anvilReturn.getCount()) {
-                    logisticsRoundRobin = result.nextIndex();
+                    this.logisticsRoundRobin = result.nextIndex();
                 }
                 anvilReturn = result.remainder();
                 if (!anvilReturn.isEmpty()) dropItemOnGround(anvilReturn, be.getLevel(), be.getBlockPos());
-            } else if (!reservedAnvil.isEmpty()) {
-                dropItemOnGround(reservedAnvil.copy(), be.getLevel(), be.getBlockPos());
+            } else if (!this.reservedAnvil.isEmpty()) {
+                dropItemOnGround(this.reservedAnvil.copy(), be.getLevel(), be.getBlockPos());
             }
         }
 
@@ -339,52 +339,52 @@ public class ColliderHandler extends BaseMegastructureHandler {
                 for (int c = 0; c < collisionCount; c++) {
                     ItemStack output = chanceStack.getResult(serverLevel);
                     if (output.isEmpty()) continue;
-                    ItemOutputResult result = insertOutputItem(logistics, output, logisticsRoundRobin);
+                    ItemOutputResult result = insertOutputItem(logistics, output, this.logisticsRoundRobin);
                     if (result.remainder().getCount() < output.getCount()) {
-                        logisticsRoundRobin = result.nextIndex();
+                        this.logisticsRoundRobin = result.nextIndex();
                     }
                 }
             }
         }
 
-        broadcastColliderState(be, false, false);
-        resetColliderState(be);
+        this.broadcastColliderState(be, false, false);
+        this.resetColliderState(be);
     }
 
     private void outputColliderReservedItems(CelestialForgingAnvilBlockEntity be) {
         if (be.getLevel() == null) return;
         var logistics = findOutputLogisticsInterfaces(be);
 
-        if (!reservedAnvil.isEmpty()) {
-            ItemStack remaining = reservedAnvil.copy();
+        if (!this.reservedAnvil.isEmpty()) {
+            ItemStack remaining = this.reservedAnvil.copy();
             if (logistics.size() > 0) {
-                ItemOutputResult result = insertOutputItem(logistics, remaining, logisticsRoundRobin);
-                if (result.remainder().getCount() < remaining.getCount()) logisticsRoundRobin = result.nextIndex();
+                ItemOutputResult result = insertOutputItem(logistics, remaining, this.logisticsRoundRobin);
+                if (result.remainder().getCount() < remaining.getCount()) this.logisticsRoundRobin = result.nextIndex();
                 remaining = result.remainder();
             }
             if (!remaining.isEmpty()) dropItemOnGround(remaining, be.getLevel(), be.getBlockPos());
         }
 
-        if (!reservedHitBlock.isEmpty()) {
-            ItemStack remaining = reservedHitBlock.copy();
+        if (!this.reservedHitBlock.isEmpty()) {
+            ItemStack remaining = this.reservedHitBlock.copy();
             if (logistics.size() > 0) {
-                ItemOutputResult result = insertOutputItem(logistics, remaining, logisticsRoundRobin);
-                if (result.remainder().getCount() < remaining.getCount()) logisticsRoundRobin = result.nextIndex();
+                ItemOutputResult result = insertOutputItem(logistics, remaining, this.logisticsRoundRobin);
+                if (result.remainder().getCount() < remaining.getCount()) this.logisticsRoundRobin = result.nextIndex();
                 remaining = result.remainder();
             }
             if (!remaining.isEmpty()) dropItemOnGround(remaining, be.getLevel(), be.getBlockPos());
         }
 
-        resetColliderState(be);
+        this.resetColliderState(be);
     }
 
     private void resetColliderState(CelestialForgingAnvilBlockEntity be) {
-        cooldown = 0;
-        cycleRemaining = 0;
-        reservedAnvil = ItemStack.EMPTY;
-        reservedHitBlock = ItemStack.EMPTY;
-        activeSpeed = 0;
-        broadcastColliderState(be, false, false);
+        this.cooldown = 0;
+        this.cycleRemaining = 0;
+        this.reservedAnvil = ItemStack.EMPTY;
+        this.reservedHitBlock = ItemStack.EMPTY;
+        this.activeSpeed = 0;
+        this.broadcastColliderState(be, false, false);
         be.setChanged();
     }
 
@@ -418,6 +418,6 @@ public class ColliderHandler extends BaseMegastructureHandler {
 
     @Override
     public void onClear(CelestialForgingAnvilBlockEntity be) {
-        outputColliderReservedItems(be);
+        this.outputColliderReservedItems(be);
     }
 }

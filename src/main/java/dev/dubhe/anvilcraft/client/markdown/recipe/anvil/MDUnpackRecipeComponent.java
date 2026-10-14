@@ -22,9 +22,9 @@ public class MDUnpackRecipeComponent extends MDBaseAnvilRecipeComponent {
 
     public MDUnpackRecipeComponent(UnpackRecipe recipe, boolean enableAlignCenter) {
         super(enableAlignCenter);
-        ingredients = recipe.getInputItems();
-        resultItems = recipe.getResultItems();
-        inputBlockStates = List.of(
+        this.ingredients = recipe.getInputItems();
+        this.resultItems = recipe.getResultItems();
+        this.inputBlockStates = List.of(
             Blocks.IRON_TRAPDOOR.defaultBlockState()
         );
     }

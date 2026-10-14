@@ -18,7 +18,7 @@ public class StepEffectSlabBlock extends SlabBlock {
 
     @Override
     public void stepOn(Level level, BlockPos pos, BlockState state, Entity entity) {
-        stepAction.accept(entity);
+        this.stepAction.accept(entity);
     }
 
 }

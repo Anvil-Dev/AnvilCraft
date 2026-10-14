@@ -55,7 +55,7 @@ public class LensBlockEntity extends BaseLaserBlockEntity {
 
     @Override
     public void onIrradiated(BaseLaserBlockEntity source) {
-        if (determineEmissionDirection(source)) {
+        if (this.determineEmissionDirection(source)) {
             super.onIrradiated(source);
             this.enabled = true;
         }
@@ -108,11 +108,11 @@ public class LensBlockEntity extends BaseLaserBlockEntity {
 
     @Override
     public void tick(Level level) {
-        if (enabled) {
-            emitLaser(emittingDirection);
+        if (this.enabled) {
+            emitLaser(this.emittingDirection);
         }
         super.tick(level);
-        if (laserLevel == 0) enabled = false;
+        if (laserLevel == 0) this.enabled = false;
         resetState();
     }
 

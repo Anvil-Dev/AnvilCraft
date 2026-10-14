@@ -282,7 +282,7 @@ public class RedstoneWireBlock extends Block implements IHammerRemovable {
         if (index < 0
             || !state.getValue(CONNECTION_PROPERTIES.get(index)).isConnected()
             || isManuallyHidden(level, pos, state, index)
-            || hasWireConnection(level, pos, state, index)) {
+            || this.hasWireConnection(level, pos, state, index)) {
             return 0;
         }
         BlockState receiver = level.getBlockState(pos.relative(outputDirection));

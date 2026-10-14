@@ -80,20 +80,20 @@ public class ControlValveBlockEntity extends BlockEntity implements MenuProvider
 
     /** 供网络分配使用的有效最大流速：被红石锁定时为 0，否则为设定值。 */
     public int getEffectiveMaxRate() {
-        return isLocked() ? 0 : maxRate;
+        return this.isLocked() ? 0 : this.maxRate;
     }
 
     /** 设置某槽的过滤流体（数量归一，仅记录种类）。 */
     public void setFilter(int index, FluidStack fluid) {
-        if (index < 0 || index >= filters.size()) {
+        if (index < 0 || index >= this.filters.size()) {
             return;
         }
-        filters.set(index, fluid.isEmpty() ? FluidStack.EMPTY : fluid.copyWithAmount(1));
+        this.filters.set(index, fluid.isEmpty() ? FluidStack.EMPTY : fluid.copyWithAmount(1));
         this.setChanged();
     }
 
     public FluidStack getFilter(int index) {
-        return (index < 0 || index >= filters.size()) ? FluidStack.EMPTY : filters.get(index);
+        return (index < 0 || index >= this.filters.size()) ? FluidStack.EMPTY : this.filters.get(index);
     }
 
     /**
@@ -103,7 +103,7 @@ public class ControlValveBlockEntity extends BlockEntity implements MenuProvider
      */
     public boolean allows(FluidStack fluid) {
         boolean anySet = false;
-        for (FluidStack allowed : filters) {
+        for (FluidStack allowed : this.filters) {
             if (allowed.isEmpty()) {
                 continue;
             }
@@ -120,9 +120,9 @@ public class ControlValveBlockEntity extends BlockEntity implements MenuProvider
     @Override
     protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.saveAdditional(tag, registries);
-        tag.putInt("MaxRate", maxRate);
-        tag.putInt("Facing", facing.get3DDataValue());
-        tag.put("Filters", writeFilters(registries));
+        tag.putInt("MaxRate", this.maxRate);
+        tag.putInt("Facing", this.facing.get3DDataValue());
+        tag.put("Filters", this.writeFilters(registries));
     }
 
     @Override
@@ -130,22 +130,22 @@ public class ControlValveBlockEntity extends BlockEntity implements MenuProvider
         super.loadAdditional(tag, registries);
         this.maxRate = Mth.clamp(tag.getInt("MaxRate"), 0, MAX_RATE);
         this.facing = Direction.from3DDataValue(tag.getInt("Facing"));
-        readFilters(registries, tag.getList("Filters", Tag.TAG_COMPOUND));
+        this.readFilters(registries, tag.getList("Filters", Tag.TAG_COMPOUND));
     }
 
     @Override
     public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
         CompoundTag tag = super.getUpdateTag(registries);
-        tag.putInt("MaxRate", maxRate);
-        tag.putInt("Facing", facing.get3DDataValue());
-        tag.put("Filters", writeFilters(registries));
+        tag.putInt("MaxRate", this.maxRate);
+        tag.putInt("Facing", this.facing.get3DDataValue());
+        tag.put("Filters", this.writeFilters(registries));
         return tag;
     }
 
     private ListTag writeFilters(HolderLookup.Provider registries) {
         ListTag list = new ListTag();
-        for (int i = 0; i < filters.size(); i++) {
-            FluidStack fluid = filters.get(i);
+        for (int i = 0; i < this.filters.size(); i++) {
+            FluidStack fluid = this.filters.get(i);
             if (fluid.isEmpty()) {
                 continue;
             }
@@ -158,12 +158,12 @@ public class ControlValveBlockEntity extends BlockEntity implements MenuProvider
     }
 
     private void readFilters(HolderLookup.Provider registries, ListTag list) {
-        Collections.fill(filters, FluidStack.EMPTY);
+        Collections.fill(this.filters, FluidStack.EMPTY);
         for (int i = 0; i < list.size(); i++) {
             CompoundTag entry = list.getCompound(i);
             int slot = entry.getInt("Slot");
-            if (slot >= 0 && slot < filters.size()) {
-                filters.set(slot, FluidStack.parseOptional(registries, entry.getCompound("Fluid")));
+            if (slot >= 0 && slot < this.filters.size()) {
+                this.filters.set(slot, FluidStack.parseOptional(registries, entry.getCompound("Fluid")));
             }
         }
     }

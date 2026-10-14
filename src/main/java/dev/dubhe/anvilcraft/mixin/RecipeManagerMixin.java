@@ -77,6 +77,6 @@ abstract class RecipeManagerMixin {
         this.byType = byTypeBuilder.build();
         this.byName = byNameBuilder.build();
 
-        ProceduralProcessStepManager.initialize(byName);
+        ProceduralProcessStepManager.initialize(this.byName);
     }
 }

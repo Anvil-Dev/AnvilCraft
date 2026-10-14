@@ -78,14 +78,14 @@ public record TagModification(String path, ModifyOperation op, int index, Tag ta
 
     @Override
     public void accept(Tag input) {
-        if (op == ModifyOperation.SET || op == ModifyOperation.ROOT_SET) {
+        if (this.op == ModifyOperation.SET || this.op == ModifyOperation.ROOT_SET) {
             int index = this.path.lastIndexOf('.');
             String path = this.path.substring(0, index == -1 ? this.path.length() : index);
             String key = this.path.substring(index + 1);
             this.readAndAcceptTag(path, 0, key);
             return;
         }
-        this.readAndAcceptTag(this.path, this.index, path);
+        this.readAndAcceptTag(this.path, this.index, this.path);
     }
 
     public void readAndAcceptTag(String path, int index, String key) {
@@ -212,7 +212,7 @@ public record TagModification(String path, ModifyOperation op, int index, Tag ta
         }
 
         public TagModification build() {
-            return new TagModification(path, op, index, tag);
+            return new TagModification(this.path, this.op, this.index, this.tag);
         }
     }
 }

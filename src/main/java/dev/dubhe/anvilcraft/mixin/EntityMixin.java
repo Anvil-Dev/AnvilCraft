@@ -133,12 +133,12 @@ public abstract class EntityMixin implements IEntityExtension {
 
     @Override
     public boolean anvilcraft$isDeflected() {
-        return anvil$isDeflected;
+        return this.anvil$isDeflected;
     }
 
     @Override
     public Vec3 anvilcraft$getFixedDeltaMovement() {
-        return anvil$fixedDeltaMovement;
+        return this.anvil$fixedDeltaMovement;
     }
 
     @ModifyVariable(method = "move", at = @At("HEAD"), argsOnly = true)
@@ -174,32 +174,32 @@ public abstract class EntityMixin implements IEntityExtension {
         double z,
         Operation<Void> original
     ) {
-        Vec3 vec3 = new Vec3(x - getX(), y - getY(), z - getZ());
+        Vec3 vec3 = new Vec3(x - this.getX(), y - this.getY(), z - this.getZ());
         if (instance instanceof Projectile
             || instance instanceof FallingBlockEntity
             || instance instanceof Player) {
             double movementLengthSqr = vec3.lengthSqr();
             if (!Double.isFinite(movementLengthSqr) || movementLengthSqr <= 0.98 * 0.98) {
-                anvil$isDeflected = false;
+                this.anvil$isDeflected = false;
                 original.call(instance, x, y, z);
                 return;
             }
-            Vec3 start = anvilcraft$getMovementCenter();
-            if (!anvilcraft$findDeflectionRing(start, vec3)) {
-                anvil$isDeflected = false;
+            Vec3 start = this.anvilcraft$getMovementCenter();
+            if (!this.anvilcraft$findDeflectionRing(start, vec3)) {
+                this.anvil$isDeflected = false;
                 original.call(instance, x, y, z);
                 return;
             }
-            Vec3 target = anvilcraft$getDeflectionTarget();
-            Vec3 fixedMovement = target.subtract(position());
+            Vec3 target = this.anvilcraft$getDeflectionTarget();
+            Vec3 fixedMovement = target.subtract(this.position());
             original.call(instance, target.x, target.y, target.z);
-            anvil$isMovementFixed = true;
-            anvil$fixedDeltaMovement = fixedMovement;
-            anvil$isDeflected = true;
+            this.anvil$isMovementFixed = true;
+            this.anvil$fixedDeltaMovement = fixedMovement;
+            this.anvil$isDeflected = true;
 
             return;
         }
-        anvil$isDeflected = false;
+        this.anvil$isDeflected = false;
         original.call(instance, x, y, z);
     }
 
@@ -209,7 +209,7 @@ public abstract class EntityMixin implements IEntityExtension {
     )
     )
     public boolean anvilcraft$cancelCollision1(double x, double y, Operation<Boolean> original) {
-        return anvil$isMovementFixed || original.call(x, y);
+        return this.anvil$isMovementFixed || original.call(x, y);
     }
 
     @WrapOperation(
@@ -218,7 +218,7 @@ public abstract class EntityMixin implements IEntityExtension {
     )
     )
     public boolean anvilcraft$cancelCollision2(double x, double y, Operation<Boolean> original) {
-        return anvil$isMovementFixed || original.call(x, y);
+        return this.anvil$isMovementFixed || original.call(x, y);
     }
 
     @Inject(
@@ -253,26 +253,26 @@ public abstract class EntityMixin implements IEntityExtension {
         Entity entity,
         Operation<Void> original
     ) {
-        if (!anvil$isMovementFixed) original.call(block, level, entity);
+        if (!this.anvil$isMovementFixed) original.call(block, level, entity);
     }
 
     @Inject(method = "setPos(DDD)V", at = @At("HEAD"), cancellable = true)
     public void anvilcraft$changeProjectilePosSetResult(double x, double y, double z, CallbackInfo ci) {
         Entity instance = (Entity) (Object) this;
         if (!(instance instanceof Projectile)) return;
-        Vec3 vec3 = new Vec3(x - getX(), y - getY(), z - getZ());
-        if (!anvilcraft$isProjectileMovement(vec3)) return;
-        if (!anvilcraft$findDeflectionRing(anvilcraft$getMovementCenter(), vec3)) return;
-        Vec3 pos = anvilcraft$getDeflectionTarget();
-        setPosRaw(pos.x, pos.y, pos.z);
-        setBoundingBox(makeBoundingBox());
+        Vec3 vec3 = new Vec3(x - this.getX(), y - this.getY(), z - this.getZ());
+        if (!this.anvilcraft$isProjectileMovement(vec3)) return;
+        if (!this.anvilcraft$findDeflectionRing(this.anvilcraft$getMovementCenter(), vec3)) return;
+        Vec3 pos = this.anvilcraft$getDeflectionTarget();
+        this.setPosRaw(pos.x, pos.y, pos.z);
+        this.setBoundingBox(this.makeBoundingBox());
         ci.cancel();
     }
 
     @Unique
     private boolean anvilcraft$isProjectileMovement(Vec3 movement) {
         double movementLengthSqr = movement.lengthSqr();
-        double velocityLengthSqr = getDeltaMovement().lengthSqr();
+        double velocityLengthSqr = this.getDeltaMovement().lengthSqr();
         if (!Double.isFinite(movementLengthSqr)
             || !Double.isFinite(velocityLengthSqr)
             || movementLengthSqr <= 0.98 * 0.98
@@ -282,7 +282,7 @@ public abstract class EntityMixin implements IEntityExtension {
         double movementLength = Math.sqrt(movementLengthSqr);
         double velocityLength = Math.sqrt(velocityLengthSqr);
         double lengthRatio = movementLength / velocityLength;
-        double directionSimilarity = movement.dot(getDeltaMovement()) / (movementLength * velocityLength);
+        double directionSimilarity = movement.dot(this.getDeltaMovement()) / (movementLength * velocityLength);
         return lengthRatio >= 0.5 && lengthRatio <= 2.0 && directionSimilarity >= 0.95;
     }
 
@@ -294,13 +294,13 @@ public abstract class EntityMixin implements IEntityExtension {
     @Unique
     private Vec3 anvilcraft$getDeflectionTarget() {
         Entity entity = (Entity) (Object) this;
-        return anvil$hitDeflectionRing.getCenter().subtract(AccelerateManager.getMovementOffset(entity));
+        return this.anvil$hitDeflectionRing.getCenter().subtract(AccelerateManager.getMovementOffset(entity));
     }
 
     @Unique
     private boolean anvilcraft$findDeflectionRing(Vec3 start, Vec3 movement) {
-        anvil$hitDeflectionRing = DeflectionRingBlockEntity.findFirstRing((Entity) (Object) this, start, movement);
-        return anvil$hitDeflectionRing != null;
+        this.anvil$hitDeflectionRing = DeflectionRingBlockEntity.findFirstRing((Entity) (Object) this, start, movement);
+        return this.anvil$hitDeflectionRing != null;
     }
 
     @Inject(method = "move", at = @At("HEAD"))
@@ -309,8 +309,8 @@ public abstract class EntityMixin implements IEntityExtension {
         Vec3 pos,
         CallbackInfo ci
     ) {
-        anvil$isMovementFixed = false;
-        anvil$beforeBoundingMovement = this.getDeltaMovement();
+        this.anvil$isMovementFixed = false;
+        this.anvil$beforeBoundingMovement = this.getDeltaMovement();
     }
 
     @Inject(method = "move", at = @At("RETURN"))
@@ -325,13 +325,13 @@ public abstract class EntityMixin implements IEntityExtension {
             && !extension.anvilcraft$canCollisionCraft()) {
             return;
         }
-        double movementLengthSqr = anvil$beforeBoundingMovement.lengthSqr();
+        double movementLengthSqr = this.anvil$beforeBoundingMovement.lengthSqr();
         if (!Double.isFinite(movementLengthSqr) || movementLengthSqr <= 1.0E-12) return;
         double movementLength = Math.sqrt(movementLengthSqr);
-        BlockPos blockPos = BlockPos.containing(this.position.add(anvil$beforeBoundingMovement
+        BlockPos blockPos = BlockPos.containing(this.position.add(this.anvil$beforeBoundingMovement
             .scale(0.55 / movementLength)
             .multiply(1, 0, 1)));
-        NeoForge.EVENT_BUS.post(new AnvilEvent.CollisionBlock(level, blockPos, self, movementLength));
+        NeoForge.EVENT_BUS.post(new AnvilEvent.CollisionBlock(this.level, blockPos, self, movementLength));
     }
 
     @WrapOperation(

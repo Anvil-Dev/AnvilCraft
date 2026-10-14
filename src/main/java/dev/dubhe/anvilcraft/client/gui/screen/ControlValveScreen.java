@@ -112,7 +112,7 @@ public class ControlValveScreen extends AbstractContainerScreen<ControlValveMenu
     }
 
     private void onSliderChange(int value) {
-        if (isLocked()) {
+        if (this.isLocked()) {
             return;
         }
         this.valueBox.setValue(Integer.toString(value));
@@ -120,7 +120,7 @@ public class ControlValveScreen extends AbstractContainerScreen<ControlValveMenu
     }
 
     private void onValueInput(String text) {
-        if (isLocked()) {
+        if (this.isLocked()) {
             return;
         }
         int v;
@@ -170,7 +170,7 @@ public class ControlValveScreen extends AbstractContainerScreen<ControlValveMenu
             PacketDistributor.sendToServer(new ControlValveFilterPacket(0, fluid));
             return true;
         }
-        if (button == 0 && !isLocked()) {
+        if (button == 0 && !this.isLocked()) {
             this.slider.onClick(mouseX, mouseY);
         }
         return super.mouseClicked(mouseX, mouseY, button);
@@ -178,7 +178,7 @@ public class ControlValveScreen extends AbstractContainerScreen<ControlValveMenu
 
     @Override
     public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
-        if (!isLocked()) {
+        if (!this.isLocked()) {
             this.slider.onDrag(mouseX, mouseY);
         }
         return super.mouseDragged(mouseX, mouseY, button, dragX, dragY);
@@ -223,7 +223,7 @@ public class ControlValveScreen extends AbstractContainerScreen<ControlValveMenu
     @Override
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         // 红石锁定：流速为 0 且不可编辑
-        boolean locked = isLocked();
+        boolean locked = this.isLocked();
         this.valueBox.setEditable(!locked);
         if (locked) {
             this.slider.setValue(0);
@@ -235,7 +235,7 @@ public class ControlValveScreen extends AbstractContainerScreen<ControlValveMenu
         int fy = this.topPos + FILTER_Y;
         // 过滤格（非物品槽）：绘制白名单流体贴图
         if (!this.filterFluid.isEmpty()) {
-            renderFluidSprite(guiGraphics, this.filterFluid, fx, fy);
+            this.renderFluidSprite(guiGraphics, this.filterFluid, fx, fy);
         }
         // 悬停时叠加与物品槽一致的白色半透明高亮，让它看起来像可放入的格子
         if (this.isHovering(FILTER_X, FILTER_Y, 16, 16, mouseX, mouseY)) {

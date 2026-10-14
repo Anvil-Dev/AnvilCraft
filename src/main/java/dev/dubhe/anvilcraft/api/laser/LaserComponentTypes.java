@@ -50,13 +50,13 @@ public final class LaserComponentTypes {
     ) implements ILaserComponentType<T, E> {
         @Override
         public T createInstance(E componentEnvironment) {
-            return factory.apply(componentEnvironment);
+            return this.factory.apply(componentEnvironment);
         }
 
         @Override
         public T mergeIncoming(List<T> instances) {
             if (instances.isEmpty()) throw new IllegalArgumentException("Cannot merge empty laser components");
-            return merger.apply(instances);
+            return this.merger.apply(instances);
         }
     }
 }

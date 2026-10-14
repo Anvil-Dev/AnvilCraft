@@ -23,13 +23,13 @@ public class JeiButton<T> implements IJeiGuiEventListener {
 
     @Override
     public ScreenRectangle getArea() {
-        return new ScreenRectangle(new ScreenPosition(buttonX, buttonY), size, size);
+        return new ScreenRectangle(new ScreenPosition(this.buttonX, this.buttonY), this.size, this.size);
     }
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
         if (button == 0) {
-            onClickCallback.accept(metadataKey);
+            this.onClickCallback.accept(this.metadataKey);
             return true;
         }
         return false;

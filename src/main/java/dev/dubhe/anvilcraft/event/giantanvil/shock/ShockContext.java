@@ -60,7 +60,7 @@ public record ShockContext(
     public boolean testCorner(TagKey<Block> tagKey) {
         for (Direction direction1 : HORIZONTAL_X) {
             for (Direction direction2 : HORIZONTAL_Z) {
-                if (!matchesShockBase(centerPos.relative(direction1).relative(direction2), tagKey)) {
+                if (!this.matchesShockBase(this.centerPos.relative(direction1).relative(direction2), tagKey)) {
                     return false;
                 }
             }
@@ -69,13 +69,13 @@ public record ShockContext(
     }
 
     public boolean testCorner(Holder<Block> block) {
-        return testCorner(block.value());
+        return this.testCorner(block.value());
     }
 
     public boolean testCorner(Block block) {
         for (Direction direction1 : HORIZONTAL_X) {
             for (Direction direction2 : HORIZONTAL_Z) {
-                if (!matchesShockBase(centerPos.relative(direction1).relative(direction2), block)) {
+                if (!this.matchesShockBase(this.centerPos.relative(direction1).relative(direction2), block)) {
                     return false;
                 }
             }
@@ -84,12 +84,12 @@ public record ShockContext(
     }
 
     public boolean testBorder(Holder<Block> block) {
-        return testBorder(block.value());
+        return this.testBorder(block.value());
     }
 
     public boolean testBorder(TagKey<Block> tagKey) {
         for (Direction direction : HORIZONTAL) {
-            if (!matchesShockBase(centerPos.relative(direction), tagKey)) {
+            if (!this.matchesShockBase(this.centerPos.relative(direction), tagKey)) {
                 return false;
             }
         }
@@ -98,7 +98,7 @@ public record ShockContext(
 
     public boolean testBorder(Block block) {
         for (Direction direction : HORIZONTAL) {
-            if (!matchesShockBase(centerPos.relative(direction), block)) {
+            if (!this.matchesShockBase(this.centerPos.relative(direction), block)) {
                 return false;
             }
         }
@@ -107,9 +107,9 @@ public record ShockContext(
 
     public boolean testBorder(Class<? extends Block> block) {
         for (Direction direction : HORIZONTAL) {
-            BlockPos pos = centerPos.relative(direction);
-            if (block.isInstance(level.getBlockState(pos).getBlock())) continue;
-            boolean entityMatches = shockEntitiesAt(pos).stream()
+            BlockPos pos = this.centerPos.relative(direction);
+            if (block.isInstance(this.level.getBlockState(pos).getBlock())) continue;
+            boolean entityMatches = this.shockEntitiesAt(pos).stream()
                 .map(IShockEntity::anvilcraft$getShockBaseState)
                 .flatMap(Optional::stream)
                 .map(BlockBehaviour.BlockStateBase::getBlock)
@@ -121,14 +121,14 @@ public record ShockContext(
 
     /** 保留旧的挖掘效果查询接口，并将实体铁砧纳入查询。 */
     public Optional<BlockMiningEffect> getBorderMiningEffect() {
-        return getBorderAnvilBehavior().map(ShockAnvilBehavior::miningEffect);
+        return this.getBorderAnvilBehavior().map(ShockAnvilBehavior::miningEffect);
     }
 
     /** 返回四个边框铁砧共同提供的完整撼地行为。 */
     public Optional<ShockAnvilBehavior> getBorderAnvilBehavior() {
         ShockAnvilBehavior behavior = null;
         for (Direction direction : HORIZONTAL) {
-            Optional<ShockAnvilBehavior> current = getAnvilBehaviorAt(centerPos.relative(direction));
+            Optional<ShockAnvilBehavior> current = this.getAnvilBehaviorAt(this.centerPos.relative(direction));
             if (current.isEmpty()) return Optional.empty();
             if (behavior == null) {
                 behavior = current.get();
@@ -141,9 +141,9 @@ public record ShockContext(
 
     /** 返回撼地范围内声明参与弹性模式的实体。 */
     public List<Entity> getShockEntitiesInRange() {
-        if (rangePosList.isEmpty()) return List.of();
-        int radius = getShockRadius();
-        BlockPos ground = centerPos.above();
+        if (this.rangePosList.isEmpty()) return List.of();
+        int radius = this.getShockRadius();
+        BlockPos ground = this.centerPos.above();
         AABB range = new AABB(
             ground.getX() - radius,
             ground.getY(),
@@ -152,7 +152,7 @@ public record ShockContext(
             ground.getY() + 1.0D,
             ground.getZ() + radius + 1.0D
         );
-        return level.getEntitiesOfClass(
+        return this.level.getEntitiesOfClass(
             Entity.class,
             range,
             entity -> entity instanceof IShockEntity && !entity.isRemoved()
@@ -162,10 +162,10 @@ public record ShockContext(
     /** 返回撼地范围的方形半径。 */
     public int getShockRadius() {
         int radius = 0;
-        for (BlockPos pos : rangePosList) {
+        for (BlockPos pos : this.rangePosList) {
             radius = Math.max(
                 radius,
-                Math.max(Math.abs(pos.getX() - centerPos.getX()), Math.abs(pos.getZ() - centerPos.getZ()))
+                Math.max(Math.abs(pos.getX() - this.centerPos.getX()), Math.abs(pos.getZ() - this.centerPos.getZ()))
             );
         }
         return radius;
@@ -178,32 +178,32 @@ public record ShockContext(
     }
 
     private Optional<ShockAnvilBehavior> getAnvilBehaviorAt(BlockPos pos) {
-        for (IShockEntity entity : shockEntitiesAt(pos)) {
+        for (IShockEntity entity : this.shockEntitiesAt(pos)) {
             Optional<ShockAnvilBehavior> behavior = entity.anvilcraft$getShockAnvilBehavior();
             if (behavior.isPresent()) return behavior;
         }
-        return BlockMiningEffect.fromAnvil(level.getBlockState(pos).getBlock())
+        return BlockMiningEffect.fromAnvil(this.level.getBlockState(pos).getBlock())
             .map(ShockAnvilBehavior::fromMiningEffect);
     }
 
     private boolean matchesShockBase(BlockPos pos, TagKey<Block> tagKey) {
-        if (level.getBlockState(pos).is(tagKey)) return true;
-        return shockEntitiesAt(pos).stream()
+        if (this.level.getBlockState(pos).is(tagKey)) return true;
+        return this.shockEntitiesAt(pos).stream()
             .map(IShockEntity::anvilcraft$getShockBaseState)
             .flatMap(Optional::stream)
             .anyMatch(state -> state.is(tagKey));
     }
 
     private boolean matchesShockBase(BlockPos pos, Block block) {
-        if (level.getBlockState(pos).is(block)) return true;
-        return shockEntitiesAt(pos).stream()
+        if (this.level.getBlockState(pos).is(block)) return true;
+        return this.shockEntitiesAt(pos).stream()
             .map(IShockEntity::anvilcraft$getShockBaseState)
             .flatMap(Optional::stream)
             .anyMatch(state -> state.is(block));
     }
 
     private List<IShockEntity> shockEntitiesAt(BlockPos pos) {
-        return level.getEntitiesOfClass(
+        return this.level.getEntitiesOfClass(
                 Entity.class,
                 new AABB(pos),
                 entity -> entity instanceof IShockEntity && !entity.isRemoved()

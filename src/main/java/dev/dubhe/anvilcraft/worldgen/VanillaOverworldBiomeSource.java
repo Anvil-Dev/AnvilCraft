@@ -30,7 +30,7 @@ public class VanillaOverworldBiomeSource extends BiomeSource {
         MultiNoiseBiomeSourceParameterList parameters = new MultiNoiseBiomeSourceParameterList(
             MultiNoiseBiomeSourceParameterList.Preset.OVERWORLD, biomes
         );
-        delegate = MultiNoiseBiomeSource.createFromList(parameters.parameters());
+        this.delegate = MultiNoiseBiomeSource.createFromList(parameters.parameters());
     }
 
     public static BiomeGenerationSettings originalGenerationSettings(Holder<Biome> biome) {
@@ -44,16 +44,16 @@ public class VanillaOverworldBiomeSource extends BiomeSource {
 
     @Override
     protected Stream<Holder<Biome>> collectPossibleBiomes() {
-        return delegate.possibleBiomes().stream();
+        return this.delegate.possibleBiomes().stream();
     }
 
     @Override
     public Holder<Biome> getNoiseBiome(int x, int y, int z, Climate.Sampler sampler) {
-        return delegate.getNoiseBiome(x, y, z, sampler);
+        return this.delegate.getNoiseBiome(x, y, z, sampler);
     }
 
     @Override
     public void addDebugInfo(List<String> info, BlockPos pos, Climate.Sampler sampler) {
-        delegate.addDebugInfo(info, pos, sampler);
+        this.delegate.addDebugInfo(info, pos, sampler);
     }
 }

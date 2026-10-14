@@ -50,7 +50,7 @@ public class MineralFountainBlock extends BaseEntityBlock {
 
     @Override
     protected void onPlace(BlockState state, Level level, BlockPos pos, BlockState oldState, boolean movedByPiston) {
-        setTickCount(level, pos);
+        this.setTickCount(level, pos);
         if (!oldState.is(state.getBlock())) TriggerUtil.mineralFountainCreate(level, pos);
         super.onPlace(state, level, pos, oldState, movedByPiston);
     }
@@ -64,7 +64,7 @@ public class MineralFountainBlock extends BaseEntityBlock {
         BlockPos pos,
         BlockPos neighborPos
     ) {
-        setTickCount(level, pos);
+        this.setTickCount(level, pos);
         return super.updateShape(state, direction, neighborState, level, pos, neighborPos);
     }
 

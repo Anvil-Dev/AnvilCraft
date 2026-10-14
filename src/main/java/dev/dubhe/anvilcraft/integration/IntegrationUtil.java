@@ -83,7 +83,7 @@ public class IntegrationUtil {
         }
 
         public IntegrationType type() {
-            return type;
+            return this.type;
         }
 
         @Override
@@ -132,20 +132,20 @@ public class IntegrationUtil {
         }
 
         public String id() {
-            return id;
+            return this.id;
         }
 
         public Component name() {
-            return name;
+            return this.name;
         }
 
         @Nullable
         public Component description() {
-            return description;
+            return this.description;
         }
 
         public Links links() {
-            return links;
+            return this.links;
         }
 
         @Override

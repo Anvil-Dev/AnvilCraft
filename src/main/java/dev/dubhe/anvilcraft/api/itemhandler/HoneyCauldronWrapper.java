@@ -26,8 +26,9 @@ public class HoneyCauldronWrapper implements IItemHandler {
     @Override
     public ItemStack getStackInSlot(int slot) {
         if (slot == 0) {
-            BlockState state = level.getBlockState(pos);
-            if (state.getBlock() instanceof HoneyCauldronBlock && level.getBlockState(pos).getValue(HoneyCauldronBlock.LEVEL) == 4) {
+            BlockState state = this.level.getBlockState(this.pos);
+            if (state.getBlock() instanceof HoneyCauldronBlock
+                && this.level.getBlockState(this.pos).getValue(HoneyCauldronBlock.LEVEL) == 4) {
                 return new ItemStack(Items.HONEY_BLOCK, 1);
             }
         }
@@ -43,14 +44,14 @@ public class HoneyCauldronWrapper implements IItemHandler {
     public ItemStack extractItem(int slot, int amount, boolean simulate) {
         if (amount <= 0) return ItemStack.EMPTY;
         if (slot == 0) {
-            ItemStack stackInSlot = getStackInSlot(slot);
+            ItemStack stackInSlot = this.getStackInSlot(slot);
             if (!stackInSlot.isEmpty()) {
                 if (simulate) {
                     return stackInSlot.copyWithCount(1);
                 } else {
                     ItemStack copy = stackInSlot.copy();
                     stackInSlot.shrink(1);
-                    updateWorld();
+                    this.updateWorld();
                     return copy;
                 }
             } else {
@@ -71,6 +72,6 @@ public class HoneyCauldronWrapper implements IItemHandler {
     }
 
     private void updateWorld() {
-        level.setBlockAndUpdate(pos, Blocks.CAULDRON.defaultBlockState());
+        this.level.setBlockAndUpdate(this.pos, Blocks.CAULDRON.defaultBlockState());
     }
 }

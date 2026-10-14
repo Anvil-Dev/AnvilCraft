@@ -63,11 +63,11 @@ public final class PistonMoveGuard {
 
         @Override
         public void close() {
-            if (closed) return;
-            closed = true;
+            if (this.closed) return;
+            this.closed = true;
             Deque<Reservation> reservations = ACTIVE_RESERVATIONS.get();
             if (reservations == null) return;
-            reservations.removeFirstOccurrence(reservation);
+            reservations.removeFirstOccurrence(this.reservation);
             if (reservations.isEmpty()) ACTIVE_RESERVATIONS.remove();
         }
     }

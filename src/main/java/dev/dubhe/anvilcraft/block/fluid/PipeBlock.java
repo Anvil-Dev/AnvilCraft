@@ -235,7 +235,7 @@ public abstract class PipeBlock extends Block
     }
 
     public boolean isGlassPipe() {
-        return glassPipe;
+        return this.glassPipe;
     }
 
     @Override
@@ -249,7 +249,7 @@ public abstract class PipeBlock extends Block
     @Override
     @Nullable
     public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
-        if (glassPipe) {
+        if (this.glassPipe) {
             return new GlassPipeBlockEntity(ModBlockEntities.GLASS_PIPE.get(), pos, state);
         }
         return state.getValue(HAS_CHECK_VALVE)
@@ -401,7 +401,7 @@ public abstract class PipeBlock extends Block
 
     @Override
     public Item asItem() {
-        return glassPipe ? ModItems.GLASS_PIPE.get() : ModItems.PIPE.get();
+        return this.glassPipe ? ModItems.GLASS_PIPE.get() : ModItems.PIPE.get();
     }
 
     @Override
@@ -412,7 +412,7 @@ public abstract class PipeBlock extends Block
         BlockPos pos,
         Player player
     ) {
-        if (glassPipe && player.isCreative()) {
+        if (this.glassPipe && player.isCreative()) {
             return new ItemStack(ModItems.GLASS_PIPE.get());
         }
         return new ItemStack(ModItems.PIPE.get());
@@ -585,7 +585,7 @@ public abstract class PipeBlock extends Block
         }
 
         Direction arm = getArmDirection(pos, hitResult);
-        if (arm == null || !hasArmToward(state, arm)) {
+        if (arm == null || !this.hasArmToward(state, arm)) {
             return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
         }
 
@@ -595,14 +595,14 @@ public abstract class PipeBlock extends Block
             if (level.isClientSide) {
                 return ItemInteractionResult.sidedSuccess(true);
             }
-            detachCheckValve(level, pos, state, arm, player);
+            this.detachCheckValve(level, pos, state, arm, player);
             return ItemInteractionResult.sidedSuccess(false);
         }
         if (level.isClientSide) {
             return ItemInteractionResult.sidedSuccess(true);
         }
         Direction flowOut = player.isShiftKeyDown() ? arm.getOpposite() : arm;
-        if (addCheckValve(level, pos, state, arm, flowOut)) {
+        if (this.addCheckValve(level, pos, state, arm, flowOut)) {
             if (!player.isCreative()) {
                 stack.shrink(1);
             }
@@ -613,7 +613,7 @@ public abstract class PipeBlock extends Block
 
     /** 取下某面止逆阀并把物品退还玩家（创造模式不退）。仅服务端调用。 */
     private void detachCheckValve(Level level, BlockPos pos, BlockState state, Direction arm, @Nullable Player player) {
-        if (!removeCheckValve(level, pos, state, arm)) {
+        if (!this.removeCheckValve(level, pos, state, arm)) {
             return;
         }
         if (player == null || !player.isCreative()) {
@@ -633,7 +633,7 @@ public abstract class PipeBlock extends Block
     protected ItemInteractionResult useItemOn(
         ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult
     ) {
-        ItemInteractionResult result = handleCheckValveInteraction(stack, state, level, pos, player, hitResult);
+        ItemInteractionResult result = this.handleCheckValveInteraction(stack, state, level, pos, player, hitResult);
         if (result != ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION) {
             return result;
         }
@@ -663,13 +663,13 @@ public abstract class PipeBlock extends Block
             return super.useWithoutItem(state, level, pos, player, hitResult);
         }
         Direction arm = getArmDirection(pos, hitResult);
-        if (arm != null && hasArmToward(state, arm)) {
+        if (arm != null && this.hasArmToward(state, arm)) {
             AbstractPipeCheckValveBlockEntity be = getCheckValve(level, pos);
             if (be != null && be.hasValveOn(arm)) {
                 if (level.isClientSide) {
                     return InteractionResult.sidedSuccess(true);
                 }
-                detachCheckValve(level, pos, state, arm, player);
+                this.detachCheckValve(level, pos, state, arm, player);
                 return InteractionResult.sidedSuccess(false);
             }
         }
@@ -823,7 +823,7 @@ public abstract class PipeBlock extends Block
     @Override
     protected List<ItemStack> getDrops(BlockState state, LootParams.Builder params) {
         List<ItemStack> drops = new ArrayList<>(super.getDrops(state, params));
-        if (glassPipe) {
+        if (this.glassPipe) {
             for (int i = 0; i < drops.size(); i++) {
                 ItemStack drop = drops.get(i);
                 if (drop.is(ModItems.GLASS_PIPE.get())) {
@@ -848,7 +848,7 @@ public abstract class PipeBlock extends Block
     public void onPlace(BlockState state, Level level, BlockPos pos, BlockState oldState, boolean movedByPiston) {
         super.onPlace(state, level, pos, oldState, movedByPiston);
         // 同类直管仅改变轴向时不会触发方块实体的常规移除，需要显式清理失效的止逆阀数据。
-        if (!glassPipe
+        if (!this.glassPipe
             && !state.getValue(HAS_CHECK_VALVE)
             && level.getBlockEntity(pos) instanceof AbstractPipeCheckValveBlockEntity) {
             level.removeBlockEntity(pos);
@@ -987,7 +987,7 @@ public abstract class PipeBlock extends Block
          * @return 第一方向（受 {@link PipeBlock#HAS_END_START} 控制）
          */
         public Direction getFirstDirection() {
-            return first;
+            return this.first;
         }
 
         /**
@@ -996,7 +996,7 @@ public abstract class PipeBlock extends Block
          * @return 第二方向（受 {@link PipeBlock#HAS_END_END} 控制）
          */
         public Direction getSecondDirection() {
-            return second;
+            return this.second;
         }
 
         /**
@@ -1005,7 +1005,7 @@ public abstract class PipeBlock extends Block
          * @return 该弯管是否包含指定方向
          */
         public boolean containsDirection(Direction direction) {
-            return first == direction || second == direction;
+            return this.first == direction || this.second == direction;
         }
 
         /**

@@ -100,7 +100,7 @@ abstract class FallingBlockEntityMixin extends Entity implements IFallingBlockEn
         Vec3 gravity = this.anvilcraft$getNetGravityVector(instance);
         Direction direction = Direction.getNearest(gravity.x, gravity.y, gravity.z);
         if (direction == Direction.DOWN) return original.call(instance);
-        return anvilcraft$getGravityFaceBlockPos(instance, direction);
+        return this.anvilcraft$getGravityFaceBlockPos(instance, direction);
     }
 
     // 重定义下落方块的下方
@@ -141,9 +141,9 @@ abstract class FallingBlockEntityMixin extends Entity implements IFallingBlockEn
         boolean entityCollision = this.anvilcraft$hasEntityCollision(instance, gravityDir);
         if (gravityDir == Direction.DOWN && !entityCollision) return original.call(instance);
 
-        if (gravityDir != Direction.DOWN && anvilcraft$positionBeforeTick != null) {
-            anvilcraft$directionalFallDistance += (float) position().distanceTo(anvilcraft$positionBeforeTick);
-            anvilcraft$fallDistance = Math.max(anvilcraft$fallDistance, anvilcraft$directionalFallDistance);
+        if (gravityDir != Direction.DOWN && this.anvilcraft$positionBeforeTick != null) {
+            this.anvilcraft$directionalFallDistance += (float) position().distanceTo(this.anvilcraft$positionBeforeTick);
+            this.anvilcraft$fallDistance = Math.max(this.anvilcraft$fallDistance, this.anvilcraft$directionalFallDistance);
         }
 
         Level level = instance.level();
@@ -276,7 +276,7 @@ abstract class FallingBlockEntityMixin extends Entity implements IFallingBlockEn
                 box.maxX - inset, box.maxY - inset, box.maxZ + depth
             );
         };
-        anvilcraft$entityCollisionResults.clear();
+        this.anvilcraft$entityCollisionResults.clear();
         entity.level().getEntities(
             ANVILCRAFT_ENTITY_TEST,
             contactArea,
@@ -284,11 +284,11 @@ abstract class FallingBlockEntityMixin extends Entity implements IFallingBlockEn
                 && other.canBeCollidedWith()
                 && !other.isSpectator()
                 && entity.canCollideWith(other),
-            anvilcraft$entityCollisionResults,
+            this.anvilcraft$entityCollisionResults,
             1
         );
-        boolean collision = !anvilcraft$entityCollisionResults.isEmpty();
-        anvilcraft$entityCollisionResults.clear();
+        boolean collision = !this.anvilcraft$entityCollisionResults.isEmpty();
+        this.anvilcraft$entityCollisionResults.clear();
         return collision;
     }
 
@@ -532,9 +532,9 @@ abstract class FallingBlockEntityMixin extends Entity implements IFallingBlockEn
 
     @Inject(method = "tick", at = @At("HEAD"), cancellable = true)
     private void anvilcraft$handleAcceleration(CallbackInfo ci) {
-        anvilcraft$cachedGravityPosition = null;
-        anvilcraft$cachedNetGravity = null;
-        anvilcraft$positionBeforeTick = position();
+        this.anvilcraft$cachedGravityPosition = null;
+        this.anvilcraft$cachedNetGravity = null;
+        this.anvilcraft$positionBeforeTick = position();
         if (this.anvilcraft$discardLevitationPowderAboveBuildHeight()) {
             ci.cancel();
             return;
@@ -545,8 +545,8 @@ abstract class FallingBlockEntityMixin extends Entity implements IFallingBlockEn
     @Unique
     private Vec3 anvilcraft$getNetGravityVector(Entity entity) {
         Vec3 currentPosition = entity.position();
-        Vec3 cachedPosition = anvilcraft$cachedGravityPosition;
-        Vec3 cachedGravity = anvilcraft$cachedNetGravity;
+        Vec3 cachedPosition = this.anvilcraft$cachedGravityPosition;
+        Vec3 cachedGravity = this.anvilcraft$cachedNetGravity;
         if (cachedPosition != null
             && cachedGravity != null
             && cachedPosition.x == currentPosition.x
@@ -555,8 +555,8 @@ abstract class FallingBlockEntityMixin extends Entity implements IFallingBlockEn
             return cachedGravity;
         }
         Vec3 gravity = GravityManager.getNetGravityVectorForFallingBlock(entity);
-        anvilcraft$cachedGravityPosition = currentPosition;
-        anvilcraft$cachedNetGravity = gravity;
+        this.anvilcraft$cachedGravityPosition = currentPosition;
+        this.anvilcraft$cachedNetGravity = gravity;
         return gravity;
     }
 

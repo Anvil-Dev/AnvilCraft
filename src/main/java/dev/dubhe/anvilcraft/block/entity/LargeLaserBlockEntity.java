@@ -26,7 +26,7 @@ public class LargeLaserBlockEntity extends BaseLaserBlockEntity implements IPowe
 
     @Override
     protected int getBaseLaserLevel() {
-        return isSwitchedOn() ? 16 : 0;
+        return this.isSwitchedOn() ? 16 : 0;
     }
 
     @Override
@@ -45,8 +45,8 @@ public class LargeLaserBlockEntity extends BaseLaserBlockEntity implements IPowe
         } else if (!this.grid.isWorking() && !getBlockState().getValue(LargeLaserBlock.OVERLOAD)) {
             block.updateState(this.level, getBlockPos(), LargeLaserBlock.OVERLOAD, true, 3);
         }
-        if (isSwitchedOn()) {
-            emitLaser(getFacing());
+        if (this.isSwitchedOn()) {
+            emitLaser(this.getFacing());
         } else {
             if (irradiateBlockPos != null
                 && level.getBlockEntity(irradiateBlockPos) instanceof BaseLaserBlockEntity irradiateBlockEntity

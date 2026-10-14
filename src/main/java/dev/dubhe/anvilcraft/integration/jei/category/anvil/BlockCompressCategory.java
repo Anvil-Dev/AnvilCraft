@@ -46,10 +46,10 @@ public class BlockCompressCategory implements IRecipeCategory<RecipeHolder<Block
     private final Component title;
 
     public BlockCompressCategory(IGuiHelper helper) {
-        arrowDefault = JeiRenderHelper.getArrowDefault(helper);
-        icon = helper.createDrawableItemStack(new ItemStack(Items.ANVIL));
-        title = Component.translatable("gui.anvilcraft.category.block_compress");
-        timer = helper.createTickTimer(30, 60, true);
+        this.arrowDefault = JeiRenderHelper.getArrowDefault(helper);
+        this.icon = helper.createDrawableItemStack(new ItemStack(Items.ANVIL));
+        this.title = Component.translatable("gui.anvilcraft.category.block_compress");
+        this.timer = helper.createTickTimer(30, 60, true);
     }
 
     @Override
@@ -59,7 +59,7 @@ public class BlockCompressCategory implements IRecipeCategory<RecipeHolder<Block
 
     @Override
     public Component getTitle() {
-        return title;
+        return this.title;
     }
 
     @Override
@@ -74,7 +74,7 @@ public class BlockCompressCategory implements IRecipeCategory<RecipeHolder<Block
 
     @Override
     public @Nullable IDrawable getIcon() {
-        return icon;
+        return this.icon;
     }
 
     @Override
@@ -114,8 +114,8 @@ public class BlockCompressCategory implements IRecipeCategory<RecipeHolder<Block
         double mouseY) {
         BlockCompressRecipe recipe = recipeHolder.value();
 
-        float anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(timer);
-        arrowDefault.draw(guiGraphics, 73, 35);
+        float anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(this.timer);
+        this.arrowDefault.draw(guiGraphics, 73, 35);
 
         RenderSupport.renderBlock(
             guiGraphics,

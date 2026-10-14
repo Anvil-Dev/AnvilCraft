@@ -62,14 +62,14 @@ public class ItemInjectCategory implements IRecipeCategory<RecipeHolder<ItemInje
     private final IDrawable arrowOut;
 
     public ItemInjectCategory(IGuiHelper helper) {
-        icon = helper.createDrawableItemStack(new ItemStack(Items.ANVIL));
-        slotDefault = JeiRenderHelper.getSlotDefault(helper);
-        slotProbability = JeiRenderHelper.getSlotProbability(helper);
-        title = Component.translatable("gui.anvilcraft.category.item_inject");
-        timer = helper.createTickTimer(30, 60, true);
+        this.icon = helper.createDrawableItemStack(new ItemStack(Items.ANVIL));
+        this.slotDefault = JeiRenderHelper.getSlotDefault(helper);
+        this.slotProbability = JeiRenderHelper.getSlotProbability(helper);
+        this.title = Component.translatable("gui.anvilcraft.category.item_inject");
+        this.timer = helper.createTickTimer(30, 60, true);
 
-        arrowIn = JeiRenderHelper.getArrowInput(helper);
-        arrowOut = JeiRenderHelper.getArrowOutput(helper);
+        this.arrowIn = JeiRenderHelper.getArrowInput(helper);
+        this.arrowOut = JeiRenderHelper.getArrowOutput(helper);
     }
 
     @Override
@@ -79,7 +79,7 @@ public class ItemInjectCategory implements IRecipeCategory<RecipeHolder<ItemInje
 
     @Override
     public Component getTitle() {
-        return title;
+        return this.title;
     }
 
     @Override
@@ -94,7 +94,7 @@ public class ItemInjectCategory implements IRecipeCategory<RecipeHolder<ItemInje
 
     @Override
     public IDrawable getIcon() {
-        return icon;
+        return this.icon;
     }
 
     @Override
@@ -153,7 +153,7 @@ public class ItemInjectCategory implements IRecipeCategory<RecipeHolder<ItemInje
         double mouseX,
         double mouseY) {
         ItemInjectRecipe recipe = recipeHolder.value();
-        float anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(timer);
+        float anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(this.timer);
         RenderSupport.renderBlock(
             guiGraphics,
             Blocks.ANVIL.defaultBlockState(),
@@ -176,16 +176,16 @@ public class ItemInjectCategory implements IRecipeCategory<RecipeHolder<ItemInje
         int inputY = giantAnvil ? 44 : 40;
         RenderSupport.renderBlock(guiGraphics, renderedState, 81, inputY, 10, inputScale, RenderSupport.SINGLE_BLOCK);
 
-        arrowIn.draw(guiGraphics, 54, 30);
-        arrowOut.draw(guiGraphics, 92, 29);
+        this.arrowIn.draw(guiGraphics, 54, 30);
+        this.arrowOut.draw(guiGraphics, 92, 29);
 
-        JeiSlotUtil.drawDefaultInputSlots(guiGraphics, slotDefault, recipe.getInputItems().size());
+        JeiSlotUtil.drawDefaultInputSlots(guiGraphics, this.slotDefault, recipe.getInputItems().size());
         int transcendiumTier = getTranscendiumTier(recipeHolder);
         if (transcendiumTier >= 0) {
-            drawTranscendiumOutputSlots(guiGraphics, transcendiumTier);
+            this.drawTranscendiumOutputSlots(guiGraphics, transcendiumTier);
         } else if (!recipe.getResultItems().isEmpty()) {
             List<ChanceItemStack> results = recipe.getResultItems();
-            IntFunction<IDrawable> outputSlot = JeiRecipeUtil.outputSlotFor(results, slotDefault, slotProbability);
+            IntFunction<IDrawable> outputSlot = JeiRecipeUtil.outputSlotFor(results, this.slotDefault, this.slotProbability);
             if (recipe.getResultBlocks().isEmpty()) {
                 JeiSlotUtil.drawDefaultOutputSlots(guiGraphics, outputSlot, results.size());
             } else {
@@ -307,21 +307,21 @@ public class ItemInjectCategory implements IRecipeCategory<RecipeHolder<ItemInje
 
     private void drawTranscendiumOutputSlots(GuiGraphics guiGraphics, int tier) {
         switch (tier) {
-            case 0 -> slotDefault.draw(guiGraphics, 124, 23);
+            case 0 -> this.slotDefault.draw(guiGraphics, 124, 23);
             case 1 -> {
-                slotProbability.draw(guiGraphics, 115, 14);
-                slotDefault.draw(guiGraphics, 133, 14);
-                slotDefault.draw(guiGraphics, 115, 32);
+                this.slotProbability.draw(guiGraphics, 115, 14);
+                this.slotDefault.draw(guiGraphics, 133, 14);
+                this.slotDefault.draw(guiGraphics, 115, 32);
             }
             case 2 -> {
-                slotDefault.draw(guiGraphics, 115, 14);
-                slotDefault.draw(guiGraphics, 133, 14);
-                slotDefault.draw(guiGraphics, 115, 32);
+                this.slotDefault.draw(guiGraphics, 115, 14);
+                this.slotDefault.draw(guiGraphics, 133, 14);
+                this.slotDefault.draw(guiGraphics, 115, 32);
             }
-            case 3 -> slotDefault.draw(guiGraphics, 124, 14);
+            case 3 -> this.slotDefault.draw(guiGraphics, 124, 14);
             case 4 -> {
-                slotDefault.draw(guiGraphics, 115, 14);
-                slotDefault.draw(guiGraphics, 133, 14);
+                this.slotDefault.draw(guiGraphics, 115, 14);
+                this.slotDefault.draw(guiGraphics, 133, 14);
             }
             default -> throw new AssertionError(tier);
         }

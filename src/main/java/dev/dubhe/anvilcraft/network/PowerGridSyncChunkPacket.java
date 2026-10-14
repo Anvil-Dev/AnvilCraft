@@ -45,7 +45,7 @@ public record PowerGridSyncChunkPacket(
             int generate = ByteBufCodecs.VAR_INT.decode(buffer);
             int consume = ByteBufCodecs.VAR_INT.decode(buffer);
             boolean infinitePower = buffer.readBoolean();
-            List<PowerComponentInfo> components = listCodec.decode(buffer);
+            List<PowerComponentInfo> components = this.listCodec.decode(buffer);
             return new PowerGridSyncChunkPacket(
                 gridId, level, pos, totalChunks, chunkIndex, generate, consume, infinitePower, components
             );
@@ -61,7 +61,7 @@ public record PowerGridSyncChunkPacket(
             ByteBufCodecs.VAR_INT.encode(buffer, packet.generate());
             ByteBufCodecs.VAR_INT.encode(buffer, packet.consume());
             buffer.writeBoolean(packet.infinitePower());
-            listCodec.encode(buffer, packet.components());
+            this.listCodec.encode(buffer, packet.components());
         }
     };
 

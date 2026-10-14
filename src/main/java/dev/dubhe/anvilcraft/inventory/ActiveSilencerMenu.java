@@ -30,7 +30,7 @@ public class ActiveSilencerMenu extends AbstractContainerMenu {
     public ActiveSilencerMenu(
         @Nullable MenuType<?> menuType, int containerId, Inventory inventory, BlockEntity machine) {
         super(menuType, containerId);
-        blockEntity = (ActiveSilencerBlockEntity) machine;
+        this.blockEntity = (ActiveSilencerBlockEntity) machine;
         this.level = inventory.player.level();
     }
 
@@ -47,21 +47,21 @@ public class ActiveSilencerMenu extends AbstractContainerMenu {
     @Override
     public boolean stillValid(Player player) {
         return stillValid(
-            ContainerLevelAccess.create(level, blockEntity.getBlockPos()),
+            ContainerLevelAccess.create(this.level, this.blockEntity.getBlockPos()),
             player,
             ModBlocks.ACTIVE_SILENCER.get()
         );
     }
 
     public void addSound(ResourceLocation soundId) {
-        blockEntity.addSound(soundId);
+        this.blockEntity.addSound(soundId);
     }
 
     public void removeSound(ResourceLocation soundId) {
-        blockEntity.removeSound(soundId);
+        this.blockEntity.removeSound(soundId);
     }
 
     public void handleSync(List<ResourceLocation> sounds) {
-        blockEntity.sync(sounds);
+        this.blockEntity.sync(sounds);
     }
 }

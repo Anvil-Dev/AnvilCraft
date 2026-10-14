@@ -142,7 +142,7 @@ public class SimpleItemHandler implements IItemHandler, INBTSerializable<Compoun
             CompoundTag itemTags = tagList.getCompound(i);
             int slot = itemTags.getInt("Slot");
 
-            if (slot >= 0 && slot < stacks.size()) {
+            if (slot >= 0 && slot < this.stacks.size()) {
                 ItemStack.parse(registries, itemTags).ifPresent(stack -> this.stacks.set(slot, stack));
             }
         }

@@ -103,20 +103,20 @@ public abstract class BaseBatchCraftingBlockEntity extends BaseMachineBlockEntit
             ItemStack remained = ItemHandlerUtil.insertItem(cap, result, true);
             if (!remained.isEmpty()) return true;
             remained = ItemHandlerUtil.insertItem(cap, result, false);
-            ejectItem(remained);
+            this.ejectItem(remained);
             for (ItemStack stack : craftRemaining) {
                 remained = ItemHandlerUtil.insertItem(cap, stack, false);
-                ejectItem(remained);
+                this.ejectItem(remained);
             }
         } else {
             // 尝试向世界喷出物品
-            Vec3 center = getBlockPos().relative(getDirection()).getCenter();
+            Vec3 center = getBlockPos().relative(this.getDirection()).getCenter();
             AABB aabb = new AABB(center.add(-0.125, -0.125, -0.125), center.add(0.125, 0.125, 0.125));
             if (!getLevel().noCollision(aabb)) return true;
 
-            ejectItem(result);
+            this.ejectItem(result);
             for (ItemStack stack : craftRemaining) {
-                ejectItem(stack);
+                this.ejectItem(stack);
             }
         }
         return false;
@@ -275,12 +275,12 @@ public abstract class BaseBatchCraftingBlockEntity extends BaseMachineBlockEntit
 
     @Override
     public void storeDiskData(CompoundTag tag) {
-        tag.put("Filtering", handler.serializeFiltering());
+        tag.put("Filtering", this.handler.serializeFiltering());
     }
 
     @Override
     public void applyDiskData(CompoundTag data) {
-        handler.deserializeFiltering(data.getCompound("Filtering"));
+        this.handler.deserializeFiltering(data.getCompound("Filtering"));
         this.setChanged();
         if (level != null && !level.isClientSide) {
             level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), 3);

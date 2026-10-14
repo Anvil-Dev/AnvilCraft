@@ -51,20 +51,20 @@ public record StellarNodeDynamics(
     }
 
     public StellarNodeDynamics resolve(double coordinate) {
-        return new StellarNodeDynamics(points.stream().map(point -> point.resolve(response, coordinate)).toList(),
-            StellarMetallicityResponse.NONE, eventPolicy, response.pulses(coordinate),
-            Math.clamp(wind * StellarMetallicityResponse.factor(response.wind(), coordinate), 0, 1));
+        return new StellarNodeDynamics(this.points.stream().map(point -> point.resolve(this.response, coordinate)).toList(),
+            StellarMetallicityResponse.NONE, this.eventPolicy, this.response.pulses(coordinate),
+            Math.clamp(this.wind * StellarMetallicityResponse.factor(this.response.wind(), coordinate), 0, 1));
     }
 
     public StellarVisualState sample(PhaseNode node, PhaseNode previous, float progress) {
-        for (int index = 1; index < points.size(); index++) {
-            StellarControlPoint right = points.get(index);
-            if (progress <= right.progress() || index == points.size() - 1) {
-                StellarControlPoint left = points.get(index - 1);
+        for (int index = 1; index < this.points.size(); index++) {
+            StellarControlPoint right = this.points.get(index);
+            if (progress <= right.progress() || index == this.points.size() - 1) {
+                StellarControlPoint left = this.points.get(index - 1);
                 return StellarVisualState.interpolate(left.visual(node), right.visual(node),
                     (progress - left.progress()) / (right.progress() - left.progress()));
             }
         }
-        return points.getLast().visual(node);
+        return this.points.getLast().visual(node);
     }
 }

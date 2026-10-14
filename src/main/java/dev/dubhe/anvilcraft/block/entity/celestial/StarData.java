@@ -60,17 +60,17 @@ public record StarData(
     /// 创建一个带有新body UUID的副本，保留所有其他字段。
     public StarData withBodyUuid(UUID uuid) {
         return new StarData(
-            bodyClass,
-            size,
-            colorR,
-            colorG,
-            colorB,
-            axialTilt,
-            rotationSpeed,
-            magneticFieldStrength,
-            energy,
+            this.bodyClass,
+            this.size,
+            this.colorR,
+            this.colorG,
+            this.colorB,
+            this.axialTilt,
+            this.rotationSpeed,
+            this.magneticFieldStrength,
+            this.energy,
             uuid,
-            specialRedDwarf
+            this.specialRedDwarf
         );
     }
 
@@ -82,19 +82,19 @@ public record StarData(
     @Override
     public CompoundTag toTag() {
         CompoundTag tag = new CompoundTag();
-        tag.putString("bodyType", type().getSerializedName());
-        tag.putString("bodyClass", bodyClass.name());
-        tag.putInt("size", size);
-        tag.putInt("colorR", colorR);
-        tag.putInt("colorG", colorG);
-        tag.putInt("colorB", colorB);
-        tag.putFloat("axialTilt", axialTilt);
-        tag.putInt("rotationSpeed", rotationSpeed);
-        tag.putInt("magneticFieldStrength", magneticFieldStrength);
-        tag.putInt("energy", energy);
-        tag.putBoolean("specialRedDwarf", specialRedDwarf);
-        if (bodyUuid != null) {
-            tag.putUUID("bodyUuid", bodyUuid);
+        tag.putString("bodyType", this.type().getSerializedName());
+        tag.putString("bodyClass", this.bodyClass.name());
+        tag.putInt("size", this.size);
+        tag.putInt("colorR", this.colorR);
+        tag.putInt("colorG", this.colorG);
+        tag.putInt("colorB", this.colorB);
+        tag.putFloat("axialTilt", this.axialTilt);
+        tag.putInt("rotationSpeed", this.rotationSpeed);
+        tag.putInt("magneticFieldStrength", this.magneticFieldStrength);
+        tag.putInt("energy", this.energy);
+        tag.putBoolean("specialRedDwarf", this.specialRedDwarf);
+        if (this.bodyUuid != null) {
+            tag.putUUID("bodyUuid", this.bodyUuid);
         }
         return tag;
     }

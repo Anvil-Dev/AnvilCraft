@@ -26,15 +26,15 @@ public class MDMultipleToOneSmithingRecipeComponent extends MDRecipeComponent {
 
     @Override
     protected void renderRecipe(MDRenderContext context, float mouseX, float mouseY) {
-        AgeratumUtil.renderItemWithoutSlot(context, recipe.getTemplate(), mouseX, mouseY, TEMPLATE_X, Y);
-        AgeratumUtil.renderItemWithoutSlot(context, recipe.getMaterial(), mouseX, mouseY, CENTER_INPUT_X, Y);
+        AgeratumUtil.renderItemWithoutSlot(context, this.recipe.getTemplate(), mouseX, mouseY, TEMPLATE_X, Y);
+        AgeratumUtil.renderItemWithoutSlot(context, this.recipe.getMaterial(), mouseX, mouseY, CENTER_INPUT_X, Y);
 
-        for (int i = 0; i < Math.min(8, recipe.getInputs().size()); i++) {
-            ItemIngredientPredicate ingredient = recipe.getInputs().get(i);
+        for (int i = 0; i < Math.min(8, this.recipe.getInputs().size()); i++) {
+            ItemIngredientPredicate ingredient = this.recipe.getInputs().get(i);
             int x = CENTER_INPUT_X + INPUT_X[i] * INPUT_SIZE;
             int y = Y + INPUT_Y[i] * INPUT_SIZE;
             AgeratumUtil.renderItemWithoutSlot(context, ingredient, mouseX, mouseY, x, y);
         }
-        AgeratumUtil.renderItemWithoutSlot(context, recipe.getResult().result().getDefaultInstance(), mouseX, mouseY, OUTPUT_X, Y);
+        AgeratumUtil.renderItemWithoutSlot(context, this.recipe.getResult().result().getDefaultInstance(), mouseX, mouseY, OUTPUT_X, Y);
     }
 }

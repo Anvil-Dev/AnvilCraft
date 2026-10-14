@@ -82,47 +82,47 @@ public class MultiBlockConversionCategory implements IRecipeCategory<RecipeHolde
     private DisplayMode displayMode = DisplayMode.OVERVIEW;
 
     public MultiBlockConversionCategory(IGuiHelper helper) {
-        icon = helper.createDrawableItemStack(new ItemStack(ModBlocks.GIANT_ANVIL));
-        arrowOut = JeiRenderHelper.getArrowDefault(helper);
-        slot = JeiRenderHelper.getSlotDefault(helper);
-        timer = helper.createTickTimer(30, 60, true);
-        conversion = helper.drawableBuilder(JeiTextureConstants.BLOCK_CONVERSION, 0, 0, 594, 418)
+        this.icon = helper.createDrawableItemStack(new ItemStack(ModBlocks.GIANT_ANVIL));
+        this.arrowOut = JeiRenderHelper.getArrowDefault(helper);
+        this.slot = JeiRenderHelper.getSlotDefault(helper);
+        this.timer = helper.createTickTimer(30, 60, true);
+        this.conversion = helper.drawableBuilder(JeiTextureConstants.BLOCK_CONVERSION, 0, 0, 594, 418)
             .setTextureSize(594, 418)
             .build();
-        layerUp = helper.drawableBuilder(JeiTextureConstants.LAYER_UP, 0, 0, 10, 10)
+        this.layerUp = helper.drawableBuilder(JeiTextureConstants.LAYER_UP, 0, 0, 10, 10)
             .setTextureSize(10, 20)
             .build();
-        layerUpHovered = helper.drawableBuilder(JeiTextureConstants.LAYER_UP, 0, 10, 10, 10)
+        this.layerUpHovered = helper.drawableBuilder(JeiTextureConstants.LAYER_UP, 0, 10, 10, 10)
             .setTextureSize(10, 20)
             .build();
-        layerDown = helper.drawableBuilder(JeiTextureConstants.LAYER_DOWN, 0, 0, 10, 10)
+        this.layerDown = helper.drawableBuilder(JeiTextureConstants.LAYER_DOWN, 0, 0, 10, 10)
             .setTextureSize(10, 20)
             .build();
-        layerDownHovered = helper.drawableBuilder(JeiTextureConstants.LAYER_DOWN, 0, 10, 10, 10)
+        this.layerDownHovered = helper.drawableBuilder(JeiTextureConstants.LAYER_DOWN, 0, 10, 10, 10)
             .setTextureSize(10, 20)
             .build();
-        modeOverview = helper.drawableBuilder(JeiTextureConstants.DISPLAY_MODES, 0, 0, 10, 10)
+        this.modeOverview = helper.drawableBuilder(JeiTextureConstants.DISPLAY_MODES, 0, 0, 10, 10)
             .setTextureSize(30, 20)
             .build();
-        modeOverviewHovered = helper.drawableBuilder(JeiTextureConstants.DISPLAY_MODES, 0, 10, 10, 10)
+        this.modeOverviewHovered = helper.drawableBuilder(JeiTextureConstants.DISPLAY_MODES, 0, 10, 10, 10)
             .setTextureSize(30, 20)
             .build();
-        modeInput = helper.drawableBuilder(JeiTextureConstants.DISPLAY_MODES, 10, 0, 10, 10)
+        this.modeInput = helper.drawableBuilder(JeiTextureConstants.DISPLAY_MODES, 10, 0, 10, 10)
             .setTextureSize(30, 20)
             .build();
-        modeInputHovered = helper.drawableBuilder(JeiTextureConstants.DISPLAY_MODES, 10, 10, 10, 10)
+        this.modeInputHovered = helper.drawableBuilder(JeiTextureConstants.DISPLAY_MODES, 10, 10, 10, 10)
             .setTextureSize(30, 20)
             .build();
-        modeOutput = helper.drawableBuilder(JeiTextureConstants.DISPLAY_MODES, 20, 0, 10, 10)
+        this.modeOutput = helper.drawableBuilder(JeiTextureConstants.DISPLAY_MODES, 20, 0, 10, 10)
             .setTextureSize(30, 20)
             .build();
-        modeOutputHovered = helper.drawableBuilder(JeiTextureConstants.DISPLAY_MODES, 20, 10, 10, 10)
+        this.modeOutputHovered = helper.drawableBuilder(JeiTextureConstants.DISPLAY_MODES, 20, 10, 10, 10)
             .setTextureSize(30, 20)
             .build();
-        renderSwitchOff = helper.drawableBuilder(JeiTextureConstants.LAYER_SWITCH, 0, 0, 10, 10)
+        this.renderSwitchOff = helper.drawableBuilder(JeiTextureConstants.LAYER_SWITCH, 0, 0, 10, 10)
             .setTextureSize(10, 20)
             .build();
-        renderSwitchOn = helper.drawableBuilder(JeiTextureConstants.LAYER_SWITCH, 0, 10, 10, 10)
+        this.renderSwitchOn = helper.drawableBuilder(JeiTextureConstants.LAYER_SWITCH, 0, 10, 10, 10)
             .setTextureSize(10, 20)
             .build();
     }
@@ -162,7 +162,7 @@ public class MultiBlockConversionCategory implements IRecipeCategory<RecipeHolde
 
     @Override
     public @Nullable IDrawable getIcon() {
-        return icon;
+        return this.icon;
     }
 
     @Override
@@ -171,15 +171,15 @@ public class MultiBlockConversionCategory implements IRecipeCategory<RecipeHolde
         RecipeHolder<MultiblockConversionRecipe> recipe,
         IFocusGroup focuses
     ) {
-        cacheInput.computeIfAbsent(
+        this.cacheInput.computeIfAbsent(
             recipe,
             it -> RecipeUtil.asLevelLike(it.value().getInputPattern())
         );
-        cacheOutput.computeIfAbsent(
+        this.cacheOutput.computeIfAbsent(
             recipe,
             it -> RecipeUtil.asLevelLike(it.value().getOutputPattern())
         );
-        tagSlotCache.computeIfAbsent(
+        this.tagSlotCache.computeIfAbsent(
             recipe,
             it -> RecipeUtil.getTagRenderSlots(it.value().getInputPattern())
         );
@@ -247,15 +247,15 @@ public class MultiBlockConversionCategory implements IRecipeCategory<RecipeHolde
         pose.popPose();
         this.displayModeButton(mouseX, mouseY).draw(guiGraphics, 149, 10);
 
-        LevelLike input = cacheInput.computeIfAbsent(
+        LevelLike input = this.cacheInput.computeIfAbsent(
             recipe,
             it -> RecipeUtil.asLevelLike(it.value().getInputPattern())
         );
-        LevelLike output = cacheOutput.computeIfAbsent(
+        LevelLike output = this.cacheOutput.computeIfAbsent(
             recipe,
             it -> RecipeUtil.asLevelLike(it.value().getOutputPattern())
         );
-        var tagSlots = tagSlotCache.get(recipe);
+        var tagSlots = this.tagSlotCache.get(recipe);
         if (tagSlots != null) {
             int totalSeconds = (int) (System.currentTimeMillis() / 1000);
             RecipeUtil.cycleTagBlocks(input, tagSlots, totalSeconds);
@@ -288,15 +288,15 @@ public class MultiBlockConversionCategory implements IRecipeCategory<RecipeHolde
                     output.setAllLayersVisible(false);
                 }
                 for (int i = 0; i < 12; i++) {
-                    slot.draw(guiGraphics, this.inputSlotPosX(i), this.slotPosY(i));
-                    slot.draw(guiGraphics, this.outputSlotPosX(i), this.slotPosY(i));
+                    this.slot.draw(guiGraphics, this.inputSlotPosX(i), this.slotPosY(i));
+                    this.slot.draw(guiGraphics, this.outputSlotPosX(i), this.slotPosY(i));
                 }
-                arrowOut.draw(guiGraphics, 73, 40);
+                this.arrowOut.draw(guiGraphics, 73, 40);
                 pose.pushPose();
                 pose.scale(0.03f, 0.03f, 1.0f);
-                conversion.draw(guiGraphics, 2375, 875);
+                this.conversion.draw(guiGraphics, 2375, 875);
                 pose.popPose();
-                float anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(timer) / 3;
+                float anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(this.timer) / 3;
                 RenderSupport.renderBlock(
                     guiGraphics,
                     JeiBlockIngredientUtil.getRenderablePreviewState(ModBlocks.GIANT_ANVIL.getDefaultState()),
@@ -345,23 +345,23 @@ public class MultiBlockConversionCategory implements IRecipeCategory<RecipeHolde
     }
 
     private IDrawable renderSwitchButton(LevelLike level) {
-        return level.isAllLayersVisible() ? renderSwitchOff : renderSwitchOn;
+        return level.isAllLayersVisible() ? this.renderSwitchOff : this.renderSwitchOn;
     }
 
     private IDrawable layerUpButton(double mouseX, double mouseY) {
-        return (mouseX >= 137 && mouseX < 147 && mouseY >= 30 && mouseY < 40) ? layerUpHovered : layerUp;
+        return (mouseX >= 137 && mouseX < 147 && mouseY >= 30 && mouseY < 40) ? this.layerUpHovered : this.layerUp;
     }
 
     private IDrawable layerDownButton(double mouseX, double mouseY) {
-        return (mouseX >= 149 && mouseX < 159 && mouseY >= 30 && mouseY < 40) ? layerDownHovered : layerDown;
+        return (mouseX >= 149 && mouseX < 159 && mouseY >= 30 && mouseY < 40) ? this.layerDownHovered : this.layerDown;
     }
 
     private IDrawable displayModeButton(double mouseX, double mouseY) {
         boolean hovered = (mouseX >= 149 && mouseX < 159 && mouseY >= 10 && mouseY < 20);
         return switch (this.displayMode) {
-            case OVERVIEW -> hovered ? modeOverviewHovered : modeOverview;
-            case INPUT -> hovered ? modeInputHovered : modeInput;
-            case OUTPUT -> hovered ? modeOutputHovered : modeOutput;
+            case OVERVIEW -> hovered ? this.modeOverviewHovered : this.modeOverview;
+            case INPUT -> hovered ? this.modeInputHovered : this.modeInput;
+            case OUTPUT -> hovered ? this.modeOutputHovered : this.modeOutput;
         };
     }
 

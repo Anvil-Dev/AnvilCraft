@@ -35,7 +35,7 @@ abstract class AnvilBlockMixin extends FallingBlock {
             super.tick(state, level, pos, random);
             return;
         }
-        if (anvilcraft$isAttracts(level.getBlockState(pos.above()))) {
+        if (this.anvilcraft$isAttracts(level.getBlockState(pos.above()))) {
             return;
         }
         super.tick(state, level, pos, random);

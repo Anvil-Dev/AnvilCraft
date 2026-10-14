@@ -34,7 +34,7 @@ public record StellarMetallicityResponse(
     }
 
     public int pulses(double coordinate) {
-        return Math.clamp((int) Math.round(minimumPulses + (maximumPulses - minimumPulses)
-            * (coordinate + 1) * 0.5), minimumPulses, maximumPulses);
+        return Math.clamp((int) Math.round(this.minimumPulses + (this.maximumPulses - this.minimumPulses)
+            * (coordinate + 1) * 0.5), this.minimumPulses, this.maximumPulses);
     }
 }

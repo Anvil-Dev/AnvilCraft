@@ -11,7 +11,7 @@ public class PollableFilteredItemStackHandler extends FilteredItemStackHandler {
 
     @Override
     public boolean isItemValid(int slot, ItemStack stack) {
-        return getEmptyOrSmallerSlot(stack) == slot && super.isItemValid(slot, stack);
+        return this.getEmptyOrSmallerSlot(stack) == slot && super.isItemValid(slot, stack);
     }
 
     @Override

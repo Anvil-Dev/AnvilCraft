@@ -52,7 +52,7 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
 
     /// 刚放置在水中且尚未完成首次同步时为 true。用于在双向同步中保护刚放置的含水传送门不被对侧不含水状态覆盖。
     boolean isJustPlacedWaterlogged() {
-        return !lastWaterlogged && getBlockState().getValue(BlockStateProperties.WATERLOGGED);
+        return !this.lastWaterlogged && getBlockState().getValue(BlockStateProperties.WATERLOGGED);
     }
 
     /// 从外部激光源照射到此传送门前表面所接收的激光等级和类型。
@@ -88,7 +88,7 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
 
     /// 核心控制器（底层中心）的世界坐标。底层中心即自身；正中心则为下方一格。
     private BlockPos getAnchorPos() {
-        return isAnchor() ? worldPosition : worldPosition.below();
+        return this.isAnchor() ? worldPosition : worldPosition.below();
     }
 
     /// === BaseLaserBlockEntity 覆写 ===
@@ -115,13 +115,13 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
     public Set<Direction> getIgnoreFace() {
         /// 仅从正面接受激光（即 FACING 的反方向）
         EnumSet<Direction> ignore = EnumSet.allOf(Direction.class);
-        ignore.remove(getFacing().getOpposite());
+        ignore.remove(this.getFacing().getOpposite());
         return ignore;
     }
 
     @Override
     protected int getBaseLaserLevel() {
-        return Math.max(wormholeLaserLevel, 0);
+        return Math.max(this.wormholeLaserLevel, 0);
     }
 
     @Override
@@ -186,7 +186,7 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
 
         /// FACING 指向远离 CFA 的方向；反方向查找 CFA（以核心控制器位置为基准）
         Direction towardsCfa = state.getValue(CelestialForgingAnvilPortalBlock.FACING).getOpposite();
-        BlockPos cfaPos = getAnchorPos().relative(towardsCfa);
+        BlockPos cfaPos = this.getAnchorPos().relative(towardsCfa);
         BlockState cfaState = level.getBlockState(cfaPos);
         if (cfaState.getBlock() instanceof CelestialForgingAnvilBlock) {
             Cube323PartHalf half = cfaState.getValue(CelestialForgingAnvilBlock.HALF);
@@ -200,13 +200,13 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
 
     public void tick() {
         if (level == null || level.isClientSide()) return;
-        CelestialForgingAnvilBlockEntity parent = findParentCfa();
+        CelestialForgingAnvilBlockEntity parent = this.findParentCfa();
         BlockState state = getBlockState();
         if (!(state.getBlock() instanceof CelestialForgingAnvilPortalBlock)) return;
 
         /// 如果父 CFA 已消失，也摧毁整个传送门结构（从核心控制器摧毁）
         if (parent == null) {
-            level.destroyBlock(getAnchorPos(), true);
+            level.destroyBlock(this.getAnchorPos(), true);
             return;
         }
 
@@ -215,20 +215,20 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
             if (state.getValue(CelestialForgingAnvilPortalBlock.OPEN)) {
                 level.setBlock(worldPosition, state.setValue(CelestialForgingAnvilPortalBlock.OPEN, false), 3);
             }
-            if (isAnchor()) {
-                touchingEntities.clear();
+            if (this.isAnchor()) {
+                this.touchingEntities.clear();
             }
             return;
         }
 
         /// 可登陆特殊星球的传送门不依赖虫洞网络中的另一座 CFA。
-        CelestialTravelData landing = getLandingData(parent);
+        CelestialTravelData landing = this.getLandingData(parent);
         if (landing != null) {
-            tickLandingPortal(state);
+            this.tickLandingPortal(state);
             return;
         }
 
-        Cube323PartHalf side = findSideFromParent(parent);
+        Cube323PartHalf side = this.findSideFromParent(parent);
         if (side == null) return;
 
         /// 查询虫洞网络以确定传送门是否应开启，只有当网络组中恰好有 2 个 CFA 在此同侧有传送门时才开启，如果超过 2 个所有门都关闭。
@@ -238,11 +238,11 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
             /// 无虫洞标识——关闭传送门并清理激光
             if (state.getValue(CelestialForgingAnvilPortalBlock.OPEN)) {
                 level.setBlock(worldPosition, state.setValue(CelestialForgingAnvilPortalBlock.OPEN, false), 3);
-                if (isAnchor()) {
-                    touchingEntities.clear();
+                if (this.isAnchor()) {
+                    this.touchingEntities.clear();
                 }
             }
-            if (wormholeLaserLevel > 0) {
+            if (this.wormholeLaserLevel > 0) {
                 if (irradiateBlockPos != null) {
                     BlockEntity oldBe = level.getBlockEntity(irradiateBlockPos);
                     if (oldBe instanceof BaseLaserBlockEntity lastIrradiated) {
@@ -252,12 +252,12 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
                 }
                 clearIrradiateSelfLaserBlockSet();
                 updateLaserLevel(0);
-                wormholeLaserLevel = 0;
-                wormholeLaserGamma = false;
-                setGammaOutputState(false, 0);
+                this.wormholeLaserLevel = 0;
+                this.wormholeLaserGamma = false;
+                this.setGammaOutputState(false, 0);
                 this.resetLaserComponentState();
                 this.setChanged();
-                sendLaserPackets();
+                this.sendLaserPackets();
             }
             return;
         }
@@ -265,8 +265,8 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
             hash, level.dimension(), parent.getBlockPos()
         );
 
-        if (isAnchor() && !network.hasPortalAt(level.dimension(), parent.getBlockPos(), side)) {
-            parent.addPortal(side, getAnchorPos());
+        if (this.isAnchor() && !network.hasPortalAt(level.dimension(), parent.getBlockPos(), side)) {
+            parent.addPortal(side, this.getAnchorPos());
         }
 
         /// 统计组内在此同侧有传送门的其他 CFA 数量
@@ -292,8 +292,8 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
             && state.getValue(CelestialForgingAnvilPortalBlock.OPEN)) {
             level.setBlock(worldPosition, state.setValue(CelestialForgingAnvilPortalBlock.OPEN, false), 3);
             state = state.setValue(CelestialForgingAnvilPortalBlock.OPEN, false);
-            if (isAnchor()) {
-                touchingEntities.clear();
+            if (this.isAnchor()) {
+                this.touchingEntities.clear();
             }
         }
 
@@ -305,10 +305,10 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
         ///           则含水方优先——不含水方变为含水。
         if (state.getValue(CelestialForgingAnvilPortalBlock.OPEN)) {
             boolean thisWaterlogged = state.getValue(BlockStateProperties.WATERLOGGED);
-            CelestialForgingAnvilPortalBlockEntity connectedPortal = findConnectedPortal(parent, side);
+            CelestialForgingAnvilPortalBlockEntity connectedPortal = this.findConnectedPortal(parent, side);
 
-            if (thisWaterlogged != lastWaterlogged) {
-                lastWaterlogged = thisWaterlogged;
+            if (thisWaterlogged != this.lastWaterlogged) {
+                this.lastWaterlogged = thisWaterlogged;
                 if (connectedPortal != null) {
                     BlockPos targetPortalPos = connectedPortal.getBlockPos();
                     Level targetLevel = connectedPortal.getLevel();
@@ -366,23 +366,23 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
 
             /// 同步激光：将接收到的激光发送到已连接的传送门
             if (connectedPortal != null) {
-                connectedPortal.setWormholeLaser(incomingLaserLevel, incomingLaserGamma);
+                connectedPortal.setWormholeLaser(this.incomingLaserLevel, this.incomingLaserGamma);
             }
         } else {
             /// 传送门关闭：清除两侧残留的虫洞激光，不检查 incomingLaserLevel——激光可能仍照射在输入端传送门上，但虫洞已关闭，因此不传输。
-            CelestialForgingAnvilPortalBlockEntity connectedPortal = findConnectedPortal(parent, side);
+            CelestialForgingAnvilPortalBlockEntity connectedPortal = this.findConnectedPortal(parent, side);
             if (connectedPortal != null) {
                 connectedPortal.setWormholeLaser(0, false);
             }
-            wormholeLaserLevel = 0;
-            wormholeLaserGamma = false;
+            this.wormholeLaserLevel = 0;
+            this.wormholeLaserGamma = false;
         }
         /// 如果此传送门有来自已连接传送门的虫洞激光设置，则发射激光。仅在传送门开启时发射——关闭的传送门不得转发激光。
-        if (wormholeLaserLevel > 0 && state.getValue(CelestialForgingAnvilPortalBlock.OPEN)) {
-            Direction facing = getFacing();
-            setGammaOutputState(wormholeLaserGamma, wormholeLaserLevel);
+        if (this.wormholeLaserLevel > 0 && state.getValue(CelestialForgingAnvilPortalBlock.OPEN)) {
+            Direction facing = this.getFacing();
+            this.setGammaOutputState(this.wormholeLaserGamma, this.wormholeLaserLevel);
             if (irradiateSelfLaserBlockSet.isEmpty()) {
-                if (wormholeLaserGamma) {
+                if (this.wormholeLaserGamma) {
                     emitGammaLaserBeam(facing);
                 } else {
                     emitLaser(facing);
@@ -390,7 +390,7 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
             }
         } else {
             /// 停止激光发射
-            setGammaOutputState(false, 0);
+            this.setGammaOutputState(false, 0);
             if (irradiateBlockPos != null) {
                 BlockEntity oldBe = level.getBlockEntity(irradiateBlockPos);
                 if (oldBe instanceof BaseLaserBlockEntity lastIrradiated) {
@@ -407,27 +407,27 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
         this.tickCount++;
 
         /// 发送激光渲染数据包
-        sendLaserPackets();
+        this.sendLaserPackets();
 
         /// 传送由方块的 entityInside（每移动步触发，能可靠命中快速投掷物）负责。
         /// 这里在核心控制器上进行两层处理：
         /// 1) 清理已离开开口格的实体记录，使其再次进入时能再次传送。
         /// 2) 主动检测开口格内的实体并调用传送——作为 entityInside 的补充，
         ///    可在实体进入方块后、但尚未移动（如末影珍珠撞到面板前）时提前捕获。
-        if (isAnchor() && state.getValue(CelestialForgingAnvilPortalBlock.OPEN)) {
+        if (this.isAnchor() && state.getValue(CelestialForgingAnvilPortalBlock.OPEN)) {
             /// 主动检测：BOTTOM_CENTER 和 MID_CENTER 两格的实体
             AABB portalSpace = new AABB(worldPosition).expandTowards(0, 1, 0);
             for (Entity e : level.getEntitiesOfClass(Entity.class, portalSpace)) {
-                tryTouchTeleport(e);
+                this.tryTouchTeleport(e);
             }
             /// 清理已离开开口格的触碰记录
-            if (!touchingEntities.isEmpty()) {
+            if (!this.touchingEntities.isEmpty()) {
                 Set<UUID> present = level.getEntitiesOfClass(Entity.class, portalSpace)
                     .stream().map(Entity::getUUID).collect(Collectors.toSet());
-                touchingEntities.removeIf(uuid -> !present.contains(uuid));
+                this.touchingEntities.removeIf(uuid -> !present.contains(uuid));
             }
-        } else if (isAnchor()) {
-            touchingEntities.clear();
+        } else if (this.isAnchor()) {
+            this.touchingEntities.clear();
         }
     }
 
@@ -436,21 +436,21 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
     /// 使其再次进入时能再次传送。
     public void tryTouchTeleport(Entity entity) {
         UUID uuid = entity.getUUID();
-        if (touchingEntities.contains(uuid)) return;
+        if (this.touchingEntities.contains(uuid)) return;
 
-        CelestialForgingAnvilBlockEntity parent = findParentCfa();
+        CelestialForgingAnvilBlockEntity parent = this.findParentCfa();
         if (parent == null) return;
         if (!(level instanceof ServerLevel sourceLevel)) return;
 
-        CelestialTravelData landing = getLandingData(parent);
+        CelestialTravelData landing = this.getLandingData(parent);
         if (landing != null) {
-            if (CelestialTravelManager.tryLand(entity, sourceLevel, getAnchorPos(), getFacing(), landing)) {
-                touchingEntities.add(uuid);
+            if (CelestialTravelManager.tryLand(entity, sourceLevel, this.getAnchorPos(), this.getFacing(), landing)) {
+                this.touchingEntities.add(uuid);
             }
             return;
         }
 
-        Cube323PartHalf side = findSideFromParent(parent);
+        Cube323PartHalf side = this.findSideFromParent(parent);
         if (side == null) return;
 
         UUID hash = parent.getWormholeParamsHash();
@@ -534,7 +534,7 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
             CelestialTravelManager.playPortalTravelSound(teleported);
         }
 
-        touchingEntities.add(uuid);
+        this.touchingEntities.add(uuid);
     }
 
     @Nullable
@@ -552,9 +552,9 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
             level.setBlock(worldPosition, state, 3);
         }
         /// A landing gate has no remote laser endpoint; discard stale wormhole output.
-        wormholeLaserLevel = 0;
-        wormholeLaserGamma = false;
-        setGammaOutputState(false, 0);
+        this.wormholeLaserLevel = 0;
+        this.wormholeLaserGamma = false;
+        this.setGammaOutputState(false, 0);
         if (irradiateBlockPos != null) {
             BlockEntity oldBe = level.getBlockEntity(irradiateBlockPos);
             if (oldBe instanceof BaseLaserBlockEntity lastIrradiated) {
@@ -565,20 +565,20 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
         clearIrradiateSelfLaserBlockSet();
         updateLaserLevel(0);
         this.resetLaserComponentState();
-        if (isAnchor()) {
+        if (this.isAnchor()) {
             AABB portalSpace = new AABB(worldPosition).expandTowards(0, 1, 0);
             for (Entity entity : level.getEntitiesOfClass(Entity.class, portalSpace)) {
-                tryTouchTeleport(entity);
+                this.tryTouchTeleport(entity);
             }
-            if (!touchingEntities.isEmpty()) {
+            if (!this.touchingEntities.isEmpty()) {
                 Set<UUID> present = level.getEntitiesOfClass(Entity.class, portalSpace)
                     .stream().map(Entity::getUUID).collect(Collectors.toSet());
-                touchingEntities.removeIf(uuid -> !present.contains(uuid));
+                this.touchingEntities.removeIf(uuid -> !present.contains(uuid));
             }
         } else {
-            touchingEntities.clear();
+            this.touchingEntities.clear();
         }
-        sendLaserPackets();
+        this.sendLaserPackets();
     }
 
     /// 查找虫洞另一侧已连接传送门中与本格相同高度的方块实体。本格为底层中心则返回对侧底层中心，本格为正中心则返回对侧正中心，如果未连接或目标传送门未找到则返回 null。
@@ -604,7 +604,7 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
             .offset(side.getOffsetX(), side.getOffsetY(), side.getOffsetZ())
             .relative(outwardFacing);
         /// 按本格相对核心控制器的高度偏移，取对侧相同高度的格子
-        int heightOffset = worldPosition.getY() - getAnchorPos().getY();
+        int heightOffset = worldPosition.getY() - this.getAnchorPos().getY();
         BlockPos targetCellPos = targetAnchorPos.above(heightOffset);
         ServerLevel targetLevel = level.getServer().getLevel(target.dimension());
         if (targetLevel == null) return null;
@@ -616,7 +616,7 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
 
     @Nullable
     private Cube323PartHalf findSideFromParent(CelestialForgingAnvilBlockEntity parent) {
-        BlockPos anchorPos = getAnchorPos();
+        BlockPos anchorPos = this.getAnchorPos();
         for (var entry : parent.getPortals().entrySet()) {
             if (entry.getValue().equals(anchorPos)) {
                 return entry.getKey();

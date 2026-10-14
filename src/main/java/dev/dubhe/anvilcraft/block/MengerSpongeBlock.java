@@ -118,7 +118,7 @@ public class MengerSpongeBlock extends SpongeBlock implements IHammerRemovable {
     ) {
         if (level.isClientSide) return;
         // 邻居变化（如旁边放置流体）时持续吸收，与原版海绵一致
-        tryAbsorbWater(level, pos);
+        this.tryAbsorbWater(level, pos);
     }
 
     @Override

@@ -61,12 +61,12 @@ public class StampingUniqueItemsRecipe implements Recipe<ItemProcessInput> {
 
     @Override
     public ItemStack getResultItem(HolderLookup.Provider registries) {
-        return results.isEmpty() ? ItemStack.EMPTY : results.getFirst().stack();
+        return this.results.isEmpty() ? ItemStack.EMPTY : this.results.getFirst().stack();
     }
 
     @Override
     public ItemStack assemble(ItemProcessInput input, HolderLookup.Provider registries) {
-        return results.isEmpty() ? ItemStack.EMPTY : results.getFirst().stack();
+        return this.results.isEmpty() ? ItemStack.EMPTY : this.results.getFirst().stack();
     }
 
     @Override
@@ -159,32 +159,32 @@ public class StampingUniqueItemsRecipe implements Recipe<ItemProcessInput> {
         }
 
         public Builder requires(Ingredient ingredient) {
-            return requires(ingredient, 1);
+            return this.requires(ingredient, 1);
         }
 
         public Builder requires(ItemLike item, int count) {
-            return requires(Ingredient.of(item), count);
+            return this.requires(Ingredient.of(item), count);
         }
 
         public Builder requires(ItemLike item) {
-            return requires(item, 1);
+            return this.requires(item, 1);
         }
 
         public Builder requires(TagKey<Item> tag, int count) {
-            return requires(Ingredient.of(tag), count);
+            return this.requires(Ingredient.of(tag), count);
         }
 
         public Builder requires(TagKey<Item> tag) {
-            return requires(tag, 1);
+            return this.requires(tag, 1);
         }
 
         public Builder result(ChanceItemStack stack) {
-            results.add(stack);
+            this.results.add(stack);
             return this;
         }
 
         public Builder result(ItemStack stack) {
-            results.add(ChanceItemStack.of(stack));
+            this.results.add(ChanceItemStack.of(stack));
             return this;
         }
 
@@ -206,22 +206,22 @@ public class StampingUniqueItemsRecipe implements Recipe<ItemProcessInput> {
 
         @Override
         public void validate(ResourceLocation id) {
-            if (ingredients.isEmpty() || ingredients.size() > 9) {
+            if (this.ingredients.isEmpty() || this.ingredients.size() > 9) {
                 throw new IllegalArgumentException("Recipe ingredients size must in 0-9, RecipeId: " + id);
             }
-            if (results.isEmpty()) {
+            if (this.results.isEmpty()) {
                 throw new IllegalArgumentException("Recipe results must not be null, RecipeId: " + id);
             }
         }
 
         @Override
         public Item getResult() {
-            return results.getFirst().stack().getItem();
+            return this.results.getFirst().stack().getItem();
         }
 
         @Override
         public StampingUniqueItemsRecipe buildRecipe() {
-            return new StampingUniqueItemsRecipe(ingredients, results);
+            return new StampingUniqueItemsRecipe(this.ingredients, this.results);
         }
 
         @Override

@@ -82,12 +82,12 @@ public class ClientStoragePortTooltip implements ClientTooltipComponent {
 
     @Override
     public int getHeight() {
-        return item.isEmpty() ? 0 : ClientStoragePortTooltip.LINE_HEIGHT + ClientStoragePortTooltip.ICON_SIZE;
+        return this.item.isEmpty() ? 0 : ClientStoragePortTooltip.LINE_HEIGHT + ClientStoragePortTooltip.ICON_SIZE;
     }
 
     @Override
     public int getWidth(Font font) {
-        if (item.isEmpty()) {
+        if (this.item.isEmpty()) {
             return 0;
         }
         int labelWidth = font.width(Component.translatable("tooltip.anvilcraft.storage_port.item"));
@@ -103,7 +103,7 @@ public class ClientStoragePortTooltip implements ClientTooltipComponent {
         Matrix4f matrix,
         MultiBufferSource.BufferSource bufferSource
     ) {
-        if (item.isEmpty()) {
+        if (this.item.isEmpty()) {
             return;
         }
         font.drawInBatch(
@@ -135,15 +135,15 @@ public class ClientStoragePortTooltip implements ClientTooltipComponent {
 
     @Override
     public void renderImage(Font font, int x, int y, GuiGraphics guiGraphics) {
-        if (item.isEmpty()) {
+        if (this.item.isEmpty()) {
             return;
         }
-        guiGraphics.renderItem(item.copyWithCount(1), x, y + ClientStoragePortTooltip.LINE_HEIGHT);
+        guiGraphics.renderItem(this.item.copyWithCount(1), x, y + ClientStoragePortTooltip.LINE_HEIGHT);
     }
 
     /** 物品行：数量 + 物品名称（灰色），如「64x Iron Ingot」。 */
     private Component itemLine() {
-        return Component.literal(this.count + "x ").append(item.getHoverName()).withStyle(ChatFormatting.GRAY);
+        return Component.literal(this.count + "x ").append(this.item.getHoverName()).withStyle(ChatFormatting.GRAY);
     }
 
     @Nullable

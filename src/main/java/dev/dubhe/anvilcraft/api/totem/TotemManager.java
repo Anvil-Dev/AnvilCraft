@@ -23,13 +23,13 @@ public class TotemManager {
     private final Map<Item, TotemHandler> totemMap = new Object2ObjectOpenHashMap<>();
 
     private TotemManager() {
-        registerTotem(ModItems.AMULET_BOX.asItem(), new AmuletBoxHandler());
-        registerTotem(Items.TOTEM_OF_UNDYING, new TotemOfUndyingHandler());
-        registerTotem(ModItems.TOTEM_OF_RECOVERY.get(), new TotemOfRecoveryHandler());
-        registerTotem(ModItems.TOTEM_OF_RAGE.get(), new TotemOfRageHandler());
+        this.registerTotem(ModItems.AMULET_BOX.asItem(), new AmuletBoxHandler());
+        this.registerTotem(Items.TOTEM_OF_UNDYING, new TotemOfUndyingHandler());
+        this.registerTotem(ModItems.TOTEM_OF_RECOVERY.get(), new TotemOfRecoveryHandler());
+        this.registerTotem(ModItems.TOTEM_OF_RAGE.get(), new TotemOfRageHandler());
     }
 
     public void registerTotem(Item item, TotemHandler handler) {
-        totemMap.put(item, handler);
+        this.totemMap.put(item, handler);
     }
 }

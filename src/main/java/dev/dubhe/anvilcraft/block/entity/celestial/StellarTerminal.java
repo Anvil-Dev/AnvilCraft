@@ -30,17 +30,17 @@ public record StellarTerminal(Kind kind, int massAnvils, double solarMass, int s
         }
 
         public String id() {
-            return id;
+            return this.id;
         }
     }
 
     public void validate(double initialSolarMass) {
-        if (!Double.isFinite(solarMass) || solarMass < 0 || solarMass > initialSolarMass) {
+        if (!Double.isFinite(this.solarMass) || this.solarMass < 0 || this.solarMass > initialSolarMass) {
             throw new IllegalArgumentException("Remnant mass exceeds initial mass");
         }
-        if (kind == Kind.NONE) {
-            if (massAnvils != 0 || solarMass != 0) throw new IllegalArgumentException("Disruption has a remnant");
-        } else if (massAnvils < 1 || Math.abs(CelestialMassTable.at(massAnvils).solarMass() - solarMass) > 1e-8) {
+        if (this.kind == Kind.NONE) {
+            if (this.massAnvils != 0 || this.solarMass != 0) throw new IllegalArgumentException("Disruption has a remnant");
+        } else if (this.massAnvils < 1 || Math.abs(CelestialMassTable.at(this.massAnvils).solarMass() - this.solarMass) > 1e-8) {
             throw new IllegalArgumentException("Remnant mass and menu coordinate disagree");
         }
     }

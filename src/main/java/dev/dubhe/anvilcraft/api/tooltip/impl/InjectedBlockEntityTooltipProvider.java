@@ -26,12 +26,12 @@ public class InjectedBlockEntityTooltipProvider extends ITooltipProvider.BlockEn
 
     @Override
     public boolean accepts(BlockEntity value) {
-        return cast(value).isPresent();
+        return this.cast(value).isPresent();
     }
 
     @Override
     public List<Component> tooltip(BlockEntity value) {
-        return cast(value).map(ITooltipProviderExtension::anvilcraft$getTooltip).orElse(List.of());
+        return this.cast(value).map(ITooltipProviderExtension::anvilcraft$getTooltip).orElse(List.of());
     }
 
     @Override

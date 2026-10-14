@@ -213,7 +213,7 @@ public class GlassPipeBlockEntity extends AbstractPipeCheckValveBlockEntity {
         if (tag.contains(TAG_DISPLAY_FLUID, Tag.TAG_COMPOUND)) {
             this.displayFluid = FluidStack.parseOptional(registries, tag.getCompound(TAG_DISPLAY_FLUID));
             this.displayUntil = tag.getLong(TAG_DISPLAY_UNTIL);
-            readDisplayDirections(tag.getInt(TAG_DISPLAY_DIRECTIONS));
+            this.readDisplayDirections(tag.getInt(TAG_DISPLAY_DIRECTIONS));
         } else {
             this.displayFluid = FluidStack.EMPTY;
             this.displayDirections.clear();
@@ -223,7 +223,7 @@ public class GlassPipeBlockEntity extends AbstractPipeCheckValveBlockEntity {
         if (tag.contains(TAG_GAS_FLUID, Tag.TAG_COMPOUND)) {
             this.gasFluid = FluidStack.parseOptional(registries, tag.getCompound(TAG_GAS_FLUID));
             this.gasAlpha = tag.getFloat(TAG_GAS_ALPHA);
-            readGasDirections(tag.getInt(TAG_GAS_DIRECTIONS));
+            this.readGasDirections(tag.getInt(TAG_GAS_DIRECTIONS));
         } else {
             this.gasAlpha = 1.0f;
             this.gasFluid = FluidStack.EMPTY;

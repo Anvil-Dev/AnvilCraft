@@ -45,7 +45,7 @@ public class RailgunAnvilRenderer extends EntityRenderer<RailgunAnvilEntity> {
         pose.pushPose();
         pose.translate(-0.5, 0.0, -0.5);
         this.dispatcher.getModelRenderer().tesselateBlock(
-            entity.level(), dispatcher.getBlockModel(state), state, BlockPos.containing(entity.position()), pose,
+            entity.level(), this.dispatcher.getBlockModel(state), state, BlockPos.containing(entity.position()), pose,
             buffers.getBuffer(RenderType.TRANSLUCENT), false, RandomSource.create(), state.getSeed(entity.blockPosition()),
             OverlayTexture.NO_OVERLAY);
         pose.popPose();

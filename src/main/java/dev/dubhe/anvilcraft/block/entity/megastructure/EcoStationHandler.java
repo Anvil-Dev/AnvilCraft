@@ -30,7 +30,7 @@ public class EcoStationHandler extends BaseMegastructureHandler {
     public void serverTick(CelestialForgingAnvilBlockEntity be) {
         if (be.getLevel() == null || be.getLevel().isClientSide()) return;
         CelestialRefactorOption option = be.getActiveMegastructureOption();
-        if (option == null || !name().equals(option.megastructure())) return;
+        if (option == null || !this.name().equals(option.megastructure())) return;
         if (be.getPlanetaryResourceSet() == null) return;
 
         if (be.getPlanetaryResourceSet().hasCivilization()) return;
@@ -56,9 +56,9 @@ public class EcoStationHandler extends BaseMegastructureHandler {
                     ItemStack output = new ItemStack(itemLike, 1);
                     var logistics = findOutputLogisticsInterfaces(be);
                     if (logistics.size() > 0) {
-                        ItemOutputResult result = insertOutputItem(logistics, output, logisticsRoundRobin);
+                        ItemOutputResult result = insertOutputItem(logistics, output, this.logisticsRoundRobin);
                         if (result.remainder().getCount() < output.getCount()) {
-                            logisticsRoundRobin = result.nextIndex();
+                            this.logisticsRoundRobin = result.nextIndex();
                         }
                     }
                 }
@@ -74,9 +74,9 @@ public class EcoStationHandler extends BaseMegastructureHandler {
                     FluidStack output = new FluidStack(f, AnvilCraft.CONFIG.machines.megastructureFluidPerTick);
                     if (!output.isEmpty()) {
                         var fluidInterfaces = findOutputFluidInterfaces(be);
-                        FluidOutputResult result = fillOutputFluid(fluidInterfaces, output, fluidRoundRobin);
+                        FluidOutputResult result = fillOutputFluid(fluidInterfaces, output, this.fluidRoundRobin);
                         if (result.filled() > 0) {
-                            fluidRoundRobin = result.nextIndex();
+                            this.fluidRoundRobin = result.nextIndex();
                         }
                     }
                 }

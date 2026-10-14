@@ -117,7 +117,7 @@ public class SpacetimeSupercomputerBlock extends BetterBaseEntityBlock implement
                 );
                 serverPlayer.connection.send(new SpacetimeSupercomputerBlockEntitySyncPacket(pos));
             } else if (level.isClientSide) {
-                openScreen(spacetimeSupercomputerBlockEntity);
+                this.openScreen(spacetimeSupercomputerBlockEntity);
             }
             return InteractionResult.sidedSuccess(level.isClientSide);
         } else {

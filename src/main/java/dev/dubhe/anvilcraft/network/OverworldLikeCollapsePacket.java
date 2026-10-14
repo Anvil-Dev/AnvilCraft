@@ -24,6 +24,6 @@ public record OverworldLikeCollapsePacket(int elapsedTicks) implements IClientbo
 
     @Override
     public void handleOnClient(Player player) {
-        OverworldLikeClientState.beginCollapse(elapsedTicks);
+        OverworldLikeClientState.beginCollapse(this.elapsedTicks);
     }
 }

@@ -10,7 +10,7 @@ public interface ILaserComponentType<T extends ILaserComponent, E> {
 
     @SuppressWarnings("unchecked")
     default T mergeIncoming(T... instances) {
-        return mergeIncoming(List.of(instances));
+        return this.mergeIncoming(List.of(instances));
     }
 
     /** 数值越大越先执行；同优先级按组件加入顺序执行。 */

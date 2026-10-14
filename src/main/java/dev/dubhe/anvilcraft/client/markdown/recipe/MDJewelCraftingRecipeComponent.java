@@ -20,21 +20,21 @@ public class MDJewelCraftingRecipeComponent extends MDRecipeComponent {
 
     public MDJewelCraftingRecipeComponent(JewelCraftingRecipe recipe, boolean enableAlignCenter) {
         super(TEXTURE, 142, 62, enableAlignCenter);
-        result = recipe.result;
-        ingredients = recipe.getMergedIngredients();
+        this.result = recipe.result;
+        this.ingredients = recipe.getMergedIngredients();
     }
 
     @Override
     protected void renderRecipe(MDRenderContext context, float mouseX, float mouseY) {
         // 要消耗的原料
-        for (int i = 0; i < Math.min(ingredients.size(), 4); i++) {
-            AgeratumUtil.renderItemWithoutSlot(context, ingredients.get(i), mouseX, mouseY, 8 + i * AgeratumUtil.SLOT_SIZE, 37);
+        for (int i = 0; i < Math.min(this.ingredients.size(), 4); i++) {
+            AgeratumUtil.renderItemWithoutSlot(context, this.ingredients.get(i), mouseX, mouseY, 8 + i * AgeratumUtil.SLOT_SIZE, 37);
         }
         // 要被复制的物品
-        AgeratumUtil.renderItemWithoutSlot(context, result, mouseX, mouseY, 65, 9);
+        AgeratumUtil.renderItemWithoutSlot(context, this.result, mouseX, mouseY, 65, 9);
 
         // 产物
-        AgeratumUtil.renderItemWithoutSlot(context, result, mouseX, mouseY, 117, 37);
+        AgeratumUtil.renderItemWithoutSlot(context, this.result, mouseX, mouseY, 117, 37);
     }
 
 }

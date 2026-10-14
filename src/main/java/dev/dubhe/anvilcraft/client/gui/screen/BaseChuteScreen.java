@@ -49,9 +49,9 @@ public abstract class BaseChuteScreen<T extends BaseChuteBlockEntity, M extends 
     @Override
     protected void init() {
         super.init();
-        this.enableFilterButton = enableFilterButtonSupplier.apply(this.leftPos, this.topPos);
+        this.enableFilterButton = this.enableFilterButtonSupplier.apply(this.leftPos, this.topPos);
         for (Direction value : Direction.values()) {
-            if (shouldSkipDirection(value)) {
+            if (this.shouldSkipDirection(value)) {
                 Objects.requireNonNull(this.getDirectionButton()).skip(value);
             }
         }
@@ -102,7 +102,7 @@ public abstract class BaseChuteScreen<T extends BaseChuteBlockEntity, M extends 
 
     @Override
     public M getFilterMenu() {
-        return menu;
+        return this.menu;
     }
 
     @Override

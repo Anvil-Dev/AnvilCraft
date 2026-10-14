@@ -24,9 +24,9 @@ public class MDFastCookingRecipeComponent extends MDBaseAnvilRecipeComponent {
 
     public MDFastCookingRecipeComponent(FastCookingRecipe recipe, boolean enableAlignCenter) {
         super(enableAlignCenter);
-        ingredients = recipe.getInputItems();
-        resultItems = recipe.getResultItems();
-        inputBlockStates = List.of(
+        this.ingredients = recipe.getInputItems();
+        this.resultItems = recipe.getResultItems();
+        this.inputBlockStates = List.of(
             CauldronUtil.fullState(HasCauldron.getDefaultCauldron(recipe.getHasCauldron().fluid())),
             Blocks.CAMPFIRE.defaultBlockState()
         );

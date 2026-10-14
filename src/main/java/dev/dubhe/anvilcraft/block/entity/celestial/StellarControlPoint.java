@@ -33,18 +33,18 @@ public record StellarControlPoint(
     }
 
     public StellarControlPoint resolve(StellarMetallicityResponse response, double coordinate) {
-        return new StellarControlPoint(progress,
-            radius * StellarMetallicityResponse.factor(response.radius(), coordinate),
-            Math.clamp(temperature * StellarMetallicityResponse.factor(response.temperature(), coordinate),
-                minimumTemperature, maximumTemperature),
-            luminosity * StellarMetallicityResponse.factor(response.luminosity(), coordinate),
-            (float) Math.pow(envelope, StellarMetallicityResponse.factor(response.wind(), coordinate)),
-            minimumTemperature, maximumTemperature);
+        return new StellarControlPoint(this.progress,
+            this.radius * StellarMetallicityResponse.factor(response.radius(), coordinate),
+            Math.clamp(this.temperature * StellarMetallicityResponse.factor(response.temperature(), coordinate),
+                this.minimumTemperature, this.maximumTemperature),
+            this.luminosity * StellarMetallicityResponse.factor(response.luminosity(), coordinate),
+            (float) Math.pow(this.envelope, StellarMetallicityResponse.factor(response.wind(), coordinate)),
+            this.minimumTemperature, this.maximumTemperature);
     }
 
     public StellarVisualState visual(PhaseNode node) {
-        return new StellarVisualState(radius, temperature, luminosity,
-            StellarVisualState.colorForTemperature(temperature), Math.max(0.05f, (float) Math.sqrt(luminosity)),
-            envelope, radius, 0, node.pulsationAmplitude(), node.dynamics().pulses(), node.surfaceStyle());
+        return new StellarVisualState(this.radius, this.temperature, this.luminosity,
+            StellarVisualState.colorForTemperature(this.temperature), Math.max(0.05f, (float) Math.sqrt(this.luminosity)),
+            this.envelope, this.radius, 0, node.pulsationAmplitude(), node.dynamics().pulses(), node.surfaceStyle());
     }
 }

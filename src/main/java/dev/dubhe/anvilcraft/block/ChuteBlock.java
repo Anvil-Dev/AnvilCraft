@@ -174,7 +174,7 @@ public class ChuteBlock extends BetterBaseEntityBlock implements HammerRotateBeh
         Direction dir = context.getClickedFace().getOpposite();
         if (context.getPlayer() != null && context.getPlayer().isShiftKeyDown()) dir = dir.getOpposite();
         Direction facing = dir.getAxis() == Direction.Axis.Y ? Direction.DOWN : dir;
-        BlockState result = getState(context.getLevel(), context.getClickedPos(), facing);
+        BlockState result = this.getState(context.getLevel(), context.getClickedPos(), facing);
         Player player = context.getPlayer();
         if (result == null && player != null) {
             player.displayClientMessage(Component.translatable("message.anvilcraft.chute.cannot_place"), true);
@@ -235,7 +235,7 @@ public class ChuteBlock extends BetterBaseEntityBlock implements HammerRotateBeh
         BlockState neighborState = level.getBlockState(neighborPos);
         Block neighborBlock1 = neighborState.getBlock();
         if (isChuteBlock(neighborBlock) || isChuteBlock(neighborBlock1)) {
-            BlockState newState = getState(level, pos, state.getValue(FACING));
+            BlockState newState = this.getState(level, pos, state.getValue(FACING));
             if (newState != null && newState != state) {
                 // 降级为简易溜槽时继承物品
                 java.util.Map<Integer, ItemStack> savedItems = new java.util.HashMap<>();

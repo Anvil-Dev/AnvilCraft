@@ -67,15 +67,15 @@ public class EnchantedGoldBlockGlints {
                 if (!Block.shouldRenderFace(state, level, pos, direction, pos.relative(direction))) {
                     continue;
                 }
-                random.setSeed(42L);
-                for (BakedQuad quad : model.getQuads(state, direction, random, ModelData.EMPTY, RenderType.solid())) {
+                this.random.setSeed(42L);
+                for (BakedQuad quad : model.getQuads(state, direction, this.random, ModelData.EMPTY, RenderType.solid())) {
                     glint.putBulkData(
                         poseStack.last(), quad, 1.0F, 1.0F, 1.0F, 1.0F, LightTexture.FULL_BRIGHT, OverlayTexture.NO_OVERLAY
                     );
                 }
             }
-            random.setSeed(42L);
-            for (BakedQuad quad : model.getQuads(state, null, random, ModelData.EMPTY, RenderType.solid())) {
+            this.random.setSeed(42L);
+            for (BakedQuad quad : model.getQuads(state, null, this.random, ModelData.EMPTY, RenderType.solid())) {
                 glint.putBulkData(
                     poseStack.last(), quad, 1.0F, 1.0F, 1.0F, 1.0F, LightTexture.FULL_BRIGHT, OverlayTexture.NO_OVERLAY
                 );

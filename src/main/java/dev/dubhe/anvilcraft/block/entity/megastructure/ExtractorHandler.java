@@ -22,7 +22,7 @@ public class ExtractorHandler extends BaseMegastructureHandler {
     public void serverTick(CelestialForgingAnvilBlockEntity be) {
         if (be.getLevel() == null || be.getLevel().isClientSide()) return;
         CelestialRefactorOption option = be.getActiveMegastructureOption();
-        if (option == null || !name().equals(option.megastructure())) return;
+        if (option == null || !this.name().equals(option.megastructure())) return;
         if (be.getPlanetaryResourceSet() == null) return;
 
         List<PlanetaryResourceSet.WeightedFluidStack> fluids = be.getPlanetaryResourceSet().getFluids();
@@ -52,9 +52,9 @@ public class ExtractorHandler extends BaseMegastructureHandler {
             FluidStack output = new FluidStack(fluid, AnvilCraft.CONFIG.machines.megastructureFluidPerTick);
             if (output.isEmpty()) continue;
 
-            FluidOutputResult result = fillOutputFluid(fluidInterfaces, output, fluidRoundRobin);
+            FluidOutputResult result = fillOutputFluid(fluidInterfaces, output, this.fluidRoundRobin);
             if (result.filled() > 0) {
-                fluidRoundRobin = result.nextIndex();
+                this.fluidRoundRobin = result.nextIndex();
             }
         }
     }

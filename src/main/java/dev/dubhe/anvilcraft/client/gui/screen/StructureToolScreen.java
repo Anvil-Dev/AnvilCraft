@@ -106,7 +106,7 @@ public class StructureToolScreen extends AbstractContainerScreen<StructureToolMe
             46,
             32,
             button -> {
-                Recipe<?> recipe = toRecipe();
+                Recipe<?> recipe = this.toRecipe();
                 if (recipe instanceof IDatagen datagenRecipe) {
                     minecraft.keyboardHandler.setClipboard(datagenRecipe.toDatagen());
                     minecraft.player.displayClientMessage(
@@ -148,7 +148,7 @@ public class StructureToolScreen extends AbstractContainerScreen<StructureToolMe
             46,
             32,
             button -> {
-                Recipe<?> recipe = toRecipe();
+                Recipe<?> recipe = this.toRecipe();
                 if (recipe == null) {
                     minecraft.player.displayClientMessage(
                         Component.translatable("message.anvilcraft.code_gen_filed")
@@ -212,7 +212,7 @@ public class StructureToolScreen extends AbstractContainerScreen<StructureToolMe
         PoseStack pose = guiGraphics.pose();
         ClientLevel level = Minecraft.getInstance().level;
         // structureData Text render
-        if (structureData != null && level != null) {
+        if (this.structureData != null && level != null) {
             pose.pushPose();
 
             pose.translate((this.width - this.imageWidth) / 2f, (this.height - this.imageHeight) / 2f, 0);
@@ -220,14 +220,14 @@ public class StructureToolScreen extends AbstractContainerScreen<StructureToolMe
 
             guiGraphics.drawString(
                 font, Component.translatable("screen.anvilcraft.structure_tool.size"), 18, 30, 0xFFFFFFFF, true);
-            guiGraphics.drawString(font, "X: " + structureData.getSizeX(), 24, 40, 0xFFFFFFFF, true);
-            guiGraphics.drawString(font, "Y: " + structureData.getSizeY(), 24, 50, 0xFFFFFFFF, true);
-            guiGraphics.drawString(font, "Z: " + structureData.getSizeZ(), 24, 60, 0xFFFFFFFF, true);
+            guiGraphics.drawString(font, "X: " + this.structureData.getSizeX(), 24, 40, 0xFFFFFFFF, true);
+            guiGraphics.drawString(font, "Y: " + this.structureData.getSizeY(), 24, 50, 0xFFFFFFFF, true);
+            guiGraphics.drawString(font, "Z: " + this.structureData.getSizeZ(), 24, 60, 0xFFFFFFFF, true);
 
             int blockCount = 0;
-            for (int x = structureData.minX(); x <= structureData.maxX(); x++) {
-                for (int y = structureData.minY(); y <= structureData.maxY(); y++) {
-                    for (int z = structureData.minZ(); z <= structureData.maxZ(); z++) {
+            for (int x = this.structureData.minX(); x <= this.structureData.maxX(); x++) {
+                for (int y = this.structureData.minY(); y <= this.structureData.maxY(); y++) {
+                    for (int z = this.structureData.minZ(); z <= this.structureData.maxZ(); z++) {
                         if (!level.getBlockState(new BlockPos(x, y, z)).is(Blocks.AIR)) {
                             blockCount++;
                         }
@@ -263,7 +263,7 @@ public class StructureToolScreen extends AbstractContainerScreen<StructureToolMe
             font, Component.translatable("screen.anvilcraft.structure_tool.to_json"), 177, 83, 0xFFFFFFFF, true);
 
         pose.popPose();
-        renderTooltip(guiGraphics, mouseX, mouseY);
+        this.renderTooltip(guiGraphics, mouseX, mouseY);
     }
 
     @Override
@@ -440,7 +440,7 @@ public class StructureToolScreen extends AbstractContainerScreen<StructureToolMe
                         continue;
                     }
                     BlockStatePredicate.Builder predicate = this.buildPredicate(state, recordAllStates);
-                    sb.append(getAndPutSymbol(symbols, symbolByState, predicate));
+                    sb.append(this.getAndPutSymbol(symbols, symbolByState, predicate));
                 }
                 layer.add(sb.toString());
             }

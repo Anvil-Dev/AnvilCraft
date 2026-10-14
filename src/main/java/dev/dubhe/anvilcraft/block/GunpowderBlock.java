@@ -82,7 +82,7 @@ public class GunpowderBlock extends Block {
             || stack.is(Items.FIRE_CHARGE)
             || (stack.is(ModItems.MULTITOOL_ITEM)
             && MultitoolItem.getMode(stack) == MultitoolItem.FLINT_AND_STEEL_MODE)) {
-            explosion(level, pos);
+            this.explosion(level, pos);
             Item item = stack.getItem();
             if (stack.is(Items.FLINT_AND_STEEL)
                 || (stack.is(ModItems.MULTITOOL_ITEM)
@@ -111,7 +111,7 @@ public class GunpowderBlock extends Block {
             if (block.getBlock() instanceof BaseFireBlock
                 || block.is(Blocks.LAVA)
                 || ((block.getBlock() instanceof HeatableBlock) && !(block.getBlock() instanceof NormalBlock))) {
-                explosion((Level) level, pos);
+                this.explosion((Level) level, pos);
             }
         }
         return super.updateShape(state, direction, neighborState, level, pos, neighborPos);
@@ -125,7 +125,7 @@ public class GunpowderBlock extends Block {
                 if (block.getBlock() instanceof BaseFireBlock
                     || block.is(Blocks.LAVA)
                     || ((block.getBlock() instanceof HeatableBlock) && !(block.getBlock() instanceof NormalBlock))) {
-                    explosion(level, pos);
+                    this.explosion(level, pos);
                 }
             }
         }
@@ -133,7 +133,7 @@ public class GunpowderBlock extends Block {
 
     @Override
     public void onCaughtFire(BlockState state, Level level, BlockPos pos, @Nullable Direction direction, @Nullable LivingEntity igniter) {
-        explosion(level, pos);
+        this.explosion(level, pos);
     }
 
     @Override
@@ -143,7 +143,7 @@ public class GunpowderBlock extends Block {
         }
         BlockPos pos = hit.getBlockPos();
         if (projectile.isOnFire() && projectile.mayInteract(level, pos)) {
-            explosion(level, pos);
+            this.explosion(level, pos);
         }
     }
 
@@ -152,7 +152,7 @@ public class GunpowderBlock extends Block {
         if (level.isClientSide) {
             return;
         }
-        explosion(level, pos);
+        this.explosion(level, pos);
     }
 
     @Override

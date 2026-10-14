@@ -120,7 +120,7 @@ public class NegativeShapeModelEventListener {
             @Nullable Direction side,
             RandomSource random
         ) {
-            return getQuads(state, side, random, ModelData.EMPTY, null);
+            return this.getQuads(state, side, random, ModelData.EMPTY, null);
         }
 
         @Override
@@ -454,7 +454,7 @@ public class NegativeShapeModelEventListener {
         }
 
         private List<FaceRectangle> get(Direction direction) {
-            return coverage.getOrDefault(direction, List.of());
+            return this.coverage.getOrDefault(direction, List.of());
         }
     }
 
@@ -485,52 +485,52 @@ public class NegativeShapeModelEventListener {
         }
 
         private boolean isEmpty() {
-            return maxFirst - minFirst <= MODEL_EDGE_TOLERANCE
-                   || maxSecond - minSecond <= MODEL_EDGE_TOLERANCE;
+            return this.maxFirst - this.minFirst <= MODEL_EDGE_TOLERANCE
+                   || this.maxSecond - this.minSecond <= MODEL_EDGE_TOLERANCE;
         }
 
         private boolean sameAs(FaceRectangle rectangle) {
-            return Math.abs(minFirst - rectangle.minFirst) <= MODEL_EDGE_TOLERANCE
-                   && Math.abs(minSecond - rectangle.minSecond) <= MODEL_EDGE_TOLERANCE
-                   && Math.abs(maxFirst - rectangle.maxFirst) <= MODEL_EDGE_TOLERANCE
-                   && Math.abs(maxSecond - rectangle.maxSecond) <= MODEL_EDGE_TOLERANCE;
+            return Math.abs(this.minFirst - rectangle.minFirst) <= MODEL_EDGE_TOLERANCE
+                   && Math.abs(this.minSecond - rectangle.minSecond) <= MODEL_EDGE_TOLERANCE
+                   && Math.abs(this.maxFirst - rectangle.maxFirst) <= MODEL_EDGE_TOLERANCE
+                   && Math.abs(this.maxSecond - rectangle.maxSecond) <= MODEL_EDGE_TOLERANCE;
         }
 
         private boolean isMinFirst(float value) {
-            return Math.abs(value - minFirst) <= MODEL_EDGE_TOLERANCE;
+            return Math.abs(value - this.minFirst) <= MODEL_EDGE_TOLERANCE;
         }
 
         private boolean isMaxFirst(float value) {
-            return Math.abs(value - maxFirst) <= MODEL_EDGE_TOLERANCE;
+            return Math.abs(value - this.maxFirst) <= MODEL_EDGE_TOLERANCE;
         }
 
         private boolean isMinSecond(float value) {
-            return Math.abs(value - minSecond) <= MODEL_EDGE_TOLERANCE;
+            return Math.abs(value - this.minSecond) <= MODEL_EDGE_TOLERANCE;
         }
 
         private boolean isMaxSecond(float value) {
-            return Math.abs(value - maxSecond) <= MODEL_EDGE_TOLERANCE;
+            return Math.abs(value - this.maxSecond) <= MODEL_EDGE_TOLERANCE;
         }
 
         private float firstFactor(float value) {
-            return clamp((value - minFirst) / (maxFirst - minFirst));
+            return clamp((value - this.minFirst) / (this.maxFirst - this.minFirst));
         }
 
         private float secondFactor(float value) {
-            return clamp((value - minSecond) / (maxSecond - minSecond));
+            return clamp((value - this.minSecond) / (this.maxSecond - this.minSecond));
         }
 
         private void subtract(FaceRectangle coveredRectangle, List<FaceRectangle> result) {
-            FaceRectangle intersection = intersection(coveredRectangle);
+            FaceRectangle intersection = this.intersection(coveredRectangle);
             if (intersection == null) {
                 result.add(this);
                 return;
             }
-            addIfVisible(result, new FaceRectangle(minFirst, minSecond, intersection.minFirst, maxSecond));
-            addIfVisible(result, new FaceRectangle(intersection.maxFirst, minSecond, maxFirst, maxSecond));
+            addIfVisible(result, new FaceRectangle(this.minFirst, this.minSecond, intersection.minFirst, this.maxSecond));
+            addIfVisible(result, new FaceRectangle(intersection.maxFirst, this.minSecond, this.maxFirst, this.maxSecond));
             addIfVisible(result, new FaceRectangle(
                 intersection.minFirst,
-                minSecond,
+                this.minSecond,
                 intersection.maxFirst,
                 intersection.minSecond
             ));
@@ -538,17 +538,17 @@ public class NegativeShapeModelEventListener {
                 intersection.minFirst,
                 intersection.maxSecond,
                 intersection.maxFirst,
-                maxSecond
+                this.maxSecond
             ));
         }
 
         @Nullable
         private FaceRectangle intersection(FaceRectangle rectangle) {
             FaceRectangle intersection = new FaceRectangle(
-                Math.max(minFirst, rectangle.minFirst),
-                Math.max(minSecond, rectangle.minSecond),
-                Math.min(maxFirst, rectangle.maxFirst),
-                Math.min(maxSecond, rectangle.maxSecond)
+                Math.max(this.minFirst, rectangle.minFirst),
+                Math.max(this.minSecond, rectangle.minSecond),
+                Math.min(this.maxFirst, rectangle.maxFirst),
+                Math.min(this.maxSecond, rectangle.maxSecond)
             );
             return intersection.isEmpty() ? null : intersection;
         }

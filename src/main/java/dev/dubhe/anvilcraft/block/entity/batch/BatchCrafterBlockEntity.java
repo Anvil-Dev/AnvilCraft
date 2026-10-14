@@ -106,7 +106,7 @@ public class BatchCrafterBlockEntity extends BaseBatchCraftingBlockEntity {
         if (!this.canCraft()) return false;
         CraftingInput input = this.craftingContainer.asCraftInput();
         Optional<BatchCrafterCache> cacheOp = this.cache.stream()
-            .filter(recipe -> recipe.test(craftingContainer))
+            .filter(recipe -> recipe.test(this.craftingContainer))
             .findFirst();
         List<RecipeHolder<CraftingRecipe>> recipes;
         if (cacheOp.isPresent()) {

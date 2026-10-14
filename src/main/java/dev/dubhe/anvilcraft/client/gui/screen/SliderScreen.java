@@ -69,7 +69,7 @@ public class SliderScreen extends AbstractContainerScreen<SliderMenu> {
             16,
             32,
             (btn) -> this.value.setValue("" + Math.clamp(
-                Integer.parseInt(this.value.getValue()) + slider.getAddValue(Integer.parseInt(this.value.getValue())),
+                Integer.parseInt(this.value.getValue()) + this.slider.getAddValue(Integer.parseInt(this.value.getValue())),
                 -POWER_LIMIT,
                 POWER_LIMIT
             )));
@@ -93,7 +93,7 @@ public class SliderScreen extends AbstractContainerScreen<SliderMenu> {
             16,
             32,
             (btn) -> this.value.setValue("" + Math.clamp(
-                Integer.parseInt(this.value.getValue()) - slider.getAddValue(Integer.parseInt(this.value.getValue())),
+                Integer.parseInt(this.value.getValue()) - this.slider.getAddValue(Integer.parseInt(this.value.getValue())),
                 -POWER_LIMIT,
                 POWER_LIMIT
             )));
@@ -107,7 +107,7 @@ public class SliderScreen extends AbstractContainerScreen<SliderMenu> {
     }
 
     public void setValue(int value) {
-        if (this.slider != null) slider.setValue(value);
+        if (this.slider != null) this.slider.setValue(value);
         this.value.setValue("" + value);
     }
 
@@ -134,13 +134,13 @@ public class SliderScreen extends AbstractContainerScreen<SliderMenu> {
 
     public void setMin(int min) {
         if (this.slider != null) {
-            slider.setMin(min);
+            this.slider.setMin(min);
         }
     }
 
     public void setMax(int max) {
         if (this.slider != null) {
-            slider.setMax(max);
+            this.slider.setMax(max);
         }
     }
 
@@ -159,7 +159,7 @@ public class SliderScreen extends AbstractContainerScreen<SliderMenu> {
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
         if (button == 0) {
-            slider.onClick(mouseX, mouseY);
+            this.slider.onClick(mouseX, mouseY);
         }
         return super.mouseClicked(mouseX, mouseY, button);
     }

@@ -52,14 +52,15 @@ public class CelestialForgingAnvilFluidInterfaceBlockEntity extends BlockEntity
         super(type, pos, blockState);
         for (int i = 0; i < TANK_COUNT; i++) {
             final int index = i;
-            tanks[i] = new FluidTank(CAPACITY_PER_TANK) {
+            this.tanks[i] = new FluidTank(CAPACITY_PER_TANK) {
                 @Override
                 public boolean isFluidValid(FluidStack stack) {
                     /// 仅当此储罐已有该流体，或没有其它储罐存有该流体时才接受
                     FluidStack current = getFluid();
                     if (current.isEmpty()) {
                         for (int j = 0; j < TANK_COUNT; j++) {
-                            if (j != index && tanks[j].getFluid().is(stack.getFluid())) {
+                            if (j != index
+                                && CelestialForgingAnvilFluidInterfaceBlockEntity.this.tanks[j].getFluid().is(stack.getFluid())) {
                                 return false;
                             }
                         }
@@ -100,10 +101,10 @@ public class CelestialForgingAnvilFluidInterfaceBlockEntity extends BlockEntity
     @Override
     public void setChanged() {
         super.setChanged();
-        if (suppressFluidSync) return;
+        if (this.suppressFluidSync) return;
         if (level != null && !level.isClientSide()) {
             level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
-            syncToClients();
+            this.syncToClients();
         }
     }
 
@@ -112,7 +113,7 @@ public class CelestialForgingAnvilFluidInterfaceBlockEntity extends BlockEntity
         int drainedAmount = 0;
         this.suppressFluidSync = true;
         try {
-            for (FluidTank tank : tanks) {
+            for (FluidTank tank : this.tanks) {
                 FluidStack stored = tank.getFluid();
                 if (stored.isEmpty() || !stored.is(fluid)) continue;
                 drainedAmount += tank.drain(stored.getAmount(), IFluidHandler.FluidAction.EXECUTE).getAmount();
@@ -157,32 +158,32 @@ public class CelestialForgingAnvilFluidInterfaceBlockEntity extends BlockEntity
     @Override
     protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.saveAdditional(tag, registries);
-        writeTanks(tag, registries);
+        this.writeTanks(tag, registries);
     }
 
     @Override
     protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.loadAdditional(tag, registries);
-        readTanks(tag, registries);
+        this.readTanks(tag, registries);
     }
 
     @Override
     public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
         CompoundTag tag = super.getUpdateTag(registries);
-        writeTanks(tag, registries);
+        this.writeTanks(tag, registries);
         return tag;
     }
 
     @Override
     public void handleUpdateTag(CompoundTag tag, HolderLookup.Provider registries) {
         super.handleUpdateTag(tag, registries);
-        readTanks(tag, registries);
+        this.readTanks(tag, registries);
     }
 
     private void writeTanks(CompoundTag tag, HolderLookup.Provider registries) {
         for (int i = 0; i < TANK_COUNT; i++) {
             CompoundTag tankTag = new CompoundTag();
-            tanks[i].writeToNBT(registries, tankTag);
+            this.tanks[i].writeToNBT(registries, tankTag);
             tag.put("tank" + i, tankTag);
         }
     }
@@ -190,7 +191,7 @@ public class CelestialForgingAnvilFluidInterfaceBlockEntity extends BlockEntity
     private void readTanks(CompoundTag tag, HolderLookup.Provider registries) {
         for (int i = 0; i < TANK_COUNT; i++) {
             if (tag.contains("tank" + i)) {
-                tanks[i].readFromNBT(registries, tag.getCompound("tank" + i));
+                this.tanks[i].readFromNBT(registries, tag.getCompound("tank" + i));
             }
         }
     }
@@ -198,12 +199,12 @@ public class CelestialForgingAnvilFluidInterfaceBlockEntity extends BlockEntity
     /// 返回用于管道输入/输出的流体处理器能力。将全部 4 个储罐合并为一个处理器。
     @SuppressWarnings("unused")
     public IFluidHandler getFluidHandler() {
-        return createFluidHandler(false);
+        return this.createFluidHandler(false);
     }
 
     /// 返回供锻星砧内部产出和状态同步使用的流体处理器。
     public IFluidHandler getInternalFluidHandler() {
-        return createFluidHandler(true);
+        return this.createFluidHandler(true);
     }
 
     private IFluidHandler createFluidHandler(boolean allowInputWhenActive) {
@@ -214,7 +215,7 @@ public class CelestialForgingAnvilFluidInterfaceBlockEntity extends BlockEntity
     /// 储量照常被消耗，排空后不再提供气压。
     @Override
     public boolean isSupplyingInfiniteGasPressure() {
-        return isActive() && grid != null && grid.isWorking();
+        return this.isActive() && this.grid != null && this.grid.isWorking();
     }
 
     /// 合并全部 4 个储罐的流体处理器。
@@ -237,33 +238,33 @@ public class CelestialForgingAnvilFluidInterfaceBlockEntity extends BlockEntity
 
         @Override
         public FluidStack getFluidInTank(int tank) {
-            return tanks[tank].getFluid();
+            return CelestialForgingAnvilFluidInterfaceBlockEntity.this.tanks[tank].getFluid();
         }
 
         @Override
         public int getTankCapacity(int tank) {
-            return tanks[tank].getCapacity();
+            return CelestialForgingAnvilFluidInterfaceBlockEntity.this.tanks[tank].getCapacity();
         }
 
         @Override
         public boolean isFluidValid(int tank, FluidStack stack) {
-            if (!allowInputWhenActive && isActive()) return false;
-            return tanks[tank].isFluidValid(stack);
+            if (!this.allowInputWhenActive && CelestialForgingAnvilFluidInterfaceBlockEntity.this.isActive()) return false;
+            return CelestialForgingAnvilFluidInterfaceBlockEntity.this.tanks[tank].isFluidValid(stack);
         }
 
         @Override
         public int fill(FluidStack resource, FluidAction action) {
-            if (!allowInputWhenActive && isActive()) return 0;
+            if (!this.allowInputWhenActive && CelestialForgingAnvilFluidInterfaceBlockEntity.this.isActive()) return 0;
             if (resource.isEmpty()) return 0;
             /// 优先尝试已有流体的储罐，再尝试空储罐
             for (int i = 0; i < TANK_COUNT; i++) {
-                if (tanks[i].getFluid().is(resource.getFluid())) {
-                    return tanks[i].fill(resource, action);
+                if (CelestialForgingAnvilFluidInterfaceBlockEntity.this.tanks[i].getFluid().is(resource.getFluid())) {
+                    return CelestialForgingAnvilFluidInterfaceBlockEntity.this.tanks[i].fill(resource, action);
                 }
             }
             for (int i = 0; i < TANK_COUNT; i++) {
-                if (tanks[i].getFluid().isEmpty()) {
-                    return tanks[i].fill(resource, action);
+                if (CelestialForgingAnvilFluidInterfaceBlockEntity.this.tanks[i].getFluid().isEmpty()) {
+                    return CelestialForgingAnvilFluidInterfaceBlockEntity.this.tanks[i].fill(resource, action);
                 }
             }
             return 0;
@@ -273,8 +274,8 @@ public class CelestialForgingAnvilFluidInterfaceBlockEntity extends BlockEntity
         public FluidStack drain(FluidStack resource, FluidAction action) {
             if (resource.isEmpty()) return FluidStack.EMPTY;
             for (int i = 0; i < TANK_COUNT; i++) {
-                if (tanks[i].getFluid().is(resource.getFluid())) {
-                    return tanks[i].drain(resource, action);
+                if (CelestialForgingAnvilFluidInterfaceBlockEntity.this.tanks[i].getFluid().is(resource.getFluid())) {
+                    return CelestialForgingAnvilFluidInterfaceBlockEntity.this.tanks[i].drain(resource, action);
                 }
             }
             return FluidStack.EMPTY;
@@ -283,8 +284,8 @@ public class CelestialForgingAnvilFluidInterfaceBlockEntity extends BlockEntity
         @Override
         public FluidStack drain(int maxDrain, FluidAction action) {
             for (int i = 0; i < TANK_COUNT; i++) {
-                if (!tanks[i].getFluid().isEmpty()) {
-                    return tanks[i].drain(maxDrain, action);
+                if (!CelestialForgingAnvilFluidInterfaceBlockEntity.this.tanks[i].getFluid().isEmpty()) {
+                    return CelestialForgingAnvilFluidInterfaceBlockEntity.this.tanks[i].drain(maxDrain, action);
                 }
             }
             return FluidStack.EMPTY;
@@ -308,7 +309,7 @@ public class CelestialForgingAnvilFluidInterfaceBlockEntity extends BlockEntity
         if (!active) return;
 
         /// 检查电网供电
-        if (grid == null || !grid.isWorking()) return;
+        if (this.grid == null || !this.grid.isWorking()) return;
 
         Direction facing = state.getValue(CelestialForgingAnvilInterfaceBlock.FACING);
         BlockPos frontPos = getBlockPos().relative(facing);
@@ -321,7 +322,7 @@ public class CelestialForgingAnvilFluidInterfaceBlockEntity extends BlockEntity
             /// 前方是管道 → 扫描网络，作为高等效高度的外部源向其分配
             FluidPipeNetwork network = FluidNetworkScanner.scan(level, frontPos);
             if (network == null) return;
-            for (FluidTank source : tanks) {
+            for (FluidTank source : this.tanks) {
                 if (source.getFluid().isEmpty()) continue;
                 network.pushFromExternalSource(source, getBlockPos(), frontPos, sourceEffectiveHeight);
             }
@@ -334,7 +335,7 @@ public class CelestialForgingAnvilFluidInterfaceBlockEntity extends BlockEntity
         int heightDiff = sourceEffectiveHeight - frontPos.getY();
         if (heightDiff <= 0) return;
         int speed = FluidPipeNetwork.speedForHeightDiff(heightDiff);
-        for (FluidTank tank : tanks) {
+        for (FluidTank tank : this.tanks) {
             FluidStack stored = tank.getFluid();
             if (stored.isEmpty()) continue;
             FluidStack toMove = stored.copyWithAmount(Math.min(speed, stored.getAmount()));

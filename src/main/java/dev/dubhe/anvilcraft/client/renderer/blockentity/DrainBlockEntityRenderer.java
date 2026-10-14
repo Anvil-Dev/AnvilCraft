@@ -39,7 +39,7 @@ public class DrainBlockEntityRenderer implements BlockEntityRenderer<DrainBlockE
         // 2) 向下排水柱（仅渲染）：从排水口底面渲染流动水到目标层
         int bottomY = be.getColumnBottomY();
         if (bottomY != Integer.MIN_VALUE && !fluid.isEmpty()) {
-            renderColumn(be, fluid, bottomY, ms, buffer, light);
+            this.renderColumn(be, fluid, bottomY, ms, buffer, light);
         }
     }
 
@@ -97,6 +97,6 @@ public class DrainBlockEntityRenderer implements BlockEntityRenderer<DrainBlockE
     @Override
     public boolean shouldRender(DrainBlockEntity be, Vec3 cameraPos) {
         double viewDistance = getViewDistance();
-        return getRenderBoundingBox(be).distanceToSqr(cameraPos) <= viewDistance * viewDistance;
+        return this.getRenderBoundingBox(be).distanceToSqr(cameraPos) <= viewDistance * viewDistance;
     }
 }

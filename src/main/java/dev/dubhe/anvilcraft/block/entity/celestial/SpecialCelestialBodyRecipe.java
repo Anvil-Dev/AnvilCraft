@@ -216,16 +216,16 @@ public record SpecialCelestialBodyRecipe(
 
     /** 供将此字段称为 {@code travel} 数据的集成调用的别名。 */
     public Optional<CelestialTravelData> landingData() {
-        return landing;
+        return this.landing;
     }
 
     /** 兼容将此数据称为 {@code travel} 的数据包集成。 */
     public Optional<CelestialTravelData> travel() {
-        return landing;
+        return this.landing;
     }
 
     public boolean isLandable() {
-        return landing.isPresent();
+        return this.landing.isPresent();
     }
 
     /// === 加权条目 ===
@@ -245,7 +245,7 @@ public record SpecialCelestialBodyRecipe(
         );
 
         public ResourceLocation resourceId() {
-            return ResourceLocation.parse(id);
+            return ResourceLocation.parse(this.id);
         }
     }
 
@@ -480,59 +480,59 @@ public record SpecialCelestialBodyRecipe(
     /// === 派生属性 ===
 
     public boolean hasAtmosphere() {
-        return atmosphere.isPresent();
+        return this.atmosphere.isPresent();
     }
 
     /// 温度由 energy 砧子数自动推导。
     @NotNull
     public Temperature temperature() {
-        return CelestialBodyMatcher.energyToTemperature(energy);
+        return CelestialBodyMatcher.energyToTemperature(this.energy);
     }
 
     /// 只有内置的 {@code ERROR_PLANET} 是错误行星。
     public boolean isErrorPlanet() {
-        return name.equals("error_planet");
+        return this.name.equals("error_planet");
     }
 
     /// 此天体是否有文明 —— 定义 {@code offerings} 时为 {@code true}。
     public boolean hasCivilization() {
-        return !offerings.isEmpty();
+        return !this.offerings.isEmpty();
     }
 
     /// === 核心方法 ===
 
     public Item getEffectiveSeedItem(long worldSeed) {
-        if (seedItems.isEmpty()) return Items.AIR;
-        if (seedItems.size() == 1) {
-            return resolveItem(seedItems.getFirst());
+        if (this.seedItems.isEmpty()) return Items.AIR;
+        if (this.seedItems.size() == 1) {
+            return resolveItem(this.seedItems.getFirst());
         }
-        Random random = new Random(worldSeed * 31L + name.hashCode() * 7919L);
-        return resolveItem(seedItems.get(random.nextInt(seedItems.size())));
+        Random random = new Random(worldSeed * 31L + this.name.hashCode() * 7919L);
+        return resolveItem(this.seedItems.get(random.nextInt(this.seedItems.size())));
     }
 
     public boolean isEffectiveSeedItem(Item consumedItem, long worldSeed) {
-        Item effective = getEffectiveSeedItem(worldSeed);
+        Item effective = this.getEffectiveSeedItem(worldSeed);
         return consumedItem == effective;
     }
 
     public PlanetaryResourceSet generateResources() {
         PlanetaryResourceSet r = new PlanetaryResourceSet();
-        for (WeightedEntry entry : minerals) {
+        for (WeightedEntry entry : this.minerals) {
             r.addMineral(new PlanetaryResourceSet.WeightedItemStack(entry.resourceId(), entry.weight()));
         }
-        for (WeightedEntry entry : fluids) {
+        for (WeightedEntry entry : this.fluids) {
             r.addFluid(new PlanetaryResourceSet.WeightedFluidStack(entry.resourceId(), entry.weight()));
         }
-        for (WeightedEntry entry : biologicalItems) {
+        for (WeightedEntry entry : this.biologicalItems) {
             r.addBiologicalItem(new PlanetaryResourceSet.WeightedItemStack(entry.resourceId(), entry.weight()));
         }
-        for (WeightedEntry entry : biologicalFluids) {
+        for (WeightedEntry entry : this.biologicalFluids) {
             r.addBiologicalFluid(new PlanetaryResourceSet.WeightedFluidStack(entry.resourceId(), entry.weight()));
         }
-        for (WeightedEntry entry : offerings) {
+        for (WeightedEntry entry : this.offerings) {
             r.addOffering(new PlanetaryResourceSet.WeightedItemStack(entry.resourceId(), entry.weight()));
         }
-        if (hasCivilization()) {
+        if (this.hasCivilization()) {
             r.setHasCivilization();
         }
         return r;
@@ -540,7 +540,7 @@ public record SpecialCelestialBodyRecipe(
 
     @Nullable
     public LiquidCoverage getLiquidCoverage() {
-        return liquidCoverage.orElse(null);
+        return this.liquidCoverage.orElse(null);
     }
 
     /// === 配方实现 ===

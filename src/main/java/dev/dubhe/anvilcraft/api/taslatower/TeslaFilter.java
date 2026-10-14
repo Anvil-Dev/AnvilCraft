@@ -55,7 +55,7 @@ public abstract class TeslaFilter {
     public abstract Component title();
 
     public Component getTitle(String arg) {
-        return title();
+        return this.title();
     }
 
     public String tooltip(String arg) {

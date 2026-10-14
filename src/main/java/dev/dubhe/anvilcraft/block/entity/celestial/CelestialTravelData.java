@@ -198,18 +198,18 @@ public record CelestialTravelData(
 
     public CompoundTag toTag() {
         CompoundTag tag = new CompoundTag();
-        tag.putString("dimension", dimension.toString());
-        tag.putString("coordinateType", coordinateRule.type().getSerializedName());
-        tag.putDouble("coordinateScale", coordinateRule.scale());
-        tag.putInt("coordinateX", coordinateRule.x());
-        tag.putInt("coordinateY", coordinateRule.y());
-        tag.putInt("coordinateZ", coordinateRule.z());
-        tag.putInt("coordinateRadius", coordinateRule.radius());
-        tag.putString("returnType", returnRule.type().getSerializedName());
-        tag.putInt("returnX", returnRule.x());
-        tag.putInt("returnY", returnRule.y());
-        tag.putInt("returnZ", returnRule.z());
-        tag.putInt("returnRadius", returnRule.radius());
+        tag.putString("dimension", this.dimension.toString());
+        tag.putString("coordinateType", this.coordinateRule.type().getSerializedName());
+        tag.putDouble("coordinateScale", this.coordinateRule.scale());
+        tag.putInt("coordinateX", this.coordinateRule.x());
+        tag.putInt("coordinateY", this.coordinateRule.y());
+        tag.putInt("coordinateZ", this.coordinateRule.z());
+        tag.putInt("coordinateRadius", this.coordinateRule.radius());
+        tag.putString("returnType", this.returnRule.type().getSerializedName());
+        tag.putInt("returnX", this.returnRule.x());
+        tag.putInt("returnY", this.returnRule.y());
+        tag.putInt("returnZ", this.returnRule.z());
+        tag.putInt("returnRadius", this.returnRule.radius());
         return tag;
     }
 

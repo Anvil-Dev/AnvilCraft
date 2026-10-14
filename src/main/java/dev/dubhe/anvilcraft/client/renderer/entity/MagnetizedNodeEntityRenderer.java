@@ -19,7 +19,7 @@ public class MagnetizedNodeEntityRenderer extends EntityRenderer<MagnetizedNodeE
 
     public MagnetizedNodeEntityRenderer(EntityRendererProvider.Context context) {
         super(context);
-        model = new MagnetizedNodeModel(context.bakeLayer(ModModelLayers.MAGNETIZED_NODE));
+        this.model = new MagnetizedNodeModel(context.bakeLayer(ModModelLayers.MAGNETIZED_NODE));
     }
 
     @Override
@@ -39,8 +39,8 @@ public class MagnetizedNodeEntityRenderer extends EntityRenderer<MagnetizedNodeE
         poseStack.pushPose();
         poseStack.translate(0, -1.31f, 0);
         float ageInTicks = entity.tickCount + partialTick;
-        model.setupAnim(entity, 0f, 0f, ageInTicks, 0f, 0f);
-        VertexConsumer consumer = bufferSource.getBuffer(model.renderType(MAGNETIZED_NODE_TEXTURE));
+        this.model.setupAnim(entity, 0f, 0f, ageInTicks, 0f, 0f);
+        VertexConsumer consumer = bufferSource.getBuffer(this.model.renderType(MAGNETIZED_NODE_TEXTURE));
         this.model.renderToBuffer(poseStack, consumer, packedLight, OverlayTexture.NO_OVERLAY);
         poseStack.popPose();
     }

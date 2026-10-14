@@ -321,9 +321,9 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
         int outerRing = isAmplify ? 6 : 3;
         int middleRing = isAmplify ? 5 : 2;
         int innerRing = isAmplify ? 4 : 1;
-        float outerRotation = getMegastructureRotation(blockEntity, outerRing, rot, bodyRotation);
-        float middleRotation = getMegastructureRotation(blockEntity, middleRing, rot, bodyRotation);
-        float innerRotation = getMegastructureRotation(blockEntity, innerRing, rot, bodyRotation);
+        float outerRotation = this.getMegastructureRotation(blockEntity, outerRing, rot, bodyRotation);
+        float middleRotation = this.getMegastructureRotation(blockEntity, middleRing, rot, bodyRotation);
+        float innerRotation = this.getMegastructureRotation(blockEntity, innerRing, rot, bodyRotation);
 
         @Nullable StellarEvolutionState evolutionState = blockEntity.getStellarEvolutionState();
         @Nullable StellarTrack evolutionTrack = blockEntity.getMegastructureManager().getAcceleratorHandler().getEvolutionTrack();
@@ -420,8 +420,8 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
             boolean hideOutermostForPenrose = isPenroseSphereActive(blockEntity)
                 && !blockEntity.hasActiveAuxiliaryMegastructure();
             if (!anyDysonSphere && !hideOutermostForPenrose) {
-                ModelResourceLocation r6Model = getRing6Model(blockEntity);
-                renderRingMaybe(
+                ModelResourceLocation r6Model = this.getRing6Model(blockEntity);
+                this.renderRingMaybe(
                     r6Model,
                     6,
                     bodyData,
@@ -436,8 +436,8 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
                 );
             }
         } else if (!isBrownDwarfDysonSphereActive(blockEntity)) {
-            renderRingMaybe(
-                getRing3Model(blockEntity),
+            this.renderRingMaybe(
+                this.getRing3Model(blockEntity),
                 3,
                 bodyData,
                 prevBody,
@@ -463,8 +463,8 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
                 && isSmallStar
                 && !blockEntity.hasActiveAuxiliaryMegastructure();
             if (!anyDysonSphere && !hideMiddleForPenrose) {
-                ModelResourceLocation r5Model = getRing5Model(blockEntity);
-                renderRingMaybe(
+                ModelResourceLocation r5Model = this.getRing5Model(blockEntity);
+                this.renderRingMaybe(
                     r5Model,
                     5,
                     bodyData,
@@ -479,8 +479,8 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
                 );
             }
         } else if (!isBrownDwarfDysonSphereActive(blockEntity)) {
-            ModelResourceLocation r2Model = getRing2Model(blockEntity);
-            renderRingMaybe(
+            ModelResourceLocation r2Model = this.getRing2Model(blockEntity);
+            this.renderRingMaybe(
                 r2Model,
                 2,
                 bodyData,
@@ -503,8 +503,8 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
             if (!isDysonSphereActive(blockEntity, 4) && !isMagnetarCoilActive(blockEntity)
                 && !isPenroseSphereActive(blockEntity)
                 && !isMatterDecompressorActive(blockEntity)) {
-                ModelResourceLocation r4Model = getRing4Model(blockEntity);
-                renderRingMaybe(
+                ModelResourceLocation r4Model = this.getRing4Model(blockEntity);
+                this.renderRingMaybe(
                     r4Model,
                     4,
                     bodyData,
@@ -519,8 +519,8 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
                 );
             }
         } else {
-            ModelResourceLocation r1Model = getRing1Model(blockEntity);
-            renderRingMaybe(
+            ModelResourceLocation r1Model = this.getRing1Model(blockEntity);
+            this.renderRingMaybe(
                 r1Model,
                 1,
                 bodyData,
@@ -544,7 +544,7 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
             boolean isDysonSphereR5 = isDysonSphereActive(blockEntity, 5);
             if ((isDysonSphereR4 || isDysonSphereR5) && bodyData instanceof StarData star) {
                 float bodyRot = bodyRotation;
-                renderDysonSphereRings(
+                this.renderDysonSphereRings(
                     isDysonSphereR4,
                     isDysonSphereR5,
                     centerY,
@@ -567,7 +567,7 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
                     poseStack.mulPose(Axis.XP.rotationDegrees(star.axialTilt()));
                     poseStack.mulPose(
                         Axis.YP.rotationDegrees(bodyRot * CelestialBodyData.getVisualRotationSpeed(star.rotationSpeed())));
-                    renderRingCutout(getRing5Model(blockEntity), poseStack, multiBufferSource, packedOverlay, modelRenderer);
+                    this.renderRingCutout(this.getRing5Model(blockEntity), poseStack, multiBufferSource, packedOverlay, modelRenderer);
                     poseStack.popPose();
                 } else if (isDysonSphereR5 && !isSmallStar) {
                     /// 大恒星：R6 为外环（可能被加速器模型替换）
@@ -577,7 +577,7 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
                     poseStack.mulPose(Axis.XP.rotationDegrees(star.axialTilt()));
                     poseStack.mulPose(
                         Axis.YP.rotationDegrees(bodyRot * CelestialBodyData.getVisualRotationSpeed(star.rotationSpeed())));
-                    renderRingCutout(getRing6Model(blockEntity), poseStack, multiBufferSource, packedOverlay, modelRenderer);
+                    this.renderRingCutout(this.getRing6Model(blockEntity), poseStack, multiBufferSource, packedOverlay, modelRenderer);
                     poseStack.popPose();
                 }
             }
@@ -587,7 +587,7 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
         if (!blockEntity.isAmplify()
             && isBrownDwarfDysonSphereActive(blockEntity)
             && bodyData != null) {
-            renderBrownDwarfDysonSphereRings(
+            this.renderBrownDwarfDysonSphereRings(
                 centerY,
                 bodyRotation,
                 bodyData,
@@ -605,7 +605,7 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
         /// 渲染彭罗斯球圆环：fix（恒星同步）+ laser/off（机械旋转）
         if (blockEntity.isAmplify() && isPenroseSphereActive(blockEntity) && bodyData instanceof StarData star) {
             float bodyRot = bodyRotation;
-            renderPenroseSphereRings(centerY, rot, bodyRot, star, animProgress,
+            this.renderPenroseSphereRings(centerY, rot, bodyRot, star, animProgress,
                 blockEntity.isPenroseSphereLaserActive(), ringScale,
                 poseStack, multiBufferSource, packedOverlay, modelRenderer);
         }
@@ -613,7 +613,7 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
         /// 渲染磁星线圈圆环：fix（恒星同步）+ ring（机械旋转）
         if (blockEntity.isAmplify() && isMagnetarCoilActive(blockEntity) && bodyData instanceof StarData star) {
             float bodyRot = bodyRotation;
-            renderMagnetarCoilRings(
+            this.renderMagnetarCoilRings(
                 centerY,
                 innerRotation,
                 bodyRot,
@@ -630,7 +630,7 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
         /// 渲染物质解压器圆环：fix（恒星同步，类似戴森球）+ ring（机械旋转）
         if (blockEntity.isAmplify() && isMatterDecompressorActive(blockEntity) && bodyData instanceof StarData star) {
             float bodyRot = bodyRotation;
-            renderMatterDecompressorRings(
+            this.renderMatterDecompressorRings(
                 centerY,
                 innerRotation,
                 bodyRot,
@@ -655,7 +655,7 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
             if (effectiveBodyData instanceof SpecialCelestialBodyData special && special.isPlayerHead()) {
                 bodyCenterY = playerHeadCenterY(special, isAmplify, bodyScaleMultiplier, animProgress);
             }
-            renderCelestialBody(
+            this.renderCelestialBody(
                 effectiveBodyData,
                 bodyCenterY,
                 bodyRotation,
@@ -669,7 +669,7 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
                 eventProfile,
                 eventProgress
             );
-            renderCelestialRing(
+            this.renderCelestialRing(
                 effectiveBodyData,
                 centerY,
                 bodyRotation,
@@ -684,55 +684,55 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
         /// 超新星爆发闪光：水平展开的动画 billboard，中心跟随天体中心、大小随红石缩放。
         /// 即使天体已被残骸替换也要播放，故置于 canRender 之外。
         if (blockEntity.getSupernovaFlashTicks() > 0) {
-            renderSupernovaFlash(blockEntity, partialTick, poseStack, multiBufferSource);
+            this.renderSupernovaFlash(blockEntity, partialTick, poseStack, multiBufferSource);
         }
 
     }
 
     /// 获取第一环对应的模型，考虑巨构替换。
     private ModelResourceLocation getRing1Model(CelestialForgingAnvilBlockEntity blockEntity) {
-        ModelResourceLocation active = getActiveRingModel(blockEntity, 1);
+        ModelResourceLocation active = this.getActiveRingModel(blockEntity, 1);
         if (active != null) return active;
-        ModelResourceLocation auxiliary = getActiveAuxiliaryRingModel(blockEntity, 1);
+        ModelResourceLocation auxiliary = this.getActiveAuxiliaryRingModel(blockEntity, 1);
         return auxiliary == null ? R1 : auxiliary;
     }
 
     /// 获取第二环对应的模型，考虑巨构替换。
     private ModelResourceLocation getRing2Model(CelestialForgingAnvilBlockEntity blockEntity) {
-        ModelResourceLocation active = getActiveRingModel(blockEntity, 2);
+        ModelResourceLocation active = this.getActiveRingModel(blockEntity, 2);
         if (active != null) return active;
-        ModelResourceLocation auxiliary = getActiveAuxiliaryRingModel(blockEntity, 2);
+        ModelResourceLocation auxiliary = this.getActiveAuxiliaryRingModel(blockEntity, 2);
         return auxiliary == null ? R2 : auxiliary;
     }
 
     private ModelResourceLocation getRing3Model(CelestialForgingAnvilBlockEntity blockEntity) {
-        ModelResourceLocation active = getActiveRingModel(blockEntity, 3);
+        ModelResourceLocation active = this.getActiveRingModel(blockEntity, 3);
         if (active != null) return active;
-        ModelResourceLocation auxiliary = getActiveAuxiliaryRingModel(blockEntity, 3);
+        ModelResourceLocation auxiliary = this.getActiveAuxiliaryRingModel(blockEntity, 3);
         return auxiliary == null ? R3 : auxiliary;
     }
 
     /// 获取第四环对应的模型，考虑替换第四环的巨构。
     private ModelResourceLocation getRing4Model(CelestialForgingAnvilBlockEntity blockEntity) {
-        ModelResourceLocation active = getActiveRingModel(blockEntity, 4);
+        ModelResourceLocation active = this.getActiveRingModel(blockEntity, 4);
         if (active != null) return active;
-        ModelResourceLocation auxiliary = getActiveAuxiliaryRingModel(blockEntity, 4);
+        ModelResourceLocation auxiliary = this.getActiveAuxiliaryRingModel(blockEntity, 4);
         return auxiliary == null ? R4 : auxiliary;
     }
 
     /// 获取第五环对应的模型，考虑替换第五环的巨构。
     private ModelResourceLocation getRing5Model(CelestialForgingAnvilBlockEntity blockEntity) {
-        ModelResourceLocation active = getActiveRingModel(blockEntity, 5);
+        ModelResourceLocation active = this.getActiveRingModel(blockEntity, 5);
         if (active != null) return active;
-        ModelResourceLocation auxiliary = getActiveAuxiliaryRingModel(blockEntity, 5);
+        ModelResourceLocation auxiliary = this.getActiveAuxiliaryRingModel(blockEntity, 5);
         return auxiliary == null ? R5 : auxiliary;
     }
 
     /// 获取第六环对应的模型，考虑替换第六环的巨构。
     private ModelResourceLocation getRing6Model(CelestialForgingAnvilBlockEntity blockEntity) {
-        ModelResourceLocation active = getActiveRingModel(blockEntity, 6);
+        ModelResourceLocation active = this.getActiveRingModel(blockEntity, 6);
         if (active != null) return active;
-        ModelResourceLocation auxiliary = getActiveAuxiliaryRingModel(blockEntity, 6);
+        ModelResourceLocation auxiliary = this.getActiveAuxiliaryRingModel(blockEntity, 6);
         return auxiliary == null ? R6 : auxiliary;
     }
 
@@ -845,10 +845,10 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
         poseStack.mulPose(Axis.YP.rotationDegrees(bodyRot * CelestialBodyData.getVisualRotationSpeed(star.rotationSpeed())));
 
         if (renderR4) {
-            renderRingCutout(R4_DYSON_SPHERE, poseStack, bufferSource, packedOverlay, modelRenderer);
+            this.renderRingCutout(R4_DYSON_SPHERE, poseStack, bufferSource, packedOverlay, modelRenderer);
         }
         if (renderR5) {
-            renderRingCutout(R5_DYSON_SPHERE, poseStack, bufferSource, packedOverlay, modelRenderer);
+            this.renderRingCutout(R5_DYSON_SPHERE, poseStack, bufferSource, packedOverlay, modelRenderer);
         }
         poseStack.popPose();
     }
@@ -874,7 +874,7 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
         poseStack.translate(0.5, centerY, 0.5);
         poseStack.scale(rscale, rscale, rscale);
         poseStack.mulPose(Axis.YP.rotationDegrees(bodyRot * CelestialBodyData.getVisualRotationSpeed(body.rotationSpeed())));
-        renderRingCutout(R2_DYSON_SPHERE, poseStack, bufferSource, packedOverlay, modelRenderer);
+        this.renderRingCutout(R2_DYSON_SPHERE, poseStack, bufferSource, packedOverlay, modelRenderer);
         poseStack.popPose();
 
         /// 与大戴森球相同，R3 作为同步旋转的外环。
@@ -882,7 +882,7 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
         poseStack.translate(0.5, centerY, 0.5);
         poseStack.scale(ringScale, ringScale, ringScale);
         poseStack.mulPose(Axis.YP.rotationDegrees(bodyRot * CelestialBodyData.getVisualRotationSpeed(body.rotationSpeed())));
-        renderRingCutout(getRing3Model(blockEntity), poseStack, bufferSource, packedOverlay, modelRenderer);
+        this.renderRingCutout(this.getRing3Model(blockEntity), poseStack, bufferSource, packedOverlay, modelRenderer);
         poseStack.popPose();
     }
 
@@ -916,14 +916,14 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
         poseStack.mulPose(Axis.ZP.rotationDegrees(14.5109f));
         poseStack.mulPose(Axis.XP.rotationDegrees(90.0f + rot));
         poseStack.mulPose(Axis.ZP.rotationDegrees(rot));
-        renderRingCutout(R4_COIL_RING, poseStack, bufferSource, packedOverlay, modelRenderer);
+        this.renderRingCutout(R4_COIL_RING, poseStack, bufferSource, packedOverlay, modelRenderer);
         poseStack.popPose();
 
         /// === Fix 模型（完全静态，无旋转） ===
         poseStack.pushPose();
         poseStack.translate(0.5, centerY, 0.5);
         poseStack.scale(rscale, rscale, rscale);
-        renderRingCutout(R4_COIL_FIX, poseStack, bufferSource, packedOverlay, modelRenderer);
+        this.renderRingCutout(R4_COIL_FIX, poseStack, bufferSource, packedOverlay, modelRenderer);
         poseStack.popPose();
     }
 
@@ -955,7 +955,7 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
         poseStack.mulPose(Axis.XP.rotationDegrees(star.axialTilt()));
         poseStack.mulPose(Axis.YP.rotationDegrees(-bodyRot * CelestialBodyData.getVisualRotationSpeed(star.rotationSpeed())));
         ModelResourceLocation laserModel = laserActive ? R4_PENROSE_SPHERE_LASER : R4_PENROSE_SPHERE_LASER_OFF;
-        renderRingCutout(laserModel, poseStack, bufferSource, packedOverlay, modelRenderer);
+        this.renderRingCutout(laserModel, poseStack, bufferSource, packedOverlay, modelRenderer);
         poseStack.popPose();
 
         /// === Fix 模型（恒星同步旋转，与黑洞同方向） ===
@@ -965,7 +965,7 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
         /// 应用恒星轴倾斜和 Y 旋转（与黑洞同方向）
         poseStack.mulPose(Axis.XP.rotationDegrees(star.axialTilt()));
         poseStack.mulPose(Axis.YP.rotationDegrees(bodyRot * CelestialBodyData.getVisualRotationSpeed(star.rotationSpeed())));
-        renderRingCutout(R4_PENROSE_SPHERE_FIX, poseStack, bufferSource, packedOverlay, modelRenderer);
+        this.renderRingCutout(R4_PENROSE_SPHERE_FIX, poseStack, bufferSource, packedOverlay, modelRenderer);
         poseStack.popPose();
     }
 
@@ -999,7 +999,7 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
         poseStack.mulPose(Axis.ZP.rotationDegrees(14.5109f));
         poseStack.mulPose(Axis.XP.rotationDegrees(90.0f + rot));
         poseStack.mulPose(Axis.ZP.rotationDegrees(rot));
-        renderRingCutout(R4_MATTER_DECOMPRESSOR_RING, poseStack, bufferSource, packedOverlay, modelRenderer);
+        this.renderRingCutout(R4_MATTER_DECOMPRESSOR_RING, poseStack, bufferSource, packedOverlay, modelRenderer);
         poseStack.popPose();
 
         /// === Fix 模型（恒星同步旋转，与恒星残骸同方向） ===
@@ -1009,7 +1009,7 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
         /// 应用恒星轴倾斜和 Y 旋转（与天体同方向）
         poseStack.mulPose(Axis.XP.rotationDegrees(star.axialTilt()));
         poseStack.mulPose(Axis.YP.rotationDegrees(bodyRot * CelestialBodyData.getVisualRotationSpeed(star.rotationSpeed())));
-        renderRingCutout(R4_MATTER_DECOMPRESSOR_FIX, poseStack, bufferSource, packedOverlay, modelRenderer);
+        this.renderRingCutout(R4_MATTER_DECOMPRESSOR_FIX, poseStack, bufferSource, packedOverlay, modelRenderer);
         poseStack.popPose();
     }
 
@@ -1063,25 +1063,25 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
         if (!isAnimating) {
             /// 无动画 —— 可见时直接渲染
             if (visibleNow) {
-                renderRingCutout(modelId, poseStack, bufferSource, packedOverlay, modelRenderer);
+                this.renderRingCutout(modelId, poseStack, bufferSource, packedOverlay, modelRenderer);
             }
             return;
         }
 
         if (visibleNow && wasVisible) {
             /// 始终可见 —— 正常以 cutout 渲染
-            renderRingCutout(modelId, poseStack, bufferSource, packedOverlay, modelRenderer);
+            this.renderRingCutout(modelId, poseStack, bufferSource, packedOverlay, modelRenderer);
         } else if (visibleNow) {
             /// 隐藏 → 可见：从 0.0 缩放到 1.0
             float scale = animForward ? animProgress : (1.0f - animProgress);
             if (scale > 0.01f) {
-                renderRingScaled(modelId, scale, poseStack, bufferSource, packedOverlay, modelRenderer);
+                this.renderRingScaled(modelId, scale, poseStack, bufferSource, packedOverlay, modelRenderer);
             }
         } else if (wasVisible) {
             /// 可见 → 隐藏：从 1.0 缩放到 0.0
             float scale = animForward ? (1.0f - animProgress) : animProgress;
             if (scale > 0.01f) {
-                renderRingScaled(modelId, scale, poseStack, bufferSource, packedOverlay, modelRenderer);
+                this.renderRingScaled(modelId, scale, poseStack, bufferSource, packedOverlay, modelRenderer);
             }
         }
         /// 否则：!visibleNow && !wasVisible —— 始终隐藏，不执行任何操作
@@ -1114,7 +1114,7 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
         MultiBufferSource bufferSource,
         int packedOverlay
     ) {
-        renderBakedModel(modelId, poseStack, bufferSource, packedOverlay, RenderType.cutout());
+        this.renderBakedModel(modelId, poseStack, bufferSource, packedOverlay, RenderType.cutout());
     }
 
     /// 以指定的渲染类型渲染烘焙模型。
@@ -1156,7 +1156,7 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
     ) {
         poseStack.pushPose();
         poseStack.scale(scale, scale, scale);
-        renderRingCutout(modelId, poseStack, bufferSource, packedOverlay, modelRenderer);
+        this.renderRingCutout(modelId, poseStack, bufferSource, packedOverlay, modelRenderer);
         poseStack.popPose();
     }
 
@@ -1204,9 +1204,9 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
         /// 复杂自定义模型（破碎、空心、血肉、智慧、错误）和玩家头颅天体
         if (bodyData instanceof SpecialCelestialBodyData s && s.needsCustomModel()) {
             if (s.isPlayerHead()) {
-                renderPlayerHeadBody(s, poseStack, bufferSource, packedOverlay);
+                this.renderPlayerHeadBody(s, poseStack, bufferSource, packedOverlay);
             } else {
-                renderComplexModelBody(s, poseStack, bufferSource, packedOverlay);
+                this.renderComplexModelBody(s, poseStack, bufferSource, packedOverlay);
                 /// 具有大气层的复杂模型天体的大气渲染（血肉、智慧）
                 @Nullable ColorRGBA atmosphereColor = s.atmosphereColor();
                 if (atmosphereColor != null) {
@@ -1215,7 +1215,7 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
                 }
             }
         } else if (bodyData instanceof StarData star) {
-            renderStarModel(
+            this.renderStarModel(
                 star,
                 bodyRotation,
                 poseStack,
@@ -1227,7 +1227,7 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
                 eventProgress
             );
         } else {
-            renderPlanetBody(bodyData, poseStack, bufferSource, packedOverlay, seed);
+            this.renderPlanetBody(bodyData, poseStack, bufferSource, packedOverlay, seed);
         }
         poseStack.popPose();
     }
@@ -1310,7 +1310,7 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
     ) {
         /// 黑洞不发出恒星表面光；中子星保留自发光和专用喷流。
         if (star.bodyClass() == CelestialBodyClass.BLACK_HOLE) {
-            renderBakedModel(getStarModel(star), poseStack, bufferSource, packedOverlay, RenderType.translucent());
+            this.renderBakedModel(getStarModel(star), poseStack, bufferSource, packedOverlay, RenderType.translucent());
             return;
         }
         if (star.bodyClass() == CelestialBodyClass.NEUTRON_STAR) {
@@ -1330,7 +1330,7 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
                 poseStack.mulPose(Axis.YP.rotationDegrees(extraJetRotation));
                 poseStack.mulPose(Axis.XP.rotationDegrees(magneticTilt));
                 poseStack.translate(-0.5, -0.5, -0.5);
-                renderBakedModel(NEUTRON_STAR_JET_MODEL, poseStack, bufferSource, packedOverlay, RenderType.translucent());
+                this.renderBakedModel(NEUTRON_STAR_JET_MODEL, poseStack, bufferSource, packedOverlay, RenderType.translucent());
                 poseStack.popPose();
             }
             return;
@@ -1342,9 +1342,9 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
                 stellarVisual, eventProfile, eventProgress);
         }
 
-        if (stellarVisual != null) renderStellarWind(poseStack, bufferSource, packedOverlay, seed, stellarVisual);
+        if (stellarVisual != null) this.renderStellarWind(poseStack, bufferSource, packedOverlay, seed, stellarVisual);
         if (eventProfile != null && stellarVisual != null) {
-            renderStellarEventLayers(
+            this.renderStellarEventLayers(
                 poseStack,
                 bufferSource,
                 packedOverlay,
@@ -1373,7 +1373,7 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
             poseStack.scale(scale, scale, scale);
             if (convective) poseStack.mulPose(Axis.YP.rotationDegrees((flow - 0.5f) * 3));
             poseStack.translate(-0.5, -0.5, -0.5);
-            renderTranslucentCube(poseStack, bufferSource, visual.red(), visual.green(), visual.blue(), alpha,
+            this.renderTranslucentCube(poseStack, bufferSource, visual.red(), visual.green(), visual.blue(), alpha,
                 LightTexture.FULL_BRIGHT, packedOverlay, seed + shell);
             poseStack.popPose();
         }
@@ -1404,7 +1404,7 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
             poseStack.translate(0.5, 0.5, 0.5);
             poseStack.scale(coreRatio, coreRatio, coreRatio);
             poseStack.translate(-0.5, -0.5, -0.5);
-            renderTranslucentCube(
+            this.renderTranslucentCube(
                 poseStack,
                 bufferSource,
                 Math.min(1.0f, er * 1.2f),
@@ -1430,7 +1430,7 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
                 poseStack.translate(0.5, 0.5, 0.5);
                 poseStack.scale(shellScale, shellScale, shellScale);
                 poseStack.translate(-0.5, -0.5, -0.5);
-                renderTranslucentCube(
+                this.renderTranslucentCube(
                     poseStack,
                     bufferSource,
                     Math.min(1.0f, er + 0.08f),
@@ -1625,7 +1625,7 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
         poseStack.popPose();
 
         /// 向外放射的立方体光锥，核心收缩时抛射物仍独立扩张。
-        renderSupernovaRays(blockEntity, t, scale, localCenterY, profile, poseStack, bufferSource);
+        this.renderSupernovaRays(blockEntity, t, scale, localCenterY, profile, poseStack, bufferSource);
     }
 
     /// 类似末影龙死亡时的向外发光：从天体中心向随机但固定的方向发射一束束光锥，
@@ -1763,7 +1763,7 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
         @Nullable float[] atmosRgb = null;
         if (bodyData instanceof RockyPlanetData rp) {
             if (rp.hasAtmosphere()) {
-                atmosRgb = getAtmosphereColor(rp.temperature());
+                atmosRgb = this.getAtmosphereColor(rp.temperature());
             }
         } else if (bodyData instanceof SpecialCelestialBodyData s) {
             @Nullable ColorRGBA atmosphereColor = s.atmosphereColor();
@@ -1791,7 +1791,7 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
         int overlay,
         long seed
     ) {
-        BakedModel cubeModel = blockRenderer.getBlockModel(whiteConcrete);
+        BakedModel cubeModel = this.blockRenderer.getBlockModel(this.whiteConcrete);
         VertexConsumer consumer = bufferSource.getBuffer(ModRenderTypes.CELESTIAL_ATMOSPHERE);
         RandomSource random = RandomSource.create(seed);
         for (Direction dir : Direction.values()) {

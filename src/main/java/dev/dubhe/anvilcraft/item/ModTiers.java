@@ -96,7 +96,7 @@ public enum ModTiers implements Tier {
 
     @Override
     public TagKey<Block> getIncorrectBlocksForDrops() {
-        return incorrectBlockTags;
+        return this.incorrectBlockTags;
     }
 
     @Override

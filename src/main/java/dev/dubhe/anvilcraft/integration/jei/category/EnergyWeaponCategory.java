@@ -38,11 +38,11 @@ public class EnergyWeaponCategory implements IRecipeCategory<RecipeHolder<Energy
     private final IDrawable arrow;
 
     public EnergyWeaponCategory(IGuiHelper helper) {
-        icon = helper.createDrawableItemLike(ModItems.ENERGY_WEAPON_PLATFORM);
-        slotDefault = JeiRenderHelper.getSlotDefault(helper);
-        title = Component.translatable("gui.anvilcraft.category.energy_weapon");
+        this.icon = helper.createDrawableItemLike(ModItems.ENERGY_WEAPON_PLATFORM);
+        this.slotDefault = JeiRenderHelper.getSlotDefault(helper);
+        this.title = Component.translatable("gui.anvilcraft.category.energy_weapon");
 
-        arrow = JeiRenderHelper.getArrowDefault(helper);
+        this.arrow = JeiRenderHelper.getArrowDefault(helper);
     }
 
     @Override
@@ -52,7 +52,7 @@ public class EnergyWeaponCategory implements IRecipeCategory<RecipeHolder<Energy
 
     @Override
     public Component getTitle() {
-        return title;
+        return this.title;
     }
 
     @Override
@@ -67,7 +67,7 @@ public class EnergyWeaponCategory implements IRecipeCategory<RecipeHolder<Energy
 
     @Override
     public IDrawable getIcon() {
-        return icon;
+        return this.icon;
     }
 
     @Override
@@ -88,9 +88,9 @@ public class EnergyWeaponCategory implements IRecipeCategory<RecipeHolder<Energy
         double mouseX,
         double mouseY
     ) {
-        arrow.draw(guiGraphics, 80, 27);
-        JeiSlotUtil.drawDefaultInputSlots(guiGraphics, slotDefault, recipeHolder.value().ingredients().size() + 1);
-        JeiSlotUtil.drawDefaultOutputSlots(guiGraphics, slotDefault, 1);
+        this.arrow.draw(guiGraphics, 80, 27);
+        JeiSlotUtil.drawDefaultInputSlots(guiGraphics, this.slotDefault, recipeHolder.value().ingredients().size() + 1);
+        JeiSlotUtil.drawDefaultOutputSlots(guiGraphics, this.slotDefault, 1);
     }
 
     public static void registerRecipes(IRecipeRegistration registration) {

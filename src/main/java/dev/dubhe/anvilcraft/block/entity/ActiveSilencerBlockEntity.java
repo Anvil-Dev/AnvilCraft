@@ -68,14 +68,14 @@ public class ActiveSilencerBlockEntity
     @Override
     protected void saveAdditional(CompoundTag tag, HolderLookup.Provider provider) {
         super.saveAdditional(tag, provider);
-        Tag t = CODEC.encodeStart(NbtOps.INSTANCE, new ArrayList<>(mutedSound)).getOrThrow();
+        Tag t = CODEC.encodeStart(NbtOps.INSTANCE, new ArrayList<>(this.mutedSound)).getOrThrow();
         tag.put("MutedSound", t);
     }
 
     @Override
     public void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
         super.loadAdditional(tag, provider);
-        mutedSound.addAll(CODEC.decode(NbtOps.INSTANCE, tag.get("MutedSound"))
+        this.mutedSound.addAll(CODEC.decode(NbtOps.INSTANCE, tag.get("MutedSound"))
             .getOrThrow()
             .getFirst());
     }
@@ -89,7 +89,7 @@ public class ActiveSilencerBlockEntity
     @Override
     public CompoundTag getUpdateTag(HolderLookup.Provider provider) {
         CompoundTag tag = new CompoundTag();
-        Tag t = CODEC.encodeStart(NbtOps.INSTANCE, new ArrayList<>(mutedSound)).getOrThrow();
+        Tag t = CODEC.encodeStart(NbtOps.INSTANCE, new ArrayList<>(this.mutedSound)).getOrThrow();
         tag.put("MutedSound", t);
         return tag;
     }
@@ -126,20 +126,20 @@ public class ActiveSilencerBlockEntity
      * 添加声音
      */
     public void addSound(ResourceLocation soundId) {
-        mutedSound.add(soundId);
+        this.mutedSound.add(soundId);
         this.setChanged();
     }
 
     public void removeSound(ResourceLocation soundId) {
-        mutedSound.remove(soundId);
+        this.mutedSound.remove(soundId);
         this.setChanged();
     }
 
     @Override
     public boolean shouldMute(ResourceLocation sound, Vec3 pos) {
         if (getBlockState().getValue(ActiveSilencerBlock.POWERED)) return false;
-        boolean inRange = range.contains(pos);
-        boolean inList = mutedSound.contains(sound);
+        boolean inRange = this.range.contains(pos);
+        boolean inList = this.mutedSound.contains(sound);
         return inRange && inList;
     }
 
@@ -160,13 +160,13 @@ public class ActiveSilencerBlockEntity
 
     @Override
     public void storeDiskData(CompoundTag tag) {
-        Tag t = CODEC.encodeStart(NbtOps.INSTANCE, new ArrayList<>(mutedSound)).getOrThrow();
+        Tag t = CODEC.encodeStart(NbtOps.INSTANCE, new ArrayList<>(this.mutedSound)).getOrThrow();
         tag.put("MutedSound", t);
     }
 
     @Override
     public void applyDiskData(CompoundTag data) {
-        mutedSound.addAll(CODEC.decode(NbtOps.INSTANCE, data.get("MutedSound"))
+        this.mutedSound.addAll(CODEC.decode(NbtOps.INSTANCE, data.get("MutedSound"))
             .getOrThrow()
             .getFirst());
         this.setChanged();

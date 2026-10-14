@@ -30,18 +30,18 @@ public class MDChargerChargingRecipeComponent extends MDRecipeComponent {
     protected void renderRecipe(MDRenderContext context, float mouseX, float mouseY) {
         GuiGraphics graphics = context.graphics();
 
-        AgeratumUtil.renderItem(context, recipe.getIngredient(), mouseX, mouseY, 50, 24);
+        AgeratumUtil.renderItem(context, this.recipe.getIngredient(), mouseX, mouseY, 50, 24);
         AgeratumUtil.renderArrow(graphics, 64, 16);
-        AgeratumUtil.renderItem(context, recipe.getResult(), mouseX, mouseY, 96, 24);
+        AgeratumUtil.renderItem(context, this.recipe.getResult(), mouseX, mouseY, 96, 24);
 
-        BlockState charger = recipe.getProcessingBlock().defaultBlockState().setValue(ChargerBlock.OVERLOAD, false);
+        BlockState charger = this.recipe.getProcessingBlock().defaultBlockState().setValue(ChargerBlock.OVERLOAD, false);
         AgeratumUtil.renderBlock(context, charger, mouseX, mouseY, 24, 28, 0);
 
-        String keyPower = recipe.getPower() < 0 ? KEY_POWER_CONSUME : KEY_POWER_PRODUCE;
-        Component power = Component.translatable(keyPower, Math.abs(recipe.getPower()));
+        String keyPower = this.recipe.getPower() < 0 ? KEY_POWER_CONSUME : KEY_POWER_PRODUCE;
+        Component power = Component.translatable(keyPower, Math.abs(this.recipe.getPower()));
         AgeratumUtil.renderText(graphics, power, 10, 8);
 
-        Component time = Component.translatable(KEY_TIME, 0.05 * recipe.getTime());
+        Component time = Component.translatable(KEY_TIME, 0.05 * this.recipe.getTime());
         AgeratumUtil.renderText(graphics, time, 10, 48);
     }
 }

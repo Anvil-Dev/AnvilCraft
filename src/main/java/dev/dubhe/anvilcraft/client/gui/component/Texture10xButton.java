@@ -15,12 +15,12 @@ public class Texture10xButton extends Button {
      */
     public Texture10xButton(int x, int y, String path, Button.CreateNarration narration, OnPress onPress) {
         super(x, y, 10, 10, Component.literal(""), onPress, narration);
-        texture = SharedTextures.textureGui(path);
+        this.texture = SharedTextures.textureGui(path);
     }
 
     @Override
     public void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-        this.renderTexture(guiGraphics, texture, this.getX(), this.getY(), 0, 0, 10, this.width, this.height, 10, 20);
+        this.renderTexture(guiGraphics, this.texture, this.getX(), this.getY(), 0, 0, 10, this.width, this.height, 10, 20);
     }
 
     public void renderTexture(

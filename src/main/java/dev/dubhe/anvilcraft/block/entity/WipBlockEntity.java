@@ -40,32 +40,32 @@ public class WipBlockEntity extends BlockEntity {
     @Override
     protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.saveAdditional(tag, registries);
-        tag.putInt("StepCount", stepCount);
-        tag.put("InitialBlock", NbtUtils.writeBlockState(initialBlock));
-        if (recipeId != null) {
-            tag.putString("Recipe", recipeId.toString());
+        tag.putInt("StepCount", this.stepCount);
+        tag.put("InitialBlock", NbtUtils.writeBlockState(this.initialBlock));
+        if (this.recipeId != null) {
+            tag.putString("Recipe", this.recipeId.toString());
         }
     }
 
     @Override
     protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.loadAdditional(tag, registries);
-        stepCount = tag.getInt("StepCount");
-        initialBlock = NbtUtils.readBlockState(
+        this.stepCount = tag.getInt("StepCount");
+        this.initialBlock = NbtUtils.readBlockState(
             registries.lookupOrThrow(Registries.BLOCK),
             tag.getCompound("InitialBlock")
         );
-        recipeId = ResourceLocation.parse(tag.getString("Recipe"));
+        this.recipeId = ResourceLocation.parse(tag.getString("Recipe"));
         // ResourceLocation.parse()自带空值处理，bySeparator会在切不出两片的时候返回withDefaultNamespace
     }
 
     @Override
     public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
         CompoundTag data = super.getUpdateTag(registries);
-        data.putInt("StepCount", stepCount);
-        data.put("InitialBlock", NbtUtils.writeBlockState(initialBlock));
-        if (recipeId != null) {
-            data.putString("Recipe", recipeId.toString());
+        data.putInt("StepCount", this.stepCount);
+        data.put("InitialBlock", NbtUtils.writeBlockState(this.initialBlock));
+        if (this.recipeId != null) {
+            data.putString("Recipe", this.recipeId.toString());
         }
         return data;
     }

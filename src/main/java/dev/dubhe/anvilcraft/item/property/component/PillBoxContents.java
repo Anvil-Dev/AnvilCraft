@@ -80,7 +80,7 @@ public record PillBoxContents(int index, List<ItemStack> pills) {
                         } else {
                             pill.grow(itemStack.getCount());
                         }
-                        pills.set(i, pill);
+                        this.pills.set(i, pill);
                         return true;
                     }
                 }

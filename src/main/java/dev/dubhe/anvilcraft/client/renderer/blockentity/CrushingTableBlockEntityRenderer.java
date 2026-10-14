@@ -45,7 +45,7 @@ public class CrushingTableBlockEntityRenderer
         int light,
         int overlay
     ) {
-        collectSelectionModels(table, partialTick, pose, (model, partPose) -> Minecraft.getInstance()
+        this.collectSelectionModels(table, partialTick, pose, (model, partPose) -> Minecraft.getInstance()
             .getBlockRenderer().getModelRenderer().renderModel(
                 partPose.last(), source.getBuffer(RenderType.cutout()), null,
                 Minecraft.getInstance().getModelManager().getModel(model), 0, 0, 0, light, overlay, ModelData.EMPTY, null

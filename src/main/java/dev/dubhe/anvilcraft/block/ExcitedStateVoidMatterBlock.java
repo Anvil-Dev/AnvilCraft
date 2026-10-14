@@ -19,7 +19,7 @@ public class ExcitedStateVoidMatterBlock extends Block {
     @Override
     protected void onPlace(BlockState state, Level level, BlockPos pos, BlockState oldState, boolean movedByPiston) {
         if (!level.isClientSide()) {
-            triggerDecayChain(level, pos);
+            this.triggerDecayChain(level, pos);
         }
     }
 
@@ -33,7 +33,7 @@ public class ExcitedStateVoidMatterBlock extends Block {
         boolean movedByPiston
     ) {
         if (!level.isClientSide()) {
-            triggerDecayChain(level, pos);
+            this.triggerDecayChain(level, pos);
         }
     }
 
@@ -58,7 +58,7 @@ public class ExcitedStateVoidMatterBlock extends Block {
         }
 
         if (hasAdjacentExcited) {
-            decaySelf(level, pos);
+            this.decaySelf(level, pos);
         }
     }
 

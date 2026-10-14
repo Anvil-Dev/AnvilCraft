@@ -101,7 +101,7 @@ public class FeCollectorBlockEntity extends BlockEntity implements IPowerProduce
     public void onDataPacket(Connection connection, ClientboundBlockEntityDataPacket packet, HolderLookup.Provider registries) {
         super.onDataPacket(connection, packet, registries);
         CompoundTag tag = packet.getTag();
-        handleUpdateTag(tag, registries);
+        this.handleUpdateTag(tag, registries);
     }
 
     Direction[] getConnectedSides() {
@@ -111,11 +111,10 @@ public class FeCollectorBlockEntity extends BlockEntity implements IPowerProduce
             : new Direction[]{Direction.NORTH, Direction.SOUTH};
     }
 
-
     @Nullable
     public IEnergyStorage getEnergyStorage(@Nullable Direction side) {
         if (side == null) return new FeEnergyStore(null);
-        for (Direction d : getConnectedSides()) {
+        for (Direction d : this.getConnectedSides()) {
             if (d == side) return new FeEnergyStore(side);
         }
         return null;
@@ -152,7 +151,7 @@ public class FeCollectorBlockEntity extends BlockEntity implements IPowerProduce
                 / AnvilCraft.CONFIG.machines.powerConverter.efficiency);
             this.time++;
             setChanged();
-            clientSyncDirty = true;
+            this.clientSyncDirty = true;
             if (this.outputPower != prev && this.grid != null) this.grid.markChanged();
         } else if (this.outputPower > 0) {
             this.outputPower = 0;
@@ -160,11 +159,11 @@ public class FeCollectorBlockEntity extends BlockEntity implements IPowerProduce
         }
 
         if (this.energy > TRANSFER_THRESHOLD) {
-            pushExcess();
+            this.pushExcess();
         }
-        if (clientSyncDirty && level.getGameTime() % 20 == 0) {
+        if (this.clientSyncDirty && level.getGameTime() % 20 == 0) {
             level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), Block.UPDATE_CLIENTS);
-            clientSyncDirty = false;
+            this.clientSyncDirty = false;
         }
     }
 
@@ -172,7 +171,7 @@ public class FeCollectorBlockEntity extends BlockEntity implements IPowerProduce
         if (level == null) return;
         int excess = this.energy - TRANSFER_THRESHOLD;
         if (excess <= 0) return;
-        for (Direction side : getConnectedSides()) {
+        for (Direction side : this.getConnectedSides()) {
             if (excess <= 0) break;
             IEnergyStorage target = level.getCapability(
                 Capabilities.EnergyStorage.BLOCK, worldPosition.relative(side), side.getOpposite()
@@ -183,7 +182,7 @@ public class FeCollectorBlockEntity extends BlockEntity implements IPowerProduce
                     excess -= accepted;
                     this.energy -= accepted;
                     setChanged();
-                    clientSyncDirty = true;
+                    this.clientSyncDirty = true;
                 }
             }
         }
@@ -245,7 +244,7 @@ public class FeCollectorBlockEntity extends BlockEntity implements IPowerProduce
          * - 已确定输入面后，只有该面可输入
          */
         private boolean isInputSide() {
-            return lastInputSide == null || lastInputSide == side;
+            return FeCollectorBlockEntity.this.lastInputSide == null || FeCollectorBlockEntity.this.lastInputSide == this.side;
         }
 
         /**
@@ -254,36 +253,36 @@ public class FeCollectorBlockEntity extends BlockEntity implements IPowerProduce
          * - 对端是输入面时，本面变为输出面
          */
         private boolean isOutputSide() {
-            return lastInputSide != null && lastInputSide != side;
+            return FeCollectorBlockEntity.this.lastInputSide != null && FeCollectorBlockEntity.this.lastInputSide != this.side;
         }
 
         public int receiveEnergy(int maxReceive, boolean simulate) {
-            if (!canReceive()) return 0;
+            if (!this.canReceive()) return 0;
             int r = Math.min(AnvilCraft.CONFIG.machines.feCollectorMaxEnergy - FeCollectorBlockEntity.this.energy, maxReceive);
             if (!simulate) {
-                energy += r;
-                if (side != null && lastInputSide != side) {
-                    lastInputSide = side;
+                FeCollectorBlockEntity.this.energy += r;
+                if (this.side != null && FeCollectorBlockEntity.this.lastInputSide != this.side) {
+                    FeCollectorBlockEntity.this.lastInputSide = this.side;
                 }
                 setChanged();
-                clientSyncDirty = true;
+                FeCollectorBlockEntity.this.clientSyncDirty = true;
             }
             return r;
         }
 
         public int extractEnergy(int maxExtract, boolean simulate) {
-            if (!canExtract()) return 0;
-            int r = Math.min(energy, maxExtract);
+            if (!this.canExtract()) return 0;
+            int r = Math.min(FeCollectorBlockEntity.this.energy, maxExtract);
             if (!simulate) {
-                energy -= r;
+                FeCollectorBlockEntity.this.energy -= r;
                 setChanged();
-                clientSyncDirty = true;
+                FeCollectorBlockEntity.this.clientSyncDirty = true;
             }
             return r;
         }
 
         public int getEnergyStored() {
-            return energy;
+            return FeCollectorBlockEntity.this.energy;
         }
 
         public int getMaxEnergyStored() {
@@ -291,7 +290,7 @@ public class FeCollectorBlockEntity extends BlockEntity implements IPowerProduce
         }
 
         public boolean canExtract() {
-            return isOutputSide();
+            return this.isOutputSide();
         }
 
         public boolean canReceive() {

@@ -169,10 +169,10 @@ public class ItemDetectorScreen extends AbstractContainerScreen<ItemDetectorMenu
     protected List<Component> getTooltipFromContainerItem(ItemStack stack) {
         List<Component> components = super.getTooltipFromContainerItem(stack);
         if (this.hoveringNonEmptyFilterSlot()) {
-            components.add(scrollToChangeTooltip);
+            components.add(this.scrollToChangeTooltip);
             components.add(Component.translatable("screen.anvilcraft.filter.scroll_to_change")
                 .withStyle(ChatFormatting.ITALIC, ChatFormatting.GRAY));
-            components.add(shiftToScrollFasterTooltip);
+            components.add(this.shiftToScrollFasterTooltip);
         }
         return components;
     }

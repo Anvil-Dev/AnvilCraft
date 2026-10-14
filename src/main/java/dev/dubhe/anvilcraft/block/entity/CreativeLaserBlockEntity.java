@@ -104,9 +104,9 @@ public class CreativeLaserBlockEntity extends BaseLaserBlockEntity implements Me
         if (this.isRedstoneOff() || this.configuredLevel <= 0) {
             this.cancelLaserEmission();
         } else if (this.gamma) {
-            this.emitGammaLaserBeam(getFacing());
+            this.emitGammaLaserBeam(this.getFacing());
         } else {
-            this.emitLaser(getFacing());
+            this.emitLaser(this.getFacing());
         }
         if (this.changed && level instanceof ServerLevel serverLevel) {
             PacketDistributor.sendToPlayersTrackingChunk(
@@ -208,7 +208,7 @@ public class CreativeLaserBlockEntity extends BaseLaserBlockEntity implements Me
     public void setChanged() {
         super.setChanged();
         if (level != null && level instanceof ServerLevel serverLevel) {
-            Packet<?> packet = getUpdatePacket();
+            Packet<?> packet = this.getUpdatePacket();
             if (packet != null) {
                 for (ServerPlayer player : serverLevel.getChunkSource().chunkMap
                     .getPlayers(serverLevel.getChunkAt(worldPosition).getPos(), false)) {

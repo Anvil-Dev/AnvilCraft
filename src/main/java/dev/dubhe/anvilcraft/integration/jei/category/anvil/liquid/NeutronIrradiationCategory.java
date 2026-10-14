@@ -40,7 +40,7 @@ public class NeutronIrradiationCategory extends AbstractLiquidCategory<NeutronIr
             ),
             Component.translatable("gui.anvilcraft.category.neutron_irradiation")
         );
-        explosion = JeiRenderHelper.getExplosion(helper);
+        this.explosion = JeiRenderHelper.getExplosion(helper);
     }
 
     @Override
@@ -52,7 +52,7 @@ public class NeutronIrradiationCategory extends AbstractLiquidCategory<NeutronIr
         double mouseY
     ) {
         if (isExplosionRecipe(recipeHolder)) {
-            explosion.draw(guiGraphics, 124, 16);
+            this.explosion.draw(guiGraphics, 124, 16);
         }
         super.draw(recipeHolder, recipeSlotsView, guiGraphics, mouseX, mouseY);
     }

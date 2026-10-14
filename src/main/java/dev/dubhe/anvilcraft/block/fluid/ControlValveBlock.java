@@ -144,11 +144,11 @@ public class ControlValveBlock extends BetterBaseEntityBlock
             BlockState neighborState = level.getBlockState(neighborPos);
             if (neighborState.getBlock() instanceof PipeStraightBlock) {
                 if (dir.getAxis() != neighborState.getValue(PipeBlock.AXIS)) {
-                    convertPipeToNode(level, neighborPos, neighborState);
+                    this.convertPipeToNode(level, neighborPos, neighborState);
                 }
             } else if (neighborState.getBlock() instanceof PipeCornerBlock) {
                 if (!neighborState.getValue(PipeBlock.CORNER_ENDED).containsDirection(dir.getOpposite())) {
-                    convertPipeToNode(level, neighborPos, neighborState);
+                    this.convertPipeToNode(level, neighborPos, neighborState);
                 }
             }
         }

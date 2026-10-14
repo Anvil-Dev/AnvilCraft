@@ -350,14 +350,14 @@ abstract class ItemEntityMixin extends Entity implements IItemEntityExtension {
     @WrapOperation(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/item/ItemEntity;isMergable()Z"))
     public boolean preventMerge(ItemEntity instance, Operation<Boolean> original) {
         if (!original.call(instance)) return false;
-        if (anvilcraft$mergeCooldown <= 0) return true;
-        anvilcraft$mergeCooldown--;
+        if (this.anvilcraft$mergeCooldown <= 0) return true;
+        this.anvilcraft$mergeCooldown--;
         return false;
     }
 
     @Override
     public void anvilcraft$setMergeCooldown(int cooldown) {
-        anvilcraft$mergeCooldown = cooldown;
+        this.anvilcraft$mergeCooldown = cooldown;
     }
 
     @Inject(method = "tryToMerge", at = @At("HEAD"), cancellable = true)
@@ -373,7 +373,7 @@ abstract class ItemEntityMixin extends Entity implements IItemEntityExtension {
 
     @Unique
     public void anvilcraft$poach() {
-        if (!anvilcraft$shouldPoach) return;
+        if (!this.anvilcraft$shouldPoach) return;
         Level level = this.level();
         if (level.isClientSide) return;
         Map<ChunkPos, List<ItemCollectorBlockEntity>> map = ItemCollectorBlockEntity.POACHING_COLLECTOR_MAP.get(level);
@@ -401,7 +401,7 @@ abstract class ItemEntityMixin extends Entity implements IItemEntityExtension {
         } else if (flag) {
             this.remove(Entity.RemovalReason.DISCARDED);
             this.discard();
-            anvilcraft$discarded = true;
+            this.anvilcraft$discarded = true;
         }
     }
 
@@ -472,7 +472,7 @@ abstract class ItemEntityMixin extends Entity implements IItemEntityExtension {
         AABB box = this.getBoundingBox().inflate(0.01);
         return BlockPos.betweenClosedStream(box).anyMatch(p -> {
             BlockState s = this.level().getBlockState(p);
-            return anvilcraft$isMagnetBlock(s)
+            return this.anvilcraft$isMagnetBlock(s)
                    && !s.getValue(MagnetBlock.LIT)
                    && !s.getCollisionShape(this.level(), p).isEmpty()
                    && s.getCollisionShape(this.level(), p).toAabbs().stream().anyMatch(b -> b.move(p).intersects(box));
@@ -486,7 +486,7 @@ abstract class ItemEntityMixin extends Entity implements IItemEntityExtension {
         Object[] result = {null, Double.MAX_VALUE};
         BlockPos.betweenClosedStream(area).forEach(pos -> {
             BlockState state = this.level().getBlockState(pos);
-            if (!anvilcraft$isMagnetBlock(state) || state.getValue(MagnetBlock.LIT)) return;
+            if (!this.anvilcraft$isMagnetBlock(state) || state.getValue(MagnetBlock.LIT)) return;
             for (AABB box : state.getCollisionShape(this.level(), pos).toAabbs()) {
                 AABB wb = box.move(pos);
                 Vec3 p = new Vec3(
@@ -512,7 +512,7 @@ abstract class ItemEntityMixin extends Entity implements IItemEntityExtension {
         BlockPos pos = this.blockPosition();
         BlockState state = this.level().getBlockState(pos);
         ItemStack stack = this.getItem();
-        String matKey = anvilcraft$getMaterialKey(stack);
+        String matKey = this.anvilcraft$getMaterialKey(stack);
         // 不是金属直接跳过
         if (matKey == null) return;
         // 1. 空芯磁铁块转化
@@ -531,14 +531,14 @@ abstract class ItemEntityMixin extends Entity implements IItemEntityExtension {
                 return;
             }
             // 2. 吸铁石就要吸铁
-            if (anvilcraft$isTouchingMagnet()) {
+            if (this.anvilcraft$isTouchingMagnet()) {
                 this.setDeltaMovement(Vec3.ZERO);
                 this.setNoGravity(true);
                 this.setOnGround(true);
                 return;
             } else {
                 if (this.isNoGravity() && !stack.has(ModComponents.ETERNAL)) this.setNoGravity(false);
-                if (anvilcraft$magnetAttraction().lengthSqr() > 0) this.addDeltaMovement(anvilcraft$magnetAttraction());
+                if (this.anvilcraft$magnetAttraction().lengthSqr() > 0) this.addDeltaMovement(this.anvilcraft$magnetAttraction());
             }
         }
         // 3. 涡流减速
@@ -550,7 +550,7 @@ abstract class ItemEntityMixin extends Entity implements IItemEntityExtension {
 
     @Override
     public boolean anvilcraft$getDiscarded() {
-        return anvilcraft$discarded;
+        return this.anvilcraft$discarded;
     }
 
     @Override

@@ -51,9 +51,9 @@ public record FluidEndpoint(
 
     /** 增加一个接入点后返回新的端点，避免改变已有端点对象。 */
     public FluidEndpoint withEntry(BlockPos pipePos, Direction sideToPipe, int effectiveHeight) {
-        List<Entry> merged = new ArrayList<>(entries);
+        List<Entry> merged = new ArrayList<>(this.entries);
         merged.add(new Entry(pipePos, sideToPipe, effectiveHeight));
-        return new FluidEndpoint(containerPos, merged, handler, cauldron, entity);
+        return new FluidEndpoint(this.containerPos, merged, this.handler, this.cauldron, this.entity);
     }
 
     /**
@@ -62,12 +62,12 @@ public record FluidEndpoint(
      * {@link #withEntry} 追加，均保证至少有一个元素。
      */
     public Entry primaryEntry() {
-        return entries.get(0);
+        return this.entries.get(0);
     }
 
     /** 兼容便捷方法：取第一个入口的等效高度。 */
     public int effectiveHeight() {
-        return entries.get(0).effectiveHeight();
+        return this.entries.get(0).effectiveHeight();
     }
 
     /** 端点容器的一个实际管道接入点。 */

@@ -49,13 +49,13 @@ public class WormholeNetwork extends BetterSavedData {
 
         CompoundTag toTag() {
             CompoundTag tag = new CompoundTag();
-            tag.putString("dimension", dimension.location().toString());
-            tag.putInt("x", pos.getX());
-            tag.putInt("y", pos.getY());
-            tag.putInt("z", pos.getZ());
-            if (!portalSides.isEmpty()) {
+            tag.putString("dimension", this.dimension.location().toString());
+            tag.putInt("x", this.pos.getX());
+            tag.putInt("y", this.pos.getY());
+            tag.putInt("z", this.pos.getZ());
+            if (!this.portalSides.isEmpty()) {
                 ListTag sidesTag = new ListTag();
-                for (Cube323PartHalf side : portalSides) {
+                for (Cube323PartHalf side : this.portalSides) {
                     CompoundTag sideTag = new CompoundTag();
                     sideTag.putString("side", side.getSerializedName());
                     sidesTag.add(sideTag);
@@ -112,11 +112,11 @@ public class WormholeNetwork extends BetterSavedData {
 
     private void synchronizeOverworldLikeGeneration(OverworldLikeResetManifest manifest) {
         // Legacy saves have no generation marker; live anvils register again when their chunks load.
-        if (overworldLikeGeneration != manifest.generation() || manifest.resetPending()) {
-            unregisterDimension(CelestialTravelManager.OVERWORLD_LIKE_LEVEL);
+        if (this.overworldLikeGeneration != manifest.generation() || manifest.resetPending()) {
+            this.unregisterDimension(CelestialTravelManager.OVERWORLD_LIKE_LEVEL);
         }
-        if (overworldLikeGeneration != manifest.generation()) {
-            overworldLikeGeneration = manifest.generation();
+        if (this.overworldLikeGeneration != manifest.generation()) {
+            this.overworldLikeGeneration = manifest.generation();
             setDirty();
         }
     }
@@ -130,16 +130,16 @@ public class WormholeNetwork extends BetterSavedData {
         ResourceKey<Level> dim = level.dimension();
         if (CelestialTravelManager.isOverworldLike(dim) && level instanceof ServerLevel serverLevel) {
             OverworldLikeResetManifest manifest = OverworldLikeGenerationBootstrap.getManifest(serverLevel.getServer());
-            synchronizeOverworldLikeGeneration(manifest);
+            this.synchronizeOverworldLikeGeneration(manifest);
             if (manifest.resetPending() || serverLevel.getServer().getLevel(dim) != level) return;
         }
-        UUID previous = reverseIndex.getOrDefault(dim, Map.of()).get(pos);
-        if (previous != null && !previous.equals(bodyUuid)) unregister(level, pos);
-        List<Entry> entries = network.computeIfAbsent(bodyUuid, k -> new ArrayList<>());
+        UUID previous = this.reverseIndex.getOrDefault(dim, Map.of()).get(pos);
+        if (previous != null && !previous.equals(bodyUuid)) this.unregister(level, pos);
+        List<Entry> entries = this.network.computeIfAbsent(bodyUuid, k -> new ArrayList<>());
         entries.removeIf(e -> e.dimension.equals(dim) && e.pos.equals(pos));
         entries.add(new Entry(dim, pos));
 
-        reverseIndex.computeIfAbsent(dim, k -> new HashMap<>()).put(pos, bodyUuid);
+        this.reverseIndex.computeIfAbsent(dim, k -> new HashMap<>()).put(pos, bodyUuid);
         setDirty();
     }
 
@@ -148,15 +148,15 @@ public class WormholeNetwork extends BetterSavedData {
      */
     public void unregister(Level level, BlockPos pos) {
         ResourceKey<Level> dim = level.dimension();
-        Map<BlockPos, UUID> dimMap = reverseIndex.get(dim);
+        Map<BlockPos, UUID> dimMap = this.reverseIndex.get(dim);
         if (dimMap == null) return;
         UUID uuid = dimMap.remove(pos);
         if (uuid != null) {
-            List<Entry> entries = network.get(uuid);
+            List<Entry> entries = this.network.get(uuid);
             if (entries != null) {
                 entries.removeIf(e -> e.dimension.equals(dim) && e.pos.equals(pos));
                 if (entries.isEmpty()) {
-                    network.remove(uuid);
+                    this.network.remove(uuid);
                 }
             }
             setDirty();
@@ -165,20 +165,20 @@ public class WormholeNetwork extends BetterSavedData {
 
     /** Removes even unloaded nodes when their dimension is destroyed. */
     public void unregisterDimension(ResourceKey<Level> dimension) {
-        if (reverseIndex.remove(dimension) == null) return;
-        for (List<Entry> entries : network.values()) {
+        if (this.reverseIndex.remove(dimension) == null) return;
+        for (List<Entry> entries : this.network.values()) {
             entries.removeIf(entry -> entry.dimension.equals(dimension));
         }
-        network.values().removeIf(List::isEmpty);
+        this.network.values().removeIf(List::isEmpty);
         setDirty();
     }
 
     // ==================== Portal side management ====================
 
     public void setPortalSides(ResourceKey<Level> dim, BlockPos pos, Set<Cube323PartHalf> sides) {
-        UUID uuid = reverseIndex.getOrDefault(dim, Map.of()).get(pos);
+        UUID uuid = this.reverseIndex.getOrDefault(dim, Map.of()).get(pos);
         if (uuid != null) {
-            List<Entry> entries = network.get(uuid);
+            List<Entry> entries = this.network.get(uuid);
             if (entries != null) {
                 for (int i = 0; i < entries.size(); i++) {
                     Entry e = entries.get(i);
@@ -193,9 +193,9 @@ public class WormholeNetwork extends BetterSavedData {
     }
 
     public boolean hasPortalAt(ResourceKey<Level> dim, BlockPos pos, Cube323PartHalf side) {
-        UUID uuid = reverseIndex.getOrDefault(dim, Map.of()).get(pos);
+        UUID uuid = this.reverseIndex.getOrDefault(dim, Map.of()).get(pos);
         if (uuid != null) {
-            List<Entry> entries = network.get(uuid);
+            List<Entry> entries = this.network.get(uuid);
             if (entries != null) {
                 for (Entry e : entries) {
                     if (e.dimension.equals(dim) && e.pos.equals(pos)) {
@@ -210,14 +210,14 @@ public class WormholeNetwork extends BetterSavedData {
     // ==================== Queries ====================
 
     public boolean isRegistered(UUID bodyUuid, ResourceKey<Level> dimension, BlockPos pos) {
-        return bodyUuid.equals(reverseIndex.getOrDefault(dimension, Map.of()).get(pos));
+        return bodyUuid.equals(this.reverseIndex.getOrDefault(dimension, Map.of()).get(pos));
     }
 
     /**
      * Get all connected CFA entries (excluding self) for a given body UUID.
      */
     public List<Entry> getConnected(UUID bodyUuid, ResourceKey<Level> selfDim, BlockPos selfPos) {
-        List<Entry> all = network.getOrDefault(bodyUuid, List.of());
+        List<Entry> all = this.network.getOrDefault(bodyUuid, List.of());
         return all.stream()
             .filter(e -> !(e.dimension.equals(selfDim) && e.pos.equals(selfPos)))
             .toList();
@@ -231,9 +231,9 @@ public class WormholeNetwork extends BetterSavedData {
 
     @Override
     public void read(CompoundTag nbt, HolderLookup.Provider registries) {
-        overworldLikeGeneration = nbt.contains("overworldLikeGeneration") ? nbt.getInt("overworldLikeGeneration") : -1;
-        network.clear();
-        reverseIndex.clear();
+        this.overworldLikeGeneration = nbt.contains("overworldLikeGeneration") ? nbt.getInt("overworldLikeGeneration") : -1;
+        this.network.clear();
+        this.reverseIndex.clear();
         for (String key : nbt.getAllKeys()) {
             UUID uuid;
             try {
@@ -246,17 +246,17 @@ public class WormholeNetwork extends BetterSavedData {
             for (int i = 0; i < list.size(); i++) {
                 Entry entry = Entry.fromTag(list.getCompound(i));
                 entries.add(entry);
-                reverseIndex.computeIfAbsent(entry.dimension, k -> new HashMap<>())
+                this.reverseIndex.computeIfAbsent(entry.dimension, k -> new HashMap<>())
                     .put(entry.pos, uuid);
             }
-            network.put(uuid, entries);
+            this.network.put(uuid, entries);
         }
     }
 
     @Override
     public CompoundTag save(CompoundTag nbt, HolderLookup.Provider registries) {
-        nbt.putInt("overworldLikeGeneration", overworldLikeGeneration);
-        for (Map.Entry<UUID, List<Entry>> entry : network.entrySet()) {
+        nbt.putInt("overworldLikeGeneration", this.overworldLikeGeneration);
+        for (Map.Entry<UUID, List<Entry>> entry : this.network.entrySet()) {
             ListTag list = new ListTag();
             for (Entry e : entry.getValue()) {
                 list.add(e.toTag());

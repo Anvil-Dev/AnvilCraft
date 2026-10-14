@@ -64,7 +64,7 @@ public abstract class HeatSourceEntry {
 
         @Override
         public int accepts(BlockState state) {
-            if (input.test(state)) {
+            if (this.input.test(state)) {
                 return this.getCharge();
             }
             return 0;
@@ -72,7 +72,7 @@ public abstract class HeatSourceEntry {
 
         @Override
         public BlockState transform(BlockState state) {
-            return transformer.apply(state);
+            return this.transformer.apply(state);
         }
     }
 
@@ -88,12 +88,12 @@ public abstract class HeatSourceEntry {
 
         @Override
         public int accepts(BlockState state) {
-            return state.is(input) ? getCharge() : 0;
+            return state.is(this.input) ? getCharge() : 0;
         }
 
         @Override
         public BlockState transform(BlockState state) {
-            return output.defaultBlockState();
+            return this.output.defaultBlockState();
         }
     }
 
@@ -107,12 +107,12 @@ public abstract class HeatSourceEntry {
 
         @Override
         public int accepts(BlockState state) {
-            return state.is(input) ? getCharge() : 0;
+            return state.is(this.input) ? getCharge() : 0;
         }
 
         @Override
         public BlockState transform(BlockState state) {
-            return input.defaultBlockState();
+            return this.input.defaultBlockState();
         }
 
         @Override

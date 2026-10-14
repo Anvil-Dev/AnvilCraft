@@ -89,22 +89,22 @@ public class RailgunAnvilEntity extends FallingBlockEntity {
 
     @Override
     public void tick() {
-        if (isReturning()) {
-            tickReturning();
+        if (this.isReturning()) {
+            this.tickReturning();
             return;
         }
-        if (!isFlying()) {
+        if (!this.isFlying()) {
             var below = blockPosition().below();
-            if (loyalty && getDeltaMovement().y <= 0.0
+            if (this.loyalty && getDeltaMovement().y <= 0.0
                 && !level().getBlockState(below).getCollisionShape(level(), below).isEmpty()) {
-                startReturning();
+                this.startReturning();
                 return;
             }
             super.tick();
             return;
         }
         if (this.tickCount++ > 200) {
-            startFalling();
+            this.startFalling();
             return;
         }
         Vec3 movement = this.getDeltaMovement().add(0.0, -this.getDefaultGravity(), 0.0);
@@ -116,12 +116,12 @@ public class RailgunAnvilEntity extends FallingBlockEntity {
             Vec3 projectileMovement = accelerationEntry == null
                                       ? movement
                                       : movement.scale(accelerationEntry.progress());
-            hitEntitiesAlongPath(projectileMovement);
+            this.hitEntitiesAlongPath(projectileMovement);
         }
-        MovementResult result = moveInSubsteps(movement, isFlying() ? accelerationEntry : null);
+        MovementResult result = this.moveInSubsteps(movement, this.isFlying() ? accelerationEntry : null);
         if (result.converted()) return;
-        if (result.collided() && !this.level().isClientSide) startFalling();
-        if (isFlying()) {
+        if (result.collided() && !this.level().isClientSide) this.startFalling();
+        if (this.isFlying()) {
             this.setDeltaMovement(movement.scale(0.99));
         } else if (result.collided()) {
             Vec3 reflected = result.velocity();
@@ -132,16 +132,16 @@ public class RailgunAnvilEntity extends FallingBlockEntity {
     }
 
     private void hitEntitiesAlongPath(Vec3 movement) {
-        while (isFlying()) {
+        while (this.isFlying()) {
             EntityHitResult entityHit = ProjectileUtil.getEntityHitResult(
                 this.level(), this, this.position(), this.position().add(movement),
                 this.getBoundingBox().expandTowards(movement).inflate(0.5),
                 entity -> entity instanceof LivingEntity
                     && entity.isAttackable()
-                    && !hitEntities.contains(entity.getUUID())
+                    && !this.hitEntities.contains(entity.getUUID())
             );
             if (entityHit == null) return;
-            hit(entityHit);
+            this.hit(entityHit);
         }
     }
 
@@ -154,7 +154,7 @@ public class RailgunAnvilEntity extends FallingBlockEntity {
         Vec3 startPosition = this.position();
         boolean collided = false;
         if (accelerationEntry != null && accelerationEntry.progress() <= 0.0
-            && convertToFallingBlock(accelerationEntry)) {
+            && this.convertToFallingBlock(accelerationEntry)) {
             return new MovementResult(false, movement, true);
         }
         for (int i = 0; i < steps; i++) {
@@ -179,7 +179,7 @@ public class RailgunAnvilEntity extends FallingBlockEntity {
                     blockedZ ? -step.z * 0.1 : step.z
                 );
             } else if (reachesAccelerationArea) {
-                if (convertToFallingBlock(accelerationEntry)) {
+                if (this.convertToFallingBlock(accelerationEntry)) {
                     return new MovementResult(false, step.scale(steps), true);
                 }
                 accelerationEntry = null;
@@ -189,7 +189,7 @@ public class RailgunAnvilEntity extends FallingBlockEntity {
     }
 
     private boolean convertToFallingBlock(AccelerateManager.AccelerationEntry accelerationEntry) {
-        if (this.level().isClientSide || !isFlying()) return false;
+        if (this.level().isClientSide || !this.isFlying()) return false;
         FallingBlockEntity falling = new FallingBlockEntity(
             this.level(), this.getX(), this.getY(), this.getZ(), this.getBlockState());
         falling.setDeltaMovement(this.getDeltaMovement());
@@ -208,11 +208,11 @@ public class RailgunAnvilEntity extends FallingBlockEntity {
 
     private void hit(EntityHitResult hit) {
         Entity target = hit.getEntity();
-        hitEntities.add(target.getUUID());
-        Entity ownerEntity = ((ServerLevel) level()).getEntity(owner);
+        this.hitEntities.add(target.getUUID());
+        Entity ownerEntity = ((ServerLevel) level()).getEntity(this.owner);
         float damage = (float) (this.getDeltaMovement().length() * 2.0)
                        * BASE_DAMAGE_MULTIPLIER
-                       * getAmmoDamageMultiplier();
+                       * this.getAmmoDamageMultiplier();
         DamageSource source = ownerEntity instanceof LivingEntity livingOwner
             ? this.damageSources().source(DamageTypes.FALLING_ANVIL, this, livingOwner)
             : this.damageSources().anvil(this);
@@ -220,7 +220,7 @@ public class RailgunAnvilEntity extends FallingBlockEntity {
             if (ownerEntity instanceof LivingEntity livingOwner && target instanceof LivingEntity livingTarget) {
                 livingOwner.setLastHurtMob(target);
                 EnchantmentHelper.doPostAttackEffectsWithItemSource(
-                    (ServerLevel) level(), livingTarget, source, weapon);
+                    (ServerLevel) level(), livingTarget, source, this.weapon);
                 int knockback = entityData.get(KNOCKBACK);
                 if (knockback > 0) {
                     livingTarget.push(
@@ -228,23 +228,23 @@ public class RailgunAnvilEntity extends FallingBlockEntity {
                 }
             }
         }
-        if (hitEntities.size() > entityData.get(PIERCE)) startFalling();
+        if (this.hitEntities.size() > entityData.get(PIERCE)) this.startFalling();
     }
 
     private void startFalling() {
-        if (!isFlying()) return;
+        if (!this.isFlying()) return;
         this.entityData.set(FLYING, false);
-        this.blockState = getBlockState();
+        this.blockState = this.getBlockState();
         this.setNoGravity(false);
         this.setDeltaMovement(0.0, Math.min(0.0, getDeltaMovement().y), 0.0);
-        if (entityData.get(GHOST) || loyalty) {
+        if (entityData.get(GHOST) || this.loyalty) {
             this.cancelDrop = true;
             this.dropItem = false;
         }
     }
 
     private float getAmmoDamageMultiplier() {
-        BlockState state = getBlockState();
+        BlockState state = this.getBlockState();
         if (state.is(ModBlocks.TRANSCENDENCE_ANVIL.get())) return 8.0F;
         if (state.is(ModBlocks.FROST_ANVIL.get()) || state.is(ModBlocks.EMBER_ANVIL.get())) return 4.0F;
         if (state.is(ModBlocks.ROYAL_ANVIL.get())) return 2.0F;
@@ -252,7 +252,7 @@ public class RailgunAnvilEntity extends FallingBlockEntity {
     }
 
     private void startReturning() {
-        if (this.level().isClientSide || isReturning()) return;
+        if (this.level().isClientSide || this.isReturning()) return;
         this.entityData.set(RETURNING, true);
         this.setNoGravity(true);
         this.noPhysics = true;
@@ -263,10 +263,10 @@ public class RailgunAnvilEntity extends FallingBlockEntity {
         this.tickCount++;
         this.setNoGravity(true);
         this.noPhysics = true;
-        Entity ownerEntity = getOwnerEntity();
+        Entity ownerEntity = this.getOwnerEntity();
         if (!(ownerEntity instanceof ServerPlayer || this.level().isClientSide && ownerEntity instanceof Player)
             || !ownerEntity.isAlive()) {
-            if (!this.level().isClientSide) dropReturnedItem(this.position(), 10);
+            if (!this.level().isClientSide) this.dropReturnedItem(this.position(), 10);
             this.discard();
             return;
         }
@@ -274,7 +274,7 @@ public class RailgunAnvilEntity extends FallingBlockEntity {
         Vec3 destination = ownerEntity.position().add(0.0, 0.5, 0.0);
         Vec3 offset = destination.subtract(this.position());
         if (offset.lengthSqr() < 1.0) {
-            if (!this.level().isClientSide) dropReturnedItem(destination, 0);
+            if (!this.level().isClientSide) this.dropReturnedItem(destination, 0);
             this.discard();
             return;
         }
@@ -289,14 +289,14 @@ public class RailgunAnvilEntity extends FallingBlockEntity {
     private Entity getOwnerEntity() {
         Entity entity = this.level().getEntity(this.entityData.get(OWNER_ID));
         if (entity != null || !(this.level() instanceof ServerLevel serverLevel)) return entity;
-        entity = serverLevel.getEntity(owner);
+        entity = serverLevel.getEntity(this.owner);
         if (entity != null) this.entityData.set(OWNER_ID, entity.getId());
         return entity;
     }
 
     private void dropReturnedItem(Vec3 position, int pickupDelay) {
         ItemEntity item = new ItemEntity(
-            this.level(), position.x, position.y, position.z, getReturnedItem(), 0.0, 0.0, 0.0);
+            this.level(), position.x, position.y, position.z, this.getReturnedItem(), 0.0, 0.0, 0.0);
         item.setPickUpDelay(pickupDelay);
         this.level().addFreshEntity(item);
     }
@@ -306,7 +306,7 @@ public class RailgunAnvilEntity extends FallingBlockEntity {
     }
 
     public ItemStack getReturnedItem() {
-        return getBlockState().getBlock().asItem().getDefaultInstance();
+        return this.getBlockState().getBlock().asItem().getDefaultInstance();
     }
 
     @Override
@@ -320,18 +320,18 @@ public class RailgunAnvilEntity extends FallingBlockEntity {
     @Override
     protected void addAdditionalSaveData(CompoundTag tag) {
         super.addAdditionalSaveData(tag);
-        tag.putBoolean("Flying", isFlying());
+        tag.putBoolean("Flying", this.isFlying());
         tag.putBoolean("Ghost", this.entityData.get(GHOST));
         tag.putInt("Pierce", this.entityData.get(PIERCE));
         tag.putInt("Knockback", this.entityData.get(KNOCKBACK));
-        tag.putBoolean("Loyalty", loyalty);
-        tag.putBoolean("Returning", isReturning());
+        tag.putBoolean("Loyalty", this.loyalty);
+        tag.putBoolean("Returning", this.isReturning());
         tag.putInt("FlightTicks", this.tickCount);
-        tag.put("DisplayState", NbtUtils.writeBlockState(getBlockState()));
-        if (owner != null) tag.putUUID("Owner", owner);
-        if (!weapon.isEmpty()) tag.put("Weapon", weapon.save(level().registryAccess()));
+        tag.put("DisplayState", NbtUtils.writeBlockState(this.getBlockState()));
+        if (this.owner != null) tag.putUUID("Owner", this.owner);
+        if (!this.weapon.isEmpty()) tag.put("Weapon", this.weapon.save(level().registryAccess()));
         ListTag hitEntityTags = new ListTag();
-        hitEntities.forEach(uuid -> hitEntityTags.add(NbtUtils.createUUID(uuid)));
+        this.hitEntities.forEach(uuid -> hitEntityTags.add(NbtUtils.createUUID(uuid)));
         tag.put("HitEntities", hitEntityTags);
     }
 
@@ -342,10 +342,10 @@ public class RailgunAnvilEntity extends FallingBlockEntity {
         this.entityData.set(GHOST, tag.getBoolean("Ghost"));
         this.entityData.set(PIERCE, tag.getInt("Pierce"));
         this.entityData.set(KNOCKBACK, tag.getInt("Knockback"));
-        loyalty = tag.getBoolean("Loyalty");
+        this.loyalty = tag.getBoolean("Loyalty");
         this.entityData.set(RETURNING, tag.getBoolean("Returning"));
         this.tickCount = tag.getInt("FlightTicks");
-        if (isReturning()) {
+        if (this.isReturning()) {
             this.setNoGravity(true);
             this.noPhysics = true;
         }
@@ -355,12 +355,12 @@ public class RailgunAnvilEntity extends FallingBlockEntity {
                 NbtUtils.readBlockState(level().holderLookup(Registries.BLOCK), tag.getCompound("DisplayState"))
             );
         }
-        if (tag.hasUUID("Owner")) owner = tag.getUUID("Owner");
-        weapon = ItemStack.parseOptional(level().registryAccess(), tag.getCompound("Weapon"));
-        hitEntities.clear();
+        if (tag.hasUUID("Owner")) this.owner = tag.getUUID("Owner");
+        this.weapon = ItemStack.parseOptional(level().registryAccess(), tag.getCompound("Weapon"));
+        this.hitEntities.clear();
         ListTag hitEntityTags = tag.getList("HitEntities", Tag.TAG_INT_ARRAY);
-        hitEntityTags.forEach(uuidTag -> hitEntities.add(NbtUtils.loadUUID(uuidTag)));
-        if (this.entityData.get(GHOST) || loyalty) {
+        hitEntityTags.forEach(uuidTag -> this.hitEntities.add(NbtUtils.loadUUID(uuidTag)));
+        if (this.entityData.get(GHOST) || this.loyalty) {
             this.dropItem = false;
             this.disableDrop();
         }

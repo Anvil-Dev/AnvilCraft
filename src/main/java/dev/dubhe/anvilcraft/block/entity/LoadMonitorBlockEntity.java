@@ -28,13 +28,13 @@ public class LoadMonitorBlockEntity extends BlockEntity implements IPowerConsume
     @Override
     public void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
         super.loadAdditional(tag, provider);
-        tag.putInt("Cooldown", cooldown);
+        tag.putInt("Cooldown", this.cooldown);
     }
 
     @Override
     protected void saveAdditional(CompoundTag tag, HolderLookup.Provider provider) {
         super.saveAdditional(tag, provider);
-        cooldown = tag.getInt("Cooldown");
+        this.cooldown = tag.getInt("Cooldown");
     }
 
     @Override
@@ -57,8 +57,8 @@ public class LoadMonitorBlockEntity extends BlockEntity implements IPowerConsume
     }
 
     public void tick() {
-        if (cooldown > 0) {
-            cooldown--;
+        if (this.cooldown > 0) {
+            this.cooldown--;
         } else {
             if (getGrid() == null) return;
             flushState(getLevel(), getBlockPos());

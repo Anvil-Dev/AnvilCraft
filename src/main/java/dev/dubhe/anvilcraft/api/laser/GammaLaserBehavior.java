@@ -18,13 +18,13 @@ public final class GammaLaserBehavior implements ILaserComponent {
 
     @Override
     public void onEmitPre(ILaserComponentOwner owner) {
-        if (!LaserTypeComponent.isGamma(owner)) onEmissionStopped(owner);
+        if (!LaserTypeComponent.isGamma(owner)) this.onEmissionStopped(owner);
     }
 
     @Override
     public void onEmissionStopped(ILaserComponentOwner owner) {
-        irradiatingPos = null;
-        exposureTicks = 0;
+        this.irradiatingPos = null;
+        this.exposureTicks = 0;
     }
 
     @Override
@@ -33,16 +33,16 @@ public final class GammaLaserBehavior implements ILaserComponent {
         if (!(level instanceof ServerLevel)) return false;
         int strength = LaserStrengthComponent.getStrength(owner);
         GammaLaserEffects.destroyPrisms(level, owner.getLaserSourcePos(), owner.getLaserDirection(), blockPos);
-        if (!blockPos.equals(irradiatingPos)) {
-            irradiatingPos = blockPos.immutable();
-            exposureTicks = 0;
+        if (!blockPos.equals(this.irradiatingPos)) {
+            this.irradiatingPos = blockPos.immutable();
+            this.exposureTicks = 0;
         }
         BlockState state = level.getBlockState(blockPos);
         boolean canBreak = !state.is(BlockTags.WITHER_IMMUNE) && !state.isAir() && state.getDestroySpeed(level, blockPos) >= 0;
         if (canBreak) {
-            exposureTicks++;
-            if (exposureTicks >= EXPOSURE_TICKS[Math.clamp(strength / 4, 0, 4)]) {
-                exposureTicks = 0;
+            this.exposureTicks++;
+            if (this.exposureTicks >= EXPOSURE_TICKS[Math.clamp(strength / 4, 0, 4)]) {
+                this.exposureTicks = 0;
                 BlockPos breakPos = blockPos;
                 if (state.getBlock() instanceof FlexibleMultiPartBlock<?, ?, ?> multiPartBlock) {
                     breakPos = multiPartBlock.getMainPartPos(blockPos, state);
@@ -50,7 +50,7 @@ public final class GammaLaserBehavior implements ILaserComponent {
                 level.destroyBlock(strength >= 16 ? breakPos : blockPos, strength < 16);
             }
         } else {
-            exposureTicks = 0;
+            this.exposureTicks = 0;
         }
         GammaLaserEffects.heatEmberMetal(level, blockPos, owner.getLaserDirection(), strength, Block.UPDATE_CLIENTS);
         return false;

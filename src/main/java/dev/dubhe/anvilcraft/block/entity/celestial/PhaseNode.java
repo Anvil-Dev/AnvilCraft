@@ -60,13 +60,13 @@ public record PhaseNode(
     }
 
     public PhaseNode resolve(double coordinate) {
-        StellarMetallicityResponse response = dynamics.response();
-        StellarNodeDynamics resolved = dynamics.resolve(coordinate);
+        StellarMetallicityResponse response = this.dynamics.response();
+        StellarNodeDynamics resolved = this.dynamics.resolve(coordinate);
         StellarControlPoint endpoint = resolved.points().getLast();
-        return new PhaseNode(phaseId, durationWeight * StellarMetallicityResponse.factor(response.duration(), coordinate),
+        return new PhaseNode(this.phaseId, this.durationWeight * StellarMetallicityResponse.factor(response.duration(), coordinate),
             endpoint.radius(), endpoint.temperature(), endpoint.luminosity(), endpoint.envelope(),
-            Math.clamp(pulsationAmplitude * StellarMetallicityResponse.factor(response.amplitude(), coordinate), 0, 0.95f),
-            pulsationFrequency, surfaceStyle, eventProfileId, nodeId, resolved);
+            Math.clamp(this.pulsationAmplitude * StellarMetallicityResponse.factor(response.amplitude(), coordinate), 0, 0.95f),
+            this.pulsationFrequency, this.surfaceStyle, this.eventProfileId, this.nodeId, resolved);
     }
 
     private static float finiteAtLeast(float value, float minimum) {
@@ -79,11 +79,11 @@ public record PhaseNode(
 
     /** 是否在此节点触发一个事件 profile。 */
     public boolean hasEventProfile() {
-        return !eventProfileId.isBlank();
+        return !this.eventProfileId.isBlank();
     }
 
     /** 未写入玩法质量字段的失质量预算，按包层剩余比例派生。 */
     public float massLossBudget() {
-        return Math.clamp(1.0f - envelopeFraction, 0.0f, 1.0f);
+        return Math.clamp(1.0f - this.envelopeFraction, 0.0f, 1.0f);
     }
 }

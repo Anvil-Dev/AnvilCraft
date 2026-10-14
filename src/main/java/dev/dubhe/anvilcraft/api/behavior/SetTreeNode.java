@@ -25,10 +25,10 @@ public class SetTreeNode<T> implements TreeNode<T> {
 
     @Override
     public Collection<TreeNode<T>> getChildren() {
-        return childrens;
+        return this.childrens;
     }
 
     public SetTreeNode<T> executes(Consumer<ExecutionContext<T>> consumer) {
-        return then(TreeNode.executes(consumer));
+        return this.then(TreeNode.executes(consumer));
     }
 }

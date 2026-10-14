@@ -57,7 +57,7 @@ public class ExpCollectorMenu extends AbstractContainerMenu implements Container
 
     @Override
     public boolean stillValid(Player player) {
-        return stillValid(ContainerLevelAccess.create(level, blockEntity.getBlockPos()), player, ModBlocks.EXP_COLLECTOR.get());
+        return stillValid(ContainerLevelAccess.create(this.level, this.blockEntity.getBlockPos()), player, ModBlocks.EXP_COLLECTOR.get());
     }
 
     @Override

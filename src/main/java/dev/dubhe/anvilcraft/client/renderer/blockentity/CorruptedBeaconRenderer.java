@@ -39,7 +39,7 @@ public class CorruptedBeaconRenderer implements BlockEntityRenderer<CorruptedBea
 
     @SuppressWarnings("unused")
     public CorruptedBeaconRenderer(BlockEntityRendererProvider.Context context) {
-        blockRenderer = context.getBlockRenderDispatcher();
+        this.blockRenderer = context.getBlockRenderDispatcher();
     }
 
     @Override
@@ -55,7 +55,7 @@ public class CorruptedBeaconRenderer implements BlockEntityRenderer<CorruptedBea
         if (level == null) return;
 
         // 渲染紫色玻璃覆盖层
-        final BakedModel model = blockRenderer.getBlockModel(defaultLightState);
+        final BakedModel model = this.blockRenderer.getBlockModel(this.defaultLightState);
         poseStack.pushPose();
         poseStack.translate(0.005f, 0.005f, 0.005f);
         poseStack.scale(0.99f, 0.99f, 0.99f);

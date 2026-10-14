@@ -43,22 +43,22 @@ public final class StellarTrack {
     }
 
     public StellarTrackDefinition definition() {
-        return definition;
+        return this.definition;
     }
 
     public StellarTrack resolve(double coordinate, CelestialBodyClass surfaceClass) {
         if (!Double.isFinite(coordinate) || coordinate < -1 || coordinate > 1) {
             throw new IllegalArgumentException("Invalid metallicity coordinate");
         }
-        return new StellarTrack(trackId, surfaceClass.name(),
-            phaseNodes.stream().map(node -> node.resolve(coordinate)).toList(), terminalProfile, definition);
+        return new StellarTrack(this.trackId, surfaceClass.name(),
+            this.phaseNodes.stream().map(node -> node.resolve(coordinate)).toList(), this.terminalProfile, this.definition);
     }
 
     public int nodeIndex(String nodeId) {
-        for (int index = 0; index < phaseNodes.size(); index++) {
-            if (phaseNodes.get(index).nodeId().equals(nodeId)) return index;
+        for (int index = 0; index < this.phaseNodes.size(); index++) {
+            if (this.phaseNodes.get(index).nodeId().equals(nodeId)) return index;
         }
-        throw new IllegalArgumentException("Unknown stellar node: " + trackId + "/" + nodeId);
+        throw new IllegalArgumentException("Unknown stellar node: " + this.trackId + "/" + nodeId);
     }
 
     public String trackId() {
@@ -74,11 +74,11 @@ public final class StellarTrack {
     }
 
     public boolean containsPhase(StellarEvolutionPhase phase) {
-        return phaseNodes.stream().anyMatch(node -> node.phaseId() == phase);
+        return this.phaseNodes.stream().anyMatch(node -> node.phaseId() == phase);
     }
 
     public boolean hasTerminalEvent() {
-        return terminalProfile != null && !terminalProfile.isBlank();
+        return this.terminalProfile != null && !this.terminalProfile.isBlank();
     }
 
     public String terminalProfile() {
@@ -88,20 +88,20 @@ public final class StellarTrack {
     /** 返回轨道权重总和。 */
     public float totalWeight() {
         float result = 0.0f;
-        for (PhaseNode node : phaseNodes) result += node.durationWeight();
+        for (PhaseNode node : this.phaseNodes) result += node.durationWeight();
         return result;
     }
 
     /** 返回按总预算分配且每个节点至少一 tick 的阶段时长。 */
     public List<Integer> phaseDurations(int totalTicks) {
-        int budget = Math.max(totalTicks, phaseNodes.size());
-        List<Integer> cached = durationCache.get(budget);
+        int budget = Math.max(totalTicks, this.phaseNodes.size());
+        List<Integer> cached = this.durationCache.get(budget);
         if (cached != null) return cached;
-        float weightTotal = totalWeight();
-        List<Integer> durations = new ArrayList<>(phaseNodes.size());
-        List<Float> fractions = new ArrayList<>(phaseNodes.size());
+        float weightTotal = this.totalWeight();
+        List<Integer> durations = new ArrayList<>(this.phaseNodes.size());
+        List<Float> fractions = new ArrayList<>(this.phaseNodes.size());
         int used = 0;
-        for (PhaseNode node : phaseNodes) {
+        for (PhaseNode node : this.phaseNodes) {
             float exact = budget * node.durationWeight() / weightTotal;
             int duration = Math.max(1, (int) Math.floor(exact));
             durations.add(duration);
@@ -132,58 +132,58 @@ public final class StellarTrack {
             }
         }
         List<Integer> result = List.copyOf(durations);
-        if (durationCache.size() >= 16) durationCache.clear();
-        durationCache.putIfAbsent(budget, result);
+        if (this.durationCache.size() >= 16) this.durationCache.clear();
+        this.durationCache.putIfAbsent(budget, result);
         return result;
     }
 
     /** 根据总轨道进度定位阶段和相邻节点。 */
     public PhaseSample sample(long elapsedTicks, int totalTicks) {
-        List<Integer> durations = phaseDurations(totalTicks);
-        long clamped = Math.max(0L, Math.min((long) Math.max(totalTicks, phaseNodes.size()), elapsedTicks));
+        List<Integer> durations = this.phaseDurations(totalTicks);
+        long clamped = Math.max(0L, Math.min((long) Math.max(totalTicks, this.phaseNodes.size()), elapsedTicks));
         long cursor = 0L;
-        for (int i = 0; i < phaseNodes.size(); i++) {
+        for (int i = 0; i < this.phaseNodes.size(); i++) {
             int duration = durations.get(i);
             long end = cursor + duration;
-            if (clamped < end || i == phaseNodes.size() - 1) {
+            if (clamped < end || i == this.phaseNodes.size() - 1) {
                 float progress = duration <= 0 ? 1.0f : (float) (clamped - cursor) / duration;
                 progress = Math.clamp(progress, 0.0f, 1.0f);
-                PhaseNode next = i + 1 < phaseNodes.size() ? phaseNodes.get(i + 1) : phaseNodes.get(i);
-                return new PhaseSample(i, cursor, duration, progress, phaseNodes.get(i), next);
+                PhaseNode next = i + 1 < this.phaseNodes.size() ? this.phaseNodes.get(i + 1) : this.phaseNodes.get(i);
+                return new PhaseSample(i, cursor, duration, progress, this.phaseNodes.get(i), next);
             }
             cursor = end;
         }
-        PhaseNode last = phaseNodes.get(phaseNodes.size() - 1);
-        return new PhaseSample(phaseNodes.size() - 1, cursor, durations.get(durations.size() - 1), 1.0f, last, last);
+        PhaseNode last = this.phaseNodes.get(this.phaseNodes.size() - 1);
+        return new PhaseSample(this.phaseNodes.size() - 1, cursor, durations.get(durations.size() - 1), 1.0f, last, last);
     }
 
     /** 在轨道总进度上插值出视觉快照；节点数值是阶段目标，因此起点取上一节点。 */
     public StellarVisualState visualAt(float progress) {
         float totalProgress = Float.isFinite(progress) ? Math.clamp(progress, 0.0f, 1.0f) : 0.0f;
         long syntheticElapsed = Math.round(totalProgress * 100000L);
-        PhaseSample sample = sample(syntheticElapsed, 100000);
-        return sample.node().dynamics().sample(sample.node(), phaseNodes.get(Math.max(0, sample.index() - 1)),
+        PhaseSample sample = this.sample(syntheticElapsed, 100000);
+        return sample.node().dynamics().sample(sample.node(), this.phaseNodes.get(Math.max(0, sample.index() - 1)),
             sample.progress());
     }
 
     public StellarVisualState sampleVisual(float progress) {
-        return visualAt(progress);
+        return this.visualAt(progress);
     }
 
     public StellarVisualState sampleVisual(long elapsedTicks, int totalTicks) {
-        PhaseSample sample = sample(elapsedTicks, totalTicks);
-        return sample.node().dynamics().sample(sample.node(), phaseNodes.get(Math.max(0, sample.index() - 1)),
+        PhaseSample sample = this.sample(elapsedTicks, totalTicks);
+        return sample.node().dynamics().sample(sample.node(), this.phaseNodes.get(Math.max(0, sample.index() - 1)),
             sample.progress());
     }
 
     public StellarVisualState sampleVisualState(float progress) {
-        return visualAt(progress);
+        return this.visualAt(progress);
     }
 
     /** 按事件 profile 叠加核心收缩和抛射物膨胀。 */
     @SuppressWarnings("checkstyle:OverloadMethodsDeclarationOrder")
     public StellarVisualState visualAt(float progress, StellarEventProfile profile) {
-        StellarVisualState base = visualAt(progress);
+        StellarVisualState base = this.visualAt(progress);
         float eventProgress = Float.isFinite(progress) ? Math.clamp(progress, 0.0f, 1.0f) : 0.0f;
         float coreFactor = profile.coreRadius(eventProgress);
         float ejectaFactor = profile.ejectaRadius(eventProgress);
@@ -205,21 +205,21 @@ public final class StellarTrack {
 
     /** 检查阶段顺序和数值约束，资源重载时调用。 */
     public void validate() {
-        if (trackId.isBlank()) throw new IllegalArgumentException("恒星轨道 ID 不能为空");
+        if (this.trackId.isBlank()) throw new IllegalArgumentException("恒星轨道 ID 不能为空");
         java.util.Set<String> nodeIds = new java.util.HashSet<>();
-        for (PhaseNode node : phaseNodes) {
+        for (PhaseNode node : this.phaseNodes) {
             if (node.nodeId().isBlank() || !nodeIds.add(node.nodeId()) || node.dynamics().points().isEmpty()) {
-                throw new IllegalArgumentException("Missing or duplicate stellar node ID/curve: " + trackId);
+                throw new IllegalArgumentException("Missing or duplicate stellar node ID/curve: " + this.trackId);
             }
         }
-        if (definition.version() != 3 || definition.massAnvils() < 41
-            || !trackId.equals("mass_" + definition.massAnvils())) {
-            throw new IllegalArgumentException("Invalid discrete stellar track: " + trackId);
+        if (this.definition.version() != 3 || this.definition.massAnvils() < 41
+            || !this.trackId.equals("mass_" + this.definition.massAnvils())) {
+            throw new IllegalArgumentException("Invalid discrete stellar track: " + this.trackId);
         }
-        definition.terminal().validate(CelestialMassTable.at(definition.massAnvils()).solarMass());
-        for (String nodeId : definition.startingNodes().values()) nodeIndex(nodeId);
-        StellarEvolutionPhase last = phaseNodes.getLast().phaseId();
-        StellarTerminal.Kind outcome = definition.terminal().kind();
+        this.definition.terminal().validate(CelestialMassTable.at(this.definition.massAnvils()).solarMass());
+        for (String nodeId : this.definition.startingNodes().values()) this.nodeIndex(nodeId);
+        StellarEvolutionPhase last = this.phaseNodes.getLast().phaseId();
+        StellarTerminal.Kind outcome = this.definition.terminal().kind();
         boolean reachesOutcome = switch (outcome) {
             case WHITE_DWARF -> last == StellarEvolutionPhase.PRE_WHITE_DWARF
                 || last == StellarEvolutionPhase.SHELL_HYDROGEN_BURNING || last == StellarEvolutionPhase.PLANETARY_NEBULA
@@ -230,8 +230,8 @@ public final class StellarTrack {
             case NONE -> last == StellarEvolutionPhase.PISN;
             case KEEP -> last == StellarEvolutionPhase.BROWN_DWARF_COOLING;
         };
-        if (!reachesOutcome) throw new IllegalArgumentException("Final physical phase disagrees with outcome: " + trackId);
-        for (PhaseNode node : phaseNodes) {
+        if (!reachesOutcome) throw new IllegalArgumentException("Final physical phase disagrees with outcome: " + this.trackId);
+        for (PhaseNode node : this.phaseNodes) {
             StellarNodeDynamics.EventPolicy policy = node.dynamics().eventPolicy();
             if (policy != StellarNodeDynamics.EventPolicy.VISUAL && !node.hasEventProfile()) {
                 throw new IllegalArgumentException("Missing stellar event profile: " + node.nodeId());

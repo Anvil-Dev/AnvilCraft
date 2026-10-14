@@ -16,12 +16,12 @@ import net.neoforged.neoforge.common.Tags;
 public record LaserTypeComponent(boolean gamma) implements ILaserComponent {
     @Override
     public void onEmitPre(ILaserComponentOwner owner) {
-        if (gamma) owner.setLaserMaxLength(Math.min(16, owner.getLaserMaxLength()));
+        if (this.gamma) owner.setLaserMaxLength(Math.min(16, owner.getLaserMaxLength()));
     }
 
     public boolean canPassThrough(Level level, Direction direction, BlockPos pos) {
         BlockState state = level.getBlockState(pos);
-        if (gamma) return state.is(BlockTags.REPLACEABLE);
+        if (this.gamma) return state.is(BlockTags.REPLACEABLE);
         if (state.is(ModBlockTags.LASER_CAN_PASS_THROUGH)
             || state.is(Tags.Blocks.GLASS_BLOCKS)
             || state.is(Tags.Blocks.GLASS_PANES)

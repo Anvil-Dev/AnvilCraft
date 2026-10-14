@@ -79,7 +79,7 @@ abstract class ExplosionMixin implements IExplosionExtension {
         BlockState state = this.level.getBlockState(blockpos);
         Block block = state.getBlock();
         if (block instanceof IHasMultiBlock multiBlock) {
-            multiBlock.onRemove(level, blockpos, state);
+            multiBlock.onRemove(this.level, blockpos, state);
         }
     }
 
@@ -97,19 +97,19 @@ abstract class ExplosionMixin implements IExplosionExtension {
     ) {
         // The shared local is reused for every ray iteration in explode().
         isExplosionBlockTransformed.set(false);
-        Block block = level.getBlockState(pos).getBlock();
+        Block block = this.level.getBlockState(pos).getBlock();
         ArrayList<BlockTransform> blockTransforms = new ArrayList<>(this.anvilcraft$blockTransformMap.get(block));
         if (blockTransforms.isEmpty()) return;
-        BlockTransform blockTransform = blockTransforms.get(level.random.nextInt(blockTransforms.size()));
-        if (anvilcraft$counterMap.getOrDefault(blockTransform, 0) >= blockTransform.maxCount()) return;
-        if (anvilcraft$processedPosSet.contains(pos)) return;
-        isExplosionBlockTransformed.set(blockTransform.progress(level, pos));
-        if (isExplosionBlockTransformed.get() && !anvilcraft$processedPosSet.contains(pos)) {
-            anvilcraft$processedPosSet.add(pos);
-            if (anvilcraft$counterMap.containsKey(blockTransform)) {
-                anvilcraft$counterMap.put(blockTransform, anvilcraft$counterMap.get(blockTransform) + 1);
+        BlockTransform blockTransform = blockTransforms.get(this.level.random.nextInt(blockTransforms.size()));
+        if (this.anvilcraft$counterMap.getOrDefault(blockTransform, 0) >= blockTransform.maxCount()) return;
+        if (this.anvilcraft$processedPosSet.contains(pos)) return;
+        isExplosionBlockTransformed.set(blockTransform.progress(this.level, pos));
+        if (isExplosionBlockTransformed.get() && !this.anvilcraft$processedPosSet.contains(pos)) {
+            this.anvilcraft$processedPosSet.add(pos);
+            if (this.anvilcraft$counterMap.containsKey(blockTransform)) {
+                this.anvilcraft$counterMap.put(blockTransform, this.anvilcraft$counterMap.get(blockTransform) + 1);
             } else {
-                anvilcraft$counterMap.put(blockTransform, 1);
+                this.anvilcraft$counterMap.put(blockTransform, 1);
             }
         }
     }

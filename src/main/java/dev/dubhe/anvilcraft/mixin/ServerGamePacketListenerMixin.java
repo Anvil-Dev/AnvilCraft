@@ -27,7 +27,7 @@ abstract class ServerGamePacketListenerMixin {
     void onRemoteCarried(ServerboundContainerClickPacket packet, CallbackInfo ci) {
         ItemStack itemStack = packet.getCarriedItem();
         if (itemStack.getItem() instanceof IInventoryCarriedAware inventoryCarriedAware) {
-            inventoryCarriedAware.onCarriedUpdate(itemStack, player);
+            inventoryCarriedAware.onCarriedUpdate(itemStack, this.player);
         }
     }
 }

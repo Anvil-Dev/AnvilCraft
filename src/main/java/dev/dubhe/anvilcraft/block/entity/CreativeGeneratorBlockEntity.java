@@ -55,7 +55,7 @@ public class CreativeGeneratorBlockEntity extends BlockEntity implements IPowerP
     @Override
     protected void saveAdditional(CompoundTag tag, HolderLookup.Provider provider) {
         super.saveAdditional(tag, provider);
-        tag.putInt("power", power);
+        tag.putInt("power", this.power);
     }
 
     @Override
@@ -108,22 +108,22 @@ public class CreativeGeneratorBlockEntity extends BlockEntity implements IPowerP
     public void setPower(int power) {
         this.power = Math.clamp(power, -MAX_POWER, MAX_POWER);
         if (level instanceof ServerLevel) {
-            if (grid != null) {
+            if (this.grid != null) {
                 this.grid.markChanged();
                 return;
             }
-            previousSyncFailed = true;
+            this.previousSyncFailed = true;
         }
     }
 
     public void tick() {
         if (level instanceof ServerLevel) {
-            if (previousSyncFailed && grid != null) {
-                previousSyncFailed = false;
-                grid.markChanged();
+            if (this.previousSyncFailed && this.grid != null) {
+                this.previousSyncFailed = false;
+                this.grid.markChanged();
             }
         }
-        time++;
+        this.time++;
     }
 
     @Override

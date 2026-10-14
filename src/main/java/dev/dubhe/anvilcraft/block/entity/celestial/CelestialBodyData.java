@@ -17,7 +17,7 @@ public sealed interface CelestialBodyData permits RockyPlanetData, GiantPlanetDa
 
     /** Converted red dwarfs retain their physical size but use the small stellar ring set. */
     default boolean usesLargeStellarRings() {
-        return size() >= 48 && !(this instanceof StarData star && star.specialRedDwarf());
+        return this.size() >= 48 && !(this instanceof StarData star && star.specialRedDwarf());
     }
 
     float axialTilt();
@@ -52,7 +52,7 @@ public sealed interface CelestialBodyData permits RockyPlanetData, GiantPlanetDa
             if (star.bodyClass() == CelestialBodyClass.BLACK_HOLE) return 1.5f;
             if (star.bodyClass() == CelestialBodyClass.NEUTRON_STAR) return 0.8f;
         }
-        return bodyScaleForSize(size());
+        return bodyScaleForSize(this.size());
     }
 
     /** 根据服务端 StarData 的离散尺寸计算原始视觉缩放。 */

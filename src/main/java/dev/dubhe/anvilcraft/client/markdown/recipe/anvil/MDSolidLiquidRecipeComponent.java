@@ -27,17 +27,17 @@ public class MDSolidLiquidRecipeComponent extends MDBaseAnvilRecipeComponent {
 
     public MDSolidLiquidRecipeComponent(SolidLiquidRecipe recipe, boolean enableAlignCenter) {
         super(enableAlignCenter);
-        ingredients = recipe.getInputItems();
-        resultItems = recipe.getResultItems();
-        inputBlockStates = List.of(
+        this.ingredients = recipe.getInputItems();
+        this.resultItems = recipe.getResultItems();
+        this.inputBlockStates = List.of(
             getInputCauldron(recipe)
         );
         this.recipe = recipe;
     }
 
     protected BlockState getOutputBlockState() {
-        if (resultItems.isEmpty()) {
-            return getResultCauldron(recipe);
+        if (this.resultItems.isEmpty()) {
+            return getResultCauldron(this.recipe);
         }
         return super.getOutputBlockState();
     }

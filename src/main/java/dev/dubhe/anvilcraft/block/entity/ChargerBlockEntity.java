@@ -63,7 +63,7 @@ public class ChargerBlockEntity extends BlockEntity
 
         @Override
         public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
-            if (slot == 0 && itemHandler.getStackInSlot(0).isEmpty()) {
+            if (slot == 0 && ChargerBlockEntity.this.itemHandler.getStackInSlot(0).isEmpty()) {
                 ItemStack original = stack.copy();
                 original.shrink(1);
                 if (original.isEmpty()) {
@@ -79,7 +79,7 @@ public class ChargerBlockEntity extends BlockEntity
 
         @Override
         public boolean isItemValid(int slot, ItemStack stack) {
-            return containsValidItem(stack);
+            return ChargerBlockEntity.this.containsValidItem(stack);
         }
 
         @Override
@@ -92,7 +92,7 @@ public class ChargerBlockEntity extends BlockEntity
             super.onContentsChanged(slot);
             if (level != null && !level.isClientSide) {
                 setChanged();
-                updateDisplayItemStack();
+                ChargerBlockEntity.this.updateDisplayItemStack();
                 level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), 3);
             }
         }
@@ -149,19 +149,19 @@ public class ChargerBlockEntity extends BlockEntity
     }
 
     private void moveItemToTransformingSlot() {
-        ItemStack stack = itemHandler.getStackInSlot(0).copy();
+        ItemStack stack = this.itemHandler.getStackInSlot(0).copy();
         if (stack.isEmpty()) return;
-        if (!itemHandler.getStackInSlot(1).isEmpty()) return;
+        if (!this.itemHandler.getStackInSlot(1).isEmpty()) return;
 
-        ChargerChargingRecipe recipe = getItemRecipe(stack);
-        if (!checkRecipeItemNotValid(recipe, stack)) {
-            isFeCharging = false;
-            itemHandler.setStackInSlot(0, ItemStack.EMPTY);
-            itemHandler.setStackInSlot(1, stack);
-            timeLeft = recipe.time + 1;
-            timeTotalCache = recipe.time;
-            powerValue = recipe.power;
-            syncPacket();
+        ChargerChargingRecipe recipe = this.getItemRecipe(stack);
+        if (!this.checkRecipeItemNotValid(recipe, stack)) {
+            this.isFeCharging = false;
+            this.itemHandler.setStackInSlot(0, ItemStack.EMPTY);
+            this.itemHandler.setStackInSlot(1, stack);
+            this.timeLeft = recipe.time + 1;
+            this.timeTotalCache = recipe.time;
+            this.powerValue = recipe.power;
+            this.syncPacket();
             return;
         }
 
@@ -172,14 +172,14 @@ public class ChargerBlockEntity extends BlockEntity
             int currentEnergy = energyStorage.getEnergyStored();
             int remainingFE = maxEnergy - currentEnergy;
             if (remainingFE > 0) {
-                isFeCharging = true;
-                feCooldown = 0;
-                itemHandler.setStackInSlot(0, ItemStack.EMPTY);
-                itemHandler.setStackInSlot(1, stack);
-                timeLeft = remainingFE;
-                timeTotalCache = maxEnergy;
-                powerValue = -64;
-                syncPacket();
+                this.isFeCharging = true;
+                this.feCooldown = 0;
+                this.itemHandler.setStackInSlot(0, ItemStack.EMPTY);
+                this.itemHandler.setStackInSlot(1, stack);
+                this.timeLeft = remainingFE;
+                this.timeTotalCache = maxEnergy;
+                this.powerValue = -64;
+                this.syncPacket();
             }
         }
     }
@@ -193,41 +193,41 @@ public class ChargerBlockEntity extends BlockEntity
     }
 
     private void moveItemToTransformedOverSlot() {
-        ItemStack stack = itemHandler.getStackInSlot(1).copy();
+        ItemStack stack = this.itemHandler.getStackInSlot(1).copy();
         if (stack.isEmpty()) return;
-        if (!itemHandler.getStackInSlot(2).isEmpty()) {
-            powerValue = 0;
+        if (!this.itemHandler.getStackInSlot(2).isEmpty()) {
+            this.powerValue = 0;
             return;
         }
         IEnergyStorage energyStorage = stack.getCapability(Capabilities.EnergyStorage.ITEM);
         if (energyStorage != null) {
-            isFeCharging = false;
-            itemHandler.setStackInSlot(2, stack);
+            this.isFeCharging = false;
+            this.itemHandler.setStackInSlot(2, stack);
         } else {
-            ChargerChargingRecipe recipe = getItemRecipe(stack);
-            if (checkRecipeItemNotValid(recipe, stack)) return;
+            ChargerChargingRecipe recipe = this.getItemRecipe(stack);
+            if (this.checkRecipeItemNotValid(recipe, stack)) return;
             if (level == null) return;
-            itemHandler.setStackInSlot(2, recipe.assemble(new SingleRecipeInput(stack), level.registryAccess()));
+            this.itemHandler.setStackInSlot(2, recipe.assemble(new SingleRecipeInput(stack), level.registryAccess()));
         }
-        itemHandler.setStackInSlot(1, ItemStack.EMPTY);
-        powerValue = 0;
-        isFeCharging = false;
+        this.itemHandler.setStackInSlot(1, ItemStack.EMPTY);
+        this.powerValue = 0;
+        this.isFeCharging = false;
     }
 
     private void updateDisplayItemStack() {
-        ItemStack newDisplayStack = getDisplayItemStackForRender();
-        displayItemStack = newDisplayStack.copy();
+        ItemStack newDisplayStack = this.getDisplayItemStackForRender();
+        this.displayItemStack = newDisplayStack.copy();
         PacketDistributor.sendToPlayersTrackingChunk(
             (ServerLevel) level,
             level.getChunk(getBlockPos()).getPos(),
-            new UpdateDisplayItemPacket(displayItemStack, getPos())
+            new UpdateDisplayItemPacket(this.displayItemStack, this.getPos())
         );
     }
 
     private ItemStack getDisplayItemStackForRender() {
         for (int i = 2; i >= 0; i--) {
-            if (!itemHandler.getStackInSlot(i).isEmpty()) {
-                return itemHandler.getStackInSlot(i);
+            if (!this.itemHandler.getStackInSlot(i).isEmpty()) {
+                return this.itemHandler.getStackInSlot(i);
             }
         }
         return ItemStack.EMPTY;
@@ -251,25 +251,25 @@ public class ChargerBlockEntity extends BlockEntity
     @Override
     protected void saveAdditional(CompoundTag tag, HolderLookup.Provider provider) {
         super.saveAdditional(tag, provider);
-        tag.putInt("TimeLeft", timeLeft);
-        tag.putInt("TimeTotalCache", timeTotalCache);
-        tag.putInt("PowerValue", powerValue);
-        tag.putInt("StartupCoolDown", startupCoolDown);
-        tag.put("Depository", itemHandler.serializeNBT(provider));
-        tag.putBoolean("FeCharging", isFeCharging);
-        tag.putInt("FeCooldown", feCooldown);
+        tag.putInt("TimeLeft", this.timeLeft);
+        tag.putInt("TimeTotalCache", this.timeTotalCache);
+        tag.putInt("PowerValue", this.powerValue);
+        tag.putInt("StartupCoolDown", this.startupCoolDown);
+        tag.put("Depository", this.itemHandler.serializeNBT(provider));
+        tag.putBoolean("FeCharging", this.isFeCharging);
+        tag.putInt("FeCooldown", this.feCooldown);
     }
 
     @Override
     public void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
         super.loadAdditional(tag, provider);
-        timeLeft = tag.getInt("TimeLeft");
-        timeTotalCache = tag.getInt("TimeTotalCache");
-        powerValue = tag.getInt("PowerValue");
-        startupCoolDown = tag.getInt("StartupCoolDown");
-        itemHandler.deserializeNBT(provider, tag.getCompound("Depository"));
-        isFeCharging = tag.getBoolean("FeCharging");
-        feCooldown = tag.getInt("FeCooldown");
+        this.timeLeft = tag.getInt("TimeLeft");
+        this.timeTotalCache = tag.getInt("TimeTotalCache");
+        this.powerValue = tag.getInt("PowerValue");
+        this.startupCoolDown = tag.getInt("StartupCoolDown");
+        this.itemHandler.deserializeNBT(provider, tag.getCompound("Depository"));
+        this.isFeCharging = tag.getBoolean("FeCharging");
+        this.feCooldown = tag.getInt("FeCooldown");
     }
 
     @Override
@@ -282,7 +282,7 @@ public class ChargerBlockEntity extends BlockEntity
         super.handleUpdateTag(tag, provider);
         // 客户端加载后重新计算显示物品
         if (level != null && level.isClientSide) {
-            this.displayItemStack = getDisplayItemStackForRender().copy();
+            this.displayItemStack = this.getDisplayItemStackForRender().copy();
         }
     }
 
@@ -300,21 +300,21 @@ public class ChargerBlockEntity extends BlockEntity
         super.onDataPacket(connection, packet, provider);
         // 收到方块更新包后重新计算显示物品
         if (level != null && level.isClientSide) {
-            this.displayItemStack = getDisplayItemStackForRender().copy();
+            this.displayItemStack = this.getDisplayItemStackForRender().copy();
         }
     }
 
     @Override
     public int getInputPower() {
         if (this.getBlockState().getValue(ChargerBlock.POWERED)) return 0;
-        return -powerValue;
+        return -this.powerValue;
     }
 
     private int getFeChargingPowerLevel() {
-        if (grid == null) return 0;
-        int generate = grid.getGenerate();
+        if (this.grid == null) return 0;
+        int generate = this.grid.getGenerate();
         int count = 0;
-        for (IPowerComponent component : grid.getComponents()) {
+        for (IPowerComponent component : this.grid.getComponents()) {
             if (component instanceof ChargerBlockEntity other && other.isFeCharging) {
                 count++;
             }
@@ -329,13 +329,13 @@ public class ChargerBlockEntity extends BlockEntity
 
     @Nullable
     public ItemStack tryExtractItemFromSlot1() {
-        ItemStack stack = itemHandler.getStackInSlot(1);
+        ItemStack stack = this.itemHandler.getStackInSlot(1);
         if (stack.isEmpty()) return null;
-        itemHandler.setStackInSlot(1, ItemStack.EMPTY);
-        isFeCharging = false;
-        feCooldown = 0;
-        timeLeft = 0;
-        powerValue = 0;
+        this.itemHandler.setStackInSlot(1, ItemStack.EMPTY);
+        this.isFeCharging = false;
+        this.feCooldown = 0;
+        this.timeLeft = 0;
+        this.powerValue = 0;
         setChanged();
         return stack;
     }
@@ -346,18 +346,18 @@ public class ChargerBlockEntity extends BlockEntity
 
     public double getProgress() {
         if (this.timeTotalCache == 0) return 0;
-        return Math.max(0, Math.min(1, 1 - (double) timeLeft / timeTotalCache));
+        return Math.max(0, Math.min(1, 1 - (double) this.timeLeft / this.timeTotalCache));
     }
 
     public int getAnalogRedstoneSignal() {
         double progress = this.getProgress();
-        if (itemHandler.getStackInSlot(0).isEmpty() && itemHandler.getStackInSlot(1).isEmpty()) return 0;
+        if (this.itemHandler.getStackInSlot(0).isEmpty() && this.itemHandler.getStackInSlot(1).isEmpty()) return 0;
         return (int) Math.round(progress * 15);
     }
 
     @Override
     public FilteredItemStackHandler getFilteredItemStackHandler() {
-        return itemHandler;
+        return this.itemHandler;
     }
 
     @Override
@@ -367,7 +367,7 @@ public class ChargerBlockEntity extends BlockEntity
 
     @Override
     public boolean isSlotDisabled(int slot) {
-        return timeLeft > 0;
+        return this.timeLeft > 0;
     }
 
     @Override
@@ -377,19 +377,19 @@ public class ChargerBlockEntity extends BlockEntity
 
     @Override
     public void notifyStateChanged(Boolean newState) {
-        ItemStack stack0 = itemHandler.getStackInSlot(0).copy();
-        ItemStack stack1 = itemHandler.getStackInSlot(1).copy();
-        ItemStack stack2 = itemHandler.getStackInSlot(2).copy();
-        dropItemStack(stack0);
-        dropItemStack(stack1);
-        dropItemStack(stack2);
-        itemHandler.setStackInSlot(0, ItemStack.EMPTY);
-        itemHandler.setStackInSlot(1, ItemStack.EMPTY);
-        itemHandler.setStackInSlot(2, ItemStack.EMPTY);
-        timeLeft = 0;
-        isFeCharging = false;
-        feCooldown = 0;
-        powerValue = 0;
+        ItemStack stack0 = this.itemHandler.getStackInSlot(0).copy();
+        ItemStack stack1 = this.itemHandler.getStackInSlot(1).copy();
+        ItemStack stack2 = this.itemHandler.getStackInSlot(2).copy();
+        this.dropItemStack(stack0);
+        this.dropItemStack(stack1);
+        this.dropItemStack(stack2);
+        this.itemHandler.setStackInSlot(0, ItemStack.EMPTY);
+        this.itemHandler.setStackInSlot(1, ItemStack.EMPTY);
+        this.itemHandler.setStackInSlot(2, ItemStack.EMPTY);
+        this.timeLeft = 0;
+        this.isFeCharging = false;
+        this.feCooldown = 0;
+        this.powerValue = 0;
     }
 
     private void dropItemStack(ItemStack stack1) {
@@ -412,59 +412,59 @@ public class ChargerBlockEntity extends BlockEntity
         this.flushState(level1, blockPos);
         BlockState state = level1.getBlockState(blockPos);
         boolean powered = state.getValue(ChargerBlock.POWERED);
-        if (grid == null) return;
+        if (this.grid == null) return;
         if (powered) {
             this.setStartupCoolDown(20);
         }
-        int powerValueCache = powerValue;
-        if (timeLeft == 0) {
-            moveItemToTransformingSlot();
+        int powerValueCache = this.powerValue;
+        if (this.timeLeft == 0) {
+            this.moveItemToTransformingSlot();
         }
-        if (isFeCharging) {
-            powerValue = -(getFeChargingPowerLevel());
+        if (this.isFeCharging) {
+            this.powerValue = -(this.getFeChargingPowerLevel());
         }
-        if (powerValue < powerValueCache) {
+        if (this.powerValue < powerValueCache) {
             this.setStartupCoolDown(20);
         }
-        if (startupCoolDown > 0) {
+        if (this.startupCoolDown > 0) {
             this.startupCoolDown--;
             return;
         }
-        if (timeLeft > 0 && isGridWorking()) {
-            if (isFeCharging) {
-                ItemStack processingStack = itemHandler.getStackInSlot(1);
+        if (this.timeLeft > 0 && isGridWorking()) {
+            if (this.isFeCharging) {
+                ItemStack processingStack = this.itemHandler.getStackInSlot(1);
                 if (!processingStack.isEmpty()) {
                     IEnergyStorage storage = processingStack.getCapability(Capabilities.EnergyStorage.ITEM);
                     if (storage != null) {
-                        int powerLevel = getFeChargingPowerLevel();
+                        int powerLevel = this.getFeChargingPowerLevel();
                         if (powerLevel > 0) {
                             int countdown = AnvilCraft.CONFIG.machines.powerConverter.workInterval;
                             int efficiency = AnvilCraft.CONFIG.machines.powerConverter.efficiency;
                             int remainingFE = storage.getMaxEnergyStored() - storage.getEnergyStored();
                             if (remainingFE <= 0) {
-                                isFeCharging = false;
-                                timeLeft = 0;
-                                timeTotalCache = 0;
+                                this.isFeCharging = false;
+                                this.timeLeft = 0;
+                                this.timeTotalCache = 0;
                             } else {
                                 int feChargeRate = powerLevel * efficiency;
-                                if (feCooldown <= 0) {
-                                    feCooldown = countdown;
+                                if (this.feCooldown <= 0) {
+                                    this.feCooldown = countdown;
                                     storage.receiveEnergy(feChargeRate * countdown, false);
                                 } else {
-                                    feCooldown--;
+                                    this.feCooldown--;
                                 }
-                                timeLeft = remainingFE;
-                                timeTotalCache = storage.getMaxEnergyStored();
+                                this.timeLeft = remainingFE;
+                                this.timeTotalCache = storage.getMaxEnergyStored();
                             }
                         }
                     }
                 }
             } else {
-                timeLeft--;
+                this.timeLeft--;
             }
         }
-        if (timeLeft == 0) {
-            moveItemToTransformedOverSlot();
+        if (this.timeLeft == 0) {
+            this.moveItemToTransformedOverSlot();
             this.timeTotalCache = 0;
         }
 

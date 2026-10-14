@@ -39,43 +39,43 @@ public class BeheadingLootSubProvider implements LootTableSubProvider {
 
     @Override
     public void generate(BiConsumer<ResourceKey<LootTable>, LootTable.Builder> consumer) {
-        generateBeheading(consumer,
+        this.generateBeheading(consumer,
             ModLootTables.BEHEADING_WITHER_SKELETON,
             Items.WITHER_SKELETON_SKULL,
             0.07f,
             0.02f
         );
-        generateBeheading(consumer,
+        this.generateBeheading(consumer,
             ModLootTables.BEHEADING_ZOMBIE,
             Items.ZOMBIE_HEAD,
             0.01f,
             0.01f
         );
-        generateBeheading(consumer,
+        this.generateBeheading(consumer,
             ModLootTables.BEHEADING_SKELETON,
             Items.SKELETON_SKULL,
             0.01f,
             0.01f
         );
-        generateBeheading(consumer,
+        this.generateBeheading(consumer,
             ModLootTables.BEHEADING_CREEPER,
             Items.CREEPER_HEAD,
             0.01f,
             0.01f
         );
-        generateBeheading(consumer,
+        this.generateBeheading(consumer,
             ModLootTables.BEHEADING_PIGLIN,
             Items.PIGLIN_HEAD,
             0.01f,
             0.01f
         );
-        generateBeheading(consumer,
+        this.generateBeheading(consumer,
             ModLootTables.BEHEADING_ENDER_DRAGON,
             Items.DRAGON_HEAD,
             1.0f,
             0.0f
         );
-        generateBeheading(consumer,
+        this.generateBeheading(consumer,
             ModLootTables.BEHEADING_PLAYER,
             Items.PLAYER_HEAD,
             1.0f,
@@ -92,12 +92,12 @@ public class BeheadingLootSubProvider implements LootTableSubProvider {
         float bonusChancePerLevel
     ) {
         consumer.accept(lootTableKey, LootTable.lootTable()
-            .withPool(generatePool(headItem, baseChance, bonusChancePerLevel))
+            .withPool(this.generatePool(headItem, baseChance, bonusChancePerLevel))
             .withPool(
-                generatePool(headItem, baseChance, bonusChancePerLevel)
+                this.generatePool(headItem, baseChance, bonusChancePerLevel)
                     .when(() -> new LootItemRandomChanceCondition(ConstantValue.exactly(0.25f))))
             .withPool(
-                generatePool(headItem, baseChance, bonusChancePerLevel)
+                this.generatePool(headItem, baseChance, bonusChancePerLevel)
                     .when(() -> new LootItemRandomChanceCondition(ConstantValue.exactly(0.05f))))
         );
     }
@@ -111,12 +111,12 @@ public class BeheadingLootSubProvider implements LootTableSubProvider {
         LootItemFunction.Builder extraFunction
     ) {
         consumer.accept(lootTableKey, LootTable.lootTable()
-            .withPool(generatePool(headItem, baseChance, bonusChancePerLevel, extraFunction))
+            .withPool(this.generatePool(headItem, baseChance, bonusChancePerLevel, extraFunction))
             .withPool(
-                generatePool(headItem, baseChance, bonusChancePerLevel, extraFunction)
+                this.generatePool(headItem, baseChance, bonusChancePerLevel, extraFunction)
                     .when(() -> new LootItemRandomChanceCondition(ConstantValue.exactly(0.25f))))
             .withPool(
-                generatePool(headItem, baseChance, bonusChancePerLevel, extraFunction)
+                this.generatePool(headItem, baseChance, bonusChancePerLevel, extraFunction)
                     .when(() -> new LootItemRandomChanceCondition(ConstantValue.exactly(0.05f))))
         );
     }

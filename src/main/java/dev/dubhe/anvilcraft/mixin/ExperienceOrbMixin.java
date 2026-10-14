@@ -45,7 +45,7 @@ abstract class ExperienceOrbMixin extends Entity implements IExperienceOrbExtens
     @Unique
     @Override
     public void anvilcraft$poach() {
-        if (!anvilcraft$shouldPoach) return;
+        if (!this.anvilcraft$shouldPoach) return;
         Level level = this.level();
         if (level.isClientSide) return;
         Map<ChunkPos, List<ExpCollectorBlockEntity>> map = ExpCollectorBlockEntity.POACHING_COLLECTOR_MAP.get(level);
@@ -61,7 +61,7 @@ abstract class ExperienceOrbMixin extends Entity implements IExperienceOrbExtens
                 if (this.value <= 0) {
                     this.remove(Entity.RemovalReason.DISCARDED);
                     this.discard();
-                    anvilcraft$discarded = true;
+                    this.anvilcraft$discarded = true;
                     break;
                 }
                 if (this.count <= 0) this.count = 1;
@@ -90,7 +90,7 @@ abstract class ExperienceOrbMixin extends Entity implements IExperienceOrbExtens
                 } else {
                     this.remove(Entity.RemovalReason.DISCARDED);
                     this.discard();
-                    anvilcraft$discarded = true;
+                    this.anvilcraft$discarded = true;
                     break;
                 }
             }

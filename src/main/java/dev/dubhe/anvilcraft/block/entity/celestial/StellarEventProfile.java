@@ -141,17 +141,18 @@ public final class StellarEventProfile implements StringRepresentable {
     }
 
     public void validate() {
-        if (profileId.isBlank() || palette.size() > 64 || (long) precursorTicks + collapseTicks + ejectaTicks + fadeTicks > 24000) {
-            throw new IllegalArgumentException("Invalid stellar event: " + profileId);
+        if (this.profileId.isBlank() || this.palette.size() > 64
+            || (long) this.precursorTicks + this.collapseTicks + this.ejectaTicks + this.fadeTicks > 24000) {
+            throw new IllegalArgumentException("Invalid stellar event: " + this.profileId);
         }
     }
 
     public StellarEventProfile resolveVisual(double coordinate) {
         float factor = (float) (1 + coordinate * 0.1);
-        return new StellarEventProfile(profileId, precursorTicks, collapseTicks, ejectaTicks, fadeTicks,
-            coreRadiusCurve, ejectaRadiusCurve.stream().map(value -> Math.min(128, value * factor)).toList(),
-            Math.min(64, peakEmission * factor), palette, shellCount, rayCount, rayLength,
-            Math.clamp(asymmetry * factor, 0, 1), remnantKind);
+        return new StellarEventProfile(this.profileId, this.precursorTicks, this.collapseTicks, this.ejectaTicks, this.fadeTicks,
+            this.coreRadiusCurve, this.ejectaRadiusCurve.stream().map(value -> Math.min(128, value * factor)).toList(),
+            Math.min(64, this.peakEmission * factor), this.palette, this.shellCount, this.rayCount, this.rayLength,
+            Math.clamp(this.asymmetry * factor, 0, 1), this.remnantKind);
     }
 
     private static List<Float> normaliseCurve(List<Float> curve, float fallback) {
@@ -208,10 +209,10 @@ public final class StellarEventProfile implements StringRepresentable {
 
     /** 按事件进度在 profile 调色板中平滑取色。 */
     public int color(float progress) {
-        if (palette.size() == 1) return palette.get(0);
-        float t = safeProgress(progress) * (palette.size() - 1);
-        int index = Math.min((int) Math.floor(t), palette.size() - 2);
-        return StellarVisualState.interpolateColor(palette.get(index), palette.get(index + 1), t - index);
+        if (this.palette.size() == 1) return this.palette.get(0);
+        float t = safeProgress(progress) * (this.palette.size() - 1);
+        int index = Math.min((int) Math.floor(t), this.palette.size() - 2);
+        return StellarVisualState.interpolateColor(this.palette.get(index), this.palette.get(index + 1), t - index);
     }
 
     public int shellCount() {
@@ -246,11 +247,11 @@ public final class StellarEventProfile implements StringRepresentable {
     }
 
     public TimelinePhase timelinePhase(float progress) {
-        int tick = Math.round(safeProgress(progress) * totalTicks());
-        if (tick < precursorTicks) return TimelinePhase.PRECURSOR;
-        if (tick < shockBreakoutTick()) return TimelinePhase.CORE_COLLAPSE;
-        if (tick == shockBreakoutTick()) return TimelinePhase.SHOCK_BREAKOUT;
-        if (tick < shockBreakoutTick() + ejectaTicks) return TimelinePhase.EJECTA_EXPANSION;
+        int tick = Math.round(safeProgress(progress) * this.totalTicks());
+        if (tick < this.precursorTicks) return TimelinePhase.PRECURSOR;
+        if (tick < this.shockBreakoutTick()) return TimelinePhase.CORE_COLLAPSE;
+        if (tick == this.shockBreakoutTick()) return TimelinePhase.SHOCK_BREAKOUT;
+        if (tick < this.shockBreakoutTick() + this.ejectaTicks) return TimelinePhase.EJECTA_EXPANSION;
         return TimelinePhase.FADE;
     }
 
@@ -279,7 +280,7 @@ public final class StellarEventProfile implements StringRepresentable {
     /** 曲线可能达到的最大抛射半径，用于包围盒预留空间。 */
     public float maxEjectaRadius() {
         float maximum = 0.0f;
-        for (Float value : ejectaRadiusCurve) {
+        for (Float value : this.ejectaRadiusCurve) {
             if (value != null && Float.isFinite(value)) maximum = Math.max(maximum, value);
         }
         return maximum;
@@ -288,7 +289,7 @@ public final class StellarEventProfile implements StringRepresentable {
     /** 曲线可能达到的最大核心半径。 */
     public float maxCoreRadius() {
         float maximum = 0.0f;
-        for (Float value : coreRadiusCurve) {
+        for (Float value : this.coreRadiusCurve) {
             if (value != null && Float.isFinite(value)) maximum = Math.max(maximum, value);
         }
         return maximum;

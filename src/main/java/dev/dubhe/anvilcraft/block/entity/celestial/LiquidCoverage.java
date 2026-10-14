@@ -17,7 +17,7 @@ public enum LiquidCoverage implements StringRepresentable {
 
     @Override
     public @NotNull String getSerializedName() {
-        return name;
+        return this.name;
     }
 
     public static LiquidCoverage fromName(String name) {

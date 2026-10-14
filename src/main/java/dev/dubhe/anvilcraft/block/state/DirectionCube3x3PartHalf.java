@@ -90,17 +90,17 @@ public enum DirectionCube3x3PartHalf
 
     @Override
     public int getOffsetX(Direction value) {
-        return offsetX;
+        return this.offsetX;
     }
 
     @Override
     public int getOffsetY(Direction value) {
-        return offsetY;
+        return this.offsetY;
     }
 
     @Override
     public int getOffsetZ(Direction value) {
-        return offsetZ;
+        return this.offsetZ;
     }
 
     @Override

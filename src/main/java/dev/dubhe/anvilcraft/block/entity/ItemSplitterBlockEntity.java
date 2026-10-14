@@ -39,12 +39,8 @@ public class ItemSplitterBlockEntity extends BlockEntity implements IItemHandler
      * 内部容量（格）
      */
     public static final int SLOT_COUNT = 16;
-    /**
-     * 主动均分间隔（gt）
-     */
-    /**
-     * 均分时最远选取距离（方块）
-     */
+    // 主动均分间隔（gt）
+    // 均分时最远选取距离（方块）
 
     @Getter
     private final ItemStackHandler itemHandler = new ItemStackHandler(SLOT_COUNT) {

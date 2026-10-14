@@ -81,7 +81,7 @@ public record RoyalPreferenceOutcome(ChanceItemStack result) implements IRecipeO
         if (blockEntity instanceof IItemHandlerCache cache) {
             hasRecipeCache = true;
             if (hasRoyalPreferred(level, cache.getInput())) {
-                addBonus(context);
+                this.addBonus(context);
                 return;
             }
         }
@@ -90,7 +90,7 @@ public record RoyalPreferenceOutcome(ChanceItemStack result) implements IRecipeO
         if (entityCauldron != null) {
             hasRecipeCache = true;
             if (hasRoyalPreferred(level, entityCauldron.getInput())) {
-                addBonus(context);
+                this.addBonus(context);
                 return;
             }
         }
@@ -99,7 +99,7 @@ public record RoyalPreferenceOutcome(ChanceItemStack result) implements IRecipeO
             IItemHandler handler = level.getCapability(
                 Capabilities.ItemHandler.BLOCK, belowPos, null);
             if (handler != null && hasRoyalPreferred(level, handler)) {
-                addBonus(context);
+                this.addBonus(context);
                 return;
             }
         }
@@ -110,14 +110,14 @@ public record RoyalPreferenceOutcome(ChanceItemStack result) implements IRecipeO
             INPUT_RANGE.x, INPUT_RANGE.y, INPUT_RANGE.z);
         for (ItemEntity itemEntity : level.getEntitiesOfClass(ItemEntity.class, inputBox)) {
             if (RoyalPreference.isRoyalPreferred(level, itemEntity.getItem())) {
-                addBonus(context);
+                this.addBonus(context);
                 return;
             }
         }
     }
 
     private void addBonus(InWorldRecipeContext context) {
-        ItemStack bonus = result.stack().copyWithCount(context.getInt(result.count()));
+        ItemStack bonus = this.result.stack().copyWithCount(context.getInt(this.result.count()));
         if (bonus.isEmpty()) return;
         ItemCache cache = context.computeIfAbsent(ItemCache.ITEM_CACHE);
         ICacheOutput output = cache.getOutput(bonus, context.getPos().add(OUTPUT_OFFSET));

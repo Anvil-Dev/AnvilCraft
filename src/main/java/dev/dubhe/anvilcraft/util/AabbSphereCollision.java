@@ -201,7 +201,7 @@ final class AabbSphereCollision {
 
     private record Quadratic(double a, double b, double c) {
         double valueAt(double time) {
-            return (a * time + b) * time + c;
+            return (this.a * time + this.b) * time + this.c;
         }
     }
 }

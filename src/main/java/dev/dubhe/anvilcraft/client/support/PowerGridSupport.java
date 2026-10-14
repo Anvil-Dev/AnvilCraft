@@ -153,7 +153,7 @@ public class PowerGridSupport {
         }
 
         private boolean isComplete() {
-            for (List<PowerComponentInfo> chunk : chunks) {
+            for (List<PowerComponentInfo> chunk : this.chunks) {
                 if (chunk == null) return false;
             }
             return true;

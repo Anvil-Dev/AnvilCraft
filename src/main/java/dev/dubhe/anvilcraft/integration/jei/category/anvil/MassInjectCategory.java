@@ -56,16 +56,16 @@ public class MassInjectCategory implements IRecipeCategory<RecipeHolder<MassInje
     private final IDrawable arrowOutputFromBelow;
 
     public MassInjectCategory(IGuiHelper helper) {
-        icon = new DrawableBlockStateIcon(
+        this.icon = new DrawableBlockStateIcon(
             Blocks.ANVIL.defaultBlockState(),
             ModBlocks.SPACE_OVERCOMPRESSOR.getDefaultState()
         );
-        slotDefault = JeiRenderHelper.getSlotDefault(helper);
-        title = Component.translatable("gui.anvilcraft.category.mass_inject");
-        timer = helper.createTickTimer(30, 60, true);
+        this.slotDefault = JeiRenderHelper.getSlotDefault(helper);
+        this.title = Component.translatable("gui.anvilcraft.category.mass_inject");
+        this.timer = helper.createTickTimer(30, 60, true);
 
-        arrowIn = JeiRenderHelper.getArrowInput(helper);
-        arrowOutputFromBelow = JeiRenderHelper.getArrowOutputFromBelow(helper);
+        this.arrowIn = JeiRenderHelper.getArrowInput(helper);
+        this.arrowOutputFromBelow = JeiRenderHelper.getArrowOutputFromBelow(helper);
     }
 
     @Override
@@ -75,7 +75,7 @@ public class MassInjectCategory implements IRecipeCategory<RecipeHolder<MassInje
 
     @Override
     public Component getTitle() {
-        return title;
+        return this.title;
     }
 
     @Override
@@ -90,7 +90,7 @@ public class MassInjectCategory implements IRecipeCategory<RecipeHolder<MassInje
 
     @Override
     public IDrawable getIcon() {
-        return icon;
+        return this.icon;
     }
 
     @Override
@@ -132,7 +132,7 @@ public class MassInjectCategory implements IRecipeCategory<RecipeHolder<MassInje
         double mouseY
     ) {
         final MassInjectRecipe recipe = recipeHolder.value();
-        float anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(timer);
+        float anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(this.timer);
         RenderSupport.renderBlock(
             guiGraphics,
             Blocks.ANVIL.defaultBlockState(),
@@ -147,11 +147,11 @@ public class MassInjectCategory implements IRecipeCategory<RecipeHolder<MassInje
             81, 40, 10, 12, RenderSupport.SINGLE_BLOCK
         );
 
-        arrowIn.draw(guiGraphics, 54, 30);
-        arrowOutputFromBelow.draw(guiGraphics, 92, 29);
+        this.arrowIn.draw(guiGraphics, 54, 30);
+        this.arrowOutputFromBelow.draw(guiGraphics, 92, 29);
 
-        JeiSlotUtil.drawDefaultInputSlots(guiGraphics, slotDefault, 1);
-        JeiSlotUtil.drawDefaultOutputSlots(guiGraphics, slotDefault, 1);
+        JeiSlotUtil.drawDefaultInputSlots(guiGraphics, this.slotDefault, 1);
+        JeiSlotUtil.drawDefaultOutputSlots(guiGraphics, this.slotDefault, 1);
 
         PoseStack pose = guiGraphics.pose();
         pose.pushPose();

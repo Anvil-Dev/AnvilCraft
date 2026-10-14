@@ -54,42 +54,42 @@ public class RenderRegion {
     }
 
     public void update(BlockEntity be) {
-        if (lastRebuildTask != null) {
-            lastRebuildTask.cancel();
+        if (this.lastRebuildTask != null) {
+            this.lastRebuildTask.cancel();
         }
-        blockEntityList.removeIf(BlockEntity::isRemoved);
+        this.blockEntityList.removeIf(BlockEntity::isRemoved);
         if (be.isRemoved()) {
-            blockEntityList.remove(be);
-            pipeline.submitCompileTask(new RebuildTask());
+            this.blockEntityList.remove(be);
+            this.pipeline.submitCompileTask(new RebuildTask());
             return;
         }
-        blockEntityList.add(be);
-        pipeline.submitCompileTask(new RebuildTask());
+        this.blockEntityList.add(be);
+        this.pipeline.submitCompileTask(new RebuildTask());
     }
 
     public void blockRemoved(BlockEntity be) {
-        if (lastRebuildTask != null) {
-            lastRebuildTask.cancel();
+        if (this.lastRebuildTask != null) {
+            this.lastRebuildTask.cancel();
         }
-        blockEntityList.remove(be);
-        blockEntityList.removeIf(BlockEntity::isRemoved);
-        pipeline.submitCompileTask(new RebuildTask());
+        this.blockEntityList.remove(be);
+        this.blockEntityList.removeIf(BlockEntity::isRemoved);
+        this.pipeline.submitCompileTask(new RebuildTask());
     }
 
     public void renderBloomed(Matrix4f frustumMatrix, Matrix4f projectionMatrix) {
-        renderInternal(frustumMatrix, projectionMatrix, BLOOM_RENDERTYPES, RenderState::bloomStage);
+        this.renderInternal(frustumMatrix, projectionMatrix, BLOOM_RENDERTYPES, RenderState::bloomStage);
     }
 
     public void render(Matrix4f frustumMatrix, Matrix4f projectionMatrix) {
-        renderInternal(frustumMatrix, projectionMatrix, buffers.keySet(), RenderState::levelStage);
+        this.renderInternal(frustumMatrix, projectionMatrix, this.buffers.keySet(), RenderState::levelStage);
     }
 
     public VertexBuffer getBuffer(RenderType renderType) {
-        if (buffers.containsKey(renderType)) {
-            return buffers.get(renderType);
+        if (this.buffers.containsKey(renderType)) {
+            return this.buffers.get(renderType);
         }
         VertexBuffer vb = new VertexBuffer(VertexBuffer.Usage.STATIC);
-        buffers.put(renderType, vb);
+        this.buffers.put(renderType, vb);
         return vb;
     }
 
@@ -99,12 +99,12 @@ public class RenderRegion {
         Collection<RenderType> renderTypes,
         Runnable stateSwitcher
     ) {
-        if (isEmpty) return;
+        if (this.isEmpty) return;
         RenderSystem.enableBlend();
         Window window = Minecraft.getInstance().getWindow();
-        Vec3 cameraPosition = minecraft.gameRenderer.getMainCamera().getPosition();
+        Vec3 cameraPosition = this.minecraft.gameRenderer.getMainCamera().getPosition();
         int renderDistance = Minecraft.getInstance().options.getEffectiveRenderDistance() * 16;
-        if (cameraPosition.distanceTo(new Vec3(chunkPos.x * 16, cameraPosition.y, chunkPos.z * 16)) > renderDistance) {
+        if (cameraPosition.distanceTo(new Vec3(this.chunkPos.x * 16, cameraPosition.y, this.chunkPos.z * 16)) > renderDistance) {
             return;
         }
         List<RenderType> allRenderTypes = new ArrayList<>(renderTypes);
@@ -116,15 +116,15 @@ public class RenderRegion {
             }
         }
         for (RenderType renderType : allRenderTypes) {
-            VertexBuffer vb = buffers.get(renderType);
+            VertexBuffer vb = this.buffers.get(renderType);
             if (vb == null) continue;
             stateSwitcher.run();
-            renderLayer(renderType, vb, frustumMatrix, projectionMatrix, cameraPosition, window);
+            this.renderLayer(renderType, vb, frustumMatrix, projectionMatrix, cameraPosition, window);
         }
     }
 
     public void releaseBuffers() {
-        buffers.values().forEach(VertexBuffer::close);
+        this.buffers.values().forEach(VertexBuffer::close);
     }
 
     private void renderLayer(
@@ -135,7 +135,7 @@ public class RenderRegion {
         Vec3 cameraPosition,
         Window window
     ) {
-        int indexCount = indexCountMap.getInt(renderType);
+        int indexCount = this.indexCountMap.getInt(renderType);
         if (indexCount <= 0) return;
         renderType.setupRenderState();
         ShaderInstance shader = RenderSystem.getShader();
@@ -164,12 +164,12 @@ public class RenderRegion {
 
         @Override
         public void run() {
-            lastRebuildTask = this;
+            RenderRegion.this.lastRebuildTask = this;
             PoseStack poseStack = new PoseStack();
             RenderRegion.this.isEmpty = true;
             FullyBufferedBufferSource bufferSource = new FullyBufferedBufferSource();
-            for (BlockEntity be : blockEntityList) {
-                if (cancelled) {
+            for (BlockEntity be : RenderRegion.this.blockEntityList) {
+                if (this.cancelled) {
                     bufferSource.close();
                     return;
                 }
@@ -192,14 +192,14 @@ public class RenderRegion {
             RenderRegion.this.isEmpty = bufferSource.isEmpty();
             bufferSource.upload(
                 RenderRegion.this::getBuffer,
-                pipeline::submitUploadTask
+                RenderRegion.this.pipeline::submitUploadTask
             );
             RenderRegion.this.indexCountMap = bufferSource.indexCountMap;
-            lastRebuildTask = null;
+            RenderRegion.this.lastRebuildTask = null;
         }
 
         void cancel() {
-            cancelled = true;
+            this.cancelled = true;
         }
     }
 }

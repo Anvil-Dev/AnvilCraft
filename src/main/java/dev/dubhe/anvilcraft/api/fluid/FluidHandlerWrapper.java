@@ -142,7 +142,7 @@ public class FluidHandlerWrapper {
      */
     @Nullable
     public ItemStack fillFromItem(ItemStack filledContainer) {
-        return fillFromItem(filledContainer, false, null);
+        return this.fillFromItem(filledContainer, false, null);
     }
 
     /**
@@ -154,7 +154,7 @@ public class FluidHandlerWrapper {
      */
     @Nullable
     public ItemStack fillFromItem(ItemStack filledContainer, boolean simulateOnly) {
-        return fillFromItem(filledContainer, simulateOnly, null);
+        return this.fillFromItem(filledContainer, simulateOnly, null);
     }
 
     /**
@@ -175,7 +175,7 @@ public class FluidHandlerWrapper {
             if (drained.isEmpty()) return null;
 
             // 模拟：向目标处理器中填充
-            int filled = handler.fill(drained, IFluidHandler.FluidAction.SIMULATE);
+            int filled = this.handler.fill(drained, IFluidHandler.FluidAction.SIMULATE);
             if (filled < drained.getAmount()) return null;
 
             // 模拟模式下到此为止
@@ -185,17 +185,17 @@ public class FluidHandlerWrapper {
 
             // 执行：从物品中抽取并填充到目标
             itemHandler.drain(drained, IFluidHandler.FluidAction.EXECUTE);
-            handler.fill(drained, IFluidHandler.FluidAction.EXECUTE);
+            this.handler.fill(drained, IFluidHandler.FluidAction.EXECUTE);
 
             return itemHandler.getContainer();
         }
 
         // 处理水瓶（PotionContents，不含有 IFluidHandlerItem）
-        ItemStack result = tryFillFromPotion(filledContainer, simulateOnly);
+        ItemStack result = this.tryFillFromPotion(filledContainer, simulateOnly);
         if (result != null) return result;
 
         // 处理附魔之瓶（50% 概率填充经验液体）
-        return tryFillFromExpBottle(filledContainer, simulateOnly, random);
+        return this.tryFillFromExpBottle(filledContainer, simulateOnly, random);
     }
 
     // region 特殊物品处理
@@ -212,11 +212,11 @@ public class FluidHandlerWrapper {
         if (potion != Potions.WATER) return null;
 
         FluidStack water = new FluidStack(Fluids.WATER, FluidType.BUCKET_VOLUME / 4);
-        int filled = handler.fill(water, IFluidHandler.FluidAction.SIMULATE);
+        int filled = this.handler.fill(water, IFluidHandler.FluidAction.SIMULATE);
         if (filled < water.getAmount()) return null;
 
         if (!simulateOnly) {
-            handler.fill(water, IFluidHandler.FluidAction.EXECUTE);
+            this.handler.fill(water, IFluidHandler.FluidAction.EXECUTE);
         }
         return new ItemStack(Items.GLASS_BOTTLE);
     }
@@ -233,12 +233,12 @@ public class FluidHandlerWrapper {
         FluidStack expFluid = new FluidStack(ModFluids.EXP_FLUID, FluidType.BUCKET_VOLUME / 4);
 
         // 模拟：检查是否有足够空间
-        int filled = handler.fill(expFluid, IFluidHandler.FluidAction.SIMULATE);
+        int filled = this.handler.fill(expFluid, IFluidHandler.FluidAction.SIMULATE);
         if (filled < expFluid.getAmount()) return null;
 
         // 执行：50% 概率实际填充
         if (!simulateOnly && (random == null || random.nextBoolean())) {
-            handler.fill(expFluid, IFluidHandler.FluidAction.EXECUTE);
+            this.handler.fill(expFluid, IFluidHandler.FluidAction.EXECUTE);
         }
 
         // 始终返回玻璃瓶（即使概率失败）
@@ -260,7 +260,7 @@ public class FluidHandlerWrapper {
      */
     @Nullable
     public ItemStack drainToItem(ItemStack emptyContainer) {
-        return drainToItem(emptyContainer, false);
+        return this.drainToItem(emptyContainer, false);
     }
 
     @Nullable
@@ -269,7 +269,7 @@ public class FluidHandlerWrapper {
         int amount = emptyContainer.is(Items.GLASS_BOTTLE)
             ? FluidType.BUCKET_VOLUME / 4
             : FluidType.BUCKET_VOLUME;
-        return drainToItem(emptyContainer, amount, simulateOnly);
+        return this.drainToItem(emptyContainer, amount, simulateOnly);
     }
 
     /**
@@ -285,7 +285,7 @@ public class FluidHandlerWrapper {
         if (!isSupportedEmptyContainer(emptyContainer)) return null;
 
         // 模拟：从目标处理器抽取
-        FluidStack drained = handler.drain(amount, IFluidHandler.FluidAction.SIMULATE);
+        FluidStack drained = this.handler.drain(amount, IFluidHandler.FluidAction.SIMULATE);
         if (drained.getAmount() < amount) return null;
 
         // 确定结果物品
@@ -296,7 +296,7 @@ public class FluidHandlerWrapper {
         if (simulateOnly) return result;
 
         // 执行抽取
-        handler.drain(amount, IFluidHandler.FluidAction.EXECUTE);
+        this.handler.drain(amount, IFluidHandler.FluidAction.EXECUTE);
         return result;
     }
 
@@ -343,29 +343,29 @@ public class FluidHandlerWrapper {
      * 获取处理器中的当前流体。
      */
     public FluidStack getFluid() {
-        return handler.getFluidInTank(0);
+        return this.handler.getFluidInTank(0);
     }
 
     /**
      * 获取处理器容量。
      */
     public int getCapacity() {
-        return handler.getTankCapacity(0);
+        return this.handler.getTankCapacity(0);
     }
 
     /**
      * 处理器是否为空。
      */
     public boolean isEmpty() {
-        return handler.getFluidInTank(0).isEmpty();
+        return this.handler.getFluidInTank(0).isEmpty();
     }
 
     /**
      * 处理器是否已满。
      */
     public boolean isFull() {
-        FluidStack fluid = handler.getFluidInTank(0);
-        return fluid.getAmount() >= handler.getTankCapacity(0);
+        FluidStack fluid = this.handler.getFluidInTank(0);
+        return fluid.getAmount() >= this.handler.getTankCapacity(0);
     }
 
     // endregion

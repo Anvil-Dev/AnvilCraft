@@ -51,7 +51,8 @@ public class AbstractCakeBlock extends Block {
             return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
         }
         if (level.isClientSide) {
-            if (eat(level, pos, player, getFoodLevel(), getSaturationLevel(), Util.interactionResultConverter()).consumesAction()) {
+            if (eat(level, pos, player, this.getFoodLevel(), this.getSaturationLevel(),
+                Util.interactionResultConverter()).consumesAction()) {
                 return ItemInteractionResult.SUCCESS;
             }
 
@@ -60,7 +61,7 @@ public class AbstractCakeBlock extends Block {
             }
         } else {
             ItemInteractionResult itemInteractionResult =
-                eat(level, pos, player, getFoodLevel(), getSaturationLevel(), Util.interactionResultConverter());
+                eat(level, pos, player, this.getFoodLevel(), this.getSaturationLevel(), Util.interactionResultConverter());
             if (itemInteractionResult == ItemInteractionResult.SUCCESS) itemStack.hurtAndBreak(1, player, PlayerUtil.handToSlot(hand));
             return itemInteractionResult;
         }

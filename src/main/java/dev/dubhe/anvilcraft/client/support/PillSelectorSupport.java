@@ -25,7 +25,7 @@ public class PillSelectorSupport {
     public void setPillBox(ItemStack pillBox, int slotIndex) {
         if (pillBox.isEmpty()) {
             this.contents = PillBoxContents.EMPTY;
-            resetIndex();
+            this.resetIndex();
         } else {
             this.pillBox = pillBox;
             this.hoveredSlot = slotIndex;
@@ -41,7 +41,7 @@ public class PillSelectorSupport {
             this.pillBox.set(ModComponents.PILL_BOX_CONTENTS, mutable.immutable());
             // 鼠标移开时本地索引被重置为"未选择"，服务端必须跟着重置，否则再次悬停
             // 不滚动直接点击时服务端仍用上次滚到的索引，取出物品与界面高亮不一致。
-            sendSelection(-1);
+            this.sendSelection(-1);
             this.pillBox = ItemStack.EMPTY;
             this.hoveredSlot = -1;
         }
@@ -62,7 +62,7 @@ public class PillSelectorSupport {
     }
 
     public void render(GuiGraphics guiGraphics, int x, int y) {
-        if (pillBox.isEmpty()) {
+        if (this.pillBox.isEmpty()) {
             return;
         }
         final int left = x - 78 / 2;
@@ -107,7 +107,7 @@ public class PillSelectorSupport {
     }
 
     public boolean hasItem() {
-        return !pillBox.isEmpty();
+        return !this.pillBox.isEmpty();
     }
 
     public void nextIndex() {
@@ -115,8 +115,8 @@ public class PillSelectorSupport {
         int index = mutable.getIndex() + 1;
         mutable.setIndex(index);
         this.contents = mutable.immutable();
-        pillBox.set(ModComponents.PILL_BOX_CONTENTS, this.contents);
-        sendSelection(mutable.getIndex());
+        this.pillBox.set(ModComponents.PILL_BOX_CONTENTS, this.contents);
+        this.sendSelection(mutable.getIndex());
     }
 
     public void previousIndex() {
@@ -124,16 +124,16 @@ public class PillSelectorSupport {
         int index = mutable.getIndex() - 1;
         mutable.setIndex(index);
         this.contents = mutable.immutable();
-        pillBox.set(ModComponents.PILL_BOX_CONTENTS, this.contents);
-        sendSelection(mutable.getIndex());
+        this.pillBox.set(ModComponents.PILL_BOX_CONTENTS, this.contents);
+        this.sendSelection(mutable.getIndex());
     }
 
     public void setIndex(int index) {
         PillBoxContents.Mutable mutable = this.contents.mutable();
         mutable.setIndex(index);
         this.contents = mutable.immutable();
-        pillBox.set(ModComponents.PILL_BOX_CONTENTS, this.contents);
-        sendSelection(mutable.getIndex());
+        this.pillBox.set(ModComponents.PILL_BOX_CONTENTS, this.contents);
+        this.sendSelection(mutable.getIndex());
     }
 
     public void mouseScrolled(int amount) {

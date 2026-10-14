@@ -23,9 +23,9 @@ public class MDNeutronIrradiationRecipeComponent extends MDBaseAnvilRecipeCompon
 
     public MDNeutronIrradiationRecipeComponent(NeutronIrradiationRecipe recipe, boolean enableAlignCenter) {
         super(enableAlignCenter);
-        ingredients = recipe.getInputItems();
-        resultItems = recipe.getResultItems();
-        inputBlockStates = List.of(
+        this.ingredients = recipe.getInputItems();
+        this.resultItems = recipe.getResultItems();
+        this.inputBlockStates = List.of(
             Blocks.CAULDRON.defaultBlockState(),
             ModBlocks.NEUTRON_IRRADIATOR.getDefaultState()
         );

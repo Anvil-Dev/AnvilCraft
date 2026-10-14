@@ -20,12 +20,12 @@ public class MDEnergyWeaponMakeRecipeComponent extends MDRecipeComponent {
 
     @Override
     protected void renderRecipe(MDRenderContext context, float mouseX, float mouseY) {
-        AgeratumUtil.renderItems(context, recipe.ingredients(), mouseX, mouseY, 30, 24);
+        AgeratumUtil.renderItems(context, this.recipe.ingredients(), mouseX, mouseY, 30, 24);
 
         AgeratumUtil.renderItemWithoutSlot(context, ModItems.ENERGY_WEAPON_PLATFORM.asStack(), mouseX, mouseY, 100, 10);
 
         AgeratumUtil.renderArrow(context.graphics(), 66, 26);
 
-        AgeratumUtil.renderItem(context, recipe.result(), mouseX, mouseY, 100, 34);
+        AgeratumUtil.renderItem(context, this.recipe.result(), mouseX, mouseY, 100, 34);
     }
 }

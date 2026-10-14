@@ -35,17 +35,17 @@ public enum DirectionGate331PartHalf
 
     @Override
     public int getOffsetX(Direction facing) {
-        return widthIndex * facing.getClockWise().getStepX();
+        return this.widthIndex * facing.getClockWise().getStepX();
     }
 
     @Override
     public int getOffsetY(Direction facing) {
-        return heightIndex;
+        return this.heightIndex;
     }
 
     @Override
     public int getOffsetZ(Direction facing) {
-        return widthIndex * facing.getClockWise().getStepZ();
+        return this.widthIndex * facing.getClockWise().getStepZ();
     }
 
     @Override
@@ -54,7 +54,7 @@ public enum DirectionGate331PartHalf
     }
 
     public boolean isCenterColumn() {
-        return widthIndex == 0;
+        return this.widthIndex == 0;
     }
 
     public String toString() {

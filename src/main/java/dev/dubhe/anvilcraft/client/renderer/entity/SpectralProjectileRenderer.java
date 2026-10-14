@@ -39,7 +39,7 @@ public class SpectralProjectileRenderer<T extends SpectralProjectileEntity> exte
 
     public SpectralProjectileRenderer(EntityRendererProvider.Context context) {
         super(context);
-        itemRenderer = context.getItemRenderer();
+        this.itemRenderer = context.getItemRenderer();
     }
 
     @Override
@@ -186,32 +186,32 @@ public class SpectralProjectileRenderer<T extends SpectralProjectileEntity> exte
     public record TranslucentVertexConsumer(VertexConsumer delegate, int alpha) implements VertexConsumer {
         @Override
         public VertexConsumer addVertex(float v, float v1, float v2) {
-            return delegate.addVertex(v, v1, v2);
+            return this.delegate.addVertex(v, v1, v2);
         }
 
         @Override
         public VertexConsumer setColor(int i, int i1, int i2, int i3) {
-            return delegate.setColor(i, i1, i2, this.alpha);
+            return this.delegate.setColor(i, i1, i2, this.alpha);
         }
 
         @Override
         public VertexConsumer setUv(float v, float v1) {
-            return delegate.setUv(v, v1);
+            return this.delegate.setUv(v, v1);
         }
 
         @Override
         public VertexConsumer setUv1(int i, int i1) {
-            return delegate.setUv1(i, i1);
+            return this.delegate.setUv1(i, i1);
         }
 
         @Override
         public VertexConsumer setUv2(int i, int i1) {
-            return delegate.setUv2(i, i1);
+            return this.delegate.setUv2(i, i1);
         }
 
         @Override
         public VertexConsumer setNormal(float v, float v1, float v2) {
-            return delegate.setNormal(v, v1, v2);
+            return this.delegate.setNormal(v, v1, v2);
         }
     }
 }

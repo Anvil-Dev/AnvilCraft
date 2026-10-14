@@ -66,26 +66,26 @@ public record HarvestLeftClickEffect(int range) implements EnchantmentEntityEffe
         if (!itemStack.is(ItemTags.HOES)) {
             return;
         }
-        if (isChoppablePlant(state)) {
+        if (this.isChoppablePlant(state)) {
             r = Math.min(enchantmentLevel, 7);
             for (BlockPos blockPos : BlockPos.betweenClosed(pos.offset(r, 0, r), pos.offset(-r, 0, -r))) {
                 if (blockPos.equals(pos)) {
                     continue;
                 }
                 BlockState blockState = level.getBlockState(blockPos);
-                if (isChoppablePlant(blockState)) {
+                if (this.isChoppablePlant(blockState)) {
                     level.destroyBlock(blockPos, true);
                 }
             }
             return;
         }
-        if (harvestable(state) == null) {
+        if (this.harvestable(state) == null) {
             return;
         }
         Iterable<BlockPos> posIterable = BlockPos.betweenClosed(pos.offset(r, r, r), pos.offset(-r, -r, -r));
         for (BlockPos blockPos : posIterable) {
             BlockState blockState = level.getBlockState(blockPos);
-            Block harvestableBlock = harvestable(blockState);
+            Block harvestableBlock = this.harvestable(blockState);
             if (harvestableBlock == null) {
                 continue;
             }

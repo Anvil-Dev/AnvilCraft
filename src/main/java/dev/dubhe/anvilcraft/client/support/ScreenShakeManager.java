@@ -40,39 +40,39 @@ public class ScreenShakeManager {
         falloff = Mth.clamp(falloff, 0f, 1f);
         if (falloff <= 0.01f) return;
         /// 取较强的一次（避免连续触发互相削弱）
-        if (falloff >= this.intensity || remainingTicks <= 0) {
+        if (falloff >= this.intensity || this.remainingTicks <= 0) {
             this.intensity = falloff;
             this.activeType = type;
             this.remainingTicks = type.durationTicks;
-            this.phaseSeed = random.nextFloat() * 1000f;
+            this.phaseSeed = this.random.nextFloat() * 1000f;
         }
     }
 
     /// 客户端每刻递减剩余时长。
     public void tick() {
-        if (remainingTicks > 0) {
-            remainingTicks--;
-            if (remainingTicks <= 0) {
-                intensity = 0f;
+        if (this.remainingTicks > 0) {
+            this.remainingTicks--;
+            if (this.remainingTicks <= 0) {
+                this.intensity = 0f;
             }
         }
     }
 
     public boolean isActive() {
-        return remainingTicks > 0 && intensity > 0.01f;
+        return this.remainingTicks > 0 && this.intensity > 0.01f;
     }
 
     /// 当前帧的衰减系数（含 partialTick 平滑），随剩余时长线性消退。
     private float currentFalloff(float partialTick) {
-        float t = (remainingTicks - partialTick) / activeType.durationTicks;
-        return Mth.clamp(t, 0f, 1f) * intensity;
+        float t = (this.remainingTicks - partialTick) / this.activeType.durationTicks;
+        return Mth.clamp(t, 0f, 1f) * this.intensity;
     }
 
     /// 计算当前帧应叠加到摄像机的 yaw/pitch/roll 偏移（度）。
     /// 使用多个不同频率的正弦叠加，产生不规则的快速颤动而非规则摆动。
     public float[] computeAngleOffsets(float partialTick) {
-        if (!isActive()) return null;
-        float falloff = currentFalloff(partialTick);
+        if (!this.isActive()) return null;
+        float falloff = this.currentFalloff(partialTick);
         if (falloff <= 0.01f) return null;
 
         Minecraft mc = Minecraft.getInstance();
@@ -81,14 +81,14 @@ public class ScreenShakeManager {
 
         /// 基于客户端时间推进的相位（含 partialTick），频率较高以快速颤动。
         float gameTime = cam.tickCount + partialTick;
-        float phase = phaseSeed + gameTime * activeType.frequency;
+        float phase = this.phaseSeed + gameTime * this.activeType.frequency;
 
         float yaw = (float) (Math.sin(phase * 1.3) + 0.5 * Math.sin(phase * 2.7))
-            * activeType.yawPitchAmplitude * falloff;
+            * this.activeType.yawPitchAmplitude * falloff;
         float pitch = (float) (Math.sin(phase * 1.1 + 1.7) + 0.5 * Math.sin(phase * 3.1))
-            * activeType.yawPitchAmplitude * falloff;
+            * this.activeType.yawPitchAmplitude * falloff;
         float roll = (float) (Math.sin(phase * 0.9 + 0.6) + 0.5 * Math.sin(phase * 2.3))
-            * activeType.rollAmplitude * falloff;
+            * this.activeType.rollAmplitude * falloff;
         return new float[]{yaw, pitch, roll};
     }
 }

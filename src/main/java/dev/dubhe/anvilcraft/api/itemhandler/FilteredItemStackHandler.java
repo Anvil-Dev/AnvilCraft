@@ -94,7 +94,7 @@ public class FilteredItemStackHandler extends ItemStackHandler {
 
     @Override
     public void setStackInSlot(int slot, ItemStack stack) {
-        if (!filterEnabled && !stack.isEmpty()) {
+        if (!this.filterEnabled && !stack.isEmpty()) {
             this.setSlotDisabled(slot, false);
         }
         super.setStackInSlot(slot, stack);

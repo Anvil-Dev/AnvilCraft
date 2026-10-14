@@ -40,15 +40,19 @@ public class SmartBlockPlacerMenu extends AbstractContainerMenu {
             @Override
             public void setChanged() {
                 super.setChanged();
-                if (level.isClientSide()) {
+                if (SmartBlockPlacerMenu.this.level.isClientSide()) {
                     return;
                 }
                 ItemStack book = this.getItem(0);
-                outputBookInventory.setItem(
+                SmartBlockPlacerMenu.this.outputBookInventory.setItem(
                     0,
                     book.isEmpty()
                         ? ItemStack.EMPTY
-                        : StructureBookUtil.createMaterialListBook(level, blockEntity.getBlockPos(), blockEntity)
+                        : StructureBookUtil.createMaterialListBook(
+                            SmartBlockPlacerMenu.this.level,
+                            SmartBlockPlacerMenu.this.blockEntity.getBlockPos(),
+                            SmartBlockPlacerMenu.this.blockEntity
+                        )
                 );
             }
         };
@@ -65,7 +69,7 @@ public class SmartBlockPlacerMenu extends AbstractContainerMenu {
         ) {
             @Override
             public boolean mayPickup(Player player) {
-                return bookInventory.getItem(0).isEmpty();
+                return SmartBlockPlacerMenu.this.bookInventory.getItem(0).isEmpty();
             }
 
             @Override

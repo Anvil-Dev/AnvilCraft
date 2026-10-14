@@ -179,11 +179,11 @@ public final class CelestialMapsGuideWidget extends AbstractWidget {
         poseStack.scale((float) getWidth() / MAP_SIZE, (float) getHeight() / MAP_SIZE, 1);
         renderCelestialMapsGuide(
             guiGraphics,
-            getFont(),
-            anvilCounts.getInt(0),
-            anvilCounts.getInt(1),
-            anvilCounts.getInt(2),
-            anvilCounts.getInt(3)
+            this.getFont(),
+            this.anvilCounts.getInt(0),
+            this.anvilCounts.getInt(1),
+            this.anvilCounts.getInt(2),
+            this.anvilCounts.getInt(3)
         );
         poseStack.popPose();
     }

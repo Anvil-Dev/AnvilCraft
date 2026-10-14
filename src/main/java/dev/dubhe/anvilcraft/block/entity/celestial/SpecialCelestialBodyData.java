@@ -149,37 +149,37 @@ public record SpecialCelestialBodyData(
 
     /// 此天体是否为玩家头颅动态天体。
     public boolean hasAtmosphere() {
-        return atmosphereColor != null;
+        return this.atmosphereColor != null;
     }
 
     public boolean isPlayerHead() {
-        return playerHeadProfile != null;
+        return this.playerHeadProfile != null;
     }
 
     /// 此天体是否用末地折跃门效果渲染，而不是烘焙贴图或独立模型。
     public boolean usesEndGatewayModel() {
-        return !needsCustomModel && END_GATEWAY_MODEL.equals(model);
+        return !this.needsCustomModel && END_GATEWAY_MODEL.equals(this.model);
     }
 
     /// 此已发现天体是否有数据驱动的着陆目标。
     public boolean isLandable() {
-        return landing != null;
+        return this.landing != null;
     }
 
     @Nullable
     public CelestialTravelData landingData() {
-        return landing;
+        return this.landing;
     }
 
     @Nullable
     public CelestialTravelData travelData() {
-        return landing;
+        return this.landing;
     }
 
     /** 兼容使用旧 {@code travel} 术语的调用方。 */
     @Nullable
     public CelestialTravelData travel() {
-        return landing;
+        return this.landing;
     }
 
     @Override
@@ -200,40 +200,40 @@ public record SpecialCelestialBodyData(
     /// 获取此特殊天体的独立模型/贴图资源路径。
     /// 无命名空间的旧格式仍指向 AnvilCraft 的天体模型目录；完整资源 ID 则直接使用。
     public ResourceLocation getModelLocation() {
-        if (model.indexOf(':') >= 0) {
-            return ResourceLocation.parse(model);
+        if (this.model.indexOf(':') >= 0) {
+            return ResourceLocation.parse(this.model);
         }
-        return AnvilCraft.of("block/celestial_body/" + model);
+        return AnvilCraft.of("block/celestial_body/" + this.model);
     }
 
     @Override
     public CompoundTag toTag() {
         CompoundTag tag = new CompoundTag();
         tag.putString("bodyType", CelestialBodyType.SPECIAL.getSerializedName());
-        tag.putString("recipeId", recipeId);
-        tag.putString("name", name);
-        tag.putInt("size", size);
-        tag.putFloat("axialTilt", axialTilt);
-        tag.putInt("rotationSpeed", rotationSpeed);
-        tag.putInt("magneticFieldStrength", magneticFieldStrength);
-        tag.putBoolean("isErrorPlanet", isErrorPlanet);
-        tag.putBoolean("needsCustomModel", needsCustomModel);
-        tag.putBoolean("canBeShattered", canBeShattered);
-        tag.putString("model", model);
-        if (temperature != null) {
-            tag.putString("temperature", temperature.getSerializedName());
+        tag.putString("recipeId", this.recipeId);
+        tag.putString("name", this.name);
+        tag.putInt("size", this.size);
+        tag.putFloat("axialTilt", this.axialTilt);
+        tag.putInt("rotationSpeed", this.rotationSpeed);
+        tag.putInt("magneticFieldStrength", this.magneticFieldStrength);
+        tag.putBoolean("isErrorPlanet", this.isErrorPlanet);
+        tag.putBoolean("needsCustomModel", this.needsCustomModel);
+        tag.putBoolean("canBeShattered", this.canBeShattered);
+        tag.putString("model", this.model);
+        if (this.temperature != null) {
+            tag.putString("temperature", this.temperature.getSerializedName());
         }
-        if (atmosphereColor != null) {
-            tag.putInt("atmosphereColor", atmosphereColor.rgba());
+        if (this.atmosphereColor != null) {
+            tag.putInt("atmosphereColor", this.atmosphereColor.rgba());
         }
-        if (liquidCoverage != null) {
-            tag.putString("liquidCoverage", liquidCoverage.getSerializedName());
+        if (this.liquidCoverage != null) {
+            tag.putString("liquidCoverage", this.liquidCoverage.getSerializedName());
         }
-        if (playerHeadProfile != null) {
-            tag.put("playerHeadProfile", playerHeadProfile);
+        if (this.playerHeadProfile != null) {
+            tag.put("playerHeadProfile", this.playerHeadProfile);
         }
-        if (landing != null) {
-            tag.put("landing", landing.toTag());
+        if (this.landing != null) {
+            tag.put("landing", this.landing.toTag());
         }
         return tag;
     }

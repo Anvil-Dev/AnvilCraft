@@ -19,14 +19,14 @@ public class MDSqueezingRecipeComponent extends MDBaseAnvilRecipeComponent {
 
     public MDSqueezingRecipeComponent(SqueezingRecipe recipe, boolean enableAlignCenter) {
         super(enableAlignCenter);
-        inputBlocks = recipe.getInputBlocks();
-        outputBlockState = recipe.getFirstResultBlock().state();
+        this.inputBlocks = recipe.getInputBlocks();
+        this.outputBlockState = recipe.getFirstResultBlock().state();
     }
 
     @Override
     protected void renderRecipe(MDRenderContext context, float mouseX, float mouseY) {
         super.renderRecipe(context, mouseX, mouseY);
-        List<BlockState> states = inputBlocks.getFirst().constructStatesForRender();
+        List<BlockState> states = this.inputBlocks.getFirst().constructStatesForRender();
         if (!states.isEmpty()) {
             BlockState blockState = states.get(RecipeUtil.getDisplayIndex(states.size()));
             AgeratumUtil.renderBlock(context, blockState, mouseX, mouseY, INPUT_BLOCK_X, BLOCK_Y, 10);

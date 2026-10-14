@@ -341,34 +341,34 @@ public class MultiblockConversionRecipe implements IMultiblockRecipe, IDatagen {
         }
 
         public Builder inputLayer(String... layers) {
-            inputPattern.layer(layers);
+            this.inputPattern.layer(layers);
             return this;
         }
 
         public Builder inputLayer(List<String> layers) {
-            inputPattern.layer(layers.toArray(String[]::new));
+            this.inputPattern.layer(layers.toArray(String[]::new));
             return this;
         }
 
         public Builder outputLayer(String... layers) {
-            outputPattern.layer(layers);
+            this.outputPattern.layer(layers);
             return this;
         }
 
         public Builder outputLayer(List<String> layers) {
-            outputPattern.layer(layers.toArray(String[]::new));
+            this.outputPattern.layer(layers.toArray(String[]::new));
             return this;
         }
 
         public Builder symbol(char symbol, BlockStatePredicate.Builder predicate) {
-            inputPattern.map(symbol, predicate);
-            outputPattern.map(symbol, predicate);
+            this.inputPattern.map(symbol, predicate);
+            this.outputPattern.map(symbol, predicate);
             return this;
         }
 
         public Builder symbol(char symbol, Block block) {
-            inputPattern.map(symbol, block);
-            outputPattern.map(symbol, block);
+            this.inputPattern.map(symbol, block);
+            this.outputPattern.map(symbol, block);
             return this;
         }
 
@@ -381,18 +381,18 @@ public class MultiblockConversionRecipe implements IMultiblockRecipe, IDatagen {
         }
 
         public Builder symbol(char symbol, TagKey<Block> tag) {
-            inputPattern.map(symbol, BlockStatePredicate.builder().of(tag));
-            outputPattern.map(symbol, BlockStatePredicate.builder().of(tag));
+            this.inputPattern.map(symbol, BlockStatePredicate.builder().of(tag));
+            this.outputPattern.map(symbol, BlockStatePredicate.builder().of(tag));
             return this;
         }
 
         public Builder inputSymbol(char symbol, BlockStatePredicate.Builder predicate) {
-            inputPattern.map(symbol, predicate);
+            this.inputPattern.map(symbol, predicate);
             return this;
         }
 
         public Builder inputSymbol(char symbol, Block block) {
-            inputPattern.map(symbol, block);
+            this.inputPattern.map(symbol, block);
             return this;
         }
 
@@ -405,17 +405,17 @@ public class MultiblockConversionRecipe implements IMultiblockRecipe, IDatagen {
         }
 
         public Builder inputSymbol(char symbol, TagKey<Block> tag) {
-            inputPattern.map(symbol, BlockStatePredicate.builder().of(tag));
+            this.inputPattern.map(symbol, BlockStatePredicate.builder().of(tag));
             return this;
         }
 
         public Builder outputSymbol(char symbol, BlockStatePredicate.Builder predicate) {
-            outputPattern.map(symbol, predicate);
+            this.outputPattern.map(symbol, predicate);
             return this;
         }
 
         public Builder outputSymbol(char symbol, Block block) {
-            outputPattern.map(symbol, block);
+            this.outputPattern.map(symbol, block);
             return this;
         }
 
@@ -428,7 +428,7 @@ public class MultiblockConversionRecipe implements IMultiblockRecipe, IDatagen {
         }
 
         public Builder outputSymbol(char symbol, TagKey<Block> tag) {
-            outputPattern.map(symbol, BlockStatePredicate.builder().of(tag));
+            this.outputPattern.map(symbol, BlockStatePredicate.builder().of(tag));
             return this;
         }
 
@@ -439,7 +439,7 @@ public class MultiblockConversionRecipe implements IMultiblockRecipe, IDatagen {
 
         @Override
         public MultiblockConversionRecipe buildRecipe() {
-            return new MultiblockConversionRecipe(inputPattern.build(), outputPattern.build(), postAction);
+            return new MultiblockConversionRecipe(this.inputPattern.build(), this.outputPattern.build(), this.postAction);
         }
 
         @Override

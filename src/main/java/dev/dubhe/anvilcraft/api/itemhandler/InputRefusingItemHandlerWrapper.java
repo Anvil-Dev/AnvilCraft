@@ -12,12 +12,12 @@ public class InputRefusingItemHandlerWrapper implements IItemHandler {
 
     @Override
     public int getSlots() {
-        return delegate.getSlots();
+        return this.delegate.getSlots();
     }
 
     @Override
     public ItemStack getStackInSlot(int i) {
-        return delegate.getStackInSlot(i);
+        return this.delegate.getStackInSlot(i);
     }
 
     @Override
@@ -27,12 +27,12 @@ public class InputRefusingItemHandlerWrapper implements IItemHandler {
 
     @Override
     public ItemStack extractItem(int i, int i1, boolean b) {
-        return delegate.extractItem(i, i1, b);
+        return this.delegate.extractItem(i, i1, b);
     }
 
     @Override
     public int getSlotLimit(int i) {
-        return delegate.getSlotLimit(i);
+        return this.delegate.getSlotLimit(i);
     }
 
     @Override

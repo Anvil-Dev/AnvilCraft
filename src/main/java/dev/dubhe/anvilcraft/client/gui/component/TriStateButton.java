@@ -57,13 +57,13 @@ public class TriStateButton extends Button {
             yOffset = this.texHeight;
         }
         
-        guiGraphics.blit(texture, this.getX(), this.getY(), 0, yOffset, this.width, this.height, this.texWidth, this.texHeight * 3);
+        guiGraphics.blit(this.texture, this.getX(), this.getY(), 0, yOffset, this.width, this.height, this.texWidth, this.texHeight * 3);
     }
 
     @Override
     public void onClick(double mouseX, double mouseY) {
-        if (onPress != null) {
-            onPress.accept(this);
+        if (this.onPress != null) {
+            this.onPress.accept(this);
         }
     }
 }

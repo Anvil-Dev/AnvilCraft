@@ -21,7 +21,7 @@ public class BottleFluidHandler implements IFluidHandlerItem {
 
     @Override
     public ItemStack getContainer() {
-        return container;
+        return this.container;
     }
 
     @Override
@@ -31,7 +31,7 @@ public class BottleFluidHandler implements IFluidHandlerItem {
 
     @Override
     public FluidStack getFluidInTank(int tank) {
-        if (container.is(Items.HONEY_BOTTLE)) {
+        if (this.container.is(Items.HONEY_BOTTLE)) {
             return new FluidStack(ModFluids.HONEY, FLUID_PER_BOTTLE);
         }
         return FluidStack.EMPTY;
@@ -50,12 +50,12 @@ public class BottleFluidHandler implements IFluidHandlerItem {
     @Override
     public int fill(FluidStack resource, FluidAction action) {
         if (resource.getAmount() < FLUID_PER_BOTTLE) return 0;
-        if (!container.is(Items.GLASS_BOTTLE)) return 0;
+        if (!this.container.is(Items.GLASS_BOTTLE)) return 0;
         ItemStack filled = getFilledBottle(resource);
         if (filled.isEmpty()) return 0;
 
         if (action.execute()) {
-            container = filled;
+            this.container = filled;
         }
         return FLUID_PER_BOTTLE;
     }
@@ -63,11 +63,11 @@ public class BottleFluidHandler implements IFluidHandlerItem {
     @Override
     public FluidStack drain(int maxDrain, FluidAction action) {
         if (maxDrain < FLUID_PER_BOTTLE) return FluidStack.EMPTY;
-        FluidStack result = getFluidInTank(0);
+        FluidStack result = this.getFluidInTank(0);
         if (result.isEmpty()) return FluidStack.EMPTY;
 
         if (action.execute()) {
-            container = new ItemStack(Items.GLASS_BOTTLE);
+            this.container = new ItemStack(Items.GLASS_BOTTLE);
         }
         return result;
     }
@@ -75,12 +75,12 @@ public class BottleFluidHandler implements IFluidHandlerItem {
     @Override
     public FluidStack drain(FluidStack resource, FluidAction action) {
         if (resource.getAmount() < FLUID_PER_BOTTLE) return FluidStack.EMPTY;
-        FluidStack result = getFluidInTank(0);
+        FluidStack result = this.getFluidInTank(0);
         if (result.isEmpty()) return FluidStack.EMPTY;
         if (!result.is(resource.getFluid())) return FluidStack.EMPTY;
 
         if (action.execute()) {
-            container = new ItemStack(Items.GLASS_BOTTLE);
+            this.container = new ItemStack(Items.GLASS_BOTTLE);
         }
         return result;
     }

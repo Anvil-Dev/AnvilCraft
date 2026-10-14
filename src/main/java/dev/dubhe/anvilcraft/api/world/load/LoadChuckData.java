@@ -62,7 +62,7 @@ public class LoadChuckData {
             if (this.isNeedRandomTick) {
                 RandomChuckTickLoadManager.register(this.centerPos, this);
             }
-            for (ChunkPos chunkPos : chunkPosList) {
+            for (ChunkPos chunkPos : this.chunkPosList) {
                 LevelLoadManager.addRef(level, chunkPos);
             }
         });
@@ -76,7 +76,7 @@ public class LoadChuckData {
             if (this.isNeedRandomTick) {
                 RandomChuckTickLoadManager.unregister(this.centerPos);
             }
-            for (ChunkPos chunkPos : chunkPosList) {
+            for (ChunkPos chunkPos : this.chunkPosList) {
                 LevelLoadManager.removeRef(level, chunkPos);
             }
         });

@@ -166,8 +166,8 @@ public class Slider extends AbstractWidget {
     }
 
     protected boolean isInSlider(double mouseX, double mouseY) {
-        int offsetX = posX + (int) (length * this.getProportion());
-        return mouseX > offsetX && mouseX < offsetX + 16 && mouseY > posY && mouseY < posY + 8;
+        int offsetX = this.posX + (int) (this.length * this.getProportion());
+        return mouseX > offsetX && mouseX < offsetX + 16 && mouseY > this.posY && mouseY < this.posY + 8;
     }
 
     @Override
@@ -181,8 +181,8 @@ public class Slider extends AbstractWidget {
     @Override
     protected void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         double prop = this.getProportion();
-        int offsetX = posX + (int) ((length) * prop);
-        guiGraphics.blit(SLIDER, offsetX, posY, 0, this.isHovered || this.scroll ? 8 : 0, 16, 8, 16, 16);
+        int offsetX = this.posX + (int) ((this.length) * prop);
+        guiGraphics.blit(SLIDER, offsetX, this.posY, 0, this.isHovered || this.scroll ? 8 : 0, 16, 8, 16, 16);
     }
 
     @Override

@@ -56,12 +56,12 @@ public class PropelPistonBlockEntity extends BaseLaserBlockEntity {
         PacketDistributor.sendToPlayersTrackingChunk(
             serverLevel,
             new ChunkPos(getBlockPos()),
-            new UpdatePropelPistonStoredEnergyPacket(getBlockPos(), storedEnergy)
+            new UpdatePropelPistonStoredEnergyPacket(getBlockPos(), this.storedEnergy)
         );
     }
 
     public void addEnergy(int energy) {
-        updateStoredEnergy(getStoredEnergy() + energy);
+        this.updateStoredEnergy(getStoredEnergy() + energy);
     }
 
     @Override
@@ -84,17 +84,17 @@ public class PropelPistonBlockEntity extends BaseLaserBlockEntity {
     }
 
     public void tick(Level level, BlockPos pos, BlockState state) {
-        updateLaserLevel(calculateLaserLevel());
+        updateLaserLevel(this.calculateLaserLevel());
         if (changed) {
-            delay = 0;
-            power = laserLevel * 30000;
+            this.delay = 0;
+            this.power = laserLevel * 30000;
         }
         if (!changed) {
             if (this.storedEnergy < AnvilCraft.CONFIG.machines.propelPistonMaxEnergy) {
-                delay++;
-                if (delay >= 20) {
-                    delay = 0;
-                    addEnergy(power);
+                this.delay++;
+                if (this.delay >= 20) {
+                    this.delay = 0;
+                    this.addEnergy(this.power);
                 }
             }
         }
@@ -104,7 +104,7 @@ public class PropelPistonBlockEntity extends BaseLaserBlockEntity {
         if (getStoredEnergy() > 0) {
             level.setBlockAndUpdate(pos, state.setValue(PropelPistonBlock.EXHAUSTED, false));
             if (!level.getBlockTicks().hasScheduledTick(pos, state.getBlock())) {
-                checkCanMove(level, pos, state);
+                this.checkCanMove(level, pos, state);
             }
         } else {
             level.setBlockAndUpdate(pos, state.setValue(PropelPistonBlock.EXHAUSTED, true).setValue(PropelPistonBlock.MOVING, false));

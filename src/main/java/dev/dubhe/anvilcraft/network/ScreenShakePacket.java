@@ -75,7 +75,7 @@ public record ScreenShakePacket(double x, double y, double z, float radius, int 
     @Override
     public void handleOnClient(Player player) {
         ShakeType[] types = ShakeType.values();
-        if (shakeOrdinal < 0 || shakeOrdinal >= types.length) return;
-        ScreenShakeManager.getInstance().trigger(new Vec3(x, y, z), radius, types[shakeOrdinal]);
+        if (this.shakeOrdinal < 0 || this.shakeOrdinal >= types.length) return;
+        ScreenShakeManager.getInstance().trigger(new Vec3(this.x, this.y, this.z), this.radius, types[this.shakeOrdinal]);
     }
 }

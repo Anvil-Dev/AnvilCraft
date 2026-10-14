@@ -86,13 +86,13 @@ public class SimplePowerGrid {
         this.pos = pos;
         this.level = level;
         this.id = id;
-        random.setSeed(id);
-        int[] colors = ColorUtil.hsvToRgb(random.nextInt(360), 80, 80);
+        this.random.setSeed(id);
+        int[] colors = ColorUtil.hsvToRgb(this.random.nextInt(360), 80, 80);
         this.color = FastColor.ARGB32.color((int) (0.4 * 255), colors[0], colors[1], colors[2]);
         this.generate = generate;
         this.consume = consume;
         this.infinitePower = infinitePower;
-        blocks.addAll(powerComponentInfoList.stream().map(PowerComponentInfo::pos).toList());
+        this.blocks.addAll(powerComponentInfoList.stream().map(PowerComponentInfo::pos).toList());
         this.powerComponentInfoList.addAll(powerComponentInfoList);
     }
 
@@ -110,7 +110,7 @@ public class SimplePowerGrid {
             switch (component.getComponentType()) {
                 case STORAGE -> {
                     IPowerStorage it = (IPowerStorage) component;
-                    powerComponentInfoList.add(new PowerComponentInfo(
+                    this.powerComponentInfoList.add(new PowerComponentInfo(
                         it.getPos(),
                         0,
                         0,
@@ -123,7 +123,7 @@ public class SimplePowerGrid {
                 }
                 case CONSUMER -> {
                     IPowerConsumer it = (IPowerConsumer) component;
-                    powerComponentInfoList.add(new PowerComponentInfo(
+                    this.powerComponentInfoList.add(new PowerComponentInfo(
                         it.getPos(),
                         it.getInputPower(),
                         0,
@@ -136,7 +136,7 @@ public class SimplePowerGrid {
                 }
                 case PRODUCER -> {
                     IPowerProducer it = (IPowerProducer) component;
-                    powerComponentInfoList.add(new PowerComponentInfo(
+                    this.powerComponentInfoList.add(new PowerComponentInfo(
                         it.getPos(),
                         0,
                         it.getOutputPower(),
@@ -150,7 +150,7 @@ public class SimplePowerGrid {
 
                 case TRANSMITTER -> {
                     IPowerTransmitter it = (IPowerTransmitter) component;
-                    powerComponentInfoList.add(new PowerComponentInfo(
+                    this.powerComponentInfoList.add(new PowerComponentInfo(
                         it.getPos(),
                         0,
                         0,
@@ -162,7 +162,7 @@ public class SimplePowerGrid {
                     ));
                 }
 
-                default -> powerComponentInfoList.add(new PowerComponentInfo(
+                default -> this.powerComponentInfoList.add(new PowerComponentInfo(
                     component.getPos(),
                     0,
                     0,
@@ -232,7 +232,7 @@ public class SimplePowerGrid {
      * 获得指定坐标的电网元件信息
      */
     public Optional<PowerComponentInfo> getInfoForPos(BlockPos pos) {
-        return powerComponentInfoList.stream().filter(it -> it.pos().equals(pos)).findFirst();
+        return this.powerComponentInfoList.stream().filter(it -> it.pos().equals(pos)).findFirst();
     }
 
     public boolean isOverloaded() {
@@ -241,7 +241,7 @@ public class SimplePowerGrid {
 
     public boolean shouldRender(Vec3 cameraPos) {
         int renderDistance = Minecraft.getInstance().options.getEffectiveRenderDistance() * 16;
-        return powerComponentInfoList.stream().anyMatch(it -> it.pos().getCenter().distanceTo(cameraPos) < renderDistance);
+        return this.powerComponentInfoList.stream().anyMatch(it -> it.pos().getCenter().distanceTo(cameraPos) < renderDistance);
     }
 
     private void createTransmitterVisualLines() {
@@ -324,7 +324,7 @@ public class SimplePowerGrid {
         }
         this.shapeFuture = SimplePowerGrid.EXECUTOR.submit(() -> {
             List<VoxelShape> input = new ArrayList<>();
-            for (PowerComponentInfo it : powerComponentInfoList) {
+            for (PowerComponentInfo it : this.powerComponentInfoList) {
                 Vec3 center = it.pos().getCenter();
                 float size = it.range() * 2 + 1;
                 input.add(Shapes.create(AABB.ofSize(center, size, size, size)));
@@ -369,7 +369,7 @@ public class SimplePowerGrid {
 
     public void destroy() {
         if (this.shapeFuture != null && !this.shapeFuture.isDone()) {
-            shapeFuture.cancel(true);
+            this.shapeFuture.cancel(true);
         }
     }
 

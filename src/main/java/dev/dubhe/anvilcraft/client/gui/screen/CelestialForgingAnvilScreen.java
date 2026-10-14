@@ -145,7 +145,7 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
     };
 
     public boolean isGuideTriggered() {
-        return Boolean.TRUE.equals(guideTriggered);
+        return Boolean.TRUE.equals(this.guideTriggered);
     }
 
     /// 搜索状态枚举
@@ -221,7 +221,7 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
         super(menu, playerInventory, title);
         this.imageWidth = 344;
         this.imageHeight = 207;
-        mapsGuide = new CelestialMapsGuideWidget(new AbstractIntList() {
+        this.mapsGuide = new CelestialMapsGuideWidget(new AbstractIntList() {
             @Override
             public int getInt(int index) {
                 return getMenu().getBlockEntity().getAnvilCount(index);
@@ -244,54 +244,54 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
 
         /// 从持久化数据恢复状态
         var be = getMenu().getBlockEntity();
-        if (be.isSearching() && searchState == SearchState.IDLE) {
-            searchState = SearchState.LOADING;
-        } else if (be.getCelestialBodyData() != null && searchState == SearchState.IDLE) {
-            searchState = SearchState.DONE;
+        if (be.isSearching() && this.searchState == SearchState.IDLE) {
+            this.searchState = SearchState.LOADING;
+        } else if (be.getCelestialBodyData() != null && this.searchState == SearchState.IDLE) {
+            this.searchState = SearchState.DONE;
         }
 
         /// 捕获初始砧子数量，以便指南仅在变化时触发
         for (int i = 0; i < 4; i++) {
-            previousAnvilCounts[i] = be.getAnvilCount(i);
+            this.previousAnvilCounts[i] = be.getAnvilCount(i);
         }
         var len = MAP_SIZE / 2;
-        mapsGuide.setX(getGuiLeft() + PV_X + (PV_W - len) / 2);
-        mapsGuide.setY(getGuiTop() + PV_Y + (PV_H - len) / 2);
-        mapsGuide.setSize(len, len);
-        addRenderableWidget(mapsGuide);
-        if (guideTriggered == null) {
-            guideTriggered = searchState != SearchState.DONE;
+        this.mapsGuide.setX(getGuiLeft() + PV_X + (PV_W - len) / 2);
+        this.mapsGuide.setY(getGuiTop() + PV_Y + (PV_H - len) / 2);
+        this.mapsGuide.setSize(len, len);
+        addRenderableWidget(this.mapsGuide);
+        if (this.guideTriggered == null) {
+            this.guideTriggered = this.searchState != SearchState.DONE;
         }
     }
 
     @Override
     protected void containerTick() {
         super.containerTick();
-        previewRotTick++;
+        this.previewRotTick++;
 
         /// 检测砧子数量变化以触发星图指南
         var be = getMenu().getBlockEntity();
         for (int i = 0; i < 4; i++) {
             int cur = be.getAnvilCount(i);
-            if (cur != previousAnvilCounts[i]) {
-                guideTriggered = true;
-                missingAmplifierBlocked = false;
+            if (cur != this.previousAnvilCounts[i]) {
+                this.guideTriggered = true;
+                this.missingAmplifierBlocked = false;
                 LargeBlockPlacePreviewEventListener.removeMissingAmplifierAnvil(be.getBlockPos());
             }
-            previousAnvilCounts[i] = cur;
+            this.previousAnvilCounts[i] = cur;
         }
-        if (missingAmplifierBlocked && be.isAmplifierPresent()) {
-            missingAmplifierBlocked = false;
+        if (this.missingAmplifierBlocked && be.isAmplifierPresent()) {
+            this.missingAmplifierBlocked = false;
             LargeBlockPlacePreviewEventListener.removeMissingAmplifierAnvil(be.getBlockPos());
         }
         /// 开始新搜索时重置指南触发状态
-        if (searchState == SearchState.LOADING) {
-            guideTriggered = false;
+        if (this.searchState == SearchState.LOADING) {
+            this.guideTriggered = false;
         }
 
-        if (lockedMsgTick > 0) lockedMsgTick--;
-        if (refactorErrorTick > 0) refactorErrorTick--;
-        if (unlockWarningTick > 0) unlockWarningTick--;
+        if (this.lockedMsgTick > 0) this.lockedMsgTick--;
+        if (this.refactorErrorTick > 0) this.refactorErrorTick--;
+        if (this.unlockWarningTick > 0) this.unlockWarningTick--;
 
         /// 加速器进度的客户端倒计时显示
         {
@@ -299,25 +299,25 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
             if (beAccel.isAcceleratorActive()) {
                 int serverTicks = beAccel.getAcceleratorTicksRemaining();
                 /// 首次初始化或服务端值严格领先（数值更小）
-                if (localAcceleratorTicksRemaining <= 0 || serverTicks < localAcceleratorTicksRemaining) {
-                    localAcceleratorTicksRemaining = serverTicks;
+                if (this.localAcceleratorTicksRemaining <= 0 || serverTicks < this.localAcceleratorTicksRemaining) {
+                    this.localAcceleratorTicksRemaining = serverTicks;
                 }
-                if (localAcceleratorTicksRemaining > 0 && !beAccel.isAcceleratorPaused()) {
-                    localAcceleratorTicksRemaining--;
+                if (this.localAcceleratorTicksRemaining > 0 && !beAccel.isAcceleratorPaused()) {
+                    this.localAcceleratorTicksRemaining--;
                 }
             } else {
-                localAcceleratorTicksRemaining = 0;
+                this.localAcceleratorTicksRemaining = 0;
             }
         }
 
-        if (searchState == SearchState.LOADING) {
+        if (this.searchState == SearchState.LOADING) {
             CelestialBodyData cur = be.getCelestialBodyData();
             if (be.isPowerInsufficient()) {
-                searchState = SearchState.POWER_FAIL;
-            } else if (cur != null && cur != preSearchBody) {
-                searchState = SearchState.DONE;
+                this.searchState = SearchState.POWER_FAIL;
+            } else if (cur != null && cur != this.preSearchBody) {
+                this.searchState = SearchState.DONE;
             } else if (be.isSearchFailed()) {
-                searchState = SearchState.FAIL;
+                this.searchState = SearchState.FAIL;
             }
         }
     }
@@ -332,37 +332,37 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
         int relY = mouseY - j;
 
         /// 搜索按钮（精灵图每状态48x16，总计48x32）
-        ResourceLocation btnTex = (searchState == SearchState.DONE && !searchHistory().isEmpty()) ? TEX_REFORGING : TEX_FORGING;
+        ResourceLocation btnTex = (this.searchState == SearchState.DONE && !this.searchHistory().isEmpty()) ? TEX_REFORGING : TEX_FORGING;
         boolean hoverSearch = relX >= SB_X && relX < SB_X + SB_W && relY >= SB_Y && relY < SB_Y + SB_H;
-        renderButton(guiGraphics, btnTex, i + SB_X, j + SB_Y, SB_W, SB_H, hoverSearch);
+        this.renderButton(guiGraphics, btnTex, i + SB_X, j + SB_Y, SB_W, SB_H, hoverSearch);
 
         /// 预览区域底部按钮
-        renderPreviewBottomButtons(guiGraphics, i, j, relX, relY);
+        this.renderPreviewBottomButtons(guiGraphics, i, j, relX, relY);
 
         /// 重构区域
-        renderRefactorSection(guiGraphics, i, j, relX, relY);
+        this.renderRefactorSection(guiGraphics, i, j, relX, relY);
     }
 
     /// 渲染预览区域下方的上一个/下一个/锁定按钮。
     /// 由 #renderBg 调用，并在指南渲染后再次调用以保持在上层。
     private void renderPreviewBottomButtons(GuiGraphics guiGraphics, int guiLeft, int guiTop, int relX, int relY) {
-        if (searchState != SearchState.DONE && searchState != SearchState.LOADING) return;
+        if (this.searchState != SearchState.DONE && this.searchState != SearchState.LOADING) return;
         boolean hasPrev = getMenu().getBlockEntity().hasPreviousHistory();
         boolean hasNext = getMenu().getBlockEntity().hasNextHistory();
         /// 上一个按钮
         if (hasPrev) {
-            boolean hover = isOverPrevButton(relX, relY);
-            renderButton(guiGraphics, TEX_PREV, guiLeft + PV_X + 4, guiTop + PV_BOT_Y + 14, 16, 16, hover);
+            boolean hover = this.isOverPrevButton(relX, relY);
+            this.renderButton(guiGraphics, TEX_PREV, guiLeft + PV_X + 4, guiTop + PV_BOT_Y + 14, 16, 16, hover);
         }
         /// 下一个按钮
         if (hasNext) {
-            boolean hover = isOverNextButton(relX, relY);
-            renderButton(guiGraphics, TEX_NEXT, guiLeft + PV_X + PV_W - 20, guiTop + PV_BOT_Y + 14, 16, 16, hover);
+            boolean hover = this.isOverNextButton(relX, relY);
+            this.renderButton(guiGraphics, TEX_NEXT, guiLeft + PV_X + PV_W - 20, guiTop + PV_BOT_Y + 14, 16, 16, hover);
         }
         /// 锁定按钮
-        boolean hoverLock = isOverLockButton(relX, relY);
-        ResourceLocation lockTex = isLocked() ? TEX_LOCKED : TEX_UNLOCKED;
-        renderButton(guiGraphics, lockTex, guiLeft + PV_X + PV_W / 2 - 8, guiTop + PV_BOT_Y + 14, 16, 16, hoverLock);
+        boolean hoverLock = this.isOverLockButton(relX, relY);
+        ResourceLocation lockTex = this.isLocked() ? TEX_LOCKED : TEX_UNLOCKED;
+        this.renderButton(guiGraphics, lockTex, guiLeft + PV_X + PV_W / 2 - 8, guiTop + PV_BOT_Y + 14, 16, 16, hoverLock);
     }
 
     /// 渲染精灵图按钮：上半为正常状态，下半为悬停状态。
@@ -379,10 +379,10 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
     private void renderRefactorSection(GuiGraphics guiGraphics, int guiLeft, int guiTop, int relX, int relY) {
         CelestialBodyData body = getMenu().getBlockEntity().getCelestialBodyData();
         boolean hasAcceleratorActive = getMenu().getBlockEntity().isAcceleratorActive();
-        boolean isAmplifiedPlanet = isAmplifiedPlanetBody(body);
+        boolean isAmplifiedPlanet = this.isAmplifiedPlanetBody(body);
         boolean hasMegastructure = getMenu().getBlockEntity().getActiveMegastructureIndex() >= 0
             && !isAmplifiedPlanet;
-        boolean showOptions = isLocked() && body != null && searchState == SearchState.DONE;
+        boolean showOptions = this.isLocked() && body != null && this.searchState == SearchState.DONE;
         boolean isActive = showOptions && !hasAcceleratorActive;
 
         CelestialRefactorOption activeOption = null;
@@ -391,7 +391,7 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
         }
 
         if (hasMegastructure && isActive) {
-            refactorOptions = CelestialRefactorRegistry.getOptions(
+            this.refactorOptions = CelestialRefactorRegistry.getOptions(
                 body,
                 getMenu().getBlockEntity().isAmplify(),
                 getMenu().getBlockEntity().getPlanetaryResourceSet()
@@ -399,21 +399,21 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
                 .filter(CelestialRefactorOption::auxiliary)
                 .toList();
         } else if (!hasMegastructure && isActive) {
-            refactorOptions = CelestialRefactorRegistry.getOptions(
+            this.refactorOptions = CelestialRefactorRegistry.getOptions(
                 body,
                 getMenu().getBlockEntity().isAmplify(),
                 getMenu().getBlockEntity().getPlanetaryResourceSet()
             );
         } else {
-            refactorOptions = List.of();
+            this.refactorOptions = List.of();
         }
 
         /// 在增幅锻星砧上，只有恒星天体才能承载巨构
         if (isAmplifiedPlanet) {
-            refactorOptions = List.of();
+            this.refactorOptions = List.of();
         }
 
-        int btnCount = refactorOptions.size();
+        int btnCount = this.refactorOptions.size();
 
         /// 计算已建造巨构的换行使用说明文本
         List<FormattedCharSequence> wrappedUsageLines = List.of();
@@ -431,18 +431,18 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
             int textRows = wrappedUsageLines.isEmpty() ? 0
                 : (wrappedUsageLines.size() + linesPerTextRow - 1) / linesPerTextRow;
             int totalRows = buttonRows + textRows;
-            refactorMaxScroll = Math.max(0, totalRows - RF_ROWS_VISIBLE);
+            this.refactorMaxScroll = Math.max(0, totalRows - RF_ROWS_VISIBLE);
         } else {
             int totalRows = btnCount > 0 ? (btnCount + RF_COLS - 1) / RF_COLS : 0;
-            refactorMaxScroll = Math.max(0, totalRows - RF_ROWS_VISIBLE);
+            this.refactorMaxScroll = Math.max(0, totalRows - RF_ROWS_VISIBLE);
         }
-        if (rfScrollRow > refactorMaxScroll) rfScrollRow = refactorMaxScroll;
-        if (rfScrollRow < 0) rfScrollRow = 0;
-        if (selectedRefactorIndex >= btnCount) selectedRefactorIndex = -1;
+        if (this.rfScrollRow > this.refactorMaxScroll) this.rfScrollRow = this.refactorMaxScroll;
+        if (this.rfScrollRow < 0) this.rfScrollRow = 0;
+        if (this.selectedRefactorIndex >= btnCount) this.selectedRefactorIndex = -1;
 
         /// 渲染可见行（视口中2行）
         for (int visibleRow = 0; visibleRow < RF_ROWS_VISIBLE; visibleRow++) {
-            int contentRow = rfScrollRow + visibleRow;
+            int contentRow = this.rfScrollRow + visibleRow;
 
             if (hasMegastructure) {
                 int totalSlots = 1 + btnCount;
@@ -458,18 +458,18 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
                         int by = guiTop + RF_BTN_Y[visibleRow * RF_COLS + col];
 
                         if (isBuiltButton && activeOption != null) {
-                            renderButton(guiGraphics, TEX_REFACTOR_OPTIONS, bx, by, RF_BTN_W, RF_BTN_H, true);
-                            renderMegastructureModel(guiGraphics, activeOption, bx, by, RF_BTN_W, RF_BTN_H);
+                            this.renderButton(guiGraphics, TEX_REFACTOR_OPTIONS, bx, by, RF_BTN_W, RF_BTN_H, true);
+                            this.renderMegastructureModel(guiGraphics, activeOption, bx, by, RF_BTN_W, RF_BTN_H);
                         } else if (optIdx >= 0 && optIdx < btnCount) {
                             boolean hovered = relX >= RF_BTN_X[visibleRow * RF_COLS + col]
                                               && relX < RF_BTN_X[visibleRow * RF_COLS + col] + RF_BTN_W
                                               && relY >= RF_BTN_Y[visibleRow * RF_COLS + col]
                                               && relY < RF_BTN_Y[visibleRow * RF_COLS + col] + RF_BTN_H;
-                            boolean selected = optIdx == selectedRefactorIndex;
-                            renderButton(guiGraphics, TEX_REFACTOR_OPTIONS, bx, by, RF_BTN_W, RF_BTN_H,
+                            boolean selected = optIdx == this.selectedRefactorIndex;
+                            this.renderButton(guiGraphics, TEX_REFACTOR_OPTIONS, bx, by, RF_BTN_W, RF_BTN_H,
                                 hovered || selected);
-                            CelestialRefactorOption option = refactorOptions.get(optIdx);
-                            renderMegastructureModel(guiGraphics, option, bx, by, RF_BTN_W, RF_BTN_H);
+                            CelestialRefactorOption option = this.refactorOptions.get(optIdx);
+                            this.renderMegastructureModel(guiGraphics, option, bx, by, RF_BTN_W, RF_BTN_H);
                             if (selected) {
                                 guiGraphics.fill(bx, by, bx + RF_BTN_W, by + RF_BTN_H, 0x40_00FF00);
                             }
@@ -491,7 +491,7 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
             } else {
                 /// 普通模式：2列网格，未建造巨构
                 for (int col = 0; col < RF_COLS; col++) {
-                    int optIdx = (rfScrollRow + visibleRow) * RF_COLS + col;
+                    int optIdx = (this.rfScrollRow + visibleRow) * RF_COLS + col;
                     if (optIdx >= btnCount) continue;
 
                     int bx = guiLeft + RF_BTN_X[visibleRow * RF_COLS + col];
@@ -500,12 +500,12 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
                                       && relX < RF_BTN_X[visibleRow * RF_COLS + col] + RF_BTN_W
                                       && relY >= RF_BTN_Y[visibleRow * RF_COLS + col]
                                       && relY < RF_BTN_Y[visibleRow * RF_COLS + col] + RF_BTN_H;
-                    boolean selected = optIdx == selectedRefactorIndex;
+                    boolean selected = optIdx == this.selectedRefactorIndex;
 
-                    renderButton(guiGraphics, TEX_REFACTOR_OPTIONS, bx, by, RF_BTN_W, RF_BTN_H,
+                    this.renderButton(guiGraphics, TEX_REFACTOR_OPTIONS, bx, by, RF_BTN_W, RF_BTN_H,
                         hovered || selected);
-                    CelestialRefactorOption option = refactorOptions.get(optIdx);
-                    renderMegastructureModel(guiGraphics, option, bx, by, RF_BTN_W, RF_BTN_H);
+                    CelestialRefactorOption option = this.refactorOptions.get(optIdx);
+                    this.renderMegastructureModel(guiGraphics, option, bx, by, RF_BTN_W, RF_BTN_H);
                     if (selected) {
                         guiGraphics.fill(bx, by, bx + RF_BTN_W, by + RF_BTN_H, 0x40_00FF00);
                     }
@@ -514,21 +514,21 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
         }
 
         /// 渲染滚动条
-        if (refactorMaxScroll > 0) {
-            renderRefactorScrollbar(guiGraphics, guiLeft, guiTop, refactorMaxScroll);
+        if (this.refactorMaxScroll > 0) {
+            this.renderRefactorScrollbar(guiGraphics, guiLeft, guiTop, this.refactorMaxScroll);
         }
 
         /// 渲染开始重构按钮（增幅行星仅显示警告）
-        boolean showStartButton = !isAmplifiedPlanet && (!hasMegastructure || !refactorOptions.isEmpty());
+        boolean showStartButton = !isAmplifiedPlanet && (!hasMegastructure || !this.refactorOptions.isEmpty());
         if (showStartButton) {
             boolean hoverStart = relX >= RF_START_X && relX < RF_START_X + RF_START_W
                 && relY >= RF_START_Y && relY < RF_START_Y + RF_START_H;
-            renderButton(guiGraphics, TEX_REFACTORING, guiLeft + RF_START_X, guiTop + RF_START_Y,
+            this.renderButton(guiGraphics, TEX_REFACTORING, guiLeft + RF_START_X, guiTop + RF_START_Y,
                 RF_START_W, RF_START_H, hoverStart);
         }
 
         /// 增幅器+行星警告（红色文本，在按钮区域居中）
-        if (isAmplifiedPlanet && isLocked() && body != null && searchState == SearchState.DONE) {
+        if (isAmplifiedPlanet && this.isLocked() && body != null && this.searchState == SearchState.DONE) {
             Component warning = Component.translatable("screen.anvilcraft.cfa.amplified_planet_warning");
             List<FormattedCharSequence> warningLines = font.split(warning, BMT_TEXT_W);
             int areaCY = (RF_BTN_Y[0] + RF_BTN_Y[2] + RF_BTN_H) / 2; /// 中心Y = 74
@@ -539,7 +539,7 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
                 int cx = guiLeft + areaCX - font.width(line) / 2;
                 guiGraphics.drawString(font, line, cx, startY + i * (font.lineHeight + 1), 0xFF5555, true);
             }
-        } else if (!isLocked() || body == null || searchState != SearchState.DONE) {
+        } else if (!this.isLocked() || body == null || this.searchState != SearchState.DONE) {
             /// 未锁定时在按钮区域居中显示"需要先锁定"文本
             Component needLock = Component.translatable("screen.anvilcraft.cfa.need_lock");
             int areaCX = (RF_BTN_X[0] + RF_BTN_X[1] + RF_BTN_W) / 2; /// 中心X = 291
@@ -555,7 +555,7 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
         if (maxScroll < 1) return;
         int scrollX = guiLeft + RF_SCROLL_X;
         int maxY = RF_SCROLL_Y + RF_SCROLL_H - RF_SCROLL_THUMB_H;
-        int scrollY = RF_SCROLL_Y + (rfScrollRow * (RF_SCROLL_H - RF_SCROLL_THUMB_H) / maxScroll);
+        int scrollY = RF_SCROLL_Y + (this.rfScrollRow * (RF_SCROLL_H - RF_SCROLL_THUMB_H) / maxScroll);
         scrollY = Mth.clamp(scrollY, RF_SCROLL_Y, maxY);
         guiGraphics.blit(SharedTextures.SWITCH_TABLE_SLIDER, scrollX, guiTop + scrollY, 0, 0, RF_SCROLL_W, RF_SCROLL_THUMB_H, 8, 12);
     }
@@ -585,9 +585,9 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
         float scale = baseScale / divisor;
         poseStack.scale(scale, -scale, scale);
         poseStack.mulPose(com.mojang.math.Axis.XP.rotationDegrees(30));
-        float baseRotation = (previewRotTick * 2) % 360;
+        float baseRotation = (this.previewRotTick * 2) % 360;
         poseStack.mulPose(com.mojang.math.Axis.YP.rotationDegrees(
-            option.rotation(baseRotation, previewRotTick)
+            option.rotation(baseRotation, this.previewRotTick)
         ));
 
         var bufferSource = guiGraphics.bufferSource();
@@ -611,19 +611,19 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
         guiGraphics.drawString(this.font, refactorTitle, refactorTitleX, RF_TITLE_Y, 0x404040, false);
 
         CelestialForgingAnvilMenu menu = this.getMenu();
-        drawParamText(guiGraphics, CelestialForgingAnvilMenu.formatAge(menu.getBlockEntity().getAnvilCount(0)), 33, 43, 58);
-        drawParamText(guiGraphics, CelestialForgingAnvilMenu.formatRadius(menu.getBlockEntity().getAnvilCount(1)), 33, 61, 58);
-        drawParamText(guiGraphics, CelestialForgingAnvilMenu.formatMass(menu.getBlockEntity().getAnvilCount(2)), 33, 79, 58);
-        drawParamText(guiGraphics, CelestialForgingAnvilMenu.formatTemperature(menu.getBlockEntity().getAnvilCount(3)), 33, 97, 58);
+        this.drawParamText(guiGraphics, CelestialForgingAnvilMenu.formatAge(menu.getBlockEntity().getAnvilCount(0)), 33, 43, 58);
+        this.drawParamText(guiGraphics, CelestialForgingAnvilMenu.formatRadius(menu.getBlockEntity().getAnvilCount(1)), 33, 61, 58);
+        this.drawParamText(guiGraphics, CelestialForgingAnvilMenu.formatMass(menu.getBlockEntity().getAnvilCount(2)), 33, 79, 58);
+        this.drawParamText(guiGraphics, CelestialForgingAnvilMenu.formatTemperature(menu.getBlockEntity().getAnvilCount(3)), 33, 97, 58);
 
-        renderPreviewArea(guiGraphics);
+        this.renderPreviewArea(guiGraphics);
     }
 
     private void renderPreviewArea(GuiGraphics guiGraphics) {
-        mapsGuide.visible = false;
+        this.mapsGuide.visible = false;
         /// 检查恒星天体是否缺少增幅器
         CelestialBodyData body = getMenu().getBlockEntity().getCelestialBodyData();
-        boolean missingAmplifier = missingAmplifierBlocked
+        boolean missingAmplifier = this.missingAmplifierBlocked
             || body instanceof StarData star
             && !star.specialRedDwarf()
             && !getMenu().getBlockEntity().isAmplifierPresent();
@@ -642,14 +642,14 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
         }
         /// 砧子数量变化且未锁定且未搜索时，显示星图指南。
         /// 指南保持可见直到新搜索开始（guideTriggered被重置）。
-        if (!isLocked() && isGuideTriggered() && searchState != SearchState.LOADING) {
-            mapsGuide.visible = true;
+        if (!this.isLocked() && this.isGuideTriggered() && this.searchState != SearchState.LOADING) {
+            this.mapsGuide.visible = true;
             return;
         }
-        switch (searchState) {
+        switch (this.searchState) {
             case LOADING -> {
                 String base = Component.translatable("screen.anvilcraft.cfa.search_loading").getString();
-                int dots = (previewRotTick / 10) % 3;
+                int dots = (this.previewRotTick / 10) % 3;
                 String text = base + ".".repeat(dots + 1);
                 int cx = PV_X + (PV_W - font.width(text)) / 2;
                 int cy = PV_Y + PV_H / 2 - font.lineHeight / 2;
@@ -671,11 +671,11 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
                 CelestialBodyData cur = getMenu().getBlockEntity().getCelestialBodyData();
                 if (cur != null) {
                     if (cur instanceof SpecialCelestialBodyData s && s.isPlayerHead()) {
-                        renderPlayerHeadFullPreview(guiGraphics, s);
+                        this.renderPlayerHeadFullPreview(guiGraphics, s);
                     } else {
-                        renderBodyPreview(guiGraphics, cur);
-                        renderBodyInfo(guiGraphics, cur);
-                        renderResourceBar(guiGraphics);
+                        this.renderBodyPreview(guiGraphics, cur);
+                        this.renderBodyInfo(guiGraphics, cur);
+                        this.renderResourceBar(guiGraphics);
                     }
                 }
             }
@@ -704,19 +704,19 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
     private void renderBodyPreview(GuiGraphics guiGraphics, CelestialBodyData body) {
         /// 玩家头颅天体
         if (body instanceof SpecialCelestialBodyData s && s.isPlayerHead()) {
-            renderPlayerHeadFullPreview(guiGraphics, s);
+            this.renderPlayerHeadFullPreview(guiGraphics, s);
             return;
         }
         /// 复杂自定义模型（粉碎、空洞、血肉、智能、错误天体）
         if (body instanceof SpecialCelestialBodyData s && s.needsCustomModel()) {
-            renderComplexModelPreview(guiGraphics, s);
+            this.renderComplexModelPreview(guiGraphics, s);
             return;
         }
         int size = Math.min(PV_BODY_W, PV_BODY_H) - 16;
         float scale = size / 2f;
         int cx = PV_X + PV_BODY_W / 2;
         int cy = PV_Y + PV_BODY_H / 2;
-        float rotY = (previewRotTick * CelestialBodyData.getVisualRotationSpeed(body.rotationSpeed())) * (float) Math.PI / 180f;
+        float rotY = (this.previewRotTick * CelestialBodyData.getVisualRotationSpeed(body.rotationSpeed())) * (float) Math.PI / 180f;
 
         guiGraphics.pose().pushPose();
         guiGraphics.pose().translate(cx, cy, 100);
@@ -730,15 +730,15 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
         if (body instanceof StarData star) {
             if (star.bodyClass() == CelestialBodyClass.NEUTRON_STAR
                 || star.bodyClass() == CelestialBodyClass.BLACK_HOLE) {
-                renderRemnantModelPreview(guiGraphics, star);
+                this.renderRemnantModelPreview(guiGraphics, star);
                 /// 渲染中子星射流，产生灯塔效应
                 if (star.bodyClass() == CelestialBodyClass.NEUTRON_STAR) {
-                    renderNeutronStarJetPreview(guiGraphics, star);
+                    this.renderNeutronStarJetPreview(guiGraphics, star);
                 }
                 guiGraphics.pose().popPose();
                 return;
             }
-            renderStarPreview(guiGraphics, star);
+            this.renderStarPreview(guiGraphics, star);
             guiGraphics.pose().popPose();
             return;
         }
@@ -842,7 +842,7 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
         guiGraphics.pose().translate(0.5, 0.5, 0.5);
         guiGraphics.pose().scale(1.005f, 1.005f, 1.005f);
         guiGraphics.pose().translate(-0.5, -0.5, -0.5);
-        renderStarColorOverlay(guiGraphics, rgb[0], rgb[1], rgb[2]);
+        this.renderStarColorOverlay(guiGraphics, rgb[0], rgb[1], rgb[2]);
         guiGraphics.pose().popPose();
 
         /// 光晕
@@ -876,7 +876,7 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
         float scale = size / 2f;
         int cx = PV_X + PV_BODY_W / 2;
         int cy = PV_Y + PV_BODY_H / 2;
-        float rotY = (previewRotTick * CelestialBodyData.getVisualRotationSpeed(special.rotationSpeed())) * (float) Math.PI / 180f;
+        float rotY = (this.previewRotTick * CelestialBodyData.getVisualRotationSpeed(special.rotationSpeed())) * (float) Math.PI / 180f;
 
         guiGraphics.pose().pushPose();
         guiGraphics.pose().translate(cx, cy, 100);
@@ -946,7 +946,7 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
         float scale = PV_W * 0.45f;
         int cx = PV_X + PV_W / 2;
         int cy = PV_Y + PV_H / 2 - 12;
-        float rotY = (previewRotTick * CelestialBodyData.getVisualRotationSpeed(special.rotationSpeed()))
+        float rotY = (this.previewRotTick * CelestialBodyData.getVisualRotationSpeed(special.rotationSpeed()))
             * (float) Math.PI / 180f;
 
         guiGraphics.pose().pushPose();
@@ -1046,14 +1046,14 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
 
         /// 显示加速器演化进度而非正常天体信息
         if (be.isAcceleratorActive()) {
-            renderAcceleratorProgress(guiGraphics, be);
+            this.renderAcceleratorProgress(guiGraphics, be);
             return;
         }
 
         float offsetAge = be.getDisplayOffset(0);
         float offsetRadius = be.getDisplayOffset(1);
         float offsetMass = be.getDisplayOffset(2);
-        List<Component> lines = buildInfoLines(body, be.getAgeAnvilCount(), be.getStellarMass(), offsetAge, offsetRadius, offsetMass);
+        List<Component> lines = this.buildInfoLines(body, be.getAgeAnvilCount(), be.getStellarMass(), offsetAge, offsetRadius, offsetMass);
         /// 将 "标签: 值" 拆分为 "标签:" 和 "值" 分别显示在两行
         List<Component> displayLines = new ArrayList<>();
         for (Component comp : lines) {
@@ -1071,15 +1071,15 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
         int lineHeight = font.lineHeight + 1;
         int maxLines = PV_INFO_H / lineHeight;
         int maxScroll = Math.max(0, displayLines.size() - maxLines);
-        if (scrollOffset > maxScroll) scrollOffset = maxScroll;
-        if (scrollOffset < 0) scrollOffset = 0;
+        if (this.scrollOffset > maxScroll) this.scrollOffset = maxScroll;
+        if (this.scrollOffset < 0) this.scrollOffset = 0;
 
         guiGraphics.enableScissor(leftPos + PV_INFO_X, topPos + PV_INFO_Y, leftPos + PV_INFO_X + PV_INFO_W, topPos + PV_INFO_Y + PV_INFO_H);
 
-        for (int i = scrollOffset; i < Math.min(displayLines.size(), scrollOffset + maxLines); i++) {
+        for (int i = this.scrollOffset; i < Math.min(displayLines.size(), this.scrollOffset + maxLines); i++) {
             String lineText = displayLines.get(i).getString();
             int color = lineText.endsWith(":") ? 0x888888 : 0xFFFFFF;
-            guiGraphics.drawString(font, displayLines.get(i), PV_INFO_X, PV_INFO_Y + (i - scrollOffset) * lineHeight, color, false);
+            guiGraphics.drawString(font, displayLines.get(i), PV_INFO_X, PV_INFO_Y + (i - this.scrollOffset) * lineHeight, color, false);
         }
         guiGraphics.disableScissor();
 
@@ -1089,7 +1089,7 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
             int sbW = 2;
             guiGraphics.fill(sbX, PV_INFO_Y, sbX + sbW, PV_INFO_Y + PV_INFO_H, 0x40_FFFFFF);
             int thumbH = Math.max(12, PV_INFO_H * maxLines / displayLines.size());
-            int thumbY = PV_INFO_Y + (PV_INFO_H - thumbH) * scrollOffset / maxScroll;
+            int thumbY = PV_INFO_Y + (PV_INFO_H - thumbH) * this.scrollOffset / maxScroll;
             guiGraphics.fill(sbX, thumbY, sbX + sbW, thumbY + thumbH, 0x80_CCCCCC);
         }
     }
@@ -1128,7 +1128,8 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
                 String.format(java.util.Locale.ROOT, "%.3g", evolution.metallicityZ())));
         }
         /// 剩余时间（使用客户端本地倒计时，每tick递减）
-        int displayTicks = localAcceleratorTicksRemaining > 0 ? localAcceleratorTicksRemaining : be.getAcceleratorTicksRemaining();
+        int displayTicks = this.localAcceleratorTicksRemaining > 0 ? this.localAcceleratorTicksRemaining
+            : be.getAcceleratorTicksRemaining();
         int secondsRemaining = displayTicks / 20;
         lines.add(Component.translatable("screen.anvilcraft.cfa.evolution.time_remaining",
             Component.literal(formatDuration(secondsRemaining))));
@@ -1145,18 +1146,18 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
         for (Component line : lines) wrapped.addAll(font.split(line, PV_INFO_W - 5));
         int maxLines = PV_INFO_H / lineHeight;
         int maxScroll = Math.max(0, wrapped.size() - maxLines);
-        scrollOffset = Math.clamp(scrollOffset, 0, maxScroll);
+        this.scrollOffset = Math.clamp(this.scrollOffset, 0, maxScroll);
         guiGraphics.enableScissor(leftPos + PV_INFO_X, topPos + PV_INFO_Y,
             leftPos + PV_INFO_X + PV_INFO_W, topPos + PV_INFO_Y + PV_INFO_H);
-        for (int index = scrollOffset; index < Math.min(wrapped.size(), scrollOffset + maxLines); index++) {
+        for (int index = this.scrollOffset; index < Math.min(wrapped.size(), this.scrollOffset + maxLines); index++) {
             guiGraphics.drawString(font, wrapped.get(index), PV_INFO_X,
-                PV_INFO_Y + (index - scrollOffset) * lineHeight, 0xFFFFFF, false);
+                PV_INFO_Y + (index - this.scrollOffset) * lineHeight, 0xFFFFFF, false);
         }
         guiGraphics.disableScissor();
         if (maxScroll > 0) {
             int barX = PV_INFO_X + PV_INFO_W - 3;
             int thumbHeight = Math.max(8, PV_INFO_H * maxLines / wrapped.size());
-            int thumbY = PV_INFO_Y + (PV_INFO_H - thumbHeight) * scrollOffset / maxScroll;
+            int thumbY = PV_INFO_Y + (PV_INFO_H - thumbHeight) * this.scrollOffset / maxScroll;
             guiGraphics.fill(barX, PV_INFO_Y, barX + 2, PV_INFO_Y + PV_INFO_H, 0x40_FFFFFF);
             guiGraphics.fill(barX, thumbY, barX + 2, thumbY + thumbHeight, 0x80_CCCCCC);
         }
@@ -1192,49 +1193,49 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
         if (resources == null || resources.isEmpty()) return;
 
         List<ColoredEntry> entries = new ArrayList<>();
-        collectItemEntries(
+        this.collectItemEntries(
             entries,
             resources.getMinerals(),
             COLOR_MINERAL,
             "screen.anvilcraft.cfa.resource.mineral"
         );
-        collectFluidEntries(
+        this.collectFluidEntries(
             entries,
             resources.getFluids(),
             COLOR_FLUID,
             "screen.anvilcraft.cfa.resource.fluid"
         );
-        collectItemEntries(
+        this.collectItemEntries(
             entries,
             resources.getGiantItems(),
             COLOR_GIANT_ITEM,
             "screen.anvilcraft.cfa.resource.giant_item"
         );
-        collectFluidEntries(
+        this.collectFluidEntries(
             entries,
             resources.getGiantFluids(),
             COLOR_GIANT_FLUID,
             "screen.anvilcraft.cfa.resource.giant_fluid"
         );
-        collectItemEntries(
+        this.collectItemEntries(
             entries,
             resources.getBiologicalItems(),
             COLOR_BIOLOGICAL,
             "screen.anvilcraft.cfa.resource.biological_item"
         );
-        collectFluidEntries(
+        this.collectFluidEntries(
             entries,
             resources.getBiologicalFluids(),
             COLOR_BIOLOGICAL_FLUID,
             "screen.anvilcraft.cfa.resource.biological_fluid"
         );
-        collectItemEntries(
+        this.collectItemEntries(
             entries,
             resources.getOfferings(),
             COLOR_OFFERING,
             "screen.anvilcraft.cfa.resource.offering"
         );
-        collectItemEntries(
+        this.collectItemEntries(
             entries,
             resources.getWastelandItems(),
             COLOR_WASTELAND,
@@ -1260,7 +1261,7 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
         int contentX = PV_X + 4;
         int contentW = PV_W - 8;
         int maxScroll = Math.max(0, totalW - contentW);
-        resourceScrollOffset = Mth.clamp(resourceScrollOffset, 0, maxScroll);
+        this.resourceScrollOffset = Mth.clamp(this.resourceScrollOffset, 0, maxScroll);
 
         /// 裁剪区域（绝对屏幕坐标）
         guiGraphics.enableScissor(leftPos + PV_X, topPos + PV_RES_Y, leftPos + PV_X + PV_W, topPos + PV_RES_Y + PV_RES_H);
@@ -1270,7 +1271,7 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
         guiGraphics.drawString(font, title, PV_X + (PV_W - font.width(title)) / 2, PV_RES_Y, 0xFF_AAAAAA, false);
 
         /// 资源条目（GUI相对坐标）
-        int x = contentX - resourceScrollOffset;
+        int x = contentX - this.resourceScrollOffset;
         int y = PV_RES_Y + font.lineHeight + 1;
         for (int i = 0; i < entries.size(); i++) {
             ColoredEntry entry = entries.get(i);
@@ -1299,7 +1300,7 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
             int trackW = PV_W - 4;
             guiGraphics.fill(trackX, sbY, trackX + trackW, sbY + 2, 0x40_FFFFFF);
             int thumbW = Math.max(12, trackW * contentW / totalW);
-            int thumbX = trackX + (trackW - thumbW) * resourceScrollOffset / maxScroll;
+            int thumbX = trackX + (trackW - thumbW) * this.resourceScrollOffset / maxScroll;
             guiGraphics.fill(thumbX, sbY, thumbX + thumbW, sbY + 2, 0x80_CCCCCC);
         }
     }
@@ -1411,9 +1412,9 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
                         Component.translatable("screen.anvilcraft.cfa.liquid."
                             + (lc != null ? lc.getSerializedName() : LiquidCoverage.NONE.getSerializedName()))
                     ));
-                    lines.add(magText(s.magneticFieldStrength()));
-                    lines.add(spinText(s.rotationSpeed()));
-                    lines.add(tiltText(s.axialTilt()));
+                    lines.add(this.magText(s.magneticFieldStrength()));
+                    lines.add(this.spinText(s.rotationSpeed()));
+                    lines.add(this.tiltText(s.axialTilt()));
                 }
             }
             case StarData s -> {
@@ -1437,9 +1438,9 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
                     "screen.anvilcraft.cfa.liquid",
                     Component.translatable("screen.anvilcraft.cfa.liquid." + rp.liquidCoverage().getSerializedName())
                 ));
-                lines.add(magText(rp.magneticFieldStrength()));
-                lines.add(spinText(rp.rotationSpeed()));
-                lines.add(tiltText(rp.axialTilt()));
+                lines.add(this.magText(rp.magneticFieldStrength()));
+                lines.add(this.spinText(rp.rotationSpeed()));
+                lines.add(this.tiltText(rp.axialTilt()));
             }
             case GiantPlanetData gp -> {
                 if (!gp.brownDwarf()) {
@@ -1452,9 +1453,9 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
                     "screen.anvilcraft.cfa.wind",
                     Component.translatable("screen.anvilcraft.cfa.wind." + gp.windSpeed().getSerializedName())
                 ));
-                lines.add(magText(gp.magneticFieldStrength()));
-                lines.add(spinText(gp.rotationSpeed()));
-                lines.add(tiltText(gp.axialTilt()));
+                lines.add(this.magText(gp.magneticFieldStrength()));
+                lines.add(this.spinText(gp.rotationSpeed()));
+                lines.add(this.tiltText(gp.axialTilt()));
             }
             default -> {
             }
@@ -1566,22 +1567,22 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         super.render(guiGraphics, mouseX, mouseY, partialTick);
         /// 当星图指南可见时，在其上方重新渲染预览按钮
-        if (!isLocked() && isGuideTriggered() && searchState != SearchState.LOADING) {
+        if (!this.isLocked() && this.isGuideTriggered() && this.searchState != SearchState.LOADING) {
             int relX = mouseX - leftPos;
             int relY = mouseY - topPos;
-            renderPreviewBottomButtons(guiGraphics, leftPos, topPos, relX, relY);
+            this.renderPreviewBottomButtons(guiGraphics, leftPos, topPos, relX, relY);
         }
         this.renderTooltip(guiGraphics, mouseX, mouseY);
-        if (lockedMsgTick > 0) {
+        if (this.lockedMsgTick > 0) {
             Component msg = Component.translatable("screen.anvilcraft.cfa.locked_tooltip");
             int w = font.width(msg);
             guiGraphics.drawString(font, msg, leftPos + (imageWidth - w) / 2, topPos - 12, 0xFF5555, true);
         }
-        if (refactorErrorTick > 0 && refactorErrorMsg != null) {
-            int w = font.width(refactorErrorMsg);
-            guiGraphics.drawString(font, refactorErrorMsg, leftPos + (imageWidth - w) / 2, topPos - 12, 0xFF5555, true);
+        if (this.refactorErrorTick > 0 && this.refactorErrorMsg != null) {
+            int w = font.width(this.refactorErrorMsg);
+            guiGraphics.drawString(font, this.refactorErrorMsg, leftPos + (imageWidth - w) / 2, topPos - 12, 0xFF5555, true);
         }
-        if (unlockWarningTick > 0) {
+        if (this.unlockWarningTick > 0) {
             Component msg = Component.translatable("screen.anvilcraft.cfa.unlock_warning");
             int w = font.width(msg);
             guiGraphics.drawString(font, msg, leftPos + (imageWidth - w) / 2, topPos - 12, 0xFF5555, true);
@@ -1640,28 +1641,28 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
         int relX = x - leftPos;
         int relY = y - topPos;
         if (relX >= SB_X && relX < SB_X + SB_W && relY >= SB_Y && relY < SB_Y + SB_H) {
-            if (isLocked()) {
+            if (this.isLocked()) {
                 guiGraphics.renderTooltip(font, Component.translatable("screen.anvilcraft.cfa.locked_tooltip"), x, y);
-            } else if (searchState == SearchState.DONE && !searchHistory().isEmpty()) {
+            } else if (this.searchState == SearchState.DONE && !this.searchHistory().isEmpty()) {
                 guiGraphics.renderTooltip(font, Component.translatable("screen.anvilcraft.cfa.re_search_tooltip"), x, y);
             } else {
                 guiGraphics.renderTooltip(font, Component.translatable("screen.anvilcraft.cfa.search_tooltip"), x, y);
             }
         }
-        if (isOverLockButton(relX, relY) && (searchState == SearchState.DONE || searchState == SearchState.LOADING)) {
+        if (this.isOverLockButton(relX, relY) && (this.searchState == SearchState.DONE || this.searchState == SearchState.LOADING)) {
             guiGraphics.renderTooltip(
                 font,
-                Component.translatable(isLocked() ? "screen.anvilcraft.cfa.unlock" : "screen.anvilcraft.cfa.lock"),
+                Component.translatable(this.isLocked() ? "screen.anvilcraft.cfa.unlock" : "screen.anvilcraft.cfa.lock"),
                 x,
                 y
             );
         }
         /// 已建造巨构按钮的提示框（格式与重构选项相同：名称 + 材料 + 描述）
         CelestialBodyData body = getMenu().getBlockEntity().getCelestialBodyData();
-        boolean hasMegastructureTip = !isAmplifiedPlanetBody(body)
+        boolean hasMegastructureTip = !this.isAmplifiedPlanetBody(body)
             && getMenu().getBlockEntity().getActiveMegastructureIndex() >= 0;
-        if (hasMegastructureTip && isLocked() && searchState == SearchState.DONE) {
-            if (isHoveringBuiltMegastructureButton(relX, relY)) {
+        if (hasMegastructureTip && this.isLocked() && this.searchState == SearchState.DONE) {
+            if (this.isHoveringBuiltMegastructureButton(relX, relY)) {
                 CelestialRefactorOption activeOption = getMenu().getBlockEntity().getActiveMegastructureOption();
                 if (activeOption != null) {
                     Component name = Component.translatable(activeOption.displayName());
@@ -1688,10 +1689,10 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
             }
         }
         /// 重构选项提示框
-        if (isLocked() && searchState == SearchState.DONE) {
-            int refOpt = getRefactorOptionAt(relX, relY);
-            if (refOpt >= 0 && refOpt < refactorOptions.size()) {
-                CelestialRefactorOption option = refactorOptions.get(refOpt);
+        if (this.isLocked() && this.searchState == SearchState.DONE) {
+            int refOpt = this.getRefactorOptionAt(relX, relY);
+            if (refOpt >= 0 && refOpt < this.refactorOptions.size()) {
+                CelestialRefactorOption option = this.refactorOptions.get(refOpt);
                 Component name = Component.translatable(option.displayName());
                 List<Component> tooltipLines = new ArrayList<>();
                 tooltipLines.add(name);
@@ -1714,12 +1715,13 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
             }
         }
         /// 材料槽提示框
-        if (isLocked() && searchState == SearchState.DONE && this.hoveredSlot instanceof CelestialForgingAnvilMenu.CFAMaterialSlot) {
+        if (this.isLocked() && this.searchState == SearchState.DONE
+            && this.hoveredSlot instanceof CelestialForgingAnvilMenu.CFAMaterialSlot) {
             guiGraphics.renderTooltip(font, Component.translatable("screen.anvilcraft.cfa.refactor_materials"), x, y);
         }
         /// 开始重构按钮提示框
-        if (isLocked() && searchState == SearchState.DONE
-            && !isAmplifiedPlanetBody(body) && isOverRefactorStart(relX, relY)) {
+        if (this.isLocked() && this.searchState == SearchState.DONE
+            && !this.isAmplifiedPlanetBody(body) && this.isOverRefactorStart(relX, relY)) {
             guiGraphics.renderTooltip(font, Component.translatable("screen.anvilcraft.cfa.refactor_start_tooltip"), x, y);
         }
         /// 种子槽提示框
@@ -1759,17 +1761,17 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
         int relX = (int) mouseX - leftPos;
         int relY = (int) mouseY - topPos;
 
-        if (isOverSearchButton(relX, relY)) {
-            if (isLocked()) {
-                showLockedMessage();
+        if (this.isOverSearchButton(relX, relY)) {
+            if (this.isLocked()) {
+                this.showLockedMessage();
                 return true;
             }
-            performSearch();
+            this.performSearch();
             return true;
         }
-        if (isOverPrevButton(relX, relY) && getMenu().getBlockEntity().hasPreviousHistory()) {
-            if (isLocked()) {
-                showLockedMessage();
+        if (this.isOverPrevButton(relX, relY) && getMenu().getBlockEntity().hasPreviousHistory()) {
+            if (this.isLocked()) {
+                this.showLockedMessage();
                 return true;
             }
             if (minecraft != null && minecraft.gameMode != null) {
@@ -1777,9 +1779,9 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
             }
             return true;
         }
-        if (isOverNextButton(relX, relY) && getMenu().getBlockEntity().hasNextHistory()) {
-            if (isLocked()) {
-                showLockedMessage();
+        if (this.isOverNextButton(relX, relY) && getMenu().getBlockEntity().hasNextHistory()) {
+            if (this.isLocked()) {
+                this.showLockedMessage();
                 return true;
             }
             if (minecraft != null && minecraft.gameMode != null) {
@@ -1787,12 +1789,12 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
             }
             return true;
         }
-        if (isOverLockButton(relX, relY) && (searchState == SearchState.DONE || searchState == SearchState.LOADING)) {
+        if (this.isOverLockButton(relX, relY) && (this.searchState == SearchState.DONE || this.searchState == SearchState.LOADING)) {
             if (getMenu().getBlockEntity().isAcceleratorActive()) {
                 return true;
             }
-            if (isLocked() && !hasShiftDown()) {
-                showUnlockWarning();
+            if (this.isLocked() && !hasShiftDown()) {
+                this.showUnlockWarning();
                 return true;
             }
             /// 发送锁定切换到服务端（按钮ID 200）
@@ -1800,13 +1802,13 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
                 minecraft.gameMode.handleInventoryButtonClick(getMenu().containerId, 200);
             }
             /// 同时在本地切换以获得即时UI反馈
-            setLocked(!isLocked());
+            this.setLocked(!this.isLocked());
             return true;
         }
         /// 重构选项点击
-        int optIdx = getRefactorOptionAt(relX, relY);
+        int optIdx = this.getRefactorOptionAt(relX, relY);
         if (optIdx >= 0) {
-            selectedRefactorIndex = optIdx;
+            this.selectedRefactorIndex = optIdx;
             /// 告诉服务端为此选项配置材料槽
             if (minecraft != null && minecraft.gameMode != null) {
                 minecraft.gameMode.handleInventoryButtonClick(getMenu().containerId, 9 + optIdx);
@@ -1814,15 +1816,15 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
             return true;
         }
         /// 开始重构按钮点击
-        if (isOverRefactorStart(relX, relY)
-            && !isAmplifiedPlanetBody(getMenu().getBlockEntity().getCelestialBodyData())) {
-            handleRefactorStart();
+        if (this.isOverRefactorStart(relX, relY)
+            && !this.isAmplifiedPlanetBody(getMenu().getBlockEntity().getCelestialBodyData())) {
+            this.handleRefactorStart();
             return true;
         }
         /// 重构滚动条拖动开始
-        if (isMouseInRefactorScrollbar(relX, relY)) {
-            if (getRefactorMaxScroll() > 0) {
-                isDraggingRfScrollbar = true;
+        if (this.isMouseInRefactorScrollbar(relX, relY)) {
+            if (this.getRefactorMaxScroll() > 0) {
+                this.isDraggingRfScrollbar = true;
                 return true;
             }
         }
@@ -1851,23 +1853,23 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
             }
         }
         /// 若显示星图指南，则说明信息区域和资源条不存在
-        if (!mapsGuide.visible) {
+        if (!this.mapsGuide.visible) {
             /// 信息区域：滚动文本
             if (relX >= PV_INFO_X && relX < PV_INFO_X + PV_INFO_W && relY >= PV_INFO_Y && relY < PV_INFO_Y + PV_INFO_H) {
-                scrollOffset -= (int) scrollY;
+                this.scrollOffset -= (int) scrollY;
                 return true;
             }
             /// 资源条：水平像素滚动
             if (relX >= PV_X && relX < PV_X + PV_W && relY >= PV_RES_Y && relY < PV_RES_Y + PV_RES_H) {
-                resourceScrollOffset -= (int) scrollY * 30;
+                this.resourceScrollOffset -= (int) scrollY * 30;
                 return true;
             }
         }
         /// 重构选项区域：滚动网格（包含巨构建造后的文本）
-        if (isMouseInRefactorArea(relX, relY) || isMouseInRefactorScrollbar(relX, relY)) {
-            int maxScroll = getRefactorMaxScroll();
+        if (this.isMouseInRefactorArea(relX, relY) || this.isMouseInRefactorScrollbar(relX, relY)) {
+            int maxScroll = this.getRefactorMaxScroll();
             if (maxScroll > 0) {
-                rfScrollRow = (int) Mth.clamp(rfScrollRow - scrollY, 0, maxScroll);
+                this.rfScrollRow = (int) Mth.clamp(this.rfScrollRow - scrollY, 0, maxScroll);
             }
             return true;
         }
@@ -1878,11 +1880,11 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
     public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
         int relX = (int) mouseX - leftPos;
         int relY = (int) mouseY - topPos;
-        if (isDraggingRfScrollbar) {
-            int maxScroll = getRefactorMaxScroll();
+        if (this.isDraggingRfScrollbar) {
+            int maxScroll = this.getRefactorMaxScroll();
             if (maxScroll > 0) {
                 float scroll = (relY - RF_SCROLL_Y - RF_SCROLL_THUMB_H / 2f) / (RF_SCROLL_H - RF_SCROLL_THUMB_H);
-                rfScrollRow = Mth.clamp((int) (scroll * maxScroll + 0.5f), 0, maxScroll);
+                this.rfScrollRow = Mth.clamp((int) (scroll * maxScroll + 0.5f), 0, maxScroll);
             }
             return true;
         }
@@ -1892,15 +1894,15 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
     /// # 搜索
 
     private void performSearch() {
-        if (searchState == SearchState.LOADING) return; /// 已在搜索中
+        if (this.searchState == SearchState.LOADING) return; /// 已在搜索中
         var be = getMenu().getBlockEntity();
         /// 一旦发起搜索就覆盖星图指南，使搜索结果（含"参数不合理"失败提示）可见。
         /// 否则参数不合理时直接进入 FAIL 状态、未经过 LOADING，指南不会被重置，
         /// 会一直盖住 FAIL 提示，造成"点按钮没反应"的错觉。
-        guideTriggered = false;
+        this.guideTriggered = false;
         /// 检查是否有种子物品 —— 有种子物品时跳过图表预检以发现特殊天体
         boolean hasSeedItem = !be.getAnvilInventory().getItem(4).isEmpty();
-        missingAmplifierBlocked = false;
+        this.missingAmplifierBlocked = false;
         /// 客户端预检：匹配不可能时立即失败（有种子物品时跳过）
         if (!hasSeedItem && minecraft != null && minecraft.level != null) {
             /// 缺少增幅器时，若只有增幅模式能匹配到该天体，
@@ -1915,7 +1917,7 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
                     minecraft.level.getRandom()
                 );
                 if (amplifiedPreCheck instanceof StarData star && !star.specialRedDwarf()) {
-                    missingAmplifierBlocked = true;
+                    this.missingAmplifierBlocked = true;
                     LargeBlockPlacePreviewEventListener.offerMissingAmplifierAnvil(be.getBlockPos());
                     return;
                 }
@@ -1929,17 +1931,17 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
                 minecraft.level.getRandom()
             );
             if (preCheck == null) {
-                searchState = SearchState.FAIL;
+                this.searchState = SearchState.FAIL;
                 return;
             }
         }
         /// 记住当前天体以检测新结果
-        preSearchBody = be.getCelestialBodyData();
+        this.preSearchBody = be.getCelestialBodyData();
         /// 向服务端发送按钮点击
         if (minecraft != null && minecraft.gameMode != null) {
             minecraft.gameMode.handleInventoryButtonClick(getMenu().containerId, 0);
         }
-        searchState = SearchState.LOADING;
+        this.searchState = SearchState.LOADING;
     }
 
     /// # 碰撞检测
@@ -1963,11 +1965,11 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
     private int lockedMsgTick = 0;
 
     private void showLockedMessage() {
-        lockedMsgTick = 60; /// 显示3秒
+        this.lockedMsgTick = 60; /// 显示3秒
     }
 
     private void showUnlockWarning() {
-        unlockWarningTick = 60; /// 显示3秒
+        this.unlockWarningTick = 60; /// 显示3秒
     }
 
     /// # 重构界面辅助
@@ -1975,12 +1977,12 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
     /// 获取给定相对鼠标位置下的重构选项索引。
     /// 如果没有命中任何选项按钮，返回 -1。
     private int getRefactorOptionAt(int rx, int ry) {
-        if (refactorOptions.isEmpty()) return -1;
+        if (this.refactorOptions.isEmpty()) return -1;
         boolean hasMegastructure = getMenu().getBlockEntity().getActiveMegastructureIndex() >= 0
-            && !isAmplifiedPlanetBody(getMenu().getBlockEntity().getCelestialBodyData());
+            && !this.isAmplifiedPlanetBody(getMenu().getBlockEntity().getCelestialBodyData());
         for (int visibleRow = 0; visibleRow < RF_ROWS_VISIBLE; visibleRow++) {
             for (int col = 0; col < RF_COLS; col++) {
-                int contentRow = rfScrollRow + visibleRow;
+                int contentRow = this.rfScrollRow + visibleRow;
                 int optIdx;
                 if (hasMegastructure) {
                     /// 第0行第0列为已建造巨构按钮（不可点击）
@@ -1989,7 +1991,7 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
                 } else {
                     optIdx = contentRow * RF_COLS + col;
                 }
-                if (optIdx < 0 || optIdx >= refactorOptions.size()) continue;
+                if (optIdx < 0 || optIdx >= this.refactorOptions.size()) continue;
                 int bx = RF_BTN_X[visibleRow * RF_COLS + col];
                 int by = RF_BTN_Y[visibleRow * RF_COLS + col];
                 if (rx >= bx && rx < bx + RF_BTN_W && ry >= by && ry < by + RF_BTN_H) {
@@ -2016,11 +2018,11 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
     /// 获取上次渲染过程中计算的最大滚动值，该值在巨构建造后
     /// 会同时计入按钮行和文本行。
     private int getRefactorMaxScroll() {
-        return refactorMaxScroll;
+        return this.refactorMaxScroll;
     }
 
     private boolean isHoveringBuiltMegastructureButton(int rx, int ry) {
-        if (rfScrollRow != 0) return false; /// 已建造按钮固定在第 0 行，滚动后不显示
+        if (this.rfScrollRow != 0) return false; /// 已建造按钮固定在第 0 行，滚动后不显示
         return rx >= RF_BTN_X[0] && rx < RF_BTN_X[0] + RF_BTN_W
             && ry >= RF_BTN_Y[0] && ry < RF_BTN_Y[0] + RF_BTN_H;
     }
@@ -2036,12 +2038,12 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
     }
 
     private void handleRefactorStart() {
-        if (selectedRefactorIndex < 0 || selectedRefactorIndex >= refactorOptions.size()) {
-            showRefactorError(Component.translatable("screen.anvilcraft.cfa.no_refactor_option"));
+        if (this.selectedRefactorIndex < 0 || this.selectedRefactorIndex >= this.refactorOptions.size()) {
+            this.showRefactorError(Component.translatable("screen.anvilcraft.cfa.no_refactor_option"));
             return;
         }
         var be = getMenu().getBlockEntity();
-        CelestialRefactorOption option = refactorOptions.get(selectedRefactorIndex);
+        CelestialRefactorOption option = this.refactorOptions.get(this.selectedRefactorIndex);
         if (option.needsMaterial()) {
             /// 检查材料槽（槽位索引 = 砧子槽数量 = 5，即容器中的第5个槽位）
             /// 材料槽是CFA的 materialContainer，在菜单中映射
@@ -2049,19 +2051,19 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
             ItemStack required = option.material().copyWithCount(option.materialCount());
             if (!ItemStack.isSameItem(inSlot, required)
                 || inSlot.getCount() < required.getCount()) {
-                showRefactorError(Component.translatable("screen.anvilcraft.cfa.insufficient_materials"));
+                this.showRefactorError(Component.translatable("screen.anvilcraft.cfa.insufficient_materials"));
                 return;
             }
         }
         /// 通过按钮点击向服务端发送建造请求，编码选项索引
         if (minecraft != null && minecraft.gameMode != null) {
             /// 使用按钮ID 100 + optionIndex 发送建造请求
-            minecraft.gameMode.handleInventoryButtonClick(getMenu().containerId, 100 + selectedRefactorIndex);
+            minecraft.gameMode.handleInventoryButtonClick(getMenu().containerId, 100 + this.selectedRefactorIndex);
         }
     }
 
     private void showRefactorError(Component msg) {
-        refactorErrorMsg = msg;
-        refactorErrorTick = 60;
+        this.refactorErrorMsg = msg;
+        this.refactorErrorTick = 60;
     }
 }

@@ -45,89 +45,89 @@ public class DevouringLevelReader implements LevelReader {
 
     @Override
     public @Nullable ChunkAccess getChunk(int i, int i1, ChunkStatus chunkStatus, boolean b) {
-        return parentLevel.getChunk(i, i1, chunkStatus, b);
+        return this.parentLevel.getChunk(i, i1, chunkStatus, b);
     }
 
     @Override
     @Deprecated
     public boolean hasChunk(int i, int i1) {
-        return parentLevel.hasChunk(i, i1);
+        return this.parentLevel.hasChunk(i, i1);
     }
 
     @Override
     public int getHeight(Heightmap.Types types, int i, int i1) {
-        return parentLevel.getHeight(types, i, i1);
+        return this.parentLevel.getHeight(types, i, i1);
     }
 
     @Override
     public int getHeight() {
-        return parentLevel.getHeight();
+        return this.parentLevel.getHeight();
     }
 
     @Override
     public int getSkyDarken() {
-        return parentLevel.getSkyDarken();
+        return this.parentLevel.getSkyDarken();
     }
 
     @Override
     public BiomeManager getBiomeManager() {
-        return parentLevel.getBiomeManager();
+        return this.parentLevel.getBiomeManager();
     }
 
     @Override
     public Holder<Biome> getUncachedNoiseBiome(int i, int i1, int i2) {
-        return parentLevel.getUncachedNoiseBiome(i, i1, i2);
+        return this.parentLevel.getUncachedNoiseBiome(i, i1, i2);
     }
 
     @Override
     public boolean isClientSide() {
-        return parentLevel.isClientSide();
+        return this.parentLevel.isClientSide();
     }
 
     @Override
     @Deprecated
     public int getSeaLevel() {
-        return parentLevel.getSeaLevel();
+        return this.parentLevel.getSeaLevel();
     }
 
     @Override
     public DimensionType dimensionType() {
-        return parentLevel.dimensionType();
+        return this.parentLevel.dimensionType();
     }
 
     @Override
     public RegistryAccess registryAccess() {
-        return parentLevel.registryAccess();
+        return this.parentLevel.registryAccess();
     }
 
     @Override
     public FeatureFlagSet enabledFeatures() {
-        return parentLevel.enabledFeatures();
+        return this.parentLevel.enabledFeatures();
     }
 
     @Override
     public float getShade(Direction direction, boolean b) {
-        return parentLevel.getShade(direction, b);
+        return this.parentLevel.getShade(direction, b);
     }
 
     @Override
     public LevelLightEngine getLightEngine() {
-        return parentLevel.getLightEngine();
+        return this.parentLevel.getLightEngine();
     }
 
     @Override
     public WorldBorder getWorldBorder() {
-        return parentLevel.getWorldBorder();
+        return this.parentLevel.getWorldBorder();
     }
 
     @Override
     public List<VoxelShape> getEntityCollisions(@Nullable Entity entity, AABB aabb) {
-        return parentLevel.getEntityCollisions(entity, aabb);
+        return this.parentLevel.getEntityCollisions(entity, aabb);
     }
 
     @Override
     public @Nullable BlockEntity getBlockEntity(BlockPos blockPos) {
-        return parentLevel.getBlockEntity(blockPos);
+        return this.parentLevel.getBlockEntity(blockPos);
     }
 
 
@@ -139,8 +139,8 @@ public class DevouringLevelReader implements LevelReader {
      */
     @Override
     public BlockState getBlockState(BlockPos blockPos) {
-        BlockState blockState = parentLevel.getBlockState(blockPos);
-        if (DevourUtil.canDevour(blockState) && (devouringPoses.contains(blockPos) || multiParts.contains(blockPos))) {
+        BlockState blockState = this.parentLevel.getBlockState(blockPos);
+        if (DevourUtil.canDevour(blockState) && (this.devouringPoses.contains(blockPos) || this.multiParts.contains(blockPos))) {
             return AIR_STATE;
         }
         return blockState;
@@ -148,28 +148,28 @@ public class DevouringLevelReader implements LevelReader {
 
     @Override
     public FluidState getFluidState(BlockPos blockPos) {
-        return parentLevel.getFluidState(blockPos);
+        return this.parentLevel.getFluidState(blockPos);
     }
 
     // Methods with default implementations
     @Override
     @Nullable
     public BlockGetter getChunkForCollisions(int chunkX, int chunkZ) {
-        return parentLevel.getChunkForCollisions(chunkX, chunkZ);
+        return this.parentLevel.getChunkForCollisions(chunkX, chunkZ);
     }
 
     @Override
     public int getRawBrightness(BlockPos blockPos, int amount) {
-        return parentLevel.getRawBrightness(blockPos, amount);
+        return this.parentLevel.getRawBrightness(blockPos, amount);
     }
 
     @Override
     public int getBrightness(LightLayer lightType, BlockPos blockPos) {
-        return parentLevel.getBrightness(lightType, blockPos);
+        return this.parentLevel.getBrightness(lightType, blockPos);
     }
 
     @Override
     public int getMinBuildHeight() {
-        return parentLevel.getMinBuildHeight();
+        return this.parentLevel.getMinBuildHeight();
     }
 }

@@ -91,7 +91,7 @@ public class FilterMenu extends AbstractContainerMenu {
 
     @Override
     public boolean stillValid(Player player) {
-        return container.stillValid(player);
+        return this.container.stillValid(player);
     }
 
     @Override

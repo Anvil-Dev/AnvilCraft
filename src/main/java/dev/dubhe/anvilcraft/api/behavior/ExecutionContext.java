@@ -12,11 +12,11 @@ public class ExecutionContext<T> {
     }
 
     public void putAttachment(String key, Object item) {
-        attachment.put(key, item);
+        this.attachment.put(key, item);
     }
 
     public <T1> T1 getAttachment(String key, Class<T1> ty) {
-        Object item = attachment.get(key);
+        Object item = this.attachment.get(key);
         if (ty.isInstance(item)) {
             return ty.cast(item);
         }
@@ -30,10 +30,10 @@ public class ExecutionContext<T> {
     }
 
     public boolean has(String key) {
-        return attachment.containsKey(key);
+        return this.attachment.containsKey(key);
     }
 
     public T unwrap() {
-        return context;
+        return this.context;
     }
 }

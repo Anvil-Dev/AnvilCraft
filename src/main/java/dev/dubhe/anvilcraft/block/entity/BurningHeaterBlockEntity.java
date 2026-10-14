@@ -127,8 +127,8 @@ public class BurningHeaterBlockEntity extends BlockEntity implements IItemHandle
      * 在客户端上，根据上次同步时间进行本地倒计时估算，实现平滑刷新。
      */
     public int getDisplayBurnTime() {
-        if (level == null || !level.isClientSide()) return burnTime;
-        if (lastSyncGameTime <= 0) return burnTime;
+        if (level == null || !level.isClientSide()) return this.burnTime;
+        if (this.lastSyncGameTime <= 0) return this.burnTime;
         int elapsed = (int) (level.getGameTime() - this.lastSyncGameTime);
         return Math.max(0, this.burnTime - elapsed);
     }
@@ -151,7 +151,7 @@ public class BurningHeaterBlockEntity extends BlockEntity implements IItemHandle
 
             // 记录燃料消耗前的燃烧时间，检测是否有大幅度变化
             int burnTimeBeforeFuel = this.burnTime;
-            tryConsumeFuel();
+            this.tryConsumeFuel();
             boolean fuelConsumed = this.burnTime != burnTimeBeforeFuel;
 
             // 燃料消耗导致燃烧时间大幅度变化时同步到客户端
@@ -165,7 +165,7 @@ public class BurningHeaterBlockEntity extends BlockEntity implements IItemHandle
                 level.updateNeighbourForOutputSignal(worldPosition, getBlockState().getBlock());
             }
 
-            updateBurningState(level, pos, state);
+            this.updateBurningState(level, pos, state);
             HeaterManager.addProducer(pos, level, ModHeaterInfos.BURNING_HEATER);
             return;
         }
@@ -217,7 +217,7 @@ public class BurningHeaterBlockEntity extends BlockEntity implements IItemHandle
         this.burnTime = Math.max(0, this.burnTime - ticks);
         setChanged();
         if (level != null && !level.isClientSide()) {
-            updateBurningState(level, worldPosition, getBlockState());
+            this.updateBurningState(level, worldPosition, getBlockState());
             level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
             level.updateNeighbourForOutputSignal(worldPosition, getBlockState().getBlock());
         }

@@ -59,7 +59,7 @@ public record GravitySourcesSyncPacket(
 
     @Override
     public void handleOnClient(Player player) {
-        GravityManager.applyNetworkSync(player.level(), replace, sources, removed);
+        GravityManager.applyNetworkSync(player.level(), this.replace, this.sources, this.removed);
     }
 
     public record SourceData(
@@ -84,12 +84,12 @@ public record GravitySourcesSyncPacket(
         }
 
         public @Nullable GravityManager.GravitySource toSource() {
-            GravityManager.GravitySourceType type = new GravityManager.GravitySourceType(strength, radius, bodyRadius);
-            Vec3 center = new Vec3(centerX, centerY, centerZ);
-            if (!type.isValid() || !Double.isFinite(centerX) || !Double.isFinite(centerY) || !Double.isFinite(centerZ)) {
+            GravityManager.GravitySourceType type = new GravityManager.GravitySourceType(this.strength, this.radius, this.bodyRadius);
+            Vec3 center = new Vec3(this.centerX, this.centerY, this.centerZ);
+            if (!type.isValid() || !Double.isFinite(this.centerX) || !Double.isFinite(this.centerY) || !Double.isFinite(this.centerZ)) {
                 return null;
             }
-            return new GravityManager.GravitySource(id.immutable(), center, type);
+            return new GravityManager.GravitySource(this.id.immutable(), center, type);
         }
 
         private static SourceData decode(FriendlyByteBuf buffer) {
@@ -105,13 +105,13 @@ public record GravitySourcesSyncPacket(
         }
 
         private void encode(FriendlyByteBuf buffer) {
-            BlockPos.STREAM_CODEC.encode(buffer, id);
-            buffer.writeDouble(centerX);
-            buffer.writeDouble(centerY);
-            buffer.writeDouble(centerZ);
-            buffer.writeDouble(strength);
-            buffer.writeVarInt(radius);
-            buffer.writeDouble(bodyRadius);
+            BlockPos.STREAM_CODEC.encode(buffer, this.id);
+            buffer.writeDouble(this.centerX);
+            buffer.writeDouble(this.centerY);
+            buffer.writeDouble(this.centerZ);
+            buffer.writeDouble(this.strength);
+            buffer.writeVarInt(this.radius);
+            buffer.writeDouble(this.bodyRadius);
         }
     }
 }

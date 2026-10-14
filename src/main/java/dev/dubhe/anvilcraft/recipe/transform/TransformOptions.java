@@ -81,7 +81,7 @@ public enum TransformOptions implements StringRepresentable {
 
     @Override
     public String getSerializedName() {
-        return name;
+        return this.name;
     }
 
     public abstract void accept(Entity oldEntity, Entity newEntity);

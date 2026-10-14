@@ -48,9 +48,9 @@ public class CelestialBackGateBlockEntity extends BlockEntity {
 
     @SuppressWarnings("checkstyle:VariableDeclarationUsageDistance")
     public void configure(ResourceKey<Level> dimension, BlockPos portalPos, Direction facing) {
-        boolean connectionChanged = !dimension.equals(returnDimension)
-            || !portalPos.equals(returnPortalPos)
-            || facing != returnFacing;
+        boolean connectionChanged = !dimension.equals(this.returnDimension)
+            || !portalPos.equals(this.returnPortalPos)
+            || facing != this.returnFacing;
         this.returnDimension = dimension;
         this.returnPortalPos = portalPos.immutable();
         this.returnFacing = facing;
@@ -63,27 +63,27 @@ public class CelestialBackGateBlockEntity extends BlockEntity {
             level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
         }
         if (level instanceof ServerLevel serverLevel) {
-            syncWaterloggedState(serverLevel);
+            this.syncWaterloggedState(serverLevel);
         }
     }
 
     @Nullable
     public ResourceKey<Level> getReturnDimension() {
-        return returnDimension;
+        return this.returnDimension;
     }
 
     @Nullable
     public BlockPos getReturnPortalPos() {
-        return returnPortalPos;
+        return this.returnPortalPos;
     }
 
     private void syncWaterloggedState(ServerLevel gateLevel) {
-        if (returnDimension == null || returnPortalPos == null) return;
-        ServerLevel returnLevel = gateLevel.getServer().getLevel(returnDimension);
-        if (returnLevel == null || !returnLevel.hasChunkAt(returnPortalPos)) return;
+        if (this.returnDimension == null || this.returnPortalPos == null) return;
+        ServerLevel returnLevel = gateLevel.getServer().getLevel(this.returnDimension);
+        if (returnLevel == null || !returnLevel.hasChunkAt(this.returnPortalPos)) return;
 
         BlockState gateState = getBlockState();
-        BlockState returnPortalState = returnLevel.getBlockState(returnPortalPos);
+        BlockState returnPortalState = returnLevel.getBlockState(this.returnPortalPos);
         if (!(gateState.getBlock() instanceof CelestialBackGateBlock)
             || !(returnPortalState.getBlock() instanceof CelestialForgingAnvilPortalBlock)) {
             return;
@@ -91,18 +91,18 @@ public class CelestialBackGateBlockEntity extends BlockEntity {
 
         boolean gateWaterlogged = gateState.getValue(BlockStateProperties.WATERLOGGED);
         boolean returnPortalWaterlogged = returnPortalState.getValue(BlockStateProperties.WATERLOGGED);
-        if (!waterloggedStateInitialized) {
+        if (!this.waterloggedStateInitialized) {
             boolean waterlogged = gateWaterlogged || returnPortalWaterlogged;
             setWaterlogged(gateLevel, worldPosition, gateState, waterlogged);
-            setWaterlogged(returnLevel, returnPortalPos, returnPortalState, waterlogged);
-            updateWaterloggedState(waterlogged, waterlogged);
+            setWaterlogged(returnLevel, this.returnPortalPos, returnPortalState, waterlogged);
+            this.updateWaterloggedState(waterlogged, waterlogged);
             return;
         }
 
-        boolean gateChanged = gateWaterlogged != lastWaterlogged;
-        boolean returnPortalChanged = returnPortalWaterlogged != lastReturnPortalWaterlogged;
+        boolean gateChanged = gateWaterlogged != this.lastWaterlogged;
+        boolean returnPortalChanged = returnPortalWaterlogged != this.lastReturnPortalWaterlogged;
         if (gateChanged && !returnPortalChanged) {
-            setWaterlogged(returnLevel, returnPortalPos, returnPortalState, gateWaterlogged);
+            setWaterlogged(returnLevel, this.returnPortalPos, returnPortalState, gateWaterlogged);
             returnPortalWaterlogged = gateWaterlogged;
         } else if (!gateChanged && returnPortalChanged) {
             setWaterlogged(gateLevel, worldPosition, gateState, returnPortalWaterlogged);
@@ -110,11 +110,11 @@ public class CelestialBackGateBlockEntity extends BlockEntity {
         } else if (gateChanged && returnPortalChanged && gateWaterlogged != returnPortalWaterlogged) {
             boolean waterlogged = gateWaterlogged || returnPortalWaterlogged;
             setWaterlogged(gateLevel, worldPosition, gateState, waterlogged);
-            setWaterlogged(returnLevel, returnPortalPos, returnPortalState, waterlogged);
+            setWaterlogged(returnLevel, this.returnPortalPos, returnPortalState, waterlogged);
             gateWaterlogged = waterlogged;
             returnPortalWaterlogged = waterlogged;
         }
-        updateWaterloggedState(gateWaterlogged, returnPortalWaterlogged);
+        this.updateWaterloggedState(gateWaterlogged, returnPortalWaterlogged);
     }
 
     private static void setWaterlogged(ServerLevel level, BlockPos pos, BlockState state, boolean waterlogged) {
@@ -126,9 +126,9 @@ public class CelestialBackGateBlockEntity extends BlockEntity {
     }
 
     private void updateWaterloggedState(boolean gateWaterlogged, boolean returnPortalWaterlogged) {
-        if (waterloggedStateInitialized
-            && lastWaterlogged == gateWaterlogged
-            && lastReturnPortalWaterlogged == returnPortalWaterlogged) {
+        if (this.waterloggedStateInitialized
+            && this.lastWaterlogged == gateWaterlogged
+            && this.lastReturnPortalWaterlogged == returnPortalWaterlogged) {
             return;
         }
         this.lastWaterlogged = gateWaterlogged;
@@ -139,55 +139,55 @@ public class CelestialBackGateBlockEntity extends BlockEntity {
 
     public void tick() {
         if (!(level instanceof ServerLevel serverLevel)) return;
-        syncWaterloggedState(serverLevel);
-        if (!duplicateCleanupDone && returnDimension != null && returnPortalPos != null) {
+        this.syncWaterloggedState(serverLevel);
+        if (!this.duplicateCleanupDone && this.returnDimension != null && this.returnPortalPos != null) {
             CelestialTravelManager.cleanupDuplicateGates(
-                serverLevel, worldPosition, returnDimension, returnPortalPos, returnFacing
+                serverLevel, worldPosition, this.returnDimension, this.returnPortalPos, this.returnFacing
             );
-            duplicateCleanupDone = true;
+            this.duplicateCleanupDone = true;
         }
         AABB gateBox = new AABB(worldPosition);
-        for (UUID uuid : Set.copyOf(pendingEntities)) {
+        for (UUID uuid : Set.copyOf(this.pendingEntities)) {
             Entity entity = serverLevel.getEntity(uuid);
-            if (entity != null && gateBox.intersects(entity.getBoundingBox())) tryTouch(entity);
+            if (entity != null && gateBox.intersects(entity.getBoundingBox())) this.tryTouch(entity);
         }
-        pendingEntities.clear();
+        this.pendingEntities.clear();
         for (Entity entity : serverLevel.getEntitiesOfClass(Entity.class, gateBox)) {
-            tryTouch(entity);
+            this.tryTouch(entity);
         }
-        if (!touchingEntities.isEmpty()) {
+        if (!this.touchingEntities.isEmpty()) {
             Set<UUID> present = serverLevel.getEntitiesOfClass(Entity.class, gateBox)
                 .stream().map(Entity::getUUID).collect(Collectors.toSet());
-            touchingEntities.removeIf(uuid -> !present.contains(uuid));
+            this.touchingEntities.removeIf(uuid -> !present.contains(uuid));
         }
     }
 
     public void tryTouch(Entity entity) {
         UUID uuid = entity.getUUID();
-        if (touchingEntities.contains(uuid)) return;
+        if (this.touchingEntities.contains(uuid)) return;
         if (CelestialTravelManager.tryReturn(entity, this)) {
-            touchingEntities.add(uuid);
+            this.touchingEntities.add(uuid);
         }
     }
 
     /** Queue players for the next block-entity tick so movement packets are fully processed first. */
     public void queueTouch(Entity entity) {
-        pendingEntities.add(entity.getUUID());
+        this.pendingEntities.add(entity.getUUID());
     }
 
     @Override
     protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.saveAdditional(tag, registries);
-        if (returnDimension != null) {
-            tag.putString("returnDimension", returnDimension.location().toString());
+        if (this.returnDimension != null) {
+            tag.putString("returnDimension", this.returnDimension.location().toString());
         }
-        if (returnPortalPos != null) {
-            tag.putLong("returnPortalPos", returnPortalPos.asLong());
+        if (this.returnPortalPos != null) {
+            tag.putLong("returnPortalPos", this.returnPortalPos.asLong());
         }
-        tag.putString("returnFacing", returnFacing.getName());
-        tag.putBoolean("lastWaterlogged", lastWaterlogged);
-        tag.putBoolean("lastReturnPortalWaterlogged", lastReturnPortalWaterlogged);
-        tag.putBoolean("waterloggedStateInitialized", waterloggedStateInitialized);
+        tag.putString("returnFacing", this.returnFacing.getName());
+        tag.putBoolean("lastWaterlogged", this.lastWaterlogged);
+        tag.putBoolean("lastReturnPortalWaterlogged", this.lastReturnPortalWaterlogged);
+        tag.putBoolean("waterloggedStateInitialized", this.waterloggedStateInitialized);
     }
 
     @Override
@@ -196,23 +196,23 @@ public class CelestialBackGateBlockEntity extends BlockEntity {
         String dimensionName = tag.getString("returnDimension");
         if (!dimensionName.isEmpty()) {
             try {
-                returnDimension = ResourceKey.create(
+                this.returnDimension = ResourceKey.create(
                     Registries.DIMENSION, ResourceLocation.parse(dimensionName)
                 );
             } catch (IllegalArgumentException ignored) {
-                returnDimension = null;
+                this.returnDimension = null;
             }
         } else {
-            returnDimension = null;
+            this.returnDimension = null;
         }
-        returnPortalPos = tag.contains("returnPortalPos")
+        this.returnPortalPos = tag.contains("returnPortalPos")
             ? BlockPos.of(tag.getLong("returnPortalPos")) : null;
         Direction parsedFacing = Direction.byName(tag.getString("returnFacing"));
-        returnFacing = parsedFacing != null && parsedFacing.getAxis().isHorizontal()
+        this.returnFacing = parsedFacing != null && parsedFacing.getAxis().isHorizontal()
             ? parsedFacing : Direction.NORTH;
-        duplicateCleanupDone = false;
-        lastWaterlogged = tag.getBoolean("lastWaterlogged");
-        lastReturnPortalWaterlogged = tag.getBoolean("lastReturnPortalWaterlogged");
-        waterloggedStateInitialized = tag.getBoolean("waterloggedStateInitialized");
+        this.duplicateCleanupDone = false;
+        this.lastWaterlogged = tag.getBoolean("lastWaterlogged");
+        this.lastReturnPortalWaterlogged = tag.getBoolean("lastReturnPortalWaterlogged");
+        this.waterloggedStateInitialized = tag.getBoolean("waterloggedStateInitialized");
     }
 }

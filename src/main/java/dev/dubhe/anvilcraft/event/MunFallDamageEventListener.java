@@ -9,8 +9,8 @@ import net.neoforged.neoforge.event.entity.living.LivingFallEvent;
 /** 月球（Mun）维度的摔落伤害：超过 20 格才有 1 点伤害，之后每升高 6 格增加 1 点。 */
 @EventBusSubscriber(modid = AnvilCraft.MOD_ID)
 public class MunFallDamageEventListener {
-    /** 无伤害的安全下落高度（格）。 */
-    /** 超出安全高度后，每升高该格数增加 1 点伤害。 */
+    // 无伤害的安全下落高度（格）。
+    // 超出安全高度后，每升高该格数增加 1 点伤害。
 
     @SubscribeEvent
     public static void onLivingFall(LivingFallEvent event) {

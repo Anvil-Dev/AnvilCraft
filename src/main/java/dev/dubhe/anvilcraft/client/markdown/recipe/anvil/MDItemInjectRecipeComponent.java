@@ -29,16 +29,16 @@ public class MDItemInjectRecipeComponent extends MDBaseAnvilRecipeComponent {
 
     public MDItemInjectRecipeComponent(ItemInjectRecipe recipe, boolean enableAlignCenter) {
         super(enableAlignCenter);
-        ingredients = recipe.getInputItems();
-        resultItems = recipe.getResultItems();
-        inputBlock = recipe.getFirstInputBlock();
-        outputBlockState = recipe.getFirstResultBlock().state();
+        this.ingredients = recipe.getInputItems();
+        this.resultItems = recipe.getResultItems();
+        this.inputBlock = recipe.getFirstInputBlock();
+        this.outputBlockState = recipe.getFirstResultBlock().state();
     }
 
     @Override
     protected void renderRecipe(MDRenderContext context, float mouseX, float mouseY) {
         super.renderRecipe(context, mouseX, mouseY);
-        List<BlockState> states = inputBlock.constructStatesForRender();
+        List<BlockState> states = this.inputBlock.constructStatesForRender();
         if (!states.isEmpty()) {
             BlockState blockState = states.get(RecipeUtil.getDisplayIndex(states.size()));
             AgeratumUtil.renderBlock(context, blockState, mouseX, mouseY, INPUT_BLOCK_X, BLOCK_Y, 0);
