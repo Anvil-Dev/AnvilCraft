@@ -33,6 +33,10 @@ The <ref item="anvilcraft:crate"/> and several other storage blocks provided by 
 1. Place a <ref item="minecraft:crafting_table"/> and a <ref item="minecraft:stonecutter"/> in a *storage station*, then choose to consume them to unlock the crafting window.
 2. Hold Shift to craft one stack, or hold Space to craft eight stacks (remember to enable auto-fill).
 
+## Taking Items Out
+
+- Hold Space and left-click an item to take eight stacks into your inventory, or left-click a fluid slot to fill eight buckets.
+
 ## Flip Layout
 
 The 'Flip Layout' button in the top-right corner swaps the left and right columns.
