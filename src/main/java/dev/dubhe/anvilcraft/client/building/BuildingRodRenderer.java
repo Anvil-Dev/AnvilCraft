@@ -274,7 +274,7 @@ public final class BuildingRodRenderer {
             var state = entry.state();
             var data = entry.nbt().map(nbt -> {
                 var transformed = nbt.copy();
-                BlueprintBlockConfiguration.transform(transformed, local, sourceOrigin, snapshot);
+                BlueprintBlockConfiguration.transform(transformed, local, sourceOrigin);
                 return transformed;
             }).orElse(null);
             BlockEntity entity = BlueprintBlockEntities.create(mc.level, pos, state, data);
