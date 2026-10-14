@@ -392,8 +392,11 @@ public record HasCauldron(
     ) {
         ResourceHandler<FluidResource> handler = HasCauldron.getFluidHandler(ctx, pos, entityCauldron);
         if (handler == null) return;
+        FluidResource resource = handler.getResource(0);
+        // 空锅以 Fluids.EMPTY 注册，NeoForge 的 extract 拒绝空资源
+        if (resource.isEmpty()) return;
         try (Transaction transaction = Transaction.openRoot()) {
-            handler.extract(handler.getResource(0), Integer.MAX_VALUE, transaction);
+            handler.extract(resource, Integer.MAX_VALUE, transaction);
             transaction.commit();
         }
     }

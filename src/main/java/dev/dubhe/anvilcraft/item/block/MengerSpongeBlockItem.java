@@ -47,6 +47,9 @@ public class MengerSpongeBlockItem extends BlockItem {
             if (!(be instanceof FishTankBlockEntity fishTank)) return super.useOn(context);
 
             FluidStackResourceHandler handler = fishTank.getFluidHandler();
+            // 空鱼缸以 Fluids.EMPTY 注册，而 extract 拒绝空 resource。
+            // 这里返回 null 而不是 SUCCESS：没有流体可清时这是一次普通放置，不该被吞掉。
+            if (handler.getResource(0).isEmpty()) return null;
 
             try (Transaction transaction = Transaction.openRoot()) {
                 handler.extract(0, handler.getResource(0), 1000, transaction);
