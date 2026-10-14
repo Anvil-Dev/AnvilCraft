@@ -3,11 +3,13 @@ package dev.dubhe.anvilcraft.mixin;
 import dev.dubhe.anvilcraft.block.logistics.sliding.ActivatorSlidingRailBlock;
 import dev.dubhe.anvilcraft.block.logistics.sliding.ISlidingRail;
 import dev.dubhe.anvilcraft.init.block.ModBlockTags;
+import dev.dubhe.anvilcraft.util.PistonMoveGuard;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.piston.MovingPistonBlock;
 import net.minecraft.world.level.block.piston.PistonMovingBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -59,5 +61,20 @@ abstract class PistonMovingBlockEntityMixin {
             ISlidingRail.MOVING_PISTON_MAP.put(belowPos, p);
         }
         ISlidingRail.MOVING_PISTON_MAP.get(belowPos).isSourcePiston = entity.isSourcePiston();
+    }
+
+    /// 载荷放回完成后释放挂在落位坐标上的预留。
+    ///
+    /// 落位发生在 {@code tick} 的进度满分支里（removeBlockEntity → setBlock → neighborChanged），
+    /// 而 {@code finalTick} 只被 {@code preRemoveSideEffects} 调用、落位路径并不会走到它。
+    /// 这里注入 {@code tick} 的返回点：它一定晚于那次自通知。进度未满时该格仍是 MOVING_PISTON，
+    /// 此时不释放，否则会在搬运途中就把预留清掉。
+    @Inject(method = "tick", at = @At("RETURN"))
+    private static void anvilcraft$releaseMoveReservation(
+        Level level, BlockPos pos, BlockState state, PistonMovingBlockEntity entity, CallbackInfo ci
+    ) {
+        if (level.isClientSide()) return;
+        if (level.getBlockState(pos).is(Blocks.MOVING_PISTON)) return;
+        PistonMoveGuard.releaseAnchored(level, pos);
     }
 }
