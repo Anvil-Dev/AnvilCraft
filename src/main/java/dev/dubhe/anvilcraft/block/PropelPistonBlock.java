@@ -13,6 +13,7 @@ import dev.dubhe.anvilcraft.block.entity.PropelPistonBlockEntity;
 import dev.dubhe.anvilcraft.init.ModParticles;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
+import dev.dubhe.anvilcraft.util.PistonMoveGuard;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -216,6 +217,13 @@ public class PropelPistonBlock extends DirectionalBlock implements IMoveableEnti
     }
 
     private boolean moveBlocks(Level level, BlockPos pos, Direction facing) {
+        /// 与原版活塞一致：推动期间保留所有将被移动的方块，避免吞噬器抢走
+        try (PistonMoveGuard.Scope ignored = PistonMoveGuard.begin(level)) {
+            return this.moveBlocksGuarded(level, pos, facing);
+        }
+    }
+
+    private boolean moveBlocksGuarded(Level level, BlockPos pos, Direction facing) {
         PistonStructureResolver pistonstructureresolver = new PistonStructureResolver(level, pos, facing, true);
         if (!pistonstructureresolver.resolve()) {
             return false;

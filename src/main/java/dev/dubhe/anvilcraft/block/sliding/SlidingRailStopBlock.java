@@ -6,6 +6,7 @@ import dev.dubhe.anvilcraft.api.sliding.SlidingBlockStructureResolver;
 import dev.dubhe.anvilcraft.entity.SlidingBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
+import dev.dubhe.anvilcraft.util.PistonMoveGuard;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.entity.Entity;
@@ -127,6 +128,9 @@ public class SlidingRailStopBlock extends BaseSlidingRailBlock {
 
         List<BlockPos> toDestroys = resolver.getToDestroy();
 
+        /// 跨 tick 保留，同上
+        final PistonMoveGuard.SlidingScope reservation = PistonMoveGuard.beginSliding(level, toPushPoses, toDestroys);
+
         for (int i = toDestroys.size() - 1; i >= 0; i--) {
             BlockPos destroyingPos = toDestroys.get(i);
             BlockState destroyingState = level.getBlockState(destroyingPos);
@@ -153,6 +157,6 @@ public class SlidingRailStopBlock extends BaseSlidingRailBlock {
             level.updateNeighborsAt(toPushEntry.getLeft(), air.getBlock());
         }
 
-        SlidingBlockEntity.slid(level, pos.above(), moveToSide, toPushes);
+        SlidingBlockEntity.slid(level, pos.above(), moveToSide, toPushes, reservation);
     }
 }
