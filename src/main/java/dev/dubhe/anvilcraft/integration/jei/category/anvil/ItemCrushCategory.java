@@ -1,7 +1,9 @@
 package dev.dubhe.anvilcraft.integration.jei.category.anvil;
 
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.client.support.RenderSupport;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
+import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.integration.jei.AnvilCraftJeiPlugin;
 import dev.dubhe.anvilcraft.integration.jei.drawable.DrawableBlockStateIcon;
@@ -15,9 +17,15 @@ import mezz.jei.api.recipe.types.IRecipeHolderType;
 import mezz.jei.api.registration.IRecipeCatalystRegistration;
 import mezz.jei.api.registration.IRecipeRegistration;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.block.Blocks;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class ItemCrushCategory extends AbstractProgressCategory<ItemCrushRecipe> {
     public ItemCrushCategory(IGuiHelper helper) {
@@ -56,10 +64,32 @@ public class ItemCrushCategory extends AbstractProgressCategory<ItemCrushRecipe>
     }
 
     public static void registerRecipes(IRecipeRegistration registration) {
-        registration.addRecipes(
-            AnvilCraftJeiPlugin.ITEM_CRUSH,
+        List<RecipeHolder<ItemCrushRecipe>> recipes = new ArrayList<>(
             JeiRecipeUtil.getRecipeHoldersFromType(ModRecipeTypes.ITEM_CRUSH.get())
         );
+        recipes.add(new RecipeHolder<>(
+            ResourceKey.create(
+                Registries.RECIPE,
+                AnvilCraft.of("item_crush/item_crush/gem_from_chromatic_stone")
+            ),
+            chromaticStoneRecipe()
+        ));
+        registration.addRecipes(
+            AnvilCraftJeiPlugin.ITEM_CRUSH,
+            recipes
+        );
+    }
+
+    /// 异彩石粉碎是 in_world 配方，本分类收集不到，手工重建一条。
+    private static ItemCrushRecipe chromaticStoneRecipe() {
+        return ItemCrushRecipe.builder()
+            .requires(ModBlocks.CHROMATIC_STONE)
+            .result(ModItems.RUBY.get(), 0.25F)
+            .result(ModItems.TOPAZ.get(), 0.25F)
+            .result(ModItems.SAPPHIRE.get(), 0.25F)
+            .result(Items.EMERALD, 0.25F)
+            .result(Items.QUARTZ, 3)
+            .buildRecipe();
     }
 
     public static void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
