@@ -102,6 +102,7 @@ public class ClientEventListener {
 
     @SubscribeEvent
     public static void onKeyPress(InputEvent.Key event) {
+        if (ModKeyMappings.shouldIgnoreForDebugChord(event.getAction())) return;
         if (ModKeyMappings.TOGGLE_GOGGLE.get().isDown()) AnvilHammerItem.goggleEnabled = !AnvilHammerItem.goggleEnabled;
         if (Minecraft.getInstance().level == null) return;
 

@@ -25,6 +25,7 @@ public final class TerminalKeyMappingEventListener {
 
     @SubscribeEvent
     public static void onKeyPressed(InputEvent.Key event) {
+        if (ModKeyMappings.shouldIgnoreForDebugChord(event.getAction())) return;
         if (Minecraft.getInstance().screen == null && event.getAction() == InputConstants.PRESS) {
             tryOpenTerminal(InputConstants.getKey(event.getKeyEvent()));
         }
