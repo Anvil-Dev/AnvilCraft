@@ -136,14 +136,17 @@ public final class StorageServerStub {
     /** Shift 连续合成会话（按玩家 × 源位置）：跨分块 RPC 保持锁定配方与本次点击剩余合成次数，防止残料漂移。 */
     private static final Map<UUID, Map<Long, TakeAllSession>> TAKE_ALL_RECIPE_LOCKS = new HashMap<>();
 
-    // 本地终端自动连接大型板条箱的搜索半径（格）。
-    // 潜影终端自动连接世界潜影集装箱的搜索半径（格）。
     /**
      * 连续合成（Shift 点击③/④ 结果槽）单次 RPC 内最多合成的次数。
      * 单次调用在服务端线程同步执行，分块后客户端循环调用直到 {@code done}，
      * 避免几百次合成一次性阻塞服务端线程（分帧/进度由客户端循环天然实现）。
      */
     private static final int CRAFTING_TAKE_ALL_CHUNK = 64;
+    /**
+     * 按住空格左击仓储格时一次取出的数量：物品格为组数（按物品自身堆叠上限折算），
+     * 流体格为桶数。与空格连续合成同一倍率，实际取出量仍受仓储存量与背包空间限制。
+     */
+    private static final int SPACE_TAKE_STACKS = 8;
     /**
      * 合成宫格的边长。宫格为正方形，故宽高同为该值；步长必须用它，
      * 不能用 {@link CraftingStorage#CRAFTING_GRID_SIZE}（那是总槽位数 9）。
@@ -367,6 +370,15 @@ public final class StorageServerStub {
                 notice = outcome.notice();
             } else {
                 changed = StorageServerStub.moveStorageStackToInventory(player, view, slot);
+            }
+        } else if (action == StorageInput.QUICK_MOVE_STACKS_FROM_STORAGE) {
+            if (slot >= StoragePortManager.FLUID_SLOT_BASE) {
+                StorageServerStub.FluidOutcome outcome =
+                    StorageServerStub.takeFluidBucketsIntoInventory(player, view, fluid);
+                changed = outcome.changed();
+                notice = outcome.notice();
+            } else {
+                changed = StorageServerStub.moveStorageStacksToInventory(player, view, slot);
             }
         } else if (!carried.isEmpty()) {
             // 流体格上的这一分支只可能是「把流体桶当物品存入」（流体行为键走 FLUID_BUCKET
@@ -3797,6 +3809,25 @@ public final class StorageServerStub {
         return true;
     }
 
+    /**
+     * 按住空格左击仓储格：一次取出 {@link #SPACE_TAKE_STACKS} 组到玩家背包。
+     *
+     * <p>逐组调用 {@link #moveStorageStackToInventory}，每组都重新按背包实时空间计算，
+     * 因此背包填满即自然停下，不会多抽物品丢弃；仓储存量不足时同样提前结束。</p>
+     *
+     * @return 是否有物品被取出
+     */
+    private static boolean moveStorageStacksToInventory(ServerPlayer player, StorageView view, int slot) {
+        boolean changed = false;
+        for (int stack = 0; stack < StorageServerStub.SPACE_TAKE_STACKS; stack++) {
+            if (!StorageServerStub.moveStorageStackToInventory(player, view, slot)) {
+                break;
+            }
+            changed = true;
+        }
+        return changed;
+    }
+
     private static int getInventorySpace(Inventory inventory, ItemStack stack) {
         long space = 0;
         for (int slot = 0; slot < Inventory.INVENTORY_SIZE; slot++) {
@@ -4539,12 +4570,12 @@ public final class StorageServerStub {
                    && args.length >= 2
                    && args[0] instanceof UUID playerId
                    && player.getGameProfile().getId().equals(playerId)
-                   && args[1] instanceof UUID storageId
+                   && args[1] instanceof UUID targetId
                    // 仅允许查询自己持有的存储，防止凭 UUID 枚举他人存储信息：
                    // 1. 持有绑定终端指向的存储
-                   // 2. 身上持有带该 storageId 的存储引用物品（潜影存储站等从方块上拆下/复制的物品）
-                   && (StorageServerStub.ownsBoundTerminal(player, storageId)
-                       || StorageServerStub.ownsStorageRef(player, storageId));
+                   // 2. 身上持有带该存储 ID 的存储引用物品（潜影存储站等从方块上拆下/复制的物品）
+                   && (StorageServerStub.ownsBoundTerminal(player, targetId)
+                       || StorageServerStub.ownsStorageRef(player, targetId));
         }
     }
 
@@ -4595,8 +4626,8 @@ public final class StorageServerStub {
             ) {
                 return false;
             }
-            if (args[1] instanceof UUID storageId) {
-                return StorageServerStub.ownsBoundTerminal(player, storageId);
+            if (args[1] instanceof UUID targetId) {
+                return StorageServerStub.ownsBoundTerminal(player, targetId);
             }
             // 多目标（JEI 多终端补库）：每个目标都必须由玩家持有的终端对应
             if (args[1] instanceof List<?> ids) {
@@ -4604,8 +4635,8 @@ public final class StorageServerStub {
                     return false;
                 }
                 for (Object id : ids) {
-                    if (!(id instanceof UUID storageId)
-                        || !StorageServerStub.ownsBoundTerminal(player, storageId)) {
+                    if (!(id instanceof UUID target)
+                        || !StorageServerStub.ownsBoundTerminal(player, target)) {
                         return false;
                     }
                 }
@@ -5046,6 +5077,7 @@ public final class StorageServerStub {
         if (filled.stack().isEmpty()) {
             return FluidOutcome.failed(filled.notice());
         }
+        StorageServerStub.playBucketSound(player, filled.fluid(), SoundActions.BUCKET_FILL);
         // 取出的一桶流体落在鼠标指针上，与点击物品格取物一致；
         // 指针被其它物品占用（例如还剩几个空桶）时才退回背包
         if (player.containerMenu.getCarried().isEmpty()) {
@@ -5055,6 +5087,79 @@ public final class StorageServerStub {
             Block.popResource(player.level(), player.blockPosition(), filled.stack());
         }
         return FluidOutcome.CHANGED;
+    }
+
+    /**
+     * 空格左击流体格：一次装出 {@link #SPACE_TAKE_STACKS} 桶流体直接放进玩家背包。
+     *
+     * <p>与物品路径同构：先按背包对成品桶的实际可容纳量定下本次上限，再逐桶调用
+     * {@link #fillBucketFromStorage}。这样背包放不下时不会先把流体抽成桶再塞回仓储
+     * 或掉在地上——取出流体的语义应始终是「进背包」。</p>
+     *
+     * <p>该上限可证明是安全的：每放入一桶恰好消耗 1 点容量，而消耗空桶只会腾出
+     * （或保持）容量，故上限内每次 {@code addItem} 都必然成功。</p>
+     *
+     * @param player 玩家
+     * @param view   当前存储视图
+     * @param fluid  被点击的流体（客户端随点击上报）
+     * @return 是否发生改动，以及失败原因（供界面提示）
+     */
+    private static FluidOutcome takeFluidBucketsIntoInventory(
+        ServerPlayer player,
+        StorageView view,
+        FluidStack fluid
+    ) {
+        // 解析不出成品桶（流体不存在 / 不是可装桶的流体）时交给单桶路径给出准确提示
+        ItemStack filledBucket = StorageServerStub.filledBucketOf(view, fluid);
+        if (filledBucket.isEmpty()) {
+            return StorageServerStub.takeFluidBucketIntoInventory(player, view, fluid);
+        }
+        int limit = Math.min(
+            StorageServerStub.SPACE_TAKE_STACKS,
+            StorageServerStub.getInventorySpace(player.getInventory(), filledBucket)
+        );
+        FluidNotice notice = FluidNotice.NONE;
+        FluidStack taken = FluidStack.EMPTY;
+        boolean changed = false;
+        for (int bucket = 0; bucket < limit; bucket++) {
+            FilledBucket filled = StorageServerStub.fillBucketFromStorage(player, view, fluid, true);
+            if (filled.stack().isEmpty()) {
+                if (!changed) {
+                    notice = filled.notice();
+                }
+                break;
+            }
+            StorageServerStub.giveBucket(player, view, filled.stack());
+            taken = filled.fluid();
+            changed = true;
+        }
+        if (changed) {
+            // 整批只播一次：同一 tick 内叠加 8 次会让音量明显失真
+            StorageServerStub.playBucketSound(player, taken, SoundActions.BUCKET_FILL);
+        }
+        return changed ? FluidOutcome.CHANGED : FluidOutcome.failed(notice);
+    }
+
+    /**
+     * 解析某个流体格装桶后的成品桶。无法解析（流体不存在 / 不是可装桶的流体）时返回空。
+     */
+    private static ItemStack filledBucketOf(StorageView view, FluidStack fluid) {
+        FluidEntry entry = StoragePortManager.find(view.primary().getId(), fluid);
+        if (entry == null) {
+            return ItemStack.EMPTY;
+        }
+        return FluidUtil.getFilledBucket(entry.icon().copyWithAmount(FluidType.BUCKET_VOLUME));
+    }
+
+    /**
+     * 把一桶成品放进玩家背包；背包放不下就退回该存储，存储也放不下才掉落到世界。
+     *
+     * <p>与 {@link #takeFluidBucketIntoInventory} 的落桶策略一致。</p>
+     */
+    private static void giveBucket(ServerPlayer player, StorageView view, ItemStack bucket) {
+        if (!player.addItem(bucket) && view.insert(bucket.copyWithCount(1), 1) <= 0) {
+            Block.popResource(player.level(), player.blockPosition(), bucket);
+        }
     }
 
     /**
@@ -5074,9 +5179,8 @@ public final class StorageServerStub {
         if (filled.stack().isEmpty()) {
             return FluidOutcome.failed(filled.notice());
         }
-        if (!player.addItem(filled.stack()) && view.insert(filled.stack().copyWithCount(1), 1) <= 0) {
-            Block.popResource(player.level(), player.blockPosition(), filled.stack());
-        }
+        StorageServerStub.playBucketSound(player, filled.fluid(), SoundActions.BUCKET_FILL);
+        StorageServerStub.giveBucket(player, view, filled.stack());
         return FluidOutcome.CHANGED;
     }
 
@@ -5089,10 +5193,10 @@ public final class StorageServerStub {
         }
     }
 
-    /** 装桶结果：成功时给出成品桶，失败时给出原因。 */
-    private record FilledBucket(ItemStack stack, FluidNotice notice) {
+    /** 装桶结果：成功时给出成品桶与所含流体，失败时给出原因。 */
+    private record FilledBucket(ItemStack stack, FluidStack fluid, FluidNotice notice) {
         private static FilledBucket failed(FluidNotice notice) {
-            return new FilledBucket(ItemStack.EMPTY, notice);
+            return new FilledBucket(ItemStack.EMPTY, FluidStack.EMPTY, notice);
         }
     }
 
@@ -5159,9 +5263,9 @@ public final class StorageServerStub {
             StorageServerStub.giveEmptiedContainer(player, emptyContainer);
             return FilledBucket.failed(FluidNotice.NOT_ENOUGH);
         }
-        // 取水音效：倾倒由 FluidUtil 自行播放，取出的这条路径需自行补上
-        StorageServerStub.playBucketSound(player, target, SoundActions.BUCKET_FILL);
-        return new FilledBucket(filled, FluidNotice.NONE);
+        // 取水音效：倾倒由 FluidUtil 自行播放，取出的这条路径需自行补上。
+        // 一次装多桶时由调用方按批播放，避免同一 tick 内叠加多次音效
+        return new FilledBucket(filled, target, FluidNotice.NONE);
     }
 
     /**

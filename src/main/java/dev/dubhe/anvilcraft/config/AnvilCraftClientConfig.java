@@ -17,7 +17,7 @@ public class AnvilCraftClientConfig {
     public GraphicsSettings graphics = new GraphicsSettings();
 
     public static class GraphicsSettings {
-        @Comment("Controls the render distance of the Heliostats' BER (in blocks)")
+        @Comment("Controls the maximum render distance of the Heliostats' BER (in blocks)")
         @BoundedDiscrete(min = 32, max = 512)
         public int heliostatsRenderDistance = 128;
 
@@ -44,8 +44,7 @@ public class AnvilCraftClientConfig {
             Controls the render mode of the Overworld sky
             "Vanilla" keeps the original Overworld sky
             "Special" replaces only the Sun and Moon with models, including libration and a continuous eight-day lunar phase cycle
-            World lighting is unchanged
-            """
+            World lighting is unchanged"""
         )
         public OverworldSkyRenderMode overworldSkyRenderMode = OverworldSkyRenderMode.VANILLA;
 
@@ -68,8 +67,7 @@ public class AnvilCraftClientConfig {
             "Standard" adds terrain, animated entity, and colored translucent shadows
             "Vanilla" uses the vanilla rendering pipeline without Mun shaders, retaining the cloudless Mun sky, Overworld and moving stars
             Rendering failures will fall-back this setting to "Vanilla"
-            Shadow range is limited by render distance
-            """
+            Shadow range is limited by render distance"""
         )
         public MunLightingQuality munLightingQuality = MunLightingQuality.STANDARD;
 
@@ -94,8 +92,7 @@ public class AnvilCraftClientConfig {
             "Vanilla" restores the original stellar surface and layered halos
             "Standard" enables temperature-based emission and smooth halos
             On rendering failure, it falls back to "Vanilla" without changing this setting until resources are reloaded
-            Changes take effect immediately
-            """
+            Changes take effect immediately"""
         )
         public CelestialRenderMode stellarRenderMode = CelestialRenderMode.STANDARD;
 
@@ -110,8 +107,7 @@ public class AnvilCraftClientConfig {
             "Vanilla" restores the original translucent atmosphere shell
             "Standard" enables a thicker volume atmosphere
             On rendering failure, it falls back to "Vanilla" without changing this setting until resources are reloaded
-            Changes take effect immediately
-            """
+            Changes take effect immediately"""
         )
         public CelestialRenderMode planetAtmosphereRenderMode = CelestialRenderMode.STANDARD;
 
@@ -135,8 +131,7 @@ public class AnvilCraftClientConfig {
             @Comment(
                 """
                 Controls the maximum number of Black/White Holes rendered (2-256)
-                Higher values render more effects, lower values improve performance
-                """
+                Higher values render more effects, lower values improve performance"""
             )
             @BoundedDiscrete(min = 2, max = 256)
             public int maxHoleCount = 8;
@@ -145,30 +140,25 @@ public class AnvilCraftClientConfig {
             @BoundedDiscrete(min = 16, max = 512)
             public int maxDistance = 256;
 
-            @SerializedName("Gravitational Lensing Strength")
             @Comment("Controls the lens distortion strength around Black/White Holes (higher values distort light more; default: 0.002)")
             public double strength = 1.0 / 512.0;
 
             @Comment("Controls the event horizon radius of Black/White Holes in screen UV units (default: 0.083)")
             public double eventHorizonRadius = 1.0 / 12.0;
 
-            @SerializedName("Gravitational Lensing Perspective Scale")
             @Comment(
                 """
                 Controls the reference distance for perspective scaling (in blocks)
                 At this distance, effect = config size
-                Closer = bigger
-                """
+                Closer = bigger"""
             )
             public double perspectiveScale = 10.0;
 
-            @SerializedName("Gravitational Lensing Direction")
             @Comment(
                 """
                 Controls the lens direction
                 >0 = convex (gravitational pull toward center), <0 = concave (push away)
-                Magnitude scales strength
-                """
+                Magnitude scales strength"""
             )
             public double direction = 1.0;
         }
@@ -177,8 +167,7 @@ public class AnvilCraftClientConfig {
         @Comment(
             """
             Controls whether to render block-state items in Sifting Tables and Unpacking Tables
-            with the enlarged block model pick instead of regular scattered item rendering
-            """
+            With the enlarged block model pick instead of regular scattered item rendering"""
         )
         public boolean renderBlockModelInSiftingAndUnpacking = true;
 
@@ -319,7 +308,7 @@ public class AnvilCraftClientConfig {
             TOGGLE_WITH_KEY,
         }
 
-        @Comment("Controls whether to render power component tooltips when Jade is present")
+        @Comment("Controls whether to render Goggle tooltips when Jade is present")
         public boolean showGoggleTooltipWhenJadePresent = true;
 
         @Comment("Controls the scale of the Anvil Hammer wheel")
@@ -334,8 +323,7 @@ public class AnvilCraftClientConfig {
         @Comment(
             """
             Controls whether to use the legacy flat creative inventory layout instead of the sectioned layout with banners
-            Requires restart to take effect
-            """
+            Requires restart to take effect"""
         )
         public boolean useLegacyCreativeTab = false;
 
@@ -343,17 +331,11 @@ public class AnvilCraftClientConfig {
         @Comment(
             """
             Controls whether to fold 16-color item families into one representative item with a right-click variant picker
-            Applies to both creative inventory layouts (requires restart)
-            """
+            Applies to both creative inventory layouts (requires restart)"""
         )
         public boolean enableCreativeVariantPicker = false;
 
-        @Comment(
-            """
-            Controls the maximum liquid enchantment level (included) displayed as Roman numerals
-            in Auto Enchanting Table's Liquid Enchantment mode
-            """
-        )
+        @Comment("Controls the maximum liquid enchantment level (included) displayed as Roman numerals in Auto Enchanting Table's Liquid Enchantment mode")
         @BoundedDiscrete(min = 0, max = 255)
         public int liquidEnchantmentLevelRomanNumeralLimit = 10;
 
@@ -393,8 +375,7 @@ public class AnvilCraftClientConfig {
         @Comment(
             """
             Controls the action when a category settings screen is closed
-            "Apply Changes" saves the changes, "Discard Changes" reverts them
-            """
+            "Apply Changes" saves the changes, "Discard Changes" reverts them"""
         )
         public ExitBehaviourMode exitCategorySettingBehaviour = ExitBehaviourMode.CANCEL;
 

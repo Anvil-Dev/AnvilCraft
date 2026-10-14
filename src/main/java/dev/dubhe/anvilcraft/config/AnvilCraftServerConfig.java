@@ -32,8 +32,7 @@ public class AnvilCraftServerConfig {
         @Comment(
             """
             Controls the effective speed of light used by orbital precession (in blocks/tick)
-            Larger values weaken the effect
-            """
+            Larger values weaken the effect"""
         )
         @BoundedDiscrete(min = 16, max = 4096)
         public int orbitalSpeedOfLight = 64;
@@ -125,10 +124,6 @@ public class AnvilCraftServerConfig {
         @BoundedDiscrete(min = 0.0, max = 1.0)
         public double cementSolidifyChance = 0.1;
 
-        @Comment("Controls the chance that a Hollow Magnet Block converts an Iron Ingot it pulls")
-        @BoundedDiscrete(min = 0.0, max = 1.0)
-        public double hollowMagnetConvertChance = 0.005;
-
         @Comment("Controls the chance that Redhot Blocks absorb water")
         @BoundedDiscrete(min = 0.0, max = 1.0)
         public double redhotWaterAbsorbChance = 0.5;
@@ -215,8 +210,7 @@ public class AnvilCraftServerConfig {
         @Comment(
             """
             Controls the maximum number of blocks a sliding structure may push (also scales the Detector Sliding Rail signal)
-            A piston push limit changed by another mod takes precedence over this value
-            """
+            A piston push limit changed by another mod takes precedence over this value"""
         )
         @BoundedDiscrete(min = 1, max = 256)
         public int slidingRailMaxPushDepth = 12;
@@ -232,8 +226,7 @@ public class AnvilCraftServerConfig {
         @Comment(
             """
             Controls the chance that using an item on a Chipped Anvil repairs it
-            Higher rolls consume the item without repairing anything
-            """
+            Higher rolls consume the item without repairing anything"""
         )
         @BoundedDiscrete(min = 0.0, max = 1.0)
         public double chippedAnvilRepairChance = 0.9;
@@ -241,8 +234,7 @@ public class AnvilCraftServerConfig {
         @Comment(
             """
             Controls the chance that using an item on a Damaged Anvil repairs it to a full Anvil
-            Rolls between this chance and the Chipped Anvil repair chance degrade it to a Chipped Anvil instead
-            """
+            Rolls between this chance and the Chipped Anvil repair chance degrade it to a Chipped Anvil instead"""
         )
         @BoundedDiscrete(min = 0.0, max = 1.0)
         public double damagedAnvilRepairChance = 0.1;
@@ -465,15 +457,17 @@ public class AnvilCraftServerConfig {
             @BoundedDiscrete(min = 1, max = 12 * 60 * 60 * 20)
             public int fishTankExtraDuration = 24;
 
-            @Comment("Controls the maximum height of the Plasma Jets' chimney walls (in blocks)")
+            @Comment("Controls the maximum height of the Plasma Jets' tube walls (in blocks)")
             @BoundedDiscrete(min = 1, max = 8)
             public int maxTubeHeight = 4;
         }
 
+        @SerializedName("Transmission Pole Range")
         @Comment("Controls the power grid range of Transmission Poles (in blocks)")
         @BoundedDiscrete(min = 1, max = 64)
         public int powerTransmitterRange = 8;
 
+        @SerializedName("Remote Transmission Pole Range")
         @Comment("Controls the power grid range of Remote Transmission Poles (in blocks)")
         @BoundedDiscrete(min = 1, max = 64)
         public int remotePowerTransmitterRange = 16;
@@ -557,8 +551,7 @@ public class AnvilCraftServerConfig {
         @Comment(
             """
             Controls the maximum heat the Heat Collector can accumulate (in kW)
-            The super_heat advancement requires reaching 4096
-            """
+            The super_heat advancement requires reaching 4096"""
         )
         @BoundedDiscrete(min = 1, max = 1048576)
         public int heatCollectorMaxOutputPower = 4096;
@@ -566,8 +559,7 @@ public class AnvilCraftServerConfig {
         @Comment(
             """
             Controls the interval of power grid logic (in ticks)
-            It is also the unit of the FE/t accounting
-            """
+            It is also the unit of the FE/t accounting"""
         )
         @BoundedDiscrete(min = 1, max = 200)
         public int powerGridTick = 20;
@@ -631,8 +623,7 @@ public class AnvilCraftServerConfig {
         @Comment(
             """
             Controls the maximum ore vein size searched while mining with a Laser Gun
-            Ore beyond this limit is not chain-mined (default: 64)
-            """
+            Ore beyond this limit is not chain-mined (default: 64)"""
         )
         @BoundedDiscrete(min = 1, max = 4096)
         public int laserOreClusterMaxSize = 64;
@@ -696,7 +687,7 @@ public class AnvilCraftServerConfig {
         @BoundedDiscrete(min = 1, max = 200)
         public int portableAnvilUseTicks = 40;
 
-        @Comment("Controls the radius in which the Cursed Golden Apple affects Villagers (in blocks)")
+        @Comment("Controls the search radius in which the Cursed Golden Apple affects Players (in blocks)")
         @BoundedDiscrete(min = 1, max = 64)
         public int cursedGoldenAppleSearchRadius = 16;
 
@@ -723,8 +714,7 @@ public class AnvilCraftServerConfig {
         @Comment(
             """
             Controls the maximum energy of Energy Weapons (in FE)
-            The default matches the item component value of 640M
-            """
+            The default matches the item component value of 640M"""
         )
         @BoundedDiscrete(min = 1, max = 2000000000)
         public int energyWeaponMaxEnergy = 640000000;

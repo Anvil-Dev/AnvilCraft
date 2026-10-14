@@ -1920,9 +1920,16 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
                     this.interactWithStorage(fluidSlot, button, StorageInput.PICKUP);
                     return true;
                 }
-                StorageInput action = Screen.hasShiftDown()
-                                      ? StorageInput.QUICK_MOVE_FROM_STORAGE
-                                      : StorageInput.FLUID_BUCKET;
+                StorageInput action;
+                if (Screen.hasShiftDown()) {
+                    action = StorageInput.QUICK_MOVE_FROM_STORAGE;
+                } else if (this.spacePressed && button == 0 && this.carried.isEmpty()) {
+                    // 空格+左键：一次装出多桶到背包（与物品格取多组一致）。
+                    // 指针上有物时保持原有语义：这一键还要负责倒液，不能一并改成取多桶
+                    action = StorageInput.QUICK_MOVE_STACKS_FROM_STORAGE;
+                } else {
+                    action = StorageInput.FLUID_BUCKET;
+                }
                 // 失败提示要显示在点击处，故先记下点击位置
                 this.flyoutClickX = (int) mouseX;
                 this.flyoutClickY = (int) mouseY;
@@ -1931,9 +1938,16 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
             }
             Integer storageSlot = this.getStorageSlot(mouseX, mouseY);
             if (storageSlot != null && this.minecraft.gameMode != null) {
-                StorageInput action = Screen.hasShiftDown()
-                                      ? StorageInput.QUICK_MOVE_FROM_STORAGE
-                                      : StorageInput.PICKUP;
+                StorageInput action;
+                if (Screen.hasShiftDown()) {
+                    action = StorageInput.QUICK_MOVE_FROM_STORAGE;
+                } else if (this.spacePressed && button == 0 && this.carried.isEmpty()) {
+                    // 空格+左键：一次取出多组到背包。指针有物时保持原有语义（存入仓储），
+                    // 与流体格一致：空格按下不应吞掉这一键原本的存入行为
+                    action = StorageInput.QUICK_MOVE_STACKS_FROM_STORAGE;
+                } else {
+                    action = StorageInput.PICKUP;
+                }
                 this.interactWithStorage(storageSlot, button, action);
                 return true;
             }
