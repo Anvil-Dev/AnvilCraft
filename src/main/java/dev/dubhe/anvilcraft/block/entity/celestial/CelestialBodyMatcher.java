@@ -389,7 +389,7 @@ public final class CelestialBodyMatcher {
         CelestialBodyClass bodyClass, int energy, int space, RandomSource random
     ) {
         int size = CelestialBodyMatcher.sizeForSpace(space);
-        int[] rgb = CelestialBodyMatcher.getStarColorFromTempDiagram(energy);
+        int[] rgb = CelestialBodyMatcher.getStarColor(bodyClass, energy);
         int mag = random.nextFloat() < 0.10f ? 5 : 4;
         int rotSpeed = bodyClass == CelestialBodyClass.BLACK_HOLE ? 0 : CelestialBodyMatcher.randomRotationSpeed(random);
         float axialTilt = 0f;
@@ -540,6 +540,16 @@ public final class CelestialBodyMatcher {
     }
 
     public static int[] getStarColor(int energy) {
+        return CelestialBodyMatcher.getStarColorFromTempDiagram(energy);
+    }
+
+    /// 天体在给定能量下的渲染 RGB。白矮星统一用黑体温度推导，使锻造与演化颜色一致；其余查星图。
+    public static int[] getStarColor(CelestialBodyClass bodyClass, int energy) {
+        if (bodyClass == CelestialBodyClass.WHITE_DWARF) {
+            int rgb = StellarVisualState.colorForTemperature(
+                StellarVisualState.temperatureForSurfaceClass(CelestialBodyClass.WHITE_DWARF, energy));
+            return new int[] {(rgb >> 16) & 0xFF, (rgb >> 8) & 0xFF, rgb & 0xFF};
+        }
         return CelestialBodyMatcher.getStarColorFromTempDiagram(energy);
     }
 }
