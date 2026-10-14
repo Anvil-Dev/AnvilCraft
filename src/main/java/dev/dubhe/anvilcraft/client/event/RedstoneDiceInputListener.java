@@ -6,6 +6,7 @@ import dev.anvilcraft.lib.v2.wheel.api.WheelSelectionEffect;
 import dev.anvilcraft.lib.v2.wheel.client.input.WheelScreenController;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.entity.RedstoneDiceBlockEntity;
+import dev.dubhe.anvilcraft.client.init.ModKeyMappings;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.item.AnvilHammerItem;
 import dev.dubhe.anvilcraft.network.RedstoneDiceModePacket;
@@ -71,6 +72,7 @@ public class RedstoneDiceInputListener {
 
     @SubscribeEvent
     public static void onKey(InputEvent.Key event) {
+        if (ModKeyMappings.shouldIgnorePress(event.getAction())) return;
         if (!Minecraft.getInstance().options.keyUse.matches(event.getKey(), event.getScanCode())) return;
         if (event.getAction() == GLFW.GLFW_PRESS) press();
         if (event.getAction() == GLFW.GLFW_RELEASE) release();

@@ -21,6 +21,7 @@ import net.neoforged.neoforge.client.event.ScreenEvent;
 public class TerminalKeyMappingEventListener {
     @SubscribeEvent
     public static void onKeyPressed(InputEvent.Key event) {
+        if (ModKeyMappings.shouldIgnorePress(event.getAction())) return;
         if (Minecraft.getInstance().screen == null && event.getAction() == InputConstants.PRESS) {
             TerminalKeyMappingEventListener.tryOpenTerminal(InputConstants.getKey(event.getKey(), event.getScanCode()));
         }
