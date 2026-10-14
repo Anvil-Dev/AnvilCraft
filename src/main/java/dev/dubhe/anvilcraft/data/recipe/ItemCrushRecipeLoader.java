@@ -118,6 +118,12 @@ public class ItemCrushRecipeLoader {
                     .25f
                 )
             )
+            /// 石英为必掉产出，与上面四选一的宝石概率无关
+            .spawnItem((builder) -> builder
+                .offset(0, -.6875, 0)
+                .count(3)
+                .item(Items.QUARTZ)
+            )
             .save(provider, AnvilCraft.of("item_crush/gem_from_chromatic_stone"));
 
         ItemCrushRecipe.builder()
