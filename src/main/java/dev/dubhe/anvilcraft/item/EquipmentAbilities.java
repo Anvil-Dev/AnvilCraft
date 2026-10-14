@@ -4,6 +4,7 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.inventory.PocketInventory;
+import dev.dubhe.anvilcraft.network.ChargedJumpPacket;
 import dev.dubhe.anvilcraft.util.AtmosphereManager;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
@@ -30,6 +31,7 @@ import net.neoforged.neoforge.event.entity.living.LivingBreatheEvent;
 import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
 import net.neoforged.neoforge.event.entity.living.MobEffectEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
+import net.neoforged.neoforge.network.PacketDistributor;
 
 import java.util.Collections;
 import java.util.Map;
@@ -45,6 +47,13 @@ public final class EquipmentAbilities {
     private static final Map<Player, Integer> CHARGE_RELEASE_START = new WeakHashMap<>();
     private static final Map<Player, MobEffectInstance> HELMET_NIGHT_VISION = new WeakHashMap<>();
     private static final Map<Player, Boolean> SUBMERGING = Collections.synchronizedMap(new WeakHashMap<>());
+    /** 服务端收到的待用高跳指令（仅服务端使用）；超时未用即作废。 */
+    private static final Map<Player, PendingChargedJump> PENDING_CHARGED_JUMP = new WeakHashMap<>();
+    private static final int PENDING_CHARGED_JUMP_TIMEOUT = 5;
+
+    /** 客户端下达的高跳指令：跳跃初速度与其所属 tick。 */
+    private record PendingChargedJump(float power, int tick) {
+    }
 
     private EquipmentAbilities() {
     }
@@ -139,9 +148,27 @@ public final class EquipmentAbilities {
      *
      * <p>不要求按住潜行，因此停留与衰减阶段内仍可起跳。</p>
      *
+     * <p>两侧都按本地蓄力算出初速度；此外客户端会把结果发给服务端，
+     * 服务端优先采用该值（见 {@code ChargedJumpPacket}）。</p>
+     *
      * @return 强化后的跳跃速度；无蓄力时原样返回 {@code normal}
      */
     public static float consumeChargedJump(Player player, float normal) {
+        float power = chargedJumpPower(player, normal);
+        if (player.isLocalPlayer()) {
+            if (power > normal) PacketDistributor.sendToServer(new ChargedJumpPacket(power));
+            return power;
+        }
+        // 服务端：客户端算出的初速度更可靠（潜行输入只有客户端读得准），有则采用
+        PendingChargedJump pending = PENDING_CHARGED_JUMP.remove(player);
+        if (pending == null || player.tickCount - pending.tick() > PENDING_CHARGED_JUMP_TIMEOUT) return power;
+        return Math.max(power, pending.power());
+    }
+
+    /**
+     * 按当前蓄力算出跳跃初速度并清空蓄力。
+     */
+    private static float chargedJumpPower(Player player, float normal) {
         float progress = canChargeJump(player) ? chargeProgress(player) : 0;
         clearCharge(player);
         if (progress <= 0) return normal;
@@ -157,6 +184,18 @@ public final class EquipmentAbilities {
             else high = middle;
         }
         return (float) high;
+    }
+
+    /**
+     * 服务端记录客户端下达的高跳指令，供随后的 {@code jumpFromGround} 取用。
+     *
+     * <p>客户端在 {@code aiStep} 内先发本包、后发移动包，服务端也按此顺序处理：
+     * 移动包触发 {@code jumpFromGround} 时指令已在。这里不直接改
+     * {@code deltaMovement}，否则会在服务端自己的跳跃位移上再叠加一次。</p>
+     */
+    public static void applyChargedJump(Player player, float jumpPower) {
+        if (!canChargeJump(player)) return;
+        PENDING_CHARGED_JUMP.put(player, new PendingChargedJump(Math.max(0, jumpPower), player.tickCount));
     }
 
     private static void clearCharge(Player player) {
@@ -185,6 +224,11 @@ public final class EquipmentAbilities {
             CHARGE_RELEASE.remove(player);
             CHARGE_RELEASE_START.remove(player);
             CHARGE.put(player, Math.min(AnvilCraft.CONFIG.equipment.chargedJumpChargeTicks, chargeTicks(player) + 1));
+            return;
+        }
+        // 关闭蓄力保留：松开潜行立刻清空，不进入停留 / 衰减阶段
+        if (!AnvilCraft.CLIENT_CONFIG.controls.keepChargedJumpCharge) {
+            clearCharge(player);
             return;
         }
         // 停留 / 衰减阶段：按计时推进，与当前蓄力值无关

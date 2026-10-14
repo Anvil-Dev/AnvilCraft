@@ -417,6 +417,13 @@ public class AnvilCraftClientConfig {
     public ControlsSettings controls = new ControlsSettings();
 
     public static class ControlsSettings {
+        @SerializedName("Keep Charged Jump Charge")
+        @Comment(
+            "Whether the Charged Jump keeps its progress after releasing sneak. "
+            + "When disabled, releasing sneak clears the charge immediately"
+        )
+        public boolean keepChargedJumpCharge = true;
+
         @Comment("Controls whether to swap insert/collect to left-click and keep extract/place on right-click (Left Collect, Right Place)")
         public boolean invertMouseOverrideActions = false;
 

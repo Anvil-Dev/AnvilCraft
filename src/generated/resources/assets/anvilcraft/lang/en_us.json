@@ -168,6 +168,8 @@
   "anvilcraft.configuration.controls.invert_fluid_port_bucket_actions.tooltip": "Controls whether to swap the Storage Fluid Port bucket actions so that left-click stores and right-click pours",
   "anvilcraft.configuration.controls.invert_mouse_override_actions": "Invert Mouse Override Actions",
   "anvilcraft.configuration.controls.invert_mouse_override_actions.tooltip": "Controls whether to swap insert/collect to left-click and keep extract/place on right-click (Left Collect, Right Place)",
+  "anvilcraft.configuration.controls.keep_charged_jump_charge": "Keep Charged Jump Charge",
+  "anvilcraft.configuration.controls.keep_charged_jump_charge.tooltip": "Whether the Charged Jump keeps its progress after releasing sneak. When disabled, releasing sneak clears the charge immediately",
   "anvilcraft.configuration.controls.preview_rotation_sensitivity": "Preview Rotation Sensitivity",
   "anvilcraft.configuration.controls.preview_rotation_sensitivity.tooltip": "Controls the mouse sensitivity when rotating 3D structure previews",
   "anvilcraft.configuration.controls.tooltip": "Adjusts settings related to key inversion, interaction methods, and control habits",
