@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.block.entity;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.api.block.IItemSuctionContainer;
 import dev.dubhe.anvilcraft.api.item.IDiskCloneable;
 import dev.dubhe.anvilcraft.api.itemhandler.FilteredItemStackHandler;
 import dev.dubhe.anvilcraft.api.itemhandler.IItemHandlerHolder;
@@ -228,8 +229,9 @@ public abstract class BaseChuteBlockEntity
             // 尝试从上方容器输入
             if (this.isInputEnabled()) {
                 if (!this.inventoryFull()) {
+                    BlockPos inputPos = getBlockPos().relative(this.getInputDirection());
                     IItemHandler source = ItemHandlerUtil.getSourceItemHandler(
-                        getBlockPos().relative(this.getInputDirection()),
+                        inputPos,
                         this.getInputDirection().getOpposite(),
                         level
                     );
@@ -237,11 +239,11 @@ public abstract class BaseChuteBlockEntity
                         && ItemHandlerUtil.importFromTarget(getItemHandler(), 64, stack -> true, source);
                     if (imported) {
                         resetCD = true;
-                    } else {
+                    } else if (this.canSuctionItemEntities(inputPos, source != null)) {
                         List<ItemEntity> itemEntities = Objects.requireNonNull(getLevel())
                             .getEntitiesOfClass(
                                 ItemEntity.class,
-                                new AABB(getBlockPos().relative(this.getInputDirection())),
+                                new AABB(inputPos),
                                 itemEntity -> !itemEntity.getItem().isEmpty());
                         for (ItemEntity itemEntity : itemEntities) {
                             ItemStack itemStack = itemEntity.getItem();
@@ -363,6 +365,11 @@ public abstract class BaseChuteBlockEntity
                 iterator.remove();
             }
         }
+    }
+
+    protected boolean canSuctionItemEntities(BlockPos inputPos, boolean hasHandler) {
+        if (level == null) return false;
+        return !hasHandler || IItemSuctionContainer.allowsSuction(level, inputPos);
     }
 
     @Override
