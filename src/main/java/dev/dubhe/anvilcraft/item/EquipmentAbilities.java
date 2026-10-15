@@ -41,8 +41,10 @@ import java.util.WeakHashMap;
 public final class EquipmentAbilities {
     private static final ResourceLocation FLIGHT_STABILITY = AnvilCraft.of("flight_stability");
     private static final Map<Player, Integer> CHARGE = new WeakHashMap<>();
-    /** 停止蓄力起的经过 tick 数；有记录即表示处于停留 / 衰减阶段。 */
-    private static final Map<Player, Integer> CHARGE_RELEASE = new WeakHashMap<>();
+    /** 本次蓄力开始时的 tick；蓄力值由「已按住多少 tick」直接推出，而非逐次累加。 */
+    private static final Map<Player, Integer> CHARGE_START = new WeakHashMap<>();
+    /** 停止蓄力时的 tick；有记录即表示处于停留 / 衰减阶段。 */
+    private static final Map<Player, Integer> CHARGE_RELEASE_TICK = new WeakHashMap<>();
     /** 停止蓄力那一刻锁定的蓄力值，衰减以此为基础线性下降。 */
     private static final Map<Player, Integer> CHARGE_RELEASE_START = new WeakHashMap<>();
     private static final Map<Player, MobEffectInstance> HELMET_NIGHT_VISION = new WeakHashMap<>();
@@ -135,8 +137,9 @@ public final class EquipmentAbilities {
      * <p>HUD 据此换色，让玩家看出此刻进度被暂时锁定，仍可起跳。</p>
      */
     public static boolean isChargeHeld(Player player) {
-        Integer released = CHARGE_RELEASE.get(player);
-        return released != null && released <= AnvilCraft.CONFIG.equipment.chargedJumpChargeHoldTicks;
+        Integer releaseTick = CHARGE_RELEASE_TICK.get(player);
+        return releaseTick != null
+               && player.tickCount - releaseTick <= AnvilCraft.CONFIG.equipment.chargedJumpChargeHoldTicks;
     }
 
     /**
@@ -154,15 +157,19 @@ public final class EquipmentAbilities {
      * @return 强化后的跳跃速度；无蓄力时原样返回 {@code normal}
      */
     public static float consumeChargedJump(Player player, float normal) {
-        float power = chargedJumpPower(player, normal);
         if (player.isLocalPlayer()) {
+            // 蓄力手感是每个玩家自己的客户端配置，只有物理客户端读取它
+            float power = chargedJumpPower(player, normal);
             if (power > normal) PacketDistributor.sendToServer(new ChargedJumpPacket(power));
             return power;
         }
-        // 服务端：客户端算出的初速度更可靠（潜行输入只有客户端读得准），有则采用
+        // 服务端不维护蓄力状态（也读不到 CLIENT 配置），只采用客户端上报的值；
+        // 该值不可信，故按服务端依 normal 复算的上限夹紧。
         PendingChargedJump pending = PENDING_CHARGED_JUMP.remove(player);
-        if (pending == null || player.tickCount - pending.tick() > PENDING_CHARGED_JUMP_TIMEOUT) return power;
-        return Math.max(power, pending.power());
+        if (pending == null || player.tickCount - pending.tick() > PENDING_CHARGED_JUMP_TIMEOUT) return normal;
+        float max = maxChargedJumpPower(player, normal);
+        if (!Float.isFinite(max) || max <= 0) return normal;
+        return Math.min(pending.power(), max);
     }
 
     /**
@@ -192,22 +199,49 @@ public final class EquipmentAbilities {
      * <p>客户端在 {@code aiStep} 内先发本包、后发移动包，服务端也按此顺序处理：
      * 移动包触发 {@code jumpFromGround} 时指令已在。这里不直接改
      * {@code deltaMovement}，否则会在服务端自己的跳跃位移上再叠加一次。</p>
+     *
+     * <p>本包的值最终会经 {@code getJumpPower()} 写进服务端实体的 {@code deltaMovement.y}，
+     * 故不可信：只做有限性 / 正值检查，真正的上限夹紧在
+     * {@link #consumeChargedJump} 中按原版跳跃力复算，避免客户端伪造跳跃高度。</p>
      */
     public static void applyChargedJump(Player player, float jumpPower) {
         if (!canChargeJump(player)) return;
-        PENDING_CHARGED_JUMP.put(player, new PendingChargedJump(Math.max(0, jumpPower), player.tickCount));
+        if (!Float.isFinite(jumpPower) || jumpPower <= 0) return;
+        PENDING_CHARGED_JUMP.put(player, new PendingChargedJump(jumpPower, player.tickCount));
+    }
+
+    /**
+     * 按原版跳跃力 {@code normal} 复算单次跳跃允许的最大初速度（满蓄力）。
+     *
+     * <p>与 {@link #chargedJumpPower} 同一套求解，但进度固定为 1，
+     * 且只依赖服务端已知的 {@code normal} 与配置，属于可信计算。</p>
+     */
+    private static float maxChargedJumpPower(Player player, float normal) {
+        double gravity = Math.max(0.001, player.getAttributeValue(Attributes.GRAVITY));
+        double drag = AtmosphereManager.drag(player, 0.9800000190734863);
+        double multiplier = AnvilCraft.CONFIG.equipment.chargedJumpMaxHeightMultiplier;
+        double target = jumpHeight(normal, gravity, drag) * multiplier;
+        double low = normal;
+        double high = normal * multiplier + gravity;
+        for (int iteration = 0; iteration < 32; iteration++) {
+            double middle = (low + high) / 2;
+            if (jumpHeight(middle, gravity, drag) < target) low = middle;
+            else high = middle;
+        }
+        return (float) high;
     }
 
     private static void clearCharge(Player player) {
         CHARGE.remove(player);
-        CHARGE_RELEASE.remove(player);
+        CHARGE_START.remove(player);
+        CHARGE_RELEASE_TICK.remove(player);
         CHARGE_RELEASE_START.remove(player);
     }
 
     /**
      * 推进蓄力状态机：按住潜行时增长；停止蓄力后先停留当前进度，再线性衰减到 0。
      *
-     * <p>衰减是否进行由 {@link #CHARGE_RELEASE} 是否在计时决定，而非当前蓄力值：
+     * <p>衰减是否进行由 {@link #CHARGE_RELEASE_TICK} 是否已记录决定，而非当前蓄力值：
      * 衰减途中蓄力值会不断下降，若按蓄力值判断阶段会反复被误判成「刚松开」。</p>
      *
      * <p>蓄力条件用 {@link #hasChargeSupport} 而非仅 {@code onGround()}，
@@ -218,12 +252,17 @@ public final class EquipmentAbilities {
             clearCharge(player);
             return;
         }
+        int now = player.tickCount;
         boolean charging = player.isShiftKeyDown() && !player.getAbilities().flying && hasChargeSupport(player);
         if (charging) {
-            // 衰减途中重新蓄力：从当前显示值继续，而不是跳回松开时的起点
-            CHARGE_RELEASE.remove(player);
+            // 蓄力值由「已按住多少 tick」直接推出，而不是逐次 +1：
+            // 逐次累加只在「每一次调用都处于蓄力中」时才等于理论值，
+            // 任何一次判定落空都会少计一 tick，按住时长因此被拉长超过配置值。
+            // 这里以起始 tick 为基准，按住 N tick 必定得到 N，与调用次数无关。
+            int start = CHARGE_START.computeIfAbsent(player, key -> now - CHARGE.getOrDefault(key, 0));
+            CHARGE_RELEASE_TICK.remove(player);
             CHARGE_RELEASE_START.remove(player);
-            CHARGE.put(player, Math.min(AnvilCraft.CONFIG.equipment.chargedJumpChargeTicks, chargeTicks(player) + 1));
+            CHARGE.put(player, Math.min(AnvilCraft.CONFIG.equipment.chargedJumpChargeTicks, now - start + 1));
             return;
         }
         // 关闭蓄力保留：松开潜行立刻清空，不进入停留 / 衰减阶段
@@ -231,29 +270,30 @@ public final class EquipmentAbilities {
             clearCharge(player);
             return;
         }
-        // 停留 / 衰减阶段：按计时推进，与当前蓄力值无关
-        if (CHARGE_RELEASE.containsKey(player)) {
-            int released = CHARGE_RELEASE.merge(player, 1, Integer::sum);
-            if (released <= AnvilCraft.CONFIG.equipment.chargedJumpChargeHoldTicks) return;
-            int start = CHARGE_RELEASE_START.getOrDefault(player, AnvilCraft.CONFIG.equipment.chargedJumpChargeTicks);
-            int elapsed = released - AnvilCraft.CONFIG.equipment.chargedJumpChargeHoldTicks;
-            int decayTicks = AnvilCraft.CONFIG.equipment.chargedJumpChargeDecayTicks;
-            int decayed = Math.round(start * (decayTicks - elapsed) / (float) decayTicks);
-            if (decayed <= 0) {
-                clearCharge(player);
-                return;
-            }
-            CHARGE.put(player, decayed);
-            return;
-        }
-        // 刚停止蓄力：记录起点并进入停留阶段
-        int current = chargeTicks(player);
-        if (current <= 0) {
+        if (!CHARGE.containsKey(player)) {
             clearCharge(player);
             return;
         }
-        CHARGE_RELEASE.put(player, 1);
-        CHARGE_RELEASE_START.put(player, current);
+        // 停留 / 衰减阶段：按距松开时刻的 tick 数推进，同样与调用次数无关
+        Integer releaseTick = CHARGE_RELEASE_TICK.get(player);
+        if (releaseTick == null) {
+            releaseTick = now;
+            CHARGE_RELEASE_TICK.put(player, now);
+            CHARGE_RELEASE_START.put(player, CHARGE.getOrDefault(player, 0));
+        }
+        int holdTicks = AnvilCraft.CONFIG.equipment.chargedJumpChargeHoldTicks;
+        int elapsed = now - releaseTick;
+        if (elapsed <= holdTicks) return;
+        int startValue = CHARGE_RELEASE_START.getOrDefault(player, AnvilCraft.CONFIG.equipment.chargedJumpChargeTicks);
+        int decayTicks = AnvilCraft.CONFIG.equipment.chargedJumpChargeDecayTicks;
+        int decayed = Math.round(startValue * (decayTicks - (elapsed - holdTicks)) / (float) decayTicks);
+        if (decayed <= 0) {
+            clearCharge(player);
+            return;
+        }
+        CHARGE.put(player, decayed);
+        // 停留已结束、进入衰减：此后重新蓄力从当前衰减值继续
+        CHARGE_START.remove(player);
     }
 
     private static double jumpHeight(double velocity, double gravity, double drag) {
@@ -299,7 +339,9 @@ public final class EquipmentAbilities {
     @SubscribeEvent
     public static void beforeTick(PlayerTickEvent.Pre event) {
         Player player = event.getEntity();
-        tickCharge(player, canChargeJump(player));
+        // 蓄力手感来自本机潜行输入与客户端配置，只能在物理客户端推进：
+        // 专用服务器不加载 CLIENT 配置，服务端也不应维护这份共享状态
+        if (player.isLocalPlayer()) tickCharge(player, canChargeJump(player));
         if (player.getItemBySlot(EquipmentSlot.FEET).is(ModItems.WEATHERPROOF_SPACESUIT_BOOTS)) {
             if (player.isShiftKeyDown()) SUBMERGING.put(player, true);
             else if (!player.isInFluidType() && player.level().getFluidState(player.blockPosition().below()).isEmpty()) {

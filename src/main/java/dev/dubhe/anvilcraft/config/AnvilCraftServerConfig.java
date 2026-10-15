@@ -745,11 +745,11 @@ public class AnvilCraftServerConfig {
 
         @Comment("Controls the charge time of the Charged Jump ability (in ticks)")
         @BoundedDiscrete(min = 1, max = 200)
-        public int chargedJumpChargeTicks = 20;
+        public int chargedJumpChargeTicks = 10;
 
         @Comment("Controls the time the Charged Jump bar holds its progress after releasing (in ticks)")
         @BoundedDiscrete(min = 0, max = 200)
-        public int chargedJumpChargeHoldTicks = 20;
+        public int chargedJumpChargeHoldTicks = 10;
 
         @Comment("Controls the time the Charged Jump bar takes to decay after holding (in ticks)")
         @BoundedDiscrete(min = 1, max = 200)
