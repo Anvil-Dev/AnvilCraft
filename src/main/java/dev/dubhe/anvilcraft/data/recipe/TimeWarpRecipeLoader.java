@@ -159,6 +159,7 @@ public class TimeWarpRecipeLoader {
         TimeWarpRecipe.builder()
             .requires(Items.SKELETON_SKULL)
             .requires(Items.COAL, 4)
+            .requires(Items.WITHER_ROSE)
             .result(Items.WITHER_SKELETON_SKULL)
             .save(provider);
 
