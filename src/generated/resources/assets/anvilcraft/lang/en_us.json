@@ -1338,7 +1338,6 @@
   "gui.anvilcraft.category.max_output": "Max: %s",
   "gui.anvilcraft.category.mesh": "Item Sift",
   "gui.anvilcraft.category.min_output": "Min: %s",
-  "gui.anvilcraft.category.mineral_fountain.chance": "Chance: %s%%",
   "gui.anvilcraft.category.mineral_fountain.replace_chance": "Replace Chance: %s%%",
   "gui.anvilcraft.category.mineral_fountain.replace_target": "Replaces: %s",
   "gui.anvilcraft.category.mob_transform": "Mob Transform in Corrupted Beacon Beam",

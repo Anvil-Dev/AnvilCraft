@@ -17,6 +17,7 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.neoforged.neoforge.common.Tags;
 
 public class MineralFountainRecipeLoader {
@@ -32,15 +33,18 @@ public class MineralFountainRecipeLoader {
         mineralFountainDeepslate(provider, ModBlockTags.STORAGE_BLOCKS_RAW_TUNGSTEN, ModBlocks.DEEPSLATE_TUNGSTEN_ORE.get());
         mineralFountainDeepslate(provider, ModBlockTags.STORAGE_BLOCKS_RAW_URANIUM, ModBlocks.DEEPSLATE_URANIUM_ORE.get());
 
-        // 熔岩：四周皆为熔岩时向上方生成熔岩，并向上方供热
+        // 熔岩：四周皆为熔岩「源」时向上方生成熔岩，并向上方供热。
+        // level=0 即熔岩源；旧版 getAroundBlock() 同样只认源，流动熔岩不计入。
         MineralFountainActiveRecipe.builder()
             .fromBlock(from(Blocks.AIR))
-            .require(new AroundRequirement(from(Blocks.LAVA), 4))
+            .require(new AroundRequirement(lavaSource(), 4))
             .toBlock(result(Blocks.LAVA))
             .heat(new MineralFountainHeat(HeatTier.REDHOT, 20, 1))
             .save(provider, "lava");
 
-        // 粗矿配方有概率被替换：主世界为虚空石或地核碎片矿，下界 / 末地概率更高
+        // 粗矿配方有概率被替换：主世界为虚空石或地核碎片矿，下界 / 末地概率更高。
+        // 不写 replace 列表 ⇒ 按 issue #5393 语义可替换任意主动配方；
+        // 实际只会命中材料方块相容的粗矿配方（熔岩配方的 from_block 是空气，不会共存）
         replacement(provider, Level.OVERWORLD, ModBlocks.VOID_STONE.get(), 0.01);
         replacement(provider, Level.OVERWORLD, ModBlocks.EARTH_CORE_SHARD_ORE.get(), 0.01);
         replacement(provider, Level.NETHER, ModBlocks.EARTH_CORE_SHARD_ORE.get(), 0.1);
@@ -77,6 +81,14 @@ public class MineralFountainRecipeLoader {
 
     private static BlockStatePredicate from(Block block) {
         return BlockStatePredicate.builder().of(block).build();
+    }
+
+    /** 熔岩源谓词：方块为熔岩且 level=0。 */
+    private static BlockStatePredicate lavaSource() {
+        return BlockStatePredicate.builder()
+            .of(Blocks.LAVA)
+            .with(BlockStateProperties.LEVEL, 0)
+            .build();
     }
 
     /** ChanceBlockState.of 只接受 Supplier，这里统一按方块构造。 */

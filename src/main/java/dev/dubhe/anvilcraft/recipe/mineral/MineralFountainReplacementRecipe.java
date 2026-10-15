@@ -45,7 +45,8 @@ public class MineralFountainReplacementRecipe extends AbstractMineralFountainRec
         // 替换生产不使用权重：候选按优先级逐个掷 chance 尝试，故固定为默认权重
         super(dimension, height, priority, DEFAULT_WEIGHT, fromBlock, toBlock, heat);
         this.replace = List.copyOf(replace);
-        this.chance = chance;
+        // 数据包不受 validate() 约束，这里直接夹紧，保证概率语义始终成立
+        this.chance = Math.clamp(chance, 0.0, 1.0);
     }
 
     public List<ResourceLocation> getReplace() {

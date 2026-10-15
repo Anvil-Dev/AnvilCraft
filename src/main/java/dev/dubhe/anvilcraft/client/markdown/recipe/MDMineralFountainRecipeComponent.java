@@ -9,6 +9,7 @@ import dev.anvilcraft.resource.ageratum.util.RecipeUtil;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.client.support.RenderSupport;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
+import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.recipe.mineral.AroundRequirement;
 import dev.dubhe.anvilcraft.recipe.mineral.MineralFountainActiveRecipe;
 import dev.dubhe.anvilcraft.recipe.mineral.MineralFountainPassiveRecipe;
@@ -20,6 +21,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.block.state.BlockState;
 
 import java.text.DecimalFormat;
@@ -72,6 +74,9 @@ public class MDMineralFountainRecipeComponent extends MDRecipeComponent {
     private final List<BlockState> sideBlocks;
     @Nullable
     private final ResourceLocation dimension;
+    /** 替换概率；非替换配方为 {@code null}。 */
+    @Nullable
+    private final Double replaceChance;
 
     public MDMineralFountainRecipeComponent(MineralFountainActiveRecipe recipe, boolean enableAlignCenter) {
         this(
@@ -97,8 +102,9 @@ public class MDMineralFountainRecipeComponent extends MDRecipeComponent {
         this(
             recipe.getFromBlock(),
             recipe.getToBlock(),
-            List.of(),
+            replacementAround(recipe),
             recipe.getDimension().orElse(null),
+            recipe.getReplaceChance(),
             enableAlignCenter
         );
     }
@@ -110,11 +116,23 @@ public class MDMineralFountainRecipeComponent extends MDRecipeComponent {
         @Nullable ResourceLocation dimension,
         boolean enableAlignCenter
     ) {
+        this(fromBlock, toBlock, sideBlocks, dimension, null, enableAlignCenter);
+    }
+
+    private MDMineralFountainRecipeComponent(
+        BlockStatePredicate fromBlock,
+        ChanceBlockState toBlock,
+        List<BlockState> sideBlocks,
+        @Nullable ResourceLocation dimension,
+        @Nullable Double replaceChance,
+        boolean enableAlignCenter
+    ) {
         super(TEXTURE, WIDTH, HEIGHT, enableAlignCenter);
         this.fromBlock = fromBlock;
         this.toBlock = toBlock;
         this.sideBlocks = sideBlocks;
         this.dimension = dimension;
+        this.replaceChance = replaceChance;
     }
 
     /**
@@ -126,6 +144,39 @@ public class MDMineralFountainRecipeComponent extends MDRecipeComponent {
             states.addAll(requirement.block().constructStatesForRender());
         }
         return List.copyOf(states);
+    }
+
+    /**
+     * 替换配方应展示的周围需求。
+     *
+     * <p>替换只会在某个主动配方匹配时生效，因此它的周围需求取自被替换的主动配方；
+     * {@code replace} 为空表示可替换任意主动配方。此外要求两者能匹配同一个上方方块，
+     * 否则永远不会共存（如熔岩配方的 {@code from_block} 是空气）。</p>
+     */
+    private static List<BlockState> replacementAround(MineralFountainReplacementRecipe recipe) {
+        Minecraft minecraft = Minecraft.getInstance();
+        if (minecraft.level == null) return List.of();
+        Set<BlockState> states = new LinkedHashSet<>();
+        for (RecipeHolder<MineralFountainActiveRecipe> holder :
+            minecraft.level.getRecipeManager().getAllRecipesFor(ModRecipeTypes.MINERAL_FOUNTAIN_ACTIVE.get())) {
+            if (!recipe.appliesTo(holder.id())) continue;
+            if (!sharesFromBlock(recipe.getFromBlock(), holder.value().getFromBlock())) continue;
+            states.addAll(aroundBlocks(holder.value()));
+        }
+        return List.copyOf(states);
+    }
+
+    /**
+     * 两个材料方块谓词是否存在交集，即能否匹配同一个上方方块。
+     *
+     * <p>谓词为空（不限制方块）时没有候选状态，视为可与任意方块共存。</p>
+     */
+    private static boolean sharesFromBlock(BlockStatePredicate first, BlockStatePredicate second) {
+        List<BlockState> firstStates = first.constructStatesForRender();
+        List<BlockState> secondStates = second.constructStatesForRender();
+        if (firstStates.isEmpty() || secondStates.isEmpty()) return true;
+        return firstStates.stream().anyMatch(second::testWithoutEntity)
+               || secondStates.stream().anyMatch(first::testWithoutEntity);
     }
 
     @Override
@@ -184,10 +235,19 @@ public class MDMineralFountainRecipeComponent extends MDRecipeComponent {
     private List<Component> getOutputTooltips() {
         List<Component> tooltips = new ArrayList<>();
         double chance = NumberProviderUtil.expected(this.toBlock.chance());
-        if (chance >= 0.0 && chance != 1.0) {
+        // 按显示时的取整判断，与 JEI 侧一致：避免 99.96% 被格式化成 100% 却仍然显示
+        if (chance >= 0.0 && Math.round(chance * 100) < 100) {
             tooltips.add(
                 Component.translatable("gui.anvilcraft.category.chance", FORMATTER.format(chance * 100))
                     .withStyle(ChatFormatting.GRAY)
+            );
+        }
+        if (this.replaceChance != null) {
+            tooltips.add(
+                Component.translatable(
+                    "gui.anvilcraft.category.mineral_fountain.replace_chance",
+                    FORMATTER.format(this.replaceChance * 100)
+                ).withStyle(ChatFormatting.GRAY)
             );
         }
         if (this.dimension != null) {

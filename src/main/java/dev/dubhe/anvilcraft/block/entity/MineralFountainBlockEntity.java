@@ -92,7 +92,7 @@ public class MineralFountainBlockEntity extends BlockEntity {
         }
 
         // 上方为容器时抽出四周的熔岩灌入，这一步不产出方块
-        this.tryFillDrain(aboveState, serverLevel);
+        this.tryFillDrain(around, serverLevel);
 
         // 加热只看维度、高度与周围方块，与上方方块无关
         this.setHeat(this.pickHeat(input), serverLevel);
@@ -100,9 +100,12 @@ public class MineralFountainBlockEntity extends BlockEntity {
 
     /**
      * 四周皆为熔岩且上方为容器时，把熔岩灌入容器。
+     *
+     * <p>判据是**周围**方块而非上方方块：上方放的是排水口，其方块状态永远不是熔岩。
+     * 与旧版一致，只认熔岩源，流动熔岩不计入。</p>
      */
-    private void tryFillDrain(BlockState aboveState, ServerLevel serverLevel) {
-        if (this.level == null || !aboveState.is(Blocks.LAVA)) return;
+    private void tryFillDrain(List<BlockState> around, ServerLevel serverLevel) {
+        if (this.level == null || !isLavaSourceAround(around)) return;
         if (!(this.level.getBlockEntity(this.getBlockPos().above()) instanceof DrainBlockEntity drain)) return;
         var handler = drain.getFluidHandler();
         FluidStack lava = new FluidStack(Fluids.LAVA, FluidType.BUCKET_VOLUME);
@@ -110,6 +113,16 @@ public class MineralFountainBlockEntity extends BlockEntity {
             handler.fill(lava, IFluidHandler.FluidAction.EXECUTE);
         }
         this.resetTickCount();
+    }
+
+    /**
+     * 四面是否皆为熔岩源。
+     */
+    private static boolean isLavaSourceAround(List<BlockState> around) {
+        if (around.size() < HORIZONTAL_DIRECTION.length) return false;
+        return around.stream().allMatch(state ->
+            state.is(Blocks.LAVA) && state.getFluidState().isSource()
+        );
     }
 
     /**
@@ -175,14 +188,6 @@ public class MineralFountainBlockEntity extends BlockEntity {
         if (heat != null) {
             HeaterManager.addProducer(this.getBlockPos(), serverLevel, ModHeaterInfos.mineralFountain(heat));
         }
-    }
-
-    /**
-     * 当前生效的加热定义，供供热信息与渲染判定；为空表示不加热。
-     */
-    @Nullable
-    public MineralFountainHeat getActiveHeat() {
-        return this.activeHeat;
     }
 
     /**

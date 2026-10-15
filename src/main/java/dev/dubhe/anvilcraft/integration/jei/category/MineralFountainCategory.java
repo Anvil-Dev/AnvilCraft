@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.integration.jei.category;
 
 import dev.anvilcraft.lib.v2.util.NumberProviderUtil;
+import dev.anvilcraft.lib.v2.util.predicate.BlockStatePredicate;
 import dev.anvilcraft.lib.v2.util.predicate.ChanceBlockState;
 import dev.dubhe.anvilcraft.client.support.RenderSupport;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
@@ -402,7 +403,7 @@ public class MineralFountainCategory implements IRecipeCategory<MineralFountainJ
         if (chance >= 0 && Math.round(chance * 100) < 100) {
             tooltips.add(
                 Component.translatable(
-                    "gui.anvilcraft.category.mineral_fountain.chance",
+                    "gui.anvilcraft.category.chance",
                     FORMATTER.format(chance * 100)
                 ).withStyle(ChatFormatting.GRAY)
             );
@@ -432,6 +433,10 @@ public class MineralFountainCategory implements IRecipeCategory<MineralFountainJ
      * <p>替换只会在某个主动配方匹配时生效，所以它的周围需求就是被替换的主动配方的需求。
      * {@code replace} 为空表示可替换任意主动配方，此时并入所有主动配方的需求；
      * 若指定了配方 id，则只取这些配方的需求。</p>
+     *
+     * <p>此外要求两者能匹配同一个上方方块：替换与主动必须同时匹配才会发生，
+     * 材料方块不相容的配方（如熔岩配方的 {@code from_block} 是空气）永远不会共存，
+     * 不应把它的周围需求画进来。</p>
      */
     private static List<BlockState> replacementAround(
         MineralFountainReplacementRecipe recipe,
@@ -440,9 +445,24 @@ public class MineralFountainCategory implements IRecipeCategory<MineralFountainJ
         Set<BlockState> states = new LinkedHashSet<>();
         for (Map.Entry<ResourceLocation, MineralFountainActiveRecipe> entry : activeById.entrySet()) {
             if (!recipe.appliesTo(entry.getKey())) continue;
+            if (!sharesFromBlock(recipe.getFromBlock(), entry.getValue().getFromBlock())) continue;
             states.addAll(aroundBlocks(entry.getValue()));
         }
         return List.copyOf(states);
+    }
+
+    /**
+     * 两个材料方块谓词是否存在交集，即能否匹配同一个上方方块。
+     *
+     * <p>用 {@code constructStatesForRender()} 取候选状态再互相匹配；
+     * 谓词为空（不限制方块）时没有候选状态，视为可与任意方块共存。</p>
+     */
+    private static boolean sharesFromBlock(BlockStatePredicate first, BlockStatePredicate second) {
+        List<BlockState> firstStates = first.constructStatesForRender();
+        List<BlockState> secondStates = second.constructStatesForRender();
+        if (firstStates.isEmpty() || secondStates.isEmpty()) return true;
+        return firstStates.stream().anyMatch(second::testWithoutEntity)
+               || secondStates.stream().anyMatch(first::testWithoutEntity);
     }
 
     /**

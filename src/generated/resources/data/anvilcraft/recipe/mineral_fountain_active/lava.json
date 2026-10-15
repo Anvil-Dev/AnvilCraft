@@ -3,7 +3,12 @@
   "around": [
     {
       "block": {
-        "blocks": "minecraft:lava"
+        "blocks": "minecraft:lava",
+        "properties": [
+          {
+            "level": "0"
+          }
+        ]
       },
       "count": 4
     }
