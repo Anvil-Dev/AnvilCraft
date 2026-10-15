@@ -200,7 +200,7 @@ public class MineralFountainBlockEntity extends BlockEntity {
                 ? holder.value().matches(input, this.level)
                 : holder.value().matchesContextAndAround(input, this.level))
             .toList();
-        return pickByPriority(matches, holder -> holder.value().getPriority());
+        return this.pickByPriority(matches, holder -> holder.value().getPriority());
     }
 
     /**
@@ -215,7 +215,7 @@ public class MineralFountainBlockEntity extends BlockEntity {
             .filter(holder -> holder.value().matches(input, this.level))
             .toList();
         RecipeHolder<MineralFountainPassiveRecipe> picked =
-            pickByPriority(matches, holder -> holder.value().getPriority());
+            this.pickByPriority(matches, holder -> holder.value().getPriority());
         return picked == null ? null : picked.value();
     }
 

@@ -3,13 +3,11 @@ package dev.dubhe.anvilcraft.recipe.mineral;
 import dev.anvilcraft.lib.v2.util.predicate.BlockStatePredicate;
 import dev.anvilcraft.lib.v2.util.predicate.ChanceBlockState;
 import dev.dubhe.anvilcraft.util.RecipeUtil;
-import io.netty.buffer.ByteBuf;
 import lombok.Getter;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Recipe;
@@ -20,7 +18,6 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.ToIntFunction;
-import net.minecraft.util.RandomSource;
 
 /**
  * 矿物涌泉配方的公共部分：高度范围、世界类型、优先级、权重、材料方块与结果方块。

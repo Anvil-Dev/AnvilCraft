@@ -105,17 +105,6 @@ public class MDMineralFountainRecipeComponent extends MDRecipeComponent {
         );
     }
 
-    /**
-     * 主动配方需求表中出现的方块，用于侧边展示。
-     */
-    private static List<BlockState> aroundBlocks(MineralFountainActiveRecipe recipe) {
-        Set<BlockState> states = new LinkedHashSet<>();
-        for (AroundRequirement requirement : recipe.getAround()) {
-            states.addAll(requirement.block().constructStatesForRender());
-        }
-        return List.copyOf(states);
-    }
-
     private MDMineralFountainRecipeComponent(
         BlockStatePredicate fromBlock,
         ChanceBlockState toBlock,
@@ -128,6 +117,17 @@ public class MDMineralFountainRecipeComponent extends MDRecipeComponent {
         this.toBlock = toBlock;
         this.sideBlocks = sideBlocks;
         this.dimension = dimension;
+    }
+
+    /**
+     * 主动配方需求表中出现的方块，用于侧边展示。
+     */
+    private static List<BlockState> aroundBlocks(MineralFountainActiveRecipe recipe) {
+        Set<BlockState> states = new LinkedHashSet<>();
+        for (AroundRequirement requirement : recipe.getAround()) {
+            states.addAll(requirement.block().constructStatesForRender());
+        }
+        return List.copyOf(states);
     }
 
     @Override

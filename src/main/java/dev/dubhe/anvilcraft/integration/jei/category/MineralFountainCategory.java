@@ -1,5 +1,7 @@
 package dev.dubhe.anvilcraft.integration.jei.category;
 
+import dev.anvilcraft.lib.v2.util.NumberProviderUtil;
+import dev.anvilcraft.lib.v2.util.predicate.ChanceBlockState;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.client.support.RenderSupport;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
@@ -9,6 +11,7 @@ import dev.dubhe.anvilcraft.integration.jei.recipe.MineralFountainJeiRecipe;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiBlockIngredientUtil;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiRecipeUtil;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiRenderHelper;
+import dev.dubhe.anvilcraft.recipe.mineral.AbstractMineralFountainRecipe;
 import dev.dubhe.anvilcraft.recipe.mineral.AroundRequirement;
 import dev.dubhe.anvilcraft.recipe.mineral.MineralFountainActiveRecipe;
 import dev.dubhe.anvilcraft.recipe.mineral.MineralFountainPassiveRecipe;
@@ -29,6 +32,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.RecipeHolder;
@@ -37,14 +41,20 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluids;
 import org.jetbrains.annotations.Nullable;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class MineralFountainCategory implements IRecipeCategory<MineralFountainJeiRecipe> {
     public static final int WIDTH = 162;
     public static final int HEIGHT = 78;
+
+    private static final DecimalFormat FORMATTER = new DecimalFormat("0.#");
 
     private static final String SIDE_BLOCK_PREFIX = "side_block_";
     private static final String FROM_BLOCK = "from_block";
@@ -123,6 +133,8 @@ public class MineralFountainCategory implements IRecipeCategory<MineralFountainJ
             );
         }
 
+        // 同一格内放入组内全部结果，JEI 会自动轮换显示，从而把概率产出的多条配方合并为一个条目
+        List<BlockState> outcomeStates = recipe.outcomeStates();
         JeiBlockIngredientUtil.addSlot(
             builder,
             RecipeIngredientRole.OUTPUT,
@@ -131,9 +143,16 @@ public class MineralFountainCategory implements IRecipeCategory<MineralFountainJ
             28,
             16,
             16,
-            getIngredientStacks(List.of(recipe.result().state()))
+            getIngredientStacks(outcomeStates)
         ).addRichTooltipCallback((slot, tooltip) -> {
-            tooltip.addAll(JeiRecipeUtil.getTooltips(recipe.result().chance()));
+            BlockState displayed = slot.getDisplayedItemStack()
+                .map(ItemStack::getItem)
+                .filter(BlockItem.class::isInstance)
+                .map(BlockItem.class::cast)
+                .map(BlockItem::getBlock)
+                .flatMap(block -> outcomeStates.stream().filter(state -> state.is(block)).findFirst())
+                .orElse(null);
+            tooltip.addAll(getChanceTooltips(recipe, displayed));
             if (recipe.dimension() != null) {
                 tooltip.add(getDimensionName(recipe.dimension()).copy().withStyle(ChatFormatting.GRAY));
             }
@@ -142,7 +161,7 @@ public class MineralFountainCategory implements IRecipeCategory<MineralFountainJ
         if (recipe.sideBlocks().stream().anyMatch(state -> state.is(Blocks.LAVA))) {
             builder.addInvisibleIngredients(RecipeIngredientRole.INPUT).addFluidStack(Fluids.LAVA, 1000);
         }
-        if (recipe.result().state().is(Blocks.LAVA)) {
+        if (outcomeStates.stream().anyMatch(state -> state.is(Blocks.LAVA))) {
             builder.addInvisibleIngredients(RecipeIngredientRole.OUTPUT).addFluidStack(Fluids.LAVA, 1000);
         }
     }
@@ -201,7 +220,10 @@ public class MineralFountainCategory implements IRecipeCategory<MineralFountainJ
             RenderSupport.SINGLE_BLOCK
         );
 
-        BlockState resultState = JeiBlockIngredientUtil.getRenderablePreviewState(recipe.result().state());
+        // 渲染当前轮换到的结果方块，与输出格显示的物品保持一致
+        BlockState resultState = JeiBlockIngredientUtil
+            .getDisplayedState(recipeSlotsView, OUTPUT_BLOCK, recipe.outcomeStates())
+            .orElse(recipe.outcomeStates().getFirst());
         RenderSupport.renderBlock(guiGraphics, resultState, 126, 39.5f, 16, BLOCK_SCALE, RenderSupport.SINGLE_BLOCK);
 
         this.arrow.draw(guiGraphics, 82, 37);
@@ -226,39 +248,202 @@ public class MineralFountainCategory implements IRecipeCategory<MineralFountainJ
             JeiRecipeUtil.getRecipeHoldersFromType(ModRecipeTypes.MINERAL_FOUNTAIN_REPLACEMENT.get());
         List<MineralFountainJeiRecipe> displays = new ArrayList<>();
 
+        // 主动与被动在不同阶段执行，故各自分组；每组内并列的配方按权重瓜分产出，合并为一个条目。
+        // 替换生产逐个改写主动配方结果，语义不同，保持独立条目。
+        Map<String, List<RecipeHolder<MineralFountainActiveRecipe>>> activeGroups = new LinkedHashMap<>();
         for (RecipeHolder<MineralFountainActiveRecipe> holder : activeRecipes) {
-            MineralFountainActiveRecipe recipe = holder.value();
-            List<BlockState> sides = aroundBlocks(recipe);
-            List<BlockState> from = recipe.getFromBlock().constructStatesForRender();
-            if (sides.isEmpty()) continue;
-            displays.add(new MineralFountainJeiRecipe(
-                holder.id(), sides, from, recipe.getToBlock(), recipe.getDimension().orElse(null)
-            ));
+            if (aroundBlocks(holder.value()).isEmpty()) continue;
+            activeGroups.computeIfAbsent(activeGroupKey(holder.value()), key -> new ArrayList<>()).add(holder);
+        }
+        for (List<RecipeHolder<MineralFountainActiveRecipe>> group : activeGroups.values()) {
+            displays.add(mergeActive(group));
         }
 
+        Map<String, List<RecipeHolder<MineralFountainPassiveRecipe>>> passiveGroups = new LinkedHashMap<>();
         for (RecipeHolder<MineralFountainPassiveRecipe> holder : passiveRecipes) {
-            MineralFountainPassiveRecipe recipe = holder.value();
-            displays.add(new MineralFountainJeiRecipe(
-                holder.id(),
-                List.of(),
-                recipe.getFromBlock().constructStatesForRender(),
-                recipe.getToBlock(),
-                recipe.getDimension().orElse(null)
-            ));
+            passiveGroups.computeIfAbsent(passiveGroupKey(holder.value()), key -> new ArrayList<>()).add(holder);
+        }
+        for (List<RecipeHolder<MineralFountainPassiveRecipe>> group : passiveGroups.values()) {
+            displays.add(mergePassive(group));
+        }
+
+        // 替换配方只在对应主动配方匹配时才会改写其结果，所以它的周围需求取决于被替换的主动配方。
+        // 例如地核碎片要求周围摆上任意四个同种粗矿块——这正是粗矿主动配方的需求。
+        Map<ResourceLocation, MineralFountainActiveRecipe> activeById = new LinkedHashMap<>();
+        for (RecipeHolder<MineralFountainActiveRecipe> holder : activeRecipes) {
+            activeById.put(holder.id(), holder.value());
         }
 
         for (RecipeHolder<MineralFountainReplacementRecipe> holder : replacementRecipes) {
             MineralFountainReplacementRecipe recipe = holder.value();
             displays.add(new MineralFountainJeiRecipe(
                 holder.id(),
-                List.of(),
+                replacementAround(recipe, activeById),
                 recipe.getFromBlock().constructStatesForRender(),
-                recipe.getToBlock(),
-                recipe.getDimension().orElse(null)
+                List.of(new MineralFountainJeiRecipe.Outcome(
+                    recipe.getToBlock().state(), NumberProviderUtil.expected(recipe.getToBlock().chance())
+                )),
+                recipe.getDimension().orElse(null),
+                recipe.getReplaceChance(),
+                replacementTarget(recipe)
             ));
         }
 
         registration.addRecipes(AnvilCraftJeiPlugin.MINERAL_FOUNTAIN, displays);
+    }
+
+    /**
+     * 把一组并列的主动配方合并为一个条目，结果按权重占比分摊概率。
+     */
+    private static MineralFountainJeiRecipe mergeActive(List<RecipeHolder<MineralFountainActiveRecipe>> group) {
+        MineralFountainActiveRecipe first = group.getFirst().value();
+        int weightTotal = group.stream().mapToInt(holder -> holder.value().getWeight()).sum();
+        List<MineralFountainJeiRecipe.Outcome> outcomes = new ArrayList<>();
+        for (RecipeHolder<MineralFountainActiveRecipe> holder : group) {
+            MineralFountainActiveRecipe recipe = holder.value();
+            outcomes.add(new MineralFountainJeiRecipe.Outcome(
+                recipe.getToBlock().state(),
+                shareOf(recipe, weightTotal, holder.value().getToBlock())
+            ));
+        }
+        return new MineralFountainJeiRecipe(
+            group.getFirst().id(),
+            aroundBlocks(first),
+            first.getFromBlock().constructStatesForRender(),
+            outcomes,
+            first.getDimension().orElse(null),
+            null,
+            null
+        );
+    }
+
+    /**
+     * 把一组并列的被动配方合并为一个条目，结果按权重占比分摊概率。
+     */
+    private static MineralFountainJeiRecipe mergePassive(List<RecipeHolder<MineralFountainPassiveRecipe>> group) {
+        MineralFountainPassiveRecipe first = group.getFirst().value();
+        int weightTotal = group.stream().mapToInt(holder -> holder.value().getWeight()).sum();
+        List<MineralFountainJeiRecipe.Outcome> outcomes = new ArrayList<>();
+        for (RecipeHolder<MineralFountainPassiveRecipe> holder : group) {
+            MineralFountainPassiveRecipe recipe = holder.value();
+            outcomes.add(new MineralFountainJeiRecipe.Outcome(
+                recipe.getToBlock().state(),
+                shareOf(recipe, weightTotal, recipe.getToBlock())
+            ));
+        }
+        return new MineralFountainJeiRecipe(
+            group.getFirst().id(),
+            List.of(),
+            first.getFromBlock().constructStatesForRender(),
+            outcomes,
+            first.getDimension().orElse(null),
+            null,
+            null
+        );
+    }
+
+    /**
+     * 单条配方的最终产出概率：结果方块概率 × 组内权重占比。
+     */
+    private static double shareOf(
+        AbstractMineralFountainRecipe recipe,
+        int weightTotal,
+        ChanceBlockState toBlock
+    ) {
+        double own = NumberProviderUtil.expected(toBlock.chance());
+        if (own < 0) return own;
+        if (weightTotal <= 0) return own;
+        return own * recipe.getWeight() / (double) weightTotal;
+    }
+
+    /**
+     * 主动配方的并列分组键。
+     *
+     * <p>只有「维度 + 优先级 + 材料方块 + 周围需求」都相同的配方才会同时匹配，
+     * 因而才会按权重瓜分产出；否则它们之间是靠优先级或匹配条件区分的，不构成竞争。</p>
+     */
+    private static String activeGroupKey(MineralFountainActiveRecipe recipe) {
+        return passiveGroupKey(recipe) + "#" + recipe.getAround();
+    }
+
+    /**
+     * 被动配方的并列分组键：维度 + 优先级 + 材料方块。
+     */
+    private static String passiveGroupKey(AbstractMineralFountainRecipe recipe) {
+        return recipe.getDimension().map(ResourceLocation::toString).orElse("*")
+               + "#" + recipe.getPriority()
+               + "#" + recipe.getFromBlock().getKey();
+    }
+
+    /**
+     * 被替换的主动配方名；为空表示可替换任意主动配方。
+     */
+    @Nullable
+    private static Component replacementTarget(MineralFountainReplacementRecipe recipe) {
+        List<ResourceLocation> replace = recipe.getReplace();
+        if (replace.isEmpty()) return null;
+        return Component.literal(replace.stream()
+            .map(ResourceLocation::toString)
+            .collect(Collectors.joining(", ")));
+    }
+
+    /**
+     * 产出概率提示。
+     *
+     * <p>同一格内会轮换显示组内各个结果，因此这里按**当前显示**的方块给出其实际概率，
+     * 而不是只显示一个笼统值。概率为 100% 时不显示，没有信息量。
+     * 替换生产的改写概率单独列出。</p>
+     *
+     * @param displayed 当前显示的方块状态；为空时退回显示整体概率
+     */
+    private static List<Component> getChanceTooltips(MineralFountainJeiRecipe recipe, @Nullable BlockState displayed) {
+        List<Component> tooltips = new ArrayList<>();
+        double chance = displayed == null ? recipe.totalChance() : recipe.chanceOf(displayed);
+        // 按显示时的取整判断，避免 99.96% 被格式化成 100% 却仍然显示
+        if (chance >= 0 && Math.round(chance * 100) < 100) {
+            tooltips.add(
+                Component.translatable(
+                    "gui.anvilcraft.category.mineral_fountain.chance",
+                    FORMATTER.format(chance * 100)
+                ).withStyle(ChatFormatting.GRAY)
+            );
+        }
+        if (recipe.replacementChance() != null) {
+            tooltips.add(
+                Component.translatable(
+                    "gui.anvilcraft.category.mineral_fountain.replace_chance",
+                    FORMATTER.format(recipe.replacementChance() * 100)
+                ).withStyle(ChatFormatting.GRAY)
+            );
+            if (recipe.replacementTarget() != null) {
+                tooltips.add(
+                    Component.translatable(
+                        "gui.anvilcraft.category.mineral_fountain.replace_target",
+                        recipe.replacementTarget()
+                    ).withStyle(ChatFormatting.DARK_GRAY)
+                );
+            }
+        }
+        return tooltips;
+    }
+
+    /**
+     * 替换配方应展示的周围需求。
+     *
+     * <p>替换只会在某个主动配方匹配时生效，所以它的周围需求就是被替换的主动配方的需求。
+     * {@code replace} 为空表示可替换任意主动配方，此时并入所有主动配方的需求；
+     * 若指定了配方 id，则只取这些配方的需求。</p>
+     */
+    private static List<BlockState> replacementAround(
+        MineralFountainReplacementRecipe recipe,
+        Map<ResourceLocation, MineralFountainActiveRecipe> activeById
+    ) {
+        Set<BlockState> states = new LinkedHashSet<>();
+        for (Map.Entry<ResourceLocation, MineralFountainActiveRecipe> entry : activeById.entrySet()) {
+            if (!recipe.appliesTo(entry.getKey())) continue;
+            states.addAll(aroundBlocks(entry.getValue()));
+        }
+        return List.copyOf(states);
     }
 
     /**

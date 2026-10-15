@@ -37,13 +37,13 @@ public class MineralFountainReplacementRecipe extends AbstractMineralFountainRec
         HeightRange height,
         List<ResourceLocation> replace,
         int priority,
-        int weight,
         double chance,
         BlockStatePredicate fromBlock,
         ChanceBlockState toBlock,
         Optional<MineralFountainHeat> heat
     ) {
-        super(dimension, height, priority, weight, fromBlock, toBlock, heat);
+        // 替换生产不使用权重：候选按优先级逐个掷 chance 尝试，故固定为默认权重
+        super(dimension, height, priority, DEFAULT_WEIGHT, fromBlock, toBlock, heat);
         this.replace = List.copyOf(replace);
         this.chance = chance;
     }
@@ -93,8 +93,6 @@ public class MineralFountainReplacementRecipe extends AbstractMineralFountainRec
                     .forGetter(MineralFountainReplacementRecipe::getReplace),
                 Codec.INT.optionalFieldOf("priority", 0)
                     .forGetter(AbstractMineralFountainRecipe::getPriority),
-                Codec.INT.optionalFieldOf("weight", DEFAULT_WEIGHT)
-                    .forGetter(AbstractMineralFountainRecipe::getWeight),
                 Codec.DOUBLE.optionalFieldOf("chance", 0.0)
                     .forGetter(MineralFountainReplacementRecipe::getReplaceChance),
                 BlockStatePredicate.CODEC.optionalFieldOf("from_block", AbstractMineralFountainRecipe.DEFAULT_FROM)
@@ -113,7 +111,6 @@ public class MineralFountainReplacementRecipe extends AbstractMineralFountainRec
                     HeightRange.STREAM_CODEC.encode(buf, recipe.getHeight());
                     ResourceLocation.STREAM_CODEC.apply(ByteBufCodecs.list()).encode(buf, recipe.getReplace());
                     ByteBufCodecs.VAR_INT.encode(buf, recipe.getPriority());
-                    ByteBufCodecs.VAR_INT.encode(buf, recipe.getWeight());
                     ByteBufCodecs.DOUBLE.encode(buf, recipe.getReplaceChance());
                     BlockStatePredicate.STREAM_CODEC.encode(buf, recipe.getFromBlock());
                     ChanceBlockState.STREAM_CODEC.encode(buf, recipe.getToBlock());
@@ -123,7 +120,6 @@ public class MineralFountainReplacementRecipe extends AbstractMineralFountainRec
                     ByteBufCodecs.optional(ResourceLocation.STREAM_CODEC).decode(buf),
                     HeightRange.STREAM_CODEC.decode(buf),
                     ResourceLocation.STREAM_CODEC.apply(ByteBufCodecs.list()).decode(buf),
-                    ByteBufCodecs.VAR_INT.decode(buf),
                     ByteBufCodecs.VAR_INT.decode(buf),
                     ByteBufCodecs.DOUBLE.decode(buf),
                     BlockStatePredicate.STREAM_CODEC.decode(buf),
@@ -148,7 +144,6 @@ public class MineralFountainReplacementRecipe extends AbstractMineralFountainRec
         private HeightRange height = HeightRange.DEFAULT;
         private List<ResourceLocation> replace = List.of();
         private int priority = 0;
-        private int weight = DEFAULT_WEIGHT;
         private double chance = 0.0;
         private BlockStatePredicate fromBlock = AbstractMineralFountainRecipe.DEFAULT_FROM;
         private @Nullable ChanceBlockState toBlock;
@@ -171,11 +166,6 @@ public class MineralFountainReplacementRecipe extends AbstractMineralFountainRec
 
         public Builder priority(int priority) {
             this.priority = priority;
-            return this;
-        }
-
-        public Builder weight(int weight) {
-            this.weight = weight;
             return this;
         }
 
@@ -203,7 +193,7 @@ public class MineralFountainReplacementRecipe extends AbstractMineralFountainRec
         public MineralFountainReplacementRecipe buildRecipe() {
             if (this.toBlock == null) throw new IllegalStateException("to_block is required");
             return new MineralFountainReplacementRecipe(
-                this.dimension, this.height, this.replace, this.priority, this.weight, this.chance,
+                this.dimension, this.height, this.replace, this.priority, this.chance,
                 this.fromBlock, this.toBlock, this.heat
             );
         }

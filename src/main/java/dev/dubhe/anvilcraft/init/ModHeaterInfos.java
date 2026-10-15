@@ -13,11 +13,9 @@ import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.recipe.mineral.MineralFountainHeat;
 import dev.dubhe.anvilcraft.util.BlockInfo;
-import net.minecraft.world.level.block.Blocks;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 
 public class ModHeaterInfos {
