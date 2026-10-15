@@ -8,7 +8,6 @@ import dev.dubhe.anvilcraft.init.ModHeaterInfos;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.recipe.mineral.AbstractMineralFountainRecipe;
-import dev.dubhe.anvilcraft.recipe.mineral.HeightRange;
 import dev.dubhe.anvilcraft.recipe.mineral.MineralFountainActiveRecipe;
 import dev.dubhe.anvilcraft.recipe.mineral.MineralFountainHeat;
 import dev.dubhe.anvilcraft.recipe.mineral.MineralFountainPassiveRecipe;
@@ -21,13 +20,10 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeHolder;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.material.Fluids;
 import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.FluidType;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import org.jetbrains.annotations.Nullable;
 
@@ -82,53 +78,63 @@ public class MineralFountainBlockEntity extends BlockEntity {
         MineralFountainRecipeInput input =
             new MineralFountainRecipeInput(aboveState, around, this.getBlockPos());
 
-        // 主动生产优先，命中后允许替换生产改写结果
-        RecipeHolder<MineralFountainActiveRecipe> active = this.pickActive(input, true);
-        if (active != null) {
-            this.produce(this.resolveReplacement(active, input), serverLevel);
-        } else {
-            // 无主动生产匹配时执行被动生产
-            MineralFountainPassiveRecipe passive = this.pickPassive(input);
-            if (passive != null) this.produce(passive, serverLevel);
-        }
+        // 上方为流体容器时，按配方的流体产出灌入；这一步只判上下文与周围方块
+        boolean filled = this.tryFillFluidContainer(input);
 
-        // 上方为容器时抽出四周的熔岩灌入，这一步不产出方块
-        this.tryFillDrain(around, serverLevel);
+        if (!filled) {
+            // 主动生产优先，命中后允许替换生产改写结果
+            RecipeHolder<MineralFountainActiveRecipe> active = this.pickActive(input, true);
+            if (active != null) {
+                this.produce(this.resolveReplacement(active, input), serverLevel);
+            } else {
+                // 无主动生产匹配时执行被动生产
+                MineralFountainPassiveRecipe passive = this.pickPassive(input);
+                if (passive != null) this.produce(passive, serverLevel);
+            }
+        }
 
         // 加热只看维度、高度与周围方块，与上方方块无关
         this.setHeat(this.pickHeat(input), serverLevel);
     }
 
     /**
-     * 四周皆为熔岩且上方为容器时，把熔岩灌入容器。
+     * 上方为排水口时，把匹配配方声明的流体灌入其中。
      *
-     * <p>判据是**周围**方块而非上方方块：上方放的是排水口，其方块状态永远不是熔岩。
-     * 与旧版一致，只认熔岩源，流动熔岩不计入。</p>
+     * <p>与加热同理：上方放的是排水口而非空气，材料方块条件天然不成立，
+     * 因此这里只判上下文与周围方块（{@code matchesContextAndAround}），
+     * 再取该配方声明的 {@code to_fluid}。</p>
      *
-     * <p>本路径是既有的硬编码玩法、不经过配方，因此显式补一次高度判定，
-     * 与配方化的产出、加热保持同一口径，避免在世界底部 8 格之外仍持续灌入熔岩。</p>
+     * <p>只有排水口能做这件事；其他流体容器不会被灌入，也不会被放置的方块覆盖。</p>
+     *
+     * @return 是否成功灌入（灌入后不再产出方块，避免覆盖排水口）
      */
-    private void tryFillDrain(List<BlockState> around, ServerLevel serverLevel) {
-        if (this.level == null) return;
-        if (!HeightRange.DEFAULT.test(this.level, this.getBlockPos())) return;
-        if (!isLavaSourceAround(around)) return;
-        if (!(this.level.getBlockEntity(this.getBlockPos().above()) instanceof DrainBlockEntity drain)) return;
-        var handler = drain.getFluidHandler();
-        FluidStack lava = new FluidStack(Fluids.LAVA, FluidType.BUCKET_VOLUME);
-        if (handler.fill(lava, IFluidHandler.FluidAction.SIMULATE) == lava.getAmount()) {
-            handler.fill(lava, IFluidHandler.FluidAction.EXECUTE);
-        }
+    private boolean tryFillFluidContainer(MineralFountainRecipeInput input) {
+        if (this.level == null) return false;
+        if (!(this.level.getBlockEntity(this.getBlockPos().above()) instanceof DrainBlockEntity drain)) return false;
+        RecipeHolder<MineralFountainActiveRecipe> active = this.pickFluidOutput(input);
+        if (active == null) return false;
+        FluidStack fluid = active.value().getToFluid().orElse(null);
+        if (fluid == null || fluid.isEmpty()) return false;
+        IFluidHandler handler = drain.getFluidHandler();
+        if (handler.fill(fluid, IFluidHandler.FluidAction.SIMULATE) != fluid.getAmount()) return false;
+        handler.fill(fluid, IFluidHandler.FluidAction.EXECUTE);
         this.resetTickCount();
+        return true;
     }
 
     /**
-     * 四面是否皆为熔岩源。
+     * 取优先级最高的、声明了流体产出且匹配上下文与周围方块的主动配方。
      */
-    private static boolean isLavaSourceAround(List<BlockState> around) {
-        if (around.size() < HORIZONTAL_DIRECTION.length) return false;
-        return around.stream().allMatch(state ->
-            state.is(Blocks.LAVA) && state.getFluidState().isSource()
-        );
+    @Nullable
+    private RecipeHolder<MineralFountainActiveRecipe> pickFluidOutput(MineralFountainRecipeInput input) {
+        if (this.level == null) return null;
+        List<RecipeHolder<MineralFountainActiveRecipe>> matches = this.level.getRecipeManager()
+            .getAllRecipesFor(ModRecipeTypes.MINERAL_FOUNTAIN_ACTIVE.get())
+            .stream()
+            .filter(holder -> holder.value().getToFluid().isPresent())
+            .filter(holder -> holder.value().matchesContextAndAround(input, this.level))
+            .toList();
+        return this.pickByPriority(matches, holder -> holder.value().getPriority());
     }
 
     /**

@@ -16,6 +16,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
+import net.neoforged.neoforge.fluids.FluidStack;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -40,10 +41,11 @@ public class MineralFountainReplacementRecipe extends AbstractMineralFountainRec
         double chance,
         BlockStatePredicate fromBlock,
         ChanceBlockState toBlock,
-        Optional<MineralFountainHeat> heat
+        Optional<MineralFountainHeat> heat,
+        Optional<FluidStack> toFluid
     ) {
         // 替换生产不使用权重：候选按优先级逐个掷 chance 尝试，故固定为默认权重
-        super(dimension, height, priority, DEFAULT_WEIGHT, fromBlock, toBlock, heat);
+        super(dimension, height, priority, DEFAULT_WEIGHT, fromBlock, toBlock, heat, toFluid);
         this.replace = List.copyOf(replace);
         // 数据包不受 validate() 约束，这里直接夹紧，保证概率语义始终成立
         this.chance = Math.clamp(chance, 0.0, 1.0);
@@ -101,7 +103,9 @@ public class MineralFountainReplacementRecipe extends AbstractMineralFountainRec
                 ChanceBlockState.CODEC.fieldOf("to_block")
                     .forGetter(AbstractMineralFountainRecipe::getToBlock),
                 MineralFountainHeat.CODEC.optionalFieldOf("heat")
-                    .forGetter(AbstractMineralFountainRecipe::getHeat)
+                    .forGetter(AbstractMineralFountainRecipe::getHeat),
+                FluidStack.CODEC.optionalFieldOf("to_fluid")
+                    .forGetter(AbstractMineralFountainRecipe::getToFluid)
             ).apply(instance, MineralFountainReplacementRecipe::new));
 
         // StreamCodec.composite 最多支持 6 个字段，本配方字段更多，故手工编解码
@@ -116,6 +120,7 @@ public class MineralFountainReplacementRecipe extends AbstractMineralFountainRec
                     BlockStatePredicate.STREAM_CODEC.encode(buf, recipe.getFromBlock());
                     ChanceBlockState.STREAM_CODEC.encode(buf, recipe.getToBlock());
                     ByteBufCodecs.optional(MineralFountainHeat.STREAM_CODEC).encode(buf, recipe.getHeat());
+                    ByteBufCodecs.optional(FluidStack.STREAM_CODEC).encode(buf, recipe.getToFluid());
                 },
                 buf -> new MineralFountainReplacementRecipe(
                     ByteBufCodecs.optional(ResourceLocation.STREAM_CODEC).decode(buf),
@@ -125,7 +130,8 @@ public class MineralFountainReplacementRecipe extends AbstractMineralFountainRec
                     ByteBufCodecs.DOUBLE.decode(buf),
                     BlockStatePredicate.STREAM_CODEC.decode(buf),
                     ChanceBlockState.STREAM_CODEC.decode(buf),
-                    ByteBufCodecs.optional(MineralFountainHeat.STREAM_CODEC).decode(buf)
+                    ByteBufCodecs.optional(MineralFountainHeat.STREAM_CODEC).decode(buf),
+                    ByteBufCodecs.optional(FluidStack.STREAM_CODEC).decode(buf)
                 )
             );
 
@@ -149,6 +155,7 @@ public class MineralFountainReplacementRecipe extends AbstractMineralFountainRec
         private BlockStatePredicate fromBlock = AbstractMineralFountainRecipe.DEFAULT_FROM;
         private @Nullable ChanceBlockState toBlock;
         private Optional<MineralFountainHeat> heat = Optional.empty();
+        private Optional<FluidStack> toFluid = Optional.empty();
 
         public Builder dimension(ResourceLocation dimension) {
             this.dimension = Optional.of(dimension);
@@ -190,12 +197,18 @@ public class MineralFountainReplacementRecipe extends AbstractMineralFountainRec
             return this;
         }
 
+        /** 上方为流体容器时灌入的流体。 */
+        public Builder toFluid(FluidStack toFluid) {
+            this.toFluid = Optional.of(toFluid);
+            return this;
+        }
+
         @Override
         public MineralFountainReplacementRecipe buildRecipe() {
             if (this.toBlock == null) throw new IllegalStateException("to_block is required");
             return new MineralFountainReplacementRecipe(
                 this.dimension, this.height, this.replace, this.priority, this.chance,
-                this.fromBlock, this.toBlock, this.heat
+                this.fromBlock, this.toBlock, this.heat, this.toFluid
             );
         }
 

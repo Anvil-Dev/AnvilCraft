@@ -18,7 +18,10 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.material.Fluids;
 import net.neoforged.neoforge.common.Tags;
+import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.FluidType;
 
 public class MineralFountainRecipeLoader {
     public static void init(RegistrumRecipeProvider provider) {
@@ -35,10 +38,12 @@ public class MineralFountainRecipeLoader {
 
         // 熔岩：四周皆为熔岩「源」时向上方生成熔岩，并向上方供热。
         // level=0 即熔岩源；旧版 getAroundBlock() 同样只认源，流动熔岩不计入。
+        // to_fluid 让上方的流体容器（排水口、储罐等）直接接住熔岩，而不是被放置的方块覆盖。
         MineralFountainActiveRecipe.builder()
             .fromBlock(from(Blocks.AIR))
             .require(new AroundRequirement(lavaSource(), 4))
             .toBlock(result(Blocks.LAVA))
+            .toFluid(new FluidStack(Fluids.LAVA, FluidType.BUCKET_VOLUME))
             .heat(new MineralFountainHeat(HeatTier.REDHOT, 20, 1))
             .save(provider, "lava");
 

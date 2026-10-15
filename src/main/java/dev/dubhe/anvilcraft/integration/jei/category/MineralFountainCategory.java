@@ -161,8 +161,10 @@ public class MineralFountainCategory implements IRecipeCategory<MineralFountainJ
         if (recipe.sideBlocks().stream().anyMatch(state -> state.is(Blocks.LAVA))) {
             builder.addInvisibleIngredients(RecipeIngredientRole.INPUT).addFluidStack(Fluids.LAVA, 1000);
         }
-        if (outcomeStates.stream().anyMatch(state -> state.is(Blocks.LAVA))) {
-            builder.addInvisibleIngredients(RecipeIngredientRole.OUTPUT).addFluidStack(Fluids.LAVA, 1000);
+        // 流体产出由配方显式声明，不再从结果方块反推
+        if (recipe.toFluid() != null) {
+            builder.addInvisibleIngredients(RecipeIngredientRole.OUTPUT)
+                .addFluidStack(recipe.toFluid().getFluid(), recipe.toFluid().getAmount());
         }
     }
 
@@ -285,7 +287,8 @@ public class MineralFountainCategory implements IRecipeCategory<MineralFountainJ
                 )),
                 recipe.getDimension().orElse(null),
                 recipe.getReplaceChance(),
-                replacementTarget(recipe)
+                replacementTarget(recipe),
+                recipe.getToFluid().orElse(null)
             ));
         }
 
@@ -313,7 +316,8 @@ public class MineralFountainCategory implements IRecipeCategory<MineralFountainJ
             outcomes,
             first.getDimension().orElse(null),
             null,
-            null
+            null,
+            first.getToFluid().orElse(null)
         );
     }
 
@@ -338,7 +342,8 @@ public class MineralFountainCategory implements IRecipeCategory<MineralFountainJ
             outcomes,
             first.getDimension().orElse(null),
             null,
-            null
+            null,
+            first.getToFluid().orElse(null)
         );
     }
 

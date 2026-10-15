@@ -13,6 +13,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
+import net.neoforged.neoforge.fluids.FluidStack;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -45,6 +46,13 @@ public abstract class AbstractMineralFountainRecipe implements Recipe<MineralFou
     private final ChanceBlockState toBlock;
     /** 满足条件时提供的加热能力；为空表示不加热。 */
     private final Optional<MineralFountainHeat> heat;
+    /**
+     * 上方为流体容器时的流体产出；为空表示只产出方块。
+     *
+     * <p>与 {@link #heat} 同为「只看上下文与周围方块」的产出，不受材料方块限制：
+     * 上方放的是容器而非空气，材料方块条件天然不成立。</p>
+     */
+    private final Optional<FluidStack> toFluid;
 
     protected AbstractMineralFountainRecipe(
         Optional<ResourceLocation> dimension,
@@ -53,7 +61,8 @@ public abstract class AbstractMineralFountainRecipe implements Recipe<MineralFou
         int weight,
         BlockStatePredicate fromBlock,
         ChanceBlockState toBlock,
-        Optional<MineralFountainHeat> heat
+        Optional<MineralFountainHeat> heat,
+        Optional<FluidStack> toFluid
     ) {
         this.dimension = dimension;
         this.height = height;
@@ -62,6 +71,7 @@ public abstract class AbstractMineralFountainRecipe implements Recipe<MineralFou
         this.fromBlock = fromBlock;
         this.toBlock = toBlock;
         this.heat = heat;
+        this.toFluid = toFluid;
     }
 
     /**

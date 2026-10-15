@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.integration.jei.recipe;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.state.BlockState;
+import net.neoforged.neoforge.fluids.FluidStack;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -20,6 +21,7 @@ import java.util.List;
  * @param dimension         限定维度；为空表示任意维度
  * @param replacementChance 替换概率；非替换配方为 {@code null}
  * @param replacementTarget 被替换的主动配方名；为空表示可替换任意主动配方
+ * @param toFluid           上方为流体容器时灌入的流体；为空表示只产出方块
  */
 public record MineralFountainJeiRecipe(
     ResourceLocation id,
@@ -28,7 +30,8 @@ public record MineralFountainJeiRecipe(
     List<Outcome> outcomes,
     @Nullable ResourceLocation dimension,
     @Nullable Double replacementChance,
-    @Nullable Component replacementTarget
+    @Nullable Component replacementTarget,
+    @Nullable FluidStack toFluid
 ) {
     public MineralFountainJeiRecipe {
         sideBlocks = List.copyOf(sideBlocks);

@@ -16,6 +16,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
+import net.neoforged.neoforge.fluids.FluidStack;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
@@ -36,9 +37,10 @@ public class MineralFountainPassiveRecipe extends AbstractMineralFountainRecipe 
         int weight,
         BlockStatePredicate fromBlock,
         ChanceBlockState toBlock,
-        Optional<MineralFountainHeat> heat
+        Optional<MineralFountainHeat> heat,
+        Optional<FluidStack> toFluid
     ) {
-        super(dimension, height, priority, weight, fromBlock, toBlock, heat);
+        super(dimension, height, priority, weight, fromBlock, toBlock, heat, toFluid);
     }
 
     @Override
@@ -76,7 +78,9 @@ public class MineralFountainPassiveRecipe extends AbstractMineralFountainRecipe 
                 ChanceBlockState.CODEC.fieldOf("to_block")
                     .forGetter(AbstractMineralFountainRecipe::getToBlock),
                 MineralFountainHeat.CODEC.optionalFieldOf("heat")
-                    .forGetter(AbstractMineralFountainRecipe::getHeat)
+                    .forGetter(AbstractMineralFountainRecipe::getHeat),
+                FluidStack.CODEC.optionalFieldOf("to_fluid")
+                    .forGetter(AbstractMineralFountainRecipe::getToFluid)
             ).apply(instance, MineralFountainPassiveRecipe::new));
 
         private static final StreamCodec<RegistryFriendlyByteBuf, MineralFountainPassiveRecipe> STREAM_CODEC =
@@ -89,6 +93,7 @@ public class MineralFountainPassiveRecipe extends AbstractMineralFountainRecipe 
                     BlockStatePredicate.STREAM_CODEC.encode(buf, recipe.getFromBlock());
                     ChanceBlockState.STREAM_CODEC.encode(buf, recipe.getToBlock());
                     ByteBufCodecs.optional(MineralFountainHeat.STREAM_CODEC).encode(buf, recipe.getHeat());
+                    ByteBufCodecs.optional(FluidStack.STREAM_CODEC).encode(buf, recipe.getToFluid());
                 },
                 buf -> new MineralFountainPassiveRecipe(
                     ByteBufCodecs.optional(ResourceLocation.STREAM_CODEC).decode(buf),
@@ -97,7 +102,8 @@ public class MineralFountainPassiveRecipe extends AbstractMineralFountainRecipe 
                     ByteBufCodecs.VAR_INT.decode(buf),
                     BlockStatePredicate.STREAM_CODEC.decode(buf),
                     ChanceBlockState.STREAM_CODEC.decode(buf),
-                    ByteBufCodecs.optional(MineralFountainHeat.STREAM_CODEC).decode(buf)
+                    ByteBufCodecs.optional(MineralFountainHeat.STREAM_CODEC).decode(buf),
+                    ByteBufCodecs.optional(FluidStack.STREAM_CODEC).decode(buf)
                 )
             );
 
@@ -120,6 +126,7 @@ public class MineralFountainPassiveRecipe extends AbstractMineralFountainRecipe 
         private BlockStatePredicate fromBlock = DEFAULT_FROM;
         private @Nullable ChanceBlockState toBlock;
         private Optional<MineralFountainHeat> heat = Optional.empty();
+        private Optional<FluidStack> toFluid = Optional.empty();
 
         public Builder dimension(ResourceLocation dimension) {
             this.dimension = Optional.of(dimension);
@@ -156,11 +163,18 @@ public class MineralFountainPassiveRecipe extends AbstractMineralFountainRecipe 
             return this;
         }
 
+        /** 上方为流体容器时灌入的流体。 */
+        public Builder toFluid(FluidStack toFluid) {
+            this.toFluid = Optional.of(toFluid);
+            return this;
+        }
+
         @Override
         public MineralFountainPassiveRecipe buildRecipe() {
             if (this.toBlock == null) throw new IllegalStateException("to_block is required");
             return new MineralFountainPassiveRecipe(
-                this.dimension, this.height, this.priority, this.weight, this.fromBlock, this.toBlock, this.heat
+                this.dimension, this.height, this.priority, this.weight,
+                this.fromBlock, this.toBlock, this.heat, this.toFluid
             );
         }
 

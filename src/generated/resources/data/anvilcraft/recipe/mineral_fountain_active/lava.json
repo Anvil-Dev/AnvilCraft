@@ -21,5 +21,9 @@
   },
   "to_block": {
     "block": "minecraft:lava"
+  },
+  "to_fluid": {
+    "amount": 1000,
+    "id": "minecraft:lava"
   }
 }
