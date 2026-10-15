@@ -1073,7 +1073,7 @@
   "tooltip.anvilcraft.jade.item_detector": "Detection Range: %d",
   "tooltip.anvilcraft.jade.power_information": "Power Grid: %s",
   "tooltip.anvilcraft.jade.ruby_prism.power": "Niveau laser : %d",
-  "tooltip.anvilcraft.press_key": "Hold %s for information",
+  "tooltip.anvilcraft.press_key": "Hold [%s] for information",
   "tooltip.anvilcraft.propel_piston.remaining_energy": "  Remaining Energy: %s",
   "tooltip.anvilcraft.propel_piston.remaining_push": "  Remaining Push: %s block-time",
   "tooltip.anvilcraft.propel_piston.state": "Propel Piston State: ",
