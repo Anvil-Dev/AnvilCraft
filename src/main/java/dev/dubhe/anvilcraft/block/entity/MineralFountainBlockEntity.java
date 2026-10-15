@@ -8,6 +8,7 @@ import dev.dubhe.anvilcraft.init.ModHeaterInfos;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.recipe.mineral.AbstractMineralFountainRecipe;
+import dev.dubhe.anvilcraft.recipe.mineral.HeightRange;
 import dev.dubhe.anvilcraft.recipe.mineral.MineralFountainActiveRecipe;
 import dev.dubhe.anvilcraft.recipe.mineral.MineralFountainHeat;
 import dev.dubhe.anvilcraft.recipe.mineral.MineralFountainPassiveRecipe;
@@ -103,9 +104,14 @@ public class MineralFountainBlockEntity extends BlockEntity {
      *
      * <p>判据是**周围**方块而非上方方块：上方放的是排水口，其方块状态永远不是熔岩。
      * 与旧版一致，只认熔岩源，流动熔岩不计入。</p>
+     *
+     * <p>本路径是既有的硬编码玩法、不经过配方，因此显式补一次高度判定，
+     * 与配方化的产出、加热保持同一口径，避免在世界底部 8 格之外仍持续灌入熔岩。</p>
      */
     private void tryFillDrain(List<BlockState> around, ServerLevel serverLevel) {
-        if (this.level == null || !isLavaSourceAround(around)) return;
+        if (this.level == null) return;
+        if (!HeightRange.DEFAULT.test(this.level, this.getBlockPos())) return;
+        if (!isLavaSourceAround(around)) return;
         if (!(this.level.getBlockEntity(this.getBlockPos().above()) instanceof DrainBlockEntity drain)) return;
         var handler = drain.getFluidHandler();
         FluidStack lava = new FluidStack(Fluids.LAVA, FluidType.BUCKET_VOLUME);
