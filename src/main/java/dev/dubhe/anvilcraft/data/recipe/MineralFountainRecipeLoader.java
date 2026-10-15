@@ -41,7 +41,7 @@ public class MineralFountainRecipeLoader {
         // to_fluid 让上方的流体容器（排水口、储罐等）直接接住熔岩，而不是被放置的方块覆盖。
         MineralFountainActiveRecipe.builder()
             .fromBlock(from(Blocks.AIR))
-            .require(new AroundRequirement(lavaSource(), 4))
+            .require(new AroundRequirement(liquidSource(Blocks.LAVA), 4))
             .toBlock(result(Blocks.LAVA))
             .toFluid(new FluidStack(Fluids.LAVA, FluidType.BUCKET_VOLUME))
             .heat(new MineralFountainHeat(HeatTier.REDHOT, 20, 1))
@@ -88,10 +88,10 @@ public class MineralFountainRecipeLoader {
         return BlockStatePredicate.builder().of(block).build();
     }
 
-    /** 熔岩源谓词：方块为熔岩且 level=0。 */
-    private static BlockStatePredicate lavaSource() {
+    /** 流体源谓词：方块为该流体且 level=0。 */
+    private static BlockStatePredicate liquidSource(Block block) {
         return BlockStatePredicate.builder()
-            .of(Blocks.LAVA)
+            .of(block)
             .with(BlockStateProperties.LEVEL, 0)
             .build();
     }

@@ -16,6 +16,7 @@ import dev.dubhe.anvilcraft.recipe.mineral.AroundRequirement;
 import dev.dubhe.anvilcraft.recipe.mineral.MineralFountainActiveRecipe;
 import dev.dubhe.anvilcraft.recipe.mineral.MineralFountainPassiveRecipe;
 import dev.dubhe.anvilcraft.recipe.mineral.MineralFountainReplacementRecipe;
+import mezz.jei.api.gui.builder.IIngredientAcceptor;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.drawable.IDrawable;
 import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
@@ -32,13 +33,10 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.RecipeHolder;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.material.Fluids;
+import net.neoforged.neoforge.fluids.FluidStack;
 import org.jetbrains.annotations.Nullable;
 
 import java.text.DecimalFormat;
@@ -111,8 +109,12 @@ public class MineralFountainCategory implements IRecipeCategory<MineralFountainJ
 
     @Override
     public void setRecipe(IRecipeLayoutBuilder builder, MineralFountainJeiRecipe recipe, IFocusGroup focuses) {
-        List<ItemStack> sideStacks = getIngredientStacks(recipe.sideBlocks());
-        for (int i = 0; i < SIDE_SLOT_AREAS.length && !sideStacks.isEmpty(); i++) {
+        // 底座需求摊到四个相邻面上，哪个面需要什么、需要几个都能直接看出来。
+        // 每项需求各自占格，因此「2 熔岩 + 2 熔融宝石」会显示成两个位置各一种。
+        List<MineralFountainJeiRecipe.SideRequirement> sideSlots = recipe.sideSlots();
+        for (int i = 0; i < SIDE_SLOT_AREAS.length; i++) {
+            if (i >= sideSlots.size()) break;
+            MineralFountainJeiRecipe.SideRequirement side = sideSlots.get(i);
             int[] area = SIDE_SLOT_AREAS[i];
             JeiBlockIngredientUtil.addSlot(
                 builder,
@@ -122,18 +124,25 @@ public class MineralFountainCategory implements IRecipeCategory<MineralFountainJ
                 area[1],
                 area[2],
                 area[3],
-                sideStacks
-            );
+                JeiBlockIngredientUtil.toItemStacks(side.states()),
+                JeiBlockIngredientUtil.toFluidStacks(side.states())
+            ).addRichTooltipCallback((slot, tooltip) -> tooltip.add(
+                Component.translatable(
+                    "gui.anvilcraft.category.mineral_fountain.side_count",
+                    side.count()
+                ).withStyle(ChatFormatting.GRAY)
+            ));
         }
 
-        List<ItemStack> fromStacks = getIngredientStacks(recipe.fromBlocks());
+        List<ItemStack> fromStacks = JeiBlockIngredientUtil.toItemStacks(recipe.fromBlocks());
         if (!fromStacks.isEmpty()) {
             JeiBlockIngredientUtil.addSlot(
                 builder, RecipeIngredientRole.INPUT, FROM_BLOCK, 40, 28, 16, 13, fromStacks
             );
         }
 
-        // 同一格内放入组内全部结果，JEI 会自动轮换显示，从而把概率产出的多条配方合并为一个条目
+        // 同一格内放入组内全部结果，JEI 会自动轮换显示，从而把概率产出的多条配方合并为一个条目。
+        // 流体产出放进流体本身（而非它的桶），这样悬停显示的是流体名；画面仍由 draw() 渲染流体方块。
         List<BlockState> outcomeStates = recipe.outcomeStates();
         JeiBlockIngredientUtil.addSlot(
             builder,
@@ -143,28 +152,26 @@ public class MineralFountainCategory implements IRecipeCategory<MineralFountainJ
             28,
             16,
             16,
-            getIngredientStacks(outcomeStates)
+            JeiBlockIngredientUtil.toItemStacks(outcomeStates),
+            JeiBlockIngredientUtil.toFluidStacks(outcomeStates)
         ).addRichTooltipCallback((slot, tooltip) -> {
-            BlockState displayed = slot.getDisplayedItemStack()
-                .map(ItemStack::getItem)
-                .filter(BlockItem.class::isInstance)
-                .map(BlockItem.class::cast)
-                .map(BlockItem::getBlock)
-                .flatMap(block -> outcomeStates.stream().filter(state -> state.is(block)).findFirst())
-                .orElse(null);
-            tooltip.addAll(getChanceTooltips(recipe, displayed));
+            BlockState displayed = JeiBlockIngredientUtil.toBlockState(
+                slot.getDisplayedIngredient().orElse(null), outcomeStates
+            );
+            tooltip.addAll(getChanceTooltips(
+                recipe, displayed == null ? outcomeStates.getFirst() : displayed
+            ));
             if (recipe.dimension() != null) {
                 tooltip.add(getDimensionName(recipe.dimension()).copy().withStyle(ChatFormatting.GRAY));
             }
         });
 
-        if (recipe.sideBlocks().stream().anyMatch(state -> state.is(Blocks.LAVA))) {
-            builder.addInvisibleIngredients(RecipeIngredientRole.INPUT).addFluidStack(Fluids.LAVA, 1000);
-        }
-        // 流体产出由配方显式声明，不再从结果方块反推
-        if (recipe.toFluid() != null) {
-            builder.addInvisibleIngredients(RecipeIngredientRole.OUTPUT)
-                .addFluidStack(recipe.toFluid().getFluid(), recipe.toFluid().getAmount());
+        // 流体成分用于支持 JEI 的流体查找与用途跳转，不额外占格
+        if (!recipe.fluids().isEmpty()) {
+            IIngredientAcceptor<?> invisible = builder.addInvisibleIngredients(RecipeIngredientRole.OUTPUT);
+            recipe.fluids().forEach(fluid -> invisible.addFluidStack(
+                fluid.getFluid(), fluid.getAmount(), fluid.getComponentsPatch()
+            ));
         }
     }
 
@@ -181,14 +188,11 @@ public class MineralFountainCategory implements IRecipeCategory<MineralFountainJ
         double mouseX,
         double mouseY
     ) {
-        List<BlockState> sideBlocks = recipe.sideBlocks();
-        BlockState sideState = null;
-        if (!sideBlocks.isEmpty()) {
-            sideState = JeiBlockIngredientUtil
-                .getDisplayedState(recipeSlotsView, SIDE_BLOCK_PREFIX + 0, sideBlocks)
-                .orElse(sideBlocks.getFirst());
-            renderSideBlock(guiGraphics, sideState, 0);
-            renderSideBlock(guiGraphics, sideState, 1);
+        // 每个底座位置渲染它自己那一格当前轮换到的方块：位置 0/1 在涌泉之前、2/3 在其之后，
+        // 以便与涌泉的 3D 遮挡关系正确。
+        List<MineralFountainJeiRecipe.SideRequirement> sideSlots = recipe.sideSlots();
+        for (int i = 0; i < Math.min(2, sideSlots.size()); i++) {
+            renderSideSlot(guiGraphics, recipeSlotsView, sideSlots, i);
         }
 
         RenderSupport.renderBlock(
@@ -201,9 +205,8 @@ public class MineralFountainCategory implements IRecipeCategory<MineralFountainJ
             RenderSupport.SINGLE_BLOCK
         );
 
-        if (sideState != null) {
-            renderSideBlock(guiGraphics, sideState, 2);
-            renderSideBlock(guiGraphics, sideState, 3);
+        for (int i = 2; i < Math.min(4, sideSlots.size()); i++) {
+            renderSideSlot(guiGraphics, recipeSlotsView, sideSlots, i);
         }
 
         if (!recipe.fromBlocks().isEmpty()) {
@@ -222,10 +225,13 @@ public class MineralFountainCategory implements IRecipeCategory<MineralFountainJ
             RenderSupport.SINGLE_BLOCK
         );
 
-        // 渲染当前轮换到的结果方块，与输出格显示的物品保持一致
-        BlockState resultState = JeiBlockIngredientUtil
-            .getDisplayedState(recipeSlotsView, OUTPUT_BLOCK, recipe.outcomeStates())
-            .orElse(recipe.outcomeStates().getFirst());
+        // 渲染当前轮换到的结果方块，与输出格显示保持一致。
+        // 流体结果的成分是流体本身（不是桶），故这里要同时认物品与流体。
+        BlockState resultState = JeiBlockIngredientUtil.toBlockState(
+            JeiBlockIngredientUtil.getDisplayedIngredient(recipeSlotsView, OUTPUT_BLOCK).orElse(null),
+            recipe.outcomeStates()
+        );
+        if (resultState == null) resultState = recipe.outcomeStates().getFirst();
         RenderSupport.renderBlock(guiGraphics, resultState, 126, 39.5f, 16, BLOCK_SCALE, RenderSupport.SINGLE_BLOCK);
 
         this.arrow.draw(guiGraphics, 82, 37);
@@ -254,7 +260,7 @@ public class MineralFountainCategory implements IRecipeCategory<MineralFountainJ
         // 替换生产逐个改写主动配方结果，语义不同，保持独立条目。
         Map<String, List<RecipeHolder<MineralFountainActiveRecipe>>> activeGroups = new LinkedHashMap<>();
         for (RecipeHolder<MineralFountainActiveRecipe> holder : activeRecipes) {
-            if (aroundBlocks(holder.value()).isEmpty()) continue;
+            if (holder.value().getAround().isEmpty()) continue;
             activeGroups.computeIfAbsent(activeGroupKey(holder.value()), key -> new ArrayList<>()).add(holder);
         }
         for (List<RecipeHolder<MineralFountainActiveRecipe>> group : activeGroups.values()) {
@@ -285,10 +291,10 @@ public class MineralFountainCategory implements IRecipeCategory<MineralFountainJ
                 List.of(new MineralFountainJeiRecipe.Outcome(
                     recipe.getToBlock().state(), NumberProviderUtil.expected(recipe.getToBlock().chance())
                 )),
+                recipe.getToFluid().map(List::of).orElse(List.of()),
                 recipe.getDimension().orElse(null),
                 recipe.getReplaceChance(),
-                replacementTarget(recipe),
-                recipe.getToFluid().orElse(null)
+                replacementTarget(recipe)
             ));
         }
 
@@ -302,22 +308,24 @@ public class MineralFountainCategory implements IRecipeCategory<MineralFountainJ
         MineralFountainActiveRecipe first = group.getFirst().value();
         int weightTotal = group.stream().mapToInt(holder -> holder.value().getWeight()).sum();
         List<MineralFountainJeiRecipe.Outcome> outcomes = new ArrayList<>();
+        List<FluidStack> fluids = new ArrayList<>();
         for (RecipeHolder<MineralFountainActiveRecipe> holder : group) {
             MineralFountainActiveRecipe recipe = holder.value();
             outcomes.add(new MineralFountainJeiRecipe.Outcome(
                 recipe.getToBlock().state(),
                 shareOf(recipe, weightTotal, holder.value().getToBlock())
             ));
+            recipe.getToFluid().ifPresent(fluids::add);
         }
         return new MineralFountainJeiRecipe(
             group.getFirst().id(),
-            aroundBlocks(first),
+            sideRequirements(first),
             first.getFromBlock().constructStatesForRender(),
             outcomes,
+            fluids,
             first.getDimension().orElse(null),
             null,
-            null,
-            first.getToFluid().orElse(null)
+            null
         );
     }
 
@@ -328,22 +336,24 @@ public class MineralFountainCategory implements IRecipeCategory<MineralFountainJ
         MineralFountainPassiveRecipe first = group.getFirst().value();
         int weightTotal = group.stream().mapToInt(holder -> holder.value().getWeight()).sum();
         List<MineralFountainJeiRecipe.Outcome> outcomes = new ArrayList<>();
+        List<FluidStack> fluids = new ArrayList<>();
         for (RecipeHolder<MineralFountainPassiveRecipe> holder : group) {
             MineralFountainPassiveRecipe recipe = holder.value();
             outcomes.add(new MineralFountainJeiRecipe.Outcome(
                 recipe.getToBlock().state(),
                 shareOf(recipe, weightTotal, recipe.getToBlock())
             ));
+            recipe.getToFluid().ifPresent(fluids::add);
         }
         return new MineralFountainJeiRecipe(
             group.getFirst().id(),
             List.of(),
             first.getFromBlock().constructStatesForRender(),
             outcomes,
+            fluids,
             first.getDimension().orElse(null),
             null,
-            null,
-            first.getToFluid().orElse(null)
+            null
         );
     }
 
@@ -368,7 +378,49 @@ public class MineralFountainCategory implements IRecipeCategory<MineralFountainJ
      * 因而才会按权重瓜分产出；否则它们之间是靠优先级或匹配条件区分的，不构成竞争。</p>
      */
     private static String activeGroupKey(MineralFountainActiveRecipe recipe) {
-        return passiveGroupKey(recipe) + "#" + recipe.getAround();
+        return passiveGroupKey(recipe) + "#" + aroundKey(recipe.getAround());
+    }
+
+    /**
+     * 周围需求的结构化键。
+     *
+     * <p>不能用 {@code toString()}：{@link AroundRequirement} 是 record，
+     * 其 {@code block} 字段是未重写 {@code toString()} 的 {@link BlockStatePredicate}，
+     * 因此 toString 里只有身份哈希——结构相同的两条配方会得到不同的键，无法分组。
+     * 这里改成按内容拼接。</p>
+     */
+    private static String aroundKey(List<AroundRequirement> around) {
+        return around.stream()
+            .map(requirement -> requirement.count() + "x" + predicateKey(requirement.block()))
+            .collect(Collectors.joining(","));
+    }
+
+    /**
+     * 方块谓词的结构化键：方块集合（标签或方块列表）、属性匹配器与 NBT 条件。
+     *
+     * <p>手工拼接而不用 {@code BlockStatePredicate.CODEC}：该 codec 的 {@code blocks} 字段是
+     * {@code RegistryCodecs.homogeneousList}，编码需要 registry access，在 JEI 注册阶段编码会失败。</p>
+     */
+    private static String predicateKey(BlockStatePredicate predicate) {
+        String blocks = predicate.getBlocks().unwrap().map(
+            tag -> "#" + tag.location(),
+            holders -> holders.stream()
+                .map(holder -> holder.unwrapKey().map(key -> key.location().toString()).orElse("?"))
+                .sorted()
+                .collect(Collectors.joining("|"))
+        );
+        String properties = predicate.getProperties().stream()
+            .map(matchers -> matchers.stream()
+                .map(matcher -> matcher.name() + "=" + matcher.valueMatcher())
+                .sorted()
+                .collect(Collectors.joining("&")))
+            .sorted()
+            .collect(Collectors.joining(";"));
+        String nbts = predicate.getNbts().stream()
+            .map(nbt -> nbt.tag().toString())
+            .sorted()
+            .collect(Collectors.joining(";"));
+        return blocks + "[" + properties + "]" + "{" + nbts + "}";
     }
 
     /**
@@ -442,18 +494,26 @@ public class MineralFountainCategory implements IRecipeCategory<MineralFountainJ
      * <p>此外要求两者能匹配同一个上方方块：替换与主动必须同时匹配才会发生，
      * 材料方块不相容的配方（如熔岩配方的 {@code from_block} 是空气）永远不会共存，
      * 不应把它的周围需求画进来。</p>
+     *
+     * <p>多个主动配方的需求会按方块合并成一项，因此「任意一种粗矿块 ×4」显示为一项，
+     * 而不是十几个各自成项的位置。</p>
      */
-    private static List<BlockState> replacementAround(
+    private static List<MineralFountainJeiRecipe.SideRequirement> replacementAround(
         MineralFountainReplacementRecipe recipe,
         Map<ResourceLocation, MineralFountainActiveRecipe> activeById
     ) {
         Set<BlockState> states = new LinkedHashSet<>();
+        int count = 0;
         for (Map.Entry<ResourceLocation, MineralFountainActiveRecipe> entry : activeById.entrySet()) {
             if (!recipe.appliesTo(entry.getKey())) continue;
             if (!sharesFromBlock(recipe.getFromBlock(), entry.getValue().getFromBlock())) continue;
-            states.addAll(aroundBlocks(entry.getValue()));
+            for (AroundRequirement requirement : entry.getValue().getAround()) {
+                states.addAll(requirement.block().constructStatesForRender());
+                count = Math.max(count, requirement.count());
+            }
         }
-        return List.copyOf(states);
+        if (states.isEmpty()) return List.of();
+        return List.of(new MineralFountainJeiRecipe.SideRequirement(List.copyOf(states), count));
     }
 
     /**
@@ -471,18 +531,37 @@ public class MineralFountainCategory implements IRecipeCategory<MineralFountainJ
     }
 
     /**
-     * 主动配方需求表中出现的方块，用于侧边展示。
+     * 主动配方的周围需求，保留各自的数量。
      */
-    private static List<BlockState> aroundBlocks(MineralFountainActiveRecipe recipe) {
-        Set<BlockState> states = new LinkedHashSet<>();
-        for (AroundRequirement requirement : recipe.getAround()) {
-            states.addAll(requirement.block().constructStatesForRender());
-        }
-        return List.copyOf(states);
+    private static List<MineralFountainJeiRecipe.SideRequirement> sideRequirements(MineralFountainActiveRecipe recipe) {
+        return recipe.getAround().stream()
+            .map(requirement -> new MineralFountainJeiRecipe.SideRequirement(
+                requirement.block().constructStatesForRender(),
+                requirement.count()
+            ))
+            .toList();
     }
 
     public static void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
         registration.addRecipeCatalyst(ModBlocks.MINERAL_FOUNTAIN.asStack(), AnvilCraftJeiPlugin.MINERAL_FOUNTAIN);
+    }
+
+    /**
+     * 渲染某个底座位置当前轮换到的方块。
+     */
+    private static void renderSideSlot(
+        GuiGraphics guiGraphics,
+        IRecipeSlotsView recipeSlotsView,
+        List<MineralFountainJeiRecipe.SideRequirement> sideSlots,
+        int index
+    ) {
+        MineralFountainJeiRecipe.SideRequirement side = sideSlots.get(index);
+        BlockState state = JeiBlockIngredientUtil.toBlockState(
+            JeiBlockIngredientUtil.getDisplayedIngredient(recipeSlotsView, SIDE_BLOCK_PREFIX + index).orElse(null),
+            side.states()
+        );
+        if (state == null) state = side.states().getFirst();
+        renderSideBlock(guiGraphics, state, index);
     }
 
     private static void renderSideBlock(GuiGraphics guiGraphics, BlockState state, int index) {
@@ -495,19 +574,6 @@ public class MineralFountainCategory implements IRecipeCategory<MineralFountainJ
             position[2],
             BLOCK_SCALE,
             RenderSupport.SINGLE_BLOCK
-        );
-    }
-
-    private static List<ItemStack> getIngredientStacks(List<BlockState> states) {
-        return states.stream()
-            .map(state -> state.is(Blocks.LAVA) ? new ItemStack(Items.LAVA_BUCKET) : new ItemStack(state.getBlock()))
-            .filter(stack -> !stack.isEmpty())
-            .toList();
-    }
-
-    private static boolean sharesBlock(List<BlockState> first, List<BlockState> second) {
-        return first.stream().anyMatch(firstState ->
-            second.stream().anyMatch(secondState -> firstState.is(secondState.getBlock()))
         );
     }
 

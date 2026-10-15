@@ -17,6 +17,7 @@ import mezz.jei.api.gui.widgets.IRecipeExtrasBuilder;
 import mezz.jei.api.gui.widgets.ISlottedRecipeWidget;
 import mezz.jei.api.ingredients.IIngredientRenderer;
 import mezz.jei.api.ingredients.ITypedIngredient;
+import mezz.jei.api.neoforge.NeoForgeTypes;
 import mezz.jei.api.recipe.RecipeIngredientRole;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -31,6 +32,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
+import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.FluidType;
 
 import java.util.List;
 import java.util.Optional;
@@ -90,6 +93,93 @@ public final class JeiBlockIngredientUtil {
             .addItemStacks(stacks);
     }
 
+    /**
+     * 同时容纳物品与流体的自绘槽位。
+     *
+     * <p>用于结果格：普通结果是方块物品、流体结果是流体本身（而不是它的桶），
+     * 两者放同一格由 JEI 轮换，实际画面由配方类别自行渲染。</p>
+     */
+    public static IRecipeSlotBuilder addSlot(
+        IRecipeLayoutBuilder builder,
+        RecipeIngredientRole role,
+        String name,
+        int x,
+        int y,
+        int width,
+        int height,
+        List<ItemStack> stacks,
+        List<FluidStack> fluids
+    ) {
+        IRecipeSlotBuilder slot = builder.addSlot(role, x, y)
+            .setSlotName(SLOT_PREFIX + name)
+            .setCustomRenderer(VanillaTypes.ITEM_STACK, new TransparentItemRenderer(width, height));
+        if (!fluids.isEmpty()) {
+            slot.setCustomRenderer(NeoForgeTypes.FLUID_STACK, new TransparentFluidRenderer(width, height));
+        }
+        if (!stacks.isEmpty()) {
+            slot.addItemStacks(stacks);
+        }
+        fluids.forEach(fluid -> slot.addFluidStack(
+            fluid.getFluid(), fluid.getAmount(), fluid.getComponentsPatch()
+        ));
+        return slot;
+    }
+
+    /** 取指定槽位当前轮换到的成分，物品与流体皆可。 */
+    public static Optional<ITypedIngredient<?>> getDisplayedIngredient(IRecipeSlotsView recipeSlotsView, String name) {
+        return recipeSlotsView.findSlotByName(SLOT_PREFIX + name)
+            .flatMap(IRecipeSlotView::getDisplayedIngredient);
+    }
+
+    /**
+     * 方块状态对应的槽位物品；流体方块没有 {@code BlockItem}，因此会被跳过。
+     */
+    public static List<ItemStack> toItemStacks(List<BlockState> states) {
+        return states.stream()
+            .map(state -> new ItemStack(state.getBlock()))
+            .filter(stack -> !stack.isEmpty())
+            .distinct()
+            .toList();
+    }
+
+    /**
+     * 方块状态对应的槽位流体。
+     *
+     * <p>水、经验流体、熔岩等只注册了方块、没有 {@code BlockItem}，
+     * 展示成流体本身而不是它的桶，提示里才是流体名。</p>
+     */
+    public static List<FluidStack> toFluidStacks(List<BlockState> states) {
+        return states.stream()
+            .map(BlockState::getFluidState)
+            .filter(state -> !state.isEmpty())
+            .map(state -> new FluidStack(state.getType(), FluidType.BUCKET_VOLUME))
+            .distinct()
+            .toList();
+    }
+
+    /**
+     * 把槽位中当前轮换到的成分还原为对应的方块状态。
+     *
+     * <p>流体成分按流体匹配，物品成分按方块物品匹配。</p>
+     */
+    @Nullable
+    public static BlockState toBlockState(@Nullable ITypedIngredient<?> ingredient, List<BlockState> states) {
+        if (ingredient == null) return null;
+        FluidStack fluid = ingredient.getIngredient(NeoForgeTypes.FLUID_STACK).orElse(null);
+        if (fluid != null) {
+            for (BlockState state : states) {
+                if (state.getFluidState().getType().isSame(fluid.getFluid())) return state;
+            }
+        }
+        ItemStack stack = ingredient.getItemStack().orElse(null);
+        if (stack != null && !stack.isEmpty()) {
+            for (BlockState state : states) {
+                if (new ItemStack(state.getBlock()).is(stack.getItem())) return state;
+            }
+        }
+        return null;
+    }
+
     public static void suppressHoverOverlays(IRecipeExtrasBuilder builder) {
         List<IRecipeSlotDrawable> slots = builder.getRecipeSlots().getSlots().stream()
             .filter(slot -> slot.getSlotName()
@@ -142,18 +232,9 @@ public final class JeiBlockIngredientUtil {
         return defaultScale;
     }
 
-    @SuppressWarnings("removal")
     private record TransparentItemRenderer(int width, int height) implements IIngredientRenderer<ItemStack> {
         @Override
         public void render(GuiGraphics guiGraphics, ItemStack ingredient) {
-        }
-
-        @Override
-        @SuppressWarnings("removal")
-        public List<Component> getTooltip(ItemStack ingredient, TooltipFlag tooltipFlag) {
-            Minecraft minecraft = Minecraft.getInstance();
-            Item.TooltipContext context = Item.TooltipContext.of(minecraft.level);
-            return ingredient.getTooltipLines(context, minecraft.player, tooltipFlag);
         }
 
         @Override
@@ -164,6 +245,64 @@ public final class JeiBlockIngredientUtil {
             TooltipFlag tooltipFlag
         ) {
             return ingredient.getTooltipLines(context, player, tooltipFlag);
+        }
+
+        /**
+         * 接口仍把两参重载声明为抽象方法，因此必须实现。
+         *
+         * <p>本类不用它取提示（JEI 会走带上下文的四参重载），这里仅提供等价实现：
+         * 上下文取自当前客户端，玩家与高级提示标记沿用 JEI 传入的值。
+         * 该重载已被标记为待移除，是因为必须实现才压制告警。</p>
+         */
+        @Override
+        @SuppressWarnings("removal")
+        public List<Component> getTooltip(ItemStack ingredient, TooltipFlag tooltipFlag) {
+            Minecraft minecraft = Minecraft.getInstance();
+            return this.getTooltip(
+                ingredient, Item.TooltipContext.of(minecraft.level), minecraft.player, tooltipFlag
+            );
+        }
+
+        @Override
+        public int getWidth() {
+            return this.width;
+        }
+
+        @Override
+        public int getHeight() {
+            return this.height;
+        }
+    }
+
+    /**
+     * 不绘制内容、只提供流体名称提示的渲染器。
+     *
+     * <p>结果格的画面由配方类别自己按方块状态渲染，因此这里保持透明；
+     * 但提示要给出流体名，而不是它的桶。</p>
+     */
+    private record TransparentFluidRenderer(int width, int height) implements IIngredientRenderer<FluidStack> {
+        @Override
+        public void render(GuiGraphics guiGraphics, FluidStack ingredient) {
+        }
+
+        @Override
+        public List<Component> getTooltip(
+            FluidStack ingredient,
+            Item.TooltipContext context,
+            @Nullable Player player,
+            TooltipFlag tooltipFlag
+        ) {
+            return List.of(ingredient.getHoverName());
+        }
+
+        /**
+         * 接口仍把两参重载声明为抽象方法，因此必须实现；等价于上面的四参重载。
+         * 该重载已被标记为待移除，是因为必须实现才压制告警。
+         */
+        @Override
+        @SuppressWarnings("removal")
+        public List<Component> getTooltip(FluidStack ingredient, TooltipFlag tooltipFlag) {
+            return List.of(ingredient.getHoverName());
         }
 
         @Override

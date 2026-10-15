@@ -1340,6 +1340,7 @@
   "gui.anvilcraft.category.min_output": "Min: %s",
   "gui.anvilcraft.category.mineral_fountain.replace_chance": "Replace Chance: %s%%",
   "gui.anvilcraft.category.mineral_fountain.replace_target": "Replaces: %s",
+  "gui.anvilcraft.category.mineral_fountain.side_count": "Requires %s",
   "gui.anvilcraft.category.mob_transform": "Mob Transform in Corrupted Beacon Beam",
   "gui.anvilcraft.category.mob_transform.chance_per_item": "Chance Per Item: %s%%",
   "gui.anvilcraft.category.multiblock": "Multiblock Crafting",
