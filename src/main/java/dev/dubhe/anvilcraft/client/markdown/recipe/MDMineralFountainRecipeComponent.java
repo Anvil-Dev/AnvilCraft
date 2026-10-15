@@ -9,7 +9,6 @@ import dev.anvilcraft.resource.ageratum.util.RecipeUtil;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.client.support.RenderSupport;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
-import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.recipe.mineral.AroundRequirement;
 import dev.dubhe.anvilcraft.recipe.mineral.MineralFountainActiveRecipe;
 import dev.dubhe.anvilcraft.recipe.mineral.MineralFountainPassiveRecipe;
@@ -21,7 +20,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.block.state.BlockState;
 
 import java.text.DecimalFormat;

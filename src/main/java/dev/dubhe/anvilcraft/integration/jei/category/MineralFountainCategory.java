@@ -2,7 +2,6 @@ package dev.dubhe.anvilcraft.integration.jei.category;
 
 import dev.anvilcraft.lib.v2.util.NumberProviderUtil;
 import dev.anvilcraft.lib.v2.util.predicate.ChanceBlockState;
-import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.client.support.RenderSupport;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
@@ -244,7 +243,7 @@ public class MineralFountainCategory implements IRecipeCategory<MineralFountainJ
             JeiRecipeUtil.getRecipeHoldersFromType(ModRecipeTypes.MINERAL_FOUNTAIN_ACTIVE.get());
         List<RecipeHolder<MineralFountainPassiveRecipe>> passiveRecipes =
             JeiRecipeUtil.getRecipeHoldersFromType(ModRecipeTypes.MINERAL_FOUNTAIN_PASSIVE.get());
-        List<RecipeHolder<MineralFountainReplacementRecipe>> replacementRecipes =
+        final List<RecipeHolder<MineralFountainReplacementRecipe>> replacementRecipes =
             JeiRecipeUtil.getRecipeHoldersFromType(ModRecipeTypes.MINERAL_FOUNTAIN_REPLACEMENT.get());
         List<MineralFountainJeiRecipe> displays = new ArrayList<>();
 
