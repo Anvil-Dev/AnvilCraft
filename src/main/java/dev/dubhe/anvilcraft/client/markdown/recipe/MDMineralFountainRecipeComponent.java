@@ -10,8 +10,10 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.client.support.RenderSupport;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
-import dev.dubhe.anvilcraft.recipe.mineral.MineralFountainChanceRecipe;
-import dev.dubhe.anvilcraft.recipe.mineral.MineralFountainRecipe;
+import dev.dubhe.anvilcraft.recipe.mineral.AroundRequirement;
+import dev.dubhe.anvilcraft.recipe.mineral.MineralFountainActiveRecipe;
+import dev.dubhe.anvilcraft.recipe.mineral.MineralFountainPassiveRecipe;
+import dev.dubhe.anvilcraft.recipe.mineral.MineralFountainReplacementRecipe;
 import dev.dubhe.anvilcraft.util.AgeratumUtil;
 import dev.dubhe.anvilcraft.util.TooltipUtil;
 import net.minecraft.ChatFormatting;
@@ -73,24 +75,45 @@ public class MDMineralFountainRecipeComponent extends MDRecipeComponent {
     @Nullable
     private final ResourceLocation dimension;
 
-    public MDMineralFountainRecipeComponent(MineralFountainRecipe recipe, boolean enableAlignCenter) {
+    public MDMineralFountainRecipeComponent(MineralFountainActiveRecipe recipe, boolean enableAlignCenter) {
         this(
             recipe.getFromBlock(),
             recipe.getToBlock(),
-            recipe.getNeedBlock().constructStatesForRender(),
-            null,
+            aroundBlocks(recipe),
+            recipe.getDimension().orElse(null),
             enableAlignCenter
         );
     }
 
-    public MDMineralFountainRecipeComponent(MineralFountainChanceRecipe recipe, boolean enableAlignCenter) {
+    public MDMineralFountainRecipeComponent(MineralFountainPassiveRecipe recipe, boolean enableAlignCenter) {
         this(
             recipe.getFromBlock(),
             recipe.getToBlock(),
-            findSideBlocks(recipe.getFromBlock()),
-            recipe.getDimension(),
+            List.of(),
+            recipe.getDimension().orElse(null),
             enableAlignCenter
         );
+    }
+
+    public MDMineralFountainRecipeComponent(MineralFountainReplacementRecipe recipe, boolean enableAlignCenter) {
+        this(
+            recipe.getFromBlock(),
+            recipe.getToBlock(),
+            List.of(),
+            recipe.getDimension().orElse(null),
+            enableAlignCenter
+        );
+    }
+
+    /**
+     * 主动配方需求表中出现的方块，用于侧边展示。
+     */
+    private static List<BlockState> aroundBlocks(MineralFountainActiveRecipe recipe) {
+        Set<BlockState> states = new LinkedHashSet<>();
+        for (AroundRequirement requirement : recipe.getAround()) {
+            states.addAll(requirement.block().constructStatesForRender());
+        }
+        return List.copyOf(states);
     }
 
     private MDMineralFountainRecipeComponent(
@@ -173,30 +196,6 @@ public class MDMineralFountainRecipeComponent extends MDRecipeComponent {
             tooltips.add(getDimensionName(this.dimension).copy().withStyle(ChatFormatting.GRAY));
         }
         return tooltips;
-    }
-
-    private static List<BlockState> findSideBlocks(BlockStatePredicate fromBlock) {
-        Minecraft minecraft = Minecraft.getInstance();
-        if (minecraft.level == null) {
-            return List.of();
-        }
-
-        List<BlockState> fromStates = fromBlock.constructStatesForRender();
-        Set<BlockState> sideBlocks = new LinkedHashSet<>();
-        for (RecipeHolder<MineralFountainRecipe> holder :
-            minecraft.level.getRecipeManager().getAllRecipesFor(ModRecipeTypes.MINERAL_FOUNTAIN.get())) {
-            MineralFountainRecipe recipe = holder.value();
-            if (sharesBlock(fromStates, recipe.getFromBlock().constructStatesForRender())) {
-                sideBlocks.addAll(recipe.getNeedBlock().constructStatesForRender());
-            }
-        }
-        return List.copyOf(sideBlocks);
-    }
-
-    private static boolean sharesBlock(List<BlockState> first, List<BlockState> second) {
-        return first.stream().anyMatch(firstState ->
-            second.stream().anyMatch(secondState -> firstState.is(secondState.getBlock()))
-        );
     }
 
     private static Component getDimensionName(ResourceLocation dimension) {

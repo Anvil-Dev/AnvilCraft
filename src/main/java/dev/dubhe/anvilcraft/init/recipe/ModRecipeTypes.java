@@ -36,8 +36,9 @@ import dev.dubhe.anvilcraft.recipe.anvil.wrap.TimeWarpRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.UnpackRecipe;
 import dev.dubhe.anvilcraft.recipe.frost.DeformationRecipe;
 import dev.dubhe.anvilcraft.recipe.frost.PermutationRecipe;
-import dev.dubhe.anvilcraft.recipe.mineral.MineralFountainChanceRecipe;
-import dev.dubhe.anvilcraft.recipe.mineral.MineralFountainRecipe;
+import dev.dubhe.anvilcraft.recipe.mineral.MineralFountainActiveRecipe;
+import dev.dubhe.anvilcraft.recipe.mineral.MineralFountainPassiveRecipe;
+import dev.dubhe.anvilcraft.recipe.mineral.MineralFountainReplacementRecipe;
 import dev.dubhe.anvilcraft.recipe.multiblock.Multiblock4DRecipe;
 import dev.dubhe.anvilcraft.recipe.multiblock.MultiblockConversionRecipe;
 import dev.dubhe.anvilcraft.recipe.multiblock.MultiblockRecipe;
@@ -192,17 +193,24 @@ public class ModRecipeTypes {
     public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<Multiblock4DRecipe>> MULTIBLOCK_4D_SERIALIZER =
         RECIPE_SERIALIZERS.register("4d_multiblock", Multiblock4DRecipe.Serializer::new);
 
-    public static final DeferredHolder<RecipeType<?>, RecipeType<MineralFountainRecipe>> MINERAL_FOUNTAIN =
-        registerType("mineral_fountain");
-    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<MineralFountainRecipe>>
-        MINERAL_FOUNTAIN_SERIALIZER =
-        RECIPE_SERIALIZERS.register("mineral_fountain", MineralFountainRecipe.Serializer::new);
+    public static final DeferredHolder<RecipeType<?>, RecipeType<MineralFountainPassiveRecipe>> MINERAL_FOUNTAIN_PASSIVE =
+        registerType("mineral_fountain_passive");
+    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<MineralFountainPassiveRecipe>>
+        MINERAL_FOUNTAIN_PASSIVE_SERIALIZER =
+        RECIPE_SERIALIZERS.register("mineral_fountain_passive", MineralFountainPassiveRecipe.Serializer::new);
 
-    public static final DeferredHolder<RecipeType<?>, RecipeType<MineralFountainChanceRecipe>> MINERAL_FOUNTAIN_CHANCE =
-        registerType("mineral_fountain_chance");
-    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<MineralFountainChanceRecipe>>
-        MINERAL_FOUNTAIN_CHANCE_SERIALIZER =
-        RECIPE_SERIALIZERS.register("mineral_fountain_chance", MineralFountainChanceRecipe.Serializer::new);
+    public static final DeferredHolder<RecipeType<?>, RecipeType<MineralFountainActiveRecipe>> MINERAL_FOUNTAIN_ACTIVE =
+        registerType("mineral_fountain_active");
+    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<MineralFountainActiveRecipe>>
+        MINERAL_FOUNTAIN_ACTIVE_SERIALIZER =
+        RECIPE_SERIALIZERS.register("mineral_fountain_active", MineralFountainActiveRecipe.Serializer::new);
+
+    public static final DeferredHolder<RecipeType<?>, RecipeType<MineralFountainReplacementRecipe>>
+        MINERAL_FOUNTAIN_REPLACEMENT =
+        registerType("mineral_fountain_replacement");
+    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<MineralFountainReplacementRecipe>>
+        MINERAL_FOUNTAIN_REPLACEMENT_SERIALIZER =
+        RECIPE_SERIALIZERS.register("mineral_fountain_replacement", MineralFountainReplacementRecipe.Serializer::new);
 
     public static final DeferredHolder<RecipeType<?>, RecipeType<JewelCraftingRecipe>> JEWEL_CRAFTING_TYPE = registerType("jewel_crafting");
     public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<JewelCraftingRecipe>> JEWEL_CRAFTING_SERIALIZER =

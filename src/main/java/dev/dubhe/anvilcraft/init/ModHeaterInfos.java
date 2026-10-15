@@ -11,9 +11,12 @@ import dev.dubhe.anvilcraft.block.entity.MineralFountainBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.PlasmaJetsBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
+import dev.dubhe.anvilcraft.recipe.mineral.MineralFountainHeat;
 import dev.dubhe.anvilcraft.util.BlockInfo;
 import net.minecraft.world.level.block.Blocks;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -49,17 +52,24 @@ public class ModHeaterInfos {
             HeatTierLine.always(HeatTier.HEATED, 2)
         )
     );
-    public static final HeaterInfo<MineralFountainBlockEntity> LAVA_MINERAL_FOUNTAIN = HeatRecorder.registerProducerInfo(
-        HeaterInfo.blockEntity(
-            (level, pos) -> {
-                if (!level.isLoaded(pos)) return Optional.empty();
-                return level.getBlockEntity(pos, ModBlockEntities.MINERAL_FOUNTAIN.get())
-                    .filter(mineralFountain -> mineralFountain.getAroundBlock().is(Blocks.LAVA));
-            },
-            mineralFountain -> Set.of(mineralFountain.getBlockPos().above()),
-            HeatTierLine.always(HeatTier.REDHOT, 20)
-        )
-    );
+    /** 数据驱动加热信息缓存：同一个加热定义只注册一次。 */
+    private static final Map<MineralFountainHeat, HeaterInfo<MineralFountainBlockEntity>> MINERAL_FOUNTAIN_HEATS =
+        new HashMap<>();
+
+    /**
+     * 取某个加热定义对应的供热信息；由矿物涌泉配方在匹配时登记。
+     */
+    public static HeaterInfo<MineralFountainBlockEntity> mineralFountain(MineralFountainHeat heat) {
+        return MINERAL_FOUNTAIN_HEATS.computeIfAbsent(heat, key -> HeatRecorder.registerProducerInfo(
+            HeaterInfo.blockEntity(
+                ModBlockEntities.MINERAL_FOUNTAIN,
+                fountain -> Set.of(fountain.getBlockPos().above()),
+                key.toLine(),
+                fountain -> key.count()
+            )
+        ));
+    }
+
     public static final HeaterInfo<PlasmaJetsBlockEntity> NO_MAGNET_PLASMA_JETS = HeatRecorder.registerProducerInfo(
         HeaterInfo.blockEntity(
             ModBlockEntities.PLASMA_JETS,

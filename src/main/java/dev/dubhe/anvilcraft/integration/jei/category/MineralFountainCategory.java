@@ -1,6 +1,5 @@
 package dev.dubhe.anvilcraft.integration.jei.category;
 
-import dev.anvilcraft.lib.v2.util.predicate.ChanceBlockState;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.client.support.RenderSupport;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
@@ -10,8 +9,10 @@ import dev.dubhe.anvilcraft.integration.jei.recipe.MineralFountainJeiRecipe;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiBlockIngredientUtil;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiRecipeUtil;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiRenderHelper;
-import dev.dubhe.anvilcraft.recipe.mineral.MineralFountainChanceRecipe;
-import dev.dubhe.anvilcraft.recipe.mineral.MineralFountainRecipe;
+import dev.dubhe.anvilcraft.recipe.mineral.AroundRequirement;
+import dev.dubhe.anvilcraft.recipe.mineral.MineralFountainActiveRecipe;
+import dev.dubhe.anvilcraft.recipe.mineral.MineralFountainPassiveRecipe;
+import dev.dubhe.anvilcraft.recipe.mineral.MineralFountainReplacementRecipe;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.drawable.IDrawable;
 import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
@@ -217,51 +218,58 @@ public class MineralFountainCategory implements IRecipeCategory<MineralFountainJ
     }
 
     public static void registerRecipes(IRecipeRegistration registration) {
-        List<RecipeHolder<MineralFountainRecipe>> normalRecipes =
-            JeiRecipeUtil.getRecipeHoldersFromType(ModRecipeTypes.MINERAL_FOUNTAIN.get());
+        List<RecipeHolder<MineralFountainActiveRecipe>> activeRecipes =
+            JeiRecipeUtil.getRecipeHoldersFromType(ModRecipeTypes.MINERAL_FOUNTAIN_ACTIVE.get());
+        List<RecipeHolder<MineralFountainPassiveRecipe>> passiveRecipes =
+            JeiRecipeUtil.getRecipeHoldersFromType(ModRecipeTypes.MINERAL_FOUNTAIN_PASSIVE.get());
+        List<RecipeHolder<MineralFountainReplacementRecipe>> replacementRecipes =
+            JeiRecipeUtil.getRecipeHoldersFromType(ModRecipeTypes.MINERAL_FOUNTAIN_REPLACEMENT.get());
         List<MineralFountainJeiRecipe> displays = new ArrayList<>();
 
-        displays.add(new MineralFountainJeiRecipe(
-            AnvilCraft.of("mineral_fountain/cinerite_from_air"),
-            List.of(),
-            List.of(),
-            new ChanceBlockState(ModBlocks.CINERITE.getDefaultState(), 1.0f),
-            null
-        ));
-        displays.add(new MineralFountainJeiRecipe(
-            AnvilCraft.of("mineral_fountain/lava_from_air"),
-            List.of(Blocks.LAVA.defaultBlockState()),
-            List.of(),
-            new ChanceBlockState(Blocks.LAVA.defaultBlockState(), 1.0f),
-            null
-        ));
-
-        for (RecipeHolder<MineralFountainRecipe> holder : normalRecipes) {
-            MineralFountainRecipe recipe = holder.value();
-            List<BlockState> sides = recipe.getNeedBlock().constructStatesForRender();
+        for (RecipeHolder<MineralFountainActiveRecipe> holder : activeRecipes) {
+            MineralFountainActiveRecipe recipe = holder.value();
+            List<BlockState> sides = aroundBlocks(recipe);
             List<BlockState> from = recipe.getFromBlock().constructStatesForRender();
-            if (sides.isEmpty() || from.isEmpty()) continue;
-            displays.add(new MineralFountainJeiRecipe(holder.id(), sides, from, recipe.getToBlock(), null));
+            if (sides.isEmpty()) continue;
+            displays.add(new MineralFountainJeiRecipe(
+                holder.id(), sides, from, recipe.getToBlock(), recipe.getDimension().orElse(null)
+            ));
         }
 
-        for (RecipeHolder<MineralFountainChanceRecipe> holder :
-            JeiRecipeUtil.getRecipeHoldersFromType(ModRecipeTypes.MINERAL_FOUNTAIN_CHANCE.get())) {
-            MineralFountainChanceRecipe recipe = holder.value();
-            List<BlockState> from = recipe.getFromBlock().constructStatesForRender();
-            Set<BlockState> sides = new LinkedHashSet<>();
-            for (RecipeHolder<MineralFountainRecipe> normalHolder : normalRecipes) {
-                MineralFountainRecipe normalRecipe = normalHolder.value();
-                if (sharesBlock(from, normalRecipe.getFromBlock().constructStatesForRender())) {
-                    sides.addAll(normalRecipe.getNeedBlock().constructStatesForRender());
-                }
-            }
-            if (sides.isEmpty() || from.isEmpty()) continue;
+        for (RecipeHolder<MineralFountainPassiveRecipe> holder : passiveRecipes) {
+            MineralFountainPassiveRecipe recipe = holder.value();
             displays.add(new MineralFountainJeiRecipe(
-                holder.id(), List.copyOf(sides), from, recipe.getToBlock(), recipe.getDimension()
+                holder.id(),
+                List.of(),
+                recipe.getFromBlock().constructStatesForRender(),
+                recipe.getToBlock(),
+                recipe.getDimension().orElse(null)
+            ));
+        }
+
+        for (RecipeHolder<MineralFountainReplacementRecipe> holder : replacementRecipes) {
+            MineralFountainReplacementRecipe recipe = holder.value();
+            displays.add(new MineralFountainJeiRecipe(
+                holder.id(),
+                List.of(),
+                recipe.getFromBlock().constructStatesForRender(),
+                recipe.getToBlock(),
+                recipe.getDimension().orElse(null)
             ));
         }
 
         registration.addRecipes(AnvilCraftJeiPlugin.MINERAL_FOUNTAIN, displays);
+    }
+
+    /**
+     * 主动配方需求表中出现的方块，用于侧边展示。
+     */
+    private static List<BlockState> aroundBlocks(MineralFountainActiveRecipe recipe) {
+        Set<BlockState> states = new LinkedHashSet<>();
+        for (AroundRequirement requirement : recipe.getAround()) {
+            states.addAll(requirement.block().constructStatesForRender());
+        }
+        return List.copyOf(states);
     }
 
     public static void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
