@@ -280,6 +280,9 @@ public final class EquipmentAbilities {
             releaseTick = now;
             CHARGE_RELEASE_TICK.put(player, now);
             CHARGE_RELEASE_START.put(player, CHARGE.getOrDefault(player, 0));
+            // 松开即清掉本次蓄力起点：停留窗口内重新按住时，起点需按当前蓄力值重算，
+            // 否则会把「松开的这段时间」也算进蓄力，凭空多算 tick、甚至直接跳到满蓄力
+            CHARGE_START.remove(player);
         }
         int holdTicks = AnvilCraft.CONFIG.equipment.chargedJumpChargeHoldTicks;
         int elapsed = now - releaseTick;
@@ -292,8 +295,6 @@ public final class EquipmentAbilities {
             return;
         }
         CHARGE.put(player, decayed);
-        // 停留已结束、进入衰减：此后重新蓄力从当前衰减值继续
-        CHARGE_START.remove(player);
     }
 
     private static double jumpHeight(double velocity, double gravity, double drag) {
