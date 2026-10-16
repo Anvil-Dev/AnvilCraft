@@ -7,6 +7,7 @@ import dev.anvilcraft.lib.v2.util.predicate.BlockStatePredicate;
 import dev.anvilcraft.lib.v2.util.predicate.ChanceBlockState;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.recipe.anvil.builder.AbstractRecipeBuilder;
+import lombok.Getter;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -29,6 +30,7 @@ import java.util.Optional;
  * <p>需求表按计数判定，例如 {@code [[粗铜, 2], [粗锡, 1]]} 表示四方相邻中
  * 至少有 2 个粗铜块与 1 个粗锡块。</p>
  */
+@Getter
 public class MineralFountainActiveRecipe extends AbstractMineralFountainRecipe {
     /** 周围方块需求表，全部满足才算匹配。 */
     private final List<AroundRequirement> around;
@@ -46,10 +48,6 @@ public class MineralFountainActiveRecipe extends AbstractMineralFountainRecipe {
     ) {
         super(dimension, height, priority, weight, fromBlock, toBlock, heat, toFluid);
         this.around = List.copyOf(around);
-    }
-
-    public List<AroundRequirement> getAround() {
-        return this.around;
     }
 
     @Override
@@ -210,7 +208,7 @@ public class MineralFountainActiveRecipe extends AbstractMineralFountainRecipe {
             return this;
         }
 
-        /** 上方为流体容器时灌入的流体。 */
+        /** 上方为排水口时灌入的流体。 */
         public Builder toFluid(FluidStack toFluid) {
             this.toFluid = Optional.of(toFluid);
             return this;

@@ -197,7 +197,7 @@ public class MineralFountainReplacementRecipe extends AbstractMineralFountainRec
             return this;
         }
 
-        /** 上方为流体容器时灌入的流体。 */
+        /** 上方为排水口时灌入的流体。 */
         public Builder toFluid(FluidStack toFluid) {
             this.toFluid = Optional.of(toFluid);
             return this;

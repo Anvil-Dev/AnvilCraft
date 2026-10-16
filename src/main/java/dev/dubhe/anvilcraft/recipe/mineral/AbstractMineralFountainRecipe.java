@@ -47,10 +47,10 @@ public abstract class AbstractMineralFountainRecipe implements Recipe<MineralFou
     /** 满足条件时提供的加热能力；为空表示不加热。 */
     private final Optional<MineralFountainHeat> heat;
     /**
-     * 上方为流体容器时的流体产出；为空表示只产出方块。
+     * 上方为排水口时的流体产出；为空表示无流体产出。
      *
      * <p>与 {@link #heat} 同为「只看上下文与周围方块」的产出，不受材料方块限制：
-     * 上方放的是容器而非空气，材料方块条件天然不成立。</p>
+     * 上方放的是排水口而非空气，材料方块条件天然不成立。</p>
      */
     private final Optional<FluidStack> toFluid;
 

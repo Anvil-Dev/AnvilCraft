@@ -38,7 +38,7 @@ public class MineralFountainRecipeLoader {
 
         // 熔岩：四周皆为熔岩「源」时向上方生成熔岩，并向上方供热。
         // level=0 即熔岩源；旧版 getAroundBlock() 同样只认源，流动熔岩不计入。
-        // to_fluid 让上方的流体容器（排水口、储罐等）直接接住熔岩，而不是被放置的方块覆盖。
+        // to_fluid 让上方的排水口直接接住熔岩；没有排水口时仍按 to_block 在上方放置熔岩方块。
         MineralFountainActiveRecipe.builder()
             .fromBlock(from(Blocks.AIR))
             .require(new AroundRequirement(liquidSource(Blocks.LAVA), 4))

@@ -78,8 +78,8 @@ public class MineralFountainBlockEntity extends BlockEntity {
         MineralFountainRecipeInput input =
             new MineralFountainRecipeInput(aboveState, around, this.getBlockPos());
 
-        // 上方为流体容器时，按配方的流体产出灌入；这一步只判上下文与周围方块
-        boolean filled = this.tryFillFluidContainer(input);
+        // 上方为排水口时，按配方的流体产出灌入；这一步只判上下文与周围方块
+        boolean filled = this.tryFillDrain(input);
 
         if (!filled) {
             // 主动生产优先，命中后允许替换生产改写结果
@@ -104,11 +104,12 @@ public class MineralFountainBlockEntity extends BlockEntity {
      * 因此这里只判上下文与周围方块（{@code matchesContextAndAround}），
      * 再取该配方声明的 {@code to_fluid}。</p>
      *
-     * <p>只有排水口能做这件事；其他流体容器不会被灌入，也不会被放置的方块覆盖。</p>
+     * <p>只有排水口能接；排水口之外的方块（含其他流体容器）不会被灌入，
+     * 也不会因此被跳过方块产出。</p>
      *
-     * @return 是否成功灌入（灌入后不再产出方块，避免覆盖排水口）
+     * @return 是否成功灌入；成功时本次 tick 不再产出方块，避免覆盖排水口
      */
-    private boolean tryFillFluidContainer(MineralFountainRecipeInput input) {
+    private boolean tryFillDrain(MineralFountainRecipeInput input) {
         if (this.level == null) return false;
         if (!(this.level.getBlockEntity(this.getBlockPos().above()) instanceof DrainBlockEntity drain)) return false;
         RecipeHolder<MineralFountainActiveRecipe> active = this.pickFluidOutput(input);
@@ -165,9 +166,14 @@ public class MineralFountainBlockEntity extends BlockEntity {
 
     /**
      * 按配方的概率产出方块。
+     *
+     * <p>上方是方块实体时绝不放置方块：那会把排水口之类的机器整块覆盖掉。
+     * 内置数据里 {@code from_block} 是空气，本就匹配不到方块实体；
+     * 这一层是数据包把 {@code from_block} 写宽时的兜底。</p>
      */
     private void produce(AbstractMineralFountainRecipe recipe, ServerLevel serverLevel) {
         if (this.level == null) return;
+        if (this.level.getBlockEntity(this.getBlockPos().above()) != null) return;
         ChanceBlockState result = recipe.getToBlock();
         if (this.level.getRandom().nextDouble() <= recipe.chance(serverLevel)) {
             this.level.setBlockAndUpdate(this.getBlockPos().above(), result.state());
