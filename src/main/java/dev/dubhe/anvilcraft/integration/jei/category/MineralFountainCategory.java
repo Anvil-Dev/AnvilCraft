@@ -295,7 +295,8 @@ public class MineralFountainCategory implements IRecipeCategory<MineralFountainJ
     }
 
     /** 合并一组并列的主动配方，结果按权重占比分摊概率。 */
-    private static MineralFountainJeiRecipe mergeActive(List<RecipeHolder<MineralFountainActiveRecipe>> group) {        MineralFountainActiveRecipe first = group.getFirst().value();
+    private static MineralFountainJeiRecipe mergeActive(List<RecipeHolder<MineralFountainActiveRecipe>> group) {
+        MineralFountainActiveRecipe first = group.getFirst().value();
         int weightTotal = group.stream().mapToInt(holder -> holder.value().getWeight()).sum();
         List<MineralFountainJeiRecipe.Outcome> outcomes = new ArrayList<>();
         List<FluidStack> fluids = new ArrayList<>();
@@ -489,7 +490,8 @@ public class MineralFountainCategory implements IRecipeCategory<MineralFountainJ
     }
 
     /** 主动配方的周围需求，保留各自数量。 */
-    private static List<MineralFountainJeiRecipe.SideRequirement> sideRequirements(MineralFountainActiveRecipe recipe) {        return recipe.getAround().stream()
+    private static List<MineralFountainJeiRecipe.SideRequirement> sideRequirements(MineralFountainActiveRecipe recipe) {
+        return recipe.getAround().stream()
             .map(requirement -> new MineralFountainJeiRecipe.SideRequirement(
                 requirement.block().constructStatesForRender(),
                 requirement.count()

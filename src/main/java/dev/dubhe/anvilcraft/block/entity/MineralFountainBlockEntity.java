@@ -156,7 +156,8 @@ public class MineralFountainBlockEntity extends BlockEntity {
 
     /** 取当前应生效的加热定义：只看维度、高度与周围方块，与上方方块无关。 */
     @Nullable
-    private MineralFountainHeat pickHeat(MineralFountainRecipeInput input) {        RecipeHolder<MineralFountainActiveRecipe> active = this.pickActive(input, false);
+    private MineralFountainHeat pickHeat(MineralFountainRecipeInput input) {
+        RecipeHolder<MineralFountainActiveRecipe> active = this.pickActive(input, false);
         if (active != null && active.value().getHeat().isPresent()) {
             return active.value().getHeat().get();
         }
