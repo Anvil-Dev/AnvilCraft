@@ -78,10 +78,17 @@ public class MineralFountainBlockEntity extends BlockEntity {
         MineralFountainRecipeInput input =
             new MineralFountainRecipeInput(aboveState, around, this.getBlockPos());
 
-        // 上方为排水口时，按配方的流体产出灌入；这一步只判上下文与周围方块
-        boolean filled = this.tryFillDrain(input);
+        // 上方为排水口且存在流体产出配方时，灌入流体并跳过方块产出（放置方块会把排水口盖掉）
+        RecipeHolder<MineralFountainActiveRecipe> drainRecipe = this.pickFluidOutput(input);
 
-        if (!filled) {
+        if (drainRecipe != null) {
+            // 只要排水口还在就无条件重置计时器，与旧版一致：
+            // 排水口装满后不会向服务端邻居发方块更新（只有 UPDATE_CLIENTS），
+            // 若停止重置，计时器降到 -1 后 tick() 将永远早退，
+            // 排水口被抽空也不会自行恢复，需要玩家在附近造成一次方块更新。
+            this.resetTickCount();
+            this.fillDrain(drainRecipe);
+        } else {
             // 主动生产优先，命中后允许替换生产改写结果
             RecipeHolder<MineralFountainActiveRecipe> active = this.pickActive(input, true);
             if (active != null) {
@@ -98,37 +105,28 @@ public class MineralFountainBlockEntity extends BlockEntity {
     }
 
     /**
-     * 上方为排水口时，把匹配配方声明的流体灌入其中。
-     *
-     * <p>与加热同理：上方放的是排水口而非空气，材料方块条件天然不成立，
-     * 因此这里只判上下文与周围方块（{@code matchesContextAndAround}），
-     * 再取该配方声明的 {@code to_fluid}。</p>
-     *
-     * <p>只有排水口能接；排水口之外的方块（含其他流体容器）不会被灌入，
-     * 也不会因此被跳过方块产出。</p>
-     *
-     * @return 是否成功灌入；成功时本次 tick 不再产出方块，避免覆盖排水口
+     * 把配方声明的流体灌入上方的排水口；灌不进去（已满）就作罢，下个周期再试。
      */
-    private boolean tryFillDrain(MineralFountainRecipeInput input) {
-        if (this.level == null) return false;
-        if (!(this.level.getBlockEntity(this.getBlockPos().above()) instanceof DrainBlockEntity drain)) return false;
-        RecipeHolder<MineralFountainActiveRecipe> active = this.pickFluidOutput(input);
-        if (active == null) return false;
-        FluidStack fluid = active.value().getToFluid().orElse(null);
-        if (fluid == null || fluid.isEmpty()) return false;
+    private void fillDrain(RecipeHolder<MineralFountainActiveRecipe> recipe) {
+        if (this.level == null) return;
+        if (!(this.level.getBlockEntity(this.getBlockPos().above()) instanceof DrainBlockEntity drain)) return;
+        FluidStack fluid = recipe.value().getToFluid().orElse(null);
+        if (fluid == null || fluid.isEmpty()) return;
         IFluidHandler handler = drain.getFluidHandler();
-        if (handler.fill(fluid, IFluidHandler.FluidAction.SIMULATE) != fluid.getAmount()) return false;
+        if (handler.fill(fluid, IFluidHandler.FluidAction.SIMULATE) != fluid.getAmount()) return;
         handler.fill(fluid, IFluidHandler.FluidAction.EXECUTE);
-        this.resetTickCount();
-        return true;
     }
 
     /**
      * 取优先级最高的、声明了流体产出且匹配上下文与周围方块的主动配方。
+     *
+     * <p>只在**上方是排水口**时才有意义：调用方用它判断本 tick 该走滴液还是产出方块。
+     * 与加热同理，这里不判材料方块——上方是排水口而非空气，材料条件天然不成立。</p>
      */
     @Nullable
     private RecipeHolder<MineralFountainActiveRecipe> pickFluidOutput(MineralFountainRecipeInput input) {
         if (this.level == null) return null;
+        if (!(this.level.getBlockEntity(this.getBlockPos().above()) instanceof DrainBlockEntity)) return null;
         List<RecipeHolder<MineralFountainActiveRecipe>> matches = this.level.getRecipeManager()
             .getAllRecipesFor(ModRecipeTypes.MINERAL_FOUNTAIN_ACTIVE.get())
             .stream()
