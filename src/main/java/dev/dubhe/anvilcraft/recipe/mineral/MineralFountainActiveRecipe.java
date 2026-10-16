@@ -34,6 +34,7 @@ import java.util.Optional;
 public class MineralFountainActiveRecipe extends AbstractMineralFountainRecipe {
     /** 周围方块需求表，全部满足才算匹配。 */
     private final List<AroundRequirement> around;
+
     public MineralFountainActiveRecipe(
         Optional<ResourceLocation> dimension,
         HeightRange height,
