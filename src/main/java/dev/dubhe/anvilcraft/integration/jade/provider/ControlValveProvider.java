@@ -28,12 +28,15 @@ public enum ControlValveProvider implements IBlockComponentProvider {
                 filter.getAmount(),
                 filter.getComponentsPatch()
             );
+            Component fluidName = filter.getHoverName().copy().withStyle(ChatFormatting.WHITE);
+            // 黑名单表示「拦截这些流体」，与白名单语义相反，需要明确标出
+            Component label = valve.isFilterDenyList()
+                ? Component.translatable("tooltip.anvilcraft.control_valve.jade.deny_filter", fluidName)
+                    .withStyle(ChatFormatting.RED)
+                : Component.translatable("tooltip.anvilcraft.control_valve.jade.filter", fluidName);
             tooltip.add(helper.progress(
                 1,
-                Component.translatable(
-                    "tooltip.anvilcraft.control_valve.jade.filter",
-                    filter.getHoverName().copy().withStyle(ChatFormatting.WHITE)
-                ),
+                label,
                 helper.progressStyle().overlay(helper.fluid(fluidObject)),
                 BoxStyle.getNestedBox(),
                 true

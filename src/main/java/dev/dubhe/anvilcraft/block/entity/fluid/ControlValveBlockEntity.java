@@ -150,6 +150,11 @@ public class ControlValveBlockEntity extends BlockEntity implements MenuProvider
         return this.getFluidFilter().fluids();
     }
 
+    /** 当前过滤器是否为黑名单模式（决定提示文案与放行方向）。 */
+    public boolean isFilterDenyList() {
+        return this.getFluidFilter().denyList();
+    }
+
     /**
      * 获取当前生效的过滤规则（流体列表 + 白/黑名单模式）。
      *
