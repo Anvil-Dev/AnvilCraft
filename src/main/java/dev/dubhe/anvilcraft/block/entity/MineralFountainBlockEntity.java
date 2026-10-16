@@ -64,9 +64,6 @@ public class MineralFountainBlockEntity extends BlockEntity {
         tag.putInt("tickCount", this.tickCount);
     }
 
-    /**
-     * 矿物涌泉tick
-     */
     public void tick() {
         if (this.level == null) return;
         if (this.tickCount > -1) this.tickCount--;
@@ -78,41 +75,29 @@ public class MineralFountainBlockEntity extends BlockEntity {
         MineralFountainRecipeInput input =
             new MineralFountainRecipeInput(aboveState, around, this.getBlockPos());
 
-        // 上方为排水口且存在流体产出配方时，灌入流体并跳过方块产出（放置方块会把排水口盖掉）
+        // 有排水口且存在流体配方时走滴液，跳过方块产出（放置方块会盖掉排水口）
         RecipeHolder<MineralFountainActiveRecipe> drainRecipe = this.pickFluidOutput(input);
 
         if (drainRecipe != null) {
-            // 只要排水口还在就无条件重置计时器，与旧版一致：
             // 排水口装满后不会向服务端邻居发方块更新（只有 UPDATE_CLIENTS），
-            // 若停止重置，计时器降到 -1 后 tick() 将永远早退，
-            // 排水口被抽空也不会自行恢复，需要玩家在附近造成一次方块更新。
+            // 这里必须无条件重置，否则 tickCount 降到 -1 后永久早退、抽空也无法恢复
             this.resetTickCount();
             this.fillDrain(drainRecipe);
         } else {
-            // 主动生产优先，命中后允许替换生产改写结果
             RecipeHolder<MineralFountainActiveRecipe> active = this.pickActive(input, true);
             if (active != null) {
+                // 主动生产优先，命中后允许替换生产改写结果
                 this.produce(this.resolveReplacement(active, input), serverLevel);
             } else {
-                // 无主动生产匹配时执行被动生产
                 MineralFountainPassiveRecipe passive = this.pickPassive(input);
                 if (passive != null) this.produce(passive, serverLevel);
             }
         }
 
-        // 加热只看维度、高度与周围方块，与上方方块无关
         this.setHeat(this.pickHeat(input), serverLevel);
     }
 
-    /**
-     * 把配方声明的流体灌入上方的排水口。
-     *
-     * <p>按剩余空间灌注，允许只灌一部分：排水口容量固定（默认 4B），
-     * 若要求「整整一份都装得下」才灌，剩余空间不足一份时会一滴不进，
-     * 于是永久卡在半满状态。这里直接把请求交给储罐，由它灌满为止。</p>
-     *
-     * <p>已满、或罐内是别的流体时 {@code fill} 返回 0，不会混入异种流体。</p>
-     */
+    /** 把流体灌入上方的排水口；交给储罐按剩余空间灌注，允许只灌一部分。 */
     private void fillDrain(RecipeHolder<MineralFountainActiveRecipe> recipe) {
         if (this.level == null) return;
         if (!(this.level.getBlockEntity(this.getBlockPos().above()) instanceof DrainBlockEntity drain)) return;
@@ -121,12 +106,7 @@ public class MineralFountainBlockEntity extends BlockEntity {
         drain.getFluidHandler().fill(fluid, IFluidHandler.FluidAction.EXECUTE);
     }
 
-    /**
-     * 取优先级最高的、声明了流体产出且匹配上下文与周围方块的主动配方。
-     *
-     * <p>只在**上方是排水口**时才有意义：调用方用它判断本 tick 该走滴液还是产出方块。
-     * 与加热同理，这里不判材料方块——上方是排水口而非空气，材料条件天然不成立。</p>
-     */
+    /** 取优先级最高的、声明了流体产出且匹配周围方块的主动配方；上方不是排水口时恒为 {@code null}。 */
     @Nullable
     private RecipeHolder<MineralFountainActiveRecipe> pickFluidOutput(MineralFountainRecipeInput input) {
         if (this.level == null) return null;
@@ -140,9 +120,7 @@ public class MineralFountainBlockEntity extends BlockEntity {
         return this.pickByPriority(matches, holder -> holder.value().getPriority());
     }
 
-    /**
-     * 让主动配方的结果被替换配方改写；没有命中替换时返回主动配方自身。
-     */
+    /** 让主动配方的结果被替换配方改写；没有命中时返回主动配方自身。 */
     private AbstractMineralFountainRecipe resolveReplacement(
         RecipeHolder<MineralFountainActiveRecipe> active,
         MineralFountainRecipeInput input
@@ -166,13 +144,7 @@ public class MineralFountainBlockEntity extends BlockEntity {
         return active.value();
     }
 
-    /**
-     * 按配方的概率产出方块。
-     *
-     * <p>上方是方块实体时绝不放置方块：那会把排水口之类的机器整块覆盖掉。
-     * 内置数据里 {@code from_block} 是空气，本就匹配不到方块实体；
-     * 这一层是数据包把 {@code from_block} 写宽时的兜底。</p>
-     */
+    /** 按配方的概率产出方块；上方是方块实体时跳过，避免覆盖排水口之类的机器。 */
     private void produce(AbstractMineralFountainRecipe recipe, ServerLevel serverLevel) {
         if (this.level == null) return;
         if (this.level.getBlockEntity(this.getBlockPos().above()) != null) return;
@@ -182,21 +154,16 @@ public class MineralFountainBlockEntity extends BlockEntity {
         }
     }
 
-    /**
-     * 取当前应生效的加热定义：只看维度、高度与周围方块，与上方方块无关。
-     */
+    /** 取当前应生效的加热定义：只看维度、高度与周围方块，与上方方块无关。 */
     @Nullable
-    private MineralFountainHeat pickHeat(MineralFountainRecipeInput input) {
-        RecipeHolder<MineralFountainActiveRecipe> active = this.pickActive(input, false);
+    private MineralFountainHeat pickHeat(MineralFountainRecipeInput input) {        RecipeHolder<MineralFountainActiveRecipe> active = this.pickActive(input, false);
         if (active != null && active.value().getHeat().isPresent()) {
             return active.value().getHeat().get();
         }
         return null;
     }
 
-    /**
-     * 登记加热定义；与当前相同时保留既有登记，避免每 tick 重复增删。
-     */
+    /** 登记加热定义；与当前相同时跳过，避免每 tick 重复增删。 */
     private void setHeat(@Nullable MineralFountainHeat heat, ServerLevel serverLevel) {
         if (Objects.equals(this.activeHeat, heat)) return;
         if (this.activeHeat != null) {
@@ -211,9 +178,9 @@ public class MineralFountainBlockEntity extends BlockEntity {
     }
 
     /**
-     * 取优先级最高的匹配主动配方；同优先级时随机取一个。
+     * 取优先级最高的匹配主动配方。
      *
-     * @param includeFrom 是否把材料方块计入匹配；加热查询时传 false
+     * @param includeFrom 是否把材料方块计入匹配；加热与滴液查询传 {@code false}
      */
     @Nullable
     private RecipeHolder<MineralFountainActiveRecipe> pickActive(MineralFountainRecipeInput input, boolean includeFrom) {
@@ -228,9 +195,7 @@ public class MineralFountainBlockEntity extends BlockEntity {
         return this.pickByPriority(matches, holder -> holder.value().getPriority());
     }
 
-    /**
-     * 取优先级最高的匹配被动配方；同优先级时按权重随机取一。
-     */
+    /** 取优先级最高的匹配被动配方。 */
     @Nullable
     private MineralFountainPassiveRecipe pickPassive(MineralFountainRecipeInput input) {
         if (this.level == null) return null;
@@ -258,9 +223,7 @@ public class MineralFountainBlockEntity extends BlockEntity {
         );
     }
 
-    /**
-     * 取配方的抽取权重；非矿物涌泉配方视为等权。
-     */
+    /** 非矿物涌泉配方视为等权。 */
     private static int weightOf(Recipe<?> recipe) {
         return recipe instanceof AbstractMineralFountainRecipe fountain
                ? fountain.getWeight()
@@ -274,9 +237,7 @@ public class MineralFountainBlockEntity extends BlockEntity {
         Direction.SOUTH
     };
 
-    /**
-     * 四个水平相邻方块，交由配方的需求表判定。
-     */
+    /** 四个水平相邻方块，交由配方需求表判定。 */
     public List<BlockState> getAroundBlocks() {
         if (this.level == null) return List.of();
         return Arrays.stream(HORIZONTAL_DIRECTION)

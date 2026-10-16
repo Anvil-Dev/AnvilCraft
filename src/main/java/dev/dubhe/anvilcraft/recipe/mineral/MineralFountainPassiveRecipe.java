@@ -24,10 +24,8 @@ import java.util.Optional;
 /**
  * 被动生产：没有任何主动生产匹配时执行。
  *
- * <p>默认材料方块为空气，即旧版「上方为空气则生成火山灰」的行为。</p>
- *
- * <p>同一维度可放置多条同优先级配方，按 {@code weight} 权重随机取一，
- * 从而用数据包表达任意产出比例。</p>
+ * <p>默认材料方块为空气，即旧版「上方为空气则生成火山灰」的行为。
+ * 同一维度可放多条同优先级配方，按 {@code weight} 随机取一，用数据包表达任意产出比例。</p>
  */
 public class MineralFountainPassiveRecipe extends AbstractMineralFountainRecipe {
     public MineralFountainPassiveRecipe(

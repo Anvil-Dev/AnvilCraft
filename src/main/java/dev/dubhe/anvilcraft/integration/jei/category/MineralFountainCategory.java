@@ -109,8 +109,6 @@ public class MineralFountainCategory implements IRecipeCategory<MineralFountainJ
 
     @Override
     public void setRecipe(IRecipeLayoutBuilder builder, MineralFountainJeiRecipe recipe, IFocusGroup focuses) {
-        // 底座需求摊到四个相邻面上，哪个面需要什么、需要几个都能直接看出来。
-        // 每项需求各自占格，因此「2 熔岩 + 2 熔融宝石」会显示成两个位置各一种。
         List<MineralFountainJeiRecipe.SideRequirement> sideSlots = recipe.sideSlots();
         for (int i = 0; i < SIDE_SLOT_AREAS.length; i++) {
             if (i >= sideSlots.size()) break;
@@ -141,8 +139,7 @@ public class MineralFountainCategory implements IRecipeCategory<MineralFountainJ
             );
         }
 
-        // 同一格内放入组内全部结果，JEI 会自动轮换显示，从而把概率产出的多条配方合并为一个条目。
-        // 流体产出放进流体本身（而非它的桶），这样悬停显示的是流体名；画面仍由 draw() 渲染流体方块。
+        // 组内全部结果同格轮换；流体用流体本身而非桶，悬停才显示流体名
         List<BlockState> outcomeStates = recipe.outcomeStates();
         JeiBlockIngredientUtil.addSlot(
             builder,
@@ -166,7 +163,7 @@ public class MineralFountainCategory implements IRecipeCategory<MineralFountainJ
             }
         });
 
-        // 流体成分用于支持 JEI 的流体查找与用途跳转，不额外占格
+        // 供 JEI 流体查找用，不额外占格
         if (!recipe.fluids().isEmpty()) {
             IIngredientAcceptor<?> invisible = builder.addInvisibleIngredients(RecipeIngredientRole.OUTPUT);
             recipe.fluids().forEach(fluid -> invisible.addFluidStack(
@@ -188,8 +185,7 @@ public class MineralFountainCategory implements IRecipeCategory<MineralFountainJ
         double mouseX,
         double mouseY
     ) {
-        // 每个底座位置渲染它自己那一格当前轮换到的方块：位置 0/1 在涌泉之前、2/3 在其之后，
-        // 以便与涌泉的 3D 遮挡关系正确。
+        // 位置 0/1 画在涌泉前、2/3 画在其后，保证 3D 遮挡正确
         List<MineralFountainJeiRecipe.SideRequirement> sideSlots = recipe.sideSlots();
         for (int i = 0; i < Math.min(2, sideSlots.size()); i++) {
             renderSideSlot(guiGraphics, recipeSlotsView, sideSlots, i);
@@ -225,8 +221,7 @@ public class MineralFountainCategory implements IRecipeCategory<MineralFountainJ
             RenderSupport.SINGLE_BLOCK
         );
 
-        // 渲染当前轮换到的结果方块，与输出格显示保持一致。
-        // 流体结果的成分是流体本身（不是桶），故这里要同时认物品与流体。
+        // 与输出格显示保持一致（成分可能是流体，故不按物品匹配）
         BlockState resultState = JeiBlockIngredientUtil.toBlockState(
             JeiBlockIngredientUtil.getDisplayedIngredient(recipeSlotsView, OUTPUT_BLOCK).orElse(null),
             recipe.outcomeStates()
@@ -256,8 +251,7 @@ public class MineralFountainCategory implements IRecipeCategory<MineralFountainJ
             JeiRecipeUtil.getRecipeHoldersFromType(ModRecipeTypes.MINERAL_FOUNTAIN_REPLACEMENT.get());
         List<MineralFountainJeiRecipe> displays = new ArrayList<>();
 
-        // 主动与被动在不同阶段执行，故各自分组；每组内并列的配方按权重瓜分产出，合并为一个条目。
-        // 替换生产逐个改写主动配方结果，语义不同，保持独立条目。
+        // 主动与被动执行阶段不同，各自分组；同组并列配方按权重瓜分产出。替换逐条改写主动结果，独立成项。
         Map<String, List<RecipeHolder<MineralFountainActiveRecipe>>> activeGroups = new LinkedHashMap<>();
         for (RecipeHolder<MineralFountainActiveRecipe> holder : activeRecipes) {
             if (holder.value().getAround().isEmpty()) continue;
@@ -275,8 +269,7 @@ public class MineralFountainCategory implements IRecipeCategory<MineralFountainJ
             displays.add(mergePassive(group));
         }
 
-        // 替换配方只在对应主动配方匹配时才会改写其结果，所以它的周围需求取决于被替换的主动配方。
-        // 例如地核碎片要求周围摆上任意四个同种粗矿块——这正是粗矿主动配方的需求。
+        // 替换只在某个主动配方匹配时生效，故其周围需求取自被替换的主动配方
         Map<ResourceLocation, MineralFountainActiveRecipe> activeById = new LinkedHashMap<>();
         for (RecipeHolder<MineralFountainActiveRecipe> holder : activeRecipes) {
             activeById.put(holder.id(), holder.value());
@@ -301,11 +294,8 @@ public class MineralFountainCategory implements IRecipeCategory<MineralFountainJ
         registration.addRecipes(AnvilCraftJeiPlugin.MINERAL_FOUNTAIN, displays);
     }
 
-    /**
-     * 把一组并列的主动配方合并为一个条目，结果按权重占比分摊概率。
-     */
-    private static MineralFountainJeiRecipe mergeActive(List<RecipeHolder<MineralFountainActiveRecipe>> group) {
-        MineralFountainActiveRecipe first = group.getFirst().value();
+    /** 合并一组并列的主动配方，结果按权重占比分摊概率。 */
+    private static MineralFountainJeiRecipe mergeActive(List<RecipeHolder<MineralFountainActiveRecipe>> group) {        MineralFountainActiveRecipe first = group.getFirst().value();
         int weightTotal = group.stream().mapToInt(holder -> holder.value().getWeight()).sum();
         List<MineralFountainJeiRecipe.Outcome> outcomes = new ArrayList<>();
         List<FluidStack> fluids = new ArrayList<>();
@@ -329,9 +319,7 @@ public class MineralFountainCategory implements IRecipeCategory<MineralFountainJ
         );
     }
 
-    /**
-     * 把一组并列的被动配方合并为一个条目，结果按权重占比分摊概率。
-     */
+    /** 合并一组并列的被动配方，结果按权重占比分摊概率。 */
     private static MineralFountainJeiRecipe mergePassive(List<RecipeHolder<MineralFountainPassiveRecipe>> group) {
         MineralFountainPassiveRecipe first = group.getFirst().value();
         int weightTotal = group.stream().mapToInt(holder -> holder.value().getWeight()).sum();
@@ -357,9 +345,7 @@ public class MineralFountainCategory implements IRecipeCategory<MineralFountainJ
         );
     }
 
-    /**
-     * 单条配方的最终产出概率：结果方块概率 × 组内权重占比。
-     */
+    /** 单条配方的最终产出概率：结果方块概率 × 组内权重占比。 */
     private static double shareOf(
         AbstractMineralFountainRecipe recipe,
         int weightTotal,
@@ -371,12 +357,7 @@ public class MineralFountainCategory implements IRecipeCategory<MineralFountainJ
         return own * recipe.getWeight() / (double) weightTotal;
     }
 
-    /**
-     * 主动配方的并列分组键。
-     *
-     * <p>只有「维度 + 优先级 + 材料方块 + 周围需求」都相同的配方才会同时匹配，
-     * 因而才会按权重瓜分产出；否则它们之间是靠优先级或匹配条件区分的，不构成竞争。</p>
-     */
+    /** 主动配方的并列分组键：条件完全相同才会同时匹配、才按权重瓜分产出。 */
     private static String activeGroupKey(MineralFountainActiveRecipe recipe) {
         return passiveGroupKey(recipe) + "#" + aroundKey(recipe.getAround());
     }
@@ -384,10 +365,8 @@ public class MineralFountainCategory implements IRecipeCategory<MineralFountainJ
     /**
      * 周围需求的结构化键。
      *
-     * <p>不能用 {@code toString()}：{@link AroundRequirement} 是 record，
-     * 其 {@code block} 字段是未重写 {@code toString()} 的 {@link BlockStatePredicate}，
-     * 因此 toString 里只有身份哈希——结构相同的两条配方会得到不同的键，无法分组。
-     * 这里改成按内容拼接。</p>
+     * <p>不能用 {@code toString()}：其中 {@link BlockStatePredicate} 未重写 toString，只含身份哈希，
+     * 结构相同的配方会得到不同的键。</p>
      */
     private static String aroundKey(List<AroundRequirement> around) {
         return around.stream()
@@ -396,10 +375,10 @@ public class MineralFountainCategory implements IRecipeCategory<MineralFountainJ
     }
 
     /**
-     * 方块谓词的结构化键：方块集合（标签或方块列表）、属性匹配器与 NBT 条件。
+     * 方块谓词的结构化键：方块集合、属性匹配器与 NBT 条件。
      *
-     * <p>手工拼接而不用 {@code BlockStatePredicate.CODEC}：该 codec 的 {@code blocks} 字段是
-     * {@code RegistryCodecs.homogeneousList}，编码需要 registry access，在 JEI 注册阶段编码会失败。</p>
+     * <p>不用 {@code BlockStatePredicate.CODEC}：其 {@code blocks} 需要 registry access，
+     * JEI 注册阶段编码会失败。</p>
      */
     private static String predicateKey(BlockStatePredicate predicate) {
         String blocks = predicate.getBlocks().unwrap().map(
@@ -423,18 +402,14 @@ public class MineralFountainCategory implements IRecipeCategory<MineralFountainJ
         return blocks + "[" + properties + "]" + "{" + nbts + "}";
     }
 
-    /**
-     * 被动配方的并列分组键：维度 + 优先级 + 材料方块。
-     */
+    /** 被动配方的并列分组键：维度 + 优先级 + 材料方块。 */
     private static String passiveGroupKey(AbstractMineralFountainRecipe recipe) {
         return recipe.getDimension().map(ResourceLocation::toString).orElse("*")
                + "#" + recipe.getPriority()
                + "#" + recipe.getFromBlock().getKey();
     }
 
-    /**
-     * 被替换的主动配方名；为空表示可替换任意主动配方。
-     */
+    /** 被替换的主动配方名；为空表示可替换任意主动配方。 */
     @Nullable
     private static Component replacementTarget(MineralFountainReplacementRecipe recipe) {
         List<ResourceLocation> replace = recipe.getReplace();
@@ -445,18 +420,14 @@ public class MineralFountainCategory implements IRecipeCategory<MineralFountainJ
     }
 
     /**
-     * 产出概率提示。
+     * 产出概率提示：按当前轮换到的方块给概率，100% 时不显示；替换概率单独列出。
      *
-     * <p>同一格内会轮换显示组内各个结果，因此这里按**当前显示**的方块给出其实际概率，
-     * 而不是只显示一个笼统值。概率为 100% 时不显示，没有信息量。
-     * 替换生产的改写概率单独列出。</p>
-     *
-     * @param displayed 当前显示的方块状态；为空时退回显示整体概率
+     * @param displayed 当前显示的方块；为空时退回整体概率
      */
     private static List<Component> getChanceTooltips(MineralFountainJeiRecipe recipe, @Nullable BlockState displayed) {
         List<Component> tooltips = new ArrayList<>();
         double chance = displayed == null ? recipe.totalChance() : recipe.chanceOf(displayed);
-        // 按显示时的取整判断，避免 99.96% 被格式化成 100% 却仍然显示
+        // 按取整后判断，避免 99.96% 被格式化成 100% 却仍然显示
         if (chance >= 0 && Math.round(chance * 100) < 100) {
             tooltips.add(
                 Component.translatable(
@@ -485,18 +456,10 @@ public class MineralFountainCategory implements IRecipeCategory<MineralFountainJ
     }
 
     /**
-     * 替换配方应展示的周围需求。
+     * 替换配方应展示的周围需求，取自被它改写的主动配方。
      *
-     * <p>替换只会在某个主动配方匹配时生效，所以它的周围需求就是被替换的主动配方的需求。
-     * {@code replace} 为空表示可替换任意主动配方，此时并入所有主动配方的需求；
-     * 若指定了配方 id，则只取这些配方的需求。</p>
-     *
-     * <p>此外要求两者能匹配同一个上方方块：替换与主动必须同时匹配才会发生，
-     * 材料方块不相容的配方（如熔岩配方的 {@code from_block} 是空气）永远不会共存，
-     * 不应把它的周围需求画进来。</p>
-     *
-     * <p>多个主动配方的需求会按方块合并成一项，因此「任意一种粗矿块 ×4」显示为一项，
-     * 而不是十几个各自成项的位置。</p>
+     * <p>要求两者能匹配同一个上方方块，否则永远不会共存（如熔岩配方的 {@code from_block} 是空气）；
+     * 多个主动配方的需求按方块合并成一项。</p>
      */
     private static List<MineralFountainJeiRecipe.SideRequirement> replacementAround(
         MineralFountainReplacementRecipe recipe,
@@ -516,12 +479,7 @@ public class MineralFountainCategory implements IRecipeCategory<MineralFountainJ
         return List.of(new MineralFountainJeiRecipe.SideRequirement(List.copyOf(states), count));
     }
 
-    /**
-     * 两个材料方块谓词是否存在交集，即能否匹配同一个上方方块。
-     *
-     * <p>用 {@code constructStatesForRender()} 取候选状态再互相匹配；
-     * 谓词为空（不限制方块）时没有候选状态，视为可与任意方块共存。</p>
-     */
+    /** 两个材料方块谓词能否匹配同一个上方方块；谓词不限制方块时视为可与任意方块共存。 */
     private static boolean sharesFromBlock(BlockStatePredicate first, BlockStatePredicate second) {
         List<BlockState> firstStates = first.constructStatesForRender();
         List<BlockState> secondStates = second.constructStatesForRender();
@@ -530,11 +488,8 @@ public class MineralFountainCategory implements IRecipeCategory<MineralFountainJ
                || secondStates.stream().anyMatch(first::testWithoutEntity);
     }
 
-    /**
-     * 主动配方的周围需求，保留各自的数量。
-     */
-    private static List<MineralFountainJeiRecipe.SideRequirement> sideRequirements(MineralFountainActiveRecipe recipe) {
-        return recipe.getAround().stream()
+    /** 主动配方的周围需求，保留各自数量。 */
+    private static List<MineralFountainJeiRecipe.SideRequirement> sideRequirements(MineralFountainActiveRecipe recipe) {        return recipe.getAround().stream()
             .map(requirement -> new MineralFountainJeiRecipe.SideRequirement(
                 requirement.block().constructStatesForRender(),
                 requirement.count()
@@ -546,9 +501,7 @@ public class MineralFountainCategory implements IRecipeCategory<MineralFountainJ
         registration.addRecipeCatalyst(ModBlocks.MINERAL_FOUNTAIN.asStack(), AnvilCraftJeiPlugin.MINERAL_FOUNTAIN);
     }
 
-    /**
-     * 渲染某个底座位置当前轮换到的方块。
-     */
+    /** 渲染某个底座位置当前轮换到的方块。 */
     private static void renderSideSlot(
         GuiGraphics guiGraphics,
         IRecipeSlotsView recipeSlotsView,

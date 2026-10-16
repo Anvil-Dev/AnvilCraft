@@ -44,10 +44,10 @@ public class MineralFountainReplacementRecipe extends AbstractMineralFountainRec
         Optional<MineralFountainHeat> heat,
         Optional<FluidStack> toFluid
     ) {
-        // 替换生产不使用权重：候选按优先级逐个掷 chance 尝试，故固定为默认权重
+        // 替换不使用权重：候选按优先级逐个掷 chance，故固定为默认权重
         super(dimension, height, priority, DEFAULT_WEIGHT, fromBlock, toBlock, heat, toFluid);
         this.replace = List.copyOf(replace);
-        // 数据包不受 validate() 约束，这里直接夹紧，保证概率语义始终成立
+        // 数据包不受 validate() 约束，这里直接夹紧
         this.chance = Math.clamp(chance, 0.0, 1.0);
     }
 
@@ -59,9 +59,7 @@ public class MineralFountainReplacementRecipe extends AbstractMineralFountainRec
         return this.chance;
     }
 
-    /**
-     * 判断本替换是否适用于给定的主动配方。
-     */
+    /** 判断本替换是否适用于给定的主动配方。 */
     public boolean appliesTo(@Nullable ResourceLocation activeRecipeId) {
         return this.replace.isEmpty() || (activeRecipeId != null && this.replace.contains(activeRecipeId));
     }

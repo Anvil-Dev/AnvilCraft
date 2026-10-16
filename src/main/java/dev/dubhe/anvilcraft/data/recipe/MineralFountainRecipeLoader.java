@@ -36,9 +36,7 @@ public class MineralFountainRecipeLoader {
         mineralFountainDeepslate(provider, ModBlockTags.STORAGE_BLOCKS_RAW_TUNGSTEN, ModBlocks.DEEPSLATE_TUNGSTEN_ORE.get());
         mineralFountainDeepslate(provider, ModBlockTags.STORAGE_BLOCKS_RAW_URANIUM, ModBlocks.DEEPSLATE_URANIUM_ORE.get());
 
-        // 熔岩：四周皆为熔岩「源」时向上方生成熔岩，并向上方供热。
-        // level=0 即熔岩源；旧版 getAroundBlock() 同样只认源，流动熔岩不计入。
-        // to_fluid 让上方的排水口直接接住熔岩；没有排水口时仍按 to_block 在上方放置熔岩方块。
+        // 熔岩：四周皆为熔岩源时向上方生成熔岩并供热；有排水口则直接灌入，否则放置熔岩方块
         MineralFountainActiveRecipe.builder()
             .fromBlock(from(Blocks.AIR))
             .require(new AroundRequirement(liquidSource(Blocks.LAVA), 4))
@@ -48,16 +46,14 @@ public class MineralFountainRecipeLoader {
             .save(provider, "lava");
 
         // 粗矿配方有概率被替换：主世界为虚空石或地核碎片矿，下界 / 末地概率更高。
-        // 不写 replace 列表 ⇒ 按 issue #5393 语义可替换任意主动配方；
-        // 实际只会命中材料方块相容的粗矿配方（熔岩配方的 from_block 是空气，不会共存）
+        // 不写 replace 列表 ⇒ 可替换任意主动配方，实际只命中材料相容的粗矿配方
         replacement(provider, Level.OVERWORLD, ModBlocks.VOID_STONE.get(), 0.01);
         replacement(provider, Level.OVERWORLD, ModBlocks.EARTH_CORE_SHARD_ORE.get(), 0.01);
         replacement(provider, Level.NETHER, ModBlocks.EARTH_CORE_SHARD_ORE.get(), 0.1);
         replacement(provider, Level.END, ModBlocks.VOID_STONE.get(), 0.1);
 
         // 被动生产：无主动匹配且上方为空气时产出。
-        // 下界 / 末地为对应粉尘与火山灰同优先级、同权重各半；
-        // 其余维度由无维度、低优先级的火山灰兜底
+        // 下界 / 末地为粉尘与火山灰各半；其余维度由无维度、低优先级的火山灰兜底
         MineralFountainPassiveRecipe.builder()
             .priority(-1)
             .toBlock(result(ModBlocks.CINERITE.get()))

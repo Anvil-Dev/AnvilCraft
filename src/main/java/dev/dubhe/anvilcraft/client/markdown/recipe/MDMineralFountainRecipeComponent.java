@@ -135,9 +135,7 @@ public class MDMineralFountainRecipeComponent extends MDRecipeComponent {
         this.replaceChance = replaceChance;
     }
 
-    /**
-     * 主动配方需求表中出现的方块，用于侧边展示。
-     */
+    /** 主动配方需求表中的方块，用于侧边展示。 */
     private static List<BlockState> aroundBlocks(MineralFountainActiveRecipe recipe) {
         Set<BlockState> states = new LinkedHashSet<>();
         for (AroundRequirement requirement : recipe.getAround()) {
@@ -147,11 +145,9 @@ public class MDMineralFountainRecipeComponent extends MDRecipeComponent {
     }
 
     /**
-     * 替换配方应展示的周围需求。
+     * 替换配方应展示的周围需求，取自被它改写的主动配方。
      *
-     * <p>替换只会在某个主动配方匹配时生效，因此它的周围需求取自被替换的主动配方；
-     * {@code replace} 为空表示可替换任意主动配方。此外要求两者能匹配同一个上方方块，
-     * 否则永远不会共存（如熔岩配方的 {@code from_block} 是空气）。</p>
+     * <p>要求两者能匹配同一个上方方块，否则永远不会共存（如熔岩配方的 {@code from_block} 是空气）。</p>
      */
     private static List<BlockState> replacementAround(MineralFountainReplacementRecipe recipe) {
         Minecraft minecraft = Minecraft.getInstance();
@@ -166,11 +162,7 @@ public class MDMineralFountainRecipeComponent extends MDRecipeComponent {
         return List.copyOf(states);
     }
 
-    /**
-     * 两个材料方块谓词是否存在交集，即能否匹配同一个上方方块。
-     *
-     * <p>谓词为空（不限制方块）时没有候选状态，视为可与任意方块共存。</p>
-     */
+    /** 两个材料方块谓词能否匹配同一个上方方块；谓词不限制方块时视为可与任意方块共存。 */
     private static boolean sharesFromBlock(BlockStatePredicate first, BlockStatePredicate second) {
         List<BlockState> firstStates = first.constructStatesForRender();
         List<BlockState> secondStates = second.constructStatesForRender();

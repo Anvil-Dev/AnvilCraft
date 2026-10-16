@@ -34,7 +34,6 @@ import java.util.Optional;
 public class MineralFountainActiveRecipe extends AbstractMineralFountainRecipe {
     /** 周围方块需求表，全部满足才算匹配。 */
     private final List<AroundRequirement> around;
-
     public MineralFountainActiveRecipe(
         Optional<ResourceLocation> dimension,
         HeightRange height,
@@ -69,7 +68,7 @@ public class MineralFountainActiveRecipe extends AbstractMineralFountainRecipe {
     /**
      * 只判定世界类型、高度范围与周围方块需求，不含材料方块。
      *
-     * <p>供热查询用：上方是容器等情况下材料方块不匹配，但供热仍应生效。</p>
+     * <p>供热与滴液查询用：上方是排水口时材料方块不匹配，但二者仍应生效。</p>
      */
     public boolean matchesContextAndAround(MineralFountainRecipeInput input, Level level) {
         return this.matchesContext(input, level) && this.matchesAround(input);
@@ -183,9 +182,7 @@ public class MineralFountainActiveRecipe extends AbstractMineralFountainRecipe {
             return this;
         }
 
-        /**
-         * 添加一项需求：四方相邻中至少有 {@code count} 个匹配 {@code block} 的方块。
-         */
+        /** 添加一项需求：四方相邻中至少有 {@code count} 个匹配 {@code block} 的方块。 */
         public Builder require(AroundRequirement requirement) {
             List<AroundRequirement> list = new ArrayList<>(this.around);
             list.add(requirement);

@@ -22,35 +22,28 @@ import java.util.function.ToIntFunction;
 
 /**
  * 矿物涌泉配方的公共部分：高度范围、世界类型、优先级、权重、材料方块与结果方块。
- *
- * <p>三类配方（被动 / 主动 / 替换）共享这些字段，只有额外的匹配条件与执行时机不同。</p>
  */
 @Getter
 public abstract class AbstractMineralFountainRecipe implements Recipe<MineralFountainRecipeInput> {
-    /** 材料方块的默认值：空气，即「上方为空」时也可生效。 */
+    /** 材料方块默认值：空气，即「上方为空」时也可生效。 */
     public static final BlockStatePredicate DEFAULT_FROM = BlockStatePredicate.builder().of(Blocks.AIR).build();
     /** 权重默认值：同优先级并列时等概率。 */
     public static final int DEFAULT_WEIGHT = 1;
 
-    /** 生效的世界类型；为空表示任意世界。 */
+    /** 为空表示任意世界。 */
     private final Optional<ResourceLocation> dimension;
-    /** 生效的高度范围。 */
     private final HeightRange height;
-    /** 优先级，越大越先尝试。 */
+    /** 越大越先尝试。 */
     private final int priority;
-    /** 同优先级并列时的抽取权重，越大越容易被选中。 */
+    /** 同优先级并列时的抽取权重。 */
     private final int weight;
-    /** 上方待转化的材料方块；为空谓词表示任意方块（即空气时也可用）。 */
     private final BlockStatePredicate fromBlock;
-    /** 结果方块，必填。 */
     private final ChanceBlockState toBlock;
-    /** 满足条件时提供的加热能力；为空表示不加热。 */
     private final Optional<MineralFountainHeat> heat;
     /**
-     * 上方为排水口时的流体产出；为空表示无流体产出。
+     * 上方为排水口时的流体产出。
      *
-     * <p>与 {@link #heat} 同为「只看上下文与周围方块」的产出，不受材料方块限制：
-     * 上方放的是排水口而非空气，材料方块条件天然不成立。</p>
+     * <p>与 {@link #heat} 同样不判材料方块：上方是排水口而非空气，材料条件天然不成立。</p>
      */
     private final Optional<FluidStack> toFluid;
 
@@ -74,9 +67,7 @@ public abstract class AbstractMineralFountainRecipe implements Recipe<MineralFou
         this.toFluid = toFluid;
     }
 
-    /**
-     * 只判定世界类型与高度范围，不含材料方块。
-     */
+    /** 只判世界类型与高度范围，不含材料方块。 */
     protected boolean matchesContext(MineralFountainRecipeInput input, Level level) {
         if (this.dimension.isPresent() && !this.dimension.get().equals(level.dimension().location())) {
             return false;
@@ -84,16 +75,10 @@ public abstract class AbstractMineralFountainRecipe implements Recipe<MineralFou
         return this.height.test(level, input.pos());
     }
 
-    /**
-     * 三类配方共有的匹配条件：世界类型、高度范围与材料方块。
-     */
     protected boolean matchesCommon(MineralFountainRecipeInput input, Level level) {
         return this.matchesContext(input, level) && this.fromBlock.testWithoutEntity(input.from());
     }
 
-    /**
-     * 结果方块的抽取概率。
-     */
     public double chance(ServerLevel level) {
         return this.toBlock.chance().getFloat(RecipeUtil.emptyLootContext(level));
     }
@@ -101,13 +86,7 @@ public abstract class AbstractMineralFountainRecipe implements Recipe<MineralFou
     /**
      * 在一组同优先级的候选中按权重随机取一个。
      *
-     * <p>权重非正的条目视为不参与抽取；若全部非正则退回等概率，
-     * 避免抽取失败导致配方整体不产出。</p>
-     *
-     * @param random 随机源
-     * @param picked 候选列表，调用方需保证非空
-     * @param weight 权重取值函数
-     * @return 被选中的候选
+     * <p>权重非正的条目不参与；若全部非正则退回等概率，避免整体不产出。</p>
      */
     public static <T> T pickWeighted(
         RandomSource random,
