@@ -4,6 +4,7 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.entity.fluid.ControlValveBlockEntity;
 import dev.dubhe.anvilcraft.client.gui.component.FluidRateSlider;
 import dev.dubhe.anvilcraft.client.gui.component.TexturedButton;
+import dev.dubhe.anvilcraft.client.renderer.item.FilterItemRenderer;
 import dev.dubhe.anvilcraft.constant.Constant;
 import dev.dubhe.anvilcraft.constant.SharedTextures;
 import dev.dubhe.anvilcraft.init.item.ModItems;
@@ -24,6 +25,7 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.TooltipFlag;
 import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions;
 import net.neoforged.neoforge.fluids.FluidStack;
@@ -51,6 +53,18 @@ public class ControlValveScreen extends AbstractContainerScreen<ControlValveMenu
     private static final int FILTER_Y = ControlValveMenu.FILTER_Y;
     /** JEI 幽灵目标用的虚拟槽索引（本菜单无过滤槽，用 0 占位） */
     private static final int FILTER_GHOST_ID = 0;
+
+    /** 流体贴图的 blit 偏移：需大于 renderItem 使用的 z=150 才能盖在物品之上 */
+    private static final int FLUID_SPRITE_BLIT_OFFSET = 200;
+
+    /** 黑名单屏障：需高于流体贴图，故在 renderItem 的 z=150 之上再抬一段 */
+    private static final int BARRIER_EXTRA_Z = 100;
+
+    /** 黑名单屏障相对格子的缩放：0.5 = 8px，与流体图标同尺寸，缩放此值即可调整屏障大小 */
+    private static final float BARRIER_SCALE = 0.5f;
+
+    /** 黑名单屏障图标 */
+    private static final ItemStack DENY_BARRIER = Items.BARRIER.getDefaultInstance();
 
     /** 客户端本地过滤流体缓存（服务端回传更新） */
     private FluidStack filterFluid = FluidStack.EMPTY;
@@ -262,6 +276,26 @@ public class ControlValveScreen extends AbstractContainerScreen<ControlValveMenu
         guiGraphics.blit(BACKGROUND, this.leftPos, this.topPos, 0, 0, this.imageWidth, this.imageHeight, 256, 256);
     }
 
+    /**
+     * 在当前过滤格上叠加黑名单屏障。
+     *
+     * <p>屏障必须画在流体图标之上，而它原本由 {@code FilterItemRenderer} 在渲染本体时一并绘制、
+     * 无法保证高于流体图标，因此这里由屏幕在流体之后单独补画。</p>
+     *
+     * @param guiGraphics 画布
+     * @param fx          过滤格 X 坐标
+     * @param fy          过滤格 Y 坐标
+     */
+    private void renderDenyBarrier(GuiGraphics guiGraphics, int fx, int fy) {
+        guiGraphics.pose().pushPose();
+        // 内层 renderItem 自带 z=150，这里再抬 Z 使其高于流体图标的 blitOffset
+        guiGraphics.pose().translate(fx + 8, fy + 8, BARRIER_EXTRA_Z);
+        guiGraphics.pose().scale(BARRIER_SCALE, BARRIER_SCALE, 1.0f);
+        // 以格心为基准缩放：renderItem 自 (x+8, y+8) 起画 16×16
+        guiGraphics.renderItem(DENY_BARRIER, -8, -8);
+        guiGraphics.pose().popPose();
+    }
+
     /** 在 (x,y) 处画 size×size 的流体静态贴图（取自方块图集，带色调）。 */
     private void renderFluidSprite(GuiGraphics guiGraphics, FluidStack fluid, int x, int y, int size) {
         IClientFluidTypeExtensions ext = IClientFluidTypeExtensions.of(fluid.getFluid());
@@ -269,7 +303,8 @@ public class ControlValveScreen extends AbstractContainerScreen<ControlValveMenu
             .getTextureAtlas(InventoryMenu.BLOCK_ATLAS)
             .apply(ext.getStillTexture(fluid));
         int tint = ext.getTintColor(fluid);
-        guiGraphics.blit(x, y, 0, size, size, sprite, FastColor.ARGB32.red(tint) / 255f,
+        // 物品经 renderItem 画在 z=150，这里取更大的 blitOffset 才能盖在其上
+        guiGraphics.blit(x, y, FLUID_SPRITE_BLIT_OFFSET, size, size, sprite, FastColor.ARGB32.red(tint) / 255f,
             FastColor.ARGB32.green(tint) / 255f, FastColor.ARGB32.blue(tint) / 255f, 1.0f);
     }
 
@@ -318,21 +353,27 @@ public class ControlValveScreen extends AbstractContainerScreen<ControlValveMenu
         super.render(guiGraphics, mouseX, mouseY, partialTick);
         int fx = this.leftPos + FILTER_X;
         int fy = this.topPos + FILTER_Y;
-        // 过滤格（非物品槽）：放入过滤器时以过滤器贴图为底、其内流体图标缩小叠在中央，否则只画白名单流体贴图
+        // 悬停时叠加与物品槽一致的白色半透明高亮，让它看起来像可放入的格子。
+        // 高亮的 z 为 0，必须画在物品 / 流体图标之前，否则会被它们盖住。
+        boolean hovered = this.isHovering(FILTER_X, FILTER_Y, 16, 16, mouseX, mouseY);
+        if (hovered) {
+            guiGraphics.fillGradient(fx, fy, fx + 16, fy + 16, 0x80FFFFFF, 0x80FFFFFF);
+        }
+        // 过滤格（非物品槽）：放入过滤器时只画过滤器本体，其中的流体改以流体图标呈现，否则画白名单流体贴图
         FluidStack displayed = this.displayedFilterFluid();
         if (this.filterItem.isEmpty()) {
             if (!displayed.isEmpty()) {
                 this.renderFluidSprite(guiGraphics, displayed, fx, fy, 16);
             }
         } else {
-            guiGraphics.renderItem(this.filterItem, fx, fy);
+            // 顺序：过滤器本体 → 流体图标 → 黑名单屏障，屏障须盖在流体之上
+            FilterItemRenderer.withBodyOnly(() -> guiGraphics.renderItem(this.filterItem, fx, fy));
             if (!displayed.isEmpty()) {
                 this.renderFluidSprite(guiGraphics, displayed, fx + 4, fy + 4, 8);
             }
-        }
-        // 悬停时叠加与物品槽一致的白色半透明高亮，让它看起来像可放入的格子
-        if (this.isHovering(FILTER_X, FILTER_Y, 16, 16, mouseX, mouseY)) {
-            guiGraphics.fillGradient(fx, fy, fx + 16, fy + 16, 0x80FFFFFF, 0x80FFFFFF);
+            if (FilterItemRenderer.isDenyList(this.filterItem)) {
+                this.renderDenyBarrier(guiGraphics, fx, fy);
+            }
         }
         // 红石锁定提示文字（滑动条内）
         if (locked) {
