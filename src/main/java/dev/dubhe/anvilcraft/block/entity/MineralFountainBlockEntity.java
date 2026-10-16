@@ -105,16 +105,20 @@ public class MineralFountainBlockEntity extends BlockEntity {
     }
 
     /**
-     * 把配方声明的流体灌入上方的排水口；灌不进去（已满）就作罢，下个周期再试。
+     * 把配方声明的流体灌入上方的排水口。
+     *
+     * <p>按剩余空间灌注，允许只灌一部分：排水口容量固定（默认 4B），
+     * 若要求「整整一份都装得下」才灌，剩余空间不足一份时会一滴不进，
+     * 于是永久卡在半满状态。这里直接把请求交给储罐，由它灌满为止。</p>
+     *
+     * <p>已满、或罐内是别的流体时 {@code fill} 返回 0，不会混入异种流体。</p>
      */
     private void fillDrain(RecipeHolder<MineralFountainActiveRecipe> recipe) {
         if (this.level == null) return;
         if (!(this.level.getBlockEntity(this.getBlockPos().above()) instanceof DrainBlockEntity drain)) return;
         FluidStack fluid = recipe.value().getToFluid().orElse(null);
         if (fluid == null || fluid.isEmpty()) return;
-        IFluidHandler handler = drain.getFluidHandler();
-        if (handler.fill(fluid, IFluidHandler.FluidAction.SIMULATE) != fluid.getAmount()) return;
-        handler.fill(fluid, IFluidHandler.FluidAction.EXECUTE);
+        drain.getFluidHandler().fill(fluid, IFluidHandler.FluidAction.EXECUTE);
     }
 
     /**
