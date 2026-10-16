@@ -19,6 +19,7 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
 import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.FluidUtil;
@@ -27,6 +28,9 @@ import net.neoforged.neoforge.network.PacketDistributor;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
+
+import static dev.dubhe.anvilcraft.util.FluidUtil.getFilterTooltip;
 
 /**
  * 控制阀 GUI。上方过滤格设置允许通过的流体；下方滑条 + 按钮 + 数字框设置最大流速（0~2000 mB/tick）。
@@ -220,6 +224,37 @@ public class ControlValveScreen extends AbstractContainerScreen<ControlValveMenu
             FastColor.ARGB32.green(tint) / 255f, FastColor.ARGB32.blue(tint) / 255f, 1.0f);
     }
 
+    /**
+     * 渲染过滤格中流体的提示框
+     *
+     * <p>过滤格不是物品槽，流体只是画上去的贴图，原版不会为它显示任何提示框，
+     * 因此这里按流体方块的样式补上。</p>
+     *
+     * @param guiGraphics 画布
+     * @param mouseX      鼠标 X 坐标
+     * @param mouseY      鼠标 Y 坐标
+     */
+    private void renderFilterFluidTooltip(GuiGraphics guiGraphics, int mouseX, int mouseY) {
+        if (this.filterFluid.isEmpty()) {
+            return;
+        }
+        if (!this.isHovering(FILTER_X, FILTER_Y, 16, 16, mouseX, mouseY)) {
+            return;
+        }
+        guiGraphics.renderTooltip(
+            this.font,
+            getFilterTooltip(
+                this.filterFluid,
+                Minecraft.getInstance().options.advancedItemTooltips
+                ? TooltipFlag.ADVANCED.asCreative()
+                : TooltipFlag.NORMAL.asCreative()
+            ),
+            Optional.empty(),
+            mouseX,
+            mouseY
+        );
+    }
+
     @Override
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         // 红石锁定：流速为 0 且不可编辑
@@ -252,5 +287,6 @@ public class ControlValveScreen extends AbstractContainerScreen<ControlValveMenu
         guiGraphics.drawString(this.font, "mB", this.leftPos + 114, this.topPos + 58, 0xFFFFFF, false);
 
         this.renderTooltip(guiGraphics, mouseX, mouseY);
+        this.renderFilterFluidTooltip(guiGraphics, mouseX, mouseY);
     }
 }
