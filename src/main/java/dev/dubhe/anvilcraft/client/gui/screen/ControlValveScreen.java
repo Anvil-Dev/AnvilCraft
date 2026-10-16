@@ -1,12 +1,17 @@
 package dev.dubhe.anvilcraft.client.gui.screen;
 
+import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.block.entity.fluid.ControlValveBlockEntity;
 import dev.dubhe.anvilcraft.client.gui.component.FluidRateSlider;
 import dev.dubhe.anvilcraft.client.gui.component.TexturedButton;
 import dev.dubhe.anvilcraft.constant.Constant;
 import dev.dubhe.anvilcraft.constant.SharedTextures;
+import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.inventory.ControlValveMenu;
+import dev.dubhe.anvilcraft.network.ControlValveFilterItemPacket;
 import dev.dubhe.anvilcraft.network.ControlValveFilterPacket;
 import dev.dubhe.anvilcraft.network.ControlValveUpdatePacket;
+import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.EditBox;
@@ -22,10 +27,9 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions;
 import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.FluidUtil;
-import net.neoforged.neoforge.fluids.capability.IFluidHandlerItem;
 import net.neoforged.neoforge.network.PacketDistributor;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -50,6 +54,9 @@ public class ControlValveScreen extends AbstractContainerScreen<ControlValveMenu
 
     /** 客户端本地过滤流体缓存（服务端回传更新） */
     private FluidStack filterFluid = FluidStack.EMPTY;
+
+    /** 客户端本地过滤器物品缓存（服务端回传更新） */
+    private ItemStack filterItem = ItemStack.EMPTY;
 
     private FluidRateSlider slider;
     private EditBox valueBox;
@@ -115,6 +122,25 @@ public class ControlValveScreen extends AbstractContainerScreen<ControlValveMenu
         this.filterFluid = fluid;
     }
 
+    /** 过滤器物品被服务端回传更新。 */
+    public void setFilterItem(ItemStack filterItem) {
+        this.filterItem = filterItem;
+    }
+
+    /**
+     * 当前过滤格应展示的流体。
+     *
+     * <p>放入过滤器物品时轮播其内容解析出的多种流体，否则直接用单流体白名单。</p>
+     */
+    private FluidStack displayedFilterFluid() {
+        if (this.filterItem.isEmpty()) return this.filterFluid;
+        List<FluidStack> fluids = ControlValveBlockEntity.resolveFluids(this.filterItem);
+        if (fluids.isEmpty()) return FluidStack.EMPTY;
+        int interval = Math.max(1, AnvilCraft.CLIENT_CONFIG.ui.filterItemDisplayIntervalMillis);
+        int index = (int) Math.floorMod(Util.getMillis() / interval, fluids.size());
+        return fluids.get(index);
+    }
+
     private void onSliderChange(int value) {
         if (this.isLocked()) {
             return;
@@ -155,22 +181,54 @@ public class ControlValveScreen extends AbstractContainerScreen<ControlValveMenu
 
     @Override
     public void acceptGhost(Slot slot, ItemStack ingredient) {
-        // 物品拖入 → 尝试解析其流体（有桶物品的流体）
-        FluidStack fluid = fluidOf(ingredient);
+        // 物品拖入 → 过滤器直接放入过滤格，其余尝试解析其流体（有桶物品的流体）
+        if (ingredient.is(ModItems.FILTER)) {
+            this.setFilterItem(ingredient.copyWithCount(1));
+            PacketDistributor.sendToServer(new ControlValveFilterItemPacket(ingredient.copyWithCount(1)));
+            return;
+        }
+        FluidStack fluid = ControlValveBlockEntity.fluidOf(ingredient);
+        this.setFilter(0, fluid);
         PacketDistributor.sendToServer(new ControlValveFilterPacket(0, fluid));
     }
 
     @Override
     public void acceptFluidGhost(int slotIndex, FluidStack fluid) {
+        // 拖入流体视为手动设置白名单，同时取出过滤器，避免两者判定叠加
+        if (!this.filterItem.isEmpty()) {
+            this.setFilterItem(ItemStack.EMPTY);
+            PacketDistributor.sendToServer(new ControlValveFilterItemPacket(ItemStack.EMPTY));
+        }
+        this.setFilter(0, fluid);
         PacketDistributor.sendToServer(new ControlValveFilterPacket(0, fluid));
     }
 
-    /** 左键点击过滤格：手持桶→设为其流体；空手→清空。同时把左键转发给滑条以支持拖动。 */
+    /**
+     * 左键点击过滤格：
+     * <ul>
+     *   <li>手持过滤器 → 放入过滤器，按过滤器内容过滤多种流体；</li>
+     *   <li>手持其他能解析出流体的物品（桶等）→ 设为单流体白名单；</li>
+     *   <li>空手 → 取出过滤器并清空单流体白名单。</li>
+     * </ul>
+     * 同时把左键转发给滑条以支持拖动。
+     */
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
         if (this.isHovering(FILTER_X, FILTER_Y, 16, 16, mouseX, mouseY)) {
             ItemStack carried = this.getMenu().getCarried();
-            FluidStack fluid = fluidOf(carried); // 空手或非桶 → EMPTY（清空）
+            if (carried.is(ModItems.FILTER)) {
+                ItemStack placed = carried.copyWithCount(1);
+                this.setFilterItem(placed);
+                PacketDistributor.sendToServer(new ControlValveFilterItemPacket(placed));
+                return true;
+            }
+            if (!this.filterItem.isEmpty()) {
+                this.setFilterItem(ItemStack.EMPTY);
+                PacketDistributor.sendToServer(new ControlValveFilterItemPacket(ItemStack.EMPTY));
+            }
+            // 空手或非桶 → EMPTY（清空单流体白名单）
+            FluidStack fluid = ControlValveBlockEntity.fluidOf(carried);
+            this.setFilter(0, fluid);
             PacketDistributor.sendToServer(new ControlValveFilterPacket(0, fluid));
             return true;
         }
@@ -204,23 +262,14 @@ public class ControlValveScreen extends AbstractContainerScreen<ControlValveMenu
         guiGraphics.blit(BACKGROUND, this.leftPos, this.topPos, 0, 0, this.imageWidth, this.imageHeight, 256, 256);
     }
 
-    /** 从桶类物品解析其所含流体。 */
-    private static FluidStack fluidOf(ItemStack stack) {
-        if (stack.isEmpty()) {
-            return FluidStack.EMPTY;
-        }
-        IFluidHandlerItem handler = FluidUtil.getFluidHandler(stack.copyWithCount(1)).orElse(null);
-        return handler == null ? FluidStack.EMPTY : handler.getFluidInTank(0);
-    }
-
-    /** 在 (x,y) 处画 16×16 的流体静态贴图（取自方块图集，带色调）。 */
-    private void renderFluidSprite(GuiGraphics guiGraphics, FluidStack fluid, int x, int y) {
+    /** 在 (x,y) 处画 size×size 的流体静态贴图（取自方块图集，带色调）。 */
+    private void renderFluidSprite(GuiGraphics guiGraphics, FluidStack fluid, int x, int y, int size) {
         IClientFluidTypeExtensions ext = IClientFluidTypeExtensions.of(fluid.getFluid());
         TextureAtlasSprite sprite = Minecraft.getInstance()
             .getTextureAtlas(InventoryMenu.BLOCK_ATLAS)
             .apply(ext.getStillTexture(fluid));
         int tint = ext.getTintColor(fluid);
-        guiGraphics.blit(x, y, 0, 16, 16, sprite, FastColor.ARGB32.red(tint) / 255f,
+        guiGraphics.blit(x, y, 0, size, size, sprite, FastColor.ARGB32.red(tint) / 255f,
             FastColor.ARGB32.green(tint) / 255f, FastColor.ARGB32.blue(tint) / 255f, 1.0f);
     }
 
@@ -235,24 +284,25 @@ public class ControlValveScreen extends AbstractContainerScreen<ControlValveMenu
      * @param mouseY      鼠标 Y 坐标
      */
     private void renderFilterFluidTooltip(GuiGraphics guiGraphics, int mouseX, int mouseY) {
-        if (this.filterFluid.isEmpty()) {
-            return;
-        }
         if (!this.isHovering(FILTER_X, FILTER_Y, 16, 16, mouseX, mouseY)) {
             return;
         }
-        guiGraphics.renderTooltip(
-            this.font,
-            getFilterTooltip(
-                this.filterFluid,
-                Minecraft.getInstance().options.advancedItemTooltips
-                ? TooltipFlag.ADVANCED.asCreative()
-                : TooltipFlag.NORMAL.asCreative()
-            ),
-            Optional.empty(),
-            mouseX,
-            mouseY
-        );
+        TooltipFlag flag = Minecraft.getInstance().options.advancedItemTooltips
+            ? TooltipFlag.ADVANCED.asCreative()
+            : TooltipFlag.NORMAL.asCreative();
+        // 过滤器内可含多种流体，一次列出全部，而不是只显示轮播到的那一个
+        List<FluidStack> fluids = this.filterItem.isEmpty()
+            ? (this.filterFluid.isEmpty() ? List.of() : List.of(this.filterFluid))
+            : ControlValveBlockEntity.resolveFluids(this.filterItem);
+        if (fluids.isEmpty()) {
+            return;
+        }
+        List<Component> lines = new ArrayList<>();
+        for (FluidStack fluid : fluids) {
+            if (!lines.isEmpty()) lines.add(Component.empty());
+            lines.addAll(getFilterTooltip(fluid, flag));
+        }
+        guiGraphics.renderTooltip(this.font, lines, Optional.empty(), mouseX, mouseY);
     }
 
     @Override
@@ -268,9 +318,17 @@ public class ControlValveScreen extends AbstractContainerScreen<ControlValveMenu
         super.render(guiGraphics, mouseX, mouseY, partialTick);
         int fx = this.leftPos + FILTER_X;
         int fy = this.topPos + FILTER_Y;
-        // 过滤格（非物品槽）：绘制白名单流体贴图
-        if (!this.filterFluid.isEmpty()) {
-            this.renderFluidSprite(guiGraphics, this.filterFluid, fx, fy);
+        // 过滤格（非物品槽）：放入过滤器时以过滤器贴图为底、其内流体图标缩小叠在中央，否则只画白名单流体贴图
+        FluidStack displayed = this.displayedFilterFluid();
+        if (this.filterItem.isEmpty()) {
+            if (!displayed.isEmpty()) {
+                this.renderFluidSprite(guiGraphics, displayed, fx, fy, 16);
+            }
+        } else {
+            guiGraphics.renderItem(this.filterItem, fx, fy);
+            if (!displayed.isEmpty()) {
+                this.renderFluidSprite(guiGraphics, displayed, fx + 4, fy + 4, 8);
+            }
         }
         // 悬停时叠加与物品槽一致的白色半透明高亮，让它看起来像可放入的格子
         if (this.isHovering(FILTER_X, FILTER_Y, 16, 16, mouseX, mouseY)) {

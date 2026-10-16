@@ -21,9 +21,8 @@ public enum ControlValveProvider implements IBlockComponentProvider {
     public void appendTooltip(ITooltip tooltip, BlockAccessor accessor, IPluginConfig config) {
         if (!(accessor.getBlockEntity() instanceof ControlValveBlockEntity valve)) return;
 
-        FluidStack filter = valve.getFilter(0);
-        if (!filter.isEmpty()) {
-            IElementHelper helper = IElementHelper.get();
+        IElementHelper helper = IElementHelper.get();
+        for (FluidStack filter : valve.getFilteredFluids()) {
             JadeFluidObject fluidObject = JadeFluidObject.of(
                 filter.getFluid(),
                 filter.getAmount(),
