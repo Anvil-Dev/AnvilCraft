@@ -21,6 +21,7 @@ import net.neoforged.neoforge.network.PacketDistributor;
 import java.util.Collection;
 import java.util.List;
 import java.util.function.BiFunction;
+import javax.annotation.Nullable;
 
 /**
  * 有过滤的 GUI
@@ -154,6 +155,15 @@ public interface IFilterScreen<T extends AbstractContainerMenu & IFilterMenu> ex
             this.renderFilterItem(guiGraphics, slot, filter);
         }
         this.renderSlotLimit(guiGraphics, slot);
+    }
+
+    default ItemStack getHoveredFilterItem(@Nullable Slot slot) {
+        if (!(slot instanceof SlotItemHandlerWithFilter filterSlot)) return ItemStack.EMPTY;
+        if (!filterSlot.isFilter()) return ItemStack.EMPTY;
+        if (filterSlot.hasItem()) return ItemStack.EMPTY;
+        int slotIndex = filterSlot.getContainerSlot();
+        if (this.isSlotDisabled(slotIndex)) return ItemStack.EMPTY;
+        return this.getFilter(slotIndex);
     }
 
     /**

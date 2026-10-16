@@ -112,7 +112,22 @@ public class BatchCrafterScreen extends BaseMachineScreen<BatchCrafterMenu> impl
     @Override
     protected void renderTooltip(GuiGraphics guiGraphics, int x, int y) {
         super.renderTooltip(guiGraphics, x, y);
+        this.renderFilterItemTooltip(guiGraphics, x, y);
         this.renderSlotTooltip(guiGraphics, x, y);
+    }
+
+    private void renderFilterItemTooltip(GuiGraphics guiGraphics, int x, int y) {
+        if (!this.menu.getCarried().isEmpty()) return;
+        ItemStack filter = this.getHoveredFilterItem(this.hoveredSlot);
+        if (filter.isEmpty()) return;
+        guiGraphics.renderTooltip(
+            this.font,
+            this.getTooltipFromContainerItem(filter),
+            filter.getTooltipImage(),
+            filter,
+            x,
+            y
+        );
     }
 
     @Override
@@ -121,7 +136,8 @@ public class BatchCrafterScreen extends BaseMachineScreen<BatchCrafterMenu> impl
         if (
             this.hoveredSlot instanceof SlotItemHandlerWithFilter filterSlot
             && filterSlot.isFilter()
-            && !filterSlot.getItem().isEmpty()
+            && (!filterSlot.getItem().isEmpty()
+            || !this.getFilter(filterSlot.getContainerSlot()).isEmpty())
         ) {
             components.add(SCROLL_WHEEL_TO_CHANGE_STACK_LIMIT_TOOLTIP);
             components.add(SHIFT_TO_SCROLL_FASTER_TOOLTIP);
@@ -150,10 +166,15 @@ public class BatchCrafterScreen extends BaseMachineScreen<BatchCrafterMenu> impl
 
     @Override
     protected void slotClicked(Slot slot, int slotId, int mouseButton, ClickType type) {
-        if (slot instanceof SlotItemHandlerWithFilter && slot.getItem().isEmpty()) {
-            ItemStack carriedItem = this.menu.getCarried().copy();
+        if (slot instanceof SlotItemHandlerWithFilter) {
             int realSlotId = slot.getContainerSlot();
-            if (!carriedItem.isEmpty() && this.menu.isFilterEnabled()) {
+            ItemStack carriedItem = this.menu.getCarried().copy();
+            boolean slotEmpty = slot.getItem().isEmpty();
+            // 左键用光标物品替换掉槽内不同物品时同样要同步过滤，否则过滤会停留在被替换掉的物品上
+            boolean replacing = type == ClickType.PICKUP && mouseButton == 0 && !slotEmpty
+                && !carriedItem.isEmpty()
+                && !ItemStack.isSameItemSameComponents(slot.getItem(), carriedItem);
+            if (!carriedItem.isEmpty() && this.menu.isFilterEnabled() && (slotEmpty || replacing)) {
                 if (this.menu.isSlotDisabled(realSlotId)) {
                     PacketDistributor.sendToServer(new SlotDisableChangePacket(realSlotId, false));
                     this.menu.setSlotDisabled(realSlotId, false);
@@ -162,7 +183,7 @@ public class BatchCrafterScreen extends BaseMachineScreen<BatchCrafterMenu> impl
                 PacketDistributor.sendToServer(new SlotFilterChangePacket(realSlotId, carriedItem));
                 this.menu.setFilter(realSlotId, carriedItem);
                 if (carriedItem.is(ModItems.FILTER) && (filter.isEmpty() || !FilterItem.filter(filter, carriedItem))) return;
-            } else if (Screen.hasShiftDown()) {
+            } else if (slotEmpty && Screen.hasShiftDown()) {
                 PacketDistributor.sendToServer(new SlotDisableChangePacket(
                     realSlotId,
                     carriedItem.isEmpty() && !this.menu.isSlotDisabled(realSlotId)

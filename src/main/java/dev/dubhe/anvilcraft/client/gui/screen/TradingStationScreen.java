@@ -259,6 +259,26 @@ public class TradingStationScreen extends AbstractContainerScreen<TradingStation
     }
 
     @Override
+    protected void renderTooltip(GuiGraphics guiGraphics, int x, int y) {
+        super.renderTooltip(guiGraphics, x, y);
+        this.renderFilterItemTooltip(guiGraphics, x, y);
+    }
+
+    private void renderFilterItemTooltip(GuiGraphics guiGraphics, int x, int y) {
+        if (!this.menu.getCarried().isEmpty()) return;
+        ItemStack filter = this.getHoveredFilterItem(this.hoveredSlot);
+        if (filter.isEmpty()) return;
+        guiGraphics.renderTooltip(
+            this.font,
+            this.getTooltipFromContainerItem(filter),
+            filter.getTooltipImage(),
+            filter,
+            x,
+            y
+        );
+    }
+
+    @Override
     protected List<Component> getTooltipFromContainerItem(ItemStack stack) {
         List<Component> components = super.getTooltipFromContainerItem(stack);
         if (this.hoveredSlot instanceof FilterOnlySlot slot && slot.hasItem()) {
