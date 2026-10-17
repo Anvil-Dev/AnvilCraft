@@ -28,6 +28,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
@@ -50,7 +51,7 @@ import javax.annotation.Nullable;
 public class RenderEventListener {
     private static final int AFFECT_RANGE_COLOR = 0xFF00FFCC;
 
-    private record RangeOutline(BlockState blockState, VoxelShape shape, long lastSeenTick) {
+    private record RangeOutline(Block block, VoxelShape shape, long lastSeenTick) {
     }
 
     private static final Map<BlockPos, RangeOutline> RANGE_OUTLINES = new HashMap<>();
@@ -158,7 +159,7 @@ public class RenderEventListener {
         for (Iterator<Map.Entry<BlockPos, RangeOutline>> iterator = RANGE_OUTLINES.entrySet().iterator(); iterator.hasNext();) {
             Map.Entry<BlockPos, RangeOutline> entry = iterator.next();
             RangeOutline outline = entry.getValue();
-            if (outline.blockState.is(ModBlocks.STRUCTURE_SCANNER.get()) && !hasScannerHammer(Minecraft.getInstance().player)) {
+            if (outline.block == ModBlocks.STRUCTURE_SCANNER.get() && !hasScannerHammer(Minecraft.getInstance().player)) {
                 iterator.remove();
                 continue;
             }
@@ -166,7 +167,7 @@ public class RenderEventListener {
                 iterator.remove();
                 continue;
             }
-            if (level.getBlockState(entry.getKey()) != outline.blockState) {
+            if (!level.getBlockState(entry.getKey()).is(outline.block)) {
                 iterator.remove();
                 continue;
             }
@@ -176,7 +177,7 @@ public class RenderEventListener {
     }
 
     private static void addRangeOutline(BlockPos origin, BlockState blockState, VoxelShape shape, long gameTime) {
-        RANGE_OUTLINES.put(origin, new RangeOutline(blockState, shape, gameTime));
+        RANGE_OUTLINES.put(origin, new RangeOutline(blockState.getBlock(), shape, gameTime));
     }
 
     private static void registerAffectRange(BlockHitResult hit, long gameTime) {
