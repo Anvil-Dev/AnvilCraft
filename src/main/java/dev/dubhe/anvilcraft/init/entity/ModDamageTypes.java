@@ -33,6 +33,10 @@ public class ModDamageTypes {
         Registries.DAMAGE_TYPE,
         AnvilCraft.of("heater_burn")
     );
+    public static final ResourceKey<DamageType> HOT_BLOCK = ResourceKey.create(
+        Registries.DAMAGE_TYPE,
+        AnvilCraft.of("hot_block")
+    );
     public static final ResourceKey<DamageType> GAMMA_LASER = ResourceKey.create(
         Registries.DAMAGE_TYPE,
         AnvilCraft.of("gamma_laser")
@@ -60,6 +64,7 @@ public class ModDamageTypes {
         ctx.register(ModDamageTypes.LOST_IN_TIME, new DamageType("anvilcraft.lost_in_time", 0.1F));
         ctx.register(ModDamageTypes.FALLING_GIANT_ANVIL, new DamageType("anvilcraft.falling_giant_anvil", 0.1F));
         ctx.register(ModDamageTypes.HEATER_BURN, new DamageType("anvilcraft.heater_burn", 0.1F, DamageEffects.BURNING));
+        ctx.register(ModDamageTypes.HOT_BLOCK, new DamageType("anvilcraft.hot_block", 0.1F, DamageEffects.BURNING));
         ctx.register(ModDamageTypes.GAMMA_LASER, new DamageType("anvilcraft.gamma_laser", 0.1F, DamageEffects.BURNING));
         ctx.register(ModDamageTypes.PLASMA_JET, new DamageType("anvilcraft.plasma_jet", 0.1F, DamageEffects.BURNING));
         ctx.register(STAR_CONTACT, new DamageType("anvilcraft.star_contact", 0.1F, DamageEffects.BURNING));
@@ -93,6 +98,10 @@ public class ModDamageTypes {
 
     public static DamageSource heaterBurn(Level level) {
         return ModDamageTypes.source(ModDamageTypes.HEATER_BURN, level);
+    }
+
+    public static DamageSource hotBlock(Level level) {
+        return ModDamageTypes.source(ModDamageTypes.HOT_BLOCK, level);
     }
 
     public static DamageSource gammaLaser(Level level) {
