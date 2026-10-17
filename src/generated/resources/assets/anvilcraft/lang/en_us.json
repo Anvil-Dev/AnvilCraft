@@ -2450,7 +2450,7 @@
   "tooltip.anvilcraft.item.control_valve": "Controls the type and flow rate of passing fluids and can be locked by redstone",
   "tooltip.anvilcraft.item.controllable_sand": "Sand that can be controlled by redstone to rise or fall",
   "tooltip.anvilcraft.item.cookie_block": "A placeable giant cookie!",
-  "tooltip.anvilcraft.item.cookie_pillar": " A hollow cookie block!",
+  "tooltip.anvilcraft.item.cookie_pillar": "A hollow cookie block!",
   "tooltip.anvilcraft.item.copper_pressure_plate": "Redstone signal increases with pressing time, also a copper plate",
   "tooltip.anvilcraft.item.corrupted_beacon": "Releases the wither power within the beacon, its beam accelerates time flow or causes mutations",
   "tooltip.anvilcraft.item.corrupted_beacon_activator": "Hold right-click to consume power and fire a corruption beam",
