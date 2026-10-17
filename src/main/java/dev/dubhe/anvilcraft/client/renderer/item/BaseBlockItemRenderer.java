@@ -63,10 +63,26 @@ abstract class BaseBlockItemRenderer<T> implements SpecialModelRenderer<T> {
             );
             this.shellModel = model;
         }
-        this.shellRenderState.submit(poseStack, collector, lightCoords, overlayCoords, outlineColor);
+        this.shellRenderState.submitModel(
+            this.translucent ? Sheets.translucentBlockItemSheet() : Sheets.cutoutBlockItemSheet(),
+            poseStack,
+            collector,
+            lightCoords,
+            overlayCoords,
+            outlineColor
+        );
         if (hasFoil) {
-            this.shellRenderState.submitModel(ItemFeatureRenderer.getFoilRenderType(Sheets.cutoutBlockSheet(), true),
-                poseStack, collector, lightCoords, overlayCoords, 0);
+            this.shellRenderState.submitModel(
+                ItemFeatureRenderer.getFoilRenderType(
+                    this.translucent ? Sheets.translucentBlockItemSheet() : Sheets.cutoutBlockItemSheet(),
+                    true
+                ),
+                poseStack,
+                collector,
+                lightCoords,
+                overlayCoords,
+                0
+            );
         }
     }
 
