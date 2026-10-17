@@ -1,7 +1,9 @@
 package dev.dubhe.anvilcraft.client.init;
 
+import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.platform.InputConstants.Type;
 import net.minecraft.client.KeyMapping;
+import net.minecraft.client.Minecraft;
 import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
 import net.neoforged.neoforge.client.settings.KeyConflictContext;
 import net.neoforged.neoforge.client.settings.KeyModifier;
@@ -74,6 +76,16 @@ public class ModKeyMappings {
         Type.KEYSYM,
         GLFW.GLFW_KEY_A
     );
+
+    public static boolean isDebugChordActive() {
+        Minecraft minecraft = Minecraft.getInstance();
+        return minecraft.getWindow() != null
+            && InputConstants.isKeyDown(minecraft.getWindow().getWindow(), GLFW.GLFW_KEY_F3);
+    }
+
+    public static boolean shouldIgnoreForDebugChord(int action) {
+        return action != InputConstants.RELEASE && isDebugChordActive();
+    }
 
     @SuppressWarnings("SameParameterValue")
     private static Lazy<KeyMapping> register(String name, KeyConflictContext context, Type type, int key) {
