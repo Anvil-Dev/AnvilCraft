@@ -1385,7 +1385,7 @@
   "tooltip.anvilcraft.item.laser_receiver": "接收雷射，依據雷射等級發電並輸出紅石訊號",
   "tooltip.anvilcraft.item.menger_sponge": "可無限吸收液體的海綿",
   "tooltip.anvilcraft.item.multitool": "按 [Alt] 鍵可切換多種內建工具模式",
-  "tooltip.anvilcraft.item.nature_amulet": "同時具有寂靜、貓、狗、羽毛護符的效果",
+  "tooltip.anvilcraft.item.nature_amulet": "同時具有寂靜、貓、狗、犰狳護符的效果",
   "tooltip.anvilcraft.item.overseer": "當基座為 3×3 皇家鋼系列方塊時可保持區塊載入",
   "tooltip.anvilcraft.item.overseer.shift": "當基座為 3×3 皇家鋼系列方塊時可保持區塊載入，基座層數越多，載入範圍越大，最高 3 層，範圍為 5×5 個區塊",
   "tooltip.anvilcraft.item.power_converter": "將電力轉換為 FE，消耗 %d kW",
