@@ -21,6 +21,7 @@ import dev.dubhe.anvilcraft.network.HammerChangeBlockPacket;
 import dev.dubhe.anvilcraft.network.HammerChangeFlexibleMultiPartBlockPacket;
 import dev.dubhe.anvilcraft.network.HammerUsePacket;
 import dev.dubhe.anvilcraft.util.FullBrightLevelProxy;
+import dev.dubhe.anvilcraft.util.StateUtil;
 import dev.dubhe.anvilcraft.util.VertexConsumerWithPose;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
@@ -312,7 +313,13 @@ public class AnvilHammerScreen extends Screen implements IHasHammerEffect {
             return;
         }
         if (this.animationStarted) {
-            Objects.requireNonNull(Minecraft.getInstance().level).setBlock(
+            Level level = Objects.requireNonNull(Minecraft.getInstance().level);
+            if (!(this.currentBlockState.getBlock() instanceof FlexibleMultiPartBlock<?, ?, ?>)
+                && !StateUtil.verifyPossibleStatesForProperty(level.getBlockState(this.targetBlockPos), this.currentBlockState)) {
+                super.removed();
+                return;
+            }
+            level.setBlock(
                 this.targetBlockPos, this.currentBlockState,
                 Block.UPDATE_CLIENTS,
                 0
