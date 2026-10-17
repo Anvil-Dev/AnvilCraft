@@ -4,6 +4,7 @@ import dev.anvilcraft.lib.v2.piston.IMoveableEntityBlock;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.entity.heatable.HeatableBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
+import dev.dubhe.anvilcraft.init.entity.ModDamageTypes;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -56,7 +57,7 @@ public class RedhotBlock extends HeatableBlock implements IMoveableEntityBlock {
     public void stepOn(Level level, BlockPos pos, BlockState state, Entity entity) {
         if (!entity.isSteppingCarefully()
             && entity instanceof LivingEntity) {
-            entity.hurt(level.damageSources().hotFloor(), this.steppingDamage);
+            entity.hurt(ModDamageTypes.hotBlock(level), this.steppingDamage);
         }
         super.stepOn(level, pos, state, entity);
     }

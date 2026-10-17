@@ -78,6 +78,7 @@ public class DamageTypeTagLoader {
         provider.addTag(DamageTypeTags.NO_KNOCKBACK)
             .addOptional(ModDamageTypes.LOST_IN_TIME.location())
             .addOptional(ModDamageTypes.HEATER_BURN.location())
+            .addOptional(ModDamageTypes.HOT_BLOCK.location())
             .addOptional(ModDamageTypes.PLANETARY_COLLAPSE.location())
             .addOptional(ModDamageTypes.BLACK_HOLE_CONTACT.location());
 
@@ -87,6 +88,7 @@ public class DamageTypeTagLoader {
 
         provider.addTag(DamageTypeTags.IS_FIRE)
             .addOptional(ModDamageTypes.HEATER_BURN.location())
+            .addOptional(ModDamageTypes.HOT_BLOCK.location())
             .addOptional(ModDamageTypes.PLASMA_JET.location())
             .addOptional(ModDamageTypes.LASER.location())
             .addOptional(ModDamageTypes.STAR_CONTACT.location());

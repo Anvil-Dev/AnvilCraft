@@ -1242,6 +1242,7 @@
   "death.attack.anvilcraft.falling_giant_anvil": "%1$s died due to systemic resonance caused by ground vibrations",
   "death.attack.anvilcraft.gamma_laser": "%1$s want to be Hulk, but he's not Bruce Banner.",
   "death.attack.anvilcraft.heater_burn": "%1$s was well done by the heater",
+  "death.attack.anvilcraft.hot_block": "%1$s was scorched by a red-hot block",
   "death.attack.anvilcraft.laser": "%1$s was pierced by laser",
   "death.attack.anvilcraft.lost_in_time": "%1$s was lost in the river of time",
   "death.attack.anvilcraft.planet_contact": "%1$s discovered the Roche limit, in pieces",

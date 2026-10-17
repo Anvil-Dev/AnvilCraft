@@ -9,6 +9,10 @@
       "required": false
     },
     {
+      "id": "anvilcraft:hot_block",
+      "required": false
+    },
+    {
       "id": "anvilcraft:planetary_collapse",
       "required": false
     },
