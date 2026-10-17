@@ -15,6 +15,10 @@
     {
       "id": "anvilcraft:heater_burn",
       "required": false
+    },
+    {
+      "id": "anvilcraft:hot_block",
+      "required": false
     }
   ]
 }
