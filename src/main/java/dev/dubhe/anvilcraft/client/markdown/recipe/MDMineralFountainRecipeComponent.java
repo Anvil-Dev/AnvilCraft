@@ -10,8 +10,10 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.client.support.RenderSupport;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
-import dev.dubhe.anvilcraft.recipe.mineral.MineralFountainChanceRecipe;
-import dev.dubhe.anvilcraft.recipe.mineral.MineralFountainRecipe;
+import dev.dubhe.anvilcraft.recipe.mineral.AroundRequirement;
+import dev.dubhe.anvilcraft.recipe.mineral.MineralFountainActiveRecipe;
+import dev.dubhe.anvilcraft.recipe.mineral.MineralFountainPassiveRecipe;
+import dev.dubhe.anvilcraft.recipe.mineral.MineralFountainReplacementRecipe;
 import dev.dubhe.anvilcraft.util.AgeratumUtil;
 import dev.dubhe.anvilcraft.util.TooltipUtil;
 import net.minecraft.ChatFormatting;
@@ -72,23 +74,37 @@ public class MDMineralFountainRecipeComponent extends MDRecipeComponent {
     private final List<BlockState> sideBlocks;
     @Nullable
     private final ResourceLocation dimension;
+    /** 替换概率；非替换配方为 {@code null}。 */
+    @Nullable
+    private final Double replaceChance;
 
-    public MDMineralFountainRecipeComponent(MineralFountainRecipe recipe, boolean enableAlignCenter) {
+    public MDMineralFountainRecipeComponent(MineralFountainActiveRecipe recipe, boolean enableAlignCenter) {
         this(
             recipe.getFromBlock(),
             recipe.getToBlock(),
-            recipe.getNeedBlock().constructStatesForRender(),
-            null,
+            aroundBlocks(recipe),
+            recipe.getDimension().orElse(null),
             enableAlignCenter
         );
     }
 
-    public MDMineralFountainRecipeComponent(MineralFountainChanceRecipe recipe, boolean enableAlignCenter) {
+    public MDMineralFountainRecipeComponent(MineralFountainPassiveRecipe recipe, boolean enableAlignCenter) {
         this(
             recipe.getFromBlock(),
             recipe.getToBlock(),
-            findSideBlocks(recipe.getFromBlock()),
-            recipe.getDimension(),
+            List.of(),
+            recipe.getDimension().orElse(null),
+            enableAlignCenter
+        );
+    }
+
+    public MDMineralFountainRecipeComponent(MineralFountainReplacementRecipe recipe, boolean enableAlignCenter) {
+        this(
+            recipe.getFromBlock(),
+            recipe.getToBlock(),
+            replacementAround(recipe),
+            recipe.getDimension().orElse(null),
+            recipe.getReplaceChance(),
             enableAlignCenter
         );
     }
@@ -100,11 +116,59 @@ public class MDMineralFountainRecipeComponent extends MDRecipeComponent {
         @Nullable ResourceLocation dimension,
         boolean enableAlignCenter
     ) {
+        this(fromBlock, toBlock, sideBlocks, dimension, null, enableAlignCenter);
+    }
+
+    private MDMineralFountainRecipeComponent(
+        BlockStatePredicate fromBlock,
+        ChanceBlockState toBlock,
+        List<BlockState> sideBlocks,
+        @Nullable ResourceLocation dimension,
+        @Nullable Double replaceChance,
+        boolean enableAlignCenter
+    ) {
         super(TEXTURE, WIDTH, HEIGHT, enableAlignCenter);
         this.fromBlock = fromBlock;
         this.toBlock = toBlock;
         this.sideBlocks = sideBlocks;
         this.dimension = dimension;
+        this.replaceChance = replaceChance;
+    }
+
+    /** 主动配方需求表中的方块，用于侧边展示。 */
+    private static List<BlockState> aroundBlocks(MineralFountainActiveRecipe recipe) {
+        Set<BlockState> states = new LinkedHashSet<>();
+        for (AroundRequirement requirement : recipe.getAround()) {
+            states.addAll(requirement.block().constructStatesForRender());
+        }
+        return List.copyOf(states);
+    }
+
+    /**
+     * 替换配方应展示的周围需求，取自被它改写的主动配方。
+     *
+     * <p>要求两者能匹配同一个上方方块，否则永远不会共存（如熔岩配方的 {@code from_block} 是空气）。</p>
+     */
+    private static List<BlockState> replacementAround(MineralFountainReplacementRecipe recipe) {
+        Minecraft minecraft = Minecraft.getInstance();
+        if (minecraft.level == null) return List.of();
+        Set<BlockState> states = new LinkedHashSet<>();
+        for (RecipeHolder<MineralFountainActiveRecipe> holder :
+            minecraft.level.getRecipeManager().getAllRecipesFor(ModRecipeTypes.MINERAL_FOUNTAIN_ACTIVE.get())) {
+            if (!recipe.appliesTo(holder.id())) continue;
+            if (!sharesFromBlock(recipe.getFromBlock(), holder.value().getFromBlock())) continue;
+            states.addAll(aroundBlocks(holder.value()));
+        }
+        return List.copyOf(states);
+    }
+
+    /** 两个材料方块谓词能否匹配同一个上方方块；谓词不限制方块时视为可与任意方块共存。 */
+    private static boolean sharesFromBlock(BlockStatePredicate first, BlockStatePredicate second) {
+        List<BlockState> firstStates = first.constructStatesForRender();
+        List<BlockState> secondStates = second.constructStatesForRender();
+        if (firstStates.isEmpty() || secondStates.isEmpty()) return true;
+        return firstStates.stream().anyMatch(second::testWithoutEntity)
+               || secondStates.stream().anyMatch(first::testWithoutEntity);
     }
 
     @Override
@@ -163,40 +227,25 @@ public class MDMineralFountainRecipeComponent extends MDRecipeComponent {
     private List<Component> getOutputTooltips() {
         List<Component> tooltips = new ArrayList<>();
         double chance = NumberProviderUtil.expected(this.toBlock.chance());
-        if (chance >= 0.0 && chance != 1.0) {
+        // 按显示时的取整判断，与 JEI 侧一致：避免 99.96% 被格式化成 100% 却仍然显示
+        if (chance >= 0.0 && Math.round(chance * 100) < 100) {
             tooltips.add(
                 Component.translatable("gui.anvilcraft.category.chance", FORMATTER.format(chance * 100))
                     .withStyle(ChatFormatting.GRAY)
+            );
+        }
+        if (this.replaceChance != null) {
+            tooltips.add(
+                Component.translatable(
+                    "gui.anvilcraft.category.mineral_fountain.replace_chance",
+                    FORMATTER.format(this.replaceChance * 100)
+                ).withStyle(ChatFormatting.GRAY)
             );
         }
         if (this.dimension != null) {
             tooltips.add(getDimensionName(this.dimension).copy().withStyle(ChatFormatting.GRAY));
         }
         return tooltips;
-    }
-
-    private static List<BlockState> findSideBlocks(BlockStatePredicate fromBlock) {
-        Minecraft minecraft = Minecraft.getInstance();
-        if (minecraft.level == null) {
-            return List.of();
-        }
-
-        List<BlockState> fromStates = fromBlock.constructStatesForRender();
-        Set<BlockState> sideBlocks = new LinkedHashSet<>();
-        for (RecipeHolder<MineralFountainRecipe> holder :
-            minecraft.level.getRecipeManager().getAllRecipesFor(ModRecipeTypes.MINERAL_FOUNTAIN.get())) {
-            MineralFountainRecipe recipe = holder.value();
-            if (sharesBlock(fromStates, recipe.getFromBlock().constructStatesForRender())) {
-                sideBlocks.addAll(recipe.getNeedBlock().constructStatesForRender());
-            }
-        }
-        return List.copyOf(sideBlocks);
-    }
-
-    private static boolean sharesBlock(List<BlockState> first, List<BlockState> second) {
-        return first.stream().anyMatch(firstState ->
-            second.stream().anyMatch(secondState -> firstState.is(secondState.getBlock()))
-        );
     }
 
     private static Component getDimensionName(ResourceLocation dimension) {

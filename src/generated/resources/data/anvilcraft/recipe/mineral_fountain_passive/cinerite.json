@@ -1,0 +1,7 @@
+{
+  "type": "anvilcraft:mineral_fountain_passive",
+  "priority": -1,
+  "to_block": {
+    "block": "anvilcraft:cinerite"
+  }
+}

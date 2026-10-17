@@ -10,6 +10,10 @@ public class OtherLang {
         provider.add("component_content.anvilcraft.mod_name.anvilcraft", "AnvilCraft");
 
         provider.add("dimension.anvilcraft.mun", "Mun");
+        // 原版没有维度名的翻译键，这里补齐矿物涌泉等界面需要展示的维度
+        provider.add("dimension.minecraft.overworld", "Overworld");
+        provider.add("dimension.minecraft.the_nether", "The Nether");
+        provider.add("dimension.minecraft.the_end", "The End");
 
         provider.add("item.anvilcraft.inherent_enchantment.tooltip", "Inherent enchantments:");
         provider.add(
