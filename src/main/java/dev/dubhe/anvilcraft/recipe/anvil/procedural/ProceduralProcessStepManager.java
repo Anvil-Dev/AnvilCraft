@@ -158,7 +158,10 @@ public class ProceduralProcessStepManager {
                         return true;
                     }
                 }
-            } else {
+            }
+            // 铁砧砸到的方块不是wip方块时，检测到的wip方块可能是下方其它序列装配流程的方块，
+            // 此时不能因为下方存在wip方块就放弃本次砸击，还需要继续检测能否从第一步开始新的流程
+            if (wip == null || wip.getRecipeId() == null || !hitPos.equals(wip.getBlockPos())) {
                 List<ProceduralProcessStep> possibleSteps = ProceduralProcessStepManager.PROCEDURAL_PROCESS_FIRST_STEP_INQUIRY.get(
                     state.getBlock());
                 if (possibleSteps == null || possibleSteps.isEmpty()) return false;
