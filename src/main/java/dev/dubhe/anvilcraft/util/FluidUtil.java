@@ -31,6 +31,7 @@ public class FluidUtil {
 
         return tooltip;
     }
+
     public static List<Component> getFilterTooltip(FluidStack stack, TooltipFlag flag) {
         List<Component> tooltip = new ArrayList<>();
         if (!appendName(tooltip, stack, flag)) {

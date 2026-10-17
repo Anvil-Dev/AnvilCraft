@@ -1,5 +1,5 @@
 {
-	"format_version": "26.3",
+	"format_version": "1.21.6",
 	"credit": "Made by XeKr with Blockbench",
 	"parent": "minecraft:block/cube",
 	"render_type": "minecraft:cutout",

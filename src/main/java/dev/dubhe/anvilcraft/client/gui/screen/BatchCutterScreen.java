@@ -270,19 +270,22 @@ public class BatchCutterScreen extends BaseMachineScreen<BatchCutterMenu> implem
             int realSlotId = slot.getContainerSlot();
             ItemStack carriedItem = this.menu.getCarried().copy();
             boolean slotEmpty = slot.getItem().isEmpty();
-            // 左键用光标物品替换掉槽内不同物品时同样要同步过滤，否则过滤会停留在被替换掉的物品上
-            boolean replacing = type == ClickType.PICKUP && mouseButton == 0 && !slotEmpty
-                && !carriedItem.isEmpty()
-                && !ItemStack.isSameItemSameComponents(slot.getItem(), carriedItem);
-            if (!carriedItem.isEmpty() && this.menu.isFilterEnabled() && (slotEmpty || replacing)) {
+            // 实际会放入槽位的物品：PICKUP 取光标，SWAP（数字键 / 副手键）取快捷栏 / 副手
+            ItemStack incoming = this.getIncomingStack(this.minecraft.player, type, mouseButton, carriedItem);
+            // 左右键 PICKUP 与 SWAP 在放入不同物品时都会替换槽内物品，故都要同步过滤；
+            // QUICK_MOVE（Shift 点击）用于启用/禁用槽位，有意排除
+            boolean replacing = (type == ClickType.PICKUP || type == ClickType.SWAP) && !slotEmpty
+                && !incoming.isEmpty()
+                && !ItemStack.isSameItemSameComponents(slot.getItem(), incoming);
+            if (!incoming.isEmpty() && this.menu.isFilterEnabled() && (slotEmpty || replacing)) {
                 if (this.menu.isSlotDisabled(realSlotId)) {
                     PacketDistributor.sendToServer(new SlotDisableChangePacket(realSlotId, false));
                     this.menu.setSlotDisabled(realSlotId, false);
                 }
                 ItemStack filter = this.menu.getFilter(realSlotId);
-                PacketDistributor.sendToServer(new SlotFilterChangePacket(realSlotId, carriedItem));
-                this.menu.setFilter(realSlotId, carriedItem);
-                if (carriedItem.is(ModItems.FILTER) && (filter.isEmpty() || !FilterItem.filter(filter, carriedItem))) return;
+                PacketDistributor.sendToServer(new SlotFilterChangePacket(realSlotId, incoming));
+                this.menu.setFilter(realSlotId, incoming);
+                if (incoming.is(ModItems.FILTER) && (filter.isEmpty() || !FilterItem.filter(filter, incoming))) return;
             } else if (slotEmpty && Screen.hasShiftDown()) {
                 PacketDistributor.sendToServer(new SlotDisableChangePacket(
                     realSlotId,

@@ -13,7 +13,9 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.ClickType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.network.PacketDistributor;
@@ -164,6 +166,23 @@ public interface IFilterScreen<T extends AbstractContainerMenu & IFilterMenu> ex
         int slotIndex = filterSlot.getContainerSlot();
         if (this.isSlotDisabled(slotIndex)) return ItemStack.EMPTY;
         return this.getFilter(slotIndex);
+    }
+
+    /**
+     * 解析本次点击会放入过滤槽的物品。
+     *
+     * <p>PICKUP 用光标物品，但 SWAP（数字键 / 副手交换键）取的是快捷栏 / 副手物品，
+     * 此时光标为空，用光标物品判断会漏掉这类替换。</p>
+     *
+     * @param player      玩家，可为 null
+     * @param type        点击类型
+     * @param mouseButton 鼠标键；SWAP 时为快捷栏槽位号（0-8）或副手（40）
+     * @param carried     光标物品
+     * @return 本次会放入槽位的物品副本
+     */
+    default ItemStack getIncomingStack(@Nullable Player player, ClickType type, int mouseButton, ItemStack carried) {
+        if (type != ClickType.SWAP || player == null) return carried;
+        return player.getInventory().getItem(mouseButton).copy();
     }
 
     /**

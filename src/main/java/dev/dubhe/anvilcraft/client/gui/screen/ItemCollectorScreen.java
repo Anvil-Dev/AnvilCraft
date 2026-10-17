@@ -216,21 +216,26 @@ public class ItemCollectorScreen extends AbstractContainerScreen<ItemCollectorMe
             int realSlotId = slot.getContainerSlot();
             ItemStack carriedItem = this.menu.getCarried().copy();
             boolean slotEmpty = slot.getItem().isEmpty();
-            // 左键用光标物品替换掉槽内不同物品时同样要同步过滤，否则过滤会停留在被替换掉的物品上
-            boolean replacing = type == ClickType.PICKUP && mouseButton == 0 && !slotEmpty
-                && !carriedItem.isEmpty()
-                && !ItemStack.isSameItemSameComponents(slot.getItem(), carriedItem);
-            if (!carriedItem.isEmpty() && this.menu.isFilterEnabled() && (slotEmpty || replacing)) {
+            // 实际会放入槽位的物品：PICKUP 取光标，SWAP（数字键 / 副手键）取快捷栏 / 副手
+            ItemStack incoming = this.getIncomingStack(this.minecraft.player, type, mouseButton, carriedItem);
+            // 左右键 PICKUP 与 SWAP 在放入不同物品时都会替换槽内物品，故都要同步过滤；
+            // QUICK_MOVE（Shift 点击）用于启用/禁用槽位，有意排除
+            boolean replacing = (type == ClickType.PICKUP || type == ClickType.SWAP) && !slotEmpty
+                && !incoming.isEmpty()
+                && !ItemStack.isSameItemSameComponents(slot.getItem(), incoming);
+            if (!incoming.isEmpty() && this.menu.isFilterEnabled() && (slotEmpty || replacing)) {
                 final ItemStack filter = this.menu.getFilter(realSlotId);
                 if (this.menu.isSlotDisabled(realSlotId)) {
                     PacketDistributor.sendToServer(new SlotDisableChangePacket(realSlotId, false));
                     this.menu.setSlotDisabled(realSlotId, false);
                 }
-                PacketDistributor.sendToServer(new SlotFilterChangePacket(realSlotId, carriedItem));
-                this.menu.setFilter(realSlotId, carriedItem);
-                if (carriedItem.is(ModItems.FILTER) && (filter.isEmpty() || !FilterItem.filter(filter, carriedItem))) return;
-                // 只有空槽位才需要在客户端抢先补上物品；替换时交由服务端确认，避免本地假物品
-                if (slotEmpty) slot.set(carriedItem);
+                PacketDistributor.sendToServer(new SlotFilterChangePacket(realSlotId, incoming));
+                this.menu.setFilter(realSlotId, incoming);
+                if (incoming.is(ModItems.FILTER) && (filter.isEmpty() || !FilterItem.filter(filter, incoming))) return;
+                // 仅光标路径才在客户端抢先补上物品；SWAP 由原版搬运快捷栏/副手物品，替换则交由服务端确认。
+                // 注意：持 FilterItem 替换非空槽时会在上面的提前 return 处结束，不物理放入该 FilterItem
+                // （过滤器物品用于配置过滤而非作为货物），这是有意的语义。
+                if (slotEmpty && type == ClickType.PICKUP) slot.set(carriedItem);
             } else if (slotEmpty && Screen.hasShiftDown()) {
                 PacketDistributor.sendToServer(new SlotDisableChangePacket(
                     realSlotId,
