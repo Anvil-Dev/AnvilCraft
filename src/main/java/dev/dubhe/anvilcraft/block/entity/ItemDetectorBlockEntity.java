@@ -178,7 +178,7 @@ public class ItemDetectorBlockEntity extends BlockEntity implements MenuProvider
             entity -> !entity.getItem().isEmpty()
         );
         int output = this.getOutput(itemEntities, level, this.detectionRange);
-        if (this.outputInvert) output = 15 - output;
+        if (this.outputInvert) output = output == 0 ? 15 : 0;
         if (output == this.outputSignal) return;
         this.outputSignal = output;
         if (blockState.getValue(ItemDetectorBlock.POWERED) != (this.outputSignal > 0)) {
