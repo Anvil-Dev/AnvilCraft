@@ -25,6 +25,7 @@ public final class TerminalKeyMappingEventListener {
 
     @SubscribeEvent
     public static void onKeyPressed(InputEvent.Key event) {
+        if (ModKeyMappings.shouldIgnoreForDebugChord(event.getAction())) return;
         if (Minecraft.getInstance().screen == null && event.getAction() == InputConstants.PRESS) {
             tryOpenTerminal(InputConstants.getKey(event.getKeyEvent()));
         }
@@ -39,6 +40,7 @@ public final class TerminalKeyMappingEventListener {
 
     @SubscribeEvent(priority = EventPriority.LOW)
     public static void onScreenKeyPressed(ScreenEvent.KeyPressed.Pre event) {
+        if (ModKeyMappings.isDebugChordActive()) return;
         InputConstants.Key key = InputConstants.getKey(event.getKeyEvent());
         if (!isInventoryScreen(event.getScreen()) || !ModKeyMappings.OPEN_TERMINAL.get().isActiveAndMatches(key)
             || event.getScreen().children().stream()

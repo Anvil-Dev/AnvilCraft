@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.client.event;
 import com.mojang.blaze3d.platform.InputConstants;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.client.gui.screen.StorageScreen;
+import dev.dubhe.anvilcraft.client.init.ModKeyMappings;
 import dev.dubhe.anvilcraft.client.rpc.StorageTerminalClientStub;
 import dev.dubhe.anvilcraft.client.support.TerminalRemoteOverlay;
 import dev.dubhe.anvilcraft.item.TerminalItem;
@@ -40,6 +41,7 @@ public final class TerminalOverlayEventListener {
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     public static void onKey(ScreenEvent.KeyPressed.Pre event) {
+        if (ModKeyMappings.isDebugChordActive()) return;
         if (creativePending || eligible(event.getScreen()) && TerminalRemoteOverlay.keyPressed(event.getKeyEvent())) {
             event.setCanceled(true);
         }
@@ -47,6 +49,7 @@ public final class TerminalOverlayEventListener {
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     public static void onCharacter(ScreenEvent.CharacterTyped.Pre event) {
+        if (ModKeyMappings.isDebugChordActive()) return;
         if (creativePending || eligible(event.getScreen()) && TerminalRemoteOverlay.charTyped(event.getCharacterEvent())) {
             event.setCanceled(true);
         }
