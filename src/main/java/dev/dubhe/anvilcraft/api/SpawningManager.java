@@ -19,10 +19,10 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.living.MobSpawnEvent;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * 电感灯生物生成管理器
@@ -47,7 +47,7 @@ import java.util.Set;
  */
 @EventBusSubscriber(modid = AnvilCraft.MOD_ID)
 public class SpawningManager {
-    private static final Map<Level, SpawningManager> INSTANCES = new HashMap<>();
+    private static final Map<Level, SpawningManager> INSTANCES = new ConcurrentHashMap<>();
     private final Set<BlockPos> nonAnimalLightBlockSet = Collections.synchronizedSet(new ObjectOpenHashSet<>());
     private final Set<BlockPos> animalLightBlockSet = Collections.synchronizedSet(new ObjectOpenHashSet<>());
 
