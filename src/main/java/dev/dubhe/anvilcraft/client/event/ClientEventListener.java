@@ -102,7 +102,11 @@ public class ClientEventListener {
 
     @SubscribeEvent
     public static void onKeyPress(InputEvent.Key event) {
-        if (ModKeyMappings.TOGGLE_GOGGLE.get().isDown()) AnvilHammerItem.goggleEnabled = !AnvilHammerItem.goggleEnabled;
+        if (ModKeyMappings.shouldIgnoreForDebugChord(event.getAction())) return;
+        if (event.getAction() == InputConstants.PRESS
+            && ModKeyMappings.TOGGLE_GOGGLE.get().isActiveAndMatches(InputConstants.getKey(event.getKeyEvent()))) {
+            AnvilHammerItem.goggleEnabled = !AnvilHammerItem.goggleEnabled;
+        }
         if (Minecraft.getInstance().level == null) return;
 
         // 以下是界面部分
@@ -119,6 +123,7 @@ public class ClientEventListener {
 
     @SubscribeEvent
     public static void onScreenKeyPressed(ScreenEvent.KeyPressed.Post event) {
+        if (ModKeyMappings.isDebugChordActive()) return;
         if (event.getKeyCode() == ModKeyMappings.THOUGHT.get().getKey().getValue()) {
             ThoughtManager.onThought();
         }

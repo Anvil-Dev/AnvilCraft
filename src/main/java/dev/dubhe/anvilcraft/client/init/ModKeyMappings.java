@@ -1,8 +1,10 @@
 package dev.dubhe.anvilcraft.client.init;
 
+import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.platform.InputConstants.Type;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import net.minecraft.client.KeyMapping;
+import net.minecraft.client.Minecraft;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -78,6 +80,14 @@ public class ModKeyMappings {
         Type.KEYSYM,
         GLFW.GLFW_KEY_A
     );
+
+    public static boolean isDebugChordActive() {
+        return Minecraft.getInstance().options.keyDebugModifier.isDown();
+    }
+
+    public static boolean shouldIgnoreForDebugChord(int action) {
+        return action != InputConstants.RELEASE && isDebugChordActive();
+    }
 
     @SuppressWarnings("SameParameterValue")
     private static Lazy<KeyMapping> register(String name, KeyConflictContext context, Type type, int key) {

@@ -93,6 +93,7 @@ public class WheelLifecycleEventListener {
 
     private static long multiphaseKeyTime = -1L;
     private static boolean multiphaseKeyWasDown = false;
+    private static boolean multiphaseKeyPressAccepted = false;
     private static @Nullable Optional<WheelMenuModel> multiphaseWheelCache = null;
 
     private static long resonatorKeyTime = -1L;
@@ -597,6 +598,7 @@ public class WheelLifecycleEventListener {
     public static void onKeyInput(InputEvent.Key event) {
         Minecraft client = Minecraft.getInstance();
         if (client.player == null) return;
+        if (ModKeyMappings.shouldIgnoreForDebugChord(event.getAction())) return;
         if (client.options.keyUse.matches(event.getKeyEvent())) {
             WheelLifecycleEventListener.processHammerPress(client, event.getAction());
         }
@@ -690,10 +692,14 @@ public class WheelLifecycleEventListener {
     private static void processMultiphasePress(Minecraft client, int action) {
         if (client.level == null) return;
         if (action == GLFW.GLFW_RELEASE) {
-            if (WheelLifecycleEventListener.multiphaseKeyWasDown) {
-                WheelLifecycleEventListener.CONTROLLER.onHoldKeyReleased();
-            } else {
-                ClientPacketDistributor.sendToServer(new MultiphasePackets.SwitchPhase());
+            boolean accepted = WheelLifecycleEventListener.multiphaseKeyPressAccepted;
+            WheelLifecycleEventListener.multiphaseKeyPressAccepted = false;
+            if (accepted) {
+                if (WheelLifecycleEventListener.multiphaseKeyWasDown) {
+                    WheelLifecycleEventListener.CONTROLLER.onHoldKeyReleased();
+                } else {
+                    ClientPacketDistributor.sendToServer(new MultiphasePackets.SwitchPhase());
+                }
             }
             WheelLifecycleEventListener.multiphaseKeyWasDown = false;
             WheelLifecycleEventListener.multiphaseKeyTime = -1L;
@@ -702,6 +708,7 @@ public class WheelLifecycleEventListener {
         }
         if (Minecraft.getInstance().screen != null) return;
         if (action == GLFW.GLFW_PRESS) {
+            WheelLifecycleEventListener.multiphaseKeyPressAccepted = true;
             if (!WheelLifecycleEventListener.multiphaseKeyWasDown) {
                 WheelLifecycleEventListener.multiphaseKeyTime = client.level.getGameTime();
             }
