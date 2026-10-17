@@ -392,10 +392,28 @@ public record HasCauldron(
     ) {
         ResourceHandler<FluidResource> handler = HasCauldron.getFluidHandler(ctx, pos, entityCauldron);
         if (handler == null) return;
+        FluidResource resource = handler.getResource(0);
+        if (resource.isEmpty()) {
+            HasCauldron.replaceWithEmptyCauldron(ctx, pos, entityCauldron);
+            return;
+        }
         try (Transaction transaction = Transaction.openRoot()) {
-            handler.extract(handler.getResource(0), Integer.MAX_VALUE, transaction);
+            handler.extract(resource, Integer.MAX_VALUE, transaction);
             transaction.commit();
         }
+        HasCauldron.replaceWithEmptyCauldron(ctx, pos, entityCauldron);
+    }
+
+    private static void replaceWithEmptyCauldron(
+        InWorldRecipeContext ctx,
+        BlockPos pos,
+        @Nullable IEntityCauldron entityCauldron
+    ) {
+        if (entityCauldron != null) return;
+        BlockCache cache = ctx.computeIfAbsent(BlockCache.BLOCK_CACHE);
+        if (cache.getBlockEntity(pos) != null) return;
+        if (!cache.getBlockState(pos).is(BlockTags.CAULDRONS)) return;
+        cache.setBlock(pos, Blocks.CAULDRON);
     }
 
     public static void applyFluid(InWorldRecipeContext ctx, BlockPos pos, FluidStack fluid, double mb, boolean ignited) {
