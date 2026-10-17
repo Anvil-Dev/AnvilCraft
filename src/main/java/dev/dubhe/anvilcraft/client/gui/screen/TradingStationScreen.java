@@ -259,6 +259,26 @@ public class TradingStationScreen extends AbstractContainerScreen<TradingStation
     }
 
     @Override
+    protected void renderTooltip(GuiGraphics guiGraphics, int x, int y) {
+        super.renderTooltip(guiGraphics, x, y);
+        this.renderFilterItemTooltip(guiGraphics, x, y);
+    }
+
+    private void renderFilterItemTooltip(GuiGraphics guiGraphics, int x, int y) {
+        if (!this.menu.getCarried().isEmpty()) return;
+        ItemStack filter = this.getHoveredFilterItem(this.hoveredSlot);
+        if (filter.isEmpty()) return;
+        guiGraphics.renderTooltip(
+            this.font,
+            this.getTooltipFromContainerItem(filter),
+            filter.getTooltipImage(),
+            filter,
+            x,
+            y
+        );
+    }
+
+    @Override
     protected List<Component> getTooltipFromContainerItem(ItemStack stack) {
         List<Component> components = super.getTooltipFromContainerItem(stack);
         if (this.hoveredSlot instanceof FilterOnlySlot slot && slot.hasItem()) {
@@ -279,6 +299,9 @@ public class TradingStationScreen extends AbstractContainerScreen<TradingStation
 
     @Override
     protected void slotClicked(Slot slot, int slotId, int button, ClickType type) {
+        // 仅处理空槽位设置过滤：本菜单的槽位把 mayPlace 委托给 isItemValid
+        // （TradingStationBlockEntity 的 handler 也会拒绝不合法的 setStackInSlot），
+        // 因此不存在「用光标物品替换槽内物品」的路径，无需同步替换后的过滤。
         if (slot instanceof SlotItemHandlerWithFilter filterSlot
             && filterSlot.isFilter()
             && !slot.hasItem()) {

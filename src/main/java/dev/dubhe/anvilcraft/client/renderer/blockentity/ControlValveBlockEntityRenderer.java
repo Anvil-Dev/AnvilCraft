@@ -7,6 +7,7 @@ import dev.dubhe.anvilcraft.block.entity.fluid.ControlValveBlockEntity;
 import dev.dubhe.anvilcraft.block.fluid.ControlValveBlock;
 import dev.dubhe.anvilcraft.client.selection.ModelSelectionRenderer;
 import dev.dubhe.anvilcraft.client.support.FluidRenderHelper;
+import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
@@ -56,7 +57,7 @@ public class ControlValveBlockEntityRenderer
                 Minecraft.getInstance().getModelManager().getModel(model), 1, 1, 1, packedLight, packedOverlay
             ));
         // --- 在另外三面渲染内部过滤的流体 ---
-        FluidStack filterFluid = be.getFilter(0);
+        FluidStack filterFluid = be.getDisplayedFilterFluid(Util.getMillis());
         if (!filterFluid.isEmpty()) {
             this.renderFluidIndicators(be, filterFluid, poseStack, buffer, packedLight);
         }

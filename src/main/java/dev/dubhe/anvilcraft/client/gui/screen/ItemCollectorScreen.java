@@ -155,15 +155,31 @@ public class ItemCollectorScreen extends AbstractContainerScreen<ItemCollectorMe
     @Override
     protected void renderTooltip(GuiGraphics guiGraphics, int x, int y) {
         super.renderTooltip(guiGraphics, x, y);
+        this.renderFilterItemTooltip(guiGraphics, x, y);
         this.renderSlotTooltip(guiGraphics, x, y);
+    }
+
+    private void renderFilterItemTooltip(GuiGraphics guiGraphics, int x, int y) {
+        if (!this.menu.getCarried().isEmpty()) return;
+        ItemStack filter = this.getHoveredFilterItem(this.hoveredSlot);
+        if (filter.isEmpty()) return;
+        guiGraphics.renderTooltip(
+            this.font,
+            this.getTooltipFromContainerItem(filter),
+            filter.getTooltipImage(),
+            filter,
+            x,
+            y
+        );
     }
 
     @Override
     protected List<Component> getTooltipFromContainerItem(ItemStack stack) {
         List<Component> components = super.getTooltipFromContainerItem(stack);
-        if (this.hoveredSlot instanceof SlotItemHandlerWithFilter filterSlot 
-                && filterSlot.isFilter() 
-                && !filterSlot.getItem().isEmpty()) {
+        if (this.hoveredSlot instanceof SlotItemHandlerWithFilter filterSlot
+                && filterSlot.isFilter()
+                && (!filterSlot.getItem().isEmpty()
+                || !this.getFilter(filterSlot.getContainerSlot()).isEmpty())) {
             components.add(SCROLL_WHEEL_TO_CHANGE_STACK_LIMIT_TOOLTIP);
             components.add(SHIFT_TO_SCROLL_FASTER_TOOLTIP);
         }
@@ -196,20 +212,31 @@ public class ItemCollectorScreen extends AbstractContainerScreen<ItemCollectorMe
     }
 
     protected void slotClicked(Slot slot, int slotId, int mouseButton, ClickType type) {
-        if (slot instanceof SlotItemHandlerWithFilter && slot.getItem().isEmpty()) {
-            ItemStack carriedItem = this.menu.getCarried().copy();
+        if (slot instanceof SlotItemHandlerWithFilter) {
             int realSlotId = slot.getContainerSlot();
-            if (!carriedItem.isEmpty() && this.menu.isFilterEnabled()) {
+            ItemStack carriedItem = this.menu.getCarried().copy();
+            boolean slotEmpty = slot.getItem().isEmpty();
+            // 实际会放入槽位的物品：PICKUP 取光标，SWAP（数字键 / 副手键）取快捷栏 / 副手
+            ItemStack incoming = this.getIncomingStack(this.minecraft.player, type, mouseButton, carriedItem);
+            // 左右键 PICKUP 与 SWAP 在放入不同物品时都会替换槽内物品，故都要同步过滤；
+            // QUICK_MOVE（Shift 点击）用于启用/禁用槽位，有意排除
+            boolean replacing = (type == ClickType.PICKUP || type == ClickType.SWAP) && !slotEmpty
+                && !incoming.isEmpty()
+                && !ItemStack.isSameItemSameComponents(slot.getItem(), incoming);
+            if (!incoming.isEmpty() && this.menu.isFilterEnabled() && (slotEmpty || replacing)) {
                 final ItemStack filter = this.menu.getFilter(realSlotId);
                 if (this.menu.isSlotDisabled(realSlotId)) {
                     PacketDistributor.sendToServer(new SlotDisableChangePacket(realSlotId, false));
                     this.menu.setSlotDisabled(realSlotId, false);
                 }
-                PacketDistributor.sendToServer(new SlotFilterChangePacket(realSlotId, carriedItem));
-                this.menu.setFilter(realSlotId, carriedItem);
-                if (carriedItem.is(ModItems.FILTER) && (filter.isEmpty() || !FilterItem.filter(filter, carriedItem))) return;
-                slot.set(carriedItem);
-            } else if (Screen.hasShiftDown()) {
+                PacketDistributor.sendToServer(new SlotFilterChangePacket(realSlotId, incoming));
+                this.menu.setFilter(realSlotId, incoming);
+                if (incoming.is(ModItems.FILTER) && (filter.isEmpty() || !FilterItem.filter(filter, incoming))) return;
+                // 仅光标路径才在客户端抢先补上物品；SWAP 由原版搬运快捷栏/副手物品，替换则交由服务端确认。
+                // 注意：持 FilterItem 替换非空槽时会在上面的提前 return 处结束，不物理放入该 FilterItem
+                // （过滤器物品用于配置过滤而非作为货物），这是有意的语义。
+                if (slotEmpty && type == ClickType.PICKUP) slot.set(carriedItem);
+            } else if (slotEmpty && Screen.hasShiftDown()) {
                 PacketDistributor.sendToServer(new SlotDisableChangePacket(
                     realSlotId,
                     carriedItem.isEmpty() && !this.menu.isSlotDisabled(realSlotId)

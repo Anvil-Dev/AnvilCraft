@@ -75,6 +75,7 @@ public class JadeLang {
 
         provider.add("tooltip.anvilcraft.crab_trap.jade.fishing", "Fishing Attempts: %s");
         provider.add("tooltip.anvilcraft.control_valve.jade.filter", "Filter: %s");
+        provider.add("tooltip.anvilcraft.control_valve.jade.deny_filter", "Block: %s");
         provider.add("tooltip.anvilcraft.control_valve.jade.rate", "Max Rate: %s");
         provider.add("tooltip.anvilcraft.collector.jade.range", "Collect Range: %s");
         provider.add("tooltip.anvilcraft.collector.jade.cooldown", "Collect Cooldown: %s");

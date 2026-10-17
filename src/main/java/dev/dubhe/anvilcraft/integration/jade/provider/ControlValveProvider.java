@@ -21,20 +21,22 @@ public enum ControlValveProvider implements IBlockComponentProvider {
     public void appendTooltip(ITooltip tooltip, BlockAccessor accessor, IPluginConfig config) {
         if (!(accessor.getBlockEntity() instanceof ControlValveBlockEntity valve)) return;
 
-        FluidStack filter = valve.getFilter(0);
-        if (!filter.isEmpty()) {
-            IElementHelper helper = IElementHelper.get();
+        IElementHelper helper = IElementHelper.get();
+        for (FluidStack filter : valve.getFilteredFluids()) {
             JadeFluidObject fluidObject = JadeFluidObject.of(
                 filter.getFluid(),
                 filter.getAmount(),
                 filter.getComponentsPatch()
             );
+            Component fluidName = filter.getHoverName().copy().withStyle(ChatFormatting.WHITE);
+            // 黑名单表示「拦截这些流体」，与白名单语义相反，需要明确标出
+            Component label = valve.isFilterDenyList()
+                ? Component.translatable("tooltip.anvilcraft.control_valve.jade.deny_filter", fluidName)
+                    .withStyle(ChatFormatting.RED)
+                : Component.translatable("tooltip.anvilcraft.control_valve.jade.filter", fluidName);
             tooltip.add(helper.progress(
                 1,
-                Component.translatable(
-                    "tooltip.anvilcraft.control_valve.jade.filter",
-                    filter.getHoverName().copy().withStyle(ChatFormatting.WHITE)
-                ),
+                label,
                 helper.progressStyle().overlay(helper.fluid(fluidObject)),
                 BoxStyle.getNestedBox(),
                 true

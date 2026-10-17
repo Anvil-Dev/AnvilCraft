@@ -2308,6 +2308,7 @@
   "tooltip.anvilcraft.collector.jade.cooldown": "Collect Cooldown: %s",
   "tooltip.anvilcraft.collector.jade.range": "Collect Range: %s",
   "tooltip.anvilcraft.comrade_amulet.player": "· %s",
+  "tooltip.anvilcraft.control_valve.jade.deny_filter": "Block: %s",
   "tooltip.anvilcraft.control_valve.jade.filter": "Filter: %s",
   "tooltip.anvilcraft.control_valve.jade.rate": "Max Rate: %s",
   "tooltip.anvilcraft.count": " x%s",

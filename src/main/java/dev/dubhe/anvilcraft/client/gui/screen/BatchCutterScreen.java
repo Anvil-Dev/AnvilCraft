@@ -161,7 +161,23 @@ public class BatchCutterScreen extends BaseMachineScreen<BatchCutterMenu> implem
                 x,
                 y
             );
+        } else {
+            this.renderFilterItemTooltip(graphics, x, y);
         }
+    }
+
+    private void renderFilterItemTooltip(GuiGraphics graphics, int x, int y) {
+        if (!this.menu.getCarried().isEmpty()) return;
+        ItemStack filter = this.getHoveredFilterItem(this.hoveredSlot);
+        if (filter.isEmpty()) return;
+        graphics.renderTooltip(
+            this.font,
+            this.getTooltipFromContainerItem(filter),
+            filter.getTooltipImage(),
+            filter,
+            x,
+            y
+        );
     }
 
     @Override
@@ -170,7 +186,8 @@ public class BatchCutterScreen extends BaseMachineScreen<BatchCutterMenu> implem
         if (
             this.hoveredSlot instanceof SlotItemHandlerWithFilter filterSlot
             && filterSlot.isFilter()
-            && !filterSlot.getItem().isEmpty()
+            && (!filterSlot.getItem().isEmpty()
+            || !this.getFilter(filterSlot.getContainerSlot()).isEmpty())
         ) {
             components.add(SCROLL_WHEEL_TO_CHANGE_STACK_LIMIT_TOOLTIP);
             components.add(SHIFT_TO_SCROLL_FASTER_TOOLTIP);
@@ -249,19 +266,27 @@ public class BatchCutterScreen extends BaseMachineScreen<BatchCutterMenu> implem
 
     @Override
     protected void slotClicked(Slot slot, int slotId, int mouseButton, ClickType type) {
-        if (slot instanceof SlotItemHandlerWithFilter && slot.getItem().isEmpty()) {
-            ItemStack carriedItem = this.menu.getCarried().copy();
+        if (slot instanceof SlotItemHandlerWithFilter) {
             int realSlotId = slot.getContainerSlot();
-            if (!carriedItem.isEmpty() && this.menu.isFilterEnabled()) {
+            ItemStack carriedItem = this.menu.getCarried().copy();
+            boolean slotEmpty = slot.getItem().isEmpty();
+            // 实际会放入槽位的物品：PICKUP 取光标，SWAP（数字键 / 副手键）取快捷栏 / 副手
+            ItemStack incoming = this.getIncomingStack(this.minecraft.player, type, mouseButton, carriedItem);
+            // 左右键 PICKUP 与 SWAP 在放入不同物品时都会替换槽内物品，故都要同步过滤；
+            // QUICK_MOVE（Shift 点击）用于启用/禁用槽位，有意排除
+            boolean replacing = (type == ClickType.PICKUP || type == ClickType.SWAP) && !slotEmpty
+                && !incoming.isEmpty()
+                && !ItemStack.isSameItemSameComponents(slot.getItem(), incoming);
+            if (!incoming.isEmpty() && this.menu.isFilterEnabled() && (slotEmpty || replacing)) {
                 if (this.menu.isSlotDisabled(realSlotId)) {
                     PacketDistributor.sendToServer(new SlotDisableChangePacket(realSlotId, false));
                     this.menu.setSlotDisabled(realSlotId, false);
                 }
                 ItemStack filter = this.menu.getFilter(realSlotId);
-                PacketDistributor.sendToServer(new SlotFilterChangePacket(realSlotId, carriedItem));
-                this.menu.setFilter(realSlotId, carriedItem);
-                if (carriedItem.is(ModItems.FILTER) && (filter.isEmpty() || !FilterItem.filter(filter, carriedItem))) return;
-            } else if (Screen.hasShiftDown()) {
+                PacketDistributor.sendToServer(new SlotFilterChangePacket(realSlotId, incoming));
+                this.menu.setFilter(realSlotId, incoming);
+                if (incoming.is(ModItems.FILTER) && (filter.isEmpty() || !FilterItem.filter(filter, incoming))) return;
+            } else if (slotEmpty && Screen.hasShiftDown()) {
                 PacketDistributor.sendToServer(new SlotDisableChangePacket(
                     realSlotId,
                     carriedItem.isEmpty() && !this.menu.isSlotDisabled(realSlotId)
