@@ -282,7 +282,7 @@ public final class BuildingRodService {
             }
             Group group = new Group();
             addBoxCells(group, pos, state);
-            group.blockMaterials.put(pos, held.copyWithCount(materialCount(state)));
+            group.blockMaterials.put(pos, held.copyWithCount(slabType == SlabType.DOUBLE ? 2 : 1));
             groups.add(group);
         }
         Map<BlockPos, Cell> planned = new LinkedHashMap<>();
