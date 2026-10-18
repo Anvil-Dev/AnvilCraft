@@ -1224,6 +1224,7 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity
 
     public void browseHistoryPrev() {
         if (this.level == null || this.level.isClientSide()) return;
+        if (this.locked || this.isSearching() || this.isAcceleratorActive()) return;
         CelestialSearchHistory.Entry entry = this.searchHistory.previous(
             this.celestialBodyData,
             this.planetaryResourceSet,
@@ -1236,6 +1237,7 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity
 
     public void browseHistoryNext() {
         if (this.level == null || this.level.isClientSide()) return;
+        if (this.locked || this.isSearching() || this.isAcceleratorActive()) return;
         CelestialSearchHistory.Entry entry = this.searchHistory.next();
         if (entry != null) this.applyHistoryEntry(entry);
     }
