@@ -86,7 +86,7 @@ public final class BuildingBlockPlanner {
             }
             Group group = new Group();
             addBoxCells(group, pos, state);
-            group.blockMaterials.put(pos, held.copyWithCount(BuildingRodService.materialCount(state)));
+            group.blockMaterials.put(pos, held.copyWithCount(slabType == SlabType.DOUBLE ? 2 : 1));
             groups.add(group);
         }
         Map<BlockPos, Cell> planned = new LinkedHashMap<>();

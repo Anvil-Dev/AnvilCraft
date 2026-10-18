@@ -345,7 +345,7 @@ public final class BuildingRodClient {
             BuildingRodItemRenderer.preparePlacement();
             Minecraft.getInstance().getConnection().send(new BuildingRodPacket(
                 first, target, firstHit == null ? face : firstHit.getDirection(),
-                false, Rotation.NONE, Mirror.NONE, false, currentHit != null ? currentHit : firstHit,
+                false, Rotation.NONE, Mirror.NONE, false, currentHit,
                 BuildingRodPacket.Action.PLACE, patternSeed));
         }
         clearSelection();
