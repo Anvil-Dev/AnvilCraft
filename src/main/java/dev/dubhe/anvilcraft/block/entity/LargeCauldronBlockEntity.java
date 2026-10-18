@@ -389,10 +389,10 @@ public class LargeCauldronBlockEntity extends BlockEntity
         Level level = this.level;
         if (level == null) return;
         BlockPos origin = this.getMainPart().worldPosition.above(2);
-        for (int distance = 2; distance <= 3; distance++) {
+        for (int distance = 2; distance <= 4; distance++) {
             for (Direction direction : Direction.Plane.HORIZONTAL) {
                 BlockPos pos = origin.relative(direction, distance);
-                if (!this.canEjectOverflowAt(level, pos)) continue;
+                if (!canEjectOverflowAt(level, pos)) continue;
                 entity.setPos(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5);
                 entity.setDeltaMovement(0.0, 0.0, 0.0);
                 entity.anvilcraft$setIsAdsorbable(true);
@@ -401,13 +401,16 @@ public class LargeCauldronBlockEntity extends BlockEntity
         }
     }
 
-    private boolean canEjectOverflowAt(Level level, BlockPos pos) {
+    private static boolean canEjectOverflowAt(Level level, BlockPos pos) {
         if (!level.isEmptyBlock(pos)) return false;
         BlockPos floor = pos.below();
         while (floor.getY() >= level.getMinY() && level.isEmptyBlock(floor)) {
             floor = floor.below();
         }
-        return !(level.getBlockState(floor).getBlock() instanceof LargeCauldronBlock);
+        if (floor.getY() < level.getMinY()) return false;
+        BlockState floorState = level.getBlockState(floor);
+        return !(floorState.getBlock() instanceof LargeCauldronBlock)
+               && !floorState.getCollisionShape(level, floor).isEmpty();
     }
 
     public ItemStack insertRecipeOutput(ItemStack stack) {
