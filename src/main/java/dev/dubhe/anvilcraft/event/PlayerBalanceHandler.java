@@ -3,7 +3,7 @@ package dev.dubhe.anvilcraft.event;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItems;
-import dev.dubhe.anvilcraft.inventory.PocketInventory;
+import dev.dubhe.anvilcraft.item.TerminalItem;
 import dev.dubhe.anvilcraft.rpc.StorageServerStub;
 import dev.dubhe.anvilcraft.saved.setting.mode.BalanceMode;
 import net.minecraft.server.level.ServerPlayer;
@@ -215,9 +215,9 @@ public class PlayerBalanceHandler {
             }
             return ItemStack.EMPTY;
         });
-        // 口袋槽位：终端放在口袋中时同样提供均衡模式
+        // 口袋、饰品与背包内嵌的终端：与存储侧枚举口径一致，注册在默认提供者之后以保证身上终端优先
         PlayerBalanceHandler.TERMINAL_PROVIDERS.add(player -> {
-            for (ItemStack stack : PocketInventory.items(player)) {
+            for (ItemStack stack : TerminalItem.getAll(player)) {
                 if (PlayerBalanceHandler.isTerminal(stack)) {
                     return stack;
                 }
