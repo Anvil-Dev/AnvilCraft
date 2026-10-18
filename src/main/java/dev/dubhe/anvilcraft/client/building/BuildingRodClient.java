@@ -72,6 +72,7 @@ public final class BuildingRodClient {
     private static BlockPos tiledOffset = BlockPos.ZERO;
     private static List<BlueprintPlacement> tiledBlueprints = List.of();
     private static boolean useHeld;
+    private static boolean useIgnored;
     private static boolean invalidDisk;
     private static Direction face = Direction.UP;
     private static final RandomSource PATTERN_RANDOM = RandomSource.create();
@@ -177,8 +178,20 @@ public final class BuildingRodClient {
             }
         }
         updateTarget();
-        if (mc.options.keyUse.isDown() && !useHeld && !ModKeyMappings.isDebugChordActive()) press();
-        if (!mc.options.keyUse.isDown() && useHeld) release();
+        if (mc.options.keyUse.isDown() && !useHeld) {
+            if (ModKeyMappings.isDebugChordActive()) {
+                useIgnored = true;
+            } else {
+                press();
+            }
+        }
+        if (!mc.options.keyUse.isDown()) {
+            if (useIgnored) {
+                useIgnored = false;
+            } else if (useHeld) {
+                release();
+            }
+        }
         controls();
         if (first != null) {
             BoundingBox bounds = selectionBounds();
