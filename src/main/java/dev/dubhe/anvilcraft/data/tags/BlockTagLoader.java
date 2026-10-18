@@ -120,7 +120,6 @@ public class BlockTagLoader {
 
         provider.addTag(ModBlockTags.UNDER_CAULDRON)
             .addTag(BlockTags.CAMPFIRES)
-            .add(findResourceKey(Blocks.MAGMA_BLOCK))
             .add(ModBlocks.HEATER.getKey())
             .add(ModBlocks.BURNING_HEATER.getKey())
             .add(ModBlocks.NEUTRON_IRRADIATOR.getKey())
