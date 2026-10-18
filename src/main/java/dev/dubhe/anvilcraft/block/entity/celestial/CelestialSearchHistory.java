@@ -25,6 +25,7 @@ public final class CelestialSearchHistory {
         int ageAnvilCount
     ) {
         if (!this.entries.isEmpty() && this.entries.getFirst().body().toTag().equals(body.toTag())) {
+            this.entries.set(0, new Entry(body, resources, true, bodySeed, stellarMass, ageAnvilCount));
             return;
         }
         this.entries.addFirst(new Entry(body, resources, true, bodySeed, stellarMass, ageAnvilCount));
@@ -81,7 +82,7 @@ public final class CelestialSearchHistory {
         }
         this.browseIndex++;
         if (this.browseIndex > size) return null;
-        return this.entries.get(this.browseIndex - 1);
+        return this.withStats(this.entries.get(this.browseIndex - 1));
     }
 
     /** 向开始浏览时保存的原始结果方向前进。 */
@@ -95,7 +96,20 @@ public final class CelestialSearchHistory {
             this.originalEntry = null;
             return result;
         }
-        return this.entries.get(this.browseIndex - 1);
+        return this.withStats(this.entries.get(this.browseIndex - 1));
+    }
+
+    private Entry withStats(Entry entry) {
+        if (entry.hasStats() || this.originalEntry == null) return entry;
+        Entry live = this.originalEntry;
+        return new Entry(
+            entry.body(),
+            entry.resources(),
+            true,
+            live.bodySeed(),
+            live.stellarMass(),
+            live.ageAnvilCount()
+        );
     }
 
     public int browseIndex() {
