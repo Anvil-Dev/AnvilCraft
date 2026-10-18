@@ -11,11 +11,11 @@
       },
       "trigger": "minecraft:inventory_changed"
     },
-    "has_heat_collector": {
+    "has_infinite_collector": {
       "conditions": {
         "items": [
           {
-            "items": "anvilcraft:heat_collector"
+            "items": "anvilcraft:infinite_collector"
           }
         ]
       },
@@ -41,9 +41,9 @@
   "requirements": [
     [
       "has_the_recipe",
-      "has_ember_metal_ingot",
       "has_transcendium_ingot",
-      "has_heat_collector"
+      "has_ember_metal_ingot",
+      "has_infinite_collector"
     ]
   ],
   "rewards": {

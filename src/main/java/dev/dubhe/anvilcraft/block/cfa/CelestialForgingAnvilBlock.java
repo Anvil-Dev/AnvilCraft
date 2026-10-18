@@ -373,10 +373,7 @@ public class CelestialForgingAnvilBlock
         blockEntityTag.remove("wormholeBodyUuid");
         blockEntityTag.remove("portals");
         blockEntityTag.remove("amplifierPresent");
-        blockEntityTag.remove("activeMegastructureId");
-        blockEntityTag.remove("activeMegastructure");
-        blockEntityTag.remove("activeMegastructureName");
-        blockEntityTag.remove("activeMegastructureRing");
+        /// activeMegastructure* 保留：破坏锻星砧后巨构随物品一起保留，重新放置时恢复
         blockEntityTag.remove("colliderCooldown");
         blockEntityTag.remove("colliderCycleRemaining");
         blockEntityTag.remove("colliderActiveSpeed");

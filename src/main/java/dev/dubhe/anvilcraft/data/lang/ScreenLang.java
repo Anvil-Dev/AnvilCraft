@@ -446,6 +446,8 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.cfa.class.brown_dwarf", "Brown Dwarf"); // 褐矮星
         // 恒星
         provider.add("screen.anvilcraft.cfa.class.m_main", "M-Star"); // Red Dwarf 红矮星
+        // 由褐矮星经戴森球转化而来的红矮星
+        provider.add("screen.anvilcraft.cfa.class.mutated_red_dwarf", "Mutated Red Dwarf"); // 诱变红矮星
         provider.add("screen.anvilcraft.cfa.class.k_main", "K-Star"); // Orange Dwarf 橙矮星
         provider.add("screen.anvilcraft.cfa.class.g_main", "G-Star"); // Yellow Dwarf 黄矮星
         provider.add("screen.anvilcraft.cfa.class.f_main", "F-Star"); // Yellow-White Main 黄白主序星

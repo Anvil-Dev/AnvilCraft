@@ -51,7 +51,7 @@ public class ColliderHandler extends BaseMegastructureHandler {
         if (!(be.getCelestialBodyData() instanceof StarData star)) return;
         if (star.size() >= 48) return;
 
-        boolean starMissing = !be.isAmplifierPresent();
+        boolean starMissing = star.requiresAmplifier() && !be.isAmplifierPresent();
         boolean isProcessing = this.cycleRemaining > 0 && !be.isPowerInsufficient();
 
         if (be.getLevel().getGameTime() % 20 == 0) {

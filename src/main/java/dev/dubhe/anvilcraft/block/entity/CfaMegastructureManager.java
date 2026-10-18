@@ -25,6 +25,7 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -391,6 +392,42 @@ public class CfaMegastructureManager {
             if (option != null && option.ring() == ring) return option;
         }
         return null;
+    }
+
+    /**
+     * 收集当前已建造的主巨构与辅助巨构选项，用于拆除时计算返还建材。
+     *
+     * @param be 天体锻造砧方块实体
+     * @return 已建造的巨构选项列表
+     */
+    public List<CelestialRefactorOption> getBuiltOptions(CelestialForgingAnvilBlockEntity be) {
+        List<CelestialRefactorOption> built = new ArrayList<>();
+        CelestialRefactorOption primary = this.getActiveOption(be);
+        if (primary != null) built.add(primary);
+        this.synchronizeRegistryHandlers();
+        for (Megastructure definition : ModRegistries.MEGASTRUCTURE) {
+            if (!definition.auxiliary()) continue;
+            IMegastructureHandler handler = this.handlers.get(definition.id());
+            if (handler == null || !handler.isAuxiliaryActive(be)) continue;
+            CelestialRefactorOption option = CelestialRefactorRegistry.getOption(
+                definition.id(),
+                be.getCelestialBodyData(),
+                be.isAmplify(),
+                be.getPlanetaryResourceSet()
+            );
+            if (option != null) built.add(option);
+        }
+        if (this.acceleratorHandler.isAuxiliaryActive(be)
+            && built.stream().noneMatch(option -> option.id().equals(AnvilCraft.of("stellar_evolution_accelerator")))) {
+            CelestialRefactorOption option = CelestialRefactorRegistry.getOption(
+                AnvilCraft.of("stellar_evolution_accelerator"),
+                be.getCelestialBodyData(),
+                be.isAmplify(),
+                be.getPlanetaryResourceSet()
+            );
+            if (option != null) built.add(option);
+        }
+        return built;
     }
 
     /** Releases world-scoped runtime state while retaining data needed after a chunk reload. */

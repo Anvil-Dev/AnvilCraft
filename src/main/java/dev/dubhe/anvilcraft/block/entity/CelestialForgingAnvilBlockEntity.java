@@ -1379,6 +1379,11 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
 
     /// 切换锁定状态。玩家点击锁定按钮时在服务器端调用。
     public void toggleLocked() {
+        this.toggleLocked(null);
+    }
+
+    /// 切换锁定状态。player 为点击解锁的玩家，解锁时向其返还一半建材（自动拆除不返还）。
+    public void toggleLocked(@Nullable Player player) {
         if (level == null || level.isClientSide()) return;
         if (this.isAcceleratorActive()) {
             /// 星体演化期间无法解锁
@@ -1393,12 +1398,28 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
         }
         this.locked = !this.locked;
         if (!this.locked) {
-            /// 解锁：清除巨构和加速器，恢复为束星环
+            /// 解锁：手动拆除，返还一半建材给点击解锁的玩家
+            this.refundMegastructureMaterials(player);
+            /// 清除巨构和加速器，恢复为束星环
             this.clearMegastructure();
             this.clearAuxiliaryMegastructures();
         }
         this.setChanged();
         level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
+    }
+
+    /// 按建造时消耗的一半（向下取整）向玩家返还已建造巨构的建材。player 为 null 时不返还。
+    private void refundMegastructureMaterials(@Nullable Player player) {
+        if (player == null) return;
+        for (CelestialRefactorOption option : this.megastructureManager.getBuiltOptions(this)) {
+            if (!option.needsMaterial()) continue;
+            int refund = option.materialCount() / 2;
+            if (refund <= 0) continue;
+            ItemStack stack = option.material().copyWithCount(refund);
+            if (!player.getInventory().add(stack)) {
+                player.drop(stack, false);
+            }
+        }
     }
 
     private void clearAuxiliaryMegastructures() {
