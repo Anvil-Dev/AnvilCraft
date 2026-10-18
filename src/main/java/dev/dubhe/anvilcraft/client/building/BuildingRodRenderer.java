@@ -38,6 +38,7 @@ import net.minecraft.core.Vec3i;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.level.block.Mirror;
+import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -272,6 +273,7 @@ public final class BuildingRodRenderer {
         for (var entry : blocks) {
             BlockPos pos = entry.pos();
             var state = entry.state();
+            if (state.getRenderShape() == RenderShape.INVISIBLE) continue;
             var data = entry.nbt().map(nbt -> {
                 var transformed = nbt.copy();
                 BlueprintBlockConfiguration.transform(transformed, local, sourceOrigin, snapshot);
