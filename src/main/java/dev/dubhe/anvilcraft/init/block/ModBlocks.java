@@ -2245,7 +2245,7 @@ public class ModBlocks {
             .noCollission()
             .strength(-1.0F, 3600000.0F)
             .noLootTable())
-        .blockstate(DataGenUtil::noExtraModelOrState)
+        .blockstate(DataGenUtil::onlyState)
         .register();
 
     public static final BlockEntry<? extends Block> ROYAL_STEEL_BLOCK = REGISTRUM.block("royal_steel_block", Block::new)
