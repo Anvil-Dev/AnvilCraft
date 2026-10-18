@@ -1,6 +1,6 @@
 {
   "values": [
-    "#minecraft:campfires",
+    "minecraft:campfire",
     "anvilcraft:heater",
     "anvilcraft:burning_heater",
     "anvilcraft:neutron_irradiator",

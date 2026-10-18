@@ -117,7 +117,7 @@ public class BlockTagLoader {
             .addTag(BlockTags.SHULKER_BOXES.location());
 
         provider.rawBuilder(ModBlockTags.UNDER_CAULDRON)
-            .addTag(BlockTags.CAMPFIRES.location())
+            .addElement(BlockTagLoader.findId(Blocks.CAMPFIRE))
             .addElement(ModBlocks.HEATER.getId())
             .addElement(ModBlocks.BURNING_HEATER.getId())
             .addElement(ModBlocks.NEUTRON_IRRADIATOR.getId())
