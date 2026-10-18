@@ -372,6 +372,21 @@ public class LargeCauldronBlockEntity extends BlockEntity
         }
     }
 
+    public void ejectOverflow(ItemEntity entity) {
+        Level level = this.level;
+        if (level == null) return;
+        BlockPos origin = this.getMainPart().worldPosition.above(2);
+        for (Direction direction : Direction.Plane.HORIZONTAL) {
+            BlockPos pos = origin.relative(direction, 2);
+            if (!level.isEmptyBlock(pos)) continue;
+            if (level.getBlockState(pos.below()).getBlock() instanceof LargeCauldronBlock) continue;
+            entity.setPos(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5);
+            entity.setDeltaMovement(0.0, 0.0, 0.0);
+            entity.anvilcraft$setIsAdsorbable(true);
+            return;
+        }
+    }
+
     public ItemStack insertRecipeOutput(ItemStack stack) {
         LargeCauldronBlockEntity main = this.getMainPart();
         if (!main.processingOutput) return ItemHandlerUtil.insertItem(main.output, stack, false);
