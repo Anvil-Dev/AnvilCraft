@@ -6,6 +6,7 @@ import dev.dubhe.anvilcraft.api.sliding.SlidingBlockStructureResolver;
 import dev.dubhe.anvilcraft.entity.SlidingBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
+import dev.dubhe.anvilcraft.util.PistonMoveGuard;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.entity.Entity;
@@ -98,6 +99,7 @@ public class SlidingRailStopBlock extends BaseSlidingRailBlock {
             resolver.addIgnorePosition(pos);
         }
         if (!resolver.resolve()) return;
+        PistonMoveGuard.reserve(level, resolver.getToPush(), resolver.getToDestroy());
         List<Triple<BlockPos, BlockState, Optional<BlockEntity>>> toPushes = new ArrayList<>();
         List<BlockPos> toPushPoses = new ArrayList<>(resolver.getToPush());
 
