@@ -56,6 +56,7 @@ import net.minecraft.world.level.block.DoorBlock;
 import net.minecraft.world.level.block.DoublePlantBlock;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
+import net.minecraft.world.level.block.SlabBlock;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.CommandBlockEntity;
@@ -183,6 +184,7 @@ public final class BuildingRodService {
         if (!BuildingRodItem.isHeld(player) || !BuildingRodItem.isPlacementMaterial(held)) return;
         Selection selection = SELECTIONS.remove(player);
         if (!withinReach(player, last, 0)) return;
+        final BlockHitResult endHit = selection != null ? hit : null;
         if (selection != null) {
             if (!selection.first().equals(first) || selection.dimension() != player.level().dimension()
                 || !ItemStack.isSameItemSameComponents(selection.material(), held)) return;
@@ -206,7 +208,7 @@ public final class BuildingRodService {
             return;
         }
         List<Group> groups = held.is(ModItems.FILTER) ? BuildingRodPattern.plan(player, held, first, last, face, seed)
-            : planBlocks(player, held, first, last, face, hit);
+            : planBlocks(player, held, first, last, face, hit, endHit);
         if (groups == null) {
             message(player, "blocked");
             return;
@@ -215,11 +217,16 @@ public final class BuildingRodService {
     }
 
     public static List<Cell> preview(Player player, BlockPos first, BlockPos last, Direction face, @Nullable BlockHitResult hit) {
-        return preview(player, first, last, face, hit, 0);
+        return preview(player, first, last, face, hit, null, 0);
     }
 
     public static List<Cell> preview(Player player, BlockPos first, BlockPos last, Direction face,
                                      @Nullable BlockHitResult hit, long seed) {
+        return preview(player, first, last, face, hit, null, seed);
+    }
+
+    public static List<Cell> preview(Player player, BlockPos first, BlockPos last, Direction face,
+                                     @Nullable BlockHitResult hit, @Nullable BlockHitResult endHit, long seed) {
         ItemStack held = BuildingRodItem.material(player);
         if (!BuildingRodItem.isPlacementMaterial(held)
             || volume(first, last) > AnvilCraft.CONFIG.equipment.buildingRodMaxBlocks) return List.of();
@@ -227,13 +234,13 @@ public final class BuildingRodService {
             return BuildingRodFluids.preview(player, first, last);
         }
         List<Group> groups = held.is(ModItems.FILTER) ? BuildingRodPattern.plan(player, held, first, last, face, seed)
-            : planBlocks(player, held, first, last, face, hit);
+            : planBlocks(player, held, first, last, face, hit, endHit);
         return groups == null ? List.of() : groups.stream().flatMap(group -> group.cells.stream()).toList();
     }
 
     @Nullable
     static List<Group> planBlocks(Player player, ItemStack held, BlockPos first, BlockPos last,
-                                         Direction face, @Nullable BlockHitResult hit) {
+                                         Direction face, @Nullable BlockHitResult hit, @Nullable BlockHitResult endHit) {
         for (BlockPos pos : BlockPos.betweenClosed(first, last)) {
             if (!canModify(player, pos)) return null;
         }
@@ -256,6 +263,7 @@ public final class BuildingRodService {
         }
         List<Group> groups = new ArrayList<>();
         var level = player.level();
+        SlabType slabType = slabType(item, hit, endHit);
         for (BlockPos cursor : BlockPos.betweenClosed(first, last)) {
             BlockPos pos = cursor.immutable();
             if (!level.getBlockState(pos).canBeReplaced()) continue;
@@ -268,9 +276,10 @@ public final class BuildingRodService {
             if (state == null) {
                 return null;
             }
+            if (slabType != null) state = state.setValue(BlockStateProperties.SLAB_TYPE, slabType);
             Group group = new Group();
             addBoxCells(group, pos, state);
-            group.blockMaterials.put(pos, held.copyWithCount(1));
+            group.blockMaterials.put(pos, held.copyWithCount(materialCount(state)));
             groups.add(group);
         }
         Map<BlockPos, Cell> planned = new LinkedHashMap<>();
@@ -666,6 +675,15 @@ public final class BuildingRodService {
             group.entities.add(plan);
         }
         return true;
+    }
+
+    @Nullable
+    private static SlabType slabType(BlockItem item, @Nullable BlockHitResult startHit, @Nullable BlockHitResult endHit) {
+        if (!(item.getBlock() instanceof SlabBlock) || startHit == null || endHit == null) return null;
+        boolean startTop = startHit.getLocation().y - startHit.getBlockPos().getY() > 0.5;
+        boolean endTop = endHit.getLocation().y - endHit.getBlockPos().getY() > 0.5;
+        if (startTop != endTop) return SlabType.DOUBLE;
+        return startTop ? SlabType.TOP : SlabType.BOTTOM;
     }
 
     static int materialCount(BlockState state) {
