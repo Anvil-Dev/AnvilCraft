@@ -247,18 +247,15 @@ public class FishTankBlockEntity extends BlockEntity implements IItemHandlerHold
             int countInSlot = Integer.MAX_VALUE;
             for (int i = 7; i >= 0; i--) {
                 ItemStack stackInSlot = this.getStackInSlot(i);
-                if (stackInSlot.isEmpty() && countInSlot == Integer.MAX_VALUE) {
-                    slot = i;
+                if (stackInSlot.isEmpty()) {
+                    if (slot == -1) slot = i;
                     continue;
                 }
                 if (!ItemStack.isSameItemSameComponents(stackInSlot, stack)) continue;
-                if (countInSlot != Integer.MAX_VALUE) return -1;
                 int stackInSlotCount = stackInSlot.getCount();
-                if (stackInSlotCount < this.getStackLimit(i, stackInSlot)) {
+                if (stackInSlotCount < this.getStackLimit(i, stackInSlot) && stackInSlotCount < countInSlot) {
                     slot = i;
                     countInSlot = stackInSlotCount;
-                } else {
-                    return -1;
                 }
             }
             return slot;
