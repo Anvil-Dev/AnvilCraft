@@ -28,6 +28,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.phys.Vec3;
@@ -141,11 +142,10 @@ public class InWorldRecipeEventListener {
         );
         if (cauldron != null) {
             ItemStack remaining = cauldron.insertRecipeOutput(entity.getItem());
-            if (remaining.isEmpty()) {
-                entity.discard();
-            } else {
-                entity.setItem(remaining);
+            if (!remaining.isEmpty()) {
+                Block.popResource(entity.level(), cauldron.getBlockPos().above(2), remaining);
             }
+            entity.discard();
             return;
         }
         entity.level().getBlockEntity(entity.blockPosition(), ModBlockEntities.FISH_TANK.get())
