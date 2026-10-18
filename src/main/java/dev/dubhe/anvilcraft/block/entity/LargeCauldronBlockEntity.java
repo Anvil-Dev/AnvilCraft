@@ -385,6 +385,8 @@ public class LargeCauldronBlockEntity extends BlockEntity
         }
     }
 
+    private static final int MAX_EJECT_FALL_DISTANCE = 8;
+
     public void ejectOverflow(ItemEntity entity) {
         Level level = this.level;
         if (level == null) return;
@@ -404,13 +406,21 @@ public class LargeCauldronBlockEntity extends BlockEntity
     private static boolean canEjectOverflowAt(Level level, BlockPos pos) {
         if (!level.isEmptyBlock(pos)) return false;
         BlockPos floor = pos.below();
-        while (floor.getY() >= level.getMinY() && level.isEmptyBlock(floor)) {
-            floor = floor.below();
+        for (int fall = 0; fall < MAX_EJECT_FALL_DISTANCE && floor.getY() >= level.getMinY(); fall++) {
+            BlockState state = level.getBlockState(floor);
+            if (isEjectPassable(state, level, floor)) {
+                floor = floor.below();
+                continue;
+            }
+            return !state.is(BlockTags.CAULDRONS) && !state.getCollisionShape(level, floor).isEmpty();
         }
-        if (floor.getY() < level.getMinY()) return false;
-        BlockState floorState = level.getBlockState(floor);
-        return !(floorState.getBlock() instanceof LargeCauldronBlock)
-               && !floorState.getCollisionShape(level, floor).isEmpty();
+        return false;
+    }
+
+    private static boolean isEjectPassable(BlockState state, Level level, BlockPos pos) {
+        return state.getFluidState().isEmpty()
+               && !state.is(BlockTags.FIRE)
+               && state.getCollisionShape(level, pos).isEmpty();
     }
 
     public ItemStack insertRecipeOutput(ItemStack stack) {
