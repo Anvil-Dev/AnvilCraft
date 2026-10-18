@@ -27,14 +27,14 @@ public class MonolithDeployerHandler extends BaseMegastructureHandler {
     }
 
     public static boolean canDeploy(@Nullable CelestialBodyData body, @Nullable PlanetaryResourceSet resources) {
-        return resources != null && !resources.isWasteland() && !isOverworldLike(body)
+        return resources != null && !resources.isWasteland() && !isOverworldLikeBody(body)
             && (resources.hasCivilization() || resources.getBiologicalItems().stream()
                 .filter(entry -> entry.weight() > 0)
                 .map(PlanetaryResourceSet.WeightedItemStack::itemId)
                 .distinct().count() >= 3);
     }
 
-    private static boolean isOverworldLike(@Nullable CelestialBodyData body) {
+    private static boolean isOverworldLikeBody(@Nullable CelestialBodyData body) {
         return body instanceof SpecialCelestialBodyData special
             && special.landing() != null
             && CelestialTravelManager.OVERWORLD_LIKE_DIMENSION.equals(special.landing().dimension());
