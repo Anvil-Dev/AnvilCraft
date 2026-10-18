@@ -45,6 +45,7 @@ public final class CelestialSearchHistory {
                 stellarMass,
                 ageAnvilCount
             ));
+            this.resetBrowsing();
             return;
         }
         this.entries.addFirst(new CelestialForgingAnvilBlockEntity.SearchHistoryEntry(
