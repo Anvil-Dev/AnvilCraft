@@ -54,7 +54,7 @@ public class RedhotBlock extends HeatableBlock implements IMoveableEntityBlock {
             !entity.isSteppingCarefully()
             && entity instanceof LivingEntity
         ) {
-            DamageSource source = ModDamageTypes.hotBlock(level);
+            DamageSource source = ModDamageTypes.redhotBlock(level);
             if (level.isClientSide()) {
                 entity.hurtClient(source);
             } else {
