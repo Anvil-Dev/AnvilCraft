@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.block.entity.megastructure;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.entity.CelestialForgingAnvilBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.celestial.CelestialBodyData;
+import dev.dubhe.anvilcraft.block.entity.celestial.CelestialTravelManager;
 import dev.dubhe.anvilcraft.block.entity.celestial.PlanetResourceGenerator;
 import dev.dubhe.anvilcraft.block.entity.celestial.PlanetaryResourceSet;
 import dev.dubhe.anvilcraft.block.entity.celestial.RockyPlanetData;
@@ -25,12 +26,18 @@ public class MonolithDeployerHandler extends BaseMegastructureHandler {
         return "monolith_deployer";
     }
 
-    public static boolean canDeploy(@Nullable PlanetaryResourceSet resources) {
-        return resources != null && !resources.isWasteland()
+    public static boolean canDeploy(@Nullable CelestialBodyData body, @Nullable PlanetaryResourceSet resources) {
+        return resources != null && !resources.isWasteland() && !isOverworldLike(body)
             && (resources.hasCivilization() || resources.getBiologicalItems().stream()
                 .filter(entry -> entry.weight() > 0)
                 .map(PlanetaryResourceSet.WeightedItemStack::itemId)
                 .distinct().count() >= 3);
+    }
+
+    private static boolean isOverworldLike(@Nullable CelestialBodyData body) {
+        return body instanceof SpecialCelestialBodyData special
+            && special.landing() != null
+            && CelestialTravelManager.OVERWORLD_LIKE_DIMENSION.equals(special.landing().dimension());
     }
 
     @Override
@@ -54,7 +61,7 @@ public class MonolithDeployerHandler extends BaseMegastructureHandler {
         CelestialBodyData body = be.getCelestialBodyData();
         boolean planet = body instanceof RockyPlanetData
             || body instanceof SpecialCelestialBodyData special && !special.isErrorPlanet();
-        if (!planet || !canDeploy(resources)) {
+        if (!planet || !canDeploy(body, resources)) {
             be.clearMegastructure();
             level.sendBlockUpdated(be.getBlockPos(), be.getBlockState(), be.getBlockState(), 3);
             return;
