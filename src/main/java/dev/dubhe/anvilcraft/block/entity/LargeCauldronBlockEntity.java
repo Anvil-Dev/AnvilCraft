@@ -117,6 +117,7 @@ public class LargeCauldronBlockEntity extends BlockEntity
         {0, 0}, {-1, 0}, {1, 0}, {0, -1}, {0, 1}, {-1, -1}, {-1, 1}, {1, -1}, {1, 1}
     };
     private static final double CONTENT_HEIGHT = 2.25;
+    private static final int MAX_EJECT_FALL_DISTANCE = 8;
     private static final ResourceHandler<ItemResource> EMPTY_HANDLER = new EmptyItemHandler();
     private static final InWorldRecipeData<Map<Long, FluidRecipeState>> FLUID_RECIPE_STATES =
         InWorldRecipeData.of(AnvilCraft.of("large_cauldron_fluid_states"), (context, key) -> new HashMap<>());
@@ -385,8 +386,6 @@ public class LargeCauldronBlockEntity extends BlockEntity
         }
     }
 
-    private static final int MAX_EJECT_FALL_DISTANCE = 8;
-
     public void ejectOverflow(ItemEntity entity) {
         Level level = this.level;
         if (level == null) return;
@@ -404,7 +403,7 @@ public class LargeCauldronBlockEntity extends BlockEntity
     }
 
     private static boolean canEjectOverflowAt(Level level, BlockPos pos) {
-        if (!level.isEmptyBlock(pos)) return false;
+        if (!isEjectPassable(level.getBlockState(pos), level, pos)) return false;
         BlockPos floor = pos.below();
         for (int fall = 0; fall < MAX_EJECT_FALL_DISTANCE && floor.getY() >= level.getMinY(); fall++) {
             BlockState state = level.getBlockState(floor);
