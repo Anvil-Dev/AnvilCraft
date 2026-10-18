@@ -1,8 +1,10 @@
 package dev.dubhe.anvilcraft.integration.jei.category.anvil;
 
 import dev.anvilcraft.lib.v2.util.predicate.ChanceItemStack;
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.client.support.RenderSupport;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
+import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.integration.jei.AnvilCraftJeiPlugin;
 import dev.dubhe.anvilcraft.integration.jei.drawable.DrawableBlockStateIcon;
@@ -18,9 +20,11 @@ import mezz.jei.api.registration.IRecipeRegistration;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.block.Blocks;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class ItemCrushCategory extends AbstractProgressCategory<ItemCrushRecipe> {
@@ -76,9 +80,25 @@ public class ItemCrushCategory extends AbstractProgressCategory<ItemCrushRecipe>
     }
 
     public static void registerRecipes(IRecipeRegistration registration) {
-        registration.addRecipes(
-            AnvilCraftJeiPlugin.ITEM_CRUSH,
-            JeiRecipeUtil.getRecipeHoldersFromType(ModRecipeTypes.ITEM_CRUSH_TYPE.get()));
+        List<RecipeHolder<ItemCrushRecipe>> recipes = new ArrayList<>(
+            JeiRecipeUtil.getRecipeHoldersFromType(ModRecipeTypes.ITEM_CRUSH_TYPE.get())
+        );
+        recipes.add(new RecipeHolder<>(
+            AnvilCraft.of("item_crush/item_crush/gem_from_chromatic_stone"),
+            chromaticStoneRecipe()
+        ));
+        registration.addRecipes(AnvilCraftJeiPlugin.ITEM_CRUSH, recipes);
+    }
+
+    private static ItemCrushRecipe chromaticStoneRecipe() {
+        return ItemCrushRecipe.builder()
+            .requires(ModBlocks.CHROMATIC_STONE)
+            .result(ModItems.RUBY, 0.25f)
+            .result(ModItems.TOPAZ, 0.25f)
+            .result(ModItems.SAPPHIRE, 0.25f)
+            .result(Items.EMERALD, 0.25f)
+            .result(Items.QUARTZ, 3)
+            .buildRecipe();
     }
 
     public static void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
