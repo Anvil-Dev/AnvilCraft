@@ -91,10 +91,8 @@ public class InWorldRecipeEventListener {
             if (remaining.isEmpty()) {
                 entity.discard();
             } else {
-                BlockPos drop = cauldron.getBlockPos().above(2).east(2);
                 entity.setItem(remaining);
-                entity.setPos(drop.getX() + 0.5, drop.getY(), drop.getZ() + 0.5);
-                entity.setDeltaMovement(0.0, 0.0, 0.0);
+                cauldron.ejectOverflow(entity);
             }
             return;
         }
