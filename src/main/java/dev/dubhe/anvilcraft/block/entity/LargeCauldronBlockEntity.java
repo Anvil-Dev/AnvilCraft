@@ -403,6 +403,7 @@ public class LargeCauldronBlockEntity extends BlockEntity
     }
 
     private static boolean canEjectOverflowAt(Level level, BlockPos pos) {
+        if (!level.isLoaded(pos)) return false;
         if (!isEjectPassable(level.getBlockState(pos), level, pos)) return false;
         BlockPos floor = pos.below();
         for (int fall = 0; fall < MAX_EJECT_FALL_DISTANCE && floor.getY() >= level.getMinY(); fall++) {
@@ -417,7 +418,8 @@ public class LargeCauldronBlockEntity extends BlockEntity
     }
 
     private static boolean isEjectPassable(BlockState state, Level level, BlockPos pos) {
-        return state.getFluidState().isEmpty()
+        return !state.is(BlockTags.CAULDRONS)
+               && state.getFluidState().isEmpty()
                && !state.is(BlockTags.FIRE)
                && state.getCollisionShape(level, pos).isEmpty();
     }
