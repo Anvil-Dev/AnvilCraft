@@ -57,7 +57,7 @@ public class RedhotBlock extends HeatableBlock implements IMoveableEntityBlock {
     public void stepOn(Level level, BlockPos pos, BlockState state, Entity entity) {
         if (!entity.isSteppingCarefully()
             && entity instanceof LivingEntity) {
-            entity.hurt(ModDamageTypes.hotBlock(level), this.steppingDamage);
+            entity.hurt(ModDamageTypes.redhotBlock(level), this.steppingDamage);
         }
         super.stepOn(level, pos, state, entity);
     }
