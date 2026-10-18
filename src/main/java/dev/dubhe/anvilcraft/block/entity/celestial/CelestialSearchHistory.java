@@ -37,6 +37,14 @@ public final class CelestialSearchHistory {
     ) {
         if (!this.entries.isEmpty()
             && this.entries.getFirst().body().toTag().equals(body.toTag())) {
+            this.entries.set(0, new CelestialForgingAnvilBlockEntity.SearchHistoryEntry(
+                body,
+                resources,
+                true,
+                bodySeed,
+                stellarMass,
+                ageAnvilCount
+            ));
             return;
         }
         this.entries.addFirst(new CelestialForgingAnvilBlockEntity.SearchHistoryEntry(
@@ -97,7 +105,7 @@ public final class CelestialSearchHistory {
         }
         this.browseIndex++;
         if (this.browseIndex > size) return null;
-        return this.entries.get(this.browseIndex - 1);
+        return this.withStats(this.entries.get(this.browseIndex - 1));
     }
 
     public @Nullable CelestialForgingAnvilBlockEntity.SearchHistoryEntry next() {
@@ -109,7 +117,22 @@ public final class CelestialSearchHistory {
             this.originalEntry = null;
             return result;
         }
-        return this.entries.get(this.browseIndex - 1);
+        return this.withStats(this.entries.get(this.browseIndex - 1));
+    }
+
+    private CelestialForgingAnvilBlockEntity.SearchHistoryEntry withStats(
+        CelestialForgingAnvilBlockEntity.SearchHistoryEntry entry
+    ) {
+        if (entry.hasStats() || this.originalEntry == null) return entry;
+        CelestialForgingAnvilBlockEntity.SearchHistoryEntry live = this.originalEntry;
+        return new CelestialForgingAnvilBlockEntity.SearchHistoryEntry(
+            entry.body(),
+            entry.resources(),
+            true,
+            live.bodySeed(),
+            live.stellarMass(),
+            live.ageAnvilCount()
+        );
     }
 
     public CompoundTag toTag() {
