@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.data.recipe;
 
 import dev.anvilcraft.lib.v2.registrum.providers.generators.RegistrumRecipeProvider;
+import dev.dubhe.anvilcraft.block.entity.celestial.CelestialTravelManager;
 import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.recipe.mineral.MineralFountainChanceRecipe;
@@ -42,6 +43,18 @@ public class MineralFountainRecipeLoader {
 
         MineralFountainChanceRecipe.builder()
             .dimension(Level.OVERWORLD.identifier())
+            .fromBlock(Blocks.DEEPSLATE)
+            .toBlock(ModBlocks.EARTH_CORE_SHARD_ORE.get(), 0.01F)
+            .save(provider);
+
+        MineralFountainChanceRecipe.builder()
+            .dimension(CelestialTravelManager.OVERWORLD_LIKE_DIMENSION)
+            .fromBlock(Blocks.DEEPSLATE)
+            .toBlock(ModBlocks.VOID_STONE.get(), 0.01F)
+            .save(provider);
+
+        MineralFountainChanceRecipe.builder()
+            .dimension(CelestialTravelManager.OVERWORLD_LIKE_DIMENSION)
             .fromBlock(Blocks.DEEPSLATE)
             .toBlock(ModBlocks.EARTH_CORE_SHARD_ORE.get(), 0.01F)
             .save(provider);
