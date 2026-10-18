@@ -263,7 +263,7 @@ public final class BuildingRodService {
         }
         List<Group> groups = new ArrayList<>();
         var level = player.level();
-        SlabType slabType = slabType(item, hit, endHit);
+        SlabType slabType = slabType(item, first, last, hit, endHit);
         for (BlockPos cursor : BlockPos.betweenClosed(first, last)) {
             BlockPos pos = cursor.immutable();
             if (!level.getBlockState(pos).canBeReplaced()) continue;
@@ -276,7 +276,10 @@ public final class BuildingRodService {
             if (state == null) {
                 return null;
             }
-            if (slabType != null) state = state.setValue(BlockStateProperties.SLAB_TYPE, slabType);
+            if (slabType != null) {
+                state = state.setValue(BlockStateProperties.SLAB_TYPE, slabType);
+                if (slabType == SlabType.DOUBLE) state = state.setValue(BlockStateProperties.WATERLOGGED, false);
+            }
             Group group = new Group();
             addBoxCells(group, pos, state);
             group.blockMaterials.put(pos, held.copyWithCount(materialCount(state)));
@@ -678,10 +681,11 @@ public final class BuildingRodService {
     }
 
     @Nullable
-    private static SlabType slabType(BlockItem item, @Nullable BlockHitResult startHit, @Nullable BlockHitResult endHit) {
+    private static SlabType slabType(BlockItem item, BlockPos first, BlockPos last,
+                                     @Nullable BlockHitResult startHit, @Nullable BlockHitResult endHit) {
         if (!(item.getBlock() instanceof SlabBlock) || startHit == null || endHit == null) return null;
-        boolean startTop = startHit.getLocation().y - startHit.getBlockPos().getY() > 0.5;
-        boolean endTop = endHit.getLocation().y - endHit.getBlockPos().getY() > 0.5;
+        boolean startTop = startHit.getLocation().y - first.getY() > 0.5;
+        boolean endTop = endHit.getLocation().y - last.getY() > 0.5;
         if (startTop != endTop) return SlabType.DOUBLE;
         return startTop ? SlabType.TOP : SlabType.BOTTOM;
     }
