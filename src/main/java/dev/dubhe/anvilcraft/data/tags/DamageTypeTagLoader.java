@@ -93,6 +93,12 @@ public class DamageTypeTagLoader {
             .addOptional(ModDamageTypes.LASER.location())
             .addOptional(ModDamageTypes.STAR_CONTACT.location());
 
+        provider.addTag(DamageTypeTags.BURN_FROM_STEPPING)
+            .addOptional(ModDamageTypes.REDHOT_BLOCK.location());
+
+        provider.addTag(DamageTypeTags.PANIC_ENVIRONMENTAL_CAUSES)
+            .addOptional(ModDamageTypes.REDHOT_BLOCK.location());
+
         provider.addTag(DamageTypeTags.IS_FALL)
             .addOptional(ModDamageTypes.PLANET_CONTACT.location());
     }
