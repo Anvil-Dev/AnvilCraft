@@ -17,6 +17,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.GrowingPlantBlock;
 import net.minecraft.world.level.block.SugarCaneBlock;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.Vec3;
@@ -40,6 +41,29 @@ public record HarvestLeftClickEffect(int range) implements EnchantmentEntityEffe
             return;
         }
         if (!itemStack.is(ItemTags.HOES)) {
+            return;
+        }
+        if (state.is(BlockTags.LEAVES)) {
+            for (BlockPos blockPos : BlockPos.betweenClosed(pos.offset(r, r, r), pos.offset(-r, -r, -r))) {
+                if (itemStack.isEmpty()) {
+                    break;
+                }
+                if (blockPos.equals(pos)) {
+                    continue;
+                }
+                BlockState blockState = level.getBlockState(blockPos);
+                if (!blockState.is(BlockTags.LEAVES)) {
+                    continue;
+                }
+                BlockEntity blockEntity = level.getBlockEntity(blockPos);
+                if (!level.removeBlock(blockPos, false)) {
+                    continue;
+                }
+                if (!player.isCreative()) {
+                    blockState.getBlock().playerDestroy(level, player, blockPos, blockState, blockEntity, itemStack);
+                    itemStack.hurtAndBreak(1, level, player, enchantedItemInUse.onBreak());
+                }
+            }
             return;
         }
         if (this.isGrass(state)) {
