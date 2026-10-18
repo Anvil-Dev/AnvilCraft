@@ -16,7 +16,7 @@ public final class CelestialSearchHistory {
     private int browseIndex;
     private @Nullable Entry originalEntry;
 
-    /** 添加结果；若与最新记录完全相同则忽略。 */
+    /** 添加结果；与最新记录同一天体时刷新该条记录的参数。 */
     public void add(
         CelestialBodyData body,
         @Nullable PlanetaryResourceSet resources,
@@ -26,6 +26,7 @@ public final class CelestialSearchHistory {
     ) {
         if (!this.entries.isEmpty() && this.entries.getFirst().body().toTag().equals(body.toTag())) {
             this.entries.set(0, new Entry(body, resources, true, bodySeed, stellarMass, ageAnvilCount));
+            this.resetBrowsing();
             return;
         }
         this.entries.addFirst(new Entry(body, resources, true, bodySeed, stellarMass, ageAnvilCount));
