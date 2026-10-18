@@ -12,6 +12,7 @@ import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.item.property.component.StoredEnergy;
+import dev.dubhe.anvilcraft.util.PistonMoveGuard;
 import lombok.extern.slf4j.Slf4j;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -213,7 +214,11 @@ public class PropelPistonBlock extends DirectionalBlock implements IMoveableEnti
                 level.setBlockAndUpdate(pos, state.setValue(PropelPistonBlock.MOVING, false));
                 return false;
             }
-            if (!this.moveBlocks(level, pos, direction)) {
+            boolean moved;
+            try (PistonMoveGuard.Scope ignored = level.isClientSide() ? null : PistonMoveGuard.begin(level)) {
+                moved = this.moveBlocks(level, pos, direction);
+            }
+            if (!moved) {
                 level.setBlockAndUpdate(pos, state.setValue(PropelPistonBlock.MOVING, false));
                 return false;
             }
