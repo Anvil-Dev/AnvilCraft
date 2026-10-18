@@ -119,14 +119,8 @@ public final class BuildingRodService {
 
         private static CompoundTag withoutClocks(CompoundTag config) {
             CompoundTag copy = config.copy();
-            removeClocks(copy);
+            BlueprintRuntimeData.stripClocks(copy);
             return copy;
-        }
-
-        private static void removeClocks(CompoundTag tag) {
-            tag.remove("PhaseStartGameTime");
-            tag.remove("RollStart");
-            if (tag.contains("ExtraData")) removeClocks(tag.getCompoundOrEmpty("ExtraData"));
         }
     }
 
