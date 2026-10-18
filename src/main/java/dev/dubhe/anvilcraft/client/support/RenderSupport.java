@@ -376,10 +376,16 @@ public class RenderSupport {
 
         float offsetX = (float) -sizeX / 2 + centerOffset;
         float offsetZ = (float) -sizeX / 2 + 1 + centerOffset;
-        float rotationY = (clientLevel.getGameTime() + tracker.getGameTimeDeltaPartialTick(true)) * rotationSpeed;
+        // getGameTime() 随世界运行不断增大，角度又只以 360 度为周期，因此先用 double 累加再取模：
+        // 若直接以 float 乘大数值，有效位数会不够用，小角度变化被吃掉，动画随之变得一顿一顿
+        double rotationY = Mth.positiveModulo(
+            (double) clientLevel.getGameTime() * rotationSpeed
+                + (double) tracker.getGameTimeDeltaPartialTick(true) * rotationSpeed,
+            360.0
+        );
 
         pose.translate(-offsetX, 0, -offsetZ);
-        pose.mulPose(Axis.YP.rotationDegrees(rotationY + 45));
+        pose.mulPose(Axis.YP.rotationDegrees((float) rotationY + 45));
 
         pose.translate(offsetX, 0, offsetZ);
 
