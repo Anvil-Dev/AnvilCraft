@@ -97,8 +97,6 @@ public class AutoEnchantingTableBlockEntity extends BlockEntity
     public static final int LIQUID_POWER_PER_ENCHANTMENT = 64;
 
     private final ItemStacksResourceHandler itemHandler = new ItemStacksResourceHandler(3) {
-        private boolean movingToOutput;
-
         @Override
         public int getCapacity(int slot, ItemResource resource) {
             return 1;
@@ -114,16 +112,6 @@ public class AutoEnchantingTableBlockEntity extends BlockEntity
         }
 
         @Override
-        public int insert(int slot, ItemResource resource, int amount, TransactionContext transaction) {
-            return this.movingToOutput ? 0 : super.insert(slot, resource, amount, transaction);
-        }
-
-        @Override
-        public int extract(int slot, ItemResource resource, int amount, TransactionContext transaction) {
-            return this.movingToOutput ? 0 : super.extract(slot, resource, amount, transaction);
-        }
-
-        @Override
         protected void onContentsChanged(int slot, ItemStack previousContents) {
             // 反序列化（chunk 加载 / 客户端更新包）期间不执行流转逻辑，否则会在 WorkMode 读取前
             // 误将液态魔咒模式下输入槽的已附魔物品透传到输出槽，并过早发送块更新。
@@ -136,8 +124,7 @@ public class AutoEnchantingTableBlockEntity extends BlockEntity
                 && !AutoEnchantingTableBlockEntity.this.level.isClientSide()
             ) {
                 if (
-                    !this.movingToOutput
-                    && slot == SLOT_INPUT
+                    slot == SLOT_INPUT
                     && !AutoEnchantingTableBlockEntity.this.getItem(SLOT_INPUT).isEmpty()
                 ) {
                     if (
