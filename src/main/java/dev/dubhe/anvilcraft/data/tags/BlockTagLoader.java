@@ -118,7 +118,6 @@ public class BlockTagLoader {
 
         provider.rawBuilder(ModBlockTags.UNDER_CAULDRON)
             .addTag(BlockTags.CAMPFIRES.location())
-            .addElement(BlockTagLoader.findId(Blocks.MAGMA_BLOCK))
             .addElement(ModBlocks.HEATER.getId())
             .addElement(ModBlocks.BURNING_HEATER.getId())
             .addElement(ModBlocks.NEUTRON_IRRADIATOR.getId())
