@@ -684,10 +684,22 @@ public final class BuildingRodService {
     private static SlabType slabType(BlockItem item, BlockPos first, BlockPos last,
                                      @Nullable BlockHitResult startHit, @Nullable BlockHitResult endHit) {
         if (!(item.getBlock() instanceof SlabBlock) || startHit == null || endHit == null) return null;
-        boolean startTop = startHit.getLocation().y - first.getY() > 0.5;
-        boolean endTop = endHit.getLocation().y - last.getY() > 0.5;
+        if (!corresponds(startHit, first) || !corresponds(endHit, last)) return null;
+        boolean startTop = topHalf(startHit, first);
+        boolean endTop = topHalf(endHit, last);
         if (startTop != endTop) return SlabType.DOUBLE;
         return startTop ? SlabType.TOP : SlabType.BOTTOM;
+    }
+
+    private static boolean corresponds(BlockHitResult hit, BlockPos pos) {
+        return hit.getBlockPos().equals(pos) || hit.getBlockPos().relative(hit.getDirection()).equals(pos);
+    }
+
+    private static boolean topHalf(BlockHitResult hit, BlockPos pos) {
+        Direction face = hit.getDirection();
+        if (face == Direction.DOWN) return true;
+        if (face == Direction.UP) return false;
+        return hit.getLocation().y - pos.getY() > 0.5;
     }
 
     static int materialCount(BlockState state) {

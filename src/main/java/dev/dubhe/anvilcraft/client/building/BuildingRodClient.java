@@ -65,7 +65,6 @@ public final class BuildingRodClient {
     private static Rotation rotationOffset = Rotation.NONE;
     private static double previewDistance = 5;
     private static boolean distanceHeld;
-    private static boolean distanceUsed;
     private static BlockPos selectionOffset = BlockPos.ZERO;
     private static BlockPos blueprintOffset = BlockPos.ZERO;
     @Nullable private static StructureSnapshot tiledSnapshot;
@@ -207,10 +206,7 @@ public final class BuildingRodClient {
                     1, mc.player.blockInteractionRange());
             }
             target = BlockPos.containing(mc.player.getEyePosition().add(mc.player.getLookAngle().scale(previewDistance)));
-            if (first != null) {
-                target = target.offset(selectionOffset);
-                distanceUsed = true;
-            }
+            if (first != null) target = target.offset(selectionOffset);
             face = Direction.UP;
         } else if (result instanceof BlockHitResult hit && result.getType() == HitResult.Type.BLOCK) {
             currentHit = hit;
@@ -345,9 +341,8 @@ public final class BuildingRodClient {
             return;
         } else if (target != null) {
             BuildingRodItemRenderer.preparePlacement();
-            BlockHitResult endHit = distanceUsed ? null : (currentHit != null ? currentHit : firstHit);
             PacketDistributor.sendToServer(new BuildingRodPacket(first, target, firstHit == null ? face : firstHit.getDirection(),
-                false, Rotation.NONE, Mirror.NONE, false, endHit,
+                false, Rotation.NONE, Mirror.NONE, false, currentHit != null ? currentHit : firstHit,
                 BuildingRodPacket.Action.PLACE, patternSeed));
         }
         clearSelection();
@@ -362,7 +357,6 @@ public final class BuildingRodClient {
         patternSeed = PATTERN_RANDOM.nextLong();
         placementCells = null;
         distanceHeld = false;
-        distanceUsed = false;
         selectionOffset = BlockPos.ZERO;
         KEY_REPEAT.clear();
     }
@@ -396,7 +390,7 @@ public final class BuildingRodClient {
         if (placementCells == null) {
             placementCells = BuildingRodService.preview(player, first == null ? target : first, target,
                 firstHit == null ? face : firstHit.getDirection(),
-                first == null ? currentHit : firstHit, first == null || distanceUsed ? null : currentHit, patternSeed);
+                first == null ? currentHit : firstHit, first == null ? null : currentHit, patternSeed);
         }
         return placementCells;
     }
