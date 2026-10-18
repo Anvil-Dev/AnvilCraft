@@ -3,16 +3,15 @@ package dev.dubhe.anvilcraft.recipe.anvil.util;
 import dev.anvilcraft.lib.v2.recipe.cache.ItemResourceHandlerCache;
 import dev.anvilcraft.lib.v2.recipe.cache.item.ICacheElement;
 import dev.anvilcraft.lib.v2.recipe.util.InWorldRecipeContext;
-import dev.dubhe.anvilcraft.api.block.IDamagingHeater;
 import dev.dubhe.anvilcraft.block.entity.FishTankBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.LargeCauldronBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlockTags;
+import dev.dubhe.anvilcraft.util.HeaterUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.CampfireBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jspecify.annotations.Nullable;
@@ -60,14 +59,8 @@ public final class RecipeOutputTracker {
         BlockPos cauldronPos = BlockPos.containing(context.getPos()).below();
         Level level = context.getLevel();
         BlockState below = level.getBlockState(cauldronPos.below());
-        if (!below.is(ModBlockTags.UNDER_CAULDRON) || !isHeating(below)) return ALL_SOURCES;
+        if (!below.is(ModBlockTags.UNDER_CAULDRON) || !HeaterUtil.isActiveHeatSource(below)) return ALL_SOURCES;
         return element -> isRecipeOutput(element, level, cauldronPos);
-    }
-
-    private static boolean isHeating(BlockState state) {
-        if (state.getBlock() instanceof IDamagingHeater heater) return heater.isActive(state);
-        if (state.is(BlockTags.CAMPFIRES)) return state.getValue(CampfireBlock.LIT);
-        return true;
     }
 
     private static boolean isRecipeOutput(ICacheElement element, Level level, BlockPos cauldronPos) {
