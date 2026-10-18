@@ -222,22 +222,23 @@ public class FishTankBlockEntity extends BlockEntity implements IItemResourceHan
     private final PollableItemHandler input = new PollableItemHandler(8) {
         @Override
         protected int getEmptyOrSmallerSlot(ItemResource resource) {
-            int slot = -1;
-            int countInSlot = Integer.MAX_VALUE;
+            int mergeSlot = -1;
+            int mergeAmount = Integer.MAX_VALUE;
+            int emptySlot = -1;
             for (int i = 7; i >= 0; i--) {
                 ItemResource resourceIn = this.getResource(i);
                 if (resourceIn.isEmpty()) {
-                    if (slot == -1) slot = i;
+                    if (emptySlot == -1) emptySlot = i;
                     continue;
                 }
                 if (!resourceIn.equals(resource)) continue;
                 int amountIn = this.getAmountAsInt(i);
-                if (amountIn < this.getCapacityAsIntDirect(i, resourceIn) && amountIn < countInSlot) {
-                    slot = i;
-                    countInSlot = amountIn;
+                if (amountIn < this.getCapacityAsIntDirect(i, resourceIn) && amountIn < mergeAmount) {
+                    mergeSlot = i;
+                    mergeAmount = amountIn;
                 }
             }
-            return slot;
+            return mergeSlot != -1 ? mergeSlot : emptySlot;
         }
 
         @Override
