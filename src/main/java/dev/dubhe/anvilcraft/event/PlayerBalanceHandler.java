@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.event;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItems;
+import dev.dubhe.anvilcraft.inventory.PocketInventory;
 import dev.dubhe.anvilcraft.rpc.StorageServerStub;
 import dev.dubhe.anvilcraft.saved.setting.mode.BalanceMode;
 import net.minecraft.server.level.ServerPlayer;
@@ -188,6 +189,15 @@ public class PlayerBalanceHandler {
             Inventory inventory = player.getInventory();
             for (int slot = 0; slot < inventory.getContainerSize(); slot++) {
                 ItemStack stack = inventory.getItem(slot);
+                if (PlayerBalanceHandler.isTerminal(stack)) {
+                    return stack;
+                }
+            }
+            return ItemStack.EMPTY;
+        });
+        // 口袋槽位：终端放在口袋中时同样提供均衡模式
+        PlayerBalanceHandler.TERMINAL_PROVIDERS.add(player -> {
+            for (ItemStack stack : PocketInventory.items(player)) {
                 if (PlayerBalanceHandler.isTerminal(stack)) {
                     return stack;
                 }
