@@ -2398,7 +2398,7 @@ public final class StorageServerStub {
     }
 
     public static boolean withdrawForPickItem(ServerPlayer player, ItemStack wanted) {
-        if (wanted.isEmpty() || player.hasInfiniteMaterials()) return false;
+        if (wanted.isEmpty() || player.hasInfiniteMaterials() || player.isSpectator()) return false;
         ItemResource resource = ItemResource.of(wanted.copyWithCount(1));
         try (Transaction transaction = Transaction.openRoot()) {
             var inventory = PlayerInventoryWrapper.of(player).getMainSlots();

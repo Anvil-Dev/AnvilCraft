@@ -26,7 +26,6 @@ abstract class TerminalPickMixin {
     private int anvilcraft$pickFromTerminal(Inventory inventory, ItemStack stack, Operation<Integer> original) {
         int slot = original.call(inventory, stack);
         if (slot != -1) return slot;
-        StorageServerStub.withdrawForPickItem(this.player, stack);
-        return original.call(inventory, stack);
+        return StorageServerStub.withdrawForPickItem(this.player, stack) ? original.call(inventory, stack) : -1;
     }
 }
