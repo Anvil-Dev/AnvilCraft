@@ -23,10 +23,12 @@ import net.minecraft.world.level.block.BedBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.DoorBlock;
 import net.minecraft.world.level.block.DoublePlantBlock;
+import net.minecraft.world.level.block.SlabBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BedPart;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
+import net.minecraft.world.level.block.state.properties.SlabType;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.Nullable;
@@ -42,7 +44,7 @@ public final class BuildingBlockPlanner {
 
     @Nullable
     static List<Group> planBlocks(Player player, ItemStack held, BlockPos first, BlockPos last,
-                                         Direction face, @Nullable BlockHitResult hit) {
+                                         Direction face, @Nullable BlockHitResult hit, @Nullable BlockHitResult endHit) {
         for (BlockPos pos : BlockPos.betweenClosed(first, last)) {
             if (!BuildingCommit.canModify(player, pos)) return null;
         }
@@ -65,6 +67,7 @@ public final class BuildingBlockPlanner {
         }
         List<Group> groups = new ArrayList<>();
         var level = player.level();
+        SlabType slabType = slabType(item, hit, endHit);
         for (BlockPos cursor : BlockPos.betweenClosed(first, last)) {
             BlockPos pos = cursor.immutable();
             if (!level.getBlockState(pos).canBeReplaced()) continue;
@@ -77,9 +80,10 @@ public final class BuildingBlockPlanner {
             if (state == null) {
                 return null;
             }
+            if (slabType != null) state = state.setValue(BlockStateProperties.SLAB_TYPE, slabType);
             Group group = new Group();
             addBoxCells(group, pos, state);
-            group.blockMaterials.put(pos, held.copyWithCount(1));
+            group.blockMaterials.put(pos, held.copyWithCount(BuildingRodService.materialCount(state)));
             groups.add(group);
         }
         Map<BlockPos, Cell> planned = new LinkedHashMap<>();
@@ -200,6 +204,15 @@ public final class BuildingBlockPlanner {
             if (!cell.pos().equals(context.getClickedPos()) && !use.getLevel().getBlockState(cell.pos()).canBeReplaced()) return List.of();
         }
         return List.copyOf(group.cells);
+    }
+
+    @Nullable
+    private static SlabType slabType(BlockItem item, @Nullable BlockHitResult startHit, @Nullable BlockHitResult endHit) {
+        if (!(item.getBlock() instanceof SlabBlock) || startHit == null || endHit == null) return null;
+        boolean startTop = startHit.getLocation().y - startHit.getBlockPos().getY() > 0.5;
+        boolean endTop = endHit.getLocation().y - endHit.getBlockPos().getY() > 0.5;
+        if (startTop != endTop) return SlabType.DOUBLE;
+        return startTop ? SlabType.TOP : SlabType.BOTTOM;
     }
 
     private static void addBoxCells(Group group, BlockPos pos, BlockState state) {
