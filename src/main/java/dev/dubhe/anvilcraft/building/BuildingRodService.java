@@ -96,7 +96,8 @@ public final class BuildingRodService {
                 Cell expected = this.cells.get(i);
                 Cell current = planned.get(i);
                 if (!expected.pos().equals(current.pos()) || !expected.state().equals(current.state())
-                    || !expected.config().equals(current.config()) || expected.contents().size() != current.contents().size()) return false;
+                    || !sameConfig(expected.config(), current.config())
+                    || expected.contents().size() != current.contents().size()) return false;
                 for (int slot = 0; slot < expected.contents().size(); slot++) {
                     var first = expected.contents().get(slot);
                     var second = current.contents().get(slot);
@@ -110,6 +111,22 @@ public final class BuildingRodService {
                 if (!ItemStack.matches(this.materials.get(i), supplied.get(i))) return false;
             }
             return true;
+        }
+
+        private static boolean sameConfig(CompoundTag expected, CompoundTag current) {
+            return withoutClocks(expected).equals(withoutClocks(current));
+        }
+
+        private static CompoundTag withoutClocks(CompoundTag config) {
+            CompoundTag copy = config.copy();
+            removeClocks(copy);
+            return copy;
+        }
+
+        private static void removeClocks(CompoundTag tag) {
+            tag.remove("PhaseStartGameTime");
+            tag.remove("RollStart");
+            if (tag.contains("ExtraData")) removeClocks(tag.getCompoundOrEmpty("ExtraData"));
         }
     }
 
