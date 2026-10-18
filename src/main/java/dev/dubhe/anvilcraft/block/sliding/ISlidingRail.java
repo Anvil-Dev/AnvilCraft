@@ -4,6 +4,7 @@ import dev.anvilcraft.lib.v2.piston.IMoveableEntityBlock;
 import dev.dubhe.anvilcraft.api.injection.block.IBlockExtension;
 import dev.dubhe.anvilcraft.api.sliding.SlidingBlockStructureResolver;
 import dev.dubhe.anvilcraft.entity.SlidingBlockEntity;
+import dev.dubhe.anvilcraft.util.PistonMoveGuard;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -112,7 +113,10 @@ public interface ISlidingRail extends IBlockExtension {
 
     static boolean whenTriggerEvent(Level level, BlockPos pos, int param) {
         Direction direction = Direction.from3DDataValue(param);
-        return moveBlocks(level, pos.above(), direction);
+        if (level.isClientSide()) return moveBlocks(level, pos.above(), direction);
+        try (PistonMoveGuard.Scope ignored = PistonMoveGuard.begin(level)) {
+            return moveBlocks(level, pos.above(), direction);
+        }
     }
 
     static boolean moveBlocks(Level level, BlockPos pos, Direction facing) {
@@ -120,6 +124,7 @@ public interface ISlidingRail extends IBlockExtension {
         if (level.getBlockState(pos).is(Blocks.MOVING_PISTON)) return false;
         SlidingBlockStructureResolver resolver = new SlidingBlockStructureResolver(level, pos, facing, true);
         if (!resolver.resolve()) return false;
+        PistonMoveGuard.reserve(level, resolver.getToPush(), resolver.getToDestroy());
         List<Triple<BlockPos, BlockState, Optional<BlockEntity>>> toPushes = new ArrayList<>();
         List<BlockPos> toPushPoses = resolver.getToPush();
 
