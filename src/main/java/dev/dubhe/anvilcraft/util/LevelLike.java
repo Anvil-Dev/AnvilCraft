@@ -10,6 +10,7 @@ import dev.dubhe.anvilcraft.building.BlueprintPlacement;
 import dev.dubhe.anvilcraft.building.BuildingEntityTransform;
 import dev.dubhe.anvilcraft.building.EntityBuildAdapters;
 import dev.dubhe.anvilcraft.building.StructureSnapshot;
+import dev.dubhe.anvilcraft.recipe.multiblock.MultiblockUtil;
 import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.client.Minecraft;
@@ -144,7 +145,7 @@ public class LevelLike implements BlockAndTintGetter {
     public void setBlockStateWithAlpha(BlockPos pos, BlockStatePredicate predicate) {
         this.blocks.removeAll(pos);
         List<BlockStateAndEntity> blocks = new ArrayList<>();
-        for (BlockState state : predicate.constructStatesForRender()) {
+        for (BlockState state : collectRenderStates(predicate)) {
             if (!(state.getBlock() instanceof EntityBlock entityBlock)) {
                 blocks.add(new BlockStateAndEntity(state));
                 continue;
@@ -187,6 +188,14 @@ public class LevelLike implements BlockAndTintGetter {
         // noinspection deprecation
         be.setBlockState(state);
         this.blocks.put(pos, new BlockStateAndEntity(state, be));
+    }
+
+    private static List<BlockState> collectRenderStates(BlockStatePredicate predicate) {
+        List<BlockState> states = predicate.constructStatesForRender().stream()
+            .filter(predicate::testWithoutEntity)
+            .toList();
+        if (!states.isEmpty()) return states;
+        return List.of(MultiblockUtil.getDefaultState(predicate));
     }
     
     public Set<BlockPos> getAlwaysRenderBlocks() {
