@@ -60,6 +60,7 @@ public class OtherLang {
         provider.add("death.attack.anvilcraft.lost_in_time", "%1$s was lost in the river of time");
         provider.add("death.attack.anvilcraft.heater_burn", "%1$s was well done by the heater");
         provider.add("death.attack.anvilcraft.redhot_block", "%1$s was scorched by a scorching-hot block");
+        provider.add("death.attack.anvilcraft.redhot_block.player", "%1$s stepped into the danger zone thanks to %2$s");
         provider.add("death.attack.anvilcraft.plasma_jets", "%1$s tried to high-five the plasma jets. They did not high-five back.");
         provider.add("death.attack.anvilcraft.planetary_collapse", "%1$s was consumed by planetary collapse");
         provider.add("death.attack.anvilcraft.star_contact",
