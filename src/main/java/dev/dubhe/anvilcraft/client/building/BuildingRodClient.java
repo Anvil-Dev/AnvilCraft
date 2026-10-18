@@ -74,12 +74,12 @@ public final class BuildingRodClient {
     private static BlockPos tiledOffset = BlockPos.ZERO;
     private static List<BlueprintPlacement> tiledBlueprints = List.of();
     private static boolean useHeld;
-    private static boolean useIgnored;
     private static boolean invalidDisk;
     private static Direction face = Direction.UP;
     private static final RandomSource PATTERN_RANDOM = RandomSource.create();
     private static long patternSeed = PATTERN_RANDOM.nextLong();
     private static final BuildingRodKeyRepeat KEY_REPEAT = new BuildingRodKeyRepeat();
+    private static boolean suppressControlEdge;
     private static final int PLACE_COLOR = 0x55FF55;
     private static final int CANCEL_COLOR = 0xFF5555;
     private static final int MOVE_COLOR = 0xFFFF55;
@@ -180,20 +180,8 @@ public final class BuildingRodClient {
             }
         }
         updateTarget();
-        if (mc.options.keyUse.isDown() && !useHeld) {
-            if (ModKeyMappings.isDebugChordActive()) {
-                useIgnored = true;
-            } else {
-                press();
-            }
-        }
-        if (!mc.options.keyUse.isDown()) {
-            if (useIgnored) {
-                useIgnored = false;
-            } else if (useHeld) {
-                release();
-            }
-        }
+        if (mc.options.keyUse.isDown() && !useHeld) press();
+        if (!mc.options.keyUse.isDown() && useHeld) release();
         controls();
         if (first != null) {
             BoundingBox bounds = selectionBounds();
@@ -525,12 +513,14 @@ public final class BuildingRodClient {
 
     private static void controls() {
         discardControlClicks();
-        if (ModKeyMappings.isDebugChordActive()) {
-            KEY_REPEAT.clear();
-            return;
-        }
         if (!canControl()) {
             KEY_REPEAT.clear();
+            suppressControlEdge = false;
+            return;
+        }
+        if (ModKeyMappings.isDebugChordActive()) {
+            KEY_REPEAT.clear();
+            suppressControlEdge = true;
             return;
         }
         Minecraft mc = Minecraft.getInstance();
@@ -542,8 +532,9 @@ public final class BuildingRodClient {
             boolean down = controlAvailable(i)
                 && physicalKeyDown(keys[i].getKey(), i, window) && modifiersMatch(keys[i], modifiers);
             int steps = KEY_REPEAT.update(i, down, now);
-            if (steps > 0) applyControl(i, steps);
+            if (steps > 0 && !(suppressControlEdge && steps == 1)) applyControl(i, steps);
         }
+        suppressControlEdge = false;
     }
 
     private static void applyControl(int index, int steps) {
