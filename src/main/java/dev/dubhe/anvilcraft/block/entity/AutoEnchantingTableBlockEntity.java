@@ -145,10 +145,7 @@ public class AutoEnchantingTableBlockEntity extends BlockEntity
                         && AutoEnchantingTableBlockEntity.this.getItem(SLOT_OUTPUT).isEmpty()
                         && AutoEnchantingTableBlockEntity.this.workMode != WorkMode.LIQUID_ENCHANTMENT
                     ) {
-                        this.movingToOutput = true;
-                        this.set(SLOT_OUTPUT, this.getResource(SLOT_INPUT), this.getAmountAsInt(SLOT_INPUT));
-                        this.set(SLOT_INPUT, ItemResource.EMPTY, 0);
-                        this.movingToOutput = false;
+                        AutoEnchantingTableBlockEntity.this.passThroughPending = true;
                     } else {
                         // 重置4秒冷却
                         AutoEnchantingTableBlockEntity.this.cooldownTicks = AnvilCraft.CONFIG.autoEnchantingTableInterval;
@@ -199,6 +196,8 @@ public class AutoEnchantingTableBlockEntity extends BlockEntity
     private int openMenuCount = 0;
     /// 反序列化期间抑制 onContentsChanged 的物品流转副作用
     private boolean loading;
+    /// 输入槽中的已附魔物品延迟到下一 tick 透传到输出槽，避免在写入回调中再次改写同一处理器
+    private boolean passThroughPending;
     private WorkMode workMode = WorkMode.ENCHANTING;
     /// 液态魔咒模式下玩家选择的附魔等级（0 表示未选择）
     private int liquidEnchantmentLevel = 0;
@@ -279,8 +278,23 @@ public class AutoEnchantingTableBlockEntity extends BlockEntity
         super.setRemoved();
     }
 
+    private void flushPassThrough() {
+        if (this.workMode == WorkMode.LIQUID_ENCHANTMENT) return;
+        if (this.getItem(SLOT_INPUT).isEmpty()) return;
+        if (!this.getItem(SLOT_OUTPUT).isEmpty()) return;
+        if (!EnchantmentHelper.hasAnyEnchantments(this.getItem(SLOT_INPUT))) return;
+        this.itemHandler.set(
+            SLOT_OUTPUT, this.itemHandler.getResource(SLOT_INPUT), this.itemHandler.getAmountAsInt(SLOT_INPUT));
+        this.itemHandler.set(SLOT_INPUT, ItemResource.EMPTY, 0);
+        this.setChanged();
+    }
+
     public static void tick(Level level, BlockPos pos, BlockState state, AutoEnchantingTableBlockEntity be) {
         if (level.isClientSide()) return;
+        if (be.passThroughPending) {
+            be.passThroughPending = false;
+            be.flushPassThrough();
+        }
         be.flushState(level, pos);
         if (state.getValue(AutoEnchantingTableBlock.POWERED)) {
             be.resetCooldownWhenIdle();
