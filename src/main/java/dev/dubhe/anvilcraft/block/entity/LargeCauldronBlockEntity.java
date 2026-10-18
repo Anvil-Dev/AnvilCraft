@@ -21,11 +21,9 @@ import dev.dubhe.anvilcraft.api.itemhandler.IItemHandlerHolder;
 import dev.dubhe.anvilcraft.api.itemhandler.ItemHandlerUtil;
 import dev.dubhe.anvilcraft.api.itemhandler.LargeCauldronInputHandler;
 import dev.dubhe.anvilcraft.block.BurningHeaterBlock;
-import dev.dubhe.anvilcraft.block.CorruptedBeaconBlock;
 import dev.dubhe.anvilcraft.block.GiantAnvilBlock;
 import dev.dubhe.anvilcraft.block.HeaterBlock;
 import dev.dubhe.anvilcraft.block.LargeCauldronBlock;
-import dev.dubhe.anvilcraft.block.NeutronIrradiatorBlock;
 import dev.dubhe.anvilcraft.block.state.Cube3x3PartHalf;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.block.ModFluidTags;
@@ -41,6 +39,7 @@ import dev.dubhe.anvilcraft.recipe.anvil.wrap.ItemCompressRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.SuperHeatingRecipe;
 import dev.dubhe.anvilcraft.util.CauldronUtil;
 import dev.dubhe.anvilcraft.util.FireReforgingUtil;
+import dev.dubhe.anvilcraft.util.HeaterUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
@@ -1199,11 +1198,7 @@ public class LargeCauldronBlockEntity extends BlockEntity
     }
 
     private static boolean isActiveRecipeHelper(BlockState state) {
-        if (CampfireBlock.isLitCampfire(state) && state.is(Blocks.CAMPFIRE)) return true;
-        if (state.is(ModBlocks.HEATER)) return ((HeaterBlock) state.getBlock()).isActive(state);
-        if (state.is(ModBlocks.BURNING_HEATER)) return state.getValue(BurningHeaterBlock.LEVEL) > 0;
-        if (state.is(ModBlocks.CORRUPTED_BEACON)) return state.getValue(CorruptedBeaconBlock.LIT);
-        return state.getBlock() instanceof NeutronIrradiatorBlock;
+        return HeaterUtil.isActiveHeatSource(state);
     }
 
     private static List<BlockPos> orderedHelpers(BlockPos slotPos, List<BlockPos> helpers, BlockPos base) {
