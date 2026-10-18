@@ -303,7 +303,7 @@ public final class BlueprintBlockConfiguration {
     }
 
     public static void transform(
-        CompoundTag config, BlueprintPlacement placement, @Nullable BlockPos sourceOrigin, StructureSnapshot snapshot
+        CompoundTag config, BlueprintPlacement placement, @Nullable BlockPos sourceOrigin
     ) {
         if ("minecraft:piston".equals(config.getStringOr("id", ""))) {
             var moved = NbtUtils.readBlockState(BuiltInRegistries.BLOCK, config.getCompoundOrEmpty("blockState"));
@@ -333,15 +333,11 @@ public final class BlueprintBlockConfiguration {
         if (!config.contains("Ix")) return;
         BlockPos target = new BlockPos(config.getIntOr("Ix", 0), config.getIntOr("Iy", 0), config.getIntOr("Iz", 0));
         if (sourceOrigin != null) {
-            BlockPos local = target.subtract(sourceOrigin);
-            if (local.getX() >= 0 && local.getY() >= 0 && local.getZ() >= 0 && local.getX() < snapshot.size().getX()
-                && local.getY() < snapshot.size().getY() && local.getZ() < snapshot.size().getZ()) {
-                BlockPos world = placement.worldOf(local);
-                config.putInt("Ix", world.getX());
-                config.putInt("Iy", world.getY());
-                config.putInt("Iz", world.getZ());
-                return;
-            }
+            BlockPos world = placement.worldOf(target.subtract(sourceOrigin));
+            config.putInt("Ix", world.getX());
+            config.putInt("Iy", world.getY());
+            config.putInt("Iz", world.getZ());
+            return;
         }
         remove(config, "Ix", "Iy", "Iz");
     }
