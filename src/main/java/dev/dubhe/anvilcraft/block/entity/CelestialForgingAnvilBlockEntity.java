@@ -1209,7 +1209,7 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity
     }
 
     public void addToSearchHistory(CelestialBodyData data, @Nullable PlanetaryResourceSet resources) {
-        this.searchHistory.add(data, resources);
+        this.searchHistory.add(data, resources, this.bodySeed, this.stellarMass, this.ageAnvilCount);
     }
 
     // === 搜索历史浏览，仅服务端修改 ===
@@ -1225,7 +1225,11 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity
     public void browseHistoryPrev() {
         if (this.level == null || this.level.isClientSide()) return;
         CelestialSearchHistory.Entry entry = this.searchHistory.previous(
-            this.celestialBodyData, this.planetaryResourceSet
+            this.celestialBodyData,
+            this.planetaryResourceSet,
+            this.bodySeed,
+            this.stellarMass,
+            this.ageAnvilCount
         );
         if (entry != null) this.applyHistoryEntry(entry);
     }
@@ -1239,6 +1243,11 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity
     private void applyHistoryEntry(CelestialSearchHistory.Entry entry) {
         this.celestialBodyData = entry.body();
         this.planetaryResourceSet = entry.resources();
+        if (entry.hasStats()) {
+            this.bodySeed = entry.bodySeed();
+            this.stellarMass = entry.stellarMass();
+            this.ageAnvilCount = entry.ageAnvilCount();
+        }
         this.setChanged();
         this.syncToClient();
     }
