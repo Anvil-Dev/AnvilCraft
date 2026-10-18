@@ -955,6 +955,7 @@
   "death.attack.anvilcraft.planetary_collapse": "%1$s was consumed by planetary collapse",
   "death.attack.anvilcraft.plasma_jet": "%1$s tried to high-five the plasma jets. They did not high-five back.",
   "death.attack.anvilcraft.redhot_block": "%1$s was scorched by a scorching-hot block",
+  "death.attack.anvilcraft.redhot_block.player": "%1$s stepped into the danger zone thanks to %2$s",
   "death.attack.anvilcraft.star_contact": "%1$s is now part of the corona",
   "effect.anvilcraft.invulnerable": "Invulnerable",
   "effect.anvilcraft.rage": "Rage",
