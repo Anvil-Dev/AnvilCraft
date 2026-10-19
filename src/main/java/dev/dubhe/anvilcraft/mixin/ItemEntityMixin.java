@@ -24,6 +24,7 @@ import dev.dubhe.anvilcraft.util.FireReforgingUtil;
 import dev.dubhe.anvilcraft.util.GravityManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.util.Mth;
 import net.minecraft.world.damagesource.DamageSource;
@@ -33,6 +34,7 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -89,6 +91,9 @@ abstract class ItemEntityMixin extends Entity implements IItemEntityExtension {
 
     @Unique
     public boolean anvilcraft$isAdsorbable = true;
+
+    @Unique
+    private static final String MAGNET_OUTPUT_ORIGIN = "anvilcraft_magnet_output_origin";
 
     public ItemEntityMixin(EntityType<?> entityType, Level level) {
         super(entityType, level);
@@ -511,12 +516,13 @@ abstract class ItemEntityMixin extends Entity implements IItemEntityExtension {
 
         BlockPos pos = this.blockPosition();
         BlockState state = this.level().getBlockState(pos);
+        this.anvilcraft$updateMagnetOutputOrigin(pos, state);
         ItemStack stack = this.getItem();
         String matKey = this.anvilcraft$getMaterialKey(stack);
         // 不是金属直接跳过
         if (matKey == null) return;
         if ("iron".equals(matKey) || "magnet".equals(matKey)) {
-            if (this.anvilcraft$fillHollowMagnet()) {
+            if (this.anvilcraft$fillHollowMagnet(pos)) {
                 if (this.isRemoved()) ci.cancel();
                 return;
             }
@@ -538,17 +544,45 @@ abstract class ItemEntityMixin extends Entity implements IItemEntityExtension {
         }
     }
 
-    @Inject(method = "tick", at = @At("TAIL"))
-    private void anvilcraft$fillMagnetAfterMovement(CallbackInfo ci) {
-        this.anvilcraft$fillHollowMagnet();
+    @WrapOperation(
+        method = "tick",
+        at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/item/ItemEntity;"
+            + "move(Lnet/minecraft/world/entity/MoverType;Lnet/minecraft/world/phys/Vec3;)V")
+    )
+    private void anvilcraft$fillMagnetAfterMovement(
+        ItemEntity item, MoverType moverType, Vec3 movement, Operation<Void> original
+    ) {
+        Vec3 start = item.position();
+        original.call(item, moverType, movement);
+        if (this.isRemoved() || this.level().isClientSide() || !this.getItem().getDescriptionId().contains("ingot")) return;
+        Vec3 end = item.position();
+        BlockGetter.traverseBlocks(start, end, this, (entity, pos) -> {
+            AABB bounds = new AABB(pos).deflate(1.0E-7);
+            if (!bounds.contains(start) && bounds.clip(start, end).isEmpty()) return null;
+            return entity.anvilcraft$fillHollowMagnet(pos) ? Boolean.TRUE : null;
+        }, entity -> false);
     }
 
     @Unique
-    private boolean anvilcraft$fillHollowMagnet() {
+    private void anvilcraft$updateMagnetOutputOrigin(BlockPos pos, BlockState state) {
+        if (this.level().isClientSide()) return;
+        CompoundTag data = this.getPersistentData();
+        if (data.contains(MAGNET_OUTPUT_ORIGIN)) {
+            String location = this.level().dimension().location() + "/" + pos.asLong();
+            if (!location.equals(data.getString(MAGNET_OUTPUT_ORIGIN))) data.remove(MAGNET_OUTPUT_ORIGIN);
+        } else if (this.anvilcraft$blockPos == null && !this.anvilcraft$isAdsorbable()
+            && state.is(ModBlocks.HOLLOW_MAGNET_BLOCK.get())) {
+            data.putString(MAGNET_OUTPUT_ORIGIN, this.level().dimension().location() + "/" + pos.asLong());
+        }
+    }
+
+    @Unique
+    private boolean anvilcraft$fillHollowMagnet(BlockPos pos) {
         if (this.isRemoved() || this.level().isClientSide()) return false;
-        BlockPos pos = this.blockPosition();
         BlockState state = this.level().getBlockState(pos);
         if (!state.is(ModBlocks.HOLLOW_MAGNET_BLOCK.get())) return false;
+        String origin = this.getPersistentData().getString(MAGNET_OUTPUT_ORIGIN);
+        if (origin.equals(this.level().dimension().location() + "/" + pos.asLong())) return false;
         ItemStack stack = this.getItem();
         String material = this.anvilcraft$getMaterialKey(stack);
         if (!("iron".equals(material) || "magnet".equals(material))
