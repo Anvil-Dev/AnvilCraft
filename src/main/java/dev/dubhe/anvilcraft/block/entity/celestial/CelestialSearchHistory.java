@@ -16,12 +16,20 @@ public final class CelestialSearchHistory {
     private int browseIndex;
     private @Nullable Entry originalEntry;
 
-    /** 添加结果；若与最新记录完全相同则忽略。 */
-    public void add(CelestialBodyData body, @Nullable PlanetaryResourceSet resources) {
+    /** 添加结果；与最新记录同一天体时刷新该条记录的参数。 */
+    public void add(
+        CelestialBodyData body,
+        @Nullable PlanetaryResourceSet resources,
+        long bodySeed,
+        int stellarMass,
+        int ageAnvilCount
+    ) {
         if (!this.entries.isEmpty() && this.entries.getFirst().body().toTag().equals(body.toTag())) {
+            this.entries.set(0, new Entry(body, resources, true, bodySeed, stellarMass, ageAnvilCount));
+            this.resetBrowsing();
             return;
         }
-        this.entries.addFirst(new Entry(body, resources));
+        this.entries.addFirst(new Entry(body, resources, true, bodySeed, stellarMass, ageAnvilCount));
         while (this.entries.size() > CelestialSearchHistory.MAX_ENTRIES) {
             this.entries.removeLast();
         }
@@ -55,17 +63,27 @@ public final class CelestialSearchHistory {
     /** 浏览更早的结果；最新记录代表当前天体，因此首次后退会跳过它。 */
     public @Nullable Entry previous(
         @Nullable CelestialBodyData currentBody,
-        @Nullable PlanetaryResourceSet currentResources
+        @Nullable PlanetaryResourceSet currentResources,
+        long currentBodySeed,
+        int currentStellarMass,
+        int currentAgeAnvilCount
     ) {
         int size = this.entries.size();
         if (size <= 1 || this.browseIndex >= size || currentBody == null) return null;
         if (this.browseIndex == 0) {
-            this.originalEntry = new Entry(currentBody, currentResources);
+            this.originalEntry = new Entry(
+                currentBody,
+                currentResources,
+                true,
+                currentBodySeed,
+                currentStellarMass,
+                currentAgeAnvilCount
+            );
             this.browseIndex = 1;
         }
         this.browseIndex++;
         if (this.browseIndex > size) return null;
-        return this.entries.get(this.browseIndex - 1);
+        return this.withStats(this.entries.get(this.browseIndex - 1));
     }
 
     /** 向开始浏览时保存的原始结果方向前进。 */
@@ -79,7 +97,20 @@ public final class CelestialSearchHistory {
             this.originalEntry = null;
             return result;
         }
-        return this.entries.get(this.browseIndex - 1);
+        return this.withStats(this.entries.get(this.browseIndex - 1));
+    }
+
+    private Entry withStats(Entry entry) {
+        if (entry.hasStats() || this.originalEntry == null) return entry;
+        Entry live = this.originalEntry;
+        return new Entry(
+            entry.body(),
+            entry.resources(),
+            true,
+            live.bodySeed(),
+            live.stellarMass(),
+            live.ageAnvilCount()
+        );
     }
 
     public int browseIndex() {
@@ -122,12 +153,28 @@ public final class CelestialSearchHistory {
     }
 
     /** 一次搜索得到的天体及其同步生成的资源集合。 */
-    public record Entry(CelestialBodyData body, @Nullable PlanetaryResourceSet resources) {
+    public record Entry(
+        CelestialBodyData body,
+        @Nullable PlanetaryResourceSet resources,
+        boolean hasStats,
+        long bodySeed,
+        int stellarMass,
+        int ageAnvilCount
+    ) {
+        public Entry(CelestialBodyData body, @Nullable PlanetaryResourceSet resources) {
+            this(body, resources, false, 0L, 0, 0);
+        }
+
         public CompoundTag toTag() {
             CompoundTag tag = new CompoundTag();
             tag.put("body", this.body.toTag());
             if (this.resources != null) {
                 tag.put("resources", this.resources.toTag());
+            }
+            if (this.hasStats) {
+                tag.putLong("bodySeed", this.bodySeed);
+                tag.putInt("stellarMass", this.stellarMass);
+                tag.putInt("ageAnvilCount", this.ageAnvilCount);
             }
             return tag;
         }
@@ -137,7 +184,15 @@ public final class CelestialSearchHistory {
             PlanetaryResourceSet resources = tag.contains("resources")
                 ? PlanetaryResourceSet.fromTag(tag.getCompoundOrEmpty("resources"))
                 : null;
-            return new Entry(body, resources);
+            if (!tag.contains("bodySeed")) return new Entry(body, resources);
+            return new Entry(
+                body,
+                resources,
+                true,
+                tag.getLongOr("bodySeed", 0L),
+                tag.getIntOr("stellarMass", 0),
+                tag.getIntOr("ageAnvilCount", 0)
+            );
         }
     }
 }
