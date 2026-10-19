@@ -50,6 +50,7 @@ import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -104,6 +105,7 @@ public class LargeCauldronBlockEntity extends BlockEntity
         {0, 0}, {-1, 0}, {1, 0}, {0, -1}, {0, 1}, {-1, -1}, {-1, 1}, {1, -1}, {1, 1}
     };
     private static final double CONTENT_HEIGHT = 2.25;
+    private static final int MAX_EJECT_FALL_DISTANCE = 8;
     private static final IItemHandler EMPTY_HANDLER = new EmptyItemHandler();
     private static final InWorldRecipeData<Map<Long, FluidRecipeState>> FLUID_RECIPE_STATES =
         InWorldRecipeData.of(AnvilCraft.of("large_cauldron_fluid_states"), (context, key) -> new HashMap<>());
@@ -369,6 +371,44 @@ public class LargeCauldronBlockEntity extends BlockEntity
         } else {
             entity.setItem(remainder);
         }
+    }
+
+    public void ejectOverflow(ItemEntity entity) {
+        Level level = this.level;
+        if (level == null) return;
+        BlockPos origin = this.getMainPart().worldPosition.above(2);
+        for (int distance = 2; distance <= 4; distance++) {
+            for (Direction direction : Direction.Plane.HORIZONTAL) {
+                BlockPos pos = origin.relative(direction, distance);
+                if (!canEjectOverflowAt(level, pos)) continue;
+                entity.setPos(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5);
+                entity.setDeltaMovement(0.0, 0.0, 0.0);
+                entity.anvilcraft$setIsAdsorbable(true);
+                return;
+            }
+        }
+    }
+
+    private static boolean canEjectOverflowAt(Level level, BlockPos pos) {
+        if (!level.isLoaded(pos)) return false;
+        if (!isEjectPassable(level.getBlockState(pos), level, pos)) return false;
+        BlockPos floor = pos.below();
+        for (int fall = 0; fall < MAX_EJECT_FALL_DISTANCE && floor.getY() >= level.getMinBuildHeight(); fall++) {
+            BlockState state = level.getBlockState(floor);
+            if (isEjectPassable(state, level, floor)) {
+                floor = floor.below();
+                continue;
+            }
+            return !state.is(BlockTags.CAULDRONS) && !state.getCollisionShape(level, floor).isEmpty();
+        }
+        return false;
+    }
+
+    private static boolean isEjectPassable(BlockState state, Level level, BlockPos pos) {
+        return !state.is(BlockTags.CAULDRONS)
+               && state.getFluidState().isEmpty()
+               && !state.is(BlockTags.FIRE)
+               && state.getCollisionShape(level, pos).isEmpty();
     }
 
     public ItemStack insertRecipeOutput(ItemStack stack) {

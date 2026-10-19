@@ -145,6 +145,7 @@ public class InWorldRecipeEventListener {
                 entity.discard();
             } else {
                 entity.setItem(remaining);
+                cauldron.ejectOverflow(entity);
             }
             return;
         }
