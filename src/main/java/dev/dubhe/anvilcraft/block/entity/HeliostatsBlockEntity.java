@@ -6,6 +6,8 @@ import dev.dubhe.anvilcraft.api.entity.fakeplayer.AnvilCraftFakePlayers;
 import dev.dubhe.anvilcraft.api.heat.HeaterManager;
 import dev.dubhe.anvilcraft.init.ModHeaterInfos;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
+import dev.dubhe.anvilcraft.init.item.ModComponents;
+import dev.dubhe.anvilcraft.item.property.component.HeliostatsData;
 import dev.dubhe.anvilcraft.network.HeliostatsIrradiationPacket;
 import lombok.Getter;
 import lombok.Setter;
@@ -179,6 +181,15 @@ public class HeliostatsBlockEntity extends BlockEntity {
         tag.putInt("Ix", this.irritatePos.getX());
         tag.putInt("Iy", this.irritatePos.getY());
         tag.putInt("Iz", this.irritatePos.getZ());
+    }
+
+    @Override
+    protected void applyImplicitComponents(BlockEntity.DataComponentInput componentInput) {
+        super.applyImplicitComponents(componentInput);
+        HeliostatsData data = componentInput.get(ModComponents.HELIOSTATS_DATA);
+        if (data == null) return;
+        this.irritatePos = data.pos();
+        this.setChanged();
     }
 
     @Override
