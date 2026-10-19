@@ -149,6 +149,7 @@ public final class BuildingRodClient {
             clearSelection();
             useHeld = mc.options.keyUse.isDown();
             KEY_REPEAT.clear();
+            suppressControlEdge = false;
             discardControlClicks();
             return;
         }
