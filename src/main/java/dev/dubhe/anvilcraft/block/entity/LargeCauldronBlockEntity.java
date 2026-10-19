@@ -453,12 +453,16 @@ public class LargeCauldronBlockEntity extends BlockEntity
         for (int slot = 0; slot < main.input.size(); slot++) {
             ItemStack stack;
             while (!(stack = LargeCauldronBlockEntity.extractItem(main.input, slot, Integer.MAX_VALUE)).isEmpty()) {
-                Block.popResource(main.level, main.worldPosition, stack);
+                while (!stack.isEmpty()) {
+                    Block.popResource(main.level, main.worldPosition, stack.split(stack.getMaxStackSize()));
+                }
             }
         }
         for (int slot = 0; slot < main.output.size(); slot++) {
             ItemStack stack = LargeCauldronBlockEntity.extractItem(main.output, slot, Integer.MAX_VALUE);
-            if (!stack.isEmpty()) Block.popResource(main.level, main.worldPosition, stack);
+            while (!stack.isEmpty()) {
+                Block.popResource(main.level, main.worldPosition, stack.split(stack.getMaxStackSize()));
+            }
         }
     }
 
