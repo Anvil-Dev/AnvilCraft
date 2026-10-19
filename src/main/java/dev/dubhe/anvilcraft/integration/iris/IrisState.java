@@ -47,5 +47,4 @@ public class IrisState {
         HandRenderer renderer = HandRenderer.INSTANCE;
         return renderer.isActive() ? ((IrisHandRendererAccessor) renderer).anvilcraft$getSubmitNodeCollector() : fallback;
     }
-
 }
