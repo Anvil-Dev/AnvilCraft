@@ -2397,6 +2397,29 @@ public final class StorageServerStub {
         player.containerMenu.broadcastChanges();
     }
 
+    public static boolean withdrawForPickItem(ServerPlayer player, ItemStack wanted) {
+        if (wanted.isEmpty() || player.hasInfiniteMaterials() || player.isSpectator()) return false;
+        ItemResource resource = ItemResource.of(wanted.copyWithCount(1));
+        try (Transaction transaction = Transaction.openRoot()) {
+            var inventory = PlayerInventoryWrapper.of(player).getMainSlots();
+            int fit;
+            try (Transaction simulation = Transaction.open(transaction)) {
+                fit = inventory.insert(resource, wanted.getMaxStackSize(), simulation);
+            }
+            if (fit <= 0) return false;
+            int taken = 0;
+            for (BaseStorage<?> storage : boundStorages(player)) {
+                taken += storage.getItems().extract(resource, fit - taken, transaction);
+                if (taken == fit) break;
+            }
+            if (taken == 0 || inventory.insert(resource, taken, transaction) != taken) return false;
+            transaction.commit();
+        }
+        player.getInventory().setChanged();
+        player.containerMenu.broadcastChanges();
+        return true;
+    }
+
     /** 按随身终端顺序提供当前可达的建筑物品源，同一仓储只分配一次。 */
     public static List<UnlimitedItemStacksResourceHandler> buildingMaterialSources(ServerPlayer player) {
         List<UnlimitedItemStacksResourceHandler> result = new ArrayList<>();
