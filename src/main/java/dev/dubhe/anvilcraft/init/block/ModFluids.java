@@ -50,7 +50,7 @@ public class ModFluids {
 
     public static final DeferredHolder<FluidType, FluidType> EXP_FLUID_TYPE = ModFluids.FLUID_TYPES.register(
         "exp_fluid",
-        () -> new FluidType(FluidType.Properties.create()
+        () -> new WaterMovementFluidType(FluidType.Properties.create()
             .descriptionId("block.anvilcraft.exp_fluid")
             .density(1000)
             .viscosity(500)
