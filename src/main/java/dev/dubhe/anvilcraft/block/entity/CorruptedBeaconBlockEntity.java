@@ -21,10 +21,12 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.Leashable;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.animal.equine.AbstractHorse;
 import net.minecraft.world.entity.animal.equine.SkeletonHorse;
 import net.minecraft.world.entity.animal.equine.ZombieHorse;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.level.Level;
@@ -202,6 +204,14 @@ public class CorruptedBeaconBlockEntity extends BlockEntity {
         Entity vehicle = null;
         if (livingEntity.isPassenger()) {
             vehicle = livingEntity.getVehicle();
+        }
+        if (livingEntity instanceof Leashable leashable) {
+            boolean creativeHolder = leashable.getLeashHolder() instanceof Player player && player.hasInfiniteMaterials();
+            if (creativeHolder) {
+                leashable.removeLeash();
+            } else {
+                leashable.dropLeash();
+            }
         }
         livingEntity.discard();
 
