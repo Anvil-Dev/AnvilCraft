@@ -112,7 +112,6 @@ public class AutoEnchantingTableScreen extends AbstractContainerScreen<AutoEncha
             public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
                 if (event.button() == 1 && this.isMouseOver(event.x(), event.y())) {
                     this.setValue("");
-                    this.setFocused(true);
                     return true;
                 }
                 return super.mouseClicked(event, doubleClick);
