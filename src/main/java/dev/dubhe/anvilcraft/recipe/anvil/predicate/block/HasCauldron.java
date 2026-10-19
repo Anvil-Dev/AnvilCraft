@@ -430,7 +430,7 @@ public record HasCauldron(
         @Nullable IEntityCauldron entityCauldron
     ) {
         if (HasCauldron.usesCauldronBlock(ctx, pos, entityCauldron, fluid)) {
-            HasCauldron.setCauldronFluid(ctx, pos, fluid, mb);
+            HasCauldron.setCauldronFluid(ctx, pos, fluid, mb, ignited);
             return;
         }
         ResourceHandler<FluidResource> handler = HasCauldron.getFluidHandler(ctx, pos, entityCauldron);
@@ -482,12 +482,10 @@ public record HasCauldron(
         BlockCache cache = ctx.computeIfAbsent(BlockCache.BLOCK_CACHE);
         if (cache.getBlockEntity(pos) != null) return false;
         BlockState state = cache.getBlockState(pos);
-        if (!state.is(BlockTags.CAULDRONS)) return false;
-        if (state.is(Blocks.CAULDRON)) return true;
-        return !(state.getBlock() instanceof IIgnitableCauldron);
+        return state.is(BlockTags.CAULDRONS);
     }
 
-    private static void setCauldronFluid(InWorldRecipeContext ctx, BlockPos pos, FluidStack fluid, double mb) {
+    private static void setCauldronFluid(InWorldRecipeContext ctx, BlockPos pos, FluidStack fluid, double mb, boolean ignited) {
         CauldronFluidContent content = CauldronFluidContent.getForFluid(fluid.getFluid());
         if (content == null) return;
         Block cauldron = content.block;
@@ -496,7 +494,13 @@ public record HasCauldron(
         int level = maxLevel > 1 ? (int) Math.round(mb / totalAmount * maxLevel) : 1;
         BlockState state = CauldronUtil.getStateFromContentAndLevel(cauldron, level);
         BlockCache cache = ctx.computeIfAbsent(BlockCache.BLOCK_CACHE);
+        if (cache.getBlockState(pos).getBlock() instanceof IIgnitableCauldron currentCauldron) {
+            ignited |= currentCauldron.isIgnited(cache, pos);
+        }
         cache.setBlock(pos, state);
+        if (state.getBlock() instanceof IIgnitableCauldron ignitableCauldron) {
+            ignitableCauldron.setIgnited(cache, pos, ignited);
+        }
     }
 
     private static @Nullable ResourceHandler<FluidResource> getFluidHandler(
