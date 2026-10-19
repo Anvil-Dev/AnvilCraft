@@ -39,7 +39,7 @@ public final class LiquidEnchantmentCauldronRecipe {
             }
         }
         if (item.is(Items.GOLD_BLOCK)) {
-            Optional<Result> enchanted = LiquidEnchantmentCauldronRecipe.enchantGoldBlock(fluids);
+            Optional<Result> enchanted = enchantGoldBlock(fluids);
             if (enchanted.isPresent()) return enchanted;
             if (item.getCount() >= 16) {
                 return LiquidEnchantmentCauldronRecipe.curseGold(
