@@ -9,6 +9,7 @@ import dev.dubhe.anvilcraft.fluid.HoneyFluid;
 import dev.dubhe.anvilcraft.fluid.LiquidEnchantmentFluid;
 import dev.dubhe.anvilcraft.fluid.PowderSnowFluid;
 import dev.dubhe.anvilcraft.fluid.PrimordialMatterFluid;
+import dev.dubhe.anvilcraft.fluid.WaterMovementFluidType;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.util.ColorUtil;
 import dev.dubhe.anvilcraft.util.LiquidEnchantmentClientFluidTypeExtension;
@@ -85,7 +86,7 @@ public class ModFluids {
 
     public static final DeferredHolder<FluidType, FluidType> OIL_TYPE = ModFluids.FLUID_TYPES.register(
         "oil",
-        () -> new FluidType(FluidType.Properties.create()
+        () -> new WaterMovementFluidType(FluidType.Properties.create()
             .descriptionId("block.anvilcraft.oil")
             .density(2000)
             .viscosity(4000)
@@ -191,7 +192,7 @@ public class ModFluids {
 
     private static DeferredHolder<FluidType, FluidType> registerCementType(Color color) {
         return ModFluids.FLUID_TYPES.register(
-            "%s_cement".formatted(color), () -> new FluidType(FluidType.Properties.create()
+            "%s_cement".formatted(color), () -> new WaterMovementFluidType(FluidType.Properties.create()
                 .descriptionId("block.anvilcraft.%s_cement".formatted(color))
                 .fallDistanceModifier(0)
                 .canExtinguish(true)
@@ -252,7 +253,7 @@ public class ModFluids {
 
     public static final DeferredHolder<FluidType, FluidType> MELT_GEM_TYPE = ModFluids.FLUID_TYPES.register(
         "melt_gem",
-        () -> new FluidType(FluidType.Properties.create()
+        () -> new WaterMovementFluidType(FluidType.Properties.create()
             .descriptionId("block.anvilcraft.melt_gem")
             .canSwim(false)
             .canDrown(false)
