@@ -16,7 +16,7 @@ final class BlueprintRuntimeData {
         "Rolling", "PreviousFaces", "Faces", "Output", "RollStart", "phase", "progress", "currentPlacementIndex"
     );
 
-    static final List<String> CLOCK_KEYS = List.of("PhaseStartGameTime", "RollStart");
+    private static final List<String> CLOCK_KEYS = List.of("PhaseStartGameTime", "RollStart");
 
     private BlueprintRuntimeData() {
     }
@@ -57,7 +57,13 @@ final class BlueprintRuntimeData {
         if (config.contains("ExtraData", Tag.TAG_COMPOUND)) rebase(config.getCompound("ExtraData"), capturedAt, now);
     }
 
-    static void stripClocks(CompoundTag tag) {
+    static CompoundTag stripped(CompoundTag tag) {
+        CompoundTag copy = tag.copy();
+        stripClocks(copy);
+        return copy;
+    }
+
+    private static void stripClocks(CompoundTag tag) {
         for (String key : CLOCK_KEYS) tag.remove(key);
         if (tag.contains("ExtraData", Tag.TAG_COMPOUND)) stripClocks(tag.getCompound("ExtraData"));
     }

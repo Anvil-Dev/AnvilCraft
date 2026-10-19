@@ -121,13 +121,8 @@ public final class BuildingRodService {
         }
 
         private static boolean sameConfig(CompoundTag expected, CompoundTag current) {
-            return withoutClocks(expected).equals(withoutClocks(current));
-        }
-
-        private static CompoundTag withoutClocks(CompoundTag config) {
-            CompoundTag copy = config.copy();
-            BlueprintRuntimeData.stripClocks(copy);
-            return copy;
+            if (expected.equals(current)) return true;
+            return BlueprintRuntimeData.stripped(expected).equals(BlueprintRuntimeData.stripped(current));
         }
     }
 
