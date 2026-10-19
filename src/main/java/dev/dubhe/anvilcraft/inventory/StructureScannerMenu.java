@@ -87,7 +87,10 @@ public class StructureScannerMenu extends AbstractContainerMenu {
         this.addDataSlot(new DataSlot() {
             @Override
             public int get() {
-                return inventory.player instanceof ServerPlayer player && BlueprintAdministrators.canUpload(player) ? 1 : 0;
+                if (inventory.player instanceof ServerPlayer player) {
+                    StructureScannerMenu.this.canUpload = BlueprintAdministrators.canUpload(player);
+                }
+                return StructureScannerMenu.this.canUpload ? 1 : 0;
             }
 
             @Override

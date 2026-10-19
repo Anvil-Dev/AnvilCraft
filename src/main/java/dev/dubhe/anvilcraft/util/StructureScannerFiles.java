@@ -75,7 +75,9 @@ public final class StructureScannerFiles {
                 }
                 case UPLOAD -> {
                     if (!BlueprintAdministrators.canUpload(player)) throw new IOException("Blueprint upload is not permitted");
-                    if (!StructureFileTransfer.isSafeName(packet.name())) throw new IOException("Invalid file name");
+                    if (!StructureFileTransfer.isSafeName(packet.name()) || packet.name().lastIndexOf('.') <= 0) {
+                        throw new IOException("Invalid file name");
+                    }
                     byte[] bytes = menu.receiveUpload(packet);
                     if (bytes.length == 0) return;
                     CompoundTag tag = readTag(bytes);
@@ -87,7 +89,7 @@ public final class StructureScannerFiles {
                 }
                 default -> throw new IOException("Unsupported blueprint action");
             }
-        } catch (IOException | ConstructionBlueprintException | IllegalArgumentException exception) {
+        } catch (IOException | ConstructionBlueprintException | RuntimeException exception) {
             AnvilCraft.LOGGER.warn("Structure scanner file operation failed: {}", packet.name(), exception);
             String message = exception.getMessage();
             if (message == null) message = "Invalid structure file";
