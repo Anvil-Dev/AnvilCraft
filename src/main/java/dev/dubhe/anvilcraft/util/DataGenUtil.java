@@ -81,6 +81,20 @@ public class DataGenUtil {
     public static <T extends RegistrumProvider> void noExtraModelOrState(DataGenContext<?, ?> context, T provider) {
     }
 
+    public static <T extends RegistrumBlockstateProvider> void onlyState(
+        DataGenContext<Block, ?> context,
+        T provider
+    ) {
+        ModelFile model = new ModelFile.ExistingModelFile(
+            context.getId().withPrefix("block/"),
+            provider.models().existingFileHelper
+        );
+
+        provider.getVariantBuilder(context.get())
+            .partialState()
+            .addModels(new ConfiguredModel(model));
+    }
+
     public static <T extends RegistrumBlockstateProvider> void horizontalFacingBlock(
         DataGenContext<Block, ?> context,
         T provider
