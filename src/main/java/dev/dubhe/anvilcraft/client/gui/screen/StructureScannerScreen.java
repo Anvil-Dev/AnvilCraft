@@ -859,9 +859,9 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
         boolean openFolder = Minecraft.getInstance().hasShiftDown() && BlueprintClientFiles.canOpenDirectory();
         if (this.folderMode != openFolder) {
             this.folderMode = openFolder;
-            this.importButton.setTooltip(Tooltip.create(Component.translatable(
-                "screen.anvilcraft.structure_scanner." + (openFolder
-                    ? Minecraft.getInstance().hasSingleplayerServer() ? "open_folder" : "upload" : "import"))));
+            String importKey = "import";
+            if (openFolder) importKey = Minecraft.getInstance().hasSingleplayerServer() ? "open_folder" : "upload";
+            this.importButton.setTooltip(Tooltip.create(Component.translatable("screen.anvilcraft.structure_scanner." + importKey)));
             this.exportButton.setTooltip(Tooltip.create(Component.translatable(
                 "screen.anvilcraft.structure_scanner." + (openFolder ? "open_folder" : "export"))));
         }
