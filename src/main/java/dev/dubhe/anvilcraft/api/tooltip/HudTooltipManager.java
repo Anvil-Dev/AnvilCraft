@@ -11,6 +11,7 @@ import dev.dubhe.anvilcraft.api.tooltip.impl.ChargerTooltipProvider;
 import dev.dubhe.anvilcraft.api.tooltip.impl.CrabTrapTooltipProvider;
 import dev.dubhe.anvilcraft.api.tooltip.impl.DeflectionRingTooltipProvider;
 import dev.dubhe.anvilcraft.api.tooltip.impl.DischargerTooltipProvider;
+import dev.dubhe.anvilcraft.api.tooltip.impl.FluidTankTooltipProvider;
 import dev.dubhe.anvilcraft.api.tooltip.impl.HeatCollectorTooltipProvider;
 import dev.dubhe.anvilcraft.api.tooltip.impl.HeatableBlockTooltipProvider;
 import dev.dubhe.anvilcraft.api.tooltip.impl.HeliostatsTooltip;
@@ -61,6 +62,7 @@ public class HudTooltipManager {
     static {
         HudTooltipManager.INSTANCE.registerBlockEntityTooltip(new ChargerTooltipProvider());
         HudTooltipManager.INSTANCE.registerBlockEntityTooltip(new DischargerTooltipProvider());
+        HudTooltipManager.INSTANCE.registerBlockEntityTooltip(new FluidTankTooltipProvider());
         HudTooltipManager.INSTANCE.registerBlockEntityTooltip(new HeatCollectorTooltipProvider());
         HudTooltipManager.INSTANCE.registerBlockEntityTooltip(new PowerComponentTooltipProvider());
         HudTooltipManager.INSTANCE.registerAffectRange(new AffectRangeProviderImpl());
