@@ -31,12 +31,12 @@ public class ChuteBlockItem extends BlockItem {
         if (blockEntity instanceof CreativeCrateBlockEntity || blockEntity instanceof StoragePortBlockEntity
             || blockEntity instanceof StoragePortConsolidatorBlockEntity) {
             if (isStorageInteraction(context)) return InteractionResult.PASS;
-            InteractionResult result = this.useOn(context);
+            InteractionResult result = stack.useOn(context);
             return result == InteractionResult.PASS ? InteractionResult.FAIL : result;
         }
         return blockEntity instanceof IItemHandlerHolder || level.getCapability(
             Capabilities.ItemHandler.BLOCK, context.getClickedPos(), context.getClickedFace()
-        ) != null ? this.useOn(context) : super.onItemUseFirst(stack, context);
+        ) != null ? stack.useOn(context) : super.onItemUseFirst(stack, context);
     }
 
     public static boolean isStorageInteraction(UseOnContext context) {
