@@ -260,6 +260,10 @@ public class SolidLiquidCategory extends AbstractLiquidReactionCategory {
             ResourceKey.create(Registries.RECIPE, AnvilCraft.of("jei/solid_liquid/enchanted_gold_ingot")),
             ComplexFluidJeiRecipe.enchantGoldIngot()
         ));
+        recipes.add(new RecipeHolder<>(
+            ResourceKey.create(Registries.RECIPE, AnvilCraft.of("jei/solid_liquid/enchanted_gold_block")),
+            ComplexFluidJeiRecipe.enchantGoldBlock()
+        ));
         registration.addRecipes(AnvilCraftJeiPlugin.SOLID_LIQUID, recipes);
     }
 
