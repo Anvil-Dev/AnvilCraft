@@ -5,6 +5,10 @@
       "required": false
     },
     {
+      "id": "anvilcraft:redhot_block",
+      "required": false
+    },
+    {
       "id": "anvilcraft:star_contact",
       "required": false
     },

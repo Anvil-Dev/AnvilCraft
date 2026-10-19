@@ -33,13 +33,24 @@ public class DamageTypeTagLoader {
         provider.rawBuilder(DamageTypeTags.NO_KNOCKBACK)
             .addOptionalElement(ModDamageTypes.BLACK_HOLE_CONTACT.identifier())
             .addOptionalElement(ModDamageTypes.LOST_IN_TIME.identifier())
-            .addOptionalElement(ModDamageTypes.HEATER_BURN.identifier());
+            .addOptionalElement(ModDamageTypes.HEATER_BURN.identifier())
+            .addOptionalElement(ModDamageTypes.REDHOT_BLOCK.identifier());
 
         provider.rawBuilder(DamageTypeTags.IS_FIRE)
             .addOptionalElement(ModDamageTypes.HEATER_BURN.identifier())
+            .addOptionalElement(ModDamageTypes.REDHOT_BLOCK.identifier())
             .addOptionalElement(ModDamageTypes.STAR_CONTACT.identifier())
             .addOptionalElement(ModDamageTypes.PLASMA_JET.identifier())
             .addOptionalElement(ModDamageTypes.LASER.identifier());
+
+        provider.rawBuilder(DamageTypeTags.BURN_FROM_STEPPING)
+            .addOptionalElement(ModDamageTypes.REDHOT_BLOCK.identifier());
+
+        provider.rawBuilder(DamageTypeTags.PANIC_ENVIRONMENTAL_CAUSES)
+            .addOptionalElement(ModDamageTypes.REDHOT_BLOCK.identifier());
+
+        provider.rawBuilder(DamageTypeTags.BYPASSES_SHIELD)
+            .addOptionalElement(ModDamageTypes.REDHOT_BLOCK.identifier());
 
         provider.rawBuilder(Tags.DamageTypes.IS_MAGIC)
             .addOptionalElement(ModDamageTypes.BLACK_HOLE_CONTACT.identifier())
