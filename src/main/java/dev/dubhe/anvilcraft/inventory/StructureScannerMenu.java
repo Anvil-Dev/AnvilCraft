@@ -20,17 +20,17 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
 import java.util.Objects;
-import javax.annotation.Nullable;
 
 public class StructureScannerMenu extends AbstractContainerMenu {
 
     private final StructureScannerBlockEntity blockEntity;
     private final Level level;
     @Nullable private ImportedStructure importedStructure;
-    private StructureFileTransfer upload;
+    private @Nullable StructureFileTransfer upload;
     private boolean canUpload;
 
     public boolean canUpload() {
