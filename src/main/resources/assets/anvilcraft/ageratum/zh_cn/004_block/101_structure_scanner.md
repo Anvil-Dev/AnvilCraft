@@ -55,7 +55,7 @@ items:
 
 ## 导入导出功能
 
-1. 导出写入**世界文件夹**下的 `data/anvilcraft/blueprints`；导入列表同时包含该文件夹与手册导出的 `data/ageratum`，旧版本存档根目录下的 `anvilcraft` 文件夹会在首次访问时自动移到这里。在服务器上，文件操作需要**管理员权限**
+1. 导出写入**世界文件夹**下的 `data/anvilcraft/blueprints`；导入列表同时包含该文件夹与手册导出的 `data/ageratum`。旧版本存档根目录 `anvilcraft` 下的 `blueprints` 与 `structures` 会在首次访问时自动移到这里。在服务器上，文件操作需要**管理员权限**
 2. 可以设置该结构是否允许自动旋转，以免有方向要求的机器被放反
 
 <tip>

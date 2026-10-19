@@ -55,7 +55,7 @@ Open the GUI:
 
 ## Import and Export
 
-1. Exports go to `data/anvilcraft/blueprints` under the **world folder**; the import list also includes `data/ageratum`, where the handbook writes its structure exports. A legacy `anvilcraft` folder at the world root is moved here on first access. On servers, file operations require **operator permissions**
+1. Exports go to `data/anvilcraft/blueprints` under the **world folder**; the import list also includes `data/ageratum`, where the handbook writes its structure exports. The `blueprints` and `structures` folders under a legacy world-root `anvilcraft` folder are moved here on first access. On servers, file operations require **operator permissions**
 2. You can choose whether the structure can rotate automatically to prevent directional machines from being placed incorrectly
 
 <tip>
