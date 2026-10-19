@@ -39,7 +39,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 @EventBusSubscriber(modid = AnvilCraft.MOD_ID, value = Dist.CLIENT)
 public class ActiveSilencerScreen extends AbstractContainerScreen<ActiveSilencerMenu> {
@@ -71,14 +73,15 @@ public class ActiveSilencerScreen extends AbstractContainerScreen<ActiveSilencer
     private final List<Pair<Identifier, Component>> allSounds = new ArrayList<>();
     private final List<Pair<Identifier, Component>> filteredSounds = new ArrayList<>();
     private final List<Pair<Identifier, Component>> mutedSounds = new ArrayList<>();
+    private Comparator<Pair<Identifier, Component>> soundOrder = Comparator.comparing(sound -> sound.left().toString());
 
     private void onSearchTextChange(@Nullable String text) {
         this.leftScrollOff = 0;
         this.filteredSounds.clear();
+        Set<Identifier> mutedIds = this.mutedSounds.stream().map(Pair::left).collect(Collectors.toSet());
         if (text == null || text.isEmpty()) {
             this.filterText = "";
-            this.filteredSounds.addAll(this.allSounds);
-            this.filteredSounds.removeAll(this.mutedSounds);
+            this.allSounds.stream().filter(sound -> !mutedIds.contains(sound.left())).forEach(this.filteredSounds::add);
             return;
         } else {
             this.filterText = text;
@@ -88,7 +91,7 @@ public class ActiveSilencerScreen extends AbstractContainerScreen<ActiveSilencer
             String search = text.replaceFirst("#", "");
             this.allSounds.stream()
                 .filter(it -> it.left().toString().contains(search))
-                .filter(it -> this.mutedSounds.stream().noneMatch(it1 -> it1.left().equals(it.first())))
+                .filter(it -> !mutedIds.contains(it.left()))
                 .forEach(this.filteredSounds::add);
         } else {
             if (text.startsWith("~")) {
@@ -96,8 +99,7 @@ public class ActiveSilencerScreen extends AbstractContainerScreen<ActiveSilencer
                     Pattern search = Pattern.compile(text.replaceFirst("~", ""));
                     this.allSounds.stream()
                         .filter(it -> search.matcher(it.left().toString()).matches())
-                        .filter(it -> this.mutedSounds.stream()
-                            .noneMatch(it1 -> it1.left().equals(it.first())))
+                        .filter(it -> !mutedIds.contains(it.left()))
                         .forEach(this.filteredSounds::add);
                 } catch (Exception ignored) {
                     // intentionally empty
@@ -105,7 +107,7 @@ public class ActiveSilencerScreen extends AbstractContainerScreen<ActiveSilencer
             }
             this.allSounds.stream()
                 .filter(it -> it.right().getString().contains(this.filterText))
-                .filter(it -> this.mutedSounds.stream().noneMatch(it1 -> it1.left().equals(it.first())))
+                .filter(it -> !mutedIds.contains(it.left()))
                 .forEach(this.filteredSounds::add);
         }
     }
@@ -140,18 +142,26 @@ public class ActiveSilencerScreen extends AbstractContainerScreen<ActiveSilencer
     }
 
     public void recordSound(Identifier sound, Vec3 pos) {
-        if (this.menu.getBlockEntity().shape().contains(pos)) {
+        Minecraft minecraft = Minecraft.getInstance();
+        if (!minecraft.isSameThread()) {
+            minecraft.execute(() -> this.recordSound(sound, pos));
+            return;
+        }
+        if (minecraft.screen != this) return;
+        var blockEntity = this.menu.getBlockEntity();
+        if (blockEntity != null && blockEntity.shape().contains(pos)) {
             this.soundCounts.merge(sound, 1, Integer::sum);
         }
     }
 
     private void refreshSoundOrder() {
-        Comparator<Pair<Identifier, Component>> order = Comparator
-            .<Pair<Identifier, Component>>comparingInt(sound -> this.soundCounts.getOrDefault(sound.left(), 0))
+        Map<Identifier, Integer> counts = Map.copyOf(this.soundCounts);
+        this.soundOrder = Comparator
+            .<Pair<Identifier, Component>>comparingInt(sound -> counts.getOrDefault(sound.left(), 0))
             .reversed()
             .thenComparing(sound -> sound.left().toString());
-        this.allSounds.sort(order);
-        this.mutedSounds.sort(order);
+        this.allSounds.sort(this.soundOrder);
+        this.mutedSounds.sort(this.soundOrder);
         this.rightScrollOff = 0;
         this.refreshSoundList();
     }
@@ -189,6 +199,7 @@ public class ActiveSilencerScreen extends AbstractContainerScreen<ActiveSilencer
     void addMutedSound(Identifier sound) {
         this.menu.addSound(sound);
         this.mutedSounds.add(Pair.of(sound, this.getSoundName(sound)));
+        this.mutedSounds.sort(this.soundOrder);
     }
 
     void removeMutedSound(Identifier sound) {
@@ -233,6 +244,10 @@ public class ActiveSilencerScreen extends AbstractContainerScreen<ActiveSilencer
     @Override
     protected void init() {
         super.init();
+        if (this.menu.getBlockEntity() == null) {
+            this.onClose();
+            return;
+        }
         this.titleLabelX = (this.getImageWidth() - this.font.width(this.title)) / 2;
         this.titleLabelY = Constant.SCREEN_TITLE_Y;
         int buttonTop = this.topPos + 35;
@@ -289,8 +304,8 @@ public class ActiveSilencerScreen extends AbstractContainerScreen<ActiveSilencer
         this.allSounds.clear();
         SoundManager manager = Minecraft.getInstance().getSoundManager();
         manager.getAvailableSounds().forEach(sound -> this.allSounds.add(Pair.of(sound, this.getSoundName(sound))));
-        this.handleSync(List.copyOf(this.menu.getBlockEntity().getMuting()));
-        this.refreshSoundOrder();
+        this.allSounds.sort(this.soundOrder);
+        this.applyMutedSounds(List.copyOf(this.menu.getBlockEntity().getMuting()));
     }
 
     private boolean mouseInLeft(double mouseX, double mouseY, int leftPos, int topPos) {
@@ -431,13 +446,18 @@ public class ActiveSilencerScreen extends AbstractContainerScreen<ActiveSilencer
     }
 
     public void handleSync(List<Identifier> sounds) {
+        this.applyMutedSounds(sounds);
+        this.menu.handleSync(sounds);
+    }
+
+    private void applyMutedSounds(List<Identifier> sounds) {
         this.rightScrollOff = 0;
         this.mutedSounds.clear();
         for (Identifier sound : sounds) {
             this.mutedSounds.add(Pair.of(sound, this.getSoundName(sound)));
         }
+        this.mutedSounds.sort(this.soundOrder);
         this.onSearchTextChange(this.filterText);
-        this.menu.handleSync(sounds);
     }
 
     @Override
