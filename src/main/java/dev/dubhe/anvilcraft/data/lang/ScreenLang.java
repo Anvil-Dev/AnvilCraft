@@ -603,6 +603,7 @@ public class ScreenLang {
             """
                 Requires:
                 §fRocky planet with at least 3 types of biological item resources, or a primitive civilization§r
+                §fNot available on the overworld-like celestial body§r
                 ———————
                 Effects after 10 seconds:
                 §fCreates a primitive civilization on a planet with biological resources§r

@@ -78,7 +78,7 @@ items:
 
 <recipe id="anvilcraft:civilization_catalyst"/>
 
-- **建造条件**：存在**低等文明**或拥有**三种及以上生物资源**的行星
+- **建造条件**：存在**低等文明**或拥有**三种及以上生物资源**的行星（类主世界天体除外）
 - **合成材料**：<ref item="anvilcraft:civilization_catalyst"/> × 1
 - **特性**：
   - 一次性建筑，十秒后销毁，并向星球投放石碑，加速文明演化

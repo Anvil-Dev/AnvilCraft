@@ -78,7 +78,7 @@ Providing an item at night is not recommended, as a blessing or punishment must 
 
 <recipe id="anvilcraft:civilization_catalyst"/>
 
-- **Construction requirement**: Planet with a **primitive civilization** or **three or more biological resources**
+- **Construction requirement**: Planet with a **primitive civilization** or **three or more biological resources** (not available on the overworld-like celestial body)
 - **Crafting materials**: <ref item="anvilcraft:civilization_catalyst"/> × 1
 - **Properties**:
   - One-time structure that is destroyed after ten seconds and deploys monoliths onto the planet, accelerating civilization evolution
