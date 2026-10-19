@@ -1,8 +1,11 @@
 package dev.dubhe.anvilcraft.util;
 
+import dev.dubhe.anvilcraft.AnvilCraft;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.storage.LevelResource;
 
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 
 public final class StructureDataPaths {
@@ -17,7 +20,10 @@ public final class StructureDataPaths {
     }
 
     public static Path blueprints(MinecraftServer server) {
-        return blueprints(worldRoot(server));
+        Path worldRoot = worldRoot(server);
+        Path target = blueprints(worldRoot);
+        migrate(worldRoot.resolve(MOD_DIRECTORY).resolve("blueprints"), target);
+        return target;
     }
 
     public static Path blueprints(Path worldRoot) {
@@ -25,7 +31,10 @@ public final class StructureDataPaths {
     }
 
     public static Path structures(MinecraftServer server) {
-        return structures(worldRoot(server));
+        Path worldRoot = worldRoot(server);
+        Path target = structures(worldRoot);
+        migrate(worldRoot.resolve(MOD_DIRECTORY).resolve("structures"), target);
+        return target;
     }
 
     public static Path structures(Path worldRoot) {
@@ -42,5 +51,16 @@ public final class StructureDataPaths {
 
     private static Path data(Path worldRoot) {
         return worldRoot.toAbsolutePath().normalize().resolve("data");
+    }
+
+    private static void migrate(Path legacy, Path target) {
+        if (!Files.isDirectory(legacy) || Files.exists(target)) return;
+        try {
+            Files.createDirectories(target.getParent());
+            Files.move(legacy, target);
+            AnvilCraft.LOGGER.info("Moved structure directory {} to {}", legacy, target);
+        } catch (IOException exception) {
+            AnvilCraft.LOGGER.warn("Failed to move structure directory {} to {}", legacy, target, exception);
+        }
     }
 }

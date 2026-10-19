@@ -10,8 +10,10 @@ import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 
 public final class StructureBlueprintFiles {
     private StructureBlueprintFiles() {
@@ -24,19 +26,20 @@ public final class StructureBlueprintFiles {
     }
 
     public static List<String> list(MinecraftServer server) throws IOException {
-        List<String> files = new ArrayList<>();
-        collect(directory(server), files);
-        collect(StructureDataPaths.handbookExports(server), files);
+        Set<String> names = new LinkedHashSet<>();
+        collect(directory(server), names);
+        collect(StructureDataPaths.handbookExports(server), names);
+        List<String> files = new ArrayList<>(names);
         files.sort(Comparator.naturalOrder());
         return files;
     }
 
-    private static void collect(Path root, List<String> files) throws IOException {
+    private static void collect(Path root, Set<String> files) throws IOException {
         if (!Files.isDirectory(root, LinkOption.NOFOLLOW_LINKS)) return;
         try (DirectoryStream<Path> entries = Files.newDirectoryStream(root)) {
             for (Path entry : entries) {
                 String name = entry.getFileName().toString();
-                if (!files.contains(name) && isImportName(name)
+                if (isImportName(name)
                     && Files.isRegularFile(entry, LinkOption.NOFOLLOW_LINKS)
                     && Files.size(entry) <= StructureFileTransfer.MAX_BYTES) files.add(name);
             }
