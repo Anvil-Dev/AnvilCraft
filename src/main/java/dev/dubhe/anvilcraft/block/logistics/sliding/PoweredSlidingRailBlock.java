@@ -4,6 +4,7 @@ import dev.dubhe.anvilcraft.api.hammer.IHammerChangeable;
 import dev.dubhe.anvilcraft.entity.MagnetizedNodeEntity;
 import dev.dubhe.anvilcraft.entity.SlidingBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlockTags;
+import dev.dubhe.anvilcraft.util.PistonMoveGuard;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.entity.Entity;
@@ -202,7 +203,9 @@ public class PoweredSlidingRailBlock extends BaseSlidingRailBlock implements IHa
                 if (!level.isEmptyBlock(aboveStopPos)) {
                     BlockState aboveStopState = level.getBlockState(aboveStopPos);
                     if (PistonBaseBlock.isPushable(aboveStopState, level, aboveStopPos, null, true, null)) {
-                        SlidingRailStopBlock.moveBlocksAbove(level, behindPos, facing);
+                        try (PistonMoveGuard.Scope ignored = level.isClientSide() ? null : PistonMoveGuard.begin(level)) {
+                            SlidingRailStopBlock.moveBlocksAbove(level, behindPos, facing);
+                        }
                     }
                 }
             }
