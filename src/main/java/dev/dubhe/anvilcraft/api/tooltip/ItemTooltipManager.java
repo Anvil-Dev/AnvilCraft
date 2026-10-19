@@ -828,7 +828,8 @@ public class ItemTooltipManager {
         ItemTooltipManager.NORMAL.put(
             ModBlocks.INFINITE_COLLECTOR.asItem(), """
                                                    Generates power by collecting both heat and charge, no upper power limit
-                                                   Provide a baseline output of 256 kW"""
+                                                   Provides 256 kW base power, boosted by negative void mass
+                                                   Mass thresholds -11/-21/-41 in a 7x7x7 area yield 768/2048/5120 kW"""
         );
         ItemTooltipManager.NORMAL.put(
             ModBlocks.LOAD_MONITOR.asItem(),

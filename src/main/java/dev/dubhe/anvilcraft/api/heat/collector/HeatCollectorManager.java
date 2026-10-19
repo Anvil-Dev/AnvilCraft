@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.api.heat.collector;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.entity.HeatCollectorBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.InfiniteCollectorBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.VoidEnergyCollectorBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.block.ModFluids;
@@ -168,7 +169,8 @@ public class HeatCollectorManager {
             BlockState state = this.level.getBlockState(pos);
             if (!pos.equals(collectorPos)) {
                 int otherCollectorRange = collector instanceof InfiniteCollectorBlockEntity
-                    && state.is(ModBlocks.VOID_ENERGY_COLLECTOR.get()) ? 2 : this.getCollectorRange(state);
+                    && state.is(ModBlocks.VOID_ENERGY_COLLECTOR.get())
+                    ? VoidEnergyCollectorBlockEntity.RANGE : this.getCollectorRange(state);
                 if (otherCollectorRange > 0 && this.isRangeOverlapping(collectorPos, pos, collectorRange, otherCollectorRange)) {
                     collector.setCollectorWorking(false);
                     return;
