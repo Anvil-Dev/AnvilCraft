@@ -107,7 +107,17 @@ public class AutoEnchantingTableScreen extends AbstractContainerScreen<AutoEncha
             83,
             9,
             Component.translatable("screen.anvilcraft.auto_enchanting_table.search")
-        );
+        ) {
+            @Override
+            public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+                if (event.button() == 1 && this.isMouseOver(event.x(), event.y())) {
+                    this.setValue("");
+                    this.setFocused(true);
+                    return true;
+                }
+                return super.mouseClicked(event, doubleClick);
+            }
+        };
         this.searchBox.setBordered(false);
         this.searchBox.setMaxLength(64);
         this.searchBox.setValue(this.filterText);
