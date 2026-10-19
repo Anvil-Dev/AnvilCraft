@@ -234,7 +234,17 @@ public class ActiveSilencerScreen extends AbstractContainerScreen<ActiveSilencer
             100,
             12,
             Component.translatable("screen.anvilcraft.active_silencer.search")
-        )).setResponder(this::onSearchTextChange);
+        ) {
+            @Override
+            public boolean mouseClicked(double mouseX, double mouseY, int button) {
+                if (button == 1 && this.isMouseOver(mouseX, mouseY)) {
+                    this.setValue("");
+                    this.setFocused(true);
+                    return true;
+                }
+                return super.mouseClicked(mouseX, mouseY, button);
+            }
+        }).setResponder(this::onSearchTextChange);
 
         SoundManager manager = Minecraft.getInstance().getSoundManager();
         BuiltInRegistries.SOUND_EVENT.stream()
