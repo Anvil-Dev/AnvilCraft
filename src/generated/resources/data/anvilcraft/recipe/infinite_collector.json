@@ -10,12 +10,15 @@
     },
     "T": {
       "item": "anvilcraft:transcendium_ingot"
+    },
+    "V": {
+      "item": "anvilcraft:void_energy_collector"
     }
   },
   "pattern": [
-    " C ",
+    "CCC",
     "CHC",
-    "TTT"
+    "TVT"
   ],
   "result": {
     "count": 1,
