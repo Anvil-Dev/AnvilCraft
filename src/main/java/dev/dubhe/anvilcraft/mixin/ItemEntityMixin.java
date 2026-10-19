@@ -556,7 +556,8 @@ abstract class ItemEntityMixin extends Entity implements IItemEntityExtension {
             return false;
         }
         Block target = "iron".equals(material) ? ModBlocks.FERRITE_CORE_MAGNET_BLOCK.get() : ModBlocks.MAGNET_BLOCK.get();
-        this.level().setBlockAndUpdate(pos, target.defaultBlockState().setValue(MagnetBlock.LIT, state.getValue(MagnetBlock.LIT)));
+        BlockState filled = target.defaultBlockState().setValue(MagnetBlock.LIT, this.level().hasNeighborSignal(pos));
+        if (!this.level().setBlockAndUpdate(pos, filled)) return false;
         stack.shrink(1);
         if (stack.isEmpty()) this.discard();
         return true;
