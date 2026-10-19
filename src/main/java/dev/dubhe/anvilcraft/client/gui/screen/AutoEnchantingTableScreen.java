@@ -334,6 +334,7 @@ public class AutoEnchantingTableScreen extends AbstractContainerScreen<AutoEncha
         if (enchantment.isEmpty()) return 0;
         AutoEnchantingTableBlockEntity be = this.menu.getBlockEntity();
         return AutoEnchantingTableBlockEntity.computeLiquidMaxLevel(
+            be.getFluid().getAmount(),
             be.getItem(AutoEnchantingTableBlockEntity.SLOT_INPUT),
             be.getItem(AutoEnchantingTableBlockEntity.SLOT_PRIMER),
             enchantment.get()

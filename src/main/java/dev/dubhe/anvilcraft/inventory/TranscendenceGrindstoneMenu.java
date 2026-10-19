@@ -9,6 +9,7 @@ import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.util.CompatUtil;
 import dev.dubhe.anvilcraft.util.EnchantmentData;
+import dev.dubhe.anvilcraft.util.LiquidEnchantmentUtil;
 import it.unimi.dsi.fastutil.ints.IntArraySet;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import lombok.Getter;
@@ -359,8 +360,13 @@ public class TranscendenceGrindstoneMenu extends AbstractContainerMenu {
         long totalAmount = 0;
         List<FluidStack> fluids = new ArrayList<>();
         for (EnchantmentData data : selected) {
-            long amount = TranscendenceGrindstoneMenu.getLiquidAmount(data.level());
-            if (amount <= 0 || amount > capacity - totalAmount) return ItemStack.EMPTY;
+            long amount = LiquidEnchantmentUtil.amountForLevel(data.level());
+            if (amount <= 0) return ItemStack.EMPTY;
+            long remaining = capacity - totalAmount;
+            if (amount > remaining) {
+                if (selected.size() > 1) return ItemStack.EMPTY;
+                amount = remaining;
+            }
 
             FluidStack fluid = new FluidStack(ModFluids.LIQUID_ENCHANTMENT.get(), (int) amount);
             fluid.set(ModComponents.LIQUID_ENCHANTMENT, data.enchantment());
@@ -372,12 +378,6 @@ public class TranscendenceGrindstoneMenu extends AbstractContainerMenu {
         return mode == Mode.SMALL_TANK
                ? FluidTankBlockEntity.fillItem(tank, fluids.getFirst(), this.registries)
                : LargeFluidTankBlockEntity.fillItem(tank, fluids, this.registries);
-    }
-
-    private static long getLiquidAmount(int level) {
-        if (level <= 0) return 0;
-        if (level >= Long.SIZE) return Long.MAX_VALUE;
-        return 1L << (level - 1);
     }
 
     private ItemStack createSourceWithoutSelected() {
