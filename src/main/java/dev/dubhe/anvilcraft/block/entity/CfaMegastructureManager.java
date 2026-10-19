@@ -108,7 +108,6 @@ public class CfaMegastructureManager {
             IMegastructureHandler handler = this.handlers.get(megastructure.id());
             if (handler != null) {
                 handler.serverTick(be);
-                if (!handler.isAuxiliaryActive(be)) this.builtMaterials.remove(megastructure.id());
             }
         }
     }
@@ -297,6 +296,10 @@ public class CfaMegastructureManager {
         }
     }
 
+    public void discardBuiltMaterials(Identifier id) {
+        this.builtMaterials.remove(id);
+    }
+
     private void refundMaterials(Identifier id, Player player) {
         ItemStack materials = this.builtMaterials.get(id);
         if (materials == null) materials = CfaMegastructureManager.legacyMaterials(id);
@@ -323,7 +326,9 @@ public class CfaMegastructureManager {
     }
 
     public void saveAdditional(ValueOutput output) {
-        output.store("builtMegastructureMaterials", MATERIALS_CODEC, this.builtMaterials);
+        if (!this.builtMaterials.isEmpty()) {
+            output.store("builtMegastructureMaterials", MATERIALS_CODEC, this.builtMaterials);
+        }
         if (this.activeMegastructureId != null) {
             output.putString("activeMegastructureId", this.activeMegastructureId.toString());
         }
