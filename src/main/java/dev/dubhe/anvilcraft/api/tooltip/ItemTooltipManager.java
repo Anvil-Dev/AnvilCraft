@@ -705,7 +705,7 @@ public class ItemTooltipManager {
         ItemTooltipManager.NORMAL.put(ModBlocks.HONEY_CAKE_BLOCK.asItem(), "A block of honey cake, use a shovel as a spoon to eat it");
         ItemTooltipManager.NORMAL.put(ModBlocks.MATCHA_CAKE_BLOCK.asItem(), "A block of matcha cake, use a shovel as a spoon to eat it");
         ItemTooltipManager.NORMAL.put(ModBlocks.COOKIE_BLOCK.asItem(), "A placeable giant cookie!");
-        ItemTooltipManager.NORMAL.put(ModBlocks.COOKIE_PILLAR.asItem(), " A hollow cookie block!");
+        ItemTooltipManager.NORMAL.put(ModBlocks.COOKIE_PILLAR.asItem(), "A hollow cookie block!");
         ItemTooltipManager.NORMAL.put(
             ModBlocks.CONTROL_VALVE.asItem(),
             "Controls the type and flow rate of passing fluids and can be locked by redstone"
