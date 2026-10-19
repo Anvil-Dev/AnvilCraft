@@ -212,6 +212,7 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.anvil_hammer.title", "Modifying Block");
 
         provider.add("screen.anvilcraft.active_silencer.search", "enter keyword to search");
+        provider.add("screen.anvilcraft.active_silencer.refresh", "Refresh Order");
 
         provider.add("screen.anvilcraft.tesla_tower.filter.unknown", "Unknown");
         provider.add("screen.anvilcraft.tesla_tower.filter.is_player_id", "Player Id");

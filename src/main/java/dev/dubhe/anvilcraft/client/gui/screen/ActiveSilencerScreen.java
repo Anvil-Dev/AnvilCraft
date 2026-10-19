@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.client.gui.screen;
 
 import dev.anvilcraft.lib.v2.util.MathUtil;
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.client.gui.component.SilencerButton;
 import dev.dubhe.anvilcraft.constant.Constant;
 import dev.dubhe.anvilcraft.constant.SharedTextures;
@@ -11,6 +12,7 @@ import it.unimi.dsi.fastutil.Pair;
 import lombok.Getter;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.input.KeyEvent;
@@ -18,19 +20,28 @@ import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.sounds.SoundManager;
 import net.minecraft.client.sounds.WeighedSoundEvents;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.phys.Vec3;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.bus.api.EventPriority;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
+import net.neoforged.neoforge.event.PlayLevelSoundEvent;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.regex.Pattern;
 
+@EventBusSubscriber(modid = AnvilCraft.MOD_ID, value = Dist.CLIENT)
 public class ActiveSilencerScreen extends AbstractContainerScreen<ActiveSilencerMenu> {
     private static final Identifier BACKGROUND = SharedTextures.bg("machine", "active_silencer");
     public static final Identifier SLIDER = SharedTextures.SMALL_MACHINE_SLIDER;
@@ -56,6 +67,7 @@ public class ActiveSilencerScreen extends AbstractContainerScreen<ActiveSilencer
 
     private boolean isDraggingLeft;
     private boolean isDraggingRight;
+    private final Map<Identifier, Integer> soundCounts = new HashMap<>();
     private final List<Pair<Identifier, Component>> allSounds = new ArrayList<>();
     private final List<Pair<Identifier, Component>> filteredSounds = new ArrayList<>();
     private final List<Pair<Identifier, Component>> mutedSounds = new ArrayList<>();
@@ -107,6 +119,49 @@ public class ActiveSilencerScreen extends AbstractContainerScreen<ActiveSilencer
         }
     }
 
+    @SubscribeEvent(priority = EventPriority.LOWEST, receiveCanceled = true)
+    public static void recordCanceledSound(PlayLevelSoundEvent event) {
+        if (!event.isCanceled() || event.getSound() == null) return;
+        Minecraft minecraft = Minecraft.getInstance();
+        if (!(minecraft.screen instanceof ActiveSilencerScreen screen)) return;
+        if (minecraft.level == null || !minecraft.level.dimension().equals(event.getLevel().dimension())) return;
+        Vec3 pos;
+        if (event instanceof PlayLevelSoundEvent.AtEntity atEntity) {
+            pos = atEntity.getEntity().position();
+        } else if (event instanceof PlayLevelSoundEvent.AtPosition atPosition) {
+            pos = atPosition.getPosition();
+        } else {
+            return;
+        }
+        Identifier sound = event.getSound().value().location();
+        minecraft.execute(() -> {
+            if (minecraft.screen == screen) screen.recordSound(sound, pos);
+        });
+    }
+
+    public void recordSound(Identifier sound, Vec3 pos) {
+        if (this.menu.getBlockEntity().shape().contains(pos)) {
+            this.soundCounts.merge(sound, 1, Integer::sum);
+        }
+    }
+
+    private void refreshSoundOrder() {
+        Comparator<Pair<Identifier, Component>> order = Comparator
+            .<Pair<Identifier, Component>>comparingInt(sound -> this.soundCounts.getOrDefault(sound.left(), 0))
+            .reversed()
+            .thenComparing(sound -> sound.left().toString());
+        this.allSounds.sort(order);
+        this.mutedSounds.sort(order);
+        this.rightScrollOff = 0;
+        this.refreshSoundList();
+    }
+
+    private Component getSoundName(Identifier sound) {
+        WeighedSoundEvents event = Minecraft.getInstance().getSoundManager().getSoundEvent(sound);
+        Component subtitle = event == null ? null : event.getSubtitle();
+        return subtitle == null ? Component.literal(sound.toString()) : subtitle;
+    }
+
     private void refreshSoundList() {
         this.onSearchTextChange(this.filterText);
     }
@@ -133,11 +188,7 @@ public class ActiveSilencerScreen extends AbstractContainerScreen<ActiveSilencer
 
     void addMutedSound(Identifier sound) {
         this.menu.addSound(sound);
-        SoundManager manager = Minecraft.getInstance().getSoundManager();
-        WeighedSoundEvents event = manager.getSoundEvent(sound);
-        if (event == null) return;
-        Component subtitle = event.getSubtitle();
-        this.mutedSounds.add(Pair.of(sound, Objects.requireNonNullElseGet(subtitle, Component::empty)));
+        this.mutedSounds.add(Pair.of(sound, this.getSoundName(sound)));
     }
 
     void removeMutedSound(Identifier sound) {
@@ -220,25 +271,26 @@ public class ActiveSilencerScreen extends AbstractContainerScreen<ActiveSilencer
             buttonTop += 15;
         }
 
-        this.addRenderableWidget(new EditBox(
+        EditBox search = this.addRenderableWidget(new EditBox(
             Objects.requireNonNull(this.minecraft).font,
             this.leftPos + 78,
             this.topPos + 19,
             100,
             12,
             Component.translatable("screen.anvilcraft.active_silencer.search")
-        )).setResponder(this::onSearchTextChange);
+        ));
+        search.setValue(this.filterText);
+        search.setResponder(this::onSearchTextChange);
 
+        this.addRenderableWidget(Button.builder(
+            Component.translatable("screen.anvilcraft.active_silencer.refresh"), button -> this.refreshSoundOrder()
+        ).bounds(this.leftPos + 78, this.topPos + 170, 100, 20).build());
+
+        this.allSounds.clear();
         SoundManager manager = Minecraft.getInstance().getSoundManager();
-        BuiltInRegistries.SOUND_EVENT.forEach(soundEvent -> {
-            var sound = manager.getSoundEvent(soundEvent.location());
-            if (sound == null) return;
-            Component subtitle = sound.getSubtitle();
-            if (subtitle != null) {
-                this.allSounds.add(Pair.of(soundEvent.location(), subtitle));
-            }
-        });
-        this.filteredSounds.addAll(this.allSounds);
+        manager.getAvailableSounds().forEach(sound -> this.allSounds.add(Pair.of(sound, this.getSoundName(sound))));
+        this.handleSync(List.copyOf(this.menu.getBlockEntity().getMuting()));
+        this.refreshSoundOrder();
     }
 
     private boolean mouseInLeft(double mouseX, double mouseY, int leftPos, int topPos) {
@@ -381,14 +433,10 @@ public class ActiveSilencerScreen extends AbstractContainerScreen<ActiveSilencer
     public void handleSync(List<Identifier> sounds) {
         this.rightScrollOff = 0;
         this.mutedSounds.clear();
-        SoundManager manager = Minecraft.getInstance().getSoundManager();
         for (Identifier sound : sounds) {
-            WeighedSoundEvents events = manager.getSoundEvent(sound);
-            if (events == null || events.getSubtitle() == null) return;
-            // noinspection NullableProblems
-            this.mutedSounds.add(Pair.of(sound, events.getSubtitle()));
+            this.mutedSounds.add(Pair.of(sound, this.getSoundName(sound)));
         }
-        this.onSearchTextChange("");
+        this.onSearchTextChange(this.filterText);
         this.menu.handleSync(sounds);
     }
 
