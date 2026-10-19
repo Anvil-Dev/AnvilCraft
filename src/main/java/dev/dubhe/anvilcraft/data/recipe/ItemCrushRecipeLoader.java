@@ -118,6 +118,11 @@ public class ItemCrushRecipeLoader {
                     .25f
                 )
             )
+            .spawnItem(builder -> builder
+                .offset(0, -.6875, 0)
+                .item(Items.QUARTZ)
+                .count(3F)
+            )
             .save(provider, AnvilCraft.of("item_crush/gem_from_chromatic_stone"));
 
         ItemCrushRecipe.builder()
