@@ -5,6 +5,10 @@
       "required": false
     },
     {
+      "id": "anvilcraft:redhot_block",
+      "required": false
+    },
+    {
       "id": "anvilcraft:plasma_jets",
       "required": false
     },
