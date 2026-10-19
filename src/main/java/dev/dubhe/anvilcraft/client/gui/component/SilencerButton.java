@@ -74,7 +74,9 @@ public class SilencerButton extends Button {
         this.setMessage(message);
         int color = 16777215 | Mth.ceil(this.alpha * 255.0F) << 24;
         Font font = Minecraft.getInstance().font;
+        graphics.enableScissor(this.getX() + 2, this.getY(), this.getX() + this.width - 2, this.getY() + this.height);
         graphics.centeredText(font, message, this.getX() + this.width / 2, this.getY() + 3, color);
+        graphics.disableScissor();
         if (this.isHovered()) {
             Component soundIdText = SilencerButton.highlighted(
                 soundId.toString(),
