@@ -259,7 +259,7 @@ public class RedstoneWireBlock extends Block implements IHammerRemovable {
         }
         int index = getLocalIndex(state.getValue(ATTACHMENT), terminalDirection);
         if (index < 0 || !state.getValue(CONNECTION_PROPERTIES.get(index)).isConnected()
-            || direction == null && !hasUpwardDustConnection(level, pos, state, index)) {
+            || (direction == null && !hasUpwardDustConnection(level, pos, state, index))) {
             return false;
         }
         // 内部接线端只负责连通网络；仅开放端点应被外部元件视为红石接口。
@@ -524,8 +524,7 @@ public class RedstoneWireBlock extends Block implements IHammerRemovable {
         if (!attachment.getAxis().isHorizontal() || getLocalDirection(attachment, index) != Direction.UP) {
             return false;
         }
-        BlockPos cornerPos = pos.above();
-        return !level.getBlockState(cornerPos).isRedstoneConductor(level, cornerPos)
+        return !isCornerBlocked(level, pos, Direction.UP)
             && level.getBlockState(pos.relative(attachment).above()).is(Blocks.REDSTONE_WIRE);
     }
 
