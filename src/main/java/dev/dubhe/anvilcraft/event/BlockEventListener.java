@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.event;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.api.hammer.IHammerChangeable;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.block.entity.CreativeCrateBlockEntity;
 import dev.dubhe.anvilcraft.block.power.batch.BaseBatchCraftingBlock;
@@ -131,12 +132,13 @@ public class BlockEventListener {
         BlockPos pos = event.getPos();
         BlockState targetState = level.getBlockState(pos);
         if (stack.is(ModItemTags.ANVIL_HAMMER)) {
-            if (level.isClientSide() || player.isSpectator() || !player.getAbilities().mayBuild) return;
+            if (level.isClientSide() || player.isSpectator()) return;
             if (player.isShiftKeyDown() && !targetState.is(ModBlockTags.HAMMER_REMOVABLE)
                 && !(targetState.getBlock() instanceof IHammerRemovable)) {
                 return;
             }
             boolean canChange = AnvilHammerItem.ableToUseAnvilHammer(level, pos, player);
+            if (!player.getAbilities().mayBuild && !(canChange && targetState.getBlock() instanceof IHammerChangeable)) return;
             if (!canChange && AnvilHammerItem.findModifyableProperty(targetState) != null) return;
             if (canChange || (!targetState.is(BlockTags.CAULDRONS) && !targetState.is(ModBlockTags.ANVIL_HAMMER_DENYLIST)
                 && !AnvilHammerItem.shouldPlaceOffhandBlock(player, level, event.getHitVec()))) {
