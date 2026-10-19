@@ -78,7 +78,7 @@ final class BuildingRodPattern {
             if (occupied.contains(pos) || !player.level().getBlockState(pos).canBeReplaced()) continue;
             ItemStack material = pattern.material(first, pos, face, seed);
             if (material.isEmpty()) continue;
-            List<BuildingRodService.Group> planned = BuildingRodService.planBlocks(player, material, pos, pos, face, null);
+            List<BuildingRodService.Group> planned = BuildingRodService.planBlocks(player, material, pos, pos, face, null, null);
             if (planned == null) return null;
             for (var group : planned) {
                 if (group.cells.stream().anyMatch(cell -> occupied.contains(cell.pos()))) continue;
