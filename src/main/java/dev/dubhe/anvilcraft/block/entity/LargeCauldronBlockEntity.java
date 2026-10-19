@@ -443,6 +443,14 @@ public class LargeCauldronBlockEntity extends BlockEntity
         return false;
     }
 
+    @Override
+    public void preRemoveSideEffects(BlockPos pos, BlockState state) {
+        super.preRemoveSideEffects(pos, state);
+        if (state.getBlock() instanceof LargeCauldronBlock block && block.isMainPart(state)) {
+            this.dropContents();
+        }
+    }
+
     public void dropContents() {
         LargeCauldronBlockEntity main = this.getMainPart();
         if (main.droppedContents || main.level == null) return;
