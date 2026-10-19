@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.block;
 
 import com.mojang.serialization.MapCodec;
+import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.block.entity.BigRedButtonBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.item.ModItems;
@@ -38,7 +39,7 @@ import java.util.EnumMap;
 import java.util.Map;
 import javax.annotation.Nullable;
 
-public class BigRedButtonBlock extends BaseEntityBlock {
+public class BigRedButtonBlock extends BaseEntityBlock implements IHammerRemovable {
     public static final MapCodec<BigRedButtonBlock> CODEC = simpleCodec(BigRedButtonBlock::new);
     public static final DirectionProperty FACING = BlockStateProperties.FACING;
     public static final BooleanProperty PRESSED = BooleanProperty.create("pressed");
