@@ -7,10 +7,13 @@ import net.minecraft.world.level.storage.LevelResource;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 public final class StructureDataPaths {
     private static final String MOD_DIRECTORY = "anvilcraft";
     private static final String HANDBOOK_DIRECTORY = "ageratum";
+    private static final Set<Path> REPORTED_LEGACY = ConcurrentHashMap.newKeySet();
 
     private StructureDataPaths() {
     }
@@ -54,7 +57,14 @@ public final class StructureDataPaths {
     }
 
     private static void migrate(Path legacy, Path target) {
-        if (!Files.isDirectory(legacy) || Files.exists(target)) return;
+        if (!Files.isDirectory(legacy)) return;
+        if (Files.exists(target)) {
+            if (REPORTED_LEGACY.add(legacy)) {
+                AnvilCraft.LOGGER.warn("Legacy structure directory {} was not moved because {} already exists",
+                    legacy, target);
+            }
+            return;
+        }
         try {
             Files.createDirectories(target.getParent());
             Files.move(legacy, target);

@@ -19,7 +19,6 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.storage.LevelResource;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -190,7 +189,7 @@ public class StructureSaveUtil {
         if (server == null) {
             throw new IllegalStateException("Server is null");
         }
-        return StructureDataPaths.structures(server.getWorldPath(LevelResource.ROOT));
+        return StructureDataPaths.structures(server);
     }
 
     /**
