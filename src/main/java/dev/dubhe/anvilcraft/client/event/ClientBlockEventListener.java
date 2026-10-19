@@ -76,6 +76,7 @@ public class ClientBlockEventListener {
     /// @param event 右键方块事件
     @SubscribeEvent(priority = EventPriority.HIGH)
     public static void anvilHammerUse(PlayerInteractEvent.RightClickBlock event) {
+        if (!event.getLevel().isClientSide()) return;
         InteractionHand hand = event.getHand();
         BlockState state = event.getLevel().getBlockState(event.getPos());
         Player entity = event.getEntity();
