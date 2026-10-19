@@ -788,6 +788,8 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.structure_scanner.export", "Export structure");
         provider.add("screen.anvilcraft.structure_scanner.export_file", "Export file");
         provider.add("screen.anvilcraft.structure_scanner.exported", "Structure exported: %s");
+        provider.add("screen.anvilcraft.structure_scanner.upload", "Upload structure file");
+        provider.add("screen.anvilcraft.structure_scanner.uploaded", "Structure uploaded: %s");
         provider.add("screen.anvilcraft.structure_scanner.file_failed", "File operation failed: %s");
         provider.add("screen.anvilcraft.structure_scanner.import", "Import structure");
         provider.add("screen.anvilcraft.structure_scanner.import_file", "Import file");
