@@ -345,7 +345,8 @@ public final class BuildingRodClient {
             BuildingRodItemRenderer.preparePlacement();
             Minecraft.getInstance().getConnection().send(new BuildingRodPacket(
                 first, target, firstHit == null ? face : firstHit.getDirection(),
-                false, Rotation.NONE, Mirror.NONE, false, firstHit, BuildingRodPacket.Action.PLACE, patternSeed));
+                false, Rotation.NONE, Mirror.NONE, false, currentHit,
+                BuildingRodPacket.Action.PLACE, patternSeed));
         }
         clearSelection();
     }
@@ -392,7 +393,7 @@ public final class BuildingRodClient {
         if (placementCells == null) {
             placementCells = BuildingRodService.preview(player, first == null ? target : first, target,
                 firstHit == null ? face : firstHit.getDirection(),
-                first == null ? currentHit : firstHit, patternSeed);
+                first == null ? currentHit : firstHit, first == null ? null : currentHit, patternSeed);
         }
         return placementCells;
     }

@@ -155,6 +155,7 @@ public final class BuildingRodService {
         if (!BuildingRodItem.isHeld(player) || !BuildingRodItem.isPlacementMaterial(held)) return;
         Selection selection = SELECTIONS.remove(player);
         if (!withinReach(player, last, 0)) return;
+        final BlockHitResult endHit = selection != null ? hit : null;
         if (selection != null) {
             if (!selection.first().equals(first) || selection.dimension() != player.level().dimension()
                 || !ItemStack.isSameItemSameComponents(selection.material(), held)) return;
@@ -178,7 +179,7 @@ public final class BuildingRodService {
             return;
         }
         List<Group> groups = held.is(ModItems.FILTER) ? BuildingRodPattern.plan(player, held, first, last, face, seed)
-            : planBlocks(player, held, first, last, face, hit);
+            : planBlocks(player, held, first, last, face, hit, endHit);
         if (groups == null) {
             message(player, "blocked");
             return;
@@ -187,25 +188,30 @@ public final class BuildingRodService {
     }
 
     public static List<Cell> preview(Player player, BlockPos first, BlockPos last, Direction face, @Nullable BlockHitResult hit) {
-        return preview(player, first, last, face, hit, 0);
+        return preview(player, first, last, face, hit, null, 0);
     }
 
     public static List<Cell> preview(Player player, BlockPos first, BlockPos last, Direction face,
                                      @Nullable BlockHitResult hit, long seed) {
+        return preview(player, first, last, face, hit, null, seed);
+    }
+
+    public static List<Cell> preview(Player player, BlockPos first, BlockPos last, Direction face,
+                                     @Nullable BlockHitResult hit, @Nullable BlockHitResult endHit, long seed) {
         ItemStack held = BuildingRodItem.material(player);
         if (!BuildingRodItem.isPlacementMaterial(held) || volume(first, last) > MAX_BLOCKS) return List.of();
         if (!(held.getItem() instanceof BlockItem) && !held.is(ModItems.FILTER)) {
             return BuildingRodFluids.preview(player, first, last);
         }
         List<Group> groups = held.is(ModItems.FILTER) ? BuildingRodPattern.plan(player, held, first, last, face, seed)
-            : planBlocks(player, held, first, last, face, hit);
+            : planBlocks(player, held, first, last, face, hit, endHit);
         return groups == null ? List.of() : groups.stream().flatMap(group -> group.cells.stream()).toList();
     }
 
     @Nullable
     static List<Group> planBlocks(Player player, ItemStack held, BlockPos first, BlockPos last,
-                                 Direction face, @Nullable BlockHitResult hit) {
-        return BuildingBlockPlanner.planBlocks(player, held, first, last, face, hit);
+                                 Direction face, @Nullable BlockHitResult hit, @Nullable BlockHitResult endHit) {
+        return BuildingBlockPlanner.planBlocks(player, held, first, last, face, hit, endHit);
     }
 
     public static List<Cell> singlePlacement(UseOnContext use) {
