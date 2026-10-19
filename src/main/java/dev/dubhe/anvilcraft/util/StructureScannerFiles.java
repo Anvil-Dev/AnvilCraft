@@ -183,11 +183,6 @@ public final class StructureScannerFiles {
         }
     }
 
-    public static String exportBlueprint(ServerPlayer player, StructureScannerMenu menu, String name)
-        throws IOException, ConstructionBlueprintException {
-        return StructureBlueprintFiles.write(player.server, name, compress(exportStructure(player, menu)));
-    }
-
     public static CompoundTag exportStructure(ServerPlayer player, StructureScannerMenu menu)
         throws IOException, ConstructionBlueprintException {
         var scanner = menu.getBlockEntity();

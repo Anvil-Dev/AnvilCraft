@@ -21,7 +21,7 @@ public class BlueprintAdministrators extends SavedData {
     }
 
     public static boolean canUpload(ServerPlayer player) {
-        return player.hasPermissions(2) || get(player.server).players.contains(player.getUUID());
+        return player.hasPermissions(3) || get(player.server).players.contains(player.getUUID());
     }
 
     public boolean setAllowed(UUID player, boolean allowed) {

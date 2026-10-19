@@ -27,7 +27,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 import javax.annotation.Nullable;
 
 public final class BlueprintClientFiles {
@@ -41,6 +44,12 @@ public final class BlueprintClientFiles {
     private static String fileName = "";
     private static boolean exporting;
     private static boolean uploading;
+    private static boolean selecting;
+    private static int selectionContainerId = -1;
+    private static long selectionVersion;
+
+    private record UploadFile(String name, byte[] bytes) {
+    }
 
     private BlueprintClientFiles() {
     }
@@ -68,18 +77,43 @@ public final class BlueprintClientFiles {
     }
 
     public static void uploadOrOpenDirectory(int containerId) {
-        if (Minecraft.getInstance().hasSingleplayerServer()) {
+        var minecraft = Minecraft.getInstance();
+        if (minecraft.hasSingleplayerServer()) {
             openDirectory();
             return;
         }
-        if (isBusy() || !canOpenDirectory()) return;
+        if (isBusy() || !canOpenDirectory() || !(minecraft.screen instanceof StructureScannerScreen screen)
+            || screen.getMenu().containerId != containerId || minecraft.getConnection() == null) return;
+        var connection = minecraft.getConnection();
+        var menu = screen.getMenu();
+        String title = Component.translatable("screen.anvilcraft.structure_scanner.upload").getString();
+        Path directory = minecraft.gameDirectory.toPath().resolve("schematics");
+        long version = ++selectionVersion;
+        selectionContainerId = containerId;
+        selecting = true;
+        CompletableFuture.supplyAsync(() -> selectUpload(title, directory), Util.nonCriticalIoPool())
+            .whenComplete((selected, exception) -> minecraft.execute(() -> {
+                selecting = false;
+                if (version != selectionVersion) return;
+                selectionContainerId = -1;
+                if (minecraft.getConnection() != connection || !(minecraft.screen instanceof StructureScannerScreen current)
+                    || current.getMenu() != menu || !menu.canUpload()) return;
+                if (exception != null) {
+                    Throwable cause = exception.getCause() == null ? exception : exception.getCause();
+                    message(containerId, "file_failed", cause.getMessage());
+                    return;
+                }
+                selected.ifPresent(file -> sendUpload(containerId, file));
+            }));
+    }
+
+    private static Optional<UploadFile> selectUpload(String title, Path directory) {
         try (MemoryStack stack = MemoryStack.stackPush()) {
+            Files.createDirectories(directory);
             var filters = stack.mallocPointer(2);
             filters.put(stack.UTF8("*.nbt")).put(stack.UTF8("*.litematic")).flip();
-            String selected = TinyFileDialogs.tinyfd_openFileDialog(
-                Component.translatable("screen.anvilcraft.structure_scanner.upload").getString(),
-                clientDirectory().toString() + "/", filters, null, false);
-            if (selected == null) return;
+            String selected = TinyFileDialogs.tinyfd_openFileDialog(title, directory.toString() + "/", filters, null, false);
+            if (selected == null) return Optional.empty();
             Path file = Path.of(selected);
             String name = file.getFileName().toString();
             if (!StructureFileTransfer.isSafeName(name) || Files.size(file) > StructureFileTransfer.MAX_BYTES) {
@@ -90,16 +124,20 @@ public final class BlueprintClientFiles {
                 bytes = input.readNBytes(StructureFileTransfer.MAX_BYTES + 1);
             }
             if (bytes.length == 0 || bytes.length > StructureFileTransfer.MAX_BYTES) throw new IOException("Invalid file size");
-            UUID id = begin(containerId, name, false);
-            uploading = true;
-            for (int offset = 0; offset < bytes.length; offset += StructureFileTransfer.CHUNK_BYTES) {
-                byte[] chunk = Arrays.copyOfRange(bytes, offset, Math.min(offset + StructureFileTransfer.CHUNK_BYTES, bytes.length));
-                PacketDistributor.sendToServer(new StructureScannerFilePacket(containerId, id, Action.UPLOAD, name,
-                    bytes.length, offset, chunk));
-            }
-        } catch (IOException | IllegalArgumentException exception) {
-            message(containerId, "file_failed", exception.getMessage());
-            clearTransfer();
+            return Optional.of(new UploadFile(name, bytes));
+        } catch (IOException exception) {
+            throw new CompletionException(exception);
+        }
+    }
+
+    private static void sendUpload(int containerId, UploadFile file) {
+        UUID id = begin(containerId, file.name(), false);
+        uploading = true;
+        byte[] bytes = file.bytes();
+        for (int offset = 0; offset < bytes.length; offset += StructureFileTransfer.CHUNK_BYTES) {
+            byte[] chunk = Arrays.copyOfRange(bytes, offset, Math.min(offset + StructureFileTransfer.CHUNK_BYTES, bytes.length));
+            PacketDistributor.sendToServer(new StructureScannerFilePacket(containerId, id, Action.UPLOAD, file.name(),
+                bytes.length, offset, chunk));
         }
     }
 
@@ -139,7 +177,7 @@ public final class BlueprintClientFiles {
             message("file_failed", "Transfer timed out");
             clearTransfer();
         }
-        return pending != null;
+        return pending != null || selecting;
     }
 
     public static void requestImport(int containerId, String name) {
@@ -227,6 +265,10 @@ public final class BlueprintClientFiles {
     }
 
     public static void cancelImport(int containerId) {
+        if (selectionContainerId == containerId) {
+            selectionVersion++;
+            selectionContainerId = -1;
+        }
         if (pendingContainerId == containerId && !exporting) clearTransfer();
         if (listContainerId == containerId) {
             pendingList = null;
@@ -236,6 +278,8 @@ public final class BlueprintClientFiles {
     }
 
     public static void clear() {
+        selectionVersion++;
+        selectionContainerId = -1;
         clearTransfer();
         pendingList = null;
         listDownload = null;
