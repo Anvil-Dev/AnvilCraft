@@ -17,10 +17,15 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.neoforge.network.PacketDistributor;
+import org.lwjgl.system.MemoryStack;
+import org.lwjgl.util.tinyfd.TinyFileDialogs;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.Locale;
 import java.util.UUID;
 import javax.annotation.Nullable;
@@ -35,21 +40,66 @@ public final class BlueprintClientFiles {
     private static int pendingContainerId = -1;
     private static String fileName = "";
     private static boolean exporting;
+    private static boolean uploading;
 
     private BlueprintClientFiles() {
     }
 
     public static boolean canOpenDirectory() {
-        return Minecraft.getInstance().hasSingleplayerServer();
+        var minecraft = Minecraft.getInstance();
+        return minecraft.hasSingleplayerServer()
+            || minecraft.screen instanceof StructureScannerScreen screen && screen.getMenu().canUpload();
     }
 
     public static void openDirectory() {
         var server = Minecraft.getInstance().getSingleplayerServer();
-        if (server == null) return;
         try {
-            Util.getPlatform().openFile(StructureBlueprintFiles.directory(server).toFile());
+            Path directory = server == null ? clientDirectory() : StructureBlueprintFiles.directory(server);
+            Util.getPlatform().openFile(directory.toFile());
         } catch (IOException exception) {
             message("file_failed", exception.getMessage());
+        }
+    }
+
+    private static Path clientDirectory() throws IOException {
+        Path directory = Minecraft.getInstance().gameDirectory.toPath().resolve("schematics");
+        Files.createDirectories(directory);
+        return directory;
+    }
+
+    public static void uploadOrOpenDirectory(int containerId) {
+        if (Minecraft.getInstance().hasSingleplayerServer()) {
+            openDirectory();
+            return;
+        }
+        if (isBusy() || !canOpenDirectory()) return;
+        try (MemoryStack stack = MemoryStack.stackPush()) {
+            var filters = stack.mallocPointer(2);
+            filters.put(stack.UTF8("*.nbt")).put(stack.UTF8("*.litematic")).flip();
+            String selected = TinyFileDialogs.tinyfd_openFileDialog(
+                Component.translatable("screen.anvilcraft.structure_scanner.upload").getString(),
+                clientDirectory().toString() + "/", filters, null, false);
+            if (selected == null) return;
+            Path file = Path.of(selected);
+            String name = file.getFileName().toString();
+            if (!StructureFileTransfer.isSafeName(name) || Files.size(file) > StructureFileTransfer.MAX_BYTES) {
+                throw new IOException("Invalid blueprint file");
+            }
+            byte[] bytes;
+            try (var input = Files.newInputStream(file)) {
+                bytes = input.readNBytes(StructureFileTransfer.MAX_BYTES + 1);
+            }
+            if (bytes.length == 0 || bytes.length > StructureFileTransfer.MAX_BYTES) throw new IOException("Invalid file size");
+            UUID id = begin(containerId, name, false);
+            uploading = true;
+            for (int offset = 0; offset < bytes.length; offset += StructureFileTransfer.CHUNK_BYTES) {
+                byte[] chunk = Arrays.copyOfRange(bytes, offset, Math.min(offset + StructureFileTransfer.CHUNK_BYTES, bytes.length));
+                PacketDistributor.sendToServer(new StructureScannerFilePacket(containerId, id, Action.UPLOAD, name,
+                    bytes.length, offset, chunk));
+            }
+        } catch (IOException | IllegalArgumentException exception) {
+            message(containerId, "file_failed", exception.getMessage());
+            clearTransfer();
         }
     }
 
@@ -128,15 +178,20 @@ public final class BlueprintClientFiles {
             return;
         }
         if (!isBusy() || !packet.id().equals(pending)) return;
+        if (!(Minecraft.getInstance().screen instanceof StructureScannerScreen activeScreen)
+            || activeScreen.getMenu().containerId != pendingContainerId) {
+            clearTransfer();
+            return;
+        }
         try {
             if (!packet.error().isEmpty()) throw new IOException(packet.error());
-            if (exporting) {
+            if (uploading || exporting && Minecraft.getInstance().hasSingleplayerServer()) {
                 String exported = new String(packet.bytes(), StandardCharsets.UTF_8);
                 if (packet.total() != packet.bytes().length || packet.offset() != 0
                     || !StructureFileTransfer.isSafeName(exported) || !exported.toLowerCase(Locale.ROOT).endsWith(".nbt")) {
                     throw new IOException("Invalid export result");
                 }
-                message("exported", exported);
+                message(uploading ? "uploaded" : "exported", exported);
                 if (Minecraft.getInstance().screen instanceof StructureScannerScreen screen
                     && screen.getMenu().containerId == pendingContainerId) requestFiles(pendingContainerId);
                 clearTransfer();
@@ -144,6 +199,12 @@ public final class BlueprintClientFiles {
             }
             if (packet.offset() == 0) download = new StructureFileTransfer(packet.id(), fileName, packet.total());
             if (download == null || !download.append(packet.id(), fileName, packet.total(), packet.offset(), packet.bytes())) return;
+            if (exporting) {
+                String exported = StructureBlueprintFiles.write(clientDirectory(), fileName, download.finish());
+                message("exported", exported);
+                clearTransfer();
+                return;
+            }
             var minecraft = Minecraft.getInstance();
             if (minecraft.level != null && minecraft.screen instanceof StructureScannerScreen screen
                 && screen.getMenu().containerId == pendingContainerId) {
@@ -187,6 +248,7 @@ public final class BlueprintClientFiles {
         pendingContainerId = -1;
         download = null;
         exporting = false;
+        uploading = false;
     }
 
     private static void message(String key, @Nullable String detail) {
