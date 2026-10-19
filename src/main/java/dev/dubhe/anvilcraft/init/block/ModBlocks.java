@@ -332,7 +332,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.Rarity;
 import net.minecraft.world.item.enchantment.Enchantments;
-import net.minecraft.world.item.enchantment.LevelBasedValue;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
@@ -361,8 +360,8 @@ import net.minecraft.world.level.storage.loot.entries.LootItem;
 import net.minecraft.world.level.storage.loot.functions.CopyComponentsFunction;
 import net.minecraft.world.level.storage.loot.functions.SetItemCountFunction;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
+import net.minecraft.world.level.storage.loot.predicates.BonusLevelTableCondition;
 import net.minecraft.world.level.storage.loot.predicates.LootItemRandomChanceCondition;
-import net.minecraft.world.level.storage.loot.predicates.LootItemRandomChanceWithEnchantedBonusCondition;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import net.neoforged.neoforge.common.Tags;
 
@@ -5261,12 +5260,11 @@ public class ModBlocks {
                     .withPool(LootPool.lootPool()
                         .setRolls(ConstantValue.exactly(1.0F))
                         .add(LootItem.lootTableItem(Items.HEART_OF_THE_SEA)
-                            .when(() -> new LootItemRandomChanceWithEnchantedBonusCondition(
-                                0.1F,
-                                LevelBasedValue.perLevel(0.1F, 0.1F),
+                            .when(BonusLevelTableCondition.bonusLevelFlatChance(
                                 tables.getRegistries()
                                     .lookupOrThrow(Registries.ENCHANTMENT)
-                                    .getOrThrow(Enchantments.FORTUNE)
+                                    .getOrThrow(Enchantments.FORTUNE),
+                                0.1F, 0.2F, 0.3F, 0.4F, 0.5F, 0.6F, 0.7F, 0.8F, 0.9F, 1.0F
                             )))
                         .when(silkTouch.invert()))
             );
