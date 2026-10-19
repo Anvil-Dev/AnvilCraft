@@ -516,10 +516,13 @@ public class AutoEnchantingTableBlockEntity extends BlockEntity
         FluidStack fluid = this.getFluid();
         if (fluid.isEmpty() || !fluid.is(ModFluids.LIQUID_ENCHANTMENT)) return 0;
         return LiquidEnchantmentUtil.getEnchantment(fluid)
-            .map(enchantmentHolder -> AutoEnchantingTableBlockEntity.computeLiquidMaxLevel(
-                this.getItem(SLOT_INPUT),
-                this.getItem(SLOT_PRIMER),
-                enchantmentHolder
+            .map(enchantmentHolder -> Math.min(
+                AutoEnchantingTableBlockEntity.storedLiquidLevel(fluid.getAmount()),
+                AutoEnchantingTableBlockEntity.computeLiquidMaxLevel(
+                    this.getItem(SLOT_INPUT),
+                    this.getItem(SLOT_PRIMER),
+                    enchantmentHolder
+                )
             ))
             .orElse(0);
     }
@@ -539,6 +542,10 @@ public class AutoEnchantingTableBlockEntity extends BlockEntity
         return restriction == LiquidEnchantRestriction.OVERLIMIT
             ? AnvilCraft.CONFIG.liquidEnchantmentMaxLevel
             : Math.min(AnvilCraft.CONFIG.liquidEnchantmentMaxLevel, vanillaMax);
+    }
+
+    public static int storedLiquidLevel(int amount) {
+        return amount <= 0 ? 0 : Long.SIZE - Long.numberOfLeadingZeros(amount);
     }
 
     private static LiquidEnchantRestriction getRestriction(ItemStack primer) {

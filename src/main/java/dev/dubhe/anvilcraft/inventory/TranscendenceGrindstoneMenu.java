@@ -360,7 +360,12 @@ public class TranscendenceGrindstoneMenu extends AbstractContainerMenu {
         List<FluidStack> fluids = new ArrayList<>();
         for (EnchantmentData data : selected) {
             long amount = TranscendenceGrindstoneMenu.getLiquidAmount(data.level());
-            if (amount <= 0 || amount > capacity - totalAmount) return ItemStack.EMPTY;
+            if (amount <= 0) return ItemStack.EMPTY;
+            long remaining = capacity - totalAmount;
+            if (amount > remaining) {
+                if (selected.size() > 1) return ItemStack.EMPTY;
+                amount = remaining;
+            }
 
             FluidStack fluid = new FluidStack(ModFluids.LIQUID_ENCHANTMENT.get(), (int) amount);
             fluid.set(ModComponents.LIQUID_ENCHANTMENT, data.enchantment());
