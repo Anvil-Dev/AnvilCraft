@@ -119,8 +119,7 @@ public class BlockTagLoader {
             .addTag(BlockTags.SHULKER_BOXES);
 
         provider.addTag(ModBlockTags.UNDER_CAULDRON)
-            .addTag(BlockTags.CAMPFIRES)
-            .add(findResourceKey(Blocks.MAGMA_BLOCK))
+            .add(findResourceKey(Blocks.CAMPFIRE))
             .add(ModBlocks.HEATER.getKey())
             .add(ModBlocks.BURNING_HEATER.getKey())
             .add(ModBlocks.NEUTRON_IRRADIATOR.getKey())
