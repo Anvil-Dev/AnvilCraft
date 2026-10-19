@@ -201,7 +201,7 @@ public class BlockEventListener {
         BlockPos pos = event.getPos();
         BlockState targetState = level.getBlockState(pos);
         if (stack.is(ModItemTags.ANVIL_HAMMER)) {
-            if (level.isClientSide()) return;
+            if (level.isClientSide() || player.isSpectator()) return;
             if (player.isShiftKeyDown() && !targetState.is(ModBlockTags.HAMMER_REMOVABLE)
                 && !(targetState.getBlock() instanceof IHammerRemovable)) {
                 return;
