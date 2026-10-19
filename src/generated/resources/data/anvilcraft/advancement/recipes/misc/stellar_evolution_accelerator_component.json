@@ -41,9 +41,9 @@
   "requirements": [
     [
       "has_the_recipe",
-      "has_corrupted_beacon",
       "has_transcendium_ingot",
-      "has_cursed_gold_block"
+      "has_cursed_gold_block",
+      "has_corrupted_beacon"
     ]
   ],
   "rewards": {

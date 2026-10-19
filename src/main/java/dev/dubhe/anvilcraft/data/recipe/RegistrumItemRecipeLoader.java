@@ -1513,16 +1513,19 @@ public class RegistrumItemRecipeLoader {
     }
 
     public static <T extends Item> void dysonSphereComponent(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
-        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get(), 4)
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get(), 6)
             .pattern("ABA")
-            .pattern("CCC")
+            .pattern("BCB")
             .pattern("ABA")
-            .define('A', ModItems.EMBER_METAL_INGOT)
-            .define('B', ModItems.TRANSCENDIUM_INGOT)
-            .define('C', ModBlocks.HEAT_COLLECTOR)
-            .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.EMBER_METAL_INGOT), AnvilCraftDatagen.has(ModItems.EMBER_METAL_INGOT))
+            .define('A', ModItems.TRANSCENDIUM_INGOT)
+            .define('B', ModItems.EMBER_METAL_INGOT)
+            .define('C', ModBlocks.INFINITE_COLLECTOR)
             .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.TRANSCENDIUM_INGOT), AnvilCraftDatagen.has(ModItems.TRANSCENDIUM_INGOT))
-            .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.HEAT_COLLECTOR.asItem()), AnvilCraftDatagen.has(ModBlocks.HEAT_COLLECTOR))
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.EMBER_METAL_INGOT), AnvilCraftDatagen.has(ModItems.EMBER_METAL_INGOT))
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(ModBlocks.INFINITE_COLLECTOR.asItem()),
+                AnvilCraftDatagen.has(ModBlocks.INFINITE_COLLECTOR)
+            )
             .save(provider);
     }
 
@@ -1541,7 +1544,7 @@ public class RegistrumItemRecipeLoader {
     }
 
     public static <T extends Item> void matterDecompressorComponent(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
-        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get(), 8)
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get(), 10)
             .pattern("ABA")
             .pattern("BCB")
             .pattern("ABA")
@@ -1558,7 +1561,7 @@ public class RegistrumItemRecipeLoader {
     }
 
     public static <T extends Item> void wormholeStabilizerComponent(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
-        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get(), 16)
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get(), 4)
             .pattern("ABA")
             .pattern("B B")
             .pattern("ABA")
@@ -1600,20 +1603,20 @@ public class RegistrumItemRecipeLoader {
     public static <T extends Item> void magnetarCoilComponent(
         DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider
     ) {
-        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get(), 6)
             .pattern("ABA")
-            .pattern("ACA")
+            .pattern("BCB")
             .pattern("ABA")
-            .define('A', Items.COPPER_BLOCK)
-            .define('B', ModItems.TRANSCENDIUM_INGOT)
+            .define('A', ModItems.TRANSCENDIUM_INGOT)
+            .define('B', Items.COPPER_BLOCK)
             .define('C', ModBlocks.INFINITE_COLLECTOR)
-            .unlockedBy(
-                AnvilCraftDatagen.hasItem(Items.COPPER_BLOCK),
-                AnvilCraftDatagen.has(Items.COPPER_BLOCK)
-            )
             .unlockedBy(
                 AnvilCraftDatagen.hasItem(ModItems.TRANSCENDIUM_INGOT),
                 AnvilCraftDatagen.has(ModItems.TRANSCENDIUM_INGOT)
+            )
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(Items.COPPER_BLOCK),
+                AnvilCraftDatagen.has(Items.COPPER_BLOCK)
             )
             .unlockedBy(
                 AnvilCraftDatagen.hasItem(ModBlocks.INFINITE_COLLECTOR.asItem()),
@@ -1625,17 +1628,13 @@ public class RegistrumItemRecipeLoader {
     public static <T extends Item> void stellarEvolutionAcceleratorComponent(
         DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider
     ) {
-        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get(), 2)
-            .pattern(" A ")
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get(), 4)
+            .pattern("ABA")
             .pattern("BCB")
-            .pattern("BCB")
-            .define('A', ModBlocks.CORRUPTED_BEACON)
-            .define('B', ModItems.TRANSCENDIUM_INGOT)
-            .define('C', ModBlocks.CURSED_GOLD_BLOCK)
-            .unlockedBy(
-                AnvilCraftDatagen.hasItem(ModBlocks.CORRUPTED_BEACON.asItem()),
-                AnvilCraftDatagen.has(ModBlocks.CORRUPTED_BEACON)
-            )
+            .pattern("ABA")
+            .define('A', ModItems.TRANSCENDIUM_INGOT)
+            .define('B', ModBlocks.CURSED_GOLD_BLOCK)
+            .define('C', ModBlocks.CORRUPTED_BEACON)
             .unlockedBy(
                 AnvilCraftDatagen.hasItem(ModItems.TRANSCENDIUM_INGOT),
                 AnvilCraftDatagen.has(ModItems.TRANSCENDIUM_INGOT)
@@ -1643,6 +1642,10 @@ public class RegistrumItemRecipeLoader {
             .unlockedBy(
                 AnvilCraftDatagen.hasItem(ModBlocks.CURSED_GOLD_BLOCK.asItem()),
                 AnvilCraftDatagen.has(ModBlocks.CURSED_GOLD_BLOCK)
+            )
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(ModBlocks.CORRUPTED_BEACON.asItem()),
+                AnvilCraftDatagen.has(ModBlocks.CORRUPTED_BEACON)
             )
             .save(provider);
     }

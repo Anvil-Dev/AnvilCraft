@@ -1355,6 +1355,9 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
             typeKey = rockyTypeKey(rp);
         } else if (body instanceof SpecialCelestialBodyData s) {
             typeKey = "screen.anvilcraft.cfa.class.special." + s.name();
+        } else if (body instanceof StarData star && star.specialRedDwarf()) {
+            /// 由褐矮星转化而来的红矮星单独命名
+            typeKey = "screen.anvilcraft.cfa.class.mutated_red_dwarf";
         } else {
             typeKey = "screen.anvilcraft.cfa.class." + body.bodyClass().name().toLowerCase();
         }

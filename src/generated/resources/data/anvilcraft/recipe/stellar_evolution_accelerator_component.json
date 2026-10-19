@@ -3,22 +3,22 @@
   "category": "misc",
   "key": {
     "A": {
-      "item": "anvilcraft:corrupted_beacon"
-    },
-    "B": {
       "item": "anvilcraft:transcendium_ingot"
     },
-    "C": {
+    "B": {
       "item": "anvilcraft:cursed_gold_block"
+    },
+    "C": {
+      "item": "anvilcraft:corrupted_beacon"
     }
   },
   "pattern": [
-    " A ",
+    "ABA",
     "BCB",
-    "BCB"
+    "ABA"
   ],
   "result": {
-    "count": 2,
+    "count": 4,
     "id": "anvilcraft:stellar_evolution_accelerator_component"
   }
 }

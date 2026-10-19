@@ -151,7 +151,7 @@ public class CelestialForgingAnvilMenu extends AbstractContainerMenu {
         }
         /// 锁定切换：id 200
         if (id == 200) {
-            this.blockEntity.toggleLocked();
+            this.blockEntity.toggleLocked(player);
             return true;
         }
         /// 浏览历史前一条：id 201
