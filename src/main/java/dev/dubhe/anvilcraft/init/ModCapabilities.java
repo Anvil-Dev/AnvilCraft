@@ -101,10 +101,10 @@ public class ModCapabilities {
                 StorageBlockEntity.class, ModCapabilities::readOnlyStorageItem),
             ModBlocks.HYPERDIMENSION_STORAGE_STATION.get()
         );
-        event.registerBlock(
+        event.registerBlockEntity(
             Capabilities.Item.BLOCK,
-            ModCapabilities.multiblock(LargeCauldronBlock.class, LargeCauldronBlockEntity.class, ModCapabilities::item),
-            ModBlocks.LARGE_CAULDRON.get()
+            ModBlockEntities.LARGE_CAULDRON.get(),
+            LargeCauldronBlockEntity::getAutomationItemHandler
         );
 
         event.registerBlock(
