@@ -30,13 +30,32 @@ public final class CelestialSearchHistory {
 
     public void add(
         CelestialBodyData body,
-        @Nullable PlanetaryResourceSet resources
+        @Nullable PlanetaryResourceSet resources,
+        long bodySeed,
+        int stellarMass,
+        int ageAnvilCount
     ) {
         if (!this.entries.isEmpty()
             && this.entries.getFirst().body().toTag().equals(body.toTag())) {
+            this.entries.set(0, new CelestialForgingAnvilBlockEntity.SearchHistoryEntry(
+                body,
+                resources,
+                true,
+                bodySeed,
+                stellarMass,
+                ageAnvilCount
+            ));
+            this.resetBrowsing();
             return;
         }
-        this.entries.addFirst(new CelestialForgingAnvilBlockEntity.SearchHistoryEntry(body, resources));
+        this.entries.addFirst(new CelestialForgingAnvilBlockEntity.SearchHistoryEntry(
+            body,
+            resources,
+            true,
+            bodySeed,
+            stellarMass,
+            ageAnvilCount
+        ));
         while (this.entries.size() > MAX_ENTRIES) this.entries.removeLast();
         this.resetBrowsing();
     }
@@ -67,20 +86,27 @@ public final class CelestialSearchHistory {
 
     public @Nullable CelestialForgingAnvilBlockEntity.SearchHistoryEntry previous(
         @Nullable CelestialBodyData currentBody,
-        @Nullable PlanetaryResourceSet currentResources
+        @Nullable PlanetaryResourceSet currentResources,
+        long currentBodySeed,
+        int currentStellarMass,
+        int currentAgeAnvilCount
     ) {
         int size = this.entries.size();
         if (size <= 1 || this.browseIndex >= size || currentBody == null) return null;
         if (this.browseIndex == 0) {
             this.originalEntry = new CelestialForgingAnvilBlockEntity.SearchHistoryEntry(
                 currentBody,
-                currentResources
+                currentResources,
+                true,
+                currentBodySeed,
+                currentStellarMass,
+                currentAgeAnvilCount
             );
             this.browseIndex = 1;
         }
         this.browseIndex++;
         if (this.browseIndex > size) return null;
-        return this.entries.get(this.browseIndex - 1);
+        return this.withStats(this.entries.get(this.browseIndex - 1));
     }
 
     public @Nullable CelestialForgingAnvilBlockEntity.SearchHistoryEntry next() {
@@ -92,7 +118,22 @@ public final class CelestialSearchHistory {
             this.originalEntry = null;
             return result;
         }
-        return this.entries.get(this.browseIndex - 1);
+        return this.withStats(this.entries.get(this.browseIndex - 1));
+    }
+
+    private CelestialForgingAnvilBlockEntity.SearchHistoryEntry withStats(
+        CelestialForgingAnvilBlockEntity.SearchHistoryEntry entry
+    ) {
+        if (entry.hasStats() || this.originalEntry == null) return entry;
+        CelestialForgingAnvilBlockEntity.SearchHistoryEntry live = this.originalEntry;
+        return new CelestialForgingAnvilBlockEntity.SearchHistoryEntry(
+            entry.body(),
+            entry.resources(),
+            true,
+            live.bodySeed(),
+            live.stellarMass(),
+            live.ageAnvilCount()
+        );
     }
 
     public CompoundTag toTag() {

@@ -733,23 +733,46 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
     private boolean permanentRemovalPrepared;
 
     /// 一条搜索历史记录，将天体及其生成的资源捆绑在一起。
-    public record SearchHistoryEntry(CelestialBodyData body, @Nullable PlanetaryResourceSet resources) {
+    public record SearchHistoryEntry(
+        CelestialBodyData body,
+        @Nullable PlanetaryResourceSet resources,
+        boolean hasStats,
+        long bodySeed,
+        int stellarMass,
+        int ageAnvilCount
+    ) {
+        public SearchHistoryEntry(CelestialBodyData body, @Nullable PlanetaryResourceSet resources) {
+            this(body, resources, false, 0L, 0, 0);
+        }
+
         public CompoundTag toTag() {
             CompoundTag tag = new CompoundTag();
             tag.put("body", this.body.toTag());
             if (this.resources != null) {
                 tag.put("resources", this.resources.toTag());
             }
+            if (this.hasStats) {
+                tag.putLong("bodySeed", this.bodySeed);
+                tag.putInt("stellarMass", this.stellarMass);
+                tag.putInt("ageAnvilCount", this.ageAnvilCount);
+            }
             return tag;
         }
 
         public static SearchHistoryEntry fromTag(CompoundTag tag) {
             CelestialBodyData body = CelestialBodyData.fromTag(tag.getCompound("body"));
-            PlanetaryResourceSet resources = null;
-            if (tag.contains("resources")) {
-                resources = PlanetaryResourceSet.fromTag(tag.getCompound("resources"));
-            }
-            return new SearchHistoryEntry(body, resources);
+            PlanetaryResourceSet resources = tag.contains("resources")
+                ? PlanetaryResourceSet.fromTag(tag.getCompound("resources"))
+                : null;
+            if (!tag.contains("bodySeed")) return new SearchHistoryEntry(body, resources);
+            return new SearchHistoryEntry(
+                body,
+                resources,
+                true,
+                tag.getLong("bodySeed"),
+                tag.getInt("stellarMass"),
+                tag.getInt("ageAnvilCount")
+            );
         }
     }
 
@@ -1288,7 +1311,7 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
     }
 
     public void addToSearchHistory(CelestialBodyData data, @Nullable PlanetaryResourceSet resources) {
-        this.searchHistoryController.add(data, resources);
+        this.searchHistoryController.add(data, resources, this.bodySeed, this.stellarMass, this.ageAnvilCount);
     }
 
     /** Applies a monolith outcome and invalidates its previous resource snapshot in search history. */
@@ -1327,7 +1350,13 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
     public void browseHistoryPrev() {
         if (level == null || level.isClientSide()) return;
         if (this.locked || this.isSearching() || this.isAcceleratorActive()) return;
-        SearchHistoryEntry entry = this.searchHistoryController.previous(this.celestialBodyData, this.planetaryResourceSet);
+        SearchHistoryEntry entry = this.searchHistoryController.previous(
+            this.celestialBodyData,
+            this.planetaryResourceSet,
+            this.bodySeed,
+            this.stellarMass,
+            this.ageAnvilCount
+        );
         if (entry != null) this.applyHistoryEntry(entry);
     }
 
@@ -1341,6 +1370,11 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
     private void applyHistoryEntry(SearchHistoryEntry entry) {
         this.celestialBodyData = entry.body();
         this.planetaryResourceSet = entry.resources();
+        if (entry.hasStats()) {
+            this.bodySeed = entry.bodySeed();
+            this.stellarMass = entry.stellarMass();
+            this.ageAnvilCount = entry.ageAnvilCount();
+        }
         setChanged();
         this.syncToClient();
     }
