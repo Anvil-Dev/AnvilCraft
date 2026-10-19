@@ -178,8 +178,8 @@ public final class BlueprintClientFiles {
             return;
         }
         if (!isBusy() || !packet.id().equals(pending)) return;
-        if (!(Minecraft.getInstance().screen instanceof StructureScannerScreen activeScreen)
-            || activeScreen.getMenu().containerId != pendingContainerId) {
+        if (!exporting && (!(Minecraft.getInstance().screen instanceof StructureScannerScreen activeScreen)
+            || activeScreen.getMenu().containerId != pendingContainerId)) {
             clearTransfer();
             return;
         }
