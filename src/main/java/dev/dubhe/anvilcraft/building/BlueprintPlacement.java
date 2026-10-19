@@ -19,7 +19,7 @@ import java.util.List;
  */
 public record BlueprintPlacement(BlockPos anchor, Rotation rotation, Mirror mirror) {
     /** 批量预览与后续建筑提交共用的计划条目上限。 */
-    public static final int MAX_ENTRIES = 4000;
+    public static final int MAX_ENTRIES = 4096;
 
     public static Rotation facingPlayer(Direction source, Direction playerFacing) {
         Direction front = source.getAxis().isHorizontal() ? source : Direction.NORTH;

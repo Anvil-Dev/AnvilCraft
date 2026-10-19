@@ -69,7 +69,7 @@ public final class BuildingRodLang {
         );
         provider.add(
             "message.anvilcraft.building_rod.too_many",
-            "Cannot place more than 4,000 blocks at once"
+            "Cannot place more than 4,096 blocks at once"
         );
         provider.add(
             "message.anvilcraft.building_rod.blocked",
