@@ -3,6 +3,8 @@ package dev.dubhe.anvilcraft.block;
 import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.util.PlayerUtil;
 import net.minecraft.core.BlockPos;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.ItemInteractionResult;
@@ -79,6 +81,18 @@ public class AbstractCakeBlock extends Block {
             return converter.apply(InteractionResult.PASS);
         } else {
             player.getFoodData().eat(foodLevel, saturationLevel);
+            /// 用铲子当勺子吃，播放与原版进食一致的音效。
+            /// eat 在客户端与服务端都会执行，仅在服务端播放，避免重复
+            if (!level.isClientSide()) {
+                level.playSound(
+                    null,
+                    pos,
+                    SoundEvents.GENERIC_EAT,
+                    SoundSource.PLAYERS,
+                    1.0f,
+                    1.0f + (level.getRandom().nextFloat() - level.getRandom().nextFloat()) * 0.4f
+                );
+            }
             level.removeBlock(pos, false);
             level.gameEvent(player, GameEvent.BLOCK_DESTROY, pos);
             return converter.apply(InteractionResult.SUCCESS);
