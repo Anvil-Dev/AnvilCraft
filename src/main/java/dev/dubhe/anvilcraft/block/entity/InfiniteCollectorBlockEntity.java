@@ -14,9 +14,11 @@ import lombok.Setter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
@@ -67,6 +69,7 @@ public class InfiniteCollectorBlockEntity extends BlockEntity implements IPowerP
     @Override
     protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.saveAdditional(tag, registries);
+        tag.putBoolean("Working", this.isWorking());
         tag.putInt("tickCache", this.time);
         tag.putInt("inputtingHeatPower", this.inputtingHeatPower);
         tag.putInt("InputCooldownCount", this.inputCooldownCount);
@@ -78,6 +81,7 @@ public class InfiniteCollectorBlockEntity extends BlockEntity implements IPowerP
     @Override
     protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.loadAdditional(tag, registries);
+        this.result = !tag.contains("Working") || tag.getBoolean("Working") ? WorkResult.SUCCESS : WorkResult.TOO_CLOSE;
         this.time = tag.getInt("tickCache");
         this.inputtingHeatPower = tag.contains("inputtingHeatPower")
             ? tag.getInt("inputtingHeatPower")
@@ -99,6 +103,18 @@ public class InfiniteCollectorBlockEntity extends BlockEntity implements IPowerP
         while (this.charges.size() > CHARGE_HISTORY_SIZE) {
             this.charges.removeFirst();
         }
+    }
+
+    @Override
+    public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
+        CompoundTag tag = new CompoundTag();
+        this.saveAdditional(tag, registries);
+        return tag;
+    }
+
+    @Override
+    public ClientboundBlockEntityDataPacket getUpdatePacket() {
+        return ClientboundBlockEntityDataPacket.create(this);
     }
 
     @Override
@@ -251,7 +267,13 @@ public class InfiniteCollectorBlockEntity extends BlockEntity implements IPowerP
 
     @Override
     public void setCollectorWorking(boolean working) {
-        this.result = working ? WorkResult.SUCCESS : WorkResult.TOO_CLOSE;
+        WorkResult result = working ? WorkResult.SUCCESS : WorkResult.TOO_CLOSE;
+        if (this.result == result) return;
+        this.result = result;
+        this.setChanged();
+        if (this.level != null && !this.level.isClientSide()) {
+            this.level.sendBlockUpdated(this.worldPosition, this.getBlockState(), this.getBlockState(), Block.UPDATE_CLIENTS);
+        }
     }
 
     @Override

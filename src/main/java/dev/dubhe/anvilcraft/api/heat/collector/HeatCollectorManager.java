@@ -159,13 +159,15 @@ public class HeatCollectorManager {
     private void collectSources(IHeatCollector collector, Map<Entry, Double2ObjectMap<IHeatCollector>> heatSources) {
         BlockPos collectorPos = collector.getCollectorPos();
         int collectorRange = collector.getCollectorRange();
-        int overlapRange = collectorRange + AnvilCraft.CONFIG.machines.infiniteCollectorRange;
+        int overlapRange = collectorRange
+            + Math.max(AnvilCraft.CONFIG.machines.infiniteCollectorRange, VoidEnergyCollectorBlockEntity.RANGE);
         Map<Entry, Double2ObjectMap<IHeatCollector>> heatSourcesCache = new HashMap<>();
         for (BlockPos pos : BlockPos.betweenClosed(
             collectorPos.above(overlapRange).east(overlapRange).south(overlapRange),
             collectorPos.below(overlapRange).west(overlapRange).north(overlapRange)
         )) {
             pos = pos.immutable();
+            if (!this.level.isLoaded(pos)) continue;
             BlockState state = this.level.getBlockState(pos);
             if (!pos.equals(collectorPos)) {
                 int otherCollectorRange = collector instanceof InfiniteCollectorBlockEntity

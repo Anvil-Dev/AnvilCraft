@@ -148,7 +148,7 @@ public class VoidEnergyCollectorBlockEntity extends BlockEntity implements IPowe
                 for (int k = -range; k <= range; k++) {
                     if (i == 0 && j == 0 && k == 0) continue;
                     mpos.set(pos).move(i, j, k);
-                    if (level.isOutsideBuildHeight(mpos)) continue;
+                    if (level.isOutsideBuildHeight(mpos) || !level.isLoaded(mpos)) continue;
                     BlockState blockState = level.getBlockState(mpos);
                     int distance = Math.max(Math.max(Math.abs(i), Math.abs(j)), Math.abs(k));
                     if ((distance <= RANGE * 2 && blockState.getBlock() instanceof VoidEnergyCollectorBlock)
@@ -179,7 +179,7 @@ public class VoidEnergyCollectorBlockEntity extends BlockEntity implements IPowe
             for (int j = -range; j <= range; j++) {
                 for (int k = -range; k <= range; k++) {
                     mpos.set(pos).move(i, j, k);
-                    if (level.isOutsideBuildHeight(mpos)) continue;
+                    if (level.isOutsideBuildHeight(mpos) || !level.isLoaded(mpos)) continue;
                     BlockState blockState = level.getBlockState(mpos);
                     if (blockState.is(ModBlockTags.CONTAINS_VOID_ENERGY)) continue;
                     if (blockState.getBlock() instanceof IVoidEnergyAmplifier amplifier) {
