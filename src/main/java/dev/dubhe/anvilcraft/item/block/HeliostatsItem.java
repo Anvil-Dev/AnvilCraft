@@ -120,12 +120,26 @@ public class HeliostatsItem extends BlockItem implements IItemTooltipProvider {
     @Override
     public InteractionResult useOn(UseOnContext context) {
         Level level = context.getLevel();
-        if (context.getPlayer() != null && context.getPlayer().isShiftKeyDown()
-            && HeliostatsItem.hasDataStored(context.getItemInHand())) {
+        if (context.getPlayer() != null && context.getPlayer().isShiftKeyDown()) {
             HeliostatsItem.deleteData(context.getItemInHand());
             return InteractionResult.SUCCESS;
         }
         BlockState blockState = level.getBlockState(context.getClickedPos());
+        if (blockState.is(this.getBlock())
+            && level.getBlockEntity(context.getClickedPos()) instanceof HeliostatsBlockEntity blockEntity) {
+            if (!level.isClientSide()) {
+                ItemStack stack = context.getItemInHand();
+                BlockPos target = blockEntity.getIrritatePos();
+                if (HeliostatsItem.hasDataStored(stack)) {
+                    if (target == null) {
+                        blockEntity.setIrritatePos(HeliostatsItem.getData(stack));
+                    }
+                } else if (target != null) {
+                    stack.set(ModComponents.HELIOSTATS_DATA, new HeliostatsData(target));
+                }
+            }
+            return InteractionResult.SUCCESS;
+        }
         if (blockState.is(Blocks.NETHERITE_BLOCK)
             || blockState.getBlock() instanceof HeatableBlock
         ) {
