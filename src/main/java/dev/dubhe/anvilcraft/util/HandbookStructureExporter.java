@@ -29,7 +29,7 @@ public final class HandbookStructureExporter {
     }
 
     public static Path write(Path worldRoot, Identifier location, CompoundTag root) throws IOException {
-        Path directory = worldRoot.resolve("data").resolve("ageratum");
+        Path directory = StructureDataPaths.handbookExports(worldRoot);
         Files.createDirectories(directory);
         String path = location.getPath();
         String name = path.substring(path.lastIndexOf('/') + 1).replaceFirst("\\.(snbt|nbt)$", "");

@@ -30,7 +30,6 @@ import net.minecraft.world.level.block.state.properties.BedPart;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import net.minecraft.world.level.block.state.properties.Property;
-import net.minecraft.world.level.storage.LevelResource;
 import net.neoforged.api.distmarker.Dist;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
@@ -261,8 +260,7 @@ public class StructureLoadUtil {
         // 尝试从服务端获取路径
         var server = level.getServer();
         if (server != null) {
-            Path worldDir = server.getWorldPath(LevelResource.ROOT);
-            return worldDir.toAbsolutePath().normalize().resolve("anvilcraft").resolve("structures");
+            return StructureDataPaths.structures(server);
         }
 
         // 客户端回退方案：使用 DistExecutor 安全地访问客户端代码
@@ -285,14 +283,13 @@ public class StructureLoadUtil {
                         // 优先使用 integratedServer（单人游戏服务端）
                         var integratedServer = minecraft.getSingleplayerServer();
                         if (integratedServer != null) {
-                            Path worldDir = integratedServer.getWorldPath(LevelResource.ROOT);
-                            result.set(worldDir.toAbsolutePath().normalize().resolve("anvilcraft").resolve("structures"));
+                            result.set(StructureDataPaths.structures(integratedServer));
                             return;
                         }
 
                         // 如果是纯客户端（多人游戏），结构文件应该不存在，返回一个安全的路径
                         Path gameDir = minecraft.gameDirectory.toPath();
-                        result.set(gameDir.resolve("anvilcraft").resolve("structures"));
+                        result.set(StructureDataPaths.structures(gameDir));
                     }
                 } catch (Exception e) {
                     StructureLoadUtil.LOGGER.debug("Client-side structure directory fallback failed: {}", e.getMessage());
@@ -302,7 +299,7 @@ public class StructureLoadUtil {
 
         Path clientPath = result.get();
         if (clientPath == null) {
-            clientPath = Paths.get("").toAbsolutePath().normalize().resolve("anvilcraft").resolve("structures");
+            clientPath = StructureDataPaths.structures(Paths.get("").toAbsolutePath().normalize());
         }
         return clientPath;
 

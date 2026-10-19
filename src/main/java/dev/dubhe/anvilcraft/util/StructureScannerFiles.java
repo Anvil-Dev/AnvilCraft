@@ -26,7 +26,6 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.datafix.DataFixTypes;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.storage.LevelResource;
 import net.neoforged.neoforge.network.PacketDistributor;
 
 import java.io.ByteArrayInputStream;
@@ -144,7 +143,7 @@ public final class StructureScannerFiles {
         CompoundTag canonical = StructureSnapshotCodec.write(snapshot);
         UUID id = UUID.randomUUID();
         String storedFile = "import_" + id + ".nbt";
-        Path root = player.level().getServer().getWorldPath(LevelResource.ROOT).resolve("anvilcraft/structures");
+        Path root = StructureDataPaths.structures(player.level().getServer());
         Files.createDirectories(root);
         NbtIo.writeCompressed(canonical, root.resolve(storedFile));
         ItemStack output = input.copyWithCount(1);

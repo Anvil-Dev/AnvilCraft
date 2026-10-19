@@ -19,7 +19,6 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.storage.LevelResource;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -183,15 +182,14 @@ public class StructureSaveUtil {
 
     /**
      * 获取结构文件保存目录
-     * 路径: <world>/anvilcraft/structures/
+     * 路径: <world>/data/anvilcraft/structures/
      */
     private static Path getStructureDirectory(Level level) {
         var server = level.getServer();
         if (server == null) {
             throw new IllegalStateException("Server is null");
         }
-        Path worldDir = server.getWorldPath(LevelResource.ROOT);
-        return worldDir.toAbsolutePath().normalize().resolve("anvilcraft").resolve("structures");
+        return StructureDataPaths.structures(server);
     }
 
     /**
