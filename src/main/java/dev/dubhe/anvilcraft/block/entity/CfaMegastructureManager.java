@@ -108,6 +108,7 @@ public class CfaMegastructureManager {
             IMegastructureHandler handler = this.handlers.get(megastructure.id());
             if (handler != null) {
                 handler.serverTick(be);
+                if (!handler.isAuxiliaryActive(be)) this.builtMaterials.remove(megastructure.id());
             }
         }
     }
@@ -260,8 +261,8 @@ public class CfaMegastructureManager {
         for (Megastructure definition : ModRegistries.MEGASTRUCTURE) {
             if (!definition.auxiliary()) continue;
             IMegastructureHandler handler = this.handlers.get(definition.id());
+            this.builtMaterials.remove(definition.id());
             if (handler != null && handler.isAuxiliaryActive(be)) {
-                this.builtMaterials.remove(definition.id());
                 handler.onClear(be);
                 acceleratorCleared |= handler == this.acceleratorHandler;
             }
