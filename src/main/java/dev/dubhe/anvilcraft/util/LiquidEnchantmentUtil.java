@@ -63,4 +63,14 @@ public final class LiquidEnchantmentUtil {
         return 0xE8990000;
     }
 
+    public static long amountForLevel(int level) {
+        if (level <= 0) return 0;
+        if (level >= Long.SIZE) return Long.MAX_VALUE;
+        return 1L << (level - 1);
+    }
+
+    public static int levelForAmount(long amount) {
+        return amount <= 0 ? 0 : Long.SIZE - Long.numberOfLeadingZeros(amount);
+    }
+
 }
