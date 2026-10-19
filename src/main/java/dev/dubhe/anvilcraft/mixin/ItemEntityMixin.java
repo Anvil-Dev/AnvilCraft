@@ -58,6 +58,9 @@ import java.util.Map;
 
 @Mixin(ItemEntity.class)
 abstract class ItemEntityMixin extends Entity implements IItemEntityExtension {
+    @Unique
+    private static final String MAGNET_OUTPUT_ORIGIN = "anvilcraft_magnet_output_origin";
+
     public ItemEntityMixin(EntityType<?> type, Level level) {
         super(type, level);
     }
@@ -73,9 +76,6 @@ abstract class ItemEntityMixin extends Entity implements IItemEntityExtension {
 
     @Unique
     public boolean anvilcraft$isAdsorbable = true;
-
-    @Unique
-    private static final String MAGNET_OUTPUT_ORIGIN = "anvilcraft_magnet_output_origin";
 
     @Unique
     private @Nullable BlockPos anvilcraft$blockPos;
@@ -452,12 +452,14 @@ abstract class ItemEntityMixin extends Entity implements IItemEntityExtension {
     private void anvilcraft$updateMagnetOutputOrigin(BlockPos pos, BlockState state) {
         if (this.level().isClientSide()) return;
         CompoundTag data = this.getPersistentData();
-        if (data.contains(MAGNET_OUTPUT_ORIGIN)) {
+        if (data.contains(ItemEntityMixin.MAGNET_OUTPUT_ORIGIN)) {
             String location = this.level().dimension().identifier() + "/" + pos.asLong();
-            if (!location.equals(data.getStringOr(MAGNET_OUTPUT_ORIGIN, ""))) data.remove(MAGNET_OUTPUT_ORIGIN);
+            if (!location.equals(data.getStringOr(ItemEntityMixin.MAGNET_OUTPUT_ORIGIN, ""))) {
+                data.remove(ItemEntityMixin.MAGNET_OUTPUT_ORIGIN);
+            }
         } else if (this.anvilcraft$blockPos == null && !this.anvilcraft$isAdsorbable()
             && state.is(ModBlocks.HOLLOW_MAGNET_BLOCK.get())) {
-            data.putString(MAGNET_OUTPUT_ORIGIN, this.level().dimension().identifier() + "/" + pos.asLong());
+            data.putString(ItemEntityMixin.MAGNET_OUTPUT_ORIGIN, this.level().dimension().identifier() + "/" + pos.asLong());
         }
     }
 
@@ -466,7 +468,7 @@ abstract class ItemEntityMixin extends Entity implements IItemEntityExtension {
         if (this.isRemoved() || this.level().isClientSide()) return false;
         BlockState state = this.level().getBlockState(pos);
         if (!state.is(ModBlocks.HOLLOW_MAGNET_BLOCK.get())) return false;
-        String origin = this.getPersistentData().getStringOr(MAGNET_OUTPUT_ORIGIN, "");
+        String origin = this.getPersistentData().getStringOr(ItemEntityMixin.MAGNET_OUTPUT_ORIGIN, "");
         if (origin.equals(this.level().dimension().identifier() + "/" + pos.asLong())) return false;
         ItemStack stack = this.getItem();
         String material = this.anvilcraft$getMaterialKey(stack);
@@ -477,8 +479,8 @@ abstract class ItemEntityMixin extends Entity implements IItemEntityExtension {
         Block target = "iron".equals(material) ? ModBlocks.FERRITE_CORE_MAGNET_BLOCK.get() : ModBlocks.MAGNET_BLOCK.get();
         BlockState filled = target.defaultBlockState().setValue(MagnetBlock.LIT, this.level().hasNeighborSignal(pos));
         if (!this.level().setBlockAndUpdate(pos, filled)) return false;
-        stack.shrink(1);
-        if (stack.isEmpty()) this.discard();
+        this.setItem(stack.copyWithCount(stack.getCount() - 1));
+        if (this.getItem().isEmpty()) this.discard();
         return true;
     }
 
