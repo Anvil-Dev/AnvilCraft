@@ -390,7 +390,7 @@ public class AutoEnchantingTableBlockEntity extends BlockEntity
                 if (maxLevel <= 0) yield true;
                 int level = this.liquidEnchantmentLevel;
                 if (level <= 0) yield false;
-                int cost = 1 << (level - 1);
+                int cost = (int) LiquidEnchantmentUtil.amountForLevel(level);
                 yield fluid.getAmount() >= cost;
             }
         };
@@ -516,13 +516,11 @@ public class AutoEnchantingTableBlockEntity extends BlockEntity
         FluidStack fluid = this.getFluid();
         if (fluid.isEmpty() || !fluid.is(ModFluids.LIQUID_ENCHANTMENT)) return 0;
         return LiquidEnchantmentUtil.getEnchantment(fluid)
-            .map(enchantmentHolder -> Math.min(
-                AutoEnchantingTableBlockEntity.storedLiquidLevel(fluid.getAmount()),
-                AutoEnchantingTableBlockEntity.computeLiquidMaxLevel(
-                    this.getItem(SLOT_INPUT),
-                    this.getItem(SLOT_PRIMER),
-                    enchantmentHolder
-                )
+            .map(enchantmentHolder -> AutoEnchantingTableBlockEntity.computeLiquidMaxLevel(
+                fluid.getAmount(),
+                this.getItem(SLOT_INPUT),
+                this.getItem(SLOT_PRIMER),
+                enchantmentHolder
             ))
             .orElse(0);
     }
@@ -544,8 +542,13 @@ public class AutoEnchantingTableBlockEntity extends BlockEntity
             : Math.min(AnvilCraft.CONFIG.liquidEnchantmentMaxLevel, vanillaMax);
     }
 
-    public static int storedLiquidLevel(int amount) {
-        return amount <= 0 ? 0 : Long.SIZE - Long.numberOfLeadingZeros(amount);
+    public static int computeLiquidMaxLevel(
+        int storedAmount, ItemStack item, ItemStack primer, Holder<Enchantment> enchantment
+    ) {
+        return Math.min(
+            LiquidEnchantmentUtil.levelForAmount(storedAmount),
+            AutoEnchantingTableBlockEntity.computeLiquidMaxLevel(item, primer, enchantment)
+        );
     }
 
     private static LiquidEnchantRestriction getRestriction(ItemStack primer) {
@@ -724,7 +727,7 @@ public class AutoEnchantingTableBlockEntity extends BlockEntity
         }
 
         // 消耗液态魔咒：2^(等级-1) mB，15 级最多 16384 mB
-        int cost = 1 << (enchantLevel - 1);
+        int cost = (int) LiquidEnchantmentUtil.amountForLevel(enchantLevel);
         if (fluid.getAmount() < cost) return;
 
         ItemStack result = item.copy();
