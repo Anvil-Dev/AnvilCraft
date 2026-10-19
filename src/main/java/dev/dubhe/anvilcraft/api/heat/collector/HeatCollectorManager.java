@@ -217,6 +217,7 @@ public class HeatCollectorManager {
             collectorPos.below(overlapRange).west(overlapRange).north(overlapRange)
         )) {
             pos = pos.immutable();
+            if (!this.level.isLoaded(pos)) continue;
             BlockState state = this.level.getBlockState(pos);
             if (!pos.equals(collectorPos)) {
                 int otherCollectorRange = collector instanceof InfiniteCollectorBlockEntity

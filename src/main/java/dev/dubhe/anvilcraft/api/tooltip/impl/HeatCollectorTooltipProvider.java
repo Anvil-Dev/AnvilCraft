@@ -6,6 +6,7 @@ import dev.dubhe.anvilcraft.api.power.PowerComponentType;
 import dev.dubhe.anvilcraft.api.power.SimplePowerGrid;
 import dev.dubhe.anvilcraft.api.tooltip.providers.ITooltipProvider;
 import dev.dubhe.anvilcraft.block.entity.HeatCollectorBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.InfiniteCollectorBlockEntity;
 import dev.dubhe.anvilcraft.util.UnitUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
@@ -25,7 +26,7 @@ public class HeatCollectorTooltipProvider extends ITooltipProvider.BlockEntityTo
 
     @Override
     public boolean accepts(BlockEntity entity) {
-        return entity instanceof HeatCollectorBlockEntity;
+        return entity instanceof HeatCollectorBlockEntity || entity instanceof InfiniteCollectorBlockEntity;
     }
 
     @Override
@@ -35,11 +36,21 @@ public class HeatCollectorTooltipProvider extends ITooltipProvider.BlockEntityTo
         if (player != null && player.isShiftKeyDown()) {
             original = true;
         }
-        if (!(e instanceof HeatCollectorBlockEntity heatCollector)) return List.of();
-        if (!heatCollector.isWorking()) {
+        boolean working;
+        String result;
+        if (e instanceof HeatCollectorBlockEntity collector) {
+            working = collector.isWorking();
+            result = collector.getResult().getTranslateKey();
+        } else if (e instanceof InfiniteCollectorBlockEntity collector) {
+            working = collector.isWorking();
+            result = collector.getResult().getTranslateKey();
+        } else {
+            return List.of();
+        }
+        if (!working) {
             return List.of(
                 Component.translatable("tooltip.anvilcraft.heat_collector.not_work").withStyle(ChatFormatting.RED),
-                Component.translatable(heatCollector.getResult().getTranslateKey())
+                Component.translatable(result)
             );
         }
         boolean overloaded = false;

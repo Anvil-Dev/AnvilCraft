@@ -853,7 +853,7 @@
   "block.anvilcraft.uranium_block": "Block of Uranium",
   "block.anvilcraft.uranium_pressure_plate": "Uranium Pressure Plate",
   "block.anvilcraft.void_energy_collector": "Void Energy Collector",
-  "block.anvilcraft.void_energy_collector.placement_too_close_to_another": "Too close to another void energy collector",
+  "block.anvilcraft.void_energy_collector.placement_too_close_to_another": "Ranges overlap with another collector",
   "block.anvilcraft.void_matter_block": "Block of Void Matter",
   "block.anvilcraft.void_stone": "Void Stone",
   "block.anvilcraft.weathered_copper_pressure_plate": "Weathered Copper Pressure Plate",
