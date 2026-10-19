@@ -356,9 +356,12 @@ public class LargeCauldronBlockEntity extends BlockEntity
             }
         }
         if (extracted.isEmpty()) return false;
-        player.setItemInHand(hand, extracted.getFirst());
-        for (int i = 1; i < extracted.size(); i++) {
-            player.getInventory().placeItemBackInInventory(extracted.get(i));
+        ItemStack first = extracted.getFirst();
+        player.setItemInHand(hand, first.split(first.getMaxStackSize()));
+        for (ItemStack stack : extracted) {
+            while (!stack.isEmpty()) {
+                player.getInventory().placeItemBackInInventory(stack.split(stack.getMaxStackSize()));
+            }
         }
         return true;
     }
