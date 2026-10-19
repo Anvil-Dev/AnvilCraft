@@ -104,7 +104,8 @@ public final class BuildingRodService {
                 Cell expected = this.cells.get(i);
                 Cell current = planned.get(i);
                 if (!expected.pos().equals(current.pos()) || !expected.state().equals(current.state())
-                    || !expected.config().equals(current.config()) || expected.contents().size() != current.contents().size()) return false;
+                    || !sameConfig(expected.config(), current.config())
+                    || expected.contents().size() != current.contents().size()) return false;
                 for (int slot = 0; slot < expected.contents().size(); slot++) {
                     var first = expected.contents().get(slot);
                     var second = current.contents().get(slot);
@@ -118,6 +119,11 @@ public final class BuildingRodService {
                 if (!ItemStack.matches(this.materials.get(i), supplied.get(i))) return false;
             }
             return true;
+        }
+
+        private static boolean sameConfig(CompoundTag expected, CompoundTag current) {
+            if (expected.equals(current)) return true;
+            return BlueprintRuntimeData.stripped(expected).equals(BlueprintRuntimeData.stripped(current));
         }
     }
 

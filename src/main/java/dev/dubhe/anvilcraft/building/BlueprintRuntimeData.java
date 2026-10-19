@@ -16,6 +16,8 @@ final class BlueprintRuntimeData {
         "Rolling", "PreviousFaces", "Faces", "Output", "RollStart", "phase", "progress", "currentPlacementIndex"
     );
 
+    private static final List<String> CLOCK_KEYS = List.of("PhaseStartGameTime", "RollStart");
+
     private BlueprintRuntimeData() {
     }
 
@@ -47,12 +49,23 @@ final class BlueprintRuntimeData {
     }
 
     static void rebase(CompoundTag config, long capturedAt, long now) {
-        for (String key : List.of("PhaseStartGameTime", "RollStart")) {
+        for (String key : CLOCK_KEYS) {
             if (config.contains(key, Tag.TAG_ANY_NUMERIC) && config.getLong(key) >= 0) {
                 config.putLong(key, capturedAt > 0 ? now + config.getLong(key) - capturedAt : now);
             }
         }
         if (config.contains("ExtraData", Tag.TAG_COMPOUND)) rebase(config.getCompound("ExtraData"), capturedAt, now);
+    }
+
+    static CompoundTag stripped(CompoundTag tag) {
+        CompoundTag copy = tag.copy();
+        stripClocks(copy);
+        return copy;
+    }
+
+    private static void stripClocks(CompoundTag tag) {
+        for (String key : CLOCK_KEYS) tag.remove(key);
+        if (tag.contains("ExtraData", Tag.TAG_COMPOUND)) stripClocks(tag.getCompound("ExtraData"));
     }
 
     static void restoreClock(CompoundTag config, StructureSnapshot snapshot, BlockPos local, long now) {
