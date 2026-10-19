@@ -266,14 +266,18 @@ public class AutoEnchantingTableBlockEntity extends BlockEntity
     }
 
     private void flushPassThrough() {
-        if (this.workMode == WorkMode.LIQUID_ENCHANTMENT) return;
-        if (this.getItem(SLOT_INPUT).isEmpty()) return;
-        if (!this.getItem(SLOT_OUTPUT).isEmpty()) return;
-        if (!EnchantmentHelper.hasAnyEnchantments(this.getItem(SLOT_INPUT))) return;
+        if (!this.canPassThroughInput()) return;
         this.itemHandler.set(
             SLOT_OUTPUT, this.itemHandler.getResource(SLOT_INPUT), this.itemHandler.getAmountAsInt(SLOT_INPUT));
         this.itemHandler.set(SLOT_INPUT, ItemResource.EMPTY, 0);
         this.setChanged();
+    }
+
+    private boolean canPassThroughInput() {
+        return this.workMode != WorkMode.LIQUID_ENCHANTMENT
+               && !this.getItem(SLOT_INPUT).isEmpty()
+               && this.getItem(SLOT_OUTPUT).isEmpty()
+               && EnchantmentHelper.hasAnyEnchantments(this.getItem(SLOT_INPUT));
     }
 
     public static void tick(Level level, BlockPos pos, BlockState state, AutoEnchantingTableBlockEntity be) {
@@ -801,6 +805,7 @@ public class AutoEnchantingTableBlockEntity extends BlockEntity
             this.cooldownTicks = input.getIntOr("CooldownTicks", this.cooldownTicks);
         } finally {
             this.loading = false;
+            this.passThroughPending = this.canPassThroughInput();
         }
     }
 
