@@ -1274,7 +1274,26 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
             }
 
             int slot = this.getInventorySlot(event.x(), event.y());
-            if (slot == -1 || this.minecraft.gameMode == null) {
+            if (slot == -1) {
+                boolean insideGui = MathUtil.isInRange(
+                    event.x(), event.y(), this.left, this.top,
+                    this.left + StorageScreen.BG_WIDTH, this.top + StorageScreen.BG_HEIGHT
+                );
+                if (!insideGui && this.minecraft.gameMode != null && !this.carried.isEmpty()) {
+                    this.player.inventoryMenu.setCarried(this.carried);
+                    this.minecraft.gameMode.handleContainerInput(
+                        this.player.inventoryMenu.containerId,
+                        -999,
+                        event.button(),
+                        ContainerInput.PICKUP,
+                        this.player
+                    );
+                    this.carried = this.player.inventoryMenu.getCarried();
+                    return true;
+                }
+                return false;
+            }
+            if (this.minecraft.gameMode == null) {
                 return false;
             }
             this.lastClickedInventorySlot = slot;
