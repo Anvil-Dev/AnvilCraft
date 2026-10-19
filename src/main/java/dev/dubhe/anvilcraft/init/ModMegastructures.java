@@ -86,7 +86,7 @@ public final class ModMegastructures {
         "monolith_deployer",
         id -> Megastructure.builder(id, "monolith_deployer")
             .prerequisite(context -> isPlanet(context) && !isErrorPlanet(context)
-                && MonolithDeployerHandler.canDeploy(context.resources()))
+                && MonolithDeployerHandler.canDeploy(context.body(), context.resources()))
             .ring(1)
             .model(1, ringModel(1, "monolith"))
             .material(ModItems.CIVILIZATION_CATALYST.get(), 1)
