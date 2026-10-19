@@ -130,7 +130,7 @@ public class ItemSplitterBlockEntity extends BlockEntity implements IItemHandler
      * @return 是否有物品被分出
      */
     public boolean splitToSpace(int shares) {
-        if (this.level == null || shares <= 0) return false;
+        if (this.level == null || shares <= 0 || this.getFacing() == Direction.UP) return false;
         // 正前方有容器时由主动均分负责，铁砧不介入
         if (this.getItemHandlerAt(this.getBlockPos().relative(this.getFacing())) != null) return false;
         List<BlockPos> targets = this.collectSpaceTargets(shares);
