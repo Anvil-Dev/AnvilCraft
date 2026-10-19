@@ -243,25 +243,23 @@ public class FishTankBlockEntity extends BlockEntity implements IItemHandlerHold
     private final PollableItemHandler input = new PollableItemHandler(8) {
         @Override
         protected int getEmptyOrSmallerSlot(ItemStack stack) {
-            int slot = -1;
-            int countInSlot = Integer.MAX_VALUE;
+            int mergeSlot = -1;
+            int mergeCount = Integer.MAX_VALUE;
+            int emptySlot = -1;
             for (int i = 7; i >= 0; i--) {
                 ItemStack stackInSlot = this.getStackInSlot(i);
-                if (stackInSlot.isEmpty() && countInSlot == Integer.MAX_VALUE) {
-                    slot = i;
+                if (stackInSlot.isEmpty()) {
+                    if (emptySlot == -1) emptySlot = i;
                     continue;
                 }
                 if (!ItemStack.isSameItemSameComponents(stackInSlot, stack)) continue;
-                if (countInSlot != Integer.MAX_VALUE) return -1;
                 int stackInSlotCount = stackInSlot.getCount();
-                if (stackInSlotCount < this.getStackLimit(i, stackInSlot)) {
-                    slot = i;
-                    countInSlot = stackInSlotCount;
-                } else {
-                    return -1;
+                if (stackInSlotCount < this.getStackLimit(i, stackInSlot) && stackInSlotCount < mergeCount) {
+                    mergeSlot = i;
+                    mergeCount = stackInSlotCount;
                 }
             }
-            return slot;
+            return mergeSlot != -1 ? mergeSlot : emptySlot;
         }
 
         @Override
