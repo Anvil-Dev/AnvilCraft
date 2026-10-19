@@ -1,0 +1,11 @@
+{
+  "type": "anvilcraft:mineral_fountain_replacement",
+  "chance": 0.01,
+  "dimension": "anvilcraft:overworld_like",
+  "from_block": {
+    "blocks": "minecraft:deepslate"
+  },
+  "to_block": {
+    "block": "anvilcraft:earth_core_shard_ore"
+  }
+}

@@ -4,6 +4,7 @@ import dev.anvilcraft.lib.v2.registrum.providers.RegistrumRecipeProvider;
 import dev.anvilcraft.lib.v2.util.predicate.BlockStatePredicate;
 import dev.anvilcraft.lib.v2.util.predicate.ChanceBlockState;
 import dev.dubhe.anvilcraft.api.heat.HeatTier;
+import dev.dubhe.anvilcraft.block.entity.celestial.CelestialTravelManager;
 import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.recipe.mineral.AroundRequirement;
@@ -49,6 +50,8 @@ public class MineralFountainRecipeLoader {
         // 不写 replace 列表 ⇒ 可替换任意主动配方，实际只命中材料相容的粗矿配方
         replacement(provider, Level.OVERWORLD, ModBlocks.VOID_STONE.get(), 0.01);
         replacement(provider, Level.OVERWORLD, ModBlocks.EARTH_CORE_SHARD_ORE.get(), 0.01);
+        replacement(provider, CelestialTravelManager.OVERWORLD_LIKE_LEVEL, ModBlocks.VOID_STONE.get(), 0.01);
+        replacement(provider, CelestialTravelManager.OVERWORLD_LIKE_LEVEL, ModBlocks.EARTH_CORE_SHARD_ORE.get(), 0.01);
         replacement(provider, Level.NETHER, ModBlocks.EARTH_CORE_SHARD_ORE.get(), 0.1);
         replacement(provider, Level.END, ModBlocks.VOID_STONE.get(), 0.1);
 
