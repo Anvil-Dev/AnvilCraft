@@ -515,19 +515,9 @@ abstract class ItemEntityMixin extends Entity implements IItemEntityExtension {
         String matKey = this.anvilcraft$getMaterialKey(stack);
         // 不是金属直接跳过
         if (matKey == null) return;
-        // 1. 空芯磁铁块转化
         if ("iron".equals(matKey) || "magnet".equals(matKey)) {
-            if (!this.level().isClientSide && state.is(ModBlocks.HOLLOW_MAGNET_BLOCK.get())
-                && stack.getDescriptionId().contains("ingot")
-                && !state.getValue(MagnetBlock.LIT)) {
-
-                Block targetBlock;
-                if ("iron".equals(matKey)) targetBlock = ModBlocks.FERRITE_CORE_MAGNET_BLOCK.get(); // 铁锭 -> 铁芯磁铁块
-                else targetBlock = ModBlocks.MAGNET_BLOCK.get(); // 磁铁锭 -> 磁铁块
-
-                this.level().setBlockAndUpdate(pos, targetBlock.defaultBlockState());
-                stack.shrink(1);
-                if (stack.isEmpty()) { this.discard(); ci.cancel(); }
+            if (this.anvilcraft$fillHollowMagnet()) {
+                if (this.isRemoved()) ci.cancel();
                 return;
             }
             // 2. 吸铁石就要吸铁
@@ -546,6 +536,30 @@ abstract class ItemEntityMixin extends Entity implements IItemEntityExtension {
             Double speedFactor = MATERIAL_MAP.get(matKey);
             if (speedFactor != null) this.setDeltaMovement(this.getDeltaMovement().scale(speedFactor));
         }
+    }
+
+    @Inject(method = "tick", at = @At("TAIL"))
+    private void anvilcraft$fillMagnetAfterMovement(CallbackInfo ci) {
+        this.anvilcraft$fillHollowMagnet();
+    }
+
+    @Unique
+    private boolean anvilcraft$fillHollowMagnet() {
+        if (this.isRemoved() || this.level().isClientSide()) return false;
+        BlockPos pos = this.blockPosition();
+        BlockState state = this.level().getBlockState(pos);
+        if (!state.is(ModBlocks.HOLLOW_MAGNET_BLOCK.get())) return false;
+        ItemStack stack = this.getItem();
+        String material = this.anvilcraft$getMaterialKey(stack);
+        if (!("iron".equals(material) || "magnet".equals(material))
+            || !stack.getDescriptionId().contains("ingot")) {
+            return false;
+        }
+        Block target = "iron".equals(material) ? ModBlocks.FERRITE_CORE_MAGNET_BLOCK.get() : ModBlocks.MAGNET_BLOCK.get();
+        this.level().setBlockAndUpdate(pos, target.defaultBlockState().setValue(MagnetBlock.LIT, state.getValue(MagnetBlock.LIT)));
+        stack.shrink(1);
+        if (stack.isEmpty()) this.discard();
+        return true;
     }
 
     @Override
