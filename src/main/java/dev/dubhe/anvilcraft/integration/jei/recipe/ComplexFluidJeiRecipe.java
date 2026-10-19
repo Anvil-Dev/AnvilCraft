@@ -147,6 +147,25 @@ public final class ComplexFluidJeiRecipe extends FluidMixingRecipe {
         );
     }
 
+    public static ComplexFluidJeiRecipe enchantGoldBlock() {
+        List<FluidStack> fluids = new ArrayList<>();
+        fluids.add(new FluidStack(ModFluids.LIQUID_ENCHANTMENT.get(), 144));
+        FluidStack mending = new FluidStack(ModFluids.LIQUID_ENCHANTMENT.get(), 36);
+        mending.set(ModComponents.LIQUID_ENCHANTMENT, Enchantments.MENDING);
+        fluids.add(mending);
+        FluidStack fortune = new FluidStack(ModFluids.LIQUID_ENCHANTMENT.get(), 9);
+        fortune.set(ModComponents.LIQUID_ENCHANTMENT, Enchantments.FORTUNE);
+        fluids.add(fortune);
+        return new ComplexFluidJeiRecipe(
+            List.of(ItemIngredientPredicate.of(Items.GOLD_BLOCK).build()),
+            List.of(ChanceItemStack.of(ModBlocks.ENCHANTED_GOLD_BLOCK, 1)),
+            List.of(fluids),
+            List.of(),
+            false,
+            false
+        );
+    }
+
     public List<ChanceItemStack> getDisplayItemResults() {
         return this.resultItems;
     }
