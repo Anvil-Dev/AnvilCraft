@@ -239,7 +239,7 @@ public class ActiveSilencerScreen extends AbstractContainerScreen<ActiveSilencer
             @Override
             public boolean mouseClicked(double mouseX, double mouseY, int button) {
                 if (button == InputConstants.MOUSE_BUTTON_RIGHT && this.isMouseOver(mouseX, mouseY)) {
-                    this.setValue("");
+                    if (!this.getValue().isEmpty()) this.setValue("");
                     return true;
                 }
                 return super.mouseClicked(mouseX, mouseY, button);
