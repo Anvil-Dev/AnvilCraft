@@ -655,7 +655,7 @@ public class AnvilCraftServerConfig {
 
         @Comment("Controls the maximum number of blocks a single Building Rod operation may place")
         @BoundedDiscrete(min = 1, max = 65536)
-        public int buildingRodMaxBlocks = 4000;
+        public int buildingRodMaxBlocks = 4096;
 
         @Comment("Controls the maximum energy of the Building Rod (in FE)")
         @BoundedDiscrete(min = 1, max = 2000000000)

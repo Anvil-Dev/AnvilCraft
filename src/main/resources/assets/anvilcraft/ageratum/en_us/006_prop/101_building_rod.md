@@ -26,7 +26,7 @@ items:
 Enabled when the <ref item="anvilcraft:building_rod"/> is held in one hand and a *block* is held in the other.
 
 - Right-click to confirm the first position; keep holding right-click and release at another position to confirm the second position, then attempt to fill the selected cuboid with the block from the other hand
-- Each placed block consumes 100 FE, up to 4,000 blocks per placement
+- Each placed block consumes 100 FE, up to 4,096 blocks per placement
 
 <info>
 While selecting the second position, you can hold Ctrl to select a position in midair
@@ -40,7 +40,7 @@ When placing infinite fluids such as water, at most two buckets of water are con
 
 - Automatically uses items from the player's inventory
 - Cancels placement when materials are insufficient instead of placing only part of the selection
-- Places at most 4,000 blocks at a time
+- Places at most 4,096 blocks at a time
 
 ## Blueprint Mode
 
