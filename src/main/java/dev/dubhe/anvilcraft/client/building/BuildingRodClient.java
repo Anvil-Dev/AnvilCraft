@@ -77,6 +77,7 @@ public final class BuildingRodClient {
     private static final RandomSource PATTERN_RANDOM = RandomSource.create();
     private static long patternSeed = PATTERN_RANDOM.nextLong();
     private static final BuildingRodKeyRepeat KEY_REPEAT = new BuildingRodKeyRepeat();
+    private static boolean suppressControlEdge;
     private static final int PLACE_COLOR = 0x55FF55;
     private static final int CANCEL_COLOR = 0xFF5555;
     private static final int MOVE_COLOR = 0xFFFF55;
@@ -148,6 +149,7 @@ public final class BuildingRodClient {
             clearSelection();
             useHeld = mc.options.keyUse.isDown();
             KEY_REPEAT.clear();
+            suppressControlEdge = false;
             discardControlClicks();
             return;
         }
@@ -418,6 +420,7 @@ public final class BuildingRodClient {
     /** 在 KeyboardHandler 入口处理，避免依赖可能被其他模组取消的 NeoForge 末尾事件。 */
     public static boolean handleKeyboardInput(int key, int scanCode, int action, int modifiers) {
         Minecraft mc = Minecraft.getInstance();
+        if (ModKeyMappings.shouldIgnoreForDebugChord(action)) return false;
         if (first != null && (key == GLFW.GLFW_KEY_LEFT_CONTROL || key == GLFW.GLFW_KEY_RIGHT_CONTROL)) {
             updateTarget();
         }
@@ -507,6 +510,12 @@ public final class BuildingRodClient {
         discardControlClicks();
         if (!canControl()) {
             KEY_REPEAT.clear();
+            suppressControlEdge = false;
+            return;
+        }
+        if (ModKeyMappings.isDebugChordActive()) {
+            KEY_REPEAT.clear();
+            suppressControlEdge = true;
             return;
         }
         Minecraft mc = Minecraft.getInstance();
@@ -518,8 +527,9 @@ public final class BuildingRodClient {
             boolean down = controlAvailable(i)
                 && physicalKeyDown(keys[i].getKey(), i, window) && modifiersMatch(keys[i], modifiers);
             int steps = KEY_REPEAT.update(i, down, now);
-            if (steps > 0) applyControl(i, steps);
+            if (steps > 0 && !(suppressControlEdge && steps == 1)) applyControl(i, steps);
         }
+        suppressControlEdge = false;
     }
 
     private static void applyControl(int index, int steps) {
