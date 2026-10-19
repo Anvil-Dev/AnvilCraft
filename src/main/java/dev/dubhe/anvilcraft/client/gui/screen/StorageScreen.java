@@ -1279,7 +1279,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
                     event.x(), event.y(), this.left, this.top,
                     this.left + StorageScreen.BG_WIDTH, this.top + StorageScreen.BG_HEIGHT
                 );
-                if (!insideGui && this.minecraft.gameMode != null && !this.carried.isEmpty()) {
+                if (!insideGui && !this.interactionPending && this.minecraft.gameMode != null && !this.carried.isEmpty()) {
                     this.player.inventoryMenu.setCarried(this.carried);
                     this.minecraft.gameMode.handleContainerInput(
                         this.player.inventoryMenu.containerId,
