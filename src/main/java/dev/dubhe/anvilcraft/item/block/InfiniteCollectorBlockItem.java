@@ -23,11 +23,12 @@ public class InfiniteCollectorBlockItem extends PlacementIntervalsBlockItem {
 
     @Override
     protected int getIntervalsRadius(BlockState state) {
-        return state.is(ModBlocks.HEAT_COLLECTOR) ? 5 : super.getIntervalsRadius(state);
+        return state.is(ModBlocks.HEAT_COLLECTOR) || state.is(ModBlocks.VOID_ENERGY_COLLECTOR)
+            ? 5 : super.getIntervalsRadius(state);
     }
 
     @Override
     protected List<Block> getIntervalBlocks() {
-        return List.of(ModBlocks.HEAT_COLLECTOR.get(), ModBlocks.INFINITE_COLLECTOR.get());
+        return List.of(ModBlocks.HEAT_COLLECTOR.get(), ModBlocks.INFINITE_COLLECTOR.get(), ModBlocks.VOID_ENERGY_COLLECTOR.get());
     }
 }

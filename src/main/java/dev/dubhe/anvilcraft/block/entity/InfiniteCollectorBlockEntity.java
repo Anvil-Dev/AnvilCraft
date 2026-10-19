@@ -116,13 +116,22 @@ public class InfiniteCollectorBlockEntity extends BlockEntity implements IPowerP
             this.chargeCount = 0;
             this.refreshChargePower();
         }
-        this.outputPower = InfiniteCollectorBlockEntity.BASE_OUTPUT_POWER + this.inputtingHeatPower + this.chargePower;
+        this.outputPower = this.getBasePower() + this.inputtingHeatPower + this.chargePower;
         if (this.outputPower > 0 && this.getBlockState().getBlock() instanceof InfiniteCollectorBlock collector) {
             collector.activate(this.level, this.getBlockPos(), this.getBlockState());
         }
         if (this.outputPower != oldPower && this.grid != null) this.grid.markChanged();
         this.inputtingHeatPower = 0;
         this.time++;
+    }
+
+    private int getBasePower() {
+        int mass = VoidEnergyCollectorBlockEntity.countMassInRange(this.level, this.getBlockPos(), this.getRange());
+        int basePower = InfiniteCollectorBlockEntity.BASE_OUTPUT_POWER;
+        if (mass <= -41) return basePower * 20;
+        if (mass <= -21) return basePower * 8;
+        if (mass <= -11) return basePower * 3;
+        return basePower;
     }
 
     private void addCharge(int charge) {

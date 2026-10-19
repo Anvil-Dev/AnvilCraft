@@ -218,7 +218,8 @@ public class HeatCollectorManager {
             pos = pos.immutable();
             BlockState state = this.level.getBlockState(pos);
             if (!pos.equals(collectorPos)) {
-                int otherCollectorRange = this.getCollectorRange(state);
+                int otherCollectorRange = collector instanceof InfiniteCollectorBlockEntity
+                    && state.is(ModBlocks.VOID_ENERGY_COLLECTOR.get()) ? 2 : this.getCollectorRange(state);
                 if (otherCollectorRange > 0
                     && this.isRangeOverlapping(collectorPos, pos, collectorRange, otherCollectorRange)) {
                     collector.setCollectorWorking(false);
