@@ -482,7 +482,7 @@ public record HasCauldron(
         BlockCache cache = ctx.computeIfAbsent(BlockCache.BLOCK_CACHE);
         if (cache.getBlockEntity(pos) != null) return false;
         BlockState state = cache.getBlockState(pos);
-        return state.is(BlockTags.CAULDRONS);
+        return state.is(BlockTags.CAULDRONS) && !state.hasBlockEntity();
     }
 
     private static void setCauldronFluid(InWorldRecipeContext ctx, BlockPos pos, FluidStack fluid, double mb, boolean ignited) {
