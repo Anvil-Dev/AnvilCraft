@@ -377,7 +377,7 @@ public class AutoEnchantingTableBlockEntity extends BlockEntity
                 if (maxLevel <= 0) yield true;
                 int level = this.liquidEnchantmentLevel;
                 if (level <= 0) yield false;
-                int cost = (int) LiquidEnchantmentUtil.amountForLevel(level);
+                long cost = LiquidEnchantmentUtil.amountForLevel(level);
                 yield fluid.getAmount() >= cost;
             }
         };
