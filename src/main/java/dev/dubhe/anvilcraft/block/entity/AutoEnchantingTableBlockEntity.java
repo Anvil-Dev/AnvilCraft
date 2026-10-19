@@ -97,8 +97,6 @@ public class AutoEnchantingTableBlockEntity extends BlockEntity
     public static final int LIQUID_POWER_PER_ENCHANTMENT = 64;
 
     private final ItemStacksResourceHandler itemHandler = new ItemStacksResourceHandler(3) {
-        private boolean movingToOutput;
-
         @Override
         public int getCapacity(int slot, ItemResource resource) {
             return 1;
@@ -114,16 +112,6 @@ public class AutoEnchantingTableBlockEntity extends BlockEntity
         }
 
         @Override
-        public int insert(int slot, ItemResource resource, int amount, TransactionContext transaction) {
-            return this.movingToOutput ? 0 : super.insert(slot, resource, amount, transaction);
-        }
-
-        @Override
-        public int extract(int slot, ItemResource resource, int amount, TransactionContext transaction) {
-            return this.movingToOutput ? 0 : super.extract(slot, resource, amount, transaction);
-        }
-
-        @Override
         protected void onContentsChanged(int slot, ItemStack previousContents) {
             // 反序列化（chunk 加载 / 客户端更新包）期间不执行流转逻辑，否则会在 WorkMode 读取前
             // 误将液态魔咒模式下输入槽的已附魔物品透传到输出槽，并过早发送块更新。
@@ -136,8 +124,7 @@ public class AutoEnchantingTableBlockEntity extends BlockEntity
                 && !AutoEnchantingTableBlockEntity.this.level.isClientSide()
             ) {
                 if (
-                    !this.movingToOutput
-                    && slot == SLOT_INPUT
+                    slot == SLOT_INPUT
                     && !AutoEnchantingTableBlockEntity.this.getItem(SLOT_INPUT).isEmpty()
                 ) {
                     if (
@@ -145,10 +132,7 @@ public class AutoEnchantingTableBlockEntity extends BlockEntity
                         && AutoEnchantingTableBlockEntity.this.getItem(SLOT_OUTPUT).isEmpty()
                         && AutoEnchantingTableBlockEntity.this.workMode != WorkMode.LIQUID_ENCHANTMENT
                     ) {
-                        this.movingToOutput = true;
-                        this.set(SLOT_OUTPUT, this.getResource(SLOT_INPUT), this.getAmountAsInt(SLOT_INPUT));
-                        this.set(SLOT_INPUT, ItemResource.EMPTY, 0);
-                        this.movingToOutput = false;
+                        AutoEnchantingTableBlockEntity.this.passThroughPending = true;
                     } else {
                         // 重置4秒冷却
                         AutoEnchantingTableBlockEntity.this.cooldownTicks = AnvilCraft.CONFIG.autoEnchantingTableInterval;
@@ -199,6 +183,8 @@ public class AutoEnchantingTableBlockEntity extends BlockEntity
     private int openMenuCount = 0;
     /// 反序列化期间抑制 onContentsChanged 的物品流转副作用
     private boolean loading;
+    /// 输入槽中的已附魔物品延迟到下一 tick 透传到输出槽，避免在写入回调中再次改写同一处理器
+    private boolean passThroughPending;
     private WorkMode workMode = WorkMode.ENCHANTING;
     /// 液态魔咒模式下玩家选择的附魔等级（0 表示未选择）
     private int liquidEnchantmentLevel = 0;
@@ -279,8 +265,27 @@ public class AutoEnchantingTableBlockEntity extends BlockEntity
         super.setRemoved();
     }
 
+    private void flushPassThrough() {
+        if (!this.canPassThroughInput()) return;
+        this.itemHandler.set(
+            SLOT_OUTPUT, this.itemHandler.getResource(SLOT_INPUT), this.itemHandler.getAmountAsInt(SLOT_INPUT));
+        this.itemHandler.set(SLOT_INPUT, ItemResource.EMPTY, 0);
+        this.setChanged();
+    }
+
+    private boolean canPassThroughInput() {
+        return this.workMode != WorkMode.LIQUID_ENCHANTMENT
+               && !this.getItem(SLOT_INPUT).isEmpty()
+               && this.getItem(SLOT_OUTPUT).isEmpty()
+               && EnchantmentHelper.hasAnyEnchantments(this.getItem(SLOT_INPUT));
+    }
+
     public static void tick(Level level, BlockPos pos, BlockState state, AutoEnchantingTableBlockEntity be) {
         if (level.isClientSide()) return;
+        if (be.passThroughPending) {
+            be.passThroughPending = false;
+            be.flushPassThrough();
+        }
         be.flushState(level, pos);
         if (state.getValue(AutoEnchantingTableBlock.POWERED)) {
             be.resetCooldownWhenIdle();
@@ -800,6 +805,7 @@ public class AutoEnchantingTableBlockEntity extends BlockEntity
             this.cooldownTicks = input.getIntOr("CooldownTicks", this.cooldownTicks);
         } finally {
             this.loading = false;
+            this.passThroughPending = this.canPassThroughInput();
         }
     }
 
