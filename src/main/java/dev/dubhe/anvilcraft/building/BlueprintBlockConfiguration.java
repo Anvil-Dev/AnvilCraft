@@ -32,6 +32,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.ByteArrayTag;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.IntArrayTag;
 import net.minecraft.nbt.IntTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtOps;
@@ -149,8 +150,9 @@ public final class BlueprintBlockConfiguration {
             remove(source, "disabled_slots", "crafting_ticks_remaining", "triggered");
         }
         if (entity instanceof LecternBlockEntity) integer(source, result, "Page", 0, Integer.MAX_VALUE);
-        if (entity instanceof HeliostatsBlockEntity && (source.get("Ix") instanceof IntTag)) {
-            for (String key : List.of("Ix", "Iy", "Iz")) integer(source, result, key, Integer.MIN_VALUE, Integer.MAX_VALUE);
+        if (entity instanceof HeliostatsBlockEntity && (source.get("irritate_pos") instanceof IntArrayTag pos)) {
+            result.put("irritate_pos", pos.copy());
+            source.remove("irritate_pos");
         }
         if (entity instanceof AbstractPipeBlockEntity) {
             result.put("Valves", checkValves(BlueprintNbt.list(source, "Valves", Tag.TAG_COMPOUND)));
@@ -303,7 +305,7 @@ public final class BlueprintBlockConfiguration {
     }
 
     public static void transform(
-        CompoundTag config, BlueprintPlacement placement, @Nullable BlockPos sourceOrigin, StructureSnapshot snapshot
+        CompoundTag config, BlueprintPlacement placement, @Nullable BlockPos sourceOrigin
     ) {
         if ("minecraft:piston".equals(config.getStringOr("id", ""))) {
             var moved = NbtUtils.readBlockState(BuiltInRegistries.BLOCK, config.getCompoundOrEmpty("blockState"));
@@ -330,20 +332,13 @@ public final class BlueprintBlockConfiguration {
             for (int i = 0; i < source.length; i++) mirrored[i - i % side + side - 1 - i % side] = source[i];
             config.putByteArray("layerPositions", mirrored);
         }
-        if (!config.contains("Ix")) return;
-        BlockPos target = new BlockPos(config.getIntOr("Ix", 0), config.getIntOr("Iy", 0), config.getIntOr("Iz", 0));
-        if (sourceOrigin != null) {
-            BlockPos local = target.subtract(sourceOrigin);
-            if (local.getX() >= 0 && local.getY() >= 0 && local.getZ() >= 0 && local.getX() < snapshot.size().getX()
-                && local.getY() < snapshot.size().getY() && local.getZ() < snapshot.size().getZ()) {
-                BlockPos world = placement.worldOf(local);
-                config.putInt("Ix", world.getX());
-                config.putInt("Iy", world.getY());
-                config.putInt("Iz", world.getZ());
-                return;
-            }
+        if (!config.contains("irritate_pos")) return;
+        BlockPos irritatePos = config.read("irritate_pos", BlockPos.CODEC).orElse(null);
+        if (irritatePos == null || sourceOrigin == null) {
+            config.remove("irritate_pos");
+            return;
         }
-        remove(config, "Ix", "Iy", "Iz");
+        config.store("irritate_pos", BlockPos.CODEC, placement.worldOf(irritatePos.subtract(sourceOrigin)));
     }
 
     @Nullable
