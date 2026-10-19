@@ -116,7 +116,8 @@ public final class BlueprintClientFiles {
             if (selected == null) return Optional.empty();
             Path file = Path.of(selected);
             String name = file.getFileName().toString();
-            if (!StructureFileTransfer.isSafeName(name) || Files.size(file) > StructureFileTransfer.MAX_BYTES) {
+            if (!StructureFileTransfer.isSafeName(name) || name.lastIndexOf('.') <= 0
+                || Files.size(file) > StructureFileTransfer.MAX_BYTES) {
                 throw new IOException("Invalid blueprint file");
             }
             byte[] bytes;
@@ -169,7 +170,7 @@ public final class BlueprintClientFiles {
 
     public static boolean isValidExportName(String name) {
         String exported = name.toLowerCase(Locale.ROOT).endsWith(".nbt") ? name : name + ".nbt";
-        return !name.isBlank() && StructureFileTransfer.isSafeName(exported);
+        return !name.isBlank() && exported.lastIndexOf('.') > 0 && StructureFileTransfer.isSafeName(exported);
     }
 
     public static boolean isBusy() {
@@ -223,7 +224,7 @@ public final class BlueprintClientFiles {
         }
         try {
             if (!packet.error().isEmpty()) throw new IOException(packet.error());
-            if (uploading || exporting && Minecraft.getInstance().hasSingleplayerServer()) {
+            if (uploading || (exporting && Minecraft.getInstance().hasSingleplayerServer())) {
                 String exported = new String(packet.bytes(), StandardCharsets.UTF_8);
                 if (packet.total() != packet.bytes().length || packet.offset() != 0
                     || !StructureFileTransfer.isSafeName(exported) || !exported.toLowerCase(Locale.ROOT).endsWith(".nbt")) {

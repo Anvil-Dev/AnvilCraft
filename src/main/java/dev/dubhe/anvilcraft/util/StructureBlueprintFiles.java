@@ -61,7 +61,9 @@ public final class StructureBlueprintFiles {
     }
 
     public static String write(Path directory, String name, byte[] bytes) throws IOException {
-        if (!name.toLowerCase(Locale.ROOT).endsWith(".nbt")) throw new IOException("Invalid export file name");
+        if (name.lastIndexOf('.') <= 0 || !name.toLowerCase(Locale.ROOT).endsWith(".nbt")) {
+            throw new IOException("Invalid export file name");
+        }
         if (bytes.length == 0 || bytes.length > StructureFileTransfer.MAX_BYTES) throw new IOException("Invalid file size");
         Path target = resolve(directory, name);
         Files.createDirectories(target.getParent());
