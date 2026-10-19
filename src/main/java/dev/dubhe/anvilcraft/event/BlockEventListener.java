@@ -2,10 +2,11 @@ package dev.dubhe.anvilcraft.event;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.IStoragePort;
-import dev.dubhe.anvilcraft.api.hammer.IHammerChangeable;
+import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.block.AbstractStoragePortBlock;
 import dev.dubhe.anvilcraft.block.batch.BaseBatchCraftingBlock;
 import dev.dubhe.anvilcraft.block.entity.CreativeCrateBlockEntity;
+import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.item.AnvilHammerItem;
@@ -199,12 +200,14 @@ public class BlockEventListener {
         Level level = event.getLevel();
         BlockPos pos = event.getPos();
         BlockState targetState = level.getBlockState(pos);
-        if (
-            stack.getItem() instanceof AnvilHammerItem
-            && targetState.getBlock() instanceof IHammerChangeable
-        ) {
-            if (player.level().isClientSide()) return;
-            if (AnvilHammerItem.ableToUseAnvilHammer(level, pos, player)) {
+        if (stack.is(ModItemTags.ANVIL_HAMMER)) {
+            if (level.isClientSide()) return;
+            if (player.isShiftKeyDown() && !targetState.is(ModBlockTags.HAMMER_REMOVABLE)
+                && !(targetState.getBlock() instanceof IHammerRemovable)) {
+                return;
+            }
+            if (!targetState.is(BlockTags.CAULDRONS) && !targetState.is(ModBlockTags.ANVIL_HAMMER_DENYLIST)
+                && !AnvilHammerItem.shouldPlaceOffhandBlock(player, level, event.getHitVec())) {
                 event.setCancellationResult(InteractionResult.SUCCESS);
                 event.setCanceled(true);
             }
