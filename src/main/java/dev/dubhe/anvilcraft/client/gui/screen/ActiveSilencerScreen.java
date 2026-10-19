@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.client.gui.screen;
 
+import com.mojang.blaze3d.platform.InputConstants;
 import dev.dubhe.anvilcraft.client.gui.component.SilencerButton;
 import dev.dubhe.anvilcraft.constant.Constant;
 import dev.dubhe.anvilcraft.constant.SharedTextures;
@@ -237,7 +238,7 @@ public class ActiveSilencerScreen extends AbstractContainerScreen<ActiveSilencer
         ) {
             @Override
             public boolean mouseClicked(double mouseX, double mouseY, int button) {
-                if (button == 1 && this.isMouseOver(mouseX, mouseY)) {
+                if (button == InputConstants.MOUSE_BUTTON_RIGHT && this.isMouseOver(mouseX, mouseY)) {
                     this.setValue("");
                     return true;
                 }

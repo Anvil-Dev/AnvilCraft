@@ -109,7 +109,7 @@ public class AutoEnchantingTableScreen extends AbstractContainerScreen<AutoEncha
         ) {
             @Override
             public boolean mouseClicked(double mouseX, double mouseY, int button) {
-                if (button == 1 && this.isMouseOver(mouseX, mouseY)) {
+                if (button == InputConstants.MOUSE_BUTTON_RIGHT && this.isMouseOver(mouseX, mouseY)) {
                     this.setValue("");
                     return true;
                 }
