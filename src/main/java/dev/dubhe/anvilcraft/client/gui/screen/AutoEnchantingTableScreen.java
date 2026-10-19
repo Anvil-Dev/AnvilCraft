@@ -334,13 +334,12 @@ public class AutoEnchantingTableScreen extends AbstractContainerScreen<AutoEncha
         Optional<Holder<Enchantment>> enchantment = this.getLiquidEnchantment();
         if (enchantment.isEmpty()) return 0;
         AutoEnchantingTableBlockEntity be = this.menu.getBlockEntity();
-        int limit = AutoEnchantingTableBlockEntity.computeLiquidMaxLevel(
+        return AutoEnchantingTableBlockEntity.computeLiquidMaxLevel(
+            be.getFluidHandler().getFluidInTank(0).getAmount(),
             be.getItemHandler().getStackInSlot(AutoEnchantingTableBlockEntity.SLOT_INPUT),
             be.getItemHandler().getStackInSlot(AutoEnchantingTableBlockEntity.SLOT_PRIMER),
             enchantment.get()
         );
-        return Math.min(limit,
-            AutoEnchantingTableBlockEntity.storedLiquidLevel(be.getFluidHandler().getFluidInTank(0).getAmount()));
     }
 
     /**
