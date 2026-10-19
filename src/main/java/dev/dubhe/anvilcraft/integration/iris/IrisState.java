@@ -18,7 +18,12 @@ public class IrisState {
     }
 
     public static MultiBufferSource getHandBufferSource(MultiBufferSource fallback) {
-        return RenderState.isIrisPresent() ? getHandBufferSourceInternal(fallback) : fallback;
+        if (!RenderState.isIrisPresent()) return fallback;
+        try {
+            return getHandBufferSourceInternal(fallback);
+        } catch (LinkageError ignored) {
+            return fallback;
+        }
     }
 
     private static MultiBufferSource getHandBufferSourceInternal(MultiBufferSource fallback) {
