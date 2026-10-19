@@ -25,6 +25,7 @@ import org.jspecify.annotations.Nullable;
 import java.util.ArrayList;
 
 public class VoidEnergyCollectorBlockEntity extends BlockEntity implements IPowerProducer, IHasAffectRange {
+    public static final int RANGE = 2;
     private static final int COOLDOWN = 2;
     // private static final int DECAY_COOLDOWN = 60;
 
@@ -138,8 +139,8 @@ public class VoidEnergyCollectorBlockEntity extends BlockEntity implements IPowe
     }
 
     public static boolean isAnotherCollectorNearby(Level level, BlockPos pos) {
-        int infiniteOverlap = 2 + InfiniteCollectorBlockEntity.RANGE;
-        int range = Math.max(4, infiniteOverlap);
+        int infiniteOverlap = RANGE + InfiniteCollectorBlockEntity.RANGE;
+        int range = Math.max(RANGE * 2, infiniteOverlap);
         BlockPos.MutableBlockPos mpos = new BlockPos.MutableBlockPos();
         for (int i = -range; i <= range; i++) {
             for (int j = -range; j <= range; j++) {
@@ -149,8 +150,8 @@ public class VoidEnergyCollectorBlockEntity extends BlockEntity implements IPowe
                     if (level.isOutsideBuildHeight(mpos)) continue;
                     BlockState blockState = level.getBlockState(mpos);
                     int distance = Math.max(Math.max(Math.abs(i), Math.abs(j)), Math.abs(k));
-                    if (distance <= 4 && blockState.getBlock() instanceof VoidEnergyCollectorBlock
-                        || distance <= infiniteOverlap && blockState.getBlock() instanceof InfiniteCollectorBlock) return true;
+                    if ((distance <= RANGE * 2 && blockState.getBlock() instanceof VoidEnergyCollectorBlock)
+                        || (distance <= infiniteOverlap && blockState.getBlock() instanceof InfiniteCollectorBlock)) return true;
                 }
             }
         }
@@ -165,7 +166,7 @@ public class VoidEnergyCollectorBlockEntity extends BlockEntity implements IPowe
     private int countBlocksInRange() {
         if (this.level == null || this.level.isClientSide()) return 125;
         if (VoidEnergyCollectorBlockEntity.isAnotherCollectorNearby(this.level, this.getBlockPos())) return 125;
-        return VoidEnergyCollectorBlockEntity.countMassInRange(this.level, this.getBlockPos(), 2);
+        return VoidEnergyCollectorBlockEntity.countMassInRange(this.level, this.getBlockPos(), RANGE);
     }
 
     public static int countMassInRange(Level level, BlockPos pos, int range) {
@@ -193,9 +194,9 @@ public class VoidEnergyCollectorBlockEntity extends BlockEntity implements IPowe
         if (this.level == null || this.level.isClientSide()) return;
         RandomSource random = this.level.getRandom();
         ArrayList<BlockPos> list = new ArrayList<>();
-        for (int i = -2; i <= 2; i++) {
-            for (int j = -2; j <= 2; j++) {
-                for (int k = -2; k <= 2; k++) {
+        for (int i = -RANGE; i <= RANGE; i++) {
+            for (int j = -RANGE; j <= RANGE; j++) {
+                for (int k = -RANGE; k <= RANGE; k++) {
                     BlockPos thisPos = this.getBlockPos();
                     BlockPos bp = new BlockPos(
                         thisPos.getX() + i,
@@ -217,12 +218,12 @@ public class VoidEnergyCollectorBlockEntity extends BlockEntity implements IPowe
 
     @Override
     public int getRange() {
-        return 2;
+        return RANGE;
     }
 
     @Override
     public AABB shape() {
-        return AABB.ofSize(this.getBlockPos().getCenter(), 5, 5, 5);
+        return AABB.ofSize(this.getBlockPos().getCenter(), RANGE * 2 + 1, RANGE * 2 + 1, RANGE * 2 + 1);
     }
 
     public void clientTick() {
