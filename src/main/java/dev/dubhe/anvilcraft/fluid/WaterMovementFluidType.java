@@ -12,7 +12,9 @@ public class WaterMovementFluidType extends FluidType {
 
     @Override
     public boolean move(LivingEntity entity, Vec3 movementVector, double gravity) {
-        ((LivingEntityAccessor) entity).anvilcraft$travelInWater(movementVector, gravity, entity.getDeltaMovement().y <= 0.0, entity.getY());
+        ((LivingEntityAccessor) entity).anvilcraft$travelInWater(
+            movementVector, gravity, entity.getDeltaMovement().y <= 0.0, entity.getY()
+        );
         return true;
     }
 }
