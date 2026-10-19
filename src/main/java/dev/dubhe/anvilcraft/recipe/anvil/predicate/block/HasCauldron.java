@@ -43,6 +43,7 @@ import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.fluids.CauldronFluidContent;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.FluidStackTemplate;
 import net.neoforged.neoforge.transfer.ResourceHandler;
@@ -428,6 +429,10 @@ public record HasCauldron(
         boolean ignited,
         @Nullable IEntityCauldron entityCauldron
     ) {
+        if (HasCauldron.usesCauldronBlock(ctx, pos, entityCauldron, fluid)) {
+            HasCauldron.setCauldronFluid(ctx, pos, fluid, mb);
+            return;
+        }
         ResourceHandler<FluidResource> handler = HasCauldron.getFluidHandler(ctx, pos, entityCauldron);
         if (handler == null) return;
         BlockCache cache = new BlockCache(ctx.getLevel());
@@ -460,6 +465,38 @@ public record HasCauldron(
         if (entityCauldron != null && entityCauldron.anvilcraft$isIgnited() != ignited) {
             entityCauldron.anvilcraft$setIgnited(ignited);
         }
+    }
+
+    private static boolean usesCauldronBlock(
+        InWorldRecipeContext ctx,
+        BlockPos pos,
+        @Nullable IEntityCauldron entityCauldron,
+        FluidStack fluid
+    ) {
+        if (entityCauldron != null) return false;
+        if (!fluid.isComponentsPatchEmpty()) return false;
+        CauldronFluidContent content = CauldronFluidContent.getForFluid(fluid.getFluid());
+        if (content == null) return false;
+        if (content.levelProperty == null) return false;
+        if (content.maxLevel != CauldronUtil.maxLevel(content.block)) return false;
+        BlockCache cache = ctx.computeIfAbsent(BlockCache.BLOCK_CACHE);
+        if (cache.getBlockEntity(pos) != null) return false;
+        BlockState state = cache.getBlockState(pos);
+        if (!state.is(BlockTags.CAULDRONS)) return false;
+        if (state.is(Blocks.CAULDRON)) return true;
+        return !(state.getBlock() instanceof IIgnitableCauldron);
+    }
+
+    private static void setCauldronFluid(InWorldRecipeContext ctx, BlockPos pos, FluidStack fluid, double mb) {
+        CauldronFluidContent content = CauldronFluidContent.getForFluid(fluid.getFluid());
+        if (content == null) return;
+        Block cauldron = content.block;
+        int maxLevel = CauldronUtil.maxLevel(cauldron);
+        int totalAmount = Math.max(1, content.totalAmount);
+        int level = maxLevel > 1 ? (int) Math.round(mb / totalAmount * maxLevel) : 1;
+        BlockState state = CauldronUtil.getStateFromContentAndLevel(cauldron, level);
+        BlockCache cache = ctx.computeIfAbsent(BlockCache.BLOCK_CACHE);
+        cache.setBlock(pos, state);
     }
 
     private static @Nullable ResourceHandler<FluidResource> getFluidHandler(
