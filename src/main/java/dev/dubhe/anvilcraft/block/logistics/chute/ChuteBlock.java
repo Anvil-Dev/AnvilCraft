@@ -158,12 +158,11 @@ public class ChuteBlock extends BetterBaseEntityBlock implements HammerRotateBeh
             case SimpleMagneticChuteBlockEntity chute -> chute.getCooldown();
             case null, default -> Integer.MAX_VALUE;
         };
-        if (cooldown > 0
-            || !state.getValue(BlockStateProperties.ENABLED) && !(blockEntity instanceof OverflowChuteBlockEntity)) return;
-        Direction input = blockEntity instanceof ChuteBlockEntity || blockEntity instanceof SimpleChuteBlockEntity
-            ? Direction.UP : state.getValue(BlockStateProperties.FACING).getOpposite();
-        AABB bounds = item.getBoundingBox().move(-pos.getX(), -pos.getY(), -pos.getZ());
-        if (!bounds.intersects(ChuteBlock.getInsidePickupArea(input))) return;
+        if (cooldown > 0) return;
+        boolean inputEnabled = blockEntity instanceof OverflowChuteBlockEntity
+            || blockEntity instanceof SimpleChuteBlockEntity || blockEntity instanceof SimpleMagneticChuteBlockEntity
+            || state.getValue(BlockStateProperties.ENABLED);
+        if (!inputEnabled || !item.getBoundingBox().intersects(new AABB(pos))) return;
         ItemStack stack = item.getItem();
         int offered = Math.min(64, stack.getCount());
         ItemStack remaining = ItemHandlerUtil.insertItem(
@@ -180,17 +179,6 @@ public class ChuteBlock extends BetterBaseEntityBlock implements HammerRotateBeh
             default -> throw new IllegalStateException("Unknown chute block entity");
         }
         level.updateNeighbourForOutputSignal(pos, state.getBlock());
-    }
-
-    private static AABB getInsidePickupArea(Direction input) {
-        return switch (input) {
-            case UP -> new AABB(0, 11.0 / 16, 0, 1, 1, 1);
-            case DOWN -> new AABB(0, 0, 0, 1, 5.0 / 16, 1);
-            case NORTH -> new AABB(0, 0, 0, 1, 1, 5.0 / 16);
-            case SOUTH -> new AABB(0, 0, 11.0 / 16, 1, 1, 1);
-            case WEST -> new AABB(0, 0, 0, 5.0 / 16, 1, 1);
-            case EAST -> new AABB(11.0 / 16, 0, 0, 1, 1, 1);
-        };
     }
 
     @Override

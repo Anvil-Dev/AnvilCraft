@@ -440,10 +440,15 @@ abstract class ItemEntityMixin extends Entity implements IItemEntityExtension {
     @Inject(method = "tick", at = @At("TAIL"))
     private void anvilcraft$pickupInsideChute(CallbackInfo ci) {
         if (this.isRemoved() || this.level().isClientSide()) return;
-        BlockPos.betweenClosedStream(this.getBoundingBox()).forEach(pos -> {
+        AABB bounds = this.getBoundingBox();
+        for (BlockPos pos : BlockPos.betweenClosed(
+            Mth.floor(bounds.minX), Mth.floor(bounds.minY), Mth.floor(bounds.minZ),
+            Mth.floor(bounds.maxX), Mth.floor(bounds.maxY), Mth.floor(bounds.maxZ)
+        )) {
             BlockState state = this.level().getBlockState(pos);
             if (ChuteBlock.isChuteBlock(state)) ChuteBlock.pickupItem(state, this.level(), pos, this);
-        });
+            if (this.isRemoved()) return;
+        }
     }
 
     @Override
