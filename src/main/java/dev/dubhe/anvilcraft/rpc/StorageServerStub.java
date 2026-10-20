@@ -55,6 +55,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.SimpleContainer;
@@ -1764,7 +1765,8 @@ public final class StorageServerStub {
         /** 储量不足一桶。 */
         NOT_ENOUGH("screen.anvilcraft.storage.fluid.not_enough"),
         BOTTLE_MISSING("screen.anvilcraft.storage.fluid.bottle_missing"),
-        BOTTLE_NOT_ENOUGH("screen.anvilcraft.storage.fluid.bottle_not_enough");
+        BOTTLE_NOT_ENOUGH("screen.anvilcraft.storage.fluid.bottle_not_enough"),
+        NOT_BOTTLEABLE("screen.anvilcraft.storage.fluid.not_bottleable");
 
         public static final StreamCodec<ByteBuf, FluidNotice> STREAM_CODEC =
             StreamCodecUtil.enumStreamCodec(FluidNotice.class);
@@ -1963,7 +1965,7 @@ public final class StorageServerStub {
         if (filled.stack().isEmpty()) {
             return FluidOutcome.failed(filled.notice());
         }
-        StorageServerStub.playBucketSound(player, filled.fluid(), SoundActions.BUCKET_FILL);
+        StorageServerStub.playBucketSound(player, filled.fluid(), SoundActions.BUCKET_FILL, filled.bottle());
         // 取出的一桶流体落在鼠标指针上，与点击物品格取物一致；
         // 指针被其它物品占用（例如还剩几个空桶）时才退回背包
         if (player.inventoryMenu.getCarried().isEmpty()) {
@@ -1981,13 +1983,15 @@ public final class StorageServerStub {
         ItemStack filledBucket = entry == null ? ItemStack.EMPTY
             : entry.icon().getFluidType().getBucket(entry.icon().copyWithAmount(FluidType.BUCKET_VOLUME));
         if (entry != null && (bottle || filledBucket.isEmpty())) {
-            filledBucket = FluidHandlerWrapper.determineFilledContainer(entry.icon(), Items.GLASS_BOTTLE.getDefaultInstance());
+            filledBucket = FluidHandlerWrapper.determineFilledContainer(
+                entry.icon().copyWithAmount(FluidType.BUCKET_VOLUME / 4), Items.GLASS_BOTTLE.getDefaultInstance());
         }
         if (filledBucket.isEmpty()) return StorageServerStub.takeFluidBucketIntoInventory(player, view, fluid);
         int limit = Math.min(StorageServerStub.SPACE_TAKE_STACKS,
             StorageServerStub.getInventorySpace(player.getInventory(), filledBucket));
         FluidNotice notice = FluidNotice.NONE;
         FluidStack taken = FluidStack.EMPTY;
+        boolean filledBottle = false;
         boolean changed = false;
         for (int bucket = 0; bucket < limit; bucket++) {
             FilledBucket filled = StorageServerStub.fillBucketFromStorage(player, view, fluid, true, player.inventoryMenu, bottle);
@@ -1997,9 +2001,10 @@ public final class StorageServerStub {
             }
             StorageServerStub.giveBucket(player, view, filled.stack());
             taken = filled.fluid();
+            filledBottle = filled.bottle();
             changed = true;
         }
-        if (changed) StorageServerStub.playBucketSound(player, taken, SoundActions.BUCKET_FILL);
+        if (changed) StorageServerStub.playBucketSound(player, taken, SoundActions.BUCKET_FILL, filledBottle);
         return changed ? FluidOutcome.CHANGED : FluidOutcome.failed(notice);
     }
 
@@ -2018,13 +2023,13 @@ public final class StorageServerStub {
         if (filled.stack().isEmpty()) {
             return FluidOutcome.failed(filled.notice());
         }
-        StorageServerStub.playBucketSound(player, filled.fluid(), SoundActions.BUCKET_FILL);
+        StorageServerStub.playBucketSound(player, filled.fluid(), SoundActions.BUCKET_FILL, filled.bottle());
         StorageServerStub.giveBucket(player, view, filled.stack());
         return FluidOutcome.CHANGED;
     }
 
-    private static void playBucketSound(ServerPlayer player, FluidStack fluid, SoundAction action) {
-        SoundEvent sound = fluid.getFluidType().getSound(fluid, action);
+    private static void playBucketSound(ServerPlayer player, FluidStack fluid, SoundAction action, boolean bottle) {
+        SoundEvent sound = bottle ? SoundEvents.BOTTLE_FILL : fluid.getFluidType().getSound(fluid, action);
         if (sound == null) {
             return;
         }
@@ -2087,9 +2092,9 @@ public final class StorageServerStub {
         }
     }
 
-    private record FilledBucket(ItemStack stack, FluidStack fluid, FluidNotice notice) {
+    private record FilledBucket(ItemStack stack, FluidStack fluid, boolean bottle, FluidNotice notice) {
         private static FilledBucket failed(FluidNotice notice) {
-            return new FilledBucket(ItemStack.EMPTY, FluidStack.EMPTY, notice);
+            return new FilledBucket(ItemStack.EMPTY, FluidStack.EMPTY, false, notice);
         }
     }
 
@@ -2119,10 +2124,12 @@ public final class StorageServerStub {
         }
         FluidNotice notEnough = empty.is(Items.GLASS_BOTTLE) ? FluidNotice.BOTTLE_NOT_ENOUGH : FluidNotice.NOT_ENOUGH;
         if (entry == null) return FilledBucket.failed(filled.isEmpty() ? FluidNotice.NOT_ENOUGH : notEnough);
-        if (filled.isEmpty() || empty.isEmpty()) return FilledBucket.failed(FluidNotice.NONE);
         ItemStack cursor = menu.getCarried();
         if (!intoInventory && !cursor.isEmpty() && !ItemStack.isSameItemSameComponents(cursor, empty)) {
             return FilledBucket.failed(FluidNotice.NONE);
+        }
+        if (filled.isEmpty() || empty.isEmpty()) {
+            return FilledBucket.failed(empty.is(Items.GLASS_BOTTLE) ? FluidNotice.NOT_BOTTLEABLE : FluidNotice.NONE);
         }
         FluidNotice missing = empty.is(Items.GLASS_BOTTLE) ? FluidNotice.BOTTLE_MISSING : FluidNotice.BUCKET_MISSING;
         if (!StorageServerStub.hasEmptyContainer(player, view, empty, menu)) return FilledBucket.failed(missing);
@@ -2136,7 +2143,7 @@ public final class StorageServerStub {
             }
             transaction.commit();
         }
-        return new FilledBucket(filled, target, FluidNotice.NONE);
+        return new FilledBucket(filled, target, empty.is(Items.GLASS_BOTTLE), FluidNotice.NONE);
     }
 
     private static ItemStack emptyContainerOf(ItemStack filled) {
@@ -2210,7 +2217,7 @@ public final class StorageServerStub {
             stack.shrink(1);
             poured++;
         }
-        if (poured > 0) StorageServerStub.playBucketSound(player, content, SoundActions.BUCKET_EMPTY);
+        if (poured > 0) StorageServerStub.playBucketSound(player, content, SoundActions.BUCKET_EMPTY, false);
         return poured;
     }
 

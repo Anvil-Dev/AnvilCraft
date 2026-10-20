@@ -19,6 +19,7 @@ public class CategoryLang {
         provider.add("screen.anvilcraft.storage.fluid.not_enough", "Not enough fluid for a bucket");
         provider.add("screen.anvilcraft.storage.fluid.bottle_missing", "Need an empty glass bottle");
         provider.add("screen.anvilcraft.storage.fluid.bottle_not_enough", "Not enough fluid for a bottle");
+        provider.add("screen.anvilcraft.storage.fluid.not_bottleable", "This fluid cannot fill a glass bottle");
         provider.add("category.anvilcraft.block", "Block Items");
         provider.add("category.anvilcraft.fluid", "Fluids");
         provider.add("category.anvilcraft.unstackable", "Unstackable Items");
