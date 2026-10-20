@@ -20,6 +20,11 @@ public sealed interface CelestialBodyData permits RockyPlanetData, GiantPlanetDa
         return this.size() >= 48 && !(this instanceof StarData star && star.specialRedDwarf());
     }
 
+    /** 由褐矮星转化而来的红矮星不需要增幅器；其余恒星需要。 */
+    default boolean requiresAmplifier() {
+        return this instanceof StarData star && !star.specialRedDwarf();
+    }
+
     float axialTilt();
 
     /// 自转速度等级（0-5）。

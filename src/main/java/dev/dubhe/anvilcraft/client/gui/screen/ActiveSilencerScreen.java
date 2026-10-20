@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.client.gui.screen;
 
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.client.gui.component.SilencerButton;
 import dev.dubhe.anvilcraft.constant.Constant;
 import dev.dubhe.anvilcraft.constant.SharedTextures;
@@ -10,24 +11,36 @@ import it.unimi.dsi.fastutil.Pair;
 import lombok.Getter;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.sounds.SoundManager;
 import net.minecraft.client.sounds.WeighedSoundEvents;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.phys.Vec3;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.bus.api.EventPriority;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.event.PlayLevelSoundEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 @SuppressWarnings("DuplicatedCode")
+@EventBusSubscriber(modid = AnvilCraft.MOD_ID, value = Dist.CLIENT)
 public class ActiveSilencerScreen extends AbstractContainerScreen<ActiveSilencerMenu> {
     private static final ResourceLocation BACKGROUND = SharedTextures.bg("machine", "active_silencer");
     public static final ResourceLocation SLIDER = SharedTextures.SMALL_SLIDER;
@@ -53,17 +66,19 @@ public class ActiveSilencerScreen extends AbstractContainerScreen<ActiveSilencer
 
     private boolean isDraggingLeft;
     private boolean isDraggingRight;
+    private final Map<ResourceLocation, Integer> soundCounts = new HashMap<>();
     private final List<Pair<ResourceLocation, Component>> allSounds = new ArrayList<>();
     private final List<Pair<ResourceLocation, Component>> filteredSounds = new ArrayList<>();
     private final List<Pair<ResourceLocation, Component>> mutedSounds = new ArrayList<>();
+    private Comparator<Pair<ResourceLocation, Component>> soundOrder = Comparator.comparing(sound -> sound.left().toString());
 
     private void onSearchTextChange(String text) {
         this.leftScrollOff = 0;
         this.filteredSounds.clear();
+        Set<ResourceLocation> mutedIds = this.mutedSounds.stream().map(Pair::left).collect(Collectors.toSet());
         if (text == null || text.isEmpty()) {
             this.filterText = "";
-            this.filteredSounds.addAll(this.allSounds);
-            this.filteredSounds.removeAll(this.mutedSounds);
+            this.allSounds.stream().filter(sound -> !mutedIds.contains(sound.left())).forEach(this.filteredSounds::add);
             return;
         } else {
             this.filterText = text;
@@ -73,8 +88,7 @@ public class ActiveSilencerScreen extends AbstractContainerScreen<ActiveSilencer
             String search = text.replaceFirst("#", "");
             this.allSounds.stream()
                 .filter(it -> it.left().toString().contains(search))
-                .filter(it ->
-                    this.mutedSounds.stream().noneMatch(it1 -> it1.left().equals(it.first())))
+                .filter(it -> !mutedIds.contains(it.left()))
                 .forEach(this.filteredSounds::add);
         } else {
             if (text.startsWith("~")) {
@@ -82,8 +96,7 @@ public class ActiveSilencerScreen extends AbstractContainerScreen<ActiveSilencer
                     Pattern search = Pattern.compile(text.replaceFirst("~", ""));
                     this.allSounds.stream()
                         .filter(it -> search.matcher(it.left().toString()).matches())
-                        .filter(it -> this.mutedSounds.stream()
-                            .noneMatch(it1 -> it1.left().equals(it.first())))
+                        .filter(it -> !mutedIds.contains(it.left()))
                         .forEach(this.filteredSounds::add);
                 } catch (Exception ignored) {
                     // intentionally empty
@@ -91,8 +104,7 @@ public class ActiveSilencerScreen extends AbstractContainerScreen<ActiveSilencer
             }
             this.allSounds.stream()
                 .filter(it -> it.right().getString().contains(this.filterText))
-                .filter(it ->
-                    this.mutedSounds.stream().noneMatch(it1 -> it1.left().equals(it.first())))
+                .filter(it -> !mutedIds.contains(it.left()))
                 .forEach(this.filteredSounds::add);
         }
     }
@@ -105,6 +117,57 @@ public class ActiveSilencerScreen extends AbstractContainerScreen<ActiveSilencer
         } else {
             return super.keyPressed(keyCode, scanCode, modifiers);
         }
+    }
+
+    @SubscribeEvent(priority = EventPriority.LOWEST, receiveCanceled = true)
+    public static void recordCanceledSound(PlayLevelSoundEvent event) {
+        if (!event.isCanceled() || event.getSound() == null) return;
+        Minecraft minecraft = Minecraft.getInstance();
+        if (!(minecraft.screen instanceof ActiveSilencerScreen screen)) return;
+        if (minecraft.level == null || !minecraft.level.dimension().equals(event.getLevel().dimension())) return;
+        Vec3 pos;
+        if (event instanceof PlayLevelSoundEvent.AtEntity atEntity) {
+            pos = atEntity.getEntity().position();
+        } else if (event instanceof PlayLevelSoundEvent.AtPosition atPosition) {
+            pos = atPosition.getPosition();
+        } else {
+            return;
+        }
+        ResourceLocation sound = event.getSound().value().getLocation();
+        minecraft.execute(() -> {
+            if (minecraft.screen == screen) screen.recordSound(sound, pos);
+        });
+    }
+
+    public void recordSound(ResourceLocation sound, Vec3 pos) {
+        Minecraft minecraft = Minecraft.getInstance();
+        if (!minecraft.isSameThread()) {
+            minecraft.execute(() -> this.recordSound(sound, pos));
+            return;
+        }
+        if (minecraft.screen != this) return;
+        var blockEntity = this.menu.getBlockEntity();
+        if (blockEntity != null && blockEntity.shape().contains(pos)) {
+            this.soundCounts.merge(sound, 1, Integer::sum);
+        }
+    }
+
+    private void refreshSoundOrder() {
+        Map<ResourceLocation, Integer> counts = Map.copyOf(this.soundCounts);
+        this.soundOrder = Comparator
+            .<Pair<ResourceLocation, Component>>comparingInt(sound -> counts.getOrDefault(sound.left(), 0))
+            .reversed()
+            .thenComparing(sound -> sound.left().toString());
+        this.allSounds.sort(this.soundOrder);
+        this.mutedSounds.sort(this.soundOrder);
+        this.rightScrollOff = 0;
+        this.refreshSoundList();
+    }
+
+    private Component getSoundName(ResourceLocation sound) {
+        WeighedSoundEvents event = Minecraft.getInstance().getSoundManager().getSoundEvent(sound);
+        Component subtitle = event == null ? null : event.getSubtitle();
+        return subtitle == null ? Component.literal(sound.toString()) : subtitle;
     }
 
     private void refreshSoundList() {
@@ -133,10 +196,8 @@ public class ActiveSilencerScreen extends AbstractContainerScreen<ActiveSilencer
 
     void addMutedSound(ResourceLocation sound) {
         this.menu.addSound(sound);
-        SoundManager manager = Minecraft.getInstance().getSoundManager();
-        WeighedSoundEvents event = manager.getSoundEvent(sound);
-        if (event == null) return;
-        this.mutedSounds.add(Pair.of(sound, event.getSubtitle() == null ? Component.empty() : event.getSubtitle()));
+        this.mutedSounds.add(Pair.of(sound, this.getSoundName(sound)));
+        this.mutedSounds.sort(this.soundOrder);
     }
 
     void removeMutedSound(ResourceLocation sound) {
@@ -189,6 +250,10 @@ public class ActiveSilencerScreen extends AbstractContainerScreen<ActiveSilencer
     @Override
     protected void init() {
         super.init();
+        if (this.menu.getBlockEntity() == null) {
+            this.onClose();
+            return;
+        }
         this.titleLabelX = (this.imageWidth - this.font.width(this.title)) / 2;
         this.titleLabelY = Constant.SCREEN_TITLE_Y;
         int buttonTop = topPos + 35;
@@ -227,22 +292,26 @@ public class ActiveSilencerScreen extends AbstractContainerScreen<ActiveSilencer
             buttonTop += 15;
         }
 
-        this.addRenderableWidget(new EditBox(
+        EditBox search = this.addRenderableWidget(new EditBox(
             Objects.requireNonNull(this.minecraft).font,
             leftPos + 78,
             topPos + 19,
             100,
             12,
             Component.translatable("screen.anvilcraft.active_silencer.search")
-        )).setResponder(this::onSearchTextChange);
+        ));
+        search.setValue(this.filterText);
+        search.setResponder(this::onSearchTextChange);
 
+        this.addRenderableWidget(Button.builder(
+            Component.translatable("screen.anvilcraft.active_silencer.refresh"), button -> this.refreshSoundOrder()
+        ).bounds(this.leftPos + 78, this.topPos + 170, 100, 20).build());
+
+        this.allSounds.clear();
         SoundManager manager = Minecraft.getInstance().getSoundManager();
-        BuiltInRegistries.SOUND_EVENT.stream()
-            .map(it -> Pair.of(it.getLocation(), manager.getSoundEvent(it.getLocation())))
-            .filter(it -> it.second() != null)
-            .filter(it -> it.second().getSubtitle() != null)
-            .forEach(it -> this.allSounds.add(Pair.of(it.first(), it.second().getSubtitle())));
-        this.filteredSounds.addAll(this.allSounds);
+        manager.getAvailableSounds().forEach(sound -> this.allSounds.add(Pair.of(sound, this.getSoundName(sound))));
+        this.allSounds.sort(this.soundOrder);
+        this.applyMutedSounds(List.copyOf(this.menu.getBlockEntity().getMutedSound()));
     }
 
     private boolean mouseInLeft(double mouseX, double mouseY, int leftPos, int topPos) {
@@ -379,16 +448,18 @@ public class ActiveSilencerScreen extends AbstractContainerScreen<ActiveSilencer
      * 处理静音同步包
      */
     public void handleSync(List<ResourceLocation> sounds) {
+        this.applyMutedSounds(sounds);
+        this.menu.handleSync(sounds);
+    }
+
+    private void applyMutedSounds(List<ResourceLocation> sounds) {
         this.rightScrollOff = 0;
         this.mutedSounds.clear();
-        SoundManager manager = Minecraft.getInstance().getSoundManager();
         for (ResourceLocation sound : sounds) {
-            WeighedSoundEvents events = manager.getSoundEvent(sound);
-            if (events == null || events.getSubtitle() == null) return;
-            this.mutedSounds.add(Pair.of(sound, events.getSubtitle()));
+            this.mutedSounds.add(Pair.of(sound, this.getSoundName(sound)));
         }
-        this.onSearchTextChange("");
-        this.menu.handleSync(sounds);
+        this.mutedSounds.sort(this.soundOrder);
+        this.onSearchTextChange(this.filterText);
     }
 
     @Override

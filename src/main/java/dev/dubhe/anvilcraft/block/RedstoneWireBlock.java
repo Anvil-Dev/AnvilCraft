@@ -258,7 +258,8 @@ public class RedstoneWireBlock extends Block implements IHammerRemovable {
             terminalDirection = direction.getOpposite();
         }
         int index = getLocalIndex(state.getValue(ATTACHMENT), terminalDirection);
-        if (index < 0 || !state.getValue(CONNECTION_PROPERTIES.get(index)).isConnected()) {
+        if (index < 0 || !state.getValue(CONNECTION_PROPERTIES.get(index)).isConnected()
+            || (direction == null && !hasUpwardDustConnection(level, pos, state, index))) {
             return false;
         }
         // 内部接线端只负责连通网络；仅开放端点应被外部元件视为红石接口。
@@ -523,7 +524,8 @@ public class RedstoneWireBlock extends Block implements IHammerRemovable {
         if (!attachment.getAxis().isHorizontal() || getLocalDirection(attachment, index) != Direction.UP) {
             return false;
         }
-        return level.getBlockState(pos.relative(attachment).above()).is(Blocks.REDSTONE_WIRE);
+        return !isCornerBlocked(level, pos, Direction.UP)
+            && level.getBlockState(pos.relative(attachment).above()).is(Blocks.REDSTONE_WIRE);
     }
 
     /** 原版红石粉只有与导线处于同一附着面，或位于墙面向上拐角时才算真实接入。 */

@@ -705,7 +705,7 @@ public class ItemTooltipManager {
         ItemTooltipManager.NORMAL.put(ModBlocks.HONEY_CAKE_BLOCK.asItem(), "A block of honey cake, use a shovel as a spoon to eat it");
         ItemTooltipManager.NORMAL.put(ModBlocks.MATCHA_CAKE_BLOCK.asItem(), "A block of matcha cake, use a shovel as a spoon to eat it");
         ItemTooltipManager.NORMAL.put(ModBlocks.COOKIE_BLOCK.asItem(), "A placeable giant cookie!");
-        ItemTooltipManager.NORMAL.put(ModBlocks.COOKIE_PILLAR.asItem(), " A hollow cookie block!");
+        ItemTooltipManager.NORMAL.put(ModBlocks.COOKIE_PILLAR.asItem(), "A hollow cookie block!");
         ItemTooltipManager.NORMAL.put(
             ModBlocks.CONTROL_VALVE.asItem(),
             "Controls the type and flow rate of passing fluids and can be locked by redstone"
@@ -828,7 +828,8 @@ public class ItemTooltipManager {
         ItemTooltipManager.NORMAL.put(
             ModBlocks.INFINITE_COLLECTOR.asItem(), """
                                                    Generates power by collecting both heat and charge, no upper power limit
-                                                   Provide a baseline output of 256 kW"""
+                                                   Provides 256 kW base power, boosted by negative void mass
+                                                   Mass thresholds -11/-21/-41 in a 7x7x7 area yield 768/2048/5120 kW"""
         );
         ItemTooltipManager.NORMAL.put(
             ModBlocks.LOAD_MONITOR.asItem(),
@@ -1209,6 +1210,7 @@ public class ItemTooltipManager {
             ModBlocks.ITEM_SPLITTER.asItem(), """
                                               Holds 16 slots, but accepts only one item type at a time
                                               Every 8 game ticks, evenly splits its contents among the containers lined up in front
+                                              Can face up or down; anvil strikes have no effect when facing up
                                               With no container in front, let a falling anvil strike it: the fall height decides how many shares are made, thrown past obstacles up to 16 blocks ahead
                                               Always divides strictly, the remainder stays inside"""
         );

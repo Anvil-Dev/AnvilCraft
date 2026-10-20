@@ -82,14 +82,14 @@ public class Ingredients extends DisplayItemsGenerator {
         this.plain(ModItems.HEAVY_HALBERD_CORE);
         this.plain(ModItems.RESONATOR_CORE);
         this.plain(ModItems.MULTIPHASE_TRANSCENDIUM);
+        this.plain(ModItems.CIVILIZATION_CATALYST);
         this.plain(ModItems.DYSON_SPHERE_COMPONENT);
+        this.plain(ModItems.STELLAR_RING_COMPONENT);
+        this.plain(ModItems.STELLAR_EVOLUTION_ACCELERATOR_COMPONENT);
+        this.plain(ModItems.MAGNETAR_COIL_COMPONENT);
         this.plain(ModItems.PENROSE_SPHERE_COMPONENT);
         this.plain(ModItems.MATTER_DECOMPRESSOR_COMPONENT);
         this.plain(ModItems.WORMHOLE_STABILIZER_COMPONENT);
-        this.plain(ModItems.STELLAR_RING_COMPONENT);
-        this.plain(ModItems.MAGNETAR_COIL_COMPONENT);
-        this.plain(ModItems.STELLAR_EVOLUTION_ACCELERATOR_COMPONENT);
-        this.plain(ModItems.CIVILIZATION_CATALYST);
 
         // Void matter and neutronium.
         this.plain(ModItems.VOID_MATTER);

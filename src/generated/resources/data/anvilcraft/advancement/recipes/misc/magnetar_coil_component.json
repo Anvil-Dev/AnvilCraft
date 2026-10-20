@@ -41,8 +41,8 @@
   "requirements": [
     [
       "has_the_recipe",
-      "has_copper_block",
       "has_transcendium_ingot",
+      "has_copper_block",
       "has_infinite_collector"
     ]
   ],

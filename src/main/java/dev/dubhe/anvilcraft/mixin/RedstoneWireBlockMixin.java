@@ -1,14 +1,20 @@
 package dev.dubhe.anvilcraft.mixin;
 
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import com.llamalad7.mixinextras.sugar.Local;
 import dev.dubhe.anvilcraft.api.injection.tooltip.ITooltipProviderExtension;
 import dev.dubhe.anvilcraft.block.RedstoneWireBlock;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.RedStoneWireBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
+import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -32,6 +38,23 @@ public abstract class RedstoneWireBlockMixin implements ITooltipProviderExtensio
         lines.add(Component.translatable("tooltip.anvilcraft.redstone.title").withStyle(ChatFormatting.BLUE));
         lines.add(Component.translatable("tooltip.anvilcraft.redstone.power", state.getValue(POWER)).withStyle(ChatFormatting.GRAY));
         return lines;
+    }
+
+    @WrapOperation(
+        method = "getConnectingSide(Lnet/minecraft/world/level/BlockGetter;Lnet/minecraft/core/BlockPos;"
+            + "Lnet/minecraft/core/Direction;Z)Lnet/minecraft/world/level/block/state/properties/RedstoneSide;",
+        at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/block/state/BlockState;canRedstoneConnectTo("
+            + "Lnet/minecraft/world/level/BlockGetter;Lnet/minecraft/core/BlockPos;Lnet/minecraft/core/Direction;)Z")
+    )
+    private boolean anvilcraft$checkDiagonalWireConnection(
+        BlockState state, BlockGetter level, BlockPos wirePos, @Nullable Direction direction,
+        Operation<Boolean> original, @Local(argsOnly = true) BlockPos dustPos
+    ) {
+        if (direction == null && state.getBlock() instanceof RedstoneWireBlock
+            && !wirePos.relative(state.getValue(RedstoneWireBlock.ATTACHMENT)).above().equals(dustPos)) {
+            return false;
+        }
+        return original.call(state, level, wirePos, direction);
     }
 
     @Inject(method = "updatePowerStrength", at = @At("HEAD"), cancellable = true)

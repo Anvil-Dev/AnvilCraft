@@ -1957,15 +1957,9 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
                 // 仅点击界面矩形之外才丢出指针物品；界面内空白处不丢出。
                 // 界面矩形是整屏范围，不随翻转换位，故直接用 BG_WIDTH 而非 sx()：
                 // fx(BG_WIDTH) 在翻转时会得到 194，令右侧 106px 被误判为界面外。
-                boolean insideGui = MathUtil.isInRange(
-                    mouseX,
-                    mouseY,
-                    this.leftPos,
-                    this.topPos,
-                    this.leftPos + StorageScreen.BG_WIDTH,
-                    this.topPos + StorageScreen.BG_HEIGHT
-                );
-                if (!insideGui && this.minecraft.gameMode != null && !this.carried.isEmpty()) {
+                boolean insideGui = mouseX >= this.leftPos && mouseX < this.leftPos + StorageScreen.BG_WIDTH
+                    && mouseY >= this.topPos && mouseY < this.topPos + StorageScreen.BG_HEIGHT;
+                if (!insideGui && !this.interactionPending && this.minecraft.gameMode != null && !this.carried.isEmpty()) {
                     this.player.inventoryMenu.setCarried(this.carried);
                     this.minecraft.gameMode.handleInventoryMouseClick(
                         this.player.inventoryMenu.containerId,
@@ -4095,7 +4089,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
      * <p>数量按 {@link FluidAmountUtil} 规则显示：不足 1 B 用 mB，达到 1 B 用 B，
      * 有小数时保留三位有效数字。取空后条目仍以 0 保留，与物品一致。</p>
      */
-    private static void renderFluidIcon(
+    public static void renderFluidIcon(
         GuiGraphics graphics,
         Font font,
         StorageServerStub.FluidEntry entry,

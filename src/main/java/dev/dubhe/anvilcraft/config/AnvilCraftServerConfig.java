@@ -376,7 +376,7 @@ public class AnvilCraftServerConfig {
         @BoundedDiscrete(min = 0, max = 4096)
         public int infiniteCollectorBasePower = 256;
 
-        @Comment("Controls the range in which the Infinite Collector collects charges (in blocks)")
+        @Comment("Controls the range in which the Infinite Collector collects heat and charges and measures void mass (in blocks)")
         @BoundedDiscrete(min = 1, max = 8)
         public int infiniteCollectorRange = 3;
 

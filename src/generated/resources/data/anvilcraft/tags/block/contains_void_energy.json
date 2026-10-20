@@ -1,6 +1,7 @@
 {
   "values": [
     "anvilcraft:void_matter_block",
-    "anvilcraft:void_energy_collector"
+    "anvilcraft:void_energy_collector",
+    "anvilcraft:infinite_collector"
   ]
 }

@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.api.heat.collector;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.entity.HeatCollectorBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.InfiniteCollectorBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.VoidEnergyCollectorBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.block.ModFluids;
@@ -158,16 +159,20 @@ public class HeatCollectorManager {
     private void collectSources(IHeatCollector collector, Map<Entry, Double2ObjectMap<IHeatCollector>> heatSources) {
         BlockPos collectorPos = collector.getCollectorPos();
         int collectorRange = collector.getCollectorRange();
-        int overlapRange = collectorRange + AnvilCraft.CONFIG.machines.infiniteCollectorRange;
+        int overlapRange = collectorRange
+            + Math.max(AnvilCraft.CONFIG.machines.infiniteCollectorRange, VoidEnergyCollectorBlockEntity.RANGE);
         Map<Entry, Double2ObjectMap<IHeatCollector>> heatSourcesCache = new HashMap<>();
         for (BlockPos pos : BlockPos.betweenClosed(
             collectorPos.above(overlapRange).east(overlapRange).south(overlapRange),
             collectorPos.below(overlapRange).west(overlapRange).north(overlapRange)
         )) {
             pos = pos.immutable();
+            if (!this.level.isLoaded(pos)) continue;
             BlockState state = this.level.getBlockState(pos);
             if (!pos.equals(collectorPos)) {
-                int otherCollectorRange = this.getCollectorRange(state);
+                int otherCollectorRange = collector instanceof InfiniteCollectorBlockEntity
+                    && state.is(ModBlocks.VOID_ENERGY_COLLECTOR.get())
+                    ? VoidEnergyCollectorBlockEntity.RANGE : this.getCollectorRange(state);
                 if (otherCollectorRange > 0 && this.isRangeOverlapping(collectorPos, pos, collectorRange, otherCollectorRange)) {
                     collector.setCollectorWorking(false);
                     return;

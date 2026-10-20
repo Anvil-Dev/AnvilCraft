@@ -50,11 +50,14 @@ public final class EquipmentAbilities {
     private static final Map<Player, MobEffectInstance> HELMET_NIGHT_VISION = new WeakHashMap<>();
     private static final Map<Player, Boolean> SUBMERGING = Collections.synchronizedMap(new WeakHashMap<>());
     /** 服务端收到的待用高跳指令（仅服务端使用）；超时未用即作废。 */
-    private static final Map<Player, PendingChargedJump> PENDING_CHARGED_JUMP = new WeakHashMap<>();
+    private static final Map<ServerPlayer, PendingChargedJump> PENDING_CHARGED_JUMP = new WeakHashMap<>();
+    private static final Map<ServerPlayer, ServerCharge> SERVER_CHARGE = new WeakHashMap<>();
     private static final int PENDING_CHARGED_JUMP_TIMEOUT = 5;
 
-    /** 客户端下达的高跳指令：跳跃初速度与其所属 tick。 */
-    private record PendingChargedJump(float power, int tick) {
+    private record PendingChargedJump(float power, float progress, int tick, boolean allowInputTick) {
+    }
+
+    private record ServerCharge(int tick, int charge, boolean charging) {
     }
 
     private EquipmentAbilities() {
@@ -151,23 +154,26 @@ public final class EquipmentAbilities {
      *
      * <p>不要求按住潜行，因此停留与衰减阶段内仍可起跳。</p>
      *
-     * <p>两侧都按本地蓄力算出初速度；此外客户端会把结果发给服务端，
-     * 服务端优先采用该值（见 {@code ChargedJumpPacket}）。</p>
-     *
      * @return 强化后的跳跃速度；无蓄力时原样返回 {@code normal}
      */
     public static float consumeChargedJump(Player player, float normal) {
         if (player.isLocalPlayer()) {
-            // 蓄力手感是每个玩家自己的客户端配置，只有物理客户端读取它
             float power = chargedJumpPower(player, normal);
             if (power > normal) PacketDistributor.sendToServer(new ChargedJumpPacket(power));
             return power;
         }
-        // 服务端不维护蓄力状态（也读不到 CLIENT 配置），只采用客户端上报的值；
-        // 该值不可信，故按服务端依 normal 复算的上限夹紧。
-        PendingChargedJump pending = PENDING_CHARGED_JUMP.remove(player);
-        if (pending == null || player.tickCount - pending.tick() > PENDING_CHARGED_JUMP_TIMEOUT) return normal;
-        float max = maxChargedJumpPower(player, normal);
+        if (!(player instanceof ServerPlayer serverPlayer)) return normal;
+        SERVER_CHARGE.remove(serverPlayer);
+        PendingChargedJump pending = PENDING_CHARGED_JUMP.remove(serverPlayer);
+        if (pending == null || !canChargeJump(player)) return normal;
+        int age = player.tickCount - pending.tick();
+        if (age < 0 || age > PENDING_CHARGED_JUMP_TIMEOUT) return normal;
+        float progress = pending.progress();
+        if (pending.allowInputTick() && player.isShiftKeyDown() && !player.getAbilities().flying && hasChargeSupport(player)) {
+            progress = Math.min(1, progress + 1F / AnvilCraft.CONFIG.equipment.chargedJumpChargeTicks);
+        }
+        if (progress <= 0) return normal;
+        float max = chargedJumpPower(player, normal, progress);
         if (!Float.isFinite(max) || max <= 0) return normal;
         return Math.min(pending.power(), max);
     }
@@ -178,6 +184,10 @@ public final class EquipmentAbilities {
     private static float chargedJumpPower(Player player, float normal) {
         float progress = canChargeJump(player) ? chargeProgress(player) : 0;
         clearCharge(player);
+        return chargedJumpPower(player, normal, progress);
+    }
+
+    private static float chargedJumpPower(Player player, float normal, float progress) {
         if (progress <= 0) return normal;
         double gravity = Math.max(0.001, player.getAttributeValue(Attributes.GRAVITY));
         double drag = AtmosphereManager.drag(player, 0.9800000190734863);
@@ -199,36 +209,17 @@ public final class EquipmentAbilities {
      * <p>客户端在 {@code aiStep} 内先发本包、后发移动包，服务端也按此顺序处理：
      * 移动包触发 {@code jumpFromGround} 时指令已在。这里不直接改
      * {@code deltaMovement}，否则会在服务端自己的跳跃位移上再叠加一次。</p>
-     *
-     * <p>本包的值最终会经 {@code getJumpPower()} 写进服务端实体的 {@code deltaMovement.y}，
-     * 故不可信：只做有限性 / 正值检查，真正的上限夹紧在
-     * {@link #consumeChargedJump} 中按原版跳跃力复算，避免客户端伪造跳跃高度。</p>
      */
     public static void applyChargedJump(Player player, float jumpPower) {
-        if (!canChargeJump(player)) return;
+        if (!(player instanceof ServerPlayer serverPlayer) || !canChargeJump(player)) return;
         if (!Float.isFinite(jumpPower) || jumpPower <= 0) return;
-        PENDING_CHARGED_JUMP.put(player, new PendingChargedJump(jumpPower, player.tickCount));
-    }
-
-    /**
-     * 按原版跳跃力 {@code normal} 复算单次跳跃允许的最大初速度（满蓄力）。
-     *
-     * <p>与 {@link #chargedJumpPower} 同一套求解，但进度固定为 1，
-     * 且只依赖服务端已知的 {@code normal} 与配置，属于可信计算。</p>
-     */
-    private static float maxChargedJumpPower(Player player, float normal) {
-        double gravity = Math.max(0.001, player.getAttributeValue(Attributes.GRAVITY));
-        double drag = AtmosphereManager.drag(player, 0.9800000190734863);
-        double multiplier = AnvilCraft.CONFIG.equipment.chargedJumpMaxHeightMultiplier;
-        double target = jumpHeight(normal, gravity, drag) * multiplier;
-        double low = normal;
-        double high = normal * multiplier + gravity;
-        for (int iteration = 0; iteration < 32; iteration++) {
-            double middle = (low + high) / 2;
-            if (jumpHeight(middle, gravity, drag) < target) low = middle;
-            else high = middle;
-        }
-        return (float) high;
+        ServerCharge charge = SERVER_CHARGE.remove(serverPlayer);
+        float progress = charge == null ? 0 : serverChargeLimit(charge, player.tickCount)
+            / (float) AnvilCraft.CONFIG.equipment.chargedJumpChargeTicks;
+        PendingChargedJump pending = PENDING_CHARGED_JUMP.get(serverPlayer);
+        int age = pending == null ? PENDING_CHARGED_JUMP_TIMEOUT + 1 : player.tickCount - pending.tick();
+        int tick = pending != null && age >= 0 && age <= PENDING_CHARGED_JUMP_TIMEOUT ? pending.tick() : player.tickCount;
+        PENDING_CHARGED_JUMP.put(serverPlayer, new PendingChargedJump(jumpPower, progress, tick, charge == null || !charge.charging()));
     }
 
     private static void clearCharge(Player player) {
@@ -236,6 +227,53 @@ public final class EquipmentAbilities {
         CHARGE_START.remove(player);
         CHARGE_RELEASE_TICK.remove(player);
         CHARGE_RELEASE_START.remove(player);
+    }
+
+    private static int serverChargeTicks(ServerCharge charge, int now) {
+        int elapsed = now - charge.tick();
+        if (elapsed < 0) return 0;
+        int maximum = AnvilCraft.CONFIG.equipment.chargedJumpChargeTicks;
+        if (charge.charging()) return Math.min(maximum, charge.charge());
+        int decayElapsed = elapsed - AnvilCraft.CONFIG.equipment.chargedJumpChargeHoldTicks;
+        if (decayElapsed <= 0) return Math.min(maximum, charge.charge());
+        int decay = AnvilCraft.CONFIG.equipment.chargedJumpChargeDecayTicks;
+        return Math.clamp(Math.round(charge.charge() * (decay - decayElapsed) / (float) decay), 0, maximum);
+    }
+
+    private static int serverChargeLimit(ServerCharge charge, int now) {
+        int elapsed = now - charge.tick();
+        if (elapsed < 0) return 0;
+        int maximum = AnvilCraft.CONFIG.equipment.chargedJumpChargeTicks;
+        int limit = Math.min(maximum, charge.charge() + 1);
+        if (charge.charging()) return limit;
+        int decayElapsed = Math.max(0, elapsed - 1) - AnvilCraft.CONFIG.equipment.chargedJumpChargeHoldTicks;
+        if (decayElapsed <= 0) return limit;
+        int decay = AnvilCraft.CONFIG.equipment.chargedJumpChargeDecayTicks;
+        return Math.clamp(Math.round(limit * (decay - decayElapsed) / (float) decay), 0, maximum);
+    }
+
+    private static void tickServerCharge(ServerPlayer player) {
+        if (!canChargeJump(player)) {
+            SERVER_CHARGE.remove(player);
+            PENDING_CHARGED_JUMP.remove(player);
+            return;
+        }
+        int now = player.tickCount;
+        ServerCharge charge = SERVER_CHARGE.get(player);
+        if (charge != null && now - charge.tick() < 0) charge = null;
+        boolean charging = player.isShiftKeyDown() && !player.getAbilities().flying && hasChargeSupport(player);
+        if (charging) {
+            int actual = charge == null ? 1 : charge.charging()
+                ? charge.charge() + now - charge.tick() : serverChargeTicks(charge, now - 1) + 1;
+            SERVER_CHARGE.put(player, new ServerCharge(now, Math.min(AnvilCraft.CONFIG.equipment.chargedJumpChargeTicks, actual), true));
+            return;
+        }
+        if (charge == null) return;
+        if (charge.charging()) {
+            charge = new ServerCharge(now, charge.charge(), false);
+            SERVER_CHARGE.put(player, charge);
+        }
+        if (serverChargeLimit(charge, now) <= 0) SERVER_CHARGE.remove(player);
     }
 
     /**
@@ -340,9 +378,11 @@ public final class EquipmentAbilities {
     @SubscribeEvent
     public static void beforeTick(PlayerTickEvent.Pre event) {
         Player player = event.getEntity();
-        // 蓄力手感来自本机潜行输入与客户端配置，只能在物理客户端推进：
-        // 专用服务器不加载 CLIENT 配置，服务端也不应维护这份共享状态
-        if (player.isLocalPlayer()) tickCharge(player, canChargeJump(player));
+        if (player.isLocalPlayer()) {
+            tickCharge(player, canChargeJump(player));
+        } else if (player instanceof ServerPlayer serverPlayer) {
+            tickServerCharge(serverPlayer);
+        }
         if (player.getItemBySlot(EquipmentSlot.FEET).is(ModItems.WEATHERPROOF_SPACESUIT_BOOTS)) {
             if (player.isShiftKeyDown()) SUBMERGING.put(player, true);
             else if (!player.isInFluidType() && player.level().getFluidState(player.blockPosition().below()).isEmpty()) {

@@ -97,6 +97,7 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
     private ScannerButton importButton;
     private ScannerButton exportButton;
     private boolean folderMode;
+    private boolean exportFolderMode;
     private ScannerButton confirmButton;
     private ItemStack marker = ItemStack.EMPTY;
     private boolean autoRotate = true;
@@ -223,23 +224,24 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
         });
         this.exportInput = this.createInput(7, 42, 102, "export_file", 128);
         this.folderMode = false;
+        this.exportFolderMode = false;
         this.importButton = this.addRenderableWidget(new ScannerButton(
             this.leftPos + 115, this.topPos + 18, 16, scannerTexture("import"), 6, () -> this.folderMode,
             button -> {
                 this.updateNameInputEditable();
                 this.importDropdown = false;
                 if (this.folderMode) {
-                    BlueprintClientFiles.openDirectory();
+                    BlueprintClientFiles.uploadOrOpenDirectory(this.menu.containerId);
                 } else if (button.active) {
                     BlueprintClientFiles.requestImport(this.menu.containerId, this.importInput.getValue());
                 }
             }, Component.translatable("screen.anvilcraft.structure_scanner.import")
         ));
         this.exportButton = this.addRenderableWidget(new ScannerButton(
-            this.leftPos + 115, this.topPos + 38, 16, scannerTexture("export"), 6, () -> this.folderMode,
+            this.leftPos + 115, this.topPos + 38, 16, scannerTexture("export"), 6, () -> this.exportFolderMode,
             button -> {
                 this.updateNameInputEditable();
-                if (this.folderMode) {
+                if (this.exportFolderMode) {
                     BlueprintClientFiles.openDirectory();
                 } else if (button.active) {
                     BlueprintClientFiles.requestExport(this.menu.containerId, this.exportInput.getValue());
@@ -861,13 +863,18 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
         boolean openFolder = hasShiftDown() && BlueprintClientFiles.canOpenDirectory();
         if (this.folderMode != openFolder) {
             this.folderMode = openFolder;
-            this.importButton.setTooltip(Tooltip.create(Component.translatable(
-                "screen.anvilcraft.structure_scanner." + (openFolder ? "open_folder" : "import"))));
-            this.exportButton.setTooltip(Tooltip.create(Component.translatable(
-                "screen.anvilcraft.structure_scanner." + (openFolder ? "open_folder" : "export"))));
+            String importKey = "import";
+            if (openFolder) importKey = Minecraft.getInstance().hasSingleplayerServer() ? "open_folder" : "upload";
+            this.importButton.setTooltip(Tooltip.create(Component.translatable("screen.anvilcraft.structure_scanner." + importKey)));
         }
-        this.importButton.active = openFolder || this.importFiles.contains(this.importInput.getValue()) && !BlueprintClientFiles.isBusy();
-        this.exportButton.active = openFolder || BlueprintClientFiles.isValidExportName(this.exportInput.getValue())
+        boolean openExportFolder = hasShiftDown();
+        if (this.exportFolderMode != openExportFolder) {
+            this.exportFolderMode = openExportFolder;
+            this.exportButton.setTooltip(Tooltip.create(Component.translatable(
+                "screen.anvilcraft.structure_scanner." + (openExportFolder ? "open_folder" : "export"))));
+        }
+        this.importButton.active = (openFolder || this.importFiles.contains(this.importInput.getValue())) && !BlueprintClientFiles.isBusy();
+        this.exportButton.active = openExportFolder || BlueprintClientFiles.isValidExportName(this.exportInput.getValue())
             && (imported || this.cachedIsScanComplete || this.menu.getSlot(0).hasItem() || this.menu.getSlot(1).hasItem())
             && !BlueprintClientFiles.isBusy();
     }

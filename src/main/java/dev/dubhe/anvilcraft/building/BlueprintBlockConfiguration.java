@@ -238,7 +238,9 @@ public final class BlueprintBlockConfiguration {
             filters.add(entry);
         }
         result.put("Filters", filters);
-        source.remove("Filters");
+        ItemStack filterItem = ItemStack.parseOptional(registries, source.getCompound("FilterItem"));
+        if (!filterItem.isEmpty()) result.put("FilterItem", filterItem.copyWithCount(1).save(registries));
+        remove(source, "Filters", "FilterItem");
     }
 
     private static void enchanting(CompoundTag source, CompoundTag result, HolderLookup.Provider registries) {
@@ -279,7 +281,7 @@ public final class BlueprintBlockConfiguration {
         for (int i = 0; i < positions.length; i++) positions[i] = positions[i] == 0 ? (byte) 0 : (byte) 1;
         result.putByteArray("layerPositions", positions);
         remove(source, "layerPositions", "positionMarks", "currentPlacementIndex", "phase", "progress", "blueprintStates",
-            "loadedStructureName", "invalidStructure", "missingBlock", "currentHeldBlock");
+            "blueprintExtent", "loadedStructureName", "invalidStructure", "missingBlock", "currentHeldBlock");
     }
 
     private static ListTag checkValves(ListTag source) {
