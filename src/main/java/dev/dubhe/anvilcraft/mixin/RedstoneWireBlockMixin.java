@@ -5,12 +5,14 @@ import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
 import dev.dubhe.anvilcraft.api.injection.tooltip.ITooltipProviderExtension;
 import dev.dubhe.anvilcraft.block.RedstoneWireBlock;
+import dev.dubhe.anvilcraft.mixin.accessor.RedStoneWireBlockAccessor;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.RedStoneWireBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
@@ -31,6 +33,28 @@ public abstract class RedstoneWireBlockMixin implements ITooltipProviderExtensio
     @Shadow
     @Final
     public static IntegerProperty POWER;
+
+    @Shadow
+    private static boolean isDot(BlockState state) {
+        throw new AssertionError();
+    }
+
+    @Inject(method = "onPlace", at = @At("TAIL"))
+    private void anvilcraft$refreshPlacedDustConnections(
+        BlockState state, Level level, BlockPos pos, BlockState oldState, boolean movedByPiston, CallbackInfo callback
+    ) {
+        if (level.isClientSide() || oldState.is(state.getBlock())) return;
+        BlockState current = level.getBlockState(pos);
+        if (!current.is(state.getBlock()) || isDot(current)) return;
+        for (Direction direction : Direction.Plane.HORIZONTAL) {
+            BlockState wire = level.getBlockState(pos.relative(direction).below());
+            if (!(wire.getBlock() instanceof RedstoneWireBlock)
+                || wire.getValue(RedstoneWireBlock.ATTACHMENT) != direction.getOpposite()) continue;
+            BlockState connected = ((RedStoneWireBlockAccessor) this).anvilcraft$getConnectionState(level, current, pos);
+            if (connected != current) level.setBlock(pos, connected, Block.UPDATE_ALL);
+            return;
+        }
+    }
 
     @Override
     public List<Component> anvilcraft$getTooltip(BlockState state) {
