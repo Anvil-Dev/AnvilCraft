@@ -1002,7 +1002,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
             if (slot >= StorageScreen.FLUID_SLOT_BASE) {
                 var entry = this.getFluidSlot(slot);
                 if (entry != null) {
-                    this.extractFluidIcon(graphics, entry, x, y);
+                    StorageScreen.renderFluidIcon(graphics, this.font, entry, x, y);
                     if (hovered) {
                         graphics.setTooltipForNextFrame(this.font, List.of(entry.icon().getHoverName().getVisualOrderText(),
                             Component.translatable("screen.anvilcraft.storage.fluid_amount",
@@ -2149,14 +2149,15 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
         return filtered;
     }
 
-    private void extractFluidIcon(GuiGraphicsExtractor graphics, StorageServerStub.FluidEntry entry, int x, int y) {
-        var model = FluidRenderHelper.getModel(this.minecraft.getModelManager().getFluidStateModelSet(), entry.icon().getFluid());
+    public static void renderFluidIcon(GuiGraphicsExtractor graphics, Font font, StorageServerStub.FluidEntry entry, int x, int y) {
+        var models = Minecraft.getInstance().getModelManager().getFluidStateModelSet();
+        var model = FluidRenderHelper.getModel(models, entry.icon().getFluid());
         var tint = model.fluidTintSource();
         int color = tint == null ? -1 : tint.colorAsStack(entry.icon());
         graphics.blitSprite(RenderPipelines.GUI_TEXTURED, model.stillMaterial().sprite(), x, y, 16, 16, ARGB.opaque(color));
         Component amount = Component.literal(FluidAmountUtil.formatAmount(entry.amount()))
             .withStyle(style -> style.withFont(new FontDescription.Resource(StorageScreen.SMALL_FONT)));
-        StorageScreen.renderSlotCount(graphics, this.font, amount, entry.amount() == 0 ? 0xFFFFAA00 : -1, x, y);
+        StorageScreen.renderSlotCount(graphics, font, amount, entry.amount() == 0 ? 0xFFFFAA00 : -1, x, y);
     }
 
     private void showNotice(Component message) {
