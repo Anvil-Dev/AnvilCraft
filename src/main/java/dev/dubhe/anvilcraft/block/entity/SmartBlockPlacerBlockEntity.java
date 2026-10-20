@@ -509,7 +509,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
     private boolean isCurrentTargetAvailable(ServerLevel level) {
         if (this.target == TargetMode.BLUEPRINT) {
             BlockPlacementUtil.BlueprintLayout blueprintLayout = this.getBlueprintLayout();
-            int orderIndex = Math.floorMod(this.currentPlacementIndex, this.getBlueprintLayout().orderCount());
+            int orderIndex = Math.floorMod(this.currentPlacementIndex, blueprintLayout.orderCount());
             int storageIndex = blueprintLayout.getStorageIndexForOrder(orderIndex);
             if (this.blueprint.states()[storageIndex].isAir()) {
                 return false;
