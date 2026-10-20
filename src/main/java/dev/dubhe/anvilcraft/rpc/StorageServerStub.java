@@ -5447,6 +5447,7 @@ public final class StorageServerStub {
             return 0;
         }
         int poured = 0;
+        boolean bottle = false;
         while (poured < maxAmount && !stack.isEmpty()) {
             ItemStack single = stack.copyWithCount(1);
             // 先模拟一次，确认端口确实装得下再真正倾倒。
@@ -5458,12 +5459,13 @@ public final class StorageServerStub {
             if (!result.isSuccess()) {
                 break;
             }
+            bottle = result.getResult().is(Items.GLASS_BOTTLE);
             StorageServerStub.giveEmptiedContainerToStorage(view, player, result.getResult());
             stack.shrink(1);
             poured++;
         }
         if (poured > 0) {
-            StorageServerStub.playBucketSound(player, content, SoundActions.BUCKET_EMPTY, false);
+            StorageServerStub.playBucketSound(player, content, SoundActions.BUCKET_EMPTY, bottle);
         }
         return poured;
     }
@@ -5478,7 +5480,12 @@ public final class StorageServerStub {
      * @param action 音效动作（{@link SoundActions#BUCKET_FILL} 或 {@link SoundActions#BUCKET_EMPTY}）
      */
     private static void playBucketSound(ServerPlayer player, FluidStack fluid, SoundAction action, boolean bottle) {
-        SoundEvent sound = bottle ? SoundEvents.BOTTLE_FILL : fluid.getFluidType().getSound(fluid, action);
+        SoundEvent sound;
+        if (bottle) {
+            sound = action == SoundActions.BUCKET_EMPTY ? SoundEvents.BOTTLE_EMPTY : SoundEvents.BOTTLE_FILL;
+        } else {
+            sound = fluid.getFluidType().getSound(fluid, action);
+        }
         if (sound == null) {
             return;
         }
