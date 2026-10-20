@@ -37,11 +37,12 @@ public record ControlValveFilterItemPacket(ItemStack filterItem) implements ISen
     public void handleOnServer(Player player) {
         if (!(player instanceof ServerPlayer serverPlayer) || !(player.containerMenu instanceof ControlValveMenu menu)
             || menu.getBlockEntity() == null || !menu.stillValid(player)) return;
-        if (!this.filterItem.isEmpty() && !this.filterItem.is(ModItems.FILTER)) return;
         FilterContent content = this.filterItem.get(ModComponents.FILTER_CONTENT);
-        if (content != null && content.list().size() > ControlValveFilterItemPacket.MAX_FILTER_ITEMS) return;
-        menu.getBlockEntity().setFilterItem(this.filterItem);
-        menu.getBlockEntity().sendUpdate();
-        PacketDistributor.sendToPlayer(serverPlayer, this);
+        if ((this.filterItem.isEmpty() || this.filterItem.is(ModItems.FILTER))
+            && (content == null || content.list().size() <= ControlValveFilterItemPacket.MAX_FILTER_ITEMS)) {
+            menu.getBlockEntity().setFilterItem(this.filterItem);
+            menu.getBlockEntity().sendUpdate();
+        }
+        PacketDistributor.sendToPlayer(serverPlayer, new ControlValveFilterItemPacket(menu.getBlockEntity().getFilterItem().copy()));
     }
 }
