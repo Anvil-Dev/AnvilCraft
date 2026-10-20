@@ -27,6 +27,16 @@
       },
       "trigger": "minecraft:recipe_unlocked"
     },
+    "has_void_matter": {
+      "conditions": {
+        "items": [
+          {
+            "items": "anvilcraft:void_matter"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
     "has_void_matter_block": {
       "conditions": {
         "items": [
@@ -41,6 +51,7 @@
   "requirements": [
     [
       "has_the_recipe",
+      "has_void_matter",
       "has_void_matter_block",
       "has_charge_collector",
       "has_heavy_iron_block"
