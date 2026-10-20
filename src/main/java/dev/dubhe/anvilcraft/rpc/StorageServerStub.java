@@ -460,9 +460,8 @@ public final class StorageServerStub {
         return new InteractionResult(carried.copy(), changed, 0, notice);
     }
 
-    @RemoteCallable(validator = StorageAccessValidator.class)
+    @RemoteCallable(validator = CursorReturnValidator.class)
     public static void returnCarriedToInventory(UUID playerId, long sourcePos) {
-        StorageServerStub.getView(StorageServerStub.getAndClear(), playerId, sourcePos);
         ServerPlayer player = StorageServerStub.getServerPlayer(playerId);
         ItemStack carried = player.containerMenu.getCarried();
         if (carried.isEmpty()) {
@@ -4635,6 +4634,15 @@ public final class StorageServerStub {
                    // 2. 身上持有带该存储 ID 的存储引用物品（潜影存储站等从方块上拆下/复制的物品）
                    && (StorageServerStub.ownsBoundTerminal(player, targetId)
                        || StorageServerStub.ownsStorageRef(player, targetId));
+        }
+    }
+
+    public static final class CursorReturnValidator implements IRemoteCallableValidator {
+        @Override
+        public boolean validate(IPayloadContext context, Method method, Object[] args) {
+            return context.player() instanceof ServerPlayer player && args.length == 2
+                && args[0] instanceof UUID id && id.equals(player.getUUID()) && args[1] instanceof Long
+                && player.containerMenu == player.inventoryMenu;
         }
     }
 

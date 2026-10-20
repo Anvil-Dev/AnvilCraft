@@ -5,6 +5,7 @@ import com.mojang.blaze3d.platform.TextureUtil;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.config.AnvilCraftServerConfig.OverworldSkyMode;
 import dev.dubhe.anvilcraft.worldgen.MunSkyMath.Vector;
 import dev.dubhe.anvilcraft.worldgen.OverworldSkyState;
 import net.minecraft.client.Minecraft;
@@ -61,7 +62,7 @@ public final class OverworldSkyRenderer {
     public static boolean enabled() {
         ClientLevel level = Minecraft.getInstance().level;
         return level != null && Level.OVERWORLD.equals(level.dimension()) && shader != null
-            && AnvilCraft.CLIENT_CONFIG.graphics.overworldSkyRenderMode.isSpecial();
+            && AnvilCraft.CONFIG.overworldSkyMode == OverworldSkyMode.SPECIAL;
     }
 
     /** 保存原版天空与晨昏渐变；纹理复用，只在窗口尺寸变化时重新分配。 */
