@@ -66,6 +66,12 @@ Hold Shift and click the import/export button to open the folder
 These operations involve world storage (think of it as the cloud), <ref item="anvilcraft:structure_scanner"/> storage (think of it as your computer), and <ref item="anvilcraft:structure_disk"/> storage (think of it as a USB drive).
 </info>
 
+<info>
+
+Exported structure files are saved in `/saves/<save name>/data/anvilcraft`
+
+</info>
+
 ### Export (Upload) a Structure
 
 #### Upload the contents of the <ref item="anvilcraft:structure_scanner"/> to the World

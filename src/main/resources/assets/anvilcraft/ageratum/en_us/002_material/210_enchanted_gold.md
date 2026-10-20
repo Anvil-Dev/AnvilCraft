@@ -29,6 +29,10 @@ There are several recipes:
 - Carrying any *Enchanted Gold* item cancels all negative effects caused by *Cursed Gold* items.
 - Carrying at least one stack of *Enchanted Gold* grants the Luck effect.
 
+# Enchanting Power
+
+Provides the effect of 3 <ref item="minecraft:bookshelf"/> to the <ref item="minecraft:enchanting_table"/>
+
 # Piglin Favorite
 
 - <ref item="anvilcraft:enchanted_gold_ingot"/> can be used like a <ref item="minecraft:gold_ingot"/> for bartering with Piglins; each barter produces four sets of trade results.

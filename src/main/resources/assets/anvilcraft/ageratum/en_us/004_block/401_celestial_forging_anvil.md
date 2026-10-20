@@ -79,7 +79,7 @@ To remove a mega structure, simply unbind and rebind the planet
 </tip>
 
 <warning>
-If the <ref item="anvilcraft:celestial_forging_anvil"/> is dismantled, the planet will be kept, but the mega structure will disappear
+If the <ref item="anvilcraft:celestial_forging_anvil"/> is dismantled, the planet and mega structure can be retained
 </warning>
 
 ## Logistics Interaction
