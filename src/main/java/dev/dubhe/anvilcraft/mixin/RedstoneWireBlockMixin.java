@@ -49,7 +49,9 @@ public abstract class RedstoneWireBlockMixin implements ITooltipProviderExtensio
         BlockState current = level.getBlockState(pos);
         if (!current.is(state.getBlock())) return;
         for (Direction direction : Direction.Plane.HORIZONTAL) {
-            if (!(level.getBlockState(pos.relative(direction).below()).getBlock() instanceof RedstoneWireBlock)) continue;
+            BlockState wire = level.getBlockState(pos.relative(direction).below());
+            if (!(wire.getBlock() instanceof RedstoneWireBlock)
+                || wire.getValue(RedstoneWireBlock.ATTACHMENT) != direction.getOpposite()) continue;
             BlockState connected = this.getConnectionState(level, current, pos);
             if (connected != current) level.setBlock(pos, connected, Block.UPDATE_ALL);
             return;
