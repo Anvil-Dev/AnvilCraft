@@ -67,7 +67,9 @@ These operations involve world storage (think of it as the cloud), <ref item="an
 </info>
 
 <info>
+
 Exported structure files are saved in `/saves/<save name>/data/anvilcraft`
+
 </info>
 
 ### Export (Upload) a Structure

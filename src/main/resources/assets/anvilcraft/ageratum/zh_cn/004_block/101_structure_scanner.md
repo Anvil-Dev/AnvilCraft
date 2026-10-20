@@ -67,7 +67,9 @@ items:
 </info>
 
 <info>
-导出的结构文件保存于 `/saves/<存档名>/data/anvilcraft`
+
+导出的结构文件保存于 `/saves/<存档名>/data/anvilcraft` 
+
 </info>
 
 
