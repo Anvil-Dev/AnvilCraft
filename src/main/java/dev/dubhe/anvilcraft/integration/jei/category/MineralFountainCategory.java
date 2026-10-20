@@ -3,7 +3,7 @@ package dev.dubhe.anvilcraft.integration.jei.category;
 import dev.anvilcraft.lib.v2.util.NumberProviderUtil;
 import dev.anvilcraft.lib.v2.util.predicate.BlockStatePredicate;
 import dev.anvilcraft.lib.v2.util.predicate.ChanceBlockState;
-import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.client.support.DimensionNameSupport;
 import dev.dubhe.anvilcraft.client.support.RenderSupport;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
@@ -32,7 +32,6 @@ import mezz.jei.api.registration.IRecipeRegistration;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
@@ -535,13 +534,6 @@ public class MineralFountainCategory implements IRecipeCategory<MineralFountainJ
     }
 
     private static Component getDimensionName(ResourceLocation dimension) {
-        String key = dimension.toLanguageKey("dimension");
-        if (!I18n.exists(key) && AnvilCraft.MOD_ID.equals(dimension.getNamespace())) {
-            String celestialKey = "screen.anvilcraft.cfa.class.special." + dimension.getPath();
-            if (I18n.exists(celestialKey)) {
-                key = celestialKey;
-            }
-        }
-        return Component.translatableWithFallback(key, dimension.toString());
+        return DimensionNameSupport.getName(dimension);
     }
 }
