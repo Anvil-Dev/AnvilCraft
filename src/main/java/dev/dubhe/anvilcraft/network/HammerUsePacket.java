@@ -51,9 +51,9 @@ public record HammerUsePacket(BlockPos pos, InteractionHand hand, BlockHitResult
         if (!(Math.abs(distance.x()) < 1.0000001 && Math.abs(distance.y()) < 1.0000001 && Math.abs(distance.z()) < 1.0000001)) {
             return;
         }
-        BlockState state = serverside.level().getBlockState(this.pos);
+        BlockState state = serverside.serverLevel().getBlockState(this.pos);
         if (!AnvilHammerItem.canRocketJump(serverside)
-            && !AnvilHammerItem.ableToUseAnvilHammer(serverside.level(), this.pos, serverside)
+            && !AnvilHammerItem.ableToUseAnvilHammer(serverside.serverLevel(), this.pos, serverside)
             && (state.is(BlockTags.CAULDRONS) || state.is(ModBlockTags.ANVIL_HAMMER_DENYLIST))) return;
         AnvilHammerItem.useBlock(serverside, this.pos, serverside.serverLevel(), itemInHand, this.hand, this.result);
     }
