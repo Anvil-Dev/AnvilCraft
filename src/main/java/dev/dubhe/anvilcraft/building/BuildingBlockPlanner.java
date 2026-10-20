@@ -68,25 +68,27 @@ public final class BuildingBlockPlanner {
         List<Group> groups = new ArrayList<>();
         var level = player.level();
         SlabType slabType = slabType(item, first, last, hit, endHit);
+        BlockHitResult click = hit != null && corresponds(hit, first)
+            ? hit : new BlockHitResult(Vec3.atCenterOf(first), face, first, false);
         for (BlockPos cursor : BlockPos.betweenClosed(first, last)) {
             BlockPos pos = cursor.immutable();
-            if (!level.getBlockState(pos).canBeReplaced()) continue;
+            BlockPlaceContext context = boxPlacementContext(player, held, first, pos, click);
+            if (!context.canPlace()) continue;
             if (!BuildingCommit.canModify(player, pos)) {
                 return null;
             }
-            BlockPlaceContext context = new BlockPlaceContext(player, BuildingRodItem.materialHand(player), held,
-                new BlockHitResult(Vec3.atCenterOf(pos), face, pos, false));
             BlockState state = item.getBlock().getStateForPlacement(context);
             if (state == null) {
                 return null;
             }
-            if (slabType != null) {
+            if (slabType != null && !level.getBlockState(pos).is(block)) {
                 state = state.setValue(BlockStateProperties.SLAB_TYPE, slabType);
                 if (slabType == SlabType.DOUBLE) state = state.setValue(BlockStateProperties.WATERLOGGED, false);
             }
             Group group = new Group();
             addBoxCells(group, pos, state);
-            group.blockMaterials.put(pos, held.copyWithCount(slabType == SlabType.DOUBLE ? 2 : 1));
+            int count = slabType == SlabType.DOUBLE && !level.getBlockState(pos).is(block) ? 2 : 1;
+            group.blockMaterials.put(pos, held.copyWithCount(count));
             groups.add(group);
         }
         Map<BlockPos, Cell> planned = new LinkedHashMap<>();
@@ -95,7 +97,7 @@ public final class BuildingBlockPlanner {
             if (planned.containsKey(group.cells.getFirst().pos())) continue;
             for (Cell cell : group.cells) {
                 if (planned.containsKey(cell.pos()) || !BuildingCommit.canModify(player, cell.pos())
-                    || !level.getBlockState(cell.pos()).canBeReplaced()) {
+                    || !boxPlacementContext(player, held, first, cell.pos(), click).canPlace()) {
                     return null;
                 }
                 planned.put(cell.pos(), cell);
@@ -106,6 +108,28 @@ public final class BuildingBlockPlanner {
             }
         }
         return unique;
+    }
+
+    private static BlockPlaceContext boxPlacementContext(
+        Player player, ItemStack held, BlockPos first, BlockPos pos, BlockHitResult hit
+    ) {
+        Vec3 location = hit.getLocation().add(Vec3.atLowerCornerOf(pos.subtract(first)));
+        return new BlockPlaceContext(player, BuildingRodItem.materialHand(player), held,
+            new BlockHitResult(location, hit.getDirection(), pos, false)) {
+            {
+                this.replaceClicked = hit.getBlockPos().equals(first);
+            }
+
+            @Override
+            public BlockPos getClickedPos() {
+                return this.getHitResult().getBlockPos();
+            }
+
+            @Override
+            public boolean canPlace() {
+                return this.getLevel().getBlockState(this.getClickedPos()).canBeReplaced(this);
+            }
+        };
     }
 
     @Nullable
