@@ -359,9 +359,8 @@ public final class StorageServerStub {
         return new InteractionResult(player.inventoryMenu.getCarried().copy(), changed, 0, notice);
     }
 
-    @RemoteCallable(validator = StorageAccessValidator.class)
+    @RemoteCallable(validator = CursorReturnValidator.class)
     public static void returnCarriedToInventory(UUID playerId, long sourcePos) {
-        StorageServerStub.getView(StorageServerStub.getAndClear(), playerId, sourcePos);
         ServerPlayer player = StorageServerStub.getServerPlayer(playerId);
         ItemStack carried = player.inventoryMenu.getCarried();
         if (carried.isEmpty()) return;
@@ -1657,6 +1656,15 @@ public final class StorageServerStub {
         }
     }
 
+    public static final class CursorReturnValidator implements IRemoteCallableValidator {
+        @Override
+        public boolean validate(IPayloadContext context, Method method, Object[] args) {
+            return context.player() instanceof ServerPlayer player && args.length == 2
+                && args[0] instanceof UUID id && id.equals(player.getUUID()) && args[1] instanceof Long
+                && player.containerMenu == player.inventoryMenu;
+        }
+    }
+
     public static final class StorageAccessValidator implements IRemoteCallableValidator {
         @Override
         public boolean validate(IPayloadContext ctx, Method method, Object[] args) {
@@ -2088,7 +2096,12 @@ public final class StorageServerStub {
     }
 
     private static void playBucketSound(ServerPlayer player, FluidStack fluid, SoundAction action, boolean bottle) {
-        SoundEvent sound = bottle ? SoundEvents.BOTTLE_FILL : fluid.getFluidType().getSound(fluid, action);
+        SoundEvent sound;
+        if (bottle) {
+            sound = action == SoundActions.BUCKET_EMPTY ? SoundEvents.BOTTLE_EMPTY : SoundEvents.BOTTLE_FILL;
+        } else {
+            sound = fluid.getFluidType().getSound(fluid, action);
+        }
         if (sound == null) {
             return;
         }
@@ -2263,6 +2276,7 @@ public final class StorageServerStub {
         var acceptor = StoragePortManager.findAcceptor(view.primary().getId(), content);
         if (acceptor == null) return 0;
         int poured = 0;
+        boolean bottle = false;
         while (poured < maxAmount && !stack.isEmpty()) {
             ItemStacksResourceHandler single = new ItemStacksResourceHandler(1);
             single.set(0, ItemResource.of(stack), 1);
@@ -2272,11 +2286,13 @@ public final class StorageServerStub {
                 if (ResourceHandlerUtil.moveFirst(handler, acceptor, fluid -> true, Integer.MAX_VALUE, transaction) == null) break;
                 transaction.commit();
             }
-            StorageServerStub.giveEmptiedContainerToStorage(view, player, single.getResource(0).toStack(single.getAmountAsInt(0)));
+            ItemStack emptied = single.getResource(0).toStack(single.getAmountAsInt(0));
+            bottle = emptied.is(Items.GLASS_BOTTLE);
+            StorageServerStub.giveEmptiedContainerToStorage(view, player, emptied);
             stack.shrink(1);
             poured++;
         }
-        if (poured > 0) StorageServerStub.playBucketSound(player, content, SoundActions.BUCKET_EMPTY, false);
+        if (poured > 0) StorageServerStub.playBucketSound(player, content, SoundActions.BUCKET_EMPTY, bottle);
         return poured;
     }
 

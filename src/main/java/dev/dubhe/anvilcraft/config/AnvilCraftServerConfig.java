@@ -5,6 +5,7 @@ import dev.anvilcraft.lib.v2.config.BoundedDiscrete;
 import dev.anvilcraft.lib.v2.config.CollapsibleObject;
 import dev.anvilcraft.lib.v2.config.Comment;
 import dev.anvilcraft.lib.v2.config.Config;
+import dev.anvilcraft.lib.v2.config.util.TranslatableEnum;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.cauldron.FireCauldronBlock;
 import net.neoforged.fml.config.ModConfig;
@@ -18,6 +19,18 @@ public class AnvilCraftServerConfig {
     public WorldSettings world = new WorldSettings();
 
     public static class WorldSettings {
+        @SerializedName("Overworld Celestial Bodies")
+        @Comment("Server-wide Overworld sky and lunar travel mode. Vanilla keeps the original sky and midnight travel window. "
+            + "Special uses modeled celestial bodies and permits travel when the Moon is overhead. Applies to every player.")
+        public OverworldSkyMode overworldSkyMode = OverworldSkyMode.VANILLA;
+
+        public enum OverworldSkyMode implements TranslatableEnum {
+            @SerializedName("Vanilla")
+            VANILLA,
+            @SerializedName("Special")
+            SPECIAL
+        }
+
         @Comment("Whether to clean fluid after updating Menger Sponge")
         public boolean cleanFluidAfterUpdateMengerSponge = false;
 

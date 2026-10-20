@@ -749,28 +749,42 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
         this.interactionPending = true;
         this.craftingRequest++;
         final StorageCraftingPrediction prediction = this.craftingPrediction;
-        var operation = StorageClientStub.craftingTakeResult(this.sourcePos, stonecutter, false);
-        this.craftingResponses = this.craftingResponses.thenCompose(ignored -> operation.handleAsync((result, error) -> {
-            prediction.acknowledge();
-            if (prediction != this.craftingPrediction || this.minecraft.player != this.player) return null;
-            if (error == null) {
-                this.carried = result.carried();
-                this.player.inventoryMenu.setCarried(this.carried);
-                result.crafting().ifPresent(data -> this.applyCrafting(data, ++this.craftingRequest));
-                this.markCraftingRefilled(result.refilledSlots());
-                if (result.changed() && stonecutter) {
-                    this.minecraft.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_STONECUTTER_TAKE_RESULT, 1));
+        CompletableFuture<StorageServerStub.InteractionResult> operation;
+        try {
+            operation = StorageClientStub.craftingTakeResult(this.sourcePos, stonecutter, false);
+        } catch (RuntimeException error) {
+            operation = CompletableFuture.failedFuture(error);
+        }
+        final var response = operation;
+        this.craftingResponses = this.craftingResponses.handle((ignored, error) -> null)
+            .thenCompose(ignored -> response.<Void>handleAsync((result, error) -> {
+                prediction.acknowledge();
+                if (prediction != this.craftingPrediction || this.minecraft.player != this.player) return null;
+                if (error == null) {
+                    this.carried = result.carried();
+                    this.player.inventoryMenu.setCarried(this.carried);
+                    result.crafting().ifPresent(data -> this.applyCrafting(data, ++this.craftingRequest));
+                    this.markCraftingRefilled(result.refilledSlots());
+                    if (result.changed() && stonecutter) {
+                        this.minecraft.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_STONECUTTER_TAKE_RESULT, 1));
+                    }
+                } else {
+                    this.carried = this.player.inventoryMenu.getCarried();
                 }
-            } else {
-                this.carried = this.player.inventoryMenu.getCarried();
-            }
-            if (!this.craftingPrediction.isPending()) {
-                this.interactionPending = false;
-                if (error != null) this.refreshCrafting();
-                this.reorder(false);
-            }
-            return null;
-        }, this.minecraft));
+                if (!this.craftingPrediction.isPending()) {
+                    this.interactionPending = false;
+                    if (error != null) this.refreshCrafting();
+                    this.reorder(false);
+                }
+                return null;
+            }, this.minecraft)).exceptionallyAsync(error -> {
+                if (prediction == this.craftingPrediction && this.minecraft.player == this.player) {
+                    AnvilCraft.LOGGER.error("Failed to apply storage crafting response", error);
+                    this.carried = this.player.inventoryMenu.getCarried();
+                    this.interactionPending = prediction.isPending();
+                }
+                return null;
+            }, this.minecraft);
     }
 
     private void performCrafting(CompletableFuture<StorageServerStub.InteractionResult> operation) {
@@ -1681,7 +1695,8 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
 
     @Override
     public void onClose() {
-        if (this.interactionPending || this.queuedCraftingPickup >= -1) {
+        if (this.takePrediction == null && !this.craftingPrediction.isPending()
+            && (this.interactionPending || this.queuedCraftingPickup >= -1)) {
             this.craftingCloseRequested = true;
             return;
         }
@@ -1761,31 +1776,56 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
         this.syncRequest++;
         this.metadataRequest++;
         this.metadataPending = false;
-        var operation = StorageClientStub.takeStorageItem(this.sourcePos, this.serverSlots.get(slot), button, quickMove,
-            expected.copyWithCount(1));
-        this.takeResponses = this.takeResponses.thenCompose(ignored -> operation.handleAsync((result, error) -> {
-            prediction.acknowledge();
-            if (prediction != this.takePrediction || this.minecraft.player != this.player) return null;
-            if (error == null) {
-                this.carried = result.carried();
-                this.player.inventoryMenu.setCarried(this.carried);
-            }
-            if (!prediction.isPending()) {
-                if (!quickMove || this.craftingCloseRequested || error != null) {
-                    this.takePrediction = null;
-                    this.interactionPending = false;
-                    if (this.craftingCloseRequested) {
-                        this.craftingCloseRequested = false;
-                        this.onClose();
-                        return null;
+        CompletableFuture<StorageServerStub.InteractionResult> operation;
+        try {
+            operation = StorageClientStub.takeStorageItem(this.sourcePos, this.serverSlots.get(slot), button, quickMove,
+                expected.copyWithCount(1));
+        } catch (RuntimeException error) {
+            operation = CompletableFuture.failedFuture(error);
+        }
+        final var response = operation;
+        this.takeResponses = this.takeResponses.handle((ignored, error) -> null)
+            .thenCompose(ignored -> response.<Void>handleAsync((result, error) -> {
+                prediction.acknowledge();
+                if (prediction != this.takePrediction || this.minecraft.player != this.player) return null;
+                if (error == null) {
+                    this.carried = result.carried();
+                    this.player.inventoryMenu.setCarried(this.carried);
+                    if (!quickMove && result.changed()) {
+                        int taken = result.carried().getCount();
+                        this.counts.put(slot, Math.max(0, this.getStoredCount(slot) - taken));
+                        if (this.nbtFolded) this.foldedCounts.put(slot, Math.max(0, this.foldedCounts.get(slot) - taken));
+                    }
+                } else {
+                    this.carried = this.player.inventoryMenu.getCarried();
+                }
+                if (!prediction.isPending()) {
+                    if (!quickMove || this.craftingCloseRequested || error != null) {
+                        this.takePrediction = null;
+                        this.interactionPending = false;
+                        if (this.craftingCloseRequested) {
+                            this.craftingCloseRequested = false;
+                            this.onClose();
+                            return null;
+                        }
+                    }
+                    this.interactionSyncPending = true;
+                    if (this.preservingOrder) this.syncPreservedOrder();
+                    else this.reorder(false);
+                }
+                return null;
+            }, this.minecraft)).exceptionallyAsync(error -> {
+                if (prediction == this.takePrediction && this.minecraft.player == this.player) {
+                    AnvilCraft.LOGGER.error("Failed to apply storage pickup response", error);
+                    this.carried = this.player.inventoryMenu.getCarried();
+                    this.interactionPending = prediction.isPending();
+                    if (!prediction.isPending()) {
+                        this.takePrediction = null;
+                        this.interactionSyncPending = false;
                     }
                 }
-                this.interactionSyncPending = true;
-                if (this.preservingOrder) this.syncPreservedOrder();
-                else this.reorder(false);
-            }
-            return null;
-        }, this.minecraft));
+                return null;
+            }, this.minecraft);
     }
 
     private void interactWithStorage(int slot, int button, StorageInput action) {
@@ -1874,6 +1914,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
             this.preservingOrder = true;
             this.reorderRequest++;
             this.syncRequest++;
+            if (this.interactionSyncPending) this.syncPreservedOrder();
         }
         if (this.craftingPrediction.isPending() || this.takePrediction != null) {
             if (event.key() == InputConstants.KEY_SPACE) this.craftingSpace = true;
@@ -2025,7 +2066,6 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
 
     @Override
     public void removed() {
-        final boolean craftingPending = this.craftingPrediction.isPending() || this.takePrediction != null;
         this.takePrediction = null;
         this.takeResponses = CompletableFuture.completedFuture(null);
         this.craftingPrediction = new StorageCraftingPrediction();
@@ -2046,38 +2086,8 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
         if (this.tracksOpenState && this.minecraft.player != null) {
             StorageClientStub.setOpen(this.sourcePos, false);
         }
-        if (craftingPending && this.minecraft.player == this.player) {
-            StorageClientStub.returnCarriedToInventory(this.sourcePos);
-        } else if (!this.carried.isEmpty() && this.minecraft.gameMode != null) {
-            this.player.inventoryMenu.setCarried(this.carried);
-            Inventory inventory = this.player.getInventory();
-            while (!this.carried.isEmpty()) {
-                int slot = inventory.getSlotWithRemainingSpace(this.carried);
-                if (slot == -1) {
-                    slot = inventory.getFreeSlot();
-                }
-                if (slot == -1) {
-                    this.minecraft.gameMode.handleContainerInput(
-                        this.player.inventoryMenu.containerId,
-                        -999,
-                        0,
-                        ContainerInput.PICKUP,
-                        this.player
-                    );
-                    break;
-                }
-
-                this.minecraft.gameMode.handleContainerInput(
-                    this.player.inventoryMenu.containerId,
-                    slot < 9 ? slot + 36 : slot,
-                    0,
-                    ContainerInput.PICKUP,
-                    this.player
-                );
-                this.carried = this.player.inventoryMenu.getCarried();
-            }
-            this.carried = ItemStack.EMPTY;
-        }
+        if (this.minecraft.player == this.player) StorageClientStub.returnCarriedToInventory(this.sourcePos);
+        this.carried = ItemStack.EMPTY;
         if (SettingClientStub.setting().storage().getSearch() == SearchMode.CLEAR) {
             SettingClientStub.update("");
         }
@@ -2426,13 +2436,10 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
                 if (reorderRequest != this.reorderRequest) {
                     return;
                 }
+                if (request != this.syncRequest) return;
                 if (error != null) {
                     this.finishInteractionSync();
                     this.orderLoaded = false;
-                    return;
-                }
-                if (request != this.syncRequest) {
-                    this.reorder(false);
                     return;
                 }
                 if (!this.applyReorderedSyncResults(results) || !this.hasContents(reordered)) {
@@ -2492,33 +2499,36 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
         int reorderRequest = this.reorderRequest;
         StorageClientStub.reorder(this.sourcePos).whenCompleteAsync(
             (updatedOrder, reorderError) -> {
-                if (
-                    request != this.syncRequest
-                    || reorderRequest != this.reorderRequest
-                    || !this.preservingOrder
-                    || reorderError != null
-                ) {
+                if (request != this.syncRequest || reorderRequest != this.reorderRequest) return;
+                if (!this.preservingOrder) {
+                    this.reorder(false);
+                    return;
+                }
+                if (reorderError != null) {
+                    this.finishInteractionSync();
                     return;
                 }
                 IntList currentOrder = new IntArrayList(updatedOrder);
                 this.syncSlots(currentOrder).whenCompleteAsync(
                     (results, syncError) -> {
-                        if (
-                            request != this.syncRequest
-                            || reorderRequest != this.reorderRequest
-                            || !this.preservingOrder
-                            || syncError != null
-                        ) {
+                        if (request != this.syncRequest || reorderRequest != this.reorderRequest) return;
+                        if (!this.preservingOrder) {
+                            this.reorder(false);
+                            return;
+                        }
+                        if (syncError != null) {
+                            this.finishInteractionSync();
                             return;
                         }
                         StorageClientStub.reorder(this.sourcePos).whenCompleteAsync(
                             (confirmedOrder, confirmationError) -> {
-                                if (
-                                    request != this.syncRequest
-                                    || reorderRequest != this.reorderRequest
-                                    || !this.preservingOrder
-                                    || confirmationError != null
-                                ) {
+                                if (request != this.syncRequest || reorderRequest != this.reorderRequest) return;
+                                if (!this.preservingOrder) {
+                                    this.reorder(false);
+                                    return;
+                                }
+                                if (confirmationError != null) {
+                                    this.finishInteractionSync();
                                     return;
                                 }
                                 if (!currentOrder.equals(confirmedOrder) || !this.applyPreservedSyncResults(results)) {

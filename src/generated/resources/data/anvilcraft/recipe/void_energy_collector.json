@@ -2,14 +2,15 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "A": "anvilcraft:void_matter_block",
-    "B": "anvilcraft:charge_collector",
-    "C": "anvilcraft:heavy_iron_block"
+    "A": "anvilcraft:void_matter",
+    "B": "anvilcraft:void_matter_block",
+    "C": "anvilcraft:heavy_iron_block",
+    "D": "anvilcraft:charge_collector"
   },
   "pattern": [
     "AAA",
     "ABA",
-    "CCC"
+    "CDC"
   ],
   "result": {
     "id": "anvilcraft:void_energy_collector"

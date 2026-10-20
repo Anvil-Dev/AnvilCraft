@@ -40,28 +40,6 @@ public class AnvilCraftClientConfig {
         @BoundedDiscrete(min = 100.0, max = 10000.0)
         public float overworldLikeSkyRingScale = 1200.0f;
 
-        @SerializedName("Overworld Celestial Bodies")
-        @Comment(
-            """
-            Controls the render mode of the Overworld sky
-            "Vanilla" keeps the original Overworld sky
-            "Special" replaces only the Sun and Moon with models, including libration and a continuous eight-day lunar phase cycle
-            World lighting is unchanged"""
-        )
-        public OverworldSkyRenderMode overworldSkyRenderMode = OverworldSkyRenderMode.VANILLA;
-
-        public enum OverworldSkyRenderMode implements TranslatableEnum {
-            @SerializedName("Vanilla")
-            VANILLA,
-            @SerializedName("Special")
-            SPECIAL,
-            ;
-
-            public boolean isSpecial() {
-                return this == OverworldSkyRenderMode.SPECIAL;
-            }
-        }
-
         @Comment(
             """
             Controls the quality of Mun lighting
