@@ -162,7 +162,8 @@ public class BlockTagLoader {
 
         provider.rawBuilder(ModBlockTags.CONTAINS_VOID_ENERGY)
             .addElement(ModBlocks.VOID_MATTER_BLOCK.getId())
-            .addElement(ModBlocks.VOID_ENERGY_COLLECTOR.getId());
+            .addElement(ModBlocks.VOID_ENERGY_COLLECTOR.getId())
+            .addElement(ModBlocks.INFINITE_COLLECTOR.getId());
 
         provider.rawBuilder(ModBlockTags.VOID_DECAY_PRODUCTS)
             .addElement(BlockTagLoader.findId(Blocks.STONE))
