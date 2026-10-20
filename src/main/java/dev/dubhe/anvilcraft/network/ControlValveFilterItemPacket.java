@@ -52,7 +52,7 @@ public record ControlValveFilterItemPacket(ItemStack filterItem) implements ISen
         }
         FilterContent content = this.filterItem.get(ModComponents.FILTER_CONTENT);
         if ((!this.filterItem.isEmpty() && !this.filterItem.is(ModItems.FILTER))
-            || (content != null && content.list().size() > MAX_FILTER_ITEMS)) {
+            || (content != null && !isValidContent(content, 1))) {
             PacketDistributor.sendToPlayer(
                 Util.cast(player), new ControlValveFilterItemPacket(menu.getBlockEntity().getFilterItem().copy())
             );
@@ -63,5 +63,14 @@ public record ControlValveFilterItemPacket(ItemStack filterItem) implements ISen
         PacketDistributor.sendToPlayer(
             Util.cast(player), new ControlValveFilterItemPacket(menu.getBlockEntity().getFilterItem().copy())
         );
+    }
+
+    private static boolean isValidContent(FilterContent content, int depth) {
+        if (depth > 2 || content.list().size() > MAX_FILTER_ITEMS) return false;
+        for (ItemStack entry : content.list()) {
+            FilterContent nested = entry.get(ModComponents.FILTER_CONTENT);
+            if (nested != null && !isValidContent(nested, depth + 1)) return false;
+        }
+        return true;
     }
 }

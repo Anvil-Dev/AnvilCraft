@@ -203,6 +203,7 @@ public class ControlValveScreen extends AbstractContainerScreen<ControlValveMenu
             return;
         }
         FluidStack fluid = ControlValveBlockEntity.fluidOf(ingredient);
+        if (fluid.isEmpty()) return;
         this.acceptFluidGhost(0, fluid);
     }
 
