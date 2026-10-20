@@ -1260,15 +1260,27 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
                 }
                 this.flyoutClickX = (int) event.x();
                 this.flyoutClickY = (int) event.y();
-                this.interactWithStorage(fluidSlot, event.button(), event.hasShiftDown()
-                    ? StorageInput.QUICK_MOVE_FROM_STORAGE : StorageInput.FLUID_BUCKET);
+                StorageInput action;
+                if (event.hasShiftDown()) {
+                    action = StorageInput.QUICK_MOVE_FROM_STORAGE;
+                } else if (this.craftingSpace && event.button() == 0 && this.carried.isEmpty()) {
+                    action = StorageInput.QUICK_MOVE_STACKS_FROM_STORAGE;
+                } else {
+                    action = StorageInput.FLUID_BUCKET;
+                }
+                this.interactWithStorage(fluidSlot, event.button(), action);
                 return true;
             }
             Integer storageSlot = this.getStorageSlot(event.x(), event.y());
             if (storageSlot != null && this.minecraft.gameMode != null) {
-                StorageInput action = event.hasShiftDown()
-                                      ? StorageInput.QUICK_MOVE_FROM_STORAGE
-                                      : StorageInput.PICKUP;
+                StorageInput action;
+                if (event.hasShiftDown()) {
+                    action = StorageInput.QUICK_MOVE_FROM_STORAGE;
+                } else if (this.craftingSpace && event.button() == 0 && this.carried.isEmpty()) {
+                    action = StorageInput.QUICK_MOVE_STACKS_FROM_STORAGE;
+                } else {
+                    action = StorageInput.PICKUP;
+                }
                 this.interactWithStorage(storageSlot, event.button(), action);
                 return true;
             }
@@ -1757,7 +1769,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
             }, this.screenExecutor);
             return true;
         }
-        if (this.craftingMode && event.key() == InputConstants.KEY_SPACE) {
+        if (event.key() == InputConstants.KEY_SPACE) {
             this.craftingSpace = true;
             return true;
         }

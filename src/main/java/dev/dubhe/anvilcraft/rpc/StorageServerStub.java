@@ -134,6 +134,7 @@ public final class StorageServerStub {
     @SuppressWarnings("NullableProblems") // IDEA issue, will be unnecessary in sometime
     private static final Multimap<UUID, StorageServerStub> STUBS = ArrayListMultimap.create();
     private static final int CRAFTING_TAKE_ALL_CHUNK = 64;
+    private static final int SPACE_TAKE_STACKS = 8;
     private static final Map<TakeAllKey, TakeAllSession> CRAFTING_BATCHES = new HashMap<>();
 
     private final Deque<Map<ItemResource, Integer>> undoRecords = new ArrayDeque<>();
@@ -274,6 +275,14 @@ public final class StorageServerStub {
                 notice = outcome.notice();
             } else {
                 changed = StorageServerStub.moveStorageStackToInventory(player, view, slot);
+            }
+        } else if (action == StorageInput.QUICK_MOVE_STACKS_FROM_STORAGE) {
+            if (slot >= StoragePortManager.FLUID_SLOT_BASE) {
+                FluidOutcome outcome = StorageServerStub.takeFluidBucketsIntoInventory(player, view, fluid);
+                changed = outcome.changed();
+                notice = outcome.notice();
+            } else {
+                changed = StorageServerStub.moveStorageStacksToInventory(player, view, slot);
             }
         } else if (!carried.isEmpty()) {
             int amount = button == 0 ? carried.getCount() : 1;
@@ -1472,6 +1481,15 @@ public final class StorageServerStub {
         }
     }
 
+    private static boolean moveStorageStacksToInventory(ServerPlayer player, StorageView view, int slot) {
+        boolean changed = false;
+        for (int stack = 0; stack < StorageServerStub.SPACE_TAKE_STACKS; stack++) {
+            if (!StorageServerStub.moveStorageStackToInventory(player, view, slot)) break;
+            changed = true;
+        }
+        return changed;
+    }
+
     private static int getInventorySpace(Inventory inventory, ItemStack stack) {
         long space = 0;
         for (int slot = 0; slot < Inventory.INVENTORY_SIZE; slot++) {
@@ -1941,6 +1959,7 @@ public final class StorageServerStub {
         if (filled.stack().isEmpty()) {
             return FluidOutcome.failed(filled.notice());
         }
+        StorageServerStub.playBucketSound(player, filled.fluid(), SoundActions.BUCKET_FILL);
         // 取出的一桶流体落在鼠标指针上，与点击物品格取物一致；
         // 指针被其它物品占用（例如还剩几个空桶）时才退回背包
         if (player.inventoryMenu.getCarried().isEmpty()) {
@@ -1952,6 +1971,36 @@ public final class StorageServerStub {
         return FluidOutcome.CHANGED;
     }
 
+    private static FluidOutcome takeFluidBucketsIntoInventory(ServerPlayer player, StorageView view, FluidStack fluid) {
+        FluidEntry entry = StoragePortManager.find(view.primary().getId(), fluid);
+        ItemStack filledBucket = entry == null ? ItemStack.EMPTY
+            : entry.icon().getFluidType().getBucket(entry.icon().copyWithAmount(FluidType.BUCKET_VOLUME));
+        if (filledBucket.isEmpty()) return StorageServerStub.takeFluidBucketIntoInventory(player, view, fluid);
+        int limit = Math.min(StorageServerStub.SPACE_TAKE_STACKS,
+            StorageServerStub.getInventorySpace(player.getInventory(), filledBucket));
+        FluidNotice notice = FluidNotice.NONE;
+        FluidStack taken = FluidStack.EMPTY;
+        boolean changed = false;
+        for (int bucket = 0; bucket < limit; bucket++) {
+            FilledBucket filled = StorageServerStub.fillBucketFromStorage(player, view, fluid, true);
+            if (filled.stack().isEmpty()) {
+                if (!changed) notice = filled.notice();
+                break;
+            }
+            StorageServerStub.giveBucket(player, view, filled.stack());
+            taken = filled.fluid();
+            changed = true;
+        }
+        if (changed) StorageServerStub.playBucketSound(player, taken, SoundActions.BUCKET_FILL);
+        return changed ? FluidOutcome.CHANGED : FluidOutcome.failed(notice);
+    }
+
+    private static void giveBucket(ServerPlayer player, StorageView view, ItemStack bucket) {
+        if (!player.addItem(bucket) && view.insert(bucket.copyWithCount(1), 1) <= 0) {
+            Block.popResource(player.level(), player.blockPosition(), bucket);
+        }
+    }
+
     private static FluidOutcome takeFluidBucketIntoInventory(
         ServerPlayer player,
         StorageView view,
@@ -1961,9 +2010,8 @@ public final class StorageServerStub {
         if (filled.stack().isEmpty()) {
             return FluidOutcome.failed(filled.notice());
         }
-        if (!player.addItem(filled.stack()) && view.insert(filled.stack().copyWithCount(1), 1) <= 0) {
-            Block.popResource(player.level(), player.blockPosition(), filled.stack());
-        }
+        StorageServerStub.playBucketSound(player, filled.fluid(), SoundActions.BUCKET_FILL);
+        StorageServerStub.giveBucket(player, view, filled.stack());
         return FluidOutcome.CHANGED;
     }
 
@@ -2031,9 +2079,9 @@ public final class StorageServerStub {
         }
     }
 
-    private record FilledBucket(ItemStack stack, FluidNotice notice) {
+    private record FilledBucket(ItemStack stack, FluidStack fluid, FluidNotice notice) {
         private static FilledBucket failed(FluidNotice notice) {
-            return new FilledBucket(ItemStack.EMPTY, notice);
+            return new FilledBucket(ItemStack.EMPTY, FluidStack.EMPTY, notice);
         }
     }
 
@@ -2060,8 +2108,7 @@ public final class StorageServerStub {
             }
             transaction.commit();
         }
-        StorageServerStub.playBucketSound(player, target, SoundActions.BUCKET_FILL);
-        return new FilledBucket(filled, FluidNotice.NONE);
+        return new FilledBucket(filled, target, FluidNotice.NONE);
     }
 
     private static ItemStack emptyContainerOf(ItemStack filled) {

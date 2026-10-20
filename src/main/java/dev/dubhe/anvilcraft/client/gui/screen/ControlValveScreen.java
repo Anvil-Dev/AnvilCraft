@@ -6,9 +6,14 @@ import dev.dubhe.anvilcraft.client.gui.component.TexturedButton;
 import dev.dubhe.anvilcraft.client.support.FluidRenderHelper;
 import dev.dubhe.anvilcraft.constant.Constant;
 import dev.dubhe.anvilcraft.constant.SharedTextures;
+import dev.dubhe.anvilcraft.init.item.ModComponents;
+import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.inventory.ControlValveMenu;
+import dev.dubhe.anvilcraft.item.property.component.FilterContent;
+import dev.dubhe.anvilcraft.network.ControlValveFilterItemPacket;
 import dev.dubhe.anvilcraft.network.ControlValveFilterPacket;
 import dev.dubhe.anvilcraft.network.ControlValveUpdatePacket;
+import dev.dubhe.anvilcraft.util.FluidUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.EditBox;
@@ -20,19 +25,21 @@ import net.minecraft.client.renderer.block.FluidModel;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
+import net.minecraft.util.Util;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.capabilities.Capabilities;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.TooltipFlag;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.transfer.ResourceHandler;
-import net.neoforged.neoforge.transfer.access.ItemAccess;
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import org.jspecify.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 public class ControlValveScreen extends AbstractContainerScreen<ControlValveMenu> implements IGhostIngredientScreen {
     public static final Identifier BACKGROUND = SharedTextures.bg("machine", "control_valve");
@@ -47,6 +54,7 @@ public class ControlValveScreen extends AbstractContainerScreen<ControlValveMenu
 
     private int value = ControlValveBlockEntity.MAX_RATE;
     private FluidStack filter = FluidStack.EMPTY;
+    private ItemStack filterItem = ItemStack.EMPTY;
     private @Nullable FluidRateSlider slider;
     private @Nullable EditBox valueBox;
     private boolean updatingValueBox;
@@ -135,6 +143,16 @@ public class ControlValveScreen extends AbstractContainerScreen<ControlValveMenu
         this.filter = fluid.isEmpty() ? FluidStack.EMPTY : fluid.copyWithAmount(1);
     }
 
+    public void setFilterItem(ItemStack item) {
+        this.filterItem = item.isEmpty() ? ItemStack.EMPTY : item.copyWithCount(1);
+    }
+
+    private FluidStack displayedFilterFluid() {
+        if (this.filterItem.isEmpty()) return this.filter;
+        List<FluidStack> fluids = ControlValveBlockEntity.resolveFluids(this.filterItem);
+        return fluids.isEmpty() ? FluidStack.EMPTY : fluids.get(Math.floorMod(Util.getMillis() / 1000, fluids.size()));
+    }
+
     private void setValueBoxText(int value) {
         if (this.valueBox == null) return;
         this.updatingValueBox = true;
@@ -180,23 +198,14 @@ public class ControlValveScreen extends AbstractContainerScreen<ControlValveMenu
         ClientPacketDistributor.sendToServer(new ControlValveUpdatePacket(this.value));
     }
 
-    private static FluidStack fluidOf(ItemStack stack) {
-        if (stack.isEmpty()) return FluidStack.EMPTY;
-        ItemStack single = stack.copyWithCount(1);
-        ResourceHandler<FluidResource> handler = single.getCapability(
-            Capabilities.Fluid.ITEM,
-            ItemAccess.forStack(single)
-        );
-        if (handler == null) return FluidStack.EMPTY;
-        for (int i = 0; i < handler.size(); i++) {
-            FluidResource resource = handler.getResource(i);
-            if (resource.isEmpty() || handler.getAmountAsInt(i) <= 0) continue;
-            return resource.toStack(1);
-        }
-        return FluidStack.EMPTY;
+    private void sendFilterItem(ItemStack item) {
+        this.setFilterItem(item);
+        ClientPacketDistributor.sendToServer(new ControlValveFilterItemPacket(this.filterItem));
     }
 
     private void sendFilter(FluidStack fluid) {
+        if (!this.filterItem.isEmpty()) this.sendFilterItem(ItemStack.EMPTY);
+        this.setFilter(0, fluid);
         ClientPacketDistributor.sendToServer(new ControlValveFilterPacket(0, fluid));
     }
 
@@ -218,7 +227,8 @@ public class ControlValveScreen extends AbstractContainerScreen<ControlValveMenu
 
     @Override
     public void acceptGhost(Slot slot, ItemStack ingredient) {
-        this.sendFilter(ControlValveScreen.fluidOf(ingredient));
+        if (ingredient.is(ModItems.FILTER)) this.sendFilterItem(ingredient);
+        else this.sendFilter(ControlValveBlockEntity.fluidOf(ingredient));
     }
 
     @Override
@@ -231,7 +241,9 @@ public class ControlValveScreen extends AbstractContainerScreen<ControlValveMenu
     public boolean mouseClicked(MouseButtonEvent event, boolean handled) {
         if (event.button() == 0 && this.isHovering(
             ControlValveScreen.FILTER_X, ControlValveScreen.FILTER_Y, 16, 16, event.x(), event.y())) {
-            this.sendFilter(ControlValveScreen.fluidOf(this.getMenu().getCarried()));
+            ItemStack carried = this.getMenu().getCarried();
+            if (carried.is(ModItems.FILTER)) this.sendFilterItem(carried);
+            else this.sendFilter(ControlValveBlockEntity.fluidOf(carried));
             return true;
         }
         if (event.button() == 0 && !this.isLocked() && this.slider != null) {
@@ -285,11 +297,27 @@ public class ControlValveScreen extends AbstractContainerScreen<ControlValveMenu
         super.extractContents(graphics, mouseX, mouseY, a);
         int fx = this.leftPos + ControlValveScreen.FILTER_X;
         int fy = this.topPos + ControlValveScreen.FILTER_Y;
-        if (!this.filter.isEmpty()) {
-            this.extractFluidSwatch(graphics, this.filter, fx, fy);
-        }
         if (this.isHovering(ControlValveScreen.FILTER_X, ControlValveScreen.FILTER_Y, 16, 16, mouseX, mouseY)) {
             graphics.fill(fx, fy, fx + 16, fy + 16, 0x80FFFFFF);
+        }
+        FluidStack displayed = this.displayedFilterFluid();
+        if (this.filterItem.isEmpty()) {
+            if (!displayed.isEmpty()) this.extractFluidSwatch(graphics, displayed, fx, fy, 16);
+        } else {
+            ItemStack body = this.filterItem.copy();
+            body.remove(ModComponents.FILTER_CONTENT);
+            graphics.item(body, fx, fy);
+            graphics.nextStratum();
+            if (!displayed.isEmpty()) this.extractFluidSwatch(graphics, displayed, fx + 4, fy + 4, 8);
+            FilterContent content = this.filterItem.get(ModComponents.FILTER_CONTENT);
+            if (content != null && content.denyList()) {
+                graphics.nextStratum();
+                graphics.pose().pushMatrix();
+                graphics.pose().translate(fx + 4, fy + 4);
+                graphics.pose().scale(0.5F, 0.5F);
+                graphics.item(Items.BARRIER.getDefaultInstance(), 0, 0);
+                graphics.pose().popMatrix();
+            }
         }
         if (locked) {
             Component text = Component.translatable("screen.anvilcraft.control_valve.redstone_locked");
@@ -309,13 +337,21 @@ public class ControlValveScreen extends AbstractContainerScreen<ControlValveMenu
     @Override
     protected void extractTooltip(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
         super.extractTooltip(graphics, mouseX, mouseY);
-        if (!this.filter.isEmpty() && this.getMenu().getCarried().isEmpty()
-            && this.isHovering(ControlValveScreen.FILTER_X, ControlValveScreen.FILTER_Y, 16, 16, mouseX, mouseY)) {
-            graphics.setTooltipForNextFrame(this.font, this.filter.getHoverName(), mouseX, mouseY);
+        if (!this.getMenu().getCarried().isEmpty()
+            || !this.isHovering(ControlValveScreen.FILTER_X, ControlValveScreen.FILTER_Y, 16, 16, mouseX, mouseY)) return;
+        List<FluidStack> fluids = this.filterItem.isEmpty()
+            ? (this.filter.isEmpty() ? List.of() : List.of(this.filter)) : ControlValveBlockEntity.resolveFluids(this.filterItem);
+        if (fluids.isEmpty()) return;
+        TooltipFlag flag = Minecraft.getInstance().options.advancedItemTooltips ? TooltipFlag.ADVANCED : TooltipFlag.NORMAL;
+        List<Component> lines = new ArrayList<>();
+        for (FluidStack fluid : fluids) {
+            if (!lines.isEmpty()) lines.add(Component.empty());
+            lines.addAll(FluidUtil.getFilterTooltip(fluid, flag));
         }
+        graphics.setTooltipForNextFrame(this.font, lines, Optional.empty(), mouseX, mouseY);
     }
 
-    private void extractFluidSwatch(GuiGraphicsExtractor graphics, FluidStack fluid, int x, int y) {
+    private void extractFluidSwatch(GuiGraphicsExtractor graphics, FluidStack fluid, int x, int y, int size) {
         FluidResource resource = FluidResource.of(fluid);
         FluidModel model = FluidRenderHelper.getModel(
             Minecraft.getInstance().getModelManager().getFluidStateModelSet(),
@@ -325,6 +361,6 @@ public class ControlValveScreen extends AbstractContainerScreen<ControlValveMenu
         if (tintSource == null) return;
         TextureAtlasSprite sprite = model.stillMaterial().sprite();
         int tint = tintSource.colorAsStack(resource.toStack(1));
-        graphics.blitSprite(RenderPipelines.GUI_TEXTURED, sprite, x, y, 16, 16, tint);
+        graphics.blitSprite(RenderPipelines.GUI_TEXTURED, sprite, x, y, size, size, tint);
     }
 }
