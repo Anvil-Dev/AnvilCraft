@@ -92,7 +92,6 @@ import mezz.jei.api.JeiPlugin;
 import mezz.jei.api.constants.RecipeTypes;
 import mezz.jei.api.gui.builder.IClickableIngredientFactory;
 import mezz.jei.api.gui.handlers.IGlobalGuiHandler;
-import mezz.jei.api.gui.handlers.IGuiProperties;
 import mezz.jei.api.helpers.IGuiHelper;
 import mezz.jei.api.helpers.IJeiHelpers;
 import mezz.jei.api.recipe.RecipeType;
@@ -104,8 +103,8 @@ import mezz.jei.api.registration.IRecipeTransferRegistration;
 import mezz.jei.api.registration.IVanillaCategoryExtensionRegistration;
 import mezz.jei.api.runtime.IClickableIngredient;
 import mezz.jei.api.runtime.IJeiRuntime;
+import mezz.jei.gui.GuiProperties;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.client.renderer.Rect2i;
@@ -370,42 +369,15 @@ public class AnvilCraftJeiPlugin implements IModPlugin {
         registration.addGuiContainerHandler(CreativeModeInventoryScreen.class, new PocketGuiHandler<>());
         registration.addGuiScreenHandler(
             StorageScreen.class,
-            screen -> screen.width > 0 && screen.height > 0 ? new IGuiProperties() {
-                    @Override
-                    public Class<? extends Screen> screenClass() {
-                        return StorageScreen.class;
-                    }
-
-                    @Override
-                    public int guiLeft() {
-                        return screen.getLeftPos();
-                    }
-
-                    @Override
-                    public int guiTop() {
-                        return screen.getTopPos();
-                    }
-
-                    @Override
-                    public int guiXSize() {
-                        return screen.getImageWidth();
-                    }
-
-                    @Override
-                    public int guiYSize() {
-                        return screen.getImageHeight();
-                    }
-
-                    @Override
-                    public int screenWidth() {
-                        return screen.width;
-                    }
-
-                    @Override
-                    public int screenHeight() {
-                        return screen.height;
-                    }
-                } : null
+            screen -> screen.width > 0 && screen.height > 0 ? new GuiProperties(
+                StorageScreen.class,
+                screen.getLeftPos(),
+                screen.getTopPos(),
+                screen.getImageWidth(),
+                screen.getImageHeight(),
+                screen.width,
+                screen.height
+            ) : null
         );
         registration.addGlobalGuiHandler(new IGlobalGuiHandler() {
             @Override
