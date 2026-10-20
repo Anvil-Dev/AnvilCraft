@@ -151,6 +151,7 @@ public class ChuteBlock extends BetterBaseEntityBlock implements HammerRotateBeh
 
     public static void pickupItem(BlockState state, Level level, BlockPos pos, Entity entity) {
         if (level.isClientSide() || !(entity instanceof ItemEntity item) || !item.isAlive() || item.getItem().isEmpty()) return;
+        if (!item.getBoundingBox().intersects(new AABB(pos))) return;
         BlockEntity blockEntity = level.getBlockEntity(pos);
         int cooldown = switch (blockEntity) {
             case BaseChuteBlockEntity chute -> chute.getCooldown();
@@ -162,7 +163,7 @@ public class ChuteBlock extends BetterBaseEntityBlock implements HammerRotateBeh
         boolean inputEnabled = blockEntity instanceof OverflowChuteBlockEntity
             || blockEntity instanceof SimpleChuteBlockEntity || blockEntity instanceof SimpleMagneticChuteBlockEntity
             || state.getValue(BlockStateProperties.ENABLED);
-        if (!inputEnabled || !item.getBoundingBox().intersects(new AABB(pos))) return;
+        if (!inputEnabled) return;
         ItemStack stack = item.getItem();
         int offered = Math.min(64, stack.getCount());
         ItemStack remaining = ItemHandlerUtil.insertItem(
