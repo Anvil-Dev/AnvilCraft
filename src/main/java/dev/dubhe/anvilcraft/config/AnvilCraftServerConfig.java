@@ -5,6 +5,7 @@ import dev.anvilcraft.lib.v2.config.BoundedDiscrete;
 import dev.anvilcraft.lib.v2.config.CollapsibleObject;
 import dev.anvilcraft.lib.v2.config.Comment;
 import dev.anvilcraft.lib.v2.config.Config;
+import dev.anvilcraft.lib.v2.config.util.TranslatableEnum;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.FireCauldronBlock;
 import net.neoforged.fml.config.ModConfig;
@@ -12,6 +13,18 @@ import net.neoforged.neoforge.fluids.FluidType;
 
 @Config(name = AnvilCraft.MOD_ID, type = ModConfig.Type.SERVER)
 public class AnvilCraftServerConfig {
+    @SerializedName("Overworld Celestial Bodies")
+    @Comment("Server-wide Overworld sky and lunar travel mode. Vanilla keeps the original sky and midnight travel window. "
+        + "Special uses modeled celestial bodies and permits travel when the Moon is overhead. Applies to every player.")
+    public OverworldSkyMode overworldSkyMode = OverworldSkyMode.VANILLA;
+
+    public enum OverworldSkyMode implements TranslatableEnum {
+        @SerializedName("Vanilla")
+        VANILLA,
+        @SerializedName("Special")
+        SPECIAL
+    }
+
     @SerializedName("World & Physics")
     @Comment("Adjusts settings related to world physics, anvil impacts, and block behavior")
     @CollapsibleObject
