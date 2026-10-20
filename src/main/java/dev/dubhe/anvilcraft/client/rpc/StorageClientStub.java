@@ -62,6 +62,13 @@ public final class StorageClientStub {
         );
     }
 
+    public static CompletableFuture<StorageServerStub.InteractionResult> takeStorageItem(
+        BlockPos sourcePos, int slot, int button, boolean quickMove, ItemStack expected
+    ) {
+        return RPC.invoke(RpcTarget.server(), StorageServerStub::takeStorageItem,
+            StorageClientStub.playerId(), sourcePos.asLong(), slot, button, quickMove, expected);
+    }
+
     public static CompletableFuture<StorageServerStub.InteractionResult> interact(
         BlockPos sourcePos,
         int slot,

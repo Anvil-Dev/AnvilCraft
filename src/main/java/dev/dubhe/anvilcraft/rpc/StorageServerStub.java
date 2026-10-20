@@ -337,6 +337,39 @@ public final class StorageServerStub {
 
         StorageView view = StorageServerStub.getView(StorageServerStub.getAndClear(), playerId, sourcePos);
         ServerPlayer player = StorageServerStub.getServerPlayer(playerId);
+        return applyInteraction(player, view, slot, button, action, fluid);
+    }
+
+    @RemoteCallable(validator = StorageAccessValidator.class)
+    public static InteractionResult takeStorageItem(
+        UUID playerId, long sourcePos, int slot, int button, boolean quickMove,
+        @CallableParam(clazz = ItemStack.class, field = "OPTIONAL_STREAM_CODEC") ItemStack expected
+    ) {
+        StorageView view = StorageServerStub.getView(StorageServerStub.getAndClear(), playerId, sourcePos);
+        ServerPlayer player = StorageServerStub.getServerPlayer(playerId);
+        if (button < 0 || button > 1 || expected.isEmpty() || !quickMove && !player.containerMenu.getCarried().isEmpty()) {
+            return new InteractionResult(player.containerMenu.getCarried().copy(), false);
+        }
+        if (slot < 0 || slot >= view.size() || !matchesTakeItem(player, view, slot, expected)) {
+            slot = -1;
+            for (int index = 0; index < view.size(); index++) {
+                if (!matchesTakeItem(player, view, index, expected)) continue;
+                slot = index;
+                break;
+            }
+        }
+        return applyInteraction(player, view, slot, button, quickMove ? StorageInput.QUICK_MOVE_FROM_STORAGE : StorageInput.PICKUP,
+            FluidStack.EMPTY);
+    }
+
+    private static boolean matchesTakeItem(ServerPlayer player, StorageView view, int slot, ItemStack expected) {
+        return ItemStack.isSameItemSameComponents(view.resource(slot), expected);
+    }
+
+    private static InteractionResult applyInteraction(
+        ServerPlayer player, StorageView view, int slot, int button, StorageInput action, FluidStack fluid
+    ) {
+        UUID playerId = player.getUUID();
         ItemStack carried = player.containerMenu.getCarried();
         boolean changed = false;
         FluidNotice notice = FluidNotice.NONE;
@@ -424,7 +457,7 @@ public final class StorageServerStub {
         // 分支可能改动了指针物品（例如取桶时用掉了指针上的空桶），
         // 必须重新读取，否则会把动作前的旧数量回传给客户端。
         carried = player.containerMenu.getCarried();
-        return new InteractionResult(carried, changed, 0, notice);
+        return new InteractionResult(carried.copy(), changed, 0, notice);
     }
 
     @RemoteCallable(validator = StorageAccessValidator.class)
@@ -435,13 +468,8 @@ public final class StorageServerStub {
         if (carried.isEmpty()) {
             return;
         }
-        if (player.getInventory().add(carried)) {
-            carried = ItemStack.EMPTY;
-        }
-        if (!carried.isEmpty()) {
-            player.drop(carried, false);
-        }
-        player.containerMenu.setCarried(carried);
+        player.containerMenu.setCarried(ItemStack.EMPTY);
+        if (!player.getInventory().add(carried)) player.drop(carried, false);
         player.containerMenu.broadcastChanges();
     }
 
@@ -1480,23 +1508,23 @@ public final class StorageServerStub {
         // 先计算产物（不写入），指针不兼容时直接拒绝，避免误消耗输入
         ItemStack result = StorageServerStub.assembleCraftingResult(player, crafting, stonecutter);
         if (result == null || result.isEmpty()) {
-            return new InteractionResult(carried, false);
+            return new InteractionResult(carried, false).withCrafting(target.read());
         }
         if (shift) {
             PlaceResult placed = crafting.toStorage()
                 ? StorageServerStub.placeCraftingResultToStorageFirst(player, target, result)
                 : StorageServerStub.placeCraftingResult(player, target, result);
-            if (placed == PlaceResult.NONE) return new InteractionResult(carried, false);
+            if (placed == PlaceResult.NONE) return new InteractionResult(carried, false).withCrafting(target.read());
             StorageServerStub.consumeCraftingInput(target, crafting, stonecutter, result, null);
             int refilledSlots = StorageServerStub.refillAndCollectSlots(player, target, crafting);
             player.containerMenu.broadcastChanges();
-            return new InteractionResult(player.containerMenu.getCarried(), true, refilledSlots);
+            return new InteractionResult(player.containerMenu.getCarried(), true, refilledSlots).withCrafting(target.read());
         }
         // 指针有物：仅当与产物同种且能放下时合并取出；否则拒绝（不消耗输入）
         if (!carried.isEmpty()) {
             if (!ItemStack.isSameItemSameComponents(carried, result)
                 || carried.getCount() + result.getCount() > carried.getMaxStackSize()) {
-                return new InteractionResult(carried, false);
+                return new InteractionResult(carried, false).withCrafting(target.read());
             }
             ItemStack merged = carried.copy();
             merged.grow(result.getCount());
@@ -1504,13 +1532,13 @@ public final class StorageServerStub {
             int refilledSlots = StorageServerStub.refillAndCollectSlots(player, target, crafting);
             player.containerMenu.setCarried(merged);
             player.containerMenu.broadcastChanges();
-            return new InteractionResult(merged, true, refilledSlots);
+            return new InteractionResult(merged, true, refilledSlots).withCrafting(target.read());
         }
         StorageServerStub.consumeCraftingInput(target, crafting, stonecutter, result, null);
         int refilledSlots = StorageServerStub.refillAndCollectSlots(player, target, crafting);
         player.containerMenu.setCarried(result);
         player.containerMenu.broadcastChanges();
-        return new InteractionResult(result, true, refilledSlots);
+        return new InteractionResult(result, true, refilledSlots).withCrafting(target.read());
     }
 
     /**
@@ -4852,13 +4880,25 @@ public final class StorageServerStub {
         }
     }
 
-    public record InteractionResult(ItemStack carried, boolean changed, int refilledSlots, FluidNotice notice) {
+    public record InteractionResult(
+        ItemStack carried, boolean changed, int refilledSlots, FluidNotice notice, Optional<CraftingStorage> crafting
+    ) {
+        public InteractionResult(ItemStack carried, boolean changed, int refilledSlots, FluidNotice notice) {
+            this(carried, changed, refilledSlots, notice, Optional.empty());
+        }
+
         public InteractionResult(ItemStack carried, boolean changed) {
             this(carried, changed, 0, FluidNotice.NONE);
         }
 
         public InteractionResult(ItemStack carried, boolean changed, int refilledSlots) {
             this(carried, changed, refilledSlots, FluidNotice.NONE);
+        }
+
+        public InteractionResult withCrafting(CraftingStorage state) {
+            CraftingStorage snapshot = state.withStonecutterInput(state.stonecutterInput().copy())
+                .withCraftingInput(state.craftingInput().stream().map(ItemStack::copy).toList());
+            return new InteractionResult(this.carried.copy(), this.changed, this.refilledSlots, this.notice, Optional.of(snapshot));
         }
 
         public static final StreamCodec<RegistryFriendlyByteBuf, InteractionResult> STREAM_CODEC = StreamCodec.composite(
@@ -4870,6 +4910,8 @@ public final class StorageServerStub {
             InteractionResult::refilledSlots,
             FluidNotice.STREAM_CODEC,
             InteractionResult::notice,
+            ByteBufCodecs.optional(CraftingStorage.STREAM_CODEC),
+            InteractionResult::crafting,
             InteractionResult::new
         );
     }

@@ -36,6 +36,7 @@ final class MunVanillaSkyRenderer {
     };
     private static final int[][] TILES = {{0, 1}, {2, 1}, {1, 0}, {1, 2}, {3, 1}, {1, 1}};
     private static final List<List<SkyVertex>> STARS = createStars();
+    private static final List<HorizonVertex> HORIZON = createHorizon();
 
     private MunVanillaSkyRenderer() {
     }
@@ -65,6 +66,7 @@ final class MunVanillaSkyRenderer {
                 drawStars(rotation, time, partialTick, daylight);
                 drawSun(rotation, time, partialTick, daylight);
                 drawEarth(rotation, time, partialTick);
+                drawHorizon();
             } finally {
                 RenderSystem.getModelViewStack().popMatrix();
                 RenderSystem.applyModelViewMatrix();
@@ -82,6 +84,20 @@ final class MunVanillaSkyRenderer {
         buffer.addVertex(1, 1, 0).setColor(0, 0, 0, 255);
         buffer.addVertex(-1, 1, 0).setColor(0, 0, 0, 255);
         BufferUploader.drawWithShader(buffer.buildOrThrow());
+    }
+
+    private static void drawHorizon() {
+        RenderSystem.setShader(GameRenderer::getPositionColorShader);
+        RenderSystem.enableBlend();
+        RenderSystem.defaultBlendFunc();
+        BufferBuilder buffer = Tesselator.getInstance().begin(VertexFormat.Mode.TRIANGLES, DefaultVertexFormat.POSITION_COLOR);
+        for (HorizonVertex vertex : HORIZON) {
+            Vector point = vertex.position();
+            buffer.addVertex((float) (point.x() * 100), (float) (point.y() * 100), (float) (point.z() * 100))
+                .setColor(0, 0, 0, vertex.alpha());
+        }
+        draw(buffer);
+        RenderSystem.disableBlend();
     }
 
     private static void drawStars(MunSkyMath.Rotation rotation, long time, double partialTick, float daylight) {
@@ -244,6 +260,28 @@ final class MunVanillaSkyRenderer {
     private static void draw(BufferBuilder buffer) {
         var mesh = buffer.build();
         if (mesh != null) BufferUploader.drawWithShader(mesh);
+    }
+
+    private static List<HorizonVertex> createHorizon() {
+        List<HorizonVertex> vertices = new ArrayList<>();
+        int[] corners = {0, 1, 3, 3, 2, 0};
+        for (int layer = 0; layer < 8; layer++) {
+            for (int segment = 0; segment < 64; segment++) {
+                for (int corner : corners) {
+                    double fraction = (layer + (corner >> 1)) / 8.0;
+                    double height = fraction * 0.05;
+                    double radius = Math.sqrt(1 - height * height);
+                    double angle = (segment + (corner & 1)) * Math.TAU / 64;
+                    Vector point = new Vector(Math.cos(angle) * radius, height, Math.sin(angle) * radius);
+                    float alpha = (float) (1 - fraction * fraction * (3 - 2 * fraction));
+                    vertices.add(new HorizonVertex(point, alpha));
+                }
+            }
+        }
+        return List.copyOf(vertices);
+    }
+
+    private record HorizonVertex(Vector position, float alpha) {
     }
 
     private static List<List<SkyVertex>> createStars() {

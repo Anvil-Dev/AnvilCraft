@@ -19,6 +19,8 @@ import dev.dubhe.anvilcraft.client.gui.component.category.CategoryList;
 import dev.dubhe.anvilcraft.client.rpc.SettingClientStub;
 import dev.dubhe.anvilcraft.client.rpc.StorageClientStub;
 import dev.dubhe.anvilcraft.client.support.GuiRenderSupport;
+import dev.dubhe.anvilcraft.client.support.StorageCraftingPrediction;
+import dev.dubhe.anvilcraft.client.support.StorageTakePrediction;
 import dev.dubhe.anvilcraft.constant.Constant;
 import dev.dubhe.anvilcraft.constant.SharedTextures;
 import dev.dubhe.anvilcraft.integration.jei.StorageJeiBridge;
@@ -291,7 +293,15 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
     private int metadataCooldown;
     private boolean orderLoaded;
     private boolean metadataPending;
+    private int metadataRequest;
     private boolean interactionPending;
+    private int craftingRequest;
+    private @Nullable StorageTakePrediction takePrediction;
+    private CompletableFuture<Void> takeResponses = CompletableFuture.completedFuture(null);
+    private StorageCraftingPrediction craftingPrediction = new StorageCraftingPrediction();
+    private CompletableFuture<Void> craftingResponses = CompletableFuture.completedFuture(null);
+    private ItemStack craftingResult = ItemStack.EMPTY;
+    private boolean craftingCloseRequested;
     private boolean interactionSyncPending;
     /**
      * 未经过滤的存储内容快照，仅供 JEI 合成转移判定可用材料。
@@ -829,7 +839,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
         StorageClientStub.craftingAvailable(this.sourcePos)
             .thenCombine(StorageClientStub.craftingGet(this.sourcePos), (available, data) -> available && data.lastOpened())
             .thenAcceptAsync(opened -> {
-                if (opened && this.mode == ScreenMode.NORMAL) {
+                if (opened) {
                     this.craftingAvailable = true;
                     this.setMode(ScreenMode.CRAFTING);
                     this.loadCrafting(true);
@@ -920,40 +930,27 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
      * 重载切石机候选配方；仅数量变化时不重载配方面板。
      */
     public void loadCrafting(boolean refreshRecipes) {
-        ItemStack oldInput = this.crafting.stonecutterInput();
-        this.craftingLoaded = false;
-        StorageClientStub.craftingGet(this.sourcePos).whenCompleteAsync(
-            (data, getError) -> {
-                if (getError != null) {
-                    return;
-                }
-                this.crafting = data;
-                this.craftingLoaded = true;
-                if (this.craftingAutoFillButton != null) {
-                    this.craftingAutoFillButton.setCurrent(data.autoFill() ? 1 : 0);
-                }
-                if (this.craftingToStorageButton != null) {
-                    this.craftingToStorageButton.setCurrent(data.toStorage() ? 1 : 0);
-                }
-                boolean inputChanged = !ItemStack.isSameItemSameComponents(oldInput, data.stonecutterInput());
-                if (refreshRecipes || inputChanged) {
-                    StorageClientStub.craftingStonecutterRecipes(this.sourcePos).whenCompleteAsync(
-                        (recipes, recipeError) -> {
-                            if (recipeError == null) {
-                                this.stonecutterRecipes = recipes;
-                                // 配方列表变化后校正滚动位置（不越界）
-                                this.recipeScrollable.calculateScroll(
-                                    this.recipeHead / StorageScreen.CRAFTING_RECIPE_COLUMNS
-                                );
-                                this.recipeScrollable.scrollTo();
-                            }
-                        },
-                        this.screenExecutor
-                    );
-                }
-            },
-            this.screenExecutor
-        );
+        int request = ++this.craftingRequest;
+        StorageClientStub.craftingGet(this.sourcePos).whenCompleteAsync((data, error) -> {
+            if (error == null && request == this.craftingRequest) this.applyCrafting(data, refreshRecipes);
+        }, this.screenExecutor);
+    }
+
+    private void applyCrafting(CraftingStorage data, boolean refreshRecipes) {
+        final ItemStack oldInput = this.crafting.stonecutterInput();
+        this.crafting = data;
+        this.craftingLoaded = true;
+        if (this.craftingAutoFillButton != null) this.craftingAutoFillButton.setCurrent(data.autoFill() ? 1 : 0);
+        if (this.craftingToStorageButton != null) this.craftingToStorageButton.setCurrent(data.toStorage() ? 1 : 0);
+        this.craftingResult = this.calculateCraftingResult();
+        if (refreshRecipes || !ItemStack.isSameItemSameComponents(oldInput, data.stonecutterInput())) {
+            this.stonecutterRecipes = data.stonecutterInput().isEmpty() || this.minecraft.level == null ? List.of()
+                : this.minecraft.level.getRecipeManager()
+                    .getRecipesFor(RecipeType.STONECUTTING, new SingleRecipeInput(data.stonecutterInput()), this.minecraft.level)
+                    .stream().map(holder -> holder.value().getResultItem(this.minecraft.level.registryAccess())).toList();
+            this.recipeScrollable.calculateScroll(this.recipeHead / StorageScreen.CRAFTING_RECIPE_COLUMNS);
+            this.recipeScrollable.scrollTo();
+        }
     }
 
     /** 显示「仓储内缺失工作台或切石机」浮窗（淡入 + 停留 + 淡出）。 */
@@ -1000,7 +997,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
 
     @Override
     protected void containerTick() {
-        this.carried = this.player.inventoryMenu.getCarried();
+        if (!this.craftingPrediction.isPending() && this.takePrediction == null) this.carried = this.player.inventoryMenu.getCarried();
         this.flushQuickMoves();
         this.refreshTitle();
         if (
@@ -1495,6 +1492,10 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
 
     /** ④ 合成结果：② 9 宫格匹配的第一个合成配方产物（客户端本地计算预览）。 */
     private ItemStack getCraftingResult() {
+        return this.craftingLoaded ? this.craftingResult : ItemStack.EMPTY;
+    }
+
+    private ItemStack calculateCraftingResult() {
         if (!this.craftingLoaded) {
             return ItemStack.EMPTY;
         }
@@ -1752,10 +1753,11 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
     }
 
     private void renderCarriedItem(GuiGraphics graphics, int mouseX, int mouseY) {
-        if (this.carried.isEmpty()) {
+        ItemStack renderedCarried = this.takePrediction == null ? this.craftingPrediction.carried(this.carried)
+            : this.takePrediction.carried(this.carried);
+        if (renderedCarried.isEmpty()) {
             return;
         }
-        ItemStack renderedCarried = this.carried;
         if (this.quickCrafting && !this.quickCraftSlots.isEmpty()) {
             int remaining = this.getQuickCraftRemaining();
             if (remaining == 0) {
@@ -1824,6 +1826,18 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        if (this.takePrediction != null) {
+            Integer slot = this.getStorageSlot(mouseX, mouseY);
+            if (slot != null && (button == 0 || button == 1) && hasShiftDown()) this.takeStorageItem(slot, button, true);
+            return true;
+        }
+        if (this.craftingPrediction.isPending()) {
+            if (!this.craftingCloseRequested && (button == 0 || button == 1)
+                && !this.clickCraftingResult(mouseX, mouseY, true)) {
+                this.clickCraftingResult(mouseX, mouseY, false);
+            }
+            return true;
+        }
         int lastClickedInventorySlot = this.lastClickedInventorySlot;
         this.lastClickedInventorySlot = -1;
         if (this.search != null && (button == 0 || button == 1)) {
@@ -2141,6 +2155,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
 
     @Override
     public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
+        if (this.craftingPrediction.isPending() || this.takePrediction != null) return true;
         if (this.draggingSlider) {
             if (button == 0) {
                 this.scrollSliderTo(mouseY);
@@ -2230,6 +2245,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
 
     @Override
     public boolean mouseReleased(double mouseX, double mouseY, int button) {
+        if (this.craftingPrediction.isPending() || this.takePrediction != null) return true;
         this.dispatchMouseReleased(mouseX, mouseY, button);
         if (this.draggingSlider) {
             this.draggingSlider = false;
@@ -2542,7 +2558,52 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
         );
     }
 
+    private void takeStorageItem(int slot, int button, boolean quickMove) {
+        if (this.minecraft.gameMode == null || !this.orderLoaded || this.craftingCloseRequested) return;
+        ItemStack expected = this.contents.getOrDefault(slot, UnlimitedItemStack.EMPTY).toStack();
+        StorageTakePrediction prediction = this.takePrediction == null ? new StorageTakePrediction(quickMove) : this.takePrediction;
+        if (!prediction.add(slot, expected, this.getStoredCount(slot), button, quickMove)) return;
+        this.takePrediction = prediction;
+        this.interactionPending = true;
+        this.interactionSyncPending = false;
+        this.reorderRequest++;
+        this.syncRequest++;
+        this.metadataRequest++;
+        this.metadataPending = false;
+        var operation = StorageClientStub.takeStorageItem(this.sourcePos, this.serverSlots.get(slot), button, quickMove,
+            expected.copyWithCount(1));
+        this.takeResponses = this.takeResponses.thenCompose(ignored -> operation.handleAsync((result, error) -> {
+            prediction.acknowledge();
+            if (prediction != this.takePrediction || this.minecraft.player != this.player) return null;
+            if (error == null) {
+                this.carried = result.carried();
+                this.player.inventoryMenu.setCarried(this.carried);
+            }
+            if (!prediction.isPending()) {
+                if (!quickMove || this.craftingCloseRequested || error != null) {
+                    this.takePrediction = null;
+                    this.interactionPending = false;
+                    if (this.craftingCloseRequested) {
+                        this.craftingCloseRequested = false;
+                        this.onClose();
+                        return null;
+                    }
+                }
+                this.interactionSyncPending = true;
+                if (this.preservingOrder) this.syncPreservedOrder();
+                else this.reorder(false);
+            }
+            return null;
+        }, this.minecraft));
+    }
+
     private void interactWithStorage(int slot, int button, StorageInput action) {
+        if (slot >= 0 && slot < StorageScreen.FLUID_SLOT_BASE && (button == 0 || button == 1)
+            && (action == StorageInput.QUICK_MOVE_FROM_STORAGE || action == StorageInput.PICKUP && this.carried.isEmpty())
+            && (!this.interactionPending || this.takePrediction != null)) {
+            this.takeStorageItem(slot, button, action == StorageInput.QUICK_MOVE_FROM_STORAGE);
+            return;
+        }
         if (this.minecraft.gameMode == null || this.interactionPending) {
             return;
         }
@@ -3000,38 +3061,53 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
         if (!MathUtil.isInRange(mouseX, mouseY, x - 2, y - 2, x + 17, y + 17)) {
             return false;
         }
-        if (this.minecraft.gameMode == null || this.interactionPending) {
+        if (this.minecraft.gameMode == null || this.interactionPending && !this.craftingPrediction.isPending()) {
             return true;
         }
-        this.interactionPending = true;
-        this.player.inventoryMenu.setCarried(this.carried);
-        int request = ++this.interactionRequest;
         boolean shift = Screen.hasShiftDown();
         boolean space = this.spacePressed && !shift;
         if (shift || space) {
-            this.takeAllChunk(request, stonecutter, 0, space ? 8 : 1);
+            if (this.interactionPending) return true;
+            this.interactionPending = true;
+            this.player.inventoryMenu.setCarried(this.carried);
+            this.takeAllChunk(++this.interactionRequest, stonecutter, 0, space ? 8 : 1);
         } else {
-            StorageClientStub.craftingTakeResult(this.sourcePos, stonecutter, false).whenCompleteAsync(
-                (result, error) -> {
-                    if (request != this.interactionRequest || error != null) {
-                        this.interactionPending = false;
-                        return;
-                    }
-                    this.carried = result.carried();
-                    this.player.inventoryMenu.setCarried(this.carried);
-                    if (result.changed()) {
-                        if (stonecutter) {
-                            this.playStonecutterTakeSound();
-                        }
-                        this.triggerCraftingPop(result.refilledSlots());
-                        this.loadCrafting(false);
-                    }
-                    this.interactionPending = false;
-                },
-                this.screenExecutor
-            );
+            this.takeCraftingResult(stonecutter);
         }
         return true;
+    }
+
+    private void takeCraftingResult(boolean stonecutter) {
+        ItemStack output = stonecutter ? this.getStonecutterResult() : this.getCraftingResult();
+        if (!this.craftingLoaded || !this.craftingPrediction.add(this.carried, output)) return;
+        this.interactionPending = true;
+        this.craftingRequest++;
+        final StorageCraftingPrediction prediction = this.craftingPrediction;
+        var operation = StorageClientStub.craftingTakeResult(this.sourcePos, stonecutter, false);
+        this.craftingResponses = this.craftingResponses.thenCompose(ignored -> operation.handleAsync((result, error) -> {
+            prediction.acknowledge();
+            if (prediction != this.craftingPrediction || this.minecraft.player != this.player || this.closed) return null;
+            if (error == null) {
+                this.carried = result.carried();
+                this.player.inventoryMenu.setCarried(this.carried);
+                this.craftingRequest++;
+                result.crafting().ifPresent(data -> this.applyCrafting(data, false));
+                this.triggerCraftingPop(result.refilledSlots());
+                if (result.changed() && stonecutter) this.playStonecutterTakeSound();
+            } else {
+                this.carried = this.player.inventoryMenu.getCarried();
+            }
+            if (!this.craftingPrediction.isPending()) {
+                this.interactionPending = false;
+                if (error != null) this.loadCrafting(false);
+                this.reorder(false);
+                if (this.craftingCloseRequested) {
+                    this.craftingCloseRequested = false;
+                    this.onClose();
+                }
+            }
+            return null;
+        }, this.minecraft));
     }
 
     /**
@@ -3103,6 +3179,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
 
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
+        if (this.takePrediction != null) return true;
         if (scrollY == 0) {
             return this.dispatchMouseScrolled(mouseX, mouseY, scrollX, scrollY);
         }
@@ -3154,6 +3231,14 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
             this.preservingOrder = true;
             this.reorderRequest++;
             this.syncRequest++;
+        }
+        if (this.craftingPrediction.isPending() || this.takePrediction != null) {
+            if (keyCode == InputConstants.KEY_SPACE) this.spacePressed = true;
+            if (keyCode == InputConstants.KEY_ESCAPE || this.minecraft.options.keyInventory.isActiveAndMatches(
+                InputConstants.getKey(keyCode, scanCode))) {
+                this.onClose();
+            }
+            return true;
         }
 
         if (this.search != null && this.search.isFocused()) {
@@ -3290,6 +3375,15 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
         return false;
     }
 
+    @Override
+    public void onClose() {
+        if (this.craftingPrediction.isPending() || this.takePrediction != null) {
+            this.craftingCloseRequested = true;
+            return;
+        }
+        super.onClose();
+    }
+
     /**
      * 屏幕被重新显示时（例如从 JEI 配方界面返回）复位关闭与交互中间态，
      * 避免 {@link #removed()} 置位后所有 RPC 回调被 {@code closed} 拦截。
@@ -3297,7 +3391,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
     @Override
     public void added() {
         this.closed = false;
-        this.interactionPending = false;
+        this.interactionPending = this.craftingPrediction.isPending() || this.takePrediction != null;
         this.interactionSyncPending = false;
         this.doubleclick = false;
         this.pendingCraftingSlot = -1;
@@ -3313,10 +3407,19 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
         this.storageQuickMoveSlots.clear();
         this.quickMoveMovedBySlot.clear();
         this.carried = this.player.inventoryMenu.getCarried();
+        if (this.mode == ScreenMode.CRAFTING) this.loadCrafting(false);
     }
 
     @Override
     public void removed() {
+        this.metadataRequest++;
+        this.takePrediction = null;
+        this.takeResponses = CompletableFuture.completedFuture(null);
+        this.craftingPrediction = new StorageCraftingPrediction();
+        this.craftingResponses = CompletableFuture.completedFuture(null);
+        this.craftingCloseRequested = false;
+        this.craftingLoaded = false;
+        this.craftingRequest++;
         this.closed = true;
 
         this.reorderRequest++;
@@ -3611,6 +3714,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
     }
 
     private void reorder(boolean resetScroll) {
+        if (this.takePrediction != null && this.takePrediction.isPending()) return;
         int request = ++this.reorderRequest;
         if (resetScroll) {
             this.scrollRow = 0;
@@ -3619,6 +3723,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
         StorageClientStub.reorder(this.sourcePos).whenCompleteAsync(
             (updatedOrder, error) -> {
                 if (request != this.reorderRequest || error != null) {
+                    if (request == this.reorderRequest) this.finishInteractionSync();
                     return;
                 }
                 IntList reordered = new IntArrayList(updatedOrder);
@@ -3641,6 +3746,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
                     return;
                 }
                 if (error != null) {
+                    this.finishInteractionSync();
                     this.orderLoaded = false;
                     return;
                 }
@@ -3664,6 +3770,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
     }
 
     private void syncVisible() {
+        if (this.takePrediction != null && this.takePrediction.isPending()) return;
         if (this.preservingOrder) {
             this.syncPreservedOrder();
             return;
@@ -3701,6 +3808,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
     }
 
     private void syncPreservedOrder(int attempt) {
+        if (this.takePrediction != null && this.takePrediction.isPending()) return;
         int request = ++this.syncRequest;
         int reorderRequest = this.reorderRequest;
         StorageClientStub.reorder(this.sourcePos).whenCompleteAsync(
@@ -3921,7 +4029,12 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
     private void finishInteractionSync() {
         if (this.interactionSyncPending) {
             this.interactionSyncPending = false;
-            this.interactionPending = false;
+            if (this.takePrediction != null && !this.takePrediction.isPending()) this.takePrediction = null;
+            this.interactionPending = this.craftingPrediction.isPending() || this.takePrediction != null;
+            if (this.craftingCloseRequested && !this.interactionPending) {
+                this.craftingCloseRequested = false;
+                this.onClose();
+            }
         }
     }
 
@@ -4116,7 +4229,8 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
     }
 
     private long getDisplayedCount(int slot) {
-        return this.nbtFolded ? this.foldedCounts.get(slot) : this.getStoredCount(slot);
+        long count = this.nbtFolded ? this.foldedCounts.get(slot) : this.getStoredCount(slot);
+        return Math.max(0, count - (this.takePrediction == null ? 0 : this.takePrediction.taken(slot)));
     }
 
     private long getStoredCount(int slot) {
@@ -4128,15 +4242,17 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
     }
 
     private void refreshMetadata() {
-        if (this.metadataPending) {
+        if (this.metadataPending || this.takePrediction != null) {
             return;
         }
         this.metadataPending = true;
+        final int request = ++this.metadataRequest;
         this.metadataCooldown = StorageScreen.METADATA_REFRESH_INTERVAL;
         this.refreshUnfilteredContents();
         this.refreshUnfilteredFluids();
         StorageClientStub.loadMetadata(this.sourcePos).whenCompleteAsync(
             (metadata, error) -> {
+                if (request != this.metadataRequest) return;
                 this.metadataPending = false;
                 if (error != null) {
                     return;

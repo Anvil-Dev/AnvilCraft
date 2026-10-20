@@ -7,12 +7,18 @@ import dev.dubhe.anvilcraft.worldgen.MunSkyMath.Vector;
 public record OverworldSkyState(Vector sun, Vector moon, Rotation frame, double illuminatedFraction) {
     private static final Vector NORTH = new Vector(0, 0, 1);
     private static final Rotation MODEL_ROTATION = new Rotation(new Vector(1, 0, 0), Math.PI / 2);
+    /** 与原版午夜前后 1000 tick 接近的天顶角容差。 */
+    private static final double OVERHEAD_COSINE = Math.cos(Math.toRadians(18));
 
     public static OverworldSkyState at(long dayTime, double partialTick, double timeOfDay) {
         Rotation frame = new Rotation(NORTH, timeOfDay * Math.PI * 2 - MunSkyMath.solarAngle(dayTime, partialTick));
         Vector sun = frame.apply(oppositeView(MunSkyMath.referenceSun(dayTime, partialTick)));
         Vector moon = frame.apply(oppositeView(MunSkyMath.earthCenter(dayTime, partialTick).scale(-1)));
         return new OverworldSkyState(sun, moon, frame, Math.clamp((1 - sun.dot(moon)) / 2, 0, 1));
+    }
+
+    public boolean isMoonOverhead() {
+        return this.moon.y() >= OVERHEAD_COSINE;
     }
 
     /** 月面始终朝向地球，天平动来自观察方向的变化，不额外叠加自转。 */
