@@ -86,7 +86,7 @@ public class ClientBlockEventListener {
         if (entity.isShiftKeyDown() && !state.is(ModBlockTags.HAMMER_REMOVABLE) && !(state.getBlock() instanceof IHammerRemovable)) {
             return;
         }
-        if (event.getLevel().isClientSide() && ClientBlockEventListener.clientHandle(event, state, hand, event.getHitVec())) {
+        if (ClientBlockEventListener.clientHandle(event, state, hand, event.getHitVec())) {
             event.setCancellationResult(InteractionResult.SUCCESS);
             event.setCanceled(true);
         } else if (!state.is(BlockTags.CAULDRONS) && !state.is(ModBlockTags.ANVIL_HAMMER_DENYLIST)
