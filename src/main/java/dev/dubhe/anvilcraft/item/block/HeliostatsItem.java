@@ -120,12 +120,31 @@ public class HeliostatsItem extends BlockItem implements IItemTooltipProvider {
     @Override
     public InteractionResult useOn(UseOnContext context) {
         Level level = context.getLevel();
-        if (context.getPlayer() != null && context.getPlayer().isShiftKeyDown()
-            && HeliostatsItem.hasDataStored(context.getItemInHand())) {
+        Player player = context.getPlayer();
+        boolean sneaking = player != null && player.isShiftKeyDown();
+        if (sneaking && HeliostatsItem.hasDataStored(context.getItemInHand())) {
             HeliostatsItem.deleteData(context.getItemInHand());
             return InteractionResult.SUCCESS;
         }
         BlockState blockState = level.getBlockState(context.getClickedPos());
+        if (!sneaking && blockState.is(this.getBlock())
+            && level.getBlockEntity(context.getClickedPos()) instanceof HeliostatsBlockEntity blockEntity) {
+            if (!level.isClientSide()) {
+                ItemStack stack = context.getItemInHand();
+                BlockPos target = blockEntity.getIrritatePos();
+                if (HeliostatsItem.hasDataStored(stack)) {
+                    if (target == null && !blockEntity.setIrritatePos(HeliostatsItem.getData(stack)) && player != null) {
+                        player.sendOverlayMessage(
+                            Component.translatable("block.anvilcraft.heliostats.invalid_placement")
+                                .withStyle(ChatFormatting.RED)
+                        );
+                    }
+                } else if (target != null) {
+                    stack.set(ModComponents.HELIOSTATS_DATA, new HeliostatsData(target));
+                }
+            }
+            return InteractionResult.SUCCESS;
+        }
         if (blockState.is(Blocks.NETHERITE_BLOCK)
             || blockState.getBlock() instanceof HeatableBlock
         ) {
