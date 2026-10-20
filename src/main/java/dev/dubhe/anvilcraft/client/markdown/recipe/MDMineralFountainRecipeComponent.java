@@ -7,6 +7,7 @@ import dev.anvilcraft.resource.ageratum.client.feat.markdown.MDRenderContext;
 import dev.anvilcraft.resource.ageratum.client.feat.markdown.component.extend.MDRecipeComponent;
 import dev.anvilcraft.resource.ageratum.util.RecipeUtil;
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.client.support.DimensionNameSupport;
 import dev.dubhe.anvilcraft.client.support.RenderSupport;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
@@ -249,6 +250,6 @@ public class MDMineralFountainRecipeComponent extends MDRecipeComponent {
     }
 
     private static Component getDimensionName(ResourceLocation dimension) {
-        return Component.translatable("dimension." + dimension.getNamespace() + "." + dimension.getPath());
+        return DimensionNameSupport.getName(dimension);
     }
 }
