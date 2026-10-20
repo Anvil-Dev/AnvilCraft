@@ -3208,7 +3208,7 @@ public final class StorageServerStub {
     public static InteractionResult terminalTakeFluid(
         UUID playerId, long sourcePos,
         @CallableParam(clazz = FluidStack.class, field = "OPTIONAL_STREAM_CODEC") FluidStack fluid,
-        int button, boolean intoInventory,
+        boolean intoInventory,
         @CallableParam(clazz = ItemStack.class, field = "OPTIONAL_STREAM_CODEC") ItemStack clientCarried
     ) {
         ServerPlayer player = StorageServerStub.getServerPlayer(playerId);
@@ -3218,7 +3218,7 @@ public final class StorageServerStub {
         }
         StorageView view = StorageServerStub.getView(StorageServerStub.getAndClear(), playerId, sourcePos);
         ItemStack carried = player.hasInfiniteMaterials() ? clientCarried : player.containerMenu.getCarried();
-        if (button != 0 || !carried.isEmpty()) {
+        if (!carried.isEmpty()) {
             return new InteractionResult(player.containerMenu.getCarried(), false);
         }
         if (player.hasInfiniteMaterials()) player.containerMenu.setCarried(ItemStack.EMPTY);
@@ -5251,7 +5251,7 @@ public final class StorageServerStub {
     ) {
         FluidEntry entry = StoragePortManager.find(view.primary().getId(), fluid);
         if (entry == null) {
-            return FilledBucket.failed(FluidNotice.NONE);
+            return FilledBucket.failed(FluidNotice.NOT_ENOUGH);
         }
         FluidStack target = entry.icon().copyWithAmount(FluidType.BUCKET_VOLUME);
         ItemStack filled = FluidUtil.getFilledBucket(target);

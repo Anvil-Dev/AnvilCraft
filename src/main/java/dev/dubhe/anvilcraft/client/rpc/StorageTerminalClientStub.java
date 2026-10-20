@@ -90,11 +90,11 @@ public final class StorageTerminalClientStub {
     }
 
     public static CompletableFuture<StorageServerStub.InteractionResult> takeFluid(
-        UUID storageId, FluidStack fluid, int button, boolean intoInventory, ItemStack carried
+        UUID storageId, FluidStack fluid, boolean intoInventory, ItemStack carried
     ) {
         return StorageTerminalClientStub.ensureVirtualPos(storageId).thenCompose(virtualPos ->
             RPC.invoke(RpcTarget.server(), StorageServerStub::terminalTakeFluid,
-                StorageTerminalClientStub.playerId(), virtualPos, fluid, button, intoInventory, carried)
+                StorageTerminalClientStub.playerId(), virtualPos, fluid, intoInventory, carried)
         );
     }
 

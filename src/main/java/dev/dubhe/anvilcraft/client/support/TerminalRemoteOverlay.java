@@ -797,7 +797,7 @@ public final class TerminalRemoteOverlay {
             Screen origin = minecraft.screen;
             Player actor = minecraft.player;
             StorageTerminalClientStub.takeFluid(
-                id, fluid.icon().copyWithAmount(FluidType.BUCKET_VOLUME), button, intoInventory, carried
+                id, fluid.icon().copyWithAmount(FluidType.BUCKET_VOLUME), intoInventory, carried
             ).whenComplete((result, error) -> minecraft.execute(() -> {
                 TerminalRemoteOverlay.taking = false;
                 if (error != null) return;
