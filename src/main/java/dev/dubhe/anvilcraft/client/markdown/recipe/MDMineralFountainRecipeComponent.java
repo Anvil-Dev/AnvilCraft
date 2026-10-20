@@ -186,12 +186,8 @@ public class MDMineralFountainRecipeComponent extends MDRecipeComponent {
         double chance = NumberProviderUtil.expected(this.toBlock.chance());
 
         if (chance >= 0.0 && chance < 1) {
-            String percentage = FORMATTER.format(chance * 100);
-            if (percentage.equals(FORMATTER.format(100))) {
-                percentage = BigDecimal.valueOf(chance).movePointRight(2).stripTrailingZeros().toPlainString();
-            }
             tooltips.add(
-                Component.translatable("gui.anvilcraft.category.chance", percentage)
+                Component.translatable("gui.anvilcraft.category.chance", formatPercentage(chance))
                     .withStyle(ChatFormatting.GRAY)
             );
         }
@@ -199,7 +195,7 @@ public class MDMineralFountainRecipeComponent extends MDRecipeComponent {
             tooltips.add(
                 Component.translatable(
                     "gui.anvilcraft.category.mineral_fountain.replace_chance",
-                    FORMATTER.format(this.replaceChance * 100)
+                    formatPercentage(this.replaceChance)
                 ).withStyle(ChatFormatting.GRAY)
             );
         }
@@ -207,6 +203,12 @@ public class MDMineralFountainRecipeComponent extends MDRecipeComponent {
             tooltips.add(dimensionName(this.dimension).copy().withStyle(ChatFormatting.GRAY));
         }
         return tooltips;
+    }
+
+    private static String formatPercentage(double chance) {
+        String percentage = FORMATTER.format(chance * 100);
+        return chance < 1 && percentage.equals(FORMATTER.format(100))
+            ? BigDecimal.valueOf(chance).movePointRight(2).stripTrailingZeros().toPlainString() : percentage;
     }
 
     private static Component dimensionName(Identifier dimension) {

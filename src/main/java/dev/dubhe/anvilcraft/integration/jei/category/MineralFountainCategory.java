@@ -413,14 +413,10 @@ public class MineralFountainCategory implements IRecipeCategory<MineralFountainJ
         double chance = displayed == null ? recipe.totalChance() : recipe.chanceOf(displayed);
 
         if (chance >= 0 && chance < 1) {
-            String percentage = FORMATTER.format(chance * 100);
-            if (percentage.equals(FORMATTER.format(100))) {
-                percentage = BigDecimal.valueOf(chance).movePointRight(2).stripTrailingZeros().toPlainString();
-            }
             tooltips.add(
                 Component.translatable(
                     "gui.anvilcraft.category.chance",
-                    percentage
+                    formatPercentage(chance)
                 ).withStyle(ChatFormatting.GRAY)
             );
         }
@@ -428,7 +424,7 @@ public class MineralFountainCategory implements IRecipeCategory<MineralFountainJ
             tooltips.add(
                 Component.translatable(
                     "gui.anvilcraft.category.mineral_fountain.replace_chance",
-                    FORMATTER.format(recipe.replacementChance() * 100)
+                    formatPercentage(recipe.replacementChance())
                 ).withStyle(ChatFormatting.GRAY)
             );
             if (recipe.replacementTarget() != null) {
@@ -441,6 +437,12 @@ public class MineralFountainCategory implements IRecipeCategory<MineralFountainJ
             }
         }
         return tooltips;
+    }
+
+    private static String formatPercentage(double chance) {
+        String percentage = FORMATTER.format(chance * 100);
+        return chance < 1 && percentage.equals(FORMATTER.format(100))
+            ? BigDecimal.valueOf(chance).movePointRight(2).stripTrailingZeros().toPlainString() : percentage;
     }
 
     private static List<MineralFountainJeiRecipe.SideRequirement> replacementAround(
